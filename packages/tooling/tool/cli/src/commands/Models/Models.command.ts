@@ -28,9 +28,9 @@ import { ModelsApply, ModelsApplyLive } from "./Models.apply.service.ts";
 import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
-import { bindLocatorModel, modelsReadShellAssign } from "./Models.locator.service.ts";
+import { bindLocatorModel, modelsReadLocator } from "./Models.locator.service.ts";
 import { LocatorBinding, ModelSyncTarget, ModelsLocatorWrite, TargetId } from "./Models.manifest.schemas.ts";
-import { ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
+import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
@@ -43,7 +43,7 @@ import {
   ModelsLive,
   ModelsManifestStore,
 } from "./Models.service.ts";
-import { modelsWriteSpans } from "./Models.spans.ts";
+import { modelsCheckOnlyFormat, modelsWriteSpans } from "./Models.spans.ts";
 import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
@@ -404,18 +404,21 @@ const previewModelWrites = Effect.fnUntraced(function* (
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
-    const change =
-      request.locator._tag === "shell-assign"
-        ? yield* modelsReadShellAssign(content, request.locator.variable, request.locator.within).pipe(
-            Effect.map(
-              (current) =>
-                O.exists(current, Str.includes("Unsupported shell form")) || !O.contains(current, request.expected)
-            )
+    const change = O.isSome(modelsCheckOnlyFormat(request.locator))
+      ? yield* modelsReadLocator(
+          ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
+          request.locator
+        ).pipe(
+          Effect.map(
+            (current) =>
+              O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML) form/.test(value)) ||
+              !O.contains(current, request.expected)
           )
-        : A.some(
-            yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
-            (entry) => entry.before !== entry.after
-          );
+        )
+      : A.some(
+          yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
+          (entry) => entry.before !== entry.after
+        );
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] change=${change} expected=${request.remove === true ? "<absent>" : request.expected}`
     );

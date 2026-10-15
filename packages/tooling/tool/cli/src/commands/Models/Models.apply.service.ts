@@ -21,14 +21,13 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { XMLParser } from "fast-xml-parser";
-import { parseDocument } from "yaml";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
-import { decodeTomlTextWith, decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
+import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
-import { modelsReadShellAssign } from "./Models.locator.service.ts";
+import { modelsReadLocator } from "./Models.locator.service.ts";
 import { ModelsApplyJournal, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
-import { modelsApplySpans, modelsWriteSpans } from "./Models.spans.ts";
+import { ModelsTargetFile } from "./Models.paths.ts";
+import { modelsApplySpans, modelsCheckOnlyFormat, modelsWriteSpans } from "./Models.spans.ts";
 import type { ModelsApplyMode, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.apply.service");
@@ -69,9 +68,6 @@ const assertNativeFields = Effect.fnUntraced(function* (
         ? [[...Str.split(locator.table, "."), locator.key]]
         : []
   );
-  const yamlPaths = A.flatMap(writes, ({ locator }) =>
-    locator._tag === "yaml-path" ? [A.map(locator.path, (segment) => `${segment}`)] : []
-  );
   const jsonPaths = A.flatMap(writes, ({ locator }) => (locator._tag === "json-key" ? [locator.pointer] : []));
   const compare = Effect.fnUntraced(function* (
     left: unknown,
@@ -94,26 +90,6 @@ const assertNativeFields = Effect.fnUntraced(function* (
       tomlPaths
     );
   }
-  if (A.isReadonlyArrayNonEmpty(yamlPaths)) {
-    const decode = (text: string) =>
-      Effect.try({
-        try: () => {
-          const doc = parseDocument(text, { merge: true });
-          if (A.isReadonlyArrayNonEmpty(doc.errors) || A.isReadonlyArrayNonEmpty(doc.warnings)) return O.none();
-          return O.some(doc.toJS({ maxAliasCount: 100 }));
-        },
-        catch: () => failure("Invalid native YAML."),
-      }).pipe(
-        Effect.flatMap(
-          O.match({
-            onNone: () => Effect.fail(failure("Invalid native YAML.")),
-            onSome: Effect.succeed,
-          })
-        )
-      );
-    yield* compare(yield* decode(before), yield* decode(after), yamlPaths);
-  }
-
   if (A.isReadonlyArrayNonEmpty(jsonPaths)) {
     yield* compare(
       yield* decodeJsonText(before).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
@@ -224,48 +200,29 @@ const validateSyntax = Effect.fn("ModelsApply.validate")((text: string, writes: 
             Effect.asVoid
           )
         ),
-        Match.tag("yaml-path", () =>
-          decodeYamlTextWith(S.decodeUnknownEffect(S.Unknown))(text).pipe(
-            Effect.mapError(() => failure("Invalid YAML target.")),
-            Effect.asVoid
-          )
-        ),
-        Match.tag("xml-attribute", "xml-escaped-json-attribute", () =>
-          Effect.try({
-            try: () => new XMLParser({ ignoreAttributes: false }).parse(text, true),
-            catch: () => failure("Invalid XML target."),
-          }).pipe(Effect.asVoid)
-        ),
         Match.orElse(() => Effect.void)
       ),
     { concurrency: 1, discard: true }
   )
 );
 
-const checkShellDrift = Effect.fnUntraced(function* (text: string, writes: ReadonlyArray<ModelsLocatorWrite>) {
-  yield* Effect.forEach(
-    writes,
-    ({ locator, expected }) =>
-      Match.value(locator).pipe(
-        Match.tag("shell-assign", ({ variable, within }) =>
-          modelsReadShellAssign(text, variable, within).pipe(
-            Effect.flatMap((current) =>
-              !O.exists(current, Str.includes("Unsupported shell form")) && O.contains(expected)(current)
-                ? Effect.void
-                : Effect.fail(
-                    failure(
-                      O.exists(current, Str.includes("Unsupported shell form"))
-                        ? "Unsupported shell form: owned configuration drift detected (shell target is check-only; edit by hand)."
-                        : "Owned configuration drift detected (shell target is check-only; edit by hand)."
-                    )
-                  )
-            )
-          )
-        ),
-        Match.orElse(() => Effect.void)
-      ),
-    { concurrency: 1, discard: true }
-  );
+const checkReadOnlyDrift = Effect.fnUntraced(function* (text: string, writes: ReadonlyArray<ModelsLocatorWrite>) {
+  for (const { locator, expected } of writes) {
+    const format = modelsCheckOnlyFormat(locator);
+    if (O.isNone(format)) continue;
+    const current = yield* modelsReadLocator(
+      ModelsTargetFile.make({ root: "home", absolutePath: "check-only", content: text }),
+      locator
+    );
+    if (O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML) form/.test(value)))
+      return yield* failure(
+        `${O.getOrThrow(current)}: owned configuration drift detected (${Str.toLowerCase(format.value)} target is check-only; edit by hand).`
+      );
+    if (!O.contains(current, expected))
+      return yield* failure(
+        `Owned configuration drift detected (${Str.toLowerCase(format.value)} target is check-only; edit by hand).`
+      );
+  }
 });
 
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
@@ -399,7 +356,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     let exchanged = false;
     let completed = false;
     yield* Effect.acquireUseRelease(
-      assertDestination(journal).pipe(Effect.andThen(fs.link(file, retained)), io),
+      assertDestination(journal).pipe(Effect.andThen(fs.link(file, retained).pipe(io))),
       () =>
         Effect.gen(function* () {
           const plannedInfo = yield* fs.stat(retained).pipe(io);
@@ -453,15 +410,18 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
 
   const apply: ModelsApplyShape["apply"] = Effect.fn("ModelsApply.apply")(
     function* (file, writes, mode, backupDirectory) {
-      const shellWrites = A.filter(writes, ({ locator }) => locator._tag === "shell-assign");
-      if (mode === "write" && A.isReadonlyArrayNonEmpty(shellWrites))
-        return yield* failure("Shell targets are check-only; edit by hand.");
+      const checkOnly = A.findFirst(
+        A.getSomes(A.map(writes, ({ locator }) => modelsCheckOnlyFormat(locator))),
+        () => true
+      );
+      if (mode === "write" && O.isSome(checkOnly))
+        return yield* failure(`${checkOnly.value} targets are check-only; edit by hand.`);
       // Resolving symlinks preserves their native ownership rather than replacing the link.
       const actual = yield* fs.realPath(file).pipe(io);
       const before = yield* readNative(actual);
       yield* validate(before, writes);
-      if (mode === "check") yield* checkShellDrift(before, writes);
-      const nativeWrites = A.filter(writes, ({ locator }) => locator._tag !== "shell-assign");
+      if (mode === "check") yield* checkReadOnlyDrift(before, writes);
+      const nativeWrites = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
       const spans = yield* Effect.forEach(nativeWrites, (write) => modelsWriteSpans(before, write), {
         concurrency: 1,
       }).pipe(Effect.map(A.flatten));
@@ -517,8 +477,10 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       yield* Effect.gen(function* () {
         if (O.isNone(journal.writes))
           return yield* failure("Legacy journal lacks locator ownership; shell targets are check-only; edit by hand.");
-        if (A.some(journal.writes.value, ({ locator }) => locator._tag === "shell-assign"))
-          return yield* failure("Shell targets are check-only; edit by hand.");
+        const checkOnly = A.head(
+          A.getSomes(A.map(journal.writes.value, ({ locator }) => modelsCheckOnlyFormat(locator)))
+        );
+        if (O.isSome(checkOnly)) return yield* failure(`${checkOnly.value} targets are check-only; edit by hand.`);
         yield* assertDestination(journal);
         const backup = yield* fs.realPath(journal.backup).pipe(io);
         if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)

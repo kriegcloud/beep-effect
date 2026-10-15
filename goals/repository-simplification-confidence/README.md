@@ -14,27 +14,25 @@ are source-qualified; installed Desktop acceptance remains open for the operator
 fixture batch and F's owned-field config writer. F and overall acceptance remain active.
 
 
-F's PR #1797 remains open for the driver-owned three-model panel. Round 5
-reported two actionable Astra P1s: shell drift detection after control operators
-and YAML anchor ownership. The current wave makes unsupported shell forms explicit
-drift, refuses owned YAML anchors and aliases before backup, and compares resolved
-non-owned YAML paths. It also addresses Grok's escaped-space/here-document P2 and
-all three nearby Fable P3s. No round-5 item is deferred. The governing decision is
-`RSC-F-FAIL-CLOSED-READERS` in SPEC.md.
+F's PR #1797 remains open for the driver-owned three-model panel. Round 6
+returned two Astra P1s and one Grok P1. The pre-committed
+`RSC-F-WRITE-SCOPE-TOML-JSON` exit is applied: ModelsApply writes/restores only
+TOML and JSON. YAML, XML and shell remain readable and check-only; their readers
+account for every textual owned-name occurrence and report unsupported forms
+with line numbers, including occurrences only in comments or quoted data.
+All five nearby Fable P2/P3 items have a disposition in the SPEC Decision Log.
 
 The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries current proof
-and the candidate fingerprint for round 6. The [round-5 verification receipt](history/receipts/stage-5-f-panel-r5-verification.json)
-and [fingerprint](history/receipts/stage-5-f-panel-r5-fingerprint.json) supersede the
-round-4 receipts. The panel remains open, so this lane issues a panel candidate
-and never arms the merge gate. Native configuration writes in this wave: zero.
+and the candidate fingerprint for round 7. The [round-6 verification receipt](history/receipts/stage-5-f-panel-r6-verification.json)
+and [fingerprint](history/receipts/stage-5-f-panel-r6-fingerprint.json) supersede
+the round-5 receipts. Round 7 verifies only the cut and the occurrence rule.
+The panel remains open; this lane issues a panel candidate and never arms the
+merge gate. Native configuration writes in this wave: zero.
 
-Fail-closed detection now reports all five operator-owned shell routes as
-unsupported because their lines contain expansions or continuations. The fresh
-check has six diagnostics across the operator-owned shell and Claude files,
-with zero F-owned drift. Grok effort is currently clean. The earlier three-item
-count is historical; suppressing these new unsupported-form diagnostics would
-contradict the driver's ruling. Codex pins and legacy-key absence remain verified.
-Measured 30-session windows and external-owner activation prerequisites stay open.
+The prior check's six diagnostics across the operator-owned shell and Claude
+files remain visible, with zero F-owned drift; the fresh handoff lists each
+current diagnostic. Grok effort is currently clean. Measured 30-session windows
+and external-owner activation prerequisites stay open.
 
 ## Mission
 
@@ -89,7 +87,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 4 makes shell targets check-only, fences restore destination identity, and closes the four nearby advisories. Panel round 5 remains driver-owned.
+F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 6 applies the TOML/JSON write cut and occurrence-based fail-closed readers. Panel round 7 remains driver-owned.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated
 before/after measurements are recorded. Remaining acceptance covers incomplete
 30-session windows, four H3 native measurement gates, external-owner

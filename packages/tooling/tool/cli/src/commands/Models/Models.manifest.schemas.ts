@@ -792,7 +792,8 @@ export type Locator = typeof Locator.Type;
 
 /**
  * A locator write owns only the scalar or generated-block spans it resolves.
- * Missing and ambiguous scalar addresses fail closed; shell addresses are check-only.
+ * Missing and ambiguous scalar addresses fail closed. ModelsApply writes only TOML
+ * and JSON; YAML, XML and shell addresses are check-only.
  *
  * **Example** (Describe a scalar projection)
  *

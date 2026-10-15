@@ -2772,3 +2772,10 @@ Cancelled only this lane's superseded full package runs after verifying each exa
 service and working directory; restarted the default gate on the frozen source.
 Superseded proof attempts are excluded from the accepted proof. Run maintainability
 checks before starting a long full audit when adding a scanner.
+
+
+- 2026-10-15, F round-6 validation: the admitted `beep-heavy ... quality test-tsgo`
+  launch could not connect to the user scope bus because the terminal omitted
+  `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS`. No proof ran. Command-local
+  workstation user-bus variables restore the existing admission route; a wrapper
+  diagnostic naming these required variables would prevent the failed launch.

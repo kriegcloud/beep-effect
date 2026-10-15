@@ -24,7 +24,6 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { CatalogDiff } from "./Models.catalog.schemas.ts";
 import {
   ModelsCatalog,
@@ -394,7 +393,7 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(finding(input.target, input.locator, O.none(), expected.value, "missing-locator"));
   }
 
-  const unsupported = readable._tag === "shell-assign" && Str.includes("Unsupported shell form")(current.value);
+  const unsupported = /^Unsupported (?:shell|YAML|XML) form/.test(current.value);
   return !unsupported && current.value === expected.value
     ? O.none<DriftFinding>()
     : O.some(finding(input.target, input.locator, current, expected.value, "stale"));

@@ -1896,3 +1896,34 @@ an argument such as `MODEL=old` is not mistaken for the scalar `old`. Quoted or
 escaped option names are reported as unsupported instead of silently omitted.
 Any unsupported word invalidates the read, even when its raw spelling hides the
 owned flag; quoted data and comments remain distinct from owned words.
+
+
+### RSC-F-WRITE-SCOPE-TOML-JSON — round-6 exit applied (2026-10-15)
+
+Decision: ModelsApply writes and restores only TOML and JSON targets. YAML, XML
+and shell targets are check-only, including equal values and historical journals.
+Remove YAML/XML span rewriting and quoting; retain their fail-closed readers and
+dry-run previews. The routing manifest `~/.config/beep/models.yaml` remains a
+manifest source, not a current projection target; any YAML target submitted to
+ModelsApply is also check-only. No home configuration mutation is needed.
+
+Reason: round 6 was not clean (Astra 2, Grok 1, Fable zero-actionable), activating
+the driver's pre-committed round-6 exit. Only TOML/JSON have full parsed
+non-owned-field equality. Removing XML write capability resolves F-ASTRA-R6-02
+without extending the lexical writer. Occurrence reconciliation resolves
+F-ASTRA-R6-01 and R6-GROK-01: every textual owned-name occurrence must match a
+recognized simple form, otherwise the target reports unsupported drift with a
+line number. Owned names in comments and quoted data intentionally fail closed.
+
+Reversal: revert this F fix wave to restore the prior capability only after a
+full-fidelity ownership model and a separate independent panel qualify the
+specific format. No home rollback or new native backup is necessary because
+this wave changes no home configuration. Existing native backups remain retained.
+
+Nearby round-6 items: R6-F1 narrows irrelevant shell-line taint while retaining
+containing quote/here-document guards; R6-F2 is covered by occurrence accounting;
+R6-F3 deletes the unused shell pattern export; R6-F4 preserves the typed
+identity-refusal message by scoping I/O mapping to link creation; R6-F5 documents
+retained pre-publication backup/journal pairs and their no-op restore. No nearby
+round-6 P2/P3 is deferred. The three already tracked protocol follow-ups retain
+their existing reasons and reversal paths. The panel remains open for round 7.

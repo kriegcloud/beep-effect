@@ -542,24 +542,49 @@ last observation. Use a maintenance boundary excluding those clients when strict
 mutual exclusion is required. The writer detects observed races and preserves
 recovery artifacts; it does not lock native clients out.
 
-Shell locators are check-only under RSC-F-SHELL-CHECK-ONLY. `models check`
-and `models apply --check` report drift; default apply and `--dry-run` preview
-the expected value without creating backups or stages. Unsupported expressions
-remain visible as raw drift values, and an earlier continuation does not hide
-later physical lines from the reader. `apply --write` refuses every shell
-request with `Shell targets are check-only; edit by hand.` before any backup.
-A real shell parser and its own independent panel are required before writing
-can be restored. Syntax checks and regular expressions do not establish write
-ownership.
+ModelsApply `apply --write` and `restore` support only TOML and JSON locators,
+whose parsed non-owned fields are independently compared. Under
+RSC-F-WRITE-SCOPE-TOML-JSON, YAML, XML and shell targets are check-only.
+`models check` and `models apply --check` detect drift; default apply and
+`--dry-run` preview the expected value without creating backups or stages.
+Write and restore requests return a typed `<format> targets are check-only;
+edit by hand.` refusal. This includes equal values, YAML manifest targets,
+XML escaped-JSON attributes and historical recovery journals. Repository
+Markdown and TypeScript projection owners retain their separate generation
+commands; ModelsApply does not write those formats either.
+
+Each check-only reader reconciles every textual occurrence of each owned name
+with a recognized simple form. Shell accepts literal `NAME=value` assignment
+words and `--model value` or `-m value` pairs at recognized word starts. Quoted
+assignment words, `+=`, declarations, concatenations, expansions, continuations
+and here-document occurrences report unsupported-form drift with a line number.
+An owned name appearing only in a comment or quoted data intentionally reports
+unsupported drift. Unrelated lines such as `export PATH="$HOME/bin"` do not
+prevent an otherwise simple owned assignment from being read.
+
+YAML reads simple block-mapping scalars and accounts for plain keys; anchors,
+aliases, tags, flow collections, complex keys, multiline scalars and multiple
+documents fail closed. XML reads exact elements and attributes with single or
+double quotes; prefix and qualified element names cannot stand in for the owned
+element. Occurrences inside comments, CDATA and processing instructions fail
+closed. Re-enabling any removed writer requires a full ownership model and its
+own independent panel.
 
 New journals record locator ownership, the canonical regular file, and the
 requested path plus link spelling when present. Restore re-resolves both paths
 and verifies entry kind and target before staging, then checks again before
 publication. A symlink introduced at the canonical path, a moved target, a
 changed parent link or changed requested link refuses with a typed error naming
-the journal. Existing symlinks survive normal apply/restore. Shell journals and
+the journal. Existing symlinks survive normal apply/restore. Check-only-format journals and
 older journals lacking ownership or destination identity refuse safely; retain
 their backups for manual recovery after inspecting current state.
+
+A TOML/JSON refusal before publication can retain a backup and journal pair
+without changing the native file. These are diagnostic recovery artifacts;
+restore is an idempotent no-op when the live hash already equals `beforeHash`.
+Keep the pair until the refusal has been investigated, then remove the pair
+through the normal backup-retention process. Never treat an unsuccessful apply
+as evidence that publication occurred.
 
 Skill projection and lockfile writes resolve existing symlinks before backup,
 staging and publication; remote skill directories follow the same rule. Stages

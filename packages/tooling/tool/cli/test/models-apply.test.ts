@@ -195,8 +195,17 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
           "intro\n<!-- beep-models:begin x -->\ngpt-6.1-sol\n<!-- beep-models:end x -->\ntail",
         ],
       ];
-      for (const [content, locator, expected] of cases)
-        expect(yield* modelsApplySpans(content, yield* modelsWriteSpans(content, write(locator)))).toBe(expected);
+      for (const [content, locator, expected] of cases) {
+        if (
+          locator._tag === "yaml-path" ||
+          locator._tag === "xml-attribute" ||
+          locator._tag === "xml-escaped-json-attribute"
+        ) {
+          const error = yield* Effect.flip(modelsWriteSpans(content, write(locator)));
+          expect(error.message).toContain("targets are check-only; edit by hand.");
+        } else
+          expect(yield* modelsApplySpans(content, yield* modelsWriteSpans(content, write(locator)))).toBe(expected);
+      }
     })
   );
 
@@ -310,7 +319,12 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const file = path.join(root, `config.${extension}`);
         yield* fs.writeFileString(file, text);
         assertNone(yield* writer.apply(file, [write(locator)], "check", path.join(root, "backups")));
-        assertNone(yield* writer.apply(file, [write(locator)], "write", path.join(root, "backups")));
+        if (locator._tag === "toml-top-level-key")
+          assertNone(yield* writer.apply(file, [write(locator)], "write", path.join(root, "backups")));
+        else
+          expect(
+            (yield* Effect.flip(writer.apply(file, [write(locator)], "write", path.join(root, "backups")))).message
+          ).toContain("check-only");
         expect(yield* fs.readFileString(file)).toBe(text);
       }
       expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
@@ -496,6 +510,18 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         yield* Effect.flip(writer.apply(file, [write(assignment.locator, "wrong, gpt-6-luna")], "check", backups));
         expect(yield* fs.readFileString(file)).toBe(text);
       }
+      for (const text of [
+        "export 'ANTHROPIC_DEFAULT_HAIKU_MODEL=wrong'; claude\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n",
+        'export "ANTHROPIC_DEFAULT_HAIKU_MODEL=wrong"; claude\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n',
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna\nANTHROPIC_DEFAULT_HAIKU_MODEL+=wrong\n",
+        ":;ANTHROPIC_DEFAULT_HAIKU_MODEL+=wrong\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna\n",
+        "# ANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna\n",
+      ]) {
+        yield* fs.writeFileString(file, text);
+        const error = yield* Effect.flip(writer.apply(file, [assignment], "check", backups));
+        expect(error.message).toContain("Unsupported shell form: line");
+        expect(yield* fs.readFileString(file)).toBe(text);
+      }
       const flag = write(
         {
           _tag: "shell-assign",
@@ -527,74 +553,53 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("refuses owned YAML anchors, aliases and anchored ancestors before backup", () =>
+  it.effect("refuses every YAML and XML write before filesystem access or backup", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
-        prefix: "yaml-ownership-",
-      });
-      const file = path.join(root, "config.yaml");
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "check-only-" });
+      const file = path.join(root, "config");
       const backups = path.join(root, "backups");
       const writer = yield* writerWithFs(fs);
-      const owned = write({
-        _tag: "yaml-path",
+      const yaml = write({ _tag: "yaml-path", binding, render, path: ["model"] });
+      const xml = write({
+        _tag: "xml-attribute",
         binding,
         render,
-        path: ["model"],
+        elementSelector: 'option[name="model"]',
+        attribute: "value",
       });
-      for (const text of [
-        "model: &shared old\nnative_model: *shared\n",
-        "default: &shared old\nmodel: *shared\n",
-        "model: &unused old\n",
-      ]) {
+      const escaped = write({
+        _tag: "xml-escaped-json-attribute",
+        binding,
+        render,
+        elementSelector: 'option[name="options"]',
+        attribute: "value",
+        jsonPointer: ["0", "model"],
+      });
+      const cases = [
+        ["model: gpt-6.1-sol\n", yaml],
+        ["model: &shared old\nnative: *shared\n", yaml],
+        ["model: {nested: old}\n", yaml],
+        ['<root><option-extra name="model" value="native"/></root>', xml],
+        ["<root><!-- <option name=\"model\" value=\"native\"/> --><option name='model' value='wrong'/></root>", xml],
+        ['<root><q:option name="model" value="wrong"/></root>', xml],
+        ['<root><option name="model" value="gpt-6.1-sol"/></root>', xml],
+        ['<root><option name="options" value="[]"/></root>', escaped],
+      ] as const;
+      for (const [text, request] of cases) {
         yield* fs.writeFileString(file, text);
-        const error = yield* Effect.flip(writer.apply(file, [owned], "write", backups));
+        const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
         expect(error._tag).toBe("ModelsLocatorError");
-        expect(error.message).toContain("without anchors or aliases");
+        expect(error.message).toBe(
+          `${request.locator._tag === "yaml-path" ? "YAML" : "XML"} targets are check-only; edit by hand.`
+        );
         expect(yield* fs.readFileString(file)).toBe(text);
         expect(yield* fs.exists(backups)).toBe(false);
       }
-      const nested = "models: &shared\n  model: old\nnative: *shared\n";
-      yield* fs.writeFileString(file, nested);
-      yield* Effect.flip(
-        writer.apply(
-          file,
-          [
-            write({
-              _tag: "yaml-path",
-              binding,
-              render,
-              path: ["models", "model"],
-            }),
-          ],
-          "write",
-          backups
-        )
-      );
-      expect(yield* fs.readFileString(file)).toBe(nested);
-      expect(yield* fs.exists(backups)).toBe(false);
-      // Simulate another span owner mutating an alias source. Resolved YAML
-      // equality must independently catch the non-owned semantic change.
-      const merged = "model: old\ndefaults: &shared {native: old}\nconsumer: {<<: *shared}\n";
-      yield* fs.writeFileString(file, merged);
-      const injected = write({
-        _tag: "line-value",
-        binding,
-        render,
-        linePrefix: "defaults:",
-        before: "native: ",
-        after: "}",
-      });
-      const error = yield* Effect.flip(writer.apply(file, [owned, injected], "write", backups));
-      expect(error.message).toBe("Non-owned native keys changed.");
-      expect(yield* fs.readFileString(file)).toBe(merged);
-      expect(yield* fs.exists(backups)).toBe(false);
-      yield* fs.writeFileString(file, "model: old\nnative: retained\n");
-      const applied = yield* writer.apply(file, [owned], "write", backups);
-      applied.pipe(O.isSome, assertTrue);
-      expect(yield* fs.readFileString(file)).toBe('model: "gpt-6.1-sol"\nnative: retained\n');
+      yield* fs.remove(file);
+      for (const request of [yaml, xml, escaped])
+        expect((yield* Effect.flip(writer.apply(file, [request], "write", backups))).message).toContain("check-only");
     })
   );
 
@@ -757,14 +762,37 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         variable: "MODEL",
         within: O.none(),
       });
-      for (const writes of [undefined, [shell]]) {
+      for (const writes of [
+        undefined,
+        [shell],
+        [write({ _tag: "yaml-path", binding, render, path: ["model"] })],
+        [
+          write({
+            _tag: "xml-attribute",
+            binding,
+            render,
+            elementSelector: 'option[name="model"]',
+            attribute: "value",
+          }),
+        ],
+        [
+          write({
+            _tag: "xml-escaped-json-attribute",
+            binding,
+            render,
+            elementSelector: 'option[name="options"]',
+            attribute: "value",
+            jsonPointer: ["model"],
+          }),
+        ],
+      ]) {
         const { writes: _owned, ...legacy } = journal;
         yield* fs.writeFileString(
           journalFile,
           yield* encodeRecoveryJournal(ModelsApplyJournal.make({ ...legacy, writes: O.fromUndefinedOr(writes) }))
         );
         const error = yield* Effect.flip(writer.restore(journalFile, backups));
-        expect(error.message.toLowerCase()).toContain("shell targets are check-only");
+        expect(error.message.toLowerCase()).toContain("targets are check-only");
         expect(error.message).toContain(`Journal: ${journal.id}`);
         expect(yield* fs.readFileString(file)).toBe(applied);
         expect(yield* fs.readDirectory(backups)).toHaveLength(2);
@@ -797,7 +825,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("rejects a replacement that changes its own re-resolved delimiter", () =>
+  it.effect("refuses a text target before its delimiter could be rewritten", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -821,7 +849,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         'new"tail'
       );
       const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
-      expect(error.message).toBe("Owned projection is not stable after re-resolving its addresses.");
+      expect(error.message).toBe("Text targets are check-only; edit by hand.");
       expect(yield* fs.readFileString(file)).toBe(text);
       expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
     })
@@ -895,10 +923,8 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("preserves entity spelling outside an XML-embedded JSON pointer", () =>
+  it.effect("refuses XML-embedded JSON span generation without rewriting entity spelling", () =>
     Effect.gen(function* () {
-      const content =
-        '<root><option name="options" value="[{&quot;model&quot;:&quot;old&quot;,&quot;native&quot;:&quot;&apos;&gt;&amp;&quot;}]"/></root>';
       const request = write({
         _tag: "xml-escaped-json-attribute",
         binding,
@@ -907,9 +933,9 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         attribute: "value",
         jsonPointer: ["0", "model"],
       });
-      expect(yield* modelsApplySpans(content, yield* modelsWriteSpans(content, request))).toBe(
-        content.replace("old", "gpt-6.1-sol")
-      );
+      const text = '<root><option name="options" value="[{&quot;model&quot;:&quot;old&quot;}]"/></root>';
+      const error = yield* Effect.flip(modelsWriteSpans(text, request));
+      expect(error.message).toBe("XML targets are check-only; edit by hand.");
     })
   );
 

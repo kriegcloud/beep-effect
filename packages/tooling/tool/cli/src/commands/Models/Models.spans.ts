@@ -15,43 +15,45 @@ import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Tuple from "effect/Tuple";
 import { findNodeAtLocation, parseTree } from "jsonc-parser";
-import { isAlias, isScalar, parseDocument, visit } from "yaml";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { generatedBlockBegin, generatedBlockEnd } from "./Models.render.ts";
 import type { Node as JsonNode } from "jsonc-parser";
-import type { Document } from "yaml";
-import type { ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
+import type { Locator, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S.Unknown)));
 const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const error = (message: string) => ModelsLocatorError.make({ message });
 
 /**
- * Match a candidate word owned by an assignment or model flag.
+ * Name the format refused by the TOML/JSON-only native writer.
  *
- * **Details**
- *
- * This pattern supports drift detection only. Shell targets are check-only:
- * exact write ownership requires a shell parser and a separate panel review.
- *
- * **Example** (Respect assignment boundaries)
+ * **Example** (Identify a check-only YAML target)
  *
  * ```ts
- * import { modelsShellWordPattern } from "@beep/repo-cli/commands/Models/Models.spans"
- * console.log(modelsShellWordPattern("MODEL").test("MODEL='example';")) // true
+ * import { modelsCheckOnlyFormat } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import { LocatorBinding } from "@beep/repo-cli/commands/Models"
+ * import * as O from "effect/Option"
+ * const format = modelsCheckOnlyFormat({
+ *   _tag: "yaml-path", path: ["model"], render: { _tag: "verbatim" },
+ *   binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" })
+ * })
+ * console.log(O.getOrElse(format, () => "writable")) // "YAML"
  * ```
  *
- * @param variable - Exact assignment name or model flag.
- * @returns A candidate-word pattern for drift detection, never write authorization.
  * @category utilities
  * @since 0.0.0
  */
-export const modelsShellWordPattern = (variable: string): RegExp =>
-  new RegExp(
-    `${/(?<![^\s;&|()])/.source}${Regex.escape(variable)}${Str.startsWith("-")(variable) ? "(?:=|[ \\t]+)" : "="}${/((?:"(?:\\.|[^"\\])*"|'[^']*'|\\.|[^'"\\\s;&|<>])+)/.source}`,
-    "gd"
+export const modelsCheckOnlyFormat = (locator: Locator): O.Option<string> =>
+  Match.value(locator).pipe(
+    Match.tag("toml-top-level-key", "toml-table-key", "json-key", () => O.none<string>()),
+    Match.tag("yaml-path", () => O.some("YAML")),
+    Match.tag("xml-attribute", "xml-escaped-json-attribute", () => O.some("XML")),
+    Match.tag("shell-assign", "env-key", () => O.some("Shell")),
+    Match.tag("ts-literal", () => O.some("TypeScript")),
+    Match.tag("line-value", "md-generated-block", () => O.some("Text")),
+    Match.exhaustive
   );
 
 // Decode only a single literal shell word. Concatenated quote components,
@@ -122,6 +124,8 @@ const ownedShellValue = (
         : O.getOrElse(O.flatten(A.get(decoded, index + 1)), () => unsupportedShell)
     );
   }
+  if (new RegExp(`^${Regex.escape(variable)}=`).test(Str.replace(/\\(.)/g, "$1")(token)))
+    return O.some(unsupportedShell);
   // A quoted/escaped option name is outside the canonical locator grammar.
   // Recognize its decoded identity and report it instead of dropping it.
   return O.exists(value, (word) => word === variable || Str.startsWith(`${variable}=`)(word))
@@ -134,6 +138,8 @@ const ownedShellValue = (
  *
  * **Details**
  *
+ * Every textual occurrence of the owned name must be a recognized assignment or flag.
+ * Occurrences in comments and quoted data intentionally report unsupported drift.
  * The scanner accounts for every word on a physical line. A here-document or
  * unclosed quote makes the remaining document unsupported; no later line is
  * trusted after a containing form this grammar cannot resolve.
@@ -156,21 +162,46 @@ export const modelsShellWords = Effect.fn("Models.shellWords")(function* (conten
   const values: Array<string> = [];
   let continued = false;
   let unsafeRemainder = false;
+  let lineNumber = 0;
   for (const line of Str.split(content, "\n")) {
+    lineNumber += 1;
     const [words, remainder] = shellLineTokens(line);
     const decoded = yield* Effect.forEach(words, (word) => shellTokenValue(word, variable), { concurrency: 1 });
     const owned = A.getSomes(A.map(words, (_, index) => ownedShellValue(words, decoded, index, variable)));
-    const incomplete = O.isSome(remainder);
+    const occurrences = A.fromIterable(Str.matchAll(new RegExp(Regex.escape(variable), "g"))(line));
+    const recognized: Array<number> = [];
+    let cursor = 0;
+    let declaration = false;
+    for (const [index, word] of A.entries(words)) {
+      const offset = line.indexOf(word, cursor);
+      cursor = offset + Str.length(word);
+      if (shellControl.test(word)) declaration = false;
+      if (/^(?:declare|typeset|local|unset)$/.test(word)) declaration = true;
+      const value = ownedShellValue(words, decoded, index, variable);
+      if (
+        !declaration &&
+        O.isSome(value) &&
+        value.value !== unsupportedShell &&
+        (word === variable || Str.startsWith(`${variable}=`)(word))
+      )
+        recognized.push(offset);
+    }
+    const mentions = A.isReadonlyArrayNonEmpty(occurrences);
+    const unmatched = A.some(occurrences, (match) => !A.contains(recognized, match.index));
     const unsupported =
-      continued ||
-      unsafeRemainder ||
-      incomplete ||
       /\\$/.test(line) ||
-      A.some(decoded, O.isNone) ||
-      A.contains(owned, unsupportedShell);
+      A.contains(owned, unsupportedShell) ||
+      (mentions &&
+        (continued ||
+          unsafeRemainder ||
+          O.isSome(remainder) ||
+          /\\$/.test(line) ||
+          A.some(decoded, O.isNone) ||
+          A.contains(owned, unsupportedShell) ||
+          unmatched));
     unsafeRemainder = unsafeRemainder || O.exists(remainder, (rest) => /['"<]/.test(rest));
     continued = /\\$/.test(line);
-    values.push(...(unsupported ? [unsupportedShell] : owned));
+    values.push(...(unsupported ? [`${unsupportedShell}: line ${lineNumber}`] : owned));
   }
   return values;
 });
@@ -246,20 +277,6 @@ export const modelsShellScope: {
     }
   );
 });
-
-const yamlSharedNode = (doc: Document, path: ReadonlyArray<string | number>, node: unknown) => {
-  const anchored = A.some(A.range(0, A.length(path)), (depth) => {
-    const ancestor = doc.getIn(A.take(path, depth), true);
-    return isAlias(ancestor) || (P.isObject(ancestor) && "anchor" in ancestor && ancestor.anchor !== undefined);
-  });
-  let referenced = false;
-  visit(doc, {
-    Alias: (_, alias) => {
-      referenced = referenced || alias.resolve(doc) === node;
-    },
-  });
-  return anchored || referenced;
-};
 
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({
@@ -392,39 +409,6 @@ const jsonSpans = (content: string, pointer: ReadonlyArray<string>, after: strin
     })
   );
 
-const xmlSpans = Effect.fn("Models.xmlSpans")(
-  (
-    content: string,
-    selector: string,
-    attribute: string,
-    after: string
-  ): Effect.Effect<ReadonlyArray<ModelsWriteSpan>, ModelsLocatorError> => {
-    const selected = /^([\w:.-]+)\[([\w:.-]+)="([^"]*)"\]$/.exec(selector);
-    if (selected === null) return Effect.fail(error("Unsupported XML selector."));
-    const tag = O.getOrElse(O.fromUndefinedOr(selected[1]), () => "");
-    const key = O.getOrElse(O.fromUndefinedOr(selected[2]), () => "");
-    const value = O.getOrElse(O.fromUndefinedOr(selected[3]), () => "");
-    const elements = A.fromIterable(Str.matchAll(new RegExp(`<${Regex.escape(tag)}\\b[^>]*>`, "gd"))(content));
-    const spans = A.flatMap(
-      A.filter(elements, (m: RegExpMatchArray) =>
-        new RegExp(`\\s${Regex.escape(key)}="${Regex.escape(value)}"`).test(m[0])
-      ),
-      (m: RegExpMatchArray) =>
-        region(
-          content,
-          O.getOrElse(O.fromUndefinedOr(m.index), () => 0),
-          O.getOrElse(O.fromUndefinedOr(m.index), () => 0) + Str.length(m[0]),
-          new RegExp(`\\s${Regex.escape(attribute)}="([^"]*)"`, "gd"),
-          after
-        )
-    );
-    return one(spans);
-  }
-);
-
-const escapeXml = (value: string) =>
-  pipe(value, Str.replace(/&/g, "&amp;"), Str.replace(/"/g, "&quot;"), Str.replace(/</g, "&lt;"));
-
 /**
  * Resolve the complete owned range set, rejecting missing or ambiguous addresses.
  * JSON fallbacks are read compatibility only: writes own the primary pointer.
@@ -479,38 +463,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
     Match.tag("toml-top-level-key", ({ key }) => tomlSpans(content, key, O.none(), quoted, expected)),
     Match.tag("toml-table-key", ({ key, table }) => tomlSpans(content, key, O.some(table), quoted, expected)),
     Match.tag("json-key", ({ pointer }) => jsonSpans(content, pointer, quoted)),
-    Match.tag("yaml-path", ({ path }) =>
-      Effect.try({
-        try: () => {
-          const doc = parseDocument(content);
-          const node = doc.getIn([...path], true);
-          if (yamlSharedNode(doc, path, node)) return O.none<ModelsWriteSpan>();
-          return A.isReadonlyArrayEmpty(doc.errors) &&
-            A.isReadonlyArrayEmpty(doc.warnings) &&
-            isScalar(node) &&
-            node.range !== undefined &&
-            node.range !== null
-            ? O.some(
-                span(
-                  content,
-                  node.range[0],
-                  node.range[1],
-                  node.value === expected ? Str.slice(node.range[0], node.range[1])(content) : quoted
-                )
-              )
-            : O.none<ModelsWriteSpan>();
-        },
-        catch: () => error("Cannot parse YAML target."),
-      }).pipe(
-        Effect.flatMap((entry) =>
-          O.match(entry, {
-            onNone: () =>
-              Effect.fail(error("YAML write requires an unambiguous scalar node without anchors or aliases.")),
-            onSome: (value) => Effect.succeed([value]),
-          })
-        )
-      )
-    ),
+    Match.tag("yaml-path", () => Effect.fail(error("YAML targets are check-only; edit by hand."))),
     Match.tag("env-key", ({ key }) =>
       one(
         captures(
@@ -554,50 +507,8 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
       );
       return A.isReadonlyArrayEmpty(spans) ? Effect.fail(error("Line locator has no matches.")) : Effect.succeed(spans);
     }),
-    Match.tag("xml-attribute", ({ elementSelector, attribute }) =>
-      xmlSpans(content, elementSelector, attribute, escapeXml(expected))
-    ),
-    Match.tag("xml-escaped-json-attribute", ({ elementSelector, attribute, jsonPointer }) =>
-      xmlSpans(content, elementSelector, attribute, "").pipe(
-        Effect.flatMap(
-          Effect.fnUntraced(function* (outer) {
-            const entry = O.getOrThrow(A.head(outer));
-            let decoded = "";
-            let offset = 0;
-            let boundaries: ReadonlyArray<number> = [0];
-            const entities: ReadonlyArray<readonly [string, string]> = [
-              ["&quot;", '"'],
-              ["&amp;", "&"],
-              ["&lt;", "<"],
-              ["&gt;", ">"],
-              ["&apos;", "'"],
-            ];
-            while (offset < Str.length(entry.before)) {
-              const rest = Str.slice(offset)(entry.before);
-              const entity = A.findFirst(entities, ([encoded]) => Str.startsWith(encoded)(rest));
-              if (O.isSome(entity)) {
-                decoded += entity.value[1];
-                offset += Str.length(entity.value[0]);
-              } else {
-                if (Str.startsWith("&")(rest))
-                  return yield* error("Unsupported XML entity in JSON attribute; refusing normalization.");
-                decoded += Str.slice(offset, offset + 1)(entry.before);
-                offset += 1;
-              }
-              boundaries = A.append(boundaries, offset);
-            }
-            const inner = yield* jsonSpans(decoded, jsonPointer, quoted);
-            return A.map(inner, (owned) =>
-              span(
-                content,
-                entry.start + O.getOrThrow(A.get(boundaries, owned.start)),
-                entry.start + O.getOrThrow(A.get(boundaries, owned.end)),
-                escapeXml(owned.after)
-              )
-            );
-          })
-        )
-      )
+    Match.tag("xml-attribute", "xml-escaped-json-attribute", () =>
+      Effect.fail(error("XML targets are check-only; edit by hand."))
     ),
     Match.tag("md-generated-block", ({ blockId }) => {
       const begin = generatedBlockBegin(blockId);
