@@ -1,5 +1,5 @@
 {
-  "previous": "c13b88e971a406329f739488db66e0d85b2952950c597e5a07d0263f8074ad40",
+  "previous": "d91bb1da8a7c4b33ae78270e724ffebc581a6f02c78a14f05338fd1cb365d0b1",
   "review": {
     "reviewer": "Codex H2 performance-wave lane",
     "reason": "Review the independent uncached diagnostics lane and removal from Check; preserve cached task contracts and qualification scope.",

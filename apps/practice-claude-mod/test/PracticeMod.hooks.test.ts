@@ -267,4 +267,74 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       }
     })
   );
+
+  it.effect(
+    "shows, looks up, and clears the selected matter with a visible lookup failure",
+    Effect.fnUntraced(function* () {
+      const hooks = yield* Effect.promise(() => import("@/PracticeMod.hooks"));
+      const { engine } = fixture();
+      expect(yield* Effect.promise(() => hooks.matterCommand(engine)(""))).toEqual({
+        text: "No matter is selected.",
+      });
+      engine.mcp.call.mockResolvedValue({
+        content: [],
+        isError: false,
+        structuredContent: { data: { columns: ["familyKey", "docketKey", "resolution", "client"], rows: [] } },
+      });
+      expect(yield* Effect.promise(() => hooks.matterCommand(engine)("10008US01"))).toEqual({
+        text: "No matter matches 10008US01.",
+      });
+      expect(engine.mcp.call).toHaveBeenCalledWith("practice-kg", "kg_matter_lookup", {
+        reference: "10008US01",
+      });
+      engine.mcp.call.mockResolvedValueOnce({
+        content: [],
+        isError: false,
+        structuredContent: {
+          data: {
+            columns: ["familyKey", "docketKey", "resolution", "client"],
+            rows: [["12345.10008", "12345.10008US01", "unique", "12345"]],
+          },
+        },
+      });
+      expect(yield* Effect.promise(() => hooks.matterCommand(engine)("10008US01"))).toEqual({
+        text: "Matter: 12345.10008US01",
+      });
+      expect(yield* Effect.promise(() => hooks.matterCommand(engine)(""))).toEqual({
+        text: "Matter: 12345.10008US01",
+      });
+      engine.mcp.call.mockRejectedValueOnce("unavailable");
+      expect(yield* Effect.promise(() => hooks.matterCommand(engine)("10008US01"))).toEqual({
+        text: "The matter could not be looked up. Try again.",
+      });
+      expect(engine.ui.toast).toHaveBeenCalledWith("The matter could not be looked up. Try again.");
+      expect(yield* Effect.promise(() => hooks.matterCommand(engine)("clear"))).toEqual({ text: "Matter cleared." });
+    })
+  );
+
+  it.effect(
+    "starts, reports, and stops a timer while preserving a failed stop for retry",
+    Effect.fnUntraced(function* () {
+      const hooks = yield* Effect.promise(() => import("@/PracticeMod.hooks"));
+      const { engine } = fixture();
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)("stop"))).toEqual({ text: "Timer is stopped." });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)("start"))).toEqual({ text: "Timer started." });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)("start"))).toEqual({
+        text: "Timer is already running.",
+      });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)(""))).toEqual({ text: "Timer running: 0 minutes." });
+      engine.store.set.mockRejectedValueOnce("disk full");
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)("stop"))).toEqual({
+        text: "The timer could not be saved or updated. Try again.",
+      });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)(""))).toEqual({ text: "Timer running: 0 minutes." });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)("stop"))).toEqual({
+        text: "Timer stopped. Interval saved.",
+      });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)(""))).toEqual({ text: "Timer is stopped." });
+      expect(yield* Effect.promise(() => hooks.timeCommand(engine)("unknown"))).toEqual({
+        text: "Use /time, /time start, or /time stop.",
+      });
+    })
+  );
 });

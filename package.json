@@ -262,6 +262,10 @@
     "ws": "^8.22.0",
     "xstate": "6.0.0-alpha.64",
     "yaml": "^2.9.1",
+    "comment-parser": "1.4.9",
+    "are-docs-informative": "0.1.1",
+    "@microsoft/tsdoc": "0.17.1",
+    "@microsoft/tsdoc-config": "0.18.3",
     "oxlint-tsgolint": "7.0.2004"
   },
   "devDependencies": {
