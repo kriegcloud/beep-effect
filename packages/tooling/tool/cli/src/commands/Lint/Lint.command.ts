@@ -48,6 +48,7 @@ import { lintIdentityRegistryCommand } from "./IdentityRegistry.ts";
 import { SchemaFirstSchemaClass } from "./internal/SchemaFirstSchemaClass.ts";
 import { lintJudgeRubricCommand } from "./JudgeRubric.ts";
 import { LintCircularAnalysisError, LintFileDiscoveryError, LintProgramAssignmentError } from "./Lint.errors.ts";
+import { lintOpaqueRoundtripsCommand } from "./OpaqueRoundtrips.ts";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.ts";
 import { lintPackageTestTypecheckCommand } from "./PackageTestTypecheck.ts";
 import { lintReflectionArtifactsCommand } from "./ReflectionArtifact.ts";
@@ -838,6 +839,7 @@ const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, r
 
 const fingerprintPath = "standards/policy-tools.fingerprint.json";
 const rootConfigs = [
+  "standards/effect-diagnostics.profile.json",
   "standards/lint-policy.sweeps.jsonc",
   "tsdoc.json",
   ".oxlintrc.json",
@@ -1146,6 +1148,7 @@ const lintSubcommands = [
   lintEcosystemPolarityCommand,
   lintEffectSchemaInventoryCommand,
   lintEffectVitestCommand,
+  lintOpaqueRoundtripsCommand,
   lintGoalPacketsCommand,
   lintIdentityRegistryCommand,
   lintJudgeRubricCommand,

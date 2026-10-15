@@ -31,6 +31,9 @@
       "path": "apps/practice-mail-tagging"
     },
     {
+      "path": "apps/practice-review-hub"
+    },
+    {
       "path": "apps/professional-desktop"
     },
     {
@@ -410,6 +413,9 @@
     },
     {
       "path": "packages/tooling/library/codegen-kit"
+    },
+    {
+      "path": "packages/tooling/library/palantiri"
     },
     {
       "path": "packages/tooling/library/qa-capture"

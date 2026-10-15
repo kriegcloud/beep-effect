@@ -16,8 +16,8 @@ auth values, email addresses, and raw local paths.
 
 | ID | Severity | Status | Title | Owner area |
 | --- | --- | --- | --- | --- |
-| [CSF-001](./CSF-001.md) | High | repair implemented | Ledger symlinks can redirect review writes into shell startup files | Skills hunk ledger |
-| [CSF-002](./CSF-002.md) | Medium | repair implemented | L0 success can bypass review on another PR sharing its head | Reviewer service and gate |
+| [CSF-001](./CSF-001.md) | High | Fixed | Ledger symlinks can redirect review writes into shell startup files | Skills hunk ledger |
+| [CSF-002](./CSF-002.md) | Medium | Fixed | L0 success can bypass review on another PR sharing its head | Reviewer service and gate |
 
 ## Closeout Mapping
 
@@ -27,3 +27,6 @@ auth values, email addresses, and raw local paths.
 - The signed-in Validation, Evidence, and Attack-path analysis were read for both IDs before their current-HEAD verdicts.
 - The CSV contains Summary only; sanitized detail evidence and proof limits are recorded in each CSF file.
 - Accepted risk / `Won't fix` does not satisfy this packet's completion gate.
+- Both exact IDs were observed Fixed after PR #1805 merged; the filtered
+  signed-in findings view then showed 0 of 0 open. See the
+  [closeout receipt](../history/2026-10-14-closeout.md).

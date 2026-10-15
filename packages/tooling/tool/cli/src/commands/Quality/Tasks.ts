@@ -2846,7 +2846,7 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
     flakeQuarantine: "ts2589-no-location",
   }),
   // `tsgo-rules` keeps its single owner in lint-policy (`lint:tsgo-rules`);
-  // the check root task carries only the test-file and smoke tsgo extras.
+  // standalone rule diagnostics have their own parallel heavy lane; Check owns test-file types and the smoke canary.
   ...optionalQualityTaskStep({
     enabled: shouldRunRepoWideSteps(args),
     step: () => repoCliStep(repoRoot, "quality:test-tsgo", ["quality", "test-tsgo"]),
@@ -2949,6 +2949,7 @@ const policyMediumTasks = [
   "lint:tsconfig-overlay",
   "lint:package-test-typecheck",
   "lint:effect-vitest",
+  "lint:opaque-roundtrips",
 ];
 // The git-delta checks compare the merge-base archive with HEAD. They are uncached by
 // contract and cost about two minutes on a clean tree, so a local full-scope `bun run lint`

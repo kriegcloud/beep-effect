@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -32,10 +32,11 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P6 publish` - both findings are confirmed at current HEAD and repaired in
-two disjoint code surfaces. The 104-test focused suite and Yeet cheap gates
-pass. PR #1805 is open; final publish, hosted proof, merge, and exact Cloud
-closure remain.
+`P9 close` - PR [#1805](https://github.com/beep-effect/beep-effect/pull/1805)
+merged at `dd071a688a967f03530f42ee0ee67f801b3c85e6`. Both exact Cloud
+findings are Fixed, and the signed-in open findings view showed 0 of 0.
+The [closeout receipt](./history/2026-10-14-closeout.md) records the merge,
+review, checks, and Cloud evidence.
 
 ## Findings at a glance
 
@@ -47,4 +48,5 @@ materially invalid.
 
 - Raw report bodies remain untracked under `raw/`; tracked files are sanitized.
 - Do not use Codex's Create PR or patch-apply controls.
-- Browser closure is post-merge and must match the captured Codex ID allowlist.
+- Browser closure matched the captured two-ID allowlist after merged-tree
+  verification.

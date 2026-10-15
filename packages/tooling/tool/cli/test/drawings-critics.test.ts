@@ -280,13 +280,16 @@ describe("prior summaries", () => {
 describe("stroke table", () => {
   it("measures every shading stroke of a figure SVG in mm with its direction, offset and length", () => {
     // Two vertical strokes 1.5 mm apart (in PDF points: 1.5 mm = 4.2520 pt) and one horizontal stroke.
-    const svg = [
-      '<svg xmlns="http://www.w3.org/2000/svg" width="612pt" height="792pt">',
-      '<path id="label-outlines" d="M1 1L2 2"/>',
-      '<path stroke-width="0.567" d="M283.465 283.465L283.465 311.811M287.717 283.465L287.717 311.811M283.465 340.157L311.811 340.157"/>',
-      '<path stroke-width="0.992" d="M0 0L10 10"/>',
-      "</svg>",
-    ].join("");
+    const svg = A.join(
+      [
+        '<svg xmlns="http://www.w3.org/2000/svg" width="612pt" height="792pt">',
+        '<path id="label-outlines" d="M1 1L2 2"/>',
+        '<path stroke-width="0.567" d="M283.465 283.465L283.465 311.811M287.717 283.465L287.717 311.811M283.465 340.157L311.811 340.157"/>',
+        '<path stroke-width="0.992" d="M0 0L10 10"/>',
+        "</svg>",
+      ],
+      ""
+    );
     const table = strokeTableMarkdown({
       title: "Crate",
       sheetSetSha256: "0".repeat(64),

@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,13 +31,13 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+Complete (completed-retained, 2026-10-14).
 
 ## Latest Evidence
 
-Not started.
+Shipped in four PRs: #1727 (P1 defects and the `OtlpSerialization` seam), #1762 (catalog kernel subpath, `beep observability catalog`, generated catalog and doctrine, counter and span-name migrations), #1796 (effect 4.0.4) and #1806 (agent-attribution keys, `layerCatalogEnrichment`, closeout). Reflection: [`history/reflections/2026-10-14-claude.md`](./history/reflections/2026-10-14-claude.md).
 
 ## Notes
 
-<Record high-signal constraints or resume notes that do not belong in the
-normative spec.>
+- Follow-on goals consume the catalog: `goals/practice-kg-mcp-strict-tier` (serializer gate sharing `allowedAttributes`), `goals/harness-emitters-all-providers` (imports the `AiMetrics.instruments.ts` value domains), `goals/palantiri-parcels`.
+- The 518 non-conforming harvested span names and 147 non-literal sites are reported inventory (`beep observability catalog`), not packet debt.

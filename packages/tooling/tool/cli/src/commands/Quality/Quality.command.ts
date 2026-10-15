@@ -58,6 +58,7 @@ import { WaveOrder } from "../Yeet/internal/WaveOrder.ts";
 import { runChangesetGraphCheck } from "./ChangesetGraph.ts";
 import { changesetStatusCommand } from "./ChangesetStatus.ts";
 import { checkCensusCommand } from "./CheckCensus.ts";
+import { effectDiagnosticsCommand, readEffectDiagnosticsProfile } from "./EffectDiagnostics.ts";
 import { qualityFallowCommand } from "./FallowQuality.command.ts";
 import {
   githubCheckChangesetStatusLane,
@@ -454,7 +455,9 @@ export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
  * Exactly three entries exist and the tuple type keeps it that way: the root Bun-compat shim,
  * which implements `Bun.*` over node builtins before any Effect runtime exists, the root Vitest
  * shared config, whose include list is scanned synchronously before any Effect runtime exists,
- * and the effect-vitest-canon D14 conformance entrypoint. Every other `@effect-diagnostics`
+ * and the effect-vitest-canon D14 conformance entrypoint. Five dated catalog payload
+ * next-line directives are separately admitted until the split public rename PR;
+ * they do not admit file-wide disables. Every other `@effect-diagnostics`
  * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, and the
  * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a fourth entry
  * has found a rule-card gap, not a reason to grow this list.
@@ -497,15 +500,21 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
   }),
 ];
 
-const TsgoDisabledRuleName = LiteralKit(["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage"]);
+const TsgoDisabledRuleName = LiteralKit([
+  "apiStabilityLeak",
+  "experimentalApiUsage",
+  "unstableApiUsage",
+  "preferNamespaceImport",
+  "preferBarrelImport",
+]);
 
 /**
- * One installed `@effect/tsgo` rule the root profile declares `"off"`, with the reason.
+ * One installed `@effect/tsgo` rule the root or standalone profile declares `"off"`, with the reason.
  *
  * **Details**
  *
  * The rule domain is a closed literal set, so turning another rule off is a schema change
- * reviewed in this file. A declared rule must be configured exactly `"off"` in the root
+ * reviewed in this file. A declared rule must be configured exactly `"off"` in the combined
  * `diagnosticSeverity` map; every other installed rule must stay `"error"`.
  *
  * **Example** (Declare a disabled rule)
@@ -539,11 +548,14 @@ export class TsgoDisabledRule extends S.Opaque<TsgoDisabledRule, { readonly bran
  *
  * **Details**
  *
- * All three entries are the stability rules: `experimentalApiUsage` and `unstableApiUsage` (from
+ * Three entries are the stability rules: `experimentalApiUsage` and `unstableApiUsage` (from
  * `@effect/tsgo` 0.47) flag every import of an API tagged `@stability experimental` or
  * `@stability unstable`, and `apiStabilityLeak` (0.50) flags every untagged export whose types
  * expose one. This repository builds on Effect's `@stability unstable` modules (`effect/http`,
  * `effect/http-api`, `effect/cli`, and friends) on purpose.
+ *
+ * The import-style rules stay off: named helper imports are deliberate, and
+ * barrel imports contradict the dedicated Effect module-path law.
  *
  * **Example** (Read the disabled rule names)
  *
@@ -552,13 +564,19 @@ export class TsgoDisabledRule extends S.Opaque<TsgoDisabledRule, { readonly bran
  * import * as A from "effect/Array"
  *
  * console.log(A.map(tsgoDisabledRules, (disabled) => disabled.rule))
- * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage"]
+ * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage", "preferNamespaceImport", "preferBarrelImport"]
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
-export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule, TsgoDisabledRule] = [
+export const tsgoDisabledRules: readonly [
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+] = [
   TsgoDisabledRule.make({
     rule: "apiStabilityLeak",
     reason:
@@ -571,6 +589,15 @@ export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule, Ts
   TsgoDisabledRule.make({
     rule: "unstableApiUsage",
     reason: "The repository builds on @stability unstable Effect modules by design, so every import would be reported.",
+  }),
+  TsgoDisabledRule.make({
+    rule: "preferNamespaceImport",
+    reason:
+      "Namespace auto-import preferences do not prohibit deliberate named @beep helper and identity imports; enforcing this needs a separate import migration.",
+  }),
+  TsgoDisabledRule.make({
+    rule: "preferBarrelImport",
+    reason: "The code law requires dedicated Effect module paths rather than root barrel imports.",
   }),
 ];
 
@@ -3010,12 +3037,14 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
     });
   }
 
-  const configuredRuleNames = pipe(R.keys(diagnosticSeverity.value), A.sort(Order.String));
+  const profile = yield* readEffectDiagnosticsProfile(repoRoot);
+  const combinedSeverity = { ...diagnosticSeverity.value, ...profile.diagnosticSeverity };
+  const configuredRuleNames = pipe(R.keys(combinedSeverity), A.sort(Order.String));
   const missingRuleNames = A.filter(installedRuleNames, (ruleName) => !A.contains(configuredRuleNames, ruleName));
   const extraRuleNames = A.filter(configuredRuleNames, (ruleName) => !A.contains(installedRuleNames, ruleName));
   const { nonErrorSeverities, disabledSeverityEntries } = collectTsgoSeverityDiagnostics({
-    plugin: plugin.value,
-    diagnosticSeverity: diagnosticSeverity.value,
+    plugin: { ...plugin.value, diagnosticSeverity: combinedSeverity },
+    diagnosticSeverity: combinedSeverity,
   });
   const pluginOptionDiagnostics = collectPluginOptionParityDiagnostics(documentedOptionNames, plugin.value);
   const pluginProfileDiagnostics = yield* collectWorkspaceTsconfigProfileDiagnostics(repoRoot, plugin.value);
@@ -3228,7 +3257,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
   const srcDir = path.join(smokeDir, "src");
   const tsconfigPath = path.join(smokeDir, "tsconfig.json");
   const sourcePath = path.join(srcDir, "index.ts");
-  const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "tsgo");
+  const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "effect-tsgo");
 
   yield* fs
     .makeDirectory(srcDir, { recursive: true })
@@ -3270,7 +3299,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
     QualityTaskStep.make({
       label: "quality:tsgo-smoke",
       command: tsgoPath,
-      args: ["-p", tsconfigPath, "--pretty", "false"],
+      args: ["diagnostics", "--project", tsconfigPath, "--format", "text", "--strict"],
       cwd: repoRoot,
     })
   ).pipe(Effect.ensuring(fs.remove(smokeDir, { recursive: true }).pipe(Effect.ignore)));
@@ -4473,6 +4502,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality bun-audit",
     "- bun run beep quality test-tsgo",
     "- bun run beep quality tsgo-smoke",
+    "- bun run beep quality effect-diagnostics [--base <ref>] [--concurrency <1..6>] [--filter <workspace>]",
     "- bun run beep quality check-census [--filter <name>] [--output-json <path>]",
     "- bun run beep quality tsgo-rules",
     "- bun run beep quality jsdoc-module-tags",
@@ -4499,6 +4529,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     testTsgoCommand,
     testTsgoPackageCommand,
     tsgoSmokeCommand,
+    effectDiagnosticsCommand,
     checkCensusCommand,
     tsgoRulesCommand,
     jsdocModuleTagsCommand,

@@ -104,7 +104,7 @@ const ontoGround = (camera: Camera) => {
   const right = unit(cross(unit(camera.up), direction));
   const up = cross(direction, right);
   return (x: number, y: number): readonly [number, number] => {
-    const p = [0, 1, 2].map((i) => x * (right[i] ?? 0) + y * (up[i] ?? 0));
+    const p = A.map([0, 1, 2], (i) => x * (right[i] ?? 0) + y * (up[i] ?? 0));
     const t = -(p[2] ?? 0) / direction[2];
     return [(p[0] ?? 0) + t * direction[0], (p[1] ?? 0) + t * direction[1]];
   };
