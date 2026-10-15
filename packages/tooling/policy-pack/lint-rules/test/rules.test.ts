@@ -85,7 +85,7 @@ describe("native linter process outcomes", () => {
   for (const { name, ...termination } of [
     { name: "timeout", exitedDueToTimeout: true },
     { name: "buffer limit", exitedDueToMaxBuffer: true },
-    { name: "signal", signalCode: "SIGTERM" },
+    { name: "signal", signalCode: "SIGTERM" as const },
   ]) {
     it.effect(`rejects interrupted output ${name}`, () =>
       Effect.gen(function* () {
@@ -97,7 +97,7 @@ describe("native linter process outcomes", () => {
             exitCode: 0,
             stdout: "{}",
             stderr: "",
-            signal: O.fromNullishOr(interrupted.signalCode),
+            signal: O.map(O.fromNullishOr(interrupted.signalCode), String),
             timedOut: name === "timeout",
             outputTruncated: name === "buffer limit",
           })

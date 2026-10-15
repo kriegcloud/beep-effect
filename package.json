@@ -366,7 +366,8 @@
     "@effect/platform-node-shared@4.0.4": "patches/@effect%2Fplatform-node-shared@4.0.4.patch",
     "drizzle-orm@1.0.0-rc.5-ab785fc": "patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch",
     "effect@4.0.4": "patches/effect@4.0.4.patch",
-    "@xstate/effect@0.1.0-alpha.6": "patches/@xstate%2Feffect@0.1.0-alpha.6.patch"
+    "@xstate/effect@0.1.0-alpha.7": "patches/@xstate%2Feffect@0.1.0-alpha.7.patch",
+    "xstate@6.0.0-alpha.65": "patches/xstate@6.0.0-alpha.65.patch"
   },
   "private": true,
   "repository": {

@@ -125,7 +125,7 @@ const isLintExit = S.is(S.Literals([0, 1]));
  * @since 0.0.0
  */
 export const validateLinterProcess = (result: Bun.SyncSubprocess<"pipe", "pipe">) => {
-  const signal = O.fromNullishOr(result.signalCode);
+  const signal = O.map(O.fromNullishOr(result.signalCode), String);
   return isLintExit(result.exitCode) &&
     O.isNone(signal) &&
     result.exitedDueToTimeout !== true &&
