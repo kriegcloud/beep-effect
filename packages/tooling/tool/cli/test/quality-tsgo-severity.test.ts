@@ -1,11 +1,11 @@
 import { effectDiagnosticsAffectedPackages } from "@beep/repo-cli/commands/Quality/EffectDiagnostics";
-import { CoverageScopeOwner, workspaceDependentOwners } from "@beep/repo-cli/commands/Quality/internal/CoverageScope";
 import {
   collectTsgoSeverityDiagnosticsForTesting,
   isRejectedEffectDiagnosticsDirectiveForTesting,
   TsgoDisabledRule,
   tsgoDisabledRules,
 } from "@beep/repo-cli/commands/Quality/Quality.command";
+import { CoverageScopeOwner, workspaceDependentOwners } from "@beep/repo-cli/test/Quality";
 import * as A from "effect/Array";
 import { describe, expect, it } from "vitest";
 
