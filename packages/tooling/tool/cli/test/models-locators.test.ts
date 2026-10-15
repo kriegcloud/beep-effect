@@ -472,6 +472,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         '<root><q:option name="model" value="old"/></root>',
         '<root><![CDATA[<option name="model" value="old"/>]]></root>',
         '<root note="model"><option name="model" value="old"/></root>',
+        '<root><option name="model" value="old"/><option name="model" value="wrong"/></root>',
         '<root><option name="model" value="old" keep="model"/></root>',
       ])
         expect(O.getOrThrow(yield* reader.read(file(text), xml))).toMatch(/^Unsupported XML form: line [0-9]+/);
