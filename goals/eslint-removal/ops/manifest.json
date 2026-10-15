@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "eslint-removal",
+    "packetId": "goal-packet/v1:fbb2decc2e1ff3319d43c885f9d52e24e4d9a752b711d7dcfe9dbe77acdd317f",
+    "title": "Remove ESLint from the repository",
+    "status": "completed-retained",
+    "created": "2026-10-15",
+    "updated": "2026-10-15",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/eslint-removal",
+  "lifecycle": "completed-retained",
+  "mission": "Delete ESLint, its plugins, the typescript-eslint parser and BEEP_ESLINT_PROFILE now that both lint lanes run on oxlint, and move the non-ESLint law helpers out of src/eslint",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/eslint-removal/README.md",
+    "goals/eslint-removal/SPEC.md",
+    "goals/eslint-removal/PLAN.md",
+    "goals/eslint-removal/GOAL.md",
+    "goals/eslint-removal/research/SOURCES.md"
+  ],
+  "researchReports": ["research/SOURCES.md"],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/eslint-removal/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "complete"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "complete"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/eslint-removal/GOAL.md)\" -le 4000",
+    "jq . goals/eslint-removal/ops/manifest.json",
+    "rg -n \"eslint-removal|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/eslint-removal",
+    "git diff --check -- goals/eslint-removal",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

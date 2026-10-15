@@ -137,6 +137,37 @@ describe("thin lint workers", { concurrent: false }, () => {
       })
     );
     it.effect(
+      "rejects missing assignment summary",
+      Effect.fnUntraced(function* () {
+        captured.mockImplementation(() =>
+          Effect.succeed(StepExec.CapturedStep.make({ exitCode: 0, output: "", truncated: false }))
+        );
+        expect(yield* run(["deprecated-apis", "--package", "."]).pipe(Effect.flip)).toMatchObject({
+          _tag: "LintProgramAssignmentError",
+          message: expect.stringContaining("summary missing"),
+        });
+      })
+    );
+    it.effect(
+      "rejects assignment summary count mismatch",
+      Effect.fnUntraced(function* () {
+        captured.mockImplementation(() =>
+          Effect.succeed(
+            StepExec.CapturedStep.make({
+              exitCode: 0,
+              output:
+                "Done assigning files to programs. Total programs: 1. Unmatched files: 2\n  Unmatched file: readme.md\n",
+              truncated: false,
+            })
+          )
+        );
+        expect(yield* run(["deprecated-apis", "--package", "."]).pipe(Effect.flip)).toMatchObject({
+          _tag: "LintProgramAssignmentError",
+          message: expect.stringContaining("summary disagrees"),
+        });
+      })
+    );
+    it.effect(
       "rejects truncated assignment evidence",
       Effect.fnUntraced(function* () {
         captured.mockImplementation(() =>
@@ -188,7 +219,7 @@ describe("thin lint workers", { concurrent: false }, () => {
           yield* run(["policy-fingerprint", "--write"]);
           yield* fs.writeFileString(file, `  ${declaration}  `);
           yield* fs.writeFileString(`${root}/packages/cli/src/index.ts`, "changed source");
-          yield* fs.writeFileString(`${root}/eslint.config.mjs`, "changed config");
+          yield* fs.writeFileString(`${root}/.oxlintrc.docs.json`, "changed config");
           yield* run(["policy-fingerprint", "--check"]);
           yield* fs.writeFileString(
             `${root}/packages/cli/package.json`,
@@ -312,7 +343,6 @@ describe("thin lint workers", { concurrent: false }, () => {
         yield* run(["deprecated-apis", "--base", "refs/heads/caller-base"], { CI: "true" });
         expect(captured).toHaveBeenCalledTimes(1);
         expect(captured.mock.calls[0]?.[0].command).toBe(`${yield* findRepoRoot()}/node_modules/.bin/oxlint`);
-        expect(captured.mock.calls[0]?.[0].env?.BEEP_ESLINT_PROFILE).toBeUndefined();
         expect(captured.mock.calls[0]?.[0].args).not.toContain("--affected");
       })
     );
@@ -403,15 +433,14 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "runs package docs with zero warnings and appends a missing heap cap",
+      "runs package docs with oxlint and zero warnings",
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
-        yield* run(["jsdoc", "--package", "."], { NODE_OPTIONS: "--trace-warnings" });
+        yield* run(["jsdoc", "--package", `${root}/${prefix}`], { NODE_OPTIONS: "--trace-warnings" });
         expect(execution).toHaveBeenCalledExactlyOnceWith({
-          command: `${root}/node_modules/.bin/eslint`,
-          args: ["--config", `${root}/eslint.config.mjs`, "--max-warnings=0", "--no-warn-ignored", prefix],
+          command: `${root}/node_modules/.bin/oxlint`,
+          args: ["--config", `${root}/.oxlintrc.docs.json`, "--max-warnings=0", prefix],
           cwd: root,
-          env: { BEEP_ESLINT_PROFILE: "docs", NODE_OPTIONS: "--trace-warnings --max-old-space-size=12288" },
           extendEnv: true,
           stdio: "inherit",
         });
@@ -450,17 +479,15 @@ describe("thin lint workers", { concurrent: false }, () => {
         try {
           yield* run(["jsdoc", "--root-only"]);
           expect(execution).toHaveBeenCalledExactlyOnceWith({
-            command: `${fixtureRoot}/node_modules/.bin/eslint`,
+            command: `${fixtureRoot}/node_modules/.bin/oxlint`,
             args: [
               "--config",
-              `${fixtureRoot}/eslint.config.mjs`,
+              `${fixtureRoot}/.oxlintrc.docs.json`,
               "--max-warnings=0",
-              "--no-warn-ignored",
               "infra/example.ts",
               "packages/unowned/example.ts",
             ],
             cwd: fixtureRoot,
-            env: { BEEP_ESLINT_PROFILE: "docs", NODE_OPTIONS: "--max-old-space-size=12288" },
             extendEnv: true,
             stdio: "inherit",
           });
@@ -503,7 +530,7 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "propagates eslint worker failures",
+      "propagates oxlint worker failures",
       Effect.fnUntraced(function* () {
         execution.mockImplementation(() => Effect.succeed(7));
         captured.mockImplementation(() =>
@@ -516,12 +543,40 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
 });
 
-// These tests spawn the CLI (ts-morph, eslint) for real; under coverage instrumentation on a
+// These tests spawn the CLI (native parser, oxlint) for real; under coverage instrumentation on a
 // two-worker hosted runner the laws worker took 40 s on main and 60 s on PR #1079, so an explicit
 // 60 s cap raced the runner instead of catching hangs. The budget equals the package config's
 // coverage and deep-sweep `testTimeout` (300 s) so no per-test cap sits below the lane's own;
 // a hang still fails here because the CLI bounds its children.
 const EXECUTED_WORKER_TIMEOUT_MILLIS = 300_000;
+
+const installDocsFixture = Effect.fnUntraced(function* (root: string, fixtureRoot: string, worker: string) {
+  const fs = yield* FileSystem.FileSystem;
+  if (worker !== "jsdoc") return;
+  const pluginPackage = "packages/tooling/policy-pack/lint-rules";
+  yield* fs.makeDirectory(`${fixtureRoot}/${pluginPackage}`, { recursive: true });
+  yield* fs.copy(`${root}/${pluginPackage}/src`, `${fixtureRoot}/${pluginPackage}/src`);
+  yield* fs.copy(`${root}/.oxlintrc.docs.json`, `${fixtureRoot}/.oxlintrc.docs.json`);
+  yield* fs.copy(`${root}/tsdoc.json`, `${fixtureRoot}/tsdoc.json`);
+});
+
+const checkUnassignedFixture = Effect.fnUntraced(function* (root: string, fixture: string, worker: string) {
+  const fs = yield* FileSystem.FileSystem;
+  if (worker !== "deprecated-apis") return;
+  yield* fs.makeDirectory(`${fixture}/scripts/nested`, { recursive: true });
+  yield* fs.writeFileString(`${fixture}/scripts/nested/seed.ts`, "export {};\n");
+  const unassigned = yield* StepExec.runCaptured({
+    command: "bun",
+    args: ["run", `${root}/${prefix}/src/bin.ts`, "--", "lint", worker, "--package", "."],
+    cwd: fixture,
+    env: R.filter(process.env, (_, key) => !Str.startsWith("VITEST")(key)),
+    extendEnv: false,
+  });
+  expect(unassigned.exitCode, unassigned.output).not.toBe(0);
+  expect(unassigned.output).toContain("TypeScript files have no tsconfig owner:");
+  expect(unassigned.output).toContain("packages/tooling/tool/fixture/scripts/nested/seed.ts");
+  yield* fs.remove(`${fixture}/scripts`, { recursive: true });
+});
 
 describe("executed lint workers", { concurrent: false }, () => {
   it.layer(platform, { timeout: "30 seconds" })((it) => {
@@ -548,7 +603,7 @@ describe("executed lint workers", { concurrent: false }, () => {
         Effect.fnUntraced(function* () {
           const root = yield* findRepoRoot();
           const fs = yield* FileSystem.FileSystem;
-          // Preserve real ESLint profiles and their import.meta-relative root while keeping
+          // Preserve real oxlint profiles and their import.meta-relative root while keeping
           // generated source outside the production CLI project inspected by concurrent proofs.
           const fixtureRoot = yield* fs.makeTempDirectoryScoped({ prefix: "lint-worker-fixture-" });
           const fixture = `${fixtureRoot}/packages/tooling/tool/fixture`;
@@ -567,17 +622,7 @@ describe("executed lint workers", { concurrent: false }, () => {
             `${fixtureRoot}/tsconfig.json`,
             '{"files":[],"references":[{"path":"./packages/tooling/tool/fixture"}]}'
           );
-          const config = yield* fs.readFileString(`${root}/eslint.config.mjs`);
-          yield* fs.writeFileString(
-            `${fixtureRoot}/eslint.config.mjs`,
-            pipe(
-              config,
-              Str.replace(
-                '"@beep/repo-configs/eslint/DocsESLintConfig"',
-                `"./${configPackage}/src/eslint/DocsESLintConfig.ts"`
-              )
-            )
-          );
+          yield* installDocsFixture(root, fixtureRoot, worker);
           const nativeProfile = yield* fs.readFileString(`${root}/.oxlintrc.deprecated-apis.jsonc`);
           yield* fs.writeFileString(`${fixtureRoot}/.oxlintrc.deprecated-apis.jsonc`, nativeProfile);
           yield* fs.writeFileString(`${fixture}/package.json`, '{"name":"@beep/lint-worker-fixture","type":"module"}');
@@ -606,21 +651,7 @@ describe("executed lint workers", { concurrent: false }, () => {
             expect(output).toContain("project_source_files=1");
             expect(output).toContain("package-test-imports");
           }
-          if (worker === "deprecated-apis") {
-            yield* fs.makeDirectory(`${fixture}/scripts/nested`, { recursive: true });
-            yield* fs.writeFileString(`${fixture}/scripts/nested/seed.ts`, "export {};\n");
-            const unassigned = yield* StepExec.runCaptured({
-              command: "bun",
-              args: ["run", `${root}/${prefix}/src/bin.ts`, "--", "lint", worker, "--package", "."],
-              cwd: fixture,
-              env: R.filter(process.env, (_, key) => !Str.startsWith("VITEST")(key)),
-              extendEnv: false,
-            });
-            expect(unassigned.exitCode, unassigned.output).not.toBe(0);
-            expect(unassigned.output).toContain("TypeScript files have no tsconfig owner:");
-            expect(unassigned.output).toContain("packages/tooling/tool/fixture/scripts/nested/seed.ts");
-            yield* fs.remove(`${fixture}/scripts`, { recursive: true });
-          }
+          yield* checkUnassignedFixture(root, fixture, worker);
           if (worker === "jsdoc" || worker === "deprecated-apis") {
             yield* fs.writeFileString(
               `${fixture}/src/index.ts`,
@@ -637,7 +668,7 @@ describe("executed lint workers", { concurrent: false }, () => {
               extendEnv: false,
             });
             expect(invalid.exitCode, invalid.output).not.toBe(0);
-            expect(invalid.output).toContain(worker === "jsdoc" ? "jsdoc/require-jsdoc" : "typescript(no-deprecated)");
+            expect(invalid.output).toContain(worker === "jsdoc" ? "beep(require-jsdoc)" : "typescript(no-deprecated)");
           }
         }),
         EXECUTED_WORKER_TIMEOUT_MILLIS

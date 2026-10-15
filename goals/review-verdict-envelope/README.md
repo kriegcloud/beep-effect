@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -58,11 +58,39 @@ Related work:
 
 ## Current Phase
 
-P0 Evidence — not started. P1 Schema can start in parallel.
+Closed (`completed-retained`). P0–P5 are complete; the PR that carries P0–P2 also carries
+the closeout. The in-app Claude for Word run stays with the operator and blocks nothing.
 
 ## Latest Evidence
 
-Not started.
+- **P0:** [`history/spikes-2026-10-14.md`](./history/spikes-2026-10-14.md).
+  - S1 (pane docks, resizes and highlights) and S3 (the Box text read) are GO on the Linux desktop
+    Code tab; the operator waived the Windows run.
+  - S2: page images are legible.
+  - S3b: whole Box pages exceed the desktop Svg cap, so producers ship crops.
+  - S4: no selection reads, so notes are typed.
+  - S6: Reply and side chat exist on selection.
+  - S8: links open the external browser at `#page=N`.
+  - Word check: documented; an in-app run on the attorney's workstation is pending with the
+    operator.
+- **P1:**
+  - `SourceRef` with `TextQuote` and a page-checked `crop`;
+  - the `ReviewItem` tagged union (six kinds, `claim-finding.claimId`);
+  - `VerdictRow` (`batchId`, `recordedAt`, a batch-scoped lock);
+  - in `@beep/law-practice-domain`, with tests in `test/ReviewVerdict.test.ts`.
+- **P2:**
+  - `ReviewQueue` (serialized writes, batch-scoped lock, `VerdictBatchLockedError`) and
+    `VerdictProjector` (pure; `ClaimDispositionProjection` in `VerdictProjector.schemas.ts`), in
+    `@beep/law-practice-use-cases`;
+  - S5 round trip in `test/ReviewVerdict.roundtrip.test.ts`, including a cross-batch tie and a
+    property test against an independent model.
+- **P3:** the amendment was delivered to the `practice-claude-mod` owner, who applied it in their
+  packet as D15 (the gated P1b review queue) and D16 (`VerdictRow` mirrors this envelope). The
+  text is in
+  [`AMENDMENT-practice-claude-mod.md`](../../explorations/attorney-review-workspace/research/AMENDMENT-practice-claude-mod.md),
+  updated through PR #1712 for `batchId`, `recordedAt` and the text-read S3 gate.
+- **P5:** closeout reflection in
+  [`history/reflections/2026-10-14-claude.md`](./history/reflections/2026-10-14-claude.md).
 
 ## Notes
 

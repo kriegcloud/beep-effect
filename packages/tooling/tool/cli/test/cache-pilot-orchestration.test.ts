@@ -461,7 +461,7 @@ const fixture = Effect.fn("PilotOrchestrationTest.fixture")(function* (
                     16
                   )(
                     yield* hash(
-                      `${sourceText}:${readme}:${added}:${rootConfigBytes}:${profileBytes}:${env.BEEP_ESLINT_PROFILE ?? "absent"}:${enabled}:${mutationKey()}:${A.join(signedRootInputs, ":")}:${isSignedInvocation() ? child + dependencySource : ""}`
+                      `${sourceText}:${readme}:${added}:${rootConfigBytes}:${profileBytes}:${env.VITE_COSMOS_SPIKE ?? "absent"}:${enabled}:${mutationKey()}:${A.join(signedRootInputs, ":")}:${isSignedInvocation() ? child + dependencySource : ""}`
                     )
                   );
                   const cacheFile = `cache/${taskHash}`;

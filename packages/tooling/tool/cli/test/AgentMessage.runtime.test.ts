@@ -119,7 +119,7 @@ const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture"
   return { fs, state, filename, profile, write, grantFile, grant, writeGrant, execute };
 });
 
-it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, Reactivity.layer, TestConsole.layer), {
+it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer, Reactivity.layer), {
   timeout: "20 seconds",
 })("Managed serve CLI boundary", (it) => {
   it.effect("rejects missing, exposed and credential-bearing profiles before native launch", () =>

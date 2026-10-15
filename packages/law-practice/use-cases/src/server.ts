@@ -6,6 +6,21 @@
  * @since 0.0.0
  */
 
+/**
+ * Claim self-check models, errors, USPTO claims port and service contract.
+ *
+ * **Example** (Verify the self-check service export)
+ *
+ * ```ts
+ * import { ClaimSelfCheck } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(Object.keys(ClaimSelfCheck).includes("ClaimSelfCheck")) // true
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ClaimSelfCheck from "./ClaimSelfCheck/index.ts";
 /** Document identification schemas, ports and pure pipeline. @category services @since 0.0.0 */
 export * as DocumentIdentification from "./DocumentIdentification/index.ts";
 /**
@@ -81,9 +96,41 @@ export * from "./PracticeKg.correspondent-lookup.ts";
 export * from "./PracticeKg.matter-lookup.ts";
 export * from "./PracticeKg.tools.ts";
 /**
+ * Attorney review queue: typed errors, the verdict-log port and the queue
+ * contract.
+ *
+ * **Example** (Reference the review queue service)
+ *
+ * ```ts
+ * import { ReviewQueue } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(ReviewQueue.ReviewQueue.key)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ReviewQueue from "./ReviewQueue/index.ts";
+/**
  * Canonical toolkit composers.
  *
  * @category tools
  * @since 0.0.0
  */
 export * from "./Tools.ts";
+/**
+ * Verdict projector: claim-disposition projection values and the pure
+ * projector contract.
+ *
+ * **Example** (Read the projector's confirm reason)
+ *
+ * ```ts
+ * import { VerdictProjector } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(VerdictProjector.ATTORNEY_CONFIRMED_REASON) // "Attorney confirmed the finding"
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as VerdictProjector from "./VerdictProjector/index.ts";

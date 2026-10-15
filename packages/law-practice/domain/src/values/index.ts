@@ -27,6 +27,19 @@ export * from "./ActFrameElementRef/index.ts";
  */
 export * from "./AnnotationCitation/index.ts";
 /**
+ * Answer-row value-object exports.
+ *
+ * **Example** (Import the answer-row value objects)
+ *
+ * ```ts
+ * import { AnswerRow } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./AnswerRow/index.ts";
+/**
  * Patent application number value-object exports.
  *
  * @category value-objects
@@ -145,6 +158,13 @@ export * from "./CitationWarning/index.ts";
  * @since 0.0.0
  */
 export * from "./CitingApplicationIdentity/index.ts";
+/**
+ * Claim-element tree, edge, and antecedent-finding value-object exports.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./ClaimElement/index.ts";
 /**
  * Component-span value-object exports.
  *
@@ -680,6 +700,19 @@ export * from "./PriorityBasis/index.ts";
  */
 export * from "./PublicLawCitation/index.ts";
 /**
+ * Question value-object exports.
+ *
+ * **Example** (Import the question value objects)
+ *
+ * ```ts
+ * import { QuestionOption } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./Question/index.ts";
+/**
  * Regulation-citation value-object exports.
  *
  * **Example** (Import the regulation-citation value objects)
@@ -718,6 +751,19 @@ export * from "./ResolutionResult/index.ts";
  * @since 0.0.0
  */
 export * from "./RestatementCitation/index.ts";
+/**
+ * Review-item value-object exports.
+ *
+ * **Example** (Import the review-item value objects)
+ *
+ * ```ts
+ * import { ReviewItem } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./ReviewItem/index.ts";
 /**
  * Segment value-object exports.
  *
@@ -790,6 +836,19 @@ export * from "./ShortFormCitationType/index.ts";
  * @since 0.0.0
  */
 export * from "./SourceNormRef/index.ts";
+/**
+ * Review source-reference value-object exports.
+ *
+ * **Example** (Import the review source-reference value objects)
+ *
+ * ```ts
+ * import { SourceRef } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./SourceRef/index.ts";
 /**
  * Span value-object exports.
  *
@@ -920,3 +979,16 @@ export * from "./TreatiseCitation/index.ts";
  * @since 0.0.0
  */
 export * from "./TreatyCitation/index.ts";
+/**
+ * Verdict-row value-object exports.
+ *
+ * **Example** (Import the verdict-row value objects)
+ *
+ * ```ts
+ * import { VerdictRow } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./VerdictRow/index.ts";

@@ -1542,6 +1542,8 @@ repairs both; acknowledge with the actual main merge commit, not a waiver.
 The separately reported Sherif ordering issue still requires live attribution
 on the new head if it appears.
 
+- 2026-10-14: Documentation lint migration is owned by `goals/docs-lint-oxlint-rules`
+  (TS7 lane B). The orchestrator attaches the publishing PR; ESLint removal waits for lane A.
 ### 2026-10-14 — A resumed integration reveals a new internal consumer
 
 The first `beep session open` failed with `Export named parseP6Header not found`. Main added `packages/drivers/pdf-tools/src/internal/coverage.ts` after the saved Knip scan. The lane restored the internal export during merge resolution rather than removing the live consumer. A consumer check at integration would have prevented this failure. The recorded October 9 scan remains historical evidence.
@@ -2107,3 +2109,9 @@ TS377032 `strictEffectProvide`. The file matches main; blame binds the call
 to #1766 (`55b1836e40`). Route this to its owner instead of inserting a
 suppression or copying a fix into H4. Main-owned test entry points need the
 same dedicated test typecheck before their publication.
+
+### 2026-10-15 — TS7 exit B2 ESLint removal
+
+Lane B2 (`chore/ts7-remove-eslint`, `goals/eslint-removal`) removes the remaining
+ESLint installation after oxlint lanes #1753 and #1791. The orchestrator will link
+the removal PR at publication; law helpers retain their behavior under `laws/`.

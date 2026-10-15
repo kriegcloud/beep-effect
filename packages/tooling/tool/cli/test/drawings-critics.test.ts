@@ -20,6 +20,11 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const UnknownJson = S.fromJsonString(S.Unknown);
+const encodeJson = S.encodeUnknownEffect(UnknownJson);
+const decodeJson = S.decodeUnknownEffect(UnknownJson);
 
 const accept = (reviewer: string): CriticReport =>
   CriticReport.make({
@@ -54,7 +59,7 @@ describe("critic report contract", () => {
         priorAssessment: [{ id: "A-01", stance: "confirm", note: "Measured 1.50 mm." }],
         findings: [finding("G-01"), finding("G-02", O.some("A-01"))],
       });
-      const text = JSON.stringify({
+      const text = yield* encodeJson({
         reviewer: "grok-4.7",
         verdict: "accept",
         blockers: [],
@@ -74,20 +79,8 @@ describe("critic report contract", () => {
 
   it.effect("derives a JSON Schema in which every key is required and no excess property is allowed", () =>
     Effect.gen(function* () {
-      const schema = JSON.parse(criticReportJsonSchema()) as {
-        readonly required: ReadonlyArray<string>;
-        readonly additionalProperties?: boolean;
-        readonly properties: Record<
-          string,
-          {
-            readonly items?: {
-              readonly required?: ReadonlyArray<string>;
-              readonly properties?: Record<string, { readonly required?: ReadonlyArray<string> }>;
-            };
-          }
-        >;
-      };
-      expect(schema.required).toStrictEqual([
+      const schema = yield* decodeJson(criticReportJsonSchema());
+      expect(schema).toHaveProperty("required", [
         "reviewer",
         "verdict",
         "blockers",
@@ -95,18 +88,17 @@ describe("critic report contract", () => {
         "findings",
         "couldNotAssess",
       ]);
-      expect(schema.additionalProperties).toBe(false);
-      const findingSchema = schema.properties.findings?.items;
-      expect(findingSchema?.required).toContain("relation");
+      expect(schema).toHaveProperty("additionalProperties", false);
+      expect(schema).toHaveProperty("properties.findings.items.required", expect.arrayContaining(["relation"]));
       // The strict structured-output modes refuse an optional key; `of` is required and nullable.
-      expect(findingSchema?.properties?.relation?.required).toStrictEqual(["kind", "of"]);
+      expect(schema).toHaveProperty("properties.findings.items.properties.relation.required", ["kind", "of"]);
       expect(criticReportJsonSchema()).not.toMatch(/"(allOf|minLength|title|minimum|maximum|\$ref)"/);
     })
   );
 
   it.effect("rejects a report whose finding carries an unknown category", () =>
     Effect.gen(function* () {
-      const text = JSON.stringify({
+      const text = yield* encodeJson({
         ...accept("x"),
         findings: [{ ...finding("X-01"), relation: { kind: "new", of: null }, category: "taste" }],
       });
@@ -119,25 +111,32 @@ describe("critic report contract", () => {
 describe("extractReportText", () => {
   const document = '{"reviewer":"x","verdict":"accept"}';
 
-  it("reads a Grok wrapper's structuredOutput, or its text when absent", () => {
-    assertSome(
-      extractReportText({
-        route: "grok",
-        text: JSON.stringify({ text: "", structuredOutput: { reviewer: "x", verdict: "accept" } }),
-      }),
-      document
-    );
-    assertSome(extractReportText({ route: "grok", text: JSON.stringify({ text: `Here: ${document}` }) }), document);
-  });
+  it.effect("reads a Grok wrapper's structuredOutput, or its text when absent", () =>
+    Effect.gen(function* () {
+      assertSome(
+        extractReportText({
+          route: "grok",
+          text: yield* encodeJson({ text: "", structuredOutput: { reviewer: "x", verdict: "accept" } }),
+        }),
+        document
+      );
+      assertSome(
+        extractReportText({ route: "grok", text: yield* encodeJson({ text: `Here: ${document}` }) }),
+        document
+      );
+    })
+  );
 
-  it("reads the last result event of a claude -p stream-json array", () => {
-    const events = JSON.stringify([
-      { type: "system", subtype: "init" },
-      { type: "result", result: "not this one {}" },
-      { type: "result", result: `Final:\n${document}\n` },
-    ]);
-    assertSome(extractReportText({ route: "claude", text: events }), document);
-  });
+  it.effect("reads the last result event of a claude -p stream-json array", () =>
+    Effect.gen(function* () {
+      const events = yield* encodeJson([
+        { type: "system", subtype: "init" },
+        { type: "result", result: "not this one {}" },
+        { type: "result", result: `Final:\n${document}\n` },
+      ]);
+      assertSome(extractReportText({ route: "claude", text: events }), document);
+    })
+  );
 
   it("reads the outermost braces of cursor and codex text, and none when there are none", () => {
     assertSome(extractReportText({ route: "cursor", text: `prose ${document} trailing` }), document);
@@ -229,6 +228,36 @@ describe("invocations", () => {
     expect(kimi.args).toContain("/crate");
     expect(kimi.args).toContain("enabled");
     expect(kimi.args).not.toContain("disabled");
+  });
+
+  it("confines lower-trust Grok and Claude critics to read-only tools", () => {
+    const byName = (name: string) =>
+      O.getOrThrow(A.findFirst(DEFAULT_CRITIC_REVIEWERS, (reviewer) => reviewer.name === name));
+    const flagValue = (args: ReadonlyArray<string>, flag: string) =>
+      args[O.getOrThrow(A.findFirstIndex(args, (arg) => arg === flag)) + 1];
+    const grok = criticInvocation({ ...base, reviewer: byName("grok-4.7") });
+    expect(flagValue(grok.args, "--permission-mode")).toBe("dontAsk");
+    expect(flagValue(grok.args, "--sandbox")).toBe("strict");
+    expect(A.zip(grok.args, A.drop(grok.args, 1))).toEqual(
+      expect.arrayContaining([
+        ["--allow", "Read"],
+        ["--allow", "Grep"],
+        ["--deny", "Bash"],
+        ["--deny", "Edit"],
+        ["--deny", "MCPTool"],
+        ["--deny", "WebFetch"],
+        ["--deny", "WebSearch"],
+      ])
+    );
+    expect(grok.args).toEqual(expect.arrayContaining(["--disable-web-search", "--no-subagents", "--no-memory"]));
+    expect(grok.args).not.toContain("bypassPermissions");
+
+    const claude = criticInvocation({ ...base, reviewer: byName("claude-fable-5.1") });
+    expect(flagValue(claude.args, "--permission-mode")).toBe("dontAsk");
+    expect(flagValue(claude.args, "--permission-prompts")).toBe("none");
+    expect(flagValue(claude.args, "--tools")).toBe("Read");
+    expect(claude.args).toContain("--restricted");
+    expect(claude.args).not.toContain("bypassPermissions");
   });
 
   it.effect("selects reviewers by name in the order given and refuses an unknown one", () =>

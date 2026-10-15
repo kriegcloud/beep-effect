@@ -7,37 +7,11 @@
  */
 
 import { $PracticeClaudeModId } from "@beep/identity/packages";
+import { ReviewItemId } from "@beep/law-practice-domain/values";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $PracticeClaudeModId.create("PracticeMod.values");
-
-/**
- * The attorney's judgement of one answer.
- *
- * **Example** (Guard a verdict)
- *
- * ```ts
- * import * as S from "effect/Schema"
- * import { Verdict } from "@/PracticeMod.values"
- *
- * console.log(S.is(Verdict)("wrong")) // true
- * ```
- *
- * @category schemas
- * @since 0.0.0
- */
-export const Verdict = LiteralKit(["right", "wrong", "partly"]).pipe(
-  $I.annoteSchema("Verdict", { description: "The attorney's judgement of one answer." })
-);
-
-/**
- * Type-level union produced by {@link Verdict}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type Verdict = typeof Verdict.Type;
 
 /**
  * The practice-kg tools whose calls the mod redraws in plain language.
@@ -73,6 +47,15 @@ export const PracticeKgToolName = LiteralKit([
 
 /**
  * Type-level union produced by {@link PracticeKgToolName}.
+ *
+ * **Example** (Name a redrawn tool)
+ *
+ * ```ts
+ * import type { PracticeKgToolName } from "@/PracticeMod.values"
+ *
+ * const tool: PracticeKgToolName = "kg_matter_lookup"
+ * console.log(tool) // "kg_matter_lookup"
+ * ```
  *
  * @category type-level
  * @since 0.0.0
@@ -135,59 +118,12 @@ export class ChosenMatter extends S.Opaque<ChosenMatter, { readonly brand: uniqu
  */
 export class KgAnswerItem extends S.Opaque<KgAnswerItem, { readonly brand: unique symbol }>()(
   S.Struct({
-    itemId: S.NonEmptyString,
+    itemId: ReviewItemId,
     sessionId: S.NonEmptyString,
     turnId: S.NonEmptyString,
     question: S.String,
     matter: S.OptionFromNullOr(ChosenMatter),
   }).pipe($I.annoteSchema("KgAnswerItem", { description: "The completed turn a per-answer verdict targets." }))
-) {}
-
-/**
- * One verdict revision on one item. Rows are append-only: undo and changes
- * append a higher `revision`, and a row with `lockedAt` ends the item.
- *
- * **Details**
- *
- * The field set mirrors the shared review verdict envelope so the schema can
- * move to `@beep/law-practice-domain` unchanged once a second consumer reads
- * it (D10, D16).
- *
- * **Example** (Make a verdict row)
- *
- * ```ts
- * import * as DateTime from "effect/DateTime"
- * import * as O from "effect/Option"
- * import * as S from "effect/Schema"
- * import { VerdictRow } from "@/PracticeMod.values"
- *
- * const row = VerdictRow.make({
- *   schemaVersion: "practice-verdict/v1",
- *   itemId: "kg-answer:s-1:t-1",
- *   verdict: O.some("wrong"),
- *   note: O.some("Missed the continuation."),
- *   revision: S.Natural.make(0),
- *   recordedAt: DateTime.makeUnsafe(0),
- *   lockedAt: O.none(),
- * })
- * console.log(row.revision) // 0
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class VerdictRow extends S.Opaque<VerdictRow, { readonly brand: unique symbol }>()(
-  S.Struct({
-    schemaVersion: S.Literal("practice-verdict/v1"),
-    itemId: S.NonEmptyString,
-    verdict: S.OptionFromNullOr(Verdict).annotateKey({
-      description: "The verdict; none when this revision undoes the previous one.",
-    }),
-    note: S.OptionFromNullOr(S.NonEmptyString),
-    revision: S.Natural,
-    recordedAt: S.DateTimeUtcFromString,
-    lockedAt: S.OptionFromNullOr(S.DateTimeUtcFromString),
-  }).pipe($I.annoteSchema("VerdictRow", { description: "One append-only verdict revision on one reviewed item." }))
 ) {}
 
 /**

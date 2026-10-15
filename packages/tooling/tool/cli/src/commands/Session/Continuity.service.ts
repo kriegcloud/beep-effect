@@ -55,6 +55,8 @@ const decodeTuple = flow(
 );
 const isSettings = S.is(Settings);
 const decodeClaudeLine = S.decodeUnknownOption(S.fromJsonString(ClaudeLine));
+const decodeContinuityInput = S.decodeUnknownEffect(S.fromJsonString(ContinuityInput));
+const decodeClaudeApp = S.decodeUnknownEffect(S.fromJsonString(ClaudeApp));
 const equivalentPolicy = S.toEquivalence(PermissionTuple);
 const tupleText = (tuple: PermissionTuple): string => `${tuple.approval}/${tuple.sandbox}/${tuple.profile}`;
 const lines = (text: string) => A.filter(A.map(Str.split(text, "\n"), Str.trim), Str.isNonEmpty);
@@ -246,7 +248,7 @@ export const PermissionContinuityLive = Layer.effect(
     return PermissionContinuity.of({
       read: Effect.fn("PermissionContinuity.read")(function* (manifest) {
         const input = yield* readText(manifest).pipe(
-          Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(ContinuityInput))),
+          Effect.flatMap(decodeContinuityInput),
           Effect.mapError(() => failure("Cannot decode the continuity manifest"))
         );
         const resolve = (file: string) => path.resolve(path.dirname(path.resolve(manifest)), file);
@@ -292,7 +294,7 @@ export const PermissionContinuityLive = Layer.effect(
           input.claude,
           Effect.fnUntraced(function* (pair) {
             const app = yield* readText(resolve(pair.app)).pipe(
-              Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(ClaudeApp))),
+              Effect.flatMap(decodeClaudeApp),
               Effect.mapError(() => failure("Cannot decode selected Claude app record"))
             );
             const transcript = lines(yield* readText(resolve(pair.transcript)));
