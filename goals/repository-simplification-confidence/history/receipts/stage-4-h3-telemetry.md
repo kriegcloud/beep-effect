@@ -497,3 +497,19 @@ The first long CLI audit passed 6,444 tests but spanned a main merge; three newl
 The derived transcript schema now defaults collection completeness to false. Session and source-file rows store the marker; session and turn OTLP spans expose `ai_metrics.session_stamp_collection_complete`. The mixed-shard/refusal regression matrix verifies that good stamps survive, every partial collection is marked false, and fully collected retained stamps are true. Existing records remain unverified through a default-false additive DuckDB migration. The repaired full metrics package audit and docgen pass.
 
 Reconciliation and pruning convert invalid agent kinds to typed input errors; reconciliation reports tagged failures through the standard CLI stderr/reported-exit path. Bare help lists reconciliation's required directories, client selection and the pruning client selector.
+
+Round-2 integrated qualification after main #1796: the canonical package-verify commands fail before audit because unchanged scheduler code calls the new Effect-valued Crypto UUID member. Dependency checks, `quality test-tsgo` and the scratchpad dependency of `docgen:local --base origin/main` fail at the same unchanged main-owned boundary. All 27 identified diagnostic files match origin/main. The codemod/check passes with no new sites; fixup changes no files. `lint schema-first` passes. Metrics' own 425 tests and lint pass; focused CLI 76 tests pass with independent temp backing. The earlier complete metrics package audit/docgen pass is retained as pre-merge proof, not represented as integrated-head success.
+
+| Scoped coverage file | Lines | Statements | Branches | Functions |
+| --- | ---: | ---: | ---: | ---: |
+| `packages/tooling/library/ai-metrics/src/forwarder.ts` | 90.78 | 90.19 | 79.06 | 80.17 |
+| `packages/tooling/tool/cli/src/commands/AIMetrics/internal/Programs.ts` | 70.9 | 70.61 | 57.07 | 74.26 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts` | 93.93 | 86.84 | 100 | 66.66 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/internal/PruneWindow.ts` | 96.02 | 94.37 | 84.9 | 90.22 |
+| `packages/tooling/library/ai-metrics/src/derived-storage.ts` | 94.15 | 94.3 | 100 | 80.85 |
+| `packages/tooling/library/ai-metrics/src/otlp.ts` | 93.61 | 94.03 | 77.27 | 87.69 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts` | 25.39 | 24.8 | 5.71 | 13.46 |
+
+Seven matching committed baseline rows were read, never rewritten. The three round-2 files meet their rows. PruneWindow keeps the round-1 scoped values below the historical line/statement/function floors; this is a scoped read, not a complete ratchet pass.
+
+The integrated round-2 parity sequence terminates: JSDoc ratchet, knowledge refs, Fallow audit/health and retired Effect paths pass. Test-tsgo and local docgen retain the inherited Crypto migration failures described above; metrics and CLI package docgen themselves pass. All owned local test/parity runners have terminated.

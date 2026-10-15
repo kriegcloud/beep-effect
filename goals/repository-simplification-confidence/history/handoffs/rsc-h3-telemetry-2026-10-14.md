@@ -1,31 +1,20 @@
 lane: rsc-h3-telemetry
-head: c2dd59aaede3bbca6867c2be0dd40859dc7add7a
-pr: #1590 (OPEN, ready for review; one review-wave push; all three assigned threads resolved)
-package-verify: @beep/repo-ai-metrics pass (fresh full audit 46.0s / docgen 6.5s); @beep/repo-cli fail (full invocation: environment-only shared-temp Git metadata; 6,494 tests passed, 28 fixtures failed). Composed CLI verification passes: independent-temp affected suite 76/76, fresh compile/lint, dependency build and full package docgen through docgen:local. The original nonzero full command is retained; no full-command pass is claimed.
-hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet pass; knowledge refs pass; fallow audit/health pass; coverage read pass (four matching baseline rows, 67 metrics + 76 CLI scoped tests; no full coverage-ratchet pass claimed); retired Effect paths pass
+head: round-2 qualification source ca43c9850e; exact delivery SHA recorded after publication
+pr: #1590 (OPEN, ready for review; round 1 published, round 2 content final)
+package-verify: @beep/repo-ai-metrics fail at integrated head (inherited Crypto UUID scheduler runtime); @beep/repo-cli fail at integrated head (same inherited runtime). Metrics full package verification passed before this main merge. Integrated metrics tests 425/425 and lint pass; scoped CLI tests 76/76 pass. Historical full CLI audit retains its diagnosed environmental failure (6,494 pass, 28 temp/Git fixtures fail); independent-temp rerun passes.
+hosted-parity: test-tsgo fail (inherited Effect 4.0.4 Crypto migration); docgen local fail (scratchpad dependency at the same inherited boundary; metrics and CLI docgen pass); jsdoc-ratchet pass; knowledge refs pass; fallow audit/health pass; coverage read pass (seven baseline rows read, no full ratchet pass claimed); retired Effect paths pass
 receipt: goals/repository-simplification-confidence/history/receipts/stage-4-h3-telemetry.md
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h3-telemetry-2026-10-14.md
 per-client buckets: claude stamped in recorded adapter/native workflows, last recorded live window 0/30; codex stamped direct adapter, native trust/ancestry unknown, native metrics unstamped-by-design; cursor stamped direct adapter/native start, native tools unqualified, native OTel/reconciliation unsupported; junie unsupported; grok unsupported
-requests to rsc-f-agents / rsc-shared: F retains native Codex trust/root-child attribution, namespace cutover/global projection, desktop/Codex OTel fields and archive-key reference ownership; shared/orchestrator owns serialization of regenerated instrumentation catalog/architecture section, exact-head hosted gate, merge and retirement
-open items: hosted checks and latest-push review window; full CLI invocation retains the diagnosed environmental exit; existing native/home/remote qualification limits and incomplete 30-session windows. No capability is classified genuinely unused. No home configuration, installed timer or remote deployment was changed.
+requests to rsc-f-agents / rsc-shared: F retains native Codex trust/root-child attribution, namespace cutover/global projection, desktop/Codex OTel fields and archive-key reference ownership; shared/orchestrator owns main's Effect 4.0.4 Crypto migration, generated catalog serialization, exact-head hosted gate, merge and retirement
+open items: inherited main Crypto migration breaks scheduler/Yeet/package verification, dependency checks, test-tsgo and scratchpad docgen; hosted checks and latest-push review window; native/home/remote qualification limits and incomplete 30-session windows. No capability is classified genuinely unused.
 
-Review wave: all three findings fixed in one successful push. Hook collection keeps decodable stamps per shard and reports failed shards/rejected records/completeness in run and status JSON. Refusal decoding keeps valid records and reports rejects; valid intersecting gaps still suppress stamps and unreadable gap evidence stays fail-closed. Prune coverage now emits stamped from qualifying evidence and unsupported for Junie/Grok. Supported-client absence stays unknown.
+Round 1 fixed all three assigned findings in one successful push to c2dd59aaede3bbca6867c2be0dd40859dc7add7a. Decodable hook/refusal records survive bad siblings; rejects and collection completeness are reported. Prune coverage emits stamped from qualifying counts and unsupported for Junie/Grok. REST replies: 4277634220, 4277634390, 4277634543. Original threads were resolved and completely re-read.
 
-REST replies and resolved threads:
-- comment 4276613162 -> reply 4277634220; PRRT_kwDOPbO_N86siFMt
-- comment 4276613174 -> reply 4277634390; PRRT_kwDOPbO_N86siFM1
-- comment 4276613187 -> reply 4277634543; PRRT_kwDOPbO_N86siFM_
+Final re-read found three new round-2 threads, all addressed together: retained session stamps now carry explicit collection completeness in both DuckDB tables and both session/turn OTLP projections; historical defaults stay false. Mixed-shard/refusal regressions verify valid stamps survive but incomplete evidence is marked false. Reconciliation reports tagged failures through standard stderr/reported exit, and both reconciliation and pruning use typed input errors for invalid client names. Bare help advertises reconciliation and client selection. Manual CLI smoke checks prove the diagnostics and exit 1.
 
-Complete post-resolution thread reads succeeded: exactly three threads, all resolved, no thread/comment pagination. GitHub confirms the exact published SHA and ready state. Structural mergeability is MERGEABLE; complete merge readiness is not claimed. Hosted checks remain pending; the only observed failures are Vercel build-rate-limit deployments, acknowledged as environment-only.
+Main 5169ea9584 is integrated. The schema codemod and check found no new sites; fixup found no schema repairs. The inherited Crypto diagnostic files match main. Instrumentation artifacts were regenerated through the owner command after resolving the generated-section merge conflict. No baseline was rewritten.
 
-All final parity commands ran on the publication head. Main's test typecheck repair cleared the former AgentMessage diagnostic; JSDoc is also green. The newly introduced instrumentation catalog gate was repaired through its owner command, with generated artifacts committed. Earlier publication attempts refused before push; no second push occurred. Yeet's successful publication passed cheap gates and the clean-head install preflight.
+Round-2 scoped coverage: 70 metrics plus 76 CLI tests pass, seven matching baseline rows read. Derived storage and OTLP retain baseline coverage; the command improves its baseline. PruneWindow retains the round-1 scoped values, which sit below historical line/statement/function floors; no full coverage-ratchet pass is claimed.
 
-The local readiness monitor cfa0f042-7fff-49f7-843f-d446b2c34e9c was stopped for orchestrator handoff; job wait returned terminal exit 3 and its service is inactive. No owned local gate remains running. External hosted runs were left intact. The committed handoff binds validation source; this exact-SHA, post-push delivery update is the sole uncommitted metadata file.
-
-Recovery: revert the H3 review commits/PR; additive evidence remains readable. The orchestrator re-reads threads and enforces the latest-push review window before merging, then tells this lane to retire.
-
-graft: approximately 106,592 tokens saved (two queries) in this review wave.
-
-final c2dd59aaede3bbca6867c2be0dd40859dc7add7a #1590
-
-Round-2 work opened after final re-read: six total threads; the original three are resolved, new threads PRRT_kwDOPbO_N86skjHQ / PRRT_kwDOPbO_N86skk4_ / PRRT_kwDOPbO_N86skk5F are being addressed. The prior final dispatch certifies round 1 only.
+Recovery: revert the H3 review commits/PR. Additive evidence stays readable; the nullable default-false migration and reader coalesce preserve historical rows. No home config, installed timers or remote deployments were changed. The orchestrator owns merge/retirement.
