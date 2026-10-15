@@ -265,6 +265,41 @@ describe("beep session open hot parcels", () => {
   );
 
   it.layer(memoryFiles, { timeout: "30 seconds" })("on a memory filesystem", (it) => {
+    it.effect("dates a carried line by its reading's as-of, not the read time", () =>
+      Effect.gen(function* () {
+        yield* atNoon;
+        // Host pressure served from a reading taken ten minutes before the read.
+        const tenMinutesOld = Layer.mergeAll(
+          Layer.succeed(AccountHeadroomSource, { snapshot: offline("account-headroom") }),
+          Layer.succeed(LaneRedsSource, { snapshot: Effect.map(DateTime.now, lanesAt) }),
+          Layer.succeed(HostPressureSource, {
+            snapshot: Effect.map(DateTime.now, (now) => pressureAt(DateTime.subtract(now, { minutes: 10 }))),
+          }),
+          sinceLastCheckOffline
+        );
+        const result = yield* tenMinutesOld.pipe(runtimeOver, hotParcels(HOT_PARCELS_TIMEOUT));
+        const lines = yield* Result.match(result, { onFailure: Effect.die, onSuccess: Effect.succeed });
+        const staged = yield* stageHotParcels(lines);
+        const hostLine = (block: ReadonlyArray<HotParcelLine>) =>
+          A.filter(renderHotBlock(Result.succeed(block)), (line) => pipe(line, Str.startsWith("- host-pressure: ")));
+        expect(hostLine(staged)[0]).toContain("as of 2026-10-15T11:50:00.000Z");
+        const carried = yield* stageHotParcels(
+          A.map(lines, (line) =>
+            line.parcel === "host-pressure"
+              ? HotParcelLine.make({
+                  parcel: "host-pressure",
+                  state: "timed-out",
+                  text: "Unknown (timed out after 2s)",
+                })
+              : line
+          )
+        );
+        const [printed] = hostLine(carried);
+        expect(printed).toContain("(stale since 2026-10-15T11:50:00.000Z; this read: Unknown (timed out after 2s))");
+        expect(printed).not.toContain("2026-10-15T12:00:00.000Z");
+      }).pipe(withEnv({ BEEP_PALANTIRI_STATE_ROOT: "/state/palantiri-as-of", HOME: "/home/nobody" }))
+    );
+
     it.effect("stages the hot file owner-only, and only after a finished read", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;

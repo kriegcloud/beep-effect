@@ -2,7 +2,7 @@
  * Replace a gauge's whole series set on every read, so a long-lived process
  * stops reporting a series whose reading is no longer fresh.
  *
- * @internal
+ * @packageDocumentation
  * @since 0.0.0
  */
 import * as A from "effect/Array";

@@ -204,8 +204,9 @@ export type HotLineState = typeof HotLineState.Type;
  *
  * **Details**
  *
- * A read line keeps the parcel's summary and read time, so a later timed-out
- * or failed read can carry it as `stale since <readAt>`; `carries` counts how
+ * A read line keeps the parcel's summary and its reading's as-of time (the
+ * freshness `asOf`, else the read time), so a later timed-out or failed read
+ * can carry it as `stale since <asOf>`; `carries` counts how
  * many reads in a row it has been carried, up to
  * {@link MAX_HOT_LINE_CARRIES}.
  *
@@ -227,14 +228,14 @@ export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: uni
     state: HotLineState,
     text: S.String,
     summary: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-    readAt: S.OptionFromNullOr(S.DateTimeUtcFromString).pipe(S.withConstructorDefault(Effect.succeedNone)),
+    asOf: S.OptionFromNullOr(S.DateTimeUtcFromString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     carries: S.Int.check(S.isBetween({ minimum: 0, maximum: MAX_HOT_LINE_CARRIES })).pipe(
       S.withConstructorDefault(Effect.succeed(0))
     ),
   }).pipe(
     $I.annoteSchema("HotParcelLine", {
       description:
-        "One hot parcel as one line, how it came about, the summary and read time of the read behind it, and how many times it has been carried.",
+        "One hot parcel as one line, how it came about, the summary and as-of time of the reading behind it, and how many times it has been carried.",
     })
   )
 ) {}
@@ -245,7 +246,7 @@ export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: uni
  *
  * **Details**
  *
- * Version 2 added each line's state `carried`, summary, read time and carry
+ * Version 2 added each line's state `carried`, summary, as-of time and carry
  * count. A version 1 file does not decode; it is treated as no previous file,
  * so nothing from it is carried, and the hook skips it.
  *

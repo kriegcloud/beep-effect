@@ -6,6 +6,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { Freshness } from "@beep/palantiri";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
@@ -13,7 +15,7 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
@@ -85,6 +87,51 @@ const READ_FAILED_TEXT = "Unknown (read failed)";
 export const renderHotText = (envelope: ParcelEnvelope): string =>
   `${envelope.summary} (${renderFreshness(envelope.freshness)})`;
 
+/**
+ * When the reading behind a parcel was taken: its freshness `asOf` (a
+ * snapshot's own time, not the time it was served), else the read time.
+ *
+ * **Example** (A stale reading keeps its own time)
+ *
+ * ```ts
+ * import { Freshness, ParcelEnvelope, ParcelReceipt } from "@beep/palantiri"
+ * import { readingAsOf } from "@beep/repo-cli/test/Palantiri"
+ * import * as DateTime from "effect/DateTime"
+ * import * as O from "effect/Option"
+ *
+ * const asOf = readingAsOf(
+ *   ParcelEnvelope.make({
+ *     schemaVersion: "palantiri-parcel/v1",
+ *     parcel: "account-headroom",
+ *     key: "account",
+ *     readAt: DateTime.makeUnsafe("2026-10-15T12:10:00Z"),
+ *     freshness: Freshness.cases.Unknown.make({
+ *       reason: "stale",
+ *       asOf: O.some(DateTime.makeUnsafe("2026-10-15T12:00:00Z")),
+ *       detail: O.none()
+ *     }),
+ *     summary: "0 accounts",
+ *     items: [],
+ *     receipt: ParcelReceipt.make({ shown: 0, total: 0 })
+ *   })
+ * )
+ * console.log(DateTime.formatIso(asOf)) // "2026-10-15T12:00:00.000Z"
+ * ```
+ *
+ * @param envelope - The parcel read.
+ * @returns The reading's as-of time.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const readingAsOf = (envelope: ParcelEnvelope): DateTime.Utc =>
+  pipe(
+    envelope.freshness,
+    Freshness.match({
+      Fresh: (fresh) => fresh.asOf,
+      Unknown: (unknown) => O.getOrElse(unknown.asOf, () => envelope.readAt),
+    })
+  );
+
 // Every hot parcel read concurrently, each given `wait`; a parcel that times
 // out or fails is an `Unknown` line naming the block's bound.
 const readHotLines = Effect.fnUntraced(function* (wait: Duration.Duration, timeout: Duration.Duration) {
@@ -98,7 +145,7 @@ const readHotLines = Effect.fnUntraced(function* (wait: Duration.Duration, timeo
             state: "read",
             text: renderHotText(envelope),
             summary: O.some(envelope.summary),
-            readAt: O.some(envelope.readAt),
+            asOf: O.some(readingAsOf(envelope)),
           })
         ),
         Effect.timeoutOption(wait),
@@ -205,14 +252,14 @@ export const renderHotBlock = (result: Result.Result<ReadonlyArray<HotParcelLine
 const carryOf = (current: HotParcelLine) => (previous: HotParcelLine) =>
   (previous.state === "read" || (previous.state === "carried" && previous.carries < MAX_HOT_LINE_CARRIES)) &&
   O.isSome(previous.summary) &&
-  O.isSome(previous.readAt)
+  O.isSome(previous.asOf)
     ? O.some(
         HotParcelLine.make({
           parcel: current.parcel,
           state: "carried",
-          text: `${previous.summary.value} (stale since ${DateTime.formatIso(previous.readAt.value)}; this read: ${current.text})`,
+          text: `${previous.summary.value} (stale since ${DateTime.formatIso(previous.asOf.value)}; this read: ${current.text})`,
           summary: previous.summary,
-          readAt: previous.readAt,
+          asOf: previous.asOf,
           carries: previous.carries + 1,
         })
       )
@@ -221,7 +268,7 @@ const carryOf = (current: HotParcelLine) => (previous: HotParcelLine) =>
 /**
  * Merge this read's hot lines with the previously staged ones: a parcel that
  * timed out or failed carries its last read line, marked `carried` and
- * `stale since` its original read time, for at most
+ * `stale since` its reading's as-of time, for at most
  * {@link MAX_HOT_LINE_CARRIES} reads in a row; past that, or with nothing to
  * carry, the parcel's `Unknown` line stands.
  *
@@ -242,7 +289,7 @@ const carryOf = (current: HotParcelLine) => (previous: HotParcelLine) =>
  *   state: "read",
  *   text: "0 reds (fresh as of 2026-10-15T12:00:00.000Z)",
  *   summary: O.some("0 reds"),
- *   readAt: O.some(DateTime.makeUnsafe("2026-10-15T12:00:00Z"))
+ *   asOf: O.some(DateTime.makeUnsafe("2026-10-15T12:00:00Z"))
  * })
  * const timedOut = HotParcelLine.make({ parcel: "lane-reds", state: "timed-out", text: "Unknown (timed out after 2s)" })
  * const [line] = carryHotLines([timedOut], [read])

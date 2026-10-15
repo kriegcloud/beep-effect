@@ -197,7 +197,8 @@ Before marking the packet closed:
   inventory under `standards/` grew; only the regenerated instrumentation
   and schema catalog shards changed.
 - #1836 review (2026-10-15): carried hot lines are `carried`, read `stale
-  since <read time>` and stop after 3 carries (`palantiri-hot/v2`);
+  since <as-of>` (the reading's own freshness time) and stop after 3
+  carries (`palantiri-hot/v2`);
   `replaceGaugeSeries` keys kept series by the merged gauge, ambient and
   reading attributes, tested with ambient and gauge attributes.
 - Known limit: `session open` rarely gets account headroom within 2 seconds
