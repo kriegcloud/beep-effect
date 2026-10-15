@@ -1654,3 +1654,22 @@ Final F integration includes #1824, main's private-changeset removal, after
 implementation source. Reinstall and regenerate owner artifacts, then run the
 delivery-head gates without a readiness monitor. Reversal: revert the F PR;
 retain main's private-package release policy.
+
+
+### RSC-F-1825 (2026-10-15): package catalogs and renewed native drift
+
+Finish the interrupted merge of main at #1825, take main's observability
+architecture document, remove both monolithic catalogs, and regenerate the
+per-package catalogs through their owner commands. Reason: the orchestrator's
+catalog-shard override supersedes the earlier monolith instructions. Reversal:
+revert the F integration wave, retaining main's catalog layout.
+
+A fresh online model check now reports three native drifts (Grok effort,
+Claude model alias, and shell lightweight route). Preserve every native file
+in this wave: the grant excludes Claude harness and shell writes, and a
+partial Grok apply cannot clear the final-set gate. The pinned Codex model
+and effort and absence of legacy sandbox_mode pass. Keep the new observed
+candidate separate from the historical frozen receipt; no panel clearance or
+zero-drift result is claimed. Configuration owners must clear drift before
+final publication. Reversal: recapture after those owner changes and retain
+the superseded hashes as historical evidence; no new home rollback is needed.

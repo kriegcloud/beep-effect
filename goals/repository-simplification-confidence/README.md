@@ -14,10 +14,11 @@ fixture batch and F's owned-field config writer. F and overall acceptance remain
 
 F has implemented ModelsApply and restore, repaired skill-write safety and
 removed confirmed repository duplicate payloads. The authorized native Codex
-legacy permission cleanup and byte-exact rollback now pass; model drift is
-zero in the latest online check and the pinned native probe passes. The
-protected effort drift observed earlier in the resume has cleared without an
-F home write. The driver owns the final configuration panel. Current source qualification and
+legacy permission cleanup and byte-exact rollback now pass; the pinned native probe passes and the Codex pins remain correct. A fresh
+post-#1825 online check reports three native drifts: Grok effort, Claude model
+alias, and the shell lightweight route. Claude and shell repairs fall outside
+F's write grant, so final publication and panel admission remain blocked. No
+home write is performed in this wave. The driver owns the final configuration panel. Current source qualification and
 publication state are in the [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md).
 The [frozen fingerprint](history/receipts/stage-5-f-config-fingerprint.json)
 uses the observed-only Desktop boundary and retains every other owned input

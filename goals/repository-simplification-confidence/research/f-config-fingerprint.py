@@ -10,7 +10,7 @@ the capture byte identity without making a usage update a config mutation.
 import hashlib,json,datetime,argparse,sys
 from pathlib import Path
 H=Path.home();R=Path.cwd()
-native=['.codex/config.toml','.codex/AGENTS.md','.claude/settings.json','.claude/CLAUDE.md','.claude/memory/beep-effect/MEMORY.md','.grok/config.toml','.junie/settings.json','.junie/AGENTS.md','.junie/mcp/mcp.json','.cursor/cli-config.json','.cursor/mcp.json','.config/JetBrains/Air/.codex/config.toml','.config/beep/models.yaml','.claude.json','.claude/plugins/installed_plugins.json','.config/Claude/claude_desktop_config.json','.kiro/settings/mcp.json','.copilot/mcp-config.json','.gemini/settings.json','.config/opencode/opencode.json']
+native=['.codex/config.toml','.codex/AGENTS.md','.claude/settings.json','.claude/CLAUDE.md','.claude/memory/beep-effect/MEMORY.md','.grok/config.toml','.junie/settings.json','.junie/AGENTS.md','.junie/mcp/mcp.json','.cursor/cli-config.json','.cursor/mcp.json','.config/JetBrains/Air/.codex/config.toml','.config/beep/models.yaml','.zshrc','.claude.json','.claude/plugins/installed_plugins.json','.config/Claude/claude_desktop_config.json','.kiro/settings/mcp.json','.copilot/mcp-config.json','.gemini/settings.json','.config/opencode/opencode.json']
 observed_only={'~/.config/Claude/claude_desktop_config.json'}
 rows=[]
 observed_rows=[]

@@ -395,3 +395,14 @@ unknown and Permission continuity remains open.
 
 Evidence map: [permission continuity](history/receipts/stage-5-acceptance.md#permission-continuity),
 [H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md).
+
+
+### F post-#1825 integration status (2026-10-15)
+
+The catalog-shard merge is complete, and both owner commands regenerated
+F's package shards. The 15 standards inventory/baseline/allowlist files match
+main with zero added or removed rows. A fresh native model check reports
+three drifts; Claude and shell repairs are outside F's grant. Keep the
+observed candidate separate from the historical frozen receipt and withhold
+final publication until the configuration owners clear the model gate.
+Current integrated proof and handoff: `history/handoffs/rsc-f-agents-2026-10-15.md`.

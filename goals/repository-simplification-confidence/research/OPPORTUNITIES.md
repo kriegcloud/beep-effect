@@ -2562,3 +2562,45 @@ A clean lane-owned namespace before the invocation would have prevented it.
 - Command correction: the old resume helper used `laws check --law
   retired-effect-paths`; the supported `laws retired-effect-paths` invocation
   passes with zero findings. Update resume helpers from live CLI help.
+
+
+### F publication proof versus a moving shared-file base
+
+- Evidence: default repo-cli audit/docgen passed at 4cce872938 in 1418.1 /
+  48.7 seconds. The required pre-publication fetch then found #1814 at
+  713f2aa18f, with new identity entries, aliases and catalog rows. The merge
+  conflicts only in the generated observability document; retaining main and
+  regenerating through the owner resolves it. A fresh integrated proof runs.
+- Prevention: coordinate the serialized shared-file gate with long local proofs,
+  or support explicit proof reuse keyed to all unchanged validation inputs.
+  Never treat an older-head result as an exact integrated-head result.
+- F code remains unchanged; no unrelated source or inventory baseline is
+  repaired to make the integration appear green. Native configuration files
+  changed outside F during the proof window and are recaptured after gates.
+
+
+### F inherited post-#1814 JSDoc red
+
+- Owner: attorney-question-loop / `@beep/practice-review-hub`, introduced on main
+  by #1814. The `TAILSCALE_LOGIN_HEADER` export in
+  `apps/practice-review-hub/src/runtime/Layer.ts:29` lacks a titled example.
+- The generated inventory names this sole finding in the new package. It adds
+  exactly one to missingExportExamples (9 versus 8) and one remediating package
+  (82 versus 81). The local source blob equals origin/main byte for byte.
+  The earlier 4cce872938 ratchet passed.
+- Receipt: [JSDoc attribution](../history/receipts/stage-5-f-jsdoc-attribution.json). F changes no
+  source or baseline for this inherited red. Owner repair is a meaningful
+  example in source, with no new inventory or baseline row.
+
+
+### F final-wave model drift outside the write boundary (2026-10-15)
+
+The post-#1825 online model check reports three findings: native Grok effort,
+Claude model alias, and the shell lightweight route. The Codex model/effort pins
+and legacy-key absence still pass, and the pinned read-only probe answers OK.
+The run's grant excludes Claude harness writes and shell configuration writes;
+F cannot claim zero drift or admit a final fingerprint by changing those files.
+Retain the observed candidate, finish source verification, and hand the exact
+findings to their configuration owners. No home apply is performed merely to
+partially repair an otherwise blocked set. Prevention: coordinate native
+configuration owners with the final fingerprint capture and manifest check.
