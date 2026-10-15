@@ -6,6 +6,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -421,7 +422,8 @@ export class PackageScriptsReportWire extends S.Opaque<PackageScriptsReportWire,
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.Record(S.String, S.Array(PackageScriptsDrift)),
-    implDrift: S.Record(S.String, S.Array(ImplScriptDrift)),
+    // Added after v1 shipped: absent in earlier v1 payloads, decoded as empty.
+    implDrift: S.Record(S.String, S.Array(ImplScriptDrift)).pipe(S.withDecodingDefaultKey(Effect.succeed({}))),
     written: S.Array(S.String),
   }).pipe(
     $I.annoteSchema("PackageScriptsReportWire", {

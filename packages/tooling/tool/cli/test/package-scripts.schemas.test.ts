@@ -128,4 +128,19 @@ describe("canonical package scripts schemas", () => {
       expect(yield* encodeReport(report)).toEqual(wire);
     })
   );
+  it.effect(
+    "decodes a v1 report written before implDrift existed",
+    Effect.fnUntraced(function* () {
+      const legacy = {
+        schemaVersion: "package-scripts-report/v1",
+        rules: "package-scripts-rules/v1",
+        manifests: 1,
+        drift: {},
+        written: [],
+      } as const;
+      const report = yield* decodeReport(legacy);
+      expect(HashMap.size(report.implDrift)).toBe(0);
+      expect(yield* encodeReport(report)).toEqual({ ...legacy, implDrift: {} });
+    })
+  );
 });
