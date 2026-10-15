@@ -43,16 +43,16 @@ Naming rules the catalog check enforces:
 
 | Family | Spans | Conforming | Non-conforming |
 | --- | --- | --- | --- |
-| slice | 452 | 384 | 68 |
+| slice | 476 | 408 | 68 |
 | foundation | 253 | 209 | 44 |
 | driver | 569 | 465 | 104 |
-| tooling | 3861 | 3609 | 252 |
+| tooling | 3866 | 3614 | 252 |
 | ecosystem | 1 | 1 | 0 |
-| app | 147 | 108 | 39 |
+| app | 148 | 109 | 39 |
 | lab | 176 | 165 | 11 |
-| **total** | 5459 | 4941 | 518 |
+| **total** | 5489 | 4971 | 518 |
 
-Declared: 15 attribute keys, 7 metrics, 0 events, 3 spans.
+Declared: 19 attribute keys, 8 metrics, 0 events, 4 spans.
 
 <!-- END GENERATED: INSTRUMENTATION CATALOG -->
 

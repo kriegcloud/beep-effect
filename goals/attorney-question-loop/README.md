@@ -40,8 +40,8 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Contract. P0 is complete; its design and as-built notes are in
-[`research/P0-SCHEMA.md`](./research/P0-SCHEMA.md).
+P3c: run the review hub, the producer and the daily notice as practice services. P0 merged (#1801);
+P1, P2, P3a and P3b are complete.
 
 ## Latest Evidence
 
@@ -51,6 +51,21 @@ P1 Contract. P0 is complete; its design and as-built notes are in
 - 2026-10-14 P0: `question` ReviewItem, `values/Question` (options 2-5 with unique ids, optional
   `calendar-date` write, facts) and `values/AnswerRow` (four states) in `@beep/law-practice-domain`;
   `test/QuestionLoop.test.ts` (9 tests); package-verify passes for domain and use-cases.
+- 2026-10-14 P1: the `QuestionQueue` and `QuestionWrites` contracts (schemas, errors, the
+  `AnswerLog` and `QuestionCalendar` ports, and service shapes) in `@beep/law-practice-use-cases`;
+  `test/QuestionLoop.contract.test.ts` (9 tests).
+- 2026-10-14 P2:
+  - `QuestionQueueLive` and `QuestionWritesLive` (all-or-nothing apply with rollback, undo in
+    reverse order).
+  - `makeQuestionCalendarLayer` over `@beep/m365` (provisional events only; undo never overrides
+    the attorney).
+  - The first vertical slice in `test/QuestionLoop.slice.test.ts` (5 tests), plus
+    `server/test/QuestionCalendar.test.ts` (3 tests).
+- 2026-10-14 P3a: `DocketQuestions` (needs-review items become questions) and `DailyNotice` (at most one
+  count-only notice a day), with the `NoticeMailbox` adapter over `@beep/m365`.
+- 2026-10-14 P3b: the `apps/practice-review-hub` app, an HTTP MCP bound to loopback and gated on the
+  tailnet login, with four tools (the pane contract is in `research/P3B-HUB.md`, as built) and the
+  JSONL verdict, answer and item stores.
 
 ## Notes
 
