@@ -2827,3 +2827,25 @@ bus variables. The command performed no test or mutation. Supplying the
 existing user runtime and bus address restored the canonical admission route.
 A wrapper that derives the active user bus when absent would prevent this
 avoidable failed launch. Private receipt: `.beep/rsc-f-r9/initial-tests.log`.
+
+### F round-9 stale audit module cache (2026-10-15)
+
+The default package audit started before the nearby JSON diagnostic repair.
+It imported the old reader, then loaded the new exact-message test later in
+the same long-lived test process. The audit ended with 6,752 passing tests
+and one stale-reader failure: `Unsupported JSON form:` appeared twice.
+Fresh targeted runs and the settled-source 331-test coverage run pass.
+The audit inbox row is acknowledged against the source fix; a full audit is
+restarted on the settled source. Freeze source before starting long-lived
+validation, or run proof commands against an immutable source snapshot, to
+avoid paying the 20-minute audit twice. Receipts remain under
+`.beep/rsc-f-r9/package-verify*.log`.
+
+### F round-9 complexity gate (2026-10-15)
+
+Fallow audit and health rejected the new eligibility body and apply branch
+at cognitive scores 10 and 9 against a limit of 8. The repair uses an array
+predicate for the operation preflight and combines the duplicated check-mode
+branch. Both changes preserve the single eligibility gate and its ordering.
+No baseline, suppression or allowlist row is added. Running the cheap Fallow
+read before the long package audit would surface this earlier.

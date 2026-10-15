@@ -441,8 +441,8 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         ? yield* eligibility(file, nativeWrites)
         : { actual: yield* fs.realPath(file).pipe(io), content: yield* readNative(file) };
       const { actual, content: before } = eligible;
-      if (mode === "check") yield* checkReadOnlyDrift(before, writes);
       if (mode === "check") {
+        yield* checkReadOnlyDrift(before, writes);
         if (A.some(nativeWrites, (write) => write.remove === true))
           return yield* failure("Owned configuration drift detected.");
         yield* assertParsedProjection(before, nativeWrites).pipe(

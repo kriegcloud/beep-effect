@@ -232,9 +232,8 @@ export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
       file,
       A.map(writes, (write) => write.locator)
     );
-    for (const write of writes)
-      if (write.remove === true && write.locator._tag !== "toml-top-level-key")
-        return yield* error("Removal owns only a top-level TOML assignment.");
+    if (A.some(writes, (write) => write.remove === true && write.locator._tag !== "toml-top-level-key"))
+      return yield* error("Removal owns only a top-level TOML assignment.");
     const actual = yield* fs.realPath(file);
     yield* modelsWritePreflight(
       actual,
