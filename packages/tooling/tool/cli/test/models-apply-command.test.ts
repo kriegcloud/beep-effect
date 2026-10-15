@@ -330,11 +330,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       expect(
         A.some(
           yield* TestConsole.errorLines,
-          (line) =>
-            P.isString(line) &&
-            /models: refused synthetic.shell: Unsupported shell form: line [0-9]+: owned configuration drift detected/.test(
-              line
-            )
+          (line) => P.isString(line) && /models: refused synthetic.shell: Owned configuration drift detected/.test(line)
         )
       ).toBe(true);
       expect(yield* TestConsole.errorLines).toContain(

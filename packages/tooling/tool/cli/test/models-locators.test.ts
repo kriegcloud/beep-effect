@@ -57,6 +57,8 @@ const binding = (field: "model" | "effort" | "model-effort-suffix") =>
 const assertRead = (actual: O.Option<string>, expected: string) => {
   if (expected === "Unsupported shell form") {
     expect(O.getOrThrow(actual)).toMatch(/^Unsupported shell form(?:: line [0-9]+)?/);
+  } else if (expected === "Unsupported shell form: ambiguous function scope") {
+    expect(O.getOrThrow(actual)).toMatch(/^Unsupported shell form: line [0-9]+; ambiguous function scope/);
   } else assertSome(actual, expected);
 };
 
@@ -291,14 +293,14 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         } as Locator),
         "gpt-5.6-luna"
       );
-      assertSome(
+      assertRead(
         yield* readFixture("locators.env", {
           _tag: "env-key",
           binding: binding("model"),
           render: verbatim,
           key: "GRAFT_MODEL",
         } as Locator),
-        "claude-opus-5"
+        "Unsupported shell form"
       );
     })
   );
@@ -425,6 +427,13 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         expect(O.getOrThrow(yield* reader.read(file(text), locator))).toMatch(/^Unsupported shell form: line [0-9]+/);
       assertSome(yield* reader.read(file('export PATH="$HOME/bin"\nMODEL=old\n'), locator), "old");
       assertSome(yield* reader.read(file("MODEL=old\n"), locator), "old");
+      assertSome(
+        yield* reader.read(file('export PATH="$HOME/bin:$PATH"\nother() { echo native; }\nroute() {\nMODEL=old\n}\n'), {
+          ...locator,
+          within: O.some("route"),
+        }),
+        "old"
+      );
     })
   );
 

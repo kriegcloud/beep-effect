@@ -154,8 +154,19 @@ export const modelsReadShellAssign: {
     const allWords = yield* modelsShellWords(content, variable);
     const words =
       O.isSome(within) && !A.some(allWords, Str.startsWith("Unsupported shell form"))
-        ? yield* O.match(modelsShellScope(content, within.value), {
-            onNone: () => Effect.succeed(["Unsupported shell form: ambiguous function scope"]),
+        ? yield* O.match(modelsShellScope(content, within.value, variable), {
+            onNone: () =>
+              Effect.succeed([
+                `Unsupported shell form: line ${A.length(
+                  Str.split(
+                    Str.slice(
+                      0,
+                      O.getOrElse(Str.indexOf(variable)(content), () => 0)
+                    )(content),
+                    "\n"
+                  )
+                )}; ambiguous function scope`,
+              ]),
             onSome: (body) => modelsShellWords(body, variable),
           })
         : allWords;
