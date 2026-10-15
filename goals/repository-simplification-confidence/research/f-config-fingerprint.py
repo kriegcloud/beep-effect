@@ -1,4 +1,10 @@
-"""Read-only configuration fingerprint; output contains paths, sizes and hashes only."""
+"""Read-only configuration fingerprint; output contains paths, sizes and hashes only.
+
+The native Claude registry includes a continuously written pluginUsage counter.
+Only that observed runtime counter is excluded from its canonical JSON hash.
+All other fields, including unknown fields, remain covered. rawSha256 retains
+the capture byte identity without making a usage update a config mutation.
+"""
 import hashlib,json,datetime,argparse,sys
 from pathlib import Path
 H=Path.home();R=Path.cwd()
@@ -7,6 +13,11 @@ rows=[]
 def add(p,label):
  if p.is_file():
   b=p.read_bytes();row={'path':label,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+  if label=='~/.claude.json':
+   registry=json.loads(b);registry.pop('pluginUsage',None)
+   row['rawSha256']=row['sha256']
+   row['sha256']=hashlib.sha256(json.dumps(registry,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+   row['hashProjection']='canonical JSON excluding only pluginUsage runtime counter'
   if p.is_symlink():row['linkSha256']=hashlib.sha256(str(p.readlink()).encode()).hexdigest()
   rows.append(row)
  elif p.is_symlink():rows.append({'path':label,'symlinkDirectory':p.is_dir(),'missingTarget':not p.exists(),'sha256':hashlib.sha256(str(p.readlink()).encode()).hexdigest()})
@@ -18,7 +29,7 @@ for prefix in ['.codex/agents','.codex/hooks','.claude/agents','.junie/agents']:
  for p in sorted((H/prefix).rglob('*')):add(p,'~/'+p.relative_to(H).as_posix())
 rows.sort(key=lambda x:x['path'])
 fingerprint=hashlib.sha256(''.join(x['path']+' '+x.get('sha256','missing')+' '+x.get('linkSha256','')+'\n' for x in rows).encode()).hexdigest()
-result={'format':'rsc-f-config-fingerprint/v1','capturedAt':datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z'),'setSha256':fingerprint,'files':rows}
+result={'format':'rsc-f-config-fingerprint/v2','capturedAt':datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z'),'setSha256':fingerprint,'files':rows}
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--check',type=Path,help='Fail if the current set differs from a frozen JSON receipt')
 args=parser.parse_args()

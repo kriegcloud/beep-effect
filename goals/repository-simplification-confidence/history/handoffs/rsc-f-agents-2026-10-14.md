@@ -9,7 +9,7 @@ lane: rsc-f-agents
 head: bb67db8ccde1896abe85511a601f52b07d713c03 (verified source; publication metadata follows)   PR: pending publication
 package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass (main #1792 integrated) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
-config fingerprint (final): 3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
+config fingerprint (final): 63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
 open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
 ```
@@ -227,5 +227,12 @@ audit/health, schema-first and retired paths all pass. Coverage percentages
 are unchanged and exceed every existing touched-file floor. Both introduced
 cheap-gate repairs pass their owner checks. The final online models check
 reports zero findings; the pinned native read-only probe passed after the
-last Codex apply. Configuration capture: 2026-10-14T23:58:16.256715Z,
+last Codex apply. Configuration capture: 2026-10-15T00:00:38.765701Z,
 356 files; its equality check passes immediately after capture.
+
+Fingerprint v2 excludes only the observed native Claude pluginUsage runtime
+counter from that registry's canonical JSON hash. Raw capture bytes remain
+identified by rawSha256. MCP registrations and all unknown fields remain
+gating. Three controls pass: ignored usage changes, rejected MCP changes,
+and rejected unknown-field changes. All other files/links retain byte/target
+identity. This avoids treating live usage as a configuration mutation.

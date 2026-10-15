@@ -2243,3 +2243,16 @@ project outputs and names the required upstream build would prevent this loop.
 - Prevention: include the Effect Vitest ratchet and instrumentation catalog
   check in the focused pre-publication proof after adding test files or spans.
   This is an introduced gate failure, not inherited or environment-only.
+
+### F fingerprint runtime-counter boundary (2026-10-15 UTC)
+
+- Evidence: repeated pre-push checks changed only the native Claude registry;
+  a 20-second, read-only in-memory comparison identified `pluginUsage` as the
+  changing root field. No values or native file contents were emitted.
+- Repair: fingerprint v2 canonically hashes that registry with only
+  `pluginUsage` excluded. Every other field, including unknown keys and MCP
+  registrations, stays covered. The receipt retains its raw byte hash as
+  capture metadata. Every other file/link keeps byte/target identity.
+- Prevention: separate runtime usage from configuration at the collector
+  boundary; controls verify ignored usage updates and rejected MCP/unknown
+  field changes. No native file is rewritten or restored to quiet the gate.

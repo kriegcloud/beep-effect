@@ -1,7 +1,7 @@
 {
-  "format": "rsc-f-config-fingerprint/v1",
-  "capturedAt": "2026-10-14T23:58:16.256715Z",
-  "setSha256": "3f813571c590a983d51e4e691ec9e75c9f48fd49ad2abc4c516da8b7c673e18a",
+  "format": "rsc-f-config-fingerprint/v2",
+  "capturedAt": "2026-10-15T00:00:38.765701Z",
+  "setSha256": "63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -1678,7 +1678,9 @@
     {
       "path": "~/.claude.json",
       "bytes": 373473,
-      "sha256": "40852688a5c0f7824532feb0db35348c2bdcc73ddb7f0297ccb6a363514f9ba0"
+      "sha256": "b94f17a506fe4b75827ce125ea9c770634c6b0fc90c6e59fb0d9dd63b2317442",
+      "rawSha256": "e5ad67533300502a8731102a9dd871fc089b353c518f764411b82b911f6f1dab",
+      "hashProjection": "canonical JSON excluding only pluginUsage runtime counter"
     },
     {
       "path": "~/.claude/CLAUDE.md",
