@@ -14,42 +14,27 @@ are source-qualified; installed Desktop acceptance remains open for the operator
 fixture batch and F's owned-field config writer. F and overall acceptance remain active.
 
 
-F has implemented ModelsApply and restore, repaired skill-write safety and
-removed confirmed repository duplicate payloads. The authorized native Codex
-legacy permission cleanup and byte-exact rollback now pass; the pinned native probe passes and the Codex pins remain correct. A fresh
-post-#1825 online check reports three native drifts: Grok effort, Claude model
-alias, and the shell lightweight route. Claude and shell repairs fall outside
-F's write grant. The 09:45Z driver ruling accepts checkpoint 195e7befa5 and
-authorizes one publish with those three files observed-only and no native writes. No
-home write is performed in this wave. The full package audit passed at 98fcf60164. Newer main 94f1b6adbf is
-integrated at 0233b60f67 with owner-regenerated shards and zero S31 growth.
-The earlier full proof is retained with its source revision; the new
-integration receives bounded checks. The driver owns the final configuration panel. Current source qualification and
-publication state are in the [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md).
-The [frozen fingerprint](history/receipts/stage-5-f-config-fingerprint.json)
-uses the observed-only Desktop plus three operator-owned drift-file boundary
-and retains every other owned input
-in equality. The [earlier post-H3 candidate](history/receipts/stage-5-f-post1590-candidate-fingerprint.json)
-is retained beside it. Equality is checked before publication. The [S31 diff](history/receipts/stage-5-f-s31-diff.json)
-compares 15 inventory files with zero changed files or added rows. The
-[final-wave scoped coverage](history/receipts/stage-5-f-final-coverage.json)
-passes 155 tests and all four existing file floors.
-[Before measurement](history/receipts/stage-3-f-before-measurement.md),
-[inventory](history/receipts/stage-3-f-inventory.md), and
-[after measurement](history/receipts/stage-5-f-after-measurement.md) distinguish
-proved changes from native activation gaps. The program remains active.
-Junie authorization, incomplete telemetry windows, external service/Claude
-owner actions, and the independent panel remain open. No zero-use retirement
-or causal context/cost saving is claimed.
+F's PR #1797 remains open for the driver-owned three-model panel. Round 5
+reported two actionable Astra P1s: shell drift detection after control operators
+and YAML anchor ownership. The current wave makes unsupported shell forms explicit
+drift, refuses owned YAML anchors and aliases before backup, and compares resolved
+non-owned YAML paths. It also addresses Grok's escaped-space/here-document P2 and
+all three nearby Fable P3s. No round-5 item is deferred. The governing decision is
+`RSC-F-FAIL-CLOSED-READERS` in SPEC.md.
 
-The October 14 wave-2 resume ruling records A #1584, H2 #1574, and B #1738 as
-merged. H2 follow-up #1744 also landed. Other lane receipts below retain the
-revisions and dates they actually proved. Their historical status text is not
-a fresh hosted-state census. Completed lane evidence and remaining program
-work are tracked in PLAN.md.
+The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries current proof
+and the candidate fingerprint for round 6. The [round-5 verification receipt](history/receipts/stage-5-f-panel-r5-verification.json)
+and [fingerprint](history/receipts/stage-5-f-panel-r5-fingerprint.json) supersede the
+round-4 receipts. The panel remains open, so this lane issues a panel candidate
+and never arms the merge gate. Native configuration writes in this wave: zero.
 
-
-Source: [`ops/manifest.json`](./ops/manifest.json)
+Fail-closed detection now reports all five operator-owned shell routes as
+unsupported because their lines contain expansions or continuations. The fresh
+check has six diagnostics across the operator-owned shell and Claude files,
+with zero F-owned drift. Grok effort is currently clean. The earlier three-item
+count is historical; suppressing these new unsupported-form diagnostics would
+contradict the driver's ruling. Codex pins and legacy-key absence remain verified.
+Measured 30-session windows and external-owner activation prerequisites stay open.
 
 ## Mission
 

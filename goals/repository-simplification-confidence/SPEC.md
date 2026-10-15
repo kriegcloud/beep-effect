@@ -1853,3 +1853,46 @@ keeps both link and relocated target bytes, and fails with the journal id.
 Reason: enforce F-ASTRA-R4-02 across the exchange window as well as preflight.
 Reversal: revert this repository repair; retain the journal and backup for
 manual recovery rather than weakening entry-kind verification.
+
+### RSC-F-FAIL-CLOSED-READERS — 2026-10-15, driver round-5 ruling
+
+Every reader and writer must fail closed on input it cannot fully account for.
+Readers report an unsupported form as drift; writers refuse before backup. The
+shell reader accounts for complete literal words and control operators, and marks
+continuations, expansions, here-documents, escaped separators and unbalanced or
+concatenated quoting as unsupported when an owned name is mentioned. Shell targets
+remain check-only. YAML writes refuse owned anchors, aliases and anchored parents;
+resolved YAML equality independently checks every non-owned path, including merge
+and alias consumers. This closes F-ASTRA-R5-01/02 and R5-GROK-01 without widening
+write ownership. Reversal: revert this wave; no home configuration mutation.
+
+Nearby round-5 nits R5-F1/02/03 are included: new projection modes are 0644,
+dangling displaced links are exchanged back during recovery, and refusal output
+names a target once. Existing larger protocol follow-ups remain as recorded above.
+
+The fail-closed rule takes precedence over reproducing a historical diagnostic
+count. The current six diagnostics are confined to the operator-owned shell and
+Claude paths: all five shell routes contain unsupported expansions/continuations,
+and the Claude model drift remains. Grok effort is now clean. Zero F-owned drift
+is still required; no operator-owned file is changed to make a check look clean.
+Named-function extraction retains any unsupported containing shell context, so
+here-document or unbalanced-quote text cannot become trusted function code.
+
+Unsupported-form evidence is reserved diagnostic text, never a value that can
+establish synchronization. Apply checks, model checks and previews test that
+status before scalar equality, including a caller whose expected text equals
+the marker. The regression proves that such a comparison still reports drift.
+
+A shell locator with several distinct literal values also carries explicit
+conflicting-value drift. The display join is never used as one scalar value;
+repeated identical assignments remain clean. This preserves detection even when
+an expected string happens to equal the joined display of conflicting values.
+
+Named-function scopes accept one plain, non-nested multiline definition in a
+balanced document of supported function headers and closing lines. Inline,
+duplicate, nested, escaped-name and unterminated layouts report unsupported-form
+drift. The reader retains whole decoded words until ownership is resolved, so
+an argument such as `MODEL=old` is not mistaken for the scalar `old`. Quoted or
+escaped option names are reported as unsupported instead of silently omitted.
+Any unsupported word invalidates the read, even when its raw spelling hides the
+owned flag; quoted data and comments remain distinct from owned words.

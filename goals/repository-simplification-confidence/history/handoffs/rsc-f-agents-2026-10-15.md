@@ -1,4 +1,127 @@
 lane: rsc-f-agents
+head: 4ffb87264c61d0c9140f486d775ae7ee2f61ad4c (verified implementation; packet delivery follows)   PR: #1797
+package-verify: @beep/repo-cli: pass (default audit 1224.8s; docgen 37.2s)
+hosted-parity: local test-tsgo pass (379 files); docgen local pass; jsdoc-ratchet pass; knowledge refs inherited failure (1 host-path row); fallow audit+health pass (0 findings); coverage pass (296 tests / 16 files / all 6 existing touched-file rows)
+config fingerprint (final): c1cce633dc16a350d363baed7a6d80ed378d27a5540cfdca5c57769b1c68d303 (353 equality inputs; 4 observed-only; panel candidate)   backups: no new native backups; all 3 retained backups present
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 6 and hosted gate; operator-owned model diagnostics; incomplete 30-session windows and existing H3 measured gates; three existing protocol follow-ups
+
+Prepared for the single push to #1797; this committed receipt precedes publication. The panel remains OPEN. No readiness monitor or
+final gate file was created. Main `0e0b70d2b2` merged once through `ab82a7ecf4`,
+`bun install` completed, and both sharded catalog owners ran. Changeset-graph
+passes with no changeset. S31 compares all 15 inventories with zero added or
+removed rows; the owner-generated instrumentation catalog adds one span row.
+
+Both P1s and all four nearby round-5 P2/P3 items are fixed. Shell reads account
+for control operators, quotes and literal escapes. Unsupported words, containing
+forms and diagnostic-marker collisions produce drift. Shell writes remain
+check-only. YAML writes refuse owned anchors, aliases and anchored ancestors
+before backup; resolved native equality also checks aliases and YAML merges.
+Plain scalar writes and native preservation/restore regressions pass.
+
+Oxlint has zero findings in changed files; all 24 reported findings are in files
+byte-identical to integrated main. Cheap gates pass 16 lanes and retain only the
+two pre-existing native-platform EV010 provenance advisories tracked by
+`RSC-F-S31/F-S31-EV010`. The introduced EV006 assertion was corrected. No inventory
+exception was added. Knowledge refs retains only main's Palantiri PLAN.md:122
+host-path observation, whose source is byte-identical to main. Superseded or
+failed proof attempts are excluded from the accepted proof.
+
+Models check reports 6 diagnostics in 2 operator-owned paths and zero F-owned
+drift. Five shell routes now report unsupported expansions/continuations, and
+the Claude model drift remains; Grok effort is currently clean. The historical
+three-item count is superseded by `RSC-F-FAIL-CLOSED-READERS`; suppressing these
+findings would violate that ruling. Protected Codex pins and legacy-key absence
+pass; the pinned read-only Codex probe passes. Native configuration writes: 0.
+The three prior backups remain available; no new native rollback was needed.
+
+Round-5 deferred items: none. Existing follow-ups remain F3-F2 (target-filesystem
+capability qualification), R3-GROK-01 (crash/restart journaling qualification), and
+R3-GROK-03 (verified skill file/directory exchange). Their larger protocol changes
+retain the earlier SPEC reasons and are separate from this wave. Measured
+qualification windows and external-owner activation prerequisites stay open.
+
+| Finding | Fix commit(s) | Test evidence |
+| --- | --- | --- |
+| F-ASTRA-R5-01, P1 | `5f8fd32531`, `a625dd2069`, `e088edb597`, `dcbd411962`, `c6b028365a`, `a2ce18e8ab`, `4ffb87264c` | `models-locators`, `models-apply-command`, `models-apply`: Astra's exact two-line input and all seven control boundaries report drift; both check commands fail; unsupported continuations, expansions, quoting, escaped spaces and here-documents never report clean. Marker and joined-display equality regressions fail closed. Bytes remain unchanged; no backup. |
+| F-ASTRA-R5-02, P1 | `5f8fd32531`, `e088edb597` | `models-apply`: shared anchor, alias, unused owned anchor and anchored ancestor refuse with ModelsLocatorError, unchanged bytes and no backup. A plain scalar writes. An injected merge/alias-source change fails the general non-owned YAML equality check before backup. |
+| R5-GROK-01, P2 | `5f8fd32531`, `a625dd2069`, `e088edb597`, `dcbd411962`, `c6b028365a`, `a2ce18e8ab`, `4ffb87264c` | Reader, service and command regressions cover escaped flag/assignment separators and quoted here-document bodies, including a function-looking block inside a here-document; unsupported-form drift, unchanged bytes, no backup. |
+| R5-F1, P3 | `5f8fd32531`, `e088edb597` | `skills-command`: remove the lockfile before the backup/mode scenario; its first publication is 0644, and existing config permissions and backup bytes survive. |
+| R5-F2, P3 | `5f8fd32531`, `e088edb597` | `models-apply`: both live and dangling links introduced in the restore exchange window are returned live through verified recovery; relocated bytes survive and the typed error carries the journal id. |
+| R5-F3, P3 | `5f8fd32531` | `models-apply-command`: each refusal names its target once, continues to the next target and fails at the end. |
+
+Graft saved approximately 8,752 tokens in one successful retrieval.
+
+---
+
+## Retained earlier handoff reports (historical)
+
+lane: rsc-f-agents
+head: 7f0ceac1b32fd854d9cf96d59862743734989330   PR: #1797
+package-verify: @beep/repo-cli: pass (default audit 1290.7s; docgen 40.3s; post-main quick lint/check and 17 affected tests pass)
+hosted-parity: test-tsgo -> pass (main #1841 integrated); docgen local -> pass; jsdoc-ratchet -> pass; knowledge refs -> fail(one inherited host-path row); fallow audit+health -> pass, zero findings; coverage read -> pass (291 tests, 16 files, all 6 existing touched-file rows)
+config fingerprint (final): e05e914da3efae7026ef674e4fa1dd8a4d6d80d41e155bc5d4b9fa4845eb28a0 (353 equality inputs; 4 observed-only; panel candidate)   backups: no new native backups; all 3 previous backups verified present
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 5 and hosted gate; 3 exempt operator-owned model drifts; incomplete 30-session windows and existing H3 measured gates; existing tracked policy/protocol follow-ups
+
+Published in exactly one push to #1797. No readiness monitor or final gate file was created. The PR
+remains held for the driver's three-model panel. Main #1841 merged once in 8b5514a845. It changes only a branded test fixture;
+the implementation source is unchanged. Post-merge quick package verification,
+all 17 affected tests and the full test type check pass. Dependencies were
+reinstalled, both sharded catalog owners reran, and changeset-graph passed with
+no changeset.
+
+Oxlint reports zero findings in changed files; its 24 findings are in sources
+byte-identical to main. S31 compares all 15 debt/exception inventories with zero
+added rows. Cheap gates pass except the two native-platform provenance advisory
+rows already tracked by RSC-F-S31/F-S31-EV010; no exception was added. Main #1841 fixed the earlier test-tsgo error.
+Knowledge refs has only main's Palantiri PLAN.md:122 host-path observation.
+
+Models check reports exactly 3 exempt operator drifts and zero F-owned drift.
+All five live shell locators preview successfully, including lightweight-route
+drift. Protected Codex pins and legacy-key absence pass; the pinned read-only
+Codex probe returns OK. Native home configuration writes: 0. Existing symlink
+apply/restore round-trips pass. Shell writes refuse before any backup or stage;
+shell and ownership-unknown legacy journals refuse safely. Retain older backups
+for inspected manual recovery. All four nearby round-4 P2/P3 items are included;
+none is deferred.
+
+Retained backups: models-2026-10-14T222221002Z-16103436.backup,
+rsc-f-pre-rollback-20261014T222520875693Z.backup, and
+models-2026-10-14T222525456Z-12665845.backup. The formatter's mise invocation
+pruned four cached tool versions; OPPORTUNITIES records that tooling side effect.
+
+Existing follow-ups remain: F3-F2 needs target-filesystem capability fixtures;
+R3-GROK-01 needs crash/restart journaling fixtures; R3-GROK-03 needs verified
+file/directory exchange for skill publication. These larger protocol changes
+retain their SPEC reasons and are not newly deferred round-4 findings.
+
+Post-push review read: 0 unresolved threads, 0 unanswered follow-ups. New REST reply/resolution ids: none needed.
+Pushed-head recapture matches the committed fingerprint with zero changed equality paths. The committed handoff retains pre-publication proof; this local publication supplement records the pushed SHA without a second push.
+The implementation proof is frozen at cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb.
+Main #1841 adds only its separately verified test fixture; delivery then adds
+packet evidence only. Superseded or failed proof attempts are not counted
+as passes. Detailed results are in the stage-5-f-panel-r4 receipts.
+
+Graft saved approximately 44,794 tokens in one successful retrieval.
+
+| Finding | Fix commit(s) | Verification |
+| --- | --- | --- |
+| F-ASTRA-R2-02, P1 | 89990bc16f; 47ab08e617; c0ce8771eb | `models-apply.test.ts`: every earlier shell input plus escaped flag/assignment separators returns the typed check-only refusal, with unchanged bytes and no backup. The writer/quoting path is removed. |
+| F-ASTRA-R4-02, P1 | 89990bc16f; cbdf2e8e0b | `models-apply.test.ts`: Astra's exact move-and-link reproduction, moved target, changed parent, replaced/retargeted link all refuse before staging with the journal id and unchanged files. A link introduced inside the exchange window is detected and returned live by verified recovery; both files retain their bytes. |
+| R4-F1, P2 | 89990bc16f | `models-locators.test.ts` and `models-apply-command.test.ts`: partial shell rewrite is removed with the capability. Per-line reader sees mixed assignments after continuations; the live and synthetic function-route previews complete. |
+| R4-F2, P2 | 89990bc16f; 292a0c6305 | `models-apply-command.test.ts`: apply reports target-specific refusals, continues through later targets, and fails at the end; command regression verifies both reports. |
+| R4-F3, P2 | 89990bc16f | `models-locators.test.ts`: unsupported shell expansion is retained as raw drift evidence; reader regression completes instead of aborting the checker. |
+| R4-F4, P3 | 89990bc16f | `models-apply.test.ts`: hard-link acquisition is inside cleanup scope; injected preimage stat failure leaves native bytes and no staging/preimage residue. |
+
+panel-candidate 7f0ceac1b32fd854d9cf96d59862743734989330 #1797
+fingerprint e05e914da3efae7026ef674e4fa1dd8a4d6d80d41e155bc5d4b9fa4845eb28a0
+
+---
+
+## Committed pre-publication proof (historical)
+
+lane: rsc-f-agents
 head: cbdf2e8e0bb5785a81f00574b441c3e3b9a30fdb (frozen implementation; delivery follows)   PR: #1797
 package-verify: @beep/repo-cli: pass (default audit 1290.7s; docgen 40.3s; unchanged implementation; post-main quick lint/check and affected tests pass)
 hosted-parity: test-tsgo -> pass (main #1841 integrated); docgen local -> pass; jsdoc-ratchet -> pass; knowledge refs -> fail(one inherited host-path row); fallow audit+health -> pass, zero findings; coverage read -> pass (291 tests, 16 files, all 6 existing touched-file rows)

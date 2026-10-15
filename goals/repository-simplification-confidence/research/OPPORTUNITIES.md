@@ -2743,3 +2743,32 @@ attempts; no interrupted run is counted as a pass.
   one failure after 6,716 passing tests. Commit packet core metadata before the
   full audit; add a cheap HEAD/worktree packet-parity preflight to expose this
   mismatch before the long package test run.
+
+### F round-5 admission environment (2026-10-15)
+
+A focused regression run stopped before tests because the tool shell omitted the
+user-manager bus variables (`Failed to connect to user scope bus`). Reused the
+existing admission wrapper with `XDG_RUNTIME_DIR=/run/user/1000` and the matching
+user bus address. No duplicate proof was started. Export these in lane proof
+scripts so admission works from noninteractive shells.
+
+### F fail-closed shell count (2026-10-15)
+
+The round-5 directive retained an older expectation of three operator-owned model
+drifts while requiring every unsupported shell form to report drift. A fresh
+`beep models check` now emits six diagnostics: five shell routes contain expansions
+or continuations, and the Claude model drift remains; Grok effort is clean.
+No F-owned field drifts. Kept every diagnostic and recorded the precedence in
+`RSC-F-FAIL-CLOSED-READERS` instead of suppressing evidence to match an old count.
+The next brief should state ownership acceptance separately from diagnostic count.
+
+### F round-5 scanner maintainability (2026-10-15)
+
+The initial literal scanner passed its focused behavior fixtures but Fallow
+reported five introduced complexity findings. Split tokenization, literal decoding,
+owned-word lookup and YAML sharing checks within the existing modules; simplified
+symlink recovery and fixtures. Audit and health then reported zero findings.
+Cancelled only this lane's superseded full package runs after verifying each exact
+service and working directory; restarted the default gate on the frozen source.
+Superseded proof attempts are excluded from the accepted proof. Run maintainability
+checks before starting a long full audit when adding a scanner.
