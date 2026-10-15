@@ -562,8 +562,9 @@ export const timeCommand =
               return { text: "Timer stopped. Interval saved." };
             }).pipe(Semaphore.withPermit(timerWrites))
           ),
-          Match.when("", () =>
-            Effect.gen(function* () {
+          Match.when(
+            "",
+            Effect.fnUntraced(function* () {
               yield* Effect.promise(() => updateElapsed($)());
               return { text: timerStatus() };
             })

@@ -103,7 +103,7 @@ class SqlNameError extends TaggedError<SqlNameError, { readonly brand: unique sy
   "SqlNameError",
   {
     message: StringSchema,
-    name: StringSchema,
+    sqlName: StringSchema,
     surface: StringSchema,
   },
   {
@@ -192,7 +192,7 @@ export const assertSqlName: {
 } = /* @__PURE__ */ dual(3, (name: string, dialect: Dialect, surface: string): void => {
   const issue = sqlNameIssue(name, dialect);
   if (issue !== undefined) {
-    throw SqlNameError.make({ message: `${surface} '${name}' ${issue}.`, name, surface });
+    throw SqlNameError.make({ message: `${surface} '${name}' ${issue}.`, sqlName: name, surface });
   }
 });
 
@@ -207,7 +207,7 @@ export const assertPgEnumLabel = (label: string): void => {
   if (issue !== undefined) {
     throw SqlNameError.make({
       message: `PostgreSQL enum label '${label}' ${issue}.`,
-      name: label,
+      sqlName: label,
       surface: "enum label",
     });
   }
@@ -269,7 +269,7 @@ export const assertUniqueSqlNames: {
   if (collision !== undefined) {
     throw SqlNameError.make({
       message: `${surface} '${collision.secondOwner}' collides with '${collision.firstOwner}' after dialect normalization to '${collision.canonical}'.`,
-      name: collision.name,
+      sqlName: collision.name,
       surface,
     });
   }

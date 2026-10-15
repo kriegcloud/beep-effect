@@ -40,8 +40,6 @@
         // Stability allow-lists stay empty: experimentalApiUsage and unstableApiUsage are declared off.
         "allowedExperimentalApis": [],
         "allowedUnstableApis": [],
-        // Debug-only language-service output stays off; it is noise in tsc mode.
-        "debug": false,
         "inlays": false,
         "mermaidProvider": "mermaid.live",
         "noExternal": false,
@@ -125,9 +123,6 @@
           "mapSomeToAsSome": "error",
           "matchEffectToMapBoth": "error",
           "matchEffectToMatch": "error",
-          // Family delta: the published DSL intentionally exposes data-first factory
-          // forms, so this style-only rule is the one package-local `off` beyond the
-          // base profile's declared-off rules.
           "missedPipeableOpportunity": "off",
           "missingEffectContext": "error",
           "missingEffectError": "error",
@@ -158,8 +153,8 @@
           "promiseInEffectSuccess": "error",
           "provideLayerSucceedToProvideService": "error",
           "raceFirstWithSleepToTimeout": "error",
-          "redundantOrDie": "error",
           "redundantMapError": "error",
+          "redundantOrDie": "error",
           "redundantSchemaTagIdentifier": "error",
           "returnEffectInGen": "error",
           "runEffectInsideEffect": "error",
