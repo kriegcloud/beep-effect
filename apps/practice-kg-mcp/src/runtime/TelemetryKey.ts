@@ -660,7 +660,8 @@ export class PracticeKgKeyReport extends S.Opaque<PracticeKgKeyReport, { readonl
 ) {}
 
 /**
- * Looks at `<telemetryDir>/key.dpapi` without creating, rotating or writing
+ * Looks at the current `<telemetryDir>/key.<epoch>.dpapi` (the highest epoch,
+ * found the way the host finds it) without creating, rotating or writing
  * anything, and returns its {@link PracticeKgKeyReport} with the unwrapped
  * key when it loaded.
  *
@@ -684,28 +685,26 @@ export class PracticeKgKeyReport extends S.Opaque<PracticeKgKeyReport, { readonl
  * @since 0.0.0
  */
 export const readPracticeKgSpoolKey = Effect.fn("PracticeKgTelemetryKey.read")(function* (telemetryDir: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
   const port = yield* DpapiPort;
-  const keyPath = path.join(telemetryDir, keyFileName);
-  const present = yield* fs.exists(keyPath).pipe(Effect.orElseSucceed(() => false));
-  if (!present) {
-    return [PracticeKgKeyReport.make({ status: "missing" }), O.none()] as const;
-  }
-  const stored = yield* fs.readFileString(keyPath).pipe(Effect.flatMap(decodeKeyFile), Effect.option);
-  return yield* O.match(stored, {
-    onNone: () => Effect.succeed([PracticeKgKeyReport.make({ status: "unreadable" }), O.none()] as const),
-    onSome: (file) =>
-      Effect.map(unwrapStored(port, file), (material) => {
-        const report = PracticeKgKeyReport.make({
-          status: O.isSome(material) ? "loaded" : "unreadable",
-          protection: file.protection,
-          epoch: file.epoch,
-        });
-        const key = O.map(material, (bytes) =>
-          StrictSpoolKey.of({ epoch: `${file.epoch}`, protection: file.protection, material: Redacted.make(bytes) })
-        );
-        return [report, key] as const;
+  // The same highest-epoch scan the host uses; it only lists and reads.
+  const latest = yield* latestKeyFile(telemetryDir);
+  return yield* O.match(latest, {
+    onNone: () => Effect.succeed([PracticeKgKeyReport.make({ status: "missing" }), O.none()] as const),
+    onSome: ({ epoch, file: stored }) =>
+      O.match(stored, {
+        onNone: () => Effect.succeed([PracticeKgKeyReport.make({ status: "unreadable", epoch }), O.none()] as const),
+        onSome: (file) =>
+          Effect.map(unwrapStored(port, file), (material) => {
+            const report = PracticeKgKeyReport.make({
+              status: O.isSome(material) ? "loaded" : "unreadable",
+              protection: file.protection,
+              epoch: file.epoch,
+            });
+            const key = O.map(material, (bytes) =>
+              StrictSpoolKey.of({ epoch: `${file.epoch}`, protection: file.protection, material: Redacted.make(bytes) })
+            );
+            return [report, key] as const;
+          }),
       }),
   });
 });

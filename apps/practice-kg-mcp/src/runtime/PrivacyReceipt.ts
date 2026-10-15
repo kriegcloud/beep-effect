@@ -52,6 +52,7 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { PracticeKgTelemetryCatalog, resolvePracticeKgTelemetryTier } from "./Telemetry.ts";
 import {
   DpapiPort,
@@ -448,13 +449,30 @@ const ledgerRows = (ledger: RefusalLedger): ReadonlyArray<string> =>
     ],
   });
 
+// Every spool refusal tag the kernel declares, in its declared order:
+// `spool-evicted` and `spool-write-failed` from the gate counter,
+// `spool-tier-refused` and `spool-segment-invalid` from the survey.
+const spoolTags = A.filter(TelemetryRefusalTag.literals, Str.startsWith("spool-"));
+const isSpoolTag = (tag: TelemetryRefusalTag): boolean => A.contains(spoolTags, tag);
+
+const countIn = (ledger: RefusalLedger, tag: TelemetryRefusalTag): number =>
+  O.getOrElse(HashMap.get(ledger, tag), () => 0);
+
+// One row per spool tag, zero rows included, summing the gate counter growth
+// and the segments the survey refused.
+const spoolRows = (receipt: PracticeKgPrivacyReceipt): ReadonlyArray<string> => [
+  "| Tag | Count |",
+  "| --- | ---: |",
+  ...A.map(spoolTags, (tag) => `| ${tag} | ${countIn(receipt.refusals, tag) + countIn(receipt.spool.refused, tag)} |`),
+];
+
 const nameRows = (names: ReadonlyArray<string>): ReadonlyArray<string> =>
   A.match(names, { onEmpty: () => ["None."], onNonEmpty: A.map((name) => `- \`${name}\``) });
 
 const keyLine = (key: PracticeKgKeyReport): string =>
   A.join(
     [
-      `- Key: \`<telemetry dir>/key.dpapi\`, ${key.status}`,
+      `- Key: \`<telemetry dir>/key.<epoch>.dpapi\`, ${key.status}`,
       ...O.toArray(O.map(O.fromUndefinedOr(key.protection), (protection) => `protection ${protection}`)),
       ...O.toArray(O.map(O.fromUndefinedOr(key.epoch), (epoch) => `epoch ${epoch}`)),
     ],
@@ -516,11 +534,11 @@ export const renderPracticeKgPrivacyReceipt = (receipt: PracticeKgPrivacyReceipt
       "",
       "## Refusals in the window",
       "",
-      ...ledgerRows(receipt.refusals),
+      ...ledgerRows(HashMap.filter(receipt.refusals, (_, tag) => !isSpoolTag(tag))),
       "",
-      "## Spool segments refused in the window",
+      "## Spool refusals in the window",
       "",
-      ...ledgerRows(receipt.spool.refused),
+      ...spoolRows(receipt),
       "",
       "## Exported attribute keys",
       "",

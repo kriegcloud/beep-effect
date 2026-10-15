@@ -118,12 +118,14 @@ const makeSurvey = Effect.gen(function* () {
   const earlierMetrics = yield* metricsBody([
     refusedPoint("log-record-dropped", "100", 4),
     refusedPoint("egress-refused", "100", 2),
+    refusedPoint("spool-write-failed", "100", 1),
   ]);
   const metrics = yield* metricsBody(
     [
       refusedPoint("log-record-dropped", "100", 10),
       refusedPoint("egress-refused", "100", 5),
       refusedPoint("span-name-not-allowed", "900", "7"),
+      refusedPoint("spool-write-failed", "100", 3),
       refusedPoint(canary, "900", 99),
     ],
     [
@@ -176,9 +178,10 @@ describe("practice KG privacy receipt", () => {
           ["log-record-dropped", 6],
           ["egress-refused", 3],
           ["span-name-not-allowed", 7],
+          ["spool-write-failed", 2],
         ])
       );
-      expect(HashMap.size(refusals)).toBe(3);
+      expect(HashMap.size(refusals)).toBe(4);
       expect(spool.segments).toEqual({ traces: 1, metrics: 1, logs: 1 });
       expect([spool.bytes, spool.earlier]).toEqual([1_450, 1]);
       expect(HashMap.toEntries(spool.refused)).toEqual([["spool-segment-invalid", 1]]);

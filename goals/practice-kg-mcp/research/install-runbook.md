@@ -118,7 +118,8 @@ telemetry refused and held back over the last 7 days:
 practice-kg-mcp.exe --privacy-receipt
 ```
 
-It reads `key.dpapi` and the `spool\` folder under the telemetry directory,
+It reads the current key file (the highest `key.<epoch>.dpapi`, found the way
+the host finds it) and the `spool\` folder under the telemetry directory,
 prints a Markdown receipt to the window and exits with code 0. It writes
 nothing: a missing key is reported as `missing`, never created. The receipt
 holds counts and names only:
@@ -129,6 +130,9 @@ holds counts and names only:
   earlier;
 - each refusal tag with how much its count grew in the window (for example
   `log-record-dropped`, `egress-refused`);
+- a spool table with every spool refusal tag, zeros included:
+  `spool-evicted`, `spool-write-failed`, `spool-tier-refused`,
+  `spool-segment-invalid`;
 - the attribute keys and metric names the held-back exports carry.
 
 It never prints an attribute value, a tool argument, a span name or a folder
