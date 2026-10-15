@@ -26,9 +26,13 @@ Cache-writer expressions stay in trusted caller workflows. The composite setup a
 Hosted `Check / Repo Sanity` runs `lint:schema-catalog`
 (`bun run beep lint schema-catalog`) through `bun run beep ci lane repo-sanity`,
 before the other sanity steps. The command defaults to check mode and fails
-when `standards/schema-catalog.generated.jsonc` differs from current source;
-refresh intentional changes with `bun run beep lint schema-catalog --write`
-and review the diff.
+when any per-package shard under `standards/schema-catalog/` differs from
+current source, is missing, or has no owning package (including the retired
+single file `standards/schema-catalog.generated.jsonc`); refresh intentional
+changes with `bun run beep lint schema-catalog --write` and review the diff.
+Both generated catalogs (schema and instrumentation) are sharded per owning
+package so pull requests that touch different packages do not conflict; see
+`standards/generated-artifacts.policy.md`.
 
 The schema catalog stays out of the local `beep quality github-checks
 cheap-gates` preflight. That tier runs four lanes at once and excludes
