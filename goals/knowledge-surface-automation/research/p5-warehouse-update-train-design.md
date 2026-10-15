@@ -277,6 +277,18 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   leaves it out of the patch-tree digests that decide `already-applied`. Reason: an
   append-only ledger must survive every writer of its directory. Reverse: move the ledger
   out of the patch root (for example `.agents/skill-ledger.jsonl`).
+- **B42 — the three patch labels mean what a bump does with the patch (operator, Ritual 1,
+  2026-10-15).** `SkillPatchLabel` named the labels but nothing defined them, so the review
+  ritual asked for a classification without saying what it committed to. `policy`: the
+  patch enforces a repo rule (safety, money, path hygiene) and is replayed on every bump
+  whatever upstream does. `repo-adaptation`: the patch fits the skill to this repo's tools
+  or workflow; it is replayed, and dropped once upstream offers an equivalent option.
+  `temporary-drift`: the difference is expected to vanish and is dropped when upstream
+  contains an equivalent change (the default every generated patch carries). The labels
+  carry no tool behavior yet; they tell the reviewer of a conflicting bump whether to fight
+  for the hunk or let it go. Reason: a classification is only useful if both the operator
+  and the next reviewer read it the same way. Reverse: drop this entry and leave the labels
+  as free-form review tags.
 
 ## Sequencing
 

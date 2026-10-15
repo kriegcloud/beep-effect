@@ -20,7 +20,7 @@ prose when they conflict.
 
 Scope:
 
-- In: `packages/tooling/library/palantiri/**` (parcel schemas + `Parcels` service), `packages/tooling/tool/palantiri-mcp/**` (MCP host), `packages/tooling/tool/cli/src/commands/Palantiri/**` (CLI group), `beep session open` integration, the quota gauge emitter over `AccountsUsage`.
+- In: `packages/tooling/library/palantiri/**` (parcel schemas + `Parcels` service), `beep palantiri mcp` (MCP host in the CLI), `packages/tooling/tool/cli/src/commands/Palantiri/**` (CLI group), `beep session open` integration, the quota gauge emitter over `AccountsUsage`.
 - Out: Backend/store choice, parcel-gated yeet actions (gated re-entry), the strict tier, harness wrappers. See SPEC non-goals.
 
 Workflow:

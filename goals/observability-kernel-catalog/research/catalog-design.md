@@ -103,10 +103,13 @@ generated section, through a Layer.
 ## Repo tooling (repo CLI)
 
 - `beep observability catalog --write | --check`: harvests the span literals,
-  loads every `*.instruments.ts`, merges them, and writes
-  `standards/instrumentation-catalog.generated.jsonc`. `--check` fails on
-  conflicts, duplicates, interpolated names and drift.
-- `12-observability.md` gets a generated section rendered from the catalog.
+  loads every `*.instruments.ts`, merges them, and writes one shard per
+  owning package, `standards/instrumentation-catalog/<package>.generated.jsonc`
+  (sharded 2026-10-15 so unrelated PRs stop conflicting; see the SPEC
+  decision log). `--check` fails on conflicts, duplicates, interpolated
+  names, drift and orphaned shards.
+- `12-observability.md` gets a generated section with the naming rules; span
+  counts are printed by the command, not committed.
 
 ## Out of P2
 

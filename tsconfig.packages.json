@@ -415,6 +415,9 @@
       "path": "packages/tooling/library/codegen-kit"
     },
     {
+      "path": "packages/tooling/library/palantiri"
+    },
+    {
       "path": "packages/tooling/library/qa-capture"
     },
     {

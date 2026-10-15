@@ -15,6 +15,7 @@ const LINT_POLICY_SUBCOMMANDS = subcommands(
   "ecosystem-polarity",
   "effect-schema-inventory",
   "effect-vitest",
+  "opaque-roundtrips",
   "goal-packets",
   "identity-registry",
   "judge-rubric",
