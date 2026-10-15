@@ -7,34 +7,33 @@
 
 import {
   Freshness,
-  layerPalantiriClientInProcess,
-  layerParcels,
-  PalantiriClient,
   ParcelBudget,
   ParcelEnvelope,
   ParcelItem,
   ParcelReadOptions,
   parcelSpecs,
   SessionKey,
-  withTraceParent,
 } from "@beep/palantiri";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import { Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
-import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
-import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { sessionHarness } from "../Session/SessionLedger.service.ts";
-import { layerPalantiriSourcesLive, layerPalantiriTelemetry } from "./Palantiri.service.ts";
-import type { ParcelId, ParcelSources, ParcelSpec } from "@beep/palantiri";
-import type * as FileSystem from "effect/FileSystem";
-import type * as Path from "effect/Path";
+import {
+  layerPalantiriRuntime,
+  parcelReadOptions,
+  readParcel,
+  renderFreshness,
+  renderParcelBound,
+  resolveParcelSession,
+} from "./Palantiri.runtime.ts";
+import { layerPalantiriMcpTelemetry, layerPalantiriSourcesLive, layerPalantiriTelemetry } from "./Palantiri.service.ts";
+import { layerPalantiriMcp, servePalantiriMcp } from "./Palantiri.tools.ts";
+import type { ParcelId, ParcelSpec } from "@beep/palantiri";
 
 const ParcelEnvelopeJson = S.fromJsonString(ParcelEnvelope);
 
@@ -57,18 +56,6 @@ const sessionFlag = Flag.String("session").pipe(
 
 const optionText = <A>(option: O.Option<A>, render: (value: A) => string): string =>
   O.getOrElse(O.map(option, render), () => "");
-
-const renderFreshness = Freshness.match({
-  Fresh: (fresh) => `fresh as of ${DateTime.formatIso(fresh.asOf)}`,
-  Unknown: (unknown) =>
-    `unknown (${unknown.reason})${O.getOrElse(
-      O.map(unknown.asOf, (asOf) => ` as of ${DateTime.formatIso(asOf)}`),
-      () => ""
-    )}${O.getOrElse(
-      O.map(unknown.detail, (detail) => `: ${detail}`),
-      () => ""
-    )}`,
-});
 
 const percent = (value: number): string => `${Num.round(value, 1)}%`;
 
@@ -174,16 +161,7 @@ export const printParcel = Effect.fn("PalantiriCommand.printParcel")(function* (
   json: boolean,
   options: ParcelReadOptions = ParcelReadOptions.make({})
 ) {
-  const client = yield* PalantiriClient;
-  const envelope = yield* client.parcels
-    .read({
-      params: { id },
-      query: O.match(options.session, {
-        onNone: () => ({ budget: options.budget }),
-        onSome: (session) => ({ budget: options.budget, session }),
-      }),
-    })
-    .pipe(withTraceParent);
+  const envelope = yield* readParcel(id, options);
   yield* Console.log(json ? yield* S.encodeEffect(ParcelEnvelopeJson)(envelope) : renderParcel(envelope));
 });
 
@@ -196,76 +174,14 @@ const reportFailure = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
     )
   );
 
-/**
- * The in-process Palantiri client over the given source and telemetry
- * layers: the runtime every Palantiri command (and, later, the MCP host)
- * reads through.
- *
- * **Details**
- *
- * The telemetry layer is provided underneath the client, so the handler it
- * runs sees the same tracer and exports through it.
- *
- * **Example** (Build the live runtime)
- *
- * ```ts
- * import { layerPalantiriRuntime, layerPalantiriSourcesLive, layerPalantiriTelemetry } from "@beep/repo-cli/test/Palantiri"
- * import * as Layer from "effect/Layer"
- *
- * console.log(Layer.isLayer(layerPalantiriRuntime(layerPalantiriSourcesLive, layerPalantiriTelemetry))) // true
- * ```
- *
- * @param sources - Every parcel source port.
- * @param telemetry - Tracer and metric export; `Layer.empty` exports nothing.
- * @returns The client layer.
- * @category layers
- * @since 0.0.0
- */
-export const layerPalantiriRuntime: {
-  <ET, RT>(
-    telemetry: Layer.Layer<never, ET, RT>
-  ): <EA, RA>(
-    sources: Layer.Layer<ParcelSources, EA, RA>
-  ) => Layer.Layer<PalantiriClient, EA | ET, FileSystem.FileSystem | Path.Path | RA | RT>;
-  <EA, RA, ET, RT>(
-    sources: Layer.Layer<ParcelSources, EA, RA>,
-    telemetry: Layer.Layer<never, ET, RT>
-  ): Layer.Layer<PalantiriClient, EA | ET, FileSystem.FileSystem | Path.Path | RA | RT>;
-} = dual(
-  2,
-  <EA, RA, ET, RT>(
-    sources: Layer.Layer<ParcelSources, EA, RA>,
-    telemetry: Layer.Layer<never, ET, RT>
-  ): Layer.Layer<PalantiriClient, EA | ET, FileSystem.FileSystem | Path.Path | RA | RT> =>
-    layerPalantiriClientInProcess.pipe(
-      Layer.provide(layerParcels),
-      Layer.provide(sources),
-      Layer.provideMerge(telemetry)
-    )
-);
-
 const liveRuntime = layerPalantiriRuntime(layerPalantiriSourcesLive, layerPalantiriTelemetry);
-
-// The flag wins; otherwise the harness session the process runs under.
-const resolveSession = (flag: O.Option<SessionKey>) =>
-  O.match(flag, {
-    onSome: Effect.succeedSome,
-    onNone: () => sessionHarness.pipe(Effect.map((harness) => O.filter(harness.sessionId, S.is(SessionKey)))),
-  });
-
-// An absent budget keeps the schema's default.
-const readOptions = (budget: O.Option<ParcelBudget>, session: O.Option<SessionKey>) =>
-  ParcelReadOptions.make({
-    ...O.match(budget, { onNone: () => ({}), onSome: (value) => ({ budget: value }) }),
-    session,
-  });
 
 const parcelCommand = (id: ParcelId, description: string) =>
   Command.make(
     id,
     { json: jsonFlag, budget: budgetFlag },
     Effect.fn("PalantiriCommand.parcel")(function* ({ json, budget }) {
-      yield* reportFailure(printParcel(id, json, readOptions(budget, O.none())));
+      yield* reportFailure(printParcel(id, json, parcelReadOptions(budget, O.none())));
     })
   ).pipe(Command.withDescription(description), Command.provide(liveRuntime));
 
@@ -375,16 +291,13 @@ export const palantiriSinceLastCheckCommand = Command.make(
   "since-last-check",
   { json: jsonFlag, budget: budgetFlag, session: sessionFlag },
   Effect.fn("PalantiriCommand.sinceLastCheck")(function* ({ json, budget, session }) {
-    const resolved = yield* resolveSession(session);
-    yield* reportFailure(printParcel("since-last-check", json, readOptions(budget, resolved)));
+    const resolved = yield* resolveParcelSession(session);
+    yield* reportFailure(printParcel("since-last-check", json, parcelReadOptions(budget, resolved)));
   })
 ).pipe(
   Command.withDescription("Session notes and inbox rows newer than this session's last read; moves its cursor"),
   Command.provide(liveRuntime)
 );
-
-const renderBound = (bound: Duration.Duration): string =>
-  Duration.isFinite(bound) ? `${Duration.toSeconds(bound)}s` : "none (event-sourced)";
 
 /**
  * Render a parcel spec as one line: id, key, freshness bound and sources.
@@ -405,7 +318,7 @@ const renderBound = (bound: Duration.Duration): string =>
  * @since 0.0.0
  */
 export const renderParcelSpec = (spec: ParcelSpec): string =>
-  `${spec.id}  key=${spec.key}  bound=${renderBound(spec.freshnessBound)}  sources=${A.join(spec.sources, ", ")}`;
+  `${spec.id}  key=${spec.key}  bound=${renderParcelBound(spec.freshnessBound)}  sources=${A.join(spec.sources, ", ")}`;
 
 /**
  * `beep palantiri parcels`: every parcel id with its key, freshness bound and
@@ -430,6 +343,48 @@ export const palantiriParcelsCommand = Command.make(
   })
 ).pipe(Command.withDescription("List every parcel with its key, freshness bound and sources"));
 
+const otlpEndpointFlag = Flag.String("otlp-endpoint").pipe(
+  Flag.optional,
+  Flag.withDescription(
+    "OTLP base URL to export spans and metrics to (default: BEEP_PALANTIRI_OTLP_ENDPOINT; none exports nothing)"
+  )
+);
+
+/**
+ * `beep palantiri mcp [--otlp-endpoint URL]`: serve every parcel as an MCP
+ * tool on stdio, until the client disconnects.
+ *
+ * **Details**
+ *
+ * Each tool runs the same read as `beep palantiri parcel <id>`, so its JSON
+ * is byte-identical to `--json`. Logs go to stderr, because stdout carries
+ * the protocol. Claude Code strips `OTEL_*` from an MCP server's
+ * environment, so export is configured by `--otlp-endpoint` or
+ * `BEEP_PALANTIRI_OTLP_ENDPOINT`; with neither, nothing is exported.
+ *
+ * **Example** (Read the command name)
+ *
+ * ```ts
+ * import { palantiriMcpCommand } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(palantiriMcpCommand.name) // "mcp"
+ * ```
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export const palantiriMcpCommand = Command.make(
+  "mcp",
+  { otlpEndpoint: otlpEndpointFlag },
+  Effect.fn("PalantiriCommand.mcp")(function* ({ otlpEndpoint }) {
+    return yield* layerPalantiriSourcesLive.pipe(
+      layerPalantiriRuntime(layerPalantiriMcpTelemetry(otlpEndpoint)),
+      layerPalantiriMcp,
+      servePalantiriMcp
+    );
+  })
+).pipe(Command.withDescription("Serve every parcel as an MCP tool on stdio (same JSON as `parcel <id> --json`)"));
+
 const parcelGroupCommand = Command.make("parcel").pipe(
   Command.withDescription("Read one schema-typed, freshness-checked parcel"),
   Command.withSubcommands([
@@ -443,7 +398,8 @@ const parcelGroupCommand = Command.make("parcel").pipe(
 
 /**
  * `beep palantiri`: read agent-facing parcels
- * (`parcel <id> [--json] [--budget N]`) and list them (`parcels`).
+ * (`parcel <id> [--json] [--budget N]`), list them (`parcels`) and serve
+ * them as MCP tools on stdio (`mcp`).
  *
  * **Example** (Read the group name)
  *
@@ -458,5 +414,5 @@ const parcelGroupCommand = Command.make("parcel").pipe(
  */
 export const palantiriCommand = Command.make("palantiri").pipe(
   Command.withDescription("Agent-facing observability parcels: quota headroom, lane reds, host pressure and more"),
-  Command.withSubcommands([parcelGroupCommand, palantiriParcelsCommand])
+  Command.withSubcommands([parcelGroupCommand, palantiriParcelsCommand, palantiriMcpCommand])
 );
