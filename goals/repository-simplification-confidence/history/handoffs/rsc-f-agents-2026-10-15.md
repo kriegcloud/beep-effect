@@ -1,14 +1,83 @@
-## Panel round 2 fix wave: local proof complete; single push pending
+## Panel round 3 fix wave: local proof complete; single push pending
 
 lane: rsc-f-agents
-head: df1ce699b75624642e95ba3f03c99b9b417280c2   PR: #1797
+head: 4136594584f9e567d8cab36ff0d23cf78c430b54 (frozen source; delivery evidence follows)   PR: #1797
+package-verify: @beep/repo-cli: pass (audit 1230.4s; docgen 39.2s; frozen source 4136594584)
+hosted-parity: test-tsgo -> fail(inherited TS2741); docgen local -> pass; jsdoc-ratchet -> pass; knowledge refs -> fail(inherited host-path observation); fallow audit+health -> pass, zero findings; scoped coverage -> pass (285 tests / 16 files / all 6 existing touched-file schema-v2 rows)
+config fingerprint (final): 3a586eb6b63168ff0973580db01f64ced91357d878634558e983c87560216f6f (353 equality inputs / 4 observed-only; pushed-head recapture follows)   backups: no home configuration writes or new backups; previous backups retained
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 4, hosted gate/merge/retirement; 3 operator-owned model drifts; incomplete 30-session windows and existing H3 measured gates; inherited main failures; 3 non-actionable publication-protocol follow-ups
+
+Main a679390ed8 is integrated once in d8394b35f7, followed by a successful
+`bun install`. Both sharded catalog owners ran (`lint schema-catalog --write`
+and `observability catalog --write`); no monolith was restored. S31 compares
+15 inventory/baseline/allowlist files with 0 changed files and 0 added rows.
+Only owner-generated catalog differences remain under standards. Changeset-graph
+passes, with no changeset for the private CLI package. No baseline or suppression
+is added. The inherited handoff supplement and plugin-owned `.impeccable/live/`
+residue are preserved.
+
+Oxlint reports 24 findings, zero in F-changed files. Every reported source is
+byte-identical to integrated main. The repeated test-tsgo result has only
+TS2741 at `package-scripts.policy.test.ts:210`, also source-equal to main.
+Knowledge refs has one live gated host-path observation at
+`goals/palantiri-parcels/PLAN.md:122`, source-equal to main. These are attributed
+in stage-5-f-panel-r3-attribution.json, not repaired in F. Local docgen and
+JSDoc ratchet pass. Retired Effect paths and changeset-graph pass. The final
+scoped suite includes every Models/Skills test and the JSDoc/doctest consumers
+of the earlier regex-helper change; all 285 tests pass, and all 6 existing
+schema-v2 file rows pass. Earlier incomplete test selections are superseded.
+
+Models check reports exactly 3 operator-owned findings across 492 models:
+Grok effort, Claude model alias and the shell lightweight route. F-owned drift
+is zero. The protected Codex pins and legacy sandbox-mode absence pass; the
+pinned read-only Codex probe passes (OK, exit 0). This wave writes no native
+home configuration and therefore creates no new native backup or rollback.
+Previously verified rollback and backup names remain in the historical handoff.
+No Claude harness file is written. No capability is retired without a qualified
+30-session window.
+
+| Finding | Fix commit | Fix and test |
+| --- | --- | --- |
+| F-ASTRA-R2-02 (P1) | f1278272455a9adb0ae50f6a7f1c7613d2f1b95c | Bounded single-line literal grammar. Continuation, comment-value and quoted-here-document regressions refuse with a typed unsupported-shell-form error, unchanged bytes and no backup. Earlier operator/quote refusals, 6 executed launcher quote cases and re-projection identity pass. JSDoc and runbook state the deliberate refusal boundary. |
+| F-ASTRA-R3-02 (P1) | f1278272455a9adb0ae50f6a7f1c7613d2f1b95c; 4136594584f9e567d8cab36ff0d23cf78c430b54 | Resolve canonical config/lockfile/remote-directory targets before backup and staging; preflight dangling, parent and out-of-root links before update mutation. Link fixtures retain symlinks, update targets, preserve 0644 and verify prior-byte backups. ModelsApply apply/restore canonical-link and dangling-link fixtures pass; command-level escaping and optional dangling-target refusals pass. |
+| F3-F1 (P2) | f1278272455a9adb0ae50f6a7f1c7613d2f1b95c | Lazy env capture retains whitespace before `# tail`; grammar fixture checks exact bytes. |
+| F3-F3 / R3-GROK-04 (P3, duplicate) | f1278272455a9adb0ae50f6a7f1c7613d2f1b95c; a152ea412ce76272bb5f5097396fab5f69493c7c | Journal suffix is added once; all 6 race fixtures assert exactly one `Journal:` occurrence. |
+| F3-F4 / R3-GROK-02 (P3/P2) | f1278272455a9adb0ae50f6a7f1c7613d2f1b95c; aa13ba371d30035e31312f7e26dd781effbec848 | Shared shell-reader comment/quoted-data filtering and literal escape decoding, applied per physical line. The reader fixture ignores a comment and reads `o\ld` as `old`; the live model check retains only the 3 exempt operator drifts. |
+| F3-F2 (P2, non-actionable) | deferred in SPEC F-R3-BOUNDED-SHELL-LINKS | Target-filesystem capability caching needs unsupported-filesystem fixtures. The existing writer fails closed; this is a separate exchange-capability change. |
+| R3-GROK-01 (P2, non-actionable) | deferred in SPEC F-R3-BOUNDED-SHELL-LINKS | Crash-state journaling needs restart fixtures and an explicit recovery-state contract. Existing retained artifacts and native-client limitation remain documented. |
+| R3-GROK-03 (P2, non-actionable) | deferred in SPEC F-R3-BOUNDED-SHELL-LINKS | Verified exchange for both skill files and directories needs replacing-writer recovery fixtures. Canonical-target preservation is fixed here; POSIX rename-window hardening is a separate publication-protocol change. |
+
+The full package proof passed through `beep-heavy` using the existing disposable
+fixture namespace. Only this session's superseded proof units were stopped.
+The terminal proof is on frozen source 4136594584; no interrupted attempt is
+reported as a pass. Earlier independent panel verdicts do not clear this head.
+The committed report records pre-push proof; the local publication supplement will name the pushed SHA without a second push.
+The driver runs all three round-4 seats against the published revision and its
+new fingerprint. No readiness monitor is started; this lane does not merge or
+retire itself. The PR is already ready for review. Before publication the thread
+read succeeds with 0 unresolved threads and REST reports 0 new review comments.
+A post-push read will be recorded in the local publication supplement.
+
+Reversal: revert the F PR or the four round-3 source commits. Native reversal
+remains the previously recorded journal-based restore, which refuses later
+drift. Graft estimated 65,082 tokens saved in two retrievals this run.
+
+---
+
+## Panel round 2 fix wave: published
+
+lane: rsc-f-agents
+head: 2ddda4b141e22ff87a3582bcba7b506127b49822   PR: #1797
 package-verify: @beep/repo-cli: pass (audit 1224.2s; docgen 42.3s; frozen source df1ce699b7)
 hosted-parity: test-tsgo -> fail(inherited package-scripts TS2741); docgen local -> pass; jsdoc-ratchet -> pass; knowledge refs -> fail(inherited Palantiri plan home-absolute observation); fallow audit+health -> pass, zero findings; scoped coverage -> pass (263 tests in 15 files; all 6 touched schema-v2 rows)
 config fingerprint (final): 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8 (353 equality inputs, 4 observed-only)   backups: no home configuration writes or new backups; prior backups retained
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
 open items: driver-owned panel round 3 on this head/fingerprint, hosted gate/merge/retirement; 3 operator-owned model drifts; incomplete 30-session windows and existing H3 measured gates; attributed inherited main failures
 
-State: local proof complete; single push pending. Main b536e1bba7 is integrated at 3ba679e141.
+State: published. Main b536e1bba7 is integrated at 3ba679e141.
+The committed handoff contains pre-push proof; its local publication supplement
+records the pushed SHA and REST receipts without another push.
 Both sharded catalog owners passed. S31 compares 15 inventories with 0 changed
 files and 0 added rows; only the previously owner-generated catalog additions
 remain in standards. Changeset-graph passes with no changeset for the private
@@ -43,9 +112,10 @@ preserved. Earlier verdicts do not clear this head; the driver runs all 3 seats.
 | Review 4282684687 (P2) | a7ab0836e5 | Exact scalar/sentinel key identity excludes dotted assignments, table parents and literal dotted keys. All 3 preservation cases and existing scalar removal/restore tests pass. |
 
 Deferred round-2 findings: none.
+REST replies: 4283342539, 4283342984; both new threads resolved. Final thread read: 0 outstanding / 9.
 Graft estimated 13,796 tokens saved in one retrieval.
 
-source checkpoint df1ce699b75624642e95ba3f03c99b9b417280c2; publication marker follows the single push
+final 2ddda4b141e22ff87a3582bcba7b506127b49822 #1797
 fingerprint 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8
 
 ---
@@ -471,3 +541,9 @@ package proof remains running; no push or final marker has been issued.
 
 final d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
 fingerprint 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f
+
+
+## Current publication marker (supersedes historical markers)
+
+final 2ddda4b141e22ff87a3582bcba7b506127b49822 #1797
+fingerprint 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8

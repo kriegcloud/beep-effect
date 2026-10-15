@@ -2707,3 +2707,19 @@ Evidence: `Failed to connect to user scope bus`; the admitted rerun with the
 workstation runtime directory and bus address passed. A wrapper diagnostic
 that supplies the known user bus when absent would prevent this retry. No
 admission bypass or duplicate pending job was used.
+
+### F-R3-PROOF-ORDER — run native readers and Fallow before the full audit (2026-10-15)
+
+The round-3 repair initially started package verification before its live
+reader check and Fallow audit finished. `models check` then reported seven
+findings instead of the three exempt operator items because the new reader
+filtered an entire shell file as one lexical prefix. Fallow also identified
+`resolveApplyFile` at cognitive 9. The reader now filters individual physical
+lines; the writer retains its stricter refusal boundary. Effect-level optional
+link validation makes both Fallow audit and health return zero findings.
+
+The agent stopped only its own superseded proof units and restarted on frozen
+source after those checks passed. Running the focused suite, a typecheck,
+`models check` and Fallow before the full package audit would prevent these
+wasted proof attempts. The terminal proof is separate from the interrupted
+attempts; no interrupted run is counted as a pass.
