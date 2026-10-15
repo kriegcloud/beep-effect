@@ -18,6 +18,7 @@ import { flow, pipe } from "effect/Function";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { AiMetricsRawArchiveObject } from "./archive.ts";
+import { HarnessHash } from "./harness-ledger.ts";
 import { AiMetricsStorageLayout } from "./install.ts";
 import { AiMetricsDeployTarget, ConfigSnapshot } from "./models.ts";
 import { AiMetricsPrivacyCheckResult, hashPublicTextSha256 } from "./privacy.ts";
@@ -262,6 +263,26 @@ const createTableStatements = [
 ] as const;
 
 const migrationColumns = [
+  {
+    columnDefinition: "session_stamp_collection_complete BOOLEAN DEFAULT FALSE",
+    columnName: "session_stamp_collection_complete",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "session_stamp_collection_complete BOOLEAN DEFAULT FALSE",
+    columnName: "session_stamp_collection_complete",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "session_harness_hash VARCHAR",
+    columnName: "session_harness_hash",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "session_harness_hash VARCHAR",
+    columnName: "session_harness_hash",
+    tableName: "ai_metrics_source_files",
+  },
   {
     // Explicit OTLP export state. Previously the exporter inferred this from
     // `ingest_run_id`, which only worked because every run re-minted its rows. Once
@@ -788,10 +809,16 @@ export class AiMetricsDerivedTranscriptRecord extends S.Opaque<
 >()(
   S.Struct({
     archiveObject: AiMetricsRawArchiveObject,
+    sessionHarnessHash: S.OptionFromOptionalKey(HarnessHash).pipe(S.withConstructorDefault(Effect.succeedNone)),
+    sessionStampCollectionComplete: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
     privacy: AiMetricsPrivacyCheckResult,
   }).pipe(
     $I.annoteSchema("AiMetricsDerivedTranscriptRecord", {
-      description: "Sanitized transcript projection plus encrypted raw archive metadata.",
+      description:
+        "Sanitized transcript projection, encrypted raw archive metadata and explicit session-stamp collection completeness. Historical records remain unverified.",
     })
   )
 ) {}
@@ -1234,7 +1261,9 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       last_timestamp,
       event_names_json,
       redaction_safe_for_derived_ui,
-      config_snapshot_id
+      config_snapshot_id,
+      session_harness_hash,
+      session_stamp_collection_complete
     ) VALUES (
       $sourceFileId,
       $ingestRunId,
@@ -1255,13 +1284,17 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       $lastTimestamp,
       $eventNamesJson,
       $redactionSafeForDerivedUi,
-      $configSnapshotId
+      $configSnapshotId,
+      $sessionHarnessHash,
+      $sessionStampCollectionComplete
     )`,
     {
       acceptedEvents: sanitized.acceptedEvents,
       agentNicknameHash: O.getOrNull(sanitized.agentNicknameHash),
       agentRoleHash: O.getOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
+      sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
+      sessionStampCollectionComplete: record.sessionStampCollectionComplete,
       eventNamesJson,
       firstTimestamp: O.getOrNull(sanitized.firstTimestamp),
       forkedFromIdHash: O.getOrNull(sanitized.forkedFromIdHash),
@@ -1353,7 +1386,9 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       agent_role_hash,
       agent_nickname_hash,
       started_at,
-      config_snapshot_id
+      config_snapshot_id,
+      session_harness_hash,
+      session_stamp_collection_complete
     ) VALUES (
       $agentSessionId,
       $agentTaskId,
@@ -1369,7 +1404,9 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       $agentRoleHash,
       $agentNicknameHash,
       $startedAt,
-      $configSnapshotId
+      $configSnapshotId,
+      $sessionHarnessHash,
+      $sessionStampCollectionComplete
     )`,
     {
       agentSessionId,
@@ -1377,6 +1414,8 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       agentNicknameHash: O.getOrNull(sanitized.agentNicknameHash),
       agentRoleHash: O.getOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
+      sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
+      sessionStampCollectionComplete: record.sessionStampCollectionComplete,
       forkedFromIdHash: O.getOrNull(sanitized.forkedFromIdHash),
       ingestRunId: input.ingestRunId,
       parentSessionIdHash: O.getOrNull(sanitized.parentSessionIdHash),
