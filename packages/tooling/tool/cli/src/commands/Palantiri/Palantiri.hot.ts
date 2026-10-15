@@ -22,7 +22,7 @@ import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { parcelReadOptions, readParcel, renderFreshness } from "./Palantiri.runtime.ts";
-import { HotParcelId, HotParcelLine, HotParcels, HotParcelsJson } from "./Palantiri.schemas.ts";
+import { HotParcelId, HotParcelLine, HotParcels, HotParcelsJson, MAX_HOT_LINE_CARRIES } from "./Palantiri.schemas.ts";
 import { palantiriStateDir, writePrivateFile } from "./Palantiri.service.ts";
 import type { PalantiriClient, ParcelEnvelope } from "@beep/palantiri";
 import type * as Scope from "effect/Scope";
@@ -92,7 +92,15 @@ const readHotLines = Effect.fnUntraced(function* (wait: Duration.Duration, timeo
     HotParcelId.literals,
     (parcel) =>
       readParcel(parcel, parcelReadOptions(O.none(), O.none())).pipe(
-        Effect.map((envelope) => HotParcelLine.make({ parcel, state: "read", text: renderHotText(envelope) })),
+        Effect.map((envelope) =>
+          HotParcelLine.make({
+            parcel,
+            state: "read",
+            text: renderHotText(envelope),
+            summary: O.some(envelope.summary),
+            readAt: O.some(envelope.readAt),
+          })
+        ),
         Effect.timeoutOption(wait),
         Effect.map(O.getOrElse(() => HotParcelLine.make({ parcel, state: "timed-out", text: timedOutText(timeout) }))),
         Effect.catchCause(() => Effect.succeed(HotParcelLine.make({ parcel, state: "failed", text: READ_FAILED_TEXT })))
@@ -192,6 +200,71 @@ export const renderHotBlock = (result: Result.Result<ReadonlyArray<HotParcelLine
     ],
   });
 
+// A previous line that can be carried once more: a read line, or a carried
+// one under the cap, with the summary and read time to say what it was.
+const carryOf = (current: HotParcelLine) => (previous: HotParcelLine) =>
+  (previous.state === "read" || (previous.state === "carried" && previous.carries < MAX_HOT_LINE_CARRIES)) &&
+  O.isSome(previous.summary) &&
+  O.isSome(previous.readAt)
+    ? O.some(
+        HotParcelLine.make({
+          parcel: current.parcel,
+          state: "carried",
+          text: `${previous.summary.value} (stale since ${DateTime.formatIso(previous.readAt.value)}; this read: ${current.text})`,
+          summary: previous.summary,
+          readAt: previous.readAt,
+          carries: previous.carries + 1,
+        })
+      )
+    : O.none();
+
+/**
+ * Merge this read's hot lines with the previously staged ones: a parcel that
+ * timed out or failed carries its last read line, marked `carried` and
+ * `stale since` its original read time, for at most
+ * {@link MAX_HOT_LINE_CARRIES} reads in a row; past that, or with nothing to
+ * carry, the parcel's `Unknown` line stands.
+ *
+ * **Details**
+ *
+ * A carried line never says `fresh`: its text is the old summary, the time it
+ * was read, and why this read has no newer one. A read line resets the count.
+ *
+ * **Example** (A timed-out read carries the last read line)
+ *
+ * ```ts
+ * import { carryHotLines, HotParcelLine } from "@beep/repo-cli/test/Palantiri"
+ * import * as DateTime from "effect/DateTime"
+ * import * as O from "effect/Option"
+ *
+ * const read = HotParcelLine.make({
+ *   parcel: "lane-reds",
+ *   state: "read",
+ *   text: "0 reds (fresh as of 2026-10-15T12:00:00.000Z)",
+ *   summary: O.some("0 reds"),
+ *   readAt: O.some(DateTime.makeUnsafe("2026-10-15T12:00:00Z"))
+ * })
+ * const timedOut = HotParcelLine.make({ parcel: "lane-reds", state: "timed-out", text: "Unknown (timed out after 2s)" })
+ * const [line] = carryHotLines([timedOut], [read])
+ * console.log(line?.text) // "0 reds (stale since 2026-10-15T12:00:00.000Z; this read: Unknown (timed out after 2s))"
+ * ```
+ *
+ * @param lines - This read's lines.
+ * @param previous - The lines staged by the previous read.
+ * @returns One line per parcel of this read, carried where allowed.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const carryHotLines: {
+  (previous: ReadonlyArray<HotParcelLine>): (lines: ReadonlyArray<HotParcelLine>) => ReadonlyArray<HotParcelLine>;
+  (lines: ReadonlyArray<HotParcelLine>, previous: ReadonlyArray<HotParcelLine>): ReadonlyArray<HotParcelLine>;
+} = dual(2, (lines: ReadonlyArray<HotParcelLine>, previous: ReadonlyArray<HotParcelLine>) => {
+  const byParcel = HashMap.fromIterable(A.map(previous, (line) => [line.parcel, line] as const));
+  return A.map(lines, (line) =>
+    line.state === "read" ? line : O.getOrElse(O.flatMap(HashMap.get(byParcel, line.parcel), carryOf(line)), () => line)
+  );
+});
+
 /**
  * Stage the hot lines in `hot.json` under the Palantiri state directory,
  * owner-only (directory `0700`, file `0600`, unique temporary file then
@@ -199,9 +272,9 @@ export const renderHotBlock = (result: Result.Result<ReadonlyArray<HotParcelLine
  *
  * **Details**
  *
- * A parcel that timed out or failed this time keeps the line it had in the
- * previous file when that one was read; the kept line still carries its own
- * freshness time, so the hook never shows an old reading as current.
+ * The lines are first merged with the previously staged ones through
+ * {@link carryHotLines}; a previous file that does not decode (missing,
+ * corrupt, or version 1) carries nothing.
  *
  * **Example** (Build the stage effect)
  *
@@ -212,8 +285,8 @@ export const renderHotBlock = (result: Result.Result<ReadonlyArray<HotParcelLine
  * console.log(Effect.isEffect(stageHotParcels([]))) // true
  * ```
  *
- * @param lines - The lines `beep session open` printed.
- * @returns The path written.
+ * @param lines - This read's lines.
+ * @returns The lines as staged, carried lines included.
  * @category utilities
  * @since 0.0.0
  */
@@ -223,28 +296,20 @@ export const stageHotParcels = Effect.fn("Palantiri.stageHotParcels")(function* 
   const file = path.join(yield* palantiriStateDir, HOT_PARCELS_FILE);
   const previous = yield* fs.readFileString(file).pipe(
     Effect.flatMap(S.decodeEffect(HotParcelsJson)),
-    Effect.map((hot) =>
-      HashMap.fromIterable(
-        A.filterMap(hot.lines, (line) =>
-          line.state === "read" ? Result.succeed([line.parcel, line] as const) : Result.failVoid
-        )
-      )
-    ),
-    Effect.orElseSucceed(() => HashMap.empty<HotParcelId, HotParcelLine>())
+    Effect.map((hot) => hot.lines),
+    Effect.orElseSucceed(A.empty<HotParcelLine>)
   );
-  const merged = A.map(lines, (line) =>
-    line.state === "read" ? line : O.getOrElse(HashMap.get(previous, line.parcel), () => line)
-  );
+  const merged = carryHotLines(lines, previous);
   const text = yield* S.encodeEffect(HotParcelsJson)(
-    HotParcels.make({ schemaVersion: "palantiri-hot/v1", writtenAt: yield* DateTime.now, lines: merged })
+    HotParcels.make({ schemaVersion: "palantiri-hot/v2", writtenAt: yield* DateTime.now, lines: merged })
   );
   yield* writePrivateFile(file, text);
-  return file;
+  return merged;
 });
 
 /**
- * Print the hot block and, when it finished in time, stage it for the
- * SessionStart hook. Never fails and never takes much more than `timeout`
+ * Stage the hot block for the SessionStart hook when it finished in time,
+ * then print it as staged (carried lines included). Never fails and never takes much more than `timeout`
  * reading; a failed staging write is logged at debug level only.
  *
  * **Example** (Build the print effect)
@@ -282,14 +347,18 @@ export const printHotParcels: {
   ): Effect.Effect<void, never, Exclude<R, Scope.Scope> | FileSystem.FileSystem | Path.Path> =>
     Effect.gen(function* () {
       const result = yield* hotParcels(runtime, timeout);
-      yield* Effect.forEach(renderHotBlock(result), (line) => Console.log(line), { discard: true });
-      yield* Result.match(result, {
-        onFailure: () => Effect.void,
+      // A finished block is staged first, so a timed-out parcel prints the
+      // carried line the hook will show; a failed write prints this read as is.
+      const printed = yield* Result.match(result, {
+        onFailure: () => Effect.succeed(result),
         onSuccess: (lines) =>
           stageHotParcels(lines).pipe(
-            Effect.asVoid,
-            Effect.catchCause((cause) => Effect.logDebug("[palantiri] could not stage the hot parcels", cause))
+            Effect.map(Result.succeed),
+            Effect.catchCause((cause) =>
+              Effect.logDebug("[palantiri] could not stage the hot parcels", cause).pipe(Effect.as(result))
+            )
           ),
       });
+      yield* Effect.forEach(renderHotBlock(printed), (line) => Console.log(line), { discard: true });
     })
 );

@@ -13,7 +13,7 @@ print_hot_parcels() {
   hot="${BEEP_PALANTIRI_STATE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/beep/palantiri}/hot.json"
   [ -s "$hot" ] || return 0
   jq -r '
-    select(.schemaVersion == "palantiri-hot/v1")
+    select(.schemaVersion == "palantiri-hot/v2")
     | "[palantiri] hot parcels as of \(.writtenAt) (bun run beep session open to refresh):",
       (.lines[] | "- \(.parcel): \(.text)")
   ' "$hot" 2>/dev/null || true

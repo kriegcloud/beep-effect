@@ -24,6 +24,7 @@ import {
   hotParcels,
   layerPalantiriRuntime,
   layerPalantiriToolHandlers,
+  MAX_HOT_LINE_CARRIES,
   PalantiriToolkit,
   ParcelCatalog,
   parcelToolName,
@@ -36,6 +37,7 @@ import {
 import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, it } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -50,6 +52,7 @@ import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
@@ -281,17 +284,46 @@ describe("beep session open hot parcels", () => {
         const staged = yield* S.decodeEffect(HotParcelsJson)(yield* fs.readFileString(file));
         expect(A.map(staged.lines, (line) => line.parcel)).toEqual(["account-headroom", "lane-reds", "host-pressure"]);
         expect(DateTime.formatIso(staged.writtenAt)).toBe("2026-10-15T12:00:00.000Z");
-        // A parcel that times out keeps its last read line, which carries its own freshness time.
-        const laneReds = A.findFirst(staged.lines, (line) => line.parcel === "lane-reds");
-        yield* stageHotParcels(
-          A.map(staged.lines, (line) =>
-            line.parcel === "lane-reds"
-              ? HotParcelLine.make({ parcel: "lane-reds", state: "timed-out", text: "Unknown (timed out after 2s)" })
-              : line
-          )
+        // A parcel that keeps timing out carries its last read line as stale,
+        // never as fresh, and only MAX_HOT_LINE_CARRIES times in a row.
+        const timedOut = HotParcelLine.make({
+          parcel: "lane-reds",
+          state: "timed-out",
+          text: "Unknown (timed out after 2s)",
+        });
+        const withLaneRedsTimedOut = A.map(staged.lines, (line) => (line.parcel === "lane-reds" ? timedOut : line));
+        const laneRedsLine = (lines: ReadonlyArray<HotParcelLine>) =>
+          A.filter(renderHotBlock(Result.succeed(lines)), (line) => pipe(line, Str.startsWith("- lane-reds: ")));
+        const carried = yield* Effect.forEach(A.range(1, MAX_HOT_LINE_CARRIES), () =>
+          stageHotParcels(withLaneRedsTimedOut)
         );
+        A.forEach(carried, (lines, index) => {
+          const line = A.findFirst(lines, (entry) => entry.parcel === "lane-reds");
+          assertSome(
+            O.map(line, (entry) => [entry.state, entry.carries]),
+            ["carried", index + 1]
+          );
+          const [printedLine] = laneRedsLine(lines);
+          expect(printedLine).toContain(
+            "(stale since 2026-10-15T12:00:00.000Z; this read: Unknown (timed out after 2s))"
+          );
+          expect(printedLine).not.toContain("fresh as of");
+        });
+        const capped = yield* stageHotParcels(withLaneRedsTimedOut);
+        expect(laneRedsLine(capped)).toEqual(["- lane-reds: Unknown (timed out after 2s)"]);
         const restaged = yield* S.decodeEffect(HotParcelsJson)(yield* fs.readFileString(file));
-        expect(A.findFirst(restaged.lines, (line) => line.parcel === "lane-reds")).toEqual(laneReds);
+        assertSome(
+          A.findFirst(restaged.lines, (line) => line.parcel === "lane-reds"),
+          timedOut
+        );
+        // A version 1 file carries nothing.
+        yield* fs.writeFileString(
+          file,
+          '{"schemaVersion":"palantiri-hot/v1","writtenAt":"2026-10-15T12:00:00.000Z","lines":[{"parcel":"lane-reds","state":"read","text":"0 reds (fresh as of 2026-10-15T12:00:00.000Z)"}]}'
+        );
+        expect(laneRedsLine(yield* stageHotParcels(withLaneRedsTimedOut))).toEqual([
+          "- lane-reds: Unknown (timed out after 2s)",
+        ]);
         // The rewrite leaves no temporary file behind.
         expect(yield* fs.readDirectory(root)).toEqual([HOT_PARCELS_FILE]);
       }).pipe(withEnv({ BEEP_PALANTIRI_STATE_ROOT: "/state/palantiri", HOME: "/home/nobody" }))

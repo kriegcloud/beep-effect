@@ -34,8 +34,8 @@ import {
 } from "./AccountHeadroom.ts";
 import { AppErrorClassesSpec, reduceAppErrorClasses } from "./AppErrorClasses.ts";
 import { Freshness } from "./Freshness.ts";
+import { replaceGaugeSeries } from "./GaugeSeries.ts";
 import { freshPressureStalls, HostPressureSpec, hostPressureItems, reduceHostPressure } from "./HostPressure.ts";
-import { replaceGaugeSeries } from "./internal/GaugeSeries.ts";
 import { LaneRedsSpec, reduceLaneReds } from "./LaneReds.ts";
 import {
   AccountsWindowRemaining,

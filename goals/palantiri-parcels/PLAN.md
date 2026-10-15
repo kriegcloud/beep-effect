@@ -149,7 +149,7 @@ Before marking the packet closed:
 
 ### P3 MCP + session (complete 2026-10-15)
 
-- `@beep/palantiri`: `internal/GaugeSeries.ts` `replaceGaugeSeries` sets one
+- `@beep/palantiri`: `GaugeSeries.ts` `replaceGaugeSeries` sets one
   series per fresh reading and drops every other series of the gauge from
   `Metric.MetricRegistry` (Effect 4.0.4 has no remove-series API; the
   registry is the public `Map` the OTLP exporter snapshots). Both gauges use
@@ -196,6 +196,10 @@ Before marking the packet closed:
   `package-verify @beep/repo-cli --quick` (lint and check) exits 0. No
   inventory under `standards/` grew; only the regenerated instrumentation
   and schema catalog shards changed.
+- #1836 review (2026-10-15): carried hot lines are `carried`, read `stale
+  since <read time>` and stop after 3 carries (`palantiri-hot/v2`);
+  `replaceGaugeSeries` keys kept series by the merged gauge, ambient and
+  reading attributes, tested with ambient and gauge attributes.
 - Known limit: `session open` rarely gets account headroom within 2 seconds
   unless a `beep palantiri` read refreshed the snapshot in the last 5
   minutes; a staged line from an earlier finished read is kept in `hot.json`.

@@ -8,6 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { ParcelBudget, ParcelId, ParcelKey, ParcelSource, SessionKey } from "@beep/palantiri";
 import { LiteralKit } from "@beep/schema";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Palantiri/Palantiri.schemas");
@@ -160,7 +161,17 @@ export const HotParcelId = LiteralKit(["account-headroom", "lane-reds", "host-pr
 export type HotParcelId = typeof HotParcelId.Type;
 
 /**
- * How a hot parcel's read ended: read, timed out, or failed.
+ * How many times a staged hot line may be carried over a failed or timed-out
+ * read before it is replaced by an `Unknown` line.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const MAX_HOT_LINE_CARRIES = 3;
+
+/**
+ * How a hot parcel's line came about: read now, timed out, failed, or
+ * carried over from an earlier read because this one timed out or failed.
  *
  * **Example** (Narrow a state)
  *
@@ -173,12 +184,14 @@ export type HotParcelId = typeof HotParcelId.Type;
  * @category models
  * @since 0.0.0
  */
-export const HotLineState = LiteralKit(["read", "timed-out", "failed"]).pipe(
-  $I.annoteSchema("HotLineState", { description: "How a hot parcel's read ended." })
+export const HotLineState = LiteralKit(["read", "timed-out", "failed", "carried"]).pipe(
+  $I.annoteSchema("HotLineState", {
+    description: "How a hot parcel's line came about: read now, timed out, failed, or carried from an earlier read.",
+  })
 );
 
 /**
- * How a hot parcel's read ended.
+ * How a hot parcel's line came about.
  *
  * @category models
  * @since 0.0.0
@@ -188,6 +201,13 @@ export type HotLineState = typeof HotLineState.Type;
 /**
  * One hot parcel as one line: its summary and freshness, or why it is
  * unknown.
+ *
+ * **Details**
+ *
+ * A read line keeps the parcel's summary and read time, so a later timed-out
+ * or failed read can carry it as `stale since <readAt>`; `carries` counts how
+ * many reads in a row it has been carried, up to
+ * {@link MAX_HOT_LINE_CARRIES}.
  *
  * **Example** (A timed-out read)
  *
@@ -202,9 +222,19 @@ export type HotLineState = typeof HotLineState.Type;
  * @since 0.0.0
  */
 export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: unique symbol }>()(
-  S.Struct({ parcel: HotParcelId, state: HotLineState, text: S.String }).pipe(
+  S.Struct({
+    parcel: HotParcelId,
+    state: HotLineState,
+    text: S.String,
+    summary: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
+    readAt: S.OptionFromNullOr(S.DateTimeUtcFromString).pipe(S.withConstructorDefault(Effect.succeedNone)),
+    carries: S.Int.check(S.isBetween({ minimum: 0, maximum: MAX_HOT_LINE_CARRIES })).pipe(
+      S.withConstructorDefault(Effect.succeed(0))
+    ),
+  }).pipe(
     $I.annoteSchema("HotParcelLine", {
-      description: "One hot parcel's summary and freshness as one line, and how its read ended.",
+      description:
+        "One hot parcel as one line, how it came about, the summary and read time of the read behind it, and how many times it has been carried.",
     })
   )
 ) {}
@@ -213,6 +243,12 @@ export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: uni
  * The hot-parcels file `beep session open` stages for the SessionStart hook,
  * which prints it without running the CLI.
  *
+ * **Details**
+ *
+ * Version 2 added each line's state `carried`, summary, read time and carry
+ * count. A version 1 file does not decode; it is treated as no previous file,
+ * so nothing from it is carried, and the hook skips it.
+ *
  * **Example** (Stage one line)
  *
  * ```ts
@@ -220,7 +256,7 @@ export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: uni
  * import * as DateTime from "effect/DateTime"
  *
  * const hot = HotParcels.make({
- *   schemaVersion: "palantiri-hot/v1",
+ *   schemaVersion: "palantiri-hot/v2",
  *   writtenAt: DateTime.makeUnsafe("2026-10-15T12:00:00Z"),
  *   lines: [HotParcelLine.make({ parcel: "host-pressure", state: "read", text: "cpu 1.8% stalled" })]
  * })
@@ -232,7 +268,7 @@ export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: uni
  */
 export class HotParcels extends S.Opaque<HotParcels, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("palantiri-hot/v1"),
+    schemaVersion: S.Literal("palantiri-hot/v2"),
     writtenAt: S.DateTimeUtcFromString,
     lines: S.Array(HotParcelLine),
   }).pipe(
@@ -254,7 +290,7 @@ export class HotParcels extends S.Opaque<HotParcels, { readonly brand: unique sy
  * import * as S from "effect/Schema"
  *
  * const text = S.encodeEffect(HotParcelsJson)(
- *   HotParcels.make({ schemaVersion: "palantiri-hot/v1", writtenAt: DateTime.makeUnsafe("2026-10-15T12:00:00Z"), lines: [] })
+ *   HotParcels.make({ schemaVersion: "palantiri-hot/v2", writtenAt: DateTime.makeUnsafe("2026-10-15T12:00:00Z"), lines: [] })
  * )
  * console.log(Effect.isEffect(text)) // true
  * ```

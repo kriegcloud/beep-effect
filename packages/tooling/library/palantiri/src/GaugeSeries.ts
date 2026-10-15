@@ -34,11 +34,35 @@ const seriesKey = (attributes: Metric.Metric.AttributeSet | undefined): string =
  * otherwise keep exporting it for the life of the process. The registry is
  * the `Map` Effect defines for `Metric.MetricRegistry` (Effect ships no
  * remove-series API); deleting an entry is how a series leaves the next
- * `Metric.snapshot`, which is what the OTLP exporter reads. The new series are
- * written before the old ones are dropped, so a concurrent export never sees a
- * fresh series missing. An empty reading list clears the gauge.
+ * `Metric.snapshot`, which is what the OTLP exporter reads. Effect 4.0.4
+ * stores a series under the gauge's own attributes, overlaid by the ambient
+ * `Metric.CurrentMetricAttributes`, overlaid by the `withAttributes` set
+ * (`Metric.ts` `hook` and `addAttributesToContext`), so the kept set is built
+ * with that same merge. The new series are written before the old ones are
+ * dropped, so a concurrent export never sees a fresh series missing. An empty
+ * reading list clears the gauge.
  *
- * @internal
+ * **Example** (Keep only the fresh provider's series)
+ *
+ * ```ts
+ * import { replaceGaugeSeries } from "@beep/palantiri"
+ * import * as Effect from "effect/Effect"
+ * import * as Metric from "effect/Metric"
+ *
+ * const remaining = Metric.gauge("beep.example.remaining")
+ * const program = Effect.gen(function* () {
+ *   yield* replaceGaugeSeries(remaining, [[{ "beep.provider": "anthropic" }, 60], [{ "beep.provider": "openai" }, 40]])
+ *   yield* replaceGaugeSeries(remaining, [[{ "beep.provider": "anthropic" }, 55]])
+ *   return yield* Metric.snapshot
+ * })
+ * const series = Effect.runSync(Effect.provideService(program, Metric.MetricRegistry, new Map()))
+ * console.log(series.map((metric) => metric.attributes?.["beep.provider"])) // ["anthropic"]
+ * ```
+ *
+ * @param gauge - The gauge whose series set is replaced.
+ * @param readings - One attribute set and value per series to keep.
+ * @returns An effect that writes the readings and removes every other series of the gauge.
+ * @category metrics
  * @since 0.0.0
  */
 export const replaceGaugeSeries = Effect.fnUntraced(function* (
@@ -50,7 +74,10 @@ export const replaceGaugeSeries = Effect.fnUntraced(function* (
     ([attributes, value]) => Metric.update(Metric.withAttributes(gauge, attributes), value),
     { discard: true }
   );
-  const kept = HashSet.fromIterable(A.map(readings, ([attributes]) => seriesKey(attributes)));
+  const ambient = yield* Metric.CurrentMetricAttributes;
+  const kept = HashSet.fromIterable(
+    A.map(readings, ([attributes]) => seriesKey({ ...gauge.attributes, ...ambient, ...attributes }))
+  );
   const registry = yield* Metric.MetricRegistry;
   const dropped = A.filter(
     A.fromIterable(registry),
