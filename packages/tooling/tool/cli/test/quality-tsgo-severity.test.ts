@@ -22,7 +22,6 @@ describe("quality tsgo rule severities", () => {
       "unstableApiUsage",
       "preferNamespaceImport",
       "preferBarrelImport",
-      "schemaClassMissingBrand",
     ]);
     expect(TsgoDisabledRule.make({ rule: "unstableApiUsage", reason: "by design" }).rule).toBe("unstableApiUsage");
   });
@@ -35,7 +34,7 @@ describe("quality tsgo rule severities", () => {
       unstableApiUsage: "off",
       preferNamespaceImport: "off",
       preferBarrelImport: "off",
-      schemaClassMissingBrand: "off",
+      schemaClassMissingBrand: "error",
     };
     expect(
       collectTsgoSeverityDiagnosticsForTesting({ plugin: pluginWith(severity), diagnosticSeverity: severity })

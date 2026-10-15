@@ -72,7 +72,9 @@ argument, for example
 ``S.Class<X, { readonly brand: unique symbol }>($I`X`)(...)``. A structural
 `{}` brand needs a documented exception in
 `standards/schema-first.inventory.jsonc`.
-`schemaClassMissingBrand` becomes an error at the `@effect/tsgo` 0.52 bump.
+`schemaClassMissingBrand` is an error in the Effect diagnostics lane
+(`bun run beep quality effect-diagnostics`, profile
+`standards/effect-diagnostics.profile.json`).
 Decision: `standards/architecture/DECISIONS.md` (2026-10-14).
 
 Avoid plain data as `S.Class`:
