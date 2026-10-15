@@ -33,9 +33,10 @@ RefusalLedger = HashMap<TelemetryRefusalTag, count>, drained into beep.telemetry
   `metric-not-allowed`, `metric-attribute-not-allowed`, `egress-refused`.
 - **Windows and buckets.** The export window is 5 minutes, and timestamps are floored to it.
   Durations fall into fixed buckets: 10, 50, 100, 250, 500 ms, 1 s, 2.5 s, 5 s, 10 s, and over 10 s.
-- **Metric values.** Points are rebuilt from named fields, never spread. Each `asInt`, `asDouble`, histogram
-  `count` and `bucketCounts` entry is floored onto a 1/2.5/5-per-decade ladder (0, 1, 2, 5, 10, 25, 50, 100,
-  ...) that saturates at 10^12; histograms keep their static `explicitBounds` and drop `sum`, `min` and `max`
+- **Metric values.** Points are rebuilt from named fields, never spread. Each `asInt`, `asDouble` and
+  histogram `bucketCounts` entry is floored onto a 1/2.5/5-per-decade ladder, and a histogram's `count` is
+  the sum of its coarsened buckets so the point stays OTLP-consistent (#1838 round-3 follow-up); the ladder is 0, 1, 2, 5, 10, 25, 50, 100,
+  ...; it saturates at 10^12; histograms keep their static `explicitBounds` and drop `sum`, `min` and `max`
   (`metric-value-dropped`); exponential histograms and summaries are refused (`metric-not-allowed`). The
   `metric-values` gate rule switches this off for the mutation table. (Added after the P1 review, #1838.)
 - **Ids.** Trace and span ids are `HMAC-SHA256(salt ‖ batchNonce, id)`, truncated to the OTLP width. The
