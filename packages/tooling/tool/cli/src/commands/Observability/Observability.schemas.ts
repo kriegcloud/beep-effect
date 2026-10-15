@@ -16,20 +16,65 @@ import * as S from "effect/Schema";
 const $I = $RepoCliId.create("commands/Observability/Observability.schemas");
 
 /**
- * Repo-relative path of the generated instrumentation catalog.
+ * Repo-relative directory that holds one generated catalog shard per owning
+ * package.
  *
- * **Example** (Read the catalog path)
+ * **Details**
+ *
+ * The directory is the catalog index: each owning package has exactly one
+ * shard at `<dir>/<package name>.generated.jsonc`, so two pull requests that
+ * add spans in different packages edit different files and merge cleanly.
+ *
+ * **Example** (Read the shard directory)
  *
  * ```ts
- * import { INSTRUMENTATION_CATALOG_PATH } from "@beep/repo-cli/commands/Observability"
+ * import { INSTRUMENTATION_CATALOG_DIR } from "@beep/repo-cli/commands/Observability"
  *
- * console.log(INSTRUMENTATION_CATALOG_PATH) // "standards/instrumentation-catalog.generated.jsonc"
+ * console.log(INSTRUMENTATION_CATALOG_DIR) // "standards/instrumentation-catalog"
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
-export const INSTRUMENTATION_CATALOG_PATH = "standards/instrumentation-catalog.generated.jsonc" as const;
+export const INSTRUMENTATION_CATALOG_DIR = "standards/instrumentation-catalog" as const;
+
+/**
+ * File suffix every catalog shard carries.
+ *
+ * **Example** (Read the shard suffix)
+ *
+ * ```ts
+ * import { INSTRUMENTATION_CATALOG_SHARD_SUFFIX } from "@beep/repo-cli/commands/Observability"
+ *
+ * console.log(INSTRUMENTATION_CATALOG_SHARD_SUFFIX) // ".generated.jsonc"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const INSTRUMENTATION_CATALOG_SHARD_SUFFIX = ".generated.jsonc" as const;
+
+/**
+ * Repo-relative path of the retired single-file catalog.
+ *
+ * **Details**
+ *
+ * The monolith was replaced by per-package shards. A check run reports it as
+ * an orphan and a write run deletes it, so a branch that resurrects it while
+ * merging `main` fails the check instead of shipping two catalogs.
+ *
+ * **Example** (Read the retired path)
+ *
+ * ```ts
+ * import { RETIRED_INSTRUMENTATION_CATALOG_PATH } from "@beep/repo-cli/commands/Observability"
+ *
+ * console.log(RETIRED_INSTRUMENTATION_CATALOG_PATH) // "standards/instrumentation-catalog.generated.jsonc"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const RETIRED_INSTRUMENTATION_CATALOG_PATH = "standards/instrumentation-catalog.generated.jsonc" as const;
 
 /**
  * Repo-relative path of the observability standard whose generated section
@@ -293,14 +338,15 @@ export class HarvestedSpan extends S.Opaque<HarvestedSpan, { readonly brand: uni
 ) {}
 
 /**
- * The generated, committed instrumentation catalog.
+ * The whole instrumentation catalog, assembled in memory by one run.
  *
  * **Details**
  *
  * `attributes` and `instruments` come from every package's
  * `*.instruments.ts` file; `spans` is the harvested span section. Merging
- * both through `mergeDeclarations` must succeed for the document to be
- * written by a passing run.
+ * both through `mergeDeclarations` must succeed for a run to pass. The
+ * document is not committed as one file: `shardCatalog` splits it into one
+ * {@link InstrumentationCatalogShard} per owning package.
  *
  * **Example** (Construct an empty document)
  *
@@ -331,7 +377,58 @@ export class InstrumentationCatalogDocument extends S.Opaque<
   }).pipe(
     $I.annoteSchema("InstrumentationCatalogDocument", {
       description:
-        "Generated instrumentation catalog: declared attributes and instruments plus the harvested span section.",
+        "Whole instrumentation catalog assembled in memory: declared attributes and instruments plus the harvested span section.",
+    })
+  )
+) {}
+
+/**
+ * The committed catalog slice for one owning package.
+ *
+ * **Details**
+ *
+ * One shard per package lives at
+ * `standards/instrumentation-catalog/<package>.generated.jsonc`. It carries
+ * the attribute keys, declared instruments and harvested spans whose `owner`
+ * is that package, each array sorted the same way as the whole document, one
+ * entry per line.
+ *
+ * **Example** (Construct an empty shard)
+ *
+ * ```ts
+ * import { PackageName } from "@beep/observability/catalog"
+ * import { InstrumentationCatalogShard } from "@beep/repo-cli/commands/Observability"
+ *
+ * const shard = InstrumentationCatalogShard.make({
+ *   package: PackageName.make("@beep/parcels"),
+ *   attributes: [],
+ *   instruments: [],
+ *   spans: []
+ * })
+ * console.log(shard.schemaVersion) // "instrumentation-catalog-shard/v1"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InstrumentationCatalogShard extends S.Opaque<
+  InstrumentationCatalogShard,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    schemaVersion: S.Literal("instrumentation-catalog-shard/v1").pipe(
+      S.withConstructorDefault(Effect.succeed("instrumentation-catalog-shard/v1"))
+    ),
+    generatedBy: S.Literal(INSTRUMENTATION_CATALOG_GENERATED_BY).pipe(
+      S.withConstructorDefault(Effect.succeed(INSTRUMENTATION_CATALOG_GENERATED_BY))
+    ),
+    package: Catalog.PackageName,
+    attributes: S.Array(Catalog.AttributeKey),
+    instruments: S.Array(Catalog.Instrument),
+    spans: S.Array(HarvestedSpan),
+  }).pipe(
+    $I.annoteSchema("InstrumentationCatalogShard", {
+      description: "Committed catalog slice for one owning package: its attribute keys, instruments and spans.",
     })
   )
 ) {}
@@ -422,6 +519,11 @@ export type CatalogRunMode = typeof CatalogRunMode.Type;
 /**
  * State of one generated file after a run.
  *
+ * **Details**
+ *
+ * `orphaned` is a check-mode shard (or the retired monolith) that no package
+ * owns any more; a write run deletes it and reports `removed`.
+ *
  * **Example** (Read a file status)
  *
  * ```ts
@@ -433,9 +535,10 @@ export type CatalogRunMode = typeof CatalogRunMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const GeneratedFileStatus = LiteralKit(["current", "wrote", "stale", "missing"]).pipe(
+export const GeneratedFileStatus = LiteralKit(["current", "wrote", "stale", "missing", "orphaned", "removed"]).pipe(
   $I.annoteSchema("GeneratedFileStatus", {
-    description: "Whether a generated file was current, rewritten, stale or missing.",
+    description:
+      "Whether a generated file was current, rewritten, stale, missing, orphaned (no owning package) or removed.",
   })
 );
 
@@ -448,13 +551,45 @@ export const GeneratedFileStatus = LiteralKit(["current", "wrote", "stale", "mis
 export type GeneratedFileStatus = typeof GeneratedFileStatus.Type;
 
 /**
+ * Status of one generated file a run wrote or checked.
+ *
+ * **Example** (Construct a stale shard status)
+ *
+ * ```ts
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { GeneratedFile } from "@beep/repo-cli/commands/Observability"
+ *
+ * const file = GeneratedFile.make({
+ *   path: PosixPath.make("standards/instrumentation-catalog/@beep/parcels.generated.jsonc"),
+ *   status: "stale"
+ * })
+ * console.log(file.status) // "stale"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GeneratedFile extends S.Opaque<GeneratedFile, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: PosixPath,
+    status: GeneratedFileStatus,
+  }).pipe(
+    $I.annoteSchema("GeneratedFile", {
+      description: "Repo-relative path of one generated file and its status after a run.",
+    })
+  )
+) {}
+
+/**
  * Report of one catalog run, printed as JSON with `--json`.
  *
  * **Details**
  *
- * `ok` is false when the catalog file or the standard's generated section is
- * stale or missing in check mode, when any span name is interpolated, or when
- * merging produced conflicts such as cross-package duplicate names.
+ * `ok` is false when a catalog shard or the standard's generated section is
+ * stale, missing or orphaned in check mode, when any span name is
+ * interpolated, or when merging produced conflicts such as cross-package
+ * duplicate names. `shards` counts the shards the catalog has; `drifted`
+ * lists only the generated files that were not `current`.
  *
  * **Example** (Construct a passing report)
  *
@@ -463,7 +598,8 @@ export type GeneratedFileStatus = typeof GeneratedFileStatus.Type;
  *
  * const report = CatalogRunReport.make({
  *   mode: "check",
- *   catalog: "current",
+ *   shards: 0,
+ *   drifted: [],
  *   standard: "current",
  *   spans: 0,
  *   conforming: 0,
@@ -486,7 +622,8 @@ export type GeneratedFileStatus = typeof GeneratedFileStatus.Type;
 export class CatalogRunReport extends S.Opaque<CatalogRunReport, { readonly brand: unique symbol }>()(
   S.Struct({
     mode: CatalogRunMode,
-    catalog: GeneratedFileStatus,
+    shards: S.Int,
+    drifted: S.Array(GeneratedFile),
     standard: GeneratedFileStatus,
     spans: S.Int,
     conforming: S.Int,
