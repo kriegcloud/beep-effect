@@ -1676,6 +1676,7 @@ export const ciLaneStepsForTesting: {
         }),
       ],
       "repo-sanity": () => [
+        bunRunStep(repoRoot, "lint:schema-catalog", ["beep", "lint", "schema-catalog"]),
         bunRunStep(repoRoot, "ci:repo-sanity:changeset-graph", ["beep", "quality", "changeset-graph"]),
         bunRunStep(repoRoot, "ci:repo-sanity", ["audit:github", "repo-sanity"]),
         ...(options.changesetStatus

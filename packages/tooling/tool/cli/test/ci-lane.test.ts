@@ -1406,10 +1406,18 @@ describe("ciLaneStepsForTesting", () => {
     expect(step.env).toBeUndefined();
   });
 
-  it("always runs the changeset graph and appends changeset status on request", () => {
+  it("always checks the schema catalog and changeset graph and appends changeset status on request", () => {
     const withoutFlag = ciLaneStepsForTesting(REPO_ROOT, "repo-sanity", baseOptions);
-    expect(A.map(withoutFlag, (step) => step.label)).toEqual(["ci:repo-sanity:changeset-graph", "ci:repo-sanity"]);
-    expect([...firstOf(withoutFlag).args]).toEqual(["run", "beep", "quality", "changeset-graph"]);
+    expect(A.map(withoutFlag, (step) => step.label)).toEqual([
+      "lint:schema-catalog",
+      "ci:repo-sanity:changeset-graph",
+      "ci:repo-sanity",
+    ]);
+    expect(firstOf(withoutFlag)).toMatchObject({
+      command: "bun",
+      args: ["run", "beep", "lint", "schema-catalog"],
+      cwd: REPO_ROOT,
+    });
 
     const withFlag = ciLaneStepsForTesting(
       REPO_ROOT,
@@ -1417,6 +1425,7 @@ describe("ciLaneStepsForTesting", () => {
       CiLaneRunOptions.make({ ...baseOptions, changesetStatus: true })
     );
     expect(A.map(withFlag, (step) => step.label)).toEqual([
+      "lint:schema-catalog",
       "ci:repo-sanity:changeset-graph",
       "ci:repo-sanity",
       "ci:repo-sanity:changeset-status",
