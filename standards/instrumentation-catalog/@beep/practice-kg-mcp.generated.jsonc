@@ -9,6 +9,9 @@
   ],
   "instruments": [],
   "spans": [
+    {"name":"DpapiPort.protect","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
+    {"name":"DpapiPort.unprotect","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
+    {"name":"PracticeKgBundleGraph.assert","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
     {"name":"PracticeKgHost.loadBundle","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
     {"name":"PracticeKgPackage.assertArchive","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
     {"name":"PracticeKgPackage.copyDirectory","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
@@ -25,6 +28,10 @@
     {"name":"PracticeKgSmoke.makeFixtureBundle","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
     {"name":"PracticeKgSmoke.runCompiledHandshake","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
     {"name":"PracticeKgSmoke.runCompiledHost","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
-    {"name":"PracticeKgSmoke.runCompiledSelfCheck","owner":"@beep/practice-kg-mcp","family":"app","conforms":true}
+    {"name":"PracticeKgSmoke.runCompiledSelfCheck","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
+    {"name":"PracticeKgTelemetryCheck.print","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
+    {"name":"PracticeKgTelemetryCheck.run","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
+    {"name":"PracticeKgTelemetryKey.resolveDir","owner":"@beep/practice-kg-mcp","family":"app","conforms":true},
+    {"name":"PracticeKgTelemetryKey.roundTrip","owner":"@beep/practice-kg-mcp","family":"app","conforms":true}
   ]
 }

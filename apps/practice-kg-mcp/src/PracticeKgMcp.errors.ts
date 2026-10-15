@@ -128,3 +128,36 @@ export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure, { readonly
 ) {
   override readonly [Runtime.errorReported] = false;
 }
+
+/**
+ * The telemetry root key could not be wrapped, unwrapped or stored.
+ *
+ * **Details**
+ *
+ * `message` is a fixed sentence; it never carries key bytes, a wrapped blob
+ * or a telemetry body.
+ *
+ * **Example** (Create a telemetry key failure)
+ *
+ * ```ts
+ * import { TelemetryKeyFailure } from "../../src/PracticeKgMcp.errors.ts"
+ *
+ * const error = TelemetryKeyFailure.make({ message: "DPAPI could not wrap the telemetry key." })
+ * console.log(error._tag) // "TelemetryKeyFailure"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class TelemetryKeyFailure extends S.TaggedError<TelemetryKeyFailure, { readonly brand: unique symbol }>(
+  $I`TelemetryKeyFailure`
+)(
+  "TelemetryKeyFailure",
+  {
+    cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
+    message: S.NonEmptyString,
+  },
+  $I.annoteError<TelemetryKeyFailure>("TelemetryKeyFailure", {
+    description: "The practice KG telemetry root key could not be wrapped, unwrapped or stored.",
+  })
+) {}

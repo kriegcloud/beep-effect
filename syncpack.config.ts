@@ -142,10 +142,9 @@ const config = {
       // bump updates the combined root/lane diagnosticSeverity map and the standalone
       // `beep quality effect-diagnostics` census before these pins move.
       // Effect rules come from @effect/tsgo through that diagnostics lane;
-      // tsc-rs still gates shared embedded rules until that lane is required.
-      // After one green main run, promote the lane and ruleset context, then
-      // fold the lane profile into compiler maps, set the three ignore flags
-      // true and delete standards/effect-diagnostics.profile.json.
+      // That lane is required; the three ignore flags are true, so tsc-rs
+      // gates TypeScript errors only. Fold standards/effect-diagnostics.profile.json
+      // into compiler maps once tsc-rs knows its rule names (TS377134 otherwise).
       // 0.53.0 was measured across all workspace check/test projects on
       // 2026-10-14 (goals/effect-rules-diagnostics-lane). All six 0.52 rules are
       // errors; schema-opaque-default armed schemaClassMissingBrand on

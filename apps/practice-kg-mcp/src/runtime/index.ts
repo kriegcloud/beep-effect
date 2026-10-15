@@ -35,3 +35,13 @@ export * from "./SelfCheck.ts";
  * @since 0.0.0
  */
 export * from "./Telemetry.ts";
+/**
+ * @category use-cases
+ * @since 0.0.0
+ */
+export * from "./TelemetryCheck.ts";
+/**
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./TelemetryKey.ts";
