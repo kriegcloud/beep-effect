@@ -22,6 +22,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Random from "effect/Random";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { resolveWorkstationStateDir } from "../../internal/state/WorkstationState.ts";
@@ -76,7 +77,7 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
 
   const writeSnapshot = Effect.fn("PalantiriSource.writeSnapshot")(function* (file: string, text: string) {
     yield* fs.makeDirectory(path.dirname(file), { recursive: true });
-    const temporary = `${file}.tmp`;
+    const temporary = `${file}.${yield* Random.nextIntBetween(0, 2_147_483_647)}.tmp`;
     yield* fs.writeFileString(temporary, text);
     yield* fs.rename(temporary, file);
   });

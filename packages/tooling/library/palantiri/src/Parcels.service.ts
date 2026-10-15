@@ -38,6 +38,7 @@ import {
   ParcelFreshnessAttribute,
   ProviderAttribute,
   WindowAttribute,
+  WindowScopeAttribute,
 } from "./Palantiri.instruments.ts";
 import { ParcelId, ParcelReadOptions } from "./Parcel.models.ts";
 import { makeParcelEnvelope, ParcelDraft } from "./ParcelEnvelope.models.ts";
@@ -144,14 +145,18 @@ const agentProviders = HashMap.make<ReadonlyArray<readonly [string, AgentProvide
   ["junie", AgentProvider.Enum.jetbrains]
 );
 
-const GaugeReading = S.Struct({ provider: AgentProvider, window: S.String, remaining: S.Finite });
+const GaugeReading = S.Struct({ provider: AgentProvider, window: S.String, scope: S.String, remaining: S.Finite });
 type GaugeReading = typeof GaugeReading.Type;
 
 const byRemaining: Order.Order<GaugeReading> = Order.mapInput(Num.Order, (reading) => reading.remaining);
 
-// One series per provider and window: several accounts of one provider share
-// it, so it reports the most headroom any of them has. Only fresh items
-// count, so a stale reading never looks current.
+// One series per provider, window and scope: several accounts of one provider
+// share it, so it reports the most headroom any of them has, and scoped
+// windows (one per model group) stay separate series. Only fresh items count,
+// so a stale reading never looks current. A gauge keeps its last value, so in
+// a long-lived process a series that goes stale keeps reporting its last fresh
+// reading; each `beep palantiri` CLI run is its own process with an empty
+// registry, and the long-lived MCP host clears stale series (P3).
 const gaugeReadings = (items: ReadonlyArray<AccountHeadroom>): ReadonlyArray<GaugeReading> =>
   A.map(
     R.values(
@@ -163,11 +168,12 @@ const gaugeReadings = (items: ReadonlyArray<AccountHeadroom>): ReadonlyArray<Gau
               A.map(item.windows, (window) => ({
                 provider,
                 window: window.kind,
+                scope: O.getOrElse(window.scope, () => "all"),
                 remaining: window.remainingPercent,
               })),
           })
         ),
-        (reading) => `${reading.provider} ${reading.window}`
+        (reading) => `${reading.provider} ${reading.window} ${reading.scope}`
       )
     ),
     (readings) => A.max(readings, byRemaining)
@@ -181,6 +187,7 @@ const recordHeadroom = (items: ReadonlyArray<AccountHeadroom>) =>
         Metric.withAttributes(windowRemaining, {
           [ProviderAttribute]: reading.provider,
           [WindowAttribute]: reading.window,
+          [WindowScopeAttribute]: reading.scope,
         }),
         reading.remaining
       ),
