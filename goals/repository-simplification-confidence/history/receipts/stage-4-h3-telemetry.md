@@ -553,3 +553,49 @@ findings. All owned local verification runners terminated. The prior stale
 Crypto diagnosis is superseded; no inherited test-tsgo/JSDoc red appears.
 
 After the pre-push catalog-only main advance, merged main a4b3aa1fcc and reinstalled. Owner regeneration yields a tree-identical integration in 2587e2445f. The repeated test-tsgo, local docgen, JSDoc ratchet, CI knowledge refs, Fallow audit/health and retired-paths checks all pass, ending at 02:10:06 UTC.
+
+### Re-merge-only integration — 2026-10-15
+
+Fetched origin and merged main `27f747be239375c7fe2752e45e0040c10fad3f32`
+once in `ff9bad5e7d`. The only conflict was the generated observability table.
+Took main's versions of both catalog artifacts, then regenerated them with
+`bun run beep observability catalog --write`: 5,439 spans, 4,921 conforming
+and 518 non-conforming. Ran `bun install` before verification. Main's
+semantics and H3's telemetry implementation are preserved; H3 source did not
+change during this merge.
+
+Full ai-metrics package verification passed audit (37.3 s) and docgen
+(6.3 s). The CLI dependency build passed 44 tasks. Full CLI verification
+returned nonzero: audit failed (1,255.5 s), docgen passed (41.9 s). Its
+test stage passed 6,588 tests and failed four deprecated-API worker fixtures
+in `test/lint-command.test.ts`. All Lint source and that test are identical
+to main. The fixture's fake oxlint prints no assignment summary, while the
+main worker requires one. The focused unchanged-file reproduction gives
+the same four failures and 53 passes. This is an inherited main fixture
+contract mismatch, assigned to the main/orchestrator owner. Inbox
+`local-shard-219a82a0c27b` is acknowledged with that attribution; no
+H3 repair or baseline rewrite was added. Quick CLI lint (5.1 s) and check
+(5.3 s) pass; H3 scoped CLI regressions pass all 76 tests.
+
+Fresh Node/V8 scoped coverage passes 233 metrics tests and 105 CLI tests.
+All 11 touched files with baseline rows were read, without rewriting the
+baseline. Percentages below historical full-suite rows are scoped-read
+limitations, not a full coverage-ratchet pass:
+
+| File | Lines | Statements | Branches | Functions |
+| --- | ---: | ---: | ---: | ---: |
+| `packages/tooling/library/ai-metrics/src/config-snapshot.ts` | 90.32 | 90.06 | 86.41 | 79.27 |
+| `packages/tooling/library/ai-metrics/src/derived-storage.ts` | 94.15 | 94.3 | 100 | 80.85 |
+| `packages/tooling/library/ai-metrics/src/forwarder.ts` | 90.78 | 90.19 | 79.06 | 80.17 |
+| `packages/tooling/library/ai-metrics/src/hook-pulse.ts` | 98.86 | 98.9 | 86.66 | 97.77 |
+| `packages/tooling/library/ai-metrics/src/otlp.ts` | 93.61 | 94.03 | 77.27 | 87.69 |
+| `packages/tooling/tool/cli/src/commands/AIMetrics/internal/Programs.ts` | 70.9 | 70.61 | 57.07 | 74.26 |
+| `packages/tooling/tool/cli/src/commands/AgentEffectiveness/internal/EvalRecord.ts` | 73.33 | 73.91 | 66.66 | 76.92 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.command.ts` | 25.39 | 24.8 | 5.71 | 13.46 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts` | 93.93 | 86.84 | 100 | 66.66 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.service.ts` | 100 | 100 | 100 | 100 |
+| `packages/tooling/tool/cli/src/commands/HarnessLedger/internal/PruneWindow.ts` | 96.02 | 94.37 | 84.9 | 90.22 |
+
+All 17 Yeet cheap gates pass. Test-tsgo and local docgen pass on the installed integrated source. Remaining parity and delivery results are recorded in the current handoff after terminal verification. Existing native-client qualification limits and incomplete 30-session windows remain; this re-merge does not establish new observations or genuine non-use.
+
+The integrated parity sequence is terminal: test-tsgo (03:28:07 UTC), local docgen (03:29:05), JSDoc ratchet (03:37:46), CI knowledge refs (03:38:28), Fallow audit (03:38:49), Fallow health (03:38:56), and retired Effect paths (03:38:59) all pass. Fallow and the retired-paths law report zero findings. The failed full CLI audit remains explicitly nonzero and attributed; every other requested local gate passes. Final-head parity and delivery are recorded in the handoff.
