@@ -36,6 +36,7 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -53,6 +54,7 @@ import { loadYeetInboxView } from "../Yeet/internal/InboxView.ts";
 import { ProofJobLauncher } from "../Yeet/internal/ProofJobLauncher.ts";
 import type { ParcelId, SessionKey } from "@beep/palantiri";
 import type * as Crypto from "effect/Crypto";
+import type * as HttpClient from "effect/http/HttpClient";
 import type { ChildProcessSpawner } from "effect/process";
 import type { AccountsStatusReport } from "../Accounts/Accounts.schemas.ts";
 import type { SessionLedgerError } from "../Session/Session.errors.ts";
@@ -62,6 +64,66 @@ import type { YeetInboxEntry } from "../Yeet/internal/InboxView.ts";
 import type { ProofJobRecord } from "../Yeet/internal/ProofJob.ts";
 
 const SNAPSHOT_FILE = "account-headroom.json";
+
+/**
+ * Resolve the Palantiri state directory: `BEEP_PALANTIRI_STATE_ROOT`, else
+ * `$XDG_STATE_HOME/beep/palantiri`, else `$HOME/.local/state/beep/palantiri`.
+ *
+ * **Example** (Build the lookup effect)
+ *
+ * ```ts
+ * import { palantiriStateDir } from "@beep/repo-cli/test/Palantiri"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(palantiriStateDir)) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const palantiriStateDir = resolveWorkstationStateDir({
+  override: "BEEP_PALANTIRI_STATE_ROOT",
+  store: "palantiri",
+});
+
+/**
+ * Write a file only its owner can read: the directory is created (or
+ * narrowed to) `0700`, the text goes to a uniquely named `0600` temporary
+ * file beside the target, and a rename puts it in place.
+ *
+ * **Details**
+ *
+ * A reader sees the old file or the new one, never a torn write; a failed
+ * write removes its temporary file.
+ *
+ * **Example** (Build the write effect)
+ *
+ * ```ts
+ * import { writePrivateFile } from "@beep/repo-cli/test/Palantiri"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(writePrivateFile("/state/palantiri/hot.json", "{}"))) // true
+ * ```
+ *
+ * @param file - Absolute path of the file to replace.
+ * @param text - The file's new contents.
+ * @returns An effect that writes the file.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const writePrivateFile = Effect.fn("PalantiriSource.writePrivateFile")(function* (file: string, text: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const dir = path.dirname(file);
+  yield* fs.makeDirectory(dir, { recursive: true, mode: 0o700 });
+  yield* fs.chmod(dir, 0o700);
+  const temporary = `${file}.${yield* Random.nextIntBetween(0, 2_147_483_647)}.tmp`;
+  yield* Effect.gen(function* () {
+    yield* fs.writeFileString(temporary, text, { mode: 0o600 });
+    yield* fs.chmod(temporary, 0o600);
+    yield* fs.rename(temporary, file);
+  }).pipe(Effect.onError(() => fs.remove(temporary).pipe(Effect.ignore)));
+});
 
 const sourceFailed = (detail: string) => SourceFailed.make({ parcel: AccountHeadroomSpec.id, detail });
 
@@ -108,15 +170,11 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
 
   // The snapshot carries account labels, so the directory is owner-only and
   // the file is written owner-read/write before it is renamed into place.
-  const writeSnapshot = Effect.fn("PalantiriSource.writeSnapshot")(function* (file: string, text: string) {
-    const dir = path.dirname(file);
-    yield* fs.makeDirectory(dir, { recursive: true, mode: 0o700 });
-    yield* fs.chmod(dir, 0o700);
-    const temporary = `${file}.${yield* Random.nextIntBetween(0, 2_147_483_647)}.tmp`;
-    yield* fs.writeFileString(temporary, text, { mode: 0o600 });
-    yield* fs.chmod(temporary, 0o600);
-    yield* fs.rename(temporary, file);
-  });
+  const writeSnapshot = (file: string, text: string) =>
+    writePrivateFile(file, text).pipe(
+      Effect.provideService(FileSystem.FileSystem, fs),
+      Effect.provideService(Path.Path, path)
+    );
 
   // The providers this host is configured for: every stored login and every
   // collector snapshot file. A failed listing is `None`, so the parcel reports
@@ -134,7 +192,7 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
   );
 
   const snapshot = Effect.gen(function* () {
-    const dir = yield* resolveWorkstationStateDir({ override: "BEEP_PALANTIRI_STATE_ROOT", store: "palantiri" });
+    const dir = yield* palantiriStateDir;
     const file = path.join(dir, SNAPSHOT_FILE);
     const previous = yield* fs
       .readFileString(file)
@@ -214,15 +272,63 @@ export const layerAccountHeadroomSourceLive = Layer.effect(AccountHeadroomSource
 );
 
 /**
- * OTLP export for a Palantiri read, on only when `OTEL_EXPORTER_OTLP_ENDPOINT`
- * is set.
+ * OTLP export for a Palantiri host, on only when an endpoint is given.
  *
  * **Details**
  *
  * Built on the shared server observability layer. Spans and metrics leave on
  * an interval or when the layer's scope closes, so a short CLI run is flushed
- * by the command's scope finalizer (bounded by a 3 second shutdown timeout).
- * With no endpoint, nothing is exported.
+ * by the command's scope finalizer (bounded by a 3 second shutdown timeout)
+ * and a long-lived host exports on the interval. With no endpoint, nothing is
+ * exported.
+ *
+ * **Example** (Export nothing)
+ *
+ * ```ts
+ * import { layerPalantiriTelemetryFor } from "@beep/repo-cli/test/Palantiri"
+ * import * as Layer from "effect/Layer"
+ * import * as O from "effect/Option"
+ *
+ * console.log(Layer.isLayer(layerPalantiriTelemetryFor("beep-cli", O.none()))) // true
+ * ```
+ *
+ * @param serviceName - The `service.name` the host reports as.
+ * @param endpoint - The OTLP base URL; `None` or an empty string exports nothing.
+ * @returns An OTLP span and metric exporter for that endpoint, or an empty layer.
+ * @category layers
+ * @since 0.0.0
+ */
+export const layerPalantiriTelemetryFor: {
+  (endpoint: O.Option<string>): (serviceName: string) => Layer.Layer<never, never, HttpClient.HttpClient>;
+  (serviceName: string, endpoint: O.Option<string>): Layer.Layer<never, never, HttpClient.HttpClient>;
+} = dual(
+  2,
+  (serviceName: string, endpoint: O.Option<string>): Layer.Layer<never, never, HttpClient.HttpClient> =>
+    O.match(O.filter(endpoint, Str.isNonEmpty), {
+      onNone: () => Layer.empty,
+      onSome: (otlpBaseUrl) =>
+        layerLocalLgtmServer(
+          ServerObservabilityConfig.make({
+            serviceName,
+            serviceVersion: "0.0.0",
+            environment: "workstation",
+            minLogLevel: "Info",
+            otlpBaseUrl,
+            otlpEnabled: true,
+            otlpResourceAttributes: {},
+            devtoolsEnabled: false,
+            devtoolsUrl: "ws://localhost:34437",
+            prometheusPrefix: "beep",
+          })
+        ),
+    })
+);
+
+const optionalEndpoint = (name: string) => Config.option(Config.String(name)).pipe(Effect.orElseSucceed(O.none));
+
+/**
+ * OTLP export for a `beep palantiri` CLI read, on only when
+ * `OTEL_EXPORTER_OTLP_ENDPOINT` is set. See {@link layerPalantiriTelemetryFor}.
  *
  * **Example** (Build the telemetry layer)
  *
@@ -237,30 +343,46 @@ export const layerAccountHeadroomSourceLive = Layer.effect(AccountHeadroomSource
  * @since 0.0.0
  */
 export const layerPalantiriTelemetry = Layer.unwrap(
-  Effect.gen(function* () {
-    const endpoint = yield* Config.option(Config.String("OTEL_EXPORTER_OTLP_ENDPOINT")).pipe(
-      Effect.orElseSucceed(O.none)
-    );
-    return O.match(O.filter(endpoint, Str.isNonEmpty), {
-      onNone: () => Layer.empty,
-      onSome: (otlpBaseUrl) =>
-        layerLocalLgtmServer(
-          ServerObservabilityConfig.make({
-            serviceName: "beep-cli",
-            serviceVersion: "0.0.0",
-            environment: "workstation",
-            minLogLevel: "Info",
-            otlpBaseUrl,
-            otlpEnabled: true,
-            otlpResourceAttributes: {},
-            devtoolsEnabled: false,
-            devtoolsUrl: "ws://localhost:34437",
-            prometheusPrefix: "beep",
-          })
-        ),
-    });
-  })
+  Effect.map(optionalEndpoint("OTEL_EXPORTER_OTLP_ENDPOINT"), (endpoint) =>
+    layerPalantiriTelemetryFor("beep-cli", endpoint)
+  )
 );
+
+/**
+ * OTLP export for the `beep palantiri mcp` host: the `--otlp-endpoint` flag,
+ * else `BEEP_PALANTIRI_OTLP_ENDPOINT`, else nothing.
+ *
+ * **Details**
+ *
+ * Claude Code strips `OTEL_*` from the environment of an MCP server it
+ * launches, so the host never reads `OTEL_EXPORTER_OTLP_ENDPOINT`; it carries
+ * its own setting under a name the harness leaves alone.
+ *
+ * **Example** (Use the flag's endpoint)
+ *
+ * ```ts
+ * import { layerPalantiriMcpTelemetry } from "@beep/repo-cli/test/Palantiri"
+ * import * as Layer from "effect/Layer"
+ * import * as O from "effect/Option"
+ *
+ * console.log(Layer.isLayer(layerPalantiriMcpTelemetry(O.some("http://127.0.0.1:4318")))) // true
+ * ```
+ *
+ * @param flag - The `--otlp-endpoint` flag's value, if given.
+ * @returns An exporter reporting as `beep-palantiri-mcp`, or an empty layer when no endpoint is set.
+ * @category layers
+ * @since 0.0.0
+ */
+export const layerPalantiriMcpTelemetry = (flag: O.Option<string>): Layer.Layer<never, never, HttpClient.HttpClient> =>
+  Layer.unwrap(
+    Effect.map(
+      O.match(O.filter(flag, Str.isNonEmpty), {
+        onSome: Effect.succeedSome,
+        onNone: () => optionalEndpoint("BEEP_PALANTIRI_OTLP_ENDPOINT"),
+      }),
+      (endpoint) => layerPalantiriTelemetryFor("beep-palantiri-mcp", endpoint)
+    )
+  );
 
 const failedFor = (parcel: ParcelId) => (detail: string) => SourceFailed.make({ parcel, detail });
 
@@ -684,7 +806,7 @@ export const makeSinceLastCheckSource = Effect.fnUntraced(function* (facts: Chec
   );
 
   const cursorFile = Effect.fnUntraced(function* (current: SessionCheckoutFacts, session: SessionKey) {
-    const dir = yield* resolveWorkstationStateDir({ override: "BEEP_PALANTIRI_STATE_ROOT", store: "palantiri" }).pipe(
+    const dir = yield* palantiriStateDir.pipe(
       Effect.mapError(() => sinceLastCheckFailed("state directory could not be resolved"))
     );
     const { host, owner, name } = current.repository;

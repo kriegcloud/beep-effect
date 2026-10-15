@@ -17,6 +17,7 @@ import {
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -191,6 +192,21 @@ describe("Parcels.read host-pressure", () => {
       }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
     );
   });
+
+  it.effect("drops each resource's series once its reading is stale, read twice in one process", () =>
+    Effect.gen(function* () {
+      const parcels = yield* withSource(healthy).pipe(Layer.build, Effect.map(Context.get(Parcels)));
+      const resources = Effect.map(Metric.snapshot, (snapshot) =>
+        A.filter(snapshot, (metric) => metric.id === HostPressureStall.name)
+      );
+      yield* NOW.pipe(DateTime.toEpochMillis, TestClock.setTime);
+      yield* parcels.read("host-pressure");
+      expect(yield* resources).toHaveLength(3);
+      yield* TestClock.adjust("5 minutes");
+      yield* parcels.read("host-pressure");
+      expect(yield* resources).toEqual([]);
+    }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
+  );
 
   it.layer(withSource(healthy), { timeout: "30 seconds" })("with stale readings", (it) => {
     it.effect("records no gauge", () =>
