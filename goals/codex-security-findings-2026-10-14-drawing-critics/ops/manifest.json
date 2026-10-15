@@ -10,6 +10,7 @@
   },
   "packetPath": "goals/codex-security-findings-2026-10-14-drawing-critics",
   "lifecycle": "completed-retained",
+  "mergedPullRequest": 1795,
   "mission": "Remediate and close the 1 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
