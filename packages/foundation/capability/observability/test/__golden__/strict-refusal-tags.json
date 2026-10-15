@@ -3,6 +3,7 @@
   "log-record-dropped",
   "metric-attribute-not-allowed",
   "metric-not-allowed",
+  "metric-value-dropped",
   "resource-rebuilt",
   "span-event-dropped",
   "span-link-dropped",

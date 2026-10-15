@@ -48,6 +48,11 @@ Before marking the packet closed:
   8-character prefix and SHA-256 forms) in `apps/practice-kg-mcp/test/Host.test.ts`.
   Cache baseline re-recorded for `@beep/practice-kg-mcp` via
   `research/cache-baseline-request-strict-tier-p1.json`.
+- P1 review fix (2026-10-15, #1838): metric points are rebuilt from named
+  fields; values are floored onto the 1/2.5/5-per-decade ladder (saturating at
+  10^12) under the new `metric-values` gate rule; histograms drop `sum`/`min`/
+  `max` (`metric-value-dropped`); exponential histograms and summaries are
+  refused (`metric-not-allowed`).
 - P2 (2026-10-15): `@beep/observability/strict` gains the encrypted spool
   (`StrictSpool.{schemas,errors,service,layer}.ts`: AES-256-GCM segments with
   the header bound as additional data, owner-only files written by temp +

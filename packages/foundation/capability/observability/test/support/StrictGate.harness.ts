@@ -38,7 +38,19 @@ const demoCalls = MetricInstrument.make({
   unit: UcumUnit.make("{call}"),
 });
 
-/** Kernel declarations plus a literal-valued tool key and one counter. */
+/** Allowlisted demo histogram. */
+const demoLatency = MetricInstrument.make({
+  name: MetricName.make("beep.demo.latency"),
+  owner,
+  attributes: [demoToolKey],
+  minTier: "shape-only",
+  description: "Demo tool latency by tool.",
+  kind: "histogram",
+  unit: UcumUnit.make("ms"),
+  boundaries: O.some([10, 100]),
+});
+
+/** Kernel declarations plus a literal-valued tool key, one counter and one histogram. */
 const demoCatalog = InstrumentCatalog.make({
   attributes: [
     ...ObservabilityInstruments.attributes,
@@ -62,7 +74,7 @@ const demoCatalog = InstrumentCatalog.make({
       description: "Bounded demo key with no literal value list.",
     }),
   ],
-  instruments: [...ObservabilityInstruments.instruments, demoCalls],
+  instruments: [...ObservabilityInstruments.instruments, demoCalls, demoLatency],
 });
 
 /** Gate configuration over {@link demoCatalog}. */

@@ -91,7 +91,11 @@ export const representativeTraces = (): TraceData => ({
   ],
 });
 
-/** An allowlisted counter, the same counter with a refused label, and an interpolated metric name the catalog does not know. */
+/**
+ * An allowlisted counter with raw integer and double points and a refused
+ * label, an allowlisted histogram with raw aggregates, an exponential
+ * histogram, and an interpolated metric name the catalog does not know.
+ */
 export const representativeMetrics = (): MetricsData => ({
   resourceMetrics: [
     {
@@ -115,13 +119,56 @@ export const representativeMetrics = (): MetricsData => ({
                     attributes: [{ key: "beep.demo.tool", value: { stringValue: "lookup" } }],
                     startTimeUnixNano: "1700000000000000000",
                     timeUnixNano: "1700000123456789000",
-                    asInt: 3,
+                    asInt: 1_234_567,
+                  },
+                  {
+                    attributes: [{ key: "beep.demo.tool", value: { stringValue: "search" } }],
+                    startTimeUnixNano: "1700000000000000000",
+                    timeUnixNano: "1700000123456789000",
+                    asDouble: 3.7,
                   },
                   {
                     attributes: [{ key: "beep.demo.tool", value: { stringValue: batchCanary() } }],
                     startTimeUnixNano: "1700000000000000000",
                     timeUnixNano: "1700000123456789000",
                     asInt: 1,
+                  },
+                ],
+              },
+            },
+            {
+              name: "beep.demo.latency",
+              unit: "ms",
+              histogram: {
+                aggregationTemporality: 2,
+                dataPoints: [
+                  {
+                    attributes: [{ key: "beep.demo.tool", value: { stringValue: "lookup" } }],
+                    startTimeUnixNano: "1700000000000000000",
+                    timeUnixNano: "1700000123456789000",
+                    count: 1_234,
+                    sum: 98_765.4,
+                    min: 1.5,
+                    max: 4_321,
+                    bucketCounts: [3, 17, 1_214],
+                    explicitBounds: [10, 100],
+                  },
+                ],
+              },
+            },
+            {
+              name: "beep.demo.latency",
+              unit: "ms",
+              exponentialHistogram: {
+                aggregationTemporality: 2,
+                dataPoints: [
+                  {
+                    attributes: [{ key: "beep.demo.tool", value: { stringValue: "lookup" } }],
+                    count: 7,
+                    sum: 31.25,
+                    scale: 3,
+                    zeroCount: 0,
+                    positive: { offset: 4, bucketCounts: [1, 2, 4] },
                   },
                 ],
               },

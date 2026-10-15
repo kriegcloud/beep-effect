@@ -1,5 +1,6 @@
 import { effectiveTier, StrictDesktop, TelemetryTier } from "@beep/observability/catalog";
 import {
+  coarsenMetricValue,
   durationBucketOf,
   GateRule,
   GateRules,
@@ -60,8 +61,29 @@ const exportedSpans = Effect.fnUntraced(function* (gate: Gate) {
 // are checked by their own test.
 const contentRules = A.filter(
   GateRule.literals,
-  (rule) => rule !== "span-ids" && rule !== "span-timestamps" && rule !== "span-name"
+  (rule) => rule !== "span-ids" && rule !== "span-timestamps" && rule !== "span-name" && rule !== "metric-values"
 );
+
+const MetricsBody = S.fromJsonString(
+  S.Struct({
+    resourceMetrics: S.Array(
+      S.Struct({
+        scopeMetrics: S.Array(S.Struct({ metrics: S.Array(S.Record(S.String, S.Unknown)) })),
+      })
+    ),
+  })
+);
+const decodeMetricsBody = S.decodeUnknownEffect(MetricsBody);
+
+// The exported metric entries with the given name, as decoded JSON records.
+const exportedMetrics = Effect.fnUntraced(function* (rules: GateRules, name: string) {
+  const gate = yield* makeStrictGate(demoConfig(rules));
+  const body = yield* decodeMetricsBody(bodyText(gate.serialization.metrics(representativeMetrics())));
+  const metrics = A.flatMap(body.resourceMetrics, (resource) =>
+    A.flatMap(resource.scopeMetrics, (scope) => scope.metrics)
+  );
+  return { gate, metrics: A.filter(metrics, (metric) => metric.name === name) };
+});
 
 const leaks = Effect.fnUntraced(function* (rules: GateRules) {
   const gate = yield* makeStrictGate(demoConfig(rules));
@@ -149,7 +171,7 @@ describe("StrictGate", () => {
         const gate = yield* makeStrictGate(demoConfig());
         const text = bodyText(gate.serialization.metrics(representativeMetrics()));
         const ledger = yield* gate.ledger;
-        expect(countOf(ledger, "metric-not-allowed")).toBe(1);
+        expect(countOf(ledger, "metric-not-allowed")).toBe(2);
         expect(countOf(ledger, "metric-attribute-not-allowed")).toBe(1);
         expect(Str.includes(batchCanary())(text)).toBe(false);
         expect(Str.includes('"name":"beep.demo.calls"')(text)).toBe(true);
@@ -184,6 +206,60 @@ describe("StrictGate", () => {
           expect(yield* leaks(rules)).toBe(A.some(contentRules, (rule) => !rules[rule]));
         }),
       { arbitrary: fcRuns(25) }
+    );
+
+    it.effect("floors every number point and histogram count onto the 1/2.5/5 ladder", () =>
+      Effect.gen(function* () {
+        expect(A.map([0, 0.4, 1, 2.4, 3.7, 9, 24, 26, 1_234_567, 9e15, -42], coarsenMetricValue)).toEqual([
+          0, 0, 1, 2, 2, 5, 10, 25, 1_000_000, 1_000_000_000_000, -25,
+        ]);
+        const { metrics } = yield* exportedMetrics(StrictGateRulesOn, "beep.demo.calls");
+        const text = yield* encodeUnknownJson(metrics);
+        expect(Str.includes('"asInt":1000000')(text)).toBe(true);
+        expect(Str.includes('"asDouble":2')(text)).toBe(true);
+        expect(Str.includes("1234567")(text)).toBe(false);
+        expect(Str.includes("3.7")(text)).toBe(false);
+      })
+    );
+
+    it.effect("keeps histogram bounds, coarsens its counts and drops sum, min and max", () =>
+      Effect.gen(function* () {
+        const { gate, metrics } = yield* exportedMetrics(StrictGateRulesOn, "beep.demo.latency");
+        const text = yield* encodeUnknownJson(metrics);
+        expect(Str.includes('"count":1000')(text)).toBe(true);
+        expect(Str.includes('"bucketCounts":[2,10,1000]')(text)).toBe(true);
+        expect(Str.includes('"explicitBounds":[10,100]')(text)).toBe(true);
+        for (const key of ['"sum":', '"min":', '"max":']) {
+          expect([key, Str.includes(key)(text)]).toEqual([key, false]);
+        }
+        expect(countOf(yield* gate.ledger, "metric-value-dropped")).toBe(3);
+      })
+    );
+
+    it.effect("refuses an exponential histogram series and counts it", () =>
+      Effect.gen(function* () {
+        const { gate, metrics } = yield* exportedMetrics(StrictGateRulesOn, "beep.demo.latency");
+        expect(Str.includes("exponentialHistogram")(yield* encodeUnknownJson(metrics))).toBe(false);
+        // The exponential series and the unknown metric name.
+        expect(countOf(yield* gate.ledger, "metric-not-allowed")).toBe(2);
+      })
+    );
+
+    it.effect("exports raw values and histogram aggregates when the metric-values rule is off", () =>
+      Effect.gen(function* () {
+        const { metrics: calls } = yield* exportedMetrics(
+          { ...StrictGateRulesOn, "metric-values": false },
+          "beep.demo.calls"
+        );
+        const { metrics: latency } = yield* exportedMetrics(
+          { ...StrictGateRulesOn, "metric-values": false },
+          "beep.demo.latency"
+        );
+        expect(Str.includes('"asInt":1234567')(yield* encodeUnknownJson(calls))).toBe(true);
+        const latencyText = yield* encodeUnknownJson(latency);
+        expect(Str.includes('"sum":98765.4')(latencyText)).toBe(true);
+        expect(Str.includes("exponentialHistogram")(latencyText)).toBe(true);
+      })
     );
 
     it.effect("exports raw ids, raw times and unmapped names when those rules are off", () =>

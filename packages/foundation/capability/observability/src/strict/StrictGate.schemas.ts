@@ -38,7 +38,7 @@ const $I = $ObservabilityId.create("strict/StrictGate.schemas");
  * ```ts import.meta.vitest name="List the gate rules"
  * import { GateRule } from "@beep/observability/strict"
  *
- * GateRule.literals.length // => 11
+ * GateRule.literals.length // => 12
  * GateRule.Enum["span-ids"] // => "span-ids"
  * ```
  *
@@ -57,6 +57,7 @@ export const GateRule = LiteralKit([
   "logs",
   "metric-names",
   "metric-attributes",
+  "metric-values",
 ]).pipe(
   $I.annoteSchema("GateRule", {
     description: "One switch of the strict-tier gate, one per kind of data it drops or rewrites.",
@@ -126,6 +127,7 @@ export const StrictGateRulesOn: GateRules = {
   logs: true,
   "metric-names": true,
   "metric-attributes": true,
+  "metric-values": true,
 };
 
 /**
@@ -189,6 +191,63 @@ export const durationBucketOf = (durationMs: number): TelemetryDurationBucket =>
     O.map((bound) => bound.bucket),
     O.getOrElse(() => TelemetryDurationBucket.Enum["over-10s"])
   );
+
+/**
+ * Largest exported metric value; anything above it is reported as this step.
+ *
+ * **Example** (Read the ceiling)
+ *
+ * ```ts import.meta.vitest name="Read the ceiling"
+ * import { metricValueCeiling } from "@beep/observability/strict"
+ *
+ * metricValueCeiling // => 1000000000000
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const metricValueCeiling = 1_000_000_000_000;
+
+const ladderExponents = A.range(0, 12);
+
+// 0, then 1, 2, 5, 10, 25, 50, 100, 250, 500, ... up to the ceiling.
+const metricValueLadder: ReadonlyArray<number> = [
+  0,
+  ...A.filter(
+    A.flatMap(ladderExponents, (exponent) => A.map([1, 2.5, 5], (mantissa) => Math.floor(mantissa * 10 ** exponent))),
+    (step) => step <= metricValueCeiling
+  ),
+];
+
+/**
+ * Floors a metric value onto the fixed 1/2.5/5-per-decade ladder (0, 1, 2, 5,
+ * 10, 25, 50, 100, 250, 500, 1 000, ...), saturating at
+ * {@link metricValueCeiling}. Negative values keep their sign and floor their
+ * magnitude.
+ *
+ * **Details**
+ *
+ * The strict gate applies this to every exported number point and to each
+ * histogram count, so an exported value never reveals more than its order of
+ * magnitude and the half-decade it sits in.
+ *
+ * **Example** (Coarsen two values)
+ *
+ * ```ts import.meta.vitest name="Coarsen two values"
+ * import { coarsenMetricValue } from "@beep/observability/strict"
+ *
+ * coarsenMetricValue(1_234_567) // => 1000000
+ * coarsenMetricValue(3.7) // => 2
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const coarsenMetricValue = (value: number): number => {
+  const magnitude = Math.abs(value);
+  const step = A.findLast(metricValueLadder, (candidate) => candidate <= magnitude).pipe(O.getOrElse(() => 0));
+  return value < 0 ? -step : step;
+};
 
 /**
  * OTLP trace id produced by the gate: 32 lowercase hex characters, keyed by

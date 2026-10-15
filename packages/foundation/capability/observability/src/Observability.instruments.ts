@@ -35,12 +35,14 @@ const owner = PackageName.make("@beep/observability");
  * at the `shape-only` tier. The strict-tier gate (`@beep/observability/strict`)
  * adds one tag per thing it drops or rewrites: a span whose name is not a tool
  * id, a span link, a span status message, a log record, an input resource it
- * replaced, a metric whose name is not allowed, a metric point carrying a key
- * or value that is not allowed, and an export its egress client held back.
- * Its encrypted spool adds three: a body dropped from the spool (evicted for
- * space or lost to a failed write), a segment refused at replay because its
- * tier is looser than the current one, and a segment refused at replay
- * because it does not decode, authenticate or match the current key epoch.
+ * replaced, a metric or series whose name or kind is not allowed, a metric
+ * point carrying a key or value that is not allowed, a raw histogram
+ * aggregate (`sum`, `min`, `max`) it dropped, and an export its egress client
+ * held back. Its encrypted spool adds three: a body dropped from the spool
+ * (evicted for space or lost to a failed write), a segment refused at replay
+ * because its tier is looser than the current one, and a segment refused at
+ * replay because it does not decode, authenticate or match the current key
+ * epoch.
  *
  * **Example** (Read the attribute refusal tag)
  *
@@ -64,6 +66,7 @@ export const TelemetryRefusalTag = LiteralKit([
   "resource-rebuilt",
   "metric-not-allowed",
   "metric-attribute-not-allowed",
+  "metric-value-dropped",
   "egress-refused",
   "spool-evicted",
   "spool-tier-refused",
