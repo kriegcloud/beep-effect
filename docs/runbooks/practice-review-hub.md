@@ -50,6 +50,7 @@ a guard and can be pruned once their day has passed.
 cp apps/practice-review-hub/deploy/practice-review-hub.service $HOME/.config/systemd/user/
 # edit the REPLACE_ values: the deploy checkout, $HOME, the bun shim,
 # <data-dir>, the attorney's tailnet login (section 4), and a free port
+# (the examples below use 8787, the hub's default)
 systemd-analyze --user verify $HOME/.config/systemd/user/practice-review-hub.service
 systemctl --user daemon-reload
 systemctl --user enable --now practice-review-hub.service
@@ -74,12 +75,20 @@ permission, granted once by an administrator of the workstation:
 sudo tailscale set --operator="$USER"
 ```
 
-Then, with `<port>` from the unit:
+Give the hub its own HTTPS port on the tailnet name. Check what is served
+already first: the bare name (port 443) often proxies another service, and
+`--https=443` would replace it. Using the unit's loopback port as the HTTPS
+port too keeps the two easy to match; with another port in the unit, change
+both numbers:
 
 ```bash
-tailscale serve --bg --https=443 http://127.0.0.1:<port>
+tailscale serve status
+tailscale serve --bg --https=8787 http://127.0.0.1:8787
 tailscale serve status
 ```
+
+The hub's tailnet address then carries the port:
+`https://<workstation>.<tailnet>.ts.net:8787/mcp`.
 
 `--bg` keeps the configuration across reboots. The tailnet must allow HTTPS
 certificates; the first `tailscale serve` prints a link to turn them on when
@@ -98,7 +107,17 @@ tailscale whois <attorney-device-ip>
 ```
 
 Copy the `LoginName` under `User:`. The Users page of the Tailscale admin
-console shows the same value. Put it in the unit's `--allowed-logins` (several
+console shows the same value.
+
+Check that this login belongs to the attorney alone. The login identifies the
+Tailscale user, not the device: every device signed in as the same user sends
+the same `Tailscale-User-Login`. When the attorney's device was set up with
+the operator's account, allowing that login lets every one of the operator's
+devices, agent workers included, record verdicts and answers as the attorney.
+In `tailscale status`, the attorney's device must be the only device of its
+user. If it is not, invite the attorney to the tailnet as their own user and
+sign their device in with that account. When the tailnet has a custom access
+policy, it must let that user reach the workstation on the hub's HTTPS port. Put it in the unit's `--allowed-logins` (several
 logins are separated by commas, without spaces), then:
 
 ```bash
@@ -221,7 +240,7 @@ MCP discover through `tailscale serve` succeeds. Save the request body as
 ```
 
 ```bash
-curl -s https://<workstation>.<tailnet>.ts.net/mcp \
+curl -s https://<workstation>.<tailnet>.ts.net:8787/mcp \
   -H 'content-type: application/json' \
   -H 'accept: application/json, text/event-stream' \
   -H 'MCP-Protocol-Version: 2026-07-28' \
@@ -232,7 +251,7 @@ curl -s https://<workstation>.<tailnet>.ts.net/mcp \
 The answer is HTTP 200 with `"supportedVersions":["2026-07-28"]` and the
 server name `practice-review-hub`. On Windows run the same command as
 `curl.exe`, one line. The same request from a device signed in as any other
-login gets 403.
+login, the operator's own devices included, gets 403.
 
 The hub tolerates in-progress appends: a last line that has no line break yet
 is left for the next read, so docket intake can store questions while the hub
