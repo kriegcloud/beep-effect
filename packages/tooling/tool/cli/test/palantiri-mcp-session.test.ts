@@ -19,6 +19,7 @@ import {
   HOT_PARCELS_FILE,
   HOT_PARCELS_TIMEOUT,
   HotParcelLine,
+  HotParcels,
   HotParcelsJson,
   hotParcels,
   layerPalantiriRuntime,
@@ -32,8 +33,10 @@ import {
   servePalantiriMcp,
   stageHotParcels,
 } from "@beep/repo-cli/test/Palantiri";
+import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -294,4 +297,26 @@ describe("beep session open hot parcels", () => {
       }).pipe(withEnv({ BEEP_PALANTIRI_STATE_ROOT: "/state/palantiri", HOME: "/home/nobody" }))
     );
   });
+});
+
+describe("hot parcels and catalog codecs", () => {
+  it.effect.prop(
+    "round-trips any staged hot file through its JSON codec",
+    [Arbitrary.schema(HotParcels)],
+    Effect.fnUntraced(function* ([hot]) {
+      const text = yield* S.encodeEffect(HotParcelsJson)(hot);
+      expect(yield* S.decodeEffect(HotParcelsJson)(text)).toEqual(hot);
+    }),
+    { arbitrary: fcRuns(24) }
+  );
+
+  it.effect.prop(
+    "round-trips any parcel catalog listing through JSON",
+    [Arbitrary.schema(ParcelCatalog)],
+    Effect.fnUntraced(function* ([catalog]) {
+      const codec = S.fromJsonString(ParcelCatalog);
+      expect(yield* S.decodeEffect(codec)(yield* S.encodeEffect(codec)(catalog))).toEqual(catalog);
+    }),
+    { arbitrary: fcRuns(24) }
+  );
 });
