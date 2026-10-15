@@ -1959,5 +1959,8 @@
   ],
   "@beep/repo-configs/laws/*": [
     "./packages/tooling/policy-pack/repo-configs/src/laws/*"
+  ],
+  "@beep/law-practice-server/UsptoClaims": [
+    "./packages/law-practice/server/src/UsptoClaims/index.ts"
   ]
 }
