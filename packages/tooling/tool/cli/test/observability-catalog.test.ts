@@ -33,6 +33,7 @@ import { PosixPath } from "@beep/schema/PosixPath";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -335,41 +336,46 @@ const writeCatalogFixture = Effect.fn("ObservabilityCatalogTest.writeFixture")(f
 });
 
 const runCatalog = (mode: "write" | "check") =>
-  InstrumentationCatalog.use((catalog) => catalog.run(mode)).pipe(Effect.provide(InstrumentationCatalogLive));
+  Effect.flatMap(Layer.build(InstrumentationCatalogLive), (context) =>
+    Context.get(context, InstrumentationCatalog).run(mode)
+  );
 
 layer(serviceLayer, { timeout: "60 seconds" })("InstrumentationCatalog.run", (it) => {
-  it.effect("reports orphaned shards and the retired catalog on check, and removes them on write", () =>
-    withTempWorkingDirectory(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        yield* writeCatalogFixture();
-        const first = yield* runCatalog("write");
-        expect(first.ok).toBe(true);
-        expect(yield* fs.exists(exampleShard)).toBe(true);
+  it.effect(
+    "reports orphaned shards and the retired catalog on check, and removes them on write",
+    Effect.fn("ObservabilityCatalogTest.orphanedShards")(function* () {
+      yield* withTempWorkingDirectory(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* writeCatalogFixture();
+          const first = yield* runCatalog("write");
+          expect(first.ok).toBe(true);
+          expect(yield* fs.exists(exampleShard)).toBe(true);
 
-        yield* writeProjectFile(orphanShard, "// orphan\n{}\n");
-        yield* writeProjectFile(retiredCatalog, "// retired\n{}\n");
-        const checked = yield* runCatalog("check");
-        expect(checked.ok).toBe(false);
-        expect(A.map(checked.drifted, (file) => `${file.status} ${file.path}`)).toEqual([
-          `orphaned ${retiredCatalog}`,
-          `orphaned ${orphanShard}`,
-        ]);
-        expect(yield* fs.exists(orphanShard)).toBe(true);
+          yield* writeProjectFile(orphanShard, "// orphan\n{}\n");
+          yield* writeProjectFile(retiredCatalog, "// retired\n{}\n");
+          const checked = yield* runCatalog("check");
+          expect(checked.ok).toBe(false);
+          expect(A.map(checked.drifted, (file) => `${file.status} ${file.path}`)).toEqual([
+            `orphaned ${retiredCatalog}`,
+            `orphaned ${orphanShard}`,
+          ]);
+          expect(yield* fs.exists(orphanShard)).toBe(true);
 
-        const written = yield* runCatalog("write");
-        expect(A.map(written.drifted, (file) => `${file.status} ${file.path}`)).toEqual([
-          `removed ${retiredCatalog}`,
-          `removed ${orphanShard}`,
-        ]);
-        expect(yield* fs.exists(orphanShard)).toBe(false);
-        expect(yield* fs.exists(retiredCatalog)).toBe(false);
+          const written = yield* runCatalog("write");
+          expect(A.map(written.drifted, (file) => `${file.status} ${file.path}`)).toEqual([
+            `removed ${retiredCatalog}`,
+            `removed ${orphanShard}`,
+          ]);
+          expect(yield* fs.exists(orphanShard)).toBe(false);
+          expect(yield* fs.exists(retiredCatalog)).toBe(false);
 
-        const clean = yield* runCatalog("check");
-        expect(clean.ok).toBe(true);
-        expect(clean.drifted).toEqual([]);
-        expect(clean.shards).toBe(1);
-      })
-    )
+          const clean = yield* runCatalog("check");
+          expect(clean.ok).toBe(true);
+          expect(clean.drifted).toEqual([]);
+          expect(clean.shards).toBe(1);
+        })
+      );
+    })
   );
 });
