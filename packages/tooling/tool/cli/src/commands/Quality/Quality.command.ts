@@ -506,7 +506,6 @@ const TsgoDisabledRuleName = LiteralKit([
   "unstableApiUsage",
   "preferNamespaceImport",
   "preferBarrelImport",
-  "schemaClassMissingBrand",
 ]);
 
 /**
@@ -565,14 +564,13 @@ export class TsgoDisabledRule extends S.Opaque<TsgoDisabledRule, { readonly bran
  * import * as A from "effect/Array"
  *
  * console.log(A.map(tsgoDisabledRules, (disabled) => disabled.rule))
- * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage", "preferNamespaceImport", "preferBarrelImport", "schemaClassMissingBrand"]
+ * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage", "preferNamespaceImport", "preferBarrelImport"]
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
 export const tsgoDisabledRules: readonly [
-  TsgoDisabledRule,
   TsgoDisabledRule,
   TsgoDisabledRule,
   TsgoDisabledRule,
@@ -600,10 +598,6 @@ export const tsgoDisabledRules: readonly [
   TsgoDisabledRule.make({
     rule: "preferBarrelImport",
     reason: "The code law requires dedicated Effect module paths rather than root barrel imports.",
-  }),
-  TsgoDisabledRule.make({
-    rule: "schemaClassMissingBrand",
-    reason: "2026-10-14: armed by the schema-opaque-default closing PR; the post-#1758 spike found zero sites.",
   }),
 ];
 
