@@ -229,67 +229,62 @@ const unboundedShellScopeLine = (line: string) => {
  * import { modelsShellScope } from "@beep/repo-cli/commands/Models/Models.spans"
  * import * as O from "effect/Option"
  * const source = "route() {\nMODEL=old\n}\n"
- * console.log(O.isSome(modelsShellScope(source, "route"))) // true
+ * console.log(O.isSome(modelsShellScope(source, "route", "MODEL"))) // true
  * ```
  *
  * @param content - Complete shell document.
  * @param name - Named function whose literal body is owned.
- * @param variable - Optional owned name used to exclude unrelated lines from scope checks.
+ * @param variable - Owned name used to exclude unrelated lines from scope checks.
  * @returns A supported body, an empty missing body, or None for unsupported scope.
  * @category utilities
  * @since 0.0.0
  */
 export const modelsShellScope: {
-  (content: string, name: string, variable?: string): O.Option<string>;
-  (name: string): (content: string) => O.Option<string>;
-} = dual(
-  (args) => args.length >= 2,
-  (content: string, name: string, variable?: string): O.Option<string> => {
-    if (!/^[A-Za-z_][A-Za-z0-9_-]*$/.test(name)) return O.none();
-    const header = /^[ \t]*(?:function[ \t]+)?([A-Za-z_][A-Za-z0-9_-]*)[ \t]*(?:\([ \t]*\))?[ \t]*\{[ \t]*$/;
-    const close = /^[ \t]*}[ \t]*$/;
-    const lines = Str.split(content, "\n");
-    const headers = A.getSomes(
-      A.map(lines, (line, index) =>
-        O.flatMap(O.fromNullishOr(header.exec(line)), (match) =>
-          O.map(O.fromUndefinedOr(match[1]), (name) => Tuple.make(index, name))
-        )
+  (content: string, name: string, variable: string): O.Option<string>;
+  (name: string, variable: string): (content: string) => O.Option<string>;
+} = dual(3, (content: string, name: string, variable: string): O.Option<string> => {
+  if (!/^[A-Za-z_][A-Za-z0-9_-]*$/.test(name)) return O.none();
+  const header = /^[ \t]*(?:function[ \t]+)?([A-Za-z_][A-Za-z0-9_-]*)[ \t]*(?:\([ \t]*\))?[ \t]*\{[ \t]*$/;
+  const close = /^[ \t]*}[ \t]*$/;
+  const lines = Str.split(content, "\n");
+  const headers = A.getSomes(
+    A.map(lines, (line, index) =>
+      O.flatMap(O.fromNullishOr(header.exec(line)), (match) =>
+        O.map(O.fromUndefinedOr(match[1]), (name) => Tuple.make(index, name))
       )
-    );
-    const ends = A.getSomes(A.map(lines, (line, index) => (close.test(line) ? O.some(index) : O.none())));
-    const aligned =
-      A.length(headers) === A.length(ends) &&
-      A.every(headers, ([start], index) => {
-        const end = O.getOrElse(A.get(ends, index), () => -1);
-        const next = O.getOrElse(
-          O.map(A.get(headers, index + 1), ([start]) => start),
-          () => A.length(lines)
-        );
-        return start < end && end < next;
-      });
-    const bounded = A.every(
-      lines,
-      (line) =>
-        !unboundedShellScopeLine(line) ||
-        header.test(line) ||
-        close.test(line) ||
-        (variable !== undefined &&
-          !Str.includes(variable)(Str.replace(/[\\'"]/g, "")(line)) &&
-          !Str.includes(name)(line))
-    );
-    if (!aligned || !bounded || A.length(A.filter(headers, ([, candidate]) => candidate === name)) > 1) return O.none();
-    return O.match(
-      A.findFirstIndex(headers, ([, candidate]) => candidate === name),
-      {
-        onNone: () => O.some(""),
-        onSome: (index) =>
-          O.flatMap(A.get(headers, index), ([start]) =>
-            O.map(A.get(ends, index), (end) => A.join(A.slice(lines, { start: start + 1, end }), "\n"))
-          ),
-      }
-    );
-  }
-);
+    )
+  );
+  const ends = A.getSomes(A.map(lines, (line, index) => (close.test(line) ? O.some(index) : O.none())));
+  const aligned =
+    A.length(headers) === A.length(ends) &&
+    A.every(headers, ([start], index) => {
+      const end = O.getOrElse(A.get(ends, index), () => -1);
+      const next = O.getOrElse(
+        O.map(A.get(headers, index + 1), ([start]) => start),
+        () => A.length(lines)
+      );
+      return start < end && end < next;
+    });
+  const bounded = A.every(
+    lines,
+    (line) =>
+      !unboundedShellScopeLine(line) ||
+      header.test(line) ||
+      close.test(line) ||
+      (!Str.includes(variable)(Str.replace(/[\\'"]/g, "")(line)) && !Str.includes(name)(line))
+  );
+  if (!aligned || !bounded || A.length(A.filter(headers, ([, candidate]) => candidate === name)) > 1) return O.none();
+  return O.match(
+    A.findFirstIndex(headers, ([, candidate]) => candidate === name),
+    {
+      onNone: () => O.some(""),
+      onSome: (index) =>
+        O.flatMap(A.get(headers, index), ([start]) =>
+          O.map(A.get(ends, index), (end) => A.join(A.slice(lines, { start: start + 1, end }), "\n"))
+        ),
+    }
+  );
+});
 
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({
