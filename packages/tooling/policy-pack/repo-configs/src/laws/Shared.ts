@@ -1,5 +1,5 @@
 /**
- * Shared ESLint helper schemas and path utilities.
+ * Shared governance helper schemas and path utilities.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -15,7 +15,7 @@ import { normalizePath as normalizeSchemaPath, PosixPath as PosixPathSchema } fr
  * ```ts
  * import { strictEqual } from "node:assert"
  * import * as S from "effect/Schema"
- * import { PosixPath } from "@beep/repo-configs/eslint/Shared"
+ * import { PosixPath } from "@beep/repo-configs/laws/Shared"
  *
  * const decoded = S.decodeUnknownSync(PosixPath)("packages/tooling/policy-pack/repo-configs")
  *
@@ -33,7 +33,7 @@ export const PosixPath = PosixPathSchema;
  * **Example** (Alias PosixPath type)
  *
  * ```ts
- * import type { PosixPath } from "@beep/repo-configs/eslint/Shared"
+ * import type { PosixPath } from "@beep/repo-configs/laws/Shared"
  * type ExamplePath = PosixPath
  * ```
  *
@@ -48,7 +48,7 @@ export type PosixPath = typeof PosixPath.Type;
  * **Example** (Normalize path separators)
  *
  * ```ts
- * import { normalizePath } from "@beep/repo-configs/eslint/Shared"
+ * import { normalizePath } from "@beep/repo-configs/laws/Shared"
  * const path = normalizePath("packages/tooling/policy-pack/repo-configs/src/index.ts")
  * console.log(path)
  * ```

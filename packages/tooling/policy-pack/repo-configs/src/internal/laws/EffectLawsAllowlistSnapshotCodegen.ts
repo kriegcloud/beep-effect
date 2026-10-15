@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as SchemaGetter from "effect/SchemaGetter";
-import { normalizePath } from "../../eslint/Shared.ts";
+import { normalizePath } from "../../laws/Shared.ts";
 import {
   ALLOWLIST_PATH,
   decodeAllowlistDocumentFromJsoncText,

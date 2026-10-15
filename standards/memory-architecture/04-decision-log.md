@@ -515,3 +515,10 @@ new graft version before upgrading.
 The docs lint lane now uses repo-owned oxlint JS plugins. Earlier references to ESLint as
 a graft-wiring linter describe their recorded state. ESLint remains for deprecated-API
 checks until that lane merges; its eventual removal is a separate follow-up.
+
+### 2026-10-15 — TS7 exit B2: ESLint removal
+
+Both documentation and deprecated-API lanes now use oxlint (PRs #1791 and #1753).
+The ESLint config, parser and plugins are removed by `goals/eslint-removal`;
+governance helpers moved to `@beep/repo-configs/laws/*` and `internal/laws/*`.
+Earlier entries retain their historical tool names.

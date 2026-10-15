@@ -46,6 +46,7 @@
     "./MailTagging": "./src/MailTagging/index.ts",
     "./internal/*": null,
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
+    "./UsptoClaims": "./src/UsptoClaims/index.ts",
     "./package.json": "./package.json"
   },
   "files": [

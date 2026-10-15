@@ -2109,3 +2109,9 @@ TS377032 `strictEffectProvide`. The file matches main; blame binds the call
 to #1766 (`55b1836e40`). Route this to its owner instead of inserting a
 suppression or copying a fix into H4. Main-owned test entry points need the
 same dedicated test typecheck before their publication.
+
+### 2026-10-15 — TS7 exit B2 ESLint removal
+
+Lane B2 (`chore/ts7-remove-eslint`, `goals/eslint-removal`) removes the remaining
+ESLint installation after oxlint lanes #1753 and #1791. The orchestrator will link
+the removal PR at publication; law helpers retain their behavior under `laws/`.

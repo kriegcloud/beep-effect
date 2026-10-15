@@ -563,7 +563,7 @@ const qualityCommandHandle = (output: string, exitCode: number) =>
 const policyCommandKey = (text: string): string =>
   pipe(
     Str.split(text, " "),
-    A.dropWhile((word) => word !== "bunx" && word !== "bun" && word !== "./node_modules/.bin/eslint" && word !== "git"),
+    A.dropWhile((word) => word !== "bunx" && word !== "bun" && word !== "git"),
     A.filter((word) => !Str.startsWith("--cache=")(word) && word !== "--force"),
     A.join(" ")
   );

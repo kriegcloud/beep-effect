@@ -219,7 +219,7 @@ describe("thin lint workers", { concurrent: false }, () => {
           yield* run(["policy-fingerprint", "--write"]);
           yield* fs.writeFileString(file, `  ${declaration}  `);
           yield* fs.writeFileString(`${root}/packages/cli/src/index.ts`, "changed source");
-          yield* fs.writeFileString(`${root}/eslint.config.mjs`, "changed config");
+          yield* fs.writeFileString(`${root}/.oxlintrc.docs.json`, "changed config");
           yield* run(["policy-fingerprint", "--check"]);
           yield* fs.writeFileString(
             `${root}/packages/cli/package.json`,
@@ -343,7 +343,6 @@ describe("thin lint workers", { concurrent: false }, () => {
         yield* run(["deprecated-apis", "--base", "refs/heads/caller-base"], { CI: "true" });
         expect(captured).toHaveBeenCalledTimes(1);
         expect(captured.mock.calls[0]?.[0].command).toBe(`${yield* findRepoRoot()}/node_modules/.bin/oxlint`);
-        expect(captured.mock.calls[0]?.[0].env?.BEEP_ESLINT_PROFILE).toBeUndefined();
         expect(captured.mock.calls[0]?.[0].args).not.toContain("--affected");
       })
     );
@@ -531,7 +530,7 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "propagates eslint worker failures",
+      "propagates oxlint worker failures",
       Effect.fnUntraced(function* () {
         execution.mockImplementation(() => Effect.succeed(7));
         captured.mockImplementation(() =>
@@ -544,7 +543,7 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
 });
 
-// These tests spawn the CLI (ts-morph, eslint) for real; under coverage instrumentation on a
+// These tests spawn the CLI (native parser, oxlint) for real; under coverage instrumentation on a
 // two-worker hosted runner the laws worker took 40 s on main and 60 s on PR #1079, so an explicit
 // 60 s cap raced the runner instead of catching hangs. The budget equals the package config's
 // coverage and deep-sweep `testTimeout` (300 s) so no per-test cap sits below the lane's own;
@@ -604,7 +603,7 @@ describe("executed lint workers", { concurrent: false }, () => {
         Effect.fnUntraced(function* () {
           const root = yield* findRepoRoot();
           const fs = yield* FileSystem.FileSystem;
-          // Preserve real ESLint profiles and their import.meta-relative root while keeping
+          // Preserve real oxlint profiles and their import.meta-relative root while keeping
           // generated source outside the production CLI project inspected by concurrent proofs.
           const fixtureRoot = yield* fs.makeTempDirectoryScoped({ prefix: "lint-worker-fixture-" });
           const fixture = `${fixtureRoot}/packages/tooling/tool/fixture`;
@@ -624,17 +623,6 @@ describe("executed lint workers", { concurrent: false }, () => {
             '{"files":[],"references":[{"path":"./packages/tooling/tool/fixture"}]}'
           );
           yield* installDocsFixture(root, fixtureRoot, worker);
-          const config = yield* fs.readFileString(`${root}/eslint.config.mjs`);
-          yield* fs.writeFileString(
-            `${fixtureRoot}/eslint.config.mjs`,
-            pipe(
-              config,
-              Str.replace(
-                '"@beep/repo-configs/eslint/DocsESLintConfig"',
-                `"./${configPackage}/src/eslint/DocsESLintConfig.ts"`
-              )
-            )
-          );
           const nativeProfile = yield* fs.readFileString(`${root}/.oxlintrc.deprecated-apis.jsonc`);
           yield* fs.writeFileString(`${fixtureRoot}/.oxlintrc.deprecated-apis.jsonc`, nativeProfile);
           yield* fs.writeFileString(`${fixture}/package.json`, '{"name":"@beep/lint-worker-fixture","type":"module"}');

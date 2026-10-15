@@ -840,7 +840,6 @@ const fingerprintPath = "standards/policy-tools.fingerprint.json";
 const rootConfigs = [
   "standards/effect-diagnostics.profile.json",
   "standards/lint-policy.sweeps.jsonc",
-  "eslint.config.mjs",
   "tsdoc.json",
   ".oxlintrc.json",
   ".oxlintrc.docs.json",

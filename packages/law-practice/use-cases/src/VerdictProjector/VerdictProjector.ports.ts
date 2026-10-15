@@ -35,10 +35,9 @@ export type ClaimFindingReviewItem = (typeof ReviewItem.cases)["claim-finding"][
  * `resolvedBy` always give equal results.
  *
  * An item's latest verdict is its row with the greatest `recordedAt` across
- * every batch, ties broken by the greater `revision`; remaining ties go to
- * the row appended last, since rows are read in append order. A latest
- * verdict of
- * `right` or `wrong` is final. The mapping:
+ * every batch; a tie goes to the row appended last, since rows are read in
+ * append order. Revisions never break ties. A latest verdict of `right` or
+ * `wrong` is final. The mapping:
  *
  * - `right` projects to `active` with `ATTORNEY_CONFIRMED_REASON`;
  * - `wrong` projects to `rejected` with the row's note as the reason, or

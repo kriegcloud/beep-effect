@@ -1,5 +1,5 @@
 {
-  "previous": "5f81c3c9ff856a73cbae80d115452522def0ccfd61041fbda052b07f63f1e860",
+  "previous": "7d3da4c3a7a05a18910711de115ba512522853dee223805b07787910f665dc96",
   "review": {
     "reviewer": "Codex H2 final review-wave 1b lane",
     "reason": "Review profile consumer inputs and the direct get-tsconfig resolver dependency; preserve task behavior and qualification scope.",
