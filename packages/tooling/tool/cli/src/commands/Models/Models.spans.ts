@@ -401,7 +401,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
             spans,
             Effect.fnUntraced(function* (entry) {
               const next = O.getOrElse(Str.charAt(entry.end)(content), () => "");
-              if (/[&|<>()'"]/.test(next)) return yield* error("Ambiguous shell word: adjacent operator.");
+              if (/[;&|<>()'"]/.test(next)) return yield* error("Ambiguous shell word: adjacent operator.");
               const value = yield* shellWordValue(entry.before);
               // Accept the existing bare parenthesized model spelling only when
               // already equal, then quote it; other operator-like words refuse.

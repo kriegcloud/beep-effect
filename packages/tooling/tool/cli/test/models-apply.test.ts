@@ -392,6 +392,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         "claude --model old> /dev/null\n",
         "claude --model 'old'-suffix\n",
         "claude --model old||true\n",
+        "claude --model old;printf native\n",
         "claude --model 'old\n",
       ]) {
         yield* fs.writeFileString(file, text);
