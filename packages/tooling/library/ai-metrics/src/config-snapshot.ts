@@ -656,17 +656,15 @@ const hasGitMetadata = Effect.fnUntraced(function* (directory: string) {
   const path = yield* Path.Path;
   const metadata = path.join(directory, ".git");
   return yield* fs.stat(metadata).pipe(
-    Effect.as(true),
+    Effect.flatMap((info) => {
+      if (info.type === "Directory") return fs.exists(path.join(metadata, "HEAD"));
+      if (info.type === "File" || info.type === "SymbolicLink")
+        return fs.readFileString(metadata).pipe(Effect.map(Str.startsWith("gitdir:")));
+      return Effect.succeed(false);
+    }),
     Effect.catchIf(
       (cause) => cause.reason._tag === "NotFound",
-      () =>
-        fs.readLink(metadata).pipe(
-          Effect.as(true),
-          Effect.catchIf(
-            (cause) => cause.reason._tag === "NotFound",
-            () => Effect.succeed(false)
-          )
-        )
+      () => Effect.succeed(false)
     ),
     Effect.mapError((cause) => configSnapshotFailure("Cannot inspect Git snapshot metadata.", cause))
   );
@@ -729,17 +727,36 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   // Non-git fixtures retain the bounded filesystem walk. A real checkout uses
   // the index, so ignored hook-state/log noise cannot split identical heads.
-  const gitCode = yield* spawner
-    .exitCode(
-      ChildProcess.make("git", ["rev-parse", "--git-dir"], {
-        cwd: repoRoot,
-        stdout: "ignore",
-        stderr: "ignore",
-      })
-    )
-    .pipe(Effect.orElseSucceed(() => 1));
+  const [gitCode, gitStderr] = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* spawner.spawn(
+        ChildProcess.make("git", ["rev-parse", "--git-dir"], {
+          cwd: repoRoot,
+          stdout: "ignore",
+          stderr: "pipe",
+        })
+      );
+      return yield* Effect.all(
+        [
+          handle.exitCode,
+          // Drain stderr while retaining only its first 2 Ki characters.
+          handle.stderr.pipe(
+            Stream.decodeText,
+            Stream.runFold(
+              () => "",
+              (text, chunk) => Str.slice(0, 2048)(text + chunk)
+            )
+          ),
+        ],
+        { concurrency: "unbounded" }
+      );
+    })
+  ).pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot probe Git snapshot metadata.", cause)));
   if (gitCode !== 0 && (yield* hasAncestorGitMetadata(repoRoot)))
-    return yield* configSnapshotFailure("Git metadata exists but cannot be resolved.", gitCode);
+    return yield* configSnapshotFailure("Git metadata exists but cannot be resolved.", {
+      exitCode: gitCode,
+      stderr: gitStderr,
+    });
   if (gitCode === 0) yield* assertIndexedGitBoundary(repoRoot);
   const tracked = yield* gitCode === 0
     ? Effect.scoped(readTrackedSnapshotPaths(repoRoot))

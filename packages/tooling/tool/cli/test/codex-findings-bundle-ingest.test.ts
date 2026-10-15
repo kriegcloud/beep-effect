@@ -149,13 +149,14 @@ const pinnedRuntime = Effect.fn("BundleIngestTest.pinnedRuntime")(function* (
 });
 
 /** A repository-shaped working directory the packet can be written into. */
-const withRepository = <A, E, R>(use: Effect.Effect<A, E, R>) =>
-  withTempWorkingDirectory(
+const withRepository = <A, E, R>(use: (root: string) => Effect.Effect<A, E, R>) =>
+  withTempWorkingDirectory((root) =>
     Effect.gen(function* () {
+      const path = yield* Path.Path;
       const fs = yield* FileSystem.FileSystem;
-      yield* fs.makeDirectory(".git", { recursive: true });
-      yield* fs.makeDirectory("goals", { recursive: true });
-      return yield* use;
+      yield* fs.makeDirectory(path.join(root, ".git"), { recursive: true });
+      yield* fs.makeDirectory(path.join(root, "goals"), { recursive: true });
+      return yield* use(root);
     })
   );
 
@@ -182,16 +183,17 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
       const provider = yield* pinnedRuntime(0);
       const bundle = yield* sealedBundle();
 
-      yield* withRepository(
+      yield* withRepository((root) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
           yield* runFindingsCommand(["ingest", "--source", "security-bundle", "--from", bundle]).pipe(
             Effect.provideService(ConfigProvider.ConfigProvider, provider)
           );
 
-          const evidence = yield* fs.readFileString(`goals/${SLUG}/raw/security-bundle.json`);
+          const evidence = yield* fs.readFileString(path.join(root, `goals/${SLUG}/raw/security-bundle.json`));
           expect(evidence).toContain(TOKEN);
-          const goal = yield* fs.readFileString(`goals/${SLUG}/GOAL.md`);
+          const goal = yield* fs.readFileString(path.join(root, `goals/${SLUG}/GOAL.md`));
           expect(goal).not.toContain(TOKEN);
           expect(goal).toContain("Do not close cloud dashboard IDs");
 
@@ -209,9 +211,10 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
       const provider = yield* pinnedRuntime(0);
       const bundle = yield* sealedBundle();
 
-      yield* withRepository(
+      yield* withRepository((root) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
           yield* runCodexFindingsIngest(
             ingestOptions(bundle, {
               slug: O.some("codex-security-findings-local-override"),
@@ -222,7 +225,7 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
             })
           ).pipe(Effect.provideService(ConfigProvider.ConfigProvider, provider));
 
-          expect(yield* fs.exists("goals/codex-security-findings-local-override")).toBe(false);
+          expect(yield* fs.exists(path.join(root, "goals/codex-security-findings-local-override"))).toBe(false);
 
           // The same plan again, rendered for a human: machine JSON goes to
           // stdout rather than the console service, so the lines are asserted
@@ -240,7 +243,7 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
           expect(
             A.some(lines, Str.includes("• dry run  goals/codex-security-findings-local-override not written"))
           ).toBe(true);
-          expect(yield* fs.exists("goals/codex-security-findings-local-override")).toBe(false);
+          expect(yield* fs.exists(path.join(root, "goals/codex-security-findings-local-override"))).toBe(false);
         })
       );
     })
@@ -251,7 +254,7 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
     Effect.fnUntraced(function* () {
       const bundle = yield* sealedBundle();
 
-      yield* withRepository(
+      yield* withRepository(() =>
         Effect.gen(function* () {
           for (const overrides of [{ refresh: true }, { force: true }, { date: O.some("2026-09-16") }]) {
             const error = yield* Effect.flip(runCodexFindingsIngest(ingestOptions(bundle, overrides)));
@@ -268,16 +271,17 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
       const provider = yield* pinnedRuntime(1);
       const bundle = yield* sealedBundle();
 
-      yield* withRepository(
+      yield* withRepository((root) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
           const error = yield* Effect.flip(
             runCodexFindingsIngest(ingestOptions(bundle)).pipe(
               Effect.provideService(ConfigProvider.ConfigProvider, provider)
             )
           );
           expect(error.message).toContain("rejected the sealed bundle contract");
-          expect(yield* fs.exists(`goals/${SLUG}`)).toBe(false);
+          expect(yield* fs.exists(path.join(root, `goals/${SLUG}`))).toBe(false);
         })
       );
     })
@@ -296,7 +300,7 @@ it.layer(testLayer, { timeout: "60 seconds" })("codex findings sealed bundle ing
 
 const runScanCommand = Command.runWith(securityCommand, { version: "0.0.0" });
 
-const initializeScanRepository = Effect.fn("SecurityScanTest.initializeRepository")(function* () {
+const initializeScanRepository = Effect.fn("SecurityScanTest.initializeRepository")(function* (root: string) {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   for (const args of [
     ["init", "--quiet"],
@@ -315,7 +319,7 @@ const initializeScanRepository = Effect.fn("SecurityScanTest.initializeRepositor
       "fixture",
     ],
   ]) {
-    expect(yield* spawner.exitCode(ChildProcess.make("git", args))).toBe(0);
+    expect(yield* spawner.exitCode(ChildProcess.make("git", args, { cwd: root }))).toBe(0);
   }
 });
 
@@ -344,9 +348,9 @@ writeFileSync(output + "/arguments.txt", args.join("\\n"));
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const output = path.join(yield* fs.makeTempDirectoryScoped(), "scan");
-      yield* withRepository(
+      yield* withRepository((root) =>
         Effect.gen(function* () {
-          yield* initializeScanRepository();
+          yield* initializeScanRepository(root);
           yield* runScanCommand(["scan", "--output-dir", output, "--max-cost", "5"]).pipe(
             Effect.provideService(ConfigProvider.ConfigProvider, provider)
           );
@@ -381,11 +385,11 @@ process.exit(args.includes("--dry-run") && args.includes("--path") ? 0 : 17);
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const output = path.join(yield* fs.makeTempDirectoryScoped(), "scan");
-      yield* withRepository(
+      yield* withRepository((root) =>
         Effect.gen(function* () {
-          yield* initializeScanRepository();
-          yield* fs.makeDirectory("src");
-          yield* fs.writeFileString("src/dirty.txt", "fixture");
+          yield* initializeScanRepository(root);
+          yield* fs.makeDirectory(path.join(root, "src"));
+          yield* fs.writeFileString(path.join(root, "src/dirty.txt"), "fixture");
           const args = ["--output-dir", output, "--max-cost", "5", "--path", "src"];
           yield* runScanCommand(["preflight", ...args]).pipe(
             Effect.provideService(ConfigProvider.ConfigProvider, provider)
@@ -410,9 +414,9 @@ process.exit(args.includes("--dry-run") && args.includes("--path") ? 0 : 17);
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const output = path.join(yield* fs.makeTempDirectoryScoped(), "scan");
-      yield* withRepository(
+      yield* withRepository((root) =>
         Effect.gen(function* () {
-          yield* initializeScanRepository();
+          yield* initializeScanRepository(root);
           const failed = yield* runScanCommand(["scan", "--output-dir", output, "--max-cost", "5"]).pipe(
             Effect.provideService(ConfigProvider.ConfigProvider, provider),
             Effect.result
@@ -423,12 +427,12 @@ process.exit(args.includes("--dry-run") && args.includes("--path") ? 0 : 17);
           const inside = yield* runScanCommand([
             "preflight",
             "--output-dir",
-            path.join(process.cwd(), "scan"),
+            path.join(root, "scan"),
             "--max-cost",
             "5",
           ]).pipe(Effect.provideService(ConfigProvider.ConfigProvider, provider), Effect.result);
           expect(inside._tag).toBe("Failure");
-          expect(yield* fs.exists("scan")).toBe(false);
+          expect(yield* fs.exists(path.join(root, "scan"))).toBe(false);
         })
       );
     })
