@@ -198,7 +198,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("keeps equal env, YAML plain, and TOML literal scalar spellings without a write", () =>
+  it.effect("keeps equal env, YAML plain, TOML literal, and shell quoted scalars without a write", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -207,6 +207,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         ["env", "MODEL=gpt-6.1-sol\n", { _tag: "env-key", binding, render, key: "MODEL" }],
         ["yaml", "model: gpt-6.1-sol\n", { _tag: "yaml-path", binding, render, path: ["model"] }],
         ["toml", "model = 'gpt-6.1-sol'\n", { _tag: "toml-top-level-key", binding, render, key: "model" }],
+        ["sh", 'MODEL="gpt-6.1-sol"\n', { _tag: "shell-assign", binding, render, variable: "MODEL", within: O.none() }],
       ];
       const writer = yield* writerWithFs(fs);
       for (const [extension, text, locator] of cases) {

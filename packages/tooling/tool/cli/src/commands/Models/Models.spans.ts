@@ -323,7 +323,14 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
           );
           return A.isReadonlyArrayEmpty(spans)
             ? Effect.fail(error("Shell locator has no matches."))
-            : Effect.succeed(spans);
+            : Effect.succeed(
+                A.map(spans, (entry) => {
+                  const token = entry.before;
+                  const value =
+                    Str.startsWith('"')(token) || Str.startsWith("'")(token) ? Str.slice(1, -1)(token) : token;
+                  return value === expected ? ModelsWriteSpan.make({ ...entry, after: entry.before }) : entry;
+                })
+              );
         })
       );
     }),
