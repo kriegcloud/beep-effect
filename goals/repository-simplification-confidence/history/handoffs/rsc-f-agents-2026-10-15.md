@@ -1,5 +1,5 @@
 lane: rsc-f-agents
-head: 90b8c39b5a3324753554d5cc140bcc99a4198be9 (verified implementation; delivery is the commit containing this handoff)   PR: #1797
+head: ae710ed5483e38faf6189fd9dc19ea92d6cb03f1 (integrated source; exact delivery SHA follows publication)   PR: #1797
 package-verify: @beep/repo-cli: pass (audit 1443.1s, docgen 49.3s; private temp binding)
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass | pass | pass | pass | pass (zero findings) | pass (155 tests, four existing file floors exceeded); retired-effect-paths pass
 models check: 0 findings; native Codex probe pass (exit 0, OK); legacy sandbox_mode return check pass
@@ -16,7 +16,7 @@ The shared JSON decoder closes both F-owned no-inline-schema-compile findings.
 F-S31-EV010 tracks policy improvement instead of two new exception rows. Every
 standards inventory/baseline/allowlist file is identical to origin/main.
 
-Current main includes #1820 at 5861a2b012. Dependencies are installed at Effect
+Current main includes #1820 and #1824 at 4052da587f. The later merge only removes a private changeset; implementation source is unchanged. Dependencies are installed at Effect
 4.0.4. The post-#1758 codemod/check reports 19 already-branded declarations,
 zero new sites and zero changes. Fixup reports zero diagnostics or repairs.
 The 46-task package check and test-tsgo pass. The schema catalog owner writes

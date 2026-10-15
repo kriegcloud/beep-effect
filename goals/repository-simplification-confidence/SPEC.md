@@ -1647,3 +1647,10 @@ forbids a readiness monitor, while Yeet publish starts one. All requested local
 gates precede publication; answer review comments through the REST reply route.
 The driver retains panel, merge and retirement ownership. Reversal: revert the
 F PR; never rewrite the published branch.
+
+
+Final F integration includes #1824, main's private-changeset removal, after
+#1820. Reason: S4 requires current main before publication. It changes no
+implementation source. Reinstall and regenerate owner artifacts, then run the
+delivery-head gates without a readiness monitor. Reversal: revert the F PR;
+retain main's private-package release policy.

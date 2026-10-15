@@ -795,3 +795,9 @@ home write. The final fingerprint has 355 equality inputs and one observed-only
 Desktop input. Its immediate equality check passes. The driver owns the pending
 independent panel. Earlier protected-field blocker paragraphs above are dated
 checkpoints, not the latest acceptance state.
+
+
+The final fetch integrates #1824 (`4052da587f`), which removes only the private
+H3 changeset. No implementation source changes. Install and owner catalog
+regeneration are repeated. Delivery-head package/parity verification follows
+this integration; the earlier full pass remains separately source-bound.
