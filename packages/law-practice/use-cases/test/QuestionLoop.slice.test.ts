@@ -38,6 +38,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { TestClock } from "effect/testing";
 import type { QuestionReviewItem } from "@beep/law-practice-use-cases/QuestionQueue";
 import type { ProposedWrite } from "@beep/law-practice-use-cases/QuestionWrites";
@@ -52,6 +53,7 @@ class CalendarEvents extends Context.Service<CalendarEvents, Ref.Ref<HashMap.Has
 const T_ASKED = 1_760_400_000_000;
 const MINUTE = 60_000;
 const REFUSED_TITLE = "Calendar refuses this write";
+const UNDO_REFUSED_TITLE = "Calendar refuses to undo this write";
 
 const date = (year: number, month: number, day: number) => LocalDate.make({ year, month, day });
 const provisional = (fields: { readonly date: LocalDate; readonly title: string }) =>
@@ -64,7 +66,8 @@ const seededPrior = provisional({ date: date(2026, 10, 2), title: "Response due"
 const notFound = (itemId: O.Option<string>) => QuestionWriteError.make({ reason: "event-not-found", itemId });
 
 // Upserts and restores against a map of events: a named event is updated, a
-// keyed write creates its event once and updates it after that.
+// keyed write creates its event once and updates it after that, returning its
+// state before as the prior, as the calendar adapter does.
 const TestCalendar = Layer.effect(
   QuestionCalendar,
   Effect.map(CalendarEvents, (events) =>
@@ -81,17 +84,18 @@ const TestCalendar = Layer.effect(
           yield* Ref.set(events, HashMap.set(state, eventId, { ...current, fields }));
           return { eventId, prior: O.some(current.fields) };
         }
+        const existing = A.findFirst(HashMap.toEntries(state), ([, event]) => O.contains(event.key, key));
         const eventId = O.getOrElse(
-          O.map(
-            A.findFirst(HashMap.toEntries(state), ([, event]) => O.contains(event.key, key)),
-            ([existing]) => existing
-          ),
+          O.map(existing, ([existingId]) => existingId),
           () => `evt-${HashMap.size(state) + 1}`
         );
         yield* Ref.set(events, HashMap.set(state, eventId, { fields, key: O.some(key) }));
-        return { eventId, prior: O.none<CalendarPrior>() };
+        return { eventId, prior: O.map(existing, ([, event]) => event.fields) };
       }),
       restore: Effect.fn("TestCalendar.restore")(function* (applied) {
+        if (applied.proposal.write.title === UNDO_REFUSED_TITLE) {
+          return yield* QuestionWriteError.make({ reason: "restore-failed", itemId: O.some(applied.proposal.itemId) });
+        }
         const state = yield* Ref.get(events);
         const current = yield* Effect.fromOption(HashMap.get(state, applied.eventId), () =>
           notFound(O.some(applied.proposal.itemId))
@@ -163,6 +167,18 @@ const approval = Effect.map(DateTime.now, (approvedAt) =>
 );
 
 const eventsNow = Effect.flatMap(CalendarEvents, Ref.get);
+
+// A batch whose writes before the last apply, and whose last write the calendar refuses.
+const failingBatch = (batchId: string, ...applied: ReadonlyArray<readonly [string, string]>) =>
+  S.decodeUnknownEffect(ProposedWriteBatch)({
+    batchId,
+    proposals: A.map(A.append(applied, ["question:fail:last", REFUSED_TITLE]), ([itemId, title]) => ({
+      itemId,
+      optionId: "add-reminder",
+      write: { kind: "calendar-date", title, dueOn: "2026-10-20" },
+      answeredAt: T_ASKED,
+    })),
+  });
 
 const batchOf = (batchId: string, proposals: ReadonlyArray<ProposedWrite>) =>
   Effect.map(Effect.fromOption(O.liftPredicate(proposals, A.isReadonlyArrayNonEmpty)), (nonEmpty) =>
@@ -293,7 +309,7 @@ describe("@beep/law-practice-use-cases question loop slice", () => {
 
   it.layer(TestLayer, { timeout: "10 seconds" })("idempotent apply", (it) => {
     it.effect(
-      "applying the same keyed write twice leaves one event, and undo removes it",
+      "applying the same keyed write twice leaves one event; undoing each apply steps back once",
       Effect.fnUntraced(function* () {
         const queue = yield* QuestionQueue;
         const writes = yield* QuestionWrites;
@@ -309,13 +325,19 @@ describe("@beep/law-practice-use-cases question loop slice", () => {
         expect(A.map(second.applied, ({ eventId }) => eventId)).toStrictEqual(created);
         const events = yield* eventsNow;
         expect(HashMap.size(events)).toBe(2);
-        assertNone(O.flatMap(A.head(second.applied), ({ prior }) => prior));
+        assertNone(O.flatMap(A.head(first.applied), ({ prior }) => prior));
+        assertSome(
+          O.flatMap(A.head(second.applied), ({ prior }) => prior),
+          provisional({ date: date(2026, 10, 20), title: "Check with the client" })
+        );
         assertSome(
           O.flatMap(A.head(created), (eventId) => O.flatMap(HashMap.get(events, eventId), ({ key }) => key)),
           questionWriteKey({ itemId: item.itemId, optionId: "add-reminder" })
         );
 
         yield* writes.undo(second);
+        expect(yield* eventsNow).toStrictEqual(events);
+        yield* writes.undo(first);
         expect(HashMap.size(yield* eventsNow)).toBe(1);
       })
     );
@@ -323,25 +345,48 @@ describe("@beep/law-practice-use-cases question loop slice", () => {
 
   it.layer(TestLayer, { timeout: "10 seconds" })("failed apply", (it) => {
     it.effect(
-      "restores the writes already applied when a later write fails",
+      "restores the writes already applied when a later write fails, and fails with that write's error",
       Effect.fnUntraced(function* () {
         const writes = yield* QuestionWrites;
         const before = yield* eventsNow;
-        const proposal = (itemId: string, title: string) => ({
-          itemId,
-          optionId: "add-reminder",
-          write: { kind: "calendar-date", title, dueOn: "2026-10-20" },
-          answeredAt: T_ASKED,
-        });
-        const batch = yield* S.decodeUnknownEffect(ProposedWriteBatch)({
-          batchId: "writes-failing",
-          proposals: [proposal("question:fail:1", "Check with the client"), proposal("question:fail:2", REFUSED_TITLE)],
-        });
+        const batch = yield* failingBatch("writes-failing", ["question:fail:1", "Check with the client"]);
 
         const error = yield* Effect.flip(writes.apply({ batch, approval: yield* approval }));
 
-        expect(error.reason).toBe("calendar-unavailable");
+        expect([error.reason, error.pendingItemIds]).toStrictEqual(["calendar-unavailable", []]);
         expect(yield* eventsNow).toStrictEqual(before);
+      })
+    );
+  });
+
+  it.layer(TestLayer, { timeout: "10 seconds" })("failed rollback", (it) => {
+    it.effect(
+      "keeps the write's error as the cause and names the questions still applied when a restore fails",
+      Effect.fnUntraced(function* () {
+        const writes = yield* QuestionWrites;
+        const batch = yield* failingBatch(
+          "writes-failing-rollback",
+          ["question:fail:1", "Check with the client"],
+          ["question:fail:2", UNDO_REFUSED_TITLE]
+        );
+
+        const error = yield* Effect.flip(writes.apply({ batch, approval: yield* approval }));
+        const events = yield* eventsNow;
+
+        expect([error.reason, error.pendingItemIds]).toStrictEqual(["restore-failed", ["question:fail:2"]]);
+        expect(error.message).toBe(
+          "A failed apply could not take back every write; these questions may still be applied: question:fail:2."
+        );
+        assertSome(
+          O.map(error.cause, (cause) => S.is(QuestionWriteError)(cause) && cause.reason),
+          "calendar-unavailable"
+        );
+        expect(
+          A.sort(
+            A.map(HashMap.toValues(events), ({ fields }) => fields.title),
+            Str.Order
+          )
+        ).toStrictEqual(A.sort([seededPrior.title, UNDO_REFUSED_TITLE], Str.Order));
       })
     );
   });

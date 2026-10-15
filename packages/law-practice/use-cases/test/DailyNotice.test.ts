@@ -15,19 +15,17 @@ import {
 import { LocalDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { NoticeMessage } from "@beep/law-practice-use-cases/DailyNotice";
 
 type MailboxState = {
-  readonly lastSentOn: O.Option<LocalDate>;
+  readonly claimed: ReadonlyArray<string>;
   readonly sent: ReadonlyArray<NoticeMessage>;
   readonly failSend: boolean;
 };
@@ -41,9 +39,13 @@ const TestMailbox = Layer.effect(
   NoticeMailbox,
   Effect.map(MailboxRecord, (state) =>
     NoticeMailbox.of({
-      lastSentOn: Effect.map(Ref.get(state), ({ lastSentOn }) => lastSentOn),
-      recordSentOn: Effect.fn("TestMailbox.recordSentOn")((day: LocalDate) =>
-        Ref.update(state, (current) => ({ ...current, lastSentOn: O.some(day) }))
+      // One atomic step, as the adapters' exclusive create is: only the first claim of a day wins.
+      claimDay: Effect.fn("TestMailbox.claimDay")((day: LocalDate) =>
+        Ref.modify(state, (current): readonly [boolean, MailboxState] =>
+          A.contains(current.claimed, day.toISOString())
+            ? [false, current]
+            : [true, { ...current, claimed: A.append(current.claimed, day.toISOString()) }]
+        )
       ),
       send: Effect.fn("TestMailbox.send")(function* (message: NoticeMessage) {
         const current = yield* Ref.get(state);
@@ -58,9 +60,7 @@ const TestMailbox = Layer.effect(
 
 const TestLayer = DailyNoticeLive.pipe(
   Layer.provide(TestMailbox),
-  Layer.provideMerge(
-    Layer.effect(MailboxRecord, Ref.make<MailboxState>({ lastSentOn: O.none(), sent: [], failSend: false }))
-  )
+  Layer.provideMerge(Layer.effect(MailboxRecord, Ref.make<MailboxState>({ claimed: [], sent: [], failSend: false })))
 );
 
 const day = (dayOfMonth: number) => LocalDate.make({ year: 2026, month: 10, day: dayOfMonth });
@@ -106,6 +106,23 @@ describe("@beep/law-practice-use-cases daily notice", () => {
     );
   });
 
+  it.layer(TestLayer, { timeout: "10 seconds" })("concurrent runs", (it) => {
+    it.effect(
+      "sends exactly once when two runs on the same day race",
+      Effect.fnUntraced(function* () {
+        const outcomes = yield* Effect.all([run(2, day(14)), run(2, day(14))], { concurrency: 2 });
+
+        expect(
+          A.sort(
+            A.map(outcomes, ({ status }) => status),
+            Str.Order
+          )
+        ).toStrictEqual(["already-sent", "sent"]);
+        expect(yield* sentSoFar).toHaveLength(1);
+      })
+    );
+  });
+
   it.layer(TestLayer, { timeout: "10 seconds" })("empty digest", (it) => {
     it.effect(
       "sends and records nothing when no question is waiting",
@@ -115,7 +132,7 @@ describe("@beep/law-practice-use-cases daily notice", () => {
 
         expect(outcome.status).toBe("nothing-waiting");
         expect(state.sent).toStrictEqual([]);
-        assertNone(state.lastSentOn);
+        expect(state.claimed).toStrictEqual([]);
         expect((yield* run(1, day(14))).status).toBe("sent");
       })
     );

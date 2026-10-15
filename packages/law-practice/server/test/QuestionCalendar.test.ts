@@ -148,6 +148,17 @@ const provisionalEvent = (categories: ReadonlyArray<string>): readonly [string, 
   { event: graphEvent("evt-docket-1", "2026-10-02", "Response due", categories), key: O.none() },
 ];
 
+// An event an earlier apply created under the write's key, as the calendar now holds it.
+const KEYED_EVENT = "evt-keyed-1";
+const keyedWrite = write(day(11, 2), "Response due (moved)");
+const keyedEvent = (categories: ReadonlyArray<string>): readonly [string, StoredEvent] => [
+  KEYED_EVENT,
+  {
+    event: graphEvent(KEYED_EVENT, "2026-10-02", "Response due", categories),
+    key: O.some(questionWriteKey(keyedWrite)),
+  },
+];
+
 describe("@beep/law-practice-server QuestionCalendar", () => {
   it.layer(calendarWith([provisionalEvent(["M: 90001", "Docket - unverified"])]), { timeout: "10 seconds" })(
     "a named provisional event",
@@ -197,7 +208,10 @@ describe("@beep/law-practice-server QuestionCalendar", () => {
 
         expect(second.eventId).toBe(first.eventId);
         assertNone(first.prior);
-        assertNone(second.prior);
+        assertSome(
+          second.prior,
+          CalendarPrior.make({ date: day(10, 20), title: "Check with the client", category: "Docket - unverified" })
+        );
         expect(HashMap.size(yield* Ref.get(store))).toBe(1);
         assertSome(
           O.flatMap(yield* stored(store, first.eventId), ({ categories }) => categories),
@@ -209,6 +223,59 @@ describe("@beep/law-practice-server QuestionCalendar", () => {
       })
     );
   });
+
+  it.layer(calendarWith([keyedEvent(["Docket - verified"])]), { timeout: "10 seconds" })(
+    "a keyed event the attorney verified",
+    (it) => {
+      it.effect("refuses to re-apply the write and changes nothing", () =>
+        Effect.gen(function* () {
+          const store = yield* FakeEvents;
+          const before = yield* Ref.get(store);
+
+          const error = yield* Effect.flip(
+            (yield* QuestionCalendar).upsert({ key: questionWriteKey(keyedWrite), write: keyedWrite.write })
+          );
+
+          expect(error.reason).toBe("event-verified");
+          expect(yield* Ref.get(store)).toStrictEqual(before);
+        })
+      );
+    }
+  );
+
+  it.layer(calendarWith([keyedEvent(["M: 90001", "Docket - needs review"])]), { timeout: "10 seconds" })(
+    "a provisional keyed event",
+    (it) => {
+      it.effect("re-applies the write, records the event's prior state, and undo restores it", () =>
+        Effect.gen(function* () {
+          const store = yield* FakeEvents;
+          const calendar = yield* QuestionCalendar;
+
+          const result = yield* calendar.upsert({ key: questionWriteKey(keyedWrite), write: keyedWrite.write });
+          const written = yield* stored(store, KEYED_EVENT);
+          yield* calendar.restore(
+            AppliedWrite.make({ proposal: keyedWrite, eventId: result.eventId, prior: result.prior })
+          );
+
+          expect(result.eventId).toBe(KEYED_EVENT);
+          assertSome(
+            result.prior,
+            CalendarPrior.make({ date: day(10, 2), title: "Response due", category: "Docket - needs review" })
+          );
+          assertSome(written, {
+            date: O.some("2026-11-02"),
+            subject: O.some("Response due (moved)"),
+            categories: O.some(["M: 90001", "Docket - unverified"]),
+          });
+          assertSome(yield* stored(store, KEYED_EVENT), {
+            date: O.some("2026-10-02"),
+            subject: O.some("Response due"),
+            categories: O.some(["M: 90001", "Docket - needs review"]),
+          });
+        })
+      );
+    }
+  );
 
   it.layer(calendarWith([provisionalEvent(["Docket - verified"])]), { timeout: "10 seconds" })(
     "a verified event",
@@ -226,7 +293,7 @@ describe("@beep/law-practice-server QuestionCalendar", () => {
           ]);
 
           expect(A.map(reasons, ({ reason }) => reason)).toStrictEqual([
-            "event-not-found",
+            "event-verified",
             "event-not-found",
             "restore-failed",
             "event-not-found",

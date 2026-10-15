@@ -1,6 +1,6 @@
 /**
- * Daily notice contracts: the mailbox port that sends the notice and keeps
- * the day it last did, and the service that decides whether to send.
+ * Daily notice contracts: the mailbox port that claims a day and sends the
+ * notice, and the service that decides whether to send.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,7 +10,6 @@ import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import type { LocalDate } from "@beep/schema/LocalDate";
 import type * as Effect from "effect/Effect";
-import type * as O from "effect/Option";
 import type { QuestionReviewItem } from "../QuestionQueue/QuestionQueue.schemas.ts";
 import type { NoticeMailboxError } from "./DailyNotice.errors.ts";
 import type { DailyNoticeOutcome, NoticeMessage } from "./DailyNotice.schemas.ts";
@@ -22,8 +21,9 @@ const $I = $LawPracticeUseCasesId.create("DailyNotice/DailyNotice.ports");
  *
  * **Details**
  *
- * The adapter sends from the attorney's own mailbox to itself, and keeps the
- * day of the last notice so a second run on the same day sends nothing.
+ * The adapter sends from the attorney's own mailbox to itself. `claimDay` is
+ * atomic: of any number of runs claiming the same day, at the same time or
+ * not, exactly one gets `true`, so a second run on that day sends nothing.
  *
  * **Example** (Name a mailbox method)
  *
@@ -38,10 +38,8 @@ const $I = $LawPracticeUseCasesId.create("DailyNotice/DailyNotice.ports");
  * @since 0.0.0
  */
 export interface NoticeMailboxShape {
-  /** The day the last notice was recorded as sent; none before the first. */
-  readonly lastSentOn: Effect.Effect<O.Option<LocalDate>, NoticeMailboxError>;
-  /** Record that the notice for this day has been sent. */
-  readonly recordSentOn: (day: LocalDate) => Effect.Effect<void, NoticeMailboxError>;
+  /** Claim the notice for this day: `true` for the one run that claims it, `false` once it is claimed. */
+  readonly claimDay: (day: LocalDate) => Effect.Effect<boolean, NoticeMailboxError>;
   /** Send the notice from the attorney's mailbox to itself. */
   readonly send: (message: NoticeMessage) => Effect.Effect<void, NoticeMailboxError>;
 }
@@ -68,7 +66,7 @@ export class NoticeMailbox extends Context.Service<NoticeMailbox, NoticeMailboxS
  * **Details**
  *
  * One email a day at most, and only when questions are waiting. The run
- * records the day before it sends, so a failure after the record never leads
+ * claims the day before it sends, so a failure after the claim never leads
  * to a second notice that day; such a day is reported as a failure instead.
  *
  * **Example** (Name the notice method)
