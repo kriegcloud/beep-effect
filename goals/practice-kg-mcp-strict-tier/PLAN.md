@@ -10,7 +10,7 @@ Status: `active`
 | --- | --- | --- | --- |
 | P0 Research | complete | Seam pin test; DPAPI feasibility; tool enum. | Facts recorded. |
 | P1 Gate | complete | Serializer gate + egress client + stderr logger. | Golden + canary tests green. |
-| P2 Spool + tier | pending | Encrypted spool; fail-closed tier resolution. | Spool round-trip + tier tests green. |
+| P2 Spool + tier | complete | Encrypted spool; fail-closed tier resolution. | Spool round-trip + tier tests green. |
 | P3 Proof | pending | Mutation tests; privacy receipt; Windows smoke. | All proofs green. |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
 | P5 Close | pending | Reflection; packet flip. | completed-retained. |
@@ -55,6 +55,30 @@ Before marking the packet closed:
   refused (`metric-not-allowed`). Round 2: an exported metric's `description`
   and `unit` come from its catalog `MetricInstrument`, never the input series
   (input passes only with the `metric-names` rule off).
+  refused (`metric-not-allowed`).
+- P2 (2026-10-15): `@beep/observability/strict` gains the encrypted spool
+  (`StrictSpool.{schemas,errors,service,layer}.ts`: AES-256-GCM segments with
+  the header bound as additional data, owner-only files written by temp +
+  rename, byte-bounded eviction, replay that refuses tampered, foreign-epoch
+  and looser-tier segments), `StrictSpoolKey` with HKDF-derived spool key and
+  span-id salt (`layerStrictSaltFromKey`), and the fail-closed resolver
+  (`StrictTier.{schemas,behavior}.ts`, `resolveStrictTier`). Three kernel
+  refusal tags: `spool-evicted`, `spool-write-failed`, `spool-tier-refused`, `spool-segment-invalid`;
+  `StrictEgressSink.record` returns its refusals and `StrictGate.absorb` counts
+  them. `apps/practice-kg-mcp`: `src/runtime/TelemetryKey.ts` (DPAPI port over
+  `bun:ffi` `crypt32` with the PowerShell `ProtectedData` fallback, key file
+  `<telemetry dir>/key.<epoch>.dpapi`, published once by an exclusive hard link so concurrent hosts share one key, telemetry-directory resolution, dev-file port off
+  Windows), `src/runtime/TelemetryCheck.ts` (`--self-check-telemetry`), the
+  production telemetry layer in `Host.ts`, and `src/BundleGraph.ts` (metafile
+  check run by `src/package.ts` and a test). The canary acceptance test in
+  `test/Host.test.ts` now exports through the spool and scans it at rest.
+  Decisions in `SPEC.md`.
+- Operator smoke for acceptance #4 (not run by an agent; recorded in
+  `goals/practice-kg-mcp/research/install-runbook.md`, "Telemetry key smoke"):
+  on `tom-pc-1`, as the attorney's Windows user in the desktop session, from the
+  unpacked extension folder run `practice-kg-mcp.exe --self-check-telemetry`.
+  Pass: exit 0 and `{"ok":true,"keyPath":"dpapi-ffi"|"dpapi-powershell",…}`;
+  record the `keyPath` (a `dpapi-powershell` result records the fallback).
 - Finding: no canary reaches pre-gate telemetry today (handler errors use
   canned messages, SQL spans carry statements without parameters, and mcp-kit
   strips `parameters`); with the content rules turned off the canary test

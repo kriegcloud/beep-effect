@@ -111,6 +111,12 @@ describe("Boundary", () => {
             "src/strict/StrictGate.layer.ts",
             "src/strict/StrictGate.schemas.ts",
             "src/strict/StrictGate.service.ts",
+            "src/strict/StrictSpool.errors.ts",
+            "src/strict/StrictSpool.layer.ts",
+            "src/strict/StrictSpool.schemas.ts",
+            "src/strict/StrictSpool.service.ts",
+            "src/strict/StrictTier.behavior.ts",
+            "src/strict/StrictTier.schemas.ts",
           ],
           readText
         );

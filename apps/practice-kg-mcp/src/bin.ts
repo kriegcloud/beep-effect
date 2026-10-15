@@ -20,7 +20,9 @@ import {
   loadPracticeKgBundleContext,
   makePracticeKgHostLayer,
   printPracticeKgSelfCheck,
+  printPracticeKgTelemetrySelfCheck,
   runPracticeKgSelfCheck,
+  runPracticeKgTelemetrySelfCheck,
 } from "./runtime/index.ts";
 import "../../../node_modules/@electric-sql/pglite/dist/initdb.wasm" with { type: "file" };
 import "../../../node_modules/@electric-sql/pglite/dist/pglite.data" with { type: "file" };
@@ -31,6 +33,13 @@ const corpusRoot = Flag.Directory("corpus-root", { mustExist: true }).pipe(Flag.
 
 const selfCheck = Flag.Boolean("self-check").pipe(
   Flag.withDescription("Open the bundle, print one JSON line describing it, and exit without serving MCP."),
+  Flag.withDefault(false)
+);
+
+const selfCheckTelemetry = Flag.Boolean("self-check-telemetry").pipe(
+  Flag.withDescription(
+    "Round-trip a test secret through the telemetry key path, print one JSON line (ok, key path, telemetry directory), and exit."
+  ),
   Flag.withDefault(false)
 );
 
@@ -83,8 +92,11 @@ const check = (flags: BundleFlags) =>
 
 const serverCommand = Command.make(
   "practice-kg-mcp",
-  { bundleDir, corpusRoot, selfCheck },
+  { bundleDir, corpusRoot, selfCheck, selfCheckTelemetry },
   Effect.fnUntraced(function* (flags) {
+    if (flags.selfCheckTelemetry) {
+      return yield* printPracticeKgTelemetrySelfCheck(runPracticeKgTelemetrySelfCheck());
+    }
     return yield* Bool.match(flags.selfCheck, { onFalse: () => serve(flags), onTrue: () => check(flags) });
   })
 );

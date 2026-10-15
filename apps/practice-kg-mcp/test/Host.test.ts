@@ -10,7 +10,14 @@ import {
   PracticeKgToolkit,
 } from "@beep/law-practice-server";
 import { connectStdio, withStdioServer } from "@beep/mcp-kit/test/Conformance";
-import { layerInMemoryEgressSink, StrictEgressSink } from "@beep/observability/strict";
+import {
+  layerDevMemoryStrictSpoolKey,
+  layerStrictSpool,
+  layerStrictSpoolSink,
+  StrictEgressSink,
+  StrictSpool,
+  StrictSpoolOptions,
+} from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
@@ -24,6 +31,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { Base64 } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
+import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -53,6 +61,7 @@ import { PracticeKgToolId } from "../src/telemetry/PracticeKgTelemetry.instrumen
 import { PRACTICE_KG_EXTENSION_VERSION } from "../src/Version.ts";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+const textDecoder = new TextDecoder();
 const encodeManifest = S.encodeUnknownEffect(S.fromJsonString(PracticeKgBundleManifest));
 const decodeReportLine = S.decodeUnknownEffect(S.fromJsonString(PracticeKgSelfCheckReport));
 const decodeFailureLine = S.decodeUnknownEffect(S.fromJsonString(PracticeKgSelfCheckRefusal));
@@ -627,75 +636,101 @@ const runStrictHost = Effect.fnUntraced(function* (bundleDir: string, calls: Rea
   );
 });
 
-describe("practice KG strict tier canary", () => {
-  it.layer(Layer.mergeAll(Layer.fresh(TestServices), layerInMemoryEgressSink(1_024)), { timeout: "3 minutes" })(
-    (it) => {
-      it.effect(
-        "exports and prints no canary from any tool, in any encoding, on success or failure",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const root = yield* fs.makeTempDirectoryScoped({ prefix: `beep-strict-${canaries.root}-` });
-          const healthyRoot = path.join(root, "healthy");
-          const brokenRoot = path.join(root, "broken");
-          yield* fs.makeDirectory(healthyRoot);
-          yield* fs.makeDirectory(brokenRoot);
-          const healthyBundle = yield* makePracticeKgSmokeBundle(healthyRoot);
-          const brokenBundle = yield* makePracticeKgSmokeBundle(brokenRoot);
-          // The corpus catalog is a valid DuckDB file without the bundle's tables.
-          yield* fs.remove(path.join(brokenBundle, "practice.duckdb"));
-          yield* fs.copyFile(
-            path.join(brokenRoot, "corpus", "catalog", "corpus.duckdb"),
-            path.join(brokenBundle, "practice.duckdb")
-          );
-
-          const { results, stderr } = yield* Effect.all({
-            results: Effect.all([
-              runStrictHost(healthyBundle, healthyCalls),
-              runStrictHost(brokenBundle, brokenStoreCalls),
-            ]),
-            stderr: TestConsole.errorLines,
-          }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make));
-          const records = yield* (yield* StrictEgressSink).records;
-
-          const forms = yield* canaryForms;
-          const exported = A.join(
-            A.map(records, (record) => record.body),
-            "\n"
-          );
-          const printed = A.join(A.filter(stderr, P.isString), "\n");
-
-          // Not vacuous: canaries reached the tools, which echo some of them back
-          // to the client, and every tool exported spans.
-          expect(countCanaries(A.join(A.flatten(results), "\n"), forms)).toBeGreaterThan(0);
-          const spans = yield* Effect.forEach(
-            A.filter(records, (record) => record.signal === "traces"),
-            (record) => decodeExportedSpans(record.body)
-          ).pipe(
-            Effect.map(
-              A.flatMap((body) =>
-                A.flatMap(body.resourceSpans, (resource) => A.flatMap(resource.scopeSpans, (scope) => scope.spans))
-              )
-            )
-          );
-          expect(A.sort(A.dedupe(A.map(spans, (span) => span.name)), Order.String)).toEqual(
-            A.sort(PracticeKgToolId.literals, Order.String)
-          );
-          // Failed calls are visible only through the literal reason on the handler span.
-          const reasons = A.dedupe(
-            A.flatMap(spans, (span) =>
-              A.flatMap(span.attributes, (attribute) =>
-                attribute.key === PracticeKgFailureReasonKey ? [attribute.value.stringValue] : []
-              )
-            )
-          );
-          assertTrue(A.every(reasons, S.is(PracticeKgToolFailureReason)));
-          expect(reasons).toEqual(expect.arrayContaining(["invalid-input", "store-query-failed"]));
-
-          expect(countCanaries(exported, forms)).toBe(0);
-          expect(countCanaries(printed, forms)).toBe(0);
-        })
-      );
-    }
+// The encrypted spool both hosts export into, under a dev root key held in memory.
+const layerCanarySpool = (directory: string) =>
+  layerStrictSpoolSink.pipe(
+    Layer.provideMerge(
+      layerStrictSpool(StrictSpoolOptions.make({ directory, tier: "shape-only", maxBytes: 64 * 1024 * 1024 }))
+    ),
+    Layer.provide(layerDevMemoryStrictSpoolKey)
   );
+
+// Runs `effect` with the canary spool in `directory` as its egress sink.
+const withCanarySpool =
+  (directory: string) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+    effect.pipe(provideScopedLayer(layerCanarySpool(directory)));
+
+describe("practice KG strict tier canary", () => {
+  it.layer(Layer.fresh(TestServices), { timeout: "3 minutes" })((it) => {
+    it.effect(
+      "exports and prints no canary from any tool, in any encoding, on success or failure",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: `beep-strict-${canaries.root}-` });
+        const healthyRoot = path.join(root, "healthy");
+        const brokenRoot = path.join(root, "broken");
+        yield* fs.makeDirectory(healthyRoot);
+        yield* fs.makeDirectory(brokenRoot);
+        const healthyBundle = yield* makePracticeKgSmokeBundle(healthyRoot);
+        const brokenBundle = yield* makePracticeKgSmokeBundle(brokenRoot);
+        // The corpus catalog is a valid DuckDB file without the bundle's tables.
+        yield* fs.remove(path.join(brokenBundle, "practice.duckdb"));
+        yield* fs.copyFile(
+          path.join(brokenRoot, "corpus", "catalog", "corpus.duckdb"),
+          path.join(brokenBundle, "practice.duckdb")
+        );
+
+        const spoolDir = path.join(root, "spool");
+
+        const { results, stderr, replay } = yield* Effect.all({
+          results: Effect.all([
+            runStrictHost(healthyBundle, healthyCalls),
+            runStrictHost(brokenBundle, brokenStoreCalls),
+          ]),
+          stderr: TestConsole.errorLines,
+          replay: Effect.gen(function* () {
+            return yield* (yield* StrictSpool).replay;
+          }),
+        }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make), withCanarySpool(spoolDir));
+        const records = replay.records;
+
+        const forms = yield* canaryForms;
+        // Every body is held back into the spool, and every sealed segment replays.
+        expect(HashMap.size(replay.refused)).toBe(0);
+        const segments = yield* fs.readDirectory(spoolDir);
+        expect(A.length(segments)).toBeGreaterThan(0);
+        const atRest = yield* Effect.forEach(segments, (segment) =>
+          fs.readFile(path.join(spoolDir, segment)).pipe(Effect.map((bytes) => textDecoder.decode(bytes)))
+        );
+        expect(countCanaries(A.join(atRest, "\n"), forms)).toBe(0);
+        const exported = A.join(
+          A.map(records, (record) => record.body),
+          "\n"
+        );
+        const printed = A.join(A.filter(stderr, P.isString), "\n");
+
+        // Not vacuous: canaries reached the tools, which echo some of them back
+        // to the client, and every tool exported spans.
+        expect(countCanaries(A.join(A.flatten(results), "\n"), forms)).toBeGreaterThan(0);
+        const spans = yield* Effect.forEach(
+          A.filter(records, (record) => record.signal === "traces"),
+          (record) => decodeExportedSpans(record.body)
+        ).pipe(
+          Effect.map(
+            A.flatMap((body) =>
+              A.flatMap(body.resourceSpans, (resource) => A.flatMap(resource.scopeSpans, (scope) => scope.spans))
+            )
+          )
+        );
+        expect(A.sort(A.dedupe(A.map(spans, (span) => span.name)), Order.String)).toEqual(
+          A.sort(PracticeKgToolId.literals, Order.String)
+        );
+        // Failed calls are visible only through the literal reason on the handler span.
+        const reasons = A.dedupe(
+          A.flatMap(spans, (span) =>
+            A.flatMap(span.attributes, (attribute) =>
+              attribute.key === PracticeKgFailureReasonKey ? [attribute.value.stringValue] : []
+            )
+          )
+        );
+        assertTrue(A.every(reasons, S.is(PracticeKgToolFailureReason)));
+        expect(reasons).toEqual(expect.arrayContaining(["invalid-input", "store-query-failed"]));
+
+        expect(countCanaries(exported, forms)).toBe(0);
+        expect(countCanaries(printed, forms)).toBe(0);
+      })
+    );
+  });
 });

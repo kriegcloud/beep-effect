@@ -28,3 +28,33 @@ export * from "./StrictGate.schemas.ts";
  * @since 0.0.0
  */
 export * from "./StrictGate.service.ts";
+/**
+ * @category errors
+ * @since 0.0.0
+ */
+export * from "./StrictSpool.errors.ts";
+/**
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./StrictSpool.layer.ts";
+/**
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./StrictSpool.schemas.ts";
+/**
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./StrictSpool.service.ts";
+/**
+ * @category combinators
+ * @since 0.0.0
+ */
+export * from "./StrictTier.behavior.ts";
+/**
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./StrictTier.schemas.ts";
