@@ -25,7 +25,7 @@ import { parseDocument } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { parseJsonText } from "./Models.paths.ts";
 import { extractGeneratedBlock } from "./Models.render.ts";
-import { modelsShellWords } from "./Models.spans.ts";
+import { modelsShellScope, modelsShellWords } from "./Models.spans.ts";
 import type { Locator } from "./Models.manifest.schemas.ts";
 import type { ModelsTargetFile } from "./Models.paths.ts";
 
@@ -122,16 +122,6 @@ const tableLines = (content: string, table: string): ReadonlyArray<string> =>
     A.takeWhile((line) => !isTableHeader(line))
   );
 
-const functionLines = (content: string, name: string): ReadonlyArray<string> => {
-  const opener = new RegExp(`^\\s*(?:function\\s+)?${Regex.escape(name)}\\s*(?:\\(\\s*\\))?\\s*\\{`);
-  return pipe(
-    Str.split(content, "\n"),
-    A.dropWhile((line) => !opener.test(line)),
-    A.drop(1),
-    A.takeWhile((line) => line !== "}")
-  );
-};
-
 /**
  * Read shell drift without authorizing a shell write.
  *
@@ -164,8 +154,13 @@ export const modelsReadShellAssign: {
     const allWords = yield* modelsShellWords(content, variable);
     const words =
       O.isSome(within) && !A.contains(allWords, "Unsupported shell form")
-        ? yield* modelsShellWords(A.join(functionLines(content, within.value), "\n"), variable)
+        ? yield* O.match(modelsShellScope(content, within.value), {
+            onNone: () => Effect.succeed(["Unsupported shell form: ambiguous function scope"]),
+            onSome: (body) => modelsShellWords(body, variable),
+          })
         : allWords;
+    const unsupported = A.findFirst(words, Str.startsWith("Unsupported shell form"));
+    if (O.isSome(unsupported)) return unsupported;
     return pipe(
       words,
       A.dedupe,

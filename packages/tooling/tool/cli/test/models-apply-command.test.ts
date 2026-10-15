@@ -263,7 +263,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
       yield* Effect.flip(run(["apply", ...flags, "--check"]));
       expect(yield* TestConsole.errorLines).toContain(
-        "models: refused synthetic.shell: Owned configuration drift detected (shell target is check-only; edit by hand)."
+        "models: refused synthetic.shell: Unsupported shell form: owned configuration drift detected (shell target is check-only; edit by hand)."
       );
       expect(yield* TestConsole.errorLines).toContain(
         "models: refused synthetic.codex: Owned configuration drift detected."

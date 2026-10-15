@@ -6,7 +6,7 @@
  */
 import { A, O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
@@ -100,7 +100,8 @@ const shellTokenValue = Effect.fnUntraced(function* (token: string, variable: st
   const escapedBoundary = /\\[ \t;&|()<>]/.test(word);
   const code = shellControl.test(word) || /^[{}]$/.test(word);
   if (!literal && (escapedBoundary || (!bare && !code))) return O.none<string>();
-  return yield* shellWordValue(word).pipe(Effect.option);
+  const prefix = Str.slice(0, Str.length(token) - Str.length(word))(token);
+  return yield* shellWordValue(word).pipe(Effect.option, Effect.map(O.map((value) => `${prefix}${value}`)));
 });
 
 const ownedShellValue = (
@@ -110,14 +111,22 @@ const ownedShellValue = (
   variable: string
 ) => {
   const token = O.getOrElse(A.get(words, index), () => "");
-  if (Str.startsWith(`${variable}=`)(token)) return O.flatten(A.get(decoded, index));
-  if (Str.startsWith("-")(variable) && token === variable) {
-    const next = A.get(words, index + 1);
-    return O.isNone(next) || shellControl.test(next.value)
-      ? O.some(unsupportedShell)
-      : O.flatten(A.get(decoded, index + 1));
+  const value = O.flatten(A.get(decoded, index));
+  if (Str.startsWith(`${variable}=`)(token)) return O.map(value, Str.slice(Str.length(variable) + 1));
+  if (!Str.startsWith("-")(variable)) return O.none<string>();
+  if (token === variable) {
+    const next = O.getOrElse(A.get(words, index + 1), () => "");
+    return O.some(
+      shellControl.test(next)
+        ? unsupportedShell
+        : O.getOrElse(O.flatten(A.get(decoded, index + 1)), () => unsupportedShell)
+    );
   }
-  return O.none<string>();
+  // A quoted/escaped option name is outside the canonical locator grammar.
+  // Recognize its decoded identity and report it instead of dropping it.
+  return O.exists(value, (word) => word === variable || Str.startsWith(`${variable}=`)(word))
+    ? O.some(unsupportedShell)
+    : O.none<string>();
 };
 
 /**
@@ -161,9 +170,81 @@ export const modelsShellWords = Effect.fn("Models.shellWords")(function* (conten
       A.contains(owned, unsupportedShell);
     unsafeRemainder = unsafeRemainder || O.exists(remainder, (rest) => /['"<]/.test(rest));
     continued = /\\$/.test(line);
-    values.push(...(unsupported && Str.includes(variable)(line) ? [unsupportedShell] : owned));
+    values.push(...(unsupported ? [unsupportedShell] : owned));
   }
   return values;
+});
+
+const unboundedShellScopeLine = (line: string) => {
+  const [words, remainder] = shellLineTokens(line);
+  return (
+    O.isSome(remainder) ||
+    A.some(words, (word) => !/^'[^']*'$|^"(?:\\.|[^"\\])*"$/.test(word) && /[{}]/.test(Str.replace(/\\./g, "")(word)))
+  );
+};
+
+/**
+ * Resolve one plain multiline function without dropping ambiguous body text.
+ *
+ * **Details**
+ *
+ * Inline, nested, duplicate and unterminated definitions are unsupported.
+ * An absent definition yields an empty body; unsupported scope yields None.
+ * Quoted or escaped braces are data and do not terminate a supported body.
+ *
+ * **Example** (Resolve a simple function)
+ *
+ * ```ts
+ * import { modelsShellScope } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as O from "effect/Option"
+ * const source = "route() {\nMODEL=old\n}\n"
+ * console.log(O.isSome(modelsShellScope(source, "route"))) // true
+ * ```
+ *
+ * @param content - Complete shell document.
+ * @param name - Named function whose literal body is owned.
+ * @returns A supported body, an empty missing body, or None for unsupported scope.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsShellScope: {
+  (content: string, name: string): O.Option<string>;
+  (name: string): (content: string) => O.Option<string>;
+} = dual(2, (content: string, name: string): O.Option<string> => {
+  if (!/^[A-Za-z_][A-Za-z0-9_-]*$/.test(name)) return O.none();
+  const header = /^[ \t]*(?:function[ \t]+)?([A-Za-z_][A-Za-z0-9_-]*)[ \t]*(?:\([ \t]*\))?[ \t]*\{[ \t]*$/;
+  const close = /^[ \t]*}[ \t]*$/;
+  const lines = Str.split(content, "\n");
+  const headers = A.getSomes(
+    A.map(lines, (line, index) =>
+      O.flatMap(O.fromNullishOr(header.exec(line)), (match) =>
+        O.map(O.fromUndefinedOr(match[1]), (name) => Tuple.make(index, name))
+      )
+    )
+  );
+  const ends = A.getSomes(A.map(lines, (line, index) => (close.test(line) ? O.some(index) : O.none())));
+  const aligned =
+    A.length(headers) === A.length(ends) &&
+    A.every(headers, ([start], index) => {
+      const end = O.getOrElse(A.get(ends, index), () => -1);
+      const next = O.getOrElse(
+        O.map(A.get(headers, index + 1), ([start]) => start),
+        () => A.length(lines)
+      );
+      return start < end && end < next;
+    });
+  const bounded = A.every(lines, (line) => !unboundedShellScopeLine(line) || header.test(line) || close.test(line));
+  if (!aligned || !bounded || A.length(A.filter(headers, ([, candidate]) => candidate === name)) > 1) return O.none();
+  return O.match(
+    A.findFirstIndex(headers, ([, candidate]) => candidate === name),
+    {
+      onNone: () => O.some(""),
+      onSome: (index) =>
+        O.flatMap(A.get(headers, index), ([start]) =>
+          O.map(A.get(ends, index), (end) => A.join(A.slice(lines, { start: start + 1, end }), "\n"))
+        ),
+    }
+  );
 });
 
 const yamlSharedNode = (doc: Document, path: ReadonlyArray<string | number>, node: unknown) => {

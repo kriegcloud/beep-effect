@@ -315,7 +315,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(yield* reader.read(file('MODEL="$X"\n'), locator), "Unsupported shell form");
       assertSome(
         yield* reader.read(file("MODEL=old\nfoo \\\n  bar\nMODEL=other\n"), locator),
-        "Unsupported shell form: conflicting values old, other"
+        "Unsupported shell form"
       );
     })
   );
@@ -342,6 +342,33 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         );
       }
       const model: Locator = { ...locator, variable: "MODEL" };
+      const flag: Locator = { ...model, variable: "--model" };
+      for (const text of [
+        "claude '--model' wrong\nclaude --model old\n",
+        "claude --mo\\del wrong\nclaude --model old\n",
+        'claude "--model=wrong"\nclaude --model old\n',
+        'claude --mo\\del="$X"\nclaude --model old\n',
+      ])
+        assertSome(yield* reader.read(file(text), flag), "Unsupported shell form");
+      assertSome(yield* reader.read(file("claude --model MODEL=old\n"), flag), "MODEL=old");
+
+      for (const text of [
+        "route() { MODEL=old; }\n",
+        "route() {\nMODEL=old\n}\nro\\ute() {\nMODEL=wrong\n}\n",
+        "route() { MODEL=wrong; }\nroute() {\nMODEL=old\n}\n",
+        "route() {\nMODEL=old\n}\nroute() {\nMODEL=old\n}\n",
+        "route() {\nchild() {\nMODEL=old\n}\nMODEL=wrong\n}\n",
+        "route() {\nMODEL=old\n",
+      ])
+        assertSome(
+          yield* reader.read(file(text), { ...model, within: O.some("route") }),
+          "Unsupported shell form: ambiguous function scope"
+        );
+      assertSome(
+        yield* reader.read(file("route() {\nMODEL=old printf '{quoted}'\n}\n"), { ...model, within: O.some("route") }),
+        "old"
+      );
+
       assertSome(
         yield* reader.read(file("cat <<'EOF'\nroute() {\nMODEL=old\n}\nEOF\n"), { ...model, within: O.some("route") }),
         "Unsupported shell form"
