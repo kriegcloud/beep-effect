@@ -15,6 +15,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
+import { PatentClaim, PatentClaims } from "../PatentDocument/PatentDocument.model.ts";
 import type * as SchemaAST from "effect/SchemaAST";
 
 const $I = $LawPracticeDomainId.create("values/ClaimElement/ClaimElement.model");
@@ -453,4 +454,67 @@ export declare namespace ClaimElement {
    * @since 0.0.0
    */
   export type Encoded = typeof ClaimElement.Encoded;
+}
+
+/**
+ * Input of a `ClaimElementDecomposer`: one claim and the claim set it is read in.
+ *
+ * **Details**
+ *
+ * `claims` is the document's whole validated claim set. A dependent claim's
+ * `claimReferences` resolve against it, which is how `depends-on-element`
+ * edges reach earlier claims, and `claim` must be a member of it.
+ *
+ * **Example** (Build a decomposer input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DecomposeClaimInput } from "@beep/law-practice-domain/values/ClaimElement"
+ * import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument"
+ *
+ * const PosInt = S.Int.check(S.isGreaterThan(0))
+ *
+ * const claim = PatentClaim.cases.independent.make({
+ *   body: "a sensor",
+ *   claimNumber: PosInt.make(1),
+ *   claimText: "A system comprising a sensor.",
+ *   preamble: "A system",
+ *   transition: "comprising"
+ * })
+ * const input = DecomposeClaimInput.make({ claim, claims: [claim] })
+ * console.log(input.claims.length) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DecomposeClaimInput extends S.Opaque<DecomposeClaimInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    claim: PatentClaim.annotateKey({
+      description: "Claim to decompose; a member of `claims`.",
+    }),
+    claims: PatentClaims.annotateKey({
+      description: "The document's whole validated claim set, which the claim is read in.",
+    }),
+  }).pipe(
+    $I.annoteSchema("DecomposeClaimInput", {
+      description: "One patent claim and the validated claim set it is decomposed in.",
+    })
+  )
+) {}
+
+/**
+ * Companion namespace for {@link DecomposeClaimInput}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace DecomposeClaimInput {
+  /**
+   * Wire-encoded representation of a decoded {@link DecomposeClaimInput}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DecomposeClaimInput.Encoded;
 }

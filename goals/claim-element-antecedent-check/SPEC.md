@@ -281,6 +281,7 @@ there.
 | 2026-10-14 | P2 ships in two PRs: P2a + P2b on synthetic and recorded fixtures now; P2c (labelled set) and the live vertical slice after the USPTO ODP key is regenerated. | The key returns 403 and only the operator can regenerate it; the rules and the Layer do not need data. | Hold P2a/P2b until the key works. |
 | 2026-10-14 | `UsptoClaimsLive` fails the `publication` source as `unavailable` (ppubs or bulk XML is the follow-up) and reads `application` claims only from a `CLM` XML download. | The P1 error set has no `unsupported` reason; OCR-only claims are never repaired. | Add a ppubs or bulk-XML reader for publications. |
 | 2026-10-14 | `ClaimSelfCheck.candidates` returns `ClaimSelfCheckCandidates { candidates, undecomposed }` instead of a bare candidate list (review of #1802). | Dropping `undecomposed` made an undecomposable claim look clean, a silent pass the policy forbids. No candidates means a clean document only when `undecomposed` is empty too. | Raise each undecomposed claim as a review candidate with its own finding kind. |
+| 2026-10-15 | `ClaimElementDecomposer` and `AntecedentPolicy` take one input schema each (`DecomposeClaimInput { claim, claims }`, `AntecedentPolicyInput { trees, claims }`) instead of two parameters (main-red ep26). | `missingPipeableSignature` fires at two or more parameters, and disabling it with a directive is forbidden on main. One input schema needs no directive and documents the pair. | Make both functions pipeable with `dual`. |
 
 ## Exception Ledger
 

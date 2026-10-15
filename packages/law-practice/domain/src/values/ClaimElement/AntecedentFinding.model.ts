@@ -10,7 +10,9 @@ import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { PosInt } from "../../internal/PosInt.ts";
+import { PatentClaims } from "../PatentDocument/PatentDocument.model.ts";
 import { ClaimTermRef, claimNumberOfPath } from "./ClaimElement.model.ts";
+import { ClaimElementTree } from "./ClaimElement.tree.model.ts";
 
 const $I = $LawPracticeDomainId.create("values/ClaimElement/AntecedentFinding.model");
 
@@ -289,3 +291,65 @@ export const AntecedentFinding = S.toTaggedUnion("kind")(
  * @since 0.0.0
  */
 export type AntecedentFinding = typeof AntecedentFinding.Type;
+
+/**
+ * Input of an `AntecedentPolicy`: claim-element trees and the claim set they
+ * were decomposed from.
+ *
+ * **Details**
+ *
+ * `trees` normally holds one tree per claim of `claims` that decomposed;
+ * `claims` gives each tree's dependency chain, including claims with no tree.
+ *
+ * **Example** (Build a policy input with no trees)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { AntecedentPolicyInput } from "@beep/law-practice-domain/values/ClaimElement"
+ * import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument"
+ *
+ * const PosInt = S.Int.check(S.isGreaterThan(0))
+ *
+ * const claim = PatentClaim.cases.independent.make({
+ *   body: "a sensor",
+ *   claimNumber: PosInt.make(1),
+ *   claimText: "A system comprising a sensor.",
+ *   preamble: "A system",
+ *   transition: "comprising"
+ * })
+ * console.log(AntecedentPolicyInput.make({ trees: [], claims: [claim] }).trees.length) // 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AntecedentPolicyInput extends S.Opaque<AntecedentPolicyInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    trees: S.Array(ClaimElementTree).annotateKey({
+      description: "Claim-element trees to check, normally one per decomposed claim of `claims`.",
+    }),
+    claims: PatentClaims.annotateKey({
+      description: "The document's whole validated claim set the trees were decomposed from.",
+    }),
+  }).pipe(
+    $I.annoteSchema("AntecedentPolicyInput", {
+      description: "Claim-element trees and the validated claim set they were decomposed from.",
+    })
+  )
+) {}
+
+/**
+ * Companion namespace for {@link AntecedentPolicyInput}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace AntecedentPolicyInput {
+  /**
+   * Wire-encoded representation of a decoded {@link AntecedentPolicyInput}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AntecedentPolicyInput.Encoded;
+}

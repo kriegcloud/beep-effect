@@ -25,7 +25,7 @@ import { PatentClaim } from "../PatentDocument/PatentDocument.model.ts";
 import { AntecedentFinding, AntecedentRuleId } from "./AntecedentFinding.model.ts";
 import { ClaimTermIntroducingDeterminer, ClaimTermReferringDeterminer } from "./ClaimElement.behavior.ts";
 import { ClaimTermDeterminer, ClaimTermRef } from "./ClaimElement.model.ts";
-import type { PatentClaims } from "../PatentDocument/PatentDocument.model.ts";
+import type { AntecedentPolicyInput } from "./AntecedentFinding.model.ts";
 import type { ClaimTerm } from "./ClaimElement.model.ts";
 import type { ClaimElementTree } from "./ClaimElement.tree.model.ts";
 
@@ -65,14 +65,19 @@ import type { ClaimElementTree } from "./ClaimElement.tree.model.ts";
  * ```ts
  * import * as A from "effect/Array"
  * import * as S from "effect/Schema"
- * import { AntecedentFinding, AntecedentRuleId, ClaimTermRef } from "@beep/law-practice-domain/values/ClaimElement"
+ * import {
+ *   AntecedentFinding,
+ *   AntecedentPolicyInput,
+ *   AntecedentRuleId,
+ *   ClaimTermRef
+ * } from "@beep/law-practice-domain/values/ClaimElement"
  * import type { AntecedentPolicy } from "@beep/law-practice-domain/values/ClaimElement"
  * import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
  * const rule = AntecedentRuleId.make("no-rule-yet")
  *
- * const uncovered: AntecedentPolicy = (trees) =>
+ * const uncovered: AntecedentPolicy = ({ trees }) =>
  *   A.flatMap(trees, (tree) =>
  *     A.flatMap(tree.elements, (element) =>
  *       A.map(element.terms, (term) =>
@@ -91,16 +96,13 @@ import type { ClaimElementTree } from "./ClaimElement.tree.model.ts";
  *   preamble: "A system",
  *   transition: "comprising"
  * })
- * console.log(uncovered([], [claim]).length) // 0
+ * console.log(uncovered(AntecedentPolicyInput.make({ trees: [], claims: [claim] })).length) // 0
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export type AntecedentPolicy = (
-  trees: ReadonlyArray<ClaimElementTree>,
-  claims: PatentClaims
-) => ReadonlyArray<AntecedentFinding>;
+export type AntecedentPolicy = (input: AntecedentPolicyInput) => ReadonlyArray<AntecedentFinding>;
 
 const rule = {
   definiteWithoutIntroduction: AntecedentRuleId.make("definite-without-introduction"),
@@ -389,7 +391,12 @@ const verdictFor = (
  * import * as A from "effect/Array"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
- * import { antecedentPolicy, decomposeClaim } from "@beep/law-practice-domain/values/ClaimElement"
+ * import {
+ *   AntecedentPolicyInput,
+ *   antecedentPolicy,
+ *   DecomposeClaimInput,
+ *   decomposeClaim
+ * } from "@beep/law-practice-domain/values/ClaimElement"
  * import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
@@ -401,17 +408,15 @@ const verdictFor = (
  *   preamble: "A system",
  *   transition: "comprising"
  * })
- * const tree = Effect.runSync(decomposeClaim(claim, [claim]))
- * const findings = antecedentPolicy([tree], [claim])
+ * const tree = Effect.runSync(decomposeClaim(DecomposeClaimInput.make({ claim, claims: [claim] })))
+ * const findings = antecedentPolicy(AntecedentPolicyInput.make({ trees: [tree], claims: [claim] }))
  * console.log(A.map(findings, ({ kind }) => kind)) // ["missing-antecedent"]
  * ```
  *
  * @category policies
  * @since 0.0.0
  */
-// Binds the fixed data-first `AntecedentPolicy` contract; the claim set is context, not a piped operand.
-// @effect-diagnostics-next-line missingPipeableSignature:off
-export const antecedentPolicy: AntecedentPolicy = (trees, claims) => {
+export const antecedentPolicy: AntecedentPolicy = ({ trees, claims }) => {
   const claimIndex = HashMap.fromIterable(
     A.map(claims, (claim): readonly [number, PatentClaim] => [claim.claimNumber, claim])
   );

@@ -1,4 +1,9 @@
-import { antecedentPolicy, decomposeClaim } from "@beep/law-practice-domain/values/ClaimElement";
+import {
+  AntecedentPolicyInput,
+  antecedentPolicy,
+  DecomposeClaimInput,
+  decomposeClaim,
+} from "@beep/law-practice-domain/values/ClaimElement";
 import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -10,6 +15,18 @@ import * as Equal from "effect/Equal";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { failureFixtures, ruleFixtures } from "./claimElementFixtures.ts";
+import type { ClaimElementTree } from "@beep/law-practice-domain/values/ClaimElement";
+import type { PatentClaims } from "@beep/law-practice-domain/values/PatentDocument";
+
+// Fixtures 15, 20 and 21 read deliberately inconsistent claim sets to reach the
+// defensive paths, so their inputs skip the claim-set structure check.
+const fixtureDecompose = (claim: PatentClaim, claims: PatentClaims) =>
+  decomposeClaim(DecomposeClaimInput.make({ claim, claims }, { disableChecks: true }));
+const fixturePolicy = (trees: ReadonlyArray<ClaimElementTree>, claims: PatentClaims) =>
+  antecedentPolicy(AntecedentPolicyInput.make({ trees, claims }, { disableChecks: true }));
+const decomposeAlone = (claim: PatentClaim) => decomposeClaim(DecomposeClaimInput.make({ claim, claims: [claim] }));
+const policyAlone = (tree: ClaimElementTree, claim: PatentClaim) =>
+  antecedentPolicy(AntecedentPolicyInput.make({ trees: [tree], claims: [claim] }));
 
 const segmentSample = Arbitrary.all({
   determiner: Arbitrary.schema(S.Literals(["a", "an", "the", "said", "at least one", "a plurality of"])),
@@ -43,13 +60,13 @@ describe("ClaimElement rules", () => {
             const claim = O.getOrThrow(
               A.findFirst(fixture.context, ({ claimNumber }) => claimNumber === expected.claimNumber)
             );
-            const actual = yield* decomposeClaim(claim, fixture.context);
+            const actual = yield* fixtureDecompose(claim, fixture.context);
             assert.deepStrictEqual(actual, expected);
             assert.isTrue(Equal.equals(actual, expected));
             return actual;
           })
         );
-        assert.deepStrictEqual(antecedentPolicy(trees, fixture.claims), fixture.findings);
+        assert.deepStrictEqual(fixturePolicy(trees, fixture.claims), fixture.findings);
       })
     );
   }
@@ -57,7 +74,7 @@ describe("ClaimElement rules", () => {
   for (const fixture of failureFixtures) {
     it.effect(`fixture ${fixture.id}: ${fixture.rule}`, () =>
       Effect.gen(function* () {
-        const error = yield* Effect.flip(decomposeClaim(fixture.claim, fixture.claims));
+        const error = yield* Effect.flip(fixtureDecompose(fixture.claim, fixture.claims));
         assert.strictEqual(error._tag, "ClaimDecompositionError");
         assert.strictEqual(error.reason, fixture.reason);
         assert.strictEqual(error.claimNumber, fixture.claim.claimNumber);
@@ -75,10 +92,10 @@ describe("ClaimElement rules", () => {
         transition: "comprising",
         body,
       });
-      const tree = yield* decomposeClaim(claim, [claim]);
+      const tree = yield* decomposeAlone(claim);
       const heads = A.flatMap(tree.elements, ({ terms }) => A.map(terms, ({ head }) => head));
       assert.deepStrictEqual(heads, ["system", "high speed sensor", "bed frame", "high speed sensor"]);
-      assert.deepStrictEqual(antecedentPolicy([tree], [claim]), []);
+      assert.deepStrictEqual(policyAlone(tree, claim), []);
     })
   );
 
@@ -87,10 +104,10 @@ describe("ClaimElement rules", () => {
     { claim: generatedClaim },
     ({ claim }) =>
       Effect.gen(function* () {
-        const first = yield* decomposeClaim(claim, [claim]);
-        const second = yield* decomposeClaim(claim, [claim]);
+        const first = yield* decomposeAlone(claim);
+        const second = yield* decomposeAlone(claim);
         assert.isTrue(Equal.equals(first, second));
-        assert.deepStrictEqual(antecedentPolicy([first], [claim]), antecedentPolicy([second], [claim]));
+        assert.deepStrictEqual(policyAlone(first, claim), policyAlone(second, claim));
       }),
     { arbitrary: fcRuns(50) }
   );

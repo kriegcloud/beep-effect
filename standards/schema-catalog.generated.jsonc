@@ -29159,6 +29159,14 @@
     },
     {
       "file": "packages/law-practice/domain/src/values/ClaimElement/AntecedentFinding.model.ts",
+      "symbol": "AntecedentPolicyInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AntecedentPolicyInput",
+      "description": "Claim-element trees and the validated claim set they were decomposed from."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/AntecedentFinding.model.ts",
       "symbol": "AntecedentRuleId",
       "kind": "brand",
       "owner": "@beep/law-practice-domain",
@@ -29235,6 +29243,14 @@
       "owner": "@beep/law-practice-domain",
       "identity": "ClaimTermRef",
       "description": "Reference to one claim term by its element path and exact span."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+      "symbol": "DecomposeClaimInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "DecomposeClaimInput",
+      "description": "One patent claim and the validated claim set it is decomposed in."
     },
     {
       "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.tree.model.ts",
@@ -52476,6 +52492,12 @@
       "owner": "@beep/repo-cli",
       "identity": "CheckCensusTargets",
       "description": "Workspace-package and typeperf-fixture programs measured by the check-census gate."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts",
+      "symbol": "readEffectDiagnosticsProfile",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",

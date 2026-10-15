@@ -9,8 +9,10 @@
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import {
   AntecedentFinding,
+  AntecedentPolicyInput,
   antecedentPolicy,
   claimNumberOfPath,
+  DecomposeClaimInput,
   decomposeClaim,
 } from "@beep/law-practice-domain/values/ClaimElement";
 import * as O from "@beep/utils/Option";
@@ -116,7 +118,7 @@ const check = Effect.fn("ClaimSelfCheck.check")(function* (
   claims: PatentClaims
 ): Effect.fn.Return<ClaimSelfCheckReport, ClaimSelfCheckError> {
   const [trees, undecomposed] = A.separate(
-    yield* Effect.forEach(claims, (claim) => Effect.result(decomposeClaim(claim, claims)))
+    yield* Effect.forEach(claims, (claim) => Effect.result(decomposeClaim(DecomposeClaimInput.make({ claim, claims }))))
   );
   return yield* A.match(trees, {
     onEmpty: () =>
@@ -132,7 +134,7 @@ const check = Effect.fn("ClaimSelfCheck.check")(function* (
         ClaimSelfCheckReport.make({
           trees: decomposed,
           undecomposed,
-          findings: antecedentPolicy(decomposed, claims),
+          findings: antecedentPolicy(AntecedentPolicyInput.make({ trees: decomposed, claims })),
         })
       ),
   });

@@ -28,9 +28,8 @@ import { PatentClaim } from "../PatentDocument/PatentDocument.model.ts";
 import { ClaimDecompositionError } from "./ClaimElement.errors.ts";
 import { ClaimTermDeterminer } from "./ClaimElement.model.ts";
 import { ClaimElementTree } from "./ClaimElement.tree.model.ts";
-import type { PatentClaims } from "../PatentDocument/PatentDocument.model.ts";
 import type { ClaimElementEdge } from "./ClaimElement.edge.model.ts";
-import type { ClaimElement, ClaimElementKind, ClaimTerm } from "./ClaimElement.model.ts";
+import type { ClaimElement, ClaimElementKind, ClaimTerm, DecomposeClaimInput } from "./ClaimElement.model.ts";
 
 const $I = $LawPracticeDomainId.create("values/ClaimElement/ClaimElement.behavior");
 
@@ -107,10 +106,10 @@ const isReferringDeterminer = S.is(ClaimTermReferringDeterminer);
  *
  * **Details**
  *
- * The second argument is the document's whole validated claim set. It is the
+ * The input's `claims` is the document's whole validated claim set. It is the
  * context the claim is read in: a dependent claim's `claimReferences` resolve
  * against it, which is how `depends-on-element` edges reach earlier claims.
- * The claim itself must be a member of that set.
+ * The input's `claim` must be a member of that set.
  *
  * An implementation is pure and deterministic: the same claim and claim set
  * always give the same tree. Its requirements channel is `never`, so it reads
@@ -124,13 +123,13 @@ const isReferringDeterminer = S.is(ClaimTermReferringDeterminer);
  * ```ts
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
- * import { ClaimDecompositionError } from "@beep/law-practice-domain/values/ClaimElement"
+ * import { ClaimDecompositionError, DecomposeClaimInput } from "@beep/law-practice-domain/values/ClaimElement"
  * import type { ClaimElementDecomposer } from "@beep/law-practice-domain/values/ClaimElement"
  * import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
  *
- * const refuse: ClaimElementDecomposer = (claim) =>
+ * const refuse: ClaimElementDecomposer = ({ claim }) =>
  *   Effect.fail(
  *     ClaimDecompositionError.make({
  *       claimNumber: claim.claimNumber,
@@ -146,7 +145,7 @@ const isReferringDeterminer = S.is(ClaimTermReferringDeterminer);
  *   preamble: "A system",
  *   transition: "comprising"
  * })
- * const exit = Effect.runSyncExit(refuse(claim, [claim]))
+ * const exit = Effect.runSyncExit(refuse(DecomposeClaimInput.make({ claim, claims: [claim] })))
  * console.log(exit._tag) // "Failure"
  * ```
  *
@@ -154,8 +153,7 @@ const isReferringDeterminer = S.is(ClaimTermReferringDeterminer);
  * @since 0.0.0
  */
 export type ClaimElementDecomposer = (
-  claim: PatentClaim,
-  claims: PatentClaims
+  input: DecomposeClaimInput
 ) => Effect.Effect<ClaimElementTree, ClaimDecompositionError>;
 
 /** A run of claim text and its absolute offset into `claimText`. */
@@ -540,7 +538,7 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  * import * as A from "effect/Array"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
- * import { decomposeClaim } from "@beep/law-practice-domain/values/ClaimElement"
+ * import { DecomposeClaimInput, decomposeClaim } from "@beep/law-practice-domain/values/ClaimElement"
  * import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
@@ -552,7 +550,7 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  *   preamble: "A system",
  *   transition: "comprising"
  * })
- * const tree = Effect.runSync(decomposeClaim(claim, [claim]))
+ * const tree = Effect.runSync(decomposeClaim(DecomposeClaimInput.make({ claim, claims: [claim] })))
  * console.log(A.map(tree.elements, ({ path }) => path)) // ["1", "1.a", "1.b"]
  * console.log(A.map(tree.edges, ({ kind }) => kind)) // ["part-of", "part-of", "antecedent"]
  * ```
@@ -560,12 +558,10 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  * @category behavior
  * @since 0.0.0
  */
-// Binds the fixed data-first `ClaimElementDecomposer` contract; the claim set is context, not a piped operand.
-// @effect-diagnostics-next-line missingPipeableSignature:off
-export const decomposeClaim: ClaimElementDecomposer = Effect.fn("ClaimElement.decomposeClaim")(function* (
-  claim: PatentClaim,
-  claims: PatentClaims
-): Effect.fn.Return<ClaimElementTree, ClaimDecompositionError> {
+export const decomposeClaim: ClaimElementDecomposer = Effect.fn("ClaimElement.decomposeClaim")(function* ({
+  claim,
+  claims,
+}: DecomposeClaimInput): Effect.fn.Return<ClaimElementTree, ClaimDecompositionError> {
   const claimNumber = claim.claimNumber;
   const parts = yield* Effect.fromOption(locateParts(claim), () =>
     ClaimDecompositionError.make({
