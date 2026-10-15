@@ -289,20 +289,26 @@ export const strokeTableMarkdown = (input: {
       A.length(lengths) === 0
         ? ""
         : `\nShortest strokes: ${JSON.stringify(A.take(lengths, 5))}; longest: ${JSON.stringify(A.takeRight(lengths, 3))}.\n`;
-    return [
-      `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
-      "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
-      "| angle | offset | length | x1 | y1 | x2 | y2 |",
-      "| --- | --- | --- | --- | --- | --- | --- |",
-      ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
-      extremes,
-    ].join("\n");
+    return A.join(
+      [
+        `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
+        "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
+        "| angle | offset | length | x1 | y1 | x2 | y2 |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+        ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
+        extremes,
+      ],
+      "\n"
+    );
   });
-  return [
-    `# RENDER.md — measurements of "${input.title}"\n`,
-    `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm.\n`,
-    ...sections,
-  ].join("\n");
+  return A.join(
+    [
+      `# RENDER.md — measurements of "${input.title}"\n`,
+      `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm.\n`,
+      ...sections,
+    ],
+    "\n"
+  );
 };
 
 /**
@@ -332,18 +338,20 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
     const stances = A.map(report.priorAssessment, (p) => `  - on ${p.id}: ${p.stance} — ${p.note}`);
     const unassessed =
       A.length(report.couldNotAssess) === 0 ? [] : [`  - could_not_assess: ${A.join(report.couldNotAssess, " | ")}`];
-    return [
-      `\n## ${report.reviewer} — verdict ${report.verdict} — blockers: ${JSON.stringify(report.blockers)}\n`,
-      ...findings,
-      ...stances,
-      ...unassessed,
-    ].join("\n");
+    return A.join(
+      [
+        `\n## ${report.reviewer} — verdict ${report.verdict} — blockers: ${JSON.stringify(report.blockers)}\n`,
+        ...findings,
+        ...stances,
+        ...unassessed,
+      ],
+      "\n"
+    );
   });
-  return [
-    "# Findings already reported in this loop (dedupe against these; confirm or refute each)\n",
-    ...sections,
-    "",
-  ].join("\n");
+  return A.join(
+    ["# Findings already reported in this loop (dedupe against these; confirm or refute each)\n", ...sections, ""],
+    "\n"
+  );
 };
 
 /**
@@ -362,15 +370,18 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
  * @since 0.0.0
  */
 export const priorIdsMarkdown = (reports: ReadonlyArray<CriticReport>): string =>
-  [
-    "# Finding ids already reported by earlier reviewers (categories only; the matter set is not shown to you)\n",
-    ...pipe(
-      reports,
-      A.flatMap((report) => report.findings),
-      A.map((f) => `- ${f.id} ${f.severity} ${f.category} — basis: ${f.basis}`)
-    ),
-    "",
-  ].join("\n");
+  A.join(
+    [
+      "# Finding ids already reported by earlier reviewers (categories only; the matter set is not shown to you)\n",
+      ...pipe(
+        reports,
+        A.flatMap((report) => report.findings),
+        A.map((f) => `- ${f.id} ${f.severity} ${f.category} — basis: ${f.basis}`)
+      ),
+      "",
+    ],
+    "\n"
+  );
 
 const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
 
@@ -430,7 +441,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     Match.when("claude", () =>
       pipe(
         parseJson(input.text),
-        O.filter((events): events is ReadonlyArray<unknown> => Array.isArray(events)),
+        O.filter((events): events is ReadonlyArray<unknown> => A.isArray(events)),
         O.flatMap((events) =>
           pipe(
             events,
@@ -898,13 +909,16 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
             ),
             Match.exhaustive
           );
-          return [
-            input.template,
-            `You are reviewer "${reviewer.name}": ids ${reviewer.idPrefix}-01, ${reviewer.idPrefix}-02, …`,
-            hint,
-            CRITIC_HARD_RULES,
-            O.getOrElse(input.extra, () => ""),
-          ].join("\n");
+          return A.join(
+            [
+              input.template,
+              `You are reviewer "${reviewer.name}": ids ${reviewer.idPrefix}-01, ${reviewer.idPrefix}-02, …`,
+              hint,
+              CRITIC_HARD_RULES,
+              O.getOrElse(input.extra, () => ""),
+            ],
+            "\n"
+          );
         })
       ),
       Match.when("synthetic", () =>
@@ -918,7 +932,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
           );
           yield* write(path.join(syntheticPack, "prior-ids.md"), priorIdsMarkdown(prior));
           const brief = yield* read(path.join(syntheticPack, "BRIEF-synthetic.md"));
-          return [brief, CRITIC_HARD_RULES].join("\n");
+          return A.join([brief, CRITIC_HARD_RULES], "\n");
         })
       ),
       Match.exhaustive
