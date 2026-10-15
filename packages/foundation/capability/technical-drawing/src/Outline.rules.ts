@@ -43,19 +43,27 @@ type Gap = { readonly near: number; readonly side: number; readonly longer: Stro
 // Collinear strokes drawn as one line: its longest member, the length its members cover, whether an emphasis stroke
 // belongs to it (it then moves only when nothing else can), and whether it is drawn long enough to keep its direction
 // when its ends are solved again (a shorter one is a connector, re-ended where the lines it joins went).
-type Line = { readonly reference: Stroke; readonly drawn: number; readonly pinned: boolean; readonly rigid: boolean };
+type Line = {
+  readonly reference: Stroke;
+  readonly drawn: number;
+  readonly emphasised: boolean;
+  readonly rigid: boolean;
+};
 
 // A pair of strokes of two different lines that run side by side.
 type Contact = { readonly first: Stroke; readonly second: Stroke; readonly lines: readonly [number, number] };
 
+// The spacing, overlap and coincidence thresholds, and the distance within which a point touches a stroke (an end on
+// the line it stands on).
 type Tolerances = {
   readonly minSpacing: number;
   readonly minOverlap: number;
   readonly coincidence: number;
+  readonly join: number;
 };
 
-// Everything one separation pass reads: the strokes (movable first, then fixed), the line each belongs to, the
-// lines, and the contacts between lines.
+// Everything one separation pass reads: the strokes (outlines, then broken lines, then emphasis lines), the line each
+// belongs to, the lines, and the contacts between lines.
 type Context = {
   readonly strokes: ReadonlyArray<Stroke>;
   readonly owner: ReadonlyArray<number>;
@@ -64,7 +72,8 @@ type Context = {
   readonly tolerances: Tolerances;
 };
 
-// Mutable state of a pass: each line's offset, whether it is settled (pinned, an anchor, or moved), and whether moved.
+// Mutable state of a pass: each line's offset, whether it is settled (emphasised, an anchor, or moved), and whether
+// moved.
 type Placement = { readonly offsets: Array<Point>; readonly settled: Array<boolean>; readonly moved: Array<boolean> };
 
 // A conflict between two lines: the pair, how many of the two are settled, and the longer one's drawn length.
@@ -78,7 +87,7 @@ type Candidate = {
   readonly mover: number;
   readonly anchor: number;
   readonly offset: Point;
-  readonly pinned: number;
+  readonly emphasised: number;
   readonly blocking: number;
   readonly settled: number;
   readonly drawn: number;
@@ -113,8 +122,16 @@ const PARALLEL_SINE = Math.sin(PARALLEL_ANGLE);
 const CROSSING_SINE = Math.sin((10 * Math.PI) / 180);
 // A line drawn shorter than this many least spacings is a connector: its ends follow the lines it joins.
 const CONNECTOR_SPANS = 3;
-// A point touches a stroke within this share of the coincidence tolerance.
+// A point touches a stroke within this share of the coincidence tolerance,
 const JOIN_SHARE = 0.02;
+// and never closer than this many coordinate rounding steps: a rounded end lies up to half a step's diagonal off its
+// exact place, and the line through two rounded ends as far again, so an end on a line can sit √2 steps off it.
+const JOIN_STEPS = 1.5;
+// Collinear pieces are one line when they overlap or a break no wider than this many least spacings parts them (a
+// partial duplicate, a narrow break), or when a crossing line cuts both ends facing a wider gap (a line passing behind
+// a part in front of it); collinear edges that otherwise end apart (two boxes' level tops) are separate lines and move
+// on their own.
+const BREAK_SPANS = 5;
 // Spacings this close under the least spacing are float noise of a separated pair, not a defect.
 const SPACING_TOLERANCE = 1e-9;
 // A pair is pushed apart and re-measured at most this many times.
@@ -238,8 +255,61 @@ const collinear = (first: Stroke, second: Stroke, coincidence: number): boolean 
   return off(shorter.a) <= coincidence && off(shorter.b) <= coincidence;
 };
 
+// A stroke's extent along a direction, lowest first.
+const spanAlong = (stroke: Stroke, u: Point): readonly [number, number] => {
+  const [s, e] = [dot(stroke.a, u), dot(stroke.b, u)];
+  return [Math.min(s, e), Math.max(s, e)];
+};
+
+// How far apart two strokes lie along the longer one's direction; negative where they overlap.
+const gapAlong = (first: Stroke, second: Stroke): number => {
+  const { u } = first.length >= second.length ? first : second;
+  const [[lo1, hi1], [lo2, hi2]] = [spanAlong(first, u), spanAlong(second, u)];
+  return Math.max(lo2 - hi1, lo1 - hi2);
+};
+
+// Whether two points lie within `reach` of each other.
+const within = (p: Point, q: Point, reach: number): boolean => Math.hypot(p[0] - q[0], p[1] - q[1]) <= reach;
+
+// Whether a point lies within `tolerance` of a stroke, its ends included.
+const touches = (stroke: Stroke, point: Point, tolerance: number): boolean => {
+  const run = minus(stroke.b, stroke.a);
+  const length2 = dot(run, run);
+  const t = length2 === 0 ? 0 : Math.max(0, Math.min(1, dot(minus(point, stroke.a), run) / length2));
+  return within(point, plus(stroke.a, times(run, t)), tolerance);
+};
+
+// The ends of two collinear strokes that face each other across the gap between them.
+const facingEnds = (first: Stroke, second: Stroke): readonly [Point, Point] => {
+  const { u } = first.length >= second.length ? first : second;
+  const ordered = (stroke: Stroke): readonly [Point, Point] =>
+    dot(stroke.a, u) <= dot(stroke.b, u) ? [stroke.a, stroke.b] : [stroke.b, stroke.a];
+  const [[low1, high1], [low2, high2]] = [ordered(first), ordered(second)];
+  return dot(low1, u) <= dot(low2, u) ? [high1, low2] : [high2, low1];
+};
+
+// Whether a line crossing `stroke` at 10° or more cuts it at `point`: runs through the point, clear of its own ends.
+// The outline of a part in front cuts a line passing behind it so; at a corner the two lines end together instead.
+const cutAt = (strokes: ReadonlyArray<Stroke>, stroke: Stroke, point: Point, join: number): boolean =>
+  A.some(
+    strokes,
+    (other) =>
+      Math.abs(cross(other.u, stroke.u)) >= CROSSING_SINE &&
+      touches(other, point, join) &&
+      !within(other.a, point, join) &&
+      !within(other.b, point, join)
+  );
+
+// Two strokes drawn as one line: collinear, and overlapping, parted by no more than a break, or parted by a part in
+// front of them however wide (a crossing line cuts each end facing the gap), so a line seen on both sides of a part in
+// front stays one line and its pieces move together.
+const sameLine = (first: Stroke, second: Stroke, strokes: ReadonlyArray<Stroke>, tolerances: Tolerances): boolean =>
+  collinear(first, second, tolerances.coincidence) &&
+  (gapAlong(first, second) <= BREAK_SPANS * tolerances.minSpacing ||
+    A.every(facingEnds(first, second), (end) => cutAt(strokes, first, end, tolerances.join)));
+
 // Union-find over stroke indices: the line each stroke belongs to, numbered from 0 in order of first stroke.
-const lineIndices = (strokes: ReadonlyArray<Stroke>, coincidence: number): ReadonlyArray<number> => {
+const lineIndices = (strokes: ReadonlyArray<Stroke>, tolerances: Tolerances): ReadonlyArray<number> => {
   const parent = A.map(strokes, (stroke) => stroke.index);
   const root = (index: number): number => {
     let at = index;
@@ -249,7 +319,7 @@ const lineIndices = (strokes: ReadonlyArray<Stroke>, coincidence: number): Reado
     return at;
   };
   A.forEach(parallelPairs(strokes), ([first, second]) => {
-    if (collinear(first, second, coincidence)) {
+    if (sameLine(first, second, strokes, tolerances)) {
       const [x, y] = [root(first.index), root(second.index)];
       parent[Math.max(x, y)] = Math.min(x, y);
     }
@@ -271,10 +341,7 @@ const lineIndices = (strokes: ReadonlyArray<Stroke>, coincidence: number): Reado
 const coveredLength = (members: ReadonlyArray<Stroke>, u: Point): number => {
   const spans = pipe(
     members,
-    A.map((m) => {
-      const [s, e] = [dot(m.a, u), dot(m.b, u)];
-      return [Math.min(s, e), Math.max(s, e)] as const;
-    }),
+    A.map((m) => spanAlong(m, u)),
     A.sort(Order.mapInput(Order.Number, ([s]: readonly [number, number]) => s))
   );
   return A.reduce(spans, { total: 0, end: Number.NEGATIVE_INFINITY }, (acc, [s, e]) =>
@@ -282,13 +349,13 @@ const coveredLength = (members: ReadonlyArray<Stroke>, u: Point): number => {
   ).total;
 };
 
-const lineOf = (members: ReadonlyArray<Stroke>, firstFixed: number, tolerances: Tolerances): Line => {
+const lineOf = (members: ReadonlyArray<Stroke>, firstEmphasis: number, tolerances: Tolerances): Line => {
   const reference = A.reduce(members, A.getUnsafe(members, 0), (best, m) => (m.length > best.length ? m : best));
   const drawn = coveredLength(members, reference.u);
   return {
     reference,
     drawn,
-    pinned: A.some(members, (m) => m.index >= firstFixed),
+    emphasised: A.some(members, (m) => m.index >= firstEmphasis),
     rigid: drawn >= CONNECTOR_SPANS * tolerances.minSpacing,
   };
 };
@@ -296,13 +363,13 @@ const lineOf = (members: ReadonlyArray<Stroke>, firstFixed: number, tolerances: 
 const linesOf = (
   strokes: ReadonlyArray<Stroke>,
   owner: ReadonlyArray<number>,
-  firstFixed: number,
+  firstEmphasis: number,
   tolerances: Tolerances
 ): ReadonlyArray<Line> => {
   const count = A.reduce(owner, 0, (most, line) => Math.max(most, line + 1));
   const members = A.makeBy(count, (): Array<Stroke> => []);
   A.forEach(strokes, (stroke) => A.getUnsafe(members, A.getUnsafe(owner, stroke.index)).push(stroke));
-  return A.map(members, (line) => lineOf(line, firstFixed, tolerances));
+  return A.map(members, (line) => lineOf(line, firstEmphasis, tolerances));
 };
 
 // Pairs of strokes of different lines that run side by side and could come within the least spacing.
@@ -450,7 +517,7 @@ const candidateOf = (mover: number, anchor: number, context: Context, placement:
     mover,
     anchor,
     offset,
-    pinned: line.pinned ? 1 : 0,
+    emphasised: line.emphasised ? 1 : 0,
     blocking: blockingOf({ anchor, mover, offset }, context, placement),
     settled: A.getUnsafe(placement.settled, mover) ? 1 : 0,
     drawn: line.drawn,
@@ -460,7 +527,7 @@ const candidateOf = (mover: number, anchor: number, context: Context, placement:
 // An emphasised line moves last; then the move that crowds no settled line, then a line not yet placed, then the
 // line drawn shorter, then line order.
 const candidateOrder = Order.combineAll([
-  Order.mapInput(Order.Number, (c: Candidate) => c.pinned),
+  Order.mapInput(Order.Number, (c: Candidate) => c.emphasised),
   Order.mapInput(Order.Number, (c: Candidate) => c.blocking),
   Order.mapInput(Order.Number, (c: Candidate) => c.settled),
   Order.mapInput(Order.Number, (c: Candidate) => c.drawn),
@@ -500,14 +567,6 @@ const resolveConflict = (conflict: Conflict, context: Context, placement: Placem
   );
 };
 
-const touches = (stroke: Stroke, point: Point, tolerance: number): boolean => {
-  const run = minus(stroke.b, stroke.a);
-  const length2 = dot(run, run);
-  const t = length2 === 0 ? 0 : Math.max(0, Math.min(1, dot(minus(point, stroke.a), run) / length2));
-  const foot = plus(stroke.a, times(run, t));
-  return Math.hypot(point[0] - foot[0], point[1] - foot[1]) <= tolerance;
-};
-
 // Where the line through `first` meets the line through `second`.
 const meet = (first: Stroke, second: Stroke): Point =>
   plus(first.a, times(first.u, cross(minus(second.a, first.a), second.u) / cross(first.u, second.u)));
@@ -534,7 +593,7 @@ const placed = (settled: Settled, stroke: Stroke): Stroke => shifted(stroke, off
 
 // The strokes of other lines a point of `stroke` touches.
 const incident = (settled: Settled, stroke: Stroke, point: Point): ReadonlyArray<Stroke> => {
-  const tolerance = settled.context.tolerances.coincidence * JOIN_SHARE;
+  const tolerance = settled.context.tolerances.join;
   return A.filter(
     settled.context.strokes,
     (other) =>
@@ -568,9 +627,8 @@ const rigidEnd = (settled: Settled, stroke: Stroke, point: Point): Point => {
 
 // The end of `stroke` at `point`, when it has one there.
 const endAt = (settled: Settled, stroke: Stroke, point: Point): O.Option<Point> => {
-  const tolerance = settled.context.tolerances.coincidence * JOIN_SHARE;
-  const near = (end: Point) => Math.hypot(end[0] - point[0], end[1] - point[1]) <= tolerance;
-  return near(stroke.a) ? O.some(stroke.a) : near(stroke.b) ? O.some(stroke.b) : O.none();
+  const { join } = settled.context.tolerances;
+  return within(stroke.a, point, join) ? O.some(stroke.a) : within(stroke.b, point, join) ? O.some(stroke.b) : O.none();
 };
 
 // An end of a connector goes where the moved line it joins took that point: to that line's end there, solved again,
@@ -608,15 +666,15 @@ const resolvedSegment = (settled: Settled, segment: Segment2, stroke: Stroke): S
 };
 
 // The pass's lines, contacts, and an empty placement (only lines carrying an emphasis stroke start settled).
-const settingOf = (segments: ReadonlyArray<Segment2>, firstFixed: number, tolerances: Tolerances): Settled => {
+const settingOf = (segments: ReadonlyArray<Segment2>, firstEmphasis: number, tolerances: Tolerances): Settled => {
   const strokes = A.map(segments, strokeOf);
-  const owner = lineIndices(strokes, tolerances.coincidence);
-  const lines = linesOf(strokes, owner, firstFixed, tolerances);
+  const owner = lineIndices(strokes, tolerances);
+  const lines = linesOf(strokes, owner, firstEmphasis, tolerances);
   return {
     context: { strokes, owner, lines, contacts: contactsOf(strokes, owner, tolerances), tolerances },
     placement: {
       offsets: A.map(lines, () => ORIGIN),
-      settled: A.map(lines, (line) => line.pinned),
+      settled: A.map(lines, (line) => line.emphasised),
       moved: A.map(lines, () => false),
     },
   };
@@ -626,10 +684,10 @@ const settingOf = (segments: ReadonlyArray<Segment2>, firstFixed: number, tolera
 // None when no line moved.
 const separationPass = (
   segments: ReadonlyArray<Segment2>,
-  firstFixed: number,
+  firstEmphasis: number,
   tolerances: Tolerances
 ): O.Option<Drawing> => {
-  const settled = settingOf(segments, firstFixed, tolerances);
+  const settled = settingOf(segments, firstEmphasis, tolerances);
   const { context, placement } = settled;
   let conflict = nextConflict(context, placement);
   let rounds = 0;
@@ -651,13 +709,13 @@ const separationPass = (
 // Passes until the drawing measures clean, a pass moves nothing, or the passes run out: solving ends again can bring
 // a re-ended line beside another (a connector grown past the overlap), and the next pass opens that pair too. The
 // drawing that falls least short is kept, so the rule never returns a drawing worse than its input.
-const settle = (segments: ReadonlyArray<Segment2>, firstFixed: number, tolerances: Tolerances): Drawing => {
+const settle = (segments: ReadonlyArray<Segment2>, firstEmphasis: number, tolerances: Tolerances): Drawing => {
   const start: Drawing = { segments, shifts: A.map(segments, () => ORIGIN) };
   let current = start;
   let best = { drawing: start, shortfall: shortfallOf(segments, tolerances) };
   let pass = 0;
   while (pass < PASSES && best.shortfall > 0) {
-    const next = separationPass(current.segments, firstFixed, tolerances);
+    const next = separationPass(current.segments, firstEmphasis, tolerances);
     if (O.isNone(next)) {
       break;
     }
@@ -669,9 +727,22 @@ const settle = (segments: ReadonlyArray<Segment2>, firstFixed: number, tolerance
   return best.drawing;
 };
 
+// The thresholds as given, and the join tolerance: a share of the coincidence, floored at the rounding step.
+const tolerancesOf = (input: {
+  readonly minSpacing: number;
+  readonly minOverlap: number;
+  readonly coincidence: number;
+  readonly quantum?: number | undefined;
+}): Tolerances => ({
+  minSpacing: input.minSpacing,
+  minOverlap: input.minOverlap,
+  coincidence: input.coincidence,
+  join: Math.max(input.coincidence * JOIN_SHARE, (input.quantum ?? 0) * JOIN_STEPS),
+});
+
 // How far each line of the input moved in all, for the lines that moved.
-const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>, coincidence: number) => {
-  const owner = lineIndices(A.map(segments, strokeOf), coincidence);
+const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>, tolerances: Tolerances) => {
+  const owner = lineIndices(A.map(segments, strokeOf), tolerances);
   const count = A.reduce(owner, 0, (most, line) => Math.max(most, line + 1));
   const largest = A.makeBy(count, () => 0);
   A.forEach(shifts, ([x, y], index) => {
@@ -687,8 +758,14 @@ const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>
  *
  * **Details**
  *
- * Strokes collinear within `coincidence` form one line (a line broken at a
- * crossing, a partial duplicate). Two lines conflict where a stroke of each
+ * Strokes collinear within `coincidence` form one line when they overlap, when
+ * a break no wider than five `minSpacing` parts them (a partial duplicate, a
+ * narrow break), or when a line crossing at 10° or more runs through each end
+ * facing a wider gap, clear of its own ends (a line passing behind a part in
+ * front of it, so its pieces either side move together). Collinear edges that
+ * otherwise end apart, such as two boxes' level tops meeting their own
+ * corners, are separate lines and move on their own. Two lines conflict where
+ * a stroke of each
  * runs within 3° of parallel beside the other over at least `minOverlap`,
  * their nearer spacing over that overlap lying above `coincidence` and under
  * `minSpacing`. One line moves straight away from the other by the largest
@@ -697,8 +774,9 @@ const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>
  * no settled line beside it too close, then a line not yet placed, then the
  * line drawn shorter; a run of close lines thus opens outward from its
  * longest, and a stacked pair moves away from a neighbour it would crowd.
- * A line carrying a `fixed` (emphasis) stroke moves only when nothing else
- * can, and its emphasis moves with it. `broken` lines move like `segments`.
+ * `emphasis` lines move with the outline they are drawn over, and a line
+ * carrying one moves only when nothing else can. `broken` lines move like
+ * `segments`.
  *
  * After the moves every end is solved again. A line drawn at least three
  * least spacings long keeps its direction: an end meets again the steepest
@@ -706,7 +784,10 @@ const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>
  * unmoved line's ends only slide along it, a vertex where unmoved lines meet
  * stays put, a moved line is re-ended on the lines it ran to, and a break
  * between two pieces of one line keeps its place on the lines crossing it. A
- * shorter line is a connector: its ends follow the lines it joins. The
+ * shorter line is a connector: its ends follow the lines it joins. An end
+ * stands on a line within 2% of `coincidence`, and never closer than one and
+ * a half `quantum` steps, so ends the kernel rounded off the lines they meet
+ * are still found on a drawing enlarged far past its model units. The
  * result is measured again and opened again, at most four times, and the
  * drawing that falls least short of the spacing is returned. Lengths are in
  * the segments' units.
@@ -733,8 +814,9 @@ const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>
  * console.log(result.segments[1], result.moves) // [0, 0.7, 90, 0.7] [0.36]
  * ```
  *
- * @param input - The movable segments, the broken lines drawn with them, the emphasis lines drawn over them, and
- * the spacing, overlap and coincidence thresholds in the segments' units.
+ * @param input - The outline segments, the broken lines drawn with them, the emphasis lines drawn over them, the
+ * spacing, overlap and coincidence thresholds, and the step the coordinates are rounded to (`quantum`, default 0),
+ * all in the segments' units.
  * @returns The separated segments, broken lines and emphasis lines, and how far each moved line moved.
  * @category utilities
  * @since 0.0.0
@@ -742,32 +824,33 @@ const movesOf = (segments: ReadonlyArray<Segment2>, shifts: ReadonlyArray<Point>
 export const separateCloseOutlines = (input: {
   readonly segments: ReadonlyArray<Segment2>;
   readonly broken?: ReadonlyArray<Segment2> | undefined;
-  readonly fixed?: ReadonlyArray<Segment2> | undefined;
+  readonly emphasis?: ReadonlyArray<Segment2> | undefined;
   readonly minSpacing: number;
   readonly minOverlap: number;
   readonly coincidence: number;
+  readonly quantum?: number | undefined;
 }): {
   readonly segments: ReadonlyArray<Segment2>;
   readonly broken: ReadonlyArray<Segment2>;
-  readonly fixed: ReadonlyArray<Segment2>;
+  readonly emphasis: ReadonlyArray<Segment2>;
   readonly moves: ReadonlyArray<number>;
 } => {
   const broken = input.broken ?? A.empty<Segment2>();
-  const fixed = input.fixed ?? A.empty<Segment2>();
-  const tolerances = { minSpacing: input.minSpacing, minOverlap: input.minOverlap, coincidence: input.coincidence };
-  const all = [...input.segments, ...broken, ...fixed];
+  const emphasis = input.emphasis ?? A.empty<Segment2>();
+  const tolerances = tolerancesOf(input);
+  const all = [...input.segments, ...broken, ...emphasis];
   const firstBroken = A.length(input.segments);
-  const firstFixed = firstBroken + A.length(broken);
-  const drawing = settle(all, firstFixed, tolerances);
-  const moves = movesOf(all, drawing.shifts, input.coincidence);
+  const firstEmphasis = firstBroken + A.length(broken);
+  const drawing = settle(all, firstEmphasis, tolerances);
+  const moves = movesOf(all, drawing.shifts, tolerances);
   return A.isReadonlyArrayNonEmpty(moves)
     ? {
         segments: A.take(drawing.segments, firstBroken),
-        broken: A.take(A.drop(drawing.segments, firstBroken), firstFixed - firstBroken),
-        fixed: A.drop(drawing.segments, firstFixed),
+        broken: A.take(A.drop(drawing.segments, firstBroken), firstEmphasis - firstBroken),
+        emphasis: A.drop(drawing.segments, firstEmphasis),
         moves,
       }
-    : { segments: input.segments, broken, fixed, moves };
+    : { segments: input.segments, broken, emphasis, moves };
 };
 
 /**
@@ -808,9 +891,4 @@ export const closeOutlineGaps = (input: {
   readonly minSpacing: number;
   readonly minOverlap: number;
   readonly coincidence: number;
-}): ReadonlyArray<number> =>
-  shortGaps(A.map(input.segments, strokeOf), {
-    minSpacing: input.minSpacing,
-    minOverlap: input.minOverlap,
-    coincidence: input.coincidence,
-  });
+}): ReadonlyArray<number> => shortGaps(A.map(input.segments, strokeOf), tolerancesOf(input));

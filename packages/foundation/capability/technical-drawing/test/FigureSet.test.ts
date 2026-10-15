@@ -24,6 +24,7 @@ import {
   marginFindings,
   marginsCm,
   mirrorSegments,
+  nearestOutlineDistance,
   OUTLINE_COINCIDENCE_MM,
   OverlayLine,
   outlineSpacingFindings,
@@ -2173,8 +2174,9 @@ describe("graded shading ladder through fake ports", () => {
   });
 });
 
-// A fake engine whose every view draws the unit square and the given lines, unshaded.
-const engineDrawing = (lines: ReadonlyArray<FakeSegment>) =>
+// A fake engine whose every view draws the unit square and the given lines, and whose shading pass draws the given
+// strokes.
+const engineDrawing = (lines: ReadonlyArray<FakeSegment>, strokes: ReadonlyArray<FakeSegment> = []) =>
   Layer.succeed(
     GeometryEngine,
     GeometryEngine.of({
@@ -2188,8 +2190,15 @@ const engineDrawing = (lines: ReadonlyArray<FakeSegment>) =>
           partOverlaps: 0,
         });
       }),
-      project: Effect.fnUntraced(function* (_model, cameras) {
-        return A.map(cameras, () => EdgeSet.make({ visible: [...square, ...lines], hidden: [] }));
+      project: Effect.fnUntraced(function* (_model, cameras, shading) {
+        return A.map(cameras, () =>
+          EdgeSet.make({
+            visible: [...square, ...lines],
+            hidden: [],
+            shading: O.match(shading, { onNone: A.empty, onSome: () => strokes }),
+            shadingCoverage: O.map(shading, () => ShadingCoverage.make({ shadedFaces: 1, skippedFaces: [] })),
+          })
+        );
       }),
     })
   );
@@ -2203,9 +2212,9 @@ const closeScene: ReadonlyArray<FakeSegment> = [
   [1, lift, 9, lift],
   [5, lift, 5, 3],
 ];
-const figureSegmentsMm = (svg: string): ReadonlyArray<Segment2> =>
+const figureSegmentsMm = (svg: string, layer = "figure"): ReadonlyArray<Segment2> =>
   pipe(
-    /<path id="figure" d="([^"]*)"/.exec(svg)?.[1] ?? "",
+    new RegExp(`<path id="${layer}" d="([^"]*)"`).exec(svg)?.[1] ?? "",
     (d) => [...d.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)],
     A.map((m) => Segment2.make([Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])])),
     A.map(([x1, y1, x2, y2]) => Segment2.make([x1 / PT_PER_MM, y1 / PT_PER_MM, x2 / PT_PER_MM, y2 / PT_PER_MM]))
@@ -2257,6 +2266,66 @@ describe("outline spacing through fake ports", () => {
           [1, 0.305]
         );
         expect(figure?.visibleSegments).toBe(A.length(square) + A.length(closeScene));
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
+      })
+    );
+  });
+});
+
+// Graded strokes on the face above the close line, as the kernel plans them against the line as projected: their feet
+// stand 0.65 mm above it, clear of the 0.6 mm clearance (half the 1.2 mm least pitch).
+const strokeFoot = lift + 0.65 * unitsPerMm;
+const faceStrokes: ReadonlyArray<FakeSegment> = A.map([2, 3, 7, 8], (x) => [x, strokeFoot, x, 4] as const);
+
+describe("graded shading beside a separated outline through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(engineDrawing(closeScene, faceStrokes), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "clips graded strokes again where the separation moves an outline toward their ends",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: { shadingStyle: "graded", shadingAxis: "surface-class" },
+          })
+        );
+        const outputDir = path.join(dir, "out");
+        const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir, shade: true }));
+        const svg = yield* fs.readFileString(path.join(outputDir, "fig-1.svg"));
+        const strokes = figureSegmentsMm(svg, "shading");
+        const outline = figureSegmentsMm(svg, "figure");
+        // the close line moved 0.305 mm up, toward the strokes' feet, which stood 0.65 mm off it: on the sheet every
+        // stroke end stands the plan's 0.6 mm clear of every drawn line again (review loop 4, thread on
+        // FigureSet.service.ts:538), the strokes cut back by no more than that
+        const clearances = A.flatMap(strokes, ([x1, y1, x2, y2]) => [
+          nearestOutlineDistance({ x: x1, y: y1, outlines: outline }),
+          nearestOutlineDistance({ x: x2, y: y2, outlines: outline }),
+        ]);
+        expect(A.length(strokes)).toBe(A.length(faceStrokes));
+        expect(Math.min(...clearances)).toBeGreaterThanOrEqual(0.6 - 1e-3);
+        expect(Math.min(...clearances)).toBeCloseTo(0.6, 2);
+        const figure = manifest.figures[0];
+        expect(figure?.shadingSegments).toBe(A.length(faceStrokes));
+        assertSome(
+          O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+            separation.lines,
+            separation.trimmedStrokes,
+            separation.droppedStrokes,
+          ]),
+          [1, 4, 0]
+        );
         assertSome(
           O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
           []

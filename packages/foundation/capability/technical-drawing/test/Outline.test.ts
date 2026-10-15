@@ -14,13 +14,13 @@ import * as A from "effect/Array";
 // one line drawn twice.
 const separate = (
   segments: ReadonlyArray<Segment2>,
-  fixed: ReadonlyArray<Segment2> = [],
+  emphasis: ReadonlyArray<Segment2> = [],
   broken: ReadonlyArray<Segment2> = []
 ) =>
   separateCloseOutlines({
     segments,
     broken,
-    fixed,
+    emphasis,
     minSpacing: 0.7,
     minOverlap: 1,
     coincidence: OUTLINE_COINCIDENCE_MM,
@@ -225,7 +225,7 @@ describe("separateCloseOutlines", () => {
       [5, 0.7, 95, 0.7],
       [50, 0.7, 50, 20],
     ]);
-    expect(A.map(result.fixed, round)).toEqual([[50, 0.7, 50, 20]]);
+    expect(A.map(result.emphasis, round)).toEqual([[50, 0.7, 50, 20]]);
   });
 
   it("opens pairs of broken lines and of emphasised outlines, which no other line can make room for", () => {
@@ -250,8 +250,79 @@ describe("separateCloseOutlines", () => {
       [0, 0, 100, 0],
       [0, 0.7, 90, 0.7],
     ]);
-    expect(A.map(emphasised.fixed, round)).toEqual(A.map(emphasised.segments, round));
-    expect(gaps([...emphasised.segments, ...emphasised.fixed])).toEqual([]);
+    expect(A.map(emphasised.emphasis, round)).toEqual(A.map(emphasised.segments, round));
+    expect(gaps([...emphasised.segments, ...emphasised.emphasis])).toEqual([]);
+  });
+
+  it("moves only the collinear edge a close line runs beside, never a distant edge level with it", () => {
+    // Two boxes' level tops 30 apart, and a long line 0.34 above the first top only. The longer line stays, so the
+    // first top moves down; the second top has no close neighbour and stays. Grouped as one line by their common
+    // level, both tops moved (review loop 4, thread on Outline.rules.ts:252).
+    const firstTop: Segment2 = [0, 0, 30, 0];
+    const secondTop: Segment2 = [60, 0, 90, 0];
+    const result = separate([firstTop, secondTop, [-50, 0.34, 35, 0.34]]);
+    expect(A.map(result.segments, round)).toEqual([
+      [0, -0.36, 30, -0.36],
+      [60, 0, 90, 0],
+      [-50, 0.34, 35, 0.34],
+    ]);
+    expect(result.segments[1]).toBe(secondTop);
+    expect(A.map(result.moves, (move) => Math.round(move * 1e9) / 1e9)).toEqual([0.36]);
+    expect(gaps(result.segments)).toEqual([]);
+    // the same tops meeting their own sides at their corners: still two lines, and the second top stays
+    const boxes = separate([
+      firstTop,
+      [0, 0, 0, -10],
+      [30, 0, 30, -10],
+      secondTop,
+      [60, 0, 60, -10],
+      [90, 0, 90, -10],
+      [-50, 0.34, 35, 0.34],
+    ]);
+    expect(A.map(boxes.segments, round)[0]).toEqual([0, -0.36, 30, -0.36]);
+    expect(boxes.segments[3]).toBe(secondTop);
+  });
+
+  it("moves the pieces of an edge seen either side of a wide part in front together", () => {
+    // A thin board's face seen obliquely: its edges 0.34 apart, sheared 2 along, behind a post 12 wide, so each edge
+    // shows as two pieces whose ends facing the post stand in the post's sides. On each side of the post the shorter
+    // piece of a close pair moves, and the shear makes that the far edge on the left and the near edge on the right:
+    // grouped only across a narrow break, the pieces went opposite ways and both edges jogged across the post.
+    const result = separate([
+      [0, 0, 40, 0],
+      [52, 0, 100, 0],
+      [2, 0.34, 40, 0.34],
+      [52, 0.34, 102, 0.34],
+      [0, 0, 2, 0.34],
+      [100, 0, 102, 0.34],
+      [40, -8, 40, 8],
+      [52, -8, 52, 8],
+    ]);
+    const [nearLeft, nearRight, farLeft, farRight] = A.map(A.take(result.segments, 4), round);
+    expect([nearLeft?.[1], nearLeft?.[3]]).toEqual([nearRight?.[1], nearRight?.[3]]);
+    expect([farLeft?.[1], farLeft?.[3]]).toEqual([farRight?.[1], farRight?.[3]]);
+    expect(A.map(result.moves, (move) => Math.round(move * 1e9) / 1e9)).toEqual([0.36]);
+    expect(gaps(result.segments)).toEqual([]);
+  });
+
+  it("re-ends a T-end the kernel rounded off its oblique line on a drawing enlarged ten times", () => {
+    // Ten sheet mm a model unit, coordinates rounded to three decimals as the kernel rounds them: an oblique pair 0.034
+    // apart (0.34 mm) and a stem standing on the shorter line, whose rounded foot sits 0.00065 off that line. The
+    // join tolerance (0.15 mm x 0.02 = 0.0003 units) missed it, so the stem stayed behind when its line moved
+    // (review loop 4, thread on Outline.rules.ts:117).
+    const a: Segment2 = [0, 0, 8.66, 5];
+    const b: Segment2 = [0.416, 0.279, 8.21, 4.779];
+    const stem: Segment2 = [1.757, 1.054, 1.41, 3.024];
+    const tolerances = { minSpacing: 0.07, minOverlap: 0.1, coincidence: OUTLINE_COINCIDENCE_MM / 10 };
+    expect(offLine([stem[0], stem[1]], b)).toBeGreaterThan(tolerances.coincidence * 0.02);
+    const result = separateCloseOutlines({ segments: [a, b, stem], quantum: 0.001, ...tolerances });
+    const [, movedB = b, movedStem = stem] = result.segments;
+    // the shorter line moved 0.0364 off its partner, and the stem's foot followed it along the stem
+    expect(A.map(result.moves, (move) => Math.round(move * 1e4) / 1e4)).toEqual([0.0364]);
+    expect(offLine([movedStem[0], movedStem[1]], movedB)).toBeLessThan(1e-9);
+    expect(offLine([movedStem[0], movedStem[1]], stem)).toBeLessThan(1e-9);
+    expect([movedStem[2], movedStem[3]]).toEqual([stem[2], stem[3]]);
+    expect(closeOutlineGaps({ segments: result.segments, ...tolerances })).toEqual([]);
   });
 
   it("returns its input untouched when no pair runs too close", () => {

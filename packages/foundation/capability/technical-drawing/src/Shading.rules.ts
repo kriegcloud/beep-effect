@@ -971,6 +971,168 @@ export const legibleShading = (input: {
   return A.filter(long, (s, i) => !A.some(long, yieldsTo(s, i)));
 };
 
+// A point on the sheet, and a stretch of a stroke by distance from its first point.
+type Planar = readonly [number, number];
+type Stretch = readonly [number, number];
+
+// A trimmed end lands this share past the clearance, so a unit conversion never measures it a hair under.
+const REACH_MARGIN = 1e-9;
+
+const byStart = Order.mapInput(Order.Number, (stretch: Stretch) => stretch[0]);
+
+const overlapOf = (x: Stretch, y: Stretch): O.Option<Stretch> => {
+  const [lo, hi] = [Math.max(x[0], y[0]), Math.min(x[1], y[1])];
+  return lo < hi ? O.some([lo, hi]) : O.none();
+};
+
+// Where along the line from `from` in unit direction `u` it runs closer than `reach` to `centre`.
+const nearPoint = (from: Planar, u: Planar, centre: Planar, reach: number): O.Option<Stretch> => {
+  const [dx, dy] = [from[0] - centre[0], from[1] - centre[1]];
+  const b = u[0] * dx + u[1] * dy;
+  const discriminant = b * b - (dx * dx + dy * dy - reach * reach);
+  return discriminant > 0 ? O.some([-b - Math.sqrt(discriminant), -b + Math.sqrt(discriminant)]) : O.none();
+};
+
+// Where `offset + t * rate` lies strictly inside `bounds`.
+const insideFor = (offset: number, rate: number, bounds: Stretch): O.Option<Stretch> => {
+  if (rate === 0) {
+    return offset > bounds[0] && offset < bounds[1]
+      ? O.some([Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY])
+      : O.none();
+  }
+  const [t1, t2] = [(bounds[0] - offset) / rate, (bounds[1] - offset) / rate];
+  return O.some([Math.min(t1, t2), Math.max(t1, t2)]);
+};
+
+// Where the line from `from` in direction `u` runs closer than `reach` to a segment's straight run, between the
+// perpendiculars at its ends.
+const nearRun = (from: Planar, u: Planar, line: Segment2, reach: number): O.Option<Stretch> => {
+  const length = segmentLength(line);
+  const v: Planar = length > 0 ? [(line[2] - line[0]) / length, (line[3] - line[1]) / length] : [1, 0];
+  const [dx, dy] = [from[0] - line[0], from[1] - line[1]];
+  const across = insideFor(v[0] * dy - v[1] * dx, v[0] * u[1] - v[1] * u[0], [-reach, reach]);
+  const along = insideFor(v[0] * dx + v[1] * dy, v[0] * u[0] + v[1] * u[1], [0, length]);
+  return O.flatMap(across, (a) => O.flatMap(along, (b) => overlapOf(a, b)));
+};
+
+// Where the line from `from` in direction `u` runs closer than `reach` to a segment: one stretch, since the points
+// within reach of a segment form a convex region (the run between its ends, and a disc at each end).
+const nearSegment = (from: Planar, u: Planar, line: Segment2, reach: number): O.Option<Stretch> =>
+  pipe(
+    [
+      nearPoint(from, u, [line[0], line[1]], reach),
+      nearPoint(from, u, [line[2], line[3]], reach),
+      nearRun(from, u, line, reach),
+    ],
+    A.getSomes,
+    A.match({
+      onEmpty: O.none,
+      onNonEmpty: (stretches) =>
+        O.some([Math.min(...A.map(stretches, ([lo]) => lo)), Math.max(...A.map(stretches, ([, hi]) => hi))] as const),
+    })
+  );
+
+// The stretches of `[0, length]` outside every blocked stretch, in order.
+const stretchesOutside = (length: number, blocked: ReadonlyArray<Stretch>): ReadonlyArray<Stretch> => {
+  const swept = A.reduce(A.sort(blocked, byStart), { kept: A.empty<Stretch>(), from: 0 }, (acc, [lo, hi]) => ({
+    kept: lo > acc.from ? A.append(acc.kept, [acc.from, lo] as const) : acc.kept,
+    from: Math.max(acc.from, hi),
+  }));
+  return swept.from < length ? A.append(swept.kept, [swept.from, length] as const) : swept.kept;
+};
+
+// The pieces of a stroke that keep `reach` from every line and are at least `minStroke` long; none when no line
+// comes within reach of the stroke.
+const clearPieces = (
+  stroke: Segment2,
+  lines: ReadonlyArray<Segment2>,
+  reach: number,
+  minStroke: number
+): O.Option<ReadonlyArray<Segment2>> => {
+  const length = segmentLength(stroke);
+  const from: Planar = [stroke[0], stroke[1]];
+  const u: Planar = length > 0 ? [(stroke[2] - stroke[0]) / length, (stroke[3] - stroke[1]) / length] : [1, 0];
+  const at = (t: number): Planar => [from[0] + u[0] * t, from[1] + u[1] * t];
+  const blocked = pipe(
+    lines,
+    A.map((line) => O.flatMap(nearSegment(from, u, line, reach), (near) => overlapOf(near, [0, length]))),
+    A.getSomes
+  );
+  return A.isReadonlyArrayNonEmpty(blocked)
+    ? O.some(
+        pipe(
+          stretchesOutside(length, blocked),
+          A.filter(([lo, hi]) => hi - lo >= minStroke),
+          A.map(([lo, hi]): Segment2 => [...at(lo), ...at(hi)])
+        )
+      )
+    : O.none();
+};
+
+/**
+ * Shading strokes clipped again against drawn lines that moved after the
+ * strokes were planned: every stretch of a stroke closer than `clearance` to
+ * one of `lines` is cut away, and a piece then shorter than `minStroke` is
+ * dropped.
+ *
+ * **Details**
+ *
+ * Graded strokes are planned and drawn back against the outlines as the
+ * engine projects them. Opening close outlines to the least spacing then
+ * moves some outlines, by up to about one spacing and further in a stacked
+ * run, toward the stroke ends of the face beside them. Clipped against the
+ * moved lines, a stroke keeps the clearance at its ends and along its sides;
+ * a stroke no moved line comes near is returned as it was. A stroke cut in
+ * two (a moved line's end beside its middle) keeps both pieces that are long
+ * enough. Lengths are in the segments' units.
+ *
+ * **Gotchas**
+ *
+ * The returned `segments` is the input array itself when no stroke changed.
+ * `trimmed` counts strokes cut back that kept a piece, `dropped` strokes that
+ * kept none.
+ *
+ * **Example** (A line moved up under two strokes)
+ *
+ * ```ts
+ * import { reclippedShading } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const result = reclippedShading({
+ *   segments: [[2, 0.6, 2, 10], [4, 0.6, 4, 1.2]],
+ *   lines: [[0, 0.3, 10, 0.3]],
+ *   clearance: 0.6,
+ *   minStroke: 1
+ * })
+ * console.log(result.segments.length, result.trimmed, result.dropped) // 1 1 1
+ * ```
+ *
+ * @param input - The strokes, the drawn lines that moved, the clearance strokes keep from them, and the shortest
+ * stroke kept, in the strokes' units.
+ * @returns The clipped strokes, how many were cut back, and how many were dropped.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const reclippedShading = (input: {
+  readonly segments: ReadonlyArray<Segment2>;
+  readonly lines: ReadonlyArray<Segment2>;
+  readonly clearance: number;
+  readonly minStroke: number;
+}): { readonly segments: ReadonlyArray<Segment2>; readonly trimmed: number; readonly dropped: number } => {
+  const reach = input.clearance * (1 + REACH_MARGIN);
+  const clipped = A.map(input.segments, (stroke) => ({
+    stroke,
+    pieces: clearPieces(stroke, input.lines, reach, input.minStroke),
+  }));
+  const cut = A.getSomes(A.map(clipped, ({ pieces }) => pieces));
+  return A.isReadonlyArrayNonEmpty(cut)
+    ? {
+        segments: A.flatMap(clipped, ({ stroke, pieces }) => O.getOrElse(pieces, () => [stroke])),
+        trimmed: A.length(A.filter(cut, A.isReadonlyArrayNonEmpty)),
+        dropped: A.length(A.filter(cut, A.isReadonlyArrayEmpty)),
+      }
+    : { segments: input.segments, trimmed: 0, dropped: 0 };
+};
+
 // Lengths are compared to the micrometre so the equal edges of a regular face
 // tie instead of ordering by floating-point noise.
 const lineLength = (edge: FaceEdge): number => Math.round(edge.length * 1e3) / 1e3;

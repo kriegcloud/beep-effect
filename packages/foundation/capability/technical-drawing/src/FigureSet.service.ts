@@ -10,8 +10,9 @@ import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { A, O, Str } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Equivalence from "effect/Equivalence";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -29,6 +30,7 @@ import {
   RenderManifest,
 } from "./Manifest.schemas.ts";
 import { OUTLINE_COINCIDENCE_MM, separateCloseOutlines } from "./Outline.rules.ts";
+import { reclippedShading } from "./Shading.rules.ts";
 import { commonScale, composeSheet } from "./Sheet.compose.ts";
 import {
   LabelFontAlias,
@@ -169,6 +171,17 @@ const shadingLadderReachMm = validationDefaults.ladderReachMm;
 const outlineSpacingMm = validationDefaults.minOutlineSpacingMm;
 const outlineOverlapMm = validationDefaults.minOutlineOverlapMm;
 
+// A length in mm on the sheet, in model units at the common scale (points per model unit).
+const toModelAt =
+  (scale: number) =>
+  (mm: number): number =>
+    (mm * PT_PER_MM) / scale;
+
+// Graded stroke ends stand half a pitch clear of the outlines, and never less than the validator's spacing floor, so
+// the render passes its own check.
+const shadingClearanceMm = (sheet: SheetOptions): number =>
+  Math.max(sheet.shadingMinPitchMm / 2, shadingClearanceFloorMm);
+
 const shadingFor = (input: {
   readonly shade: boolean;
   readonly sheet: SheetOptions;
@@ -179,7 +192,7 @@ const shadingFor = (input: {
   if (!input.shade) {
     return Effect.succeed([]);
   }
-  const toModel = (mm: number) => (mm * PT_PER_MM) / scale;
+  const toModel = toModelAt(scale);
   return input.project(
     ShadingPlan.make({
       minPitch: toModel(sheet.shadingMinPitchMm),
@@ -189,9 +202,7 @@ const shadingFor = (input: {
       axis: sheet.shadingAxis,
       minFaceSpan: toModel(sheet.shadingMinFaceSpanMm),
       minStroke: toModel(sheet.shadingMinStrokeMm),
-      // graded stroke ends stand half a pitch clear of the outlines, and never
-      // less than the validator's spacing floor, so the render passes its own check
-      clearance: O.some(toModel(Math.max(sheet.shadingMinPitchMm / 2, shadingClearanceFloorMm))),
+      clearance: O.some(toModel(shadingClearanceMm(sheet))),
       // a band whose edge has drawn lines this close beyond it starts behind a gutter, the
       // same reach the ladder check reads
       ladderReach: O.some(toModel(shadingLadderReachMm)),
@@ -209,27 +220,68 @@ const drawnSegments = (edges: {
 // The sheet prints point coordinates to 3 decimals (under 0.0002 mm each), so a pair opened to exactly the least
 // spacing can print a hair under it; separation asks this much more (review loop 4, R4-06).
 const outlineSpacingMarginMm = 0.005;
+// The engine rounds every projected coordinate to three decimals in model units (`EdgeSet`), so an end on a line can
+// sit up to about one and a half steps off it; separation finds ends on lines within that much, whatever the scale.
+const edgeCoordinateStep = 0.001;
 
 // Outlines that run side by side closer than the least spacing print as one line of the emphasis weight, so they are
 // opened to it on the sheet after the common scale (points per model unit), keeping both lines (review loop 4,
 // O-01). Broken lines move like outlines; an emphasis line moves with the outline it is drawn over, which moves only
 // when nothing else can. Every line ending on a moved one is re-ended, emphasis and broken lines included.
 const separatedOutline = (edges: EdgeSet, scale: number) => {
-  const toModel = (mm: number) => (mm * PT_PER_MM) / scale;
+  const toModel = toModelAt(scale);
   const separated = separateCloseOutlines({
     segments: edges.visible,
     broken: edges.broken,
-    fixed: edges.emphasis,
+    emphasis: edges.emphasis,
     minSpacing: toModel(outlineSpacingMm + outlineSpacingMarginMm),
     minOverlap: toModel(outlineOverlapMm),
     coincidence: toModel(OUTLINE_COINCIDENCE_MM),
+    quantum: edgeCoordinateStep,
   });
   return {
     visible: separated.segments,
     broken: separated.broken,
-    emphasis: separated.fixed,
+    emphasis: separated.emphasis,
     moves: separated.moves,
   };
+};
+
+const sameSegment = A.makeEquivalence(Equivalence.Number);
+
+// The drawn lines the separation changed: moved with their line, or re-ended on a moved one.
+const movedLines = (edges: EdgeSet, outline: ReturnType<typeof separatedOutline>): ReadonlyArray<Segment2> =>
+  A.flatMap(
+    [
+      A.zip(edges.visible, outline.visible),
+      A.zip(edges.broken, outline.broken),
+      A.zip(edges.emphasis, outline.emphasis),
+    ],
+    flow(
+      A.filter(([before, after]) => !sameSegment(before, after)),
+      A.map(([, after]) => after)
+    )
+  );
+
+// Graded strokes are planned and drawn back against the outlines as projected; the separation then moves some of
+// those outlines, by up to a spacing and further in a stacked run, toward the stroke ends of the face beside them. The
+// strokes are clipped again against every line it changed, with the plan's clearance and least stroke. Uniform
+// strokes end on the face edge by design and stay as planned, as the kernel leaves them.
+const clippedShading = (input: {
+  readonly strokes: ReadonlyArray<Segment2>;
+  readonly moved: ReadonlyArray<Segment2>;
+  readonly sheet: SheetOptions;
+  readonly scale: number;
+}): { readonly segments: ReadonlyArray<Segment2>; readonly trimmed: number; readonly dropped: number } => {
+  const toModel = toModelAt(input.scale);
+  return input.sheet.shadingStyle === "graded"
+    ? reclippedShading({
+        segments: input.strokes,
+        lines: input.moved,
+        clearance: toModel(shadingClearanceMm(input.sheet)),
+        minStroke: toModel(input.sheet.shadingMinStrokeMm),
+      })
+    : { segments: input.strokes, trimmed: 0, dropped: 0 };
 };
 
 // An omitted pictorial is projected like the figure it is claimed from.
@@ -535,22 +587,26 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       .pipe(Effect.mapError(io(`Could not create "${outputDir}".`)));
     const sheets = A.length(spec.figures);
     const mm = scale / PT_PER_MM;
-    const drawn = A.map(figureEdges, (edges) => ({ edges, outline: separatedOutline(edges, scale) }));
+    const drawn = A.map(figureEdges, (edges, index) => {
+      const outline = separatedOutline(edges, scale);
+      const shaded = A.get(shading, index);
+      const strokes = clippedShading({
+        strokes: O.match(shaded, { onNone: A.empty<Segment2>, onSome: (view) => view.shading }),
+        moved: movedLines(edges, outline),
+        sheet,
+        scale,
+      });
+      return { edges, outline, shaded, strokes };
+    });
     const figures = yield* Effect.forEach(
       A.zip(spec.figures, drawn),
       Effect.fnUntraced(function* (
-        [figure, { edges, outline }]: readonly [FigureSpec, (typeof drawn)[number]],
+        [figure, { edges, outline, shaded, strokes }]: readonly [FigureSpec, (typeof drawn)[number]],
         index: number
       ) {
-        const shadedView = A.get(shading, index);
-        const shadingLines = pipe(
-          shadedView,
-          O.map((view) => view.shading),
-          O.getOrElse(A.empty<Segment2>)
-        );
         const svg = composeSheet({
           segments: outline.visible,
-          shading: shadingLines,
+          shading: strokes.segments,
           broken: outline.broken,
           emphasis: outline.emphasis,
           figure: index + 1,
@@ -572,12 +628,12 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           svgFile,
           svgSha256: yield* sha256Hex(svgBytes),
           visibleSegments: A.length(edges.visible),
-          shadingSegments: A.length(shadingLines),
+          shadingSegments: A.length(strokes.segments),
           brokenSegments: A.length(edges.broken),
           // recorded only when drawn, so a manifest without overlays keeps its JSON
           emphasisSegments: A.isReadonlyArrayNonEmpty(edges.emphasis) ? O.some(A.length(edges.emphasis)) : O.none(),
           camera: A.get(cameras, index),
-          shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
+          shadingCoverage: O.flatMap(shaded, (view) => view.shadingCoverage),
           // recorded only when the rule moved a line, so a manifest without close outlines keeps its JSON
           outlineSeparations: A.match(outline.moves, {
             onEmpty: O.none,
@@ -586,6 +642,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
                 OutlineSeparation.make({
                   lines: A.length(moves),
                   largestMoveMm: A.max(moves, Order.Number) * mm,
+                  trimmedStrokes: strokes.trimmed,
+                  droppedStrokes: strokes.dropped,
                 })
               ),
           }),
@@ -627,27 +685,31 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     // outlines and planned per visible stretch); uniform strokes end on the face outline by
     // design and have no probe pass, so those checks would fail every default render.
     const graded = sheet.shadingStyle === "graded";
-    const shadingFindings = A.flatMap(shading, (view, index) => {
-      const page = index + 1;
-      const shadingMm = inMm(view.shading);
-      // the outline the sheet draws: opened like the figure's own
-      const outlineMm = inMm(drawnSegments(separatedOutline(view, scale)));
-      const gradedFindings = graded
-        ? [
-            ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
-            ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
-            ...shadingBandLadderFindings({ page, shadingMm, outlineMm, options: validationOptions }),
-            ...O.match(view.shadingCoverage, {
-              onNone: A.empty<SheetFinding>,
-              onSome: (coverage) => shadingCoverageFindings({ page, coverage }),
-            }),
-          ]
-        : A.empty<SheetFinding>();
-      return [
-        ...shadingSpacingFindings({ page, segmentsMm: shadingMm, options: validationOptions }),
-        ...gradedFindings,
-      ];
-    });
+    const shadingFindings = A.flatMap(
+      A.zip(shading, drawn),
+      ([view, { strokes }]: readonly [EdgeSet, (typeof drawn)[number]], index: number) => {
+        const page = index + 1;
+        // the strokes the sheet draws, clipped again beside moved outlines
+        const shadingMm = inMm(strokes.segments);
+        // the outline the sheet draws: opened like the figure's own
+        const outlineMm = inMm(drawnSegments(separatedOutline(view, scale)));
+        const gradedFindings = graded
+          ? [
+              ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+              ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+              ...shadingBandLadderFindings({ page, shadingMm, outlineMm, options: validationOptions }),
+              ...O.match(view.shadingCoverage, {
+                onNone: A.empty<SheetFinding>,
+                onSome: (coverage) => shadingCoverageFindings({ page, coverage }),
+              }),
+            ]
+          : A.empty<SheetFinding>();
+        return [
+          ...shadingSpacingFindings({ page, segmentsMm: shadingMm, options: validationOptions }),
+          ...gradedFindings,
+        ];
+      }
+    );
     const validation = request.validate
       ? O.some(
           yield* validate(pdfPath, validationOptions).pipe(

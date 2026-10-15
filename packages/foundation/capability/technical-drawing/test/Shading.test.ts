@@ -22,8 +22,10 @@ import {
   ladderPitch,
   legibleShading,
   legibleStrokeLength,
+  nearestOutlineDistance,
   nextBandTaper,
   pointToSegmentDistance,
+  reclippedShading,
   ShadingCoverage,
   ShadingCut,
   ShadingLines,
@@ -1336,6 +1338,59 @@ describe("shading strokes against the outline", () => {
     expect(codes(shadingLoneLineFindings({ page: 1, shadingMm: pair, outlineMm, options }))).toEqual([]);
     // a stroke far from every outline is not lone, however alone it is
     expect(codes(shadingLoneLineFindings({ page: 1, shadingMm: [[20, 5, 20, 25]], outlineMm, options }))).toEqual([]);
+  });
+});
+
+describe("reclippedShading", () => {
+  const clip = (segments: ReadonlyArray<Segment2>, lines: ReadonlyArray<Segment2>) =>
+    reclippedShading({ segments, lines, clearance: 0.6, minStroke: 1 });
+  const nearest = (strokes: ReadonlyArray<Segment2>, lines: ReadonlyArray<Segment2>) =>
+    Math.min(
+      ...A.flatMap(strokes, ([x1, y1, x2, y2]) => [
+        nearestOutlineDistance({ x: x1, y: y1, outlines: lines }),
+        nearestOutlineDistance({ x: x2, y: y2, outlines: lines }),
+      ])
+    );
+
+  it("cuts strokes back to the clearance from a line moved toward their ends, and drops one left too short", () => {
+    // strokes planned 0.6 clear of a line at y = 0, which then moved up 0.3; the third stroke is far from it
+    const moved: ReadonlyArray<Segment2> = [[0, 0.3, 10, 0.3]];
+    const far: Segment2 = [5, 5, 5, 9];
+    const result = clip([[2, 0.6, 2, 10], [4, 0.6, 4, 1.2], far], moved);
+    expect(A.map(result.segments, (s) => A.map(s, (v) => Math.round(v * 1e6) / 1e6))).toEqual([
+      [2, 0.9, 2, 10],
+      [5, 5, 5, 9],
+    ]);
+    expect(result.segments[1]).toBe(far);
+    expect([result.trimmed, result.dropped]).toEqual([1, 1]);
+    expect(nearest(result.segments, moved)).toBeGreaterThanOrEqual(0.6);
+    // nothing near a moved line: the input comes back as it was
+    const strokes: ReadonlyArray<Segment2> = [far];
+    expect(clip(strokes, moved).segments).toBe(strokes);
+    expect(clip(strokes, []).segments).toBe(strokes);
+  });
+
+  it("cuts a stroke a moved line crosses, runs beside, or ends beside, keeping the long pieces", () => {
+    // an oblique line moved across a stroke's end: the piece beyond it is under the least stroke and goes
+    const crossing = clip([[0, 0, 0, 10]], [[-3, 9.5, 3, 8.5]]);
+    expect(A.length(crossing.segments)).toBe(1);
+    expect(nearest(crossing.segments, [[-3, 9.5, 3, 8.5]])).toBeGreaterThanOrEqual(0.6);
+    expect(crossing.segments[0]?.[3]).toBeLessThan(9);
+    // a parallel line moved within 0.4 of a stroke's middle stretch: the stroke keeps its ends beyond that stretch
+    const beside = clip([[0, 0, 20, 0]], [[8, 0.4, 12, 0.4]]);
+    expect(A.length(beside.segments)).toBe(2);
+    expect(A.map(beside.segments, ([x1, , x2]) => [x1 < 8, x2 > 12])).toEqual([
+      [true, false],
+      [false, true],
+    ]);
+    expect(nearest(beside.segments, [[8, 0.4, 12, 0.4]])).toBeGreaterThanOrEqual(0.6);
+    // a moved line ending 0.2 beside a stroke's middle cuts it in two, both pieces long enough to keep
+    const ending = clip([[0, 0, 20, 0]], [[10, 0.2, 10, 8]]);
+    expect(A.map(ending.segments, (s) => A.map(s, (v) => Math.round(v * 1e6) / 1e6))).toEqual([
+      [0, 0, 9.434315, 0],
+      [10.565685, 0, 20, 0],
+    ]);
+    expect([ending.trimmed, ending.dropped]).toEqual([1, 0]);
   });
 });
 

@@ -88,7 +88,9 @@ export class EngineInfo extends S.Opaque<EngineInfo, { readonly brand: unique sy
 
 /**
  * How far the outline-spacing rule opened a figure's close outlines: how
- * many lines moved and the largest move, in mm on the sheet.
+ * many lines moved and the largest move, in mm on the sheet, and how many
+ * graded shading strokes were cut back or dropped to keep their clearance
+ * from the moved lines.
  *
  * **Example** (Two lines moved)
  *
@@ -109,9 +111,26 @@ export class OutlineSeparation extends S.Opaque<OutlineSeparation, { readonly br
     largestMoveMm: S.Finite.check(S.isGreaterThan(0)).annotateKey({
       description: "Largest move of one outline, in mm on the sheet.",
     }),
+    trimmedStrokes: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Graded shading strokes cut back to keep their clearance from a moved outline. Defaults to 0, and on manifests rendered before strokes were clipped again.",
+      })
+    ),
+    droppedStrokes: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Graded shading strokes dropped as shorter than the minimum stroke once cut back from a moved outline. Defaults to 0, and on manifests rendered before strokes were clipped again.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("OutlineSeparation", {
-      description: "Count of outlines moved apart and the largest move, in mm, on one figure.",
+      description:
+        "Count of outlines moved apart and the largest move, in mm, on one figure, and the shading strokes cut back or dropped beside them.",
     })
   )
 ) {}
