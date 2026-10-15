@@ -20,6 +20,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as Record from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
@@ -302,6 +303,10 @@ const runScanCommand = Command.runWith(securityCommand, { version: "0.0.0" });
 
 const initializeScanRepository = Effect.fn("SecurityScanTest.initializeRepository")(function* (root: string) {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const env = Record.filter(
+    process.env,
+    (_, key) => !A.contains(["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"], key)
+  );
   for (const args of [
     ["init", "--quiet"],
     ["remote", "add", "origin", "https://github.com/example/project.git"],
@@ -319,7 +324,7 @@ const initializeScanRepository = Effect.fn("SecurityScanTest.initializeRepositor
       "fixture",
     ],
   ]) {
-    expect(yield* spawner.exitCode(ChildProcess.make("git", args, { cwd: root }))).toBe(0);
+    expect(yield* spawner.exitCode(ChildProcess.make("git", args, { cwd: root, env, extendEnv: false }))).toBe(0);
   }
 });
 
