@@ -217,8 +217,9 @@ export interface ReviewQueueShape {
   /**
    * The items still awaiting a final verdict, in the order given: those with
    * no row in the log, and those whose latest verdict is `partly` or
-   * `withdrawn`. Producers
-   * own the items; the queue stores only verdicts.
+   * `withdrawn`. `question` items are never open here: they close by
+   * `AnswerRow`, and the question loop selects them. Producers own the
+   * items; the queue stores only verdicts.
    */
   readonly openItems: (items: ReadonlyArray<ReviewItem>) => Effect.Effect<ReadonlyArray<ReviewItem>, VerdictLogError>;
   /** Every row of the verdict log, in append order, lock rows and superseded revisions included. */

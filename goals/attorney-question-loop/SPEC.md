@@ -24,7 +24,8 @@ Agents ask the attorney through the review queue, never through a polled inbox. 
    cannot settle.
 6. A daily practice-services job sends the attorney a notice ("N questions are waiting in Claude")
    from his own mailbox to himself, and only when the digest is non-empty.
-7. The pane card ships as an amendment that the `practice-claude-mod` owner applies:
+7. The pane card ships as an amendment that the owner of the `practice-claude-mod-review-queue`
+   follow-on applies (gated in `explorations/claude-mods-law-practice/MAP.md`):
    [`AMENDMENT-question-card.md`](../../explorations/attorney-review-workspace/research/AMENDMENT-question-card.md).
 
 ## Non-Goals
@@ -62,7 +63,7 @@ Higher sources outrank lower sources when they conflict.
 | Calendar apply | `packages/law-practice/server/src/DocketIntake/` calendar adapter, journal and undo | server adapter | EXISTS |
 | docket-intake producer | `packages/law-practice/use-cases/src/DocketIntake/` | producer | EXTENDS |
 | Daily notice job | `apps/docket-intake` (or a practice-services sibling, decided in P3), over `@beep/m365` `createDraftMessage` / `sendDraftMessage` | job | NET-NEW on existing drivers |
-| Pane card | `goals/practice-claude-mod` (owner applies the amendment) | handoff | AMENDMENT |
+| Pane card | `practice-claude-mod-review-queue` follow-on (its owner applies the amendment) | handoff | AMENDMENT |
 
 ## Constraints
 
@@ -77,7 +78,7 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] **P0 schema.**
+- [x] **P0 schema.**
   - `ReviewItem` decodes a `question` member: facts with `SourceRef`s, two to five options with
     unique ids, an optional write per option, and an optional `conversationId`.
   - `AnswerRow` decodes all four states and enforces the state fields: `decided` requires an
@@ -98,8 +99,8 @@ Higher sources outrank lower sources when they conflict.
     synthetic items.
   - The notice job sends at most one email a day, only when the digest is non-empty, tested with a
     fake mailbox.
-- [ ] **P4 handoff.** The amendment is delivered to the `practice-claude-mod` owner and recorded in
-  `README.md`.
+- [ ] **P4 handoff.** The amendment is delivered to the `practice-claude-mod-review-queue` owner and
+  recorded in `README.md`.
 - [ ] `bun run beep quality package-verify` passes for every touched package.
 - [ ] The PR is mergeable through Yeet, and a closeout reflection exists under
   `history/reflections/`.
@@ -140,6 +141,10 @@ Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explor
 | 2026-10-14 | reminders: a daily digest, plus a per-question `resurfaceOn` for pending-on-client. | One predictable touch a day. | Per-question cadence. |
 | 2026-10-14 | notice-from: the attorney's own mailbox, to himself, through `@beep/m365`. | No new grant or send route. | Route the notice through the operator's mailbox. |
 | 2026-10-14 | answer-row: a separate `AnswerRow` beside `VerdictRow`, with the same recency rule. | Answers are not right or wrong; `VerdictProjector` stays untouched. | Widen `VerdictRow`. |
+| 2026-10-14 | handoff-target: the question-card amendment goes to the `practice-claude-mod-review-queue` follow-on, not the `practice-claude-mod` packet. | `practice-claude-mod` closed (its D24) and moved the review queue to that gated follow-on; the card is one of its phases, gated on this goal's P0. | Address the amendment to whichever packet owns the review queue. |
+| 2026-10-14 | P0 dates encode as ISO `YYYY-MM-DD` via `LocalDateFromString` plus a day-in-month check (`src/internal/CalendarDate.ts`). | The format docket-intake already uses; the bare `LocalDate` class encodes as an object and accepts February 31. | Use the bare `LocalDate` class. |
+| 2026-10-14 | P0 `OptionWrite` has one kind, `calendar-date` (`title`, `dueOn`, optional `eventId`), as a `LiteralKit` tagged union. | Calendar dates are the only writes answers drove on 2026-10-14; the union leaves room for docket writes. | Add kinds to `OptionWriteKind`. |
+| 2026-10-14 | P0 `AnswerRow` has no `batchId` and no lock; the current answer is the latest `recordedAt`, then append order. | An answer can always be revised by a later row; sittings and locks belong to verdicts. | Add a batch and lock as on `VerdictRow`. |
 
 ## Exception Ledger
 

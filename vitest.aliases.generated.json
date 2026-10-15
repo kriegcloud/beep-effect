@@ -1947,5 +1947,11 @@
   ],
   "@beep/lint-rules/oxlint-docs": [
     "./packages/tooling/policy-pack/lint-rules/src/rules/docs.index.ts"
+  ],
+  "@beep/law-practice-domain/values/AnswerRow": [
+    "./packages/law-practice/domain/src/values/AnswerRow/index.ts"
+  ],
+  "@beep/law-practice-domain/values/Question": [
+    "./packages/law-practice/domain/src/values/Question/index.ts"
   ]
 }
