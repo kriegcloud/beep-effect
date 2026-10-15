@@ -635,3 +635,18 @@ first run had been interrupted with exit 130 when Desktop quit; no failed
 verification verdict was inferred from that interruption. All 17 cheap gates
 passed before interruption. The final catalog owner check again reports both
 artifacts current. No H3 package source or test changes accompany this resume.
+
+### Generated-only main integration 4, 2026-10-15
+
+Merged main `ce5780ed673033fb96e009cc9067b2706576a565` including #1810.
+Restored both generated observability catalog artifacts from main and regenerated
+them with `beep observability catalog --write`; owner `--check` passes with
+5,459 spans (4,941 conforming, 518 non-conforming). Other incoming generated
+baselines and the lockfile match main. `bun install` passed without tracked drift.
+No H3 source or tests changed. Driver-requested short checks all pass: both
+packages' quick package-verify (lint/check), test-tsgo, local docgen (four package
+proofs), and knowledge refs (zero live gated observations). Prior full audits,
+JSDoc, Fallow and coverage evidence remain prior evidence, not new exact-head
+claims. Pre-push threads: successful guarded read, zero outstanding across nine.
+Round-3 reply ids stand without repeat replies. The dated handoff records the
+single push, fresh-fetch outcome and post-push thread read. No monitor started.
