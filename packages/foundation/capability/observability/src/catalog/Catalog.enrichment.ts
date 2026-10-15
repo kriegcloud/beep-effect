@@ -172,10 +172,12 @@ const makeCatalogEnrichmentTracer = Effect.fnUntraced(function* (options: Catalo
  *
  * - sets `beep.package` and `beep.family` when the span name is in the
  *   catalog, resolved the same way as `packageOf` but through an index built
- *   once with the layer, and leaves spans missing from the catalog unstamped;
+ *   once with the layer; a span missing from the catalog gets neither key,
+ *   and no call site can supply them either (see the next bullets);
  * - sets `beep.privacy_tier` to `effectiveTier` of the context and the
  *   requested tier, and `beep.identity_source` from the context;
- * - owns those four stamped keys at every tier: a creation attribute or later
+ * - owns those four stamped keys at every tier and on every span, catalogued
+ *   or not: a creation attribute or later
  *   `span.attribute(...)` that tries to set one is ignored and counted on
  *   `beep.telemetry.refused` as `stamped-key-override`, so no call site can
  *   relabel a span's tier;
@@ -192,6 +194,12 @@ const makeCatalogEnrichmentTracer = Effect.fnUntraced(function* (options: Catalo
  * The layer wraps whichever tracer is current when it is built. Compose it
  * with `Layer.provideMerge` over the exporting tracer layer (OTLP or
  * DevTools); built without one, it wraps the default native tracer.
+ *
+ * It must be the outermost tracer wrapper. The shape-only filters replace
+ * `span.attribute` and `span.event` on the span the inner tracers return, so
+ * any wrapper composed inside it (for example `layerFilteredDevTools`) sees
+ * only the filtered calls. A wrapper composed outside it would receive the
+ * raw payload first and could mirror it before the filter runs.
  *
  * **Example** (Enrich spans over an existing tracer)
  *

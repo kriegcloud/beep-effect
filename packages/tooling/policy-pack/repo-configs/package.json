@@ -36,11 +36,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-node": "catalog:",
-    "@typescript-eslint/parser": "catalog:",
     "effect": "catalog:",
-    "eslint": "catalog:",
-    "eslint-plugin-jsdoc": "catalog:",
-    "eslint-plugin-tsdoc": "catalog:",
     "jsonc-parser": "catalog:"
   },
   "devDependencies": {
@@ -50,7 +46,6 @@
     "@next/bundle-analyzer": "catalog:",
     "@next/mdx": "catalog:",
     "@serwist/next": "catalog:",
-    "@types/estree": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",
     "next": "catalog:"
@@ -68,7 +63,9 @@
     "./cache/*": null,
     "./next": "./src/next/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": "./src/internal/*.ts"
+    "./internal/*": "./src/internal/*.ts",
+    "./laws/*": "./src/laws/*.ts",
+    "./internal/laws/*": "./src/internal/laws/*.ts"
   },
   "files": [
     "src/**/*.ts",
@@ -98,7 +95,9 @@
       "./cache/*": null,
       "./next": "./dist/next/index.js",
       "./*": "./dist/*.js",
-      "./internal/*": "./dist/internal/*.js"
+      "./internal/*": "./dist/internal/*.js",
+      "./laws/*": "./dist/laws/*.js",
+      "./internal/laws/*": "./dist/internal/laws/*.js"
     }
   }
 }

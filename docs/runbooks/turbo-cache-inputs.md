@@ -140,8 +140,8 @@ zero seconds. Three decisions follow:
   program (`lint:jsdoc`) runs oxlint with `.oxlintrc.docs.json` and no persistent result cache.
   Turbo owns package and non-workspace documentation caching: inputs include the docs config,
   `tsdoc.json` and `@beep/lint-rules` source. The documentation input digest includes the
-  dependency lock and plugin manifest. ESLint's deprecated-API shards retain their separate
-  configuration and shared environment until the follow-up removal after lane A merges.
+  dependency lock and plugin manifest. Deprecated-API shards use the dedicated oxlint
+  configuration; no ESLint profile environment or result cache remains.
 
 ## Workspace overrides
 
