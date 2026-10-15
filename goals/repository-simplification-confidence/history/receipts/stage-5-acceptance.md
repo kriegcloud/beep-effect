@@ -815,3 +815,22 @@ The three operator-owned drifts remain observed-only, along with Desktop's
 app-written config. The full three-model panel must run again against the new
 head and fingerprint; this receipt does not claim panel clearance or completion
 of the existing native measurement gates or 30-session windows.
+
+
+### F panel round 2 repair evidence (2026-10-15)
+
+The current F handoff and `stage-5-f-panel-r2-verification.json` record the
+exchange-and-verify publication protocol, cached fail-closed capability probe,
+complete shell scalar lexer, and every round-2 advisory. Deterministic wrapped
+FileSystem/ChildProcess tests preserve atomic-replacing writers during apply,
+restore and recovery, including a second replacement during recovery. Every
+observed race fails typed with a retained journal and recovery event. The
+runbook records the inode-holder maintenance boundary and unsupported-platform
+refusal. No home configuration is written in this wave.
+
+`stage-5-f-panel-r2-coverage.json`, `stage-5-f-panel-r2-attribution.json`,
+`stage-5-f-panel-r2-s31-diff.json` and `stage-5-f-panel-r2-fingerprint.json`
+retain the scoped proof and frozen configuration. The same four observed-only
+files remain outside equality. The driver owns panel round 3 and hosted merge
+gating; this receipt does not claim terminal panel clearance or completion of
+the measured native gates and 30-session windows.

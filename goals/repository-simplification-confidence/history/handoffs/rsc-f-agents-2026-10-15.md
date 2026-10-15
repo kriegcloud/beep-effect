@@ -1,9 +1,63 @@
-## Panel round 1 fix wave — local proof complete, publication pending
+## Panel round 2 fix wave: local proof complete; single push pending
 
 lane: rsc-f-agents
-head: 18141e20a495f7ee63cb48f03e7ead14e659dc83 (implementation/tests; publication SHA follows)   PR: #1797
+head: df1ce699b75624642e95ba3f03c99b9b417280c2   PR: #1797
+package-verify: @beep/repo-cli: pass (audit 1224.2s; docgen 42.3s; frozen source df1ce699b7)
+hosted-parity: test-tsgo -> fail(inherited package-scripts TS2741); docgen local -> pass; jsdoc-ratchet -> pass; knowledge refs -> fail(inherited Palantiri plan home-absolute observation); fallow audit+health -> pass, zero findings; scoped coverage -> pass (263 tests in 15 files; all 6 touched schema-v2 rows)
+config fingerprint (final): 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8 (353 equality inputs, 4 observed-only)   backups: no home configuration writes or new backups; prior backups retained
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 3 on this head/fingerprint, hosted gate/merge/retirement; 3 operator-owned model drifts; incomplete 30-session windows and existing H3 measured gates; attributed inherited main failures
+
+State: local proof complete; single push pending. Main b536e1bba7 is integrated at 3ba679e141.
+Both sharded catalog owners passed. S31 compares 15 inventories with 0 changed
+files and 0 added rows; only the previously owner-generated catalog additions
+remain in standards. Changeset-graph passes with no changeset for the private
+package. Final oxlint has 24 inherited findings and 0 in changed files, with
+every finding source byte-identical to integrated main. Test-tsgo's only error
+is the unchanged ImplScriptDrift fixture at package-scripts.policy.test.ts:210.
+Knowledge refs' only gated observation is the unchanged Palantiri PLAN.md:122.
+The attribution receipt retains both source-equality checks.
+
+Models check has exactly the 3 allowed operator-owned findings and 0 F-owned
+findings. Codex protected pins and legacy-key absence pass; the requested
+read-only gpt-6.1-sol probe passes. No Claude home file is written. The 4
+observed-only files retain the existing ruling. Native inode holders still
+require a maintenance boundary after the final observation; unsupported atomic
+exchange fails closed. The runbook records recovery and capability limits.
+No readiness monitor is started. The unrelated .impeccable/live/ directory is
+preserved. Earlier verdicts do not clear this head; the driver runs all 3 seats.
+
+| Finding | Fix commit(s) | Fix and regression evidence |
+| --- | --- | --- |
+| F-ASTRA-01 (P0) | a7ab0836e5, df1ce699b7 | Atomic exchange verifies the actual displaced inode/hash in apply, restore and recovery. Replacing and in-place writers remain live with a typed journal-bearing failure; clean 0644 apply/restore and cached unsupported-exchange refusal pass. |
+| F-ASTRA-R2-02 (P1) | a7ab0836e5, ae058a2008, df1ce699b7 | Complete literal shell words, quotes and escapes; refuse adjacent operators and quoted concatenation. All 3 Astra inputs refuse without backup or rewrite; 6 executed launcher forms, comment preservation and re-projection stability pass. |
+| R2-F1 (P3) | a7ab0836e5, df1ce699b7 | Exchange catches the in-window pathname replacement; runbook/JSDoc retain the inode-holder limit. Apply/restore/recovery replacement fixtures pass. |
+| R2-F2 (P3) | a7ab0836e5 | Planning refusal removes the unused preimage; the planned-race fixture asserts 0 retained links. Post-exchange failures retain recovery artifacts. |
+| R2-F3 (P3) | a7ab0836e5 | Preview derives change from authoritative spans; both quoted sandbox_mode spellings preview true without writes. |
+| R2-F4 (P3) | a7ab0836e5 | Wrapped parser accepts original and refuses candidate on call 2; typed Invalid shell target, unchanged bytes and no backup asserted. |
+| R2-F5 (P3) | a7ab0836e5 | All 3 private regex escape copies use Effect RegExp.escape. Existing JSDoc/doctest tests pass; unchanged uncovered counts satisfy the schema-v2 row after helper deletion. |
+| R2-GROK-01 (P2) | a7ab0836e5 | Same authoritative quoted-key preview fix and command regressions. |
+| R2-GROK-02 (P2) | a7ab0836e5 | Same pre-exchange retained-link cleanup; planning-race regression. |
+| R2-GROK-03 (P2) | a7ab0836e5 | Desired native skill row after another table is enabled and counted once, with unknown fields and stable second projection preserved. |
+| Review 4282684659 (P2) | a7ab0836e5 | Every atomic artifact starts with journal.id; unique operation suffix protects restore/retry history. Every concurrent marker is asserted discoverable by the error's journal id. |
+| Review 4282684687 (P2) | a7ab0836e5 | Exact scalar/sentinel key identity excludes dotted assignments, table parents and literal dotted keys. All 3 preservation cases and existing scalar removal/restore tests pass. |
+
+Deferred round-2 findings: none.
+Graft estimated 13,796 tokens saved in one retrieval.
+
+source checkpoint df1ce699b75624642e95ba3f03c99b9b417280c2; publication marker follows the single push
+fingerprint 272fa85f43cf4133231fedfbce0bc4392ad748e695d1b55c1b1bb78f72e098a8
+
+---
+
+## Historical checkpoints
+
+## Panel round 1 fix wave — published handoff
+
+lane: rsc-f-agents
+head: d99bc17cf50d8171deb6f5eb965a11de982f3b3c   PR: #1797
 package-verify: @beep/repo-cli: pass (audit 1231.0s; docgen 42.8s)
-hosted-parity: test-tsgo -> fail(inherited Palantiri TS377047); docgen local -> pass; jsdoc-ratchet -> fail(inherited totals, all 436 finding sources equal integrated main); knowledge refs -> pass; fallow audit+health -> pass; coverage read -> pass (100 tests, 16/16 existing rows)
+hosted-parity: test-tsgo -> fail(inherited Palantiri TS377047); docgen local -> pass; jsdoc-ratchet -> fail(inherited totals, all 436 contributing finding rows have source equal to integrated main); knowledge refs -> pass; fallow audit+health -> pass; coverage read -> pass (100 tests, 16/16 existing rows)
 config fingerprint (final): 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f (353 equality inputs, 4 observed-only)   backups: no home writes/new backups this wave
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
 open items: driver-owned full three-model panel on this head/fingerprint; three operator-owned model drifts; incomplete 30-session windows and four existing H3 measured gates; hosted checks, merge and retirement remain driver-owned
@@ -64,14 +118,26 @@ or retire itself. The prior panel verdicts do not clear this new revision.
 | F4 | 4f25ed34bf | Fixture explicitly begins at 0644 and mode survives apply and restore. |
 | F5 | 4f25ed34bf | SPEC accurately names live Impeccable callbacks removed under locked A disposition; payload remains A-owned. |
 | F6 | 4f25ed34bf | Post-replacement refusal includes the journal id; regression asserts it. |
-| 4281637568 | a704603023 | Re-resolved second projection must be identity; unstable delimiter fixture reaches typed refusal before writing. |
-| 4281669295 | same-wave evidence commit | README Latest Evidence points to October 15 and lists current pending acceptance only. |
-| 4281669309 | a704603023 | First-positive token regression skips zero/missing and retains the first positive count. |
-| 4281669322 | a704603023 | Shared shell pattern excludes OTHER_MODEL, handles spaces/tabs and semicolons, and reads quoted suffix values exactly. |
-| 4281669363 | a704603023 | Injected previous-tree cleanup failure returns success, keeps new skill live and old backup bytes; publish-failure rollback still passes. |
+| 4281637568 | a704603023 | Re-resolved second projection must be identity; unstable delimiter fixture reaches typed refusal before writing.  REST reply 4282612127. |
+| 4281669295 | d99bc17cf5 | README Latest Evidence points to October 15 and lists current pending acceptance only.  REST reply 4282612506. |
+| 4281669309 | a704603023 | First-positive token regression skips zero/missing and retains the first positive count.  REST reply 4282612954. |
+| 4281669322 | a704603023 | Shared shell pattern excludes OTHER_MODEL, handles spaces/tabs and semicolons, and reads quoted suffix values exactly.  REST reply 4282613309. |
+| 4281669363 | a704603023 | Injected previous-tree cleanup failure returns success, keeps new skill live and old backup bytes; publish-failure rollback still passes.  REST reply 4282613664. |
 
-Publication uses one git push because Yeet publish starts a readiness monitor. REST replies and the pushed-head recapture follow that push; no panel clearance is claimed.
+One push completed, and GitHub confirms the open, ready PR heads d99bc17cf50d8171deb6f5eb965a11de982f3b3c.
+All five new review threads are answered and resolved through Yeet. The final
+full thread read succeeds: 0 outstanding / 7. At that read, required checks
+are 8/16 green with the remaining checks and review window pending. The
+driver owns the full panel and merge gate; no readiness monitor is started.
+The pushed-head fingerprint was recaptured at 2026-10-15T11:53:07.595948Z and immediately
+matches the committed frozen set. Earlier candidate captures are superseded.
+The committed handoff contains the pre-publication proof. This local supplement
+records the published SHA, REST replies and post-push capture under the one-push
+instruction; no second commit or push is made. No panel clearance is claimed.
 Graft estimated 50,322 tokens saved in two retrievals.
+
+final d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
+fingerprint 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f
 
 ---
 
@@ -399,3 +465,9 @@ Post-#1814 live receipt: the global JSDoc red is source-equal to main and
 owned by the review-hub lane. See stage-5-f-jsdoc-attribution.json. F neither
 fixes unrelated source nor adds a baseline allowance. The full integrated
 package proof remains running; no push or final marker has been issued.
+
+
+## Current publication marker (supersedes historical markers above)
+
+final d99bc17cf50d8171deb6f5eb965a11de982f3b3c #1797
+fingerprint 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f

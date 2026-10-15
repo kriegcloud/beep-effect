@@ -228,7 +228,10 @@ permission census and the [Desktop continuity runbook](../../docs/runbooks/agent
 gates and pending operator fixture batch. Installed-build routes remain
 unknown; no home configuration or Claude harness setting has been changed.
 
-F panel round 1: all four Astra findings and six Fable follow-ups are implemented
-in #1797; the [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md)
-carries the fix-to-test mapping. The driver repeats all three panel seats on
-the published head and recaptured fingerprint before admission.
+F panel round 2: #1797 now exchanges and verifies the actual displaced native
+file during apply, restore and recovery, and refuses ambiguous shell words.
+The [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md) maps both
+Astra blockers, every nearby advisory and the new PR comments to fixes and tests.
+The driver repeats all three panel seats on the published head and
+[round-2 fingerprint](history/receipts/stage-5-f-panel-r2-fingerprint.json)
+before admission; previous verdicts do not clear this revision.
