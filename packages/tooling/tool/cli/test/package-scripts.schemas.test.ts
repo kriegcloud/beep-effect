@@ -116,6 +116,11 @@ describe("canonical package scripts schemas", () => {
         rules: "package-scripts-rules/v1",
         manifests: 2,
         drift: { "apps/a/package.json": [{ _tag: "missing-task", name: "lint:laws" }] },
+        implDrift: {
+          "apps/a/package.json": [
+            { name: "beep:check", actual: "custom check", expected: "tsc-rs -p tsconfig.check.json" },
+          ],
+        },
         written: ["apps/a/package.json"],
       };
       const report = yield* decodeReport(wire);

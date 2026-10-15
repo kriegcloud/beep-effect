@@ -362,6 +362,27 @@ export const PackageScriptsDrift = S.TaggedUnion({
 export type PackageScriptsDrift = typeof PackageScriptsDrift.Type;
 
 /**
+ * Advisory difference between a package-owned implementation and its scaffold default.
+ *
+ * **Example** (Review a compiler command change)
+ * ```ts
+ * import { ImplScriptDrift } from "@beep/repo-cli/test/PackageScripts"
+ * const drift = ImplScriptDrift.make({ name: "beep:check", expected: "tsc-rs -p tsconfig.check.json", actual: "tsgo -p tsconfig.check.json" })
+ * console.log(drift.name) // beep:check
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ImplScriptDrift extends S.Opaque<ImplScriptDrift, { readonly brand: unique symbol }>()(
+  S.Struct({ name: ImplScriptName, expected: S.String, actual: S.String }).pipe(
+    $I.annoteSchema("ImplScriptDrift", {
+      description: "Advisory impl-script difference; package-owned values are preserved and never fail the gate.",
+    })
+  )
+) {}
+
+/**
  * Non-negative number of workspace manifests examined.
  *
  * **Example** (Inspect ManifestCount)
@@ -388,7 +409,7 @@ export type ManifestCount = typeof ManifestCount.Type;
  *
  * ```ts
  * import { PackageScriptsReportWire } from "@beep/repo-cli/test/PackageScripts"
- * console.log(PackageScriptsReportWire.make({ schemaVersion: "package-scripts-report/v1", rules: "package-scripts-rules/v1", manifests: 0, drift: {}, written: [] }).manifests) // 0
+ * console.log(PackageScriptsReportWire.make({ schemaVersion: "package-scripts-report/v1", rules: "package-scripts-rules/v1", manifests: 0, drift: {}, implDrift: {}, written: [] }).manifests) // 0
  * ```
  *
  * @category models
@@ -400,6 +421,7 @@ export class PackageScriptsReportWire extends S.Opaque<PackageScriptsReportWire,
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.Record(S.String, S.Array(PackageScriptsDrift)),
+    implDrift: S.Record(S.String, S.Array(ImplScriptDrift)),
     written: S.Array(S.String),
   }).pipe(
     $I.annoteSchema("PackageScriptsReportWire", {
@@ -417,7 +439,7 @@ export class PackageScriptsReportWire extends S.Opaque<PackageScriptsReportWire,
  * import { PackageScriptsReport } from "@beep/repo-cli/test/PackageScripts"
  * import * as HashMap from "effect/HashMap"
  * import * as HashSet from "effect/HashSet"
- * console.log(PackageScriptsReport.make({ schemaVersion: "package-scripts-report/v1", rules: "package-scripts-rules/v1", manifests: 0, drift: HashMap.empty(), written: HashSet.empty() }).manifests) // 0
+ * console.log(PackageScriptsReport.make({ schemaVersion: "package-scripts-report/v1", rules: "package-scripts-rules/v1", manifests: 0, drift: HashMap.empty(), implDrift: HashMap.empty(), written: HashSet.empty() }).manifests) // 0
  * ```
  *
  * @category models
@@ -429,6 +451,7 @@ export class PackageScriptsReport extends S.Opaque<PackageScriptsReport, { reado
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.HashMap(S.String, S.Array(PackageScriptsDrift)),
+    implDrift: S.HashMap(S.String, S.Array(ImplScriptDrift)),
     written: S.HashSet(S.String),
   }).pipe($I.annoteSchema("PackageScriptsReport", { description: "Collection view of a scripts policy report." }))
 ) {}
@@ -451,17 +474,31 @@ export const PackageScriptsReportFromWire = PackageScriptsReportWire.pipe(
   S.decodeTo(
     PackageScriptsReport,
     SchemaTransformation.transform({
-      decode: ({ schemaVersion, rules, manifests, drift, written }) => ({
+      decode: ({
+        schemaVersion,
+        rules,
+        manifests,
+        drift,
+        implDrift,
+        written,
+      }): typeof PackageScriptsReport.Encoded => ({
         schemaVersion,
         rules,
         manifests,
         drift: HashMap.fromIterable(R.toEntries(drift)),
+        implDrift: HashMap.fromIterable(R.toEntries(implDrift)),
         written: HashSet.fromIterable(written),
       }),
       encode: (report) =>
         PackageScriptsReportWire.make({
           ...report,
           drift: R.fromEntries(A.sortWith(HashMap.toEntries(report.drift), ([key]) => key, Order.String)),
+          implDrift: R.fromEntries(
+            A.map(
+              A.sortWith(HashMap.toEntries(report.implDrift), ([key]) => key, Order.String),
+              ([key, rows]) => [key, A.map(rows, (row) => ImplScriptDrift.make(row))]
+            )
+          ),
           written: A.sort(A.fromIterable(report.written), Order.String),
         }),
     })
