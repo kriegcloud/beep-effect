@@ -135,6 +135,26 @@ const ownedShellValue = (
     : O.none<string>();
 };
 
+const recognizedShellOffsets = (
+  line: string,
+  words: ReadonlyArray<string>,
+  decoded: ReadonlyArray<O.Option<string>>,
+  variable: string
+) => {
+  const recognized: Array<number> = [];
+  let cursor = 0;
+  let declaration = false;
+  for (const [index, word] of A.entries(words)) {
+    const offset = line.indexOf(word, cursor);
+    cursor = offset + Str.length(word);
+    if (shellControl.test(word)) declaration = false;
+    if (/^(?:declare|typeset|local|unset)$/.test(word)) declaration = true;
+    const value = ownedShellValue(words, decoded, index, variable);
+    if (!declaration && O.exists(value, (word) => word !== unsupportedShell)) recognized.push(offset);
+  }
+  return recognized;
+};
+
 /**
  * Read literal assignment or flag words; unsupported relevant lines report drift.
  *
@@ -171,23 +191,7 @@ export const modelsShellWords = Effect.fn("Models.shellWords")(function* (conten
     const decoded = yield* Effect.forEach(words, (word) => shellTokenValue(word, variable), { concurrency: 1 });
     const owned = A.getSomes(A.map(words, (_, index) => ownedShellValue(words, decoded, index, variable)));
     const occurrences = A.fromIterable(Str.matchAll(new RegExp(Regex.escape(variable), "g"))(line));
-    const recognized: Array<number> = [];
-    let cursor = 0;
-    let declaration = false;
-    for (const [index, word] of A.entries(words)) {
-      const offset = line.indexOf(word, cursor);
-      cursor = offset + Str.length(word);
-      if (shellControl.test(word)) declaration = false;
-      if (/^(?:declare|typeset|local|unset)$/.test(word)) declaration = true;
-      const value = ownedShellValue(words, decoded, index, variable);
-      if (
-        !declaration &&
-        O.isSome(value) &&
-        value.value !== unsupportedShell &&
-        (word === variable || Str.startsWith(`${variable}=`)(word))
-      )
-        recognized.push(offset);
-    }
+    const recognized = recognizedShellOffsets(line, words, decoded, variable);
     const mentions = A.isReadonlyArrayNonEmpty(occurrences) || Str.includes(variable)(Str.replace(/[\\'"]/g, "")(line));
     const unmatched = A.some(occurrences, (match) => !A.contains(recognized, match.index));
     const unsupported =

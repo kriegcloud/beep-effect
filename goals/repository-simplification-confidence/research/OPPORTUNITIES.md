@@ -2779,3 +2779,10 @@ checks before starting a long full audit when adding a scanner.
   `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS`. No proof ran. Command-local
   workstation user-bus variables restore the existing admission route; a wrapper
   diagnostic naming these required variables would prevent the failed launch.
+
+- 2026-10-15, F occurrence-reader validation: Fallow audit caught three introduced
+  complexity findings in name/range accounting. The first split left three
+  functions one cognitive point over the limit. Replace redundant ownership
+  conditions and use the existing Option/Array composition for YAML key ranges;
+  keep zero inventory additions. Running the small audit before the full package
+  proof would have surfaced these introduced findings earlier.

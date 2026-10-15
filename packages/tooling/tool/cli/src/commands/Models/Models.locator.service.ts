@@ -20,6 +20,7 @@ import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Regex from "effect/RegExp";
+import * as Tuple from "effect/Tuple";
 import { XMLParser } from "fast-xml-parser";
 import { isMap, isScalar as isYamlScalar, parseDocument, visit } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
@@ -260,38 +261,28 @@ const unsupportedOccurrence = (
 
 const readYamlPath = (content: string, path: ReadonlyArray<string | number>): O.Option<string> => {
   const names = A.map(path, (segment) => `${segment}`);
-  const ranges: Array<readonly [number, number]> = [];
   const doc = parseDocument(content);
   // Only simple block mappings are modeled. No aliases, anchors, tags,
   // flow collections, complex keys, multiline scalars or multiple documents.
   let supported = A.isReadonlyArrayEmpty(doc.errors) && A.isReadonlyArrayEmpty(doc.warnings);
   visit(doc, {
     Node: (_, node) => {
-      if (node.anchor !== undefined || node.tag !== undefined) supported = false;
-      if (isMap(node)) {
-        if (node.flow === true) supported = false;
-        for (const pair of node.items) {
-          if (!isYamlScalar(pair.key) || pair.key.type !== "PLAIN" || pair.key.range == null) {
-            supported = false;
-            continue;
-          }
-          // A key occurrence is owned only at the requested block path.
-          const owned = A.some(A.range(0, A.length(path) - 1), (depth) => {
-            const parent = doc.getIn(A.take(path, depth), true);
-            return (
-              isMap(parent) &&
-              A.some(
-                parent.items,
-                (candidate) => candidate === pair && isYamlScalar(pair.key) && pair.key.value === path[depth]
-              )
-            );
-          });
-          if (owned) ranges.push([pair.key.range[0], pair.key.range[1]]);
-        }
-      } else if (!isYamlScalar(node) || node.type === "BLOCK_LITERAL" || node.type === "BLOCK_FOLDED")
-        supported = false;
+      const simple = isMap(node)
+        ? node.flow !== true && A.every(node.items, (pair) => isYamlScalar(pair.key) && pair.key.type === "PLAIN")
+        : isYamlScalar(node) && node.type !== "BLOCK_LITERAL" && node.type !== "BLOCK_FOLDED";
+      supported = supported && node.anchor === undefined && node.tag === undefined && simple;
     },
   });
+  const ranges = A.getSomes(
+    A.map(A.entries(path), ([depth, segment]) => {
+      const parent = doc.getIn(A.take(path, depth), true);
+      if (!isMap(parent)) return O.none<readonly [number, number]>();
+      const pair = A.findFirst(parent.items, (pair) => isYamlScalar(pair.key) && pair.key.value === segment);
+      return O.flatMap(pair, ({ key }) =>
+        isYamlScalar(key) && key.range != null ? O.some(Tuple.make(key.range[0], key.range[1])) : O.none()
+      );
+    })
+  );
   const unsupported = unsupportedOccurrence(content, names, supported ? ranges : [], "YAML");
   if (O.isSome(unsupported)) return unsupported;
   const value = doc.getIn([...path]);
@@ -341,6 +332,42 @@ const findAttributes = (node: unknown, query: AttributeQuery): ReadonlyArray<str
   });
 };
 
+const xmlAttributeRanges = (
+  token: string,
+  offset: number,
+  ownsElement: boolean,
+  matchAttribute: string,
+  attribute: string
+) => {
+  const ranges: Array<readonly [number, number]> = [];
+  const attributes = /([A-Za-z_][\w:.-]*)\s*=\s*("[^"<]*"|'[^'<]*')/g;
+  for (const candidate of Str.matchAll(attributes)(token)) {
+    if (candidate[1] !== matchAttribute && candidate[1] !== attribute) continue;
+    const start = offset + (candidate.index ?? 0);
+    ranges.push([start, start + Str.length(candidate[1])]);
+    if (ownsElement) ranges.push([start, start + Str.length(candidate[0])]);
+  }
+  return ranges;
+};
+
+const xmlOccurrenceRanges = (content: string, tag: string, matchAttribute: string, attribute: string) => {
+  const ranges: Array<readonly [number, number]> = [];
+  const tokens = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<[^>]*>/g;
+  const simple = /^<\/?[A-Za-z_][\w:.-]*(?:\s+[A-Za-z_][\w:.-]*\s*=\s*(?:"[^"<]*"|'[^'<]*'))*\s*\/?>$/;
+  for (const token of Str.matchAll(tokens)(content)) {
+    if (!simple.test(token[0])) continue;
+    const offset = token.index ?? 0;
+    const element = /^<\/?([A-Za-z_][\w:.-]*)(?=[\s/>])/.exec(token[0]);
+    const ownsElement = element?.[1] === tag;
+    if (ownsElement) {
+      const start = offset + O.getOrThrow(Str.indexOf(tag)(token[0]));
+      ranges.push([start, start + Str.length(tag)]);
+    }
+    ranges.push(...xmlAttributeRanges(token[0], offset, ownsElement, matchAttribute, attribute));
+  }
+  return ranges;
+};
+
 const readXmlAttribute = Effect.fnUntraced(function* (
   file: ModelsTargetFile,
   elementSelector: string,
@@ -358,34 +385,9 @@ const readXmlAttribute = Effect.fnUntraced(function* (
   const matchAttribute = selector[2] ?? "";
   const matchValue = selector[3] ?? "";
   const names = [tag, matchAttribute, matchValue, attribute];
-  const ranges: Array<readonly [number, number]> = [];
-  // Scan complete simple tags, never a prefix such as option-extra or a tag
-  // inside a comment, CDATA or processing instruction. Attribute quoting may
-  // be single or double; the XML parser independently validates the document.
-  const tokens = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<[^>]*>/g;
-  const simple = /^<\/?[A-Za-z_][\w:.-]*(?:\s+[A-Za-z_][\w:.-]*\s*=\s*(?:"[^"<]*"|'[^'<]*'))*\s*\/?>(?:)$/;
-  for (const token of Str.matchAll(tokens)(file.content)) {
-    if (!simple.test(token[0])) continue;
-    const offset = token.index ?? 0;
-    // Only exact lexical names count. An option-extra token cannot account
-    // for the occurrence of option embedded in its different element name.
-    const element = /^<\/?([A-Za-z_][\w:.-]*)(?=[\s/>])/.exec(token[0]);
-    if (element?.[1] === tag) {
-      const start = offset + (Str.startsWith("</")(token[0]) ? 2 : 1);
-      ranges.push([start, start + Str.length(tag)]);
-    }
-    // Attribute identifiers and their values have separate identities. A
-    // selector value used as an unrelated attribute name cannot account for it.
-    const attributes = /([A-Za-z_][\w:.-]*)\s*=\s*("[^"<]*"|'[^'<]*')/g;
-    for (const candidate of Str.matchAll(attributes)(token[0])) {
-      if (candidate[1] !== matchAttribute && candidate[1] !== attribute) continue;
-      const start = offset + (candidate.index ?? 0);
-      ranges.push([start, start + Str.length(candidate[1])]);
-      // Only the exact element's selector and owned attribute scalar forms
-      // account for names inside quotes. Arbitrary quoted data cannot hide them.
-      if (element?.[1] === tag) ranges.push([start, start + Str.length(candidate[0])]);
-    }
-  }
+  // Complete simple tags only: comments, CDATA, processing instructions,
+  // prefix/qualified names and arbitrary quoted data cannot account for ownership.
+  const ranges = xmlOccurrenceRanges(file.content, tag, matchAttribute, attribute);
   const unsupported = unsupportedOccurrence(file.content, names, ranges, "XML");
   if (O.isSome(unsupported)) return unsupported;
   const parsed = yield* Effect.try({
