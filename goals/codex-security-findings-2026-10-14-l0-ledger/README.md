@@ -32,9 +32,10 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P5 repo-proof` - both findings are confirmed at current HEAD and repaired in
-two disjoint code surfaces. The focused suite passes; package and Yeet proof,
-publication, merge, and exact Cloud closure remain.
+`P6 publish` - both findings are confirmed at current HEAD and repaired in
+two disjoint code surfaces. The 104-test focused suite and Yeet cheap gates
+pass. PR #1805 is open; final publish, hosted proof, merge, and exact Cloud
+closure remain.
 
 ## Findings at a glance
 
