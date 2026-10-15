@@ -166,35 +166,39 @@ const unreadableLanes = (input: LaneRedsInput): ReadonlyArray<string> =>
 const skippedLines = (input: LaneRedsInput): number =>
   A.reduce(input.checkouts, 0, (total, checkout) => total + checkout.skippedLines);
 
+// What keeps a readable read from being complete: lanes whose inbox or proof
+// jobs could not be read, and inbox lines that did not decode.
+const attributionGaps = (unreadable: ReadonlyArray<string>, skipped: number): ReadonlyArray<string> =>
+  A.getSomes([
+    A.match(unreadable, { onEmpty: O.none, onNonEmpty: (lanes) => O.some(`unreadable: ${A.join(lanes, ", ")}`) }),
+    skipped > 0 ? O.some(`${plural(skipped, "inbox line")} skipped`) : O.none(),
+  ]);
+
+const unreachable = (unreadable: ReadonlyArray<string>): FreshnessType =>
+  Freshness.cases.Unknown.make({
+    reason: "unreachable",
+    asOf: O.none(),
+    detail: O.some(
+      A.match(unreadable, {
+        onEmpty: () => "no checkout to read",
+        onNonEmpty: (lanes) => `inbox or proof jobs unreadable in ${A.join(lanes, ", ")}`,
+      })
+    ),
+  });
+
 const envelopeFreshness = (input: LaneRedsInput, now: DateTime.Utc): FreshnessType => {
   const unreadable = unreadableLanes(input);
-  const skipped = skippedLines(input);
-  const allUnreadable = A.isReadonlyArrayEmpty(input.checkouts) || unreadable.length === input.checkouts.length;
-  return allUnreadable
-    ? Freshness.cases.Unknown.make({
-        reason: "unreachable",
-        asOf: O.none(),
-        detail: O.some(
-          A.isReadonlyArrayEmpty(input.checkouts)
-            ? "no checkout to read"
-            : `inbox or proof jobs unreadable in ${A.join(unreadable, ", ")}`
-        ),
-      })
-    : A.isReadonlyArrayNonEmpty(unreadable) || skipped > 0
-      ? Freshness.cases.Unknown.make({
-          reason: "attribution-incomplete",
-          asOf: O.some(now),
-          detail: O.some(
-            A.join(
-              A.appendAll(
-                A.isReadonlyArrayNonEmpty(unreadable) ? [`unreadable: ${A.join(unreadable, ", ")}`] : [],
-                skipped > 0 ? [`${plural(skipped, "inbox line")} skipped`] : []
-              ),
-              "; "
-            )
-          ),
-        })
-      : Freshness.cases.Fresh.make({ asOf: now });
+  return unreadable.length === input.checkouts.length
+    ? unreachable(unreadable)
+    : A.match(attributionGaps(unreadable, skippedLines(input)), {
+        onEmpty: () => Freshness.cases.Fresh.make({ asOf: now }),
+        onNonEmpty: (gaps) =>
+          Freshness.cases.Unknown.make({
+            reason: "attribution-incomplete",
+            asOf: O.some(now),
+            detail: O.some(A.join(gaps, "; ")),
+          }),
+      });
 };
 
 const summarize = (input: LaneRedsInput, items: ReadonlyArray<LaneRed>): string => {
