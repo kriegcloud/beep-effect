@@ -116,6 +116,25 @@ const watchUntil = Effect.fnUntraced(function* <A>(
   );
 });
 
+// Watch the gateway probe until Claude lists the bundled version. Enter only asks
+// for an immediate check: the step never trusts Enter (or a keypress left in the
+// console buffer) over Claude's registry. True when Claude lists the bundled
+// version, false when the watch timed out without it.
+const watchForGateway = Effect.fnUntraced(function* (probe: Effect.Effect<GatewayInstallState>, notYet: string) {
+  const lawyer = yield* Lawyer;
+  const schedule = yield* ClaudeStatePollSchedule;
+  const watched = probe.pipe(Effect.repeat({ schedule, until: GatewayInstallState.is.current }));
+  const checkOnEnter = lawyer.awaitEnter.pipe(
+    Effect.andThen(probe),
+    Effect.tap((state) => (GatewayInstallState.is.current(state) ? Effect.void : lawyer.tell(notYet))),
+    Effect.repeat({ until: GatewayInstallState.is.current })
+  );
+  // race takes the first success: the Enter loop succeeds only on a current check,
+  // so a timed-out watch wins otherwise, and a console that cannot read Enter
+  // leaves the watch running. The loser is interrupted.
+  return GatewayInstallState.is.current(yield* Effect.race(watched, checkOnEnter));
+});
+
 const signIn = Effect.gen(function* () {
   const host = yield* SetupHost;
   const lawyer = yield* Lawyer;
@@ -163,25 +182,26 @@ const installGateway = Effect.gen(function* () {
     ].join("\n")
   );
   yield* host.open(file);
-  const confirmed = StepDone.make({
-    step,
-    detail: "The gateway was handed to Claude; the lawyer confirmed the install.",
-  });
   const back = "When Claude lists the Beep Practice Gateway as enabled, come back to this window.";
   if (GatewayInstallState.is.unknown(state)) {
+    // Claude's registry cannot be read, so the lawyer's word is the only signal.
     yield* lawyer.waitFor(back);
-    return confirmed;
+    return StepDone.make({ step, detail: "The gateway was handed to Claude; the lawyer confirmed the install." });
   }
+  const wanted = O.match(bundle.version, { onNone: () => "", onSome: (version) => ` ${version}` });
+  const dragInstruction = `open Claude's Settings, choose Extensions, and drag this file onto that page: ${file}`;
   yield* lawyer.tell(
     "This window carries on by itself once Claude has it. If it does not, press Enter once Claude lists it as enabled."
   );
-  return (yield* watchUntil(
+  return (yield* watchForGateway(
     probe,
-    GatewayInstallState.is.current,
-    `Setup could not see the gateway in Claude yet. ${back}`
+    `Claude does not list the Beep Practice Gateway${wanted} yet. Click ${action} in Claude, or ${dragInstruction}`
   ))
     ? StepDone.make({ step, detail: "Claude lists the gateway at the bundled version." })
-    : confirmed;
+    : StepFailed.make({
+        step,
+        detail: `Claude still does not list the Beep Practice Gateway${wanted}. Open Claude's Settings, choose Extensions, drag this file onto that page, then run this setup again: ${file}`,
+      });
 }).pipe(failedAs("gateway-extension"));
 
 const handOff = Effect.gen(function* () {

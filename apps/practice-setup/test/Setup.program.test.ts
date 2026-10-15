@@ -52,10 +52,12 @@ interface Script {
   readonly cancelAt?: number;
   readonly clipboardFails?: boolean;
   readonly downloadFails?: boolean;
-  /** Enter pressed while a probe is being watched; the watched probes then never answer. */
+  /** Enter pressed while the sign-in is watched; the watched sign-in probe then never answers. */
   readonly enterOverride?: boolean;
   /** Gateway states the probe answers, in order; the last one repeats. */
   readonly gateway?: A.NonEmptyReadonlyArray<GatewayInstallState>;
+  /** Enter presses while the gateway is watched, each asking for a check. */
+  readonly gatewayEnters?: number;
   /** Install kinds `claudeInstall` answers, in order; the last one repeats. */
   readonly installs: A.NonEmptyReadonlyArray<ClaudeInstall>;
   /** Sign-in states the probe answers, in order; the last one repeats. */
@@ -83,12 +85,13 @@ const harness = Effect.fnUntraced(function* (script: Script) {
   const expectedVersions = yield* Ref.make<ReadonlyArray<O.Option<string>>>([]);
   const handedOff = yield* Ref.make(false);
   const waits = yield* Ref.make(0);
+  const enters = yield* Ref.make((script.enterOverride === true ? 1 : 0) + (script.gatewayEnters ?? 0));
   const log = (event: string) => Ref.update(events, A.append(event));
 
   const installProbe = yield* scripted(script.installs);
   const hang = script.enterOverride === true;
   const signInProbe = yield* scripted<SignInState>(script.signIn ?? ["signed-in"], hang);
-  const gatewayProbe = yield* scripted<GatewayInstallState>(script.gateway ?? ["current"], hang);
+  const gatewayProbe = yield* scripted<GatewayInstallState>(script.gateway ?? ["current"]);
 
   const host = SetupHost.of({
     claudeInstall: installProbe,
@@ -115,6 +118,8 @@ const harness = Effect.fnUntraced(function* (script: Script) {
     signIn: signInProbe,
     gateway: Effect.fn("FakeClaude.gateway")(function* (expected) {
       yield* Ref.update(expectedVersions, A.append(expected));
+      // Yield like a real file read, so a watch and an Enter check interleave.
+      yield* Effect.yieldNow;
       return yield* gatewayProbe;
     }),
   });
@@ -136,9 +141,11 @@ const harness = Effect.fnUntraced(function* (script: Script) {
         return yield* SetupFailure.make({ message: "Setup was stopped before it finished." });
       }
     }),
-    // Enter arrives at the final hold, or during a watch when scripted; otherwise never.
+    // Enter arrives at the final hold, or during a watch while scripted presses remain; otherwise never.
     awaitEnter: Effect.gen(function* () {
-      if ((yield* Ref.get(handedOff)) || script.enterOverride === true) {
+      const pressed =
+        (yield* Ref.get(handedOff)) || (yield* Ref.modify(enters, (n) => (n > 0 ? [true, n - 1] : [false, 0])));
+      if (pressed) {
         yield* log("enter");
         return;
       }
@@ -289,7 +296,7 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
     })
   );
 
-  it.effect("takes Enter as a manual override while it watches", () =>
+  it.effect("takes Enter as a manual override for the sign-in, never for the gateway", () =>
     Effect.gen(function* () {
       const result = yield* run({
         installs: ["per-user"],
@@ -300,11 +307,37 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
       expect(steps(result.report)).toEqual([
         "claude-desktop:skipped",
         "claude-sign-in:done",
-        "gateway-extension:done",
-        "onboarding-handoff:done",
+        "gateway-extension:failed",
       ]);
       expect(details(result.report)[1]).toBe("Claude opened; the lawyer confirmed they are signed in.");
-      expect(result.asked).toEqual([]);
+      expect(details(result.report)[2]).toBe(
+        `Claude still does not list the Beep Practice Gateway ${BUNDLE_VERSION}. Open Claude's Settings, choose Extensions, drag this file onto that page, then run this setup again: ${BUNDLE}`
+      );
+      expect(result.opened).toEqual([`link:${OPEN_CLAUDE_LINK}`, `open:${BUNDLE}`]);
+      expect(result.asked).toEqual([`asked:Setup stopped: ${details(result.report)[2]}`]);
+    })
+  );
+
+  it.effect("keeps watching when Enter is pressed while Claude still lists the old gateway", () =>
+    Effect.gen(function* () {
+      const result = yield* run({ installs: ["per-user"], gateway: ["outdated"], gatewayEnters: 1 });
+      expect(steps(result.report)).toEqual([
+        "claude-desktop:skipped",
+        "claude-sign-in:skipped",
+        "gateway-extension:failed",
+      ]);
+      expect(result.report.complete).toBe(false);
+      expect(
+        saidAny(
+          result.said,
+          `Claude does not list the Beep Practice Gateway ${BUNDLE_VERSION} yet. Click Update in Claude, or open Claude's Settings, choose Extensions, and drag this file onto that page: ${BUNDLE}`
+        )
+      ).toBe(true);
+      expect(details(result.report)[2]).toBe(
+        `Claude still does not list the Beep Practice Gateway ${BUNDLE_VERSION}. Open Claude's Settings, choose Extensions, drag this file onto that page, then run this setup again: ${BUNDLE}`
+      );
+      // The hand-off never opens on a stale gateway.
+      expect(result.opened).toEqual([`open:${BUNDLE}`]);
     })
   );
 
