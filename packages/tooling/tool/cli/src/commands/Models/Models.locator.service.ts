@@ -177,9 +177,6 @@ export const modelsReadShellAssign: {
   })
 );
 
-const readEnvKey = (content: string, key: string): O.Option<string> =>
-  O.map(firstMatch(Str.split(content, "\n"), new RegExp(`^\\s*(?:export\\s+)?${Regex.escape(key)}=(.*)$`)), unquote);
-
 const readTsLiteral = (content: string, symbol: string): O.Option<string> =>
   firstMatch([content], new RegExp(`export\\s+const\\s+${Regex.escape(symbol)}\\s*(?::[^=]+)?=\\s*"([^"]*)"`));
 
@@ -504,7 +501,7 @@ export const modelsReadLocator = Effect.fn("Models.readLocator")(function* (file
         )
       )
     ),
-    Match.tag("env-key", ({ key }) => Effect.succeed(readEnvKey(file.content, key))),
+    Match.tag("env-key", ({ key }) => modelsReadShellAssign(file.content, key, O.none())),
     Match.tag("shell-assign", ({ variable, within }) => modelsReadShellAssign(file.content, variable, within)),
     Match.tag("xml-attribute", ({ elementSelector, attribute }) => readXmlAttribute(file, elementSelector, attribute)),
     Match.tag("xml-escaped-json-attribute", ({ elementSelector, attribute, jsonPointer }) =>

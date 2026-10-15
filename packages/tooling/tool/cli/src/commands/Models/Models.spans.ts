@@ -42,6 +42,8 @@ const error = (message: string) => ModelsLocatorError.make({ message });
  * console.log(O.getOrElse(format, () => "writable")) // "YAML"
  * ```
  *
+ * @param locator - The grammar whose write capability is being checked.
+ * @returns The refused format name, or None for TOML/JSON.
  * @category utilities
  * @since 0.0.0
  */
