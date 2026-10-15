@@ -2291,3 +2291,18 @@ the removal PR at publication; law helpers retain their behavior under `laws/`.
 The separate test compiler rejects native `JSON.parse` even though the full package audit passes it. Move the serialization regression into its own command-output suite and decode the printed JSON once through Schema. That preserves the consumer assertion without diagnostic suppression or artificially adding schema property tests to the service-regression suite. A focused test typecheck before the full audit would expose this sooner.
 
 Final H3 test registration uses `it.effect.prop` with the existing `HookPulseAgentKind` schema in the existing timed HarnessLedger resource suite. That removes the separate suite's new EV010/EV014 judgments and the direct `Arbitrary.checkEffect` EV007 finding without inventory changes. The typed Schema JSON decoder preserves a single parse and direct field reads; the effect-vitest scan reports zero introduced findings.
+
+### H3 generated-only re-merge verification friction
+
+The heavy wrapper initially refused because the tool shell lacked the user-bus environment.
+Retrying with `XDG_RUNTIME_DIR=/run/user/1000` and the matching user-bus address
+restored admission without bypassing the queue. `package-verify` advertises a variadic
+package argument but rejects two names; run one package per invocation. Both failed
+launches ended before verification, and both corrected quick checks passed. A wrapper
+preflight and a CLI usage contract matching its parser would prevent these retries.
+
+The Desktop app quit interrupted the first hosted-parity JSDoc inventory with exit
+130 before it produced a verdict. The resumed worker verified that no prior lane
+runner remained, then restarted only that unfinished parity lane through
+`beep-heavy`. Persisting terminal gate results independently of the Desktop
+process would avoid repeating this inventory after an app interruption.

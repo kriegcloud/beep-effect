@@ -605,3 +605,33 @@ The integrated parity sequence is terminal: test-tsgo (03:28:07 UTC), local docg
 `reconcile` now encodes to the report's JSON-compatible object form before the shared printer serializes it. A command-level regression captures the printer output, applies exactly one Schema JSON parse, and validates `agentKind` and `transcriptFiles`. The Markdown prefix description is corrected. Storage completeness/qualification is tracked separately as H3-R3-001 under the round-3 cap; no metrics storage code changes in this wave. Main was merged once and dependencies installed before verification. The dated handoff records package and parity results, the pushed head and REST reply ids.
 
 Round-3 integrated proof: full CLI audit/docgen passed (1346.6 s / 40.6 s). Compiler and resource-policy diagnostics in the added test were corrected with a typed single JSON decode and native `it.effect.prop` registration inside the existing timed suite. Final test-tsgo and 32-test runtime verification pass; effect-vitest reports zero introduced findings. No detector or coverage baseline changed. The six-row scoped coverage read exceeds every baseline percentage for the changed command; the dated handoff retains the scope limits and final delivery results.
+
+### Generated-only main integration, 2026-10-15
+
+Re-merge authorization integrated main `44dbfa70fff89339e8818dfcd4a45d6666cb449f`
+into `d883de87652c77e4aa2859b8f6dc0794e9212d02`. The sole conflict was the generated
+observability Markdown table. Both catalog artifacts were restored from main and
+regenerated with `bun run beep observability catalog --write`; the matching
+`--check` passed (5,455 spans, 4,937 conforming, 518 non-conforming). Other
+incoming generated artifacts match main exactly. `bun install` passed with no
+tracked lockfile drift. H3 package source and tests are unchanged in this wave.
+
+The shortened verification requested by the driver passed: quick package-verify
+for `@beep/repo-ai-metrics` and `@beep/repo-cli` (lint and check),
+`beep quality test-tsgo`, `beep docgen local --base origin/main` (four package
+proofs), and `CI=true beep knowledge refs --check` (zero live gated observations).
+Heavy commands used `beep-heavy`. Existing coverage baseline rows were read,
+not regenerated; the prior 106-test coverage evidence remains applicable to
+the unchanged package code. This is not a new complete coverage-ratchet proof.
+
+The pre-push review-thread read succeeded with all nine threads resolved and
+no thread/comment pagination. Round-3 replies 4279219409, 4279220090 and
+4279220522 remain unchanged. No new review work or readiness monitor was started.
+The handoff records supplementary gates and the exact pushed delivery head.
+
+The resumed JSDoc hosted-parity lane completed with exit 0: 21 tracked totals,
+zero increases, 32 current totals and zero non-generated legacy findings. The
+first run had been interrupted with exit 130 when Desktop quit; no failed
+verification verdict was inferred from that interruption. All 17 cheap gates
+passed before interruption. The final catalog owner check again reports both
+artifacts current. No H3 package source or test changes accompany this resume.
