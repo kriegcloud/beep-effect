@@ -410,9 +410,9 @@ const verdictFor = (
  * @since 0.0.0
  */
 export const antecedentPolicy: {
-  (claims: PatentClaims): (trees: ReadonlyArray<ClaimElementTree>) => ReadonlyArray<AntecedentFinding>;
-  (trees: ReadonlyArray<ClaimElementTree>, claims: PatentClaims): ReadonlyArray<AntecedentFinding>;
-} = dual(2, (trees: ReadonlyArray<ClaimElementTree>, claims: PatentClaims): ReadonlyArray<AntecedentFinding> => {
+  (claims: Parameters<AntecedentPolicy>[1]): (trees: Parameters<AntecedentPolicy>[0]) => ReturnType<AntecedentPolicy>;
+  (...args: Parameters<AntecedentPolicy>): ReturnType<AntecedentPolicy>;
+} = dual(2, ((trees: ReadonlyArray<ClaimElementTree>, claims: PatentClaims): ReadonlyArray<AntecedentFinding> => {
   const claimIndex = HashMap.fromIterable(
     A.map(claims, (claim): readonly [number, PatentClaim] => [claim.claimNumber, claim])
   );
@@ -447,4 +447,4 @@ export const antecedentPolicy: {
     );
   });
   return A.dedupe(A.map(A.sort(ranked, rankedOrder), ({ finding }) => finding));
-});
+}) satisfies AntecedentPolicy);
