@@ -48,7 +48,7 @@ import {
   readHunkLedger,
 } from "@beep/repo-cli/test/Skills";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
-import { assert, expect, layer } from "@effect/vitest";
+import { assert, expect, layer, vi } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
@@ -570,6 +570,31 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
         expect((yield* appendHunkLedgerRows(repoRoot, [row]).pipe(Effect.result))._tag, ancestor).toBe("Failure");
         expect(yield* fs.exists(path.join(outside, "ledger.jsonl")), ancestor).toBe(false);
       }
+    })
+  );
+
+  it.effect("fails closed for reads and appends when procfs descriptor paths are unavailable", () =>
+    Effect.gen(function* () {
+      const repoRoot = yield* makeRepo();
+      const review = yield* reviewWith(pristineFiles);
+      const listed = yield* list(review, repoRoot);
+      const recorded = yield* decideWith(review, repoRoot, [answer(itemAt(listed, 1), "drop")]);
+      const row = O.getOrThrow(A.head(recorded.recorded));
+      const nativeFs = process.getBuiltinModule("node:fs");
+      const originalStat = nativeFs.statSync;
+      const statSpy = vi.spyOn(nativeFs, "statSync").mockImplementation((path) => {
+        if (typeof path === "string" && Str.startsWith("/proc/self/fd/")(path)) throw new Error("procfs unavailable");
+        return originalStat(path);
+      });
+      try {
+        expect((yield* Effect.flip(readHunkLedger(repoRoot))).message).toContain("unsupported on this platform");
+        expect((yield* Effect.flip(appendHunkLedgerRows(repoRoot, [row]))).message).toContain(
+          "unsupported on this platform"
+        );
+      } finally {
+        statSpy.mockRestore();
+      }
+      expect(A.length(yield* readHunkLedger(repoRoot))).toBe(1);
     })
   );
 });

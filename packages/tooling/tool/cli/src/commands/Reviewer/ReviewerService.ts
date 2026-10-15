@@ -77,6 +77,9 @@ class ClassifiedPull extends S.Class<ClassifiedPull, { readonly brand: unique sy
 ) {}
 const decodeClassifiedPull = S.decodeUnknownEffect(ClassifiedPull);
 const decodeFilePage = S.decodeUnknownEffect(S.Array(ReviewerChangedFile));
+const decodeAssociatedPulls = S.decodeUnknownEffect(
+  S.Array(S.Struct({ number: S.Int, state: S.Literals(["open", "closed"]), head: S.Struct({ sha: S.String }) }))
+);
 const decodePull = S.decodeUnknownEffect(PullRequest);
 const error = (message: string) => ReviewerError.make({ operation: "github", message });
 
@@ -188,6 +191,34 @@ export const ReviewerLive = Layer.effect(
       if (pull.head.sha !== sha) return yield* error("PR head moved; refusing to publish a stale review.");
       return pull.base.sha;
     });
+    const exclusiveOpenHead = Effect.fn("Reviewer.exclusiveOpenHead")(function* (pr: number, sha: string) {
+      let ownHeadSeen = false;
+      let page = 1;
+      while (true) {
+        if (page > 30) return yield* error("PR association listing exceeded its safe page limit.");
+        const associated = yield* request("GET", `/commits/${sha}/pulls?per_page=100&page=${page}`).pipe(
+          Effect.flatMap(decodeAssociatedPulls)
+        );
+        ownHeadSeen ||= A.some(
+          associated,
+          (pull) => pull.number === pr && pull.state === "open" && pull.head.sha === sha
+        );
+        if (A.some(associated, (pull) => pull.number !== pr && pull.state === "open" && pull.head.sha === sha))
+          return false;
+        if (associated.length < 100) return ownHeadSeen;
+        page += 1;
+      }
+    });
+    const confirmDocsOnlyHead = Effect.fn("Reviewer.confirmDocsOnlyHead")(function* (
+      pr: number,
+      sha: string,
+      baseSha: string,
+      fileCount: number
+    ) {
+      const confirmed = yield* request("GET", `/pulls/${pr}`).pipe(Effect.flatMap(decodeClassifiedPull));
+      if (confirmed.head.sha !== sha || confirmed.base.sha !== baseSha || confirmed.changed_files !== fileCount)
+        return yield* error("PR moved during L0 association check.");
+    });
     const docsOnly = Effect.fn("Reviewer.docsOnly")(
       function* (pr: number, sha: string) {
         const before = yield* request("GET", `/pulls/${pr}`).pipe(Effect.flatMap(decodeClassifiedPull));
@@ -216,7 +247,10 @@ export const ReviewerLive = Layer.effect(
           )
         )
           return yield* error("PR changed or its file listing was incomplete during L0 classification.");
-        return reviewerDocsOnly(files) ? O.some(before.base.sha) : O.none();
+        if (!reviewerDocsOnly(files)) return O.none();
+        if (!(yield* exclusiveOpenHead(pr, sha))) return O.none();
+        yield* confirmDocsOnlyHead(pr, sha, before.base.sha, files.length);
+        return O.some(before.base.sha);
       },
       Effect.mapError(() => error("L0 classification failed closed."))
     );

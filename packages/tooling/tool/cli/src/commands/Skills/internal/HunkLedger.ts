@@ -55,6 +55,11 @@ const openChildDirectory = Effect.fn("HunkLedger.openChildDirectory")(function* 
   name: string,
   create: boolean
 ) {
+  const boundParent = yield* attempt("bind descriptor for", () => nodeFs().statSync(`/proc/self/fd/${parentFd}`)).pipe(
+    Effect.mapError(() => unsafeLedger(`Descriptor-bound ${HUNK_LEDGER_PATH} IO is unsupported on this platform.`))
+  );
+  if (!boundParent.isDirectory())
+    return yield* unsafeLedger(`Descriptor-bound ${HUNK_LEDGER_PATH} IO is unsupported on this platform.`);
   const entry = heldEntry(parentFd, name);
   const opened = yield* openDirectoryHandle(entry);
   if (O.isSome(opened)) return opened;
@@ -71,9 +76,12 @@ const openChildDirectory = Effect.fn("HunkLedger.openChildDirectory")(function* 
 const ledgerDirectory = Effect.fn("HunkLedger.directory")(function* (repoRoot: string, create: boolean) {
   const root = yield* openDirectoryHandle(repoRoot);
   if (O.isNone(root)) return yield* unsafeLedger("Cannot bind the repository root for hunk-ledger IO.");
-  const agents = yield* openChildDirectory(root.value.fd, ".agents", create);
-  if (O.isNone(agents)) return O.none();
-  return yield* openChildDirectory(agents.value.fd, "skill-patches", create);
+  let directory: O.Option<typeof root.value> = root;
+  for (const segment of Str.split("/")(PATCH_ROOT)) {
+    if (O.isNone(directory)) return O.none();
+    directory = yield* openChildDirectory(directory.value.fd, segment, create);
+  }
+  return directory;
 });
 
 const inspectLedgerFile = Effect.fn("HunkLedger.inspectFile")(function* (entry: string) {

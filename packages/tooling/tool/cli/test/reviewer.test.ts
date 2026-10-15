@@ -16,7 +16,7 @@ import {
 } from "@beep/repo-cli/commands/Reviewer";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
@@ -233,9 +233,32 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       const files = [{ filename: "docs/app.md" }, { filename: "README.md" }];
       const http = client((_method, url) =>
-        url.pathname.endsWith("/files") ? files : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
+        url.pathname.endsWith("/files")
+          ? files
+          : url.pathname.endsWith("/pulls")
+            ? [{ number: 7, state: "open", head: { sha } }]
+            : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
       );
       assertSome(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(http)), baseSha);
+      const sharedHead = client((_method, url) =>
+        url.pathname.endsWith("/files")
+          ? files
+          : url.pathname.endsWith("/pulls")
+            ? [
+                { number: 7, state: "open", head: { sha } },
+                { number: 8, state: "open", head: { sha } },
+              ]
+            : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
+      );
+      assertNone(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(sharedHead)));
+      const missingAssociation = client((_method, url) =>
+        url.pathname.endsWith("/files")
+          ? files
+          : url.pathname.endsWith("/pulls")
+            ? []
+            : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
+      );
+      assertNone(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(missingAssociation)));
       let reads = 0;
       const moved = client((_method, url) => {
         if (url.pathname.endsWith("/files")) return files;
