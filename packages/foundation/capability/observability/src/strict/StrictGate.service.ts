@@ -32,7 +32,14 @@ import {
   TelemetryRefusalTag,
   TelemetryRefused,
 } from "../Observability.instruments.ts";
-import { durationBucketOf, ShapeOnlyAttribute, ShapeOnlyResource, StrictExportWindow } from "./StrictGate.schemas.ts";
+import {
+  coarsenMetricValue,
+  durationBucketOf,
+  metricValueCeiling,
+  ShapeOnlyAttribute,
+  ShapeOnlyResource,
+  StrictExportWindow,
+} from "./StrictGate.schemas.ts";
 import type { LogsData } from "effect/observability/OtlpLogger";
 import type { MetricsData } from "effect/observability/OtlpMetrics";
 import type { KeyValue } from "effect/observability/OtlpResource";
@@ -150,11 +157,8 @@ type InputSpan = ResourceSpans["scopeSpans"][number]["spans"][number];
 type ResourceMetrics = MetricsData["resourceMetrics"][number];
 type InputMetric = ResourceMetrics["scopeMetrics"][number]["metrics"][number];
 
-interface InputPoint {
-  readonly attributes?: Array<KeyValue> | undefined;
-  readonly startTimeUnixNano?: unknown;
-  readonly timeUnixNano?: unknown;
-}
+type NumberPoint = NonNullable<InputMetric["sum"]>["dataPoints"][number];
+type HistogramPoint = NonNullable<InputMetric["histogram"]>["dataPoints"][number];
 
 const windowNanos = Duration.toNanosUnsafe(StrictExportWindow);
 const nanosPerMilli = 1_000_000n;
@@ -173,6 +177,19 @@ const floorWireNanos = (nanos: unknown): string =>
     O.map((value) => `${floorNanos(value)}`),
     O.getOrElse(() => "0")
   );
+
+const coarsenWireInt = (raw: number | string, coarsen: boolean): number | string => {
+  if (!coarsen) {
+    return raw;
+  }
+  const coarsened = pipe(
+    O.liftPredicate(raw, P.isNumber),
+    O.orElse(() => O.flatMap(BigInt_.fromString(`${raw}`), BigInt_.toNumber)),
+    O.map(coarsenMetricValue),
+    O.getOrElse(() => metricValueCeiling)
+  );
+  return P.isString(raw) ? `${coarsened}` : coarsened;
+};
 
 const durationMsOf = (span: InputSpan): number =>
   pipe(
@@ -371,54 +388,117 @@ export const makeStrictGate = Effect.fn("StrictGate.make")(function* (config: St
     });
   };
 
-  const gatePoints =
+  const gateAttributes =
     (allowedKeys: HashSet.HashSet<string>) =>
-    (points: ReadonlyArray<InputPoint>): ReadonlyArray<object> =>
-      A.flatMap(points, (point) => {
-        const attributes = point.attributes ?? [];
-        const allowed =
-          !rules["metric-attributes"] ||
-          A.every(
-            attributes,
-            (attribute) => HashSet.has(allowedKeys, attribute.key) && isLiteralAllowed(metricValues)(attribute)
-          );
-        if (!allowed) {
-          count(TelemetryRefusalTag.Enum["metric-attribute-not-allowed"]);
-          return [];
-        }
-        return [
+    (attributes: ReadonlyArray<KeyValue>): O.Option<ReadonlyArray<KeyValue>> => {
+      const allowed =
+        !rules["metric-attributes"] ||
+        A.every(
+          attributes,
+          (attribute) => HashSet.has(allowedKeys, attribute.key) && isLiteralAllowed(metricValues)(attribute)
+        );
+      if (!allowed) {
+        count(TelemetryRefusalTag.Enum["metric-attribute-not-allowed"]);
+      }
+      return allowed ? O.some(attributes) : O.none();
+    };
+
+  const pointTimes = (point: { readonly startTimeUnixNano?: unknown; readonly timeUnixNano?: unknown }) => ({
+    startTimeUnixNano: floorWireNanos(point.startTimeUnixNano),
+    timeUnixNano: floorWireNanos(point.timeUnixNano),
+  });
+
+  const value = (raw: number): number => (rules["metric-values"] ? coarsenMetricValue(raw) : raw);
+
+  const numberPoints = (allowedKeys: HashSet.HashSet<string>, points: ReadonlyArray<NumberPoint>) =>
+    A.flatMap(points, (point) =>
+      O.match(gateAttributes(allowedKeys)(point.attributes), {
+        onNone: () => [],
+        onSome: (attributes) => [
           {
-            ...point,
             attributes,
+            ...pointTimes(point),
             exemplars: [],
-            startTimeUnixNano: floorWireNanos(point.startTimeUnixNano),
-            timeUnixNano: floorWireNanos(point.timeUnixNano),
+            ...(P.isNumber(point.asDouble) ? { asDouble: value(point.asDouble) } : {}),
+            ...(P.isUndefined(point.asInt) ? {} : { asInt: coarsenWireInt(point.asInt, rules["metric-values"]) }),
           },
-        ];
-      });
+        ],
+      })
+    );
+
+  const histogramPoints = (allowedKeys: HashSet.HashSet<string>, points: ReadonlyArray<HistogramPoint>) =>
+    A.flatMap(points, (point) =>
+      O.match(gateAttributes(allowedKeys)(point.attributes ?? []), {
+        onNone: () => [],
+        onSome: (attributes) => {
+          const aggregates = { sum: point.sum, min: point.min, max: point.max };
+          if (rules["metric-values"]) {
+            count(
+              TelemetryRefusalTag.Enum["metric-value-dropped"],
+              A.length(A.filter([point.sum, point.min, point.max], P.isNotUndefined))
+            );
+          }
+          return [
+            {
+              attributes,
+              ...pointTimes(point),
+              exemplars: [],
+              count: value(point.count ?? 0),
+              bucketCounts: A.map(point.bucketCounts ?? [], value),
+              explicitBounds: point.explicitBounds ?? [],
+              ...(rules["metric-values"] ? {} : aggregates),
+            },
+          ];
+        },
+      })
+    );
+
+  // Exponential histograms and summaries carry value-derived bucket layouts
+  // and quantiles that no ladder can coarsen, so the whole series is refused.
+  const refusedSeries = <D>(key: string, data: D | undefined): Record<string, D> => {
+    if (P.isUndefined(data)) {
+      return {};
+    }
+    if (rules["metric-values"]) {
+      count(TelemetryRefusalTag.Enum["metric-not-allowed"]);
+      return {};
+    }
+    return { [key]: data };
+  };
 
   const gateMetric = (metric: InputMetric): ReadonlyArray<object> => {
-    const allowedKeys = HashMap.get(metricKeys, metric.name);
-    if (rules["metric-names"] && O.isNone(allowedKeys)) {
+    const found = HashMap.get(metricKeys, metric.name);
+    if (rules["metric-names"] && O.isNone(found)) {
       count(TelemetryRefusalTag.Enum["metric-not-allowed"]);
       return [];
     }
-    const points = gatePoints(O.getOrElse(allowedKeys, () => HashSet.empty<string>()));
-    const series = <D extends { readonly dataPoints: ReadonlyArray<InputPoint> }>(
-      key: string,
-      data: D | undefined
-    ): Record<string, object> =>
-      P.isUndefined(data) ? {} : { [key]: { ...data, dataPoints: points(data.dataPoints) } };
+    const allowedKeys = O.getOrElse(found, () => HashSet.empty<string>());
+    const { sum, gauge, histogram } = metric;
     return [
       {
         name: metric.name,
         description: metric.description,
         unit: metric.unit,
-        ...series("sum", metric.sum),
-        ...series("gauge", metric.gauge),
-        ...series("histogram", metric.histogram),
-        ...series("exponentialHistogram", metric.exponentialHistogram),
-        ...series("summary", metric.summary),
+        ...(P.isUndefined(sum)
+          ? {}
+          : {
+              sum: {
+                aggregationTemporality: sum.aggregationTemporality,
+                isMonotonic: sum.isMonotonic,
+                dataPoints: numberPoints(allowedKeys, sum.dataPoints),
+              },
+            }),
+        ...(P.isUndefined(gauge) ? {} : { gauge: { dataPoints: numberPoints(allowedKeys, gauge.dataPoints) } }),
+        ...(P.isUndefined(histogram)
+          ? {}
+          : {
+              histogram: {
+                aggregationTemporality: histogram.aggregationTemporality,
+                dataPoints: histogramPoints(allowedKeys, histogram.dataPoints),
+              },
+            }),
+        ...refusedSeries("exponentialHistogram", metric.exponentialHistogram),
+        ...refusedSeries("summary", metric.summary),
       },
     ];
   };

@@ -48,6 +48,11 @@ Before marking the packet closed:
   8-character prefix and SHA-256 forms) in `apps/practice-kg-mcp/test/Host.test.ts`.
   Cache baseline re-recorded for `@beep/practice-kg-mcp` via
   `research/cache-baseline-request-strict-tier-p1.json`.
+- P1 review fix (2026-10-15, #1838): metric points are rebuilt from named
+  fields; values are floored onto the 1/2.5/5-per-decade ladder (saturating at
+  10^12) under the new `metric-values` gate rule; histograms drop `sum`/`min`/
+  `max` (`metric-value-dropped`); exponential histograms and summaries are
+  refused (`metric-not-allowed`).
 - Finding: no canary reaches pre-gate telemetry today (handler errors use
   canned messages, SQL spans carry statements without parameters, and mcp-kit
   strips `parameters`); with the content rules turned off the canary test

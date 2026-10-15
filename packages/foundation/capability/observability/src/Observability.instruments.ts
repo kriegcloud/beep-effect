@@ -35,8 +35,10 @@ const owner = PackageName.make("@beep/observability");
  * at the `shape-only` tier. The strict-tier gate (`@beep/observability/strict`)
  * adds one tag per thing it drops or rewrites: a span whose name is not a tool
  * id, a span link, a span status message, a log record, an input resource it
- * replaced, a metric whose name is not allowed, a metric point carrying a key
- * or value that is not allowed, and an export its egress client held back.
+ * replaced, a metric or series whose name or kind is not allowed, a metric
+ * point carrying a key or value that is not allowed, a raw histogram
+ * aggregate (`sum`, `min`, `max`) it dropped, and an export its egress client
+ * held back.
  *
  * **Example** (Read the attribute refusal tag)
  *
@@ -60,6 +62,7 @@ export const TelemetryRefusalTag = LiteralKit([
   "resource-rebuilt",
   "metric-not-allowed",
   "metric-attribute-not-allowed",
+  "metric-value-dropped",
   "egress-refused",
 ]).pipe(
   $I.annoteSchema("TelemetryRefusalTag", {
