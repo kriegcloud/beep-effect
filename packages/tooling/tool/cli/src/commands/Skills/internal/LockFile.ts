@@ -9,12 +9,16 @@
 import { Sha256HexFromBytes } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SkillsCommandError, SkillsLockWriteRefusal } from "../Skills.errors.ts";
+import { decodeSkillsLockDocumentJson } from "../SkillsLock.schemas.ts";
 import type { Sha256Hex } from "@beep/schema";
 import type * as Crypto from "effect/Crypto";
+import type { SkillsLockEntry, VendoredSkillLockEntry } from "../SkillsLock.schemas.ts";
 
 const textEncoder = new TextEncoder();
 const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
@@ -68,6 +72,50 @@ export const skillsLockTextSha256 = Effect.fn("SkillsLock.skillsLockTextSha256")
   return yield* decodeSha256HexFromBytes(textEncoder.encode(text)).pipe(
     SkillsCommandError.mapError(`Failed to compute SHA-256 for ${label}.`, label)
   );
+});
+
+/**
+ * Reads and decodes the lock, returning the document with the SHA-256 of the
+ * exact bytes read: the digest a plan seals as `lockSha256`.
+ *
+ * @internal
+ * @category queries
+ * @since 0.0.0
+ */
+export const readSkillsLockDocument = Effect.fn("SkillsLock.readSkillsLockDocument")(function* (repoRoot: string) {
+  const { lockPath, text } = yield* readSkillsLockText(repoRoot);
+  const document = yield* decodeSkillsLockDocumentJson(text).pipe(
+    SkillsCommandError.mapError(`${SKILLS_LOCK_PATH} is not a skills-lock/v2 document.`, lockPath)
+  );
+  return { document, sha256: yield* skillsLockTextSha256(text, lockPath) };
+});
+
+/**
+ * Looks up a vendored lock entry, refusing through `refuse` when the key is
+ * absent (`unknown-skill`) or names a local entry (`not-vendored`).
+ *
+ * @internal
+ * @param skills - Every entry of the decoded lock document.
+ * @param skill - Lock key naming the entry that must be vendored.
+ * @param localRemedy - What the `not-vendored` message tells the caller to do instead.
+ * @param refuse - Builds the caller's typed refusal from a reason and a message.
+ * @returns The entry narrowed to its vendored variant; a missing or local key fails through `refuse`.
+ * @category queries
+ * @since 0.0.0
+ */
+export const requireVendoredEntry = Effect.fnUntraced(function* <E>(
+  skills: Readonly<Record<string, SkillsLockEntry>>,
+  skill: string,
+  localRemedy: string,
+  refuse: (reason: "unknown-skill" | "not-vendored", message: string) => Effect.Effect<never, E>
+): Effect.fn.Return<VendoredSkillLockEntry, E> {
+  const entry = R.get(skills, skill);
+  if (O.isNone(entry)) {
+    return yield* refuse("unknown-skill", `${skill} has no entry in ${SKILLS_LOCK_PATH}.`);
+  }
+  return entry.value._tag === "vendored"
+    ? entry.value
+    : yield* refuse("not-vendored", `${skill} is a local skill; ${localRemedy}`);
 });
 
 /**

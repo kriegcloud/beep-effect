@@ -10,22 +10,24 @@ Effect compiler is patched over one of them.
 | --- | --- | --- |
 | `typescript` | `^6.0.3` | Programmatic (JS) compiler API only. Never runs a repo typecheck; its `bin/tsc` is shadowed. |
 | `@typescript/native` | `npm:typescript@^7.0.2` | The TypeScript 7 Go compiler. Owns the hoisted `node_modules/.bin/tsc`. |
-| `@effect/tsgo` + seven `@effect/tsgo-<platform>` packages | `0.51.1` | The Effect language service build of TypeScript 7. Ships one binary per upstream TypeScript version. Pinned to the effect-tsgo version that tsc-rs ports (see below). |
+| `@effect/tsgo` + seven `@effect/tsgo-<platform>` packages | `0.53.0` | The Effect language service build of TypeScript 7. Editors and the independent Effect diagnostics lane use this reviewed pin; it can advance beyond the tsc-rs port. |
 | `tsc-rs` + six `@tsc-rs/<platform>` optional packages | `0.6.0` | The Rust port of the TypeScript 7 compiler ([pingdotgg/ts-rust](https://github.com/pingdotgg/ts-rust)) with the Effect rules of one effect-tsgo version compiled in (0.6.0 ports 0.51.1) and its own TypeScript pinned (`7.1.0-dev.20261008.1`). Runs every `beep:build`, `beep:check` and `beep:check:tests`, the root `check:configs`, and infra's `-b` build. |
 
 The root `prepare` script (`effect-tsgo unpatch && node scripts/prune-tsgo-backups.mjs && effect-tsgo patch`)
 copies the Effect binary over the native package's Go binary, keeping the stock
 one beside it as `tsc.original`. After install, both of these print
-`Version 7.0.2+effect-tsgo.0.51.1`:
+`Version 7.0.2+effect-tsgo.0.53.0`:
 
 ```text
 node_modules/.bin/tsc      -> @typescript/native/bin/tsc  (patched Go binary)
 node_modules/.bin/tsgo     -> tools/tsgo-shim/tsgo.js     (execs the Effect artifact directly)
 ```
 
-Docgen's example compile, `beep quality test-tsgo`, `beep quality tsgo-smoke`,
-every `lint:tsgo-rules` run and the editors therefore use the Effect compiler
-with Effect diagnostics. The shim bypasses the patch on purpose: a preserved
+Docgen's example compile, `beep quality test-tsgo`, the Effect smoke canary,
+rule-parity tools and the editors use the Effect compiler. The independent
+`beep quality effect-diagnostics` command reports the reviewed Effect rule set.
+Required Check continues enforcing the embedded shared rules during promotion.
+The shim bypasses the patch on purpose: a preserved
 `.original` backup can make a newer patcher mistake an older Effect compiler for
 the current one (`tools/tsgo-shim/tsgo.js`).
 
@@ -55,35 +57,106 @@ exception was upstream 7.1-dev behaviour, fixed in #1670). Rules of the road:
 - A failing `tsc-rs` exits 2, not 1. Yeet's issue parser keys on the
   diagnostic text, so the code does not matter to the gates.
 - `tsc-rs --version` prints `Version 7.1.0-dev`; the `.bin/tsc` ↔ `.bin/tsgo`
-  version test (`EffectTsgoEffectFnPolicy.test.ts`) is about the Effect
-  compiler and does not cover it.
+  version equality test covers the Effect
+  binary; `EffectTsgoEffectFnPolicy.test.ts` independently verifies the tsc-rs
+  identity and that both shared Effect rules and type errors still fail Check.
 
 ## Binary paths (Linux x64)
 
-Verified 2026-10-13 at 0.51.1. Substitute the platform triple on other machines.
+Verified at 0.53.0. Substitute the platform triple on other machines.
 
-- `node_modules/@effect/tsgo-linux-x64/artifacts/typescript/7.0.2/tsc` is the
-  canonical Effect artifact. `effect-tsgo get-exe-path` returns it and the
-  `tsgo` shim execs it. A `7.1.0-dev.*` sibling ships beside it; the shim
-  selects by matching the native package's `gitHead` against
-  `lib/upstream.json`.
-- `node_modules/@typescript/typescript-linux-x64/lib/tsc` is the patched
-  native binary, byte-identical to the artifact above after `prepare`.
-  `tsc.original` beside it is stock TypeScript 7.0.2.
+- `node_modules/@effect/tsgo-linux-x64/lib/tsc` is the latest TypeScript (7.0.2)
+  Effect artifact. Since 0.52 it is shipped once in `lib`, not duplicated under
+  `artifacts/typescript/7.0.2`. Other upstream versions remain under
+  `artifacts/typescript/<version>/tsc`.
+- `effect-tsgo get-exe-path` and the `tsgo` shim resolve the correct binary from
+  installed upstream metadata. Avoid hardcoding an artifact-version directory.
+- `node_modules/@typescript/typescript-linux-x64/lib/tsc` is the patched native
+  binary; `tsc.original` beside it remains the stock TypeScript backup.
 
-## Version coupling with tsc-rs
+## Independent Effect diagnostics
 
-`@effect/tsgo` is held at the effect-tsgo version that
-[tsc-rs](https://github.com/pingdotgg/ts-rust) ports (0.51.1 for tsc-rs 0.6.0),
-because tsc-rs compiles the Effect rules in and the editor and the gate must
-agree on rule names and defaults. Both pins sit in the same `syncpack.config.ts`
-held-back group; bump them in one change, to the tsc-rs release that ports the
-new rule set. The next effect-tsgo release, 0.52.0, adds six rules. Do not
-register their names while running 0.51.1: unknown keys produce TS377134
-warnings, and `ignoreEffectWarningsInTscExitCode: false` makes those warnings
-fail the gate. The planned severities and the deferred `schemaClassMissingBrand`
-decision are recorded beside the version hold in `syncpack.config.ts`. Include
-lab apps in the next rule sweep because `bun run check` filters them out.
+Effect rules come from the reviewed `@effect/tsgo` pin through:
+
+```sh
+bun run beep quality effect-diagnostics
+# Bounded edit loop:
+bun run beep quality effect-diagnostics --filter @beep/observability
+```
+
+`Heavy / Effect Diagnostics` is an independent parallel matrix job, outside
+Heavy / Check and root `bun run check`. It remains non-required during promotion;
+required Check still gates its embedded 0.51.1 Effect rules. PRs pass
+`--base origin/<base>`; trusted main pushes run the full inventory. The CLI reuses the coverage lane's workspace
+inventory and transitive dependent helper, including packages without coverage
+scripts and lab apps. Root compiler/lockfile/runner changes select all projects;
+repository prose selects none. Dirty paths join the base-to-HEAD diff locally.
+The hosted job uses a 19-GiB hard cgroup ceiling, with swap disabled, via the
+runner's existing user systemd manager, using the transient-service transport
+used by beep-heavy. A named unit is stopped on shell exit and has an 85-minute
+runtime ceiling. A missing manager fails visibly.
+
+Use `--concurrency 1..6` or `BEEP_EFFECT_DIAGNOSTICS_CONCURRENCY`; the flag
+wins over the environment. The default is **2 projects**: the eight-CPU full
+sweep took 717.407s with 11.89 GiB peak job cgroup memory, versus 1497.811s
+serially. Four workers reached 21.52 GiB and six exceeded 24 GiB, so neither
+fits the approximately 60%-of-32-GiB budget. The H2 packet records the complete
+measurements and final capped PR replay.
+For historical comparison, the 2026-10-14 serial spike took 1,423.881 seconds and peaked at
+8,109,752 KiB RSS. The compiler comparison took 132.424 seconds. Detailed
+coverage, project-profile corrections and the new-rule census live in
+`goals/effect-rules-diagnostics-lane/history/2026-10-14-spike.md`.
+
+Discovery uses declared workspace roots, including lab apps, and selects every
+`tsconfig.check.json`, `tsconfig.test.json` and existing `test/tsconfig.json`.
+The last form covers the CLI tests. It excludes nested test-fixture packages.
+Each project runs the installed `effect-tsgo diagnostics --project <config>
+--format json --strict` command with bounded Effect concurrency. Project settings are authoritative,
+including effect-drizzle's documented missedPipeableOpportunity exception.
+Malformed JSON, unexpected exits, zero coverage and files without a plugin fail
+the lane. Errors and warnings fail; the configured map promotes enabled rules
+to error. Five 0.52 rules are armed at error. `schemaClassMissingBrand` remains
+off in the lane profile as of 2026-10-14; the schema-opaque-default closing PR
+flips that one key
+(the post-#1758 spike found zero sites). The public catalog payload rename landed
+in #1807; no catalog suppression exception remains. The two 0.53 import-style
+rules remain explicitly off. Intentional named helper imports are pervasive,
+and Effect barrel imports violate the code law.
+
+All three `ignoreEffect*InTscExitCode` options remain **false** in the root and
+copied profiles. Required `Heavy / Check` therefore continues failing on the
+shared embedded 0.51.1 rules as well as TypeScript errors. The 0.52/0.53 rules
+are absent from its map and run only in the non-required diagnostics lane.
+A policy fixture proves a shared Effect-only finding and a TypeScript error
+each fail tsc-rs; standalone diagnostics also rejects the shared finding.
+
+The root and all copied compiler profiles contain only rule names known by
+tsc-rs 0.6.0's embedded 0.51.1 rule set. The nine newer keys live in
+`standards/effect-diagnostics.profile.json`, decoded by the CLI with a closed
+schema. Each project is resolved with the pinned `get-tsconfig` resolver.
+The lane validates that resolved plugin with Schema and keeps its settings and overrides, adds the nine
+profile severities to its diagnosticSeverity map, and passes the complete plugin
+to `effect-tsgo diagnostics --lspconfig`. This replacement option must receive
+the full merged plugin; passing the nine-key profile alone loses project policy.
+The profile participates in affected selection, so changing it selects all projects.
+The rule-parity checker validates the combined root and lane maps against the
+installed 0.53.0 catalog, while copied compiler profiles match the shared root map.
+
+After one green main run of `Heavy / Effect Diagnostics`, promote it in this
+order: mark its descriptor required, add `Heavy / Effect Diagnostics` to the
+main ruleset through `beep ci ruleset`, fold the lane profile into
+`tsconfig.base.json` and the copied profiles, then set all three ignore flags
+true and delete the standalone profile and its overlay loader. Keep the flags false until both the
+descriptor and live ruleset require the diagnostics context. The empty-project
+policy canary proves the interim root map produces no unknown-rule warnings.
+
+The eight Effect packages stay synchronized, but they no longer move with
+`tsc-rs`. Both remain independently held for reviewed upgrades. The tsc-rs 0.6.0
+embedded rules are still 0.51.1 and may lag. Re-couple only after tsc-rs ports
+the newest rules and parity is proved, then remove the separate lane. A bump
+must update the complete root severity map and explicit disabled-rule ledger,
+remove retired plugin options, preserve package exceptions and repeat the
+all-project census. `beep quality tsgo-rules` checks that configuration contract.
 
 ## Programmatic access
 
@@ -118,9 +191,8 @@ checked 2026-09-24:
 
 | Tool | Needs `typescript@6`? | Why |
 | --- | --- | --- |
-| typescript-eslint 8.70.x | yes, docs lane until lane B | peer `>=4.8.4 <6.1.0` via typescript-estree and ts-api-utils; TS7 support tracked in typescript-eslint/typescript-eslint#10940 (open) |
 | tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3` and `6.0.3` (hosted matrix) plus `next` (on demand) to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
-| commitlint (`cosmiconfig-typescript-loader`) | yes | peer `>=5` on the JS API |
+| commitlint (`cosmiconfig-typescript-loader`) | no direct API use | declares a TypeScript peer; `commitlint.config.ts` is loaded through jiti |
 | ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
 
 Deprecated API scanning uses oxlint 1.88.0 + oxlint-tsgolint 7.0.2004 (bundled
@@ -128,8 +200,7 @@ TypeScript 7.0.2), independently of the JS compiler API.
 
 The hold lives in `syncpack.config.ts` (the "Held back" update group) so
 `deps:update` cannot collapse the split. Reassess the root `typescript@6` hold
-when typescript-eslint and the remaining
-classic-API consumers support TypeScript 7.1; only then drop `typescript@6` and
+when the remaining classic-API consumers support TypeScript 7.1; only then drop `typescript@6` and
 re-point consumers that resolve the `typescript` name at the native package.
 The separate exact tstyche beta hold ends when stable 8.0 passes the same
 effect-drizzle assertions.
@@ -162,7 +233,7 @@ JetBrains' bundled "TypeScript 7 (Native)" entry for plain TS diagnostics.
 
 Effect diagnostics come from the Effect JetBrains plugin's language server,
 which launches the native binary with `--lsp --stdio`. Point its **Binary mode**
-at `MANUAL` with the `artifacts/typescript/7.0.2/tsc` path above, never at the
+at `MANUAL` with the `lib/tsc` path above, never at the
 `effect-tsgo` CLI wrapper. `MANUAL` keeps the editor on the catalog's exact
 `@effect/tsgo` version; `LATEST` pulls whatever npm tags latest, which can run
 ahead of the repo. The plugin setting is stored in the machine-local
@@ -170,3 +241,6 @@ ahead of the repo. The plugin setting is stored in the machine-local
 worktrees (`standards/git-worktrees.md`). A `MANUAL` path is absolute, so a
 copied file still points at the source worktree's `node_modules`; re-point it
 per worktree if the worktrees drift in `@effect/tsgo` version.
+
+Documentation lint uses repo-owned oxlint plugins. Both lint lanes use oxlint;
+ESLint and its TypeScript parser were removed in TS7 exit lane B2.

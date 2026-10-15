@@ -3,7 +3,7 @@ import {
   isNoNativeRuntimeExtraCheckHotspot,
   NO_NATIVE_RUNTIME_ERROR_FILES,
   NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS,
-} from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
+} from "@beep/repo-configs/laws/NoNativeRuntimeHotspots";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 

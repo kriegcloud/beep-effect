@@ -238,6 +238,29 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
+  it.layer(TestLayer, { timeout: "10 seconds" })("question items", (it) => {
+    it.effect(
+      "never lists a question item as open, even with no verdict rows",
+      Effect.fnUntraced(function* () {
+        const queue = yield* ReviewQueue;
+        const item = yield* claimFinding;
+        const question = yield* S.decodeEffect(ReviewItem.cases.question)({
+          kind: "question",
+          itemId: "question:1",
+          text: "Which due date should be docketed?",
+          sourceRefs: [],
+          facts: [],
+          options: [
+            { optionId: "use-stated", label: "Use the stated date" },
+            { optionId: "handle-myself", label: "I'll handle it" },
+          ],
+        });
+
+        expect(yield* queue.openItems([question, item])).toStrictEqual([item]);
+      })
+    );
+  });
+
   it.layer(TestLayer, { timeout: "10 seconds" })("withdrawn verdict", (it) => {
     it.effect(
       "withdraws an accidental wrong in the same batch, keeps both rows, and reopens the item",

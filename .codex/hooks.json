@@ -19,7 +19,8 @@
           },
           {
             "type": "command",
-            "command": "BEEP_HOOK_PULSE_NOTIFIER_REV=desktop-ntfy-1 \"$(git rev-parse --show-toplevel)/.codex/hooks/hook-pulse.sh\""
+            "command": "\"$(git rev-parse --show-toplevel)/.codex/hooks/hook-pulse.sh\"",
+            "timeout": 5
           }
         ]
       }

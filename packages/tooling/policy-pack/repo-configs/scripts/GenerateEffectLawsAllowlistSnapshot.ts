@@ -8,14 +8,14 @@ import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
-import { normalizePath } from "../src/eslint/Shared.ts";
-import { ALLOWLIST_PATH, EffectLawsAllowlistSnapshot } from "../src/internal/eslint/EffectLawsAllowlistSchemas.ts";
+import { ALLOWLIST_PATH, EffectLawsAllowlistSnapshot } from "../src/internal/laws/EffectLawsAllowlistSchemas.ts";
 import {
   buildAllowlistSnapshotFromJsoncText,
   renderAllowlistSnapshotModule,
-} from "../src/internal/eslint/EffectLawsAllowlistSnapshotCodegen.ts";
+} from "../src/internal/laws/EffectLawsAllowlistSnapshotCodegen.ts";
+import { normalizePath } from "../src/laws/Shared.ts";
 
-const SNAPSHOT_OUTPUT_PATH = "src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
+const SNAPSHOT_OUTPUT_PATH = "src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts";
 const PACKAGE_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const REPO_ROOT = fileURLToPath(new URL("../../../../../", import.meta.url));
 

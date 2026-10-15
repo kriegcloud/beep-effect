@@ -12,6 +12,8 @@ import { ContinuityObservation } from "./Continuity.schemas.ts";
 import { PermissionContinuity, PermissionContinuityLive } from "./Continuity.service.ts";
 import { reportSessionFailure, SessionLedgerError } from "./Session.errors.ts";
 
+const encodeContinuityObservations = S.encodeEffect(ContinuityObservation.pipe(S.Array, S.fromJsonString));
+
 /**
  * Inspect selected effective records without launching or changing a session.
  *
@@ -36,7 +38,7 @@ export const sessionContinuityCommand = Command.make(
       Effect.gen(function* () {
         const reader = yield* PermissionContinuity;
         const rows = yield* reader.read(input);
-        const encoded = yield* S.encodeEffect(ContinuityObservation.pipe(S.Array, S.fromJsonString))(rows).pipe(
+        const encoded = yield* encodeContinuityObservations(rows).pipe(
           Effect.mapError(() =>
             SessionLedgerError.make({ reason: "decode", message: "Cannot encode continuity observations" })
           )

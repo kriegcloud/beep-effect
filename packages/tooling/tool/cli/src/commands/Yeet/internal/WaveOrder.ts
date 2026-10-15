@@ -338,6 +338,20 @@ export const DEFAULT_GATE_ORDER_SEED = GateOrderSeed.make({
         HEAVY_BASIS
       )
     ),
+    postdatesA1Window(
+      seedRow(
+        "quality:effect-diagnostics",
+        1497.811,
+        "/hosted/laneRows",
+        "H2 2026-10-14 eight-CPU serial full sweep: 1497.811s wall over 291 projects (goals/effect-rules-diagnostics-lane/SPEC.md). Conservative single-run proxy, not an observed hosted P50; reseed after hosted history exists.",
+        0,
+        O.none(),
+        "precise",
+        PRECISE_BASIS,
+        "heavy",
+        HEAVY_BASIS
+      )
+    ),
     // taskIds: //#fallow:audit:check (+ //#lint:policy-fingerprint).
     seedRow(
       "fallow:audit",
@@ -452,11 +466,11 @@ const proxyRowCost = (laneId: string, sourceKey: string): GateOrderCostSource =>
  *
  * **Details**
  *
- * One entry per seed row: 16 lanes read their own hosted A1 row
+ * One entry per seed row: 15 lanes read their own hosted A1 row
  * (`a1-lane-row`), 15 read a group aggregate or wrapper row shared with
- * siblings (`a1-proxy-row`), and `quality:storybook` and `quality:shadcn-lint`
- * read a run outside A1 (`external-run`). The gate-order fixture checks that
- * each seed duration pointer resolves to the row named here.
+ * siblings (`a1-proxy-row`), and three lanes use `external-run`: Storybook,
+ * Shadcn Lint and Effect Diagnostics. The gate-order fixture checks that each
+ * seed duration pointer resolves to the row named here.
  *
  * **Example** (Count the external-run cost bases)
  *
@@ -464,7 +478,7 @@ const proxyRowCost = (laneId: string, sourceKey: string): GateOrderCostSource =>
  * import { DEFAULT_GATE_ORDER_COST_SOURCES } from "@beep/repo-cli/test/Yeet"
  * import * as A from "effect/Array"
  *
- * console.log(A.filter(DEFAULT_GATE_ORDER_COST_SOURCES, (entry) => entry.costBasis === "external-run").length) // 2
+ * console.log(A.filter(DEFAULT_GATE_ORDER_COST_SOURCES, (entry) => entry.costBasis === "external-run").length) // 3
  * ```
  *
  * @category configuration
@@ -496,6 +510,7 @@ export const DEFAULT_GATE_ORDER_COST_SOURCES: ReadonlyArray<GateOrderCostSource>
   laneRowCost("quality:test-unit", "Test Unit"),
   laneRowCost("quality:test-integration", "Heavy / Test Integration"),
   costSource("quality:storybook", "external-run", O.none()),
+  costSource("quality:effect-diagnostics", "external-run", O.none()),
   proxyRowCost("fallow:audit", "advisory:01-fallow-feedback"),
   proxyRowCost("fallow:dead-code", "advisory:01-fallow-feedback"),
   proxyRowCost("fallow:health", "advisory:01-fallow-feedback"),

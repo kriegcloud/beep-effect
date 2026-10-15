@@ -42,6 +42,7 @@ import { phraseToolCall, practiceKgToolOf } from "./PracticeMod.phrases.ts";
 import { makeTimerLog, TimerLog } from "./PracticeMod.timers.ts";
 import { KgAnswerItem, TimerInterval } from "./PracticeMod.values.ts";
 import { makeVerdictLog, VerdictInput, VerdictLog } from "./PracticeMod.verdicts.ts";
+import type { Verdict } from "@beep/law-practice-domain/values";
 import type {
   AbovePromptProps,
   CommandRunResult,
@@ -53,13 +54,18 @@ import type {
   ToolUseProps,
   TurnCompleteInput,
 } from "claude-code";
-import type { ChosenMatter, Verdict } from "./PracticeMod.values.ts";
+import type { ChosenMatter } from "./PracticeMod.values.ts";
 
 type LatestAnswer = { readonly turnId: string; readonly question: string };
 
 const DefaultServers: ReadonlyArray<string> = ["practice-kg"];
 
-const VerdictLabel: Record<Verdict, string> = { right: "Right", wrong: "Wrong", partly: "Partly right" };
+const VerdictLabel: Record<Verdict, string> = {
+  right: "Right",
+  wrong: "Wrong",
+  partly: "Partly right",
+  withdrawn: "Undone",
+};
 
 /**
  * The slash commands the mod registers.
@@ -220,7 +226,7 @@ export const rememberAnswer =
 
 const recordVerdict =
   ($: Engine) =>
-  (verdict: O.Option<Verdict>, note: O.Option<string>): Promise<string> =>
+  (verdict: Verdict, note: O.Option<string>): Promise<string> =>
     O.match(MutableRef.get(latest), {
       onNone: () => Promise.resolve("There is no answer to mark yet."),
       onSome: (answer) =>
@@ -237,10 +243,7 @@ const recordVerdict =
               matter: MutableRef.get(matter),
             });
             yield* log.record(VerdictInput.make({ item, verdict, note }));
-            const saved = O.match(verdict, {
-              onNone: () => "Undone",
-              onSome: (value) => `Saved: ${VerdictLabel[value]}`,
-            });
+            const saved = verdict === "withdrawn" ? "Undone" : `Saved: ${VerdictLabel[verdict]}`;
             MutableRef.set(lastSaved, O.some(saved));
             yield* host.toast(saved);
             $.ui.invalidate("ui.render");
@@ -271,7 +274,7 @@ const recordVerdict =
 export const verdictCommand =
   ($: Engine) =>
   (verdict: Verdict, args: string): Promise<CommandRunResult> =>
-    recordVerdict($)(O.some(verdict), noteOf(args)).then((text) => ({ text }));
+    recordVerdict($)(verdict, noteOf(args)).then((text) => ({ text }));
 
 /**
  * Answers `/practice export | undo | raw`.
@@ -298,11 +301,13 @@ export const practiceCommand =
         $.ui.invalidate("ui.render");
         return Promise.resolve({ text: raw ? "Showing the raw tool calls." : "Showing tool calls in plain language." });
       }),
-      Match.when("undo", () => recordVerdict($)(O.none(), O.none()).then((text) => ({ text }))),
+      Match.when("undo", () => recordVerdict($)("withdrawn", O.none()).then((text) => ({ text }))),
       Match.when("export", () =>
         runWith($)(
           Effect.gen(function* () {
-            const verdicts = yield* Effect.flatMap(VerdictLog, (log) => log.exportJsonl);
+            const verdicts = yield* Effect.flatMap(VerdictLog, (log) => log.exportJsonl).pipe(
+              Semaphore.withPermit(verdictWrites)
+            );
             const intervals = yield* Effect.flatMap(TimerLog, (log) => log.exportJsonl);
             return { verdicts, intervals };
           }).pipe(
@@ -382,7 +387,7 @@ export const verdictBand =
     const answer = MutableRef.get(latest);
     if (A.every([O.isNone(chosen), O.isNone(running), O.isNone(answer)], identity)) return undefined;
     const { Box, Text, Button } = $.ui.resolve(e);
-    const press = (verdict: O.Option<Verdict>) => () => void recordVerdict($)(verdict, O.none());
+    const press = (verdict: Verdict) => () => void recordVerdict($)(verdict, O.none());
     return Box({
       flexDirection: "row",
       gap: 1,
@@ -396,10 +401,10 @@ export const verdictBand =
         ...(O.isSome(answer)
           ? [
               Text({ dimColor: true, children: "Last answer:" }),
-              Button({ key: "verdict-right", label: "Right", onPress: press(O.some("right")) }),
-              Button({ key: "verdict-wrong", label: "Wrong", onPress: press(O.some("wrong")) }),
-              Button({ key: "verdict-partly", label: "Partly", onPress: press(O.some("partly")) }),
-              Button({ key: "verdict-undo", label: "Undo", plain: true, dimColor: true, onPress: press(O.none()) }),
+              Button({ key: "verdict-right", label: "Right", onPress: press("right") }),
+              Button({ key: "verdict-wrong", label: "Wrong", onPress: press("wrong") }),
+              Button({ key: "verdict-partly", label: "Partly", onPress: press("partly") }),
+              Button({ key: "verdict-undo", label: "Undo", plain: true, dimColor: true, onPress: press("withdrawn") }),
               pipe(
                 MutableRef.get(lastSaved),
                 O.map((saved) => Text({ dimColor: true, children: saved })),
@@ -557,8 +562,9 @@ export const timeCommand =
               return { text: "Timer stopped. Interval saved." };
             }).pipe(Semaphore.withPermit(timerWrites))
           ),
-          Match.when("", () =>
-            Effect.gen(function* () {
+          Match.when(
+            "",
+            Effect.fnUntraced(function* () {
               yield* Effect.promise(() => updateElapsed($)());
               return { text: timerStatus() };
             })

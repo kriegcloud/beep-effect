@@ -57,7 +57,7 @@ const fixtureInventoryFileSystem = Effect.fnUntraced(function* () {
   const content = yield* encodeInventoryJson(
     EffectVitestInventoryDocument.make({
       schemaVersion: "effect-vitest-inventory/v1",
-      effectVitestVersion: "4.0.2",
+      effectVitestVersion: "4.0.4",
       scope: [],
       findings: [],
     })
@@ -160,7 +160,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         })
       );
       const inventory = yield* readEffectVitestInventory(output).pipe(Effect.map(O.getOrThrow));
-      assertTrue(inventory.effectVitestVersion === "4.0.2");
+      assertTrue(inventory.effectVitestVersion === "4.0.4");
       assertTrue(inventory.findings.length === timing.findingCount);
       assertTrue(A.some(inventory.findings, (row) => row.ruleId === "EV001"));
       const findingIds = A.map(inventory.findings, (row) => row.id);
@@ -241,7 +241,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
       );
       assertTrue(failure._tag === "EffectVitestLintError");
       assertTrue(
-        Str.includes("Baseline pin 4.0.0-rc.111 does not match graph pin 4.0.2")(failure.message),
+        Str.includes("Baseline pin 4.0.0-rc.111 does not match graph pin 4.0.4")(failure.message),
         failure.message
       );
     })
@@ -412,7 +412,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
   );
 
   it.effect(
-    "rejects an installed Effect Vitest version outside the 4.0.2 pin",
+    "rejects an installed Effect Vitest version outside the 4.0.4 pin",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -424,7 +424,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
 
       const failure = yield* verifyEffectVitestPin(root, graph).pipe(Effect.flip);
       assertTrue(failure._tag === "EffectVitestLintError");
-      assertTrue(Str.includes("graph pin @effect/vitest@4.0.2 (")(failure.message));
+      assertTrue(Str.includes("graph pin @effect/vitest@4.0.4 (")(failure.message));
     })
   );
 });
@@ -523,7 +523,7 @@ it("preserves a justified exception on the matching live row", () => {
   });
   const document = EffectVitestInventoryDocument.make({
     schemaVersion: "effect-vitest-inventory/v1",
-    effectVitestVersion: "4.0.2",
+    effectVitestVersion: "4.0.4",
     scope: [],
     findings: [baselineFinding],
   });
@@ -555,7 +555,7 @@ const occurrences = Effect.fnUntraced(function* (body: string) {
 const withException = (rows: ReadonlyArray<EffectVitestFinding>) =>
   EffectVitestInventoryDocument.make({
     schemaVersion: "effect-vitest-inventory/v1",
-    effectVitestVersion: "4.0.2",
+    effectVitestVersion: "4.0.4",
     scope: [],
     findings: A.map(rows, (row, index) =>
       index === 0
@@ -616,22 +616,25 @@ it.layer(BunCrypto.layer)((it) => {
     Effect.gen(function* () {
       const source = new Project({ useInMemoryFileSystem: true }).createSourceFile(
         "agent-message.test.ts",
-        [
-          'import { it } from "@effect/vitest";',
-          'import * as Effect from "effect/Effect";',
-          'import * as Layer from "effect/Layer";',
-          "declare const storeLayer: (directory: string) => Layer.Layer<never>;",
-          "const query = Effect.fn(function* (directory: string) {",
-          "  const context = yield* Layer.build(storeLayer(directory));",
-          "  return yield* Effect.void.pipe(Effect.provide(context));",
-          "});",
-          'it.effect("races first opens", () =>',
-          "  Effect.gen(function* () {",
-          '    const directory = "fresh-router";',
-          '    yield* Effect.all([query(directory), query(directory)], { concurrency: "unbounded" });',
-          "  })",
-          ");",
-        ].join("\n")
+        A.join(
+          [
+            'import { it } from "@effect/vitest";',
+            'import * as Effect from "effect/Effect";',
+            'import * as Layer from "effect/Layer";',
+            "declare const storeLayer: (directory: string) => Layer.Layer<never>;",
+            "const query = Effect.fn(function* (directory: string) {",
+            "  const context = yield* Layer.build(storeLayer(directory));",
+            "  return yield* Effect.void.pipe(Effect.provide(context));",
+            "});",
+            'it.effect("races first opens", () =>',
+            "  Effect.gen(function* () {",
+            '    const directory = "fresh-router";',
+            '    yield* Effect.all([query(directory), query(directory)], { concurrency: "unbounded" });',
+            "  })",
+            ");",
+          ],
+          "\n"
+        )
       );
       const live = A.filter(
         yield* detectEffectVitestFindings(source, "packages/example/test/agent-message.test.ts", "@beep/example"),

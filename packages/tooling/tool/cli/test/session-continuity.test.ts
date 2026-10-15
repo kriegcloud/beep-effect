@@ -27,6 +27,8 @@ import * as Terminal from "effect/Terminal";
 const expected = PermissionTuple.make({ approval: "never", sandbox: "danger-full-access", profile: "disabled" });
 const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
 const tupleJson = PermissionTuple.pipe(S.fromJsonString);
+const encodeContinuityInputJson = S.encodeEffect(S.fromJsonString(ContinuityInput));
+
 const meta = (id = "thread", family = "family") => ({ type: "session_meta", payload: { id, session_id: family } });
 const turn = (timestamp: string, sandbox = "danger-full-access", approval = "never", profile = "disabled") => ({
   timestamp,
@@ -85,7 +87,7 @@ const fixture = Effect.fn("ContinuityTest.fixture")(function* (
     claude,
   });
   const manifest = path.join(root, "input.json");
-  yield* fs.writeFileString(manifest, yield* S.encodeEffect(S.fromJsonString(ContinuityInput))(input));
+  yield* fs.writeFileString(manifest, yield* encodeContinuityInputJson(input));
   const read = yield* PermissionContinuity;
   return yield* read.read(manifest);
 });
@@ -133,7 +135,7 @@ it.layer(PermissionContinuityLive.pipe(Layer.provideMerge(commandEnvironment)), 
       const root = yield* fs.makeTempDirectoryScoped({ directory, prefix: "h4-cli-" });
       const manifest = path.join(root, "input.json");
       const input = ContinuityInput.make({ route: "fresh", expected, rollouts: [], configs: [], claude: [] });
-      yield* fs.writeFileString(manifest, yield* S.encodeEffect(S.fromJsonString(ContinuityInput))(input));
+      yield* fs.writeFileString(manifest, yield* encodeContinuityInputJson(input));
       const current = yield* Console.Console;
       let output = A.empty<unknown>();
       yield* Command.runWith(sessionCommand, { version: "0.0.0" })(["continuity", "--input", manifest]).pipe(

@@ -35,7 +35,8 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
-import { requireSkillsLockUnchanged } from "./internal/LockFile.ts";
+import { HUNK_LEDGER_FILE, HUNK_LEDGER_PATH } from "./internal/HunkLedger.ts";
+import { publishSkillsLockText, requireSkillsLockUnchanged } from "./internal/LockFile.ts";
 import { PATCH_ROOT, stagedPatchPath } from "./internal/PatchStaging.ts";
 import { SkillsCommandError, SkillsLockWriteRefusal } from "./Skills.errors.ts";
 import { compileSkillsLockMigration } from "./Skills.service.ts";
@@ -49,6 +50,7 @@ import type {
   SkillsLockMigrationPlan,
   SkillsLockWriteOutcome,
   UnresolvedMigrationRow,
+  VendoredSkillLockEntry,
 } from "./SkillsLock.schemas.ts";
 
 const SKILLS_LOCK_PATH = "skills-lock.json";
@@ -75,7 +77,7 @@ const sha256Of = (bytes: Uint8Array, label: string) =>
  * ```ts
  * import { SkillsLockMigrationPlan } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  * import { skillsLockWriteConflicts } from "@beep/repo-cli/commands/Skills/SkillsLock.write"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const digest = Sha256Hex.make("0".repeat(64))
  * const plan = SkillsLockMigrationPlan.make({ planDigest: digest, lockSha256: digest, rows: [] })
@@ -109,7 +111,7 @@ export const skillsLockWriteConflicts = (plan: SkillsLockMigrationPlan): Readonl
  * ```ts
  * import { SkillsLockMigrationPlan } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
  * import { skillsLockDocumentOf } from "@beep/repo-cli/commands/Skills/SkillsLock.write"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const digest = Sha256Hex.make("0".repeat(64))
  * const plan = SkillsLockMigrationPlan.make({ planDigest: digest, lockSha256: digest, rows: [] })
@@ -164,6 +166,66 @@ export const renderSkillsLockDocumentText = Effect.fn("SkillsLock.renderSkillsLo
   return formatJsonValue(encoded);
 });
 
+/**
+ * Replaces one vendored entry of a read lock and publishes the result through
+ * the staged, re-checked rename.
+ *
+ * **Details**
+ *
+ * The lock is re-rendered canonically with every other entry unchanged, staged
+ * beside `skills-lock.json` under a tag taken from `planDigest`, and renamed
+ * over it only while the lock still hashes to `lock.sha256`; otherwise the
+ * write refuses with `lock-changed` and leaves the lock as it was.
+ *
+ * **Example** (Build the publish effect)
+ *
+ * ```ts
+ * import type { VendoredSkillLockEntry } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { SkillsLockDocument } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { publishSkillsLockEntry } from "@beep/repo-cli/commands/Skills/SkillsLock.write"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
+ *
+ * const write = (entry: VendoredSkillLockEntry) =>
+ *   publishSkillsLockEntry(
+ *     "/workspace/beep-effect",
+ *     { document: SkillsLockDocument.make({ version: 2, skills: {} }), sha256: Sha256Hex.make("0".repeat(64)) },
+ *     "oracle",
+ *     entry,
+ *     "1".repeat(64)
+ *   )
+ * console.log(typeof write) // "function"
+ * ```
+ *
+ * @param repoRoot - Absolute repository root holding `skills-lock.json`.
+ * @param lock - The document as read and the SHA-256 of the bytes it was read from.
+ * @param skill - The lock key to replace.
+ * @param entry - The new vendored entry.
+ * @param planDigest - The reviewed plan digest; its prefix tags the stage file.
+ * @returns The written lock file's path and digest.
+ * @category commands
+ * @since 0.0.0
+ */
+export const publishSkillsLockEntry = Effect.fn("SkillsLock.publishSkillsLockEntry")(function* (
+  repoRoot: string,
+  lock: { readonly document: SkillsLockDocument; readonly sha256: Sha256Hex },
+  skill: string,
+  entry: VendoredSkillLockEntry,
+  planDigest: string
+): Effect.fn.Return<
+  SkillsLockWrittenFile,
+  SkillsCommandError | SkillsLockWriteRefusal,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const lockText = yield* renderSkillsLockDocumentText(
+    SkillsLockDocument.make({ version: 2, skills: R.set(lock.document.skills, skill, entry) })
+  );
+  yield* publishSkillsLockText(repoRoot, lockText, lock.sha256, Str.slice(0, 16)(planDigest));
+  return SkillsLockWrittenFile.make({
+    path: SKILLS_LOCK_PATH,
+    sha256: yield* sha256Of(textEncoder.encode(lockText), SKILLS_LOCK_PATH),
+  });
+});
+
 const requireExpectedDigest = (plan: SkillsLockMigrationPlan, expect: O.Option<string>) =>
   O.match(expect, {
     onNone: () =>
@@ -209,8 +271,9 @@ const readPatchTreeDigests = Effect.fn("SkillsLock.readPatchTreeDigests")(functi
         .readDirectory(root, { recursive: true })
         .pipe(SkillsCommandError.mapError(`Failed to list ${PATCH_ROOT}.`, root))
     : A.empty<string>();
+  // The hunk ledger shares the directory but is not a patch; the lock plan neither writes nor counts it.
   const files = yield* Effect.forEach(
-    entries,
+    A.filter(entries, (entry) => !Str.Equivalence(entry, HUNK_LEDGER_FILE)),
     Effect.fnUntraced(function* (entry) {
       const absolute = path.join(root, entry);
       const stat = yield* fs.stat(absolute).pipe(SkillsCommandError.mapError(`Failed to stat ${absolute}.`, absolute));
@@ -277,7 +340,9 @@ const publishPaths = Effect.fn("SkillsLock.publishPaths")(function* (repoRoot: s
 });
 
 // The stage directory is claimed non-recursively, so a leftover stage from a crashed run
-// refuses instead of being merged; each patch is written exclusive-create.
+// refuses instead of being merged; each patch is written exclusive-create. The append-only
+// hunk ledger (B20) is carried into the stage so swapping the patch tree never drops it;
+// returns whether a ledger was carried.
 const stagePatches = Effect.fn("SkillsLock.stagePatches")(function* (
   paths: PublishPaths,
   patchFiles: ReadonlyArray<SkillPatchFile>
@@ -304,6 +369,16 @@ const stagePatches = Effect.fn("SkillsLock.stagePatches")(function* (
     }),
     { discard: true }
   );
+  const ledger = path.join(paths.target, HUNK_LEDGER_FILE);
+  const hasLedger = yield* fs
+    .exists(ledger)
+    .pipe(SkillsCommandError.mapError(`Failed to inspect ${HUNK_LEDGER_PATH}.`, ledger));
+  if (hasLedger) {
+    yield* fs
+      .copyFile(ledger, path.join(paths.stage, HUNK_LEDGER_FILE))
+      .pipe(SkillsCommandError.mapError(`Failed to carry ${HUNK_LEDGER_PATH} into the stage.`, ledger));
+  }
+  return hasLedger;
 });
 
 // Returns whether this run created the patch tree where none existed before, so rollback
@@ -352,12 +427,12 @@ const publish = Effect.fn("SkillsLock.publish")(function* (
   const paths = yield* publishPaths(repoRoot, plan.planDigest);
   const createdTarget = yield* Ref.make(false);
   const run = Effect.gen(function* () {
-    yield* stagePatches(paths, patchFiles);
+    const carriedLedger = yield* stagePatches(paths, patchFiles);
     yield* fs
       .writeFileString(paths.lockStage, lockText, { flag: "wx" })
       .pipe(SkillsCommandError.mapError(`Refusing to stage: ${paths.lockStage} already exists.`, paths.lockStage));
     yield* requireSkillsLockUnchanged(paths.lockPath, plan.lockSha256);
-    yield* Ref.set(createdTarget, yield* swapPatchTree(paths, A.isReadonlyArrayNonEmpty(patchFiles)));
+    yield* Ref.set(createdTarget, yield* swapPatchTree(paths, A.isReadonlyArrayNonEmpty(patchFiles) || carriedLedger));
     yield* fs
       .rename(paths.lockStage, paths.lockPath)
       .pipe(SkillsCommandError.mapError(`Failed to publish ${SKILLS_LOCK_PATH}.`, paths.lockPath));

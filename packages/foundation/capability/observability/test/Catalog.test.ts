@@ -6,6 +6,7 @@ import {
   CiRunner,
   CloudProviderName,
   CloudVm,
+  DuplicateInstrumentName,
   EmitterContext,
   EventInstrument,
   EventName,
@@ -250,7 +251,18 @@ describe("mergeDeclarations", () => {
       AttributeKeyName.make("beep.outcome"),
       AttributeKeyName.make("beep.package"),
       AttributeKeyName.make("beep.privacy_tier"),
+      AttributeKeyName.make("beep.schema_failure_tag"),
     ]);
+  });
+
+  it("preserves the error name independently of the instrument payload", () => {
+    const conflict = DuplicateInstrumentName.make({
+      signal: "span",
+      instrumentName: SpanName.make("Parcels.read"),
+      owners: [pkgA, pkgB],
+    });
+    strictEqual(conflict.name, DuplicateInstrumentName.identifier);
+    strictEqual(conflict.instrumentName, "Parcels.read");
   });
 
   it("reports a duplicate instrument name across packages", () => {
@@ -498,6 +510,7 @@ describe("kernel declarations", () => {
         { key: "beep.privacy_tier", cardinality: "static", minTier: "shape-only" },
         { key: "beep.identity_source", cardinality: "static", minTier: "shape-only" },
         { key: "beep.outcome", cardinality: "static", minTier: "shape-only" },
+        { key: "beep.schema_failure_tag", cardinality: "static", minTier: "shape-only" },
       ]
     );
     assertTrue(
