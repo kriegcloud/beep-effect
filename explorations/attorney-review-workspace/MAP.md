@@ -72,7 +72,8 @@ Desktop Code tab, and that a Box test file's passage arrives through `$.mcp.call
    synthetic questions only.
 3. docket-intake raises questions for unsettled items, and the digest job runs as a practice
    service.
-4. The amendment goes to the `practice-claude-mod` owner. The card ships with their P1b queue.
+4. The amendment goes to the owner of the `practice-claude-mod-review-queue` follow-on. The card
+   ships as one of its phases, gated on `attorney-question-loop` P0 and on that follow-on opening.
 
 ### First Vertical Slice
 

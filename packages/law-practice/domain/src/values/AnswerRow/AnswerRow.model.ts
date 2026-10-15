@@ -96,10 +96,11 @@ const AnswerRowDefinition = AnswerState.toTaggedUnion("state")({
  *
  * **Details**
  *
- * Rows are never edited or deleted, and none is ever locked: a later row
- * always revises the answer. The current answer is the item's row with the
- * greatest `recordedAt`, ties broken by the row appended last, the same
- * recency rule as `VerdictRow`. `decided` requires the chosen `optionId` and
+ * Rows are never edited or deleted, and none is ever locked. The current
+ * answer is the item's row with the greatest `recordedAt`; only a tie on
+ * `recordedAt` goes to the row appended last, the same recency rule as
+ * `VerdictRow`. A row appended later with an earlier `recordedAt` does not
+ * revise the answer. `decided` requires the chosen `optionId` and
  * `pending-on-client` requires `resurfaceOn`. That the `optionId` names an
  * option of the item is checked against the item, not by this schema.
  * Timestamps encode as epoch milliseconds.
