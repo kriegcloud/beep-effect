@@ -1,7 +1,7 @@
 {
-  "format": "rsc-f-config-fingerprint/v2",
-  "capturedAt": "2026-10-15T00:13:42.600476Z",
-  "setSha256": "8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e",
+  "format": "rsc-f-config-fingerprint/v3",
+  "capturedAt": "2026-10-15T07:47:55.317529Z",
+  "setSha256": "5c75924dcb40b8ce5b8c110557614a7e1950ef35bae3f3adca26cdf11d7d72f5",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -45,13 +45,13 @@
     },
     {
       "path": ".claude/hooks/hook-pulse-switch.sh",
-      "bytes": 9266,
-      "sha256": "2a55f692d36f62b05e1e8aedf51f6c3ce2656920abd450863c6ba4bcc77145c8"
+      "bytes": 9935,
+      "sha256": "4234793446e9550ac1dcd8a9ba5cf83a0ea75a0a25f0c12df263c04556ca3250"
     },
     {
       "path": ".claude/hooks/hook-pulse.sh",
-      "bytes": 40023,
-      "sha256": "341ab3c30f33bc1113f0541ed9d57ee5659af802ec6d70ddbec5fb5f27437de5"
+      "bytes": 47241,
+      "sha256": "195dcbec9f7240f7411ebdc98f8ed699a54fc40b5ebc1bd5a877c89d9d41bddf"
     },
     {
       "path": ".claude/hooks/law-pulse.sh",
@@ -1570,8 +1570,8 @@
     },
     {
       "path": ".codex/hooks.json",
-      "bytes": 3761,
-      "sha256": "82e0fe64a9855e7dc06ffbcad174157f6c401aa6b2fb8a18653890233e39eef1"
+      "bytes": 3743,
+      "sha256": "2958ed54111333244f31d549e10141bc18935b76182e9ef7f901f4dfcbdd2153"
     },
     {
       "path": ".codex/hooks/circuit-breaker.sh",
@@ -1580,8 +1580,8 @@
     },
     {
       "path": ".codex/hooks/hook-pulse-switch.sh",
-      "bytes": 240,
-      "sha256": "8091148c31feb9ca96baa421ed642e65a4a6fae23e34e37694a7c40bd7427f6e"
+      "bytes": 134,
+      "sha256": "aace72e9ae4b2d35caa1f55ae4443e84ab03e5ccb6f72d2b6b47d9e95984498a"
     },
     {
       "path": ".codex/hooks/hook-pulse.sh",
@@ -1605,8 +1605,8 @@
     },
     {
       "path": ".cursor/hooks.json",
-      "bytes": 703,
-      "sha256": "dab2c6be7734969f57441a9f58d257597d7ca93abbc4ad8c28fb4d845a820892"
+      "bytes": 1145,
+      "sha256": "096d5579c5ced42bb472c989020301c62efa4bb15c0f9ef7332210f6ec025bf8"
     },
     {
       "path": ".cursor/hooks/deny-shell.sh",
@@ -1615,8 +1615,8 @@
     },
     {
       "path": ".cursor/hooks/hook-pulse.sh",
-      "bytes": 2572,
-      "sha256": "573e5766224123acc9a3c11c93e7f14580ed7964d09b0ba8dc38f18964f7e484"
+      "bytes": 4099,
+      "sha256": "4927154ad00d849abe1bf0c0e73d853b2f997efca482ce1dbbe7c2742d0b999c"
     },
     {
       "path": ".grok/skills/graft/SKILL.md",
@@ -1677,9 +1677,9 @@
     },
     {
       "path": "~/.claude.json",
-      "bytes": 374347,
-      "sha256": "937ff76fd64dc2eddc0ce60953408624e14ff5a96e8c985ac43fb2f4af72b94e",
-      "rawSha256": "7d7e82e1de47a424ddea1dcfb6e19c4b0d9662fb4c28e5991410225003962e71",
+      "bytes": 361336,
+      "sha256": "98d4c5ca2a509349c5d923ef363438ef54084716606872e6438266f454efa016",
+      "rawSha256": "88bbe5a5ed55ded7a4e3b0a63f4e1518fa52965e84a2a163754b95846a0685d2",
       "hashProjection": "canonical JSON excluding only pluginUsage runtime counter"
     },
     {
@@ -1694,8 +1694,8 @@
     },
     {
       "path": "~/.claude/memory/beep-effect/MEMORY.md",
-      "bytes": 38403,
-      "sha256": "822c7ec75275ff864d69dc28b4a7850d084faeb4a64c671b3818c81406bf63de"
+      "bytes": 39257,
+      "sha256": "76e929bb54075de859e84638f007a407cf12198ee8d216720eda7874447ccfee"
     },
     {
       "path": "~/.claude/plugins/installed_plugins.json",
@@ -1704,8 +1704,8 @@
     },
     {
       "path": "~/.claude/settings.json",
-      "bytes": 5423,
-      "sha256": "463641dbd78903b8c52b6930c094d200bcb7d52dfe8d76b58f593a2cb91f0ebb"
+      "bytes": 5410,
+      "sha256": "bc734300c7bf0e04eb7d0bdebdf2e71686a77c3de2027f1621ca322fbe30ffc3"
     },
     {
       "path": "~/.codex/AGENTS.md",
@@ -1716,11 +1716,6 @@
       "path": "~/.codex/config.toml",
       "bytes": 122993,
       "sha256": "5c3bba907303533cd7d2a528eac2824bdb79833e1637918b10061c654e194fb1"
-    },
-    {
-      "path": "~/.config/Claude/claude_desktop_config.json",
-      "bytes": 19154,
-      "sha256": "b621a9ec512bcb0aa82a7ad2939620efee7955250928103bf6edcb8a3f6b6712"
     },
     {
       "path": "~/.config/JetBrains/Air/.codex/config.toml",
@@ -1744,8 +1739,8 @@
     },
     {
       "path": "~/.cursor/cli-config.json",
-      "bytes": 3996,
-      "sha256": "b98aef4904a94f924acb448944005bdfe13208923825deb04b1d64172f0d7192"
+      "bytes": 3810,
+      "sha256": "3c74298229348c89d0658c2ba8ab2d9063957d6b51a15d44134b15e269a50a4d"
     },
     {
       "path": "~/.cursor/mcp.json",
@@ -1759,8 +1754,8 @@
     },
     {
       "path": "~/.grok/config.toml",
-      "bytes": 2290,
-      "sha256": "1c35a3b2832a8d422fae6002da7efe1dbb6b16d95a9545dc5bdacb879939d9d5"
+      "bytes": 2205,
+      "sha256": "a4d41bfaf529ec4a8eddadffc91bb3fe4df2714d6fad50802360973c3c35778e"
     },
     {
       "path": "~/.junie/AGENTS.md",
@@ -1786,6 +1781,13 @@
       "path": "~/.kiro/settings/mcp.json",
       "bytes": 161,
       "sha256": "09237a8c19625daeb677211c6ca9b38e01aa12eede0f4b5f2c26ed6ec7b449e6"
+    }
+  ],
+  "observedOnly": [
+    {
+      "path": "~/.config/Claude/claude_desktop_config.json",
+      "bytes": 19339,
+      "sha256": "3a3fe0a924868a1bdcd95e74ee507ce013ffdb59488d763878c0adcb65e534ec"
     }
   ]
 }

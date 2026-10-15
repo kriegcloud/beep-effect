@@ -1,3 +1,5 @@
+> Historical delivery report. The [October 15 resume report](rsc-f-agents-2026-10-15.md) supersedes its live status. Monitor 10a50b48 was cancelled by the driver; no replacement is started.
+
 # F authorized native configuration handoff (2026-10-14)
 
 Source content is final for this wave; publication metadata is filled after the final integrated proof. Program operational
@@ -6,12 +8,15 @@ The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: 352bafdecef1671964985f825443fc38b89db678   PR: #1797 (published, ready)
-package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
-hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass (main #1792 integrated) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
-config fingerprint (final): 8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
+head: e9216b4a81202a77dc81ddaffb819e2bb3ed0546   PR: #1797 (published, ready)
+package-verify: @beep/repo-cli: pass (default audit/docgen verified; final-head lint/check pass)
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass | pass | pass | pass | pass, zero findings | pass, 154 tests and all four file floors exceeded
+models check: 0 drift findings   native Codex probe: pass
+config fingerprint (final): 8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e (frozen receipt, 356 inputs)
+backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
-open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
+open items: BLOCKED panel-input equality: unowned native Claude Desktop configuration changed after the refreshed capture; driver must coordinate a stable native set and recapture before the independent panel. Current-fingerprint 30-session windows remain incomplete. Retained/native qualifications and external-owner prerequisites remain as detailed in the handoff. Hosted CI and review window are pending; driver owns panel, merge and retirement.
+monitor: 10a50b48-daec-4e75-8924-1859b01e5ab5 (running)
 ```
 
 ## Changes and native evidence
@@ -270,3 +275,27 @@ updates the packet on PR #1797; implementation sources are unchanged from
 352bafdecef1671964985f825443fc38b89db678. Every hosted-parity command, including
 the literal JSDoc and CI references commands, passes on that source.
 Final publication metadata is filled locally after this wave.
+
+
+Final dispatch: source e9216b4a81202a77dc81ddaffb819e2bb3ed0546 is pushed
+and ready on PR #1797. All ten final proof stages pass on that exact head;
+all 17 cheap gates and the clean-head install preflight pass again. The
+latest guarded thread read succeeds with zero outstanding threads. Hosted
+checks and the review window remain pending; no merge-readiness claim is made.
+
+The refreshed capture matched across 20 seconds, but an external write to
+native Claude Desktop MCP configuration then invalidated live equality.
+The final check reports observed set
+2a059c0cba9cf930da9d1f0ca15963b7023213142002881e5f82ca31b93da3b1,
+changed input: native Claude Desktop configuration. No native Claude path
+was written by F. The driver must coordinate writers and recapture before
+panel admission. Repeated recapture without that quiet boundary would keep
+submitting moving inputs; no stale panel verdict is accepted.
+
+Publication identifiers and this final gate result are local post-push
+handoff metadata. Implementation, proof receipts and the frozen configuration
+receipt are committed and pushed. The unrelated plugin residue is preserved.
+The driver retains the durable monitor and owns all later merge/retirement.
+
+final e9216b4a81202a77dc81ddaffb819e2bb3ed0546 #1797
+fingerprint 8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e

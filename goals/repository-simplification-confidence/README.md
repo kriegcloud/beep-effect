@@ -15,10 +15,17 @@ fixture batch and F's owned-field config writer. F and overall acceptance remain
 F has implemented ModelsApply and restore, repaired skill-write safety and
 removed confirmed repository duplicate payloads. The authorized native Codex
 legacy permission cleanup and byte-exact rollback now pass; model drift is
-zero and the pinned native probe passes. Current source qualification and
-publication state are in the [F handoff](history/handoffs/rsc-f-agents-2026-10-14.md).
-The [configuration fingerprint](history/receipts/stage-5-f-config-fingerprint.json)
-is the driver panel input, subject to an equality check at publication.
+zero in the latest online check and the pinned native probe passes. The
+protected effort drift observed earlier in the resume has cleared without an
+F home write. The driver owns the final configuration panel. Current source qualification and
+publication state are in the [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md).
+The [frozen fingerprint](history/receipts/stage-5-f-config-fingerprint.json)
+uses the observed-only Desktop boundary and retains every other owned input
+in equality. The [earlier post-H3 candidate](history/receipts/stage-5-f-post1590-candidate-fingerprint.json)
+is retained beside it. Equality is checked before publication. The [S31 diff](history/receipts/stage-5-f-s31-diff.json)
+compares 15 inventory files with zero changed files or added rows. The
+[final-wave scoped coverage](history/receipts/stage-5-f-final-coverage.json)
+passes 155 tests and all four existing file floors.
 [Before measurement](history/receipts/stage-3-f-before-measurement.md),
 [inventory](history/receipts/stage-3-f-inventory.md), and
 [after measurement](history/receipts/stage-5-f-after-measurement.md) distinguish

@@ -1578,3 +1578,72 @@ unowned native file or submitting a known stale configuration set.
 - H3 re-merge-only publication (2026-10-15): merge main once, preserve main semantics, regenerate the conflicted observability artifacts through their owner, and install before verification. Use the expressly authorized direct git push for the single wave because Yeet publish starts a readiness monitor and this instruction forbids one. Attribute the four unchanged main lint-worker fixture failures without repairing them in H3. Reason: keep this wave limited to conflict resolution and integrated proof. Reversal: revert the H3 PR; do not rewrite the published branch.
 
 - H3 round-3 disposition (2026-10-15): encode reconciliation with the schema's JSON-compatible object codec and let the shared printer serialize once; exercise actual command output with one Schema JSON parse and read its fields. Fold in the Markdown code-span correction. Track storage completeness versus qualification as H3-R3-001 without changing storage code, per the driver's round-3 cap. Reason: fix the confirmed CLI consumer bug now and preserve a bounded, explicit follow-up for the lower-severity storage design. Reversal: revert this repair wave; retain the follow-up and keep all non-use decisions unqualified.
+
+
+### RSC-F-POST1590 (2026-10-15): merged telemetry and panel-input boundary
+
+Integrate merged H3 PR #1590 before the F panel, install Effect 4.0.4, and keep
+main's native Codex adapter and canonical switch delegation. Regenerate the
+observability table through `beep observability catalog --write`. Reversal:
+revert the F integration commit; no historical evidence is deleted.
+
+Panel equality excludes only the unowned, app-written Claude Desktop native
+configuration. Its observed hash remains beside the equality set. Every F-owned
+and repository-owned input remains in equality, including the native Codex
+configuration. This implements panel-admission ruling 1; no native file is
+stabilized or reset. Reversal: revert the v3 collector and recapture before any
+new panel, retaining the superseded receipt as historical evidence.
+
+The merged H3 collector does not close these four F-owned measured gates:
+
+| Decision | Owner and current evidence | Acceptance gate and reversal |
+| --- | --- | --- |
+| F-H3-NATIVE | F with H3: canonical repository adapter is integrated; the pinned read-only native probe answers OK. This does not prove hook trust, an ordinary native startup, or root/child attribution. | Require an ordinary native event witness plus recognized native ancestry; do not manufacture trust entries. Until qualified, retain on-demand capabilities and report failure rate as not recorded. Reversal: revert any later separately backed-up trust projection. |
+| F-H3-NAMESPACE | F with H3: historical salt namespaces remain distinct; no new salt or launcher projection is applied in this resume. | Require an owned launcher/global-projection contract and a dated namespace cutover, preserving old observations under their original namespaces. Reversal: restore the future ModelsApply journal and retain both dated evidence regimes. |
+| F-H3-OTEL | F with native-client owners: desktop/Codex OTel fields remain unqualified; repository hooks cannot prove installed desktop launch coverage. Claude harness writes remain operator-only. | Require payload-free native ingress evidence under the frozen configuration, and use ModelsApply with backup/rollback for any allowed non-Claude projection. Reversal: restore that future journal; retain the unqualified historical rows. |
+| F-H3-ARCHIVE | F with archive owner: no current approved archive-key reference is invented, copied or exposed. | Require an accessible approved secret reference and a suppressed exact-operation verification before archive qualification. Reversal: restore any future owned reference change through its journal; no credential or raw item enters the packet. |
+
+All current-regime 30-session windows remain incomplete. Synthetic probes add
+zero qualifying sessions. These measured gates retain capabilities on demand
+and do not authorize retirement. No home file is written during this resume;
+the earlier native removal backup and verified rollback remain the reversal
+for H4's legacy-key repair.
+
+
+### RSC-F-S31 (2026-10-15): zero inventory growth
+
+Restore `standards/effect-vitest.inventory.jsonc` to the current main version,
+removing F's two added EV010 exceptions. Track F-S31-EV010 in
+`research/OPPORTUNITIES.md` for the policy owner to improve native-filesystem
+subject classification with regression fixtures. Reason: operator S31 forbids
+new debt and exception entries even for legitimate cases. Preserve actual
+filesystem integration tests and attribute non-required policy reds under S30.
+Reversal: revert the inventory removal only after an explicit S31 change; the
+normal resolution is a check improvement with zero inventory growth.
+
+
+### RSC-F-FINAL-REVIEW (2026-10-15): same-wave fixes
+
+Hoist the ModelsApply JSON decoder to module scope, preview removal in
+`codex-permissions` dry-runs, and stage skill projections with mode 0600 before
+preserving existing permissions. Reason: close oxlint's two introduced schema
+compilation findings and REST review comments 4277729082 / 4277729090. Verify
+present and absent permission previews against captured command output.
+Reversal: revert this F review-wave commit. No native file is written.
+
+
+### RSC-F-ZERO-DRIFT (2026-10-15): observed configuration clearance
+
+The protected native Codex effort now matches medium and the online model
+check reports zero findings across 361 catalog models. This is an observation
+of a change outside F, not an F apply. F made no home write and claims no new
+backup or rollback. Keep model pins protected. Recapture the complete equality
+set, retain Claude Desktop's app-written file only in observedOnly, and pass
+that fingerprint to the driver panel after the single push. Reversal: recapture
+and re-review any later configuration change; prior backups remain available.
+
+Use the expressly requested direct single push for this wave. Reason: the user
+forbids a readiness monitor, while Yeet publish starts one. All requested local
+gates precede publication; answer review comments through the REST reply route.
+The driver retains panel, merge and retirement ownership. Reversal: revert the
+F PR; never rewrite the published branch.

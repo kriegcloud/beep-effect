@@ -716,3 +716,82 @@ detected unknown-field mutation. The read-only equality check passes before
 publication. Every other file/link retains byte/target identity. The pinned
 native probe passes and the final online model check has zero findings.
 The driver owns the pending independent panel and serialized merge.
+
+
+### F post-H3 integration (2026-10-15 UTC)
+
+H3 #1590 is merged and integrated into F at 2c6bf96569. `bun install`
+installs Effect 4.0.4; no F-owned UUID call needs repair. The post-#1758
+codemod/check report 19 already-branded declarations and no new sites. The
+46-task package typecheck and repeated check pass; fixup reports zero changes.
+The conflicted observability artifacts were regenerated through the owner
+command and its check passes at 5,470 spans.
+
+Scoped coverage passes 171 tests in 12 files. The existing baseline is
+unchanged. Percentages are lines / statements / branches / functions:
+
+| Existing touched file | Current scoped coverage | Existing floor | Result |
+| --- | --- | --- | --- |
+| Models.command.ts | 83.85 / 83.90 / 82.53 / 69.23 | 30.00 / 29.57 / 0.00 / 0.00 | pass |
+| Models.locator.service.ts | 93.85 / 93.54 / 78.12 / 92.00 | 92.04 / 92.55 / 72.72 / 90.47 | pass |
+| Models.service.ts | 91.15 / 90.16 / 91.52 / 81.63 | 90.42 / 89.00 / 89.47 / 78.37 | pass |
+| Skills.command.ts | 91.98 / 91.81 / 77.85 / 88.23 | 89.96 / 89.69 / 72.72 / 81.69 | pass |
+
+Panel collector v3 records the unowned Claude Desktop app-written native
+configuration as observedOnly. It never enters the equality set, including
+when represented by a symlink. F-owned/repo-owned inputs remain equality
+inputs. Controls pass for an observed-only hash change and rejection of an
+owned-input change. No native config is rewritten or stabilized.
+
+The pinned read-only Codex probe answers OK and the legacy sandbox_mode
+return check passes. Online models check has one protected-field drift:
+native Codex effort xhigh versus medium. The explicit guardrail forbids F
+from changing that field. Zero drift and final panel admission remain open;
+no native write, new backup or rollback is claimed in this resume.
+
+The four H3 delivery items are separately owned measured gates in SPEC.md
+RSC-F-POST1590. All current-regime windows remain incomplete; synthetic probes
+contribute zero qualifying sessions. The current handoff is
+[the October 15 F report](../handoffs/rsc-f-agents-2026-10-15.md). The driver
+owns the independent panel, merge and retirement. No readiness monitor starts.
+
+
+### F final-wave checks and protected configuration boundary
+
+Current main through #1820 (`5861a2b012`) is integrated. The owner command
+regenerates the schema catalog with four F model entries; regenerated catalogs
+are excluded from S31. S31's 15 inventory/baseline/allowlist files match main
+exactly. F's two EV010 exception rows are removed; F-S31-EV010 in
+`research/OPPORTUNITIES.md` tracks check improvement without inventory growth.
+
+At source `90b8c39b5a`, package dependency checks (46 tasks), test-tsgo,
+bounded docgen, JSDoc ratchet, CI knowledge references, Fallow audit/health
+and retired Effect paths pass. Scoped coverage passes 155 tests in 11 files
+and every metric in all four existing touched-file floors, recorded in
+[the coverage receipt](stage-5-f-final-coverage.json). The final-wave preview
+and restrictive-temp repairs address REST comments 4277729082 / 4277729090.
+The shared module-level JSON decoder closes both F-owned oxlint findings.
+Full oxlint retains 15 findings, all in unchanged main sources; changed-file
+findings are zero. No oxlint allowlist is changed.
+
+The current online model check still reports one protected native effort drift.
+The pinned native probe exits zero and answers OK; legacy sandbox_mode stays
+absent. No home write is performed. Candidate fingerprint v3 has 355 equality
+inputs and one observed-only input. Its immediate equality check passes, but
+it is not admitted as the final panel fingerprint while zero drift is blocked.
+The October 15 handoff records the full package result and publication boundary.
+
+
+### F final-wave clearance
+
+Full `package-verify @beep/repo-cli` passes under the admitted private-temp
+binding: audit 1443.1 seconds, docgen 49.3 seconds. The initial introduced
+preview typing failures are repaired at source 90b8c39b5a and superseded by
+this complete audit/docgen pass, package checks and test-tsgo.
+
+The newest online model check reports zero findings across 361 catalog models.
+The protected effort changed outside F while the suite ran; F performed no
+home write. The final fingerprint has 355 equality inputs and one observed-only
+Desktop input. Its immediate equality check passes. The driver owns the pending
+independent panel. Earlier protected-field blocker paragraphs above are dated
+checkpoints, not the latest acceptance state.

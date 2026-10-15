@@ -2479,3 +2479,86 @@ The Desktop app quit interrupted the first hosted-parity JSDoc inventory with ex
 runner remained, then restarted only that unfinished parity lane through
 `beep-heavy`. Persisting terminal gate results independently of the Desktop
 process would avoid repeating this inventory after an app interruption.
+
+
+### F native set changes after bounded recapture (2026-10-15 UTC)
+
+After two complete captures matched across 20 seconds, the native Claude
+Desktop MCP config changed during the packet-only publication wave. The
+final equality check fails on that input. F never wrote or reset this
+out-of-scope file. Preserve both captured source/config pairs and hand the
+driver a quiet-writer boundary followed by recapture before panel admission.
+Source proof is green on the pushed head; configuration acceptance stays open.
+
+
+### F post-H3 protected model-effort drift (2026-10-15 UTC)
+
+After installing the integrated Effect 4.0.4 lockfile, `beep models check`
+reports one native Codex effort drift: current xhigh, expected medium. The
+resume guardrail forbids F from changing model or model_reasoning_effort.
+The native probe answers OK and the legacy permission-key check passes, but
+zero drift is not established. Preserve the live config and report this
+protected-field blocker rather than overwrite another active lane's model
+selection. A stable approved global default before panel capture would have
+prevented the hold. No home write or undocumented rollback occurred.
+
+
+### F full audit inherited temporary Git boundary (2026-10-15 UTC)
+
+The integrated default repo-cli package command reports audit failure after
+6,590 passing tests and 31 failures across agent-effectiveness-eval-scorer,
+ai-metrics-command and harness-ledger fixtures. Every failure reaches
+"Git metadata exists but cannot be resolved." Both inherited TMPDIR and
+ordinary /tmp contain pre-existing .git metadata. Docgen passes in 46.5s.
+The proof-row observed acknowledgement is rejected because package audit
+rows are not proof-job-finished rows; use the environment-only attribution.
+Preserve that unrelated metadata and rerun the affected tests using the
+packet-approved private /tmp binding. The original full audit remains failed.
+A clean lane-owned namespace before the invocation would have prevented it.
+
+
+### F-S31-EV010: native filesystem integration-test classification
+
+- Owner: repository-simplification-confidence / F, with the Effect Vitest policy owner.
+- Evidence: the F diff carried two EV010 exception rows for
+  `models-apply.test.ts` and `models-apply-command.test.ts`. These tests exercise
+  real atomic rename, Unix modes, symlink containment, exact byte backups and
+  restore. Operator S31 forbids inventory growth, including legitimate cases.
+- Disposition: restore the inventory to `origin/main`; add zero exception rows.
+  Preserve the native-boundary tests. Any non-required Lint Policy red is
+  attributed under S30, rather than hidden by adding entries.
+- Follow-up acceptance: improve the check's classification of proven native
+  filesystem subjects, with paired fixtures that continue detecting actual
+  platform-service misuse. Do not replace real filesystem proof with a memory
+  filesystem or bypass the detector through import spelling.
+- Reversal: revert this inventory removal only after the operator changes S31;
+  otherwise repair the check and keep the inventory unchanged.
+
+
+### F final-wave review and admission receipts (2026-10-15)
+
+- Oxlint found two F-owned `beep/no-inline-schema-compile` sites in
+  `Models.apply.service.ts`. Share a module-level JSON decoder; do not add
+  an allowlist entry. Fifteen other findings have unchanged main sources.
+- REST review comments 4277729082 and 4277729090 identify incomplete permission
+  dry-run output and permissive skill staging. The same wave adds an absence
+  preview with present/absent assertions and creates skill temps at mode 0600.
+- `beep models check` reports one protected home Codex effort drift
+  (`xhigh`, expected `medium`). The explicit final-wave guardrail forbids F
+  from changing that field. The pinned read-only Codex probe passes. The
+  owning session must restore the approved value before zero-drift final
+  acceptance. No home file is changed by F in this resume.
+
+
+### F final-wave heavy admission wait
+
+- Activity: full `package-verify @beep/repo-cli` and scoped coverage after
+  the final-wave code fixes. Both remain behind `beep-heavy` with
+  `all 5 slots busy, waiting`; lock inspection identifies active owners in
+  other checkouts. No slot limit, memory cap, or unrelated process is changed.
+- Preventive work: expose bounded queue age and admission ownership in the
+  supported scheduler so long waits can be distinguished from failed proof.
+  Retain the admission wrapper; do not bypass the machine budget.
+- Command correction: the old resume helper used `laws check --law
+  retired-effect-paths`; the supported `laws retired-effect-paths` invocation
+  passes with zero findings. Update resume helpers from live CLI help.
