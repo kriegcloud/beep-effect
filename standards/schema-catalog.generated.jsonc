@@ -17081,6 +17081,14 @@
       "description": "Options for tracking one duration metric around an Effect."
     },
     {
+      "file": "packages/foundation/capability/observability/src/Observability.instruments.ts",
+      "symbol": "TelemetryRefusalTag",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "TelemetryRefusalTag",
+      "description": "Reason an emitter refused a telemetry record or attribute."
+    },
+    {
       "file": "packages/foundation/capability/observability/src/PhaseProfiler.ts",
       "symbol": "PhaseOutcome",
       "kind": "literal-kit",
@@ -17095,6 +17103,14 @@
       "owner": "@beep/observability",
       "identity": "PhaseProfile",
       "description": "Deterministic summary of one profiled phase."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.enrichment.ts",
+      "symbol": "CatalogEnrichmentOptions",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "CatalogEnrichmentOptions",
+      "description": "Catalog, emitter context and requested tier for export-time span enrichment."
     },
     {
       "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
@@ -31251,7 +31267,7 @@
       "kind": "struct-const",
       "owner": "@beep/law-practice-server",
       "identity": "NoticeMailboxConfig",
-      "description": "The attorney's mailbox the notice goes from and to, and the file that keeps the last notice day."
+      "description": "The attorney's mailbox the notice goes from and to, and the directory of its day claims."
     },
     {
       "file": "packages/law-practice/server/src/PracticeKg.claims.ts",
@@ -32006,7 +32022,7 @@
       "kind": "literal-kit",
       "owner": "@beep/law-practice-use-cases",
       "identity": "NoticeMailboxOperation",
-      "description": "Notice-mailbox operation that failed: sending, reading the last sent day, or recording it."
+      "description": "Notice-mailbox operation that failed: claiming the day, or sending the notice."
     },
     {
       "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.schemas.ts",
@@ -33888,7 +33904,7 @@
       "kind": "literal-kit",
       "owner": "@beep/law-practice-use-cases",
       "identity": "QuestionWriteReason",
-      "description": "Why a question write or its undo failed: calendar unavailable, event not found, or restore failed."
+      "description": "Why a question write or its undo failed: calendar unavailable, event not found, event verified, or restore failed."
     },
     {
       "file": "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.schemas.ts",
@@ -35390,6 +35406,38 @@
       "description": "Opaque tenant reference used to prevent cross-tenant promotion decisions."
     },
     {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "AgentHarness",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "AgentHarness",
+      "description": "Agent harness that ran a session."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "AgentProvider",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "AgentProvider",
+      "description": "Model provider that served an agent request."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "AgentRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "AgentRoute",
+      "description": "Route an agent request took to its provider."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "TelemetryEmitter",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "TelemetryEmitter",
+      "description": "Component that emitted an agent telemetry record."
+    },
+    {
       "file": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
       "symbol": "AgentEffectivenessAiMetricsSection",
       "kind": "struct-const",
@@ -35974,7 +36022,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
       "identity": "AiMetricsDerivedTranscriptRecord",
-      "description": "Sanitized transcript projection plus encrypted raw archive metadata."
+      "description": "Sanitized transcript projection, encrypted raw archive metadata and explicit session-stamp collection completeness. Historical records remain unverified."
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
@@ -36208,7 +36256,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
       "identity": "AiMetricsForwarderRunResult",
-      "description": "Safe counts and storage paths returned by one durable AI metrics forwarder run."
+      "description": "Safe counts, storage paths and explicit hook/stamp-gap collection completeness returned by one durable AI metrics forwarder run. Historical results default to unverified collection."
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/forwarder.ts",
@@ -36363,6 +36411,14 @@
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseClientCoverage",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseClientCoverage",
+      "description": "Collection capability of one client; absence never establishes non-use."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
       "symbol": "HookPulseDisarmSentinel",
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
@@ -36419,14 +36475,6 @@
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
-      "symbol": "HookPulseRawEventInput",
-      "kind": "struct-const",
-      "owner": "@beep/repo-ai-metrics",
-      "identity": "HookPulseRawEventInput",
-      "description": "Raw hook payload paired with the ambient stamps supplied by its writer."
-    },
-    {
-      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
       "symbol": "HookPulseRawToolInput",
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
@@ -36435,11 +36483,43 @@
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseRefusal",
+      "kind": "struct-const",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseRefusal",
+      "description": "Payload-free writer refusal; unknown client names are normalized to unknown."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseRefusalReason",
+      "description": "Payload-free reason why the writer could not collect evidence."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
       "symbol": "HookPulseSchemaVersion",
       "kind": "literal-kit",
       "owner": "@beep/repo-ai-metrics",
       "identity": "HookPulseSchemaVersion",
       "description": "Version identifiers accepted by the hook-pulse ledger contract."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseSwitchAction",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseSwitchAction",
+      "description": "Durable collection-switch transition."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseSwitchTransition",
+      "kind": "struct-const",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseSwitchTransition",
+      "description": "Payload-free durable arm or disarm transition."
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
@@ -49478,11 +49558,19 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts",
+      "symbol": "HarnessTelemetryReconciliation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "HarnessTelemetryReconciliation",
+      "description": "Read-only transcript versus hook counts, including nested child transcripts; no payload or digest is returned."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts",
       "symbol": "ObservedSessionWindow",
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "ObservedSessionWindow",
-      "description": "Last N hook-pulse sessions under the current harness hash, their touched surface ids, skip counts, and shard decode tallies."
+      "description": "Last N hook-pulse sessions under the current harness hash, positive surface use across scanned history, skip counts, and shard decode tallies."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts",
@@ -52740,6 +52828,12 @@
       "owner": "@beep/repo-cli",
       "identity": "CheckCensusTargets",
       "description": "Workspace-package and typeperf-fixture programs measured by the check-census gate."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts",
+      "symbol": "readEffectDiagnosticsProfile",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",

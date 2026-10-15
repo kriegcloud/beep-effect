@@ -11,7 +11,7 @@
   "reviews": {
     "//": {
       "reviewer": "Claude Opus 5.5 (feat/attorney-question-loop-p1)",
-      "reason": "Record the new @beep/practice-review-hub app (attorney-question-loop P3b) with its scaffold task inputs, and the root workspace registration it implies; no qualification is granted.",
+      "reason": "Re-record the new @beep/practice-review-hub app (attorney-question-loop P3b) and the root workspace registration it implies on main's baseline after merging main; no qualification is granted.",
       "basis": {
         "path": "goals/attorney-question-loop/research/review-hub-cache-review.md",
         "sha256": "6ba54d2421e86bb2838ec9aa1be3b705769d7b7505615a22a1185538b4befc47"
@@ -891,7 +891,7 @@
     },
     "@beep/practice-review-hub": {
       "reviewer": "Claude Opus 5.5 (feat/attorney-question-loop-p1)",
-      "reason": "Record the new @beep/practice-review-hub app (attorney-question-loop P3b) with its scaffold task inputs, and the root workspace registration it implies; no qualification is granted.",
+      "reason": "Re-record the new @beep/practice-review-hub app (attorney-question-loop P3b) and the root workspace registration it implies on main's baseline after merging main; no qualification is granted.",
       "basis": {
         "path": "goals/attorney-question-loop/research/review-hub-cache-review.md",
         "sha256": "6ba54d2421e86bb2838ec9aa1be3b705769d7b7505615a22a1185538b4befc47"
@@ -946,19 +946,19 @@
       }
     },
     "@beep/repo-ai-metrics": {
-      "reviewer": "Codex TS7 exit B2 implementation lane",
-      "reason": "Record ESLint removal and governance input path moves without granting qualification.",
+      "reviewer": "Claude Fable 5.1 (observability-kernel-catalog, feat/observability-catalog-p2b)",
+      "reason": "Re-record @beep/repo-ai-metrics after it gained a workspace dependency on @beep/observability for its catalog declarations; task commands, inputs, outputs, env and cache flags are unchanged and no qualification is granted.",
       "basis": {
-        "path": "goals/eslint-removal/research/cache-baseline-basis.md",
-        "sha256": "20955a3572c52c77460ab2fd06f8b0658c5e7065204b64d202e5040d70b73370"
+        "path": "goals/observability-kernel-catalog/research/cache-baseline-review-ai-metrics-catalog.md",
+        "sha256": "c0ff206cc8bf2400aa20806aed00134ff9fba3ed992a4c2a55182722942516f1"
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Codex TS7 exit B2 implementation lane",
-      "reason": "Record ESLint removal and governance input path moves without granting qualification.",
+      "reviewer": "Codex H2 final review-wave 1b lane",
+      "reason": "Review profile consumer inputs and the direct get-tsconfig resolver dependency; preserve task behavior and qualification scope.",
       "basis": {
-        "path": "goals/eslint-removal/research/cache-baseline-basis.md",
-        "sha256": "20955a3572c52c77460ab2fd06f8b0658c5e7065204b64d202e5040d70b73370"
+        "path": "goals/effect-rules-diagnostics-lane/research/cache-baseline-review-1b-final.md",
+        "sha256": "ae5d29457121d3abb4acdccbdfe18d53d347dccf0ce0332c503cfa5a6807f151"
       }
     },
     "@beep/repo-configs": {
@@ -2658,6 +2658,7 @@
             "packages/tooling/tool/cli/src/**",
             "packages/tooling/tool/docgen/package.json",
             "packages/tooling/tool/docgen/src/**",
+            "standards/effect-diagnostics.profile.json",
             "standards/lint-policy.sweeps.jsonc",
             "standards/policy-tools.fingerprint.json",
             "tsconfig.base.json",
@@ -2910,6 +2911,7 @@
             "./tsconfig.base.json",
             "./tsconfig.json",
             "./tsconfig.packages.json",
+            "standards/effect-diagnostics.profile.json",
             "tsconfig.base.json",
             "tsconfig.json",
             "vitest.aliases.generated.json",
@@ -80923,6 +80925,7 @@
           "@beep/fc-runs#audit",
           "@beep/file-processing#audit",
           "@beep/identity#audit",
+          "@beep/observability#audit",
           "@beep/phoenix#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
@@ -80992,6 +80995,7 @@
           "@beep/fc-runs#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
+          "@beep/observability#build",
           "@beep/phoenix#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -81048,6 +81052,7 @@
           "@beep/fc-runs#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
+          "@beep/observability#build",
           "@beep/phoenix#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -81091,6 +81096,7 @@
           "@beep/fc-runs#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
+          "@beep/observability#build",
           "@beep/phoenix#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -81221,6 +81227,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -81430,6 +81437,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -81479,6 +81487,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -81531,6 +81540,7 @@
           "@beep/fc-runs#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
+          "@beep/observability#transit",
           "@beep/phoenix#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -82439,6 +82449,7 @@
             "../../../../goals/time-to-certainty/research/economics.json",
             "../../../../goals/time-to-certainty/research/gate-order-handoff.json",
             "../../../../package.json",
+            "../../../../standards/effect-diagnostics.profile.json",
             "../../../../tsconfig.base.json",
             "../../../../tsconfig.json",
             "../../../../tsconfig.packages.json",
@@ -82523,6 +82534,7 @@
             "../../../../goals/time-to-certainty/research/economics.json",
             "../../../../goals/time-to-certainty/research/gate-order-handoff.json",
             "../../../../package.json",
+            "../../../../standards/effect-diagnostics.profile.json",
             "../../../../tsconfig.base.json",
             "../../../../tsconfig.json",
             "../../../../tsconfig.packages.json",
@@ -105990,11 +106002,11 @@
       },
       {
         "path": "packages/tooling/tool/cli/turbo.json",
-        "sha256": "bc5d36aa898ce9ef81429d83b712f2e44f26fe5ee4a69a6034da0a1df469f19b"
+        "sha256": "4ef284968b771ea9f9486cce6310c7dee243d580cdee883760e1110556d993d9"
       },
       {
         "path": "turbo.json",
-        "sha256": "9a5e903c2b4ccd207b70628e4357899b5badcad927be42dbefb4812caa836d0e"
+        "sha256": "0dad3d1f9cd7145be408e74b4efa39f2cfe3b6b8e912804793943962cd30b244"
       }
     ]
   }

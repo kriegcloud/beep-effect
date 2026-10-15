@@ -109,11 +109,10 @@ const readLedgerText = (repoRoot: string) =>
         attempt("open", () =>
           fs.openSync(entry, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK)
         ),
-        (fd) =>
-          Effect.gen(function* () {
-            yield* requireRegularLedger(fd);
-            return yield* attempt("read", () => fs.readFileSync(fd, { encoding: "utf8" }));
-          }),
+        Effect.fnUntraced(function* (fd) {
+          yield* requireRegularLedger(fd);
+          return yield* attempt("read", () => fs.readFileSync(fd, { encoding: "utf8" }));
+        }),
         closeQuietly
       );
     })
@@ -139,11 +138,10 @@ const appendLedgerText = (repoRoot: string, text: string) =>
             0o600
           )
         ),
-        (fd) =>
-          Effect.gen(function* () {
-            yield* requireRegularLedger(fd);
-            yield* attempt("append to", () => fs.writeFileSync(fd, text));
-          }),
+        Effect.fnUntraced(function* (fd) {
+          yield* requireRegularLedger(fd);
+          yield* attempt("append to", () => fs.writeFileSync(fd, text));
+        }),
         closeQuietly
       );
     })

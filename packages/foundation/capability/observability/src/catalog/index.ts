@@ -18,6 +18,11 @@
 export * from "../Observability.instruments.ts";
 export * from "./Catalog.behavior.ts";
 /**
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./Catalog.enrichment.ts";
+/**
  * @category errors
  * @since 0.0.0
  */
