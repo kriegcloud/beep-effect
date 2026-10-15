@@ -121,6 +121,7 @@ const config = {
     "apps/practice-m365-contacts/package.json",
     "apps/practice-claude-mod/package.json",
     "packages/drivers/t3-code/package.json",
+    "apps/practice-review-hub/package.json",
   ],
   customTypes: {
     catalog: {
@@ -130,19 +131,9 @@ const config = {
   },
   updateGroups: [
     {
-      // Held back from `deps:update`. Classic typescript stays ^6 for the
-      // programmatic (JS) compiler API, while @typescript/native provides
-      // the TS7 compiler. TypeScript 7.0 ships no stable programmatic API
-      // (7.1 is the target), so its actual consumers cannot move:
-      // Remaining programmatic consumers need a separate TS6 API review.
-      // Commitlint loads its config through jiti; ts-morph vendors its own TS6 copy.
-      // tstyche is pinned exactly to 8.0.0-beta.0 for its TypeScript 7.1 backend.
-      // Explicit targets use its own store, independent of root typescript@6.
-      // Exit this hold when stable 8.0 supports the same matrix and all existing
-      // effect-drizzle assertions pass on that release.
-      // Microsoft's @typescript/typescript6 bridge was blocked by
-      // oven-sh/bun#33834; that fix merged 2026-08-06 (bun 1.4.0 shipped
-      // after it), so the bridge is now an option but a separate decision.
+      // Held back from `deps:update`: tstyche stays at 8.0.0-beta.0 until
+      // stable 8.0 passes effect-drizzle's existing explicit-target matrix.
+      // Targets use its own compiler store, independent of root TypeScript.
       // Full layout: docs/runbooks/typescript-toolchain.md.
       // fast-xml-validator 1.3+ / detailed-xml-validator 2.2+ pull
       // @nodable/flexible-xml-parser, which references Buffer at module
@@ -155,9 +146,9 @@ const config = {
       // gates TypeScript errors only. Fold standards/effect-diagnostics.profile.json
       // into compiler maps once tsc-rs knows its rule names (TS377134 otherwise).
       // 0.53.0 was measured across all workspace check/test projects on
-      // 2026-10-14 (goals/effect-rules-diagnostics-lane). Five 0.52 rules are
-      // errors; schemaClassMissingBrand waits for schema-opaque-default
-      // to arm it in its closing PR.
+      // 2026-10-14 (goals/effect-rules-diagnostics-lane). All six 0.52 rules are
+      // errors; schema-opaque-default armed schemaClassMissingBrand on
+      // 2026-10-15 in its closing PR.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
       // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is
@@ -181,7 +172,6 @@ const config = {
       // straight back to the broken release) until vitest or jsdom ships the fix.
       label: "Held back — do not auto-update (see changeset portless-default-react-grab-storybook)",
       dependencies: [
-        "typescript",
         "tstyche",
         "lexical",
         "@lexical/**",
@@ -203,6 +193,16 @@ const config = {
     },
   ],
   versionGroups: [
+    {
+      // Pulumi's nodejs runtime needs the classic TypeScript API, so infra
+      // keeps its own nested TypeScript 6: infra/pulumi-typescript6.cjs points
+      // the runtime at it, and the ghaRunners SDK build guards a 6.x compiler.
+      label: "infra keeps TypeScript 6 for the Pulumi runtime and ghaRunners SDK",
+      packages: ["@beep/infra"],
+      dependencies: ["typescript"],
+      dependencyTypes: ["dev"],
+      pinVersion: "^6.0.3",
+    },
     {
       // The private workspace root is an orchestration manifest, not a
       // publishable package. Keep its intentionally absent version out of

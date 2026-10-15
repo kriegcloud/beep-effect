@@ -1,6 +1,6 @@
 import { lintCommand } from "@beep/repo-cli";
 import { LintCommandTestKit } from "@beep/repo-cli/test/Lint";
-import { TSMorphServiceLive } from "@beep/repo-utils";
+import { findRepoRoot, TSMorphServiceLive } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
@@ -17,12 +17,12 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import { expectReportedExit, temporaryWorkingDirectory } from "./support/CommandTest.ts";
+import { expectReportedExit, NodeCommandTestLayer, temporaryWorkingDirectory } from "./support/CommandTest.ts";
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
 const testLayer = Layer.mergeAll(
-  NodeServices.layer,
+  NodeCommandTestLayer,
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   TSMorphServiceLive.pipe(Layer.provide(NodeServices.layer))
 );
@@ -110,7 +110,93 @@ const nativeInvocations = Effect.fn("LintTest.nativeInvocations")(function* () {
   return A.filter(Str.split(yield* fs.readFileString("native-invocations.txt"), "\n"), Str.isNonEmpty);
 });
 
+const writeCircularLintFixture = Effect.fn("LintTest.circularFixture")(function* (cycle: boolean) {
+  const root = yield* findRepoRoot();
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* temporaryWorkingDirectory;
+  yield* fs.writeFileString("bun.lock", "");
+  yield* fs.writeFileString("package.json", encodeJson({ name: "@beep/cycle-fixture", private: true }));
+  yield* fs.writeFileString(
+    "tsconfig.json",
+    encodeJson({ compilerOptions: { module: "esnext", moduleResolution: "bundler" } })
+  );
+  yield* fs.copyFile(path.join(root, ".oxlintrc.circular.json"), ".oxlintrc.circular.json");
+  yield* fs.makeDirectory("node_modules/.bin", { recursive: true });
+  yield* fs.symlink(path.join(root, "node_modules/.bin/oxlint"), "node_modules/.bin/oxlint");
+  yield* fs.makeDirectory("packages/tooling/tool/cli/src", { recursive: true });
+  yield* fs.makeDirectory("packages/tooling/library/repo-utils/src", { recursive: true });
+  yield* fs.writeFileString(
+    "packages/tooling/tool/cli/src/a.ts",
+    'import { b } from "./b.ts"; export const a = () => b;'
+  );
+  yield* fs.writeFileString(
+    "packages/tooling/tool/cli/src/b.ts",
+    cycle ? 'import { a } from "./a.ts"; export const b = () => a;' : "export const b = 1;"
+  );
+});
+
 it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
+  describe("native circular dependency lint", () => {
+    it.effect("reports a value-import cycle and fails the command", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(true);
+        const exit = yield* Effect.exit(runLintCommand(["circular"]));
+        expectReportedExit(exit);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("Dependency cycle detected")]));
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("a.ts")]));
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("b.ts")]));
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("accepts a clean value-import graph", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(false);
+        yield* runLintCommand(["circular"]);
+        expect(yield* TestConsole.logLines).toContain("No circular dependencies found.");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("ignores type-only import cycles", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(true);
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.writeFileString(
+          "packages/tooling/tool/cli/src/a.ts",
+          'import type { B } from "./b.ts"; export type A = { b: B };'
+        );
+        yield* fs.writeFileString(
+          "packages/tooling/tool/cli/src/b.ts",
+          'import type { A } from "./a.ts"; export type B = { a: A };'
+        );
+        yield* runLintCommand(["circular"]);
+        expect(yield* TestConsole.logLines).toContain("No circular dependencies found.");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("rejects a zero-file analysis", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(false);
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.remove("packages/tooling/tool/cli/src/a.ts");
+        yield* fs.remove("packages/tooling/tool/cli/src/b.ts");
+        const error = yield* Effect.flip(runLintCommand(["circular"]));
+        expect(error).toHaveProperty("_tag", "LintCircularAnalysisError");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("reports a missing native executable as an analysis failure", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(false);
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.remove("node_modules/.bin/oxlint");
+        const error = yield* Effect.flip(runLintCommand(["circular"]));
+        expect(error).toHaveProperty("_tag", "LintCircularAnalysisError");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+  });
+
   describe("tooling schema-first lint detectors", () => {
     it("reports runtime and schema metadata violations through the pure test seam", () => {
       const kinds = LintCommandTestKit.runtimeSchemaFirstViolationKinds(

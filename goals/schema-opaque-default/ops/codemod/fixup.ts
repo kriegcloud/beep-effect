@@ -32,7 +32,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import * as path from "node:path";
-import ts from "typescript";
+import ts from "@typescript/typescript6";
 import { indexSchemaClasses } from "./codemod.ts";
 import type { SchemaClassEntry } from "./codemod.ts";
 

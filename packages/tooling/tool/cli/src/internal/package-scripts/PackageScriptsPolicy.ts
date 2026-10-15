@@ -21,6 +21,7 @@ import * as Str from "effect/String";
 import { doctestSourceMarker, isDoctestSourcePath } from "../jsdoc/DoctestSource.ts";
 import {
   CodegenGeneratorPackage,
+  ImplScriptDrift,
   implScriptDefaults,
   PackageKind,
   PackageScriptsReport,
@@ -218,6 +219,18 @@ const diffBlock: PackageScriptsPolicyShape["diff"] = (actual, expected) => {
   return drift;
 };
 
+const implementationDrift = (actual: ScriptsBlock): ReadonlyArray<ImplScriptDrift> =>
+  A.getSomes(
+    A.map(implScriptDefaults, (row) =>
+      row.kind === actual.kind
+        ? HashMap.get(actual.impls, row.name).pipe(
+            O.filter((value) => value !== row.value),
+            O.map((value) => ImplScriptDrift.make({ name: row.name, expected: row.value, actual: value }))
+          )
+        : O.none()
+    )
+  );
+
 /**
  * Evaluates root workspace members and repairs only policy-owned script text.
  * **Example** (Construct the policy effect)
@@ -310,7 +323,7 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
       ) {
         const manifestPath = `${path.relative(repoRoot, dir)}/package.json`;
         const kind = kindForDirectory(path.relative(repoRoot, dir));
-        if (PackageKind.is.exempt(kind)) return { manifestPath, rows: [], written: false };
+        if (PackageKind.is.exempt(kind)) return { manifestPath, rows: [], implDrift: [], written: false };
         let didWrite = false;
         const file = path.join(dir, "package.json");
         const text = yield* fs.readFileString(file);
@@ -333,7 +346,7 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
           }
         }
         const rows = [...diffBlock(write ? expected : actual, expected), ...conflicts];
-        return { manifestPath, rows, written: didWrite };
+        return { manifestPath, rows, implDrift: implementationDrift(write ? expected : actual), written: didWrite };
       });
       const run = Effect.fn("PackageScriptsPolicy.run")(
         function* (repoRoot: string, write: boolean) {
@@ -342,9 +355,12 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
           const census = yield* collectEvidence(repoRoot, entries);
           const { evidence } = census;
           let drift = census.drift;
+          let implDrift = HashMap.empty<string, ReadonlyArray<ImplScriptDrift>>();
           let written = HashSet.empty<string>();
           for (const dir of entries) {
             const result = yield* processManifest(repoRoot, dir, evidence, write);
+            if (A.isReadonlyArrayNonEmpty(result.implDrift))
+              implDrift = HashMap.set(implDrift, result.manifestPath, result.implDrift);
             if (result.written) written = HashSet.add(written, result.manifestPath);
             if (A.isReadonlyArrayNonEmpty(result.rows)) drift = HashMap.set(drift, result.manifestPath, result.rows);
           }
@@ -353,6 +369,7 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
             rules: "package-scripts-rules/v1",
             manifests: entries.length,
             drift,
+            implDrift,
             written,
           });
         },

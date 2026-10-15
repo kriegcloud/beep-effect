@@ -144,6 +144,18 @@ export {
   sortSchemaFirstEntries,
 } from "./Lint.schemas.ts";
 /**
+ * Type-aware generated Opaque sample roundtrip lint.
+ *
+ * **Example** (Inspect the roundtrip command)
+ * ```ts
+ * import { lintOpaqueRoundtripsCommand } from "@beep/repo-cli/commands/Lint"
+ * console.log(lintOpaqueRoundtripsCommand.name)
+ * ```
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./OpaqueRoundtrips.ts";
+/**
  * Package test-typecheck blind-spot lint utilities.
  *
  * @category cli-commands
@@ -168,15 +180,19 @@ export {
  */
 export {
   generateSchemaCatalogDocument,
-  generateSchemaCatalogText,
+  generateSchemaCatalogShards,
   lintSchemaCatalogCommand,
-  renderSchemaCatalogDocument,
+  renderSchemaCatalogShard,
   runSchemaCatalog,
   SchemaCatalogDocument,
   SchemaCatalogEntry,
   SchemaCatalogEntryKind,
   SchemaCatalogOptions,
+  SchemaCatalogOwner,
+  SchemaCatalogShard,
   SchemaCatalogSummary,
+  schemaCatalogShardPath,
+  shardSchemaCatalogDocument,
 } from "./SchemaCatalog.ts";
 /**
  * Schema-first lint utilities.

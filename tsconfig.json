@@ -2133,6 +2133,35 @@
       ],
       "@beep/law-practice-server/UsptoClaims": [
         "./packages/law-practice/server/src/UsptoClaims/index.ts"
+      ],
+      "@beep/law-practice-server/NoticeMailbox": [
+        "./packages/law-practice/server/src/NoticeMailbox/index.ts"
+      ],
+      "@beep/law-practice-server/QuestionCalendar": [
+        "./packages/law-practice/server/src/QuestionCalendar/index.ts"
+      ],
+      "@beep/law-practice-server/ReviewFiles": [
+        "./packages/law-practice/server/src/ReviewFiles/index.ts"
+      ],
+      "@beep/law-practice-use-cases/DailyNotice": [
+        "./packages/law-practice/use-cases/src/DailyNotice/index.ts"
+      ],
+      "@beep/law-practice-use-cases/QuestionQueue": [
+        "./packages/law-practice/use-cases/src/QuestionQueue/index.ts"
+      ],
+      "@beep/law-practice-use-cases/QuestionWrites": [
+        "./packages/law-practice/use-cases/src/QuestionWrites/index.ts"
+      ],
+      "@beep/law-practice-use-cases/ReviewHub": [
+        "./packages/law-practice/use-cases/src/ReviewHub/index.ts"
+      ],
+      "@beep/law-practice-use-cases/ReviewItemStore": [
+        "./packages/law-practice/use-cases/src/ReviewItemStore/index.ts"
+      ],
+      "@beep/palantiri": ["./packages/tooling/library/palantiri/src/index.ts"],
+      "@beep/palantiri/*": ["./packages/tooling/library/palantiri/src/*"],
+      "@beep/observability/strict": [
+        "./packages/foundation/capability/observability/src/strict/index.ts"
       ]
     }
   }

@@ -112,6 +112,112 @@ const snapshotPaths = (files: ReadonlyArray<{ readonly relativePath: string }>):
   A.map(files, (file) => file.relativePath);
 
 describe("@beep/repo-ai-metrics bounded config snapshots", () => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("walks successfully beneath an empty parent .git directory", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* fs.makeDirectory(pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("walks successfully beneath a HEAD-less parent .git directory", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git/config"), "unrelated\n");
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("walks successfully beneath a parent .git file without a gitdir line", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git"), "unrelated\n");
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("walks successfully beneath a dangling parent .git symlink", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* fs.symlink(pathApi.join(tmpDir, "missing-metadata"), pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("retains Git stderr and exit code for HEAD metadata", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git/HEAD"), "ref: refs/heads/main\n");
+        yield* makeFixtureRepo(repoRoot);
+        const error = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+          Effect.flip
+        );
+        expect(error._tag).toBe("AiMetricsConfigSnapshotError");
+        expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+        expect(error.cause).toEqual({ exitCode: 128, stderr: expect.stringContaining("not a git repository") });
+      })
+    );
+    it.effect("retains Git stderr and exit code for a broken gitdir file", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git"), "gitdir: missing-checkout\n");
+        yield* makeFixtureRepo(repoRoot);
+        const error = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+          Effect.flip
+        );
+        expect(error._tag).toBe("AiMetricsConfigSnapshotError");
+        expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+        expect(error.cause).toEqual({
+          exitCode: 128,
+          stderr: expect.stringMatching(/\S/u),
+        });
+      })
+    );
+    it.effect("retains Git stderr and exit code for a symlink to a broken gitdir file", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, "metadata"), "gitdir: missing-checkout\n");
+        yield* fs.symlink(pathApi.join(tmpDir, "metadata"), pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const error = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+          Effect.flip
+        );
+        expect(error._tag).toBe("AiMetricsConfigSnapshotError");
+        expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+        expect(error.cause).toEqual({
+          exitCode: 128,
+          stderr: expect.stringMatching(/\S/u),
+        });
+      })
+    );
+  });
+
   it.prop(
     "generates only canonical truncation reasons",
     [Arbitrary.schema(AiMetricsConfigSnapshotTruncationReason)],

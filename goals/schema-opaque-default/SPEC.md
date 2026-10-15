@@ -39,11 +39,11 @@ Higher sources outrank lower sources when they conflict.
 ## Acceptance Criteria
 
 - [x] Plain data schemas (empty or statics-only body, no `.extend` relation, no instance members) are `S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct | S.TaggedStruct)`.
-- [ ] Every remaining `S.Class`/`S.TaggedClass`/`S.Error`/`S.TaggedError`/`S.Opaque` declaration carries `{ readonly brand: unique symbol }`.
+- [x] Every remaining `S.Class`/`S.TaggedClass`/`S.Error`/`S.TaggedError`/`S.Opaque` declaration carries `{ readonly brand: unique symbol }` (168 documented structural `{}` exceptions, D9); `schemaClassMissingBrand` is `"error"` in the Effect diagnostics lane.
 - [x] With `@effect/tsgo` 0.52.0 installed and `schemaClassMissingBrand: "error"`, repo-wide `bun run check` reports zero diagnostics (the pin itself stays 0.51.1).
 - [x] Guidance documents the new default; a `DECISIONS.md` entry records it; `lint schema-first` flags a new empty/statics-only `S.Class` that is not an error, entity or `.extend` root.
 - [x] The `$I.annote` tooling lint recognises brand type arguments.
-- [ ] No unrelated refactors or formatting churn.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
@@ -80,6 +80,8 @@ them and record each in the Decision Log.
 | 2026-10-14 | D10: D6 (brand-only) also covers the upstream tests copied beside the port, `scratchpad/test/<module>/**` and `scratchpad/test/<module>.test.ts`, for every `<module>` with a `scratchpad/effected/<module>/` source. | The test sweep found the port's own tests converted while their sources stayed classes; the port must stay byte-close to upstream as a unit. | Narrow the codemod matcher. |
 | 2026-10-14 | D11: Generated schemas are branded by their generators (box, runpod, html, ai-sync, codegen-kit), and generated output is regenerated rather than hand-edited. The plain-data lint kind skips generated files. | D4 covers generated code too; editing output by hand is undone by the next generation. | Revert the generator changes. |
 | 2026-10-14 | D12: The codemod keeps a schema as a branded `S.Class` when its static members call `super.*` (keep reason `static-super`), adding to D2's list. | `S.Opaque` replaces a static `make` override that calls `super.make` with the base method after the first call (`OipPulumiStateBackendConfig`). | Rewrite the override as decode-time defaults and convert. |
+| 2026-10-15 | D13: Arm `schemaClassMissingBrand` at `"error"` in `standards/effect-diagnostics.profile.json` (and its closed schema in `EffectDiagnostics.ts`), not in `tsconfig.base.json`; drop it from `tsgoDisabledRules`. | #1810 runs the Effect rules from `@effect/tsgo` 0.53 as a separate lane while tsc-rs 0.6.0 gates only the 0.51.1 rules and exits 2 on unknown names; the post-#1758 spike and this PR's full run find 0 sites. | Set the key and the schema literal back to `"off"` and restore the `tsgoDisabledRules` entry. |
+| 2026-10-15 | D14: Add `lint:opaque-roundtrips` (`beep lint opaque-roundtrips`, Lint Policy medium tier): a type-checked scan that fails a `toStrictEqual` between a raw `Arbitrary` sample and a freshly built value whose type contains an `S.Opaque` class. | `effect/Arbitrary` builds some struct samples with a null prototype, so such asserts fail by seed (main-red episode 14); 0 sites on main, 4 on the pre-fix positive control. | Remove the subcommand, the root script and turbo task, and its Lint Policy entries. |
 
 ## Exception Ledger
 

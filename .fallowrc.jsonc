@@ -8,6 +8,8 @@
     "packages/**/src/*.ts",
     "packages/**/src/*/index.ts",
     "infra/src/internal/*-entry.ts",
+    // Preloaded by every infra Pulumi.yaml (runtime.options.nodeargs).
+    "infra/pulumi-typescript6.cjs",
     "apps/*/src/main.tsx",
     // The `service` AppKind's entry point; peer of the labs-depth glob below.
     "apps/*/src/main.ts",
@@ -132,6 +134,8 @@
     ".claude/teaching/**",
     "goals/**",
     "scratchpad/**",
+    "!goals/schema-opaque-default/ops/codemod/**",
+    "!scratchpad/.jsdoc-loop/census.ts",
     "infra/ci-runners/sdks/**",
     // Self-contained Lambda bundle source (own package.json + lockfile, not a workspace
     // member): esbuild bundles it into the deployed ZIP via infra/lambda/turbo-cache/build.sh,
@@ -247,9 +251,8 @@
     "babel-plugin-transform-next-use-client",
     "@babel/plugin-transform-export-namespace-from",
     "@babel/plugin-transform-modules-commonjs",
-    // Docs profile still consumes this parser; lane B owns its retirement.
-    // tsgo >= 0.18 native TypeScript backend: consumed by the effect-tsgo patch
-    // step at install time, never imported from source.
+    // TypeScript 7 is installed under two names; retain the native alias for
+    // effect-tsgo patching and unstable API consumers until alias consolidation.
     "@typescript/native",
     // Repo-local `tsgo` bin shim over the patched @typescript/native backend;
     // consumed via node_modules/.bin, never imported from source.
@@ -400,10 +403,15 @@
     // while its module graph remains visible to dead-code dependency analysis.
     // The graft shims are generated; the loader's platform trust checks are
     // security-boundary code kept whole rather than split for a ceiling.
+    // The manual TS6-bridge tools (goal codemod, JSDoc census) entered discovery
+    // only so dead-code analysis sees the bridge's consumers; complexity scope
+    // stays as on main, where both paths were never health-scored.
     "ignore": [
       ".claude/skills/impeccable/**",
       ".claude/skills/shadcn/**",
-      ".claude/helpers/**"
+      ".claude/helpers/**",
+      "goals/schema-opaque-default/ops/codemod/**",
+      "scratchpad/.jsdoc-loop/census.ts"
     ],
     "thresholdOverrides": [
       {

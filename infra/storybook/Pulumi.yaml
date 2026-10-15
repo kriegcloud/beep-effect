@@ -1,6 +1,9 @@
 name: beep-storybook
 runtime:
   name: nodejs
+  options:
+    # Classic TypeScript API for the Pulumi runtime: infra's TS6 (path from src/internal).
+    nodeargs: --require ../../pulumi-typescript6.cjs
 description: Public Storybook Vercel project for foundation UI-system stories.
 main: ../src/internal/storybook-entry.ts
 config:
