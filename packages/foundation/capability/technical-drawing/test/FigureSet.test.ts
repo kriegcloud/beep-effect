@@ -72,8 +72,14 @@ const square: ReadonlyArray<readonly [number, number, number, number]> = [
 ];
 const shifted = A.map(square, ([a, b, c, d]) => [a + 1, b, c + 1, d] as const);
 
-// `plans` collects every shading plan the engine is asked for, per layer.
-const fakeEngineWith = (plans: Array<ShadingPlan>) =>
+type FakeSegment = readonly [number, number, number, number];
+
+// `plans` collects every shading plan the engine is asked for, per layer. A `graded` scene replaces the graded
+// hatch with its own strokes and adds its own lines to every view's outline.
+const fakeEngineWith = (
+  plans: Array<ShadingPlan>,
+  graded?: { readonly shading: ReadonlyArray<FakeSegment>; readonly visible: ReadonlyArray<FakeSegment> }
+) =>
   Layer.succeed(
     GeometryEngine,
     GeometryEngine.of({
@@ -95,13 +101,19 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
         // apart, which the spacing rule must flag; a model with a broken-line part
         // carries one broken segment per view
         O.map(shading, (plan) => plans.push(plan));
+        const scene = O.filter(O.fromUndefinedOr(graded), () => O.exists(shading, (plan) => plan.style === "graded"));
         const hatch = O.match(shading, {
           onNone: () => [],
           onSome: (plan) =>
             plan.style === "graded"
-              ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const]
+              ? O.match(scene, {
+                  onNone: () => [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const],
+                  onSome: (own) => own.shading,
+                })
               : [[0.2, 0.2, 4, 4] as const],
         });
+        const outline = (base: ReadonlyArray<FakeSegment>) =>
+          O.match(scene, { onNone: () => base, onSome: (own) => [...base, ...own.visible] });
         const coverage = O.map(shading, () =>
           ShadingCoverage.make({
             shadedFaces: 1,
@@ -115,7 +127,7 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
           : [];
         return A.map(cameras, (camera) =>
           EdgeSet.make({
-            visible: camera.eye[1] > 0 ? shifted : square,
+            visible: outline(camera.eye[1] > 0 ? shifted : square),
             hidden: [],
             shading: hatch,
             shadingCoverage: coverage,
@@ -1779,6 +1791,11 @@ describe("graded shading through fake ports", () => {
         expect([plan?.style, plan?.axis]).toEqual(["graded", "surface-class"]);
         expect(plan?.minFaceSpan).toBeCloseTo((1.5 * PT_PER_MM) / manifest.scale, 9);
         expect(plan?.minStroke).toBeCloseTo((2 * PT_PER_MM) / manifest.scale, 9);
+        // the kernel's ladder reach is the validator's, 2.5 mm on the sheet
+        expect(O.getOrElse(plan?.ladderReach ?? O.none(), () => Number.NaN)).toBeCloseTo(
+          (2.5 * PT_PER_MM) / manifest.scale,
+          9
+        );
         assertSome(
           manifest.figures[0]!.shadingCoverage,
           ShadingCoverage.make({
@@ -1811,6 +1828,61 @@ describe("graded shading through fake ports", () => {
           O.map(uniform.validation, (v) => A.map(v.findings, (f) => f.code)),
           []
         );
+      })
+    );
+  });
+});
+
+// A three-line band (gaps 0.1 and 0.15 model units) whose first stroke stands 0.07 from its edge, with two lines 0.09
+// and 0.15 beyond that edge: band, edge and lines read as one ladder at any scale from 5 to 24 mm a unit (the gaps
+// clear the validator's spacing floor, the lines lie within its reach, the band within one companion distance).
+const ladderScene = {
+  shading: [
+    [4.75, 1, 4.75, 4],
+    [4.9, 1, 4.9, 4],
+    [5, 1, 5, 4],
+  ] as const,
+  visible: [
+    [5.07, 1, 5.07, 4],
+    [5.16, 1, 5.16, 4],
+    [5.22, 1, 5.22, 4],
+  ] as const,
+};
+
+describe("graded shading ladder through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(fakeEngineWith([], ladderScene), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "flags a band that reads as one ladder with the lines beyond its edge in the render's validation",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: { shadingStyle: "graded", shadingAxis: "surface-class" },
+          })
+        );
+        const manifest = yield* (yield* FigureSet).render(
+          RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), shade: true })
+        );
+        // the scene's scale lies inside the range it was drawn for
+        const mmPerUnit = manifest.scale / PT_PER_MM;
+        expect(mmPerUnit).toBeGreaterThan(5);
+        expect(mmPerUnit).toBeLessThan(24);
+        expect(
+          O.getOrElse(
+            O.map(manifest.validation, (v) => A.map(v.findings, (f) => [f.code, f.page] as const)),
+            A.empty
+          )
+        ).toContainEqual(["shading-band-ladder", O.some(1)]);
       })
     );
   });

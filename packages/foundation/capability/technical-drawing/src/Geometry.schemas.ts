@@ -1102,8 +1102,10 @@ const ExposureThreshold = S.Finite.check(
  * shadow edge (see {@link ShadingStyle}); `axis` picks the line direction
  * (see {@link HatchAxis}); faces narrower than `minFaceSpan` are never
  * hatched, and chords shorter than `minStroke` on the view plane are dropped. Only planar faces turned toward the camera are shaded, and the
- * lines pass through the same hidden-line removal as the outlines. The
- * defaults reproduce the original hatch exactly.
+ * lines pass through the same hidden-line removal as the outlines. A graded
+ * band whose edge has another drawn line within `ladderReach` beyond it,
+ * running alongside the edge, starts behind a gutter. The defaults reproduce
+ * the original hatch exactly.
  *
  * **Example** (A plan in millimetres)
  *
@@ -1176,10 +1178,17 @@ export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique 
           "Distance, in model units, a graded stroke end keeps from every drawn outline after hidden-line removal; none means half the minimum pitch. A sheet sets it to the larger of half its pitch and the validator's spacing floor, so a render passes its own check.",
       })
     ),
+    ladderReach: S.OptionFromOptionalKey(PositiveLength).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "How far beyond a graded band's edge, in model units, a drawn line running alongside that edge makes the band and the lines read as one ladder, so the band starts behind a gutter; none means five thirds of the minimum pitch. A sheet sets it from the validator's ladder reach, so a render passes its own check.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("ShadingPlan", {
       description:
-        "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, and outline clearance of straight-line shading, in model units.",
+        "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, outline clearance, and ladder reach of straight-line shading, in model units.",
     })
   )
 ) {}

@@ -1,16 +1,24 @@
 import {
   anchorOf,
   aspectOf,
+  BandInk,
   BoundingBox,
+  bandLead,
   Camera,
+  cameraForView,
   coverageOf,
+  coveringOutlineDistance,
   FaceEdge,
   FaceFacts,
   FaceTreatment,
+  faintShareOf,
   gradedExtents,
   gradedOffsets,
   hatchDirectionOf,
+  inkOrderSteps,
+  ladderPitch,
   legibleShading,
+  nextBandTaper,
   pointToSegmentDistance,
   ShadingCoverage,
   ShadingCut,
@@ -21,6 +29,8 @@ import {
   ShadingTone,
   ShadingWindow,
   SheetOptions,
+  settleBandTapers,
+  shadingBandLadderFindings,
   shadingCoverageFindings,
   shadingLoneLineFindings,
   shadingOutlineClearanceFindings,
@@ -30,6 +40,8 @@ import {
   toneOf,
   treatmentFor,
   ValidationOptions,
+  ViewFacts,
+  ViewName,
   viewFactsOf,
 } from "@beep/technical-drawing";
 import { O } from "@beep/utils";
@@ -37,8 +49,10 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as Order from "effect/Order";
-import type { Segment2, Vec3 } from "@beep/technical-drawing";
+import type { BandTaper, Segment2, Vec3 } from "@beep/technical-drawing";
+import type * as HashSet from "effect/HashSet";
 
 // A planar quad from four corners in order: straight edges, corner outline, bounds.
 const quad = (normal: Vec3, corners: readonly [Vec3, Vec3, Vec3, Vec3]): FaceFacts => {
@@ -540,6 +554,493 @@ describe("Shading.rules", () => {
         ],
       })
     );
+  });
+});
+
+describe("neighbour ink order", () => {
+  const band = (face: number, exposure: number, density: number) => BandInk.make({ face, exposure, density });
+  // a lit face (0) that out-inks the dark face (1) across their shared edge, and a lighter face (2) that does not
+  const bands = [band(0, 0.5, 0.3), band(1, -0.4, 0.2), band(2, 0.7, 0.1)];
+  const facesOf = (steps: HashSet.HashSet<number>) => A.sort(A.fromIterable(steps), Order.Number);
+
+  it("steps the lighter face of a shared edge only when it carries more ink than the darker one", () => {
+    expect(facesOf(inkOrderSteps({ bands, shared: [[0, 1]] }))).toEqual([0]);
+    expect(facesOf(inkOrderSteps({ bands, shared: [[1, 0]] }))).toEqual([0]);
+    // lighter but sparser: nothing to do
+    expect(facesOf(inkOrderSteps({ bands, shared: [[2, 1]] }))).toEqual([]);
+    // faces that share no visible edge are never compared
+    expect(facesOf(inkOrderSteps({ bands, shared: [] }))).toEqual([]);
+  });
+
+  it("leaves equally lit faces, and a face bare by design, alone", () => {
+    // faces 2 and 3 are the denser ones of their pairs: lit inside the exposure tie (0.001) above face 0, face 2 is
+    // its equal and keeps its ink; lit past it, face 3 is the lighter and steps
+    const tie = [band(0, 0.5, 0.25), band(1, 0.5, 0.1), band(2, 0.5005, 0.4), band(3, 0.502, 0.4)];
+    expect(facesOf(inkOrderSteps({ bands: tie, shared: [[0, 1]] }))).toEqual([]);
+    expect(facesOf(inkOrderSteps({ bands: tie, shared: [[0, 2]] }))).toEqual([]);
+    expect(facesOf(inkOrderSteps({ bands: tie, shared: [[0, 3]] }))).toEqual([3]);
+    // face 3 has no band (a sliver, a narrow face, a broken part): its pairs are not compared
+    expect(facesOf(inkOrderSteps({ bands, shared: [[0, 3]] }))).toEqual([]);
+  });
+
+  it("steps a band from full to the lit taper to the lit floor, and no further", () => {
+    assertSome(nextBandTaper("full"), "lit");
+    assertSome(nextBandTaper("lit"), "lit-floor");
+    assertNone(nextBandTaper("lit-floor"));
+  });
+
+  it("cuts a light band back to short strokes at the same offsets, and to two lines at the floor", () => {
+    // a 20 × 20 wall square-on to the front view: a light face with a three-line band
+    const square = quad(
+      [0, -1, 0],
+      [
+        [-10, 0, 0],
+        [10, 0, 0],
+        [10, 0, 20],
+        [-10, 0, 20],
+      ]
+    );
+    const gradedPlan = plan({ style: "graded", axis: "surface-class" });
+    const cutsOf = (taper?: BandTaper) =>
+      O.getOrElse(
+        O.map(
+          linesOf(
+            treatmentFor({ face: square, view: front, plan: gradedPlan, ...(taper === undefined ? {} : { taper }) })
+          ),
+          (lines) =>
+            A.map(lines.cuts, (cut) => [Math.round(cut.offset * 1e9) / 1e9, Math.round(cut.extent * 100) / 100])
+        ),
+        () => []
+      );
+    expect(cutsOf()).toEqual([
+      [1, 1],
+      [2.4, 1],
+      [4.36, 0.6],
+    ]);
+    // the default is the full band, exactly as before tapers existed
+    expect(cutsOf("full")).toEqual(cutsOf());
+    expect(cutsOf("lit")).toEqual([
+      [1, 0.6],
+      [2.4, 0.5],
+      [4.36, 0.4],
+    ]);
+    expect(cutsOf("lit-floor")).toEqual([
+      [1, 0.6],
+      [2.4, 0.4],
+    ]);
+  });
+
+  it("settles a view's tapers: each inverted face steps until it no longer out-inks its neighbour", () => {
+    // ink per taper of each face: 0 needs one step, 2 needs two, and 3 is still denser at the floor
+    const ink = (taper: BandTaper, full: number, lit: number, floor: number) =>
+      taper === "full" ? full : taper === "lit" ? lit : floor;
+    const calls: Array<HashMap.HashMap<number, BandTaper>> = [];
+    const inkOf = (tapers: HashMap.HashMap<number, BandTaper>) => {
+      calls.push(tapers);
+      const taperOf = (face: number): BandTaper => O.getOrElse(HashMap.get(tapers, face), (): BandTaper => "full");
+      return [
+        band(0, 0.5, ink(taperOf(0), 0.3, 0.15, 0.1)),
+        band(1, -0.4, 0.2),
+        band(2, 0.3, ink(taperOf(2), 0.4, 0.25, 0.15)),
+        band(3, 0.7, ink(taperOf(3), 0.6, 0.5, 0.4)),
+        band(4, 0.6, 0.5),
+      ];
+    };
+    const tapers = settleBandTapers({
+      shared: [
+        [0, 1],
+        [1, 2],
+        [1, 3],
+        [3, 4],
+      ],
+      inkOf,
+    });
+    const settled = A.map([0, 1, 2, 3, 4], (face) => O.getOrNull(HashMap.get(tapers, face)));
+    expect(settled).toEqual(["lit", null, "lit-floor", "lit-floor", null]);
+    // with no shared edges every band stays as its tone gives it, and the view is planned once
+    calls.length = 0;
+    expect(HashMap.size(settleBandTapers({ shared: [], inkOf }))).toBe(0);
+    expect(A.length(calls)).toBe(1);
+  });
+
+  it("settles a cascade: a face cut back below its darker neighbour may in turn have to cut back a lighter one", () => {
+    // 1 (dark) < 0 (medium) < 2 (light) in exposure; 0 out-inks 1, and once 0 is cut back 2 out-inks 0
+    const inkOf = (tapers: HashMap.HashMap<number, BandTaper>) => [
+      band(0, 0, HashMap.has(tapers, 0) ? 0.1 : 0.3),
+      band(1, -0.5, 0.2),
+      band(2, 0.4, HashMap.has(tapers, 2) ? 0.05 : 0.15),
+    ];
+    const tapers = settleBandTapers({
+      shared: [
+        [0, 1],
+        [0, 2],
+      ],
+      inkOf,
+    });
+    expect(A.map([0, 1, 2], (face) => O.getOrNull(HashMap.get(tapers, face)))).toEqual(["lit", null, "lit"]);
+  });
+
+  it("refuses a step that would leave the face without a band or would not thin it", () => {
+    // stepped to either taper, face 0 loses its band and face 2 gains ink (a band the taper alone would empty is
+    // drawn untapered)
+    const inkOf = (tapers: HashMap.HashMap<number, BandTaper>) => [
+      ...(HashMap.has(tapers, 0) ? [] : [band(0, 0.5, 0.3)]),
+      band(1, -0.4, 0.2),
+      band(2, 0.3, HashMap.has(tapers, 2) ? 0.35 : 0.3),
+    ];
+    const tapers = settleBandTapers({
+      shared: [
+        [0, 1],
+        [1, 2],
+      ],
+      inkOf,
+    });
+    expect(HashMap.size(tapers)).toBe(0);
+  });
+
+  it("tries the lit floor in the same round when the lit taper does not thin a band", () => {
+    // face 0's lit taper leaves its strokes too short for a band, so they are drawn untapered and carry more ink;
+    // its lit floor, two lines, thins it below the dark face. Face 2 thins at neither and keeps its full band.
+    const calls: Array<HashMap.HashMap<number, BandTaper>> = [];
+    const inkOf = (tapers: HashMap.HashMap<number, BandTaper>) => {
+      calls.push(tapers);
+      const taperOf = (face: number): BandTaper => O.getOrElse(HashMap.get(tapers, face), (): BandTaper => "full");
+      return [
+        band(0, 0.5, taperOf(0) === "full" ? 0.3 : taperOf(0) === "lit" ? 0.35 : 0.15),
+        band(1, -0.4, 0.2),
+        band(2, 0.3, taperOf(2) === "full" ? 0.3 : 0.4),
+      ];
+    };
+    const tapers = settleBandTapers({
+      shared: [
+        [0, 1],
+        [1, 2],
+      ],
+      inkOf,
+    });
+    expect(A.map([0, 1, 2], (face) => O.getOrNull(HashMap.get(tapers, face)))).toEqual(["lit-floor", null, null]);
+    // the first plan, the lit step, the lit floor, then the settled view: one round of steps
+    expect(A.length(calls)).toBe(4);
+  });
+});
+
+describe("faint ramp", () => {
+  // exposures an orthographic view gives a face under the 1.84(m) light: square-on, and turned 30° off square about
+  // the sheet vertical toward the light (FACING)
+  const SQUARE_ON = 1 / Math.sqrt(3);
+  const FACING = (Math.sqrt(3) + 1) / (2 * Math.sqrt(3));
+  const gradedPlan = plan({ style: "graded", axis: "surface-class" });
+  // an 80 × 40 wall facing -Y: under the light recipe its band is five lines, under the faint one four
+  const wide = (turn: number) => {
+    const along: Vec3 = [Math.cos((turn * Math.PI) / 180), -Math.sin((turn * Math.PI) / 180), 0];
+    const at = (x: number, z: number): Vec3 => [along[0] * x, along[1] * x, z];
+    return quad(
+      [-Math.sin((turn * Math.PI) / 180), -Math.cos((turn * Math.PI) / 180), 0],
+      [at(-40, 0), at(40, 0), at(40, 40), at(-40, 40)]
+    );
+  };
+  // the front view with its light turned to meet the square-on wall at `exposure`, still from the upper left
+  const litAt = (exposure: number) => {
+    const k = Math.sqrt((1 - exposure * exposure) / 2);
+    return ViewFacts.make({ eye: front.eye, right: front.right, up: front.up, light: [-k, -exposure, k] });
+  };
+  const cutsOf = (face: FaceFacts, view: ViewFacts) =>
+    O.getOrElse(
+      O.map(linesOf(treatmentFor({ face, view, plan: gradedPlan })), (lines) =>
+        A.map(lines.cuts, (cut) => [Math.round(cut.offset * 1e9) / 1e9, Math.round(cut.extent * 1e9) / 1e9] as const)
+      ),
+      () => A.empty()
+    );
+  // every stroke of the wall's band runs across its 40 height, so its ink in chord lengths is the sum of the extents
+  const inkOf = (cuts: ReadonlyArray<readonly [number, number]>) =>
+    A.reduce(cuts, 0, (sum, [, extent]) => sum + extent);
+
+  it("bands a wall alike in any two default views that light it within 0.01 of each other", () => {
+    // Upright walls turned 0.1° at a time through each default camera set (the pictorials at the original perspective
+    // eye, as isometrics at 45° and as isometrics at 90°, each with the elevations and plans). The 1.84(m) light is
+    // each view's own, so one wall is lit differently from view to view; but whenever two views facing it light it
+    // within 0.01 of each other, their bands differ by at most one stroke (in line count, and in ink by at most one
+    // chord length) and sit at the same model edge of the wall: no hard edge of a recipe, nor of the side a band takes
+    // (`anchorOf`, including its switch to the sheet's lower right for a wall lit edge-on to its lines), may split two
+    // views lit alike (review loop 3, K-07). With the recipe's single edge at 0.6, five walls of the perspective set
+    // broke this. The wall is 400 wide, so every view's band is held to its tone's line count, never to its span on
+    // the sheet.
+    const box = BoundingBox.make({ min: [-40, -30, 0], max: [40, 30, 46] });
+    const cameraSets = [
+      {},
+      { projection: "isometric" as const },
+      { projection: "isometric" as const, azimuthDeg: O.some(90) },
+    ];
+    const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const uprightWall = (deg: number) => {
+      const turn = (deg * Math.PI) / 180;
+      const along: Vec3 = [-Math.sin(turn), Math.cos(turn), 0];
+      const at = (x: number, z: number): Vec3 => [along[0] * x, along[1] * x, z];
+      return quad([Math.cos(turn), Math.sin(turn), 0], [at(-200, 0), at(200, 0), at(200, 40), at(-200, 40)]);
+    };
+    const pairs = A.flatMap(cameraSets, (set) => {
+      const views = A.map(ViewName.literals, (view) => viewFactsOf(cameraForView({ view, box, ...set })));
+      return A.flatMap(
+        A.makeBy(3600, (i) => i / 10),
+        (deg) => {
+          const face = uprightWall(deg);
+          const banded = pipe(
+            views,
+            A.filter((view) => dot(face.normal, view.eye) > 1e-9),
+            A.map((view) =>
+              O.map(linesOf(treatmentFor({ face, view, plan: gradedPlan })), (lines) => ({
+                exposure: dot(face.normal, view.light),
+                extents: A.map(lines.cuts, (cut) => cut.extent),
+                // the anchor's step points from the band's model edge into the wall
+                step: lines.step,
+              }))
+            ),
+            A.getSomes
+          );
+          return A.flatMap(banded, (p, i) =>
+            pipe(
+              A.drop(banded, i + 1),
+              A.filter((q) => Math.abs(p.exposure - q.exposure) < 0.01),
+              A.map((q) => ({ deg, p, q }))
+            )
+          );
+        }
+      );
+    });
+    const ink = (extents: ReadonlyArray<number>) => A.reduce(extents, 0, (sum, extent) => sum + extent);
+    // the sweep does meet views that light a wall alike
+    expect(A.length(pairs)).toBeGreaterThan(100);
+    const unlike = A.filter(
+      pairs,
+      ({ p, q }) =>
+        Math.abs(A.length(p.extents) - A.length(q.extents)) > 1 ||
+        Math.abs(ink(p.extents) - ink(q.extents)) > 1 ||
+        dot(p.step, q.step) <= 0
+    );
+    expect(A.map(unlike, ({ deg }) => deg)).toEqual([]);
+  });
+
+  it("turns the light recipe into the faint one between exposures 0.6 and 0.7", () => {
+    expect(A.map([0.2, SQUARE_ON, 0.6, 0.7, FACING, 1], faintShareOf)).toEqual([0, 0, 0, 1, 1, 1]);
+    expect(faintShareOf(0.65)).toBeCloseTo(0.5, 12);
+    // the ramp's ends are the light and faint recipes exactly
+    const offsets = (tone: ShadingTone, faintShare?: number) =>
+      gradedOffsets({
+        span: 40,
+        minPitch: 1,
+        maxPitch: 2.5,
+        tone,
+        ...(faintShare === undefined ? {} : { faintShare }),
+      });
+    expect(offsets("faint", 0)).toEqual(offsets("light"));
+    expect(offsets("faint", 1)).toEqual(offsets("faint"));
+    expect(offsets("light", 0)).toEqual(offsets("light"));
+    expect(A.map([0, 0.5, 1], (share) => offsets("faint", share).length)).toEqual([5, 4, 3]);
+    expect(gradedExtents({ count: 5, faintShare: 0 })).toEqual(gradedExtents({ count: 5 }));
+    expect(gradedExtents({ count: 4, faintShare: 1 })).toEqual(gradedExtents({ count: 4, fullLines: 0 }));
+    expect(A.map(gradedExtents({ count: 4, faintShare: 0.5 }), (e) => Math.round(e * 100) / 100)).toEqual([
+      0.8, 0.77, 0.53, 0.4,
+    ]);
+    // a band already cut back to the lit taper has no full-length line anywhere on the ramp
+    expect(gradedExtents({ count: 3, fullLines: 0, faintShare: 0.3 })).toEqual(
+      A.map(gradedExtents({ count: 3, fullLines: 0 }), (e) => expect.closeTo(e, 12))
+    );
+  });
+
+  it("keeps the light and faint bands at the ramp's ends and never drops a third of a band to a small change of exposure", () => {
+    const square = wide(0);
+    const light = cutsOf(square, litAt(0.59));
+    const faint = cutsOf(square, litAt(0.75));
+    expect(A.map(light, ([, extent]) => extent)).toEqual([1, 1, 0.6, 0.5, 0.4]);
+    expect(A.map(faint, ([, extent]) => Math.round(extent * 100) / 100)).toEqual([0.6, 0.53, 0.47, 0.4]);
+    expect(cutsOf(square, litAt(0.6))).toEqual(light);
+    expect(cutsOf(square, litAt(0.7))).toEqual(faint);
+    // across the ramp the band thins step by step: no 0.006 rise of exposure takes more than one short stroke's
+    // ink or more than one line, where the cliff at 0.6 took 1.5 of the band's 3.5 chord lengths at once
+    const exposures = A.makeBy(201, (i) => 0.55 + i * 0.001);
+    const bands = A.map(exposures, (exposure) => cutsOf(square, litAt(exposure)));
+    const pairs = A.zip(bands, A.drop(bands, 6));
+    A.forEach(pairs, ([before, after]) => {
+      expect(inkOf(before) - inkOf(after)).toBeLessThanOrEqual(0.6);
+      expect(A.length(before) - A.length(after)).toBeLessThanOrEqual(1);
+    });
+    // and the ink only ever falls as the face turns toward the light
+    A.forEach(A.zip(bands, A.drop(bands, 1)), ([before, after]) =>
+      expect(inkOf(after)).toBeLessThanOrEqual(inkOf(before) + 1e-9)
+    );
+  });
+
+  it("draws a wall turned 2.0° and 2.6° toward the light almost alike", () => {
+    // in the front view these turns put the wall at exposures either side of 0.6 (0.597 and 0.603)
+    const turned = (deg: number) => {
+      const face = wide(deg);
+      const [nx, ny, nz] = face.normal;
+      const [lx, ly, lz] = front.light;
+      return { exposure: nx * lx + ny * ly + nz * lz, cuts: cutsOf(face, front) };
+    };
+    const nearer = turned(2);
+    const further = turned(2.6);
+    expect(nearer.exposure).toBeLessThan(0.6);
+    expect(further.exposure).toBeGreaterThan(0.6);
+    expect(A.length(further.cuts)).toBe(A.length(nearer.cuts));
+    expect(inkOf(further.cuts)).toBeGreaterThan(0.95 * inkOf(nearer.cuts));
+  });
+});
+
+describe("band gutter beside a ladder of outlines", () => {
+  // Synthetic sheet geometry in mm at a 1.5 mm pitch: a band's first stroke runs up x = 0 over 30, its edge is the
+  // outline 1.5 to its right, and a wall's two lines stand 1.8 and 3 beyond that edge (review loop 3, O-04).
+  const stroke: Segment2 = [0, 0, 0, 30];
+  const edge: Segment2 = [1.5, 0, 1.5, 30];
+  const wallLines: ReadonlyArray<Segment2> = [
+    [3.3, 0, 3.3, 30],
+    [4.5, 0, 4.5, 30],
+  ];
+  const pitchBeside = (outlines: ReadonlyArray<Segment2>, line: Segment2 = stroke) =>
+    O.map(ladderPitch({ stroke: line, edge, outlines, reach: 2.5, tolerance: 0.15 }), (p) => Math.round(p * 1e9) / 1e9);
+
+  it("starts a band at its lead and keeps the band's rhythm after it", () => {
+    const plain = gradedOffsets({ span: 30, minPitch: 1.5, maxPitch: 6, tone: "dark" });
+    const led = gradedOffsets({ span: 30, minPitch: 1.5, maxPitch: 6, tone: "dark", lead: 3.15 });
+    const rounded = (offsets: ReadonlyArray<number>) => A.map(offsets, (o) => Math.round(o * 1e9) / 1e9);
+    // without a lead the first line sits one pitch in, then 1.4 pitches on, then 1.96
+    expect(rounded(plain)).toEqual([1.5, 3.6, 6.54]);
+    // with one the first line sits at the lead and the next gap is still 1.4 pitches (2.1, not 1.5 x 1.4 squared)
+    expect(rounded(led)).toEqual([3.15, 5.25, 8.19]);
+    // a lead of one pitch, or under it, changes nothing
+    expect(gradedOffsets({ span: 30, minPitch: 1.5, maxPitch: 6, tone: "dark", lead: 1.5 })).toEqual(plain);
+    expect(gradedOffsets({ span: 30, minPitch: 1.5, maxPitch: 6, tone: "dark", lead: 0.5 })).toEqual(plain);
+  });
+
+  it("sets the gutter at 1.5 times the band's first gap or the spacing beyond its edge, whichever is wider", () => {
+    expect(bandLead({ minPitch: 1.5, groupPitch: O.some(1.8) })).toBeCloseTo(3.15, 9);
+    expect(bandLead({ minPitch: 1.5, groupPitch: O.some(2.4) })).toBeCloseTo(3.6, 9);
+    expect(bandLead({ minPitch: 1.5, groupPitch: O.none() })).toBe(1.5);
+  });
+
+  it("plans a stretch's band from the window's lead", () => {
+    const gradedPlan = plan({ style: "graded", axis: "surface-class" });
+    const offsets = (window: ShadingWindow) =>
+      O.map(linesOf(treatmentFor({ face: wall, view: front, plan: gradedPlan, window })), (l) =>
+        A.map(A.take(l.cuts, 3), (c) => Math.round((c.offset - 12) * 1e9) / 1e9)
+      );
+    assertSome(offsets(ShadingWindow.make({ start: 12, span: 28 })), [1, 2.4, 4.36]);
+    assertSome(offsets(ShadingWindow.make({ start: 12, span: 28, lead: O.some(2.1) })), [2.1, 3.5, 5.46]);
+  });
+
+  it("reads a ladder where drawn lines run beside the band's edge just beyond it", () => {
+    assertSome(pitchBeside([edge, ...wallLines]), 1.8);
+    // an edge drawn in pieces, and drawn twice, is still one edge
+    assertSome(pitchBeside([[1.5, 0, 1.5, 12], [1.5, 12, 1.5, 30], edge, ...wallLines]), 1.8);
+    // the stroke may run either way
+    assertSome(pitchBeside([edge, ...wallLines], [0, 30, 0, 0]), 1.8);
+    // past the reach nothing reads as a ladder, and lines on the band's own side never do
+    assertNone(pitchBeside([edge, [4.5, 0, 4.5, 30]]));
+    assertNone(pitchBeside([edge, [-1, 0, -1, 30]]));
+    // an edge with nothing beyond it is no ladder
+    assertNone(pitchBeside([edge]));
+  });
+
+  it("reads no ladder where the outline beyond the edge only steps out around a tab", () => {
+    // the edge is drawn below and above a tab 4 tall, whose end stands 1.8 beyond it: within the reach, and beside
+    // the stroke for 4 of its 30, but in the edge's gap, never beside the edge
+    const tab: ReadonlyArray<Segment2> = [
+      [1.5, 0, 1.5, 13],
+      [1.5, 13, 3.3, 13],
+      [3.3, 13, 3.3, 17],
+      [3.3, 17, 1.5, 17],
+      [1.5, 17, 1.5, 30],
+    ];
+    assertNone(pitchBeside(tab));
+    // a wall beside only a quarter of the edge is not a ladder either
+    assertNone(pitchBeside([edge, [3.3, 0, 3.3, 7.5], [4.5, 0, 4.5, 7.5]]));
+    // half the stroke is enough
+    assertSome(pitchBeside([edge, [3.3, 0, 3.3, 15], [4.5, 0, 4.5, 15]]), 1.8);
+  });
+
+  it("reads a band's edge as the nearest line on one side that runs beside half the stroke", () => {
+    const covering = (side: number, outlines: ReadonlyArray<Segment2>) =>
+      coveringOutlineDistance({ stroke, side, outlines, within: 3.5, tolerance: 0.15 });
+    // the stroke runs up, so its right is +x: a short tick nearer than the edge is passed over
+    assertSome(
+      covering(-1, [
+        [0.8, 0, 0.8, 5],
+        [1.5, 0, 1.5, 12],
+        [1.5, 12, 1.5, 30],
+        [-3, 0, -3, 30],
+      ]),
+      1.5
+    );
+    assertSome(
+      covering(1, [
+        [1.5, 0, 1.5, 30],
+        [-3, 0, -3, 30],
+      ]),
+      3
+    );
+    assertNone(
+      covering(1, [
+        [1.5, 0, 1.5, 30],
+        [-4, 0, -4, 30],
+      ])
+    );
+  });
+});
+
+describe("shadingBandLadderFindings", () => {
+  const options = ValidationOptions.make({ expectedPages: O.none() });
+  // a wall's two lines 1.8 and 3 beyond a band's edge at x = 1.5, over the band's 30 mm
+  const wallLines: ReadonlyArray<Segment2> = [
+    [1.5, 0, 1.5, 30],
+    [3.3, 0, 3.3, 30],
+    [4.5, 0, 4.5, 30],
+  ];
+  const vertical = (x: number): Segment2 => [x, 0, x, 30];
+  const codes = (shadingMm: ReadonlyArray<Segment2>, outlineMm: ReadonlyArray<Segment2> = wallLines) =>
+    A.map(shadingBandLadderFindings({ page: 4, shadingMm, outlineMm, options }), (f) => [f.code, f.page]);
+
+  it("flags a band whose first stroke, edge, and the lines beyond it read as one ladder", () => {
+    // a three-line band (gaps 2.1, then 2.94) whose first stroke sits 1.5 from the edge: under 1.4 x max(2.1, 1.8)
+    expect(codes([vertical(-5.04), vertical(-2.1), vertical(0)])).toEqual([["shading-band-ladder", O.some(4)]]);
+    // a gutter under 1.4 times is flagged however far it puts the stroke from its edge: 2.73 is past the lone-line
+    // offset (2.5 mm) and still under 2.94
+    expect(codes([vertical(-6.27), vertical(-3.33), vertical(-1.23)])).toEqual([["shading-band-ladder", O.some(4)]]);
+  });
+
+  it("passes a band behind its gutter, an edge with nothing beyond it, and an edge that steps out around a tab", () => {
+    // the renderer's gutter: 3.15 from the edge, at least 1.4 x max(2.1, 1.8)
+    expect(codes([vertical(-6.69), vertical(-3.75), vertical(-1.65)])).toEqual([]);
+    expect(codes([vertical(-5.04), vertical(-2.1), vertical(0)], [vertical(1.5)])).toEqual([]);
+    const tab: ReadonlyArray<Segment2> = [
+      [1.5, 0, 1.5, 13],
+      [1.5, 13, 3.3, 13],
+      [3.3, 13, 3.3, 17],
+      [3.3, 17, 1.5, 17],
+      [1.5, 17, 1.5, 30],
+    ];
+    expect(codes([vertical(-5.04), vertical(-2.1), vertical(0)], tab)).toEqual([]);
+  });
+
+  it("reads only a band's shadow-edge stroke: never one with companions on both sides, nor the band's lit-side end", () => {
+    // a stroke with companions on both sides is inside a band, or between two
+    expect(codes([vertical(-2.1), vertical(0), vertical(5.5)])).toEqual([]);
+    // the lit-side end of a band, whose last gap (2.94) is wider than its neighbour's (2.1), is not read as an edge
+    // stroke, though the outlines beyond it would make a ladder
+    const mirrored = A.map(wallLines, ([x1, y1, x2, y2]): Segment2 => [-6.54 - x1, y1, -6.54 - x2, y2]);
+    expect(codes([vertical(0), vertical(-2.1), vertical(-5.04)], mirrored)).toEqual([]);
+  });
+
+  it("does not read a band of two strokes, whose shadow-edge end cannot be told from its lit-side end", () => {
+    // a two-line band (0 and 2.1) with its lit side's outline 1.4 beyond the stroke at 2.1 and a line 1.8 beyond that:
+    // read from that end it is a ladder, but the renderer's gutter moves only a band's shadow-side line, so a finding
+    // here could never be cleared
+    expect(codes([vertical(0), vertical(2.1)], [vertical(3.5), vertical(5.3)])).toEqual([]);
+    // beside a three-line band's lit-side end the same lines pass too: that end's wider last gap (2.94) marks it
+    expect(codes([vertical(-2.94), vertical(-0.84), vertical(2.1)], [vertical(3.5), vertical(5.3)])).toEqual([]);
+    // while a three-line band whose smallest gap is at that end has its shadow edge there, and is read
+    expect(codes([vertical(-2.94), vertical(0), vertical(2.1)], [vertical(3.5), vertical(5.3)])).toEqual([
+      ["shading-band-ladder", O.some(4)],
+    ]);
   });
 });
 

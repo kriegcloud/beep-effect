@@ -202,6 +202,7 @@ const FindingCodeBase = LiteralKit([
   "shading-lost-stretch",
   "shading-outline-clearance",
   "shading-lone-line",
+  "shading-band-ladder",
   "label-missing",
   "font-unexpected",
 ]);
@@ -359,6 +360,20 @@ export class ValidationOptions extends S.Opaque<ValidationOptions, { readonly br
       S.annotateKey({
         description:
           "How far, in mm, a companion stroke may sit from a stroke that runs beside an outline. Defaults to 6.",
+      })
+    ),
+    ladderReachMm: S.Finite.check(S.isGreaterThan(0)).pipe(
+      S.withConstructorDefault(Effect.succeed(2.5)),
+      S.annotateKey({
+        description:
+          "How far, in mm, beyond a shading band's edge a drawn line running alongside that edge makes the band and the lines read as one ladder. The renderer starts such a band behind a gutter. Defaults to 2.5.",
+      })
+    ),
+    ladderGutterRatio: S.Finite.check(S.isGreaterThan(0)).pipe(
+      S.withConstructorDefault(Effect.succeed(1.4)),
+      S.annotateKey({
+        description:
+          "Least ratio of a band's gap to its edge (from its first stroke) to the larger of the band's first gap and the spacing of the lines beyond its edge; a smaller gutter lets band and lines read as one ladder. Defaults to 1.4, a margin under the renderer's 1.5 for perspective views.",
       })
     ),
     textLabels: S.Array(SheetLabel).pipe(

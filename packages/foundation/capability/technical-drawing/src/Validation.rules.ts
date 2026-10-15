@@ -20,8 +20,9 @@
 
 import { A, O, Str } from "@beep/utils";
 import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as Regex from "effect/RegExp";
-import { nearestOutlineDistance, sideBySideGap } from "./Shading.rules.ts";
+import { coveringOutlineDistance, ladderPitch, nearestOutlineDistance, sideBySideGap } from "./Shading.rules.ts";
 import { MARGINS_CM, pageSizePt } from "./Sheet.schemas.ts";
 import { SheetFinding, SheetLabel } from "./Validation.schemas.ts";
 import type { Segment2, ShadingCoverage } from "./Geometry.schemas.ts";
@@ -500,6 +501,169 @@ export const shadingLoneLineFindings = (input: {
           "shading-lone-line",
           input.page,
           `${A.length(lone)} shading stroke(s) run alone within ${offset} mm of a parallel outline with no companion within ${companion} mm; they read as doubled edges.`
+        ),
+      ]
+    : [];
+};
+
+// Drawn lines within this distance of each other on the sheet, in mm, are one line for the ladder check: an outline
+// drawn in pieces, or drawn twice (an emphasis line over a visible edge).
+const LADDER_TOLERANCE_MM = 0.15;
+
+const strokeLength = ([x1, y1, x2, y2]: Segment2): number => Math.hypot(x2 - x1, y2 - y1);
+
+// The side of a stroke the middle of another segment lies on: 1 for the stroke's left, seen from its first point, -1
+// for its right, 0 on its line.
+const sideOf = (stroke: Segment2, other: Segment2): number =>
+  Math.sign(
+    (stroke[2] - stroke[0]) * ((other[1] + other[3]) / 2 - stroke[1]) -
+      (stroke[3] - stroke[1]) * ((other[0] + other[2]) / 2 - stroke[0])
+  );
+
+// A stroke moved `distance` to its left (to its right when negative).
+const shifted = (stroke: Segment2, distance: number): Segment2 => {
+  const length = strokeLength(stroke);
+  const nx = (-(stroke[3] - stroke[1]) / length) * distance;
+  const ny = ((stroke[2] - stroke[0]) / length) * distance;
+  return [stroke[0] + nx, stroke[1] + ny, stroke[2] + nx, stroke[3] + ny];
+};
+
+/**
+ * Findings for a shading band whose first stroke, its edge, and the drawn
+ * lines just beyond that edge read as one evenly spaced ladder.
+ *
+ * **Details**
+ *
+ * A band's shadow-edge stroke is a stroke whose companions (other strokes
+ * within `loneLineCompanionMm`, beside half its length) all lie on one side
+ * of it, and whose gap to the nearest of them is the band's smallest: the
+ * band's last stroke on its lit side has a wider gap than its neighbour's,
+ * and its side has no remedy, so it is not read as an edge stroke. A band of
+ * two strokes, each the other's only companion, is not read at all: its two
+ * gaps are one gap, so which end sits at the shadow edge cannot be told from
+ * the strokes, and a ladder beyond its lit-side end is one the renderer,
+ * which moves only the shadow-side line, could never clear. The renderer's
+ * own gutter covers such a band's shadow side. The edge is the nearest drawn
+ * line on the stroke's other side that runs beside half the stroke. The
+ * stroke is flagged when another drawn line lies within
+ * `ladderReachMm` beyond that edge, running beside the edge for half the
+ * stroke (an outline that steps out around a tab and back does not), and the
+ * stroke sits nearer its edge than `ladderGutterRatio` times the larger of
+ * the band's first gap and the spacing from the edge to that line, however
+ * far the edge is (review loop 3, O-04).
+ *
+ * **Example** (A three-line band 1.5 mm inside a flap edge with a wall's two lines beyond it)
+ *
+ * ```ts
+ * import { Segment2, ValidationOptions } from "@beep/technical-drawing"
+ * import { shadingBandLadderFindings } from "@beep/technical-drawing/Validation.rules"
+ * import * as O from "effect/Option"
+ *
+ * const options = ValidationOptions.make({ expectedPages: O.none() })
+ * const shadingMm = [
+ *   Segment2.make([-5.04, 0, -5.04, 30]),
+ *   Segment2.make([-2.1, 0, -2.1, 30]),
+ *   Segment2.make([0, 0, 0, 30])
+ * ]
+ * const outlineMm = [
+ *   Segment2.make([1.5, 0, 1.5, 30]),
+ *   Segment2.make([3.3, 0, 3.3, 30]),
+ *   Segment2.make([4.5, 0, 4.5, 30])
+ * ]
+ * console.log(shadingBandLadderFindings({ page: 4, shadingMm, outlineMm, options }).length) // 1
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const shadingBandLadderFindings = (input: {
+  readonly page: number;
+  readonly shadingMm: ReadonlyArray<Segment2>;
+  readonly outlineMm: ReadonlyArray<Segment2>;
+  readonly options: ValidationOptions;
+}): ReadonlyArray<SheetFinding> => {
+  const {
+    loneLineCompanionMm: companion,
+    minShadingSpacingMm: minSpacing,
+    ladderReachMm: reach,
+    ladderGutterRatio: ratio,
+  } = input.options;
+  // each stroke's companions: the other strokes beside half its length within the companion distance, with their gap
+  // and the side they lie on
+  type Companion = { readonly gap: number; readonly side: number; readonly index: number };
+  const strokes = A.map(input.shadingMm, (stroke, index) => ({
+    stroke,
+    companions: pipe(
+      input.shadingMm,
+      A.map(
+        (other, j): O.Option<Companion> =>
+          j === index
+            ? O.none()
+            : O.map(
+                sideBySideGap({
+                  first: stroke,
+                  second: other,
+                  minSpacing,
+                  maxGap: companion,
+                  minOverlap: strokeLength(stroke) / 2,
+                }),
+                (gap) => ({ gap, side: sideOf(stroke, other), index: j })
+              )
+      ),
+      A.getSomes
+    ),
+  }));
+  const nearestGap = (companions: ReadonlyArray<{ readonly gap: number }>): number =>
+    A.reduce(companions, Number.POSITIVE_INFINITY, (least, c) => Math.min(least, c.gap));
+  const companionsOf = (index: number): ReadonlyArray<Companion> =>
+    O.match(A.get(strokes, index), { onNone: A.empty<Companion>, onSome: (s) => s.companions });
+  const gapOf = (index: number): number => nearestGap(companionsOf(index));
+  // a band of two strokes, each the other's only companion: either end may be the one at the shadow edge
+  const isPair = (index: number, companions: ReadonlyArray<Companion>): boolean =>
+    A.length(companions) === 1 &&
+    A.every(companions, (c) => A.every(companionsOf(c.index), (back) => back.index === index));
+  const ladders = A.filter(strokes, ({ stroke, companions }, index) => {
+    if (!A.isReadonlyArrayNonEmpty(companions) || isPair(index, companions)) {
+      return false;
+    }
+    const bandGap = nearestGap(companions);
+    const isEdgeStroke =
+      HashSet.size(HashSet.fromIterable(A.map(companions, (c) => c.side))) === 1 &&
+      A.every(companions, (c) => gapOf(c.index) >= bandGap - LADDER_TOLERANCE_MM);
+    if (!isEdgeStroke) {
+      return false;
+    }
+    // the band's edge lies on the side away from its companions
+    const side = -A.headNonEmpty(companions).side;
+    return pipe(
+      coveringOutlineDistance({
+        stroke,
+        side,
+        outlines: input.outlineMm,
+        within: ratio * Math.max(bandGap, reach),
+        tolerance: LADDER_TOLERANCE_MM,
+      }),
+      O.flatMap((edge) =>
+        pipe(
+          ladderPitch({
+            stroke,
+            edge: shifted(stroke, side * edge),
+            outlines: input.outlineMm,
+            reach,
+            tolerance: LADDER_TOLERANCE_MM,
+          }),
+          O.map((spacing) => edge < ratio * Math.max(bandGap, spacing))
+        )
+      ),
+      O.getOrElse(() => false)
+    );
+  });
+  return A.isReadonlyArrayNonEmpty(ladders)
+    ? [
+        pageFinding(
+          "shading-band-ladder",
+          input.page,
+          `${A.length(ladders)} band edge stroke(s) sit closer to their edge than ${ratio}x the band's first gap or the spacing of the drawn lines within ${reach} mm beyond that edge; band and lines read as one ladder.`
         ),
       ]
     : [];

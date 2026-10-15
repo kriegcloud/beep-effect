@@ -4,13 +4,21 @@ import {
   Cylinder,
   ModelSpec,
   Occt,
+  OverlayLine,
   Part,
   Prism,
   ProjectionRequest,
   Rotation,
   ShadingPlan,
 } from "@beep/occt";
-import { ShadingCoverage, ShadingSkip } from "@beep/technical-drawing";
+import {
+  ShadingCoverage,
+  ShadingSkip,
+  shadingBandLadderFindings,
+  toneOf,
+  ValidationOptions,
+  viewFactsOf,
+} from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -84,6 +92,7 @@ const graded = (fields?: {
   readonly minFaceSpan?: number;
   readonly minStroke?: number;
   readonly clearance?: number | undefined;
+  readonly ladderReach?: number | undefined;
 }) =>
   ShadingPlan.make({
     minPitch: 1,
@@ -94,7 +103,23 @@ const graded = (fields?: {
     minFaceSpan: fields?.minFaceSpan ?? 0,
     minStroke: fields?.minStroke ?? 0,
     clearance: O.fromNullishOr(fields?.clearance),
+    ladderReach: O.fromNullishOr(fields?.ladderReach),
   });
+
+// The validator's ladder check on a view drawn at 1.5 mm a model unit, reading every line the sheet draws.
+const ladderFindings = (view: EdgeSet | undefined) => {
+  const mm = (segments: ReadonlyArray<Segment>) =>
+    A.map(segments, ([x1, y1, x2, y2]): Segment => [x1 * 1.5, y1 * 1.5, x2 * 1.5, y2 * 1.5]);
+  return A.map(
+    shadingBandLadderFindings({
+      page: 1,
+      shadingMm: mm(view?.shading ?? []),
+      outlineMm: mm([...(view?.visible ?? []), ...(view?.broken ?? []), ...(view?.emphasis ?? [])]),
+      options: ValidationOptions.make({ expectedPages: O.none() }),
+    }),
+    (finding) => finding.code
+  );
+};
 
 const isVertical = ([x1, , x2]: Segment) => Math.abs(x1 - x2) < 1e-6;
 const isHorizontal = ([, y1, , y2]: Segment) => Math.abs(y1 - y2) < 1e-6;
@@ -388,7 +413,128 @@ describe("@beep/occt shading", () => {
             ([x1, y1, x2, y2]) => (inCell(x1, y1) && !inRing(x2, y2)) || (inCell(x2, y2) && !inRing(x1, y1))
           )
         ).toBe(false);
-        // the ring's own 2 mm top face shows only short chords: a sliver, bare by design and never counted lost
+        // the ring's own 2 mm top face shows only short chords: a sliver, bare by design and never counted lost.
+        // Its rules give it lines, but its every stretch lacks room for two legible strokes, so the coverage counts
+        // it a sliver: only the plate's top is a shaded face (review loop 3, J-01)
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(
+              v.shadingCoverage,
+              (c) =>
+                [
+                  c.shadedFaces,
+                  O.getOrElse(
+                    O.map(
+                      A.findFirst(c.skippedFaces, (skip) => skip.reason === "sliver"),
+                      (skip) => skip.faces
+                    ),
+                    () => 0
+                  ),
+                  c.lostFaces,
+                  c.lostStretches,
+                ] as const
+            )
+          ),
+          [1, 1, 0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
+      "draws a lit band glimpsed through one probe row untapered instead of leaving it bare",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A wall 12 wide and 90 tall (front face x = 0, outward normal -x) seen from below on the left, behind
+        // a block that hides all of it but a strip about 8 tall at its foot. Of the nine probe rows (cells 10
+        // tall), only the lowest sees the strip, so each stroke of the band is clipped to that one cell. Lit
+        // (faint), the band tapered to 0.6 and 0.4 of the cell, which left its second stroke under the legible
+        // length (minimum stroke plus a pitch at each end, 3.5 here): the kernel called the stretch a sliver and
+        // the wall drew nothing (review loop 3, J-01). The taper may shorten a band but never empty it, so the
+        // band is drawn as whole clipped chords and hidden-line removal cuts them to the strip.
+        const root = Math.sqrt(2 / 3);
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [0, -6, 0], max: [2, 6, 90] })] });
+        const shadeWall = Effect.fnUntraced(function* (eye: readonly [number, number, number], blockBottom: number) {
+          const camera = Camera.make({ eye: [...eye], up: [0, 0, 1] });
+          const block = Part.make({
+            name: "block",
+            add: [Box.make({ min: [-30, -200, blockBottom], max: [-20, 200, 200] })],
+          });
+          const [view] = yield* occt.project(
+            ProjectionRequest.make({
+              solid: ModelSpec.make({ parts: [wall, block] }),
+              cameras: [camera],
+              shading: O.some(graded({ minStroke: 1.5 })),
+            })
+          );
+          return {
+            // the exposure of the wall's front face, whose outward normal is -x
+            tone: toneOf(-viewFactsOf(camera).light[0]),
+            // the wall's front face spans |x| < 6 on the sheet; the block's strokes lie far outside it
+            strokes: A.filter(view?.shading ?? [], (s) => isVertical(s) && Math.abs(s[0]) < 6),
+            lost: O.flatMap(O.fromNullishOr(view), (v) =>
+              O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+            ),
+          };
+        });
+        const lit = yield* shadeWall([-root, 0, -1 / Math.sqrt(3)], -6);
+        expect(lit.tone).toBe("faint");
+        expect(A.length(lit.strokes)).toBeGreaterThanOrEqual(2);
+        assertSome(lit.lost, [0, 0] as const);
+        // control: turned from the light (medium), the same one-row strip keeps full-length strokes and always drew
+        const dim = yield* shadeWall([-root / 2, (root * Math.sqrt(3)) / 2, -1 / Math.sqrt(3)], -20.3);
+        expect(dim.tone).toBe("medium");
+        expect(A.length(dim.strokes)).toBeGreaterThanOrEqual(2);
+        assertSome(dim.lost, [0, 0] as const);
+      })
+    );
+
+    it.effect(
+      "re-plans a lit band past a one-row tip of its area before drawing it untapered",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // The wall and view above, behind a wedge whose bottom rises across the wall: the visible area is about
+        // 8 tall at the wall's shadow edge (sheet x = 6) and about 22 at its far edge (sheet x = -6). Only the
+        // lowest probe row sees the area's first 6 along the step; the next row joins there. Planned at the shadow
+        // edge, the lit band has no room once tapered. Rather than drawing it untapered in that one-row tip, the
+        // band is re-planned from the start of the next row, where its tapered strokes have room (review loop 3,
+        // J-01).
+        const root = Math.sqrt(2 / 3);
+        const bottom = (y: number) => -6 + 1.15 * (y + 6);
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [0, -6, 0], max: [2, 6, 90] })] });
+        const wedge = Part.make({
+          name: "wedge",
+          add: [
+            Prism.make({
+              profile: [
+                [-30, -20, bottom(-20)],
+                [-30, 20, bottom(20)],
+                [-30, 20, 200],
+                [-30, -20, 200],
+              ],
+              extrusion: [10, 0, 0],
+            }),
+          ],
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall, wedge] }),
+            cameras: [Camera.make({ eye: [-root, 0, -1 / Math.sqrt(3)], up: [0, 0, 1] })],
+            shading: O.some(graded({ minStroke: 1.5 })),
+          })
+        );
+        // the wall's strokes, nearest its shadow edge first
+        const strokes = pipe(
+          view?.shading ?? [],
+          A.filter((s) => isVertical(s) && Math.abs(s[0]) < 6),
+          A.sort(Order.mapInput(Order.Number, (s: Segment) => -s[0]))
+        );
+        expect(A.length(strokes)).toBeGreaterThanOrEqual(2);
+        // every stroke lies past the tip only the lowest row sees (within 5 of the shadow edge, a pitch's slack
+        // before the next row starts at 6)
+        expect(A.every(strokes, (s) => s[0] < 1)).toBe(true);
+        // and the band keeps its taper: the stroke nearest the shadow edge is the longer
+        const [first = 0, second = 0] = A.map(strokes, lengthOf);
+        expect(first).toBeGreaterThan(second);
         assertSome(
           O.flatMap(O.fromNullishOr(view), (v) =>
             O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
@@ -644,6 +790,394 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
+      "cuts a lit face's band back to the lit taper where it would out-ink the darker face across its ridge",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A block 30 by 30 whose top falls from 60 at x = 0 to 20 at x = 30, seen in the standard isometric (the top
+        // turns away). Its left face (x = 0, lit at about 0.51) and its front face (y = 0, dark at about -0.31) meet
+        // at the ridge x = y = 0, sheet x = 0. Both bands sit at the sheet-right of their faces: the lit face's on
+        // the 60-tall ridge, the dark face's on its 20-tall outer edge. Planned face by face, the lit band out-inked
+        // the dark one (0.12 against 0.08 of each face's area); a face turned toward the light must never carry
+        // more ink than a darker face it shares a visible edge with, so the lit band takes the lit taper (review
+        // loop 3, O-02).
+        const block = Part.make({
+          name: "block",
+          add: [
+            Prism.make({
+              profile: [
+                [0, 0, 0],
+                [30, 0, 0],
+                [30, 0, 20],
+                [0, 0, 60],
+              ],
+              extrusion: [0, 30, 0],
+            }),
+          ],
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [block] }),
+            cameras: [Camera.make({ eye: [-1, -1, 1], up: [0, 0, 1] })],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        const strokes = view?.shading ?? [];
+        expect(A.every(strokes, isVertical)).toBe(true);
+        const lit = A.filter(strokes, (s) => s[0] < 0);
+        const dark = A.filter(strokes, (s) => s[0] > 0);
+        // a model height shows on the sheet at 2/sqrt(6) of its length; each face's model width at sqrt(2) times
+        // its sheet x, and its visible area at 1/sqrt(3) of its model area
+        const upright = 2 / Math.sqrt(6);
+        const chordOfDark = (sheetX: number) => (60 - (40 * sheetX * Math.SQRT2) / 30) * upright;
+        // every lit stroke is a short one: at most 0.6 of the 60-tall chord
+        expect(A.length(lit)).toBeGreaterThanOrEqual(2);
+        expect(Math.max(...A.map(lit, lengthOf))).toBeLessThanOrEqual(0.6 * 60 * upright + 1e-6);
+        // the dark band keeps its full-length lines: its stroke nearest its shadow edge runs past 0.6 of its chord
+        const nearest = pipe(dark, A.sort(Order.mapInput(Order.flip(Order.Number), (s: Segment) => s[0])), A.head);
+        expect(O.exists(nearest, (s) => lengthOf(s) > 0.6 * chordOfDark(s[0]))).toBe(true);
+        // and the lit face now carries less ink for its area than the dark face
+        const densityOf = (face: ReadonlyArray<Segment>, modelArea: number) =>
+          sumOf(A.map(face, lengthOf)) / (modelArea / Math.sqrt(3));
+        expect(densityOf(lit, 30 * 60)).toBeLessThan(densityOf(dark, (30 * (60 + 20)) / 2));
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.shadedFaces, c.lostFaces, c.lostStretches] as const)
+          ),
+          [2, 0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
+      "keeps the full-length lines of an elevation wall square to the viewer beside a darker face",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A block 40 by 30 and 20 tall with a vertical chamfer at its front right corner, in the front elevation:
+        // the front wall (square-on, light at 1/sqrt(3)) shares its right edge, x = 15, with the darker chamfer
+        // (medium). The wall's band sits on that edge. The chamfer is narrow, so its own two-line band is far
+        // denser than the wall's, and the wall keeps its two full-length lines at the shadow edge.
+        const block = Part.make({
+          name: "block",
+          add: [
+            Prism.make({
+              profile: [
+                [-20, 0, 0],
+                [15, 0, 0],
+                [20, 5, 0],
+                [20, 30, 0],
+                [-20, 30, 0],
+              ],
+              extrusion: [0, 0, 20],
+            }),
+          ],
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [block] }),
+            cameras: [front],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        const strokes = view?.shading ?? [];
+        // the wall's strokes, nearest its shadow edge (x = 15) first
+        const wall = pipe(
+          strokes,
+          A.filter((s) => isVertical(s) && s[0] < 15),
+          A.sort(Order.mapInput(Order.flip(Order.Number), (s: Segment) => s[0]))
+        );
+        // both full lines run the wall's height less an inset of a pitch at each end
+        expect(A.map(A.take(wall, 2), (s) => Math.round(lengthOf(s) * 1e3) / 1e3)).toEqual([18, 18]);
+        expect(A.length(wall)).toBeGreaterThanOrEqual(3);
+        // the chamfer keeps its own band
+        expect(A.length(A.filter(strokes, (s) => s[0] > 15))).toBeGreaterThanOrEqual(2);
+      })
+    );
+
+    it.effect(
+      "compares the ink of two faces only across an edge the view shows",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // The ridge block of the test above with a post standing in front of its ridge, taller than the block: the post
+        // hides the whole ridge, and none of the post's own edges is drawn along the ridge's line. Less of the lit face
+        // shows and its band is the same, so it still carries more ink for its area than the dark face, but the two
+        // faces no longer share an edge the view shows: their bands are not compared, and the lit band keeps its
+        // full-length lines (review loop 3, O-02).
+        const block = Part.make({
+          name: "block",
+          add: [
+            Prism.make({
+              profile: [
+                [0, 0, 0],
+                [30, 0, 0],
+                [30, 0, 20],
+                [0, 0, 60],
+              ],
+              extrusion: [0, 30, 0],
+            }),
+          ],
+        });
+        const post = Part.make({ name: "post", add: [Box.make({ min: [-8, -10, 0], max: [-4, -6, 70] })] });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [block, post] }),
+            cameras: [Camera.make({ eye: [-1, -1, 1], up: [0, 0, 1] })],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        // the post covers the sheet from x = -2/sqrt(2) to 6/sqrt(2); the lit face's band starts at its left side
+        const lit = A.filter(view?.shading ?? [], (s) => isVertical(s) && s[0] < -Math.SQRT2);
+        expect(A.length(lit)).toBeGreaterThanOrEqual(2);
+        // a full-length line runs past 0.6 of the 60-tall chord (60 x 2/sqrt(6) on the sheet)
+        expect(Math.max(...A.map(lit, lengthOf))).toBeGreaterThan(0.6 * 60 * (2 / Math.sqrt(6)));
+      })
+    );
+
+    it.effect(
+      "compares two faces' ink over the area each covers on the sheet, however foreshortened",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A box 30 wide (x), 60 deep (y) and 40 tall seen from the front right, above: its front face (y = 0) is lit
+        // and turned almost square to the viewer, its right face (x = 30) dark and seen nearly edge-on. Over the area
+        // each face covers on the sheet, the dark face carries more ink than the lit one, so the lit band keeps its
+        // full-length lines. Over the faces' own areas, the dark face's foreshortening would hide most of its ink and
+        // the lit band would wrongly be cut back (review loop 3, O-02).
+        const eye = [0.3, -1, 0.4] as const;
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: box([0, 0, 0], [30, 60, 40]),
+            cameras: [Camera.make({ eye: [...eye], up: [0, 0, 1] })],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        // the sheet's x runs along (1, 0.3, 0): the front face spans sheet x 0 to 30/sqrt(1.09), the right face beyond
+        const frontRight = 30 / Math.hypot(1, 0.3);
+        const strokes = A.filter(view?.shading ?? [], isVertical);
+        const lit = A.filter(strokes, (s) => s[0] < frontRight);
+        expect(A.length(A.filter(strokes, (s) => s[0] > frontRight))).toBeGreaterThanOrEqual(2);
+        // the lit face's 40 height shows on the sheet foreshortened by the view's tilt; its two full-length lines run
+        // that chord less a pitch at each end
+        const chord = 40 * Math.sqrt(1 - (eye[2] * eye[2]) / (eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]));
+        expect(
+          pipe(
+            lit,
+            A.map(lengthOf),
+            A.filter((length) => length > 0.6 * chord),
+            A.map((length) => Math.round(length * 100) / 100)
+          )
+        ).toEqual(A.makeBy(2, () => Math.round((chord - 2) * 100) / 100));
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.shadedFaces, c.lostFaces, c.lostStretches] as const)
+          ),
+          [3, 0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
+      "starts a band behind a gutter where a wall's two lines run beside its edge just beyond it",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A wall 40 wide and 20 tall in the front elevation, its band on its right edge (x = 20), and a plate 0.8 thick
+        // standing 1.3 past that edge: the plate draws two lines beside the edge, 1.3 and 2.1 beyond it. A band
+        // starting one pitch in (x = 19, then 17.6) would read with the edge and the plate's lines as one evenly
+        // spaced ladder. The nearer line lies within the ladder reach (five thirds of a pitch on a bare plan) and runs
+        // beside the whole edge, so the band starts behind a gutter of 1.5 times its own first gap, 1.4 pitches: its
+        // first line 2.1 in, then 1.4 to the next (review loop 3, O-04).
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, 0, 0], max: [20, 10, 20] })] });
+        const plate = Part.make({ name: "plate", add: [Box.make({ min: [21.3, 0, 0], max: [22.1, 10, 20] })] });
+        const shadeFront = Effect.fnUntraced(function* (parts: ReadonlyArray<Part>, ladderReach?: number) {
+          const [view] = yield* occt.project(
+            ProjectionRequest.make({
+              solid: ModelSpec.make({ parts: [...parts] }),
+              cameras: [front],
+              shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3, ladderReach })),
+            })
+          );
+          return {
+            view,
+            // the wall's strokes, nearest its shadow edge first
+            wall: pipe(
+              view?.shading ?? [],
+              A.filter((s) => isVertical(s) && s[0] < 20),
+              A.sort(Order.mapInput(Order.flip(Order.Number), (s: Segment) => s[0]))
+            ),
+          };
+        });
+        const firstTwo = (strokes: ReadonlyArray<Segment>) =>
+          A.map(A.take(strokes, 2), (s) => Math.round(s[0] * 1e6) / 1e6);
+        const ladder = yield* shadeFront([wall, plate]);
+        expect(firstTwo(ladder.wall)).toEqual([17.9, 16.5]);
+        // the first line keeps its full length, and nothing planned is lost
+        expect(O.map(A.head(ladder.wall), (s) => Math.round(lengthOf(s) * 1e6) / 1e6)).toEqual(O.some(18));
+        assertSome(
+          O.flatMap(O.fromNullishOr(ladder.view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+          ),
+          [0, 0] as const
+        );
+        // control: without the plate the band starts one pitch in, as always
+        expect(firstTwo((yield* shadeFront([wall])).wall)).toEqual([19, 17.6]);
+        // the validator reads the ladder on the sheet. At 1.5 mm a pitch, the band planned without the gutter (a ladder
+        // reach too short to see the plate) is flagged, and the band behind its gutter passes.
+        expect(ladderFindings((yield* shadeFront([wall, plate], 0.01)).view)).toEqual(["shading-band-ladder"]);
+        expect(ladderFindings(ladder.view)).toEqual([]);
+      })
+    );
+
+    it.effect(
+      "keeps a narrow wall's band where a gutter would leave room for a single line",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // A wall only 4 wide (x = 16 to 20) beside the plate of the test above, 1.3 past the wall's right edge. Behind
+        // the gutter (2.1 in) the band's second line would sit 3.5 in, past the room a 4-wide band has (its last line
+        // a pitch inside the far edge, 3 in): one line, which the rules skip as `narrow`, so the wall drew nothing and
+        // no loss was counted. A gutter may move a band but never empty it, so the band keeps its two lines one pitch
+        // in (review loop 3, O-04).
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [16, 0, 0], max: [20, 10, 20] })] });
+        const plate = Part.make({ name: "plate", add: [Box.make({ min: [21.3, 0, 0], max: [22.1, 10, 20] })] });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall, plate] }),
+            cameras: [front],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        const strokes = pipe(
+          view?.shading ?? [],
+          A.filter((s) => isVertical(s) && s[0] < 20),
+          A.map((s) => Math.round(s[0] * 1e6) / 1e6),
+          A.sort(Order.flip(Order.Number))
+        );
+        expect(strokes).toEqual([19, 17.6]);
+        // the wall counts as shaded (the plate's 0.8 face is a sliver), and nothing planned is lost
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.shadedFaces, c.lostFaces, c.lostStretches] as const)
+          ),
+          [1, 0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
+      "reads the lines beyond a band's edge beside the stroke the sheet draws",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // The wall of the gutter test with the plate cut to 9.9 tall at the middle of the wall's height (z = 5.05 to
+        // 14.95). The band's first line is planned 20 long and drawn 18, a pitch shorter at each end, and the plate's
+        // near line runs beside it for 9.9: under half the planned stroke, over half the drawn one. Read beside the
+        // planned stroke, the kernel saw no ladder and left the band one pitch in, while the validator, reading the
+        // drawn stroke, flagged the render. The kernel reads beside the drawn stroke too, so the band starts behind
+        // its gutter and the render passes its own check (review loop 3, O-04).
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, 0, 0], max: [20, 10, 20] })] });
+        const plate = Part.make({ name: "plate", add: [Box.make({ min: [21.3, 0, 5.05], max: [22.1, 10, 14.95] })] });
+        const shadeFront = Effect.fnUntraced(function* (ladderReach?: number) {
+          const [view] = yield* occt.project(
+            ProjectionRequest.make({
+              solid: ModelSpec.make({ parts: [wall, plate] }),
+              cameras: [front],
+              shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3, ladderReach })),
+            })
+          );
+          return view;
+        });
+        const firstTwo = (view: EdgeSet | undefined) =>
+          pipe(
+            view?.shading ?? [],
+            A.filter((s) => isVertical(s) && s[0] < 20),
+            A.map((s) => Math.round(s[0] * 1e6) / 1e6),
+            A.sort(Order.flip(Order.Number)),
+            A.take(2)
+          );
+        const guttered = yield* shadeFront();
+        expect(firstTwo(guttered)).toEqual([17.9, 16.5]);
+        expect(ladderFindings(guttered)).toEqual([]);
+        // the validator does read the shortened plate as a ladder: the band without its gutter (a ladder reach too
+        // short to see the plate) is flagged
+        const plain = yield* shadeFront(0.01);
+        expect(firstTwo(plain)).toEqual([19, 17.6]);
+        expect(ladderFindings(plain)).toEqual(["shading-band-ladder"]);
+      })
+    );
+
+    it.effect(
+      "reads emphasis lines beyond a band's edge as the sheet draws them",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // The wall of the gutter test alone, with two emphasis lines standing 1.3 and 2.1 past its right edge where the
+        // plate's lines stood. The sheet draws them like outlines, and the validator reads them so; the kernel reads
+        // them beside the band's first line too, so the band starts behind its gutter (review loop 3, O-04).
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, 0, 0], max: [20, 10, 20] })] });
+        const line = (x: number) =>
+          OverlayLine.make({
+            name: `line-${x}`,
+            style: "emphasis",
+            points: [
+              [x, 0, 0],
+              [x, 0, 20],
+            ],
+            facing: O.some([0, -1, 0]),
+          });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall], overlays: [line(21.3), line(22.1)] }),
+            cameras: [front],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        expect(A.length(view?.emphasis ?? [])).toBe(2);
+        const strokes = pipe(
+          view?.shading ?? [],
+          A.filter((s) => isVertical(s) && s[0] < 20),
+          A.map((s) => Math.round(s[0] * 1e6) / 1e6),
+          A.sort(Order.flip(Order.Number)),
+          A.take(2)
+        );
+        expect(strokes).toEqual([17.9, 16.5]);
+        expect(ladderFindings(view)).toEqual([]);
+      })
+    );
+
+    it.effect(
+      "keeps a band one pitch in where its edge only steps out around a tab",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // The same wall with a tab 4 tall sticking 1.3 out of its right edge, in the front elevation. The tab's end
+        // is a line 1.3 beyond the band's edge, within the ladder reach, and runs beside the band's planned first
+        // stroke for 4 of its 20: measured against the stroke alone, it passes for a line beyond the edge. But it
+        // fills the gap in the edge instead of running beside it (the edge is drawn only below and above the tab), so
+        // band and outline do not read as a ladder and the band keeps its first line one pitch in (review loop 3,
+        // O-04).
+        const tabbed = Part.make({
+          name: "wall",
+          add: [Box.make({ min: [-20, 0, 0], max: [20, 10, 20] }), Box.make({ min: [20, 0, 8], max: [21.3, 10, 12] })],
+        });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [tabbed] }),
+            cameras: [front],
+            shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+          })
+        );
+        // the tab's end is drawn
+        expect(A.some(view?.visible ?? [], (s) => isVertical(s) && Math.abs(s[0] - 21.3) < 1e-6)).toBe(true);
+        const wall = pipe(
+          view?.shading ?? [],
+          A.filter((s) => isVertical(s) && s[0] < 20),
+          A.sort(Order.mapInput(Order.flip(Order.Number), (s: Segment) => s[0]))
+        );
+        expect(A.map(A.take(wall, 2), (s) => Math.round(s[0] * 1e6) / 1e6)).toEqual([19, 17.6]);
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+          ),
+          [0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
       "drops a 2 mm band below the minimum face span",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
@@ -659,20 +1193,33 @@ describe("@beep/occt shading", () => {
             .pipe(Effect.map((views) => views[0]));
         const all = yield* shadeWith(0);
         const banded = yield* shadeWith(2);
+        // without a minimum span the rules band the edge face, but its 2-unit chords leave no room for two legible
+        // strokes past the end insets: the kernel leaves it bare and counts it a sliver, never a shaded face that
+        // draws nothing (review loop 3, J-01)
         assertSome(
           O.flatMap(O.fromNullishOr(all), (v) =>
-            O.map(v.shadingCoverage, (c) => [c.shadedFaces, A.map(c.skippedFaces, (s) => s.reason)])
+            O.map(v.shadingCoverage, (c) => [c.shadedFaces, A.map(c.skippedFaces, (s) => [s.reason, s.faces])])
           ),
-          [2, ["back-facing"]]
+          [
+            1,
+            [
+              ["back-facing", 4],
+              ["sliver", 1],
+            ],
+          ]
         );
         assertSome(
           O.flatMap(O.fromNullishOr(banded), (v) =>
-            O.map(v.shadingCoverage, (c) => [c.shadedFaces, A.map(c.skippedFaces, (s) => s.reason)])
+            O.map(v.shadingCoverage, (c) => [c.shadedFaces, A.map(c.skippedFaces, (s) => [s.reason, s.faces])])
           ),
-          [1, ["back-facing", "sliver"]]
+          [
+            1,
+            [
+              ["back-facing", 4],
+              ["sliver", 1],
+            ],
+          ]
         );
-        // the band's 2-unit chords leave no room past the end insets, so it draws nothing even before the
-        // sliver rule; the coverage above is what tells the two apart
         expect(banded?.shading.length).toBeLessThanOrEqual(all?.shading.length ?? 0);
       })
     );
