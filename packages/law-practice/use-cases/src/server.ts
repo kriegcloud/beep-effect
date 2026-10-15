@@ -6,6 +6,21 @@
  * @since 0.0.0
  */
 
+/**
+ * Claim self-check models, errors, USPTO claims port and service contract.
+ *
+ * **Example** (Verify the self-check service export)
+ *
+ * ```ts
+ * import { ClaimSelfCheck } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(Object.keys(ClaimSelfCheck).includes("ClaimSelfCheck")) // true
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ClaimSelfCheck from "./ClaimSelfCheck/index.ts";
 /** Document identification schemas, ports and pure pipeline. @category services @since 0.0.0 */
 export * as DocumentIdentification from "./DocumentIdentification/index.ts";
 /**

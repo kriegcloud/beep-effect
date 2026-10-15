@@ -13,6 +13,8 @@ import * as Str from "effect/String";
 import { sealC2EvalReport } from "@/layers/CanaryC2Live";
 import { C2EvalReport } from "@/schema/Reasoning";
 
+const decodeC2EvalReportJson = S.decodeEffect(S.fromJsonString(C2EvalReport));
+
 describe("C2 report sealing", () => {
   it.layer(BunCrypto.layer, { timeout: "30 seconds" })((it) => {
     it.effect("seals a committed C2 witness and rejects a placeholder digest", () =>
@@ -20,7 +22,7 @@ describe("C2 report sealing", () => {
         const json = yield* Effect.promise(() =>
           Bun.file("../../../goals/semantica-canary/history/c2/full-w1.replay.eval-report.json").text()
         );
-        const previous = yield* S.decodeEffect(S.fromJsonString(C2EvalReport))(json);
+        const previous = yield* decodeC2EvalReportJson(json);
         const sealed = yield* sealC2EvalReport(previous.base, previous.reasoning);
 
         expect(sealed.reportDigest).toBe(previous.reportDigest);

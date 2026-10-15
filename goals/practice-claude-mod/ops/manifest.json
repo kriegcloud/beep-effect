@@ -4,13 +4,13 @@
     "id": "practice-claude-mod",
     "packetId": "goal-packet/v1:c4c647ae310aa0fc4a0a4da7849a5dcddc01dad1f54b04e69bb41cb4ddbb59e5",
     "title": "Practice Claude Code Mod",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/practice-claude-mod",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Ship one Claude Code plugin from apps/practice-claude-mod that gives the attorney's sessions plain-language practice-kg tool rows, Right/Wrong verdict capture, a current-matter band with a visible timer, and five ported firm skills, tested on the operator machine and delivered to the attorney's PC by directory marketplace.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -59,27 +59,27 @@
     {
       "id": "P1",
       "name": "Implement",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P1b",
       "name": "Review queue (gated)",
-      "status": "pending"
+      "status": "superseded"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

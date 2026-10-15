@@ -55,11 +55,23 @@ Sibling goals:
 
 ## Current Phase
 
-P0 Schema - not started.
+P2 Implementation + adapter. P0 and P1 are complete.
 
 ## Latest Evidence
 
-Not started.
+- **P0:** `values/ClaimElement/` in `@beep/law-practice-domain`, in four files: `ClaimElement.model.ts`,
+  `ClaimElement.edge.model.ts`, `ClaimElement.tree.model.ts` (with coherence checks) and
+  `AntecedentFinding.model.ts` (each finding carries its `chain`; candidates are distinct). Tests
+  are in `test/ClaimElement.test.ts`.
+- **P1:**
+  - The `ClaimElementDecomposer` and `AntecedentPolicy` function types.
+  - The `ClaimSelfCheck` `Context.Service` (`check`, `checkPublished`, `candidates`), with
+    per-claim `undecomposed` failures.
+  - The `UsptoClaims` port and the `UsptoClaimsError` / `ClaimSelfCheckError` split.
+  - Independent review found 2 P1 and 7 P2 issues. All are applied or recorded in the SPEC
+    Decision Log.
+  - `package-verify` passes for `@beep/law-practice-domain` and `@beep/law-practice-use-cases`.
+    The repo-wide docgen run is left to hosted Docgen on the publish PR.
 
 ## Notes
 

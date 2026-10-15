@@ -62,3 +62,13 @@ Last answer: [ Right ] [ Wrong ] [ Partly ] Undo      [-]
   working folder answered "oip-practice: There is no answer to mark yet."
   The hooks load and run on Windows. The drawn rows and band on the PC are
   confirmed at the next attorney session.
+
+## Slice 2 delivery (same day)
+
+- The #1756 merge commit was built (`bun run plugin:test`: 15 engine tests
+  pass) and only the release files (marketplace, manifest, hooks, skills) were
+  copied to the attorney PC's marketplace folder, replacing the slice-1 copy.
+- `claude plugin list` there: enabled, read from the marketplace folder.
+- Headless `claude -p "/time"` answered "Timer is stopped." and
+  `claude -p "/matter"` answered "No matter is selected."; the five skills ship
+  in the plugin. Drawn band and rows on the PC are confirmed at the next sitting.

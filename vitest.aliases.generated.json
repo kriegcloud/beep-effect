@@ -1935,5 +1935,14 @@
   ],
   "@beep/law-practice-use-cases/VerdictProjector": [
     "./packages/law-practice/use-cases/src/VerdictProjector/index.ts"
+  ],
+  "@beep/repo-cli/commands/Reviewer": [
+    "./packages/tooling/tool/cli/src/commands/Reviewer/index.ts"
+  ],
+  "@beep/law-practice-domain/values/ClaimElement": [
+    "./packages/law-practice/domain/src/values/ClaimElement/index.ts"
+  ],
+  "@beep/law-practice-use-cases/ClaimSelfCheck": [
+    "./packages/law-practice/use-cases/src/ClaimSelfCheck/index.ts"
   ]
 }
