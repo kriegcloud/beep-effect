@@ -42,6 +42,7 @@ export const RegistrationWriter = LiteralKit([
   "jsdoc-inventory",
   "schema-first-inventory",
   "schema-catalog",
+  "instrumentation-catalog",
   "coverage-baseline-replacement",
   "test-typecheck-baseline",
   "docs-aggregate-clean",

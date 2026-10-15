@@ -168,15 +168,19 @@ export {
  */
 export {
   generateSchemaCatalogDocument,
-  generateSchemaCatalogText,
+  generateSchemaCatalogShards,
   lintSchemaCatalogCommand,
-  renderSchemaCatalogDocument,
+  renderSchemaCatalogShard,
   runSchemaCatalog,
   SchemaCatalogDocument,
   SchemaCatalogEntry,
   SchemaCatalogEntryKind,
   SchemaCatalogOptions,
+  SchemaCatalogOwner,
+  SchemaCatalogShard,
   SchemaCatalogSummary,
+  schemaCatalogShardPath,
+  shardSchemaCatalogDocument,
 } from "./SchemaCatalog.ts";
 /**
  * Schema-first lint utilities.
