@@ -3136,6 +3136,23 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/tooling/library/palantiri": {
+      "name": "@beep/palantiri",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/observability": "workspace:^",
+        "@beep/repo-ai-metrics": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/tooling/library/qa-capture": {
       "name": "@beep/qa-capture",
       "version": "0.0.0",
@@ -3308,6 +3325,7 @@
         "@beep/obs": "workspace:^",
         "@beep/observability": "workspace:^",
         "@beep/occt": "workspace:^",
+        "@beep/palantiri": "workspace:^",
         "@beep/pdf-tools": "workspace:^",
         "@beep/phoenix": "workspace:^",
         "@beep/poppler": "workspace:^",
@@ -4216,6 +4234,8 @@
     "@beep/oxigraph": ["@beep/oxigraph@workspace:packages/drivers/oxigraph"],
 
     "@beep/pacer": ["@beep/pacer@workspace:packages/drivers/pacer"],
+
+    "@beep/palantiri": ["@beep/palantiri@workspace:packages/tooling/library/palantiri"],
 
     "@beep/pandoc-ast": ["@beep/pandoc-ast@workspace:packages/foundation/modeling/pandoc-ast"],
 

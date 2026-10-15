@@ -31,11 +31,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P1 Slice — `beep palantiri parcel account-headroom [--json]` is implemented in `@beep/palantiri` and `@beep/repo-cli` (see `PLAN.md` Execution Notes). Next: P2 parcels 2–5.
 
 ## Latest Evidence
 
-Not started.
+2026-10-14: P0 design in `research/parcels-design.md`; P1 gates and a live run recorded in `PLAN.md` Execution Notes.
 
 ## Notes
 

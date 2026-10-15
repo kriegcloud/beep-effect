@@ -28,7 +28,7 @@ Higher sources outrank lower sources when they conflict.
 ## Target Surfaces
 
 - `packages/tooling/library/palantiri/**` (NET-NEW)
-- `packages/tooling/tool/palantiri-mcp/**` (NET-NEW, `@beep/mcp-kit` host pattern)
+- `beep palantiri mcp` (stdio MCP host in `@beep/repo-cli`; replaces the planned `palantiri-mcp` package, Decision Log)
 - `packages/tooling/tool/cli/src/commands/Palantiri/**` (NET-NEW group) and `Accounts/` (quota gauge)
 - `SessionLedger` / `beep session open` push
 
@@ -76,6 +76,15 @@ them and record each in the Decision Log.
 | Date | Decision | Reason | How to reverse |
 | --- | --- | --- | --- |
 | 2026-10-14 | Inherit exploration decisions D1–D9 and the align/agent-decided entries in `explorations/observability-palantiri/DECISIONS.md`. | Graduated from `explorations/observability-palantiri`. | Reopen the exploration at `decompose`. |
+| 2026-10-14 | P0: parcel schemas, reducers, source ports, the `Parcels` service, the HttpApi contract and the instruments live in `@beep/palantiri` (tooling library); `@beep/repo-cli` implements the ports and serves the contract. Design: `research/parcels-design.md`. | Every source lives in the CLI and nothing may depend on it (`research/source-survey.md`). | Extract the source readers into a shared library and move the port implementations there. |
+| 2026-10-14 | P0: the MCP host is the `beep palantiri mcp` stdio subcommand instead of a `packages/tooling/tool/palantiri-mcp` package. It runs the same handlers as `beep palantiri parcel`, so the encoded JSON is identical. | Same dependency constraint; the CLI already hosts `McpServer.layerStdio` (`beep agent-message`); one boot per session, not per call. | Create the package and have it call the CLI. |
+| 2026-10-14 | P0: `Freshness.Unknown` gains the reason `no-source` for a parcel whose source does not exist yet. App error classes answer it until the Grafana datasource query adapter lands in P2. | Honest output beats a fake parcel; the exploration's three reasons don't cover a missing source. | Drop the reason and hold the parcel back. |
+| 2026-10-14 | P0: account headroom serves a CLI-written snapshot under `$HOME/.local/state/beep/palantiri/` while it is within 5 minutes, and polls live otherwise. | A live `AccountsUsage` poll takes up to 20 s per account. | Always poll live. |
+| 2026-10-14 | P1: the quota gauge's window label is `beep.window`, not `window`. | Catalog attribute keys must be dotted (`AttributeKeyName` pattern); `beep.provider` stays the key `@beep/repo-ai-metrics` declares. | Relax the catalog key pattern and rename the label. |
+| 2026-10-14 | P1: `beep.accounts.window_remaining` carries one series per provider and window, valued at the most headroom any of that provider's accounts has; `beep.provider` uses the `AgentProvider` spellings (claude → anthropic, codex → openai, grok and grok-bot → xai, muse → meta, junie → jetbrains, cursor → cursor). A snapshot provider outside that map emits no gauge. | Account ordinals must never be metric labels, so several accounts share a series; "best headroom" is the actionable value. | Add `beep.provider_account` as a label (bounded) and emit per account. |
+| 2026-10-14 | P1: the `Parcels.read` span and the gauge are emitted inside the library's `Parcels.read`, owned by `@beep/palantiri`; hosts only add the `TRACEPARENT` parent (`withTraceParent`, also in the library so the MCP host reuses it). | The catalog owner of both instruments is the library; every host gets them for free. | Move emission into each host. |
+| 2026-10-14 | P1: the in-process client is `HttpApiTest.groups` (`HttpRouter.toHttpEffect` + `HttpApiClient.makeWith`), not `HttpRouter.toWebHandler`. | `toWebHandler` builds its own runtime, so the handler would lose the caller's tracer, parent span and metric registry; `toHttpEffect` runs it in the caller's fiber through the same encode/route/decode pipeline. | Swap in `toWebHandler` with the telemetry layer inside its app layer. |
+| 2026-10-14 | P1: `Parcels.read` fails only with `UnknownParcel`; `SourceFailed` from a port becomes `Unknown{unreachable}`. A live poller that cannot start becomes a source whose every read fails. Parcel items carry `state` (ok, needs-login, failed) and each window's `scope`; envelopes carry `schemaVersion` and `readAt`, and an optional `budget` query (default 20). | Honest unknowns over command failures; scoped windows are otherwise indistinguishable. | Drop the fields and widen the error channel. |
 
 ## Exception Ledger
 

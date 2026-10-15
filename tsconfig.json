@@ -2118,7 +2118,9 @@
       ],
       "@beep/lint-rules/oxlint-docs": [
         "./packages/tooling/policy-pack/lint-rules/src/rules/docs.index.ts"
-      ]
+      ],
+      "@beep/palantiri": ["./packages/tooling/library/palantiri/src/index.ts"],
+      "@beep/palantiri/*": ["./packages/tooling/library/palantiri/src/*"]
     }
   }
 }

@@ -208,7 +208,8 @@ const generatedComposers = $I.compose(
   "practice-identify",
   "practice-m365-contacts",
   "practice-claude-mod",
-  "t3-code"
+  "t3-code",
+  "palantiri"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -2882,3 +2883,20 @@ export const $PracticeClaudeModId: Identity.IdentityComposer<"@beep/practice-cla
  * @since 0.0.0
  */
 export const $T3CodeId: Identity.IdentityComposer<"@beep/t3-code"> = composers.$T3CodeId;
+
+/**
+ * Identity composer for `@beep/palantiri`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $PalantiriId } from "@beep/identity/packages"
+ *
+ * const id = $PalantiriId.make("Palantiri")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $PalantiriId: Identity.IdentityComposer<"@beep/palantiri"> = composers.$PalantiriId;

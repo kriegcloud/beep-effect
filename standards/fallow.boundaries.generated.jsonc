@@ -594,6 +594,12 @@
         ]
       },
       {
+        "name": "@beep/palantiri",
+        "patterns": [
+          "packages/tooling/library/palantiri/src/**"
+        ]
+      },
+      {
         "name": "@beep/pandoc-ast",
         "patterns": [
           "packages/foundation/modeling/pandoc-ast/src/**"
@@ -3152,6 +3158,25 @@
         ]
       },
       {
+        "from": "@beep/palantiri",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/palantiri",
+          "@beep/repo-ai-metrics",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/palantiri",
+          "@beep/repo-ai-metrics",
+          "@beep/schema"
+        ]
+      },
+      {
         "from": "@beep/pandoc-ast",
         "allow": [
           "@beep/identity",
@@ -3633,6 +3658,7 @@
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
+          "@beep/palantiri",
           "@beep/pdf-tools",
           "@beep/phoenix",
           "@beep/poppler",
@@ -3674,6 +3700,7 @@
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
+          "@beep/palantiri",
           "@beep/pdf-tools",
           "@beep/phoenix",
           "@beep/poppler",
