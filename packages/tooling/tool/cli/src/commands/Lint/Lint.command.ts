@@ -839,7 +839,6 @@ const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, r
 const fingerprintPath = "standards/policy-tools.fingerprint.json";
 const rootConfigs = [
   "standards/lint-policy.sweeps.jsonc",
-  "eslint.config.mjs",
   "tsdoc.json",
   ".oxlintrc.json",
   ".oxlintrc.docs.json",

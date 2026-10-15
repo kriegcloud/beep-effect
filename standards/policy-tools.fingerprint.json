@@ -7,7 +7,6 @@
     ".oxlintrc.json",
     "_typos.toml",
     "biome.jsonc",
-    "eslint.config.mjs",
     "package.json",
     "packages/drivers/acp/package.json",
     "packages/drivers/acp/src/**",

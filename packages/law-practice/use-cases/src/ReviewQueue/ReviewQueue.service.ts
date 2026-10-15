@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { VerdictRow } from "@beep/law-practice-domain";
+import { ReviewItem, VerdictRow } from "@beep/law-practice-domain";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -22,8 +22,10 @@ import {
 } from "../internal/latestVerdict.ts";
 import { VerdictBatchEmptyError, VerdictBatchLockedError } from "./ReviewQueue.errors.ts";
 import { ReviewQueue, VerdictLog } from "./ReviewQueue.ports.ts";
-import type { ReviewBatchId, ReviewItem } from "@beep/law-practice-domain";
+import type { ReviewBatchId } from "@beep/law-practice-domain";
 import type { RecordVerdictInput, ReviewQueueShape, VerdictLogShape } from "./ReviewQueue.ports.ts";
+
+const isQuestion = ReviewItem.guards.question;
 
 const ensureUnlocked = (rows: ReadonlyArray<VerdictRow>, batchId: ReviewBatchId) =>
   O.match(batchLockedAt(rows, batchId), {
@@ -39,7 +41,8 @@ const makeReviewQueue = (log: VerdictLogShape, writeLock: Semaphore.Semaphore): 
 
   const openItems = Effect.fn("ReviewQueue.openItems")(function* (items: ReadonlyArray<ReviewItem>) {
     const latest = latestVerdictByItem(yield* log.rows);
-    return A.filter(items, (item) => !O.exists(HashMap.get(latest, item.itemId), isFinalVerdict));
+    // Questions close by answer, not verdict; the question loop owns them.
+    return A.filter(items, (item) => !isQuestion(item) && !O.exists(HashMap.get(latest, item.itemId), isFinalVerdict));
   });
 
   // Writes read the log, check the lock and append under one permit, so no

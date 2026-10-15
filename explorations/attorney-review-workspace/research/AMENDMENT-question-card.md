@@ -1,8 +1,11 @@
-# Amendment proposal for `goals/practice-claude-mod`: question card in the review queue
+# Amendment proposal for `practice-claude-mod-review-queue`: question card in the review queue
 
 From: [`attorney-review-workspace`](../README.md), question-loop re-entry, 2026-10-14.
-To: the `practice-claude-mod` owner, who applies it in their own packet
-([handoff ruling](../DECISIONS.md)). This exploration does not edit that packet.
+To: the owner of `practice-claude-mod-review-queue`, the gated follow-on candidate in
+`explorations/claude-mods-law-practice/MAP.md`. The review queue (P1b) moved there when
+`practice-claude-mod` closed (its D24). The owner applies the amendment as one phase of that
+follow-on, gated on `attorney-question-loop` P0 ([handoff ruling](../DECISIONS.md)). This
+exploration edits neither packet.
 
 ## Why
 
@@ -12,7 +15,7 @@ operator ruled that questions appear in the same review queue as every other ite
 is only a notice ([DECISIONS](../DECISIONS.md), re-entry align and shape review). The schema and
 the services come from `goals/attorney-question-loop`.
 
-## What changes in `practice-claude-mod`
+## What changes in `practice-claude-mod-review-queue`
 
 ### 1. The P1b review queue renders `question` items
 
@@ -51,5 +54,5 @@ the operator-approved batch in `goals/attorney-question-loop`.
 
 ## Entry gate
 
-The P1b review queue is live, and the `attorney-question-loop` schema (the `question` kind and
-`AnswerRow`) is merged.
+The `practice-claude-mod-review-queue` follow-on is open with its review queue live, and the
+`attorney-question-loop` schema (the `question` kind and `AnswerRow`) is merged.

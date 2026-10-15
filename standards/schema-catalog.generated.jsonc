@@ -28958,6 +28958,22 @@
       "description": "Annotation citation (#581): American Law Reports (A.L.R.) annotations — secondary authority that looks like a case citation."
     },
     {
+      "file": "packages/law-practice/domain/src/values/AnswerRow/AnswerRow.model.ts",
+      "symbol": "AnswerRow",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AnswerRow",
+      "description": "One append-only entry in the attorney's answer log for a question, discriminated on its state."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/AnswerRow/AnswerRow.model.ts",
+      "symbol": "AnswerState",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AnswerState",
+      "description": "Where the attorney left a question: decided, pending on the client, keep reminding, or withdrawn."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/ApplicationNumber/ApplicationNumber.model.ts",
       "symbol": "ApplicationNumber",
       "kind": "brand",
@@ -30664,6 +30680,46 @@
       "description": "A parsed public law citation."
     },
     {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "OptionWrite",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "OptionWrite",
+      "description": "The write an answer option implies, discriminated on its kind."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "OptionWriteKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "OptionWriteKind",
+      "description": "Kinds of write an answer option can imply; calendar dates for now, docket writes later."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionFact",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionFact",
+      "description": "A fact the asking agent already checked against records, with its sources."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionOption",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionOption",
+      "description": "One answer the attorney can choose, optionally naming the write it implies."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionOptions",
+      "kind": "schema-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionOptions",
+      "description": "The two to five answer options of one question, with distinct option ids."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/RegulationCitation/RegulationCitation.model.ts",
       "symbol": "RegulationCitation",
       "kind": "struct-const",
@@ -30701,7 +30757,7 @@
       "kind": "literal-kit",
       "owner": "@beep/law-practice-domain",
       "identity": "ReviewItemKind",
-      "description": "Kinds of agent work product that reach the attorney review queue."
+      "description": "Kinds of agent work product, and agent questions, that reach the attorney review queue."
     },
     {
       "file": "packages/law-practice/domain/src/values/Segment/Segment.model.ts",
@@ -40796,7 +40852,7 @@
       "description": "Complete reviewed obligations for a finite executable computation."
     },
     {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts",
+      "file": "packages/tooling/policy-pack/repo-configs/src/internal/laws/EffectLawsAllowlistSchemas.ts",
       "symbol": "AllowlistJsoncTextToUnknown",
       "kind": "codec",
       "owner": "@beep/repo-configs",
@@ -40804,7 +40860,7 @@
       "description": "JSONC text transformation that parses allowlist source into unknown data."
     },
     {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts",
+      "file": "packages/tooling/policy-pack/repo-configs/src/internal/laws/EffectLawsAllowlistSchemas.ts",
       "symbol": "EffectLawsAllowlistCheckInput",
       "kind": "struct-const",
       "owner": "@beep/repo-configs",
@@ -40812,7 +40868,7 @@
       "description": "Runtime lookup input checked against the effect-law allowlist snapshot."
     },
     {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts",
+      "file": "packages/tooling/policy-pack/repo-configs/src/internal/laws/EffectLawsAllowlistSchemas.ts",
       "symbol": "EffectLawsAllowlistDocument",
       "kind": "struct-const",
       "owner": "@beep/repo-configs",
@@ -40820,7 +40876,7 @@
       "description": "Decoded effect-law allowlist document loaded from JSONC."
     },
     {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts",
+      "file": "packages/tooling/policy-pack/repo-configs/src/internal/laws/EffectLawsAllowlistSchemas.ts",
       "symbol": "EffectLawsAllowlistEntry",
       "kind": "struct-const",
       "owner": "@beep/repo-configs",
@@ -40828,7 +40884,7 @@
       "description": "One allowlisted effect-law finding from the standards allowlist artifact."
     },
     {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts",
+      "file": "packages/tooling/policy-pack/repo-configs/src/internal/laws/EffectLawsAllowlistSchemas.ts",
       "symbol": "EffectLawsAllowlistLookupKey",
       "kind": "struct-const",
       "owner": "@beep/repo-configs",
@@ -40836,92 +40892,12 @@
       "description": "Normalized key used to compare effect-law findings with allowlist entries."
     },
     {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts",
+      "file": "packages/tooling/policy-pack/repo-configs/src/internal/laws/EffectLawsAllowlistSchemas.ts",
       "symbol": "EffectLawsAllowlistSnapshot",
       "kind": "struct-const",
       "owner": "@beep/repo-configs",
       "identity": "EffectLawsAllowlistSnapshot",
       "description": "Generated snapshot of the effect-law allowlist and any schema diagnostics."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "BlockCommentNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "BlockCommentNode",
-      "description": "Block comment node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "IdentifierNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "IdentifierNode",
-      "description": "Identifier node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "ImportDeclarationNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "ImportDeclarationNode",
-      "description": "Import declaration node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "ImportKind",
-      "kind": "literal-kit",
-      "owner": "@beep/repo-configs",
-      "identity": "ImportKind",
-      "description": "Import-kind literals reflected by ESTree import nodes."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "ImportNamespaceSpecifierNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "ImportNamespaceSpecifierNode",
-      "description": "Namespace import specifier node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "ImportSourceLiteralNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "ImportSourceLiteralNode",
-      "description": "String literal import source node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "ImportSpecifierNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "ImportSpecifierNode",
-      "description": "Named import specifier node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "NamedDeclarationNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "NamedDeclarationNode",
-      "description": "Named declaration node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "VariableDeclarationNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "VariableDeclarationNode",
-      "description": "Variable declaration node fragment used by repo ESLint rule AST decoders."
-    },
-    {
-      "file": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
-      "symbol": "VariableDeclaratorIdentifierNode",
-      "kind": "struct-const",
-      "owner": "@beep/repo-configs",
-      "identity": "VariableDeclaratorIdentifierNode",
-      "description": "Variable declarator with identifier id fragment used by repo ESLint rule AST decoders."
     },
     {
       "file": "packages/tooling/policy-pack/repo-configs/src/next/NextConfig.model.ts",
