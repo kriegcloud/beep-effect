@@ -103,3 +103,32 @@ bun run beep yeet sweep --plan --json
 `yeet sweep --plan` is the sweep's own dry run, not the generic yeet plan: it
 prints the branch-deletion and ref-update steps with the git facts behind each
 one.
+
+
+## Cache baseline after a script-word or root-config change
+
+Run `bun run beep cache audit` after changing a script word or root configuration.
+For each configuration-drift BLOCK, establish which input legitimately changed.
+Write a reviewed basis naming **every drifted task**, its subject and its input
+change (including manifest bytes when a subject's review basis is its own manifest).
+Use the complete audit output; a baseline rejection's `Unreviewed:` list extends
+up to `. Unknown`, rather than just the first few subjects shown.
+
+Submit `bun run beep cache baseline --request <request.json>` only after review.
+Set `previous` to the SHA-256 of the **exact current text** of
+`standards/cache-qualification-baseline.json` (including whitespace and trailing
+newline, not a parsed/re-encoded object). Copy `scope`, `profile` and `epoch`
+unchanged from that baseline. Set `subjects` to only those named in the drift
+and the reviewed basis; bind `review.basis.path` and `review.basis.sha256` to
+the reviewed basis file's exact bytes. The request also names the reviewer
+and reason. See `goals/tsc-rs-gates/research/cache-baseline-request-2026-10-14.json`
+for the request shape, not current hashes or a reusable subject list.
+
+S31b permits only drift-named subjects with changed inputs: no widened
+qualification, no new exception rows, and no standards debt or exception
+inventory growth. List the subjects and their reasons in the PR body. Never
+re-record a baseline to hide a red whose input did not change. Re-run the audit
+after the reviewed request. A main merge that adds root tasks adds drifted
+subjects: update the basis to name those tasks and input changes, recompute its
+SHA-256 in the request, and refresh `previous` from the exact current baseline
+text before re-running. Keep scope/profile/epoch and qualification unchanged.

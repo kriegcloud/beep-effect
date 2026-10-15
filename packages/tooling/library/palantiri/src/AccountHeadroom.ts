@@ -14,7 +14,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import { AccountHeadroom, AccountsReportOutcome, HeadroomWindow } from "./AccountHeadroom.models.ts";
-import { checkFreshness, Freshness } from "./Freshness.ts";
+import { checkFreshness, Freshness, isFreshItem, unknownSplit } from "./Freshness.ts";
 import { ParcelSpec } from "./Parcel.models.ts";
 import { makeParcelEnvelope, ParcelDraft } from "./ParcelEnvelope.models.ts";
 import type * as DateTime from "effect/DateTime";
@@ -153,8 +153,6 @@ export const accountHeadroomItems: {
 
 const isAccountWide = (window: HeadroomWindow): boolean => window.kind === "weekly" || window.kind === "cycle";
 
-const isFresh = (item: AccountHeadroom): boolean => item.freshness._tag === "Fresh";
-
 /**
  * The items whose own freshness is `Fresh`.
  *
@@ -166,16 +164,13 @@ const isFresh = (item: AccountHeadroom): boolean => item.freshness._tag === "Fre
  * console.log(freshAccountHeadroom([]).length) // 0
  * ```
  *
- * @param items - Items from one account-headroom read, each carrying its own freshness.
+ * @param items - Headroom items, each carrying its own freshness.
  * @returns The fresh ones, in order.
  * @category filtering
  * @since 0.0.0
  */
 export const freshAccountHeadroom = (items: ReadonlyArray<AccountHeadroom>): ReadonlyArray<AccountHeadroom> =>
-  A.filter(items, isFresh);
-
-const reasonOf = (item: AccountHeadroom): O.Option<string> =>
-  Freshness.match(item.freshness, { Fresh: () => O.none(), Unknown: (unknown) => O.some(unknown.reason) });
+  A.filter(items, isFreshItem);
 
 const bestAccountWide = (items: ReadonlyArray<AccountHeadroom>): O.Option<string> =>
   O.map(
@@ -197,17 +192,11 @@ const bestAccountWide = (items: ReadonlyArray<AccountHeadroom>): O.Option<string
     ({ item, remaining }) => `; most weekly headroom: ${item.provider} #${item.account} at ${Num.round(remaining, 0)}%`
   );
 
-const splitPart = (items: ReadonlyArray<AccountHeadroom>, reason: string): O.Option<string> => {
-  const matching = A.filter(items, (item) => O.contains(reasonOf(item), reason));
-  return A.match(matching, {
-    onEmpty: O.none,
-    onNonEmpty: (some) =>
-      O.some(`${some.length} ${reason} (${A.join(A.dedupe(A.map(some, (item) => item.provider)), ", ")})`),
-  });
-};
-
 const summarize = (items: ReadonlyArray<AccountHeadroom>, missing: O.Option<ReadonlyArray<string>>): string => {
-  const parts = A.getSomes([splitPart(items, "stale"), splitPart(items, "unreachable"), attributionGap(missing)]);
+  const parts = A.appendAll(
+    unknownSplit(items, (item) => item.provider),
+    missing.pipe(attributionGap, A.fromOption)
+  );
   const split = A.match(parts, { onEmpty: () => "", onNonEmpty: (some) => `; ${A.join(some, ", ")}` });
   return `${freshAccountHeadroom(items).length} of ${items.length} accounts fresh${split}${O.getOrElse(bestAccountWide(items), () => "")}`;
 };
