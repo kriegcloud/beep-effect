@@ -90,7 +90,17 @@ const writeDeprecatedApiLintFixture = Effect.fn("writeDeprecatedApiLintFixture")
   yield* fs.makeDirectory(path.dirname(binary), { recursive: true });
   yield* fs.writeFileString(
     binary,
-    A.join(["#!/usr/bin/env sh", 'echo "$*" >> native-invocations.txt', fails ? "exit 7" : "exit 0", ""], "\n")
+    A.join(
+      [
+        "#!/usr/bin/env sh",
+        'echo "$*" >> native-invocations.txt',
+        // The worker requires tsgolint's assignment summary as positive coverage evidence (#1791).
+        'echo "2026/10/14 00:00:00.000000 Done assigning files to programs. Total programs: 1. Unmatched files: 0"',
+        fails ? "exit 7" : "exit 0",
+        "",
+      ],
+      "\n"
+    )
   );
   yield* fs.chmod(binary, 0o755);
 });
