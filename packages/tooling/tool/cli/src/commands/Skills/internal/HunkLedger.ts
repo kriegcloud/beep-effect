@@ -9,12 +9,11 @@
 
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { openDirectoryHandle } from "../../../internal/repo-run/DirectoryHandle.ts";
 import { SkillsCommandError } from "../Skills.errors.ts";
 import { SkillHunkLedgerRow } from "../SkillsReview.schemas.ts";
 import { PATCH_ROOT } from "./PatchStaging.ts";
@@ -40,6 +39,115 @@ export const HUNK_LEDGER_PATH = `${PATCH_ROOT}/${HUNK_LEDGER_FILE}`;
 const LedgerRowJson = S.fromJsonString(SkillHunkLedgerRow);
 const decodeLedgerRow = S.decodeUnknownEffect(LedgerRowJson);
 const encodeLedgerRow = S.encodeEffect(LedgerRowJson);
+type NodeFs = typeof import("node:fs");
+const nodeFs = (): NodeFs => process.getBuiltinModule("node:fs");
+const heldEntry = (fd: number, name: string): string => `/proc/self/fd/${fd}/${name}`;
+const unsafeLedger = (message: string) => SkillsCommandError.make({ message, file: HUNK_LEDGER_PATH });
+const attempt = <A>(operation: string, thunk: () => A): Effect.Effect<A, SkillsCommandError> =>
+  Effect.try({
+    try: thunk,
+    catch: (cause) => SkillsCommandError.new(cause, `Failed to ${operation} ${HUNK_LEDGER_PATH}.`, HUNK_LEDGER_PATH),
+  });
+const closeQuietly = (fd: number) => Effect.ignore(attempt("close", () => nodeFs().closeSync(fd)));
+
+const openChildDirectory = Effect.fn("HunkLedger.openChildDirectory")(function* (
+  parentFd: number,
+  name: string,
+  create: boolean
+) {
+  const boundParent = yield* attempt("bind descriptor for", () => nodeFs().statSync(`/proc/self/fd/${parentFd}`)).pipe(
+    Effect.mapError(() => unsafeLedger(`Descriptor-bound ${HUNK_LEDGER_PATH} IO is unsupported on this platform.`))
+  );
+  if (!boundParent.isDirectory())
+    return yield* unsafeLedger(`Descriptor-bound ${HUNK_LEDGER_PATH} IO is unsupported on this platform.`);
+  const entry = heldEntry(parentFd, name);
+  const opened = yield* openDirectoryHandle(entry);
+  if (O.isSome(opened)) return opened;
+  const existing = yield* attempt("inspect parent of", () => nodeFs().lstatSync(entry, { throwIfNoEntry: false }));
+  if (existing !== undefined)
+    return yield* unsafeLedger(`Refusing a symlinked or non-directory ancestor of ${HUNK_LEDGER_PATH}.`);
+  if (!create) return O.none();
+  yield* attempt("create parent of", () => nodeFs().mkdirSync(entry, { mode: 0o700 }));
+  const created = yield* openDirectoryHandle(entry);
+  if (O.isNone(created)) return yield* unsafeLedger(`Cannot bind the newly created parent of ${HUNK_LEDGER_PATH}.`);
+  return created;
+});
+
+const ledgerDirectory = Effect.fn("HunkLedger.directory")(function* (repoRoot: string, create: boolean) {
+  const root = yield* openDirectoryHandle(repoRoot);
+  if (O.isNone(root)) return yield* unsafeLedger("Cannot bind the repository root for hunk-ledger IO.");
+  let directory: O.Option<typeof root.value> = root;
+  for (const segment of Str.split("/")(PATCH_ROOT)) {
+    if (O.isNone(directory)) return O.none();
+    directory = yield* openChildDirectory(directory.value.fd, segment, create);
+  }
+  return directory;
+});
+
+const inspectLedgerFile = Effect.fn("HunkLedger.inspectFile")(function* (entry: string) {
+  const info = yield* attempt("inspect", () => nodeFs().lstatSync(entry, { throwIfNoEntry: false }));
+  if (info !== undefined && (!info.isFile() || info.nlink !== 1))
+    return yield* unsafeLedger(`Refusing a symlinked or multiply linked ${HUNK_LEDGER_PATH}.`);
+  return info !== undefined;
+});
+
+const requireRegularLedger = Effect.fn("HunkLedger.requireRegularFile")(function* (fd: number) {
+  const info = yield* attempt("inspect opened", () => nodeFs().fstatSync(fd));
+  if (!info.isFile() || info.nlink !== 1)
+    return yield* unsafeLedger(`Refusing a non-regular or multiply linked ${HUNK_LEDGER_PATH}.`);
+});
+
+const readLedgerText = (repoRoot: string) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const directory = yield* ledgerDirectory(repoRoot, false);
+      if (O.isNone(directory)) return "";
+      const entry = heldEntry(directory.value.fd, HUNK_LEDGER_FILE);
+      if (!(yield* inspectLedgerFile(entry))) return "";
+      const fs = nodeFs();
+      return yield* Effect.acquireUseRelease(
+        attempt("open", () =>
+          fs.openSync(entry, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK)
+        ),
+        (fd) =>
+          Effect.gen(function* () {
+            yield* requireRegularLedger(fd);
+            return yield* attempt("read", () => fs.readFileSync(fd, { encoding: "utf8" }));
+          }),
+        closeQuietly
+      );
+    })
+  );
+
+const appendLedgerText = (repoRoot: string, text: string) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const directory = yield* ledgerDirectory(repoRoot, true);
+      if (O.isNone(directory)) return yield* unsafeLedger("Cannot bind the hunk-ledger directory.");
+      const entry = heldEntry(directory.value.fd, HUNK_LEDGER_FILE);
+      yield* inspectLedgerFile(entry);
+      const fs = nodeFs();
+      yield* Effect.acquireUseRelease(
+        attempt("open", () =>
+          fs.openSync(
+            entry,
+            fs.constants.O_WRONLY |
+              fs.constants.O_APPEND |
+              fs.constants.O_CREAT |
+              fs.constants.O_NOFOLLOW |
+              fs.constants.O_NONBLOCK,
+            0o600
+          )
+        ),
+        (fd) =>
+          Effect.gen(function* () {
+            yield* requireRegularLedger(fd);
+            yield* attempt("append to", () => fs.writeFileSync(fd, text));
+          }),
+        closeQuietly
+      );
+    })
+  );
 
 /**
  * The fields that key a ledger row.
@@ -77,26 +185,18 @@ const sameHunk = (skill: string, hunkHash: string) => (row: SkillHunkLedgerRow) 
  */
 export const readHunkLedger = Effect.fn("HunkLedger.read")(function* (
   repoRoot: string
-): Effect.fn.Return<ReadonlyArray<SkillHunkLedgerRow>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const absolute = path.join(repoRoot, HUNK_LEDGER_PATH);
-  const exists = yield* fs
-    .exists(absolute)
-    .pipe(SkillsCommandError.mapError(`Failed to inspect ${HUNK_LEDGER_PATH}.`, absolute));
-  if (!exists) {
-    return A.empty();
-  }
-  const text = yield* fs
-    .readFileString(absolute)
-    .pipe(SkillsCommandError.mapError(`Failed to read ${HUNK_LEDGER_PATH}.`, absolute));
+): Effect.fn.Return<ReadonlyArray<SkillHunkLedgerRow>, SkillsCommandError> {
+  const text = yield* readLedgerText(repoRoot);
   const lines = A.filter(
     A.map(Str.split("\n")(text), (line, index) => [index + 1, Str.trim(line)] as const),
     ([, line]) => Str.isNonEmpty(line)
   );
   return yield* Effect.forEach(lines, ([lineNumber, line]) =>
     decodeLedgerRow(line).pipe(
-      SkillsCommandError.mapError(`${HUNK_LEDGER_PATH}:${lineNumber} is not a skills-hunk-ledger/v1 row.`, absolute)
+      SkillsCommandError.mapError(
+        `${HUNK_LEDGER_PATH}:${lineNumber} is not a skills-hunk-ledger/v1 row.`,
+        HUNK_LEDGER_PATH
+      )
     )
   );
 });
@@ -111,22 +211,16 @@ export const readHunkLedger = Effect.fn("HunkLedger.read")(function* (
 export const appendHunkLedgerRows = Effect.fn("HunkLedger.append")(function* (
   repoRoot: string,
   rows: ReadonlyArray<SkillHunkLedgerRow>
-): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<void, SkillsCommandError> {
   if (A.isReadonlyArrayEmpty(rows)) {
     return;
   }
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const absolute = path.join(repoRoot, HUNK_LEDGER_PATH);
   const lines = yield* Effect.forEach(rows, (row) =>
-    encodeLedgerRow(row).pipe(SkillsCommandError.mapError(`Failed to encode a ${HUNK_LEDGER_PATH} row.`, absolute))
+    encodeLedgerRow(row).pipe(
+      SkillsCommandError.mapError(`Failed to encode a ${HUNK_LEDGER_PATH} row.`, HUNK_LEDGER_PATH)
+    )
   );
-  yield* fs
-    .makeDirectory(path.dirname(absolute), { recursive: true })
-    .pipe(SkillsCommandError.mapError(`Failed to create the parent of ${HUNK_LEDGER_PATH}.`, absolute));
-  yield* fs
-    .writeFileString(absolute, `${A.join(lines, "\n")}\n`, { flag: "a" })
-    .pipe(SkillsCommandError.mapError(`Failed to append to ${HUNK_LEDGER_PATH}.`, absolute));
+  yield* appendLedgerText(repoRoot, `${A.join(lines, "\n")}\n`);
 });
 
 /**
