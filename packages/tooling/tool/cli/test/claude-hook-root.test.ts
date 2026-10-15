@@ -6,6 +6,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const settingsPath = fileURLToPath(new URL("../../../../../.claude/settings.json", import.meta.url));
@@ -21,7 +22,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook launch project con
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const settings = yield* S.decodeEffect(HookSettingsJson)(yield* fs.readFileString(settingsPath));
-      const commands = A.flatMap(Object.values(settings.hooks), (groups) =>
+      const commands = A.flatMap(R.values(settings.hooks), (groups) =>
         A.flatMap(groups, (group) => A.map(group.hooks, (hook) => hook.command))
       );
       const guarded = A.filter(

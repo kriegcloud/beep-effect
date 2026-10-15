@@ -58,3 +58,26 @@ separate main checkout remained at `b43a4098bbdc345f897c87f84f58953cb7fd4825`.
 Publication, synchronization and hosted checks are separate verification steps.
 No merge is authorized by this follow-up; other fleet hosts and remaining
 provider/authentication gaps retain their existing qualification boundaries.
+
+## Subsequent base movement and inherited holds
+
+The first wave published and synchronized `0f5bf3d896024a691abe16cd3d68a258f6a173f8`.
+All 17 publication gates and both frozen installs passed; all eight worker
+post-install overlay hashes matched. The independent re-review returned 5/5,
+verified both P2 fixes and reported no new findings. Both threads were answered
+and resolved. All 16 required hosted checks passed on that source head.
+
+While optional checks were running, main landed #1810 as `ce5780ed67` and
+introduced another generated-table conflict. The local branch adopted that
+canonical diagnostics-lane/compiler change, regenerated the table, and refreshed
+its frozen install to @effect/tsgo 0.53.0. A fresh five-file run after installation
+passed 394 tests. This integration is held locally pending canonical main repairs;
+it is not qualified by the previous head's hosted successes.
+
+The previous head's Heavy Lint Policy job 116265896324 failed with inherited
+rule-parity, inline-schema and oxlint findings. Main repair #1819 owns that red;
+#1818 owns the separate coverage remeasurement episode. Both were open at this
+observation. Do not duplicate their changes or lower floors in this readiness
+lane. Adopt the landed canonical repairs, rerun normal publication without
+waivers, then synchronize the worker again while preserving its eight overlays.
+The worker and PR remain at the published 0f5bf3d896 head until that next wave.

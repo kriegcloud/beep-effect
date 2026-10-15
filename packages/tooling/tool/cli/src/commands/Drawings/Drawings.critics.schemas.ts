@@ -464,12 +464,12 @@ const STRICT_KEYWORDS = HashSet.fromIterable([
 ]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  typeof value === "object" && value !== null && !A.isArray(value);
 
 // Keep only the keywords the strict structured-output modes accept, recursively;
 // the children of `properties` are property names, not keywords, and stay.
 const strictKeywords = (node: unknown): unknown =>
-  Array.isArray(node)
+  A.isArray(node)
     ? A.map(node, strictKeywords)
     : isRecord(node)
       ? pipe(
