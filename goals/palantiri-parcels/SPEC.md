@@ -52,13 +52,6 @@ Higher sources outrank lower sources when they conflict.
 - [x] `beep palantiri mcp` exposes the same parcels with identical encoded JSON; stdio host pins `Logger.LogToStderr`.
 - [x] `beep session open` prints the hot parcels.
 - [x] No unrelated refactors or formatting churn.
-- [ ] First vertical slice (`explorations/observability-palantiri/MAP.md`): `beep palantiri parcel account-headroom --json` decodes to `Fresh`/`Unknown{stale}`, and the run exports a `beep.accounts.window_remaining` gauge and a `Parcels.read` span carrying `beep.*` v2 attributes, nested under the caller's trace.
-- [x] Five parcels ship: account headroom, lane reds, host pressure, app error classes, since-last-check.
-- [ ] `palantiri-mcp` exposes the same parcels with identical encoded JSON; stdio host pins `Logger.LogToStderr`.
-- [ ] Five parcels ship: account headroom, lane reds, host pressure, app error classes, since-last-check.
-- [ ] `beep palantiri mcp` exposes the same parcels with identical encoded JSON; stdio host pins `Logger.LogToStderr`.
-- [ ] `beep session open` prints the hot parcels.
-- [ ] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
