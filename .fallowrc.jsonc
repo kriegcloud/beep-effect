@@ -8,6 +8,8 @@
     "packages/**/src/*.ts",
     "packages/**/src/*/index.ts",
     "infra/src/internal/*-entry.ts",
+    // Preloaded by every infra Pulumi.yaml (runtime.options.nodeargs).
+    "infra/pulumi-typescript6.cjs",
     "apps/*/src/main.tsx",
     // The `service` AppKind's entry point; peer of the labs-depth glob below.
     "apps/*/src/main.ts",

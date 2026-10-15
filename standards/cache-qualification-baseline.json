@@ -874,11 +874,11 @@
       }
     },
     "@beep/practice-kg-mcp": {
-      "reviewer": "Codex TS7 exit B2 implementation lane",
-      "reason": "Record ESLint removal and governance input path moves without granting qualification.",
+      "reviewer": "Claude Opus 5.5 (practice-kg-mcp-strict-tier P1, feat/practice-kg-mcp-strict-tier)",
+      "reason": "Re-record @beep/practice-kg-mcp after it gained a workspace dependency on @beep/observability and a dev dependency on @beep/mcp-kit for the strict telemetry tier; task commands, outputs, env and cache flags are unchanged and no qualification is granted.",
       "basis": {
-        "path": "goals/eslint-removal/research/cache-baseline-basis.md",
-        "sha256": "20955a3572c52c77460ab2fd06f8b0658c5e7065204b64d202e5040d70b73370"
+        "path": "goals/practice-kg-mcp-strict-tier/research/cache-baseline-review-strict-tier-p1.md",
+        "sha256": "b7b745d7782e8652703f085ecfde064ed8413060ead929cc94672fb8a224db2a"
       }
     },
     "@beep/practice-m365-contacts": {
@@ -74683,6 +74683,8 @@
           "@beep/duckdb#audit",
           "@beep/identity#audit",
           "@beep/law-practice-server#audit",
+          "@beep/mcp-kit#audit",
+          "@beep/observability#audit",
           "@beep/pglite#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
@@ -74752,6 +74754,8 @@
           "@beep/duckdb#build",
           "@beep/identity#build",
           "@beep/law-practice-server#build",
+          "@beep/mcp-kit#build",
+          "@beep/observability#build",
           "@beep/pglite#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -74808,6 +74812,8 @@
           "@beep/duckdb#build",
           "@beep/identity#build",
           "@beep/law-practice-server#build",
+          "@beep/mcp-kit#build",
+          "@beep/observability#build",
           "@beep/pglite#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -74851,6 +74857,8 @@
           "@beep/duckdb#build",
           "@beep/identity#build",
           "@beep/law-practice-server#build",
+          "@beep/mcp-kit#build",
+          "@beep/observability#build",
           "@beep/pglite#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -74981,6 +74989,8 @@
           "@beep/duckdb#transit",
           "@beep/identity#transit",
           "@beep/law-practice-server#transit",
+          "@beep/mcp-kit#transit",
+          "@beep/observability#transit",
           "@beep/pglite#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -75190,6 +75200,8 @@
           "@beep/duckdb#transit",
           "@beep/identity#transit",
           "@beep/law-practice-server#transit",
+          "@beep/mcp-kit#transit",
+          "@beep/observability#transit",
           "@beep/pglite#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -75239,6 +75251,8 @@
           "@beep/duckdb#transit",
           "@beep/identity#transit",
           "@beep/law-practice-server#transit",
+          "@beep/mcp-kit#transit",
+          "@beep/observability#transit",
           "@beep/pglite#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
