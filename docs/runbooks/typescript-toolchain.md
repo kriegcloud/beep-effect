@@ -110,9 +110,28 @@ For historical comparison, the 2026-10-14 serial spike took 1,423.881 seconds an
 coverage, project-profile corrections and the new-rule census live in
 `goals/effect-rules-diagnostics-lane/history/2026-10-14-spike.md`.
 
-Discovery uses declared workspace roots, including lab apps, and selects every
-`tsconfig.check.json`, `tsconfig.test.json` and existing `test/tsconfig.json`.
-The last form covers the CLI tests. It excludes nested test-fixture packages.
+Discovery uses declared workspace roots, including lab apps, and the repository
+root manifest. Candidates come from both `tsc-rs` and `tsgo` invocations in
+canonical `check` / `beep:check` entrypoints and the scripts they invoke, plus
+the root check scripts. `-p` / `--project` selects a program; `-b` / `--build`
+expands project references recursively. Optional workspace audits that these
+entrypoints never invoke are excluded. This covers check, test, scripts,
+stories, examples, drizzle and root configs programs without a parallel list of
+config kinds, including t3-code's Go compiler check and test programs.
+
+The lane also reuses `test-tsgo` and `test-tsgo-package`'s test-file discovery,
+package ownership, coverage partition and synthetic-config renderer. Tests
+already covered by canonical checks reuse those programs. Uncovered tests run
+with the same inherited config and exact file list as the Go test gate; this
+includes repo-cli's `test/tsconfig.json` overlay. `tsgo-smoke` compiles an
+intentional canary created entirely in a temporary directory, so it contributes
+no persistent repository program. Missing declared projects fail discovery.
+A real-repository parity test asserts equality with the union of compiler-script
+and fallback test programs, verifies every candidate exists on disk, and keeps
+every existing project from the former check/test fixed-name inventory.
+Nested test-fixture packages are excluded unless declared as workspaces.
+Root files select the root configs owner; workspace changes also select that
+owner because its configs program includes workspace Vitest configs.
 Each project runs the installed `effect-tsgo diagnostics --project <config>
 --format json --strict` command with bounded Effect concurrency. Project settings are authoritative,
 including effect-drizzle's documented missedPipeableOpportunity exception.
@@ -126,9 +145,9 @@ rules remain explicitly off. Intentional named helper imports are pervasive,
 and Effect barrel imports violate the code law.
 
 All three `ignoreEffect*InTscExitCode` options are **true** in the root and
-copied profiles. Required `Heavy / Check` fails on TypeScript errors only; tsc-rs
-still prints its embedded 0.51.1 Effect findings, but every Effect rule, shared or
-newer, gates through the required diagnostics lane. A policy fixture proves an
+copied profiles. Compiler checks fail on TypeScript errors only; `tsc-rs` and `tsgo`
+still print their Effect findings, but every enabled Effect rule, shared or
+newer, gates through the required diagnostics lane across these programs. A policy fixture proves an
 Effect-only finding leaves tsc-rs at exit 0 while standalone diagnostics rejects
 it, and a TypeScript error still fails tsc-rs.
 
