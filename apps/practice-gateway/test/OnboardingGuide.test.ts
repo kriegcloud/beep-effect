@@ -6,6 +6,7 @@ import {
   OnboardingGuide,
   OnboardingPromptLayer,
 } from "@beep/practice-gateway/OnboardingGuide";
+import { PracticeKgModuleLoader } from "@beep/practice-gateway/PracticeKgProvider";
 import { GatewaySetupProbes } from "@beep/practice-gateway/Probes";
 import { ProfileStore } from "@beep/practice-gateway/ProfileStore";
 import { PRACTICE_GATEWAY_INSTRUCTIONS } from "@beep/practice-gateway/Server";
@@ -36,7 +37,14 @@ const Handlers = SetupToolkitHandlers.pipe(
           Layer.merge(
             GatewaySetupProbes.pipe(
               Layer.provide(
-                Layer.mergeAll(fakeHost({}), settings, Platform, WindowsSecretStore.layerMemory, fakeM365SignIn({}))
+                Layer.mergeAll(
+                  fakeHost({}),
+                  settings,
+                  Platform,
+                  WindowsSecretStore.layerMemory,
+                  fakeM365SignIn({}),
+                  PracticeKgModuleLoader.layer
+                )
               )
             ),
             ElicitedApprovals

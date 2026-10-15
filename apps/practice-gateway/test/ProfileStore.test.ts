@@ -2,6 +2,7 @@ import { SetupDoctor } from "@beep/law-practice-use-cases/PracticeSetup";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { GatewaySettings } from "@beep/practice-gateway/GatewaySettings";
 import { SelfCheckFailure } from "@beep/practice-gateway/PracticeGateway.errors";
+import { PracticeKgModuleLoader } from "@beep/practice-gateway/PracticeKgProvider";
 import { GatewaySetupProbes } from "@beep/practice-gateway/Probes";
 import { PROFILE_FILE_NAME, ProfileStore } from "@beep/practice-gateway/ProfileStore";
 import {
@@ -43,7 +44,8 @@ const GatewayServices = Layer.unwrap(
             settings,
             Platform,
             WindowsSecretStore.layerMemory,
-            fakeM365SignIn({})
+            fakeM365SignIn({}),
+            PracticeKgModuleLoader.layer
           )
         )
       );

@@ -3,10 +3,9 @@ import { SetupDoctor } from "@beep/law-practice-use-cases/PracticeSetup";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { OnboardingGuide } from "@beep/practice-gateway/OnboardingGuide";
 import { ProviderUnavailable } from "@beep/practice-gateway/PracticeGateway.errors";
-import { loadPracticeKgModules, PracticeKgProviderLayer } from "@beep/practice-gateway/PracticeKgProvider";
+import { PracticeKgModuleLoader, PracticeKgProviderLayer } from "@beep/practice-gateway/PracticeKgProvider";
 import { GatewaySetupProbes } from "@beep/practice-gateway/Probes";
 import { ProfileStore } from "@beep/practice-gateway/ProfileStore";
-import { GatewayServerLayer } from "@beep/practice-gateway/Server";
 import { SetupStatus, SetupToolkit, SetupToolkitHandlers } from "@beep/practice-gateway/SetupTools";
 import { it } from "@beep/test-runner";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
@@ -23,14 +22,14 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-import { vi } from "vitest";
 import { fakeHost, fakeM365SignIn, fullProfile, settingsLayer } from "./fixtures.ts";
 
-// The DuckDB driver cannot load, as on a machine without the native sidecar:
-// evaluating any module that imports it throws.
-vi.mock("@beep/duckdb", () => {
-  throw new Error("Cannot find module '@duckdb/node-bindings-win32-x64/duckdb.node'");
-});
+// The knowledge-graph modules cannot load, as on a machine without the DuckDB
+// native sidecar: the import rejects the way the runtime reports it.
+const missingEngine = PracticeKgModuleLoader.fromImport(() =>
+  Promise.reject(new Error("Cannot find module '@duckdb/node-bindings-win32-x64/duckdb.node'"))
+);
+const MissingEngine = Layer.succeed(PracticeKgModuleLoader, missingEngine);
 
 const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 const layerTimeout = "30 seconds";
@@ -49,7 +48,8 @@ const GatewayServices = Layer.unwrap(
             settings,
             Platform,
             WindowsSecretStore.layerMemory,
-            fakeM365SignIn({})
+            fakeM365SignIn({}),
+            MissingEngine
           )
         )
       );
@@ -60,7 +60,7 @@ const GatewayServices = Layer.unwrap(
       );
     })
   )
-).pipe(Layer.provideMerge(Platform));
+).pipe(Layer.provideMerge(Layer.merge(Platform, MissingEngine)));
 
 const GatewayWithTools = SetupToolkitHandlers.pipe(
   Layer.provideMerge(Layer.merge(GatewayServices, OnboardingGuide.layer))
@@ -70,13 +70,9 @@ const statusOf = (check: RequirementCheck) =>
   RequirementCheck.match(check, { probed: (probed) => O.some(probed.result), blocked: () => O.none() });
 
 describe("practice-kg provider without the DuckDB sidecar", () => {
-  it("imports the gateway composition without evaluating DuckDB", () => {
-    expect(Layer.isLayer(GatewayServerLayer)).toBe(true);
-  });
-
   it.effect("reports the missing engine as a typed provider failure", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.flip(loadPracticeKgModules);
+      const error = yield* Effect.flip(missingEngine.load);
       expect(error).toBeInstanceOf(ProviderUnavailable);
       expect(error.provider).toBe("practice-kg");
       expect(error.message).toBe(unavailableMessage);

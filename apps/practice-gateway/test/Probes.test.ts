@@ -16,6 +16,7 @@ import {
 } from "@beep/law-practice-use-cases/PracticeSetup";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { M365SignInFailure } from "@beep/practice-gateway/PracticeGateway.errors";
+import { PracticeKgModuleLoader } from "@beep/practice-gateway/PracticeKgProvider";
 import { CLAUDE_UNINSTALL_KEY, GatewaySetupProbes } from "@beep/practice-gateway/Probes";
 import { requirementFromCatalog, requirementsFor } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
@@ -42,7 +43,9 @@ const probesFor = (
   m365: Layer.Layer<M365SignIn> = fakeM365SignIn({})
 ) =>
   GatewaySetupProbes.pipe(
-    Layer.provide(Layer.mergeAll(fakeHost(machine), settingsLayer(settings), Platform, secrets, m365))
+    Layer.provide(
+      Layer.mergeAll(fakeHost(machine), settingsLayer(settings), Platform, secrets, m365, PracticeKgModuleLoader.layer)
+    )
   );
 
 const probeRequirement = (requirement: SetupRequirement, layer: Layer.Layer<SetupProbes>) =>

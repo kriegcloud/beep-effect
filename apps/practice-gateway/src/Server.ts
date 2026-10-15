@@ -20,7 +20,7 @@ import { GatewaySettings } from "./GatewaySettings.ts";
 import { M365ProviderLayer } from "./M365Provider.ts";
 import { M365SignIn } from "./M365SignIn.ts";
 import { OnboardingGuide, OnboardingPromptLayer } from "./OnboardingGuide.ts";
-import { PracticeKgProviderLayer } from "./PracticeKgProvider.ts";
+import { PracticeKgModuleLoader, PracticeKgProviderLayer } from "./PracticeKgProvider.ts";
 import { GatewaySetupProbes } from "./Probes.ts";
 import { ProfileStore } from "./ProfileStore.ts";
 import { SetupToolsLayer } from "./SetupTools.ts";
@@ -68,8 +68,8 @@ const withPlatformSecrets = <A, E, R>(layer: Layer.Layer<A, E, R>) =>
 /**
  * Setup services: settings, profile store, Windows host and the setup doctor
  * with the gateway's probes and elicited approvals. The settings, profile
- * store, Windows host and Microsoft 365 sign-in are also exposed to the
- * provider layers.
+ * store, Windows host, Microsoft 365 sign-in and the knowledge-graph module
+ * loader are also exposed to the provider layers.
  *
  * **Details**
  *
@@ -92,6 +92,7 @@ export const GatewayServicesLayer = SetupDoctor.layer.pipe(
   Layer.provide(Layer.merge(withPlatformSecrets(GatewaySetupProbes), ElicitedApprovals)),
   Layer.provideMerge(withPlatformSecrets(M365SignIn.layer)),
   Layer.provide(SystemBrowser.layer),
+  Layer.provideMerge(PracticeKgModuleLoader.layer),
   Layer.provideMerge(WindowsHost.layer),
   Layer.provideMerge(ProfileStore.layer),
   Layer.provideMerge(GatewaySettings.layer)

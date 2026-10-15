@@ -23,7 +23,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { M365_TOKEN_CACHE_SEGMENTS, M365SignIn, M365SignInOutcome } from "./M365SignIn.ts";
-import { loadPracticeKgModules } from "./PracticeKgProvider.ts";
+import { PracticeKgModuleLoader } from "./PracticeKgProvider.ts";
 import { GatewayRequirementId } from "./Requirements.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 import { BitLockerProtection, RegistryValueQuery, WindowsHost } from "./WindowsHost.ts";
@@ -132,6 +132,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
   const services = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
   const secrets = yield* Effect.serviceOption(WindowsSecretStore);
   const m365 = yield* M365SignIn;
+  const practiceKg = yield* PracticeKgModuleLoader;
 
   const unavailable = (requirement: GatewayRequirementId) => (failure: WindowsHostFailure) =>
     SetupProbeUnavailable.make({ requirement: idOf(requirement), reason: failure.message });
@@ -261,7 +262,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
   const bundleSelfCheck = O.match(settings.bundleDir, {
     onNone: () => Effect.succeed(noBundle),
     onSome: (bundleDir) =>
-      loadPracticeKgModules.pipe(
+      practiceKg.load.pipe(
         Effect.flatMap((modules) =>
           modules.runPracticeKgSelfCheck({
             extensionVersion: PRACTICE_GATEWAY_VERSION,
@@ -345,7 +346,8 @@ const lookup = (registry: GatewayProbeRegistry, requirement: SetupRequirement): 
  * `SetupProbeUnavailable`; a repair asked of a requirement without an
  * automatic repair fails with `SetupRepairFailed`. The Windows secret store
  * is optional: provide `WindowsSecretStore.layerWindows` on Windows and
- * `layerMemory` in tests.
+ * `layerMemory` in tests. The `practice-kg-self-check` probe loads the
+ * knowledge-graph modules through {@link PracticeKgModuleLoader}.
  *
  * **Example** (Compose the probes)
  *

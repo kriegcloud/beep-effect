@@ -23521,28 +23521,6 @@
       "reason": "The native adapter deliberately runs the same manifest-loader conformance cases as MemoryFileSystem. Public layers own native scoped temporary directories; keeping this adapter comparison does not claim database or MCP startup coverage."
     },
     {
-      "id": "EV010:packages/law-practice/server/test/PracticeKgHost.test.ts:15:@effect/platform-bun/BunFileSystem@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKgHost.test.ts",
-      "line": 15,
-      "endLine": 15,
-      "symbol": "@effect/platform-bun/BunFileSystem",
-      "occurrence": "v2:689f2ca9582e57cd48cd48977a32f050ebbc170ed72e17f695a1478642d29772",
-      "class": "platform-filesystem-candidate",
-      "evidence": "import * as BunFileSystem from \"@effect/platform-bun/BunFileSystem\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The suite runs the same bundle-loading cases over the native Bun file system and the in-memory file system on purpose: the native adapter proves real temp-directory and manifest reads, the memory adapter proves the adapter-neutral contract."
-    },
-    {
       "id": "EV010:apps/practice-m365-contacts/test/Contacts.test.ts:12:@effect/platform-bun/BunServices@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -31588,50 +31566,6 @@
       "mechanization": "detector",
       "status": "exception",
       "reason": "Vitest hoists vi.mock and vi.hoisted through its direct vi import. This module wraps the real Oxigraph module with importOriginal to count imports, store construction and quad loading; all queries still execute against the real WASM engine. Effect-aware registrations use the shared runner."
-    },
-    {
-      "id": "EV011:apps/practice-gateway/test/LazyPracticeKg.test.ts:25:vitest-import@0#1",
-      "lens": "detector",
-      "ruleId": "EV011",
-      "package": "@beep/practice-gateway",
-      "file": "apps/practice-gateway/test/LazyPracticeKg.test.ts",
-      "line": 25,
-      "endLine": 25,
-      "symbol": "vitest-import",
-      "occurrence": "v2:4edb49754a5407dfdaee5918ee8c043d097d2eae413ba7ed6307ac9c06b7a01d",
-      "class": "plain-vitest-with-effect",
-      "evidence": "import { vi } from \"vitest\";",
-      "replacement": {
-        "primitive": "module.@effect/vitest",
-        "sketch": "module.@effect/vitest: Use for plain-vitest-with-effect candidates that need the Effect-aware package entry point; the pinned peer export-star boundary covers Vitest names without pretending they are declared here."
-      },
-      "severity": "minor",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "Vitest hoists vi.mock through its direct vi import (importing vi from @effect/vitest breaks hoisting). The test makes the DuckDB native module throw on import to prove the gateway composition, setup_status and the practice-kg probe survive a missing sidecar; all Effect registrations use the shared runner."
-    },
-    {
-      "id": "EV012:apps/practice-gateway/test/LazyPracticeKg.test.ts:30:vi.mock@0#1",
-      "lens": "resource",
-      "ruleId": "EV012",
-      "package": "@beep/practice-gateway",
-      "file": "apps/practice-gateway/test/LazyPracticeKg.test.ts",
-      "line": 30,
-      "endLine": 32,
-      "symbol": "vi.mock",
-      "occurrence": "v2:cab3404449ef2f1dcb1a1608eaea09b7a2fede38732168b94ea91b7514217cb5",
-      "class": "unproven-module-mock-review",
-      "evidence": "vi.mock(\"@beep/duckdb\", () => { throw new Error(\"Cannot find module '@duckdb/node-bindings-win32-x64/duckdb.node'\"); })",
-      "replacement": {
-        "primitive": "Layer.mock",
-        "sketch": "Review mock provenance: Layer.mock requires a real service key; unknown module/codec subject mocks are not mechanically service-replaceable. Layer.mock: Use for effect-service-mock-candidate judgments (EV012, candidate class effect-service-mock-candidate) when an Effect service is the actual dependency."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The subject is module evaluation, not an Effect service: the gateway must start when importing the DuckDB driver throws (a missing native sidecar), which no Layer.mock can stand in for. The mock replaces the whole module with a throwing factory; every Effect dependency in the test is real or provided by layers."
     },
     {
       "id": "EV011:packages/drivers/rdf-canonize/test/CanonicalizationSecurity.test.ts:15:vitest-import@0#1",
