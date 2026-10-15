@@ -1,0 +1,20 @@
+{
+  "previous": "8896acbb4e3e0063b65c6b5ff8bf6c8f8f36cc3d54c26960cf1a34a4a4e346fc",
+  "review": {
+    "reviewer": "Codex lane E under orchestrator S31b (2026-10-15)",
+    "reason": "Re-record only root script-map and cycle/fingerprint input drift from the reviewed TypeScript catalog migration; retain qualification scope and state.",
+    "basis": {
+      "path": "goals/ts7-typescript-catalog-7/research/cache-baseline-basis.md",
+      "sha256": "2bed607e543be0c09c10dbab1f73a92e7a0ab0d3fe9d47dde972e150d0ee5072"
+    }
+  },
+  "subjects": ["//"],
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2"
+}
