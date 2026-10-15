@@ -6,8 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import * as OptionUtils from "@beep/utils/Option";
-import * as O from "effect/Option";
+import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
 
@@ -53,9 +52,5 @@ export class GraduationRecoveryError extends S.TaggedError<GraduationRecoveryErr
   static readonly new =
     (exploration: string, message: string): ((cause?: unknown) => GraduationRecoveryError) =>
     (cause?: unknown) =>
-      GraduationRecoveryError.make({
-        exploration,
-        message,
-        ...OptionUtils.getSomesStruct({ cause: O.fromUndefinedOr(cause) }),
-      });
+      GraduationRecoveryError.make({ exploration, message, ...O.getSomesStruct({ cause: O.fromUndefinedOr(cause) }) });
 }

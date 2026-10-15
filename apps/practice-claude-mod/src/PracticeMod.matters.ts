@@ -58,17 +58,17 @@ const unreadable = (issue: unknown) => MatterLookupUnreadable.make({ message: St
 export const decodeMatterLookup = Effect.fn("PracticeMod.decodeMatterLookup")(function* (raw: unknown) {
   const result = yield* S.decodeUnknownEffect(ToolResult)(raw).pipe(Effect.mapError(unreadable));
   if (result.isError) return yield* unreadable("The lookup failed.");
-  const envelope = yield* O.getOrElse(
-    O.map(O.fromUndefinedOr(result.structuredContent), (value) => S.decodeUnknownEffect(Envelope)(value)),
-    () =>
-      O.match(
+  const envelope = yield* O.fromUndefinedOr(result.structuredContent).pipe(
+    O.map((value) => S.decodeUnknownEffect(Envelope)(value)),
+    O.orElse(() =>
+      O.map(
         A.findFirst(result.content, (block) => block.type === "text" && block.text !== undefined),
-        {
-          onSome: (block) => decodeEnvelopeJson(block.text),
-          onNone: () => Effect.fail(unreadable("Missing lookup content.")),
-        }
+        (block) => decodeEnvelopeJson(block.text)
       )
-  ).pipe(Effect.mapError(unreadable));
+    ),
+    O.getOrElse(() => Effect.fail(unreadable("Missing lookup content."))),
+    Effect.mapError(unreadable)
+  );
   return yield* Effect.forEach(envelope.data.rows, (cells) =>
     cells.length !== envelope.data.columns.length
       ? Effect.fail(unreadable("Column count does not match row width."))

@@ -109,7 +109,7 @@ const readLedgerText = (repoRoot: string) =>
         attempt("open", () =>
           fs.openSync(entry, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK)
         ),
-        Effect.fnUntraced(function* (fd: number) {
+        Effect.fnUntraced(function* (fd) {
           yield* requireRegularLedger(fd);
           return yield* attempt("read", () => fs.readFileSync(fd, { encoding: "utf8" }));
         }),
@@ -138,7 +138,7 @@ const appendLedgerText = (repoRoot: string, text: string) =>
             0o600
           )
         ),
-        Effect.fnUntraced(function* (fd: number) {
+        Effect.fnUntraced(function* (fd) {
           yield* requireRegularLedger(fd);
           yield* attempt("append to", () => fs.writeFileSync(fd, text));
         }),

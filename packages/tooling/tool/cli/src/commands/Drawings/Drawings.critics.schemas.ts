@@ -403,8 +403,8 @@ const encodeCriticReportJson = S.encodeEffect(reportCodec);
  * Effect.runPromise(decodeCriticReport(text)).then((r) => console.log(r.verdict)) // "accept"
  * ```
  *
- * @param text - JSON text containing a critic report.
- * @returns An effect that decodes and validates the critic report.
+ * @param text - JSON document containing one reviewer report.
+ * @returns An effect yielding the validated report, or a schema decoding failure.
  * @category decoding
  * @since 0.0.0
  */
@@ -423,8 +423,8 @@ export const decodeCriticReport = (text: string) => decodeCriticReportJson(text)
  * Effect.runPromise(encodeCriticReport(report)).then((text) => console.log(text.length > 0)) // true
  * ```
  *
- * @param report - Validated critic report to serialize.
- * @returns An effect that encodes the report as JSON text.
+ * @param report - Validated report whose findings and prior assessments will be serialized.
+ * @returns An effect yielding JSON text suitable for storing as a reviewer report.
  * @category encoding
  * @since 0.0.0
  */
@@ -445,7 +445,7 @@ export const encodeCriticReport = (report: CriticReport) => encodeCriticReportJs
  * console.log(JSON.parse(criticReportJsonSchema()).required) // ["reviewer", "verdict", ...]
  * ```
  *
- * @returns The strict structured-output JSON Schema for a critic report.
+ * @returns Pretty-printed JSON Schema with definitions inlined and unsupported strict-mode keywords removed.
  * @category encoding
  * @since 0.0.0
  */
@@ -566,8 +566,8 @@ const encodeCriticPackManifestJson = S.encodeEffect(manifestCodec);
  * Effect.runPromise(decodeCriticPackManifest(text)).then((manifest) => console.log(manifest.sheets)) // ["render/pg-1.png"]
  * ```
  *
- * @param text - JSON text containing a pack manifest.
- * @returns An effect that decodes and validates the pack manifest.
+ * @param text - JSON document describing pack hashes and pack-relative input files.
+ * @returns An effect yielding the validated manifest, or a schema decoding failure.
  * @category decoding
  * @since 0.0.0
  */
@@ -586,8 +586,8 @@ export const decodeCriticPackManifest = (text: string) => decodeCriticPackManife
  * Effect.runPromise(Effect.flatMap(decodeCriticPackManifest(text), encodeCriticPackManifest)).then(console.log)
  * ```
  *
- * @param manifest - Validated pack manifest to serialize.
- * @returns An effect that encodes the manifest as JSON text.
+ * @param manifest - Validated pack manifest with paths relative to the pack directory.
+ * @returns An effect yielding JSON text suitable for the pack.json file.
  * @category encoding
  * @since 0.0.0
  */
@@ -672,8 +672,8 @@ const encodeCriticLoopRecordJson = S.encodeEffect(recordCodec);
  * Effect.runPromise(decodeCriticLoopRecord(text)).then((record) => console.log(record.loop)) // 1
  * ```
  *
- * @param text - JSON text containing a loop record.
- * @returns An effect that decodes and validates the loop record.
+ * @param text - JSON document recording a loop number, sheet-set hash, and reviewer runs.
+ * @returns An effect yielding the validated loop record, or a schema decoding failure.
  * @category decoding
  * @since 0.0.0
  */
@@ -692,8 +692,8 @@ export const decodeCriticLoopRecord = (text: string) => decodeCriticLoopRecordJs
  * Effect.runPromise(Effect.flatMap(decodeCriticLoopRecord(text), encodeCriticLoopRecord)).then(console.log)
  * ```
  *
- * @param record - Validated loop record to serialize.
- * @returns An effect that encodes the loop record as JSON text.
+ * @param record - Validated loop record whose reviewer run order will be preserved.
+ * @returns An effect yielding JSON text suitable for persisting the loop record.
  * @category encoding
  * @since 0.0.0
  */

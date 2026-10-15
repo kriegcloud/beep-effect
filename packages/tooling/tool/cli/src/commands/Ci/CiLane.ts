@@ -214,6 +214,7 @@ export const CI_LANE_ID_VALUES = [
   "labs",
   "lint",
   "lint-policy",
+  "effect-diagnostics",
   "nix",
   "property",
   "repo-sanity",
@@ -410,6 +411,17 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
     laneClass: "cli-runnable",
     replay: "exact",
     flags: [],
+  }),
+  CiLaneDescriptor.make({
+    id: "effect-diagnostics",
+    workflow: "heavy",
+    contextName: "Heavy / Effect Diagnostics",
+    required: false,
+    laneClass: "cli-runnable",
+    replay: "exact",
+    flags: [...TURBO_SHAPE_FLAGS],
+    notes:
+      "Independent Effect rules: affected workspace dependents on PRs, full inventory on main; hosted job has a 19-GiB cgroup cap.",
   }),
   CiLaneDescriptor.make({
     id: "repo-sanity",
@@ -1647,6 +1659,14 @@ export const ciLaneStepsForTesting: {
       // from ambient `CI=true`, so a local replay scans the same repo-wide
       // surface the required Lint Policy context does. Hosted runs are
       // unchanged: `beep lint policy` already forces the full sweep under CI.
+      "effect-diagnostics": () => [
+        bunRunStep(repoRoot, "ci:effect-diagnostics", [
+          "beep",
+          "quality",
+          "effect-diagnostics",
+          ...(options.affected ? ["--base", options.base] : []),
+        ]),
+      ],
       "lint-policy": () => [bunRunStep(repoRoot, "ci:lint-policy", ["beep", "lint", "policy", "--full"])],
       nix: () => [
         QualityTaskStep.make({
@@ -1676,6 +1696,7 @@ export const ciLaneStepsForTesting: {
         }),
       ],
       "repo-sanity": () => [
+        bunRunStep(repoRoot, "lint:schema-catalog", ["beep", "lint", "schema-catalog"]),
         bunRunStep(repoRoot, "ci:repo-sanity:changeset-graph", ["beep", "quality", "changeset-graph"]),
         bunRunStep(repoRoot, "ci:repo-sanity", ["audit:github", "repo-sanity"]),
         ...(options.changesetStatus
@@ -2533,6 +2554,7 @@ const ciLocalLaneFlags = (laneId: CiLaneId, plan: CiLocalStepPlan): ReadonlyArra
     "desktop-ipc": A.empty<string>,
     docgen: () => ["--mode", plan.affected ? "auto" : "full", "--base", plan.base],
     doctest: A.empty<string>,
+    "effect-diagnostics": () => turboShapeFlags,
     ecosystem: A.empty<string>,
     fallow: () => ["--base", plan.base, "--validate-envelopes"],
     "jsdoc-ratchet": A.empty<string>,

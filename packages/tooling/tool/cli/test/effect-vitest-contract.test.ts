@@ -616,22 +616,25 @@ it.layer(BunCrypto.layer)((it) => {
     Effect.gen(function* () {
       const source = new Project({ useInMemoryFileSystem: true }).createSourceFile(
         "agent-message.test.ts",
-        [
-          'import { it } from "@effect/vitest";',
-          'import * as Effect from "effect/Effect";',
-          'import * as Layer from "effect/Layer";',
-          "declare const storeLayer: (directory: string) => Layer.Layer<never>;",
-          "const query = Effect.fn(function* (directory: string) {",
-          "  const context = yield* Layer.build(storeLayer(directory));",
-          "  return yield* Effect.void.pipe(Effect.provide(context));",
-          "});",
-          'it.effect("races first opens", () =>',
-          "  Effect.gen(function* () {",
-          '    const directory = "fresh-router";',
-          '    yield* Effect.all([query(directory), query(directory)], { concurrency: "unbounded" });',
-          "  })",
-          ");",
-        ].join("\n")
+        A.join(
+          [
+            'import { it } from "@effect/vitest";',
+            'import * as Effect from "effect/Effect";',
+            'import * as Layer from "effect/Layer";',
+            "declare const storeLayer: (directory: string) => Layer.Layer<never>;",
+            "const query = Effect.fn(function* (directory: string) {",
+            "  const context = yield* Layer.build(storeLayer(directory));",
+            "  return yield* Effect.void.pipe(Effect.provide(context));",
+            "});",
+            'it.effect("races first opens", () =>',
+            "  Effect.gen(function* () {",
+            '    const directory = "fresh-router";',
+            '    yield* Effect.all([query(directory), query(directory)], { concurrency: "unbounded" });',
+            "  })",
+            ");",
+          ],
+          "\n"
+        )
       );
       const live = A.filter(
         yield* detectEffectVitestFindings(source, "packages/example/test/agent-message.test.ts", "@beep/example"),

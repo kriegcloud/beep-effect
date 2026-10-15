@@ -67,6 +67,7 @@
     "@beep/duckdb": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/observability": "workspace:^",
     "@beep/phoenix": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",

@@ -68,8 +68,8 @@ const InstrumentOrder: Order.Order<Catalog.Instrument> = Order.combine(
  * console.log(rows.length, rows[0]?.conforms) // 1 false
  * ```
  *
- * @param harvest - Harvest containing source span sites.
- * @returns Deduplicated span rows sorted by name and owner.
+ * @param harvest - Discovered span sites from one or more source files.
+ * @returns Rows deduplicated by owner and name, sorted by name then owner, with naming conformance recorded.
  * @category mapping
  * @since 0.0.0
  */
@@ -104,8 +104,8 @@ export const harvestedSpans = (harvest: SpanHarvest): ReadonlyArray<HarvestedSpa
  * console.log(O.map(harvestedSpanInstrument(row), (span) => span.origin)) // { _id: 'Option', _tag: 'Some', value: 'harvested' }
  * ```
  *
- * @param row - Harvested span row to validate and convert.
- * @returns The catalog span instrument, or None for an invalid name.
+ * @param row - Harvested span row supplying its name, owner, family, and conformance flag.
+ * @returns A shape-only internal catalog instrument, or None when the row cannot satisfy the catalog schema.
  * @category mapping
  * @since 0.0.0
  */
@@ -186,8 +186,8 @@ export const buildCatalog: {
  * console.log(familySpanCounts([]).length) // 7
  * ```
  *
- * @param spans - Harvested span rows to count by package family.
- * @returns Counts for every package family in canonical order, including zeros.
+ * @param spans - Harvested span rows to count, including rows that fail naming conformance.
+ * @returns Counts in package-family declaration order, including families with zero spans.
  * @category folding
  * @since 0.0.0
  */
@@ -296,8 +296,8 @@ export const STANDARD_SECTION_END = "<!-- END GENERATED: INSTRUMENTATION CATALOG
  * console.log(section.includes("| **total** | 0 | 0 | 0 |")) // true
  * ```
  *
- * @param document - Catalog document whose naming rules and counts are rendered.
- * @returns The generated observability standard section as Markdown.
+ * @param document - Instrumentation catalog containing declared instruments and harvested spans.
+ * @returns A marked Markdown section with naming rules and per-family span counts.
  * @category formatting
  * @since 0.0.0
  */

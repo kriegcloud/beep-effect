@@ -1022,6 +1022,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:build",
         "quality:lint",
         "quality:lint-policy",
+        "quality:effect-diagnostics",
         "quality:check",
         "quality:shadcn-lint",
         "quality:jsdoc-ratchet",
