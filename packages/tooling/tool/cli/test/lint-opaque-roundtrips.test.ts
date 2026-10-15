@@ -77,6 +77,54 @@ describe("opaque-roundtrips", () => {
   );
 
   it.effect(
+    "reports a sample rebound through a const alias",
+    Effect.fnUntraced(function* () {
+      const findings = yield* Effect.sync(() =>
+        detect(`
+      FastCheck.assert(FastCheck.property(Arbitrary.schema(Value), (sample) => {
+        const decoded = Result.getOrThrow(S.decodeUnknownResult(Value)(sample));
+        const alias = sample;
+        expect(decoded).toStrictEqual(alias);
+      }));
+    `)
+      );
+      expect(findings).toHaveLength(1);
+    })
+  );
+
+  it.effect(
+    "reports a sample rebound through a destructuring alias",
+    Effect.fnUntraced(function* () {
+      const findings = yield* Effect.sync(() =>
+        detect(`
+      FastCheck.assert(FastCheck.property(Arbitrary.schema(S.Tuple([Value])), (pair) => {
+        const [first] = pair;
+        expect(Result.getOrThrow(S.decodeUnknownResult(Value)(first))).toStrictEqual(first);
+      }));
+    `)
+      );
+      expect(findings).toHaveLength(1);
+    })
+  );
+
+  it.effect(
+    "keeps the call boundary for aliases built through a call",
+    Effect.fnUntraced(function* () {
+      const findings = yield* Effect.sync(() =>
+        detect(`
+      const identity = <A>(value: A): A => value;
+      FastCheck.assert(FastCheck.property(Arbitrary.schema(Value), (sample) => {
+        const decoded = Result.getOrThrow(S.decodeUnknownResult(Value)(sample));
+        const fresh = identity(sample);
+        expect(decoded).toStrictEqual(fresh);
+      }));
+    `)
+      );
+      expect(findings).toHaveLength(0);
+    })
+  );
+
+  it.effect(
     "accepts samples normalised with make",
     Effect.fnUntraced(function* () {
       const findings = yield* Effect.sync(() =>

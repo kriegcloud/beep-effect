@@ -128,9 +128,33 @@ const rawSample = (node: ts.Node, names: HashSet.HashSet<string>): boolean => {
   return found;
 };
 
+// One hop of plain aliases: `const x = sample` or `const { a } = sample` inside the callback keeps
+// the sample raw. The initializer must reference a parameter outside any call, so the call boundary
+// above (`identity(sample)` is fresh) is unchanged.
+const aliasDeclarations = (body: ts.Node): ReadonlyArray<ts.VariableDeclaration> => {
+  const found = A.empty<ts.VariableDeclaration>();
+  const visit = (child: ts.Node): void => {
+    if (ts.isVariableDeclaration(child) && child.initializer !== undefined) found.push(child);
+    ts.forEachChild(child, visit);
+  };
+  visit(body);
+  return found;
+};
+
+const withAliases =
+  (parameters: HashSet.HashSet<string>) =>
+  (scope: HashSet.HashSet<string>, declaration: ts.VariableDeclaration): HashSet.HashSet<string> =>
+    declaration.initializer !== undefined && rawSample(declaration.initializer, parameters)
+      ? bindingNames(declaration.name, scope)
+      : scope;
+
 const collectParameters = (names: HashSet.HashSet<string>, node: ts.Node): HashSet.HashSet<string> => {
   if (!ts.isArrowFunction(node) && !ts.isFunctionExpression(node)) return names;
-  return A.reduce(node.parameters, names, (scope, parameter) => bindingNames(parameter.name, scope));
+  const parameters = A.reduce(node.parameters, HashSet.empty<string>(), (scope, parameter) =>
+    bindingNames(parameter.name, scope)
+  );
+  const withSamples = HashSet.union(names, parameters);
+  return A.reduce(aliasDeclarations(node.body), withSamples, withAliases(parameters));
 };
 
 const collectArgumentSamples = (node: ts.Node, names: HashSet.HashSet<string>): HashSet.HashSet<string> => {
