@@ -509,3 +509,9 @@ protocol, and `Bash(graft build:*)` also approved `--deep`.
 pass (fixed at eight workers); the prompt-hook unit bug and the missing
 synthesis checkpoint belong upstream; re-check the stamp guard against any
 new graft version before upgrading.
+
+### 2026-10-14 — Documentation lint routing during the TS7 exit
+
+The docs lint lane now uses repo-owned oxlint JS plugins. Earlier references to ESLint as
+a graft-wiring linter describe their recorded state. ESLint remains for deprecated-API
+checks until that lane merges; its eventual removal is a separate follow-up.
