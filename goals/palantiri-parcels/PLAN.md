@@ -121,7 +121,7 @@ Before marking the packet closed:
   item tagging and label cap); design deltas in
   [`research/parcels-design.md`](./research/parcels-design.md) "P2 as
   built".
-- Live run (2026-10-15, workstation, `--json`; no `@` and no `/home/` in
+- Live run (2026-10-15, workstation, `--json`; no `@` and no home-directory paths in
   any envelope):
   - account-headroom: `Fresh`; `11 of 13 accounts fresh; 1 stale
     (grok-bot), 1 unreachable (codex); most weekly headroom: claude #3 at

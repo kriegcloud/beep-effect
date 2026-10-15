@@ -48,7 +48,7 @@ product-neutral foundation capability, not law-practice slice code, because
 product slice and the operator command lives in the tooling CLI.
 
 - `packages/drivers/occt` (`@beep/occt`) — replicad / opencascade.js solid construction and exact hidden-line projection, orthographic and perspective (shared with agentic-cad per its D7).
-- `packages/drivers/pdf-tools` (`@beep/pdf-tools`) — `rsvg-convert` and poppler `pdftoppm` wrappers in the `@beep/ffmpeg` shape (`effect/process`), pdf-lib page merge at a pinned version and date, structure inspection, non-anti-aliased raster metrics.
+- `packages/drivers/pdf-tools` (`@beep/pdf-tools`) — `rsvg-convert` and poppler `pdftoppm` wrappers in the `@beep/ffmpeg` shape (`effect/process`), every sheet converted to one PDF in a single `rsvg-convert` run at a pinned version and date (the multi-page header is rewritten to the requested version; `goals/design-figure-review-loop` SPEC Decision Log 2026-10-15), pdf-lib structure inspection, non-anti-aliased raster metrics.
 - `packages/foundation/capability/technical-drawing` (`@beep/technical-drawing`) — `ModelSpec`, `FigureSetSpec`, view-name `LiteralKit`, omission claims, sheet rules and composition, validator findings, render manifest, and (slice 2) the approval record keyed to the sheet-set hash, behind a `GeometryEngine` port and a `PdfBackend` port.
 - `packages/law-practice/domain` — only Matter-bound meaning, when a slice flow needs it (slice 1 touches no law-practice package).
 - `packages/tooling/tool/cli/src/commands/Drawings/` — `render`, `validate` (slice 1); `judge`, `sign` (slice 2); the port adapters over the two drivers live here.

@@ -3,10 +3,14 @@ import {
   PracticeKgBundle,
   PracticeKgBundleManifest,
   PracticeKgCounts,
+  PracticeKgFailureReasonKey,
   PracticeKgSchemaVersions,
   PracticeKgSourceRuns,
+  PracticeKgToolFailureReason,
   PracticeKgToolkit,
 } from "@beep/law-practice-server";
+import { connectStdio, withStdioServer } from "@beep/mcp-kit/test/Conformance";
+import { layerInMemoryEgressSink, StrictEgressSink } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
@@ -18,23 +22,34 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { Base64 } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { SelfCheckFailure } from "../src/PracticeKgMcp.errors.ts";
-import { loadPracticeKgBundleContext, PracticeKgHostError } from "../src/runtime/Host.ts";
+import {
+  loadPracticeKgBundleContext,
+  makePracticeKgHostServerLayer,
+  PracticeKgHostError,
+} from "../src/runtime/Host.ts";
 import {
   PracticeKgSelfCheckRefusal,
   PracticeKgSelfCheckReport,
   printPracticeKgSelfCheck,
   runPracticeKgSelfCheck,
 } from "../src/runtime/SelfCheck.ts";
+import { layerInMemoryStrictSalt, layerPracticeKgTelemetry, shapeOnlyLogLine } from "../src/runtime/Telemetry.ts";
 import { makePracticeKgSmokeBundle } from "../src/smoke.ts";
+import { PracticeKgToolId } from "../src/telemetry/PracticeKgTelemetry.instruments.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "../src/Version.ts";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
@@ -459,7 +474,10 @@ for (const [kind, table] of [
           });
           expect(startup.exitCode).not.toBe(0);
           expect(startup.stdout).toBe("");
-          expect(startup.stderr).toBe(`${refusal.message}\n`);
+          // Claude Desktop keeps stderr: the startup refusal is one shape-only
+          // line, with no message, path or cause.
+          expect(startup.stderr).toBe(`${shapeOnlyLogLine("Error", O.none())}\n`);
+          expect(startup.stderr).not.toContain(bundleDir);
         })
       );
     });
@@ -490,5 +508,194 @@ describe("practice KG self-check lines", () => {
         expect(line).not.toContain("\n");
         expect(yield* decodeFailureLine(line)).toStrictEqual(PracticeKgSelfCheckRefusal.make(refusal));
       })
+  );
+});
+
+// Acceptance #1 of the strict tier: canary tokens that reach every practice
+// KG tool, through its successful and failing paths, never appear in any byte
+// the strict tier exports or writes to stderr, in any common encoding. The
+// host runs as `bin.ts` runs it (the production server layer over a stdio
+// transport, under the strict telemetry layer), with a test-visible egress
+// sink in place of the in-memory one. A match is only ever counted.
+
+// Assembled at runtime so no literal canary sits in source; each starts with
+// a different label, so the 8-character prefixes differ too.
+const canary = (label: string): string => A.join([label, "Qz", "Canary", "8301"], "");
+const canaries = {
+  root: canary("Root"),
+  query: canary("Query"),
+  family: canary("Family"),
+  docket: canary("Docket"),
+  sender: canary("Sender"),
+  reference: canary("Reference"),
+  address: canary("Address"),
+  digest: canary("Digest"),
+  key: canary("Natural"),
+  path: canary("Organized"),
+};
+
+const encodeUnknownJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const sha256Hex = (value: string): string => new Bun.CryptoHasher("sha256").update(value).digest("hex");
+
+// Raw, lowercased, URL-encoded, base64, JSON-escaped, 8-character prefix and
+// unsalted SHA-256 forms of every canary.
+const canaryForms = Effect.forEach(R.values(canaries), (token) =>
+  Effect.map(encodeUnknownJson(token), (json) => [
+    token,
+    Str.toLowerCase(token),
+    encodeURIComponent(token),
+    Base64.encode(token),
+    Str.slice(1, -1)(json),
+    Str.slice(0, 8)(token),
+    sha256Hex(token),
+  ])
+).pipe(Effect.map(A.flatten));
+
+const countCanaries = (text: string, forms: ReadonlyArray<string>): number =>
+  A.reduce(forms, 0, (count, form) => count + A.length(Str.split(text, form)) - 1);
+
+type ToolCall = readonly [string, Record<string, unknown>];
+
+const healthyCalls: ReadonlyArray<ToolCall> = [
+  ["kg_clients", {}],
+  ["kg_docket_family", { family: canaries.family }],
+  ["kg_application_lookup", { docket: canaries.docket }],
+  ["kg_find", { query: canaries.query }],
+  ["kg_find", { query: "" }],
+  ["corpus_search_text", { query: "smoke" }],
+  ["corpus_search_text", { query: canaries.query, family: canaries.family, limit: -5 }],
+  ["corpus_get_document", { organized_path: "dockets/20001/20001US01/fixture.txt" }],
+  ["corpus_get_document", { digest: canaries.digest }],
+  ["email_search", { query: canaries.query, sender: canaries.sender, family: canaries.family }],
+  ["kg_candidate_claims", { docket: canaries.docket }],
+  ["kg_matter_lookup", { reference: canaries.reference }],
+  ["kg_correspondent_lookup", { address: canaries.address }],
+  ["kg_correspondent_lookup", { address: `${canaries.address}@example.invalid` }],
+  ["kg_provenance", {}],
+  ["kg_provenance", { natural_key: canaries.key }],
+  ["kg_provenance", { digest: canaries.digest }],
+];
+
+// Run against a matter store that has none of the tables the tools read.
+const brokenStoreCalls: ReadonlyArray<ToolCall> = [
+  ["corpus_search_text", { query: canaries.query }],
+  ["corpus_get_document", { organized_path: canaries.path }],
+  ["kg_provenance", { digest: canaries.digest }],
+];
+
+const ExportedSpans = S.fromJsonString(
+  S.Struct({
+    resourceSpans: S.Array(
+      S.Struct({
+        scopeSpans: S.Array(
+          S.Struct({
+            spans: S.Array(
+              S.Struct({
+                name: S.String,
+                attributes: S.Array(S.Struct({ key: S.String, value: S.Struct({ stringValue: S.String }) })),
+              })
+            ),
+          })
+        ),
+      })
+    ),
+  })
+);
+const decodeExportedSpans = S.decodeUnknownEffect(ExportedSpans);
+
+// Runs the production server over one bundle under the strict telemetry,
+// sends every call, and returns the encoded results. The server's scope closes
+// before this returns, which runs the final export into the sink.
+const runStrictHost = Effect.fnUntraced(function* (bundleDir: string, calls: ReadonlyArray<ToolCall>) {
+  const sink = yield* StrictEgressSink;
+  const path = yield* Path.Path;
+  const context = yield* loadPracticeKgBundleContext(bundleDir, path.join(path.dirname(bundleDir), "corpus"));
+  const host = makePracticeKgHostServerLayer(context).pipe(
+    Layer.provide(layerPracticeKgTelemetry.pipe(Layer.provide(layerInMemoryStrictSalt))),
+    Layer.provide(Layer.mergeAll(TestServices, Layer.succeed(StrictEgressSink, sink)))
+  );
+  return yield* withStdioServer(host)((io) =>
+    Effect.gen(function* () {
+      const { rpc } = yield* connectStdio(io);
+      return yield* Effect.forEach(calls, ([name, args]) =>
+        rpc["tools/call"]({ name, arguments: args }).pipe(
+          Effect.result,
+          Effect.flatMap(Result.match({ onFailure: encodeUnknownJson, onSuccess: encodeUnknownJson }))
+        )
+      );
+    })
+  );
+});
+
+describe("practice KG strict tier canary", () => {
+  it.layer(Layer.mergeAll(Layer.fresh(TestServices), layerInMemoryEgressSink(1_024)), { timeout: "3 minutes" })(
+    (it) => {
+      it.effect(
+        "exports and prints no canary from any tool, in any encoding, on success or failure",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const root = yield* fs.makeTempDirectoryScoped({ prefix: `beep-strict-${canaries.root}-` });
+          const healthyRoot = path.join(root, "healthy");
+          const brokenRoot = path.join(root, "broken");
+          yield* fs.makeDirectory(healthyRoot);
+          yield* fs.makeDirectory(brokenRoot);
+          const healthyBundle = yield* makePracticeKgSmokeBundle(healthyRoot);
+          const brokenBundle = yield* makePracticeKgSmokeBundle(brokenRoot);
+          // The corpus catalog is a valid DuckDB file without the bundle's tables.
+          yield* fs.remove(path.join(brokenBundle, "practice.duckdb"));
+          yield* fs.copyFile(
+            path.join(brokenRoot, "corpus", "catalog", "corpus.duckdb"),
+            path.join(brokenBundle, "practice.duckdb")
+          );
+
+          const { results, stderr } = yield* Effect.all({
+            results: Effect.all([
+              runStrictHost(healthyBundle, healthyCalls),
+              runStrictHost(brokenBundle, brokenStoreCalls),
+            ]),
+            stderr: TestConsole.errorLines,
+          }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make));
+          const records = yield* (yield* StrictEgressSink).records;
+
+          const forms = yield* canaryForms;
+          const exported = A.join(
+            A.map(records, (record) => record.body),
+            "\n"
+          );
+          const printed = A.join(A.filter(stderr, P.isString), "\n");
+
+          // Not vacuous: canaries reached the tools, which echo some of them back
+          // to the client, and every tool exported spans.
+          expect(countCanaries(A.join(A.flatten(results), "\n"), forms)).toBeGreaterThan(0);
+          const spans = yield* Effect.forEach(
+            A.filter(records, (record) => record.signal === "traces"),
+            (record) => decodeExportedSpans(record.body)
+          ).pipe(
+            Effect.map(
+              A.flatMap((body) =>
+                A.flatMap(body.resourceSpans, (resource) => A.flatMap(resource.scopeSpans, (scope) => scope.spans))
+              )
+            )
+          );
+          expect(A.sort(A.dedupe(A.map(spans, (span) => span.name)), Order.String)).toEqual(
+            A.sort(PracticeKgToolId.literals, Order.String)
+          );
+          // Failed calls are visible only through the literal reason on the handler span.
+          const reasons = A.dedupe(
+            A.flatMap(spans, (span) =>
+              A.flatMap(span.attributes, (attribute) =>
+                attribute.key === PracticeKgFailureReasonKey ? [attribute.value.stringValue] : []
+              )
+            )
+          );
+          assertTrue(A.every(reasons, S.is(PracticeKgToolFailureReason)));
+          expect(reasons).toEqual(expect.arrayContaining(["invalid-input", "store-query-failed"]));
+
+          expect(countCanaries(exported, forms)).toBe(0);
+          expect(countCanaries(printed, forms)).toBe(0);
+        })
+      );
+    }
   );
 });
