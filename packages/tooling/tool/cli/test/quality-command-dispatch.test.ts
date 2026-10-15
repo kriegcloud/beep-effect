@@ -162,7 +162,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
             missedPipeableOpportunity: "off",
             preferEffectArray: "error",
             errorPayloadShadowsName: "error",
-            schemaClassMissingBrand: "off",
+            schemaClassMissingBrand: "error",
           },
           overrides: [],
         });
@@ -196,7 +196,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
         diagnosticSeverity: {
           ...plugin.diagnosticSeverity,
           preferEffectArray: "error",
-          schemaClassMissingBrand: "off",
+          schemaClassMissingBrand: "error",
         },
       });
     }),

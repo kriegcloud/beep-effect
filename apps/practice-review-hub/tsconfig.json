@@ -27,6 +27,9 @@
   },
   "references": [
     {
+      "path": "../../packages/drivers/m365/tsconfig.json"
+    },
+    {
       "path": "../../packages/foundation/capability/mcp-kit/tsconfig.json"
     },
     {

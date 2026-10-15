@@ -33,6 +33,8 @@ mail-tagging job: [practice mail tagging](runbooks/practice-mail-tagging.md).
 Running the docket intake and mail-tagging jobs as always-on user services from
 a pinned deploy checkout, with upgrades and removal:
 [practice services](runbooks/practice-services.md).
+The attorney's review hub on the tailnet, the questions docket intake stores for it, and its daily
+notice: [practice review hub](runbooks/practice-review-hub.md).
 Owned provider sessions, scoped peer tools, durable receipts and ambiguity recovery:
 [local agent messaging](runbooks/agent-messaging.md).
 

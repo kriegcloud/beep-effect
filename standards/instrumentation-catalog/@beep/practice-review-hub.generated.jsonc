@@ -6,6 +6,7 @@
   "attributes": [],
   "instruments": [],
   "spans": [
-    {"name":"ReviewHubConfig.decode","owner":"@beep/practice-review-hub","family":"app","conforms":true}
+    {"name":"ReviewHubConfig.decode","owner":"@beep/practice-review-hub","family":"app","conforms":true},
+    {"name":"ReviewNotice.send","owner":"@beep/practice-review-hub","family":"app","conforms":true}
   ]
 }

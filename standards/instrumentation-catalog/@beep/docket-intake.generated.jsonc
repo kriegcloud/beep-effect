@@ -14,6 +14,7 @@
     {"name":"DocketIntakeApp.pollCycle","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.pollOnSchedule","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.prepareDryRun","owner":"@beep/docket-intake","family":"app","conforms":true},
+    {"name":"DocketIntakeApp.publishQuestions","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.seedCursor","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.smoke","owner":"@beep/docket-intake","family":"app","conforms":true},
     {"name":"DocketIntakeApp.undoDryRun","owner":"@beep/docket-intake","family":"app","conforms":true},

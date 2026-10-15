@@ -469,6 +469,7 @@
     "lint:tsconfig-overlay": "bun run beep lint tsconfig-overlay",
     "lint:package-test-typecheck": "bun run beep lint package-test-typecheck",
     "lint:effect-vitest": "bun run beep lint effect-vitest",
+    "lint:opaque-roundtrips": "bun run beep lint opaque-roundtrips",
     "jsdoc:ratchet:check": "bun run beep quality jsdoc-ratchet --inventory .beep/ci/jsdoc-documentation.inventory.jsonc",
     "lint:circular": "bun run beep lint circular",
     "lint:effect-imports-markdown": "bun run beep laws effect-imports --mode markdown --check",

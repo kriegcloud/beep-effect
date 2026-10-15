@@ -71,6 +71,25 @@ describe("@beep/law-practice-server ReviewFiles", () => {
       )
     );
 
+    it.effect("reads every complete row while the last line is still being written", () =>
+      oneRun(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const { dataDirectory, stores } = yield* storesIn("in-progress");
+          const verdicts = Context.get(stores, VerdictLog);
+          const file = path.join(dataDirectory, "verdicts.jsonl");
+          yield* verdicts.append(verdict);
+          yield* verdicts.append(verdict);
+          // Half of a third row, with no line break yet: another process is still appending it.
+          const halfRow = Str.slice(0, 30)(yield* fs.readFileString(file));
+          yield* fs.writeFileString(file, halfRow, { flag: "a" });
+
+          expect(yield* verdicts.rows).toStrictEqual([verdict, verdict]);
+        })
+      )
+    );
+
     it.effect("fails the read on a line that does not decode, naming only the file and line", () =>
       oneRun(
         Effect.gen(function* () {

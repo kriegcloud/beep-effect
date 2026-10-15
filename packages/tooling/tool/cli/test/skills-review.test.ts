@@ -34,6 +34,7 @@ import {
   SkillUpstreamContent,
   SkillUpstreamContentFile,
   SkillUpstreamContentSource,
+  skillPatchDropCondition,
   skillPatchOwnerSourceFromCodeowners,
   skillReviewDeciderFromScript,
   VendoredSkillLockEntry,
@@ -645,13 +646,30 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
       yield* fs.writeFileString(path.join(repoRoot, TARGETS[0] ?? "", "rules/keep.md"), "keep\nlocal note\n");
       const recorder = yield* recorderWith(pristineFiles);
       const planned = yield* recorder.add(repoRoot, SKILL, O.none());
-
-      // Someone else's file appears at the planned path before the write: the exclusive create
-      // fails, and the rollback must leave that file alone.
       const added = path.join(repoRoot, A.getUnsafe(planned.added, 0).path);
-      yield* fs.makeDirectory(path.dirname(added), { recursive: true });
-      yield* fs.writeFileString(added, "not ours\n");
-      yield* recorder.add(repoRoot, SKILL, O.some(planned.planDigest)).pipe(Effect.flip);
+
+      // Someone else's file appears at the planned path after planning passed, inside publishAdd:
+      // the exclusive create fails, and the rollback must leave that file alone.
+      const racing: FileSystem.FileSystem = {
+        ...fs,
+        writeFile: (target, data, options) =>
+          target === added && options?.flag === "wx"
+            ? Effect.andThen(fs.writeFileString(added, "not ours\n"), fs.writeFile(target, data, options))
+            : fs.writeFile(target, data, options),
+      };
+      const racingRecorder = Context.get(
+        yield* Layer.build(
+          SkillPatchRecorderLayer.pipe(
+            Layer.provide(
+              Layer.mergeAll(sourceLayer(pristineFiles), ownerLayer, Layer.succeed(FileSystem.FileSystem, racing))
+            )
+          )
+        ),
+        SkillPatchRecorder
+      );
+      const error = yield* racingRecorder.add(repoRoot, SKILL, O.some(planned.planDigest)).pipe(Effect.flip);
+      expect(error._tag).toBe("SkillsCommandError");
+      expect(error.message).toContain("Failed to write");
       expect(yield* fs.readFileString(added)).toBe("not ours\n");
       expect(yield* fs.readFileString(yield* lockPathOf(repoRoot))).toBe(lockBefore);
     })
@@ -717,8 +735,41 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
         ["policy"],
         patchSetBefore,
       ]);
+      // The drop condition follows the label (B42): a policy patch is replayed on every bump.
+      expect(A.map(entry.patches.series, (patch) => patch.dropCondition)).toEqual([skillPatchDropCondition("policy")]);
       const replanned = yield* recorder.label(repoRoot, SKILL, O.none());
       expect((yield* recorder.label(repoRoot, SKILL, O.some(replanned.planDigest))).outcome).toBe("already-current");
+
+      // A hand-authored retirement condition is kept; a stale canonical text from another label is
+      // replaced, and the plan shows that rewrite.
+      const withCondition = Effect.fnUntraced(function* (dropCondition: string) {
+        const lock = yield* readLock(repoRoot);
+        const current = yield* vendoredEntry(repoRoot);
+        yield* writeLock(
+          repoRoot,
+          SkillsLockDocument.make({
+            version: 2,
+            skills: {
+              ...lock.skills,
+              [SKILL]: VendoredSkillLockEntry.make({
+                ...current,
+                patches: SkillPatches.make({
+                  ...current.patches,
+                  series: A.map(current.patches.series, (patch) => SkillPatch.make({ ...patch, dropCondition })),
+                }),
+              }),
+            },
+          })
+        );
+      });
+      yield* withCondition("Drop when the vendor ships the same guardrail.");
+      expect((yield* recorder.label(repoRoot, SKILL, O.none())).changes).toEqual([]);
+      yield* withCondition(skillPatchDropCondition("temporary-drift"));
+      const stale = yield* recorder.label(repoRoot, SKILL, O.none());
+      expect(
+        A.map(stale.changes, (change) => [change.from, change.to, change.fromDropCondition, change.toDropCondition])
+      ).toEqual([["policy", "policy", skillPatchDropCondition("temporary-drift"), skillPatchDropCondition("policy")]]);
+      yield* recorder.label(repoRoot, SKILL, O.some(stale.planDigest));
 
       const materializer = yield* materializerWith(pristineFiles);
       const check = yield* materializer.materialize(repoRoot, "check", O.none());
