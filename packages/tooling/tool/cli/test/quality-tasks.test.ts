@@ -1137,26 +1137,44 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(A.filter(HM.toEntries(idsByCommand), ([, ids]) => A.length(ids) > 1)).toEqual([]);
       expect(A.every(cheapGateLanes, (lane) => lane.tier === "cheap-gates")).toBe(true);
       expect(A.every(prePushLanes, (lane) => lane.tier === "pre-push")).toBe(true);
-      for (const [value, expected] of [
-        [undefined, 4],
-        ["1", 1],
-        ["2", 2],
-        ["3", 3],
-        ["4", 4],
-        ["0", 4],
-        ["5", 4],
-        ["2.5", 4],
-        ["nope", 4],
-        ["", 4],
-      ] as const) {
-        withEnvVar("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY", value, () => {
-          expect(githubCheckTierConcurrency("cheap-gates")).toBe(expected);
-          expect(githubCheckTierConcurrency("pre-push")).toBe(1);
-        });
-      }
       // D9: the cheap tier runs four abreast; heavy pre-push lanes stay serial.
       expect(githubCheckTierConcurrency("cheap-gates")).toBe(4);
       expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+    });
+
+    it("keeps cheap gates within the configured worker budget and warns on malformed settings", () => {
+      const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      try {
+        for (const [value, expected, malformed] of [
+          [undefined, 4, false],
+          ["1", 1, false],
+          ["2", 2, false],
+          ["3", 3, false],
+          ["4", 4, false],
+          ["0", 1, true],
+          ["5", 1, true],
+          ["2.5", 1, true],
+          ["01", 1, true],
+          ["serial", 1, true],
+          ["", 1, true],
+        ] as const) {
+          warning.mockClear();
+          withEnvVar("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY", value, () => {
+            expect(githubCheckTierConcurrency("cheap-gates")).toBe(expected);
+            expect(warning).toHaveBeenCalledTimes(malformed ? 1 : 0);
+            if (malformed) {
+              expect(warning).toHaveBeenCalledWith(
+                "[quality] Invalid BEEP_QUALITY_CHEAP_GATE_CONCURRENCY; expected 1, 2, 3 or 4. Using 1 lane."
+              );
+            }
+            warning.mockClear();
+            expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+            expect(warning).not.toHaveBeenCalled();
+          });
+        }
+      } finally {
+        warning.mockRestore();
+      }
     });
 
     // ship-velocity B1: a local green must mean what a hosted green means, so the

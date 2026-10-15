@@ -8,12 +8,16 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as Config from "effect/Config";
+import * as ConfigProvider from "effect/ConfigProvider";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
-import { configStringOptionSync, readTurboCacheEnvironmentSync } from "../../../internal/cli/EnvConfig.ts";
+import { readTurboCacheEnvironmentSync } from "../../../internal/cli/EnvConfig.ts";
 import { resolveTurboCachePlan, turboCachePlanArgs } from "../../../internal/cli/TurboCache.ts";
 import { QualityTaskStep } from "../../../internal/process/index.ts";
 import { CiLocalStepPlan, ciLaneDispatchStep } from "../../Ci/CiLane.ts";
@@ -623,8 +627,9 @@ const decodeCheapGateConcurrency = S.decodeUnknownOption(CheapGateConcurrency);
  * **Details**
  *
  * Cheap gates default to four lanes. Constrained workers can set
- * `BEEP_QUALITY_CHEAP_GATE_CONCURRENCY` to 1, 2, 3 or 4. Missing or malformed
- * settings retain the default; pre-push lanes stay serial. The width is read
+ * `BEEP_QUALITY_CHEAP_GATE_CONCURRENCY` to 1, 2, 3 or 4. Missing settings
+ * retain the default; malformed settings warn and clamp to one lane.
+ * Pre-push lanes stay serial. The width is read
  * at call time, and does not change wave order or which gates are required.
  *
  * **Example** (Read the cheap tier's width)
@@ -643,18 +648,33 @@ const decodeCheapGateConcurrency = S.decodeUnknownOption(CheapGateConcurrency);
 export const githubCheckTierConcurrency = (tier: GithubCheckLaneTier): number =>
   GithubCheckLaneTier.$match(tier, {
     "cheap-gates": () =>
-      pipe(
-        configStringOptionSync("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY"),
-        O.flatMap(decodeCheapGateConcurrency),
-        O.map((width) =>
-          CheapGateConcurrency.$match(width, {
-            "1": () => 1,
-            "2": () => 2,
-            "3": () => 3,
-            "4": () => 4,
-          })
+      O.match(
+        Effect.runSync(
+          Config.option(Config.String("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY")).parse(
+            ConfigProvider.fromEnv({ preserveEmptyStrings: true })
+          )
         ),
-        O.getOrElse(() => 4)
+        {
+          onNone: () => 4,
+          onSome: (value) =>
+            O.match(decodeCheapGateConcurrency(value), {
+              onNone: () => {
+                Effect.runSync(
+                  Console.warn(
+                    "[quality] Invalid BEEP_QUALITY_CHEAP_GATE_CONCURRENCY; expected 1, 2, 3 or 4. Using 1 lane."
+                  )
+                );
+                return 1;
+              },
+              onSome: (width) =>
+                CheapGateConcurrency.$match(width, {
+                  "1": () => 1,
+                  "2": () => 2,
+                  "3": () => 3,
+                  "4": () => 4,
+                }),
+            }),
+        }
       ),
     "pre-push": () => 1,
   });

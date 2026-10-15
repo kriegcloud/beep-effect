@@ -1,3 +1,4 @@
+# Install as: ~/.config/systemd/user/agent-runs.slice
 [Unit]
 Description=Shared budget for beep-worker detached proof jobs
 

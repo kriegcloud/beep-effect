@@ -79,6 +79,9 @@ qualified by the beep-worker receipts.
 
 ## Latest Evidence
 
+- [PR closure follow-up](./history/2026-10-15-pr-closure.md): current-main integration,
+  worker concurrency safety and the required `agent-runs.slice` install name.
+
 - [Linux worker setup](./history/2026-10-14-linux-worker-readiness.md): host,
   toolchain, authentication, security, desktop and T3 service receipts.
 - [Codex headless audit](./history/2026-10-14-headless-codex-audit.md) and
