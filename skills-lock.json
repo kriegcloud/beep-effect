@@ -293,14 +293,14 @@
           {
             "path": ".agents/skill-patches/oracle/0001-skill-md.patch",
             "sha256": "f372350a05de1ad843d211b5b9e9d6131d6538dd61f821ef2aaa8f85c5d05d81",
-            "label": "temporary-drift",
+            "label": "policy",
             "owner": "@kriegcloud",
             "dropCondition": "Drop when upstream contains an equivalent change."
           },
           {
             "path": ".agents/skill-patches/oracle/0002-agents-openai-yaml.patch",
             "sha256": "377459f6f5ce60198c70b6398153f1062b08b7c54cf5c6821b345c98e95d6298",
-            "label": "temporary-drift",
+            "label": "repo-adaptation",
             "owner": "@kriegcloud",
             "dropCondition": "Drop when upstream contains an equivalent change."
           }
@@ -558,7 +558,7 @@
           {
             "path": ".agents/skill-patches/shadcn/0001-design-system-md.patch",
             "sha256": "a49c6b5e0c728a1f222c5edfc870e66aad89c6f5e874f5da42002461c923fd93",
-            "label": "temporary-drift",
+            "label": "policy",
             "owner": "@kriegcloud",
             "dropCondition": "Drop when upstream contains an equivalent change."
           }

@@ -645,13 +645,30 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
       yield* fs.writeFileString(path.join(repoRoot, TARGETS[0] ?? "", "rules/keep.md"), "keep\nlocal note\n");
       const recorder = yield* recorderWith(pristineFiles);
       const planned = yield* recorder.add(repoRoot, SKILL, O.none());
-
-      // Someone else's file appears at the planned path before the write: the exclusive create
-      // fails, and the rollback must leave that file alone.
       const added = path.join(repoRoot, A.getUnsafe(planned.added, 0).path);
-      yield* fs.makeDirectory(path.dirname(added), { recursive: true });
-      yield* fs.writeFileString(added, "not ours\n");
-      yield* recorder.add(repoRoot, SKILL, O.some(planned.planDigest)).pipe(Effect.flip);
+
+      // Someone else's file appears at the planned path after planning passed, inside publishAdd:
+      // the exclusive create fails, and the rollback must leave that file alone.
+      const racing: FileSystem.FileSystem = {
+        ...fs,
+        writeFile: (target, data, options) =>
+          target === added && options?.flag === "wx"
+            ? Effect.andThen(fs.writeFileString(added, "not ours\n"), fs.writeFile(target, data, options))
+            : fs.writeFile(target, data, options),
+      };
+      const racingRecorder = Context.get(
+        yield* Layer.build(
+          SkillPatchRecorderLayer.pipe(
+            Layer.provide(
+              Layer.mergeAll(sourceLayer(pristineFiles), ownerLayer, Layer.succeed(FileSystem.FileSystem, racing))
+            )
+          )
+        ),
+        SkillPatchRecorder
+      );
+      const error = yield* racingRecorder.add(repoRoot, SKILL, O.some(planned.planDigest)).pipe(Effect.flip);
+      expect(error._tag).toBe("SkillsCommandError");
+      expect(error.message).toContain("Failed to write");
       expect(yield* fs.readFileString(added)).toBe("not ours\n");
       expect(yield* fs.readFileString(yield* lockPathOf(repoRoot))).toBe(lockBefore);
     })
