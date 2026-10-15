@@ -36,8 +36,12 @@
     "@beep/utils": "workspace:^",
     "@biomejs/biome": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@microsoft/tsdoc": "catalog:",
+    "@microsoft/tsdoc-config": "catalog:",
     "@oxlint/plugins": "catalog:",
     "@types/node": "catalog:",
+    "are-docs-informative": "catalog:",
+    "comment-parser": "catalog:",
     "effect": "catalog:",
     "oxlint": "catalog:"
   },
@@ -48,7 +52,8 @@
     "./recommended": "./configs/core.jsonc",
     "./core": "./configs/core.jsonc",
     "./schema": "./configs/schema.jsonc",
-    "./services": "./configs/services.jsonc"
+    "./services": "./configs/services.jsonc",
+    "./oxlint-docs": "./src/rules/docs.index.ts"
   },
   "files": [
     "src/**/*.ts",
