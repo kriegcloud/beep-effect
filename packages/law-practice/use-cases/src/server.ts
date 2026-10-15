@@ -21,6 +21,22 @@
  * @since 0.0.0
  */
 export * as ClaimSelfCheck from "./ClaimSelfCheck/index.ts";
+/**
+ * Daily notice: the count-only notice email, the notice-mailbox port and the
+ * once-a-day notice contract.
+ *
+ * **Example** (Build a notice message)
+ *
+ * ```ts
+ * import { DailyNotice } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(DailyNotice.noticeMessage(2).subject) // "Claude: 2 questions waiting"
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as DailyNotice from "./DailyNotice/index.ts";
 /** Document identification schemas, ports and pure pipeline. @category services @since 0.0.0 */
 export * as DocumentIdentification from "./DocumentIdentification/index.ts";
 /**
@@ -95,6 +111,69 @@ export * from "./PatentClaimCandidate/index.ts";
 export * from "./PracticeKg.correspondent-lookup.ts";
 export * from "./PracticeKg.matter-lookup.ts";
 export * from "./PracticeKg.tools.ts";
+/**
+ * Attorney question queue: answer submissions, typed errors, the answer-log
+ * port and the queue contract.
+ *
+ * **Example** (Reference the question queue service)
+ *
+ * ```ts
+ * import { QuestionQueue } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(QuestionQueue.QuestionQueue.key)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as QuestionQueue from "./QuestionQueue/index.ts";
+/**
+ * Question writes: proposed and applied calendar writes, typed errors, the
+ * calendar port and the write contract.
+ *
+ * **Example** (Reference the question writes service)
+ *
+ * ```ts
+ * import { QuestionWrites } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(QuestionWrites.QuestionWrites.key)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as QuestionWrites from "./QuestionWrites/index.ts";
+/**
+ * Workstation review hub: the tool failure, the tool envelopes, the hub
+ * contract, its layer and the MCP tools.
+ *
+ * **Example** (List the review hub tools)
+ *
+ * ```ts
+ * import { ReviewHub } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(Object.keys(ReviewHub.ReviewHubToolkit.tools).length) // 4
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ReviewHub from "./ReviewHub/index.ts";
+/**
+ * Review-item store: the typed failure and the store port.
+ *
+ * **Example** (Reference the review-item store service)
+ *
+ * ```ts
+ * import { ReviewItemStore } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(ReviewItemStore.ReviewItemStore.key)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as ReviewItemStore from "./ReviewItemStore/index.ts";
 /**
  * Attorney review queue: typed errors, the verdict-log port and the queue
  * contract.
