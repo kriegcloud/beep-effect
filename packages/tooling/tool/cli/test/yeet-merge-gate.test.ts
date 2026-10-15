@@ -1,3 +1,4 @@
+import { reviewerCheckExternalId } from "@beep/repo-cli/commands/Reviewer";
 import {
   decideMergeGate,
   MERGE_GATE_S11_DEFAULT_ATTRIBUTION,
@@ -732,9 +733,12 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           status: "completed",
           conclusion: "success",
           app: { id: 42 },
+          external_id: reviewerCheckExternalId(pullFixture.number, headSha, pullFixture.base.sha),
         };
         const cases = [
           [],
+          [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number + 1, headSha, pullFixture.base.sha) }],
+          [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number, headSha, "b".repeat(40)) }],
           [{ ...own, app: { id: 99 } }],
           [{ ...own, head_sha: "b".repeat(40) }],
           [{ ...own, conclusion: "failure" }],

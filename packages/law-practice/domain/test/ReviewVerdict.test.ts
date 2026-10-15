@@ -28,12 +28,18 @@ const fullRef = {
   crop: { page: 3, mimeType: "image/png", width: 640, height: 120, data: "iVBORw0KGgo=" },
 };
 
+const questionOptions = [
+  { optionId: "keep-date", label: "Keep the current date" },
+  { optionId: "move-date", label: "Move the date" },
+];
+
 const encodedItem = (kind: string) => ({
   kind,
   itemId: `${kind}:1`,
   text: "Claim 1 element (b) is disclosed by the cited reference.",
   sourceRefs: [minimalRef],
   ...(kind === "claim-finding" ? { claimId: 7 } : {}),
+  ...(kind === "question" ? { facts: [], options: questionOptions } : {}),
 });
 
 const cropOfLength = (length: number) => ({ ...fullRef, crop: { ...fullRef.crop, data: Str.repeat(length)("A") } });
@@ -42,7 +48,7 @@ describe("@beep/law-practice-domain ReviewItem", () => {
   it.effect(
     "decodes every review item kind and round-trips it",
     Effect.fnUntraced(function* () {
-      expect(ReviewItemKind.literals).toHaveLength(6);
+      expect(ReviewItemKind.literals).toHaveLength(7);
 
       for (const kind of ReviewItemKind.literals) {
         const input = encodedItem(kind);

@@ -10,6 +10,7 @@ import { LiteralKit } from "@beep/schema";
 import { CandidateClaimId } from "@beep/shared-domain/identity/Epistemic";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import { QuestionFact, QuestionOptions } from "../Question/index.ts";
 import { SourceRef } from "../SourceRef/index.ts";
 
 const $I = $LawPracticeDomainId.create("values/ReviewItem/ReviewItem.model");
@@ -52,7 +53,7 @@ export const ReviewItemId = S.NonEmptyString.pipe(
 export type ReviewItemId = typeof ReviewItemId.Type;
 
 /**
- * Kinds of agent work product that reach the review queue.
+ * Kinds of agent work product, and agent questions, that reach the review queue.
  *
  * **Example** (Read the review item kinds)
  *
@@ -72,9 +73,10 @@ export const ReviewItemKind = LiteralKit([
   "drawing",
   "classification",
   "draft-text",
+  "question",
 ]).pipe(
   $I.annoteSchema("ReviewItemKind", {
-    description: "Kinds of agent work product that reach the attorney review queue.",
+    description: "Kinds of agent work product, and agent questions, that reach the attorney review queue.",
   })
 );
 
@@ -92,7 +94,7 @@ const ReviewItemFields = {
     description: "Stable identifier the verdict rows key on.",
   }),
   text: S.NonEmptyString.annotateKey({
-    description: "The plain-language answer or finding the attorney judges.",
+    description: "The plain-language answer or finding the attorney judges, or the question the attorney answers.",
   }),
   label: S.NonEmptyString.pipe(
     S.OptionFromOptionalKey,
@@ -118,6 +120,29 @@ const ReviewItemDefinition = ReviewItemKind.toTaggedUnion("kind")({
   drawing: ReviewItemFields,
   classification: ReviewItemFields,
   "draft-text": ReviewItemFields,
+  question: {
+    ...ReviewItemFields,
+    facts: S.Array(QuestionFact).annotateKey({
+      description: "Facts the asking agent already checked against records, each with its sources.",
+    }),
+    options: QuestionOptions.annotateKey({
+      description: "The two to five answers the attorney can choose from.",
+    }),
+    docket: S.NonEmptyString.pipe(
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description: "Matter docket the question belongs to, when it belongs to one.",
+      })
+    ),
+    conversationId: S.NonEmptyString.pipe(
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description: "Mail thread (Graph conversationId) the question came from, when it came from one.",
+      })
+    ),
+  },
 });
 
 /**
@@ -128,7 +153,11 @@ const ReviewItemDefinition = ReviewItemKind.toTaggedUnion("kind")({
  *
  * Every member carries `itemId`, the plain-language `text`, an optional
  * `label`, and `sourceRefs`. The `claim-finding` member also carries the
- * `claimId` its verdict projects onto. Unknown kinds fail to decode.
+ * `claimId` its verdict projects onto. The `question` member is an agent's
+ * question to the attorney: `text` is the question, `facts` are what the agent
+ * already checked, `options` are the two to five answers, and the optional
+ * `docket` and `conversationId` name its matter and mail thread. Questions are
+ * answered with `AnswerRow`s, not verdicts. Unknown kinds fail to decode.
  *
  * **Example** (Decode a claim finding)
  *

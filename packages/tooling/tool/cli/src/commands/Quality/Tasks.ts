@@ -3009,7 +3009,7 @@ const listRootDocsCacheKeyFiles = Effect.fnUntraced(function* (repoRoot: string,
  * Digest documentation config, plugin source and the installed dependency lock.
  *
  * **Details**
- * Package lint caches are owned by Turbo. Root oxlint does not use an ESLint
+ * Package lint caches are owned by Turbo. Root oxlint does not use a persistent
  * result cache; this digest records the documentation inputs for plan consumers.
  * Missing inputs yield the unkeyed sentinel.
  *

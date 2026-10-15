@@ -161,9 +161,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })("Stage B l
         "scratchpad/example.tsx",
         "packages/_internal/db-admin/effect-ontology/example.ts",
         "scripts/unrelated.ts",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-        "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+        "packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+        "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
       ];
       yield* Effect.forEach(sourceFiles, (file) => writeFile(root, file, "export const value = 1;\n"));
       yield* Effect.forEach(
@@ -211,9 +211,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })("Stage B l
       yield* Effect.forEach(
         [
           "standards/effect-laws.allowlist.jsonc",
-          "packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
-          "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-          "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+          "packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+          "packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+          "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         ],
         (file) => assertMutation(file, [true, true, false])
       );
