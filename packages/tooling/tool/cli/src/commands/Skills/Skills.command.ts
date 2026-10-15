@@ -558,6 +558,8 @@ const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
         yield* fs
           .chmod(temporary, info.mode)
           .pipe(SkillsCommandError.mapError("Cannot preserve projection permissions."));
+      } else {
+        yield* fs.chmod(temporary, 0o644).pipe(SkillsCommandError.mapError("Cannot set projection permissions."));
       }
       yield* fs.rename(temporary, target).pipe(SkillsCommandError.mapError("Cannot replace skill projection."));
     }),

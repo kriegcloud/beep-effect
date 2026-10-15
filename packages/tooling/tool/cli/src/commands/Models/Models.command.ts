@@ -436,7 +436,7 @@ const applyModelTarget = Effect.fnUntraced(function* (
   if (mode === "dry-run" || mode === "check") yield* previewModelWrites(file.value, target, writes);
   const journal = yield* writer
     .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
-    .pipe(Effect.mapError((error) => ModelsCommandError.make({ message: `${target.id}: ${error.message}` })));
+    .pipe(Effect.mapError((error) => ModelsCommandError.make({ message: error.message })));
   yield* Console.log(
     `models: ${mode} ${target.id}; ${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
   );

@@ -37,7 +37,15 @@ const fixture = Effect.fnUntraced(function* () {
   const manifestFile = path.join(home, "manifest.yaml");
   const manifest = yield* decodeManifest({
     version: "beep-models/v1",
-    bindings: [{ role: "codex.heavy", surface: "codex-cli", modelId: "gpt-6.1-sol", effort: "medium", supersedes: [] }],
+    bindings: [
+      {
+        role: "codex.heavy",
+        surface: "codex-cli",
+        modelId: "gpt-6.1-sol",
+        effort: "medium",
+        supersedes: [],
+      },
+    ],
     targets: [
       {
         id: "synthetic.codex",
@@ -158,6 +166,61 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
     })
   );
 
+  it.effect("reports operator-adjacent assignments and unsupported forms through both check commands", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const shellFile = path.join(home, ".zshrc");
+      const shellManifest = ModelsManifest.make({
+        ...manifest,
+        bindings: A.map(manifest.bindings, (entry) => ({ ...entry, modelId: "gpt-6-luna" })),
+        targets: [
+          ModelSyncTarget.make({
+            id: TargetId.make("synthetic.shell"),
+            root: "home",
+            path: "$HOME/.zshrc",
+            optional: false,
+            locators: [
+              {
+                _tag: "shell-assign",
+                variable: "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+                within: O.none(),
+                binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
+                render: { _tag: "verbatim" },
+              },
+            ],
+          }),
+        ],
+      });
+      yield* fs.writeFileString(manifestFile, yield* encodeManifest(shellManifest));
+      const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+      yield* fs.writeFileString(shellFile, "ANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n");
+      yield* run(["apply", ...flags, "--check"]);
+      yield* run(["check", ...flags]);
+      for (const operator of [";", "&&", "||", "|", "&", "(", "\n"]) {
+        const text = `:${operator}ANTHROPIC_DEFAULT_HAIKU_MODEL=wrong claude\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n`;
+        yield* fs.writeFileString(shellFile, text);
+        yield* Effect.flip(run(["apply", ...flags, "--check"]));
+        yield* Effect.flip(run(["check", ...flags]));
+        expect(yield* fs.readFileString(shellFile)).toBe(text);
+      }
+      for (const text of [
+        "x\\ ANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna\n",
+        "cat <<'EOF'\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna\nEOF\n",
+      ]) {
+        yield* fs.writeFileString(shellFile, text);
+        yield* Effect.flip(run(["apply", ...flags, "--check"]));
+        yield* Effect.flip(run(["check", ...flags]));
+        expect(yield* fs.readFileString(shellFile)).toBe(text);
+      }
+      expect(yield* TestConsole.errorLines).toContain(
+        "models: refused synthetic.shell: Unsupported shell form: owned configuration drift detected (shell target is check-only; edit by hand)."
+      );
+      expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+    })
+  );
+
   it.effect("previews shell drift after continuations and reports every target after a refusal", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -199,14 +262,14 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
       yield* Effect.flip(run(["apply", ...flags, "--check"]));
       expect(yield* TestConsole.errorLines).toContain(
-        "models: refused synthetic.shell: synthetic.shell: Owned configuration drift detected (shell target is check-only; edit by hand)."
+        "models: refused synthetic.shell: Owned configuration drift detected (shell target is check-only; edit by hand)."
       );
       expect(yield* TestConsole.errorLines).toContain(
-        "models: refused synthetic.codex: synthetic.codex: Owned configuration drift detected."
+        "models: refused synthetic.codex: Owned configuration drift detected."
       );
       yield* Effect.flip(run(["apply", ...flags, "--write", "--target", "synthetic.shell"]));
       expect(yield* TestConsole.errorLines).toContain(
-        "models: refused synthetic.shell: synthetic.shell: Shell targets are check-only; edit by hand."
+        "models: refused synthetic.shell: Shell targets are check-only; edit by hand."
       );
       yield* Effect.flip(run(["check", ...flags]));
       expect(yield* fs.readFileString(shellFile)).toBe(shellText);

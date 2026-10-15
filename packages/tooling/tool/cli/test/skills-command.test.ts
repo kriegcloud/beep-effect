@@ -353,6 +353,8 @@ describe("skills command", () => {
           yield* writeProjectFile(root, ".claude/skills/grill-me/SKILL.md", "old skill\n");
           yield* writeProjectFile(root, ".codex/config.toml", "[skills]\ninclude_instructions = false\n");
           yield* fs.chmod(config, 0o644);
+          const lockfile = path.join(root, "skills-lock.json");
+          if (scenario === "backup and mode") yield* fs.remove(lockfile, { force: true });
           const wrapped = FileSystem.FileSystem.of({
             ...fs,
             writeFileString: Effect.fn("SkillsTest.writeFileString")((target, content, options) =>
@@ -392,6 +394,7 @@ describe("skills command", () => {
             expect(result).toMatchObject({ _tag: "Success" });
             expect(yield* fs.readFileString(skill)).toBe(remoteGrillMeSkill);
             expect((yield* fs.stat(config)).mode & 0o777).toBe(0o644);
+            if (scenario === "backup and mode") expect((yield* fs.stat(lockfile)).mode & 0o777).toBe(0o644);
             const configBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("config.toml.")));
             expect(yield* fs.readFileString(path.join(backupRoot, configBackup))).toBe(
               "[skills]\ninclude_instructions = false\n"

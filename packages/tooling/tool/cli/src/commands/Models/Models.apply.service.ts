@@ -22,6 +22,7 @@ import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { XMLParser } from "fast-xml-parser";
+import { parseDocument } from "yaml";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
 import { decodeTomlTextWith, decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
@@ -68,6 +69,9 @@ const assertNativeFields = Effect.fnUntraced(function* (
         ? [[...Str.split(locator.table, "."), locator.key]]
         : []
   );
+  const yamlPaths = A.flatMap(writes, ({ locator }) =>
+    locator._tag === "yaml-path" ? [A.map(locator.path, (segment) => `${segment}`)] : []
+  );
   const jsonPaths = A.flatMap(writes, ({ locator }) => (locator._tag === "json-key" ? [locator.pointer] : []));
   const compare = Effect.fnUntraced(function* (
     left: unknown,
@@ -90,6 +94,26 @@ const assertNativeFields = Effect.fnUntraced(function* (
       tomlPaths
     );
   }
+  if (A.isReadonlyArrayNonEmpty(yamlPaths)) {
+    const decode = (text: string) =>
+      Effect.try({
+        try: () => {
+          const doc = parseDocument(text, { merge: true });
+          if (A.isReadonlyArrayNonEmpty(doc.errors) || A.isReadonlyArrayNonEmpty(doc.warnings)) return O.none();
+          return O.some(doc.toJS({ maxAliasCount: 100 }));
+        },
+        catch: () => failure("Invalid native YAML."),
+      }).pipe(
+        Effect.flatMap(
+          O.match({
+            onNone: () => Effect.fail(failure("Invalid native YAML.")),
+            onSome: Effect.succeed,
+          })
+        )
+      );
+    yield* compare(yield* decode(before), yield* decode(after), yamlPaths);
+  }
+
   if (A.isReadonlyArrayNonEmpty(jsonPaths)) {
     yield* compare(
       yield* decodeJsonText(before).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
@@ -225,8 +249,16 @@ const checkShellDrift = Effect.fnUntraced(function* (text: string, writes: Reado
       Match.value(locator).pipe(
         Match.tag("shell-assign", ({ variable, within }) =>
           modelsReadShellAssign(text, variable, within).pipe(
-            Effect.filterOrFail(O.contains(expected), () =>
-              failure("Owned configuration drift detected (shell target is check-only; edit by hand).")
+            Effect.flatMap((current) =>
+              O.contains(expected)(current)
+                ? Effect.void
+                : Effect.fail(
+                    failure(
+                      O.exists(current, Str.includes("Unsupported shell form"))
+                        ? "Unsupported shell form: owned configuration drift detected (shell target is check-only; edit by hand)."
+                        : "Owned configuration drift detected (shell target is check-only; edit by hand)."
+                    )
+                  )
             )
           )
         ),
@@ -309,6 +341,11 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     let expectedHash = initialHash;
     for (let attempt = 0; attempt < 8; attempt += 1) {
       if (!(yield* matches(file, expectedInfo, expectedHash))) break;
+      if (O.isSome(yield* fs.readLink(temporary).pipe(Effect.option))) {
+        yield* exchange(temporary, file);
+        if (yield* matches(temporary, expectedInfo, expectedHash)) break;
+        return yield* failure("Concurrent recovery changed during symlink exchange.");
+      }
       const returningInfo = yield* fs.stat(temporary).pipe(io);
       const returningHash = yield* hash(yield* readNative(temporary));
       yield* exchange(temporary, file);

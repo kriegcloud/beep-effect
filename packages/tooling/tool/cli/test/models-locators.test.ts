@@ -312,8 +312,46 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         "old"
       );
       assertSome(yield* reader.read(file('MODEL="gpt-6.1-sol(medium)";\n'), locator), "gpt-6.1-sol(medium)");
-      assertSome(yield* reader.read(file('MODEL="$X"\n'), locator), '"$X"');
+      assertSome(yield* reader.read(file('MODEL="$X"\n'), locator), "Unsupported shell form");
       assertSome(yield* reader.read(file("MODEL=old\nfoo \\\n  bar\nMODEL=other\n"), locator), "old, other");
+    })
+  );
+
+  it.effect("detects every operator-adjacent assignment and fails closed on unsupported shell words", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      const locator: Locator = {
+        _tag: "shell-assign",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        variable: "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        within: O.none(),
+      };
+      for (const operator of [";", "&&", "||", "|", "&", "(", "\n"]) {
+        assertSome(
+          yield* reader.read(
+            file(
+              `:${operator}ANTHROPIC_DEFAULT_HAIKU_MODEL=wrong claude\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n`
+            ),
+            locator
+          ),
+          "wrong, gpt-6-luna"
+        );
+      }
+      const model: Locator = { ...locator, variable: "MODEL" };
+      for (const text of [
+        "x\\ MODEL=old\n",
+        'MODEL="$X"\n',
+        "MODEL='old\n",
+        "MODEL='old'-suffix\n",
+        "MODEL=old\\\n-suffix\n",
+        "cat <<'EOF'\nMODEL=old\nEOF\n",
+        'MODEL=old "$@"\n',
+        "MODEL=old $(echo old)\n",
+        "MODEL=old{,suffix}\n",
+      ])
+        assertSome(yield* reader.read(file(text), model), "Unsupported shell form");
+      assertSome(yield* reader.read(file("echo 'MODEL=wrong';MODEL='old' # MODEL=wrong\n"), model), "old");
     })
   );
 

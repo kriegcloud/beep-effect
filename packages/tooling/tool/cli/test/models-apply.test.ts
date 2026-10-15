@@ -427,6 +427,133 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
+  it.effect("checks operator-adjacent shell assignments and refuses unsupported forms without backups", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "shell-drift-",
+      });
+      const file = path.join(root, "launcher");
+      const backups = path.join(root, "backups");
+      const writer = yield* writerWithFs(fs);
+      const assignment = write(
+        {
+          _tag: "shell-assign",
+          binding,
+          render,
+          variable: "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+          within: O.none(),
+        },
+        "gpt-6-luna"
+      );
+      for (const operator of [";", "&&", "||", "|", "&", "(", "\n"]) {
+        const text = `:${operator}ANTHROPIC_DEFAULT_HAIKU_MODEL=wrong claude\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n`;
+        yield* fs.writeFileString(file, text);
+        const error = yield* Effect.flip(writer.apply(file, [assignment], "check", backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toContain("drift detected");
+        expect(yield* fs.readFileString(file)).toBe(text);
+      }
+      const flag = write(
+        {
+          _tag: "shell-assign",
+          binding,
+          render,
+          variable: "--model",
+          within: O.none(),
+        },
+        "old"
+      );
+      for (const text of [
+        "claude x\\ --model old\n",
+        "cat <<'EOF'\nclaude --model old\nEOF\n",
+        'claude --model old "$@"\n',
+        "claude --model 'old\n",
+        "printf native \\\nclaude --model old\n",
+      ]) {
+        yield* fs.writeFileString(file, text);
+        const error = yield* Effect.flip(writer.apply(file, [flag], "check", backups));
+        expect(error.message).toContain("Unsupported shell form");
+        expect(yield* fs.readFileString(file)).toBe(text);
+      }
+      yield* fs.writeFileString(file, 'claude --model "old" # native\n');
+      assertNone(yield* writer.apply(file, [flag], "check", backups));
+      expect(yield* fs.exists(backups)).toBe(false);
+    })
+  );
+
+  it.effect("refuses owned YAML anchors, aliases and anchored ancestors before backup", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "yaml-ownership-",
+      });
+      const file = path.join(root, "config.yaml");
+      const backups = path.join(root, "backups");
+      const writer = yield* writerWithFs(fs);
+      const owned = write({
+        _tag: "yaml-path",
+        binding,
+        render,
+        path: ["model"],
+      });
+      for (const text of [
+        "model: &shared old\nnative_model: *shared\n",
+        "default: &shared old\nmodel: *shared\n",
+        "model: &unused old\n",
+      ]) {
+        yield* fs.writeFileString(file, text);
+        const error = yield* Effect.flip(writer.apply(file, [owned], "write", backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toContain("without anchors or aliases");
+        expect(yield* fs.readFileString(file)).toBe(text);
+        expect(yield* fs.exists(backups)).toBe(false);
+      }
+      const nested = "models: &shared\n  model: old\nnative: *shared\n";
+      yield* fs.writeFileString(file, nested);
+      yield* Effect.flip(
+        writer.apply(
+          file,
+          [
+            write({
+              _tag: "yaml-path",
+              binding,
+              render,
+              path: ["models", "model"],
+            }),
+          ],
+          "write",
+          backups
+        )
+      );
+      expect(yield* fs.readFileString(file)).toBe(nested);
+      expect(yield* fs.exists(backups)).toBe(false);
+      // Simulate another span owner mutating an alias source. Resolved YAML
+      // equality must independently catch the non-owned semantic change.
+      const merged = "model: old\ndefaults: &shared {native: old}\nconsumer: {<<: *shared}\n";
+      yield* fs.writeFileString(file, merged);
+      const injected = write({
+        _tag: "line-value",
+        binding,
+        render,
+        linePrefix: "defaults:",
+        before: "native: ",
+        after: "}",
+      });
+      const error = yield* Effect.flip(writer.apply(file, [owned, injected], "write", backups));
+      expect(error.message).toBe("Non-owned native keys changed.");
+      expect(yield* fs.readFileString(file)).toBe(merged);
+      expect(yield* fs.exists(backups)).toBe(false);
+      yield* fs.writeFileString(file, "model: old\nnative: retained\n");
+      expect(O.isSome(yield* writer.apply(file, [owned], "write", backups))).toBe(true);
+      expect(yield* fs.readFileString(file)).toBe('model: "gpt-6.1-sol"\nnative: retained\n');
+    })
+  );
+
   it.effect("refuses every shell write before backup, including escaped separators and earlier panel inputs", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -561,46 +688,48 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     );
   }
 
-  it.effect("returns a symlink introduced inside the restore exchange window", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
-        prefix: "restore-link-race-",
-      });
-      const file = path.join(root, "config.toml");
-      const relocated = path.join(root, "relocated.toml");
-      const backups = path.join(root, "backups");
-      yield* fs.writeFileString(file, native);
-      const writer = yield* writerWithFs(fs);
-      const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
-      const applied = yield* fs.readFileString(file);
-      let exchanges = 0;
-      const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
-        ...spawner,
-        exitCode: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (command) {
-          if (command._tag === "StandardCommand" && command.command === "mv") {
-            exchanges += 1;
-            if (exchanges === 2) {
-              yield* fs.rename(file, relocated);
-              yield* fs.symlink(relocated, file);
+  for (const dangling of [false, true]) {
+    it.effect(`returns a ${dangling ? "dangling" : "live"} symlink introduced inside the restore exchange window`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        const root = yield* fs.makeTempDirectoryScoped({
+          directory: path.resolve(".beep"),
+          prefix: "restore-link-race-",
+        });
+        const file = path.join(root, "config.toml");
+        const relocated = path.join(root, "relocated.toml");
+        const backups = path.join(root, "backups");
+        yield* fs.writeFileString(file, native);
+        const writer = yield* writerWithFs(fs);
+        const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
+        const applied = yield* fs.readFileString(file);
+        let exchanges = 0;
+        const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
+          ...spawner,
+          exitCode: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (command) {
+            if (command._tag === "StandardCommand" && command.command === "mv") {
+              exchanges += 1;
+              if (exchanges === 2) {
+                yield* fs.rename(file, relocated);
+                yield* fs.symlink(dangling ? path.join(root, "absent.toml") : relocated, file);
+              }
             }
-          }
-          return yield* spawner.exitCode(command);
-        }),
-      });
-      const restoring = yield* writerWithFs(fs, wrapped);
-      const error = yield* Effect.flip(restoring.restore(path.join(backups, `${journal.id}.json`), backups));
-      expect(error._tag).toBe("ModelsLocatorError");
-      expect(error.message).toContain(`Journal: ${journal.id}`);
-      expect(yield* fs.readLink(file)).toBe(relocated);
-      expect(yield* fs.readFileString(file)).toBe(applied);
-      expect(yield* fs.readFileString(relocated)).toBe(applied);
-      expect(exchanges).toBe(3);
-    })
-  );
+            return yield* spawner.exitCode(command);
+          }),
+        });
+        const restoring = yield* writerWithFs(fs, wrapped);
+        const error = yield* Effect.flip(restoring.restore(path.join(backups, `${journal.id}.json`), backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toContain(`Journal: ${journal.id}`);
+        expect(yield* fs.readLink(file)).toBe(dangling ? path.join(root, "absent.toml") : relocated);
+        if (!dangling) expect(yield* fs.readFileString(file)).toBe(applied);
+        expect(yield* fs.readFileString(relocated)).toBe(applied);
+        expect(exchanges).toBe(3);
+      })
+    );
+  }
 
   it.effect("refuses shell and legacy recovery journals before staging", () =>
     Effect.gen(function* () {
