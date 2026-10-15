@@ -2115,6 +2115,9 @@
       ],
       "@beep/law-practice-use-cases/ClaimSelfCheck": [
         "./packages/law-practice/use-cases/src/ClaimSelfCheck/index.ts"
+      ],
+      "@beep/lint-rules/oxlint-docs": [
+        "./packages/tooling/policy-pack/lint-rules/src/rules/docs.index.ts"
       ]
     }
   }
