@@ -31,11 +31,13 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P1 Gate — complete (2026-10-15). Next: P2 Spool + tier.
 
 ## Latest Evidence
 
-Not started.
+P1: strict gate golden, per-rule, seam and boundary tests in
+`@beep/observability`; canary acceptance test across all 11 tools in
+`apps/practice-kg-mcp/test/Host.test.ts`. See `PLAN.md` execution notes.
 
 ## Notes
 
