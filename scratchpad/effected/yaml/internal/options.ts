@@ -33,19 +33,19 @@ export const ParseOptionsInput = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	strict: S.optional(S.Boolean).annotate({ description: "Treat parse errors as failures rather than recovering. Default `true`." }),
+	strict: S.optionalKey(S.Boolean).annotate({ description: "Treat parse errors as failures rather than recovering. Default `true`." }),
 	/**
 	 * Max alias nodes per document (DoS guard). Default `100`.
 	 *
 	 * @since 0.0.0
 	 */
-	maxAliasCount: S.optional(S.Finite).annotate({ description: "Max alias nodes per document (DoS guard). Default `100`." }),
+	maxAliasCount: S.optionalKey(S.Finite).annotate({ description: "Max alias nodes per document (DoS guard). Default `100`." }),
 	/**
 	 * Treat duplicate mapping keys as errors. Default `true`.
 	 *
 	 * @since 0.0.0
 	 */
-	uniqueKeys: S.optional(S.Boolean).annotate({ description: "Treat duplicate mapping keys as errors. Default `true`." }),
+	uniqueKeys: S.optionalKey(S.Boolean).annotate({ description: "Treat duplicate mapping keys as errors. Default `true`." }),
 }).pipe($I.annoteSchema("ParseOptionsInput", { description: "Plain parse options consumed by the composer; absent values retain consumption-site defaults." }));
 
 /**
@@ -80,7 +80,7 @@ export const StringifyOptionsInput = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	indent: S.optional(S.Finite).annotate({ description: "Spaces per indentation level. Default `2`." }),
+	indent: S.optionalKey(S.Finite).annotate({ description: "Spaces per indentation level. Default `2`." }),
 	/**
 	 * Column at which to fold long flow and block-folded scalars. Default `0`
 	 * (and a value `<= 0`) means never wrap — byte-identical, no-fold output.
@@ -89,57 +89,57 @@ export const StringifyOptionsInput = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	lineWidth: S.optional(S.Finite).annotate({ description: "Column at which to fold long flow and block-folded scalars. Default `0` (and a value `<= 0`) means never wrap \u2014 byte-identical, no-fold output. A positive value folds plain, double-quoted and block-folded (`>`) scalars at approximately that column; block-literal (`|`) is never folded." }),
+	lineWidth: S.optionalKey(S.Finite).annotate({ description: "Column at which to fold long flow and block-folded scalars. Default `0` (and a value `<= 0`) means never wrap \u2014 byte-identical, no-fold output. A positive value folds plain, double-quoted and block-folded (`>`) scalars at approximately that column; block-literal (`|`) is never folded." }),
 	/**
 	 * Scalar output style when none is requested. Default `"plain"`.
 	 *
 	 * @since 0.0.0
 	 */
-	defaultScalarStyle: S.optional(ScalarStyle).annotate({ description: "Scalar output style when none is requested. Default `\"plain\"`." }),
+	defaultScalarStyle: S.optionalKey(ScalarStyle).annotate({ description: "Scalar output style when none is requested. Default `\"plain\"`." }),
 	/**
 	 * Collection output style when none is requested. Default `"block"`.
 	 *
 	 * @since 0.0.0
 	 */
-	defaultCollectionStyle: S.optional(CollectionStyle).annotate({ description: "Collection output style when none is requested. Default `\"block\"`." }),
+	defaultCollectionStyle: S.optionalKey(CollectionStyle).annotate({ description: "Collection output style when none is requested. Default `\"block\"`." }),
 	/**
 	 * Sort mapping keys alphabetically. Default `false`.
 	 *
 	 * @since 0.0.0
 	 */
-	sortKeys: S.optional(S.Boolean).annotate({ description: "Sort mapping keys alphabetically. Default `false`." }),
+	sortKeys: S.optionalKey(S.Boolean).annotate({ description: "Sort mapping keys alphabetically. Default `false`." }),
 	/**
 	 * Indent block sequences one level under a mapping key. Default `false`.
 	 *
 	 * @since 0.0.0
 	 */
-	indentSequences: S.optional(S.Boolean).annotate({ description: "Indent block sequences one level under a mapping key. Default `false`." }),
+	indentSequences: S.optionalKey(S.Boolean).annotate({ description: "Indent block sequences one level under a mapping key. Default `false`." }),
 	/**
 	 * Quote style for a `plain`-styled scalar that requires quoting. Default
 	 * `"single"`. Values needing YAML escapes still render double-quoted.
 	 *
 	 * @since 0.0.0
 	 */
-	quoteStyle: S.optional(QuoteStyle).annotate({ description: "Quote style for a `plain`-styled scalar that requires quoting. Default `\"single\"`. Values needing YAML escapes still render double-quoted." }),
+	quoteStyle: S.optionalKey(QuoteStyle).annotate({ description: "Quote style for a `plain`-styled scalar that requires quoting. Default `\"single\"`. Values needing YAML escapes still render double-quoted." }),
 	/**
 	 * Additionally quote plain scalars a foreign resolution dialect would
 	 * coerce to a non-string. Default absent — no extra quoting.
 	 *
 	 * @since 0.0.0
 	 */
-	quoteCompat: S.optional(QuoteCompat).annotate({ description: "Additionally quote plain scalars a foreign resolution dialect would coerce to a non-string. Default absent \u2014 no extra quoting." }),
+	quoteCompat: S.optionalKey(QuoteCompat).annotate({ description: "Additionally quote plain scalars a foreign resolution dialect would coerce to a non-string. Default absent \u2014 no extra quoting." }),
 	/**
 	 * End output with a trailing newline. Default `true`.
 	 *
 	 * @since 0.0.0
 	 */
-	finalNewline: S.optional(S.Boolean).annotate({ description: "End output with a trailing newline. Default `true`." }),
+	finalNewline: S.optionalKey(S.Boolean).annotate({ description: "End output with a trailing newline. Default `true`." }),
 	/**
 	 * Ignore per-node styles and force the defaults. Default `false`.
 	 *
 	 * @since 0.0.0
 	 */
-	forceDefaultStyles: S.optional(S.Boolean).annotate({ description: "Ignore per-node styles and force the defaults. Default `false`." }),
+	forceDefaultStyles: S.optionalKey(S.Boolean).annotate({ description: "Ignore per-node styles and force the defaults. Default `false`." }),
 	/**
 	 * Engine-internal, never surfaced on the public option classes: render
 	 * the ROOT value as if it already sat inside a flow collection, so a
@@ -149,7 +149,7 @@ export const StringifyOptionsInput = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	inFlow: S.optional(S.Boolean).annotate({ description: "Engine-internal, never surfaced on the public option classes: render the ROOT value as if it already sat inside a flow collection, so a plain scalar carrying a flow indicator (`,[]{}`) is quoted. Used by the region-confined `modify` splice when the target's parent is flow-styled. Default `false`." }),
+	inFlow: S.optionalKey(S.Boolean).annotate({ description: "Engine-internal, never surfaced on the public option classes: render the ROOT value as if it already sat inside a flow collection, so a plain scalar carrying a flow indicator (`,[]{}`) is quoted. Used by the region-confined `modify` splice when the target's parent is flow-styled. Default `false`." }),
 }).pipe($I.annoteSchema("StringifyOptionsInput", { description: "Plain stringify options consumed by the stringifier; absent values retain consumption-site defaults." }));
 
 /**

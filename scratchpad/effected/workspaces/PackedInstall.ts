@@ -122,7 +122,7 @@ export const PackedInstallClosureOptions = S.Struct({
 	 * `optionalDependencies`, `peerDependencies`). `PackedInstall.closure`
 	 * defaults it to `"auto"`.
 	 */
-	closure: S.optional(S.Union([S.Array(S.String), S.Literal("auto")])).annotateKey($I.annote("closure", { description: "Other packages to pack, or automatic runtime dependency closure." })),
+	closure: S.optionalKey(S.Union([S.Array(S.String), S.Literal("auto")])).annotateKey($I.annote("closure", { description: "Other packages to pack, or automatic runtime dependency closure." })),
 	/**
   * Packages from outside the workspace that replace registry resolution in
   * every scratch consumer: package name to a local package directory or a
@@ -147,7 +147,7 @@ export const PackedInstallClosureOptions = S.Struct({
   * `package.json` nor a `.tgz` file, or a manifest named otherwise fails
   * `InvalidOverride`. Entries here win over `workspaceOverrides` ones.
   */
-	overrides: S.optional(S.Record(S.String, S.String)).annotateKey($I.annote("overrides", { description: "External replacements keyed by package name." })),
+	overrides: S.optionalKey(S.Record(S.String, S.String)).annotateKey($I.annote("overrides", { description: "External replacements keyed by package name." })),
 	/**
 	 * Also read the workspace root's `pnpm-workspace.yaml` and take every
 	 * `overrides:` entry of the link shape `"@scope/name": "file:<dir>"` as if
@@ -157,7 +157,7 @@ export const PackedInstallClosureOptions = S.Struct({
 	 * no readable `pnpm-workspace.yaml`, or one that is not YAML, fails
 	 * `InvalidOverride`.
 	 */
-	workspaceOverrides: S.optional(S.Boolean).annotateKey($I.annote("workspaceOverrides", { description: "Whether to read file overrides from the workspace configuration." })),
+	workspaceOverrides: S.optionalKey(S.Boolean).annotateKey($I.annote("workspaceOverrides", { description: "Whether to read file overrides from the workspace configuration." })),
 }).annotate($I.annote("PackedInstallClosureOptions", { description: "The workspace closure and external replacements a packed proof uses." }));
 
 /**
@@ -351,9 +351,9 @@ export const BinCommandOptions = S.Struct({
 	 * manager's context is stripped, so an explicit entry always wins: pass
 	 * `CI: "true"` to run a bin as if under CI.
 	 */
-	env: S.optional(S.Record(S.String, S.UndefinedOr(S.String))).annotateKey($I.annote("env", { description: "Explicit environment entries; undefined removes a variable." })),
+	env: S.optionalKey(S.Record(S.String, S.UndefinedOr(S.String))).annotateKey($I.annote("env", { description: "Explicit environment entries; undefined removes a variable." })),
 	/** The working directory. Defaults to the consumer's `directory`. */
-	cwd: S.optional(S.String).annotateKey($I.annote("cwd", { description: "Optional working directory, resolved lazily." })),
+	cwd: S.optionalKey(S.String).annotateKey($I.annote("cwd", { description: "Optional working directory, resolved lazily." })),
 }).annotate($I.annote("BinCommandOptions", { description: "Environment entries and working directory layered onto an installed bin command." }));
 
 /**
@@ -909,7 +909,7 @@ export const PackedInstallPreflightOptions = S.Struct({
 	/** The carrier, as the run's `carrier`. */
 	carrier: S.String.annotateKey($I.annote("carrier", { description: "The carrier package to install directly." })),
 	/** Where the run packs from; defaults as the run's does, to `{ directory: "dist/prod/npm/pkg" }`. */
-	packFrom: S.optional(PackSource).annotateKey($I.annote("packFrom", { description: "Optional pack source, defaulted by the operation." })),
+	packFrom: S.optionalKey(PackSource).annotateKey($I.annote("packFrom", { description: "Optional pack source, defaulted by the operation." })),
 }).annotate($I.annote("PackedInstallPreflightOptions", { description: "The carrier, closure and pack source checked before a packed proof." }));
 
 /**

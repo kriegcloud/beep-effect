@@ -144,7 +144,7 @@ export const PublishOutcome = S.Struct({
 	 * npm's Sigstore transparency-log URL, when it published provenance.
 	 * Absent for GitHub Packages, custom registries, and provenance-off runs.
 	 */
-	provenanceUrl: S.optional(S.String).annotateKey({ description: "The Sigstore URL, when npm published provenance." }),
+	provenanceUrl: S.optionalKey(S.String).annotateKey({ description: "The Sigstore URL, when npm published provenance." }),
 }).annotate($I.annote("PublishOutcome", { description: "The structural outcome of one publish." }));
 /**
  * Decoded publish result represented by {@link (PublishOutcome:variable)}.
@@ -184,11 +184,11 @@ export const DryRunOutcome = S.Struct({
 	/** Whether the package packs. `false` is an answer, not a failure. */
 	ok: S.Boolean.annotateKey({ description: "Whether the package packs; false is a normal result." }),
 	/** Tarball size in bytes, when npm reported it. */
-	packedSize: S.optional(S.Finite).annotateKey({ description: "Packed tarball size in bytes." }),
+	packedSize: S.optionalKey(S.Finite).annotateKey({ description: "Packed tarball size in bytes." }),
 	/** Unpacked size in bytes, when npm reported it. */
-	unpackedSize: S.optional(S.Finite).annotateKey({ description: "Unpacked size in bytes." }),
+	unpackedSize: S.optionalKey(S.Finite).annotateKey({ description: "Unpacked size in bytes." }),
 	/** Number of files the tarball would contain, when npm reported it. */
-	fileCount: S.optional(S.Finite).annotateKey({ description: "Number of files in the tarball." }),
+	fileCount: S.optionalKey(S.Finite).annotateKey({ description: "Number of files in the tarball." }),
 	/** npm's output, for diagnostics. */
 	output: S.String.annotateKey({ description: "npm output for diagnostics." }),
 }).annotate($I.annote("DryRunOutcome", { description: "Packability and sizing from npm pack --dry-run." }));
@@ -255,11 +255,11 @@ export const PublishOptions = S.Struct({
 	/** The registry to publish to. Required — a defaulted registry is how packages land in the wrong place. */
 	registry: S.String.annotateKey({ description: "Explicit registry to receive the tarball." }),
 	/** dist-tag to apply. */
-	tag: S.optional(S.String).annotateKey({ description: "The dist-tag to apply." }),
+	tag: S.optionalKey(S.String).annotateKey({ description: "The dist-tag to apply." }),
 	/** Access level for a scoped package. */
-	access: S.optional(S.Literals(["public", "restricted"])).annotateKey({ description: "Access for a scoped package." }),
+	access: S.optionalKey(S.Literals(["public", "restricted"])).annotateKey({ description: "Access for a scoped package." }),
 	/** Request npm's native provenance. */
-	provenance: S.optional(S.Boolean).annotateKey({ description: "Whether to request npm provenance." }),
+	provenance: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to request npm provenance." }),
 	/**
   * Force classic `_authToken` auth by blanking the Actions OIDC environment.
   *
@@ -270,7 +270,7 @@ export const PublishOptions = S.Struct({
   * attempt fails. Required for GitHub Packages, and as the bootstrap path for
   * a package with no trusted publisher configured yet.
   */
-	tokenAuth: S.optional(S.Boolean).annotateKey({ description: "Whether to blank the OIDC environment for classic token auth." }),
+	tokenAuth: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to blank the OIDC environment for classic token auth." }),
 }).annotate($I.annote("PublishOptions", { description: "Structural options for uploading a previously packed tarball." }));
 /**
  * Decoded publishing options represented by {@link (PublishOptions:variable)}.

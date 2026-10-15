@@ -360,14 +360,14 @@ const DurationNumber = S.declare(P.isNumber)
 
 /** The object member of `Duration.Input`; every component is optional and additive. */
 const DurationObject = S.Struct({
-  weeks: S.optional(DurationNumber),
-  days: S.optional(DurationNumber),
-  hours: S.optional(DurationNumber),
-  minutes: S.optional(DurationNumber),
-  seconds: S.optional(DurationNumber),
-  milliseconds: S.optional(DurationNumber),
-  microseconds: S.optional(DurationNumber),
-  nanoseconds: S.optional(DurationNumber),
+  weeks: S.optionalKey(DurationNumber),
+  days: S.optionalKey(DurationNumber),
+  hours: S.optionalKey(DurationNumber),
+  minutes: S.optionalKey(DurationNumber),
+  seconds: S.optionalKey(DurationNumber),
+  milliseconds: S.optionalKey(DurationNumber),
+  microseconds: S.optionalKey(DurationNumber),
+  nanoseconds: S.optionalKey(DurationNumber),
 }).annotate(
   $I.annote("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
 );
@@ -443,11 +443,11 @@ export const JournalConfig = S.Struct({
   /** Journal path; construction permits a missing file. */
   path: S.String,
   /** Directory to watch until creation; defaults to the parent of path. */
-  directory: S.optional(S.String),
+  directory: S.optionalKey(S.String),
   /** Backpressured subscriber capacity; defaults to 64. */
-  capacity: S.optional(Capacity),
+  capacity: S.optionalKey(Capacity),
   /** Bound on graceful shutdown publication, as any Duration.Input; defaults to five seconds. */
-  shutdownPublishTimeout: S.optional(DurationInput),
+  shutdownPublishTimeout: S.optionalKey(DurationInput),
 }).annotate($I.annote("JournalConfig", { description: "File and subscription settings for one journal layer." }));
 
 /**

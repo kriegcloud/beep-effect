@@ -182,7 +182,7 @@ export const LockfileReaderOptions = S.Struct({
   *
   * @defaultValue no ceiling — the ascent runs to the filesystem root.
   */
-	stopAt: S.optional(S.String).annotateKey({ description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling." }),
+	stopAt: S.optionalKey(S.String).annotateKey({ description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling." }),
 }).pipe($I.annoteSchema("LockfileReaderOptions", { description: "Root-resolution options for the lockfile reader, leaving current-directory resolution lazy." }));
 
 /**

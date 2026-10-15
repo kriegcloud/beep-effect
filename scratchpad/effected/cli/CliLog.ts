@@ -55,7 +55,7 @@ export const CliLogStatusOptions = S.Struct({
 	 * The level the line is logged at. By default it follows the status's rank in its vocabulary: `Error` at or above
 	 * `failure`'s rank, `Warn` at or above `warning`'s, and `Info` below that.
 	 */
-	level: S.optional(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).annotate(
+	level: S.optionalKey(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).annotate(
 		$I.annote("CliLogStatusOptions.level", { description: "The message severity overriding the status vocabulary's rank." }),
 	),
 	/**
@@ -63,7 +63,7 @@ export const CliLogStatusOptions = S.Struct({
 	 * spaces (floored, at most 64; zero, a negative or a non-finite number is none), or a string. A string is sanitised as text is (escapes and controls removed, a tab a space) and its line
 	 * breaks dropped, so the indent can never carry an escape onto the trusted line. None by default.
 	 */
-	indent: S.optional(S.Union([S.declare(P.isNumber).annotate(
+	indent: S.optionalKey(S.Union([S.declare(P.isNumber).annotate(
 		$I.annote("CliLogStatusOptions.NumericIndent", { description: "Every JavaScript number, including non-finite values that the status renderer treats as no indent." }),
 	), S.String])).annotate(
 		$I.annote("CliLogStatusOptions.indent", { description: "Spaces or sanitized text before the glyph; non-finite numbers produce no indent." }),

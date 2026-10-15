@@ -182,7 +182,7 @@ export const UploadOptions = S.Struct({
   * being silently corrected, because "delete it immediately" and "keep it for
   * the default period" are too far apart to guess between.
   */
-	retentionDays: S.optional(S.Finite).annotateKey({ description: "Positive finite retention in days; omitted uses the repository default." }),
+	retentionDays: S.optionalKey(S.Finite).annotateKey({ description: "Positive finite retention in days; omitted uses the repository default." }),
 	/**
   * The zlib level, 0–9, defaulting to 6 as `@actions/artifact` does.
   *
@@ -192,7 +192,7 @@ export const UploadOptions = S.Struct({
   * `CompressionLevel`: `0` is `NoCompression`, `1..3` `Fastest`, `4..8`
   * `Optimal`, `9` `SmallestSize`.
   */
-	compressionLevel: S.optional(S.Finite).annotateKey({ description: "The zlib level, clamped to 0–9; omitted defaults to 6." }),
+	compressionLevel: S.optionalKey(S.Finite).annotateKey({ description: "The zlib level, clamped to 0–9; omitted defaults to 6." }),
 }).pipe($I.annoteSchema("UploadOptions", { description: "Plain-object options for artifact retention and compression." }));
 
 /** The plain-object upload options validated by {@link UploadOptions}.
@@ -236,7 +236,7 @@ export type UploadResult = typeof UploadResult.Type;
  */
 export const DownloadOptions = S.Struct({
 	/** The destination directory. A fresh temporary directory when omitted. */
-	path: S.optional(S.String).annotateKey({ description: "Destination directory; omitted creates a fresh temporary directory." }),
+	path: S.optionalKey(S.String).annotateKey({ description: "Destination directory; omitted creates a fresh temporary directory." }),
 }).pipe($I.annoteSchema("DownloadOptions", { description: "Plain-object options specifying where an artifact download lands." }));
 
 /** The plain-object download options validated by {@link DownloadOptions}.

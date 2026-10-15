@@ -716,7 +716,7 @@ const appFailure = (kind: GitHubAppError["kind"]) => (error: GitHubError) =>
 // Selected wire fields are decoded before projection; unrelated response fields stay ignored.
 const InstallationResponse = S.Struct({
 	id: S.Union([S.Finite, S.BigInt]),
-	account: S.Struct({ login: S.optional(S.String) }).pipe(S.NullOr, S.optional),
+	account: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optional),
 }).annotate($I.annote("InstallationResponse", { description: "Selected GitHub installation fields." }));
 const IdentityResponse = S.Struct({
 	slug: S.String.pipe(S.NullOr, S.optional),

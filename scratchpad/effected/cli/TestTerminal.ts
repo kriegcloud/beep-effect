@@ -40,15 +40,15 @@ export const KeyInput = S.Struct({
 		}),
 	),
 	/** Whether Ctrl is held. */
-	ctrl: S.optional(S.Boolean).annotate(
+	ctrl: S.optionalKey(S.Boolean).annotate(
 		$I.annote("KeyInput.ctrl", { description: "Whether Ctrl is held; omitted or undefined is queued as not held." }),
 	),
 	/** Whether Meta is held. */
-	meta: S.optional(S.Boolean).annotate(
+	meta: S.optionalKey(S.Boolean).annotate(
 		$I.annote("KeyInput.meta", { description: "Whether Meta is held; omitted or undefined is queued as not held." }),
 	),
 	/** Whether Shift is held. */
-	shift: S.optional(S.Boolean).annotate(
+	shift: S.optionalKey(S.Boolean).annotate(
 		$I.annote("KeyInput.shift", { description: "Whether Shift is held; omitted or undefined is queued as not held." }),
 	),
 }).annotate($I.annote("KeyInput", { description: "One scripted key press queued into a TestTerminal." }));

@@ -352,7 +352,7 @@ const CommitResponse = S.Struct({
 		message: S.String,
 		author: S.Struct({ name: S.String.pipe(S.NullOr, S.optional) }).pipe(S.NullOr, S.optional),
 	}),
-	author: S.Struct({ login: S.optional(S.String) }).pipe(S.NullOr, S.optional),
+	author: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optional),
 	parents: S.Array(S.Struct({ sha: S.String })),
 }).annotate($I.annote("CommitResponse", { description: "The selected fields used to summarize a commit response." }));
 
@@ -380,7 +380,7 @@ const ComparisonResponse = S.Struct({
 		status: S.String,
 		additions: S.Finite,
 		deletions: S.Finite,
-		previous_filename: S.optional(S.String),
+		previous_filename: S.optionalKey(S.String),
 	})).pipe(S.NullOr, S.optional),
 }).annotate($I.annote("ComparisonResponse", { description: "The selected comparison fields, including nested commits and diff entries." }));
 

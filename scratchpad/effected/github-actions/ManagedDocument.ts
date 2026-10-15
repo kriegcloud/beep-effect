@@ -224,7 +224,7 @@ export const ManagedDocumentSource = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	text: S.optional(S.String).annotateKey({ description: "The current text; absent and empty text both start a fresh document." }),
+	text: S.optionalKey(S.String).annotateKey({ description: "The current text; absent and empty text both start a fresh document." }),
 }).annotate($I.annote("ManagedDocumentSource", { description: "Source text and identity of a managed document." }));
 /**
  * Decoded document identity and optional source text accepted by ManagedDocument.

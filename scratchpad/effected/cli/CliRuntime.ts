@@ -58,7 +58,7 @@ const isShowHelp = (u: unknown): u is CliError.ShowHelp => CliError.isCliError(u
 
 /** A `UserError` `Command.runWith` already printed: it sets the mark to `false` after rendering. */
 const isRenderedUserError = (u: unknown): u is CliError.UserError =>
-	CliError.isCliError(u) && u._tag === "UserError" && Runtime.getErrorReported(u) === false;
+	CliError.isCliError(u) && u._tag === "UserError" && !Runtime.getErrorReported(u);
 
 /**
  * What `render` is told about a failure beyond the squashed error.
@@ -275,12 +275,7 @@ export interface MainOptions<RP, EP> extends ReportFailuresOptions {
 
 /** The last line of defence of a failure report: the error's text, sanitised and neutralized, whatever else broke. */
 const lastResort = (error: unknown): ReadonlyArray<string> => {
-	let text: string;
-	try {
-		text = String(error);
-	} catch {
-		text = "[unprintable failure]";
-	}
+	const text = Result.getOrElse(Result.try(() => String(error)), () => "[unprintable failure]");
 	return CommandNeutralizer.lines(sanitize(text));
 };
 
@@ -492,15 +487,13 @@ export abstract class CliRuntime {
 					// The target is built from the services in context when there is no cell: if that dies, the plain fallback.
 					const target = yield* currentTarget.pipe(Effect.catchCause(() => Effect.succeed(fallbackTarget)));
 					const reportLines = (status: boolean, spans?: "app" | "all" | "off"): ReadonlyArray<string> => {
-						try {
-							return linesOf(cause, target, status, spans ?? target.spans);
-						} catch {
-							try {
-								return plainFailureLines(cause, status, spans ?? target.spans);
-							} catch {
-								return lastResort(error);
-							}
-						}
+						return Result.getOrElse(
+							Result.try(() => linesOf(cause, target, status, spans ?? target.spans)),
+							() => Result.getOrElse(
+								Result.try(() => plainFailureLines(cause, status, spans ?? target.spans)),
+								() => lastResort(error),
+							),
+						);
 					};
 					const defaultLines = reportLines(true);
 					// Cause.squash prefers a Fail over a Die, so `error` is a defect exactly when there is no Fail.

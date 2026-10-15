@@ -8,6 +8,7 @@ import { CliTheme } from "./CliTheme.ts";
 import { sanitize } from "./Fmt.ts";
 import { underGithubActions } from "./internal/autoFormat.ts";
 import { Status } from "./Status.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/cli/CliMessage");
 
@@ -28,11 +29,11 @@ const $I = $ScratchpadId.create("effected/cli/CliMessage");
  * @since 0.0.0
  */
 export const CliMessageOptions = S.Struct({
-	/**
-	 * Where the line goes. Defaults to stderr for a status whose rank is at or above `warning`'s in its
-	 * vocabulary, stdout otherwise.
-	 */
-	stream: S.optional(S.Literals(["stdout", "stderr"])).annotate($I.annote("CliMessageOptions.stream", { description: "The output stream override for a status line." })),
+  /**
+   * Where the line goes. Defaults to stderr for a status whose rank is at or above `warning`'s in its
+   * vocabulary, stdout otherwise.
+   */
+  stream: S.optionalKey(S.Literals(["stdout", "stderr"])).annotate($I.annote("CliMessageOptions.stream", { description: "The output stream override for a status line." })),
 }).annotate($I.annote("CliMessageOptions", { description: "Plain output routing options for a status message." }));
 
 /**
@@ -74,134 +75,146 @@ export type CliMessageOptions = typeof CliMessageOptions.Type;
  */
 export abstract class CliMessage {
 
-	/**
-	 * Print a status line from a vocabulary.
-	 *
-	 * **Details**
-	 *
-	 * The stream defaults to stderr when the status ranks at or above `warning` in `vocab`, and stdout
-	 * otherwise, so a custom status follows its own rank: a `timeout` ranked 85 goes to stderr.
-	 *
-	 * **Example** (Construct a vocabulary status message)
-	 *
-	 * ```ts
-	 * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
-	 * import * as Effect from "effect/Effect"
-	 * import { Status } from "@beep/scratchpad/effected/cli/Status"
-	 * const program = CliMessage.status(Status.core, "warning", "retrying")
-	 * console.log(Effect.isEffect(program)) // true
-	 * ```
-	 *
-	 * @param vocab - the vocabulary the status belongs to
-	 * @param name - the status
-	 * @param text - the text after the glyph
-	 * @param options - the stream override
-	 * @category utilities
-	 * @since 0.0.0
-	 */
-	static readonly status = Effect.fn("status")(function* <N extends string>(
-		vocab: Status<N>,
-		name: N,
-		text: string,
-		options?: CliMessageOptions,
-	): Effect.fn.Return<void, never, CliTheme | Audience> {
-		const theme = yield* CliTheme;
-		const audience = yield* Audience;
-		const def = vocab.def(name);
-		const message = sanitize(text);
+  /**
+   * Print a status line from a vocabulary.
+   *
+   * **Details**
+   *
+   * The stream defaults to stderr when the status ranks at or above `warning` in `vocab`, and stdout
+   * otherwise, so a custom status follows its own rank: a `timeout` ranked 85 goes to stderr.
+   *
+   * **Example** (Construct a vocabulary status message)
+   *
+   * ```ts
+   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import * as Effect from "effect/Effect"
+   * import { Status } from "@beep/scratchpad/effected/cli/Status"
+   * const program = CliMessage.status(Status.core, "warning", "retrying")
+   * console.log(Effect.isEffect(program)) // true
+   * ```
+   *
+   * @param vocab - the vocabulary the status belongs to
+   * @param name - the status
+   * @param text - the text after the glyph
+   * @param options - the stream override
+   * @category utilities
+   * @since 0.0.0
+   */
+  static readonly status: {
+    <N extends string>(
+      vocab: Status<N>,
+      name: N,
+      text: string,
+      options?: CliMessageOptions,
+    ): Effect.Effect<void, never, CliTheme | Audience>,
+    <N extends string>(
+      name: N,
+      text: string,
+      options?: CliMessageOptions,
+    ): (vocab: Status<N>) => Effect.fn.Return<void, never, CliTheme | Audience>
+  } = dual(4, Effect.fn("status")(function* <N extends string>(
+    vocab: Status<N>,
+    name: N,
+    text: string,
+    options?: CliMessageOptions,
+  ): Effect.fn.Return<void, never, CliTheme | Audience> {
+    const theme = yield* CliTheme;
+    const audience = yield* Audience;
+    const def = vocab.def(name);
+    const message = sanitize(text);
 
-		// The stream first, then the line painted with THAT stream's colour: a redirected stderr is not coloured
-		// because stdout is.
-		const warning = vocab.def("warning").rank;
-		const stream = options?.stream ?? (def.rank >= warning ? "stderr" : "stdout");
-		const streamTheme = theme.forStream(stream);
+    // The stream first, then the line painted with THAT stream's colour: a redirected stderr is not coloured
+    // because stdout is.
+    const warning = vocab.def("warning").rank;
+    const stream = options?.stream ?? (def.rank >= warning ? "stderr" : "stdout");
+    const streamTheme = theme.forStream(stream);
 
-		let line: string;
-		// An agent sees the theme at colour none: the same line, its glyph sanitised and unpainted.
-		line = CliTheme.forAudience(streamTheme, audience.kind).status(vocab, name, message);
-		// The runner reads a log line as a command; this is the one place a message's text reaches it.
-		if (yield* underGithubActions) line = CommandNeutralizer.text(line);
+    let line: string;
+    // An agent sees the theme at colour none: the same line, its glyph sanitised and unpainted.
+    line = CliTheme.forAudience(streamTheme, audience.kind).status(vocab, name, message);
+    // The runner reads a log line as a command; this is the one place a message's text reaches it.
+    if (yield* underGithubActions) line = CommandNeutralizer.text(line);
 
-		yield* stream === "stderr" ? Console.error(line) : Console.log(line);
-	});
+    yield* stream === "stderr" ? Console.error(line) : Console.log(line);
+  }));
 
-	/**
-	 * A success line, on stdout.
-	 *
-	 * **Example** (Construct a success line)
-	 *
-	 * ```ts
-	 * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
-	 * import * as Effect from "effect/Effect"
-	 *
-	 * const program = CliMessage.success("configuration checked")
-	 * console.log(Effect.isEffect(program)) // true
-	 * ```
-	 *
-	 * @param text - the text after the glyph
-	 * @category utilities
-	 * @since 0.0.0
-	 */
-	static readonly success = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
-		CliMessage.status(Status.core, "success", text);
+  /**
+   * A success line, on stdout.
+   *
+   * **Example** (Construct a success line)
+   *
+   * ```ts
+   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import * as Effect from "effect/Effect"
+   *
+   * const program = CliMessage.success("configuration checked")
+   * console.log(Effect.isEffect(program)) // true
+   * ```
+   *
+   * @param text - the text after the glyph
+   * @category utilities
+   * @since 0.0.0
+   */
+  static readonly success = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
+    CliMessage.status(Status.core, "success", text);
 
-	/**
-	 * An informational line, on stdout.
-	 *
-	 * **Example** (Construct a info line)
-	 *
-	 * ```ts
-	 * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
-	 * import * as Effect from "effect/Effect"
-	 *
-	 * const program = CliMessage.info("configuration checked")
-	 * console.log(Effect.isEffect(program)) // true
-	 * ```
-	 *
-	 * @param text - the text after the glyph
-	 * @category utilities
-	 * @since 0.0.0
-	 */
-	static readonly info = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
-		CliMessage.status(Status.core, "info", text);
+  /**
+   * An informational line, on stdout.
+   *
+   * **Example** (Construct a info line)
+   *
+   * ```ts
+   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import * as Effect from "effect/Effect"
+   *
+   * const program = CliMessage.info("configuration checked")
+   * console.log(Effect.isEffect(program)) // true
+   * ```
+   *
+   * @param text - the text after the glyph
+   * @category utilities
+   * @since 0.0.0
+   */
+  static readonly info = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
+    CliMessage.status(Status.core, "info", text);
 
-	/**
-	 * A warning line, on stderr.
-	 *
-	 * **Example** (Construct a warning line)
-	 *
-	 * ```ts
-	 * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
-	 * import * as Effect from "effect/Effect"
-	 *
-	 * const program = CliMessage.warning("configuration checked")
-	 * console.log(Effect.isEffect(program)) // true
-	 * ```
-	 *
-	 * @param text - the text after the glyph
-	 * @category utilities
-	 * @since 0.0.0
-	 */
-	static readonly warning = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
-		CliMessage.status(Status.core, "warning", text);
+  /**
+   * A warning line, on stderr.
+   *
+   * **Example** (Construct a warning line)
+   *
+   * ```ts
+   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import * as Effect from "effect/Effect"
+   *
+   * const program = CliMessage.warning("configuration checked")
+   * console.log(Effect.isEffect(program)) // true
+   * ```
+   *
+   * @param text - the text after the glyph
+   * @category utilities
+   * @since 0.0.0
+   */
+  static readonly warning = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
+    CliMessage.status(Status.core, "warning", text);
 
-	/**
-	 * A failure line, on stderr.
-	 *
-	 * **Example** (Construct a failure line)
-	 *
-	 * ```ts
-	 * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
-	 * import * as Effect from "effect/Effect"
-	 *
-	 * const program = CliMessage.failure("configuration checked")
-	 * console.log(Effect.isEffect(program)) // true
-	 * ```
-	 *
-	 * @param text - the text after the glyph
-	 * @category utilities
-	 * @since 0.0.0
-	 */
-	static readonly failure = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
-		CliMessage.status(Status.core, "failure", text);
+  /**
+   * A failure line, on stderr.
+   *
+   * **Example** (Construct a failure line)
+   *
+   * ```ts
+   * import { CliMessage } from "@beep/scratchpad/effected/cli/CliMessage"
+   * import * as Effect from "effect/Effect"
+   *
+   * const program = CliMessage.failure("configuration checked")
+   * console.log(Effect.isEffect(program)) // true
+   * ```
+   *
+   * @param text - the text after the glyph
+   * @category utilities
+   * @since 0.0.0
+   */
+  static readonly failure = (text: string): Effect.Effect<void, never, CliTheme | Audience> =>
+    CliMessage.status(Status.core, "failure", text);
 }

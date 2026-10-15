@@ -1,4 +1,5 @@
-import * as A from "effect/Array";
+import * as Result from "effect/Result";
+import * as A from "@beep/utils/Array";
 import type * as CauseType from "effect/Cause";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
@@ -116,14 +117,12 @@ const hasCliDoc = (value: unknown): value is CliDocSource =>
 // String(value) can throw for an object with no prototype or a hostile toString, and says only "[object Object]" for
 // a plain failure value: such a value with a string message is that message.
 const describe = (value: unknown): string => {
-	try {
+	return Result.getOrElse(Result.try(() => {
 		const text = String(value);
 		if (text !== "[object Object]") return text;
 		const message = P.isObjectKeyword(value) && !P.isFunction(value) && "message" in value ? value.message : undefined;
 		return P.isString(message) ? message : text;
-	} catch {
-		return "[unprintable value]";
-	}
+	}), () => "[unprintable value]");
 };
 
 const firstLine = (text: string): string => A.getUnsafe(text.split(/\r\n|\r|\n/, 1), 0);
@@ -177,12 +176,10 @@ interface Frame {
 /** The location of a frame as a path: a `file:` URL decoded, or an absolute POSIX or drive path; else `undefined`. */
 const asPath = (location: string): string | undefined => {
 	if (location.startsWith("file:")) {
-		try {
+		return Result.getOrElse(Result.try(() => {
 			const path = decodeURIComponent(new URL(location).pathname);
 			return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
-		} catch {
-			return undefined;
-		}
+		}), () => undefined);
 	}
 	return location.startsWith("/") || /^[A-Za-z]:[\\/]/.test(location) ? location : undefined;
 };
@@ -308,11 +305,9 @@ const failBlocks = (
 	options: CliFailureOptions | undefined,
 ): ReadonlyArray<Block> => {
 	if (hasCliDoc(error)) {
-		try {
-			return [...error[CliDoc](), ...spans];
-		} catch {
-			// A document that cannot be built falls through to the generic line: a report must not fail to report.
-		}
+		const rendered = Result.try(() => [...error[CliDoc](), ...spans]);
+		if (Result.isSuccess(rendered)) return rendered.success;
+		// A document that cannot be built falls through to the generic line: a report must not fail to report.
 	}
 	const tag = tagOf(error);
 	const custom =
@@ -320,11 +315,9 @@ const failBlocks = (
 			? undefined
 			: options.render[tag];
 	if (custom !== undefined) {
-		try {
-			return [...custom(error), ...spans];
-		} catch {
-			// Likewise.
-		}
+		const rendered = Result.try(() => [...custom(error), ...spans]);
+		if (Result.isSuccess(rendered)) return rendered.success;
+		// Likewise, a failed custom renderer falls through.
 	}
 	if (S.is(Cancelled)(error) || S.is(NotInteractive)(error)) return [Doc.paragraph(error.message)];
 	const schema = schemaBlocks(error);
@@ -367,14 +360,12 @@ const isAppFile = (file: string, appDir: string | undefined): boolean => {
 
 /** The file a span frame's captured stack points at, or `undefined` when it captured none. */
 const spanFile = (frame: { readonly stack: () => string | undefined }): string | undefined => {
-	try {
+	return Result.getOrElse(Result.try(() => {
 		const stack = frame.stack();
 		if (stack === undefined) return undefined;
 		const line = stack.split(/\r\n|\r|\n/).find((candidate) => /^\s*at\s/.test(candidate)) ?? stack;
 		return frameFile(line.trim().startsWith("at ") ? line : `at ${line.trim()}`);
-	} catch {
-		return undefined;
-	}
+	}), () => undefined);
 };
 
 /**
@@ -472,7 +463,7 @@ export class CliFailure {
 			if (Cause.isFailReason(reason)) return failBlocks(reason.error, spanBlocks(reason, spans, appDir), options);
 			if (Cause.isDieReason(reason))
 				return dieBlocks(reason.defect, spanBlocks(reason, spans, appDir), displayPath, options?.stackFrames ?? "app");
-			return [];
+			return A.emptyReadonly<Block>();
 		});
 	};
 }

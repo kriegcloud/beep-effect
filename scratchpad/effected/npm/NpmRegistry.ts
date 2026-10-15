@@ -63,7 +63,7 @@ export const DEFAULT_REGISTRY = "https://registry.npmjs.org";
  */
 export const RegistryTarget = S.Struct({
 	/** Registry base URL. Defaults to {@link DEFAULT_REGISTRY}. */
-	registry: S.optional(S.String).annotateKey({ description: "Registry base URL; omission selects the public npm registry." }),
+	registry: S.optionalKey(S.String).annotateKey({ description: "Registry base URL; omission selects the public npm registry." }),
 	/**
 	 * Superseded by {@link RegistryTarget.credential}.
 	 *
@@ -93,7 +93,7 @@ export const RegistryTarget = S.Struct({
   * registry — a bearer probe against a basic-auth registry answers 401 and
   * reads as "not published".
   */
-	credential: S.optional(RegistryCredential).annotateKey({ description: "The redacted credential for this registry read." }),
+	credential: S.optionalKey(RegistryCredential).annotateKey({ description: "The redacted credential for this registry read." }),
 }).annotate($I.annote("RegistryTarget", { description: "A structural per-call registry and credential boundary." }));
 /**
  * Decoded per-call registry options, including the removed token field that rejects legacy callers.
@@ -551,11 +551,11 @@ const notStubbed = (method: string) => () =>
  */
 export const SeededVersion = S.Struct({
 	/** Published integrity, if any. */
-	integrity: S.optional(S.String).annotateKey({ description: "Published integrity, if any." }),
+	integrity: S.optionalKey(S.String).annotateKey({ description: "Published integrity, if any." }),
 	/** Tarball URL, if any. */
-	tarball: S.optional(S.String).annotateKey({ description: "Published tarball URL, if any." }),
+	tarball: S.optionalKey(S.String).annotateKey({ description: "Published tarball URL, if any." }),
 	/** Publish timestamp as an ISO-8601 string, if any. */
-	publishedAt: S.optional(S.String).annotateKey({ description: "ISO-8601 publish timestamp, if any." }),
+	publishedAt: S.optionalKey(S.String).annotateKey({ description: "ISO-8601 publish timestamp, if any." }),
 }).annotate($I.annote("SeededVersion", { description: "Structural registry-visible facts for a seeded version." }));
 /**
  * Decoded registry-visible facts for one version in an in-memory seed.
@@ -592,7 +592,7 @@ export const RegistrySeed = S.Struct({
 	/** registry → package → version → facts. */
 	registries: S.Record(S.String, S.Record(S.String, S.Record(S.String, SeededVersion))).annotateKey({ description: "Registry to package to version to seeded facts." }),
 	/** package → dist-tag map, when a test asserts on tags. */
-	distTags: S.optional(S.Record(S.String, S.Record(S.String, S.String))).annotateKey({ description: "Package to dist-tag map, when seeded." }),
+	distTags: S.optionalKey(S.Record(S.String, S.Record(S.String, S.String))).annotateKey({ description: "Package to dist-tag map, when seeded." }),
 }).annotate($I.annote("RegistrySeed", { description: "A structural fake registry world retaining every dictionary axis." }));
 /**
  * Decoded in-memory registry data keyed by registry URL, package name and version.

@@ -170,7 +170,7 @@ export const S3Config = S.Struct({
   * against R2, MinIO and Spaces — virtual-host addressing needs per-bucket
   * DNS that none of them provide the same way.
   */
-	endpoint: S.optional(S.String).annotateKey({ description: "A custom path-style endpoint. Omitting it targets AWS itself." }),
+	endpoint: S.optionalKey(S.String).annotateKey({ description: "A custom path-style endpoint. Omitting it targets AWS itself." }),
 	/** The access key id. */
 	accessKeyId: S.String.annotateKey({ description: "The access key id." }),
 	/** The secret access key, declassified once and masked in the runner log. */
@@ -178,7 +178,7 @@ export const S3Config = S.Struct({
 	/** For temporary credentials. */
 	sessionToken: S.String.pipe(S.Redacted, S.optional).annotateKey({ description: "For temporary credentials." }),
 	/** Prepended to every key, so one bucket can hold several caches. */
-	prefix: S.optional(S.String).annotateKey({ description: "Prepended to every key, so one bucket can hold several caches." }),
+	prefix: S.optionalKey(S.String).annotateKey({ description: "Prepended to every key, so one bucket can hold several caches." }),
 }).annotate($I.annote("S3Config", { description: "How to reach an S3-compatible object store." }));
 
 /**

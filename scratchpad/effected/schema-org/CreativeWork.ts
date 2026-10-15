@@ -74,17 +74,17 @@ export const CreativeWorkFields = {
 	 * Single-valued, because schema.org defines `mainEntity` as *the primary*
 	 * entity.
 	 */
-	mainEntity: S.optional(NodeRef),
+	mainEntity: S.optionalKey(NodeRef),
 	/** Subjects of the work, by reference. Repeatable. */
 	about: NodeRef.pipe(S.Array, S.optional),
 	/** Keywords describing the work. Repeatable. */
 	keywords: S.String.pipe(S.Array, S.optional),
 	/** Publication date, as an ISO 8601 date or date-time string. Single-valued. */
-	datePublished: S.optional(S.String),
+	datePublished: S.optionalKey(S.String),
 	/** Last-modification date, as an ISO 8601 date or date-time string. Single-valued. */
-	dateModified: S.optional(S.String),
+	dateModified: S.optionalKey(S.String),
 	/** The language of the work, as a BCP 47 tag. Single-valued. */
-	inLanguage: S.optional(S.String),
+	inLanguage: S.optionalKey(S.String),
 	/**
 	 * The version of the work. Single-valued.
 	 *
@@ -93,7 +93,7 @@ export const CreativeWorkFields = {
 	 * A plain string: schema.org's `version` range is `Number | Text`, so
 	 * requiring SemVer here would reject a legal `"2024-11"`.
 	 */
-	version: S.optional(S.String),
+	version: S.optionalKey(S.String),
 } as const;
 
 /**

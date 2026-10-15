@@ -312,7 +312,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
 	static readonly layerTest = (mode: "vscode" | "file" | "off"): LayerType.Layer<CliLinks> =>
 		Layer.succeed(CliLinks, {
 			mode,
-			target: makeTarget(mode, (file) => (file.startsWith("/") || DRIVE.test(file) ? file : undefined)),
+			target: makeTarget(mode, (file) => (Str.startsWith("/")(file) || DRIVE.test(file) ? file : undefined)),
 		});
 
 	/**

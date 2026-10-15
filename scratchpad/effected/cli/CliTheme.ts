@@ -93,9 +93,9 @@ export interface StreamTheme {
  */
 export const CliThemeOptions = S.Struct({
 	/** Styles that replace the default of a token. */
-	tokens: S.optional(S.Record(TokenName, S.optionalKey(Style))).annotate($I.annote("CliThemeOptions.tokens", { description: "Partial replacements for default semantic token styles." })),
+	tokens: S.optionalKey(S.Record(TokenName, S.optionalKey(Style))).annotate($I.annote("CliThemeOptions.tokens", { description: "Partial replacements for default semantic token styles." })),
 	/** The glyph set. `auto`, the default, is ASCII only when `TERM=dumb`. */
-	glyphs: S.optional(S.Literals(["unicode", "ascii", "auto"])).annotate($I.annote("CliThemeOptions.glyphs", { description: "Glyph selection, with auto following TERM." })),
+	glyphs: S.optionalKey(S.Literals(["unicode", "ascii", "auto"])).annotate($I.annote("CliThemeOptions.glyphs", { description: "Glyph selection, with auto following TERM." })),
 }).annotate($I.annote("CliThemeOptions", { description: "Plain token overrides and glyph selection for a CLI theme." }));
 
 /**
@@ -124,11 +124,11 @@ export type CliThemeOptions = typeof CliThemeOptions.Type;
  */
 export const CliThemeTestOptions = S.Struct({
 	/** The stdout colour level; `none` by default. */
-	color: S.optional(ColorLevel).annotate($I.annote("CliThemeTestOptions.color", { description: "Fixed stdout colour support." })),
+	color: S.optionalKey(ColorLevel).annotate($I.annote("CliThemeTestOptions.color", { description: "Fixed stdout colour support." })),
 	/** The stderr colour level; the same as `color` by default. */
-	stderrColor: S.optional(ColorLevel).annotate($I.annote("CliThemeTestOptions.stderrColor", { description: "Fixed stderr colour support, defaulting to stdout." })),
+	stderrColor: S.optionalKey(ColorLevel).annotate($I.annote("CliThemeTestOptions.stderrColor", { description: "Fixed stderr colour support, defaulting to stdout." })),
 	/** The glyph set; Unicode by default. */
-	glyphs: S.optional(S.Literals(["unicode", "ascii"])).annotate($I.annote("CliThemeTestOptions.glyphs", { description: "The fixed glyph set used by a test." })),
+	glyphs: S.optionalKey(S.Literals(["unicode", "ascii"])).annotate($I.annote("CliThemeTestOptions.glyphs", { description: "The fixed glyph set used by a test." })),
 }).annotate($I.annote("CliThemeTestOptions", { description: "Plain colour and glyph answers for a test theme layer." }));
 
 /**

@@ -62,7 +62,7 @@ export interface ProcessGuardHost {
  */
 export const ProcessGuardPolicy = S.Struct({
 	onUncaught: UncaughtMode.annotateKey({ description: "The uncaught-exception exit policy." }),
-	onRejection: S.optional(RejectionMode).annotateKey({ description: "The rejection policy; defaults to exit." }),
+	onRejection: S.optionalKey(RejectionMode).annotateKey({ description: "The rejection policy; defaults to exit." }),
 }).annotate({
 	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy"),
 	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy",

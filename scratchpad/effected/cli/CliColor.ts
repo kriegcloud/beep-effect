@@ -3,6 +3,7 @@ import type * as Stdio from "effect/Stdio";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { CliOutput } from "effect/cli";
+import * as R from "effect/Record";
 
 /**
  * Whether a CLI's output should carry ANSI colour, decided once and shared by
@@ -92,7 +93,7 @@ export class CliColor {
  * @since 0.0.0
  */
 	static readonly formatterLayer = (
-		overrides: Partial<CliOutput.Formatter> = {},
+		overrides: Partial<CliOutput.Formatter> = R.empty(),
 	): Layer.Layer<never, never, Stdio.Stdio> =>
 		Layer.unwrap(
 			Effect.map(CliColor.enabled, (colors) =>

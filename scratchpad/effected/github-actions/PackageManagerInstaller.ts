@@ -188,7 +188,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	requireIntegrity: S.optional(S.Boolean).annotateKey({ description: "Require an integrity authority before provisioning." }),
+	requireIntegrity: S.optionalKey(S.Boolean).annotateKey({ description: "Require an integrity authority before provisioning." }),
 	/**
 	 * The expected integrity of the manager's own artifact, supplied beside
 	 * the pin rather than through its `+<integrity>` tail — for a caller whose
@@ -219,7 +219,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	integrity: S.optional(IntegrityHash).annotateKey({ description: "The existing branded integrity hash supplied alongside the pin." }),
+	integrity: S.optionalKey(IntegrityHash).annotateKey({ description: "The existing branded integrity hash supplied alongside the pin." }),
 	/**
 	 * The npm registry host the npm, pnpm and yarn tarballs download from.
 	 * Defaults to `https://registry.npmjs.org`. A corporate mirror qualifies
@@ -234,7 +234,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	registry: S.optional(S.String).annotateKey({ description: "The optional registry override; the install operation supplies its default." }),
+	registry: S.optionalKey(S.String).annotateKey({ description: "The optional registry override; the install operation supplies its default." }),
 	/**
 	 * The expected Subresource Integrity of each pnpm native-binary package,
 	 * keyed by bare package name with no version (`"@pnpm/exe.linux-x64"`) —
@@ -258,7 +258,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	nativeIntegrity: S.optional(S.Record(S.String, S.String)).annotateKey({ description: "Native package names mapped to caller-supplied SRI strings." }),
+	nativeIntegrity: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Native package names mapped to caller-supplied SRI strings." }),
 	/**
 	 * Whether an npm pin may be answered by the runner's own ambient npm.
 	 * Defaults to `true`.
@@ -277,7 +277,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	allowAmbient: S.optional(S.Boolean).annotateKey({ description: "Whether the install operation may use the runner ambient npm." }),
+	allowAmbient: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the install operation may use the runner ambient npm." }),
 }).annotate($I.annote("PackageManagerInstallOptions", { description: "Structural provisioning options, with absent and explicit undefined fields preserved." }));
 
 /**

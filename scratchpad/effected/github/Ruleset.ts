@@ -42,7 +42,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
 export const RulesetInfo = S.Struct({
   id: S.Finite.annotateKey({ description: "The ruleset's numeric id." }),
   name: S.String.annotateKey({ description: "The ruleset's name." }),
-  source_type: S.optional(S.String).annotateKey({ description: "Repository for an owned ruleset, Organization for an inherited ruleset; absent when GitHub omits it." }),
+  source_type: S.optionalKey(S.String).annotateKey({ description: "Repository for an owned ruleset, Organization for an inherited ruleset; absent when GitHub omits it." }),
 }).pipe($I.annoteSchema("RulesetInfo", { description: "A plain-object ruleset listing, including its ownership source." }));
 
 /**

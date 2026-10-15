@@ -76,9 +76,9 @@ const DurationInput = S.Union([
  S.TemplateLiteral([DurationNumberText, " ", S.Literals(["nano", "nanos", "micro", "micros", "milli", "millis", "second", "seconds", "minute", "minutes", "hour", "hours", "day", "days", "week", "weeks"])]),
  S.Literals(["Infinity", "-Infinity"]),
  S.Struct({
-  weeks: S.optional(PolicyNumber), days: S.optional(PolicyNumber), hours: S.optional(PolicyNumber),
-  minutes: S.optional(PolicyNumber), seconds: S.optional(PolicyNumber), milliseconds: S.optional(PolicyNumber),
-  microseconds: S.optional(PolicyNumber), nanoseconds: S.optional(PolicyNumber),
+  weeks: S.optionalKey(PolicyNumber), days: S.optionalKey(PolicyNumber), hours: S.optionalKey(PolicyNumber),
+  minutes: S.optionalKey(PolicyNumber), seconds: S.optionalKey(PolicyNumber), milliseconds: S.optionalKey(PolicyNumber),
+  microseconds: S.optionalKey(PolicyNumber), nanoseconds: S.optionalKey(PolicyNumber),
  }),
 ]).pipe(
  (schema) => S.declare<Duration.Input>((input): input is Duration.Input => S.is(schema)(input)),
@@ -150,7 +150,7 @@ export const RunOptions = S.Struct({
   * {@link CommandFailedError} of kind `"timeout"` rather than core's
   * `TimeoutError`, so a caller's error channel stays this package's taxonomy.
   */
-	timeout: S.optional(DurationInput).annotateKey({ description: "Optional ceiling for the whole run." }),
+	timeout: S.optionalKey(DurationInput).annotateKey({ description: "Optional ceiling for the whole run." }),
 	/**
   * Values scrubbed from captured output and from any error this run raises.
   *
@@ -162,7 +162,7 @@ export const RunOptions = S.Struct({
   */
 	redact: S.String.pipe(S.Redacted, S.Array, S.optional).annotateKey({ description: "Secret values scrubbed from output and errors." }),
 	/** Per-stream captured-byte ceiling. Defaults to {@link DEFAULT_MAX_OUTPUT_BYTES}. */
-	maxOutputBytes: S.optional(PolicyNumber).annotateKey({ description: "Optional per-stream byte ceiling." }),
+	maxOutputBytes: S.optionalKey(PolicyNumber).annotateKey({ description: "Optional per-stream byte ceiling." }),
 }).pipe($I.annoteSchema("RunOptions", { description: "Timeout, redaction and byte-budget policy for a run." }));
 /**
  * Decoded run policy accepted by the running helpers.

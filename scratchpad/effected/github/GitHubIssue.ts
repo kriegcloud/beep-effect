@@ -412,7 +412,7 @@ const RawIssue = S.Struct({
 	number: S.Int,
 	title: S.String,
 	state: S.String,
-	labels: S.Array(S.Union([S.String, S.Struct({ name: S.optional(S.String) })])),
+	labels: S.Array(S.Union([S.String, S.Struct({ name: S.optionalKey(S.String) })])),
 	html_url: S.String,
 	node_id: S.String,
 }).annotate($I.annote("RawIssue", { description: "The REST issue fields consumed by the issue projection." }));

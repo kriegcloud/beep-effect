@@ -31,7 +31,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/layerRoot");
  */
 export const LayerRootOptions = S.Struct({
 	cwd: S.optionalKey(S.String).annotateKey($I.annote("LayerRootOptions.cwd", { description: "The starting directory, with ambient cwd read only on use when omitted." })),
-	stopAt: S.optional(S.String).annotateKey($I.annote("LayerRootOptions.stopAt", { description: "The inclusive root-search boundary, accepting absence or explicit undefined." })),
+	stopAt: S.optionalKey(S.String).annotateKey($I.annote("LayerRootOptions.stopAt", { description: "The inclusive root-search boundary, accepting absence or explicit undefined." })),
 }).annotate($I.annote("LayerRootOptions", { description: "Plain shared root options with an unresolved ambient cwd default." }));
 /**
  * The root lookup configuration described by {@link LayerRootOptions}.

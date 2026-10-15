@@ -52,7 +52,7 @@ export class SoftwareSourceCode extends S.Class<SoftwareSourceCode, { readonly b
 	 *
 	 * @since 0.0.0
 	 */
-	codeRepository: S.optional(S.String).annotateKey({ description: "The repository the code lives in. Single-valued." }),
+	codeRepository: S.optionalKey(S.String).annotateKey({ description: "The repository the code lives in. Single-valued." }),
 	/**
 	 * The languages the code is written in. Repeatable.
 	 *

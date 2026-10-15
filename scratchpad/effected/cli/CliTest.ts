@@ -67,17 +67,17 @@ export const RunOptions = S.Struct({
 	/** The node binary — pass `process.execPath` from the test file, never a PATH lookup. */
 	execPath: S.String.annotate($I.annote("RunOptions.execPath", { description: "The explicitly selected runtime executable." })),
 	/** The child's working directory. Defaults to the sandbox `root`. */
-	cwd: S.optional(S.String).annotate($I.annote("RunOptions.cwd", { description: "An optional working-directory override; otherwise the sandbox root." })),
+	cwd: S.optionalKey(S.String).annotate($I.annote("RunOptions.cwd", { description: "An optional working-directory override; otherwise the sandbox root." })),
 	/**
 	 * Extra environment variables, merged over the sandbox environment — the
 	 * way to override `PATH` for one run.
 	 */
-	env: S.optional(S.Record(S.String, S.String)).annotate($I.annote("RunOptions.env", { description: "Optional environment overrides merged over the sandbox environment." })),
+	env: S.optionalKey(S.Record(S.String, S.String)).annotate($I.annote("RunOptions.env", { description: "Optional environment overrides merged over the sandbox environment." })),
 	/**
 	 * Text written to the child's stdin, which is then closed. Omitted or `""`,
 	 * the child gets an already-ended empty input, never an open pipe.
 	 */
-	stdin: S.optional(S.String).annotate($I.annote("RunOptions.stdin", { description: "Optional child input; omitted, undefined or empty means an already-ended stream." })),
+	stdin: S.optionalKey(S.String).annotate($I.annote("RunOptions.stdin", { description: "Optional child input; omitted, undefined or empty means an already-ended stream." })),
 }).annotate($I.annote("RunOptions", { description: "Plain subprocess spawn options with optional overrides." }));
 
 /**

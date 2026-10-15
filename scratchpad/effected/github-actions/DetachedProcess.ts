@@ -418,7 +418,7 @@ export const DetachedSpawnOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	cwd: S.optional(S.String).annotateKey({ description: "The child working directory, omitted to inherit it." }),
+	cwd: S.optionalKey(S.String).annotateKey({ description: "The child working directory, omitted to inherit it." }),
 	/**
 	 * The environment the child inherits, before `env` is merged over it.
 	 *
@@ -437,7 +437,7 @@ export const DetachedSpawnOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	base: S.optional(S.Record(S.String, S.UndefinedOr(S.String))).annotateKey({ description: "The base environment; omitted uses process.env at spawn time." }),
+	base: S.optionalKey(S.Record(S.String, S.UndefinedOr(S.String))).annotateKey({ description: "The base environment; omitted uses process.env at spawn time." }),
 	/**
 	 * Environment additions.
 	 *
@@ -452,7 +452,7 @@ export const DetachedSpawnOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	env: S.optional(S.Record(S.String, S.String)).annotateKey({ description: "Environment additions merged over the base." }),
+	env: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Environment additions merged over the base." }),
 }).annotate($I.annote("DetachedSpawnOptions", { description: "Plain-object detached child launch options retaining optional and explicit-undefined inputs." }));
 
 /**

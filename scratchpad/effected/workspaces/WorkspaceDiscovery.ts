@@ -312,7 +312,7 @@ export const WorkspaceDiscoveryOptions = S.Struct({
   *
   * @defaultValue no ceiling — the ascent runs to the filesystem root.
   */
-	stopAt: S.optional(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling for layer-bound root discovery." })),
+	stopAt: S.optionalKey(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling for layer-bound root discovery." })),
 	/** Descent cap for segment-crossing patterns. Defaults to 32. */
 	maxDepth: S.optionalKey(DiscoveryDepth).annotateKey($I.annote("maxDepth", { description: "Optional pattern descent cap, defaulted on use." })),
 }).annotate($I.annote("WorkspaceDiscoveryOptions", { description: "Root resolution and pattern descent options, with defaults resolved lazily." }));

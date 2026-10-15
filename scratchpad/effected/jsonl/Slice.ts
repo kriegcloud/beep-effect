@@ -27,8 +27,8 @@ const $I = $ScratchpadId.create("effected/jsonl/Slice");
 const fields = <T extends string>(event: S.Codec<T>) => ({
   events: event.pipe(S.Array, S.optional),
   scopes: S.String.pipe(S.Array, S.optional),
-  from: S.optional(S.DateTimeUtc),
-  to: S.optional(S.DateTimeUtc),
+  from: S.optionalKey(S.DateTimeUtc),
+  to: S.optionalKey(S.DateTimeUtc),
 });
 /**
  * Build selection options whose event filter retains the supplied tag domain.
@@ -65,7 +65,7 @@ export const Slice = <T extends string>(event: S.Codec<T>) =>
 export const CursoredSlice = <T extends string>(event: S.Codec<T>) =>
   S.Struct({
     ...fields(event),
-    cursor: S.optional(ByteCount),
+    cursor: S.optionalKey(ByteCount),
   }).annotate(
     $I.annote("CursoredSlice", { description: "Frame selection resumed at a logical post-BOM byte offset." })
   );

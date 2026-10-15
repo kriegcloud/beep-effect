@@ -81,7 +81,7 @@ export const uriEncode = (value: string): string =>
 export const SigV4Credentials = S.Struct({
 	accessKeyId: S.String.annotateKey({ description: "The public access key identifier." }),
 	secretAccessKey: S.String.annotateKey({ description: "The already declassified signing secret." }),
-	sessionToken: S.optional(S.String).annotateKey({ description: "A temporary session token, absent or explicitly undefined otherwise." }),
+	sessionToken: S.optionalKey(S.String).annotateKey({ description: "A temporary session token, absent or explicitly undefined otherwise." }),
 	region: S.String.annotateKey({ description: "The signing region." }),
 	/** Almost always `"s3"` here, but the algorithm is not S3-specific. */
 	service: S.String.annotateKey({ description: "The signing service, usually s3." }),
@@ -117,7 +117,7 @@ export const SigV4Request = S.Struct({
 	/** The raw path; every segment is encoded here, preserving empty segments. */
 	path: S.String.annotateKey({ description: "The raw object path, including empty segments." }),
 	/** An already encoded endpoint pathname, without a trailing slash. */
-	encodedPathPrefix: S.optional(S.String).annotateKey({ description: "An already encoded endpoint path prefix; omitted requests retain raw-path signing." }),
+	encodedPathPrefix: S.optionalKey(S.String).annotateKey({ description: "An already encoded endpoint path prefix; omitted requests retain raw-path signing." }),
 	host: S.String.annotateKey({ description: "The host and optional port sent to the server." }),
 	/** Headers to sign, in any case and any order. */
 	headers: S.Record(S.String, S.String).annotateKey({ description: "String-valued headers in any case and order." }),

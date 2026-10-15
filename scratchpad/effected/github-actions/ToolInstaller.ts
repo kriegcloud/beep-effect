@@ -135,7 +135,7 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
  */
 export const ExtractOptions = S.Struct({
 	/** The destination. A fresh temporary directory when omitted. */
-	destination: S.optional(S.String).annotateKey({ description: "Requested extraction destination; omission allocates a temporary directory." }),
+	destination: S.optionalKey(S.String).annotateKey({ description: "Requested extraction destination; omission allocates a temporary directory." }),
 	/**
   * Flags for `tar`. Defaults to `["xzf"]`, i.e. a gzipped tarball.
   *

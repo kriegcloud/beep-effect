@@ -24,7 +24,7 @@ const TwirpFailureKind = LiteralKit(["transport", "status", "malformed"]).annota
 );
 const TwirpFailureFields = {
 	method: S.String.annotateKey({ description: "The RPC that failed." }),
-	status: S.optional(S.Finite).annotateKey({ description: "The finite HTTP status, when present; explicit undefined is accepted." }),
+	status: S.optionalKey(S.Finite).annotateKey({ description: "The finite HTTP status, when present; explicit undefined is accepted." }),
 	cause: S.optionalKey(S.Unknown).annotateKey({ description: "The underlying failure, when present; explicit undefined is accepted." }),
 };
 

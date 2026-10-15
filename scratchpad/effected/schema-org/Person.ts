@@ -46,7 +46,7 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
 	 *
 	 * @since 0.0.0
 	 */
-	email: S.optional(S.String).annotateKey({ description: "An email address for the person. Single-valued." }),
+	email: S.optionalKey(S.String).annotateKey({ description: "An email address for the person. Single-valued." }),
 	/**
 	 * Organizations the person is affiliated with, by reference. Repeatable.
 	 *

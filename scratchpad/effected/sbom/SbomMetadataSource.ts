@@ -77,19 +77,19 @@ const npmPurl = (name: string, version?: string): string => {
  */
 export const SbomMetadataOptions = S.Struct({
 	/** The supplying organization — NTIA minimum element 1. */
-	supplier: S.optional(Supplier).annotateKey({ description: "The supplying organization — NTIA minimum element 1." }),
+	supplier: S.optionalKey(Supplier).annotateKey({ description: "The supplying organization — NTIA minimum element 1." }),
 	/** Who assembled the BOM — NTIA minimum element 6. */
 	authors: Contact.pipe(S.Array, S.optional).annotateKey({ description: "Who assembled the BOM — NTIA minimum element 6." }),
 	/** When it was assembled — NTIA minimum element 7, as an ISO 8601 string. */
-	timestamp: S.optional(S.String).annotateKey({ description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string." }),
+	timestamp: S.optionalKey(S.String).annotateKey({ description: "When it was assembled — NTIA minimum element 7, as an ISO 8601 string." }),
 	/** The publishing entity. Falls back to the supplier, then the manifest's author. */
-	publisher: S.optional(S.String).annotateKey({ description: "The publishing entity. Falls back to the supplier, then the manifest's author." }),
+	publisher: S.optionalKey(S.String).annotateKey({ description: "The publishing entity. Falls back to the supplier, then the manifest's author." }),
 	/** A copyright statement; {@link SbomMetadataSource.formatCopyright} builds one. */
-	copyright: S.optional(S.String).annotateKey({ description: "A copyright statement; SbomMetadataSource.formatCopyright builds one." }),
+	copyright: S.optionalKey(S.String).annotateKey({ description: "A copyright statement; SbomMetadataSource.formatCopyright builds one." }),
 	/** The documentation URL, winning over the manifest's `homepage`. */
-	documentationUrl: S.optional(S.String).annotateKey({ description: "The documentation URL, winning over the manifest's homepage." }),
+	documentationUrl: S.optionalKey(S.String).annotateKey({ description: "The documentation URL, winning over the manifest's homepage." }),
 	/** The root component's type. Defaults to `library`. */
-	type: S.optional(ComponentType).annotateKey({ description: "The root component's type. Defaults to library." }),
+	type: S.optionalKey(ComponentType).annotateKey({ description: "The root component's type. Defaults to library." }),
 }).pipe($I.annoteSchema("SbomMetadataOptions", {
 	description: "What a manifest cannot supply, and the two places an explicit value wins.",
 }));
@@ -127,13 +127,13 @@ export const ComponentInput = S.Struct({
 	 * statically optional version (e.g. `WorkspacePackage.version` from
 	 * `@effected/workspaces`) compiles under `exactOptionalPropertyTypes`.
 	 */
-	version: S.optional(S.String).annotateKey({ description: "Its resolved version. Absent produces a component with no version and no purl version segment." }),
+	version: S.optionalKey(S.String).annotateKey({ description: "Its resolved version. Absent produces a component with no version and no purl version segment." }),
 	/** An SPDX identifier or expression. */
-	license: S.optional(S.String).annotateKey({ description: "An SPDX identifier or expression." }),
+	license: S.optionalKey(S.String).annotateKey({ description: "An SPDX identifier or expression." }),
 	/** A short description. */
-	description: S.optional(S.String).annotateKey({ description: "A short description." }),
+	description: S.optionalKey(S.String).annotateKey({ description: "A short description." }),
 	/** The component type. Defaults to `library`. */
-	type: S.optional(ComponentType).annotateKey({ description: "The component type. Defaults to library." }),
+	type: S.optionalKey(ComponentType).annotateKey({ description: "The component type. Defaults to library." }),
 }).pipe($I.annoteSchema("ComponentInput", { description: "The fields a dependency contributes to its component entry." }));
 
 /**
@@ -162,7 +162,7 @@ export type ComponentInput = typeof ComponentInput.Type;
  */
 export const CopyrightYears = S.Struct({
 	/** The first year of the range. Omit for a single-year statement. */
-	startYear: S.optional(S.Finite).annotateKey({ description: "The first year of the range. Omit for a single-year statement." }),
+	startYear: S.optionalKey(S.Finite).annotateKey({ description: "The first year of the range. Omit for a single-year statement." }),
 	/** The year the statement is current through, supplied by the caller. */
 	year: S.Finite.annotateKey({ description: "The year the statement is current through, supplied by the caller." }),
 }).pipe($I.annoteSchema("CopyrightYears", { description: "The years a copyright statement spans." }));

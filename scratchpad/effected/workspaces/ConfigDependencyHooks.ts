@@ -233,12 +233,12 @@ export const HookReplayContext = S.Struct({
 	 * The declaring side's `pnpm-lock.yaml` text, whose env preamble records each
 	 * config dependency's integrity. `undefined` when that side has no lockfile.
 	 */
-	lockfile: S.optional(S.String).annotateKey({ description: "The declaring side's lockfile text, when available to verify a fetch." }),
+	lockfile: S.optionalKey(S.String).annotateKey({ description: "The declaring side's lockfile text, when available to verify a fetch." }),
 	/**
 	 * The git ref whose `pnpm-workspace.yaml` declared the `configDependencies`,
 	 * used to name the side in error messages. `undefined` for the working tree.
 	 */
-	ref: S.optional(S.String).annotateKey({ description: "The declaring git ref, or undefined for the working tree." }),
+	ref: S.optionalKey(S.String).annotateKey({ description: "The declaring git ref, or undefined for the working tree." }),
 }).pipe($I.annoteSchema("HookReplayContext", { description: "Optional lockfile and ref provenance used to verify and identify the declaring side of a replay." }));
 
 /**

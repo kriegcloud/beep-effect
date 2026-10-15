@@ -79,7 +79,7 @@ export const GitHubListOptions = S.Struct({
 	 *  Render `1.`-numbered items instead of bullets.
 	 * @since 0.0.0
 	 */
-	ordered: S.optional(S.Boolean).annotateKey({ description: "Render numbered items instead of bullets." }),
+	ordered: S.optionalKey(S.Boolean).annotateKey({ description: "Render numbered items instead of bullets." }),
 }).annotate($I.annote("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
 /**
  * Decoded list options, with an optional flag for numbered items.

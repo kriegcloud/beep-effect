@@ -48,10 +48,10 @@ class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { reado
 export const ScriptResult = S.Union([
  S.instanceOf(PlatformError.PlatformError),
  S.Struct({
-  stdout: S.optional(S.String).annotateKey({ description: "Scripted standard output." }),
-  stderr: S.optional(S.String).annotateKey({ description: "Scripted standard error." }),
-  exit: S.optional(ExitCode).annotateKey({ description: "Scripted integer process exit code." }),
-  hang: S.optional(S.Boolean).annotateKey({ description: "Whether exitCode remains unresolved." }),
+  stdout: S.optionalKey(S.String).annotateKey({ description: "Scripted standard output." }),
+  stderr: S.optionalKey(S.String).annotateKey({ description: "Scripted standard error." }),
+  exit: S.optionalKey(ExitCode).annotateKey({ description: "Scripted integer process exit code." }),
+  hang: S.optionalKey(S.Boolean).annotateKey({ description: "Whether exitCode remains unresolved." }),
  }),
 ]).pipe($I.annoteSchema("ScriptResult", { description: "A scripted completed run or an opaque platform spawn failure." }));
 /**
@@ -101,16 +101,16 @@ const AdditionalFdKey = S.TemplateLiteral(["fd", S.String.check(S.isPattern(
 ))]).pipe($I.annoteSchema("AdditionalFdKey", { description: "Core fd${number} option keys without narrowing their numeric spellings." }));
 /** Validate all known platform options while retaining the original external object. */
 const CommandOptions = S.Struct({
- killSignal: S.optional(Signal),
+ killSignal: S.optionalKey(Signal),
  forceKillAfter: RunOptions.fields.timeout,
- cwd: S.optional(S.String), env: S.optional(Environment), extendEnv: S.optional(S.Boolean),
- shell: S.optional(S.Union([S.Boolean, S.String])), detached: S.optional(S.Boolean), windowsHide: S.optional(S.Boolean),
- stdin: S.optional(S.Union([CommandInput, S.Struct({ stream: CommandInput, endOnDone: S.optional(S.Boolean), encoding: S.optional(Encoding) })])),
- stdout: S.optional(S.Union([CommandOutput, S.Struct({ stream: S.optional(CommandOutput) })])),
- stderr: S.optional(S.Union([CommandOutput, S.Struct({ stream: S.optional(CommandOutput) })])),
- additionalFds: S.optional(S.Record(AdditionalFdKey, S.Union([
-  S.Struct({ type: S.Literal("input"), stream: S.optional(InputStream) }),
-  S.Struct({ type: S.Literal("output"), sink: S.optional(OutputSink) }),
+ cwd: S.optionalKey(S.String), env: S.optionalKey(Environment), extendEnv: S.optionalKey(S.Boolean),
+ shell: S.optionalKey(S.Union([S.Boolean, S.String])), detached: S.optionalKey(S.Boolean), windowsHide: S.optionalKey(S.Boolean),
+ stdin: S.optionalKey(S.Union([CommandInput, S.Struct({ stream: CommandInput, endOnDone: S.optionalKey(S.Boolean), encoding: S.optionalKey(Encoding) })])),
+ stdout: S.optionalKey(S.Union([CommandOutput, S.Struct({ stream: S.optionalKey(CommandOutput) })])),
+ stderr: S.optionalKey(S.Union([CommandOutput, S.Struct({ stream: S.optionalKey(CommandOutput) })])),
+ additionalFds: S.optionalKey(S.Record(AdditionalFdKey, S.Union([
+  S.Struct({ type: S.Literal("input"), stream: S.optionalKey(InputStream) }),
+  S.Struct({ type: S.Literal("output"), sink: S.optionalKey(OutputSink) }),
  ]))),
 }).pipe(S.is, S.declare<ChildProcess.CommandOptions>, $I.annoteSchema("CommandOptions", { description: "Opaque complete platform command options checked against their known shape." }));
 

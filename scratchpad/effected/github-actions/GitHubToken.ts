@@ -89,9 +89,9 @@ export const ProvisionOptions = S.Struct({
 	/** The app's private key, in PEM. */
 	privateKey: S.Redacted(S.String).annotateKey({ description: "The app's private key, in PEM." }),
 	/** The installation. Discovered from `owner`, or from the app's only installation, when omitted. */
-	installationId: S.optional(S.Finite).annotateKey({ description: "The installation id, discovered when omitted." }),
+	installationId: S.optionalKey(S.Finite).annotateKey({ description: "The installation id, discovered when omitted." }),
 	/** The account whose installation to use, when `installationId` is omitted. */
-	owner: S.optional(S.String).annotateKey({ description: "The account whose installation to discover." }),
+	owner: S.optionalKey(S.String).annotateKey({ description: "The account whose installation to discover." }),
 	/**
 	 * The permissions the action needs.
 	 *
@@ -103,9 +103,9 @@ export const ProvisionOptions = S.Struct({
 	 * naming the missing permission rather than in the middle of `main` with a
 	 * `403` on one request.
 	 */
-	required: S.optional(S.Record(S.String, PermissionLevel)).annotateKey({ description: "The permissions to verify before persisting the token." }),
+	required: S.optionalKey(S.Record(S.String, PermissionLevel)).annotateKey({ description: "The permissions to verify before persisting the token." }),
 	/** The `GITHUB_STATE` key. One default, so `pre` and `post` agree without saying so. */
-	stateKey: S.optional(S.String).annotateKey({ description: "The state key; defaults to githubToken." }),
+	stateKey: S.optionalKey(S.String).annotateKey({ description: "The state key; defaults to githubToken." }),
 }).annotate($I.annote("ProvisionOptions", { description: "Options for minting and persisting an installation token." }));
 /**
  * Decoded credentials, installation selection and persistence options for provisioning a token.
@@ -136,7 +136,7 @@ export type ProvisionOptions = typeof ProvisionOptions.Type;
  */
 export const ReadOptions = S.Struct({
 	/** The `GITHUB_STATE` key. */
-	stateKey: S.optional(S.String).annotateKey({ description: "The state key; defaults to githubToken." }),
+	stateKey: S.optionalKey(S.String).annotateKey({ description: "The state key; defaults to githubToken." }),
 	/**
 	 * How long before the stated expiry to treat the token as spent.
 	 *
@@ -145,7 +145,7 @@ export const ReadOptions = S.Struct({
 	 * A minute by default. The window exists because the check and the request
 	 * it guards are not the same instant.
 	 */
-	skew: S.optional(S.Duration).annotateKey({ description: "The expiry safety window; defaults to one minute." }),
+	skew: S.optionalKey(S.Duration).annotateKey({ description: "The expiry safety window; defaults to one minute." }),
 }).annotate($I.annote("ReadOptions", { description: "Options for reading a persisted installation token." }));
 /**
  * Decoded state-key and expiry-window options for reading a persisted token.
