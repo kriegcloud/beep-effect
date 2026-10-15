@@ -137,11 +137,8 @@ const config = {
       // programmatic (JS) compiler API, while @typescript/native provides
       // the TS7 compiler. TypeScript 7.0 ships no stable programmatic API
       // (7.1 is the target), so its actual consumers cannot move:
-      // typescript-eslint for the docs lane until TS7 exit lane B (peer `<6.1.0`, TS7 tracked in
-      // typescript-eslint/typescript-eslint#10940, still open 2026-09-24),
-      // and commitlint's cosmiconfig-typescript-loader. ts-morph vendors its own TS 6 copy in
-      // @ts-morph/common, so it does not need this
-      // pin. Reassess the split when typescript-eslint releases against 7.1's API.
+      // Remaining programmatic consumers need a separate TS6 API review.
+      // Commitlint loads its config through jiti; ts-morph vendors its own TS6 copy.
       // tstyche is pinned exactly to 8.0.0-beta.0 for its TypeScript 7.1 backend.
       // Explicit targets use its own store, independent of root typescript@6.
       // Exit this hold when stable 8.0 supports the same matrix and all existing

@@ -6,6 +6,7 @@ import {
   CiRunner,
   CloudProviderName,
   CloudVm,
+  DuplicateInstrumentName,
   EmitterContext,
   EventInstrument,
   EventName,
@@ -251,6 +252,16 @@ describe("mergeDeclarations", () => {
       AttributeKeyName.make("beep.package"),
       AttributeKeyName.make("beep.privacy_tier"),
     ]);
+  });
+
+  it("preserves the error name independently of the instrument payload", () => {
+    const conflict = DuplicateInstrumentName.make({
+      signal: "span",
+      instrumentName: SpanName.make("Parcels.read"),
+      owners: [pkgA, pkgB],
+    });
+    strictEqual(conflict.name, DuplicateInstrumentName.identifier);
+    strictEqual(conflict.instrumentName, "Parcels.read");
   });
 
   it("reports a duplicate instrument name across packages", () => {

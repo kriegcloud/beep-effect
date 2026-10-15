@@ -295,7 +295,6 @@ describe("package scripts policy", () => {
           "packages/unrelated/src/index.ts": "unrelated",
         };
         for (const name of [
-          "eslint.config.mjs",
           "tsdoc.json",
           ".oxlintrc.json",
           "_typos.toml",
@@ -322,7 +321,7 @@ describe("package scripts policy", () => {
         yield* fs.writeFileString(`${root}/packages/nested/src/index.ts`, "nested edit");
         const second = yield* policyToolsFingerprint(root);
         expect(second).toEqual(first);
-        yield* fs.writeFileString(`${root}/eslint.config.mjs`, "config edit");
+        yield* fs.writeFileString(`${root}/.oxlintrc.docs.json`, "config edit");
         expect(yield* policyToolsFingerprint(root)).toEqual(first);
         yield* fs.writeFileString(`${root}/packages/nested/src/new.ts`, "new source");
         expect(yield* policyToolsFingerprint(root)).toEqual(first);

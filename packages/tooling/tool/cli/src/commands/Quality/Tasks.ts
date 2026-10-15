@@ -5,14 +5,12 @@
  * @since 0.0.0
  */
 
-import { createRequire, isBuiltin } from "node:module";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, insertEndOfOptions } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Console from "effect/Console";
-import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -20,7 +18,6 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow, pipe } from "effect/Function";
-import * as HashSet from "effect/HashSet";
 import * as Inspectable from "effect/Inspectable";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -30,7 +27,6 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
-import { ts } from "ts-morph";
 import {
   canUseTurboCacheSecretSession,
   configStringEqualsSync,
@@ -2971,30 +2967,25 @@ const policyStateTasks = [
 ];
 const fullScopeStateTasks = (hosted: boolean): ReadonlyArray<string> =>
   hosted ? policyStateTasks : A.filter(policyStateTasks, (task) => !A.contains(policyGitDeltaTasks, task));
-// The root ESLint program has no Turbo task; a content-keyed ESLint cache keeps a
-// warm repeat near zero without changing what a cold run checks. ESLint keys that cache
-// on the serialized config, which cannot see an edit inside an in-repo rule module or the
-// helpers it imports, so the cache directory itself is keyed by a digest of the ESLint
-// configuration sources: such an edit starts an empty cache instead of replaying stale results.
-const rootEslintArgs = (cacheKey: string): ReadonlyArray<string> => [
-  "eslint",
+// Root documentation lint always runs oxlint; Turbo owns package/incremental caches.
+const rootDocsArgs = (_cacheKey: string): ReadonlyArray<string> => [
+  "oxlint",
   ".",
+  "--config",
+  ".oxlintrc.docs.json",
   "--max-warnings=0",
-  "--cache",
-  "--cache-location",
-  `node_modules/.cache/eslint-root/${cacheKey}/.eslintcache`,
-  "--cache-strategy",
-  "content",
 ];
-// The configuration sources the root ESLint cache key digests: the flat config, the TSDoc
-// tag definitions it loads, and the whole policy-pack configs package source (the ESLint
-// rule modules import helpers from `src/internal/eslint`, so the rule directory alone is
-// not the import closure).
-const rootEslintCacheKeySources = ["eslint.config.mjs", "tsdoc.json", "packages/tooling/policy-pack/repo-configs/src"];
+const rootDocsCacheKeySources = [
+  ".oxlintrc.docs.json",
+  "tsdoc.json",
+  "bun.lock",
+  "packages/tooling/policy-pack/lint-rules/package.json",
+  "packages/tooling/policy-pack/lint-rules/src",
+];
 // The key a pure plan carries when no repository is read (tests and static plan inspection).
-const UNKEYED_ROOT_ESLINT_CACHE = "unkeyed";
+const UNKEYED_ROOT_DOCS_CACHE = "unkeyed";
 
-const listRootEslintCacheKeyFiles = Effect.fnUntraced(function* (repoRoot: string, source: string) {
+const listRootDocsCacheKeyFiles = Effect.fnUntraced(function* (repoRoot: string, source: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolute = path.join(repoRoot, source);
@@ -3014,219 +3005,41 @@ const listRootEslintCacheKeyFiles = Effect.fnUntraced(function* (repoRoot: strin
   return A.map(files, (entry) => `${source}/${entry}`);
 });
 
-const $I = $RepoCliId.create("commands/Quality/Tasks");
-
-// Installed package metadata is the version authority even when a plugin has no meta.
-class EslintInputPackage extends S.Opaque<EslintInputPackage, { readonly brand: unique symbol }>()(
-  S.Struct({
-    name: S.String,
-    version: S.String,
-    dependencies: S.optionalKey(S.Record(S.String, S.String)),
-    peerDependencies: S.optionalKey(S.Record(S.String, S.String)),
-    optionalDependencies: S.optionalKey(S.Record(S.String, S.String)),
-  }).pipe(
-    $I.annoteSchema("EslintInputPackage", {
-      description: "Installed ESLint input package identity and runtime dependency declarations.",
-    })
-  )
-) {}
-
-// Nested module-format markers are not package identities. A failed decode means
-// discovery must keep walking; filesystem failures still fail input collection.
-const EslintInputPackageJson = S.fromJsonString(EslintInputPackage);
-const decodeEslintInputPackageOption = S.decodeUnknownOption(EslintInputPackageJson);
-
-const rootEslintModuleSpecifier = Match.type<ts.Node>().pipe(
-  Match.when(ts.isImportDeclaration, (node) =>
-    node.importClause?.phaseModifier === ts.SyntaxKind.TypeKeyword ? O.none<ts.Node>() : O.some(node.moduleSpecifier)
-  ),
-  Match.when(ts.isExportDeclaration, (node) =>
-    node.isTypeOnly ? O.none<ts.Node>() : O.fromUndefinedOr(node.moduleSpecifier)
-  ),
-  Match.when(ts.isCallExpression, (node) => {
-    if (node.expression.kind === ts.SyntaxKind.ImportKeyword) return A.head(node.arguments);
-    if (!ts.isIdentifier(node.expression)) return O.none<ts.Node>();
-    return node.expression.text === "require" ? A.head(node.arguments) : O.none<ts.Node>();
-  }),
-  Match.orElse(O.none<ts.Node>)
-);
-
-const rootEslintImportSpecifiers = (file: string, content: string): ReadonlyArray<string> => {
-  const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
-  const imports: Array<string> = [];
-  const visit = (node: ts.Node): void => {
-    const specifier = O.filter(rootEslintModuleSpecifier(node), ts.isStringLiteral);
-    if (O.isSome(specifier)) imports.push(specifier.value.text);
-    ts.forEachChild(node, visit);
-  };
-  visit(source);
-  return imports;
-};
-
-interface RootEslintInputsShape {
-  readonly collect: (repoRoot: string) => Effect.Effect<ReadonlyArray<string>, QualityTaskConfigurationError>;
-}
-
-// Keep module resolution at the Node boundary; filesystem reads remain Effect services.
-class RootEslintInputs extends Context.Service<RootEslintInputs, RootEslintInputsShape>()($I`RootEslintInputs`, {
-  make: Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const resolve = Effect.fnUntraced(function* (specifier: string, importer: string) {
-      return yield* Effect.try({
-        try: () => createRequire(importer).resolve(specifier),
-        catch: (cause) => QualityTaskConfigurationError.new(`Cannot resolve ESLint input ${specifier}: ${cause}`),
-      });
-    });
-    const resolvePackage = Effect.fnUntraced(function* (name: string, importer: string) {
-      const directories = yield* Effect.try({
-        try: () => createRequire(importer).resolve.paths("__eslint_cache_package__") ?? [],
-        catch: (cause) => QualityTaskConfigurationError.new(`Cannot locate ESLint package ${name}: ${cause}`),
-      });
-      for (const directory of directories) {
-        const file = path.join(directory, name, "package.json");
-        if (yield* fs.exists(file)) return O.some(file);
-      }
-      // Peer and optional dependencies may legitimately be absent. Actual imports
-      // in workspace config still use the required module resolver above.
-      return O.none<string>();
-    });
-    const packageFile = Effect.fnUntraced(function* (entry: string) {
-      let directory = path.dirname(entry);
-      while (true) {
-        const file = path.join(directory, "package.json");
-        if (yield* fs.exists(file)) {
-          const manifest = decodeEslintInputPackageOption(yield* fs.readFileString(file));
-          if (O.isSome(manifest)) return file;
-        }
-        const parent = path.dirname(directory);
-        if (parent === directory) {
-          return yield* QualityTaskConfigurationError.make({ message: `No package.json for ESLint input ${entry}` });
-        }
-        directory = parent;
-      }
-    });
-    const isWorkspaceInput = (root: string, file: string): boolean => {
-      const relative = path.relative(root, file);
-      return !Str.includes("node_modules/")(relative) && !Str.startsWith("../")(relative);
-    };
-    const packageDependencies = Effect.fnUntraced(function* (
-      root: string,
-      manifestFile: string,
-      manifest: EslintInputPackage
-    ) {
-      const dependencies = A.dedupe([
-        ...R.keys(manifest.dependencies ?? {}),
-        ...R.keys(manifest.peerDependencies ?? {}),
-        ...R.keys(manifest.optionalDependencies ?? {}),
-      ]);
-      const files: Array<string> = [];
-      for (const dependency of dependencies) {
-        const installed = yield* resolvePackage(dependency, manifestFile);
-        if (O.isNone(installed)) continue;
-        files.push(installed.value);
-        // Linked workspace plugins also contribute their source import closure.
-        if (isWorkspaceInput(root, yield* fs.realPath(installed.value))) {
-          files.push(yield* resolve(dependency, manifestFile));
-        }
-      }
-      return files;
-    });
-    const workspaceImports = Effect.fnUntraced(function* (file: string, content: string) {
-      const files: Array<string> = [];
-      if (path.extname(file) === ".json") return files;
-      for (const specifier of rootEslintImportSpecifiers(file, content)) {
-        if (isBuiltin(specifier)) continue;
-        const entry = yield* resolve(specifier, file);
-        files.push(entry);
-        if (!Str.startsWith(".")(specifier) && !Str.startsWith("#")(specifier)) {
-          files.push(yield* packageFile(entry));
-        }
-      }
-      return files;
-    });
-    const collect = Effect.fn("RootEslintInputs.collect")(function* (repoRoot: string) {
-      const root = yield* fs.realPath(repoRoot);
-      const pending = [
-        path.join(root, "eslint.config.mjs"),
-        yield* resolve("eslint", path.join(root, "eslint.config.mjs")),
-      ];
-      let visited = HashSet.empty<string>();
-      const parts: Array<string> = [];
-      while (A.isReadonlyArrayNonEmpty(pending)) {
-        const next = A.headNonEmpty(pending);
-        pending.shift();
-        const file = yield* fs.realPath(next);
-        if (HashSet.has(visited, file)) continue;
-        const relative = path.relative(root, file);
-        if (!isWorkspaceInput(root, file)) {
-          const manifestFile = yield* packageFile(file);
-          if (HashSet.has(visited, manifestFile)) continue;
-          visited = HashSet.add(visited, manifestFile);
-          const manifest = yield* S.decodeEffect(EslintInputPackageJson)(yield* fs.readFileString(manifestFile));
-          // Root-relative resolution identity distinguishes multiple installed copies without
-          // hashing checkout-specific absolute paths. Traverse declared runtime dependencies
-          // too: an external shared config can load plugins indirectly.
-          parts.push(`${path.relative(root, manifestFile)}\0${manifest.name}\0${manifest.version}\0`);
-          pending.push(...(yield* packageDependencies(root, manifestFile, manifest)));
-          continue;
-        }
-        visited = HashSet.add(visited, file);
-        const content = yield* fs.readFileString(file);
-        parts.push(`${relative}\0${content}\0`);
-        pending.push(...(yield* workspaceImports(file, content)));
-      }
-      return A.sort(parts, Order.String);
-    }, QualityTaskConfigurationError.mapError("Cannot collect ESLint cache inputs"));
-    return { collect };
-  }),
-}) {}
-
 /**
- * Digest the root ESLint configuration sources into the cache directory key.
+ * Digest documentation config, plugin source and the installed dependency lock.
  *
  * **Details**
+ * Package lint caches are owned by Turbo. Root oxlint does not use a persistent
+ * result cache; this digest records the documentation inputs for plan consumers.
+ * Missing inputs yield the unkeyed sentinel.
  *
- * The key includes root config and policy-pack source, the workspace import closure,
- * and installed ESLint/plugin package.json versions (including runtime dependencies of
- * external shared configs). Plugin metadata is never used. Sorted relative paths and
- * contents keep unchanged inputs stable. Unreadable inputs yield the `unkeyed` directory.
- *
- * **Example** (Key the root ESLint cache)
+ * **Example** (Identify documentation inputs)
  * ```ts
- * import { rootEslintCacheKey } from "@beep/repo-cli/commands/Quality"
+ * import { rootDocsCacheKey } from "@beep/repo-cli/commands/Quality"
  * import * as Effect from "effect/Effect"
- * console.log(Effect.isEffect(rootEslintCacheKey("/repo"))) // true
+ * console.log(Effect.isEffect(rootDocsCacheKey("/repo")))
  * ```
- *
  * @param repoRoot - Repository root directory.
- * @returns The cache directory key.
+ * @returns A deterministic input digest.
  * @category utilities
  * @since 0.0.0
  */
-export const rootEslintCacheKey = Effect.fn("QualityTasks.rootEslintCacheKey")(
+export const rootDocsCacheKey = Effect.fn("QualityTasks.rootDocsCacheKey")(
   function* (repoRoot: string) {
     const fs = yield* FileSystem.FileSystem;
     const crypto = yield* Crypto.Crypto;
     const files = pipe(
-      yield* Effect.forEach(rootEslintCacheKeySources, (source) => listRootEslintCacheKeyFiles(repoRoot, source)),
+      yield* Effect.forEach(rootDocsCacheKeySources, (source) => listRootDocsCacheKeyFiles(repoRoot, source)),
       A.flatten,
       A.sort(Order.String)
     );
-    const inputs = yield* RootEslintInputs.make;
-    const parts = A.sort(
-      [
-        ...(yield* inputs.collect(repoRoot)),
-        ...(yield* Effect.forEach(files, (file) =>
-          fs.readFileString(`${repoRoot}/${file}`).pipe(Effect.map((content) => `${file}\0${content}\0`))
-        )),
-      ],
-      Order.String
+    const parts = yield* Effect.forEach(files, (file) =>
+      fs.readFileString(`${repoRoot}/${file}`).pipe(Effect.map((content) => `${file}\0${content}\0`))
     );
     const digest = yield* crypto.digest("SHA-256", new TextEncoder().encode(A.join(parts, "")));
     return Str.slice(0, 16)(Hex.encode(digest));
   },
-  Effect.orElseSucceed(() => UNKEYED_ROOT_ESLINT_CACHE)
+  Effect.orElseSucceed(() => UNKEYED_ROOT_DOCS_CACHE)
 );
 
 // The Stage-2 knowledge doctor follows the semantic delta wherever that runs. `doctor ci` stays
@@ -3250,7 +3063,7 @@ const rootRepoLintPolicySteps = (
   base: string | undefined,
   sweeps: LintPolicySweeps,
   hosted: boolean,
-  eslintCacheKey: string
+  docsCacheKey: string
 ): ReadonlyArray<QualityTaskStep> => {
   const full = P.isUndefined(base);
   return A.map(
@@ -3264,9 +3077,9 @@ const rootRepoLintPolicySteps = (
       ),
       ...(full ? [] : [policyLintTurboStep(repoRoot, "lint:policy:state", policyStateTasks)]),
       ...knowledgeDoctorPolicySteps(repoRoot, base, hosted),
-      // Ruling 31 retains the hosted root ESLint program independently of the
+      // Ruling 31 retains the hosted root docs program independently of the
       // deprecated-API sweep switch. It has no Turbo summary of its own.
-      ...(full ? [bunxStep(repoRoot, "lint:jsdoc", rootEslintArgs(eslintCacheKey))] : []),
+      ...(full ? [bunxStep(repoRoot, "lint:jsdoc", rootDocsArgs(docsCacheKey))] : []),
       full && sweeps.deprecatedApis === "oxlint"
         ? repoCliStep(repoRoot, "lint:deprecated-apis", ["lint", "deprecated-apis", "--full"])
         : deprecatedApisTurboStep(repoRoot, base),
@@ -3326,7 +3139,7 @@ const runPolicySteps = Effect.fn("QualityTasks.runPolicySteps")(function* (
  * @param hosted - Whether the plan is a hosted (CI) plan; a local full-scope plan leaves the
  *   git-delta knowledge checks and the report-only knowledge doctor to the hosted run. Defaults to
  *   the live CI detection.
- * @param eslintCacheKey - Root ESLint cache directory key; the runtime digests the ESLint
+ * @param docsCacheKey - Documentation input digest; the runtime digests the docs
  *   configuration sources, a pure plan carries `unkeyed`.
  * @returns Planned subprocess steps for policy-only lint verification.
  * @category utilities
@@ -3338,7 +3151,7 @@ export const rootLintPolicyStepsForTesting: {
     base?: string,
     sweeps?: LintPolicySweeps,
     hosted?: boolean,
-    eslintCacheKey?: string
+    docsCacheKey?: string
   ): (repoRoot: string) => ReadonlyArray<QualityTaskStep>;
   (
     repoRoot: string,
@@ -3346,7 +3159,7 @@ export const rootLintPolicyStepsForTesting: {
     base?: string,
     sweeps?: LintPolicySweeps,
     hosted?: boolean,
-    eslintCacheKey?: string
+    docsCacheKey?: string
   ): ReadonlyArray<QualityTaskStep>;
 } = dual(
   (args: IArguments) => P.isString(args[0]),
@@ -3356,8 +3169,8 @@ export const rootLintPolicyStepsForTesting: {
     base?: string,
     sweeps = oxlintPolicySweeps,
     hosted = isCi(),
-    eslintCacheKey = UNKEYED_ROOT_ESLINT_CACHE
-  ): ReadonlyArray<QualityTaskStep> => rootRepoLintPolicySteps(repoRoot, files, base, sweeps, hosted, eslintCacheKey)
+    docsCacheKey = UNKEYED_ROOT_DOCS_CACHE
+  ): ReadonlyArray<QualityTaskStep> => rootRepoLintPolicySteps(repoRoot, files, base, sweeps, hosted, docsCacheKey)
 );
 
 /**
@@ -3396,9 +3209,9 @@ const runRootLintPolicyTaskInternal = Effect.fn("QualityTasks.runRootLintPolicyT
   );
 
   yield* Console.log(`[beep-cli] lint:policy: scope=${runFull ? "full" : `changed (${changedFileCount} files)`}`);
-  const eslintCacheKey = yield* rootEslintCacheKey(repoRoot);
+  const docsCacheKey = yield* rootDocsCacheKey(repoRoot);
   yield* runPolicySteps(
-    rootRepoLintPolicySteps(repoRoot, files, runFull ? undefined : base, sweeps, isCi(), eslintCacheKey),
+    rootRepoLintPolicySteps(repoRoot, files, runFull ? undefined : base, sweeps, isCi(), docsCacheKey),
     runFull
   );
 });
@@ -3456,13 +3269,13 @@ const rootLintPolicySteps = (
   repoRoot: string,
   args: ReadonlyArray<string>,
   fix: boolean,
-  eslintCacheKey: string
+  docsCacheKey: string
 ): ReadonlyArray<QualityTaskStep> => {
   if (fix || !shouldRunLintRepoWideSteps(args)) {
     return A.empty<QualityTaskStep>();
   }
 
-  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, oxlintPolicySweeps, isCi(), eslintCacheKey);
+  return rootRepoLintPolicySteps(repoRoot, undefined, undefined, oxlintPolicySweeps, isCi(), docsCacheKey);
 };
 
 // The one root lint plan: the aggregate Turbo lint (or lint:fix) followed by
@@ -3472,12 +3285,12 @@ const rootLintSteps = (
   repoRoot: string,
   args: ReadonlyArray<string>,
   fix: boolean,
-  eslintCacheKey: string = UNKEYED_ROOT_ESLINT_CACHE
+  docsCacheKey: string = UNKEYED_ROOT_DOCS_CACHE
 ): readonly [QualityTaskStep, ...ReadonlyArray<QualityTaskStep>] => {
   const lintArgs = boundedRootTurboArgs(fix ? stripLintFixAggregateArgs(args) : args);
   return [
     fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], lintArgs) : turboStep(repoRoot, "lint", ["lint"], lintArgs),
-    ...rootLintPolicySteps(repoRoot, lintArgs, fix, eslintCacheKey),
+    ...rootLintPolicySteps(repoRoot, lintArgs, fix, docsCacheKey),
   ];
 };
 
@@ -3498,7 +3311,7 @@ const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
     return;
   }
 
-  const steps = rootLintSteps(repoRoot, args, fix, yield* rootEslintCacheKey(repoRoot));
+  const steps = rootLintSteps(repoRoot, args, fix, yield* rootDocsCacheKey(repoRoot));
   if (A.length(steps) === 1) {
     yield* runStep(A.headNonEmpty(steps));
     return;

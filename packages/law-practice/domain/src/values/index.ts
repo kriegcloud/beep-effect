@@ -27,6 +27,19 @@ export * from "./ActFrameElementRef/index.ts";
  */
 export * from "./AnnotationCitation/index.ts";
 /**
+ * Answer-row value-object exports.
+ *
+ * **Example** (Import the answer-row value objects)
+ *
+ * ```ts
+ * import { AnswerRow } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./AnswerRow/index.ts";
+/**
  * Patent application number value-object exports.
  *
  * @category value-objects
@@ -693,6 +706,19 @@ export * from "./PriorityBasis/index.ts";
  * @since 0.0.0
  */
 export * from "./PublicLawCitation/index.ts";
+/**
+ * Question value-object exports.
+ *
+ * **Example** (Import the question value objects)
+ *
+ * ```ts
+ * import { QuestionOption } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./Question/index.ts";
 /**
  * Regulation-citation value-object exports.
  *

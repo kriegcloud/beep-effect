@@ -47,6 +47,7 @@
     "./internal/*": null,
     "./PracticeKgHost": "./src/PracticeKgHost/index.ts",
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
+    "./UsptoClaims": "./src/UsptoClaims/index.ts",
     "./package.json": "./package.json"
   },
   "files": [

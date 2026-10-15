@@ -10,11 +10,11 @@ import {
   getAllowlistDiagnostics,
   getAllowlistEntries,
   isViolationAllowlisted,
-} from "@beep/repo-configs/eslint/EffectLawsAllowlist";
+} from "@beep/repo-configs/laws/EffectLawsAllowlist";
 import {
   isNoNativeRuntimeErrorFile,
   isNoNativeRuntimeExtraCheckHotspot,
-} from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
+} from "@beep/repo-configs/laws/NoNativeRuntimeHotspots";
 import { toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";

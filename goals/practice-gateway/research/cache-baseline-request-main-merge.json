@@ -1,5 +1,5 @@
 {
-  "previous": "afb5acc6a72982b1ad5d037a500c19bd0a0b080dcc4d4a9e4b755b688a5d1d97",
+  "previous": "7d3da4c3a7a05a18910711de115ba512522853dee223805b07787910f665dc96",
   "review": {
     "reviewer": "Claude Fable 5.1 (practice-gateway, feat/practice-gateway)",
     "reason": "Re-record this lane's subjects after taking main's baseline in the merge: four new workspaces with standard generated tasks and dependency-only drift on practice-kg-mcp and practice-gateway; no qualification is granted.",
