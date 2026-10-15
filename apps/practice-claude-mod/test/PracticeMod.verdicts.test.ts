@@ -1,7 +1,8 @@
 import { VerdictRow } from "@beep/law-practice-domain/values";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -10,6 +11,7 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ModHost } from "@/PracticeMod.host";
 import { KgAnswerItem } from "@/PracticeMod.values";
@@ -58,6 +60,20 @@ const verdict = (value: Verdict, note: O.Option<string> = O.none()) =>
 const VerdictRows = S.Array(VerdictRow);
 
 describe("VerdictLog", () => {
+  it.prop(
+    "round-trips schema-derived verdict rows and inputs",
+    [Arbitrary.schema(VerdictRow), Arbitrary.schema(VerdictInput)],
+    ([row, input]) => {
+      const rowEncoded = Result.getOrThrow(S.encodeResult(VerdictRow)(row));
+      assertTrue(S.toEquivalence(VerdictRow)(Result.getOrThrow(S.decodeUnknownResult(VerdictRow)(rowEncoded)), row));
+      const inputEncoded = Result.getOrThrow(S.encodeResult(VerdictInput)(input));
+      assertTrue(
+        S.toEquivalence(VerdictInput)(Result.getOrThrow(S.decodeUnknownResult(VerdictInput)(inputEncoded)), input)
+      );
+    },
+    { arbitrary: { numRuns: 10 } }
+  );
+
   it.layer(testLayer(), { timeout: "5 seconds" })("revisions", (it) => {
     it.effect(
       "appends revisions and reads the latest",

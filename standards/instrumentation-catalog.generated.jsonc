@@ -4534,6 +4534,7 @@
     {"name":"VeniceAiLanguageModel.make","owner":"@beep/venice-ai","family":"driver","conforms":true},
     {"name":"VerdictLog.append","owner":"@beep/law-practice-use-cases","family":"slice","conforms":true},
     {"name":"VerdictLog.current","owner":"@beep/practice-claude-mod","family":"app","conforms":true},
+    {"name":"VerdictLog.readRows","owner":"@beep/practice-claude-mod","family":"app","conforms":true},
     {"name":"VerdictLog.readStored","owner":"@beep/practice-claude-mod","family":"app","conforms":true},
     {"name":"VerdictLog.record","owner":"@beep/practice-claude-mod","family":"app","conforms":true},
     {"name":"VerdictLog.writeStored","owner":"@beep/practice-claude-mod","family":"app","conforms":true},
