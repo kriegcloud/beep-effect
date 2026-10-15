@@ -5,8 +5,6 @@
  * @since 0.0.0
  */
 
-/// <reference path="../../../madge.d.ts" />
-
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils, findRepoRoot, GlobOptions, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
@@ -38,6 +36,7 @@ import {
   PackageScriptsPolicyError,
 } from "../../internal/package-scripts/PackageScriptsPolicy.ts";
 import { qualityStepOutputBound, runCaptured, runToExit } from "../../internal/process/StepExec.ts";
+import { PosInt } from "../../internal/schema/PosInt.ts";
 import { runGoalsDoctor } from "../Goals/Doctor.ts";
 import { resolveLawsPackageScope, scanLawsPackage } from "../Laws/LawsPackage.ts";
 import { readLintPolicySweeps, runRootDeprecatedApisTask, runRootLintPolicyTask } from "../Quality/index.ts";
@@ -518,53 +517,71 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
   yield* Console.log("[check-tooling-schema-first] OK: packages/tooling/tool/cli schema-first checks passed.");
 });
 
-const runLintCircular = Effect.fn("runLintCircular")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const dirs = ["packages/tooling/tool/cli/src", "packages/tooling/library/repo-utils/src"];
-  let hasCircular = false;
+const OXLINT_CIRCULAR_CONFIG = ".oxlintrc.circular.json";
 
-  for (const dir of dirs) {
-    if (!(yield* fs.exists(dir))) {
-      yield* Console.log(`Skipping missing directory: ${dir}`);
-      continue;
-    }
+class CircularDiagnostic extends S.Opaque<CircularDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
+    code: S.Literal("import(no-cycle)"),
+    severity: S.Literal("error"),
+    filename: S.String,
+    message: S.String,
+    note: S.OptionFromOptionalKey(S.String),
+  }).pipe($I.annoteSchema("CircularDiagnostic", { description: "Native oxlint value-import cycle diagnostic." }))
+) {}
 
-    const result = yield* Effect.tryPromise({
-      // Import madge lazily: its transitive `detective-typescript` dependency
-      // crashes at module-eval time under Bun (`ts.Extension.Cjs` undefined),
-      // so a static top-level import would take down every sibling command that
-      // shares this CLI tree (version-sync, tsconfig-sync, ...) at startup.
-      try: () =>
-        import("madge").then(({ default: madge }) =>
-          madge(dir, {
-            fileExtensions: ["ts"],
-            tsConfig: "tsconfig.json",
-            detectiveOptions: { ts: { skipTypeImports: true } },
-          })
-        ),
-      catch: (cause) =>
-        LintCircularAnalysisError.new(
-          `Failed to analyze circular deps in ${dir}: ${Inspectable.toStringUnknown(cause, 0)}`
-        ),
-    });
+class CircularLintReport extends S.Opaque<CircularLintReport, { readonly brand: unique symbol }>()(
+  S.Struct({
+    diagnostics: S.Array(CircularDiagnostic),
+    number_of_files: PosInt,
+    number_of_rules: S.Literal(1),
+  }).pipe(
+    $I.annoteSchema("CircularLintReport", {
+      description: "Single-rule oxlint cycle report proving that at least one source file was checked.",
+    })
+  )
+) {}
 
-    const circular = result.circular();
-    yield* A.match(circular, {
-      onEmpty: () => Effect.void,
-      onNonEmpty: Effect.fn("Lint.circular.onNonEmpty")(function* (cycles) {
-        hasCircular = true;
-        yield* Console.error(`Circular dependencies in ${dir}:`);
-        for (const cycle of cycles) {
-          yield* Console.error(`  ${A.join(cycle, " -> ")}`);
-        }
-      }),
-    });
+const decodeCircularLintReport = S.decodeUnknownEffect(S.fromJsonString(CircularLintReport));
+
+const runLintCircular = Effect.fn("Lint.circular")(function* () {
+  const root = yield* findRepoRoot();
+  const path = yield* Path.Path;
+  const result = yield* runCaptured({
+    command: path.join(root, "node_modules/.bin/oxlint"),
+    args: [
+      "--config",
+      path.join(root, OXLINT_CIRCULAR_CONFIG),
+      "--disable-nested-config",
+      "--tsconfig",
+      path.join(root, "tsconfig.json"),
+      "--format",
+      "json",
+      "packages/tooling/tool/cli/src",
+      "packages/tooling/library/repo-utils/src",
+    ],
+    cwd: root,
+    bound: qualityStepOutputBound,
+  }).pipe(Effect.mapError((cause) => LintCircularAnalysisError.new(Inspectable.toStringUnknown(cause, 0))));
+
+  if (result.truncated || (result.exitCode !== 0 && result.exitCode !== 1)) {
+    return yield* LintCircularAnalysisError.new(`Oxlint cycle analysis failed (${result.exitCode}): ${result.output}`);
   }
-
-  if (hasCircular) {
+  const report = yield* decodeCircularLintReport(result.output).pipe(
+    Effect.mapError((cause) =>
+      LintCircularAnalysisError.new(`Invalid oxlint cycle report: ${Inspectable.toStringUnknown(cause, 0)}`)
+    )
+  );
+  if (A.isReadonlyArrayNonEmpty(report.diagnostics)) {
+    for (const diagnostic of report.diagnostics) {
+      yield* Console.error(
+        `${diagnostic.filename}: ${diagnostic.message}\n${O.getOrElse(diagnostic.note, thunkEmptyStr)}`
+      );
+    }
     return yield* failWithReportedExit("lint circular: circular dependencies found.");
   }
-
+  if (result.exitCode !== 0) {
+    return yield* LintCircularAnalysisError.new(`Oxlint cycle analysis exited ${result.exitCode} without diagnostics.`);
+  }
   yield* Console.log("No circular dependencies found.");
 });
 
@@ -845,8 +862,10 @@ const rootConfigs = [
   ".oxlintrc.json",
   ".oxlintrc.docs.json",
   OXLINT_DEPRECATED_APIS_CONFIG,
+  OXLINT_CIRCULAR_CONFIG,
   "_typos.toml",
   ".fallowrc.jsonc",
+  "fallow-plugin-manual-development-tools.json",
   "biome.jsonc",
   "tsconfig.base.json",
   "tsconfig.json",

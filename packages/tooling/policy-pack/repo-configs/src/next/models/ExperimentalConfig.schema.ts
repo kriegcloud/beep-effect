@@ -463,6 +463,11 @@ export class ExperimentalConfig extends S.Opaque<ExperimentalConfig, { readonly 
     fallbackNodePolyfills: S.optionalKey(S.Literal(false)),
     sri: S.optionalKey(SriConfig),
     webVitalsAttribution: S.optionalKey(WebVitalsMetric.pipe(S.Array, S.mutable)),
+    useTypeScriptCli: S.optionalKey(
+      S.Boolean.annotateKey({
+        description: "Run TypeScript checks through the compiler CLI instead of the classic JS API.",
+      })
+    ),
     optimizePackageImports: S.optionalKey(StringArray),
     optimizeServerReact: S.optionalKey(S.Boolean),
     strictRouteTypes: S.optionalKey(S.Boolean),
