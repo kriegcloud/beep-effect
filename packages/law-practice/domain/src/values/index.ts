@@ -159,6 +159,13 @@ export * from "./CitationWarning/index.ts";
  */
 export * from "./CitingApplicationIdentity/index.ts";
 /**
+ * Claim-element tree, edge, and antecedent-finding value-object exports.
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./ClaimElement/index.ts";
+/**
  * Component-span value-object exports.
  *
  * **Example** (Import the case component-span value objects)

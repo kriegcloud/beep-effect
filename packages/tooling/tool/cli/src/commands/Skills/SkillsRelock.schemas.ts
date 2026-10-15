@@ -27,6 +27,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { SkillEffective, SkillGitRevision, SkillSnapshot } from "./Skills.schemas.ts";
 import { SkillsLockWrittenFile } from "./SkillsLock.schemas.ts";
@@ -187,6 +189,11 @@ export class SkillHunkReport extends S.Opaque<SkillHunkReport, { readonly brand:
  * is the strict replay's result, present only when the replay is `clean`.
  * `diff` is the unified diff from the new pristine tree to the replayed tree
  * (best effort when the replay is not clean: conflicted hunks are left out).
+ * `promoteCandidates` lists the identities of unresolved hunks that the hunk
+ * ledger already records as unresolved at another pin: the two-strike rule
+ * (B4) marks them as candidates for the semantic-guide form, and graduation
+ * stays a human decision. It defaults to empty, so markers written before
+ * B-6 still decode.
  *
  * **Example** (Record a clean replay)
  *
@@ -232,6 +239,10 @@ export class SkillReplayReport extends S.Opaque<SkillReplayReport, { readonly br
     effectiveTreeHash: S.OptionFromOptionalKey(Sha256Hex),
     hunks: S.Array(SkillHunkReport),
     diff: S.String,
+    promoteCandidates: S.Array(Sha256Hex).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<Sha256Hex>())),
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
+    ),
   }).pipe(
     $I.annoteSchema("SkillReplayReport", {
       description: "One vendored skill's replay at its lock pin: verdict, per-hunk report, and upstream diff.",
