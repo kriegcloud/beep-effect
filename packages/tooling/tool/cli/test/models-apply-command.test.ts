@@ -96,6 +96,73 @@ const consoleLayer = Layer.effect(Console.Console, TestConsole.make);
 layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer), {
   timeout: "30 seconds",
 })((it) => {
+  it.effect("round nine canonical extensions and fatal bytes agree across actual CLI modes", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const binding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+      const render = { _tag: "verbatim" } as const;
+      const cases: ReadonlyArray<readonly [string, string, Locator, string]> = [
+        [
+          "link.toml",
+          "start.sh",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'model="gpt-6.1-sol"\n',
+        ],
+        [
+          "link.json",
+          "config.yaml",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-sol"}',
+        ],
+        [
+          "invalid.toml",
+          "invalid.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'model="gpt-6.1-sol"\nnative="?"\n',
+        ],
+        [
+          "invalid.json",
+          "invalid.json",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-sol","native":"?"}',
+        ],
+      ];
+      for (const [name, destination, locator, content] of cases) {
+        const actual = path.join(home, destination);
+        const requested = path.join(home, name);
+        const bytes = new TextEncoder().encode(content);
+        if (name === destination) bytes[bytes.indexOf(63)] = 0xff;
+        yield* fs.writeFile(actual, bytes);
+        if (name !== destination) yield* fs.symlink(actual, requested);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(
+            ModelsManifest.make({
+              ...manifest,
+              targets: [
+                ModelSyncTarget.make({
+                  id: TargetId.make("synthetic.r9"),
+                  root: "home",
+                  path: `$HOME/${name}`,
+                  optional: false,
+                  locators: [locator],
+                }),
+              ],
+            })
+          )
+        );
+        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        yield* Effect.flip(run(["check", ...flags, "--offline", "--json"]));
+        expect(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow)).toContain('"hasDrift": true');
+        for (const mode of ["--check", "--write"]) yield* Effect.flip(run(["apply", ...flags, mode]));
+        expect(A.fromIterable(yield* fs.readFile(actual))).toEqual(A.fromIterable(bytes));
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
   it.effect("certifies clean TOML/JSON and refuses duplicate JSON keys as drift", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -141,6 +208,63 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
           yield* Effect.flip(run(["check", ...flags, "--json"]));
           yield* Effect.flip(run(["apply", ...flags, "--check"]));
         }
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect("round nine fallback-only JSON and matching Unicode symlinks stay checkable", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const binding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+      const render = { _tag: "verbatim" } as const;
+      for (const [name, locator, content] of [
+        [
+          "unicode.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'model="gpt-6.1-sol"\nnative="café 🔑"\n',
+        ],
+        [
+          "unicode.json",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-sol","native":"café 🔑"}',
+        ],
+        [
+          "fallback.json",
+          { _tag: "json-key", pointer: ["primary"], fallbacks: [["model"]], binding, render },
+          '{"model":"gpt-6.1-sol"}',
+        ],
+      ] satisfies ReadonlyArray<readonly [string, Locator, string]>) {
+        const file = path.join(home, name);
+        const actual = path.join(home, `canonical-${name}`);
+        yield* fs.writeFileString(actual, content);
+        yield* fs.symlink(actual, file);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(
+            ModelsManifest.make({
+              ...manifest,
+              targets: [
+                ModelSyncTarget.make({
+                  id: TargetId.make("synthetic.positive"),
+                  root: "home",
+                  path: `$HOME/${name}`,
+                  optional: false,
+                  locators: [locator],
+                }),
+              ],
+            })
+          )
+        );
+        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        yield* run(["check", ...flags, "--offline", "--json"]);
+        expect(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow)).toContain('"hasDrift": false');
+        yield* run(["apply", ...flags, "--check"]);
+        if (name !== "fallback.json") yield* run(["apply", ...flags, "--write"]);
+        expect(yield* fs.readFileString(actual)).toBe(content);
+        expect(yield* fs.readLink(file)).toBe(actual);
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
       }
     })
@@ -441,14 +565,9 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       yield* Effect.flip(run(["codex-permissions", ...flags, "--check", "--write"]));
       yield* run(["codex-permissions", ...flags, "--write"]);
       expect(yield* fs.readFileString(file)).toBe(native);
-      yield* run(["codex-permissions", ...flags, "--check"]);
-      yield* run(["codex-permissions", ...flags, "--dry-run"]);
-      expect(yield* TestConsole.logLines).toContain(
-        "models: preview home.codex.config [toml-top-level-key] change=false expected=<absent>"
-      );
-      const journals = yield* fs.readDirectory(path.join(home, ".config-backups"));
-      expect(journals).toHaveLength(2);
-      yield* run(["codex-permissions", ...flags, "--write"]);
+      for (const mode of ["--check", "--dry-run", "--write"])
+        yield* Effect.flip(run(["codex-permissions", ...flags, mode]));
+      expect(yield* fs.readFileString(file)).toBe(native);
       expect(yield* fs.readDirectory(path.join(home, ".config-backups"))).toHaveLength(2);
     })
   );

@@ -23,7 +23,6 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { CatalogDiff } from "./Models.catalog.schemas.ts";
 import {
@@ -37,14 +36,15 @@ import {
 import { catalogModelsById, diffSnapshots } from "./Models.diff.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { bindLocatorModel, ModelsLocatorReader, ModelsLocatorReaderLive } from "./Models.locator.service.ts";
-import { isEffortAllowedOnSurface } from "./Models.manifest.schemas.ts";
+import { isEffortAllowedOnSurface, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 import { ModelsManifestStore, ModelsManifestStoreLive } from "./Models.manifest.service.ts";
 import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { DriftFinding, ManualVerification, ModelsCheckReport } from "./Models.report.schemas.ts";
-import { modelsCheckOnlyFormat } from "./Models.spans.ts";
+import { modelsCheckOnlyFormat, modelsEligibility } from "./Models.spans.ts";
 import type * as Crypto from "effect/Crypto";
 import type { HttpClient } from "effect/http";
+import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CatalogModel, CatalogSource, ModelId } from "./Models.catalog.schemas.ts";
 import type { ModelsCatalogSources } from "./Models.catalog.service.ts";
@@ -370,18 +370,29 @@ const boundLocator = (input: LocatorCheckInput): Locator =>
       });
 
 const readCurrentLocator = Effect.fnUntraced(function* (input: LocatorCheckInput) {
-  const path = yield* Path.Path;
-  const extension = input.locator._tag === "json-key" ? ".json" : ".toml";
-  const mismatch =
-    O.isNone(modelsCheckOnlyFormat(input.locator)) && path.extname(input.file.absolutePath) !== extension;
-  return mismatch
-    ? O.some(`Unsupported ${extension === ".json" ? "JSON" : "TOML"} form: locator/extension mismatch.`)
-    : yield* input.reader.read(input.file, boundLocator(input));
+  if (O.isNone(modelsCheckOnlyFormat(input.locator))) {
+    const eligible = yield* modelsEligibility(input.file.absolutePath, [
+      ModelsLocatorWrite.make({ locator: boundLocator(input), expected: "" }),
+    ]).pipe(Effect.result);
+    if (eligible._tag === "Failure")
+      return O.some(
+        `Unsupported ${input.locator._tag === "json-key" ? "JSON" : "TOML"} form: ${eligible.failure.message}`
+      );
+    return yield* input.reader.read(
+      ModelsTargetFile.make({
+        ...input.file,
+        content: eligible.success.content,
+        absolutePath: eligible.success.actual,
+      }),
+      boundLocator(input)
+    );
+  }
+  return yield* input.reader.read(input.file, boundLocator(input));
 });
 
 const checkLocator = Effect.fnUntraced(function* (
   input: LocatorCheckInput
-): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError, Path.Path> {
+): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError, Path.Path | FileSystem.FileSystem> {
   const current = yield* readCurrentLocator(input);
   if (O.isSome(modelsCheckOnlyFormat(input.locator)))
     input.manual.push(
@@ -485,7 +496,9 @@ const makeCheck = (): ModelsCheckShape => ({
               : A.map(target.locators, (locator) => finding(target, locator, O.none(), absolutePath, "missing-file"));
           }
 
-          const content = yield* fs.readFileString(absolutePath).pipe(Effect.orElseSucceed(() => ""));
+          const content = A.some(target.locators, (locator) => O.isSome(modelsCheckOnlyFormat(locator)))
+            ? yield* fs.readFileString(absolutePath).pipe(Effect.orElseSucceed(() => ""))
+            : "";
           const file = ModelsTargetFile.make({ root: target.root, absolutePath, content });
 
           return yield* Effect.forEach(target.locators, (locator) =>

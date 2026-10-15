@@ -6,6 +6,7 @@
  */
 import { A, O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
@@ -15,7 +16,7 @@ import * as R from "effect/Record";
 import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
 import * as Tuple from "effect/Tuple";
-import { findNodeAtLocation, parseTree } from "jsonc-parser";
+import { findNodeAtLocation, getNodeValue, parseTree } from "jsonc-parser";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { ModelsWriteSpan } from "./Models.manifest.schemas.ts";
@@ -35,6 +36,8 @@ const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S
  * console.log(Effect.isEffect(modelsParseToml('model = "example"')))
  * ```
  *
+ * @param content - The complete native TOML document.
+ * @returns The fully parsed native fields or a typed parse failure.
  * @category parsing
  * @since 0.0.0
  */
@@ -66,6 +69,8 @@ const duplicateJsonKeys = (node: JsonNode): boolean => {
  * console.log(Effect.isEffect(modelsParseJson('{"model":"example"}')))
  * ```
  *
+ * @param content - The complete native JSON document.
+ * @returns A fully validated JSON tree with source offsets.
  * @category parsing
  * @since 0.0.0
  */
@@ -169,6 +174,103 @@ export const modelsWritePreflight = Effect.fn("Models.writePreflight")(function*
     if (path.extname(file) !== extension)
       return yield* error(`Target format mismatch: ${locator._tag} requires a canonical ${extension} path.`);
   }
+});
+
+/**
+ * Decode native bytes without replacing invalid UTF-8 or stripping a BOM.
+ *
+ * **Example** (Decode valid native bytes)
+ *
+ * ```ts
+ * import { modelsNativeText } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(modelsNativeText(new TextEncoder().encode("model=1"))))
+ * ```
+ *
+ * @param bytes - Exact native file bytes.
+ * @returns Lossless UTF-8 text or a typed decoding failure.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const modelsNativeText = (bytes: Uint8Array) =>
+  Effect.try({
+    try: () => new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes),
+    catch: () => error("Native configuration must be valid UTF-8; refusing byte normalization."),
+  });
+
+/**
+ * Resolve and certify native ownership with one canonical-path and byte gate.
+ *
+ * **Details**
+ * Recovery supplies a backup source while retaining the live canonical format.
+ * Every operation, including removal, requires a parsed owned path. No lexical
+ * span or journal assertion establishes ownership.
+ *
+ * **Example** (Check native eligibility)
+ *
+ * ```ts
+ * import { modelsEligibility } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(modelsEligibility("config.toml", [])))
+ * ```
+ *
+ * @param file - The requested live target whose canonical extension owns the format.
+ * @param writes - Every owned operation to validate, including removals.
+ * @param sourceFile - The byte source, normally the live target or a recovery backup.
+ * @returns Canonical identity and eligible native text, or a typed ineligible failure.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
+  file: string,
+  writes: ReadonlyArray<ModelsLocatorWrite>,
+  sourceFile = file
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const certify = Effect.gen(function* () {
+    yield* modelsWritePreflight(
+      file,
+      A.map(writes, (write) => write.locator)
+    );
+    for (const write of writes)
+      if (write.remove === true && write.locator._tag !== "toml-top-level-key")
+        return yield* error("Removal owns only a top-level TOML assignment.");
+    const actual = yield* fs.realPath(file);
+    yield* modelsWritePreflight(
+      actual,
+      A.map(writes, (write) => write.locator)
+    );
+    const bytes = yield* fs.readFile(sourceFile === file ? actual : sourceFile);
+    const content = yield* modelsNativeText(bytes);
+    for (const { locator } of writes) {
+      const parsed =
+        locator._tag === "json-key"
+          ? getNodeValue(yield* modelsParseJson(content).pipe(Effect.mapError(() => error("Invalid JSON target."))))
+          : yield* modelsParseToml(content).pipe(Effect.mapError(() => error("Invalid TOML target.")));
+      const owned = Match.value(locator).pipe(
+        Match.tag("toml-top-level-key", ({ key }) => modelsParsedLeaf(parsed, [key])),
+        Match.tag("toml-table-key", ({ table, key }) => modelsParsedLeaf(parsed, [...Str.split(table, "."), key])),
+        Match.tag("json-key", ({ pointer, fallbacks }) =>
+          A.findFirst(
+            A.map([pointer, ...fallbacks], (segments) => modelsParsedLeaf(parsed, segments)),
+            O.isSome
+          ).pipe(O.flatten)
+        ),
+        Match.orElse(() => O.none())
+      );
+      if (O.isNone(owned)) return yield* error("Owned path is absent from the parsed native document.");
+    }
+    return { actual, content };
+  });
+  return yield* certify.pipe(
+    Effect.mapError((cause) =>
+      ModelsLocatorError.make({
+        reason: "ineligible",
+        message: `Ineligible native target: ${cause.message}`,
+        path: file,
+      })
+    )
+  );
 });
 
 // Decode only a single literal shell word. Concatenated quote components,

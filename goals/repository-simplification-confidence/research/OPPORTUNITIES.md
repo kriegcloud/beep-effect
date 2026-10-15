@@ -2818,3 +2818,12 @@ log. Owned superseded services were stopped after source corrections. The
 completed-source default proof runs through the retained disposable filesystem
 namespace, keeping its native fixtures inside the lane. Per-collector start/completion messages and source
 checkpoint hashes would make this attribution cheaper without weakening gates.
+
+### F round-9 admission environment (2026-10-15)
+
+While starting the required Models regressions, `beep-heavy` refused with
+`Failed to connect to user scope bus` because the tool shell lacked the user
+bus variables. The command performed no test or mutation. Supplying the
+existing user runtime and bus address restored the canonical admission route.
+A wrapper that derives the active user bus when absent would prevent this
+avoidable failed launch. Private receipt: `.beep/rsc-f-r9/initial-tests.log`.

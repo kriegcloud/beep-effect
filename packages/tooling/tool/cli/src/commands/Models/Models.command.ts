@@ -43,7 +43,7 @@ import {
   ModelsLive,
   ModelsManifestStore,
 } from "./Models.service.ts";
-import { modelsCheckOnlyFormat, modelsWritePreflight, modelsWriteSpans } from "./Models.spans.ts";
+import { modelsCheckOnlyFormat, modelsEligibility, modelsWritePreflight } from "./Models.spans.ts";
 import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
@@ -417,12 +417,9 @@ const previewModelWrites = Effect.fnUntraced(function* (
 ) {
   const fs = yield* FileSystem.FileSystem;
   const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
-  if (A.isReadonlyArrayNonEmpty(certifiable))
-    yield* modelsWritePreflight(
-      file,
-      A.map(certifiable, (write) => write.locator)
-    ).pipe(Effect.mapError(ModelsCommandError.fromInternal));
-  const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
+  const content = A.isReadonlyArrayNonEmpty(certifiable)
+    ? (yield* modelsEligibility(file, certifiable).pipe(Effect.mapError(ModelsCommandError.fromInternal))).content
+    : yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
     const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
     const change = manual
@@ -439,9 +436,12 @@ const previewModelWrites = Effect.fnUntraced(function* (
               !O.contains(current, request.expected)
           )
         )
-      : A.some(
-          yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
-          (entry) => entry.before !== entry.after
+      : !O.contains(
+          yield* modelsReadLocator(
+            ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
+            request.locator
+          ),
+          request.expected
         );
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] ${manual ? "manual verification required; recognized drift=" : "change="}${change} expected=${request.remove === true ? "<absent>" : request.expected}`

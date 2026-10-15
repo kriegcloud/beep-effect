@@ -83,7 +83,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 7 enforces independent canonical-format write eligibility and manual verification for shell/YAML/XML hints. Panel round 8 remains driver-owned.
+F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 9 unifies canonical-path, fatal-byte, full-parser and parsed-ownership eligibility across checking, applying and recovery. Panel round 10 remains driver-owned.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated
 before/after measurements are recorded. Remaining acceptance covers incomplete
 30-session windows, four H3 native measurement gates, external-owner

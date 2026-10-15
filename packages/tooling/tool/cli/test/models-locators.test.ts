@@ -581,6 +581,22 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
     strictEqual(body.includes("superseded:"), false);
   });
 
+  it.effect("duplicate JSON diagnostics carry one format prefix", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      assertRead(
+        yield* reader.read(file('{"model":"one","model":"two"}'), {
+          _tag: "json-key",
+          binding: LocatorBinding.make(binding("model")),
+          render: verbatim,
+          pointer: ["model"],
+          fallbacks: [],
+        }),
+        "Unsupported JSON form: duplicate keys."
+      );
+    })
+  );
+
   it.effect("a bound-model pointer follows the binding, not a stale literal entry", () =>
     Effect.gen(function* () {
       const reader = yield* ModelsLocatorReader;

@@ -30,6 +30,8 @@ import { ModelsTargetFile } from "./Models.paths.ts";
 import {
   modelsApplySpans,
   modelsCheckOnlyFormat,
+  modelsEligibility,
+  modelsNativeText,
   modelsParseJson,
   modelsParseToml,
   modelsWritePreflight,
@@ -252,6 +254,11 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const crypto = yield* Crypto.Crypto;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const validate = validateSyntax;
+  const eligibility = (file: string, writes: ReadonlyArray<ModelsLocatorWrite>, sourceFile = file) =>
+    modelsEligibility(file, writes, sourceFile).pipe(
+      Effect.provideService(FileSystem.FileSystem, fs),
+      Effect.provideService(Path.Path, path)
+    );
   const hash = Effect.fnUntraced(function* (text: string) {
     return Hex.encode(
       yield* crypto
@@ -262,10 +269,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const io = ModelsLocatorError.mapError("Native configuration I/O failed.");
   const readNative = Effect.fnUntraced(function* (file: string) {
     const bytes = yield* fs.readFile(file).pipe(io);
-    return yield* Effect.try({
-      try: () => new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes),
-      catch: () => failure("Native configuration must be valid UTF-8; refusing byte normalization."),
-    });
+    return yield* modelsNativeText(bytes);
   });
   const suffix = Effect.gen(function* () {
     const now = yield* DateTime.now;
@@ -432,18 +436,20 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
           file,
           A.map(writes, (write) => write.locator)
         ).pipe(Effect.provideService(Path.Path, path));
-      // Resolving symlinks preserves their native ownership rather than replacing the link.
-      const actual = yield* fs.realPath(file).pipe(io);
-      const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
-      if (A.isReadonlyArrayNonEmpty(certifiable))
-        yield* modelsWritePreflight(
-          actual,
-          A.map(certifiable, (write) => write.locator)
-        ).pipe(Effect.provideService(Path.Path, path));
-      const before = yield* readNative(actual);
-      yield* validate(before, writes);
-      if (mode === "check") yield* checkReadOnlyDrift(before, writes);
       const nativeWrites = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
+      const eligible = A.isReadonlyArrayNonEmpty(nativeWrites)
+        ? yield* eligibility(file, nativeWrites)
+        : { actual: yield* fs.realPath(file).pipe(io), content: yield* readNative(file) };
+      const { actual, content: before } = eligible;
+      if (mode === "check") yield* checkReadOnlyDrift(before, writes);
+      if (mode === "check") {
+        if (A.some(nativeWrites, (write) => write.remove === true))
+          return yield* failure("Owned configuration drift detected.");
+        yield* assertParsedProjection(before, nativeWrites).pipe(
+          Effect.mapError(() => failure("Owned configuration drift detected."))
+        );
+        return O.none();
+      }
       const spans = yield* Effect.forEach(nativeWrites, (write) => modelsWriteSpans(before, write), {
         concurrency: 1,
       }).pipe(Effect.map(A.flatten));
@@ -454,7 +460,6 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       // the old scalar bytes must reconstruct the complete original native file.
       yield* assertOwnedBytes(before, after, nativeWrites, spans);
       if (after === before) return O.none();
-      if (mode === "check") return yield* failure("Owned configuration drift detected.");
       if (mode === "dry-run") return O.none();
       if (!A.isReadonlyArrayNonEmpty(writes)) return yield* failure("Locator ownership must be non-empty.");
       const info = yield* fs.stat(actual).pipe(io);
@@ -519,25 +524,29 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         const backup = yield* fs.realPath(journal.backup).pipe(io);
         if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
           return yield* failure("Recovery backup is outside its journal directory.");
-        const original = yield* readNative(backup);
+        const { content: current } = yield* eligibility(journal.file, writes);
+        const currentHash = yield* hash(current);
+        if (currentHash !== journal.afterHash)
+          return yield* failure("Native file changed since apply; restore would overwrite new state.");
+        const { content: original } = yield* eligibility(journal.file, writes, backup);
         if ((yield* hash(original)) !== journal.beforeHash)
           return yield* failure("Recovery backup hash does not match.");
-        const current = yield* readNative(journal.file);
-        const currentHash = yield* hash(current);
-        if (currentHash !== journal.beforeHash && currentHash !== journal.afterHash)
-          return yield* failure("Native file changed since apply; restore would overwrite new state.");
-        yield* validate(current, writes);
-        yield* validate(original, writes);
-        yield* Effect.forEach(
-          A.filter(writes, (write) => write.remove !== true),
-          (write) => modelsWriteSpans(current, write),
-          { concurrency: 1, discard: true }
+        yield* atomic(
+          journal.file,
+          journal.afterHash,
+          original,
+          (yield* fs.stat(journal.file).pipe(io)).mode,
+          journal,
+          backupDirectory
         );
-        if (currentHash === journal.beforeHash) return;
-        yield* atomic(journal.file, journal.afterHash, original, journal.mode, journal, backupDirectory);
       }).pipe(
         Effect.mapError((error) =>
-          failure(Str.includes("Journal:")(error.message) ? error.message : `${error.message} Journal: ${journal.id}`)
+          ModelsLocatorError.make({
+            ...O.getSomesStruct({ reason: O.fromUndefinedOr(error.reason) }),
+            message: Str.includes("Journal:")(error.message)
+              ? error.message
+              : `${error.message} Journal: ${journal.id}`,
+          })
         )
       );
     }

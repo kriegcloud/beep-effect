@@ -215,7 +215,13 @@ const readJsonPointer = (
         O.orElse(found, () => walkPointer(json, fallback))
       );
     }),
-    Effect.catch((cause) => Effect.succeedSome(`Unsupported JSON form: ${cause.message}`))
+    Effect.catch((cause) =>
+      Effect.succeedSome(
+        Str.startsWith("Unsupported JSON form:")(cause.message)
+          ? cause.message
+          : `Unsupported JSON form: ${cause.message}`
+      )
+    )
   );
 
 // Reconcile every textual name occurrence with ranges independently established

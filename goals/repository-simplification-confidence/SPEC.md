@@ -1991,3 +1991,37 @@ Reversal: revert the round-8 repair commits. This wave makes no home writes;
 no new native backup or rollback operation is required. Prior timestamped
 backups and tested ModelsApply rollback remain retained. The panel remains
 OPEN; the driver runs round 9 against the new candidate and fingerprint.
+
+### RSC-F-ONE-ELIGIBILITY-GATE — driver round-9 ruling (2026-10-15)
+
+Decision: `modelsEligibility` is the sole native eligibility gate used by
+`models check`, apply previews, `apply --check`, `apply --write`, and restore.
+It resolves `realPath`, checks the canonical extension against the locator,
+reads bytes with fatal UTF-8 decoding, fully parses TOML or JSON, and requires
+an owned path in the parsed tree. Failures carry typed `reason: ineligible`;
+checks report drift and writers refuse before backups or publication.
+The format-only preflight remains a shared early fence for excluded formats.
+No lexical span or journal assertion establishes parsed ownership.
+
+Restore revalidates every operation, including removals, against both live
+and backup bytes through the same gate. Backup bytes use the live canonical
+format rather than the `.backup` suffix. The live hash must equal the applied
+hash and the backup hash must equal the pre-image hash. Restore uses live
+permissions, not a journal-provided mode. Repeated restore after a successful
+rollback now refuses because the live hash no longer equals the applied hash.
+A completed removal with an absent live key also refuses; its retained backup
+remains available for explicit recovery. This follows the driver's universal
+owned-path-presence rule rather than retaining the earlier removal exception.
+
+Reason: F-ASTRA-R9-01 / R9-F3 exposed lexical-extension certification through
+symlinks; F-ASTRA-R9-02 exposed permissive UTF-8 certification;
+F-ASTRA-R9-03 exposed removal skipping and lexical ownership in nonempty
+journals. Nearby R9-F1 is folded in: check mode accepts a parsed fallback
+value equal to the binding without requiring write spans at the primary
+pointer. Writes still require the primary pointer. R9-F2 is folded in:
+preview compares parsed values, so assignment-looking multiline text cannot
+produce a misleading `change=false`. No round-9 P2/P3 is deferred. The new GitHub P2 on comment `4289132125` is also included: the JSON locator reader preserves an existing format prefix, with an exact-message regression.
+
+Reversal: revert the round-9 repair commit. This wave writes no home
+configuration, creates no new native backup, and retains prior timestamped
+backups and rollback evidence. The panel remains OPEN for driver round 10.
