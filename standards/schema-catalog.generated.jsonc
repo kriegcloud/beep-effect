@@ -51211,6 +51211,21 @@
       "owner": "@beep/repo-cli"
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
+      "symbol": "OpaqueRoundtripFinding",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "OpaqueRoundtripFinding",
+      "description": "Location, Opaque classes and text of an unsafe generated-sample assertion."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
+      "symbol": "OpaqueRoundtripsError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "OpaqueRoundtripsError"
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Lint/PackageTestTypecheck.ts",
       "symbol": "PackageTestTypecheckOptions",
       "kind": "struct-const",
