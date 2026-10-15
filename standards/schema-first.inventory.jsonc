@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-14",
+  "generatedOn": "2026-10-15",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -2505,7 +2505,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 44,
+      "line": 22,
       "owner": "@beep/repo-cli",
       "reason": "This executable synthetic child is a fixed crash-stage transport fixture, not a schema-law test file. It decodes staged Envelope/AmbiguityResolution documents and emits exact checkpoint receipts for the owning store tests to kill and reopen. Schema-derived transport properties live in agent-message-models.test.ts."
     },
