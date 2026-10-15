@@ -7,17 +7,20 @@ import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
+import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as OtlpExporter from "effect/observability/OtlpExporter";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Redacted from "effect/Redacted";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -25,7 +28,7 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { assertBundleGraph, forbiddenBundleInputs } from "../src/BundleGraph.ts";
-import { TelemetryKeyFailure } from "../src/PracticeKgMcp.errors.ts";
+import { PackageFailure, TelemetryKeyFailure } from "../src/PracticeKgMcp.errors.ts";
 import { layerPracticeKgTelemetrySpooled } from "../src/runtime/Telemetry.ts";
 import {
   PracticeKgTelemetrySelfCheckReport,
@@ -43,7 +46,7 @@ import {
 import type { StrictKeyProtection } from "@beep/observability/strict";
 
 const telemetryDir = "/home/attorney/AppData/Local/beep/practice-kg/telemetry";
-const keyPath = `${telemetryDir}/key.dpapi`;
+const keyPath = `${telemetryDir}/key.1.dpapi`;
 const canary = A.join(["canary", "Telemetry", "Key", "8812"], "");
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -71,6 +74,27 @@ const fakeDpapi = (
     })
   );
 
+// A DPAPI stand-in whose first two wraps wait for each other, so two hosts
+// both find no key and both race to publish epoch 1.
+const barrierDpapi = Effect.gen(function* () {
+  const arrived = yield* Ref.make(0);
+  const both = yield* Deferred.make<void>();
+  return Layer.succeed(
+    DpapiPort,
+    DpapiPort.of({
+      protection: "dpapi-ffi",
+      protect: Effect.fn("BarrierDpapi.protect")(function* (plaintext: Uint8Array) {
+        if ((yield* Ref.updateAndGet(arrived, (count) => count + 1)) >= 2) {
+          yield* Deferred.succeed(both, undefined);
+        }
+        yield* Deferred.await(both);
+        return xor(plaintext);
+      }),
+      unprotect: Effect.fn("BarrierDpapi.unprotect")((wrapped: Uint8Array) => Effect.succeed(xor(wrapped))),
+    })
+  );
+});
+
 const volume = Layer.mergeAll(MemoryFileSystem.layer, Path.layer);
 
 const loadKey = (port: Layer.Layer<DpapiPort>) =>
@@ -97,7 +121,7 @@ describe("layerPracticeKgSpoolKey", () => {
         expect(Str.includes(materialOf(first))(yield* fs.readFileString(keyPath))).toBe(false);
         expect(((yield* fs.stat(keyPath)).mode & 0o777).toString(8)).toBe("600");
         expect(((yield* fs.stat(telemetryDir)).mode & 0o777).toString(8)).toBe("700");
-        expect(A.filter(yield* fs.readDirectory(telemetryDir), Str.includes(".tmp"))).toEqual([]);
+        expect(yield* fs.readDirectory(telemetryDir)).toEqual(["key.1.dpapi"]);
       })
     );
   });
@@ -110,19 +134,38 @@ describe("layerPracticeKgSpoolKey", () => {
         expect([rotated.epoch, rotated.protection]).toEqual(["2", "dpapi-powershell"]);
         expect(materialOf(rotated)).not.toBe(materialOf(first));
         expect(materialOf(yield* loadKey(fakeDpapi("dpapi-powershell")))).toBe(materialOf(rotated));
+        // The old key file is never overwritten; the new epoch is a new file.
+        const fs = yield* FileSystem.FileSystem;
+        expect(A.sort(yield* fs.readDirectory(telemetryDir), Order.String)).toEqual(["key.1.dpapi", "key.2.dpapi"]);
       })
     );
   });
 
   it.layer(volume, { timeout: "10 seconds" })((it) => {
-    it.effect("replaces a key file that does not decode", () =>
+    it.effect("moves past a key file that does not decode without overwriting it", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         yield* fs.makeDirectory(telemetryDir, { recursive: true });
         yield* fs.writeFileString(keyPath, "{broken");
         const key = yield* loadKey(fakeDpapi("dpapi-ffi"));
-        expect(key.epoch).toBe("1");
-        expect((yield* fs.readFileString(keyPath).pipe(Effect.flatMap(decodeKeyFile))).epoch).toBe(1);
+        expect(key.epoch).toBe("2");
+        expect(yield* fs.readFileString(keyPath)).toBe("{broken");
+        const next = yield* fs.readFileString(`${telemetryDir}/key.2.dpapi`).pipe(Effect.flatMap(decodeKeyFile));
+        expect(next.epoch).toBe(2);
+      })
+    );
+  });
+
+  it.layer(volume, { timeout: "10 seconds" })((it) => {
+    it.effect("gives two hosts that create the key at once the same key and epoch", () =>
+      Effect.gen(function* () {
+        const port = yield* barrierDpapi;
+        const [left, right] = yield* Effect.all([loadKey(port), loadKey(port)], { concurrency: "unbounded" });
+        expect([left.epoch, right.epoch]).toEqual(["1", "1"]);
+        expect(materialOf(right)).toBe(materialOf(left));
+        const fs = yield* FileSystem.FileSystem;
+        expect(yield* fs.readDirectory(telemetryDir)).toEqual(["key.1.dpapi"]);
+        expect(materialOf(yield* loadKey(fakeDpapi("dpapi-ffi")))).toBe(materialOf(left));
       })
     );
   });
@@ -306,10 +349,14 @@ describe("bundle graph", () => {
         "apps/practice-kg-mcp/src/bin.ts",
         "node_modules/@effect/opentelemetry/dist/NodeSdk.js",
         "packages/foundation/capability/observability/src/server/index.ts",
+        "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
+        "node_modules/@beep/observability/experimental/server",
         "packages/foundation/capability/observability/src/strict/index.ts",
       ])
     ).toEqual([
+      "node_modules/@beep/observability/experimental/server",
       "node_modules/@effect/opentelemetry/dist/NodeSdk.js",
+      "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
       "packages/foundation/capability/observability/src/server/index.ts",
     ]);
   });
@@ -320,6 +367,11 @@ describe("bundle graph", () => {
       Effect.gen(function* () {
         const inputs = yield* assertBundleGraph(new URL("../src/bin.ts", import.meta.url).pathname);
         expect(inputs).toBeGreaterThan(100);
+        const refused = yield* Effect.flip(
+          assertBundleGraph(new URL("./fixtures/experimental-server-entry.ts", import.meta.url).pathname)
+        );
+        expect(refused).toBeInstanceOf(PackageFailure);
+        expect(Str.includes("observability/src/experimental/server/")(refused.message)).toBe(true);
       }),
     { timeout: 120_000 }
   );

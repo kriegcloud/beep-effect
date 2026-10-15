@@ -63,11 +63,11 @@ Before marking the packet closed:
   and looser-tier segments), `StrictSpoolKey` with HKDF-derived spool key and
   span-id salt (`layerStrictSaltFromKey`), and the fail-closed resolver
   (`StrictTier.{schemas,behavior}.ts`, `resolveStrictTier`). Three kernel
-  refusal tags: `spool-evicted`, `spool-tier-refused`, `spool-segment-invalid`;
+  refusal tags: `spool-evicted`, `spool-write-failed`, `spool-tier-refused`, `spool-segment-invalid`;
   `StrictEgressSink.record` returns its refusals and `StrictGate.absorb` counts
   them. `apps/practice-kg-mcp`: `src/runtime/TelemetryKey.ts` (DPAPI port over
   `bun:ffi` `crypt32` with the PowerShell `ProtectedData` fallback, key file
-  `<telemetry dir>/key.dpapi`, telemetry-directory resolution, dev-file port off
+  `<telemetry dir>/key.<epoch>.dpapi`, published once by an exclusive hard link so concurrent hosts share one key, telemetry-directory resolution, dev-file port off
   Windows), `src/runtime/TelemetryCheck.ts` (`--self-check-telemetry`), the
   production telemetry layer in `Host.ts`, and `src/BundleGraph.ts` (metafile
   check run by `src/package.ts` and a test). The canary acceptance test in

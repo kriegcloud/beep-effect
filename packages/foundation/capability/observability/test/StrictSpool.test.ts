@@ -86,6 +86,12 @@ const rewriteSegment = Effect.fnUntraced(function* (
   yield* fs.writeFileString(file, yield* encodeSegment(edit(segment)));
 });
 
+// Records one body through the spool sink over `spool`.
+const recordThroughSink = (spool: StrictSpool["Service"], record: StrictEgressRecord) =>
+  Effect.flatMap(Effect.service(StrictEgressSink), (sink) => sink.record(record)).pipe(
+    provideScopedLayer(layerStrictSpoolSink.pipe(Layer.provide(Layer.succeed(StrictSpool, spool))))
+  );
+
 const flipFirstCiphertextByte = (segment: StrictSpoolSegment): StrictSpoolSegment => {
   const bytes = Result.getOrThrow(Base64.decode(segment.ciphertextBase64));
   bytes[0] = (bytes[0] ?? 0) ^ 0xff;
@@ -219,6 +225,19 @@ describe("StrictSpool", () => {
       })
     );
 
+    it.effect("counts a segment the disk refuses as a write failure through the sink", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const spool = yield* spoolWith("/write-failure/spool");
+        yield* fs.remove("/write-failure/spool", { recursive: true });
+        const appendError = yield* Effect.flip(spool.append(tracesRecord));
+        expect(appendError.operation).toBe("append");
+        const ledger = yield* recordThroughSink(spool, tracesRecord);
+        expect(countOf(ledger, "spool-write-failed")).toBe(1);
+        expect(countOf(ledger, "spool-evicted")).toBe(0);
+      })
+    );
+
     it.effect("fails with a typed error when the directory cannot be created", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -244,11 +263,12 @@ describe("layerStrictSpoolSink", () => {
   );
 
   it.layer(layerStrictSpoolSink.pipe(Layer.provide(failingSpool)), { timeout: "10 seconds" })((it) => {
-    it.effect("counts a body the spool cannot write as evicted instead of failing the export", () =>
+    it.effect("counts a body the spool cannot write as a write failure, not an eviction", () =>
       Effect.gen(function* () {
         const sink = yield* StrictEgressSink;
         const ledger = yield* sink.record(tracesRecord);
-        expect(countOf(ledger, "spool-evicted")).toBe(1);
+        expect(countOf(ledger, "spool-write-failed")).toBe(1);
+        expect(countOf(ledger, "spool-evicted")).toBe(0);
       })
     );
   });
