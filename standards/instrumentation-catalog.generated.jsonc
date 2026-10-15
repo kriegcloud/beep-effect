@@ -12,14 +12,19 @@
     {"key":"beep.model_role","type":"string","signals":["span","metric","log"],"cardinality":"bounded","minTier":"standard","owner":"@beep/repo-ai-metrics","description":"Model manifest role id the request ran under."},
     {"key":"beep.outcome","type":"string","signals":["metric"],"cardinality":"static","minTier":"shape-only","values":["started","completed","failed","interrupted"],"owner":"@beep/observability","description":"Workflow lifecycle outcome stamped by observeWorkflow on its outcomes counter."},
     {"key":"beep.package","type":"string","signals":["span","metric","event","log"],"cardinality":"bounded","minTier":"shape-only","owner":"@beep/observability","description":"Scoped name of the package that emitted the record."},
+    {"key":"beep.parcel","type":"string","signals":["span"],"cardinality":"static","minTier":"shape-only","values":["account-headroom"],"owner":"@beep/palantiri","description":"Parcel a Palantiri read served."},
+    {"key":"beep.parcel_freshness","type":"string","signals":["span"],"cardinality":"static","minTier":"shape-only","values":["fresh","unknown"],"owner":"@beep/palantiri","description":"Whether the parcel read was fresh or unknown."},
     {"key":"beep.privacy_tier","type":"string","signals":["span","metric","event","log"],"cardinality":"static","minTier":"shape-only","values":["shape-only","standard","dev-verbose"],"owner":"@beep/observability","description":"Effective privacy tier the record was emitted at."},
     {"key":"beep.provider","type":"string","signals":["span","metric","log"],"cardinality":"static","minTier":"shape-only","values":["anthropic","openai","xai","cursor","meta","jetbrains"],"owner":"@beep/repo-ai-metrics","description":"Model provider that served the request."},
     {"key":"beep.provider_account","type":"string","signals":["span","metric","log"],"cardinality":"bounded","minTier":"standard","owner":"@beep/repo-ai-metrics","description":"Provider account as an ordinal or salted hash, never an email address."},
     {"key":"beep.route","type":"string","signals":["span","metric","log"],"cardinality":"static","minTier":"shape-only","values":["direct","proxy","cursor-seat","grok-build","junie"],"owner":"@beep/repo-ai-metrics","description":"Route the request took to its provider."},
     {"key":"beep.schema_failure_tag","type":"string","signals":["metric"],"cardinality":"static","minTier":"shape-only","values":["attribute-not-allowed","stamped-key-override","span-event-dropped"],"owner":"@beep/observability","description":"Reason an emitter refused telemetry, labelling the refusal counter."},
-    {"key":"beep.session","type":"string","signals":["span","log"],"cardinality":"unbounded","minTier":"standard","owner":"@beep/repo-ai-metrics","description":"Salted hash of the native agent session id."}
+    {"key":"beep.session","type":"string","signals":["span","log"],"cardinality":"unbounded","minTier":"standard","owner":"@beep/repo-ai-metrics","description":"Salted hash of the native agent session id."},
+    {"key":"beep.window","type":"string","signals":["metric","span"],"cardinality":"static","minTier":"shape-only","values":["session","weekly","weekly-scoped","cycle","cycle-scoped"],"owner":"@beep/palantiri","description":"Plan-limit window a quota reading measures."},
+    {"key":"beep.window_scope","type":"string","signals":["metric","span"],"cardinality":"bounded","minTier":"shape-only","owner":"@beep/palantiri","description":"Model group a scoped plan-limit window covers, or all when unscoped."}
   ],
   "instruments": [
+    {"_tag":"MetricInstrument","name":"beep.accounts.window_remaining","owner":"@beep/palantiri","attributes":["beep.provider","beep.window","beep.window_scope"],"minTier":"shape-only","description":"Percent of a plan-limit window still unused, best account per provider, window and scope.","kind":"gauge","unit":"%"},
     {"_tag":"MetricInstrument","name":"beep.desktop.intake_operation_duration","owner":"@beep/professional-desktop","attributes":["beep.desktop.operation"],"minTier":"shape-only","description":"Wall time of one document intake RPC operation.","kind":"histogram","unit":"ms"},
     {"_tag":"MetricInstrument","name":"beep.desktop.intake_operations","owner":"@beep/professional-desktop","attributes":["beep.desktop.operation","beep.outcome"],"minTier":"shape-only","description":"Document intake RPC operations, counted at start and at each terminal outcome.","kind":"counter","unit":"{operation}"},
     {"_tag":"MetricInstrument","name":"beep.desktop.ontology_operation_duration","owner":"@beep/professional-desktop","attributes":["beep.desktop.operation"],"minTier":"shape-only","description":"Wall time of one ontology RPC operation.","kind":"histogram","unit":"ms"},
@@ -29,7 +34,8 @@
     {"_tag":"MetricInstrument","name":"beep.telemetry.refused","owner":"@beep/observability","attributes":["beep.schema_failure_tag"],"minTier":"shape-only","description":"Telemetry an emitter refused, by schema failure tag.","kind":"counter","unit":"{attribute}"},
     {"_tag":"SpanInstrument","name":"DesktopIntake.run","owner":"@beep/professional-desktop","family":"app","attributes":["beep.desktop.operation"],"minTier":"shape-only","description":"One document intake RPC operation.","kind":"internal","protocol":false,"origin":"declared","conforms":true},
     {"_tag":"SpanInstrument","name":"DesktopOntology.run","owner":"@beep/professional-desktop","family":"app","attributes":["beep.desktop.operation"],"minTier":"shape-only","description":"One ontology RPC operation.","kind":"internal","protocol":false,"origin":"declared","conforms":true},
-    {"_tag":"SpanInstrument","name":"DesktopVaultSync.run","owner":"@beep/professional-desktop","family":"app","attributes":["beep.desktop.operation"],"minTier":"shape-only","description":"One vault sync RPC operation.","kind":"internal","protocol":false,"origin":"declared","conforms":true}
+    {"_tag":"SpanInstrument","name":"DesktopVaultSync.run","owner":"@beep/professional-desktop","family":"app","attributes":["beep.desktop.operation"],"minTier":"shape-only","description":"One vault sync RPC operation.","kind":"internal","protocol":false,"origin":"declared","conforms":true},
+    {"_tag":"SpanInstrument","name":"Parcels.read","owner":"@beep/palantiri","family":"tooling","attributes":["beep.parcel","beep.parcel_freshness"],"minTier":"shape-only","description":"Reads one Palantiri parcel and checks its freshness.","kind":"internal","protocol":false,"origin":"declared","conforms":true}
   ],
   "spans": [
     {"name":"AIMetrics.attachForwarderOtlpExport","owner":"@beep/repo-cli","family":"tooling","conforms":true},
@@ -3367,6 +3373,10 @@
     {"name":"PacketTransitionWriter.planRiskTierOverride","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"PageOcr.recognizePage","owner":"@beep/file-processing","family":"foundation","conforms":true},
     {"name":"PageOcrService.recognizePage","owner":"@beep/file-processing","family":"foundation","conforms":true},
+    {"name":"PalantiriCommand.accountHeadroom","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"PalantiriCommand.printParcel","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"PalantiriSource.accountHeadroom","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"PalantiriSource.writeSnapshot","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Pandoc.decodeCaption","owner":"@beep/pandoc-ast","family":"foundation","conforms":true},
     {"name":"Pandoc.decodeCitation","owner":"@beep/pandoc-ast","family":"foundation","conforms":true},
     {"name":"Pandoc.decodeCiteInline","owner":"@beep/pandoc-ast","family":"foundation","conforms":true},
@@ -3377,6 +3387,7 @@
     {"name":"Pandoc.inspectPandocConformance","owner":"@beep/pandoc-ast","family":"foundation","conforms":true},
     {"name":"Pandoc.listNumberDelimiterFromWire","owner":"@beep/pandoc-ast","family":"foundation","conforms":true},
     {"name":"Pandoc.listNumberStyleFromWire","owner":"@beep/pandoc-ast","family":"foundation","conforms":true},
+    {"name":"Parcels.read","owner":"@beep/palantiri","family":"tooling","conforms":true},
     {"name":"Parser.parse","owner":"@beep/semantica","family":"lab","conforms":true},
     {"name":"Parser.parseHtml","owner":"@beep/semantica","family":"lab","conforms":true},
     {"name":"Parser.parseMarkdown","owner":"@beep/semantica","family":"lab","conforms":true},
