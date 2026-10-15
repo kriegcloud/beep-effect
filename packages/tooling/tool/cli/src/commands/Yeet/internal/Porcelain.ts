@@ -57,10 +57,11 @@ import {
   owningCloneContext,
   planRetire,
   renderActivePackets,
+  renderRetireGate,
   renderRetirement,
   renderRetirePlan,
-  retireBlocker,
   retireInvokingWorktree,
+  retireVerdict,
 } from "./Retire.ts";
 import { SweepPlanJson, SweepReportJson } from "./Sweep.schemas.ts";
 import { executeSweep, observeSweepGitState, overrideSweepBranch, planSweep, renderSweepReport } from "./Sweep.ts";
@@ -77,7 +78,7 @@ import type { runYeetAutomaticCloseout } from "./Closeout.ts";
 import type { YeetMonitorLoopPolicy, YeetMonitorTerminalState } from "./MonitorPolicy.ts";
 import type { PrSessionRegistryShape } from "./PrSessionRegistry.ts";
 import type { ReplyReport } from "./Reply.schemas.ts";
-import type { YeetRetirePlan } from "./Retire.schemas.ts";
+import type { YeetRetirePlan, YeetRetireVerdict } from "./Retire.schemas.ts";
 import type { readYeetRulesetRequiredContexts } from "./Settle.ts";
 import type { collectYeetStatus } from "./Status.ts";
 import type { SweepPlan, SweepPlanStep, SweepReport } from "./Sweep.schemas.ts";
@@ -255,9 +256,9 @@ const printRetirePlan = Effect.fn("Yeet.printRetirePlan")(function* (
   const text = options.json
     ? yield* encodeRetireSweepPlan(
         YeetRetireSweepPlan.make({
-          schemaVersion: "yeet-retire-sweep-plan/v1",
+          schemaVersion: "yeet-retire-sweep-plan/v2",
           retire,
-          blocker: retireBlocker(retire, state),
+          verdict: retireVerdict(retire, state),
           activePackets,
           sweep,
         })
@@ -275,6 +276,7 @@ const printRetirePlan = Effect.fn("Yeet.printRetirePlan")(function* (
 const printRetireReport = Effect.fn("Yeet.printRetireReport")(function* (
   options: YeetSweepOptions,
   retire: YeetRetirePlan,
+  verdict: YeetRetireVerdict,
   receipt: WorktreeRemovalReceipt,
   activePackets: ReadonlyArray<string>,
   sweep: SweepReport
@@ -282,8 +284,9 @@ const printRetireReport = Effect.fn("Yeet.printRetireReport")(function* (
   const text = options.json
     ? yield* encodeRetireSweepReport(
         YeetRetireSweepReport.make({
-          schemaVersion: "yeet-retire-sweep-report/v1",
+          schemaVersion: "yeet-retire-sweep-report/v2",
           retire,
+          verdict,
           receipt,
           activePackets,
           sweep,
@@ -291,7 +294,12 @@ const printRetireReport = Effect.fn("Yeet.printRetireReport")(function* (
       )
     : A.join(
         A.filter(
-          [renderRetirement(retire, receipt), renderActivePackets(activePackets), renderSweepReport(sweep)],
+          [
+            renderRetirement(retire, receipt),
+            renderRetireGate(verdict),
+            renderActivePackets(activePackets),
+            renderSweepReport(sweep),
+          ],
           Str.isNonEmpty
         ),
         "\n"
@@ -328,9 +336,10 @@ const retireThenSweep = Effect.fn("Yeet.retireThenSweep")(function* (
     return yield* printRetirePlan(options, retire, state, activePackets, yield* planSweep(cloneContext));
   }
   const receipt = yield* retireInvokingWorktree(retire, state);
-  // The lane is gone; the sweep closes the lane's ledger row, not the clone's.
+  // The lane is gone; the sweep closes the lane's ledger row, not the clone's,
+  // on the strength of the gate the retirement just passed.
   const sweep = yield* executeSweep(cloneContext, { ledgerCheckout: retire.worktreePath });
-  yield* printRetireReport(options, retire, receipt, activePackets, sweep);
+  yield* printRetireReport(options, retire, retireVerdict(retire, state), receipt, activePackets, sweep);
 });
 
 /**

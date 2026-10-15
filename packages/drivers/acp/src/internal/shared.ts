@@ -113,13 +113,13 @@ export const makeExtensionRegistrars = ({
   unknownExtNotificationHandler,
   unknownExtRequestHandler,
 }: MakeExtensionRegistrarsOptions): AcpExtensionRegistrars => ({
-  handleExtNotification: Effect.fn(`${namePrefix}_handleExtNotification`)(
+  handleExtNotification: Effect.fn("AcpExtensions.handleExtNotification", { attributes: { "acp.role": namePrefix } })(
     <A, I>(method: string, payload: S.Codec<A, I>, handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>) =>
       Ref.update(extNotificationHandlers, (handlers) =>
         HashMap.set(handlers, method, decodeExtNotificationRegistration({ handler, method, payload }))
       )
   ),
-  handleExtRequest: Effect.fn(`${namePrefix}_handleExtRequest`)(
+  handleExtRequest: Effect.fn("AcpExtensions.handleExtRequest", { attributes: { "acp.role": namePrefix } })(
     <A, I>(
       method: string,
       payload: S.Codec<A, I>,
@@ -129,10 +129,10 @@ export const makeExtensionRegistrars = ({
         HashMap.set(handlers, method, decodeExtRequestRegistration({ handler, method, payload }))
       )
   ),
-  handleUnknownExtNotification: Effect.fn(`${namePrefix}_handleUnknownExtNotification`)(
-    (handler: AcpUnknownExtNotificationHandler) => Ref.set(unknownExtNotificationHandler, O.some(handler))
-  ),
-  handleUnknownExtRequest: Effect.fn(`${namePrefix}_handleUnknownExtRequest`)((handler: AcpUnknownExtRequestHandler) =>
-    Ref.set(unknownExtRequestHandler, O.some(handler))
-  ),
+  handleUnknownExtNotification: Effect.fn("AcpExtensions.handleUnknownExtNotification", {
+    attributes: { "acp.role": namePrefix },
+  })((handler: AcpUnknownExtNotificationHandler) => Ref.set(unknownExtNotificationHandler, O.some(handler))),
+  handleUnknownExtRequest: Effect.fn("AcpExtensions.handleUnknownExtRequest", {
+    attributes: { "acp.role": namePrefix },
+  })((handler: AcpUnknownExtRequestHandler) => Ref.set(unknownExtRequestHandler, O.some(handler))),
 });

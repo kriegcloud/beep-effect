@@ -1,0 +1,153 @@
+# Attorney Question Loop Spec
+
+## Objective
+
+Agents ask the attorney through the review queue, never through a polled inbox. Graduated from
+[`explorations/attorney-review-workspace`](../../explorations/attorney-review-workspace/README.md)
+(re-entry 2026-10-14; see that packet's BRIEF and MAP re-entry sections).
+
+1. A `question` member of the `ReviewItem` union carries:
+   - the question text;
+   - the facts already checked, each with a `SourceRef`;
+   - two to five options, each optionally naming the write it implies;
+   - the matter and mail thread (`conversationId`) it belongs to.
+2. An append-only `AnswerRow` records the attorney's answer. Its states are `decided` (with an
+   `optionId`), `pending-on-client` (with a `resurfaceOn` date), `keep-reminding` and `withdrawn`,
+   with an optional note. The latest row wins by the envelope's recency rule.
+3. `QuestionQueue` lists open questions and selects the daily digest: every question with no answer,
+   a `keep-reminding` answer, or a `pending-on-client` answer whose `resurfaceOn` is on or before
+   today.
+4. A write-proposal batch turns `decided` answers whose option names a write into proposed calendar
+   or docket changes. The operator approves the batch. The docket-intake calendar adapter applies
+   it, journaled with the prior state and undoable. A note never writes.
+5. docket-intake is the first producer. It raises a question only for an open item that records
+   cannot settle.
+6. A daily practice-services job sends the attorney a notice ("N questions are waiting in Claude")
+   from his own mailbox to himself, and only when the digest is non-empty.
+7. The pane card ships as an amendment that the owner of the `practice-claude-mod-review-queue`
+   follow-on applies (gated in `explorations/claude-mods-law-practice/MAP.md`):
+   [`AMENDMENT-question-card.md`](../../explorations/attorney-review-workspace/research/AMENDMENT-question-card.md).
+
+## Non-Goals
+
+- Writes without operator approval. Per-question auto-apply is the gated `question-auto-apply`
+  MAP row.
+- Parsing free-text email replies. That is the gated `question-email-replies` MAP row; when it
+  lands, it only ever proposes.
+- Polling an inbox from chat sessions.
+- A new app or page. The attorney answers in the Claude review queue.
+- Calendar changes outside the docket-intake adapter's provisional categories.
+- Client documents in fixtures, tests or the repo. The evidence that motivated this goal stays in
+  the out-of-repo handoff.
+
+## Source Hierarchy
+
+1. User objective or issue that created this packet.
+2. `AGENTS.md`, `CLAUDE.md`, and required skills.
+3. Governing architecture/package standards.
+4. This `SPEC.md`.
+5. `PLAN.md`.
+6. `GOAL.md`.
+7. Supporting `research/`, `ops/`, and `history/` files.
+
+Higher sources outrank lower sources when they conflict.
+
+## Target Surfaces
+
+| Surface | Path | Role | Status |
+| --- | --- | --- | --- |
+| `question` ReviewItem member | `packages/law-practice/domain/src/values/ReviewItem/` | domain value | EXTENDS #1761 |
+| `AnswerRow`, `AnswerState`, `QuestionOption` | `packages/law-practice/domain/src/values/AnswerRow/` | domain value | NET-NEW |
+| `QuestionQueue`, digest selection, `AnswerLog` port, errors | `packages/law-practice/use-cases/src/QuestionQueue/` | use-case service | NET-NEW |
+| Write-proposal batch and approval | `packages/law-practice/use-cases/src/QuestionQueue/` (or a sibling concept, decided in P1) | use-case service | NET-NEW on the docket-intake journal and undo |
+| Calendar apply | `packages/law-practice/server/src/DocketIntake/` calendar adapter, journal and undo | server adapter | EXISTS |
+| docket-intake producer | `packages/law-practice/use-cases/src/DocketIntake/` | producer | EXTENDS |
+| Daily notice job | `apps/docket-intake` (or a practice-services sibling, decided in P3), over `@beep/m365` `createDraftMessage` / `sendDraftMessage` | job | NET-NEW on existing drivers |
+| Pane card | `practice-claude-mod-review-queue` follow-on (its owner applies the amendment) | handoff | AMENDMENT |
+
+## Constraints
+
+- Design order is schema, then the `Context.Service` contract, then implementation. Effect v4
+  only. Schemas default to branded `S.Opaque` per `goals/schema-opaque-default`, with `LiteralKit`
+  for the answer states.
+- A question is one item with one answer log, not a workflow engine or a state machine.
+- An answer that is a note, or any state other than `decided`, never produces a write.
+- Every applied write is journaled with the prior state and has a tested undo.
+- Fixtures are synthetic. Nothing in the repo names the attorney, a client, a matter or a machine.
+- The notice is one email a day at most. It says only how many questions are waiting.
+
+## Acceptance Criteria
+
+- [x] **P0 schema.**
+  - `ReviewItem` decodes a `question` member: facts with `SourceRef`s, two to five options with
+    unique ids, an optional write per option, and an optional `conversationId`.
+  - `AnswerRow` decodes all four states and enforces the state fields: `decided` requires an
+    `optionId`, and `pending-on-client` requires `resurfaceOn`.
+  - Round-trip tests pass.
+- [ ] **P1 contract.** `QuestionQueue` and the write-proposal batch are `Context.Service` contracts
+  with typed errors. The answer log is a port.
+- [ ] **P2 implementation.** The first vertical slice (exploration MAP, re-entry section) passes in
+  tests:
+  - raise a question;
+  - the digest selects it;
+  - answer `pending-on-client`; the digest skips it until `resurfaceOn`, then selects it again;
+  - answer `decided`, which yields one proposed write;
+  - the operator approves; the write applies through a test calendar adapter, journaled;
+  - undo restores the prior state.
+- [ ] **P3 producer and notice.**
+  - docket-intake raises questions only for items records cannot settle, with a test over
+    synthetic items.
+  - The notice job sends at most one email a day, only when the digest is non-empty, tested with a
+    fake mailbox.
+- [ ] **P4 handoff.** The amendment is delivered to the `practice-claude-mod-review-queue` owner and
+  recorded in `README.md`.
+- [ ] `bun run beep quality package-verify` passes for every touched package.
+- [ ] The PR is mergeable through Yeet, and a closeout reflection exists under
+  `history/reflections/`.
+- [ ] No unrelated refactors or formatting churn.
+
+## Verification Matrix
+
+| Check | Command or evidence | Required result |
+| --- | --- | --- |
+| Packet launcher size | `test "$(wc -m < goals/attorney-question-loop/GOAL.md)" -le 4000` | Passes |
+| Manifest JSON | `jq . goals/attorney-question-loop/ops/manifest.json` | Passes |
+| Whitespace | `git diff --check -- goals/attorney-question-loop` | Passes |
+| Domain | `bun run beep quality package-verify @beep/law-practice-domain` | Passes |
+| Use cases | `bun run beep quality package-verify @beep/law-practice-use-cases` | Passes |
+| Server | `bun run beep quality package-verify @beep/law-practice-server` | Passes |
+| Reflection | `bun run beep lint reflection-artifacts` | 0 blocking |
+
+## Stop Conditions
+
+- Required source files are missing or materially contradictory.
+- Any spend: purchases, paid services, quota top-ups or plan changes need the
+  operator.
+- The same blocker repeats after reasonable investigation.
+
+Scope growth, destructive side effects and policy calls are not stops: decide
+them and record each in the Decision Log.
+
+## Decision Log
+
+Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explorations/attorney-review-workspace/DECISIONS.md)
+(re-entry align and shape review, 2026-10-14). Rationale and rejected options live there.
+
+| Date | Decision | Reason | How to reverse |
+| --- | --- | --- | --- |
+| 2026-10-14 | home: a `question` ReviewItem kind on the shared envelope, shown in the `practice-claude-mod` review queue. | One review surface for every producer. | Split into its own exploration and surface. |
+| 2026-10-14 | channel: a card in the Claude review queue; email is only a notice. | Structured answers got 6 of 6 replies; email got late or missed replies. | Add the gated email-reply row. |
+| 2026-10-14 | writes: the operator approves each batch; writes are guarded, journaled and reversible. | This is the policy that worked on 2026-10-14. | Open the gated `question-auto-apply` row. |
+| 2026-10-14 | reminders: a daily digest, plus a per-question `resurfaceOn` for pending-on-client. | One predictable touch a day. | Per-question cadence. |
+| 2026-10-14 | notice-from: the attorney's own mailbox, to himself, through `@beep/m365`. | No new grant or send route. | Route the notice through the operator's mailbox. |
+| 2026-10-14 | answer-row: a separate `AnswerRow` beside `VerdictRow`, with the same recency rule. | Answers are not right or wrong; `VerdictProjector` stays untouched. | Widen `VerdictRow`. |
+| 2026-10-14 | handoff-target: the question-card amendment goes to the `practice-claude-mod-review-queue` follow-on, not the `practice-claude-mod` packet. | `practice-claude-mod` closed (its D24) and moved the review queue to that gated follow-on; the card is one of its phases, gated on this goal's P0. | Address the amendment to whichever packet owns the review queue. |
+| 2026-10-14 | P0 dates encode as ISO `YYYY-MM-DD` via `LocalDateFromString` plus a day-in-month check (`src/internal/CalendarDate.ts`). | The format docket-intake already uses; the bare `LocalDate` class encodes as an object and accepts February 31. | Use the bare `LocalDate` class. |
+| 2026-10-14 | P0 `OptionWrite` has one kind, `calendar-date` (`title`, `dueOn`, optional `eventId`), as a `LiteralKit` tagged union. | Calendar dates are the only writes answers drove on 2026-10-14; the union leaves room for docket writes. | Add kinds to `OptionWriteKind`. |
+| 2026-10-14 | P0 `AnswerRow` has no `batchId` and no lock; the current answer is the latest `recordedAt`, then append order. | An answer can always be revised by a later row; sittings and locks belong to verdicts. | Add a batch and lock as on `VerdictRow`. |
+
+## Exception Ledger
+
+| Exception | Scope | Owner | Rationale | Removal condition |
+| --- | --- | --- | --- | --- |
+| None | N/A | N/A | N/A | N/A |

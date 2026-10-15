@@ -1,28 +1,21 @@
 import { fileURLToPath } from "node:url";
-import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
-import { resolveImportSpecifierImportKind } from "@beep/repo-configs/internal/eslint/RuleAstSchemas";
+import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/laws/EffectLawsAllowlistSnapshotCodegen";
 import { it } from "@beep/test-runner";
 import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 
-const docsEslintConfigPath = fileURLToPath(new URL("../src/eslint/DocsESLintConfig.ts", import.meta.url));
-const requireCategoryTagRulePath = fileURLToPath(new URL("../src/eslint/RequireCategoryTagRule.ts", import.meta.url));
-
-const retainedModulePaths = [docsEslintConfigPath, requireCategoryTagRulePath];
-
-const allowlistRuntimePath = fileURLToPath(new URL("../src/eslint/EffectLawsAllowlist.ts", import.meta.url));
+const allowlistRuntimePath = fileURLToPath(new URL("../src/laws/EffectLawsAllowlist.ts", import.meta.url));
 const snapshotCodegenPath = fileURLToPath(
-  new URL("../src/internal/eslint/EffectLawsAllowlistSnapshotCodegen.ts", import.meta.url)
+  new URL("../src/internal/laws/EffectLawsAllowlistSnapshotCodegen.ts", import.meta.url)
 );
 const allowlistSchemasPath = fileURLToPath(
-  new URL("../src/internal/eslint/EffectLawsAllowlistSchemas.ts", import.meta.url)
+  new URL("../src/internal/laws/EffectLawsAllowlistSchemas.ts", import.meta.url)
 );
 const generatedSnapshotPath = fileURLToPath(
-  new URL("../src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts", import.meta.url)
+  new URL("../src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts", import.meta.url)
 );
 const allowlistJsoncPath = fileURLToPath(
   new URL("../../../../../standards/effect-laws.allowlist.jsonc", import.meta.url)
@@ -36,26 +29,6 @@ const readText = Effect.fn(function* (path: string) {
 it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-first regressions", (it) => {
   describe("effect-first regressions", () => {
     it.effect(
-      "disallows Match.value usage in retained docs and governance modules",
-      Effect.fn(function* () {
-        for (const filePath of retainedModulePaths) {
-          const source = yield* readText(filePath);
-          expect(Str.contains(source, "Match.value("), `${filePath} should not use Match.value`).toBe(false);
-        }
-      })
-    );
-
-    it.effect(
-      "disallows try/catch blocks in retained docs and governance modules",
-      Effect.fn(function* () {
-        for (const filePath of [...retainedModulePaths, allowlistRuntimePath]) {
-          const source = yield* readText(filePath);
-          expect(source).not.toMatch(/\btry\s*\{|\bcatch\s*\(/);
-        }
-      })
-    );
-
-    it.effect(
       "keeps allowlist runtime free of Promise APIs",
       Effect.fn(function* () {
         const source = yield* readText(allowlistRuntimePath);
@@ -64,21 +37,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-first regression
     );
 
     it.effect(
-      "keeps docs linting on the dedicated docs config surface",
-      Effect.fn(function* () {
-        const docsConfigSource = yield* readText(docsEslintConfigPath);
-        const requireCategorySource = yield* readText(requireCategoryTagRulePath);
-
-        expect(Str.contains(docsConfigSource, "beep-laws")).toBe(false);
-        expect(Str.contains(docsConfigSource, "eslint-plugin-tsdoc")).toBe(true);
-        expect(Str.contains(requireCategorySource, "../internal/eslint/RuleAstSchemas.ts")).toBe(true);
-        expect(Str.contains(requireCategorySource, "../internal/eslint/RuleHelpers.ts")).toBe(true);
-        expect(Str.contains(requireCategorySource, "const firstSome =")).toBe(false);
-      })
-    );
-
-    it.effect(
-      "disallows direct JSON.stringify in internal eslint source",
+      "disallows direct JSON.stringify in internal laws source",
       Effect.fn(function* () {
         for (const filePath of [snapshotCodegenPath, allowlistSchemasPath]) {
           const source = yield* readText(filePath);
@@ -96,12 +55,5 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-first regression
         expect(actualGeneratedSnapshot).toBe(expectedGeneratedSnapshot);
       })
     );
-
-    it("resolves import kinds in data-first and data-last forms", () => {
-      assertSome(resolveImportSpecifierImportKind({ importKind: "type" }), "type");
-      assertSome(resolveImportSpecifierImportKind({}, "value"), "value");
-      assertSome(resolveImportSpecifierImportKind("type")({ importKind: "value" }), "value");
-      assertNone(resolveImportSpecifierImportKind(undefined)({}));
-    });
   });
 });

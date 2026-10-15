@@ -854,7 +854,7 @@ const loadPgClientModule = (
     try: () => import("@effect/sql-pg"),
     catch: (cause) =>
       toHarnessError(driver, "provision", "Failed to load PostgreSQL client support for SQL tests.", cause),
-  }).pipe(Effect.withSpan(`SqlTest.${driver}.loadPgClient`));
+  }).pipe(Effect.withSpan("SqlTest.loadPgClient", { attributes: { "sql_test.driver": driver } }));
 
 const loadPgliteClientModule = Effect.tryPromise({
   try: () => import("@effect/sql-pglite/PgliteClient"),
@@ -893,9 +893,9 @@ const generateCryptoUuid = Effect.fn("SqlTest.generateCryptoUuid")(function* (
 ) {
   const context = yield* Layer.build(NodeCrypto.layer);
   const cryptoService = Context.get(context, Crypto.Crypto);
-  return yield* cryptoService.randomUUIDv4.pipe(
-    Effect.mapError((cause) => toHarnessError(driver, "provision", failureMessage, cause))
-  );
+  return yield* cryptoService
+    .randomUUIDv4()
+    .pipe(Effect.mapError((cause) => toHarnessError(driver, "provision", failureMessage, cause)));
 });
 
 const makePgliteConfig = Effect.fn("SqlTest.PgliteTestcontainersTestDriver.makeConfig")(function* (

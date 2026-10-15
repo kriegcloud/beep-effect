@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `in-progress`
+Status: `completed-retained`
 
 ## Phases
 
@@ -10,9 +10,9 @@ Status: `in-progress`
 | --- | --- | --- | --- |
 | P0 Research | complete | Ground in `@beep/m365`, `@beep/box`, the Box tree, and the practice KG; settle the design. | `SPEC.md` design and Decision Log D-1..D-8 recorded. |
 | P1 Implement | complete | Capability core (#1464), Outlook / practice-KG / Box adapters (#1480), entrypoint app, sample unit and runbook (#1495), known-documents fix (#1511), first-apply checklist (#1515), review-category fix (#1518). | Acceptance criteria 1-8 and 10 met. |
-| P2 Verify | in-progress | Done: live dry-run, first apply and undo drill on the operator's IT mailbox, first live apply on the attorney's mailbox (mail since 2026-10-01) and the backfill since 2026-07-01 (records in `history/`); 325 messages tagged. The attended drill on his mailbox was replaced by the unattended path (D-43). Filing is on for new runs since the Box storage block lifted (D-42, D-45). Remaining: the attorney's spot-check of the tags, contact evidence from the KG correspondent lookup (D-46, off until that spot-check), enabling the unit. | Spot-check recorded; unit running. |
-| P3 Yeet: PR to mergeable | in-progress | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
-| P4 Close | pending | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
+| P2 Verify | complete | Live dry-run, IT-mailbox apply and undo drill, attorney-mailbox apply (since 2026-10-01) and backfill (since 2026-07-01); agent spot-check of all 380 tag decisions, 15 corrections (D-48); contact evidence on (D-49); unit running from the pinned deploy checkout. Records in `history/`. | Spot-check recorded; unit running. |
+| P3 Yeet: PR to mergeable | complete | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
+| P4 Close | complete | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## Closeout Checklist
 

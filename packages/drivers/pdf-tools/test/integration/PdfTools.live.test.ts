@@ -10,6 +10,7 @@ import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -46,7 +47,7 @@ const TOOLS = [
 const missingTool = Effect.findFirst(TOOLS, ([command, flag]) => Effect.map(toolPresent(command, flag), (ok) => !ok));
 
 const missingPoppler = Effect.findFirst(
-  TOOLS.filter(([command]) => command !== "rsvg-convert"),
+  A.filter(TOOLS, ([command]) => command !== "rsvg-convert"),
   ([command, flag]) => Effect.map(toolPresent(command, flag), (ok) => !ok)
 );
 
@@ -160,7 +161,7 @@ describe("@beep/pdf-tools live tools", () => {
 
         expect(yield* tools.pageWords(PageTextRequest.make({ pdfPath: sheet, page: 1 }))).toEqual([]);
         const blocks = yield* tools.pageWords(PageTextRequest.make({ pdfPath: reviewed, page: 1 }));
-        expect(blocks.map((b) => b.text)).toEqual(["Make the box taller"]);
+        expect(A.map(blocks, (b) => b.text)).toEqual(["Make the box taller"]);
         // top-left frame: the baseline sits 92 pt below the top edge
         expect(blocks[0]?.rect.xMin).toBeCloseTo(72, 0);
         expect(blocks[0]?.rect.yMax).toBeGreaterThan(80);

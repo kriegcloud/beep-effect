@@ -61,3 +61,20 @@ in [`skills/NOTICE`](./skills/NOTICE) and [`skills/LICENSE`](./skills/LICENSE).
 ## License
 
 App code: MIT. The five adapted firm skills: Apache-2.0.
+
+Verdicts use the shared `VerdictRow` from `@beep/law-practice-domain/values`.
+Each answer belongs to batch `session:<sessionId>`; revisions start at 1 per
+item per batch. Both the Undo button and `/practice undo` append `withdrawn`.
+The current row has the greatest `recordedAt`, then the highest revision, then
+the latest append position. A lock on the item's latest row in its batch
+refuses further verdicts in that batch; another batch stays available.
+
+The plugin stores envelope rows under `verdict-rows/v2` and exports one encoded
+row per JSONL line, with epoch millisecond timestamps and omitted absent
+`note` / `lockedAt` keys. When v2 is empty, a schema decode transform migrates
+`practice-verdict/v1` rows from `verdict-rows`: it derives the session batch,
+renumbers revisions in append order, converts ISO timestamps, and maps null
+verdicts to `withdrawn`. The original `verdict-rows` key stays untouched.
+To reverse the promotion, restore the prior plugin and read that v1 key;
+post-migration v2 judgments remain in v2 and are not backported to v1.
+`KgAnswerItem` stays app-local to retain the attorney's question and matter.

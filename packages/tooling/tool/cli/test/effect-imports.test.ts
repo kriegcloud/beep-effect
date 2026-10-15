@@ -989,6 +989,53 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 
+    it.effect("validates external Effect leaves reexported by a foundation barrel", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeDemoFoundationPackage(true);
+          const rootIndex = "packages/foundation/modeling/demo/src/index.ts";
+          yield* writeProjectFile(
+            rootIndex,
+            A.join(
+              [
+                yield* readProjectFile(rootIndex),
+                'export * as Client from "effect/http/HttpClient";',
+                'export * as Internal from "effect/internal/effect";',
+                'export * as Index from "effect/http/index";',
+              ],
+              "\n"
+            )
+          );
+          yield* writeProjectFile(
+            "apps/demo/src/index.ts",
+            A.join(
+              [
+                'import { Client as Http } from "@beep/demo";',
+                'import { Internal } from "@beep/demo";',
+                'import { Index } from "@beep/demo";',
+              ],
+              "\n"
+            )
+          );
+          const summary = yield* runEffectImportRules(
+            EffectImportRulesOptions.make({
+              write: true,
+              excludePaths: [],
+              promotedFamilyPrefixes: ["apps/demo"],
+            })
+          );
+          expect(summary.rootImportsRewritten).toBe(1);
+          expect(A.map(summary.manualReviews, (review) => review.binding)).toEqual(["Internal", "Index"]);
+          const source = yield* readProjectFile("apps/demo/src/index.ts");
+          expect(source).toContain('import * as Http from "effect/http/HttpClient";');
+          expect(source).toContain('import { Internal } from "@beep/demo";');
+          expect(source).toContain('import { Index } from "@beep/demo";');
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect("refuses a foundation target missing from the published export map", () =>
       Effect.andThen(
         temporaryWorkingDirectory,

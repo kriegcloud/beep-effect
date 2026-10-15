@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `pending`
+Status: `active` (P0–P1 merged in #1764; P2a and P2b in the P2 PR; P2c and live acceptance wait on the USPTO key)
 
 ## Binding Sequencing
 
@@ -15,9 +15,9 @@ are fixed, never before.
 
 | Phase | Status | Goal | Entry criteria | Exit criteria |
 | --- | --- | --- | --- | --- |
-| P0 Schema | pending | Define `values/ClaimElement/` in `@beep/law-practice-domain`: `ClaimElementTree` keyed by `claimNumber`, `ClaimElement`, `ClaimTerm`, the `ClaimElementEdge` tagged union, and the `AntecedentFinding` tagged union including `pattern-not-covered`. Every element and term carries a `TextAnchor`. | Packet read; `PatentClaim`, `PatentClaimDependencyIssue`, `TextAnchor` inspected. | Schemas compile with `$I` annotations and `LiteralKit` domains; round-trip tests pass; `PatentClaim` unchanged; no service code. |
-| P1 Service contract | pending | Declare the `ClaimSelfCheck` `Context.Service` in `@beep/law-practice-use-cases` with typed errors; the decomposer (`ClaimElement.behavior.ts`) and antecedent (`Antecedent.policy.ts`) signatures in domain; the USPTO claims port. | P0 exit met. | Contracts type-check against P0 schemas; no implementation bodies; candidate mapping target (`CandidateClaim` + `Evidence`) named. |
-| P2 Deterministic implementation + USPTO adapter + labelled set | pending | Implement the pure decomposer and checker, one rule and fixture per determiner edge case; the server-side USPTO adapter over `@beep/uspto`; the `ClaimSelfCheck` Layer; the first vertical slice; the labelled set (~60 families via the extractor/critic loop with ~10% attorney spot-check; ~200 allowed sets). | P1 exit met. | Vertical slice passes strict equality and emits the expected `missing-antecedent`; all rule fixtures pass; labelled fixtures committed (public USPTO only); `package-verify` green for domain, use-cases, server. |
+| P0 Schema | complete | Define `values/ClaimElement/` in `@beep/law-practice-domain`: `ClaimElementTree` keyed by `claimNumber`, `ClaimElement`, `ClaimTerm`, the `ClaimElementEdge` tagged union, and the `AntecedentFinding` tagged union including `pattern-not-covered`. Every element and term carries a `TextAnchor`. | Packet read; `PatentClaim`, `PatentClaimDependencyIssue`, `TextAnchor` inspected. | Schemas compile with `$I` annotations and `LiteralKit` domains; round-trip tests pass; `PatentClaim` unchanged; no service code. |
+| P1 Service contract | complete | Declare the `ClaimSelfCheck` `Context.Service` in `@beep/law-practice-use-cases` with typed errors; the decomposer (`ClaimElement.behavior.ts`) and antecedent (`Antecedent.policy.ts`) signatures in domain; the USPTO claims port. | P0 exit met. | Contracts type-check against P0 schemas; no implementation bodies; candidate mapping target (`CandidateClaim` + `Evidence`) named. |
+| P2 Deterministic implementation + USPTO adapter + labelled set | in-progress | Implement the pure decomposer and checker, one rule and fixture per determiner edge case; the server-side USPTO adapter over `@beep/uspto`; the `ClaimSelfCheck` Layer; the first vertical slice; the labelled set (~60 families via the extractor/critic loop with ~10% attorney spot-check; ~200 allowed sets). | P1 exit met. | Vertical slice passes strict equality and emits the expected `missing-antecedent`; all rule fixtures pass; labelled fixtures committed (public USPTO only); `package-verify` green for domain, use-cases, server. |
 | P3 Review items + evaluation | pending | Add the practice MCP read tool that returns findings as `claim-finding` `ReviewItem`s; run the evaluation and write the report. | P2 exit met **and** `review-verdict-envelope` P1 schema (`ReviewItem` / `VerdictRow`) merged. | `ReviewItem` fixture round-trips; the `VerdictRow` → `ClaimDisposition` projection test passes once `review-verdict-envelope` P2 (`VerdictProjector`) has merged, and is recorded as pending in Current Blockers until then; report in `history/` gives strict-equality floor, adjudicated FP rate with interval, IPRally smoke result; findings advisory. |
 | P4 Yeet: PR to mergeable | pending | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | P3 exit met. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
 | P5 Close | pending | Write the closeout reflection and flip packet state. | P4 exit met. | Packet status and evidence are updated; a closeout reflection exists. |
@@ -41,8 +41,14 @@ are fixed, never before.
 
 ## Current Blockers
 
-None for P0–P2. P3 is blocked on `review-verdict-envelope` P1. P3's projection test stays pending until
-`review-verdict-envelope` P2 merges.
+- **P2c and the live acceptance (USPTO key).** The workstation's ODP key returns 403 (see
+  `research/OPPORTUNITIES.md`). The operator has to regenerate it. Until then, the labelled set,
+  the vertical slice over a real rejection, and live `CLM` reads wait. P2a and P2b run on
+  synthetic fixtures.
+- **Driver follow-up before live reads.** `@beep/uspto` keeps only the first download option of
+  each document and drops its MIME type. It must expose the XML option before `UsptoClaimsLive`
+  can read real `CLM` claims.
+- **P3** is no longer blocked: `review-verdict-envelope` merged (#1761).
 
 ## Closeout Checklist
 

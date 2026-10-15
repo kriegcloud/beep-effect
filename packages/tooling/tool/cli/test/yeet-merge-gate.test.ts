@@ -1,3 +1,4 @@
+import { reviewerCheckExternalId } from "@beep/repo-cli/commands/Reviewer";
 import {
   decideMergeGate,
   MERGE_GATE_S11_DEFAULT_ATTRIBUTION,
@@ -483,6 +484,8 @@ interface GhScript {
   readonly mergeResponse: string;
   readonly pull?: unknown;
   readonly queuedExit?: number;
+  readonly reviewerRequired?: boolean;
+  readonly reviewerRuns?: ReadonlyArray<unknown>;
   readonly rulesExit: number;
   readonly spawnFails?: boolean;
   readonly threads?: unknown;
@@ -533,6 +536,20 @@ const workflowRunPages = (additionalActiveRuns: GhScript["additionalActiveRuns"]
 ];
 
 // The recorded answer for each `gh` call, matched on a fragment of its argv, first match wins.
+const scriptReviewerRules = (script: GhScript) =>
+  script.reviewerRequired === true
+    ? [
+        ...rulesFixture,
+        {
+          type: "required_status_checks",
+          parameters: { required_status_checks: [{ context: "beep-reviewer", integration_id: 42 }] },
+        },
+      ]
+    : rulesFixture;
+const scriptReviewerPage = (script: GhScript) => {
+  const runs = script.reviewerRuns ?? [];
+  return { total_count: runs.length, check_runs: runs };
+};
 const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAnswer]> => [
   ["/merge", { exitCode: 0, output: script.mergeResponse }],
   // S11 post-merge steps: the PR comment, the leftover-run listings, and each cancel.
@@ -554,7 +571,8 @@ const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAn
   ],
   ["/check-suites", { exitCode: script.windowExit, output: A.join(suiteInstants, "\n") }],
   ["graphql", { exitCode: script.threadsExit, output: encodeJson(script.threads ?? threadsFixture) }],
-  ["rules/branches/", { exitCode: script.rulesExit, output: encodeJson(rulesFixture) }],
+  ["rules/branches/", { exitCode: script.rulesExit, output: encodeJson(scriptReviewerRules(script)) }],
+  ["?check_name=beep-reviewer", { exitCode: 0, output: encodeJson(scriptReviewerPage(script)) }],
   ["/check-runs", { exitCode: 0, output: encodeJson([script.checkRuns ?? checkRunsFixture]) }],
   [`/pulls/${pullFixture.number}`, { exitCode: 0, output: encodeJson(script.pull ?? pullFixture) }],
 ];
@@ -705,6 +723,65 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           expect(failure.message).toContain(`gh api pulls/${pullFixture.number} failed (spawn)`);
         })
       )
+    );
+
+    it.effect("relaxed merges still hold without the required reviewer's successful current-head run", () =>
+      Effect.gen(function* () {
+        const own = {
+          id: 999999999,
+          name: "beep-reviewer",
+          head_sha: headSha,
+          status: "completed",
+          conclusion: "success",
+          app: { id: 42 },
+          external_id: reviewerCheckExternalId(pullFixture.number, headSha, pullFixture.base.sha),
+        };
+        const cases = [
+          [],
+          [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number + 1, headSha, pullFixture.base.sha) }],
+          [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number, headSha, "b".repeat(40)) }],
+          [{ ...own, app: { id: 99 } }],
+          [{ ...own, head_sha: "b".repeat(40) }],
+          [{ ...own, conclusion: "failure" }],
+          [{ ...own, status: "in_progress", conclusion: null }],
+        ];
+        for (const reviewerRuns of cases) {
+          yield* withScriptedGh({ ...defaultScript, reviewerRequired: true, reviewerRuns }, (calls) =>
+            Effect.gen(function* () {
+              const held = yield* runMergeGate(
+                context,
+                MergeGateRunOptions.make({
+                  prNumber: pullFixture.number,
+                  wantSha: headSha,
+                  tolerate: [],
+                  forceWindow: false,
+                  relaxed: true,
+                  dryRun: false,
+                })
+              ).pipe(Effect.result);
+              expect(held._tag).toBe("Failure");
+              expect(A.some(yield* Ref.get(calls), (line) => Str.includes("/merge")(line))).toBe(false);
+            })
+          );
+        }
+        yield* withScriptedGh({ ...defaultScript, reviewerRequired: true, reviewerRuns: [own] }, (calls) =>
+          Effect.gen(function* () {
+            const decision = yield* runMergeGate(
+              context,
+              MergeGateRunOptions.make({
+                prNumber: pullFixture.number,
+                wantSha: headSha,
+                tolerate: [],
+                forceWindow: false,
+                relaxed: true,
+                dryRun: false,
+              })
+            );
+            expect(decision._tag).toBe("merge");
+            expect(A.some(yield* Ref.get(calls), (line) => Str.includes("/merge")(line))).toBe(true);
+          })
+        );
+      })
     );
 
     it.effect("a decline without a message, and a merge without a sha, are still reported", () =>

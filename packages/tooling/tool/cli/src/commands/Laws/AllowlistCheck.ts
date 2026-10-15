@@ -6,8 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
-import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
+import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/laws/EffectLawsAllowlistSnapshotCodegen";
+import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots";
 import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
@@ -43,7 +43,7 @@ const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
  */
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
 const ALLOWLIST_SNAPSHOT_PATH =
-  "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
+  "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts";
 const NO_NATIVE_RUNTIME_RULE_ID = "beep-laws/no-native-runtime";
 
 const EffectLawsAllowlistRuleId = LiteralKit([NO_NATIVE_RUNTIME_RULE_ID]).pipe(

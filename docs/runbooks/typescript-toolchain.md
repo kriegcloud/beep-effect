@@ -118,15 +118,16 @@ checked 2026-09-24:
 
 | Tool | Needs `typescript@6`? | Why |
 | --- | --- | --- |
-| typescript-eslint 8.70.x | yes | peer `>=4.8.4 <6.1.0` via typescript-estree and ts-api-utils; TS7 support tracked in typescript-eslint/typescript-eslint#10940 (open) |
 | tstyche 8.0.0-beta.0 | no, for effect-drizzle's explicit targets | downloads `5.9.3` and `6.0.3` (hosted matrix) plus `next` (on demand) to its own store; TS7 backend uses the 7.1 sync/ast API. No root `typescript@6` API is loaded for this matrix. |
-| commitlint (`cosmiconfig-typescript-loader`) | yes | peer `>=5` on the JS API |
+| commitlint (`cosmiconfig-typescript-loader`) | no direct API use | declares a TypeScript peer; `commitlint.config.ts` is loaded through jiti |
 | ts-morph 28 | no | `@ts-morph/common` vendors its own TypeScript 6.0.2 |
+
+Deprecated API scanning uses oxlint 1.88.0 + oxlint-tsgolint 7.0.2004 (bundled
+TypeScript 7.0.2), independently of the JS compiler API.
 
 The hold lives in `syncpack.config.ts` (the "Held back" update group) so
 `deps:update` cannot collapse the split. Reassess the root `typescript@6` hold
-when typescript-eslint and the remaining
-classic-API consumers support TypeScript 7.1; only then drop `typescript@6` and
+when the remaining classic-API consumers support TypeScript 7.1; only then drop `typescript@6` and
 re-point consumers that resolve the `typescript` name at the native package.
 The separate exact tstyche beta hold ends when stable 8.0 passes the same
 effect-drizzle assertions.
@@ -167,3 +168,6 @@ ahead of the repo. The plugin setting is stored in the machine-local
 worktrees (`standards/git-worktrees.md`). A `MANUAL` path is absolute, so a
 copied file still points at the source worktree's `node_modules`; re-point it
 per worktree if the worktrees drift in `@effect/tsgo` version.
+
+Documentation lint uses repo-owned oxlint plugins. Both lint lanes use oxlint;
+ESLint and its TypeScript parser were removed in TS7 exit lane B2.

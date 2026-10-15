@@ -959,7 +959,7 @@ const runJsonSdkCall = <Payload, Success>(
           decodeWith(successSchema, result, { method: methodName, reason: "response decoding" })
         ),
         Effect.tapError(logDriverFailure("box.streaming_json_failure")),
-        Effect.withSpan(`box.${methodName}`, {
+        Effect.withSpan("Box.streamJson", {
           attributes: {
             "box.method": methodName,
             "box.sdk.version": BOX_SDK_VERSION,
@@ -984,7 +984,7 @@ const runByteStreamSdkCall = <Payload>(
         invoke(decoded, controller.signal).pipe(
           Effect.map((result) => byteStreamFromSdkValue(methodName, result, controller)),
           Effect.tapError(logDriverFailure("box.streaming_byte_failure")),
-          Effect.withSpan(`box.${methodName}`, {
+          Effect.withSpan("Box.streamBytes", {
             attributes: {
               "box.method": methodName,
               "box.sdk.version": BOX_SDK_VERSION,
@@ -1053,7 +1053,7 @@ const runEventStreamSdkCall = <Payload>(
       Effect.flatMap(invoke),
       Effect.map((value) => eventStreamFromSdkValue(methodName, value)),
       Effect.tapError(logDriverFailure("box.event_stream_failure")),
-      Effect.withSpan(`box.${methodName}`, {
+      Effect.withSpan("Box.streamEvents", {
         attributes: {
           "box.method": methodName,
           "box.sdk.version": BOX_SDK_VERSION,

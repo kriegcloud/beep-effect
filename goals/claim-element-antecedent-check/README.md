@@ -55,11 +55,34 @@ Sibling goals:
 
 ## Current Phase
 
-P0 Schema - not started.
+P2, in progress. P0 and P1 merged in #1764. P2a (rules) and P2b (Layer and a fixture-backed
+USPTO adapter) are in the P2 PR. P2c and the live acceptance wait on the USPTO key.
 
 ## Latest Evidence
 
-Not started.
+- **P0:** `values/ClaimElement/` in `@beep/law-practice-domain`, in four files: `ClaimElement.model.ts`,
+  `ClaimElement.edge.model.ts`, `ClaimElement.tree.model.ts` (with coherence checks) and
+  `AntecedentFinding.model.ts` (each finding carries its `chain`; candidates are distinct). Tests
+  are in `test/ClaimElement.test.ts`.
+- **P1:**
+  - The `ClaimElementDecomposer` and `AntecedentPolicy` function types.
+  - The `ClaimSelfCheck` `Context.Service` (`check`, `checkPublished`, `candidates`), with
+    per-claim `undecomposed` failures.
+  - The `UsptoClaims` port and the `UsptoClaimsError` / `ClaimSelfCheckError` split.
+  - Independent review found 2 P1 and 7 P2 issues. All are applied or recorded in the SPEC
+    Decision Log.
+  - `package-verify` passes for `@beep/law-practice-domain` and `@beep/law-practice-use-cases`.
+    The repo-wide docgen run is left to hosted Docgen on the publish PR.
+- **P2a:**
+  - `decomposeClaim` and `antecedentPolicy`, following `research/P2-DESIGN.md`. Deviations and
+    known limits are in its "P2a as built" section.
+  - 22 synthetic rule fixtures, plus failure fixtures, a participle regression test and a
+    determinism property test.
+- **P2b:**
+  - `ClaimSelfCheckLive` (`check`, `checkPublished`, `candidates` with term evidence).
+  - `UsptoClaimsLive`, which reads the latest `CLM` document's XML claims, tested over a recorded
+    synthetic fixture.
+  - Shared claim and term evidence helpers.
 
 ## Notes
 

@@ -126,7 +126,10 @@ const makeCacheWaitProbe = Effect.fn("ProviderCacheTest.makeWaitProbe")(function
                 "; retries=" +
                 retryDelays.length +
                 "; delays-ms=" +
-                retryDelays.join(",")
+                A.join(
+                  A.map(retryDelays, (delay) => `${delay}`),
+                  ","
+                )
             )
           );
         }),

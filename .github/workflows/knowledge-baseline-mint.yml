@@ -1,0 +1,127 @@
+# Knowledge-doctor baseline mint (knowledge-surface-automation C Stage-2 PR 5).
+#
+# Mints goals/knowledge-doctor.baseline.jsonc at the default-branch HEAD with
+# `beep knowledge doctor mint --write` (the file's only writer) and opens or
+# updates a pull request from automation/knowledge-baseline-mint whose diff is
+# that one file. The pull request is authored by the mint GitHub App, so its
+# checks run (GITHUB_TOKEN pull requests start no workflows) and the Lint
+# Policy lane's seal guard can admit it under C8: condition (i) is this branch
+# plus the App author, (ii) the baseline-only diff, (iii) mintedAt an ancestor
+# of the merge-base, and (iv) the byte-for-byte re-mint. The first such pull
+# request is the initial seal.
+#
+# Operator prerequisites (goals/knowledge-surface-automation/research/
+# p4-knowledge-doctor-design.md, "Mint App prerequisite"):
+# repository variables KNOWLEDGE_MINT_APP_CLIENT_ID and KNOWLEDGE_MINT_APP_SLUG
+# and the secret KNOWLEDGE_MINT_APP_PRIVATE_KEY. Without them the token step
+# fails and no pull request is opened.
+name: Knowledge Baseline Mint
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Mondays 06:17 UTC (K32): weekly absorbs promotions and drops resolved
+    # entries without a pull request per main push.
+    - cron: "17 6 * * 1"
+
+# One mint at a time; a running mint is never cancelled mid-write.
+concurrency:
+  group: knowledge-baseline-mint
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mint:
+    name: Mint Knowledge Baseline
+    # Mint only default-branch commits; a dispatch from another ref is a no-op.
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The mint reads deleted paths and rename lineage: full history.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+          free-disk: "false"
+
+      - name: Mint the sealed baseline
+        id: mint
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          summary="$RUNNER_TEMP/knowledge-mint-summary.txt"
+          bun run beep knowledge doctor mint --write --base "origin/${DEFAULT_BRANCH}" | tee "$summary"
+          echo "minted_at=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          delimiter="EOF_$(openssl rand -hex 16)"
+          {
+            echo "summary<<${delimiter}"
+            cat "$summary"
+            echo "${delimiter}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create mint App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.KNOWLEDGE_MINT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.KNOWLEDGE_MINT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          # create-pull-request applies `ready-for-heavy` through the Issues labels API;
+          # without issues:write that call fails and the baseline PR is never admitted.
+          permission-issues: write
+
+      # The seal guard admits only `<KNOWLEDGE_MINT_APP_SLUG>[bot]`; a token for
+      # any other App would open a pull request the guard reads as tamper.
+      - name: Check the App slug
+        shell: bash
+        env:
+          TOKEN_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          EXPECTED_SLUG: ${{ vars.KNOWLEDGE_MINT_APP_SLUG }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${EXPECTED_SLUG}" || "${TOKEN_SLUG}" != "${EXPECTED_SLUG}" ]]; then
+            echo "::error::KNOWLEDGE_MINT_APP_SLUG (${EXPECTED_SLUG:-unset}) does not name the token's App (${TOKEN_SLUG})."
+            exit 1
+          fi
+
+      # The repo's lefthook hooks are for people: in CI they fail on missing tools (gitleaks)
+      # and would reformat the minted bytes, which the seal guard re-mints byte for byte.
+      - name: Create or update the mint pull request
+        env:
+          LEFTHOOK: "0"
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          sign-commits: true
+          branch: automation/knowledge-baseline-mint
+          delete-branch: true
+          add-paths: goals/knowledge-doctor.baseline.jsonc
+          labels: ready-for-heavy
+          commit-message: "chore(knowledge): mint the sealed knowledge-doctor baseline"
+          title: "chore(knowledge): mint the sealed knowledge-doctor baseline"
+          body: |
+            Minted by `.github/workflows/knowledge-baseline-mint.yml` at `${{ steps.mint.outputs.minted_at }}`.
+
+            ```text
+            ${{ steps.mint.outputs.summary }}
+            ```
+
+            The diff touches only `goals/knowledge-doctor.baseline.jsonc`. The Lint Policy lane
+            admits it only when the head branch is `automation/knowledge-baseline-mint`, the author
+            is the mint App, `mintedAt` is an ancestor of the merge-base, and a re-mint at
+            `mintedAt` reproduces the file byte for byte. Do not edit this branch by hand.

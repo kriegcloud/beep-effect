@@ -457,6 +457,10 @@ const BASELINE_WRITER_STEPS: ReadonlyArray<BaselineWriterStep> = [
   }),
   BaselineWriterStep.make({ label: "schema catalog", args: ["run", "beep", "lint", "schema-catalog", "--write"] }),
   BaselineWriterStep.make({
+    label: "instrumentation catalog",
+    args: ["run", "beep", "observability", "catalog", "--write"],
+  }),
+  BaselineWriterStep.make({
     label: "package scripts",
     args: ["run", "beep", "lint", "package-scripts", "--write"],
   }),

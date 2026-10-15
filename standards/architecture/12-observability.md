@@ -8,24 +8,53 @@ Each architectural boundary in a slice is a natural tracing boundary. The mappin
 
 - A use-case command call (`MembershipService.revoke(cmd)`) is the **architectural root span**. Its lifetime corresponds to the application action.
 - Each port call from within a use-case is a **child span**. Driver-level work invoked by the adapter (Drizzle queries, HTTP calls, queue publishes) becomes grandchild spans automatically.
-- HTTP/RPC handlers wrap their use-case call with a span named after the protocol operation (`http.POST /v1/iam/memberships/:id/revoke`); that protocol span may be the trace root for the request, and the use-case command span lives inside it.
+- HTTP/RPC handlers wrap their use-case call with a span named after the protocol operation (`POST /v1/iam/memberships/:id/revoke`); that protocol span may be the trace root for the request, and the use-case command span lives inside it.
 
 This mapping makes traces readable without per-codebase tribal knowledge: the trace tree mirrors the architectural tree. If a trace looks flat, a layer is missing a span. If a trace looks tangled, a span is being attached at the wrong layer.
 
 ## 2. Span naming convention
 
-Format: `<slice>.<concept>.<action>`.
+Format: `Concept(.Sub)*.action`, the domain-span form in every package family (slice, foundation, driver, tooling, ecosystem, app, lab).
 
-- `iam.membership.revoke` — use-case command
-- `iam.membership.find_by_id` — port operation, opened as a child span when the use-case invokes the port
-- `billing.subscription.cancel_invoices` — cross-slice handler in `billing/server`, reacting to a shared event
+- `MembershipService.revoke` — use-case command
+- `MembershipRepository.findById` — port operation, opened as a child span when the use-case invokes the port
+- `Box.listFolder` — driver operation; semconv HTTP client spans sit underneath it
 
 Rules:
 
-- Use snake_case for the action; this matches the convention used by most tracing backends.
-- The slice and concept names match the package path. `packages/iam/...` -> `iam`; the `Membership` aggregate -> `membership`.
-- HTTP/RPC handlers use the protocol operation name, not the slice name, for the wrapping span: `http.POST /v1/iam/memberships/:id/revoke`. The use-case span inside it carries the architectural name.
-- Adapter-internal spans use a technical namespace (`db.query`, `http.request`, `queue.publish`). They never use the slice/concept namespace.
+- Concept segments are PascalCase and the action is camelCase. Span identity is the owning package plus the name; the instrumentation catalog records `beep.package` and `beep.family` for each declared span.
+- Names are static literals and unique across packages. A name built from input is a leak path: put the variable part in a bounded attribute (`Box.invoke` with `box.method`, not `` `box.${method}` ``).
+- Protocol spans follow OpenTelemetry semantic conventions (`GET /v1/iam/memberships/:id/revoke`, `gen_ai.*`, `mcp.method.name`) and are declared with `protocol: true` in the owning package's `*.instruments.ts` file. The use-case span inside a protocol span still carries the domain name.
+- Names that predate this form stay as they are; the catalog records them with `conforms: false` and there is no mass rename. New spans use the domain form.
+- `bun run beep observability catalog --check` enforces the rules; the section below is generated from the catalog.
+
+<!-- BEGIN GENERATED: INSTRUMENTATION CATALOG -->
+
+_Generated from `standards/instrumentation-catalog.generated.jsonc` by `bun run beep observability catalog --write`. Do not edit by hand._
+
+Naming rules the catalog check enforces:
+
+- Domain spans, in every family, are named `Concept(.Sub)*.action`: PascalCase concept segments and a camelCase action, for example `Parcels.read`.
+- Protocol spans follow OpenTelemetry semantic conventions (`GET /route`, `gen_ai.*`) and are declared with `protocol: true`. Their identity is the owning package plus the name, so two packages may share one.
+- Every other span name is unique across packages. Names are static literals; a template literal with substitutions fails the check, and its variable part belongs in an attribute.
+- Harvested names that predate the domain form stay in the catalog with `conforms: false`; there is no mass rename.
+- Metric names are lowercase dotted `beep.<area>.<noun>` with a declared UCUM unit and no hand-written unit or `_total` suffix. One counter per concept carries a bounded `beep.outcome` attribute instead of one counter per outcome.
+- Event names are `Concept.event_happened`. Attribute keys are lowercase dotted and declared once, with their signals, cardinality and strictest allowed tier; metrics use only static or bounded keys.
+
+| Family | Spans | Conforming | Non-conforming |
+| --- | --- | --- | --- |
+| slice | 452 | 384 | 68 |
+| foundation | 253 | 209 | 44 |
+| driver | 569 | 465 | 104 |
+| tooling | 3851 | 3599 | 252 |
+| ecosystem | 1 | 1 | 0 |
+| app | 147 | 108 | 39 |
+| lab | 176 | 165 | 11 |
+| **total** | 5449 | 4931 | 518 |
+
+Declared: 6 attribute keys, 6 metrics, 0 events, 3 spans.
+
+<!-- END GENERATED: INSTRUMENTATION CATALOG -->
 
 ## 3. Attribute conventions
 
@@ -90,11 +119,11 @@ void $I
  * `Effect.withSpan` span is the architectural use-case layer. Domain
  * attributes attach inside, where the layer knows what they mean.
  */
-export const revokeHandler = Effect.fn("http.POST /v1/iam/memberships/:id/revoke")(
+export const revokeHandler = Effect.fn("POST /v1/iam/memberships/:id/revoke")(
   function* (req: RevokeMembershipRequest) {
     const cmd = yield* parseRevokeMembership(req)
     const result = yield* membershipService.revoke(cmd).pipe(
-      Effect.withSpan("iam.membership.revoke", {
+      Effect.withSpan("MembershipService.revoke", {
         attributes: {
           "iam.membership.id": cmd.membershipId,
           "iam.membership.actor.role": req.actor.role
@@ -106,7 +135,7 @@ export const revokeHandler = Effect.fn("http.POST /v1/iam/memberships/:id/revoke
 )
 ````
 
-The outer `Effect.fn("http.POST ...")` opens the protocol span. The inner `Effect.withSpan("iam.membership.revoke", ...)` opens the use-case span as a child. Domain attributes attach on the use-case span — that is the layer that knows what they mean.
+The outer `Effect.fn("POST ...")` opens the protocol span. The inner `Effect.withSpan("MembershipService.revoke", ...)` opens the use-case span as a child. Domain attributes attach on the use-case span — that is the layer that knows what they mean.
 
 ### b) Use-case — port call as a child span; outcome attached on success
 
@@ -128,9 +157,9 @@ void $I
  * Domain-semantic attributes attach here. The failure-path translator
  * attaches `iam.membership.outcome=denied` via `Effect.tapError` (see 09).
  */
-export const revoke = Effect.fn("iam.membership.revoke")(function* (cmd: RevokeMembership) {
+export const revoke = Effect.fn("MembershipService.revoke")(function* (cmd: RevokeMembership) {
   const m = yield* repo.findById(cmd.membershipId).pipe(
-    Effect.withSpan("iam.membership.find_by_id", {
+    Effect.withSpan("MembershipRepository.findById", {
       attributes: { "iam.membership.id": cmd.membershipId.value }
     })
   )
@@ -140,7 +169,7 @@ export const revoke = Effect.fn("iam.membership.revoke")(function* (cmd: RevokeM
 })
 ````
 
-The use-case opens `iam.membership.find_by_id` around the port call. It records the final outcome via `Effect.annotateCurrentSpan` on the success path. On a failure path, the translator that produces `MembershipRevocationDenied` (see 09) uses `Effect.tapError` to attach `iam.membership.outcome=denied` and emit a structured log if the translation drops detail.
+The use-case opens `MembershipRepository.findById` around the port call. It records the final outcome via `Effect.annotateCurrentSpan` on the success path. On a failure path, the translator that produces `MembershipRevocationDenied` (see 09) uses `Effect.tapError` to attach `iam.membership.outcome=denied` and emit a structured log if the translation drops detail.
 
 ### c) Adapter — technical span with `db.*` attributes only
 
@@ -152,20 +181,20 @@ const $I = $IamServerId.create("Membership.repo")
 void $I
 
 /**
- * Adapter port operation. Opens a `db.query` span carrying technical
- * attributes only — never the slice or concept namespace.
+ * Adapter port operation. Opens a `MembershipDrizzle.findById` span carrying
+ * technical attributes only — never domain attribute keys.
  *
  * @category combinators
  * @since 0.0.0
  *
  * @remarks
- * The `db.query` span is a grandchild of the use-case span by virtue of
+ * The `MembershipDrizzle.findById` span is a grandchild of the use-case span by virtue of
  * the call stack. Effect threads the parent span through the fiber; no
  * manual parenting is required.
  */
 export const findById = (id: MembershipId) =>
   runDrizzleQuery(id).pipe(
-    Effect.withSpan("db.query", {
+    Effect.withSpan("MembershipDrizzle.findById", {
       attributes: {
         "db.statement": "SELECT ... FROM memberships WHERE id = $1"
       }
@@ -174,7 +203,7 @@ export const findById = (id: MembershipId) =>
   )
 ````
 
-The adapter never names `iam.membership.*` attributes. It owns the technical surface (`db.statement`, `db.rows_returned`) and nothing more. The `db.query` span is a grandchild of the use-case span by virtue of the call stack — no manual parenting required.
+The adapter never names `iam.membership.*` attributes. It owns the technical surface (`db.statement`, `db.rows_returned`) and nothing more. The `MembershipDrizzle.findById` span is a grandchild of the use-case span by virtue of the call stack — no manual parenting required.
 
 ### d) Diagnostic logging on a translation that drops detail
 

@@ -976,6 +976,55 @@ const driftPathsOf = (upstreamTree: ComputedSkillTree, localTree: ComputedSkillT
     differsFromUpstream(upstreamTree, localTree)
   );
 
+/**
+ * Generates the patches that turn one tree into another, one per changed
+ * file, numbered from `firstIndex` (zero-based) in sorted path order.
+ *
+ * **Details**
+ *
+ * Each patch is rendered exactly as the lock migration renders a generated
+ * patch (`.agents/skill-patches/<skill>/NNNN-<slug>.patch`), labelled
+ * `temporary-drift` until a review classifies it (B8), owned by the
+ * CODEOWNERS owner of the installed file (B9), and carrying the default drop
+ * condition. `skills patch add` uses it to append patches for a hand edit
+ * after the existing series. Binary content fails typed.
+ *
+ * **Example** (Inspect the requirements before providing them)
+ *
+ * ```ts
+ * import { buildSkillPatchAdditions } from "@beep/repo-cli/commands/Skills/Skills.service"
+ *
+ * console.log(typeof buildSkillPatchAdditions) // "function"
+ * ```
+ *
+ * @param skill - The skill's lock key; must be one safe path segment.
+ * @param repoRoot - Absolute repository root, used to resolve owners.
+ * @param before - The tree the patches apply to, such as the recorded effective tree.
+ * @param after - The tree the patches produce, such as the hand-edited install.
+ * @param firstIndex - Zero-based series index of the first new patch.
+ * @returns Each new patch's lock row paired with its bytes, in series order.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const buildSkillPatchAdditions = Effect.fn("SkillsProvenance.buildSkillPatchAdditions")(function* (
+  skill: string,
+  repoRoot: string,
+  before: ComputedSkillTree,
+  after: ComputedSkillTree,
+  firstIndex: number
+): Effect.fn.Return<
+  ReadonlyArray<readonly [SkillPatch, SkillPatchFile]>,
+  SkillsCommandError,
+  SkillPatchOwnerSource | Crypto.Crypto
+> {
+  return yield* Effect.forEach(driftPathsOf(before, after), (filePath, index) =>
+    Effect.map(
+      buildPatch(skill, repoRoot, before, after, filePath, firstIndex + index),
+      ({ patch, file }) => [patch, file] as const
+    )
+  );
+});
+
 // Hashes the tree and license at `resolution.upstream.sourceRevision`, both installed targets,
 // and the patch series of every drifted file, and returns the patch bytes beside the report.
 const computeProvenance = Effect.fn("SkillsProvenance.computeProvenance")(function* (

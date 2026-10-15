@@ -415,7 +415,7 @@ const DockSnapshotStoreLocalStorage = Layer.succeed(
       try: () => O.fromNullishOr(globalThis.localStorage.getItem(DOCK_SNAPSHOT_KEY)),
       catch: () => storageFailure("load"),
     }),
-    save: Effect.fn("DockSnapshotStore.save")((snapshot) =>
+    save: Effect.fn("LocalStorageDockSnapshotStore.save")((snapshot) =>
       Effect.try({
         try: () => globalThis.localStorage.setItem(DOCK_SNAPSHOT_KEY, snapshot),
         catch: () => storageFailure("save"),

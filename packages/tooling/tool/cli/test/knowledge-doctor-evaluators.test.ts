@@ -228,30 +228,33 @@ describe("knowledge doctor domain evaluators", () => {
       Effect.fnUntraced(function* () {
         const exports = scanKnowledgeFileExports(
           "packages/a/src/index.ts",
-          ["/*", "export const Hidden = 1", "*/", "export const Real = 2"].join("\n"),
+          A.join(["/*", "export const Hidden = 1", "*/", "export const Real = 2"], "\n"),
           HashSet.empty<string>()
         );
         assert.deepStrictEqual(exports.names, ["Real"]);
         // A `/*` inside a string, a line comment, or a regex literal opens no comment (#1702).
         const decoys = scanKnowledgeFileExports(
           "packages/a/src/index.ts",
-          [
-            'const glob = "src/*";',
-            "export const AfterString = 1;",
-            "// see src/*.ts",
-            "export const AfterLineComment = 2;",
-            "const pattern = /a\\/*b/;",
-            "export const AfterRegex = 3;",
-            "const sum = a+/a\\/*b/;",
-            "export const AfterBinaryRegex = 4;",
-            "const kind = typeof /c\\/*d/;",
-            "export const AfterKeywordRegex = 5;",
-            "const half = total / 2 /* trailing */;",
-            "export const AfterDivision = 6;",
-            "/* real",
-            "export const Hidden = 7;",
-            "*/",
-          ].join("\n"),
+          A.join(
+            [
+              'const glob = "src/*";',
+              "export const AfterString = 1;",
+              "// see src/*.ts",
+              "export const AfterLineComment = 2;",
+              "const pattern = /a\\/*b/;",
+              "export const AfterRegex = 3;",
+              "const sum = a+/a\\/*b/;",
+              "export const AfterBinaryRegex = 4;",
+              "const kind = typeof /c\\/*d/;",
+              "export const AfterKeywordRegex = 5;",
+              "const half = total / 2 /* trailing */;",
+              "export const AfterDivision = 6;",
+              "/* real",
+              "export const Hidden = 7;",
+              "*/",
+            ],
+            "\n"
+          ),
           HashSet.empty<string>()
         );
         assert.deepStrictEqual(decoys.names, [

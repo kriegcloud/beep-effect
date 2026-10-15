@@ -1,0 +1,21 @@
+/**
+ * AnswerRow value-object exports.
+ *
+ * @packageDocumentation
+ * @category value-objects
+ * @since 0.0.0
+ */
+
+/**
+ * AnswerRow model exports.
+ *
+ * **Example** (Import AnswerRow)
+ *
+ * ```ts
+ * import { AnswerRow } from "@beep/law-practice-domain/values";
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./AnswerRow.model.ts";

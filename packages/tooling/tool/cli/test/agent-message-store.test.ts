@@ -1,5 +1,6 @@
 import {
   AgentMessageStore,
+  AgentMessageStoreLimits,
   AmbiguityResolution,
   EndpointBinding,
   EndpointDispatch,
@@ -32,6 +33,14 @@ import * as TestClock from "effect/testing/TestClock";
 import type { AgentMessageStoreShape } from "@beep/repo-cli/test/AgentMessage";
 
 const EnvelopeJson = S.fromJsonString(Envelope);
+const AmbiguityResolutionJson = S.fromJsonString(AmbiguityResolution);
+const encodeAmbiguityResolutionJson = S.encodeEffect(AmbiguityResolutionJson);
+const decodeAmbiguityResolutionJson = S.decodeEffect(AmbiguityResolutionJson);
+const decodeResolutionAuditRows = S.decodeUnknownEffect(
+  S.Array(S.Struct({ payload: S.String, decided_at: S.Natural, receipt_sequence: S.Natural }))
+);
+const decodeReceiptJson = S.decodeEffect(S.fromJsonString(Receipt));
+const encodeEndpointBindingJson = S.encodeEffect(S.fromJsonString(EndpointBinding));
 
 const binding = (id: string, generation = 1) =>
   S.decodeEffect(EndpointBinding)({
@@ -96,7 +105,7 @@ const fixture = Effect.fnUntraced(function* <T, E, R>(
   const directory = yield* fs.makeTempDirectoryScoped({ directory: cache, prefix: "store-" });
   const filename = path.join(directory, "messages.sqlite");
   const client = yield* makeAgentMessageSqliteClient(filename, "50 millis");
-  const store = yield* makeAgentMessageStore(maxPending, maxPendingPerEndpoint).pipe(
+  const store = yield* makeAgentMessageStore(AgentMessageStoreLimits.make({ maxPending, maxPendingPerEndpoint })).pipe(
     Effect.provideService(SqlClient.SqlClient, client)
   );
   yield* store.register(yield* binding("a"));
@@ -116,7 +125,7 @@ const processFixture = Effect.fn("AgentMessageTest.processFixture")(function* (
   const input = path.join(path.dirname(filename), "envelope.json");
   const payload = yield* O.match(resolution, {
     onNone: () => S.encodeEffect(EnvelopeJson)(envelope("crash")),
-    onSome: S.encodeEffect(S.fromJsonString(AmbiguityResolution)),
+    onSome: encodeAmbiguityResolutionJson,
   });
   yield* fs.writeFileString(input, payload, {
     mode: 0o600,
@@ -654,13 +663,11 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             ]);
             const audit = yield* client`SELECT payload, decided_at, receipt_sequence FROM agent_message_resolutions`;
             expect(audit).toHaveLength(1);
-            const rows = yield* S.decodeUnknownEffect(
-              S.Array(S.Struct({ payload: S.String, decided_at: S.Natural, receipt_sequence: S.Natural }))
-            )(audit);
+            const rows = yield* decodeResolutionAuditRows(audit);
             const persisted = O.getOrThrow(A.head(rows));
             expect(persisted.decided_at).toBe(202);
             expect(persisted.receipt_sequence).toBe(receipt.sequence);
-            expect(yield* S.decodeEffect(S.fromJsonString(AmbiguityResolution))(persisted.payload)).toEqual(request);
+            expect(yield* decodeAmbiguityResolutionJson(persisted.payload)).toEqual(request);
           })
         )
     );
@@ -905,7 +912,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             reason: "Fixture confirms known result",
           });
           const process = yield* processFixture(filename, "resolve", "resolution-checkpoint", O.some(request));
-          const committed = yield* S.decodeEffect(S.fromJsonString(Receipt))(yield* process.wait);
+          const committed = yield* decodeReceiptJson(yield* process.wait);
           yield* process.child.kill({ killSignal: "SIGKILL" });
           const client = yield* makeAgentMessageSqliteClient(filename);
           const reopened = yield* makeAgentMessageStore().pipe(Effect.provideService(SqlClient.SqlClient, client));
@@ -977,7 +984,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           yield* client`UPDATE agent_messages SET target_generation = 2 WHERE id = ${request.messageId}`;
           expect((yield* Effect.flip(store.resolveAmbiguity(request, 202))).code).toBe("staleClaim");
           yield* client`UPDATE agent_messages SET target_generation = 1 WHERE id = ${request.messageId}`;
-          const replacement = yield* S.encodeEffect(S.fromJsonString(EndpointBinding))(yield* binding("b", 2));
+          const replacement = yield* encodeEndpointBindingJson(yield* binding("b", 2));
           yield* client`UPDATE agent_message_endpoints SET payload = ${replacement} WHERE id = 'b'`;
           expect((yield* Effect.flip(store.resolveAmbiguity(request, 203))).code).toBe("staleClaim");
           expect(yield* store.receipts(request.messageId)).toHaveLength(3);
@@ -1056,9 +1063,16 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             yield* store.accept(envelope("global-full"), 100);
             expect((yield* Effect.flip(store.accept(envelope("other-global", "a", "c"), 101))).code).toBe("queueFull");
             const client = yield* makeAgentMessageSqliteClient(filename);
+            // `make` validates, so the invalid per-endpoint limit is built with checks
+            // disabled: the store's own decode must reject it.
+            const invalidLimits = AgentMessageStoreLimits.make(
+              { maxPending: 1, maxPendingPerEndpoint: 0 },
+              { disableChecks: true }
+            );
             expect(
-              (yield* Effect.flip(makeAgentMessageStore(1, 0).pipe(Effect.provideService(SqlClient.SqlClient, client))))
-                .code
+              (yield* Effect.flip(
+                makeAgentMessageStore(invalidLimits).pipe(Effect.provideService(SqlClient.SqlClient, client))
+              )).code
             ).toBe("storage");
           }),
         1,

@@ -120,7 +120,16 @@ export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: uniqu
     brokenSegments: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
-      S.annotateKey({ description: "Broken-line (unclaimed part) segments drawn. Defaults to 0." })
+      S.annotateKey({
+        description: "Broken-line (unclaimed part and broken overlay) segments drawn. Defaults to 0.",
+      })
+    ),
+    emphasisSegments: S.OptionFromOptionalKey(S.Natural).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Emphasis overlay segments drawn. Absent when the figure draws none, and on manifests rendered before overlay lines.",
+      })
     ),
     camera: S.OptionFromOptionalKey(Camera).pipe(
       S.withConstructorDefault(Effect.succeedNone),
