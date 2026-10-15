@@ -541,25 +541,24 @@ last observation. Use a maintenance boundary excluding those clients when strict
 mutual exclusion is required. The writer detects observed races and preserves
 recovery artifacts; it does not lock native clients out.
 
-Shell projection owns only a simple, single-physical-line launcher or known
-assignment. Flags must be exact `--model` / `-m` words (with a space or `=`
-separator); assignments require `NAME=`. Their value must be one complete bare,
-escaped, single-quoted or double-quoted literal word. An equal bare model with
-parenthesized effort is accepted only to quote that same value. Quoted comment
-markers are data; any unquoted `#` on an owned line refuses. Adjacent operators,
-concatenated quote components, parameter/brace expansions touching the owned
-word, multiline quoting and backslash-newline continuations refuse. Whitespace
-separates a following operator from the owned word.
+Shell locators are check-only under RSC-F-SHELL-CHECK-ONLY. `models check`
+and `models apply --check` report drift; default apply and `--dry-run` preview
+the expected value without creating backups or stages. Unsupported expressions
+remain visible as raw drift values, and an earlier continuation does not hide
+later physical lines from the reader. `apply --write` refuses every shell
+request with `Shell targets are check-only; edit by hand.` before any backup.
+A real shell parser and its own independent panel are required before writing
+can be restored. Syntax checks and regular expressions do not establish write
+ownership.
 
-The resolver deliberately does not parse general shell nesting. Any `<<`,
-command substitution opener (`$(`) or backtick on or before an owned line
-refuses, including a model-looking line inside a quoted here-document body.
-Even a previously closed body may therefore refuse. Use a dedicated simple
-launcher or an explicitly owned simpler configuration surface instead of
-broadening lexical guesses. These cases return a typed `ModelsLocatorError`
-with `Unsupported shell form` before creating any backup, journal or stage.
-Comments and complete quoted data containing a launcher are never owned.
-Re-projecting a supported result must be byte-identical.
+New journals record locator ownership, the canonical regular file, and the
+requested path plus link spelling when present. Restore re-resolves both paths
+and verifies entry kind and target before staging, then checks again before
+publication. A symlink introduced at the canonical path, a moved target, a
+changed parent link or changed requested link refuses with a typed error naming
+the journal. Existing symlinks survive normal apply/restore. Shell journals and
+older journals lacking ownership or destination identity refuse safely; retain
+their backups for manual recovery after inspecting current state.
 
 Skill projection and lockfile writes resolve existing symlinks before backup,
 staging and publication; remote skill directories follow the same rule. Stages

@@ -1,4 +1,4 @@
-import { ModelsManifest, modelsCommand } from "@beep/repo-cli/commands/Models";
+import { ModelSyncTarget, ModelsManifest, modelsCommand } from "@beep/repo-cli/commands/Models";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
@@ -149,6 +149,63 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       yield* run(["restore", ...flags, "--journal", Str.replace(/\.json$/, "")(journalFile)]);
       expect(yield* fs.readFileString(file)).toBe(native);
       yield* Effect.flip(run(["restore", ...flags, "--journal", "../unsafe"]));
+    })
+  );
+
+  it.effect("previews shell drift after continuations and reports every target after a refusal", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, file, manifestFile, manifest] = yield* fixture();
+      const shellFile = path.join(home, ".zshrc");
+      const shellText = 'X=1 \\\n  command\nlightweight() {\n  claude --model "old"\n}\n';
+      yield* fs.writeFileString(shellFile, shellText);
+      const shellManifest = ModelsManifest.make({
+        ...manifest,
+        targets: [
+          yield* S.decodeEffect(ModelSyncTarget)({
+            id: "synthetic.shell",
+            root: "home",
+            path: "$HOME/.zshrc",
+            optional: false,
+            locators: [
+              {
+                _tag: "shell-assign",
+                variable: "--model",
+                within: "lightweight",
+                binding: { role: "codex.heavy", surface: "codex-cli", field: "model" },
+                render: { _tag: "verbatim" },
+              },
+            ],
+          }),
+          ...manifest.targets,
+        ],
+      });
+      yield* fs.writeFileString(manifestFile, yield* encodeManifest(shellManifest));
+      const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+      yield* run(["apply", ...flags]);
+      expect(yield* TestConsole.logLines).toContain(
+        "models: preview synthetic.shell [shell-assign] change=true expected=gpt-6.1-sol"
+      );
+      expect(yield* TestConsole.logLines).toContain(
+        "models: preview synthetic.codex [toml-top-level-key] change=true expected=gpt-6.1-sol"
+      );
+      expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      yield* Effect.flip(run(["apply", ...flags, "--check"]));
+      expect(yield* TestConsole.errorLines).toContain(
+        "models: refused synthetic.shell: synthetic.shell: Owned configuration drift detected (shell target is check-only; edit by hand)."
+      );
+      expect(yield* TestConsole.errorLines).toContain(
+        "models: refused synthetic.codex: synthetic.codex: Owned configuration drift detected."
+      );
+      yield* Effect.flip(run(["apply", ...flags, "--write", "--target", "synthetic.shell"]));
+      expect(yield* TestConsole.errorLines).toContain(
+        "models: refused synthetic.shell: synthetic.shell: Shell targets are check-only; edit by hand."
+      );
+      yield* Effect.flip(run(["check", ...flags]));
+      expect(yield* fs.readFileString(shellFile)).toBe(shellText);
+      expect(yield* fs.readFileString(file)).toBe(native);
+      expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
     })
   );
 

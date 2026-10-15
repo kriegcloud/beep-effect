@@ -792,7 +792,7 @@ export type Locator = typeof Locator.Type;
 
 /**
  * A locator write owns only the scalar or generated-block spans it resolves.
- * Missing and ambiguous scalar addresses fail closed; shell addresses own all matches.
+ * Missing and ambiguous scalar addresses fail closed; shell addresses are check-only.
  *
  * **Example** (Describe a scalar projection)
  *
@@ -805,7 +805,11 @@ export type Locator = typeof Locator.Type;
  * @since 0.0.0
  */
 export class ModelsLocatorWrite extends S.Opaque<ModelsLocatorWrite, { readonly brand: unique symbol }>()(
-  S.Struct({ locator: Locator, expected: S.String, remove: S.optionalKey(S.Literal(true)) }).pipe(
+  S.Struct({
+    locator: Locator,
+    expected: S.String,
+    remove: S.optionalKey(S.Literal(true)),
+  }).pipe(
     $I.annoteSchema("ModelsLocatorWrite", {
       description:
         "One grammar-specific locator and its expected scalar or generated block body; never whole-file ownership.",
@@ -827,8 +831,15 @@ export class ModelsLocatorWrite extends S.Opaque<ModelsLocatorWrite, { readonly 
  * @since 0.0.0
  */
 export class ModelsWriteSpan extends S.Opaque<ModelsWriteSpan, { readonly brand: unique symbol }>()(
-  S.Struct({ start: S.Int, end: S.Int, before: S.String, after: S.String }).pipe(
-    $I.annoteSchema("ModelsWriteSpan", { description: "An owned text range with its drift fence and replacement." })
+  S.Struct({
+    start: S.Int,
+    end: S.Int,
+    before: S.String,
+    after: S.String,
+  }).pipe(
+    $I.annoteSchema("ModelsWriteSpan", {
+      description: "An owned text range with its drift fence and replacement.",
+    })
   )
 ) {}
 
@@ -847,7 +858,9 @@ export class ModelsWriteSpan extends S.Opaque<ModelsWriteSpan, { readonly brand:
  * @since 0.0.0
  */
 export const ModelsApplyMode = LiteralKit(["check", "dry-run", "write"]).pipe(
-  $I.annoteSchema("ModelsApplyMode", { description: "Whether to check, preview, or apply owned-field edits." })
+  $I.annoteSchema("ModelsApplyMode", {
+    description: "Whether to check, preview, or apply owned-field edits.",
+  })
 );
 
 /**
@@ -879,6 +892,9 @@ export class ModelsApplyJournal extends S.Opaque<ModelsApplyJournal, { readonly 
     beforeHash: S.NonEmptyString,
     afterHash: S.NonEmptyString,
     mode: S.Int,
+    writes: ModelsLocatorWrite.pipe(S.Array, S.OptionFromOptionalKey),
+    requestedFile: S.OptionFromOptionalKey(S.NonEmptyString),
+    requestedLink: S.OptionFromOptionalKey(S.NonEmptyString),
   }).pipe(
     $I.annoteSchema("ModelsApplyJournal", {
       description: "Private recovery metadata written before a native file is replaced.",

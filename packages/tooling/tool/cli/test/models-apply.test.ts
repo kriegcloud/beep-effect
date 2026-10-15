@@ -2,6 +2,7 @@ import { ModelsApply, ModelsApplyLive } from "@beep/repo-cli/commands/Models/Mod
 import {
   BindingFilter,
   LocatorBinding,
+  ModelsApplyJournal,
   ModelsLocatorWrite,
 } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 import { modelsApplySpans, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
@@ -15,15 +16,24 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import * as Stream from "effect/Stream";
+import * as S from "effect/Schema";
 import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 
-const binding: LocatorBinding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+const binding: LocatorBinding = LocatorBinding.make({
+  role: "codex.heavy",
+  surface: "codex-cli",
+  field: "model",
+});
+const encodeRecoveryJournal = S.encodeEffect(S.fromJsonString(ModelsApplyJournal));
 const render: LocatorRender = { _tag: "verbatim" };
 const write = (locator: Locator, expected = "gpt-6.1-sol") => ModelsLocatorWrite.make({ locator, expected });
-const topLevel = write({ _tag: "toml-top-level-key", binding, render, key: "model" });
+const topLevel = write({
+  _tag: "toml-top-level-key",
+  binding,
+  render,
+  key: "model",
+});
 const native = A.join(
   [
     "# Unicode stays: café 🔑",
@@ -58,29 +68,29 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("updates all shell occurrences while exposing mixed values to the checker", () =>
-    Effect.gen(function* () {
-      const content = 'export MODEL="old"\nMODEL=other command\n# native suffix\n';
-      const request = write({ _tag: "shell-assign", binding, render, variable: "MODEL", within: O.none() });
-      const spans = yield* modelsWriteSpans(content, request);
-      expect(spans).toHaveLength(2);
-      expect(yield* modelsApplySpans(content, spans)).toBe(
-        "export MODEL=gpt-6.1-sol\nMODEL=gpt-6.1-sol command\n# native suffix\n"
-      );
-    })
-  );
-
   it.effect("resolves every supported grammar without changing unowned text", () =>
     Effect.gen(function* () {
       const cases: ReadonlyArray<readonly [string, Locator, string]> = [
         [
           '[models]\ndefault = "old" # tail\n[native]\nkeep = true\n',
-          { _tag: "toml-table-key", binding, render, table: "models", key: "default" },
+          {
+            _tag: "toml-table-key",
+            binding,
+            render,
+            table: "models",
+            key: "default",
+          },
           '[models]\ndefault = "gpt-6.1-sol" # tail\n[native]\nkeep = true\n',
         ],
         [
           '{"model":"old", "unknown":{"keep":true}}',
-          { _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] },
+          {
+            _tag: "json-key",
+            binding,
+            render,
+            pointer: ["model"],
+            fallbacks: [],
+          },
           '{"model":"gpt-6.1-sol", "unknown":{"keep":true}}',
         ],
         [
@@ -101,12 +111,25 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         ],
         [
           ' * model: "old"\nunowned model: "old"\n',
-          { _tag: "line-value", binding, render, linePrefix: " *", before: 'model: "', after: '"' },
+          {
+            _tag: "line-value",
+            binding,
+            render,
+            linePrefix: " *",
+            before: 'model: "',
+            after: '"',
+          },
           ' * model: "gpt-6.1-sol"\nunowned model: "old"\n',
         ],
         [
           '<root><option name="model" value="old" keep="yes"/></root>',
-          { _tag: "xml-attribute", binding, render, elementSelector: 'option[name="model"]', attribute: "value" },
+          {
+            _tag: "xml-attribute",
+            binding,
+            render,
+            elementSelector: 'option[name="model"]',
+            attribute: "value",
+          },
           '<root><option name="model" value="gpt-6.1-sol" keep="yes"/></root>',
         ],
         [
@@ -142,7 +165,10 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       yield* fs.makeDirectory(path.resolve(".beep"), { recursive: true });
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "models-fixture-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "models-fixture-",
+      });
       const file = path.join(root, "config.toml");
       const backupDirectory = path.join(root, ".config-backups");
       yield* fs.writeFileString(file, native, { mode: 0o644 });
@@ -168,14 +194,22 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "remove-fixture-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "remove-fixture-",
+      });
       const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
       for (const key of ["sandbox_mode", '"sandbox_mode"', "'sandbox_mode'"]) {
         const before = `${key} = "danger-full-access" # legacy\r\n` + native;
         yield* fs.writeFileString(file, before);
         const request = ModelsLocatorWrite.make({
-          locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+          locator: {
+            _tag: "toml-top-level-key",
+            binding,
+            render,
+            key: "sandbox_mode",
+          },
           expected: "",
           remove: true,
         });
@@ -189,7 +223,12 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         yield* Effect.flip(writer.apply(file, [request], "check", backups));
       }
       const request = ModelsLocatorWrite.make({
-        locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+        locator: {
+          _tag: "toml-top-level-key",
+          binding,
+          render,
+          key: "sandbox_mode",
+        },
         expected: "",
         remove: true,
       });
@@ -198,7 +237,13 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         modelsWriteSpans(
           "{}",
           ModelsLocatorWrite.make({
-            locator: { _tag: "json-key", binding, render, pointer: ["sandbox_mode"], fallbacks: [] },
+            locator: {
+              _tag: "json-key",
+              binding,
+              render,
+              pointer: ["sandbox_mode"],
+              fallbacks: [],
+            },
             expected: "",
             remove: true,
           })
@@ -207,16 +252,18 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("keeps equal env, YAML plain, TOML literal, and shell quoted scalars without a write", () =>
+  it.effect("keeps equal env, YAML plain, TOML literal, scalars without a write", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "equal-scalars-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "equal-scalars-",
+      });
       const cases: ReadonlyArray<readonly [string, string, Locator]> = [
         ["env", "MODEL=gpt-6.1-sol\n", { _tag: "env-key", binding, render, key: "MODEL" }],
         ["yaml", "model: gpt-6.1-sol\n", { _tag: "yaml-path", binding, render, path: ["model"] }],
         ["toml", "model = 'gpt-6.1-sol'\n", { _tag: "toml-top-level-key", binding, render, key: "model" }],
-        ["sh", 'MODEL="gpt-6.1-sol"\n', { _tag: "shell-assign", binding, render, variable: "MODEL", within: O.none() }],
       ];
       const writer = yield* writerWithFs(fs);
       for (const [extension, text, locator] of cases) {
@@ -227,47 +274,6 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         expect(yield* fs.readFileString(file)).toBe(text);
       }
       expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
-    })
-  );
-
-  it.effect("quotes the complete shell word and parses launchers before publication", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "shell-word-" });
-      const file = path.join(root, "launcher");
-      const request = write(
-        {
-          _tag: "shell-assign",
-          binding: LocatorBinding.make({ ...binding, field: "model-effort-suffix" }),
-          render,
-          variable: "--model",
-          within: O.none(),
-        },
-        "gpt-6.1-sol(medium)"
-      );
-      const writer = yield* writerWithFs(fs);
-      for (const word of [
-        "old",
-        "'old'",
-        '"old"',
-        "gpt-6.1-sol(medium)",
-        "'gpt-6.1-sol(medium)'",
-        '"gpt-6.1-sol(medium)"',
-      ]) {
-        const text = `claude() { printf '%s\\n' "$#" "$2"; }\nclaude --model ${word} "$@"\n`;
-        yield* fs.writeFileString(file, text);
-        yield* writer.apply(file, [request], "write", path.join(root, "backups"));
-        const rendered = yield* fs.readFileString(file);
-        const output = yield* spawner.string(
-          ChildProcess.make("zsh", ["-f"], { stdin: Stream.make(new TextEncoder().encode(rendered)) })
-        );
-        expect(output).toBe("2\ngpt-6.1-sol(medium)\n");
-      }
-      yield* fs.writeFileString(file, "claude --model old\nif\n");
-      const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
-      expect(error.message).toBe("Invalid shell target.");
     })
   );
 
@@ -282,7 +288,10 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-race-" });
+        const root = yield* fs.makeTempDirectoryScoped({
+          directory: path.resolve(".beep"),
+          prefix: "native-race-",
+        });
         const file = path.join(root, "config.toml");
         const backups = path.join(root, "backups");
         yield* fs.writeFileString(file, 'model = "old"\n', { mode: 0o644 });
@@ -391,7 +400,10 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "model-link-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "model-link-",
+      });
       const target = path.join(root, "target.toml");
       const link = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
@@ -414,16 +426,27 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("refuses adjacent shell operators and concatenated words before any backup", () =>
+  it.effect("refuses every shell write before backup, including escaped separators and earlier panel inputs", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "ambiguous-shell-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "check-only-shell-",
+      });
       const file = path.join(root, "launcher");
       const backups = path.join(root, "backups");
-      const request = write({ _tag: "shell-assign", binding, render, variable: "--model", within: O.none() });
+      const request = write({
+        _tag: "shell-assign",
+        binding,
+        render,
+        variable: "--model",
+        within: O.none(),
+      });
       const writer = yield* writerWithFs(fs);
       for (const text of [
+        "claude x\\ --model old\n",
+        "x\\ MODEL=old\n",
         "claude --model old&&printf native\n",
         "claude --model old> /dev/null\n",
         "claude --model 'old'-suffix\n",
@@ -439,55 +462,162 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         "claude --model ${MODEL}\n",
         "claude --model old{,suffix}\n",
         "printf native \\\nclaude --model old\n",
+        "MODEL=old\nfoo \\\n  bar\nMODEL=old\n",
+        "claude --model old\nif\n",
+        ...A.map(
+          ["old", "'old'", '"old"', "o\\ld", "gpt-6.1-sol(medium)", "'gpt-6.1-sol(medium)'", '"gpt-6.1-sol(medium)"'],
+          (word) => `claude --model ${word} "$@"\n`
+        ),
+        'MODEL="gpt-6.1-sol"\n',
       ]) {
         yield* fs.writeFileString(file, text);
-        const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
-        expect(error._tag).toBe("ModelsLocatorError");
-        if (text.includes("# native") || text.includes("EOF") || text.includes("-suffix\n"))
-          expect(error.message).toContain("Unsupported shell form");
-        expect(yield* fs.readFileString(file)).toBe(text);
-        expect(yield* fs.exists(backups)).toBe(false);
+        for (const variable of ["--model", "MODEL"]) {
+          const owned = write({
+            ...request.locator,
+            _tag: "shell-assign",
+            binding,
+            render,
+            variable,
+            within: O.none(),
+          });
+          const error = yield* Effect.flip(writer.apply(file, [owned], "write", backups));
+          expect(error._tag).toBe("ModelsLocatorError");
+          expect(error.message).toBe("Shell targets are check-only; edit by hand.");
+          expect(yield* fs.readFileString(file)).toBe(text);
+          expect(yield* fs.exists(backups)).toBe(false);
+        }
       }
-      const comments = "# claude --model ignored\nclaude --model old\nprintf '%s' 'claude --model untouched'\n";
-      const commentProjection = yield* modelsApplySpans(comments, yield* modelsWriteSpans(comments, request));
-      expect(commentProjection).toBe(comments.replace("--model old", "--model gpt-6.1-sol"));
-      for (const word of ["old", "'old'", '"old"', "o\\ld"]) {
-        const text = `claude --model ${word} ; printf native\n`;
-        const projected = yield* modelsApplySpans(text, yield* modelsWriteSpans(text, request));
-        expect(projected).toBe("claude --model gpt-6.1-sol ; printf native\n");
-        expect(yield* modelsApplySpans(projected, yield* modelsWriteSpans(projected, request))).toBe(projected);
+      const text = "claude --model old\n";
+      yield* fs.writeFileString(file, text);
+      assertNone(yield* writer.apply(file, [request], "dry-run", backups));
+      yield* Effect.flip(writer.apply(file, [request], "check", backups));
+      const current = write(
+        {
+          ...request.locator,
+          _tag: "shell-assign",
+          binding,
+          render,
+          variable: "--model",
+          within: O.none(),
+        },
+        "old"
+      );
+      assertNone(yield* writer.apply(file, [current], "check", backups));
+      yield* Effect.flip(modelsWriteSpans(text, request));
+      expect(yield* fs.exists(backups)).toBe(false);
+    })
+  );
+
+  for (const phase of ["introduced-link", "moved-target", "parent-link", "replaced-link", "retargeted-link"]) {
+    it.effect(`refuses restore before staging when destination identity changes: ${phase}`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({
+          directory: path.resolve(".beep"),
+          prefix: "restore-identity-",
+        });
+        const directory = path.join(root, "native");
+        yield* fs.makeDirectory(directory);
+        const file = path.join(directory, "config.toml");
+        const link = path.join(root, "config-link.toml");
+        const relocated = path.join(directory, "relocated.toml");
+        const backups = path.join(root, "backups");
+        yield* fs.writeFileString(file, native);
+        const linked = phase === "replaced-link" || phase === "retargeted-link";
+        if (linked) yield* fs.symlink(file, link);
+        const writer = yield* writerWithFs(fs);
+        const journal = O.getOrThrow(yield* writer.apply(linked ? link : file, [topLevel], "write", backups));
+        const applied = yield* fs.readFileString(file);
+        if (phase === "parent-link") {
+          const moved = path.join(root, "moved");
+          yield* fs.rename(directory, moved);
+          yield* fs.symlink(moved, directory);
+        } else if (linked) {
+          yield* fs.remove(link);
+          if (phase === "replaced-link") yield* fs.writeFileString(link, applied);
+          else {
+            yield* fs.writeFileString(relocated, applied);
+            yield* fs.symlink(relocated, link);
+          }
+        } else {
+          yield* fs.rename(file, relocated);
+          if (phase === "introduced-link") yield* fs.symlink(relocated, file);
+        }
+        const error = yield* Effect.flip(writer.restore(path.join(backups, `${journal.id}.json`), backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toContain(`Journal: ${journal.id}`);
+        expect(yield* fs.readDirectory(backups)).toHaveLength(2);
+        if (phase !== "moved-target") expect(yield* fs.readFileString(file)).toBe(applied);
+        if (phase === "introduced-link") expect(yield* fs.readLink(file)).toBe(relocated);
+        if (phase === "introduced-link" || phase === "moved-target" || phase === "retargeted-link")
+          expect(yield* fs.readFileString(relocated)).toBe(applied);
+        expect(
+          A.filter(yield* fs.readDirectory(directory), (entry) => entry.endsWith(".tmp") || entry.endsWith(".preimage"))
+        ).toHaveLength(0);
+      })
+    );
+  }
+
+  it.effect("refuses shell and legacy recovery journals before staging", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "shell-restore-",
+      });
+      const file = path.join(root, "config.toml");
+      const backups = path.join(root, "backups");
+      yield* fs.writeFileString(file, native);
+      const writer = yield* writerWithFs(fs);
+      const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
+      const journalFile = path.join(backups, `${journal.id}.json`);
+      const applied = yield* fs.readFileString(file);
+      const shell = write({
+        _tag: "shell-assign",
+        binding,
+        render,
+        variable: "MODEL",
+        within: O.none(),
+      });
+      for (const writes of [undefined, [shell]]) {
+        const { writes: _owned, ...legacy } = journal;
+        yield* fs.writeFileString(
+          journalFile,
+          yield* encodeRecoveryJournal(ModelsApplyJournal.make({ ...legacy, writes: O.fromUndefinedOr(writes) }))
+        );
+        const error = yield* Effect.flip(writer.restore(journalFile, backups));
+        expect(error.message.toLowerCase()).toContain("shell targets are check-only");
+        expect(error.message).toContain(`Journal: ${journal.id}`);
+        expect(yield* fs.readFileString(file)).toBe(applied);
+        expect(yield* fs.readDirectory(backups)).toHaveLength(2);
       }
     })
   );
 
-  it.effect("validates the transformed shell candidate before creating a backup", () =>
+  it.effect("removes the retained hard link when its stat fails before staging", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "shell-validation-" });
-      const file = path.join(root, "launcher");
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "preimage-stat-" });
+      const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
-      const text = "claude --model old\n";
-      yield* fs.writeFileString(file, text);
-      let parses = 0;
-      const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
-        ...spawner,
-        exitCode: Effect.fn("ModelsApplyTest.exitCode")((command) => {
-          if (command._tag === "StandardCommand" && command.command === "zsh") {
-            parses += 1;
-            if (parses === 2) return Effect.succeed(ChildProcessSpawner.ExitCode(1));
-          }
-          return spawner.exitCode(command);
-        }),
+      yield* fs.writeFileString(file, native);
+      const wrapped = FileSystem.FileSystem.of({
+        ...fs,
+        stat: Effect.fn("ModelsApplyTest.stat")((target) =>
+          fs.stat(target.endsWith(".preimage") ? path.join(root, "missing") : target)
+        ),
       });
-      const writer = yield* writerWithFs(fs, wrapped);
-      const request = write({ _tag: "shell-assign", binding, render, variable: "--model", within: O.none() });
-      const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
-      expect(error.message).toBe("Invalid shell target.");
-      expect(parses).toBe(2);
-      expect(yield* fs.readFileString(file)).toBe(text);
-      expect(yield* fs.exists(backups)).toBe(false);
+      const writer = yield* writerWithFs(wrapped);
+      const error = yield* Effect.flip(writer.apply(file, [topLevel], "write", backups));
+      expect(error._tag).toBe("ModelsLocatorError");
+      expect(error.message).toContain("Journal:");
+      expect(yield* fs.readFileString(file)).toBe(native);
+      expect(
+        A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage") || entry.endsWith(".tmp"))
+      ).toHaveLength(0);
     })
   );
 
@@ -495,13 +625,23 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "unstable-span-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "unstable-span-",
+      });
       const file = path.join(root, "example.txt");
       const text = 'model: "old"\n';
       yield* fs.writeFileString(file, text);
       const writer = yield* writerWithFs(fs);
       const request = write(
-        { _tag: "line-value", binding, render, linePrefix: "model:", before: 'model: "', after: '"' },
+        {
+          _tag: "line-value",
+          binding,
+          render,
+          linePrefix: "model:",
+          before: 'model: "',
+          after: '"',
+        },
         'new"tail'
       );
       const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
@@ -515,7 +655,10 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "backup-tamper-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "backup-tamper-",
+      });
       const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
       yield* fs.writeFileString(file, 'model = "old"\n');
@@ -524,7 +667,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       const applied = yield* fs.readFileString(file);
       yield* fs.writeFileString(journal.backup, "tampered");
       const error = yield* Effect.flip(writer.restore(path.join(backups, `${journal.id}.json`), backups));
-      expect(error.message).toBe("Recovery backup hash does not match.");
+      expect(error.message).toBe(`Recovery backup hash does not match. Journal: ${journal.id}`);
       expect(yield* fs.readFileString(file)).toBe(applied);
     })
   );
@@ -533,7 +676,12 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const request = ModelsLocatorWrite.make({
         ...topLevel,
-        locator: { _tag: "toml-top-level-key", binding, render, key: "sandbox_mode" },
+        locator: {
+          _tag: "toml-top-level-key",
+          binding,
+          render,
+          key: "sandbox_mode",
+        },
         remove: true,
       });
       for (const text of [
@@ -559,7 +707,13 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
 
   it.effect("rejects duplicate JSON keys and a top-level key hidden in a commented native table", () =>
     Effect.gen(function* () {
-      const json = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
+      const json = write({
+        _tag: "json-key",
+        binding,
+        render,
+        pointer: ["model"],
+        fallbacks: [],
+      });
       yield* Effect.flip(modelsWriteSpans('{"model":"one","model":"two"}', json));
       yield* Effect.flip(modelsWriteSpans('[native] # retained\nmodel = "native-value"\n', topLevel));
     })
@@ -587,10 +741,19 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "private-parser-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "private-parser-",
+      });
       const file = path.join(root, "config.json");
       yield* fs.writeFileString(file, '{"model":"old", "unownedCredential":"__SYNTHETIC_PRIVATE__", malformed');
-      const request = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
+      const request = write({
+        _tag: "json-key",
+        binding,
+        render,
+        pointer: ["model"],
+        fallbacks: [],
+      });
       const writer = yield* writerWithFs(fs);
       const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
       expect(error.message).toBe("Invalid JSON target.");
@@ -603,7 +766,10 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-bytes-" });
+      const root = yield* fs.makeTempDirectoryScoped({
+        directory: path.resolve(".beep"),
+        prefix: "native-bytes-",
+      });
       const file = path.join(root, "config.toml");
       const bytes = new Uint8Array([0xff, 0xfe, 0x23]);
       yield* fs.writeFile(file, bytes);

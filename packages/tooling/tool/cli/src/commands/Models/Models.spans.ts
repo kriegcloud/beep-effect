@@ -31,13 +31,8 @@ const error = (message: string) => ModelsLocatorError.make({ message });
  *
  * **Details**
  *
- * Projection supports only a single physical line whose words are wholly bare,
- * escaped, single-quoted or double-quoted. The owned value must be one complete
- * literal word, following an exact model flag or known assignment. Unquoted
- * comments, continuations, command substitutions, backticks, brace expansions,
- * concatenated quoting and adjacent operators refuse with ModelsLocatorError.
- * A preceding here-document or substitution opener also refuses: this bounded
- * resolver does not establish where arbitrary nested shell bodies end.
+ * This pattern supports drift detection only. Shell targets are check-only:
+ * exact write ownership requires a shell parser and a separate panel review.
  *
  * **Example** (Respect assignment boundaries)
  *
@@ -78,27 +73,6 @@ const isShellCode = (content: string, end: number): boolean =>
     Str.slice(0, end)(content)
   );
 
-// This is deliberately a bounded grammar, not a general shell lexer. Remove
-// only complete quoted words and escapes before checking the remaining line.
-const assertSimpleShellLine = Effect.fnUntraced(function* (content: string, start: number, end: number) {
-  const prefix = Str.slice(0, start)(content);
-  const lineStart = O.getOrElse(Str.lastIndexOf("\n")(prefix), () => -1) + 1;
-  const lineEnd = O.match(Str.indexOf("\n")(Str.slice(end)(content)), {
-    onNone: () => Str.length(content),
-    onSome: (offset) => end + offset,
-  });
-  const line = Str.slice(lineStart, lineEnd)(content);
-  if (/[\r\n]/.test(Str.slice(start, end)(content))) return yield* error("Unsupported shell form: multiline word.");
-  const unquoted = Str.replace(/"(?:\\.|[^"\\])*"|'[^']*'|\\./g, "")(line);
-  if (
-    /\\\r?\n/.test(Str.slice(lineStart, lineEnd + 1)(content)) ||
-    /\\\r?\n$/.test(Str.slice(0, lineStart)(content)) ||
-    /<<|\$\(|`/.test(Str.slice(0, lineEnd)(content)) ||
-    /[#'"\\{}]/.test(unquoted)
-  )
-    return yield* error("Unsupported shell form: only simple single-line literal words are owned.");
-});
-
 /**
  * Read executable assignment or flag words, excluding comments and quoted data.
  *
@@ -126,13 +100,21 @@ export const modelsShellWords = Effect.fn("Models.shellWords")(function* (conten
         )
       )
     ),
-    (match) => shellWordValue(O.getOrElse(O.fromUndefinedOr(match[1]), () => "")),
+    (match) => {
+      const token = O.getOrElse(O.fromUndefinedOr(match[1]), () => "");
+      return shellWordValue(token).pipe(Effect.catchTag("ModelsLocatorError", () => Effect.succeed(token)));
+    },
     { concurrency: 1 }
   );
 });
 
 const span = (content: string, start: number, end: number, after: string) =>
-  ModelsWriteSpan.make({ start, end, before: Str.slice(start, end)(content), after });
+  ModelsWriteSpan.make({
+    start,
+    end,
+    before: Str.slice(start, end)(content),
+    after,
+  });
 
 // Resolve regex captures with indices, never by searching for the captured value:
 // a native file can contain the same token in several unowned places.
@@ -157,7 +139,11 @@ const one = (
 
 const region = (content: string, start: number, end: number, pattern: RegExp, after: string) =>
   A.map(captures(Str.slice(start, end)(content), pattern, after), (entry) =>
-    ModelsWriteSpan.make({ ...entry, start: entry.start + start, end: entry.end + start })
+    ModelsWriteSpan.make({
+      ...entry,
+      start: entry.start + start,
+      end: entry.end + start,
+    })
   );
 
 const tableRegion = Effect.fn("Models.tableRegion")(
@@ -224,7 +210,10 @@ const tomlSpans = Effect.fnUntraced(function* (
 });
 
 const jsonSpans = (content: string, pointer: ReadonlyArray<string>, after: string) =>
-  Effect.try({ try: () => parseTree(content), catch: () => error("Cannot parse JSON target.") }).pipe(
+  Effect.try({
+    try: () => parseTree(content),
+    catch: () => error("Cannot parse JSON target."),
+  }).pipe(
     Effect.flatMap((tree) => {
       if (tree === undefined) return Effect.fail(error("Cannot parse JSON target."));
       const node = A.reduce(pointer, O.some(tree), (current, segment) =>
@@ -392,51 +381,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
         )
       )
     ),
-    Match.tag("shell-assign", ({ variable, within }) => {
-      const body = O.match(within, {
-        onNone: () => Effect.succeed(span(content, 0, Str.length(content), "")),
-        onSome: (name) => {
-          const functions = captures(
-            content,
-            new RegExp(`^[ \\t]*(?:function\\s+)?${Regex.escape(name)}\\s*(?:\\(\\s*\\))?\\s*\\{([^]*?)^\\}`, "gmd"),
-            ""
-          );
-          return one(functions).pipe(Effect.map((entries) => O.getOrThrow(A.head(entries))));
-        },
-      });
-      return body.pipe(
-        Effect.flatMap(({ start, end }) => {
-          const spans = A.filter(
-            region(
-              content,
-              start,
-              end,
-              modelsShellWordPattern(variable),
-              /^[a-zA-Z0-9_./:+,-]+$/.test(expected) ? expected : `'${Str.replace(/'/g, "'\\''")(expected)}'`
-            ),
-            (entry) => isShellCode(content, entry.start)
-          );
-          if (A.isReadonlyArrayEmpty(spans)) return Effect.fail(error("Shell locator has no matches."));
-          return Effect.forEach(
-            spans,
-            Effect.fnUntraced(function* (entry) {
-              yield* assertSimpleShellLine(content, entry.start, entry.end);
-              const next = O.getOrElse(Str.charAt(entry.end)(content), () => "");
-              if (/[;&|<>()'"]/.test(next)) return yield* error("Unsupported shell form: adjacent operator.");
-              const value = yield* shellWordValue(entry.before);
-              // Accept the existing bare parenthesized model spelling only when
-              // already equal, then quote it; other operator-like words refuse.
-              if (/[()]/.test(entry.before) && value !== expected && !/^["']/.test(entry.before))
-                return yield* error("Unsupported shell form: parentheses.");
-              return value === expected && (/^["']/.test(entry.before) || !/[()]/.test(entry.before))
-                ? ModelsWriteSpan.make({ ...entry, after: entry.before })
-                : entry;
-            }),
-            { concurrency: 1 }
-          );
-        })
-      );
-    }),
+    Match.tag("shell-assign", () => Effect.fail(error("Shell targets are check-only; edit by hand."))),
     Match.tag("line-value", ({ linePrefix, before, after }) => {
       const lines = A.fromIterable(Str.matchAll(new RegExp(`^${Regex.escape(linePrefix)}[^\\r\\n]*`, "gmd"))(content));
       const spans = A.flatMap(lines, (m) =>

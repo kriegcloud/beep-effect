@@ -297,7 +297,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
     })
   );
 
-  it.effect("reads exactly the shell words the projection owns", () =>
+  it.effect("reads shell drift including expansions without failing the whole checker", () =>
     Effect.gen(function* () {
       const reader = yield* ModelsLocatorReader;
       const locator: Locator = {
@@ -312,6 +312,8 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         "old"
       );
       assertSome(yield* reader.read(file('MODEL="gpt-6.1-sol(medium)";\n'), locator), "gpt-6.1-sol(medium)");
+      assertSome(yield* reader.read(file('MODEL="$X"\n'), locator), '"$X"');
+      assertSome(yield* reader.read(file("MODEL=old\nfoo \\\n  bar\nMODEL=other\n"), locator), "old, other");
     })
   );
 

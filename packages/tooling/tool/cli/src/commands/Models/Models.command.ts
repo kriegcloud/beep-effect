@@ -28,7 +28,7 @@ import { ModelsApply, ModelsApplyLive } from "./Models.apply.service.ts";
 import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
-import { bindLocatorModel } from "./Models.locator.service.ts";
+import { bindLocatorModel, modelsReadShellAssign } from "./Models.locator.service.ts";
 import { LocatorBinding, ModelSyncTarget, ModelsLocatorWrite, TargetId } from "./Models.manifest.schemas.ts";
 import { ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
@@ -117,7 +117,11 @@ const resolvePaths = Effect.fnUntraced(function* (
     O.match({
       onNone: () =>
         Config.String("HOME").pipe(
-          Effect.mapError(() => ModelsCommandError.make({ message: "HOME is unset; pass --home <dir> explicitly." }))
+          Effect.mapError(() =>
+            ModelsCommandError.make({
+              message: "HOME is unset; pass --home <dir> explicitly.",
+            })
+          )
         ),
       onSome: Effect.succeed,
     })
@@ -328,14 +332,25 @@ const initCommand = Command.make(
 const resolveApplyFile = Effect.fnUntraced(function* (paths: ResolvedPaths, target: ModelSyncTarget) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const file = resolveTargetPath(ModelsTargetLocation.make({ ...paths, root: target.root, path: target.path }));
-  if (O.isNone(file)) return yield* ModelsCommandError.make({ message: `Target ${target.id} escapes its root.` });
+  const file = resolveTargetPath(
+    ModelsTargetLocation.make({
+      ...paths,
+      root: target.root,
+      path: target.path,
+    })
+  );
+  if (O.isNone(file))
+    return yield* ModelsCommandError.make({
+      message: `Target ${target.id} escapes its root.`,
+    });
   const exists = yield* fs.exists(file.value).pipe(ModelsCommandError.mapError("Cannot inspect target."));
   if (!exists) {
     yield* fs.readLink(file.value).pipe(
       Effect.option,
       Effect.filterOrFail(O.isNone, () =>
-        ModelsCommandError.make({ message: `Target ${target.id} is a dangling symlink.` })
+        ModelsCommandError.make({
+          message: `Target ${target.id} is a dangling symlink.`,
+        })
       )
     );
     if (target.optional) return O.none<string>();
@@ -346,8 +361,10 @@ const resolveApplyFile = Effect.fnUntraced(function* (paths: ResolvedPaths, targ
   const actual = yield* fs.realPath(file.value).pipe(ModelsCommandError.mapError("Cannot resolve target file."));
   const relative = path.relative(root, actual);
   if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
-    return yield* ModelsCommandError.make({ message: `Target ${target.id} symlink escapes its root.` });
-  return O.some(actual);
+    return yield* ModelsCommandError.make({
+      message: `Target ${target.id} symlink escapes its root.`,
+    });
+  return O.some(file.value);
 });
 
 const renderModelWrite = Effect.fnUntraced(function* (manifest: ModelsManifest, locator: Locator) {
@@ -364,9 +381,15 @@ const renderModelWrite = Effect.fnUntraced(function* (manifest: ModelsManifest, 
     manifest.bindings,
     (entry) => entry.role === locator.binding.role && entry.surface === locator.binding.surface
   );
-  if (O.isNone(binding)) return yield* ModelsCommandError.make({ message: "Unbound model locator." });
+  if (O.isNone(binding))
+    return yield* ModelsCommandError.make({
+      message: "Unbound model locator.",
+    });
   const expected = expectedLocatorValue(binding.value, locator.binding.field, locator.render);
-  if (O.isNone(expected)) return yield* ModelsCommandError.make({ message: "Unrenderable model locator." });
+  if (O.isNone(expected))
+    return yield* ModelsCommandError.make({
+      message: "Unrenderable model locator.",
+    });
   return ModelsLocatorWrite.make({
     locator: bindLocatorModel(locator, binding.value.modelId),
     expected: expected.value,
@@ -381,8 +404,16 @@ const previewModelWrites = Effect.fnUntraced(function* (
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
-    const spans = yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal));
-    const change = A.some(spans, (entry) => entry.before !== entry.after);
+    const change =
+      request.locator._tag === "shell-assign"
+        ? !O.contains(
+            yield* modelsReadShellAssign(content, request.locator.variable, request.locator.within),
+            request.expected
+          )
+        : A.some(
+            yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
+            (entry) => entry.before !== entry.after
+          );
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] change=${change} expected=${request.remove === true ? "<absent>" : request.expected}`
     );
@@ -402,10 +433,10 @@ const applyModelTarget = Effect.fnUntraced(function* (
   const writes = yield* Effect.forEach(target.locators, (locator) => renderModelWrite(manifest, locator), {
     concurrency: 1,
   });
-  if (mode === "dry-run") yield* previewModelWrites(file.value, target, writes);
+  if (mode === "dry-run" || mode === "check") yield* previewModelWrites(file.value, target, writes);
   const journal = yield* writer
     .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
-    .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    .pipe(Effect.mapError((error) => ModelsCommandError.make({ message: `${target.id}: ${error.message}` })));
   yield* Console.log(
     `models: ${mode} ${target.id}; ${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
   );
@@ -423,15 +454,33 @@ const applyCommand = Command.make(
   },
   Effect.fn("ModelsCommand.apply")(function* (flags) {
     if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
-      return yield* ModelsCommandError.make({ message: "Choose one of --check, --dry-run, --write." });
+      return yield* ModelsCommandError.make({
+        message: "Choose one of --check, --dry-run, --write.",
+      });
     const paths = yield* resolvePaths(flags);
     const store = yield* ModelsManifestStore;
     const manifest = yield* store.load(paths.manifestPath).pipe(Effect.mapError(ModelsCommandError.fromInternal));
     const targets = A.filter(manifest.targets, (target) => O.isNone(flags.target) || target.id === flags.target.value);
     if (A.isReadonlyArrayEmpty(targets))
-      return yield* ModelsCommandError.make({ message: "No manifest target matched." });
+      return yield* ModelsCommandError.make({
+        message: "No manifest target matched.",
+      });
     const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
-    yield* Effect.forEach(targets, (target) => applyModelTarget(paths, manifest, target, mode), { concurrency: 1 });
+    const results = yield* Effect.forEach(
+      targets,
+      (target) =>
+        applyModelTarget(paths, manifest, target, mode).pipe(
+          Effect.as(true),
+          Effect.catchTag("ModelsCommandError", (error) =>
+            Console.error(`models: refused ${target.id}: ${error.message}`).pipe(Effect.as(false))
+          )
+        ),
+      { concurrency: 1 }
+    );
+    if (A.some(results, (success) => !success))
+      return yield* ModelsCommandError.make({
+        message: "One or more targets refused; see per-target reports.",
+      });
   })
 ).pipe(Command.withDescription("Check or preview owned native fields; --write backs up and journals each replacement"));
 
@@ -445,7 +494,9 @@ const codexPermissionsCommand = Command.make(
   },
   Effect.fn("ModelsCommand.codexPermissions")(function* (flags) {
     if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
-      return yield* ModelsCommandError.make({ message: "Choose one of --check, --dry-run, --write." });
+      return yield* ModelsCommandError.make({
+        message: "Choose one of --check, --dry-run, --write.",
+      });
     const paths = yield* resolvePaths(flags);
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
@@ -453,13 +504,19 @@ const codexPermissionsCommand = Command.make(
     const actual = yield* fs.realPath(file).pipe(ModelsCommandError.mapError("Cannot resolve Codex config."));
     const home = yield* fs.realPath(paths.home).pipe(ModelsCommandError.mapError("Cannot resolve home."));
     if (Str.startsWith("..")(path.relative(home, actual)) || path.isAbsolute(path.relative(home, actual)))
-      return yield* ModelsCommandError.make({ message: "Codex config resolves outside its home." });
+      return yield* ModelsCommandError.make({
+        message: "Codex config resolves outside its home.",
+      });
     const writer = yield* ModelsApply;
     const request = ModelsLocatorWrite.make({
       locator: {
         _tag: "toml-top-level-key",
         key: "sandbox_mode",
-        binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
+        binding: LocatorBinding.make({
+          role: "codex.heavy",
+          surface: "codex-cli",
+          field: "model",
+        }),
         render: { _tag: "verbatim" },
       },
       expected: "",
@@ -503,7 +560,9 @@ const restoreCommand = Command.make(
     const path = yield* Path.Path;
     const writer = yield* ModelsApply;
     if (!/^models-[\w-]+$/.test(flags.journal))
-      return yield* ModelsCommandError.make({ message: "Pass a journal id, not a file path." });
+      return yield* ModelsCommandError.make({
+        message: "Pass a journal id, not a file path.",
+      });
     const directory = path.join(paths.home, ".config-backups");
     yield* writer
       .restore(path.join(directory, `${flags.journal}.json`), directory)

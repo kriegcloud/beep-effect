@@ -132,15 +132,43 @@ const functionLines = (content: string, name: string): ReadonlyArray<string> => 
   );
 };
 
-const readShellAssign = (content: string, variable: string, within: O.Option<string>) =>
+/**
+ * Read shell drift without authorizing a shell write.
+ *
+ * **Example** (Read an assignment)
+ *
+ * ```ts
+ * import { modelsReadShellAssign } from "@beep/repo-cli/commands/Models/Models.locator.service"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ * console.log(Effect.isEffect(modelsReadShellAssign("MODEL=old", "MODEL", O.none())))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsReadShellAssign: {
+  (content: string, variable: string, within: O.Option<string>): Effect.Effect<O.Option<string>>;
+  (variable: string, within: O.Option<string>): (content: string) => Effect.Effect<O.Option<string>>;
+} = dual(3, (content: string, variable: string, within: O.Option<string>) =>
   modelsShellWords(
-    O.match(within, { onNone: () => content, onSome: (name) => A.join(functionLines(content, name), "\n") }),
+    O.match(within, {
+      onNone: () => content,
+      onSome: (name) => A.join(functionLines(content, name), "\n"),
+    }),
     variable
   ).pipe(
     Effect.map(
-      flow(A.dedupe, A.match({ onEmpty: O.none<string>, onNonEmpty: (values) => O.some(A.join(values, ", ")) }))
+      flow(
+        A.dedupe,
+        A.match({
+          onEmpty: O.none<string>,
+          onNonEmpty: (values) => O.some(A.join(values, ", ")),
+        })
+      )
     )
-  );
+  )
+);
 
 const readEnvKey = (content: string, key: string): O.Option<string> =>
   O.map(firstMatch(Str.split(content, "\n"), new RegExp(`^\\s*(?:export\\s+)?${Regex.escape(key)}=(.*)$`)), unquote);
@@ -386,7 +414,7 @@ const makeLocatorReader = (): ModelsLocatorReaderShape => ({
         )
       ),
       Match.tag("env-key", ({ key }) => Effect.succeed(readEnvKey(file.content, key))),
-      Match.tag("shell-assign", ({ variable, within }) => readShellAssign(file.content, variable, within)),
+      Match.tag("shell-assign", ({ variable, within }) => modelsReadShellAssign(file.content, variable, within)),
       Match.tag("xml-attribute", ({ elementSelector, attribute }) =>
         readXmlAttribute(file, elementSelector, attribute)
       ),

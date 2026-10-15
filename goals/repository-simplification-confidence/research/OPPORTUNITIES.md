@@ -2723,3 +2723,10 @@ source after those checks passed. Running the focused suite, a typecheck,
 `models check` and Fallow before the full package audit would prevent these
 wasted proof attempts. The terminal proof is separate from the interrupted
 attempts; no interrupted run is counted as a pass.
+
+- 2026-10-15, F panel round 4: a plain `beep-heavy` shell lacked the user bus;
+  no tests started. Set `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS` from
+  the lane's existing proof wrapper. A direct `mise exec oxfmt@0.50.0` also
+  triggered mise cleanup of four cached versions (direnv, Python, Pulumi,
+  pnpm); use the installed repository Biome binary directly to avoid implicit
+  tool-manager lifecycle operations during a formatter step.

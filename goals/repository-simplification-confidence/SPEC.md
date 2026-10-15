@@ -1809,3 +1809,37 @@ and require publication-protocol changes beyond the two bounded P1 repairs.
 The native writer already retains artifacts and refuses observed races; skill
 publication retains its documented POSIX rename-window limitation. Acceptance
 on this head remains driver-owned panel round 4, not the earlier verdicts.
+
+
+### RSC-F-SHELL-CHECK-ONLY — 2026-10-15, driver round-4 ruling
+
+Decision: shell-assign targets are check-only. `models check`, `apply --check`
+ and dry-run previews read all declared shell locators and report expected
+values; `apply --write` refuses every shell request before backup or staging.
+Restore refuses shell journals and legacy journals whose missing ownership
+metadata cannot establish that the target is non-shell. Remove the shell
+rewriter, replacement quoting and write-only syntax validation. Reason: three
+consecutive panels found new lexical P1s (operators; continuations/comments/
+here-documents; escaped whitespace), while every shell target is operator-owned
+and already outside F's write authority. Reversal: re-enable shell writing only
+after a real shell parser lands and passes its own independent panel.
+
+Decision: record canonical and requested destination identity plus locator
+ownership in new recovery journals. Before staging, restore re-resolves the
+canonical pathname and the original requested entry, verifies a regular canonical
+file and the recorded link spelling/target where applicable, and refuses every
+mismatch with a typed journal-bearing error. Re-check before publication.
+Reason: F-ASTRA-R4-02 reproduced a regular canonical file becoming a symlink,
+which the old restore replaced. Reversal: revert the repository fix; keep the
+backup and journal for manual recovery. Older journals fail closed rather than
+silently inferring entry identity or shell ownership.
+
+Nearby round-4 items included: R4-F1's partial shell rewrite disappears with the
+write capability and the existing per-line reader still sees values after
+continuations; R4-F2 reports each target refusal and continues before failing
+at the end; R4-F3 preserves unsupported shell words as drift values rather than
+aborting all checks; R4-F4 acquires the retained hard link within its cleanup
+scope, so a failed stat cannot leak it. No round-4 P2/P3 is deferred. The three
+protocol follow-ups already recorded under F-R3-BOUNDED-SHELL-LINKS remain open.
+No native home configuration file is changed; no new home backup is needed.
+The panel remains open and the driver alone sends merge clearance.
