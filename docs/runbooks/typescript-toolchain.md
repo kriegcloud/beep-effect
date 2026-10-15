@@ -85,8 +85,9 @@ bun run beep quality effect-diagnostics --filter @beep/observability
 ```
 
 `Heavy / Effect Diagnostics` is an independent parallel matrix job, outside
-Heavy / Check and root `bun run check`. It remains non-required during promotion;
-required Check still gates its embedded 0.51.1 Effect rules. PRs pass
+Heavy / Check and root `bun run check`. It is a required context and the only
+gate for Effect rules; tsc-rs in Heavy / Check reports them but no longer fails
+on them. PRs pass
 `--base origin/<base>`; trusted main pushes run the full inventory. The CLI reuses the coverage lane's workspace
 inventory and transitive dependent helper, including packages without coverage
 scripts and lab apps. Root compiler/lockfile/runner changes select all projects;
@@ -123,12 +124,12 @@ in #1807; no catalog suppression exception remains. The two 0.53 import-style
 rules remain explicitly off. Intentional named helper imports are pervasive,
 and Effect barrel imports violate the code law.
 
-All three `ignoreEffect*InTscExitCode` options remain **false** in the root and
-copied profiles. Required `Heavy / Check` therefore continues failing on the
-shared embedded 0.51.1 rules as well as TypeScript errors. The 0.52/0.53 rules
-are absent from its map and run only in the non-required diagnostics lane.
-A policy fixture proves a shared Effect-only finding and a TypeScript error
-each fail tsc-rs; standalone diagnostics also rejects the shared finding.
+All three `ignoreEffect*InTscExitCode` options are **true** in the root and
+copied profiles. Required `Heavy / Check` fails on TypeScript errors only; tsc-rs
+still prints its embedded 0.51.1 Effect findings, but every Effect rule, shared or
+newer, gates through the required diagnostics lane. A policy fixture proves an
+Effect-only finding leaves tsc-rs at exit 0 while standalone diagnostics rejects
+it, and a TypeScript error still fails tsc-rs.
 
 The root and all copied compiler profiles contain only rule names known by
 tsc-rs 0.6.0's embedded 0.51.1 rule set. The nine newer keys live in
@@ -142,13 +143,15 @@ The profile participates in affected selection, so changing it selects all proje
 The rule-parity checker validates the combined root and lane maps against the
 installed 0.53.0 catalog, while copied compiler profiles match the shared root map.
 
-After one green main run of `Heavy / Effect Diagnostics`, promote it in this
-order: mark its descriptor required, add `Heavy / Effect Diagnostics` to the
-main ruleset through `beep ci ruleset`, fold the lane profile into
-`tsconfig.base.json` and the copied profiles, then set all three ignore flags
-true and delete the standalone profile and its overlay loader. Keep the flags false until both the
-descriptor and live ruleset require the diagnostics context. The empty-project
-policy canary proves the interim root map produces no unknown-rule warnings.
+Promotion followed the first green main run (job 116271099290 on ce5780ed67:
+291 projects, 73,884 file visits, zero findings, 14m17s). The descriptor and
+ruleset 10240248 both require `Heavy / Effect Diagnostics`, and the three
+ignore flags are true. The standalone profile stays: an empty-project canary
+with the nine keys folded into the root map exits 0 with the flags true, but
+tsc-rs 0.6.0 prints nine TS377134 unknown-rule warnings for every project.
+Fold the profile into `tsconfig.base.json` and delete it, with its overlay
+loader, when tsc-rs ports those rules. The empty-project policy canary keeps
+proving that the root map produces no unknown-rule warnings.
 
 The eight Effect packages stay synchronized, but they no longer move with
 `tsc-rs`. Both remain independently held for reviewed upgrades. The tsc-rs 0.6.0

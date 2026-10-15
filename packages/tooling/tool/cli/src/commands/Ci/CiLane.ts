@@ -416,7 +416,7 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
     id: "effect-diagnostics",
     workflow: "heavy",
     contextName: "Heavy / Effect Diagnostics",
-    required: false,
+    required: true,
     laneClass: "cli-runnable",
     replay: "exact",
     flags: [...TURBO_SHAPE_FLAGS],
