@@ -393,7 +393,7 @@ export const enforceReviewerGate = Effect.fn("Reviewer.enforceGate")(
     if (!reviewerCheckSatisfied(checks, sha, id.value, pr, head.base.sha))
       return yield* fail("Waiting for beep-reviewer from the required App on the current PR head and base.");
     const confirmed = yield* api(`${ROOT}/pulls/${pr}`).pipe(Effect.flatMap(decodePr));
-    if (confirmed.head.sha !== sha || confirmed.base.sha !== head.base.sha)
+    if (confirmed.head.sha !== sha || confirmed.base.sha !== head.base.sha || confirmed.base.ref !== head.base.ref)
       return yield* fail("PR head or base moved during reviewer gate.");
   },
   Effect.mapError(() =>
