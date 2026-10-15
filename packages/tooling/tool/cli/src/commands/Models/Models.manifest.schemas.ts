@@ -875,6 +875,11 @@ export type ModelsApplyMode = typeof ModelsApplyMode.Type;
 /**
  * A private recovery record; file contents stay in the exclusive backup.
  *
+ * **Details**
+ *
+ * Restore independently validates TOML/JSON ownership, matching canonical path
+ * extensions and current syntax. Historical tags alone never authorize a write.
+ *
  * **Example** (Inspect recovery fields)
  *
  * ```ts

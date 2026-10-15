@@ -553,14 +553,15 @@ XML escaped-JSON attributes and historical recovery journals. Repository
 Markdown and TypeScript projection owners retain their separate generation
 commands; ModelsApply does not write those formats either.
 
-Each check-only reader reconciles every textual occurrence of each owned name
-with a recognized simple form. Shell accepts literal `NAME=value` assignment
-words and `--model value` or `-m value` pairs at recognized word starts. Quoted
-assignment words, `+=`, declarations, concatenations, expansions, continuations
-and here-document occurrences report unsupported-form drift with a line number.
-An owned name appearing only in a comment or quoted data intentionally reports
-unsupported drift. Unrelated lines such as `export PATH="$HOME/bin"` do not
-prevent an otherwise simple owned assignment from being read.
+Shell, YAML and XML readers return extracted values only as hints. Both
+`models check` and `models apply --check` always report `manual verification
+required` for these targets; equality of a hint never certifies clean. The JSON
+report carries a separate `manual` array with that status and the extracted
+`current` hint. The summary counts distinct manual targets separately from drift
+findings. Manual status alone exits zero; recognized drift and unsupported forms
+exit non-zero. Only TOML and JSON can be certified clean. Re-enabling another
+format requires a full-fidelity parser, parsed non-owned-field equality and its
+own independent panel (RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER).
 
 YAML reads simple block-mapping scalars and accounts for plain keys; anchors,
 aliases, tags, flow collections, complex keys, multiline scalars and multiple
@@ -594,3 +595,12 @@ the repository root; dangling and out-of-root links refuse before the update
 creates backups or stages. ModelsApply already resolves the native target;
 its command boundary validates the canonical target against the selected home
 or repository root, and explicitly refuses dangling optional destinations.
+
+
+Write eligibility also requires the matching `.toml` or `.json` extension on the
+canonical target path, successful parsing of current bytes and an existing owned
+path (except an already absent removal). A locator tag cannot authorize a shell
+or YAML destination even if its bytes parse as TOML or JSON. The CLI preflights
+format, locator and extension before any target access or optional-file skip;
+the service repeats the guard on canonical paths. Historical restore journals
+receive the same checks before target publication or new backup artifacts.

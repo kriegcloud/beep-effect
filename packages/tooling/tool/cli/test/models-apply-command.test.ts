@@ -2,6 +2,7 @@ import {
   LocatorBinding,
   ModelId,
   ModelSyncTarget,
+  ModelsCheckReport,
   ModelsManifest,
   modelsCommand,
   TargetId,
@@ -27,6 +28,7 @@ import type { Locator } from "@beep/repo-cli/commands/Models";
 
 const run = Command.runWith(modelsCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeEffect(ModelsManifest);
+const decodeCheckReport = S.decodeUnknownEffect(S.fromJsonString(ModelsCheckReport));
 const encodeManifest = S.encodeEffect(S.fromJsonString(ModelsManifest));
 const native = '# synthetic native state\nmodel = "old"\n[projects.synthetic]\ntrust_level = "trusted"\n';
 
@@ -95,6 +97,173 @@ const consoleLayer = Layer.effect(Console.Console, TestConsole.make);
 layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer), {
   timeout: "30 seconds",
 })((it) => {
+  it.effect("certifies clean TOML/JSON and refuses duplicate JSON keys as drift", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const binding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+      const render = { _tag: "verbatim" } as const;
+      const cases: ReadonlyArray<readonly [string, Locator, string]> = [
+        ["clean.toml", { _tag: "toml-top-level-key", key: "model", binding, render }, 'model="gpt-6.1-sol"\n'],
+        [
+          "clean.json",
+          { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
+          '{"model":"gpt-6.1-sol","native":true}',
+        ],
+      ];
+      for (const [name, locator, content] of cases) {
+        yield* fs.writeFileString(path.join(home, name), content);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(
+            ModelsManifest.make({
+              ...manifest,
+              targets: [
+                ModelSyncTarget.make({
+                  id: TargetId.make("synthetic.clean"),
+                  root: "home",
+                  path: `$HOME/${name}`,
+                  optional: false,
+                  locators: [locator],
+                }),
+              ],
+            })
+          )
+        );
+        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        yield* run(["apply", ...flags, "--check"]);
+        yield* run(["check", ...flags, "--json"]);
+        const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
+        expect(report.hasDrift).toBe(false);
+        expect(report.manual).toEqual([]);
+        if (name === "clean.json") {
+          yield* fs.writeFileString(path.join(home, name), '{"model":"wrong","model":"gpt-6.1-sol"}');
+          yield* Effect.flip(run(["check", ...flags, "--json"]));
+          yield* Effect.flip(run(["apply", ...flags, "--check"]));
+        }
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect("preflights excluded targets before all target access, including optional absence and dangling links", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const file = path.join(home, "start.sh");
+      const locator: Locator = {
+        _tag: "shell-assign",
+        variable: "MODEL",
+        within: O.none(),
+        binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
+        render: { _tag: "verbatim" },
+      };
+      for (const state of ["existing", "absent", "dangling"]) {
+        if (state === "existing") yield* fs.writeFileString(file, "MODEL=gpt-6.1-sol\n");
+        if (state === "absent") yield* fs.remove(file);
+        if (state === "dangling") yield* fs.symlink(path.join(home, "missing"), file);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(
+            ModelsManifest.make({
+              ...manifest,
+              targets: [
+                ModelSyncTarget.make({
+                  id: TargetId.make("synthetic.preflight"),
+                  root: "home",
+                  path: "$HOME/start.sh",
+                  optional: true,
+                  locators: [locator],
+                }),
+              ],
+            })
+          )
+        );
+        const accesses: Array<string> = [];
+        const record = (name: string, target: string) => {
+          if (target === file) accesses.push(name);
+        };
+        const recording = FileSystem.FileSystem.of({
+          ...fs,
+          exists: Effect.fn("ModelsCommandTest.exists")((target) => {
+            record("exists", target);
+            return fs.exists(target);
+          }),
+          realPath: Effect.fn("ModelsCommandTest.realPath")((target) => {
+            record("realPath", target);
+            return fs.realPath(target);
+          }),
+          readLink: Effect.fn("ModelsCommandTest.readLink")((target) => {
+            record("readLink", target);
+            return fs.readLink(target);
+          }),
+          readFileString: Effect.fn("ModelsCommandTest.readFileString")((target, options) => {
+            record("readFileString", target);
+            return fs.readFileString(target, options);
+          }),
+        });
+        const error = yield* Effect.flip(
+          run(["apply", "--home", home, "--repo", home, "--manifest", manifestFile, "--write"]).pipe(
+            Effect.provideService(FileSystem.FileSystem, recording)
+          )
+        );
+        expect(error._tag).toBe("ModelsCommandError");
+        expect(accesses).toEqual([]);
+        expect(yield* TestConsole.errorLines).toContain(
+          "models: refused synthetic.preflight: Shell targets are check-only; edit by hand."
+        );
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect("round seven shell and nested XML evidence always requires manual verification", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const binding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+      const render = { _tag: "verbatim" } as const;
+      const cases: ReadonlyArray<readonly [Locator, string]> = [
+        [
+          { _tag: "shell-assign", variable: "MODEL", within: O.none(), binding, render },
+          "export MOD\\EL=wrong\nMODEL=gpt-6.1-sol\n",
+        ],
+        [
+          { _tag: "xml-attribute", elementSelector: 'option[name="model"]', attribute: "value", binding, render },
+          '<root><option name="native" value="keep"><option name="model" value="wrong"/></option><option name="model" value="gpt-6.1-sol"/></root>',
+        ],
+        [{ _tag: "yaml-path", path: ["model"], binding, render }, "model: gpt-6.1-sol\n"],
+      ];
+      for (const [locator, content] of cases) {
+        const target = ModelSyncTarget.make({
+          id: TargetId.make("synthetic.manual"),
+          root: "home",
+          path: "$HOME/manual",
+          optional: false,
+          locators: [locator],
+        });
+        yield* fs.writeFileString(path.join(home, "manual"), content);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(ModelsManifest.make({ ...manifest, targets: [target] }))
+        );
+        const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+        yield* run(["apply", ...flags, "--check"]);
+        yield* run(["check", ...flags, "--json"]);
+        const lines = yield* TestConsole.logLines;
+        expect(A.some(lines, (line) => P.isString(line) && Str.includes("manual verification required")(line))).toBe(
+          true
+        );
+        expect(A.some(lines, (line) => P.isString(line) && Str.includes('"manual": [')(line))).toBe(true);
+        expect(yield* fs.readFileString(path.join(home, "manual"))).toBe(content);
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
   it.effect("checks legacy Codex permission drift, preserves pins, and journals removal", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -320,7 +489,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
       yield* run(["apply", ...flags]);
       expect(yield* TestConsole.logLines).toContain(
-        "models: preview synthetic.shell [shell-assign] change=true expected=gpt-6.1-sol"
+        "models: preview synthetic.shell [shell-assign] manual verification required; recognized drift=true expected=gpt-6.1-sol"
       );
       expect(yield* TestConsole.logLines).toContain(
         "models: preview synthetic.codex [toml-top-level-key] change=true expected=gpt-6.1-sol"

@@ -5,7 +5,7 @@ import {
   ModelsApplyJournal,
   ModelsLocatorWrite,
 } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
-import { modelsApplySpans, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
+import { modelsApplySpans, modelsCheckOnlyFormat, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
@@ -100,6 +100,63 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
 });
 
 layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+  it.effect("refuses locator and canonical extension mismatches in apply and historical restore", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "format-refusal-" });
+      const writer = yield* writerWithFs(fs);
+      const cases = [
+        ["start.sh", 'MODEL="old"\n', write({ _tag: "toml-top-level-key", binding, render, key: "MODEL" })],
+        [
+          "config.yaml",
+          '{"model":"old","native":true}',
+          write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] }),
+        ],
+      ] as const;
+      for (const [name, text, request] of cases) {
+        const file = path.join(root, name);
+        const backups = path.join(root, `${name}-backups`);
+        yield* fs.writeFileString(file, text);
+        const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
+        expect(error._tag).toBe("ModelsLocatorError");
+        expect(error.message).toContain("Target format mismatch");
+        expect(yield* fs.exists(backups)).toBe(false);
+        expect(yield* fs.readFileString(file)).toBe(text);
+        // Historical journals can carry a writable tag for an excluded destination.
+        yield* fs.makeDirectory(backups);
+        const journalFile = path.join(backups, "historical.json");
+        yield* fs.writeFileString(
+          journalFile,
+          yield* encodeRecoveryJournal(
+            ModelsApplyJournal.make({
+              id: "historical",
+              file,
+              backup: path.join(backups, "historical.backup"),
+              beforeHash: "unused",
+              afterHash: "unused",
+              mode: 0o644,
+              writes: O.some([request]),
+              requestedFile: O.some(file),
+              requestedLink: O.none(),
+            })
+          )
+        );
+        const restoreError = yield* Effect.flip(writer.restore(journalFile, backups));
+        expect(restoreError.message).toContain("Target format mismatch");
+        expect(yield* fs.readFileString(file)).toBe(text);
+        expect(yield* fs.readDirectory(backups)).toEqual(["historical.json"]);
+        // A matching visible extension cannot hide a mismatched canonical target.
+        const link = path.join(root, `${name}${request.locator._tag === "json-key" ? ".json" : ".toml"}`);
+        yield* fs.symlink(file, link);
+        expect((yield* Effect.flip(writer.apply(link, [request], "write", backups))).message).toContain(
+          "Target format mismatch"
+        );
+        expect(yield* fs.readFileString(file)).toBe(text);
+      }
+    })
+  );
+
   it.effect("preserves every native byte outside a top-level scalar with 494 projects and 311 hook states", () =>
     Effect.gen(function* () {
       const spans = yield* modelsWriteSpans(native, topLevel);
@@ -196,11 +253,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         ],
       ];
       for (const [content, locator, expected] of cases) {
-        if (
-          locator._tag === "yaml-path" ||
-          locator._tag === "xml-attribute" ||
-          locator._tag === "xml-escaped-json-attribute"
-        ) {
+        if (O.isSome(modelsCheckOnlyFormat(locator))) {
           const error = yield* Effect.flip(modelsWriteSpans(content, write(locator)));
           expect(error.message).toContain("targets are check-only; edit by hand.");
         } else

@@ -6,7 +6,8 @@
  * One reader per {@link Locator} tag, each reading the text it is handed and
  * performing no I/O of its own. Every reader is line- or node-anchored rather
  * than whole-file, so a future writer can edit in place without rewriting a
- * file a machine appends to.
+ * file a machine appends to. Shell, YAML and XML values are hints only;
+ * consumers always require manual verification and never certify them clean.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -22,11 +23,13 @@ import * as Match from "effect/Match";
 import * as Regex from "effect/RegExp";
 import * as Tuple from "effect/Tuple";
 import { XMLParser } from "fast-xml-parser";
+import { parseTree } from "jsonc-parser";
 import { isMap, isScalar as isYamlScalar, parseDocument, visit } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { parseJsonText } from "./Models.paths.ts";
 import { extractGeneratedBlock } from "./Models.render.ts";
 import { modelsShellScope, modelsShellWords } from "./Models.spans.ts";
+import type { Node as JsonNode } from "jsonc-parser";
 import type { Locator } from "./Models.manifest.schemas.ts";
 import type { ModelsTargetFile } from "./Models.paths.ts";
 
@@ -239,6 +242,32 @@ const walkPointer = (value: unknown, pointer: ReadonlyArray<string>): O.Option<s
     ),
     O.flatMap(scalarText)
   );
+
+// Parse the full document before pointer traversal. Duplicate object properties
+// have no unique ownership, even when a last-wins decoder returns a matching hint.
+const duplicateJsonKeys = (node: JsonNode): boolean => {
+  const children = O.getOrElse(O.fromUndefinedOr(node.children), () => []);
+  const names = A.map(children, (child) =>
+    O.map(A.head(O.getOrElse(O.fromUndefinedOr(child.children), () => [])), (key) => key.value)
+  );
+  return (
+    (node.type === "object" && A.length(A.dedupe(names)) !== A.length(names)) || A.some(children, duplicateJsonKeys)
+  );
+};
+
+const readJsonPointer = (
+  text: string,
+  pointer: ReadonlyArray<string>,
+  fallbacks: ReadonlyArray<ReadonlyArray<string>>
+): O.Option<string> => {
+  const tree = parseTree(text);
+  if (tree !== undefined && duplicateJsonKeys(tree)) return O.some("Unsupported JSON form: duplicate keys.");
+  return O.flatMap(parseJsonText(text), (json) =>
+    A.reduce(fallbacks, walkPointer(json, pointer), (found, fallback) =>
+      O.orElse(found, () => walkPointer(json, fallback))
+    )
+  );
+};
 
 // Reconcile every textual name occurrence with ranges independently established
 // by a simple-form reader. Comments and quoted name tokens deliberately fail.
@@ -503,16 +532,7 @@ export const modelsReadLocator = Effect.fn("Models.readLocator")(function* (file
     ),
     Match.tag("yaml-path", ({ path: yamlPath }) => Effect.succeed(readYamlPath(file.content, yamlPath))),
     Match.tag("json-key", ({ pointer, fallbacks }) =>
-      Effect.succeed(
-        pipe(
-          parseJsonText(file.content),
-          O.flatMap((json) =>
-            A.reduce(fallbacks, walkPointer(json, pointer), (found, fallback) =>
-              O.orElse(found, () => walkPointer(json, fallback))
-            )
-          )
-        )
-      )
+      Effect.succeed(readJsonPointer(file.content, pointer, fallbacks))
     ),
     Match.tag("env-key", ({ key }) => modelsReadShellAssign(file.content, key, O.none())),
     Match.tag("shell-assign", ({ variable, within }) => modelsReadShellAssign(file.content, variable, within)),
@@ -521,12 +541,7 @@ export const modelsReadLocator = Effect.fn("Models.readLocator")(function* (file
       readXmlAttribute(file, elementSelector, attribute).pipe(
         Effect.map(
           O.flatMap((raw) =>
-            Str.startsWith("Unsupported XML form")(raw)
-              ? O.some(raw)
-              : pipe(
-                  parseJsonText(raw),
-                  O.flatMap((json) => walkPointer(json, jsonPointer))
-                )
+            Str.startsWith("Unsupported XML form")(raw) ? O.some(raw) : readJsonPointer(raw, jsonPointer, [])
           )
         )
       )

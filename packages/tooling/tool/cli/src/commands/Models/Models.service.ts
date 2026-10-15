@@ -40,7 +40,8 @@ import { isEffortAllowedOnSurface } from "./Models.manifest.schemas.ts";
 import { ModelsManifestStore, ModelsManifestStoreLive } from "./Models.manifest.service.ts";
 import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
-import { DriftFinding, ModelsCheckReport } from "./Models.report.schemas.ts";
+import { DriftFinding, ManualVerification, ModelsCheckReport } from "./Models.report.schemas.ts";
+import { modelsCheckOnlyFormat } from "./Models.spans.ts";
 import type * as Crypto from "effect/Crypto";
 import type { HttpClient } from "effect/http";
 import type * as Path from "effect/Path";
@@ -303,6 +304,7 @@ interface LocatorCheckInput {
   readonly file: ModelsTargetFile;
   readonly locator: Locator;
   readonly manifest: ModelsManifest;
+  readonly manual: Array<ManualVerification>;
   readonly models: HashMap.HashMap<ModelId, CatalogModel>;
   readonly reader: ModelsLocatorReaderShape;
   readonly target: ModelSyncTarget;
@@ -370,8 +372,17 @@ const boundLocator = (input: LocatorCheckInput): Locator =>
 const checkLocator = Effect.fnUntraced(function* (
   input: LocatorCheckInput
 ): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError> {
+  const current = yield* input.reader.read(input.file, boundLocator(input));
+  if (O.isSome(modelsCheckOnlyFormat(input.locator)))
+    input.manual.push(
+      ManualVerification.make({
+        targetId: input.target.id,
+        path: input.target.path,
+        locator: input.locator,
+        current,
+      })
+    );
   const expected = expectedFor(input);
-  const readable = boundLocator(input);
   const upstreamProblem = bindingFinding(input, expected);
   if (O.isSome(upstreamProblem)) {
     // Catalog availability and file drift are independent observations. Keep
@@ -379,7 +390,7 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(
       DriftFinding.make({
         ...upstreamProblem.value,
-        current: yield* input.reader.read(input.file, readable),
+        current,
       })
     );
   }
@@ -388,12 +399,11 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(finding(input.target, input.locator, O.none(), "a renderable binding value", "invalid-effort"));
   }
 
-  const current = yield* input.reader.read(input.file, readable);
   if (O.isNone(current)) {
     return O.some(finding(input.target, input.locator, O.none(), expected.value, "missing-locator"));
   }
 
-  const unsupported = /^Unsupported (?:shell|YAML|XML) form/.test(current.value);
+  const unsupported = /^Unsupported (?:shell|YAML|XML|JSON) form/.test(current.value);
   return !unsupported && current.value === expected.value
     ? O.none<DriftFinding>()
     : O.some(finding(input.target, input.locator, current, expected.value, "stale"));
@@ -434,6 +444,7 @@ const makeCheck = (): ModelsCheckShape => ({
       );
       const boundModels = HashSet.fromIterable(A.map(manifest.bindings, (binding) => binding.modelId));
 
+      const manual: Array<ManualVerification> = [];
       const findings = yield* Effect.forEach(
         manifest.targets,
         Effect.fnUntraced(function* (target: ModelSyncTarget) {
@@ -468,7 +479,7 @@ const makeCheck = (): ModelsCheckShape => ({
           const file = ModelsTargetFile.make({ root: target.root, absolutePath, content });
 
           return yield* Effect.forEach(target.locators, (locator) =>
-            checkLocator({ answered, bindings, file, locator, manifest, models, reader, target })
+            checkLocator({ manual, answered, bindings, file, locator, manifest, models, reader, target })
           ).pipe(Effect.map(A.getSomes));
         })
       ).pipe(Effect.map(A.flatten));
@@ -478,6 +489,7 @@ const makeCheck = (): ModelsCheckShape => ({
         diff,
         diffScope: options.offline ? "suppressed-offline" : "full",
         findings,
+        manual,
         candidates: pipe(
           snapshot.models,
           A.filter((model) => model.availability.codexCli && !HashSet.has(boundModels, model.id)),

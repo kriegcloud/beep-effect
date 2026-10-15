@@ -27,7 +27,7 @@ import { ModelsLocatorError } from "./Models.errors.ts";
 import { modelsReadLocator } from "./Models.locator.service.ts";
 import { ModelsApplyJournal, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { ModelsTargetFile } from "./Models.paths.ts";
-import { modelsApplySpans, modelsCheckOnlyFormat, modelsWriteSpans } from "./Models.spans.ts";
+import { modelsApplySpans, modelsCheckOnlyFormat, modelsWritePreflight, modelsWriteSpans } from "./Models.spans.ts";
 import type { ModelsApplyMode, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.apply.service");
@@ -214,7 +214,7 @@ const checkReadOnlyDrift = Effect.fnUntraced(function* (text: string, writes: Re
       ModelsTargetFile.make({ root: "home", absolutePath: "check-only", content: text }),
       locator
     );
-    if (O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML) form/.test(value)))
+    if (O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML|JSON) form/.test(value)))
       return yield* failure(
         `${O.getOrThrow(current)}: owned configuration drift detected (${Str.toLowerCase(format.value)} target is check-only; edit by hand).`
       );
@@ -410,14 +410,18 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
 
   const apply: ModelsApplyShape["apply"] = Effect.fn("ModelsApply.apply")(
     function* (file, writes, mode, backupDirectory) {
-      const checkOnly = A.findFirst(
-        A.getSomes(A.map(writes, ({ locator }) => modelsCheckOnlyFormat(locator))),
-        () => true
-      );
-      if (mode === "write" && O.isSome(checkOnly))
-        return yield* failure(`${checkOnly.value} targets are check-only; edit by hand.`);
+      if (mode === "write")
+        yield* modelsWritePreflight(
+          file,
+          A.map(writes, (write) => write.locator)
+        ).pipe(Effect.provideService(Path.Path, path));
       // Resolving symlinks preserves their native ownership rather than replacing the link.
       const actual = yield* fs.realPath(file).pipe(io);
+      if (mode === "write")
+        yield* modelsWritePreflight(
+          actual,
+          A.map(writes, (write) => write.locator)
+        ).pipe(Effect.provideService(Path.Path, path));
       const before = yield* readNative(actual);
       yield* validate(before, writes);
       if (mode === "check") yield* checkReadOnlyDrift(before, writes);
@@ -481,6 +485,15 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
           A.getSomes(A.map(journal.writes.value, ({ locator }) => modelsCheckOnlyFormat(locator)))
         );
         if (O.isSome(checkOnly)) return yield* failure(`${checkOnly.value} targets are check-only; edit by hand.`);
+        yield* modelsWritePreflight(
+          journal.file,
+          A.map(journal.writes.value, (write) => write.locator)
+        ).pipe(Effect.provideService(Path.Path, path));
+        if (O.isSome(journal.requestedFile))
+          yield* modelsWritePreflight(
+            journal.requestedFile.value,
+            A.map(journal.writes.value, (write) => write.locator)
+          ).pipe(Effect.provideService(Path.Path, path));
         yield* assertDestination(journal);
         const backup = yield* fs.realPath(journal.backup).pipe(io);
         if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
@@ -489,6 +502,13 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         if ((yield* hash(original)) !== journal.beforeHash)
           return yield* failure("Recovery backup hash does not match.");
         const current = yield* readNative(journal.file);
+        yield* validate(current, journal.writes.value);
+        yield* validate(original, journal.writes.value);
+        yield* Effect.forEach(
+          A.filter(journal.writes.value, (write) => write.remove !== true),
+          (write) => modelsWriteSpans(current, write),
+          { concurrency: 1, discard: true }
+        );
         if ((yield* hash(current)) === journal.beforeHash) return;
         if ((yield* hash(current)) !== journal.afterHash)
           return yield* failure("Native file changed since apply; restore would overwrite new state.");

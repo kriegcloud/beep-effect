@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Regex from "effect/RegExp";
@@ -18,7 +19,6 @@ import { findNodeAtLocation, parseTree } from "jsonc-parser";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { ModelsWriteSpan } from "./Models.manifest.schemas.ts";
-import { generatedBlockBegin, generatedBlockEnd } from "./Models.render.ts";
 import type { Node as JsonNode } from "jsonc-parser";
 import type { Locator, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
@@ -57,6 +57,34 @@ export const modelsCheckOnlyFormat = (locator: Locator): O.Option<string> =>
     Match.tag("line-value", "md-generated-block", () => O.some("Text")),
     Match.exhaustive
   );
+
+/**
+ * Refuse excluded formats and mismatched extensions without accessing a target.
+ *
+ * **Example** (Preflight a TOML destination)
+ *
+ * ```ts
+ * import { modelsWritePreflight } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(modelsWritePreflight("config.toml", [])))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsWritePreflight = Effect.fn("Models.writePreflight")(function* (
+  file: string,
+  locators: ReadonlyArray<Locator>
+) {
+  const path = yield* Path.Path;
+  for (const locator of locators) {
+    const format = modelsCheckOnlyFormat(locator);
+    if (O.isSome(format)) return yield* error(`${format.value} targets are check-only; edit by hand.`);
+    const extension = locator._tag === "json-key" ? ".json" : ".toml";
+    if (path.extname(file) !== extension)
+      return yield* error(`Target format mismatch: ${locator._tag} requires a canonical ${extension} path.`);
+  }
+});
 
 // Decode only a single literal shell word. Concatenated quote components,
 // expansions and unbalanced quoting need a shell AST owner and fail closed.
@@ -440,6 +468,8 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
   content: string,
   request: ModelsLocatorWrite
 ): Effect.fn.Return<ReadonlyArray<ModelsWriteSpan>, ModelsLocatorError> {
+  const checkOnly = modelsCheckOnlyFormat(request.locator);
+  if (O.isSome(checkOnly)) return yield* error(`${checkOnly.value} targets are check-only; edit by hand.`);
   if (request.remove === true) {
     if (request.locator._tag !== "toml-top-level-key")
       return yield* error("Removal owns only a top-level TOML assignment.");
@@ -475,68 +505,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
     Match.tag("toml-top-level-key", ({ key }) => tomlSpans(content, key, O.none(), quoted, expected)),
     Match.tag("toml-table-key", ({ key, table }) => tomlSpans(content, key, O.some(table), quoted, expected)),
     Match.tag("json-key", ({ pointer }) => jsonSpans(content, pointer, quoted)),
-    Match.tag("yaml-path", () => Effect.fail(error("YAML targets are check-only; edit by hand."))),
-    Match.tag("env-key", ({ key }) =>
-      one(
-        captures(
-          content,
-          new RegExp(
-            `^[ \\t]*(?:export[ \\t]+)?${Regex.escape(key)}=("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]*?)(?=[ \\t]*(?:#|\\r?$))`,
-            "gmd"
-          ),
-          quoted
-        )
-      ).pipe(
-        Effect.map(
-          A.map((entry) => {
-            const token = Str.trim(entry.before);
-            const decoded = Str.startsWith('"')(token) || Str.startsWith("'")(token) ? Str.slice(1, -1)(token) : token;
-            return decoded === expected ? ModelsWriteSpan.make({ ...entry, after: entry.before }) : entry;
-          })
-        )
-      )
-    ),
-    Match.tag("ts-literal", ({ symbol }) =>
-      one(
-        captures(
-          content,
-          new RegExp(`export\\s+const\\s+${Regex.escape(symbol)}\\s*(?::[^=]+)?=\\s*("(?:\\\\.|[^"\\\\])*")`, "gd"),
-          quoted
-        )
-      )
-    ),
-    Match.tag("shell-assign", () => Effect.fail(error("Shell targets are check-only; edit by hand."))),
-    Match.tag("line-value", ({ linePrefix, before, after }) => {
-      const lines = A.fromIterable(Str.matchAll(new RegExp(`^${Regex.escape(linePrefix)}[^\\r\\n]*`, "gmd"))(content));
-      const spans = A.flatMap(lines, (m) =>
-        region(
-          content,
-          O.getOrElse(O.fromUndefinedOr(m.index), () => 0),
-          O.getOrElse(O.fromUndefinedOr(m.index), () => 0) + Str.length(m[0]),
-          new RegExp(`${Regex.escape(before)}(.*?)${Regex.escape(after)}`, "gd"),
-          expected
-        )
-      );
-      return A.isReadonlyArrayEmpty(spans) ? Effect.fail(error("Line locator has no matches.")) : Effect.succeed(spans);
-    }),
-    Match.tag("xml-attribute", "xml-escaped-json-attribute", () =>
-      Effect.fail(error("XML targets are check-only; edit by hand."))
-    ),
-    Match.tag("md-generated-block", ({ blockId }) => {
-      const begin = generatedBlockBegin(blockId);
-      const end = generatedBlockEnd(blockId);
-      const open = O.getOrElse(Str.indexOf(begin)(content), () => -1);
-      const close = O.getOrElse(Str.indexOf(end)(content), () => -1);
-      if (
-        open < 0 ||
-        close < open ||
-        O.isSome(Str.indexOf(begin)(Str.slice(open + 1)(content))) ||
-        O.isSome(Str.indexOf(end)(Str.slice(close + 1)(content)))
-      )
-        return Effect.fail(error("Generated block markers are missing or ambiguous."));
-      return Effect.succeed([span(content, open + Str.length(begin), close, `\n${expected}\n`)]);
-    }),
-    Match.exhaustive
+    Match.orElse(() => Effect.fail(error("Target is check-only; edit by hand.")))
   );
 });
 

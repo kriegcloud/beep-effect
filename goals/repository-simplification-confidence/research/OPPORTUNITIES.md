@@ -2792,3 +2792,10 @@ checks before starting a long full audit when adding a scanner.
   a new main-only Session file as an F edit. Freeze the integrated base in each
   receipt and use the PR merge-base diff for touched-file selection; integrate
   the updated main, regenerate both catalog owners, and supersede mixed-base proof.
+
+
+- 2026-10-15, F round-7 repair: the first admitted test launch reported
+  "Failed to connect to user scope bus" before executing tests. The existing
+  admission wrapper needs command-local user-bus environment variables in this
+  terminal. Reissued through that wrapper with the user bus selected; no direct
+  heavy-command bypass. A wrapper-level discovery path would prevent recurrence.

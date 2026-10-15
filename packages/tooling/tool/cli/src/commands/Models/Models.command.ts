@@ -43,7 +43,7 @@ import {
   ModelsLive,
   ModelsManifestStore,
 } from "./Models.service.ts";
-import { modelsCheckOnlyFormat, modelsWriteSpans } from "./Models.spans.ts";
+import { modelsCheckOnlyFormat, modelsWritePreflight, modelsWriteSpans } from "./Models.spans.ts";
 import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
@@ -172,6 +172,12 @@ const renderReportMarkdown = (report: ModelsCheckReport): string =>
       `Catalog: ${report.catalog.modelCount} model(s) from ${A.join(report.catalog.sources, ", ")}`,
       renderCatalogDiff(report),
       `Unbound Codex candidates (propose only): ${A.join(report.candidates, ", ")}`,
+      `Manual verification required: ${A.length(A.dedupe(A.map(report.manual, (entry) => entry.targetId)))} target(s)`,
+      ...A.map(
+        report.manual,
+        (entry) =>
+          `- ${entry.targetId}: manual verification required; hint=${O.getOrElse(entry.current, () => "<absent>")}`
+      ),
       `Drift: ${report.hasDrift ? "yes" : "no"} (${A.length(report.findings)} finding(s))`,
       "",
       "| Target | Locator | Kind | Current | Expected |",
@@ -235,8 +241,16 @@ const runCheck = Effect.fnUntraced(function* (flags: ModelsCommandFlags) {
     yield* Console.log(formatJsonValue(encoded));
   } else {
     yield* Effect.forEach(report.findings, (entry) => Console.log(renderFinding(entry)), { discard: true });
+    yield* Effect.forEach(
+      report.manual,
+      (entry) =>
+        Console.log(
+          `models: ${entry.targetId} [${entry.locator._tag}] manual verification required; hint=${O.getOrElse(entry.current, () => "<absent>")}`
+        ),
+      { discard: true }
+    );
     yield* Console.log(
-      `models: ${A.length(report.findings)} finding(s) across ${report.catalog.modelCount} catalog model(s) ` +
+      `models: ${A.length(A.dedupe(A.map(report.manual, (entry) => entry.targetId)))} manual target(s); ${A.length(report.findings)} finding(s) across ${report.catalog.modelCount} catalog model(s) ` +
         `from ${A.join(report.catalog.sources, ", ")}`
     );
     yield* Console.log(`models: ${renderCatalogDiff(report)}`);
@@ -411,7 +425,7 @@ const previewModelWrites = Effect.fnUntraced(function* (
         ).pipe(
           Effect.map(
             (current) =>
-              O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML) form/.test(value)) ||
+              O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML|JSON) form/.test(value)) ||
               !O.contains(current, request.expected)
           )
         )
@@ -419,8 +433,16 @@ const previewModelWrites = Effect.fnUntraced(function* (
           yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
           (entry) => entry.before !== entry.after
         );
+    const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
+    if (manual) {
+      const hint = yield* modelsReadLocator(
+        ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
+        request.locator
+      );
+      yield* Console.log(`models: hint ${target.id} [${request.locator._tag}] ${O.getOrElse(hint, () => "<absent>")}`);
+    }
     yield* Console.log(
-      `models: preview ${target.id} [${request.locator._tag}] change=${change} expected=${request.remove === true ? "<absent>" : request.expected}`
+      `models: preview ${target.id} [${request.locator._tag}] ${manual ? "manual verification required; recognized drift=" : "change="}${change} expected=${request.remove === true ? "<absent>" : request.expected}`
     );
   }
 });
@@ -431,6 +453,8 @@ const applyModelTarget = Effect.fnUntraced(function* (
   target: ModelSyncTarget,
   mode: ModelsApplyMode
 ) {
+  if (mode === "write")
+    yield* modelsWritePreflight(target.path, target.locators).pipe(Effect.mapError(ModelsCommandError.fromInternal));
   const file = yield* resolveApplyFile(paths, target);
   if (O.isNone(file)) return;
   const path = yield* Path.Path;
@@ -443,7 +467,7 @@ const applyModelTarget = Effect.fnUntraced(function* (
     .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
     .pipe(Effect.mapError((error) => ModelsCommandError.make({ message: error.message })));
   yield* Console.log(
-    `models: ${mode} ${target.id}; ${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
+    `models: ${mode} ${target.id}; ${A.some(target.locators, (locator) => O.isSome(modelsCheckOnlyFormat(locator))) ? "manual verification required; " : ""}${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
   );
   if (O.isSome(journal)) yield* Console.log(`models: restore --journal ${journal.value.id}`);
 });

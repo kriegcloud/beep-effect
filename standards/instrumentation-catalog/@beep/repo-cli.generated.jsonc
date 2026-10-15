@@ -2071,6 +2071,7 @@
     {"name":"Models.readShellAssign","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Models.shellWords","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Models.tableRegion","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Models.writePreflight","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Models.writeSpans","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsApply.apply","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsApply.make","owner":"@beep/repo-cli","family":"tooling","conforms":true},

@@ -1927,3 +1927,36 @@ identity-refusal message by scoping I/O mapping to link creation; R6-F5 document
 retained pre-publication backup/journal pairs and their no-op restore. No nearby
 round-6 P2/P3 is deferred. The three already tracked protocol follow-ups retain
 their existing reasons and reversal paths. The panel remains open for round 7.
+
+
+### RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER — driver round-7 ruling (2026-10-15)
+
+Decision: only TOML and JSON may be certified clean, with a full parser and
+parsed equality of non-owned fields on the retained write path. Shell, YAML
+and XML readers provide extracted hints only. `models check` and `apply --check`
+always label those targets `manual verification required`, including equal
+values and the round-7 nested XML and escaped shell-name inputs. Recognized
+drift and unsupported forms still report drift. The report counts manual
+targets separately; manual status alone exits zero, while real drift or an
+unsupported form exits non-zero. No additional lexical cases are added.
+
+Reason: four consecutive panel rounds found a new false-clean P1 in these
+bounded readers. Manual verification removes the unsupported certification
+claim by construction, covering F-ASTRA-R7-03 and R7-F1 (and the related
+cross-line shell concern R7-F2).
+
+The write preflight independently requires a TOML/JSON locator and matching
+`.toml`/`.json` path extension. The CLI performs it before target resolution,
+optional skipping or filesystem access. The service repeats it on the canonical
+path, parses current bytes and resolves the owned path before any backup or
+publication. Restore applies the same eligibility checks to historical journals
+and validates the current and backup syntax before exchange. This covers
+F-ASTRA-R7-01, F-ASTRA-R7-02 and the duplicate ordering observation R7-F3.
+R7-F4 removes unreachable check-only write grammars. R7-F5 adds full JSON-tree duplicate-key detection before pointer traversal,
+including escaped JSON hints, so last-wins decoding cannot certify clean.
+
+Reversal: certify a format again only once a full-fidelity parser with parsed
+non-owned-field equality lands behind its own independent panel. Repository
+changes reverse with the F commit. This wave performs no home writes and needs
+no new native backup; all previous backups and rollback evidence remain retained.
+The panel stays OPEN for the driver's round 8; no readiness monitor or final gate.
