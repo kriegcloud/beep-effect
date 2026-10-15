@@ -250,6 +250,7 @@ describe("mergeDeclarations", () => {
       AttributeKeyName.make("beep.outcome"),
       AttributeKeyName.make("beep.package"),
       AttributeKeyName.make("beep.privacy_tier"),
+      AttributeKeyName.make("beep.schema_failure_tag"),
     ]);
   });
 
@@ -498,6 +499,7 @@ describe("kernel declarations", () => {
         { key: "beep.privacy_tier", cardinality: "static", minTier: "shape-only" },
         { key: "beep.identity_source", cardinality: "static", minTier: "shape-only" },
         { key: "beep.outcome", cardinality: "static", minTier: "shape-only" },
+        { key: "beep.schema_failure_tag", cardinality: "static", minTier: "shape-only" },
       ]
     );
     assertTrue(
