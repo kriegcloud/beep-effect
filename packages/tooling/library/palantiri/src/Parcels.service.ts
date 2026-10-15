@@ -35,6 +35,7 @@ import {
 import { AppErrorClassesSpec, reduceAppErrorClasses } from "./AppErrorClasses.ts";
 import { Freshness } from "./Freshness.ts";
 import { freshPressureStalls, HostPressureSpec, hostPressureItems, reduceHostPressure } from "./HostPressure.ts";
+import { replaceGaugeSeries } from "./internal/GaugeSeries.ts";
 import { LaneRedsSpec, reduceLaneReds } from "./LaneReds.ts";
 import {
   AccountsWindowRemaining,
@@ -297,10 +298,10 @@ const byRemaining: Order.Order<GaugeReading> = Order.mapInput(Num.Order, (readin
 // One series per provider, window and scope: several accounts of one provider
 // share it, so it reports the most headroom any of them has, and scoped
 // windows (one per model group) stay separate series. Only fresh items count,
-// so a stale reading never looks current. A gauge keeps its last value, so in
-// a long-lived process a series that goes stale keeps reporting its last fresh
-// reading; each `beep palantiri` CLI run is its own process with an empty
-// registry, and the long-lived MCP host clears stale series (P3).
+// so a stale reading never looks current. A gauge keeps its last value, so
+// every read replaces the gauge's whole series set: in a long-lived host (the
+// `beep palantiri mcp` server) a series whose reading went stale, or whose
+// source failed, stops reporting instead of repeating its last fresh value.
 const gaugeReadings = (items: ReadonlyArray<AccountHeadroom>): ReadonlyArray<GaugeReading> =>
   A.map(
     R.values(
@@ -324,29 +325,26 @@ const gaugeReadings = (items: ReadonlyArray<AccountHeadroom>): ReadonlyArray<Gau
   );
 
 const recordHeadroom = (items: ReadonlyArray<AccountHeadroom>) =>
-  Effect.forEach(
-    gaugeReadings(items),
-    (reading) =>
-      Metric.update(
-        Metric.withAttributes(windowRemaining, {
-          [ProviderAttribute]: reading.provider,
-          [WindowAttribute]: reading.window,
-          [WindowScopeAttribute]: reading.scope,
-        }),
-        reading.remaining
-      ),
-    { discard: true }
+  replaceGaugeSeries(
+    windowRemaining,
+    A.map(gaugeReadings(items), (reading) => [
+      {
+        [ProviderAttribute]: reading.provider,
+        [WindowAttribute]: reading.window,
+        [WindowScopeAttribute]: reading.scope,
+      },
+      reading.remaining,
+    ])
   );
 
 const pressureStall = Metric.gauge(HostPressureStall.name, { description: HostPressureStall.description });
 
-// One series per resource, from fresh readings only.
+// One series per resource, from fresh readings only; a resource that is no
+// longer fresh loses its series.
 const recordPressure = (items: ReadonlyArray<HostPressureItem>) =>
-  Effect.forEach(
-    freshPressureStalls(items),
-    (stall) =>
-      Metric.update(Metric.withAttributes(pressureStall, { [ResourceAttribute]: stall.resource }), stall.some.avg10),
-    { discard: true }
+  replaceGaugeSeries(
+    pressureStall,
+    A.map(freshPressureStalls(items), (stall) => [{ [ResourceAttribute]: stall.resource }, stall.some.avg10])
   );
 
 const freshnessState = Freshness.match({ Fresh: () => "fresh", Unknown: () => "unknown" });
@@ -380,7 +378,7 @@ const makeParcels = Effect.gen(function* () {
       Effect.tap((input) => recordHeadroom(accountHeadroomItems(input.report, now))),
       Effect.map(reduceAccountHeadroom(now, budget)),
       Effect.catchTag("SourceFailed", (failure) =>
-        Effect.succeed(unavailable(AccountHeadroomSpec, now, budget, failure))
+        recordHeadroom([]).pipe(Effect.as(unavailable(AccountHeadroomSpec, now, budget, failure)))
       )
     );
   });
@@ -398,7 +396,9 @@ const makeParcels = Effect.gen(function* () {
     return yield* host.snapshot.pipe(
       Effect.tap((input) => recordPressure(hostPressureItems(input, now))),
       Effect.map(reduceHostPressure(now, budget)),
-      Effect.catchTag("SourceFailed", (failure) => Effect.succeed(unavailable(HostPressureSpec, now, budget, failure)))
+      Effect.catchTag("SourceFailed", (failure) =>
+        recordPressure([]).pipe(Effect.as(unavailable(HostPressureSpec, now, budget, failure)))
+      )
     );
   });
 

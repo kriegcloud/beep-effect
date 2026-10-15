@@ -1,0 +1,265 @@
+/**
+ * Wire shapes of `beep palantiri mcp` and the hot-parcels file the Claude
+ * SessionStart hook prints.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $RepoCliId } from "@beep/identity/packages";
+import { ParcelBudget, ParcelId, ParcelKey, ParcelSource, SessionKey } from "@beep/palantiri";
+import { LiteralKit } from "@beep/schema";
+import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("commands/Palantiri/Palantiri.schemas");
+
+/**
+ * Arguments of a parcel tool: the most items to return.
+ *
+ * **Example** (Ask for five items)
+ *
+ * ```ts
+ * import { ParcelToolInput } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(ParcelToolInput.make({ budget: 5 }).budget) // 5
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ParcelToolInput extends S.Opaque<ParcelToolInput, { readonly brand: unique symbol }>()(
+  S.Struct({ budget: S.optionalKey(ParcelBudget) }).pipe(
+    $I.annoteSchema("ParcelToolInput", {
+      description: "Arguments of a parcel tool: the most items to return (1-500, default 20).",
+    })
+  )
+) {}
+
+/**
+ * Arguments of the since-last-check tool: the budget and the session whose
+ * read cursor moves.
+ *
+ * **Example** (Name the session)
+ *
+ * ```ts
+ * import { SinceLastCheckToolInput } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(SinceLastCheckToolInput.make({ session: "s-1" }).session) // "s-1"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SinceLastCheckToolInput extends S.Opaque<SinceLastCheckToolInput, { readonly brand: unique symbol }>()(
+  S.Struct({ budget: S.optionalKey(ParcelBudget), session: S.optionalKey(SessionKey) }).pipe(
+    $I.annoteSchema("SinceLastCheckToolInput", {
+      description:
+        "Arguments of the since-last-check tool: the budget, and the session whose cursor to read and move (default: the host's CLAUDE_CODE_SESSION_ID or CODEX_THREAD_ID).",
+    })
+  )
+) {}
+
+/**
+ * No arguments: the tool reads nothing from its caller.
+ *
+ * **Example** (Build the empty input)
+ *
+ * ```ts
+ * import { NoToolInput } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(NoToolInput.make({})) // {}
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NoToolInput extends S.Opaque<NoToolInput, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe($I.annoteSchema("NoToolInput", { description: "A tool that takes no arguments." }))
+) {}
+
+/**
+ * One parcel as the list tool describes it: id, key, freshness bound, sources
+ * and the tool that reads it.
+ *
+ * **Example** (Describe the account-headroom parcel)
+ *
+ * ```ts
+ * import { ParcelListing } from "@beep/repo-cli/test/Palantiri"
+ *
+ * const listing = ParcelListing.make({
+ *   id: "account-headroom",
+ *   key: "account",
+ *   freshnessBound: "300s",
+ *   sources: ["accounts-poll", "accounts-retained"],
+ *   tool: "palantiri_account_headroom"
+ * })
+ * console.log(listing.tool) // "palantiri_account_headroom"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ParcelListing extends S.Opaque<ParcelListing, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: ParcelId,
+    key: ParcelKey,
+    freshnessBound: S.String,
+    sources: S.Array(ParcelSource),
+    tool: S.String,
+  }).pipe(
+    $I.annoteSchema("ParcelListing", {
+      description: "A parcel's id, key, freshness bound (seconds, or none), sources and MCP tool name.",
+    })
+  )
+) {}
+
+/**
+ * Every parcel the MCP host serves.
+ *
+ * **Example** (An empty catalog)
+ *
+ * ```ts
+ * import { ParcelCatalog } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(ParcelCatalog.make({ parcels: [] }).parcels.length) // 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ParcelCatalog extends S.Opaque<ParcelCatalog, { readonly brand: unique symbol }>()(
+  S.Struct({ parcels: S.Array(ParcelListing) }).pipe(
+    $I.annoteSchema("ParcelCatalog", { description: "Every parcel the Palantiri MCP host serves." })
+  )
+) {}
+
+/**
+ * The parcels `beep session open` pushes: account headroom, lane reds and
+ * host pressure.
+ *
+ * **Example** (List the hot parcels)
+ *
+ * ```ts
+ * import { HotParcelId } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(HotParcelId.literals) // ["account-headroom", "lane-reds", "host-pressure"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HotParcelId = LiteralKit(["account-headroom", "lane-reds", "host-pressure"]).pipe(
+  $I.annoteSchema("HotParcelId", { description: "A parcel `beep session open` prints." })
+);
+
+/**
+ * A parcel `beep session open` prints.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HotParcelId = typeof HotParcelId.Type;
+
+/**
+ * How a hot parcel's read ended: read, timed out, or failed.
+ *
+ * **Example** (Narrow a state)
+ *
+ * ```ts
+ * import { HotLineState } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(HotLineState.is["timed-out"]("timed-out")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HotLineState = LiteralKit(["read", "timed-out", "failed"]).pipe(
+  $I.annoteSchema("HotLineState", { description: "How a hot parcel's read ended." })
+);
+
+/**
+ * How a hot parcel's read ended.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HotLineState = typeof HotLineState.Type;
+
+/**
+ * One hot parcel as one line: its summary and freshness, or why it is
+ * unknown.
+ *
+ * **Example** (A timed-out read)
+ *
+ * ```ts
+ * import { HotParcelLine } from "@beep/repo-cli/test/Palantiri"
+ *
+ * const line = HotParcelLine.make({ parcel: "lane-reds", state: "timed-out", text: "Unknown (timed out after 2s)" })
+ * console.log(line.parcel) // "lane-reds"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: unique symbol }>()(
+  S.Struct({ parcel: HotParcelId, state: HotLineState, text: S.String }).pipe(
+    $I.annoteSchema("HotParcelLine", {
+      description: "One hot parcel's summary and freshness as one line, and how its read ended.",
+    })
+  )
+) {}
+
+/**
+ * The hot-parcels file `beep session open` stages for the SessionStart hook,
+ * which prints it without running the CLI.
+ *
+ * **Example** (Stage one line)
+ *
+ * ```ts
+ * import { HotParcelLine, HotParcels } from "@beep/repo-cli/test/Palantiri"
+ * import * as DateTime from "effect/DateTime"
+ *
+ * const hot = HotParcels.make({
+ *   schemaVersion: "palantiri-hot/v1",
+ *   writtenAt: DateTime.makeUnsafe("2026-10-15T12:00:00Z"),
+ *   lines: [HotParcelLine.make({ parcel: "host-pressure", state: "read", text: "cpu 1.8% stalled" })]
+ * })
+ * console.log(hot.lines.length) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HotParcels extends S.Opaque<HotParcels, { readonly brand: unique symbol }>()(
+  S.Struct({
+    schemaVersion: S.Literal("palantiri-hot/v1"),
+    writtenAt: S.DateTimeUtcFromString,
+    lines: S.Array(HotParcelLine),
+  }).pipe(
+    $I.annoteSchema("HotParcels", {
+      description: "The hot parcels `beep session open` last printed, staged for the SessionStart hook.",
+    })
+  )
+) {}
+
+/**
+ * {@link HotParcels} as the JSON text of the staged file.
+ *
+ * **Example** (Encode a staged file)
+ *
+ * ```ts
+ * import { HotParcels, HotParcelsJson } from "@beep/repo-cli/test/Palantiri"
+ * import * as DateTime from "effect/DateTime"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const text = S.encodeEffect(HotParcelsJson)(
+ *   HotParcels.make({ schemaVersion: "palantiri-hot/v1", writtenAt: DateTime.makeUnsafe("2026-10-15T12:00:00Z"), lines: [] })
+ * )
+ * console.log(Effect.isEffect(text)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HotParcelsJson = S.fromJsonString(HotParcels);

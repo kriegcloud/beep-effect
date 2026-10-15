@@ -11,7 +11,7 @@ Status: `pending`
 | P0 Research | complete | Parcel specs, sources per parcel, HttpApi contract. | Schemas drafted; sources verified. |
 | P1 Slice | complete | Account-headroom parcel + gauge + CLI. | First vertical slice verified live. |
 | P2 Parcels | complete | Remaining four parcels + completeness check. | Decode + freshness tests green. |
-| P3 MCP + session | pending | palantiri-mcp host; session-open push. | MCP handshake smoke green. |
+| P3 MCP + session | complete | palantiri-mcp host; session-open push. | MCP handshake smoke green. |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
 | P5 Close | pending | Reflection; packet flip. | completed-retained. |
 
@@ -144,6 +144,59 @@ Before marking the packet closed:
   `lint policy-fingerprint --check` and `tsconfig-sync --check` exit 0.
   No inventory under `standards/` grew; the only `standards/` changes are
   the regenerated instrumentation catalog and its summary table.
+
+### P3 MCP + session (complete 2026-10-15)
+
+- `@beep/palantiri`: `internal/GaugeSeries.ts` `replaceGaugeSeries` sets one
+  series per fresh reading and drops every other series of the gauge from
+  `Metric.MetricRegistry` (Effect 4.0.4 has no remove-series API; the
+  registry is the public `Map` the OTLP exporter snapshots). Both gauges use
+  it, and a failed source clears its gauge. Tests: two reads in one process,
+  fresh then stale (and fresh then failed), leave no `anthropic` series;
+  host pressure fresh then stale leaves no resource series.
+- `@beep/repo-cli` `commands/Palantiri/`: `Palantiri.runtime.ts` (shared
+  `readParcel`, runtime, session resolution, freshness text),
+  `Palantiri.tools.ts` (`PalantiriToolkit`: `palantiri_parcels` plus one tool
+  per parcel; `layerPalantiriMcp`; `servePalantiriMcp` pins
+  `Logger.LogToStderr`), `Palantiri.hot.ts` (`hotParcels`,
+  `renderHotBlock`, `stageHotParcels`, `printHotParcels`),
+  `Palantiri.schemas.ts` (tool inputs, `ParcelCatalog`, `HotParcels`),
+  `beep palantiri mcp [--otlp-endpoint URL]` (else
+  `BEEP_PALANTIRI_OTLP_ENDPOINT`). `writePrivateFile` (0700 directory, 0600
+  unique temporary file, rename) now backs both the account snapshot and
+  `hot.json`. `beep session open` prints the hot block after the ledger rows
+  in text mode; `.claude/hooks/session-ledger.sh` prints `hot.json` on every
+  exit path. Decisions: `SPEC.md` Decision Log rows marked P3.
+- Live (2026-10-15, workstation):
+  - stdio client against `beep palantiri mcp`: `initialize` answered
+    `beep-palantiri` on protocol `2025-06-18`; `tools/list` returned the six
+    tools (`palantiri_since_last_check` not read-only);
+    `palantiri_account_headroom` returned `Fresh`, `11 of 13 accounts fresh;
+    1 stale (grok-bot), 1 unreachable (codex); most weekly headroom: claude
+    #3 at 100%`, `structuredContent` equal to the text, nothing on stderr.
+    The same call through `beep palantiri parcel account-headroom --json`
+    was identical apart from `readAt`. No `@` and no `/home/` in either.
+  - `beep session open`: account headroom `Unknown (timed out after 2s)`
+    (the snapshot was older than 5 minutes, so the read started a live poll),
+    lane reds `0 of 80 reds fresh; 80 stale (...)` and host pressure `5 of
+    5 readings fresh; ...`, each with `fresh as of`; `hot.json` written
+    `0600` in a `0700` directory; the hook printed the same three lines.
+- Gates (2026-10-15): `observability catalog --write` then `--check`,
+  `lint schema-catalog --write`, `quality test-tsgo`, `package-verify
+  @beep/palantiri`, `lint effect-vitest`, `lint schema-first`, the
+  schema-opaque codemod `--check`, `turbo run check` for both packages,
+  `oxlint --config .oxlintrc.docs.json` on the changed sources,
+  `quality fallow audit --check --base origin/main` (0 findings),
+  `quality cache-policy` (0 blocking), `lint policy-fingerprint --check`
+  and `tsconfig-sync --check` exit 0. The full `package-verify
+  @beep/repo-cli` ran tests (6634 passed) and docgen green but failed lint
+  on one import-order finding in `Palantiri.tools.ts`; after the fix,
+  `package-verify @beep/repo-cli --quick` (lint and check) exits 0. No
+  inventory under `standards/` grew; only the regenerated instrumentation
+  and schema catalog shards changed.
+- Known limit: `session open` rarely gets account headroom within 2 seconds
+  unless a `beep palantiri` read refreshed the snapshot in the last 5
+  minutes; a staged line from an earlier finished read is kept in `hot.json`.
 
 ### Standing notes
 
