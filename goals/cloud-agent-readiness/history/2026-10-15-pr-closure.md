@@ -100,3 +100,8 @@ worker backup was made at
 source is `0f5bf3d896024a691abe16cd3d68a258f6a173f8`. Separate worker main remains
 `b43a4098bbdc345f897c87f84f58953cb7fd4825`. These observations precede the next
 publication and worker synchronization; neither is claimed complete here.
+
+The sharded schema catalog separately passed `beep lint schema-catalog`
+(7,980 entries in 141 shards); no schema-catalog rewrite was needed for the
+readiness delta. The integrated main merge was committed as `1818e6389508`.
+The prior unpublished `7576533cae` merge remains in its ancestry.
