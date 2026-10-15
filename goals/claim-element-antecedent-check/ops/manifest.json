@@ -60,7 +60,7 @@
     {
       "id": "P2",
       "name": "Deterministic implementation + USPTO adapter + labelled set",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P3",
@@ -94,5 +94,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "Graduated 2026-10-14 from explorations/claim-element-graph; P0-P2 are open to start; P3 waits on review-verdict-envelope P1 (ReviewItem / VerdictRow schema)."
+  "statusNote": "P0-P1 merged (#1764). P2a rules and P2b Layer plus fixture-backed USPTO adapter ship in the P2 PR; P2c labelled set and live acceptance wait on the operator regenerating the USPTO ODP key (403)."
 }

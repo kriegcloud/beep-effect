@@ -10,10 +10,10 @@ import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { parse, printParseErrorCode } from "jsonc-parser";
-import { PosixPath } from "../../eslint/Shared.ts";
+import { PosixPath } from "../../laws/Shared.ts";
 import type { ParseError } from "jsonc-parser";
 
-const $I = $RepoConfigsId.create("internal/eslint/EffectLawsAllowlistSchemas");
+const $I = $RepoConfigsId.create("internal/laws/EffectLawsAllowlistSchemas");
 
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
 const DATE_YMD_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;

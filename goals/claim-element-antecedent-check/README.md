@@ -55,7 +55,8 @@ Sibling goals:
 
 ## Current Phase
 
-P2 Implementation + adapter. P0 and P1 are complete.
+P2, in progress. P0 and P1 merged in #1764. P2a (rules) and P2b (Layer and a fixture-backed
+USPTO adapter) are in the P2 PR. P2c and the live acceptance wait on the USPTO key.
 
 ## Latest Evidence
 
@@ -72,6 +73,16 @@ P2 Implementation + adapter. P0 and P1 are complete.
     Decision Log.
   - `package-verify` passes for `@beep/law-practice-domain` and `@beep/law-practice-use-cases`.
     The repo-wide docgen run is left to hosted Docgen on the publish PR.
+- **P2a:**
+  - `decomposeClaim` and `antecedentPolicy`, following `research/P2-DESIGN.md`. Deviations and
+    known limits are in its "P2a as built" section.
+  - 22 synthetic rule fixtures, plus failure fixtures, a participle regression test and a
+    determinism property test.
+- **P2b:**
+  - `ClaimSelfCheckLive` (`check`, `checkPublished`, `candidates` with term evidence).
+  - `UsptoClaimsLive`, which reads the latest `CLM` document's XML claims, tested over a recorded
+    synthetic fixture.
+  - Shared claim and term evidence helpers.
 
 ## Notes
 
