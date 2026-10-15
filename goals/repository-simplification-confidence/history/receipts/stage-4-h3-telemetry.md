@@ -599,3 +599,7 @@ limitations, not a full coverage-ratchet pass:
 All 17 Yeet cheap gates pass. Test-tsgo and local docgen pass on the installed integrated source. Remaining parity and delivery results are recorded in the current handoff after terminal verification. Existing native-client qualification limits and incomplete 30-session windows remain; this re-merge does not establish new observations or genuine non-use.
 
 The integrated parity sequence is terminal: test-tsgo (03:28:07 UTC), local docgen (03:29:05), JSDoc ratchet (03:37:46), CI knowledge refs (03:38:28), Fallow audit (03:38:49), Fallow health (03:38:56), and retired Effect paths (03:38:59) all pass. Fallow and the retired-paths law report zero findings. The failed full CLI audit remains explicitly nonzero and attributed; every other requested local gate passes. Final-head parity and delivery are recorded in the handoff.
+
+## Round-3 command serialization repair (2026-10-15)
+
+`reconcile` now encodes to the report's JSON-compatible object form before the shared printer serializes it. A command-level regression captures the printer output, applies exactly one `JSON.parse`, and validates `agentKind` and `transcriptFiles`. The Markdown prefix description is corrected. Storage completeness/qualification is tracked separately as H3-R3-001 under the round-3 cap; no metrics storage code changes in this wave. Main was merged once and dependencies installed before verification. The dated handoff records package and parity results, the pushed head and REST reply ids.

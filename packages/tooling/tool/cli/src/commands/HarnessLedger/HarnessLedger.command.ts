@@ -629,7 +629,7 @@ export const harnessLedgerReconcileCommand = Command.make(
       );
       const ledger = yield* HarnessLedgerService;
       const report = yield* ledger.reconcile(input.stateDir, input.transcriptDir, kind);
-      const encoded = yield* S.encodeUnknownEffect(S.fromJsonString(HarnessTelemetryReconciliation))(report).pipe(
+      const encoded = yield* S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation))(report).pipe(
         Effect.mapError(HarnessLedgerIoError.wrap("Cannot encode reconciliation."))
       );
       yield* printCommandJson(encoded);

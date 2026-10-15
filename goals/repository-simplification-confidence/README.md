@@ -4,9 +4,9 @@
 
 Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
 B #1738, and H4 #1770 have merged. H3's reopened #1590 carries the repository
-telemetry repair and is completing its first review wave; its
+telemetry repair and its round-3 CLI serialization fix; its
 [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md) records proof
-provenance and the remaining native, home and remote prerequisites. All telemetry
+provenance, tracked storage follow-up H3-R3-001, and the remaining native, home and remote prerequisites. All telemetry
 non-use windows remain incomplete. H4's read-only permission census and runbook
 are source-qualified; installed Desktop acceptance remains open for the operator
 fixture batch and F's owned-field config writer. F and overall acceptance remain active.

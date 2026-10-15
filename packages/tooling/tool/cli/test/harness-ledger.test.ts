@@ -20,15 +20,18 @@ import {
   HarnessLedgerService,
   HarnessLedgerServiceLive,
   harnessLedgerPruneReportLines,
+  harnessLedgerReconcileCommand,
   parseHarnessEditSpec,
   parseHarnessSurfaceSpec,
 } from "@beep/repo-cli/commands/HarnessLedger";
+import { CommandJsonOutput } from "@beep/repo-cli/test/Cli";
 import { Sha256Hex } from "@beep/schema";
 import { A, pipe, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as ConfigProvider from "effect/ConfigProvider";
+import { Command } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -36,6 +39,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { HarnessLedgerPruneReport } from "@beep/repo-cli/commands/HarnessLedger";
@@ -1147,6 +1151,26 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
       );
       expect(malformed.sessionsObserved).toBe(0);
       expect(malformed.sessionsSkippedDisarmed).toBe(1);
+    })
+  );
+
+  it.effect("reconcile command emits report fields after one JSON parse", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "harness-reconcile-command-" });
+      const stateDir = yield* makeHookStateDir("harness-reconcile-command-hooks-");
+      const output = yield* Ref.make("");
+      yield* Command.runWith(harnessLedgerReconcileCommand, { version: "0.0.0" })([
+        "--state-dir",
+        stateDir,
+        "--transcript-dir",
+        root,
+        "--agent-kind",
+        "codex-cli",
+      ]).pipe(Effect.provideService(CommandJsonOutput, (text) => Ref.set(output, text)));
+      const parsed: unknown = JSON.parse(yield* Ref.get(output));
+      expect(parsed).toHaveProperty("agentKind", "codex-cli");
+      expect(parsed).toHaveProperty("transcriptFiles", 0);
     })
   );
 
