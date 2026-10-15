@@ -20,6 +20,7 @@ SAVE="$STATE/snapshots/$SNAP"
 case "$ACTION" in
   save)
     mkdir -p "$SAVE"
+    chmod 700 "$STATE/snapshots" "$SAVE"
     qemu-img snapshot -d "$SNAP" "$DISK" 2>/dev/null || true
     qemu-img snapshot -c "$SNAP" "$DISK"
     cp -f "$NVRAM" "$SAVE/nvram.fd"

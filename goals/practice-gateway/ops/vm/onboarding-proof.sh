@@ -2,9 +2,12 @@
 # One-step onboarding proof around the operator's only manual part (signing in
 # to Claude inside the VM and clicking Claude's own dialogs).
 #
-#   onboarding-proof.sh prepare <practice-setup.exe>
-#       revert to the clean snapshot, boot, wait for the harness, put the exe
-#       on the lawyer's desktop, start a 15 s screenshot recorder
+#   onboarding-proof.sh prepare <practice-setup.exe> [snapshot]
+#       revert to a snapshot (default clean), boot, wait for the harness, put
+#       the exe on the lawyer's desktop, start a 15 s screenshot recorder.
+#       `claude-signed-in` (saved with `snapshot.sh save claude-signed-in`
+#       after a sign-in, extension not yet installed) skips the operator's
+#       sign-in; it holds a live Claude session, so keep it local only.
 #   onboarding-proof.sh verify <evidence.md>
 #       collect evidence: setup run record, Claude extension registry entry
 #       (id/version only), whether a Claude account is signed in (key presence
@@ -33,8 +36,9 @@ wait_for_harness() {
 case "${1:?usage: onboarding-proof.sh prepare <exe> | verify <evidence.md> | finish}" in
   prepare)
     EXE="${2:?prepare needs the path to practice-setup.exe}"
+    FROM="${3:-clean}"
     [[ "$(v domstate "$NAME")" == "shut off" ]] || { v destroy "$NAME" >/dev/null; sleep 3; }
-    "$HERE/snapshot.sh" revert clean
+    "$HERE/snapshot.sh" revert "$FROM"
     v start "$NAME" >/dev/null
     wait_for_harness
     "$RUN" copy "$EXE" 'C:/Users/lawyer/Desktop/practice-setup.exe'

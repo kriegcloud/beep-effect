@@ -8,6 +8,8 @@
 
 import { $PracticeGatewayId } from "@beep/identity/packages";
 import {
+  CapabilityChoice,
+  ItLimits,
   PracticeProfile,
   ProbeResult,
   Remediation,
@@ -255,6 +257,50 @@ export const SetupProfileGetTool = setupTool(
 );
 
 /**
+ * Accept a value either in its schema shape or JSON-encoded as a string.
+ *
+ * **Details**
+ *
+ * Some MCP clients send nested object or number arguments as JSON strings;
+ * the onboarding proof (2026-10-14) saw the profile's IT limits rejected that
+ * way. Decoding tries the plain shape first.
+ */
+const plainOrJson = <Schema extends S.Codec<any, any, never, never>>(schema: Schema) =>
+  S.Union([schema, S.fromJsonString(schema)]);
+
+/**
+ * Input of `setup_profile_save`: the {@link PracticeProfile} fields, each
+ * accepted plain or JSON-encoded.
+ *
+ * **Example** (Decode a profile whose IT limits arrive as a JSON string)
+ *
+ * ```ts
+ * import { SetupProfileSaveInput } from "@beep/practice-gateway/SetupTools"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = S.decodeUnknownEffect(SetupProfileSaveInput)({
+ *   choices: [{ kind: "declined", capability: "secrets" }],
+ *   itLimits: '{"adminRights":"available","proxy":"none"}',
+ *   recordedAt: 0,
+ * })
+ * Effect.runPromise(program).then((input) => console.log(input.itLimits.proxy)) // "none"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SetupProfileSaveInput = S.Struct({
+  choices: CapabilityChoice.pipe(S.NonEmptyArray, plainOrJson),
+  itLimits: plainOrJson(ItLimits),
+  recordedAt: plainOrJson(S.DateTimeUtcFromMillis),
+}).pipe(
+  $I.annoteSchema("SetupProfileSaveInput", {
+    description: "The practice profile fields, each accepted plain or JSON-encoded.",
+  })
+);
+
+/**
  * `setup_profile_save`: replace the saved practice profile.
  *
  * **Example** (Read the tool name)
@@ -271,7 +317,7 @@ export const SetupProfileGetTool = setupTool(
 export const SetupProfileSaveTool = setupTool(
   "setup_profile_save",
   "Save the practice profile after the onboarding interview. It holds capability choices and IT limits only; never put secrets or client data in it. Provider tools change after Claude restarts the gateway.",
-  PracticeProfile,
+  SetupProfileSaveInput,
   PracticeProfile,
   writeHints
 );
@@ -546,8 +592,10 @@ export const SetupToolkitHandlers = SetupToolkit.toLayer(
         const profile = yield* store.get.pipe(Effect.mapError(doctorFailure("setup_profile_get")));
         return SetupProfileView.make({ profile });
       }),
-      setup_profile_save: Effect.fn("PracticeGateway.setup_profile_save")(function* (profile) {
-        return yield* store.save(profile).pipe(Effect.mapError(doctorFailure("setup_profile_save")));
+      setup_profile_save: Effect.fn("PracticeGateway.setup_profile_save")(function* (input) {
+        return yield* store
+          .save(PracticeProfile.make(input))
+          .pipe(Effect.mapError(doctorFailure("setup_profile_save")));
       }),
       setup_status: Effect.fn("PracticeGateway.setup_status")(function* () {
         return yield* Effect.gen(function* () {

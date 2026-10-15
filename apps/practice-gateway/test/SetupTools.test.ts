@@ -10,9 +10,16 @@ import {
   SetupRequirementId,
 } from "@beep/law-practice-domain";
 import { requirementFromCatalog } from "@beep/practice-gateway/Requirements";
-import { repairableRequirements, SetupToolkit, summarizeReport } from "@beep/practice-gateway/SetupTools";
+import {
+  repairableRequirements,
+  SetupProfileSaveInput,
+  SetupToolkit,
+  summarizeReport,
+} from "@beep/practice-gateway/SetupTools";
 import { describe, expect, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 
 const id = SetupRequirementId.make;
 
@@ -80,4 +87,24 @@ describe("setup tools", () => {
       "Setup is complete: all 0 checks pass."
     );
   });
+
+  it.effect("accepts profile fields sent plain or JSON-encoded as strings (onboarding proof 2026-10-14)", () =>
+    Effect.gen(function* () {
+      const decode = S.decodeUnknownEffect(SetupProfileSaveInput);
+      const plain = {
+        choices: [{ kind: "supported", capability: "mail-calendar", provider: "microsoft-365" }],
+        itLimits: { adminRights: "available", proxy: "none" },
+        recordedAt: 1_760_000_000_000,
+      };
+      const fromPlain = yield* decode(plain);
+      const fromStrings = yield* decode({
+        choices: '[{"kind":"supported","capability":"mail-calendar","provider":"microsoft-365"}]',
+        itLimits: '{"adminRights":"available","proxy":"none"}',
+        recordedAt: "1760000000000",
+      });
+      expect(fromStrings.itLimits.adminRights).toBe("available");
+      expect(fromStrings.choices.map((choice) => choice.kind)).toEqual(["supported"]);
+      expect(fromPlain.recordedAt).toEqual(fromStrings.recordedAt);
+    })
+  );
 });
