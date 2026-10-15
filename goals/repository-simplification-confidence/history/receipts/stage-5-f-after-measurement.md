@@ -64,7 +64,7 @@ The [observed after data](stage-5-f-observed-after.json) repeats the same
 historical-store collector. It is not a matched intervention study. The
 [frozen configuration set](stage-5-f-config-fingerprint.json) covers native
 files plus repository instructions, hooks, specialist bodies and skill lock.
-Its set digest is `63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36`.
+Its set digest is `8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e`.
 A changed native file invalidates that set for panel acceptance.
 
 | Surface | After n | Median first recorded input tokens |
@@ -150,7 +150,7 @@ outside the final set. Live native-client writes can invalidate this observed
 set, and the driver must compare it before accepting a panel verdict.
 
 
-Final expanded capture: `2026-10-15T00:00:38.765701Z`, set `63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36`,
+Final expanded capture: `2026-10-15T00:13:42.600476Z`, set `8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e`,
 356 files. This supersedes the earlier narrower captures and starts the
 recorded current-fingerprint qualification window. Native qualifying count is
 unknown. The set includes canonical hook bodies, Cursor hook scripts, Grok

@@ -6,10 +6,10 @@ The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: bb67db8ccde1896abe85511a601f52b07d713c03 (verified source; publication metadata follows)   PR: pending publication
+head: 352bafdecef1671964985f825443fc38b89db678   PR: #1797 (published, ready)
 package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
 hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> pass (main #1792 integrated) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
-config fingerprint (final): 63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
+config fingerprint (final): 8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
 open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
 ```
@@ -227,7 +227,7 @@ audit/health, schema-first and retired paths all pass. Coverage percentages
 are unchanged and exceed every existing touched-file floor. Both introduced
 cheap-gate repairs pass their owner checks. The final online models check
 reports zero findings; the pinned native read-only probe passed after the
-last Codex apply. Configuration capture: 2026-10-15T00:00:38.765701Z,
+last Codex apply. Configuration capture: 2026-10-15T00:13:42.600476Z,
 356 files; its equality check passes immediately after capture.
 
 Fingerprint v2 excludes only the observed native Claude pluginUsage runtime
@@ -236,3 +236,37 @@ identified by rawSha256. MCP registrations and all unknown fields remain
 gating. Three controls pass: ignored usage changes, rejected MCP changes,
 and rejected unknown-field changes. All other files/links retain byte/target
 identity. This avoids treating live usage as a configuration mutation.
+
+
+## Published source and live panel-input gate
+
+PR #1797 is published and ready at
+352bafdecef1671964985f825443fc38b89db678. All 17 cheap-gate lanes
+and the clean-head install preflight pass. The publication restores the
+unrelated plugin residue. The readiness monitor is
+10a50b48-daec-4e75-8924-1859b01e5ab5. The driver owns merge and retirement.
+Vercel's three deployment statuses explicitly report rate limits; their
+inbox rows are acknowledged environment-only under the standing exception.
+
+The first frozen receipt subsequently failed live equality after external
+writes to native Claude memory, the Claude registry and Cursor config. F
+wrote none of those files. Two fresh captures 20 seconds apart then matched;
+F refreshed the receipt in a packet-only follow-up wave to this same PR.
+The driver must compare it again before panel admission; no panel acceptance
+is claimed. The latest sanitized gate result is retained in the lane's private
+prepanel-config-check receipt. Publication identifiers and this live status
+are local handoff metadata appended after the single source push; all source,
+implementation evidence and the frozen configuration receipt are committed.
+
+
+## Packet-only recapture wave
+
+External native writes after the first push invalidate that earlier panel
+input. Two complete captures 20 seconds apart match at
+8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e. The read-only capture is
+2026-10-15T00:13:42.600476Z across 356 inputs. No native
+file is written, reverted or reset. A single follow-up publication wave
+updates the packet on PR #1797; implementation sources are unchanged from
+352bafdecef1671964985f825443fc38b89db678. Every hosted-parity command, including
+the literal JSDoc and CI references commands, passes on that source.
+Final publication metadata is filled locally after this wave.

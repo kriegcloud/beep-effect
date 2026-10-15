@@ -1,7 +1,7 @@
 {
   "format": "rsc-f-config-fingerprint/v2",
-  "capturedAt": "2026-10-15T00:00:38.765701Z",
-  "setSha256": "63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36",
+  "capturedAt": "2026-10-15T00:13:42.600476Z",
+  "setSha256": "8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e",
   "files": [
     {
       "path": ".claude/agents/architecture-guardian.md",
@@ -1677,9 +1677,9 @@
     },
     {
       "path": "~/.claude.json",
-      "bytes": 373473,
-      "sha256": "b94f17a506fe4b75827ce125ea9c770634c6b0fc90c6e59fb0d9dd63b2317442",
-      "rawSha256": "e5ad67533300502a8731102a9dd871fc089b353c518f764411b82b911f6f1dab",
+      "bytes": 374347,
+      "sha256": "937ff76fd64dc2eddc0ce60953408624e14ff5a96e8c985ac43fb2f4af72b94e",
+      "rawSha256": "7d7e82e1de47a424ddea1dcfb6e19c4b0d9662fb4c28e5991410225003962e71",
       "hashProjection": "canonical JSON excluding only pluginUsage runtime counter"
     },
     {
@@ -1694,8 +1694,8 @@
     },
     {
       "path": "~/.claude/memory/beep-effect/MEMORY.md",
-      "bytes": 38400,
-      "sha256": "9e3ae5d943a26244efa04bac61edc715d34df64b7bbe31acdaf5b92d19453523"
+      "bytes": 38403,
+      "sha256": "822c7ec75275ff864d69dc28b4a7850d084faeb4a64c671b3818c81406bf63de"
     },
     {
       "path": "~/.claude/plugins/installed_plugins.json",
@@ -1745,7 +1745,7 @@
     {
       "path": "~/.cursor/cli-config.json",
       "bytes": 3996,
-      "sha256": "6008fbf4fb6ed05dd970c50994efce96fce7ed488d76c009f2ccc70271486a83"
+      "sha256": "b98aef4904a94f924acb448944005bdfe13208923825deb04b1d64172f0d7192"
     },
     {
       "path": "~/.cursor/mcp.json",

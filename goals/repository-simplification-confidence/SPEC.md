@@ -1461,8 +1461,8 @@ changed. Full package and parity qualification is repeated for this wave.
 
 ### RSC-F-FREEZE-20261014 (2026-10-14): final review input boundary
 
-The final expanded configuration set is `63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36`, captured at
-2026-10-15T00:00:38.765701Z across 356 files. It includes native MCP registries,
+The final expanded configuration set is `8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e`, captured at
+2026-10-15T00:13:42.600476Z across 356 files. It includes native MCP registries,
 installed plugin indices, instructions, specialist definitions, canonical
 hook implementations and their adapters. This supersedes earlier captures;
 the qualification window opens at this capture and its qualifying count is
@@ -1486,8 +1486,8 @@ pass. Apply the eventual owned header span through ModelsApply with a fresh
 backup and journal; reverse with that journal. No native header was changed.
 The read-only probe is research/f-grok-header-probe.py in this packet.
 
-Publication capture supersedes earlier sets: `63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36`,
-2026-10-15T00:00:38.765701Z, 356 files. Window open since that capture;
+Publication capture supersedes earlier sets: `8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e`,
+2026-10-15T00:13:42.600476Z, 356 files. Window open since that capture;
 qualifying count unknown. The collector check passes at capture.
 
 
@@ -1497,7 +1497,7 @@ Main #1792 repairs the earlier AgentMessage and drawings test typecheck reds;
 F integrates it and test-tsgo passes. Introduced publication findings are
 repaired in a85bdd76f0, with native filesystem judgments recorded through the
 Effect Vitest owner writer. Both owner checks pass. The configuration set is
-63f46010427f6ce24a4c919ab84bc8a8e5cf14fd7790be79e8609fb1b3aadd36 at 2026-10-15T00:00:38.765701Z, with
+8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e at 2026-10-15T00:13:42.600476Z, with
 356 files. Concurrent unowned native app state changed after the
 earlier capture; F did not write those files. This refreshed set supersedes
 that panel input and opens the current window; qualifying count remains
@@ -1515,3 +1515,17 @@ identity as non-gating metadata. All other files and symlinks keep byte/target
 hashes. Three fixture controls prove usage changes do not restart the config
 window while MCP and unknown-field changes do. Reversal: revert the collector
 projection and recapture a new panel input; no native file was written.
+
+
+### RSC-F-RECAPTURE-20261014: refresh external panel inputs on the same PR
+
+Native Claude memory/registry and Cursor config changed outside F after the
+first source push. Two subsequent complete captures 20 seconds apart match.
+Recapture read-only at 2026-10-15T00:13:42.600476Z:
+8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e across 356 inputs.
+Publish the refreshed packet in one follow-up wave to PR #1797; implementation
+sources stay byte-identical to the qualified source head. Earlier snapshots
+remain in git history. Reversal: revert this receipt wave and recapture a new
+panel input; no native file is written. The driver rechecks before admission,
+and qualifying session count stays unknown. This avoids either changing an
+unowned native file or submitting a known stale configuration set.

@@ -2266,3 +2266,19 @@ Keep `.impeccable/live/` intact and stage the actual final acceptance receipt
 and this friction record, letting the canonical staged publication path park
 and restore the residue. A future owner can make empty-index staged-only
 intent support the same reviewed-residue behavior; F does not change Yeet.
+
+
+### F post-capture external configuration mutation (2026-10-15 UTC)
+
+A pre-panel equality check after the final capture reports a changed native
+Claude memory input. F did not write it and has no permission to rewrite that
+home path. Keep the frozen receipt, report the live gate as closed, and hand
+the driver a stable-recapture prerequisite before panel admission. A driver
+configuration quiet period across writers would prevent repeated stale inputs.
+This is external state, not a waived source or configuration finding.
+
+
+F recapture resolution: two complete read-only captures 20 seconds apart
+match after the external writes. Refresh the packet in one follow-up wave
+to the same PR. Implementation sources and native files are unchanged by
+this wave; the driver still compares the frozen set before panel admission.
