@@ -253,11 +253,13 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
         yield* run(["apply", ...flags, "--check"]);
         yield* run(["check", ...flags, "--json"]);
-        const lines = yield* TestConsole.logLines;
-        expect(A.some(lines, (line) => P.isString(line) && Str.includes("manual verification required")(line))).toBe(
-          true
-        );
-        expect(A.some(lines, (line) => P.isString(line) && Str.includes('"manual": [')(line))).toBe(true);
+        const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
+        expect(report.manual).toHaveLength(1);
+        const manual = O.getOrThrow(A.head(report.manual));
+        expect(manual.status).toBe("manual verification required");
+        expect(manual.locator._tag).toBe(locator._tag);
+        expect(manual.current).toEqual(O.some("gpt-6.1-sol"));
+        expect(report.hasDrift).toBe(false);
         expect(yield* fs.readFileString(path.join(home, "manual"))).toBe(content);
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
       }

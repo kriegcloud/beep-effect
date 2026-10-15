@@ -418,11 +418,15 @@ const previewModelWrites = Effect.fnUntraced(function* (
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
-    const change = O.isSome(modelsCheckOnlyFormat(request.locator))
+    const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
+    const change = manual
       ? yield* modelsReadLocator(
           ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
           request.locator
         ).pipe(
+          Effect.tap((hint) =>
+            Console.log(`models: hint ${target.id} [${request.locator._tag}] ${O.getOrElse(hint, () => "<absent>")}`)
+          ),
           Effect.map(
             (current) =>
               O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML|JSON) form/.test(value)) ||
@@ -433,14 +437,6 @@ const previewModelWrites = Effect.fnUntraced(function* (
           yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
           (entry) => entry.before !== entry.after
         );
-    const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
-    if (manual) {
-      const hint = yield* modelsReadLocator(
-        ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
-        request.locator
-      );
-      yield* Console.log(`models: hint ${target.id} [${request.locator._tag}] ${O.getOrElse(hint, () => "<absent>")}`);
-    }
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] ${manual ? "manual verification required; recognized drift=" : "change="}${change} expected=${request.remove === true ? "<absent>" : request.expected}`
     );
