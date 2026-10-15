@@ -40,6 +40,7 @@ import {
   RenderManifest,
   RenderRequest,
   Segment2,
+  ShadingBand,
   ShadingCoverage,
   ShadingSkip,
   SheetFonts,
@@ -2175,8 +2176,12 @@ describe("graded shading ladder through fake ports", () => {
 });
 
 // A fake engine whose every view draws the unit square and the given lines, and whose shading pass draws the given
-// strokes.
-const engineDrawing = (lines: ReadonlyArray<FakeSegment>, strokes: ReadonlyArray<FakeSegment> = []) =>
+// strokes, grouped into the given bands (one face shaded when none are given).
+const engineDrawing = (
+  lines: ReadonlyArray<FakeSegment>,
+  strokes: ReadonlyArray<FakeSegment> = [],
+  bands: ReadonlyArray<ShadingBand> = []
+) =>
   Layer.succeed(
     GeometryEngine,
     GeometryEngine.of({
@@ -2196,7 +2201,13 @@ const engineDrawing = (lines: ReadonlyArray<FakeSegment>, strokes: ReadonlyArray
             visible: [...square, ...lines],
             hidden: [],
             shading: O.match(shading, { onNone: A.empty, onSome: () => strokes }),
-            shadingCoverage: O.map(shading, () => ShadingCoverage.make({ shadedFaces: 1, skippedFaces: [] })),
+            shadingCoverage: O.map(shading, () =>
+              ShadingCoverage.make({
+                shadedFaces: Math.max(1, A.length(A.dedupe(A.map(bands, (band) => band.face)))),
+                skippedFaces: [],
+              })
+            ),
+            shadingBands: O.match(shading, { onNone: A.empty, onSome: () => bands }),
           })
         );
       }),
@@ -2330,6 +2341,90 @@ describe("graded shading beside a separated outline through fake ports", () => {
           O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
           []
         );
+      })
+    );
+  });
+});
+
+// Two faces' strokes above the close line, the bands of the first face (0) and the second (1). The line moves 0.305
+// mm up, toward their feet, which stood 0.65 mm above it. A 1.2 mm stroke cut back to the 0.6 mm clearance falls
+// under the 1 mm least stroke; a stroke running on to the top keeps a long piece.
+const shortStroke = 1.2 * unitsPerMm;
+const shortAt = (x: number): FakeSegment => [x, strokeFoot, x, strokeFoot + shortStroke];
+const longAt = (x: number): FakeSegment => [x, strokeFoot, x, 4];
+const twoFaceBands = [ShadingBand.make({ face: 0, strokes: [0, 1] }), ShadingBand.make({ face: 1, strokes: [2, 3] })];
+
+// The figure set over a fake engine drawing the close scene and the two faces' strokes in their bands.
+const reclipLayer = (strokes: ReadonlyArray<FakeSegment>) =>
+  Layer.fresh(FigureSet.layer).pipe(
+    Layer.provide(Layer.merge(engineDrawing(closeScene, strokes, twoFaceBands), fakeBackend)),
+    Layer.provideMerge(NodeServices.layer)
+  );
+
+// Renders the two faces' strokes graded beside the separated line and returns where the strokes drawn stand (model x),
+// the separation's trimmed and dropped strokes, the coverage's shaded faces, lost faces and lost stretches, and the
+// finding codes.
+const reclippedFaces = Effect.fnUntraced(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const dir = yield* fs.makeTempDirectoryScoped();
+  const specPath = path.join(dir, "spec.json");
+  yield* fs.writeFileString(
+    specPath,
+    spec([{ view: "front", description: "is a front elevation view" }], [], {
+      sheet: { shadingStyle: "graded", shadingAxis: "surface-class", shadingMinStrokeMm: 1 },
+    })
+  );
+  const outputDir = path.join(dir, "out");
+  const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir, shade: true }));
+  const svg = yield* fs.readFileString(path.join(outputDir, "fig-1.svg"));
+  const figure = manifest.figures[0];
+  // the square's left edge stands at x = 0 in model units
+  const left = Math.min(...A.map(figureSegmentsMm(svg), ([x1, , x2]) => Math.min(x1, x2)));
+  return {
+    drawn: A.map(figureSegmentsMm(svg, "shading"), ([x1]) => Math.round((x1 - left) * unitsPerMm)),
+    separation: O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+      separation.trimmedStrokes,
+      separation.droppedStrokes,
+    ]),
+    coverage: O.map(figure?.shadingCoverage ?? O.none<ShadingCoverage>(), (coverage) => [
+      coverage.shadedFaces,
+      coverage.lostFaces,
+      coverage.lostStretches,
+    ]),
+    findings: O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+  };
+});
+
+describe("a face the re-clip beside a separated outline leaves bare through fake ports", () => {
+  it.layer(reclipLayer([shortAt(2), shortAt(3), longAt(7), longAt(8)]), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "counts a face whose every stroke the re-clip drops lost in the manifest's coverage and on the sheet",
+      Effect.fnUntraced(function* () {
+        // both short strokes of the first face go: the sheet draws only the second face (PR #1842 thread on
+        // FigureSet.service.ts:646)
+        const render = yield* reclippedFaces();
+        expect(render.drawn).toEqual([7, 8]);
+        assertSome(render.separation, [2, 2]);
+        assertSome(render.coverage, [2, 1, 1]);
+        assertSome(render.findings, ["shading-lost-face", "shading-lost-stretch"]);
+      })
+    );
+  });
+});
+
+describe("a band the re-clip beside a separated outline leaves with one stroke through fake ports", () => {
+  it.layer(reclipLayer([longAt(2), shortAt(3), longAt(7), longAt(8)]), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "draws none of the band, as the engine draws no band below two strokes, and counts its face lost",
+      Effect.fnUntraced(function* () {
+        // the first face's long stroke is cut back and kept, its short one dropped: alone, the long one would read
+        // as a stray line, so it goes too
+        const render = yield* reclippedFaces();
+        expect(render.drawn).toEqual([7, 8]);
+        assertSome(render.separation, [2, 2]);
+        assertSome(render.coverage, [2, 1, 1]);
+        assertSome(render.findings, ["shading-lost-face", "shading-lost-stretch"]);
       })
     );
   });

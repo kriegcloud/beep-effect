@@ -30,7 +30,7 @@ import {
   RenderManifest,
 } from "./Manifest.schemas.ts";
 import { OUTLINE_COINCIDENCE_MM, separateCloseOutlines } from "./Outline.rules.ts";
-import { reclippedShading } from "./Shading.rules.ts";
+import { reclippedCoverage, reclippedShading } from "./Shading.rules.ts";
 import { commonScale, composeSheet } from "./Sheet.compose.ts";
 import {
   LabelFontAlias,
@@ -58,7 +58,7 @@ import {
 } from "./Validation.rules.ts";
 import { ValidationOptions, ValidationReport } from "./Validation.schemas.ts";
 import { cameraForView, FigureSetSpec, PictorialProjection } from "./View.schemas.ts";
-import type { EdgeSet } from "./Geometry.schemas.ts";
+import type { EdgeSet, ShadingBand, ShadingCoverage } from "./Geometry.schemas.ts";
 import type { LabelFace } from "./internal/LabelOutline.ts";
 import type { LabelStyle } from "./Sheet.schemas.ts";
 import type { SheetFinding, SheetLabel } from "./Validation.schemas.ts";
@@ -265,24 +265,36 @@ const movedLines = (edges: EdgeSet, outline: ReturnType<typeof separatedOutline>
 
 // Graded strokes are planned and drawn back against the outlines as projected; the separation then moves some of
 // those outlines, by up to a spacing and further in a stacked run, toward the stroke ends of the face beside them. The
-// strokes are clipped again against every line it changed, with the plan's clearance and least stroke. Uniform
-// strokes end on the face edge by design and stay as planned, as the kernel leaves them.
+// strokes are clipped again against every line it changed, with the plan's clearance and least stroke, and a band
+// left below two strokes draws none. Uniform strokes end on the face edge by design and stay as planned, as the kernel
+// leaves them.
 const clippedShading = (input: {
-  readonly strokes: ReadonlyArray<Segment2>;
+  readonly shaded: O.Option<EdgeSet>;
   readonly moved: ReadonlyArray<Segment2>;
   readonly sheet: SheetOptions;
   readonly scale: number;
-}): { readonly segments: ReadonlyArray<Segment2>; readonly trimmed: number; readonly dropped: number } => {
+}): ReturnType<typeof reclippedShading> => {
   const toModel = toModelAt(input.scale);
+  const strokes = O.match(input.shaded, { onNone: A.empty<Segment2>, onSome: (view) => view.shading });
   return input.sheet.shadingStyle === "graded"
     ? reclippedShading({
-        segments: input.strokes,
+        segments: strokes,
+        bands: O.match(input.shaded, { onNone: A.empty<ShadingBand>, onSome: (view) => view.shadingBands }),
         lines: input.moved,
         clearance: toModel(shadingClearanceMm(input.sheet)),
         minStroke: toModel(input.sheet.shadingMinStrokeMm),
       })
-    : { segments: input.strokes, trimmed: 0, dropped: 0 };
+    : { segments: strokes, trimmed: 0, dropped: 0, droppedAt: [] };
 };
+
+// The coverage of what the sheet draws: the engine's, with every band and face the re-clip left bare counted lost
+// (PR #1842 thread on FigureSet.service.ts:646), so the manifest and the lost-face check read the sheet, not the plan.
+const drawnCoverage = (shaded: O.Option<EdgeSet>, droppedAt: ReadonlyArray<number>): O.Option<ShadingCoverage> =>
+  O.flatMap(shaded, (view) =>
+    O.map(view.shadingCoverage, (coverage) =>
+      reclippedCoverage({ coverage, bands: view.shadingBands, dropped: droppedAt })
+    )
+  );
 
 // An omitted pictorial is projected like the figure it is claimed from.
 const projectionOf = (spec: FigureSetSpec, view: ViewName): PictorialProjection =>
@@ -591,17 +603,17 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       const outline = separatedOutline(edges, scale);
       const shaded = A.get(shading, index);
       const strokes = clippedShading({
-        strokes: O.match(shaded, { onNone: A.empty<Segment2>, onSome: (view) => view.shading }),
+        shaded,
         moved: movedLines(edges, outline),
         sheet,
         scale,
       });
-      return { edges, outline, shaded, strokes };
+      return { edges, outline, strokes, coverage: drawnCoverage(shaded, strokes.droppedAt) };
     });
     const figures = yield* Effect.forEach(
       A.zip(spec.figures, drawn),
       Effect.fnUntraced(function* (
-        [figure, { edges, outline, shaded, strokes }]: readonly [FigureSpec, (typeof drawn)[number]],
+        [figure, { edges, outline, strokes, coverage }]: readonly [FigureSpec, (typeof drawn)[number]],
         index: number
       ) {
         const svg = composeSheet({
@@ -633,7 +645,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           // recorded only when drawn, so a manifest without overlays keeps its JSON
           emphasisSegments: A.isReadonlyArrayNonEmpty(edges.emphasis) ? O.some(A.length(edges.emphasis)) : O.none(),
           camera: A.get(cameras, index),
-          shadingCoverage: O.flatMap(shaded, (view) => view.shadingCoverage),
+          shadingCoverage: coverage,
           // recorded only when the rule moved a line, so a manifest without close outlines keeps its JSON
           outlineSeparations: A.match(outline.moves, {
             onEmpty: O.none,
@@ -670,7 +682,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     // Shading is checked on the render's own vectors, in mm on the sheet: line
     // spacing, stroke ends clear of outlines, no stroke alone beside an outline,
     // no band reading as one ladder with the lines beyond its edge, and no face
-    // that planned lines and drew none.
+    // or stretch that planned lines and drew none, the re-clip's losses included.
     const inMm = (segments: ReadonlyArray<Segment2>) =>
       A.map(segments, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm]));
     // Every sheet's drawn lines, shaded or not, keep the least outline spacing.
@@ -687,7 +699,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     const graded = sheet.shadingStyle === "graded";
     const shadingFindings = A.flatMap(
       A.zip(shading, drawn),
-      ([view, { strokes }]: readonly [EdgeSet, (typeof drawn)[number]], index: number) => {
+      ([view, { strokes, coverage }]: readonly [EdgeSet, (typeof drawn)[number]], index: number) => {
         const page = index + 1;
         // the strokes the sheet draws, clipped again beside moved outlines
         const shadingMm = inMm(strokes.segments);
@@ -698,9 +710,9 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
               ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
               ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
               ...shadingBandLadderFindings({ page, shadingMm, outlineMm, options: validationOptions }),
-              ...O.match(view.shadingCoverage, {
+              ...O.match(coverage, {
                 onNone: A.empty<SheetFinding>,
-                onSome: (coverage) => shadingCoverageFindings({ page, coverage }),
+                onSome: (sheetCoverage) => shadingCoverageFindings({ page, coverage: sheetCoverage }),
               }),
             ]
           : A.empty<SheetFinding>();

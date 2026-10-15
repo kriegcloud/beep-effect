@@ -25,7 +25,9 @@ import {
   nearestOutlineDistance,
   nextBandTaper,
   pointToSegmentDistance,
+  reclippedCoverage,
   reclippedShading,
+  ShadingBand,
   ShadingCoverage,
   ShadingCut,
   ShadingLines,
@@ -1343,7 +1345,7 @@ describe("shading strokes against the outline", () => {
 
 describe("reclippedShading", () => {
   const clip = (segments: ReadonlyArray<Segment2>, lines: ReadonlyArray<Segment2>) =>
-    reclippedShading({ segments, lines, clearance: 0.6, minStroke: 1 });
+    reclippedShading({ segments, bands: [], lines, clearance: 0.6, minStroke: 1 });
   const nearest = (strokes: ReadonlyArray<Segment2>, lines: ReadonlyArray<Segment2>) =>
     Math.min(
       ...A.flatMap(strokes, ([x1, y1, x2, y2]) => [
@@ -1362,7 +1364,7 @@ describe("reclippedShading", () => {
       [5, 5, 5, 9],
     ]);
     expect(result.segments[1]).toBe(far);
-    expect([result.trimmed, result.dropped]).toEqual([1, 1]);
+    expect([result.trimmed, result.dropped, result.droppedAt]).toEqual([1, 1, [1]]);
     expect(nearest(result.segments, moved)).toBeGreaterThanOrEqual(0.6);
     // nothing near a moved line: the input comes back as it was
     const strokes: ReadonlyArray<Segment2> = [far];
@@ -1390,7 +1392,76 @@ describe("reclippedShading", () => {
       [0, 0, 9.434315, 0],
       [10.565685, 0, 20, 0],
     ]);
-    expect([ending.trimmed, ending.dropped]).toEqual([1, 0]);
+    expect([ending.trimmed, ending.dropped, ending.droppedAt]).toEqual([1, 0, []]);
+  });
+
+  it("empties a band the clip leaves with fewer than two strokes, and keeps a band left with two", () => {
+    // a line at y = 0 moved up 0.3 under four bands: a stroke running up to y = 10 is cut back and kept, one ending at
+    // y = 1.2 is cut under the least stroke and dropped, and the stroke at y = 5..9 stays clear of the line
+    const moved: ReadonlyArray<Segment2> = [[0, 0.3, 10, 0.3]];
+    const long = (x: number): Segment2 => [x, 0.6, x, 10];
+    const short = (x: number): Segment2 => [x, 0.6, x, 1.2];
+    const strokes: ReadonlyArray<Segment2> = [long(1), short(2), [3, 5, 3, 9], short(4), long(5), long(6), short(7)];
+    const bands = [
+      // left with one cut-back stroke: emptied
+      ShadingBand.make({ face: 0, strokes: [0, 1] }),
+      // left with one untouched stroke: emptied too
+      ShadingBand.make({ face: 1, strokes: [2, 3] }),
+      // left with two cut-back strokes: kept
+      ShadingBand.make({ face: 2, strokes: [4, 5, 6] }),
+    ];
+    const result = reclippedShading({ segments: strokes, bands, lines: moved, clearance: 0.6, minStroke: 1 });
+    expect(A.map(result.segments, ([x]) => x)).toEqual([5, 6]);
+    expect([result.trimmed, result.dropped, result.droppedAt]).toEqual([2, 5, [0, 1, 2, 3, 6]]);
+    const coverage = reclippedCoverage({
+      coverage: ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [] }),
+      bands,
+      dropped: result.droppedAt,
+    });
+    expect([coverage.lostFaces, coverage.lostStretches]).toEqual([2, 2]);
+    // a band the engine drew with one stroke keeps it when the clip only cuts it back
+    const single = reclippedShading({
+      segments: [long(1)],
+      bands: [ShadingBand.make({ face: 0, strokes: [0] })],
+      lines: moved,
+      clearance: 0.6,
+      minStroke: 1,
+    });
+    expect([A.length(single.segments), single.trimmed, single.dropped]).toEqual([1, 1, 0]);
+  });
+});
+
+describe("reclippedCoverage", () => {
+  // the engine's coverage of three faces, with one stretch it already lost
+  const engine = ShadingCoverage.make({ shadedFaces: 3, skippedFaces: [], lostStretches: 1 });
+  // face 0 draws two bands, face 1 one, face 2 one; strokes 0..7 index the view's shading
+  const bands = [
+    ShadingBand.make({ face: 0, strokes: [0, 1] }),
+    ShadingBand.make({ face: 0, strokes: [2, 3] }),
+    ShadingBand.make({ face: 1, strokes: [4, 5] }),
+    ShadingBand.make({ face: 2, strokes: [6, 7] }),
+  ];
+  const lost = (dropped: ReadonlyArray<number>) => {
+    const coverage = reclippedCoverage({ coverage: engine, bands, dropped });
+    return [coverage.lostFaces, coverage.lostStretches];
+  };
+
+  it("keeps the engine's coverage while every band keeps a stroke", () => {
+    expect(reclippedCoverage({ coverage: engine, bands, dropped: [] })).toBe(engine);
+    expect(reclippedCoverage({ coverage: engine, bands, dropped: [0, 3, 5, 6] })).toBe(engine);
+  });
+
+  it("counts a band the re-clip empties as a lost stretch, and its face lost only when no band of it draws", () => {
+    // face 0 keeps its second band: one more lost stretch, no lost face
+    expect(lost([0, 1])).toEqual([0, 2]);
+    // both bands of face 0 emptied: a lost face and two lost stretches
+    expect(lost([0, 1, 2, 3])).toEqual([1, 3]);
+    // faces 1 and 2 emptied, face 0 trimmed: two lost faces
+    expect(lost([1, 4, 5, 6, 7])).toEqual([2, 3]);
+  });
+
+  it("attributes no drop without bands", () => {
+    expect(reclippedCoverage({ coverage: engine, bands: [], dropped: [0, 1] })).toBe(engine);
   });
 });
 

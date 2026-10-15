@@ -18,6 +18,7 @@ import {
   ladderPitch,
   legibleShading,
   nearestOutlineDistance,
+  ShadingBand,
   ShadingCoverage,
   ShadingRoom,
   ShadingSkipped,
@@ -1156,6 +1157,44 @@ const isRelaxed = (stretch: DrawnStretch): boolean =>
 
 const isRedrawn = (stretch: DrawnStretch): boolean => stretch.redrawn && A.isReadonlyArrayNonEmpty(stretch.segments);
 
+// A drawn stroke and the place of the stretch that drew it among the stretches with ink.
+type BandStroke = { readonly segment: Segment2; readonly band: number };
+
+const strokeOrder = Order.mapInput(segmentOrder, (stroke: BandStroke) => stroke.segment);
+const bandOrder = Order.mapInput(Order.Number, (stroke: { readonly band: number }) => stroke.band);
+
+// The view's strokes in canonical order, and one band per stretch that drew ink: its face and its strokes' places in
+// that order. The sort is stable, so the strokes are those the kernel drew before bands, in the same order. A pass
+// after projection (the sheet's re-clip beside separated outlines, PR #1842) reads through the bands which stretch
+// and which face it left bare.
+const bandedShading = (
+  stretches: ReadonlyArray<DrawnStretch>
+): { readonly shading: ReadonlyArray<Segment2>; readonly bands: ReadonlyArray<ShadingBand> } => {
+  const inked = A.filter(stretches, (stretch) => A.isReadonlyArrayNonEmpty(stretch.segments));
+  const strokes = pipe(
+    inked,
+    A.flatMap((stretch, band) => A.map(stretch.segments, (segment): BandStroke => ({ segment, band }))),
+    A.sort(strokeOrder)
+  );
+  // every inked stretch draws at least one stroke, so the groups, in band order, pair with the inked stretches
+  const groups = A.match(
+    A.sort(
+      A.map(strokes, (stroke, at) => ({ band: stroke.band, at })),
+      bandOrder
+    ),
+    {
+      onEmpty: () => [],
+      onNonEmpty: A.groupWith((a, b) => a.band === b.band),
+    }
+  );
+  return {
+    shading: A.map(strokes, (stroke) => stroke.segment),
+    bands: A.zipWith(inked, groups, (stretch, group) =>
+      ShadingBand.make({ face: stretch.index, strokes: A.map(group, (stroke) => stroke.at) })
+    ),
+  };
+};
+
 // Each face's drawn ink, as the planner reads planned ink: the length of its drawn strokes on the view plane times the
 // minimum pitch, over its visible area on the view plane.
 const drawnInkOf = (
@@ -1709,14 +1748,12 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
       )
     ),
   ]);
+  const banded = bandedShading(drawn);
   return EdgeSet.make({
     visible,
     hidden: canonicalSegments(behind.claimed),
-    shading: pipe(
-      drawn,
-      A.flatMap((stretch) => stretch.segments),
-      A.sort(segmentOrder)
-    ),
+    shading: banded.shading,
+    shadingBands: banded.bands,
     broken,
     emphasis,
     shadingCoverage: O.map(shaded, () =>
@@ -1778,7 +1815,9 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
  * face whose every planned stretch has room for fewer than two legible strokes
  * draws nothing by design and is counted a sliver, not a shaded face. Every
  * visible stretch skipped by design is counted with its reason and whether its
- * measured room fits a band. The uniform style keeps one pass.
+ * measured room fits a band. The uniform style keeps one pass. The drawn
+ * strokes come in one canonical order, with one band per stretch that drew
+ * ink naming its face and its strokes' places in that order.
  *
  * @internal
  */

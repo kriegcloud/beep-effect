@@ -191,7 +191,7 @@ export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: uniqu
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description:
-          "Faces given shading lines and faces skipped per reason. Absent on unshaded renders and on manifests rendered before graded shading.",
+          "Faces given shading lines and faces skipped per reason, with the faces and stretches lost counted on what the sheet draws, after the re-clip beside separated outlines. Absent on unshaded renders and on manifests rendered before graded shading.",
       })
     ),
     outlineSeparations: S.OptionFromOptionalKey(OutlineSeparation).pipe(

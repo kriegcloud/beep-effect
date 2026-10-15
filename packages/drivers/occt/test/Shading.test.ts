@@ -217,6 +217,25 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
+      "groups every drawn stroke into one band of a shaded face, in the canonical stroke order",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const views = yield* occt.project(
+          ProjectionRequest.make({ solid: legacyFixture, cameras: legacyCameras, shading: O.some(graded()) })
+        );
+        expect(A.some(views, (view) => A.length(view.shadingBands) > 1)).toBe(true);
+        A.forEach(views, (view) => {
+          const places = A.flatMap(view.shadingBands, (band) => band.strokes);
+          // each stroke in exactly one band, each band's strokes ascending, and only shaded faces carry bands
+          expect(A.sort(places, Order.Number)).toEqual(A.map(view.shading, (_, at) => at));
+          A.forEach(view.shadingBands, (band) => expect(band.strokes).toEqual(A.sort(band.strokes, Order.Number)));
+          const faces = A.dedupe(A.map(view.shadingBands, (band) => band.face));
+          expect(O.exists(view.shadingCoverage, (coverage) => A.length(faces) <= coverage.shadedFaces)).toBe(true);
+        });
+      })
+    );
+
+    it.effect(
       "drops strokes shorter than the plan's minimum on the view plane; a face too narrow for any stroke is a sliver",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;

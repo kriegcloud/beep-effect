@@ -38,7 +38,7 @@ import {
   SurfaceClass,
   ViewFacts,
 } from "./Shading.schemas.ts";
-import type { Camera, Segment2, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
+import type { Camera, Segment2, ShadingBand, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
 import type {
   BandInk,
   BandRun,
@@ -1069,6 +1069,26 @@ const clearPieces = (
     : O.none();
 };
 
+// The strokes of every band the clip leaves with fewer than two pieces where it had more: a graded band below two
+// strokes draws none, as the engine's legibility pass rules, so a lone stroke is never left to read as a stray line.
+const thinnedStrokes = (
+  bands: ReadonlyArray<ShadingBand>,
+  clipped: ReadonlyArray<O.Option<ReadonlyArray<Segment2>>>
+): HashSet.HashSet<number> => {
+  // a stroke no moved line came near keeps its one piece
+  const piecesAt = (at: number): number =>
+    O.match(O.flatten(A.get(clipped, at)), { onNone: () => 1, onSome: A.length });
+  return pipe(
+    bands,
+    A.filter((band) => {
+      const kept = A.reduce(band.strokes, 0, (sum, at) => sum + piecesAt(at));
+      return kept < 2 && kept < A.length(band.strokes);
+    }),
+    A.flatMap((band) => band.strokes),
+    HashSet.fromIterable
+  );
+};
+
 /**
  * Shading strokes clipped again against drawn lines that moved after the
  * strokes were planned: every stretch of a stroke closer than `clearance` to
@@ -1084,53 +1104,129 @@ const clearPieces = (
  * moved lines, a stroke keeps the clearance at its ends and along its sides;
  * a stroke no moved line comes near is returned as it was. A stroke cut in
  * two (a moved line's end beside its middle) keeps both pieces that are long
- * enough. Lengths are in the segments' units.
+ * enough. A band (`bands`, the engine's `EdgeSet.shadingBands`) the clip
+ * leaves with fewer than two pieces, where it had more, loses them all: a
+ * graded band below two strokes draws none, as the engine's legibility pass
+ * rules. Lengths are in the segments' units.
  *
  * **Gotchas**
  *
  * The returned `segments` is the input array itself when no stroke changed.
  * `trimmed` counts strokes cut back that kept a piece, `dropped` strokes that
- * kept none.
+ * kept none (a thinned band's included), and `droppedAt` lists those strokes'
+ * indices in `segments`, in order, for {@link reclippedCoverage}. Without
+ * `bands` every stroke is clipped on its own.
  *
- * **Example** (A line moved up under two strokes)
+ * **Example** (A line moved up under a band of two strokes)
  *
  * ```ts
+ * import { Segment2, ShadingBand } from "@beep/technical-drawing"
  * import { reclippedShading } from "@beep/technical-drawing/Shading.rules"
  *
- * const result = reclippedShading({
- *   segments: [[2, 0.6, 2, 10], [4, 0.6, 4, 1.2]],
- *   lines: [[0, 0.3, 10, 0.3]],
- *   clearance: 0.6,
- *   minStroke: 1
- * })
- * console.log(result.segments.length, result.trimmed, result.dropped) // 1 1 1
+ * const segments = [Segment2.make([2, 0.6, 2, 10]), Segment2.make([4, 0.6, 4, 1.2])]
+ * const lines = [Segment2.make([0, 0.3, 10, 0.3])]
+ * const alone = reclippedShading({ segments, bands: [], lines, clearance: 0.6, minStroke: 1 })
+ * console.log(alone.segments.length, alone.trimmed, alone.dropped, alone.droppedAt) // 1 1 1 [1]
+ * // as one band, the stroke left alone goes too
+ * const bands = [ShadingBand.make({ face: 0, strokes: [0, 1] })]
+ * const banded = reclippedShading({ segments, bands, lines, clearance: 0.6, minStroke: 1 })
+ * console.log(banded.segments.length, banded.dropped, banded.droppedAt) // 0 2 [0, 1]
  * ```
  *
- * @param input - The strokes, the drawn lines that moved, the clearance strokes keep from them, and the shortest
- * stroke kept, in the strokes' units.
- * @returns The clipped strokes, how many were cut back, and how many were dropped.
+ * @param input - The strokes and their bands, the drawn lines that moved, the clearance strokes keep from them, and
+ * the shortest stroke kept, in the strokes' units.
+ * @returns The clipped strokes, how many were cut back, how many were dropped, and the dropped strokes' indices.
  * @category utilities
  * @since 0.0.0
  */
 export const reclippedShading = (input: {
   readonly segments: ReadonlyArray<Segment2>;
+  readonly bands: ReadonlyArray<ShadingBand>;
   readonly lines: ReadonlyArray<Segment2>;
   readonly clearance: number;
   readonly minStroke: number;
-}): { readonly segments: ReadonlyArray<Segment2>; readonly trimmed: number; readonly dropped: number } => {
+}): {
+  readonly segments: ReadonlyArray<Segment2>;
+  readonly trimmed: number;
+  readonly dropped: number;
+  readonly droppedAt: ReadonlyArray<number>;
+} => {
   const reach = input.clearance * (1 + REACH_MARGIN);
-  const clipped = A.map(input.segments, (stroke) => ({
-    stroke,
-    pieces: clearPieces(stroke, input.lines, reach, input.minStroke),
-  }));
-  const cut = A.getSomes(A.map(clipped, ({ pieces }) => pieces));
+  const clipped = A.map(input.segments, (stroke) => clearPieces(stroke, input.lines, reach, input.minStroke));
+  const thinned = thinnedStrokes(input.bands, clipped);
+  const pieces = A.map(clipped, (kept, at) => (HashSet.has(thinned, at) ? O.some(A.empty<Segment2>()) : kept));
+  const cut = A.getSomes(pieces);
+  const droppedAt = A.flatMap(pieces, (kept, at) => (O.exists(kept, A.isReadonlyArrayEmpty) ? [at] : []));
   return A.isReadonlyArrayNonEmpty(cut)
     ? {
-        segments: A.flatMap(clipped, ({ stroke, pieces }) => O.getOrElse(pieces, () => [stroke])),
+        segments: A.flatten(A.zipWith(input.segments, pieces, (stroke, kept) => O.getOrElse(kept, () => [stroke]))),
         trimmed: A.length(A.filter(cut, A.isReadonlyArrayNonEmpty)),
-        dropped: A.length(A.filter(cut, A.isReadonlyArrayEmpty)),
+        dropped: A.length(droppedAt),
+        droppedAt,
       }
-    : { segments: input.segments, trimmed: 0, dropped: 0 };
+    : { segments: input.segments, trimmed: 0, dropped: 0, droppedAt };
+};
+
+/**
+ * Shading coverage of a view counted again on the strokes the sheet draws: a
+ * band whose every stroke the re-clip beside separated outlines dropped is a
+ * lost stretch, and a face whose every band it emptied is a lost face.
+ *
+ * **Details**
+ *
+ * The engine counts lost faces and stretches on the strokes it projects,
+ * before the sheet opens close outlines and clips the strokes again
+ * ({@link reclippedShading}). A band the re-clip empties drew nothing on the
+ * sheet, and a face left with no drawing band drew nothing at all, though the
+ * engine counted it shaded; both are added to the engine's counts. A band that
+ * keeps any stroke still draws (`reclippedShading` already empties one it
+ * leaves below two strokes). `bands` index the strokes as the
+ * engine returned them (`EdgeSet.shadingBands`), and `dropped` must index the
+ * same list, as `reclippedShading`'s `droppedAt` does.
+ *
+ * **Gotchas**
+ *
+ * The coverage is returned as it was when the re-clip emptied no band. An
+ * engine that reports no bands lets no drop be attributed.
+ *
+ * **Example** (The re-clip drops every stroke of one face)
+ *
+ * ```ts
+ * import { ShadingBand, ShadingCoverage } from "@beep/technical-drawing"
+ * import { reclippedCoverage } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const coverage = reclippedCoverage({
+ *   coverage: ShadingCoverage.make({ shadedFaces: 2, skippedFaces: [] }),
+ *   bands: [ShadingBand.make({ face: 0, strokes: [0, 1] }), ShadingBand.make({ face: 1, strokes: [2, 3] })],
+ *   dropped: [0, 1, 3]
+ * })
+ * console.log(coverage.lostFaces, coverage.lostStretches) // 1 1
+ * ```
+ *
+ * @param input - The engine's coverage of the view, its shading bands, and the indices of the strokes the re-clip
+ * dropped.
+ * @returns The coverage with the bands and faces the re-clip emptied counted lost.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const reclippedCoverage = (input: {
+  readonly coverage: ShadingCoverage;
+  readonly bands: ReadonlyArray<ShadingBand>;
+  readonly dropped: ReadonlyArray<number>;
+}): ShadingCoverage => {
+  const dropped = HashSet.fromIterable(input.dropped);
+  const emptied = (band: ShadingBand): boolean => A.every(band.strokes, (stroke) => HashSet.has(dropped, stroke));
+  const facesOf = (bands: ReadonlyArray<ShadingBand>): HashSet.HashSet<number> =>
+    HashSet.fromIterable(A.map(bands, (band) => band.face));
+  const bare = A.filter(input.bands, emptied);
+  const drawing = facesOf(A.filter(input.bands, (band) => !emptied(band)));
+  return A.isReadonlyArrayNonEmpty(bare)
+    ? ShadingCoverage.make({
+        ...input.coverage,
+        lostFaces: input.coverage.lostFaces + HashSet.size(HashSet.difference(facesOf(bare), drawing)),
+        lostStretches: input.coverage.lostStretches + A.length(bare),
+      })
+    : input.coverage;
 };
 
 // Lengths are compared to the micrometre so the equal edges of a regular face

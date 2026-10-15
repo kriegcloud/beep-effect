@@ -469,15 +469,17 @@ const skippedStretchFindings = (page: number, coverage: ShadingCoverage): Readon
 
 /**
  * Findings for shading that was planned but never drawn: a face given lines
- * whose every stroke the hidden-line and legibility passes removed is a
- * `shading-lost-face`, since a reviewer would otherwise meet a bare face the
- * manifest counts as shaded.
+ * whose every stroke the hidden-line and legibility passes, or the sheet's
+ * re-clip beside separated outlines, removed is a `shading-lost-face`, since
+ * a reviewer would otherwise meet a bare face the manifest counts as shaded.
  *
  * **Details**
  *
- * A visible stretch whose band the hidden-line and legibility passes emptied
- * is a `shading-lost-stretch`. A visible stretch the planner skipped by
- * design (too narrow for two lines, or without two legible strokes) is
+ * A visible stretch whose band those passes emptied is a
+ * `shading-lost-stretch`. A render passes the coverage of what the sheet
+ * draws (`reclippedCoverage`), so the re-clip's losses are counted. A
+ * visible stretch the planner skipped by design (too narrow for two lines,
+ * or without two legible strokes) is
  * reported as a `shading-skipped-stretch` only when the engine measured room
  * for a band there: legible chords at least 3.4 minimum pitches across.
  *
@@ -519,7 +521,7 @@ export const shadingCoverageFindings = (input: {
         pageFinding(
           "shading-lost-face",
           input.page,
-          `${input.coverage.lostFaces} face(s) planned shading lines but drew none after hidden-line removal and the legibility pass.`
+          `${input.coverage.lostFaces} face(s) planned shading lines but drew none after hidden-line removal, the legibility pass, and the re-clip beside separated outlines.`
         ),
       ]
     : []),
@@ -528,7 +530,7 @@ export const shadingCoverageFindings = (input: {
         pageFinding(
           "shading-lost-stretch",
           input.page,
-          `${input.coverage.lostStretches} visible stretch(es) of a face planned shading lines but drew none after hidden-line removal and the legibility pass.`
+          `${input.coverage.lostStretches} visible stretch(es) of a face planned shading lines but drew none after hidden-line removal, the legibility pass, and the re-clip beside separated outlines.`
         ),
       ]
     : []),
