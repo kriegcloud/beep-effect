@@ -27,7 +27,17 @@ const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const error = (message: string) => ModelsLocatorError.make({ message });
 
 /**
- * Match the complete shell word owned by an assignment or model flag.
+ * Match a candidate word owned by an assignment or model flag.
+ *
+ * **Details**
+ *
+ * Projection supports only a single physical line whose words are wholly bare,
+ * escaped, single-quoted or double-quoted. The owned value must be one complete
+ * literal word, following an exact model flag or known assignment. Unquoted
+ * comments, continuations, command substitutions, backticks, brace expansions,
+ * concatenated quoting and adjacent operators refuse with ModelsLocatorError.
+ * A preceding here-document or substitution opener also refuses: this bounded
+ * resolver does not establish where arbitrary nested shell bodies end.
  *
  * **Example** (Respect assignment boundaries)
  *
@@ -36,12 +46,14 @@ const error = (message: string) => ModelsLocatorError.make({ message });
  * console.log(modelsShellWordPattern("MODEL").test("MODEL='example';")) // true
  * ```
  *
+ * @param variable - Exact assignment name or model flag.
+ * @returns A candidate-word pattern; projection also validates the complete line.
  * @category utilities
  * @since 0.0.0
  */
 export const modelsShellWordPattern = (variable: string): RegExp =>
   new RegExp(
-    `${/(?<![\w-])/.source}${Regex.escape(variable)}${/(?:=|[ \t]+)((?:"(?:\\.|[^"\\])*"|'[^']*'|\\.|[^'"\\\s;&|<>])+)/.source}`,
+    `${/(?<!\S)/.source}${Regex.escape(variable)}${Str.startsWith("-")(variable) ? "(?:=|[ \\t]+)" : "="}${/((?:"(?:\\.|[^"\\])*"|'[^']*'|\\.|[^'"\\\s;&|<>])+)/.source}`,
     "gd"
   );
 
@@ -51,10 +63,10 @@ const shellWordValue = Effect.fnUntraced(function* (token: string) {
   if (/^'[^']*'$/.test(token)) return Str.slice(1, -1)(token);
   const doubleQuoted = /^"(?:\\.|[^"\\])*"$/.test(token);
   const value = doubleQuoted ? Str.slice(1, -1)(token) : token;
-  if (/(?:^|[^\\])(?:\\\\)*[$`]/.test(value)) return yield* error("Ambiguous shell word: expansion.");
+  if (/(?:^|[^\\])(?:\\\\)*[$`]/.test(value)) return yield* error("Unsupported shell form: expansion.");
   if (doubleQuoted) return Str.replace(/\\(["\\$`])/g, "$1")(value);
   if (!/^(?:\\.|[^'"\\])+$/.test(token))
-    return yield* error("Ambiguous shell word: concatenated or unbalanced quoting.");
+    return yield* error("Unsupported shell form: concatenated or unbalanced quoting.");
   return Str.replace(/\\(.)/g, "$1")(token);
 });
 
@@ -65,6 +77,54 @@ const isShellCode = (content: string, end: number): boolean =>
   /^(?:"(?:\\.|[^"\\])*"|'[^']*'|\\.|(?<![^\s;&|<>()])#[^\n]*\n|(?<=[^\s;&|<>()])#|[^'"\\#])*$/.test(
     Str.slice(0, end)(content)
   );
+
+// This is deliberately a bounded grammar, not a general shell lexer. Remove
+// only complete quoted words and escapes before checking the remaining line.
+const assertSimpleShellLine = Effect.fnUntraced(function* (content: string, start: number, end: number) {
+  const prefix = Str.slice(0, start)(content);
+  const lineStart = O.getOrElse(Str.lastIndexOf("\n")(prefix), () => -1) + 1;
+  const lineEnd = O.match(Str.indexOf("\n")(Str.slice(end)(content)), {
+    onNone: () => Str.length(content),
+    onSome: (offset) => end + offset,
+  });
+  const line = Str.slice(lineStart, lineEnd)(content);
+  if (/[\r\n]/.test(Str.slice(start, end)(content))) return yield* error("Unsupported shell form: multiline word.");
+  const unquoted = Str.replace(/"(?:\\.|[^"\\])*"|'[^']*'|\\./g, "")(line);
+  if (
+    /\\\r?\n/.test(Str.slice(lineStart, lineEnd + 1)(content)) ||
+    /\\\r?\n$/.test(Str.slice(0, lineStart)(content)) ||
+    /<<|\$\(|`/.test(Str.slice(0, lineEnd)(content)) ||
+    /[#'"\\{}]/.test(unquoted)
+  )
+    return yield* error("Unsupported shell form: only simple single-line literal words are owned.");
+});
+
+/**
+ * Read executable assignment or flag words, excluding comments and quoted data.
+ *
+ * **Example** (Decode an escaped assignment)
+ *
+ * ```ts
+ * import { modelsShellWords } from "@beep/repo-cli/commands/Models/Models.spans"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(modelsShellWords("MODEL=old", "MODEL"))) // true
+ * ```
+ *
+ * @param content - Shell text to read.
+ * @param variable - Exact assignment name or model flag.
+ * @returns Literal values or a typed unsupported-word error.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsShellWords = Effect.fn("Models.shellWords")(function* (content: string, variable: string) {
+  return yield* Effect.forEach(
+    A.filter(A.fromIterable(Str.matchAll(modelsShellWordPattern(variable))(content)), (match) =>
+      isShellCode(content, match.index)
+    ),
+    (match) => shellWordValue(O.getOrElse(O.fromUndefinedOr(match[1]), () => "")),
+    { concurrency: 1 }
+  );
+});
 
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({ start, end, before: Str.slice(start, end)(content), after });
@@ -303,7 +363,7 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
         captures(
           content,
           new RegExp(
-            `^[ \\t]*(?:export[ \\t]+)?${Regex.escape(key)}=("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]*)(?=[ \\t]*(?:#|\\r?$))`,
+            `^[ \\t]*(?:export[ \\t]+)?${Regex.escape(key)}=("(?:\\\\.|[^"\\\\])*"|'[^']*'|[^#\\r\\n]*?)(?=[ \\t]*(?:#|\\r?$))`,
             "gmd"
           ),
           quoted
@@ -355,13 +415,14 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
           return Effect.forEach(
             spans,
             Effect.fnUntraced(function* (entry) {
+              yield* assertSimpleShellLine(content, entry.start, entry.end);
               const next = O.getOrElse(Str.charAt(entry.end)(content), () => "");
-              if (/[;&|<>()'"]/.test(next)) return yield* error("Ambiguous shell word: adjacent operator.");
+              if (/[;&|<>()'"]/.test(next)) return yield* error("Unsupported shell form: adjacent operator.");
               const value = yield* shellWordValue(entry.before);
               // Accept the existing bare parenthesized model spelling only when
               // already equal, then quote it; other operator-like words refuse.
               if (/[()]/.test(entry.before) && value !== expected && !/^["']/.test(entry.before))
-                return yield* error("Ambiguous shell word: parentheses.");
+                return yield* error("Unsupported shell form: parentheses.");
               return value === expected && (/^["']/.test(entry.before) || !/[()]/.test(entry.before))
                 ? ModelsWriteSpan.make({ ...entry, after: entry.before })
                 : entry;

@@ -32,6 +32,7 @@ import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
+import * as Tuple from "effect/Tuple";
 import * as TestConsole from "effect/testing/TestConsole";
 import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
 
@@ -268,6 +269,79 @@ describe("skills command", () => {
   });
 
   it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("preserves symlinked config, lockfile and remote skill targets with canonical backups", () =>
+      Effect.gen(function* () {
+        const root = yield* temporaryRepository;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        yield* writeProjectFile(root, ".codex/config.toml", "[skills]\ninclude_instructions = false\n");
+        yield* runSkillsCommand(["update", "--skill", "grill-me"]);
+        const originals = [".codex/config.toml", "skills-lock.json"];
+        for (const relative of originals) {
+          const link = path.join(root, relative);
+          const target = path.join(root, "canonical", path.basename(relative));
+          yield* fs.makeDirectory(path.dirname(target), { recursive: true });
+          yield* fs.rename(link, target);
+          const before = `\n${yield* fs.readFileString(target)}`.replace(
+            "include_instructions = true",
+            "include_instructions = false"
+          );
+          yield* fs.writeFileString(target, before);
+          yield* fs.chmod(target, 0o644);
+          yield* fs.symlink(target, link);
+        }
+        const skillLink = path.join(root, ".claude/skills/grill-me");
+        const skillTarget = path.join(root, "canonical/remote");
+        yield* fs.rename(skillLink, skillTarget);
+        yield* fs.symlink(skillTarget, skillLink);
+        yield* fs.writeFileString(path.join(skillTarget, "SKILL.md"), "old skill\n");
+        const beforeConfig = yield* fs.readFileString(path.join(root, ".codex/config.toml"));
+        const beforeLock = yield* fs.readFileString(path.join(root, "skills-lock.json"));
+        yield* runSkillsCommand(["update", "--skill", "grill-me"]);
+        for (const [relative, before] of [
+          Tuple.make(".codex/config.toml", beforeConfig),
+          Tuple.make("skills-lock.json", beforeLock),
+        ]) {
+          const link = path.join(root, relative);
+          const target = path.join(root, "canonical", path.basename(relative));
+          expect(yield* fs.readLink(link)).toBe(target);
+          expect(yield* fs.readFileString(target)).not.toBe(before);
+          expect((yield* fs.stat(target)).mode & 0o777).toBe(0o644);
+          const backupRoot = path.join(root, ".beep/skills-backups");
+          const backups = A.filter(yield* fs.readDirectory(backupRoot), (entry) =>
+            Str.startsWith(`${path.basename(relative)}.`)(entry)
+          );
+          const contents = yield* Effect.forEach(backups, (name) => fs.readFileString(path.join(backupRoot, name)));
+          expect(contents).toContain(before);
+        }
+        expect(yield* fs.readLink(skillLink)).toBe(skillTarget);
+        expect(yield* fs.readFileString(path.join(skillTarget, "SKILL.md"))).toBe(remoteGrillMeSkill);
+      }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+    );
+
+    for (const scenario of ["dangling", "outside root", "dangling parent"]) {
+      it.effect(`refuses ${scenario} skill destination links before any mutation`, () =>
+        Effect.gen(function* () {
+          const root = yield* temporaryRepository;
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          yield* fs.makeDirectory(path.join(root, ".codex"));
+          const target = scenario === "outside root" ? yield* fs.makeTempDirectoryScoped() : path.join(root, "absent");
+          if (scenario === "outside root") yield* fs.writeFileString(path.join(target, "config.toml"), "[skills]\n");
+          if (scenario === "dangling parent") {
+            yield* fs.remove(path.join(root, ".codex"), { recursive: true });
+            yield* fs.symlink(target, path.join(root, ".codex"));
+          } else yield* fs.symlink(path.join(target, "config.toml"), path.join(root, ".codex/config.toml"));
+          const result = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") }).pipe(Effect.result);
+          expect(result._tag).toBe("Failure");
+          expect(yield* fs.exists(path.join(root, ".beep/skills-backups"))).toBe(false);
+          expect(yield* fs.exists(path.join(root, ".claude"))).toBe(false);
+          if (scenario === "outside root")
+            expect(yield* fs.readFileString(path.join(target, "config.toml"))).toBe("[skills]\n");
+        }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+      );
+    }
+
     for (const scenario of ["backup and mode", "projection drift", "publish failure", "cleanup failure"]) {
       it.effect(`protects skill projection and remote publication during ${scenario}`, () =>
         Effect.gen(function* () {

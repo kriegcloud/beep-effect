@@ -2697,3 +2697,13 @@ must select touched source rows; transitive imports in a scoped suite are not a
 repo-wide coverage proof. The references check reports one inherited
 `home-absolute` observation in the Palantiri plan, source-equal to integrated
 main; F records its attribution and leaves that unrelated document to its owner.
+
+
+### F-R3-ENV — admitted checks need the user bus (2026-10-15)
+
+While launching focused Models/Skills tests through `beep-heavy`, the wrapper
+refused before execution because the user scope bus environment was absent.
+Evidence: `Failed to connect to user scope bus`; the admitted rerun with the
+workstation runtime directory and bus address passed. A wrapper diagnostic
+that supplies the known user bus when absent would prevent this retry. No
+admission bypass or duplicate pending job was used.

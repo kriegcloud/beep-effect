@@ -541,6 +541,31 @@ last observation. Use a maintenance boundary excluding those clients when strict
 mutual exclusion is required. The writer detects observed races and preserves
 recovery artifacts; it does not lock native clients out.
 
-Shell projection accepts a single complete bare, escaped, or wholly quoted scalar.
-Adjacent operators, concatenated quoted components, expansions, and unbalanced
-quotes fail closed. Separate operators from the owned scalar with whitespace.
+Shell projection owns only a simple, single-physical-line launcher or known
+assignment. Flags must be exact `--model` / `-m` words (with a space or `=`
+separator); assignments require `NAME=`. Their value must be one complete bare,
+escaped, single-quoted or double-quoted literal word. An equal bare model with
+parenthesized effort is accepted only to quote that same value. Quoted comment
+markers are data; any unquoted `#` on an owned line refuses. Adjacent operators,
+concatenated quote components, parameter/brace expansions touching the owned
+word, multiline quoting and backslash-newline continuations refuse. Whitespace
+separates a following operator from the owned word.
+
+The resolver deliberately does not parse general shell nesting. Any `<<`,
+command substitution opener (`$(`) or backtick on or before an owned line
+refuses, including a model-looking line inside a quoted here-document body.
+Even a previously closed body may therefore refuse. Use a dedicated simple
+launcher or an explicitly owned simpler configuration surface instead of
+broadening lexical guesses. These cases return a typed `ModelsLocatorError`
+with `Unsupported shell form` before creating any backup, journal or stage.
+Comments and complete quoted data containing a launcher are never owned.
+Re-projecting a supported result must be byte-identical.
+
+Skill projection and lockfile writes resolve existing symlinks before backup,
+staging and publication; remote skill directories follow the same rule. Stages
+live beside the canonical target and backups hold its prior bytes. The visible
+link remains a link. All destinations and existing parents must resolve within
+the repository root; dangling and out-of-root links refuse before the update
+creates backups or stages. ModelsApply already resolves the native target;
+its command boundary validates the canonical target against the selected home
+or repository root, and explicitly refuses dangling optional destinations.

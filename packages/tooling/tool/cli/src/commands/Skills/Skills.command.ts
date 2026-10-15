@@ -475,53 +475,91 @@ const makeParentDirectory = Effect.fn("Skills.makeParentDirectory")(function* (
     .pipe(SkillsCommandError.mapError(`Failed to create parent directory for ${absolutePath}.`, absolutePath));
 });
 
+// Resolve existing targets and every existing parent before creating backups or
+// stages. Missing ordinary paths are allowed; dangling links and escapes are not.
+const resolveSkillDestination = Effect.fn("Skills.resolveDestination")(function* (
+  repoRoot: string,
+  destination: string
+): Effect.fn.Return<string, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = yield* fs.realPath(repoRoot).pipe(SkillsCommandError.mapError("Cannot resolve skill root."));
+  let ancestor = path.resolve(destination);
+  let suffix = "";
+  while (!(yield* fs.exists(ancestor).pipe(SkillsCommandError.mapError("Cannot inspect skill destination.")))) {
+    if (O.isSome(yield* fs.readLink(ancestor).pipe(Effect.option)))
+      return yield* SkillsCommandError.make({
+        message: "Refusing dangling skill destination link.",
+        file: destination,
+      });
+    suffix = path.join(path.basename(ancestor), suffix);
+    const parent = path.dirname(ancestor);
+    if (parent === ancestor)
+      return yield* SkillsCommandError.make({
+        message: "Cannot resolve skill destination ancestor.",
+        file: destination,
+      });
+    ancestor = parent;
+  }
+  const canonical = path.resolve(
+    yield* fs.realPath(ancestor).pipe(SkillsCommandError.mapError("Cannot resolve skill destination.")),
+    suffix
+  );
+  const relative = path.relative(root, canonical);
+  if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
+    return yield* SkillsCommandError.make({
+      message: "Refusing skill destination outside repository root.",
+      file: destination,
+    });
+  return canonical;
+});
+
 const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
   absolutePath: string,
   content: string
 ): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  yield* makeParentDirectory(absolutePath);
+  const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Cannot locate skill backup root."));
+  const target = yield* resolveSkillDestination(repoRoot, absolutePath);
+  yield* makeParentDirectory(target);
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const now = yield* DateTime.now;
   const salt = yield* Random.nextIntBetween(0, 0xffffff);
   const stamp = now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""));
   const suffix = `${stamp}-${salt}`;
-  const existing = yield* readExistingFile(absolutePath);
+  const existing = yield* readExistingFile(target);
   if (O.isSome(existing) && existing.value === content) return;
-  const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Cannot locate skill backup root."));
   const directory = path.join(repoRoot, ".beep", "skills-backups");
   yield* fs
     .makeDirectory(directory, { recursive: true, mode: 0o700 })
     .pipe(SkillsCommandError.mapError("Cannot create skill backup directory."));
   if (O.isSome(existing)) {
     yield* fs
-      .writeFileString(path.join(directory, `${path.basename(absolutePath)}.${suffix}`), existing.value, {
+      .writeFileString(path.join(directory, `${path.basename(target)}.${suffix}`), existing.value, {
         flag: "wx",
         mode: 0o600,
       })
       .pipe(SkillsCommandError.mapError("Cannot back up skill projection."));
   }
-  const temporary = `${absolutePath}.tmp-${suffix}`;
+  const temporary = `${target}.tmp-${suffix}`;
   yield* Effect.acquireUseRelease(
     fs
       .writeFileString(temporary, content, { flag: "wx", mode: 0o600 })
       .pipe(SkillsCommandError.mapError("Cannot stage skill projection.")),
     Effect.fnUntraced(function* () {
-      const current = yield* readExistingFile(absolutePath);
+      const current = yield* readExistingFile(target);
       if (!S.toEquivalence(S.Option(S.String))(current, existing))
         return yield* SkillsCommandError.make({
           message: "Skill projection drifted after planning.",
-          file: absolutePath,
+          file: target,
         });
       if (O.isSome(existing)) {
-        const info = yield* fs
-          .stat(absolutePath)
-          .pipe(SkillsCommandError.mapError("Cannot read projection permissions."));
+        const info = yield* fs.stat(target).pipe(SkillsCommandError.mapError("Cannot read projection permissions."));
         yield* fs
           .chmod(temporary, info.mode)
           .pipe(SkillsCommandError.mapError("Cannot preserve projection permissions."));
       }
-      yield* fs.rename(temporary, absolutePath).pipe(SkillsCommandError.mapError("Cannot replace skill projection."));
+      yield* fs.rename(temporary, target).pipe(SkillsCommandError.mapError("Cannot replace skill projection."));
     }),
     () => Effect.ignore(fs.remove(temporary))
   );
@@ -702,7 +740,7 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
 ): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const skillDir = path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name);
+  const skillDir = yield* resolveSkillDestination(repoRoot, path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name));
   const now = yield* DateTime.now;
   const salt = yield* Random.nextIntBetween(0, 0xffffff);
   const suffix = `${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
@@ -1315,9 +1353,17 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
 > {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Failed to locate repository root."));
+  // Preflight all destinations before any update writes a backup or projection.
+  yield* resolveSkillDestination(repoRoot, path.join(repoRoot, CODEX_CONFIG_PATH));
+  yield* resolveSkillDestination(repoRoot, path.join(repoRoot, SKILLS_LOCK_PATH));
   const lock = yield* readLockV2(repoRoot);
   yield* refuseVendoredRefetch(lock, options.skill);
   const sources = yield* floatingSources(lock, yield* resolveSourcesToFetch(options.skill));
+  yield* Effect.forEach(
+    sources,
+    (source) => resolveSkillDestination(repoRoot, path.join(repoRoot, CLAUDE_SKILLS_DIR, source.name)),
+    { concurrency: 1 }
+  );
   const fetchedSnapshots = yield* Effect.forEach(sources, fetchRemoteSkillSnapshot, {
     concurrency: 3,
   });

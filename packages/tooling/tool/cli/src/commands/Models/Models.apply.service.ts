@@ -351,7 +351,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
               (yield* hash(yield* readNative(file))) !== beforeHash ||
               (yield* hash(yield* readNative(retained))) !== beforeHash
             )
-              return yield* failure(`Native file drifted after planning; refusing replacement. Journal: ${journal.id}`);
+              return yield* failure("Native file drifted after planning; refusing replacement.");
             yield* Effect.uninterruptible(
               Effect.gen(function* () {
                 // Once publication starts, a failed process observation is uncertain:
@@ -367,14 +367,10 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
                     )
                     .pipe(io);
                   yield* recover(file, temporary, stagedInfo, yield* hash(after));
-                  return yield* failure(
-                    `Concurrent native write detected; recovery event retained. Journal: ${journal.id}`
-                  );
+                  return yield* failure("Concurrent native write detected; recovery event retained.");
                 }
                 if (!(yield* matches(file, stagedInfo, yield* hash(after))))
-                  return yield* failure(
-                    `Native file changed after replacement; preserve journal for recovery. Journal: ${journal.id}`
-                  );
+                  return yield* failure("Native file changed after replacement; preserve journal for recovery.");
                 completed = true;
               })
             );

@@ -331,7 +331,11 @@ const resolveApplyFile = Effect.fnUntraced(function* (paths: ResolvedPaths, targ
   const file = resolveTargetPath(ModelsTargetLocation.make({ ...paths, root: target.root, path: target.path }));
   if (O.isNone(file)) return yield* ModelsCommandError.make({ message: `Target ${target.id} escapes its root.` });
   const exists = yield* fs.exists(file.value).pipe(ModelsCommandError.mapError("Cannot inspect target."));
-  if (!exists && target.optional) return O.none<string>();
+  if (!exists) {
+    if (O.isSome(yield* fs.readLink(file.value).pipe(Effect.option)))
+      return yield* ModelsCommandError.make({ message: `Target ${target.id} is a dangling symlink.` });
+    if (target.optional) return O.none<string>();
+  }
   const root = yield* fs
     .realPath(target.root === "home" ? paths.home : paths.repo)
     .pipe(ModelsCommandError.mapError("Cannot resolve target root."));

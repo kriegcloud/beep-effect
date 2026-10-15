@@ -307,7 +307,10 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         variable: "MODEL",
         within: O.none(),
       };
-      assertSome(yield* reader.read(file("OTHER_MODEL=ignored\nMODEL=x;\nMODEL\t'x'\nMODEL  x\n"), locator), "x");
+      assertSome(
+        yield* reader.read(file("OTHER_MODEL=ignored\n# MODEL=ignored\nMODEL=o\\ld\nMODEL=old\n"), locator),
+        "old"
+      );
       assertSome(yield* reader.read(file('MODEL="gpt-6.1-sol(medium)";\n'), locator), "gpt-6.1-sol(medium)");
     })
   );

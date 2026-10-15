@@ -102,7 +102,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md).
+F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md). Round 3 bounds shell ownership and preserves canonical skill targets; panel round 4 remains driver-owned.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated
 before/after measurements are recorded. Remaining acceptance covers incomplete
 30-session windows, four H3 native measurement gates, external-owner

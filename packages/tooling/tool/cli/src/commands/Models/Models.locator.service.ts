@@ -25,7 +25,7 @@ import { parseDocument } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { parseJsonText } from "./Models.paths.ts";
 import { extractGeneratedBlock } from "./Models.render.ts";
-import { modelsShellWordPattern } from "./Models.spans.ts";
+import { modelsShellWords } from "./Models.spans.ts";
 import type { Locator } from "./Models.manifest.schemas.ts";
 import type { ModelsTargetFile } from "./Models.paths.ts";
 
@@ -132,20 +132,14 @@ const functionLines = (content: string, name: string): ReadonlyArray<string> => 
   );
 };
 
-const readShellAssign = (content: string, variable: string, within: O.Option<string>): O.Option<string> =>
-  pipe(
-    within,
-    O.map((name) => functionLines(content, name)),
-    O.getOrElse(() => Str.split(content, "\n")),
-    // `--model 'grok-4.6'` and `KEY=value` are the same shape once the
-    // separator is allowed to be a space: the flag or variable name, then the
-    // value.
-    A.flatMap((line) => A.fromIterable(Str.matchAll(modelsShellWordPattern(variable))(line))),
-    A.map((match) => O.fromUndefinedOr(match[1])),
-    A.getSomes,
-    A.map(unquote),
-    A.dedupe,
-    A.match({ onEmpty: O.none<string>, onNonEmpty: (values) => O.some(A.join(values, ", ")) })
+const readShellAssign = (content: string, variable: string, within: O.Option<string>) =>
+  modelsShellWords(
+    O.match(within, { onNone: () => content, onSome: (name) => A.join(functionLines(content, name), "\n") }),
+    variable
+  ).pipe(
+    Effect.map(
+      flow(A.dedupe, A.match({ onEmpty: O.none<string>, onNonEmpty: (values) => O.some(A.join(values, ", ")) }))
+    )
   );
 
 const readEnvKey = (content: string, key: string): O.Option<string> =>
@@ -392,9 +386,7 @@ const makeLocatorReader = (): ModelsLocatorReaderShape => ({
         )
       ),
       Match.tag("env-key", ({ key }) => Effect.succeed(readEnvKey(file.content, key))),
-      Match.tag("shell-assign", ({ variable, within }) =>
-        Effect.succeed(readShellAssign(file.content, variable, within))
-      ),
+      Match.tag("shell-assign", ({ variable, within }) => readShellAssign(file.content, variable, within)),
       Match.tag("xml-attribute", ({ elementSelector, attribute }) =>
         readXmlAttribute(file, elementSelector, attribute)
       ),

@@ -93,6 +93,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
           { _tag: "env-key", binding, render, key: "MODEL" },
           'export MODEL="gpt-6.1-sol" # tail\nKEEP=1\n',
         ],
+        ["MODEL=old # tail\n", { _tag: "env-key", binding, render, key: "MODEL" }, 'MODEL="gpt-6.1-sol" # tail\n'],
         [
           'export const model = "old"; // tail\n',
           { _tag: "ts-literal", binding, render, symbol: "model" },
@@ -385,6 +386,33 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
+  it.effect("preserves canonical model symlinks and refuses dangling links before backup", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "model-link-" });
+      const target = path.join(root, "target.toml");
+      const link = path.join(root, "config.toml");
+      const backups = path.join(root, "backups");
+      yield* fs.writeFileString(target, native, { mode: 0o644 });
+      yield* fs.symlink(target, link);
+      const writer = yield* writerWithFs(fs);
+      const applied = yield* writer.apply(link, [topLevel], "write", backups);
+      expect(O.isSome(applied)).toBe(true);
+      const journal = O.getOrThrow(applied);
+      expect(yield* fs.readLink(link)).toBe(target);
+      expect(yield* fs.readFileString(target)).toContain('"gpt-6.1-sol"');
+      expect(yield* fs.readFileString(journal.backup)).toBe(native);
+      yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
+      expect(yield* fs.readFileString(target)).toBe(native);
+      expect(yield* fs.readLink(link)).toBe(target);
+      const dangling = path.join(root, "dangling.toml");
+      yield* fs.symlink(path.join(root, "absent"), dangling);
+      yield* Effect.flip(writer.apply(dangling, [topLevel], "write", path.join(root, "absent-backups")));
+      expect(yield* fs.exists(path.join(root, "absent-backups"))).toBe(false);
+    })
+  );
+
   it.effect("refuses adjacent shell operators and concatenated words before any backup", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -401,6 +429,15 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         "claude --model old||true\n",
         "claude --model old;printf native\n",
         "claude --model 'old\n",
+        "claude --model old\\\n-suffix\n",
+        "claude --model # native\n",
+        "cat <<'EOF'\nclaude --model old\nEOF\n",
+        "claude --model old # native\n",
+        "claude --model old $(printf native)\n",
+        "claude --model old `printf native`\n",
+        "claude --model ${MODEL}\n",
+        "claude --model old{,suffix}\n",
+        "printf native \\\nclaude --model old\n",
       ]) {
         yield* fs.writeFileString(file, text);
         const error = yield* Effect.flip(writer.apply(file, [request], "write", backups));
@@ -408,8 +445,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         expect(yield* fs.readFileString(file)).toBe(text);
         expect(yield* fs.exists(backups)).toBe(false);
       }
-      const comments =
-        "# claude --model ignored\nclaude --model old # trailing native\nprintf '%s' 'claude --model untouched'\n";
+      const comments = "# claude --model ignored\nclaude --model old\nprintf '%s' 'claude --model untouched'\n";
       const commentProjection = yield* modelsApplySpans(comments, yield* modelsWriteSpans(comments, request));
       expect(commentProjection).toBe(comments.replace("--model old", "--model gpt-6.1-sol"));
       for (const word of ["old", "'old'", '"old"', "o\\ld"]) {

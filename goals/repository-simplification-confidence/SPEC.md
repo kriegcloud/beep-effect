@@ -1773,3 +1773,39 @@ Fable R2-F1 through R2-F5, Grok R2-GROK-01 through R2-GROK-03, and review
 file is written and no new native backup is needed. The driver repeats the full
 three-model panel on the new head and fingerprint. Earlier verdicts do not
 clear this revision.
+
+
+### F-R3-BOUNDED-SHELL-LINKS — panel round 3 fix wave (2026-10-15)
+
+Decision: limit shell projection to complete literal words on a single physical
+line. Refuse continuations, unquoted comments, adjacent operators, concatenated
+quotes and owned-word expansions. Refuse an owned line when a here-document or
+substitution opener occurs on or before it; do not guess where a nested body
+ends. Reason: F-ASTRA-R2-02 shows that syntax checks and stable re-projection do
+not establish word ownership. The driver explicitly chose a bounded grammar.
+Supported grammar and refusals are documented in the model writer JSDoc and
+agent-pools runbook. Reversal: revert this wave; keep the unsafe forms refused
+until a dedicated parser can prove ownership.
+
+Decision: resolve skill projection, lockfile and remote directory destinations
+before backup, staging and publication. Preflight destinations and existing
+parents inside the canonical repository root. Refuse dangling or escaping links
+before any update mutation. Preserve visible symlinks and write their canonical
+targets. ModelsApply retains its existing canonical-target protocol, with a new
+apply/restore link fixture and explicit dangling optional-target refusal at the
+command boundary. Reason: F-ASTRA-R3-02 reproduced destruction of the visible
+link with a stale canonical target. Reversal: revert this wave; repository-only
+fixtures prove prior-byte backups and retained permissions. No native home file
+is changed in this wave, so no new native backup or rollback is claimed.
+
+Nearby fixes: F3-F1 keeps whitespace before env comments; F3-F3/R3-GROK-04
+prints each journal suffix once; F3-F4/R3-GROK-02 share shell-reader filtering
+and literal escape decoding. Deferred, tracked for a later writer repair:
+F3-F2 needs target-filesystem capability caching and unsupported-filesystem
+fixtures; R3-GROK-01 needs crash-state journaling and restart fixtures;
+R3-GROK-03 needs verified exchange for file and directory skill publication
+plus replacing-writer recovery fixtures. These are non-actionable panel items
+and require publication-protocol changes beyond the two bounded P1 repairs.
+The native writer already retains artifacts and refuses observed races; skill
+publication retains its documented POSIX rename-window limitation. Acceptance
+on this head remains driver-owned panel round 4, not the earlier verdicts.

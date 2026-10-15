@@ -152,6 +152,33 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
     })
   );
 
+  it.effect("refuses dangling optional model destinations without backups", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifest] = yield* fixture();
+      const link = path.join(home, "absent.toml");
+      const missing = path.join(home, "missing.toml");
+      yield* fs.symlink(missing, link);
+      yield* Effect.flip(
+        run([
+          "apply",
+          "--home",
+          home,
+          "--repo",
+          home,
+          "--manifest",
+          manifest,
+          "--write",
+          "--target",
+          "synthetic.optional",
+        ])
+      );
+      expect(yield* fs.readLink(link)).toBe(missing);
+      expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+    })
+  );
+
   it.effect("rejects conflicting modes, unmatched ids, and symlink escapes without native writes", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
