@@ -20,6 +20,7 @@ import * as Struct from "effect/Struct";
 import { SetupFailure } from "./Setup.errors.ts";
 import { runSetup } from "./Setup.program.ts";
 import { liveSetupServices } from "./Setup.services.ts";
+import type { EmbeddedGateway } from "./Setup.models.ts";
 
 /**
  * File name the bootstrapper looks for beside its executable when it carries
@@ -39,15 +40,16 @@ import { liveSetupServices } from "./Setup.services.ts";
 export const BESIDE_BUNDLE_FILE = "practice-gateway.mcpb";
 
 const program = Effect.fn("PracticeSetup.program")(
-  function* (embeddedBundle: O.Option<string>) {
+  function* (embedded: O.Option<EmbeddedGateway>) {
     if (process.platform !== "win32") {
       return yield* SetupFailure.make({ message: "This setup program runs on Windows only." });
     }
     const path = yield* Path.Path;
-    const bundleSource = O.getOrElse(embeddedBundle, () =>
-      path.join(path.dirname(process.execPath), BESIDE_BUNDLE_FILE)
-    );
-    const services = yield* Layer.build(liveSetupServices(bundleSource));
+    const bundleSource = O.match(embedded, {
+      onNone: () => path.join(path.dirname(process.execPath), BESIDE_BUNDLE_FILE),
+      onSome: Struct.get("bundle"),
+    });
+    const services = yield* Layer.build(liveSetupServices(bundleSource, O.map(embedded, Struct.get("version"))));
     const report = yield* Effect.provideContext(runSetup, services);
     if (!report.complete) {
       return yield* SetupFailure.make({ message: "Setup did not finish; see last-run.json." });
@@ -63,9 +65,10 @@ const program = Effect.fn("PracticeSetup.program")(
  *
  * **Details**
  *
- * The packaged executable passes its embedded bundle; a plain run (`None`)
- * uses `practice-gateway.mcpb` beside the executable. The process exits non-zero when setup did not
- * reach the onboarding hand-off.
+ * The packaged executable passes its embedded bundle and its manifest
+ * version; a plain run (`None`) uses `practice-gateway.mcpb` beside the
+ * executable and accepts any installed gateway version. The process exits
+ * non-zero when setup did not reach the onboarding hand-off.
  *
  * **Example** (Read the entry function)
  *
@@ -75,12 +78,12 @@ const program = Effect.fn("PracticeSetup.program")(
  * console.log(typeof main) // "function"
  * ```
  *
- * @param embeddedBundle - Path of the embedded gateway `.mcpb`, if any.
+ * @param embedded - The embedded gateway `.mcpb` and its version, if any.
  * @category programs
  * @since 0.0.0
  */
-export const main = (embeddedBundle: O.Option<string>): void =>
-  embeddedBundle.pipe(
+export const main = (embedded: O.Option<EmbeddedGateway>): void =>
+  embedded.pipe(
     program,
     Effect.scoped,
     Layer.effectDiscard,
