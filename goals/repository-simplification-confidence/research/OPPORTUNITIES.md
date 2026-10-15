@@ -2687,3 +2687,13 @@ The guessed `beep lint instrumentation-catalog --write` instead routes into the
 broad lint workflow. Stopped only that invocation's owned process subtree and
 ran the documented owner through heavy admission. Rejecting unknown lint task
 names would prevent this accidental broad work; no catalog was hand-edited.
+
+The round-2 lexer and injected-race fixtures initially introduced five Fallow
+complexity findings. Bounded lexical patterns, shared inode/hash verification,
+and separately registered race scenarios reduce them to zero without baseline
+or allowlist growth. The scoped coverage read also needed the existing doctest
+suite because RegExp.escape reuse touches JSDocSections. Coverage comparisons
+must select touched source rows; transitive imports in a scoped suite are not a
+repo-wide coverage proof. The references check reports one inherited
+`home-absolute` observation in the Palantiri plan, source-equal to integrated
+main; F records its attribution and leaves that unrelated document to its owner.

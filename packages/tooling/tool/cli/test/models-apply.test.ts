@@ -270,12 +270,17 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("preserves in-place and replacing writers during apply, restore and recovery", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      for (const phase of ["planned", "in-place", "post", "replace", "restore", "recovery"]) {
+  for (const phase of ["planned", "in-place", "post", "replace", "restore", "recovery"]) {
+    const competitor = 'model = "competitor"\nnew_native_key = true\n';
+    const newest = 'model = "newest"\nnewest_native_key = true\n';
+    const expected = phase === "recovery" ? newest : competitor;
+    const expectedMarkers = A.contains(["planned", "post"], phase) ? 0 : 1;
+    const expectedRetained = phase === "planned" ? 0 : 1;
+    it.effect(`preserves the competing writer and journal during ${phase}`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
         const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-race-" });
         const file = path.join(root, "config.toml");
         const backups = path.join(root, "backups");
@@ -284,13 +289,20 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const journal =
           phase === "restore" ? O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups)) : undefined;
         let exchanges = 0;
-        const competitor = 'model = "competitor"\nnew_native_key = true\n';
-        const newest = 'model = "newest"\nnewest_native_key = true\n';
         const replace = Effect.fnUntraced(function* (bytes: string) {
           const other = path.join(root, "competitor");
           yield* fs.writeFileString(other, bytes);
           yield* fs.rename(other, file);
         });
+        const initial =
+          phase === "in-place"
+            ? fs.writeFileString(file, competitor)
+            : A.contains(["replace", "restore", "recovery"], phase)
+              ? replace(competitor)
+              : Effect.void;
+        const subsequent = phase === "recovery" ? replace(newest) : Effect.void;
+        const post = phase === "post" ? fs.writeFileString(file, competitor) : Effect.void;
+        const interferences = [Effect.void, initial, subsequent];
         const wrappedFs = FileSystem.FileSystem.of({
           ...fs,
           chmod: Effect.fn("ModelsApplyTest.chmod")((target, mode) =>
@@ -306,13 +318,10 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
               command._tag === "StandardCommand" && command.command === "mv" && A.contains(command.args, file);
             if (publication) {
               exchanges += 1;
-              if (exchanges === 1 && phase === "in-place") yield* fs.writeFileString(file, competitor);
-              if (exchanges === 1 && (phase === "replace" || phase === "restore" || phase === "recovery"))
-                yield* replace(competitor);
-              if (exchanges === 2 && phase === "recovery") yield* replace(newest);
+              yield* O.getOrElse(A.get(interferences, exchanges), () => Effect.void);
             }
             const code = yield* spawner.exitCode(command);
-            if (publication && exchanges === 1 && phase === "post") yield* fs.writeFileString(file, competitor);
+            if (publication && exchanges === 1) yield* post;
             return code;
           }),
         });
@@ -327,21 +336,19 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const journals = A.filter(entries, (entry) => entry.endsWith(".json"));
         expect(journals).toHaveLength(1);
         expect(error.message).toContain(journals[0]?.slice(0, -5));
-        if (phase !== "planned" && phase !== "post")
-          expect(
-            A.some(
-              entries,
-              (entry) => entry.startsWith(journals[0]?.slice(0, -5) ?? "missing") && entry.endsWith(".concurrent")
-            )
-          ).toBe(true);
-        expect(yield* fs.readFileString(file)).toBe(phase === "recovery" ? newest : competitor);
-        if (phase === "planned")
-          expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage"))).toHaveLength(0);
-        if (phase !== "planned" && phase !== "post")
-          expect(A.some(entries, (entry) => entry.endsWith(".concurrent"))).toBe(true);
-      }
-    })
-  );
+        expect(
+          A.filter(
+            entries,
+            (entry) => entry.startsWith(journals[0]?.slice(0, -5) ?? "missing") && entry.endsWith(".concurrent")
+          )
+        ).toHaveLength(expectedMarkers);
+        expect(yield* fs.readFileString(file)).toBe(expected);
+        expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage"))).toHaveLength(
+          expectedRetained
+        );
+      })
+    );
+  }
 
   it.effect("fails closed and caches an unsupported exchange probe", () =>
     Effect.gen(function* () {

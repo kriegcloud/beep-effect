@@ -289,6 +289,31 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const sameInode = (left: FileSystem.File.Info, right: FileSystem.File.Info) =>
     O.isSome(left.ino) && O.isSome(right.ino) && left.dev === right.dev && left.ino.value === right.ino.value;
 
+  const matches = Effect.fnUntraced(function* (file: string, info: FileSystem.File.Info, expectedHash: string) {
+    return sameInode(info, yield* fs.stat(file).pipe(io)) && (yield* hash(yield* readNative(file))) === expectedHash;
+  });
+
+  // Recovery returns each actual displaced pathname occupant through another
+  // verified exchange, preserving both files if contention continues.
+  const recover = Effect.fnUntraced(function* (
+    file: string,
+    temporary: string,
+    initialInfo: FileSystem.File.Info,
+    initialHash: string
+  ) {
+    let expectedInfo = initialInfo;
+    let expectedHash = initialHash;
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      if (!(yield* matches(file, expectedInfo, expectedHash))) break;
+      const returningInfo = yield* fs.stat(temporary).pipe(io);
+      const returningHash = yield* hash(yield* readNative(temporary));
+      yield* exchange(temporary, file);
+      if (yield* matches(temporary, expectedInfo, expectedHash)) break;
+      expectedInfo = returningInfo;
+      expectedHash = returningHash;
+    }
+  });
+
   const atomic = Effect.fnUntraced(function* (
     file: string,
     beforeHash: string,
@@ -333,11 +358,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
                 // retain both occupants even if mv cannot report its final status.
                 exchanged = true;
                 yield* exchange(temporary, file);
-                const displacedInfo = yield* fs.stat(temporary).pipe(io);
-                if (
-                  !sameInode(plannedInfo, displacedInfo) ||
-                  (yield* hash(yield* readNative(temporary))) !== beforeHash
-                ) {
+                if (!(yield* matches(temporary, plannedInfo, beforeHash))) {
                   yield* fs
                     .writeFileString(
                       path.join(backupDirectory, `${operation}.concurrent`),
@@ -345,31 +366,12 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
                       { flag: "wx", mode: 0o600 }
                     )
                     .pipe(io);
-                  // Each recovery exchange retains the actual current occupant. If a
-                  // newer writer intervenes, return that occupant with another exchange.
-                  let expectedInfo = stagedInfo;
-                  let expectedHash = yield* hash(after);
-                  for (let attempt = 0; attempt < 8; attempt += 1) {
-                    const liveInfo = yield* fs.stat(file).pipe(io);
-                    if (!sameInode(expectedInfo, liveInfo) || (yield* hash(yield* readNative(file))) !== expectedHash)
-                      break;
-                    const returningInfo = yield* fs.stat(temporary).pipe(io);
-                    const returningHash = yield* hash(yield* readNative(temporary));
-                    yield* exchange(temporary, file);
-                    const recoveredInfo = yield* fs.stat(temporary).pipe(io);
-                    if (
-                      sameInode(expectedInfo, recoveredInfo) &&
-                      (yield* hash(yield* readNative(temporary))) === expectedHash
-                    )
-                      break;
-                    expectedInfo = returningInfo;
-                    expectedHash = returningHash;
-                  }
+                  yield* recover(file, temporary, stagedInfo, yield* hash(after));
                   return yield* failure(
                     `Concurrent native write detected; recovery event retained. Journal: ${journal.id}`
                   );
                 }
-                if (!sameInode(stagedInfo, yield* fs.stat(file).pipe(io)) || (yield* readNative(file)) !== after)
+                if (!(yield* matches(file, stagedInfo, yield* hash(after))))
                   return yield* failure(
                     `Native file changed after replacement; preserve journal for recovery. Journal: ${journal.id}`
                   );

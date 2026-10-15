@@ -45,71 +45,26 @@ export const modelsShellWordPattern = (variable: string): RegExp =>
     "gd"
   );
 
-// A deliberately bounded shell lexer: one bare or wholly quoted scalar.
-// Concatenated quote components and expansion syntax need a shell AST owner.
+// Decode only a single literal shell word. Concatenated quote components,
+// expansions and unbalanced quoting need a shell AST owner and fail closed.
 const shellWordValue = Effect.fnUntraced(function* (token: string) {
-  let quote = "";
-  let quotedParts = 0;
-  let bare = false;
-  let value = "";
-  for (let index = 0; index < token.length; index += 1) {
-    const char = O.getOrElse(Str.charAt(index)(token), () => "");
-    if (char === "\\" && quote !== "'") {
-      index += 1;
-      if (index >= token.length) return yield* error("Ambiguous shell word: trailing escape.");
-      const escaped = O.getOrElse(Str.charAt(index)(token), () => "");
-      if (quote === '"' && !/["\\$`]/.test(escaped)) value += "\\";
-      value += escaped;
-      if (quote === "") bare = true;
-    } else if (char === quote) {
-      quote = "";
-    } else if (quote === "" && (char === "'" || char === '"')) {
-      quote = char;
-      quotedParts += 1;
-    } else {
-      if (quote !== "'" && /[$`]/.test(char)) return yield* error("Ambiguous shell word: expansion.");
-      if (quote === "") bare = true;
-      value += char;
-    }
-  }
-  if (quote !== "" || quotedParts > 1 || (quotedParts > 0 && bare))
+  if (/^'[^']*'$/.test(token)) return Str.slice(1, -1)(token);
+  const doubleQuoted = /^"(?:\\.|[^"\\])*"$/.test(token);
+  const value = doubleQuoted ? Str.slice(1, -1)(token) : token;
+  if (/(?:^|[^\\])(?:\\\\)*[$`]/.test(value)) return yield* error("Ambiguous shell word: expansion.");
+  if (doubleQuoted) return Str.replace(/\\(["\\$`])/g, "$1")(value);
+  if (!/^(?:\\.|[^'"\\])+$/.test(token))
     return yield* error("Ambiguous shell word: concatenated or unbalanced quoting.");
-  return value;
+  return Str.replace(/\\(.)/g, "$1")(token);
 });
 
-// Ignore locator-shaped text inside comments and quoted shell data. Values
-// themselves are parsed separately, starting at the capture boundary.
-const isShellCode = (content: string, end: number): boolean => {
-  let quote = "";
-  let comment = false;
-  let boundary = true;
-  for (let index = 0; index < end; index += 1) {
-    const char = O.getOrElse(Str.charAt(index)(content), () => "");
-    if (comment) {
-      if (char === "\n") {
-        comment = false;
-        boundary = true;
-      }
-      continue;
-    }
-    if (char === "\\" && quote !== "'") {
-      index += 1;
-      boundary = false;
-      continue;
-    }
-    if (quote !== "") {
-      if (char === quote) quote = "";
-      continue;
-    }
-    if (char === "#" && boundary) {
-      comment = true;
-      continue;
-    }
-    if (char === "'" || char === '"') quote = char;
-    boundary = /[\s;&|<>()]/.test(char);
-  }
-  return !comment && quote === "";
-};
+// A capture is executable code only if its entire prefix consists of closed
+// quoted words, escapes, ordinary code or newline-terminated shell comments.
+// An unfinished quoted word or comment cannot reach the capture boundary.
+const isShellCode = (content: string, end: number): boolean =>
+  /^(?:"(?:\\.|[^"\\])*"|'[^']*'|\\.|(?<![^\s;&|<>()])#[^\n]*\n|(?<=[^\s;&|<>()])#|[^'"\\#])*$/.test(
+    Str.slice(0, end)(content)
+  );
 
 const span = (content: string, start: number, end: number, after: string) =>
   ModelsWriteSpan.make({ start, end, before: Str.slice(start, end)(content), after });
