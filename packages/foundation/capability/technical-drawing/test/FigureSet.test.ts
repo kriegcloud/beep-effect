@@ -3,6 +3,8 @@ import {
   Box,
   Camera,
   cameraForView,
+  closeOutlineGaps,
+  commonScale,
   composeSheet,
   DrawingError,
   drawnBrokenGapMm,
@@ -22,7 +24,10 @@ import {
   marginFindings,
   marginsCm,
   mirrorSegments,
+  nearestOutlineDistance,
+  OUTLINE_COINCIDENCE_MM,
   OverlayLine,
+  outlineSpacingFindings,
   PageMetrics,
   Part,
   PdfBackend,
@@ -34,6 +39,8 @@ import {
   purityFindings,
   RenderManifest,
   RenderRequest,
+  Segment2,
+  ShadingBand,
   ShadingCoverage,
   ShadingSkip,
   SheetFonts,
@@ -59,7 +66,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { ShadingPlan } from "@beep/technical-drawing";
+import type { OutlineSeparation, ShadingPlan } from "@beep/technical-drawing";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -2163,6 +2170,261 @@ describe("graded shading ladder through fake ports", () => {
             A.some(v.findings, (f) => f.code === "shading-band-ladder" && O.contains(f.page, 1))
           )
         );
+      })
+    );
+  });
+});
+
+// A fake engine whose every view draws the unit square and the given lines, and whose shading pass draws the given
+// strokes, grouped into the given bands (one face shaded when none are given).
+const engineDrawing = (
+  lines: ReadonlyArray<FakeSegment>,
+  strokes: ReadonlyArray<FakeSegment> = [],
+  bands: ReadonlyArray<ShadingBand> = []
+) =>
+  Layer.succeed(
+    GeometryEngine,
+    GeometryEngine.of({
+      info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
+      summarize: Effect.fnUntraced(function* () {
+        return ModelSummary.make({
+          boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
+          volume: 250,
+          faceCount: 6,
+          edgeCount: 12,
+          partOverlaps: 0,
+        });
+      }),
+      project: Effect.fnUntraced(function* (_model, cameras, shading) {
+        return A.map(cameras, () =>
+          EdgeSet.make({
+            visible: [...square, ...lines],
+            hidden: [],
+            shading: O.match(shading, { onNone: A.empty, onSome: () => strokes }),
+            shadingCoverage: O.map(shading, () =>
+              ShadingCoverage.make({
+                shadedFaces: Math.max(1, A.length(A.dedupe(A.map(bands, (band) => band.face)))),
+                skippedFaces: [],
+              })
+            ),
+            shadingBands: O.match(shading, { onNone: A.empty, onSome: () => bands }),
+          })
+        );
+      }),
+    })
+  );
+
+// The square sets the sheet scale; a line 0.4 mm above its bottom edge (a thin board's bottom face seen nearly
+// edge-on) runs along it, with a T-end standing on it.
+const sheetScale = commonScale({ views: [square], options: SheetOptions.make({}) });
+const unitsPerMm = PT_PER_MM / sheetScale;
+const lift = 0.4 * unitsPerMm;
+const closeScene: ReadonlyArray<FakeSegment> = [
+  [1, lift, 9, lift],
+  [5, lift, 5, 3],
+];
+const figureSegmentsMm = (svg: string, layer = "figure"): ReadonlyArray<Segment2> =>
+  pipe(
+    new RegExp(`<path id="${layer}" d="([^"]*)"`).exec(svg)?.[1] ?? "",
+    (d) => [...d.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)],
+    A.map((m) => Segment2.make([Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])])),
+    A.map(([x1, y1, x2, y2]) => Segment2.make([x1 / PT_PER_MM, y1 / PT_PER_MM, x2 / PT_PER_MM, y2 / PT_PER_MM]))
+  );
+
+describe("outline spacing through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(engineDrawing(closeScene), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "opens outlines drawn closer than 0.7 mm on the sheet, records the move, and validates clean",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(specPath, spec([{ view: "front", description: "is a front elevation view" }]));
+        const outputDir = path.join(dir, "out");
+        const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir }));
+        expect(manifest.scale).toBe(sheetScale);
+        // drawn as the engine projects them, the bottom edge and the line beside it print 0.4 mm apart
+        const projectedMm = A.map([...square, ...closeScene], ([x1, y1, x2, y2]) =>
+          Segment2.make([x1 / unitsPerMm, y1 / unitsPerMm, x2 / unitsPerMm, y2 / unitsPerMm])
+        );
+        const options = ValidationOptions.make({ expectedPages: O.none() });
+        expect(A.map(outlineSpacingFindings({ page: 1, segmentsMm: projectedMm, options }), (f) => f.message)).toEqual([
+          expect.stringContaining("closest are 0.4 mm apart"),
+        ]);
+        // on the sheet the line moved 0.305 mm to stand 0.7 mm clear with a 0.005 mm margin for the printed
+        // coordinates (review loop 4, R4-06), still a second line, and its T-end followed it
+        const drawn = figureSegmentsMm(yield* fs.readFileString(path.join(outputDir, "fig-1.svg")));
+        expect(A.length(drawn)).toBe(A.length(square) + A.length(closeScene));
+        const tolerances = { minOverlap: 1, coincidence: OUTLINE_COINCIDENCE_MM };
+        expect(closeOutlineGaps({ segments: drawn, minSpacing: 0.7, ...tolerances })).toEqual([]);
+        const [pair = 0] = closeOutlineGaps({ segments: drawn, minSpacing: 0.75, ...tolerances });
+        expect(pair).toBeCloseTo(0.705, 3);
+        const [, , , , moved = Segment2.make([0, 0, 0, 0]), tee = Segment2.make([0, 0, 0, 0])] = drawn;
+        expect(Math.abs(tee[1] - moved[1])).toBeLessThan(1e-3);
+        const figure = manifest.figures[0];
+        assertSome(
+          O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+            separation.lines,
+            Math.round(separation.largestMoveMm * 1e6) / 1e6,
+          ]),
+          [1, 0.305]
+        );
+        expect(figure?.visibleSegments).toBe(A.length(square) + A.length(closeScene));
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
+      })
+    );
+  });
+});
+
+// Graded strokes on the face above the close line, as the kernel plans them against the line as projected: their feet
+// stand 0.65 mm above it, clear of the 0.6 mm clearance (half the 1.2 mm least pitch).
+const strokeFoot = lift + 0.65 * unitsPerMm;
+const faceStrokes: ReadonlyArray<FakeSegment> = A.map([2, 3, 7, 8], (x) => [x, strokeFoot, x, 4] as const);
+
+describe("graded shading beside a separated outline through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(engineDrawing(closeScene, faceStrokes), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "clips graded strokes again where the separation moves an outline toward their ends",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: { shadingStyle: "graded", shadingAxis: "surface-class" },
+          })
+        );
+        const outputDir = path.join(dir, "out");
+        const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir, shade: true }));
+        const svg = yield* fs.readFileString(path.join(outputDir, "fig-1.svg"));
+        const strokes = figureSegmentsMm(svg, "shading");
+        const outline = figureSegmentsMm(svg, "figure");
+        // the close line moved 0.305 mm up, toward the strokes' feet, which stood 0.65 mm off it: on the sheet every
+        // stroke end stands the plan's 0.6 mm clear of every drawn line again (review loop 4, thread on
+        // FigureSet.service.ts:538), the strokes cut back by no more than that
+        const clearances = A.flatMap(strokes, ([x1, y1, x2, y2]) => [
+          nearestOutlineDistance({ x: x1, y: y1, outlines: outline }),
+          nearestOutlineDistance({ x: x2, y: y2, outlines: outline }),
+        ]);
+        expect(A.length(strokes)).toBe(A.length(faceStrokes));
+        expect(Math.min(...clearances)).toBeGreaterThanOrEqual(0.6 - 1e-3);
+        expect(Math.min(...clearances)).toBeCloseTo(0.6, 2);
+        const figure = manifest.figures[0];
+        expect(figure?.shadingSegments).toBe(A.length(faceStrokes));
+        assertSome(
+          O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+            separation.lines,
+            separation.trimmedStrokes,
+            separation.droppedStrokes,
+          ]),
+          [1, 4, 0]
+        );
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
+      })
+    );
+  });
+});
+
+// Two faces' strokes above the close line, the bands of the first face (0) and the second (1). The line moves 0.305
+// mm up, toward their feet, which stood 0.65 mm above it. A 1.2 mm stroke cut back to the 0.6 mm clearance falls
+// under the 1 mm least stroke; a stroke running on to the top keeps a long piece.
+const shortStroke = 1.2 * unitsPerMm;
+const shortAt = (x: number): FakeSegment => [x, strokeFoot, x, strokeFoot + shortStroke];
+const longAt = (x: number): FakeSegment => [x, strokeFoot, x, 4];
+const twoFaceBands = [ShadingBand.make({ face: 0, strokes: [0, 1] }), ShadingBand.make({ face: 1, strokes: [2, 3] })];
+
+// The figure set over a fake engine drawing the close scene and the two faces' strokes in their bands.
+const reclipLayer = (strokes: ReadonlyArray<FakeSegment>) =>
+  Layer.fresh(FigureSet.layer).pipe(
+    Layer.provide(Layer.merge(engineDrawing(closeScene, strokes, twoFaceBands), fakeBackend)),
+    Layer.provideMerge(NodeServices.layer)
+  );
+
+// Renders the two faces' strokes graded beside the separated line and returns where the strokes drawn stand (model x),
+// the separation's trimmed and dropped strokes, the coverage's shaded faces, lost faces and lost stretches, and the
+// finding codes.
+const reclippedFaces = Effect.fnUntraced(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const dir = yield* fs.makeTempDirectoryScoped();
+  const specPath = path.join(dir, "spec.json");
+  yield* fs.writeFileString(
+    specPath,
+    spec([{ view: "front", description: "is a front elevation view" }], [], {
+      sheet: { shadingStyle: "graded", shadingAxis: "surface-class", shadingMinStrokeMm: 1 },
+    })
+  );
+  const outputDir = path.join(dir, "out");
+  const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir, shade: true }));
+  const svg = yield* fs.readFileString(path.join(outputDir, "fig-1.svg"));
+  const figure = manifest.figures[0];
+  // the square's left edge stands at x = 0 in model units
+  const left = Math.min(...A.map(figureSegmentsMm(svg), ([x1, , x2]) => Math.min(x1, x2)));
+  return {
+    drawn: A.map(figureSegmentsMm(svg, "shading"), ([x1]) => Math.round((x1 - left) * unitsPerMm)),
+    separation: O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+      separation.trimmedStrokes,
+      separation.droppedStrokes,
+    ]),
+    coverage: O.map(figure?.shadingCoverage ?? O.none<ShadingCoverage>(), (coverage) => [
+      coverage.shadedFaces,
+      coverage.lostFaces,
+      coverage.lostStretches,
+    ]),
+    findings: O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+  };
+});
+
+describe("a face the re-clip beside a separated outline leaves bare through fake ports", () => {
+  it.layer(reclipLayer([shortAt(2), shortAt(3), longAt(7), longAt(8)]), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "counts a face whose every stroke the re-clip drops lost in the manifest's coverage and on the sheet",
+      Effect.fnUntraced(function* () {
+        // both short strokes of the first face go: the sheet draws only the second face (PR #1842 thread on
+        // FigureSet.service.ts:646)
+        const render = yield* reclippedFaces();
+        expect(render.drawn).toEqual([7, 8]);
+        assertSome(render.separation, [2, 2]);
+        assertSome(render.coverage, [2, 1, 1]);
+        assertSome(render.findings, ["shading-lost-face", "shading-lost-stretch"]);
+      })
+    );
+  });
+});
+
+describe("a band the re-clip beside a separated outline leaves with one stroke through fake ports", () => {
+  it.layer(reclipLayer([longAt(2), shortAt(3), longAt(7), longAt(8)]), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "draws none of the band, as the engine draws no band below two strokes, and counts its face lost",
+      Effect.fnUntraced(function* () {
+        // the first face's long stroke is cut back and kept, its short one dropped: alone, the long one would read
+        // as a stray line, so it goes too
+        const render = yield* reclippedFaces();
+        expect(render.drawn).toEqual([7, 8]);
+        assertSome(render.separation, [2, 2]);
+        assertSome(render.coverage, [2, 1, 1]);
+        assertSome(render.findings, ["shading-lost-face", "shading-lost-stretch"]);
       })
     );
   });

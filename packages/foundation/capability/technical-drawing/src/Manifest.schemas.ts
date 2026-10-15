@@ -87,6 +87,55 @@ export class EngineInfo extends S.Opaque<EngineInfo, { readonly brand: unique sy
 ) {}
 
 /**
+ * How far the outline-spacing rule opened a figure's close outlines: how
+ * many lines moved and the largest move, in mm on the sheet, and how many
+ * graded shading strokes were cut back or dropped to keep their clearance
+ * from the moved lines.
+ *
+ * **Example** (Two lines moved)
+ *
+ * ```ts
+ * import { OutlineSeparation } from "@beep/technical-drawing/Manifest.schemas"
+ *
+ * console.log(OutlineSeparation.make({ lines: 2, largestMoveMm: 0.36 }).largestMoveMm)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OutlineSeparation extends S.Opaque<OutlineSeparation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    lines: S.Int.check(S.isGreaterThan(0)).annotateKey({
+      description: "Outlines moved to hold the least centre spacing from a line beside them.",
+    }),
+    largestMoveMm: S.Finite.check(S.isGreaterThan(0)).annotateKey({
+      description: "Largest move of one outline, in mm on the sheet.",
+    }),
+    trimmedStrokes: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Graded shading strokes cut back to keep their clearance from a moved outline. Defaults to 0, and on manifests rendered before strokes were clipped again.",
+      })
+    ),
+    droppedStrokes: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Graded shading strokes dropped as shorter than the minimum stroke once cut back from a moved outline. Defaults to 0, and on manifests rendered before strokes were clipped again.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("OutlineSeparation", {
+      description:
+        "Count of outlines moved apart and the largest move, in mm, on one figure, and the shading strokes cut back or dropped beside them.",
+    })
+  )
+) {}
+
+/**
  * One rendered figure in the manifest.
  *
  * **Example** (FIG. 1)
@@ -142,13 +191,20 @@ export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: uniqu
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description:
-          "Faces given shading lines and faces skipped per reason. Absent on unshaded renders and on manifests rendered before graded shading.",
+          "Faces given shading lines and faces skipped per reason, with the faces and stretches lost counted on what the sheet draws, after the re-clip beside separated outlines. Absent on unshaded renders and on manifests rendered before graded shading.",
+      })
+    ),
+    outlineSeparations: S.OptionFromOptionalKey(OutlineSeparation).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Outlines moved apart to hold the least centre spacing, and the largest move. Absent when no outline moved, and on manifests rendered before the outline-spacing rule.",
       })
     ),
   }).pipe(
     $I.annoteSchema("FigureRecord", {
       description:
-        "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
+        "FIG. number, view, description, sheet file, hash, segment counts, camera, shading coverage, and outline separations of one figure.",
     })
   )
 ) {}

@@ -15,6 +15,9 @@
  * white pixels and no solid-black area measured on the non-anti-aliased
  * renders. Shading tier (1.84(m)): side-by-side shading lines on a sheet stay
  * at least the minimum spacing apart, measured on the render's own vectors.
+ * Outline tier (1.84(l)): drawn lines that run side by side stay at least the
+ * least outline spacing apart centre to centre, or they print as one line of
+ * the emphasis weight.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -24,6 +27,7 @@ import { A, O, Str } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Regex from "effect/RegExp";
+import { closeOutlineGaps, OUTLINE_COINCIDENCE_MM } from "./Outline.rules.ts";
 import { coveringOutlineDistance, ladderPitch, nearestOutlineDistance, sideBySideGap } from "./Shading.rules.ts";
 import { MARGINS_CM, pageSizePt } from "./Sheet.schemas.ts";
 import { SheetFinding, SheetLabel } from "./Validation.schemas.ts";
@@ -387,11 +391,97 @@ export const shadingSpacingFindings = (input: {
     : [];
 };
 
+// A spacing in mm to three decimals, rounded down, so a pair a hair under the least spacing never prints as the
+// spacing itself (review loop 4, R4-06: 0.6997 printed as "0.70" under a 0.7 rule).
+const flooredMm = (mm: number): string => `${Math.floor(mm * 1000 + 1e-9) / 1000}`;
+
+/**
+ * Findings from the drawn lines of one sheet (outlines, broken and emphasis
+ * lines), in mm on the sheet: two lines that run side by side closer than
+ * `minOutlineSpacingMm` centre to centre print as one heavier line.
+ *
+ * **Details**
+ *
+ * Two lines run side by side when they lie within 3° of parallel and overlap
+ * along their length by at least `minOutlineOverlapMm`; a converging pair is
+ * measured at its closer end. Pairs within 0.15 mm count as one line drawn
+ * twice (an emphasis line over its own outline) and are not flagged. One
+ * finding per sheet names the number of close pairs and the closest spacing,
+ * in mm to three decimals rounded down (review loop 4, O-01).
+ *
+ * **Example** (A board edge drawn 0.34 mm apart)
+ *
+ * ```ts
+ * import { Segment2, ValidationOptions } from "@beep/technical-drawing"
+ * import { outlineSpacingFindings } from "@beep/technical-drawing/Validation.rules"
+ * import * as O from "effect/Option"
+ *
+ * const segmentsMm = [Segment2.make([0, 0, 100, 0]), Segment2.make([0, 0.34, 100, 0.34])]
+ * const options = ValidationOptions.make({ expectedPages: O.none() })
+ * console.log(outlineSpacingFindings({ page: 2, segmentsMm, options }).map((f) => f.code)) // ["outline-spacing"]
+ * ```
+ *
+ * @param input - The page number, every line the sheet draws in mm, and the validation options.
+ * @returns At most one `outline-spacing` finding for the page.
+ * @category validation
+ * @since 0.0.0
+ */
+export const outlineSpacingFindings = (input: {
+  readonly page: number;
+  readonly segmentsMm: ReadonlyArray<Segment2>;
+  readonly options: ValidationOptions;
+}): ReadonlyArray<SheetFinding> => {
+  const minSpacing = input.options.minOutlineSpacingMm;
+  const gaps = closeOutlineGaps({
+    segments: input.segmentsMm,
+    minSpacing,
+    minOverlap: input.options.minOutlineOverlapMm,
+    coincidence: OUTLINE_COINCIDENCE_MM,
+  });
+  return A.isReadonlyArrayNonEmpty(gaps)
+    ? [
+        pageFinding(
+          "outline-spacing",
+          input.page,
+          `${A.length(gaps)} pair(s) of drawn lines run side by side closer than ${minSpacing} mm centre to centre, printing as one heavier line; the closest are ${flooredMm(Math.min(...gaps))} mm apart.`
+        ),
+      ]
+    : [];
+};
+
+// A visible stretch skipped by design while its measured room fits a band is a band the planner failed to draw
+// (review loop 4, A-01): the bay of a far face glimpsed at its foot below a wall in front stayed bare, unreported.
+const skippedStretchFindings = (page: number, coverage: ShadingCoverage): ReadonlyArray<SheetFinding> => {
+  const fitting = A.filter(coverage.skippedStretches, (skip) => skip.fitting > 0);
+  return A.isReadonlyArrayNonEmpty(fitting)
+    ? [
+        pageFinding(
+          "shading-skipped-stretch",
+          page,
+          `${A.reduce(fitting, 0, (sum, skip) => sum + skip.fitting)} visible stretch(es) of a shaded face drew no band (${A.join(
+            A.map(fitting, (skip) => `${skip.reason} ${skip.fitting}`),
+            ", "
+          )}) though their measured room fits one: legible chords at least 3.4 minimum pitches across.`
+        ),
+      ]
+    : [];
+};
+
 /**
  * Findings for shading that was planned but never drawn: a face given lines
- * whose every stroke the hidden-line and legibility passes removed is a
- * `shading-lost-face`, since a reviewer would otherwise meet a bare face the
- * manifest counts as shaded.
+ * whose every stroke the hidden-line and legibility passes, or the sheet's
+ * re-clip beside separated outlines, removed is a `shading-lost-face`, since
+ * a reviewer would otherwise meet a bare face the manifest counts as shaded.
+ *
+ * **Details**
+ *
+ * A visible stretch whose band those passes emptied is a
+ * `shading-lost-stretch`. A render passes the coverage of what the sheet
+ * draws (`reclippedCoverage`), so the re-clip's losses are counted. A
+ * visible stretch the planner skipped by design (too narrow for two lines,
+ * or without two legible strokes) is
+ * reported as a `shading-skipped-stretch` only when the engine measured room
+ * for a band there: legible chords at least 3.4 minimum pitches across.
  *
  * **Example** (One lost face on page 2)
  *
@@ -403,6 +493,22 @@ export const shadingSpacingFindings = (input: {
  * console.log(shadingCoverageFindings({ page: 2, coverage }).map((f) => f.code)) // ["shading-lost-face"]
  * ```
  *
+ * **Example** (A narrow stretch with room for a band on page 3)
+ *
+ * ```ts
+ * import { ShadingCoverage, ShadingStretchSkip } from "@beep/technical-drawing/Geometry.schemas"
+ * import { shadingCoverageFindings } from "@beep/technical-drawing/Validation.rules"
+ *
+ * const coverage = ShadingCoverage.make({
+ *   shadedFaces: 3,
+ *   skippedFaces: [],
+ *   skippedStretches: [ShadingStretchSkip.make({ reason: "narrow", stretches: 2, fitting: 1 })]
+ * })
+ * console.log(shadingCoverageFindings({ page: 3, coverage }).map((f) => f.code)) // ["shading-skipped-stretch"]
+ * ```
+ *
+ * @param input - The page number and the view's shading coverage.
+ * @returns The page's lost-face, lost-stretch, and skipped-stretch findings.
  * @category utilities
  * @since 0.0.0
  */
@@ -415,7 +521,7 @@ export const shadingCoverageFindings = (input: {
         pageFinding(
           "shading-lost-face",
           input.page,
-          `${input.coverage.lostFaces} face(s) planned shading lines but drew none after hidden-line removal and the legibility pass.`
+          `${input.coverage.lostFaces} face(s) planned shading lines but drew none after hidden-line removal, the legibility pass, and the re-clip beside separated outlines.`
         ),
       ]
     : []),
@@ -424,10 +530,11 @@ export const shadingCoverageFindings = (input: {
         pageFinding(
           "shading-lost-stretch",
           input.page,
-          `${input.coverage.lostStretches} visible stretch(es) of a face planned shading lines but drew none after hidden-line removal and the legibility pass.`
+          `${input.coverage.lostStretches} visible stretch(es) of a face planned shading lines but drew none after hidden-line removal, the legibility pass, and the re-clip beside separated outlines.`
         ),
       ]
     : []),
+  ...skippedStretchFindings(input.page, input.coverage),
 ];
 
 /**
