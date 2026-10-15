@@ -3615,7 +3615,6 @@
     "drizzle-orm@1.0.0-rc.5-ab785fc": "patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch",
     "effect@4.0.4": "patches/effect@4.0.4.patch",
     "@effect/platform-node-shared@4.0.4": "patches/@effect%2Fplatform-node-shared@4.0.4.patch",
-    "@pulumi/pulumi@3.268.0": "patches/@pulumi%2Fpulumi@3.268.0.patch",
     "@xstate/effect@0.1.0-alpha.6": "patches/@xstate%2Feffect@0.1.0-alpha.6.patch",
   },
   "overrides": {

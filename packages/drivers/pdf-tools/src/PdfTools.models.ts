@@ -9,6 +9,7 @@
 
 import { $PdfToolsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -19,6 +20,13 @@ const PdfVersionBase = LiteralKit(["1.4", "1.5", "1.6", "1.7"]);
 
 /**
  * PDF versions `rsvg-convert` can be asked to emit.
+ *
+ * **Details**
+ *
+ * cairo writes the same bytes for 1.5, 1.6 and 1.7 apart from the header
+ * line. PDF 1.4 output has no object or cross-reference streams, and
+ * `rsvg-convert` writes it one SVG at a time, so a 1.4 conversion takes a
+ * single SVG.
  *
  * **Example** (Read the versions)
  *
@@ -257,6 +265,12 @@ export class PinnedFontconfigRequest extends S.Opaque<PinnedFontconfigRequest, {
  * depend on the wall clock. `fonts` pins the fonts `<text>` elements are set
  * in (see {@link PinnedFonts}); without it the host's fontconfig is used.
  *
+ * **Gotchas**
+ *
+ * A PDF 1.4 request takes exactly one SVG: `rsvg-convert` refuses several
+ * inputs for a versioned format, and only its 1.5-and-later output can be
+ * relabelled (see {@link PdfVersion}).
+ *
  * **Example** (Two sheets into one PDF 1.6)
  *
  * ```ts
@@ -296,11 +310,22 @@ export class SvgToPdfRequest extends S.Opaque<SvgToPdfRequest, { readonly brand:
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Font directory and bindings for `<text>`. Absent, the host fontconfig is used." })
     ),
-  }).pipe(
-    $I.annoteSchema("SvgToPdfRequest", {
-      description: "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
-    })
-  )
+  })
+    .check(
+      S.makeFilter((request) => request.pdfVersion !== "1.4" || A.length(request.svgPaths) === 1, {
+        identifier: $I`SvgToPdfRequestPdf14PagesCheck`,
+        title: "PDF 1.4 Pages",
+        description:
+          "rsvg-convert writes several pages only at PDF 1.5 or later, so a PDF 1.4 conversion takes one SVG.",
+        message: "Expected exactly one SVG path for PDF 1.4 output",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("SvgToPdfRequest", {
+        description:
+          "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
+      })
+    )
 ) {}
 
 /**
@@ -397,6 +422,89 @@ export class PdfFont extends S.Class<PdfFont, { readonly brand: unique symbol }>
 }
 
 /**
+ * A FlateDecode stream whose bytes a strict zlib inflate rejects.
+ *
+ * **Details**
+ *
+ * A strict inflate needs the whole zlib stream, including the trailing
+ * Adler-32 checksum, so a stream that lost even its last byte is reported
+ * here although every byte of its payload may still inflate. Lenient
+ * readers show such a file; strict ones refuse the stream. Object streams
+ * and cross-reference streams are checked like any other stream.
+ *
+ * **Example** (A truncated font program)
+ *
+ * ```ts
+ * import { UndecodableStream } from "@beep/pdf-tools"
+ *
+ * const stream = UndecodableStream.make({ objectNumber: 52, generation: 0, reason: "unexpected end of file" })
+ * console.log(`${stream.objectNumber} ${stream.generation} R: ${stream.reason}`)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UndecodableStream extends S.Opaque<UndecodableStream, { readonly brand: unique symbol }>()(
+  S.Struct({
+    objectNumber: S.Natural.annotateKey({ description: "Object number of the stream." }),
+    generation: S.Natural.annotateKey({ description: "Generation number of the stream." }),
+    reason: S.NonEmptyString.annotateKey({ description: "Why the inflate failed, as zlib reports it." }),
+  }).pipe(
+    $I.annoteSchema("UndecodableStream", {
+      description: "Object number, generation, and zlib error of a FlateDecode stream that fails a strict inflate.",
+    })
+  )
+) {}
+
+const StreamCheckBase = LiteralKit(["complete", "encrypted", "limit-reached"]);
+
+/**
+ * How far the strict-inflate check of a file's FlateDecode streams got.
+ *
+ * **Details**
+ *
+ * `complete`: every FlateDecode stream was inflated, so the undecodable
+ * streams listed are all there are. `encrypted`: the check did not run,
+ * because the streams are ciphertext. `limit-reached`: the check stopped once
+ * the bytes it inflated reached the inspection limit (`maxInflatedBytes` on
+ * the driver config), so streams later in object order were not checked.
+ *
+ * **Example** (Read the outcomes)
+ *
+ * ```ts
+ * import { StreamCheck } from "@beep/pdf-tools"
+ *
+ * console.log(StreamCheck.literals) // ["complete", "encrypted", "limit-reached"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const StreamCheck = StreamCheckBase.pipe(
+  $I.annoteSchema("StreamCheck", {
+    description: "Whether the strict-inflate check covered every FlateDecode stream, skipped them, or stopped early.",
+  }),
+  SchemaUtils.withLiteralKitStatics(StreamCheckBase)
+);
+
+/**
+ * Type for {@link StreamCheck}.
+ *
+ * **Example** (Annotate an outcome)
+ *
+ * ```ts
+ * import type { StreamCheck } from "@beep/pdf-tools"
+ *
+ * const check: StreamCheck = "limit-reached"
+ * console.log(check)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StreamCheck = typeof StreamCheck.Type;
+
+/**
  * Structural facts about a PDF file.
  *
  * **Example** (Make a structure)
@@ -428,9 +536,24 @@ export class PdfStructure extends S.Opaque<PdfStructure, { readonly brand: uniqu
       description: "Whether the catalog declares layers (`/OCProperties`).",
     }),
     encrypted: S.Boolean.annotateKey({ description: "Whether the file is encrypted." }),
+    undecodableStreams: S.Array(UndecodableStream).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "FlateDecode streams, object and cross-reference streams included, that fail a strict inflate, in object order. `streamCheck` says how many were checked.",
+      })
+    ),
+    streamCheck: StreamCheck.pipe(
+      S.withConstructorDefault(Effect.succeed("complete" as const)),
+      S.annotateKey({
+        description:
+          "Whether every FlateDecode stream was checked (`complete`), none were because the file is encrypted (`encrypted`), or the check stopped at the inflate limit (`limit-reached`).",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("PdfStructure", {
-      description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
+      description:
+        "Header version, page sizes, fonts, annotations, layers, encryption, undecodable streams, and how far their check got, of a PDF.",
     })
   )
 ) {}

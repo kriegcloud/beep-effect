@@ -739,13 +739,28 @@ export const pieceStyles = (options: {
  *
  * The pass projects a perspective view with the eye `focus` along the view
  * direction from the target, but finds curved faces' silhouettes as seen
- * from `focus` along it from the model origin. The silhouettes it draws are
- * those, so they are traced back from the same eye.
+ * from `focus` along it from its own world origin: the model origin, or the
+ * `origin` it was run about (a camera's target, for which the two eyes are
+ * one). The silhouettes it draws are those, so they are traced back from
+ * the same eye.
  *
  * @internal
  */
-export const sightOf = (options: { readonly direction: V3; readonly focus: O.Option<number> }): Sight =>
+export const sightOf = (options: {
+  readonly direction: V3;
+  readonly focus: O.Option<number>;
+  readonly origin: O.Option<V3>;
+}): Sight =>
   O.match(options.focus, {
     onNone: () => ({ kind: "parallel", direction: options.direction }),
-    onSome: (focus) => ({ kind: "central", eye: scale(options.direction, focus) }),
+    onSome: (focus) => {
+      const along = scale(options.direction, focus);
+      return {
+        kind: "central",
+        eye: O.getOrElse(
+          O.map(options.origin, (origin) => add(origin, along)),
+          () => along
+        ),
+      };
+    },
   });
