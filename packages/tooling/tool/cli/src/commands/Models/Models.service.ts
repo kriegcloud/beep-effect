@@ -14,16 +14,17 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { A, O, pipe } from "@beep/utils";
+import { A, O } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { CatalogDiff } from "./Models.catalog.schemas.ts";
 import {
   ModelsCatalog,
@@ -393,7 +394,8 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(finding(input.target, input.locator, O.none(), expected.value, "missing-locator"));
   }
 
-  return current.value === expected.value
+  const unsupported = readable._tag === "shell-assign" && Str.includes("Unsupported shell form")(current.value);
+  return !unsupported && current.value === expected.value
     ? O.none<DriftFinding>()
     : O.some(finding(input.target, input.locator, current, expected.value, "stale"));
 });

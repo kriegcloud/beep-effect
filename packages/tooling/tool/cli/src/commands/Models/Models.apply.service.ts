@@ -250,7 +250,7 @@ const checkShellDrift = Effect.fnUntraced(function* (text: string, writes: Reado
         Match.tag("shell-assign", ({ variable, within }) =>
           modelsReadShellAssign(text, variable, within).pipe(
             Effect.flatMap((current) =>
-              O.contains(expected)(current)
+              !O.exists(current, Str.includes("Unsupported shell form")) && O.contains(expected)(current)
                 ? Effect.void
                 : Effect.fail(
                     failure(

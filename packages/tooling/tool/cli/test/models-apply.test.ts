@@ -515,6 +515,9 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         yield* fs.writeFileString(file, text);
         const error = yield* Effect.flip(writer.apply(file, [flag], "check", backups));
         expect(error.message).toContain("Unsupported shell form");
+        // Unsupported evidence is never an in-sync scalar, even if a caller
+        // supplies the diagnostic marker itself as the expected value.
+        yield* Effect.flip(writer.apply(file, [write(flag.locator, "Unsupported shell form")], "check", backups));
         expect(yield* fs.readFileString(file)).toBe(text);
       }
       yield* fs.writeFileString(file, 'claude --model "old" # native\n');

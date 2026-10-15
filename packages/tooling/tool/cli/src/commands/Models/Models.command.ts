@@ -406,9 +406,11 @@ const previewModelWrites = Effect.fnUntraced(function* (
   for (const request of writes) {
     const change =
       request.locator._tag === "shell-assign"
-        ? !O.contains(
-            yield* modelsReadShellAssign(content, request.locator.variable, request.locator.within),
-            request.expected
+        ? yield* modelsReadShellAssign(content, request.locator.variable, request.locator.within).pipe(
+            Effect.map(
+              (current) =>
+                O.exists(current, Str.includes("Unsupported shell form")) || !O.contains(current, request.expected)
+            )
           )
         : A.some(
             yield* modelsWriteSpans(content, request).pipe(Effect.mapError(ModelsCommandError.fromInternal)),
