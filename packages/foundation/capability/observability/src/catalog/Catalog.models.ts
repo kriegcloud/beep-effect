@@ -498,17 +498,19 @@ const attributeConflicts = (
     instrument.attributes,
     (key): ReadonlyArray<CatalogConflict> =>
       O.match(HashMap.get(attributes, key), {
-        onNone: () => [MissingAttributeKey.make({ signal, name, key })],
+        onNone: () => [MissingAttributeKey.make({ signal, instrumentName: name, key })],
         onSome: (attribute) => [
-          ...(A.contains(attribute.signals, signal) ? [] : [SignalNotAllowed.make({ signal, name, key })]),
+          ...(A.contains(attribute.signals, signal)
+            ? []
+            : [SignalNotAllowed.make({ signal, instrumentName: name, key })]),
           ...(Instrument.guards.MetricInstrument(instrument) && CardinalityClass.is.unbounded(attribute.cardinality)
-            ? [UnboundedMetricLabel.make({ name: instrument.name, key })]
+            ? [UnboundedMetricLabel.make({ instrumentName: instrument.name, key })]
             : []),
           ...(isStricterTier(instrument.minTier, attribute.minTier)
             ? [
                 TierLooserThanAttribute.make({
                   signal,
-                  name,
+                  instrumentName: name,
                   key,
                   instrumentTier: instrument.minTier,
                   attributeTier: attribute.minTier,
@@ -567,7 +569,7 @@ export const catalogConflicts = ({
   const duplicateNames = A.map(repeated(A.groupBy(instruments, conflictKey)), (group) =>
     DuplicateInstrumentName.make({
       signal: instrumentSignal(group[0]),
-      name: group[0].name,
+      instrumentName: group[0].name,
       owners: A.map(group, (instrument) => instrument.owner),
     })
   );
