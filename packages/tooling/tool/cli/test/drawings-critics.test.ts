@@ -230,6 +230,36 @@ describe("invocations", () => {
     expect(kimi.args).not.toContain("disabled");
   });
 
+  it("confines lower-trust Grok and Claude critics to read-only tools", () => {
+    const byName = (name: string) =>
+      O.getOrThrow(A.findFirst(DEFAULT_CRITIC_REVIEWERS, (reviewer) => reviewer.name === name));
+    const flagValue = (args: ReadonlyArray<string>, flag: string) =>
+      args[O.getOrThrow(A.findFirstIndex(args, (arg) => arg === flag)) + 1];
+    const grok = criticInvocation({ ...base, reviewer: byName("grok-4.7") });
+    expect(flagValue(grok.args, "--permission-mode")).toBe("dontAsk");
+    expect(flagValue(grok.args, "--sandbox")).toBe("strict");
+    expect(A.zip(grok.args, A.drop(grok.args, 1))).toEqual(
+      expect.arrayContaining([
+        ["--allow", "Read"],
+        ["--allow", "Grep"],
+        ["--deny", "Bash"],
+        ["--deny", "Edit"],
+        ["--deny", "MCPTool"],
+        ["--deny", "WebFetch"],
+        ["--deny", "WebSearch"],
+      ])
+    );
+    expect(grok.args).toEqual(expect.arrayContaining(["--disable-web-search", "--no-subagents", "--no-memory"]));
+    expect(grok.args).not.toContain("bypassPermissions");
+
+    const claude = criticInvocation({ ...base, reviewer: byName("claude-fable-5.1") });
+    expect(flagValue(claude.args, "--permission-mode")).toBe("dontAsk");
+    expect(flagValue(claude.args, "--permission-prompts")).toBe("none");
+    expect(flagValue(claude.args, "--tools")).toBe("Read");
+    expect(claude.args).toContain("--restricted");
+    expect(claude.args).not.toContain("bypassPermissions");
+  });
+
   it.effect("selects reviewers by name in the order given and refuses an unknown one", () =>
     Effect.gen(function* () {
       const two = yield* selectReviewers(["claude-opus-5.5", "grok-4.7"]);

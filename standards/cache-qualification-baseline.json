@@ -72948,6 +72948,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#audit",
+          "@beep/law-practice-domain#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit"
         ],
@@ -73011,6 +73012,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/law-practice-domain#build",
           "@beep/schema#build",
           "@beep/test-runner#build"
         ],
@@ -73048,6 +73050,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/law-practice-domain#build",
           "@beep/schema#build",
           "@beep/test-runner#build"
         ],
@@ -73085,6 +73088,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#build",
+          "@beep/law-practice-domain#build",
           "@beep/schema#build",
           "@beep/test-runner#build"
         ],
@@ -73170,6 +73174,7 @@
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
+          "@beep/law-practice-domain#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit"
         ],
@@ -73373,6 +73378,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/law-practice-domain#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit"
         ],
@@ -73416,6 +73422,7 @@
         "commandDigest": "8b15b7f9f08a4553be5119d33aa1ed97cf26743f727ba7f75e3b4d3f32d5fde3",
         "dependencies": [
           "@beep/identity#transit",
+          "@beep/law-practice-domain#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
           "@beep/utils#transit"

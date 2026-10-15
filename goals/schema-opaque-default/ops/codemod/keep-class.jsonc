@@ -22,6 +22,11 @@
 // every hand-written Type/Encoded interface: tracked as a follow-up.
 [
   {
+    "file": "packages/law-practice/domain/src/values/ClaimElement/ClaimElement.model.ts",
+    "class": "ClaimTerm",
+    "reason": "ClaimTerm's determiner/quote surface check rejects almost every independently generated term, so schema-derived arbitraries exhaust; the class carries a toCodecArbitrary link (declaration-only annotation) that builds the quote from the determiner's surface, as TextAnchor does."
+  },
+  {
     "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
     "class": "ChalkNoColorState",
     "brand": "structural",

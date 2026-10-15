@@ -760,3 +760,182 @@ export class SkillRelockRefusal extends S.TaggedError<SkillRelockRefusal, { read
     description: "A vendored skill's new pin was not recorded because its replay or license check failed.",
   })
 ) {}
+
+/**
+ * Why `skills patch add` or `skills patch label` refused to plan or write.
+ *
+ * **Details**
+ *
+ * `unknown-skill`: the lock has no entry by that name. `not-vendored`: the
+ * entry is local, so it has no patch series. `missing-target`: an install
+ * target of the skill does not exist. `divergent-targets`: the install
+ * targets hold different trees, so there is no single hand edit to record.
+ * `no-hand-edit`: the installed tree already equals the recorded effective
+ * tree. `patch-exists`: a new patch would land on a path that already holds a
+ * file. `replay-mismatch`: the extended series does not reproduce the
+ * installed tree under the strict applier.
+ *
+ * **Example** (Check a refusal reason)
+ *
+ * ```ts
+ * import { SkillPatchRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillPatchRefusalReason.is["no-hand-edit"]("no-hand-edit")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillPatchRefusalReason = LiteralKit([
+  "unknown-skill",
+  "not-vendored",
+  "missing-target",
+  "divergent-targets",
+  "no-hand-edit",
+  "patch-exists",
+  "replay-mismatch",
+]).pipe(
+  $I.annoteSchema("SkillPatchRefusalReason", {
+    description: "Why a patch-series write refused: no such vendored entry, no single hand edit, or an unsafe write.",
+  })
+);
+
+/**
+ * Why `skills patch add` or `skills patch label` refused to plan or write.
+ *
+ * **Example** (Annotate a refusal reason)
+ *
+ * ```ts
+ * import type { SkillPatchRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillPatchRefusalReason = "divergent-targets"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillPatchRefusalReason = typeof SkillPatchRefusalReason.Type;
+
+/**
+ * `skills patch add` or `skills patch label` refused, and nothing was written.
+ *
+ * **Details**
+ *
+ * Every refusal happens before a patch file or the lock is staged, so a
+ * refused run leaves `.agents/skill-patches` and `skills-lock.json` byte for
+ * byte as they were.
+ *
+ * **Example** (Create a refusal)
+ *
+ * ```ts
+ * import { SkillPatchRefusal } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillPatchRefusal.make({
+ *   skill: "oracle",
+ *   reason: "no-hand-edit",
+ *   message: "The installed tree already matches the lock.",
+ * })
+ * console.log(error.reason) // "no-hand-edit"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillPatchRefusal extends S.TaggedError<SkillPatchRefusal, { readonly brand: unique symbol }>(
+  $I`SkillPatchRefusal`
+)(
+  "SkillPatchRefusal",
+  {
+    skill: S.String,
+    reason: SkillPatchRefusalReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillPatchRefusal>("SkillPatchRefusal", {
+    title: "Skill Patch Refusal",
+    description: "A vendored skill's patch series or labels were not recorded because a precondition failed.",
+  })
+) {}
+
+/**
+ * Why `skills review` refused to record a decision.
+ *
+ * **Details**
+ *
+ * `invalid-decision`: the answer does not fit the item (a classification
+ * keeps with a label or drops; a conflict takes any decision).
+ * `unknown-hunk`: a scripted answer names a hunk identity that no queued
+ * item carries. `ambiguous-hunk`: a scripted identity prefix matches more
+ * than one queued item.
+ *
+ * **Example** (Check a refusal reason)
+ *
+ * ```ts
+ * import { SkillReviewRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillReviewRefusalReason.is["unknown-hunk"]("unknown-hunk")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillReviewRefusalReason = LiteralKit(["invalid-decision", "unknown-hunk", "ambiguous-hunk"]).pipe(
+  $I.annoteSchema("SkillReviewRefusalReason", {
+    description: "Why skills review refused an answer: it does not fit the item or names no single queued hunk.",
+  })
+);
+
+/**
+ * Why `skills review` refused to record a decision.
+ *
+ * **Example** (Annotate a refusal reason)
+ *
+ * ```ts
+ * import type { SkillReviewRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillReviewRefusalReason = "ambiguous-hunk"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillReviewRefusalReason = typeof SkillReviewRefusalReason.Type;
+
+/**
+ * `skills review` refused an answer; rows recorded before it stay in the ledger.
+ *
+ * **Details**
+ *
+ * The ledger is append-only and every decision is checkpointed as it is
+ * made, so a refusal mid-session keeps the decisions already recorded and
+ * the next session resumes from the first undecided hunk.
+ *
+ * **Example** (Create a refusal)
+ *
+ * ```ts
+ * import { SkillReviewRefusal } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillReviewRefusal.make({
+ *   reason: "invalid-decision",
+ *   message: "A classification keep needs a label.",
+ * })
+ * console.log(error.reason) // "invalid-decision"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillReviewRefusal extends S.TaggedError<SkillReviewRefusal, { readonly brand: unique symbol }>(
+  $I`SkillReviewRefusal`
+)(
+  "SkillReviewRefusal",
+  {
+    reason: SkillReviewRefusalReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillReviewRefusal>("SkillReviewRefusal", {
+    title: "Skill Review Refusal",
+    description: "A skills review answer was not recorded because it does not fit a single queued hunk.",
+  })
+) {}

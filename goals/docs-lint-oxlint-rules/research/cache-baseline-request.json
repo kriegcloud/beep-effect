@@ -1,5 +1,5 @@
 {
-  "previous": "afb5acc6a72982b1ad5d037a500c19bd0a0b080dcc4d4a9e4b755b688a5d1d97",
+  "previous": "0052f04b703e29aac2d73732df4c3398e7c94f04af040bcc2d32f7785786c0fe",
   "review": {
     "reviewer": "Codex implementation lane B (source review)",
     "reason": "Record changed docs lint config/source inputs and policy fingerprint config input; preserve cache flags, outputs, edges, qualification scope and deprecated-API settings.",

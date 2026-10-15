@@ -66,7 +66,8 @@
     "research/p4-skills-warehouse-design.md",
     "research/p4-goals-materialize-design.md",
     "research/p4-knowledge-doctor-design.md",
-    "research/p4-report-knowledge-doctor.md"
+    "research/p4-report-knowledge-doctor.md",
+    "research/p5-warehouse-update-train-design.md"
   ],
   "agentLaunchers": [
     {
