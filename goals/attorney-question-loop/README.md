@@ -40,7 +40,8 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Producer + notice. P0–P2 are complete.
+P3c: run the review hub, the producer and the daily notice as practice services. P0 merged (#1801);
+P1, P2, P3a and P3b are complete.
 
 ## Latest Evidence
 
@@ -60,6 +61,11 @@ P3 Producer + notice. P0–P2 are complete.
     the attorney).
   - The first vertical slice in `test/QuestionLoop.slice.test.ts` (5 tests), plus
     `server/test/QuestionCalendar.test.ts` (3 tests).
+- 2026-10-14 P3a: `DocketQuestions` (needs-review items become questions) and `DailyNotice` (at most one
+  count-only notice a day), with the `NoticeMailbox` adapter over `@beep/m365`.
+- 2026-10-14 P3b: the `apps/practice-review-hub` app, an HTTP MCP bound to loopback and gated on the
+  tailnet login, with four tools (the pane contract is in `research/P3B-HUB.md`, as built) and the
+  JSONL verdict, answer and item stores.
 
 ## Notes
 

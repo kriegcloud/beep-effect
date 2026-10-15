@@ -61,3 +61,38 @@ not go through the hub.
 
 Running `tailscale serve` and the systemd units (P3c). The pane client belongs to the review-queue
 follow-on.
+
+## As built (2026-10-14): the pane contract
+
+- **Transport.** One endpoint, `POST http://127.0.0.1:<port>/mcp`, using `statelessMcpProtocols`.
+  Every request on every path needs an allow-listed `Tailscale-User-Login`, or the hub answers an
+  empty 403. There is no health route.
+- **Tools.** All four live in `@beep/law-practice-use-cases/ReviewHub`. Failures are
+  `ReviewHubToolError { code, message }`, returned as `isError` with that object as JSON text.
+
+  | Tool | Parameters | Success |
+  | --- | --- | --- |
+  | `review_open_items` | `OpenItemsRequest { today: "YYYY-MM-DD" }` | `OpenItems { items: ReviewItem[] }`: open verdict items plus the question digest, in first-stored order |
+  | `review_record_verdict` | `RecordVerdictInput` | `VerdictRow` |
+  | `review_lock_batch` | `LockBatchRequest { batchId }` | `VerdictRow` (the lock row) |
+  | `review_record_answer` | `RecordAnswerRequest { itemId, answer: RecordAnswerInput }` | `AnswerRow` |
+
+- **Codes.**
+  - `not-found`: the item is unknown or is not a question, or the batch has no verdicts.
+  - `locked`.
+  - `unknown-option`.
+  - `store-unavailable`.
+- **Hints.** Every tool is closed-world. `review_open_items` is read-only; the three writes only
+  append and are non-destructive.
+- **Stores.** `verdicts.jsonl`, `answers.jsonl` and `items.jsonl` in `--data-dir`. They are
+  owner-only (0600 files, 0700 directory), every append is synced to disk, and an upsert skips
+  items that have not changed.
+- **Config.**
+  - `--port` falls back to `PORT`, then 8787.
+  - `--allowed-logins` is a comma list, or `PRACTICE_REVIEW_HUB_ALLOWED_LOGINS`. Matching is
+    exact and case-sensitive.
+  - `--data-dir`, or `PRACTICE_REVIEW_HUB_DATA_DIR`, is required.
+- **Additions beyond the design.**
+  - MCP needs object roots, so there are new envelope schemas: `OpenItemsRequest`, `OpenItems`,
+    `LockBatchRequest`, `RecordAnswerRequest` and `ReviewHubToolError`.
+  - The JSONL adapters' span names are `ReviewFiles.*`.

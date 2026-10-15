@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` (P0–P2 complete 2026-10-14; P3 producer and notice next)
+Status: `active` (P0 merged #1801; P1, P2, P3a and P3b complete; P3c service wiring next)
 
 ## Binding Sequencing
 

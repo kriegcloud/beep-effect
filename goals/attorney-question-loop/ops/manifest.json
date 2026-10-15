@@ -98,5 +98,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "P0 schema (#1801), P1 contract and P2 implementation complete 2026-10-14; P3 (docket-intake producer, daily notice, answer-log transport decision) next."
+  "statusNote": "P0 merged (#1801). P1 contract, P2 services, P3a producer and notice, and P3b review hub complete 2026-10-14; P3c (systemd units, tailscale serve) next."
 }
