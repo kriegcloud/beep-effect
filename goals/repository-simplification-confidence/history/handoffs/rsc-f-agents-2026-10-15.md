@@ -1,3 +1,141 @@
+## Panel round 1 fix wave — local proof complete, publication pending
+
+lane: rsc-f-agents
+head: 18141e20a495f7ee63cb48f03e7ead14e659dc83 (implementation/tests; publication SHA follows)   PR: #1797
+package-verify: @beep/repo-cli: pass (audit 1231.0s; docgen 42.8s)
+hosted-parity: test-tsgo -> fail(inherited Palantiri TS377047); docgen local -> pass; jsdoc-ratchet -> fail(inherited totals, all 436 finding sources equal integrated main); knowledge refs -> pass; fallow audit+health -> pass; coverage read -> pass (100 tests, 16/16 existing rows)
+config fingerprint (final): 5c5d48e9cf4c40e99405ea1e5e861d32f714a513c21fbeb45a7955c62bee6f8f (353 equality inputs, 4 observed-only)   backups: no home writes/new backups this wave
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned full three-model panel on this head/fingerprint; three operator-owned model drifts; incomplete 30-session windows and four existing H3 measured gates; hosted checks, merge and retirement remain driver-owned
+
+All four Astra findings and F1-F6 are fixed in this single publication wave.
+The fresh PR read also found five additional actionable comments, addressed
+in the same wave. The implementation/test checkpoint is 18141e20a495f7ee63cb48f03e7ead14e659dc83;
+the delivery is an evidence-only descendant. Main b763887a42 was merged once,
+bun install passed, and both sharded catalog owners ran successfully; no
+monolithic catalog was restored. A later unrelated main advance is not
+represented as part of the frozen implementation proof.
+
+The deterministic wrapped-filesystem fixtures cover planning drift, an
+in-place write between final hash and rename in both apply and restore,
+a write after replacement, backup tampering, and 0644 apply/restore modes.
+Observed original-inode races produce typed failure naming the retained
+journal and put the injected native key back in the live file when our
+candidate still owns it. JSDoc documents the residual: this is detection and
+recovery through the post-rename observation, not native-client mutual
+exclusion or a filesystem compare-and-swap. An external maintenance boundary
+is needed for strict exclusion of arbitrary native writers.
+
+Oxlint: 19 findings, zero in changed files; every finding source is identical
+to the integrated main revision. No inventory, baseline or allowlist is grown.
+S31: 15 files compared, 0 changed, 0 added rows, 0 removed rows. Changeset graph:
+pass (private package, zero changesets). Schema-first and branded-codemod checks
+pass with zero new sites. The retired-Effect-path check reports zero findings.
+The collector's synthetic 0/missing/123/456 sequence retains 123, and previous
+zero observations remain historical rather than completed positive samples.
+
+Models check: exactly 3 driver-exempt operator-owned drifts; zero F-owned drift.
+They remain ~/.grok/config.toml effort xhigh, ~/.claude/settings.json model
+fable alias, and ~/.zshrc lightweight route. No file is written. The pinned
+read-only gpt-6.1-sol Codex probe passes (exit 0, OK); both protected pins and
+legacy-key absence pass. Observed-only fingerprint inputs are:
+
+- ~/.claude/settings.json
+- ~/.grok/config.toml
+- ~/.zshrc
+- ~/.config/Claude/claude_desktop_config.json
+
+Retained native rollback backups remain models-2026-10-14T222221002Z-16103436.backup,
+rsc-f-pre-rollback-20261014T222520875693Z.backup, and
+models-2026-10-14T222525456Z-12665845.backup. No new native rollback is claimed.
+Repository reversal is revert of the F PR. Plugin-owned .impeccable/live/
+residue is preserved. No readiness monitor is started; the lane does not merge
+or retire itself. The prior panel verdicts do not clear this new revision.
+
+| Finding | Fix commit | Regression / evidence |
+| --- | --- | --- |
+| F-ASTRA-01 | 4f25ed34bf; fixtures 505a77085d | Wrapped FS injects native writes at planning/rename/post-rename and restore; typed failure, live injected key, journal and concurrency event retained. |
+| F-ASTRA-02 | 4f25ed34bf; 18141e20a4 | Quoted/unquoted/single-quoted launchers parse and execute with one exact gpt-6.1-sol(medium) model argument; malformed shell refused. |
+| F-ASTRA-03 | 4f25ed34bf | Parsed TOML regression keeps native disabled rows and metadata after an unrelated table. |
+| F-ASTRA-04 | 4f25ed34bf | Bare/basic-quoted/literal-quoted sandbox_mode spellings fail check, are removed by apply, and restore byte-exactly. |
+| F1 | 4f25ed34bf; 0049352427; 18141e20a4 | Equal env plain, YAML plain, TOML literal and shell quoted scalars pass check, return None on write, and create no backup. |
+| F2 | 4f25ed34bf; fixtures 505a77085d | Plan fence, rename window, post-replacement mutation and backup-tamper refusal tests. |
+| F3 | 4f25ed34bf; a704603023 | Projection backup bytes, planning drift refusal, 0644 preservation and failed remote publication rollback; successful publication survives cleanup failure. |
+| F4 | 4f25ed34bf | Fixture explicitly begins at 0644 and mode survives apply and restore. |
+| F5 | 4f25ed34bf | SPEC accurately names live Impeccable callbacks removed under locked A disposition; payload remains A-owned. |
+| F6 | 4f25ed34bf | Post-replacement refusal includes the journal id; regression asserts it. |
+| 4281637568 | a704603023 | Re-resolved second projection must be identity; unstable delimiter fixture reaches typed refusal before writing. |
+| 4281669295 | same-wave evidence commit | README Latest Evidence points to October 15 and lists current pending acceptance only. |
+| 4281669309 | a704603023 | First-positive token regression skips zero/missing and retains the first positive count. |
+| 4281669322 | a704603023 | Shared shell pattern excludes OTHER_MODEL, handles spaces/tabs and semicolons, and reads quoted suffix values exactly. |
+| 4281669363 | a704603023 | Injected previous-tree cleanup failure returns success, keeps new skill live and old backup bytes; publish-failure rollback still passes. |
+
+Publication uses one git push because Yeet publish starts a readiness monitor. REST replies and the pushed-head recapture follow that push; no panel clearance is claimed.
+Graft estimated 50,322 tokens saved in two retrievals.
+
+---
+
+## Previous checkpoints (historical)
+
+lane: rsc-f-agents
+head: c7bfb9547f5ec6fc1ae5f295479b20d0650e1bb4   PR: #1797
+package-verify: @beep/repo-cli: pass at 98fcf60164 (audit 1294.0s, docgen 43.2s); final-head touched-package check pass, 47/47 tasks
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> fail(inherited Palantiri TS377047) | pass at 0233b60f67 | fail(inherited Palantiri/review-hub docs at 98fcf60164) | pass at 98fcf60164 | pass at 98fcf60164 | pass at 0233b60f67 (155 tests, all four floors exceeded)
+config fingerprint (final): 32f831a6bbc7b7bda0a1f6a74ffcecf5826ec7f3e994e5a9836a3f5c201b50f5 (353 equality inputs, 4 observed-only; post-push 2026-10-15T09:55:22.720618Z; immediate equality pass)   backups: no new native writes; retained backup names below
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: three OPERATOR model drifts; incomplete 30-session windows; four H3 measured gates; driver-owned independent panel, hosted checks, merge and retirement
+
+Published once to https://github.com/beep-effect/beep-effect/pull/1797 via the
+explicitly authorized git-push fallback, preserving the ready PR state.
+No readiness monitor, merge or retirement was started. Main remains
+94f1b6adbf; fetch and merge report already up to date. Install passes. Final
+head package check passes 47/47 tasks; oxlint has 19 inherited main findings,
+0 in changed files, with source identity to main verified. Accepted checkpoint
+195e7befa5 retains the earlier proof boundaries; no newer full audit is claimed.
+
+OPERATOR dry-runs (all exit 0; no file written):
+- `~/.grok/config.toml`: effort xhigh vs medium; `[toml-table-key] change=true expected=medium`; model `change=false expected=grok-4.7`.
+- `~/.claude/settings.json`: model fable vs claude-fable-5-1; `[json-key] change=true expected=claude-fable-5-1`; effort `change=false expected=medium`.
+- `~/.zshrc`: lightweight route gpt-6-luna, venice/claude-haiku-5-5 vs gpt-6-luna; `[shell-assign] change=true expected=gpt-6-luna`; remaining Codex/Grok/Claude/Muse routes `change=false`.
+
+Observed-only inputs: `~/.grok/config.toml`, `~/.claude/settings.json`,
+`~/.zshrc`, `~/.config/Claude/claude_desktop_config.json`. No writes to any
+of them. The collector keeps every other owned input in equality. During
+publication another writer changed `~/.claude.json`; it remains in equality.
+The final post-push capture supersedes the committed pre-push receipt and
+matches immediately. Its complete hash-only input set is retained at
+`.beep/rsc-f-publish-now/pushed-head-fingerprint.json`; equality evidence is
+`.beep/rsc-f-publish-now/pushed-head-equality.json`. Both positive/negative
+controls pass. This is a dated capture, with no future stability claim.
+
+REST reply 4281546249 answers comment 4277729082; REST reply 4281546456
+answers comment 4277729090. Both name fix commit
+90b8c39b5a3324753554d5cc140bcc99a4198be9. Resolved threads:
+`PRRT_kwDOPbO_N86skr-4`, `PRRT_kwDOPbO_N86skr-_`.
+Full post-resolution thread read succeeds: 2 threads, 2 resolved,
+0 outstanding; pagination complete. Failed reads are never counted as zero.
+
+S31 inventory diff counts: 15 files compared; 0 changed files; 0 added rows;
+0 removed rows. Base 94f1b6adbfef94b4c37c19a93232b1bd3bd19f9e. Both catalog
+shards remain owner-generated and are excluded from debt inventory counts.
+
+Retained backups: models-2026-10-14T222221002Z-16103436.backup,
+rsc-f-pre-rollback-20261014T222520875693Z.backup,
+models-2026-10-14T222525456Z-12665845.backup. No new native rollback is claimed.
+Repository reversal is revert of the F PR. The committed evidence contains
+the accepted checkpoint, ruling and dry-runs. This post-publication report is
+a local handoff supplement because it records the pushed commit and subsequent
+REST results under the one-push instruction; no second commit/push is made.
+Plugin-owned `.impeccable/live/` residue is preserved.
+
+Graft saved approximately 8,622 tokens this turn (one call).
+
+final c7bfb9547f5ec6fc1ae5f295479b20d0650e1bb4 #1797
+fingerprint 32f831a6bbc7b7bda0a1f6a74ffcecf5826ec7f3e994e5a9836a3f5c201b50f5
+S31 15 compared / 0 changed / 0 added / 0 removed
+
+## Committed pre-publication evidence (historical)
+
 lane: rsc-f-agents
 head: 195e7befa543cce74a5897ea9d31ab6a59c0eeda (accepted source checkpoint; delivery is this evidence-only descendant)   PR: #1797
 package-verify: @beep/repo-cli: pass at 98fcf60164 (audit 1294.0s, docgen 43.2s); integrated touched-package check pass (47/47 tasks), repeated for publication

@@ -102,11 +102,11 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 14 source checkpoint handoff](history/handoffs/rsc-f-agents-2026-10-14.md).
-Current native fingerprints, source conflicts, missing qualification windows,
-and 47-tool authenticated gateway evidence precede any F apply. Writer,
-rollback fixtures, representative workflow acceptance, after measurements and
-three-model final-fingerprint review remain uncompleted.
+F: [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md).
+The writer, native apply/restore/reapply proof, rollback fixtures and dated
+before/after measurements are recorded. Remaining acceptance covers incomplete
+30-session windows, four H3 native measurement gates, external-owner
+prerequisites and the repeated three-model panel on the new head/fingerprint.
 
 
 [A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. Latest CLI quick/type/docgen/Fallow/law checks pass; the newest JSDoc and paper-link reds are inherited and attributed in the handoff. The orchestrator also owns required-context removal before merge.
@@ -227,3 +227,8 @@ permission census and the [Desktop continuity runbook](../../docs/runbooks/agent
 [H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md) records the local
 gates and pending operator fixture batch. Installed-build routes remain
 unknown; no home configuration or Claude harness setting has been changed.
+
+F panel round 1: all four Astra findings and six Fable follow-ups are implemented
+in #1797; the [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md)
+carries the fix-to-test mapping. The driver repeats all three panel seats on
+the published head and recaptured fingerprint before admission.

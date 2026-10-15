@@ -2647,3 +2647,25 @@ the catalog owners plus install. S31 is zero again across all 15 files.
 Bounded checks qualify the integration without mislabelling the earlier
 full package result as exact-head proof. Native drift remains the independent
 publication blocker; the next final wave still requires exact-head gates.
+
+### 2026-10-15 F panel-r1 proof setup
+
+Running the admitted focused tests first encountered a missing workstation
+user-bus environment, then Vitest's package-relative include did not find
+root-relative test paths. Both failed before testing code. The successful
+route supplies XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS to beep-heavy and
+runs Vitest from the owning package with package-relative test paths. A
+package-aware admission example in the lane brief would prevent both retries.
+The first package proof also caught a new closure-narrowing error in the
+TOML key detector; the key is now captured while narrowed. The first test
+typecheck caught fixture service provisioning and Effect.fn diagnostics;
+fixtures now build scoped layers and name their injected filesystem effects.
+No debt inventory or diagnostic suppression is added.
+
+The panel wave's fresh hosted-comment read found five additional actionable
+items after a full package proof had begun. Owned superseded proof units were
+stopped and the full proof restarted on the final implementation checkpoint.
+Read the live PR comments together with the panel verdicts before starting an
+expensive proof to avoid this repeated work. Completed focused coverage stayed
+useful as regression evidence; interrupted full proofs are not reported as
+passes. The final package audit is a full-suite run, not a quick substitute.

@@ -1701,3 +1701,46 @@ start no readiness monitor. The driver owns the independent final panel.
 Reversal: restore the former collector boundary and recapture, or recapture
 after operator reconciliation; revert the evidence commit for repository state.
 No new home backup or native rollback is needed because no home file is written.
+
+### RSC-F-PANEL-R1-20261015: retain native pre-images and narrow projection ownership
+
+Round-1 findings F-ASTRA-01 through F-ASTRA-04 and F1 through F6 are addressed
+in one publication wave. ModelsApply retains the original inode through atomic
+replacement, checks it afterwards, journals a detected concurrent write and
+refuses success. When its candidate still owns the live path, recovery puts
+the newer pre-image back. Restore uses the same fence. This detects writes
+observed through the post-rename check; it is not a lock against clients that
+continue writing an old open inode, nor a compare-and-swap during recovery.
+A strict exclusion guarantee requires a maintenance boundary. Recovery event
+and pre-image artifacts remain on failure and errors name the recovery journal.
+Shell projection owns a complete word and parses launchers with zsh before
+publication. Parsed TOML key identity drives permission-key removal, and
+equal scalar values retain their spelling. Skill-row pruning is confined to
+the previous contiguous managed block; native rows after unrelated tables
+retain their owner. Synthetic fixtures cover races, permissions, backup
+tampering, projection backup/drift, and remote-tree rollback. No home file
+is written in this wave. Reversal: revert the round-1 fix commits; existing
+native rollback backups and journals recorded above remain unchanged. The
+driver repeats all three independent panel seats against the new head and
+frozen fingerprint; no earlier verdict is promoted to final acceptance.
+
+The same wave closes newly discovered PR comments 4281637568, 4281669295,
+4281669309, 4281669322 and 4281669363: the second projection must be identity
+and has a refusal fixture; shell readers share the writer's complete-word
+pattern; successful remote-skill publication treats previous-tree cleanup as
+best-effort and keeps recovery trees under the backup root, outside discovery;
+the historical collector waits for a positive first-turn count; README points
+to the current handoff. Earlier zero-token observations remain historical and
+are not recast as completed positive measurements. Reversal is the same PR
+revert; these changes write no home configuration and buy no provider usage.
+
+F1 also preserves the spelling of an already-equal quoted shell word after
+the complete-word quoting repair. The no-write fixture now covers shell
+alongside env, YAML plain and TOML literal values. This avoids introducing
+a new requote-only drift through the F-ASTRA-02 correction.
+
+The shell identity guard applies only to already-quoted words. An unquoted
+suffixed value with parentheses is rendered with quotes even if its raw text
+already matches; it is not treated as an equivalent shell literal. The
+launcher fixture now covers old and already-expected values in all three
+quote forms and verifies the exact argument received by a stub launcher.

@@ -801,3 +801,17 @@ The final fetch integrates #1824 (`4052da587f`), which removes only the private
 H3 changeset. No implementation source changes. Install and owner catalog
 regeneration are repeated. Delivery-head package/parity verification follows
 this integration; the earlier full pass remains separately source-bound.
+
+### F panel round 1 repair evidence (2026-10-15)
+
+The current F handoff records the round-1 implementation and test checkpoint
+and one publication wave for #1797. Evidence: `stage-5-f-panel-r1-verification.json`,
+`stage-5-f-panel-r1-coverage.json`, `stage-5-f-panel-r1-attribution.json`,
+`stage-5-f-panel-r1-s31.json` and `stage-5-f-panel-r1-fingerprint.json` in this
+receipt directory. The writer detects and recovers the observed original-inode
+write window with typed failure and a retained journal; it does not claim native
+client mutual exclusion. No home configuration is written by this repair wave.
+The three operator-owned drifts remain observed-only, along with Desktop's
+app-written config. The full three-model panel must run again against the new
+head and fingerprint; this receipt does not claim panel clearance or completion
+of the existing native measurement gates or 30-session windows.
