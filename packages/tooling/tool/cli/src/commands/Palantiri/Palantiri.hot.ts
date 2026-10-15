@@ -33,6 +33,14 @@ import type * as Scope from "effect/Scope";
  * The file the hot parcels are staged in, under the Palantiri state
  * directory.
  *
+ * **Example** (Read the hot-file name)
+ *
+ * ```ts
+ * import { HOT_PARCELS_FILE } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(HOT_PARCELS_FILE) // "hot.json"
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
@@ -41,6 +49,15 @@ export const HOT_PARCELS_FILE = "hot.json";
 /**
  * How long `beep session open` waits for the hot parcels before printing
  * `Unknown`.
+ *
+ * **Example** (Read the session-open bound)
+ *
+ * ```ts
+ * import { HOT_PARCELS_TIMEOUT } from "@beep/repo-cli/test/Palantiri"
+ * import * as Duration from "effect/Duration"
+ *
+ * console.log(Duration.toMillis(HOT_PARCELS_TIMEOUT)) // 2000
+ * ```
  *
  * @category constants
  * @since 0.0.0
