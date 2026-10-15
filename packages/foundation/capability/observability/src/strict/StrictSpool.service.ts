@@ -322,15 +322,20 @@ const openSegment = Effect.fnUntraced(function* (aesKey: CryptoKey, segment: Str
 const outcomeOf = (reader: SegmentReader, text: string): Effect.Effect<StrictSpoolOutcome> =>
   decodeSegment(text).pipe(
     Effect.mapError(() => TelemetryRefusalTag.Enum["spool-segment-invalid"]),
-    Effect.flatMap((segment) => {
-      if (segment.keyEpoch !== reader.key.epoch) {
-        return Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"]);
-      }
-      if (isStricterTier(reader.tier, segment.tier)) {
-        return Effect.fail(TelemetryRefusalTag.Enum["spool-tier-refused"]);
-      }
-      return openSegment(reader.aesKey, segment);
-    }),
+    // Authenticate before trusting any header field: the tier is bound as
+    // additional data, so an edited tier fails here as an invalid segment
+    // and only a genuine segment sealed under a looser tier is tier-refused.
+    // Replay, the survey and the privacy receipt all classify through here.
+    Effect.flatMap((segment) =>
+      segment.keyEpoch !== reader.key.epoch
+        ? Effect.fail(TelemetryRefusalTag.Enum["spool-segment-invalid"])
+        : openSegment(reader.aesKey, segment).pipe(
+            Effect.filterOrFail(
+              () => !isStricterTier(reader.tier, segment.tier),
+              () => TelemetryRefusalTag.Enum["spool-tier-refused"]
+            )
+          )
+    ),
     Effect.match({
       onFailure: (tag) => StrictSpoolOutcome.cases.refused.make({ tag }),
       onSuccess: (record) => StrictSpoolOutcome.cases.opened.make({ record }),

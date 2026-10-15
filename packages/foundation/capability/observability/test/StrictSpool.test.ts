@@ -177,6 +177,29 @@ describe("StrictSpool", () => {
       })
     );
 
+    it.effect("counts a header edited to a looser tier as invalid, not tier-refused", () =>
+      Effect.gen(function* () {
+        const spool = yield* spoolWith("/loosened", { tier: "shape-only" });
+        yield* spool.append(tracesRecord);
+        const [only] = yield* segmentFiles("/loosened");
+        // Authentication runs before the tier check, so the edit is caught as tampering.
+        yield* rewriteSegment(`/loosened/${only ?? ""}`, (segment) =>
+          StrictSpoolSegment.make({ ...segment, tier: "standard" })
+        );
+        const replay = yield* spool.replay;
+        expect(replay.records).toEqual([]);
+        expect(countOf(replay.refused, "spool-segment-invalid")).toBe(1);
+        expect(countOf(replay.refused, "spool-tier-refused")).toBe(0);
+        // The survey (and the privacy receipt built on it) classifies the same way.
+        const { entries } = yield* surveyStrictSpool(
+          StrictSpoolOptions.make({ directory: "/loosened", tier: "shape-only" })
+        ).pipe(Effect.provideService(StrictSpoolKey, keyOf("1", 7)));
+        expect(A.map(entries, (entry) => entry.outcome)).toEqual([
+          StrictSpoolOutcome.cases.refused.make({ tag: "spool-segment-invalid" }),
+        ]);
+      })
+    );
+
     it.effect("refuses a segment that is not a segment at all", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
