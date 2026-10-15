@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: `active`. Both findings are validated and repaired locally. Repo proof is in progress.
+Status: `completed-retained`. Both findings were repaired, merged in PR #1805,
+and observed Fixed in Security Cloud. The open findings view showed 0 of 0.
 
 ## Phases
 
@@ -13,11 +14,11 @@ Status: `active`. Both findings are validated and repaired locally. Repo proof i
 | P2 validate | complete | Reproduce each report at current HEAD. | Both have confirmed verdicts, remediation disposition, rationale, and owner surface. |
 | P3 lane-partition | complete | Group shared root causes and disjoint paths. | L1 and L2 have disjoint file ownership. |
 | P4 remediate | complete | Fix all real findings with focused checks. | Six changed source/test files and 32 passing focused tests. |
-| P5 repo-proof | in-progress | Run packet validation and Yeet repair/verify. | No packet drift; local proof green or attributed. |
-| P6 publish | pending | Publish one intentional PR through Yeet. | Exact branch head pushed and PR opened. |
-| P7 monitor | pending | Close hosted checks and actionable reviews. | PR green and mergeable. |
-| P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 2 IDs resolved. |
-| P9 close | pending | Record evidence, reflection, and lifecycle. | Packet set to `completed-retained` in the same closeout PR state. |
+| P5 repo-proof | complete | Run packet validation and focused Yeet proof. | Focused tests and cheap gates passed; 16/16 required hosted checks passed. |
+| P6 publish | complete | Publish one intentional PR through Yeet. | Exact branch head pushed in PR #1805. |
+| P7 monitor | complete | Close hosted checks and actionable reviews. | 5/5 review, zero outstanding threads, review window elapsed; two optional checks were pending under S11. |
+| P8 merge-and-close | complete | Merge and close captured findings. | PR merged at `dd071a688a`; both exact IDs observed Fixed, with zero open. |
+| P9 close | complete | Record evidence, reflection, and lifecycle. | Closeout receipt and reflection land with the `completed-retained` state. |
 
 ## Execution Rules
 

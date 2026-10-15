@@ -30,3 +30,9 @@
   triage; the CSF records retain sanitized conclusions and explicit proof gaps.
 - Tracked CSF files intentionally omit signed artifact URLs, raw developer-local
   paths, author email addresses, auth values, and unsanitized report text.
+- PR [#1805](https://github.com/beep-effect/beep-effect/pull/1805) and merge
+  revision `dd071a688a967f03530f42ee0ee67f801b3c85e6` supply hosted
+  review, check, and merged-tree evidence. The signed-in Security Cloud
+  detail and Open findings views supplied the two Fixed states and zero-open
+  closure observation. The [closeout receipt](../history/2026-10-14-closeout.md)
+  records their exact IDs and proof limits.
