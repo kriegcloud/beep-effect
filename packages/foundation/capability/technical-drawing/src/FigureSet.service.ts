@@ -20,7 +20,15 @@ import { ModelSpec, Segment2, ShadingPlan } from "./Geometry.schemas.ts";
 import { mirrorSegments, sameSegments } from "./Geometry.segments.ts";
 import { fontNamesOf, outlineFontFile } from "./internal/LabelOutline.ts";
 import { sha256Hex } from "./Manifest.digest.ts";
-import { FigureRecord, FontPin, LabelFontRecord, OmissionProof, RenderManifest } from "./Manifest.schemas.ts";
+import {
+  FigureRecord,
+  FontPin,
+  LabelFontRecord,
+  OmissionProof,
+  OutlineSeparation,
+  RenderManifest,
+} from "./Manifest.schemas.ts";
+import { OUTLINE_COINCIDENCE_MM, separateCloseOutlines } from "./Outline.rules.ts";
 import { commonScale, composeSheet } from "./Sheet.compose.ts";
 import {
   LabelFontAlias,
@@ -37,6 +45,7 @@ import { GeometryEngine, PdfBackend } from "./TechnicalDrawing.ports.ts";
 import {
   labelTextFindings,
   marginFindings,
+  outlineSpacingFindings,
   purityFindings,
   shadingBandLadderFindings,
   shadingCoverageFindings,
@@ -155,6 +164,10 @@ export interface FigureSetShape {
 const validationDefaults = ValidationOptions.make({ expectedPages: O.none() });
 const shadingClearanceFloorMm = validationDefaults.minShadingSpacingMm;
 const shadingLadderReachMm = validationDefaults.ladderReachMm;
+// The least outline spacing and the overlap it is held over, read from the same schema, so the separation the render
+// applies and the check it is validated by cannot drift apart.
+const outlineSpacingMm = validationDefaults.minOutlineSpacingMm;
+const outlineOverlapMm = validationDefaults.minOutlineOverlapMm;
 
 const shadingFor = (input: {
   readonly shade: boolean;
@@ -187,11 +200,37 @@ const shadingFor = (input: {
 };
 
 // Everything a sheet draws for a view: solid outlines, broken lines, and emphasis lines.
-const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [
-  ...edges.visible,
-  ...edges.broken,
-  ...edges.emphasis,
-];
+const drawnSegments = (edges: {
+  readonly visible: ReadonlyArray<Segment2>;
+  readonly broken: ReadonlyArray<Segment2>;
+  readonly emphasis: ReadonlyArray<Segment2>;
+}): ReadonlyArray<Segment2> => [...edges.visible, ...edges.broken, ...edges.emphasis];
+
+// The sheet prints point coordinates to 3 decimals (under 0.0002 mm each), so a pair opened to exactly the least
+// spacing can print a hair under it; separation asks this much more (review loop 4, R4-06).
+const outlineSpacingMarginMm = 0.005;
+
+// Outlines that run side by side closer than the least spacing print as one line of the emphasis weight, so they are
+// opened to it on the sheet after the common scale (points per model unit), keeping both lines (review loop 4,
+// O-01). Broken lines move like outlines; an emphasis line moves with the outline it is drawn over, which moves only
+// when nothing else can. Every line ending on a moved one is re-ended, emphasis and broken lines included.
+const separatedOutline = (edges: EdgeSet, scale: number) => {
+  const toModel = (mm: number) => (mm * PT_PER_MM) / scale;
+  const separated = separateCloseOutlines({
+    segments: edges.visible,
+    broken: edges.broken,
+    fixed: edges.emphasis,
+    minSpacing: toModel(outlineSpacingMm + outlineSpacingMarginMm),
+    minOverlap: toModel(outlineOverlapMm),
+    coincidence: toModel(OUTLINE_COINCIDENCE_MM),
+  });
+  return {
+    visible: separated.segments,
+    broken: separated.broken,
+    emphasis: separated.fixed,
+    moves: separated.moves,
+  };
+};
 
 // An omitted pictorial is projected like the figure it is claimed from.
 const projectionOf = (spec: FigureSetSpec, view: ViewName): PictorialProjection =>
@@ -495,10 +534,14 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       .makeDirectory(outputDir, { recursive: true })
       .pipe(Effect.mapError(io(`Could not create "${outputDir}".`)));
     const sheets = A.length(spec.figures);
+    const mm = scale / PT_PER_MM;
+    const drawn = A.map(figureEdges, (edges) => ({ edges, outline: separatedOutline(edges, scale) }));
     const figures = yield* Effect.forEach(
-      spec.figures,
-      Effect.fnUntraced(function* (figure: FigureSpec, index: number) {
-        const edges = yield* edgesOf(index);
+      A.zip(spec.figures, drawn),
+      Effect.fnUntraced(function* (
+        [figure, { edges, outline }]: readonly [FigureSpec, (typeof drawn)[number]],
+        index: number
+      ) {
         const shadedView = A.get(shading, index);
         const shadingLines = pipe(
           shadedView,
@@ -506,10 +549,10 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           O.getOrElse(A.empty<Segment2>)
         );
         const svg = composeSheet({
-          segments: edges.visible,
+          segments: outline.visible,
           shading: shadingLines,
-          broken: edges.broken,
-          emphasis: edges.emphasis,
+          broken: outline.broken,
+          emphasis: outline.emphasis,
           figure: index + 1,
           sheet: index + 1,
           sheets,
@@ -535,6 +578,17 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           emphasisSegments: A.isReadonlyArrayNonEmpty(edges.emphasis) ? O.some(A.length(edges.emphasis)) : O.none(),
           camera: A.get(cameras, index),
           shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
+          // recorded only when the rule moved a line, so a manifest without close outlines keeps its JSON
+          outlineSeparations: A.match(outline.moves, {
+            onEmpty: O.none,
+            onNonEmpty: (moves) =>
+              O.some(
+                OutlineSeparation.make({
+                  lines: A.length(moves),
+                  largestMoveMm: A.max(moves, Order.Number) * mm,
+                })
+              ),
+          }),
         });
       })
     );
@@ -559,9 +613,16 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     // spacing, stroke ends clear of outlines, no stroke alone beside an outline,
     // no band reading as one ladder with the lines beyond its edge, and no face
     // that planned lines and drew none.
-    const mm = scale / PT_PER_MM;
     const inMm = (segments: ReadonlyArray<Segment2>) =>
       A.map(segments, ([x1, y1, x2, y2]) => Segment2.make([x1 * mm, y1 * mm, x2 * mm, y2 * mm]));
+    // Every sheet's drawn lines, shaded or not, keep the least outline spacing.
+    const outlineFindings = A.flatMap(drawn, ({ outline }, index) =>
+      outlineSpacingFindings({
+        page: index + 1,
+        segmentsMm: inMm(drawnSegments(outline)),
+        options: validationOptions,
+      })
+    );
     // The outline, lone-line and lost-face checks describe graded strokes (drawn back from
     // outlines and planned per visible stretch); uniform strokes end on the face outline by
     // design and have no probe pass, so those checks would fail every default render.
@@ -569,7 +630,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     const shadingFindings = A.flatMap(shading, (view, index) => {
       const page = index + 1;
       const shadingMm = inMm(view.shading);
-      const outlineMm = inMm(drawnSegments(view));
+      // the outline the sheet draws: opened like the figure's own
+      const outlineMm = inMm(drawnSegments(separatedOutline(view, scale)));
       const gradedFindings = graded
         ? [
             ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
@@ -590,7 +652,10 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       ? O.some(
           yield* validate(pdfPath, validationOptions).pipe(
             Effect.map((report) =>
-              ValidationReport.make({ ...report, findings: [...report.findings, ...shadingFindings] })
+              ValidationReport.make({
+                ...report,
+                findings: [...report.findings, ...outlineFindings, ...shadingFindings],
+              })
             )
           )
         )

@@ -3,6 +3,8 @@ import {
   Box,
   Camera,
   cameraForView,
+  closeOutlineGaps,
+  commonScale,
   composeSheet,
   DrawingError,
   drawnBrokenGapMm,
@@ -22,7 +24,9 @@ import {
   marginFindings,
   marginsCm,
   mirrorSegments,
+  OUTLINE_COINCIDENCE_MM,
   OverlayLine,
+  outlineSpacingFindings,
   PageMetrics,
   Part,
   PdfBackend,
@@ -34,6 +38,7 @@ import {
   purityFindings,
   RenderManifest,
   RenderRequest,
+  Segment2,
   ShadingCoverage,
   ShadingSkip,
   SheetFonts,
@@ -59,7 +64,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { ShadingPlan } from "@beep/technical-drawing";
+import type { OutlineSeparation, ShadingPlan } from "@beep/technical-drawing";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -2162,6 +2167,99 @@ describe("graded shading ladder through fake ports", () => {
           O.exists(manifest.validation, (v) =>
             A.some(v.findings, (f) => f.code === "shading-band-ladder" && O.contains(f.page, 1))
           )
+        );
+      })
+    );
+  });
+});
+
+// A fake engine whose every view draws the unit square and the given lines, unshaded.
+const engineDrawing = (lines: ReadonlyArray<FakeSegment>) =>
+  Layer.succeed(
+    GeometryEngine,
+    GeometryEngine.of({
+      info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
+      summarize: Effect.fnUntraced(function* () {
+        return ModelSummary.make({
+          boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
+          volume: 250,
+          faceCount: 6,
+          edgeCount: 12,
+          partOverlaps: 0,
+        });
+      }),
+      project: Effect.fnUntraced(function* (_model, cameras) {
+        return A.map(cameras, () => EdgeSet.make({ visible: [...square, ...lines], hidden: [] }));
+      }),
+    })
+  );
+
+// The square sets the sheet scale; a line 0.4 mm above its bottom edge (a thin board's bottom face seen nearly
+// edge-on) runs along it, with a T-end standing on it.
+const sheetScale = commonScale({ views: [square], options: SheetOptions.make({}) });
+const unitsPerMm = PT_PER_MM / sheetScale;
+const lift = 0.4 * unitsPerMm;
+const closeScene: ReadonlyArray<FakeSegment> = [
+  [1, lift, 9, lift],
+  [5, lift, 5, 3],
+];
+const figureSegmentsMm = (svg: string): ReadonlyArray<Segment2> =>
+  pipe(
+    /<path id="figure" d="([^"]*)"/.exec(svg)?.[1] ?? "",
+    (d) => [...d.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)],
+    A.map((m) => Segment2.make([Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])])),
+    A.map(([x1, y1, x2, y2]) => Segment2.make([x1 / PT_PER_MM, y1 / PT_PER_MM, x2 / PT_PER_MM, y2 / PT_PER_MM]))
+  );
+
+describe("outline spacing through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(engineDrawing(closeScene), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "opens outlines drawn closer than 0.7 mm on the sheet, records the move, and validates clean",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(specPath, spec([{ view: "front", description: "is a front elevation view" }]));
+        const outputDir = path.join(dir, "out");
+        const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir }));
+        expect(manifest.scale).toBe(sheetScale);
+        // drawn as the engine projects them, the bottom edge and the line beside it print 0.4 mm apart
+        const projectedMm = A.map([...square, ...closeScene], ([x1, y1, x2, y2]) =>
+          Segment2.make([x1 / unitsPerMm, y1 / unitsPerMm, x2 / unitsPerMm, y2 / unitsPerMm])
+        );
+        const options = ValidationOptions.make({ expectedPages: O.none() });
+        expect(A.map(outlineSpacingFindings({ page: 1, segmentsMm: projectedMm, options }), (f) => f.message)).toEqual([
+          expect.stringContaining("closest are 0.4 mm apart"),
+        ]);
+        // on the sheet the line moved 0.305 mm to stand 0.7 mm clear with a 0.005 mm margin for the printed
+        // coordinates (review loop 4, R4-06), still a second line, and its T-end followed it
+        const drawn = figureSegmentsMm(yield* fs.readFileString(path.join(outputDir, "fig-1.svg")));
+        expect(A.length(drawn)).toBe(A.length(square) + A.length(closeScene));
+        const tolerances = { minOverlap: 1, coincidence: OUTLINE_COINCIDENCE_MM };
+        expect(closeOutlineGaps({ segments: drawn, minSpacing: 0.7, ...tolerances })).toEqual([]);
+        const [pair = 0] = closeOutlineGaps({ segments: drawn, minSpacing: 0.75, ...tolerances });
+        expect(pair).toBeCloseTo(0.705, 3);
+        const [, , , , moved = Segment2.make([0, 0, 0, 0]), tee = Segment2.make([0, 0, 0, 0])] = drawn;
+        expect(Math.abs(tee[1] - moved[1])).toBeLessThan(1e-3);
+        const figure = manifest.figures[0];
+        assertSome(
+          O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+            separation.lines,
+            Math.round(separation.largestMoveMm * 1e6) / 1e6,
+          ]),
+          [1, 0.305]
+        );
+        expect(figure?.visibleSegments).toBe(A.length(square) + A.length(closeScene));
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
         );
       })
     );

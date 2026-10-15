@@ -87,6 +87,36 @@ export class EngineInfo extends S.Opaque<EngineInfo, { readonly brand: unique sy
 ) {}
 
 /**
+ * How far the outline-spacing rule opened a figure's close outlines: how
+ * many lines moved and the largest move, in mm on the sheet.
+ *
+ * **Example** (Two lines moved)
+ *
+ * ```ts
+ * import { OutlineSeparation } from "@beep/technical-drawing/Manifest.schemas"
+ *
+ * console.log(OutlineSeparation.make({ lines: 2, largestMoveMm: 0.36 }).largestMoveMm)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OutlineSeparation extends S.Opaque<OutlineSeparation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    lines: S.Int.check(S.isGreaterThan(0)).annotateKey({
+      description: "Outlines moved to hold the least centre spacing from a line beside them.",
+    }),
+    largestMoveMm: S.Finite.check(S.isGreaterThan(0)).annotateKey({
+      description: "Largest move of one outline, in mm on the sheet.",
+    }),
+  }).pipe(
+    $I.annoteSchema("OutlineSeparation", {
+      description: "Count of outlines moved apart and the largest move, in mm, on one figure.",
+    })
+  )
+) {}
+
+/**
  * One rendered figure in the manifest.
  *
  * **Example** (FIG. 1)
@@ -145,10 +175,17 @@ export class FigureRecord extends S.Opaque<FigureRecord, { readonly brand: uniqu
           "Faces given shading lines and faces skipped per reason. Absent on unshaded renders and on manifests rendered before graded shading.",
       })
     ),
+    outlineSeparations: S.OptionFromOptionalKey(OutlineSeparation).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Outlines moved apart to hold the least centre spacing, and the largest move. Absent when no outline moved, and on manifests rendered before the outline-spacing rule.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("FigureRecord", {
       description:
-        "FIG. number, view, description, sheet file, hash, segment counts, camera, and shading coverage of one figure.",
+        "FIG. number, view, description, sheet file, hash, segment counts, camera, shading coverage, and outline separations of one figure.",
     })
   )
 ) {}

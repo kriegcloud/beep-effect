@@ -942,6 +942,101 @@ export class ShadingSkip extends S.Opaque<ShadingSkip, { readonly brand: unique 
   )
 ) {}
 
+const ShadingStretchSkipReasonBase = LiteralKit(["narrow", "sliver", "no-room", "ink-order"]);
+
+/**
+ * Why a visible stretch of a face given shading lines drew no band.
+ *
+ * **Details**
+ *
+ * `narrow`: the rules found room for one line only, and one line beside an
+ * outline reads as a doubled edge. `sliver`: the rules found room for no
+ * line. `no-room`: lines were planned, but fewer than two of their strokes
+ * reach the legible stroke length. `ink-order`: the band, drawn on its whole
+ * chords (its taper, or hidden-line removal, left its tapered strokes no room)
+ * and cut back to its taper, still carried more ink than a darker face beside
+ * it at the lit floor, so it was left bare.
+ *
+ * **Example** (Read the reasons)
+ *
+ * ```ts
+ * import { ShadingStretchSkipReason } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(ShadingStretchSkipReason.literals) // ["narrow", "sliver", "no-room", "ink-order"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ShadingStretchSkipReason = ShadingStretchSkipReasonBase.pipe(
+  $I.annoteSchema("ShadingStretchSkipReason", {
+    description:
+      "Why a visible stretch of a face given shading lines drew no band: narrow, sliver, no-room, or ink-order.",
+  }),
+  SchemaUtils.withLiteralKitStatics(ShadingStretchSkipReasonBase)
+);
+
+/**
+ * Type for {@link ShadingStretchSkipReason}.
+ *
+ * **Example** (Annotate a stretch skip reason)
+ *
+ * ```ts
+ * import type { ShadingStretchSkipReason } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const reason: ShadingStretchSkipReason = "narrow"
+ * console.log(reason)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ShadingStretchSkipReason = typeof ShadingStretchSkipReason.Type;
+
+/**
+ * Number of visible stretches of one view's shaded faces that drew no band
+ * for one reason, and how many of them had measured room for a band.
+ *
+ * **Details**
+ *
+ * A stretch has room for a band when the part of it whose visible chord
+ * reaches the legible stroke length is at least 3.4 minimum pitches across on
+ * the sheet: a first line one pitch in, a second 1.4 pitches past it, and a
+ * pitch to spare (`stretchFitsBand` in `Shading.rules`). A skipped stretch
+ * with that room is a band the planner failed to draw, which the validator
+ * reports.
+ *
+ * **Example** (Two narrow stretches, one of them with room for a band)
+ *
+ * ```ts
+ * import { ShadingStretchSkip } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(ShadingStretchSkip.make({ reason: "narrow", stretches: 2, fitting: 1 }).fitting) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingStretchSkip extends S.Opaque<ShadingStretchSkip, { readonly brand: unique symbol }>()(
+  S.Struct({
+    reason: ShadingStretchSkipReason.annotateKey({ description: "Why the stretches drew no band." }),
+    stretches: S.Natural.annotateKey({ description: "Visible stretches skipped for this reason." }),
+    fitting: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "How many of those stretches had measured room for a band: legible chords at least 3.4 minimum pitches across. Defaults to 0.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ShadingStretchSkip", {
+      description:
+        "Count of visible stretches of one view's shaded faces that drew no band for one reason, and how many had room for one.",
+    })
+  )
+) {}
+
 /**
  * Shading coverage of one view: faces given lines and faces skipped by reason.
  *
@@ -949,7 +1044,11 @@ export class ShadingSkip extends S.Opaque<ShadingSkip, { readonly brand: unique 
  *
  * Counted before hidden-line removal, so a shaded face may still be hidden
  * by another part. Skips are listed in {@link ShadingSkipReason} order with
- * zero counts left out.
+ * zero counts left out. Under graded shading every visible stretch of a face
+ * given lines is planned on its own: a stretch that drew no band by design is
+ * counted in `skippedStretches` ({@link ShadingStretchSkipReason} order, zero
+ * counts left out), and a band drawn again on its whole chords after
+ * hidden-line removal cut its tapered strokes in `redrawnStretches`.
  *
  * **Example** (Five shaded faces, one sliver)
  *
@@ -988,10 +1087,26 @@ export class ShadingCoverage extends S.Opaque<ShadingCoverage, { readonly brand:
           "Visible stretches of faces that were planned at least two shading lines and drew none after the hidden-line and legibility passes; a face with another stretch still drawn is not a lost face. Defaults to 0.",
       })
     ),
+    skippedStretches: S.Array(ShadingStretchSkip).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible stretches of faces given shading lines that drew no band by design, per reason, in reason order; zero counts left out. Defaults to none.",
+      })
+    ),
+    redrawnStretches: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Tapered bands that hidden-line removal and the legibility pass left with fewer than two strokes, drawn again on their whole chords and cut back to their taper. Defaults to 0.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("ShadingCoverage", {
       description:
-        "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal, and planned stretches that drew nothing.",
+        "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal, planned stretches that drew nothing, stretches skipped by design, and bands redrawn on their whole chords.",
     })
   )
 ) {}

@@ -39,7 +39,15 @@ import {
   ViewFacts,
 } from "./Shading.schemas.ts";
 import type { Camera, Segment2, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
-import type { BandInk, FaceAspect, FaceEdge, FaceFacts, ShadingWindow } from "./Shading.schemas.ts";
+import type {
+  BandInk,
+  BandRun,
+  FaceAspect,
+  FaceEdge,
+  FaceFacts,
+  ShadingRoom,
+  ShadingWindow,
+} from "./Shading.schemas.ts";
 
 type V3 = Vec3;
 
@@ -83,6 +91,16 @@ const TAPER_TO = 0.4;
 const FAINT_FROM = 0.6;
 const FAINT_TO = 0.7;
 
+// A parallel view's frame looking back along `eye`, with sheet-up toward `upHint`.
+const frameOf = (eye: V3, upHint: V3): { readonly eye: V3; readonly right: V3; readonly up: V3 } => {
+  const right = unitOf(crossOf(unitOf(upHint), eye));
+  return { eye, right, up: crossOf(eye, right) };
+};
+
+// The 1.84(m) light of a frame: from the upper left of its sheet, toward the viewer, at 45°.
+const lightOf = (frame: { readonly eye: V3; readonly right: V3; readonly up: V3 }): V3 =>
+  unitOf(plus(plus(times(frame.right, -1), frame.up), frame.eye));
+
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.
  *
@@ -90,7 +108,8 @@ const FAINT_TO = 0.7;
  *
  * The frame is that of a parallel view along the camera's `sight` when it
  * carries one, else along its `eye`: a two-point camera looks level, and
- * every face turned toward its raised eye must still read as seen.
+ * every face turned toward its raised eye must still read as seen. Back-facing,
+ * visibility and seen-area measures read this frame's `eye`.
  *
  * A two-point camera's sheet is a vertical picture plane, not one square to
  * its sight. Near the article it maps a model vector `v` to
@@ -99,14 +118,22 @@ const FAINT_TO = 0.7;
  * and `ê`; that is this frame's
  * `(v·right, v·up / cos β)`, the same frame stretched vertically by
  * `1 / cos β`. The stretch keeps every sign, so lit and shaded sides and the
- * band's side are the frame's; it scales vertical measures. The light's up
- * term is scaled by `cos β`, so on the sheet it still falls at 45° from the
- * upper left. Every other on-sheet measure read from the frame (the
- * projected span of a face, the stroke-length floor, the area a band's ink
- * is spread over) reads vertical lengths `cos β` short. `β` is steeper than
- * the camera's field, since the sight runs from the box centre rather than
- * from the box's near top corner. A camera without a `sight` keeps
- * `cos β = 1` and its light exactly as before.
+ * band's side are the frame's; it scales vertical measures. Every on-sheet
+ * measure read from the frame (the projected span of a face, the
+ * stroke-length floor, the area a band's ink is spread over) reads vertical
+ * lengths `cos β` short. `β` is steeper than the camera's field, since the
+ * sight runs from the box centre rather than from the box's near top corner.
+ *
+ * The light belongs to the picture plane, not to the sight: a two-point
+ * camera's light is the one a level camera along `ê` with the same up has,
+ * `(−right + Ẑ + ê) / √3`, and the view carries `ê` as its `picture` normal.
+ * A face parallel to the sheet then takes exposure `1/√3` and the same tone
+ * and recipe in a two-point top view, a two-point bottom view and the
+ * orthographic elevation along `ê`; a light that leaned with the sight lit
+ * one wall `0.32` from above and `0.76` from below (review loop 4, O-03).
+ * The light's sheet-plane part, read with its `ê` component dropped, falls
+ * at 45° from the upper left of the picture plane. A camera without a
+ * `sight` keeps its light exactly as before.
  *
  * **Example** (The front elevation's light)
  *
@@ -117,26 +144,26 @@ const FAINT_TO = 0.7;
  * console.log(viewFactsOf(Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] })).light)
  * ```
  *
+ * @param camera - The camera whose view is framed.
+ * @returns The view's sheet frame, light and, for a two-point camera, its picture-plane normal.
  * @category utilities
  * @since 0.0.0
  */
-export const viewFactsOf = (camera: Camera): ViewFacts =>
-  O.match(camera.sight, {
-    onNone: () => {
-      const eye = unitOf(camera.eye);
-      const right = unitOf(crossOf(unitOf(camera.up), eye));
-      const up = crossOf(eye, right);
-      return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), up), eye)) });
-    },
-    onSome: (sight) => {
-      const eye = unitOf(sight);
-      const right = unitOf(crossOf(unitOf(camera.up), eye));
-      const up = crossOf(eye, right);
-      // cos β between the sight and the level eye: the vertical picture plane stretches `up` by 1 / cos β
-      const lean = Math.abs(dot(unitOf(camera.eye), eye));
-      return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), times(up, lean)), eye)) });
-    },
+export const viewFactsOf = (camera: Camera): ViewFacts => {
+  const picture = frameOf(unitOf(camera.eye), camera.up);
+  const light = lightOf(picture);
+  return O.match(camera.sight, {
+    onNone: () => ViewFacts.make({ ...picture, light }),
+    onSome: (sight) => ViewFacts.make({ ...frameOf(unitOf(sight), camera.up), light, picture: O.some(picture.eye) }),
   });
+};
+
+// The sheet-plane part of the 1.84(m) light: its component along the picture-plane normal (the eye, unless the view
+// has a separate picture plane) dropped, so it falls at 45° from the sheet's upper left.
+const sheetLightOf = (view: ViewFacts): V3 => {
+  const normal = O.getOrElse(view.picture, () => view.eye);
+  return minus(view.light, times(normal, dot(view.light, normal)));
+};
 
 /**
  * Orientation class of a face normal against model +Z, within one degree.
@@ -985,17 +1012,18 @@ const majorEdgesOf = (face: FaceFacts): ReadonlyArray<FaceEdge> => {
 };
 
 // The edge of a face whose outward side faces most away from the 1.84(m)
-// light, read on the sheet: both the edge's outward normal and the light drop
-// their components along the sight line, because the light is a sheet
-// convention (from the upper left of the page) and an inclined face seen
-// obliquely can turn a sheet-dark edge into a model-lit one. Ties go to the
+// light, read on the sheet: the edge's outward normal drops its component
+// along the sight line and the light its component along the picture-plane
+// normal, because the light is a sheet convention (from the upper left of the
+// page) and an inclined face seen obliquely can turn a sheet-dark edge into a
+// model-lit one. Ties go to the
 // edge least aligned with the sheet's vertical (upright faces hatch
 // vertically, and a level face's band must not run on from a wall's), then
 // to the longer edge.
 const darkestEdge = (face: FaceFacts, view: ViewFacts): O.Option<FaceEdge> => {
   const normal = unitOf(face.normal);
   const onSheet = (v: V3): V3 => minus(v, times(view.eye, dot(v, view.eye)));
-  const sheetLight = onSheet(view.light);
+  const sheetLight = sheetLightOf(view);
   const darkness = (edge: FaceEdge): number => {
     const along = unitOf(minus(edge.end, edge.start));
     const side = unitOf(crossOf(normal, along));
@@ -1110,9 +1138,9 @@ const sign = (value: number): number => (value < 0 ? -1 : 1);
  *
  * **Details**
  *
- * The sheet-plane part of the 1.84(m) light (its component toward the viewer
- * dropped, since the shadow side is read on the sheet), projected into the
- * face plane, points to the lit side; the anchor is the outline point
+ * The sheet-plane part of the 1.84(m) light (its component along the
+ * picture-plane normal dropped, since the shadow side is read on the sheet),
+ * projected into the face plane, points to the lit side; the anchor is the outline point
  * farthest the other way along `step`, and
  * the returned step points from it into the face. When the light has no
  * component along `step` (a face lit edge-on to its lines), the shadow side
@@ -1155,7 +1183,7 @@ export const anchorOf = (input: {
   const across = unitOf(crossOf(normal, direction));
   // The shadow side is read on the sheet: the light's component toward the
   // viewer makes faces lit but must not pick the near end of a receding wall.
-  const sheetLight = minus(view.light, times(view.eye, dot(view.light, view.eye)));
+  const sheetLight = sheetLightOf(view);
   const inPlaneLight = minus(sheetLight, times(normal, dot(sheetLight, normal)));
   const toLight = dot(across, inPlaneLight);
   // lit edge-on to its lines, a face shades its sheet-right side, or its
@@ -1197,6 +1225,10 @@ export const anchorOf = (input: {
 };
 
 const skipped = (reason: ShadingSkipReason): FaceTreatment => ShadingSkipped.make({ reason });
+
+// Under the surface-class axis a level or inclined face follows its darkest edge, and its band bunches there.
+const shadowEdgeOf = (face: FaceFacts, view: ViewFacts, plan: ShadingPlan): O.Option<FaceEdge> =>
+  plan.axis === "surface-class" && surfaceClassOf(face.normal) !== "upright" ? darkestEdge(face, view) : O.none();
 
 // Exposure → pitch of the uniform style: `minPitch` at -1, `maxPitch` at the
 // lit threshold, none above it.
@@ -1240,6 +1272,68 @@ const legacyTreatment = (face: FaceFacts, view: ViewFacts, pitch: number): FaceT
     })
   );
 
+const byRoomOffset = Order.mapInput(Order.Number, (sample: ShadingRoom) => sample.offset);
+
+// The room a window measured for its stretch, in offset order; none when it measured none.
+const measuredRoomOf = (window: O.Option<ShadingWindow>): O.Option<A.NonEmptyReadonlyArray<ShadingRoom>> =>
+  pipe(
+    window,
+    O.flatMap((w) => w.room),
+    O.map(A.sort(byRoomOffset)),
+    O.flatMap(A.match({ onEmpty: O.none, onNonEmpty: O.some }))
+  );
+
+const roomBetween = (before: ShadingRoom, after: ShadingRoom, offset: number): number =>
+  after.offset - before.offset < 1e-12
+    ? after.length
+    : before.length + ((after.length - before.length) * (offset - before.offset)) / (after.offset - before.offset);
+
+// The measured room at an offset: read linearly between the samples either side, held flat past the first and last.
+const measuredRoomAt =
+  (samples: A.NonEmptyReadonlyArray<ShadingRoom>) =>
+  (offset: number): number =>
+    pipe(
+      A.findFirstIndex(samples, (sample) => sample.offset >= offset),
+      O.flatMap((index) => O.all([A.get(samples, index - 1), A.get(samples, index)])),
+      O.map(([before, after]) => roomBetween(before, after, offset)),
+      O.getOrElse(() =>
+        offset <= A.headNonEmpty(samples).offset ? A.headNonEmpty(samples).length : A.lastNonEmpty(samples).length
+      )
+    );
+
+// A stroke's room at an offset along the anchor's step, in model units along the lines: the face's chord there, or,
+// where the window measured what the view shows of its stretch, the lesser of the two (review loop 4, G-01). A part in
+// front can leave a stretch a pointed glimpse of the face whose chord runs the face's whole height.
+const roomOf = (
+  face: FaceFacts,
+  anchor: FaceAnchor,
+  direction: V3,
+  measured: O.Option<A.NonEmptyReadonlyArray<ShadingRoom>>
+): ((offset: number) => number) => {
+  const chord = chordAt(face, anchor, direction);
+  return O.match(measured, {
+    onNone: () => chord,
+    onSome: (samples) => {
+      const visible = measuredRoomAt(samples);
+      return (offset) => Math.min(chord(offset), visible(offset));
+    },
+  });
+};
+
+// A band of one line reads as a doubled outline, never as shading, so a stretch with room for exactly one is a planned
+// skip rather than a face that later loses its line; a stretch with room for none is a sliver.
+const bandTreatment = (
+  anchor: FaceAnchor,
+  cuts: ReadonlyArray<{ readonly offset: number; readonly extent: number }>
+): FaceTreatment => {
+  if (A.length(cuts) === 1) {
+    return skipped("narrow");
+  }
+  return A.isReadonlyArrayNonEmpty(cuts)
+    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts: A.map(cuts, (cut) => ShadingCut.make(cut)) })
+    : skipped("sliver");
+};
+
 const gradedTreatment = (input: {
   readonly face: FaceFacts;
   readonly view: ViewFacts;
@@ -1278,25 +1372,30 @@ const gradedTreatment = (input: {
   // a stroke needs the face wide enough where it is cut to keep the minimum
   // stroke, at the fraction of the chord its line would draw, after the kernel
   // draws both its ends back one pitch from the outline
-  const chord = chordAt(face, anchor, direction);
+  const measured = measuredRoomOf(window);
+  const room = roomOf(face, anchor, direction, measured);
   const seen = spread(direction, view.eye);
   const needed = legibleStrokeLength(plan);
   // a band cut back because it out-inks a darker neighbour has no full-length line at all (review loop 3, O-02); the
-  // room each position needs follows the taper, a full-length line's shortened by the faint ramp
+  // room each position needs follows the taper, a full-length line's shortened by the faint ramp. Where the window
+  // measured what the view shows of its stretch, a position needs room for a whole chord only: the engine draws a
+  // tapered band its strokes cannot show on whole chords cut back to the taper and never below the minimum stroke, so
+  // the taper may shorten a band there but never decide where it goes or empty it (review loop 3, J-01; review loop 4,
+  // G-01, K-08). A lit band whose shadow side is a glimpsed pointed tip then moves inward to where the glimpse is tall
+  // enough for a stroke.
   const fullLines = taper === "full" ? FULL_LINES : 0;
   const fullExtent = 1 - faintShare + faintShare * TAPER_TO;
-  const keep = (offset: number, index: number) =>
-    plan.minStroke <= 0 ||
-    chord(start + offset / factor) * seen * (index < fullLines ? fullExtent : TAPER_TO) >= needed;
-  // a stretch whose edge has drawn lines close beyond it starts behind the gutter the engine measured (review loop 3,
-  // O-04); offsets are on the sheet, like the lead
+  const taperedExtent = (index: number): number => (index < fullLines ? fullExtent : TAPER_TO);
+  const extentOf = O.isSome(measured) ? (): number => 1 : taperedExtent;
+  // the band's positions where each line, drawn at its extent of the room there, keeps the legible length; a stretch
+  // whose edge has drawn lines close beyond it starts behind the gutter the engine measured (review loop 3, O-04), and
+  // offsets are on the sheet, like the lead (no lead is a lead of one pitch)
   const offsets = gradedOffsets({
     span,
     minPitch: plan.minPitch,
     maxPitch: plan.maxPitch,
     tone,
-    keep,
-    // no lead is a lead of one pitch
+    keep: (offset, index) => plan.minStroke <= 0 || room(start + offset / factor) * seen * extentOf(index) >= needed,
     lead: O.getOrElse(
       O.flatMap(window, (w) => w.lead),
       () => plan.minPitch
@@ -1305,25 +1404,11 @@ const gradedTreatment = (input: {
   });
   // at the floor a band keeps only the lines a band needs, the ones nearest its shadow edge
   const band = taper === "lit-floor" ? A.take(offsets, BAND_FLOOR) : offsets;
-  // a band of one line reads as a doubled outline, never as shading, so a stretch with room for
-  // exactly one is a planned skip rather than a face that later loses its line; a stretch with room
-  // for none is a sliver, below
-  if (A.length(band) === 1) {
-    return skipped("narrow");
-  }
   const extents = gradedExtents({ count: A.length(band), fullLines, faintShare });
-  const cuts = A.map(band, (offset, index) =>
-    ShadingCut.make({
-      offset: start + offset / factor,
-      extent: pipe(
-        A.get(extents, index),
-        O.getOrElse(() => TAPER_TO)
-      ),
-    })
+  return bandTreatment(
+    anchor,
+    A.zipWith(band, extents, (offset, extent) => ({ offset: start + offset / factor, extent }))
   );
-  return A.isReadonlyArrayNonEmpty(band)
-    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts })
-    : skipped("sliver");
 };
 
 /**
@@ -1341,7 +1426,11 @@ const gradedTreatment = (input: {
  * face alone, measured along the step from the shadow anchor, so a stretch
  * another part uncovers gets its band at the side nearest the shadow, its
  * first line the window's `lead` in from the stretch's edge when it has
- * one (see {@link bandLead}). A graded band is cut back by its `taper` (default `full`, the band its tone
+ * one (see {@link bandLead}). A window that carries its stretch's measured
+ * room (`ShadingRoom`) has each band position judged by what the view shows
+ * there, on whole chords, rather than by the face's chord, so a band moves
+ * off a glimpsed tip that shows too little of the face for a stroke (review
+ * loop 4, G-01). A graded band is cut back by its `taper` (default `full`, the band its tone
  * gives; see {@link BandTaper}), which {@link settleBandTapers} sets when the
  * face out-inks a darker neighbour. A face lit between exposures 0.6 and 0.7
  * gets a band between the light and faint recipes ({@link faintShareOf}).
@@ -1402,11 +1491,6 @@ export const treatmentFor = (input: {
         if (factor < MIN_SPREAD) {
           return skipped("edge-on");
         }
-        // under the surface-class axis a level or inclined face follows its darkest edge, and its band bunches there
-        const shadowEdge =
-          plan.axis === "surface-class" && surfaceClassOf(face.normal) !== "upright"
-            ? darkestEdge(face, view)
-            : O.none<FaceEdge>();
         return plan.style === "graded"
           ? gradedTreatment({
               face,
@@ -1415,11 +1499,115 @@ export const treatmentFor = (input: {
               direction,
               factor,
               window: input.window === undefined ? O.none() : O.some(input.window),
-              shadowEdge,
+              shadowEdge: shadowEdgeOf(face, view, plan),
               taper: input.taper ?? "full",
             })
           : centredLines(face, step, O.getOrElse(pitch, () => plan.maxPitch) / factor);
       },
+    })
+  );
+};
+
+// A band needs this many minimum pitches across on the sheet: its first line a pitch in, the second 1.4 pitches past
+// it, and a pitch to spare before the stretch's far side (review loop 4, A-01).
+const BAND_ROOM_PITCHES = 1 + GROWTH + 1;
+
+// Where the room of a stretch is read across it, in quarter pitches on the sheet.
+const ROOM_READINGS_PER_PITCH = 4;
+
+// Width on the sheet of the part of a window whose room, as the window measured it (or the chord cut to the window's
+// range along the lines), reaches the legible stroke length, read at quarter pitches across it.
+const legibleWidthOf = (input: {
+  readonly face: FaceFacts;
+  readonly anchor: FaceAnchor;
+  readonly direction: V3;
+  readonly factor: number;
+  readonly view: ViewFacts;
+  readonly plan: ShadingPlan;
+  readonly window: ShadingWindow;
+}): number => {
+  const { face, anchor, direction, factor, view, plan, window } = input;
+  const start = Math.max(0, window.start);
+  const span = window.span - (start - window.start);
+  const measured = measuredRoomOf(O.some(window));
+  const tall = O.match(O.all([window.low, window.high]), {
+    onNone: () => Number.POSITIVE_INFINITY,
+    onSome: ([low, high]) => high - low,
+  });
+  const room = roomOf(face, anchor, direction, measured);
+  const roomAt = (offset: number): number => (O.isSome(measured) ? room(offset) : Math.min(room(offset), tall));
+  const readings = Math.max(1, Math.ceil((span * factor * ROOM_READINGS_PER_PITCH) / plan.minPitch));
+  const seen = spread(direction, view.eye);
+  const legible = A.filter(
+    A.makeBy(readings, (k) => start + (span * (k + 0.5)) / readings),
+    (offset) => roomAt(offset) * seen >= legibleStrokeLength(plan)
+  );
+  return span > 0 ? (A.length(legible) * span * factor) / readings : 0;
+};
+
+/**
+ * Whether a visible stretch of a face, as a geometry engine measured it,
+ * has room for a graded band: the part of it where a whole chord reaches the
+ * legible stroke length on the sheet (see {@link legibleStrokeLength}) is at
+ * least 3.4 minimum pitches across, room for a first line a pitch in, a
+ * second 1.4 pitches past it, and a pitch to spare.
+ *
+ * **Details**
+ *
+ * The room at each position across the stretch is the window's measured
+ * room there (see `ShadingRoom`), or, where it measured none, the face's
+ * chord cut to the window's range along the lines. A geometry engine asks it
+ * of a stretch that drew no band: one with this room is a band the planner
+ * failed to draw, and the validator reports it (review loop 4, A-01). A face
+ * the rules would not hatch, or would hatch edge-on, has no room for a band.
+ *
+ * **Example** (A 40 × 20 wall seen whole has room; a 2-wide stretch of it does not)
+ *
+ * ```ts
+ * import { BoundingBox, Camera, ShadingPlan } from "@beep/technical-drawing/Geometry.schemas"
+ * import { stretchFitsBand, viewFactsOf } from "@beep/technical-drawing/Shading.rules"
+ * import { FaceFacts, ShadingWindow } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const face = FaceFacts.make({
+ *   normal: [0, -1, 0], center: [0, 0, 10], edges: [],
+ *   outline: [[-20, 0, 0], [20, 0, 0], [20, 0, 20], [-20, 0, 20]],
+ *   bounds: BoundingBox.make({ min: [-20, 0, 0], max: [20, 0, 20] })
+ * })
+ * const view = viewFactsOf(Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] }))
+ * const plan = ShadingPlan.make({ minPitch: 1, maxPitch: 3, style: "graded", axis: "surface-class", minStroke: 1.5 })
+ * console.log(stretchFitsBand({ face, view, plan, window: ShadingWindow.make({ start: 0, span: 40 }) })) // true
+ * console.log(stretchFitsBand({ face, view, plan, window: ShadingWindow.make({ start: 0, span: 2 }) })) // false
+ * ```
+ *
+ * @param input - The face, its view, the plan, and the stretch's window with its measured room.
+ * @returns Whether the stretch has room for a band of two legible lines.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const stretchFitsBand = (input: {
+  readonly face: FaceFacts;
+  readonly view: ViewFacts;
+  readonly plan: ShadingPlan;
+  readonly window: ShadingWindow;
+}): boolean => {
+  const { face, view, plan, window } = input;
+  return pipe(
+    hatchDirectionOf({ face, axis: plan.axis, view }),
+    O.map((direction) => ({
+      direction,
+      factor: sheetSpacing(direction, unitOf(crossOf(unitOf(face.normal), direction)), view),
+    })),
+    O.filter(({ factor }) => factor >= MIN_SPREAD && dot(face.normal, view.eye) > BACK_FACING),
+    O.exists(({ direction, factor }) => {
+      const anchor = anchorOf({
+        face,
+        view,
+        direction,
+        ...O.match(shadowEdgeOf(face, view, plan), { onNone: () => ({}), onSome: (shadowEdge) => ({ shadowEdge }) }),
+      });
+      return (
+        legibleWidthOf({ face, anchor, direction, factor, view, plan, window }) >= BAND_ROOM_PITCHES * plan.minPitch
+      );
     })
   );
 };
@@ -1475,6 +1663,126 @@ export const inkOrderSteps = (input: {
     ),
     A.getSomes,
     HashSet.fromIterable
+  );
+};
+
+// Two banded faces whose seen areas agree within this share compare by density as neighbours do: a band's density
+// rises as its face narrows, so only faces of one size compare off a shared edge (review loop 4, F11-04).
+const TWIN_AREA_SHARE = 0.1;
+// Twins are compared only when their exposures differ by more than one tone step.
+const TWIN_EXPOSURE_STEP = 0.2;
+
+/**
+ * Pairs of banded faces whose ink order matters without a shared edge: their
+ * seen areas agree within 10% and their exposures differ by more than one
+ * tone step (0.2).
+ *
+ * **Details**
+ *
+ * {@link inkOrderSteps} compares neighbours only, since a band's density
+ * rises as its face narrows. Two faces of one seen area on opposite sides of
+ * an article (a lit flap and its mirror in medium tone) are not neighbours,
+ * yet the lighter one carrying more ink reads as an inverted tone (review
+ * loop 4, F11-04). Their density order is meaningful, so they are passed to
+ * the same settling as neighbours. Faces with no seen area are never twins.
+ *
+ * **Example** (Two flaps of one size, one lit and one in medium tone)
+ *
+ * ```ts
+ * import { inkTwins } from "@beep/technical-drawing/Shading.rules"
+ * import { BandInk } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const bands = [
+ *   BandInk.make({ face: 3, exposure: 0.6, density: 0.063 }),
+ *   BandInk.make({ face: 7, exposure: 0.05, density: 0.06 })
+ * ]
+ * console.log(inkTwins({ bands, seen: (face) => (face === 3 ? 100 : 104) })) // [[3, 7]]
+ * ```
+ *
+ * @param input - The banded faces' ink, and each face's seen area on the view plane.
+ * @returns The twin pairs, lower face index first.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const inkTwins = (input: {
+  readonly bands: ReadonlyArray<BandInk>;
+  readonly seen: (face: number) => number;
+}): ReadonlyArray<readonly [number, number]> => {
+  const isTwin = (first: BandInk, second: BandInk): boolean => {
+    const [a, b] = [input.seen(first.face), input.seen(second.face)];
+    return (
+      a > 0 &&
+      b > 0 &&
+      Math.abs(a - b) <= TWIN_AREA_SHARE * Math.max(a, b) &&
+      Math.abs(first.exposure - second.exposure) > TWIN_EXPOSURE_STEP
+    );
+  };
+  return A.flatMap(input.bands, (first, i) =>
+    pipe(
+      A.drop(input.bands, i + 1),
+      A.filter((second) => isTwin(first, second)),
+      A.map((second) => [Math.min(first.face, second.face), Math.max(first.face, second.face)] as const)
+    )
+  );
+};
+
+// The longest length each rank of a band may keep: its own longest cut, never longer than a rank nearer the shadow edge.
+const rankCeilings = (cuts: ReadonlyArray<{ readonly rank: number; readonly length: number }>) =>
+  pipe(
+    A.dedupe(A.map(cuts, (cut) => cut.rank)),
+    A.sort(Order.Number),
+    A.reduce({ ceiling: Number.POSITIVE_INFINITY, ceilings: HashMap.empty<number, number>() }, (acc, rank) => {
+      const longest = A.reduce(cuts, 0, (most, cut) => (cut.rank === rank ? Math.max(most, cut.length) : most));
+      const ceiling = Math.min(acc.ceiling, longest);
+      return { ceiling, ceilings: HashMap.set(acc.ceilings, rank, ceiling) };
+    }),
+    (acc) => acc.ceilings
+  );
+
+/**
+ * The lengths the visible runs of one band drawn on its whole chords are cut
+ * back to, so the band keeps its taper (review loop 4, K-08).
+ *
+ * **Details**
+ *
+ * Every run is measured against one length, the band's longest run: a run
+ * takes its extent of that length, the cuts scaled up together so the least
+ * extent still draws `minStroke`, never longer than its own run, and never
+ * longer than a run nearer the band's shadow edge (a lower `rank`). Cut run
+ * by run against each run's own length, a short run at a glimpse's acute
+ * tip came out shorter than the lit-side run beside it, and a minimum stroke
+ * above both cuts raised them to one length, flattening the taper (review
+ * loop 4, R4-07, F11-05).
+ *
+ * **Example** (A shadow-side run shorter than the lit-side run)
+ *
+ * ```ts
+ * import { bandRunLengths } from "@beep/technical-drawing/Shading.rules"
+ * import { BandRun } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const runs = [BandRun.make({ length: 5, extent: 0.6, rank: 0 }), BandRun.make({ length: 8, extent: 0.4, rank: 1 })]
+ * console.log(bandRunLengths({ runs, minStroke: 4 })) // [5, 4]
+ * ```
+ *
+ * @param input - The band's visible runs and the plan's minimum stroke, in view-plane units.
+ * @returns Each run's drawn length, in the runs' order.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const bandRunLengths = (input: {
+  readonly runs: ReadonlyArray<BandRun>;
+  readonly minStroke: number;
+}): ReadonlyArray<number> => {
+  const longest = A.reduce(input.runs, 0, (most, run) => Math.max(most, run.length));
+  const least = A.reduce(input.runs, Number.POSITIVE_INFINITY, (most, run) => Math.min(most, run.extent));
+  const planned = (extent: number): number => Math.max(extent * longest, (input.minStroke * extent) / least);
+  const cuts = A.map(input.runs, (run) => ({ rank: run.rank, length: Math.min(run.length, planned(run.extent)) }));
+  const ceilings = rankCeilings(cuts);
+  return A.map(cuts, (cut) =>
+    Math.min(
+      cut.length,
+      O.getOrElse(HashMap.get(ceilings, cut.rank), () => cut.length)
+    )
   );
 };
 
