@@ -1,3 +1,4 @@
+import * as NodeZlib from "node:zlib";
 import {
   FontFamilyAlias,
   InkCoverageRequest,
@@ -13,6 +14,7 @@ import {
   pinnedFontconfig,
   RasterRequest,
   SvgToPdfRequest,
+  UndecodableStream,
 } from "@beep/pdf-tools";
 import { it } from "@beep/test-runner";
 import { Str } from "@beep/utils";
@@ -30,10 +32,11 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as R from "effect/Record";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import { TestClock } from "effect/testing";
-import { PDFDict, PDFDocument, PDFHexString, PDFName, PDFString, StandardFonts } from "pdf-lib";
+import { PDFDict, PDFDocument, PDFHexString, PDFName, PDFRawStream, PDFRef, PDFString, StandardFonts } from "pdf-lib";
 import type * as PlatformError from "effect/PlatformError";
 
 const encoder = new TextEncoder();
@@ -117,13 +120,190 @@ const bboxLayout = `<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><b
 </doc></body></html>
 `;
 
-// A minimal one-page PDF, the stand-in for rsvg-convert output.
-const blankPage = Effect.promise(() => PDFDocument.create({ updateMetadata: false })).pipe(
-  Effect.flatMap((doc) => {
-    doc.addPage([612, 792]);
-    return Effect.promise(() => doc.save({ useObjectStreams: false }));
-  })
-);
+// The stand-in for rsvg-convert output: one Letter page per input SVG.
+// pdf-lib writes a `%PDF-1.7` header, which is what rsvg-convert writes for
+// the unversioned `pdf` format; a `pdf1.x` format gets its own header.
+const fakeRsvgPdf = (pageCount: number, format: string) =>
+  Effect.promise(() => PDFDocument.create({ updateMetadata: false })).pipe(
+    Effect.flatMap((doc) => {
+      for (let page = 0; page < pageCount; page += 1) {
+        doc.addPage([612, 792]);
+      }
+      return Effect.promise(() => doc.save({ useObjectStreams: false }));
+    }),
+    Effect.map((bytes) => {
+      if (format.startsWith("pdf1.")) {
+        bytes.set(encoder.encode(`%PDF-${format.slice("pdf".length)}`), 0);
+      }
+      return bytes;
+    })
+  );
+
+const concatBytes = (...parts: ReadonlyArray<Uint8Array>): Uint8Array => {
+  const out = new Uint8Array(A.reduce(parts, 0, (total, part) => total + part.length));
+  let offset = 0;
+  for (const part of parts) {
+    out.set(part, offset);
+    offset += part.length;
+  }
+  return out;
+};
+
+const streamBody = (dict: string, data: Uint8Array): Uint8Array =>
+  concatBytes(encoder.encode(`${dict}\nstream\n`), data, encoder.encode("\nendstream"));
+
+// A hand-written PDF whose objects 1..n are `bodies`, with a correct xref
+// table; objects 1-3 must be the catalog, page tree, and page.
+const craftPdf = (bodies: ReadonlyArray<Uint8Array | string>): Uint8Array => {
+  const header = encoder.encode("%PDF-1.6\n");
+  const objects = A.map(bodies, (body, index) =>
+    concatBytes(
+      encoder.encode(`${index + 1} 0 obj\n`),
+      typeof body === "string" ? encoder.encode(body) : body,
+      encoder.encode("\nendobj\n")
+    )
+  );
+  const offsets: Array<number> = [];
+  let offset = header.length;
+  for (const object of objects) {
+    offsets.push(offset);
+    offset += object.length;
+  }
+  const xref = A.join(
+    [
+      "xref",
+      `0 ${objects.length + 1}`,
+      "0000000000 65535 f ",
+      ...A.map(offsets, (at) => `${String(at).padStart(10, "0")} 00000 n `),
+      "trailer",
+      `<< /Size ${objects.length + 1} /Root 1 0 R >>`,
+      "startxref",
+      `${offset}`,
+      "%%EOF",
+      "",
+    ],
+    "\n"
+  );
+  return concatBytes(header, ...objects, encoder.encode(xref));
+};
+
+const pageObjects = [
+  "<< /Type /Catalog /Pages 2 0 R >>",
+  "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+  "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>",
+];
+
+const latin1 = new TextDecoder("latin1");
+
+// The bytes of `pdf` with an incremental update appended that redefines
+// `objectNumber` as `body`, with its own xref section and trailer.
+const appendRevision = (pdf: Uint8Array, objectNumber: number, body: Uint8Array): Uint8Array => {
+  const text = latin1.decode(pdf);
+  const previous =
+    text
+      .slice(text.lastIndexOf("startxref") + "startxref".length)
+      .trim()
+      .split(/\s/)[0] ?? "0";
+  const size = /\/Size (\d+)/.exec(text)?.[1] ?? "0";
+  const object = concatBytes(encoder.encode(`${objectNumber} 0 obj\n`), body, encoder.encode("\nendobj\n"));
+  const xref = A.join(
+    [
+      "xref",
+      `${objectNumber} 1`,
+      `${String(pdf.length).padStart(10, "0")} 00000 n `,
+      "trailer",
+      `<< /Size ${size} /Root 1 0 R /Prev ${previous} >>`,
+      "startxref",
+      `${pdf.length + object.length}`,
+      "%%EOF",
+      "",
+    ],
+    "\n"
+  );
+  return concatBytes(pdf, object, encoder.encode(xref));
+};
+
+// A PDF 1.5 file the way cairo writes one: `topLevel` objects 1..n, then an
+// object stream numbered n + 1 holding `packed` (numbered from n + 2), then a
+// FlateDecode cross-reference stream. `shapeObjStm` and `shapeXref` may cut
+// the zlib bytes of either stream; the object stream's /Length is indirect,
+// written as the object after it.
+const craftXrefStreamPdf = (options: {
+  readonly topLevel: ReadonlyArray<Uint8Array | string>;
+  readonly packed: ReadonlyArray<string>;
+  readonly shapeObjStm?: (zlib: Uint8Array) => Uint8Array;
+  readonly shapeXref?: (zlib: Uint8Array) => Uint8Array;
+}): Uint8Array => {
+  const shapeObjStm = options.shapeObjStm ?? ((zlib: Uint8Array) => zlib);
+  const shapeXref = options.shapeXref ?? ((zlib: Uint8Array) => zlib);
+  const objStmNumber = options.topLevel.length + 1;
+  const lengthNumber = objStmNumber + 1 + options.packed.length;
+  const xrefNumber = lengthNumber + 1;
+  const firstPacked = objStmNumber + 1;
+  const offsets: Array<string> = [];
+  let at = 0;
+  for (const [index, body] of options.packed.entries()) {
+    offsets.push(`${firstPacked + index} ${at}`);
+    at += body.length + 1;
+  }
+  const head = `${A.join(offsets, " ")} `;
+  const objStmData = shapeObjStm(NodeZlib.deflateSync(encoder.encode(`${head}${A.join(options.packed, "\n")}\n`)));
+  const bodies: ReadonlyArray<readonly [number, Uint8Array | string]> = [
+    ...A.map(options.topLevel, (body, index) => [index + 1, body] as const),
+    [
+      objStmNumber,
+      streamBody(
+        `<< /Type /ObjStm /N ${options.packed.length} /First ${head.length} /Length ${lengthNumber} 0 R /Filter /FlateDecode >>`,
+        objStmData
+      ),
+    ],
+    [lengthNumber, `${objStmData.length}`],
+  ];
+  const header = encoder.encode("%PDF-1.5\n");
+  const written: Array<Uint8Array> = [header];
+  const objectOffsets = new Array<number>(xrefNumber + 1).fill(0);
+  let offset = header.length;
+  for (const [number, body] of bodies) {
+    const object = concatBytes(
+      encoder.encode(`${number} 0 obj\n`),
+      typeof body === "string" ? encoder.encode(body) : body,
+      encoder.encode("\nendobj\n")
+    );
+    objectOffsets[number] = offset;
+    written.push(object);
+    offset += object.length;
+  }
+  objectOffsets[xrefNumber] = offset;
+  // /W [1 4 2]: type, offset or object-stream number, generation or index.
+  const entry = (type: number, field2: number, field3: number) => [
+    type,
+    (field2 >>> 24) & 0xff,
+    (field2 >>> 16) & 0xff,
+    (field2 >>> 8) & 0xff,
+    field2 & 0xff,
+    (field3 >>> 8) & 0xff,
+    field3 & 0xff,
+  ];
+  const entries = A.flatMap(A.range(0, xrefNumber), (number) =>
+    number === 0
+      ? entry(0, 0, 0xffff)
+      : number >= firstPacked && number < lengthNumber
+        ? entry(2, objStmNumber, number - firstPacked)
+        : entry(1, objectOffsets[number] ?? 0, 0)
+  );
+  const xrefData = shapeXref(NodeZlib.deflateSync(Uint8Array.from(entries)));
+  written.push(
+    concatBytes(
+      encoder.encode(`${xrefNumber} 0 obj\n`),
+      streamBody(
+        `<< /Type /XRef /Size ${xrefNumber + 1} /W [1 4 2] /Root 1 0 R /Length ${xrefData.length} /Filter /FlateDecode >>`,
+        xrefData
+      ),
+      encoder.encode(`\nendobj\nstartxref\n${offset}\n%%EOF\n`)
+    )
+  );
+  return concatBytes(...written);
+};
 
 const makeHandle = (exitCode: number, stderr = "", stdout = ""): ChildProcessSpawner.ChildProcessHandle =>
   ChildProcessSpawner.makeHandle({
@@ -140,22 +320,19 @@ const makeHandle = (exitCode: number, stderr = "", stdout = ""): ChildProcessSpa
     unref: Effect.succeed(Effect.void),
   });
 
-// Fake rsvg-convert writes a byte-sized "PDF"; fake pdftoppm writes the PPM
-// fixture at the requested prefix.
-// Fake rsvg-convert writes a one-page PDF at the `--output` path; fake pdftoppm (not `-png`)
-// writes the PPM fixture at the requested prefix.
+// Fake rsvg-convert writes a PDF with one page per input SVG at the
+// `--output` path; fake pdftoppm (not `-png`) writes the PPM fixture at the
+// requested prefix.
 const fakeOutputs = (
   fs: FileSystem.FileSystem,
   command: ChildProcess.StandardCommand
 ): Effect.Effect<void, PlatformError.PlatformError> => {
   if (command.command === "rsvg-convert") {
-    return pipe(
-      A.get(command.args, 3),
-      O.match({
-        onNone: () => Effect.void,
-        onSome: (output) => blankPage.pipe(Effect.flatMap((bytes) => fs.writeFile(output, bytes))),
-      })
-    );
+    const [, format = "", , output = ""] = command.args;
+    const inputs = command.args.slice(4);
+    return A.some(inputs, Str.endsWith("no-header.svg"))
+      ? fs.writeFileString(output, "not a pdf")
+      : fakeRsvgPdf(A.length(inputs), format).pipe(Effect.flatMap((bytes) => fs.writeFile(output, bytes)));
   }
   if (command.command === "pdftoppm" && !A.contains(command.args, "-png")) {
     const source = A.get(command.args, A.length(command.args) - 2);
@@ -243,8 +420,13 @@ const HangingSpawner = Layer.succeed(
   )
 );
 
-const makeLayer = (commands: Array<ChildProcess.StandardCommand>, exitCode = 0, fontconfigs: Array<string> = []) =>
-  PdfTools.makeLayer().pipe(
+const makeLayer = (
+  commands: Array<ChildProcess.StandardCommand>,
+  exitCode = 0,
+  fontconfigs: Array<string> = [],
+  config?: PdfToolsConfig
+) =>
+  PdfTools.makeLayer(config).pipe(
     Layer.provide(makeFakeSpawnerLayer(commands, exitCode, fontconfigs)),
     Layer.provideMerge(NodeServices.layer)
   );
@@ -252,29 +434,103 @@ const makeLayer = (commands: Array<ChildProcess.StandardCommand>, exitCode = 0, 
 describe("@beep/pdf-tools service", () => {
   describe("svgToPdf", () => {
     const commands: Array<ChildProcess.StandardCommand> = [];
+    // Tests run concurrently: each one finds its own runs by its temp directory.
+    const runsIn = (dir: string) => A.filter(commands, (command) => A.some(command.args, Str.startsWith(dir)));
     it.layer(makeLayer(commands), { timeout: "30 seconds" })((it) => {
       it.effect(
-        "converts SVG pages with a pinned version and SOURCE_DATE_EPOCH",
+        "converts every SVG page in one rsvg-convert run, in page order, and stamps the requested version",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const dir = yield* fs.makeTempDirectoryScoped();
           const out = path.join(dir, "sheets.pdf");
+          const svgPaths = [path.join(dir, "c.svg"), path.join(dir, "a.svg"), path.join(dir, "b.svg")];
           const tools = yield* PdfTools;
-          const result = yield* tools.svgToPdf(
-            SvgToPdfRequest.make({ svgPaths: [path.join(dir, "a.svg"), path.join(dir, "b.svg")], outputPath: out })
-          );
-          expect(result.pageCount).toBe(2);
+          const result = yield* tools.svgToPdf(SvgToPdfRequest.make({ svgPaths, outputPath: out }));
+          expect(result.pageCount).toBe(3);
+          expect(result.outputPath).toBe(out);
           const written = yield* fs.readFile(out);
           expect(written.byteLength).toBe(result.bytes);
-          expect(new TextDecoder().decode(written.subarray(0, 8))).toBe("%PDF-1.6");
-          expect(commands.length).toBe(2);
-          const command = commands[0];
+          // rsvg-convert wrote %PDF-1.7 for the unversioned format; the driver relabels it
+          expect(new TextDecoder().decode(written.subarray(0, 9))).toBe("%PDF-1.6\n");
+          const runs = runsIn(dir);
+          expect(A.length(runs)).toBe(1);
+          const command = runs[0];
           expect(command?.command).toBe("rsvg-convert");
-          expect(command?.args.slice(0, 2)).toEqual(["--format", "pdf1.6"]);
-          expect(command?.args.length).toBe(5);
+          expect(command?.args.slice(0, 3)).toEqual(["--format", "pdf", "--output"]);
+          expect(command?.args[3]).toMatch(/converted\.pdf$/);
+          expect(command?.args.slice(4)).toEqual(svgPaths);
           expect(command?.options.env?.SOURCE_DATE_EPOCH).toBe("0");
           expect(command?.options.extendEnv).toBe(true);
+          const structure = yield* tools.inspect(out);
+          expect(structure.headerVersion).toBe("1.6");
+          expect(A.length(structure.pages)).toBe(3);
+          expect(structure.undecodableStreams).toEqual([]);
+        })
+      );
+
+      it.effect(
+        "converts a single SVG at its versioned format",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const out = path.join(dir, "one.pdf");
+          const svg = path.join(dir, "a.svg");
+          const result = yield* (yield* PdfTools).svgToPdf(
+            SvgToPdfRequest.make({ svgPaths: [svg], outputPath: out, pdfVersion: "1.4", sourceDateEpoch: 86_400 })
+          );
+          expect(result.pageCount).toBe(1);
+          expect(new TextDecoder().decode((yield* fs.readFile(out)).subarray(0, 8))).toBe("%PDF-1.4");
+          const runs = runsIn(dir);
+          expect(A.length(runs)).toBe(1);
+          expect(runs[0]?.args.slice(0, 3)).toEqual(["--format", "pdf1.4", "--output"]);
+          expect(runs[0]?.args.slice(4)).toEqual([svg]);
+          expect(runs[0]?.options.env?.SOURCE_DATE_EPOCH).toBe("86400");
+        })
+      );
+
+      it.effect(
+        "refuses several SVGs at PDF 1.4 before any tool runs",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const svgPaths = [path.join(dir, "a.svg"), path.join(dir, "b.svg")];
+          const outputPath = path.join(dir, "out.pdf");
+          expect(() => SvgToPdfRequest.make({ svgPaths, outputPath, pdfVersion: "1.4" })).toThrow();
+          const error = yield* Effect.flip(
+            (yield* PdfTools).svgToPdf({
+              ...SvgToPdfRequest.make({ svgPaths: A.take(svgPaths, 1), outputPath, pdfVersion: "1.4" }),
+              svgPaths,
+            } as SvgToPdfRequest)
+          );
+          assertInstanceOf(error, PdfToolsError);
+          expect(error.reason).toBe("invalid-request");
+          assertSome(error.cause, "Expected exactly one SVG path for PDF 1.4 output");
+          expect(runsIn(dir)).toEqual([]);
+        })
+      );
+
+      it.effect(
+        "reports parse and writes nothing when rsvg-convert output has no PDF header",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const out = path.join(dir, "out.pdf");
+          const error = yield* Effect.flip(
+            (yield* PdfTools).svgToPdf(
+              SvgToPdfRequest.make({
+                svgPaths: [path.join(dir, "a.svg"), path.join(dir, "no-header.svg")],
+                outputPath: out,
+              })
+            )
+          );
+          assertInstanceOf(error, PdfToolsError);
+          expect(error.reason).toBe("parse");
+          expect(error.message).toBe("rsvg-convert wrote no %PDF-1.x header.");
+          expect(yield* fs.exists(out)).toBe(false);
         })
       );
     });
@@ -283,6 +539,15 @@ describe("@beep/pdf-tools service", () => {
   describe("svgToPdf with pinned fonts", () => {
     const commands: Array<ChildProcess.StandardCommand> = [];
     const fontconfigs: Array<string> = [];
+    // Tests run concurrently: each one finds its own runs by its temp directory, in the arguments or the
+    // environment, and its fontconfig file by the pinned directory it names.
+    const runsIn = (dir: string) =>
+      A.filter(
+        commands,
+        (command) =>
+          A.some(command.args, Str.includes(dir)) ||
+          A.some(R.values(command.options.env ?? {}), (value) => value !== undefined && Str.includes(dir)(value))
+      );
     it.layer(makeLayer(commands, 0, fontconfigs), { timeout: "30 seconds" })((it) => {
       it.effect(
         "runs rsvg-convert under a fontconfig file that sees only the pinned directory",
@@ -305,9 +570,14 @@ describe("@beep/pdf-tools service", () => {
               ),
             })
           );
-          expect(commands[0]?.options.env?.FONTCONFIG_FILE).toMatch(/fonts\.conf$/);
-          expect(commands[0]?.options.env?.SOURCE_DATE_EPOCH).toBe("0");
-          const config = fontconfigs[0] ?? "";
+          const runs = runsIn(dir);
+          expect(A.length(runs)).toBe(1);
+          expect(runs[0]?.options.env?.FONTCONFIG_FILE).toMatch(/fonts\.conf$/);
+          expect(runs[0]?.options.env?.SOURCE_DATE_EPOCH).toBe("0");
+          const config = O.getOrElse(
+            A.findFirst(fontconfigs, Str.includes(`<dir>${fontDir.replace("&", "&amp;")}</dir>`)),
+            () => ""
+          );
           // the only <dir> is the pinned one, XML-escaped; no <include> pulls in the system config
           expect(config.match(/<dir>/g)?.length).toBe(1);
           expect(config).toContain(`<dir>${fontDir.replace("&", "&amp;")}</dir>`);
@@ -321,20 +591,23 @@ describe("@beep/pdf-tools service", () => {
       it.effect(
         "refuses a pinned font directory that does not exist, before any tool runs",
         Effect.fnUntraced(function* () {
-          const tools = yield* PdfTools;
-          const before = A.length(commands);
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const missing = path.join(dir, "missing-fonts");
           const error = yield* Effect.flip(
-            tools.svgToPdf(
+            (yield* PdfTools).svgToPdf(
               SvgToPdfRequest.make({
-                svgPaths: ["a.svg"],
-                outputPath: "out.pdf",
-                fonts: O.some(PinnedFonts.make({ directory: "/nonexistent/beep-fonts", families: [] })),
+                svgPaths: [path.join(dir, "a.svg")],
+                outputPath: path.join(dir, "out.pdf"),
+                fonts: O.some(PinnedFonts.make({ directory: missing, families: [] })),
               })
             )
           );
           assertInstanceOf(error, PdfToolsError);
           expect(error.reason).toBe("invalid-request");
-          expect(A.length(commands)).toBe(before);
+          expect(runsIn(dir)).toEqual([]);
+          expect(A.filter(fontconfigs, Str.includes(missing))).toEqual([]);
         })
       );
     });
@@ -435,7 +708,189 @@ describe("@beep/pdf-tools service", () => {
           expect(structure.annotationCount).toBe(0);
           expect(structure.hasOptionalContent).toBe(false);
           expect(structure.encrypted).toBe(false);
+          expect(structure.undecodableStreams).toEqual([]);
+          expect(structure.streamCheck).toBe("complete");
           expect(commands.length).toBe(0);
+        })
+      );
+
+      it.effect(
+        "reports exactly the FlateDecode stream that a strict inflate rejects",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "streams.pdf");
+          const valid = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
+          // every payload byte still inflates; only the checksum's last byte is gone
+          const truncated = NodeZlib.deflateSync(encoder.encode("BT /F1 12 Tf (FIG. 1) Tj ET\n".repeat(8))).subarray(
+            0,
+            -1
+          );
+          yield* fs.writeFile(
+            file,
+            craftPdf([
+              ...pageObjects,
+              streamBody(`<< /Length ${valid.length} /Filter /FlateDecode >>`, valid),
+              streamBody(`<< /Length ${truncated.length} /Filter [/FlateDecode] >>`, truncated),
+              // the raw bytes are hex text, not zlib: not checked
+              streamBody("<< /Length 5 /Filter [/ASCIIHexDecode /FlateDecode] >>", encoder.encode("4142>")),
+            ])
+          );
+          const structure = yield* (yield* PdfTools).inspect(file);
+          expect(structure.undecodableStreams).toEqual([
+            UndecodableStream.make({ objectNumber: 5, generation: 0, reason: "unexpected end of file" }),
+          ]);
+        })
+      );
+
+      it.effect(
+        "reads a stream with an indirect /Length at that length, keeping a final 0x0D data byte",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "indirect-length.pdf");
+          // Adler-32 of "q  Q\n" ends in 0x0D, so the zlib stream does too
+          const data = NodeZlib.deflateSync(encoder.encode("q  Q\n"));
+          expect(data.at(-1)).toBe(0x0d);
+          const bytes = craftPdf([
+            ...pageObjects,
+            streamBody("<< /Length 5 0 R /Filter /FlateDecode >>", data),
+            `${data.length}`,
+          ]);
+          yield* fs.writeFile(file, bytes);
+          // pdf-lib alone cuts the 0x0D as if it were the EOL before `endstream`
+          const parsed = (yield* Effect.promise(() => PDFDocument.load(bytes))).context.lookup(PDFRef.of(4));
+          expect(parsed instanceof PDFRawStream ? parsed.contents.length : -1).toBe(data.length - 1);
+          const structure = yield* (yield* PdfTools).inspect(file);
+          expect(structure.undecodableStreams).toEqual([]);
+        })
+      );
+
+      it.effect(
+        "judges a stream on pdf-lib's own bytes when no definition in the file fits its indirect /Length",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const file = path.join(dir, "wrong-length.pdf");
+          const truncated = NodeZlib.deflateSync(encoder.encode("BT /F1 12 Tf (FIG. 1) Tj ET\n".repeat(8))).subarray(
+            0,
+            -1
+          );
+          const valid = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
+          yield* fs.writeFile(
+            file,
+            craftPdf([
+              ...pageObjects,
+              // 5 bytes too long: the bytes at that length run into `endstream`
+              streamBody("<< /Length 5 0 R /Filter /FlateDecode >>", truncated),
+              `${truncated.length + 5}`,
+              // 3 bytes too short: `endstream` does not follow the bytes at that length
+              streamBody("<< /Length 7 0 R /Filter /FlateDecode >>", valid),
+              `${valid.length - 3}`,
+            ])
+          );
+          const structure = yield* (yield* PdfTools).inspect(file);
+          // Read at its declared length, object 4 would fail "incorrect data check" and object 6 would fail too.
+          expect(structure.undecodableStreams).toEqual([
+            UndecodableStream.make({ objectNumber: 4, generation: 0, reason: "unexpected end of file" }),
+          ]);
+          expect(structure.streamCheck).toBe("complete");
+        })
+      );
+
+      it.effect(
+        "re-reads an indirect-/Length stream only from the definition pdf-lib kept",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          // Adler-32 of "q  Q\n" ends in 0x0D, which pdf-lib drops, so the stream is re-read from the file
+          const data = NodeZlib.deflateSync(encoder.encode("q  Q\n"));
+          expect(data.at(-1)).toBe(0x0d);
+          // the same bytes but the checksum's last: pdf-lib's prefix matches both definitions
+          const stale = Uint8Array.from(data);
+          stale[stale.length - 1] = 0x0e;
+          const updated = path.join(dir, "updated.pdf");
+          yield* fs.writeFile(
+            updated,
+            appendRevision(
+              craftPdf([
+                ...pageObjects,
+                streamBody("<< /Length 5 0 R /Filter /FlateDecode >>", stale),
+                `${data.length}`,
+              ]),
+              4,
+              streamBody("<< /Length 5 0 R /Filter /FlateDecode >>", data)
+            )
+          );
+          // the newest definition is the one read, not the stale one before it
+          expect((yield* tools.inspect(updated)).undecodableStreams).toEqual([]);
+
+          // an unfiltered stream that quotes another `4 0 obj` after the real one
+          const quoted = concatBytes(
+            encoder.encode("4 0 obj\n<< /Length 5 0 R /Filter /FlateDecode >>\nstream\n"),
+            new Uint8Array(data.length).fill(0x41),
+            encoder.encode("\nendstream\nendobj")
+          );
+          const quoting = path.join(dir, "quoting.pdf");
+          yield* fs.writeFile(
+            quoting,
+            craftPdf([
+              ...pageObjects,
+              streamBody("<< /Length 5 0 R /Filter /FlateDecode >>", data),
+              `${data.length}`,
+              streamBody(`<< /Length ${quoted.length} >>`, quoted),
+            ])
+          );
+          // the quoted bytes fit the length and end at `endstream`, but are not the bytes pdf-lib parsed
+          expect((yield* tools.inspect(quoting)).undecodableStreams).toEqual([]);
+        })
+      );
+
+      it.effect(
+        "checks object and cross-reference streams, which pdf-lib decodes without adding them to the document",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          const content = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
+          const topLevel = [
+            ...pageObjects,
+            streamBody(`<< /Length ${content.length} /Filter /FlateDecode >>`, content),
+          ];
+          const packed = ["<< /Producer (beep) >>"];
+          const whole = path.join(dir, "whole.pdf");
+          yield* fs.writeFile(whole, craftXrefStreamPdf({ topLevel, packed }));
+          const intact = yield* tools.inspect(whole);
+          expect(intact.undecodableStreams).toEqual([]);
+          expect(intact.streamCheck).toBe("complete");
+
+          // object stream 5 (indirect /Length 7 0 R) and cross-reference stream 8 each lose their last checksum byte
+          const cutBytes = craftXrefStreamPdf({
+            topLevel,
+            packed,
+            shapeObjStm: (zlib) => zlib.subarray(0, -1),
+            shapeXref: (zlib) => zlib.subarray(0, -1),
+          });
+          const cut = path.join(dir, "cut.pdf");
+          yield* fs.writeFile(cut, cutBytes);
+          // pdf-lib ignores the checksum: it reads the packed object and keeps neither stream as an object
+          const loaded = yield* Effect.promise(() => PDFDocument.load(cutBytes, { updateMetadata: false }));
+          assertTrue(loaded.context.lookup(PDFRef.of(6)) instanceof PDFDict);
+          expect(loaded.context.lookup(PDFRef.of(5))).toBeUndefined();
+          expect(loaded.context.lookup(PDFRef.of(8))).toBeUndefined();
+          const structure = yield* tools.inspect(cut);
+          expect(A.length(structure.pages)).toBe(1);
+          expect(structure.undecodableStreams).toEqual([
+            UndecodableStream.make({ objectNumber: 5, generation: 0, reason: "unexpected end of file" }),
+            UndecodableStream.make({ objectNumber: 8, generation: 0, reason: "unexpected end of file" }),
+          ]);
+          expect(structure.streamCheck).toBe("complete");
         })
       );
 
@@ -505,6 +960,110 @@ describe("@beep/pdf-tools service", () => {
         })
       );
     });
+  });
+
+  describe("inspect under a small inflate limit", () => {
+    const commands: Array<ChildProcess.StandardCommand> = [];
+    const limit = 1536 * 1024;
+    const content = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
+    // 1 MiB of zeros deflates about 1009:1; cut by its last checksum byte
+    const truncatedMiB = NodeZlib.deflateSync(new Uint8Array(1024 * 1024)).subarray(0, -1);
+    it.layer(makeLayer(commands, 0, [], PdfToolsConfig.make({ maxInflatedBytes: limit })), { timeout: "30 seconds" })(
+      (it) => {
+        it.effect(
+          "stops the stream check at the limit and still reports every other fact",
+          Effect.fnUntraced(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const dir = yield* fs.makeTempDirectoryScoped();
+            const file = path.join(dir, "large.pdf");
+            const large = NodeZlib.deflateSync(new Uint8Array(2 * 1024 * 1024));
+            yield* fs.writeFile(
+              file,
+              craftPdf([
+                ...pageObjects,
+                streamBody(`<< /Length ${content.length} /Filter /FlateDecode >>`, content),
+                // a valid stream that alone inflates past the limit
+                streamBody(`<< /Length ${large.length} /Filter /FlateDecode >>`, large),
+                // never reached
+                streamBody(`<< /Length ${truncatedMiB.length} /Filter /FlateDecode >>`, truncatedMiB),
+              ])
+            );
+            const structure = yield* (yield* PdfTools).inspect(file);
+            expect(structure.headerVersion).toBe("1.6");
+            expect(A.map(structure.pages, (page) => [page.widthPt, page.heightPt])).toEqual([[612, 792]]);
+            expect(structure.encrypted).toBe(false);
+            expect(structure.undecodableStreams).toEqual([]);
+            expect(structure.streamCheck).toBe("limit-reached");
+          })
+        );
+
+        it.effect(
+          "charges a failed inflate the most its input could have produced",
+          Effect.fnUntraced(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const dir = yield* fs.makeTempDirectoryScoped();
+            const file = path.join(dir, "bombs.pdf");
+            // charged 1032 bytes per input byte, the first cut stream leaves less than the 1 MiB the second inflates to
+            expect(truncatedMiB.length * 1032).toBeLessThan(limit);
+            expect(limit - truncatedMiB.length * 1032).toBeLessThan(1024 * 1024);
+            yield* fs.writeFile(
+              file,
+              craftPdf([
+                ...pageObjects,
+                streamBody(`<< /Length ${content.length} /Filter /FlateDecode >>`, content),
+                streamBody(`<< /Length ${truncatedMiB.length} /Filter /FlateDecode >>`, truncatedMiB),
+                streamBody(`<< /Length ${truncatedMiB.length} /Filter /FlateDecode >>`, truncatedMiB),
+                streamBody(`<< /Length ${content.length} /Filter /FlateDecode >>`, content),
+              ])
+            );
+            const structure = yield* (yield* PdfTools).inspect(file);
+            expect(structure.undecodableStreams).toEqual([
+              UndecodableStream.make({ objectNumber: 5, generation: 0, reason: "unexpected end of file" }),
+            ]);
+            expect(structure.streamCheck).toBe("limit-reached");
+          })
+        );
+      }
+    );
+  });
+
+  describe("inspect under an inflate limit above the runtime's buffer limit", () => {
+    const commands: Array<ChildProcess.StandardCommand> = [];
+    // Bun refuses an inflate asked for more than 4 GiB of output; the limit is set past that.
+    const limit = 2 ** 33;
+    it.layer(makeLayer(commands, 0, [], PdfToolsConfig.make({ maxInflatedBytes: limit })), { timeout: "30 seconds" })(
+      (it) => {
+        it.effect(
+          "checks every stream, flagging only the truncated one",
+          Effect.fnUntraced(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const dir = yield* fs.makeTempDirectoryScoped();
+            const file = path.join(dir, "large-limit.pdf");
+            const valid = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
+            const truncated = NodeZlib.deflateSync(encoder.encode("BT /F1 12 Tf (FIG. 1) Tj ET\n".repeat(8))).subarray(
+              0,
+              -1
+            );
+            yield* fs.writeFile(
+              file,
+              craftPdf([
+                ...pageObjects,
+                streamBody(`<< /Length ${valid.length} /Filter /FlateDecode >>`, valid),
+                streamBody(`<< /Length ${truncated.length} /Filter /FlateDecode >>`, truncated),
+              ])
+            );
+            const structure = yield* (yield* PdfTools).inspect(file);
+            expect(structure.undecodableStreams).toEqual([
+              UndecodableStream.make({ objectNumber: 5, generation: 0, reason: "unexpected end of file" }),
+            ]);
+            expect(structure.streamCheck).toBe("complete");
+          })
+        );
+      }
+    );
   });
 
   describe("pageWords", () => {

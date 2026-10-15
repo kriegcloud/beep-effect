@@ -38,12 +38,18 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { collectText } from "../../internal/process/StepExec.ts";
 import {
+  CriticClaudeEvent,
+  CriticClaudeResult,
+  CriticInvocation,
   CriticLoopRecord,
   CriticPackManifest,
+  CriticReportSource,
   CriticReviewer,
   CriticRunRecord,
+  CriticSeatUnavailable,
   CriticZoom,
   criticReportJsonSchema,
+  decodeCriticLoopRecord,
   decodeCriticPackManifest,
   decodeCriticReport,
   encodeCriticLoopRecord,
@@ -51,7 +57,20 @@ import {
   encodeCriticReport,
 } from "./Drawings.critics.schemas.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
-import type { CriticReport, CriticRoute } from "./Drawings.critics.schemas.ts";
+import {
+  CriticMeasurements,
+  CriticPdfMeasurements,
+  encodeCriticMeasurements,
+} from "./Drawings.measurements.schemas.ts";
+import {
+  figureMeasurements,
+  measurementsMarkdown,
+  parsePdfFonts,
+  parsePdfInfoBoxes,
+  strokeTableMarkdown,
+} from "./Drawings.measurements.ts";
+import type { CriticPackRequest, CriticReport, CriticRoute, CriticRunRequest } from "./Drawings.critics.schemas.ts";
+import type { CriticPdfPage } from "./Drawings.measurements.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Drawings/Drawings.critics");
 
@@ -79,8 +98,6 @@ export const DRAWING_CRITIC_PROMPT_TEMPLATE = ".claude/skills/browser-qa-loop/re
 
 const SHEET_DPI = 150;
 const ZOOM_DPI = 300;
-const PT_PER_MM = 72 / 25.4;
-const SHADING_STROKE_PT = "0.567";
 const IMAGE_EXTENSIONS = HashSet.fromIterable([".png", ".jpg", ".jpeg", ".webp"]);
 // Variables that would make a nested `claude -p` believe it runs inside this
 // session, or route it through a proxy the operator did not choose.
@@ -111,74 +128,6 @@ export const CRITIC_HARD_RULES =
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for tests)
 // ---------------------------------------------------------------------------
-
-/**
- * A reviewer's invocation: what to spawn, where, with which environment, and
- * how its report comes back.
- *
- * @category models
- * @since 0.0.0
- */
-export interface CriticInvocation {
-  readonly args: ReadonlyArray<string>;
-  readonly cwd: string;
-  readonly env: Readonly<Record<string, string>>;
-  readonly executable: string;
-  /** Where the route writes its report: a file it was told to write, or its stdout. */
-  readonly reportFrom: { readonly kind: "file"; readonly path: string } | { readonly kind: "stdout" };
-}
-
-// The stroke row of one drawn segment of the shading path, in sheet millimetres; none for a zero-length segment.
-const rowOf = (from: readonly [number, number], to: readonly [number, number]): O.Option<StrokeRow> => {
-  const [x1, y1] = from;
-  const [x2, y2] = to;
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.hypot(dx, dy);
-  if (!(length > 0)) {
-    return O.none();
-  }
-  const angle = ((Math.atan2(dy, dx) * 180) / Math.PI + 180) % 180;
-  const normal = angle >= 90 ? ([dy / length, -dx / length] as const) : ([-dy / length, dx / length] as const);
-  return O.some({
-    angle: round(angle, 1),
-    offset: round(x1 * normal[0] + y1 * normal[1], 2),
-    length: round(length, 2),
-    x1: round(x1, 1),
-    y1: round(y1, 1),
-    x2: round(x2, 1),
-    y2: round(y2, 1),
-  });
-};
-
-// The stroke rows of a shading path's move/line data: each line command draws from the current point.
-const rowsOfPath = (data: string): ReadonlyArray<StrokeRow> =>
-  pipe(
-    A.fromIterable(data.matchAll(/([ML])\s*([-\d.]+)[ ,]([-\d.]+)/g)),
-    A.reduce(
-      { current: O.none<readonly [number, number]>(), rows: A.empty<StrokeRow>() },
-      (
-        state: { readonly current: O.Option<readonly [number, number]>; readonly rows: ReadonlyArray<StrokeRow> },
-        m
-      ) => {
-        const point = [Number(m[2]) / PT_PER_MM, Number(m[3]) / PT_PER_MM] as const;
-        if (m[1] === "M") {
-          return { current: O.some(point), rows: state.rows };
-        }
-        return O.match(state.current, {
-          onNone: () => state,
-          onSome: (from) => ({
-            current: O.some(point),
-            rows: O.match(rowOf(from, point), {
-              onNone: () => state.rows,
-              onSome: (row) => A.append(state.rows, row),
-            }),
-          }),
-        });
-      }
-    ),
-    (state) => state.rows
-  );
 
 /**
  * Parse one `--zoom` flag value `fig:x,y,width,height:label` into a
@@ -215,128 +164,125 @@ export const parseZoomFlag = (text: string): Effect.Effect<CriticZoom, DrawingsC
     )
   );
 
-interface StrokeRow {
-  readonly angle: number;
-  readonly length: number;
-  readonly offset: number;
-  readonly x1: number;
-  readonly x2: number;
-  readonly y1: number;
-  readonly y2: number;
-}
-
-const round = (value: number, digits: number) => Number(value.toFixed(digits));
-
-// The shading path of a figure SVG: every `M x y L x y` pair in PDF points,
-// converted to mm from the page's top-left corner.
-const shadingSegmentsMm = (svg: string): ReadonlyArray<StrokeRow> => {
-  const paths = pipe(
-    A.fromIterable(svg.matchAll(/<path[^>]*>/g)),
-    A.map((m) => m[0])
-  );
-  const shading = A.findFirst(paths, Str.includes(SHADING_STROKE_PT));
-  return O.match(shading, {
-    onNone: () => A.empty<StrokeRow>(),
-    onSome: (element) => {
-      const d = O.fromNullishOr(/\sd="([^"]*)"/.exec(element)?.[1]);
-      return O.match(d, {
-        onNone: () => A.empty<StrokeRow>(),
-        onSome: rowsOfPath,
-      });
-    },
-  });
-};
-
-const byAngleThenOffset = Order.combine(
-  Order.mapInput(Order.Number, (row: StrokeRow) => row.angle),
-  Order.mapInput(Order.Number, (row: StrokeRow) => row.offset)
-);
+const GROK_DENY_PATH = "could not resolve runtime-socket deny path";
+const GROK_DENY_LIST = "this sandbox could not enforce its deny list on Linux";
+const GROK_REFUSING = "refusing to start";
 
 /**
- * The stroke table a text-only reviewer measures from: every shading stroke
- * of every figure with its direction, perpendicular offset (same family =
- * parallel lines; consecutive offsets give the gaps), length, and endpoints,
- * all in mm from the page's top-left corner.
+ * Recognise the one Grok startup failure that means the seat cannot run on
+ * this host: `--sandbox strict` could not resolve a runtime-socket path it
+ * must deny, so the CLI refused to start without that protection.
  *
- * **Example** (A figure with no shading path)
+ * **Details**
+ *
+ * Matches only stderr that says the runtime-socket deny path could not be
+ * resolved and that the sandbox could not enforce its deny list on Linux and
+ * refused to start. The path is the token after `deny path`, without a
+ * trailing colon; the result carries no path when the message names none.
+ * Every other failure (auth, quota, a crash, another sandbox refusal) is not
+ * matched, so its run is recorded as it always was.
+ *
+ * **Example** (The refusal Grok prints)
  *
  * ```ts
- * import { strokeTableMarkdown } from "@beep/repo-cli/commands/Drawings"
+ * import { grokSandboxRefusal } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
  *
- * const table = strokeTableMarkdown({ title: "Crate", sheetSetSha256: "0".repeat(64), specSha256: "1".repeat(64), figures: [{ figure: 1, view: "front", svg: "<svg></svg>", coverage: "{}" }] })
- * console.log(table.includes("FIG 1 (front) — 0 shading strokes")) // true
+ * const stderr = [
+ *   "Error: sandbox profile resolve failed: socket deny resolution failed: could not resolve runtime-socket deny path /run/example/runtime.sock: Permission denied (os error 13)",
+ *   "error: this sandbox could not enforce its deny list on Linux: the required bwrap plan could not be prepared; see the error above for the specific cause. Refusing to start with denied paths unprotected.",
+ * ].join("\n")
+ * console.log(O.flatMap(grokSandboxRefusal(stderr), (seat) => seat.path)) // Some("/run/example/runtime.sock")
  * ```
  *
- * @param input - Drawing title, provenance hashes, and figure SVGs with coverage descriptions.
- * @returns Markdown listing shading measurements in millimeters, grouped by figure.
+ * @param stderr - Everything the Grok CLI wrote to stderr for one failed run.
+ * @returns The unavailable-seat record with the denied path when one is named, or None for any other failure.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const grokSandboxRefusal = (stderr: string): O.Option<CriticSeatUnavailable> =>
+  Str.includes(GROK_DENY_PATH)(stderr) &&
+  Str.includes(GROK_DENY_LIST)(stderr) &&
+  pipe(stderr, Str.toLowerCase, Str.includes(GROK_REFUSING))
+    ? O.some(
+        pipe(
+          O.fromNullishOr(/could not resolve runtime-socket deny path (\S+)/.exec(stderr)),
+          O.flatMap((m) => O.fromUndefinedOr(m[1])),
+          O.map(Str.replace(/:$/, "")),
+          O.filter(Str.isNonEmpty),
+          (path) =>
+            CriticSeatUnavailable.make({
+              reason: "sandbox-deny-path-unresolved",
+              path,
+              detail: O.match(path, {
+                onNone: () =>
+                  "grok refused to start: its --sandbox strict profile could not resolve a runtime-socket deny path on this host (the message names no path)",
+                onSome: (denied) =>
+                  `grok refused to start: its --sandbox strict profile could not resolve the runtime-socket deny path ${denied} on this host`,
+              }),
+            })
+        )
+      )
+    : O.none();
+
+const missingSeatLines = (runs: ReadonlyArray<CriticRunRecord>): ReadonlyArray<string> =>
+  pipe(
+    runs,
+    A.map((run) =>
+      O.map(
+        run.unavailable,
+        (seat) =>
+          `- ${run.reviewer.name} (ids ${run.reviewer.idPrefix}-…) did not run: ${seat.detail}. It wrote no report; there are no ${run.reviewer.idPrefix}- findings to assess.`
+      )
+    ),
+    A.getSomes
+  );
+
+/**
+ * The markdown summary of a loop so far: every seat that could not run on
+ * this host and why, then every finding of the earlier reports with its id,
+ * severity, scope, category, figures, location, observation, basis, and fix,
+ * plus each reviewer's stance on the findings before it.
+ *
+ * **Details**
+ *
+ * Naming the missing seats first keeps a later reviewer, and the judge, from
+ * looking for a report that does not exist.
+ *
+ * **Example** (A loop whose Grok seat could not start)
+ *
+ * ```ts
+ * import { CriticReviewer, CriticRunRecord, CriticSeatUnavailable, loopSummaryMarkdown } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const grok = CriticRunRecord.make({
+ *   order: 1,
+ *   reviewer: CriticReviewer.make({ name: "grok-4.7", idPrefix: "G", route: "grok", model: "grok-4.7", scope: "matter" }),
+ *   exitCode: 1,
+ *   report: O.none(),
+ *   reportSha256: O.none(),
+ *   findings: 0,
+ *   startedAt: "2026-10-15T00:00:00.000Z",
+ *   finishedAt: "2026-10-15T00:00:01.000Z",
+ *   unavailable: O.some(
+ *     CriticSeatUnavailable.make({ reason: "sandbox-deny-path-unresolved", path: O.none(), detail: "grok refused to start" })
+ *   ),
+ * })
+ * console.log(loopSummaryMarkdown({ reports: [], runs: [grok] }).includes("grok-4.7 (ids G-…) did not run")) // true
+ * ```
+ *
+ * @param input - The reports written so far, in seat order, and the run records of the loop's seats.
+ * @returns Markdown naming each seat that could not run, then every earlier finding, stance, and unassessed item.
  * @category formatting
  * @since 0.0.0
  */
-export const strokeTableMarkdown = (input: {
-  readonly title: string;
-  readonly sheetSetSha256: string;
-  readonly specSha256: string;
-  readonly figures: ReadonlyArray<{
-    readonly figure: number;
-    readonly view: string;
-    readonly svg: string;
-    readonly coverage: string;
-  }>;
+export const loopSummaryMarkdown = (input: {
+  readonly reports: ReadonlyArray<CriticReport>;
+  readonly runs: ReadonlyArray<CriticRunRecord>;
 }): string => {
-  const sections = A.map(input.figures, (figure) => {
-    const rows = pipe(shadingSegmentsMm(figure.svg), A.sort(byAngleThenOffset));
-    const lengths = pipe(
-      rows,
-      A.map((row) => row.length),
-      A.sort(Order.Number)
-    );
-    const extremes =
-      A.length(lengths) === 0
-        ? ""
-        : `\nShortest strokes: ${JSON.stringify(A.take(lengths, 5))}; longest: ${JSON.stringify(A.takeRight(lengths, 3))}.\n`;
-    return A.join(
-      [
-        `\n## FIG ${figure.figure} (${figure.view}) — ${A.length(rows)} shading strokes; coverage ${figure.coverage}\n`,
-        "Strokes grouped by direction (angle from the page x axis), with the perpendicular offset of each line (mm, same family = parallel lines; consecutive offsets give the gaps), length (mm), and endpoints (mm from the page's top-left):\n",
-        "| angle | offset | length | x1 | y1 | x2 | y2 |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
-        ...A.map(rows, (r) => `| ${r.angle} | ${r.offset} | ${r.length} | ${r.x1} | ${r.y1} | ${r.x2} | ${r.y2} |`),
-        extremes,
-      ],
-      "\n"
-    );
-  });
-  return A.join(
-    [
-      `# RENDER.md — measurements of "${input.title}"\n`,
-      `sheet-set sha256 ${input.sheetSetSha256}; spec sha256 ${input.specSha256}. Shading strokes are drawn 0.2 mm wide (0.567 pt); visible outlines 0.35 mm (0.992 pt); 72 pt = 25.4 mm.\n`,
-      ...sections,
-    ],
-    "\n"
-  );
-};
-
-/**
- * The markdown summary of earlier reports a later reviewer dedupes against:
- * every finding with its id, severity, scope, category, figures, location,
- * observation, basis, and fix, plus each reviewer's stance on the findings
- * before it.
- *
- * **Example** (No earlier reports)
- *
- * ```ts
- * import { priorSummaryMarkdown } from "@beep/repo-cli/commands/Drawings"
- *
- * console.log(priorSummaryMarkdown([]).startsWith("# Findings already reported")) // true
- * ```
- *
- * @param reports - Earlier reviewer reports in the order later reviewers should read them.
- * @returns Markdown preserving findings, prior assessments, and unassessed items in report order.
- * @category formatting
- * @since 0.0.0
- */
-export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): string => {
-  const sections = A.map(reports, (report) => {
+  const missing = missingSeatLines(input.runs);
+  const seats = A.isReadonlyArrayEmpty(missing) ? [] : ["\n## Seats that did not run in this loop\n", ...missing];
+  const sections = A.map(input.reports, (report) => {
     const findings = A.map(
       report.findings,
       (f) =>
@@ -356,10 +302,37 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
     );
   });
   return A.join(
-    ["# Findings already reported in this loop (dedupe against these; confirm or refute each)\n", ...sections, ""],
+    [
+      "# Findings already reported in this loop (dedupe against these; confirm or refute each)\n",
+      ...seats,
+      ...sections,
+      "",
+    ],
     "\n"
   );
 };
+
+/**
+ * The markdown summary of earlier reports a later reviewer dedupes against:
+ * every finding with its id, severity, scope, category, figures, location,
+ * observation, basis, and fix, plus each reviewer's stance on the findings
+ * before it. {@link loopSummaryMarkdown} adds the seats that could not run.
+ *
+ * **Example** (No earlier reports)
+ *
+ * ```ts
+ * import { priorSummaryMarkdown } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(priorSummaryMarkdown([]).startsWith("# Findings already reported")) // true
+ * ```
+ *
+ * @param reports - Earlier reviewer reports in the order later reviewers should read them.
+ * @returns Markdown preserving findings, prior assessments, and unassessed items in report order, with no missing-seat section.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): string =>
+  loopSummaryMarkdown({ reports, runs: [] });
 
 /**
  * The id-and-category view of earlier reports a synthetic-scope reviewer gets
@@ -394,16 +367,31 @@ export const priorIdsMarkdown = (reports: ReadonlyArray<CriticReport>): string =
 
 const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
 
+const decodeClaudeResult = S.decodeUnknownOption(CriticClaudeResult);
+
+// A `claude -p` event: a JSON object with a string `type`.
+const isClaudeEvent = S.is(CriticClaudeEvent);
+
 /**
  * Pull the report JSON out of what a route returned.
  *
  * **Details**
  *
  * `codex` writes the file it was told to write. `grok` prints a wrapper whose
- * `structuredOutput` (or `text`) holds the document. `claude -p` prints a
- * stream-json array whose last `result` entry carries the final message.
+ * `structuredOutput` (or `text`) holds the document. `claude -p` prints one
+ * `result` envelope (`--output-format json`), a JSON array of events
+ * (`--output-format json --verbose`), or one event per line
+ * (`--output-format stream-json --verbose`); the last `result` event carries
+ * the final message, and one flagged `is_error` carries no report.
  * `cursor-agent` prints the final message as text. The last two are read as
  * the outermost `{ … }` of that message.
+ *
+ * **Gotchas**
+ *
+ * When `claude -p` printed JSON, as one value or as one event per line, only
+ * its `result` event is searched: the events' own braces are never taken for a
+ * report. The outermost-braces fallback applies only when the output is neither
+ * JSON nor has a line that is a JSON object with a string `type`.
  *
  * **Example** (A Grok wrapper)
  *
@@ -413,6 +401,16 @@ const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
  *
  * const wrapper = JSON.stringify({ text: "", structuredOutput: { reviewer: "grok-4.7" } })
  * console.log(O.getOrElse(extractReportText({ route: "grok", text: wrapper }), () => "")) // {"reviewer":"grok-4.7"}
+ * ```
+ *
+ * **Example** (A claude -p json envelope)
+ *
+ * ```ts
+ * import { extractReportText } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const envelope = JSON.stringify({ type: "result", subtype: "success", is_error: false, result: 'Done.\n{"reviewer":"x"}' })
+ * console.log(O.getOrElse(extractReportText({ route: "claude", text: envelope }), () => "")) // {"reviewer":"x"}
  * ```
  *
  * @param input - Reviewer route and its captured output, including any route-specific wrapper.
@@ -445,17 +443,26 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     Match.when("claude", () =>
       pipe(
         parseJson(input.text),
-        O.filter((events): events is ReadonlyArray<unknown> => A.isArray(events)),
-        O.flatMap((events) =>
-          pipe(
-            events,
-            A.findLast((event) => O.contains(field(event, "type"), "result" as unknown)),
-            O.flatMap((event) => field(event, "result")),
-            O.filter(P.isString),
-            O.flatMap(outermost)
-          )
+        O.map(A.ensure),
+        // `--output-format stream-json` prints one event per line.
+        O.orElse(
+          (): O.Option<ReadonlyArray<unknown>> =>
+            pipe(
+              Str.split(input.text, "\n"),
+              A.flatMap((line) => pipe(parseJson(line), O.filter(isClaudeEvent), A.fromOption)),
+              O.liftPredicate(A.isReadonlyArrayNonEmpty)
+            )
         ),
-        O.orElse(() => outermost(input.text))
+        O.match({
+          onNone: () => outermost(input.text),
+          onSome: flow(
+            // A lambda, not a direct ref: findLast's index must not reach the decoder as parse options.
+            A.findLast((event: unknown) => decodeClaudeResult(event)),
+            O.filter((event) => !event.is_error),
+            O.flatMap((event) => event.result),
+            O.flatMap(outermost)
+          ),
+        })
       )
     ),
     Match.when("cursor", () => outermost(input.text)),
@@ -474,6 +481,14 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * believe it is this one, and `cursor-agent` runs inside its sandbox with the
  * repository's `.cursor/cli.json` deny list.
  *
+ * **Gotchas**
+ *
+ * `packDir`, `reportPath`, and the `workspace` a synthetic-scope reviewer runs
+ * in must be non-empty paths. The result is built with `CriticInvocation.make`,
+ * which throws on an empty one instead of failing in a typed channel. The
+ * critics run resolves every path before it calls this, so only a direct
+ * caller can hit that throw.
+ *
  * **Example** (The Grok route reads the schema inline)
  *
  * ```ts
@@ -486,7 +501,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * ```
  *
  * @param input - Reviewer configuration, pack paths, prompt, attachments, workspace choices, and environment.
- * @returns The executable, arguments, working directory, and environment for the selected reviewer route.
+ * @returns The executable, arguments, working directory, environment, and report source for the selected reviewer route.
  * @category constructors
  * @since 0.0.0
  */
@@ -504,10 +519,10 @@ export const criticInvocation = (input: {
 }): CriticInvocation => {
   const effort = O.getOrElse(input.reviewer.effort, () => "medium");
   const cwd = input.reviewer.scope === "synthetic" ? O.getOrElse(input.workspace, () => input.packDir) : input.packDir;
+  const stdout = CriticReportSource.cases.stdout.make({ kind: "stdout" });
   return Match.value(input.reviewer.route).pipe(
-    Match.when(
-      "codex",
-      (): CriticInvocation => ({
+    Match.when("codex", () =>
+      CriticInvocation.make({
         executable: "codex",
         args: [
           "exec",
@@ -529,12 +544,11 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: input.env,
-        reportFrom: { kind: "file", path: input.reportPath },
+        reportFrom: CriticReportSource.cases.file.make({ kind: "file", path: input.reportPath }),
       })
     ),
-    Match.when(
-      "grok",
-      (): CriticInvocation => ({
+    Match.when("grok", () =>
+      CriticInvocation.make({
         executable: "grok",
         args: [
           "-m",
@@ -575,12 +589,11 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: input.env,
-        reportFrom: { kind: "stdout" },
+        reportFrom: stdout,
       })
     ),
-    Match.when(
-      "claude",
-      (): CriticInvocation => ({
+    Match.when("claude", () =>
+      CriticInvocation.make({
         executable: "claude",
         args: [
           "-p",
@@ -606,12 +619,11 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: R.filter(input.env, (_, key) => !HashSet.has(SCRUBBED_ENV, key)),
-        reportFrom: { kind: "stdout" },
+        reportFrom: stdout,
       })
     ),
-    Match.when(
-      "cursor",
-      (): CriticInvocation => ({
+    Match.when("cursor", () =>
+      CriticInvocation.make({
         executable: "cursor-agent",
         args: [
           "-p",
@@ -630,7 +642,7 @@ export const criticInvocation = (input: {
         ],
         cwd,
         env: input.env,
-        reportFrom: { kind: "stdout" },
+        reportFrom: stdout,
       })
     ),
     Match.exhaustive
@@ -640,37 +652,6 @@ export const criticInvocation = (input: {
 // ---------------------------------------------------------------------------
 // Service
 // ---------------------------------------------------------------------------
-
-/**
- * A request to build a critic pack from a render manifest.
- *
- * @category models
- * @since 0.0.0
- */
-export interface CriticPackRequest {
-  readonly briefPath: string;
-  readonly contextDir: O.Option<string>;
-  readonly imagesDirs: ReadonlyArray<string>;
-  readonly manifestPath: string;
-  readonly outDir: string;
-  readonly zooms: ReadonlyArray<CriticZoom>;
-}
-
-/**
- * A request to run reviewers on a pack.
- *
- * @category models
- * @since 0.0.0
- */
-export interface CriticRunRequest {
-  readonly loop: number;
-  readonly loopDir: string;
-  readonly packDir: string;
-  readonly reviewers: ReadonlyArray<CriticReviewer>;
-  readonly syntheticPack: O.Option<string>;
-  readonly timeoutMinutes: number;
-  readonly workspace: O.Option<string>;
-}
 
 /**
  * What the critic service does.
@@ -708,46 +689,63 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
   const copy = (from: string, to: string) =>
     fs.copyFile(from, to).pipe(Effect.mapError(fail(`Could not copy "${from}".`)));
 
-  // A 300 dpi crop through pdftoppm, which pdf-tools already depends on.
+  // One poppler tool (pdftoppm, pdfinfo, pdffonts: the package pdf-tools already depends on); its stdout.
+  const runPoppler = Effect.fnUntraced(function* (executable: string, args: ReadonlyArray<string>) {
+    const handle = yield* spawner
+      .spawn(ChildProcess.make(executable, args, { stdin: "ignore", stdout: "pipe", stderr: "pipe" }))
+      .pipe(Effect.mapError(fail(`Could not run ${executable}; is poppler installed?`)));
+    const [stdout, stderr, exitCode] = yield* Effect.all(
+      [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
+      { concurrency: "unbounded" }
+    ).pipe(Effect.mapError(fail(`${executable} did not finish.`)));
+    if (exitCode !== 0) {
+      return yield* DrawingsCommandError.make({ message: `${executable} exited ${exitCode}: ${Str.trim(stderr)}` });
+    }
+    return stdout;
+  }, Effect.scoped);
+
+  // A 300 dpi crop through pdftoppm.
   const cropZoom = (pdfPath: string, zoom: CriticZoom, outPrefix: string) =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const handle = yield* spawner
-          .spawn(
-            ChildProcess.make(
-              "pdftoppm",
-              [
-                "-r",
-                `${ZOOM_DPI}`,
-                "-png",
-                "-f",
-                `${zoom.figure}`,
-                "-l",
-                `${zoom.figure}`,
-                "-x",
-                `${zoom.x}`,
-                "-y",
-                `${zoom.y}`,
-                "-W",
-                `${zoom.width}`,
-                "-H",
-                `${zoom.height}`,
-                pdfPath,
-                outPrefix,
-              ],
-              { stdin: "ignore", stdout: "pipe", stderr: "pipe" }
-            )
-          )
-          .pipe(Effect.mapError(fail("Could not run pdftoppm; is poppler installed?")));
-        const [, stderr, exitCode] = yield* Effect.all(
-          [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
-          { concurrency: "unbounded" }
-        ).pipe(Effect.mapError(fail("pdftoppm did not finish.")));
-        if (exitCode !== 0) {
-          return yield* DrawingsCommandError.make({ message: `pdftoppm exited ${exitCode}: ${Str.trim(stderr)}` });
-        }
-      })
-    );
+    runPoppler("pdftoppm", [
+      "-r",
+      `${ZOOM_DPI}`,
+      "-png",
+      "-f",
+      `${zoom.figure}`,
+      "-l",
+      `${zoom.figure}`,
+      "-x",
+      `${zoom.x}`,
+      "-y",
+      `${zoom.y}`,
+      "-W",
+      `${zoom.width}`,
+      "-H",
+      `${zoom.height}`,
+      pdfPath,
+      outPrefix,
+    ]);
+
+  // The PDF facts a read-only reviewer cannot get itself: version, pages and their boxes, fonts, and
+  // the streams a strict reader refuses.
+  const measurePdf = Effect.fn("DrawingCritics.measurePdf")(function* (pdfPath: string) {
+    const structure = yield* tools.inspect(pdfPath).pipe(Effect.mapError(fail(`Could not inspect "${pdfPath}".`)));
+    const pageCount = A.length(structure.pages);
+    const pages =
+      pageCount === 0
+        ? A.empty<CriticPdfPage>()
+        : parsePdfInfoBoxes(yield* runPoppler("pdfinfo", ["-box", "-f", "1", "-l", `${pageCount}`, pdfPath]));
+    const fonts = parsePdfFonts(yield* runPoppler("pdffonts", [pdfPath]));
+    return CriticPdfMeasurements.make({
+      file: "render/sheets.pdf",
+      version: structure.headerVersion,
+      pageCount,
+      pages,
+      fonts,
+      undecodableStreams: structure.undecodableStreams,
+      streamCheck: structure.streamCheck,
+    });
+  });
 
   const copyContext = (packDir: string) =>
     Effect.fn("DrawingCritics.copyContext")(function* (dir: string) {
@@ -806,6 +804,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         Effect.map((svg) => ({
           figure: figure.figure,
           view: figure.view,
+          svgFile: `render/${figure.svgFile}`,
           svg,
           coverage: JSON.stringify(O.getOrElse(figure.shadingCoverage, () => null)),
         }))
@@ -820,6 +819,19 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         figures: figureSvgs,
       })
     );
+    const measurements = CriticMeasurements.make({
+      schemaVersion: "drawing-critic-measurements/v1",
+      title: manifest.title,
+      sheetSetSha256: Sha256Hex.make(manifest.pdfSha256),
+      specSha256: Sha256Hex.make(manifest.specSha256),
+      pdf: yield* measurePdf(path.join(renderDir, "sheets.pdf")),
+      figures: A.map(figureSvgs, (figure) => figureMeasurements(figure)),
+    });
+    const measurementsJson = yield* encodeCriticMeasurements(measurements).pipe(
+      Effect.mapError(fail("Could not encode measurements.json."))
+    );
+    yield* write(path.join(renderDir, "measurements.json"), `${measurementsJson}\n`);
+    yield* write(path.join(renderDir, "MEASUREMENTS.md"), measurementsMarkdown(measurements));
     const images = yield* Effect.forEach(
       request.imagesDirs,
       Effect.fnUntraced(function* (dir) {
@@ -846,6 +858,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
       svgs,
       images,
       strokeTable: "render/RENDER.md",
+      measurements: O.some("render/MEASUREMENTS.md"),
       brief: "BRIEF.md",
     });
     const json = yield* encodeCriticPackManifest(pack).pipe(Effect.mapError(fail("Could not encode pack.json.")));
@@ -883,6 +896,8 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     readonly order: number;
     readonly template: string;
     readonly extra: O.Option<string>;
+    // The runs of this loop so far, so the summary names a seat that could not run.
+    readonly earlier: ReadonlyArray<CriticRunRecord>;
   }) {
     const { request, reviewer, pack } = input;
     const packDir = path.resolve(request.packDir);
@@ -894,26 +909,38 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         "matter",
         Effect.fnUntraced(function* () {
           yield* mkdir(path.join(packDir, "prior"));
-          yield* write(path.join(packDir, "prior", "SUMMARY.md"), priorSummaryMarkdown(prior));
+          yield* write(
+            path.join(packDir, "prior", "SUMMARY.md"),
+            loopSummaryMarkdown({ reports: prior, runs: input.earlier })
+          );
+          const measured = O.match(pack.measurements, {
+            onNone: () => "",
+            onSome: (file) =>
+              ` ${file} (the same numbers in measurements.json beside it) holds what the harness measured: the PDF version, page boxes, fonts and undecodable streams, and per figure the ink box against the 1.84(g) margins, the path layers, the shading statistics and the text labels. Read it before you measure anything yourself.`,
+          });
           const hint = Match.value(reviewer.route).pipe(
             Match.when(
               "codex",
               () =>
-                `The images attached to this message are, in order: ${A.join([...pack.sheets, ...pack.zooms, ...pack.images], ", ")}.`
+                `The images attached to this message are, in order: ${A.join([...pack.sheets, ...pack.zooms, ...pack.images], ", ")}.${measured}`
             ),
             Match.when(
               "grok",
               () =>
-                "Use your file tools to read the files named above (paths are relative to the current directory) and to look at the PNG and JPG images if you can; the SVGs and render/RENDER.md carry the same shading geometry as numbers."
+                `Use your file tools to read the files named above (paths are relative to the current directory) and to look at the PNG and JPG images if you can; the SVGs and render/RENDER.md carry the same shading geometry as numbers.${measured}`
             ),
-            Match.when(
-              "claude",
-              () =>
-                "Use the Read tool to view the PNG and JPG images and the text files. The SVGs and render/RENDER.md carry the shading geometry as numbers."
+            Match.when("claude", () =>
+              O.match(pack.measurements, {
+                onNone: () =>
+                  "Use the Read tool to view the PNG and JPG images and the text files. The SVGs and render/RENDER.md carry the shading geometry as numbers.",
+                onSome: () =>
+                  `Use the Read tool to view the PNG and JPG images and the text files. The SVGs and render/RENDER.md carry the shading geometry as numbers. You cannot run pdfinfo, pdffonts or any other tool here.${measured}`,
+              })
             ),
             Match.when(
               "cursor",
-              () => "Read the files named above; the SVGs and render/RENDER.md carry the shading geometry as numbers."
+              () =>
+                `Read the files named above; the SVGs and render/RENDER.md carry the shading geometry as numbers.${measured}`
             ),
             Match.exhaustive
           );
@@ -993,16 +1020,33 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     );
     yield* write(path.join(loopDir, `${reviewer.name}.log`), stderr);
     yield* write(path.join(loopDir, `${reviewer.name}.raw`), stdout);
-    const rawReport = yield* Match.value(invocation.reportFrom).pipe(
-      Match.when({ kind: "file" }, ({ path: file }) =>
+    // A Grok seat whose strict sandbox cannot start on this host is skipped, not counted as a failed review.
+    const unavailable =
+      reviewer.route === "grok" && exitCode !== 0 ? grokSandboxRefusal(stderr) : O.none<CriticSeatUnavailable>();
+    if (O.isSome(unavailable)) {
+      yield* Effect.logWarning(
+        `critics: ${reviewer.name} seat unavailable on this host: ${unavailable.value.detail}; skipping it and continuing with the remaining reviewers.`
+      );
+      return CriticRunRecord.make({
+        order: input.order,
+        reviewer,
+        exitCode,
+        report: O.none(),
+        reportSha256: O.none(),
+        findings: 0,
+        startedAt,
+        finishedAt: DateTime.formatIso(yield* DateTime.now),
+        unavailable,
+      });
+    }
+    const rawReport = yield* CriticReportSource.match(invocation.reportFrom, {
+      file: ({ path: file }) =>
         fs.exists(file).pipe(
           Effect.mapError(fail(`Could not stat "${file}".`)),
           Effect.flatMap((exists) => (exists ? read(file).pipe(Effect.asSome) : Effect.succeedNone))
-        )
-      ),
-      Match.when({ kind: "stdout" }, () => Effect.succeedSome(stdout)),
-      Match.exhaustive
-    );
+        ),
+      stdout: () => Effect.succeedSome(stdout),
+    });
     const report = yield* pipe(
       rawReport,
       O.flatMap((text) => extractReportText({ route: reviewer.route, text })),
@@ -1058,17 +1102,21 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
       Effect.mapError(fail(`Could not stat "${extraPath}".`)),
       Effect.flatMap((exists) => (exists ? read(extraPath).pipe(Effect.asSome) : Effect.succeedNone))
     );
-    const runs: Array<CriticRunRecord> = [];
-    for (const [index, reviewer] of A.entries(request.reviewers)) {
-      yield* Effect.logInfo(
-        `critics: ${index + 1}/${A.length(request.reviewers)} ${reviewer.name} (${reviewer.route})`
-      );
-      const run = yield* runReviewer({ request, pack, reviewer, order: index + 1, template, extra });
-      runs.push(run);
-      yield* Effect.logInfo(
-        `critics: ${reviewer.name} exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? ", no report" : ""}`
-      );
-    }
+    // Each seat runs after the ones before it and reads their runs, so a seat that could not run is named.
+    const runs = yield* Effect.reduce(
+      request.reviewers,
+      (): ReadonlyArray<CriticRunRecord> => A.empty(),
+      Effect.fnUntraced(function* (earlier, reviewer, index) {
+        yield* Effect.logInfo(
+          `critics: ${index + 1}/${A.length(request.reviewers)} ${reviewer.name} (${reviewer.route})`
+        );
+        const run = yield* runReviewer({ request, pack, reviewer, order: index + 1, template, extra, earlier });
+        yield* Effect.logInfo(
+          `critics: ${reviewer.name} exit ${run.exitCode}, ${run.findings} finding(s)${O.isSome(run.unavailable) ? ", seat unavailable on this host" : O.isNone(run.report) ? ", no report" : ""}`
+        );
+        return A.append(earlier, run);
+      })
+    );
     const record = CriticLoopRecord.make({
       schemaVersion: "drawing-critic-loop/v1",
       loop: request.loop,
@@ -1078,13 +1126,27 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     const json = yield* encodeCriticLoopRecord(record).pipe(Effect.mapError(fail("Could not encode loop.json.")));
     yield* write(path.join(loopDir, "loop.json"), `${json}\n`);
     const all = yield* priorReports(loopDir);
-    yield* write(path.join(loopDir, "ALL-FINDINGS.md"), priorSummaryMarkdown(all));
+    yield* write(path.join(loopDir, "ALL-FINDINGS.md"), loopSummaryMarkdown({ reports: all, runs }));
     return record;
   });
 
+  // The runs of a finished loop, when its loop.json exists.
+  const loopRuns = Effect.fn("DrawingCritics.loopRuns")(function* (loopDir: string) {
+    const loopPath = path.join(loopDir, "loop.json");
+    const exists = yield* fs.exists(loopPath).pipe(Effect.mapError(fail(`Could not stat "${loopPath}".`)));
+    return exists
+      ? yield* read(loopPath).pipe(
+          Effect.flatMap(decodeCriticLoopRecord),
+          Effect.map((record) => record.runs),
+          Effect.mapError(fail(`"${loopPath}" is not a critic loop record.`))
+        )
+      : A.empty<CriticRunRecord>();
+  });
+
   const summary = Effect.fn("DrawingCritics.summary")(function* (loopDir: string) {
-    const reports = yield* priorReports(path.resolve(loopDir));
-    return priorSummaryMarkdown(reports);
+    const dir = path.resolve(loopDir);
+    const reports = yield* priorReports(dir);
+    return loopSummaryMarkdown({ reports, runs: yield* loopRuns(dir) });
   });
 
   return { buildPack, runSequence, summary } satisfies DrawingCriticsShape;

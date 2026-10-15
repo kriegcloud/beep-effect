@@ -165,3 +165,25 @@ tailnet page, token path, answers on disk, Codex gate before the link goes out);
 look-only copy. The replacement page's gate found 25 defects in round 1 (notes copied across sheets on
 Send, a lock after a failed save, a server race on lock, drafts lost on reload); the round-1 and
 round-2 reports are kept beside the page under `matter/review-app-drawings-gate/`.
+
+## 2026-10-15 — the per-page pdf-lib merge truncated a stream that only strict readers saw
+
+**Doing:** checking a two-point candidate set with a strict-inflate pass over every FlateDecode stream.
+**Evidence:** one stream in a merged sheet PDF failed a strict inflate while every viewer showed the
+sheets; pdf-lib re-serialised a stream with an indirect `/Length` and cut it at the end of line before
+`endstream`, dropping a final 0x0D data byte. The predecessor's 2026-10-05 receipt had pointed the
+driver at that per-page route.
+**Prevention:** one `rsvg-convert` run per sheet set with the header rewritten (SPEC Decision Log
+2026-10-15), the `pdf-stream-undecodable` validator finding, and a live test that converts two SVGs
+and inflates every stream strictly. A receipt that prescribes a route should name the check that
+proves the route safe.
+
+## 2026-10-15 — a Grok critic seat could not start under its strict sandbox on this host
+
+**Doing:** running critic loop 3 with a Grok seat.
+**Evidence:** Grok's `--sandbox strict` profile could not resolve one runtime-socket deny path on the
+workstation and refused to start; the loop recorded a failed run and the next reviewers' summary did
+not mention the seat.
+**Prevention:** `grokSandboxRefusal` records the seat as unavailable and every loop summary names the
+seats that did not run; the sandbox flags stay strict. Fixing the host so the path resolves is the
+operator-side follow-up.

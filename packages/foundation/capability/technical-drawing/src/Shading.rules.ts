@@ -9,7 +9,8 @@
  * span) reproduces the original procedural hatch exactly: faces above the lit
  * threshold stay blank, lines run along the longest straight edge, and the
  * pitch grows with exposure. The opt-in `graded` style shades every visible
- * planar face: the first line sits one minimum pitch from the shadow edge and
+ * planar face: the first line sits one minimum pitch from the shadow edge
+ * (behind a wider gutter where drawn lines run close beyond that edge) and
  * the gaps grow geometrically toward the lit side, as in the USPTO Guide's
  * spaced-line examples. The opt-in `surface-class` axis hatches walls along
  * +Z and inclined and level faces along the major edge turned away from the
@@ -21,10 +22,13 @@
  */
 
 import { A, O } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
 import { HatchAxis, ShadingCoverage, ShadingSkip, ShadingSkipReason } from "./Geometry.schemas.ts";
 import {
+  BandTaper,
   FaceAnchor,
   FaceTreatment,
   ShadingCut,
@@ -35,7 +39,7 @@ import {
   ViewFacts,
 } from "./Shading.schemas.ts";
 import type { Camera, Segment2, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
-import type { FaceAspect, FaceEdge, FaceFacts, ShadingWindow } from "./Shading.schemas.ts";
+import type { BandInk, FaceAspect, FaceEdge, FaceFacts, ShadingWindow } from "./Shading.schemas.ts";
 
 type V3 = Vec3;
 
@@ -59,7 +63,11 @@ const BACK_FACING = 1e-9;
 // Below this share of the light along a face's step the face is lit edge-on
 // to its lines and the shadow side is read from the sheet instead (the lower
 // right): a wall the sheet light runs straight across in an isometric would
-// otherwise flip sides on rounding.
+// otherwise flip sides on rounding. The switch stays a hard edge: through the
+// default camera sets no two views that light an upright face within 0.01 of
+// each other put its band on different sides (the camera sweep in the tests,
+// review loop 3, K-07), so it has no ramp. Within one view a face whose share
+// sits near 0.2 can still change sides with a turn of under a degree.
 const EDGE_ON_LIGHT = 0.2;
 // Graded gaps grow by this factor from the shadow edge toward the lit side.
 const GROWTH = 1.4;
@@ -67,9 +75,38 @@ const GROWTH = 1.4;
 const FULL_LINES = 2;
 const TAPER_FROM = 0.6;
 const TAPER_TO = 0.4;
+// A graded band turns from the light recipe into the faint one over this ramp of exposure rather than at one
+// exposure. At a single edge, a face a degree or two off square, or a face two views light almost alike, lost 43% of
+// its band's ink to a 0.006 change of exposure (review loop 3, K-07). No face an orthographic view shows square-on or
+// turned 30° or 60° about the sheet vertical has its exposure inside the ramp (the nearest are 1/√3 = 0.577 and 0.789),
+// so those faces keep the recipe they had.
+const FAINT_FROM = 0.6;
+const FAINT_TO = 0.7;
 
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.
+ *
+ * **Details**
+ *
+ * The frame is that of a parallel view along the camera's `sight` when it
+ * carries one, else along its `eye`: a two-point camera looks level, and
+ * every face turned toward its raised eye must still read as seen.
+ *
+ * A two-point camera's sheet is a vertical picture plane, not one square to
+ * its sight. Near the article it maps a model vector `v` to
+ * `(v·right, v_z − tan(β)·(v·ê))` for a raised eye (`+` for a lowered one),
+ * where `ê` is the level eye direction and `β` the angle between the sight
+ * and `ê`; that is this frame's
+ * `(v·right, v·up / cos β)`, the same frame stretched vertically by
+ * `1 / cos β`. The stretch keeps every sign, so lit and shaded sides and the
+ * band's side are the frame's; it scales vertical measures. The light's up
+ * term is scaled by `cos β`, so on the sheet it still falls at 45° from the
+ * upper left. Every other on-sheet measure read from the frame (the
+ * projected span of a face, the stroke-length floor, the area a band's ink
+ * is spread over) reads vertical lengths `cos β` short. `β` is steeper than
+ * the camera's field, since the sight runs from the box centre rather than
+ * from the box's near top corner. A camera without a `sight` keeps
+ * `cos β = 1` and its light exactly as before.
  *
  * **Example** (The front elevation's light)
  *
@@ -83,12 +120,23 @@ const TAPER_TO = 0.4;
  * @category utilities
  * @since 0.0.0
  */
-export const viewFactsOf = (camera: Camera): ViewFacts => {
-  const eye = unitOf(camera.eye);
-  const right = unitOf(crossOf(unitOf(camera.up), eye));
-  const up = crossOf(eye, right);
-  return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), up), eye)) });
-};
+export const viewFactsOf = (camera: Camera): ViewFacts =>
+  O.match(camera.sight, {
+    onNone: () => {
+      const eye = unitOf(camera.eye);
+      const right = unitOf(crossOf(unitOf(camera.up), eye));
+      const up = crossOf(eye, right);
+      return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), up), eye)) });
+    },
+    onSome: (sight) => {
+      const eye = unitOf(sight);
+      const right = unitOf(crossOf(unitOf(camera.up), eye));
+      const up = crossOf(eye, right);
+      // cos β between the sight and the level eye: the vertical picture plane stretches `up` by 1 / cos β
+      const lean = Math.abs(dot(unitOf(camera.eye), eye));
+      return ViewFacts.make({ eye, right, up, light: unitOf(plus(plus(times(right, -1), times(up, lean)), eye)) });
+    },
+  });
 
 /**
  * Orientation class of a face normal against model +Z, within one degree.
@@ -181,6 +229,14 @@ export const aspectOf = (input: {
  * banded at 0.6, 0.2, and -0.2. A face seen square-on (exposure 1/√3) is
  * `light`; there is no unshaded band.
  *
+ * **Details**
+ *
+ * The tone is read per view, since 37 CFR 1.84(m) puts the light at the
+ * upper left of each view. A graded band does not jump at the `faint` edge:
+ * its recipe turns from the light one into the faint one over exposures 0.6
+ * to 0.7 ({@link faintShareOf}), so a face lit just either side of 0.6 draws
+ * nearly the same band.
+ *
  * **Example** (Band a square-on face)
  *
  * ```ts
@@ -202,14 +258,58 @@ export const toneOf = (exposure: number): ShadingTone => {
   return exposure >= -0.2 ? "medium" : "dark";
 };
 
+const clampShare = (share: number): number => Math.max(0, Math.min(1, share));
+
+/**
+ * How far a graded band lit at `exposure` has turned from the light recipe
+ * to the faint one: 0 up to exposure 0.6, 1 from 0.7, and linear between.
+ *
+ * **Details**
+ *
+ * Over the ramp a band's coverage, its line count, and the length of its
+ * full-length lines move from the light recipe's to the faint one's (see
+ * {@link gradedOffsets} and {@link gradedExtents}), so no small change of
+ * exposure strips a band of its full-length lines at once (review loop 3,
+ * K-07). No face an orthographic view shows square-on or turned 30° or 60°
+ * about the sheet vertical has its exposure inside the ramp: a square-on
+ * face (1/√3) keeps the light recipe, and a face turned 30° toward the light
+ * (0.789) the faint one.
+ *
+ * **Example** (A square-on face, a face halfway up the ramp, and a face facing the light)
+ *
+ * ```ts
+ * import { faintShareOf } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(faintShareOf(1 / Math.sqrt(3))) // 0
+ * console.log(faintShareOf(0.65)) // about 0.5
+ * console.log(faintShareOf(0.95)) // 1
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const faintShareOf = (exposure: number): number => clampShare((exposure - FAINT_FROM) / (FAINT_TO - FAINT_FROM));
+
 // How much of a face a tone covers from its shadow edge, and how many lines:
 // the 1993 Guide's flat-face examples (Appendix 4, Examples 32 and 36) put a
 // few strokes at the shadow edge, the last within about a third of the span,
-// and leave a face square to the light nearly bare.
-const toneSpacing = (tone: ShadingTone) =>
+// and leave a face square to the light nearly bare. The light and faint
+// recipes are the ends of the faint ramp: `faintShare` (0 light, 1 faint)
+// sets where between them a light or faint band sits, each tone defaulting
+// to its own end.
+const LIGHT_SPACING = { coverage: 0.3, maxLines: 5 };
+const FAINT_SPACING = { coverage: 0.15, maxLines: 4 };
+const faintRamp = (share: number) => {
+  const s = clampShare(share);
+  return {
+    coverage: (1 - s) * LIGHT_SPACING.coverage + s * FAINT_SPACING.coverage,
+    maxLines: Math.round((1 - s) * LIGHT_SPACING.maxLines + s * FAINT_SPACING.maxLines),
+  };
+};
+const toneSpacing = (tone: ShadingTone, faintShare: O.Option<number>) =>
   ShadingTone.$match(tone, {
-    faint: () => ({ coverage: 0.15, maxLines: 4 }),
-    light: () => ({ coverage: 0.3, maxLines: 5 }),
+    faint: () => faintRamp(O.getOrElse(faintShare, () => 1)),
+    light: () => faintRamp(O.getOrElse(faintShare, () => 0)),
     medium: () => ({ coverage: 0.35, maxLines: 7 }),
     dark: () => ({ coverage: 0.35, maxLines: 8 }),
   });
@@ -234,7 +334,13 @@ const BAND_FLOOR = 2;
  * the line would take, rejects positions where the face is too narrow for a
  * stroke (a tab, a lip, a pointed tip): the line is not counted and the next
  * position is tried one gap further in, so the strokes move inward instead
- * of vanishing.
+ * of vanishing. An optional `lead` (see {@link bandLead}) puts the first line
+ * that far from the shadow edge instead, never nearer than `minPitch`; the
+ * gaps after it keep their rhythm, the first being `1.4` times `minPitch`.
+ * For a `light` or `faint` band an optional `faintShare` (see
+ * {@link faintShareOf}) sets the share and count between the light recipe
+ * (0) and the faint one (1); each of the two tones defaults to its own end,
+ * and `medium` and `dark` ignore it.
  *
  * **Example** (A light 30-wide face)
  *
@@ -242,6 +348,23 @@ const BAND_FLOOR = 2;
  * import { gradedOffsets } from "@beep/technical-drawing/Shading.rules"
  *
  * console.log(gradedOffsets({ span: 30, minPitch: 1, maxPitch: 2.5, tone: "light" }))
+ * ```
+ *
+ * **Example** (A faint band halfway up the faint ramp)
+ *
+ * ```ts
+ * import { gradedOffsets } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const at = (faintShare: number) => gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint", faintShare })
+ * console.log(at(0).length, at(0.5).length, at(1).length) // 5 4 3
+ * ```
+ *
+ * **Example** (A dark band behind a gutter)
+ *
+ * ```ts
+ * import { gradedOffsets } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(gradedOffsets({ span: 30, minPitch: 1.5, maxPitch: 6, tone: "dark", lead: 3.15 })[0]) // 3.15
  * ```
  *
  * @category utilities
@@ -253,24 +376,64 @@ export const gradedOffsets = (input: {
   readonly maxPitch: number;
   readonly tone: ShadingTone;
   readonly keep?: (offset: number, index: number) => boolean;
+  readonly lead?: number;
+  readonly faintShare?: number;
 }): ReadonlyArray<number> => {
   const { span, minPitch } = input;
   const maxPitch = Math.max(input.maxPitch, minPitch);
   const keep = input.keep ?? (() => true);
-  const { coverage, maxLines } = toneSpacing(input.tone);
+  const lead = Math.max(minPitch, input.lead ?? minPitch);
+  const { coverage, maxLines } = toneSpacing(input.tone, O.fromUndefinedOr(input.faintShare));
   const limit = span - minPitch;
-  const next = (offsets: ReadonlyArray<number>, at: number, gap: number): ReadonlyArray<number> => {
-    const offset = at + gap;
+  // `gap` is the step that reached `offset`: a kept line grows the next step, a rejected position repeats it
+  const next = (offsets: ReadonlyArray<number>, offset: number, gap: number): ReadonlyArray<number> => {
     const drawn = A.length(offsets);
     if (offset > limit || drawn >= maxLines || (drawn >= BAND_FLOOR && offset > coverage * span)) {
       return offsets;
     }
-    return keep(offset, drawn)
-      ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH))
-      : next(offsets, offset, gap);
+    const grown = Math.min(maxPitch, gap * GROWTH);
+    return keep(offset, drawn) ? next([...offsets, offset], offset + grown, grown) : next(offsets, offset + gap, gap);
   };
-  return next([], 0, minPitch);
+  return next([], lead, minPitch);
 };
+
+// A band whose edge has drawn lines close beyond it starts behind a gutter this many times the larger of its own first
+// gap and the spacing from its edge to those lines (review loop 3, O-04).
+const GUTTER_RATIO = 1.5;
+
+/**
+ * Distance of a graded band's first line from its shadow edge, given the
+ * spacing from that edge to the drawn lines just beyond it (`groupPitch`).
+ *
+ * **Details**
+ *
+ * With nothing close beyond the edge the first line sits one `minPitch` in,
+ * nearer its edge than its companion, as the Guide's bands bunch at the
+ * shadow edge. When drawn lines run alongside the edge just beyond it (a
+ * wall's two lines past a flap's free edge), band, edge, and lines would read
+ * as one evenly spaced ladder. The band then starts behind a gutter 1.5 times
+ * the larger of its own first gap (`1.4` times `minPitch`) and `groupPitch`,
+ * never less than `minPitch`; the rest of the band keeps its rhythm (review
+ * loop 3, O-04). {@link ladderPitch} measures `groupPitch`.
+ *
+ * **Example** (A band whose edge has a wall 1.8 beyond it)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { bandLead } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(bandLead({ minPitch: 1.5, groupPitch: O.some(1.8) })) // about 3.15
+ * console.log(bandLead({ minPitch: 1.5, groupPitch: O.none() })) // 1.5
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const bandLead = (input: { readonly minPitch: number; readonly groupPitch: O.Option<number> }): number =>
+  O.match(input.groupPitch, {
+    onNone: () => input.minPitch,
+    onSome: (pitch) => Math.max(input.minPitch, GUTTER_RATIO * Math.max(input.minPitch * GROWTH, pitch)),
+  });
 
 // Length of the chord a cut at `offset` along the anchor's step makes across
 // the face, from its straight edges (a curved face answers infinity and keeps
@@ -307,6 +470,10 @@ const chordAt =
  * are longest at the shadow edge and shorten toward the light, each centred
  * on the chord it would have filled. A face turned toward the light gets no
  * full-length line at all (`fullLines` 0): its one or two strokes are short.
+ * Between the two, an optional `faintShare` (see {@link faintShareOf};
+ * default 0) blends each line's extent from the `fullLines` taper (0) to the
+ * taper without full-length lines (1), so the full-length lines shorten
+ * over the faint ramp instead of vanishing at one exposure.
  *
  * **Example** (Five lines, and two short strokes on a lit face)
  *
@@ -317,23 +484,60 @@ const chordAt =
  * console.log(gradedExtents({ count: 2, fullLines: 0 })) // [0.6, 0.4]
  * ```
  *
+ * **Example** (Four lines halfway up the faint ramp)
+ *
+ * ```ts
+ * import { gradedExtents } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(gradedExtents({ count: 4, faintShare: 0.5 })) // about [0.8, 0.77, 0.53, 0.4]
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
 export const gradedExtents = (input: {
   readonly count: number;
   readonly fullLines?: number;
+  readonly faintShare?: number;
 }): ReadonlyArray<number> => {
   const { count } = input;
   const fullLines = input.fullLines ?? FULL_LINES;
+  const share = clampShare(input.faintShare ?? 0);
+  const tapered = (full: number, index: number): number =>
+    index < full ? 1 : TAPER_FROM - (TAPER_FROM - TAPER_TO) * ((index - full) / Math.max(1, count - full - 1));
+  // at either end of the ramp the blend is exactly that end's taper
   return count <= 0
     ? A.empty()
-    : A.makeBy(count, (index) =>
-        index < fullLines
-          ? 1
-          : TAPER_FROM - (TAPER_FROM - TAPER_TO) * ((index - fullLines) / Math.max(1, count - fullLines - 1))
-      );
+    : A.makeBy(count, (index) => (1 - share) * tapered(fullLines, index) + share * tapered(0, index));
 };
+
+/**
+ * Shortest graded stroke that stays legible on the view plane: the plan's
+ * minimum stroke plus one minimum pitch at each end, since the legibility
+ * pass draws both ends of a stroke back from the outline.
+ *
+ * **Details**
+ *
+ * One length for every test of a stroke's room. A band position is kept only
+ * where its stroke can reach this length, and the kernel treats a planned
+ * stretch with fewer than two strokes this long as a sliver. The
+ * stroke-drawing pass uses the same length to decide when a taper would empty
+ * a band.
+ *
+ * **Example** (A plan with a 1.5 minimum stroke)
+ *
+ * ```ts
+ * import { ShadingPlan } from "@beep/technical-drawing"
+ * import { legibleStrokeLength } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const plan = ShadingPlan.make({ minPitch: 1, maxPitch: 3, style: "graded", minStroke: 1.5 })
+ * console.log(legibleStrokeLength(plan)) // 3.5
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const legibleStrokeLength = (plan: ShadingPlan): number => plan.minStroke + 2 * plan.minPitch;
 
 // Two shading segments sit side by side when they run within two degrees of
 // each other and overlap along their length by more than the minimum spacing;
@@ -444,6 +648,218 @@ export const nearestOutlineDistance = (input: {
     A.map((segment) => pointToSegmentDistance({ x: input.x, y: input.y, segment })),
     A.reduce(Number.POSITIVE_INFINITY, (least, d) => Math.min(least, d))
   );
+
+// A drawn line runs beside a stroke, for the ladder test, within five degrees of parallel on the sheet: a perspective
+// view tilts an outline a little against the strokes beside it.
+const LADDER_SINE = Math.sin((5 * Math.PI) / 180);
+
+// A stretch along a stroke, from its first point.
+type Span = readonly [number, number];
+
+// One drawn line beside a stroke: its distance from the stroke's line, signed (positive on the stroke's left, seen
+// from its first point), and the stretch of the stroke it runs beside.
+type Beside = { readonly distance: number; readonly from: number; readonly to: number };
+
+// A line beside a stroke, measured from a reference line on one side of it (the stroke itself, or a band's edge).
+type Beyond = { readonly beyond: number; readonly from: number; readonly to: number };
+
+// The drawn lines that run beside a stroke: within five degrees of parallel and overlapping it along its length, each
+// with its signed distance at the middle of the stretch it runs beside.
+const besideOf = (stroke: Segment2, lines: ReadonlyArray<Segment2>): ReadonlyArray<Beside> => {
+  const [px, py, qx, qy] = stroke;
+  const length = Math.hypot(qx - px, qy - py);
+  if (length < COLLINEAR) {
+    return A.empty();
+  }
+  const ux = (qx - px) / length;
+  const uy = (qy - py) / length;
+  return pipe(
+    lines,
+    A.map(([x1, y1, x2, y2]): O.Option<Beside> => {
+      const own = Math.hypot(x2 - x1, y2 - y1);
+      if (own < COLLINEAR || Math.abs(ux * (y2 - y1) - uy * (x2 - x1)) / own > LADDER_SINE) {
+        return O.none();
+      }
+      const ta = (x1 - px) * ux + (y1 - py) * uy;
+      const tb = (x2 - px) * ux + (y2 - py) * uy;
+      const from = Math.max(0, Math.min(ta, tb));
+      const to = Math.min(length, Math.max(ta, tb));
+      if (!(to > from)) {
+        return O.none();
+      }
+      // the line overlaps the stroke (to > from), so its ends differ along it
+      const f = ((from + to) / 2 - ta) / (tb - ta);
+      const x = x1 + f * (x2 - x1);
+      const y = y1 + f * (y2 - y1);
+      return O.some({ distance: ux * (y - py) - uy * (x - px), from, to });
+    }),
+    A.getSomes
+  );
+};
+
+// The stretches a set of runs covers along a stroke, in order, with runs that overlap or touch merged.
+type Run = { readonly from: number; readonly to: number };
+const spansOf: (runs: ReadonlyArray<Run>) => ReadonlyArray<Span> = flow(
+  A.sort(Order.mapInput(Order.Number, (run: Run) => run.from)),
+  A.reduce(
+    A.empty<Span>(),
+    (spans: ReadonlyArray<Span>, run: Run): ReadonlyArray<Span> =>
+      O.match(A.last(spans), {
+        onNone: (): ReadonlyArray<Span> => [[run.from, run.to]],
+        onSome: ([lo, hi]): ReadonlyArray<Span> =>
+          run.from <= hi ? [...A.dropRight(spans, 1), [lo, Math.max(hi, run.to)]] : [...spans, [run.from, run.to]],
+      })
+  )
+);
+
+const spannedLength = (spans: ReadonlyArray<Span>): number => A.reduce(spans, 0, (sum, [lo, hi]) => sum + (hi - lo));
+
+// How long two sets of stretches along one stroke run side by side.
+const sharedLength = (a: ReadonlyArray<Span>, b: ReadonlyArray<Span>): number =>
+  A.reduce(a, 0, (sum, [lo1, hi1]) =>
+    A.reduce(b, sum, (acc, [lo2, hi2]) => acc + Math.max(0, Math.min(hi1, hi2) - Math.max(lo1, lo2)))
+  );
+
+// Lines beside a stroke, nearest first, with the runs that lie within `tolerance` of the one before them taken as one
+// line (an outline drawn in pieces, or drawn twice): each at its nearest run's distance, with the stretches it covers.
+const linesBeyond = (
+  runs: ReadonlyArray<Beyond>,
+  tolerance: number
+): ReadonlyArray<{ readonly beyond: number; readonly spans: ReadonlyArray<Span> }> =>
+  pipe(
+    runs,
+    A.sort(Order.mapInput(Order.Number, (run: Beyond) => run.beyond)),
+    A.reduce(A.empty<A.NonEmptyReadonlyArray<Beyond>>(), (lines, run) =>
+      O.match(A.last(lines), {
+        onNone: () => [A.of(run)],
+        onSome: (line) =>
+          run.beyond - A.lastNonEmpty(line).beyond <= tolerance
+            ? [...A.dropRight(lines, 1), A.append(line, run)]
+            : [...lines, A.of(run)],
+      })
+    ),
+    A.map((line) => ({ beyond: A.headNonEmpty(line).beyond, spans: spansOf(line) }))
+  );
+
+/**
+ * Spacing from a band's edge to the nearest drawn line that runs alongside
+ * that edge beyond the band, or none.
+ *
+ * **Details**
+ *
+ * Measured on the sheet beside the band's first `stroke`, with `edge` a
+ * segment along the band's edge (the side of the stroke away from the rest
+ * of the band). The edge's own drawn lines are the `outlines` within
+ * `tolerance` of it. A line counts when it lies more than `tolerance` and at
+ * most `reach` beyond the edge, within five degrees of parallel, and runs
+ * beside the edge's own lines for at least half the stroke's length; pieces
+ * within `tolerance` of each other are one line. An outline that steps out
+ * around a tab fills the gap in the edge instead of running beside it, so it
+ * is not a ladder (review loop 3, O-04). The answer is the `groupPitch` of
+ * {@link bandLead}.
+ *
+ * **Example** (A wall's two lines 1.8 and 3 beyond a band's edge)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { ladderPitch } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const pitch = ladderPitch({
+ *   stroke: [0, 0, 0, 30],
+ *   edge: [1.5, 0, 1.5, 30],
+ *   outlines: [[1.5, 0, 1.5, 30], [3.3, 0, 3.3, 30], [4.5, 0, 4.5, 30]],
+ *   reach: 2.5,
+ *   tolerance: 0.15
+ * })
+ * console.log(O.getOrNull(pitch)) // about 1.8
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const ladderPitch = (input: {
+  readonly stroke: Segment2;
+  readonly edge: Segment2;
+  readonly outlines: ReadonlyArray<Segment2>;
+  readonly reach: number;
+  readonly tolerance: number;
+}): O.Option<number> => {
+  const { stroke, edge, tolerance } = input;
+  const length = segmentLength(stroke);
+  if (length < COLLINEAR) {
+    return O.none();
+  }
+  // the edge's signed distance from the stroke's line, read at the edge's middle
+  const toEdge =
+    ((stroke[2] - stroke[0]) * ((edge[1] + edge[3]) / 2 - stroke[1]) -
+      (stroke[3] - stroke[1]) * ((edge[0] + edge[2]) / 2 - stroke[0])) /
+    length;
+  const side = toEdge < 0 ? -1 : 1;
+  const runs = A.map(
+    besideOf(stroke, input.outlines),
+    (run): Beyond => ({ beyond: run.distance * side - Math.abs(toEdge), from: run.from, to: run.to })
+  );
+  const edgeSpans = spansOf(A.filter(runs, (run) => Math.abs(run.beyond) <= tolerance));
+  return pipe(
+    linesBeyond(
+      A.filter(runs, (run) => run.beyond > tolerance && run.beyond <= input.reach),
+      tolerance
+    ),
+    A.findFirst((line) => sharedLength(line.spans, edgeSpans) >= length / 2),
+    O.map((line) => line.beyond)
+  );
+};
+
+/**
+ * Distance from a stroke to the nearest drawn line on one side of it, within
+ * `within`, that runs beside at least half the stroke's length; none when
+ * there is no such line.
+ *
+ * **Details**
+ *
+ * `side` picks the side: positive for the stroke's left, seen from its first
+ * point, negative for its right. Lines count within five degrees of
+ * parallel, and pieces within `tolerance` of each other are one line, so an
+ * edge drawn in pieces or drawn twice still covers the stroke. The validator
+ * reads a band's edge this way, beside the band's first stroke.
+ *
+ * **Example** (The edge 1.5 to the right of an upward stroke)
+ *
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { coveringOutlineDistance } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const distance = coveringOutlineDistance({
+ *   stroke: [0, 0, 0, 30],
+ *   side: -1,
+ *   outlines: [[1.5, 0, 1.5, 12], [1.5, 12, 1.5, 30], [-4, 0, -4, 30]],
+ *   within: 3.5,
+ *   tolerance: 0.15
+ * })
+ * console.log(O.getOrNull(distance)) // 1.5
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const coveringOutlineDistance = (input: {
+  readonly stroke: Segment2;
+  readonly side: number;
+  readonly outlines: ReadonlyArray<Segment2>;
+  readonly within: number;
+  readonly tolerance: number;
+}): O.Option<number> => {
+  const length = segmentLength(input.stroke);
+  const side = input.side < 0 ? -1 : 1;
+  return pipe(
+    besideOf(input.stroke, input.outlines),
+    A.map((run): Beyond => ({ beyond: run.distance * side, from: run.from, to: run.to })),
+    A.filter((run) => run.beyond > COLLINEAR && run.beyond <= input.within),
+    (runs) => linesBeyond(runs, input.tolerance),
+    A.findFirst((line) => spannedLength(line.spans) >= length / 2),
+    O.map((line) => line.beyond)
+  );
+};
 
 /**
  * Shading segments kept legible after hidden-line removal: every piece is
@@ -832,8 +1248,9 @@ const gradedTreatment = (input: {
   readonly factor: number;
   readonly window: O.Option<ShadingWindow>;
   readonly shadowEdge: O.Option<FaceEdge>;
+  readonly taper: BandTaper;
 }): FaceTreatment => {
-  const { face, view, plan, direction, factor, window } = input;
+  const { face, view, plan, direction, factor, window, taper } = input;
   const anchor = anchorOf({
     face,
     view,
@@ -852,25 +1269,49 @@ const gradedTreatment = (input: {
   const start = O.match(window, { onNone: () => 0, onSome: (w) => Math.max(0, w.start) });
   const span =
     O.match(window, { onNone: () => reach, onSome: (w) => w.span - (Math.max(0, w.start) - w.start) }) * factor;
-  const tone = toneOf(dot(face.normal, view.light));
+  const exposure = dot(face.normal, view.light);
+  const tone = toneOf(exposure);
+  // a face turned toward the light carries short strokes only (Example 32: lit faces are nearly bare); its band
+  // turns from the light recipe into the faint one over the faint ramp, so the full-length lines shorten to the taper
+  // and the band thins as the exposure rises instead of all at once at one exposure (review loop 3, K-07)
+  const faintShare = faintShareOf(exposure);
   // a stroke needs the face wide enough where it is cut to keep the minimum
   // stroke, at the fraction of the chord its line would draw, after the kernel
   // draws both its ends back one pitch from the outline
   const chord = chordAt(face, anchor, direction);
   const seen = spread(direction, view.eye);
-  const needed = plan.minStroke + 2 * plan.minPitch;
-  // a lit face carries short strokes only (Example 32: lit faces are nearly bare)
-  const fullLines = tone === "faint" ? 0 : FULL_LINES;
+  const needed = legibleStrokeLength(plan);
+  // a band cut back because it out-inks a darker neighbour has no full-length line at all (review loop 3, O-02); the
+  // room each position needs follows the taper, a full-length line's shortened by the faint ramp
+  const fullLines = taper === "full" ? FULL_LINES : 0;
+  const fullExtent = 1 - faintShare + faintShare * TAPER_TO;
   const keep = (offset: number, index: number) =>
-    plan.minStroke <= 0 || chord(start + offset / factor) * seen * (index < fullLines ? 1 : TAPER_TO) >= needed;
-  const band = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
+    plan.minStroke <= 0 ||
+    chord(start + offset / factor) * seen * (index < fullLines ? fullExtent : TAPER_TO) >= needed;
+  // a stretch whose edge has drawn lines close beyond it starts behind the gutter the engine measured (review loop 3,
+  // O-04); offsets are on the sheet, like the lead
+  const offsets = gradedOffsets({
+    span,
+    minPitch: plan.minPitch,
+    maxPitch: plan.maxPitch,
+    tone,
+    keep,
+    // no lead is a lead of one pitch
+    lead: O.getOrElse(
+      O.flatMap(window, (w) => w.lead),
+      () => plan.minPitch
+    ),
+    faintShare,
+  });
+  // at the floor a band keeps only the lines a band needs, the ones nearest its shadow edge
+  const band = taper === "lit-floor" ? A.take(offsets, BAND_FLOOR) : offsets;
   // a band of one line reads as a doubled outline, never as shading, so a stretch with room for
   // exactly one is a planned skip rather than a face that later loses its line; a stretch with room
   // for none is a sliver, below
   if (A.length(band) === 1) {
     return skipped("narrow");
   }
-  const extents = gradedExtents({ count: A.length(band), fullLines });
+  const extents = gradedExtents({ count: A.length(band), fullLines, faintShare });
   const cuts = A.map(band, (offset, index) =>
     ShadingCut.make({
       offset: start + offset / factor,
@@ -898,7 +1339,12 @@ const gradedTreatment = (input: {
  * lit, while `uniform` lines keep the lit threshold and the centred pitch.
  * With a `window`, graded lines are planned for that visible stretch of the
  * face alone, measured along the step from the shadow anchor, so a stretch
- * another part uncovers gets its band at the side nearest the shadow.
+ * another part uncovers gets its band at the side nearest the shadow, its
+ * first line the window's `lead` in from the stretch's edge when it has
+ * one (see {@link bandLead}). A graded band is cut back by its `taper` (default `full`, the band its tone
+ * gives; see {@link BandTaper}), which {@link settleBandTapers} sets when the
+ * face out-inks a darker neighbour. A face lit between exposures 0.6 and 0.7
+ * gets a band between the light and faint recipes ({@link faintShareOf}).
  *
  * **Example** (A square-on wall under graded shading)
  *
@@ -925,6 +1371,7 @@ export const treatmentFor = (input: {
   readonly view: ViewFacts;
   readonly plan: ShadingPlan;
   readonly window?: ShadingWindow;
+  readonly taper?: BandTaper;
 }): FaceTreatment => {
   const { face, view, plan } = input;
   if (!(dot(face.normal, view.eye) > BACK_FACING)) {
@@ -969,11 +1416,200 @@ export const treatmentFor = (input: {
               factor,
               window: input.window === undefined ? O.none() : O.some(input.window),
               shadowEdge,
+              taper: input.taper ?? "full",
             })
           : centredLines(face, step, O.getOrElse(pitch, () => plan.maxPitch) / factor);
       },
     })
   );
+};
+
+// Two faces whose exposures differ by no more than this are equally lit, and neither has to carry less ink.
+const EXPOSURE_TIE = 1e-3;
+
+/**
+ * The lighter faces whose band out-inks a darker face beside them: for every
+ * pair of banded faces that share a visible edge, the lighter one when it is
+ * lit more than an exposure tie (0.001) above the other and its ink density
+ * is higher.
+ *
+ * **Details**
+ *
+ * The rule compares neighbours, never a face against a fixed budget: a
+ * band's density rises as its face narrows, so the tones' densities overlap
+ * and only the order across a shared edge is meaningful (review loop 3,
+ * O-02). Pairs with a face not in `bands` (a sliver, a narrow face, a broken
+ * part, any face bare by design) are not compared.
+ *
+ * **Example** (A lit face out-inks the dark face across its ridge)
+ *
+ * ```ts
+ * import * as HashSet from "effect/HashSet"
+ * import { inkOrderSteps } from "@beep/technical-drawing/Shading.rules"
+ * import { BandInk } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const bands = [
+ *   BandInk.make({ face: 0, exposure: 0.5, density: 0.3 }),
+ *   BandInk.make({ face: 1, exposure: -0.4, density: 0.2 })
+ * ]
+ * console.log(HashSet.has(inkOrderSteps({ bands, shared: [[0, 1]] }), 0)) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const inkOrderSteps = (input: {
+  readonly bands: ReadonlyArray<BandInk>;
+  readonly shared: ReadonlyArray<readonly [number, number]>;
+}): HashSet.HashSet<number> => {
+  const byFace = HashMap.fromIterable(A.map(input.bands, (band) => [band.face, band] as const));
+  return pipe(
+    input.shared,
+    A.map(([a, b]) =>
+      pipe(
+        O.all([HashMap.get(byFace, a), HashMap.get(byFace, b)]),
+        O.map(([p, q]) => (p.exposure >= q.exposure ? ([p, q] as const) : ([q, p] as const))),
+        O.filter(([lit, dark]) => lit.exposure - dark.exposure > EXPOSURE_TIE && lit.density > dark.density),
+        O.map(([lit]) => lit.face)
+      )
+    ),
+    A.getSomes,
+    HashSet.fromIterable
+  );
+};
+
+/**
+ * The next cut a band takes against a darker neighbour: `full` steps to
+ * `lit`, `lit` to `lit-floor`, and `lit-floor` has no further step.
+ *
+ * **Example** (Step a full band)
+ *
+ * ```ts
+ * import { nextBandTaper } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(nextBandTaper("full")) // Option.some("lit")
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const nextBandTaper = (taper: BandTaper): O.Option<BandTaper> =>
+  BandTaper.$match(taper, {
+    full: () => O.some<BandTaper>("lit"),
+    lit: () => O.some<BandTaper>("lit-floor"),
+    "lit-floor": O.none<BandTaper>,
+  });
+
+/**
+ * Settle the band tapers of one view so no face turned toward the light
+ * carries more ink than a darker face it shares a visible edge with.
+ *
+ * **Details**
+ *
+ * `inkOf` plans the view's bands under the given tapers (a face absent from
+ * the map is `full`) and returns the banded faces' ink. Each round, every
+ * face {@link inkOrderSteps} names takes its {@link nextBandTaper}, so a face
+ * steps at most twice. A step only ever removes ink: one that would leave the
+ * face without a band, or not thin it, is refused. A face refused a step
+ * tries the step after it in the same round (a `lit` taper the untapered
+ * fallback thickens may still thin at `lit-floor`), and a face refused every
+ * step it has left holds its taper from then on. Rounds repeat to a fixed
+ * point, which they reach because every round steps or holds at least one
+ * face. With no shared edges nothing steps and every band stays the band its
+ * own tone gives.
+ *
+ * **Example** (A lit face steps once to fall below its dark neighbour)
+ *
+ * ```ts
+ * import * as HashMap from "effect/HashMap"
+ * import * as O from "effect/Option"
+ * import { settleBandTapers } from "@beep/technical-drawing/Shading.rules"
+ * import { BandInk } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const tapers = settleBandTapers({
+ *   shared: [[0, 1]],
+ *   inkOf: (tapers) => [
+ *     BandInk.make({ face: 0, exposure: 0.5, density: HashMap.has(tapers, 0) ? 0.15 : 0.3 }),
+ *     BandInk.make({ face: 1, exposure: -0.4, density: 0.2 })
+ *   ]
+ * })
+ * console.log(O.getOrNull(HashMap.get(tapers, 0))) // "lit"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const settleBandTapers = (input: {
+  readonly shared: ReadonlyArray<readonly [number, number]>;
+  readonly inkOf: (tapers: HashMap.HashMap<number, BandTaper>) => ReadonlyArray<BandInk>;
+}): HashMap.HashMap<number, BandTaper> => {
+  const taperOf = (tapers: HashMap.HashMap<number, BandTaper>, face: number): BandTaper =>
+    O.getOrElse(HashMap.get(tapers, face), (): BandTaper => "full");
+  const densities = (bands: ReadonlyArray<BandInk>): HashMap.HashMap<number, number> =>
+    HashMap.fromIterable(A.map(bands, (band) => [band.face, band.density] as const));
+  // the tapers left for a face to step to, nearest first
+  const laterTapers = (taper: BandTaper): ReadonlyArray<BandTaper> =>
+    O.match(nextBandTaper(taper), { onNone: A.empty, onSome: (next) => [next, ...laterTapers(next)] });
+  type Trying = { readonly face: number; readonly later: ReadonlyArray<BandTaper> };
+  const settle = (
+    tapers: HashMap.HashMap<number, BandTaper>,
+    held: HashSet.HashSet<number>,
+    bands: ReadonlyArray<BandInk>
+  ): HashMap.HashMap<number, BandTaper> => {
+    const named = pipe(
+      A.fromIterable(inkOrderSteps({ bands, shared: input.shared })),
+      A.filter((face) => !HashSet.has(held, face))
+    );
+    if (!A.isReadonlyArrayNonEmpty(named)) {
+      return tapers;
+    }
+    const before = densities(bands);
+    // every named face tries its next taper at once; a step that leaves the face banded and thinner than at the
+    // round's start is taken, and a refused face tries the taper after it, until it has none left and holds
+    const attempt = (
+      taken: HashMap.HashMap<number, BandTaper>,
+      trying: ReadonlyArray<Trying>,
+      refused: HashSet.HashSet<number>
+    ): readonly [HashMap.HashMap<number, BandTaper>, HashSet.HashSet<number>] => {
+      const steps = pipe(
+        trying,
+        A.map((t) => O.map(A.head(t.later), (taper) => ({ face: t.face, taper, later: A.drop(t.later, 1) }))),
+        A.getSomes
+      );
+      const spent = HashSet.union(
+        refused,
+        HashSet.fromIterable(
+          pipe(
+            A.filter(trying, (t) => !A.isReadonlyArrayNonEmpty(t.later)),
+            A.map((t) => t.face)
+          )
+        )
+      );
+      if (!A.isReadonlyArrayNonEmpty(steps)) {
+        return [taken, spent];
+      }
+      const after = densities(
+        input.inkOf(A.reduce(steps, taken, (acc, step) => HashMap.set(acc, step.face, step.taper)))
+      );
+      const thinned = (step: { readonly face: number }): boolean =>
+        O.exists(HashMap.get(after, step.face), (density) =>
+          O.exists(HashMap.get(before, step.face), (was) => density < was)
+        );
+      return attempt(
+        A.reduce(A.filter(steps, thinned), taken, (acc, step) => HashMap.set(acc, step.face, step.taper)),
+        A.filter(steps, (step) => !thinned(step)),
+        spent
+      );
+    };
+    const [taken, refused] = attempt(
+      tapers,
+      A.map(named, (face) => ({ face, later: laterTapers(taperOf(tapers, face)) })),
+      HashSet.empty()
+    );
+    return settle(taken, HashSet.union(held, refused), input.inkOf(taken));
+  };
+  const none = HashMap.empty<number, BandTaper>();
+  return settle(none, HashSet.empty(), input.inkOf(none));
 };
 
 /**
