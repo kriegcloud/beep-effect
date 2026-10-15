@@ -2,26 +2,15 @@
 
 ## Status
 
-Program active after the October 14 resume. H4 PR #1770 delivers the read-only
-permission census, runbook and synthetic regressions. Current source review
-has zero actionable findings; 42 scoped tests pass, including the hosted
-review regressions. Current-main parity is complete: bounded docgen, references,
-Fallow and coverage pass; test-tsgo and JSDoc remain source-attributed main reds.
-Full package verification passes (audit 1,190.6s / docgen 46.4s); live
-ruleset drift is shared-owned.
-Desktop route verification and F's owned-field config repair remain external
-dependencies; Permission continuity is open.
-H2's #1574 merge and #1744 evidence follow-up are in current main.
+Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
+B #1738, and H4 #1770 have merged. H3's reopened #1590 carries the repository
+telemetry repair and its round-3 CLI serialization fix; its
+[current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md) records proof
+provenance, tracked storage follow-up H3-R3-001, and the remaining native, home
+and remote prerequisites. All telemetry non-use windows remain incomplete. H4's read-only permission census and runbook
+are source-qualified; installed Desktop acceptance remains open for the operator
+fixture batch and F's owned-field config writer. F and overall acceptance remain active.
 
-The earlier lane snapshots below retain their recorded proof boundaries;
-they do not certify the current program state. Current H4 evidence is in
-[its handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md).
-
-B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
-main `f21e2a8563`. Its generated candidate remains subject to publication-head
-parity, named review and the serialized R14 merge. Cap released; later R20
-guidance and detector work stays pending. Candidate counts are not accepted
-program baselines and no zero-debt result is claimed.
 
 Lifecycle: `active`
 
@@ -138,6 +127,12 @@ The orchestrator owns the S11 merge gate: [handoff](./history/handoffs/rsc-g-sto
 (14 sweeps and 19 gap follow-ups); Knip reconciliation at `e62411d63f`
 (41 of 41 rows reproduced, `research/knip-findings-2026-10-09.md`).
 
+H3 execution evidence: [`history/receipts/stage-4-h3-telemetry.md`](./history/receipts/stage-4-h3-telemetry.md)
+(2026-10-09). Shared writer fixtures and native Claude primary/lane workflows
+are recorded separately from live qualifying windows. No non-use retirement is
+qualified; native trust, global projection and remote OTel validation remain
+owned prerequisites.
+
 C implementation evidence (partial, 2026-10-09):
 [`history/handoffs/rsc-c-scripts-2026-10-09.md`](history/handoffs/rsc-c-scripts-2026-10-09.md)
 and [`history/receipts/stage-5-acceptance.md`](history/receipts/stage-5-acceptance.md).
@@ -199,6 +194,8 @@ integration and both review fixes with local verification and checks waived.
 This supersedes the earlier publication hold; prior proof stays bound to its
 recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
+
+H3 resume evidence: [qualification receipt](history/receipts/stage-4-h3-telemetry.md#resume-2026-10-14); [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md).
 
 H4's October 14 implementation adds an explicit-file, read-only Session
 permission census and the [Desktop continuity runbook](../../docs/runbooks/agent-permission-continuity.md).
