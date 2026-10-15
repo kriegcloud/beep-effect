@@ -163,8 +163,8 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       const shellManifest = ModelsManifest.make({
         ...manifest,
         targets: [
-          yield* S.decodeEffect(ModelSyncTarget)({
-            id: "synthetic.shell",
+          ModelSyncTarget.make({
+            id: TargetId.make("synthetic.shell"),
             root: "home",
             path: "$HOME/.zshrc",
             optional: false,
@@ -172,8 +172,8 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
               {
                 _tag: "shell-assign",
                 variable: "--model",
-                within: "lightweight",
-                binding: { role: "codex.heavy", surface: "codex-cli", field: "model" },
+                within: O.some("lightweight"),
+                binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
                 render: { _tag: "verbatim" },
               },
             ],

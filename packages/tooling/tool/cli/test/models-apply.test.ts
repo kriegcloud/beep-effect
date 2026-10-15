@@ -8,12 +8,13 @@ import {
 import { modelsApplySpans, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -411,7 +412,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       yield* fs.symlink(target, link);
       const writer = yield* writerWithFs(fs);
       const applied = yield* writer.apply(link, [topLevel], "write", backups);
-      expect(O.isSome(applied)).toBe(true);
+      assertTrue(O.isSome(applied));
       const journal = O.getOrThrow(applied);
       expect(yield* fs.readLink(link)).toBe(target);
       expect(yield* fs.readFileString(target)).toContain('"gpt-6.1-sol"');
@@ -529,28 +530,29 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         const writer = yield* writerWithFs(fs);
         const journal = O.getOrThrow(yield* writer.apply(linked ? link : file, [topLevel], "write", backups));
         const applied = yield* fs.readFileString(file);
-        if (phase === "parent-link") {
-          const moved = path.join(root, "moved");
-          yield* fs.rename(directory, moved);
-          yield* fs.symlink(moved, directory);
-        } else if (linked) {
-          yield* fs.remove(link);
-          if (phase === "replaced-link") yield* fs.writeFileString(link, applied);
-          else {
-            yield* fs.writeFileString(relocated, applied);
-            yield* fs.symlink(relocated, link);
-          }
-        } else {
-          yield* fs.rename(file, relocated);
-          if (phase === "introduced-link") yield* fs.symlink(relocated, file);
-        }
+        yield* Match.value(phase).pipe(
+          Match.when("parent-link", () => {
+            const moved = path.join(root, "moved");
+            return fs.rename(directory, moved).pipe(Effect.andThen(fs.symlink(moved, directory)));
+          }),
+          Match.when("replaced-link", () => fs.remove(link).pipe(Effect.andThen(fs.writeFileString(link, applied)))),
+          Match.when("retargeted-link", () =>
+            fs
+              .writeFileString(relocated, applied)
+              .pipe(Effect.andThen(fs.remove(link)), Effect.andThen(fs.symlink(relocated, link)))
+          ),
+          Match.when("introduced-link", () =>
+            fs.rename(file, relocated).pipe(Effect.andThen(fs.symlink(relocated, file)))
+          ),
+          Match.orElse(() => fs.rename(file, relocated))
+        );
         const error = yield* Effect.flip(writer.restore(path.join(backups, `${journal.id}.json`), backups));
         expect(error._tag).toBe("ModelsLocatorError");
         expect(error.message).toContain(`Journal: ${journal.id}`);
         expect(yield* fs.readDirectory(backups)).toHaveLength(2);
         if (phase !== "moved-target") expect(yield* fs.readFileString(file)).toBe(applied);
         if (phase === "introduced-link") expect(yield* fs.readLink(file)).toBe(relocated);
-        if (phase === "introduced-link" || phase === "moved-target" || phase === "retargeted-link")
+        if (A.contains(["introduced-link", "moved-target", "retargeted-link"], phase))
           expect(yield* fs.readFileString(relocated)).toBe(applied);
         expect(
           A.filter(yield* fs.readDirectory(directory), (entry) => entry.endsWith(".tmp") || entry.endsWith(".preimage"))

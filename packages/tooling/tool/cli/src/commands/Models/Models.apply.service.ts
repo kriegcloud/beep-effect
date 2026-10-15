@@ -218,6 +218,24 @@ const validateSyntax = Effect.fn("ModelsApply.validate")((text: string, writes: 
   )
 );
 
+const checkShellDrift = Effect.fnUntraced((text: string, writes: ReadonlyArray<ModelsLocatorWrite>) =>
+  Effect.forEach(
+    writes,
+    ({ locator, expected }) =>
+      Match.value(locator).pipe(
+        Match.tag("shell-assign", ({ variable, within }) =>
+          modelsReadShellAssign(text, variable, within).pipe(
+            Effect.filterOrFail(O.contains(expected), () =>
+              failure("Owned configuration drift detected (shell target is check-only; edit by hand).")
+            )
+          )
+        ),
+        Match.orElse(() => Effect.void)
+      ),
+    { concurrency: 1, discard: true }
+  )
+);
+
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -392,12 +410,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       const actual = yield* fs.realPath(file).pipe(io);
       const before = yield* readNative(actual);
       yield* validate(before, writes);
-      for (const { locator, expected } of shellWrites) {
-        if (locator._tag !== "shell-assign") continue;
-        const current = yield* modelsReadShellAssign(before, locator.variable, locator.within);
-        if (mode === "check" && !O.contains(current, expected))
-          return yield* failure("Owned configuration drift detected (shell target is check-only; edit by hand).");
-      }
+      if (mode === "check") yield* checkShellDrift(before, writes);
       const nativeWrites = A.filter(writes, ({ locator }) => locator._tag !== "shell-assign");
       const spans = yield* Effect.forEach(nativeWrites, (write) => modelsWriteSpans(before, write), {
         concurrency: 1,
