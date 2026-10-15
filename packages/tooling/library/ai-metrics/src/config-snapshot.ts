@@ -651,6 +651,10 @@ const readTrackedSnapshotPaths = Effect.fn("AiMetrics.readTrackedSnapshotPaths")
   return O.some<ReadonlyArray<string>>(pipe(text, Str.split("\0"), A.filter(Str.isNonEmpty)));
 });
 
+/**
+ * Recognizes only a HEAD-bearing directory or a gitdir file, following symlinks.
+ * Dangling `.git` symlinks count as absent metadata and permit the bounded walk.
+ */
 const hasGitMetadata = Effect.fnUntraced(function* (directory: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -658,8 +662,7 @@ const hasGitMetadata = Effect.fnUntraced(function* (directory: string) {
   return yield* fs.stat(metadata).pipe(
     Effect.flatMap((info) => {
       if (info.type === "Directory") return fs.exists(path.join(metadata, "HEAD"));
-      if (info.type === "File" || info.type === "SymbolicLink")
-        return fs.readFileString(metadata).pipe(Effect.map(Str.startsWith("gitdir:")));
+      if (info.type === "File") return fs.readFileString(metadata).pipe(Effect.map(Str.startsWith("gitdir:")));
       return Effect.succeed(false);
     }),
     Effect.catchIf(
@@ -1198,6 +1201,9 @@ const readPreviousSnapshot = (previousSnapshotPath: O.Option<string>) =>
  * {@link AiMetricsConfigSnapshotBudget} bound what survives the boundary, and
  * every included file is tagged `session` or `baseline` so attribution can tell
  * an operator settings change apart from repo guidance drift.
+ * Git metadata requires a HEAD-bearing directory or a file starting with
+ * `gitdir:`, following symlinks. Dangling `.git` symlinks count as absent
+ * metadata and permit the bounded filesystem walk.
  *
  * **Gotchas**
  *

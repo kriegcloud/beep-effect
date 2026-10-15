@@ -212,7 +212,7 @@ const bootstrapAuthoredPacket = Effect.fnUntraced(function* (repoRoot: string) {
   const manifestPath = `goals/${SLUG}/ops/manifest.json`;
   const manifest = yield* fs.readFileString(path.join(repoRoot, manifestPath));
   yield* fs.writeFileString(
-    manifestPath,
+    path.join(repoRoot, manifestPath),
     Str.replace(
       '"id": "P4",\n      "name": "Remediate",\n      "status": "pending"',
       '"id": "P4",\n      "name": "Remediate",\n      "status": "complete"'
@@ -271,7 +271,7 @@ const setPacketBranch = Effect.fnUntraced(function* (repoRoot: string, branch: s
   const manifestPath = `goals/${SLUG}/ops/manifest.json`;
   const manifest = yield* fs.readFileString(path.join(repoRoot, manifestPath));
   yield* fs.writeFileString(
-    manifestPath,
+    path.join(repoRoot, manifestPath),
     Str.replace('"branch": "security/codex-findings-2026-08-04"', `"branch": "${branch}"`)(manifest)
   );
 });

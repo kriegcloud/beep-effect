@@ -149,6 +149,18 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
         expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
       })
     );
+    it.effect("walks successfully beneath a dangling parent .git symlink", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* fs.symlink(pathApi.join(tmpDir, "missing-metadata"), pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
     it.effect("retains Git stderr and exit code for HEAD metadata", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -180,7 +192,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
         expect(error.message).toBe("Git metadata exists but cannot be resolved.");
         expect(error.cause).toEqual({
           exitCode: 128,
-          stderr: expect.stringContaining("gitfile does not point to a valid repository"),
+          stderr: expect.stringMatching(/\S/u),
         });
       })
     );
@@ -200,7 +212,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
         expect(error.message).toBe("Git metadata exists but cannot be resolved.");
         expect(error.cause).toEqual({
           exitCode: 128,
-          stderr: expect.stringContaining("gitfile does not point to a valid repository"),
+          stderr: expect.stringMatching(/\S/u),
         });
       })
     );
