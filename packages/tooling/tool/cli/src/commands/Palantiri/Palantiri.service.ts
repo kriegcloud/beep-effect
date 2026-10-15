@@ -463,12 +463,14 @@ const isSettled = (record: ProofJobRecord): boolean => record.phase === "finishe
 
 /**
  * A settled proof job as the lane-reds parcel reads it, or `None` for a job
- * still running or with an unreadable submit time.
+ * still running, cancelled before a verdict, or with an unreadable submit
+ * time.
  *
  * **Details**
  *
  * A job failed when it recorded a failure verdict or terminated without one
- * for any reason but a cancel.
+ * for any reason but a cancel. A job cancelled before its verdict is `None`,
+ * so it can never be a branch's newest job and clear an earlier failure.
  *
  * **Example** (Reference the mapper)
  *
@@ -486,7 +488,12 @@ const isSettled = (record: ProofJobRecord): boolean => record.phase === "finishe
 export const proofJobInput = (record: ProofJobRecord): O.Option<ProofJobInput> => {
   const verdictFailed = O.exists(record.outcome, (outcome) => outcome.verdictOutcome === "failure");
   const died = O.filter(record.terminationReason, (reason) => reason !== "cancelled");
-  return isSettled(record)
+  // A job cancelled before it reached a verdict says nothing about the branch,
+  // so it is no input at all: it must not become the branch's newest job and
+  // clear an earlier failure that nothing has superseded.
+  const cancelledWithoutVerdict =
+    O.exists(record.terminationReason, (reason) => reason === "cancelled") && O.isNone(record.outcome);
+  return isSettled(record) && !cancelledWithoutVerdict
     ? O.map(instant(record.submittedAt), (submittedAt) =>
         ProofJobInput.make({
           branch: record.request.branch,

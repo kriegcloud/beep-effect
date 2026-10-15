@@ -94,17 +94,17 @@ Higher sources outrank lower sources when they conflict.
   - answer `decided`, which yields one proposed write;
   - the operator approves; the write applies through a test calendar adapter, journaled;
   - undo restores the prior state.
-- [ ] **P3 producer and notice.**
+- [x] **P3 producer and notice.**
   - docket-intake raises questions only for items records cannot settle, with a test over
     synthetic items.
   - The notice job sends at most one email a day, only when the digest is non-empty, tested with a
     fake mailbox.
-- [ ] **P4 handoff.** The amendment is delivered to the `practice-claude-mod-review-queue` owner and
+- [x] **P4 handoff.** The amendment is delivered to the `practice-claude-mod-review-queue` owner and
   recorded in `README.md`.
-- [ ] `bun run beep quality package-verify` passes for every touched package.
-- [ ] The PR is mergeable through Yeet, and a closeout reflection exists under
+- [x] `bun run beep quality package-verify` passes for every touched package.
+- [x] The PR is mergeable through Yeet, and a closeout reflection exists under
   `history/reflections/`.
-- [ ] No unrelated refactors or formatting churn.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
@@ -154,6 +154,10 @@ Seeded from [`explorations/attorney-review-workspace/DECISIONS.md`](../../explor
 | 2026-10-14 | P3b hub auth: it listens on loopback only, and `tailscale serve` plus an exact, case-sensitive `Tailscale-User-Login` allow-list is the boundary; there is no bearer token. Anything else gets an empty 403 before any route runs. | The tailnet already authenticates the device and user; a token would be a second secret to rotate on the attorney's PC. | Add a bearer token from 1Password checked beside the login. |
 | 2026-10-14 | P3b tool contract for the review pane: `review_open_items`, `review_record_verdict`, `review_lock_batch`, `review_record_answer`, with `ReviewHubToolError` codes `not-found`, `locked`, `unknown-option` and `store-unavailable` (`research/P3B-HUB.md`, as built). | One stable contract for the `practice-claude-mod-review-queue` follow-on. | Version the tools (`*_v2`) on a breaking change. |
 | 2026-10-14 | P3b `ReviewItemStore.upsert` skips items equal to their stored latest version. | Producers re-raise the same items every cycle; without the skip, `items.jsonl` grows forever. | Append every upsert and compact on read. |
+| 2026-10-15 | P3c notice mailbox: the daily notice uses the existing m365 outbox app registration's scoped `Mail.ReadWrite` and `Mail.Send` grant, sending from the attorney's mailbox to himself. | The operator's shape-review ruling (notice from his own mailbox through the existing outbox, no new grant). The docket registration never sends. | Give the notice its own app registration with the same scoped roles. |
+| 2026-10-15 | P3c producer wiring is opt-in: docket-intake publishes questions to the hub's item store only when `DOCKET_INTAKE_REVIEW_HUB_DIR` is set. Every cycle covers the whole needs-review ledger (idempotent through stable ids and unchanged-item skips). | Behaviour without the setting is exactly as before; publishing the whole ledger backfills records that predate the setting. | Publish only new records. |
+| 2026-10-15 | P3c JSONL reads ignore a trailing segment with no final newline (an append in progress) and still fail on a corrupt complete line. | Docket-intake appends while the hub reads; a half-written line must not fail the request. | Lock the file for reads. |
+| 2026-10-15 | P4 delivery: the question-card amendment and the hub tool contract (`research/P3B-HUB.md`, as built) are committed in the repo and registered with the orchestrator as a standing routing item for whichever session opens `practice-claude-mod-review-queue`. | The follow-on has no owner yet; the practice-claude-mod session asked for this routing before it stopped. | Deliver directly once an owner exists. |
 
 ## Exception Ledger
 

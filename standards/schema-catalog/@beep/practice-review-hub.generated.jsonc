@@ -4,6 +4,7 @@
   "generatedBy": "bun run beep lint schema-catalog --write",
   "owner": "@beep/practice-review-hub",
   "entries": [
-    {"file":"apps/practice-review-hub/src/Config.ts","symbol":"ReviewHubConfig","kind":"struct-const","owner":"@beep/practice-review-hub","identity":"ReviewHubConfig","description":"Resolved settings of the review hub."}
+    {"file":"apps/practice-review-hub/src/Config.ts","symbol":"ReviewHubConfig","kind":"struct-const","owner":"@beep/practice-review-hub","identity":"ReviewHubConfig","description":"Resolved settings of the review hub."},
+    {"file":"apps/practice-review-hub/src/Config.ts","symbol":"ReviewNoticeConfig","kind":"struct-const","owner":"@beep/practice-review-hub","identity":"ReviewNoticeConfig","description":"Resolved settings of the daily notice."}
   ]
 }

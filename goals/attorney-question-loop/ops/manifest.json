@@ -4,13 +4,13 @@
     "id": "attorney-question-loop",
     "packetId": "goal-packet/v1:333722c3a5de144e6caca083c5dc5af6dc829e953bbd6817067a0cfc18dd2f32",
     "title": "Attorney Question Loop",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/attorney-question-loop",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Agents ask the attorney through the review queue: a question ReviewItem, an append-only AnswerRow (decided, pending-on-client with resurfaceOn, keep-reminding, withdrawn), a QuestionQueue with daily digest selection, operator-approved write batches applied through the docket-intake calendar adapter, docket-intake as the first producer, and a daily notice email.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -65,22 +65,22 @@
     {
       "id": "P3",
       "name": "Producer + notice",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Handoff",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P6",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
@@ -98,5 +98,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "P0 merged (#1801). P1 contract, P2 services, P3a producer and notice, and P3b review hub complete 2026-10-14; P3c (systemd units, tailscale serve) next."
+  "statusNote": "Completed 2026-10-15: P0 (#1801), P1-P3b (#1814), and P3c plus the closeout in the final PR. The operator enables the services through docs/runbooks/practice-review-hub.md; follow-ups are listed in PLAN.md."
 }

@@ -9,6 +9,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import { dual } from "effect/Function";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import { Freshness } from "./Freshness.ts";
@@ -159,7 +160,44 @@ export const sinceLastCheckItems = (input: SinceLastCheckInput): ReadonlyArray<S
   );
 };
 
-const summarize = (input: SinceLastCheckInput, items: ReadonlyArray<SessionChange>): string => {
+// The changes one read serves. When there are more than the budget, the
+// oldest `budget` are served (still newest first) and the newer rest wait for
+// the next read, so advancing the cursor never skips a change. The rest are
+// appended after the page so the envelope's take keeps the page and its
+// receipt still counts every change.
+//
+// A page never splits changes that share a timestamp: the cursor keeps only
+// changes strictly after it, so a split group would lose its unserved half.
+// When the boundary timestamp continues into the pending changes, the page
+// stops just before that timestamp; when the whole page shares it, the page
+// takes the whole group, past the budget.
+const sameAt =
+  (at: DateTime.Utc) =>
+  (change: SessionChange): boolean =>
+    DateTime.Equivalence(change.at, at);
+
+const pageOf = (
+  items: ReadonlyArray<SessionChange>,
+  budget: ParcelBudget
+): { readonly page: ReadonlyArray<SessionChange>; readonly pending: ReadonlyArray<SessionChange> } => {
+  const candidate = A.takeRight(items, budget);
+  const boundary = O.map(A.head(candidate), (newest) => newest.at);
+  const splits = O.exists(boundary, (at) => A.some(A.dropRight(items, budget), sameAt(at)));
+  return items.length <= budget || !splits
+    ? { page: candidate, pending: A.dropRight(items, candidate.length) }
+    : O.match(boundary, {
+        onNone: () => ({ page: candidate, pending: A.dropRight(items, candidate.length) }),
+        onSome: (at) => {
+          const before = A.filter(candidate, (change) => !sameAt(at)(change));
+          // Both shapes are a suffix of the newest-first list, so the rest is
+          // everything before it.
+          const page = A.isReadonlyArrayNonEmpty(before) ? before : A.filter(items, sameAt(at));
+          return { page, pending: A.dropRight(items, page.length) };
+        },
+      });
+};
+
+const summarize = (input: SinceLastCheckInput, items: ReadonlyArray<SessionChange>, pending: number): string => {
   const since = O.match(sinceLastCheckBaseline(input), {
     onNone: () => "the first check",
     onSome: DateTime.formatIso,
@@ -167,12 +205,13 @@ const summarize = (input: SinceLastCheckInput, items: ReadonlyArray<SessionChang
   const notes = A.filter(items, (item) => item.source === "ledger");
   const lanes = A.dedupe(A.map(notes, (item) => item.lane));
   const unreadable = input.inboxReadable ? "" : "; inbox unreadable";
+  const more = pending > 0 ? `; ${plural(pending, "newer change")} pending, read again` : "";
   return A.match(items, {
     onEmpty: () => `nothing new since ${since}${unreadable}`,
     onNonEmpty: (changes) =>
       `${plural(changes.length, "change")} since ${since}: ${plural(notes.length, "session note")}${
         A.isReadonlyArrayNonEmpty(lanes) ? ` (${A.join(lanes, ", ")})` : ""
-      }, ${plural(changes.length - notes.length, "inbox row")}${unreadable}`,
+      }, ${plural(changes.length - notes.length, "inbox row")}${unreadable}${more}`,
   });
 };
 
@@ -185,8 +224,11 @@ const summarize = (input: SinceLastCheckInput, items: ReadonlyArray<SessionChang
  * The parcel is event-sourced: it has no time bound, and every change is
  * `Fresh`. The envelope is `Fresh` as of `now`, or
  * `Unknown{attribution-incomplete}` when the checkout's inbox could not be
- * read. Changes are newest first; at most `budget` are kept with an N-of-M
- * receipt. Advancing the cursor is the service's job, not the reducer's.
+ * read. Changes are newest first. With more than `budget` changes, the oldest
+ * `budget` are served and the summary says how many newer ones are pending,
+ * so the cursor can advance past exactly what was served (see
+ * {@link sinceLastCheckCursor}); the receipt still counts every change.
+ * Advancing the cursor is the service's job, not the reducer's.
  *
  * **Example** (First check with nothing recorded)
  *
@@ -212,7 +254,7 @@ export const reduceSinceLastCheck: {
   (now: DateTime.Utc, budget: ParcelBudget): (input: SinceLastCheckInput) => ParcelEnvelope;
   (input: SinceLastCheckInput, now: DateTime.Utc, budget: ParcelBudget): ParcelEnvelope;
 } = dual(3, (input: SinceLastCheckInput, now: DateTime.Utc, budget: ParcelBudget): ParcelEnvelope => {
-  const items = sinceLastCheckItems(input);
+  const { page, pending } = pageOf(sinceLastCheckItems(input), budget);
   return makeParcelEnvelope(
     ParcelDraft.make({
       spec: SinceLastCheckSpec,
@@ -224,9 +266,53 @@ export const reduceSinceLastCheck: {
             asOf: O.some(now),
             detail: O.some("the checkout inbox could not be read"),
           }),
-      summary: summarize(input, items),
-      items,
-      budget,
+      summary: summarize(input, page, pending.length),
+      items: A.appendAll(page, pending),
+      // Exactly the page is shown: smaller than the budget when it stops before a
+      // shared timestamp, larger when it serves a whole same-timestamp group.
+      budget: Num.max(1, page.length),
     })
   );
+});
+
+/**
+ * Where a session's read cursor may move after a since-last-check read.
+ *
+ * **Details**
+ *
+ * `None` when the checkout's inbox could not be read, so its rows are not
+ * skipped. When every change fit in the budget, the read time `now`. When
+ * changes were held back, the newest served change's time, so the pending
+ * newer changes come back on the next read.
+ *
+ * **Example** (A read with nothing pending moves to the read time)
+ *
+ * ```ts
+ * import { SinceLastCheckInput } from "@beep/palantiri/SinceLastCheck.models"
+ * import { sinceLastCheckCursor } from "@beep/palantiri/SinceLastCheck"
+ * import * as DateTime from "effect/DateTime"
+ * import * as O from "effect/Option"
+ *
+ * const input = SinceLastCheckInput.make({ cursor: O.none(), lane: "main", ledger: [], inbox: [], inboxReadable: true })
+ * console.log(O.isSome(sinceLastCheckCursor(input, DateTime.makeUnsafe(0), 20))) // true
+ * ```
+ *
+ * @param input - The cursor, ledger and inbox the read reduced.
+ * @param now - The read time, taken before the sources were read.
+ * @param budget - The most changes one read serves.
+ * @returns The new cursor position, or `None` to keep the cursor where it is.
+ * @category mapping
+ * @since 0.0.0
+ */
+export const sinceLastCheckCursor: {
+  (now: DateTime.Utc, budget: ParcelBudget): (input: SinceLastCheckInput) => O.Option<DateTime.Utc>;
+  (input: SinceLastCheckInput, now: DateTime.Utc, budget: ParcelBudget): O.Option<DateTime.Utc>;
+} = dual(3, (input: SinceLastCheckInput, now: DateTime.Utc, budget: ParcelBudget): O.Option<DateTime.Utc> => {
+  const { page, pending } = pageOf(sinceLastCheckItems(input), budget);
+  return input.inboxReadable
+    ? A.match(pending, {
+        onEmpty: () => O.some(now),
+        onNonEmpty: () => O.map(A.head(page), (newest) => newest.at),
+      })
+    : O.none();
 });

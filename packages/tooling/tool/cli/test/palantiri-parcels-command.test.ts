@@ -21,11 +21,16 @@ import {
   makeLaneRedsSource,
   makeSinceLastCheckSource,
   printParcel,
+  proofJobInput,
   renderParcelSpec,
 } from "@beep/repo-cli/test/Palantiri";
 import { MemoryStats } from "@beep/repo-cli/test/RepoRun";
 import { layerSessionLedgerMemory, SessionLedger, SessionLedgerRow } from "@beep/repo-cli/test/Session";
 import {
+  ProofJobRecord,
+  ProofJobRequest,
+  ProofJobSubmitter,
+  ProofJobUnit,
   PrRepository,
   YeetAckState,
   YeetCheckFailedRow,
@@ -40,6 +45,7 @@ import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeCrypto } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -421,5 +427,55 @@ describe("beep palantiri parcels", () => {
       "app-error-classes  key=app  bound=900s  sources=grafana-query",
       "since-last-check  key=session  bound=none (event-sourced)  sources=session-ledger, yeet-inbox, session-cursor",
     ]);
+  });
+});
+
+const settledJob = (terminationReason: O.Option<"cancelled" | "signal">) =>
+  ProofJobRecord.make({
+    jobId: "cc5d6bd3-1111-4aaa-8bbb-000000000002",
+    phase: "terminated",
+    submittedAt: "2026-10-15T10:00:00.000Z",
+    request: ProofJobRequest.make({
+      mode: "monitor",
+      argv: ["monitor"],
+      checkout: "/repo",
+      branch: "feat/lane",
+      base: "origin/main",
+      head: "0".repeat(40),
+      forwardedEnvNames: [],
+    }),
+    submitter: ProofJobSubmitter.make({ pid: 4242, procStart: O.none(), cwd: "/repo", harness: O.none() }),
+    unit: ProofJobUnit.make({
+      unitName: "beep-proof-test.service",
+      slice: "agent-runs.slice",
+      description: "test",
+      logPath: "/repo/test.log",
+      execStart: ["bun"],
+      execStopPost: ["bun"],
+      maxRuntimeSeconds: O.none(),
+      invocationId: O.none(),
+    }),
+    runner: O.none(),
+    outcome: O.none(),
+    systemd: O.none(),
+    terminationReason,
+    cancelRequestedAt: O.none(),
+    prNumber: O.some(1831),
+  });
+
+describe("proofJobInput", () => {
+  it("drops a job cancelled before its verdict, so it cannot clear an earlier failure", () => {
+    assertNone(O.some("cancelled" as const).pipe(settledJob, proofJobInput));
+  });
+
+  it("keeps a job that died before its verdict as a failure", () => {
+    assertSome(
+      O.some("signal" as const).pipe(
+        settledJob,
+        proofJobInput,
+        O.map((job) => job.failed)
+      ),
+      true
+    );
   });
 });

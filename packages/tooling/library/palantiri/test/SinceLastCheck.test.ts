@@ -13,9 +13,10 @@ import {
   SinceLastCheckSource,
   SourceFailed,
   sinceLastCheckBaseline,
+  sinceLastCheckCursor,
 } from "@beep/palantiri";
 import { describe, expect, it } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -134,6 +135,67 @@ describe("reduceSinceLastCheck", () => {
       expect(pipe(json, Str.includes("/home/"))).toBe(false);
     })
   );
+});
+
+describe("sinceLastCheckCursor", () => {
+  const busy = SinceLastCheckInput.make({
+    cursor: O.some(minutesAgo(60)),
+    lane: "main",
+    ledger: [ledgerRow("lane-a", 50), ledgerRow("lane-b", 40), ledgerRow("lane-c", 30), ledgerRow("lane-d", 20)],
+    inbox: [],
+    inboxReadable: true,
+  });
+
+  it("serves the oldest changes past the budget and stops the cursor at the newest one served", () => {
+    const parcel = reduceSinceLastCheck(busy, NOW, 2);
+    expect(A.map(changes(parcel), (change) => change.lane)).toEqual(["lane-b", "lane-a"]);
+    expect(parcel.receipt.shown).toBe(2);
+    expect(parcel.receipt.total).toBe(4);
+    expect(parcel.summary).toContain("2 newer changes pending, read again");
+    assertSome(sinceLastCheckCursor(busy, NOW, 2), minutesAgo(40));
+    // The next read from that cursor serves the two held back, then reaches now.
+    const next = SinceLastCheckInput.make({ ...busy, cursor: O.some(minutesAgo(40)) });
+    expect(A.map(changes(reduceSinceLastCheck(next, NOW, 2)), (change) => change.lane)).toEqual(["lane-d", "lane-c"]);
+    assertSome(sinceLastCheckCursor(next, NOW, 2), NOW);
+  });
+
+  it("never splits changes that share the boundary timestamp", () => {
+    // [a@t2, b@t2, c@t1] with budget 2: serving [b, c] and moving to t2 would lose a.
+    const tied = SinceLastCheckInput.make({
+      cursor: O.some(minutesAgo(60)),
+      lane: "main",
+      ledger: [ledgerRow("lane-a", 20), ledgerRow("lane-b", 20), ledgerRow("lane-c", 30)],
+      inbox: [],
+      inboxReadable: true,
+    });
+    expect(A.map(changes(reduceSinceLastCheck(tied, NOW, 2)), (change) => change.lane)).toEqual(["lane-c"]);
+    assertSome(sinceLastCheckCursor(tied, NOW, 2), minutesAgo(30));
+    const next = SinceLastCheckInput.make({ ...tied, cursor: O.some(minutesAgo(30)) });
+    expect(A.map(changes(reduceSinceLastCheck(next, NOW, 2)), (change) => change.lane).toSorted()).toEqual([
+      "lane-a",
+      "lane-b",
+    ]);
+    assertSome(sinceLastCheckCursor(next, NOW, 2), NOW);
+  });
+
+  it("serves a whole same-timestamp group past the budget rather than stall", () => {
+    const burst = SinceLastCheckInput.make({
+      cursor: O.some(minutesAgo(60)),
+      lane: "main",
+      ledger: [ledgerRow("lane-a", 20), ledgerRow("lane-b", 20), ledgerRow("lane-c", 20), ledgerRow("lane-d", 5)],
+      inbox: [],
+      inboxReadable: true,
+    });
+    const parcel = reduceSinceLastCheck(burst, NOW, 2);
+    expect(changes(parcel)).toHaveLength(3);
+    expect(parcel.summary).toContain("1 newer change pending");
+    assertSome(sinceLastCheckCursor(burst, NOW, 2), minutesAgo(20));
+  });
+
+  it("moves to the read time when everything fit, and stays put when the inbox was unreadable", () => {
+    assertSome(sinceLastCheckCursor(busy, NOW, 20), NOW);
+    assertNone(sinceLastCheckCursor(SinceLastCheckInput.make({ ...busy, inboxReadable: false }), NOW, 20));
+  });
 });
 
 describe("Parcels.read since-last-check", () => {

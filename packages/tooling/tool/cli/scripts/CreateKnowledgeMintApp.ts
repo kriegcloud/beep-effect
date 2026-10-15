@@ -3,8 +3,14 @@
  * Run: bun scripts/github-app/create-beep-knowledge-mint.ts (through the human launcher).
  * Secret material travels only through memory and the op process's stdin.
  */
+import { NodeCrypto } from "@effect/platform-node";
+import * as Console from "effect/Console";
+import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
+import * as Layer from "effect/Layer";
+import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -12,6 +18,9 @@ import * as S from "effect/Schema";
 const PORT = 8787;
 const MANIFEST_URL = new URL("../../../../../scripts/github-app/beep-knowledge-mint.manifest.json", import.meta.url);
 const ITEM_TITLE = "beep-knowledge-mint GitHub App";
+
+// The one runtime for this human-run entry point: HTTP for the conversion, Crypto for the nonce.
+const MintRuntime = ManagedRuntime.make(Layer.mergeAll(FetchHttpClient.layer, NodeCrypto.layer));
 
 class MintConversion extends S.Opaque<MintConversion, { readonly brand: unique symbol }>()(
   S.Struct({
@@ -87,49 +96,44 @@ const convertAndStore = Effect.fn("KnowledgeMint.convertAndStore")(function* (co
     : ({ _tag: "StoreFailed", slug: converted.slug, exitCode } satisfies Outcome);
 });
 
-const runCallback = (code: string): Promise<Outcome> =>
-  Effect.runPromise(
-    convertAndStore(code).pipe(
-      Effect.provide(FetchHttpClient.layer),
-      Effect.catchCause(() => Effect.succeed<Outcome>({ _tag: "Failed" }))
-    )
-  );
+const runCallback = (code: string): Effect.Effect<Outcome, never, HttpClient.HttpClient> =>
+  convertAndStore(code).pipe(Effect.catchCause(() => Effect.succeed<Outcome>({ _tag: "Failed" })));
 
-const report = (outcome: Outcome): Response =>
+// Each outcome logs one safe line to the terminal and renders one safe page.
+const reply = (line: Effect.Effect<void>, body: string, status = 200): Effect.Effect<Response> =>
+  Effect.as(line, page(body, status));
+
+const report = (outcome: Outcome): Effect.Effect<Response> =>
   Match.valueTags(outcome, {
-    Stored: (outcome) => {
-      console.log(
-        `[knowledge-mint] Stored "${ITEM_TITLE}" in BEEP_SECRETS for App ${outcome.slug} (app_id ${outcome.appId}). Install it, record installation_id, then press Ctrl-C.`
-      );
-      return page(
-        `Stored in 1Password as "${ITEM_TITLE}" (App ${outcome.slug}). Install it on beep-effect/beep-effect only, record installation_id, then stop the launcher with Ctrl-C.`
-      );
-    },
-    ConversionFailed: (outcome) => {
-      console.error(`[knowledge-mint] Manifest conversion returned HTTP ${outcome.status}; nothing was stored.`);
-      return page(
-        `Manifest conversion returned HTTP ${outcome.status}. Nothing was stored. Check the App registration page before starting over.`,
+    Stored: (stored) =>
+      reply(
+        Console.log(
+          `[knowledge-mint] Stored "${ITEM_TITLE}" in BEEP_SECRETS for App ${stored.slug} (app_id ${stored.appId}). Install it, record installation_id, then press Ctrl-C.`
+        ),
+        `Stored in 1Password as "${ITEM_TITLE}" (App ${stored.slug}). Install it on beep-effect/beep-effect only, record installation_id, then stop the launcher with Ctrl-C.`
+      ),
+    ConversionFailed: (failed) =>
+      reply(
+        Console.error(`[knowledge-mint] Manifest conversion returned HTTP ${failed.status}; nothing was stored.`),
+        `Manifest conversion returned HTTP ${failed.status}. Nothing was stored. Check the App registration page before starting over.`,
         500
-      );
-    },
-    StoreFailed: (outcome) => {
-      console.error(
-        `[knowledge-mint] App ${outcome.slug} was registered, but 1Password item creation exited ${outcome.exitCode}; secret diagnostics suppressed. Do not reload the callback.`
-      );
-      return page(
-        `App ${outcome.slug} was registered, but storing it in 1Password failed (exit ${outcome.exitCode}). Do not reload this page: the code is single-use. Revoke the new App's generated private key, delete the uninstalled registration, then start the launcher again.`,
+      ),
+    StoreFailed: (failed) =>
+      reply(
+        Console.error(
+          `[knowledge-mint] App ${failed.slug} was registered, but 1Password item creation exited ${failed.exitCode}; secret diagnostics suppressed. Do not reload the callback.`
+        ),
+        `App ${failed.slug} was registered, but storing it in 1Password failed (exit ${failed.exitCode}). Do not reload this page: the code is single-use. Revoke the new App's generated private key, delete the uninstalled registration, then start the launcher again.`,
         500
-      );
-    },
-    Failed: () => {
-      console.error(
-        "[knowledge-mint] Conversion or vault write failed; diagnostics suppressed. Do not reload the callback."
-      );
-      return page(
+      ),
+    Failed: () =>
+      reply(
+        Console.error(
+          "[knowledge-mint] Conversion or vault write failed; diagnostics suppressed. Do not reload the callback."
+        ),
         "Conversion or vault write failed. No secret was printed or saved locally. Do not reload this page. Inspect the App settings, revoke any generated key, and delete an uninstalled new registration before retrying.",
         500
-      );
-    },
+      ),
   });
 
 /**
@@ -144,12 +148,15 @@ const report = (outcome: Outcome): Response =>
  *
  * @param nonce - Random state value bound into the registration form and checked on callback.
  * @param manifestJson - Serialized App manifest posted to GitHub.
- * @returns A fetch handler for `Bun.serve`.
+ * @returns A request handler whose Effect needs the HTTP client for the conversion.
  */
-export const makeKnowledgeMintHandler = (nonce: string, manifestJson: string) => {
+export const makeKnowledgeMintHandler: {
+  (manifestJson: string): (nonce: string) => KnowledgeMintHandler;
+  (nonce: string, manifestJson: string): KnowledgeMintHandler;
+} = dual(2, (nonce: string, manifestJson: string): KnowledgeMintHandler => {
   const escaped = manifestJson.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
   let attempted = false;
-  return async (request: Request): Promise<Response> => {
+  return Effect.fnUntraced(function* (request: Request) {
     const url = new URL(request.url);
     if (request.method !== "GET" || ![`localhost:${PORT}`, `127.0.0.1:${PORT}`].includes(url.host)) {
       return page("Rejected", 400);
@@ -163,28 +170,42 @@ export const makeKnowledgeMintHandler = (nonce: string, manifestJson: string) =>
     if (url.pathname !== "/callback" || url.searchParams.get("state") !== nonce || code === null || attempted) {
       return page("Invalid or already used callback", 400);
     }
+    // Set before the first yield, so a concurrent second callback is refused.
     attempted = true;
-    return report(await runCallback(code));
-  };
-};
+    return yield* report(yield* runCallback(code));
+  });
+});
+
+/** One registration request handled as an Effect; the conversion needs the HTTP client. */
+type KnowledgeMintHandler = (request: Request) => Effect.Effect<Response, never, HttpClient.HttpClient>;
+
+const startRegistration = Effect.fn("KnowledgeMint.startRegistration")(function* () {
+  const manifest = yield* Effect.promise(() => Bun.file(MANIFEST_URL).text()).pipe(
+    Effect.flatMap(decodeJson),
+    Effect.flatMap(decodeManifest)
+  );
+  const manifestJson = yield* encodeJson(manifest);
+  const crypto = yield* Crypto.Crypto;
+  const handle = makeKnowledgeMintHandler(yield* crypto.randomUUIDv4(), manifestJson);
+  const server = Bun.serve({
+    hostname: "127.0.0.1",
+    port: PORT,
+    fetch: (request) => MintRuntime.runPromise(handle(request)),
+    error: () => page("Registration failed; secret diagnostics suppressed.", 500),
+  });
+  yield* Console.log(
+    `[knowledge-mint] Listening. Open http://localhost:${server.port} in Chrome as kriegcloud. The callback never displays credentials. Ctrl-C stops the server.`
+  );
+});
 
 /**
  * Starts the loopback registration server and prints the URL to open.
  *
- * @returns Nothing; the server runs until the human stops it with Ctrl-C.
+ * **Details**
+ *
+ * The entry point's one runtime supplies the HTTP client and Crypto; the server keeps running
+ * until the human stops it with Ctrl-C.
+ *
+ * @returns A promise that settles once the server is listening.
  */
-export const startKnowledgeMintRegistration = async (): Promise<void> => {
-  const manifest = await Effect.runPromise(
-    decodeJson(await Bun.file(MANIFEST_URL).text()).pipe(Effect.flatMap(decodeManifest))
-  );
-  const manifestJson = await Effect.runPromise(encodeJson(manifest));
-  const server = Bun.serve({
-    hostname: "127.0.0.1",
-    port: PORT,
-    fetch: makeKnowledgeMintHandler(crypto.randomUUID(), manifestJson),
-    error: () => page("Registration failed; secret diagnostics suppressed.", 500),
-  });
-  console.log(
-    `[knowledge-mint] Listening. Open http://localhost:${server.port} in Chrome as kriegcloud. The callback never displays credentials. Ctrl-C stops the server.`
-  );
-};
+export const startKnowledgeMintRegistration = (): Promise<void> => MintRuntime.runPromise(startRegistration());

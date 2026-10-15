@@ -50,7 +50,7 @@ import {
 import { ParcelId, ParcelReadOptions } from "./Parcel.models.ts";
 import { makeParcelEnvelope, ParcelDraft, ParcelEnvelope } from "./ParcelEnvelope.models.ts";
 import { UnknownParcel } from "./Parcels.errors.ts";
-import { reduceSinceLastCheck, SinceLastCheckSpec } from "./SinceLastCheck.ts";
+import { reduceSinceLastCheck, SinceLastCheckSpec, sinceLastCheckCursor } from "./SinceLastCheck.ts";
 import type { AccountHeadroom, AccountHeadroomInput } from "./AccountHeadroom.models.ts";
 import type { HostPressureInput, HostPressureItem } from "./HostPressure.models.ts";
 import type { LaneRedsInput } from "./LaneReds.models.ts";
@@ -408,6 +408,8 @@ const makeParcels = Effect.gen(function* () {
 
   // The cursor moves to the read time taken before the sources are read, so
   // a row written during the read shows up again next time rather than never.
+  // It moves only as far as the changes served, and not at all when the inbox
+  // could not be read (sinceLastCheckCursor).
   const readSinceLastCheck = Effect.fnUntraced(function* (budget: ParcelBudget, session: O.Option<SessionKey>) {
     const now = yield* DateTime.now;
     return yield* O.match(session, {
@@ -430,20 +432,24 @@ const makeParcels = Effect.gen(function* () {
         ),
       onSome: (key) =>
         sessions.read(key).pipe(
-          Effect.map(reduceSinceLastCheck(now, budget)),
-          Effect.flatMap((envelope) =>
-            sessions.advance(key, now).pipe(
-              Effect.as(envelope),
-              Effect.catchTag("SourceFailed", (failure) =>
-                Effect.succeed(
-                  ParcelEnvelope.make({
-                    ...envelope,
-                    summary: `${envelope.summary}; read cursor not saved (${failure.detail})`,
-                  })
-                )
-              )
-            )
-          ),
+          Effect.flatMap((input) => {
+            const envelope = reduceSinceLastCheck(input, now, budget);
+            return O.match(sinceLastCheckCursor(input, now, budget), {
+              onNone: () => Effect.succeed(envelope),
+              onSome: (cursor) =>
+                sessions.advance(key, cursor).pipe(
+                  Effect.as(envelope),
+                  Effect.catchTag("SourceFailed", (failure) =>
+                    Effect.succeed(
+                      ParcelEnvelope.make({
+                        ...envelope,
+                        summary: `${envelope.summary}; read cursor not saved (${failure.detail})`,
+                      })
+                    )
+                  )
+                ),
+            });
+          }),
           Effect.catchTag("SourceFailed", (failure) =>
             Effect.succeed(unavailable(SinceLastCheckSpec, now, budget, failure))
           )
