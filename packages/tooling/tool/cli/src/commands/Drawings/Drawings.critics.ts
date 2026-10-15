@@ -193,6 +193,8 @@ const rowsOfPath = (data: string): ReadonlyArray<StrokeRow> =>
  * Effect.runPromise(parseZoomFlag("1:500,1500,1700,1400:walls")).then((zoom) => console.log(zoom.label)) // "walls"
  * ```
  *
+ * @param text - One zoom flag in fig:x,y,width,height:label form, using pixel coordinates.
+ * @returns An effect yielding a validated zoom, or a command error for malformed or invalid values.
  * @category parsing
  * @since 0.0.0
  */
@@ -265,6 +267,8 @@ const byAngleThenOffset = Order.combine(
  * console.log(table.includes("FIG 1 (front) — 0 shading strokes")) // true
  * ```
  *
+ * @param input - Drawing title, provenance hashes, and figure SVGs with coverage descriptions.
+ * @returns Markdown listing shading measurements in millimeters, grouped by figure.
  * @category formatting
  * @since 0.0.0
  */
@@ -320,6 +324,8 @@ export const strokeTableMarkdown = (input: {
  * console.log(priorSummaryMarkdown([]).startsWith("# Findings already reported")) // true
  * ```
  *
+ * @param reports - Earlier reviewer reports in the order later reviewers should read them.
+ * @returns Markdown preserving findings, prior assessments, and unassessed items in report order.
  * @category formatting
  * @since 0.0.0
  */
@@ -359,6 +365,8 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
  * console.log(priorIdsMarkdown([]).startsWith("# Finding ids already reported")) // true
  * ```
  *
+ * @param reports - Earlier reports whose finding identifiers and categories may reach synthetic reviewers.
+ * @returns Markdown listing finding ids, categories, and bases while excluding the full matter summary.
  * @category formatting
  * @since 0.0.0
  */
@@ -396,6 +404,8 @@ const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
  * console.log(O.getOrElse(extractReportText({ route: "grok", text: wrapper }), () => "")) // {"reviewer":"grok-4.7"}
  * ```
  *
+ * @param input - Reviewer route and its captured output, including any route-specific wrapper.
+ * @returns The extracted report JSON text, or None when no report document can be located.
  * @category parsing
  * @since 0.0.0
  */
@@ -464,6 +474,8 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * console.log(invocation.executable) // "grok"
  * ```
  *
+ * @param input - Reviewer configuration, pack paths, prompt, attachments, workspace choices, and environment.
+ * @returns The executable, arguments, working directory, and environment for the selected reviewer route.
  * @category constructors
  * @since 0.0.0
  */
@@ -797,8 +809,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         figures: figureSvgs,
       })
     );
-    const images = yield* Effect.forEach(request.imagesDirs, (dir) =>
-      Effect.gen(function* () {
+    const images = yield* Effect.forEach(
+      request.imagesDirs,
+      Effect.fnUntraced(function* (dir) {
         const name = path.basename(dir);
         yield* mkdir(path.join(packDir, "images", name));
         const files = yield* imagesIn(dir);
@@ -866,8 +879,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     const prior = yield* priorReports(loopDir);
     const startedAt = DateTime.formatIso(yield* DateTime.now);
     const prompt = yield* Match.value(reviewer.scope).pipe(
-      Match.when("matter", () =>
-        Effect.gen(function* () {
+      Match.when(
+        "matter",
+        Effect.fnUntraced(function* () {
           yield* mkdir(path.join(packDir, "prior"));
           yield* write(path.join(packDir, "prior", "SUMMARY.md"), priorSummaryMarkdown(prior));
           const hint = Match.value(reviewer.route).pipe(
@@ -901,8 +915,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
           ].join("\n");
         })
       ),
-      Match.when("synthetic", () =>
-        Effect.gen(function* () {
+      Match.when(
+        "synthetic",
+        Effect.fnUntraced(function* () {
           const syntheticPack = yield* Effect.fromOption(request.syntheticPack).pipe(
             Effect.mapError(() =>
               DrawingsCommandError.make({
@@ -1177,6 +1192,8 @@ export const DEFAULT_CRITIC_REVIEWERS: ReadonlyArray<CriticReviewer> = [
  * Effect.runPromise(selectReviewers(["grok-4.7", "claude-opus-5.5"])).then((rs) => console.log(rs.length)) // 2
  * ```
  *
+ * @param names - Reviewer names in the desired execution order; every name must match a default reviewer.
+ * @returns An effect yielding reviewers in requested order, or a command error naming an unknown reviewer.
  * @category constructors
  * @since 0.0.0
  */
