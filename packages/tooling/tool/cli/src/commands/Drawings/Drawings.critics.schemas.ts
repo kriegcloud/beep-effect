@@ -22,6 +22,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { QaSeverity } from "../Qa/Inventory.schemas.ts";
@@ -463,13 +464,12 @@ const STRICT_KEYWORDS = HashSet.fromIterable([
   "description",
 ]);
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value);
 
 // Keep only the keywords the strict structured-output modes accept, recursively;
 // the children of `properties` are property names, not keywords, and stay.
 const strictKeywords = (node: unknown): unknown =>
-  Array.isArray(node)
+  A.isArray(node)
     ? A.map(node, strictKeywords)
     : isRecord(node)
       ? pipe(

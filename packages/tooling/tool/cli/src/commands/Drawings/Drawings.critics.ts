@@ -31,6 +31,7 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -405,9 +406,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     return start >= 0 && end > start ? O.some(text.slice(start, end + 1)) : O.none();
   };
   const field = (value: unknown, key: string): O.Option<unknown> =>
-    typeof value === "object" && value !== null && key in value
-      ? O.fromNullishOr((value as Record<string, unknown>)[key])
-      : O.none();
+    P.hasProperty(value, key) ? O.fromNullishOr(value[key]) : O.none();
   return Match.value(input.route).pipe(
     Match.when("codex", () => outermost(input.text)),
     Match.when("grok", () =>
@@ -416,12 +415,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
         O.flatMap((wrapper) =>
           field(wrapper, "structuredOutput").pipe(
             O.map((structured) => JSON.stringify(structured)),
-            O.orElse(() =>
-              field(wrapper, "text").pipe(
-                O.filter((t): t is string => typeof t === "string"),
-                O.flatMap(outermost)
-              )
-            )
+            O.orElse(() => field(wrapper, "text").pipe(O.filter(P.isString), O.flatMap(outermost)))
           )
         ),
         O.orElse(() => outermost(input.text))
@@ -430,13 +424,13 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     Match.when("claude", () =>
       pipe(
         parseJson(input.text),
-        O.filter((events): events is ReadonlyArray<unknown> => Array.isArray(events)),
+        O.filter((events): events is ReadonlyArray<unknown> => A.isArray(events)),
         O.flatMap((events) =>
           pipe(
             events,
             A.findLast((event) => O.contains(field(event, "type"), "result" as unknown)),
             O.flatMap((event) => field(event, "result")),
-            O.filter((t): t is string => typeof t === "string"),
+            O.filter(P.isString),
             O.flatMap(outermost)
           )
         ),
@@ -1073,7 +1067,7 @@ const processEnvironment = (): Readonly<Record<string, string>> =>
   R.filterMap(
     (globalThis as unknown as { readonly process?: { readonly env?: Readonly<Record<string, string | undefined>> } })
       .process?.env ?? {},
-    (value) => (typeof value === "string" ? Result.succeed(value) : Result.fail(undefined))
+    (value) => (P.isString(value) ? Result.succeed(value) : Result.fail(undefined))
   );
 
 /**
