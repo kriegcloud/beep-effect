@@ -38,12 +38,8 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { canonicalJsonText } from "../Goals/PacketCore/PacketDigest.ts";
-import {
-  publishSkillsLockText,
-  readSkillsLockText,
-  SKILLS_LOCK_PATH,
-  skillsLockTextSha256,
-} from "./internal/LockFile.ts";
+import { isSecondStrike, readHunkLedger } from "./internal/HunkLedger.ts";
+import { readSkillsLockDocument, requireVendoredEntry, SKILLS_LOCK_PATH } from "./internal/LockFile.ts";
 import { decodePatchText, readVerifiedPatchSeries } from "./internal/PatchSeries.ts";
 import { computeSkillTree, hashBytes, installedTargetsHash } from "./internal/SkillTree.ts";
 import { applySkillPatch, classifySkillPatchHunks } from "./SkillPatches.apply.ts";
@@ -55,13 +51,8 @@ import {
   SkillUpstreamContentSourceLive,
   skillResolutionOfEntry,
 } from "./Skills.service.ts";
-import {
-  decodeSkillsLockDocumentJson,
-  SkillsLockDocument,
-  SkillsLockWrittenFile,
-  VendoredSkillLockEntry,
-} from "./SkillsLock.schemas.ts";
-import { renderSkillsLockDocumentText } from "./SkillsLock.write.ts";
+import { VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
+import { publishSkillsLockEntry } from "./SkillsLock.write.ts";
 import { SkillHunkReport, SkillRelockReceipt, SkillReplayBatch, SkillReplayReport } from "./SkillsRelock.schemas.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as FileSystem from "effect/FileSystem";
@@ -69,8 +60,9 @@ import type * as Path from "effect/Path";
 import type { ComputedSkillTree } from "./internal/SkillTree.ts";
 import type { SkillMaterializeRefusal, SkillUpstreamContentError } from "./Skills.errors.ts";
 import type { SkillUpstreamContentFile } from "./Skills.schemas.ts";
-import type { SkillsLockEntry } from "./SkillsLock.schemas.ts";
+import type { SkillsLockEntry, SkillsLockWrittenFile } from "./SkillsLock.schemas.ts";
 import type { SkillReplayStatus } from "./SkillsRelock.schemas.ts";
+import type { SkillHunkLedgerRow } from "./SkillsReview.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/SkillsRelock.service");
 
@@ -106,25 +98,13 @@ const effectiveEquivalence = S.toEquivalence(SkillEffective);
 const refuse = (skill: string, reason: SkillRelockRefusal["reason"], message: string) =>
   Effect.fail(SkillRelockRefusal.make({ skill, reason, message }));
 
-const readLock = Effect.fn("SkillsRelock.readLock")(function* (repoRoot: string) {
-  const { lockPath, text } = yield* readSkillsLockText(repoRoot);
-  const document = yield* decodeSkillsLockDocumentJson(text).pipe(
-    SkillsCommandError.mapError(`${SKILLS_LOCK_PATH} is not a skills-lock/v2 document.`, lockPath)
-  );
-  return { document, sha256: yield* skillsLockTextSha256(text, lockPath) };
-});
-
 const requireVendored = (
   skills: Readonly<Record<string, SkillsLockEntry>>,
   skill: string
 ): Effect.Effect<VendoredSkillLockEntry, SkillRelockRefusal> =>
-  O.match(R.get(skills, skill), {
-    onNone: () => refuse(skill, "unknown-skill", `${skill} has no entry in ${SKILLS_LOCK_PATH}.`),
-    onSome: (entry) =>
-      entry._tag === "vendored"
-        ? Effect.succeed(entry)
-        : refuse(skill, "not-vendored", `${skill} is a local skill; only vendored entries carry a pin to relock.`),
-  });
+  requireVendoredEntry(skills, skill, "only vendored entries carry a pin to relock.", (reason, message) =>
+    refuse(skill, reason, message)
+  );
 
 const strictReplay =
   (patches: ReadonlyArray<{ readonly path: string; readonly text: string }>) =>
@@ -344,7 +324,7 @@ const relockSkill = Effect.fn("SkillsRelock.relockSkill")(function* (
   skill: string,
   expect: O.Option<string>
 ): Effect.fn.Return<SkillRelockReceipt, SkillUpdateTrainFailure, TrainRequirements> {
-  const lock = yield* readLock(repoRoot);
+  const lock = yield* readSkillsLockDocument(repoRoot);
   const entry = yield* requireVendored(lock.document.skills, skill);
   const replayed = yield* replayEntry(repoRoot, skill, entry);
   const effectiveTree = yield* requireRelockable(replayed);
@@ -387,28 +367,46 @@ const relockSkill = Effect.fn("SkillsRelock.relockSkill")(function* (
   if (snapshotEquivalence(snapshot, entry.snapshot) && effectiveEquivalence(effective, entry.effective)) {
     return receipt("already-current", O.none());
   }
-  const document = SkillsLockDocument.make({
-    version: 2,
-    skills: R.set(lock.document.skills, skill, VendoredSkillLockEntry.make({ ...entry, snapshot, effective })),
-  });
-  const lockText = yield* renderSkillsLockDocumentText(document);
-  yield* publishSkillsLockText(repoRoot, lockText, lock.sha256, Str.slice(0, 16)(planDigest));
   return receipt(
     "written",
     O.some(
-      SkillsLockWrittenFile.make({
-        path: SKILLS_LOCK_PATH,
-        sha256: yield* skillsLockTextSha256(lockText, SKILLS_LOCK_PATH),
-      })
+      yield* publishSkillsLockEntry(
+        repoRoot,
+        lock,
+        skill,
+        VendoredSkillLockEntry.make({ ...entry, snapshot, effective }),
+        planDigest
+      )
     )
   );
 });
+
+// B4: an unresolved hunk the ledger already records as unresolved at another pin is a
+// second strike, reported as a promotion candidate; graduation stays a human decision.
+const withPromoteCandidates = (
+  report: SkillReplayReport,
+  ledger: ReadonlyArray<SkillHunkLedgerRow>
+): SkillReplayReport =>
+  SkillReplayReport.make({
+    ...report,
+    promoteCandidates: A.dedupe(
+      A.map(
+        A.filter(
+          report.hunks,
+          (row) =>
+            row.status !== "applied" &&
+            isSecondStrike(ledger, { skill: report.skill, hunkHash: row.hunkHash, newRevision: report.sourceRevision })
+        ),
+        (row) => row.hunkHash
+      )
+    ),
+  });
 
 const replaySkills = Effect.fn("SkillsRelock.replaySkills")(function* (
   repoRoot: string,
   skill: O.Option<string>
 ): Effect.fn.Return<SkillReplayBatch, SkillUpdateTrainFailure, TrainRequirements> {
-  const lock = yield* readLock(repoRoot);
+  const lock = yield* readSkillsLockDocument(repoRoot);
   const selected = yield* O.match(skill, {
     onNone: () =>
       Effect.succeed(
@@ -419,8 +417,9 @@ const replaySkills = Effect.fn("SkillsRelock.replaySkills")(function* (
       ),
     onSome: (name) => Effect.map(requireVendored(lock.document.skills, name), (entry) => A.of([name, entry] as const)),
   });
+  const ledger = yield* readHunkLedger(repoRoot);
   const reports = yield* Effect.forEach(selected, ([name, entry]) =>
-    Effect.map(replayEntry(repoRoot, name, entry), (replayed) => replayed.report)
+    Effect.map(replayEntry(repoRoot, name, entry), (replayed) => withPromoteCandidates(replayed.report, ledger))
   );
   return SkillReplayBatch.make({ reports });
 });

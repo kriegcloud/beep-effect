@@ -207,8 +207,11 @@ the checkout it runs in. When the clone's checkout predates `--retire`, run
 the lane's own CLI from the clone instead:
 `cd <clone> && bun run <lane>/packages/tooling/tool/cli/src/bin.ts -- yeet sweep --retire --lane <lane>`
 (observed 2026-09-13: the primary clone sat on an old branch). `--json` prints one
-schema-owned document (`yeet-retire-sweep-plan/v1` with `--plan`,
-`yeet-retire-sweep-report/v1` otherwise). `--branch` is refused alongside
+schema-owned document (`yeet-retire-sweep-plan/v2` with `--plan`,
+`yeet-retire-sweep-report/v2` otherwise), each carrying the gate's `verdict`:
+`pr-merged`, `pr-less-on-main` (a branch that never headed a PR whose tip
+`origin/main` already contains, with a clean tree), or `refused` with the
+reason. `--branch` is refused alongside
 `--retire`: the lane's own HEAD is the branch that is retired.
 
 ## Verify

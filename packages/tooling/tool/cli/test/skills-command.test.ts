@@ -457,7 +457,7 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 l
       const line = A.findFirst(A.filter(yield* TestConsole.logLines, P.isString), Str.startsWith("- hand-edited"));
       assertSome(
         line,
-        "- hand-edited-vendored-output: demo no longer matches its effective tree; revert it with beep skills materialize --skill demo, or keep it as a patch under .agents/skill-patches/demo and re-record the lock with beep skills lock-plan (beep skills patch add is not available yet)"
+        "- hand-edited-vendored-output: demo no longer matches its effective tree; revert it with beep skills materialize --skill demo, or keep it as a patch with beep skills patch add --skill demo (plan, then --expect <planDigest>)"
       );
       expect(yield* readProjectFile(".claude/skills/demo/SKILL.md")).toContain("Edited by hand.");
     }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))

@@ -12,6 +12,7 @@
 import { $PracticeClaudeModId } from "@beep/identity/packages";
 import { BunRuntime } from "@effect/platform-bun";
 import * as BunServices from "@effect/platform-bun/BunServices";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -91,46 +92,49 @@ const program = Effect.gen(function* () {
   yield* fs.makeDirectory(entryDir, { recursive: true });
   yield* fs.writeFileString(
     entry,
-    [
-      "import {",
-      "  configure,",
-      "  matterCommand,",
-      "  timeCommand,",
-      "  practiceCommand,",
-      "  registerCommands,",
-      "  rememberAnswer,",
-      "  toolRow,",
-      "  verdictBand,",
-      "  verdictCommand,",
-      `} from "${path.join(appRoot, "src", "PracticeMod.hooks.ts")}";`,
-      "",
-      "export function register(on, options) {",
-      "  configure(options);",
-      '  on("session.start", async ($, e, next) => {',
-      "    await registerCommands($)();",
-      "    return next(e);",
-      "  });",
-      '  on("turn.complete", async ($, e, next) => {',
-      "    await rememberAnswer($)(e);",
-      "    return next(e);",
-      "  });",
-      '  on("command.run", { command: "matter" }, ($, e) => matterCommand($)(e.args));',
-      '  on("command.run", { command: "time" }, ($, e) => timeCommand($)(e.args));',
-      '  on("command.run", { command: "right" }, ($, e) => verdictCommand($)("right", e.args));',
-      '  on("command.run", { command: "wrong" }, ($, e) => verdictCommand($)("wrong", e.args));',
-      '  on("command.run", { command: "partly" }, ($, e) => verdictCommand($)("partly", e.args));',
-      '  on("command.run", { command: "practice" }, ($, e) => practiceCommand($)(e.args));',
-      '  on("ui.render", { component: "ToolUse" }, ($, e, next) => {',
-      "    const row = toolRow($)(e);",
-      "    return row === undefined ? next(e) : row;",
-      "  });",
-      '  on("ui.render", { component: "AbovePrompt" }, ($, e, next) => {',
-      "    const band = verdictBand($)(e);",
-      "    return band === undefined ? next(e) : band;",
-      "  });",
-      "}",
-      "",
-    ].join("\n")
+    A.join(
+      [
+        "import {",
+        "  configure,",
+        "  matterCommand,",
+        "  timeCommand,",
+        "  practiceCommand,",
+        "  registerCommands,",
+        "  rememberAnswer,",
+        "  toolRow,",
+        "  verdictBand,",
+        "  verdictCommand,",
+        `} from "${path.join(appRoot, "src", "PracticeMod.hooks.ts")}";`,
+        "",
+        "export function register(on, options) {",
+        "  configure(options);",
+        '  on("session.start", async ($, e, next) => {',
+        "    await registerCommands($)();",
+        "    return next(e);",
+        "  });",
+        '  on("turn.complete", async ($, e, next) => {',
+        "    await rememberAnswer($)(e);",
+        "    return next(e);",
+        "  });",
+        '  on("command.run", { command: "matter" }, ($, e) => matterCommand($)(e.args));',
+        '  on("command.run", { command: "time" }, ($, e) => timeCommand($)(e.args));',
+        '  on("command.run", { command: "right" }, ($, e) => verdictCommand($)("right", e.args));',
+        '  on("command.run", { command: "wrong" }, ($, e) => verdictCommand($)("wrong", e.args));',
+        '  on("command.run", { command: "partly" }, ($, e) => verdictCommand($)("partly", e.args));',
+        '  on("command.run", { command: "practice" }, ($, e) => practiceCommand($)(e.args));',
+        '  on("ui.render", { component: "ToolUse" }, ($, e, next) => {',
+        "    const row = toolRow($)(e);",
+        "    return row === undefined ? next(e) : row;",
+        "  });",
+        '  on("ui.render", { component: "AbovePrompt" }, ($, e, next) => {',
+        "    const band = verdictBand($)(e);",
+        "    return band === undefined ? next(e) : band;",
+        "  });",
+        "}",
+        "",
+      ],
+      "\n"
+    )
   );
   yield* bundle(entry, hooksJs);
   yield* fs.remove(entryDir, { recursive: true });

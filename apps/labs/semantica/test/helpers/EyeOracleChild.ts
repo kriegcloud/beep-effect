@@ -35,7 +35,7 @@ if (mode === "closure") {
   process.exit(2);
 }
 
-const rendered = output.join("\n");
+const rendered = A.join(output, "\n");
 if (Buffer.byteLength(rendered) > 1_048_576) {
   process.stderr.write("EYE oracle output exceeded 1048576 bytes.\n");
   process.exit(4);

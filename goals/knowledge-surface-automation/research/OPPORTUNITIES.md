@@ -338,3 +338,15 @@ measurement first). Reviewed at each grill.
   only the new-file identities and floors for deliberately covered files belong in the
   commit. A writer flag that only ADDS missing file identities without tightening
   existing entries would remove the hazard class.
+
+## 2026-10-14 — a SKILL.md edit merged without its lock refresh
+
+- **What happened:** B-6's `bun run beep skills update --check` was red before any B-6
+  change: #1715 edited `.claude/skills/browser-qa-loop/SKILL.md` without running
+  `beep skills update`, so the local entry's `installedTreeHash` in `skills-lock.json` went
+  stale on `main` (the same class as the `orchestrate`/`yeet` refresh B-4 carried).
+- **Evidence:** `skills:update: drift (1)` / `- skills-lock.json`; the refresh moves only
+  the `browser-qa-loop` entry's `installedTreeHash`.
+- **Prevention:** run `skills update --check` in the cheap gates of any PR that touches
+  `.claude/skills/**`, so the stale hash fails the PR that made it instead of the next
+  lane that checks the lock.

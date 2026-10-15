@@ -34,11 +34,13 @@ import { labsCommand } from "./Labs/index.ts";
 import { lawsCommand } from "./Laws/index.ts";
 import { lintCommand } from "./Lint/index.ts";
 import { modelsCommand } from "./Models/index.ts";
+import { observabilityCommand } from "./Observability/index.ts";
 import { purgeCommand } from "./Purge/index.ts";
 import { qaCommand } from "./Qa/index.ts";
 import { qualityCommand } from "./Quality/index.ts";
 import { refsCommand } from "./Refs/index.ts";
 import { researchCommand } from "./Research/index.ts";
+import { reviewerCommand } from "./Reviewer/index.ts";
 import { runnersCommand } from "./Runners/index.ts";
 import { sessionCommand } from "./Session/index.ts";
 import { skillsCommand } from "./Skills/index.ts";
@@ -101,8 +103,10 @@ export const rootCommand = Command.make("beep-cli").pipe(
     lintCommand,
     lawsCommand,
     modelsCommand,
+    observabilityCommand,
     qualityCommand,
     researchCommand,
+    reviewerCommand,
     runnersCommand,
     sessionCommand,
     accountsCommand,

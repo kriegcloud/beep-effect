@@ -21,12 +21,10 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Metric from "effect/Metric";
 import * as O from "effect/Option";
+import { VaultSyncOperationDuration, VaultSyncOperations } from "@/ProfessionalDesktop.instruments";
 
-const syncStarted = Metric.counter("desktop_vault_sync_operations_started_total", { incremental: true });
-const syncCompleted = Metric.counter("desktop_vault_sync_operations_completed_total", { incremental: true });
-const syncFailed = Metric.counter("desktop_vault_sync_operations_failed_total", { incremental: true });
-const syncInterrupted = Metric.counter("desktop_vault_sync_operations_interrupted_total", { incremental: true });
-const syncDuration = Metric.timer("desktop_vault_sync_operation_duration");
+const syncOperations = Metric.counter(VaultSyncOperations.name, { incremental: true });
+const syncDuration = Metric.timer(VaultSyncOperationDuration.name);
 
 const observeSyncOperation = Effect.fnUntraced(function* <A, E, R>(
   operation: string,
@@ -34,13 +32,10 @@ const observeSyncOperation = Effect.fnUntraced(function* <A, E, R>(
 ): Effect.fn.Return<A, E, R> {
   return yield* observeWorkflow(effect, {
     name: `documents.sync.${operation}`,
-    attributes: { operation },
-    started: syncStarted,
-    completed: syncCompleted,
-    failed: syncFailed,
-    interrupted: syncInterrupted,
+    attributes: { "beep.desktop.operation": operation },
+    outcomes: syncOperations,
     duration: syncDuration,
-  }).pipe(Effect.withSpan(`documents.sync.${operation}`));
+  }).pipe(Effect.withSpan("DesktopVaultSync.run", { attributes: { "beep.desktop.operation": operation } }));
 });
 
 const toVaultSyncActionError = (context: string) =>

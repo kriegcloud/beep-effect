@@ -50,12 +50,12 @@
     {
       "id": "P0",
       "name": "Schema",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Service contract",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",

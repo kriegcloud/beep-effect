@@ -262,7 +262,12 @@
     "wink-nlp-utils": "^2.1.0",
     "ws": "^8.22.0",
     "xstate": "6.0.0-alpha.65",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "comment-parser": "1.4.9",
+    "are-docs-informative": "0.1.1",
+    "@microsoft/tsdoc": "0.17.1",
+    "@microsoft/tsdoc-config": "0.18.3",
+    "oxlint-tsgolint": "7.0.2004"
   },
   "devDependencies": {
     "@babel/cli": "catalog:",
@@ -297,6 +302,7 @@
     "micromark": "catalog:",
     "micromark-extension-gfm": "catalog:",
     "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "picomatch": "catalog:",
     "statelyai": "catalog:",
     "syncpack": "catalog:",
@@ -309,8 +315,8 @@
   "name": "@beep/root",
   "config": {
     "effectSource": {
-      "version": "4.0.2",
-      "commit": "269a7c864351231d42e6e95b7fa8f32050df3691"
+      "version": "4.0.4",
+      "commit": "e17ecdbe902aa7108f775c8ab9c0ddf9f38801ab"
     }
   },
   "overrides": {
@@ -357,9 +363,9 @@
   "packageManager": "bun@1.4.3",
   "patchedDependencies": {
     "onnxruntime-node@1.30.0": "patches/onnxruntime-node@1.30.0.patch",
-    "@effect/platform-node-shared@4.0.2": "patches/@effect%2Fplatform-node-shared@4.0.2.patch",
+    "@effect/platform-node-shared@4.0.4": "patches/@effect%2Fplatform-node-shared@4.0.4.patch",
     "drizzle-orm@1.0.0-rc.5-ab785fc": "patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch",
-    "effect@4.0.2": "patches/effect@4.0.2.patch",
+    "effect@4.0.4": "patches/effect@4.0.4.patch",
     "@xstate/effect@0.1.0-alpha.6": "patches/@xstate%2Feffect@0.1.0-alpha.6.patch"
   },
   "private": true,

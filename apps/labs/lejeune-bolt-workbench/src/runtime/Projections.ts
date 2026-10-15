@@ -431,21 +431,21 @@ export const buildProjectionSnapshot = Effect.fn("lejeune.projection.build")(fun
   const pgliteEffect = pgliteProjection(input).pipe(
     Effect.mapError((cause) => normalizeProjectionError("pglite", "rebuild", cause)),
     annotateProjectionOutcome,
-    Effect.withSpan("db.query", {
+    Effect.withSpan("Projections.rebuild", {
       attributes: { "db.operation.name": "rebuild", "db.system": "pglite" },
     })
   );
   const duckDbEffect = duckDbProjection(input).pipe(
     Effect.mapError((cause) => normalizeProjectionError("duckdb", "rebuild", cause)),
     annotateProjectionOutcome,
-    Effect.withSpan("db.query", {
+    Effect.withSpan("Projections.rebuild", {
       attributes: { "db.operation.name": "rebuild", "db.system": "duckdb" },
     })
   );
   const oxigraphEffect = oxigraphProjection(input).pipe(
     Effect.mapError((cause) => normalizeProjectionError("oxigraph", "query", cause)),
     annotateProjectionOutcome,
-    Effect.withSpan("db.query", {
+    Effect.withSpan("Projections.select", {
       attributes: { "db.operation.name": "select", "db.system": "oxigraph" },
     })
   );
