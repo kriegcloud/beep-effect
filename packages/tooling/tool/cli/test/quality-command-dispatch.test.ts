@@ -173,40 +173,34 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     );
   });
 
-  it.effect("preserves inherited plugin options and per-file overrides when merging the lane profile", () =>
-    Effect.gen(function* () {
+  it.effect.prop(
+    "preserves inherited plugin options and per-file overrides when merging the lane profile",
+    [S.NonEmptyString.pipe(S.Array, Arbitrary.schema)],
+    Effect.fnUntraced(function* ([includes]) {
       const fs = yield* FileSystem.FileSystem;
       const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-merge-" });
       const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
       const profile = yield* readEffectDiagnosticsProfile(new URL("../../../../..", import.meta.url).pathname);
-      const result = yield* Arbitrary.checkEffect(
-        S.NonEmptyString.pipe(S.Array, Arbitrary.schema),
-        (includes) =>
-          Effect.gen(function* () {
-            const plugin = {
-              name: "@effect/language-service",
-              effectFn: ["untraced"],
-              diagnosticSeverity: { missedPipeableOpportunity: "off" },
-              overrides: [{ include: ["test/**", ...includes], diagnosticSeverity: { floatingEffect: "off" } }],
-            };
-            yield* fs.writeFileString(`${dir}/base.json`, yield* encode({ compilerOptions: { plugins: [plugin] } }));
-            yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encode({ extends: "./base.json" }));
-            const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
-            const value = Result.getOrThrow(S.decodeResult(S.fromJsonString(S.Unknown))(merged));
-            expect(value).toMatchObject({
-              ...plugin,
-              diagnosticSeverity: {
-                ...plugin.diagnosticSeverity,
-                preferEffectArray: "error",
-                schemaClassMissingBrand: "off",
-              },
-            });
-            return true;
-          }),
-        fcRuns()
-      );
-      expect(result._tag).toBe("Passed");
-    })
+      const plugin = {
+        name: "@effect/language-service",
+        effectFn: ["untraced"],
+        diagnosticSeverity: { missedPipeableOpportunity: "off" },
+        overrides: [{ include: ["test/**", ...includes], diagnosticSeverity: { floatingEffect: "off" } }],
+      };
+      yield* fs.writeFileString(`${dir}/base.json`, yield* encode({ compilerOptions: { plugins: [plugin] } }));
+      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encode({ extends: "./base.json" }));
+      const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
+      const value = Result.getOrThrow(S.decodeResult(S.fromJsonString(S.Unknown))(merged));
+      expect(value).toMatchObject({
+        ...plugin,
+        diagnosticSeverity: {
+          ...plugin.diagnosticSeverity,
+          preferEffectArray: "error",
+          schemaClassMissingBrand: "off",
+        },
+      });
+    }),
+    { arbitrary: fcRuns() }
   );
 
   it.effect("stops before OSV when the ONNX installer mitigation proof fails", () => {
