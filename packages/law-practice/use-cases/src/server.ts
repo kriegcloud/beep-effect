@@ -21,6 +21,22 @@
  * @since 0.0.0
  */
 export * as ClaimSelfCheck from "./ClaimSelfCheck/index.ts";
+/**
+ * Daily notice: the count-only notice email, the notice-mailbox port and the
+ * once-a-day notice contract.
+ *
+ * **Example** (Build a notice message)
+ *
+ * ```ts
+ * import { DailyNotice } from "@beep/law-practice-use-cases/server"
+ *
+ * console.log(DailyNotice.noticeMessage(2).subject) // "Claude: 2 questions waiting"
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as DailyNotice from "./DailyNotice/index.ts";
 /** Document identification schemas, ports and pure pipeline. @category services @since 0.0.0 */
 export * as DocumentIdentification from "./DocumentIdentification/index.ts";
 /**

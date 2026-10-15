@@ -2130,6 +2130,12 @@
       ],
       "@beep/law-practice-server/QuestionCalendar": [
         "./packages/law-practice/server/src/QuestionCalendar/index.ts"
+      ],
+      "@beep/law-practice-server/NoticeMailbox": [
+        "./packages/law-practice/server/src/NoticeMailbox/index.ts"
+      ],
+      "@beep/law-practice-use-cases/DailyNotice": [
+        "./packages/law-practice/use-cases/src/DailyNotice/index.ts"
       ]
     }
   }

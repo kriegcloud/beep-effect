@@ -44,6 +44,7 @@
     "./LegalPositionRecord": "./src/LegalPositionRecord/index.ts",
     "./DocumentIdentification": "./src/DocumentIdentification/index.ts",
     "./MailTagging": "./src/MailTagging/index.ts",
+    "./NoticeMailbox": "./src/NoticeMailbox/index.ts",
     "./internal/*": null,
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
     "./QuestionCalendar": "./src/QuestionCalendar/index.ts",
