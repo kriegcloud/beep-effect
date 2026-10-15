@@ -2660,6 +2660,7 @@
             "packages/tooling/tool/cli/src/**",
             "packages/tooling/tool/docgen/package.json",
             "packages/tooling/tool/docgen/src/**",
+            "standards/effect-diagnostics.profile.json",
             "standards/lint-policy.sweeps.jsonc",
             "standards/policy-tools.fingerprint.json",
             "tsconfig.base.json",
@@ -2912,6 +2913,7 @@
             "./tsconfig.base.json",
             "./tsconfig.json",
             "./tsconfig.packages.json",
+            "standards/effect-diagnostics.profile.json",
             "tsconfig.base.json",
             "tsconfig.json",
             "vitest.aliases.generated.json",
@@ -82496,6 +82498,7 @@
             "../../../../goals/time-to-certainty/research/economics.json",
             "../../../../goals/time-to-certainty/research/gate-order-handoff.json",
             "../../../../package.json",
+            "../../../../standards/effect-diagnostics.profile.json",
             "../../../../tsconfig.base.json",
             "../../../../tsconfig.json",
             "../../../../tsconfig.packages.json",
@@ -82581,6 +82584,7 @@
             "../../../../goals/time-to-certainty/research/economics.json",
             "../../../../goals/time-to-certainty/research/gate-order-handoff.json",
             "../../../../package.json",
+            "../../../../standards/effect-diagnostics.profile.json",
             "../../../../tsconfig.base.json",
             "../../../../tsconfig.json",
             "../../../../tsconfig.packages.json",
@@ -106044,11 +106048,11 @@
       },
       {
         "path": "packages/tooling/tool/cli/turbo.json",
-        "sha256": "bc5d36aa898ce9ef81429d83b712f2e44f26fe5ee4a69a6034da0a1df469f19b"
+        "sha256": "4ef284968b771ea9f9486cce6310c7dee243d580cdee883760e1110556d993d9"
       },
       {
         "path": "turbo.json",
-        "sha256": "b02868dfe0661d8040ec8e197eb80787f9ebcebff8e5ee95dc9ff5a3a929eb22"
+        "sha256": "7ea42632ad2362b25753a03d07c04653fa76b638e4033235a72ce9680ef36ccd"
       }
     ]
   }

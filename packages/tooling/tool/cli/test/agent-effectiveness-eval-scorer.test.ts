@@ -12,8 +12,10 @@ import {
   evalConfigurationId,
   evaluateLaw,
   evaluateSkillOptCompletion,
+  LawComponentScores,
   LawEvaluation,
   lawComponentScore,
+  RunAgentEffectivenessEvalScoreCommandOptions,
   readSourceSnapshots,
   runAgentEffectivenessEvalScoreCommand,
   SkillOptTaskManifest,
@@ -43,8 +45,6 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { RunAgentEffectivenessEvalScoreCommandOptions } from "../src/commands/AgentEffectiveness/internal/EvalScorer.ts";
-import { LawComponentScores } from "../src/commands/AgentEffectiveness/internal/EvalScoring.ts";
 
 const temporaryFixture = FileSystem.FileSystem.use((fs) =>
   Effect.acquireRelease(fs.makeTempDirectory(), (directory) =>
