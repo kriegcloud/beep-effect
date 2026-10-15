@@ -72,14 +72,14 @@ const claimsCommand = Command.make(
   "claims",
   { bundleOut, carryFrom, inputs },
   Effect.fnUntraced(function* (flags) {
-    yield* O.match(flags.carryFrom, {
-      onNone: () =>
+    yield* O.getOrElse(
+      O.map(flags.carryFrom, (sourceBundle) => carryClaims(sourceBundle, flags.bundleOut)),
+      () =>
         O.match(flags.inputs, {
           onNone: () => Effect.logError("Provide --inputs for an extraction batch or --carry-from to carry claims."),
           onSome: (inputsDir) => extractClaims(inputsDir, flags.bundleOut),
-        }),
-      onSome: (sourceBundle) => carryClaims(sourceBundle, flags.bundleOut),
-    });
+        })
+    );
   })
 );
 

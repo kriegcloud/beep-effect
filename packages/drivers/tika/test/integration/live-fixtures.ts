@@ -1,4 +1,4 @@
-import { deflateSync } from "node:zlib";
+import * as NodeZlib from "node:zlib";
 import * as A from "effect/Array";
 
 const textEncoder = new TextEncoder();
@@ -121,7 +121,7 @@ export const makeLivePng = (): Uint8Array => {
   return concatBytes([
     signature,
     pngChunk("IHDR", header),
-    pngChunk("IDAT", new Uint8Array(deflateSync(raw))),
+    pngChunk("IDAT", new Uint8Array(NodeZlib.deflateSync(raw))),
     pngChunk("IEND", new Uint8Array(0)),
   ]);
 };

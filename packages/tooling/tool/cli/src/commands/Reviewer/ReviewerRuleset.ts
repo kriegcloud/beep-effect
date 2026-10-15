@@ -322,6 +322,8 @@ export const reviewerCheckSatisfied: {
  * console.log(reviewerDocsOnly([{ filename: "docs/guide.md", previous_filename: "src/code.ts" }])); // false
  * ```
  *
+ * @param files - Changed paths, including previous filenames for renames.
+ * @returns Whether every current and previous path is documentation-only.
  * @category predicates
  * @since 0.0.0
  */

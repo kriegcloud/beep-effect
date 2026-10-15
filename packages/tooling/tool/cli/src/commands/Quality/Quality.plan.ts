@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { cpus, totalmem } from "node:os";
+import * as NodeOS from "node:os";
 import { Str } from "@beep/utils";
 import {
   QualityHardwareProfile,
@@ -121,7 +121,7 @@ export const detectQualityProfile = (): QualityProfileDetection =>
   detectQualityProfileForTesting(
     QualityProfileDetectionInput.make({
       ci: Str.isNonEmpty(Bun.env.CI ?? ""),
-      cpuCount: cpus().length,
-      totalMemoryBytes: totalmem(),
+      cpuCount: NodeOS.cpus().length,
+      totalMemoryBytes: NodeOS.totalmem(),
     })
   );

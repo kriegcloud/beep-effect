@@ -32,6 +32,7 @@ import { validateLibraryScrape } from "./Library.web.ts";
 import type { LibraryCatalog, LibraryQualification, LibrarySource } from "./Library.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Research/Library/Library.evidence");
+
 /**
  * Source-bound probe evidence.
  * **Example** (Prepare source-bound verification)
@@ -43,7 +44,12 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.evidence");
  * @category models
  * @since 0.0.0
  */
-export class LibraryProbeEvidence extends S.Opaque<LibraryProbeEvidence, { readonly brand: unique symbol }>()(
+export class LibraryProbeEvidence extends S.Opaque<
+  LibraryProbeEvidence,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     adapter: S.String,
     sourceId: S.String,
@@ -186,7 +192,13 @@ const TargetMetadata = S.Struct({
   capturedRevision: S.optionalKey(S.String),
   paperId: S.optionalKey(S.String),
 });
-class WebRedirectProof extends S.Opaque<WebRedirectProof, { readonly brand: unique symbol }>()(
+
+class WebRedirectProof extends S.Opaque<
+  WebRedirectProof,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     requestedUrl: S.String,
     resolvedUrl: S.String,
@@ -200,6 +212,7 @@ class WebRedirectProof extends S.Opaque<WebRedirectProof, { readonly brand: uniq
     })
   )
 ) {}
+
 const CitationResolution = S.Struct({
   sourceId: S.String,
   citedUrl: S.String,
@@ -211,7 +224,12 @@ const CitationResolution = S.Struct({
   pdfMetadataSha256: S.String,
   reason: S.String,
 });
-const RepositoryIdentity = S.Struct({ id: S.Finite, node_id: S.String, full_name: S.String, html_url: S.String });
+const RepositoryIdentity = S.Struct({
+  id: S.Finite,
+  node_id: S.String,
+  full_name: S.String,
+  html_url: S.String,
+});
 const RepositoryIdentityReceipts = S.Array(
   S.Struct({
     requestedEndpoint: S.String,
@@ -225,7 +243,10 @@ const RepositoryIdentityReceipts = S.Array(
     bytes: S.Finite,
   })
 );
-const ListingItem = S.Struct({ html_url: S.String, sha: S.optionalKey(S.String) });
+const ListingItem = S.Struct({
+  html_url: S.String,
+  sha: S.optionalKey(S.String),
+});
 const PullTarget = S.Struct({
   html_url: S.String,
   base: S.Struct({ sha: S.String }),
@@ -240,7 +261,12 @@ const normalizeGithubRepositoryCase = (input: string) =>
     input,
     (text, prefix) => Str.replaceAll(prefix, Str.toLowerCase(prefix))(text)
   );
-const ReleaseTargetsJson = S.Array(S.Struct({ html_url: S.String, tag_name: S.String })).pipe(S.fromJsonString);
+const ReleaseTargetsJson = S.Array(
+  S.Struct({
+    html_url: S.String,
+    tag_name: S.String,
+  })
+).pipe(S.fromJsonString);
 const releaseTarget = (input: string) => {
   const target = Str.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/releases\/tag\/(.+?)(?:[?#]|$)/)(input);
   if (O.isNone(target)) return O.none<string>();
@@ -252,7 +278,12 @@ const releaseTarget = (input: string) => {
   );
 };
 const PullTargetsJson = S.Array(PullTarget).pipe(S.fromJsonString);
-const PaginationMetadata = S.Struct({ endpoint: S.String, pages: S.Finite, exhausted: S.Boolean, pageSize: S.Finite });
+const PaginationMetadata = S.Struct({
+  endpoint: S.String,
+  pages: S.Finite,
+  exhausted: S.Boolean,
+  pageSize: S.Finite,
+});
 const DiffProvenance = S.Struct({
   method: S.String,
   base: S.String,
@@ -273,15 +304,31 @@ const ArxivVersionProof = S.Struct({
   versionedPdfSha256: S.String,
   identicalPdf: S.Boolean,
 });
-const VideoMetadata = S.Struct({ id: S.String, webpage_url: S.String, originalPlayerSha256: S.optionalKey(S.String) });
+const VideoMetadata = S.Struct({
+  id: S.String,
+  webpage_url: S.String,
+  originalPlayerSha256: S.optionalKey(S.String),
+});
 const CaptionHttpReceipts = S.Array(
-  S.Struct({ path: S.String, url: S.String, status: S.Finite, sha256: S.String, bytes: S.Finite })
+  S.Struct({
+    path: S.String,
+    url: S.String,
+    status: S.Finite,
+    sha256: S.String,
+    bytes: S.Finite,
+  })
 );
 const CaptionPlayer = S.Struct({
   videoDetails: S.Struct({ videoId: S.String }),
   captions: S.Struct({
     playerCaptionsTracklistRenderer: S.Struct({
-      captionTracks: S.Array(S.Struct({ baseUrl: S.String, languageCode: S.String, kind: S.optionalKey(S.String) })),
+      captionTracks: S.Array(
+        S.Struct({
+          baseUrl: S.String,
+          languageCode: S.String,
+          kind: S.optionalKey(S.String),
+        })
+      ),
     }),
   }),
 });
@@ -297,7 +344,11 @@ const CaptionApi = S.Struct({
     })
   ),
 });
-const XmlCaptionCue = S.Struct({ "#text": S.String, start: S.FiniteFromString, dur: S.FiniteFromString });
+const XmlCaptionCue = S.Struct({
+  "#text": S.String,
+  start: S.FiniteFromString,
+  dur: S.FiniteFromString,
+});
 const XmlCaptionCues = S.Array(XmlCaptionCue);
 const XmlCaptionTranscript = S.Struct({
   transcript: S.Struct({ text: S.Union([XmlCaptionCue, XmlCaptionCues]) }),
@@ -315,7 +366,11 @@ const makeCaptionXmlParser = () =>
     entityDecoder: new EntityDecoder({
       namedEntities: { ...COMMON_HTML, ...CURRENCY },
       numericAllowed: true,
-      limit: { maxTotalExpansions: Number.POSITIVE_INFINITY, maxExpandedLength: 100_000, applyLimitsTo: "all" },
+      limit: {
+        maxTotalExpansions: Number.POSITIVE_INFINITY,
+        maxExpandedLength: 100_000,
+        applyLimitsTo: "all",
+      },
       onInputEntity: (_name, value) =>
         isUnsafe(value, [HTML_CONTEXT, XML_CONTEXT]) ? ENTITY_ACTION.BLOCK : ENTITY_ACTION.ALLOW,
     }),
@@ -323,14 +378,25 @@ const makeCaptionXmlParser = () =>
 const parseCaptionXml = Effect.fn("Library.parseCaptionXml")(function* (text: string) {
   const validation = yield* Effect.try({
     try: () => SyntaxValidator.validate(text),
-    catch: (cause) => LibraryError.make({ message: "Malformed retained caption XML.", cause }),
+    catch: (cause) =>
+      LibraryError.make({
+        message: "Malformed retained caption XML.",
+        cause,
+      }),
   });
   if (validation !== true) {
-    return yield* LibraryError.make({ message: "Malformed retained caption XML.", cause: validation.err });
+    return yield* LibraryError.make({
+      message: "Malformed retained caption XML.",
+      cause: validation.err,
+    });
   }
   return yield* Effect.try({
     try: () => makeCaptionXmlParser().parse(text),
-    catch: (cause) => LibraryError.make({ message: "Malformed retained caption XML.", cause }),
+    catch: (cause) =>
+      LibraryError.make({
+        message: "Malformed retained caption XML.",
+        cause,
+      }),
   });
 });
 const TranscriptProvenance = S.Array(
@@ -348,7 +414,15 @@ const RepositoryTarget = S.Struct({
   clone: S.String,
   requestedRevision: S.String,
 });
-const ReturnedPosts = S.Struct({ posts: S.Array(S.Struct({ url: S.String, text: S.String, author: S.String })) });
+const ReturnedPosts = S.Struct({
+  posts: S.Array(
+    S.Struct({
+      url: S.String,
+      text: S.String,
+      author: S.String,
+    })
+  ),
+});
 
 const makeEvidenceContext = Effect.fn("Library.evidenceContext")(function* (
   root: string,
@@ -468,7 +542,10 @@ const repositoryIdentityReceiptsValid = (
   repositoryIdentitiesAgree(requested, canonical) &&
   repositoryIdentityCanonicalValid(requested);
 const repositoryIdentityReceiptBound = (
-  identities: ReadonlyArray<{ readonly artifact: LibraryArtifact; readonly item: typeof RepositoryIdentity.Type }>,
+  identities: ReadonlyArray<{
+    readonly artifact: LibraryArtifact;
+    readonly item: typeof RepositoryIdentity.Type;
+  }>,
   receipt: (typeof RepositoryIdentityReceipts.Type)[number]
 ) =>
   receipt.exitCode === 0 &&
@@ -546,7 +623,14 @@ const prepareGithubContext = Effect.fn("Library.prepareGithubContext")(function*
     return O.none();
   const tree = yield* git(["ls-tree", "-r", "--name-only", pin.value.revision]);
   if (!A.contains(yield* texts("repository-tree"), tree)) return O.none();
-  return O.some({ ...context, pin: pin.value, observedRepository, observedUrl, realRoot, git });
+  return O.some({
+    ...context,
+    pin: pin.value,
+    observedRepository,
+    observedUrl,
+    realRoot,
+    git,
+  });
 });
 type GithubEvidenceContext = O.Option.Value<Effect.Success<ReturnType<typeof prepareGithubContext>>>;
 const exactGithubPatch = (context: GithubEvidenceContext, args: ReadonlyArray<string>) => {
@@ -563,7 +647,10 @@ const exactGithubPatch = (context: GithubEvidenceContext, args: ReadonlyArray<st
         Str.startsWith(`..${path.sep}`)(relativeStaging)
       )
         return false;
-      const temporary = yield* fs.makeTempDirectoryScoped({ directory: staging, prefix: "verify-git-patch-" });
+      const temporary = yield* fs.makeTempDirectoryScoped({
+        directory: staging,
+        prefix: "verify-git-patch-",
+      });
       const output = path.join(temporary, "patch.diff");
       yield* git([...args, `--output=${output}`]);
       const stat = yield* fs.stat(output);
@@ -718,26 +805,24 @@ const githubDiscussionTargetPresent = (context: GithubEvidenceContext, discussio
   // Discussion originals must contain the cited target, not just clone metadata or a README.
   const target = source.kind === "github-release" ? observedUrl : Str.replace(/#.*$/, "")(observedUrl);
   const citedRelease = releaseTarget(target);
-  const targetPresent =
-    source.kind === "github-release" && O.isSome(citedRelease)
-      ? A.some(discussion, (text) => {
-          const releases = S.decodeOption(ReleaseTargetsJson)(text);
-          return (
-            O.isSome(releases) &&
-            A.some(releases.value, (release) => {
-              const observed = releaseTarget(release.html_url);
-              return (
-                O.isSome(observed) &&
-                observed.value === citedRelease.value &&
-                citedRelease.value === `${Str.toLowerCase(observedRepository)}/releases/tag/${release.tag_name}`
-              );
-            })
-          );
-        })
-      : A.some(discussion, (text) =>
-          Str.includes(normalizeGithubRepositoryCase(target))(normalizeGithubRepositoryCase(text))
+  return source.kind === "github-release" && O.isSome(citedRelease)
+    ? A.some(discussion, (text) => {
+        const releases = S.decodeOption(ReleaseTargetsJson)(text);
+        return (
+          O.isSome(releases) &&
+          A.some(releases.value, (release) => {
+            const observed = releaseTarget(release.html_url);
+            return (
+              O.isSome(observed) &&
+              observed.value === citedRelease.value &&
+              citedRelease.value === `${Str.toLowerCase(observedRepository)}/releases/tag/${release.tag_name}`
+            );
+          })
         );
-  return targetPresent;
+      })
+    : A.some(discussion, (text) =>
+        Str.includes(normalizeGithubRepositoryCase(target))(normalizeGithubRepositoryCase(text))
+      );
 };
 const pullDeclaresNoChanges = (context: GithubEvidenceContext, pull: (typeof PullTargetsJson.Type)[number]) =>
   normalizeGithubRepositoryCase(pull.html_url) ===
@@ -773,8 +858,7 @@ const validateGithubEmptyPull = Effect.fn("Library.validateGithubEmptyPull")(fun
     "--quiet",
     `${pull.base.sha}...${pull.head.sha}`,
   ]).pipe(Effect.option);
-  if (files && emptyFiles && O.isSome(noChanges) && empty.sha256 === (yield* hashBytes(new Uint8Array()))) return true;
-  return false;
+  return !!(files && emptyFiles && O.isSome(noChanges) && empty.sha256 === (yield* hashBytes(new Uint8Array())));
 });
 const validateGithubEmptyDiff = Effect.fn("Library.validateGithubEmptyDiff")(function* (
   context: GithubEvidenceContext,
@@ -833,7 +917,11 @@ const resolveTimedCaptionArtifact = Effect.fn("Library.resolveTimedCaptionArtifa
   if (O.isNone(timed) || !/^https:\/\/www\.youtube\.com\/api\/timedtext\?/.test(record.url)) return O.none();
   const timedUrl = yield* Effect.try({
     try: () => new URL(record.url),
-    catch: (cause) => LibraryError.make({ message: "Malformed retained timed-caption URL.", cause }),
+    catch: (cause) =>
+      LibraryError.make({
+        message: "Malformed retained timed-caption URL.",
+        cause,
+      }),
   });
   if (
     timedUrl.searchParams.get("v") !== capture.capturedRevision ||
@@ -841,8 +929,7 @@ const resolveTimedCaptionArtifact = Effect.fn("Library.resolveTimedCaptionArtifa
     timedUrl.searchParams.has("tlang")
   )
     return O.none();
-  const xmlArtifact = receiptArtifact(timed.value.sha256, timed.value.bytes, "raw-transcript");
-  return xmlArtifact;
+  return receiptArtifact(timed.value.sha256, timed.value.bytes, "raw-transcript");
 });
 const readYoutubeCaptionPlayer = Effect.fn("Library.readYoutubeCaptionPlayer")(function* (
   context: EvidenceContext,
@@ -902,19 +989,15 @@ const captionApiCuesMatch = (
     api.snippets.length !== cues.length
   )
     return false;
-  if (
-    !A.every(api.snippets, (snippet, index) => {
-      const cue = cues[index];
-      return (
-        cue !== undefined &&
-        snippet.start === cue.start &&
-        snippet.duration === cue.dur &&
-        snippet.text === cueTexts[index]
-      );
-    })
-  )
-    return false;
-  return true;
+  return A.every(api.snippets, (snippet, index) => {
+    const cue = cues[index];
+    return (
+      cue !== undefined &&
+      snippet.start === cue.start &&
+      snippet.duration === cue.dur &&
+      snippet.text === cueTexts[index]
+    );
+  });
 };
 const youtubeApiTranscriptMatches = (
   capture: LibraryCapture,
@@ -1149,13 +1232,19 @@ const validatePublisherProof = Effect.fn("Library.validatePublisherProof")(funct
   )
     return false;
   const metadata = yield* read(landingMeta.value).pipe(
-    Effect.flatMap(decodeLibraryJson(S.Struct({ requestedUrl: S.String, status: S.Finite })))
+    Effect.flatMap(
+      decodeLibraryJson(
+        S.Struct({
+          requestedUrl: S.String,
+          status: S.Finite,
+        })
+      )
+    )
   );
   const request = yield* read(pdfMeta.value).pipe(Effect.flatMap(decodeLibraryJson(TargetMetadata)));
   const html = yield* read(landing.value);
   const relation = publisherCitationPdfMatches(html, proof.pdfUrl);
-  if (relation && publisherResponseTargetsMatch(url, proof.pdfUrl, metadata, request)) return true;
-  return false;
+  return relation && publisherResponseTargetsMatch(url, proof.pdfUrl, metadata, request);
 });
 const validatePublisherImport = Effect.fn("Library.validatePublisherImport")(function* (context: EvidenceContext) {
   const resolutions = yield* context.json("citation-resolution", CitationResolution);
@@ -1333,7 +1422,13 @@ const currentCaptureClaim = Effect.fn("Library.currentCaptureClaim")(function* (
     capture.complete &&
     (yield* librarySourceEvidenceValid(root, source, capture).pipe(Effect.orElseSucceed(() => false)))
   )
-    return O.some(LibraryEffectiveCapture.make({ revision, capture, category: "readable" }));
+    return O.some(
+      LibraryEffectiveCapture.make({
+        revision,
+        capture,
+        category: "readable",
+      })
+    );
   if (!(yield* libraryDispositionValid(root, catalog, source, capture).pipe(Effect.orElseSucceed(() => false))))
     return O.none();
   const receipt = A.findFirst(capture.artifacts, (artifact) => artifact.role === "reviewed-disposition");
@@ -1343,8 +1438,15 @@ const currentCaptureClaim = Effect.fn("Library.currentCaptureClaim")(function* (
   const review = yield* fs
     .readFileString(path.resolve(root, receipt.value.path))
     .pipe(Effect.flatMap(decodeLibraryJson(LibraryDispositionImportPayload)));
-  return O.some(LibraryEffectiveCapture.make({ revision, capture, category: review.disposition }));
+  return O.some(
+    LibraryEffectiveCapture.make({
+      revision,
+      capture,
+      category: review.disposition,
+    })
+  );
 });
+
 /**
  * Validated current claim for one requested revision.
  * **Example** (Inspect the selection shape)
@@ -1356,7 +1458,12 @@ const currentCaptureClaim = Effect.fn("Library.currentCaptureClaim")(function* (
  * @category models
  * @since 0.0.0
  */
-export class LibraryEffectiveCapture extends S.Opaque<LibraryEffectiveCapture, { readonly brand: unique symbol }>()(
+export class LibraryEffectiveCapture extends S.Opaque<
+  LibraryEffectiveCapture,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     revision: S.String,
     capture: S.NullOr(LibraryCapture),
@@ -1394,7 +1501,11 @@ export const libraryEffectiveCaptures = Effect.fn("Library.effectiveCaptures")(f
   return yield* Effect.forEach(
     revisions,
     Effect.fnUntraced(function* (revision) {
-      let selected = LibraryEffectiveCapture.make({ revision, capture: null, category: "missing" });
+      let selected = LibraryEffectiveCapture.make({
+        revision,
+        capture: null,
+        category: "missing",
+      });
       for (const capture of catalog.captures) {
         if (capture.sourceId !== source.id || capture.requestedRevision !== revision) continue;
         const claim = yield* currentCaptureClaim(root, catalog, source, capture, revision);

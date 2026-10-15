@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   AdmissionConfig,
   AdmissionEvictionJournal,
@@ -210,7 +210,7 @@ const exportScenario = Effect.fn("SyntheticAdmission.exportScenario")(function* 
     const relative = path.join("checkouts", label, ".beep", "yeet", "runs");
     yield* copySettledState(path.join(runtimeDir, relative), path.join(target, relative));
   }
-  const source = yield* fs.readFile(fileURLToPath(import.meta.url));
+  const source = yield* fs.readFile(NodeURL.fileURLToPath(import.meta.url));
   const scenario = yield* encodeScenario({
     producer: { path: producerPath, sha256: yield* sha256Hex(source) },
     steps,
@@ -252,7 +252,7 @@ const expectExportCheck = Effect.fnUntraced(function* (
   expect(yield* decodeJsonObject(manifest)).toMatchObject({
     producer: {
       path: producerPath,
-      sha256: yield* sha256Hex(yield* fs.readFile(fileURLToPath(import.meta.url))),
+      sha256: yield* sha256Hex(yield* fs.readFile(NodeURL.fileURLToPath(import.meta.url))),
     },
     steps,
     expected: { tags: expectedTags, chains },

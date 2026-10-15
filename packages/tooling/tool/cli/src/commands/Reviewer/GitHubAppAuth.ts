@@ -148,6 +148,8 @@ export class GitHubAppAuth extends Context.Service<GitHubAppAuth, GitHubAppAuthS
  * console.log(typeof makeGitHubAppAuth);
  * ```
  *
+ * @param credentials - GitHub App credentials used to sign installation token requests.
+ * @returns An authentication layer with an isolated token cache.
  * @category layers
  * @since 0.0.0
  */

@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { CandidateClaim } from "@beep/epistemic-domain/entities/CandidateClaim";
 import { EdgeVersion } from "@beep/epistemic-domain/entities/EdgeVersion";
 import { Evidence } from "@beep/epistemic-domain/entities/Evidence";
@@ -31,7 +31,7 @@ import * as S from "effect/Schema";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 
 // The drizzle folder contains `CREATE EXTENSION btree_gist` (this migration's
 // gist exclusion constraint), which the shared external pglite-socket lane
@@ -214,7 +214,9 @@ if (!shouldRunPgliteIntegration) {
           // is rejected by whichever backstop the planner checks first.
           const openHeadViolation = yield* Effect.flip(db.insert(EpistemicDbSchema.edgeVersion).values(secondInsert));
 
-          expect(inspect(openHeadViolation, { depth: 10 })).toMatch(/epistemic_edge_(?:open_head_idx|no_overlap)/u);
+          expect(NodeUtil.inspect(openHeadViolation, { depth: 10 })).toMatch(
+            /epistemic_edge_(?:open_head_idx|no_overlap)/u
+          );
         }),
         120_000
       );

@@ -28,7 +28,6 @@ import { assertNone, assertTrue } from "@effect/vitest/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import * as Arbitrary from "effect/Arbitrary";
-import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -201,9 +200,9 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "settles concurrent attachment batches out of order and rolls back only the rejected batch",
     Effect.fnUntraced(function* () {
-      const firstPort = yield* Deferred.make<void, Error>();
-      const secondPort = yield* Deferred.make<void>();
-      const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
+      const firstPort = Promise.withResolvers<void>();
+      const secondPort = Promise.withResolvers<void>();
+
       const secondSettled = vi.fn();
       const createObjectUrl = vi
         .spyOn(URL, "createObjectURL")
@@ -213,9 +212,9 @@ describe("editor contract hardening", { concurrent: false }, () => {
       const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
       const onAttach = vi.fn((files: ReadonlyArray<File>): void | Promise<void> => {
         const filename = files[0]?.name;
-        if (filename === "first.png") return firstPort.pipe(Deferred.await, runPromise);
+        if (filename === "first.png") return firstPort.promise;
         if (filename === "second.png") {
-          return secondPort.pipe(Deferred.await, runPromise).then(() => {
+          return secondPort.promise.then(() => {
             secondSettled();
           });
         }
@@ -243,9 +242,9 @@ describe("editor contract hardening", { concurrent: false }, () => {
 
       // Settle the newer success first, then reject the older capture. Both
       // fibers must still be live for the older batch to reach its rollback.
-      yield* Deferred.succeed(secondPort, undefined);
+      secondPort.resolve(undefined);
       yield* Effect.promise(() => waitFor(() => expect(secondSettled).toHaveBeenCalledTimes(1)));
-      yield* Deferred.fail(firstPort, new Error("private first-batch detail"));
+      firstPort.reject(new Error("private first-batch detail"));
       yield* Effect.promise(() =>
         waitFor(() => expect(screen.queryByRole("button", { name: "Remove first.png" })).not.toBeInTheDocument())
       );
@@ -281,10 +280,8 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "aborts a pending attachment port on unmount without double-revoking or writing a late failure",
     Effect.fnUntraced(function* () {
-      const port = yield* Deferred.make<void, Error>();
-      const context = yield* Effect.context<never>();
-      const runPromise = Effect.runPromiseWith(context);
-      const runSync = Effect.runSyncWith(context);
+      const port = Promise.withResolvers<void>();
+
       const registry = yield* Effect.acquireRelease(
         Effect.sync(() =>
           AtomRegistry.make({
@@ -296,12 +293,12 @@ describe("editor contract hardening", { concurrent: false }, () => {
         (registry) => Effect.sync(() => registry.dispose())
       );
       let editor: ReturnType<typeof createEditor> | undefined;
-      const firstRevoke = yield* Deferred.make<void>();
+      const firstRevoke = Promise.withResolvers<void>();
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:pending-unmount");
       const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {
-        runSync(Deferred.succeed(firstRevoke, undefined));
+        firstRevoke.resolve(undefined);
       });
-      const onAttach = vi.fn(() => port.pipe(Deferred.await, runPromise));
+      const onAttach = vi.fn(() => port.promise);
       const mounted = (showComposer: boolean) => (
         <RegistryContext.Provider value={registry}>
           <CaptureRuntimeKeeper />
@@ -331,8 +328,8 @@ describe("editor contract hardening", { concurrent: false }, () => {
       );
 
       view.rerender(mounted(false));
-      yield* Deferred.fail(port, new Error("private post-unmount detail"));
-      yield* Deferred.await(firstRevoke);
+      port.reject(new Error("private post-unmount detail"));
+      yield* Effect.promise(() => firstRevoke.promise);
       yield* Effect.promise(() =>
         waitFor(() => expect(AsyncResult.isSuccess(registry.get(captureAttachmentsFn))).toBe(true))
       );
@@ -427,12 +424,12 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "isolates a pending capture from a same-editor remount before scheduled atom removal",
     Effect.fnUntraced(function* () {
-      const port = yield* Deferred.make<void, Error>();
-      const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
+      const port = Promise.withResolvers<void>();
+
       const scheduler = makeControlledScheduler();
       const editor = createEditor({ namespace: "attachment-rapid-remount" });
       const onAttach = vi.fn((files: ReadonlyArray<File>): void | Promise<void> =>
-        files[0]?.name === "rapid-remount.png" ? port.pipe(Deferred.await, runPromise) : undefined
+        files[0]?.name === "rapid-remount.png" ? port.promise : undefined
       );
       const registry = yield* Effect.acquireRelease(
         Effect.sync(() =>
@@ -490,7 +487,7 @@ describe("editor contract hardening", { concurrent: false }, () => {
         waitFor(() => expect(registry.get(attachmentsAtom(editor))[0]?.file.name).toBe("new-mount.png"))
       );
 
-      yield* Deferred.fail(port, new Error("private prior-mount detail"));
+      port.reject(new Error("private prior-mount detail"));
       scheduler.flush();
       yield* Effect.promise(() =>
         waitFor(() => expect(AsyncResult.isSuccess(registry.get(captureAttachmentsFn))).toBe(true))
@@ -511,11 +508,11 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "does not let one composer's pending attachment port interrupt another composer",
     Effect.fnUntraced(function* () {
-      const firstPort = yield* Deferred.make<void, Error>();
-      const secondPort = yield* Deferred.make<void>();
-      const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
-      const firstAttach = vi.fn(() => firstPort.pipe(Deferred.await, runPromise));
-      const secondAttach = vi.fn(() => secondPort.pipe(Deferred.await, runPromise));
+      const firstPort = Promise.withResolvers<void>();
+      const secondPort = Promise.withResolvers<void>();
+
+      const firstAttach = vi.fn(() => firstPort.promise);
+      const secondAttach = vi.fn(() => secondPort.promise);
       vi.spyOn(URL, "createObjectURL")
         .mockReturnValueOnce("blob:first-composer")
         .mockReturnValueOnce("blob:second-composer");
@@ -539,8 +536,8 @@ describe("editor contract hardening", { concurrent: false }, () => {
       });
       yield* Effect.promise(() => waitFor(() => expect(secondAttach).toHaveBeenCalledTimes(1)));
 
-      yield* Deferred.succeed(secondPort, undefined);
-      yield* Deferred.fail(firstPort, new Error("private cross-composer detail"));
+      secondPort.resolve(undefined);
+      firstPort.reject(new Error("private cross-composer detail"));
       yield* Effect.promise(() =>
         waitFor(() =>
           expect(screen.queryByRole("button", { name: "Remove first-composer.png" })).not.toBeInTheDocument()
@@ -615,9 +612,9 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "keeps a pending mention lookup visible and owns Enter until it settles",
     Effect.fnUntraced(function* () {
-      const lookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
-      const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
-      const source = vi.fn<MentionSource>(() => lookup.pipe(Deferred.await, runPromise));
+      const lookup = Promise.withResolvers<ReadonlyArray<typeof MentionOption.Encoded>>();
+
+      const source = vi.fn<MentionSource>(() => lookup.promise);
       const onSend = vi.fn(() => true);
       render(
         <ChatComposer namespace="pending-mention-input" mentionSource={source} mountConfig={{ onSend }}>
@@ -646,7 +643,7 @@ describe("editor contract hardening", { concurrent: false }, () => {
       fireEvent.keyDown(editor, { code: "Enter", key: "Enter", keyCode: 13 });
       expect(onSend).not.toHaveBeenCalled();
 
-      yield* Deferred.succeed(lookup, [{ id: "settled", label: "Settled" }]);
+      lookup.resolve([{ id: "settled", label: "Settled" }]);
     })
   );
 
@@ -699,12 +696,10 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "keeps only the latest out-of-order mention response",
     Effect.fnUntraced(function* () {
-      const firstLookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
-      const secondLookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
-      const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
-      const source = vi.fn<MentionSource>((query) =>
-        (query === "ab" ? secondLookup : firstLookup).pipe(Deferred.await, runPromise)
-      );
+      const firstLookup = Promise.withResolvers<ReadonlyArray<typeof MentionOption.Encoded>>();
+      const secondLookup = Promise.withResolvers<ReadonlyArray<typeof MentionOption.Encoded>>();
+
+      const source = vi.fn<MentionSource>((query) => (query === "ab" ? secondLookup : firstLookup).promise);
       render(
         <ChatComposer namespace="mention-latest-wins" mentionSource={source}>
           <SeedEditor label="Seed first lookup" text="@a" />
@@ -717,9 +712,9 @@ describe("editor contract hardening", { concurrent: false }, () => {
       fireEvent.click(screen.getByRole("button", { name: "Seed second lookup" }));
       yield* Effect.promise(() => waitFor(() => expect(source).toHaveBeenCalledWith("ab")));
 
-      yield* Deferred.succeed(secondLookup, [{ id: "latest", label: "Latest" }]);
+      secondLookup.resolve([{ id: "latest", label: "Latest" }]);
       yield* Effect.promise(() => screen.findByRole("option", { name: /Latest/u }));
-      yield* Deferred.succeed(firstLookup, [{ id: "stale", label: "Stale" }]);
+      firstLookup.resolve([{ id: "stale", label: "Stale" }]);
       yield* Effect.promise(() =>
         waitFor(() => {
           expect(screen.getByRole("option", { name: /Latest/u })).toBeInTheDocument();
@@ -732,10 +727,10 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "interrupts a pending mention lookup and releases DOM listeners immediately under the production idle TTL",
     Effect.fnUntraced(function* () {
-      const lookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
-      const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
+      const lookup = Promise.withResolvers<ReadonlyArray<typeof MentionOption.Encoded>>();
+
       const scheduler = makeControlledScheduler();
-      const source = vi.fn<MentionSource>(() => lookup.pipe(Deferred.await, runPromise));
+      const source = vi.fn<MentionSource>(() => lookup.promise);
       const decodedAfterUnmount = vi.fn(() => "late");
       const disconnectObserver = vi.spyOn(MutationObserver.prototype, "disconnect");
       const removeWindowListener = vi.spyOn(window, "removeEventListener");
@@ -770,7 +765,7 @@ describe("editor contract hardening", { concurrent: false }, () => {
       );
       expect(removeWindowListener).toHaveBeenCalledWith("resize", expect.any(Function));
 
-      yield* Deferred.succeed(lookup, [
+      lookup.resolve([
         {
           get id() {
             return decodedAfterUnmount();
@@ -1152,74 +1147,82 @@ describe("editor contract hardening", { concurrent: false }, () => {
     );
   });
 
-  it("keeps runtime-incompatible wire out of Lexical load and persistence callbacks", () => {
-    const futureWire = {
-      root: {
-        type: "root",
-        version: 9,
-        children: [
-          {
-            type: "future-node",
-            version: 9,
-            payload: "</pre><script data-runtime-xss='no'>alert(1)</script>",
-          },
-        ],
-      },
-    };
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(futureWire))._tag).toBe("Failure");
+  it.effect("keeps runtime-incompatible wire out of Lexical load and persistence callbacks", () =>
+    Effect.gen(function* () {
+      const futureWire = {
+        root: {
+          type: "root",
+          version: 9,
+          children: [
+            {
+              type: "future-node",
+              version: 9,
+              payload: "</pre><script data-runtime-xss='no'>alert(1)</script>",
+            },
+          ],
+        },
+      };
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(futureWire)))._tag).toBe("Failure");
 
-    const viewer = render(<EditorViewer state={futureWire as never} />);
-    expect(viewer.container.querySelector("[contenteditable='true']")).toBeNull();
-    expect(viewer.container.querySelector("script")).toBeNull();
-    expect(screen.getByTestId("editor-runtime-refusal")).toHaveTextContent("<script");
-    viewer.unmount();
+      const viewer = render(<EditorViewer state={futureWire as never} />);
+      expect(viewer.container.querySelector("[contenteditable='true']")).toBeNull();
+      expect(viewer.container.querySelector("script")).toBeNull();
+      expect(screen.getByTestId("editor-runtime-refusal")).toHaveTextContent("<script");
+      viewer.unmount();
 
-    const persisted = vi.fn();
-    const sent = vi.fn(() => true);
-    const admission = render(<EditorWireComposer input={futureWire} onSerializedChange={persisted} />);
-    expect(admission.container.querySelector("[contenteditable='true']")).toBeNull();
-    expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent("<script");
-    expect(persisted).not.toHaveBeenCalled();
-    admission.unmount();
+      const persisted = vi.fn();
+      const sent = vi.fn(() => true);
+      const admission = render(<EditorWireComposer input={futureWire} onSerializedChange={persisted} />);
+      expect(admission.container.querySelector("[contenteditable='true']")).toBeNull();
+      expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent("<script");
+      expect(persisted).not.toHaveBeenCalled();
+      admission.unmount();
 
-    const composer = render(
-      <ChatComposer initialState={futureWire as never} onSerializedChange={persisted} mountConfig={{ onSend: sent }} />
-    );
-    expect(screen.queryByRole("combobox", { name: "Message composer" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent("<script");
-    expect(persisted).not.toHaveBeenCalled();
-    expect(sent).not.toHaveBeenCalled();
-    composer.unmount();
-  });
+      const composer = render(
+        <ChatComposer
+          initialState={futureWire as never}
+          onSerializedChange={persisted}
+          mountConfig={{ onSend: sent }}
+        />
+      );
+      expect(screen.queryByRole("combobox", { name: "Message composer" })).not.toBeInTheDocument();
+      expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent("<script");
+      expect(persisted).not.toHaveBeenCalled();
+      expect(sent).not.toHaveBeenCalled();
+      composer.unmount();
+    })
+  );
 
-  it("keeps an empty persisted root inert and disables editing, persistence, and sending", () => {
-    const emptyWire = {
-      root: {
-        type: "root",
-        version: 1,
-        children: [],
-      },
-    };
-    const persisted = vi.fn();
-    const sent = vi.fn(() => true);
+  it.effect("keeps an empty persisted root inert and disables editing, persistence, and sending", () =>
+    Effect.gen(function* () {
+      const emptyWire = {
+        root: {
+          type: "root",
+          version: 1,
+          children: [],
+        },
+      };
+      const persisted = vi.fn();
+      const sent = vi.fn(() => true);
 
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(emptyWire))._tag).toBe("Failure");
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(emptyWire)))._tag).toBe("Failure");
 
-    const admission = render(<EditorWireComposer input={emptyWire} onSerializedChange={persisted} />);
-    expect(admission.container.querySelector("[contenteditable='true']")).toBeNull();
-    expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent('"children":[]');
-    expect(persisted).not.toHaveBeenCalled();
-    admission.unmount();
+      const admission = render(<EditorWireComposer input={emptyWire} onSerializedChange={persisted} />);
+      expect(admission.container.querySelector("[contenteditable='true']")).toBeNull();
+      expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent('"children":[]');
+      expect(persisted).not.toHaveBeenCalled();
+      admission.unmount();
 
-    const composer = render(
-      <ChatComposer initialState={emptyWire as never} onSerializedChange={persisted} mountConfig={{ onSend: sent }} />
-    );
-    expect(screen.queryByRole("combobox", { name: "Message composer" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent('"children":[]');
-    expect(persisted).not.toHaveBeenCalled();
-    expect(sent).not.toHaveBeenCalled();
-    composer.unmount();
-  });
+      const composer = render(
+        <ChatComposer initialState={emptyWire as never} onSerializedChange={persisted} mountConfig={{ onSend: sent }} />
+      );
+      expect(screen.queryByRole("combobox", { name: "Message composer" })).not.toBeInTheDocument();
+      expect(screen.getByTestId("editor-compatibility-fallback")).toHaveTextContent('"children":[]');
+      expect(persisted).not.toHaveBeenCalled();
+      expect(sent).not.toHaveBeenCalled();
+      composer.unmount();
+    })
+  );
 
   it.effect(
     "admits a safe nested-link document as an editable composer seed",
@@ -1275,31 +1278,33 @@ describe("editor contract hardening", { concurrent: false }, () => {
     })
   );
 
-  it("keeps raw seed provenance gated after Lexical projects it to safe plain text", () => {
-    const rawValue = `<img src=x onerror="alert(1)">`;
-    const legacy = Md.Document.make({
-      children: [
-        Md.BlockQuote.make({
-          children: [
-            Md.P.make({
-              children: [
-                Md.Strong.make({
-                  children: [Md.RawHtml.make({ value: rawValue })],
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-    const lexicalProjection = documentToEditorState(legacy).pipe(Effect.runSync, editorStateToDocument);
+  it.effect("keeps raw seed provenance gated after Lexical projects it to safe plain text", () =>
+    Effect.gen(function* () {
+      const rawValue = `<img src=x onerror="alert(1)">`;
+      const legacy = Md.Document.make({
+        children: [
+          Md.BlockQuote.make({
+            children: [
+              Md.P.make({
+                children: [
+                  Md.Strong.make({
+                    children: [Md.RawHtml.make({ value: rawValue })],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+      const lexicalProjection = editorStateToDocument(yield* documentToEditorState(legacy));
 
-    expect(documentSafetyIssues(lexicalProjection)).toEqual([]);
-    const gate = O.getOrThrow(prepareComposerDocumentSafetyGate(legacy));
-    expect(gate.issueCount).toBe(1);
-    expect(gate.message).toMatch(/trusted raw Markdown or HTML/u);
-    expect(legacy.children[0]).toHaveProperty("children.0.children.0.children.0._tag", "rawHtml");
-  });
+      expect(documentSafetyIssues(lexicalProjection)).toEqual([]);
+      const gate = O.getOrThrow(prepareComposerDocumentSafetyGate(legacy));
+      expect(gate.issueCount).toBe(1);
+      expect(gate.message).toMatch(/trusted raw Markdown or HTML/u);
+      expect(legacy.children[0]).toHaveProperty("children.0.children.0.children.0._tag", "rawHtml");
+    })
+  );
 
   it.effect(
     "clears a corrected safety refusal once the draft is edited safe",

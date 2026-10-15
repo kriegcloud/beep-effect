@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { defineBeepNextConfig } from "@beep/repo-configs/next";
 import * as A from "effect/Array";
 import { oipRedirects } from "./src/config/OipRedirects.ts";
@@ -11,7 +11,7 @@ import { oipRedirects } from "./src/config/OipRedirects.ts";
 // from main this filter matches nothing.
 process.execArgv = A.filter(process.execArgv, (flag) => flag !== "--js-float16array");
 
-const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../..", import.meta.url));
 
 const securityHeaders = [
   {

@@ -4,10 +4,12 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { CacheTaskConfiguration } from "@beep/repo-configs/cache";
 import { FsUtils, GlobOptions, readPackageJsonFile, resolveWorkspacePackages } from "@beep/repo-utils";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
+import { HostProcessArchitecture, HostProcessPlatform } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -88,13 +90,13 @@ const decodeTurboRuntimePlanJson = S.decodeUnknownEffect(S.fromJsonString(TurboR
 export const resolveCacheTurboBinary = Effect.fn("Cache.resolveTurboBinary")(function* (root: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const platform = yield* Match.value(process.platform).pipe(
+  const platform = yield* Match.value(yield* HostProcessPlatform).pipe(
     Match.when("linux", () => Effect.succeed("linux")),
     Match.when("darwin", () => Effect.succeed("darwin")),
     Match.when("win32", () => Effect.succeed("windows")),
     Match.orElse(() => Effect.fail(CacheCommandError.new("Native Turbo discovery does not support this platform.")))
   );
-  const arch = yield* Match.value(process.arch).pipe(
+  const arch = yield* Match.value(yield* HostProcessArchitecture).pipe(
     Match.when("x64", () => Effect.succeed("64")),
     Match.when("arm64", () => Effect.succeed("arm64")),
     Match.orElse(() => Effect.fail(CacheCommandError.new("Native Turbo discovery does not support this architecture.")))

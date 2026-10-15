@@ -49,7 +49,7 @@ const CommandTestLayer = Layer.effectDiscard(
       ["candidate.json", candidateReceipt],
     ] as const) {
       const target = yield* path.fromFileUrl(
-        new URL("./fixtures/agent-effectiveness/comparison/" + name, import.meta.url)
+        new URL(`./fixtures/agent-effectiveness/comparison/${name}`, import.meta.url)
       );
       yield* fs.makeDirectory(path.dirname(target), { recursive: true });
       yield* fs.writeFileString(target, yield* encodeFixture(receipt));

@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { Buffer } from "node:buffer";
-import * as dns from "node:dns";
+import * as NodeBuffer from "node:buffer";
+import * as NodeDns from "node:dns";
 import { $BoxId } from "@beep/identity";
 import { assertAllowedRemoteUrl, BlockedHostError, HttpsUrl } from "@beep/schema";
 import * as NodeStream from "@effect/platform-node-shared/NodeStream";
@@ -847,7 +847,7 @@ const resolveRemoteHost = (hostname: string): Effect.Effect<ReadonlyArray<string
         message: `Refusing to reach ${hostname}: DNS resolution failed`,
         url: O.none(),
       }),
-    try: () => dns.promises.lookup(hostname, { all: true }),
+    try: () => NodeDns.promises.lookup(hostname, { all: true }),
   }).pipe(Effect.map((records) => A.map(records, (record) => record.address)));
 
 /**
@@ -906,7 +906,7 @@ const chunkToBytes =
       return Effect.succeed(chunk);
     }
     if (P.isString(chunk)) {
-      return Effect.succeed(Buffer.from(chunk));
+      return Effect.succeed(NodeBuffer.Buffer.from(chunk));
     }
     return Effect.fail(
       BoxError.fromReason(

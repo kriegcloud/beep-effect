@@ -59,6 +59,8 @@ const familyPrefixes: ReadonlyArray<readonly [string, PackageFamily]> = [
  * console.log(packageFamilyOfPath("apps/labs/semantica/src/App.ts")) // "lab"
  * ```
  *
+ * @param file - Repository-relative source path to classify.
+ * @returns The package family inferred from the path.
  * @category getters
  * @since 0.0.0
  */
@@ -225,6 +227,8 @@ export const harvestSourceFile: {
  * console.log(combineHarvests([empty, empty]).sites.length) // 0
  * ```
  *
+ * @param harvests - Harvests whose sites and findings are combined in input order.
+ * @returns A harvest containing all supplied sites and findings.
  * @category combinators
  * @since 0.0.0
  */

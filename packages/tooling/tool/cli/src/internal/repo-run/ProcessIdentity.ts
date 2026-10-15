@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { HostProcessPlatform } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -294,7 +295,7 @@ export const processStartIdentityForPid = Effect.fnUntraced(function* (
   const procStart = yield* processStartTimeForPid(pid);
   return O.isSome(procStart)
     ? procStart
-    : yield* processStartIdentityFromSystemCommand(pid, process.platform === "win32" ? "win" : "ps");
+    : yield* processStartIdentityFromSystemCommand(pid, (yield* HostProcessPlatform) === "win32" ? "win" : "ps");
 });
 
 const processIdentityStatusWithStart = Effect.fnUntraced(function* <Requirements>(

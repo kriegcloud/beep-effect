@@ -13,10 +13,10 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { A, flow, O, P, pipe, R, Str } from "@beep/utils";
+import { A, O, P, pipe, R, Str } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import { XMLParser } from "fast-xml-parser";
@@ -226,9 +226,8 @@ const attributeOfCandidate = (candidate: unknown, query: AttributeQuery): O.Opti
 const findAttribute = (node: unknown, query: AttributeQuery): O.Option<string> =>
   pipe(
     childrenOf(node),
-    O.map((children) =>
-      pipe(
-        children,
+    O.map(
+      flow(
         A.map((child) => findAttribute(child, query)),
         O.firstSomeOf
       )

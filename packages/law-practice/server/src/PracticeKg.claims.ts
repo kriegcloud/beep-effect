@@ -562,7 +562,9 @@ export const runPracticeKgClaimsBatch = Effect.fn("PracticeKgClaims.run")(
               operationId,
               sourceFile: input.sourceFile,
               sourceText: input.document.sourceText,
-              ...(sourceDocumentDigest === undefined ? {} : { sourceDocumentDigest }),
+              ...O.getOrUndefined(
+                O.map(O.fromUndefinedOr(sourceDocumentDigest), (sourceDocumentDigest) => ({ sourceDocumentDigest }))
+              ),
             })
           ).pipe(Effect.flatMap(({ candidate, evidence }) => persistCandidate(sql, candidate, evidence))),
         { concurrency: 1, discard: true }

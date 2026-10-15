@@ -585,7 +585,7 @@ const explorationBacklinkFindings = Effect.fn("Goals.explorationBacklinkFindings
   }
   const state = yield* reader.explorationPath(exploration.value);
   return GoalExplorationPathState.$match(state, {
-    present: () => A.empty<GoalDoctorFinding>(),
+    present: A.empty<GoalDoctorFinding>,
     escapes: () =>
       A.of(
         finding(
@@ -744,8 +744,11 @@ const CITATION_SEPARATOR = /[^A-Za-z0-9#-]+/;
 const citationTokens = (subjects: ReadonlyArray<string>): HashSet.HashSet<string> =>
   HashSet.fromIterable(A.flatMap(subjects, (subject) => Str.split(subject, CITATION_SEPARATOR)));
 
-const subjectLines = (subjectsText: string): ReadonlyArray<string> =>
-  pipe(subjectsText, Str.split("\n"), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const subjectLines: (subjectsText: string) => ReadonlyArray<string> = flow(
+  Str.split("\n"),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const recordedPullRequest = (packet: DoctorPacket): O.Option<string> =>
   pipe(

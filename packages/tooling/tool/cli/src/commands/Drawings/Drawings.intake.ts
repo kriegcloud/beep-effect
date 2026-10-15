@@ -28,7 +28,7 @@ import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { flow } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -91,13 +91,11 @@ const isNotFoundIn =
 
 const isMailFailure = (error: DrawingIntakeError): boolean => error.reason === "mail";
 
-const addressOf = (recipient: O.Option<GraphRecipient>): O.Option<string> =>
-  pipe(
-    recipient,
-    O.flatMap((r) => r.emailAddress),
-    O.flatMap((email) => email.address),
-    O.filter(Str.isNonEmpty)
-  );
+const addressOf: (recipient: O.Option<GraphRecipient>) => O.Option<string> = flow(
+  O.flatMap((r) => r.emailAddress),
+  O.flatMap((email) => email.address),
+  O.filter(Str.isNonEmpty)
+);
 
 const rawSenderOf = (message: GraphMessage): O.Option<string> =>
   O.orElse(addressOf(message.from), () => addressOf(message.sender));

@@ -72,19 +72,7 @@
         "extendedKeyDetection": false,
         "pipeableMinArgCount": 2,
         "allowedDuplicatedPackages": [],
-        "overrides": [
-          {
-            "include": [
-              "**/*.ts"
-            ],
-            "options": {
-              "diagnosticSeverity": {
-                "preferEffectArray": "error",
-                "preferEffectRecord": "error"
-              }
-            }
-          }
-        ],
+        "overrides": [],
         "diagnosticSeverity": {
           "abortControllerInEffect": "error",
           "acquireReleaseDisposable": "error",

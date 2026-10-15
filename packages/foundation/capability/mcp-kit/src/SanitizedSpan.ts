@@ -456,7 +456,7 @@ const wireToolFor = (
     name: tool.name,
     // Optional wire fields decode as absent-or-valued, never as an explicit
     // undefined, so they are spread in conditionally.
-    ...(description === undefined ? {} : { description }),
+    ...O.getOrUndefined(O.map(O.fromUndefinedOr(description), (description) => ({ description }))),
     inputSchema: schemas.inputSchema,
     outputSchema: schemas.outputSchema,
     annotations: {
@@ -469,7 +469,7 @@ const wireToolFor = (
       idempotentHint: Context.get(annotations, AiTool.Idempotent),
       openWorldHint: Context.get(annotations, AiTool.OpenWorld),
     },
-    ...(toolMeta === undefined ? {} : { _meta: toolMeta }),
+    ...O.getOrUndefined(O.map(O.fromUndefinedOr(toolMeta), (_meta) => ({ _meta }))),
   });
 };
 

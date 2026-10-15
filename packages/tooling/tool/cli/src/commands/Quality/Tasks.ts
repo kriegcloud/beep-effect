@@ -3593,9 +3593,11 @@ export const coverageStepForTesting: {
   (repoRoot: string, args: ReadonlyArray<string>, owners?: ReadonlyArray<CoverageScopeOwner>): QualityTaskStep =>
     coverageStep(repoRoot, {
       ...parseCoverageTaskOptions(args),
-      ...(owners === undefined
-        ? {}
-        : { topologyPackageNames: coverageSelectorPackageNames(owners, explicitTurboFilterValues(args)) }),
+      ...O.getSomesStruct({
+        topologyPackageNames: O.map(O.fromUndefinedOr(owners), (owners) =>
+          coverageSelectorPackageNames(owners, explicitTurboFilterValues(args))
+        ),
+      }),
     })
 );
 

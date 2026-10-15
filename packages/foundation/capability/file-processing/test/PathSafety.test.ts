@@ -4,6 +4,7 @@ import {
   writeFileWithinRootAtomically,
 } from "@beep/file-processing/PathSafety";
 import { it } from "@beep/test-runner";
+import { currentHostPlatform } from "@beep/utils";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { expect } from "@effect/vitest";
@@ -213,7 +214,7 @@ it.layer(PathSafetyTestLayer)("@beep/file-processing PathSafety — native files
     })
   );
 
-  it.effect.skipIf(Eq.equals(process.platform, "win32"))(
+  it.effect.skipIf(Eq.equals(currentHostPlatform, "win32"))(
     "POSIX only: rejects a symlink escape through an outside sibling containing a literal backslash",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;

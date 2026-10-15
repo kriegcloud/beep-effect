@@ -8,7 +8,7 @@
 //   BEEP_EPISTEMIC_CONTRADICTION_PG_URL=postgres://postgres:postgres@localhost:55434/postgres \
 //     bunx --bun vitest run test/integration/ContradictionTriage.pg.test.ts
 //   docker rm -f beep-contradiction-pg
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { ContradictionCandidate } from "@beep/epistemic-domain/entities/Contradiction";
 import {
   BeliefVersionRef,
@@ -49,7 +49,6 @@ import * as Shared from "@beep/shared-domain/identity/Shared";
 import { systemPrincipal as systemPrincipalInput } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import * as PgClient from "@effect/sql-pg/PgClient";
-import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Deferred from "effect/Deferred";
@@ -75,10 +74,9 @@ import type { EdgeVersion } from "@beep/epistemic-domain/entities/EdgeVersion";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
-const externalUrlConfig = Config.option(Config.String("BEEP_EPISTEMIC_CONTRADICTION_PG_URL"));
-const externalUrl = Effect.runSync(externalUrlConfig).pipe(O.getOrElse(() => ""));
+const { BEEP_EPISTEMIC_CONTRADICTION_PG_URL: externalUrl = "" } = process.env;
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const migrationsSchema = "epistemic_contradiction_acceptance";
 
 const makeExternalLayer = (maxConnections: number) =>

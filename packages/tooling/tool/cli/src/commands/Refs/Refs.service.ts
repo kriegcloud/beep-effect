@@ -6,6 +6,7 @@
  */
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
+import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -223,7 +224,7 @@ const makeReferenceWorkspace = Effect.fn("ReferenceWorkspace.make")(function* (o
       source: "merge",
       trim: true,
       tee: false,
-      extendEnv: deep === true || command === "notify-send" || command === "systemctl",
+      extendEnv: deep || command === "notify-send" || command === "systemctl",
       env: { ...extraEnv, HOME: home, PATH: ambientPath, CI: "true", GRAFT_NO_GITIGNORE: "1" },
       timeout,
       forceKillAfter: "30 seconds",
@@ -325,10 +326,7 @@ const makeReferenceWorkspace = Effect.fn("ReferenceWorkspace.make")(function* (o
       Effect.orElseSucceed(O.none),
       Effect.map(O.filter(Str.isNonEmpty))
     );
-    const packageEnv = O.match(packageRoot, {
-      onNone: () => ({}),
-      onSome: (value) => ({ GRAFT_PACKAGE_ROOT: value }),
-    });
+    const packageEnv = OptionUtils.getSomesStruct({ GRAFT_PACKAGE_ROOT: packageRoot });
     const result = yield* step(home, owner, patchKitScript, ["--check"], false, "5 minutes", packageEnv).pipe(
       Effect.result
     );

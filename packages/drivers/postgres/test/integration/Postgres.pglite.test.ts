@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   MigrationBundleConfig,
   MigrationBundleEntry,
@@ -36,7 +36,7 @@ const sha256Hex = Effect.fnUntraced(function* (text: string) {
 });
 
 const { shouldRunPgliteIntegration, makePgliteLayer } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("./fixtures/migrations", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("./fixtures/migrations", import.meta.url));
 const fixtureMigrationName = "20260101000000_create_driver_migrated_notes";
 
 const driverNotes = pgTable("driver_notes", {

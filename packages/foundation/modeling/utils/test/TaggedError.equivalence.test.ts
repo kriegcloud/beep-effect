@@ -20,10 +20,8 @@ const capture = (evaluate: () => unknown): unknown =>
     onSuccess: identity,
   });
 
-const captureEffectDefect = (effect: Effect.Effect<unknown>): unknown => {
-  const exit = Effect.runSyncExit(effect);
-  return Exit.isFailure(exit) ? Cause.squash(exit.cause) : exit.value;
-};
+const captureEffectDefect = (effect: Effect.Effect<unknown>) =>
+  Effect.map(Effect.exit(effect), (exit) => (Exit.isFailure(exit) ? Cause.squash(exit.cause) : exit.value));
 
 const expectPrivateEquivalence = (first: unknown, second: unknown, different: unknown): void => {
   const schema = P.isObject(first) ? Reflect.get(first, "constructor") : first;
@@ -57,28 +55,30 @@ describe("@beep/utils tagged-error declared equivalence", () => {
     expect(Reflect.apply(same, undefined, [first, differentTag])).toBe(false);
   });
 
-  it("compares private Node runtime errors by their declared singleton fields", () => {
-    const descriptor = Reflect.getOwnPropertyDescriptor(globalThis.process, "getBuiltinModule");
-    Reflect.defineProperty(globalThis.process, "getBuiltinModule", {
-      configurable: true,
-      value: () => undefined,
-    });
+  it.effect("compares private Node runtime errors by their declared singleton fields", () =>
+    Effect.gen(function* () {
+      const descriptor = Reflect.getOwnPropertyDescriptor(globalThis.process, "getBuiltinModule");
+      Reflect.defineProperty(globalThis.process, "getBuiltinModule", {
+        configurable: true,
+        value: () => undefined,
+      });
 
-    try {
-      const fileSystemFirst = captureEffectDefect(FileSystem.existsSync("missing"));
-      const fileSystemSecond = captureEffectDefect(FileSystem.existsSync("missing"));
-      const pathFirst = capture(() => Path.join("one", "two"));
-      const pathSecond = capture(() => Path.join("one", "two"));
-      const urlFirst = capture(() => NodeUrl.fileURLToPath("file:///tmp/one"));
-      const urlSecond = capture(() => NodeUrl.fileURLToPath("file:///tmp/one"));
+      try {
+        const fileSystemFirst = yield* captureEffectDefect(FileSystem.existsSync("missing"));
+        const fileSystemSecond = yield* captureEffectDefect(FileSystem.existsSync("missing"));
+        const pathFirst = capture(() => Path.join("one", "two"));
+        const pathSecond = capture(() => Path.join("one", "two"));
+        const urlFirst = capture(() => NodeUrl.fileURLToPath("file:///tmp/one"));
+        const urlSecond = capture(() => NodeUrl.fileURLToPath("file:///tmp/one"));
 
-      expectPrivateEquivalence(fileSystemFirst, fileSystemSecond, pathFirst);
-      expectPrivateEquivalence(pathFirst, pathSecond, urlFirst);
-      expectPrivateEquivalence(urlFirst, urlSecond, fileSystemFirst);
-    } finally {
-      if (P.isNotUndefined(descriptor)) {
-        Reflect.defineProperty(globalThis.process, "getBuiltinModule", descriptor);
+        expectPrivateEquivalence(fileSystemFirst, fileSystemSecond, pathFirst);
+        expectPrivateEquivalence(pathFirst, pathSecond, urlFirst);
+        expectPrivateEquivalence(urlFirst, urlSecond, fileSystemFirst);
+      } finally {
+        if (P.isNotUndefined(descriptor)) {
+          Reflect.defineProperty(globalThis.process, "getBuiltinModule", descriptor);
+        }
       }
-    }
-  });
+    })
+  );
 });

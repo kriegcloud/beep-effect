@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values";
 import { makeDrizzleEdgeAuthorityRepository } from "@beep/epistemic-server";
@@ -31,7 +31,7 @@ import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
 const TempDirServices = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeCrypto.layer);
 

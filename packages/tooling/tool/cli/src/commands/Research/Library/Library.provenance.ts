@@ -150,7 +150,7 @@ const grokWorkflowQualificationValid = (events: ReadonlyArray<unknown>) => {
         A.some(event.message.params.update.phases, (item) => item.title === phase && item.state === "done")
       )
   );
-  if (
+  return !!(
     O.isSome(complete) &&
     A.some(
       launches,
@@ -158,10 +158,7 @@ const grokWorkflowQualificationValid = (events: ReadonlyArray<unknown>) => {
         event.message.params.sessionId === complete.value.message.params.sessionId &&
         A.some(event.message.params.prompt, (block) => Str.startsWith("/deep-research ")(block.text))
     )
-  )
-    return true;
-
-  return false;
+  );
 };
 
 const grokXQualificationValid = (events: ReadonlyArray<unknown>) => {

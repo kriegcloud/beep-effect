@@ -22,6 +22,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { QaSeverity } from "../Qa/Inventory.schemas.ts";
@@ -402,6 +403,8 @@ const encodeCriticReportJson = S.encodeEffect(reportCodec);
  * Effect.runPromise(decodeCriticReport(text)).then((r) => console.log(r.verdict)) // "accept"
  * ```
  *
+ * @param text - JSON text containing a critic report.
+ * @returns An effect that decodes and validates the critic report.
  * @category decoding
  * @since 0.0.0
  */
@@ -420,6 +423,8 @@ export const decodeCriticReport = (text: string) => decodeCriticReportJson(text)
  * Effect.runPromise(encodeCriticReport(report)).then((text) => console.log(text.length > 0)) // true
  * ```
  *
+ * @param report - Validated critic report to serialize.
+ * @returns An effect that encodes the report as JSON text.
  * @category encoding
  * @since 0.0.0
  */
@@ -440,6 +445,7 @@ export const encodeCriticReport = (report: CriticReport) => encodeCriticReportJs
  * console.log(JSON.parse(criticReportJsonSchema()).required) // ["reviewer", "verdict", ...]
  * ```
  *
+ * @returns The strict structured-output JSON Schema for a critic report.
  * @category encoding
  * @since 0.0.0
  */
@@ -463,13 +469,12 @@ const STRICT_KEYWORDS = HashSet.fromIterable([
   "description",
 ]);
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value);
 
 // Keep only the keywords the strict structured-output modes accept, recursively;
 // the children of `properties` are property names, not keywords, and stay.
 const strictKeywords = (node: unknown): unknown =>
-  Array.isArray(node)
+  A.isArray(node)
     ? A.map(node, strictKeywords)
     : isRecord(node)
       ? pipe(
@@ -561,6 +566,8 @@ const encodeCriticPackManifestJson = S.encodeEffect(manifestCodec);
  * Effect.runPromise(decodeCriticPackManifest(text)).then((manifest) => console.log(manifest.sheets)) // ["render/pg-1.png"]
  * ```
  *
+ * @param text - JSON text containing a pack manifest.
+ * @returns An effect that decodes and validates the pack manifest.
  * @category decoding
  * @since 0.0.0
  */
@@ -579,6 +586,8 @@ export const decodeCriticPackManifest = (text: string) => decodeCriticPackManife
  * Effect.runPromise(Effect.flatMap(decodeCriticPackManifest(text), encodeCriticPackManifest)).then(console.log)
  * ```
  *
+ * @param manifest - Validated pack manifest to serialize.
+ * @returns An effect that encodes the manifest as JSON text.
  * @category encoding
  * @since 0.0.0
  */
@@ -663,6 +672,8 @@ const encodeCriticLoopRecordJson = S.encodeEffect(recordCodec);
  * Effect.runPromise(decodeCriticLoopRecord(text)).then((record) => console.log(record.loop)) // 1
  * ```
  *
+ * @param text - JSON text containing a loop record.
+ * @returns An effect that decodes and validates the loop record.
  * @category decoding
  * @since 0.0.0
  */
@@ -681,6 +692,8 @@ export const decodeCriticLoopRecord = (text: string) => decodeCriticLoopRecordJs
  * Effect.runPromise(Effect.flatMap(decodeCriticLoopRecord(text), encodeCriticLoopRecord)).then(console.log)
  * ```
  *
+ * @param record - Validated loop record to serialize.
+ * @returns An effect that encodes the loop record as JSON text.
  * @category encoding
  * @since 0.0.0
  */

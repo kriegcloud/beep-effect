@@ -163,8 +163,5 @@ export const envFcNumRunsFloor = (): number =>
  */
 export const fcRuns = (inline?: number): Arbitrary.CheckOptions & { readonly runs: number } => ({
   runs: Math.max(inline ?? DEFAULT_FC_NUM_RUNS, envFcNumRunsFloor()),
-  ...O.match(envFcSeed(), {
-    onNone: () => ({}),
-    onSome: (seed) => ({ seed }),
-  }),
+  ...O.getOrUndefined(O.map(envFcSeed(), (seed) => ({ seed }))),
 });

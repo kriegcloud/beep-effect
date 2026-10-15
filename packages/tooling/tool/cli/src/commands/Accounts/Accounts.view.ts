@@ -368,8 +368,8 @@ const rowLines = (
 const panelHint = (group: AccountGroup, now: DateTime.Utc, firstReady: O.Option<AccountRanking>, palette: Palette) => {
   if (group.section === "supergrok") return O.map(A.head(group.rows), (row) => palette.dim(row.usage.account.label));
   if (!isRanked(group.section)) return O.none();
-  return O.match(firstReady, {
-    onSome: (row) => {
+  return O.getOrElse(
+    O.map(firstReady, (row) => {
       const label = row.usage.account.label;
       if (row.signedIn) return O.some(palette.good(`stay on ${label}`));
       return O.some(
@@ -377,8 +377,8 @@ const panelHint = (group: AccountGroup, now: DateTime.Utc, firstReady: O.Option<
           ? palette.accent(`switch to ${label}`)
           : palette.accent(`use ${label}`)
       );
-    },
-    onNone: () => {
+    }),
+    () => {
       const soonest = A.reduce(
         A.getSomes(A.map(group.rows, (row) => hoursUntilAvailable(row, now))),
         O.none<number>(),
@@ -392,8 +392,8 @@ const panelHint = (group: AccountGroup, now: DateTime.Utc, firstReady: O.Option<
           })
         )
       );
-    },
-  });
+    }
+  );
 };
 
 const panelLines = (group: AccountGroup, width: number, now: DateTime.Utc, palette: Palette): ReadonlyArray<string> => {

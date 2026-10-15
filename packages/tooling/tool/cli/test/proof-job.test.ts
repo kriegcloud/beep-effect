@@ -43,7 +43,7 @@ const stamp = "2026-09-15T00:00:00.000Z";
 const encodeJsonLine = S.encodeEffect(S.fromJsonString(S.Unknown));
 const encodeRecordJson = S.encodeEffect(S.fromJsonString(Job.ProofJobRecord));
 const decodeServiceResult = S.decodeUnknownEffect(Job.ProofJobServiceResult);
-const attemptId = Effect.runSync(S.decodeEffect(UUID)("0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60"));
+const attemptId = UUID.make("0f5c9a3e-6d3b-4c1e-9a8f-2b7d1c4e5a60");
 const submission = (root: string) =>
   Job.ProofJobSubmission.make({
     request: Job.ProofJobRequest.make({

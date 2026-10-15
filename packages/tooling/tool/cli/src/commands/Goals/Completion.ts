@@ -540,9 +540,8 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
     const checks = A.flatMap(pages, (page) => page.check_runs);
     const requiredChecks = yield* readHistoricalRequiredChecks(root, pull.base.ref, mergedAt).pipe(Effect.option);
     const required = O.map(requiredChecks, (snapshot) => snapshot.contexts);
-    const gatingOutcome = O.match(required, {
-      onNone: (): GoalCompletionOutcome => "unknown",
-      onSome: (contexts): GoalCompletionOutcome => {
+    const gatingOutcome = O.getOrElse(
+      O.map(required, (contexts): GoalCompletionOutcome => {
         if (A.isReadonlyArrayEmpty(contexts)) return "unknown";
         const outcomes = A.map(contexts, (name): GoalCompletionOutcome => {
           const matching = A.filter(
@@ -571,8 +570,9 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
           : A.contains(outcomes, "unknown")
             ? "unknown"
             : "verified";
-      },
-    });
+      }),
+      (): GoalCompletionOutcome => "unknown"
+    );
     const hostedEvidence = A.of(
       evidenceCheck(
         hostedRef,

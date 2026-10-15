@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
 import {
   applyEffectVitestPrimitiveGraph,
@@ -48,7 +48,7 @@ const isEffectVitestFinding = S.is(EffectVitestFinding);
 const isEffectVitestPackageTiming = S.is(EffectVitestPackageTiming);
 
 const discoveryLayer = Layer.mergeAll(NodeServices.layer, FsUtilsLive.pipe(Layer.provide(NodeServices.layer)));
-const repositoryRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const repositoryRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
 
 const fixtureInventoryFileSystem = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;

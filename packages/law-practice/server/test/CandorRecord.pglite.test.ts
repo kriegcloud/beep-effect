@@ -20,7 +20,7 @@
  * real ones — so every assertion here reads the ids the database handed back.
  */
 
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { CandorDisposition, IdsSubmissionFact, PatentCitationEvent } from "@beep/law-practice-domain";
 import { CandorRecordRepositoryLive } from "@beep/law-practice-server/CandorRecord";
 import { CandorFilingScope } from "@beep/law-practice-use-cases/CandorPolicy";
@@ -56,7 +56,7 @@ const isCandorFilingScope = S.is(CandorFilingScope);
 
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis: PgliteIntegrationTimeout } =
   makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../_internal/db-admin/drizzle", import.meta.url));
 
 // The bundle contains `CREATE EXTENSION btree_gist` (the epistemic edge
 // migration), which the shared external pglite-socket lane cannot load, so this

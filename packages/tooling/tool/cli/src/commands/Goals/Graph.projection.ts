@@ -18,8 +18,9 @@
  * @since 0.0.0
  */
 
+import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
-import { dual, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -227,9 +228,8 @@ export const groupCycles = (
   pipe(
     A.groupBy(pairs, (pair) => pair.root),
     R.values,
-    A.map((group) =>
-      pipe(
-        group,
+    A.map(
+      flow(
         A.map((pair) => pair.member),
         A.dedupe,
         A.sort(Order.String)
@@ -504,7 +504,7 @@ export const buildFrontierReport: {
           GoalFrontierEntry.make({
             slug: packet.packetId,
             title: packet.title,
-            ...(packet.mission === undefined ? {} : { mission: packet.mission }),
+            ...OptionUtils.getSomesStruct({ mission: O.fromUndefinedOr(packet.mission) }),
             requirements: requirementRows(projection, answers, packet.packetId),
           })
         )
@@ -587,7 +587,7 @@ export const buildExplainReport: {
         frontier: A.contains(answers.frontier, packet.packetId),
         requirements: requirementRows(projection, answers, packet.packetId),
         unlockPath,
-        ...O.match(cycle, { onNone: () => ({}), onSome: (members) => ({ cycle: members }) }),
+        ...OptionUtils.getSomesStruct({ cycle: cycle }),
       });
     })
 );

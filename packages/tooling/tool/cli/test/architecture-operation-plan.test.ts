@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   applyCanonicalSliceOperationPlan,
   architectureCommand,
@@ -38,7 +38,7 @@ const makeTempDirectory = (prefix: string) =>
     )
   );
 
-const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
 const isString = (value: unknown): value is string => typeof value === "string";
 const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
   A.join(

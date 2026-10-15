@@ -603,14 +603,7 @@ export const Term = TermUntagged.pipe(S.toTaggedUnion("termType"));
 export type Term = typeof Term.Type;
 
 const SubjectDefinition = S.Union([NamedNode, BlankNode]);
-const SubjectUntagged = SubjectDefinition.pipe((schema) =>
-  pipe(
-    schema,
-    $I.annoteSchema("Subject", {
-      description: "RDF subject term union.",
-    })
-  )
-);
+const SubjectUntagged = SubjectDefinition.pipe($I.annoteSchema("Subject", { description: "RDF subject term union." }));
 
 /**
  * RDF subject term union.

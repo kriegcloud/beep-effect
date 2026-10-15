@@ -6,6 +6,7 @@
  */
 
 import { A, Str } from "@beep/utils";
+import * as OptionUtils from "@beep/utils/Option";
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -96,7 +97,9 @@ const rootTaskLane = (repoRoot: string, label: string, task: string, base?: stri
       ),
       "--summarize",
     ]),
-    ...(base === undefined ? {} : { env: { BEEP_PROOF_BASE: base } }),
+    ...OptionUtils.getSomesStruct({
+      env: O.map(O.fromUndefinedOr(base), (base) => ({ BEEP_PROOF_BASE: base })),
+    }),
   });
 
 /**

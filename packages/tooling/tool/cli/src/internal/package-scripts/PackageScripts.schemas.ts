@@ -352,7 +352,7 @@ export const PackageScriptsDrift = S.TaggedUnion({
   "wrong-binding": { name: TaskScriptName, expected: S.String, actual: S.String },
   "missing-impl": { name: ImplScriptName },
   placeholder: { name: S.Literal("codegen"), actual: S.String },
-  "derivation-conflict": { name: S.Literal("doctest"), reason: S.String },
+  "derivation-conflict": { name: S.Literals(["doctest", "build"]), reason: S.String },
 }).pipe(
   $I.annoteSchema("PackageScriptsDrift", {
     description: "Six actionable deviations from the canonical scripts contract.",

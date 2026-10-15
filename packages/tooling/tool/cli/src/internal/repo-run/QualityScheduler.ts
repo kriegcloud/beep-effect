@@ -17,7 +17,7 @@
  * @since 0.0.0
  */
 
-import { freemem, totalmem } from "node:os";
+import * as NodeOS from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -285,10 +285,10 @@ const makeMemoryStats = Effect.fnUntraced(function* (): Effect.fn.Return<
       Effect.map(O.getOrElse(fallback))
     );
   return {
-    // Non-Linux fallback: freemem() under-reports (no reclaimable cache), which
+    // Non-Linux fallback: NodeOS.freemem() under-reports (no reclaimable cache), which
     // only makes admission more conservative.
-    availableGib: meminfoFieldGib("MemAvailable:", () => freemem() / GIB),
-    totalGib: meminfoFieldGib("MemTotal:", () => totalmem() / GIB),
+    availableGib: meminfoFieldGib("MemAvailable:", () => NodeOS.freemem() / GIB),
+    totalGib: meminfoFieldGib("MemTotal:", () => NodeOS.totalmem() / GIB),
   };
 });
 

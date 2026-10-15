@@ -12,7 +12,7 @@
  * @since 0.0.0
  */
 
-import { userInfo } from "node:os";
+import * as NodeOS from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
 import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
 import * as A from "effect/Array";
@@ -702,7 +702,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
   );
   const bus = yield* Config.String("DBUS_SESSION_BUS_ADDRESS").pipe(
     Config.withDefault(
-      `unix:path=/run/user/${yield* Config.String("UID").pipe(Config.withDefault(`${userInfo().uid}`))}/bus`
+      `unix:path=/run/user/${yield* Config.String("UID").pipe(Config.withDefault(`${NodeOS.userInfo().uid}`))}/bus`
     )
   );
   const readJunie = Effect.fn("AccountsUsage.readJunie")(
@@ -730,7 +730,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
     },
     Effect.timeoutOption(REQUEST_TIMEOUT),
     Effect.map(O.flatten),
-    Effect.orElseSucceed(() => O.none<O.Option<JunieStoredCredential>>())
+    Effect.orElseSucceed(O.none<O.Option<JunieStoredCredential>>)
   );
 
   const junieAccount = readJunie().pipe(

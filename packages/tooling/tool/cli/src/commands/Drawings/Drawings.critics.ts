@@ -31,6 +31,7 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -164,16 +165,16 @@ const rowsOfPath = (data: string): ReadonlyArray<StrokeRow> =>
         if (m[1] === "M") {
           return { current: O.some(point), rows: state.rows };
         }
-        return O.match(state.current, {
-          onNone: () => state,
-          onSome: (from) => ({
+        return O.getOrElse(
+          O.map(state.current, (from) => ({
             current: O.some(point),
             rows: O.match(rowOf(from, point), {
               onNone: () => state.rows,
               onSome: (row) => A.append(state.rows, row),
             }),
-          }),
-        });
+          })),
+          () => state
+        );
       }
     ),
     (state) => state.rows
@@ -192,6 +193,8 @@ const rowsOfPath = (data: string): ReadonlyArray<StrokeRow> =>
  * Effect.runPromise(parseZoomFlag("1:500,1500,1700,1400:walls")).then((zoom) => console.log(zoom.label)) // "walls"
  * ```
  *
+ * @param text - Zoom flag in fig:x,y,width,height:label form.
+ * @returns An effect that parses the crop or reports an invalid flag.
  * @category parsing
  * @since 0.0.0
  */
@@ -232,16 +235,16 @@ const shadingSegmentsMm = (svg: string): ReadonlyArray<StrokeRow> => {
     A.map((m) => m[0])
   );
   const shading = A.findFirst(paths, Str.includes(SHADING_STROKE_PT));
-  return O.match(shading, {
-    onNone: () => A.empty<StrokeRow>(),
-    onSome: (element) => {
+  return O.getOrElse(
+    O.map(shading, (element) => {
       const d = O.fromNullishOr(/\sd="([^"]*)"/.exec(element)?.[1]);
       return O.match(d, {
-        onNone: () => A.empty<StrokeRow>(),
+        onNone: A.empty<StrokeRow>,
         onSome: rowsOfPath,
       });
-    },
-  });
+    }),
+    A.empty<StrokeRow>
+  );
 };
 
 const byAngleThenOffset = Order.combine(
@@ -264,6 +267,8 @@ const byAngleThenOffset = Order.combine(
  * console.log(table.includes("FIG 1 (front) — 0 shading strokes")) // true
  * ```
  *
+ * @param input - Figure reports, title, and source hashes for the measurement table.
+ * @returns Markdown containing the shading measurements for each figure.
  * @category formatting
  * @since 0.0.0
  */
@@ -319,6 +324,8 @@ export const strokeTableMarkdown = (input: {
  * console.log(priorSummaryMarkdown([]).startsWith("# Findings already reported")) // true
  * ```
  *
+ * @param reports - Earlier reports in reviewer order.
+ * @returns Markdown containing all previous findings and reviewer stances.
  * @category formatting
  * @since 0.0.0
  */
@@ -358,6 +365,8 @@ export const priorSummaryMarkdown = (reports: ReadonlyArray<CriticReport>): stri
  * console.log(priorIdsMarkdown([]).startsWith("# Finding ids already reported")) // true
  * ```
  *
+ * @param reports - Earlier reports whose matter details must be omitted.
+ * @returns Markdown containing only finding identifiers, categories, and bases.
  * @category formatting
  * @since 0.0.0
  */
@@ -395,6 +404,8 @@ const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
  * console.log(O.getOrElse(extractReportText({ route: "grok", text: wrapper }), () => "")) // {"reviewer":"grok-4.7"}
  * ```
  *
+ * @param input - Reviewer route, captured output, and any report file contents.
+ * @returns The extracted report JSON text, when present.
  * @category parsing
  * @since 0.0.0
  */
@@ -405,9 +416,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     return start >= 0 && end > start ? O.some(text.slice(start, end + 1)) : O.none();
   };
   const field = (value: unknown, key: string): O.Option<unknown> =>
-    typeof value === "object" && value !== null && key in value
-      ? O.fromNullishOr((value as Record<string, unknown>)[key])
-      : O.none();
+    P.isObject(value) && key in value ? O.fromNullishOr(value[key]) : O.none();
   return Match.value(input.route).pipe(
     Match.when("codex", () => outermost(input.text)),
     Match.when("grok", () =>
@@ -416,12 +425,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
         O.flatMap((wrapper) =>
           field(wrapper, "structuredOutput").pipe(
             O.map((structured) => JSON.stringify(structured)),
-            O.orElse(() =>
-              field(wrapper, "text").pipe(
-                O.filter((t): t is string => typeof t === "string"),
-                O.flatMap(outermost)
-              )
-            )
+            O.orElse(() => field(wrapper, "text").pipe(O.filter(P.isString), O.flatMap(outermost)))
           )
         ),
         O.orElse(() => outermost(input.text))
@@ -430,13 +434,12 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     Match.when("claude", () =>
       pipe(
         parseJson(input.text),
-        O.filter((events): events is ReadonlyArray<unknown> => Array.isArray(events)),
-        O.flatMap((events) =>
-          pipe(
-            events,
+        O.filter((events): events is ReadonlyArray<unknown> => A.isArray(events)),
+        O.flatMap(
+          flow(
             A.findLast((event) => O.contains(field(event, "type"), "result" as unknown)),
             O.flatMap((event) => field(event, "result")),
-            O.filter((t): t is string => typeof t === "string"),
+            O.filter(P.isString),
             O.flatMap(outermost)
           )
         ),
@@ -470,6 +473,8 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  * console.log(invocation.executable) // "grok"
  * ```
  *
+ * @param input - Reviewer configuration, pack paths, prompt, and environment.
+ * @returns The command, working directory, environment, and report location for the reviewer.
  * @category constructors
  * @since 0.0.0
  */
@@ -604,7 +609,7 @@ export const criticInvocation = (input: {
           "enabled",
           "--workspace",
           cwd,
-          ...O.match(input.syntheticPack, { onNone: () => A.empty<string>(), onSome: (dir) => ["--add-dir", dir] }),
+          ...O.match(input.syntheticPack, { onNone: A.empty<string>, onSome: (dir) => ["--add-dir", dir] }),
           "--model",
           input.reviewer.model,
           "--output-format",
@@ -803,8 +808,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         figures: figureSvgs,
       })
     );
-    const images = yield* Effect.forEach(request.imagesDirs, (dir) =>
-      Effect.gen(function* () {
+    const images = yield* Effect.forEach(
+      request.imagesDirs,
+      Effect.fnUntraced(function* (dir: string) {
         const name = path.basename(dir);
         yield* mkdir(path.join(packDir, "images", name));
         const files = yield* imagesIn(dir);
@@ -872,8 +878,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     const prior = yield* priorReports(loopDir);
     const startedAt = DateTime.formatIso(yield* DateTime.now);
     const prompt = yield* Match.value(reviewer.scope).pipe(
-      Match.when("matter", () =>
-        Effect.gen(function* () {
+      Match.when(
+        "matter",
+        Effect.fnUntraced(function* () {
           yield* mkdir(path.join(packDir, "prior"));
           yield* write(path.join(packDir, "prior", "SUMMARY.md"), priorSummaryMarkdown(prior));
           const hint = Match.value(reviewer.route).pipe(
@@ -907,8 +914,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
           ].join("\n");
         })
       ),
-      Match.when("synthetic", () =>
-        Effect.gen(function* () {
+      Match.when(
+        "synthetic",
+        Effect.fnUntraced(function* () {
           const syntheticPack = yield* Effect.fromOption(request.syntheticPack).pipe(
             Effect.mapError(() =>
               DrawingsCommandError.make({
@@ -1073,7 +1081,7 @@ const processEnvironment = (): Readonly<Record<string, string>> =>
   R.filterMap(
     (globalThis as unknown as { readonly process?: { readonly env?: Readonly<Record<string, string | undefined>> } })
       .process?.env ?? {},
-    (value) => (typeof value === "string" ? Result.succeed(value) : Result.fail(undefined))
+    (value) => (P.isString(value) ? Result.succeed(value) : Result.fail(undefined))
   );
 
 /**
@@ -1183,6 +1191,8 @@ export const DEFAULT_CRITIC_REVIEWERS: ReadonlyArray<CriticReviewer> = [
  * Effect.runPromise(selectReviewers(["grok-4.7", "claude-opus-5.5"])).then((rs) => console.log(rs.length)) // 2
  * ```
  *
+ * @param names - Reviewer names to select in the requested order.
+ * @returns An effect that resolves the requested reviewers or rejects unknown names.
  * @category constructors
  * @since 0.0.0
  */

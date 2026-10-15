@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig";
 import { it } from "@beep/test-runner";
@@ -16,7 +16,7 @@ import * as Path from "effect/Path";
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 
-const MOCK_ROOT = fileURLToPath(new URL("./fixtures/mock-monorepo", import.meta.url));
+const MOCK_ROOT = NodeURL.fileURLToPath(new URL("./fixtures/mock-monorepo", import.meta.url));
 
 it.layer(TestLayer, { timeout: "10 seconds" })("TsConfig", (it) => {
   describe("collectTsConfigPaths", () => {

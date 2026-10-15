@@ -92,6 +92,8 @@ const error = (message: string) => ReviewerError.make({ operation: "github", mes
  * console.log(reviewerConclusion({ conclusion: "auto", p0: 0, p1: 1 })); // failure
  * ```
  *
+ * @param result - Requested conclusion and blocking severity counts.
+ * @returns The explicit conclusion, or the automatic conclusion derived from blocking findings.
  * @category policies
  * @since 0.0.0
  */

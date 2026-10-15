@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   decideYeetPrWaveOwner,
   escalateYeetPrWave,
@@ -56,7 +56,7 @@ import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 
-const repoRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 const workerPath = `${repoRoot}.claude/hooks/yeet-pr-wave-notifier.sh`;
 const at = "2026-09-28T00:00:00.000Z";
 const head = "abc1234def5678";

@@ -1,5 +1,5 @@
-import { Buffer } from "node:buffer";
-import { text as readableText } from "node:stream/consumers";
+import * as NodeBuffer from "node:buffer";
+import * as NodeStreamConsumers from "node:stream/consumers";
 import * as B from "@beep/box";
 import {
   GetCollaborationsQueryParams,
@@ -199,7 +199,7 @@ const makeFakeClient = (overrides: FakeBoxClientOverrides = {}): FakeBoxClient =
   const defaults: FakeBoxClient = {
     downloads: {
       downloadFile: (_fileId, _optionalsInput) =>
-        Promise.resolve(NodeStream.toReadableNever(Stream.make(new Uint8Array(Buffer.from("downloaded"))))),
+        Promise.resolve(NodeStream.toReadableNever(Stream.make(new Uint8Array(NodeBuffer.Buffer.from("downloaded"))))),
       getDownloadFileUrl: (fileId, _optionalsInput) => Promise.resolve(`https://box.example/files/${fileId}/download`),
     },
     events: {
@@ -281,7 +281,7 @@ const provisioningClient = {
 };
 
 const chunksToText = (chunks: Iterable<Uint8Array>): string =>
-  Buffer.concat(A.map(A.fromIterable(chunks), (chunk) => Buffer.from(chunk))).toString("utf8");
+  NodeBuffer.Buffer.concat(A.map(A.fromIterable(chunks), (chunk) => NodeBuffer.Buffer.from(chunk))).toString("utf8");
 
 const byteAbortProbe: {
   aborted: PromiseController<void> | undefined;
@@ -963,7 +963,7 @@ describe("@beep/box", () => {
       makeFakeClient({
         uploads: {
           uploadFile: (requestBody, _optionalsInput) =>
-            readableText(requestBody.file).then((content) => {
+            NodeStreamConsumers.text(requestBody.file).then((content) => {
               uploaded.content = content;
               return files;
             }),
@@ -983,7 +983,7 @@ describe("@beep/box", () => {
                 name: "document.txt",
                 parent: UploadFileRequestBodyAttributesParentField.make({ id: "0" }),
               }),
-              file: Stream.make(new Uint8Array(Buffer.from("uploaded"))),
+              file: Stream.make(new Uint8Array(NodeBuffer.Buffer.from("uploaded"))),
             }),
           })
         );

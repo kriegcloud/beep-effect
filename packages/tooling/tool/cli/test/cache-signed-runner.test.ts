@@ -15,6 +15,7 @@ import { MemoryStats } from "@beep/repo-cli/test/RepoRun";
 import { CacheClientPin, CacheEvidenceReference } from "@beep/repo-configs/cache";
 import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { fcRuns } from "@beep/test-utils";
+import { HostProcessPlatform } from "@beep/utils";
 import { NodeCrypto, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { afterEach, expect, it, vi } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -205,8 +206,10 @@ it.layer(
   it.effect("refuses unsupported hosts before reading tools or launching processes", () =>
     Effect.gen(function* () {
       const { root, request, process: captured } = yield* fixture("none");
-      vi.stubGlobal("process", { ...process, platform: "darwin" });
-      const result = yield* runCacheSignedPilotExperiment(root, request).pipe(Effect.result);
+      const result = yield* runCacheSignedPilotExperiment(root, request).pipe(
+        Effect.provideService(HostProcessPlatform, "darwin"),
+        Effect.result
+      );
       Result.match(result, {
         onSuccess: () => expect.fail("Supervisor accepted an unsupported host"),
         onFailure: (error) => expect(error.message).toContain("Linux x64"),
@@ -332,11 +335,16 @@ it.layer(
   it.effect("rejects unsupported hosts before launching the worker", () =>
     Effect.gen(function* () {
       const { root, request } = yield* protocolFixture("none");
-      vi.stubGlobal("process", { ...process, platform: "darwin" });
-      Result.match(yield* runCacheProtocolExperiment(root, request).pipe(Effect.result), {
-        onSuccess: () => expect.fail("Supervisor accepted unsupported host"),
-        onFailure: (error) => expect(error.message).toContain("Linux x64"),
-      });
+      Result.match(
+        yield* runCacheProtocolExperiment(root, request).pipe(
+          Effect.provideService(HostProcessPlatform, "darwin"),
+          Effect.result
+        ),
+        {
+          onSuccess: () => expect.fail("Supervisor accepted unsupported host"),
+          onFailure: (error) => expect(error.message).toContain("Linux x64"),
+        }
+      );
     })
   );
   for (const fault of ["exit", "truncated", "client", "channel", "bun"] as const)

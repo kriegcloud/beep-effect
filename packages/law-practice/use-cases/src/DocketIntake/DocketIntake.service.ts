@@ -40,7 +40,7 @@ import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { identity, pipe } from "effect/Function";
+import { flow, identity, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
@@ -430,30 +430,32 @@ const dateLine = (label: string, date: O.Option<LocalDate>, derivation: string):
     })
   );
 
-const matterLine: (matter: O.Option<MatterLookupResult>) => string = O.match({
-  onNone: () => "Matter: lookup unavailable; needs attorney",
-  onSome: MatterLookupResult.match({
-    MatterAmbiguous: (matter) => `Matter: ambiguous between ${A.join(matter.familyKeys, ", ")}; needs attorney`,
-    MatterNotFound: () => "Matter: not found in the practice records; needs attorney",
-    MatterSuggested: (matter) =>
-      `Matter: not attached in the records; suggested candidates: ${A.join(matter.familyKeys, ", ")}; needs attorney`,
-    MatterUnique: (matter) =>
-      A.join(
-        A.filter(
-          [
-            `Matter: family ${matter.familyKey}${matter.verified ? "" : " (unverified; needs attorney)"}`,
-            O.match(matter.client, { onNone: () => "", onSome: (client) => `client ${client}` }),
-            O.getOrElse(matter.clientName, () => ""),
-            A.isReadonlyArrayNonEmpty(matter.dockets) ? `dockets ${A.join(matter.dockets, ", ")}` : "",
-            A.isReadonlyArrayNonEmpty(matter.applications) ? `applications ${A.join(matter.applications, ", ")}` : "",
-            A.isReadonlyArrayNonEmpty(matter.patents) ? `patents ${A.join(matter.patents, ", ")}` : "",
-          ],
-          Str.isNonEmpty
+const matterLine: (matter: O.Option<MatterLookupResult>) => string = flow(
+  O.map(
+    MatterLookupResult.match({
+      MatterAmbiguous: (matter) => `Matter: ambiguous between ${A.join(matter.familyKeys, ", ")}; needs attorney`,
+      MatterNotFound: () => "Matter: not found in the practice records; needs attorney",
+      MatterSuggested: (matter) =>
+        `Matter: not attached in the records; suggested candidates: ${A.join(matter.familyKeys, ", ")}; needs attorney`,
+      MatterUnique: (matter) =>
+        A.join(
+          A.filter(
+            [
+              `Matter: family ${matter.familyKey}${matter.verified ? "" : " (unverified; needs attorney)"}`,
+              O.match(matter.client, { onNone: () => "", onSome: (client) => `client ${client}` }),
+              O.getOrElse(matter.clientName, () => ""),
+              A.isReadonlyArrayNonEmpty(matter.dockets) ? `dockets ${A.join(matter.dockets, ", ")}` : "",
+              A.isReadonlyArrayNonEmpty(matter.applications) ? `applications ${A.join(matter.applications, ", ")}` : "",
+              A.isReadonlyArrayNonEmpty(matter.patents) ? `patents ${A.join(matter.patents, ", ")}` : "",
+            ],
+            Str.isNonEmpty
+          ),
+          " · "
         ),
-        " · "
-      ),
-  }),
-});
+    })
+  ),
+  O.getOrElse(() => "Matter: lookup unavailable; needs attorney")
+);
 
 const matterFlags: (matter: O.Option<MatterLookupResult>) => ReadonlyArray<DocketEntryFlag> = O.match({
   onNone: (): ReadonlyArray<DocketEntryFlag> => ["matter-lookup-failed"],

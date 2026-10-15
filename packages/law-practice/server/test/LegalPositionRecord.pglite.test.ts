@@ -22,7 +22,7 @@
  * than a seed nobody stored.
  */
 
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   ActFrame,
   CorrectionDelta,
@@ -67,7 +67,7 @@ const decodeUnknownPowerExercise = S.decodeUnknownEffect(PowerExercise);
 
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis: PgliteIntegrationTimeout } =
   makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../_internal/db-admin/drizzle", import.meta.url));
 
 // The bundle contains `CREATE EXTENSION btree_gist` (the epistemic edge
 // migration), which the shared external pglite-socket lane cannot load, so this

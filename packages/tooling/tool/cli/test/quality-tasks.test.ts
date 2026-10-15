@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   CiLaneRunOptions,
   CiLocalStepPlan,
@@ -577,7 +577,7 @@ const policyStepCommand = (step: QualityTaskStep) => {
       ? [
           "bun",
           "--no-env-file",
-          fileURLToPath(new URL("../src/bin.ts", import.meta.url)),
+          NodeURL.fileURLToPath(new URL("../src/bin.ts", import.meta.url)),
           "cache",
           "execute",
           "--",

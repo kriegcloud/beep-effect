@@ -837,9 +837,8 @@ const renderElapsed = (from: number, to: number): string => Duration.format(Dura
 // A stage stamped before the stage printed ahead of it is anchored on the push
 // instead, so the line never shows a negative or clamped-to-zero gap.
 const renderStageDelta = (pushed: O.Option<number>, previous: O.Option<number>, millis: O.Option<number>): string =>
-  O.match(O.all({ from: previous, to: millis }), {
-    onNone: () => "",
-    onSome: ({ from, to }) =>
+  O.getOrElse(
+    O.map(O.all({ from: previous, to: millis }), ({ from, to }) =>
       to >= from
         ? ` (+${renderElapsed(from, to)})`
         : O.match(
@@ -848,8 +847,10 @@ const renderStageDelta = (pushed: O.Option<number>, previous: O.Option<number>, 
               onNone: () => "",
               onSome: (push) => ` (push +${renderElapsed(push, to)})`,
             }
-          ),
-  });
+          )
+    ),
+    () => ""
+  );
 
 const renderPushToAckStage = (
   pushed: O.Option<number>,

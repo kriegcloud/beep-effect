@@ -619,12 +619,32 @@ describe("stream console", () => {
     expect(A.isReadonlyArrayEmpty(stderr)).toBe(true);
   });
 
-  it("serves Effect Console.log once provided to a program", () => {
-    const { stdout } = captureStreams(() =>
-      Effect.runSync(Console.log("through effect").pipe(Effect.provideService(Console.Console, streamConsole)))
-    );
-    expect(stdout).toEqual(["through effect\n"]);
-  });
+  it.effect("serves Effect Console.log once provided to a program", () =>
+    Effect.gen(function* () {
+      const stdout: Array<string> = [];
+      const originalOut = process.stdout.write;
+      yield* Effect.acquireUseRelease(
+        Effect.sync(() => {
+          process.stdout.write = (
+            chunk: string | Uint8Array,
+            encoding?: string | WriteCallback,
+            callback?: WriteCallback
+          ) => {
+            stdout.push(P.isString(chunk) ? chunk : new TextDecoder().decode(chunk));
+            if (P.isFunction(encoding)) encoding();
+            callback?.();
+            return true;
+          };
+        }),
+        () => Console.log("through effect").pipe(Effect.provideService(Console.Console, streamConsole)),
+        () =>
+          Effect.sync(() => {
+            process.stdout.write = originalOut;
+          })
+      );
+      expect(stdout).toEqual(["through effect\n"]);
+    })
+  );
 
   it("waits for the tracked writes to complete before continuing", () => {
     const callbacks: Array<() => void> = [];

@@ -235,9 +235,8 @@ export function EditorWireComposer({
   return Result.match(analyzeEditorStateCompatibilityResult(input), {
     onFailure: () => <EditorWireViewer input={input} className={className} />,
     onSuccess: (result) =>
-      O.match(result.state, {
-        onNone: () => <EditorCompatibilityViewer result={result} className={className} />,
-        onSome: (initialState) =>
+      O.getOrElse(
+        O.map(result.state, (initialState) =>
           O.match(encodeEditorStateFromJsonOption(initialState), {
             onNone: () => <EditorWireViewer input={input} className={className} />,
             onSome: (encodedInitialState) => (
@@ -251,7 +250,9 @@ export function EditorWireComposer({
                 })}
               />
             ),
-          }),
-      }),
+          })
+        ),
+        () => <EditorCompatibilityViewer result={result} className={className} />
+      ),
   });
 }

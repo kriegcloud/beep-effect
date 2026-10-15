@@ -24,11 +24,11 @@
 // @effect-diagnostics processEnv:skip-file
 // @effect-diagnostics globalTimers:skip-file
 // @effect-diagnostics globalRandom:skip-file
-import { spawn as nodeSpawn, spawnSync as nodeSpawnSync } from "node:child_process";
-import { readdirSync, statSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
-import { createServer } from "node:http";
-import { join } from "node:path";
+import * as NodeChildProcess from "node:child_process";
+import * as NodeFS from "node:fs";
+import * as NodeFSP from "node:fs/promises";
+import * as NodeHttp from "node:http";
+import * as NodePath from "node:path";
 import * as NodeStream from "node:stream";
 import { A, O, P, R } from "@beep/utils";
 import { addEqualityTesters } from "@effect/vitest";
@@ -36,7 +36,6 @@ import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import picomatch from "picomatch";
 import * as Toml from "toml";
-import type { ServerResponse } from "node:http";
 
 // Node 26 exposes a configurable experimental `localStorage` getter even when
 // no `--localstorage-file` was supplied. Vitest consequently sees the property
@@ -217,7 +216,7 @@ const spawnSync = (commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>,
   const normalized = normalizeSpawnInput(commandOrOptions, options);
   const stdin = normalized.options.stdin;
   const stdinIsMode = stdin === "ignore" || stdin === "inherit" || stdin === "pipe";
-  const result = nodeSpawnSync(normalized.command, [...normalized.args], {
+  const result = NodeChildProcess.spawnSync(normalized.command, [...normalized.args], {
     cwd: normalized.options.cwd,
     env: normalized.options.env,
     input: stdinIsMode ? undefined : stdin,
@@ -236,7 +235,7 @@ const spawnSync = (commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>,
 
 const spawn = (commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>, options?: BunSpawnSyncOptions) => {
   const normalized = normalizeSpawnInput(commandOrOptions, options);
-  const child = nodeSpawn(normalized.command, [...normalized.args], {
+  const child = NodeChildProcess.spawn(normalized.command, [...normalized.args], {
     cwd: normalized.options.cwd,
     env: normalized.options.env,
     stdio: ["ignore", stdioMode(normalized.options.stdout), stdioMode(normalized.options.stderr)],
@@ -261,9 +260,9 @@ const bufferToArrayBuffer = (buffer: Buffer): ArrayBuffer => {
 };
 
 const file = (path: string | URL): BunFileShim => ({
-  arrayBuffer: async () => bufferToArrayBuffer(await readFile(path)),
-  json: async () => JSON.parse(await readFile(path, "utf8")) as unknown,
-  text: () => readFile(path, "utf8"),
+  arrayBuffer: async () => bufferToArrayBuffer(await NodeFSP.readFile(path)),
+  json: async () => JSON.parse(await NodeFSP.readFile(path, "utf8")) as unknown,
+  text: () => NodeFSP.readFile(path, "utf8"),
 });
 
 // fallow-ignore-next-line complexity -- Bun.write compatibility accepts strings, buffers, typed views, and blobs
@@ -288,7 +287,7 @@ const write = async (destination: NodeJS.WritableStream | string | URL, input: u
   const byteLength = typeof data === "string" ? Buffer.byteLength(data) : data.byteLength;
 
   if (typeof destination === "string" || destination instanceof URL) {
-    await writeFile(destination, data);
+    await NodeFSP.writeFile(destination, data);
     return byteLength;
   }
 
@@ -322,7 +321,7 @@ const requestHeaders = (messageHeaders: NodeJS.Dict<string | readonly string[]>)
   return headers;
 };
 
-const writeResponse = async (nodeResponse: ServerResponse, response: Response): Promise<void> => {
+const writeResponse = async (nodeResponse: NodeHttp.ServerResponse, response: Response): Promise<void> => {
   nodeResponse.writeHead(response.status, responseHeaders(response));
   nodeResponse.end(Buffer.from(await response.arrayBuffer()));
 };
@@ -335,7 +334,7 @@ const serve = (options: BunServeOptions): ReturnType<BunTestShim["serve"]> => {
   let stopped: Promise<void> | undefined;
   const hostname = options.hostname ?? "0.0.0.0";
   const port = listenPort(options.port);
-  const server = createServer((request, response) => {
+  const server = NodeHttp.createServer((request, response) => {
     const chunks: Array<Buffer> = [];
     request.on("data", (chunk: Buffer) => chunks.push(chunk));
     request.on("end", () => {
@@ -483,7 +482,7 @@ class GlobShim {
     const visit = (absoluteDirectory: string, relativeDirectory: string): void => {
       const dirents = (() => {
         try {
-          return readdirSync(absoluteDirectory, { withFileTypes: true });
+          return NodeFS.readdirSync(absoluteDirectory, { withFileTypes: true });
         } catch (cause) {
           if (isMissingPathError(cause)) {
             return [];
@@ -500,7 +499,7 @@ class GlobShim {
         const relativePath = normalizeFilePath(
           relativeDirectory === "" ? dirent.name : `${relativeDirectory}/${dirent.name}`
         );
-        const absolutePath = join(absoluteDirectory, dirent.name);
+        const absolutePath = NodePath.join(absoluteDirectory, dirent.name);
 
         if (dirent.isSymbolicLink()) {
           // Bun.Glob parity: recursive scans list symlinks whose target is a
@@ -509,7 +508,7 @@ class GlobShim {
           if (this.match(relativePath)) {
             const targetIsFile = (() => {
               try {
-                return statSync(absolutePath).isFile();
+                return NodeFS.statSync(absolutePath).isFile();
               } catch {
                 return false;
               }
@@ -532,9 +531,9 @@ class GlobShim {
     };
 
     if (scanRoot.length > 0 && includeDirectories && this.match(scanRoot)) {
-      entries.push(outputPath(scanRoot, join(cwd, scanRoot)));
+      entries.push(outputPath(scanRoot, NodePath.join(cwd, scanRoot)));
     }
-    visit(join(cwd, scanRoot), scanRoot);
+    visit(NodePath.join(cwd, scanRoot), scanRoot);
     return entries.sort();
   }
 }

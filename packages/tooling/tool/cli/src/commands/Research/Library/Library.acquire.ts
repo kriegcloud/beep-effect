@@ -291,24 +291,22 @@ export const acquireLibrary = Effect.fn("Library.acquire")(function* (root: stri
         const forceReviewedRetry =
           A.isReadonlyArrayNonEmpty(options.sourceIds) &&
           !A.contains(["disposition", "grok-x-import"], libraryAdapterFor(source));
-        if (
+        return !!(
           O.isSome(reviewed) &&
           !forceReviewedRetry &&
           (yield* libraryDispositionValid(root, catalog, source, reviewed.value))
-        )
-          return true;
-        return false;
+        );
       });
       const reusableCapture = Effect.fn("Library.acquire.reusableCapture")(function* (
         source: LibrarySource,
         latest: O.Option<LibraryCapture>
       ) {
-        const reusable =
+        return (
           O.isSome(latest) &&
           latest.value.status === "readable" &&
           latest.value.complete &&
-          (yield* librarySourceEvidenceValid(root, source, latest.value));
-        return reusable;
+          (yield* librarySourceEvidenceValid(root, source, latest.value))
+        );
       });
       const selectTarget = Effect.fn("Library.acquire.selectTarget")(function* (source: LibrarySource) {
         const selected = A.match(options.sourceIds, {

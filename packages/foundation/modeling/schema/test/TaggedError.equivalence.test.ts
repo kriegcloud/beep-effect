@@ -23,6 +23,7 @@ import {
 import { it } from "@beep/test-runner";
 import { describe, expect, vi } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";
 import * as O from "effect/Option";
@@ -249,9 +250,12 @@ describe("@beep/schema tagged-error declared equivalence", { concurrent: false }
 
       const { Float16Arr } = yield* Effect.promise(() => import("@beep/schema/Float16Array"));
       const arbitrary = Arbitrary.schema(Float16Arr);
-      const runSync = Effect.runSyncWith(yield* Effect.context<never>());
-      const first = capture(() => runSync(Arbitrary.sampleEffect(arbitrary, { count: 1 })));
-      const second = capture(() => runSync(Arbitrary.sampleEffect(arbitrary, { count: 1 })));
+      const first = yield* Arbitrary.sampleEffect(arbitrary, { count: 1 }).pipe(
+        Effect.catchCause((cause) => cause.pipe(Cause.squash, Effect.succeed))
+      );
+      const second = yield* Arbitrary.sampleEffect(arbitrary, { count: 1 }).pipe(
+        Effect.catchCause((cause) => cause.pipe(Cause.squash, Effect.succeed))
+      );
       const schema = P.isObject(first) ? Reflect.get(first, "constructor") : first;
 
       expect(S.isSchema(schema)).toBe(true);

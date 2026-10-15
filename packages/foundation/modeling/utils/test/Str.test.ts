@@ -44,25 +44,25 @@ describe("@beep/utils Str.postfix", () => {
 
 describe("@beep/utils Str.mapPrefix", () => {
   it("data-first: prefixes each element", () => {
-    expect(Str.mapPrefix("x_", ["a", "b"])).toEqual(["x_a", "x_b"]);
+    expect(Str.mapPrefix(["a", "b"], "x_")).toEqual(["x_a", "x_b"]);
   });
 
   it("data-last: agrees with the two-argument form", () => {
     const values: A.NonEmptyReadonlyArray<string> = ["a", "b"];
     expect(pipe(values, Str.mapPrefix("x_"))).toEqual(["x_a", "x_b"]);
-    expect(pipe(values, Str.mapPrefix("x_"))).toEqual(Str.mapPrefix("x_", values));
+    expect(pipe(values, Str.mapPrefix("x_"))).toEqual(Str.mapPrefix(values, "x_"));
   });
 });
 
 describe("@beep/utils Str.mapPostfix", () => {
   it("data-first: postfixes each element", () => {
-    expect(Str.mapPostfix("_x", ["a", "b"])).toEqual(["a_x", "b_x"]);
+    expect(Str.mapPostfix(["a", "b"], "_x")).toEqual(["a_x", "b_x"]);
   });
 
   it("data-last: agrees with the two-argument form", () => {
     const values: A.NonEmptyReadonlyArray<string> = ["a", "b"];
     expect(pipe(values, Str.mapPostfix("_x"))).toEqual(["a_x", "b_x"]);
-    expect(pipe(values, Str.mapPostfix("_x"))).toEqual(Str.mapPostfix("_x", values));
+    expect(pipe(values, Str.mapPostfix("_x"))).toEqual(Str.mapPostfix(values, "_x"));
   });
 });
 

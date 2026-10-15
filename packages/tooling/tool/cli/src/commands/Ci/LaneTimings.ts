@@ -2535,14 +2535,8 @@ const assertRequiredContextCount = (
   version: O.Option<CiRulesetHistoryVersion> = O.none()
 ): Effect.Effect<void, CiCommandError> => {
   const observed = HashSet.size(requiredContexts);
-  return O.match(version, {
-    onNone: () =>
-      HashSet.has(CI_LANE_TIMING_RATIFIED_CONTEXT_COUNTS, observed)
-        ? Effect.void
-        : CiCommandError.make({
-            message: `Ruleset ${CI_LANE_TIMING_RULESET_ID} must expose a ratified required-context count (${CI_LANE_TIMING_RATIFIED_COUNT_LABEL}); observed ${observed}.`,
-          }),
-    onSome: (resolved) =>
+  return O.getOrElse(
+    O.map(version, (resolved) =>
       O.match(ratifiedPopulationFor(resolved), {
         onNone: () =>
           CiCommandError.make({
@@ -2554,8 +2548,15 @@ const assertRequiredContextCount = (
             : CiCommandError.make({
                 message: `Ruleset ${CI_LANE_TIMING_RULESET_ID} version ${resolved.version_id} must expose exactly ${population.contextCount} required contexts; observed ${observed}.`,
               }),
-      }),
-  });
+      })
+    ),
+    () =>
+      HashSet.has(CI_LANE_TIMING_RATIFIED_CONTEXT_COUNTS, observed)
+        ? Effect.void
+        : CiCommandError.make({
+            message: `Ruleset ${CI_LANE_TIMING_RULESET_ID} must expose a ratified required-context count (${CI_LANE_TIMING_RATIFIED_COUNT_LABEL}); observed ${observed}.`,
+          })
+  );
 };
 
 const reportFromRows = Effect.fn("Ci.reportFromLaneTimingWindowRows")(function* (
@@ -2718,14 +2719,15 @@ const renderMarkdownState = (state: CiLaneTimingWindowStat["state"]): string =>
   Str.equivalence(state, "Breach") ? "**Breach**" : state;
 
 const renderRequiredPopulation = (report: CiLaneTimingWindowReport): string =>
-  `- required contexts: ${report.contextCount} (expected ${O.match(report.rulesetVersion, {
-    onNone: () => CI_LANE_TIMING_RATIFIED_COUNT_LABEL,
-    onSome: (version) =>
+  `- required contexts: ${report.contextCount} (expected ${O.getOrElse(
+    O.map(report.rulesetVersion, (version) =>
       O.match(ratifiedPopulationFor(version), {
         onNone: () => "an unratified version",
         onSome: (population) => `${population.contextCount}`,
-      }),
-  })}${O.match(report.rulesetVersion, {
+      })
+    ),
+    () => CI_LANE_TIMING_RATIFIED_COUNT_LABEL
+  )}${O.match(report.rulesetVersion, {
     onNone: () => "",
     onSome: (version) =>
       `; ruleset ${CI_LANE_TIMING_RULESET_ID} version ${version.version_id} effective ${DateTime.formatIso(version.updated_at)}`,

@@ -525,9 +525,8 @@ const regionsOf = (options: {
     readonly ends: readonly [End, End];
   };
   const pieces: ReadonlyArray<Piece> = A.flatMap(options.probes, ({ probe, pieces }) =>
-    O.match(projectedProbe(options.camera, probe), {
-      onNone: A.empty<Piece>,
-      onSome: (line) => {
+    O.getOrElse(
+      O.map(projectedProbe(options.camera, probe), (line) => {
         // each visible piece as a run along the step, its lower end first; the probe went through the pass in
         // short pieces, so the runs that touch are joined again
         type Span = { readonly from: number; readonly to: number; readonly ends: readonly [End, End] };
@@ -570,8 +569,9 @@ const regionsOf = (options: {
             probes: [line],
           })
         );
-      },
-    })
+      }),
+      A.empty<Piece>
+    )
   );
   // the point of a piece at an offset inside its range
   const pointAt = (piece: Piece, offset: number): readonly [number, number] => {
@@ -640,15 +640,13 @@ const regionsOf = (options: {
     return pipe(
       Graph.connectedComponents(graph),
       A.map(
-        (component): ReadonlyArray<StretchPiece<ProbeLine>> =>
-          pipe(
-            component,
-            A.map((index) => Graph.getNode(graph, index)),
-            A.getSomes,
-            A.map(({ face: _face, height: _height, ends: _ends, ...piece }): StretchPiece<ProbeLine> => piece)
-          )
+        flow(
+          A.map((index: Graph.NodeIndex) => Graph.getNode(graph, index)),
+          A.getSomes,
+          A.map(({ face: _face, height: _height, ends: _ends, ...piece }): StretchPiece<ProbeLine> => piece)
+        )
       ),
-      A.filter((area): area is A.NonEmptyReadonlyArray<StretchPiece<ProbeLine>> => A.isReadonlyArrayNonEmpty(area))
+      A.filter(A.isArrayNonEmpty)
     );
   };
   return pipe(
@@ -805,7 +803,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
             ? O.some(hiddenLines({ oc, built, camera, withHidden: false, extras: A.map(probing, (p) => p.shape) }))
             : O.none();
           const pieces = O.match(pass, {
-            onNone: () => A.empty<ReadonlyArray<replicad.Edge>>(),
+            onNone: A.empty<ReadonlyArray<replicad.Edge>>,
             onSome: (p) => p.extras,
           });
           return regionsOf({
@@ -813,7 +811,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
             probes: A.zipWith(probing, pieces, (p, edges) => ({ probe: p.probe, pieces: toSegments(edges) })),
             // the outlines the probes were seen past: a link between two pieces that crosses one is not a link
             outlines: O.match(pass, {
-              onNone: () => A.empty<Segment2>(),
+              onNone: A.empty<Segment2>,
               onSome: (p) => [...toSegments(p.visible), ...toSegments(p.broken)],
             }),
           });

@@ -16,7 +16,7 @@
  * cache. Temp workbench directories are scoped and removed; the staged npm
  * and Node caches are retained across runs.
  */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { OPENCLAW_COMPATIBILITY_SET } from "@beep/openclaw/Openclaw.config";
 import { OpenclawInvocationContext } from "@beep/openclaw/Openclaw.models";
 import { OpenclawCli } from "@beep/openclaw/OpenclawCli.service";
@@ -53,7 +53,7 @@ const compatibility = OPENCLAW_COMPATIBILITY_SET;
 const stagePackage = `openclaw@${compatibility.openclawVersion}`;
 const stubScript = "#!/bin/sh\nexit 0\n";
 const placeholderRoot = "/beep-openclaw-placeholder";
-const negativeFixtureDir = fileURLToPath(new URL("../fixtures/negative/", import.meta.url));
+const negativeFixtureDir = NodeURL.fileURLToPath(new URL("../fixtures/negative/", import.meta.url));
 // Note: the design contract's "retired allowSymlinkCommand" defect is a
 // 2026.7.2 retirement — the pinned 2026.7.1-2 binary still accepts that key
 // (verified directly), so the exec-provider strict-boundary fixture uses an

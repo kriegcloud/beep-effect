@@ -24,7 +24,7 @@ import * as Console from "effect/Console";
 import { Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
@@ -63,8 +63,7 @@ const reportFailure = (command: string) => (error: HarnessLedgerCommandError) =>
     Effect.andThen(failWithReportedExit(`harness-ledger ${command}: ${error.message}`))
   );
 
-const optionalNonEmpty = (value: O.Option<string>): O.Option<string> =>
-  pipe(value, O.map(Str.trim), O.filter(Str.isNonEmpty));
+const optionalNonEmpty: (value: O.Option<string>) => O.Option<string> = flow(O.map(Str.trim), O.filter(Str.isNonEmpty));
 
 const shortHypothesis = (row: HarnessLedgerRow): string =>
   O.match(row.hypothesis, {

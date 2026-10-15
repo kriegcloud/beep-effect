@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
-import os from "node:os";
-import process from "node:process";
-import tty from "node:tty";
+import * as NodeOS from "node:os";
+import * as NodeProcess from "node:process";
+import * as NodeTty from "node:tty";
 import { $ChalkId } from "@beep/identity/packages";
 import { A, O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
@@ -292,10 +292,10 @@ const hasTrueColorTerminalName: (term: O.Option<string>) => boolean = O.exists((
 );
 
 const readCurrentRuntimeProcessLike = (): RuntimeProcessLike => ({
-  argv: process.argv,
-  env: process.env,
-  osRelease: os.release(),
-  platform: process.platform,
+  argv: NodeProcess.argv,
+  env: NodeProcess.env,
+  osRelease: NodeOS.release(),
+  platform: NodeProcess.platform,
 });
 
 const currentRuntimeProcessLike: RuntimeProcessLike = readCurrentRuntimeProcessLike();
@@ -600,6 +600,6 @@ export const createSupportsColor = ({
  * @since 0.0.0
  */
 export const detectedSupportsColor = {
-  stderr: createSupportsColor({ stream: { isTTY: tty.isatty(2) } }),
-  stdout: createSupportsColor({ stream: { isTTY: tty.isatty(1) } }),
+  stderr: createSupportsColor({ stream: { isTTY: NodeTty.isatty(2) } }),
+  stdout: createSupportsColor({ stream: { isTTY: NodeTty.isatty(1) } }),
 };

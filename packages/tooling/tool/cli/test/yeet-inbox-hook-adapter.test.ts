@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   YeetAckClearedResolution,
   YeetAckReceipt,
@@ -26,7 +26,7 @@ import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type * as PlatformError from "effect/PlatformError";
 
-const repoRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 const hookPath = `${repoRoot}.claude/hooks/yeet-inbox.sh`;
 const environmentOnlyAckForm = '--environment-only --reason "<text>"';
 const wontfixAckForm = '--wontfix --reason "<text>"';

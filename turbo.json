@@ -38,6 +38,8 @@
       "CODEX_SESSION_ID",
       "CODEX_THREAD_ID",
       "GITHUB_ACTIONS",
+      "GRAFT_CRUX_MODULE",
+      "GRAFT_EXTRACT_MODULE",
       "TURBO_CACHE",
       "TURBO_FORCE",
       "TURBO_TOKEN",

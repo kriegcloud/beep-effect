@@ -576,7 +576,7 @@ const messageFrom = (digest: string, fields: TikaEmailFields, messageId: O.Optio
   PracticeKgEmailMessage.make({
     createdAt: firstValue(fields["dcterms:created"]),
     digest,
-    ...O.match(messageId, { onNone: () => ({}), onSome: (found) => ({ messageId: found }) }),
+    ...O.getOrUndefined(O.map(messageId, (found) => ({ messageId: found }))),
     participants: [
       ...senderOf(fields),
       ...participantsOf(joined(fields["Message-To"]), "to"),

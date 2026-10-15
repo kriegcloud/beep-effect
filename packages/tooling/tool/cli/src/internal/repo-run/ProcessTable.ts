@@ -14,7 +14,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as N from "effect/Number";
@@ -308,9 +308,9 @@ const listProcPids = Effect.fnUntraced(function* (): Effect.fn.Return<
 > {
   const fs = yield* FileSystem.FileSystem;
   const names = yield* fs.readDirectory("/proc").pipe(Effect.option);
-  return O.map(names, (listed) =>
-    pipe(
-      listed,
+  return O.map(
+    names,
+    flow(
       A.filter((name) => PID_DIRECTORY_NAME.test(name)),
       A.map(N.parse),
       A.getSomes
@@ -773,16 +773,16 @@ export const invokerSessionRoot = Effect.fnUntraced(function* (): Effect.fn.Retu
 > {
   const table = yield* ProcessTable;
   const session = A.takeWhile(yield* processLineage(table.self), (status) => !isChainBoundary(status));
-  return O.match(
-    A.findFirst(session, (status) => isSessionCommand(status.command)),
-    {
-      onSome: (status) => ProcessSessionRoot.make({ pid: status.pid, rule: "session-command" }),
-      onNone: () =>
-        ProcessSessionRoot.make({
-          pid: O.match(A.last(session), { onNone: () => table.self, onSome: (top) => top.pid }),
-          rule: "chain-top",
-        }),
-    }
+  return O.getOrElse(
+    O.map(
+      A.findFirst(session, (status) => isSessionCommand(status.command)),
+      (status) => ProcessSessionRoot.make({ pid: status.pid, rule: "session-command" })
+    ),
+    () =>
+      ProcessSessionRoot.make({
+        pid: O.match(A.last(session), { onNone: () => table.self, onSome: (top) => top.pid }),
+        rule: "chain-top",
+      })
   );
 });
 

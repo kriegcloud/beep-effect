@@ -65,40 +65,37 @@ const runRemoval = (packageName: string) =>
   ).pipe(provideScopedLayer(removalLayer));
 
 describe("identity registration removal", () => {
-  it("removes the compose slug, typed export, and nothing else", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const next = yield* runRemoval("target-pkg");
-        expect(Str.includes('"target-pkg"')(next)).toBe(false);
-        expect(Str.includes("$TargetPkgId")(next)).toBe(false);
-        expect(Str.includes('"alpha"')(next)).toBe(true);
-        expect(Str.includes("$AlphaId")(next)).toBe(true);
-        expect(Str.includes('"gamma"')(next)).toBe(true);
-        expect(Str.includes("$GammaId")(next)).toBe(true);
-      })
-    ));
+  it.effect("removes the compose slug, typed export, and nothing else", () =>
+    Effect.gen(function* () {
+      const next = yield* runRemoval("target-pkg");
+      expect(Str.includes('"target-pkg"')(next)).toBe(false);
+      expect(Str.includes("$TargetPkgId")(next)).toBe(false);
+      expect(Str.includes('"alpha"')(next)).toBe(true);
+      expect(Str.includes("$AlphaId")(next)).toBe(true);
+      expect(Str.includes('"gamma"')(next)).toBe(true);
+      expect(Str.includes("$GammaId")(next)).toBe(true);
+    })
+  );
 
-  it("removes manual casing aliases through their composer initializer", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const next = yield* runRemoval("langextract");
-        expect(Str.includes('"langextract"')(next)).toBe(false);
-        expect(Str.includes("$LangExtractId")(next)).toBe(false);
-        expect(Str.includes("$LangextractId")(next)).toBe(false);
-        expect(Str.includes("$AlphaId")(next)).toBe(true);
-      })
-    ));
+  it.effect("removes manual casing aliases through their composer initializer", () =>
+    Effect.gen(function* () {
+      const next = yield* runRemoval("langextract");
+      expect(Str.includes('"langextract"')(next)).toBe(false);
+      expect(Str.includes("$LangExtractId")(next)).toBe(false);
+      expect(Str.includes("$LangextractId")(next)).toBe(false);
+      expect(Str.includes("$AlphaId")(next)).toBe(true);
+    })
+  );
 
-  it("leaves the registry untouched when the slug is absent", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const next = yield* runRemoval("missing-slug");
-        expect(Str.includes('"alpha"')(next)).toBe(true);
-        expect(Str.includes('"target-pkg"')(next)).toBe(true);
-        expect(Str.includes("$LangExtractId")(next)).toBe(true);
-        expect(Str.includes("$GammaId")(next)).toBe(true);
-      })
-    ));
+  it.effect("leaves the registry untouched when the slug is absent", () =>
+    Effect.gen(function* () {
+      const next = yield* runRemoval("missing-slug");
+      expect(Str.includes('"alpha"')(next)).toBe(true);
+      expect(Str.includes('"target-pkg"')(next)).toBe(true);
+      expect(Str.includes("$LangExtractId")(next)).toBe(true);
+      expect(Str.includes("$GammaId")(next)).toBe(true);
+    })
+  );
 
   it("reads composer slugs across every compose group including the labs group", () => {
     expect(CreatePackageIdentityRegistration.registeredIdentityComposerSlugs(REGISTRY_FIXTURE)).toEqual([
@@ -120,22 +117,21 @@ describe("identity registration removal", () => {
     ]);
   });
 
-  it("removes a lab registration through the every-compose-group path, keeping the markers", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const next = yield* runRemoval("gamma-lab");
-        expect(Str.includes('"gamma-lab"')(next)).toBe(false);
-        expect(Str.includes("$GammaLabId")(next)).toBe(false);
-        expect(Str.includes(LAB_COMPOSERS_START_MARKER)(next)).toBe(true);
-        expect(Str.includes(LAB_COMPOSERS_END_MARKER)(next)).toBe(true);
-        expect(Str.includes(LAB_EXPORTS_START_MARKER)(next)).toBe(true);
-        expect(Str.includes(LAB_EXPORTS_END_MARKER)(next)).toBe(true);
-        expect(Str.includes('"gamma"')(next)).toBe(true);
-        expect(Str.includes("$GammaId")(next)).toBe(true);
-      })
-    ));
+  it.effect("removes a lab registration through the every-compose-group path, keeping the markers", () =>
+    Effect.gen(function* () {
+      const next = yield* runRemoval("gamma-lab");
+      expect(Str.includes('"gamma-lab"')(next)).toBe(false);
+      expect(Str.includes("$GammaLabId")(next)).toBe(false);
+      expect(Str.includes(LAB_COMPOSERS_START_MARKER)(next)).toBe(true);
+      expect(Str.includes(LAB_COMPOSERS_END_MARKER)(next)).toBe(true);
+      expect(Str.includes(LAB_EXPORTS_START_MARKER)(next)).toBe(true);
+      expect(Str.includes(LAB_EXPORTS_END_MARKER)(next)).toBe(true);
+      expect(Str.includes('"gamma"')(next)).toBe(true);
+      expect(Str.includes("$GammaId")(next)).toBe(true);
+    })
+  );
 
-  it("regenerates the empty labs state after the last lab is gone from the catalog", () =>
+  it.effect("regenerates the empty labs state after the last lab is gone from the catalog", () =>
     withTempWorkingDirectory(
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -168,7 +164,8 @@ describe("identity registration removal", () => {
         expect(Str.includes(LAB_COMPOSERS_START_MARKER)(next)).toBe(true);
         expect(Str.includes(LAB_EXPORTS_END_MARKER)(next)).toBe(true);
       })
-    ).pipe(provideScopedLayer(removalLayer), Effect.runPromise));
+    ).pipe(provideScopedLayer(removalLayer))
+  );
 
   it("filters slugs missing a compose segment or dedicated export", () => {
     expect(
@@ -182,7 +179,7 @@ describe("identity registration removal", () => {
     expect(pattern.test("export const $OtherId")).toBe(false);
   });
 
-  it("fails to resolve the registry path when no identity workspace exists", () =>
+  it.effect("fails to resolve the registry path when no identity workspace exists", () =>
     withTempWorkingDirectory(
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -192,5 +189,6 @@ describe("identity registration removal", () => {
         const exit = yield* Effect.exit(CreatePackageIdentityRegistration.resolveIdentityPackagesFilePath("."));
         expect(exit._tag).toBe("Failure");
       })
-    ).pipe(provideScopedLayer(removalLayer), Effect.runPromise));
+    ).pipe(provideScopedLayer(removalLayer))
+  );
 });

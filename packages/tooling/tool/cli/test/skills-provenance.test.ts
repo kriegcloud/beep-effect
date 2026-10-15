@@ -1,4 +1,4 @@
-import { pathToFileURL } from "node:url";
+import * as NodeURL from "node:url";
 import {
   decodeSkillEffective,
   decodeSkillLicense,
@@ -1437,13 +1437,16 @@ layer(TestLayer, { timeout: "60 seconds" })("skills provenance service", (it) =>
         const routeModule = yield* Effect.promise(
           () =>
             import(
-              pathToFileURL(path.join(repoRoot, ".claude/skills/impeccable/scripts/live/manual-edit-routes.mjs")).href
+              NodeURL.pathToFileURL(
+                path.join(repoRoot, ".claude/skills/impeccable/scripts/live/manual-edit-routes.mjs")
+              ).href
             )
         );
         const copyAgentModule = yield* Effect.promise(
           () =>
             import(
-              pathToFileURL(path.join(repoRoot, ".claude/skills/impeccable/scripts/live-copy-edit-agent.mjs")).href
+              NodeURL.pathToFileURL(path.join(repoRoot, ".claude/skills/impeccable/scripts/live-copy-edit-agent.mjs"))
+                .href
             )
         );
         const activities: Array<{ readonly payload: Record<string, unknown>; readonly type: string }> = [];

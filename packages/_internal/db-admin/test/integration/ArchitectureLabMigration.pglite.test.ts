@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { makeDrizzle, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";
 import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 
 // The drizzle folder now contains `CREATE EXTENSION btree_gist`, which the
 // shared external pglite-socket lane cannot load. Migration proofs are

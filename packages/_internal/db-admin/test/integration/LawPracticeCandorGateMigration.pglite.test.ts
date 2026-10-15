@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { CandorDisposition, IdsSubmissionFact, PatentCitationEvent } from "@beep/law-practice-domain";
 import { DbSchema as LawPracticeDbSchema } from "@beep/law-practice-tables";
 import { toCandorDispositionInsert } from "@beep/law-practice-tables/entities/CandorDisposition";
@@ -38,7 +38,7 @@ const decodeUnknownStructInlineSchema = S.decodeUnknownEffect(
 const isPatentCitationEvent = S.is(PatentCitationEvent);
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 
 // The drizzle folder contains `CREATE EXTENSION btree_gist` (the epistemic edge
 // migration), which the shared external pglite-socket lane cannot load, so this
@@ -246,7 +246,7 @@ if (!shouldRunPgliteIntegration) {
             UPDATE law_practice_candor_disposition SET rule56_judgment = 'DoNotSubmit' WHERE id = 1
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         120_000
       );
@@ -262,7 +262,7 @@ if (!shouldRunPgliteIntegration) {
             DELETE FROM law_practice_candor_disposition WHERE id = 1
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         120_000
       );
@@ -318,7 +318,7 @@ if (!shouldRunPgliteIntegration) {
             expect(violation.reason).toBeInstanceOf(SqlError.ConstraintError);
             const cause = yield* decodeUnknownStructInlineSchema(violation.reason.cause);
             expect(cause.constraint).toBe(constraintName);
-            expect(inspect(violation.reason.cause, { depth: 10 })).toContain(constraintName);
+            expect(NodeUtil.inspect(violation.reason.cause, { depth: 10 })).toContain(constraintName);
           }),
           120_000
         );

@@ -31,8 +31,13 @@ const harness = (conversionStatus: number, expectedStatus: number, expectedText:
 globalThis.fetch = async () => new Response(JSON.stringify({
   id: 123, slug: "beep-knowledge-mint-2", client_id: "fixture-client", pem: "${PLACEHOLDER}"
 }), { status: ${conversionStatus}, headers: { "content-type": "application/json" } });
-const { makeKnowledgeMintHandler } = await import(${JSON.stringify(bootstrapUrl)});
-const handle = makeKnowledgeMintHandler("fixture-state", JSON.stringify({ name: "beep-knowledge-mint" }));
+const { KnowledgeMintLayer, makeKnowledgeMintHandler } = await import(${JSON.stringify(bootstrapUrl)});
+const Effect = await import("effect/Effect");
+const handler = await Effect.runPromise(Effect.provide(
+  makeKnowledgeMintHandler({ nonce: "fixture-state", manifestJson: JSON.stringify({ name: "beep-knowledge-mint" }) }),
+  KnowledgeMintLayer
+));
+const handle = handler.fetch;
 const get = (url) => handle(new Request(url));
 if ((await get("http://evil.example:8787/")).status !== 400) process.exit(90);
 const form = await (await get("http://localhost:8787/")).text();

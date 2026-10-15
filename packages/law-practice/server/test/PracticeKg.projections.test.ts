@@ -80,6 +80,7 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import { OFFICE_ACTION_FIXTURE } from "./fixture.ts";
+import type { TestContext } from "@effect/vitest";
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const json = (value: unknown): Effect.Effect<string> => Effect.orDie(encodeJson(value));
@@ -237,7 +238,6 @@ const normalizedPatentFixture = Md.make([
 
 const testLayer = NodeServices.layer;
 const realCorpusConfig = Config.option(Config.Boolean("BEEP_TEST_OPPOLD_CORPUS"));
-const realCorpusEnabled = Effect.runSync(realCorpusConfig).pipe(O.getOrElse(() => false));
 
 const withDuckDb =
   (databasePath: string) =>
@@ -2290,9 +2290,10 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.effect.skipIf(!realCorpusEnabled)(
+    it.effect(
       "reconciles the workstation corpus only when explicitly enabled",
-      Effect.fnUntraced(function* () {
+      Effect.fnUntraced(function* (ctx: TestContext) {
+        if (!(yield* realCorpusConfig).pipe(O.getOrElse(() => false))) ctx.skip();
         const corpusRoot = yield* Config.String("BEEP_TEST_OPPOLD_CORPUS_ROOT");
         const fs = yield* FileSystem.FileSystem;
         const bundleOut = yield* fs.makeTempDirectoryScoped({ prefix: "oppold-corpus-graph-" });

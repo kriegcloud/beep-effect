@@ -43,7 +43,7 @@ function Lockup({ className = "", width = 176 }: { readonly className?: string; 
       alt="OIP - Oppold IP Law"
       width={width}
       height={Math.round(width * (100 / 320))}
-      priority
+      preload
       className={className}
     />
   );
@@ -83,7 +83,7 @@ function Nav({ content }: { readonly content: OipSiteContent }) {
                 alt=""
                 width={64}
                 height={64}
-                priority
+                preload
                 className="h-8 w-auto brightness-0 invert sm:hidden"
               />
               <Image
@@ -91,7 +91,7 @@ function Nav({ content }: { readonly content: OipSiteContent }) {
                 alt=""
                 width={320}
                 height={96}
-                priority
+                preload
                 className="hidden h-9 w-auto brightness-0 invert sm:block"
               />
             </a>

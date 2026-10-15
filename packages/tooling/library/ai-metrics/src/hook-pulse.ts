@@ -1094,35 +1094,35 @@ const hookPulseEventOwnedFieldValue = (
 // Only the owning event derives a surface, so no other event pays for a digest.
 // A stamped digest wins over re-derivation; both pass the ownership filter.
 const hookPulseSurfaceReference = (input: HookPulseRawEventInput) =>
-  O.match(
-    filterHookPulseEventOwnedField(HookPulseEventOwnedField.Enum.surface, input.event.hook_event_name, input.surface),
-    {
-      onSome: Effect.succeedSome,
-      onNone: () =>
-        O.match(
-          filterHookPulseEventOwnedField(
-            HookPulseEventOwnedField.Enum.surface,
-            input.event.hook_event_name,
-            hookPulseContextSurfaceKey(
-              input.event,
-              O.getOrElse(input.repoRoot, () => input.event.cwd)
+  O.getOrElse(
+    O.map(
+      filterHookPulseEventOwnedField(HookPulseEventOwnedField.Enum.surface, input.event.hook_event_name, input.surface),
+      Effect.succeedSome
+    ),
+    () =>
+      O.match(
+        filterHookPulseEventOwnedField(
+          HookPulseEventOwnedField.Enum.surface,
+          input.event.hook_event_name,
+          hookPulseContextSurfaceKey(
+            input.event,
+            O.getOrElse(input.repoRoot, () => input.event.cwd)
+          )
+        ),
+        {
+          onNone: () => Effect.succeedNone,
+          onSome: flow(
+            hashPublicTextSha256,
+            Effect.asSome,
+            Effect.mapError(
+              () =>
+                new SchemaIssue.InvalidValue({
+                  message: "Failed to hash the hook-pulse context surface",
+                })
             )
           ),
-          {
-            onNone: () => Effect.succeedNone,
-            onSome: flow(
-              hashPublicTextSha256,
-              Effect.asSome,
-              Effect.mapError(
-                () =>
-                  new SchemaIssue.InvalidValue({
-                    message: "Failed to hash the hook-pulse context surface",
-                  })
-              )
-            ),
-          }
-        ),
-    }
+        }
+      )
   );
 
 /**

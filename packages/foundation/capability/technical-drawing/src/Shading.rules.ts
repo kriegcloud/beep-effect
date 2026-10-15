@@ -838,7 +838,7 @@ const gradedTreatment = (input: {
     face,
     view,
     direction,
-    ...O.match(input.shadowEdge, { onNone: () => ({}), onSome: (shadowEdge) => ({ shadowEdge }) }),
+    ...O.getOrUndefined(O.map(input.shadowEdge, (shadowEdge) => ({ shadowEdge }))),
   });
   const reach = pipe(
     face.outline,

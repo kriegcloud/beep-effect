@@ -11,6 +11,7 @@ import {
 } from "@beep/repo-cli/test/RepoRun";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
+import { HostProcessPlatform } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import { describe, expect, vi } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
@@ -87,16 +88,18 @@ describe("ProcessIdentity", () => {
     })
   );
 
-  it("treats permission denial as a live PID", () => {
-    const kill = vi.spyOn(process, "kill").mockImplementationOnce(() => {
-      throw Object.assign(new Error("permission denied"), { code: "EPERM" });
-    });
-    try {
-      expect(Effect.runSync(isProcessPidAlive(process.pid))).toBe(true);
-    } finally {
-      kill.mockRestore();
-    }
-  });
+  it.effect("treats permission denial as a live PID", () =>
+    Effect.gen(function* () {
+      const kill = vi.spyOn(process, "kill").mockImplementationOnce(() => {
+        throw Object.assign(new Error("permission denied"), { code: "EPERM" });
+      });
+      try {
+        expect(yield* isProcessPidAlive(process.pid)).toBe(true);
+      } finally {
+        kill.mockRestore();
+      }
+    })
+  );
 
   it.effect("reads proc identities and uses the recorded source without substitution", () =>
     Effect.gen(function* () {
@@ -122,20 +125,10 @@ describe("ProcessIdentity", () => {
   );
 
   it.effect("uses the Windows source when the runtime identifies as Windows", () =>
-    Effect.acquireUseRelease(
-      Effect.sync(() => {
-        const platform = Object.getOwnPropertyDescriptor(process, "platform");
-        Object.defineProperty(process, "platform", { configurable: true, value: "win32" });
-        return platform;
-      }),
-      () =>
-        withProcStat("", processStartIdentityForPid(process.pid)).pipe(
-          Effect.tap((identity) => Effect.sync(() => identity.pipe(assertNone)))
-        ),
-      (platform) =>
-        Effect.sync(() =>
-          Object.defineProperty(process, "platform", platform ?? { configurable: true, value: "linux" })
-        )
-    ).pipe(provideScopedLayer(NodeFileSystem.layer))
+    withProcStat("", processStartIdentityForPid(process.pid)).pipe(
+      Effect.tap((identity) => Effect.sync(() => identity.pipe(assertNone))),
+      Effect.provideService(HostProcessPlatform, "win32"),
+      provideScopedLayer(NodeFileSystem.layer)
+    )
   );
 });

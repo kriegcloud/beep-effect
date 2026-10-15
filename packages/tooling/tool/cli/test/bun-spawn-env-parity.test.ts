@@ -1,6 +1,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { StepExec } from "@beep/repo-cli/test/PackageScripts";
 import { it } from "@beep/test-runner";
+import { currentHostPlatform } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -35,8 +36,8 @@ const ConformanceReport = S.Struct({
   })
 );
 const isNonEmptyExecutable = S.is(S.NonEmptyString);
-const executablePathDelimiter = process.platform === "win32" ? ";" : ":";
-const nodeExecutableName = process.platform === "win32" ? "node.exe" : "node";
+const executablePathDelimiter = currentHostPlatform === "win32" ? ";" : ":";
+const nodeExecutableName = currentHostPlatform === "win32" ? "node.exe" : "node";
 
 // bunx --bun places a node -> bun shim before the host PATH. Probe candidates
 // instead of trusting names, npm_node_execpath, NODE, or the outer process.execPath.

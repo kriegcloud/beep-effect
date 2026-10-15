@@ -143,7 +143,7 @@ const BINARY_FILE_EXTENSION_MEMBERS = [
   "tif",
 ] as const;
 
-const binaryFileExtensionOptions = Str.mapPrefix(".", BINARY_FILE_EXTENSION_MEMBERS);
+const binaryFileExtensionOptions = Str.mapPrefix(BINARY_FILE_EXTENSION_MEMBERS, ".");
 
 const BINARY_CONTENT_SAMPLE_SIZE = 8192;
 const BINARY_CONTENT_NON_PRINTABLE_RATIO_THRESHOLD = 0.1;

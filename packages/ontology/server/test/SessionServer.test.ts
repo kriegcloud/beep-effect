@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { $OntologyServerId } from "@beep/identity/packages";
 import {
   applyChangeOperationsWithDelta,
@@ -54,7 +54,7 @@ const $I = $OntologyServerId.create("test/SessionServer");
 
 const decodeOntologyFilePath = S.decodeEffect(OntologyFilePath);
 const decodeSessionId = S.decodeEffect(SessionId);
-const fixturesRoot = fileURLToPath(new URL("./fixtures/", import.meta.url));
+const fixturesRoot = NodeURL.fileURLToPath(new URL("./fixtures/", import.meta.url));
 
 const TestLayer = Layer.mergeAll(
   OntologyServerTest.pipe(

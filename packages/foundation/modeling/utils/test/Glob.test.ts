@@ -1,4 +1,4 @@
-import { tmpdir } from "node:os";
+import * as NodeOS from "node:os";
 import { it } from "@beep/test-runner";
 import { GlobError, layer as GlobLayer, GlobOptions, Glob as GlobService } from "@beep/utils/Glob";
 import { NodeServices } from "@effect/platform-node";
@@ -30,7 +30,7 @@ const makeDirectory = (path: string) => withFileSystem((fs) => fs.makeDirectory(
 const makeTempDirectory = Effect.fn("GlobTest.makeTempDirectory")(function* (prefix: string) {
   const crypto = yield* Crypto.Crypto;
   const suffix = yield* crypto.randomUUIDv4();
-  const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
+  const dir = joinPath(NodeOS.tmpdir(), `${prefix}${suffix}`);
   yield* makeDirectory(dir);
   return dir;
 });

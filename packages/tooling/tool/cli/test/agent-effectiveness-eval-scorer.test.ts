@@ -1,5 +1,7 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
+import { RunAgentEffectivenessEvalScoreCommandOptions } from "@beep/repo-cli/commands/AgentEffectiveness/internal/EvalScorer";
+import { LawComponentScores } from "@beep/repo-cli/commands/AgentEffectiveness/internal/EvalScoring";
 import {
   AgentEffectivenessEvalLaneReport,
   AgentEffectivenessEvalScoreBreakdown,
@@ -20,7 +22,7 @@ import {
 } from "@beep/repo-cli/test/AgentEffectiveness";
 import { findRepoRoot } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
-import { A } from "@beep/utils";
+import { A, currentHostPlatform, HostProcessPlatform } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
@@ -43,8 +45,6 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { RunAgentEffectivenessEvalScoreCommandOptions } from "../src/commands/AgentEffectiveness/internal/EvalScorer.ts";
-import { LawComponentScores } from "../src/commands/AgentEffectiveness/internal/EvalScoring.ts";
 
 const temporaryFixture = FileSystem.FileSystem.use((fs) =>
   Effect.acquireRelease(fs.makeTempDirectory(), (directory) =>
@@ -63,8 +63,12 @@ const decodeTaskManifest = S.decodeUnknownEffect(SkillOptTaskManifest);
 const decodeScoreReportJson = S.decodeEffect(S.fromJsonString(AgentEffectivenessEvalScoreReport));
 const encodeLaneReportJson = S.encodeEffect(S.fromJsonString(AgentEffectivenessEvalLaneReport));
 const decodeLaneReportJson = S.decodeEffect(S.fromJsonString(AgentEffectivenessEvalLaneReport));
-const fixtureRoot = fileURLToPath(new URL("./fixtures/agent-effectiveness/scorer-pass/fixture", import.meta.url));
-const taskPath = fileURLToPath(new URL("./fixtures/agent-effectiveness/scorer-pass/task.json", import.meta.url));
+const fixtureRoot = NodeURL.fileURLToPath(
+  new URL("./fixtures/agent-effectiveness/scorer-pass/fixture", import.meta.url)
+);
+const taskPath = NodeURL.fileURLToPath(
+  new URL("./fixtures/agent-effectiveness/scorer-pass/task.json", import.meta.url)
+);
 
 const writeText = Effect.fn("AgentEffectivenessEvalScorerTest.writeText")(function* (
   filePath: string,
@@ -715,7 +719,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
       const fixtureDir = yield* temporaryFixture;
       const path = yield* Path.Path;
       const repoRoot = yield* findRepoRoot();
-      if (process.platform === "win32") return;
+      if ((yield* HostProcessPlatform) === "win32") return;
       yield* writeText(path.join(fixtureDir, "..\\..\\outside.ts"), "export const outside = true;\n");
       const paths = A.map(yield* readSourceSnapshots(fixtureDir), (snapshot) => snapshot.relativePath);
       expect(paths).toEqual(["../../outside.ts"]);
@@ -725,7 +729,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
       if (Result.isFailure(result)) {
         expect(result.failure.message).toContain("Fixture source escaped its root");
       }
-    })
+    }).pipe(Effect.provideService(HostProcessPlatform, currentHostPlatform))
   );
 
   it.effect(

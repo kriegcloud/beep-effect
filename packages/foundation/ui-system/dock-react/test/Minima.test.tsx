@@ -25,8 +25,6 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { DockviewReactProps } from "@beep/dock-react";
 
-const metrics = Effect.runSync(chromeLinuxArial16).metrics;
-const requirement = O.getOrThrow(naturalWidth(metrics, "dragon slithers"));
 const longGroupId = GroupId.make("minima-long");
 const shortGroupId = GroupId.make("minima-short");
 const containerWidth = 160;
@@ -79,6 +77,7 @@ afterEach(cleanup);
 describe("dock title minima", { concurrent: false }, () => {
   it.effect("clamps a feasible split to the measured long-title width", () =>
     Effect.gen(function* () {
+      const requirement = O.getOrThrow(naturalWidth((yield* chromeLinuxArial16).metrics, "dragon slithers"));
       const graph = yield* mount("dragon slithers", { titleMinima });
       yield* graph.awaitIdle;
       yield* Effect.promise(() => waitFor(() => expect(width()).toBeGreaterThanOrEqual(requirement)));
@@ -87,6 +86,7 @@ describe("dock title minima", { concurrent: false }, () => {
 
   it.effect("preserves proportional geometry without title minima", () =>
     Effect.gen(function* () {
+      const requirement = O.getOrThrow(naturalWidth((yield* chromeLinuxArial16).metrics, "dragon slithers"));
       const graph = yield* mount("dragon slithers");
       yield* graph.awaitIdle;
       yield* Effect.promise(() => waitFor(() => expect(width()).toBeLessThan(requirement)));

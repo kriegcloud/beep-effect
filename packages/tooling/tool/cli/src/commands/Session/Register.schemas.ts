@@ -18,7 +18,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
-import { dual, pipe } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -252,12 +252,10 @@ const registerUnitKey = (unit: RegisterRow): string => `${unit.kind}\u0000${unit
  * @category models
  * @since 0.0.0
  */
-export const currentRegisterRows = (rows: ReadonlyArray<RegisterRow>): ReadonlyArray<RegisterRow> =>
-  pipe(
-    rows,
-    newestPerKey<RegisterRow>({ key: registerUnitKey, at: (row) => row.recordedAt }),
-    A.filter((row) => !RegisterUnitState.is.retired(row.state))
-  );
+export const currentRegisterRows: (rows: ReadonlyArray<RegisterRow>) => ReadonlyArray<RegisterRow> = flow(
+  newestPerKey<RegisterRow>({ key: registerUnitKey, at: (row) => row.recordedAt }),
+  A.filter((row) => !RegisterUnitState.is.retired(row.state))
+);
 
 /**
  * Units a successor must reach first: those blocked on the orchestrator.

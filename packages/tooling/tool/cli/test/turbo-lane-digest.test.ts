@@ -65,22 +65,24 @@ const labsLaneOptions = CiLaneRunOptions.make({
 });
 
 describe("Turbo lane digests", () => {
-  it("round-trips run summaries through JSON", () =>
-    expect(
-      Effect.runSync(
-        Arbitrary.checkEffect(
+  it.effect("round-trips run summaries through JSON", () =>
+    Effect.gen(function* () {
+      return expect(
+        (yield* Arbitrary.checkEffect(
           Arbitrary.schema(TurboRunSummary),
-          (value) => {
-            const encoded = Effect.runSync(encodeSummary(value));
-            const decoded = Effect.runSync(decodeSummary(encoded));
-            expect(summaryEquivalent(decoded, value)).toBe(true);
-            expect(Effect.runSync(encodeSummary(decoded))).toBe(encoded);
-            return true;
-          },
+          (value) =>
+            Effect.gen(function* () {
+              const encoded = yield* encodeSummary(value);
+              const decoded = yield* decodeSummary(encoded);
+              expect(summaryEquivalent(decoded, value)).toBe(true);
+              expect(yield* encodeSummary(decoded)).toBe(encoded);
+              return true;
+            }),
           fcRuns(25)
-        )
-      )._tag
-    ).toBe("Passed"));
+        ))._tag
+      ).toBe("Passed");
+    })
+  );
 
   it.effect(
     "folds selected task hashes by bare name, independent of row order",

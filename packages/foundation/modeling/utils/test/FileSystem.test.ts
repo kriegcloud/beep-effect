@@ -1,5 +1,5 @@
-import { createRequire } from "node:module";
-import { tmpdir } from "node:os";
+import * as NodeModule from "node:module";
+import * as NodeOS from "node:os";
 import { it } from "@beep/test-runner";
 import { FileSystem, Path } from "@beep/utils";
 import { AppendFileSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
@@ -12,12 +12,12 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 
-const NFS: typeof import("node:fs") = createRequire(import.meta.url)("node:fs");
+const NFS: typeof import("node:fs") = NodeModule.createRequire(import.meta.url)("node:fs");
 
 const makeTempDir = Effect.fn("FileSystemTest.makeTempDir")(function* () {
   const crypto = yield* Crypto.Crypto;
   const uuid = yield* crypto.randomUUIDv4();
-  const dir = Path.join(tmpdir(), `beep-fs-${uuid}`);
+  const dir = Path.join(NodeOS.tmpdir(), `beep-fs-${uuid}`);
   return yield* Effect.acquireRelease(
     Effect.sync(() => {
       NFS.mkdirSync(dir, { recursive: true });
@@ -123,7 +123,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
     Effect.fnUntraced(function* () {
       const crypto = yield* Crypto.Crypto;
       const uuid = yield* crypto.randomUUIDv4();
-      const error = yield* Effect.flip(FileSystem.statSync(Path.join(tmpdir(), `beep-missing-${uuid}`)));
+      const error = yield* Effect.flip(FileSystem.statSync(Path.join(NodeOS.tmpdir(), `beep-missing-${uuid}`)));
       expect(error.reason._tag).toBe("NotFound");
       expect(error.reason.module).toBe("FileSystem");
       expect(error.reason.method).toBe("statSync");

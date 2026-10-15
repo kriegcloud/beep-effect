@@ -6,7 +6,7 @@
  */
 
 import { A, N } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import type { Segment2 } from "./Geometry.schemas.ts";
 
@@ -44,8 +44,10 @@ const normalise = ([x1, y1, x2, y2]: Segment2): Segment2 => {
  * @category utilities
  * @since 0.0.0
  */
-export const canonicalSegments = (segments: ReadonlyArray<Segment2>): ReadonlyArray<Segment2> =>
-  pipe(segments, A.map(normalise), A.sort(segmentOrder));
+export const canonicalSegments: (segments: ReadonlyArray<Segment2>) => ReadonlyArray<Segment2> = flow(
+  A.map(normalise),
+  A.sort(segmentOrder)
+);
 
 /**
  * Mirror segments left–right about the view's own centre line, canonicalised.

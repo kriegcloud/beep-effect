@@ -836,14 +836,12 @@ const nonReferenceReportMatches = Effect.fn("Library.nonReferenceReportMatches")
   occurrence: LibraryOccurrence
 ) {
   const bytes = yield* readOriginalReportBytes(root, document.snapshotPath).pipe(Effect.option);
-  if (
+  return !(
     O.isNone(bytes) ||
     (yield* hashBytes(bytes.value)) !== document.sha256 ||
     O.getOrElse(A.get(Str.split(new TextDecoder().decode(bytes.value), "\n"), occurrence.line - 1), () => "") !==
       occurrence.context
-  )
-    return false;
-  return true;
+  );
 });
 const nonReferenceOccurrenceValid = Effect.fn("Library.nonReferenceOccurrenceValid")(function* (
   root: string,
@@ -919,8 +917,7 @@ export const libraryNonReferenceContextValid = Effect.fn("Library.nonReferenceCo
       { concurrency: 1 }
     );
     const valid = context.value.occurrences.length === occurrences.length && A.every(validity, (value) => value);
-    if (valid) return true;
-    return false;
+    return !!valid;
   });
   for (const artifact of A.filter(capture.artifacts, (item) => item.role === "disposition-evidence"))
     if (yield* reviewedContextArtifactValid(artifact)) return true;
@@ -941,10 +938,9 @@ const readReviewedDisposition = Effect.fn("Library.readReviewedDisposition")(fun
   if (reviews.length !== 1) return O.none();
   const review = A.head(reviews);
   if (O.isNone(review)) return O.none();
-  const payload = yield* fs
+  return yield* fs
     .readFileString(path.resolve(root, review.value.path))
     .pipe(Effect.flatMap(decodeLibraryJson(LibraryDispositionImportPayload)), Effect.option);
-  return payload;
 });
 
 /**

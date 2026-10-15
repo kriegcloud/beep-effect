@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -186,7 +186,7 @@ export const cacheRuntimeStep = (step: QualityTaskStep): QualityTaskStep => {
     )
   )
     return step;
-  const entrypoint = fileURLToPath(
+  const entrypoint = NodeURL.fileURLToPath(
     new URL(Str.endsWith(".ts")(import.meta.url) ? "../../bin.ts" : "../../bin.js", import.meta.url)
   );
   const child = ["--no-env-file", entrypoint, "cache", "execute", "--", ...args];

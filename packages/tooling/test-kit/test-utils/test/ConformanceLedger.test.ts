@@ -1,4 +1,4 @@
-import { pathToFileURL } from "node:url";
+import * as NodeURL from "node:url";
 import * as Conformance from "@beep/schema/Conformance";
 import {
   validateConformanceAnnotationAgainstLedgerArtifacts,
@@ -214,7 +214,7 @@ const fixtureFiles = Effect.fn("ConformanceLedgerTest.fixtureFiles")(function* (
 });
 
 const validateFixtureArtifacts = (root: string, options: FixtureOptions) => {
-  const packageRoot = pathToFileURL(`${root}/`);
+  const packageRoot = NodeURL.pathToFileURL(`${root}/`);
 
   return options.annotation === undefined
     ? validateConformanceLedgerArtifacts(packageRoot, packageName)

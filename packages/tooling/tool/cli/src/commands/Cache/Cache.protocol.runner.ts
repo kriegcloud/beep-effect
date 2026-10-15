@@ -4,8 +4,10 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { CacheClientPin } from "@beep/repo-configs/cache";
 import { Sha256HexFromBytes } from "@beep/schema";
+import { HostProcessArchitecture, HostProcessPlatform } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Duration from "effect/Duration";
@@ -438,7 +440,7 @@ export const runCacheProtocolExperiment = Effect.fn("CacheProtocol.experiment")(
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        if (process.platform !== "linux" || process.arch !== "x64")
+        if ((yield* HostProcessPlatform) !== "linux" || (yield* HostProcessArchitecture) !== "x64")
           return yield* CacheCommandError.new("Protocol sandbox requires Linux x64.");
         const parent = path.join(root, ".beep/cache-protocol");
         yield* fs.makeDirectory(parent, { recursive: true });

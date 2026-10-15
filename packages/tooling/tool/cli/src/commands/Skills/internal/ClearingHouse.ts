@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 
+import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -215,7 +216,7 @@ const restoreAfter = (swaps: Ref.Ref<Array<Swap>>, skill: string) =>
     const stranded = yield* restore(yield* Ref.get(swaps));
     return yield* A.isReadonlyArrayNonEmpty(stranded)
       ? SkillsCommandError.make({
-          ...(error.cause === undefined ? {} : { cause: error.cause }),
+          ...OptionUtils.getSomesStruct({ cause: O.fromUndefinedOr(error.cause) }),
           message: `${error.message} The previous tree could not be moved back and is kept at ${A.join(stranded, ", ")}.`,
           file: stranded[0],
           skill,

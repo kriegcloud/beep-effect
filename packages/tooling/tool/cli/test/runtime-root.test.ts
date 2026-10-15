@@ -1,4 +1,4 @@
-import { userInfo } from "node:os";
+import * as NodeOS from "node:os";
 import {
   admissionRootFor,
   canonicalRuntimeRootForTesting,
@@ -8,6 +8,7 @@ import {
 } from "@beep/repo-cli/test/RepoRun";
 import { proofCoordinatorLockPath } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
+import { currentHostPlatform } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";
@@ -17,8 +18,8 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 
-const uid = userInfo().uid;
-const canonicalRoot = canonicalRuntimeRootForTesting(process.platform, userInfo().homedir);
+const uid = NodeOS.userInfo().uid;
+const canonicalRoot = canonicalRuntimeRootForTesting(currentHostPlatform, NodeOS.userInfo().homedir);
 const canonical = RuntimeRootChoice.make({ kind: "canonical", root: canonicalRoot });
 
 const resolveWith = (environment: Readonly<Record<string, string>>) =>

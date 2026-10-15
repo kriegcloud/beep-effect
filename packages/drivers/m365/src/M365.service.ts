@@ -2705,13 +2705,13 @@ const encodeEventDraft = encodeWriteBody(M365EventDraft, "events");
 const encodeEventPatch = encodeWriteBody(M365EventPatch, "events");
 const encodeMasterCategoryDraft = encodeWriteBody(M365MasterCategoryDraft, "masterCategories");
 
-const idempotencyKeyFields = O.match({
-  onNone: () => ({}),
-  onSome: (key: M365IdempotencyKey) => ({
+const idempotencyKeyFields = flow(
+  O.map((key: M365IdempotencyKey) => ({
     singleValueExtendedProperties: [{ id: M365_IDEMPOTENCY_KEY_PROPERTY_ID, value: key }],
     transactionId: key,
-  }),
-});
+  })),
+  O.getOrElse(() => ({}))
+);
 
 const idempotencyKeyFilter = (key: M365IdempotencyKey): string =>
   `singleValueExtendedProperties/Any(ep: ep/id eq '${M365_IDEMPOTENCY_KEY_PROPERTY_ID}' and ep/value eq '${key}')`;

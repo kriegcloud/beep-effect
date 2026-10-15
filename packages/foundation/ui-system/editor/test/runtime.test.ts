@@ -44,70 +44,82 @@ const appendRootChild = (state: SerializedEditorState, child: unknown): void => 
 };
 
 describe("@beep/editor runtime admission", () => {
-  it("admits valid raw wire and untouched schema-decoded state", () => {
-    const decoded = decodedValidState();
+  it.effect("admits valid raw wire and untouched schema-decoded state", () =>
+    Effect.gen(function* () {
+      const decoded = decodedValidState();
 
-    pipe(decodeEditorStateForRuntimeResult(validWire), Result.isSuccess, assertTrue);
-    pipe(decodeEditorStateForRuntimeResult(decoded), Result.isSuccess, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(decoded))._tag).toBe("Success");
-  });
+      pipe(decodeEditorStateForRuntimeResult(validWire), Result.isSuccess, assertTrue);
+      pipe(decodeEditorStateForRuntimeResult(decoded), Result.isSuccess, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(decoded)))._tag).toBe("Success");
+    })
+  );
 
-  it("rejects an empty root that Lexical cannot apply at runtime", () => {
-    pipe(decodeEditorStateForRuntimeResult(emptyWire), Result.isFailure, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(emptyWire))._tag).toBe("Failure");
-  });
+  it.effect("rejects an empty root that Lexical cannot apply at runtime", () =>
+    Effect.gen(function* () {
+      pipe(decodeEditorStateForRuntimeResult(emptyWire), Result.isFailure, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(emptyWire)))._tag).toBe("Failure");
+    })
+  );
 
-  it("deeply rejects a decoded state mutated with a null child", () => {
-    const decoded = decodedValidState();
-    appendRootChild(decoded, null);
+  it.effect("deeply rejects a decoded state mutated with a null child", () =>
+    Effect.gen(function* () {
+      const decoded = decodedValidState();
+      appendRootChild(decoded, null);
 
-    pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(decoded))._tag).toBe("Failure");
-  });
+      pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(decoded)))._tag).toBe("Failure");
+    })
+  );
 
-  it("deeply rejects a decoded state mutated with an unknown future node", () => {
-    const decoded = decodedValidState();
-    appendRootChild(decoded, {
-      pluginData: { enabled: true },
-      type: "future-node",
-      version: 2,
-    });
+  it.effect("deeply rejects a decoded state mutated with an unknown future node", () =>
+    Effect.gen(function* () {
+      const decoded = decodedValidState();
+      appendRootChild(decoded, {
+        pluginData: { enabled: true },
+        type: "future-node",
+        version: 2,
+      });
 
-    pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(decoded))._tag).toBe("Failure");
-  });
+      pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(decoded)))._tag).toBe("Failure");
+    })
+  );
 
-  it("deeply rejects a decoded state mutated with a misplaced semantic text node", () => {
-    const decoded = decodedValidState();
-    appendRootChild(
-      decoded,
-      TextNode.make({
-        detail: TextDetailMask.make(0),
-        format: TextFormatMask.make(0),
-        mode: "normal",
-        style: "",
-        text: "not a root block",
-      })
-    );
+  it.effect("deeply rejects a decoded state mutated with a misplaced semantic text node", () =>
+    Effect.gen(function* () {
+      const decoded = decodedValidState();
+      appendRootChild(
+        decoded,
+        TextNode.make({
+          detail: TextDetailMask.make(0),
+          format: TextFormatMask.make(0),
+          mode: "normal",
+          style: "",
+          text: "not a root block",
+        })
+      );
 
-    pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(decoded))._tag).toBe("Failure");
-  });
+      pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(decoded)))._tag).toBe("Failure");
+    })
+  );
 
-  it("rejects non-JSON NodeState before runtime or persistence", () => {
-    const raw = {
-      root: {
-        ...validWire.root,
-        children: [{ ...validWire.root.children[0], $: { plugin: () => true } }],
-      },
-    };
-    const decoded = decodedValidState();
-    const paragraph = O.getOrThrow(A.head(decoded.root.children));
-    Reflect.set(paragraph, "$", O.some({ plugin: 1n }));
+  it.effect("rejects non-JSON NodeState before runtime or persistence", () =>
+    Effect.gen(function* () {
+      const raw = {
+        root: {
+          ...validWire.root,
+          children: [{ ...validWire.root.children[0], $: { plugin: () => true } }],
+        },
+      };
+      const decoded = decodedValidState();
+      const paragraph = O.getOrThrow(A.head(decoded.root.children));
+      Reflect.set(paragraph, "$", O.some({ plugin: 1n }));
 
-    pipe(decodeEditorStateForRuntimeResult(raw), Result.isFailure, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(raw))._tag).toBe("Failure");
-    pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
-    expect(Effect.runSyncExit(decodeEditorStateForRuntime(decoded))._tag).toBe("Failure");
-  });
+      pipe(decodeEditorStateForRuntimeResult(raw), Result.isFailure, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(raw)))._tag).toBe("Failure");
+      pipe(decodeEditorStateForRuntimeResult(decoded), Result.isFailure, assertTrue);
+      expect((yield* Effect.exit(decodeEditorStateForRuntime(decoded)))._tag).toBe("Failure");
+    })
+  );
 });

@@ -1454,65 +1454,71 @@ const nonRemovalChanges = (
     },
   });
 
+// Findings for a branch that keeps a sealed baseline but changes it.
+const sealedBaselineChanges = (
+  input: KnowledgeSealGuardInput,
+  head: KnowledgeDoctorBaseline
+): ReadonlyArray<KnowledgeFindingCandidate> => {
+  const changes = nonRemovalChanges(head, input.base.baseline);
+  if (A.isReadonlyArrayEmpty(changes)) {
+    return [];
+  }
+  const summary = `The branch ${A.join(changes, ", ")}`;
+  return O.match(input.acceptMint, {
+    onNone: () => [tamper(KNOWLEDGE_DOCTOR_BASELINE_PATH, "non-removal", `${summary}.`, BASELINE_REMEDIATION)],
+    onSome: (acceptance) =>
+      A.getSomes([
+        onlyChanges(input.changedPaths, KNOWLEDGE_DOCTOR_BASELINE_PATH)
+          ? O.none()
+          : O.some(
+              tamper(
+                KNOWLEDGE_DOCTOR_BASELINE_PATH,
+                "mint-diff-not-baseline-only",
+                `${summary}, but the mint PR also changes ${A.join(
+                  A.filter(input.changedPaths, (path) => path !== KNOWLEDGE_DOCTOR_BASELINE_PATH),
+                  ", "
+                )}.`,
+                BASELINE_REMEDIATION
+              )
+            ),
+        acceptance.mintedAtIsAncestor
+          ? O.none()
+          : O.some(
+              tamper(
+                KNOWLEDGE_DOCTOR_BASELINE_PATH,
+                "minted-at-not-ancestor",
+                `${summary}, but mintedAt ${head.mintedAt} is not an ancestor of the merge-base.`,
+                BASELINE_REMEDIATION
+              )
+            ),
+        acceptance.reproduces
+          ? O.none()
+          : O.some(
+              tamper(
+                KNOWLEDGE_DOCTOR_BASELINE_PATH,
+                "mint-not-reproducible",
+                `${summary}, but a re-mint at ${head.mintedAt} does not reproduce it byte for byte.`,
+                BASELINE_REMEDIATION
+              )
+            ),
+      ]),
+  });
+};
+
 const baselineTamper = (input: KnowledgeSealGuardInput): ReadonlyArray<KnowledgeFindingCandidate> =>
   O.match(input.head.baseline, {
     onNone: () =>
-      O.isSome(input.base.baseline)
-        ? [
-            tamper(
-              KNOWLEDGE_DOCTOR_BASELINE_PATH,
-              "removed",
-              "The branch removes the sealed baseline.",
-              BASELINE_REMEDIATION
-            ),
-          ]
-        : [],
-    onSome: (head) => {
-      const changes = nonRemovalChanges(head, input.base.baseline);
-      if (A.isReadonlyArrayEmpty(changes)) {
-        return [];
-      }
-      const summary = `The branch ${A.join(changes, ", ")}`;
-      return O.match(input.acceptMint, {
-        onNone: () => [tamper(KNOWLEDGE_DOCTOR_BASELINE_PATH, "non-removal", `${summary}.`, BASELINE_REMEDIATION)],
-        onSome: (acceptance) =>
-          A.getSomes([
-            onlyChanges(input.changedPaths, KNOWLEDGE_DOCTOR_BASELINE_PATH)
-              ? O.none()
-              : O.some(
-                  tamper(
-                    KNOWLEDGE_DOCTOR_BASELINE_PATH,
-                    "mint-diff-not-baseline-only",
-                    `${summary}, but the mint PR also changes ${A.join(
-                      A.filter(input.changedPaths, (path) => path !== KNOWLEDGE_DOCTOR_BASELINE_PATH),
-                      ", "
-                    )}.`,
-                    BASELINE_REMEDIATION
-                  )
-                ),
-            acceptance.mintedAtIsAncestor
-              ? O.none()
-              : O.some(
-                  tamper(
-                    KNOWLEDGE_DOCTOR_BASELINE_PATH,
-                    "minted-at-not-ancestor",
-                    `${summary}, but mintedAt ${head.mintedAt} is not an ancestor of the merge-base.`,
-                    BASELINE_REMEDIATION
-                  )
-                ),
-            acceptance.reproduces
-              ? O.none()
-              : O.some(
-                  tamper(
-                    KNOWLEDGE_DOCTOR_BASELINE_PATH,
-                    "mint-not-reproducible",
-                    `${summary}, but a re-mint at ${head.mintedAt} does not reproduce it byte for byte.`,
-                    BASELINE_REMEDIATION
-                  )
-                ),
-          ]),
-      });
-    },
+      A.fromOption(
+        O.map(input.base.baseline, () =>
+          tamper(
+            KNOWLEDGE_DOCTOR_BASELINE_PATH,
+            "removed",
+            "The branch removes the sealed baseline.",
+            BASELINE_REMEDIATION
+          )
+        )
+      ),
+    onSome: (head) => sealedBaselineChanges(input, head),
   });
 
 const promotionRows = (files: KnowledgeSealFiles): ReadonlyArray<KnowledgeDoctorPromotion> =>

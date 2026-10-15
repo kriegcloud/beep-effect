@@ -6,6 +6,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { HostProcessArchitecture, HostProcessPlatform } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
@@ -146,8 +147,8 @@ const environmentProfileHash = Effect.fnUntraced(function* (lane: GithubCheckLan
       : undefined;
   return yield* hashText(
     stableRecordText({
-      platform: process.platform,
-      architecture: process.arch,
+      platform: yield* HostProcessPlatform,
+      architecture: yield* HostProcessArchitecture,
       bunVersion: Bun.version,
       nodeVersion: process.version,
       inheritedEnvironmentHash,

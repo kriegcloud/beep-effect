@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { PolicyRevision } from "@beep/epistemic-domain/values/ExecutionGrant";
 import {
   DecisionRecordHash,
@@ -35,7 +35,7 @@ import type {
   ExecutionDecisionRecord,
 } from "@beep/epistemic-domain/values/ExecutionRecord";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
 
 // The db-admin drizzle folder creates `btree_gist` for the edge exclusion
@@ -263,7 +263,7 @@ if (!shouldRunPgliteIntegration) {
             )
           `);
 
-          expect(inspect(violation, { depth: 10 })).toContain("epistemic_execution_decision_reason_bounded");
+          expect(NodeUtil.inspect(violation, { depth: 10 })).toContain("epistemic_execution_decision_reason_bounded");
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -320,7 +320,7 @@ if (!shouldRunPgliteIntegration) {
             UPDATE epistemic_execution_outcome SET settlement = 'completed' WHERE run_key = ${runKey}
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -347,7 +347,7 @@ if (!shouldRunPgliteIntegration) {
             DELETE FROM epistemic_execution_outcome WHERE run_key = ${runKey}
           `);
 
-          expect(inspect(deletion, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(deletion, { depth: 10 })).toContain("append-only");
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -366,7 +366,7 @@ if (!shouldRunPgliteIntegration) {
             TRUNCATE epistemic_execution_decision, epistemic_execution_outcome
           `);
 
-          expect(inspect(truncation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(truncation, { depth: 10 })).toContain("append-only");
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -390,7 +390,7 @@ if (!shouldRunPgliteIntegration) {
             )
           `);
 
-          expect(inspect(violation, { depth: 10 })).toContain("epistemic_execution_decision_genesis_prev");
+          expect(NodeUtil.inspect(violation, { depth: 10 })).toContain("epistemic_execution_decision_genesis_prev");
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -417,7 +417,9 @@ if (!shouldRunPgliteIntegration) {
             )
           `);
 
-          expect(inspect(violation, { depth: 10 })).toContain("epistemic_execution_decision_reason_iff_denied");
+          expect(NodeUtil.inspect(violation, { depth: 10 })).toContain(
+            "epistemic_execution_decision_reason_iff_denied"
+          );
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -440,7 +442,9 @@ if (!shouldRunPgliteIntegration) {
             )
           `);
 
-          expect(inspect(violation, { depth: 10 })).toContain("epistemic_execution_outcome_settlement_bounded");
+          expect(NodeUtil.inspect(violation, { depth: 10 })).toContain(
+            "epistemic_execution_outcome_settlement_bounded"
+          );
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -461,7 +465,7 @@ if (!shouldRunPgliteIntegration) {
             WHERE run_key = ${runKey}
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         pgliteIntegrationTimeoutMillis
       );
@@ -480,7 +484,7 @@ if (!shouldRunPgliteIntegration) {
             DELETE FROM epistemic_execution_decision WHERE run_key = ${runKey}
           `);
 
-          expect(inspect(deletion, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(deletion, { depth: 10 })).toContain("append-only");
         }),
         pgliteIntegrationTimeoutMillis
       );

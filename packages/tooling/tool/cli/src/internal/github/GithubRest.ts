@@ -22,12 +22,13 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import * as OptionUtils from "@beep/utils/Option";
 import { GitHubClient, GitHubError, Repo } from "@effected/github";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -365,9 +366,8 @@ const makeGithubRest = Effect.gen(function* () {
   const openPullRequestForBranch = (headOwner: string, branch: string) =>
     client.paginate("GET /repos/{owner}/{repo}/pulls", { ...at, head: `${headOwner}:${branch}`, state: "open" }).pipe(
       Effect.flatMap(decodeWith(S.Array(PullWire), "GET /repos/{owner}/{repo}/pulls")),
-      Effect.map((pulls) =>
-        pipe(
-          pulls,
+      Effect.map(
+        flow(
           A.map(toPullRequestRecord),
           A.findFirst((pull) => pull.headRef === branch)
         )
@@ -384,8 +384,8 @@ const makeGithubRest = Effect.gen(function* () {
         {
           ...at,
           pull_number: number,
-          ...(patch.title === undefined ? {} : { title: patch.title }),
-          ...(patch.body === undefined ? {} : { body: patch.body }),
+          ...OptionUtils.getSomesStruct({ title: O.fromUndefinedOr(patch.title) }),
+          ...OptionUtils.getSomesStruct({ body: O.fromUndefinedOr(patch.body) }),
         },
         PullWire
       )
@@ -448,9 +448,8 @@ const makeGithubRest = Effect.gen(function* () {
   const requiredStatusContexts = (branch: string) =>
     client.paginate("GET /repos/{owner}/{repo}/rules/branches/{branch}", { ...at, branch }).pipe(
       Effect.flatMap(decodeWith(S.Array(RulesetRuleWire), "GET /repos/{owner}/{repo}/rules/branches/{branch}")),
-      Effect.map((rules) =>
-        pipe(
-          rules,
+      Effect.map(
+        flow(
           A.filter((rule) => rule.type === "required_status_checks"),
           A.flatMap((rule) => rule.parameters?.required_status_checks ?? []),
           A.map((check) => check.context),

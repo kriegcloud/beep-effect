@@ -11,10 +11,10 @@ import { makeRecord } from "./yeet-pr-fixtures.ts";
 
 describe("Yeet PR provenance public boundary", () => {
   // Branches are already public PR metadata, so boundary assertions remove their exact value before leak checks.
-  it("projects arbitrary local identifiers without leaking resumable identity", () => {
-    expect(
-      Effect.runSync(
-        Arbitrary.checkEffect(
+  it.effect("projects arbitrary local identifiers without leaking resumable identity", () =>
+    Effect.gen(function* () {
+      expect(
+        (yield* Arbitrary.checkEffect(
           Arbitrary.all([
             Arbitrary.all({
               suffix: Arbitrary.schema(S.String.check(S.isPattern(/^[A-Za-z0-9_-]{1,80}$/u))),
@@ -125,10 +125,10 @@ describe("Yeet PR provenance public boundary", () => {
             return true;
           },
           fcRuns(64)
-        )
-      )._tag
-    ).toBe("Passed");
-  });
+        ))._tag
+      ).toBe("Passed");
+    })
+  );
 
   it("escapes hostile public branches without terminating the JSON comment", () => {
     const hostileBranches = [

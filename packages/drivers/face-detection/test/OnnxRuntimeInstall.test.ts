@@ -1,7 +1,7 @@
-import assert from "node:assert/strict";
-import { EventEmitter } from "node:events";
-import { createRequire } from "node:module";
-import { Script } from "node:vm";
+import * as NodeAssert from "node:assert/strict";
+import * as NodeEvents from "node:events";
+import * as NodeModule from "node:module";
+import * as NodeVM from "node:vm";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeStream from "@effect/platform-node-shared/NodeStream";
@@ -17,7 +17,7 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { strToU8, zipSync } from "fflate";
 
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 const packageInfo = { name: "Test.Runtime", versions: [{ feed: "test", version: "1.0.0" }] };
 const entry = "runtimes/linux-x64/native/libonnxruntime.so";
 const binary = strToU8("test native binary");
@@ -38,7 +38,7 @@ const fixture = Effect.gen(function* () {
   yield* fs.makeDirectory(temp);
   const destination = path.join(root, "bin", "libonnxruntime.so");
   const installerPath = path.resolve(path.dirname(require.resolve("onnxruntime-node")), "../script/install-utils.js");
-  const installerRequire = createRequire(installerPath);
+  const installerRequire = NodeModule.createRequire(installerPath);
   const source = yield* fs.readFileString(installerPath);
 
   // Real ZIP bytes and filesystem operations exercise the installed upstream script.
@@ -63,11 +63,11 @@ const fixture = Effect.gen(function* () {
         queueMicrotask(() => {
           receive(response);
         });
-        return new EventEmitter();
+        return new NodeEvents.EventEmitter();
       },
     };
     yield* Effect.sync(() =>
-      new Script(source, { filename: installerPath }).runInNewContext({
+      new NodeVM.Script(source, { filename: installerPath }).runInNewContext({
         module,
         require: Match.type<string>().pipe(
           Match.when("https", () => https),
@@ -79,7 +79,7 @@ const fixture = Effect.gen(function* () {
       })
     );
     const installPackages = module.exports.installPackages;
-    assert(installPackages);
+    NodeAssert.ok(installPackages);
     yield* Effect.tryPromise(() =>
       installPackages([packageInfo], [{ packagesInfo: packageInfo, pathInPackage: entry, filepath: destination }], {
         test: { type: "nuget", index: "https://test.invalid/index.json" },

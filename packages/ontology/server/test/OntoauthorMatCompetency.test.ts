@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   applyChangeOperationsWithDelta,
   ChangeOperation,
@@ -42,7 +42,7 @@ type TaskFixture = {
   readonly reason: string;
 };
 
-const fixturesRoot = fileURLToPath(new URL("./fixtures/ontoauthor-mat/", import.meta.url));
+const fixturesRoot = NodeURL.fileURLToPath(new URL("./fixtures/ontoauthor-mat/", import.meta.url));
 
 const TestLayer = Layer.mergeAll(
   OntologyServerTest.pipe(
@@ -100,7 +100,7 @@ const taskFixtures: ReadonlyArray<TaskFixture> = [
 const fixturePath = (relativePath: string): OntologyFilePath => OntologyFilePath.make(relativePath);
 
 const fixtureFilePath = (relativePath: string): string =>
-  fileURLToPath(new URL(`./fixtures/ontoauthor-mat/${relativePath}`, import.meta.url));
+  NodeURL.fileURLToPath(new URL(`./fixtures/ontoauthor-mat/${relativePath}`, import.meta.url));
 
 const readTextFixture = Effect.fn("OntoauthorMat.readTextFixture")(function* (relativePath: string) {
   const fileSystem = yield* FileSystem.FileSystem;

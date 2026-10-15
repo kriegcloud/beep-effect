@@ -18,8 +18,8 @@
 // The blocker observes both writer backend IDs waiting on database locks before
 // releasing its row. The bounded observer uses database-time polling and a live
 // watchdog; TestClock cannot establish native PostgreSQL contention.
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values";
 import { makeDrizzleEdgeAuthorityRepository } from "@beep/epistemic-server";
@@ -34,7 +34,6 @@ import { A } from "@beep/utils";
 import * as PgClient from "@effect/sql-pg/PgClient";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
-import * as Config from "effect/Config";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -50,10 +49,9 @@ import type { EdgeAuthorityError, EdgeAuthorityRepositoryShape } from "@beep/epi
 
 // Config boot snapshot of the lane selector, per the makePgliteIntegrationGate precedent:
 // Node-safe and law-clean, and the operator exports the variable before the process starts.
-const externalUrlConfig = Config.option(Config.String("BEEP_EPISTEMIC_PG_URL"));
-const externalUrl = Effect.runSync(externalUrlConfig).pipe(O.getOrElse(() => ""));
+const { BEEP_EPISTEMIC_PG_URL: externalUrl = "" } = process.env;
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const migrationsSchema = "epistemic_edge_journal";
 
 // Four connections: the blocker holds one and each contending writer takes its own, so
@@ -372,7 +370,7 @@ if (externalUrl.length === 0) {
           // Both creators derive version 1 and the same public ID. Either
           // unique index can reject the loser before another backstop does;
           // every equivalent duplicate must retain the typed conflict.
-          expect(inspect(failures, { depth: 12 })).toMatch(
+          expect(NodeUtil.inspect(failures, { depth: 12 })).toMatch(
             /epistemic_edge_(?:open_head_idx|no_overlap|logical_version_unique|version_public_id_unique_idx)/u
           );
 
@@ -413,7 +411,7 @@ if (externalUrl.length === 0) {
             )
           `);
 
-          expect(inspect(violation, { depth: 12 })).toContain("epistemic_edge_no_overlap");
+          expect(NodeUtil.inspect(violation, { depth: 12 })).toContain("epistemic_edge_no_overlap");
         }),
         120_000
       );

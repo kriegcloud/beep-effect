@@ -95,28 +95,28 @@ const pullRequestVerdict = (plan: YeetRetirePlan, state: SweepGitState): YeetRet
 // `merge-base --is-ancestor refs/heads/<branch> refs/remotes/origin/<main>`,
 // and `worktreeDirty` folds an unreliable status probe in as dirty.
 const pullRequestLessVerdict = (plan: YeetRetirePlan, state: SweepGitState): YeetRetireVerdict =>
-  O.match(
-    A.findFirst(
-      [
+  O.getOrElse(
+    O.map(
+      A.findFirst(
         [
-          !state.branchMergedIntoBase,
-          `no pull request was observed for ${plan.branch} and its tip ${optionText(state.localTip)} is not contained in origin/${state.mainBranch}`,
-        ] as const,
-        [
-          state.worktreeDirty,
-          `no pull request was observed for ${plan.branch} and the lane has uncommitted changes`,
-        ] as const,
-      ],
-      ([blocked]) => blocked
+          [
+            !state.branchMergedIntoBase,
+            `no pull request was observed for ${plan.branch} and its tip ${optionText(state.localTip)} is not contained in origin/${state.mainBranch}`,
+          ] as const,
+          [
+            state.worktreeDirty,
+            `no pull request was observed for ${plan.branch} and the lane has uncommitted changes`,
+          ] as const,
+        ],
+        ([blocked]) => blocked
+      ),
+      ([, reason]) => refused(reason)
     ),
-    {
-      onNone: () =>
-        O.match(O.flatMap(state.localTip, decodeVerdictTip), {
-          onNone: () => refused(`no pull request was observed for ${plan.branch} and its tip could not be resolved`),
-          onSome: (tip) => YeetRetireVerdict.cases["pr-less-on-main"].make({ tip, mainBranch: state.mainBranch }),
-        }),
-      onSome: ([, reason]) => refused(reason),
-    }
+    () =>
+      O.match(O.flatMap(state.localTip, decodeVerdictTip), {
+        onNone: () => refused(`no pull request was observed for ${plan.branch} and its tip could not be resolved`),
+        onSome: (tip) => YeetRetireVerdict.cases["pr-less-on-main"].make({ tip, mainBranch: state.mainBranch }),
+      })
   );
 
 /**

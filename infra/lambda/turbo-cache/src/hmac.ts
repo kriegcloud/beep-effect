@@ -1,4 +1,4 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import * as NodeCrypto from "node:crypto";
 
 /**
  * Request identity triple both sides of the writer HMAC sign.
@@ -12,7 +12,7 @@ export type SignedRequest = {
   readonly requestId: string;
 };
 
-const digest = (value: string): Buffer => createHash("sha256").update(value, "utf8").digest();
+const digest = (value: string): Buffer => NodeCrypto.createHash("sha256").update(value, "utf8").digest();
 
 /**
  * Timing-safe string equality over fixed-length sha256 digests, so inputs of
@@ -21,7 +21,8 @@ const digest = (value: string): Buffer => createHash("sha256").update(value, "ut
  * @category utilities
  * @since 0.0.0
  */
-export const constantTimeEqual = (left: string, right: string): boolean => timingSafeEqual(digest(left), digest(right));
+export const constantTimeEqual = (left: string, right: string): boolean =>
+  NodeCrypto.timingSafeEqual(digest(left), digest(right));
 
 /**
  * Canonical newline-joined message the authorizer and writer both sign.
@@ -39,7 +40,7 @@ export const signatureMessage = ({ requestId, method, rawPath }: SignedRequest):
  * @since 0.0.0
  */
 export const signRequest = (secret: string, request: SignedRequest): string =>
-  createHmac("sha256", secret).update(signatureMessage(request), "utf8").digest("hex");
+  NodeCrypto.createHmac("sha256", secret).update(signatureMessage(request), "utf8").digest("hex");
 
 /**
  * Verify a writer signature by re-deriving it and comparing constant-time.

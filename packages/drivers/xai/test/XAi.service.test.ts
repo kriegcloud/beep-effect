@@ -1,4 +1,4 @@
-import { inspect } from "node:util";
+import * as NodeUtil from "node:util";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
@@ -628,7 +628,12 @@ describe("@beep/xai", () => {
         const transportJson = yield* encodeJson(transportError);
         const websocketJson = yield* encodeJson(websocketError);
         const rendered = A.join(
-          [transportJson, inspect(transportError, { depth: 8 }), websocketJson, inspect(websocketError, { depth: 8 })],
+          [
+            transportJson,
+            NodeUtil.inspect(transportError, { depth: 8 }),
+            websocketJson,
+            NodeUtil.inspect(websocketError, { depth: 8 }),
+          ],
           "\n"
         );
 
@@ -699,7 +704,9 @@ describe("@beep/xai", () => {
         const error = yield* languageModel.generateText({ prompt: "hello" }).pipe(Effect.flip);
 
         expect(error.reason._tag).toBe("InvalidOutputError");
-        expect(inspect(error.reason)).toContain("xAI chat completion returned a Text response instead of JSON.");
+        expect(NodeUtil.inspect(error.reason)).toContain(
+          "xAI chat completion returned a Text response instead of JSON."
+        );
       })
     )
   );

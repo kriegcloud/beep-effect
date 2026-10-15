@@ -21,7 +21,10 @@ import { resolvePathWithinCanonicalRoot } from "@beep/file-processing/PathSafety
 import { $RepoCliId } from "@beep/identity/packages";
 import { ClockSync, END_SEEK_GUARD_SECONDS, epochToVideoSeconds, SessionStore } from "@beep/qa-capture";
 import { LiteralKit } from "@beep/schema";
-import { A, O, Str, thunkEmptyReadonlyArray, thunkEmptyStr } from "@beep/utils";
+import * as A from "@beep/utils/Array";
+import * as O from "@beep/utils/Option";
+import * as Str from "@beep/utils/Str";
+import { thunkEmptyReadonlyArray, thunkEmptyStr } from "@beep/utils/thunk";
 import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
@@ -149,7 +152,12 @@ export type JudgeEvidenceKind = typeof JudgeEvidenceKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class JudgeEvidenceFile extends S.Opaque<JudgeEvidenceFile, { readonly brand: unique symbol }>()(
+export class JudgeEvidenceFile extends S.Opaque<
+  JudgeEvidenceFile,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     bytes: S.Int.pipe(
       $I.annoteKey("JudgeEvidenceFile.bytes", {
@@ -191,7 +199,12 @@ export class JudgeEvidenceFile extends S.Opaque<JudgeEvidenceFile, { readonly br
  * @category models
  * @since 0.0.0
  */
-export class JudgeDroppedFile extends S.Opaque<JudgeDroppedFile, { readonly brand: unique symbol }>()(
+export class JudgeDroppedFile extends S.Opaque<
+  JudgeDroppedFile,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     bytes: S.Int.pipe(
       $I.annoteKey("JudgeDroppedFile.bytes", {
@@ -229,7 +242,12 @@ export class JudgeDroppedFile extends S.Opaque<JudgeDroppedFile, { readonly bran
  * @category models
  * @since 0.0.0
  */
-export class JudgeEvidenceSelection extends S.Opaque<JudgeEvidenceSelection, { readonly brand: unique symbol }>()(
+export class JudgeEvidenceSelection extends S.Opaque<
+  JudgeEvidenceSelection,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     dropped: S.Array(JudgeDroppedFile).pipe(
       $I.annoteKey("JudgeEvidenceSelection.dropped", {
@@ -267,7 +285,12 @@ export class JudgeEvidenceSelection extends S.Opaque<JudgeEvidenceSelection, { r
  * @category models
  * @since 0.0.0
  */
-export class JudgePromptValues extends S.Opaque<JudgePromptValues, { readonly brand: unique symbol }>()(
+export class JudgePromptValues extends S.Opaque<
+  JudgePromptValues,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     round: S.Int.pipe(
       $I.annoteKey("JudgePromptValues.round", {
@@ -316,7 +339,12 @@ export class JudgePromptValues extends S.Opaque<JudgePromptValues, { readonly br
  * @category models
  * @since 0.0.0
  */
-export class JudgeManifest extends S.Opaque<JudgeManifest, { readonly brand: unique symbol }>()(
+export class JudgeManifest extends S.Opaque<
+  JudgeManifest,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     dropped: S.Array(JudgeDroppedFile).pipe(
       $I.annoteKey("JudgeManifest.dropped", {
@@ -489,7 +517,12 @@ const eventLine = (event: ActionEvent, toVideo: (epochMs: number) => number): st
  * @category models
  * @since 0.0.0
  */
-export class RenderTimelineOptions extends S.Opaque<RenderTimelineOptions, { readonly brand: unique symbol }>()(
+export class RenderTimelineOptions extends S.Opaque<
+  RenderTimelineOptions,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     clockSync: ClockSync.pipe(
       $I.annoteKey("RenderTimelineOptions.clockSync", {
@@ -719,14 +752,26 @@ export const selectJudgeEvidence: {
 
     const fitted = A.reduce(
       ordered,
-      { dropped: A.empty<JudgeDroppedFile>(), kept: A.empty<JudgeEvidenceFile>(), total: 0 },
+      {
+        dropped: A.empty<JudgeDroppedFile>(),
+        kept: A.empty<JudgeEvidenceFile>(),
+        total: 0,
+      },
       (state, file) =>
         state.total + file.bytes <= JUDGE_TOTAL_BUDGET_BYTES
-          ? { dropped: state.dropped, kept: [...state.kept, file], total: state.total + file.bytes }
+          ? {
+              dropped: state.dropped,
+              kept: [...state.kept, file],
+              total: state.total + file.bytes,
+            }
           : {
               dropped: [
                 ...state.dropped,
-                JudgeDroppedFile.make({ bytes: file.bytes, path: file.path, reason: "total-budget" }),
+                JudgeDroppedFile.make({
+                  bytes: file.bytes,
+                  path: file.path,
+                  reason: "total-budget",
+                }),
               ],
               kept: state.kept,
               total: state.total,
@@ -736,7 +781,11 @@ export const selectJudgeEvidence: {
     return JudgeEvidenceSelection.make({
       dropped: [
         ...A.map(oversized, (file) =>
-          JudgeDroppedFile.make({ bytes: file.bytes, path: file.path, reason: "per-file-budget" })
+          JudgeDroppedFile.make({
+            bytes: file.bytes,
+            path: file.path,
+            reason: "per-file-budget",
+          })
         ),
         ...fitted.dropped,
       ],

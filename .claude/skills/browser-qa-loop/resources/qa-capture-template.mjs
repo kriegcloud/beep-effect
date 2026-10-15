@@ -7,7 +7,7 @@
 // --lane playwright`, the env below is set and the harness ALSO records
 // video (playwright recordVideo), injects the witness event log, and fires
 // the clock-sync beacon. Standalone runs (no env) still work screenshots-only.
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import * as NodeFS from "node:fs";
 import { chromium } from "playwright";
 
 const ROUND = process.env.QA_ROUND ?? "1";
@@ -18,7 +18,7 @@ const VIDEO_DIR = process.env.QA_VIDEO_DIR; // .beep/qa/round-N/video
 const CURSOR = process.env.QA_CURSOR !== "0"; // --no-cursor exports QA_CURSOR=0
 const BEACON = process.env.QA_BEACON !== "0"; // --no-beacon exports QA_BEACON=0
 const OUT = new globalThis.URL(`./qa/round-${ROUND}/`, import.meta.url).pathname;
-mkdirSync(OUT, { recursive: true });
+NodeFS.mkdirSync(OUT, { recursive: true });
 
 const manifest = { round: ROUND, url: URL, scenarios: [] };
 const scenario = (name) => {
@@ -38,8 +38,8 @@ const context = await browser.newContext({
   ...(VIDEO_DIR ? { recordVideo: { dir: VIDEO_DIR, size: VIEWPORT } } : {}),
 });
 if (VIDEO_DIR) {
-  mkdirSync(VIDEO_DIR, { recursive: true });
-  writeFileSync(`${VIDEO_DIR}/record-hint.json`, JSON.stringify({ recordStartHintEpochMs }));
+  NodeFS.mkdirSync(VIDEO_DIR, { recursive: true });
+  NodeFS.writeFileSync(`${VIDEO_DIR}/record-hint.json`, JSON.stringify({ recordStartHintEpochMs }));
 }
 const page = await context.newPage();
 
@@ -436,10 +436,10 @@ const video = page.video();
 await context.close();
 if (video && VIDEO_DIR) {
   const recordedPath = await video.path();
-  renameSync(recordedPath, `${VIDEO_DIR}/capture.webm`);
+  NodeFS.renameSync(recordedPath, `${VIDEO_DIR}/capture.webm`);
 }
 await browser.close();
-writeFileSync(`${OUT}manifest.json`, JSON.stringify(manifest, null, 2));
+NodeFS.writeFileSync(`${OUT}manifest.json`, JSON.stringify(manifest, null, 2));
 const failures = manifest.scenarios.flatMap((s) =>
   s.assertions.filter((a) => !a.ok).map((a) => `${s.name}: ${a.name} (${a.detail})`)
 );

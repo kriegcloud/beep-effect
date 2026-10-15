@@ -54,7 +54,11 @@ const provisionCiRunnersStack = Effect.fnUntraced(function* (
   );
   const associationGate = Deferred.makeUnsafe<void>();
   const heldAssociationName = `ci-runners-public-${heldSlot}-rta`;
-  const runPromise = Effect.runPromiseWith(yield* Effect.context());
+  const associationReady = Promise.withResolvers<void>();
+  yield* Deferred.await(associationGate).pipe(
+    Effect.tap(() => Effect.sync(() => associationReady.resolve())),
+    Effect.forkChild
+  );
   const probe: StackProbe = {
     associationGate,
     routedSubnetId: (slot) => O.getOrThrow(MutableHashMap.get(routedSubnetIds, slot)),
@@ -77,9 +81,7 @@ const provisionCiRunnersStack = Effect.fnUntraced(function* (
               MutableHashMap.set(routeTableSubnets, args.name, args.inputs.subnetId);
             }
             const result = { id: `${args.name}-id`, state: args.inputs };
-            return args.name === heldAssociationName
-              ? associationGate.pipe(Deferred.await, Effect.as(result), runPromise)
-              : result;
+            return args.name === heldAssociationName ? associationReady.promise.then(() => result) : result;
           },
         },
         "beep-ci-runners",

@@ -368,9 +368,8 @@ const blockCitations = (
     },
     (state, line, index) => {
       const commit = line.prose ? O.fromNullishOr(HISTORICAL_BLOCK_PATTERN.exec(line.text)?.[1]) : O.none<string>();
-      return O.match(commit, {
-        onNone: () => state,
-        onSome: (sha) => {
+      return O.getOrElse(
+        O.map(commit, (sha) => {
           const citation = KnowledgeHistoricalCitation.make({
             form: "block",
             commit: sha,
@@ -384,8 +383,9 @@ const blockCitations = (
               ),
           });
           return { markers: A.append(state.markers, citation), byLine };
-        },
-      });
+        }),
+        () => state
+      );
     }
   );
 
@@ -1799,16 +1799,17 @@ const previousPromotions = Effect.fn("KnowledgeDoctor.previousPromotions")(funct
   tree: KnowledgeDoctorTree,
   files: KnowledgeSealFiles
 ) {
-  return yield* O.match(files.baseline, {
-    onNone: () => Effect.succeed(A.empty<KnowledgeDoctorPromotion>()),
-    onSome: (baseline) =>
+  return yield* O.getOrElse(
+    O.map(files.baseline, (baseline) =>
       tree.atCommit(baseline.mintedAt).pipe(
         Effect.flatMap(readKnowledgeSealFiles),
         Effect.map((previous) =>
           O.match(previous.promotions, { onNone: A.empty<KnowledgeDoctorPromotion>, onSome: (file) => file.promotions })
         )
-      ),
-  });
+      )
+    ),
+    () => Effect.succeed(A.empty<KnowledgeDoctorPromotion>())
+  );
 });
 
 const mintInputAt = Effect.fn("KnowledgeDoctor.mintInputAt")(function* (commit: string) {

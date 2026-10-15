@@ -4,8 +4,8 @@
 // same directory and re-asks both axes, re-reads the lineage and the disposition, and
 // re-provokes the exclusion constraint. Nothing is migrated in the second scope — if the
 // answers come back, they came back off disk.
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values";
 import { makeDrizzleClaimDispositionRepository, makeDrizzleEdgeAuthorityRepository } from "@beep/epistemic-server";
@@ -40,7 +40,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { TestClock } from "effect/testing";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
 
 const TempDirServices = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
@@ -275,7 +275,7 @@ if (!shouldRunPgliteIntegration) {
               )
             );
             pipe(SupersessionConflict.is(conflict), assertTrue);
-            expect(inspect(conflict, { depth: 12 })).toContain("epistemic_edge_no_overlap");
+            expect(NodeUtil.inspect(conflict, { depth: 12 })).toContain("epistemic_edge_no_overlap");
           }).pipe(provideScopedLayer(makePersistentLayer(dataDir)));
         }),
         180_000

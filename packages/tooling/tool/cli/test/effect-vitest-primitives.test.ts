@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
 import {
   applyEffectVitestPrimitiveGraph,
@@ -35,9 +35,9 @@ type SourceAnchor = {
   readonly endLine: number;
 };
 
-const repositoryRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
-const packageRoot = fileURLToPath(new URL("..", import.meta.url));
-const fixtureRoot = fileURLToPath(new URL("./fixtures/effect-vitest-404", import.meta.url));
+const repositoryRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
+const packageRoot = NodeURL.fileURLToPath(new URL("..", import.meta.url));
+const fixtureRoot = NodeURL.fileURLToPath(new URL("./fixtures/effect-vitest-404", import.meta.url));
 const indexFile = "packages/vitest/src/index.ts";
 const utilsFile = "packages/vitest/src/utils.ts";
 const readmeFile = "packages/vitest/README.md";

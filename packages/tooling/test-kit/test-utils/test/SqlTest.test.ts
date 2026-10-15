@@ -23,7 +23,6 @@ import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
-import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -143,10 +142,7 @@ vi.mock("pg", (importOriginal) =>
 );
 
 const isBunRuntime = process.versions.bun !== undefined;
-const isCoverageRatchetRun = O.contains(
-  Effect.runSync(Config.String("VITEST_COVERAGE_RATCHET").pipe(Config.option)),
-  "1"
-);
+const isCoverageRatchetRun = import.meta.env.VITEST_COVERAGE_RATCHET === "1";
 const localSqliteIt = it.effect.skipIf(isCoverageRatchetRun && !isBunRuntime);
 const nodeRuntimeIt = it.skipIf(isBunRuntime);
 const nodeRuntimeEffectIt = it.effect.skipIf(isBunRuntime);

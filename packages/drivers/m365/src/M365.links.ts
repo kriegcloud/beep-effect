@@ -156,10 +156,10 @@ const classify =
 const decodeInput = (input: string): Effect.Effect<OutlookItemRef, SchemaIssue.Issue> => {
   const trimmed = Str.trim(input);
   const explicit = explicitKind(trimmed);
-  const raw = O.match(explicit, {
-    onNone: () => pipe(parseLink(trimmed), O.match({ onNone: () => rawItemId(trimmed), onSome: linkItemId })),
-    onSome: ([, id]) => rawItemId(Str.trim(id)),
-  });
+  const raw = O.getOrElse(
+    O.map(explicit, ([, id]) => rawItemId(Str.trim(id))),
+    () => pipe(parseLink(trimmed), O.match({ onNone: () => rawItemId(trimmed), onSome: linkItemId }))
+  );
   return Effect.fromResult(
     pipe(raw, Result.map(toRestAlphabet), Result.flatMap(classify(O.map(explicit, ([kind]) => kind))))
   );

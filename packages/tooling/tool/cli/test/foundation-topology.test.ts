@@ -1,10 +1,10 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 
-const repoRoot = Str.replace(/\/$/u, "")(fileURLToPath(new URL("../../../../..", import.meta.url)));
+const repoRoot = Str.replace(/\/$/u, "")(NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url)));
 const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
   A.join(
     A.filter(

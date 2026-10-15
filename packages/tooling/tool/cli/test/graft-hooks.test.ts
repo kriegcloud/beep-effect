@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -11,7 +11,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 
-const helpers = fileURLToPath(new URL("../../../../../.claude/helpers/", import.meta.url));
+const helpers = NodeURL.fileURLToPath(new URL("../../../../../.claude/helpers/", import.meta.url));
 
 const WiringStamp = S.Struct({
   version: S.String,

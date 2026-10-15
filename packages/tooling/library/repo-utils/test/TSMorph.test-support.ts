@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeServices } from "@effect/platform-node";
 import * as Layer from "effect/Layer";
@@ -8,6 +8,6 @@ const PlatformLayer = Layer.mergeAll(NodeServices.layer);
 
 export const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer));
 
-export const REPO_ROOT = Str.replace(/\/$/, "")(fileURLToPath(new URL("../../../../..", import.meta.url)));
+export const REPO_ROOT = Str.replace(/\/$/, "")(NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url)));
 
-export const WORKSPACE_ROOT = Str.replace(/\/$/, "")(fileURLToPath(new URL("..", import.meta.url)));
+export const WORKSPACE_ROOT = Str.replace(/\/$/, "")(NodeURL.fileURLToPath(new URL("..", import.meta.url)));

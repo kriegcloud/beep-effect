@@ -550,16 +550,14 @@ const verifyRequiredQualifications = Effect.fn("Library.verifyRequiredQualificat
         catalog.sources,
         (item) => item.id === probe.sourceId || A.contains(item.aliasIds, probe.sourceId)
       );
-      if (
+      return !!(
         O.isSome(capture) &&
         O.isSome(source) &&
         qualifiedProbeIdentityMatches(adapter, probe, source.value, capture.value) &&
         qualifiedProbeMethodMatches(adapter, source.value, capture.value) &&
         qualifiedProbeUrlMatches(probe, source.value) &&
         qualifiedProbeArtifactsMatch(probe, capture.value)
-      )
-        return true;
-      return false;
+      );
     });
     const verifyProbeArtifact = Effect.fn("Library.verifyProbeArtifact")(function* (artifact: LibraryArtifact) {
       if (

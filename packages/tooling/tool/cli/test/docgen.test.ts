@@ -54,7 +54,7 @@ import { verifyDocgenProofManifest, writeDocgenProofManifest } from "@beep/repo-
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { Pod, Runpod, Template } from "@beep/runpod";
 import { fcRuns } from "@beep/test-utils";
-import { A, O, Str } from "@beep/utils";
+import { A, currentHostPlatform, HostProcessPlatform, O, Str } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertSome, assertTrue } from "@effect/vitest/utils";
@@ -819,7 +819,7 @@ export const ProofFixture = 1;
       const packageProcess = Process.of({
         argv: Effect.succeed([]),
         cwd: Effect.succeed(packageDir),
-        platform: Effect.succeed(process.platform),
+        platform: Effect.succeed(yield* HostProcessPlatform),
       });
       const packageConfiguration = Configuration.of(
         ConfigurationShape.make({
@@ -855,7 +855,10 @@ export const ProofFixture = 1;
       expect(current.status).toBe("current");
       expect(stale.status).toBe("stale");
       expect(stale.reason).toBe("package docgen inputs changed");
-    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    }).pipe(
+      Effect.provideService(HostProcessPlatform, currentHostPlatform),
+      Effect.provideServiceEffect(Console.Console, TestConsole.make)
+    )
   );
 
   it.effect("builds a package-selected local docgen plan without git discovery", () =>
@@ -4018,7 +4021,7 @@ export const ProofFixture = 1;
         const packageProcess = Process.of({
           argv: Effect.succeed([]),
           cwd: Effect.succeed(packageDir),
-          platform: Effect.succeed(process.platform),
+          platform: Effect.succeed(yield* HostProcessPlatform),
         });
         const packageConfiguration = Configuration.of(
           ConfigurationShape.make({
@@ -4072,7 +4075,10 @@ export const ProofFixture = 1;
           packages: 1,
           skippedByProofManifest: 1,
         });
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
+      }).pipe(
+        Effect.provideService(HostProcessPlatform, currentHostPlatform),
+        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+      ),
     { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }
   );
 

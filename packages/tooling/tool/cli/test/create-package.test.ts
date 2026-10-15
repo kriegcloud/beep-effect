@@ -212,7 +212,7 @@ const withSanctionedEcosystemDiagnosticDelta = Effect.fnUntraced(function* (
   );
 });
 const NoEmitTurboConfig = {
-  $schema: "https://v2-11-7.turborepo.dev/schema.json",
+  $schema: "https://v2-11-8.turborepo.dev/schema.json",
   extends: ["//"],
   tasks: { build: { outputs: [] } },
 };
