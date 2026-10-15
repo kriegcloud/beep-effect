@@ -600,10 +600,11 @@ export const decodeCriticPackManifest = (text: string) => decodeCriticPackManife
  */
 export const encodeCriticPackManifest = (manifest: CriticPackManifest) => encodeCriticPackManifestJson(manifest);
 
-const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolved"]);
+const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolved", "time-limit", "output-limit"]);
 
 /**
- * Why a reviewer's seat could not run on this host.
+ * Why a reviewer's seat ended without a report: it could not start on this
+ * host, or it stopped at a limit.
  *
  * **Details**
  *
@@ -611,12 +612,19 @@ const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolve
  * `--sandbox strict` profile could not resolve a runtime-socket path it must
  * deny, so it would not run with its protections missing.
  *
+ * `time-limit`: the seat ran past the run's `--timeout-minutes` and the
+ * harness stopped it.
+ *
+ * `output-limit`: a `claude -p` seat ended with `api_error`
+ * `max_output_tokens`: one response ran past the output-token cap, so the run
+ * ended without a final message.
+ *
  * **Example** (Reason literals)
  *
  * ```ts
  * import { CriticSeatUnavailableReason } from "@beep/repo-cli/commands/Drawings"
  *
- * console.log(CriticSeatUnavailableReason.literals) // ["sandbox-deny-path-unresolved"]
+ * console.log(CriticSeatUnavailableReason.literals) // ["sandbox-deny-path-unresolved", "time-limit", "output-limit"]
  * ```
  *
  * @category models
@@ -624,15 +632,71 @@ const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolve
  */
 export const CriticSeatUnavailableReason = CriticSeatUnavailableReasonBase.pipe(
   $I.annoteSchema("CriticSeatUnavailableReason", {
-    description: "Why a reviewer seat could not run on this host.",
+    description:
+      "Why a reviewer seat ended without a report: it could not start on this host, or it stopped at a limit.",
   }),
   SchemaUtils.withLiteralKitStatics(CriticSeatUnavailableReasonBase)
 );
 
+const CriticSeatLimitUnitBase = LiteralKit(["minutes", "output-tokens"]);
+
 /**
- * A reviewer seat that could not run on this host: the reason, the path the
- * failure names (when it names one), and a sentence for the loop record and
- * the summary.
+ * The unit of a seat limit: minutes of run time, or output tokens in one
+ * response.
+ *
+ * **Example** (Unit literals)
+ *
+ * ```ts
+ * import { CriticSeatLimitUnit } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CriticSeatLimitUnit.literals) // ["minutes", "output-tokens"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CriticSeatLimitUnit = CriticSeatLimitUnitBase.pipe(
+  $I.annoteSchema("CriticSeatLimitUnit", {
+    description: "Unit of a seat limit: minutes of run time, or output tokens in one response.",
+  }),
+  SchemaUtils.withLiteralKitStatics(CriticSeatLimitUnitBase)
+);
+
+/**
+ * The limit a seat reached: an amount and its unit.
+ *
+ * **Example** (The 90-minute seat limit)
+ *
+ * ```ts
+ * import { CriticSeatLimit } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const limit = CriticSeatLimit.make({ amount: 90, unit: "minutes" })
+ * console.log(limit.amount, limit.unit) // 90 "minutes"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticSeatLimit extends S.Opaque<CriticSeatLimit, { readonly brand: unique symbol }>()(
+  S.Struct({
+    amount: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "The limit, counted in `unit`." }),
+    unit: CriticSeatLimitUnit.annotateKey({ description: "Minutes of run time, or output tokens in one response." }),
+  }).pipe(
+    $I.annoteSchema("CriticSeatLimit", {
+      description: "Amount and unit of the limit a reviewer seat reached.",
+    })
+  )
+) {}
+
+/**
+ * A reviewer seat that ended without a report: the reason, the path the
+ * failure names (when it names one), the limit it reached (when it stopped at
+ * one), and a sentence for the loop record and the summary.
+ *
+ * **Details**
+ *
+ * `limit` is null for a seat that could not start; a seat record written
+ * before the key existed decodes it as null.
  *
  * **Example** (The Grok seat whose sandbox could not resolve a deny path)
  *
@@ -645,7 +709,22 @@ export const CriticSeatUnavailableReason = CriticSeatUnavailableReasonBase.pipe(
  *   path: O.some("/run/example/runtime.sock"),
  *   detail: "grok refused to start: its --sandbox strict profile could not resolve the runtime-socket deny path /run/example/runtime.sock on this host",
  * })
- * console.log(seat.reason) // "sandbox-deny-path-unresolved"
+ * console.log(seat.reason, O.isNone(seat.limit)) // "sandbox-deny-path-unresolved" true
+ * ```
+ *
+ * **Example** (A seat stopped at its time limit)
+ *
+ * ```ts
+ * import { CriticSeatLimit, CriticSeatUnavailable } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const seat = CriticSeatUnavailable.make({
+ *   reason: "time-limit",
+ *   path: O.none(),
+ *   limit: O.some(CriticSeatLimit.make({ amount: 90, unit: "minutes" })),
+ *   detail: "the seat ran past its 90-minute limit and was stopped",
+ * })
+ * console.log(seat.reason) // "time-limit"
  * ```
  *
  * @category models
@@ -653,14 +732,20 @@ export const CriticSeatUnavailableReason = CriticSeatUnavailableReasonBase.pipe(
  */
 export class CriticSeatUnavailable extends S.Opaque<CriticSeatUnavailable, { readonly brand: unique symbol }>()(
   S.Struct({
-    reason: CriticSeatUnavailableReason.annotateKey({ description: "Why the seat could not run." }),
+    reason: CriticSeatUnavailableReason.annotateKey({ description: "Why the seat ended without a report." }),
     path: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
       description: "The path the failure names; null when the message names none.",
     }),
+    limit: S.OptionFromNullOr(CriticSeatLimit).pipe(
+      S.withDecodingDefaultKey(Effect.succeed(null)),
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({ description: "The limit the seat reached; null when it stopped at none." })
+    ),
     detail: S.NonEmptyString.annotateKey({ description: "One sentence for the loop record and the summary." }),
   }).pipe(
     $I.annoteSchema("CriticSeatUnavailable", {
-      description: "Reason, named path, and explanation of a reviewer seat that could not run on this host.",
+      description:
+        "Reason, named path, reached limit, and explanation of a reviewer seat that could not run on this host or stopped at a limit.",
     })
   )
 ) {}
@@ -670,10 +755,12 @@ export class CriticSeatUnavailable extends S.Opaque<CriticSeatUnavailable, { rea
  *
  * **Details**
  *
- * `unavailable` is set when the reviewer's seat could not run on this host
- * (the run then carries no report); it is `null` for every run that started,
- * whatever its exit code. A record written before the key existed decodes it
- * as `null`.
+ * `unavailable` is set when the reviewer's seat ended without a report for a
+ * reason the harness recognises: it could not start on this host, it ran past
+ * its time limit, or a `claude -p` seat ended at its output-token cap. It is
+ * `null` for every other run, whatever its exit code. A seat stopped at its
+ * time limit never exited, so its `exitCode` is 124, the `timeout(1)`
+ * convention. A record written before the key existed decodes it as `null`.
  *
  * **Example** (Reference the class)
  *
@@ -701,11 +788,13 @@ export class CriticRunRecord extends S.Opaque<CriticRunRecord, { readonly brand:
     unavailable: S.OptionFromNullOr(CriticSeatUnavailable).pipe(
       S.withDecodingDefaultKey(Effect.succeed(null)),
       S.withConstructorDefault(Effect.succeedNone),
-      S.annotateKey({ description: "Why the seat could not run on this host; null when it ran." })
+      S.annotateKey({
+        description: "Why the seat ended without a report: it could not start or stopped at a limit; null otherwise.",
+      })
     ),
   }).pipe(
     $I.annoteSchema("CriticRunRecord", {
-      description: "Order, reviewer, exit code, report file, hash, count, times, and seat availability of one run.",
+      description: "Order, reviewer, exit code, report file, hash, count, times, and seat outcome of one run.",
     })
   )
 ) {}
@@ -862,7 +951,9 @@ export class CriticRunRequest extends S.Opaque<CriticRunRequest, { readonly bran
     packDir: S.NonEmptyString.annotateKey({ description: "Pack directory built by the pack step." }),
     reviewers: S.Array(CriticReviewer).annotateKey({ description: "Reviewers, run in this order." }),
     syntheticPack: optionalDirectory("Client-free pack a synthetic-scope reviewer reviews, when given."),
-    timeoutMinutes: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "Minutes a reviewer may run." }),
+    timeoutMinutes: S.Int.check(S.isGreaterThan(0)).annotateKey({
+      description: "Minutes a reviewer may run before it is stopped and recorded as a time-limit outcome.",
+    }),
     workspace: optionalDirectory("Repository checkout a synthetic-scope reviewer works in, when given."),
   }).pipe(
     $I.annoteSchema("CriticRunRequest", {
@@ -996,6 +1087,49 @@ export class CriticClaudeResult extends S.Opaque<CriticClaudeResult, { readonly 
   }).pipe(
     $I.annoteSchema("CriticClaudeResult", {
       description: "Error flag and final message of the result event a claude -p run prints.",
+    })
+  )
+) {}
+
+/**
+ * The `result` event of a `claude -p` run that ended because one response ran
+ * past the output-token cap (`CLAUDE_CODE_MAX_OUTPUT_TOKENS`).
+ *
+ * **Details**
+ *
+ * The CLI flags such a run `is_error`, sets `api_error` to
+ * `"max_output_tokens"` (and `terminal_reason` to `"api_error"`, which is not
+ * read), and puts its own message, naming the cap, in `result`. Only `type`,
+ * `api_error` and `result` are modeled; any other `api_error` does not decode.
+ *
+ * **Example** (Decode the stop)
+ *
+ * ```ts
+ * import { CriticClaudeOutputLimitStop } from "@beep/repo-cli/commands/Drawings"
+ * import * as S from "effect/Schema"
+ *
+ * const stop = S.decodeUnknownSync(CriticClaudeOutputLimitStop)({ type: "result", is_error: true, api_error: "max_output_tokens", result: "API Error: Claude's response exceeded the 64000 output token maximum." })
+ * console.log(stop.api_error) // "max_output_tokens"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticClaudeOutputLimitStop extends S.Opaque<
+  CriticClaudeOutputLimitStop,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    type: S.Literal("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
+    api_error: S.Literal("max_output_tokens").annotateKey({
+      description: "The API error the run ended on: one response ran past the output-token cap.",
+    }),
+    result: S.OptionFromOptionalKey(S.String).annotateKey({
+      description: "The CLI's message, which names the cap; absent when it printed none.",
+    }),
+  }).pipe(
+    $I.annoteSchema("CriticClaudeOutputLimitStop", {
+      description: "The result event of a claude -p run that ended at the output-token cap, with the CLI's message.",
     })
   )
 ) {}

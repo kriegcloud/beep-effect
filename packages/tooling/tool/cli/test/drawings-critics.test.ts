@@ -1,5 +1,7 @@
 import { PdfTools, UndecodableStream } from "@beep/pdf-tools";
 import {
+  CRITIC_CLAUDE_LIMITS,
+  CRITIC_TIME_LIMIT_EXIT_CODE,
   CriticFinding,
   CriticFindingRelation,
   CriticMeasurements,
@@ -9,10 +11,15 @@ import {
   CriticReport,
   CriticReportSource,
   CriticReviewer,
+  CriticRunRecord,
   CriticRunRequest,
+  CriticSeatLimit,
+  CriticSeatUnavailable,
   CriticZoom,
+  claudeOutputLimit,
   criticInvocation,
   criticReportJsonSchema,
+  criticRunLine,
   DEFAULT_CRITIC_REVIEWERS,
   DRAWING_CRITIC_PROMPT_TEMPLATE,
   DrawingCritics,
@@ -44,7 +51,9 @@ import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -52,9 +61,11 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as TestClock from "effect/testing/TestClock";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
 const encodeJson = S.encodeUnknownEffect(UnknownJson);
@@ -331,7 +342,12 @@ describe("invocations", () => {
     expect(grok.reportFrom).toStrictEqual(CriticReportSource.cases.stdout.make({ kind: "stdout" }));
     const fable = criticInvocation({ ...base, reviewer: O.getOrThrow(byName("claude-fable-5.1")) });
     expect(fable.args).toContain("claude-fable-5-1");
-    expect(fable.env).toStrictEqual({ HOME: "/home/x" });
+    // session variables scrubbed; the seat's output and thinking caps added
+    expect(fable.env).toStrictEqual({
+      HOME: "/home/x",
+      CLAUDE_CODE_MAX_OUTPUT_TOKENS: "96000",
+      MAX_THINKING_TOKENS: "48000",
+    });
     const kimi = criticInvocation({ ...base, reviewer: O.getOrThrow(byName("kimi-k3")) });
     expect(kimi.cwd).toBe("/lane");
     expect(kimi.args).toContain("--add-dir");
@@ -368,6 +384,23 @@ describe("invocations", () => {
     expect(flagValue(claude.args, "--tools")).toBe("Read");
     expect(claude.args).toContain("--restricted");
     expect(claude.args).not.toContain("bypassPermissions");
+  });
+
+  it("keeps a Claude output or thinking cap the operator already set, and adds none to other routes", () => {
+    const byName = (name: string) =>
+      O.getOrThrow(A.findFirst(DEFAULT_CRITIC_REVIEWERS, (reviewer) => reviewer.name === name));
+    const opus = criticInvocation({
+      ...base,
+      reviewer: byName("claude-opus-5.5"),
+      env: { HOME: "/home/x", CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000" },
+    });
+    expect(opus.env).toStrictEqual({
+      HOME: "/home/x",
+      CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
+      MAX_THINKING_TOKENS: "48000",
+    });
+    const grok = criticInvocation({ ...base, reviewer: byName("grok-4.7") });
+    expect(grok.env).toStrictEqual(env);
   });
 
   it.effect(
@@ -502,6 +535,133 @@ describe("grokSandboxRefusal", () => {
   });
 });
 
+// What `claude -p` prints when one response runs past the output-token cap: the CLI's own message.
+const OUTPUT_CAP_MESSAGE =
+  "API Error: Claude's response exceeded the 64000 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.";
+
+const outputCapEnvelope = (result: string) => ({
+  type: "result",
+  subtype: "success",
+  is_error: true,
+  api_error_status: null,
+  api_error: "max_output_tokens",
+  terminal_reason: "api_error",
+  num_turns: 61,
+  result,
+});
+
+describe("claudeOutputLimit", () => {
+  it.effect(
+    "recognises a run that ended at the output-token cap, and the cap its message names",
+    Effect.fnUntraced(function* () {
+      const seat = claudeOutputLimit(yield* encodeJson(outputCapEnvelope(OUTPUT_CAP_MESSAGE)));
+      assertSome(
+        O.map(seat, (s) => s.reason),
+        "output-limit"
+      );
+      assertSome(
+        O.flatMap(seat, (s) => s.limit),
+        CriticSeatLimit.make({ amount: 64000, unit: "output-tokens" })
+      );
+      assertSome(
+        O.map(seat, (s) => s.detail),
+        "claude ended the run with api_error max_output_tokens: one response ran past the 64000 output-token cap"
+      );
+      // the same stop as the last event of a stream-json run
+      const stream = A.join(
+        [yield* encodeJson({ type: "system", subtype: "init" }), yield* encodeJson(outputCapEnvelope("API Error"))],
+        "\n"
+      );
+      assertSome(
+        O.map(claudeOutputLimit(stream), (s) => s.detail),
+        "claude ended the run with api_error max_output_tokens: one response ran past its output-token cap (the message names no cap)"
+      );
+      assertNone(O.flatMap(claudeOutputLimit(stream), (s) => s.limit));
+    })
+  );
+
+  it.effect(
+    "does not take a finished run or any other API error for the output limit",
+    Effect.fnUntraced(function* () {
+      assertNone(
+        claudeOutputLimit(
+          yield* encodeJson({ type: "result", subtype: "success", is_error: false, result: opusReport })
+        )
+      );
+      assertNone(
+        claudeOutputLimit(
+          yield* encodeJson({ type: "result", subtype: "success", is_error: true, result: "API Error: 500" })
+        )
+      );
+      assertNone(claudeOutputLimit("not json"));
+    })
+  );
+});
+
+const seatRun = (unavailable: O.Option<CriticSeatUnavailable>) =>
+  CriticRunRecord.make({
+    order: 3,
+    reviewer: CriticReviewer.make({
+      name: "claude-fable-5.1",
+      idPrefix: "F",
+      route: "claude",
+      model: "claude-fable-5-1",
+      effort: O.some("xhigh"),
+      scope: "matter",
+    }),
+    exitCode: 1,
+    report: O.none(),
+    reportSha256: O.none(),
+    findings: 0,
+    startedAt: "2026-10-15T00:00:00.000Z",
+    finishedAt: "2026-10-15T01:30:00.000Z",
+    unavailable,
+  });
+
+describe("criticRunLine", () => {
+  it("prints a seat's outcome: its exit and findings, or why it ended without a report", () => {
+    expect(criticRunLine(seatRun(O.none()))).toBe("3. claude-fable-5.1: exit 1, 0 finding(s) (no report)");
+    const stopped = flow(
+      (reason: CriticSeatUnavailable["reason"]) =>
+        CriticSeatUnavailable.make({ reason, path: O.none(), detail: "detail" }),
+      O.some,
+      seatRun,
+      criticRunLine
+    );
+    expect(stopped("sandbox-deny-path-unresolved")).toBe(
+      "3. claude-fable-5.1: seat unavailable on this host, skipped (detail)"
+    );
+    expect(stopped("time-limit")).toBe("3. claude-fable-5.1: stopped at its time limit, no report (detail)");
+    expect(stopped("output-limit")).toBe("3. claude-fable-5.1: stopped at its output-token cap, no report (detail)");
+  });
+
+  it.effect(
+    "decodes a seat record written before seats carried a limit with no limit",
+    Effect.fnUntraced(function* () {
+      const text = yield* encodeJson({
+        schemaVersion: "drawing-critic-loop/v1",
+        loop: 3,
+        sheetSetSha256: "a".repeat(64),
+        runs: [
+          {
+            order: 1,
+            reviewer: { name: "grok-4.7", idPrefix: "G", route: "grok", model: "grok-4.7", scope: "matter" },
+            exitCode: 1,
+            report: null,
+            reportSha256: null,
+            findings: 0,
+            startedAt: "2026-10-15T00:00:00.000Z",
+            finishedAt: "2026-10-15T00:00:01.000Z",
+            unavailable: { reason: "sandbox-deny-path-unresolved", path: null, detail: "grok refused to start" },
+          },
+        ],
+      });
+      const record = yield* decodeCriticLoopRecord(text);
+      assertNone(O.flatMap(A.head(record.runs), (run) => O.flatMap(run.unavailable, (seat) => seat.limit)));
+    })
+  );
+});
+
 const textStream = (text: string) => (text === "" ? Stream.empty : Stream.make(new TextEncoder().encode(text)));
 
 type SeatOutput = { readonly stdout: string; readonly stderr: string; readonly exitCode: number };
@@ -521,6 +681,21 @@ const seatHandle = ({ stdout, stderr, exitCode }: SeatOutput) =>
     unref: Effect.succeed(Effect.void),
   });
 
+// A seat that never prints and never exits, until the harness stops it.
+const stuckHandle = ChildProcessSpawner.makeHandle({
+  all: Stream.never,
+  stdout: Stream.never,
+  stderr: Stream.never,
+  stdin: Sink.drain,
+  exitCode: Effect.never,
+  getInputFd: () => Sink.drain,
+  getOutputFd: () => Stream.never,
+  isRunning: Effect.succeed(true),
+  kill: () => Effect.void,
+  pid: ChildProcessSpawner.ProcessId(2),
+  unref: Effect.succeed(Effect.void),
+});
+
 const opusReport = JSON.stringify({
   reviewer: "claude-opus-5.5",
   verdict: "accept",
@@ -536,10 +711,14 @@ const flagValue = (args: ReadonlyArray<string>, flag: string) =>
     (index) => A.get(args, index + 1)
   );
 
-// Every spawn the fake seats received, keyed by "<cwd> <executable>".
+// Every spawn the fake seats received, keyed by "<cwd> <executable>": its arguments and its environment.
 const spawned = MutableHashMap.empty<string, ReadonlyArray<string>>();
+const spawnedEnv = MutableHashMap.empty<string, Readonly<Record<string, string | undefined>>>();
+// The SIGKILL escalation each spawn asked for, keyed the same way.
+const spawnedForceKill = MutableHashMap.empty<string, ChildProcess.CommandOptions["forceKillAfter"]>();
 
-// Fake reviewer CLIs: the grok model name picks the failure, claude answers with an accept report.
+// Fake reviewer CLIs: the grok model name picks the failure; the claude model name picks an accept
+// report or a run that ended at the output-token cap.
 const seatOutput = (command: ChildProcess.StandardCommand): SeatOutput =>
   Match.value(command.command).pipe(
     Match.when("grok", () =>
@@ -547,19 +726,28 @@ const seatOutput = (command: ChildProcess.StandardCommand): SeatOutput =>
         ? { stdout: "", stderr: sandboxRefusal(" /run/example/runtime.sock"), exitCode: 1 }
         : { stdout: "", stderr: "Error: 401 Unauthorized: run grok login again\n", exitCode: 1 }
     ),
-    Match.when("claude", () => ({
-      stdout: JSON.stringify({ type: "result", subtype: "success", is_error: false, result: opusReport }),
-      stderr: "",
-      exitCode: 0,
-    })),
+    Match.when("claude", () =>
+      O.contains(flagValue(command.args, "--model"), "claude-output-capped")
+        ? { stdout: JSON.stringify(outputCapEnvelope(OUTPUT_CAP_MESSAGE)), stderr: "", exitCode: 1 }
+        : {
+            stdout: JSON.stringify({ type: "result", subtype: "success", is_error: false, result: opusReport }),
+            stderr: "",
+            exitCode: 0,
+          }
+    ),
     Match.orElse(() => ({ stdout: "", stderr: `unexpected ${command.command}`, exitCode: 127 }))
   );
 
 const fakeSeats = ChildProcessSpawner.make((command) =>
   ChildProcess.isStandardCommand(command)
     ? Effect.sync(() => {
-        MutableHashMap.set(spawned, `${command.options.cwd ?? ""} ${command.command}`, command.args);
-        return command.pipe(seatOutput, seatHandle);
+        const key = `${command.options.cwd ?? ""} ${command.command}`;
+        MutableHashMap.set(spawned, key, command.args);
+        MutableHashMap.set(spawnedEnv, key, command.options.env ?? {});
+        MutableHashMap.set(spawnedForceKill, key, command.options.forceKillAfter);
+        return O.contains(flagValue(command.args, "--model"), "claude-stuck")
+          ? stuckHandle
+          : command.pipe(seatOutput, seatHandle);
       })
     : Effect.die("unexpected piped command")
 );
@@ -575,6 +763,16 @@ const grokSeat = (model: string) =>
     name: "grok-4.7",
     idPrefix: "G",
     route: "grok",
+    model,
+    effort: O.some("xhigh"),
+    scope: "matter",
+  });
+
+const fableSeat = (model: string) =>
+  CriticReviewer.make({
+    name: "claude-fable-5.1",
+    idPrefix: "F",
+    route: "claude",
     model,
     effort: O.some("xhigh"),
     scope: "matter",
@@ -627,27 +825,26 @@ const promptOf = (args: O.Option<ReadonlyArray<string>>) =>
     () => ""
   );
 
-const runSeats = Effect.fnUntraced(function* (name: string, grokModel: string) {
+// Runs the sequence with a 5-minute seat limit while the test clock moves on a minute at a time, so a
+// stuck seat reaches its limit whenever its run starts.
+const runSeats = Effect.fnUntraced(function* (name: string, reviewers: ReadonlyArray<CriticReviewer>) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const critics = yield* DrawingCritics;
   const { packDir, loopDir } = yield* seatScenario(name);
-  const record = yield* critics.runSequence(
-    CriticRunRequest.make({
-      loop: 1,
-      loopDir,
-      packDir,
-      reviewers: [grokSeat(grokModel), opusSeat],
-      timeoutMinutes: 5,
-    })
-  );
+  const fiber = yield* critics
+    .runSequence(CriticRunRequest.make({ loop: 1, loopDir, packDir, reviewers, timeoutMinutes: 5 }))
+    .pipe(Effect.forkChild);
+  yield* Effect.forEach(A.range(1, 15), () => TestClock.adjust("1 minute"), { discard: true });
+  const record = yield* Fiber.join(fiber);
   const outcomes = A.map(record.runs, (run) => [run.reviewer.name, run.exitCode, O.getOrNull(run.report)] as const);
   const priorFiles = A.sort(yield* fs.readDirectory(path.join(loopDir, "prior")), Order.String);
   const allFindings = yield* fs.readFileString(path.join(loopDir, "ALL-FINDINGS.md"));
   const loop = yield* fs.readFileString(path.join(loopDir, "loop.json")).pipe(Effect.flatMap(decodeCriticLoopRecord));
   const summary = yield* critics.summary(loopDir);
   const opusPrompt = promptOf(MutableHashMap.get(spawned, `${packDir} claude`));
-  return { record, outcomes, priorFiles, allFindings, loop, summary, opusPrompt, packDir, loopDir };
+  const opusEnv = O.getOrElse(MutableHashMap.get(spawnedEnv, `${packDir} claude`), () => ({}));
+  return { record, outcomes, priorFiles, allFindings, loop, summary, opusPrompt, opusEnv, packDir, loopDir };
 });
 
 describe("critic sequence seats", () => {
@@ -657,7 +854,7 @@ describe("critic sequence seats", () => {
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const run = yield* runSeats("refused", "grok-sandbox-refused");
+        const run = yield* runSeats("refused", [grokSeat("grok-sandbox-refused"), opusSeat]);
         // the sequence went on: grok exited 1 without a report, opus reported
         expect(run.outcomes).toStrictEqual([
           ["grok-4.7", 1, null],
@@ -688,7 +885,7 @@ describe("critic sequence seats", () => {
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const run = yield* runSeats("unauthorized", "grok-4.7");
+        const run = yield* runSeats("unauthorized", [grokSeat("grok-4.7"), opusSeat]);
         expect(run.outcomes).toStrictEqual([
           ["grok-4.7", 1, null],
           ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
@@ -697,6 +894,72 @@ describe("critic sequence seats", () => {
         expect(run.allFindings).not.toContain("did not run");
         expect(run.summary).not.toContain("did not run");
         expect(yield* fs.readFileString(path.join(run.loopDir, "grok-4.7.log"))).toContain("401 Unauthorized");
+      })
+    );
+
+    it.effect(
+      "records a seat that runs past its time limit and runs the next reviewer",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const run = yield* runSeats("time-limit", [fableSeat("claude-stuck"), opusSeat]);
+        // the stuck seat was stopped and recorded; the sequence went on to opus
+        expect(run.outcomes).toStrictEqual([
+          ["claude-fable-5.1", CRITIC_TIME_LIMIT_EXIT_CODE, null],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+        ]);
+        const fable = O.getOrThrow(A.head(run.record.runs));
+        assertSome(
+          O.map(fable.unavailable, (seat) => seat.reason),
+          "time-limit"
+        );
+        assertSome(
+          O.flatMap(fable.unavailable, (seat) => seat.limit),
+          CriticSeatLimit.make({ amount: 5, unit: "minutes" })
+        );
+        expect(run.loop.runs).toEqual(run.record.runs);
+        const missing =
+          "claude-fable-5.1 (ids F-…) did not finish: the seat ran past its 5-minute limit and was stopped. It wrote no report; there are no F- findings to assess.";
+        expect(run.allFindings).toContain(missing);
+        expect(run.summary).toContain(missing);
+        expect(yield* fs.readFileString(path.join(run.packDir, "prior", "SUMMARY.md"))).toContain(missing);
+        expect(criticRunLine(fable)).toBe(
+          "1. claude-fable-5.1: stopped at its time limit, no report (the seat ran past its 5-minute limit and was stopped)"
+        );
+        expect(run.priorFiles).toStrictEqual(["2-claude-opus-5.5.json"]);
+        // a seat that ignores SIGTERM is killed, so stopping it cannot hold the sequence
+        assertSome(MutableHashMap.get(spawnedForceKill, `${run.packDir} claude`), "30 seconds");
+      })
+    );
+
+    it.effect(
+      "records a Claude seat that ends at its output-token cap and runs the next reviewer",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const run = yield* runSeats("output-limit", [fableSeat("claude-output-capped"), opusSeat]);
+        expect(run.outcomes).toStrictEqual([
+          ["claude-fable-5.1", 1, null],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+        ]);
+        const fable = O.getOrThrow(A.head(run.record.runs));
+        assertSome(
+          O.map(fable.unavailable, (seat) => seat.reason),
+          "output-limit"
+        );
+        assertSome(
+          O.flatMap(fable.unavailable, (seat) => seat.limit),
+          CriticSeatLimit.make({ amount: 64000, unit: "output-tokens" })
+        );
+        const missing =
+          "claude-fable-5.1 (ids F-…) did not finish: claude ended the run with api_error max_output_tokens: one response ran past the 64000 output-token cap. It wrote no report; there are no F- findings to assess.";
+        expect(run.allFindings).toContain(missing);
+        expect(run.summary).toContain(missing);
+        expect(yield* fs.readFileString(path.join(run.packDir, "prior", "SUMMARY.md"))).toContain(missing);
+        // the raw output stays beside the record for the operator
+        expect(yield* fs.readFileString(path.join(run.loopDir, "claude-fable-5.1.raw"))).toContain("max_output_tokens");
+        // every claude seat runs with an output and a thinking cap
+        expect(R.keys(run.opusEnv)).toEqual(expect.arrayContaining(R.keys(CRITIC_CLAUDE_LIMITS)));
       })
     );
   });

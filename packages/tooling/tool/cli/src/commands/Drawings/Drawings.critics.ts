@@ -29,6 +29,7 @@ import { flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as Num from "effect/Number";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
@@ -39,6 +40,7 @@ import * as S from "effect/Schema";
 import { collectText } from "../../internal/process/StepExec.ts";
 import {
   CriticClaudeEvent,
+  CriticClaudeOutputLimitStop,
   CriticClaudeResult,
   CriticInvocation,
   CriticLoopRecord,
@@ -46,7 +48,9 @@ import {
   CriticReportSource,
   CriticReviewer,
   CriticRunRecord,
+  CriticSeatLimit,
   CriticSeatUnavailable,
+  CriticSeatUnavailableReason,
   CriticZoom,
   criticReportJsonSchema,
   decodeCriticLoopRecord,
@@ -124,6 +128,54 @@ const SCRUBBED_ENV = HashSet.fromIterable([
  */
 export const CRITIC_HARD_RULES =
   "Hard rules for this run: read only; do not create, modify or delete any file; do not run git or browse the web. Your final message must be the JSON document itself: no prose, no fences.";
+
+/**
+ * The output-token and thinking-token caps every `claude -p` seat runs with,
+ * unless the operator's environment already sets them.
+ *
+ * **Details**
+ *
+ * A review seat at `xhigh` effort ran single responses past 64,000 output
+ * tokens, the CLI's default cap, and then past 128,000, and each time ended
+ * with `api_error` `max_output_tokens` and no report. A 48,000-token thinking
+ * cap bounds what one response spends on thinking, and a 96,000-token output
+ * cap leaves room for the final report after it. A value already in the
+ * operator's environment wins, so a seat reruns with other caps by exporting
+ * them.
+ *
+ * **Example** (The defaults)
+ *
+ * ```ts
+ * import { CRITIC_CLAUDE_LIMITS } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CRITIC_CLAUDE_LIMITS.CLAUDE_CODE_MAX_OUTPUT_TOKENS) // "96000"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const CRITIC_CLAUDE_LIMITS: Readonly<Record<"CLAUDE_CODE_MAX_OUTPUT_TOKENS" | "MAX_THINKING_TOKENS", string>> = {
+  CLAUDE_CODE_MAX_OUTPUT_TOKENS: "96000",
+  MAX_THINKING_TOKENS: "48000",
+};
+
+/**
+ * The exit code recorded for a seat the harness stopped at its time limit:
+ * the process never exited on its own, so the record carries 124, the
+ * `timeout(1)` convention.
+ *
+ * **Example** (The recorded code)
+ *
+ * ```ts
+ * import { CRITIC_TIME_LIMIT_EXIT_CODE } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CRITIC_TIME_LIMIT_EXIT_CODE) // 124
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const CRITIC_TIME_LIMIT_EXIT_CODE = 124;
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for tests)
@@ -225,6 +277,23 @@ export const grokSandboxRefusal = (stderr: string): O.Option<CriticSeatUnavailab
       )
     : O.none();
 
+// How a summary and the command name a seat that ended without a report.
+const seatOutcome = (seat: CriticSeatUnavailable) =>
+  CriticSeatUnavailableReason.$match(seat.reason, {
+    "sandbox-deny-path-unresolved": () => ({ verb: "did not run", line: "seat unavailable on this host, skipped" }),
+    "time-limit": () => ({ verb: "did not finish", line: "stopped at its time limit, no report" }),
+    "output-limit": () => ({ verb: "did not finish", line: "stopped at its output-token cap, no report" }),
+  });
+
+// A seat the harness stopped at the run's time limit.
+const timeLimitSeat = (minutes: number): CriticSeatUnavailable =>
+  CriticSeatUnavailable.make({
+    reason: "time-limit",
+    path: O.none(),
+    limit: O.some(CriticSeatLimit.make({ amount: minutes, unit: "minutes" })),
+    detail: `the seat ran past its ${minutes}-minute limit and was stopped`,
+  });
+
 const missingSeatLines = (runs: ReadonlyArray<CriticRunRecord>): ReadonlyArray<string> =>
   pipe(
     runs,
@@ -232,15 +301,58 @@ const missingSeatLines = (runs: ReadonlyArray<CriticRunRecord>): ReadonlyArray<s
       O.map(
         run.unavailable,
         (seat) =>
-          `- ${run.reviewer.name} (ids ${run.reviewer.idPrefix}-…) did not run: ${seat.detail}. It wrote no report; there are no ${run.reviewer.idPrefix}- findings to assess.`
+          `- ${run.reviewer.name} (ids ${run.reviewer.idPrefix}-…) ${seatOutcome(seat).verb}: ${seat.detail}. It wrote no report; there are no ${run.reviewer.idPrefix}- findings to assess.`
       )
     ),
     A.getSomes
   );
 
 /**
+ * One line of `beep drawings critics run` output for a seat's run: its exit
+ * code and findings, or why it ended without a report.
+ *
+ * **Example** (A seat stopped at its time limit)
+ *
+ * ```ts
+ * import { CriticReviewer, CriticRunRecord, CriticSeatLimit, CriticSeatUnavailable, criticRunLine } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const run = CriticRunRecord.make({
+ *   order: 3,
+ *   reviewer: CriticReviewer.make({ name: "claude-fable-5.1", idPrefix: "F", route: "claude", model: "claude-fable-5-1", scope: "matter" }),
+ *   exitCode: 124,
+ *   report: O.none(),
+ *   reportSha256: O.none(),
+ *   findings: 0,
+ *   startedAt: "2026-10-15T00:00:00.000Z",
+ *   finishedAt: "2026-10-15T01:30:00.000Z",
+ *   unavailable: O.some(
+ *     CriticSeatUnavailable.make({
+ *       reason: "time-limit",
+ *       path: O.none(),
+ *       limit: O.some(CriticSeatLimit.make({ amount: 90, unit: "minutes" })),
+ *       detail: "the seat ran past its 90-minute limit and was stopped",
+ *     })
+ *   ),
+ * })
+ * console.log(criticRunLine(run)) // "3. claude-fable-5.1: stopped at its time limit, no report (the seat ran past its 90-minute limit and was stopped)"
+ * ```
+ *
+ * @param run - One seat's run record from a loop.
+ * @returns The seat's order, name, and either its exit code and finding count or the reason it ended without a report.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const criticRunLine = (run: CriticRunRecord): string =>
+  O.match(run.unavailable, {
+    onNone: () =>
+      `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`,
+    onSome: (seat) => `${run.order}. ${run.reviewer.name}: ${seatOutcome(seat).line} (${seat.detail})`,
+  });
+
+/**
  * The markdown summary of a loop so far: every seat that could not run on
- * this host and why, then every finding of the earlier reports with its id,
+ * this host or stopped at a limit, and why, then every finding of the earlier reports with its id,
  * severity, scope, category, figures, location, observation, basis, and fix,
  * plus each reviewer's stance on the findings before it.
  *
@@ -272,7 +384,7 @@ const missingSeatLines = (runs: ReadonlyArray<CriticRunRecord>): ReadonlyArray<s
  * ```
  *
  * @param input - The reports written so far, in seat order, and the run records of the loop's seats.
- * @returns Markdown naming each seat that could not run, then every earlier finding, stance, and unassessed item.
+ * @returns Markdown naming each seat that did not run or did not finish, then every earlier finding, stance, and unassessed item.
  * @category formatting
  * @since 0.0.0
  */
@@ -281,7 +393,9 @@ export const loopSummaryMarkdown = (input: {
   readonly runs: ReadonlyArray<CriticRunRecord>;
 }): string => {
   const missing = missingSeatLines(input.runs);
-  const seats = A.isReadonlyArrayEmpty(missing) ? [] : ["\n## Seats that did not run in this loop\n", ...missing];
+  const seats = A.isReadonlyArrayEmpty(missing)
+    ? []
+    : ["\n## Seats that did not run or did not finish in this loop\n", ...missing];
   const sections = A.map(input.reports, (report) => {
     const findings = A.map(
       report.findings,
@@ -372,6 +486,95 @@ const decodeClaudeResult = S.decodeUnknownOption(CriticClaudeResult);
 // A `claude -p` event: a JSON object with a string `type`.
 const isClaudeEvent = S.is(CriticClaudeEvent);
 
+const decodeOutputLimitStop = S.decodeUnknownOption(CriticClaudeOutputLimitStop);
+
+// The events `claude -p` printed: one JSON value (an envelope, or an array of events), or one event per line.
+const claudeEvents = (text: string): O.Option<ReadonlyArray<unknown>> =>
+  pipe(
+    parseJson(text),
+    O.map(A.ensure),
+    // `--output-format stream-json` prints one event per line.
+    O.orElse(
+      (): O.Option<ReadonlyArray<unknown>> =>
+        pipe(
+          Str.split(text, "\n"),
+          A.flatMap((line) => pipe(parseJson(line), O.filter(isClaudeEvent), A.fromOption)),
+          O.liftPredicate(A.isReadonlyArrayNonEmpty)
+        )
+    )
+  );
+
+const OUTPUT_CAP = /exceeded the (\d+) output token maximum/;
+
+/**
+ * Recognise a `claude -p` run that ended because one response ran past the
+ * output-token cap: its last `result` event carries `api_error`
+ * `max_output_tokens`.
+ *
+ * **Details**
+ *
+ * Reads the same output shapes as {@link extractReportText} (one envelope,
+ * an event array, or one event per line). The cap is the number the CLI's
+ * message names; the result carries no limit when the message names none.
+ * A finished run, or a run that ended on any other API error, is not matched.
+ *
+ * **Example** (The stop the CLI prints)
+ *
+ * ```ts
+ * import { claudeOutputLimit } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const stdout = '{"type":"result","is_error":true,"api_error":"max_output_tokens","terminal_reason":"api_error","result":"API Error: Claude\'s response exceeded the 64000 output token maximum."}'
+ * console.log(O.flatMap(claudeOutputLimit(stdout), (seat) => seat.limit)) // Some({ amount: 64000, unit: "output-tokens" })
+ * ```
+ *
+ * @param stdout - Everything `claude -p` wrote to stdout for one run.
+ * @returns The seat record with the cap its message names, or None for any other ending.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const claudeOutputLimit = (stdout: string): O.Option<CriticSeatUnavailable> =>
+  pipe(
+    claudeEvents(stdout),
+    // A lambda, not a direct ref: findLast's index must not reach the decoder as parse options.
+    O.flatMap(A.findLast((event: unknown) => O.isSome(decodeClaudeResult(event)))),
+    O.flatMap((event) => decodeOutputLimitStop(event)),
+    O.map((stop) => {
+      const limit = pipe(
+        stop.result,
+        O.flatMap((message) => O.fromNullishOr(OUTPUT_CAP.exec(message))),
+        O.flatMap((m) => O.fromUndefinedOr(m[1])),
+        O.flatMap(Num.parse),
+        O.flatMap((amount) => CriticSeatLimit.makeOption({ amount, unit: "output-tokens" }))
+      );
+      return CriticSeatUnavailable.make({
+        reason: "output-limit",
+        path: O.none(),
+        limit,
+        detail: O.match(limit, {
+          onNone: () =>
+            "claude ended the run with api_error max_output_tokens: one response ran past its output-token cap (the message names no cap)",
+          onSome: (cap) =>
+            `claude ended the run with api_error max_output_tokens: one response ran past the ${cap.amount} output-token cap`,
+        }),
+      });
+    })
+  );
+
+// The recognised reason a seat that exited non-zero wrote no report: Grok's strict sandbox could not start,
+// or claude ended at its output-token cap. Any other failure stays a plain failed run.
+const seatStop = (
+  route: CriticRoute,
+  output: { readonly stdout: string; readonly stderr: string; readonly exitCode: number }
+): O.Option<CriticSeatUnavailable> =>
+  output.exitCode === 0
+    ? O.none()
+    : Match.value(route).pipe(
+        Match.when("grok", () => grokSandboxRefusal(output.stderr)),
+        Match.when("claude", () => claudeOutputLimit(output.stdout)),
+        Match.orElse(() => O.none<CriticSeatUnavailable>())
+      );
+
 /**
  * Pull the report JSON out of what a route returned.
  *
@@ -442,17 +645,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     ),
     Match.when("claude", () =>
       pipe(
-        parseJson(input.text),
-        O.map(A.ensure),
-        // `--output-format stream-json` prints one event per line.
-        O.orElse(
-          (): O.Option<ReadonlyArray<unknown>> =>
-            pipe(
-              Str.split(input.text, "\n"),
-              A.flatMap((line) => pipe(parseJson(line), O.filter(isClaudeEvent), A.fromOption)),
-              O.liftPredicate(A.isReadonlyArrayNonEmpty)
-            )
-        ),
+        claudeEvents(input.text),
         O.match({
           onNone: () => outermost(input.text),
           onSome: flow(
@@ -478,8 +671,9 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
  *
  * Every route is read-only by instruction, and `codex` by sandbox. `claude`
  * runs with the session variables scrubbed so a nested session does not
- * believe it is this one, and `cursor-agent` runs inside its sandbox with the
- * repository's `.cursor/cli.json` deny list.
+ * believe it is this one, and with {@link CRITIC_CLAUDE_LIMITS} added where
+ * the environment sets no cap of its own; `cursor-agent` runs inside its
+ * sandbox with the repository's `.cursor/cli.json` deny list.
  *
  * **Gotchas**
  *
@@ -618,7 +812,8 @@ export const criticInvocation = (input: {
           input.prompt,
         ],
         cwd,
-        env: R.filter(input.env, (_, key) => !HashSet.has(SCRUBBED_ENV, key)),
+        // the seat's caps unless the operator's environment sets its own
+        env: { ...CRITIC_CLAUDE_LIMITS, ...R.filter(input.env, (_, key) => !HashSet.has(SCRUBBED_ENV, key)) },
         reportFrom: stdout,
       })
     ),
@@ -889,6 +1084,124 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     );
   });
 
+  // One reviewer CLI run to its exit: stdout, stderr and exit code, or None when it ran past the time limit
+  // (closing the scope stops the process: SIGTERM to its group, then SIGKILL if it is still alive 30 seconds
+  // later, so a seat that ignores SIGTERM cannot hold the sequence).
+  const runInvocation = Effect.fn("DrawingCritics.runInvocation")(function* (
+    invocation: CriticInvocation,
+    minutes: number
+  ) {
+    const handle = yield* spawner
+      .spawn(
+        ChildProcess.make(invocation.executable, invocation.args, {
+          cwd: invocation.cwd,
+          env: invocation.env,
+          extendEnv: false,
+          stdin: "ignore",
+          stdout: "pipe",
+          stderr: "pipe",
+          forceKillAfter: "30 seconds",
+        })
+      )
+      .pipe(Effect.mapError(fail(`Could not run ${invocation.executable}; is it installed and signed in?`)));
+    return yield* Effect.all(
+      { stdout: collectText(handle.stdout), stderr: collectText(handle.stderr), exitCode: handle.exitCode },
+      { concurrency: "unbounded" }
+    ).pipe(
+      Effect.mapError(fail(`${invocation.executable} did not finish.`)),
+      Effect.timeoutOption(`${minutes} minutes`)
+    );
+  }, Effect.scoped);
+
+  // The record of a seat that ended without a report: why, and when.
+  const stoppedRun = Effect.fn("DrawingCritics.stoppedRun")(function* (input: {
+    readonly order: number;
+    readonly reviewer: CriticReviewer;
+    readonly startedAt: string;
+    readonly exitCode: number;
+    readonly stop: CriticSeatUnavailable;
+  }) {
+    yield* Effect.logWarning(
+      `critics: ${input.reviewer.name} ${seatOutcome(input.stop).line}: ${input.stop.detail}; continuing with the remaining reviewers.`
+    );
+    return CriticRunRecord.make({
+      order: input.order,
+      reviewer: input.reviewer,
+      exitCode: input.exitCode,
+      report: O.none(),
+      reportSha256: O.none(),
+      findings: 0,
+      startedAt: input.startedAt,
+      finishedAt: DateTime.formatIso(yield* DateTime.now),
+      unavailable: O.some(input.stop),
+    });
+  });
+
+  // A seat that exited: its log and raw output kept, then a recognised stop or its report.
+  const recordRun = Effect.fn("DrawingCritics.recordRun")(function* (input: {
+    readonly order: number;
+    readonly reviewer: CriticReviewer;
+    readonly startedAt: string;
+    readonly invocation: CriticInvocation;
+    readonly loopDir: string;
+    readonly reportPath: string;
+    readonly output: { readonly stdout: string; readonly stderr: string; readonly exitCode: number };
+  }) {
+    const { reviewer, loopDir, output } = input;
+    yield* write(path.join(loopDir, `${reviewer.name}.log`), output.stderr);
+    yield* write(path.join(loopDir, `${reviewer.name}.raw`), output.stdout);
+    const stop = seatStop(reviewer.route, output);
+    if (O.isSome(stop)) {
+      return yield* stoppedRun({ ...input, exitCode: output.exitCode, stop: stop.value });
+    }
+    const rawReport = yield* CriticReportSource.match(input.invocation.reportFrom, {
+      file: ({ path: file }) =>
+        fs.exists(file).pipe(
+          Effect.mapError(fail(`Could not stat "${file}".`)),
+          Effect.flatMap((exists) => (exists ? read(file).pipe(Effect.asSome) : Effect.succeedNone))
+        ),
+      stdout: () => Effect.succeedSome(output.stdout),
+    });
+    const report = yield* pipe(
+      rawReport,
+      O.flatMap((text) => extractReportText({ route: reviewer.route, text })),
+      O.match({
+        onNone: () => Effect.succeedNone,
+        onSome: (text) =>
+          decodeCriticReport(text).pipe(
+            Effect.asSome,
+            Effect.catchCause((cause) =>
+              Effect.logWarning(`${reviewer.name} returned a document that is not a critic report.`, cause).pipe(
+                Effect.as(O.none<CriticReport>())
+              )
+            )
+          ),
+      })
+    );
+    const finishedAt = DateTime.formatIso(yield* DateTime.now);
+    const persist = Effect.fn("DrawingCritics.persistReport")(function* (r: CriticReport) {
+      const json = yield* encodeCriticReport(r).pipe(Effect.mapError(fail("Could not encode the report.")));
+      yield* write(input.reportPath, `${json}\n`);
+      yield* write(path.join(loopDir, "prior", `${input.order}-${reviewer.name}.json`), `${json}\n`);
+      const sha = yield* sha256(encoder.encode(`${json}\n`));
+      return { file: O.some(`${reviewer.name}.json`), sha: O.some(sha), findings: A.length(r.findings) };
+    });
+    const written = yield* O.match(report, {
+      onNone: () => Effect.succeed({ file: O.none<string>(), sha: O.none<Sha256Hex>(), findings: 0 }),
+      onSome: persist,
+    });
+    return CriticRunRecord.make({
+      order: input.order,
+      reviewer,
+      exitCode: output.exitCode,
+      report: written.file,
+      reportSha256: written.sha,
+      findings: written.findings,
+      startedAt: input.startedAt,
+      finishedAt,
+    });
+  });
+
   const runReviewer = Effect.fn("DrawingCritics.runReviewer")(function* (input: {
     readonly request: CriticRunRequest;
     readonly pack: CriticPackManifest;
@@ -987,103 +1300,13 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
       syntheticPack: request.syntheticPack,
       env: processEnvironment(),
     });
-    const { stdout, stderr, exitCode } = yield* Effect.scoped(
-      Effect.gen(function* () {
-        const handle = yield* spawner
-          .spawn(
-            ChildProcess.make(invocation.executable, invocation.args, {
-              cwd: invocation.cwd,
-              env: invocation.env,
-              extendEnv: false,
-              stdin: "ignore",
-              stdout: "pipe",
-              stderr: "pipe",
-            })
-          )
-          .pipe(Effect.mapError(fail(`Could not run ${invocation.executable}; is it installed and signed in?`)));
-        return yield* Effect.all(
-          { stdout: collectText(handle.stdout), stderr: collectText(handle.stderr), exitCode: handle.exitCode },
-          { concurrency: "unbounded" }
-        ).pipe(
-          Effect.mapError(fail(`${invocation.executable} did not finish.`)),
-          Effect.timeoutOrElse({
-            duration: `${request.timeoutMinutes} minutes`,
-            orElse: () =>
-              Effect.fail(
-                DrawingsCommandError.make({
-                  message: `${reviewer.name} exceeded ${request.timeoutMinutes} minutes and was stopped.`,
-                })
-              ),
-          })
-        );
-      })
-    );
-    yield* write(path.join(loopDir, `${reviewer.name}.log`), stderr);
-    yield* write(path.join(loopDir, `${reviewer.name}.raw`), stdout);
-    // A Grok seat whose strict sandbox cannot start on this host is skipped, not counted as a failed review.
-    const unavailable =
-      reviewer.route === "grok" && exitCode !== 0 ? grokSandboxRefusal(stderr) : O.none<CriticSeatUnavailable>();
-    if (O.isSome(unavailable)) {
-      yield* Effect.logWarning(
-        `critics: ${reviewer.name} seat unavailable on this host: ${unavailable.value.detail}; skipping it and continuing with the remaining reviewers.`
-      );
-      return CriticRunRecord.make({
-        order: input.order,
-        reviewer,
-        exitCode,
-        report: O.none(),
-        reportSha256: O.none(),
-        findings: 0,
-        startedAt,
-        finishedAt: DateTime.formatIso(yield* DateTime.now),
-        unavailable,
-      });
-    }
-    const rawReport = yield* CriticReportSource.match(invocation.reportFrom, {
-      file: ({ path: file }) =>
-        fs.exists(file).pipe(
-          Effect.mapError(fail(`Could not stat "${file}".`)),
-          Effect.flatMap((exists) => (exists ? read(file).pipe(Effect.asSome) : Effect.succeedNone))
-        ),
-      stdout: () => Effect.succeedSome(stdout),
-    });
-    const report = yield* pipe(
-      rawReport,
-      O.flatMap((text) => extractReportText({ route: reviewer.route, text })),
-      O.match({
-        onNone: () => Effect.succeedNone,
-        onSome: (text) =>
-          decodeCriticReport(text).pipe(
-            Effect.asSome,
-            Effect.catchCause((cause) =>
-              Effect.logWarning(`${reviewer.name} returned a document that is not a critic report.`, cause).pipe(
-                Effect.as(O.none<CriticReport>())
-              )
-            )
-          ),
-      })
-    );
-    const finishedAt = DateTime.formatIso(yield* DateTime.now);
-    const persist = Effect.fn("DrawingCritics.persistReport")(function* (r: CriticReport) {
-      const json = yield* encodeCriticReport(r).pipe(Effect.mapError(fail("Could not encode the report.")));
-      yield* write(reportPath, `${json}\n`);
-      yield* write(path.join(loopDir, "prior", `${input.order}-${reviewer.name}.json`), `${json}\n`);
-      const sha = yield* sha256(encoder.encode(`${json}\n`));
-      return { file: O.some(`${reviewer.name}.json`), sha: O.some(sha), findings: A.length(r.findings) };
-    });
-    const written = yield* O.match(report, {
-      onNone: () => Effect.succeed({ file: O.none<string>(), sha: O.none<Sha256Hex>(), findings: 0 }),
-      onSome: persist,
-    });
-    return CriticRunRecord.make({
-      order: input.order,
-      reviewer,
-      exitCode,
-      report: written.file,
-      reportSha256: written.sha,
-      findings: written.findings,
-      startedAt,
-      finishedAt,
+    const output = yield* runInvocation(invocation, request.timeoutMinutes);
+    const seat = { order: input.order, reviewer, startedAt };
+    // A seat stopped at its time limit is recorded like one that could not start, and the sequence goes on.
+    return yield* O.match(output, {
+      onNone: () =>
+        stoppedRun({ ...seat, exitCode: CRITIC_TIME_LIMIT_EXIT_CODE, stop: timeLimitSeat(request.timeoutMinutes) }),
+      onSome: (ran) => recordRun({ ...seat, invocation, loopDir, reportPath, output: ran }),
     });
   });
 
@@ -1111,9 +1334,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
           `critics: ${index + 1}/${A.length(request.reviewers)} ${reviewer.name} (${reviewer.route})`
         );
         const run = yield* runReviewer({ request, pack, reviewer, order: index + 1, template, extra, earlier });
-        yield* Effect.logInfo(
-          `critics: ${reviewer.name} exit ${run.exitCode}, ${run.findings} finding(s)${O.isSome(run.unavailable) ? ", seat unavailable on this host" : O.isNone(run.report) ? ", no report" : ""}`
-        );
+        yield* Effect.logInfo(`critics: ${criticRunLine(run)}`);
         return A.append(earlier, run);
       })
     );

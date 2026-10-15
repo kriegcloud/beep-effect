@@ -124,7 +124,7 @@ export class OutlineSeparation extends S.Opaque<OutlineSeparation, { readonly br
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({
         description:
-          "Graded shading strokes dropped as shorter than the minimum stroke once cut back from a moved outline. Defaults to 0, and on manifests rendered before strokes were clipped again.",
+          "Graded shading strokes the re-clip removed: strokes shorter than the minimum stroke once cut back from a moved outline, and every stroke of a band the re-clip left with fewer than two strokes. Defaults to 0, and on manifests rendered before strokes were clipped again.",
       })
     ),
   }).pipe(
