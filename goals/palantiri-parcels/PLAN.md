@@ -177,7 +177,7 @@ Before marking the packet closed:
     1 stale (grok-bot), 1 unreachable (codex); most weekly headroom: claude
     #3 at 100%`, `structuredContent` equal to the text, nothing on stderr.
     The same call through `beep palantiri parcel account-headroom --json`
-    was identical apart from `readAt`. No `@` and no `/home/` in either.
+    was identical apart from `readAt`. No `@` and no home-directory paths in either.
   - `beep session open`: account headroom `Unknown (timed out after 2s)`
     (the snapshot was older than 5 minutes, so the read started a live poll),
     lane reds `0 of 80 reds fresh; 80 stale (...)` and host pressure `5 of
