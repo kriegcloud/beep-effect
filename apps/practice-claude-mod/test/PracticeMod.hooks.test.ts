@@ -10,7 +10,9 @@ import * as S from "effect/Schema";
 import { makeModHost } from "@/PracticeMod.host";
 import type { Engine } from "claude-code";
 
-const decodeUnknownVerdictRowArray = S.decodeUnknownEffect(S.Array(VerdictRow));
+const VerdictRows = S.Array(VerdictRow);
+const decodeUnknownVerdictRowArray = S.decodeUnknownEffect(VerdictRows);
+const decodeUnknownVerdictRowArrayOption = S.decodeUnknownOption(VerdictRows);
 
 const fixture = () => {
   const store = MutableHashMap.empty<string, unknown>();
@@ -131,7 +133,7 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
           const savedRows = store.pipe(
             MutableHashMap.get("verdict-rows/v2"),
             O.getOrUndefined,
-            S.decodeUnknownOption(S.Array(VerdictRow))
+            decodeUnknownVerdictRowArrayOption
           );
           assertSome(
             O.map(savedRows, (values) => A.map(values, (row) => row.verdict)),
