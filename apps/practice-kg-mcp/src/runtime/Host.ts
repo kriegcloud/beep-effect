@@ -23,7 +23,7 @@ import { PracticeKgHostError } from "../PracticeKgMcp.errors.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "../Version.ts";
 import { makePracticeKgDuckDbLayer } from "./DuckDb.ts";
 import { makePracticeKgPgliteLayer } from "./Pglite.ts";
-import { layerPracticeKgTelemetryInMemory } from "./Telemetry.ts";
+import { layerPracticeKgTelemetryProduction } from "./Telemetry.ts";
 
 const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(PracticeKgBundleManifest));
 // Mirrors `PracticeKgSchemaVersions`; bumped with every breaking kg_node/kg_edge or DuckDB table layout change.
@@ -172,7 +172,9 @@ export const makePracticeKgHostServerLayer = (context: PracticeKgBundleContext) 
 
 /**
  * Compose the stdio server with app-owned PGlite and DuckDB resources and the
- * strict-tier telemetry, which exports nothing and keeps stderr shape-only.
+ * strict-tier telemetry, which exports nothing, seals every held-back export
+ * into the encrypted spool under the telemetry directory, and keeps stderr
+ * shape-only.
  *
  * **Example** (Compose practice host layer)
  *
@@ -189,4 +191,4 @@ export const makePracticeKgHostServerLayer = (context: PracticeKgBundleContext) 
  * @since 0.0.0
  */
 export const makePracticeKgHostLayer = (context: PracticeKgBundleContext) =>
-  makePracticeKgHostServerLayer(context).pipe(Layer.provide(layerPracticeKgTelemetryInMemory));
+  makePracticeKgHostServerLayer(context).pipe(Layer.provide(layerPracticeKgTelemetryProduction));

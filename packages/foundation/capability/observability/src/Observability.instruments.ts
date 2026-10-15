@@ -37,6 +37,10 @@ const owner = PackageName.make("@beep/observability");
  * id, a span link, a span status message, a log record, an input resource it
  * replaced, a metric whose name is not allowed, a metric point carrying a key
  * or value that is not allowed, and an export its egress client held back.
+ * Its encrypted spool adds three: a body dropped from the spool (evicted for
+ * space or lost to a failed write), a segment refused at replay because its
+ * tier is looser than the current one, and a segment refused at replay
+ * because it does not decode, authenticate or match the current key epoch.
  *
  * **Example** (Read the attribute refusal tag)
  *
@@ -61,6 +65,9 @@ export const TelemetryRefusalTag = LiteralKit([
   "metric-not-allowed",
   "metric-attribute-not-allowed",
   "egress-refused",
+  "spool-evicted",
+  "spool-tier-refused",
+  "spool-segment-invalid",
 ]).pipe(
   $I.annoteSchema("TelemetryRefusalTag", {
     description: "Reason an emitter refused a telemetry record or attribute.",

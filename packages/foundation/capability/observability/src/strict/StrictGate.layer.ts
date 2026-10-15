@@ -9,6 +9,7 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
@@ -119,7 +120,8 @@ export const layerInMemoryStrictSalt = (
   });
 
 /**
- * In-memory {@link StrictEgressSink} that keeps the most recent bodies.
+ * In-memory {@link StrictEgressSink} that keeps the most recent bodies, for
+ * tests. It reports no refusals.
  *
  * **Example** (Keep the last eight bodies)
  *
@@ -138,7 +140,10 @@ export const layerInMemoryEgressSink = (capacity: number = defaultSinkCapacity):
     const records = MutableRef.make<ReadonlyArray<StrictEgressRecord>>(A.empty());
     return StrictEgressSink.of({
       record: Effect.fn("StrictEgressSink.record")((record: StrictEgressRecord) =>
-        Effect.sync(() => MutableRef.update(records, (current) => A.takeRight(A.append(current, record), capacity)))
+        Effect.sync(() => {
+          MutableRef.update(records, (current) => A.takeRight(A.append(current, record), capacity));
+          return HashMap.empty<TelemetryRefusalTag, number>();
+        })
       ),
       records: Effect.sync(() => MutableRef.get(records)),
     });
@@ -178,14 +183,17 @@ export const layerStrictEgress: Layer.Layer<HttpClient.HttpClient, never, Strict
   Effect.gen(function* () {
     const gate = yield* StrictGate;
     const sink = yield* StrictEgressSink;
-    return HttpClient.make((request, url) =>
-      Effect.gen(function* () {
+    return HttpClient.make(
+      Effect.fnUntraced(function* (request, url) {
         yield* gate.refuse(TelemetryRefusalTag.Enum["egress-refused"]);
         yield* pipe(
           signalOf(url),
           O.match({
             onNone: () => Effect.void,
-            onSome: (signal) => sink.record(StrictEgressRecord.make({ signal, body: bodyText(request.body) })),
+            onSome: (signal) =>
+              sink
+                .record(StrictEgressRecord.make({ signal, body: bodyText(request.body) }))
+                .pipe(Effect.flatMap(gate.absorb)),
           })
         );
         return HttpClientResponse.fromWeb(request, new Response(null, { status: 204 }));

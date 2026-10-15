@@ -31,13 +31,20 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Gate — complete (2026-10-15). Next: P2 Spool + tier.
+P2 Spool + tier — complete (2026-10-15). Next: P3 Proof. Acceptance #4
+waits on the operator's DPAPI smoke on `tom-pc-1` (`PLAN.md` execution notes).
 
 ## Latest Evidence
 
 P1: strict gate golden, per-rule, seam and boundary tests in
 `@beep/observability`; canary acceptance test across all 11 tools in
-`apps/practice-kg-mcp/test/Host.test.ts`. See `PLAN.md` execution notes.
+`apps/practice-kg-mcp/test/Host.test.ts`. P2: spool round-trip, tamper,
+looser-tier, epoch, eviction and permission tests
+(`packages/foundation/capability/observability/test/StrictSpool.test.ts`), the
+341-case tier resolver table (`test/StrictTier.test.ts`), DPAPI key wrap and
+rotation through injected ports, the PowerShell stdin path, the bundle-graph
+check and the spooled canary (`apps/practice-kg-mcp/test/TelemetryKey.test.ts`,
+`test/Host.test.ts`). See `PLAN.md` execution notes.
 
 ## Notes
 

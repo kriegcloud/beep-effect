@@ -73,6 +73,42 @@ JSON line.
 This proves the files and the executable. The tool call from a chat described
 below is still the proof that Claude Desktop itself loaded the extension.
 
+## Telemetry key smoke (DPAPI)
+
+The host seals its held-back telemetry with a key that DPAPI wraps for the
+Windows user. This command proves that path on the PC without serving MCP or
+touching the bundle. Run it as the attorney's Windows user, from a PowerShell
+window in the logged-in desktop session:
+
+```
+practice-kg-mcp.exe --self-check-telemetry
+```
+
+It wraps a random test secret with DPAPI, unwraps it, compares the two, prints
+one line and exits. It writes nothing. A working PC prints this shape and exits
+with code 0:
+
+```json
+{"ok":true,"keyPath":"dpapi-ffi","telemetryDir":"C:\\Users\\<user>\\AppData\\Local\\beep\\practice-kg\\telemetry"}
+```
+
+- `keyPath` is `dpapi-ffi` when the executable reached `crypt32.dll` directly,
+  or `dpapi-powershell` when it fell back to PowerShell's `ProtectedData`.
+  Either passes; record which one ran.
+- `{"ok":false,…}` with a non-zero exit code means neither path worked. Record
+  the line as printed.
+- An SSH session that logged in with a key, not a password, may not unlock the
+  user's DPAPI keys, so a failure over SSH must be repeated in the desktop
+  session before it is recorded.
+- `telemetryDir` is where the host keeps `key.dpapi` and `spool\`. When Claude
+  Desktop is the Microsoft Store build, the running extension's writes to that
+  folder may be redirected under
+  `%LOCALAPPDATA%\Packages\Claude_<publisher id>\LocalCache\Local\`; the
+  terminal run is not redirected.
+
+Nothing in this check, or in the host, sends telemetry anywhere; AC-5 below is
+unchanged.
+
 ## Refresh
 
 ## Updating an existing install

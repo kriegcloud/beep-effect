@@ -7,6 +7,7 @@
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
+import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as BigInt_ from "effect/BigInt";
 import * as Clock from "effect/Clock";
@@ -41,6 +42,7 @@ import type { TraceData } from "effect/observability/OtlpTracer";
 import type { SignalKind } from "../catalog/Catalog.literals.ts";
 import type { InstrumentCatalog } from "../catalog/Catalog.models.ts";
 import type { RefusalLedger, StrictEgressRecord, StrictGateConfig } from "./StrictGate.schemas.ts";
+import type { StrictSpoolError } from "./StrictSpool.errors.ts";
 
 const $I = $ObservabilityId.create("strict/StrictGate.service");
 
@@ -83,9 +85,10 @@ export class StrictSalt extends Context.Service<
  * **Details**
  *
  * `serialization` is the `OtlpSerialization` the strict OTLP layer exports
- * through. `refuse` counts one refusal, for callers outside the serializer
- * such as the egress client. `ledger` reads the cumulative counts, which the
- * metrics serializer also appends as `beep.telemetry.refused` points.
+ * through. `refuse` counts one refusal and `absorb` adds a whole ledger of
+ * them, for callers outside the serializer such as the egress client and the
+ * spool behind it. `ledger` reads the cumulative counts, which the metrics
+ * serializer also appends as `beep.telemetry.refused` points.
  *
  * **Example** (Read the refusal ledger)
  *
@@ -109,6 +112,7 @@ export class StrictGate extends Context.Service<
   {
     readonly serialization: Context.Service.Shape<typeof OtlpSerialization>;
     readonly refuse: (tag: TelemetryRefusalTag) => Effect.Effect<void>;
+    readonly absorb: (refusals: RefusalLedger) => Effect.Effect<void>;
     readonly ledger: Effect.Effect<RefusalLedger>;
   }
 >()($I`StrictGate`) {}
@@ -118,8 +122,11 @@ export class StrictGate extends Context.Service<
  *
  * **Details**
  *
- * The in-memory sink keeps the most recent bodies only; the encrypted spool
- * replaces it.
+ * `record` never fails: it returns the refusals it caused (an evicted or
+ * unwritten body counts as `spool-evicted`), and the egress client adds them
+ * to the gate's ledger. `records` reads the held-back bodies back. The
+ * in-memory sink keeps the most recent bodies only and is for tests; a
+ * strict host records into the encrypted spool.
  *
  * **Example** (Read the held-back bodies)
  *
@@ -140,8 +147,8 @@ export class StrictGate extends Context.Service<
 export class StrictEgressSink extends Context.Service<
   StrictEgressSink,
   {
-    readonly record: (record: StrictEgressRecord) => Effect.Effect<void>;
-    readonly records: Effect.Effect<ReadonlyArray<StrictEgressRecord>>;
+    readonly record: (record: StrictEgressRecord) => Effect.Effect<RefusalLedger>;
+    readonly records: Effect.Effect<ReadonlyArray<StrictEgressRecord>, StrictSpoolError>;
   }
 >()($I`StrictEgressSink`) {}
 
@@ -342,9 +349,8 @@ export const makeStrictGate = Effect.fn("StrictGate.make")(function* (config: St
         {
           traceId: keyed(span.traceId, traceIdWidth),
           spanId: keyed(span.spanId, spanIdWidth),
-          ...O.match(O.fromUndefinedOr(span.parentSpanId), {
-            onNone: () => ({}),
-            onSome: (parent) => ({ parentSpanId: keyed(parent, spanIdWidth) }),
+          ...OptionUtils.getSomesStruct({
+            parentSpanId: O.map(O.fromUndefinedOr(span.parentSpanId), (parent) => keyed(parent, spanIdWidth)),
           }),
           name: O.getOrElse(toolId, () => span.name),
           kind: span.kind,
@@ -462,6 +468,9 @@ export const makeStrictGate = Effect.fn("StrictGate.make")(function* (config: St
   return StrictGate.of({
     serialization: { traces, metrics, logs },
     refuse: Effect.fn("StrictGate.refuse")((tag: TelemetryRefusalTag) => Effect.sync(() => count(tag))),
+    absorb: Effect.fn("StrictGate.absorb")((refusals: RefusalLedger) =>
+      Effect.sync(() => HashMap.forEach(refusals, (total, tag) => count(tag, total)))
+    ),
     ledger: Effect.sync(() => HashMap.fromIterable(counts)),
   });
 });
