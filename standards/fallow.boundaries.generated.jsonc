@@ -666,6 +666,12 @@
         ]
       },
       {
+        "name": "@beep/practice-review-hub",
+        "patterns": [
+          "apps/practice-review-hub/src/**"
+        ]
+      },
+      {
         "name": "@beep/pretext",
         "patterns": [
           "packages/drivers/pretext/src/**"
@@ -3403,6 +3409,31 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/practice-review-hub",
+        "allow": [
+          "@beep/identity",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/mcp-kit",
+          "@beep/practice-review-hub",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/mcp-kit",
+          "@beep/practice-review-hub",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/utils"
         ]
       },
       {
