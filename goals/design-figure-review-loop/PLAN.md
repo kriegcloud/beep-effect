@@ -43,7 +43,7 @@ deliverable) and Track B (tooling) run in parallel sibling lanes, Track C is doc
 | P1 Layout, margins, projection, plan facing | A / PR-B | F1, F7, F8 | complete (#1644; F ticks wait for P7) | Spec-carried sheet options, `cfr-strict` margins, isometric pictorials, plan facing. | package-verify green; synthetic golden byte-identical; new camera tests. |
 | P2 Outlined label typefaces | A / PR-C | F2, F3 | complete (#1644; outline route, superseded for the matter by P7a) | Sans/serif outlined labels at stated point sizes, placed by ink box. | Composer sha256 golden; label-presence assertion on every sheet. |
 | P3 Broken-line parts and multi-part fixture | A / PR-D | F5, F6, F10 | in-progress (#1648 open) | `Part` line style, overlap guard, generic egg-crate fixture with hosted WASM tests. | Hosted tests cover halving slots, a through joint, a broken part. |
-| P4 Opt-in contour shading | A / PR-E | F4 | in-progress (#1671 draft; graded style calibrated to the 1993 Guide; bands per visible stretch) | Lit-threshold probe first, then graded / surface-class shading as opt-ins. | Judge round on the probe; validator spacing rule. |
+| P4 Opt-in contour shading | A / PR-E | F4 | complete (#1671; graded style calibrated to the 1993 Guide; bands per visible stretch; round-1 threads fixed) | Lit-threshold probe first, then graded / surface-class shading as opt-ins. | Judge round on the probe; validator spacing rule. |
 | P5 Mailbox intake | B / PR-F | T1 | in-progress (#1649 open) | `beep drawings intake` on the app-only lane into the corpus root. | One read-only proof call; sha manifest per attachment. |
 | P6 Review rounds from markup | B / PR-G | T2, T3 | in-progress (#1650 open) | pdf-tools verbs, `ReviewRound` schemas, statement guard, judge claim-scope rule. | Statement refuses while required findings are open on the hash. |
 | P7 Corpus remodel and round-2 render | A / corpus only | F1-F10 | in-progress (remodel done; render running) | Durable spec generator under the corpus, two byte-stable renders, judge round, F9 zoom check. | Round-2 set validator clean; zero open required review findings or an attorney-accepted deferral. |
@@ -51,6 +51,11 @@ deliverable) and Track B (tooling) run in parallel sibling lanes, Track C is doc
 | P7b Edge emphasis and corrugation overlay | A / PR-L | F6, E1, C1 | pending | A heavier line class for chosen edges (tab-in-slot) and a dashed unclaimed corrugation overlay on chosen exposed board edges, both off by default. | package-verify green; synthetic golden byte-identical; hosted tests for both. |
 | P8 Yeet: PRs to mergeable | all | — | pending | Each PR-A..PR-G, PR-K and PR-L driven to mergeable through yeet. | `merge-ready: yes` per PR; zero unresolved threads. |
 | P9 Close | C / PR-H | — | pending | Hash-only evidence, acceptance flips, reflection, `completed-retained`. | `beep lint reflection-artifacts` passes; manifest and README flipped. |
+| P10 Review loop 2 | A / PR-M | F4, F1-F10 re-check | in-progress | Five-model sequential adversarial loop on the merged pipeline's render; accepted findings fixed in code with a ledger row and a deterministic check each; the harness lands as `beep drawings critics`; the research digest and SOURCES rows ride the same PR. | A dry pass (no new accepted finding, validator clean) within four loops; package-verify green; synthetic goldens re-recorded only in a logged row. |
+| P11 Verified sheet-level checks | A / PR-N | — | pending | Validator findings for the research digest's `must` rules and warnings for its `should` rules; veraPDF/qpdf/mupdf behind a tool-present guard; the composer's pages carry inert transparency groups, an ExtGState, dangling `/StructParents` and no `/Info` or `/ID` (loop-2 finding F-04), so the set is flattened through a Ghostscript PDF/A-1b pass before the veraPDF verdict is recorded in the manifest. | Each new finding code has a synthetic positive and negative fixture; `beep drawings validate` on the matter set stays clean. |
+| P12 Cited rules registry | A / PR-O | — | pending | One schema-typed registry of shading, margin and label constants with their CFR/Guide citations; a generator with `generate:check` writes the SPEC constants table and the reviewer context file; lint fails on bare literals in `Shading.rules.ts` and `ValidationOptions` defaults. | `generate:check` clean; SPEC table byte-identical to the generator output. |
+| P13 Seeded-defect mutation suite | A / PR-P | — | pending | Each ledger row and F-item becomes a defect operator applied to synthetic fixtures; a test requires the validator to flag every mutant and pass every clean plate. Gate on the deterministic validator only. | 100% recall over the defect taxonomy in `test/`; the suite is listed in the ledger's Prevention column. |
+| P14 Stroke-intent sidecar | A / PR-Q, PR-R | — | pending | (A) `ShadingStroke` intent per stroke, `intent.json` hashed into the manifest, orphan/lost reconciliation findings; (B) `Shading.invariants.ts` written by Codex from the rule text, dependency lint forbids importing `Shading.rules.ts`. | Every rendered segment maps to one intent stroke on the synthetic fixtures; invariants reproduce hand-labelled Guide scenes. |
 
 ## Tracks and PRs
 
@@ -127,6 +132,13 @@ PR-A first (docs, fast). PR-B then PR-C serially (both touch `Sheet.schemas.ts` 
 
 ## Questions only the attorney can answer
 Drafted 2026-10-13 (`<corpus>/ops/patent-drawing-pipeline/matter/round-2/questions-draft.md`), sent 2026-10-14 about 01:44Z, answered 02:09Z (`<corpus>/ops/patent-drawing-pipeline/matter/round-2/attorney-answers-2026-10-14.md`). Topics: the orientation reference and description wording; dashed = unclaimed or hidden; the joint and clearance details of rows F6, F9 and F10; metric-compatible outlines versus Arial/Times. The rulings are SPEC Decision Log rows of 2026-10-14. Still open: which part's bottom edge is drawn uncut in one bottom view (an example picture was sent), and which board edges carry the corrugation overlay.
+
+- Q8 (operator 2026-10-14, viewing the shared sheets): a flat lid in plan (FIG 3 of the matter set) reads
+  "under-detailed" with its band on one shadow edge only. Under the 45° upper-left light the lid's
+  lower-right edge and its bottom edge are equally in shadow and the rules band the longer one. The
+  1993 Guide's flat-face examples show a few strokes at one shadow edge; whether the attorney wants the
+  tone carried around the shadow corner onto the second edge is house style, not a rule. Show both
+  variants when he answers round 2; the pipeline can band both edges from one `shadowEdges` option.
 
 ## Execution Notes
 

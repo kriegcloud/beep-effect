@@ -361,9 +361,9 @@ const applyPlannedWrites = Effect.fn("SchemaParityCodemod.applyPlannedWrites")(f
     Effect.fnUntraced(function* (write) {
       const extension = path.extname(write.filePath);
       const stem = Str.slice(0, write.filePath.length - extension.length)(write.filePath);
-      const nonce = yield* crypto.randomUUIDv4.pipe(
-        SchemaParityCodemodError.mapError("Failed to identify codemod stage.")
-      );
+      const nonce = yield* crypto
+        .randomUUIDv4()
+        .pipe(SchemaParityCodemodError.mapError("Failed to identify codemod stage."));
       return { ...write, stagedPath: `${stem}${STAGED_SUFFIX}-${nonce}${extension}` };
     })
   );

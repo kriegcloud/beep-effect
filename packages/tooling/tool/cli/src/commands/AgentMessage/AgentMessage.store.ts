@@ -178,31 +178,63 @@ export class AgentMessageStore extends Context.Service<AgentMessageStore, AgentM
 ) {}
 
 /**
+ * Queue limits for a file-backed agent-message store.
+ *
+ * **Details**
+ *
+ * Each limit counts retained messages plus active dispatch holds. Omitted limits
+ * default to 1000 globally and 100 per endpoint.
+ *
+ * **Example** (Tighten the per-endpoint limit)
+ *
+ * ```ts
+ * import { AgentMessageStoreLimits } from "@beep/repo-cli/commands/AgentMessage"
+ *
+ * const limits = AgentMessageStoreLimits.make({ maxPendingPerEndpoint: 10 })
+ * console.log(limits.maxPending, limits.maxPendingPerEndpoint) // 1000 10
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AgentMessageStoreLimits extends S.Opaque<AgentMessageStoreLimits, { readonly brand: unique symbol }>()(
+  S.Struct({
+    maxPending: QueueLimit.pipe(S.withConstructorDefault(Effect.succeed(1000))).annotateKey({
+      description: "Global maximum of retained messages and active dispatch holds.",
+    }),
+    maxPendingPerEndpoint: QueueLimit.pipe(S.withConstructorDefault(Effect.succeed(100))).annotateKey({
+      description: "Maximum retained messages and active dispatch holds for each endpoint.",
+    }),
+  }).pipe(
+    $I.annoteSchema("AgentMessageStoreLimits", {
+      description: "Queue limits for a file-backed agent-message store.",
+    })
+  )
+) {}
+
+/**
  * Initialize a file-backed store on the supplied SQLite client.
  * **Details**
  * The caller owns the restricted state directory and scoped SQL layer. Claims are
  * never reset for retry after expiry: their external outcome is ambiguous.
  * **Example** (Construct store with a bounded queue)
  * ```ts
- * import { makeAgentMessageStore } from "@beep/repo-cli/commands/AgentMessage"
+ * import { AgentMessageStoreLimits, makeAgentMessageStore } from "@beep/repo-cli/commands/AgentMessage"
  * import * as Effect from "effect/Effect"
- * const store = makeAgentMessageStore(1000)
+ * const store = makeAgentMessageStore(AgentMessageStoreLimits.make({ maxPending: 1000 }))
  * console.log(Effect.isEffect(store)) // true
  * ```
  *
- * @param maxPending - Global maximum of retained messages and active dispatch holds.
- * @param maxPendingPerEndpoint - Maximum retained messages and active dispatch holds for each endpoint.
+ * @param limits - Global and per-endpoint queue limits; both default when omitted.
  * @returns A store using the injected SQL client.
  * @category constructors
  * @since 0.0.0
  */
-// Constructor configuration has no data operand to receive through a pipe.
-// @effect-diagnostics-next-line missingPipeableSignature:off
 export const makeAgentMessageStore = (
-  maxPending = 1000,
-  maxPendingPerEndpoint = 100
+  limits: AgentMessageStoreLimits = AgentMessageStoreLimits.make({})
 ): Effect.Effect<AgentMessageStoreShape, RouterError, SqlClient.SqlClient> =>
   Effect.gen(function* () {
+    const { maxPending, maxPendingPerEndpoint } = limits;
     const sql = yield* SqlClient.SqlClient;
     yield* S.decodeEffect(QueueLimit)(maxPending);
     yield* S.decodeEffect(QueueLimit)(maxPendingPerEndpoint);
