@@ -17,7 +17,7 @@
 import { $LawPracticeDomainId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { flow, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as Num from "effect/Number";
@@ -560,39 +560,43 @@ const decodeTree = S.decodeEffect(ClaimElementTree);
  * @category domain-logic
  * @since 0.0.0
  */
-// Binds the fixed data-first `ClaimElementDecomposer` contract; the claim set is context, not a piped operand.
-// @effect-diagnostics-next-line missingPipeableSignature:off
-export const decomposeClaim: ClaimElementDecomposer = Effect.fn("ClaimElement.decomposeClaim")(function* (
-  claim: PatentClaim,
-  claims: PatentClaims
-): Effect.fn.Return<ClaimElementTree, ClaimDecompositionError> {
-  const claimNumber = claim.claimNumber;
-  const parts = yield* Effect.fromOption(locateParts(claim), () =>
-    ClaimDecompositionError.make({
-      claimNumber,
-      message: `Claim ${claimNumber} does not contain its preamble, transition and body in that order.`,
-      reason: "unsupported-claim-text",
-    })
-  );
-  const needed = A.prepend(referencesOf(claim), claimNumber);
-  const missing = A.filter(needed, (needs) => !A.some(claims, (known) => Num.Equivalence(known.claimNumber, needs)));
-  if (A.isReadonlyArrayNonEmpty(missing)) {
-    return yield* ClaimDecompositionError.make({
-      claimNumber,
-      message: `Claim ${claimNumber} needs claim ${A.join(
-        A.map(missing, (number) => `${number}`),
-        ", "
-      )}, which is not in the claim set.`,
-      reason: "claim-not-in-claims",
-    });
-  }
-  return yield* decodeTree(treeInput(claim, parts)).pipe(
-    Effect.mapError((error) =>
+export const decomposeClaim: {
+  (claims: PatentClaims): (claim: PatentClaim) => Effect.Effect<ClaimElementTree, ClaimDecompositionError>;
+  (claim: PatentClaim, claims: PatentClaims): Effect.Effect<ClaimElementTree, ClaimDecompositionError>;
+} = dual(
+  2,
+  Effect.fn("ClaimElement.decomposeClaim")(function* (
+    claim: PatentClaim,
+    claims: PatentClaims
+  ): Effect.fn.Return<ClaimElementTree, ClaimDecompositionError> {
+    const claimNumber = claim.claimNumber;
+    const parts = yield* Effect.fromOption(locateParts(claim), () =>
       ClaimDecompositionError.make({
         claimNumber,
-        message: `Claim ${claimNumber} decomposed into an incoherent tree: ${error.message}`,
-        reason: "incoherent-tree",
+        message: `Claim ${claimNumber} does not contain its preamble, transition and body in that order.`,
+        reason: "unsupported-claim-text",
       })
-    )
-  );
-});
+    );
+    const needed = A.prepend(referencesOf(claim), claimNumber);
+    const missing = A.filter(needed, (needs) => !A.some(claims, (known) => Num.Equivalence(known.claimNumber, needs)));
+    if (A.isReadonlyArrayNonEmpty(missing)) {
+      return yield* ClaimDecompositionError.make({
+        claimNumber,
+        message: `Claim ${claimNumber} needs claim ${A.join(
+          A.map(missing, (number) => `${number}`),
+          ", "
+        )}, which is not in the claim set.`,
+        reason: "claim-not-in-claims",
+      });
+    }
+    return yield* decodeTree(treeInput(claim, parts)).pipe(
+      Effect.mapError((error) =>
+        ClaimDecompositionError.make({
+          claimNumber,
+          message: `Claim ${claimNumber} decomposed into an incoherent tree: ${error.message}`,
+          reason: "incoherent-tree",
+        })
+      )
+    );
+  })
+);

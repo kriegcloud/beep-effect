@@ -13,7 +13,7 @@
  */
 
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Num from "effect/Number";
@@ -409,9 +409,10 @@ const verdictFor = (
  * @category policies
  * @since 0.0.0
  */
-// Binds the fixed data-first `AntecedentPolicy` contract; the claim set is context, not a piped operand.
-// @effect-diagnostics-next-line missingPipeableSignature:off
-export const antecedentPolicy: AntecedentPolicy = (trees, claims) => {
+export const antecedentPolicy: {
+  (claims: PatentClaims): (trees: ReadonlyArray<ClaimElementTree>) => ReadonlyArray<AntecedentFinding>;
+  (trees: ReadonlyArray<ClaimElementTree>, claims: PatentClaims): ReadonlyArray<AntecedentFinding>;
+} = dual(2, (trees: ReadonlyArray<ClaimElementTree>, claims: PatentClaims): ReadonlyArray<AntecedentFinding> => {
   const claimIndex = HashMap.fromIterable(
     A.map(claims, (claim): readonly [number, PatentClaim] => [claim.claimNumber, claim])
   );
@@ -446,4 +447,4 @@ export const antecedentPolicy: AntecedentPolicy = (trees, claims) => {
     );
   });
   return A.dedupe(A.map(A.sort(ranked, rankedOrder), ({ finding }) => finding));
-};
+});
