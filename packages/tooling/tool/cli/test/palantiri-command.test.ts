@@ -200,9 +200,9 @@ describe("printParcel over a failing source", () => {
 });
 
 describe("beep palantiri parcel account-headroom", () => {
-  it("is registered under palantiri parcel, beside the parcels listing", () => {
+  it("is registered under palantiri parcel, beside the parcels listing and the MCP host", () => {
     const parcel = A.flatMap(palantiriCommand.subcommands, (group) => group.commands);
-    expect(A.map(parcel, (command) => command.name)).toEqual(["parcel", "parcels"]);
+    expect(A.map(parcel, (command) => command.name)).toEqual(["parcel", "parcels", "mcp"]);
   });
 
   it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {

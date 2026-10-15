@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,11 +31,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P2 Parcels — complete (2026-10-15): all five parcels (`account-headroom`, `lane-reds`, `host-pressure`, `app-error-classes`, `since-last-check`) through `beep palantiri parcel <id> [--json] [--budget N]`, plus `beep palantiri parcels`; see `PLAN.md` Execution Notes. Next: P3 MCP host and the `beep session open` push.
+Complete (completed-retained, 2026-10-15). Shipped in #1817 (P0+P1 account headroom), #1831 (P2 four parcels) and the P3 + closeout PR (`beep palantiri mcp`, stale-series clearing, session-open hot parcels). Reflection: [`history/reflections/2026-10-15-claude.md`](./history/reflections/2026-10-15-claude.md).
 
 ## Latest Evidence
 
-2026-10-15: P2 complete; gates and one live run per parcel (four `Fresh`, app error classes `Unknown{no-source}`, no `@` or home path in any envelope) are recorded in `PLAN.md` Execution Notes. P1's live run is recorded there too.
+2026-10-15: P3 complete; a stdio MCP client run, a `beep session open` run and every gate are recorded in `PLAN.md` Execution Notes. P2 complete; gates and one live run per parcel (four `Fresh`, app error classes `Unknown{no-source}`, no `@` or home path in any envelope) are recorded in `PLAN.md` Execution Notes. P1's live run is recorded there too.
 
 ## Notes
 
