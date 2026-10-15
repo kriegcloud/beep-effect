@@ -108,7 +108,7 @@ export const makeAccountHeadroomSourceLive = Effect.gen(function* () {
 
   const writeSnapshot = Effect.fn("PalantiriSource.writeSnapshot")(function* (file: string, text: string) {
     yield* fs.makeDirectory(path.dirname(file), { recursive: true });
-    const temporary = `${file}.tmp`;
+    const temporary = `${file}.${yield* Random.nextIntBetween(0, 2_147_483_647)}.tmp`;
     yield* fs.writeFileString(temporary, text);
     yield* fs.rename(temporary, file);
   });

@@ -17073,6 +17073,14 @@
       "description": "Options for tracking one duration metric around an Effect."
     },
     {
+      "file": "packages/foundation/capability/observability/src/Observability.instruments.ts",
+      "symbol": "TelemetryRefusalTag",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "TelemetryRefusalTag",
+      "description": "Reason an emitter refused a telemetry record or attribute."
+    },
+    {
       "file": "packages/foundation/capability/observability/src/PhaseProfiler.ts",
       "symbol": "PhaseOutcome",
       "kind": "literal-kit",
@@ -17087,6 +17095,14 @@
       "owner": "@beep/observability",
       "identity": "PhaseProfile",
       "description": "Deterministic summary of one profiled phase."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.enrichment.ts",
+      "symbol": "CatalogEnrichmentOptions",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "CatalogEnrichmentOptions",
+      "description": "Catalog, emitter context and requested tier for export-time span enrichment."
     },
     {
       "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
@@ -35126,6 +35142,38 @@
       "description": "Opaque tenant reference used to prevent cross-tenant promotion decisions."
     },
     {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "AgentHarness",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "AgentHarness",
+      "description": "Agent harness that ran a session."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "AgentProvider",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "AgentProvider",
+      "description": "Model provider that served an agent request."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "AgentRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "AgentRoute",
+      "description": "Route an agent request took to its provider."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/AiMetrics.instruments.ts",
+      "symbol": "TelemetryEmitter",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "TelemetryEmitter",
+      "description": "Component that emitted an agent telemetry record."
+    },
+    {
       "file": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
       "symbol": "AgentEffectivenessAiMetricsSection",
       "kind": "struct-const",
@@ -35710,7 +35758,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
       "identity": "AiMetricsDerivedTranscriptRecord",
-      "description": "Sanitized transcript projection plus encrypted raw archive metadata."
+      "description": "Sanitized transcript projection, encrypted raw archive metadata and explicit session-stamp collection completeness. Historical records remain unverified."
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
@@ -35944,7 +35992,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
       "identity": "AiMetricsForwarderRunResult",
-      "description": "Safe counts and storage paths returned by one durable AI metrics forwarder run."
+      "description": "Safe counts, storage paths and explicit hook/stamp-gap collection completeness returned by one durable AI metrics forwarder run. Historical results default to unverified collection."
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/forwarder.ts",
@@ -36099,6 +36147,14 @@
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseClientCoverage",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseClientCoverage",
+      "description": "Collection capability of one client; absence never establishes non-use."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
       "symbol": "HookPulseDisarmSentinel",
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
@@ -36155,14 +36211,6 @@
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
-      "symbol": "HookPulseRawEventInput",
-      "kind": "struct-const",
-      "owner": "@beep/repo-ai-metrics",
-      "identity": "HookPulseRawEventInput",
-      "description": "Raw hook payload paired with the ambient stamps supplied by its writer."
-    },
-    {
-      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
       "symbol": "HookPulseRawToolInput",
       "kind": "struct-const",
       "owner": "@beep/repo-ai-metrics",
@@ -36171,11 +36219,43 @@
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseRefusal",
+      "kind": "struct-const",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseRefusal",
+      "description": "Payload-free writer refusal; unknown client names are normalized to unknown."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseRefusalReason",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseRefusalReason",
+      "description": "Payload-free reason why the writer could not collect evidence."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
       "symbol": "HookPulseSchemaVersion",
       "kind": "literal-kit",
       "owner": "@beep/repo-ai-metrics",
       "identity": "HookPulseSchemaVersion",
       "description": "Version identifiers accepted by the hook-pulse ledger contract."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseSwitchAction",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseSwitchAction",
+      "description": "Durable collection-switch transition."
+    },
+    {
+      "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
+      "symbol": "HookPulseSwitchTransition",
+      "kind": "struct-const",
+      "owner": "@beep/repo-ai-metrics",
+      "identity": "HookPulseSwitchTransition",
+      "description": "Payload-free durable arm or disarm transition."
     },
     {
       "file": "packages/tooling/library/ai-metrics/src/hook-pulse.ts",
@@ -37919,6 +37999,226 @@
       "owner": "@beep/codegen-kit",
       "identity": "WarningPolicy",
       "description": "Policy deciding whether OpenAPI generator warnings fail or are logged."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountHeadroom",
+      "kind": "tagged-struct",
+      "owner": "@beep/palantiri",
+      "identity": "AccountHeadroom",
+      "description": "One account's remaining plan quota, identified by provider and ordinal only."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountHeadroomInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AccountHeadroomInput",
+      "description": "The accounts report and the providers the host has configured."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountState",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "AccountState",
+      "description": "Whether an account's poll produced usage, needs a fresh login, or failed."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountWindowKind",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "AccountWindowKind",
+      "description": "Session, weekly or billing-cycle limit, optionally scoped to a model group."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportAccount",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportAccount",
+      "description": "Provider and label of one accounts report row."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportGroup",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportGroup",
+      "description": "One provider panel of the accounts report."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportInput",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportInput",
+      "description": "The accounts-status/v2 report the account-headroom parcel reduces from."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportInputJson",
+      "kind": "codec",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportInputJson",
+      "description": "Accounts report decoded from JSON text."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportOutcome",
+      "kind": "tagged-union",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportOutcome",
+      "description": "Result of polling one account, as the accounts report carries it."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportRow",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportRow",
+      "description": "One accounts report row: the account, its poll outcome, and whether its figures are estimated."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "AccountsReportWindow",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "AccountsReportWindow",
+      "description": "One plan-limit window from the accounts report: how full it is and when it resets."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts",
+      "symbol": "HeadroomWindow",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "HeadroomWindow",
+      "description": "One plan-limit window: percent still unused and when it resets."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Freshness.ts",
+      "symbol": "Freshness",
+      "kind": "tagged-union",
+      "owner": "@beep/palantiri",
+      "identity": "Freshness",
+      "description": "Whether a parcel's source readings are within its bound."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Freshness.ts",
+      "symbol": "UnknownReason",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "UnknownReason",
+      "description": "Why a parcel's freshness is unknown."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Palantiri.instruments.ts",
+      "symbol": "ParcelFreshnessState",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelFreshnessState",
+      "description": "Whether a parcel read was fresh or unknown, as a span attribute value."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcel.models.ts",
+      "symbol": "ParcelId",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelId",
+      "description": "Identifier of a parcel Palantiri serves."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcel.models.ts",
+      "symbol": "ParcelKey",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelKey",
+      "description": "The subject a parcel is keyed by."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcel.models.ts",
+      "symbol": "ParcelReadOptions",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelReadOptions",
+      "description": "Options for one parcel read."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcel.models.ts",
+      "symbol": "ParcelReceipt",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelReceipt",
+      "description": "How many items a response shows of how many the parcel holds."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcel.models.ts",
+      "symbol": "ParcelSource",
+      "kind": "literal-kit",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelSource",
+      "description": "A source a parcel reads from."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcel.models.ts",
+      "symbol": "ParcelSpec",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelSpec",
+      "description": "A parcel's id, key, freshness bound and sources."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/ParcelEnvelope.models.ts",
+      "symbol": "ParcelDraft",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelDraft",
+      "description": "A parcel's spec, read time, freshness, summary and every item, before the budget is applied."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/ParcelEnvelope.models.ts",
+      "symbol": "ParcelEnvelope",
+      "kind": "struct-const",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelEnvelope",
+      "description": "A parcel response: summary, freshness, budget-capped items and an N-of-M receipt."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/ParcelEnvelope.models.ts",
+      "symbol": "ParcelItem",
+      "kind": "tagged-union",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelItem",
+      "description": "One item of any parcel, tagged by parcel kind."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcels.api.ts",
+      "symbol": "ParcelsApiGroup",
+      "kind": "codec",
+      "owner": "@beep/palantiri"
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcels.errors.ts",
+      "symbol": "ParcelError",
+      "kind": "union",
+      "owner": "@beep/palantiri",
+      "identity": "ParcelError",
+      "description": "Any parcel service or source failure."
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcels.errors.ts",
+      "symbol": "SourceFailed",
+      "kind": "tagged-error",
+      "owner": "@beep/palantiri",
+      "identity": "SourceFailed"
+    },
+    {
+      "file": "packages/tooling/library/palantiri/src/Parcels.errors.ts",
+      "symbol": "UnknownParcel",
+      "kind": "tagged-error",
+      "owner": "@beep/palantiri",
+      "identity": "UnknownParcel"
     },
     {
       "file": "packages/tooling/library/qa-capture/src/ActionEvent.models.ts",
@@ -49214,11 +49514,19 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts",
+      "symbol": "HarnessTelemetryReconciliation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "HarnessTelemetryReconciliation",
+      "description": "Read-only transcript versus hook counts, including nested child transcripts; no payload or digest is returned."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts",
       "symbol": "ObservedSessionWindow",
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "ObservedSessionWindow",
-      "description": "Last N hook-pulse sessions under the current harness hash, their touched surface ids, skip counts, and shard decode tallies."
+      "description": "Last N hook-pulse sessions under the current harness hash, positive surface use across scanned history, skip counts, and shard decode tallies."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/HarnessLedger/HarnessLedger.schemas.ts",
@@ -52476,6 +52784,12 @@
       "owner": "@beep/repo-cli",
       "identity": "CheckCensusTargets",
       "description": "Workspace-package and typeperf-fixture programs measured by the check-census gate."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts",
+      "symbol": "readEffectDiagnosticsProfile",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",

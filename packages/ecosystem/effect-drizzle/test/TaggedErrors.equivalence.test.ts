@@ -80,8 +80,8 @@ describe("effect-drizzle declared-field equivalence", () => {
 
     expectCapturedDeclaredEquivalence(
       captured,
-      { message: "invalid name", name: "bad", surface: "column" },
-      { message: "invalid name", name: "other", surface: "column" }
+      { message: "invalid name", sqlName: "bad", surface: "column" },
+      { message: "invalid name", sqlName: "other", surface: "column" }
     );
   });
 

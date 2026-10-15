@@ -236,6 +236,7 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "fast-xml-validator": "catalog:",
+    "get-tsconfig": "catalog:",
     "handlebars": "catalog:",
     "image-size": "catalog:",
     "is-unsafe": "2.0.2",

@@ -28,6 +28,8 @@ Before marking the packet closed:
 
 ## Execution Notes
 
+- 2026-10-15 #1817 review round 1: the gauge now keeps one series per provider, window and `beep.window_scope` (scoped model-group windows no longer merge into one max), and the snapshot write uses a unique temporary name. P3 requirement: the long-lived `beep palantiri mcp` host must clear a `beep.accounts.window_remaining` series once its provider's reading goes stale, because a gauge keeps its last value; each CLI run is its own process, so the CLI is unaffected.
+
 ### P0 Research (complete, 2026-10-14)
 
 - Design: [`research/parcels-design.md`](./research/parcels-design.md);

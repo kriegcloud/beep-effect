@@ -173,6 +173,31 @@ const stampedOf = (spans: ReadonlyArray<Tracer.NativeSpan>) =>
 const eventsOf = (spans: ReadonlyArray<Tracer.NativeSpan>) =>
   O.map(A.get(spans, 0), (span) => A.map(span.events, ([name]) => name));
 
+const makeEventMirror = () => {
+  const mirrored: Array<string> = [];
+  const layer = Layer.effect(
+    Tracer.Tracer,
+    Effect.map(Effect.tracer, (inner) =>
+      Tracer.make({
+        span: (options) => {
+          const span = inner.span(options);
+          const forward = span.event;
+          span.event = function (this: Tracer.Span, name, startTime, attributes) {
+            mirrored.push(name);
+            forward.call(this, name, startTime, attributes);
+          };
+          return span;
+        },
+        context: inner.context,
+      })
+    )
+  );
+  return { mirrored, layer };
+};
+
+const runWith = <A, E>(layer: Layer.Layer<never>, effect: Effect.Effect<A, E>) =>
+  Layer.build(layer).pipe(Effect.flatMap((services) => Effect.provideContext(effect, services)));
+
 describe("layerCatalogEnrichment", () => {
   it.effect(
     "stamps package and family on a catalogued span and leaves an unknown span unstamped",
@@ -293,6 +318,40 @@ describe("layerCatalogEnrichment", () => {
       deepStrictEqual(eventsOf(loose.spans), O.some(["checkpoint"]));
       strictEqual(afterStrict - before, 1);
       strictEqual(afterLoose - afterStrict, 0);
+    })
+  );
+
+  it.effect(
+    "keeps shape-only events from a wrapper composed inside it, and not from one outside it",
+    Effect.fnUntraced(function* () {
+      const options = CatalogEnrichmentOptions.make({
+        catalog,
+        context: StrictDesktop.make({ identitySource: "vouched" }),
+        requestedTier: "standard",
+      });
+      const inside = makeEventMirror();
+      const insideRecording = makeRecordingTracer();
+      yield* runWith(
+        layerCatalogEnrichment(options).pipe(
+          Layer.provideMerge(inside.layer),
+          Layer.provideMerge(insideRecording.layer)
+        ),
+        overridingSpan
+      );
+      const outside = makeEventMirror();
+      const outsideRecording = makeRecordingTracer();
+      yield* runWith(
+        outside.layer.pipe(
+          Layer.provideMerge(layerCatalogEnrichment(options)),
+          Layer.provideMerge(outsideRecording.layer)
+        ),
+        overridingSpan
+      );
+
+      deepStrictEqual(inside.mirrored, []);
+      deepStrictEqual(eventsOf(insideRecording.spans), O.some([]));
+      deepStrictEqual(outside.mirrored, ["checkpoint"]);
+      deepStrictEqual(eventsOf(outsideRecording.spans), O.some([]));
     })
   );
 

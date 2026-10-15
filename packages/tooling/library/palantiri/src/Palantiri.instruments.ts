@@ -120,6 +120,27 @@ export const ParcelFreshnessAttribute = AttributeKeyName.make("beep.parcel_fresh
 export const WindowAttribute = AttributeKeyName.make("beep.window");
 
 /**
+ * Attribute key naming the model group a scoped plan-limit window covers.
+ *
+ * **Details**
+ *
+ * Unscoped windows carry `all`. The values are the provider's model-group
+ * names, so the set is bounded but not fixed.
+ *
+ * **Example** (Read the window scope key)
+ *
+ * ```ts
+ * import { WindowScopeAttribute } from "@beep/palantiri/Palantiri.instruments"
+ *
+ * console.log(WindowScopeAttribute) // "beep.window_scope"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const WindowScopeAttribute = AttributeKeyName.make("beep.window_scope");
+
+/**
  * Attribute key naming the model provider, declared by `@beep/repo-ai-metrics`.
  *
  * **Example** (Read the provider key)
@@ -200,9 +221,9 @@ export const ParcelsReadSpan = SpanInstrument.make({
 export const AccountsWindowRemaining = MetricInstrument.make({
   name: MetricName.make("beep.accounts.window_remaining"),
   owner,
-  attributes: [ProviderAttribute, WindowAttribute],
+  attributes: [ProviderAttribute, WindowAttribute, WindowScopeAttribute],
   minTier: "shape-only",
-  description: "Percent of a plan-limit window still unused, best account per provider and window.",
+  description: "Percent of a plan-limit window still unused, best account per provider, window and scope.",
   kind: "gauge",
   unit: UcumUnit.make("%"),
 });
@@ -242,7 +263,8 @@ export const HostPressureStall = MetricInstrument.make({
 
 /**
  * Palantiri declarations: `beep.parcel`, `beep.parcel_freshness`,
- * `beep.window` and `beep.resource`, plus the `Parcels.read` span and the
+ * `beep.window`, `beep.window_scope` and `beep.resource`, plus the
+ * `Parcels.read` span and the
  * `beep.accounts.window_remaining` and `beep.host.pressure_stall` gauges.
  *
  * **Example** (List the Palantiri attribute keys)
@@ -250,7 +272,7 @@ export const HostPressureStall = MetricInstrument.make({
  * ```ts
  * import { PalantiriInstruments } from "@beep/palantiri/Palantiri.instruments"
  *
- * console.log(PalantiriInstruments.attributes.length) // 4
+ * console.log(PalantiriInstruments.attributes.length) // 5
  * console.log(PalantiriInstruments.instruments.length) // 3
  * ```
  *
@@ -288,6 +310,16 @@ export const PalantiriInstruments = InstrumentDeclarations.make({
       values: O.some(AccountWindowKind.literals),
       owner,
       description: "Plan-limit window a quota reading measures.",
+    }),
+    AttributeKey.make({
+      key: WindowScopeAttribute,
+      type: "string",
+      signals: [SignalKind.Enum.metric, SignalKind.Enum.span],
+      cardinality: "bounded",
+      minTier: "shape-only",
+      values: O.none(),
+      owner,
+      description: "Model group a scoped plan-limit window covers, or all when unscoped.",
     }),
     AttributeKey.make({
       key: ResourceAttribute,

@@ -59,6 +59,8 @@ const familyPrefixes: ReadonlyArray<readonly [string, PackageFamily]> = [
  * console.log(packageFamilyOfPath("apps/labs/semantica/src/App.ts")) // "lab"
  * ```
  *
+ * @param file - Repository-relative path used to select a package-family prefix.
+ * @returns The matching family, defaulting to slice when no special prefix matches.
  * @category getters
  * @since 0.0.0
  */
@@ -225,6 +227,8 @@ export const harvestSourceFile: {
  * console.log(combineHarvests([empty, empty]).sites.length) // 0
  * ```
  *
+ * @param harvests - Per-file harvests in the order their sites and findings should be retained.
+ * @returns A single harvest concatenating all sites and findings without deduplication.
  * @category combinators
  * @since 0.0.0
  */

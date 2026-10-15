@@ -32,6 +32,7 @@ import * as Metric from "effect/Metric";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
@@ -45,6 +46,12 @@ const TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736";
 const TRACEPARENT = `00-${TRACE_ID}-00f067aa0ca902c7-01`;
 
 const window = (kind: string, usedPercent: number) => ({ kind, scope: null, usedPercent, resetsAt: null });
+const scopedWindow = (scope: string, usedPercent: number) => ({
+  kind: "weekly-scoped",
+  scope,
+  usedPercent,
+  resetsAt: null,
+});
 
 const row = (provider: string, label: string, outcome: Record<string, unknown>) => ({
   usage: { account: { provider, label, source: `/auth/${provider}-${label}.json` }, outcome },
@@ -74,7 +81,7 @@ const decodeReport = S.decodeUnknownEffect(AccountsReportInput);
 const sampleReport = decodeReport(
   reportDocument(NOON, [
     row("claude", "zed@example.com", ok([window("weekly", 40), window("session", 90)])),
-    row("claude", "amy@example.com", ok([window("weekly", 70)])),
+    row("claude", "amy@example.com", ok([window("weekly", 70), scopedWindow("opus", 50), scopedWindow("sonnet", 10)])),
     row("codex", "work@example.com", { _tag: "NeedsLogin", detail: "login for work@example.com expired" }),
     row("grok", "x@example.com", { _tag: "Failed", detail: "timeout reading /home/x/.cli-proxy-api" }),
     // A collector snapshot ten hours old: retained, so it keeps its own asOf.
@@ -136,7 +143,7 @@ describe("reduceAccountHeadroom", () => {
         ["grok-bot", 1, "ok", "stale"],
       ]);
       // amy sorts before zed, so ordinal 1 carries amy's 30% weekly headroom.
-      expect(A.map(accountItems(parcel)[0]?.windows ?? [], (window) => window.remainingPercent)).toEqual([30]);
+      expect(A.map(accountItems(parcel)[0]?.windows ?? [], (window) => window.remainingPercent)).toEqual([30, 50, 90]);
       const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(parcel);
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home"))).toBe(false);
@@ -283,6 +290,19 @@ describe("Parcels.read", () => {
         assertSome(
           O.map(weekly, (metric) => metric.state),
           { value: 60 }
+        );
+        // Each model group's weekly window is its own series, never merged into one max.
+        const scoped = A.filterMap(gauges, (metric) =>
+          metric.attributes?.["beep.window"] === "weekly-scoped"
+            ? Result.succeed([metric.attributes?.["beep.window_scope"], metric.state])
+            : Result.failVoid
+        );
+        expect(scoped).toHaveLength(2);
+        expect(scoped).toContainEqual(["opus", { value: 50 }]);
+        expect(scoped).toContainEqual(["sonnet", { value: 90 }]);
+        assertSome(
+          O.map(weekly, (metric) => metric.attributes?.["beep.window_scope"]),
+          "all"
         );
         // A private registry, so series other blocks recorded cannot leak in (the
         // registry type is the Map Effect defines).
