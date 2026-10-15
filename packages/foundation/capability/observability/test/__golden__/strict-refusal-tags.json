@@ -1,0 +1,11 @@
+[
+  "attribute-not-allowed",
+  "log-record-dropped",
+  "metric-attribute-not-allowed",
+  "metric-not-allowed",
+  "resource-rebuilt",
+  "span-event-dropped",
+  "span-link-dropped",
+  "span-name-not-allowed",
+  "span-status-message-dropped"
+]

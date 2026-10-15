@@ -30,3 +30,8 @@ export * from "./Pglite.ts";
  * @since 0.0.0
  */
 export * from "./SelfCheck.ts";
+/**
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./Telemetry.ts";

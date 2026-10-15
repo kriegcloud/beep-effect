@@ -2,14 +2,14 @@
 
 ## Status
 
-Status: `pending`
+Status: `active`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Seam pin test; DPAPI feasibility; tool enum. | Facts recorded. |
-| P1 Gate | pending | Serializer gate + egress client + stderr logger. | Golden + canary tests green. |
+| P0 Research | complete | Seam pin test; DPAPI feasibility; tool enum. | Facts recorded. |
+| P1 Gate | complete | Serializer gate + egress client + stderr logger. | Golden + canary tests green. |
 | P2 Spool + tier | pending | Encrypted spool; fail-closed tier resolution. | Spool round-trip + tier tests green. |
 | P3 Proof | pending | Mutation tests; privacy receipt; Windows smoke. | All proofs green. |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
@@ -31,6 +31,28 @@ Before marking the packet closed:
 - Preserve unrelated worktree changes.
 - Keep `SPEC.md` normative and update it only when the contract changes.
 - Keep this plan current; archive old run outputs under `history/`.
+- P0 (2026-10-15): `research/source-survey.md` and the binding
+  `research/strict-tier-design.md`; decisions in `SPEC.md`.
+- P1 (2026-10-15): `@beep/observability/strict` (`StrictGate.schemas.ts`,
+  `StrictGate.service.ts`, `StrictGate.layer.ts`) with the strict-safe boundary
+  fixture, the `Otlp.layer` seam pin, golden key and refusal-tag snapshots
+  (`test/__golden__/`), per-rule and rule-table property tests; eight new
+  `TelemetryRefusalTag` values and the kernel `beep.duration_bucket` key.
+  `apps/practice-kg-mcp`: tool-id `LiteralKit` pinned to the toolkit keys,
+  instruments file, `src/runtime/Telemetry.ts` (shape-only stderr logger,
+  in-memory salt, strict OTLP layer) composed in `Host.ts`; `bin.ts` and the
+  `runMain` report go through the shape-only logger.
+  `packages/law-practice/server` stamps `beep.practice_kg.failure_reason`.
+  Canary acceptance test (all 11 tools, invalid input, missing rows and a
+  store without its tables; raw, lowercase, URL, base64, JSON-escaped,
+  8-character prefix and SHA-256 forms) in `apps/practice-kg-mcp/test/Host.test.ts`.
+  Cache baseline re-recorded for `@beep/practice-kg-mcp` via
+  `research/cache-baseline-request-strict-tier-p1.json`.
+- Finding: no canary reaches pre-gate telemetry today (handler errors use
+  canned messages, SQL spans carry statements without parameters, and mcp-kit
+  strips `parameters`); with the content rules turned off the canary test
+  still passes. The per-rule sensitivity lives in the kernel tests over
+  synthetic batches; the P3 mutation table should add a host-level leak path.
 
 ## Verification Commands
 

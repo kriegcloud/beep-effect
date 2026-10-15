@@ -9,6 +9,7 @@
     {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"SelfCheckFailure","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"SelfCheckFailure"},
     {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"SmokeFailure","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"SmokeFailure"},
     {"file":"apps/practice-kg-mcp/src/runtime/SelfCheck.ts","symbol":"PracticeKgSelfCheckRefusal","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgSelfCheckRefusal","description":"Reason an installed practice KG host could not read its bundle."},
-    {"file":"apps/practice-kg-mcp/src/runtime/SelfCheck.ts","symbol":"PracticeKgSelfCheckReport","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgSelfCheckReport","description":"Versions and store counts proving an installed practice KG host can read its bundle."}
+    {"file":"apps/practice-kg-mcp/src/runtime/SelfCheck.ts","symbol":"PracticeKgSelfCheckReport","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgSelfCheckReport","description":"Versions and store counts proving an installed practice KG host can read its bundle."},
+    {"file":"apps/practice-kg-mcp/src/telemetry/PracticeKgTelemetry.instruments.ts","symbol":"PracticeKgToolId","kind":"literal-kit","owner":"@beep/practice-kg-mcp","identity":"PracticeKgToolId","description":"Name of one practice knowledge-graph MCP tool."}
   ]
 }
