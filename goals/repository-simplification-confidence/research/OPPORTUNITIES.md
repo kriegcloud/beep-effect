@@ -2786,3 +2786,9 @@ checks before starting a long full audit when adding a scanner.
   conditions and use the existing Option/Array composition for YAML key ranges;
   keep zero inventory additions. Running the small audit before the full package
   proof would have surfaced these introduced findings earlier.
+
+- 2026-10-15, F pre-publication validation: a sibling fetch advanced the shared
+  `origin/main` while proofs ran. A direct tip-to-tip coverage read then treated
+  a new main-only Session file as an F edit. Freeze the integrated base in each
+  receipt and use the PR merge-base diff for touched-file selection; integrate
+  the updated main, regenerate both catalog owners, and supersede mixed-base proof.
