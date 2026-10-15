@@ -6,6 +6,7 @@ import {
   ModelsLocatorWrite,
 } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 import { modelsApplySpans, modelsCheckOnlyFormat, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
+import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
@@ -35,7 +36,6 @@ const topLevel = write({
   render,
   key: "model",
 });
-const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const native = A.join(
   [
     "# Unicode stays: café 🔑",
@@ -116,7 +116,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         yield* fs.writeFileString(backup, "old native state");
         yield* fs.writeFileString(
           journalFile,
-          yield* encodeUnknownJson({
+          yield* jsonStringifyPretty({
             id: "models-empty",
             file,
             requestedFile: file,

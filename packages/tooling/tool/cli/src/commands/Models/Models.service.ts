@@ -369,16 +369,20 @@ const boundLocator = (input: LocatorCheckInput): Locator =>
         onSome: (binding) => bindLocatorModel(input.locator, binding.modelId),
       });
 
-const checkLocator = Effect.fnUntraced(function* (
-  input: LocatorCheckInput
-): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError, Path.Path> {
+const readCurrentLocator = Effect.fnUntraced(function* (input: LocatorCheckInput) {
   const path = yield* Path.Path;
   const extension = input.locator._tag === "json-key" ? ".json" : ".toml";
   const mismatch =
     O.isNone(modelsCheckOnlyFormat(input.locator)) && path.extname(input.file.absolutePath) !== extension;
-  const current = mismatch
+  return mismatch
     ? O.some(`Unsupported ${extension === ".json" ? "JSON" : "TOML"} form: locator/extension mismatch.`)
     : yield* input.reader.read(input.file, boundLocator(input));
+});
+
+const checkLocator = Effect.fnUntraced(function* (
+  input: LocatorCheckInput
+): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError, Path.Path> {
+  const current = yield* readCurrentLocator(input);
   if (O.isSome(modelsCheckOnlyFormat(input.locator)))
     input.manual.push(
       ManualVerification.make({

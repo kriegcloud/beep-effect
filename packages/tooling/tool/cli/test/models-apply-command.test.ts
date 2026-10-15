@@ -6,6 +6,7 @@ import {
   modelsCommand,
   TargetId,
 } from "@beep/repo-cli/commands/Models";
+import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
@@ -28,7 +29,6 @@ import type { Locator } from "@beep/repo-cli/commands/Models";
 const run = Command.runWith(modelsCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeEffect(ModelsManifest);
 const encodeManifest = S.encodeEffect(S.fromJsonString(ModelsManifest));
-const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const native = '# synthetic native state\nmodel = "old"\n[projects.synthetic]\ntrust_level = "trusted"\n';
 
 const fixture = Effect.fnUntraced(function* () {
@@ -263,7 +263,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       yield* fs.writeFileString(backup, "MODEL=old\n");
       yield* fs.writeFileString(
         path.join(directory, "models-empty.json"),
-        yield* encodeUnknownJson({
+        yield* jsonStringifyPretty({
           id: "models-empty",
           file,
           requestedFile: file,
@@ -298,22 +298,21 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
     })
   );
 
-  it.effect("preflights excluded targets before all target access, including optional absence and dangling links", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const [home, , manifestFile, manifest] = yield* fixture();
-      const file = path.join(home, "start.sh");
-      const locator: Locator = {
-        _tag: "shell-assign",
-        variable: "MODEL",
-        within: O.none(),
-        binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
-        render: { _tag: "verbatim" },
-      };
-      for (const state of ["existing", "absent", "dangling"]) {
+  for (const state of ["existing", "absent", "dangling"])
+    it.effect(`preflights excluded ${state} targets before all target access`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const [home, , manifestFile, manifest] = yield* fixture();
+        const file = path.join(home, "start.sh");
+        const locator: Locator = {
+          _tag: "shell-assign",
+          variable: "MODEL",
+          within: O.none(),
+          binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
+          render: { _tag: "verbatim" },
+        };
         if (state === "existing") yield* fs.writeFileString(file, "MODEL=gpt-6.1-sol\n");
-        if (state === "absent") yield* fs.remove(file);
         if (state === "dangling") yield* fs.symlink(path.join(home, "missing"), file);
         yield* fs.writeFileString(
           manifestFile,
@@ -373,9 +372,8 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
           "models: refused synthetic.preflight: Shell targets are check-only; edit by hand."
         );
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
-      }
-    })
-  );
+      })
+    );
 
   it.effect("round seven shell and nested XML evidence always requires manual verification", () =>
     Effect.gen(function* () {

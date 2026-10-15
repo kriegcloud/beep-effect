@@ -106,6 +106,19 @@ const assertNativeFields = Effect.fnUntraced(function* (
   }
 });
 
+const assertParsedProjection = Effect.fnUntraced(function* (after: string, writes: ReadonlyArray<ModelsLocatorWrite>) {
+  for (const write of writes) {
+    if (write.remove !== true) {
+      const projected = yield* modelsReadLocator(
+        ModelsTargetFile.make({ root: "home", absolutePath: "projected", content: after }),
+        write.locator
+      );
+      if (!O.contains(projected, write.expected))
+        return yield* failure("Owned projection does not match its parsed expected value.");
+    }
+  }
+});
+
 const assertOwnedBytes = Effect.fnUntraced(function* (
   before: string,
   after: string,
@@ -127,16 +140,9 @@ const assertOwnedBytes = Effect.fnUntraced(function* (
       after: previous.before,
     });
   });
+  yield* assertParsedProjection(after, writes);
   // Re-resolve all owned locators, including absent-key removal assertions.
   for (const write of writes) {
-    if (write.remove !== true) {
-      const projected = yield* modelsReadLocator(
-        ModelsTargetFile.make({ root: "home", absolutePath: "projected", content: after }),
-        write.locator
-      );
-      if (!O.contains(projected, write.expected))
-        return yield* failure("Owned projection does not match its parsed expected value.");
-    }
     const resolved = yield* modelsWriteSpans(after, write);
     if (write.remove === true && A.isReadonlyArrayNonEmpty(resolved))
       return yield* failure("Removed native key returned during projection.");
@@ -481,6 +487,22 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     }
   );
 
+  const recoveryWrites = Effect.fnUntraced(function* (journal: ModelsApplyJournal) {
+    if (O.isNone(journal.writes))
+      return yield* failure("Legacy journal lacks locator ownership; shell targets are check-only; edit by hand.");
+    if (A.isReadonlyArrayEmpty(journal.writes.value)) return yield* failure("Locator ownership must be non-empty.");
+    yield* modelsWritePreflight(
+      journal.file,
+      A.map(journal.writes.value, (write) => write.locator)
+    ).pipe(Effect.provideService(Path.Path, path));
+    if (O.isSome(journal.requestedFile))
+      yield* modelsWritePreflight(
+        journal.requestedFile.value,
+        A.map(journal.writes.value, (write) => write.locator)
+      ).pipe(Effect.provideService(Path.Path, path));
+    return journal.writes.value;
+  });
+
   const restore: ModelsApplyShape["restore"] = Effect.fn("ModelsApply.restore")(
     function* (journalFile, backupDirectory) {
       const root = yield* fs.realPath(backupDirectory).pipe(io);
@@ -492,22 +514,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         Effect.mapError(() => failure("Invalid recovery journal."))
       );
       yield* Effect.gen(function* () {
-        if (O.isNone(journal.writes))
-          return yield* failure("Legacy journal lacks locator ownership; shell targets are check-only; edit by hand.");
-        if (A.isReadonlyArrayEmpty(journal.writes.value)) return yield* failure("Locator ownership must be non-empty.");
-        const checkOnly = A.head(
-          A.getSomes(A.map(journal.writes.value, ({ locator }) => modelsCheckOnlyFormat(locator)))
-        );
-        if (O.isSome(checkOnly)) return yield* failure(`${checkOnly.value} targets are check-only; edit by hand.`);
-        yield* modelsWritePreflight(
-          journal.file,
-          A.map(journal.writes.value, (write) => write.locator)
-        ).pipe(Effect.provideService(Path.Path, path));
-        if (O.isSome(journal.requestedFile))
-          yield* modelsWritePreflight(
-            journal.requestedFile.value,
-            A.map(journal.writes.value, (write) => write.locator)
-          ).pipe(Effect.provideService(Path.Path, path));
+        const writes = yield* recoveryWrites(journal);
         yield* assertDestination(journal);
         const backup = yield* fs.realPath(journal.backup).pipe(io);
         if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
@@ -519,10 +526,10 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         const currentHash = yield* hash(current);
         if (currentHash !== journal.beforeHash && currentHash !== journal.afterHash)
           return yield* failure("Native file changed since apply; restore would overwrite new state.");
-        yield* validate(current, journal.writes.value);
-        yield* validate(original, journal.writes.value);
+        yield* validate(current, writes);
+        yield* validate(original, writes);
         yield* Effect.forEach(
-          A.filter(journal.writes.value, (write) => write.remove !== true),
+          A.filter(writes, (write) => write.remove !== true),
           (write) => modelsWriteSpans(current, write),
           { concurrency: 1, discard: true }
         );
