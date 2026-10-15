@@ -121,6 +121,7 @@ const config = {
     "apps/practice-m365-contacts/package.json",
     "apps/practice-claude-mod/package.json",
     "packages/drivers/t3-code/package.json",
+    "apps/practice-review-hub/package.json",
   ],
   customTypes: {
     catalog: {
@@ -156,9 +157,9 @@ const config = {
       // fold the lane profile into compiler maps, set the three ignore flags
       // true and delete standards/effect-diagnostics.profile.json.
       // 0.53.0 was measured across all workspace check/test projects on
-      // 2026-10-14 (goals/effect-rules-diagnostics-lane). Five 0.52 rules are
-      // errors; schemaClassMissingBrand waits for schema-opaque-default
-      // to arm it in its closing PR.
+      // 2026-10-14 (goals/effect-rules-diagnostics-lane). All six 0.52 rules are
+      // errors; schema-opaque-default armed schemaClassMissingBrand on
+      // 2026-10-15 in its closing PR.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
       // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is

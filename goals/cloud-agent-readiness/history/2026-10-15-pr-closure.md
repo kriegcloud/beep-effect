@@ -81,3 +81,22 @@ observation. Do not duplicate their changes or lower floors in this readiness
 lane. Adopt the landed canonical repairs, rerun normal publication without
 waivers, then synchronize the worker again while preserving its eight overlays.
 The worker and PR remain at the published 0f5bf3d896 head until that next wave.
+
+## Canonical repairs landed
+
+The follow-up verified #1819 merged as `f4fa9e090c97dbedde4e058f3347e303a6058ac9`
+and #1818 merged as `c7850780b8fc625aaca53ed3ed4582a7e07aad7a`.
+The readiness branch integrates that main tip without duplicating the owners'
+repairs. The coverage baseline changes are main-owned; this readiness delta adds
+no coverage waiver or baseline edit. Main also replaces monolithic catalogs with
+per-package shards. Generated observability conflicts are resolved by starting
+with canonical main outputs and rerunning `beep observability catalog --write`.
+
+After frozen installation, the focused five-file suite passes 394 tests on the
+integrated source. Publication and hosted qualification still bind to the next
+committed head, not the earlier 5/5 reviewed head. A new verified eight-file
+worker backup was made at
+`~/.cache/beep/readiness/pr1750/worker-before-landed-repairs/`; its previous
+source is `0f5bf3d896024a691abe16cd3d68a258f6a173f8`. Separate worker main remains
+`b43a4098bbdc345f897c87f84f58953cb7fd4825`. These observations precede the next
+publication and worker synchronization; neither is claimed complete here.

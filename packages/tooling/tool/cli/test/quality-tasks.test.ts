@@ -3781,6 +3781,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:tsconfig-overlay",
         "lint:package-test-typecheck",
         "lint:effect-vitest",
+        "lint:opaque-roundtrips",
         "lint:jsdoc",
         "lint:jsdoc:root",
       ]);
@@ -3830,7 +3831,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:test-tsgo",
       ]);
       expect(taskNames(O.getOrThrow(A.get(full, 1)))).toEqual([
-        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(11)),
+        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(12)),
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
       // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
@@ -3924,6 +3925,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "jsdoc:ratchet:check",
           "lint:shadcn",
           "lint:effect-vitest",
+          "lint:opaque-roundtrips",
           "lint:retired-effect-paths",
           "quality:test-tsgo",
           "knowledge:doctor",

@@ -66,6 +66,7 @@ const TURBO_CONFIG_PROOF_TASK_VALUES = [
   "//#lint:tsconfig-overlay",
   "//#lint:package-test-typecheck",
   "//#lint:effect-vitest",
+  "//#lint:opaque-roundtrips",
   "//#jsdoc:ratchet:check",
   "//#changeset:status",
   "//#lint:circular",

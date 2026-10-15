@@ -259,6 +259,8 @@
         "packages/tooling/library/ai-metrics/src/**",
         "packages/tooling/library/ai-sync/package.json",
         "packages/tooling/library/ai-sync/src/**",
+        "packages/tooling/library/palantiri/package.json",
+        "packages/tooling/library/palantiri/src/**",
         "packages/tooling/library/qa-capture/package.json",
         "packages/tooling/library/qa-capture/src/**",
         "packages/tooling/library/repo-utils/package.json",
@@ -1105,6 +1107,22 @@
         "!**/.next/**",
         "!**/storybook-static/**",
         "!**/test/fixtures/**"
+      ]
+    },
+    "//#lint:opaque-roundtrips": {
+      "cache": true,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*.test.{ts,tsx}",
+        "scratchpad/**/*.{ts,tsx}",
+        "{apps,packages,infra,goals,explorations,tools}/**/test/**/*.{ts,tsx}",
+        "{apps,packages,infra,goals,explorations,tools}/**/src/**/*.{ts,tsx}",
+        "{apps,packages,infra,scratchpad,goals,explorations,tools}/**/tsconfig*.json",
+        "tsconfig*.json",
+        "tsconfig.base.json",
+        "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
+        "!**/node_modules/**"
       ]
     },
     "//#lint:effect-vitest": {

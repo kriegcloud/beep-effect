@@ -18,6 +18,10 @@ install. Do the first-run runbooks first:
 
 Every other non-zero exit is restarted after five minutes.
 
+The attorney's review hub runs from the same deploy checkout: its MCP
+endpoint on the tailnet, the questions docket intake stores for it, and its
+daily notice are in [practice review hub](practice-review-hub.md).
+
 ## 1. A pinned deploy checkout
 
 Run the services from a checkout that nobody works in, detached at a known

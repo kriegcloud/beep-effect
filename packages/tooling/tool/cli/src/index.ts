@@ -297,6 +297,13 @@ export {
   modelsCommand,
 } from "./commands/Models/index.ts";
 /**
+ * Agent-facing Palantiri parcel command group.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export { palantiriCommand } from "./commands/Palantiri/index.ts";
+/**
  * Purge command for removing root/workspace build artifacts.
  *
  * @category cli-commands

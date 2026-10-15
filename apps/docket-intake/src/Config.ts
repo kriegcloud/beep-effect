@@ -52,6 +52,9 @@ export class DocketIntakeAppConfig extends S.Opaque<DocketIntakeAppConfig, { rea
     maxConsecutiveFailures: PositiveCount.annotateKey({
       description: "Poll cycles that may fail in a row before the service exits non-zero.",
     }),
+    reviewHubDirectory: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
+      description: "Review hub data directory the needs-review questions are stored in; no questions when absent.",
+    }),
     reviewAcceptThreshold: UnitInterval.annotateKey({
       description: "Confidence score, from 0 to 1, a review round must reach for an item to be accepted.",
     }),
@@ -108,6 +111,7 @@ export const DocketIntakeAppConfigFromEnv: Config.Config<DocketIntakeAppConfig> 
   maxConsecutiveFailures: Config.schema(PositiveCountFromString, "DOCKET_INTAKE_MAX_CONSECUTIVE_FAILURES").pipe(
     Config.withDefault(DEFAULT_MAX_CONSECUTIVE_FAILURES)
   ),
+  reviewHubDirectory: Config.option(Config.NonEmptyString("DOCKET_INTAKE_REVIEW_HUB_DIR")),
   reviewAcceptThreshold: Config.schema(UnitIntervalFromString, "DOCKET_INTAKE_REVIEW_ACCEPT_THRESHOLD").pipe(
     Config.withDefault(DEFAULT_REVIEW.acceptThreshold)
   ),

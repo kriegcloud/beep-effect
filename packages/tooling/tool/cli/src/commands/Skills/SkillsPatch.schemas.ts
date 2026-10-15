@@ -118,6 +118,8 @@ export class SkillPatchAddReceipt extends S.Opaque<SkillPatchAddReceipt, { reado
  *   patch: ".agents/skill-patches/oracle/0001-skill-md.patch",
  *   from: "temporary-drift",
  *   to: "policy",
+ *   fromDropCondition: "Drop when upstream contains an equivalent change.",
+ *   toDropCondition: "Never: a repo rule replayed on every bump (B42).",
  * })
  * console.log(change.to) // "policy"
  * ```
@@ -130,9 +132,12 @@ export class SkillPatchLabelChange extends S.Opaque<SkillPatchLabelChange, { rea
     patch: S.String,
     from: SkillPatchLabel,
     to: SkillPatchLabel,
+    fromDropCondition: S.String,
+    toDropCondition: S.String,
   }).pipe(
     $I.annoteSchema("SkillPatchLabelChange", {
-      description: "A patch whose lock label moves to the label its ledger classifications agree on.",
+      description:
+        "A patch whose lock label moves to the label its ledger classifications agree on, with its drop condition before and after.",
     })
   )
 ) {}

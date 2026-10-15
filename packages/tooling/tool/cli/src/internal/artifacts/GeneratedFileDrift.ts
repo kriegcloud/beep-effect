@@ -64,9 +64,9 @@ export const assertExclusiveModeFlags = <E, R>(input: {
  * import { writeGeneratedFile } from "@beep/repo-cli/test/Artifacts"
  *
  * const program = writeGeneratedFile({
- *   path: "/repo/standards/schema-catalog.generated.jsonc",
+ *   path: "/repo/standards/schema-catalog/@beep/schema.generated.jsonc",
  *   content: "// generated\n{}\n",
- *   onWrote: Console.log("[schema-catalog] wrote standards/schema-catalog.generated.jsonc"),
+ *   onWrote: Console.log("[schema-catalog] wrote standards/schema-catalog/@beep/schema.generated.jsonc"),
  *   onError: (cause) => new Error(String(cause))
  * })
  * console.log(Effect.isEffect(program))
@@ -104,7 +104,7 @@ export const writeGeneratedFile = Effect.fn("GeneratedFileDrift.writeGeneratedFi
  *
  * const regenerate = "bun run beep lint schema-catalog --write"
  * const program = checkGeneratedFile({
- *   path: "/repo/standards/schema-catalog.generated.jsonc",
+ *   path: "/repo/standards/schema-catalog/@beep/schema.generated.jsonc",
  *   content: "// generated\n{}\n",
  *   onMissing: Effect.fail(new Error(`missing; run ${regenerate}`)),
  *   onStale: Effect.fail(new Error(`stale; run ${regenerate}`)),

@@ -1,7 +1,7 @@
 /**
  * Pure building and rendering for the instrumentation catalog: harvested span
- * rows, the merged catalog check, the generated JSONC text, and the generated
- * section of the observability standard.
+ * rows, the merged catalog check, the per-package shards and their generated
+ * JSONC text, and the generated section of the observability standard.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -12,6 +12,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -19,15 +20,17 @@ import {
   CatalogBuild,
   FamilySpanCount,
   HarvestedSpan,
+  INSTRUMENTATION_CATALOG_DIR,
   INSTRUMENTATION_CATALOG_GENERATED_BY,
-  INSTRUMENTATION_CATALOG_PATH,
+  INSTRUMENTATION_CATALOG_SHARD_SUFFIX,
   InstrumentationCatalogDocument,
+  InstrumentationCatalogShard,
 } from "./Observability.schemas.ts";
 import type { SpanHarvest } from "./Observability.schemas.ts";
 
 const isConformingSpanName = S.is(Catalog.SpanName);
 const decodeSpanInstrument = S.decodeUnknownOption(Catalog.SpanInstrument);
-const encodeDocument = S.encodeEffect(InstrumentationCatalogDocument);
+const encodeShard = S.encodeEffect(InstrumentationCatalogShard);
 const encodeCompactJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 
 const HarvestedSpanOrder: Order.Order<HarvestedSpan> = Order.combine(
@@ -68,6 +71,8 @@ const InstrumentOrder: Order.Order<Catalog.Instrument> = Order.combine(
  * console.log(rows.length, rows[0]?.conforms) // 1 false
  * ```
  *
+ * @param harvest - Discovered span sites from one or more source files.
+ * @returns Rows deduplicated by owner and name, sorted by name then owner, with naming conformance recorded.
  * @category mapping
  * @since 0.0.0
  */
@@ -102,6 +107,8 @@ export const harvestedSpans = (harvest: SpanHarvest): ReadonlyArray<HarvestedSpa
  * console.log(O.map(harvestedSpanInstrument(row), (span) => span.origin)) // { _id: 'Option', _tag: 'Some', value: 'harvested' }
  * ```
  *
+ * @param row - Harvested span row supplying its name, owner, family, and conformance flag.
+ * @returns A shape-only internal catalog instrument, or None when the row cannot satisfy the catalog schema.
  * @category mapping
  * @since 0.0.0
  */
@@ -182,6 +189,8 @@ export const buildCatalog: {
  * console.log(familySpanCounts([]).length) // 7
  * ```
  *
+ * @param spans - Harvested span rows to count, including rows that fail naming conformance.
+ * @returns Counts in package-family declaration order, including families with zero spans.
  * @category folding
  * @since 0.0.0
  */
@@ -207,17 +216,97 @@ const renderArray = Effect.fn("Observability.renderArray")(function* (key: strin
 });
 
 /**
- * Renders the generated catalog as deterministic JSONC, one array entry per
- * line so diffs stay reviewable.
+ * Repo-relative path of one package's catalog shard.
  *
- * **Example** (Render an empty document)
+ * **Example** (Locate a shard)
+ *
+ * ```ts
+ * import { PackageName } from "@beep/observability/catalog"
+ * import { shardPath } from "@beep/repo-cli/commands/Observability"
+ *
+ * console.log(shardPath(PackageName.make("@beep/parcels"))) // "standards/instrumentation-catalog/@beep/parcels.generated.jsonc"
+ * ```
+ *
+ * @param owner - Scoped package name that owns the shard.
+ * @returns The shard path under the catalog directory, keeping the package scope as a folder.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const shardPath = (owner: Catalog.PackageName): string =>
+  `${INSTRUMENTATION_CATALOG_DIR}/${owner}${INSTRUMENTATION_CATALOG_SHARD_SUFFIX}`;
+
+/**
+ * Splits the whole catalog into one shard per owning package, sorted by
+ * package name.
+ *
+ * **Details**
+ *
+ * A package gets a shard when it owns at least one attribute key, declared
+ * instrument or harvested span. Each shard keeps the document's ordering, so
+ * concatenating the shards' entries reproduces the document's entries.
+ *
+ * **Example** (Shard a two-package catalog)
+ *
+ * ```ts
+ * import { PackageName } from "@beep/observability/catalog"
+ * import { HarvestedSpan, InstrumentationCatalogDocument, shardCatalog } from "@beep/repo-cli/commands/Observability"
+ *
+ * const span = (name: string, owner: string) =>
+ *   HarvestedSpan.make({ name, owner: PackageName.make(owner), family: "slice", conforms: true })
+ * const shards = shardCatalog(
+ *   InstrumentationCatalogDocument.make({
+ *     attributes: [],
+ *     instruments: [],
+ *     spans: [span("Parcels.read", "@beep/parcels"), span("Box.list", "@beep/box")]
+ *   })
+ * )
+ * console.log(shards.map((shard) => shard.package)) // ["@beep/box", "@beep/parcels"]
+ * ```
+ *
+ * @param document - Whole catalog assembled by one run.
+ * @returns One shard per owning package, in package-name order.
+ * @category mapping
+ * @since 0.0.0
+ */
+export const shardCatalog = (document: InstrumentationCatalogDocument): ReadonlyArray<InstrumentationCatalogShard> => {
+  const attributes = A.groupBy(document.attributes, (attribute) => attribute.owner);
+  const instruments = A.groupBy(document.instruments, (instrument) => instrument.owner);
+  const spans = A.groupBy(document.spans, (row) => row.owner);
+  const owners = A.sort(
+    A.dedupe([
+      ...A.map(document.attributes, (attribute) => attribute.owner),
+      ...A.map(document.instruments, (instrument) => instrument.owner),
+      ...A.map(document.spans, (row) => row.owner),
+    ]),
+    Str.Order
+  );
+  const of = <A>(groups: Record<string, ReadonlyArray<A>>, owner: string): ReadonlyArray<A> =>
+    O.getOrElse(R.get(groups, owner), A.empty);
+  return A.map(owners, (owner) =>
+    InstrumentationCatalogShard.make({
+      package: owner,
+      attributes: of(attributes, owner),
+      instruments: of(instruments, owner),
+      spans: of(spans, owner),
+    })
+  );
+};
+
+/**
+ * Renders one catalog shard as deterministic JSONC, one array entry per line
+ * so diffs stay reviewable and unrelated additions merge line by line.
+ *
+ * **Example** (Render an empty shard)
  *
  * ```ts
  * import * as Effect from "effect/Effect"
- * import { InstrumentationCatalogDocument, renderCatalogText } from "@beep/repo-cli/commands/Observability"
+ * import { PackageName } from "@beep/observability/catalog"
+ * import { InstrumentationCatalogShard, renderShardText } from "@beep/repo-cli/commands/Observability"
  *
  * const text = Effect.runSync(
- *   renderCatalogText(InstrumentationCatalogDocument.make({ attributes: [], instruments: [], spans: [] }))
+ *   renderShardText(
+ *     InstrumentationCatalogShard.make({ package: PackageName.make("@beep/parcels"), attributes: [], instruments: [], spans: [] })
+ *   )
  * )
  * console.log(text.startsWith("// Generated by")) // true
  * ```
@@ -225,14 +314,15 @@ const renderArray = Effect.fn("Observability.renderArray")(function* (key: strin
  * @category formatting
  * @since 0.0.0
  */
-export const renderCatalogText = Effect.fn("Observability.renderCatalogText")(function* (
-  document: InstrumentationCatalogDocument
+export const renderShardText = Effect.fn("Observability.renderShardText")(function* (
+  shard: InstrumentationCatalogShard
 ) {
-  const encoded = yield* encodeDocument(document);
+  const encoded = yield* encodeShard(shard);
   const header = yield* Effect.forEach(
     [
       ["schemaVersion", encoded.schemaVersion],
       ["generatedBy", encoded.generatedBy],
+      ["package", encoded.package],
     ] as const,
     ([key, value]) => Effect.map(encodeCompactJson(value), (json) => `  "${key}": ${json}`)
   );
@@ -278,55 +368,47 @@ export const STANDARD_SECTION_BEGIN = "<!-- BEGIN GENERATED: INSTRUMENTATION CAT
 export const STANDARD_SECTION_END = "<!-- END GENERATED: INSTRUMENTATION CATALOG -->" as const;
 
 /**
- * Renders the generated section of the observability standard: the naming
- * rules the catalog enforces and the harvested span counts per family.
+ * Generated section of the observability standard: the naming rules the
+ * catalog check enforces and where the catalog lives.
  *
- * **Example** (Render the section for an empty catalog)
+ * **Details**
+ *
+ * The section carries no counts. Span and declaration totals change with
+ * almost every pull request, so committing them made every open pull request
+ * conflict with each merge; the command prints them instead.
+ *
+ * **Example** (Read the section markers)
  *
  * ```ts
- * import { InstrumentationCatalogDocument, renderStandardSection } from "@beep/repo-cli/commands/Observability"
+ * import { STANDARD_SECTION, STANDARD_SECTION_BEGIN } from "@beep/repo-cli/commands/Observability"
  *
- * const section = renderStandardSection(InstrumentationCatalogDocument.make({ attributes: [], instruments: [], spans: [] }))
- * console.log(section.includes("| **total** | 0 | 0 | 0 |")) // true
+ * console.log(STANDARD_SECTION.startsWith(STANDARD_SECTION_BEGIN)) // true
  * ```
  *
  * @category formatting
  * @since 0.0.0
  */
-export const renderStandardSection = (document: InstrumentationCatalogDocument): string => {
-  const counts = familySpanCounts(document.spans);
-  const total = A.length(document.spans);
-  const conforming = A.length(A.filter(document.spans, (row) => row.conforms));
-  const declared = (tag: Catalog.Instrument["_tag"]): number =>
-    A.length(A.filter(document.instruments, (instrument) => instrument._tag === tag));
-  const rows = A.map(counts, ({ family, spans, conforming: ok }) => `| ${family} | ${spans} | ${ok} | ${spans - ok} |`);
-  return A.join(
-    [
-      STANDARD_SECTION_BEGIN,
-      "",
-      `_Generated from \`${INSTRUMENTATION_CATALOG_PATH}\` by \`${INSTRUMENTATION_CATALOG_GENERATED_BY}\`. Do not edit by hand._`,
-      "",
-      "Naming rules the catalog check enforces:",
-      "",
-      "- Domain spans, in every family, are named `Concept(.Sub)*.action`: PascalCase concept segments and a camelCase action, for example `Parcels.read`.",
-      "- Protocol spans follow OpenTelemetry semantic conventions (`GET /route`, `gen_ai.*`) and are declared with `protocol: true`. Their identity is the owning package plus the name, so two packages may share one.",
-      "- Every other span name is unique across packages. Names are static literals; a template literal with substitutions fails the check, and its variable part belongs in an attribute.",
-      "- Harvested names that predate the domain form stay in the catalog with `conforms: false`; there is no mass rename.",
-      "- Metric names are lowercase dotted `beep.<area>.<noun>` with a declared UCUM unit and no hand-written unit or `_total` suffix. One counter per concept carries a bounded `beep.outcome` attribute instead of one counter per outcome.",
-      "- Event names are `Concept.event_happened`. Attribute keys are lowercase dotted and declared once, with their signals, cardinality and strictest allowed tier; metrics use only static or bounded keys.",
-      "",
-      "| Family | Spans | Conforming | Non-conforming |",
-      "| --- | --- | --- | --- |",
-      ...rows,
-      `| **total** | ${total} | ${conforming} | ${total - conforming} |`,
-      "",
-      `Declared: ${A.length(document.attributes)} attribute keys, ${declared("MetricInstrument")} metrics, ${declared("EventInstrument")} events, ${declared("SpanInstrument")} spans.`,
-      "",
-      STANDARD_SECTION_END,
-    ],
-    "\n"
-  );
-};
+export const STANDARD_SECTION: string = A.join(
+  [
+    STANDARD_SECTION_BEGIN,
+    "",
+    `_Generated by \`${INSTRUMENTATION_CATALOG_GENERATED_BY}\`. Do not edit by hand._`,
+    "",
+    `The catalog is committed as one shard per owning package, \`${INSTRUMENTATION_CATALOG_DIR}/<package>${INSTRUMENTATION_CATALOG_SHARD_SUFFIX}\`, so pull requests that add spans in different packages do not conflict. Span counts per family are printed by \`bun run beep observability catalog --check\` rather than committed here.`,
+    "",
+    "Naming rules the catalog check enforces:",
+    "",
+    "- Domain spans, in every family, are named `Concept(.Sub)*.action`: PascalCase concept segments and a camelCase action, for example `Parcels.read`.",
+    "- Protocol spans follow OpenTelemetry semantic conventions (`GET /route`, `gen_ai.*`) and are declared with `protocol: true`. Their identity is the owning package plus the name, so two packages may share one.",
+    "- Every other span name is unique across packages. Names are static literals; a template literal with substitutions fails the check, and its variable part belongs in an attribute.",
+    "- Harvested names that predate the domain form stay in the catalog with `conforms: false`; there is no mass rename.",
+    "- Metric names are lowercase dotted `beep.<area>.<noun>` with a declared UCUM unit and no hand-written unit or `_total` suffix. One counter per concept carries a bounded `beep.outcome` attribute instead of one counter per outcome.",
+    "- Event names are `Concept.event_happened`. Attribute keys are lowercase dotted and declared once, with their signals, cardinality and strictest allowed tier; metrics use only static or bounded keys.",
+    "",
+    STANDARD_SECTION_END,
+  ],
+  "\n"
+);
 
 /**
  * Replaces the generated section between the markers, or `None` when either
