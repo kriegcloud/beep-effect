@@ -1,6 +1,8 @@
 /**
  * `@beep/palantiri`: agent-facing observability parcels.
  *
+ * **Details**
+ *
  * Schema-typed, freshness-checked parcels with budget-capped, summary-first
  * envelopes, the source ports hosts implement, the `Parcels` service, the
  * HttpApi contract every host serves, and the instrument declarations.

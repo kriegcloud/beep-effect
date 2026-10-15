@@ -25,6 +25,14 @@ import type * as Path from "effect/Path";
  * Prefix of the notice's mailbox settings: `PRACTICE_REVIEW_NOTICE_TENANT_ID`,
  * `_CLIENT_ID`, `_CERT_THUMBPRINT_SHA256`, `_CERT_PRIVATE_KEY` and `_MAILBOX`.
  *
+ * **Example** (Name a notice setting)
+ *
+ * ```ts
+ * import { NOTICE_ENV_PREFIX } from "@/Notice"
+ *
+ * console.log(`${NOTICE_ENV_PREFIX}_MAILBOX`) // "PRACTICE_REVIEW_NOTICE_MAILBOX"
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
