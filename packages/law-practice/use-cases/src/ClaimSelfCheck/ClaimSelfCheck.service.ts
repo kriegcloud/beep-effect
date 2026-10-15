@@ -31,6 +31,7 @@ import { ClaimSelfCheckError } from "./ClaimSelfCheck.errors.ts";
 import { UsptoClaims } from "./ClaimSelfCheck.ports.ts";
 import {
   ClaimFindingCandidate,
+  ClaimSelfCheckCandidates,
   ClaimSelfCheckReport,
   PublishedClaimSelfCheckReport,
 } from "./ClaimSelfCheck.schemas.ts";
@@ -53,13 +54,17 @@ const $I = $LawPracticeUseCasesId.create("ClaimSelfCheck/ClaimSelfCheck.service"
  * fails with `decomposition-failed`. Findings are advisory results, never
  * failures, and nothing here blocks a draft or a pipeline.
  *
- * **Example** (Name a self-check method)
+ * **Example** (List the claims a candidate run could not cover)
  *
  * ```ts
- * import type { ClaimSelfCheckShape } from "@beep/law-practice-use-cases/ClaimSelfCheck"
+ * import type { ClaimSelfCheckInput, ClaimSelfCheckShape } from "@beep/law-practice-use-cases/ClaimSelfCheck"
+ * import * as A from "effect/Array"
+ * import * as Effect from "effect/Effect"
  *
- * const method: keyof ClaimSelfCheckShape = "check"
- * console.log(method)
+ * // No candidates is a clean result only when this list is empty too.
+ * const uncheckedClaims = (selfCheck: ClaimSelfCheckShape, input: ClaimSelfCheckInput) =>
+ *   Effect.map(selfCheck.candidates(input), ({ undecomposed }) => A.map(undecomposed, ({ claimNumber }) => claimNumber))
+ * console.log(typeof uncheckedClaims) // "function"
  * ```
  *
  * @category services
@@ -69,10 +74,9 @@ export interface ClaimSelfCheckShape {
   /**
    * Map each finding over a normalized document into a `candidate`-lifecycle `CandidateClaim`
    * and its referring-term `Evidence`, the way `PatentClaimCandidate` maps whole claims.
+   * Claims that did not decompose come back in `undecomposed`, so an unchecked claim never reads as clean.
    */
-  readonly candidates: (
-    input: ClaimSelfCheckInput
-  ) => Effect.Effect<ReadonlyArray<ClaimFindingCandidate>, ClaimSelfCheckError>;
+  readonly candidates: (input: ClaimSelfCheckInput) => Effect.Effect<ClaimSelfCheckCandidates, ClaimSelfCheckError>;
   /** Decompose every claim of the set, then check antecedent basis over the trees. */
   readonly check: (claims: PatentClaims) => Effect.Effect<ClaimSelfCheckReport, ClaimSelfCheckError>;
   /**
@@ -244,12 +248,13 @@ const makeClaimSelfCheck = (uspto: UsptoClaimsShape): ClaimSelfCheckShape => ({
   }),
   candidates: Effect.fn("ClaimSelfCheck.candidates")(function* (
     input: ClaimSelfCheckInput
-  ): Effect.fn.Return<ReadonlyArray<ClaimFindingCandidate>, ClaimSelfCheckError> {
+  ): Effect.fn.Return<ClaimSelfCheckCandidates, ClaimSelfCheckError> {
     const report = yield* check(input.document.claims);
     const claimsSection = yield* claimsSectionOf(input);
-    return yield* Effect.forEach(report.findings, (finding, index) =>
+    const candidates = yield* Effect.forEach(report.findings, (finding, index) =>
       findingCandidate(input, claimsSection, finding, index)
     );
+    return ClaimSelfCheckCandidates.make({ candidates, undecomposed: report.undecomposed });
   }),
 });
 
@@ -266,9 +271,10 @@ const makeClaimSelfCheck = (uspto: UsptoClaimsShape): ClaimSelfCheckShape => ({
  *   `public-claims-unavailable`.
  * - `candidates` maps each finding, in report order, to a `candidate`
  *   claim and the evidence span of its referring term in the document's source
- *   text. A finding that cannot be aligned fails with
- *   `candidate-mapping-failed` rather than being skipped. Spike entity seeds
- *   are `entitySeed + index`, so the mapping is deterministic.
+ *   text, and passes the report's `undecomposed` list through unchanged. A
+ *   finding that cannot be aligned fails with `candidate-mapping-failed`
+ *   rather than being skipped. Spike entity seeds are `entitySeed + index`, so
+ *   the mapping is deterministic.
  *
  * **Example** (Provide the self-check over an in-memory port)
  *

@@ -31861,6 +31861,14 @@
     },
     {
       "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
+      "symbol": "ClaimSelfCheckCandidates",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimSelfCheckCandidates",
+      "description": "Finding candidates of one document, with the decomposition failure of every claim left unchecked."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ClaimSelfCheck/ClaimSelfCheck.schemas.ts",
       "symbol": "ClaimSelfCheckInput",
       "kind": "struct-const",
       "owner": "@beep/law-practice-use-cases",

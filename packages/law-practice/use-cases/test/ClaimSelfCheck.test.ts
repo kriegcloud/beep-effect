@@ -75,14 +75,49 @@ const document = PatentApplicationDocument.make({
   sourceText,
 });
 
-const input = ClaimSelfCheckInput.make({
-  digest: ContentDigest.make(`sha256:${Str.repeat(64)("0")}`),
-  docket: "90001US01",
-  document,
-  entitySeed: 7,
-  identityDigest: ContentDigest.make(`sha256:${Str.repeat(64)("a")}`),
-  operationId: OperationId.make(`operation:${Str.repeat(64)("b")}`),
-  sourceFile: "90001US01-claims.md",
+const inputFor = (claimsDocument: PatentApplicationDocument) =>
+  ClaimSelfCheckInput.make({
+    digest: ContentDigest.make(`sha256:${Str.repeat(64)("0")}`),
+    docket: "90001US01",
+    document: claimsDocument,
+    entitySeed: 7,
+    identityDigest: ContentDigest.make(`sha256:${Str.repeat(64)("a")}`),
+    operationId: OperationId.make(`operation:${Str.repeat(64)("b")}`),
+    sourceFile: "90001US01-claims.md",
+  });
+const input = inputFor(document);
+
+// Claim 1 names a body its text does not contain, so it cannot decompose; nothing depends on it.
+// Claim 2 is independent and has no referring term, so it raises no finding.
+const uncoveredContent = A.join(["1. A tripod comprising: a leg.", "2. A mount comprising: a plate."], "\n");
+const uncoveredSourceText = `${claimsHeading}\n${uncoveredContent}`;
+const uncoveredDocument = PatentApplicationDocument.make({
+  claims: [
+    PatentClaim.cases.independent.make({
+      body: "a lens.",
+      claimNumber: 1,
+      claimText: "A tripod comprising: a leg.",
+      preamble: "A tripod",
+      transition: "comprising",
+    }),
+    PatentClaim.cases.independent.make({
+      body: "a plate.",
+      claimNumber: 2,
+      claimText: "A mount comprising: a plate.",
+      preamble: "A mount",
+      transition: "comprising",
+    }),
+  ],
+  sections: [
+    PatentApplicationSection.make({
+      content: uncoveredContent,
+      heading: claimsHeading,
+      role: "claims",
+      sourceEnd: Str.length(uncoveredSourceText),
+      sourceStart,
+    }),
+  ],
+  sourceText: uncoveredSourceText,
 });
 
 const inMemoryUsptoClaims = Layer.succeed(
@@ -175,10 +210,11 @@ describe("ClaimSelfCheck", () => {
       it.effect("maps each finding to one candidate and referring-term evidence, deterministically", () =>
         Effect.gen(function* () {
           const service = yield* ClaimSelfCheck;
-          const mapped = yield* service.candidates(input);
-          const again = yield* service.candidates(input);
+          const result = yield* service.candidates(input);
           const report = yield* service.check(claims);
-          assert.deepStrictEqual(mapped, again);
+          const mapped = result.candidates;
+          assert.deepStrictEqual(result, yield* service.candidates(input));
+          assert.strictEqual(result.undecomposed.length, 0);
           assert.isTrue(
             Equal.equals(
               A.map(mapped, ({ finding }) => finding),
@@ -203,6 +239,17 @@ describe("ClaimSelfCheck", () => {
           }
           assert.strictEqual(A.dedupe(A.map(mapped, ({ candidate }) => candidate.publicId)).length, mapped.length);
           assert.strictEqual(A.dedupe(A.map(mapped, ({ evidence }) => evidence.publicId)).length, mapped.length);
+        })
+      );
+
+      it.effect("returns an undecomposable claim with no dependents instead of reading as clean", () =>
+        Effect.gen(function* () {
+          const result = yield* (yield* ClaimSelfCheck).candidates(inputFor(uncoveredDocument));
+          assert.strictEqual(result.candidates.length, 0);
+          assert.deepStrictEqual(
+            A.map(result.undecomposed, ({ claimNumber, reason }) => [claimNumber, reason]),
+            [[1, "unsupported-claim-text"]]
+          );
         })
       );
     }
