@@ -1,7 +1,7 @@
 /**
  * Instrumentation catalog service: harvests span names, loads every
  * `*.instruments.ts` declarations file, merges them, and writes or checks the
- * generated catalog and the standard's generated section.
+ * per-package catalog shards and the standard's generated section.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -17,6 +17,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -30,16 +31,21 @@ import { combineHarvests, harvestSourceFile } from "./Observability.harvest.ts";
 import {
   buildCatalog,
   familySpanCounts,
-  renderCatalogText,
-  renderStandardSection,
+  renderShardText,
+  STANDARD_SECTION,
+  shardCatalog,
+  shardPath,
   spliceStandardSection,
 } from "./Observability.render.ts";
 import {
   CatalogRunReport,
   DeclarationsFile,
+  GeneratedFile,
   GeneratedFileStatus,
-  INSTRUMENTATION_CATALOG_PATH,
+  INSTRUMENTATION_CATALOG_DIR,
+  INSTRUMENTATION_CATALOG_SHARD_SUFFIX,
   OBSERVABILITY_STANDARD_PATH,
+  RETIRED_INSTRUMENTATION_CATALOG_PATH,
   SpanNameFindingKind,
 } from "./Observability.schemas.ts";
 import type { CatalogRunMode, SpanHarvest } from "./Observability.schemas.ts";
@@ -49,9 +55,11 @@ const $I = $RepoCliId.create("commands/Observability/Observability.service");
 const SOURCE_GLOBS = ["packages/**/src/**/*.{ts,tsx}", "apps/**/src/**/*.{ts,tsx}"];
 const DECLARATION_GLOBS = ["packages/**/src/**/*.instruments.ts", "apps/**/src/**/*.instruments.ts"];
 const SOURCE_IGNORE = ["**/node_modules/**", "**/test/**", "**/scratchpad/**", "**/dist/**"];
+const SHARD_GLOBS = [`${INSTRUMENTATION_CATALOG_DIR}/**/*${INSTRUMENTATION_CATALOG_SHARD_SUFFIX}`];
 
 const decodePackageName = S.decodeUnknownOption(Catalog.PackageName);
 const isInstrumentDeclarations = S.is(Catalog.InstrumentDeclarations);
+const isFailingStatus = S.is(S.Literals(["stale", "missing", "orphaned"]));
 
 const failure =
   (path: string, message: string) =>
@@ -69,7 +77,7 @@ export interface InstrumentationCatalogShape {
   readonly harvest: Effect.Effect<SpanHarvest, ObservabilityCommandError>;
   /** Imports every `src/**\/*.instruments.ts` file and keeps its declarations exports. */
   readonly loadDeclarations: Effect.Effect<ReadonlyArray<DeclarationsFile>, ObservabilityCommandError>;
-  /** Builds the catalog, then writes or checks the generated files. */
+  /** Builds the catalog, then writes or checks the catalog shards and the standard's generated section. */
   readonly run: (mode: CatalogRunMode) => Effect.Effect<CatalogRunReport, ObservabilityCommandError>;
 }
 
@@ -166,16 +174,39 @@ const makeInstrumentationCatalog = Effect.fn("InstrumentationCatalog.make")(func
       ? O.some(yield* fs.readFileString(absolute).pipe(Effect.mapError(failure(relativePath, "Failed to read file."))))
       : O.none<string>();
     const content = yield* next(current);
+    if (O.contains(current, content)) {
+      return GeneratedFileStatus.Enum.current;
+    }
     if (mode === "write") {
+      yield* fs
+        .makeDirectory(path.dirname(absolute), { recursive: true })
+        .pipe(Effect.mapError(failure(relativePath, "Failed to create the parent directory.")));
       yield* fs
         .writeFileString(absolute, content)
         .pipe(Effect.mapError(failure(relativePath, "Failed to write file.")));
       return GeneratedFileStatus.Enum.wrote;
     }
-    return O.match(current, {
-      onNone: () => GeneratedFileStatus.Enum.missing,
-      onSome: (text) => (text === content ? GeneratedFileStatus.Enum.current : GeneratedFileStatus.Enum.stale),
-    });
+    return O.isSome(current) ? GeneratedFileStatus.Enum.stale : GeneratedFileStatus.Enum.missing;
+  });
+
+  const retire = Effect.fn("InstrumentationCatalog.retire")(function* (mode: CatalogRunMode, relativePath: string) {
+    if (mode === "write") {
+      yield* fs
+        .remove(path.join(repoRoot, relativePath))
+        .pipe(Effect.mapError(failure(relativePath, "Failed to remove orphaned file.")));
+      return GeneratedFileStatus.Enum.removed;
+    }
+    return GeneratedFileStatus.Enum.orphaned;
+  });
+
+  const existingCatalogFiles = Effect.gen(function* () {
+    const shards = yield* fsUtils
+      .globFiles(SHARD_GLOBS, { absolute: true, cwd: repoRoot })
+      .pipe(Effect.mapError(failure(INSTRUMENTATION_CATALOG_DIR, "Failed to list catalog shards.")));
+    const retired = yield* fs
+      .exists(path.join(repoRoot, RETIRED_INSTRUMENTATION_CATALOG_PATH))
+      .pipe(Effect.mapError(failure(RETIRED_INSTRUMENTATION_CATALOG_PATH, "Failed to stat file.")));
+    return A.sort([...A.map(shards, relative), ...(retired ? [RETIRED_INSTRUMENTATION_CATALOG_PATH] : [])], Str.Order);
   });
 
   const run = Effect.fn("InstrumentationCatalog.run")(function* (mode: CatalogRunMode) {
@@ -185,13 +216,22 @@ const makeInstrumentationCatalog = Effect.fn("InstrumentationCatalog.make")(func
       harvested,
       A.flatMap(files, (file) => file.declarations)
     );
-    const catalogText = yield* renderCatalogText(build.document).pipe(
-      Effect.mapError(failure(INSTRUMENTATION_CATALOG_PATH, "Failed to encode the catalog."))
+    const shards = shardCatalog(build.document);
+    const expected = HashSet.fromIterable(A.map(shards, (shard) => shardPath(shard.package)));
+    const written = yield* Effect.forEach(shards, (shard) => {
+      const shardFile = shardPath(shard.package);
+      return renderShardText(shard).pipe(
+        Effect.mapError(failure(shardFile, "Failed to encode the catalog shard.")),
+        Effect.flatMap((text) => sync(mode, shardFile, () => Effect.succeed(text))),
+        Effect.map((status) => GeneratedFile.make({ path: PosixPath.make(shardFile), status }))
+      );
+    });
+    const orphans = A.filter(yield* existingCatalogFiles, (file) => !HashSet.has(expected, file));
+    const retired = yield* Effect.forEach(orphans, (file) =>
+      Effect.map(retire(mode, file), (status) => GeneratedFile.make({ path: PosixPath.make(file), status }))
     );
-    const section = renderStandardSection(build.document);
-    const catalog = yield* sync(mode, INSTRUMENTATION_CATALOG_PATH, () => Effect.succeed(catalogText));
     const standard = yield* sync(mode, OBSERVABILITY_STANDARD_PATH, (current) =>
-      Effect.fromOption(O.flatMap(current, spliceStandardSection(section))).pipe(
+      Effect.fromOption(O.flatMap(current, spliceStandardSection(STANDARD_SECTION))).pipe(
         Effect.mapError(() =>
           ObservabilityCommandError.make({
             path: OBSERVABILITY_STANDARD_PATH,
@@ -200,14 +240,16 @@ const makeInstrumentationCatalog = Effect.fn("InstrumentationCatalog.make")(func
         )
       )
     );
+    const drifted = A.filter([...written, ...retired], (file) => file.status !== GeneratedFileStatus.Enum.current);
     const interpolated = A.filter(harvested.findings, (finding) => SpanNameFindingKind.is.interpolated(finding.kind));
     const nonLiteral = A.filter(harvested.findings, (finding) => SpanNameFindingKind.is["non-literal"](finding.kind));
     const spans = build.document.spans;
     const conforming = A.length(A.filter(spans, (row) => row.conforms));
-    const filesCurrent = A.every([catalog, standard], (status) => status !== "stale" && status !== "missing");
+    const filesCurrent = !A.some([standard, ...A.map(drifted, (file) => file.status)], isFailingStatus);
     return CatalogRunReport.make({
       mode,
-      catalog,
+      shards: A.length(shards),
+      drifted,
       standard,
       spans: A.length(spans),
       conforming,

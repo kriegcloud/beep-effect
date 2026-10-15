@@ -8,7 +8,8 @@ refreshed **only in dedicated chore PRs**, never on feature branches.
 
 | Artifact | Regenerator | Character |
 | --- | --- | --- |
-| `standards/schema-catalog.generated.jsonc` | `bun run beep lint schema-catalog --write` | whole-repo snapshot; regen absorbs every package's drift |
+| `standards/schema-catalog/<package>.generated.jsonc` | `bun run beep lint schema-catalog --write` | one shard per owning package; gated by hosted Repo Sanity, so a PR refreshes the shards it changes |
+| `standards/instrumentation-catalog/<package>.generated.jsonc` | `bun run beep observability catalog --write` | one shard per owning package; gated by the `observability:catalog-check` cheap gate |
 | `standards/jsdoc-documentation.inventory.jsonc` | `bun run beep quality jsdoc-inventory` | whole-repo snapshot; regen absorbs every package's drift |
 | `standards/jsdoc-documentation.inventory.md` | same lane | small totals file; updating it in a feature PR is fine |
 
@@ -17,6 +18,9 @@ scope — they are edited, not regenerated.
 
 ## The rule
 
+- The two sharded catalogs are the exception: their gates fail on drift, so a
+  feature branch runs their writers and commits the shards its own change
+  touched (see "Per-package shards" below).
 - A feature branch must carry **only its own delta**. If `bun run beep yeet
   verify` and CI pass without regenerating a snapshot artifact, do not
   regenerate it — the gates on these artifacts are delta/ratchet-based, and
@@ -31,10 +35,38 @@ scope — they are edited, not regenerated.
 On the `epistemic-bitemporal-edge-core` branch (PR #452), mid-flight
 regeneration produced a ~27,790-line `jsdoc-documentation.inventory.jsonc`
 diff of which only 416 lines belonged to the branch, and a ~2,246-line
-`schema-catalog.generated.jsonc` diff of which ~10 entries did. Both regens
+schema catalog diff (then one file, now sharded) of which ~10 entries did. Both regens
 were reverted; the full local proof and all 25 hosted checks passed without
 them, proving the staleness is not gating
 (`goals/epistemic-bitemporal-edge-core/history/2026-07-25-p1-implementation.md`).
+
+## Per-package shards (2026-10-15)
+
+Decision: the schema catalog and the instrumentation catalog are committed as
+one shard per owning package instead of one whole-repo file each, and the
+observability standard's generated section no longer carries span counts.
+
+- Reason: both catalogs became merge gates (the schema catalog in hosted
+  Repo Sanity since #1820, the instrumentation catalog in cheap gates since
+  #1762), so every PR that added a schema or span regenerated one shared file
+  and a shared count table. Each merge then made the other open PRs DIRTY and
+  restarted their 20-minute review windows (six such events in one morning;
+  #1590 was re-finalled four times). With shards, PRs that change different
+  packages edit different files and merge cleanly; changes in the same
+  package still merge line by line unless their sorted entries touch.
+- Rejected: a `.gitattributes` regenerate merge driver (GitHub computes
+  mergeability server-side and ignores local drivers, so PRs stay DIRTY) and
+  generating the catalogs only on `main` (`main` is PR-only, and the committed
+  per-package diff is how a reviewer sees which schemas or spans a PR adds).
+- Both writers delete shards no package owns and the retired single files;
+  both checks report them as orphaned, so a branch that resurrects a retired
+  file while merging `main` fails until it runs the writer.
+- Reverse: restore the single-file writers in
+  `packages/tooling/tool/cli/src/commands/Lint/SchemaCatalog.ts` and
+  `packages/tooling/tool/cli/src/commands/Observability/` from the commit
+  before this change, delete `standards/schema-catalog/` and
+  `standards/instrumentation-catalog/`, drop their `biome.jsonc` excludes
+  (then `bun run beep cache profile --write`), and run both writers.
 
 ## Standing posture
 
