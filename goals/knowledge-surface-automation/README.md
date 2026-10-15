@@ -111,7 +111,7 @@ P4 in progress. Shipped on main so far:
   money), done 2026-10-14:** the `beep-knowledge-mint` App is registered (#1768,
   `docs/ops/beep-knowledge-mint-app.md`) and its variables and secret are set. Its first
   baseline-only PR is the initial seal.
-- **B-6 (this PR):** `beep skills review` lists, or walks within a time budget, every
+- **B-6 (#1759):** `beep skills review` lists, or walks within a time budget, every
   vendored hunk the append-only ledger (`.agents/skill-patches/ledger.jsonl`) has not
   settled, answered interactively or from a scripted `--decisions` file under a named
   `--reviewer`, checkpointing each answer; `--ghost` replays earlier decisions on
@@ -120,6 +120,11 @@ P4 in progress. Shipped on main so far:
   a hand edit of vendored output into new patches and re-records the lock, and
   `beep skills patch label` moves lock labels to the ledger's classifications, both
   plan-then-`--expect`. Decisions B34–B41 in the same design doc.
+- **Ritual 1 (this PR, closes P5):** the operator classified the three generated patches
+  on 2026-10-15: oracle `SKILL.md` is `policy`, oracle `agents/openai.yaml` is
+  `repo-adaptation`, shadcn `design-system.md` is `policy`. The ledger records the three
+  decisions under `@kriegcloud`, `skills patch label` moved the lock labels to match, and
+  B42 defines what each label means for a bump.
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
 command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
@@ -128,10 +133,10 @@ on main.
 
 B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
 #1734) are on main, and so are B-5 (the update train, #1732) and C Stage-2 PR 5 (the
-mint, #1752). This PR is B-6:
-the hunk ledger, `skills review` with `--ghost`, the two-strike flag, and
-`skills patch add`/`label`. Ritual 1 (the operator's classification of the generated
-patches, prepared by `skills review`) is the last Workstream B step.
+mint, #1752), and so is B-6 (the hunk ledger, `skills review` with `--ghost`, the
+two-strike flag, and `skills patch add`/`label`, #1759). This PR records Ritual 1, the
+last Workstream B step. The goal closes (P6) once the first sealed baseline (#1790, an
+operator decision) lands: the definition of done asks for sealed Stage-2 baselines.
 
 C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
 report-only: one cause group per missing target or delegated goals-doctor finding, each

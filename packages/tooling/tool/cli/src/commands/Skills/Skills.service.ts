@@ -17,6 +17,7 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import { Headers, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -78,6 +79,7 @@ import {
 import type { Sha256Hex } from "@beep/schema";
 import type * as Crypto from "effect/Crypto";
 import type { ComputedSkillTree, HashedSkillFile } from "./internal/SkillTree.ts";
+import type { SkillPatchLabel } from "./Skills.schemas.ts";
 import type { SkillDriftRow, SkillPinProposal, SkillsLockDocument } from "./SkillsLock.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
@@ -312,6 +314,36 @@ export const renderSkillTreeDiff = Effect.fn("SkillsProvenance.renderSkillTreeDi
 });
 
 const PATCH_DROP_CONDITION = "Drop when upstream contains an equivalent change.";
+
+/**
+ * The drop condition a patch carries for its review label (B42).
+ *
+ * **Details**
+ *
+ * `policy` enforces a repo rule and is replayed on every bump, `repo-adaptation` is
+ * replayed until upstream offers an equivalent option, and `temporary-drift` is dropped
+ * once upstream contains the change. Generated patches start as `temporary-drift`.
+ *
+ * **Example** (Read the condition for a policy patch)
+ *
+ * ```ts
+ * import { skillPatchDropCondition } from "@beep/repo-cli/commands/Skills"
+ *
+ * console.log(skillPatchDropCondition("policy")) // "Never: a repo rule replayed on every bump (B42)."
+ * ```
+ *
+ * @param label - The patch's review label.
+ * @returns The drop condition recorded in the lock for that label.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const skillPatchDropCondition = (label: SkillPatchLabel): string =>
+  Match.value(label).pipe(
+    Match.when("policy", () => "Never: a repo rule replayed on every bump (B42)."),
+    Match.when("repo-adaptation", () => "Drop when upstream offers an equivalent option (B42)."),
+    Match.when("temporary-drift", () => PATCH_DROP_CONDITION),
+    Match.exhaustive
+  );
 
 const patchSlug = flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));
 
