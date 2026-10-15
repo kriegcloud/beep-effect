@@ -47,7 +47,7 @@ import type { KeyValue } from "effect/observability/OtlpResource";
 import type { OtlpSerialization } from "effect/observability/OtlpSerialization";
 import type { TraceData } from "effect/observability/OtlpTracer";
 import type { SignalKind } from "../catalog/Catalog.literals.ts";
-import type { InstrumentCatalog } from "../catalog/Catalog.models.ts";
+import type { InstrumentCatalog, MetricInstrument } from "../catalog/Catalog.models.ts";
 import type { RefusalLedger, StrictEgressRecord, StrictGateConfig } from "./StrictGate.schemas.ts";
 import type { StrictSpoolError } from "./StrictSpool.errors.ts";
 
@@ -233,11 +233,11 @@ const isLiteralAllowed =
       O.exists((values) => P.isString(attribute.value.stringValue) && HashSet.has(values, attribute.value.stringValue))
     );
 
-const shapeOnlyMetricKeys = (catalog: InstrumentCatalog): HashMap.HashMap<string, HashSet.HashSet<string>> =>
+const shapeOnlyMetrics = (catalog: InstrumentCatalog): HashMap.HashMap<string, MetricInstrument> =>
   HashMap.fromIterable(
     A.flatMap(catalog.instruments, (instrument) =>
       Instrument.guards.MetricInstrument(instrument) && TelemetryTier.is["shape-only"](instrument.minTier)
-        ? [[instrument.name, HashSet.fromIterable<string>(instrument.attributes)] as const]
+        ? [[instrument.name, instrument] as const]
         : []
     )
   );
@@ -300,7 +300,7 @@ export const makeStrictGate = Effect.fn("StrictGate.make")(function* (config: St
   const startedAt = `${floorNanos(clock.currentTimeNanosUnsafe())}`;
   const spanValues = literalValuesFor(config.catalog, "span");
   const metricValues = literalValuesFor(config.catalog, "metric");
-  const metricKeys = shapeOnlyMetricKeys(config.catalog);
+  const metricInstruments = shapeOnlyMetrics(config.catalog);
   const resource = ShapeOnlyResource.make({
     attributes: [
       stringAttribute(AttributeKeyName.make("service.name"), config.serviceName),
@@ -473,18 +473,28 @@ export const makeStrictGate = Effect.fn("StrictGate.make")(function* (config: St
   };
 
   const gateMetric = (metric: InputMetric): ReadonlyArray<object> => {
-    const found = HashMap.get(metricKeys, metric.name);
+    const found = HashMap.get(metricInstruments, metric.name);
     if (rules["metric-names"] && O.isNone(found)) {
       count(TelemetryRefusalTag.Enum["metric-not-allowed"]);
       return [];
     }
-    const allowedKeys = O.getOrElse(found, () => HashSet.empty<string>());
+    const allowedKeys = O.match(found, {
+      onNone: () => HashSet.empty<string>(),
+      onSome: (instrument) => HashSet.fromIterable<string>(instrument.attributes),
+    });
+    // Description and unit come from the catalog entry, never the input
+    // series; only with the metric-names rule off does the input pass through.
+    const identity = rules["metric-names"]
+      ? O.match(found, {
+          onNone: () => ({ description: "" }),
+          onSome: (instrument) => ({ description: instrument.description, unit: instrument.unit }),
+        })
+      : { description: metric.description, unit: metric.unit };
     const { sum, gauge, histogram } = metric;
     return [
       {
         name: metric.name,
-        description: metric.description,
-        unit: metric.unit,
+        ...identity,
         ...(P.isUndefined(sum)
           ? {}
           : {

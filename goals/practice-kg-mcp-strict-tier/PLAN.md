@@ -52,6 +52,9 @@ Before marking the packet closed:
   fields; values are floored onto the 1/2.5/5-per-decade ladder (saturating at
   10^12) under the new `metric-values` gate rule; histograms drop `sum`/`min`/
   `max` (`metric-value-dropped`); exponential histograms and summaries are
+  refused (`metric-not-allowed`). Round 2: an exported metric's `description`
+  and `unit` come from its catalog `MetricInstrument`, never the input series
+  (input passes only with the `metric-names` rule off).
   refused (`metric-not-allowed`).
 - P2 (2026-10-15): `@beep/observability/strict` gains the encrypted spool
   (`StrictSpool.{schemas,errors,service,layer}.ts`: AES-256-GCM segments with
