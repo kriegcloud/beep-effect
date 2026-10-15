@@ -118,6 +118,8 @@ export class SkillPatchAddReceipt extends S.Opaque<SkillPatchAddReceipt, { reado
  *   patch: ".agents/skill-patches/oracle/0001-skill-md.patch",
  *   from: "temporary-drift",
  *   to: "policy",
+ *   fromDropCondition: "Drop when upstream contains an equivalent change.",
+ *   toDropCondition: "Never: a repo rule replayed on every bump (B42).",
  * })
  * console.log(change.to) // "policy"
  * ```
