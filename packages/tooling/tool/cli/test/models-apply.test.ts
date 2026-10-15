@@ -589,7 +589,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       expect(yield* fs.exists(backups)).toBe(false);
       yield* fs.writeFileString(file, "model: old\nnative: retained\n");
       const applied = yield* writer.apply(file, [owned], "write", backups);
-      assertTrue(O.isSome(applied));
+      applied.pipe(O.isSome, assertTrue);
       expect(yield* fs.readFileString(file)).toBe('model: "gpt-6.1-sol"\nnative: retained\n');
     })
   );
