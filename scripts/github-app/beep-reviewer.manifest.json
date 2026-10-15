@@ -1,0 +1,19 @@
+{
+  "name": "beep-reviewer",
+  "url": "https://github.com/beep-effect/beep-effect",
+  "description": "Self-hosted PR review checks, summaries, and inline comments for beep-effect.",
+  "public": false,
+  "redirect_url": "http://localhost:8787/callback",
+  "hook_attributes": {
+    "url": "https://example.invalid/beep-reviewer-disabled",
+    "active": false
+  },
+  "default_events": [],
+  "default_permissions": {
+    "checks": "write",
+    "pull_requests": "write",
+    "issues": "write",
+    "contents": "read",
+    "metadata": "read"
+  }
+}
