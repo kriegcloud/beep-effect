@@ -216,9 +216,7 @@ export type Template = typeof Template.Type;
  */
 export const SavingsPlan = S.StructWithRest(
   S.Struct({
-    costPerHr: S.optionalKey(
-      S.Finite.check(S.isFinite().annotate({ expected: "a finite number" })),
-    ),
+    costPerHr: S.optionalKey(S.Finite),
     endTime: S.optionalKey(S.String),
     gpuTypeId: S.optionalKey(S.String),
     id: S.optionalKey(S.String),
@@ -343,46 +341,14 @@ export const Pod = S.StructWithRest(
             }),
           ),
           displayName: S.optionalKey(S.String),
-          securePrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          communityPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          oneMonthPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          threeMonthPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          sixMonthPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          oneWeekPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          communitySpotPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          secureSpotPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
+          securePrice: S.optionalKey(S.Finite),
+          communityPrice: S.optionalKey(S.Finite),
+          oneMonthPrice: S.optionalKey(S.Finite),
+          threeMonthPrice: S.optionalKey(S.Finite),
+          sixMonthPrice: S.optionalKey(S.Finite),
+          oneWeekPrice: S.optionalKey(S.Finite),
+          communitySpotPrice: S.optionalKey(S.Finite),
+          secureSpotPrice: S.optionalKey(S.Finite),
         }),
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ),
@@ -435,46 +401,14 @@ export const Pod = S.StructWithRest(
                   }),
                 ),
                 displayName: S.optionalKey(S.String),
-                securePrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                communityPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                oneMonthPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                threeMonthPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                sixMonthPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                oneWeekPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                communitySpotPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                secureSpotPrice: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
+                securePrice: S.optionalKey(S.Finite),
+                communityPrice: S.optionalKey(S.Finite),
+                oneMonthPrice: S.optionalKey(S.Finite),
+                threeMonthPrice: S.optionalKey(S.Finite),
+                sixMonthPrice: S.optionalKey(S.Finite),
+                oneWeekPrice: S.optionalKey(S.Finite),
+                communitySpotPrice: S.optionalKey(S.Finite),
+                secureSpotPrice: S.optionalKey(S.Finite),
               }),
               [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
             ),
@@ -486,16 +420,8 @@ export const Pod = S.StructWithRest(
               S.Struct({
                 id: S.optionalKey(S.String),
                 displayName: S.optionalKey(S.String),
-                cores: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
-                threadsPerCore: S.optionalKey(
-                  S.Finite.check(
-                    S.isFinite().annotate({ expected: "a finite number" }),
-                  ),
-                ),
+                cores: S.optionalKey(S.Finite),
+                threadsPerCore: S.optionalKey(S.Finite),
                 groupId: S.optionalKey(S.String),
               }),
               [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
@@ -512,16 +438,8 @@ export const Pod = S.StructWithRest(
           maintenanceEnd: S.optionalKey(S.String),
           maintenanceNote: S.optionalKey(S.String),
           note: S.optionalKey(S.String),
-          costPerHr: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          currentPricePerGpu: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
+          costPerHr: S.optionalKey(S.Finite),
+          currentPricePerGpu: S.optionalKey(S.Finite),
           gpuAvailable: S.optionalKey(S.Int),
           gpuDisplayName: S.optionalKey(S.String),
         }),
@@ -1836,34 +1754,22 @@ export type GPUTypeId = typeof GPUTypeId.Type;
  */
 export const Machine = S.StructWithRest(
   S.Struct({
-    costPerHr: S.optionalKey(
-      S.Finite.check(S.isFinite().annotate({ expected: "a finite number" })),
-    ),
+    costPerHr: S.optionalKey(S.Finite),
     cpuCount: S.optionalKey(S.Int),
     cpuType: S.optionalKey(
       S.StructWithRest(
         S.Struct({
           id: S.optionalKey(S.String),
           displayName: S.optionalKey(S.String),
-          cores: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          threadsPerCore: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
+          cores: S.optionalKey(S.Finite),
+          threadsPerCore: S.optionalKey(S.Finite),
           groupId: S.optionalKey(S.String),
         }),
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ),
     ),
     cpuTypeId: S.optionalKey(S.String),
-    currentPricePerGpu: S.optionalKey(
-      S.Finite.check(S.isFinite().annotate({ expected: "a finite number" })),
-    ),
+    currentPricePerGpu: S.optionalKey(S.Finite),
     dataCenterId: S.optionalKey(S.String),
     diskThroughputMBps: S.optionalKey(S.Int),
     gpuAvailable: S.optionalKey(S.Int),
@@ -1878,46 +1784,14 @@ export const Machine = S.StructWithRest(
             }),
           ),
           displayName: S.optionalKey(S.String),
-          securePrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          communityPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          oneMonthPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          threeMonthPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          sixMonthPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          oneWeekPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          communitySpotPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
-          secureSpotPrice: S.optionalKey(
-            S.Finite.check(
-              S.isFinite().annotate({ expected: "a finite number" }),
-            ),
-          ),
+          securePrice: S.optionalKey(S.Finite),
+          communityPrice: S.optionalKey(S.Finite),
+          oneMonthPrice: S.optionalKey(S.Finite),
+          threeMonthPrice: S.optionalKey(S.Finite),
+          sixMonthPrice: S.optionalKey(S.Finite),
+          oneWeekPrice: S.optionalKey(S.Finite),
+          communitySpotPrice: S.optionalKey(S.Finite),
+          secureSpotPrice: S.optionalKey(S.Finite),
         }),
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ),

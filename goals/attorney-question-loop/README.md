@@ -17,7 +17,7 @@ Agents ask the attorney through the review queue, never through a polled inbox:
 - docket-intake as the first producer;
 - a daily notice email.
 
-The pane card is an amendment for the `practice-claude-mod` owner.
+The pane card is an amendment for the owner of the `practice-claude-mod-review-queue` follow-on.
 
 ## Launch
 
@@ -40,13 +40,17 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Schema. It waits for `review-verdict-envelope` (#1761) to merge.
+P1 Contract. P0 is complete; its design and as-built notes are in
+[`research/P0-SCHEMA.md`](./research/P0-SCHEMA.md).
 
 ## Latest Evidence
 
 - 2026-10-14: graduated from the `attorney-review-workspace` re-entry. The align and shape rulings
   are in that packet's `DECISIONS.md`; the first vertical slice is in its `MAP.md`, re-entry
   section.
+- 2026-10-14 P0: `question` ReviewItem, `values/Question` (options 2-5 with unique ids, optional
+  `calendar-date` write, facts) and `values/AnswerRow` (four states) in `@beep/law-practice-domain`;
+  `test/QuestionLoop.test.ts` (9 tests); package-verify passes for domain and use-cases.
 
 ## Notes
 

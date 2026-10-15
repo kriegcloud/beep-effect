@@ -65,13 +65,11 @@ describe("VerdictLog", () => {
     [Arbitrary.schema(VerdictRow), Arbitrary.schema(VerdictInput)],
     ([row, input]) => {
       const rowEncoded = Result.getOrThrow(S.encodeResult(VerdictRow)(row));
-      assertTrue(S.toEquivalence(VerdictRow)(Result.getOrThrow(S.decodeUnknownResult(VerdictRow)(rowEncoded)), row));
+      assertTrue(S.toEquivalence(VerdictRow)(Result.getOrThrow(S.decodeResult(VerdictRow)(rowEncoded)), row));
       const inputEncoded = Result.getOrThrow(S.encodeResult(VerdictInput)(input));
-      assertTrue(
-        S.toEquivalence(VerdictInput)(Result.getOrThrow(S.decodeUnknownResult(VerdictInput)(inputEncoded)), input)
-      );
+      assertTrue(S.toEquivalence(VerdictInput)(Result.getOrThrow(S.decodeResult(VerdictInput)(inputEncoded)), input));
     },
-    { arbitrary: { numRuns: 10 } }
+    { arbitrary: { runs: 10 } }
   );
 
   it.layer(testLayer(), { timeout: "5 seconds" })("revisions", (it) => {
