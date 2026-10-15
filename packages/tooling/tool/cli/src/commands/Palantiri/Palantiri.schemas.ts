@@ -164,6 +164,14 @@ export type HotParcelId = typeof HotParcelId.Type;
  * How many times a staged hot line may be carried over a failed or timed-out
  * read before it is replaced by an `Unknown` line.
  *
+ * **Example** (Read the carry cap)
+ *
+ * ```ts
+ * import { MAX_HOT_LINE_CARRIES } from "@beep/repo-cli/test/Palantiri"
+ *
+ * console.log(MAX_HOT_LINE_CARRIES) // 3
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
