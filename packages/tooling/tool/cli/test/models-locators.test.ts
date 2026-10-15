@@ -344,6 +344,9 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         "Unsupported shell form"
       );
       for (const text of [
+        "MODEL=old\r\n",
+        "MODEL=old [xy]\n",
+        "MODEL=old \u0000\n",
         "x\\ MODEL=old\n",
         'MODEL="$X"\n',
         "MODEL='old\n",

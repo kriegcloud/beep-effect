@@ -69,7 +69,7 @@ const shellWordValue = Effect.fnUntraced(function* (token: string) {
 
 // Tokenize every word, including words outside the locator. If any part of a
 // relevant line is outside this literal grammar, its value cannot prove sync.
-const shellTokens = /[ \t\r]+|#[^\n]*$|&&|\|\||[;&|()]|(?:"(?:\\.|[^"\\\n])*"|'[^'\n]*'|\\[^\n]|[^'"\\\s;&|()<>])+/gy;
+const shellTokens = /[ \t]+|#[^\n]*$|&&|\|\||[;&|()]|(?:"(?:\\.|[^"\\\n])*"|'[^'\n]*'|\\[^\n]|[^'"\\\s;&|()<>])+/gy;
 const unsupportedShell = "Unsupported shell form";
 
 const shellControl = /^(?:&&|\|\||[;&|()])$/;
@@ -84,7 +84,7 @@ const shellLineTokens = (line: string) => {
     const token = match[0];
     consumed = tokens.lastIndex;
     if (Str.startsWith("#")(token)) break;
-    if (!/^[ \t\r]+$/.test(token)) words.push(token);
+    if (!/^[ \t]+$/.test(token)) words.push(token);
   }
   return Tuple.make(words, O.none<string>());
 };
@@ -94,8 +94,12 @@ const shellTokenValue = Effect.fnUntraced(function* (token: string, variable: st
     ? Str.slice(Str.length(variable) + 1)(token)
     : Str.replace(/^[A-Za-z_][A-Za-z_0-9]*=/, "")(token);
   const literal = /^'[^']*'$|^"(?:\\.|[^"\\])*"$/.test(word);
-  const nonLiteral = /\\[ \t;&|()<>]|[*?{}~]/.test(word);
-  if (!literal && nonLiteral && !/^[{}]$/.test(word)) return O.none<string>();
+  // Admit an explicit literal alphabet, rather than enumerating expansion
+  // operators. Every other unquoted form is unsupported by construction.
+  const bare = /^(?:\\.|[A-Za-z0-9_./:@+,=-])+$/.test(word) && !/^=/.test(word);
+  const escapedBoundary = /\\[ \t;&|()<>]/.test(word);
+  const code = shellControl.test(word) || /^[{}]$/.test(word);
+  if (!literal && (escapedBoundary || (!bare && !code))) return O.none<string>();
   return yield* shellWordValue(word).pipe(Effect.option);
 });
 
