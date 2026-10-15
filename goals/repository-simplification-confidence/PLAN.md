@@ -254,7 +254,7 @@ produces them.
 | Catalog and holds (H1) | `rsc-h1-catalog` | `history/receipts/stage-4-h1-catalog.md` |
 | Known advisories (H2) | `rsc-h2-completion` | `history/receipts/stage-4-completion-receipts.md#known-advisories` |
 | Telemetry qualification (H3) | `rsc-h3-telemetry` | `history/receipts/stage-4-h3-telemetry.md` |
-| Global configuration | `rsc-f-agents` | `history/receipts/stage-5-acceptance.md#global-configuration`, `history/receipts/stage-3-f-inventory.md`, `history/receipts/stage-3-f-before-measurement.md`, `history/receipts/stage-5-f-after-measurement.md`, and round-6 `history/receipts/stage-5-f-panel-r6-verification.json` / `history/receipts/stage-5-f-panel-r6-fingerprint.json` |
+| Global configuration | `rsc-f-agents` | `history/receipts/stage-5-acceptance.md#global-configuration`, `history/receipts/stage-3-f-inventory.md`, `history/receipts/stage-3-f-before-measurement.md`, `history/receipts/stage-5-f-after-measurement.md`, and round-7 `history/receipts/stage-5-f-panel-r7-verification.json` / `history/receipts/stage-5-f-panel-r7-fingerprint.json` |
 | Storage | `rsc-g-storage` | `history/receipts/stage-5-acceptance.md#storage` and `history/receipts/stage-5-storage-cleanup.md` |
 | Cache | `rsc-g-storage` | `history/receipts/stage-5-cache.md` |
 | Permission continuity | `rsc-h4-permissions` | `history/receipts/stage-5-acceptance.md#permission-continuity` |

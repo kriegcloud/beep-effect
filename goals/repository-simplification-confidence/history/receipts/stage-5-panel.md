@@ -1,12 +1,22 @@
 # Workstream F panel status
 
-Round 5 reviewed `7f0ceac1b3`: Astra reported two actionable P1s; Fable and
-Grok returned zero-actionable verdicts. The lane fixes both P1s, Grok's nearby
-reader P2, and Fable's three nearby P3s in the next candidate. The new
-`RSC-F-FAIL-CLOSED-READERS` decision requires unsupported input to produce drift
-or typed refusal. See the [current F handoff](../handoffs/rsc-f-agents-2026-10-15.md)
-and [verification receipt](stage-5-f-panel-r5-verification.json).
+Round 7 reviewed `4812281584` and fingerprint
+`bf1ac6777cd6354d3bb728bcd940a1da0cacf1fb4f417543fc42ec9c62b5a0c9`.
+Astra reported three actionable P1s, Fable one actionable P1, and Grok returned
+zero-actionable. The round-7 fix wave addresses all four, plus the nearby P2/P3
+items, in PR #1797. No round-7 item is deferred.
 
-The driver must run round 6 against the pushed candidate and frozen configuration.
-No round-5 finding is deferred. The panel remains open for round 6.
-Historical review receipts and their configuration fingerprints remain retained.
+The driver ruling `RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER` requires shell, YAML and
+XML targets to report manual verification with extracted hints, never clean.
+Only real drift or unsupported forms make the check exit non-zero. TOML/JSON
+write eligibility now checks locator kind, matching canonical extension, parsed
+syntax and owned paths; CLI preflight occurs before target access or optional
+skipping, and historical restore receives the same eligibility checks.
+
+See the [current F handoff](../handoffs/rsc-f-agents-2026-10-15.md),
+[verification receipt](stage-5-f-panel-r7-verification.json) and
+[fingerprint receipt](stage-5-f-panel-r7-fingerprint.json).
+
+The panel remains OPEN for the driver's round 8 on the pushed candidate and
+recaptured configuration. No readiness monitor, merge or final gate file is
+created by this wave. Historical verdicts and fingerprints remain retained.

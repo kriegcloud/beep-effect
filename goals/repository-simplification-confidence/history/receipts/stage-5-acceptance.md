@@ -852,3 +852,19 @@ driver's round-5 panel. No native home configuration is changed by this wave.
 Panel acceptance, hosted merge clearance, native measurement gates and the
 30-session qualification windows remain open. The lane publishes only a panel
 candidate, never merge clearance while the panel is open.
+
+
+### F round-7 candidate — manual verification boundary
+
+The round-7 wave adds independent canonical-format eligibility to TOML/JSON apply
+and historical restore. The CLI refuses excluded write requests before target
+access or optional skipping. Shell/YAML/XML checks always require manual
+verification and expose extracted values only as hints; recognized drift and
+unsupported forms still fail. Manual status alone exits zero. The SPEC Decision
+Log records the driver's reason and parser/panel reversal condition.
+
+Current candidate evidence is `stage-5-f-panel-r7-verification.json` and
+`stage-5-f-panel-r7-fingerprint.json`; the October 15 F handoff maps every finding
+to its commit and regression. This wave performs zero home applies and preserves
+all previous backups and rollback evidence. The panel remains OPEN for round 8;
+this update makes no completion or zero-actionable claim for the new candidate.

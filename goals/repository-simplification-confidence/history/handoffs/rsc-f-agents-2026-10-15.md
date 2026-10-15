@@ -1,12 +1,91 @@
 lane: rsc-f-agents
-head: 3e47043ad006ef6620cc728b96a4938858c9a7d3 (verified implementation; packet delivery follows)   PR: #1797
+head: 90f9908d4092bc66951f7d709a088739d1c7b0f2   PR: #1797
+package-verify: @beep/repo-cli: pass (default audit 1246.3s; docgen 39.1s)
+hosted-parity: test-tsgo pass (380 files); docgen local pass; jsdoc-ratchet fail(inherited #1836, 11 > 8, all contributing files byte-identical to main); knowledge refs pass; fallow audit+health pass (0 findings); coverage pass (321 tests / 17 files / all 7 existing touched-file floors)
+config fingerprint (final): 6f71655c9d77281a3708ee4809e00cbbb624d2ba7bd074b61e3f1a1743adbd9c (353 equality inputs; 4 observed-only; panel candidate)   backups: no new native backups; all 3 retained backups present
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 8 and hosted gate; six operator-owned drift findings; incomplete 30-session windows and existing H3 measured gates; three previously tracked protocol follow-ups
+
+Prepared for the single push to #1797. The panel remains OPEN. No readiness monitor,
+merge, or final gate file. Main remains `f2ad44ca55`; a fresh fetch found no main
+movement, so no further main merge was needed. Dependencies were installed.
+The schema and instrumentation catalog shards were regenerated through both owner
+commands. Changeset graph passes with no changeset for this private package.
+S31: zero changed inventory files and zero added rows.
+
+`RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER` is recorded in SPEC.md with its reason and
+reversal. Shell, YAML and XML are always `manual verification required`;
+extracted values are hints, and recognized drift/unsupported forms still fail.
+Manual status alone exits zero. Only real drift or unsupported forms make
+`models check` fail. TOML and JSON clean controls still pass without manual rows.
+The write path independently checks locator kind, matching canonical extension,
+syntax and owned-path presence before backup or mutation; restore applies the
+same eligibility to historical journals. The CLI preflights before target access
+or optional-file skipping. Retained TOML/JSON preservation, exchange and rollback
+regressions pass.
+
+Exact workstation `models check` summary (exit 1):
+
+```text
+models: 24 manual target(s); 6 finding(s) across 492 catalog model(s) from router-for-me, codex-cache, grok-cache, cursor-agent, proxy-v1-models
+```
+
+All six findings remain in the recorded operator-owned Claude settings (one) and
+shell routes (five); F-owned drift is zero. No operator-owned file was written.
+Codex guard counts: 3 pass / 0 fail. Pinned read-only Codex probe: pass.
+Native configuration applies: 0. New native backups: 0. Retained backups:
+`models-2026-10-14T222221002Z-16103436.backup`,
+`rsc-f-pre-rollback-20261014T222520875693Z.backup`,
+`models-2026-10-14T222525456Z-12665845.backup` under `~/.config-backups/`.
+Their previously verified rollback receipts remain retained.
+
+`bun run lint:oxlint` ran on the current source: zero findings in changed files.
+Its 25 repository findings across 13 files are byte-identical to main.
+Cheap gates: 16 pass; only the two already tracked EV010 native-filesystem
+provenance advisories remain (`RSC-F-S31/F-S31-EV010`), with identical evidence
+and no inventory growth. The introduced preview-complexity and command-test
+schema advisories were repaired in code/tests; Fallow and schema-first now pass.
+
+| Finding | Fix commit | Fix and test |
+| --- | --- | --- |
+| F-ASTRA-R7-01, P1 | `b0be4e126c` | Apply and historical restore reject `start.sh` with a TOML locator and `config.yaml` with a JSON locator. Bytes stay identical; apply makes no backup; restore creates no backup artifact. A matching visible extension cannot hide an excluded canonical destination. |
+| F-ASTRA-R7-02, P1 | `b0be4e126c` | CLI preflight precedes resolution and optional skipping. Recording FileSystem tests prove zero target calls for existing, optional-absent and dangling shell targets, with typed refusals. |
+| F-ASTRA-R7-03, P1 | `b0be4e126c`, `90f9908d40` | The exact nested XML counterexample reports manual verification with an extracted hint through both check commands. No clean certification, writes or backups. |
+| R7-F1, P1 | `b0be4e126c`, `90f9908d40` | The escaped `MOD\EL` input reports manual verification. Tests assert each report's status, locator kind and hint, plus unchanged bytes and no backup. No new lexical special case. |
+| R7-F2, P2 | `b0be4e126c` | Superseded by the driver ruling: every shell read requires manual verification, including cross-line substitution forms. No lexical-case expansion. |
+| R7-F3, P3 | `b0be4e126c` | Same early CLI preflight and recording-FS regressions as F-ASTRA-R7-02. |
+| R7-F4, P3; new REST comment 4287913442, P2 | `b0be4e126c` | `modelsWriteSpans` derives refusal from the capability map before grammar handling. Deleted env/TS/text/Markdown write arms; grammar fixtures require typed refusals, including env-key. |
+| R7-F5, inherited P3 | `b0be4e126c` | Full JSON-tree duplicate-key detection precedes pointer traversal, including escaped JSON hints. Command regressions reject duplicate JSON while valid TOML and JSON remain non-manual and clean. |
+
+No round-7 P2/P3 item is deferred. `2c3c8c22df` removes the introduced preview
+complexity by reading/logging each hint once. `90f9908d40` keeps command output
+assertions separate from the report schema's existing property coverage.
+
+The fingerprint retains all 353 equality inputs. External native writes changed
+`~/.claude.json` and `~/.cursor/cli-config.json` relative to round 7; Cursor also
+changed during validation. The lane wrote neither file, changed no exclusions,
+and recaptures the point-in-time set after publication for the driver's panel.
+The pre-existing `.impeccable/live/` data is preserved.
+
+Graft saved approximately 52,237 tokens in one context query.
+
+fingerprint file: .beep/rsc-f-r7/fingerprint-pushed.json
+panel-candidate 90f9908d4092bc66951f7d709a088739d1c7b0f2 #1797
+fingerprint 6f71655c9d77281a3708ee4809e00cbbb624d2ba7bd074b61e3f1a1743adbd9c
+
+---
+
+Historical handoffs follow; the round-7 report above supersedes their publication markers.
+
+lane: rsc-f-agents
+head: 48122815841c51fc553fadd941f2e07829c5b5d1   PR: #1797
 package-verify: @beep/repo-cli: pass (default audit 1213.4s; docgen 37.2s)
 hosted-parity: test-tsgo pass (380 files); docgen local pass; jsdoc-ratchet fail(inherited #1836: missing-export examples +3, all contributing source identical to main); knowledge refs pass (0 live gated observations); fallow audit+health pass (0 findings); coverage pass (317 tests / 17 files / all 6 existing touched-file floors)
 config fingerprint (final): bf1ac6777cd6354d3bb728bcd940a1da0cacf1fb4f417543fc42ec9c62b5a0c9 (353 equality inputs; 4 observed-only; panel candidate)   backups: no new native backups; all 3 retained backups present
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
-open items: driver-owned panel round 7 and hosted gate; operator-owned diagnostics listed below; incomplete 30-session windows and existing H3 measured gates; three previously tracked protocol follow-ups
+open items: driver-owned panel round 7 and hosted gate; inherited Security ruleset drift (TS7 #1823) and JSDoc red (#1836); operator-owned diagnostics listed below; incomplete 30-session windows and existing H3 measured gates; three previously tracked protocol follow-ups
 
-Prepared for the single push to #1797; this committed handoff precedes publication. The panel remains OPEN. No readiness monitor or final gate file
+Published in exactly one push to #1797. The panel remains OPEN. No readiness monitor or final gate file
 was created. The lane does not merge. Main `a530447a06` was integrated initially;
 when the shared remote ref advanced to `f2ad44ca55` (#1836), the pre-publication
 merge integrated it through `3e47043ad0`. Dependencies were installed after each
@@ -91,11 +170,25 @@ previously recorded protocol reasons. Measured qualification windows stay open.
 | R6-F4, P3 | `727d7d04fb` | I/O mapping scopes only link creation; canonical destination and planned/restore race regressions pass with typed identity failures. |
 | R6-F5, P3 | `727d7d04fb` | Runbook documents retained pre-publication backup/journal pairs and no-op restore; exact/idempotent restore regression passes. |
 
+Publication verification: GitHub head matches `48122815841c51fc553fadd941f2e07829c5b5d1`. The pushed-head
+fingerprint recapture matches the committed receipt with zero changed equality
+paths. REST reply `4287808473` answers comment `4287218095`; thread
+`PRRT_kwDOPbO_N86s7X7I` is resolved. Final read: 0 unresolved and 0 actionable
+threads. Hosted checks are pending, with Security already red on live-ruleset
+drift: live requires `Heavy / Effect Diagnostics`, while the declaration omits
+it. Job `116646972703` was read immediately; workflow/CI inputs are unchanged
+from integrated main. Owner: TS7 #1823 / orchestrator. No monitor is started.
+
+The exact pushed-head report is saved as a local publication supplement in the
+lane handoff; the committed handoff identifies the verified implementation
+checkpoint. No second push was made. The pre-existing `.impeccable/live/`
+directory is preserved.
+
 Graft saved approximately 32,038 tokens across 3 calls.
 
-panel-candidate 3e47043ad006ef6620cc728b96a4938858c9a7d3 #1797
+panel-candidate 48122815841c51fc553fadd941f2e07829c5b5d1 #1797
 fingerprint bf1ac6777cd6354d3bb728bcd940a1da0cacf1fb4f417543fc42ec9c62b5a0c9
-fingerprint file: .beep/rsc-f-r6/fingerprint-pushed.json (recaptured after the single push)
+fingerprint file: .beep/rsc-f-r6/fingerprint-pushed.json
 
 ---
 

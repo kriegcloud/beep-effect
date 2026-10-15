@@ -14,13 +14,14 @@ are source-qualified; installed Desktop acceptance remains open for the operator
 fixture batch and F's owned-field config writer. F and overall acceptance remain active.
 
 
-F's PR #1797 remains open for the driver-owned three-model panel. Round 6
-returned two Astra P1s and one Grok P1. The pre-committed
-`RSC-F-WRITE-SCOPE-TOML-JSON` exit is applied: ModelsApply writes/restores only
-TOML and JSON. YAML, XML and shell remain readable and check-only; their readers
-account for every textual owned-name occurrence and report unsupported forms
-with line numbers, including occurrences only in comments or quoted data.
-All five nearby Fable P2/P3 items have a disposition in the SPEC Decision Log.
+F's PR #1797 remains open for the driver-owned three-model panel. Round 7
+returned three Astra P1s and one Fable P1; Grok was zero-actionable. The driver
+ruling `RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER` is applied: shell, YAML and XML
+always require manual verification and expose reader values only as hints.
+Recognized drift still fails; manual status alone exits zero. TOML/JSON writes
+and historical restore independently require matching canonical extensions,
+valid parsed bytes and owned paths. All nearby round-7 P2/P3 items are handled.
+The driver runs round 8 against the pushed candidate and recaptured fingerprint.
 
 The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries current proof
 and the candidate fingerprint for round 7. The [round-6 verification receipt](history/receipts/stage-5-f-panel-r6-verification.json)

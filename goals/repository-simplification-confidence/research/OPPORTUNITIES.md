@@ -2799,3 +2799,10 @@ checks before starting a long full audit when adding a scanner.
   admission wrapper needs command-local user-bus environment variables in this
   terminal. Reissued through that wrapper with the user bus selected; no direct
   heavy-command bypass. A wrapper-level discovery path would prevent recurrence.
+
+
+- 2026-10-15, F round-7 freeze validation: `f-config-fingerprint.py --check`
+  detected an external change to `~/.cursor/cli-config.json` during the audit.
+  The lane has not written that file and leaves the equality set unchanged.
+  Recapture after publication and give the driver the exact point-in-time set;
+  coordination with the native-file owner would prevent a stale panel input.
