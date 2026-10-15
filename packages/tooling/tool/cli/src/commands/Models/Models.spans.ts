@@ -42,7 +42,7 @@ const error = (message: string) => ModelsLocatorError.make({ message });
  * ```
  *
  * @param variable - Exact assignment name or model flag.
- * @returns A candidate-word pattern; projection also validates the complete line.
+ * @returns A candidate-word pattern for drift detection, never write authorization.
  * @category utilities
  * @since 0.0.0
  */
@@ -86,7 +86,7 @@ const isShellCode = (content: string, end: number): boolean =>
  *
  * @param content - Shell text to read.
  * @param variable - Exact assignment name or model flag.
- * @returns Literal values or a typed unsupported-word error.
+ * @returns Literal values, retaining unsupported words as raw drift evidence.
  * @category utilities
  * @since 0.0.0
  */
