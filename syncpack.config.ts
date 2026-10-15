@@ -147,32 +147,24 @@ const config = {
       // fast-xml-validator 1.3+ / detailed-xml-validator 2.2+ pull
       // @nodable/flexible-xml-parser, which references Buffer at module
       // scope and breaks every browser bundle.
-      // @effect/tsgo and its seven platform binaries move together and stay
-      // held back. The binaries are not cosmetic: `effect-tsgo patch` copies
-      // one over @typescript/typescript-<platform>/lib/tsc, so the platform pin
-      // *is* the compiler `bun run check` runs. Letting deps:update move them
-      // alone swaps the compiler silently, which is how 0.24.3 ended up nine
-      // minors ahead of a 0.19.0 wrapper.
-      // A bump also arms every rule absent from tsconfig.base.json's
-      // diagnosticSeverity map, because omitted rules run at their upstream
-      // default rather than off. `beep quality tsgo-rules` therefore requires
-      // every installed rule in that map: "error", or "off" only when
-      // `tsgoDisabledRules` declares it with a reason. Held at 0.51.1, the
-      // rule set tsc-rs ports, so editor, gate and tsc-rs agree. The code is
-      // already clean against 0.52.0 (proved 2026-10-13); that bump adds
-      // effectSleepZeroToYieldNow, flatMapToTap, preferEffectArray,
-      // preferEffectRecord, preferSchemaTaggedError and
-      // schemaClassMissingBrand at "error" (goal schema-opaque-default: the
-      // brand rule proved 0 hits on 2026-10-14; re-check preferEffectArray,
-      // which main gained 28 sites for after #1636), drops the removed
-      // `debug` option, and must also sweep apps/labs, which `bun run check`
-      // filters out.
-      // tsc-rs (pingdotgg/ts-rust) runs `beep:build`, `beep:check` and
-      // `beep:check:tests`; it compiles the Effect rules of one effect-tsgo
-      // version in (0.6.0 ports 0.51.1) and pins its own TypeScript
-      // (7.1.0-dev.20261008.1), so it is held with @effect/tsgo and the two
-      // move together: bump tsc-rs to the release that ports the new rule set
-      // in the same change. Table: docs/runbooks/typescript-toolchain.md.
+      // @effect/tsgo and its seven platform binaries move together. A reviewed
+      // bump updates the combined root/lane diagnosticSeverity map and the standalone
+      // `beep quality effect-diagnostics` census before these pins move.
+      // Effect rules come from @effect/tsgo through that diagnostics lane;
+      // tsc-rs still gates shared embedded rules until that lane is required.
+      // After one green main run, promote the lane and ruleset context, then
+      // fold the lane profile into compiler maps, set the three ignore flags
+      // true and delete standards/effect-diagnostics.profile.json.
+      // 0.53.0 was measured across all workspace check/test projects on
+      // 2026-10-14 (goals/effect-rules-diagnostics-lane). Five 0.52 rules are
+      // errors; schemaClassMissingBrand waits for schema-opaque-default
+      // to arm it in its closing PR.
+      // The import-style rules remain declared off; named helper imports are
+      // deliberate and Effect barrel imports contradict the module-path law.
+      // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is
+      // effect-tsgo 0.51.1 and its TypeScript pin is 7.1.0-dev.20261008.1.
+      // Re-couple only after tsc-rs ports the newest rules and parity is proved,
+      // then remove the standalone diagnostics lane. See the toolchain runbook.
       // @biomejs/biome 2.5.7 stops formatting JSON piped through
       // `biome format --stdin-file-path`, so `renderBiomeJson` — the writer
       // behind `beep tsconfig-sync` for docgen.json/tsconfig.json — emits

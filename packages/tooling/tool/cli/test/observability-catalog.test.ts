@@ -93,14 +93,17 @@ describe("harvestSourceFile", () => {
 
   it("resolves aliased effect/Effect namespace and named imports", () => {
     const harvest = harvestFixture(
-      [
-        'import * as Eff from "effect/Effect";',
-        'import { withSpan as span, fnUntraced } from "effect/Effect";',
-        'const read = Eff.fn("Parcels.read")(function* () {});',
-        'const write = fnUntraced("Parcels.write")(function* () {});',
-        'const list = span(Eff.void, "Parcels.list");',
-        'const other = Other.fn("Parcels.ignored");',
-      ].join("\n")
+      A.join(
+        [
+          'import * as Eff from "effect/Effect";',
+          'import { withSpan as span, fnUntraced } from "effect/Effect";',
+          'const read = Eff.fn("Parcels.read")(function* () {});',
+          'const write = fnUntraced("Parcels.write")(function* () {});',
+          'const list = span(Eff.void, "Parcels.list");',
+          'const other = Other.fn("Parcels.ignored");',
+        ],
+        "\n"
+      )
     );
     expect(A.map(harvest.sites, ({ name, callee }) => `${callee} ${name}`)).toEqual([
       "Effect.fn Parcels.read",

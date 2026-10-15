@@ -1,8 +1,10 @@
+import { effectDiagnosticsAffectedPackages } from "@beep/repo-cli/commands/Quality/EffectDiagnostics";
 import {
   collectTsgoSeverityDiagnosticsForTesting,
   TsgoDisabledRule,
   tsgoDisabledRules,
 } from "@beep/repo-cli/commands/Quality/Quality.command";
+import { CoverageScopeOwner, workspaceDependentOwners } from "@beep/repo-cli/test/Quality";
 import * as A from "effect/Array";
 import { describe, expect, it } from "vitest";
 
@@ -13,21 +15,27 @@ const pluginWith = (diagnosticSeverity: Readonly<Record<string, unknown>>, overr
 });
 
 describe("quality tsgo rule severities", () => {
-  it("declares exactly the three stability rules as off", () => {
+  it("declares stability and import-style exceptions explicitly", () => {
     expect(A.map(tsgoDisabledRules, (disabled) => disabled.rule)).toEqual([
       "apiStabilityLeak",
       "experimentalApiUsage",
       "unstableApiUsage",
+      "preferNamespaceImport",
+      "preferBarrelImport",
+      "schemaClassMissingBrand",
     ]);
     expect(TsgoDisabledRule.make({ rule: "unstableApiUsage", reason: "by design" }).rule).toBe("unstableApiUsage");
   });
 
-  it("accepts error rules and the declared-off stability rules", () => {
+  it("accepts error rules and the declared-off rules", () => {
     const severity = {
       floatingEffect: "error",
       apiStabilityLeak: "off",
       experimentalApiUsage: "off",
       unstableApiUsage: "off",
+      preferNamespaceImport: "off",
+      preferBarrelImport: "off",
+      schemaClassMissingBrand: "off",
     };
     expect(
       collectTsgoSeverityDiagnosticsForTesting({ plugin: pluginWith(severity), diagnosticSeverity: severity })
@@ -66,5 +74,52 @@ describe("quality tsgo rule severities", () => {
     expect(
       collectTsgoSeverityDiagnosticsForTesting({ plugin, diagnosticSeverity: severity }).disabledSeverityEntries
     ).toEqual(["compilerOptions.plugins.@effect/language-service.overrides.[0].diagnosticSeverity.unstableApiUsage"]);
+  });
+});
+
+describe("Effect diagnostics affected selection", () => {
+  const owners = [
+    CoverageScopeOwner.make({ packageName: "core", packagePath: "packages/core", hasCoverage: false }),
+    CoverageScopeOwner.make({
+      packageName: "mid",
+      packagePath: "packages/mid",
+      hasCoverage: true,
+      workspaceDependencies: ["core"],
+    }),
+    CoverageScopeOwner.make({
+      packageName: "lab",
+      packagePath: "apps/labs/demo",
+      hasCoverage: false,
+      workspaceDependencies: ["mid"],
+    }),
+    CoverageScopeOwner.make({ packageName: "other", packagePath: "packages/other", hasCoverage: true }),
+  ];
+  it("includes transitive dependents without requiring coverage scripts", () => {
+    expect(effectDiagnosticsAffectedPackages(owners, ["packages/core/src/index.ts"])).toEqual(["core", "lab", "mid"]);
+  });
+  it("supports data-last selection and transitive graph traversal", () => {
+    expect(effectDiagnosticsAffectedPackages(["packages/core/src/index.ts"])(owners)).toEqual(["core", "lab", "mid"]);
+    expect(workspaceDependentOwners(["core"])(owners)).toEqual(["lab", "mid"]);
+  });
+  it("selects an edited leaf without unrelated workspaces", () => {
+    expect(effectDiagnosticsAffectedPackages(owners, ["apps/labs/demo/test/a.ts"])).toEqual(["lab"]);
+  });
+  it("treats compiler policy and lockfile changes as global", () => {
+    for (const file of [
+      "tsconfig.base.json",
+      "standards/effect-diagnostics.profile.json",
+      "bun.lock",
+      "package.json",
+      "packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts",
+    ])
+      expect(effectDiagnosticsAffectedPackages(owners, [file])).toEqual(["core", "lab", "mid", "other"]);
+  });
+  it("does not match sibling prefixes or repository documentation", () => {
+    expect(effectDiagnosticsAffectedPackages(owners, ["packages/core-extra/src/a.ts", "docs/a.md"])).toEqual([]);
+  });
+  it("handles deleted workspace source and duplicate changed paths", () => {
+    expect(
+      effectDiagnosticsAffectedPackages(owners, ["packages/core/src/deleted.ts", "packages/core/src/deleted.ts"])
+    ).toEqual(["core", "lab", "mid"]);
   });
 });

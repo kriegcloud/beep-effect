@@ -712,7 +712,8 @@ const dependentsByPackageName = (
 // scope and the self-judge scope can never disagree about who is a dependent.
 const dependentOriginByPackageName = (
   owners: ReadonlyArray<CoverageScopeOwner>,
-  seedPackageNames: ReadonlyArray<string>
+  seedPackageNames: ReadonlyArray<string>,
+  measurableOnly = true
 ): ReadonlyArray<readonly [string, string]> => {
   const dependents = dependentsByPackageName(owners);
   const visited = MutableHashSet.fromIterable(seedPackageNames);
@@ -740,7 +741,7 @@ const dependentOriginByPackageName = (
   return pipe(
     A.fromIterable(origins),
     A.map(([packageName, seed]) => [packageName, seed] as const),
-    A.filter(([packageName]) => MutableHashSet.has(measurable, packageName)),
+    A.filter(([packageName]) => !measurableOnly || MutableHashSet.has(measurable, packageName)),
     A.sort(Order.mapInput(Order.String, ([packageName]: readonly [string, string]) => packageName))
   );
 };
@@ -789,6 +790,32 @@ export const coverageDependentOwners: {
   2,
   (owners: ReadonlyArray<CoverageScopeOwner>, seedPackageNames: ReadonlyArray<string>): ReadonlyArray<string> =>
     A.map(dependentOriginByPackageName(owners, seedPackageNames), ([packageName]) => packageName)
+);
+
+/**
+ * Reuse the affected-package graph walk without coverage capability filtering.
+ *
+ * **Details**
+ * Diagnostics also cover lab apps and workspaces without coverage scripts.
+ * The existing coverage helper retains its measurable-owner policy unchanged.
+ *
+ * **Example** (Select no dependents)
+ *
+ * ```ts
+ * import { workspaceDependentOwners } from "@beep/repo-cli/commands/Quality/internal/CoverageScope"
+ * console.log(workspaceDependentOwners([], [])) // []
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const workspaceDependentOwners: {
+  (seeds: ReadonlyArray<string>): (owners: ReadonlyArray<CoverageScopeOwner>) => ReadonlyArray<string>;
+  (owners: ReadonlyArray<CoverageScopeOwner>, seeds: ReadonlyArray<string>): ReadonlyArray<string>;
+} = dual(
+  2,
+  (owners: ReadonlyArray<CoverageScopeOwner>, seeds: ReadonlyArray<string>): ReadonlyArray<string> =>
+    A.map(dependentOriginByPackageName(owners, seeds, false), ([name]) => name)
 );
 
 /**
