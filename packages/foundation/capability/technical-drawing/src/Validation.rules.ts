@@ -57,64 +57,37 @@ const formatOf = (
     })
   );
 
-/**
- * Findings from the structural facts of a PDF.
- *
- * **Example** (An encrypted file)
- *
- * ```ts
- * import { PdfFacts, ValidationOptions, structuralFindings } from "@beep/technical-drawing"
- * import * as O from "effect/Option"
- *
- * const facts = PdfFacts.make({ headerVersion: "1.6", pages: [], fonts: [], annotationCount: 0, hasOptionalContent: false, encrypted: true })
- * console.log(structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.none() }) }).map((f) => f.code))
- * ```
- *
- * @category validation
- * @since 0.0.0
- */
-export const structuralFindings = (input: {
-  readonly facts: PdfFacts;
-  readonly options: ValidationOptions;
-}): ReadonlyArray<SheetFinding> => {
-  const { facts, options } = input;
-  const version = A.contains(PERMITTED_VERSIONS, facts.headerVersion)
-    ? []
-    : [fileFinding("pdf-version", `PDF header version "${facts.headerVersion}" is outside 1.1–1.6.`)];
-  const encrypted = facts.encrypted ? [fileFinding("encrypted", "The PDF is encrypted.")] : [];
-  const layers = facts.hasOptionalContent ? [fileFinding("optional-content", "The PDF declares layers.")] : [];
-  // A stream a strict reader refuses can fail intake although lenient viewers still show the page, and a check
-  // that stopped at the inflate limit leaves the streams after it unverified, so either fails the file.
-  const unchecked =
-    facts.streamCheck === "limit-reached"
+// A stream a strict reader refuses can fail intake although lenient viewers still show the page, and a check that
+// stopped at the inflate limit leaves the streams after it unverified, so either fails the file.
+const streamFindings = (facts: PdfFacts): ReadonlyArray<SheetFinding> => {
+  const limitReached = facts.streamCheck === "limit-reached";
+  if (A.isReadonlyArrayNonEmpty(facts.undecodableStreams)) {
+    const listed = A.join(
+      A.map(facts.undecodableStreams, (stream) => `${stream.objectNumber} ${stream.generation} R (${stream.reason})`),
+      ", "
+    );
+    const unchecked = limitReached
       ? " The check stopped at the inflate limit, so the FlateDecode streams after it were not checked."
       : "";
-  const undecodable = A.isReadonlyArrayNonEmpty(facts.undecodableStreams)
+    return [
+      fileFinding(
+        "pdf-stream-undecodable",
+        `${A.length(facts.undecodableStreams)} FlateDecode stream(s) fail a strict inflate: ${listed}.${unchecked}`
+      ),
+    ];
+  }
+  return limitReached
     ? [
         fileFinding(
           "pdf-stream-undecodable",
-          `${A.length(facts.undecodableStreams)} FlateDecode stream(s) fail a strict inflate: ${A.join(
-            A.map(
-              facts.undecodableStreams,
-              (stream) => `${stream.objectNumber} ${stream.generation} R (${stream.reason})`
-            ),
-            ", "
-          )}.${unchecked}`
+          "The strict-inflate check stopped at the inflate limit before every FlateDecode stream was checked, so the file is unverified."
         ),
       ]
-    : facts.streamCheck === "limit-reached"
-      ? [
-          fileFinding(
-            "pdf-stream-undecodable",
-            "The strict-inflate check stopped at the inflate limit before every FlateDecode stream was checked, so the file is unverified."
-          ),
-        ]
-      : [];
-  const annotations =
-    facts.annotationCount > 0
-      ? [fileFinding("annotations", `The PDF carries ${facts.annotationCount} annotation(s).`)]
-      : [];
-  const fonts = pipe(
+    : [];
+};
+
+const fontFindings = (facts: PdfFacts, options: ValidationOptions): ReadonlyArray<SheetFinding> => {
+  const missing = pipe(
     facts.fonts,
     A.filter((font) => !font.embedded),
     A.map((font) => fileFinding("font-not-embedded", `Font "${font.name}" is not embedded.`))
@@ -132,6 +105,10 @@ export const structuralFindings = (input: {
         )
       )
     : [];
+  return [...missing, ...unexpected];
+};
+
+const pageFindings = (facts: PdfFacts, options: ValidationOptions): ReadonlyArray<SheetFinding> => {
   const pageCount = pipe(
     options.expectedPages,
     O.filter((expected) => expected !== facts.pages.length),
@@ -165,18 +142,47 @@ export const structuralFindings = (input: {
   const distinct = pipe(formats, A.getSomes, A.dedupe);
   const mixed =
     A.length(distinct) > 1 ? [fileFinding("page-size-mixed", `Sheets mix formats: ${A.join(distinct, ", ")}.`)] : [];
+  return [...pageCount, ...noPages, ...sizes, ...mixed];
+};
+
+/**
+ * Findings from the structural facts of a PDF.
+ *
+ * **Example** (An encrypted file)
+ *
+ * ```ts
+ * import { PdfFacts, ValidationOptions, structuralFindings } from "@beep/technical-drawing"
+ * import * as O from "effect/Option"
+ *
+ * const facts = PdfFacts.make({ headerVersion: "1.6", pages: [], fonts: [], annotationCount: 0, hasOptionalContent: false, encrypted: true })
+ * console.log(structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.none() }) }).map((f) => f.code))
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const structuralFindings = (input: {
+  readonly facts: PdfFacts;
+  readonly options: ValidationOptions;
+}): ReadonlyArray<SheetFinding> => {
+  const { facts, options } = input;
+  const version = A.contains(PERMITTED_VERSIONS, facts.headerVersion)
+    ? []
+    : [fileFinding("pdf-version", `PDF header version "${facts.headerVersion}" is outside 1.1–1.6.`)];
+  const encrypted = facts.encrypted ? [fileFinding("encrypted", "The PDF is encrypted.")] : [];
+  const layers = facts.hasOptionalContent ? [fileFinding("optional-content", "The PDF declares layers.")] : [];
+  const annotations =
+    facts.annotationCount > 0
+      ? [fileFinding("annotations", `The PDF carries ${facts.annotationCount} annotation(s).`)]
+      : [];
   return [
     ...version,
     ...encrypted,
     ...layers,
     ...annotations,
-    ...fonts,
-    ...unexpected,
-    ...undecodable,
-    ...pageCount,
-    ...noPages,
-    ...sizes,
-    ...mixed,
+    ...fontFindings(facts, options),
+    ...streamFindings(facts),
+    ...pageFindings(facts, options),
   ];
 };
 
