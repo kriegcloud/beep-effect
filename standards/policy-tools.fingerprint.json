@@ -3,6 +3,7 @@
   "inputs": [
     ".fallowrc.jsonc",
     ".oxlintrc.deprecated-apis.jsonc",
+    ".oxlintrc.docs.json",
     ".oxlintrc.json",
     "_typos.toml",
     "biome.jsonc",

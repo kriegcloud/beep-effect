@@ -8,7 +8,7 @@ Status: `active` (P0 merged #1801; P1, P2, P3a and P3b complete; P3c service wir
 
 The schema comes first, then the contracts, then the implementation. The P3 producer and the
 notice job need the P2 services. The P4 handoff needs the P0 schema merged and the
-`practice-claude-mod` P1b queue gate. P0 starts once `review-verdict-envelope` (#1761) has merged,
+`practice-claude-mod-review-queue` follow-on to open (its review queue is the card's home). P0 starts once `review-verdict-envelope` (#1761) has merged,
 because the `question` member extends its `ReviewItem` union.
 
 ## Phases

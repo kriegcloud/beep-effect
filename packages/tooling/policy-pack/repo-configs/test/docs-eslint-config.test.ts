@@ -11,7 +11,7 @@ describe("docs-eslint-config", () => {
     expect(configIncludesPlugin("beep-laws")).toBe(false);
   });
 
-  it("keeps jsdoc and tsdoc plugins available for the docs lane", () => {
+  it("retains the historical docs plugins until follow-up ESLint removal", () => {
     expect(configIncludesPlugin("jsdoc")).toBe(true);
     expect(configIncludesPlugin("beep-jsdoc")).toBe(true);
     expect(configIncludesPlugin("eslint-plugin-tsdoc")).toBe(true);

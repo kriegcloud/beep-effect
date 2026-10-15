@@ -2495,6 +2495,14 @@
       "description": "Counts read from the mail-tagging ledgers and checkpoint."
     },
     {
+      "file": "apps/practice-review-hub/src/Config.ts",
+      "symbol": "ReviewHubConfig",
+      "kind": "struct-const",
+      "owner": "@beep/practice-review-hub",
+      "identity": "ReviewHubConfig",
+      "description": "Resolved settings of the review hub."
+    },
+    {
       "file": "apps/professional-desktop/src/chat/DerivedThreadTitle.ts",
       "symbol": "DerivedThreadTitle",
       "kind": "codec",
@@ -31238,6 +31246,14 @@
       "description": "Configuration of the file-backed mail-tagging state."
     },
     {
+      "file": "packages/law-practice/server/src/NoticeMailbox/NoticeMailbox.layer.ts",
+      "symbol": "NoticeMailboxConfig",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-server",
+      "identity": "NoticeMailboxConfig",
+      "description": "The attorney's mailbox the notice goes from and to, and the file that keeps the last notice day."
+    },
+    {
       "file": "packages/law-practice/server/src/PracticeKg.claims.ts",
       "symbol": "PracticeKgClaimsCarry",
       "kind": "struct-const",
@@ -31776,12 +31792,34 @@
       "description": "Provenance-resolution and consistency counts for one built bundle."
     },
     {
+      "file": "packages/law-practice/server/src/QuestionCalendar/QuestionCalendar.layer.ts",
+      "symbol": "QuestionCalendarConfig",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-server",
+      "identity": "QuestionCalendarConfig",
+      "description": "Mailbox and time zone of the calendar question writes go to."
+    },
+    {
+      "file": "packages/law-practice/server/src/ReviewFiles/ReviewFiles.layer.ts",
+      "symbol": "ReviewFilesConfig",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-server",
+      "identity": "ReviewFilesConfig",
+      "description": "The directory that holds the review hub's store files."
+    },
+    {
       "file": "packages/law-practice/server/src/Tools.ts",
       "symbol": "PracticeKgMcpServerConfig",
       "kind": "struct-const",
       "owner": "@beep/law-practice-server",
       "identity": "PracticeKgMcpServerConfig",
       "description": "Protocol-facing name and version for the practice KG MCP server."
+    },
+    {
+      "file": "packages/law-practice/server/src/internal/JsonlLog.ts",
+      "symbol": "makeJsonlLog",
+      "kind": "codec",
+      "owner": "@beep/law-practice-server"
     },
     {
       "file": "packages/law-practice/use-cases/src/CandorPolicy/CandorPolicy.errors.ts",
@@ -31946,6 +31984,37 @@
       "owner": "@beep/law-practice-use-cases",
       "identity": "UsptoClaimSet",
       "description": "Full-text public USPTO claims normalized into validated patent claims, with their source document."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.errors.ts",
+      "symbol": "NoticeMailboxError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "NoticeMailboxError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.errors.ts",
+      "symbol": "NoticeMailboxOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "NoticeMailboxOperation",
+      "description": "Notice-mailbox operation that failed: sending, reading the last sent day, or recording it."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.schemas.ts",
+      "symbol": "DailyNoticeOutcome",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DailyNoticeOutcome",
+      "description": "What one daily notice run did, discriminated on its status."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DailyNotice/DailyNotice.schemas.ts",
+      "symbol": "NoticeMessage",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "NoticeMessage",
+      "description": "The notice email: a subject and plain body that give only the number of waiting questions."
     },
     {
       "file": "packages/law-practice/use-cases/src/DocketIntake/DocketIntake.ports.ts",
@@ -32234,6 +32303,30 @@
       "owner": "@beep/law-practice-use-cases",
       "identity": "DocketPollReport",
       "description": "Counts of one docket intake poll cycle."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.schemas.ts",
+      "symbol": "DocketCandidateDate",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DocketCandidateDate",
+      "description": "One date a docket item's deadline could be, with where it came from."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.schemas.ts",
+      "symbol": "DocketCandidateDateSource",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DocketCandidateDateSource",
+      "description": "Where a candidate due date came from: stated, computed, either agent reader, or the docket sheet."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.schemas.ts",
+      "symbol": "DocketQuestionInput",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "DocketQuestionInput",
+      "description": "A docket intake outcome, with what the pipeline knows about it, to raise as a question."
     },
     {
       "file": "packages/law-practice/use-cases/src/DocketIntake/DocketReview.policy.ts",
@@ -33836,6 +33929,69 @@
       "owner": "@beep/law-practice-use-cases",
       "identity": "ProposedWriteBatch",
       "description": "The proposed writes the operator approves or declines as one batch."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.errors.ts",
+      "symbol": "ReviewHubErrorCode",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewHubErrorCode",
+      "description": "Stable code of a review hub tool failure: not-found, locked, unknown-option or store-unavailable."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.errors.ts",
+      "symbol": "ReviewHubToolError",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewHubToolError",
+      "description": "Failure a review hub tool returns: a stable code and a plain message."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "LockBatchRequest",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "LockBatchRequest",
+      "description": "Request to lock one review batch."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "OpenItems",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "OpenItems",
+      "description": "The items waiting for the attorney, in the order the store holds them."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "OpenItemsRequest",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "OpenItemsRequest",
+      "description": "Request for the items waiting for the attorney on one day."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewHub/ReviewHub.schemas.ts",
+      "symbol": "RecordAnswerRequest",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordAnswerRequest",
+      "description": "Request to record the attorney's answer to one stored question."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewItemStore/ReviewItemStore.errors.ts",
+      "symbol": "ReviewItemStoreError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewItemStoreError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewItemStore/ReviewItemStore.errors.ts",
+      "symbol": "ReviewItemStoreOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ReviewItemStoreOperation",
+      "description": "Review-item store operation that failed: reading the items or storing some."
     },
     {
       "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
@@ -40680,6 +40836,22 @@
       "owner": "@beep/lint-rules",
       "identity": "RuleRegistrySchema",
       "description": "Schema for the finite rule registry keyed by rule slug."
+    },
+    {
+      "file": "packages/tooling/policy-pack/lint-rules/src/rules/docs.model.ts",
+      "symbol": "DocsRuleId",
+      "kind": "literal-kit",
+      "owner": "@beep/lint-rules",
+      "identity": "DocsRuleId",
+      "description": "Repo-owned documentation rule identifiers."
+    },
+    {
+      "file": "packages/tooling/policy-pack/lint-rules/src/rules/docs.model.ts",
+      "symbol": "DocsRuleSet",
+      "kind": "struct-const",
+      "owner": "@beep/lint-rules",
+      "identity": "DocsRuleSet",
+      "description": "Validated severities for every documentation rule."
     },
     {
       "file": "packages/tooling/policy-pack/lint-rules/src/rules/utils.ts",
