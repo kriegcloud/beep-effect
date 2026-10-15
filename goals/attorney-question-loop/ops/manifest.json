@@ -50,7 +50,7 @@
     {
       "id": "P0",
       "name": "Schema",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
@@ -98,5 +98,5 @@
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "Graduated 2026-10-14 from the attorney-review-workspace re-entry. P0 waits for review-verdict-envelope (#1761) to merge, because the question member extends its ReviewItem union."
+  "statusNote": "P0 schema complete 2026-10-14 (question ReviewItem, AnswerRow, Question values); P1 contract next."
 }

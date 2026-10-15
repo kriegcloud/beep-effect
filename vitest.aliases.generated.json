@@ -1938,5 +1938,11 @@
   ],
   "@beep/repo-cli/commands/Reviewer": [
     "./packages/tooling/tool/cli/src/commands/Reviewer/index.ts"
+  ],
+  "@beep/law-practice-domain/values/AnswerRow": [
+    "./packages/law-practice/domain/src/values/AnswerRow/index.ts"
+  ],
+  "@beep/law-practice-domain/values/Question": [
+    "./packages/law-practice/domain/src/values/Question/index.ts"
   ]
 }

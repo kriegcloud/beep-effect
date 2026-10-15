@@ -1359,6 +1359,12 @@
       "description": "Expected successful parse or declared typed degradation for an F1 fixture."
     },
     {
+      "file": "apps/labs/semantica/src/layers/CanaryC2Live.ts",
+      "symbol": "sealC2EvalReport",
+      "kind": "struct-const",
+      "owner": "@beep/semantica"
+    },
+    {
       "file": "apps/labs/semantica/src/layers/LedgerLive.ts",
       "symbol": "LedgerLiveOptions",
       "kind": "struct-const",
@@ -2205,12 +2211,6 @@
       "owner": "@beep/practice-claude-mod",
       "identity": "ModHostError",
       "description": "A mod engine call rejected."
-    },
-    {
-      "file": "apps/practice-claude-mod/src/PracticeMod.matters.ts",
-      "symbol": "decodeMatterLookup",
-      "kind": "codec",
-      "owner": "@beep/practice-claude-mod"
     },
     {
       "file": "apps/practice-claude-mod/src/PracticeMod.values.ts",
@@ -28974,6 +28974,22 @@
       "description": "Annotation citation (#581): American Law Reports (A.L.R.) annotations — secondary authority that looks like a case citation."
     },
     {
+      "file": "packages/law-practice/domain/src/values/AnswerRow/AnswerRow.model.ts",
+      "symbol": "AnswerRow",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AnswerRow",
+      "description": "One append-only entry in the attorney's answer log for a question, discriminated on its state."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/AnswerRow/AnswerRow.model.ts",
+      "symbol": "AnswerState",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "AnswerState",
+      "description": "Where the attorney left a question: decided, pending on the client, keep reminding, or withdrawn."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/ApplicationNumber/ApplicationNumber.model.ts",
       "symbol": "ApplicationNumber",
       "kind": "brand",
@@ -30577,6 +30593,46 @@
       "description": "A parsed public law citation."
     },
     {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "OptionWrite",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "OptionWrite",
+      "description": "The write an answer option implies, discriminated on its kind."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "OptionWriteKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "OptionWriteKind",
+      "description": "Kinds of write an answer option can imply; calendar dates for now, docket writes later."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionFact",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionFact",
+      "description": "A fact the asking agent already checked against records, with its sources."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionOption",
+      "kind": "struct-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionOption",
+      "description": "One answer the attorney can choose, optionally naming the write it implies."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/Question/Question.model.ts",
+      "symbol": "QuestionOptions",
+      "kind": "schema-const",
+      "owner": "@beep/law-practice-domain",
+      "identity": "QuestionOptions",
+      "description": "The two to five answer options of one question, with distinct option ids."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/RegulationCitation/RegulationCitation.model.ts",
       "symbol": "RegulationCitation",
       "kind": "struct-const",
@@ -30614,7 +30670,7 @@
       "kind": "literal-kit",
       "owner": "@beep/law-practice-domain",
       "identity": "ReviewItemKind",
-      "description": "Kinds of agent work product that reach the attorney review queue."
+      "description": "Kinds of agent work product, and agent questions, that reach the attorney review queue."
     },
     {
       "file": "packages/law-practice/domain/src/values/Segment/Segment.model.ts",
@@ -42179,6 +42235,14 @@
       "owner": "@beep/repo-cli",
       "identity": "RouterErrorCode",
       "description": "Failure classification for transactional routing and enrollment checks."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.store.ts",
+      "symbol": "AgentMessageStoreLimits",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "AgentMessageStoreLimits",
+      "description": "Queue limits for a file-backed agent-message store."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.tools.ts",
@@ -54380,12 +54444,6 @@
       "owner": "@beep/repo-cli",
       "identity": "PermissionTuple",
       "description": "Effective approval, sandbox and permission profile recorded by a Codex turn."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.service.ts",
-      "symbol": "PermissionContinuityLive",
-      "kind": "codec",
-      "owner": "@beep/repo-cli"
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Session/Register.schemas.ts",
