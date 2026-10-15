@@ -2,10 +2,21 @@
 
 Workstation review hub: one MCP endpoint over HTTP for review items, answers and verdicts.
 
+## Commands
+
+- `serve --data-dir <dir> --allowed-logins <logins> [--port <port>]` serves the MCP endpoint on
+  `127.0.0.1`.
+- `notice --data-dir <dir> --time-zone <zone>` sends the daily notice; its mailbox settings come
+  from the `PRACTICE_REVIEW_NOTICE_*` environment variables under `op run`.
+
+Install, `tailscale serve`, the notice timer, upgrades and removal:
+[practice review hub](../../docs/runbooks/practice-review-hub.md). Sample user units are in
+`deploy/`; nothing installs them.
+
 ## Development
 
 ```bash
-bun run dev
+bun run dev   # watches src/main.ts; prints the commands until given one
 bun run check
 bun run test
 bun run lint
