@@ -20,7 +20,7 @@ const detect = (body: string) => {
   `
   );
   const program = project.getProgram().compilerObject;
-  return detectOpaqueRoundtrips({ program, sources: [source.compilerNode] });
+  return detectOpaqueRoundtrips(program)([source.compilerNode]);
 };
 
 // Compiler programs are isolated in memory; no fixture is written into the repository.

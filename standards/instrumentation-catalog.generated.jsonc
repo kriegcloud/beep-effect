@@ -3268,6 +3268,8 @@
     {"name":"OntologyValidationRunner.exportProvenance","owner":"@beep/ontology-use-cases","family":"slice","conforms":true},
     {"name":"OntologyValidationRunner.run","owner":"@beep/ontology-use-cases","family":"slice","conforms":true},
     {"name":"OntologyWorkspaceSeed.seedPizzaTutorial","owner":"@beep/professional-desktop","family":"app","conforms":true},
+    {"name":"OpaqueRoundtrips.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"OpaqueRoundtrips.scan","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"OpenAiCompatClient.createChatCompletion","owner":"@beep/openai-compat","family":"driver","conforms":true},
     {"name":"OpenAiCompatLanguageModel.make","owner":"@beep/openai-compat","family":"driver","conforms":true},
     {"name":"OpenAiCompatLanguageModel.makeChoiceParts","owner":"@beep/openai-compat","family":"driver","conforms":true},

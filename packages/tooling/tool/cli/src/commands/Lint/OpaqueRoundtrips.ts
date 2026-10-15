@@ -10,7 +10,6 @@ import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
-import { identity } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -133,75 +132,73 @@ const rawSample = (node: ts.Node, names: HashSet.HashSet<string>): boolean => {
  * ```ts
  * import { detectOpaqueRoundtrips } from "@beep/repo-cli/commands/Lint/OpaqueRoundtrips"
  * import { ts } from "ts-morph"
- * console.log(detectOpaqueRoundtrips({ program: ts.createProgram([], {}), sources: [] }).length) // 0
+ * console.log(detectOpaqueRoundtrips(ts.createProgram([], {}))([]).length) // 0
  * ```
  * @category diagnostics
  * @since 0.0.0
  */
-export const detectOpaqueRoundtrips = ({
-  program,
-  sources,
-  relativePath = identity,
-}: {
-  readonly program: ts.Program;
-  readonly sources: ReadonlyArray<ts.SourceFile>;
-  readonly relativePath?: (file: string) => string;
-}): ReadonlyArray<OpaqueRoundtripFinding> => {
-  const checker = program.getTypeChecker();
-  const findings = A.empty<OpaqueRoundtripFinding>();
-  for (const source of sources) {
-    const visit = (node: ts.Node, samples: HashSet.HashSet<string>): void => {
-      let scope = samples;
-      if (
-        ts.isCallExpression(node) &&
-        A.some(node.arguments, (argument) => /\bArbitrary\.\w+\(/.test(argument.getText(source)))
-      ) {
-        const collect = (argument: ts.Node): void => {
-          if (ts.isArrowFunction(argument) || ts.isFunctionExpression(argument)) {
-            for (const parameter of argument.parameters) scope = bindingNames(parameter.name, scope);
+export const detectOpaqueRoundtrips =
+  (program: ts.Program) =>
+  (sources: ReadonlyArray<ts.SourceFile>): ReadonlyArray<OpaqueRoundtripFinding> => {
+    const checker = program.getTypeChecker();
+    const findings = A.empty<OpaqueRoundtripFinding>();
+    for (const source of sources) {
+      const visit = (node: ts.Node, samples: HashSet.HashSet<string>): void => {
+        let scope = samples;
+        if (
+          ts.isCallExpression(node) &&
+          A.some(node.arguments, (argument) => /\bArbitrary\.\w+\(/.test(argument.getText(source)))
+        ) {
+          const collect = (argument: ts.Node): void => {
+            if (ts.isArrowFunction(argument) || ts.isFunctionExpression(argument)) {
+              for (const parameter of argument.parameters) scope = bindingNames(parameter.name, scope);
+            }
+          };
+          for (const argument of node.arguments) {
+            collect(argument);
+            if (ts.isCallExpression(argument)) for (const inner of argument.arguments) collect(inner);
           }
-        };
-        for (const argument of node.arguments) {
-          collect(argument);
-          if (ts.isCallExpression(argument)) for (const inner of argument.arguments) collect(inner);
         }
-      }
-      if (
-        HashSet.size(scope) > 0 &&
-        ts.isCallExpression(node) &&
-        ts.isPropertyAccessExpression(node.expression) &&
-        node.expression.name.text === "toStrictEqual" &&
-        ts.isCallExpression(node.expression.expression) &&
-        ts.isIdentifier(node.expression.expression.expression) &&
-        node.expression.expression.expression.text === "expect"
-      ) {
-        const actual = node.expression.expression.arguments[0];
-        const expected = node.arguments[0];
-        if (actual !== undefined && expected !== undefined && rawSample(actual, scope) !== rawSample(expected, scope)) {
-          const opaque = A.sort(
-            HashSet.fromIterable([
-              ...opaqueNames(checker, checker.getTypeAtLocation(actual)),
-              ...opaqueNames(checker, checker.getTypeAtLocation(expected)),
-            ]),
-            Order.String
-          );
-          if (A.isReadonlyArrayNonEmpty(opaque))
-            findings.push(
-              OpaqueRoundtripFinding.make({
-                file: relativePath(source.fileName),
-                line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
-                opaque,
-                text: Str.slice(0, 160)(Str.replace(/\s+/g, " ")(node.getText(source))),
-              })
+        if (
+          HashSet.size(scope) > 0 &&
+          ts.isCallExpression(node) &&
+          ts.isPropertyAccessExpression(node.expression) &&
+          node.expression.name.text === "toStrictEqual" &&
+          ts.isCallExpression(node.expression.expression) &&
+          ts.isIdentifier(node.expression.expression.expression) &&
+          node.expression.expression.expression.text === "expect"
+        ) {
+          const actual = node.expression.expression.arguments[0];
+          const expected = node.arguments[0];
+          if (
+            actual !== undefined &&
+            expected !== undefined &&
+            rawSample(actual, scope) !== rawSample(expected, scope)
+          ) {
+            const opaque = A.sort(
+              HashSet.fromIterable([
+                ...opaqueNames(checker, checker.getTypeAtLocation(actual)),
+                ...opaqueNames(checker, checker.getTypeAtLocation(expected)),
+              ]),
+              Order.String
             );
+            if (A.isReadonlyArrayNonEmpty(opaque))
+              findings.push(
+                OpaqueRoundtripFinding.make({
+                  file: source.fileName,
+                  line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
+                  opaque,
+                  text: Str.slice(0, 160)(Str.replace(/\s+/g, " ")(node.getText(source))),
+                })
+              );
+          }
         }
-      }
-      ts.forEachChild(node, (child) => visit(child, scope));
-    };
-    visit(source, HashSet.empty());
-  }
-  return findings;
-};
+        ts.forEachChild(node, (child) => visit(child, scope));
+      };
+      visit(source, HashSet.empty());
+    }
+    return findings;
+  };
 
 const scan = Effect.fn("OpaqueRoundtrips.scan")(function* () {
   const root = yield* findRepoRoot();
@@ -280,7 +277,9 @@ const scan = Effect.fn("OpaqueRoundtrips.scan")(function* () {
         });
         const sources = A.getSomes(A.map(files, (file) => O.fromUndefinedOr(program.getSourceFile(file))));
         findings.push(
-          ...detectOpaqueRoundtrips({ program, sources, relativePath: (file) => path.relative(root, file) })
+          ...A.map(detectOpaqueRoundtrips(program)(sources), (finding) =>
+            OpaqueRoundtripFinding.make({ ...finding, file: path.relative(root, finding.file) })
+          )
         );
       }
       return { findings, candidates: candidates.length };
