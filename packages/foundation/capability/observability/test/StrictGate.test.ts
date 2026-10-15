@@ -340,7 +340,11 @@ describe("layerStrictOtlp", () => {
         yield* (yield* OtlpExporter.Flusher).flush;
         const ledger = yield* (yield* StrictGate).ledger;
         expect(countOf(ledger, "egress-refused")).toBeGreaterThanOrEqual(3);
-        expect(countOf(ledger, "log-record-dropped")).toBe(1);
+        // The gate drops every log record the process emits, counted at export.
+        // Under CI the test runner's trace instrumentation logs into the same
+        // batch, so the count is at least this test's one record; the canary
+        // check below is what proves nothing of the record left.
+        expect(countOf(ledger, "log-record-dropped")).toBeGreaterThanOrEqual(1);
 
         const records = yield* (yield* StrictEgressSink).records;
         expect(A.dedupe(A.map(records, (record) => record.signal))).toEqual(
