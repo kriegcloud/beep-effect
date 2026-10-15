@@ -11,7 +11,7 @@
 
 [Unit]
 Description=Practice review hub: review items, answers and verdicts over MCP on 127.0.0.1
-Documentation=https://github.com/kriegcloud/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
+Documentation=https://github.com/beep-effect/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
 After=network-online.target
 Wants=network-online.target
 

@@ -183,9 +183,26 @@ journalctl --user -u practice-review-notice.service -n 20
 The notice claims the day before it sends, by creating
 `notice-sent/<YYYY-MM-DD>` with an exclusive create. Only one run can claim a
 day, so the timer and a hand-started run together still send at most one
-email. A send that fails leaves that day without an email rather than risking
-two; the timer tries again the next morning. `Persistent=true` runs a morning missed while the workstation was
-off at the next start.
+email. `Persistent=true` runs a morning missed while the workstation was off
+at the next start.
+
+A send that fails keeps the day's claim, so that day gets no email and the
+timer tries again the next morning. The claim is not released automatically
+because a failed send is not always a missing email: Graph can fail after the
+message went out. To resend the same day:
+
+1. Read the failure in the journal (the command above).
+2. In the attorney's mailbox, look in Sent Items for today's
+   "Claude: N questions waiting" notice. If it is there, stop: it was sent.
+   If an unsent copy sits in Drafts, delete it.
+3. Release the claim and run the notice again. The file is named for today in
+   the time zone the service passes as `--time-zone`:
+
+```bash
+rm <data-dir>/notice-sent/$(TZ=<time-zone> date +%F)
+systemctl --user start practice-review-notice.service
+journalctl --user -u practice-review-notice.service -n 20
+```
 
 ## 7. Verify
 

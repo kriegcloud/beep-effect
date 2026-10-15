@@ -9,7 +9,7 @@
 
 [Unit]
 Description=Practice review hub: daily email of how many questions wait
-Documentation=https://github.com/kriegcloud/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
+Documentation=https://github.com/beep-effect/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
 After=network-online.target
 Wants=network-online.target
 

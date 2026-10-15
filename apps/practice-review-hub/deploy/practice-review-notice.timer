@@ -7,7 +7,7 @@
 
 [Unit]
 Description=Practice review hub: run the daily notice each morning
-Documentation=https://github.com/kriegcloud/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
+Documentation=https://github.com/beep-effect/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
 
 [Timer]
 OnCalendar=*-*-* 08:30:00
