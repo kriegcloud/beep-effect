@@ -588,7 +588,8 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
       expect(yield* fs.readFileString(file)).toBe(merged);
       expect(yield* fs.exists(backups)).toBe(false);
       yield* fs.writeFileString(file, "model: old\nnative: retained\n");
-      assertTrue(O.isSome(yield* writer.apply(file, [owned], "write", backups)));
+      const applied = yield* writer.apply(file, [owned], "write", backups);
+      assertTrue(O.isSome(applied));
       expect(yield* fs.readFileString(file)).toBe('model: "gpt-6.1-sol"\nnative: retained\n');
     })
   );
