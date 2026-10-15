@@ -1,5 +1,5 @@
 {
-  "previous": "0052f04b703e29aac2d73732df4c3398e7c94f04af040bcc2d32f7785786c0fe",
+  "previous": "d91bb1da8a7c4b33ae78270e724ffebc581a6f02c78a14f05338fd1cb365d0b1",
   "review": {
     "reviewer": "Claude Fable 5.1 (observability-kernel-catalog, feat/observability-catalog-p2b)",
     "reason": "Re-record @beep/repo-ai-metrics after it gained a workspace dependency on @beep/observability for its catalog declarations; task commands, inputs, outputs, env and cache flags are unchanged and no qualification is granted.",
