@@ -4,13 +4,13 @@
     "id": "effect-rules-diagnostics-lane",
     "packetId": "goal-packet/v1:6eb474e5902075411861144d412c083bda62b849acd0de57deb1002ffeb5e2d6",
     "title": "Effect rules on their own diagnostics lane",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
-    "updated": "2026-10-14",
+    "updated": "2026-10-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/effect-rules-diagnostics-lane",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Run Effect language-service rules from the newest @effect/tsgo as a separate diagnostics lane so tsc-rs gates type errors only and the tsgo pin no longer waits on ts-rust; affected PR diagnostics and a parallel full hosted lane use measured bounded concurrency",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -66,17 +66,17 @@
     {
       "id": "P2",
       "name": "Verify",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

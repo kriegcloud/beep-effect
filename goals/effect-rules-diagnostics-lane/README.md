@@ -1,6 +1,6 @@
 # Effect rules on their own diagnostics lane
 
-Lifecycle: active. P2 is in-progress with performance work done; inherited/checkout-state integration remains. Implementation is uncommitted.
+Lifecycle: `completed-retained`. Implementation, performance wave and verification are complete; the packet closes in the lane PR.
 The Claude orchestrator owns git, publication and the final lifecycle flip.
 
 The [spike decision](history/2026-10-14-spike.md) is GO: 287 workspace check/test
