@@ -10,7 +10,7 @@ Status: `pending`
 | --- | --- | --- | --- |
 | P0 Research | complete | Parcel specs, sources per parcel, HttpApi contract. | Schemas drafted; sources verified. |
 | P1 Slice | complete | Account-headroom parcel + gauge + CLI. | First vertical slice verified live. |
-| P2 Parcels | pending | Remaining four parcels + completeness check. | Decode + freshness tests green. |
+| P2 Parcels | complete | Remaining four parcels + completeness check. | Decode + freshness tests green. |
 | P3 MCP + session | pending | palantiri-mcp host; session-open push. | MCP handshake smoke green. |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
 | P5 Close | pending | Reflection; packet flip. | completed-retained. |
@@ -90,6 +90,58 @@ Before marking the packet closed:
 - Not done in P1 (by design): OTLP export proven against a live collector
   (the layer is wired and flushes on scope close; no endpoint was set), the
   MCP host, `beep session open`, parcels 2-5.
+
+### P2 Parcels (complete 2026-10-15)
+
+- `@beep/palantiri`: `LaneReds.models` + `LaneReds` (inbox row and proof job
+  inputs, `LaneRed` item, 10-minute bound), `HostPressure.models` +
+  `HostPressure` (`parsePressureLine`/`parsePressureFile` over the
+  `PressureLine` schema, `PressureStall`/`HostMemory`/`AdmissionSlots`
+  items, 1-minute bound), `AppErrorClasses` (`Unknown{no-source}`, no port),
+  `SinceLastCheck.models` + `SinceLastCheck` (ledger and inbox inputs,
+  `SessionCursor`, `SessionChange` item, infinite bound), `Redaction`
+  (`redactText`), `Freshness` (`isFreshItem`, `unknownSplit`, shared with
+  account headroom), ports `LaneRedsSource`, `HostPressureSource`,
+  `SinceLastCheckSource`, `parcelSpecs`, the `session` query on
+  `GET /parcels/:id`, and the `beep.host.pressure_stall` gauge with the
+  `beep.resource` key.
+- `@beep/repo-cli`: live ports in `Palantiri.service.ts` (lane reds over
+  the inbox view and proof-job listing of this checkout and the ledger's live
+  lanes; host pressure over `/proc/pressure`, `MemoryStats` and the
+  admission snapshot; since-last-check over the session ledger, the inbox
+  and an atomically written cursor), `beep palantiri parcel <id> [--json]
+  [--budget N]` for all five ids (`since-last-check` also takes
+  `--session`), and `beep palantiri parcels`.
+- Decisions: `SPEC.md` Decision Log rows dated 2026-10-15 (app error
+  classes deferral, lane-reds scope, PSI split and gauge, cursor, redaction,
+  item tagging and label cap); design deltas in
+  [`research/parcels-design.md`](./research/parcels-design.md) "P2 as
+  built".
+- Live run (2026-10-15, workstation, `--json`; no `@` and no `/home/` in
+  any envelope):
+  - account-headroom: `Fresh`; `11 of 13 accounts fresh; 1 stale
+    (grok-bot), 1 unreachable (codex); most weekly headroom: claude #3 at
+    100%`.
+  - lane-reds: `Fresh`; `0 of 83 reds fresh; 83 stale (practice-gateway,
+    beep-effect, palantiri-parcels, beep-effect9, agent-message-lint-closeout,
+    +13 more); 22 P0, 61 P1 across 18 lanes` (receipt 20 of 83). The stale
+    reds are old, unacknowledged inbox rows across live lanes.
+  - host-pressure: `Fresh`; `5 of 5 readings fresh; cpu 1.8%, memory 0%,
+    io 3.5% stalled (some, avg10); 52.2 of 125.1 GiB available; admission 0
+    of 8 tokens active, 0 queued`.
+  - app-error-classes: `Unknown{no-source}`; `app error classes
+    unavailable: no telemetry query adapter exists yet`.
+  - since-last-check: `Fresh`; `12 changes since 2026-10-15T06:11:45.427Z:
+    12 session notes (...), 0 inbox rows`; the baseline is the cursor the
+    previous live read wrote.
+- Gates (2026-10-15): `observability catalog --write` then `--check`,
+  `lint effect-vitest`, `lint schema-first`, the schema-opaque codemod
+  `--check` over the changed `.ts` files, `turbo run check` for both
+  packages, `package-verify @beep/palantiri` and `@beep/repo-cli`,
+  `quality cache-policy` (0 blocking findings, so no baseline request),
+  `lint policy-fingerprint --check` and `tsconfig-sync --check` exit 0.
+  No inventory under `standards/` grew; the only `standards/` changes are
+  the regenerated instrumentation catalog and its summary table.
 
 ### Standing notes
 

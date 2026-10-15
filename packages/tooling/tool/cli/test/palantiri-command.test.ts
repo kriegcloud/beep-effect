@@ -3,9 +3,13 @@ import {
   AccountHeadroomSource,
   AccountsReportInputJson,
   AccountsWindowRemaining,
+  HostPressureSource,
+  LaneRedsSource,
   ParcelEnvelope,
+  ParcelItem,
   ParcelsReadSpan,
   reduceAccountHeadroom,
+  SinceLastCheckSource,
   SourceFailed,
 } from "@beep/palantiri";
 import {
@@ -25,6 +29,7 @@ import {
   palantiriCommand,
   printParcel,
 } from "@beep/repo-cli/test/Palantiri";
+import { MemoryStats } from "@beep/repo-cli/test/RepoRun";
 import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
@@ -113,6 +118,19 @@ const withEnv = (env: Record<string, string>) =>
 // Parcels never serve files, so file-response support gets a no-op filesystem.
 const noFiles = Layer.mergeAll(FileSystem.layerNoop({}), Path.layer);
 
+// The ports this file does not exercise, failing if read.
+const offline = (parcel: "lane-reds" | "host-pressure" | "since-last-check") =>
+  Effect.fail(SourceFailed.make({ parcel, detail: "not wired in this test" }));
+
+const otherSources = Layer.mergeAll(
+  Layer.succeed(LaneRedsSource, { snapshot: offline("lane-reds") }),
+  Layer.succeed(HostPressureSource, { snapshot: offline("host-pressure") }),
+  Layer.succeed(SinceLastCheckSource, {
+    read: Effect.fn("SinceLastCheckSource.stub.read")(() => offline("since-last-check")),
+    advance: Effect.fn("SinceLastCheckSource.stub.advance")(() => offline("since-last-check")),
+  })
+);
+
 const spans = MutableHashMap.empty<string, Tracer.NativeSpan>();
 const recordingTracer = Tracer.make({
   span(options) {
@@ -123,7 +141,7 @@ const recordingTracer = Tracer.make({
 });
 
 const stubRuntime = layerPalantiriRuntime(
-  Layer.effect(AccountHeadroomSource, Effect.succeed({ snapshot: reportSource })),
+  Layer.merge(otherSources, Layer.effect(AccountHeadroomSource, Effect.succeed({ snapshot: reportSource }))),
   Layer.succeed(Tracer.Tracer, recordingTracer)
 ).pipe(Layer.provide(noFiles));
 
@@ -135,7 +153,9 @@ describe("printParcel over a stub source", () => {
         const envelope = yield* S.decodeEffect(S.fromJsonString(ParcelEnvelope))(json);
         expect(envelope.parcel).toBe("account-headroom");
         expect(envelope.freshness._tag).toBe("Fresh");
-        expect(A.map(envelope.items, (item) => [item.provider, item.account])).toEqual([
+        expect(
+          A.map(A.filter(envelope.items, ParcelItem.guards.AccountHeadroom), (item) => [item.provider, item.account])
+        ).toEqual([
           ["claude", 1],
           ["codex", 1],
         ]);
@@ -155,9 +175,12 @@ describe("printParcel over a stub source", () => {
 });
 
 const failingRuntime = layerPalantiriRuntime(
-  Layer.succeed(AccountHeadroomSource, {
-    snapshot: Effect.fail(SourceFailed.make({ parcel: "account-headroom", detail: "offline" })),
-  }),
+  Layer.merge(
+    otherSources,
+    Layer.succeed(AccountHeadroomSource, {
+      snapshot: Effect.fail(SourceFailed.make({ parcel: "account-headroom", detail: "offline" })),
+    })
+  ),
   Layer.empty
 ).pipe(Layer.provide(noFiles));
 
@@ -174,9 +197,9 @@ describe("printParcel over a failing source", () => {
 });
 
 describe("beep palantiri parcel account-headroom", () => {
-  it("is registered under palantiri parcel", () => {
+  it("is registered under palantiri parcel, beside the parcels listing", () => {
     const parcel = A.flatMap(palantiriCommand.subcommands, (group) => group.commands);
-    expect(A.map(parcel, (command) => command.name)).toEqual(["parcel"]);
+    expect(A.map(parcel, (command) => command.name)).toEqual(["parcel", "parcels"]);
   });
 
   it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
@@ -199,6 +222,10 @@ describe("beep palantiri parcel account-headroom", () => {
             HttpClient.HttpClient,
             HttpClient.make(() => Effect.die("no network in this test"))
           ),
+          Effect.provideService(
+            MemoryStats,
+            MemoryStats.of({ availableGib: Effect.succeed(40), totalGib: Effect.succeed(64) })
+          ),
           withEnv({
             BEEP_ACCOUNTS_AUTH_DIR: path.join(root, "auth"),
             BEEP_ACCOUNTS_SNAPSHOT_DIR: snapshots,
@@ -207,9 +234,13 @@ describe("beep palantiri parcel account-headroom", () => {
           })
         );
         const envelope = yield* S.decodeEffect(S.fromJsonString(ParcelEnvelope))(json);
-        expect(A.map(envelope.items, (item) => [item.provider, item.account, item.state])).toEqual([
-          ["cursor", 1, "ok"],
-        ]);
+        expect(
+          A.map(A.filter(envelope.items, ParcelItem.guards.AccountHeadroom), (item) => [
+            item.provider,
+            item.account,
+            item.state,
+          ])
+        ).toEqual([["cursor", 1, "ok"]]);
         expect(pipe(json, Str.includes("@"))).toBe(false);
       })
     );

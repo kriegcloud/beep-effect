@@ -1,7 +1,7 @@
 /**
  * Instrument declarations owned by `@beep/palantiri`: the `Parcels.read` span,
- * the `beep.accounts.window_remaining` gauge, and the attribute keys they
- * carry.
+ * the `beep.accounts.window_remaining` and `beep.host.pressure_stall` gauges,
+ * and the attribute keys they carry.
  *
  * **Details**
  *
@@ -30,6 +30,7 @@ import {
 import { LiteralKit } from "@beep/schema";
 import * as O from "effect/Option";
 import { AccountWindowKind } from "./AccountHeadroom.models.ts";
+import { PressureResource } from "./HostPressure.models.ts";
 import { ParcelId } from "./Parcel.models.ts";
 
 const $I = $PalantiriId.create("Palantiri.instruments");
@@ -135,6 +136,23 @@ export const WindowAttribute = AttributeKeyName.make("beep.window");
 export const ProviderAttribute = AttributeKeyName.make("beep.provider");
 
 /**
+ * Attribute key naming the resource a pressure stall gauge series measures:
+ * `cpu`, `memory` or `io`.
+ *
+ * **Example** (Read the resource key)
+ *
+ * ```ts
+ * import { ResourceAttribute } from "@beep/palantiri/Palantiri.instruments"
+ *
+ * console.log(ResourceAttribute) // "beep.resource"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const ResourceAttribute = AttributeKeyName.make("beep.resource");
+
+/**
  * The `Parcels.read` span: one parcel read, labelled by parcel and freshness.
  *
  * **Example** (Read the span name)
@@ -190,17 +208,50 @@ export const AccountsWindowRemaining = MetricInstrument.make({
 });
 
 /**
- * Palantiri declarations: `beep.parcel`, `beep.parcel_freshness` and
- * `beep.window`, plus the `Parcels.read` span and the
- * `beep.accounts.window_remaining` gauge.
+ * The `beep.host.pressure_stall` gauge: percent of the last 10 seconds in
+ * which some tasks stalled on a resource, from the kernel's pressure stall
+ * information.
+ *
+ * **Details**
+ *
+ * One series per resource (`beep.resource`: cpu, memory, io). It is recorded
+ * only from fresh readings, so a host without pressure stall information
+ * records nothing rather than zero.
+ *
+ * **Example** (Read the gauge name and unit)
+ *
+ * ```ts
+ * import { HostPressureStall } from "@beep/palantiri/Palantiri.instruments"
+ *
+ * console.log(HostPressureStall.name) // "beep.host.pressure_stall"
+ * console.log(HostPressureStall.unit) // "%"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const HostPressureStall = MetricInstrument.make({
+  name: MetricName.make("beep.host.pressure_stall"),
+  owner,
+  attributes: [ResourceAttribute],
+  minTier: "shape-only",
+  description: "Percent of the last 10 seconds some tasks stalled on a resource (PSI some avg10).",
+  kind: "gauge",
+  unit: UcumUnit.make("%"),
+});
+
+/**
+ * Palantiri declarations: `beep.parcel`, `beep.parcel_freshness`,
+ * `beep.window` and `beep.resource`, plus the `Parcels.read` span and the
+ * `beep.accounts.window_remaining` and `beep.host.pressure_stall` gauges.
  *
  * **Example** (List the Palantiri attribute keys)
  *
  * ```ts
  * import { PalantiriInstruments } from "@beep/palantiri/Palantiri.instruments"
  *
- * console.log(PalantiriInstruments.attributes.length) // 3
- * console.log(PalantiriInstruments.instruments.length) // 2
+ * console.log(PalantiriInstruments.attributes.length) // 4
+ * console.log(PalantiriInstruments.instruments.length) // 3
  * ```
  *
  * @category constants
@@ -238,6 +289,16 @@ export const PalantiriInstruments = InstrumentDeclarations.make({
       owner,
       description: "Plan-limit window a quota reading measures.",
     }),
+    AttributeKey.make({
+      key: ResourceAttribute,
+      type: "string",
+      signals: [SignalKind.Enum.metric, SignalKind.Enum.span],
+      cardinality: "static",
+      minTier: "shape-only",
+      values: O.some(PressureResource.literals),
+      owner,
+      description: "Resource a pressure stall reading measures.",
+    }),
   ],
-  instruments: [ParcelsReadSpan, AccountsWindowRemaining],
+  instruments: [ParcelsReadSpan, AccountsWindowRemaining, HostPressureStall],
 });
