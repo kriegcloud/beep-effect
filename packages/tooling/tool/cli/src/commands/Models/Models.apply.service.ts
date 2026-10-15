@@ -129,6 +129,14 @@ const assertOwnedBytes = Effect.fnUntraced(function* (
   });
   // Re-resolve all owned locators, including absent-key removal assertions.
   for (const write of writes) {
+    if (write.remove !== true) {
+      const projected = yield* modelsReadLocator(
+        ModelsTargetFile.make({ root: "home", absolutePath: "projected", content: after }),
+        write.locator
+      );
+      if (!O.contains(projected, write.expected))
+        return yield* failure("Owned projection does not match its parsed expected value.");
+    }
     const resolved = yield* modelsWriteSpans(after, write);
     if (write.remove === true && A.isReadonlyArrayNonEmpty(resolved))
       return yield* failure("Removed native key returned during projection.");

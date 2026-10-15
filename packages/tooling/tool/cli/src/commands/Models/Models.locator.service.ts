@@ -195,7 +195,7 @@ const fieldsOf = (node: unknown): O.Option<Readonly<Record<string, unknown>>> =>
   P.isObjectOrArray(node) ? O.some(node as Readonly<Record<string, unknown>>) : O.none();
 
 const walkPointer = (value: unknown, pointer: ReadonlyArray<string>): O.Option<string> =>
-  O.flatMap(modelsParsedLeaf(value, pointer), scalarText);
+  O.filter(modelsParsedLeaf(value, pointer), P.isString);
 
 const readTomlPath = (text: string, path: ReadonlyArray<string>) =>
   modelsParseToml(text).pipe(

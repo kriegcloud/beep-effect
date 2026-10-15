@@ -185,6 +185,12 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
           false,
         ],
         [
+          "quoted-trap.toml",
+          { _tag: "toml-top-level-key", key: "model", binding, render },
+          'x="""\nmodel="gpt-6.1-sol"\n"""\n"model"="wrong"\n',
+          false,
+        ],
+        [
           "escaped.json",
           { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render },
           '{"model":"gpt-6.1-\\u0073ol","native":true}',
