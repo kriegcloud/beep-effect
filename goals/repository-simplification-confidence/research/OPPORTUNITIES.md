@@ -2898,3 +2898,21 @@ The initial native-fs swap helper was rejected by `quality test-tsgo` with
 FileSystem in its layer and runs an uninterruptible test transaction, preserving
 the production capability boundary and the typed error channel. This is covered
 by the settled 334-test coverage run and its eight retained baseline floors.
+
+
+### RSC #1797 burndown: native-subject classification remains a policy repair
+
+The assigned baseline scan reports three new EV010 judgments: the two native
+apply suites and the catalog suite. The existing F-S31-EV010 receipt requires
+preserving the native filesystem proof and forbids import-spelling bypasses.
+A test-only repair cannot replace those native subjects with MemoryFileSystem
+without changing what they prove. The lane requested clarification before
+changing the EV010 detector and its paired regression fixtures. No exception,
+ratchet, assertion, or native-test input was changed. A brief that explicitly
+assigns the detector follow-up would avoid this scope conflict.
+
+The brief also omits its promised handoff path and report format. Until a path
+is supplied, the lane retains its report under its ignored `.beep/` directory.
+The bare `beep lint laws` command requires `--package`; this checkout's scoped
+run reports three existing effect-fn findings, while `knowledge doctor --report`
+independently reproduces the deleted documentation-ESLint test path.
