@@ -19,8 +19,10 @@ import {
   layerShapeOnlyStderr,
   loadPracticeKgBundleContext,
   makePracticeKgHostLayer,
+  printPracticeKgPrivacyReceipt,
   printPracticeKgSelfCheck,
   printPracticeKgTelemetrySelfCheck,
+  runPracticeKgPrivacyReceipt,
   runPracticeKgSelfCheck,
   runPracticeKgTelemetrySelfCheck,
 } from "./runtime/index.ts";
@@ -39,6 +41,13 @@ const selfCheck = Flag.Boolean("self-check").pipe(
 const selfCheckTelemetry = Flag.Boolean("self-check-telemetry").pipe(
   Flag.withDescription(
     "Round-trip a test secret through the telemetry key path, print one JSON line (ok, key path, telemetry directory), and exit."
+  ),
+  Flag.withDefault(false)
+);
+
+const privacyReceipt = Flag.Boolean("privacy-receipt").pipe(
+  Flag.withDescription(
+    "Print the weekly privacy receipt (refusal and spool counts, key path and epoch, names only) as Markdown, write nothing, and exit."
   ),
   Flag.withDefault(false)
 );
@@ -92,8 +101,11 @@ const check = (flags: BundleFlags) =>
 
 const serverCommand = Command.make(
   "practice-kg-mcp",
-  { bundleDir, corpusRoot, selfCheck, selfCheckTelemetry },
+  { bundleDir, corpusRoot, selfCheck, selfCheckTelemetry, privacyReceipt },
   Effect.fnUntraced(function* (flags) {
+    if (flags.privacyReceipt) {
+      return yield* printPracticeKgPrivacyReceipt(runPracticeKgPrivacyReceipt());
+    }
     if (flags.selfCheckTelemetry) {
       return yield* printPracticeKgTelemetrySelfCheck(runPracticeKgTelemetrySelfCheck());
     }

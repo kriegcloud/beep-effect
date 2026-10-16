@@ -12,7 +12,9 @@ import {
   StrictSpoolError,
   StrictSpoolKey,
   StrictSpoolOptions,
+  StrictSpoolOutcome,
   StrictSpoolSegment,
+  surveyStrictSpool,
 } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
@@ -20,6 +22,7 @@ import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as ByteSize from "effect/ByteSize";
+import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
 import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
@@ -29,6 +32,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as OtlpExporter from "effect/observability/OtlpExporter";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -43,11 +47,11 @@ const textDecoder = new TextDecoder();
 const decodeSegment = S.decodeUnknownEffect(S.fromJsonString(StrictSpoolSegment));
 const encodeSegment = S.encodeEffect(S.fromJsonString(StrictSpoolSegment));
 
+const keyOf = (epoch: string, fill: number) =>
+  StrictSpoolKey.of({ epoch, protection: "dev-memory", material: Redacted.make(new Uint8Array(32).fill(fill)) });
+
 const keyLayer = (epoch: string, fill: number): Layer.Layer<StrictSpoolKey> =>
-  Layer.succeed(
-    StrictSpoolKey,
-    StrictSpoolKey.of({ epoch, protection: "dev-memory", material: Redacted.make(new Uint8Array(32).fill(fill)) })
-  );
+  Layer.succeed(StrictSpoolKey, keyOf(epoch, fill));
 
 const defaultKey = keyLayer("1", 7);
 
@@ -91,6 +95,17 @@ const recordThroughSink = (spool: StrictSpool["Service"], record: StrictEgressRe
   Effect.flatMap(Effect.service(StrictEgressSink), (sink) => sink.record(record)).pipe(
     provideScopedLayer(layerStrictSpoolSink.pipe(Layer.provide(Layer.succeed(StrictSpool, spool))))
   );
+
+// A clock stopped at `millis`.
+const clockAt = (millis: number): Clock.Clock => ({
+  currentTimeMillisUnsafe: () => millis,
+  currentTimeMillis: Effect.succeed(millis),
+  currentTimeNanosUnsafe: () => BigInt(millis) * BigInt(1_000_000),
+  currentTimeNanos: Effect.succeed(BigInt(millis) * BigInt(1_000_000)),
+  monotonicTimeNanosUnsafe: () => BigInt(millis) * BigInt(1_000_000),
+  monotonicTimeNanos: Effect.succeed(BigInt(millis) * BigInt(1_000_000)),
+  sleep: () => Effect.never,
+});
 
 const flipFirstCiphertextByte = (segment: StrictSpoolSegment): StrictSpoolSegment => {
   const bytes = Result.getOrThrow(Base64.decode(segment.ciphertextBase64));
@@ -148,6 +163,39 @@ describe("StrictSpool", () => {
       })
     );
 
+    it.effect("surveys a spool without writing to it: seal times, sizes and outcomes, oldest first", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const survey = surveyStrictSpool(StrictSpoolOptions.make({ directory: "/survey", tier: "shape-only" })).pipe(
+          Effect.provideService(StrictSpoolKey, keyOf("1", 7))
+        );
+        expect((yield* survey).entries).toEqual([]);
+        expect(yield* fs.exists("/survey")).toBe(false);
+
+        const spool = yield* spoolWith("/survey");
+        yield* spool.append(tracesRecord);
+        yield* spool.append(metricsRecord);
+        // The seal time is read from the name, so renaming a segment moves it.
+        const [first] = yield* segmentFiles("/survey");
+        yield* fs.rename(`/survey/${first ?? ""}`, `/survey/000001700000000-${Str.slice(16)(first ?? "")}`);
+        yield* fs.writeFileString("/survey/zzz-garbage.seg", "{not json");
+        const before = yield* fs.readDirectory("/survey");
+
+        const { entries } = yield* survey;
+        expect(yield* fs.readDirectory("/survey")).toEqual(before);
+        expect(A.map(entries, (entry) => entry.sealedAtMillis)).toEqual([0, 1_700_000_000, 0]);
+        const sizes = yield* Effect.forEach(yield* segmentFiles("/survey"), (name) =>
+          fs.stat(`/survey/${name}`).pipe(Effect.map((info) => ByteSize.toNumberUnsafe(info.size)))
+        );
+        expect(A.map(entries, (entry) => entry.sizeBytes)).toEqual(sizes);
+        expect(A.map(entries, (entry) => entry.outcome)).toEqual([
+          StrictSpoolOutcome.cases.opened.make({ record: metricsRecord }),
+          StrictSpoolOutcome.cases.opened.make({ record: tracesRecord }),
+          StrictSpoolOutcome.cases.refused.make({ tag: "spool-segment-invalid" }),
+        ]);
+      })
+    );
+
     it.effect("counts a header edited to a looser tier as invalid, not tier-refused", () =>
       Effect.gen(function* () {
         const spool = yield* spoolWith("/loosened", { tier: "shape-only" });
@@ -161,6 +209,13 @@ describe("StrictSpool", () => {
         expect(replay.records).toEqual([]);
         expect(countOf(replay.refused, "spool-segment-invalid")).toBe(1);
         expect(countOf(replay.refused, "spool-tier-refused")).toBe(0);
+        // The survey (and the privacy receipt built on it) classifies the same way.
+        const { entries } = yield* surveyStrictSpool(
+          StrictSpoolOptions.make({ directory: "/loosened", tier: "shape-only" })
+        ).pipe(Effect.provideService(StrictSpoolKey, keyOf("1", 7)));
+        expect(A.map(entries, (entry) => entry.outcome)).toEqual([
+          StrictSpoolOutcome.cases.refused.make({ tag: "spool-segment-invalid" }),
+        ]);
       })
     );
 
@@ -222,6 +277,53 @@ describe("StrictSpool", () => {
         expect(evicted).toBe(2);
         expect((yield* spool.replay).records).toEqual(A.drop(bodies, 2));
         expect(A.length(yield* segmentFiles("/eviction/spool"))).toBe(2);
+      })
+    );
+
+    it.effect("counts each eviction per segment and a failed remove as spool-evict-failed", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const roomy = yield* spoolWith("/evict-failure");
+        const bodies = A.map(["one", "two", "six"], (word) =>
+          StrictEgressRecord.make({ signal: "traces", body: `{"resourceSpans":[{"name":"${word}"}]}` })
+        );
+        yield* Effect.forEach(bodies, (record) => roomy.append(record), { discard: true });
+        const [, second] = yield* segmentFiles("/evict-failure");
+        const stuck = `/evict-failure/${second ?? ""}`;
+        // A disk that refuses to remove the second-oldest segment.
+        const stubborn = FileSystem.FileSystem.of({
+          ...fs,
+          remove: Effect.fn("StubbornFileSystem.remove")(function* (
+            target: string,
+            options?: Parameters<FileSystem.FileSystem["remove"]>[1]
+          ) {
+            if (target === stuck) {
+              return yield* PlatformError.systemError({
+                _tag: "PermissionDenied",
+                module: "FileSystem",
+                method: "remove",
+              });
+            }
+            return yield* fs.remove(target, options);
+          }),
+        });
+        // A budget of exactly one metrics segment: the three older segments are over it.
+        const probe = yield* spoolWith("/evict-failure-probe");
+        yield* probe.append(metricsRecord).pipe(Effect.provideService(Clock.Clock, clockAt(1_000)));
+        const [probeFile] = yield* segmentFiles("/evict-failure-probe");
+        const budget = ByteSize.toNumberUnsafe((yield* fs.stat(`/evict-failure-probe/${probeFile ?? ""}`)).size);
+        const tight = yield* spoolWith("/evict-failure", { maxBytes: budget }).pipe(
+          Effect.provideService(FileSystem.FileSystem, stubborn)
+        );
+        // Sealed a second later, so the new segment sorts after the three older ones.
+        const ledger = yield* tight.append(metricsRecord).pipe(Effect.provideService(Clock.Clock, clockAt(1_000)));
+        // The first and third were removed; the append itself still succeeded.
+        expect(countOf(ledger, "spool-evicted")).toBe(2);
+        expect(countOf(ledger, "spool-evict-failed")).toBe(1);
+        const left = yield* segmentFiles("/evict-failure");
+        expect(A.length(left)).toBe(2);
+        expect(A.take(left, 1)).toEqual([second ?? ""]);
+        expect(A.map((yield* tight.replay).records, (record) => record.signal)).toEqual(["traces", "metrics"]);
       })
     );
 

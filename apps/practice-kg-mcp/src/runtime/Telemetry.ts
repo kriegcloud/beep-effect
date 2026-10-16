@@ -1,8 +1,8 @@
 /**
  * Strict-tier telemetry for the practice KG host: the shape-only stderr
  * logger, the salt that keys exported span ids, the encrypted spool every
- * held-back export goes to, and the layer that puts the strict OTLP gate
- * under the MCP server.
+ * held-back export goes to, the coarsened process metrics, and the layer
+ * that puts the strict OTLP gate under the MCP server.
  *
  * **Details**
  *
@@ -45,6 +45,7 @@ import {
   PracticeKgToolKey,
 } from "../telemetry/PracticeKgTelemetry.instruments.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "../Version.ts";
+import { layerBunProcessSampler, layerPracticeKgProcessMetrics } from "./ProcessMetrics.ts";
 import { layerPracticeKgDpapi, layerPracticeKgSpoolKey, resolvePracticeKgTelemetryDir } from "./TelemetryKey.ts";
 import type {
   StrictEgressSink,
@@ -61,8 +62,22 @@ import type { ChildProcessSpawner } from "effect/process";
 // practice KG handler span.
 const PracticeKgToolSpanPrefixes = ["mcp.tool.call.", "PracticeKgTools."] as const;
 
-// Catalog the gate reads: the kernel declarations plus the practice KG keys.
-const PracticeKgTelemetryCatalog = InstrumentCatalog.make({
+/**
+ * The catalog the practice KG gate reads: the kernel declarations plus the
+ * practice KG keys and gauges.
+ *
+ * **Example** (Count the catalogued keys)
+ *
+ * ```ts
+ * import { PracticeKgTelemetryCatalog } from "../../src/runtime/Telemetry.ts"
+ *
+ * console.log(PracticeKgTelemetryCatalog.attributes.length > 0) // true
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const PracticeKgTelemetryCatalog: InstrumentCatalog = InstrumentCatalog.make({
   attributes: [...ObservabilityInstruments.attributes, ...PracticeKgTelemetryInstruments.attributes],
   instruments: [...ObservabilityInstruments.instruments, ...PracticeKgTelemetryInstruments.instruments],
 });
@@ -195,17 +210,10 @@ export const layerShapeOnlyStderr: Layer.Layer<never> = Layer.mergeAll(
   Layer.succeed(Logger.LogToStderr, true)
 );
 
-const layerTelemetryFor = (
-  config: StrictGateConfig
-): Layer.Layer<StrictGate | OtlpExporter.Flusher, never, StrictSalt | StrictEgressSink> =>
-  Layer.mergeAll(
-    Logger.layer([shapeOnlyStderrLogger], { mergeWithExisting: true }),
-    Layer.succeed(Logger.LogToStderr, true)
-  ).pipe(Layer.provideMerge(layerStrictOtlp(config)));
-
 /**
- * Host telemetry: the strict OTLP export plus the shape-only stderr logger,
- * leaving the salt and the egress sink to the caller.
+ * Host telemetry for one gate configuration: the strict OTLP export, the
+ * shape-only stderr logger and the coarsened process metrics, leaving the
+ * salt and the egress sink to the caller.
  *
  * **Details**
  *
@@ -214,40 +222,65 @@ const layerTelemetryFor = (
  * beside it. Nothing is sent anywhere: the strict egress client holds every
  * export back.
  *
- * **Example** (Build the host telemetry)
+ * Production always passes a configuration with every gate rule on
+ * ({@link PracticeKgStrictGateConfig}, or the spooled one under the key
+ * epoch); the parameter exists so the strict-tier mutation tests can turn
+ * one rule off.
+ *
+ * **Example** (Build the telemetry for the default configuration)
  *
  * ```ts
- * import { layerPracticeKgTelemetry } from "../../src/runtime/Telemetry.ts"
+ * import { layerPracticeKgTelemetryFor, PracticeKgStrictGateConfig } from "../../src/runtime/Telemetry.ts"
  * import * as Layer from "effect/Layer"
  *
- * console.log(Layer.isLayer(layerPracticeKgTelemetry)) // true
+ * console.log(Layer.isLayer(layerPracticeKgTelemetryFor(PracticeKgStrictGateConfig))) // true
  * ```
  *
+ * @param config - Gate configuration the strict OTLP layer serializes through.
  * @category layers
  * @since 0.0.0
  */
-export const layerPracticeKgTelemetry: Layer.Layer<
-  StrictGate | OtlpExporter.Flusher,
-  never,
-  StrictSalt | StrictEgressSink
-> = layerTelemetryFor(PracticeKgStrictGateConfig);
+export const layerPracticeKgTelemetryFor = (
+  config: StrictGateConfig
+): Layer.Layer<StrictGate | OtlpExporter.Flusher, never, StrictSalt | StrictEgressSink> =>
+  Layer.mergeAll(
+    Logger.layer([shapeOnlyStderrLogger], { mergeWithExisting: true }),
+    Layer.succeed(Logger.LogToStderr, true),
+    layerPracticeKgProcessMetrics.pipe(Layer.provide(layerBunProcessSampler))
+  ).pipe(Layer.provideMerge(layerStrictOtlp(config)));
 
-// `layerPracticeKgTelemetry` with the in-memory salt and the in-memory
-// egress sink. The host falls back to it when it has no telemetry directory
-// or its root key cannot be loaded: exports are still gated, and the
-// held-back bodies stay in memory and die with the process.
-const layerPracticeKgTelemetryInMemory: Layer.Layer<StrictGate | OtlpExporter.Flusher> = layerPracticeKgTelemetry.pipe(
-  Layer.provide(Layer.mergeAll(layerInMemoryStrictSalt, layerInMemoryEgressSink()))
-);
+// The production telemetry with the in-memory salt and the in-memory egress
+// sink. The host falls back to it when it has no telemetry directory or its
+// root key cannot be loaded: exports are still gated, and the held-back bodies
+// stay in memory and die with the process.
+const layerPracticeKgTelemetryInMemory: Layer.Layer<StrictGate | OtlpExporter.Flusher> = layerPracticeKgTelemetryFor(
+  PracticeKgStrictGateConfig
+).pipe(Layer.provide(Layer.mergeAll(layerInMemoryStrictSalt, layerInMemoryEgressSink())));
 
-// The tier the practice KG host runs at, resolved fail-closed.
-const practiceKgTelemetryTier: Effect.Effect<StrictTierResolution> = Effect.gen(function* () {
+/**
+ * The tier the practice KG host runs at, resolved fail-closed from the
+ * `PRACTICE_KG_TELEMETRY_TIER` request; it is always `shape-only` on a
+ * strict desktop.
+ *
+ * **Example** (Resolve the tier)
+ *
+ * ```ts
+ * import { resolvePracticeKgTelemetryTier } from "../../src/runtime/Telemetry.ts"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(resolvePracticeKgTelemetryTier)) // true
+ * ```
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const resolvePracticeKgTelemetryTier: Effect.Effect<StrictTierResolution> = Effect.gen(function* () {
   const requested = yield* Config.option(Config.String("PRACTICE_KG_TELEMETRY_TIER"));
   return resolveStrictTier(O.none(), [requested]);
 }).pipe(Effect.orElseSucceed(() => resolveStrictTier(O.none(), [O.some("unreadable")])));
 
 /**
- * {@link layerPracticeKgTelemetry} over the encrypted spool: the salt and the
+ * {@link layerPracticeKgTelemetryFor} over the encrypted spool: the salt and the
  * spool key both derive from the {@link StrictSpoolKey}, and the gate
  * exports the key's epoch.
  *
@@ -278,7 +311,7 @@ export const layerPracticeKgTelemetrySpooled = (
   Layer.unwrap(
     Effect.gen(function* () {
       const key = yield* StrictSpoolKey;
-      return layerTelemetryFor(makePracticeKgStrictGateConfig(key.epoch)).pipe(
+      return layerPracticeKgTelemetryFor(makePracticeKgStrictGateConfig(key.epoch)).pipe(
         Layer.provide(layerStrictSpoolSink),
         Layer.provide(layerStrictSpool(options)),
         Layer.provide(layerStrictSaltFromKey(bunHmacSha256Hex))
@@ -319,7 +352,7 @@ export const layerPracticeKgTelemetryProduction: Layer.Layer<
     const path = yield* Path.Path;
     const platform = yield* HostProcessPlatform;
     const directory = yield* resolvePracticeKgTelemetryDir(platform);
-    const resolution = yield* practiceKgTelemetryTier;
+    const resolution = yield* resolvePracticeKgTelemetryTier;
     return O.match(directory, {
       onNone: () => layerPracticeKgTelemetryInMemory,
       onSome: (telemetryDir) =>

@@ -1,6 +1,7 @@
 /**
  * Instrument declarations owned by `@beep/practice-kg-mcp`: the tool id and
- * tool failure reason attribute keys the strict tier exports.
+ * tool failure reason attribute keys the strict tier exports, and the
+ * coarsened process CPU and RSS gauges.
  *
  * **Details**
  *
@@ -15,7 +16,15 @@
  * @since 0.0.0
  */
 import { $PracticeKgMcpId } from "@beep/identity/packages";
-import { AttributeKey, AttributeKeyName, InstrumentDeclarations, PackageName } from "@beep/observability/catalog";
+import {
+  AttributeKey,
+  AttributeKeyName,
+  InstrumentDeclarations,
+  MetricInstrument,
+  MetricName,
+  PackageName,
+  UcumUnit,
+} from "@beep/observability/catalog";
 import { LiteralKit } from "@beep/schema";
 import * as O from "effect/Option";
 
@@ -98,8 +107,73 @@ export const PracticeKgToolKey = AttributeKeyName.make("beep.practice_kg.tool");
 export const PracticeKgFailureReasonAttribute = AttributeKeyName.make("beep.practice_kg.failure_reason");
 
 /**
+ * The `beep.practice_kg.process.cpu` gauge: the host's CPU use over the last
+ * 5-minute window, as a percent of one core, floored to a 5% step.
+ *
+ * **Details**
+ *
+ * The host samples its CPU time every 10 seconds and records one value per
+ * window; the strict gate then floors it again onto its value ladder. The
+ * gauge has no labels.
+ *
+ * **Example** (Read the gauge name and unit)
+ *
+ * ```ts
+ * import { PracticeKgProcessCpu } from "../../src/telemetry/PracticeKgTelemetry.instruments.ts"
+ *
+ * console.log(PracticeKgProcessCpu.name) // "beep.practice_kg.process.cpu"
+ * console.log(PracticeKgProcessCpu.unit) // "%"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const PracticeKgProcessCpu = MetricInstrument.make({
+  name: MetricName.make("beep.practice_kg.process.cpu"),
+  owner,
+  attributes: [],
+  minTier: "shape-only",
+  description: "Host CPU use over the last 5-minute window, percent of one core, floored to a 5% step.",
+  kind: "gauge",
+  unit: UcumUnit.make("%"),
+});
+
+/**
+ * The `beep.practice_kg.process.rss` gauge: the host's largest resident set
+ * size in the last 5-minute window, floored to a 32 MiB step.
+ *
+ * **Details**
+ *
+ * Sampled every 10 seconds, recorded once per window, and floored again by
+ * the strict gate. No disk I/O counter is ever recorded. The gauge has no
+ * labels.
+ *
+ * **Example** (Read the gauge name and unit)
+ *
+ * ```ts
+ * import { PracticeKgProcessRss } from "../../src/telemetry/PracticeKgTelemetry.instruments.ts"
+ *
+ * console.log(PracticeKgProcessRss.name) // "beep.practice_kg.process.rss"
+ * console.log(PracticeKgProcessRss.unit) // "By"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const PracticeKgProcessRss = MetricInstrument.make({
+  name: MetricName.make("beep.practice_kg.process.rss"),
+  owner,
+  attributes: [],
+  minTier: "shape-only",
+  description: "Largest host resident set size in the last 5-minute window, floored to a 32 MiB step.",
+  kind: "gauge",
+  unit: UcumUnit.make("By"),
+});
+
+/**
  * Practice KG declarations: the tool id and failure reason keys, both
- * allowed at the `shape-only` tier with literal values only.
+ * allowed at the `shape-only` tier with literal values only, and the process
+ * CPU and RSS gauges.
  *
  * **Example** (Count the declared keys)
  *
@@ -107,6 +181,7 @@ export const PracticeKgFailureReasonAttribute = AttributeKeyName.make("beep.prac
  * import { PracticeKgTelemetryInstruments } from "../../src/telemetry/PracticeKgTelemetry.instruments.ts"
  *
  * console.log(PracticeKgTelemetryInstruments.attributes.length) // 2
+ * console.log(PracticeKgTelemetryInstruments.instruments.length) // 2
  * ```
  *
  * @category constants
@@ -135,4 +210,5 @@ export const PracticeKgTelemetryInstruments = InstrumentDeclarations.make({
       description: "Literal reason a practice KG tool call failed; never the failure message.",
     }),
   ],
+  instruments: [PracticeKgProcessCpu, PracticeKgProcessRss],
 });
