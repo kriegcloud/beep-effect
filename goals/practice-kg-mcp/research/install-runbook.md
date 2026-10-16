@@ -109,6 +109,42 @@ with code 0:
 Nothing in this check, or in the host, sends telemetry anywhere; AC-5 below is
 unchanged.
 
+## Weekly privacy receipt
+
+Once a week, from the same PowerShell window and user, print what the strict
+telemetry refused and held back over the last 7 days:
+
+```
+practice-kg-mcp.exe --privacy-receipt
+```
+
+It reads the current key file (the highest `key.<epoch>.dpapi`, found the way
+the host finds it) and the `spool\` folder under the telemetry directory,
+prints a Markdown receipt to the window and exits with code 0. It writes
+nothing: a missing key is reported as `missing`, never created. The receipt
+holds counts and names only:
+
+- the 7-day window, the tier (`shape-only`) and the key's wrapping path and
+  epoch;
+- spool segments in the window by signal, their bytes, and the segments sealed
+  earlier;
+- each refusal tag with how much its count grew in the window (for example
+  `log-record-dropped`, `egress-refused`);
+- a spool table with every spool refusal tag, zeros included:
+  `spool-evicted`, `spool-evict-failed`, `spool-write-failed`,
+  `spool-tier-refused`, `spool-segment-invalid`;
+- the attribute keys and metric names the held-back exports carry.
+
+It never prints an attribute value, a tool argument, a span name or a folder
+path; the directory appears only as `<telemetry dir>`, and a name outside the
+telemetry catalog is counted, never printed. Paste the receipt into the
+weekly maintenance note. `Spool: not read (no key loaded)` means the key file
+is missing or did not unwrap for this user; run the telemetry key smoke above.
+`Spool: not read (the key loaded but the spool … step failed)` means the key
+is fine but the `spool\` folder could not be read; it names only the step. A
+count shown as `≥ N, baseline truncated` is a lower bound: the spool had
+already evicted that counter's earlier points.
+
 ## Refresh
 
 ## Updating an existing install

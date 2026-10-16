@@ -241,3 +241,19 @@ spec text with `JSON.stringify` instead cleared the lint but failed effect diagn
 `ModelSpec` decoder.
 **Prevention:** count untracked live advisories in the summary line (or print them as
 `introduced`), so a gate reading the counters cannot miss a failing exit.
+
+## 2026-10-15 — the Fable seat never finished, and a seat's time limit ended the whole run
+
+**Doing:** running review loop 4, passes 3 and 4, through `beep drawings critics run`.
+**Evidence:** the Fable seat (`claude-fable-5-1` at xhigh) failed three times on the matter pack. In
+pass 3 it ended at the CLI's 64k output cap and, rerun by hand with a 128k cap, at that cap too:
+each time `claude -p` exited 1 with `api_error` `max_output_tokens`, and the loop recorded a bare
+failed run with no report. In pass 4, with 96k output and 48k thinking caps exported by hand, it
+reached the 90-minute seat limit; the harness failed with "exceeded 90 minutes and was stopped",
+so the first invocation wrote no `loop.json`, and Kimi and Opus ran in a second invocation whose
+`loop.json` lists only those two seats.
+**Prevention:** a time limit and an output-cap stop are now recorded seat outcomes (`time-limit`,
+`output-limit` on `CriticSeatUnavailable`), the sequence goes on, and every summary names the seat;
+Claude seats default to the 96k output and 48k thinking caps (SPEC Decision Log 2026-10-15). Still
+open: choose the Fable seat's effort or limits for matter packs (a lower effort, a longer time
+limit, or recording the seat as unavailable for them) before the next review loop.
