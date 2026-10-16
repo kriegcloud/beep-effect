@@ -83,7 +83,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 16 review-fix handoff](history/handoffs/rsc-f-agents-2026-10-16.md). The shared gate now distinguishes removal post-state and missing ownership with tagged results. Panel round 10 remains OPEN and driver-owned.
+F: [October 16 bounded-fix handoff](history/handoffs/rsc-f-agents-2026-10-16.md). F-GROK-R10-01 now refuses non-scalar removals consistently before backup. The [bounded proof](history/receipts/stage-5-f-r10-bounded-verification.json) and [candidate fingerprint](history/receipts/stage-5-f-r10-bounded-fingerprint.json) accompany the one permitted fix push. The capped panel remains OPEN for the driver's Grok/Fable re-check.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated
 before/after measurements are recorded. Remaining acceptance covers incomplete
 30-session windows, four H3 native measurement gates, external-owner

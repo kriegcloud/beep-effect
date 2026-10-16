@@ -254,7 +254,7 @@ produces them.
 | Catalog and holds (H1) | `rsc-h1-catalog` | `history/receipts/stage-4-h1-catalog.md` |
 | Known advisories (H2) | `rsc-h2-completion` | `history/receipts/stage-4-completion-receipts.md#known-advisories` |
 | Telemetry qualification (H3) | `rsc-h3-telemetry` | `history/receipts/stage-4-h3-telemetry.md` |
-| Global configuration | `rsc-f-agents` | `history/receipts/stage-5-acceptance.md#global-configuration`, `history/receipts/stage-3-f-inventory.md`, `history/receipts/stage-3-f-before-measurement.md`, `history/receipts/stage-5-f-after-measurement.md`, and `history/handoffs/rsc-f-agents-2026-10-16.md` (latest review-fix gates); round-9 `history/receipts/stage-5-f-panel-r9-verification.json` / `history/receipts/stage-5-f-panel-r9-fingerprint.json` remains historical |
+| Global configuration | `rsc-f-agents` | `history/receipts/stage-5-acceptance.md#global-configuration`, `history/receipts/stage-3-f-inventory.md`, `history/receipts/stage-3-f-before-measurement.md`, `history/receipts/stage-5-f-after-measurement.md`, and `history/handoffs/rsc-f-agents-2026-10-16.md` (capped round-10 bounded fix), `history/receipts/stage-5-f-r10-bounded-verification.json` / `history/receipts/stage-5-f-r10-bounded-fingerprint.json`; round-9 `history/receipts/stage-5-f-panel-r9-verification.json` / `history/receipts/stage-5-f-panel-r9-fingerprint.json` remains historical |
 | Storage | `rsc-g-storage` | `history/receipts/stage-5-acceptance.md#storage` and `history/receipts/stage-5-storage-cleanup.md` |
 | Cache | `rsc-g-storage` | `history/receipts/stage-5-cache.md` |
 | Permission continuity | `rsc-h4-permissions` | `history/receipts/stage-5-acceptance.md#permission-continuity` |
