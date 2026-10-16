@@ -2,7 +2,6 @@ import {
   LocatorBinding,
   ModelId,
   ModelSyncTarget,
-  ModelsCheckReport,
   ModelsLocatorWrite,
   ModelsManifest,
   modelsCommand,
@@ -14,7 +13,6 @@ import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
 import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -33,7 +31,6 @@ import type { Locator } from "@beep/repo-cli/commands/Models";
 const run = Command.runWith(modelsCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeEffect(ModelsManifest);
 const encodeManifest = S.encodeEffect(S.fromJsonString(ModelsManifest));
-const decodeCheckReport = S.decodeUnknownEffect(S.fromJsonString(ModelsCheckReport));
 const native = '# synthetic native state\nmodel = "old"\n[projects.synthetic]\ntrust_level = "trusted"\n';
 
 const fixture = Effect.fnUntraced(function* () {
@@ -161,19 +158,18 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
             Effect.provideService(FileSystem.FileSystem, reader),
             Effect.result
           );
-          const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
-          const findings = A.filter(report.findings, (entry) => entry.targetId === "synthetic.tagged");
+          const report = A.last(yield* TestConsole.logLines).pipe(O.getOrThrow);
           expect(A.fromIterable(yield* fs.readFile(actual))).toEqual(A.fromIterable(bytes));
           expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
           if (tag === "eligible") {
-            expect(findings).toEqual([]);
+            expect(report).toContain('"findings": []');
+            expect(report).toContain('"hasDrift": false');
             return;
           }
-          expect(findings).toHaveLength(1);
-          const entry = A.head(findings).pipe(O.getOrThrow);
-          expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
-          if (tag === "absent-owned-path") assertNone(entry.current);
-          else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
+          expect(report).toContain('"targetId": "synthetic.tagged"');
+          expect(report).toContain(`"kind": "${tag === "absent-owned-path" ? "missing-locator" : "stale"}"`);
+          if (tag === "absent-owned-path") expect(report).not.toContain('"current":');
+          else expect(report).toContain(`form: ${tag}:`);
         }),
         { concurrency: 1, discard: true }
       );
