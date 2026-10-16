@@ -1074,7 +1074,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     })
   );
 
-  it.effect("leaves dotted and table TOML keys outside scalar removal ownership", () =>
+  it.effect("refuses table removal and preserves an absent literal dotted key", () =>
     Effect.gen(function* () {
       const request = ModelsLocatorWrite.make({
         ...topLevel,
@@ -1086,15 +1086,14 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
         },
         remove: true,
       });
-      for (const text of [
-        'sandbox_mode.foo = "native"\n',
-        '[sandbox_mode]\nfoo = "native"\n',
-        '"sandbox_mode.foo" = "native"\n',
-      ]) {
-        const spans = yield* modelsWriteSpans(text, request);
-        expect(spans).toHaveLength(0);
-        expect(yield* modelsApplySpans(text, spans)).toBe(text);
+      for (const text of ['sandbox_mode.foo = "native"\n', '[sandbox_mode]\nfoo = "native"\n']) {
+        const refusal = yield* Effect.flip(modelsWriteSpans(text, request));
+        expect(refusal.message).toBe("Unsupported removal shape: owned leaf must be a scalar TOML assignment.");
       }
+      const absent = '"sandbox_mode.foo" = "native"\n';
+      const spans = yield* modelsWriteSpans(absent, request);
+      expect(spans).toHaveLength(0);
+      expect(yield* modelsApplySpans(absent, spans)).toBe(absent);
     })
   );
 

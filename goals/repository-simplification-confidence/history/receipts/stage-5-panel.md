@@ -23,3 +23,23 @@ See the [current F handoff](../handoffs/rsc-f-agents-2026-10-15.md),
 The panel remains OPEN for the driver's round 10 on the pushed candidate and
 recaptured configuration. This wave creates no readiness monitor, merge or
 final gate file. Historical verdicts and fingerprints remain retained.
+
+
+## Capped round 10: bounded F-GROK-R10-01 repair (2026-10-16)
+
+Round 10 reviewed `477c322596b289c813bd1202c263734a6b283088`: Astra and
+Fable returned zero actionable findings; Grok reported F-GROK-R10-01.
+Under the operator's cap and S34, this wave fixes only that finding and the
+strictly required verification issues. The shared native eligibility gate
+now returns `unsupported-removal-shape` for table and array removals. The
+span writer also refuses them, and preview uses parsed removal presence.
+The regression exercises the exact Grok table, dotted parents, arrays and
+arrays of tables through apply service check/dry-run/write and the native
+Codex-permissions CLI. Every refusal preserves bytes and creates no backup
+or journal. String, boolean and numeric removals retain their behavior.
+
+The settled suite passes 334 tests in 17 files and all eight coverage floors.
+No home configuration was changed. The panel remains OPEN pending the
+driver's Grok and Fable re-check of the pushed head and recaptured fingerprint;
+this receipt does not claim panel clearance or merge readiness. The bounded
+wave's proof and fingerprint are linked from the October 16 lane handoff.

@@ -2868,3 +2868,12 @@ Vitest correctly refused the later run: "already in use by another Vitest
 process". Receipt: `.beep/rsc-f-review10/tests-qualified.log`. No assertions
 failed in that attempt. Delivery verification uses its own coverage directory.
 Every concurrent test run must reserve a distinct report directory.
+
+
+### F round-10 bounded repair: admission environment (2026-10-16)
+
+While starting the required models regression, `beep-heavy` refused with
+`DBUS_SESSION_BUS_ADDRESS and XDG_RUNTIME_DIR not defined`. No test ran in
+that attempt. Command-local user-bus environment restored the established
+admission route. A wrapper that derives the local user bus would prevent
+this avoidable launch failure; heavy work remained admitted throughout.

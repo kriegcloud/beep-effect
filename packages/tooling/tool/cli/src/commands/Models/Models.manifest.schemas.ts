@@ -1053,6 +1053,7 @@ export class ModelsManifest extends S.Opaque<ModelsManifest, { readonly brand: u
 export const ModelsEligibilityResult = S.TaggedUnion({
   eligible: { actual: S.String, content: S.String, removalsPresent: S.Boolean },
   "absent-owned-path": { message: S.String },
+  "unsupported-removal-shape": { message: S.String },
   "ineligible-format": { message: S.String },
   "invalid-bytes": { message: S.String },
   "parse-error": { message: S.String },

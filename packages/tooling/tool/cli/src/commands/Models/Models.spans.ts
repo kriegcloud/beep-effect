@@ -44,6 +44,13 @@ const decodeToml = decodeTomlTextWith(S.decodeUnknownEffect(S.Record(S.String, S
 export const modelsParseToml = (content: string) =>
   decodeToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML target."));
 
+const unsupportedRemovalShape = "Unsupported removal shape: owned leaf must be a scalar TOML assignment.";
+
+const removalShapeEligibility = (owned: O.Option<unknown>, remove: boolean | undefined) =>
+  remove === true && O.exists(owned, P.isObjectOrArray)
+    ? Effect.fail(ModelsEligibilityResult.cases["unsupported-removal-shape"].make({ message: unsupportedRemovalShape }))
+    : Effect.void;
+
 const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const error = (message: string) => ModelsLocatorError.make({ message });
 
@@ -271,6 +278,7 @@ export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
         ),
         Match.orElse(() => O.none())
       );
+      yield* removalShapeEligibility(owned, remove);
       removalsPresent = removalsPresent || (remove === true && O.isSome(owned));
       if (O.isNone(owned) && !(operation === "apply" && remove === true))
         return yield* Effect.fail(
@@ -658,7 +666,8 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
     const bounds = yield* tableRegion(content, O.none());
     const end = O.getOrElse(A.get(bounds, 1), () => Str.length(content));
     const parsed = yield* modelsParseToml(content).pipe(ModelsLocatorError.mapError("Invalid TOML removal target."));
-    if (!R.has(parsed, ownedKey) || P.isObject(parsed[ownedKey])) return [];
+    if (!R.has(parsed, ownedKey)) return [];
+    if (P.isObjectOrArray(parsed[ownedKey])) return yield* error(unsupportedRemovalShape);
     // Match the source spelling, then use the TOML parser to establish key identity.
     const assignments = captures(
       Str.slice(0, end)(content),

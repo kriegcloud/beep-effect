@@ -7,7 +7,8 @@ import {
   modelsCommand,
   TargetId,
 } from "@beep/repo-cli/commands/Models";
-import { modelsEligibility } from "@beep/repo-cli/commands/Models/Models.spans";
+import { ModelsApply, ModelsApplyLive } from "@beep/repo-cli/commands/Models/Models.apply.service";
+import { modelsEligibility, modelsWriteSpans } from "@beep/repo-cli/commands/Models/Models.spans";
 import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -95,7 +96,8 @@ const fixture = Effect.fnUntraced(function* () {
 });
 
 const consoleLayer = Layer.effect(Console.Console, TestConsole.make);
-layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer), {
+const commandServices = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer);
+layer(ModelsApplyLive.pipe(Layer.provideMerge(commandServices)), {
   timeout: "30 seconds",
 })((it) => {
   it.effect("reports tagged native eligibility through offline JSON checks", () =>
@@ -636,6 +638,107 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         expect(report).toContain('"hasDrift": false');
         expect(yield* fs.readFileString(path.join(home, "manual"))).toBe(content);
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect("refuses non-scalar removals consistently before backup in every removal mode", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const directory = path.join(home, ".codex");
+      yield* fs.makeDirectory(directory);
+      const file = path.join(directory, "config.toml");
+      const locator: Locator = {
+        _tag: "toml-top-level-key",
+        key: "sandbox_mode",
+        binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
+        render: { _tag: "verbatim" },
+      };
+      const writer = yield* ModelsApply;
+      yield* fs.writeFileString(
+        manifestFile,
+        yield* encodeManifest(
+          ModelsManifest.make({
+            ...manifest,
+            targets: [
+              ModelSyncTarget.make({
+                id: TargetId.make("home.codex.config"),
+                root: "home",
+                path: "$HOME/.codex/config.toml",
+                optional: false,
+                locators: [locator],
+              }),
+            ],
+          })
+        )
+      );
+      const flags = ["--home", home, "--repo", home, "--manifest", manifestFile];
+      for (const content of [
+        '[sandbox_mode]\nsandbox_mode.foo = "native"\n',
+        'sandbox_mode.foo = "native"\n',
+        'sandbox_mode = ["native"]\n',
+        '[[sandbox_mode]]\nfoo = "native"\n',
+      ]) {
+        yield* fs.writeFileString(file, content);
+        const eligible = yield* modelsEligibility(file, [
+          ModelsLocatorWrite.make({ locator, remove: true, expected: "" }),
+        ]);
+        expect(eligible._tag).toBe("unsupported-removal-shape");
+        const spanError = yield* Effect.flip(
+          modelsWriteSpans(content, ModelsLocatorWrite.make({ locator, remove: true, expected: "" }))
+        );
+        expect(spanError.message).toBe("Unsupported removal shape: owned leaf must be a scalar TOML assignment.");
+        for (const mode of ["check", "dry-run", "write"] as const) {
+          const refused = yield* Effect.flip(
+            writer.apply(
+              file,
+              [ModelsLocatorWrite.make({ locator, remove: true, expected: "" })],
+              mode,
+              path.join(home, ".config-backups")
+            )
+          );
+          expect(refused.message).toBe(
+            "Ineligible native target: Unsupported removal shape: owned leaf must be a scalar TOML assignment."
+          );
+          expect(yield* fs.readFileString(file)).toBe(content);
+          expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+        }
+        for (const mode of ["--check", "--dry-run", "--write"]) {
+          const refused = yield* Effect.flip(run(["codex-permissions", ...flags, mode]));
+          expect(refused.message).toBe(
+            "Ineligible native target: Unsupported removal shape: owned leaf must be a scalar TOML assignment."
+          );
+          expect(yield* fs.readFileString(file)).toBe(content);
+          expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+        }
+      }
+    })
+  );
+
+  it.effect("previews and removes every supported scalar shape from parsed ownership", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifest] = yield* fixture();
+      const directory = path.join(home, ".codex");
+      yield* fs.makeDirectory(directory);
+      const file = path.join(directory, "config.toml");
+      const flags = ["--home", home, "--repo", home, "--manifest", manifest];
+      for (const scalar of ['"native"', "true", "42", "1.5"]) {
+        const content = `sandbox_mode = ${scalar}\n${native}`;
+        yield* fs.writeFileString(file, content);
+        yield* run(["codex-permissions", ...flags, "--dry-run"]);
+        expect(A.takeRight(yield* TestConsole.logLines, 2)).toEqual([
+          "models: preview home.codex.config [toml-top-level-key] change=true expected=<absent>",
+          "models: codex-permissions dry-run complete; no file written",
+        ]);
+        yield* Effect.flip(run(["codex-permissions", ...flags, "--check"]));
+        expect(yield* fs.readFileString(file)).toBe(content);
+        yield* run(["codex-permissions", ...flags, "--write"]);
+        expect(yield* fs.readFileString(file)).toBe(native);
+        yield* run(["codex-permissions", ...flags, "--check"]);
       }
     })
   );

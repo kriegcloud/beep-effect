@@ -2047,3 +2047,21 @@ backup-byte preservation and the retained restore refusal. No native
 configuration is written in this wave. Reversal: revert this review-fix wave;
 previous native backups and rollback evidence remain retained. The independent
 panel remains OPEN for the driver's capped round 10.
+
+
+### RSC-F-GROK-R10-01 — scalar removal eligibility (2026-10-16)
+
+Decision: removal eligibility accepts only a parsed scalar owned leaf (string,
+number, boolean or bigint). A table, dotted parent, array, array of tables or
+other non-scalar returns the schema-defined `unsupported-removal-shape` outcome.
+The span writer independently refuses the same shape. Preview uses parsed
+removal presence rather than the string-only model reader. Absent removals
+remain satisfied, and existing scalar removals retain their scoped edits.
+
+Reason: the capped round-10 Grok finding demonstrated drift in check, a clean
+preview and a successful no-op write for the same table. All removal modes now
+refuse that input before backup creation. The regression checks exact refusal
+messages, unchanged bytes and absence of backup/journal creation. The bounded
+wave writes no home configuration. Reversal: revert the bounded repair commit;
+prior native backups and rollback evidence remain retained. The panel remains
+OPEN until the driver's Grok and Fable re-check clears the pushed candidate.

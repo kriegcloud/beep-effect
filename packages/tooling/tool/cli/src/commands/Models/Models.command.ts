@@ -416,25 +416,25 @@ const renderModelWrite = Effect.fnUntraced(function* (manifest: ModelsManifest, 
   });
 });
 
-const previewModelWrites = Effect.fnUntraced(function* (
+const certifyPreviewWrites = (file: string, requests: ReadonlyArray<ModelsLocatorWrite>) =>
+  modelsEligibility(file, requests).pipe(
+    Effect.filterOrFail(ModelsEligibilityResult.guards.eligible, (result) =>
+      ModelsCommandError.make({
+        message: `Ineligible native target: ${result._tag === "eligible" ? "Unexpected eligible refusal." : result.message}`,
+      })
+    )
+  );
+
+const previewModelChange = Effect.fnUntraced(function* (
   file: string,
   target: ModelSyncTarget,
-  writes: ReadonlyArray<ModelsLocatorWrite>
+  content: string,
+  request: ModelsLocatorWrite
 ) {
-  const fs = yield* FileSystem.FileSystem;
-  const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
-  const content = A.isReadonlyArrayNonEmpty(certifiable)
-    ? (yield* modelsEligibility(file, certifiable).pipe(
-        Effect.filterOrFail(ModelsEligibilityResult.guards.eligible, (result) =>
-          ModelsCommandError.make({
-            message: `Ineligible native target: ${result._tag === "eligible" ? "Unexpected eligible refusal." : result.message}`,
-          })
-        )
-      )).content
-    : yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
-  for (const request of writes) {
-    const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
-    const change = manual
+  const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
+  return request.remove === true
+    ? (yield* certifyPreviewWrites(file, [request])).removalsPresent
+    : manual
       ? yield* modelsReadLocator(
           ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
           request.locator
@@ -451,11 +451,22 @@ const previewModelWrites = Effect.fnUntraced(function* (
       : yield* modelsReadLocator(
           ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
           request.locator
-        ).pipe(
-          Effect.map((current) =>
-            request.remove === true ? O.isSome(current) : !O.contains(current, request.expected)
-          )
-        );
+        ).pipe(Effect.map((current) => !O.contains(current, request.expected)));
+});
+
+const previewModelWrites = Effect.fnUntraced(function* (
+  file: string,
+  target: ModelSyncTarget,
+  writes: ReadonlyArray<ModelsLocatorWrite>
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
+  const content = A.isReadonlyArrayNonEmpty(certifiable)
+    ? (yield* certifyPreviewWrites(file, certifiable)).content
+    : yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
+  for (const request of writes) {
+    const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
+    const change = yield* previewModelChange(file, target, content, request);
 
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] ${manual ? "manual verification required; recognized drift=" : "change="}${change} expected=${request.remove === true ? "<absent>" : request.expected}`
