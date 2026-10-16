@@ -271,7 +271,7 @@ export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
         ),
         Match.orElse(() => O.none())
       );
-      if (remove === true && O.isSome(owned)) removalsPresent = true;
+      removalsPresent = removalsPresent || (remove === true && O.isSome(owned));
       if (O.isNone(owned) && !(operation === "apply" && remove === true))
         return yield* Effect.fail(
           cases["absent-owned-path"].make({ message: "Owned path is absent from the parsed native document." })
