@@ -26,7 +26,7 @@ import { A, Str } from "@beep/utils";
 import * as Config from "effect/Config";
 import { Argument, Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -34,7 +34,13 @@ import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
 import { CriticPackRequest, CriticRunRequest } from "./Drawings.critics.schemas.ts";
-import { DEFAULT_CRITIC_REVIEWERS, DrawingCritics, parseZoomFlag, selectReviewers } from "./Drawings.critics.ts";
+import {
+  criticRunLine,
+  DEFAULT_CRITIC_REVIEWERS,
+  DrawingCritics,
+  parseZoomFlag,
+  selectReviewers,
+} from "./Drawings.critics.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { drawingIntakeLaneLayer, runDrawingIntake } from "./Drawings.intake.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
@@ -825,7 +831,9 @@ const criticsSyntheticPackFlag = Flag.Directory("synthetic-pack", { mustExist: t
 );
 const criticsTimeoutFlag = Flag.Int("timeout-minutes").pipe(
   Flag.withDefault(90),
-  Flag.withDescription("Minutes a reviewer may run")
+  Flag.withDescription(
+    "Minutes a reviewer may run; a seat past it is stopped, recorded as a time-limit outcome, and the next seat runs"
+  )
 );
 
 const runCriticsPack = Effect.fn("DrawingsCommand.criticsPack")(function* (options: {
@@ -879,15 +887,7 @@ const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options
     )
   );
   const record = yield* critics.runSequence(request);
-  yield* Effect.forEach(record.runs, (run) =>
-    say(
-      O.match(run.unavailable, {
-        onNone: () =>
-          `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`,
-        onSome: (seat) => `${run.order}. ${run.reviewer.name}: seat unavailable on this host, skipped (${seat.detail})`,
-      })
-    )
-  );
+  yield* Effect.forEach(record.runs, flow(criticRunLine, say));
   yield* say(
     `loop ${record.loop} on ${record.sheetSetSha256}: ${A.length(record.runs)} run(s); ALL-FINDINGS.md written`
   );

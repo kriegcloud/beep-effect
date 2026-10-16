@@ -165,7 +165,11 @@ describe("@beep/occt shading", () => {
             })
           )
         ).toBe(LEGACY_SHA256);
-      })
+      }),
+      // Eight full projections of the legacy fixture (four lit thresholds under two plans). About 1.7 s on a
+      // workstation before and after the outline-separation change, but 33.7 s on a hosted unit shard, past
+      // vitest's 30 s default, so this one test gets its own limit.
+      120_000
     );
 
     it.effect(
