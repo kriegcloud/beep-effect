@@ -14,6 +14,7 @@ import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -169,7 +170,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         expect(findings).toHaveLength(1);
         const entry = A.head(findings).pipe(O.getOrThrow);
         expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
-        if (tag === "absent-owned-path") expect(entry.current).toEqual(O.none());
+        if (tag === "absent-owned-path") assertNone(entry.current);
         else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
       }
     })
