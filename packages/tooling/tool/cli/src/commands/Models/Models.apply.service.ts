@@ -248,11 +248,82 @@ const checkReadOnlyDrift = Effect.fnUntraced(function* (text: string, writes: Re
   }
 });
 
+/**
+ * Atomic pathname exchange capability shared by publication and recovery.
+ *
+ * **Example** (Inspect the capability)
+ *
+ * ```ts
+ * import { ModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(ModelsAtomicExchange.use((service) => service.supported)))
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class ModelsAtomicExchange extends Context.Service<
+  ModelsAtomicExchange,
+  {
+    readonly exchange: (left: string, right: string) => Effect.Effect<void, ModelsLocatorError>;
+    readonly supported: Effect.Effect<boolean>;
+  }
+>()($I`ModelsAtomicExchange`) {}
+
+const makeAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const io = ModelsLocatorError.mapError("Native configuration I/O failed.");
+  const exchange = Effect.fnUntraced(function* (left: string, right: string) {
+    const code = yield* spawner
+      .exitCode(
+        ChildProcess.make("mv", ["--exchange", "--no-copy", "--", left, right], {
+          stdout: "ignore",
+          stderr: "ignore",
+        })
+      )
+      .pipe(ModelsLocatorError.mapError("Atomic exchange failed; retain recovery artifacts."));
+    if (code !== 0) return yield* failure("Atomic exchange failed; retain recovery artifacts.");
+  });
+  const supported = yield* Effect.gen(function* () {
+    const root = yield* fs.makeTempDirectoryScoped().pipe(io);
+    const left = path.join(root, "left");
+    const right = path.join(root, "right");
+    yield* fs.writeFileString(left, "left", { flag: "wx", mode: 0o600 }).pipe(io);
+    yield* fs.writeFileString(right, "right", { flag: "wx", mode: 0o600 }).pipe(io);
+    yield* exchange(left, right);
+    return (
+      (yield* fs.readFileString(left).pipe(io)) === "right" && (yield* fs.readFileString(right).pipe(io)) === "left"
+    );
+  }).pipe(
+    Effect.scoped,
+    Effect.catchTag("ModelsLocatorError", () => Effect.succeed(false)),
+    Effect.cached
+  );
+  return ModelsAtomicExchange.of({ exchange, supported });
+});
+
+/**
+ * GNU mv exchange with a cached, fail-closed capability probe.
+ *
+ * **Example** (Inspect the live capability layer)
+ *
+ * ```ts
+ * import { ModelsAtomicExchangeLive } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * import * as Layer from "effect/Layer"
+ * console.log(Layer.isLayer(ModelsAtomicExchangeLive))
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const ModelsAtomicExchangeLive = Layer.effect(ModelsAtomicExchange, makeAtomicExchange());
+
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const crypto = yield* Crypto.Crypto;
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const validate = validateSyntax;
   const eligibility = (
     file: string,
@@ -289,29 +360,8 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
   });
 
-  const exchange = Effect.fnUntraced(function* (left: string, right: string) {
-    const code = yield* spawner
-      .exitCode(
-        ChildProcess.make("mv", ["--exchange", "--no-copy", "--", left, right], {
-          stdout: "ignore",
-          stderr: "ignore",
-        })
-      )
-      .pipe(ModelsLocatorError.mapError("Atomic exchange failed; retain recovery artifacts."));
-    if (code !== 0) return yield* failure("Atomic exchange failed; retain recovery artifacts.");
-  });
-  const supported = yield* Effect.gen(function* () {
-    const root = yield* fs.makeTempDirectoryScoped().pipe(io);
-    const left = path.join(root, "left");
-    const right = path.join(root, "right");
-    yield* fs.writeFileString(left, "left", { flag: "wx", mode: 0o600 }).pipe(io);
-    yield* fs.writeFileString(right, "right", { flag: "wx", mode: 0o600 }).pipe(io);
-    yield* exchange(left, right);
-    return (yield* readNative(left)) === "right" && (yield* readNative(right)) === "left";
-  }).pipe(
-    Effect.scoped,
-    Effect.catchTag("ModelsLocatorError", () => Effect.succeed(false)),
-    Effect.cached
+  const { exchange, supported } = yield* Effect.serviceOption(ModelsAtomicExchange).pipe(
+    Effect.flatMap(O.match({ onNone: makeAtomicExchange, onSome: Effect.succeed }))
   );
   const sameInode = (left: FileSystem.File.Info, right: FileSystem.File.Info) =>
     O.isSome(left.ino) && O.isSome(right.ino) && left.dev === right.dev && left.ino.value === right.ino.value;

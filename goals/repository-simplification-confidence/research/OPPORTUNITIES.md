@@ -2877,3 +2877,12 @@ While starting the required models regression, `beep-heavy` refused with
 that attempt. Command-local user-bus environment restored the established
 admission route. A wrapper that derives the local user bus would prevent
 this avoidable launch failure; heavy work remained admitted throughout.
+
+### F CI portability (2026-10-16)
+
+Hosted Test Unit on PR #1797 lacked both the gitignored `.beep/` fixture
+parent and coreutils `mv --exchange`. New tests assumed both and failed
+with `ENOENT` or the intended typed atomic-exchange refusal. Prevent this
+with OS-scoped temporary directories and an injected test exchange capability;
+run the complete repo-cli suite with live exchange deliberately unavailable.
+Production keeps its cached probe and fails closed on unsupported hosts.

@@ -1,4 +1,10 @@
-import { ModelsApply, ModelsApplyLive } from "@beep/repo-cli/commands/Models/Models.apply.service";
+import {
+  ModelsApply,
+  ModelsApplyLive,
+  ModelsAtomicExchange,
+  ModelsAtomicExchangeLive,
+} from "@beep/repo-cli/commands/Models/Models.apply.service";
+import { ModelsLocatorError } from "@beep/repo-cli/commands/Models/Models.errors";
 import {
   BindingFilter,
   LocatorBinding,
@@ -23,6 +29,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
+import { modelsTestExchange } from "./helpers/models-atomic-exchange.ts";
 import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 
 const binding: LocatorBinding = LocatorBinding.make({
@@ -53,13 +60,14 @@ const native = A.join(
 
 const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (
   fs: FileSystem.FileSystem,
-  spawner?: Context.Service.Shape<typeof ChildProcessSpawner.ChildProcessSpawner>
+  exchange: Context.Service.Shape<typeof ModelsAtomicExchange> = modelsTestExchange
 ) {
-  const configured = ModelsApplyLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, fs)));
   const services = yield* Layer.build(
-    spawner === undefined
-      ? configured
-      : configured.pipe(Layer.provide(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, spawner)))
+    ModelsApplyLive.pipe(
+      Layer.provide(
+        Layer.mergeAll(Layer.succeed(FileSystem.FileSystem, fs), Layer.succeed(ModelsAtomicExchange, exchange))
+      )
+    )
   );
   return Context.get(services, ModelsApply);
 });
@@ -67,9 +75,7 @@ const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (
 const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const root = yield* fs.makeTempDirectoryScoped({
-    directory: path.resolve(".beep"),
     prefix: "restore-link-race-",
   });
   const file = path.join(root, "config.toml");
@@ -80,17 +86,17 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
   const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
   const applied = yield* fs.readFileString(file);
   let exchanges = 0;
-  const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
-    ...spawner,
-    exitCode: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (command) {
-      if (command._tag === "StandardCommand" && command.command === "mv") {
-        exchanges += 1;
-        if (exchanges === 2) {
-          yield* fs.rename(file, relocated);
-          yield* fs.symlink(dangling ? path.join(root, "absent.toml") : relocated, file);
-        }
+  const wrapped = ModelsAtomicExchange.of({
+    supported: Effect.succeed(true),
+    exchange: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (left, right) {
+      exchanges += 1;
+      if (exchanges === 1) {
+        yield* fs.rename(file, relocated).pipe(ModelsLocatorError.mapError("Test interference failed."));
+        yield* fs
+          .symlink(dangling ? path.join(root, "absent.toml") : relocated, file)
+          .pipe(ModelsLocatorError.mapError("Test interference failed."));
       }
-      return yield* spawner.exitCode(command);
+      yield* modelsTestExchange.exchange(left, right);
     }),
   });
   const restoring = yield* writerWithFs(fs, wrapped);
@@ -100,7 +106,7 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
   expect(yield* fs.readLink(file)).toBe(dangling ? path.join(root, "absent.toml") : relocated);
   if (!dangling) expect(yield* fs.readFileString(file)).toBe(applied);
   expect(yield* fs.readFileString(relocated)).toBe(applied);
-  expect(exchanges).toBe(3);
+  expect(exchanges).toBe(2);
 });
 
 layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 seconds" })((it) => {
@@ -108,7 +114,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "r9-journal-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "r9-journal-" });
       const backups = path.join(root, "backups");
       yield* fs.makeDirectory(backups);
       const writer = yield* writerWithFs(fs);
@@ -168,7 +174,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "empty-ownership-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "empty-ownership-" });
       const backups = path.join(root, "backups");
       yield* fs.makeDirectory(backups);
       for (const extension of ["sh", "yaml", "xml", "json"]) {
@@ -217,7 +223,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "parsed-equal-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "parsed-equal-" });
       const file = path.join(root, "config.json");
       const backups = path.join(root, "backups");
       const content = '{"model":"gpt-6.1-\\u0073ol","native":true}';
@@ -236,7 +242,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "format-refusal-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "format-refusal-" });
       const writer = yield* writerWithFs(fs);
       const cases = [
         ["start.sh", 'MODEL="old"\n', write({ _tag: "toml-top-level-key", binding, render, key: "MODEL" })],
@@ -400,7 +406,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const path = yield* Path.Path;
       yield* fs.makeDirectory(path.resolve(".beep"), { recursive: true });
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "models-fixture-",
       });
       const file = path.join(root, "config.toml");
@@ -434,7 +439,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "remove-fixture-",
       });
       const file = path.join(root, "config.toml");
@@ -499,7 +503,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "equal-scalars-",
       });
       const cases: ReadonlyArray<readonly [string, string, Locator]> = [
@@ -534,9 +537,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
         const root = yield* fs.makeTempDirectoryScoped({
-          directory: path.resolve(".beep"),
           prefix: "native-race-",
         });
         const file = path.join(root, "config.toml");
@@ -568,21 +569,22 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
               .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? replace(competitor) : Effect.void))
           ),
         });
-        const wrappedSpawner = ChildProcessSpawner.ChildProcessSpawner.of({
-          ...spawner,
-          exitCode: Effect.fnUntraced(function* (command) {
-            const publication =
-              command._tag === "StandardCommand" && command.command === "mv" && A.contains(command.args, file);
+        const wrappedExchange = ModelsAtomicExchange.of({
+          supported: Effect.succeed(true),
+          exchange: Effect.fnUntraced(function* (left, right) {
+            const publication = left === file || right === file;
             if (publication) {
               exchanges += 1;
-              yield* O.getOrElse(A.get(interferences, exchanges), () => Effect.void);
+              yield* O.getOrElse(A.get(interferences, exchanges), () => Effect.void).pipe(
+                ModelsLocatorError.mapError("Test interference failed.")
+              );
             }
-            const code = yield* spawner.exitCode(command);
-            if (publication && exchanges === 1) yield* post;
-            return code;
+            yield* modelsTestExchange.exchange(left, right);
+            if (publication && exchanges === 1)
+              yield* post.pipe(ModelsLocatorError.mapError("Test interference failed."));
           }),
         });
-        const racer = yield* writerWithFs(wrappedFs, wrappedSpawner);
+        const racer = yield* writerWithFs(wrappedFs, wrappedExchange);
         const error = yield* Effect.flip(
           journal === undefined
             ? racer.apply(file, [topLevel], "write", backups)
@@ -612,18 +614,17 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "unsupported-exchange-",
       });
       const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
       yield* fs.writeFileString(file, native);
       let probes = 0;
-      const wrapped = ChildProcessSpawner.ChildProcessSpawner.of({
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const unsupported = ChildProcessSpawner.ChildProcessSpawner.of({
         ...spawner,
-        exitCode: Effect.fn("ModelsApplyTest.exitCode")((command) => {
+        exitCode: Effect.fn("ModelsApplyTest.unsupported")((command) => {
           if (command._tag === "StandardCommand" && command.command === "mv") {
             probes += 1;
             return Effect.succeed(ChildProcessSpawner.ExitCode(1));
@@ -631,7 +632,12 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
           return spawner.exitCode(command);
         }),
       });
-      const writer = yield* writerWithFs(fs, wrapped);
+      const services = yield* Layer.build(
+        ModelsAtomicExchangeLive.pipe(
+          Layer.provide(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, unsupported))
+        )
+      );
+      const writer = yield* writerWithFs(fs, Context.get(services, ModelsAtomicExchange));
       for (const _attempt of [0, 1]) {
         const error = yield* Effect.flip(writer.apply(file, [topLevel], "write", backups));
         expect(error._tag).toBe("ModelsLocatorError");
@@ -648,7 +654,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "model-link-",
       });
       const target = path.join(root, "target.toml");
@@ -678,7 +683,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "shell-drift-",
       });
       const file = path.join(root, "launcher");
@@ -750,7 +754,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "check-only-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "check-only-" });
       const file = path.join(root, "config");
       const backups = path.join(root, "backups");
       const writer = yield* writerWithFs(fs);
@@ -801,7 +805,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "check-only-shell-",
       });
       const file = path.join(root, "launcher");
@@ -884,7 +887,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({
-          directory: path.resolve(".beep"),
           prefix: "restore-identity-",
         });
         const directory = path.join(root, "native");
@@ -938,7 +940,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "shell-restore-",
       });
       const file = path.join(root, "config.toml");
@@ -1002,7 +1003,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "preimage-stat-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "preimage-stat-" });
       const file = path.join(root, "config.toml");
       const backups = path.join(root, "backups");
       yield* fs.writeFileString(file, native);
@@ -1028,7 +1029,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "unstable-span-",
       });
       const file = path.join(root, "example.txt");
@@ -1058,7 +1058,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "backup-tamper-",
       });
       const file = path.join(root, "config.toml");
@@ -1141,7 +1140,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "private-parser-",
       });
       const file = path.join(root, "config.json");
@@ -1166,7 +1164,6 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: path.resolve(".beep"),
         prefix: "native-bytes-",
       });
       const file = path.join(root, "config.toml");

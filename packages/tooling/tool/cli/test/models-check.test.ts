@@ -53,7 +53,6 @@ const stageWorkspace = Effect.fnUntraced(function* (manifestFixture = "manifest.
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const root = yield* fs.makeTempDirectoryScoped({
-    directory: process.cwd(),
     prefix: ".models-check-test-",
   });
 
@@ -173,7 +172,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const check = yield* ModelsCheck;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: process.cwd(), prefix: ".models-check-effort-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: ".models-check-effort-" });
       const manifestPath = path.join(root, "models.yaml");
       const settingsPath = path.join(root, "settings.json");
       yield* fs.writeFileString(
@@ -403,7 +402,6 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: process.cwd(),
         prefix: ".models-init-test-",
       });
       const store = yield* ModelsManifestStore;

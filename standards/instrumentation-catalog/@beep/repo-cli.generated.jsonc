@@ -2086,6 +2086,7 @@
     {"name":"ModelsApply.make","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsApply.restore","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsApply.validate","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"ModelsAtomicExchange.make","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsCheck.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsCommand.apply","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"ModelsCommand.codexPermissions","owner":"@beep/repo-cli","family":"tooling","conforms":true},

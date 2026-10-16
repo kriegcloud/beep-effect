@@ -27,6 +27,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
 import * as TestConsole from "effect/testing/TestConsole";
+import { modelsTestExchangeLayer } from "./helpers/models-atomic-exchange.ts";
 import type { Locator } from "@beep/repo-cli/commands/Models";
 
 const run = Command.runWith(modelsCommand, { version: "0.0.0" });
@@ -37,9 +38,7 @@ const native = '# synthetic native state\nmodel = "old"\n[projects.synthetic]\nt
 const fixture = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const directory = path.resolve(".beep");
-  yield* fs.makeDirectory(directory, { recursive: true });
-  const home = yield* fs.makeTempDirectoryScoped({ directory, prefix: "models-command-" });
+  const home = yield* fs.makeTempDirectoryScoped({ prefix: "models-command-" });
   const file = path.join(home, "config.toml");
   const manifestFile = path.join(home, "manifest.yaml");
   const manifest = yield* decodeManifest({
@@ -97,7 +96,7 @@ const fixture = Effect.fnUntraced(function* () {
 
 const consoleLayer = Layer.effect(Console.Console, TestConsole.make);
 const commandServices = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer);
-layer(ModelsApplyLive.pipe(Layer.provideMerge(commandServices)), {
+layer(ModelsApplyLive.pipe(Layer.provideMerge(modelsTestExchangeLayer), Layer.provideMerge(commandServices)), {
   timeout: "30 seconds",
 })((it) => {
   it.effect("reports tagged native eligibility through offline JSON checks", () =>

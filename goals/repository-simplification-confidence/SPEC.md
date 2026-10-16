@@ -2065,3 +2065,15 @@ messages, unchanged bytes and absence of backup/journal creation. The bounded
 wave writes no home configuration. Reversal: revert the bounded repair commit;
 prior native backups and rollback evidence remain retained. The panel remains
 OPEN until the driver's Grok and Fable re-check clears the pushed candidate.
+
+### F CI portability decision (2026-10-16)
+
+F-CI-PORTABILITY: inject the atomic exchange capability through an Effect
+Context.Service; retain the GNU mv live probe and fail-closed production
+behavior. Synthetic tests use an inode-preserving synchronous swap, indivisible
+at the Effect scheduler boundary, with competitors injected before and after it.
+This simulation is test-only and does not claim cross-process exclusion.
+All affected fixtures use OS temporary directories. Reason: Ubuntu CI lacks
+`mv --exchange` and fresh checkouts lack gitignored fixture parents. Reversal:
+revert this repair commit; no home files or native configuration are changed.
+The panel was cleared on the prior revision; the driver owns the merge final.
