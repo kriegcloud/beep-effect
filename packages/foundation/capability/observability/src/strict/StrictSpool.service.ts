@@ -263,8 +263,9 @@ export const writeOwnerOnlyFile = Effect.fnUntraced(function* (target: string, t
  * ```ts import.meta.vitest name="Count two evictions"
  * import { refusalLedgerOf } from "@beep/observability/strict"
  * import * as HashMap from "effect/HashMap"
+ * import * as O from "effect/Option"
  *
- * HashMap.get(refusalLedgerOf(["spool-evicted", "spool-evicted"]), "spool-evicted") // => Option.some(2)
+ * HashMap.get(refusalLedgerOf(["spool-evicted", "spool-evicted"]), "spool-evicted") // => O.some(2)
  * ```
  *
  * @param tags - One entry per refusal.
