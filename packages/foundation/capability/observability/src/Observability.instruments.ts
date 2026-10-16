@@ -38,8 +38,9 @@ const owner = PackageName.make("@beep/observability");
  * replaced, a metric or series whose name or kind is not allowed, a metric
  * point carrying a key or value that is not allowed, a raw histogram
  * aggregate (`sum`, `min`, `max`) it dropped, and an export its egress client
- * held back. Its encrypted spool adds four: an old segment evicted for
- * space, a body that could not be sealed, encoded or written, a segment
+ * held back. Its encrypted spool adds five: an old segment evicted for
+ * space, an old segment it tried to evict but could not remove, a body that
+ * could not be sealed, encoded or written, a segment
  * refused at replay because its tier is looser than the current one, and a
  * segment refused at replay because it does not decode, authenticate or
  * match the current key epoch.
@@ -69,6 +70,7 @@ export const TelemetryRefusalTag = LiteralKit([
   "metric-value-dropped",
   "egress-refused",
   "spool-evicted",
+  "spool-evict-failed",
   "spool-write-failed",
   "spool-tier-refused",
   "spool-segment-invalid",

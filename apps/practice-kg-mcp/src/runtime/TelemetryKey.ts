@@ -1,6 +1,7 @@
 /**
  * The practice KG host's telemetry root key: where it lives, how DPAPI wraps
- * it on Windows, and the layer that loads or creates it.
+ * it on Windows, the layer that loads or creates it, and the read-only look
+ * the privacy receipt takes at it.
  *
  * **Details**
  *
@@ -17,6 +18,7 @@
  */
 import { $PracticeKgMcpId } from "@beep/identity/packages";
 import { StrictKeyProtection, StrictSpoolKey, writeOwnerOnlyFile } from "@beep/observability/strict";
+import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -619,3 +621,90 @@ export const layerPracticeKgSpoolKey = (
       });
     })
   );
+
+// What a read-only look at the telemetry key found: a key that unwrapped, no
+// key file, or a key file that does not decode or unwrap.
+const PracticeKgKeyStatus = LiteralKit(["loaded", "missing", "unreadable"]).pipe(
+  $I.annoteSchema("PracticeKgKeyStatus", {
+    description: "Read-only telemetry key status: loaded, missing, or present but not decodable or unwrappable.",
+  })
+);
+
+/**
+ * The telemetry key as a read-only look describes it: its status and, when
+ * the key file decoded, the path that wrapped it and its epoch. It never
+ * carries key material.
+ *
+ * **Example** (Describe a loaded key)
+ *
+ * ```ts
+ * import { PracticeKgKeyReport } from "../../src/runtime/TelemetryKey.ts"
+ *
+ * const report = PracticeKgKeyReport.make({ status: "loaded", protection: "dpapi-ffi", epoch: 2 })
+ * console.log(report.epoch) // 2
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PracticeKgKeyReport extends S.Opaque<PracticeKgKeyReport, { readonly brand: unique symbol }>()(
+  S.Struct({
+    status: PracticeKgKeyStatus,
+    protection: S.optionalKey(StrictKeyProtection),
+    epoch: S.optionalKey(S.Int.check(S.isGreaterThan(0))),
+  }).pipe(
+    $I.annoteSchema("PracticeKgKeyReport", {
+      description: "Read-only telemetry key description: status, wrapping path and epoch, never key material.",
+    })
+  )
+) {}
+
+/**
+ * Looks at the current `<telemetryDir>/key.<epoch>.dpapi` (the highest epoch,
+ * found the way the host finds it) without creating, rotating or writing
+ * anything, and returns its {@link PracticeKgKeyReport} with the unwrapped
+ * key when it loaded.
+ *
+ * **Details**
+ *
+ * Unlike {@link layerPracticeKgSpoolKey}, a missing or unreadable key file
+ * is reported, not replaced.
+ *
+ * **Example** (Look at the key with the dev port)
+ *
+ * ```ts
+ * import { layerPracticeKgDpapi, readPracticeKgSpoolKey } from "../../src/runtime/TelemetryKey.ts"
+ * import * as Effect from "effect/Effect"
+ *
+ * const look = readPracticeKgSpoolKey("/state/telemetry").pipe(Effect.provide(layerPracticeKgDpapi("linux")))
+ * console.log(Effect.isEffect(look)) // true
+ * ```
+ *
+ * @param telemetryDir - The resolved telemetry directory.
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const readPracticeKgSpoolKey = Effect.fn("PracticeKgTelemetryKey.read")(function* (telemetryDir: string) {
+  const port = yield* DpapiPort;
+  // The same highest-epoch scan the host uses; it only lists and reads.
+  const latest = yield* latestKeyFile(telemetryDir);
+  return yield* O.match(latest, {
+    onNone: () => Effect.succeed([PracticeKgKeyReport.make({ status: "missing" }), O.none()] as const),
+    onSome: ({ epoch, file: stored }) =>
+      O.match(stored, {
+        onNone: () => Effect.succeed([PracticeKgKeyReport.make({ status: "unreadable", epoch }), O.none()] as const),
+        onSome: (file) =>
+          Effect.map(unwrapStored(port, file), (material) => {
+            const report = PracticeKgKeyReport.make({
+              status: O.isSome(material) ? "loaded" : "unreadable",
+              protection: file.protection,
+              epoch: file.epoch,
+            });
+            const key = O.map(material, (bytes) =>
+              StrictSpoolKey.of({ epoch: `${file.epoch}`, protection: file.protection, material: Redacted.make(bytes) })
+            );
+            return [report, key] as const;
+          }),
+      }),
+  });
+});
