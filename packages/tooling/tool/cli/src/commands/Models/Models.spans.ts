@@ -230,6 +230,7 @@ export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
   operation: "apply" | "restore" = "apply"
 ) {
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const cases = ModelsEligibilityResult.cases;
   return yield* Effect.gen(function* () {
     const locators = A.map(writes, (write) => write.locator);
@@ -252,11 +253,13 @@ export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
     const content = yield* modelsNativeText(bytes).pipe(
       Effect.mapError(({ message }) => cases["invalid-bytes"].make({ message }))
     );
+    const parsed = yield* Match.value(path.extname(actual)).pipe(
+      Match.when(".json", () => modelsParseJson(content).pipe(Effect.map(getNodeValue))),
+      Match.orElse(() => modelsParseToml(content)),
+      Effect.mapError(({ message }) => cases["parse-error"].make({ message }))
+    );
     let removalsPresent = false;
     for (const { locator, remove } of writes) {
-      const parsed = yield* (
-        locator._tag === "json-key" ? modelsParseJson(content).pipe(Effect.map(getNodeValue)) : modelsParseToml(content)
-      ).pipe(Effect.mapError(({ message }) => cases["parse-error"].make({ message })));
       const owned = Match.value(locator).pipe(
         Match.tag("toml-top-level-key", ({ key }) => modelsParsedLeaf(parsed, [key])),
         Match.tag("toml-table-key", ({ table, key }) => modelsParsedLeaf(parsed, [...Str.split(table, "."), key])),

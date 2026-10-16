@@ -121,58 +121,62 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         ["parse.json", json, '{"model":"gpt-6.1-sol","broken":}', "parse-error"],
         ["link.toml", toml, 'model="gpt-6.1-sol"\n', "not-canonical"],
       ];
-      for (const [name, locator, content, tag] of cases) {
-        const file = path.join(home, name);
-        const actual = name === "link.toml" ? path.join(home, "canonical.sh") : file;
-        const bytes = new TextEncoder().encode(content);
-        if (tag === "invalid-bytes") bytes[bytes.indexOf(63)] = 0xff;
-        yield* fs.writeFile(actual, bytes);
-        if (file !== actual) yield* fs.symlink(actual, file);
-        const reader = FileSystem.FileSystem.of({
-          ...fs,
-          readFile: Effect.fn("ModelsEligibilityTest.readFile")((target) =>
-            fs.readFile(tag === "io-error" && target === actual ? path.join(home, "unreadable-source") : target)
-          ),
-        });
-        const result = yield* modelsEligibility(file, [
-          ModelsLocatorWrite.make({ locator, expected: "gpt-6.1-sol" }),
-        ]).pipe(Effect.provideService(FileSystem.FileSystem, reader));
-        expect(result._tag).toBe(tag);
-        yield* fs.writeFileString(
-          manifestFile,
-          yield* encodeManifest(
-            ModelsManifest.make({
-              ...manifest,
-              targets: [
-                ModelSyncTarget.make({
-                  id: TargetId.make("synthetic.tagged"),
-                  root: "home",
-                  path: `$HOME/${name}`,
-                  optional: false,
-                  locators: [locator],
-                }),
-              ],
-            })
-          )
-        );
-        yield* run(["check", "--home", home, "--repo", home, "--manifest", manifestFile, "--offline", "--json"]).pipe(
-          Effect.provideService(FileSystem.FileSystem, reader),
-          Effect.result
-        );
-        const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
-        const findings = A.filter(report.findings, (entry) => entry.targetId === "synthetic.tagged");
-        expect(A.fromIterable(yield* fs.readFile(actual))).toEqual(A.fromIterable(bytes));
-        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
-        if (tag === "eligible") {
-          expect(findings).toEqual([]);
-          continue;
-        }
-        expect(findings).toHaveLength(1);
-        const entry = A.head(findings).pipe(O.getOrThrow);
-        expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
-        if (tag === "absent-owned-path") assertNone(entry.current);
-        else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
-      }
+      yield* Effect.forEach(
+        cases,
+        Effect.fnUntraced(function* ([name, locator, content, tag]) {
+          const file = path.join(home, name);
+          const actual = name === "link.toml" ? path.join(home, "canonical.sh") : file;
+          const bytes = new TextEncoder().encode(content);
+          if (tag === "invalid-bytes") bytes[bytes.indexOf(63)] = 0xff;
+          yield* fs.writeFile(actual, bytes);
+          if (file !== actual) yield* fs.symlink(actual, file);
+          const reader = FileSystem.FileSystem.of({
+            ...fs,
+            readFile: Effect.fn("ModelsEligibilityTest.readFile")((target) =>
+              fs.readFile(tag === "io-error" && target === actual ? path.join(home, "unreadable-source") : target)
+            ),
+          });
+          const result = yield* modelsEligibility(file, [
+            ModelsLocatorWrite.make({ locator, expected: "gpt-6.1-sol" }),
+          ]).pipe(Effect.provideService(FileSystem.FileSystem, reader));
+          expect(result._tag).toBe(tag);
+          yield* fs.writeFileString(
+            manifestFile,
+            yield* encodeManifest(
+              ModelsManifest.make({
+                ...manifest,
+                targets: [
+                  ModelSyncTarget.make({
+                    id: TargetId.make("synthetic.tagged"),
+                    root: "home",
+                    path: `$HOME/${name}`,
+                    optional: false,
+                    locators: [locator],
+                  }),
+                ],
+              })
+            )
+          );
+          yield* run(["check", "--home", home, "--repo", home, "--manifest", manifestFile, "--offline", "--json"]).pipe(
+            Effect.provideService(FileSystem.FileSystem, reader),
+            Effect.result
+          );
+          const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
+          const findings = A.filter(report.findings, (entry) => entry.targetId === "synthetic.tagged");
+          expect(A.fromIterable(yield* fs.readFile(actual))).toEqual(A.fromIterable(bytes));
+          expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+          if (tag === "eligible") {
+            expect(findings).toEqual([]);
+            return;
+          }
+          expect(findings).toHaveLength(1);
+          const entry = A.head(findings).pipe(O.getOrThrow);
+          expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
+          if (tag === "absent-owned-path") assertNone(entry.current);
+          else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
+        }),
+        { concurrency: 1, discard: true }
+      );
     })
   );
 
