@@ -31,9 +31,10 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Proof — complete (2026-10-15). Next: P4 Yeet, then P5 Close. Acceptance
-#4 waits on the operator's DPAPI smoke on `tom-pc-1` (`PLAN.md` execution
-notes); the goal cannot close until it is recorded.
+P3 Proof — in progress: code complete (2026-10-15), operator DPAPI smoke
+pending. Acceptance #4 waits on that smoke on `tom-pc-1` (`PLAN.md` execution
+notes); P3 completes, and the goal can close, only once it is recorded. P4
+Yeet runs alongside.
 
 ## Latest Evidence
 

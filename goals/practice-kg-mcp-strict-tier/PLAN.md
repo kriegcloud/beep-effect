@@ -11,7 +11,7 @@ Status: `active`
 | P0 Research | complete | Seam pin test; DPAPI feasibility; tool enum. | Facts recorded. |
 | P1 Gate | complete | Serializer gate + egress client + stderr logger. | Golden + canary tests green. |
 | P2 Spool + tier | complete | Encrypted spool; fail-closed tier resolution. | Spool round-trip + tier tests green. |
-| P3 Proof | complete | Mutation tests; privacy receipt; Windows smoke. | All proofs green. |
+| P3 Proof | in-progress (code complete; operator DPAPI smoke pending) | Mutation tests; privacy receipt; Windows smoke. | All proofs green, including the operator smoke (acceptance #4). |
 | P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
 | P5 Close | pending | Reflection; packet flip. | completed-retained. |
 

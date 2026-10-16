@@ -140,6 +140,10 @@ path; the directory appears only as `<telemetry dir>`, and a name outside the
 telemetry catalog is counted, never printed. Paste the receipt into the
 weekly maintenance note. `Spool: not read (no key loaded)` means the key file
 is missing or did not unwrap for this user; run the telemetry key smoke above.
+`Spool: not read (the key loaded but the spool … step failed)` means the key
+is fine but the `spool\` folder could not be read; it names only the step. A
+count shown as `≥ N, baseline truncated` is a lower bound: the spool had
+already evicted that counter's earlier points.
 
 ## Refresh
 

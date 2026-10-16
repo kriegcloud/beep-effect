@@ -28,6 +28,7 @@ import {
   RefusalLedger,
   StrictSignal,
   StrictSpoolKey,
+  StrictSpoolOperation,
   StrictSpoolOptions,
   StrictSpoolOutcome,
   surveyStrictSpool,
@@ -35,6 +36,7 @@ import {
 import { LiteralKit } from "@beep/schema";
 import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import * as A from "effect/Array";
+import * as BigInt_ from "effect/BigInt";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
@@ -111,13 +113,28 @@ const SignalCounts = S.Struct({
   })
 );
 
-// What the receipt says about the spool over its window. `read` is false
-// when the key did not load, so no segment could be opened; `segments` counts
-// the opened segments sealed in the window by signal, `bytes` their size on
-// disk with the refused ones, `earlier` the segments sealed before the window,
-// and `refused` the segments in the window that did not open, by tag.
+// Whether the receipt read the spool: `read`, `no-key` when the key did not
+// load so no segment could be opened, or `survey-failed` when the key loaded
+// but the spool could not be surveyed, naming only the spool operation that
+// failed (never a path or message).
+const PracticeKgReceiptSpoolStatus = S.TaggedUnion({
+  read: {},
+  "no-key": {},
+  "survey-failed": { operation: StrictSpoolOperation },
+}).pipe(
+  $I.annoteSchema("PracticeKgReceiptSpoolStatus", {
+    description: "Whether the privacy receipt read the spool, had no key, or failed to survey it (operation only).",
+  })
+);
+
+type PracticeKgReceiptSpoolStatus = typeof PracticeKgReceiptSpoolStatus.Type;
+
+// What the receipt says about the spool over its window: whether it was read,
+// the opened segments sealed in the window by signal, their bytes on disk with
+// the refused ones, the segments sealed before the window, and the segments in
+// the window that did not open, by tag.
 const PracticeKgReceiptSpool = S.Struct({
-  read: S.Boolean,
+  status: PracticeKgReceiptSpoolStatus,
   segments: SignalCounts,
   bytes: S.Natural,
   earlier: S.Natural,
@@ -136,7 +153,9 @@ type PracticeKgReceiptSpool = typeof PracticeKgReceiptSpool.Type;
  *
  * `refusals` is how much each refusal counter of the strict gate grew in the
  * window, read from the `beep.telemetry.refused` points of the spooled
- * metric exports. `attributeKeys` and `metricNames` are the catalogued names
+ * metric exports. `truncated` names the tags whose growth is a lower bound
+ * because a series' points before the window were evicted (see
+ * {@link summarizePracticeKgSpool}). `attributeKeys` and `metricNames` are the catalogued names
  * the spooled exports in the window carry; `unlistedNames` counts any other
  * name, which is never printed.
  *
@@ -152,13 +171,14 @@ type PracticeKgReceiptSpool = typeof PracticeKgReceiptSpool.Type;
  *   telemetryDir: "unresolved",
  *   key: { status: "missing" },
  *   spool: {
- *     read: false,
+ *     status: { _tag: "no-key" },
  *     segments: { traces: 0, metrics: 0, logs: 0 },
  *     bytes: 0,
  *     earlier: 0,
  *     refused: HashMap.empty(),
  *   },
  *   refusals: HashMap.empty(),
+ *   truncated: [],
  *   attributeKeys: [],
  *   metricNames: [],
  *   unlistedNames: 0,
@@ -177,6 +197,7 @@ export class PracticeKgPrivacyReceipt extends S.Opaque<PracticeKgPrivacyReceipt,
     key: PracticeKgKeyReport,
     spool: PracticeKgReceiptSpool,
     refusals: RefusalLedger,
+    truncated: S.Array(TelemetryRefusalTag),
     attributeKeys: S.Array(S.String),
     metricNames: S.Array(S.String),
     unlistedNames: S.Natural,
@@ -196,17 +217,18 @@ export class PracticeKgPrivacyReceipt extends S.Opaque<PracticeKgPrivacyReceipt,
  */
 export type PracticeKgSpoolSummary = Pick<
   PracticeKgPrivacyReceipt,
-  "spool" | "refusals" | "attributeKeys" | "metricNames" | "unlistedNames"
+  "spool" | "refusals" | "truncated" | "attributeKeys" | "metricNames" | "unlistedNames"
 >;
 
-// The spool section of a receipt whose spool was not read.
-const emptyPracticeKgReceiptSpool: PracticeKgReceiptSpool = PracticeKgReceiptSpool.make({
-  read: false,
-  segments: { traces: 0, metrics: 0, logs: 0 },
-  bytes: 0,
-  earlier: 0,
-  refused: HashMap.empty(),
-});
+// The spool section of a receipt whose spool was not read, and why.
+const unreadPracticeKgReceiptSpool = (status: PracticeKgReceiptSpoolStatus): PracticeKgReceiptSpool =>
+  PracticeKgReceiptSpool.make({
+    status,
+    segments: { traces: 0, metrics: 0, logs: 0 },
+    bytes: 0,
+    earlier: 0,
+    refused: HashMap.empty(),
+  });
 
 // Resource attributes the strict gate stamps from constants; they are names
 // the receipt may print even though the catalog does not declare them.
@@ -283,7 +305,12 @@ const metricNamesIn = (value: unknown): ReadonlyArray<string> =>
     O.getOrElse(A.empty)
   );
 
-type RefusedPoint = { readonly series: string; readonly tag: string; readonly value: number };
+type RefusedPoint = {
+  readonly series: string;
+  readonly tag: string;
+  readonly startNanos: string;
+  readonly value: number;
+};
 type RefusedMetric = (typeof RefusedPoints.Type)["resourceMetrics"][number]["scopeMetrics"][number]["metrics"][number];
 type RefusedDataPoint = NonNullable<RefusedMetric["sum"]>["dataPoints"][number];
 
@@ -296,6 +323,7 @@ const pointsOf = (point: RefusedDataPoint): ReadonlyArray<RefusedPoint> =>
         O.map(P.isNumber(point.asInt) ? O.some(point.asInt) : Num.parse(point.asInt), (value) => ({
           series: `${attribute.value.stringValue}\u0000${point.startTimeUnixNano}`,
           tag: attribute.value.stringValue,
+          startNanos: point.startTimeUnixNano,
           value,
         }))
       )
@@ -338,6 +366,10 @@ const ledgerFrom = (entries: ReadonlyArray<readonly [string, number]>): RefusalL
  * series per tag and process start. For each series the receipt takes the
  * largest value sealed in the window minus the largest sealed before it, so
  * a counter that kept growing across the window start is not counted twice.
+ * A series whose process started before the window but whose points before
+ * it were all evicted takes its earliest surviving point as the baseline and
+ * its tag is listed in `truncated`, so its count is a lower bound and never
+ * overstates.
  * Two processes started in the same 5-minute export window share a series
  * and are undercounted, never overcounted.
  *
@@ -374,34 +406,58 @@ export const summarizePracticeKgSpool: {
   const countSignal = (signal: StrictSignal): number =>
     A.length(A.filter(openedWithin, (record) => record.signal === signal));
 
-  const peaks = (entries: ReadonlyArray<StrictSpoolSurveyEntry>): HashMap.HashMap<string, RefusedPoint> =>
+  const pointsIn = (entries: ReadonlyArray<StrictSpoolSurveyEntry>): ReadonlyArray<RefusedPoint> =>
     pipe(
       opened(entries),
       A.filter((record) => record.signal === StrictSignal.Enum.metrics),
-      A.flatMap((record) => refusedPointsIn(record.body)),
-      A.reduce(HashMap.empty<string, RefusedPoint>(), (peak, point) =>
-        HashMap.set(
-          peak,
-          point.series,
-          O.match(HashMap.get(peak, point.series), {
-            onNone: () => point,
-            onSome: (current) => (current.value >= point.value ? current : point),
-          })
-        )
+      A.flatMap((record) => refusedPointsIn(record.body))
+    );
+  // Per series: the largest point, or the first one in segment order.
+  const fold = (
+    points: ReadonlyArray<RefusedPoint>,
+    keep: (current: RefusedPoint, next: RefusedPoint) => RefusedPoint
+  ): HashMap.HashMap<string, RefusedPoint> =>
+    A.reduce(points, HashMap.empty<string, RefusedPoint>(), (bySeries, point) =>
+      HashMap.set(
+        bySeries,
+        point.series,
+        O.match(HashMap.get(bySeries, point.series), { onNone: () => point, onSome: (current) => keep(current, point) })
       )
     );
-  const before = peaks(earlier);
+  const largest = (current: RefusedPoint, next: RefusedPoint): RefusedPoint =>
+    current.value >= next.value ? current : next;
+  const before = fold(pointsIn(earlier), largest);
+  const withinPoints = pointsIn(within);
+  const first = fold(withinPoints, (current) => current);
+  const windowStartNanos = BigInt(window.startMillis) * BigInt(1_000_000);
+  // A series whose process started before the window but has no surviving
+  // point before it lost those points to eviction: its earliest surviving
+  // point is the baseline, so the growth is a lower bound.
+  const startedBeforeWindow = (point: RefusedPoint): boolean =>
+    BigInt_.fromString(point.startNanos).pipe(
+      O.map((start) => start < windowStartNanos),
+      O.getOrElse(() => true)
+    );
   const growth = pipe(
-    peaks(within),
+    fold(withinPoints, largest),
     HashMap.values,
     A.fromIterable,
-    A.map((point) => {
-      const baseline = HashMap.get(before, point.series).pipe(
-        O.map((previous) => previous.value),
-        O.getOrElse(() => 0)
-      );
-      return [point.tag, Math.max(0, point.value - baseline)] as const;
-    })
+    A.map((peak) =>
+      O.match(HashMap.get(before, peak.series), {
+        onSome: (previous) => ({ tag: peak.tag, count: Math.max(0, peak.value - previous.value), truncated: false }),
+        onNone: () =>
+          startedBeforeWindow(peak)
+            ? {
+                tag: peak.tag,
+                count: O.match(HashMap.get(first, peak.series), {
+                  onNone: () => 0,
+                  onSome: (earliest) => Math.max(0, peak.value - earliest.value),
+                }),
+                truncated: true,
+              }
+            : { tag: peak.tag, count: peak.value, truncated: false },
+      })
+    )
   );
 
   const decoded = A.map(openedWithin, (record) => [record.signal, decodeJson(record.body).pipe(O.getOrNull)] as const);
@@ -414,7 +470,7 @@ export const summarizePracticeKgSpool: {
 
   return {
     spool: PracticeKgReceiptSpool.make({
-      read: true,
+      status: PracticeKgReceiptSpoolStatus.cases.read.make({}),
       segments: {
         traces: countSignal(StrictSignal.Enum.traces),
         metrics: countSignal(StrictSignal.Enum.metrics),
@@ -428,7 +484,13 @@ export const summarizePracticeKgSpool: {
         )
       ),
     }),
-    refusals: ledgerFrom(growth),
+    refusals: ledgerFrom(A.map(growth, (row) => [row.tag, row.count] as const)),
+    truncated: pipe(
+      growth,
+      A.flatMap((row) => (row.truncated && isTelemetryRefusalTag(row.tag) ? [row.tag] : [])),
+      A.dedupe,
+      A.sort(Order.String)
+    ),
     attributeKeys: A.sort(listedKeys, Order.String),
     metricNames: A.sort(listedMetrics, Order.String),
     unlistedNames: A.length(seenKeys) - A.length(listedKeys) + A.length(seenMetrics) - A.length(listedMetrics),
@@ -439,13 +501,17 @@ const isoOf = (millis: number): string => DateTime.formatIso(DateTime.makeUnsafe
 
 const ledgerOrder: Order.Order<readonly [TelemetryRefusalTag, number]> = Order.mapInput(Order.String, ([tag]) => tag);
 
-const ledgerRows = (ledger: RefusalLedger): ReadonlyArray<string> =>
+// A count, or a lower bound when the tag's baseline was truncated.
+const countCell = (receipt: PracticeKgPrivacyReceipt, tag: TelemetryRefusalTag, count: number): string =>
+  A.contains(receipt.truncated, tag) ? `≥ ${count}, baseline truncated` : `${count}`;
+
+const ledgerRows = (receipt: PracticeKgPrivacyReceipt, ledger: RefusalLedger): ReadonlyArray<string> =>
   A.match(A.sort(A.fromIterable(ledger), ledgerOrder), {
     onEmpty: () => ["None."],
     onNonEmpty: (rows) => [
       "| Tag | Count |",
       "| --- | ---: |",
-      ...A.map(rows, ([tag, count]) => `| ${tag} | ${count} |`),
+      ...A.map(rows, ([tag, count]) => `| ${tag} | ${countCell(receipt, tag, count)} |`),
     ],
   });
 
@@ -464,7 +530,11 @@ const countIn = (ledger: RefusalLedger, tag: TelemetryRefusalTag): number =>
 const spoolRows = (receipt: PracticeKgPrivacyReceipt): ReadonlyArray<string> => [
   "| Tag | Count |",
   "| --- | ---: |",
-  ...A.map(spoolTags, (tag) => `| ${tag} | ${countIn(receipt.refusals, tag) + countIn(receipt.spool.refused, tag)} |`),
+  ...A.map(
+    spoolTags,
+    (tag) =>
+      `| ${tag} | ${countCell(receipt, tag, countIn(receipt.refusals, tag) + countIn(receipt.spool.refused, tag))} |`
+  ),
 ];
 
 const nameRows = (names: ReadonlyArray<string>): ReadonlyArray<string> =>
@@ -481,9 +551,12 @@ const keyLine = (key: PracticeKgKeyReport): string =>
   );
 
 const spoolLine = (spool: PracticeKgReceiptSpool): string =>
-  spool.read
-    ? `- Spool: \`<telemetry dir>/spool\`, ${spool.segments.traces + spool.segments.metrics + spool.segments.logs} segments in the window (traces ${spool.segments.traces}, metrics ${spool.segments.metrics}, logs ${spool.segments.logs}), ${spool.bytes} bytes; segments sealed before the window: ${spool.earlier}`
-    : "- Spool: not read (no key loaded)";
+  PracticeKgReceiptSpoolStatus.match(spool.status, {
+    read: () =>
+      `- Spool: \`<telemetry dir>/spool\`, ${spool.segments.traces + spool.segments.metrics + spool.segments.logs} segments in the window (traces ${spool.segments.traces}, metrics ${spool.segments.metrics}, logs ${spool.segments.logs}), ${spool.bytes} bytes; segments sealed before the window: ${spool.earlier}`,
+    "no-key": () => "- Spool: not read (no key loaded)",
+    "survey-failed": (failed) => `- Spool: not read (the key loaded but the spool \`${failed.operation}\` step failed)`,
+  });
 
 /**
  * Renders a receipt as Markdown: counts, refusal tag names, the key's
@@ -503,13 +576,14 @@ const spoolLine = (spool: PracticeKgReceiptSpool): string =>
  *     telemetryDir: "unresolved",
  *     key: { status: "missing" },
  *     spool: {
- *       read: false,
+ *       status: { _tag: "no-key" },
  *       segments: { traces: 0, metrics: 0, logs: 0 },
  *       bytes: 0,
  *       earlier: 0,
  *       refused: HashMap.empty(),
  *     },
  *     refusals: HashMap.empty(),
+ *     truncated: [],
  *     attributeKeys: [],
  *     metricNames: [],
  *     unlistedNames: 0,
@@ -535,7 +609,10 @@ export const renderPracticeKgPrivacyReceipt = (receipt: PracticeKgPrivacyReceipt
       "",
       "## Refusals in the window",
       "",
-      ...ledgerRows(HashMap.filter(receipt.refusals, (_, tag) => !isSpoolTag(tag))),
+      ...ledgerRows(
+        receipt,
+        HashMap.filter(receipt.refusals, (_, tag) => !isSpoolTag(tag))
+      ),
       "",
       "## Spool refusals in the window",
       "",
@@ -563,7 +640,9 @@ export const renderPracticeKgPrivacyReceipt = (receipt: PracticeKgPrivacyReceipt
  *
  * The key is read with {@link readPracticeKgSpoolKey}, never created or
  * rotated, and the spool with `surveyStrictSpool`, which never creates its
- * directory. A key that does not load leaves the spool unread.
+ * directory. A key that does not load leaves the spool unread as `no-key`; a
+ * survey that fails after the key loaded leaves it unread as `survey-failed`
+ * with the failed spool operation.
  *
  * **Example** (Build the receipt)
  *
@@ -587,19 +666,20 @@ export const runPracticeKgPrivacyReceipt = Effect.fn("PracticeKgPrivacyReceipt.r
     startMillis: Math.max(0, endMillis - Duration.toMillis(PrivacyReceiptWindow)),
     endMillis,
   });
-  const empty = {
-    spool: emptyPracticeKgReceiptSpool,
+  const unread = (status: PracticeKgReceiptSpoolStatus) => ({
+    spool: unreadPracticeKgReceiptSpool(status),
     refusals: HashMap.empty<TelemetryRefusalTag, number>(),
+    truncated: [],
     attributeKeys: [],
     metricNames: [],
     unlistedNames: 0,
-  };
+  });
   const found = yield* O.match(directory, {
     onNone: () =>
       Effect.succeed({
         telemetryDir: "unresolved" as const,
         key: PracticeKgKeyReport.make({ status: "missing" }),
-        ...empty,
+        ...unread(PracticeKgReceiptSpoolStatus.cases["no-key"].make({})),
       }),
     onSome: Effect.fnUntraced(function* (telemetryDir: string) {
       const [key, material] = yield* Layer.build(layerPracticeKgDpapi(platform)).pipe(
@@ -609,17 +689,19 @@ export const runPracticeKgPrivacyReceipt = Effect.fn("PracticeKgPrivacyReceipt.r
         Effect.scoped,
         Effect.orElseSucceed(() => [PracticeKgKeyReport.make({ status: "unreadable" }), O.none()] as const)
       );
-      const survey = yield* O.match(material, {
-        onNone: () => Effect.succeedNone,
+      const summary = yield* O.match(material, {
+        onNone: () => Effect.succeed(unread(PracticeKgReceiptSpoolStatus.cases["no-key"].make({}))),
         onSome: (spoolKey) =>
           surveyStrictSpool(StrictSpoolOptions.make({ directory: path.join(telemetryDir, "spool"), tier })).pipe(
             Effect.provideService(StrictSpoolKey, spoolKey),
-            Effect.option
+            Effect.map(summarizePracticeKgSpool(window)),
+            // Only the operation tag of a failed survey reaches the receipt.
+            Effect.catchTag("StrictSpoolError", (error) =>
+              Effect.succeed(
+                unread(PracticeKgReceiptSpoolStatus.cases["survey-failed"].make({ operation: error.operation }))
+              )
+            )
           ),
-      });
-      const summary = O.match(survey, {
-        onNone: () => empty,
-        onSome: summarizePracticeKgSpool(window),
       });
       return { telemetryDir: "resolved" as const, key, ...summary };
     }),

@@ -124,8 +124,10 @@ const makeSurvey = Effect.gen(function* () {
     [
       refusedPoint("log-record-dropped", "100", 10),
       refusedPoint("egress-refused", "100", 5),
-      refusedPoint("span-name-not-allowed", "900", "7"),
+      // A process started inside the window: its whole count is in-window growth.
+      refusedPoint("span-name-not-allowed", `${11 * day * 1_000_000}`, "7"),
       refusedPoint("spool-write-failed", "100", 3),
+      // Started before the window, but no point before it survives: truncated.
       refusedPoint("spool-evict-failed", "100", 1),
       refusedPoint(canary, "900", 99),
     ],
@@ -173,22 +175,38 @@ describe("practice KG privacy receipt", () => {
 
   it.effect("counts each refusal series' growth inside the window, never its total", () =>
     Effect.gen(function* () {
-      const { refusals, spool, unlistedNames } = summarizePracticeKgSpool(window)(yield* makeSurvey);
+      const { refusals, spool, truncated, unlistedNames } = summarizePracticeKgSpool(window)(yield* makeSurvey);
       expect(HashMap.toEntries(refusals)).toEqual(
         expect.arrayContaining([
           ["log-record-dropped", 6],
           ["egress-refused", 3],
           ["span-name-not-allowed", 7],
           ["spool-write-failed", 2],
-          ["spool-evict-failed", 1],
         ])
       );
-      expect(HashMap.size(refusals)).toBe(5);
+      expect(HashMap.size(refusals)).toBe(4);
+      expect(truncated).toEqual(["spool-evict-failed"]);
       expect(spool.segments).toEqual({ traces: 1, metrics: 1, logs: 1 });
       expect([spool.bytes, spool.earlier]).toEqual([1_450, 1]);
       expect(HashMap.toEntries(spool.refused)).toEqual([["spool-segment-invalid", 1]]);
       // The unlisted attribute key and the unlisted metric name.
       expect(unlistedNames).toBe(2);
+    })
+  );
+
+  it.effect("takes the earliest surviving point as the baseline when earlier points were evicted", () =>
+    Effect.gen(function* () {
+      // Process started before the window; its pre-window segments are gone.
+      const first = yield* metricsBody([refusedPoint("egress-refused", "100", 40)]);
+      const later = yield* metricsBody([refusedPoint("egress-refused", "100", 46)]);
+      const evicted = StrictSpoolSurvey.make({
+        entries: [opened(11 * day, 300, "metrics", first), opened(12 * day, 300, "metrics", later)],
+      });
+      const summary = summarizePracticeKgSpool(evicted, window);
+      expect(HashMap.toEntries(summary.refusals)).toEqual([["egress-refused", 6]]);
+      expect(summary.truncated).toEqual(["egress-refused"]);
+      const text = renderPracticeKgPrivacyReceipt(receiptOf(summary));
+      expect(Str.includes("| egress-refused | ≥ 6, baseline truncated |")(text)).toBe(true);
     })
   );
 });
@@ -253,7 +271,7 @@ describe("practice-kg-mcp --privacy-receipt", () => {
         expect(yield* listTree(telemetryDir)).toEqual(before);
         expect(receipt.telemetryDir).toBe("resolved");
         expect(receipt.key).toEqual({ status: "loaded", protection: "dev-file", epoch: 1 });
-        expect(receipt.spool.read).toBe(true);
+        expect(receipt.spool.status).toEqual({ _tag: "read" });
         expect(receipt.spool.earlier).toBeGreaterThan(0);
         expect(receipt.spool.segments.traces).toBeGreaterThan(0);
         expect(receipt.spool.segments.metrics).toBeGreaterThan(0);
@@ -279,13 +297,39 @@ describe("practice-kg-mcp --privacy-receipt", () => {
         const fs = yield* FileSystem.FileSystem;
         const receipt = yield* runPracticeKgPrivacyReceipt();
         expect(receipt.key).toEqual({ status: "missing" });
-        expect(receipt.spool.read).toBe(false);
+        expect(receipt.spool.status).toEqual({ _tag: "no-key" });
         expect(yield* fs.exists("/fresh")).toBe(false);
+        expect(renderPracticeKgPrivacyReceipt(receipt)).toContain("- Spool: not read (no key loaded)");
       }).pipe(
         Effect.provideService(HostProcessPlatform, "linux"),
         Effect.provideService(
           ConfigProvider.ConfigProvider,
           ConfigProvider.fromUnknown({ PRACTICE_KG_TELEMETRY_DIR: "/fresh/telemetry" })
+        )
+      )
+    );
+
+    it.effect("reports a survey that failed after the key loaded by its operation only", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const brokenDir = "/broken/telemetry";
+        yield* Layer.build(layerPracticeKgSpoolKey(brokenDir).pipe(Layer.provide(layerPracticeKgDpapi("linux"))));
+        // A file where the spool directory should be: listing it fails.
+        yield* fs.writeFileString(`${brokenDir}/spool`, canary);
+        const receipt = yield* runPracticeKgPrivacyReceipt();
+        expect(receipt.key.status).toBe("loaded");
+        expect(receipt.spool.status).toEqual({ _tag: "survey-failed", operation: "replay" });
+        expect(HashMap.size(receipt.refusals)).toBe(0);
+        const text = renderPracticeKgPrivacyReceipt(receipt);
+        expect(text).toContain("- Spool: not read (the key loaded but the spool `replay` step failed)");
+        expect(text).not.toContain("no key loaded");
+        expect(Str.includes(brokenDir)(text)).toBe(false);
+        expect(countCanaries(text)).toBe(0);
+      }).pipe(
+        Effect.provideService(HostProcessPlatform, "linux"),
+        Effect.provideService(
+          ConfigProvider.ConfigProvider,
+          ConfigProvider.fromUnknown({ PRACTICE_KG_TELEMETRY_DIR: "/broken/telemetry" })
         )
       )
     );
