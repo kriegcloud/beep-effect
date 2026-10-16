@@ -83,7 +83,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-F: [October 16 bounded-fix handoff](history/handoffs/rsc-f-agents-2026-10-16.md). F-GROK-R10-01 now refuses non-scalar removals consistently before backup. The [bounded proof](history/receipts/stage-5-f-r10-bounded-verification.json) and [candidate fingerprint](history/receipts/stage-5-f-r10-bounded-fingerprint.json) accompany the one permitted fix push. The capped panel remains OPEN for the driver's Grok/Fable re-check.
+F: [October 16 bounded-fix handoff](history/handoffs/rsc-f-agents-2026-10-16.md). F-GROK-R10-01 now refuses non-scalar removals consistently before backup. The [bounded proof](history/receipts/stage-5-f-r10-bounded-verification.json) and [candidate fingerprint](history/receipts/stage-5-f-r10-bounded-fingerprint.json) accompany the one permitted fix push. The capped panel is CLEARED on `ddf343221a`; a CI-portability repair moves Models fixtures to OS temp directories and injects the atomic exchange test capability. The driver owns the merge final after the full repo-cli proof with live exchange forced unavailable. The [CI-portability proof](history/receipts/stage-5-f-ci-portability-verification.json) records 6,765 passing tests in 336 files, and the [fresh fingerprint](history/receipts/stage-5-f-ci-portability-fingerprint.json) captures the candidate configuration.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated
 before/after measurements are recorded. Remaining acceptance covers incomplete
 30-session windows, four H3 native measurement gates, external-owner

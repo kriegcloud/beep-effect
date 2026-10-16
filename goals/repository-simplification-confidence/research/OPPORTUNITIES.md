@@ -2892,3 +2892,9 @@ tests but the existing lint-worker test expected the package cwd and observed
 `.` instead of `packages/tooling/tool/cli`. The attempt was stopped; use the
 repo-cli package `test` script from its package directory for the full proof.
 No unrelated test or lint implementation was changed for this environment error.
+
+The initial native-fs swap helper was rejected by `quality test-tsgo` with
+`TS377057 effect(nodeBuiltinImport)`. The settled helper captures Effect
+FileSystem in its layer and runs an uninterruptible test transaction, preserving
+the production capability boundary and the typed error channel. This is covered
+by the settled 334-test coverage run and its eight retained baseline floors.

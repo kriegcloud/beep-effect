@@ -1,3 +1,58 @@
+# CI portability candidate — 2026-10-16
+
+lane: rsc-f-agents
+head: db1fa941a67ad7808d67d9453821dd5b60945546   PR: #1797
+package-verify: @beep/repo-cli: pass (full audit 1258.4s; docgen 38.3s)
+hosted-parity: test-tsgo pass (381 files) | docgen local pass | jsdoc-ratchet pass | knowledge refs pass | fallow audit+health pass | coverage read pass (334 tests, 17 files; all 8 matching floors)
+config fingerprint (final): 2f5a7469595a414e8ac8add825cf7d0ea0b387043e56e9679389ebc299b7d2da (353 equality inputs / four observed-only)   backups: none this wave; zero native configuration applies
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-16.md
+open items: driver-owned exact-head hosted CI and merge final; retained qualification windows / external-owner prerequisites; native-platform EV010 provenance advisories described below. Panel was CLEARED on ddf343221a; this report is a CI candidate, not a new panel verdict.
+
+The repair injects ModelsAtomicExchange as an Effect Context.Service. The live
+layer retains the cached GNU mv --exchange probe and the same typed fail-closed
+refusal. Apply, restore, ownership, displaced-inode and hash checks are unchanged.
+Tests provide an Effect FileSystem swap model that preserves inodes and symlinks;
+injected competitors act at transaction boundaries. It is test-only, with no
+production fallback. Models fixtures now use scoped OS temporary directories.
+The unsupported live layer still refuses two writes with one cached probe and
+unchanged native bytes.
+
+The full repo-cli package test script passed with a PATH shim that rejects every
+live mv --exchange call. A direct live-layer probe under that same environment
+returned supported=false before the suite. Settled result: 336 files and 6,765
+tests passed, exit 0, 1221.72 seconds. The initial root-level Vitest attempt was
+stopped for its wrong-cwd lint-worker expectation; the successful package-cwd
+run replaces it. The final Effect-only helper is covered by the settled 334-test
+coverage run, and final test-tsgo passes.
+
+Effect Diagnostics: pass, 331 programs / 80,694 file visits, zero findings.
+Oxlint: zero findings in PR-changed files; all 18 reported findings are in files
+byte-identical to origin/main. Cheap gates: 16 pass; effect-vitest reports the two
+standing F-S31-EV010 native-platform provenance advisories and one in the touched
+catalog fixture. That catalog import is unchanged from origin/main; its native
+filesystem ledger round-trip remains intentional. No exception rows were added.
+S31: 15 inventories compared, zero added rows. Changeset-graph: pass, 157 packages,
+zero changeset files / references / missing references. Both catalog owners ran.
+Main 379573e3eb was merged once, followed by bun install.
+
+Receipts: history/receipts/stage-5-f-ci-portability-verification.json and
+history/receipts/stage-5-f-ci-portability-fingerprint.json. Private logs are under
+.beep/rsc-f-ci-portability/. No home configuration was applied. Claude memory
+and Cursor CLI config changed concurrently since the wave-start snapshot; the
+fresh fingerprint includes them, and its immediate equality check passed.
+Pre-existing handoff edits and .impeccable/live/ residue are preserved.
+
+The driver owns hosted CI and the merge final. No readiness monitor, merge-final
+marker or .final gate file is created by this lane. Source proof checkpoint:
+db1fa941a67ad7808d67d9453821dd5b60945546. The delivery report is refreshed with the pushed head.
+Graft saved approximately 155,617 estimated tokens in two retrievals.
+
+ci-candidate db1fa941a67ad7808d67d9453821dd5b60945546 #1797
+fingerprint 2f5a7469595a414e8ac8add825cf7d0ea0b387043e56e9679389ebc299b7d2da
+full repo-cli with live exchange forced unavailable: PASS — 336 files, 6,765 tests, exit 0
+
+---
+
 lane: rsc-f-agents
 head: 34f53ea82f938fd4938fe659e2b42f5fb0803d08 (qualified fix; pushed-head supplement follows)   PR: #1797
 package-verify: @beep/repo-cli: pass (default audit 1259.1s / docgen 36.8s; final lint/check pass)
