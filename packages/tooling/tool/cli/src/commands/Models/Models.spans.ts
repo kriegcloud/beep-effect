@@ -231,50 +231,51 @@ export const modelsEligibility = Effect.fn("Models.eligibility")(function* (
 ) {
   const fs = yield* FileSystem.FileSystem;
   const cases = ModelsEligibilityResult.cases;
-  const preflight = yield* modelsWritePreflight(
-    file,
-    A.map(writes, (write) => write.locator)
-  ).pipe(Effect.result);
-  if (preflight._tag === "Failure") return cases["ineligible-format"].make({ message: preflight.failure.message });
-  if (A.some(writes, (write) => write.remove === true && write.locator._tag !== "toml-top-level-key"))
-    return cases["ineligible-format"].make({ message: "Removal owns only a top-level TOML assignment." });
-  const canonical = yield* fs.realPath(file).pipe(Effect.result);
-  if (canonical._tag === "Failure") return cases["not-canonical"].make({ message: canonical.failure.message });
-  const actual = canonical.success;
-  const canonicalFormat = yield* modelsWritePreflight(
-    actual,
-    A.map(writes, (write) => write.locator)
-  ).pipe(Effect.result);
-  if (canonicalFormat._tag === "Failure")
-    return cases["not-canonical"].make({ message: canonicalFormat.failure.message });
-  const bytes = yield* fs.readFile(sourceFile === file ? actual : sourceFile).pipe(Effect.result);
-  if (bytes._tag === "Failure") return cases["io-error"].make({ message: bytes.failure.message });
-  const text = yield* modelsNativeText(bytes.success).pipe(Effect.result);
-  if (text._tag === "Failure") return cases["invalid-bytes"].make({ message: text.failure.message });
-  const content = text.success;
-  let removalsPresent = false;
-  for (const { locator, remove } of writes) {
-    const parsedResult = yield* (
-      locator._tag === "json-key" ? modelsParseJson(content).pipe(Effect.map(getNodeValue)) : modelsParseToml(content)
-    ).pipe(Effect.result);
-    if (parsedResult._tag === "Failure") return cases["parse-error"].make({ message: parsedResult.failure.message });
-    const parsed = parsedResult.success;
-    const owned = Match.value(locator).pipe(
-      Match.tag("toml-top-level-key", ({ key }) => modelsParsedLeaf(parsed, [key])),
-      Match.tag("toml-table-key", ({ table, key }) => modelsParsedLeaf(parsed, [...Str.split(table, "."), key])),
-      Match.tag("json-key", ({ pointer, fallbacks }) =>
-        A.findFirst(
-          A.map([pointer, ...fallbacks], (segments) => modelsParsedLeaf(parsed, segments)),
-          O.isSome
-        ).pipe(O.flatten)
-      ),
-      Match.orElse(() => O.none())
+  return yield* Effect.gen(function* () {
+    const locators = A.map(writes, (write) => write.locator);
+    yield* modelsWritePreflight(file, locators).pipe(
+      Effect.mapError(({ message }) => cases["ineligible-format"].make({ message }))
     );
-    if (remove === true && O.isSome(owned)) removalsPresent = true;
-    if (O.isNone(owned) && !(operation === "apply" && remove === true))
-      return cases["absent-owned-path"].make({ message: "Owned path is absent from the parsed native document." });
-  }
-  return cases.eligible.make({ actual, content, removalsPresent });
+    if (A.some(writes, (write) => write.remove === true && write.locator._tag !== "toml-top-level-key"))
+      return yield* Effect.fail(
+        cases["ineligible-format"].make({ message: "Removal owns only a top-level TOML assignment." })
+      );
+    const actual = yield* fs
+      .realPath(file)
+      .pipe(Effect.mapError(({ message }) => cases["not-canonical"].make({ message })));
+    yield* modelsWritePreflight(actual, locators).pipe(
+      Effect.mapError(({ message }) => cases["not-canonical"].make({ message }))
+    );
+    const bytes = yield* fs
+      .readFile(sourceFile === file ? actual : sourceFile)
+      .pipe(Effect.mapError(({ message }) => cases["io-error"].make({ message })));
+    const content = yield* modelsNativeText(bytes).pipe(
+      Effect.mapError(({ message }) => cases["invalid-bytes"].make({ message }))
+    );
+    let removalsPresent = false;
+    for (const { locator, remove } of writes) {
+      const parsed = yield* (
+        locator._tag === "json-key" ? modelsParseJson(content).pipe(Effect.map(getNodeValue)) : modelsParseToml(content)
+      ).pipe(Effect.mapError(({ message }) => cases["parse-error"].make({ message })));
+      const owned = Match.value(locator).pipe(
+        Match.tag("toml-top-level-key", ({ key }) => modelsParsedLeaf(parsed, [key])),
+        Match.tag("toml-table-key", ({ table, key }) => modelsParsedLeaf(parsed, [...Str.split(table, "."), key])),
+        Match.tag("json-key", ({ pointer, fallbacks }) =>
+          A.findFirst(
+            A.map([pointer, ...fallbacks], (segments) => modelsParsedLeaf(parsed, segments)),
+            O.isSome
+          ).pipe(O.flatten)
+        ),
+        Match.orElse(() => O.none())
+      );
+      if (remove === true && O.isSome(owned)) removalsPresent = true;
+      if (O.isNone(owned) && !(operation === "apply" && remove === true))
+        return yield* Effect.fail(
+          cases["absent-owned-path"].make({ message: "Owned path is absent from the parsed native document." })
+        );
+    }
+    return cases.eligible.make({ actual, content, removalsPresent });
+  }).pipe(Effect.catch(Effect.succeed));
 });
 
 // Decode only a single literal shell word. Concatenated quote components,

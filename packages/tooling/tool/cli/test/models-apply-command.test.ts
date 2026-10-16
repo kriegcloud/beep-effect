@@ -160,16 +160,17 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         );
         const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
         const findings = A.filter(report.findings, (entry) => entry.targetId === "synthetic.tagged");
-        if (tag === "eligible") expect(findings).toEqual([]);
-        else {
-          expect(findings).toHaveLength(1);
-          const entry = A.head(findings).pipe(O.getOrThrow);
-          expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
-          if (tag === "absent-owned-path") expect(entry.current).toEqual(O.none());
-          else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
-        }
         expect(A.fromIterable(yield* fs.readFile(actual))).toEqual(A.fromIterable(bytes));
         expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+        if (tag === "eligible") {
+          expect(findings).toEqual([]);
+          continue;
+        }
+        expect(findings).toHaveLength(1);
+        const entry = A.head(findings).pipe(O.getOrThrow);
+        expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
+        if (tag === "absent-owned-path") expect(entry.current).toEqual(O.none());
+        else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
       }
     })
   );
