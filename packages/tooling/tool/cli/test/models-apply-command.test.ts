@@ -129,8 +129,9 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
         if (file !== actual) yield* fs.symlink(actual, file);
         const reader = FileSystem.FileSystem.of({
           ...fs,
-          readFile: (target) =>
-            fs.readFile(tag === "io-error" && target === actual ? path.join(home, "unreadable-source") : target),
+          readFile: Effect.fn("ModelsEligibilityTest.readFile")((target) =>
+            fs.readFile(tag === "io-error" && target === actual ? path.join(home, "unreadable-source") : target)
+          ),
         });
         const result = yield* modelsEligibility(file, [
           ModelsLocatorWrite.make({ locator, expected: "gpt-6.1-sol" }),

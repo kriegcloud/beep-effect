@@ -2849,3 +2849,13 @@ predicate for the operation preflight and combines the duplicated check-mode
 branch. Both changes preserve the single eligibility gate and its ordering.
 No baseline, suppression or allowlist row is added. Running the cheap Fallow
 read before the long package audit would surface this earlier.
+
+
+### F review-fix proof friction (2026-10-16)
+
+During the pinned read-only Codex `reply OK` probe, the checkout's P0 inbox
+hook injected package-audit remediation into the probe. The process answered
+with a read-only blocker instead of OK. Receipt: `.beep/rsc-f-review10/codex-probe.log`.
+The package rows are now acknowledged against the corrective commit; repeat
+the probe after acknowledgement. A health probe should receive the requested
+bounded task while preserving the parent's responsibility for inbox work.
