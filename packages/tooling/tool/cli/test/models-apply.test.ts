@@ -456,12 +456,13 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
         yield* Effect.flip(writer.apply(file, [request], "check", backups));
         const journal = O.getOrThrow(yield* writer.apply(file, [request], "write", backups));
         expect(yield* fs.readFileString(file)).toBe(native);
-        yield* Effect.flip(writer.apply(file, [request], "check", backups));
+        expect(yield* writer.apply(file, [request], "check", backups)).toEqual(O.none());
+        expect(yield* writer.apply(file, [request], "write", backups)).toEqual(O.none());
         const refusal = yield* Effect.flip(writer.restore(path.join(backups, `${journal.id}.json`), backups));
         expect(refusal.message).toContain("Owned path is absent");
         expect(yield* fs.readFileString(file)).toBe(native);
         expect(yield* fs.readFileString(journal.backup)).toBe(before);
-        yield* Effect.flip(writer.apply(file, [request], "check", backups));
+        expect(yield* writer.apply(file, [request], "check", backups)).toEqual(O.none());
       }
       const request = ModelsLocatorWrite.make({
         locator: {

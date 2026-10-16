@@ -25,7 +25,7 @@ import { getNodeValue } from "jsonc-parser";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
 import { ModelsLocatorError } from "./Models.errors.ts";
 import { modelsReadLocator } from "./Models.locator.service.ts";
-import { ModelsApplyJournal, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
+import { ModelsApplyJournal, ModelsEligibilityResult, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { ModelsTargetFile } from "./Models.paths.ts";
 import {
   modelsApplySpans,
@@ -254,8 +254,20 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const crypto = yield* Crypto.Crypto;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const validate = validateSyntax;
-  const eligibility = (file: string, writes: ReadonlyArray<ModelsLocatorWrite>, sourceFile = file) =>
-    modelsEligibility(file, writes, sourceFile).pipe(
+  const eligibility = (
+    file: string,
+    writes: ReadonlyArray<ModelsLocatorWrite>,
+    sourceFile = file,
+    operation: "apply" | "restore" = "apply"
+  ) =>
+    modelsEligibility(file, writes, sourceFile, operation).pipe(
+      Effect.filterOrFail(ModelsEligibilityResult.guards.eligible, (result) =>
+        ModelsLocatorError.make({
+          reason: "ineligible",
+          path: file,
+          message: `Ineligible native target: ${result._tag === "eligible" ? "Unexpected eligible refusal." : result.message}`,
+        })
+      ),
       Effect.provideService(FileSystem.FileSystem, fs),
       Effect.provideService(Path.Path, path)
     );
@@ -439,12 +451,11 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       const nativeWrites = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
       const eligible = A.isReadonlyArrayNonEmpty(nativeWrites)
         ? yield* eligibility(file, nativeWrites)
-        : { actual: yield* fs.realPath(file).pipe(io), content: yield* readNative(file) };
+        : { actual: yield* fs.realPath(file).pipe(io), content: yield* readNative(file), removalsPresent: false };
       const { actual, content: before } = eligible;
       if (mode === "check") {
         yield* checkReadOnlyDrift(before, writes);
-        if (A.some(nativeWrites, (write) => write.remove === true))
-          return yield* failure("Owned configuration drift detected.");
+        if (eligible.removalsPresent) return yield* failure("Owned configuration drift detected.");
         yield* assertParsedProjection(before, nativeWrites).pipe(
           Effect.mapError(() => failure("Owned configuration drift detected."))
         );
@@ -524,11 +535,11 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         const backup = yield* fs.realPath(journal.backup).pipe(io);
         if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
           return yield* failure("Recovery backup is outside its journal directory.");
-        const { content: current } = yield* eligibility(journal.file, writes);
+        const { content: current } = yield* eligibility(journal.file, writes, journal.file, "restore");
         const currentHash = yield* hash(current);
         if (currentHash !== journal.afterHash)
           return yield* failure("Native file changed since apply; restore would overwrite new state.");
-        const { content: original } = yield* eligibility(journal.file, writes, backup);
+        const { content: original } = yield* eligibility(journal.file, writes, backup, "restore");
         if ((yield* hash(original)) !== journal.beforeHash)
           return yield* failure("Recovery backup hash does not match.");
         yield* atomic(

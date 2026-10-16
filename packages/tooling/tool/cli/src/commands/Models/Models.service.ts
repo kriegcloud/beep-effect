@@ -373,16 +373,17 @@ const readCurrentLocator = Effect.fnUntraced(function* (input: LocatorCheckInput
   if (O.isNone(modelsCheckOnlyFormat(input.locator))) {
     const eligible = yield* modelsEligibility(input.file.absolutePath, [
       ModelsLocatorWrite.make({ locator: boundLocator(input), expected: "" }),
-    ]).pipe(Effect.result);
-    if (eligible._tag === "Failure")
+    ]);
+    if (eligible._tag === "absent-owned-path") return O.none();
+    if (eligible._tag !== "eligible")
       return O.some(
-        `Unsupported ${input.locator._tag === "json-key" ? "JSON" : "TOML"} form: ${eligible.failure.message}`
+        `Unsupported ${input.locator._tag === "json-key" ? "JSON" : "TOML"} form: ${eligible._tag}: ${eligible.message}`
       );
     return yield* input.reader.read(
       ModelsTargetFile.make({
         ...input.file,
-        content: eligible.success.content,
-        absolutePath: eligible.success.actual,
+        content: eligible.content,
+        absolutePath: eligible.actual,
       }),
       boundLocator(input)
     );

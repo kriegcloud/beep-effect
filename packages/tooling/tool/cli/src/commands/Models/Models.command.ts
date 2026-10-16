@@ -29,7 +29,13 @@ import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { bindLocatorModel, modelsReadLocator } from "./Models.locator.service.ts";
-import { LocatorBinding, ModelSyncTarget, ModelsLocatorWrite, TargetId } from "./Models.manifest.schemas.ts";
+import {
+  LocatorBinding,
+  ModelSyncTarget,
+  ModelsEligibilityResult,
+  ModelsLocatorWrite,
+  TargetId,
+} from "./Models.manifest.schemas.ts";
 import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
@@ -418,7 +424,13 @@ const previewModelWrites = Effect.fnUntraced(function* (
   const fs = yield* FileSystem.FileSystem;
   const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
   const content = A.isReadonlyArrayNonEmpty(certifiable)
-    ? (yield* modelsEligibility(file, certifiable).pipe(Effect.mapError(ModelsCommandError.fromInternal))).content
+    ? (yield* modelsEligibility(file, certifiable).pipe(
+        Effect.filterOrFail(ModelsEligibilityResult.guards.eligible, (result) =>
+          ModelsCommandError.make({
+            message: `Ineligible native target: ${result._tag === "eligible" ? "Unexpected eligible refusal." : result.message}`,
+          })
+        )
+      )).content
     : yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
   for (const request of writes) {
     const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
@@ -436,13 +448,15 @@ const previewModelWrites = Effect.fnUntraced(function* (
               !O.contains(current, request.expected)
           )
         )
-      : !O.contains(
-          yield* modelsReadLocator(
-            ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
-            request.locator
-          ),
-          request.expected
+      : yield* modelsReadLocator(
+          ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
+          request.locator
+        ).pipe(
+          Effect.map((current) =>
+            request.remove === true ? O.isSome(current) : !O.contains(current, request.expected)
+          )
         );
+
     yield* Console.log(
       `models: preview ${target.id} [${request.locator._tag}] ${manual ? "manual verification required; recognized drift=" : "change="}${change} expected=${request.remove === true ? "<absent>" : request.expected}`
     );

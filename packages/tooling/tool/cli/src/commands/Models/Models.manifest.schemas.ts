@@ -1035,3 +1035,39 @@ export class ModelsManifest extends S.Opaque<ModelsManifest, { readonly brand: u
     })
   )
 ) {}
+
+/**
+ * Certification outcome shared by native checks, writes, and recovery.
+ *
+ * **Example** (Distinguish missing ownership)
+ *
+ * ```ts
+ * import { ModelsEligibilityResult } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * const result = ModelsEligibilityResult.cases["absent-owned-path"].make({ message: "Owned path is absent." })
+ * console.log(result._tag) // "absent-owned-path"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ModelsEligibilityResult = S.TaggedUnion({
+  eligible: { actual: S.String, content: S.String, removalsPresent: S.Boolean },
+  "absent-owned-path": { message: S.String },
+  "ineligible-format": { message: S.String },
+  "invalid-bytes": { message: S.String },
+  "parse-error": { message: S.String },
+  "not-canonical": { message: S.String },
+  "io-error": { message: S.String },
+}).pipe(
+  $I.annoteSchema("ModelsEligibilityResult", {
+    description: "Parsed native eligibility with distinct ownership, format, byte, canonical-path and I/O outcomes.",
+  })
+);
+
+/**
+ * Runtime type of the shared native certification outcome.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ModelsEligibilityResult = typeof ModelsEligibilityResult.Type;

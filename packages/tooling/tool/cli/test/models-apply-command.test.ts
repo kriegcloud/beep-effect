@@ -2,10 +2,13 @@ import {
   LocatorBinding,
   ModelId,
   ModelSyncTarget,
+  ModelsCheckReport,
+  ModelsLocatorWrite,
   ModelsManifest,
   modelsCommand,
   TargetId,
 } from "@beep/repo-cli/commands/Models";
+import { modelsEligibility } from "@beep/repo-cli/commands/Models/Models.spans";
 import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -29,6 +32,7 @@ import type { Locator } from "@beep/repo-cli/commands/Models";
 const run = Command.runWith(modelsCommand, { version: "0.0.0" });
 const decodeManifest = S.decodeEffect(ModelsManifest);
 const encodeManifest = S.encodeEffect(S.fromJsonString(ModelsManifest));
+const decodeCheckReport = S.decodeUnknownEffect(S.fromJsonString(ModelsCheckReport));
 const native = '# synthetic native state\nmodel = "old"\n[projects.synthetic]\ntrust_level = "trusted"\n';
 
 const fixture = Effect.fnUntraced(function* () {
@@ -96,6 +100,79 @@ const consoleLayer = Layer.effect(Console.Console, TestConsole.make);
 layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer, consoleLayer), {
   timeout: "30 seconds",
 })((it) => {
+  it.effect("reports tagged native eligibility through offline JSON checks", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const [home, , manifestFile, manifest] = yield* fixture();
+      const binding = LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" });
+      const render = { _tag: "verbatim" } as const;
+      const toml: Locator = { _tag: "toml-top-level-key", key: "model", binding, render };
+      const json: Locator = { _tag: "json-key", pointer: ["model"], fallbacks: [], binding, render };
+      const cases: ReadonlyArray<readonly [string, Locator, string, string]> = [
+        ["io.toml", toml, 'model="gpt-6.1-sol"\n', "io-error"],
+        ["clean.toml", toml, 'model="gpt-6.1-sol"\n', "eligible"],
+        ["missing.toml", toml, 'native="keep"\n', "absent-owned-path"],
+        ["missing.json", json, '{"native":"keep"}', "absent-owned-path"],
+        ["bad.txt", toml, 'model="gpt-6.1-sol"\n', "ineligible-format"],
+        ["bytes.toml", toml, 'model="gpt-6.1-sol"\nnative="?"\n', "invalid-bytes"],
+        ["parse.toml", toml, 'model="gpt-6.1-sol"\nbroken=[', "parse-error"],
+        ["parse.json", json, '{"model":"gpt-6.1-sol","broken":}', "parse-error"],
+        ["link.toml", toml, 'model="gpt-6.1-sol"\n', "not-canonical"],
+      ];
+      for (const [name, locator, content, tag] of cases) {
+        const file = path.join(home, name);
+        const actual = name === "link.toml" ? path.join(home, "canonical.sh") : file;
+        const bytes = new TextEncoder().encode(content);
+        if (tag === "invalid-bytes") bytes[bytes.indexOf(63)] = 0xff;
+        yield* fs.writeFile(actual, bytes);
+        if (file !== actual) yield* fs.symlink(actual, file);
+        const reader = FileSystem.FileSystem.of({
+          ...fs,
+          readFile: (target) =>
+            fs.readFile(tag === "io-error" && target === actual ? path.join(home, "unreadable-source") : target),
+        });
+        const result = yield* modelsEligibility(file, [
+          ModelsLocatorWrite.make({ locator, expected: "gpt-6.1-sol" }),
+        ]).pipe(Effect.provideService(FileSystem.FileSystem, reader));
+        expect(result._tag).toBe(tag);
+        yield* fs.writeFileString(
+          manifestFile,
+          yield* encodeManifest(
+            ModelsManifest.make({
+              ...manifest,
+              targets: [
+                ModelSyncTarget.make({
+                  id: TargetId.make("synthetic.tagged"),
+                  root: "home",
+                  path: `$HOME/${name}`,
+                  optional: false,
+                  locators: [locator],
+                }),
+              ],
+            })
+          )
+        );
+        yield* run(["check", "--home", home, "--repo", home, "--manifest", manifestFile, "--offline", "--json"]).pipe(
+          Effect.provideService(FileSystem.FileSystem, reader),
+          Effect.result
+        );
+        const report = yield* decodeCheckReport(A.last(yield* TestConsole.logLines).pipe(O.getOrThrow));
+        const findings = A.filter(report.findings, (entry) => entry.targetId === "synthetic.tagged");
+        if (tag === "eligible") expect(findings).toEqual([]);
+        else {
+          expect(findings).toHaveLength(1);
+          const entry = A.head(findings).pipe(O.getOrThrow);
+          expect(entry.kind).toBe(tag === "absent-owned-path" ? "missing-locator" : "stale");
+          if (tag === "absent-owned-path") expect(entry.current).toEqual(O.none());
+          else expect(O.getOrThrow(entry.current)).toContain(`form: ${tag}:`);
+        }
+        expect(A.fromIterable(yield* fs.readFile(actual))).toEqual(A.fromIterable(bytes));
+        expect(yield* fs.exists(path.join(home, ".config-backups"))).toBe(false);
+      }
+    })
+  );
+
   it.effect("round nine canonical extensions and fatal bytes agree across actual CLI modes", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -580,10 +657,16 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, FetchHttpClient.layer
       yield* Effect.flip(run(["codex-permissions", ...flags, "--check", "--write"]));
       yield* run(["codex-permissions", ...flags, "--write"]);
       expect(yield* fs.readFileString(file)).toBe(native);
-      for (const mode of ["--check", "--dry-run", "--write"])
-        yield* Effect.flip(run(["codex-permissions", ...flags, mode]));
+      for (const mode of ["--check", "--dry-run", "--write"]) yield* run(["codex-permissions", ...flags, mode]);
+      expect(yield* TestConsole.logLines).toContain(
+        "models: preview home.codex.config [toml-top-level-key] change=false expected=<absent>"
+      );
       expect(yield* fs.readFileString(file)).toBe(native);
-      expect(yield* fs.readDirectory(path.join(home, ".config-backups"))).toHaveLength(2);
+      const backups = path.join(home, ".config-backups");
+      const entries = yield* fs.readDirectory(backups);
+      expect(entries).toHaveLength(2);
+      const backup = A.findFirst(entries, Str.endsWith(".backup")).pipe(O.getOrThrow);
+      expect(yield* fs.readFileString(path.join(backups, backup))).toBe(before);
     })
   );
 

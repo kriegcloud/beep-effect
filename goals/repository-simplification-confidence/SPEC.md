@@ -2025,3 +2025,25 @@ produce a misleading `change=false`. No round-9 P2/P3 is deferred. The new GitHu
 Reversal: revert the round-9 repair commits. This wave writes no home
 configuration, creates no new native backup, and retains prior timestamped
 backups and rollback evidence. The panel remains OPEN for driver round 10.
+
+
+### RSC-F-REVIEW10-ELIGIBILITY (2026-10-16)
+
+Decision: retain one native eligibility gate and return schema-defined tagged
+outcomes. Live apply/check/preview accepts absent paths for removal requests
+as their satisfied post-state; present removals report drift. Set requests
+still require owned-path presence. Restore retains the round-9 requirement
+for ownership in both live and backup documents, so completed removals still
+refuse restore and retain their byte-exact backup for explicit recovery.
+The gate continues canonical resolution/extension, fatal UTF-8 and full parse
+checks. Read-only models checks map absent ownership to missing-locator;
+other ineligibility retains tagged unsupported-form drift.
+
+Reason: GitHub review threads PRRT_kwDOPbO_N86tBFzz (P1) and
+PRRT_kwDOPbO_N86tBFz7 (P2) identified the impossible removal check and the
+conflation of missing ownership with invalid formats. CLI regressions cover
+all gate tags, missing TOML/JSON ownership, removal drift and idempotence,
+backup-byte preservation and the retained restore refusal. No native
+configuration is written in this wave. Reversal: revert this review-fix wave;
+previous native backups and rollback evidence remain retained. The independent
+panel remains OPEN for the driver's capped round 10.
