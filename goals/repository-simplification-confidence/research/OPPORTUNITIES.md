@@ -2859,3 +2859,12 @@ with a read-only blocker instead of OK. Receipt: `.beep/rsc-f-review10/codex-pro
 The package rows are now acknowledged against the corrective commit; repeat
 the probe after acknowledgement. A health probe should receive the requested
 bounded task while preserving the parent's responsibility for inbox work.
+
+
+### F coverage output collision (2026-10-16)
+
+Two admitted validation runs briefly reused the same coverage output directory.
+Vitest correctly refused the later run: "already in use by another Vitest
+process". Receipt: `.beep/rsc-f-review10/tests-qualified.log`. No assertions
+failed in that attempt. Delivery verification uses its own coverage directory.
+Every concurrent test run must reserve a distinct report directory.
