@@ -35,8 +35,10 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import { collectText } from "../../internal/process/StepExec.ts";
 import {
   CriticClaudeEvent,
@@ -82,6 +84,13 @@ const decodeManifest = S.decodeEffect(S.fromJsonString(RenderManifest));
 const sha256 = flow(sha256Hex, Effect.map(Sha256Hex.make));
 const fail = (message: string) => (cause: unknown) => DrawingsCommandError.new(cause, message);
 const encoder = new TextEncoder();
+
+// Appends a byte stream's text to `printed` as it arrives, so a run stopped mid-stream keeps what came before.
+const collectInto = <E>(stream: Stream.Stream<Uint8Array, E>, printed: Ref.Ref<string>) =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runForEach((chunk) => Ref.update(printed, Str.concat(chunk)))
+  );
 
 /**
  * Repository-relative path of the generic critic prompt every matter reviewer
@@ -1084,9 +1093,10 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     );
   });
 
-  // One reviewer CLI run to its exit: stdout, stderr and exit code, or None when it ran past the time limit
-  // (closing the scope stops the process: SIGTERM to its group, then SIGKILL if it is still alive 30 seconds
-  // later, so a seat that ignores SIGTERM cannot hold the sequence).
+  // One reviewer CLI run: what it printed on stdout and stderr, and its exit code, or None when it ran past the
+  // time limit (closing the scope stops the process: SIGTERM to its group, then SIGKILL if it is still alive 30
+  // seconds later, so a seat that ignores SIGTERM cannot hold the sequence). The output gathers in Refs as it
+  // arrives, which the interruption at the limit leaves alone, so a stopped seat still hands back what it printed.
   const runInvocation = Effect.fn("DrawingCritics.runInvocation")(function* (
     invocation: CriticInvocation,
     minutes: number
@@ -1104,13 +1114,20 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
         })
       )
       .pipe(Effect.mapError(fail(`Could not run ${invocation.executable}; is it installed and signed in?`)));
-    return yield* Effect.all(
-      { stdout: collectText(handle.stdout), stderr: collectText(handle.stderr), exitCode: handle.exitCode },
+    const stdout = yield* Ref.make("");
+    const stderr = yield* Ref.make("");
+    const exited = yield* Effect.all(
+      [collectInto(handle.stdout, stdout), collectInto(handle.stderr, stderr), handle.exitCode],
       { concurrency: "unbounded" }
     ).pipe(
       Effect.mapError(fail(`${invocation.executable} did not finish.`)),
       Effect.timeoutOption(`${minutes} minutes`)
     );
+    return {
+      stdout: yield* Ref.get(stdout),
+      stderr: yield* Ref.get(stderr),
+      exitCode: O.map(exited, ([, , exitCode]) => exitCode),
+    };
   }, Effect.scoped);
 
   // The record of a seat that ended without a report: why, and when.
@@ -1121,8 +1138,9 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     readonly exitCode: number;
     readonly stop: CriticSeatUnavailable;
   }) {
+    const { name } = input.reviewer;
     yield* Effect.logWarning(
-      `critics: ${input.reviewer.name} ${seatOutcome(input.stop).line}: ${input.stop.detail}; continuing with the remaining reviewers.`
+      `critics: ${name} ${seatOutcome(input.stop).line}: ${input.stop.detail}; what it printed is in ${name}.log and ${name}.raw; continuing with the remaining reviewers.`
     );
     return CriticRunRecord.make({
       order: input.order,
@@ -1137,7 +1155,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     });
   });
 
-  // A seat that exited: its log and raw output kept, then a recognised stop or its report.
+  // A seat that exited: a recognised stop or its report.
   const recordRun = Effect.fn("DrawingCritics.recordRun")(function* (input: {
     readonly order: number;
     readonly reviewer: CriticReviewer;
@@ -1148,8 +1166,6 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
     readonly output: { readonly stdout: string; readonly stderr: string; readonly exitCode: number };
   }) {
     const { reviewer, loopDir, output } = input;
-    yield* write(path.join(loopDir, `${reviewer.name}.log`), output.stderr);
-    yield* write(path.join(loopDir, `${reviewer.name}.raw`), output.stdout);
     const stop = seatStop(reviewer.route, output);
     if (O.isSome(stop)) {
       return yield* stoppedRun({ ...input, exitCode: output.exitCode, stop: stop.value });
@@ -1300,13 +1316,18 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
       syntheticPack: request.syntheticPack,
       env: processEnvironment(),
     });
-    const output = yield* runInvocation(invocation, request.timeoutMinutes);
+    const { stdout, stderr, exitCode } = yield* runInvocation(invocation, request.timeoutMinutes);
+    // What the seat printed is kept beside its record however it ended, so a seat stopped at its time limit
+    // leaves what it printed before then. Only a seat that exited is read for a report.
+    yield* write(path.join(loopDir, `${reviewer.name}.log`), stderr);
+    yield* write(path.join(loopDir, `${reviewer.name}.raw`), stdout);
     const seat = { order: input.order, reviewer, startedAt };
     // A seat stopped at its time limit is recorded like one that could not start, and the sequence goes on.
-    return yield* O.match(output, {
+    return yield* O.match(exitCode, {
       onNone: () =>
         stoppedRun({ ...seat, exitCode: CRITIC_TIME_LIMIT_EXIT_CODE, stop: timeLimitSeat(request.timeoutMinutes) }),
-      onSome: (ran) => recordRun({ ...seat, invocation, loopDir, reportPath, output: ran }),
+      onSome: (code) =>
+        recordRun({ ...seat, invocation, loopDir, reportPath, output: { stdout, stderr, exitCode: code } }),
     });
   });
 

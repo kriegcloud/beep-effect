@@ -613,7 +613,9 @@ const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolve
  * deny, so it would not run with its protections missing.
  *
  * `time-limit`: the seat ran past the run's `--timeout-minutes` and the
- * harness stopped it.
+ * harness stopped it. What it printed before then is kept as `<name>.log`
+ * (stderr) and `<name>.raw` (stdout) in the loop directory, and is never read
+ * as a report.
  *
  * `output-limit`: a `claude -p` seat ended with `api_error`
  * `max_output_tokens`: one response ran past the output-token cap, so the run

@@ -49,6 +49,8 @@ import { describe, expect } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
+import * as DateTime from "effect/DateTime";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
@@ -65,6 +67,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
@@ -666,13 +669,14 @@ const textStream = (text: string) => (text === "" ? Stream.empty : Stream.make(n
 
 type SeatOutput = { readonly stdout: string; readonly stderr: string; readonly exitCode: number };
 
-const seatHandle = ({ stdout, stderr, exitCode }: SeatOutput) =>
+// A seat that prints its output and exits, once `exited` has run.
+const seatHandle = ({ stdout, stderr, exitCode }: SeatOutput, exited: Effect.Effect<void> = Effect.void) =>
   ChildProcessSpawner.makeHandle({
     all: Stream.empty,
     stdout: textStream(stdout),
     stderr: textStream(stderr),
     stdin: Sink.drain,
-    exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(exitCode)),
+    exitCode: Effect.as(exited, ChildProcessSpawner.ExitCode(exitCode)),
     getInputFd: () => Sink.drain,
     getOutputFd: () => Stream.empty,
     isRunning: Effect.succeed(false),
@@ -693,6 +697,45 @@ const stuckHandle = ChildProcessSpawner.makeHandle({
   isRunning: Effect.succeed(true),
   kill: () => Effect.void,
   pid: ChildProcessSpawner.ProcessId(2),
+  unref: Effect.succeed(Effect.void),
+});
+
+// What the stalled seat prints before it stalls: two progress lines, and a whole report envelope with one
+// finding, which the harness must keep in the seat's .raw and never read as the seat's report. Each arrives in
+// two pieces, as a pipe may split it, so the kept text shows the pieces were joined in order.
+const stalledStderrPieces = ["reading render/pg-1.png\n", "reading render/fig-1.svg\n"];
+const stalledStderr = A.join(stalledStderrPieces, "");
+const stalledStdout = JSON.stringify({
+  type: "result",
+  subtype: "success",
+  is_error: false,
+  result: JSON.stringify({
+    reviewer: "claude-fable-5.1",
+    verdict: "reject",
+    blockers: [],
+    priorAssessment: [],
+    findings: [{ ...finding("F-01"), relation: { kind: "new", of: null } }],
+    couldNotAssess: [],
+  }),
+});
+const stalledStdoutPieces = [Str.slice(0, 40)(stalledStdout), Str.slice(40)(stalledStdout)];
+
+// The pieces as a byte stream that then never ends, as a process that printed them and stalled.
+const stalledStream = (pieces: ReadonlyArray<string>) =>
+  Stream.concat(Stream.fromIterable(A.map(pieces, (piece) => new TextEncoder().encode(piece))), Stream.never);
+
+// A seat that prints, then never prints again and never exits, until the harness stops it.
+const stalledHandle = ChildProcessSpawner.makeHandle({
+  all: Stream.never,
+  stdout: stalledStream(stalledStdoutPieces),
+  stderr: stalledStream(stalledStderrPieces),
+  stdin: Sink.drain,
+  exitCode: Effect.never,
+  getInputFd: () => Sink.drain,
+  getOutputFd: () => Stream.never,
+  isRunning: Effect.succeed(true),
+  kill: () => Effect.void,
+  pid: ChildProcessSpawner.ProcessId(3),
   unref: Effect.succeed(Effect.void),
 });
 
@@ -738,6 +781,16 @@ const seatOutput = (command: ChildProcess.StandardCommand): SeatOutput =>
     Match.orElse(() => ({ stdout: "", stderr: `unexpected ${command.command}`, exitCode: 127 }))
   );
 
+// The handle a fake seat runs as, by the model it is spawned with: a seat that never exits, one that prints and
+// then stalls, one that reports after four of its five minutes, or the output its route and model pick.
+const fakeSeatHandle = (command: ChildProcess.StandardCommand) =>
+  Match.value(O.getOrElse(flagValue(command.args, "--model"), () => "")).pipe(
+    Match.when("claude-stuck", () => stuckHandle),
+    Match.when("claude-stalled", () => stalledHandle),
+    Match.when("claude-slow", () => seatHandle(seatOutput(command), Effect.sleep("4 minutes"))),
+    Match.orElse(() => command.pipe(seatOutput, seatHandle))
+  );
+
 const fakeSeats = ChildProcessSpawner.make((command) =>
   ChildProcess.isStandardCommand(command)
     ? Effect.sync(() => {
@@ -745,9 +798,7 @@ const fakeSeats = ChildProcessSpawner.make((command) =>
         MutableHashMap.set(spawned, key, command.args);
         MutableHashMap.set(spawnedEnv, key, command.options.env ?? {});
         MutableHashMap.set(spawnedForceKill, key, command.options.forceKillAfter);
-        return O.contains(flagValue(command.args, "--model"), "claude-stuck")
-          ? stuckHandle
-          : command.pipe(seatOutput, seatHandle);
+        return fakeSeatHandle(command);
       })
     : Effect.die("unexpected piped command")
 );
@@ -825,8 +876,30 @@ const promptOf = (args: O.Option<ReadonlyArray<string>>) =>
     () => ""
   );
 
-// Runs the sequence with a 5-minute seat limit while the test clock moves on a minute at a time, so a
-// stuck seat reaches its limit whenever its run starts.
+// The most test minutes a seat sequence may take before the test fails instead of waiting on it.
+const SEQUENCE_TEST_MINUTES = 120;
+
+// Moves the test clock on a minute at a time until the sequence ends. TestClock.adjust only fires sleeps
+// already registered, so the clock keeps moving for as long as the fiber runs, however late a seat registers
+// its time limit. Between steps the sequence gets up to 20 ms of real time for the work the test clock does not
+// drive (a report digest is a real promise). A sequence still running after SEQUENCE_TEST_MINUTES fails.
+const finishSequence = <A, E>(fiber: Fiber.Fiber<A, E>, minutesLeft: number): Effect.Effect<A, E> =>
+  Fiber.await(fiber).pipe(
+    Effect.timeoutOption("20 millis"),
+    TestClock.withLive,
+    Effect.flatMap(
+      O.match({
+        onSome: () => Fiber.join(fiber),
+        onNone: () =>
+          minutesLeft === 0
+            ? Effect.die(`the critic sequence was still running after ${SEQUENCE_TEST_MINUTES} test minutes`)
+            : TestClock.adjust("1 minute").pipe(Effect.andThen(finishSequence(fiber, minutesLeft - 1))),
+      })
+    )
+  );
+
+// Runs the sequence with a 5-minute seat limit while the test clock moves on until it ends, so a stuck seat
+// reaches its limit whenever its run starts.
 const runSeats = Effect.fnUntraced(function* (name: string, reviewers: ReadonlyArray<CriticReviewer>) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -835,8 +908,7 @@ const runSeats = Effect.fnUntraced(function* (name: string, reviewers: ReadonlyA
   const fiber = yield* critics
     .runSequence(CriticRunRequest.make({ loop: 1, loopDir, packDir, reviewers, timeoutMinutes: 5 }))
     .pipe(Effect.forkChild);
-  yield* Effect.forEach(A.range(1, 15), () => TestClock.adjust("1 minute"), { discard: true });
-  const record = yield* Fiber.join(fiber);
+  const record = yield* finishSequence(fiber, SEQUENCE_TEST_MINUTES);
   const outcomes = A.map(record.runs, (run) => [run.reviewer.name, run.exitCode, O.getOrNull(run.report)] as const);
   const priorFiles = A.sort(yield* fs.readDirectory(path.join(loopDir, "prior")), Order.String);
   const allFindings = yield* fs.readFileString(path.join(loopDir, "ALL-FINDINGS.md"));
@@ -929,6 +1001,69 @@ describe("critic sequence seats", () => {
         expect(run.priorFiles).toStrictEqual(["2-claude-opus-5.5.json"]);
         // a seat that ignores SIGTERM is killed, so stopping it cannot hold the sequence
         assertSome(MutableHashMap.get(spawnedForceKill, `${run.packDir} claude`), "30 seconds");
+        // the stopped seat's log and raw output are written even though it printed nothing
+        expect(yield* fs.readFileString(path.join(run.loopDir, "claude-fable-5.1.log"))).toBe("");
+        expect(yield* fs.readFileString(path.join(run.loopDir, "claude-fable-5.1.raw"))).toBe("");
+      })
+    );
+
+    it.effect(
+      "keeps what a seat printed before its time limit, and does not read it as a report",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const run = yield* runSeats("stalled", [fableSeat("claude-stalled"), opusSeat]);
+        expect(run.outcomes).toStrictEqual([
+          ["claude-fable-5.1", CRITIC_TIME_LIMIT_EXIT_CODE, null],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+        ]);
+        const fable = O.getOrThrow(A.head(run.record.runs));
+        assertSome(
+          O.map(fable.unavailable, (seat) => seat.reason),
+          "time-limit"
+        );
+        expect(fable.findings).toBe(0);
+        assertNone(fable.reportSha256);
+        // what the seat printed before it stalled is kept, in order, named as an exited seat's output is
+        expect(yield* fs.readFileString(path.join(run.loopDir, "claude-fable-5.1.log"))).toBe(stalledStderr);
+        expect(yield* fs.readFileString(path.join(run.loopDir, "claude-fable-5.1.raw"))).toBe(stalledStdout);
+        // what it printed is a whole report with F-01, so only the time limit keeps it out of the loop
+        const printed = yield* extractReportText({ route: "claude", text: stalledStdout }).pipe(
+          O.getOrThrow,
+          decodeCriticReport
+        );
+        expect(A.map(printed.findings, (found) => found.id)).toStrictEqual(["F-01"]);
+        // the report envelope it printed was never decoded: no report file, nothing in prior/, no F-01
+        expect(yield* fs.exists(path.join(run.loopDir, "claude-fable-5.1.json"))).toBe(false);
+        expect(run.priorFiles).toStrictEqual(["2-claude-opus-5.5.json"]);
+        expect(run.allFindings).not.toContain("F-01");
+        expect(run.opusPrompt).not.toContain("F-01");
+        expect(yield* fs.readFileString(path.join(run.packDir, "prior", "SUMMARY.md"))).not.toContain("F-01");
+      })
+    );
+
+    it.effect(
+      "stops a seat at its time limit however late in the sequence its run starts",
+      Effect.fnUntraced(function* () {
+        // three seats that each report after four of their five minutes
+        const slowSeat = CriticReviewer.make({ ...opusSeat, model: "claude-slow" });
+        const run = yield* runSeats("late-limit", [slowSeat, slowSeat, slowSeat, fableSeat("claude-stuck")]);
+        expect(run.outcomes).toStrictEqual([
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+          ["claude-opus-5.5", 0, "claude-opus-5.5.json"],
+          ["claude-fable-5.1", CRITIC_TIME_LIMIT_EXIT_CODE, null],
+        ]);
+        expect(run.priorFiles).toStrictEqual([
+          "1-claude-opus-5.5.json",
+          "2-claude-opus-5.5.json",
+          "3-claude-opus-5.5.json",
+        ]);
+        // the stuck seat started at minute 12 or later, so its limit ran out past minute 15
+        const stuck = O.getOrThrow(A.last(run.record.runs));
+        expect(DateTime.toEpochMillis(DateTime.makeUnsafe(stuck.startedAt))).toBeGreaterThanOrEqual(
+          Duration.toMillis("12 minutes")
+        );
       })
     );
 
