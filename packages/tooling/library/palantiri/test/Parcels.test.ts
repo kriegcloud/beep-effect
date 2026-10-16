@@ -47,6 +47,7 @@ const NOON_TIME = DateTime.makeUnsafe(NOON);
 const TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736";
 const TRACEPARENT = `00-${TRACE_ID}-00f067aa0ca902c7-01`;
 
+const encodeParcelEnvelopeJson = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 const window = (kind: string, usedPercent: number) => ({ kind, scope: null, usedPercent, resetsAt: null });
 const scopedWindow = (scope: string, usedPercent: number) => ({
   kind: "weekly-scoped",
@@ -146,7 +147,7 @@ describe("reduceAccountHeadroom", () => {
       ]);
       // amy sorts before zed, so ordinal 1 carries amy's 30% weekly headroom.
       expect(A.map(accountItems(parcel)[0]?.windows ?? [], (window) => window.remainingPercent)).toEqual([30, 50, 90]);
-      const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(parcel);
+      const json = yield* encodeParcelEnvelopeJson(parcel);
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home"))).toBe(false);
       expect(pipe(json, Str.includes("example"))).toBe(false);

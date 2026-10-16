@@ -42,7 +42,7 @@ export * from "./Freshness.ts";
 /**
  * Gauge series replacement exports.
  *
- * @category metrics
+ * @category observability
  * @since 0.0.0
  */
 export * from "./GaugeSeries.ts";

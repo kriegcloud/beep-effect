@@ -60,6 +60,7 @@ import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type { ParcelId } from "@beep/palantiri";
 
+const decodeParcelCatalogJson = S.decodeEffect(S.fromJsonString(ParcelCatalog));
 const captureOutput = Effect.fnUntraced(function* <A, E, R>(effect: Effect.Effect<A, E, R>) {
   const current = yield* Console.Console;
   let output = A.empty<string>();
@@ -196,7 +197,7 @@ describe("beep palantiri mcp", () => {
     it.effect("lists every parcel with the tool that reads it", () =>
       Effect.gen(function* () {
         const listing = yield* toolText("palantiri_parcels");
-        const catalog = yield* S.decodeEffect(S.fromJsonString(ParcelCatalog))(listing);
+        const catalog = yield* decodeParcelCatalogJson(listing);
         expect(A.map(catalog.parcels, (parcel) => parcel.id)).toEqual(A.map(parcelSpecs, (spec) => spec.id));
         A.forEach(catalog.parcels, (parcel) => {
           expect(parcel.tool).toBe(parcelToolName(parcel.id));
