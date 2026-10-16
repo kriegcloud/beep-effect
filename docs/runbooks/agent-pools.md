@@ -516,3 +516,91 @@ https://forum.cursor.com/t/agent-cli-linux-sandbox-preflight-fails-unshare-eperm
 Use the [permission continuity runbook](./agent-permission-continuity.md) for
 effective-policy readers, disposable Desktop route fixtures, and the rule to
 stop on a mismatch. A visible composer label is not runtime policy evidence.
+
+## Native model configuration writes and recovery
+
+`bun run beep models apply` validates owned spans and native syntax before writing.
+`bun run beep models restore --journal <id>` uses the same publication protocol.
+Both require GNU `mv --exchange --no-copy` (Linux `renameat2(RENAME_EXCHANGE)`);
+the service probes support once using disposable files. Unsupported exchange
+fails closed with a typed `ModelsLocatorError`; there is no unverified-concurrency
+fallback for home or repository files.
+
+Publication atomically exchanges the staged file and live path, then checks the
+actual displaced entry kind, inode and hash against the planned pre-image. A
+displaced symlink is refused even when its target has the planned inode/hash. A mismatch is a
+concurrent-write failure, even if recovery succeeds. Recovery exchanges files
+again and verifies what it displaced; a newer writer encountered during recovery
+is returned through a further exchange. Recovery is bounded to eight exchanges;
+continuing contention fails and retains both path occupants rather than deleting
+recovery state. Errors name the journal id. The `.concurrent` event records the
+retained and displaced artifact paths; inspect these and the current native file
+before manual recovery. Never blindly copy a stale backup over a newer file.
+
+Native clients that hold an already displaced inode may still write after its
+last observation. Use a maintenance boundary excluding those clients when strict
+mutual exclusion is required. The writer detects observed races and preserves
+recovery artifacts; it does not lock native clients out.
+
+ModelsApply `apply --write` and `restore` support only TOML and JSON locators,
+whose parsed non-owned fields are independently compared. Under
+RSC-F-WRITE-SCOPE-TOML-JSON, YAML, XML and shell targets are check-only.
+`models check` and `models apply --check` detect drift; default apply and
+`--dry-run` preview the expected value without creating backups or stages.
+Write and restore requests return a typed `<format> targets are check-only;
+edit by hand.` refusal. This includes equal values, YAML manifest targets,
+XML escaped-JSON attributes and historical recovery journals. Repository
+Markdown and TypeScript projection owners retain their separate generation
+commands; ModelsApply does not write those formats either.
+
+Shell, YAML and XML readers return extracted values only as hints. Both
+`models check` and `models apply --check` always report `manual verification
+required` for these targets; equality of a hint never certifies clean. The JSON
+report carries a separate `manual` array with that status and the extracted
+`current` hint. The summary counts distinct manual targets separately from drift
+findings. Manual status alone exits zero; recognized drift and unsupported forms
+exit non-zero. Only TOML and JSON can be certified clean. Re-enabling another
+format requires a full-fidelity parser, parsed non-owned-field equality and its
+own independent panel (RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER).
+
+YAML reads simple block-mapping scalars and accounts for plain keys; anchors,
+aliases, tags, flow collections, complex keys, multiline scalars and multiple
+documents fail closed. XML reads exact elements and attributes with single or
+double quotes; prefix and qualified element names cannot stand in for the owned
+element. Occurrences inside comments, CDATA and processing instructions fail
+closed. Re-enabling any removed writer requires a full ownership model and its
+own independent panel.
+
+New journals record locator ownership, the canonical regular file, and the
+requested path plus link spelling when present. Restore re-resolves both paths
+and verifies entry kind and target before staging, then checks again before
+publication. A symlink introduced at the canonical path, a moved target, a
+changed parent link or changed requested link refuses with a typed error naming
+the journal. Existing symlinks survive normal apply/restore. Check-only-format journals and
+older journals lacking ownership or destination identity refuse safely; retain
+their backups for manual recovery after inspecting current state.
+
+A TOML/JSON refusal before publication can retain a backup and journal pair
+without changing the native file. These are diagnostic recovery artifacts;
+restore is an idempotent no-op when the live hash already equals `beforeHash`.
+Keep the pair until the refusal has been investigated, then remove the pair
+through the normal backup-retention process. Never treat an unsuccessful apply
+as evidence that publication occurred.
+
+Skill projection and lockfile writes resolve existing symlinks before backup,
+staging and publication; remote skill directories follow the same rule. Stages
+live beside the canonical target and backups hold its prior bytes. The visible
+link remains a link. All destinations and existing parents must resolve within
+the repository root; dangling and out-of-root links refuse before the update
+creates backups or stages. ModelsApply already resolves the native target;
+its command boundary validates the canonical target against the selected home
+or repository root, and explicitly refuses dangling optional destinations.
+
+
+Write eligibility also requires the matching `.toml` or `.json` extension on the
+canonical target path, successful parsing of current bytes and an existing owned
+path (except an already absent removal). A locator tag cannot authorize a shell
+or YAML destination even if its bytes parse as TOML or JSON. The CLI preflights
+format, locator and extension before any target access or optional-file skip;
+the service repeats the guard on canonical paths. Historical restore journals
+receive the same checks before target publication or new backup artifacts.

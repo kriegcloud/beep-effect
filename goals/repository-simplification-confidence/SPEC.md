@@ -816,6 +816,23 @@ bounded path-inventory handling.
 
 | 2026-10-09 | C integrates V main under resume ruling 7: retain both packet contributions, V first in the add/add Stage 5 receipt, and V scoped Effect harness with C typed installation assertions. | Preserve every decision/friction/acceptance row and all four cleanup witnesses; portable process boundary supports Node and Bun without restoring the retired setup script. | Revert the C integration merge; V main and previous C proof remain in Git history. |
 
+### RSC-F-BOUNDARY-20261014 — Freeze evidence before reconciling routing sources
+
+F's live inventory at source `529d77338d` finds that the current shared model
+manifest pins Claude Fable 5.1, lightweight Luna 6, and research Grok 4.7,
+whereas F's locked launch brief requires Opus 5.5 and preservation of Luna 5.6
+and Grok 4.6. The manifest notes cite newer operator decisions; this lane does
+not replace those decisions or silently downgrade the routes. Its current
+dispatch also limits writes to the lane worktree. Decision: retain all harness
+configuration and publish only sanitized pre-apply evidence in the packet.
+Reason: SPEC's contradictory-source stop condition and `rsc-shared` manifest
+ownership; no safe global apply is in this dispatch's write scope. Reversal:
+reconcile the F route matrix through the orchestrator's ruling/manifest owner,
+then continue the schema-first writer and explicitly routed external applies.
+No capability retirement, harness admission, final fingerprint, or operational
+acceptance is implied. This is an execution-boundary decision, not a change to
+the approved model policy. Evidence: `stage-3-f-before-measurement.md` and
+`stage-3-f-inventory.md` under this packet's history receipts.
 | 2026-10-09 | H3 uses the standing inherited-publish push/create fallback after collected cheap gates refuse solely on main Accounts/CI-security schema rows and Epistemic EV015. | The three files match origin/main byte-for-byte; every other cheap lane passes. Main reds belong to the orchestrator consolidated repair under S11, while introduced H3 defects remain H3-owned. | Restore strict green publication after the consolidated main repair; revert the H3 PR without touching inherited files. |
 
 ## Exception Ledger
@@ -1258,6 +1275,177 @@ tests; provide that local test service to restore the test typecheck. Revert
 this unblocker PR to restore the prior references and test fixture; re-record
 the cache review if the receipt changes again.
 
+### RSC-F-ROUTING-20261014 — Current manifest supersedes the older F brief
+
+The wave-2 F ruling at 19:55Z resolves the earlier routing-source conflict.
+Use the October 14 routing refresh and current tool-owned manifest: Codex
+6.1 Sol medium, Claude orchestrator Fable 5.1 medium, Claude children Opus 5.5,
+lightweight Luna 6, research Grok 4.7, and the named Astra/Fable/Grok xhigh panel.
+The live offline check reports zero drift. The lane does not edit the shared
+manifest or downgrade the newer routes. Reversal requires a new recorded
+routing decision followed by the existing manifest owner.
+
+### RSC-F-WRITER-20261014 — Qualify owned-span writes before native applies
+
+Implement the existing models locator vocabulary as schema-first write requests,
+a ModelsApply service, and grammar-specific spans. Reject missing or ambiguous
+scalar addresses and overlapping spans. Check all shell matches. Assert both
+parsed non-owned TOML/JSON equality and exact byte reconstruction outside owned
+spans. Back up exclusively, journal before replacement, preserve permissions,
+and restore only when the native file still matches its applied hash. Missing
+primary JSON pointers and missing generated-block markers fail closed; this
+writer does not invent ownership or insert unreviewed native structure.
+
+Reason: preserve native trust and client fields while reusing the existing
+model manifest, locators, and rendering owner. Skills projection writes also
+receive backups and atomic file replacement; unknown parent/row/subtable fields
+survive, and remote payloads are backed up before staged publication. Reversal:
+revert the F source commits; use a writer journal for any subsequently authorized
+native apply. This source checkpoint performs no home apply and records no
+harness admission for an unapplied change.
+
+### RSC-F-DISPATCH-20261014 — Preserve the explicit lane-only write boundary
+
+This dispatch again says to work only inside the lane. The private F ruling
+permits specified non-Claude home writes, so clarification was requested while
+independent source work and synthetic proofs continued. No response was received
+at this checkpoint; elapsed time is not authorization. Actual home changes,
+native probes that persist home state, and home-backed ledger notes remain
+pending. The Claude defaults script is prepared in gitignored .beep, defaults
+to dry-run, and has a no-change live preview. Reversal: receive an explicit
+scope clarification, then take fresh backups and continue the authorized apply
+wave. Retain every capability while qualification is incomplete.
+
+### RSCF-DUPLICATES-20261014 — Delegate exact repository copies
+
+The two identical Codex hook copies now execute the canonical Claude-owned
+implementations; the Grok graft skill is a relative link to its canonical
+skill. Confirmed duplicate owners decrease from three to zero. Preserve the
+separate Codex hook-pulse implementation, which is not byte-identical. Synthetic
+law payload comparison and both kill-switch lifecycles pass. This changes
+repository ownership, not a zero-use capability decision, advertised tool-count
+claim, or final native hook-trust witness. Reversal: revert cc2063ede325a958e5d9db5be1ad6d837b1e1a63 or restore
+the lane-local backups. The approved F item-4 decision links to proposal
+hl-20261014-2e87155d and admitted disposition hl-20261014-2b463e1a.
+
+### RSCF-SKILLOPT-20261014 — Preserve the retired pilot's immutable chains
+
+Close the two deferred pilot candidates by supported tombstone dispositions
+under the approved pilot-retirement decision. Preserve every original row and
+the retained scorer API. Reconsider only with a corpus that has headroom above
+the 0.0833 baseline spread. Reversal is a new supported disposition row after
+that evidence exists, never rewriting the old chain. The in-regime SessionStart
+proposal remains pending H3's runtime witness and is not admitted by this
+source-only checkpoint.
+
+### RSCF-NATIVE-ERRORS-20261014 — Preserve bytes and suppress native parser input
+
+Native reads require valid UTF-8 and preserve a BOM; invalid byte sequences
+fail before backup or replacement. Native validation/comparison errors carry
+a fixed typed message without the parser's input/cause. Synthetic credential
+markers remain absent from the error, and invalid bytes remain unchanged.
+Reason: an owned-field writer cannot normalize unrelated bytes or expose
+unknown credential-bearing fields while reporting malformed configuration.
+Reversal: revert the F writer source change; any broader encoding support
+requires a paired byte-preservation proof.
+
+### RSCF-TEST-NAMESPACE-20261014 — Keep scratch physical ownership and Git isolation
+
+Full package tests need temporary fixtures outside a Git ancestor. Bind the
+lane's owned scratch directory at `/tmp` in a private user namespace under
+beep-heavy, with TMPDIR=/tmp inside that namespace. Keep the source checkout
+visible and unchanged. This preserves the lane-only physical write boundary
+and the fixtures' semantics; it changes no workstation configuration. A lane-owned
+namespace root preserves trusted ancestor ownership without changing Graft
+checks; all six dedicated trust fixtures pass. Reversal:
+remove the private binding from the test invocation after the dispatch permits
+an ordinary external temporary directory. No unrelated scratch is deleted.
+
+
+### RSC-F-NATIVE-20261014 (2026-10-14): owned Codex permission cleanup
+
+All `.config-backups` recovery paths in this decision are relative to the
+operator home directory. Exact backup names and the drift-fenced restore
+commands remain recorded below.
+
+The operator's explicit F scope grant and wave-2 routing ruling authorize the
+named non-Claude native surfaces. The October 14 manifest supersedes older
+brief pins; Codex stays `gpt-6.1-sol` / `medium`. ModelsApply removes only the
+legacy `sandbox_mode` assignment with a validated same-directory atomic rename.
+Native project/trust state and all non-owned bytes are preserved. No model pin
+is written. Reversal: `beep models restore --journal
+models-2026-10-14T222221002Z-16103436`, backed by
+`.config-backups/models-2026-10-14T222221002Z-16103436.backup`.
+Synthetic restoration is byte-exact and refuses later drift. Online models
+check: zero findings; pinned read-only native Codex probe: pass. Detect return
+of the legacy key with `beep models codex-permissions --check`.
+
+### RSC-F-HOOKS-20261014 (2026-10-14): repair observable event registration
+
+Register Codex PostToolUseFailure and SessionStart pulse callbacks and delegate
+the Codex pulse body to the existing canonical writer. Remove live repository
+Impeccable callbacks under the locked A disposition; payload removal remains
+A-owned. This fixes
+local wiring; native execution and root/child attribution remain a measured
+qualification gate owned by F and H3, with failure rate **not recorded** until
+ordinary native rows are witnessed. Reversal: revert the F hook diff. No
+home Claude file or live gateway service is changed.
+
+### RSC-F-DISPOSITIONS-20261014 (2026-10-14): retained surfaces and measured gates
+
+These are bounded dispositions under F step 5, not non-use claims. Every
+capability remains available. Reversal is to complete the named prerequisite
+and re-run F acceptance against a new configuration fingerprint.
+
+| Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
+| --- | --- | --- |
+| F-DOCKER | Existing gateway service / workstation owner | Retain legacy explicit servers, dynamic discovery off, code mode excluded. Choose servers plus an explicit tools allowlist as the target owner (R56). Service units and Docker profiles are outside the exact home-write grant. Driver owns apply after representative workflows and profile compatibility; the observed 47-tool schema is the baseline, not a frozen allowlist. |
+| F-CLAUDE | Claude home / operator-run owner | No lane writes. Defaults preview is already change=false. Retain plugins, literal-header configuration, memory and clone-local policy until operator-run transformations with validated native client support are available. This also covers Impeccable, Azure, Discord, the four model seats, and memory above 24.4 KB. No observed-use window justifies removing them. |
+| F-NATIVE-LINKS | Home skills / installer owners | Retain broken links and extra Codex profiles. The exact grant excludes home skills, Air configuration and other clones. Missing consumers are not non-use evidence. Reconsider after owner-provided link repair and explicit consumer inspection. |
+| F-JUNIE | Native Junie and IDE ACP / Junie owner | Preserve launch model and Auto mode. Keep its instruction copy until a successful guidelines witness; normal CLI probe returns missing authorization. IDE ACP remains a distinct owner, with no fallback chain. Reconsider after the existing authorized account and an IDE witness work. |
+| F-CURSOR | Cursor native execution / Cursor owner | Retain existing native policy and tools. No native fixed-prompt run is admitted because the exact grant excludes Cursor session/config state and no supported isolated state directory was established. Reconsider after a supported lane-local state route or expanded owner scope; no sandbox policy is weakened. |
+| F-AGENT-PROJECTION | Codex agent definitions / F | Retain the seven distinct native TOML definitions pending a source-to-native semantic equivalence probe. Existing ai-sync owns schema validation, not a proved agent-body projection. Repository hook and graft duplicates are already reduced through canonical delegation. Reconsider when a generated projection preserves the native fields and each specialist invocation. |
+| F-H3-QUALIFY | Native Codex trust, root/child attribution, global namespace, desktop OTel, archive reference / F with H3 | Keep each as a measured gate, using H3 final delivery 826c032ed6 as source evidence. No trust booleans or secret references are guessed. Qualification requires the merged H3 collector, an ordinary native event witness, dated cutover, and accessible approved archive reference. Native failure rate remains not recorded. |
+| F-WINDOWS | Every harness / H3 collector | Window open since the final F fingerprint capture; qualifying current-regime count is unknown, never 30 by inference. Retain capabilities on demand. Reconsider retirement only after 30 qualifying sessions per affected surface and the approved workflow exclusion test. Historical samples and synthetic probes do not count. |
+| F-CLAUDEM | Native Muse wrapper / wrapper owner | Retain as an opt-in, unowned wrapper outside F's exact write grant. No fallback or ordinary default is added. Reconsider a manifest binding only with the wrapper owner's explicit surface contract. |
+
+The retained items above are not represented as completed migrations, measured
+latency wins, or accepted panel results. The three-model panel belongs to the
+driver and must evaluate the final reviewed source and configuration set.
+
+Native rollback was then verified against the actual Codex file, preserving a
+fresh pre-rollback copy first. Restoration matched the original backup exactly;
+reapply matched the pre-rollback cleaned bytes exactly. The final apply uses
+journal `models-2026-10-14T222525456Z-12665845`, with reversal backup
+`.config-backups/models-2026-10-14T222525456Z-12665845.backup`.
+The fresh safety copy is
+`.config-backups/rsc-f-pre-rollback-20261014T222520875693Z.backup`.
+Both restore and final apply parse the staged temporary TOML before rename.
+
+| Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
+| --- | --- | --- |
+| F-NESTED-DOCTRINE | Twenty nested AGENTS owners | Retain their current instruction discovery until package owners qualify CLAUDE link activation. No body is deleted, and no existing link is replaced. Reconsider by creating relative AGENTS links with each owner's package-scoped instruction probe; reverse any added link by removing that link only. |
+
+
+| Decision id | Surface / owner | Disposition, reason, and reconsideration gate |
+| --- | --- | --- |
+| F-GROK-COMPAT | Native Grok compatibility / Grok owner | Preserve current compat fields. The native config has only the explicit Cursor MCP false field; Claude MCP/hook toggles are absent. F's scalar writer refuses missing addresses rather than guessing version-dependent insertion semantics. A pinned native OK probe passes with no tool invocation. Reconsider after the installed client's compatibility schema and plan-session activation steps are proved; reverse any later apply through its writer journal. |
+
+The current set was captured at 2026-10-14T22:47:02.763050Z. This begins the
+recorded qualification window; it does not create qualifying sessions. Native
+config equality must hold at the driver panel input and again at acceptance.
+
+
+### RSC-F-PULSE-ADAPTER-20261014 (2026-10-14): canonical Codex pulse writer
+
+Adopt the four-line Codex adapter described by H3, delegating to the canonical
+writer with `BEEP_HOOK_PULSE_AGENT_KIND=codex-cli`. Eight spike events preserve
+core payload equality and private-input omission. SessionStart gains the
+canonical harness stamp. This removes another duplicate without modifying
+Claude's canonical implementation. Reversal is the repository diff revert;
+the pre-adapter body remains in the private lane backup. Refreeze the final
+configuration set after this change. Native trust/root-child qualification
+and namespace cutover remain measured gates, not consequences of fixture success.
 - H3 resume stamp performance: batch indexed-path metadata inspection and leaf enumeration, retaining the same selected paths, missing-file exclusions, symlink behavior, nested-checkout guards and refusal on non-ENOENT failures. Reason: 528 selected paths exceeded the native stamp budget with per-file subprocesses; current-checkout measurements fell from 5.011 seconds with extended diagnostic caps to under 0.9 seconds under normal caps. No deadline is raised and no cache creates a stale regime. Reversal: revert the H3 batching commit; retain `stamp-failed` uncertainty and all capabilities on demand.
 
 - H3 package proof composition after formatting repair: retain the completed native full runtime result (319 files, 6,432 tests) and rerun package compile/lint plus full package docgen after restoring three formatter-only merge artifacts. Reason: the full command reached lint only after every build, compile and runtime test passed; formatting changes preserve semantics, so another runtime sweep adds no evidence. The original exit 1 remains in the receipt. Final main integration gets fresh compile/lint/docgen and hosted parity; hosted CI qualifies the published tip. Reversal: rerun the full native package command; no gate, test or baseline is disabled.
@@ -1310,6 +1498,77 @@ Reason: hosted and independent review demonstrated two false-safe cases and
 a rendering regression. Reversal: revert the H4 PR; no workstation state was
 changed. Full package and parity qualification is repeated for this wave.
 
+
+### RSC-F-FREEZE-20261014 (2026-10-14): final review input boundary
+
+The final expanded configuration set is `8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e`, captured at
+2026-10-15T00:13:42.600476Z across 356 files. It includes native MCP registries,
+installed plugin indices, instructions, specialist definitions, canonical
+hook implementations and their adapters. This supersedes earlier captures;
+the qualification window opens at this capture and its qualifying count is
+unknown. The driver compares the set again before panel acceptance. Any
+mutation requires a new input set and review; no earlier verdict closes it.
+Reversal is to recapture through the read-only collector and submit the changed
+set, preserving earlier evidence. No native file is written by collection.
+
+
+### RSC-F-GROK-HEADER-20261014 (2026-10-14): proved expansion, retained provider boundary
+
+The installed Grok doctor completes an authenticated local handshake and
+lists 47 tools when a project fixture uses an environment-backed Authorization
+header. An invalid variable value fails the same handshake. Both cases keep
+the header out of output and leave the native config byte-identical. The
+existing Codex token variable is absent from this checked launch environment.
+Keep the production Grok header until an approved provider is established
+across its real launch routes. Replacing it now would break an existing
+client. Reconsider after that provider and both positive/negative controls
+pass. Apply the eventual owned header span through ModelsApply with a fresh
+backup and journal; reverse with that journal. No native header was changed.
+The read-only probe is research/f-grok-header-probe.py in this packet.
+
+Publication capture supersedes earlier sets: `8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e`,
+2026-10-15T00:13:42.600476Z, 356 files. Window open since that capture;
+qualifying count unknown. The collector check passes at capture.
+
+
+### RSC-F-PUBLICATION-20261014: integrated proof and refreshed capture
+
+Main #1792 repairs the earlier AgentMessage and drawings test typecheck reds;
+F integrates it and test-tsgo passes. Introduced publication findings are
+repaired in a85bdd76f0, with native filesystem judgments recorded through the
+Effect Vitest owner writer. Both owner checks pass. The configuration set is
+8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e at 2026-10-15T00:13:42.600476Z, with
+356 files. Concurrent unowned native app state changed after the
+earlier capture; F did not write those files. This refreshed set supersedes
+that panel input and opens the current window; qualifying count remains
+unknown. Reversal: revert this PR for repository changes; retain the existing
+ModelsApply backup/journal for the native cleanup. Collection is read-only.
+
+
+### RSC-F-PROJECTION-20261014: configuration versus native usage counter
+
+A 20-second read-only comparison identified the native Claude registry's
+pluginUsage counter changing during proof. Fingerprint v2 excludes only that
+root field from a canonical JSON hash. Every other field, including unknown
+keys and MCP registrations, remains included; rawSha256 retains capture byte
+identity as non-gating metadata. All other files and symlinks keep byte/target
+hashes. Three fixture controls prove usage changes do not restart the config
+window while MCP and unknown-field changes do. Reversal: revert the collector
+projection and recapture a new panel input; no native file was written.
+
+
+### RSC-F-RECAPTURE-20261014: refresh external panel inputs on the same PR
+
+Native Claude memory/registry and Cursor config changed outside F after the
+first source push. Two subsequent complete captures 20 seconds apart match.
+Recapture read-only at 2026-10-15T00:13:42.600476Z:
+8d02fd1e9b9b1511bb3af4597b69724c54ef5dbbdcf6abb37d6f68216bd3a15e across 356 inputs.
+Publish the refreshed packet in one follow-up wave to PR #1797; implementation
+sources stay byte-identical to the qualified source head. Earlier snapshots
+remain in git history. Reversal: revert this receipt wave and recapture a new
+panel input; no native file is written. The driver rechecks before admission,
+and qualifying session count stays unknown. This avoids either changing an
+unowned native file or submitting a known stale configuration set.
 - H3 review-wave proof composition: retain the full frozen CLI audit's 6,494 passing tests and explicit nonzero exit from 28 harness-ledger fixtures blocked by shared-temp ancestor Git metadata. Rerun the affected fixtures with independent temp backing, then refresh integrated compile/lint/docgen and hosted parity. Reason: the production boundary is correct and unrelated temp metadata must be preserved; a fresh fixture rerun validates the actual environment correction without weakening a gate or claiming the original command passed. Reversal: rerun the complete package command with the corrected temp backing; hosted CI remains authoritative for the publication head.
 
 - H3 round-2 attribution: retain every decodable session stamp, but store and export an explicit `sessionStampCollectionComplete` / `ai_metrics.session_stamp_collection_complete` boolean. It is true only for a retained stamp with complete hook and refusal collection. Historical records default false, and SQL readers coalesce nullable migration values to false. Reason: partial collections cannot establish complete attribution; retaining them preserves the round-1 per-shard evidence requirement. Reversal: revert the additive projection and ignore its column; historical evidence remains readable.
@@ -1320,3 +1579,501 @@ changed. Full package and parity qualification is repeated for this wave.
 - H3 re-merge-only publication (2026-10-15): merge main once, preserve main semantics, regenerate the conflicted observability artifacts through their owner, and install before verification. Use the expressly authorized direct git push for the single wave because Yeet publish starts a readiness monitor and this instruction forbids one. Attribute the four unchanged main lint-worker fixture failures without repairing them in H3. Reason: keep this wave limited to conflict resolution and integrated proof. Reversal: revert the H3 PR; do not rewrite the published branch.
 
 - H3 round-3 disposition (2026-10-15): encode reconciliation with the schema's JSON-compatible object codec and let the shared printer serialize once; exercise actual command output with one Schema JSON parse and read its fields. Fold in the Markdown code-span correction. Track storage completeness versus qualification as H3-R3-001 without changing storage code, per the driver's round-3 cap. Reason: fix the confirmed CLI consumer bug now and preserve a bounded, explicit follow-up for the lower-severity storage design. Reversal: revert this repair wave; retain the follow-up and keep all non-use decisions unqualified.
+
+
+### RSC-F-POST1590 (2026-10-15): merged telemetry and panel-input boundary
+
+Integrate merged H3 PR #1590 before the F panel, install Effect 4.0.4, and keep
+main's native Codex adapter and canonical switch delegation. Regenerate the
+observability table through `beep observability catalog --write`. Reversal:
+revert the F integration commit; no historical evidence is deleted.
+
+Panel equality excludes only the unowned, app-written Claude Desktop native
+configuration. Its observed hash remains beside the equality set. Every F-owned
+and repository-owned input remains in equality, including the native Codex
+configuration. This implements panel-admission ruling 1; no native file is
+stabilized or reset. Reversal: revert the v3 collector and recapture before any
+new panel, retaining the superseded receipt as historical evidence.
+
+The merged H3 collector does not close these four F-owned measured gates:
+
+| Decision | Owner and current evidence | Acceptance gate and reversal |
+| --- | --- | --- |
+| F-H3-NATIVE | F with H3: canonical repository adapter is integrated; the pinned read-only native probe answers OK. This does not prove hook trust, an ordinary native startup, or root/child attribution. | Require an ordinary native event witness plus recognized native ancestry; do not manufacture trust entries. Until qualified, retain on-demand capabilities and report failure rate as not recorded. Reversal: revert any later separately backed-up trust projection. |
+| F-H3-NAMESPACE | F with H3: historical salt namespaces remain distinct; no new salt or launcher projection is applied in this resume. | Require an owned launcher/global-projection contract and a dated namespace cutover, preserving old observations under their original namespaces. Reversal: restore the future ModelsApply journal and retain both dated evidence regimes. |
+| F-H3-OTEL | F with native-client owners: desktop/Codex OTel fields remain unqualified; repository hooks cannot prove installed desktop launch coverage. Claude harness writes remain operator-only. | Require payload-free native ingress evidence under the frozen configuration, and use ModelsApply with backup/rollback for any allowed non-Claude projection. Reversal: restore that future journal; retain the unqualified historical rows. |
+| F-H3-ARCHIVE | F with archive owner: no current approved archive-key reference is invented, copied or exposed. | Require an accessible approved secret reference and a suppressed exact-operation verification before archive qualification. Reversal: restore any future owned reference change through its journal; no credential or raw item enters the packet. |
+
+All current-regime 30-session windows remain incomplete. Synthetic probes add
+zero qualifying sessions. These measured gates retain capabilities on demand
+and do not authorize retirement. No home file is written during this resume;
+the earlier native removal backup and verified rollback remain the reversal
+for H4's legacy-key repair.
+
+
+### RSC-F-S31 (2026-10-15): zero inventory growth
+
+Restore `standards/effect-vitest.inventory.jsonc` to the current main version,
+removing F's two added EV010 exceptions. Track F-S31-EV010 in
+`research/OPPORTUNITIES.md` for the policy owner to improve native-filesystem
+subject classification with regression fixtures. Reason: operator S31 forbids
+new debt and exception entries even for legitimate cases. Preserve actual
+filesystem integration tests and attribute non-required policy reds under S30.
+Reversal: revert the inventory removal only after an explicit S31 change; the
+normal resolution is a check improvement with zero inventory growth.
+
+
+### RSC-F-FINAL-REVIEW (2026-10-15): same-wave fixes
+
+Hoist the ModelsApply JSON decoder to module scope, preview removal in
+`codex-permissions` dry-runs, and stage skill projections with mode 0600 before
+preserving existing permissions. Reason: close oxlint's two introduced schema
+compilation findings and REST review comments 4277729082 / 4277729090. Verify
+present and absent permission previews against captured command output.
+Reversal: revert this F review-wave commit. No native file is written.
+
+
+### RSC-F-ZERO-DRIFT (2026-10-15): observed configuration clearance
+
+The protected native Codex effort now matches medium and the online model
+check reports zero findings across 361 catalog models. This is an observation
+of a change outside F, not an F apply. F made no home write and claims no new
+backup or rollback. Keep model pins protected. Recapture the complete equality
+set, retain Claude Desktop's app-written file only in observedOnly, and pass
+that fingerprint to the driver panel after the single push. Reversal: recapture
+and re-review any later configuration change; prior backups remain available.
+
+Use the expressly requested direct single push for this wave. Reason: the user
+forbids a readiness monitor, while Yeet publish starts one. All requested local
+gates precede publication; answer review comments through the REST reply route.
+The driver retains panel, merge and retirement ownership. Reversal: revert the
+F PR; never rewrite the published branch.
+
+
+Final F integration includes #1824, main's private-changeset removal, after
+#1820. Reason: S4 requires current main before publication. It changes no
+implementation source. Reinstall and regenerate owner artifacts, then run the
+delivery-head gates without a readiness monitor. Reversal: revert the F PR;
+retain main's private-package release policy.
+
+
+### RSC-F-1825 (2026-10-15): package catalogs and renewed native drift
+
+Finish the interrupted merge of main at #1825, take main's observability
+architecture document, remove both monolithic catalogs, and regenerate the
+per-package catalogs through their owner commands. Reason: the orchestrator's
+catalog-shard override supersedes the earlier monolith instructions. Reversal:
+revert the F integration wave, retaining main's catalog layout.
+
+A fresh online model check now reports three native drifts (Grok effort,
+Claude model alias, and shell lightweight route). Preserve every native file
+in this wave: the grant excludes Claude harness and shell writes, and a
+partial Grok apply cannot clear the final-set gate. The pinned Codex model
+and effort and absence of legacy sandbox_mode pass. Keep the new observed
+candidate separate from the historical frozen receipt; no panel clearance or
+zero-drift result is claimed. Configuration owners must clear drift before
+final publication. Reversal: recapture after those owner changes and retain
+the superseded hashes as historical evidence; no new home rollback is needed.
+
+
+After the admitted audit completed, integrate the newer main 94f1b6adbf at
+0233b60f67 and run both catalog owners plus dependency install again. Reason:
+preserve main's newer inventory decisions and leave S31 at zero changed
+files, added rows and removed rows across all 15 files. The earlier full
+package pass belongs to source 98fcf60164 (audit 1294.0s, docgen 43.2s); it is
+not recast as an exact-head full proof for the new integration. Repeat bounded
+package check, test-tsgo, local docgen, oxlint and scoped coverage. Keep final
+publication blocked on the three native drifts, and require the remaining
+exact-head gates before the single push. Reversal: revert this integration
+wave; preserve historical proof and all native files.
+
+
+### RSC-F-OPERATOR-DRIFT (2026-10-15): publish accepted checkpoint
+
+Decision: apply the driver's 09:45Z ruling to #1797. Grok effort, Claude
+model alias and the shell lightweight route are operator-owned workstation
+items; record each ModelsApply dry-run preview in the handoff and PR body,
+write none of those files, and keep their hashes observed-only alongside
+Desktop configuration. Zero drift applies to F-owned fields. Reason: native
+operator state does not block the accepted source checkpoint 195e7befa5.
+Publish once after install, touched-package check and changed-file oxlint;
+start no readiness monitor. The driver owns the independent final panel.
+Reversal: restore the former collector boundary and recapture, or recapture
+after operator reconciliation; revert the evidence commit for repository state.
+No new home backup or native rollback is needed because no home file is written.
+
+### RSC-F-PANEL-R1-20261015: retain native pre-images and narrow projection ownership
+
+Round-1 findings F-ASTRA-01 through F-ASTRA-04 and F1 through F6 are addressed
+in one publication wave. ModelsApply retains the original inode through atomic
+replacement, checks it afterwards, journals a detected concurrent write and
+refuses success. When its candidate still owns the live path, recovery puts
+the newer pre-image back. Restore uses the same fence. This detects writes
+observed through the post-rename check; it is not a lock against clients that
+continue writing an old open inode, nor a compare-and-swap during recovery.
+A strict exclusion guarantee requires a maintenance boundary. Recovery event
+and pre-image artifacts remain on failure and errors name the recovery journal.
+Shell projection owns a complete word and parses launchers with zsh before
+publication. Parsed TOML key identity drives permission-key removal, and
+equal scalar values retain their spelling. Skill-row pruning is confined to
+the previous contiguous managed block; native rows after unrelated tables
+retain their owner. Synthetic fixtures cover races, permissions, backup
+tampering, projection backup/drift, and remote-tree rollback. No home file
+is written in this wave. Reversal: revert the round-1 fix commits; existing
+native rollback backups and journals recorded above remain unchanged. The
+driver repeats all three independent panel seats against the new head and
+frozen fingerprint; no earlier verdict is promoted to final acceptance.
+
+The same wave closes newly discovered PR comments 4281637568, 4281669295,
+4281669309, 4281669322 and 4281669363: the second projection must be identity
+and has a refusal fixture; shell readers share the writer's complete-word
+pattern; successful remote-skill publication treats previous-tree cleanup as
+best-effort and keeps recovery trees under the backup root, outside discovery;
+the historical collector waits for a positive first-turn count; README points
+to the current handoff. Earlier zero-token observations remain historical and
+are not recast as completed positive measurements. Reversal is the same PR
+revert; these changes write no home configuration and buy no provider usage.
+
+F1 also preserves the spelling of an already-equal quoted shell word after
+the complete-word quoting repair. The no-write fixture now covers shell
+alongside env, YAML plain and TOML literal values. This avoids introducing
+a new requote-only drift through the F-ASTRA-02 correction.
+
+The shell identity guard applies only to already-quoted words. An unquoted
+suffixed value with parentheses is rendered with quotes even if its raw text
+already matches; it is not treated as an equivalent shell literal. The
+launcher fixture now covers old and already-expected values in all three
+quote forms and verifies the exact argument received by a stub launcher.
+
+### F-R2-ATOMIC-SHELL — panel round 2 fix wave (2026-10-15)
+
+Decision: replace ModelsApply publication and recovery renames with argv-only
+GNU `mv --exchange --no-copy`, backed by a once-per-service capability probe.
+Unsupported exchange fails closed for every write. Verify the actual displaced
+inode and hash, return competing pathname occupants through verified recovery
+exchanges, retain both artifacts on uncertain publication or detected contention,
+and fail with the journal id. Remove pre-image links on pre-publication refusal.
+Artifact names begin with the journal id and include a unique operation suffix
+so restore/retry does not overwrite earlier evidence. Reason: F-ASTRA-01 and
+review 4282684659 demonstrate that retaining only the planned inode misses a
+native writer that atomically replaces the pathname. Recovery is bounded to
+eight exchanges and retains recovery state if contention persists. Inode holders
+writing after the last observation still require a maintenance boundary.
+
+Decision: tokenize complete shell scalar words, decode quotes and escapes,
+preserve comments/quoted data, and refuse adjacent operators, concatenated quote
+components and expansions. Keep the six round-1 quoting cases and re-projection
+identity. Reason: F-ASTRA-R2-02 shows syntactically valid projections can erase
+operators or retain an unintended suffix. Use the authoritative span projection
+for removal previews, distinguish top-level scalar keys from dotted/table keys,
+keep desired skill rows after unrelated tables without duplication, and reuse
+Effect RegExp.escape for all three duplicate helper bodies. These also close
+Fable R2-F1 through R2-F5, Grok R2-GROK-01 through R2-GROK-03, and review
+4282684687. Reversal: revert this review wave's implementation commit; no home
+file is written and no new native backup is needed. The driver repeats the full
+three-model panel on the new head and fingerprint. Earlier verdicts do not
+clear this revision.
+
+
+### F-R3-BOUNDED-SHELL-LINKS — panel round 3 fix wave (2026-10-15)
+
+Decision: limit shell projection to complete literal words on a single physical
+line. Refuse continuations, unquoted comments, adjacent operators, concatenated
+quotes and owned-word expansions. Refuse an owned line when a here-document or
+substitution opener occurs on or before it; do not guess where a nested body
+ends. Reason: F-ASTRA-R2-02 shows that syntax checks and stable re-projection do
+not establish word ownership. The driver explicitly chose a bounded grammar.
+Supported grammar and refusals are documented in the model writer JSDoc and
+agent-pools runbook. Reversal: revert this wave; keep the unsafe forms refused
+until a dedicated parser can prove ownership.
+
+Decision: resolve skill projection, lockfile and remote directory destinations
+before backup, staging and publication. Preflight destinations and existing
+parents inside the canonical repository root. Refuse dangling or escaping links
+before any update mutation. Preserve visible symlinks and write their canonical
+targets. ModelsApply retains its existing canonical-target protocol, with a new
+apply/restore link fixture and explicit dangling optional-target refusal at the
+command boundary. Reason: F-ASTRA-R3-02 reproduced destruction of the visible
+link with a stale canonical target. Reversal: revert this wave; repository-only
+fixtures prove prior-byte backups and retained permissions. No native home file
+is changed in this wave, so no new native backup or rollback is claimed.
+
+Nearby fixes: F3-F1 keeps whitespace before env comments; F3-F3/R3-GROK-04
+prints each journal suffix once; F3-F4/R3-GROK-02 share shell-reader filtering
+and literal escape decoding. Deferred, tracked for a later writer repair:
+F3-F2 needs target-filesystem capability caching and unsupported-filesystem
+fixtures; R3-GROK-01 needs crash-state journaling and restart fixtures;
+R3-GROK-03 needs verified exchange for file and directory skill publication
+plus replacing-writer recovery fixtures. These are non-actionable panel items
+and require publication-protocol changes beyond the two bounded P1 repairs.
+The native writer already retains artifacts and refuses observed races; skill
+publication retains its documented POSIX rename-window limitation. Acceptance
+on this head remains driver-owned panel round 4, not the earlier verdicts.
+
+
+### RSC-F-SHELL-CHECK-ONLY — 2026-10-15, driver round-4 ruling
+
+Decision: shell-assign targets are check-only. `models check`, `apply --check`
+ and dry-run previews read all declared shell locators and report expected
+values; `apply --write` refuses every shell request before backup or staging.
+Restore refuses shell journals and legacy journals whose missing ownership
+metadata cannot establish that the target is non-shell. Remove the shell
+rewriter, replacement quoting and write-only syntax validation. Reason: three
+consecutive panels found new lexical P1s (operators; continuations/comments/
+here-documents; escaped whitespace), while every shell target is operator-owned
+and already outside F's write authority. Reversal: re-enable shell writing only
+after a real shell parser lands and passes its own independent panel.
+
+Decision: record canonical and requested destination identity plus locator
+ownership in new recovery journals. Before staging, restore re-resolves the
+canonical pathname and the original requested entry, verifies a regular canonical
+file and the recorded link spelling/target where applicable, and refuses every
+mismatch with a typed journal-bearing error. Re-check before publication.
+Reason: F-ASTRA-R4-02 reproduced a regular canonical file becoming a symlink,
+which the old restore replaced. Reversal: revert the repository fix; keep the
+backup and journal for manual recovery. Older journals fail closed rather than
+silently inferring entry identity or shell ownership.
+
+Nearby round-4 items included: R4-F1's partial shell rewrite disappears with the
+write capability and the existing per-line reader still sees values after
+continuations; R4-F2 reports each target refusal and continues before failing
+at the end; R4-F3 preserves unsupported shell words as drift values rather than
+aborting all checks; R4-F4 acquires the retained hard link within its cleanup
+scope, so a failed stat cannot leak it. No round-4 P2/P3 is deferred. The three
+protocol follow-ups already recorded under F-R3-BOUNDED-SHELL-LINKS remain open.
+No native home configuration file is changed; no new home backup is needed.
+The panel remains open and the driver alone sends merge clearance.
+
+
+Round-4 restore identity extension: the exchange verifier also rejects an
+actual displaced symlink before accepting inode/hash equality, because stat
+follows links while exchange moves the link itself. A wrapped-spawner fixture
+introduces the link after staging and proves verified recovery returns it live,
+keeps both link and relocated target bytes, and fails with the journal id.
+Reason: enforce F-ASTRA-R4-02 across the exchange window as well as preflight.
+Reversal: revert this repository repair; retain the journal and backup for
+manual recovery rather than weakening entry-kind verification.
+
+### RSC-F-FAIL-CLOSED-READERS — 2026-10-15, driver round-5 ruling
+
+Every reader and writer must fail closed on input it cannot fully account for.
+Readers report an unsupported form as drift; writers refuse before backup. The
+shell reader accounts for complete literal words and control operators, and marks
+continuations, expansions, here-documents, escaped separators and unbalanced or
+concatenated quoting as unsupported when an owned name is mentioned. Shell targets
+remain check-only. YAML writes refuse owned anchors, aliases and anchored parents;
+resolved YAML equality independently checks every non-owned path, including merge
+and alias consumers. This closes F-ASTRA-R5-01/02 and R5-GROK-01 without widening
+write ownership. Reversal: revert this wave; no home configuration mutation.
+
+Nearby round-5 nits R5-F1/02/03 are included: new projection modes are 0644,
+dangling displaced links are exchanged back during recovery, and refusal output
+names a target once. Existing larger protocol follow-ups remain as recorded above.
+
+The fail-closed rule takes precedence over reproducing a historical diagnostic
+count. The current six diagnostics are confined to the operator-owned shell and
+Claude paths: all five shell routes contain unsupported expansions/continuations,
+and the Claude model drift remains. Grok effort is now clean. Zero F-owned drift
+is still required; no operator-owned file is changed to make a check look clean.
+Named-function extraction retains any unsupported containing shell context, so
+here-document or unbalanced-quote text cannot become trusted function code.
+
+Unsupported-form evidence is reserved diagnostic text, never a value that can
+establish synchronization. Apply checks, model checks and previews test that
+status before scalar equality, including a caller whose expected text equals
+the marker. The regression proves that such a comparison still reports drift.
+
+A shell locator with several distinct literal values also carries explicit
+conflicting-value drift. The display join is never used as one scalar value;
+repeated identical assignments remain clean. This preserves detection even when
+an expected string happens to equal the joined display of conflicting values.
+
+Named-function scopes accept one plain, non-nested multiline definition in a
+balanced document of supported function headers and closing lines. Inline,
+duplicate, nested, escaped-name and unterminated layouts report unsupported-form
+drift. The reader retains whole decoded words until ownership is resolved, so
+an argument such as `MODEL=old` is not mistaken for the scalar `old`. Quoted or
+escaped option names are reported as unsupported instead of silently omitted.
+Any unsupported word invalidates the read, even when its raw spelling hides the
+owned flag; quoted data and comments remain distinct from owned words.
+
+
+### RSC-F-WRITE-SCOPE-TOML-JSON — round-6 exit applied (2026-10-15)
+
+Decision: ModelsApply writes and restores only TOML and JSON targets. YAML, XML
+and shell targets are check-only, including equal values and historical journals.
+Remove YAML/XML span rewriting and quoting; retain their fail-closed readers and
+dry-run previews. The routing manifest `~/.config/beep/models.yaml` remains a
+manifest source, not a current projection target; any YAML target submitted to
+ModelsApply is also check-only. No home configuration mutation is needed.
+
+Reason: round 6 was not clean (Astra 2, Grok 1, Fable zero-actionable), activating
+the driver's pre-committed round-6 exit. Only TOML/JSON have full parsed
+non-owned-field equality. Removing XML write capability resolves F-ASTRA-R6-02
+without extending the lexical writer. Occurrence reconciliation resolves
+F-ASTRA-R6-01 and R6-GROK-01: every textual owned-name occurrence must match a
+recognized simple form, otherwise the target reports unsupported drift with a
+line number. Owned names in comments and quoted data intentionally fail closed.
+
+Reversal: revert this F fix wave to restore the prior capability only after a
+full-fidelity ownership model and a separate independent panel qualify the
+specific format. No home rollback or new native backup is necessary because
+this wave changes no home configuration. Existing native backups remain retained.
+
+Nearby round-6 items: R6-F1 narrows irrelevant shell-line taint while retaining
+containing quote/here-document guards; R6-F2 is covered by occurrence accounting;
+R6-F3 deletes the unused shell pattern export; R6-F4 preserves the typed
+identity-refusal message by scoping I/O mapping to link creation; R6-F5 documents
+retained pre-publication backup/journal pairs and their no-op restore. No nearby
+round-6 P2/P3 is deferred. The three already tracked protocol follow-ups retain
+their existing reasons and reversal paths. The panel remains open for round 7.
+
+
+### RSC-F-NO-CLEAN-WITHOUT-FULL-PARSER — driver round-7 ruling (2026-10-15)
+
+Decision: only TOML and JSON may be certified clean, with a full parser and
+parsed equality of non-owned fields on the retained write path. Shell, YAML
+and XML readers provide extracted hints only. `models check` and `apply --check`
+always label those targets `manual verification required`, including equal
+values and the round-7 nested XML and escaped shell-name inputs. Recognized
+drift and unsupported forms still report drift. The report counts manual
+targets separately; manual status alone exits zero, while real drift or an
+unsupported form exits non-zero. No additional lexical cases are added.
+
+Reason: four consecutive panel rounds found a new false-clean P1 in these
+bounded readers. Manual verification removes the unsupported certification
+claim by construction, covering F-ASTRA-R7-03 and R7-F1 (and the related
+cross-line shell concern R7-F2).
+
+The write preflight independently requires a TOML/JSON locator and matching
+`.toml`/`.json` path extension. The CLI performs it before target resolution,
+optional skipping or filesystem access. The service repeats it on the canonical
+path, parses current bytes and resolves the owned path before any backup or
+publication. Restore applies the same eligibility checks to historical journals
+and validates the current and backup syntax before exchange. This covers
+F-ASTRA-R7-01, F-ASTRA-R7-02 and the duplicate ordering observation R7-F3.
+R7-F4 removes unreachable check-only write grammars. R7-F5 adds full JSON-tree duplicate-key detection before pointer traversal,
+including escaped JSON hints, so last-wins decoding cannot certify clean.
+
+Reversal: certify a format again only once a full-fidelity parser with parsed
+non-owned-field equality lands behind its own independent panel. Repository
+changes reverse with the F commit. This wave performs no home writes and needs
+no new native backup; all previous backups and rollback evidence remain retained.
+The panel stays OPEN for the driver's round 8; no readiness monitor or final gate.
+
+### RSC-F-ONE-PARSED-READER — driver round-8 ruling (2026-10-15)
+
+Decision: `models check`, `apply --check`, `apply --write` and `restore`
+share one full-document reader per certifiable format: TOML uses
+`effect/encoding/Toml` through the existing text codec; JSON uses the strict
+full tree that also rejects duplicate keys throughout the document. Owned
+value equality compares decoded values. Equal escaped spellings preserve
+all original bytes and create no backup or journal. Regex TOML readers and
+parallel JSON decoders are removed from certification paths; source spans
+serve only an edit selected by parsed inequality. Apply also verifies the
+parsed owned-value postcondition after projection, independently of span
+stability. Locator and canonical
+extension must agree before a file can be certified.
+
+Reason: F-ASTRA-R8-02 / F-GROK-R8-01 demonstrated false-clean invalid and
+duplicate TOML, and F-ASTRA-R8-03 demonstrated false drift and unnecessary
+JSON publication for an equal decoded string. Recovery ownership is now a
+non-empty array in the journal schema and independently guarded at runtime;
+every recorded locator, requested/canonical extension and complete current
+and backup document is revalidated before exchange (F-ASTRA-R8-01).
+
+Nearby findings R8-F1 and R8-F2 are included in the same repair. R8-F3 keeps
+the stale-native-state refusal ahead of syntax/span diagnostics while still
+validating eligible bytes before any exchange. R8-F4 adds the recording
+filesystem positive control. No round-8 P2/P3 is deferred.
+
+Reversal: revert the round-8 repair commits. This wave makes no home writes;
+no new native backup or rollback operation is required. Prior timestamped
+backups and tested ModelsApply rollback remain retained. The panel remains
+OPEN; the driver runs round 9 against the new candidate and fingerprint.
+
+### RSC-F-ONE-ELIGIBILITY-GATE — driver round-9 ruling (2026-10-15)
+
+Decision: `modelsEligibility` is the sole native eligibility gate used by
+`models check`, apply previews, `apply --check`, `apply --write`, and restore.
+It resolves `realPath`, checks the canonical extension against the locator,
+reads bytes with fatal UTF-8 decoding, fully parses TOML or JSON, and requires
+an owned path in the parsed tree. Failures carry typed `reason: ineligible`;
+checks report drift and writers refuse before backups or publication.
+The format-only preflight remains a shared early fence for excluded formats.
+No lexical span or journal assertion establishes parsed ownership.
+
+Restore revalidates every operation, including removals, against both live
+and backup bytes through the same gate. Backup bytes use the live canonical
+format rather than the `.backup` suffix. The live hash must equal the applied
+hash and the backup hash must equal the pre-image hash. Restore uses live
+permissions, not a journal-provided mode. Repeated restore after a successful
+rollback now refuses because the live hash no longer equals the applied hash.
+A completed removal with an absent live key also refuses; its retained backup
+remains available for explicit recovery. This follows the driver's universal
+owned-path-presence rule rather than retaining the earlier removal exception.
+
+Reason: F-ASTRA-R9-01 / R9-F3 exposed lexical-extension certification through
+symlinks; F-ASTRA-R9-02 exposed permissive UTF-8 certification;
+F-ASTRA-R9-03 exposed removal skipping and lexical ownership in nonempty
+journals. Nearby R9-F1 is folded in: check mode accepts a parsed fallback
+value equal to the binding without requiring write spans at the primary
+pointer. Writes still require the primary pointer. R9-F2 is folded in:
+preview compares parsed values, so assignment-looking multiline text cannot
+produce a misleading `change=false`. No round-9 P2/P3 is deferred. The new GitHub P2 on comment `4289132125` is also included: the JSON locator reader preserves an existing format prefix, with an exact-message regression. The hosted deprecation finding in the same reader is repaired with the existing `fast-xml-validator` dependency before the one-argument XML parse; XML remains check-only.
+
+Reversal: revert the round-9 repair commits. This wave writes no home
+configuration, creates no new native backup, and retains prior timestamped
+backups and rollback evidence. The panel remains OPEN for driver round 10.
+
+
+### RSC-F-REVIEW10-ELIGIBILITY (2026-10-16)
+
+Decision: retain one native eligibility gate and return schema-defined tagged
+outcomes. Live apply/check/preview accepts absent paths for removal requests
+as their satisfied post-state; present removals report drift. Set requests
+still require owned-path presence. Restore retains the round-9 requirement
+for ownership in both live and backup documents, so completed removals still
+refuse restore and retain their byte-exact backup for explicit recovery.
+The gate continues canonical resolution/extension, fatal UTF-8 and full parse
+checks. Read-only models checks map absent ownership to missing-locator;
+other ineligibility retains tagged unsupported-form drift.
+
+Reason: GitHub review threads PRRT_kwDOPbO_N86tBFzz (P1) and
+PRRT_kwDOPbO_N86tBFz7 (P2) identified the impossible removal check and the
+conflation of missing ownership with invalid formats. CLI regressions cover
+all gate tags, missing TOML/JSON ownership, removal drift and idempotence,
+backup-byte preservation and the retained restore refusal. No native
+configuration is written in this wave. Reversal: revert this review-fix wave;
+previous native backups and rollback evidence remain retained. The independent
+panel remains OPEN for the driver's capped round 10.
+
+
+### RSC-F-GROK-R10-01 — scalar removal eligibility (2026-10-16)
+
+Decision: removal eligibility accepts only a parsed scalar owned leaf (string,
+number, boolean or bigint). A table, dotted parent, array, array of tables or
+other non-scalar returns the schema-defined `unsupported-removal-shape` outcome.
+The span writer independently refuses the same shape. Preview uses parsed
+removal presence rather than the string-only model reader. Absent removals
+remain satisfied, and existing scalar removals retain their scoped edits.
+
+Reason: the capped round-10 Grok finding demonstrated drift in check, a clean
+preview and a successful no-op write for the same table. All removal modes now
+refuse that input before backup creation. The regression checks exact refusal
+messages, unchanged bytes and absence of backup/journal creation. The bounded
+wave writes no home configuration. Reversal: revert the bounded repair commit;
+prior native backups and rollback evidence remain retained. The panel remains
+OPEN until the driver's Grok and Fable re-check clears the pushed candidate.
+
+### F CI portability decision (2026-10-16)
+
+F-CI-PORTABILITY: inject the atomic exchange capability through an Effect
+Context.Service; retain the GNU mv live probe and fail-closed production
+behavior. Synthetic tests use an inode-preserving uninterruptible swap, with test competitors
+restricted to transaction boundaries, with competitors injected before and after it.
+This simulation is test-only and does not claim cross-process exclusion.
+All affected fixtures use OS temporary directories. Reason: Ubuntu CI lacks
+`mv --exchange` and fresh checkouts lack gitignored fixture parents. Reversal:
+revert this repair commit; no home files or native configuration are changed.
+The panel was cleared on the prior revision; the driver owns the merge final.

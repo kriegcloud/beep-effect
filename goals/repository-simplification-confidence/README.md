@@ -2,8 +2,10 @@
 
 ## Status
 
+Lifecycle: `active`
+
 Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
-B #1738, and H4 #1770 have merged. H3's reopened #1590 carries the repository
+B #1738, and H4 #1770 have merged. H3 #1590 has merged and carries the repository
 telemetry repair and its round-3 CLI serialization fix; its
 [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md) records proof
 provenance, tracked storage follow-up H3-R3-001, and the remaining native, home
@@ -12,24 +14,21 @@ are source-qualified; installed Desktop acceptance remains open for the operator
 fixture batch and F's owned-field config writer. F and overall acceptance remain active.
 
 
-Lifecycle: `active`
+F's PR #1797 remains open for the driver-owned three-model panel. Round 8
+returned three Astra P1s and one Grok P1; Fable was zero-actionable.
+`RSC-F-ONE-PARSED-READER` now makes check, apply and restore share the full
+TOML and JSON parsers. Decoded equal values preserve their original spelling
+without a backup or journal. Empty recovery ownership is refused, and every
+recorded write must satisfy locator, extension and complete-document checks
+before exchange. The nearby Fable P2/P3 items are included with no deferrals.
 
-Program resumed on October 14. H2 merged in PR #1574 (`4ec5e74a89`); evidence follow-up #1744 records
-final source qualification and all six original review resolutions, with inherited integration reds attributed.
-Historical inventory completeness remains explicitly unknown.
-Completed lane evidence and remaining program work are tracked in PLAN.md.
-
-Program resumed on 2026-10-14. B integrated current main and completed
-the first R20 owner refresh; committed-candidate qualification follows. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
-records the five resolved old-head inbox rows and the remaining publication
-and serialization gates. Earlier lane evidence below retains its recorded
-head and date; it does not certify current program completion.
-
-Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
-
-The program resumed on October 14. A wave 1 is implemented locally in the PR #1584 lane, with zero scoped source-review findings. Publication is blocked on the orchestrator-owned five-row coverage-baseline splice: the normal writer also weakens live floors, so A preserved the committed baseline. All eleven default package gates and serial scoped coverage passed on the recorded source; later main integrations have separate owner and targeted-test evidence. [Current A handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records the exact boundaries. The remote PR head has not moved in this resumed run. Later A waves and program acceptance remain open.
-
-Source: [`ops/manifest.json`](./ops/manifest.json)
+The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries the current
+proof. The [round-8 verification receipt](history/receipts/stage-5-f-panel-r8-verification.json)
+and [fingerprint](history/receipts/stage-5-f-panel-r8-fingerprint.json) supersede
+the round-7 receipts. The driver runs round 9 against the pushed candidate
+and recaptured fingerprint. The panel remains open. Native configuration
+writes in this wave: zero. Measured 30-session windows and external-owner
+activation prerequisites stay open.
 
 ## Mission
 
@@ -83,6 +82,13 @@ the stage-1 copies of the three global configuration files are recorded, and
 nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
+
+F: [October 16 bounded-fix handoff](history/handoffs/rsc-f-agents-2026-10-16.md). F-GROK-R10-01 now refuses non-scalar removals consistently before backup. The [bounded proof](history/receipts/stage-5-f-r10-bounded-verification.json) and [candidate fingerprint](history/receipts/stage-5-f-r10-bounded-fingerprint.json) accompany the one permitted fix push. The capped panel is CLEARED on `ddf343221a`; a CI-portability repair moves Models fixtures to OS temp directories and injects the atomic exchange test capability. The driver owns the merge final after the full repo-cli proof with live exchange forced unavailable. The [CI-portability proof](history/receipts/stage-5-f-ci-portability-verification.json) records 6,765 passing tests in 336 files, and the [fresh fingerprint](history/receipts/stage-5-f-ci-portability-fingerprint.json) captures the candidate configuration.
+The writer, native apply/restore/reapply proof, rollback fixtures and dated
+before/after measurements are recorded. Remaining acceptance covers incomplete
+30-session windows, four H3 native measurement gates, external-owner
+prerequisites and the repeated three-model panel on the new head/fingerprint.
+
 
 [A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. Latest CLI quick/type/docgen/Fallow/law checks pass; the newest JSDoc and paper-link reds are inherited and attributed in the handoff. The orchestrator also owns required-context removal before merge.
 
@@ -202,3 +208,11 @@ permission census and the [Desktop continuity runbook](../../docs/runbooks/agent
 [H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md) records the local
 gates and pending operator fixture batch. Installed-build routes remain
 unknown; no home configuration or Claude harness setting has been changed.
+
+F panel round 2: #1797 now exchanges and verifies the actual displaced native
+file during apply, restore and recovery, and refuses ambiguous shell words.
+The [October 15 handoff](history/handoffs/rsc-f-agents-2026-10-15.md) maps both
+Astra blockers, every nearby advisory and the new PR comments to fixes and tests.
+The driver repeats all three panel seats on the published head and
+[round-2 fingerprint](history/receipts/stage-5-f-panel-r2-fingerprint.json)
+before admission; previous verdicts do not clear this revision.
