@@ -73,8 +73,13 @@ Fresh schema-first exits 0 with zero normalization/null-return/getSomes,
 wrapper and codec-static advisories and zero introduced parity backlog. That
 baseline-aware success does not establish that 324 exceptions were reviewed.
 
-Fresh JSDoc scan results and final gate results are appended in the verification
-section below. A universal fresh actionable total is **unknown** pending the
+The fresh JSDoc scan generated at 2026-10-16T22:39:09.135Z exits 0 and
+reports **151 packages, 81 needing remediation, 912 open modules and 1,384 open
+exports**, including four missing export examples, 1,363 example-import and
+1,342 root-package-import findings. This is a successful census, not a zero
+source-debt verdict. The previous checked-in snapshot remains unchanged.
+Exact summaries are retained in stage-6-closeout-audit.json. Final gate results
+are appended in the verification section below. A universal fresh actionable total is **unknown** pending the
 individual reviews and current source remediation. Zero actionable is not
 established. Useful schema/primitive catalogs, historical occurrence IDs and
 all coverage floors remain intact; this PR changes zero standards files.
@@ -173,6 +178,52 @@ final merge; they do not fabricate a future merge observation.
 
 ## Verification
 
-Pending final closeout checks; the final worker handoff records actual exit
-codes, attributed failures and publication state. No workspace package is
-edited, so package-verify and exported-code docgen do not apply to this PR.
+Checks completed so far at audited main plus this packet-only delta:
+
+| Command / check | Result |
+| --- | --- |
+| `bun install` | Pass; no lockfile change |
+| `bun run beep goals doctor` | Pass; 240 packets, zero new/inherited blockers; unrelated historical advisories retained |
+| `bun run beep goals index --write` and `--check` | Pass; generated index consistent |
+| `bun run beep lint reflection-artifacts` | Pass; zero blocking/advisory findings |
+| `bun run beep quality changeset-graph` | Pass; no private-package changeset added |
+| `bun run lint:oxlint` | Exit 1; eighteen inherited findings in nine main-identical files; zero changed-file findings |
+| `bun run beep lint effect-vitest` | Exit 1; three main-owned provenance findings, inventory unchanged |
+| `bun run beep lint schema-first` | Pass; baseline-aware result, no exception admission |
+| `beep quality jsdoc-inventory --output-json <lane-local> --output-markdown <lane-local>` | Pass; fresh totals above, standards snapshot unchanged |
+| `bun run beep knowledge refs --check` on committed closeout tree | Pass; zero live gated observations |
+| S31 and ledger identity | Zero standards-file changes/added rows; all three tracked ledger files byte-identical to audited main |
+| Launcher size | 3,986 characters, within 4,000 limit |
+| Commit hooks | Gitleaks, typos, Biome and commitlint pass |
+
+Collected cheap gates finish with **16 passed / 1 failed**, exit 1. Only
+`lint:effect-vitest` fails on the three source-identical inherited findings
+above. JSDoc ratchet, catalog checks, source/Markdown imports, retired paths,
+allowlists, goals doctor/index, cache policy and all three Fallow gates pass.
+No lane was skipped after red. P0 inbox row `local-shard-9ed71a5f6460` is
+acknowledged with the unchanged-main attribution and #1855 owner; it is not
+a waiver or a green proof. Machine-readable results and preservation hashes
+are in stage-6-closeout-audit.json.
+No workspace package is edited, so package-verify and exported-code docgen do
+not apply. The direct-push fallback does not claim Yeet's isolated head-install
+preflight; the actual lane install passed. Failed inherited gates above remain
+failed, with attribution and successor #1855; no inventory was widened.
+
+
+### Final main integration
+
+Immediately before publication, main advanced to
+`940ad980b197c9f0493afa5acaf72ce44d067c36` (#1850). The conflict-free merge
+retains that consolidated repair, followed by a successful `bun install`.
+This changes the base source under the lane, not the closeout's package delta.
+The full census, eighteen-finding Oxlint result and collected cheap run above
+remain historical proof at audited base `040c69d557`. The new integrated
+check results are separately recorded below and in stage-6-closeout-audit.json;
+no earlier result is relabelled an exact-head test of the new main source.
+
+Fresh integrated checks after #1850 and installation: **Oxlint passes with
+zero findings**; changeset-graph, goals doctor and reflection lint pass.
+Effect Vitest still fails on the same three F provenance occurrences, whose
+files match integrated main byte for byte. There is no new standards delta
+or exception admission. The earlier 16/1 collected run remains source-bound
+to the prior audit base; it is not presented as a full rerun on #1850.

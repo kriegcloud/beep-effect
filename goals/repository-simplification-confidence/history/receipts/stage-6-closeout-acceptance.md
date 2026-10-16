@@ -2,7 +2,10 @@
 
 Audited base: `040c69d5577e23898fca5355e4c1e37787e2d311` (main, merged F #1797).
 `git fetch origin main` and `git merge origin/main` returned already up to date.
-The working tree was clean before `bun install`; install passed. GitHub REST
+Before publication, main #1850 (`940ad980b197c9f0493afa5acaf72ce44d067c36`)
+was integrated without conflict and dependencies reinstalled. Earlier scans
+stay bound to the initial audit base; integrated gates are reported separately.
+The working tree was clean before the initial `bun install`; install passed. GitHub REST
 reads confirm all 18 PRs named by the closeout brief are merged.
 
 **Closure accounting is complete; the original operational mission is not fully
@@ -146,7 +149,12 @@ Vitest **1,940 rows = 751 open + 1,189 exceptions**, Effect 4.0.4; schema-first
 classifications, not 1,189 or 324 individually accepted current exceptions.
 JSDoc's stored October 14 snapshot has 81 open packages, 912 open modules and
 1,389 open exports; it is historical, not a current scan result. The fresh
-read-only scan results and verification commands are in final-program-report.md.
+read-only JSDoc scan exits 0 with 151 packages / 81 needing remediation /
+912 open modules / 1,384 open exports; the scan does not qualify those findings
+as reviewed exceptions. Fresh Effect Vitest detects 1,942 findings and three
+new main-owned native-platform findings; schema-first passes its ratchet.
+Exact source-scan summaries are in stage-6-closeout-audit.json and commands
+are in final-program-report.md.
 The current exact actionable total remains unknown until individual reviews
 complete; it is demonstrably not established as zero.
 

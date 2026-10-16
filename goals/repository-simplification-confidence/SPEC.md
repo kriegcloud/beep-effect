@@ -2157,3 +2157,14 @@ owners and are not touched by this PR.
 | [#1881](https://github.com/beep-effect/beep-effect/issues/1881) — qualify atomic skill publication and replacing-writer recovery | Skills projection owner / F; File and directory publication requires a separate ownership/exchange/recovery protocol and replacing-writer crash matrix beyond one day. Preserve current canonical containment, symlinks and backups. |
 | [#1882](https://github.com/beep-effect/beep-effect/issues/1882) — qualify dependency-review fixture-path filtering | CI governance / consolidated burn-down owner; Requires a manifest-aware comparison integration and positive/negative security tests against actual CI token permissions; do not add a fictional action input or blanket skip. |
 | [#1883](https://github.com/beep-effect/beep-effect/issues/1883) — resolve post-merge completion and lane retirement evidence | program driver / repository orchestrator; After exact-head merge gate, actual merge and ownership/liveness checks; future merge cannot be proved in its own PR. |
+
+
+Closeout pre-publication integration: `origin/main` advanced from the audited
+F merge to `940ad980b197c9f0493afa5acaf72ce44d067c36` (#1850). Merge it
+without conflict, preserve its consolidated repair, and run `bun install`
+before integrated checks. Earlier scan/cheap-gate evidence remains bound to
+`040c69d557`; fresh integrated results are separate in stage-6-closeout-audit.json.
+Reason: S4 requires latest main before final and the shared repair must be
+adopted once, never copied into the closeout. Reversal: revert this closeout
+PR; main's independently merged repair is retained. No source/inventory change
+is introduced by the closeout delta.

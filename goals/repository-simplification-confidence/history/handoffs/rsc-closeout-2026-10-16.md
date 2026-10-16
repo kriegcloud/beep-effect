@@ -29,8 +29,13 @@ blocking/advisory findings; changeset-graph exits 0. Oxlint exits 1 with
 eighteen findings in nine files byte-identical to audited main and zero
 changed-file findings. Fresh schema-first passes; Effect Vitest reproduces
 three standing native-platform findings in main-identical F test files.
-Fresh JSDoc and remaining publication verification results are recorded in
-the final receipt and terminal supplement. Failed checks are not called green.
+Fresh JSDoc census passes: 151 packages / 81 needing remediation / 912 open
+modules / 1384 open exports. Committed-tree knowledge refs passes with zero
+live gated observations. Cheap gates: 16 passed / 1 inherited Effect Vitest
+failure, none skipped; the P0 inbox row local-shard-9ed71a5f6460 is acknowledged
+with the immutable-main attribution and owner issue #1855. It is not waived.
+Final machine-readable evidence is stage-6-closeout-audit.json. Failed checks
+are not called green.
 
 Recovery: revert this PR; native backups and journals remain untouched with
 their F owner, V exports and foreign live state are preserved. Driver and
@@ -41,3 +46,13 @@ The supplied direct-push fallback avoids Yeet publish's automatic monitor.
 The final SHA/PR delivery line is written after the one push in a local
 terminal supplement and the worker's last message. The commit cannot contain
 its own SHA.
+
+## Final integrated verification
+
+Main #1850 (`940ad980b197c9f0493afa5acaf72ce44d067c36`) was merged without
+conflict at `7b8f857713d506e8273000b6e275a6e1d7438ff2`, then installed. Fresh
+Oxlint now passes with zero repository findings. Changeset-graph, goals doctor
+and reflection lint pass again. Effect Vitest retains the same three inherited
+F provenance findings, with all three files matching the new main. The earlier
+collected 16/1 cheap proof and fresh census stay bound to their original base.
+No package source or standards row is added by the closeout delta.
