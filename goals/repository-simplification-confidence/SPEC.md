@@ -2070,8 +2070,8 @@ OPEN until the driver's Grok and Fable re-check clears the pushed candidate.
 
 F-CI-PORTABILITY: inject the atomic exchange capability through an Effect
 Context.Service; retain the GNU mv live probe and fail-closed production
-behavior. Synthetic tests use an inode-preserving synchronous swap, indivisible
-at the Effect scheduler boundary, with competitors injected before and after it.
+behavior. Synthetic tests use an inode-preserving uninterruptible swap, with test competitors
+restricted to transaction boundaries, with competitors injected before and after it.
 This simulation is test-only and does not claim cross-process exclusion.
 All affected fixtures use OS temporary directories. Reason: Ubuntu CI lacks
 `mv --exchange` and fresh checkouts lack gitignored fixture parents. Reversal:

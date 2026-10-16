@@ -29,7 +29,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
-import { modelsTestExchange } from "./helpers/models-atomic-exchange.ts";
+import { modelsTestExchangeLayer } from "./helpers/models-atomic-exchange.ts";
 import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 
 const binding: LocatorBinding = LocatorBinding.make({
@@ -60,12 +60,13 @@ const native = A.join(
 
 const writerWithFs = Effect.fn("ModelsApplyTest.writerWithFs")(function* (
   fs: FileSystem.FileSystem,
-  exchange: Context.Service.Shape<typeof ModelsAtomicExchange> = modelsTestExchange
+  exchange?: Context.Service.Shape<typeof ModelsAtomicExchange>
 ) {
+  const capability = exchange === undefined ? yield* ModelsAtomicExchange : exchange;
   const services = yield* Layer.build(
     ModelsApplyLive.pipe(
       Layer.provide(
-        Layer.mergeAll(Layer.succeed(FileSystem.FileSystem, fs), Layer.succeed(ModelsAtomicExchange, exchange))
+        Layer.mergeAll(Layer.succeed(FileSystem.FileSystem, fs), Layer.succeed(ModelsAtomicExchange, capability))
       )
     )
   );
@@ -85,6 +86,7 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
   const writer = yield* writerWithFs(fs);
   const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
   const applied = yield* fs.readFileString(file);
+  const modelsTestExchange = yield* ModelsAtomicExchange;
   let exchanges = 0;
   const wrapped = ModelsAtomicExchange.of({
     supported: Effect.succeed(true),
@@ -109,7 +111,9 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
   expect(exchanges).toBe(2);
 });
 
-layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 seconds" })((it) => {
+layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer))), {
+  timeout: "30 seconds",
+})((it) => {
   it.effect("round nine synthetic nonempty journals cannot establish parsed ownership", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -546,6 +550,7 @@ layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 secon
         const writer = yield* writerWithFs(fs);
         const journal =
           phase === "restore" ? O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups)) : undefined;
+        const modelsTestExchange = yield* ModelsAtomicExchange;
         let exchanges = 0;
         const replace = Effect.fnUntraced(function* (bytes: string) {
           const other = path.join(root, "competitor");

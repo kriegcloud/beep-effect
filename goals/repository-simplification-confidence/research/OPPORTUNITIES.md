@@ -2886,3 +2886,9 @@ with `ENOENT` or the intended typed atomic-exchange refusal. Prevent this
 with OS-scoped temporary directories and an injected test exchange capability;
 run the complete repo-cli suite with live exchange deliberately unavailable.
 Production keeps its cached probe and fails closed on unsupported hosts.
+
+F verification invocation receipt: a root-level Vitest filter selected all CLI
+tests but the existing lint-worker test expected the package cwd and observed
+`.` instead of `packages/tooling/tool/cli`. The attempt was stopped; use the
+repo-cli package `test` script from its package directory for the full proof.
+No unrelated test or lint implementation was changed for this environment error.
