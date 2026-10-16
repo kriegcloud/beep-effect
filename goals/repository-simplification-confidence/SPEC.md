@@ -2022,6 +2022,6 @@ pointer. Writes still require the primary pointer. R9-F2 is folded in:
 preview compares parsed values, so assignment-looking multiline text cannot
 produce a misleading `change=false`. No round-9 P2/P3 is deferred. The new GitHub P2 on comment `4289132125` is also included: the JSON locator reader preserves an existing format prefix, with an exact-message regression. The hosted deprecation finding in the same reader is repaired with the existing `fast-xml-validator` dependency before the one-argument XML parse; XML remains check-only.
 
-Reversal: revert the round-9 repair commit. This wave writes no home
+Reversal: revert the round-9 repair commits. This wave writes no home
 configuration, creates no new native backup, and retains prior timestamped
 backups and rollback evidence. The panel remains OPEN for driver round 10.

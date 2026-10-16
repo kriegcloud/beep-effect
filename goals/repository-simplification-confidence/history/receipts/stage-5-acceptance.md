@@ -868,3 +868,16 @@ Current candidate evidence is `stage-5-f-panel-r7-verification.json` and
 to its commit and regression. This wave performs zero home applies and preserves
 all previous backups and rollback evidence. The panel remains OPEN for round 8;
 this update makes no completion or zero-actionable claim for the new candidate.
+
+### F round-9 eligibility correction (2026-10-15)
+
+Global-configuration implementation now routes all TOML/JSON certification,
+preview, apply and recovery through one canonical-path and fatal-byte gate.
+Live and backup ownership must exist in the full parsed tree, including every
+removal operation. Completed removals with absent live ownership refuse
+recovery; retained backup bytes remain the explicit recovery route. Repeated
+restore also refuses unless the live hash still equals the applied hash.
+No native files changed in this wave. The existing operator-owned diagnostics,
+30-session windows and external-owner prerequisites remain open. Driver panel
+round 10 is required on the recaptured head and fingerprint. Evidence is in
+`stage-5-f-panel-r9-verification.json` and the October 15 F handoff.

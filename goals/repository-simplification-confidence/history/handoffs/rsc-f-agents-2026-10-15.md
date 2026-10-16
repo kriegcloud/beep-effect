@@ -1,12 +1,71 @@
+<!-- rsc-f-r9-report:begin -->
 lane: rsc-f-agents
-head: d21675c73035476b24802895e2ef37b030199962 (integration checkpoint; not yet pushed)   PR: #1797
+head: 4988f412b1c07f88a275a7bed4f0ea0dbfae05fd (qualified source; delivery SHA follows publication)   PR: #1797
+package-verify: @beep/repo-cli: pass (default audit 1246.3s; docgen 36.7s; terminal lint/check pass)
+hosted-parity: test-tsgo pass (380 files); docgen local pass; Effect Diagnostics pass (331 projects / 80,687 file visits / zero findings); JSDoc ratchet pass (4 < 8); knowledge refs pass; Fallow audit+health pass (0 findings); changeset-graph pass (0 changesets); coverage pass (331 tests / 17 files / all 8 touched-file floors)
+config fingerprint (final): 30670c93b29ab8494b7a22e858ffdd6e6fd39938d3f3c9a4b5840ff7f34311f8 (panel candidate: 353 equality inputs; 4 observed-only)   backups: no new native backups; all 3 retained backups present
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
+open items: driver-owned panel round 10 and hosted checks on the pushed candidate; operator-owned diagnostics; incomplete 30-session windows, existing external-owner prerequisites and previously tracked F-S31-EV010
+
+The panel remains OPEN. No readiness monitor, merge or final gate file.
+Main integrated once at `d4bc1726b33e6b98322744454aecd2a36154f8b1`;
+dependencies installed again; both sharded catalog owners passed.
+Oxlint has zero findings in changed files. All 18 repository findings come
+from untouched files byte-identical to integrated main. S31 compares all
+15 inventories/baselines/allowlists with zero added rows. The pinned read-only
+Codex probe passes. This wave makes zero native configuration writes.
+
+The SPEC Decision Log records `RSC-F-ONE-ELIGIBILITY-GATE` and its reversal.
+All native paths share canonical resolution, canonical extension checks,
+fatal UTF-8, full parsing and parsed ownership. Restore validates every
+operation against both live and backup bytes and requires the live applied
+hash. Completed removals with absent live ownership, and repeated restore
+after rollback, refuse under this universal gate; backups remain retained.
+
+| Finding | Fix commit | Regression / result |
+| --- | --- | --- |
+| F-ASTRA-R9-01 | `a65106295a` | Actual CLI `check --offline --json`, `apply --check` and `apply --write` reject TOML-to-shell and JSON-to-YAML symlinks without writes; matching canonical Unicode controls pass. |
+| F-ASTRA-R9-02 | `a65106295a` | Invalid UTF-8 in unowned TOML and JSON strings refuses in all three CLI modes; exact bytes remain and no backup directory is created. |
+| F-ASTRA-R9-03 | `a65106295a` | Both synthetic nonempty journals return typed ineligible refusals with unchanged live/backup bytes. Missing ownership, malformed and invalid-UTF-8 backups also refuse. Normal TOML/JSON rollback and race tests pass. |
+| R9-F1 (P2) | `a65106295a`, assertions `a04102b30e` | Fallback-only `{"effortLevel":"medium"}` agrees across both check commands; primary-pointer ownership is still required for writes. |
+| R9-F2 (P3) | `a65106295a`, assertions `a04102b30e` | Quoted-key/multiline trap prints parsed `change=true` before refusal. |
+| R9-F3 (P3) | `a65106295a` | Same canonical-symlink regressions as F-ASTRA-R9-01. |
+| GitHub P2 `4289132125` | `a65106295a` | Exact-message locator test requires one `Unsupported JSON form:` prefix. REST reply/resolution follows publication. |
+| Fallow complexity | `4988f412b1` | Eligibility preflight uses an array predicate and check-mode branches are combined; audit and health both report zero findings, with no baseline entries. |
+| Hosted locator deprecation | `a04102b30e` | Existing `SyntaxValidator` validates XML before the supported parse overload; all 36 reader/CLI tests pass, and XML remains check-only. |
+
+No round-9 P2/P3 is deferred. Cheap gates have 16 passing lanes and only the same two tracked EV010 provenance rows; no inventory growth. The full audit was restarted after a stale module cache; the terminal pass above supersedes that attempt. The settled-source suite passes 331 tests in
+17 files. Final reader/CLI assertions also pass 36 tests in two files.
+Verification receipt: `history/receipts/stage-5-f-panel-r9-verification.json`.
+
+Exact workstation models check summary:
+`models: 24 manual target(s); 6 finding(s) across 498 catalog model(s) from router-for-me, codex-cache, grok-cache, cursor-agent, proxy-v1-models`
+
+The six findings remain operator-owned; F-owned drift is zero. The new
+fingerprint differs from the reviewed round-9 set only at the app-written
+Claude registry, plugin registry and Cursor CLI config; this lane wrote none
+of them. The set was recaptured after the final workstation check and its immediate equality comparison passed. Previously verified rollback receipts
+remain retained, with all three backups present under `~/.config-backups/`:
+
+- `models-2026-10-14T222221002Z-16103436.backup`
+- `rsc-f-pre-rollback-20261014T222520875693Z.backup`
+- `models-2026-10-14T222525456Z-12665845.backup`
+
+The pre-existing `.impeccable/live/` data is preserved. Graft saved an
+estimated 23,211 tokens in two calls.
+
+fingerprint file: .beep/rsc-f-r9/fingerprint-pushed.json
+<!-- rsc-f-r9-report:end -->
+
+lane: rsc-f-agents
+head: d7dae616aa9ced18b19117ec9dbc201f25d70539   PR: #1797
 package-verify: @beep/repo-cli: pass (default audit 1266.4s; docgen 38.7s; post-main lint/check 4.9s/4.7s)
 hosted-parity: test-tsgo pass (380 files); docgen local pass; jsdoc-ratchet fail(inherited: 11 > 8, all 11 contributing sources identical to main); knowledge refs pass; fallow audit+health pass (0 findings); coverage pass (327 tests / 17 files / all 7 existing touched-file floors)
 config fingerprint (final): b9472fc257342c598227402e46200413ae39dfdf5e30601b63594200f6a9dac0 (candidate: 353 equality inputs; 4 observed-only)   backups: no new native backups; all 3 retained backups present
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-15.md
 open items: driver-owned panel round 9 and hosted gate; operator-owned diagnostics; incomplete 30-session windows and existing H3 measured gates; previously tracked protocol follow-ups and F-S31-EV010
 
-The panel remains OPEN. This is a local pre-publication checkpoint. No readiness
+Published in exactly one push to #1797. The panel remains OPEN. No readiness
 monitor, merge, or final gate file. Main integrated through `e93be34845`;
 dependencies installed; both sharded catalog owners passed. Changeset graph
 passes with no changeset for this private package. S31 compares 14 inventories,
@@ -38,10 +97,12 @@ were repaired in code. The terminal cheap-gate run has 16 passing lanes;
 only the two previously tracked EV010 provenance advisories remain, with
 identical round-7 evidence and zero added inventory rows. Oxlint reports
 zero findings in changed files; its 18 repository findings are in 9 untouched
-files byte-identical to main. The new REST thread will be answered/resolved
-after the single push, with publication IDs recorded in the supplement.
+files byte-identical to main. REST reply `4289080918` answered comment `4288560445` and resolved
+thread `PRRT_kwDOPbO_N86s-iNg`. The final thread read has zero unresolved
+actionable threads and zero unanswered follow-ups. The hosted snapshot has
+4 successful and 20 in-progress checks; no merge-readiness claim is made.
 
-Exact workstation summary before publication:
+Exact workstation models check summary:
 `models: 24 manual target(s); 6 finding(s) across 498 catalog model(s) from router-for-me, codex-cache, grok-cache, cursor-agent, proxy-v1-models`
 
 The six findings are one operator-owned Claude model alias and five shell
@@ -56,8 +117,15 @@ Retained backups under `~/.config-backups/`:
 Previously verified rollback receipts remain retained. The pre-existing
 `.impeccable/live/` data is preserved.
 
-The final publication supplement records the delivery SHA, REST reply/thread IDs
-and pushed-head fingerprint without a second push.
+The committed handoff and receipts retain the qualified source checkpoint.
+This local publication supplement binds the exact pushed head and reply IDs;
+it is the only tracked post-push residue. No second push was made.
+Pushed-head fingerprint matches the committed receipt with zero changed
+equality paths. Graft returned no savings estimate for the initial queries.
+
+fingerprint file: .beep/rsc-f-r8/fingerprint-pushed.json
+panel-candidate d7dae616aa9ced18b19117ec9dbc201f25d70539 #1797
+fingerprint b9472fc257342c598227402e46200413ae39dfdf5e30601b63594200f6a9dac0
 
 <!-- rsc-f-r8-report:end -->
 
