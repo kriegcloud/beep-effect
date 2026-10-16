@@ -2077,3 +2077,83 @@ All affected fixtures use OS temporary directories. Reason: Ubuntu CI lacks
 `mv --exchange` and fresh checkouts lack gitignored fixture parents. Reversal:
 revert this repair commit; no home files or native configuration are changed.
 The panel was cleared on the prior revision; the driver owns the merge final.
+
+
+### RSC-CLOSEOUT-20261016 — retained closeout with explicit successor gates
+
+Decision: follow the assigned closeout brief's instruction to finish the
+program in one PR, converting each unmet multi-day, measured or external-owner
+acceptance item into an owned GitHub issue. The stage-6 acceptance receipt
+retains all twenty-four original checklist outcomes: four met, five met by
+recorded ruling, one report completed in this PR, fourteen unmet. The original
+mission is partly unmet; no honest-zero source-debt, remote-read, reclaimed-byte,
+native-activation or Desktop-safe-route claim is made. Original acceptance
+checkboxes remain the operational contract; issue creation does not tick them.
+
+Reason: merged bounded PRs did not complete every original wave. A's later
+retirements and five patch proofs, B's guidance/detector/provenance work,
+H1's catalog/hold waves and V's remaining cohorts are measured multi-day source
+trains. Native/secret/GUI/foreign-clone work requires the existing external
+owner or qualifying-session gate. Small executable residue lands now: remove
+the empty .ai/mcp file, compact ledger exposure in three context-ignore files,
+transcribe C's capability rows, correct F's main-parent provenance, and land
+the audit/report/panel/reflection evidence. S31 remains zero added inventory
+rows, and S23 forbids replacing an executable step with an arbitrary wait.
+
+Panel disposition: S34 and the operator's round-10 cap supersede only the
+universal all-three-final-revision panel language. Round 10 Astra/Fable were
+zero; the bounded Grok/Fable re-check cleared ddf343221a. There is no remaining
+Astra P1 to file. CI portability and the final delivery fingerprint have
+separate proof; no post-closeout native equality check is claimed. The named
+reviewer IDs and xhigh launch evidence are in stage-5-panel.md.
+
+The completed-retained lifecycle and phase values are a same-PR terminal
+declaration, effective on merge. This final PR cannot observe its own future
+merge OID or retirement. The driver retains the S11 thread/window/conflict
+gate, actual hosted attribution, H2 completion refresh and owned lane sweep
+under #1883; unknown historical inventory remains unknown. Existing recovery
+assets, unrelated live sessions and paused work are preserved.
+
+Reversal: revert this closeout PR and use the supported goals status owner to
+reactivate the packet if the driver reopens the program. Issues retain the
+original unfinished obligations and can be reconciled individually; do not
+delete old receipts or rewrite ledger rows. The empty file can be restored
+from the parent; removing the three context-ignore additions restores exposure
+without changing decision evidence. Native backups/journals remain with their
+owners and are not touched by this PR.
+
+| Successor issue | Owner and gate |
+| --- | --- |
+| [#1851](https://github.com/beep-effect/beep-effect/issues/1851) — finish the later repository retirement waves | rsc-a-retire / program driver; Multi-day measured scope: more than 490 payload files plus root dependency/model/skill wiring, generated projections and multiple package proofs. Resume R3 waves 2/3 as one owned retirement train; preserve selected scorer and external integrations. |
+| [#1852](https://github.com/beep-effect/beep-effect/issues/1852) — qualify retained repository tool workflows | rsc-a-retire with Stately workflow owner; Stately visual/OAuth workflow requires its existing authorized owner; the remaining paired security and compiler proofs span multiple owners. Run noninteractive discovery first, then the selected visual fixture; never treat CLI help as workflow proof. |
+| [#1853](https://github.com/beep-effect/beep-effect/issues/1853) — complete all retained patch regression and exit proofs | rsc-a-retire with dependency owners; Multi-package work exceeds a one-day closeout: implement missing Effect equality, XState declaration-emit and Drizzle not-any proofs, then qualify all five against the current installed versions in disposable dependency trees. |
+| [#1854](https://github.com/beep-effect/beep-effect/issues/1854) — resolve foreign-clone residue with live owners | program orchestrator with clone owners; Outside closeout lane authority. Re-census liveness and obtain the named owner disposition before archive/removal; old session rows do not establish terminal state. |
+| [#1855](https://github.com/beep-effect/beep-effect/issues/1855) — finish detector repairs and individual exception review | rsc-b-standards with V cohort owners; Measured multi-day scope: hundreds of open rows and individual suppression/exception reviews. Reconcile the preserved private proposals to a fresh source scan; fix code or improve detectors, never grow standards inventories under S31. |
+| [#1856](https://github.com/beep-effect/beep-effect/issues/1856) — finish guidance currency and artifact classification | rsc-b-standards with canonical document owners; Multi-day review across standards, patterns, docs and client-loaded instructions. Reconcile each preview to current main and Effect reference before applying; preserve immutable history. |
+| [#1857](https://github.com/beep-effect/beep-effect/issues/1857) — resolve GitHub Packages external-contract uncertainty | release-policy owner / authorized credential owner; Existing approved read-only credential with package-read scope must become available; no scope purchase or raw credential disclosure. Run the suppressed exact approved query. |
+| [#1858](https://github.com/beep-effect/beep-effect/issues/1858) — finish remaining hosted workflow acceptance probes | rsc-e-github with fleet/cache owners; Requires trusted-main environment deployment and the cache owner; do not delete the repository token before R41 proof. The probe train spans hosted environments and runner recovery beyond a one-day packet audit. |
+| [#1859](https://github.com/beep-effect/beep-effect/issues/1859) — qualify protected desktop release signing | desktop release owner / operator credential owner; Operator supplies existing signing references through the approved environment, then the release owner runs a disposable signed release fixture; preserve protection. |
+| [#1860](https://github.com/beep-effect/beep-effect/issues/1860) — finish catalog removals and unused-entry detection | rsc-h1-catalog; Multi-wave catalog/manifest/lockfile and detector change with consumer census, paired fixtures and package/security proof exceeds the closeout day bound. S5 notice dependency has ended; no sequencing wait is needed now. |
+| [#1861](https://github.com/beep-effect/beep-effect/issues/1861) — finish hold register and compatibility exit proofs | rsc-h1-catalog with dependency owners; Fresh version/consumer checks, the complete override/patch census and multi-package compatibility proofs exceed a day. Recheck OSV before 2026-10-30 and resolve or explicitly renew with evidence. |
+| [#1862](https://github.com/beep-effect/beep-effect/issues/1862) — qualify retained native and shared agent workflows | F driver with native client, installer and gateway owners; Requires native-client/installer scope, Junie authorization, Docker service/profile ownership and operator-only Claude/shell actions. Resume each named SPEC disposition at its existing gate; current lane scope authorizes none of those home writes. |
+| [#1863](https://github.com/beep-effect/beep-effect/issues/1863) — collect matched final agent-context workflow measurements | F measurement owner; Requires successful native activation from the F activation issue and matched current-fingerprint observations. A historical sample or byte/4 estimate cannot fill this gate. |
+| [#1864](https://github.com/beep-effect/beep-effect/issues/1864) — qualify ordinary native hook startup and ancestry | F with H3/native client owner; Native supported launcher/trust and recognized ancestry must be witnessed under the current fingerprint; do not manufacture trust booleans. |
+| [#1865](https://github.com/beep-effect/beep-effect/issues/1865) — qualify a dated telemetry namespace cutover | F with H3/global launcher owner; Owner establishes the native launcher/global-projection contract and exact authorized home scope first. |
+| [#1866](https://github.com/beep-effect/beep-effect/issues/1866) — qualify desktop and native Codex OTel ingress | F with H3/native client owners; Operator-only Claude configuration and native-client payload-free ingress witness are required; use the owned writer only within granted non-Claude scope. |
+| [#1867](https://github.com/beep-effect/beep-effect/issues/1867) — qualify the approved telemetry archive reference | F with archive/credential owner; Credential owner supplies an approved agent-visible reference; verify the exact operation with output suppressed and run op-doctor once on failure. |
+| [#1868](https://github.com/beep-effect/beep-effect/issues/1868) — complete current-fingerprint 30-session qualification windows | H3 collector with F/client owners; Measured gate is 30 qualifying root sessions per affected harness/fingerprint, with original native startup, primary user/tool activity and complete collection. Children and synthetic probes add zero; config change restarts its regime. |
+| [#1869](https://github.com/beep-effect/beep-effect/issues/1869) — separate telemetry storage completeness from stamp qualification | repo-ai-metrics / H3 owner; Design requires a separate completeness model across stored session/turn records, migrations and OTLP consumers, with historical default-false compatibility; multi-package protocol proof exceeds one closeout day. |
+| [#1870](https://github.com/beep-effect/beep-effect/issues/1870) — run the operator Desktop permission fixture batch | H4 driver / Desktop operator; Operator-created disposable fixture parents and a quiet restart window for both apps; closeout has no authorized Desktop creation/continuation connector and must not resume live work. |
+| [#1871](https://github.com/beep-effect/beep-effect/issues/1871) — apply owner-verified recoverable storage retention | G retention owner with live clone/data owners; Requires fresh owner/terminal/liveness rulings and live-owner notices outside this lane. Corpus/research/runtime remain owner-required; no blanket .beep symlink or stale-row inference. |
+| [#1872](https://github.com/beep-effect/beep-effect/issues/1872) — prove cold remote cache reads with an approved read-only reference | G cache owner with credential/environment owner; Credential owner makes existing approved read-only reference accessible. Historical trusted artifacts expire around 2026-11-05; use a fresh trusted-main artifact if expired. Never use the writer token. |
+| [#1873](https://github.com/beep-effect/beep-effect/issues/1873) — qualify cache posture across native harnesses and legacy roots | G with F/native environment owners; Requires native launcher/environment scope and owner-approved legacy cache disposition outside this lane. Preserve explicit overrides and CI-owned paths. |
+| [#1874](https://github.com/beep-effect/beep-effect/issues/1874) — qualify generated-build incremental output restoration | shared build/cache owners; Multi-package generated build scripts and task hash/output contracts require their own qualified train; coordinate with the separately owned build-pipeline exploration. |
+| [#1875](https://github.com/beep-effect/beep-effect/issues/1875) — finish the reconciled Effect Vitest canon cohorts | effect-vitest-canon / lane V owner; Measured multi-day cohort scope: hundreds of test migrations and package coverage proofs. Reuse preserved implementations and historical identity mapping; no baseline reset or exception growth. |
+| [#1876](https://github.com/beep-effect/beep-effect/issues/1876) — qualify and publish preserved RDF and Pacer follow-up ports | lane V with RDF/Pacer package owners; Separate multi-package source/coverage wave follows original D13 tooling-isolation contract; source preview is not qualified implementation. |
+| [#1877](https://github.com/beep-effect/beep-effect/issues/1877) — retire reconciled Vitest lanes and program lanes safely | program orchestrator with clone owners; Orchestrator-owned outside-lane action after fresh liveness/owner confirmation; preserve every dirty/staged export and archive ref. |
+| [#1878](https://github.com/beep-effect/beep-effect/issues/1878) — supply complete historical completion evidence | Goals completion evidence owner; A merge-time complete ruleset/check inventory provider with deleted-ruleset evidence and head-bound acceptance facts is a multi-day protocol extension; current REST inventory cannot establish this. |
+| [#1879](https://github.com/beep-effect/beep-effect/issues/1879) — scope atomic-exchange capability to target filesystems | ModelsApply / F owner; Target-filesystem capability design requires mount identity, permission/error semantics and unsupported-filesystem fixtures before changing native publication; assess separately with the retained fail-closed boundary. |
+| [#1880](https://github.com/beep-effect/beep-effect/issues/1880) — add restart recovery states to native exchange journals | ModelsApply / F owner; Multi-stage publication/recovery protocol requires a reviewed state machine and real SIGKILL restart matrix across backup, stage, exchange and recovery. Keep retained artifacts intact until that protocol lands. |
+| [#1881](https://github.com/beep-effect/beep-effect/issues/1881) — qualify atomic skill publication and replacing-writer recovery | Skills projection owner / F; File and directory publication requires a separate ownership/exchange/recovery protocol and replacing-writer crash matrix beyond one day. Preserve current canonical containment, symlinks and backups. |
+| [#1882](https://github.com/beep-effect/beep-effect/issues/1882) — qualify dependency-review fixture-path filtering | CI governance / consolidated burn-down owner; Requires a manifest-aware comparison integration and positive/negative security tests against actual CI token permissions; do not add a fictional action input or blanket skip. |
+| [#1883](https://github.com/beep-effect/beep-effect/issues/1883) — resolve post-merge completion and lane retirement evidence | program driver / repository orchestrator; After exact-head merge gate, actual merge and ownership/liveness checks; future merge cannot be proved in its own PR. |
