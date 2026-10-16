@@ -36,6 +36,8 @@ const CommandTestLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   FixedMemoryStatsLayer
 );
+const decodeUnknownJsonResult = S.decodeResult(S.fromJsonString(S.Unknown));
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const runQualityCommand = Command.runWith(qualityCommand, { version: "0.0.0" });
 const encoder = new TextEncoder();
 
@@ -140,7 +142,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       if (O.isNone(index)) return Effect.die("Missing merged lspconfig");
       const text = command.args[index.value + 1];
       if (text === undefined) return Effect.die("Missing lspconfig value");
-      A.appendInPlace(configs, Result.getOrThrow(S.decodeResult(S.fromJsonString(S.Unknown))(text)));
+      A.appendInPlace(configs, Result.getOrThrow(decodeUnknownJsonResult(text)));
       return Effect.succeed(
         ChildProcessSpawner.makeHandle({ ...successfulHandle, all: Stream.concat(stdout, stderr), stdout, stderr })
       );
@@ -179,7 +181,6 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     Effect.fnUntraced(function* ([includes]) {
       const fs = yield* FileSystem.FileSystem;
       const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-merge-" });
-      const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
       const profile = yield* readEffectDiagnosticsProfile(new URL("../../../../..", import.meta.url).pathname);
       const plugin = {
         name: "@effect/language-service",
@@ -187,10 +188,13 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
         diagnosticSeverity: { missedPipeableOpportunity: "off" },
         overrides: [{ include: ["test/**", ...includes], diagnosticSeverity: { floatingEffect: "off" } }],
       };
-      yield* fs.writeFileString(`${dir}/base.json`, yield* encode({ compilerOptions: { plugins: [plugin] } }));
-      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encode({ extends: "./base.json" }));
+      yield* fs.writeFileString(
+        `${dir}/base.json`,
+        yield* encodeUnknownJson({ compilerOptions: { plugins: [plugin] } })
+      );
+      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encodeUnknownJson({ extends: "./base.json" }));
       const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
-      const value = Result.getOrThrow(S.decodeResult(S.fromJsonString(S.Unknown))(merged));
+      const value = Result.getOrThrow(decodeUnknownJsonResult(merged));
       expect(value).toMatchObject({
         ...plugin,
         diagnosticSeverity: {

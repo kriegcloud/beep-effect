@@ -54,6 +54,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 
+const decodeParcelEnvelopeJson = S.decodeEffect(S.fromJsonString(ParcelEnvelope));
 const TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736";
 const TRACEPARENT = `00-${TRACE_ID}-00f067aa0ca902c7-01`;
 
@@ -153,7 +154,7 @@ describe("printParcel over a stub source", () => {
     it.effect("prints the envelope as JSON, nested under TRACEPARENT, and sets the gauge", () =>
       Effect.gen(function* () {
         const json = yield* captureOutput(printParcel("account-headroom", true)).pipe(withEnv({ TRACEPARENT }));
-        const envelope = yield* S.decodeEffect(S.fromJsonString(ParcelEnvelope))(json);
+        const envelope = yield* decodeParcelEnvelopeJson(json);
         expect(envelope.parcel).toBe("account-headroom");
         expect(envelope.freshness._tag).toBe("Fresh");
         expect(
@@ -192,7 +193,7 @@ describe("printParcel over a failing source", () => {
     it.effect("serves Unknown{unreachable}", () =>
       Effect.gen(function* () {
         const json = yield* captureOutput(printParcel("account-headroom", true)).pipe(withEnv({}));
-        const envelope = yield* S.decodeEffect(S.fromJsonString(ParcelEnvelope))(json);
+        const envelope = yield* decodeParcelEnvelopeJson(json);
         expect(envelope.freshness._tag === "Unknown" ? envelope.freshness.reason : "fresh").toBe("unreachable");
       })
     );
@@ -236,7 +237,7 @@ describe("beep palantiri parcel account-headroom", () => {
             HOME: root,
           })
         );
-        const envelope = yield* S.decodeEffect(S.fromJsonString(ParcelEnvelope))(json);
+        const envelope = yield* decodeParcelEnvelopeJson(json);
         expect(
           A.map(A.filter(envelope.items, ParcelItem.guards.AccountHeadroom), (item) => [
             item.provider,

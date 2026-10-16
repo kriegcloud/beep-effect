@@ -342,6 +342,10 @@ describe("layerPracticeKgTelemetrySpooled", () => {
   });
 });
 
+// The coverage lane runs Vitest under Node, where the root setup shims Bun's API surface but
+// cannot provide the bundler, so the real-build proof runs only where Bun.build exists (`bun run test`).
+const hasBunBuild = P.isFunction(Reflect.get(globalThis.Bun, "build"));
+
 describe("bundle graph", () => {
   it("flags OpenTelemetry SDK and observability server inputs", () => {
     expect(
@@ -361,7 +365,7 @@ describe("bundle graph", () => {
     ]);
   });
 
-  it.effect(
+  it.effect.runIf(hasBunBuild)(
     "proves the host entrypoint cannot reach the OpenTelemetry SDK or the observability server",
     () =>
       Effect.gen(function* () {

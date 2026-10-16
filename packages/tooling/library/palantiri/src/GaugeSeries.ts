@@ -62,7 +62,7 @@ const seriesKey = (attributes: Metric.Metric.AttributeSet | undefined): string =
  * @param gauge - The gauge whose series set is replaced.
  * @param readings - One attribute set and value per series to keep.
  * @returns An effect that writes the readings and removes every other series of the gauge.
- * @category metrics
+ * @category observability
  * @since 0.0.0
  */
 export const replaceGaugeSeries = Effect.fnUntraced(function* (
