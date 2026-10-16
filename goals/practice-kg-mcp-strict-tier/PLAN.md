@@ -101,6 +101,10 @@ Before marking the packet closed:
   strips `parameters`); with the content rules turned off the canary test
   still passes. The per-rule sensitivity lives in the kernel tests over
   synthetic batches; the P3 mutation table should add a host-level leak path.
+- Coverage burn-down (2026-10-16): the strict-tier tests failed only in the
+  Node coverage lane (`Bun.CryptoHasher` and `Bun.build` missing from the root
+  Bun shim). `vitest.setup.ts` now shims `Bun.CryptoHasher`; the bundle-graph
+  proof runs only where `Bun.build` exists. Decisions in `SPEC.md`.
 
 ## Verification Commands
 

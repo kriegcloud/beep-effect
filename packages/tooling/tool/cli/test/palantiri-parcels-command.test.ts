@@ -63,6 +63,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { SessionCheckoutFacts } from "@beep/repo-cli/test/Session";
 
+const encodeInboxRowInputJson = S.encodeEffect(S.fromJsonString(InboxRowInput));
+const encodeParcelEnvelopeJson = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 const repository = PrRepository.make({ host: "github.com", owner: "beep-effect", name: "beep-effect" });
 
 const captureOutput = Effect.fnUntraced(function* <A, E, R>(effect: Effect.Effect<A, E, R>) {
@@ -169,7 +171,7 @@ describe("inboxRowInput", () => {
         YeetInboxEntry.make({ row: comment, ack: YeetAckState.make({ acked: false, receipt: null }), liveness: "live" })
       );
       expect(input.summary).toBe("pull request comment awaiting a reply");
-      const json = yield* S.encodeEffect(S.fromJsonString(InboxRowInput))(input);
+      const json = yield* encodeInboxRowInputJson(input);
       expectClean(json);
     })
   );
@@ -382,7 +384,7 @@ describe("since-last-check", () => {
           "lane-a",
           "lane-b",
         ]);
-        expectClean(yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(first));
+        expectClean(yield* encodeParcelEnvelopeJson(first));
 
         const cursorDir = path.join(root, "state", "cursors", "github.com__beep-effect__beep-effect");
         const cursor = yield* fs

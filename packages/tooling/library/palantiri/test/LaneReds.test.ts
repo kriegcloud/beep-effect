@@ -61,6 +61,7 @@ const checkout = (lane: string, rows: ReadonlyArray<InboxRowInput>, jobs: O.Opti
 
 const reds = (parcel: ParcelEnvelope): ReadonlyArray<LaneRed> => A.filter(parcel.items, ParcelItem.guards.LaneRed);
 
+const encodeParcelEnvelopeJson = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 const reasonOf = (freshness: Freshness): string => (freshness._tag === "Unknown" ? freshness.reason : "fresh");
 
 const sample = LaneRedsInput.make({
@@ -107,7 +108,7 @@ describe("reduceLaneReds", () => {
 
   it.effect("redacts addresses and home paths from summaries", () =>
     Effect.gen(function* () {
-      const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(reduceLaneReds(sample, NOW, 20));
+      const json = yield* encodeParcelEnvelopeJson(reduceLaneReds(sample, NOW, 20));
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home/"))).toBe(false);
     })

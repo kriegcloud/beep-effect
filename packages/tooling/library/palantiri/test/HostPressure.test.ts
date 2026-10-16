@@ -39,6 +39,7 @@ const MEMORY =
 const IO =
   "some avg10=4.30 avg60=3.90 avg300=2.10 total=55443322\nfull avg10=1.20 avg60=1.00 avg300=0.70 total=33221100\n";
 
+const encodeParcelEnvelopeJson = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 const reasonOf = (freshness: Freshness): string => (freshness._tag === "Unknown" ? freshness.reason : "fresh");
 
 const inputWith = (files: ReadonlyArray<PressureFile>, readAt = NOW) =>
@@ -164,7 +165,7 @@ describe("reduceHostPressure", () => {
     Effect.gen(function* () {
       const parcel = reduceHostPressure(healthy, NOW, 2);
       expect(parcel.receipt).toEqual({ shown: 2, total: 5 });
-      const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(parcel);
+      const json = yield* encodeParcelEnvelopeJson(parcel);
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home/"))).toBe(false);
     })
