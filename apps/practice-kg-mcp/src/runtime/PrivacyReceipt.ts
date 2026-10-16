@@ -505,15 +505,22 @@ const ledgerOrder: Order.Order<readonly [TelemetryRefusalTag, number]> = Order.m
 const countCell = (receipt: PracticeKgPrivacyReceipt, tag: TelemetryRefusalTag, count: number): string =>
   A.contains(receipt.truncated, tag) ? `≥ ${count}, baseline truncated` : `${count}`;
 
-const ledgerRows = (receipt: PracticeKgPrivacyReceipt, ledger: RefusalLedger): ReadonlyArray<string> =>
-  A.match(A.sort(A.fromIterable(ledger), ledgerOrder), {
+// The gate (non-spool) rows: every counted tag, plus every truncated tag that
+// grew by 0 since its earliest surviving point, so an unknown pre-window
+// history is never printed as "None.".
+const gateRows = (receipt: PracticeKgPrivacyReceipt): ReadonlyArray<string> => {
+  const counted = HashMap.filter(receipt.refusals, (_, tag) => !isSpoolTag(tag));
+  const truncatedOnly = A.filter(receipt.truncated, (tag) => !isSpoolTag(tag) && !HashMap.has(counted, tag));
+  const rows = A.sort([...A.fromIterable(counted), ...A.map(truncatedOnly, (tag) => [tag, 0] as const)], ledgerOrder);
+  return A.match(rows, {
     onEmpty: () => ["None."],
-    onNonEmpty: (rows) => [
+    onNonEmpty: (nonEmpty) => [
       "| Tag | Count |",
       "| --- | ---: |",
-      ...A.map(rows, ([tag, count]) => `| ${tag} | ${countCell(receipt, tag, count)} |`),
+      ...A.map(nonEmpty, ([tag, count]) => `| ${tag} | ${countCell(receipt, tag, count)} |`),
     ],
   });
+};
 
 // Every spool refusal tag the kernel declares, in its declared order:
 // `spool-evicted`, `spool-evict-failed` and `spool-write-failed` from the gate
@@ -609,10 +616,7 @@ export const renderPracticeKgPrivacyReceipt = (receipt: PracticeKgPrivacyReceipt
       "",
       "## Refusals in the window",
       "",
-      ...ledgerRows(
-        receipt,
-        HashMap.filter(receipt.refusals, (_, tag) => !isSpoolTag(tag))
-      ),
+      ...gateRows(receipt),
       "",
       "## Spool refusals in the window",
       "",

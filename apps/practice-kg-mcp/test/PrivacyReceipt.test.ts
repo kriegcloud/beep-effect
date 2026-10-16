@@ -209,6 +209,23 @@ describe("practice KG privacy receipt", () => {
       expect(Str.includes("| egress-refused | ≥ 6, baseline truncated |")(text)).toBe(true);
     })
   );
+
+  it.effect("lists a truncated gate tag that grew by 0 instead of printing None", () =>
+    Effect.gen(function* () {
+      // Started before the window, one surviving point, no growth since it.
+      const only = yield* metricsBody([refusedPoint("log-record-dropped", "100", 12)]);
+      const summary = summarizePracticeKgSpool(
+        StrictSpoolSurvey.make({ entries: [opened(11 * day, 300, "metrics", only)] }),
+        window
+      );
+      expect(HashMap.size(summary.refusals)).toBe(0);
+      expect(summary.truncated).toEqual(["log-record-dropped"]);
+      const text = renderPracticeKgPrivacyReceipt(receiptOf(summary));
+      const gateSection = Str.split(text, "## Spool refusals in the window")[0] ?? "";
+      expect(Str.includes("| log-record-dropped | ≥ 0, baseline truncated |")(gateSection)).toBe(true);
+      expect(Str.includes("None.")(gateSection)).toBe(false);
+    })
+  );
 });
 
 const telemetryDir = "/home/attorney/.local/state/beep/practice-kg/telemetry";
