@@ -243,7 +243,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
         yield* ledger.record(home, snapshot),
         path.join(home, ".local", "state", "beep", "models", "latest.json")
       );
-    }).pipe(Effect.scoped)
+    })
   );
 });
 
