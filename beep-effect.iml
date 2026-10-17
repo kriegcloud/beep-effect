@@ -151,7 +151,6 @@
       <excludeFolder url="file://$MODULE_DIR$/explorations/full-document-editor" />
       <excludeFolder url="file://$MODULE_DIR$/explorations/oppold-corpus-overhaul" />
       <excludeFolder url="file://$MODULE_DIR$/explorations/typed-agent-skill-contracts" />
-      <excludeFolder url="file://$MODULE_DIR$/tools/skillopt/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/goals/ci-fleet-residue" />
       <excludeFolder url="file://$MODULE_DIR$/goals/codex-security-findings-2026-08-10" />
       <excludeFolder url="file://$MODULE_DIR$/goals/codex-security-findings-2026-08-13" />

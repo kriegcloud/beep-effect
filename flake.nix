@@ -20,7 +20,7 @@
         # system-linked, so native modules resolve /usr/lib without LD_LIBRARY_PATH.
         devShells.default = pkgs.mkShellNoCC {
           packages = with pkgs; [
-            # Python (SkillOpt training pilot — tools/skillopt uv project)
+            # Python (ciops CQ checks and skill helper scripts)
             python3
             uv
 
