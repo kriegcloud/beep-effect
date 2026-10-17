@@ -27,7 +27,7 @@ import { provideScopedLayer } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { describe, expect } from "@effect/vitest";
+import { afterAll, describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -35,6 +35,7 @@ import * as Clock from "effect/Clock";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import { Base64 } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
@@ -48,6 +49,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
+import * as Scope from "effect/Scope";
 import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -81,6 +83,34 @@ import type { GateRules } from "@beep/observability/strict";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 const textDecoder = new TextDecoder();
+
+// Tests run concurrently, so a per-test smoke build (PGlite plus DuckDB, the
+// file's dominant CPU cost) multiplies across every test and each one's time
+// limit measures the others' builds. One template is built per file, on first
+// use, and every test copies it into its own directory; it is removed after
+// the file, and never built when no test asks for it.
+const templateScope = Effect.runSync(Scope.make());
+afterAll(() => Effect.runPromise(Scope.close(templateScope, Exit.void)));
+const smokeTemplate = Effect.runSync(
+  Effect.cached(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-template-" });
+      const bundle = yield* makePracticeKgSmokeBundle(root);
+      return { root, bundle };
+    }).pipe(Effect.provideService(Scope.Scope, templateScope))
+  )
+);
+
+// A private copy of the smoke bundle (and its corpus) under `root`; returns
+// the bundle directory, as `makePracticeKgSmokeBundle(root)` would.
+const copySmokeBundle = Effect.fnUntraced(function* (root: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const template = yield* smokeTemplate;
+  yield* fs.copy(template.root, root, { overwrite: true });
+  return path.join(root, path.relative(template.root, template.bundle));
+});
 const encodeManifest = S.encodeUnknownEffect(S.fromJsonString(PracticeKgBundleManifest));
 const decodeReportLine = S.decodeUnknownEffect(S.fromJsonString(PracticeKgSelfCheckReport));
 const decodeFailureLine = S.decodeUnknownEffect(S.fromJsonString(PracticeKgSelfCheckRefusal));
@@ -273,7 +303,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         const context = yield* loadPracticeKgBundleContext(bundleDir);
 
         const { lines } = yield* runPracticeKgSelfCheck(bundleDir).pipe(printPracticeKgSelfCheck, printed);
@@ -343,7 +373,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         yield* fs.writeFileString(path.join(bundleDir, "practice.duckdb"), "not a database");
 
         const refusal = yield* refusalLine(bundleDir);
@@ -358,7 +388,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         yield* fs.writeFile(path.join(bundleDir, "kg.pglite", "global", "pg_control"), new Uint8Array(8192).fill(0x5a));
 
         const refusal = yield* refusalLine(bundleDir);
@@ -374,7 +404,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         const store = path.join(bundleDir, "kg.pglite");
         yield* Effect.acquireRelease(fs.chmod(store, 0o000), () => fs.chmod(store, 0o755).pipe(Effect.orDie));
 
@@ -391,7 +421,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         const graphStore = path.join(bundleDir, "kg.pglite");
         const matterStore = path.join(bundleDir, "practice.duckdb");
         yield* fs.remove(graphStore, { recursive: true });
@@ -427,7 +457,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         // Store format 2 had no `matters.client_name`; the manifest still says format 3.
         const dropClientName = Effect.gen(function* () {
           const db = yield* DuckDb;
@@ -471,7 +501,7 @@ for (const [kind, table] of [
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-startup-" });
-        const bundleDir = yield* makePracticeKgSmokeBundle(root);
+        const bundleDir = yield* copySmokeBundle(root);
         yield* DuckDb.use((db) => db.run(`DROP ${kind} ${table}`)).pipe(
           provideScopedLayer(
             DuckDb.makeNodeLayer(
@@ -771,11 +801,9 @@ describe("practice KG strict tier canary", () => {
         const healthyRoot = path.join(root, "healthy");
         const brokenRoot = path.join(root, "broken");
         yield* fs.makeDirectory(healthyRoot);
-        const healthyBundle = yield* makePracticeKgSmokeBundle(healthyRoot);
-        // Building a bundle is the expensive step (PGlite plus DuckDB), so the
-        // broken fixture is a copy of the healthy one rather than a second build.
-        yield* fs.copy(healthyRoot, brokenRoot);
-        const brokenBundle = path.join(brokenRoot, path.relative(healthyRoot, healthyBundle));
+        yield* fs.makeDirectory(brokenRoot);
+        const healthyBundle = yield* copySmokeBundle(healthyRoot);
+        const brokenBundle = yield* copySmokeBundle(brokenRoot);
         // The corpus catalog is a valid DuckDB file without the bundle's tables.
         yield* fs.remove(path.join(brokenBundle, "practice.duckdb"));
         yield* fs.copyFile(
@@ -864,7 +892,7 @@ describe("practice KG strict tier mutation table", () => {
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
           const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-strict-mutant-" });
-          const bundle = yield* makePracticeKgSmokeBundle(root);
+          const bundle = yield* copySmokeBundle(root);
           yield* runStrictHost(bundle, [["kg_find", { query: canaries.query }]], {
             ...StrictGateRulesOn,
             [rule]: false,
