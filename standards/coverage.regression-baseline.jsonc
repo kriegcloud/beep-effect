@@ -14562,6 +14562,18 @@
             "functions": 4
           }
         },
+        "packages/law-practice/server/src/ReviewFiles/ReviewFiles.layer.ts": {
+          "lines": 88.88,
+          "statements": 90,
+          "branches": 100,
+          "functions": 85,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
         "packages/law-practice/server/src/Tools.ts": {
           "lines": 85.71,
           "statements": 85.71,
@@ -14620,6 +14632,18 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/law-practice/server/src/internal/JsonlLog.ts": {
+          "lines": 95.45,
+          "statements": 91.3,
+          "branches": 100,
+          "functions": 75,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
           }
         },
         "packages/law-practice/server/src/internal/MailAddress.ts": {
@@ -15312,6 +15336,18 @@
             "functions": 0
           }
         },
+        "packages/law-practice/use-cases/src/DocketIntake/DocketQuestions.service.ts": {
+          "lines": 79.51,
+          "statements": 80.23,
+          "branches": 100,
+          "functions": 72.13,
+          "uncovered": {
+            "lines": 17,
+            "statements": 17,
+            "branches": 0,
+            "functions": 17
+          }
+        },
         "packages/law-practice/use-cases/src/DocketIntake/DocketReview.policy.ts": {
           "lines": 100,
           "statements": 100,
@@ -15850,6 +15886,30 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/law-practice/use-cases/src/QuestionWrites/QuestionWrites.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 50,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/law-practice/use-cases/src/ReviewItemStore/ReviewItemStore.ports.ts": {
+          "lines": 83.33,
+          "statements": 85.71,
+          "branches": 25,
+          "functions": 75,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 3,
+            "functions": 1
           }
         },
         "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts": {
@@ -26478,6 +26538,18 @@
             "functions": 12
           }
         },
+        "packages/tooling/tool/cli/src/commands/Drawings/Drawings.measurements.ts": {
+          "lines": 89.65,
+          "statements": 89.81,
+          "branches": 62.36,
+          "functions": 85.36,
+          "uncovered": {
+            "lines": 30,
+            "statements": 33,
+            "branches": 35,
+            "functions": 24
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.review.rules.ts": {
           "lines": 94.96,
           "statements": 94.73,
@@ -28182,6 +28254,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts": {
+          "lines": 67.08,
+          "statements": 69.38,
+          "branches": 83.16,
+          "functions": 61.9,
+          "uncovered": {
+            "lines": 53,
+            "statements": 60,
+            "branches": 17,
+            "functions": 24
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts": {
           "lines": 91.36,
           "statements": 91.54,
@@ -28638,6 +28722,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/tool/cli/src/commands/Models/Models.apply.service.ts": {
+          "lines": 93.52,
+          "statements": 90.4,
+          "branches": 83.06,
+          "functions": 85.07,
+          "uncovered": {
+            "lines": 16,
+            "statements": 26,
+            "branches": 21,
+            "functions": 10
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Models/Models.catalog.schemas.ts": {
           "lines": 100,
           "statements": 100,
@@ -28806,6 +28902,18 @@
             "functions": 9
           }
         },
+        "packages/tooling/tool/cli/src/commands/Models/Models.spans.ts": {
+          "lines": 96.98,
+          "statements": 93.71,
+          "branches": 95.67,
+          "functions": 85.96,
+          "uncovered": {
+            "lines": 8,
+            "statements": 20,
+            "branches": 7,
+            "functions": 16
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Models/index.ts": {
           "lines": 100,
           "statements": 100,
@@ -28900,6 +29008,66 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Palantiri/Palantiri.command.ts": {
+          "lines": 72,
+          "statements": 66.66,
+          "branches": 60,
+          "functions": 41.93,
+          "uncovered": {
+            "lines": 14,
+            "statements": 19,
+            "branches": 2,
+            "functions": 18
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Palantiri/Palantiri.hot.ts": {
+          "lines": 96.29,
+          "statements": 96.77,
+          "branches": 100,
+          "functions": 94.28,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Palantiri/Palantiri.runtime.ts": {
+          "lines": 90.9,
+          "statements": 83.33,
+          "branches": 100,
+          "functions": 76.47,
+          "uncovered": {
+            "lines": 2,
+            "statements": 4,
+            "branches": 0,
+            "functions": 4
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Palantiri/Palantiri.service.ts": {
+          "lines": 78.19,
+          "statements": 75.86,
+          "branches": 100,
+          "functions": 53.33,
+          "uncovered": {
+            "lines": 41,
+            "statements": 49,
+            "branches": 0,
+            "functions": 49
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Palantiri/Palantiri.tools.ts": {
+          "lines": 89.28,
+          "statements": 90,
+          "branches": 100,
+          "functions": 81.81,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 0,
+            "functions": 2
           }
         },
         "packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts": {
@@ -29212,6 +29380,18 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts": {
+          "lines": 86.45,
+          "statements": 86.39,
+          "branches": 74.24,
+          "functions": 86.53,
+          "uncovered": {
+            "lines": 21,
+            "statements": 23,
+            "branches": 17,
+            "functions": 7
           }
         },
         "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts": {
@@ -29536,6 +29716,18 @@
             "statements": 20,
             "branches": 23,
             "functions": 2
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Quality/internal/TestTsgoPrograms.ts": {
+          "lines": 82.66,
+          "statements": 83.11,
+          "branches": 80,
+          "functions": 86.36,
+          "uncovered": {
+            "lines": 13,
+            "statements": 13,
+            "branches": 3,
+            "functions": 3
           }
         },
         "packages/tooling/tool/cli/src/commands/Quality/internal/TestTsgoSyntheticConfig.ts": {
