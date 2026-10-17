@@ -23,7 +23,7 @@
         ".claude/skills/browser-qa-loop",
         ".agents/skills/browser-qa-loop"
       ],
-      "installedTreeHash": "b1a4419a316d71ed299ddcba2b629b39e082b707dd72b0c766472d9e57e64f0a"
+      "installedTreeHash": "b10b089b0ec382af381b3c3d8e60820e44bef4507542d1993d27884ace24979e"
     },
     "closeout": {
       "_tag": "local",
@@ -148,14 +148,6 @@
         ".agents/skills/grilling"
       ],
       "installedTreeHash": "8d809eba0d8649c228d722bc8f46dd679e1319b8a524487a9fb377a4117cedc9"
-    },
-    "impeccable": {
-      "_tag": "local",
-      "installedTargets": [
-        ".claude/skills/impeccable",
-        ".agents/skills/impeccable"
-      ],
-      "installedTreeHash": "5dab8a635bb62f5ff63d769d5c38ffbce7447ba7de220deea69d6f8efe2a6057"
     },
     "jsdoc-annotation-specialist": {
       "_tag": "local",

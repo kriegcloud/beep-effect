@@ -1258,12 +1258,7 @@ export const KNOWLEDGE_SCANNER_SCOPE: ReadonlyArray<string> = [
 
 const SCANNER_ROOT_FILES = HashSet.make("AGENTS.md", "CLAUDE.md");
 const SCANNER_PREFIXES = A.map(A.drop(KNOWLEDGE_SCANNER_SCOPE, 2), (root) => `${root}/`);
-const EXCLUDED_PREFIXES: ReadonlyArray<string> = [
-  "docs/generated/",
-  "docs/_internal/",
-  ".claude/skills/impeccable/",
-  ".github/skills/impeccable/",
-];
+const EXCLUDED_PREFIXES: ReadonlyArray<string> = ["docs/generated/", "docs/_internal/"];
 const ARCHIVAL_DIRECTORY_SEGMENTS = HashSet.make(
   "history",
   "research",

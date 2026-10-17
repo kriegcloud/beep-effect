@@ -323,26 +323,6 @@ const seedTargets: ReadonlyArray<ModelSyncTarget> = [
   target("repo.skills.oracle", "repo", ".claude/skills/oracle/SKILL.md", false, [
     block("codex-heavy", onlyRoles(["codex.heavy"]), false),
   ]),
-  codexPluginSeat(
-    "repo.skills.impeccable.finish-reviewer",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_finish_reviewer.toml"
-  ),
-  codexPluginSeat(
-    "repo.skills.impeccable.documenter",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_documenter.toml"
-  ),
-  codexPluginSeat(
-    "repo.skills.impeccable.asset-producer",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_asset_producer.toml"
-  ),
-  codexPluginSeat(
-    "repo.skills.impeccable.manual-edit-applier",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_manual_edit_applier.toml"
-  ),
   target(
     "repo.code.jsdoc-migrate-titles",
     "repo",

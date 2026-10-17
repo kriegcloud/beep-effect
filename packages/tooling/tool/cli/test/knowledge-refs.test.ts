@@ -173,9 +173,9 @@ const expectedRefId = Effect.fn("KnowledgeRefsTest.expectedRefId")(function* (
 });
 
 describe("knowledge reference scope", () => {
-  it("excludes vendored Impeccable mirrors", () => {
-    expect(isKnowledgeScopedPath(".claude/skills/impeccable/reference/hooks.md")).toBe(false);
-    expect(isKnowledgeScopedPath(".github/skills/impeccable/reference/critique.md")).toBe(false);
+  it("excludes generated and private docs", () => {
+    expect(isKnowledgeScopedPath("docs/generated/index.md")).toBe(false);
+    expect(isKnowledgeScopedPath("docs/_internal/notes.md")).toBe(false);
     expect(isKnowledgeScopedPath(".claude/skills/effect-first-development/SKILL.md")).toBe(true);
   });
 });
