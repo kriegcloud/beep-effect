@@ -12,7 +12,7 @@ that every cached root (`//#`) computation folds in. So `quality:cache-policy` r
 The same re-baseline also refreshes the 17 `turbo.json` `projection.sources` digests. These
 are raw file hashes, and they match the `turbo.json` bytes at this head. They do not come
 from #1900, which changed no `turbo.json`. Sixteen package `turbo.json` files changed in
-#1837 (52f218fc), and the root `turbo.json` changed in #1833 (b536e1bb). Since then the
+PR #1837 (52f218fc), and the root `turbo.json` changed in PR #1833 (b536e1bb). Since then the
 audit has shown them as non-blocking `configuration-source-drift` reviews. Recording them
 here only brings the source digests up to date with those merged changes.
 
