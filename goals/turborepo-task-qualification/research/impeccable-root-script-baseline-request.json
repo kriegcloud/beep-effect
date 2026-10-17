@@ -5,7 +5,7 @@
     "reason": "Record the root scripts-digest change from removing the impeccable:detect script and Impeccable-only root dependencies in #1900; no root task command, input, output, env or dependency changed; preserve scope, profile, epoch and qualification ledger without granting reuse qualification.",
     "basis": {
       "path": "goals/turborepo-task-qualification/research/impeccable-root-script-baseline-review.md",
-      "sha256": "d8cb8787d4f08850c8d6a5bbdd9fc70e70548f31156cea80afafd35bccc0720c"
+      "sha256": "0dc898d1727a8caef28345d54bfaeb27a9b8b8e9f1fd75df7586019329ee7c45"
     }
   },
   "scope": ["@beep/identity#lint", "@beep/types#lint", "@beep/fc-runs#lint", "@beep/test-runner#lint"],

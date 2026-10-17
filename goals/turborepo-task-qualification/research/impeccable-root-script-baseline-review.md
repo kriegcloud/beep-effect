@@ -7,8 +7,15 @@ PR #1900 retired repository Impeccable. In the root `package.json` it removed th
 `impeccable:detect` script and the four Impeccable-only dependencies (`css-select`,
 `css-tree`, `domutils`, `htmlparser2`). Removing a root script changes the scripts digest
 that every cached root (`//#`) computation folds in. So `quality:cache-policy` reported
-`configuration-drift` on all 28 cached root tasks. It also reported a
-`configuration-source-drift` review for the `turbo.json` sources that read that digest.
+`configuration-drift` on all 28 cached root tasks.
+
+The same re-baseline also refreshes the 17 `turbo.json` `projection.sources` digests. These
+are raw file hashes, and they match the `turbo.json` bytes at this head. They do not come
+from #1900, which changed no `turbo.json`. Sixteen package `turbo.json` files changed in
+#1837 (52f218fc), and the root `turbo.json` changed in #1833 (b536e1bb). Since then the
+audit has shown them as non-blocking `configuration-source-drift` reviews. Recording them
+here only brings the source digests up to date with those merged changes.
+
 No root task's command, inputs, outputs, environment or dependencies changed, and no
 computation was added or removed.
 
