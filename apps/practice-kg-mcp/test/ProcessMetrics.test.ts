@@ -74,6 +74,8 @@ describe("practice KG process metrics", () => {
     })
   );
 
+  // A registry of its own: coverage runs files unisolated, so the default
+  // registry may already hold these gauges from another file's host.
   it.effect("samples every 10 seconds and records one coarsened value per closed 5-minute window", () =>
     Effect.gen(function* () {
       yield* Layer.build(layerPracticeKgProcessMetrics.pipe(Layer.provide(scriptedSampler(script))));
@@ -84,7 +86,7 @@ describe("practice KG process metrics", () => {
       expect(yield* gauges).toEqual([20, 96 * mebibyte]);
       yield* TestClock.adjust(Duration.minutes(5));
       expect(yield* gauges).toEqual([20, 1024 * mebibyte]);
-    })
+    }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
   );
 
   it.effect("closes a window when a sample lands in a later one, counting the interval toward the later one", () =>

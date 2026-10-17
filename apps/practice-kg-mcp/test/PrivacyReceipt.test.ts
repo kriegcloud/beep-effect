@@ -20,6 +20,7 @@ import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
+import * as Metric from "effect/Metric";
 import * as OtlpExporter from "effect/observability/OtlpExporter";
 import * as Path from "effect/Path";
 import { ChildProcessSpawner } from "effect/process";
@@ -305,7 +306,10 @@ describe("practice-kg-mcp --privacy-receipt", () => {
           ConfigProvider.ConfigProvider,
           ConfigProvider.fromUnknown({ PRACTICE_KG_TELEMETRY_DIR: telemetryDir })
         ),
-        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+        Effect.provideServiceEffect(Console.Console, TestConsole.make),
+        // A registry of its own: coverage runs files unisolated, so the default
+        // registry may already hold other files' metrics, which this export would carry.
+        Effect.provideService(Metric.MetricRegistry, new Map())
       )
     );
 
