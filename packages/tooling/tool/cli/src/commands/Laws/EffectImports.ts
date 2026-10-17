@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import * as NodeUrl from "node:url";
+import * as NodeURL from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import { extractFencedCodeBlockDetails } from "@beep/repo-docgen/Core";
 import { jsonParse } from "@beep/repo-utils/JsonUtils";
@@ -464,7 +464,7 @@ const EFFECT_ROOT_MAPPING: ImportTargetCandidates = R.fromEntries(
   )
 );
 
-const EFFECT_PACKAGE_JSON_PATH = NodeUrl.fileURLToPath(import.meta.resolve("effect/package.json"));
+const EFFECT_PACKAGE_JSON_PATH = NodeURL.fileURLToPath(import.meta.resolve("effect/package.json"));
 
 const CODE_GLOBS = [
   "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
@@ -476,7 +476,6 @@ const CODE_GLOBS = [
   "explorations/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "scratchpad/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "tools/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
-  "plugins/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "research/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   ".claude/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   ".github/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",

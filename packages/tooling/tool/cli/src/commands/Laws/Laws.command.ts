@@ -321,7 +321,6 @@ const lawsEffectImportsCommand = Command.make(
           "explorations",
           "scratchpad",
           "tools",
-          "plugins",
           "research",
           ".claude",
           ".github",
