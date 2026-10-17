@@ -142,6 +142,11 @@ exports and every historical identity; #1876/#1877 require fresh proof and
 liveness before publication or retirement. This lane neither resets nor sweeps
 foreign clones. Context ignores change exposure only; ledger bytes and chains
 remain tracked and unchanged. The empty file restores from this PR's parent.
+Deleting `.ai/mcp/mcp.json` changes the harness regime: `.ai/**` feeds both
+the config-snapshot `baselineHash` and the SessionStart `harnessHash`, so after
+this merge, prune proposals count only sessions under the new hash, earlier
+stamps stop counting toward the #1868 30-session windows (which restart here),
+and `harness-ledger list --stale` uses a new baseline. The deletion is kept.
 
 F native rollback evidence and backup names remain in SPEC and its handoffs:
 `models-2026-10-14T222221002Z-16103436.backup`,
