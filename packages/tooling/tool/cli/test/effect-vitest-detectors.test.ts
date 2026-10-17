@@ -1325,6 +1325,39 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("classifies proven native filesystem integration subjects apart from opaque platform residue", () =>
+    Effect.gen(function* () {
+      const harness = 'import { layer } from "@effect/vitest";';
+      const subject = 'import { SubjectLive } from "@beep/example/Subject";';
+      const consume = (operation: string) =>
+        `((it) => { it.effect("x", () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; ${operation} })); });`;
+      const reviewClasses = Effect.fnUntraced(function* (body: string) {
+        return A.map(
+          A.filter(yield* findings(body), (row) => row.ruleId === "EV010"),
+          (row) => row.class
+        );
+      });
+      for (const body of [
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; const platform = L.mergeAll(NodeServices.layer); const live = SubjectLive.pipe(L.provide(platform)); layer(L.mergeAll(platform, live))${consume("yield* fs.makeTempDirectoryScoped();")}`,
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; it.layer(L.provide(SubjectLive, NodeServices.layer))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import * as Services from "@effect/platform-bun/BunServices"; layer(Services.layer)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import * as Platform from "@effect/platform-node"; layer(Platform.NodeServices.layer)${consume('yield* fs.chmod("a", 0o600);')}`,
+      ])
+        deepStrictEqual(yield* reviewClasses(body), []);
+      for (const body of [
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.readFileString("a");')}`,
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; layer(SubjectLive.pipe(L.provide(NodeServices.layer)))((it) => { it.effect("x", () => Fx.void); });`,
+        `${harness} import { TestLive } from "@beep/test-utils/Layer"; import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provide(NodeServices.layer)))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import * as FakeFs from "./fake-fs"; import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)((it) => { it.effect("x", () => Fx.gen(function* () { const fs = yield* FakeFs.FileSystem; yield* fs.symlink("a", "b"); })); });`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.symlink("a", "b");')} it.effect("y", () => program.pipe(Fx.provide(NodeServices.layer)));`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; function f(layer) { layer(NodeServices.layer)${consume('yield* fs.symlink("a", "b");')} }`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('const other = makeFake(); yield* other.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const pass = (value) => value; layer(pass(NodeServices))${consume('yield* fs.symlink("a", "b");')}`,
+      ])
+        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
+    })
+  );
+
   it.effect("indexes for-of and for-in retry candidates with explicit loop presence and ordinary loop negatives", () =>
     Effect.gen(function* () {
       const project = new Project({ useInMemoryFileSystem: true, skipAddingFilesFromTsConfig: true });
