@@ -647,6 +647,24 @@ const providerTarget = (
     : O.none();
 };
 
+const isDataLastLayerStage = (node: MorphNode, imports: EffectVitestImports): boolean =>
+  Node.isCallExpression(node) &&
+  node.getArguments().length === 1 &&
+  isProvenanceCall(node, imports, LAYER_MODULES, "Layer", ["provide", "provideMerge", "merge"]);
+
+// A pipe preserves the layer only when every stage is a data-last Layer combinator.
+const isLayerPipe = (stage: MorphNode, imports: EffectVitestImports): boolean => {
+  if (!Node.isCallExpression(stage)) return false;
+  const callee = stage.getExpression();
+  const stages =
+    Node.isPropertyAccessExpression(callee) && callee.getName() === "pipe"
+      ? stage.getArguments()
+      : isProvenanceCall(stage, imports, ["effect", "effect/Function"], "Function", ["pipe"])
+        ? A.drop(stage.getArguments(), 1)
+        : [];
+  return !A.isReadonlyArrayEmpty(stages) && A.every(stages, (candidate) => isDataLastLayerStage(candidate, imports));
+};
+
 // Follow a layer value through const bindings and Layer composition to the
 // `@effect/vitest` layer harnesses it provides; any other use stays opaque.
 const harnessFlows = (
@@ -659,9 +677,16 @@ const harnessFlows = (
   let provided = subject;
   let current = node;
   for (let parent = current.getParent(); parent !== undefined; current = parent, parent = parent.getParent()) {
-    if (Node.isCallExpression(parent) && isArgumentOf(parent, current)) {
+    if (Node.isParenthesizedExpression(parent)) continue;
+    if (Node.isCallExpression(parent)) {
+      if (!isArgumentOf(parent, current)) return O.none();
       if (isProvenanceCall(parent, imports, ["@effect/vitest"], "it", ["layer"]))
         return parent.getArguments()[0] === current ? O.some([{ harness: parent, subject: provided }]) : O.none();
+      if (isDataLastLayerStage(current, imports) && isLayerPipe(parent, imports)) continue;
+      const preserved = isDataLastLayerStage(parent, imports)
+        ? O.exists(O.fromUndefinedOr(parent.getParent()), (stage) => isLayerPipe(stage, imports))
+        : isProvenanceCall(parent, imports, LAYER_MODULES, "Layer", ["provide", "provideMerge", "merge", "mergeAll"]);
+      if (!preserved) return O.none();
       if (isProvenanceCall(parent, imports, LAYER_MODULES, "Layer", ["provide", "provideMerge"]))
         provided =
           provided ||
@@ -683,7 +708,7 @@ const harnessFlows = (
         A.map((flow) => ({ ...flow, subject: flow.subject || provided }))
       );
     }
-    if (Node.isStatement(parent) || Node.isArrowFunction(parent) || Node.isFunctionExpression(parent)) return O.none();
+    return O.none();
   }
   return O.none();
 };
