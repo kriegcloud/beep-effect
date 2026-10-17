@@ -234,6 +234,8 @@ const assertionFinding = (checker: ts.TypeChecker, samples: HashSet.HashSet<stri
  * import { ts } from "ts-morph"
  * console.log(detectOpaqueRoundtrips(ts.createProgram([], {}))([]).length) // 0
  * ```
+ * @param program - Compiler program whose type checker resolves assertion operands.
+ * @returns A scanner from source files to their opaque round-trip findings.
  * @category diagnostics
  * @since 0.0.0
  */

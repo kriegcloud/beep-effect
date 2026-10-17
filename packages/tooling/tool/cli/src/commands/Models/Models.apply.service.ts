@@ -444,49 +444,48 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     let completed = false;
     yield* Effect.acquireUseRelease(
       assertDestination(journal).pipe(Effect.andThen(fs.link(file, retained).pipe(io))),
-      () =>
-        Effect.gen(function* () {
-          const plannedInfo = yield* fs.stat(retained).pipe(io);
-          return yield* Effect.acquireUseRelease(
-            fs.writeFileString(temporary, after, { flag: "wx", mode: 0o600 }).pipe(io),
-            Effect.fnUntraced(function* () {
-              const staged = yield* readNative(temporary);
-              if (staged !== after) return yield* failure("Staged configuration differs from the validated candidate.");
-              yield* validate(staged, writes);
-              yield* assertDestination(journal);
-              yield* fs.chmod(temporary, mode).pipe(io);
-              const stagedInfo = yield* fs.stat(temporary).pipe(io);
-              if (
-                (yield* hash(yield* readNative(file))) !== beforeHash ||
-                (yield* hash(yield* readNative(retained))) !== beforeHash
-              )
-                return yield* failure("Native file drifted after planning; refusing replacement.");
-              yield* Effect.uninterruptible(
-                Effect.gen(function* () {
-                  // Once publication starts, a failed process observation is uncertain:
-                  // retain both occupants even if mv cannot report its final status.
-                  exchanged = true;
-                  yield* exchange(temporary, file);
-                  if (!(yield* matches(temporary, plannedInfo, beforeHash))) {
-                    yield* fs
-                      .writeFileString(
-                        path.join(backupDirectory, `${operation}.concurrent`),
-                        `journal=${journal.id}\nretained=${retained}\ndisplaced=${temporary}\nevent=concurrent-native-write\n`,
-                        { flag: "wx", mode: 0o600 }
-                      )
-                      .pipe(io);
-                    yield* recover(file, temporary, stagedInfo, yield* hash(after));
-                    return yield* failure("Concurrent native write detected; recovery event retained.");
-                  }
-                  if (!(yield* matches(file, stagedInfo, yield* hash(after))))
-                    return yield* failure("Native file changed after replacement; preserve journal for recovery.");
-                  completed = true;
-                })
-              );
-            }),
-            () => (!exchanged || completed ? Effect.ignore(fs.remove(temporary)) : Effect.void)
-          );
-        }),
+      Effect.fnUntraced(function* () {
+        const plannedInfo = yield* fs.stat(retained).pipe(io);
+        return yield* Effect.acquireUseRelease(
+          fs.writeFileString(temporary, after, { flag: "wx", mode: 0o600 }).pipe(io),
+          Effect.fnUntraced(function* () {
+            const staged = yield* readNative(temporary);
+            if (staged !== after) return yield* failure("Staged configuration differs from the validated candidate.");
+            yield* validate(staged, writes);
+            yield* assertDestination(journal);
+            yield* fs.chmod(temporary, mode).pipe(io);
+            const stagedInfo = yield* fs.stat(temporary).pipe(io);
+            if (
+              (yield* hash(yield* readNative(file))) !== beforeHash ||
+              (yield* hash(yield* readNative(retained))) !== beforeHash
+            )
+              return yield* failure("Native file drifted after planning; refusing replacement.");
+            yield* Effect.uninterruptible(
+              Effect.gen(function* () {
+                // Once publication starts, a failed process observation is uncertain:
+                // retain both occupants even if mv cannot report its final status.
+                exchanged = true;
+                yield* exchange(temporary, file);
+                if (!(yield* matches(temporary, plannedInfo, beforeHash))) {
+                  yield* fs
+                    .writeFileString(
+                      path.join(backupDirectory, `${operation}.concurrent`),
+                      `journal=${journal.id}\nretained=${retained}\ndisplaced=${temporary}\nevent=concurrent-native-write\n`,
+                      { flag: "wx", mode: 0o600 }
+                    )
+                    .pipe(io);
+                  yield* recover(file, temporary, stagedInfo, yield* hash(after));
+                  return yield* failure("Concurrent native write detected; recovery event retained.");
+                }
+                if (!(yield* matches(file, stagedInfo, yield* hash(after))))
+                  return yield* failure("Native file changed after replacement; preserve journal for recovery.");
+                completed = true;
+              })
+            );
+          }),
+          () => (!exchanged || completed ? Effect.ignore(fs.remove(temporary)) : Effect.void)
+        );
+      }),
       () => (!exchanged || completed ? Effect.ignore(fs.remove(retained)) : Effect.void)
     ).pipe(Effect.mapError((error) => failure(`${error.message} Journal: ${journal.id}`)));
   });
