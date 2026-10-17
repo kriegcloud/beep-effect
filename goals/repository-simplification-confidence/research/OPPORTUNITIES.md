@@ -2914,8 +2914,11 @@ assigns the detector follow-up would avoid this scope conflict.
 The brief also omits its promised handoff path and report format. Until a path
 is supplied, the lane retains its report under its ignored `.beep/` directory.
 The bare `beep lint laws` command requires `--package`; this checkout's scoped
-run reports three existing effect-fn findings, while `knowledge doctor --report`
-independently reproduces the deleted documentation-ESLint test path.
+run reports three existing effect-fn findings. The broken tracked path is
+reproduced by `bun run beep knowledge doctor --report --tree e4d6f44aa8 --json`
+on the pre-fix base tree (one record naming the deleted documentation-ESLint
+test `docs-eslint-config.test.ts`); the same command with `--tree HEAD` on this
+fix reports zero such records.
 ## RSC-CLOSEOUT-ACCEPTANCE — 2026-10-16
 
 The closeout audit at main `040c69d557` found merged lanes whose current
