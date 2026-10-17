@@ -64,7 +64,7 @@ const writeJson = (repoRoot: string, relativePath: string, document: unknown) =>
 const writeFixtureRepo = Effect.fn("CatalogUsageTest.writeFixtureRepo")(function* (
   repoRoot: string,
   root: Record<string, unknown>,
-  lockfilePackages: Record<string, ReadonlyArray<string>>
+  lockfilePackages: Record<string, ReadonlyArray<unknown>>
 ) {
   yield* writeJson(repoRoot, "package.json", { private: true, workspaces: ["packages/*"], ...root });
   yield* writeJson(repoRoot, "packages/demo/package.json", {

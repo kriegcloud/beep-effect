@@ -1,7 +1,5 @@
 /**
- * Root catalog and root override consumer check.
- *
- * Reports every root catalog entry and root override that nothing consumes:
+ * Root catalog and root override consumer check. It reports every root catalog entry and root override that nothing consumes:
  * no workspace manifest, no override, no package generator or scaffolder
  * template and, for overrides, no package `bun.lock` resolves. Resolving
  * override consumers through the lockfile covers transitive-only overrides,
@@ -16,7 +14,7 @@ import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -241,23 +239,26 @@ export const catalogUsageReport = (snapshot: CatalogUsageSnapshot): CatalogUsage
  * @category utilities
  * @since 0.0.0
  */
-export const catalogTemplateReferencesFromText = (
-  file: string,
-  content: string
-): ReadonlyArray<CatalogUsageTemplateReference> =>
-  A.flatMap(A.fromIterable(Str.matchAll(templateCatalogReferencePattern)(content)), (match) =>
-    pipe(
-      O.fromNullishOr(match[1]),
-      O.map((packageName) =>
-        CatalogUsageTemplateReference.make({
-          file,
-          packageName,
-          catalog: O.getOrElse(catalogNameFromSpec(`${catalogProtocol}${match[2] ?? ""}`), () => defaultCatalogName),
-        })
-      ),
-      A.fromOption
+export const catalogTemplateReferencesFromText: {
+  (content: string): (file: string) => ReadonlyArray<CatalogUsageTemplateReference>;
+  (file: string, content: string): ReadonlyArray<CatalogUsageTemplateReference>;
+} = dual(
+  2,
+  (file: string, content: string): ReadonlyArray<CatalogUsageTemplateReference> =>
+    A.flatMap(A.fromIterable(Str.matchAll(templateCatalogReferencePattern)(content)), (match) =>
+      pipe(
+        O.fromNullishOr(match[1]),
+        O.map((packageName) =>
+          CatalogUsageTemplateReference.make({
+            file,
+            packageName,
+            catalog: O.getOrElse(catalogNameFromSpec(`${catalogProtocol}${match[2] ?? ""}`), () => defaultCatalogName),
+          })
+        ),
+        A.fromOption
+      )
     )
-  );
+);
 
 const readText = Effect.fn("CatalogUsage.readText")(function* (
   repoRoot: string,
@@ -354,7 +355,9 @@ export const CatalogUsageSourceLive = Layer.effect(
   Effect.gen(function* () {
     const context = yield* Effect.context<SourceEnvironment>();
     return CatalogUsageSource.of({
-      snapshot: (repoRoot) => readCatalogUsageSnapshot(repoRoot).pipe(Effect.provide(context)),
+      snapshot: Effect.fn("CatalogUsageSource.snapshot")(function* (repoRoot: string) {
+        return yield* readCatalogUsageSnapshot(repoRoot).pipe(Effect.provide(context));
+      }),
     });
   })
 );
