@@ -2,7 +2,7 @@
   "format": "rsc-f-ci-portability-verification/v1",
   "status": "verified-local",
   "sourceCheckpoint": "db1fa941a67ad7808d67d9453821dd5b60945546",
-  "integratedMain": "f7452d7473cf67701af166b053efe7a6e9d1e5dd",
+  "integratedMain": "379573e3eb",
   "nativeWrites": 0,
   "newBackups": 0,
   "packageVerify": "pass: audit 1258.4s, docgen 38.3s",
@@ -103,5 +103,6 @@
     "mergeFinalOwner": "driver",
     "panelStatus": "driver CLEARED ddf343221a; CI portability candidate only"
   },
-  "scope": "Test harness plus exchange service injection; live GNU mv capability and refusal unchanged; no native configuration apply."
+  "scope": "Test harness plus exchange service injection; live GNU mv capability and refusal unchanged; no native configuration apply.",
+  "observedOriginMain": "f7452d7473cf67701af166b053efe7a6e9d1e5dd"
 }

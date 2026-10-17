@@ -771,9 +771,11 @@ describe("practice KG strict tier canary", () => {
         const healthyRoot = path.join(root, "healthy");
         const brokenRoot = path.join(root, "broken");
         yield* fs.makeDirectory(healthyRoot);
-        yield* fs.makeDirectory(brokenRoot);
         const healthyBundle = yield* makePracticeKgSmokeBundle(healthyRoot);
-        const brokenBundle = yield* makePracticeKgSmokeBundle(brokenRoot);
+        // Building a bundle is the expensive step (PGlite plus DuckDB), so the
+        // broken fixture is a copy of the healthy one rather than a second build.
+        yield* fs.copy(healthyRoot, brokenRoot);
+        const brokenBundle = path.join(brokenRoot, path.relative(healthyRoot, healthyBundle));
         // The corpus catalog is a valid DuckDB file without the bundle's tables.
         yield* fs.remove(path.join(brokenBundle, "practice.duckdb"));
         yield* fs.copyFile(
