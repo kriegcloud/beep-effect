@@ -98,9 +98,6 @@
     "packages/tooling/tool/cli/test/global-cleanup.ts",
     // Standalone article builder, invoked by path rather than imported.
     "explorations/beep-ci-operational-ontology/assets/agentic-yoyo/build.mjs",
-    // Vendored Impeccable detector CLI: invoked through the root package script
-    // and editor integrations, with parser dependencies resolved from the root.
-    ".claude/skills/impeccable/scripts/detector/cli/main.mjs",
     // Fallow 3.6.0 resolves an explicit `.ts` suffix exactly and does not yet
     // apply TypeScript's `.ts` -> `.tsx` source fallback. Keep the affected TSX
     // modules reachable without making every TSX file an entry point; the
@@ -119,8 +116,6 @@
   ],
   // Approximates dead-code path suppression; Knip retired in October 2026; narrower detection is accepted.
   "ignorePatterns": [
-    // The GitHub Copilot Impeccable tree mirrors the analyzed Claude Code source.
-    ".github/skills/impeccable/**",
     // Vendored upstream skill tree (shadcn showcase assets and scripts) pinned by
     // skills-lock.json; beep skills update rewrites it byte-for-byte from upstream.
     ".claude/skills/shadcn/**",
@@ -197,10 +192,6 @@
     "packages/drivers/govinfo/src/_generated/**",
     "packages/drivers/runpod/src/_generated/**"
   ],
-  // Impeccable is vendored hook code with many standalone command entries and
-  // public test seams. Analyze its module graph for dependency accounting while
-  // retaining the prior exclusion of source-owned dead-code findings.
-  "ignoreFindings": [".claude/skills/impeccable/**"],
   // Exact compatibility list for authored `.ts` specifiers whose source file
   // is TSX. Do not broaden this to `**/*.ts`: real unresolved imports must keep
   // failing Fallow. Remove these entries when Fallow supports the TS fallback.
@@ -228,16 +219,6 @@
     "fast-uri",
     "hono",
     "nanoid",
-    // css-select, css-tree, domutils, htmlparser2: root devDependencies imported by the
-    // vendored Impeccable detector CLI, which is declared an entry point above for
-    // dependency accounting. The private root package is never installed with
-    // `--production`, so `dev-dependencies-in-production` cannot break a deployment here;
-    // keeping them in devDependencies is what satisfies the sherif
-    // `root-package-dependencies` rule (a private root declares devDependencies only).
-    "css-select",
-    "css-tree",
-    "domutils",
-    "htmlparser2",
     "@effect/vitest",
     "@effect/language-service",
     "babel-plugin-annotate-pure-calls",
@@ -379,14 +360,8 @@
     { "file": "apps/*/src/app/**/*.tsx", "exports": ["instant"] }
   ],
   "duplicates": {
-    // Vendored Impeccable scripts keep their upstream shape; dependency graph
-    // analysis above must not opt that vendor tree into authored-code cloning.
     // The two graft shims are one-line delegations to the repo-owned loader.
-    "ignore": [
-      ".claude/skills/impeccable/**",
-      ".claude/skills/shadcn/**",
-      ".claude/helpers/**"
-    ]
+    "ignore": [".claude/skills/shadcn/**", ".claude/helpers/**"]
   },
   "health": {
     // Complexity ceilings — ratified 2026-07-30 (law in standards/effect-laws-v1.md;
@@ -399,15 +374,12 @@
     "maxCyclomatic": 20,
     "maxCrap": 30,
     "maxUnitSize": 60,
-    // Preserve the vendor tree's prior exclusion from authored-code complexity
-    // while its module graph remains visible to dead-code dependency analysis.
     // The graft shims are generated; the loader's platform trust checks are
     // security-boundary code kept whole rather than split for a ceiling.
     // The manual TS6-bridge tools (goal codemod, JSDoc census) entered discovery
     // only so dead-code analysis sees the bridge's consumers; complexity scope
     // stays as on main, where both paths were never health-scored.
     "ignore": [
-      ".claude/skills/impeccable/**",
       ".claude/skills/shadcn/**",
       ".claude/helpers/**",
       "goals/schema-opaque-default/ops/codemod/**",

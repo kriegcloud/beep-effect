@@ -171,7 +171,6 @@
       <excludeFolder url="file://$MODULE_DIR$/.fallow" />
       <excludeFolder url="file://$MODULE_DIR$/.grok" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
-      <excludeFolder url="file://$MODULE_DIR$/.impeccable" />
       <excludeFolder url="file://$MODULE_DIR$/.junie" />
       <excludeFolder url="file://$MODULE_DIR$/.patterns" />
       <excludeFolder url="file://$MODULE_DIR$/.semgrep" />
