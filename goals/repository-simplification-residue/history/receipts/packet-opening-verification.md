@@ -17,6 +17,20 @@ implement or close any of the fifteen source acceptances.
 | Issue ownership | Fifteen comments posted; exact text and comment URLs retained in issue-ownership.json. No issue closed. |
 | S31 | Byte comparison of thirteen tracked standards inventory/baseline paths against opening main e4d6f44aa8; zero changed files, zero added or removed rows. All other tracked files outside the new packet are unchanged. |
 
+## Additional cheap-gate proof
+
+`bun run beep yeet verify --tier cheap-gates` completed with sixteen passing
+preflight lanes and one inherited failure, `lint:effect-vitest`. It reproduced
+exactly the three F-S31-EV010 findings already assigned to #1855 in
+models-apply-command.test.ts, models-apply.test.ts and models-catalog.test.ts.
+All three source files are byte-identical to opening main. The run began on
+opening main with the packet overlay and completed after its local commit;
+this is source attribution, not exact-final-head hosted proof. No workspace
+package changed. Fallow dead-code, audit and health all pass with zero findings.
+The resulting P0 inbox row was acknowledged `--wontfix` in this packet-only
+lane with the #1855 first-item ownership and S30/S31 attribution. No inventory
+refresh, exception or detector change was made here.
+
 ## Publication boundary
 
 No readiness monitor is authorized for this worker. The installed
