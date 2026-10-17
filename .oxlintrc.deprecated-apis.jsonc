@@ -17,7 +17,6 @@
     ".next/**",
     "**/.next/**",
     ".repos/**",
-    ".sst/**",
     "coverage/**",
     "**/coverage/**",
     "dist/**",

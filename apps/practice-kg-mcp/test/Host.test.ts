@@ -89,18 +89,14 @@ const textDecoder = new TextDecoder();
 // limit measures the others' builds. One template is built per file, on first
 // use, and every test copies it into its own directory; it is removed after
 // the file, and never built when no test asks for it.
-const templateScope = Effect.runSync(Scope.make());
+const templateScope = Scope.makeUnsafe();
 afterAll(() => Effect.runPromise(Scope.close(templateScope, Exit.void)));
-const smokeTemplate = Effect.runSync(
-  Effect.cached(
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-template-" });
-      const bundle = yield* makePracticeKgSmokeBundle(root);
-      return { root, bundle };
-    }).pipe(Effect.provideService(Scope.Scope, templateScope))
-  )
-);
+const smokeTemplate = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-template-" });
+  const bundle = yield* makePracticeKgSmokeBundle(root);
+  return { root, bundle };
+}).pipe(Effect.provideService(Scope.Scope, templateScope), Effect.cached, Effect.runSync);
 
 // A private copy of the smoke bundle (and its corpus) under `root`; returns
 // the bundle directory, as `makePracticeKgSmokeBundle(root)` would.
