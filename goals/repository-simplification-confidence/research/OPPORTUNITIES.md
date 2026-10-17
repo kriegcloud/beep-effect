@@ -2898,3 +2898,30 @@ The initial native-fs swap helper was rejected by `quality test-tsgo` with
 FileSystem in its layer and runs an uninterruptible test transaction, preserving
 the production capability boundary and the typed error channel. This is covered
 by the settled 334-test coverage run and its eight retained baseline floors.
+
+
+## RSC-CLOSEOUT-ACCEPTANCE — 2026-10-16
+
+The closeout audit at main `040c69d557` found merged lanes whose current
+packet status still said active, receipts pointing to absent later-wave
+records, and handoffs explicitly leaving source work unfinished. For example,
+`stage-4-standards-docs.md` and `stage-3-a-local-residue.md` are absent, while
+B's refresh receipt explicitly leaves detector and exception review pending.
+Merged PRs must be joined to acceptance items and durable successor issues;
+merging a bounded wave does not complete its entire lane. The stage-6 receipt
+records each unmet item and its gate rather than reporting honest-zero debt.
+Prevention: require each handoff to enumerate acceptance IDs and separate
+implementation, local proof, hosted proof, and remaining work.
+
+
+## RSC-CLOSEOUT-PUBLICATION — 2026-10-16
+
+The closeout brief requires no readiness monitor; canonical Yeet publish
+submits one automatically. Use the brief's explicit direct-push/PR fallback
+and record the skipped isolated preflight rather than silently starting a
+monitor. The separately collected cheap tier passes sixteen lanes and fails
+only the three main-identical Effect Vitest provenance occurrences already
+recorded by F. Inbox local-shard-9ed71a5f6460 is acknowledged with owner
+issue #1855, preserving the failed result and S31 zero inventory growth.
+Prevention: give the canonical publisher an explicit no-monitor handoff mode
+that preserves preflight and a typed inherited-red disposition.

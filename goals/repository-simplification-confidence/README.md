@@ -2,33 +2,27 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
-Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
-B #1738, and H4 #1770 have merged. H3 #1590 has merged and carries the repository
-telemetry repair and its round-3 CLI serialization fix; its
-[current handoff](history/handoffs/rsc-h3-telemetry-2026-10-15.md) records proof
-provenance, tracked storage follow-up H3-R3-001, and the remaining native, home
-and remote prerequisites. All telemetry non-use windows remain incomplete. H4's read-only permission census and runbook
-are source-qualified; installed Desktop acceptance remains open for the operator
-fixture batch and F's owned-field config writer. F and overall acceptance remain active.
+The program's implementation PRs are merged through F #1797 at
+`040c69d557`. This final closeout PR retains the acceptance audit, panel
+receipt, reflection and tracked successor work. The original operational
+mission is **partly unmet**: fourteen of twenty-four acceptance items retain
+explicit gaps. Closure follows the assigned closeout brief's issue-transfer
+rule; it is not a claim of honest-zero source debt or completed native proof.
 
+[Stage 6 acceptance](history/receipts/stage-6-closeout-acceptance.md) is the
+current outcome table: four met, five met by recorded ruling, one report
+completed here, fourteen unmet with successors #1851–#1883.
+[Final report](history/receipts/final-program-report.md),
+[F panel receipt](history/receipts/stage-5-panel.md), and
+[reflection](history/reflections/2026-10-16-codex.md) explain the boundaries.
 
-F's PR #1797 remains open for the driver-owned three-model panel. Round 8
-returned three Astra P1s and one Grok P1; Fable was zero-actionable.
-`RSC-F-ONE-PARSED-READER` now makes check, apply and restore share the full
-TOML and JSON parsers. Decoded equal values preserve their original spelling
-without a backup or journal. Empty recovery ownership is refused, and every
-recorded write must satisfy locator, extension and complete-document checks
-before exchange. The nearby Fable P2/P3 items are included with no deferrals.
-
-The [F handoff](history/handoffs/rsc-f-agents-2026-10-15.md) carries the current
-proof. The [round-8 verification receipt](history/receipts/stage-5-f-panel-r8-verification.json)
-and [fingerprint](history/receipts/stage-5-f-panel-r8-fingerprint.json) supersede
-the round-7 receipts. The driver runs round 9 against the pushed candidate
-and recaptured fingerprint. The panel remains open. Native configuration
-writes in this wave: zero. Measured 30-session windows and external-owner
-activation prerequisites stay open.
+This PR's own hosted checks, review/merge gate, post-merge completion receipt
+and lane retirement remain driver-owned future evidence (#1883). The
+lifecycle change is the same-PR terminal declaration, effective when merged;
+it does not observe its own future merge. Dated checkpoints later in this
+README are historical and do not supersede this Status section.
 
 ## Mission
 
@@ -74,14 +68,16 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — in progress: stages 2 to 4 run in parallel lanes (`PLAN.md`,
-Lane Plan). Stage 1 (ownership and recovery) closed on 2026-10-09 with
-`history/receipts/stage-1-ownership.md`: the fleet handoff snapshot, the six
-`effect-vitest-canon` lanes (heads, staged and unstaged state, digests) and
-the stage-1 copies of the three global configuration files are recorded, and
-nothing was adopted or discarded. P0 Research is complete.
+P4 Close: closeout accounting and reflection are prepared in the final PR.
+The program implementation train is retained; open operational and multi-day
+source work is explicitly owned by the successor issues. Merge and retirement
+are resolved after the final PR lands, using the existing orchestrator and H2
+completion tooling.
 
 ## Latest Evidence
+
+The stage-6 acceptance audit and final report above supersede status claims
+in the following dated implementation checkpoints.
 
 F: [October 16 bounded-fix handoff](history/handoffs/rsc-f-agents-2026-10-16.md). F-GROK-R10-01 now refuses non-scalar removals consistently before backup. The [bounded proof](history/receipts/stage-5-f-r10-bounded-verification.json) and [candidate fingerprint](history/receipts/stage-5-f-r10-bounded-fingerprint.json) accompany the one permitted fix push. The capped panel is CLEARED on `ddf343221a`; a CI-portability repair moves Models fixtures to OS temp directories and injects the atomic exchange test capability. The driver owns the merge final after the full repo-cli proof with live exchange forced unavailable. The [CI-portability proof](history/receipts/stage-5-f-ci-portability-verification.json) records 6,765 passing tests in 336 files, and the [fresh fingerprint](history/receipts/stage-5-f-ci-portability-fingerprint.json) captures the candidate configuration.
 The writer, native apply/restore/reapply proof, rollback fixtures and dated

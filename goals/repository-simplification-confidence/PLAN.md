@@ -2,15 +2,16 @@
 
 ## Status
 
-Status: `in-progress` — stage 1 (ownership and recovery), packet phase P0.
+Status: `completed-retained` terminal declaration in this closeout PR.
 
-Orchestrator: the program's Claude Fable session (program orchestrator and,
-by operator ruling 2026-10-09, holder of the single fleet orchestrator role;
-see the SPEC.md Decision Log). Packet lane: `rsc-packet`
-(branch recorded in the baseline receipts), cut from `e62411d63f`. Baseline receipts:
-[`research/baseline-2026-10-09.md`](./research/baseline-2026-10-09.md).
-
-E recovery state: E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair. Current evidence: [E handoff](./history/handoffs/rsc-e-github-2026-10-09.md).
+The original operational mission is partly unmet. The assigned closeout brief
+permits closure after explicit successor issues for multi-day, measured or
+external-owner work. See stage-6-closeout-acceptance.md: 4 met, 5 met by
+ruling, 1 report completed here, 14 unmet. This is not a universal green or
+zero-debt claim. All eighteen named implementation/repair PRs are merged.
+The program driver and repository orchestrator retain the final merge gate
+and post-merge evidence (#1883). All dated lane checkpoints below are
+historical, including pending-PR language superseded by the final report.
 
 ## Phases
 
@@ -20,10 +21,10 @@ program stages map onto them.
 | Phase | Status | Program stages | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Research | complete | 1 Ownership and recovery | Stage 1 exit condition met and recorded (`history/receipts/stage-1-ownership.md`, 2026-10-09). |
-| P1 Implement | in-progress | 2 Shared decisions and retirements; 3 Parallel implementation; 4 Existing test work and tooling | Stage 2-4 exit conditions met. |
-| P2 Verify | pending | 5 Operational acceptance | SPEC acceptance table satisfied with current revision/fingerprint evidence. |
-| P3 Yeet: PR to mergeable | pending | 6 Review and closeout (publication half) | Every program PR mergeable and merged at the gate. |
-| P4 Close | pending | 6 Review and closeout (receipts, retirement, reflection) | Completion receipts resolved, lanes retired, reflection landed, packet `completed-retained`. |
+| P1 Implement | complete | 2 Shared decisions and retirements; 3 Parallel implementation; 4 Existing test work and tooling | Merged source waves retained; unfinished multi-day source trains transferred to owned issues. |
+| P2 Verify | complete | 5 Operational acceptance | Every SPEC item audited with explicit met/unmet/ruling evidence and successor gates. |
+| P3 Yeet: PR to mergeable | complete on final merge | 6 Review and closeout (publication half) | Implementation PRs merged; this final PR still requires the driver gate (#1883). |
+| P4 Close | complete on final merge | 6 Review and closeout (receipts, retirement, reflection) | Reflection and terminal declaration in this PR; post-merge receipts and lane retirement tracked by #1883/#1877. |
 
 ## Program Stages
 
@@ -232,6 +233,10 @@ rows plus the retained scripts from workstream C); `rsc-f-agents` writes the
 agent-capability rows.
 
 ## Acceptance Evidence Map
+
+The stage-6-closeout-acceptance.md table supersedes current-status claims in
+this implementation routing map. Absent later-wave receipts remain unmet and
+have successor issues; a route in this table does not prove acceptance.
 
 One row per SPEC.md acceptance checkbox, plus the harness-ledger row (brief 2.A, 2.F item 7), which is proved inside the stage 5 acceptance receipt. Anchors name the section of the
 receipt that proves the criterion; files are created when the owning lane
