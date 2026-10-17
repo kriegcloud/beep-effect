@@ -2900,6 +2900,25 @@ the production capability boundary and the typed error channel. This is covered
 by the settled 334-test coverage run and its eight retained baseline floors.
 
 
+### RSC #1797 burndown: native-subject classification remains a policy repair
+
+The assigned baseline scan reports three new EV010 judgments: the two native
+apply suites and the catalog suite. The existing F-S31-EV010 receipt requires
+preserving the native filesystem proof and forbids import-spelling bypasses.
+A test-only repair cannot replace those native subjects with MemoryFileSystem
+without changing what they prove. The lane requested clarification before
+changing the EV010 detector and its paired regression fixtures. No exception,
+ratchet, assertion, or native-test input was changed. A brief that explicitly
+assigns the detector follow-up would avoid this scope conflict.
+
+The brief also omits its promised handoff path and report format. Until a path
+is supplied, the lane retains its report under its ignored `.beep/` directory.
+The bare `beep lint laws` command requires `--package`; this checkout's scoped
+run reports three existing effect-fn findings. The broken tracked path is
+reproduced by `bun run beep knowledge doctor --report --tree e4d6f44aa8 --json`
+on the pre-fix base tree (one record naming the deleted documentation-ESLint
+test `docs-eslint-config.test.ts`); the same command with `--tree HEAD` on this
+fix reports zero such records.
 ## RSC-CLOSEOUT-ACCEPTANCE — 2026-10-16
 
 The closeout audit at main `040c69d557` found merged lanes whose current

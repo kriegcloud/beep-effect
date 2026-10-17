@@ -65,8 +65,12 @@ Severity: {"info": 42, "minor": 2}. Detector candidates remain separate: 75.
 - `packages/tooling/policy-pack/repo-configs/test/NextModels.schema.test.ts` — 4 rows, 0 review items.
 - `packages/tooling/policy-pack/repo-configs/test/NoNativeRuntimeHotspots.test.ts` — 4 rows, 0 review items.
 - `packages/tooling/policy-pack/repo-configs/test/SharedNextConfig.model.test.ts` — 4 rows, 0 review items.
-- `packages/tooling/policy-pack/repo-configs/test/docs-eslint-config.test.ts` — 4 rows, 0 review items.
 - `packages/tooling/policy-pack/repo-configs/test/effect-first-regressions.test.ts` — 4 rows, 1 review items.
+
+The documentation ESLint configuration test was deleted in PR #1813
+(`87dac5099d2e36aa5eb63cf5cb55f9288b784990`) after the Oxlint migration.
+Its four historical audit rows remain included in the counts above; the deleted
+file is omitted from this path list.
 
 All files tie at four rows; the eleventh file remains fully covered in the manifest and JSONL, not omitted from the audit.
 
