@@ -1282,8 +1282,8 @@ const isGoalPacketDataPath = (segments: ReadonlyArray<string>): boolean =>
  * **Details**
  *
  * True for the two governed root files and for anything under the eight scanned directories, minus
- * generated/private documentation and vendored agent-tooling trees. Archival directories stay in
- * scope: the census labels them rather than dropping them.
+ * generated and private documentation (`docs/generated/`, `docs/_internal/`). Archival directories
+ * stay in scope: the census labels them rather than dropping them.
  *
  * **Example** (Accept a scoped path and reject a generated one)
  *

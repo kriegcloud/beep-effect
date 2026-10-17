@@ -73,3 +73,7 @@ change, the repo-local `.impeccable/config.json` held their ignores.
 
 Reversal: revert the retirement PR. Every removed file is in git history.
 `bun install` restores the four root dependencies.
+
+## Global-install state
+
+The global (home-directory) Impeccable install stays out of scope. It can still write state into a checkout (for example `.impeccable/questions/<key>.state.json`), so `.gitignore` keeps a generic `**/.impeccable/` ignore. That keeps global-tool residue out of commits without restoring any repository copy.
