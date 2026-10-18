@@ -1,0 +1,333 @@
+import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import {
+  AiMetricsDeployTarget,
+  AiMetricsDerivedStorageWriteInput,
+  AiMetricsDerivedTranscriptRecord,
+  AiMetricsParquetExportMode,
+  AiMetricsRawArchiveObject,
+  AiMetricsSessionStampCompleteness,
+  AiMetricsSessionStampQualification,
+  AiMetricsStorageLayout,
+  AiMetricsTranscriptSource,
+  AiMetricsTranscriptTextSummaryInput,
+  aiMetricsSessionStampCompletenessFor,
+  aiMetricsSessionStampQualificationFor,
+  ConfigSnapshot,
+  ensureAiMetricsDerivedStorage,
+  HarnessHash,
+  makeAiMetricsPrivacyCheckResult,
+  readAiMetricsOtlpSpanProjections,
+  rollbackAiMetricsSessionStampEvidence,
+  summarizeTranscriptText,
+  writeAiMetricsDerivedStorage,
+} from "@beep/repo-ai-metrics";
+import { it } from "@beep/test-runner";
+import { fcRuns } from "@beep/test-utils";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { expect } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as Path from "effect/Path";
+import * as S from "effect/Schema";
+
+const stampX = HarnessHash.make("b".repeat(64));
+const stampY = HarnessHash.make("c".repeat(64));
+
+const decodeRecord = S.decodeUnknownEffect(AiMetricsDerivedTranscriptRecord);
+const encodeRecord = S.encodeEffect(AiMetricsDerivedTranscriptRecord);
+
+// Each provision opens one private in-memory database; derived-storage only creates the
+// on-disk parent directory, which the in-memory file system absorbs.
+const memoryDuckDb = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" }));
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    layer.pipe(
+      Layer.build,
+      Effect.flatMap((context) => effect.pipe(Effect.provide(context))),
+      Effect.scoped
+    );
+
+type StampVerdict = {
+  readonly completeness: AiMetricsSessionStampCompleteness;
+  readonly hash: O.Option<HarnessHash>;
+  readonly qualification: AiMetricsSessionStampQualification;
+};
+
+const fixtureContent = '{"type":"event_msg","timestamp":"2026-10-18T10:01:00Z"}';
+const fixtureSourcePath = "/fixture/home/.codex/sessions/codex.jsonl";
+
+const makeRecord = Effect.fn("SessionStampEvidenceTest.makeRecord")(function* (verdict: StampVerdict) {
+  const summary = yield* summarizeTranscriptText(
+    AiMetricsTranscriptTextSummaryInput.make({
+      content: fixtureContent,
+      hashSalt: O.some("test-salt"),
+      sourceKind: AiMetricsTranscriptSource.Enum.codex,
+      sourcePath: fixtureSourcePath,
+    })
+  );
+  const privacy = yield* makeAiMetricsPrivacyCheckResult({
+    content: fixtureContent,
+    hashSalt: O.some("test-salt"),
+    sourcePath: fixtureSourcePath,
+    summary,
+  });
+  return AiMetricsDerivedTranscriptRecord.make({
+    archiveObject: AiMetricsRawArchiveObject.make({
+      algorithm: "AES-256-GCM",
+      archiveObjectId: `raw-${"1".repeat(64)}`,
+      archivePath: "/fixture/metrics/raw/codex/raw-object.json",
+      created: false,
+      encryptedAtEpochMillis: 1,
+      plaintextContentHash: "2".repeat(64),
+      sourceKind: AiMetricsTranscriptSource.Enum.codex,
+      sourcePathHash: summary.sourcePathHash,
+    }),
+    privacy,
+    sessionHarnessHash: verdict.hash,
+    sessionStampCompleteness: verdict.completeness,
+    sessionStampQualification: verdict.qualification,
+  });
+});
+
+// One derived-storage fixture: a codex transcript whose session row is rewritten by every run.
+const fixtureStorage = AiMetricsStorageLayout.make({
+  dataRoot: "/fixture/metrics",
+  derivedDir: "/fixture/metrics/derived",
+  duckDbPath: "/fixture/metrics/derived/ai-metrics.duckdb",
+  parquetDir: "/fixture/metrics/derived/parquet",
+  rawArchiveDir: "/fixture/metrics/raw",
+});
+
+const writeVerdict = Effect.fn("SessionStampEvidenceTest.writeVerdict")(function* (
+  ingestRunId: string,
+  verdict: StampVerdict
+) {
+  yield* writeAiMetricsDerivedStorage(
+    AiMetricsDerivedStorageWriteInput.make({
+      configSnapshot: ConfigSnapshot.make({
+        changedPaths: [],
+        configHash: "config-hash",
+        label: "repo-local-agent-config",
+        snapshotId: "config-1",
+      }),
+      ingestRunId,
+      parquetExportMode: AiMetricsParquetExportMode.Enum.none,
+      records: [yield* makeRecord(verdict)],
+      repoRootHash: "repo-root-hash",
+      startedAtEpochMillis: 1,
+      storage: fixtureStorage,
+      target: AiMetricsDeployTarget.Enum.local,
+    })
+  );
+});
+
+const readSession = Effect.fnUntraced(function* () {
+  const db = yield* DuckDb;
+  return yield* db.query(
+    `SELECT session_harness_hash AS hash,
+            session_stamp_completeness AS completeness,
+            session_stamp_qualification AS qualification,
+            session_stamp_collection_complete AS legacy
+     FROM ai_metrics_sessions`
+  );
+});
+
+const readSourceFile = Effect.fnUntraced(function* (ingestRunId: string) {
+  const db = yield* DuckDb;
+  return yield* db.query(
+    `SELECT session_harness_hash AS hash,
+            session_stamp_completeness AS completeness,
+            session_stamp_qualification AS qualification
+     FROM ai_metrics_source_files WHERE ingest_run_id = $ingestRunId`,
+    { ingestRunId }
+  );
+});
+
+const evidenceColumnCount = Effect.fnUntraced(function* () {
+  const db = yield* DuckDb;
+  const rows = yield* db.query(
+    `SELECT count(*)::INTEGER AS count FROM information_schema.columns
+     WHERE column_name IN ('session_stamp_completeness', 'session_stamp_qualification')`
+  );
+  const ledger = yield* db.query(
+    `SELECT count(*)::INTEGER AS count FROM ai_metrics_schema_migrations
+     WHERE migration_id = 'ai-metrics-session-stamp-evidence-v1'`
+  );
+  return { columns: rows, ledger };
+});
+
+it.layer(Layer.mergeAll(MemoryFileSystem.layer, Path.layer), { timeout: "30 seconds" })(
+  "@beep/repo-ai-metrics session stamp evidence",
+  (it) => {
+    it.effect.prop(
+      "derives completeness from collection only and qualification from the join only",
+      [S.Boolean, S.Boolean, S.Boolean, S.Option(HarnessHash)],
+      ([hookComplete, gapComplete, supported, hash]) =>
+        Effect.sync(() => {
+          const completeness = aiMetricsSessionStampCompletenessFor(hookComplete, gapComplete);
+          const qualification = aiMetricsSessionStampQualificationFor(supported, hash);
+          const expectedCompleteness = hookComplete && gapComplete ? "complete" : "partial";
+          const joined = O.isSome(hash) ? "qualified" : "unqualified";
+          const expectedQualification = supported ? joined : "unsupported";
+          expect(completeness).toBe(expectedCompleteness);
+          expect(qualification).toBe(expectedQualification);
+          // Neither derivation ever yields the historical default.
+          expect(completeness).not.toBe("unknown");
+          expect(qualification).not.toBe("unknown");
+        }),
+      { arbitrary: fcRuns(32) }
+    );
+
+    it.effect.prop(
+      "round-trips every completeness and qualification pairing independently through the record codec",
+      [AiMetricsSessionStampCompleteness, AiMetricsSessionStampQualification],
+      Effect.fnUntraced(function* ([completeness, qualification]) {
+        const record = yield* makeRecord({ completeness, hash: O.none(), qualification });
+        const decoded = yield* decodeRecord(yield* encodeRecord(record));
+        expect(decoded.sessionStampCompleteness).toBe(completeness);
+        expect(decoded.sessionStampQualification).toBe(qualification);
+      }),
+      { arbitrary: fcRuns(12) }
+    );
+
+    it.effect(
+      "decodes historical records without the fields as unknown and rejects malformed values",
+      Effect.fnUntraced(function* () {
+        const encoded = yield* encodeRecord(
+          yield* makeRecord({ completeness: "complete", hash: O.some(stampX), qualification: "qualified" })
+        );
+        const { sessionStampCompleteness: _completeness, sessionStampQualification: _qualification, ...rest } = encoded;
+        // A round-2 record carried only the conflated boolean; it must not become verified.
+        const historical = yield* decodeRecord({ ...rest, sessionStampCollectionComplete: true });
+        expect(historical.sessionStampCompleteness).toBe("unknown");
+        expect(historical.sessionStampQualification).toBe("unknown");
+        expect(O.getOrNull(historical.sessionHarnessHash)).toBe(stampX);
+        const malformed = yield* decodeRecord({ ...rest, sessionStampCompleteness: "done" }).pipe(Effect.flip);
+        expect(malformed._tag).toBe("SchemaError");
+      })
+    );
+
+    it.effect(
+      "preserves a stored stamp only for incomplete collection and lets complete contrary evidence clear it",
+      Effect.fnUntraced(function* () {
+        yield* Effect.gen(function* () {
+          // Complete stamped.
+          yield* writeVerdict("run-1", { completeness: "complete", hash: O.some(stampX), qualification: "qualified" });
+          expect(yield* readSession()).toEqual([
+            { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true },
+          ]);
+
+          // Incomplete collection that retained no stamp cannot contradict the stored verdict.
+          yield* writeVerdict("run-2", { completeness: "partial", hash: O.none(), qualification: "unqualified" });
+          expect(yield* readSession()).toEqual([
+            { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true },
+          ]);
+          // The run-scoped source-file row records what run 2 itself observed.
+          expect(yield* readSourceFile("run-2")).toEqual([
+            { hash: null, completeness: "partial", qualification: "unqualified" },
+          ]);
+          const preserved = yield* readAiMetricsOtlpSpanProjections;
+          expect(preserved.projections.length).toBeGreaterThan(0);
+          for (const span of preserved.projections) {
+            expect(span.attributes["ai_metrics.session_harness_hash"]).toBe(stampX);
+            expect(span.attributes["ai_metrics.session_stamp_completeness"]).toBe("complete");
+            expect(span.attributes["ai_metrics.session_stamp_qualification"]).toBe("qualified");
+          }
+
+          // Partial stamped: a stamp retained from decodable evidence replaces the stored one.
+          yield* writeVerdict("run-3", { completeness: "partial", hash: O.some(stampY), qualification: "qualified" });
+          expect(yield* readSession()).toEqual([
+            { hash: stampY, completeness: "partial", qualification: "qualified", legacy: false },
+          ]);
+
+          // Complete unstamped: complete contrary evidence clears the stored stamp.
+          yield* writeVerdict("run-4", { completeness: "complete", hash: O.none(), qualification: "unqualified" });
+          expect(yield* readSession()).toEqual([
+            { hash: null, completeness: "complete", qualification: "unqualified", legacy: false },
+          ]);
+
+          // With nothing stored, an incomplete unstamped run records its own verdict, not non-use.
+          yield* writeVerdict("run-5", { completeness: "partial", hash: O.none(), qualification: "unqualified" });
+          expect(yield* readSession()).toEqual([
+            { hash: null, completeness: "partial", qualification: "unqualified", legacy: false },
+          ]);
+
+          // Historical-default records (unknown completeness) also never clear a stored stamp.
+          yield* writeVerdict("run-6", { completeness: "complete", hash: O.some(stampX), qualification: "qualified" });
+          yield* writeVerdict("run-7", { completeness: "unknown", hash: O.none(), qualification: "unknown" });
+          expect(yield* readSession()).toEqual([
+            { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true },
+          ]);
+        }).pipe(provideScopedLayer(memoryDuckDb));
+      })
+    );
+
+    it.effect(
+      "migrates historical rows to unknown except the exact round-2 translation, and rolls back",
+      Effect.fnUntraced(function* () {
+        yield* Effect.gen(function* () {
+          const db = yield* DuckDb;
+          // Build the pre-split shape: current schema minus the two new columns and ledger row.
+          yield* ensureAiMetricsDerivedStorage;
+          yield* rollbackAiMetricsSessionStampEvidence;
+          expect(yield* evidenceColumnCount()).toEqual({ columns: [{ count: 0 }], ledger: [{ count: 0 }] });
+          const insert = (id: string, hash: string | null, legacy: boolean | null) =>
+            db.run(
+              `INSERT INTO ai_metrics_sessions (
+               agent_session_id, ingest_run_id, source_kind, source_path_hash, source_role,
+               config_snapshot_id, session_harness_hash, session_stamp_collection_complete
+             ) VALUES ($id, 'legacy-run', 'codex', $id, 'primary', 'config-1', $hash, $legacy)`,
+              { hash, id, legacy }
+            );
+          yield* insert("verified", stampX, true);
+          yield* insert("stamped-unverified", stampY, false);
+          yield* insert("unstamped", null, false);
+          yield* insert("pre-round-2", null, null);
+          yield* insert("pre-round-2-stamped", stampX, null);
+
+          yield* ensureAiMetricsDerivedStorage;
+          const readAll = db.query(
+            `SELECT agent_session_id AS id,
+                  session_stamp_completeness AS completeness,
+                  session_stamp_qualification AS qualification
+           FROM ai_metrics_sessions ORDER BY agent_session_id`
+          );
+          const migrated = [
+            { id: "pre-round-2", completeness: "unknown", qualification: "unknown" },
+            { id: "pre-round-2-stamped", completeness: "unknown", qualification: "unknown" },
+            { id: "stamped-unverified", completeness: "unknown", qualification: "unknown" },
+            { id: "unstamped", completeness: "unknown", qualification: "unknown" },
+            { id: "verified", completeness: "complete", qualification: "qualified" },
+          ];
+          expect(yield* readAll).toEqual(migrated);
+          // Re-running ensure is idempotent through the ledger.
+          yield* ensureAiMetricsDerivedStorage;
+          expect(yield* readAll).toEqual(migrated);
+
+          // Down path: columns and ledger row go; the legacy marker and stamps stay intact.
+          yield* rollbackAiMetricsSessionStampEvidence;
+          expect(yield* evidenceColumnCount()).toEqual({ columns: [{ count: 0 }], ledger: [{ count: 0 }] });
+          expect(
+            yield* db.query(
+              `SELECT agent_session_id AS id, session_harness_hash AS hash, session_stamp_collection_complete AS legacy
+             FROM ai_metrics_sessions ORDER BY agent_session_id`
+            )
+          ).toEqual([
+            { id: "pre-round-2", hash: null, legacy: null },
+            { id: "pre-round-2-stamped", hash: stampX, legacy: null },
+            { id: "stamped-unverified", hash: stampY, legacy: false },
+            { id: "unstamped", hash: null, legacy: false },
+            { id: "verified", hash: stampX, legacy: true },
+          ]);
+          // Re-applying after a rollback reproduces the same conservative translation.
+          yield* ensureAiMetricsDerivedStorage;
+          expect(yield* evidenceColumnCount()).toEqual({ columns: [{ count: 4 }], ledger: [{ count: 1 }] });
+          expect(yield* readAll).toEqual(migrated);
+        }).pipe(provideScopedLayer(memoryDuckDb));
+      })
+    );
+  }
+);

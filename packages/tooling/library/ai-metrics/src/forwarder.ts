@@ -31,6 +31,8 @@ import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
   AiMetricsParquetExportMode,
+  aiMetricsSessionStampCompletenessFor,
+  aiMetricsSessionStampQualificationFor,
   writeAiMetricsDerivedStorage,
 } from "./derived-storage.ts";
 import { HarnessHash } from "./harness-ledger.ts";
@@ -1453,6 +1455,12 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       }),
       { discard: true }
     );
+    // Completeness describes collection only and qualification describes the join only;
+    // neither is computed from the other.
+    const sessionStampCompleteness = aiMetricsSessionStampCompletenessFor(
+      hookCollectionComplete,
+      O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0)
+    );
     const stampedRecords = A.map(records, ({ record, sessionIdentityHash, hookPathHash }) => {
       const sanitized = record.privacy.sanitized;
       const kind = AiMetricsTranscriptSource.$match(sanitized.sourceKind, {
@@ -1506,10 +1514,8 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       return AiMetricsDerivedTranscriptRecord.make({
         ...record,
         sessionHarnessHash: O.map(sessionHarnessHash, HarnessHash.make),
-        sessionStampCollectionComplete:
-          O.isSome(sessionHarnessHash) &&
-          hookCollectionComplete &&
-          O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0),
+        sessionStampCompleteness,
+        sessionStampQualification: aiMetricsSessionStampQualificationFor(O.isSome(kind), sessionHarnessHash),
       });
     });
     const ingestRunId = `forwarder-${startedAtEpochMillis}`;

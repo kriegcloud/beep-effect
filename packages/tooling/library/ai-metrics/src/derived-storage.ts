@@ -14,7 +14,7 @@ import * as O from "@beep/utils/Option";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { AiMetricsRawArchiveObject } from "./archive.ts";
@@ -274,6 +274,26 @@ const migrationColumns = [
     tableName: "ai_metrics_source_files",
   },
   {
+    columnDefinition: "session_stamp_completeness VARCHAR DEFAULT 'unknown'",
+    columnName: "session_stamp_completeness",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "session_stamp_completeness VARCHAR DEFAULT 'unknown'",
+    columnName: "session_stamp_completeness",
+    tableName: "ai_metrics_source_files",
+  },
+  {
+    columnDefinition: "session_stamp_qualification VARCHAR DEFAULT 'unknown'",
+    columnName: "session_stamp_qualification",
+    tableName: "ai_metrics_sessions",
+  },
+  {
+    columnDefinition: "session_stamp_qualification VARCHAR DEFAULT 'unknown'",
+    columnName: "session_stamp_qualification",
+    tableName: "ai_metrics_source_files",
+  },
+  {
     columnDefinition: "session_harness_hash VARCHAR",
     columnName: "session_harness_hash",
     tableName: "ai_metrics_sessions",
@@ -483,6 +503,28 @@ const migrationBackfillStatements = [
   "UPDATE ai_metrics_scorecards SET completion_ready = FALSE WHERE completion_ready IS NULL",
   "UPDATE ai_metrics_scorecards SET coverage_gaps_json = '[]' WHERE coverage_gaps_json IS NULL",
 ] as const;
+
+const sessionStampEvidenceTables = ["ai_metrics_sessions", "ai_metrics_source_files"] as const;
+
+const sessionStampEvidenceColumns = ["session_stamp_completeness", "session_stamp_qualification"] as const;
+
+// Historical rows keep the documented `unknown` default for both fields. The single exact
+// translation is the round-2 marker: it was written true only for a retained stamp with
+// complete hook and refusal collection, so true maps to complete and qualified. A false or
+// missing marker conflated both questions and stays unknown; absence never becomes
+// unqualified, and neither field is inferred from the other.
+const sessionStampEvidenceMigrationStatements = A.flatMap(sessionStampEvidenceTables, (table) => [
+  `UPDATE ${table} SET session_stamp_completeness = 'unknown' WHERE session_stamp_completeness IS NULL`,
+  `UPDATE ${table} SET session_stamp_qualification = 'unknown' WHERE session_stamp_qualification IS NULL`,
+  `UPDATE ${table}
+   SET session_stamp_completeness = 'complete', session_stamp_qualification = 'qualified'
+   WHERE session_stamp_collection_complete = TRUE
+     AND session_harness_hash IS NOT NULL
+     AND session_stamp_completeness = 'unknown'
+     AND session_stamp_qualification = 'unknown'`,
+]);
+
+const sessionStampEvidenceMigrationId = "ai-metrics-session-stamp-evidence-v1";
 
 const legacyAgentTaskIdExpression = (tableAlias: string): string =>
   `concat('agent-task-', sha256(concat('agent-task', chr(0), ${tableAlias}.source_kind, chr(0), ${tableAlias}.source_path_hash)))`;
@@ -708,6 +750,20 @@ const derivedStorageMigrations = [
     transactional: true,
   },
   {
+    migrationId: sessionStampEvidenceMigrationId,
+    requiredColumns: A.flatMap(sessionStampEvidenceTables, (tableName) =>
+      A.map(
+        [...sessionStampEvidenceColumns, "session_stamp_collection_complete", "session_harness_hash"],
+        (columnName) => ({
+          columnName,
+          tableName,
+        })
+      )
+    ),
+    statements: sessionStampEvidenceMigrationStatements,
+    transactional: true,
+  },
+  {
     migrationId: "ai-metrics-raw-archive-object-id-v2",
     requiredColumns: [
       { columnName: "archive_run_object_id", tableName: "ai_metrics_raw_archive_objects" },
@@ -748,6 +804,156 @@ export class AiMetricsDerivedStorageError extends S.TaggedError<
     description: "Typed failure raised while projecting AI metrics records into DuckDB derived storage.",
   })
 ) {}
+
+/**
+ * Storage completeness of the hook and refusal evidence behind one session stamp verdict.
+ *
+ * **Example** (Read a completeness member)
+ *
+ * ```ts
+ * import { AiMetricsSessionStampCompleteness } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AiMetricsSessionStampCompleteness.Enum.partial)
+ * ```
+ *
+ * **Details**
+ *
+ * `complete` means every hook shard and refusal record was read and decoded.
+ * `partial` means at least one shard, listing or refusal record was unreadable
+ * or rejected. `unknown` is the decoding default for historical rows that
+ * predate this field. Completeness never implies whether a stamp qualified.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AiMetricsSessionStampCompleteness = LiteralKit(["complete", "partial", "unknown"]).pipe(
+  $I.annoteSchema("AiMetricsSessionStampCompleteness", {
+    description:
+      "Collection completeness of the hook and refusal evidence behind a session stamp verdict; historical rows decode to unknown.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsSessionStampCompleteness}.
+ *
+ * **Example** (Type a completeness value)
+ *
+ * ```ts
+ * import type { AiMetricsSessionStampCompleteness } from "@beep/repo-ai-metrics"
+ *
+ * const completeness: AiMetricsSessionStampCompleteness = "unknown"
+ * console.log(completeness)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsSessionStampCompleteness = typeof AiMetricsSessionStampCompleteness.Type;
+
+/**
+ * Qualification of the session harness stamp retained by one derived record.
+ *
+ * **Example** (Read a qualification member)
+ *
+ * ```ts
+ * import { AiMetricsSessionStampQualification } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AiMetricsSessionStampQualification.Enum.qualified)
+ * ```
+ *
+ * **Details**
+ *
+ * `qualified` means a single fresh, identity-bound stamp passed every join and
+ * gap gate. `unqualified` means the gates retained no stamp; it is never
+ * evidence that a harness was unused. `unsupported` marks transcript sources
+ * with no hook adapter. `unknown` is the decoding default for historical rows.
+ * Qualification is derived from the join alone, never from completeness.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AiMetricsSessionStampQualification = LiteralKit([
+  "qualified",
+  "unqualified",
+  "unsupported",
+  "unknown",
+]).pipe(
+  $I.annoteSchema("AiMetricsSessionStampQualification", {
+    description:
+      "Join qualification of a retained session harness stamp; unqualified never means unused and historical rows decode to unknown.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsSessionStampQualification}.
+ *
+ * **Example** (Type a qualification value)
+ *
+ * ```ts
+ * import type { AiMetricsSessionStampQualification } from "@beep/repo-ai-metrics"
+ *
+ * const qualification: AiMetricsSessionStampQualification = "unknown"
+ * console.log(qualification)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsSessionStampQualification = typeof AiMetricsSessionStampQualification.Type;
+
+/**
+ * Derive session stamp completeness from hook and refusal collection status only.
+ *
+ * **Example** (Classify a partial collection)
+ *
+ * ```ts
+ * import { aiMetricsSessionStampCompletenessFor } from "@beep/repo-ai-metrics"
+ *
+ * console.log(aiMetricsSessionStampCompletenessFor(true, false)) // "partial"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const aiMetricsSessionStampCompletenessFor: {
+  (hookCollectionComplete: boolean, stampGapCollectionComplete: boolean): AiMetricsSessionStampCompleteness;
+  (stampGapCollectionComplete: boolean): (hookCollectionComplete: boolean) => AiMetricsSessionStampCompleteness;
+} = dual(
+  2,
+  (hookCollectionComplete: boolean, stampGapCollectionComplete: boolean): AiMetricsSessionStampCompleteness =>
+    hookCollectionComplete && stampGapCollectionComplete
+      ? AiMetricsSessionStampCompleteness.Enum.complete
+      : AiMetricsSessionStampCompleteness.Enum.partial
+);
+
+/**
+ * Derive session stamp qualification from adapter support and the join result only.
+ *
+ * **Example** (Classify a retained stamp)
+ *
+ * ```ts
+ * import { aiMetricsSessionStampQualificationFor } from "@beep/repo-ai-metrics"
+ * import * as O from "effect/Option"
+ *
+ * console.log(aiMetricsSessionStampQualificationFor(true, O.some("stamp"))) // "qualified"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const aiMetricsSessionStampQualificationFor: {
+  (supported: boolean, sessionHarnessHash: O.Option<string>): AiMetricsSessionStampQualification;
+  (sessionHarnessHash: O.Option<string>): (supported: boolean) => AiMetricsSessionStampQualification;
+} = dual(
+  2,
+  (supported: boolean, sessionHarnessHash: O.Option<string>): AiMetricsSessionStampQualification =>
+    supported
+      ? O.match(sessionHarnessHash, {
+          onNone: () => AiMetricsSessionStampQualification.Enum.unqualified,
+          onSome: () => AiMetricsSessionStampQualification.Enum.qualified,
+        })
+      : AiMetricsSessionStampQualification.Enum.unsupported
+);
 
 /**
  * One sanitized transcript ready for derived storage projection.
@@ -810,15 +1016,19 @@ export class AiMetricsDerivedTranscriptRecord extends S.Opaque<
   S.Struct({
     archiveObject: AiMetricsRawArchiveObject,
     sessionHarnessHash: S.OptionFromOptionalKey(HarnessHash).pipe(S.withConstructorDefault(Effect.succeedNone)),
-    sessionStampCollectionComplete: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
+    sessionStampCompleteness: AiMetricsSessionStampCompleteness.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSessionStampCompleteness.Enum.unknown)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSessionStampCompleteness.Enum.unknown))
+    ),
+    sessionStampQualification: AiMetricsSessionStampQualification.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsSessionStampQualification.Enum.unknown)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsSessionStampQualification.Enum.unknown))
     ),
     privacy: AiMetricsPrivacyCheckResult,
   }).pipe(
     $I.annoteSchema("AiMetricsDerivedTranscriptRecord", {
       description:
-        "Sanitized transcript projection, encrypted raw archive metadata and explicit session-stamp collection completeness. Historical records remain unverified.",
+        "Sanitized transcript projection, encrypted raw archive metadata and independent session-stamp completeness and qualification. Historical records decode both as unknown.",
     })
   )
 ) {}
@@ -1063,6 +1273,56 @@ export const ensureAiMetricsDerivedStorage: Effect.Effect<void, AiMetricsDerived
     Effect.mapError((cause) => derivedFailure("Failed to ensure AI metrics derived DuckDB schema.", cause))
   );
 
+const sessionStampEvidenceRollbackStatements = [
+  ...A.flatMap(sessionStampEvidenceTables, (table) =>
+    A.map(sessionStampEvidenceColumns, (column) => `ALTER TABLE ${table} DROP COLUMN IF EXISTS ${column}`)
+  ),
+  `DELETE FROM ai_metrics_schema_migrations WHERE migration_id = '${sessionStampEvidenceMigrationId}'`,
+];
+
+const rollbackAiMetricsSessionStampEvidenceRaw = Effect.fn("AiMetrics.rollbackAiMetricsSessionStampEvidence")(
+  function* () {
+    const duckdb = yield* DuckDb;
+    yield* duckdb.withTransaction((transaction) => transaction.runMany(sessionStampEvidenceRollbackStatements));
+  }
+);
+
+/**
+ * Reverse the session stamp completeness/qualification migration on one derived store.
+ *
+ * **Example** (Roll back the stamp evidence columns)
+ *
+ * ```ts
+ * import { rollbackAiMetricsSessionStampEvidence } from "@beep/repo-ai-metrics"
+ * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = rollbackAiMetricsSessionStampEvidence.pipe(
+ *   Effect.provide(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({
+ *     databasePath: ".beep/ai-metrics/derived/ai-metrics.duckdb"
+ *   })))
+ * )
+ * console.log(program)
+ * ```
+ *
+ * **Details**
+ *
+ * Drops the completeness and qualification columns from the session and
+ * source-file tables and removes the migration ledger row inside one
+ * transaction. The round-2 `session_stamp_collection_complete` marker and
+ * `session_harness_hash` are untouched, and current writers keep the marker as
+ * a compatibility projection, so code that predates the split reads the same
+ * conservative values. A later ensure re-applies the migration.
+ *
+ * @effects Drops two columns from two derived DuckDB tables and deletes one migration ledger row.
+ * @category services
+ * @since 0.0.0
+ */
+export const rollbackAiMetricsSessionStampEvidence: Effect.Effect<void, AiMetricsDerivedStorageError, DuckDb> =
+  rollbackAiMetricsSessionStampEvidenceRaw().pipe(
+    Effect.mapError((cause) => derivedFailure("Failed to roll back AI metrics session stamp evidence columns.", cause))
+  );
+
 const epochMillisParam = (value: number): string => globalThis.String(value);
 
 const countCreatedArchiveObjects = (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>): number =>
@@ -1231,6 +1491,65 @@ const upsertAgentTask = Effect.fn("AiMetrics.derivedStorage.upsertAgentTask")(fu
   return agentTaskId;
 });
 
+// The legacy round-2 marker is written only as a compatibility projection of both fields,
+// so code that predates the split keeps reading the same conservative value. Current
+// readers never consult it.
+const sessionStampParams = (record: AiMetricsDerivedTranscriptRecord) => ({
+  sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
+  sessionStampCollectionComplete:
+    record.sessionStampCompleteness === AiMetricsSessionStampCompleteness.Enum.complete &&
+    record.sessionStampQualification === AiMetricsSessionStampQualification.Enum.qualified,
+  sessionStampCompleteness: record.sessionStampCompleteness,
+  sessionStampQualification: record.sessionStampQualification,
+});
+
+const sessionReplacedColumnsSql = A.join(
+  A.map(
+    [
+      "agent_task_id",
+      "ingest_run_id",
+      "source_kind",
+      "source_path_hash",
+      "source_role",
+      "session_id_hash",
+      "parent_session_id_hash",
+      "parent_thread_id_hash",
+      "forked_from_id_hash",
+      "thread_spawn",
+      "agent_role_hash",
+      "agent_nickname_hash",
+      "started_at",
+      "config_snapshot_id",
+    ],
+    (column) => `${column} = EXCLUDED.${column}`
+  ),
+  ",\n      "
+);
+
+// Session rows are content-addressed and rewritten by every run, so the stamp verdict is
+// resolved here rather than replaced. A run whose collection was not complete and that
+// retained no stamp cannot contradict a stored one: the stored hash, completeness,
+// qualification and legacy marker stay together. Any complete run, and any run that
+// retains its own stamp, writes its own verdict, so complete contrary evidence clears a
+// stored stamp. Preservation keys on collection completeness, never on qualification.
+const preserveStoredSessionStampSql = `EXCLUDED.session_stamp_completeness <> 'complete'
+        AND EXCLUDED.session_harness_hash IS NULL
+        AND ai_metrics_sessions.session_harness_hash IS NOT NULL`;
+
+const sessionStampVerdictColumnsSql = A.join(
+  A.map(
+    [
+      "session_harness_hash",
+      "session_stamp_completeness",
+      "session_stamp_qualification",
+      "session_stamp_collection_complete",
+    ],
+    (column) =>
+      `${column} = CASE WHEN ${preserveStoredSessionStampSql} THEN ai_metrics_sessions.${column} ELSE EXCLUDED.${column} END`
+  ),
+  ",\n      "
+);
+
 const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(function* (
   input: AiMetricsDerivedStorageWriteInput,
   record: AiMetricsDerivedTranscriptRecord
@@ -1263,6 +1582,8 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       redaction_safe_for_derived_ui,
       config_snapshot_id,
       session_harness_hash,
+      session_stamp_completeness,
+      session_stamp_qualification,
       session_stamp_collection_complete
     ) VALUES (
       $sourceFileId,
@@ -1286,15 +1607,16 @@ const upsertSourceFile = Effect.fn("AiMetrics.derivedStorage.upsertSourceFile")(
       $redactionSafeForDerivedUi,
       $configSnapshotId,
       $sessionHarnessHash,
+      $sessionStampCompleteness,
+      $sessionStampQualification,
       $sessionStampCollectionComplete
     )`,
     {
+      ...sessionStampParams(record),
       acceptedEvents: sanitized.acceptedEvents,
       agentNicknameHash: O.getOrNull(sanitized.agentNicknameHash),
       agentRoleHash: O.getOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
-      sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
-      sessionStampCollectionComplete: record.sessionStampCollectionComplete,
       eventNamesJson,
       firstTimestamp: O.getOrNull(sanitized.firstTimestamp),
       forkedFromIdHash: O.getOrNull(sanitized.forkedFromIdHash),
@@ -1371,7 +1693,7 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
   // turns scattered across all of them.
   const agentSessionId = yield* rowId("session", [sanitized.sourceKind, sanitized.sourcePathHash]);
   yield* duckdb.run(
-    `INSERT OR REPLACE INTO ai_metrics_sessions (
+    `INSERT INTO ai_metrics_sessions (
       agent_session_id,
       agent_task_id,
       ingest_run_id,
@@ -1388,6 +1710,8 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       started_at,
       config_snapshot_id,
       session_harness_hash,
+      session_stamp_completeness,
+      session_stamp_qualification,
       session_stamp_collection_complete
     ) VALUES (
       $agentSessionId,
@@ -1406,16 +1730,20 @@ const upsertSessionAndTurns = Effect.fn("AiMetrics.derivedStorage.upsertSessionA
       $startedAt,
       $configSnapshotId,
       $sessionHarnessHash,
+      $sessionStampCompleteness,
+      $sessionStampQualification,
       $sessionStampCollectionComplete
-    )`,
+    )
+    ON CONFLICT (agent_session_id) DO UPDATE SET
+      ${sessionReplacedColumnsSql},
+      ${sessionStampVerdictColumnsSql}`,
     {
+      ...sessionStampParams(record),
       agentSessionId,
       agentTaskId,
       agentNicknameHash: O.getOrNull(sanitized.agentNicknameHash),
       agentRoleHash: O.getOrNull(sanitized.agentRoleHash),
       configSnapshotId: input.configSnapshot.snapshotId,
-      sessionHarnessHash: O.getOrNull(record.sessionHarnessHash),
-      sessionStampCollectionComplete: record.sessionStampCollectionComplete,
       forkedFromIdHash: O.getOrNull(sanitized.forkedFromIdHash),
       ingestRunId: input.ingestRunId,
       parentSessionIdHash: O.getOrNull(sanitized.parentSessionIdHash),
