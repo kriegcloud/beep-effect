@@ -1377,6 +1377,9 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${harness} import { NodeServices } from "@effect/platform-node"; const models = L.mergeAll(ModelsLive); layer(L.mergeAll(NodeServices.layer, models))${consume('yield* fs.symlink("a", "b");')}`,
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(L.provide(TestLive, NodeServices.layer))${consume('yield* fs.symlink("a", "b");')}`,
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provideMerge(Exchange), L.provideMerge(L.mergeAll(NodeServices.layer))))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} ${subject} import { pipe } from "effect/Function"; import { NodeServices } from "@effect/platform-node"; layer(pipe(SubjectLive, L.provide(NodeServices.layer)))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer((NodeServices.layer))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import * as Platform from "@effect/platform-node"; const path = Platform.NodePath.layer; layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
       ])
         deepStrictEqual(yield* reviewClasses(body), []);
       for (const body of [
@@ -1393,6 +1396,15 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${harness} import { NodeServices } from "@effect/platform-node"; const pass = (value) => value; const x = pass(NodeServices.layer); layer(x)${consume('yield* fs.symlink("a", "b");')}`,
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provideMerge(NodeServices.layer), wrap))${consume('yield* fs.symlink("a", "b");')}`,
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer.pipe(wrap))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; layer(L.provide(NodeServices.layer, SubjectLive))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const stage = L.provideMerge(NodeServices.layer); layer(TestLive.pipe(stage))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer())${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(TestLive, NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; let platform = NodeServices.layer; layer(platform)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const platform = NodeServices.layer; use(platform); layer(platform)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const platform = NodeServices.layer;`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)(suite);`,
+        `${harness} import * as Platform from "@effect/platform-node"; use(Platform); layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
       ])
         deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
     })

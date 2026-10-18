@@ -558,8 +558,8 @@ const nativeFileSystemOperations = ["chmod", "chown", "link", "readLink", "realP
 const testKitModules = ["@beep/test-utils", "@beep/test-runner"];
 
 type HarnessFlow = { readonly harness: CallExpression; readonly subject: boolean };
-// AST nodes are keyed and compared by identity; Effect hashing and Equal are structural.
-type FlowCache = WeakMap<VariableDeclaration, O.Option<ReadonlyArray<HarnessFlow>>>;
+// Keyed by declaration start offset: every flow walk stays within one source file.
+type FlowCache = MutableHashMap.MutableHashMap<number, O.Option<ReadonlyArray<HarnessFlow>>>;
 
 const isArgumentOf = (call: CallExpression, node: MorphNode): boolean =>
   A.some(call.getArguments(), (argument) => argument === node);
@@ -742,7 +742,9 @@ const declarationFlows = (
   visited: FlowCache
 ): O.Option<ReadonlyArray<HarnessFlow>> => {
   if (!isFollowableBinding(declaration, current, seen)) return O.none();
-  const reached = visited.get(declaration) ?? bindingFlows(declaration, imports, [...seen, declaration], visited);
+  const reached = O.getOrElse(MutableHashMap.get(visited, declaration.getStart()), () =>
+    bindingFlows(declaration, imports, [...seen, declaration], visited)
+  );
   return O.map(
     reached,
     A.map((flow) => ({ ...flow, subject: flow.subject || provided }))
@@ -801,7 +803,7 @@ const bindingFlows = (
     flows.push(...reached.value);
   }
   const result = opaque || A.isReadonlyArrayEmpty(flows) ? O.none() : O.some(flows);
-  visited.set(declaration, result);
+  MutableHashMap.set(visited, declaration.getStart(), result);
   return result;
 };
 
@@ -858,7 +860,7 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
 
 const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
   O.exists(servicesBundleLayers(declaration, imports), (layers) => {
-    const visited: FlowCache = new WeakMap();
+    const visited: FlowCache = MutableHashMap.empty();
     return O.exists(O.all(A.map(layers, (layer) => harnessFlows(layer, imports, [], false, visited))), (nested) => {
       const flows = A.flatten(nested);
       const harnesses = A.dedupeWith(
