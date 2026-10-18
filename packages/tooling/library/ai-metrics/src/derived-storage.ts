@@ -808,6 +808,13 @@ export class AiMetricsDerivedStorageError extends S.TaggedError<
 /**
  * Storage completeness of the hook and refusal evidence behind one session stamp verdict.
  *
+ * **Details**
+ *
+ * `complete` means every hook shard and refusal record was read and decoded.
+ * `partial` means at least one shard, listing or refusal record was unreadable
+ * or rejected. `unknown` is the decoding default for historical rows that
+ * predate this field. Completeness never implies whether a stamp qualified.
+ *
  * **Example** (Read a completeness member)
  *
  * ```ts
@@ -815,13 +822,6 @@ export class AiMetricsDerivedStorageError extends S.TaggedError<
  *
  * console.log(AiMetricsSessionStampCompleteness.Enum.partial)
  * ```
- *
- * **Details**
- *
- * `complete` means every hook shard and refusal record was read and decoded.
- * `partial` means at least one shard, listing or refusal record was unreadable
- * or rejected. `unknown` is the decoding default for historical rows that
- * predate this field. Completeness never implies whether a stamp qualified.
  *
  * @category schemas
  * @since 0.0.0
@@ -853,14 +853,6 @@ export type AiMetricsSessionStampCompleteness = typeof AiMetricsSessionStampComp
 /**
  * Qualification of the session harness stamp retained by one derived record.
  *
- * **Example** (Read a qualification member)
- *
- * ```ts
- * import { AiMetricsSessionStampQualification } from "@beep/repo-ai-metrics"
- *
- * console.log(AiMetricsSessionStampQualification.Enum.qualified)
- * ```
- *
  * **Details**
  *
  * `qualified` means a single fresh, identity-bound stamp passed every join and
@@ -868,6 +860,14 @@ export type AiMetricsSessionStampCompleteness = typeof AiMetricsSessionStampComp
  * evidence that a harness was unused. `unsupported` marks transcript sources
  * with no hook adapter. `unknown` is the decoding default for historical rows.
  * Qualification is derived from the join alone, never from completeness.
+ *
+ * **Example** (Read a qualification member)
+ *
+ * ```ts
+ * import { AiMetricsSessionStampQualification } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AiMetricsSessionStampQualification.Enum.qualified)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -1290,6 +1290,15 @@ const rollbackAiMetricsSessionStampEvidenceRaw = Effect.fn("AiMetrics.rollbackAi
 /**
  * Reverse the session stamp completeness/qualification migration on one derived store.
  *
+ * **Details**
+ *
+ * Drops the completeness and qualification columns from the session and
+ * source-file tables and removes the migration ledger row inside one
+ * transaction. The round-2 `session_stamp_collection_complete` marker and
+ * `session_harness_hash` are untouched, and current writers keep the marker as
+ * a compatibility projection, so code that predates the split reads the same
+ * conservative values. A later ensure re-applies the migration.
+ *
  * **Example** (Roll back the stamp evidence columns)
  *
  * ```ts
@@ -1304,15 +1313,6 @@ const rollbackAiMetricsSessionStampEvidenceRaw = Effect.fn("AiMetrics.rollbackAi
  * )
  * console.log(program)
  * ```
- *
- * **Details**
- *
- * Drops the completeness and qualification columns from the session and
- * source-file tables and removes the migration ledger row inside one
- * transaction. The round-2 `session_stamp_collection_complete` marker and
- * `session_harness_hash` are untouched, and current writers keep the marker as
- * a compatibility projection, so code that predates the split reads the same
- * conservative values. A later ensure re-applies the migration.
  *
  * @effects Drops two columns from two derived DuckDB tables and deletes one migration ledger row.
  * @category services
