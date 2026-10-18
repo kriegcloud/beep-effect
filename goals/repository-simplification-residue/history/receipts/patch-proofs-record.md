@@ -31,14 +31,17 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 ### `effect@4.0.4`: structural equality of `Error` values under Bun
 
 - Patch: `patches/effect@4.0.4.patch`, sha256
-  `31c7f4497b8761efa34e113d7a0719767109007f729861f5f033b2906f9506c1` (narrowed in review round 1; it was `f0850fa30121f7922fc53932b5bf1ca2f814a194ded9faf7ca0ca0380197ad85`).
+  `5313e7afb13364436178445451613c3983df3480fbbbec6327083e253f4de73c` (narrowed in review rounds 1 and 2; the original was `f0850fa30121f7922fc53932b5bf1ca2f814a194ded9faf7ca0ca0380197ad85`).
 - Behavior: `Equal.equals` compares records through all own keys. JavaScriptCore adds
   own `line`, `column`, `sourceURL`, `originalLine` and `originalColumn` keys to every
   `Error`, so two equal errors built at different sites compare unequal. Upstream deletes
   only `stack`. The patch also skips those five keys, but only when the own descriptor is
-  non-enumerable, which is how JavaScriptCore defines them.
+  non-enumerable (how JavaScriptCore defines them) and the error does not declare the key
+  in its Data/Schema payload, `Symbol.for("effect/Data/Error/plainArgs")`. On
+  JavaScriptCore a Schema payload `line` keeps the runtime's non-enumerable descriptor,
+  so the declared-payload check is what keeps it in equality.
 - Limitation: enumerable payload fields with those names stay in equality on every runtime,
-  and so does a `Schema.TaggedError` payload `line`. On JavaScriptCore only, a plain `Error`
+  and so does a declared `Schema.TaggedError`/`Data` payload `line`. On JavaScriptCore only, a plain `Error`
   subclass that assigns its own `line` (or another of the five names) inherits the runtime's
   non-enumerable descriptor, so that field does not take part in equality. The test pins
   both behaviors, choosing per runtime by whether a fresh `Error` owns a non-enumerable `line`.
@@ -59,7 +62,8 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
   unpatched by design: `.make` constructs every instance at one site inside the class, so the
   location keys already agree. The patch matters for plain `Error` values and for errors
   constructed with `new` at different sites; repository source defines no `Data.TaggedError`.
-  These were rerun in review round 1 with the narrowed patch and the final test.
+  These were rerun in review round 2 with the final patch and test, under Bun (above) and
+  under Node (`bunx vitest run`, patched tree: `Tests 3 passed (3)`).
 - Upstream: no upstream issue or PR exists. `internal/equal.ts` on Effect-TS/effect
   `main` `84aeede040` (2026-10-17, version 4.0.5) still deletes only `stack`. No exit.
 
@@ -122,7 +126,7 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
   declaration emit with TS4023. The patch replaces it with the string key
   `"~xstate/effect/action"`.
 - Test (new): `packages/drivers/xstate/test/DeclarationEmit.test.ts` (sha256
-  `c1fe57419105a1fec2e8c7c8ed1641e4f88eef6c85c92b4f67c9388997b74212`). It runs the
+  `2437b2a718ef7e7ebbf60995204bb01d305685ca432e5516c18518f457d77892`). It runs the
   repository's `tsc` (TypeScript 7.0.2) with `--noEmit --declaration` against the
   fixture `packages/drivers/xstate/test/fixtures/declaration-emit/AuditedRelease.machine.ts`
   (sha256 `6bafa5d26c858040c2e0ff78fcb172e02b96188d2ab3dac48a8ff7345045fdee`). It
@@ -172,7 +176,7 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 
 | Dependency | Installed | Patch sha256 (prefix) | Test | Unpatched | Patched | Latest published | Exit |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `effect` | 4.0.4 | `31c7f449` | test-utils `ErrorEqualityCompatibility` (new) | 2/3 fail | pass | 4.0.5 fails | none; no upstream issue |
+| `effect` | 4.0.4 | `5313e7af` | test-utils `ErrorEqualityCompatibility` (new) | 2/3 fail | pass | 4.0.5 fails | none; no upstream issue |
 | `@effect/platform-node-shared` | 4.0.4 | `7590e9b5` | test-utils `FileSystemWriteCompatibility` | 2/3 fail | pass | 4.0.5 fails | none; bun#45607 open |
 | `drizzle-orm` | 1.0.0-rc.5-ab785fc | `9705f7cb` | effect-drizzle `drizzle-sql-error.tst.ts` (new) | 2/2 assertions fail | pass | rc.5-5935859 fails | fix merged in rc5 branch (#6429), unpublished |
 | `@xstate/effect` | 0.1.0-alpha.6 | `986b449b` | xstate `DeclarationEmit` (new) | TS4023 | exit 0 | 1.0.0-alpha.8 fails | none; no upstream issue |
