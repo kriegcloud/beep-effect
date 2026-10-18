@@ -68,12 +68,42 @@ skip the `node_modules`, `.git`, `.repos` and `.beep` directories.
    a document replaced by a newer canonical one. `historical` marks an
    immutable record (dated research lanes, the architecture decision record,
    the memory decision log and assessments). Everything else is `current`.
-7. **Example compile.** The repository has no root script that compiles
-   Markdown TypeScript fences; `lint:effect-imports-markdown` checks import
-   paths only. Every Effect block this wave changed was copied into a scratch
-   TypeScript project (strict, `exactOptionalPropertyTypes`, NodeNext
-   resolution against the workspace `node_modules`) and type-checked with the
-   workspace `tsc`. All six files compiled with zero errors.
+7. **Example compile (partial, not an as-written proof).** The repository has
+   no root script that compiles Markdown TypeScript fences;
+   `lint:effect-imports-markdown` checks import paths only. A fence-aware diff
+   (changed lines inside a `ts`/`typescript`/`tsx` fence of three or more
+   backticks) shows this wave edited fence content in 13 files. Another 8
+   files it touched contain TypeScript fences that it left unchanged.
+   The 13 files are:
+   `.claude/skills/crispen/SKILL.md`,
+   `.claude/skills/crispen/references/crispening.md`,
+   `.claude/skills/effect-first-development/references/observability-runtime.md`,
+   `.claude/skills/effect-first-development/references/resilience-recovery.md`,
+   `.claude/skills/jsdoc-annotation-specialist/references/annotation-patterns.md`,
+   `.claude/skills/jsdoc-annotation-specialist/references/conventions.md`,
+   `.patterns/effect-library-development.md`,
+   `.patterns/error-handling.md`,
+   `.patterns/jsdoc-documentation.md`,
+   `.patterns/module-organization.md`,
+   `.patterns/testing-patterns.md`,
+   `standards/architecture/10-cross-slice-coordination.md`,
+   `standards/effect-first-development.md`.
+   A scratch project of six files (strict, `exactOptionalPropertyTypes`,
+   NodeNext resolution against the workspace `node_modules`) type-checked
+   adapted copies of the changed Effect blocks with zero errors. Those copies
+   add local declarations for names the fences leave undeclared. So they prove
+   that the cited Effect and `@beep/*` APIs exist with the signatures used.
+   They do not prove that any fence compiles as written, and some cannot:
+   - `.patterns/error-handling.md` uses the undeclared `riskyOperation` and
+     `operation`;
+   - `.patterns/module-organization.md` imports a relative `./Cause.ts`.
+
+   (`$SharedUseCasesId` in `standards/architecture/10-cross-slice-coordination.md`
+   is not a blocker: `@beep/identity` re-exports it from `packages.ts`, and its
+   composer has `create`.)
+
+   All 13 files are therefore unproven as written. The wave-3 fence check
+   (remaining item 2) owns that proof.
 
 ## Classification at `e3ee18dfd7`
 
