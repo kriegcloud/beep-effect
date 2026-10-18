@@ -95,13 +95,12 @@ const decodeLockfile = decodeJsoncTextAs(CatalogUsageLockfile);
 
 const catalogKey = (catalog: string, packageName: string): string => `${catalog}${nulSeparator}${packageName}`;
 
+const catalogNameFromSuffix = (suffix: string): string =>
+  pipe(Str.trim(suffix), (name) => (Str.isEmpty(name) ? defaultCatalogName : name));
+
 const catalogNameFromSpec = (spec: string): O.Option<string> =>
   Str.startsWith(catalogProtocol)(spec)
-    ? O.some(
-        pipe(spec, Str.slice(catalogProtocol.length), Str.trim, (name) =>
-          Str.isEmpty(name) ? defaultCatalogName : name
-        )
-      )
+    ? O.some(catalogNameFromSuffix(Str.slice(catalogProtocol.length)(spec)))
     : O.none();
 
 const packageNameFromSpecifier = (specifier: string): string =>
@@ -113,7 +112,7 @@ const packageNameFromSpecifier = (specifier: string): string =>
 
 const installedNameFromLockKey = (key: string): string => {
   const segments = Str.split("/")(key);
-  const last = O.getOrElse(A.last(segments), () => key);
+  const last = A.lastNonEmpty(segments);
   return pipe(
     A.get(segments, A.length(segments) - 2),
     O.filter(Str.startsWith("@")),
@@ -247,13 +246,9 @@ export const catalogTemplateReferencesFromText: {
   (file: string, content: string): ReadonlyArray<CatalogUsageTemplateReference> =>
     A.flatMap(A.fromIterable(Str.matchAll(templateCatalogReferencePattern)(content)), (match) =>
       pipe(
-        O.fromNullishOr(match[1]),
-        O.map((packageName) =>
-          CatalogUsageTemplateReference.make({
-            file,
-            packageName,
-            catalog: O.getOrElse(catalogNameFromSpec(`${catalogProtocol}${match[2] ?? ""}`), () => defaultCatalogName),
-          })
+        O.all([O.fromNullishOr(match[1]), O.fromNullishOr(match[2])]),
+        O.map(([packageName, suffix]) =>
+          CatalogUsageTemplateReference.make({ file, packageName, catalog: catalogNameFromSuffix(suffix) })
         ),
         A.fromOption
       )

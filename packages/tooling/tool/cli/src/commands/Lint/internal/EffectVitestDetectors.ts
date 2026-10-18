@@ -171,6 +171,7 @@ const isPureStubLayer = (
     }
     return false;
   }
+  if (isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"])) return true;
   if (!Node.isIdentifier(expression) || A.contains(seen, expression.getText())) return false;
   return O.exists(localInitializer(expression, imports), (initializer) =>
     isPureStubLayer(initializer, imports, [...seen, expression.getText()])
@@ -464,6 +465,24 @@ const controlledWait = (
     )
   );
 };
+// Effect v4 exposes the live time reads as Effect values, so they appear as
+// references rather than calls inside the live body: `Clock.currentTimeMillis`
+// through a namespace, or a bare `currentTimeMillis` through a named import.
+const isLiveClockReference = (imports: EffectVitestImports) => (expression: Expression) =>
+  isProvenanceExpression(expression, imports, ["effect", "effect/Clock"], "Clock", [
+    "currentTimeMillis",
+    "currentTimeNanos",
+  ]);
+const isBareReference = (identifier: Identifier): boolean => {
+  const parent = identifier.getParent();
+  return !(Node.isPropertyAccessExpression(parent) && parent.getNameNode() === identifier);
+};
+const liveClockRead = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  A.some(callback.getDescendantsOfKind(SyntaxKind.PropertyAccessExpression), isLiveClockReference(imports)) ||
+  A.some(
+    A.filter(callback.getDescendantsOfKind(SyntaxKind.Identifier), isBareReference),
+    isLiveClockReference(imports)
+  );
 const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
   A.some(
     callbackCalls(callback),
@@ -475,7 +494,7 @@ const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVite
       ]) ||
       isProvenanceCall(call, imports, ["effect", "effect/Console"], "Console", ["log", "error", "warn", "info"]) ||
       isProvenanceCall(call, imports, TEST_CLOCK_MODULES, "TestClock", ["withLive"])
-  );
+  ) || liveClockRead(callback, imports);
 const platformRoots = ["@effect/platform-bun", "@effect/platform-node", "@effect/platform-node-shared"];
 const platformServicesModules = ["@effect/platform-node/NodeServices", "@effect/platform-bun/BunServices"];
 const platformMemberModules = [...platformRoots, ...platformServicesModules];
