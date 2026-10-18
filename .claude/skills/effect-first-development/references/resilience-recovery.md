@@ -42,8 +42,8 @@ const runWorkers = Effect.fn("Workers.run")(function* (jobs: ReadonlyArray<Job>)
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 const loadSettings = Effect.fn("Settings.load")(function* () {
-  const port = yield* Config.int("PORT")
-  const apiKey = yield* Config.redacted("API_KEY")
+  const port = yield* Config.Port("PORT")
+  const apiKey = yield* Config.Redacted("API_KEY")
 
   yield* Effect.logInfo(`port=${port}`)
   yield* Effect.logDebug(`apiKey=${String(apiKey)}`)

@@ -252,8 +252,8 @@ export class MyService extends Context.Service<MyService, {
 - Use `@effect/vitest` and `it.effect(...)` for effectful tests.
 - Keep fixtures typed and schema-validated where useful.
 - When behavior claims to hold across a schema-modeled domain, prefer
-  `S.toArbitrary(sourceSchema)` with FastCheck over happy-path fixture data
-  alone. Add arbitrary annotations to the source schema when generation needs
+  `Arbitrary.schema(sourceSchema)` (`effect/Arbitrary`) with `it.prop` over
+  happy-path fixture data alone. Add arbitrary annotations to the source schema when generation needs
   domain-specific realism.
 
 ### EF-11: Public APIs are documented
@@ -286,7 +286,7 @@ export type Tenant = typeof Tenant.Type
 ### EF-12b: Schema-first internal domain building blocks
 
 - If an intermediate domain concept is named, reused, matched on, or structurally validated, model it as a schema first instead of an ad-hoc boolean helper.
-- Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncludes` before reaching for `S.makeFilter`.
+- Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncluding` before reaching for `S.makeFilter`.
 - Where upstream covers a `foundation/modeling` concept's intent, its covered facets retire in the same PR that migrates their consumers, with no alias; the whole concept retires unless the lines reading its uncovered members outnumber the lines using its covered facets (ADAPT, per the facet census in `standards/architecture/DECISIONS.md` "Upstream-First Foundation/Modeling").
 - Derive domain guards with `S.is(SomeSchema)`.
 - Use `LiteralKit` for a named internal literal domain, especially one that needs `.Enum`, `.is`, `$match`, `.toTaggedUnion`, or an annotation-bearing schema value; use `S.Literals` for anonymous inline unions never referenced by name.
@@ -721,16 +721,16 @@ Example:
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 const loadPort = Effect.fn("Config.loadPort")(function* () {
-  return yield* Config.int("PORT")
+  return yield* Config.Port("PORT")
 })
 ```
 
 ### EF-29: Secrets must stay redacted
 
-- Use `Config.redacted` for secret config values.
+- Use `Config.Redacted` for secret config values.
 - Use `Redacted.make` for sensitive values coming from non-config sources.
 - Never log secret values after unwrapping.
-- Reference: [Config.redacted](../.repos/effect/packages/effect/src/Config.ts:1161) and [Redacted](../.repos/effect/packages/effect/src/Redacted.ts).
+- Reference: [Config.Redacted](../.repos/effect/packages/effect/src/Config.ts) and [Redacted](../.repos/effect/packages/effect/src/Redacted.ts).
 
 Example:
 
@@ -738,7 +738,7 @@ Example:
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 const loadApiKey = Effect.fn("Config.loadApiKey")(function* () {
-  const apiKey = yield* Config.redacted("API_KEY")
+  const apiKey = yield* Config.Redacted("API_KEY")
   yield* Effect.logDebug(`apiKey=${String(apiKey)}`)
   return apiKey
 })
@@ -943,7 +943,7 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 const TopicKind = LiteralKit(["plain", "scoped"])
 
 const ContainsScopeSeparator = S.String.check(
-  S.isIncludes(":", {
+  S.isIncluding(":", {
     identifier: $I`ContainsScopeSeparatorCheck`,
     title: "Contains Scope Separator",
     description: "A string that contains `:`.",
@@ -1037,8 +1037,9 @@ Avoid this:
 - Use class-local statics for repeated `decode`, `encode`, `arbitrary`, and
   `equivalence` helpers when they reduce repeated plumbing without introducing
   import cycles.
-- Reference scratch proof:
-  `scratchpad/test/schema-static-apis.test.ts`.
+- Reference proofs:
+  `packages/foundation/modeling/schema/test/LiteralKit.test.ts` and
+  `packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts`.
 
 ### EF-36: Prefer schema equivalence for domain comparisons
 
@@ -1375,8 +1376,8 @@ export const resilientTask = task.pipe(
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 export const loadConfig = Effect.fn("Config.load")(function* () {
-  const port = yield* Config.int("PORT")
-  const apiKey = yield* Config.redacted("API_KEY")
+  const port = yield* Config.Port("PORT")
+  const apiKey = yield* Config.Redacted("API_KEY")
   return { port, apiKey }
 })
 ```
@@ -1421,7 +1422,7 @@ Use this before submitting code:
 24. Forking intent is explicit (`forkChild` default; `forkDetach` justified).
 25. Large fan-out operations specify concurrency deliberately.
 26. Config values come from `Config` / `ConfigProvider`, not direct `process.env` in domain logic.
-27. Secrets are `Redacted` (`Config.redacted` / `Redacted.make`) and not logged raw.
+27. Secrets are `Redacted` (`Config.Redacted` / `Redacted.make`) and not logged raw.
 28. Recovery uses `catchTag` / `catchFilter` for targeted cases.
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.

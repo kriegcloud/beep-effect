@@ -147,8 +147,8 @@ domain — move it to a use-case service or to the appropriate adapter.
 
 Schema is the one borderline case: domain may construct and apply schemas, and
 may yield decoded values, because schemas are pure values themselves. Domain may
-not, however, depend on `S.Layer`-style live encoder/decoder services that read
-configuration.
+not, however, depend on live encoder/decoder services, provided through a
+`Layer`, that read configuration.
 
 ## Example Shape
 

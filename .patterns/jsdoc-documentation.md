@@ -125,7 +125,7 @@ Document the owning declaration rather than inventing a barrel Example.
  * @category decoding
  * @since 0.0.0
  */
-export const decodeUserName = S.decodeUnknownOption(S.NonEmptyTrimmedString)
+export const decodeUserName = S.decodeUnknownOption(S.Trimmed.check(S.isNonEmpty()))
 ````
 
 ### Pure type-level export
