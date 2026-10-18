@@ -24,6 +24,9 @@ train (#1851/#1860) plus detector repairs (#1855), starting with F-S31-EV010.
 #1860 is complete: the third A-train PR landed the catalog removals and the
 `beep quality catalog-usage` detector
 ([record](./history/receipts/catalog-removals-record.md)).
+#1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
+`@beep/test-runner` cohorts and left 689 open rows
+([record](./history/receipts/vitest-canon-wave-1.md)).
 #1861 must land before 2026-10-30. The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

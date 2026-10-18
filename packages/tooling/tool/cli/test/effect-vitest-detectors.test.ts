@@ -432,6 +432,23 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("accepts Effect-valued live clock reads as live-mode justification", () =>
+    Effect.gen(function* () {
+      const clockImport = 'import * as Clock from "effect/Clock";';
+      for (const body of [
+        'it.live("millis", () => Fx.gen(function* () { yield* Clock.currentTimeMillis; }));',
+        'it.live("nanos", Fx.fnUntraced(function* () { const now = yield* Clock.currentTimeNanos; }));',
+      ])
+        assertFalse(yield* hasRule(`${clockImport}\n${body}`, "EV009"));
+      for (const body of [
+        'it.live("lookalike", () => Fx.gen(function* () { yield* Fixtures.currentTimeMillis; }));',
+        'it.live("shadow", () => Fx.gen(function* () { const Clock = fake; yield* Clock.currentTimeMillis; }));',
+        'it.live("unrelated", () => Fx.gen(function* () { yield* Fx.sleep("1 millis"); }));',
+      ])
+        assertTrue(yield* hasRule(`${clockImport}\n${body}`, "EV009"));
+    })
+  );
+
   it.effect("emits deterministic distinct identities for same-line occurrences", () =>
     Effect.gen(function* () {
       const source = 'it("x", () => Fx.zip(Fx.runSync(left), Fx.runSync(right)));';
@@ -549,6 +566,21 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
           "EV014"
         )
       );
+      for (const pure of [
+        'it.layer(L.empty)("x", it => {});',
+        'it.layer(L.empty, { excludeTestServices: true })("x", it => {});',
+        'const stub = L.mergeAll(L.empty, L.succeed(A, {})); it.layer(stub)("x", it => {});',
+        'import { empty } from "effect/Layer"; it.layer(empty)("x", it => {});',
+      ])
+        assertFalse(yield* hasRule(pure, "EV014"));
+      for (const lookalike of [
+        'it.layer(Fixtures.empty)("x", it => {});',
+        'const f = (L) => it.layer(L.empty)("x", it => {});',
+        'it.layer(L.mergeAll(L.empty, ImportedLive))("x", it => {});',
+      ])
+        assertTrue(
+          A.some(yield* findings(lookalike), (row) => row.ruleId === "EV014" && row.mechanization === "judgment")
+        );
       assertFalse(
         yield* hasRule(
           'import { layer as shared } from "@effect/vitest"; shared(ImportedLive, { timeout: "2 seconds" })("x", it => {});',

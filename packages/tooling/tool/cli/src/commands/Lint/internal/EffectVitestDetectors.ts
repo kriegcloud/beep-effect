@@ -171,6 +171,7 @@ const isPureStubLayer = (
     }
     return false;
   }
+  if (isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"])) return true;
   if (!Node.isIdentifier(expression) || A.contains(seen, expression.getText())) return false;
   return O.exists(localInitializer(expression, imports), (initializer) =>
     isPureStubLayer(initializer, imports, [...seen, expression.getText()])
@@ -464,6 +465,15 @@ const controlledWait = (
     )
   );
 };
+// Effect v4 exposes the live time reads as Effect values, so they appear as
+// references rather than calls inside the live body.
+const liveClockRead = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  A.some(callback.getDescendantsOfKind(SyntaxKind.PropertyAccessExpression), (access) =>
+    isProvenanceExpression(access, imports, ["effect", "effect/Clock"], "Clock", [
+      "currentTimeMillis",
+      "currentTimeNanos",
+    ])
+  );
 const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
   A.some(
     callbackCalls(callback),
@@ -475,7 +485,7 @@ const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVite
       ]) ||
       isProvenanceCall(call, imports, ["effect", "effect/Console"], "Console", ["log", "error", "warn", "info"]) ||
       isProvenanceCall(call, imports, TEST_CLOCK_MODULES, "TestClock", ["withLive"])
-  );
+  ) || liveClockRead(callback, imports);
 const platformRoots = ["@effect/platform-bun", "@effect/platform-node", "@effect/platform-node-shared"];
 const platformServicesModules = ["@effect/platform-node/NodeServices", "@effect/platform-bun/BunServices"];
 const platformMemberModules = [...platformRoots, ...platformServicesModules];
