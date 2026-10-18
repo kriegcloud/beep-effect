@@ -24,6 +24,9 @@ train (#1851/#1860) plus detector repairs (#1855), starting with F-S31-EV010.
 #1860 is complete: the third A-train PR landed the catalog removals and the
 `beep quality catalog-usage` detector
 ([record](./history/receipts/catalog-removals-record.md)).
+#1853 is complete: all five retained patches have a focused test and a
+fail-unpatched/pass-patched pair at the installed version, and none has a published
+upstream exit yet ([record](./history/receipts/patch-proofs-record.md)).
 #1861 is complete ahead of its 2026-10-30 deadline: the hold register records
 every retained override, patch, catalog hold and OSV exception, with the removed
 and renewed holds proved ([register](./history/receipts/hold-register.md)).

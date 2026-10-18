@@ -35,7 +35,11 @@ and make progress on independent admitted work under S23.
 | 9 | #1882 `residue-dependency-review` | Manifest-aware security integration and actual permission fixtures, retaining production transitive detection. |
 
 Workstream status: #1860 `residue-catalog` is complete (third A-train PR,
-`history/receipts/catalog-removals-record.md`). #1861 `residue-hold-exits` is
+`history/receipts/catalog-removals-record.md`). #1853 `residue-patch-proofs` is
+complete (`history/receipts/patch-proofs-record.md`): all five retained patches have
+a focused test and a current-version fail-unpatched/pass-patched pair, and none has
+a published upstream exit.
+#1861 `residue-hold-exits` is
 complete (`history/receipts/hold-register.md`), ahead of the 2026-10-30 deadline.
 #1851 continues in the A-train.
 #1856 `residue-guidance` is in progress: wave 1 classified and fixed the

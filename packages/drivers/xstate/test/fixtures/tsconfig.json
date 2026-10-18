@@ -1,6 +1,6 @@
 {
   "extends": "../../../../../tsconfig.json",
-  "include": ["*.ts", "*.tsx"],
+  "include": ["*.ts", "*.tsx", "declaration-emit/*.ts"],
   "exclude": [],
   "compilerOptions": {
     "strict": true,
