@@ -38,7 +38,9 @@ ignored helper scripts under `.beep/residue-hold-exits/`:
   `.github/workflows/check.yml`, the `patches/` directory and `standards/` (no
   advisory exceptions).
 
-## OSV exceptions (expiring 2026-10-30)
+## OSV exceptions (the 2026-10-30 expiry wave)
+
+Each row was due to expire on 2026-10-30. One is resolved; the other two are renewed in place to 2027-01-14.
 
 | Advisory | Package | Decision | Evidence |
 | --- | --- | --- | --- |
@@ -55,8 +57,8 @@ braces and sprintf-js only.
 
 Every row's exit was "each dependent's own range resolves a fixed or unified
 version". `bun install` followed by the lockfile-wide OSV scan found 2,607
-versions, and the vulnerable set stayed at the three excepted packages, with no
-new advisory. Natural resolutions come from `census.json`.
+versions. The vulnerable set dropped from three packages to the two still excepted (braces and
+sprintf-js), since http-cache-semantics resolved to 4.3.0, and no new advisory appeared. Natural resolutions come from `census.json`.
 
 | Override (was) | Purpose | Dependents → natural resolution (OSV) | Lock effect |
 | --- | --- | --- | --- |
