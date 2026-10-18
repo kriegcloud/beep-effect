@@ -61,7 +61,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     vi.clearAllMocks();
   });
 
-  it.live(
+  it.effect(
     "does not let an obsolete same-prefix, same-length render overwrite the current source",
     Effect.fnUntraced(function* () {
       const prefix = `graph TD\n${"A".repeat(80)}`;
@@ -109,7 +109,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "leaves no sink behind when an obsolete render resolves after unmount",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nUnmount-->Done";
@@ -127,7 +127,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects active or foreign renderer output before the HTML sink",
     Effect.fnUntraced(function* () {
       const source = `graph TD\nA["<img src=x onerror=alert(1)>"] --> B`;
@@ -168,7 +168,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "sanitizes the XML-versus-HTML parser differential before the HTML sink",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nXML-->HTML";
@@ -196,7 +196,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects escaped external CSS URLs in SVG presentation attributes",
     Effect.fnUntraced(function* () {
       const attacks = [
@@ -231,7 +231,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "retains CSS and URL fragments with unique targets inside the exact SVG",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nLocal-->Fragment";
@@ -273,7 +273,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rewrites every admitted SVG ARIA IDREF to an internal scoped target",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nARIA-->Internal";
@@ -316,7 +316,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects missing and external same-document SVG ARIA IDREF targets",
     Effect.fnUntraced(function* () {
       const attacks = [
@@ -355,7 +355,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects missing fragment targets and unsafe links across every admitted URL surface",
     Effect.fnUntraced(function* () {
       const attacks = [
@@ -388,7 +388,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rewrites prefix IDs independently without changing hex-color declarations",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nPrefix-->Hex";
@@ -420,7 +420,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects unsupported descendant ID selectors instead of rewriting CSS text",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nSelector-->Id";
@@ -448,7 +448,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "scopes internal fragment targets away from external same-document IDs",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nFragment-->ExternalCollision";
@@ -490,7 +490,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects duplicate internal fragment targets before rewriting",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nFragment-->Duplicate";
@@ -518,7 +518,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "keeps same-page diagrams with identical internal IDs isolated",
     Effect.fnUntraced(function* () {
       const first = "graph TD\nFirst-->Paint";
@@ -579,7 +579,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "adds an escaped programmatic text alternative without interpolating diagram source",
     Effect.fnUntraced(function* () {
       const source = `graph TD\nA["</desc><script data-diagram-xss='no'>alert(1)</script>&done"]`;
@@ -604,7 +604,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects string URL image functions in inline styles and stylesheets",
     Effect.fnUntraced(function* () {
       const attacks = [
@@ -647,7 +647,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects image resource functions hidden behind CSS custom properties",
     Effect.fnUntraced(function* () {
       const resource = 'image-set("https://attacker.invalid/custom-property")';
@@ -678,7 +678,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "retains fragment paint references and image-free stylesheet rules",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nSafe-->CSS";
@@ -710,7 +710,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "retains stylesheet filter references to namespaced internal fragments",
     Effect.fnUntraced(function* () {
       const source = "graph TD\nNeo-->Shadow";
@@ -741,7 +741,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects stylesheet url() references without a unique internal fragment target",
     Effect.fnUntraced(function* () {
       const attacks = [
@@ -778,7 +778,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects stylesheet rules that can affect the containing document",
     Effect.fnUntraced(function* () {
       const attacks = [
@@ -839,7 +839,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects root stylesheet and inline-style layout escape declarations",
     Effect.fnUntraced(function* () {
       const declarations = [
@@ -886,7 +886,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "renders parse and render rejections through the typed async failure branch",
     Effect.fnUntraced(function* () {
       mermaidStub.parse.mockRejectedValueOnce(new Error("private parser detail"));
@@ -906,7 +906,7 @@ describe("Mermaid async ownership", { concurrent: false }, () => {
     })
   );
 
-  it.live(
+  it.effect(
     "rejects oversized source through the typed async failure branch before Mermaid loads",
     Effect.fnUntraced(function* () {
       const source = "A".repeat(20_001);

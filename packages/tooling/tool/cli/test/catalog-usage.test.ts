@@ -22,9 +22,11 @@ import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { ChildProcess } from "effect/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 import { NodeCommandTestLayer } from "./support/CommandTest.ts";
 
@@ -33,6 +35,39 @@ const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Resu
 const [createPackageTemplateRoot] = CATALOG_USAGE_TEMPLATE_SOURCES;
 
 const CatalogUsageTestLayer = CatalogUsageSourceLive.pipe(Layer.provideMerge(NodeCommandTestLayer));
+
+// Fails only the generator-template listing; every other command reaches the real spawner.
+const failingTemplateListHandle = ChildProcessSpawner.makeHandle({
+  all: Stream.empty,
+  exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(128)),
+  getInputFd: () => Sink.drain,
+  getOutputFd: () => Stream.empty,
+  isRunning: Effect.succeed(false),
+  kill: () => Effect.void,
+  pid: ChildProcessSpawner.ProcessId(1),
+  stderr: Stream.empty,
+  stdin: Sink.drain,
+  stdout: Stream.empty,
+  unref: Effect.succeed(Effect.void),
+});
+const TemplateListFailureLayer = CatalogUsageSourceLive.pipe(
+  Layer.provide(
+    Layer.effect(
+      ChildProcessSpawner.ChildProcessSpawner,
+      Effect.gen(function* () {
+        const real = yield* ChildProcessSpawner.ChildProcessSpawner;
+        return ChildProcessSpawner.make((command) =>
+          ChildProcess.isStandardCommand(command) &&
+          command.command === "git" &&
+          A.contains(command.args, createPackageTemplateRoot)
+            ? Effect.succeed(failingTemplateListHandle)
+            : real.spawn(command)
+        );
+      })
+    )
+  ),
+  Layer.provideMerge(NodeCommandTestLayer)
+);
 // The quality command tree also declares the repo-utils and memory services its other subcommands use.
 const QualityCommandTestLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeCommandTestLayer)),
@@ -122,7 +157,11 @@ describe("catalog usage", () => {
         root: CatalogUsageRootManifest.make({
           catalog: { effect: "4.0.4", "left-pad": "^1.3.0" },
           catalogs: { tools: { "unused-tool": "^1.0.0" } },
-          overrides: { "inert-propagator": "2.10.0", "inert-scoped@1.0.0": { child: "1.0.0" } },
+          overrides: {
+            "inert-propagator": "2.10.0",
+            "inert-scoped@1.0.0": { child: "1.0.0" },
+            "inert-array": ["1.0.0"],
+          },
         }),
         manifests: [
           CatalogUsageManifest.make({ file: "packages/demo/package.json", dependencies: { effect: "catalog:" } }),
@@ -134,6 +173,7 @@ describe("catalog usage", () => {
       expect(findingKeys(snapshot)).toEqual([
         "catalog-entry:default:left-pad",
         "catalog-entry:tools:unused-tool",
+        "root-override::inert-array",
         "root-override::inert-propagator",
         "root-override::inert-scoped@1.0.0",
       ]);
@@ -202,6 +242,7 @@ describe("catalog usage", () => {
             {
               catalog: { effect: "4.0.4", "template-only": "^1.0.0", "planted-unused": "^9.9.9" },
               catalogs: { tools: { "named-dep": "^1.0.0" } },
+              overrides: { "inert-floor": "1.0.0" },
             },
             fixtureLockfile
           );
@@ -209,7 +250,9 @@ describe("catalog usage", () => {
           const error = yield* runCatalogUsageCheck(tmpDir).pipe(Effect.flip);
 
           expect(error).toBeInstanceOf(CatalogUsageError);
-          expect(yield* TestConsole.errorLines).toContain("  - catalog-entry default:planted-unused");
+          const errors = yield* TestConsole.errorLines;
+          expect(errors).toContain("  - catalog-entry default:planted-unused");
+          expect(errors).toContain("  - root-override inert-floor");
         }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
       );
 
@@ -274,5 +317,20 @@ describe("catalog usage", () => {
         }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
       );
     }
+  );
+});
+
+it.layer(TemplateListFailureLayer, { timeout: "30 seconds" })("catalog usage template listing", (it) => {
+  it.effect("fails when the generator template sources cannot be listed", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
+      yield* writeFixtureRepo(tmpDir, { catalog: { effect: "4.0.4" } }, fixtureLockfile);
+
+      const error = yield* runCatalogUsageCheck(tmpDir).pipe(Effect.flip);
+
+      expect(error).toBeInstanceOf(CatalogUsageError);
+      expect(error.message).toBe("git ls-files for generator template sources failed with exit code 128.");
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 });

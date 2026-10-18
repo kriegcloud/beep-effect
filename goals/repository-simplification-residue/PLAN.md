@@ -36,6 +36,8 @@ and make progress on independent admitted work under S23.
 
 Workstream status: #1860 `residue-catalog` is complete (third A-train PR,
 `history/receipts/catalog-removals-record.md`). #1851 continues in the A-train.
+#1875 `residue-vitest-canon` is in progress after wave 1, which leaves 689 open rows
+(`history/receipts/vitest-canon-wave-1.md`).
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability
