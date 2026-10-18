@@ -405,24 +405,20 @@ export const printHotParcels: {
   ): Effect.Effect<void, never, Exclude<R, Scope.Scope> | FileSystem.FileSystem | Path.Path>;
 } = dual(
   2,
-  <E, R>(
-    runtime: Layer.Layer<PalantiriClient, E, R>,
-    timeout: Duration.Duration
-  ): Effect.Effect<void, never, Exclude<R, Scope.Scope> | FileSystem.FileSystem | Path.Path> =>
-    Effect.gen(function* () {
-      const result = yield* hotParcels(runtime, timeout);
-      // A finished block is staged first, so a timed-out parcel prints the
-      // carried line the hook will show; a failed write prints this read as is.
-      const printed = yield* Result.match(result, {
-        onFailure: () => Effect.succeed(result),
-        onSuccess: (lines) =>
-          stageHotParcels(lines).pipe(
-            Effect.map(Result.succeed),
-            Effect.catchCause((cause) =>
-              Effect.logDebug("[palantiri] could not stage the hot parcels", cause).pipe(Effect.as(result))
-            )
-          ),
-      });
-      yield* Effect.forEach(renderHotBlock(printed), (line) => Console.log(line), { discard: true });
-    })
+  Effect.fnUntraced(function* <E, R>(runtime: Layer.Layer<PalantiriClient, E, R>, timeout: Duration.Duration) {
+    const result = yield* hotParcels(runtime, timeout);
+    // A finished block is staged first, so a timed-out parcel prints the
+    // carried line the hook will show; a failed write prints this read as is.
+    const printed = yield* Result.match(result, {
+      onFailure: () => Effect.succeed(result),
+      onSuccess: (lines) =>
+        stageHotParcels(lines).pipe(
+          Effect.map(Result.succeed),
+          Effect.catchCause((cause) =>
+            Effect.logDebug("[palantiri] could not stage the hot parcels", cause).pipe(Effect.as(result))
+          )
+        ),
+    });
+    yield* Effect.forEach(renderHotBlock(printed), (line) => Console.log(line), { discard: true });
+  })
 );
