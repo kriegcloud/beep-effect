@@ -100,7 +100,7 @@ work, not through deploying this standalone.
 ## 4. Graphiti MCP (Shared Memory)
 
 **Location:** Configured in `.mcp.json`, backed by FalkorDB, managed via
-`bun run beep graphiti proxy`
+the Graphiti proxy subcommand of the beep CLI (since removed)
 
 **Status:** Running. Shared between Claude Code and Codex. Extensive bootstrap
 protocol and query catalog documented. User reports it has become less effective

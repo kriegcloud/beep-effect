@@ -15,7 +15,7 @@
         ".claude/skills/atom-reactivity-specialist",
         ".agents/skills/atom-reactivity-specialist"
       ],
-      "installedTreeHash": "b185910764de5f03f333f39e3b45c74309db59d82914b86e06a6bea9209525e8"
+      "installedTreeHash": "5547044ef1e8b57cea02b7b9153fd32a12a1d2c164f75e92f7fd986b2e635300"
     },
     "browser-qa-loop": {
       "_tag": "local",
@@ -47,7 +47,7 @@
         ".claude/skills/crispen",
         ".agents/skills/crispen"
       ],
-      "installedTreeHash": "202eccd4bedaa0d7e2de64a3af7c143dc95ef0127aa814bf62b228cd4137dbb3"
+      "installedTreeHash": "35baa0a575b3c908ef2be1e7b450e7b730c0cbf4a999a4e058622c01ebc77c48"
     },
     "effect-first-development": {
       "_tag": "local",
@@ -55,7 +55,7 @@
         ".claude/skills/effect-first-development",
         ".agents/skills/effect-first-development"
       ],
-      "installedTreeHash": "f127f9a84ddd5516a53ecd4c344539ea2e6e70e89608e7ff360dbe035b672556"
+      "installedTreeHash": "a0db93287f390d7c6b3d3bb73ed9e1ed3285e04a267a1e08e87903db2ff6b50f"
     },
     "explore": {
       "_tag": "local",
@@ -139,7 +139,7 @@
         ".claude/skills/grill-with-docs",
         ".agents/skills/grill-with-docs"
       ],
-      "installedTreeHash": "9067e73e3c7c22daa7070b2f86963063621a6a8a8ceac91b54129d51c2a7910a"
+      "installedTreeHash": "518adff424cd87823ecd8ba9dca5b37c0a330c68ae28ae3c14d0fcef10e55761"
     },
     "grilling": {
       "_tag": "local",
@@ -155,7 +155,7 @@
         ".claude/skills/jsdoc-annotation-specialist",
         ".agents/skills/jsdoc-annotation-specialist"
       ],
-      "installedTreeHash": "1db3bb2c822d31930349e69b75a835f972f5196a40c41d20691ff32577452922"
+      "installedTreeHash": "29e5dd2e0ac57d922e58fe15fa7e00b95e706c21755ad3149e176e40c0c4ec6e"
     },
     "motion-evidence-review": {
       "_tag": "local",
@@ -203,7 +203,7 @@
         ".claude/skills/ontology-foundational-auditor",
         ".agents/skills/ontology-foundational-auditor"
       ],
-      "installedTreeHash": "f70bbd3a22489153e843c21bedd64bd84d2f3dd7288459062c5f100b83f48994"
+      "installedTreeHash": "9d7de8e4de9ebc5c40cad269ff824f586cc8b37a99613f50c8cdac8bf284e26d"
     },
     "ontology-mapper": {
       "_tag": "local",
@@ -384,7 +384,7 @@
         ".claude/skills/quality-review-fix-loop",
         ".agents/skills/quality-review-fix-loop"
       ],
-      "installedTreeHash": "3e5f8582b241d9665b7fb982042a2eb7f6bd3507434bd5e1c1aef1c082f7e24a"
+      "installedTreeHash": "e8c77f6f518ecea62ea4e73b995b988d37c440ba2fc360c29042098fabcc4040"
     },
     "reflect": {
       "_tag": "local",
@@ -400,7 +400,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "83cb38b975ac51a5d187c6be1a56fc19868c8a9ad9ad259dfdffd6ff45bfe8b3"
+      "installedTreeHash": "a46949595f8cfaa0b1dc3f52c13332b41ab50812b9a247a047554f06e3e2834b"
     },
     "shadcn": {
       "_tag": "vendored",

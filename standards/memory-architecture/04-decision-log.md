@@ -200,7 +200,7 @@ degradation history, operational direction of travel, and ontology alignment.
 deterministic code-intelligence / repo-memory v0 body of work was a **learning
 vehicle** -- the user grounding themselves in software to learn ontology/graph/memory
 architecture -- and was **deliberately pruned** (spec corpus `309649ebcc` 2026-03-08;
-repo-memory hosts `apps/clawhole` + `packages/ai` `78f5d3fb0e` 2026-04-07; last UI
+repo-memory hosts, the clawhole app and the ai package, `78f5d3fb0e` 2026-04-07; last UI
 residue `6c8bab5b25` 2026-04-27), with this standard crystallized *after* the prune.
 Yet this README's Core Thesis + Imperative #1, `01-memory-layer-taxonomy.md`,
 `02-thread-triage.md`, and `docs/BEEPGRAPH_ARCHITECTURE.md` still framed code
@@ -228,7 +228,8 @@ standard trustworthy on a cold read.
   `01-memory-layer-taxonomy.md` (L3, repo-memory, BeepGraph) and `02-thread-triage.md`
   (thread 1) annotated as superseded; `docs/BEEPGRAPH_ARCHITECTURE.md` L3 row relabeled
   "dev tooling, not a product moat."
-- `explorations/effect-capability-kg` (the code-intelligence tooling track) is **parked**.
+- The `effect-capability-kg` exploration (the code-intelligence tooling track) is **parked**
+  (since removed from the tree).
 - `goals/file-processing-capability` status corrected `pending-implementation → active`
   (the capability + tika/libpff drivers are built; P1 underway). A broader
   goal-status-vocabulary normalization is a separate, **deferred** cleanup.

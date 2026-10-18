@@ -27,6 +27,9 @@ train (#1851/#1860) plus detector repairs (#1855), starting with F-S31-EV010.
 #1853 is complete: all five retained patches have a focused test and a
 fail-unpatched/pass-patched pair at the installed version, and none has a published
 upstream exit yet ([record](./history/receipts/patch-proofs-record.md)).
+#1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
+every stale file ([record](./history/receipts/guidance-classification.md)); the
+660-directive review and a Markdown example compile check remain.
 #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).

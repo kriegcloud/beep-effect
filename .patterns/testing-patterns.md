@@ -89,13 +89,14 @@ import { assert, describe, it } from "@effect/vitest"
 import { assertExitFailure } from "@effect/vitest/utils"
 import * as Effect from "effect/Effect";
 import * as Cause from "effect/Cause"
+import * as Fiber from "effect/Fiber"
 import * as TestClock from "effect/testing/TestClock"
 
 describe("time-dependent operations", () => {
   it.effect("should handle delays with TestClock", 
     Effect.fnUntraced(function*() {
       // Start operation that takes 5 seconds
-      const fiber = yield* Effect.fork(
+      const fiber = yield* Effect.forkChild(
         Effect.gen(function*() {
           yield* Effect.sleep("5 seconds")
           return "completed"
@@ -105,7 +106,7 @@ describe("time-dependent operations", () => {
       // Use TestClock.adjust with string duration (preferred pattern)
       yield* TestClock.adjust("5 seconds")
 
-      const result = yield* Effect.join(fiber)
+      const result = yield* Fiber.join(fiber)
       assert.strictEqual(result, "completed")
     }))
 
@@ -116,12 +117,12 @@ describe("time-dependent operations", () => {
         "5 seconds"
       )
 
-      const fiber = yield* Effect.fork(timeoutEffect)
+      const fiber = yield* Effect.forkChild(timeoutEffect)
 
       // Advance time to trigger timeout
       yield* TestClock.adjust("5 seconds")
 
-      const result = yield* Effect.exit(Effect.join(fiber))
+      const result = yield* Effect.exit(Fiber.join(fiber))
       assertExitFailure(result, Cause.fail(new Cause.TimeoutError()))
     }))
 
@@ -130,7 +131,7 @@ describe("time-dependent operations", () => {
       // Set clock to specific timestamp
       yield* TestClock.setTime(1000)
 
-      const fiber = yield* Effect.fork(
+      const fiber = yield* Effect.forkChild(
         Effect.gen(function*() {
           yield* Effect.sleep("2 seconds")
           return yield* Effect.clockWith((clock) => clock.currentTimeMillis)
@@ -138,7 +139,7 @@ describe("time-dependent operations", () => {
       )
 
       yield* TestClock.adjust("2 seconds")
-      const result = yield* Effect.join(fiber)
+      const result = yield* Fiber.join(fiber)
       assert.strictEqual(result, 3000) // 1000 + 2000ms
     }))
 })
