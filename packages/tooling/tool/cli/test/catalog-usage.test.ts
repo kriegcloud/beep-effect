@@ -103,7 +103,9 @@ describe("catalog usage", () => {
       expect(first).toMatchObject({ _tag: "CatalogUsageError", message: "read failed", file: "package.json" });
       expect(first.cause).toBe(cause);
       expect(CatalogUsageError.new("read failed")(cause)).not.toHaveProperty("file");
-      expect(CatalogUsageError.new(cause, "no file")).not.toHaveProperty("file");
+      const noFile = CatalogUsageError.new(cause, "no file", undefined);
+      expect(noFile).toMatchObject({ _tag: "CatalogUsageError", message: "no file" });
+      expect(noFile).not.toHaveProperty("file");
     });
 
     it.effect("maps an arbitrary failure into a CatalogUsageError", () =>
