@@ -141,8 +141,10 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
   - patched alpha.6: no output, exit 0;
   - exit tree `1.0.0-alpha.8` (latest published, with xstate `6.0.0-alpha.69` and
     effect 4.0.5): the same TS4023, exit 1.
-- Upstream: no upstream issue or PR exists, and the `@xstate/effect` source is not
-  on statelyai/xstate `main`. No exit.
+- Upstream: the exit evidence is the failing latest published version,
+  `@xstate/effect` 1.0.0-alpha.8 (TS4023 above). No upstream issue or PR exists, and the
+  `@xstate/effect` source is not on statelyai/xstate `main`, so there is no upstream head
+  to check. No exit.
 
 ### `onnxruntime-node@1.30.0`: installer extraction
 
@@ -183,8 +185,10 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 | `onnxruntime-node` (with override) | 1.30.0 | `bf80243e` | face-detection `OnnxRuntimeInstall` | 3/7 fail | pass | 1.30.0 is latest | none; onnxruntime#31193 open |
 
 No patch has a published upstream exit, so none is dropped in this PR. For Effect
-equality and XState there is no upstream issue or PR to cite. Their exit evidence is
-the unfixed upstream head plus the failing latest published version, re-checked here.
+equality and XState there is no upstream issue or PR to cite. For Effect, the exit
+evidence is the unfixed Effect `main` head plus the failing latest published 4.0.5. For
+XState, whose package source is not on statelyai/xstate `main`, it is the failing latest
+published 1.0.0-alpha.8. Both were re-checked here.
 
 ## Owners and recovery
 
@@ -198,4 +202,6 @@ driver owner for `@xstate/effect`, and the face-detection driver owner for ONNX.
 - ONNX: remove or re-apply the patch, its companion note and the `adm-zip` override
   together, with the lockfile. Never remove the override on its own.
 - Reversal of this PR: `git revert` it. It adds three tests and one fixture, adds one
-  catalog devDependency (with its `bun.lock` line), and changes no patch.
+  catalog devDependency (with its `bun.lock` line), and revises the Effect patch
+  (`patches/effect@4.0.4.patch`, narrowed in review; see its row above). Reverting also
+  reverts that patch revision, so run `bun install` afterwards to reapply the previous patch.
