@@ -33,7 +33,9 @@ below). Junie is not a chain step: a quota failure elsewhere still steps the ori
 down, and a Junie worker never delegates onward.
 
 Step down a chain only on a confirmed quota, availability, or unsupported-model failure. Direct
-Claude never appears in the Codex chain and direct Codex never in the Claude chain. Cursor and
+Claude never appears in the Codex chain; Codex (`gpt-6.1-sol` medium) is the first step down the
+Claude chain since 2026-10-18 (`goals/agent-pool-doctrine/history/2026-10-18-codex-claude-fallback.md`),
+before Cursor and grok-build. Cursor and
 grok-build workers never delegate onward: they return a result or blocker to the originating
 orchestrator, which owns every cross-provider decision and launch. An unfavorable review or an
 ordinary code failure is remediated on the same route. Only existing subscriptions and

@@ -35,7 +35,9 @@ a committed deny list, and a runbook every orchestrator can copy from.
 7. [`history/2026-10-14-routing-refresh.md`](./history/2026-10-14-routing-refresh.md) - the
    2026-10-14 amendment: Fable orchestrator, `review.panel`, `muse.opt-in`, Junie volume pool and
    its accounts meter (closes the Junie open decision).
-8. [`../../explorations/cursor-agent-pool/`](../../explorations/cursor-agent-pool/) - BRIEF, DECISIONS
+8. [`history/2026-10-18-codex-claude-fallback.md`](./history/2026-10-18-codex-claude-fallback.md) - the
+   2026-10-18 amendment: Codex `gpt-6.1-sol` becomes step 2 of the Claude Code chain (R11).
+9. [`../../explorations/cursor-agent-pool/`](../../explorations/cursor-agent-pool/) - BRIEF, DECISIONS
    D1–D21, RESEARCH with the hooks smoke test and the Codex meter proof.
 
 ## Current Phase
