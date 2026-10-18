@@ -36,6 +36,9 @@ every stale file ([record](./history/receipts/guidance-classification.md)); the
 #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).
+#1876 is complete: the RDF failure assertions and the Pacer logout teardown
+witness are ported, with a per-hunk disposition of the preserved exports
+([record](./history/receipts/rdf-pacer-ports.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

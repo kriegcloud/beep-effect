@@ -48,6 +48,9 @@ the 660 inline directives individually; wave 3 adds a compile check for the 324
 Markdown TypeScript fences and decides the three upstream-copied `.patterns` files.
 #1875 `residue-vitest-canon` is in progress after wave 1, which leaves 689 open rows
 (`history/receipts/vitest-canon-wave-1.md`).
+#1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the
+RDF failure assertions and the Pacer logout witness are ported, and every export
+hunk has a disposition.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

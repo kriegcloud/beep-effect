@@ -3,7 +3,7 @@ import { makeNamedNode } from "@beep/rdf/Rdf";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertTrue } from "@effect/vitest/utils";
+import { assertExitFailure, assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
@@ -12,6 +12,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { mapFailureTags } from "./helpers/FailureTags.ts";
 
 const IRIDecodeEffect = S.decodeEffect(IRI);
 const IRIIs = S.is(IRI);
@@ -43,19 +44,19 @@ describe("IRI", () => {
   it.effect("rejects invalid facade inputs with the RDF schema diagnostics", () =>
     Effect.gen(function* () {
       const invalidIri = yield* Effect.exit(decodeIRI("https://example.com/%ZZ"));
-      pipe(invalidIri, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalidIri), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalidIri)) {
         expect(Cause.pretty(invalidIri.cause)).toContain("Expected a valid RFC 3987 IRI");
       }
 
       const invalidAbsolute = yield* Effect.exit(decodeAbsoluteIRI("https://example.com/path#frag"));
-      pipe(invalidAbsolute, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalidAbsolute), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalidAbsolute)) {
         expect(Cause.pretty(invalidAbsolute.cause)).toContain("Expected a valid RFC 3987 absolute IRI");
       }
 
       const invalidRelative = yield* Effect.exit(decodeRelativeIRIReference("folder:child/leaf"));
-      pipe(invalidRelative, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalidRelative), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalidRelative)) {
         expect(Cause.pretty(invalidRelative.cause)).toContain("Expected a valid RFC 3987 relative IRI reference");
       }
