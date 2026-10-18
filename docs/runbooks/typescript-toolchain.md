@@ -12,13 +12,13 @@ tsc-rs remains the build/check gate.
 | `typescript` | `^7.0.2` | Native TypeScript 7 package; no classic `lib/typescript.js` API. |
 | `@typescript/native` | `npm:typescript@^7.0.2` | The same TypeScript 7 package under the retained alias, used by patching and unstable API consumers. Alias consolidation is a separate follow-up. |
 | `@typescript/typescript6` | `6.0.2` (exact) | Microsoft’s classic JS API bridge for the schema-opaque codemod/fixup, scratchpad JSDoc census; declared at root and in scratchpad. |
-| `@effect/tsgo` + seven `@effect/tsgo-<platform>` packages | `0.53.0` | The Effect language service build of TypeScript 7. Editors and the independent Effect diagnostics lane use this reviewed pin; it can advance beyond the tsc-rs port. |
+| `@effect/tsgo` (pins its seven `@effect/tsgo-<platform>` packages exactly) | `0.53.4` | The Effect language service build of TypeScript 7. Editors and the independent Effect diagnostics lane use this reviewed pin; it can advance beyond the tsc-rs port. |
 | `tsc-rs` + six `@tsc-rs/<platform>` optional packages | `0.6.0` | The Rust port of the TypeScript 7 compiler ([pingdotgg/ts-rust](https://github.com/pingdotgg/ts-rust)) with the Effect rules of one effect-tsgo version compiled in (0.6.0 ports 0.51.1) and its own TypeScript pinned (`7.1.0-dev.20261008.1`). Runs generated library `beep:build`, `beep:check` and `beep:check:tests` gates, the root `check:configs`, and infra's `-b` check. Framework apps retain their own build commands. |
 
 The root `prepare` script (`effect-tsgo unpatch && node scripts/prune-tsgo-backups.mjs && effect-tsgo patch`)
 copies the Effect binary over the native package's Go binary, keeping the stock
 one beside it as `tsc.original`. After install, both of these print
-`Version 7.0.2+effect-tsgo.0.53.0`:
+`Version 7.0.2+effect-tsgo.0.53.4`:
 
 ```text
 node_modules/.bin/tsc      -> @typescript/native/bin/tsc  (patched Go binary)
@@ -65,7 +65,7 @@ exception was upstream 7.1-dev behaviour, fixed in #1670). Rules of the road:
 
 ## Binary paths (Linux x64)
 
-Verified at 0.53.0. Substitute the platform triple on other machines.
+Verified at 0.53.4. Substitute the platform triple on other machines.
 
 - `node_modules/@effect/tsgo-linux-x64/lib/tsc` is the latest TypeScript (7.0.2)
   Effect artifact. Since 0.52 it is shipped once in `lib`, not duplicated under
@@ -161,7 +161,7 @@ to `effect-tsgo diagnostics --lspconfig`. This replacement option must receive
 the full merged plugin; passing the nine-key profile alone loses project policy.
 The profile participates in affected selection, so changing it selects all projects.
 The rule-parity checker validates the combined root and lane maps against the
-installed 0.53.0 catalog, while copied compiler profiles match the shared root map.
+installed 0.53.4 catalog, while copied compiler profiles match the shared root map.
 
 Promotion followed the first green main run (job 116271099290 on ce5780ed67:
 291 projects, 73,884 file visits, zero findings, 14m17s). The descriptor and

@@ -195,7 +195,7 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
         expect(tscRs.stdout, context).not.toContain("+effect-tsgo");
         const { catalog } = decodeRootCatalog(yield* fs.readFileString(rootManifestPath));
         expect(catalog["tsc-rs"]).toBe("0.6.0");
-        expect(catalog["@effect/tsgo"]).toBe("0.53.0");
+        expect(catalog["@effect/tsgo"]).toBe("0.53.4");
       })
     );
   });

@@ -35,7 +35,9 @@ and make progress on independent admitted work under S23.
 | 9 | #1882 `residue-dependency-review` | Manifest-aware security integration and actual permission fixtures, retaining production transitive detection. |
 
 Workstream status: #1860 `residue-catalog` is complete (third A-train PR,
-`history/receipts/catalog-removals-record.md`). #1851 continues in the A-train.
+`history/receipts/catalog-removals-record.md`). #1861 `residue-hold-exits` is
+complete (`history/receipts/hold-register.md`), ahead of the 2026-10-30 deadline.
+#1851 continues in the A-train.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability
