@@ -466,13 +466,22 @@ const controlledWait = (
   );
 };
 // Effect v4 exposes the live time reads as Effect values, so they appear as
-// references rather than calls inside the live body.
+// references rather than calls inside the live body: `Clock.currentTimeMillis`
+// through a namespace, or a bare `currentTimeMillis` through a named import.
+const isLiveClockReference = (imports: EffectVitestImports) => (expression: Expression) =>
+  isProvenanceExpression(expression, imports, ["effect", "effect/Clock"], "Clock", [
+    "currentTimeMillis",
+    "currentTimeNanos",
+  ]);
+const isBareReference = (identifier: Identifier): boolean => {
+  const parent = identifier.getParent();
+  return !(Node.isPropertyAccessExpression(parent) && parent.getNameNode() === identifier);
+};
 const liveClockRead = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
-  A.some(callback.getDescendantsOfKind(SyntaxKind.PropertyAccessExpression), (access) =>
-    isProvenanceExpression(access, imports, ["effect", "effect/Clock"], "Clock", [
-      "currentTimeMillis",
-      "currentTimeNanos",
-    ])
+  A.some(callback.getDescendantsOfKind(SyntaxKind.PropertyAccessExpression), isLiveClockReference(imports)) ||
+  A.some(
+    A.filter(callback.getDescendantsOfKind(SyntaxKind.Identifier), isBareReference),
+    isLiveClockReference(imports)
   );
 const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
   A.some(

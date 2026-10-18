@@ -140,6 +140,13 @@ S38. The worker stopped on the Cursor Opus usage limit after the source, the rec
 the package runs were done. Under ruling S39, the driver session (`claude-opus-5-5`) finished
 verification and the packet status.
 
+Source heads. The checks below ran on the wave's tree, which is base `e3ee18dfd7` plus
+this wave's changes, committed unchanged as `90ad185721`. The published branch then merged
+main `7b2ee4f728` (`850823a6e7`). It also added the catalog-usage coverage commit
+`a6138473f0` and this round's EV009 named-import repair. Both of those touch only
+`@beep/repo-cli`, whose detector and catalog-usage suites, Effect diagnostics and the fallow audit were rerun on the final head. Hosted CI
+on the PR head is the head-bound proof for the merged result.
+
 | Check | Result |
 | --- | --- |
 | `bun run beep lint effect-vitest` | `introduced=0 resolved=66` (23 before this wave) |

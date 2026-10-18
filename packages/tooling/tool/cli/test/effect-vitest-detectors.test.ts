@@ -446,6 +446,23 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         'it.live("unrelated", () => Fx.gen(function* () { yield* Fx.sleep("1 millis"); }));',
       ])
         assertTrue(yield* hasRule(`${clockImport}\n${body}`, "EV009"));
+      const namedRead = 'it.live("named", () => Fx.gen(function* () { yield* currentTimeMillis; }));';
+      for (const named of [
+        'import { currentTimeMillis } from "effect/Clock";',
+        'import { currentTimeNanos as currentTimeMillis } from "effect/Clock";',
+      ])
+        assertFalse(yield* hasRule(`${named}\n${namedRead}`, "EV009"));
+      for (const named of [
+        'import { currentTimeMillis } from "./fixtures";',
+        'import { currentTimeMillis } from "effect/Clock"; const shadow = () => { const currentTimeMillis = fake; return currentTimeMillis; };',
+      ])
+        assertTrue(
+          yield* hasRule(
+            `${named}\nit.live("named", () => Fx.gen(function* () { const currentTimeMillis = fake; yield* currentTimeMillis; }));`,
+            "EV009"
+          )
+        );
+      assertTrue(yield* hasRule('import { currentTimeMillis } from "./fixtures";\n' + namedRead, "EV009"));
     })
   );
 
