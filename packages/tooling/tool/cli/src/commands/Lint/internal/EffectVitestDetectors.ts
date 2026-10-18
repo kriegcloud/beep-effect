@@ -171,6 +171,7 @@ const isPureStubLayer = (
     }
     return false;
   }
+  if (isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"])) return true;
   if (!Node.isIdentifier(expression) || A.contains(seen, expression.getText())) return false;
   return O.exists(localInitializer(expression, imports), (initializer) =>
     isPureStubLayer(initializer, imports, [...seen, expression.getText()])
@@ -464,6 +465,24 @@ const controlledWait = (
     )
   );
 };
+// Effect v4 exposes the live time reads as Effect values, so they appear as
+// references rather than calls inside the live body: `Clock.currentTimeMillis`
+// through a namespace, or a bare `currentTimeMillis` through a named import.
+const isLiveClockReference = (imports: EffectVitestImports) => (expression: Expression) =>
+  isProvenanceExpression(expression, imports, ["effect", "effect/Clock"], "Clock", [
+    "currentTimeMillis",
+    "currentTimeNanos",
+  ]);
+const isBareReference = (identifier: Identifier): boolean => {
+  const parent = identifier.getParent();
+  return !(Node.isPropertyAccessExpression(parent) && parent.getNameNode() === identifier);
+};
+const liveClockRead = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  A.some(callback.getDescendantsOfKind(SyntaxKind.PropertyAccessExpression), isLiveClockReference(imports)) ||
+  A.some(
+    A.filter(callback.getDescendantsOfKind(SyntaxKind.Identifier), isBareReference),
+    isLiveClockReference(imports)
+  );
 const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
   A.some(
     callbackCalls(callback),
@@ -475,7 +494,7 @@ const liveServiceCall = (callback: EffectVitestFunctionNode, imports: EffectVite
       ]) ||
       isProvenanceCall(call, imports, ["effect", "effect/Console"], "Console", ["log", "error", "warn", "info"]) ||
       isProvenanceCall(call, imports, TEST_CLOCK_MODULES, "TestClock", ["withLive"])
-  );
+  ) || liveClockRead(callback, imports);
 const platformRoots = ["@effect/platform-bun", "@effect/platform-node", "@effect/platform-node-shared"];
 const platformServicesModules = ["@effect/platform-node/NodeServices", "@effect/platform-bun/BunServices"];
 const platformMemberModules = [...platformRoots, ...platformServicesModules];
@@ -548,8 +567,8 @@ const nativeFileSystemOperations = ["chmod", "chown", "link", "readLink", "realP
 const testKitModules = ["@beep/test-utils", "@beep/test-runner"];
 
 type HarnessFlow = { readonly harness: CallExpression; readonly subject: boolean };
-// AST nodes are keyed and compared by identity; Effect hashing and Equal are structural.
-type FlowCache = WeakMap<VariableDeclaration, O.Option<ReadonlyArray<HarnessFlow>>>;
+// Keyed by declaration start offset: every flow walk stays within one source file.
+type FlowCache = MutableHashMap.MutableHashMap<number, O.Option<ReadonlyArray<HarnessFlow>>>;
 
 const isArgumentOf = (call: CallExpression, node: MorphNode): boolean =>
   A.some(call.getArguments(), (argument) => argument === node);
@@ -732,7 +751,9 @@ const declarationFlows = (
   visited: FlowCache
 ): O.Option<ReadonlyArray<HarnessFlow>> => {
   if (!isFollowableBinding(declaration, current, seen)) return O.none();
-  const reached = visited.get(declaration) ?? bindingFlows(declaration, imports, [...seen, declaration], visited);
+  const reached = O.getOrElse(MutableHashMap.get(visited, declaration.getStart()), () =>
+    bindingFlows(declaration, imports, [...seen, declaration], visited)
+  );
   return O.map(
     reached,
     A.map((flow) => ({ ...flow, subject: flow.subject || provided }))
@@ -791,7 +812,7 @@ const bindingFlows = (
     flows.push(...reached.value);
   }
   const result = opaque || A.isReadonlyArrayEmpty(flows) ? O.none() : O.some(flows);
-  visited.set(declaration, result);
+  MutableHashMap.set(visited, declaration.getStart(), result);
   return result;
 };
 
@@ -848,7 +869,7 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
 
 const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
   O.exists(servicesBundleLayers(declaration, imports), (layers) => {
-    const visited: FlowCache = new WeakMap();
+    const visited: FlowCache = MutableHashMap.empty();
     return O.exists(O.all(A.map(layers, (layer) => harnessFlows(layer, imports, [], false, visited))), (nested) => {
       const flows = A.flatten(nested);
       const harnesses = A.dedupeWith(

@@ -1,3 +1,4 @@
+import { QualityScriptCommandError, qualityCommand } from "@beep/repo-cli/commands/Quality";
 import {
   CATALOG_USAGE_TEMPLATE_SOURCES,
   CatalogUsageError,
@@ -10,17 +11,22 @@ import {
   catalogUsageReport,
   runCatalogUsageCheck,
 } from "@beep/repo-cli/test/Quality";
+import { MemoryStats } from "@beep/repo-cli/test/RepoRun";
+import { FsUtilsLive } from "@beep/repo-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
+import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { ChildProcess } from "effect/process";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 import { NodeCommandTestLayer } from "./support/CommandTest.ts";
 
@@ -29,6 +35,44 @@ const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Resu
 const [createPackageTemplateRoot] = CATALOG_USAGE_TEMPLATE_SOURCES;
 
 const CatalogUsageTestLayer = CatalogUsageSourceLive.pipe(Layer.provideMerge(NodeCommandTestLayer));
+
+// Fails only the generator-template listing; every other command reaches the real spawner.
+const failingTemplateListHandle = ChildProcessSpawner.makeHandle({
+  all: Stream.empty,
+  exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(128)),
+  getInputFd: () => Sink.drain,
+  getOutputFd: () => Stream.empty,
+  isRunning: Effect.succeed(false),
+  kill: () => Effect.void,
+  pid: ChildProcessSpawner.ProcessId(1),
+  stderr: Stream.empty,
+  stdin: Sink.drain,
+  stdout: Stream.empty,
+  unref: Effect.succeed(Effect.void),
+});
+const TemplateListFailureLayer = CatalogUsageSourceLive.pipe(
+  Layer.provide(
+    Layer.effect(
+      ChildProcessSpawner.ChildProcessSpawner,
+      Effect.gen(function* () {
+        const real = yield* ChildProcessSpawner.ChildProcessSpawner;
+        return ChildProcessSpawner.make((command) =>
+          ChildProcess.isStandardCommand(command) &&
+          command.command === "git" &&
+          A.contains(command.args, createPackageTemplateRoot)
+            ? Effect.succeed(failingTemplateListHandle)
+            : real.spawn(command)
+        );
+      })
+    )
+  ),
+  Layer.provideMerge(NodeCommandTestLayer)
+);
+// The quality command tree also declares the repo-utils and memory services its other subcommands use.
+const QualityCommandTestLayer = Layer.mergeAll(
+  FsUtilsLive.pipe(Layer.provide(NodeCommandTestLayer)),
+  Layer.succeed(MemoryStats, MemoryStats.of({ availableGib: Effect.succeed(64), totalGib: Effect.succeed(128) }))
+);
 
 const findingKeys = (snapshot: CatalogUsageSnapshot): ReadonlyArray<string> =>
   A.map(
@@ -87,13 +131,37 @@ const fixtureLockfile = {
 };
 
 describe("catalog usage", () => {
+  describe("errors", () => {
+    it("builds CatalogUsageError data-first, data-last and through mapError", () => {
+      const cause = new Error("boom");
+      const first = CatalogUsageError.new(cause, "read failed", "package.json");
+      expect(first).toMatchObject({ _tag: "CatalogUsageError", message: "read failed", file: "package.json" });
+      expect(first.cause).toBe(cause);
+      expect(CatalogUsageError.new("read failed")(cause)).not.toHaveProperty("file");
+      const noFile = CatalogUsageError.new(cause, "no file", undefined);
+      expect(noFile).toMatchObject({ _tag: "CatalogUsageError", message: "no file" });
+      expect(noFile).not.toHaveProperty("file");
+    });
+
+    it.effect("maps an arbitrary failure into a CatalogUsageError", () =>
+      Effect.gen(function* () {
+        const error = yield* Effect.fail("raw").pipe(CatalogUsageError.mapError("mapped", "bun.lock"), Effect.flip);
+        expect(error).toMatchObject({ _tag: "CatalogUsageError", message: "mapped", file: "bun.lock" });
+      })
+    );
+  });
+
   describe("report", () => {
     it("reports a planted unused catalog entry and an inert root override", () => {
       const snapshot = CatalogUsageSnapshot.make({
         root: CatalogUsageRootManifest.make({
           catalog: { effect: "4.0.4", "left-pad": "^1.3.0" },
           catalogs: { tools: { "unused-tool": "^1.0.0" } },
-          overrides: { "inert-propagator": "2.10.0", "inert-scoped@1.0.0": { child: "1.0.0" } },
+          overrides: {
+            "inert-propagator": "2.10.0",
+            "inert-scoped@1.0.0": { child: "1.0.0" },
+            "inert-array": ["1.0.0"],
+          },
         }),
         manifests: [
           CatalogUsageManifest.make({ file: "packages/demo/package.json", dependencies: { effect: "catalog:" } }),
@@ -105,6 +173,7 @@ describe("catalog usage", () => {
       expect(findingKeys(snapshot)).toEqual([
         "catalog-entry:default:left-pad",
         "catalog-entry:tools:unused-tool",
+        "root-override::inert-array",
         "root-override::inert-propagator",
         "root-override::inert-scoped@1.0.0",
       ]);
@@ -162,58 +231,106 @@ describe("catalog usage", () => {
     ]);
   });
 
-  it.layer(CatalogUsageTestLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
-    it.effect("fails the live gate on a planted unused catalog entry", () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
-        yield* writeFixtureRepo(
-          tmpDir,
-          {
-            catalog: { effect: "4.0.4", "template-only": "^1.0.0", "planted-unused": "^9.9.9" },
-            catalogs: { tools: { "named-dep": "^1.0.0" } },
-          },
-          fixtureLockfile
-        );
+  it.layer(Layer.merge(CatalogUsageTestLayer, QualityCommandTestLayer), { concurrent: false, timeout: "30 seconds" })(
+    (it) => {
+      it.effect("fails the live gate on a planted unused catalog entry", () =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
+          yield* writeFixtureRepo(
+            tmpDir,
+            {
+              catalog: { effect: "4.0.4", "template-only": "^1.0.0", "planted-unused": "^9.9.9" },
+              catalogs: { tools: { "named-dep": "^1.0.0" } },
+              overrides: { "inert-floor": "1.0.0" },
+            },
+            fixtureLockfile
+          );
 
-        const error = yield* runCatalogUsageCheck(tmpDir).pipe(Effect.flip);
+          const error = yield* runCatalogUsageCheck(tmpDir).pipe(Effect.flip);
 
-        expect(error).toBeInstanceOf(CatalogUsageError);
-        expect(yield* TestConsole.errorLines).toContain("  - catalog-entry default:planted-unused");
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
-    );
+          expect(error).toBeInstanceOf(CatalogUsageError);
+          const errors = yield* TestConsole.errorLines;
+          expect(errors).toContain("  - catalog-entry default:planted-unused");
+          expect(errors).toContain("  - root-override inert-floor");
+        }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+      );
 
-    it.effect("passes the live gate when every entry has an override, template, lockfile or named consumer", () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
-        yield* writeFixtureRepo(
-          tmpDir,
-          {
-            catalog: { effect: "4.0.4", "template-only": "^1.0.0", "via-override": "^1.0.0" },
-            catalogs: { tools: { "named-dep": "^1.0.0" } },
-            overrides: { "via-override": "catalog:" },
-          },
-          fixtureLockfile
-        );
+      it.effect("maps a failing gate to the quality command error when dispatched from the CLI", () =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
+          yield* writeFixtureRepo(
+            tmpDir,
+            {
+              catalog: { effect: "4.0.4", "template-only": "^1.0.0", "planted-unused": "^9.9.9" },
+              catalogs: { tools: { "named-dep": "^1.0.0" } },
+            },
+            fixtureLockfile
+          );
 
-        const report = yield* runCatalogUsageCheck(tmpDir);
+          const error = yield* Effect.acquireUseRelease(
+            Effect.sync(() => {
+              const previous = process.cwd();
+              process.chdir(tmpDir);
+              return previous;
+            }),
+            () => Command.runWith(qualityCommand, { version: "0.0.0" })(["catalog-usage"]).pipe(Effect.flip),
+            (previous) => Effect.sync(() => process.chdir(previous))
+          );
 
-        expect(report).toMatchObject({ catalogEntries: 4, rootOverrides: 1, manifests: 2, findings: [] });
-        expect(report.templateReferences).toBeGreaterThanOrEqual(1);
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
-    );
+          expect(error).toBeInstanceOf(QualityScriptCommandError);
+          expect(error).toMatchObject({ command: "bun run beep quality catalog-usage", exitCode: 1 });
+        }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+      );
 
-    it.effect("reports zero unused root catalog entries and overrides in this repository", () =>
-      Effect.gen(function* () {
-        const path = yield* Path.Path;
-        const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+      it.effect("passes the live gate when every entry has an override, template, lockfile or named consumer", () =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
+          yield* writeFixtureRepo(
+            tmpDir,
+            {
+              catalog: { effect: "4.0.4", "template-only": "^1.0.0", "via-override": "^1.0.0" },
+              catalogs: { tools: { "named-dep": "^1.0.0" } },
+              overrides: { "via-override": "catalog:" },
+            },
+            fixtureLockfile
+          );
 
-        const report = yield* runCatalogUsageCheck(repoRoot);
+          const report = yield* runCatalogUsageCheck(tmpDir);
 
-        expect(report.findings).toEqual([]);
-        expect(report.catalogEntries).toBeGreaterThan(0);
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
-    );
-  });
+          expect(report).toMatchObject({ catalogEntries: 4, rootOverrides: 1, manifests: 2, findings: [] });
+          expect(report.templateReferences).toBeGreaterThanOrEqual(1);
+        }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+      );
+
+      it.effect("reports zero unused root catalog entries and overrides in this repository", () =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+
+          const report = yield* runCatalogUsageCheck(repoRoot);
+
+          expect(report.findings).toEqual([]);
+          expect(report.catalogEntries).toBeGreaterThan(0);
+        }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+      );
+    }
+  );
+});
+
+it.layer(TemplateListFailureLayer, { timeout: "30 seconds" })("catalog usage template listing", (it) => {
+  it.effect("fails when the generator template sources cannot be listed", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectoryScoped({ prefix: "catalog-usage-test-" });
+      yield* writeFixtureRepo(tmpDir, { catalog: { effect: "4.0.4" } }, fixtureLockfile);
+
+      const error = yield* runCatalogUsageCheck(tmpDir).pipe(Effect.flip);
+
+      expect(error).toBeInstanceOf(CatalogUsageError);
+      expect(error.message).toBe("git ls-files for generator template sources failed with exit code 128.");
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
 });

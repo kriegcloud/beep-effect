@@ -95,6 +95,14 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
+  it.effect("dispatches catalog-usage against the live checkout", () =>
+    Effect.gen(function* () {
+      yield* runQualityCommand(["catalog-usage"]);
+
+      expect(yield* consoleText()).toMatch(/\[catalog-usage\] catalog_entries=\d+ .*findings=0/);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
   it.effect("parses and dispatches pure profile commands", () =>
     Effect.gen(function* () {
       yield* runQualityCommand(["profile", "config", "workstation"]);
