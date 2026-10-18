@@ -321,14 +321,13 @@ const checkProjects = Effect.fn("EffectDiagnostics.checkProjects")(function* (
   );
   yield* Effect.forEach(
     projects,
-    (project) =>
-      Effect.gen(function* () {
-        if (!(yield* fs.exists(project)))
-          return yield* QualityScriptCommandError.make({
-            message: `Missing check project ${project}.`,
-            exitCode: 1,
-          });
-      }),
+    Effect.fnUntraced(function* (project) {
+      if (!(yield* fs.exists(project)))
+        return yield* QualityScriptCommandError.make({
+          message: `Missing check project ${project}.`,
+          exitCode: 1,
+        });
+    }),
     { concurrency: 1 }
   );
   return projects;
