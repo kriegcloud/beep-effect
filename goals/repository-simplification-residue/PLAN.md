@@ -36,6 +36,10 @@ and make progress on independent admitted work under S23.
 
 Workstream status: #1860 `residue-catalog` is complete (third A-train PR,
 `history/receipts/catalog-removals-record.md`). #1851 continues in the A-train.
+#1856 `residue-guidance` is in progress: wave 1 classified and fixed the
+guidance surface (`history/receipts/guidance-classification.md`). Wave 2 reviews
+the 660 inline directives individually; wave 3 adds a compile check for the 324
+Markdown TypeScript fences and decides the three upstream-copied `.patterns` files.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

@@ -17,7 +17,7 @@ Rules:
   - `*.event-handlers.ts` — thin reactions (one event in, one effect out)
 - A process touching **multiple slices' events** does not belong in any single slice's server. See sections 2 and 5.
 
-Diagnostic: if `packages/iam/server/src/Membership/Membership.processes.ts` imports from `@beep/billing-use-cases` or `@beep/billing-server`, that file is hosting a cross-slice process. It is in the wrong home regardless of how small it is.
+Diagnostic: if an `iam` slice's `iam/server/src/Membership/Membership.processes.ts` imports from the `billing` slice's use-cases or server package, that file is hosting a cross-slice process. It is in the wrong home regardless of how small it is.
 
 ## 2. Cross-slice promotion of event contracts
 
@@ -27,7 +27,7 @@ contract clears the bar. Concretely:
 
 - The **event contract** (tag, payload schema, error schema, primary-key derivation, metadata) lives in `shared/use-cases/<owning-slice>/events/` after that package exists.
 - The owning slice (`iam`) emits using the shared contract.
-- Consuming slices (`billing`) import the same contract from the future `@beep/shared-use-cases/public` subpath and never from `@beep/iam-use-cases`.
+- Consuming slices (`billing`) import the same contract from the future `@beep/shared-use-cases/public` subpath and never from the `iam` use-cases package.
 
 Promotion bar is the same as any other `shared/*` export: a promotion record per `02-shared-kernel.md` Appendix. The record lists known consumers — `billing` shows up as a consumer of `MembershipRevoked`, not as a dependency of `iam`.
 
@@ -89,7 +89,7 @@ What you do not do: leave it where it is and add a comment explaining why this o
 
 ## 6. Worked example: billing observes membership revocation
 
-Setup:
+Setup (illustrative slices; neither `iam` nor `billing` exists in the tree today):
 
 - `iam` owns the `Membership` aggregate.
 - `iam/use-cases` defines the `RevokeMembership` command and the `MembershipRevoked` event.
@@ -97,13 +97,13 @@ Setup:
 
 ### Wrong shape
 
-`packages/iam/server/src/Membership/Membership.processes.ts` imports `cancelInvoicesFor` from `@beep/billing-use-cases/server` and calls it after a successful `RevokeMembership`. This is a slice-to-slice direct import. It is forbidden by `01-hexagonal-vertical-slices.md` and it puts billing logic on iam's deploy path.
+`iam/server/src/Membership/Membership.processes.ts` imports `cancelInvoicesFor` from the `billing` use-cases package's `server` subpath and calls it after a successful `RevokeMembership`. This is a slice-to-slice direct import. It is forbidden by `01-hexagonal-vertical-slices.md` and it puts billing logic on iam's deploy path.
 
 ### Right shape after promotion (three changes)
 
 **1. Promote the `MembershipRevoked` event contract to shared.**
 
-The promotion PR creates `packages/shared/use-cases/src/iam/events/MembershipRevoked.ts`. The event contract is defined there using the v4 EventLog `Event.make` constructor (see `effect/eventlog/Event`), with a payload schema annotated per the repo's schema-annotation rules. The package and identity composer are generated as part of that promotion, because they do not exist today:
+The promotion PR creates `shared/use-cases/src/iam/events/MembershipRevoked.ts`. The event contract is defined there using the v4 EventLog `Event.make` constructor (see `effect/eventlog/Event`), with a payload schema annotated per the repo's schema-annotation rules. The package and identity composer are generated as part of that promotion, because they do not exist today:
 
 ````ts
 import { $SharedUseCasesId } from "@beep/identity"
@@ -121,7 +121,8 @@ const $I = $SharedUseCasesId.create("iam.events.MembershipRevoked")
  * @category schemas
  * @since 0.0.0
  *
- * @remarks
+ * **Details**
+ *
  * Promotion-record governed: ownership stays with the producing slice (iam),
  * but the contract surface and its consumers are tracked by the shared
  * promotion record per `02-shared-kernel.md` Appendix.
@@ -161,7 +162,7 @@ The `RevokeMembership` command handler in `iam/server` writes `MembershipRevoked
 
 **3. `billing/server` subscribes via a thin handler.**
 
-New file: `packages/billing/server/src/Subscription/Subscription.event-handlers.ts`. It imports `MembershipRevoked` from the future `@beep/shared-use-cases/public` subpath after promotion, registers a handler that decodes the payload, and calls billing's own internal `cancelInvoicesFor` use-case. The handler returns an `Effect.Effect<A, E, R>` and is built with `Effect.fn` per repo convention; failures decode into a class extending `S.TaggedError` directly from `effect/Schema`, defined in `billing/use-cases`.
+New file: `billing/server/src/Subscription/Subscription.event-handlers.ts`. It imports `MembershipRevoked` from the future `@beep/shared-use-cases/public` subpath after promotion, registers a handler that decodes the payload, and calls billing's own internal `cancelInvoicesFor` use-case. The handler returns an `Effect.Effect<A, E, R>` and is built with `Effect.fn` per repo convention; failures decode into a class extending `S.TaggedError` directly from `effect/Schema`, defined in `billing/use-cases`.
 
 Result:
 

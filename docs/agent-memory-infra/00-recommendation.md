@@ -1,5 +1,7 @@
 # Agent Memory Stack — Final Recommendation
 
+> The `trustgraph-port` goal packet cited below has since been deleted from the tree; recover it from git history.
+
 Date: 2026-07-08. Synthesis of 13 research lanes: 12 codex clone/docs lanes at
 `--effort xhigh` plus 1 GPT-5.5 Pro (extended thinking) oracle lane
 ([oracle-deep-research.md](oracle-deep-research.md)). Lane artifacts with full
@@ -17,7 +19,7 @@ compose resource limits, hosted-API defaults, release status).
   `drivers/*`. The Oracle lane independently converged on the same authority
   boundary and ranked **TrustGraph's model** as the right Role A *shape* —
   which the repo already implements as port-don't-deploy
-  (`goals/trustgraph-port`, `docs/BEEPGRAPH_ARCHITECTURE.md`).
+  (`trustgraph-port packet`, `docs/BEEPGRAPH_ARCHITECTURE.md`).
 - **Role B (dev-tooling memory for Claude/Codex agents): Cognee survives as
   the single always-on memory incumbent; Graphiti is retired to donor status
   after its bitemporal primitives are ported.** File memory
@@ -101,7 +103,7 @@ The verified, file-level port list:
    `urn:graph:retrieval` — verified `provenance/namespaces.py:142-146`),
    PROV-O trace builders, query-time explainability stages, bounded retrieval
    knobs (entity/triple/subgraph/path limits), Context-Core packaging. Feeds
-   `goals/trustgraph-port` + BeepGraph unchanged; the Oracle's Role A verdict
+   `trustgraph-port packet` + BeepGraph unchanged; the Oracle's Role A verdict
    is best read as independent validation of this exact design.
 3. **Projection/cache ergonomics — port from Cognee.** DataPoint metadata +
    embeddable-field annotations, pipeline provenance stamping with a
@@ -179,7 +181,7 @@ session-to-permanent bridge, and lighter posture.
 
 **Conditions attached to Cognee's survival (all doctrine-required):**
 - Run the embedded/local or all-Postgres profile, not the full compose stack.
-- Bound the semantic cache per `standards/memory-architecture/01`:
+- Bound the semantic cache per `standards/memory-architecture/01-memory-layer-taxonomy.md`:
   TTL/pruning, consolidation (its memify/improve loop is the mechanism),
   node-set scoping per project.
 - **A 2-4 week recall bakeoff checkpoint**: today's live signal is poor — the
@@ -280,7 +282,7 @@ answers (draft):**
 - Durable truth location → re-affirmed: Postgres repo-native via
   `@beep/epistemic-tables` + `@beep/drizzle` (all thirteen lanes concur).
 - Ownership vs consume/defer → unchanged; FalkorDB/GraphRAG stay deferred to
-  `goals/trustgraph-port`; add Cognee's rollback-ledger pattern as a new
+  `trustgraph-port packet`; add Cognee's rollback-ledger pattern as a new
   consume-idea for projection rebuild/undo.
 - CONTRADICTS edge + supersededBy lineage → adopt Graphiti's
   invalidate-don't-delete semantics as the reference shape; add the Oracle's
