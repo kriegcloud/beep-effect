@@ -24,6 +24,9 @@ train (#1851/#1860) plus detector repairs (#1855), starting with F-S31-EV010.
 #1860 is complete: the third A-train PR landed the catalog removals and the
 `beep quality catalog-usage` detector
 ([record](./history/receipts/catalog-removals-record.md)).
+#1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
+every stale file ([record](./history/receipts/guidance-classification.md)); the
+660-directive review and a Markdown example compile check remain.
 #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).

@@ -36,6 +36,10 @@ and make progress on independent admitted work under S23.
 
 Workstream status: #1860 `residue-catalog` is complete (third A-train PR,
 `history/receipts/catalog-removals-record.md`). #1851 continues in the A-train.
+#1856 `residue-guidance` is in progress: wave 1 classified and fixed the
+guidance surface (`history/receipts/guidance-classification.md`). Wave 2 reviews
+the 660 inline directives individually; wave 3 adds a compile check for the 324
+Markdown TypeScript fences and decides the three upstream-copied `.patterns` files.
 #1875 `residue-vitest-canon` is in progress after wave 1, which leaves 689 open rows
 (`history/receipts/vitest-canon-wave-1.md`).
 

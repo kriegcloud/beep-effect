@@ -51,4 +51,4 @@ Owned provider sessions, scoped peer tools, durable receipts and ambiguity recov
   candidates via their `SUGGESTED_ACTIONS.md`. Conventions:
   `research/README.md`.
 - Never hand-edit anything under `docs/generated/` — it is overwritten by `beep docgen aggregate` (the `--clean` flag removes only `docs/generated/`).
-- A future docs site (e.g. a `@beep/docs` app in the style of <https://effect-ts.github.io/effect/>) should consume `docs/generated/` as its content source.
+- A future docs site (e.g. a dedicated docs app, not yet created, in the style of <https://effect-ts.github.io/effect/>) should consume `docs/generated/` as its content source.

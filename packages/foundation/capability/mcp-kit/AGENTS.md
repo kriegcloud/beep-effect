@@ -6,7 +6,7 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| `SourceAuth.ts` | `SourceAuthGate`, `SourceAuthRegistration`, `resolveSourceCredential`, `decideSourceAuthMount` | schema-first per-source credential-gate registry; `Config.redacted(envVar).pipe(Config.option)` resolution |
+| `SourceAuth.ts` | `SourceAuthGate`, `SourceAuthRegistration`, `resolveSourceCredential`, `decideSourceAuthMount` | schema-first per-source credential-gate registry; `Config.Redacted(envVar).pipe(Config.option)` resolution |
 | `ToolkitComposition.ts` | `GatedLayer`, `gatedLayer`, `composeGatedLayers` | folds credential-gated layers; `hard` vanishes at composition, `none`/`soft` always mount |
 | `ApiKeyRequired.ts` | `ApiKeyRequiredFailure`, `apiKeyRequiredFailure`, `isApiKeyRequiredFailure`, `translateApiKeyRequired` | `failureMode: "return"` envelope for sources whose credential is absent at call time; `translateApiKeyRequired` is the named error translator that keeps it a non-error `CallToolResult` (every other failure follows rc.117: declared failures are tool errors, invalid arguments are `InvalidParams`) |
 | `TierGate.ts` | `TierGateOutcome`, `TierGateSettlement`, `TierGateAuditRecord`, `TierGateVerdict`, `ToolCallRequest`, `TierGateShape`, `TierGate`, `TierGatePolicy`, `fromApprovedToolsPolicy`, `TierGateDispatchResult`, `dispatchWithTierGate`, `withEnabledWhenApprovedTool` | fail-closed `tools/call` dispatch wrapper (the real security boundary); every gated call — approved or refused — produces a `TierGateAuditRecord`; approved dispatches settle through `recordOutcome` with a bounded `TierGateSettlement` (never an `Exit`); `withEnabledWhenApprovedTool` affects `tools/list` visibility only |

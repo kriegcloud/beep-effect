@@ -57,42 +57,41 @@ Effect.gen(function*() {
 
 ## 🏗️ STRUCTURED ERROR TYPES
 
-### S.TaggedErrorClass Pattern
+### S.TaggedError Pattern
 
 The core pattern for creating structured, typed errors with `_tag` for discrimination:
 
 ```typescript
 import * as S from "effect/Schema";
 import {LiteralKit} from "@beep/schema";
-import {$SomePackageId} from "@beep/identity/packages";
+import {$SchemaId} from "@beep/identity";
 
-const $I = $SomePackageId.create("relative/path/to/file"); // define canonical IdentityComposer helper for annotations & path composition
+const $I = $SchemaId.create("relative/path/to/file"); // define canonical IdentityComposer helper for annotations & path composition
 
 // Basic tagged error - has _tag for catchTag discrimination
-class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
+class ValidationError extends S.TaggedError<ValidationError>($I`ValidationError`)(
   "ValidationError",
   {
     field: S.String,
     message: S.String
   },
-  $I.annote(  // Annotate with IdentityComposer to tersly add `identifier` & `title` annotations
+  $I.annoteError<ValidationError>(  // Annotate with IdentityComposer to tersely add `identifier` & `title` annotations
     "ValidationError",
     {
       description: "A validation error."
     }
   )
-) {
-}
+) {}
 
 // Network error with cause
-class NetworkError extends S.TaggedErrorClass<NetworkError>($I`NetworkError`)(
+class NetworkError extends S.TaggedError<NetworkError>($I`NetworkError`)(
   "NetworkError",
   {
     status: S.Number,
     url: S.String,
-    cause: S.optionalKey(S.Defect)
+    cause: S.optionalKey(S.Defect())
   },
-  $I.annote(
+  $I.annoteError<NetworkError>(
     "NetworkError",
     {
       description: "A network error with a status code and URL."
@@ -111,7 +110,7 @@ const SystemErrorReason = LiteralKit([
 ]);
 
 // Platform error with context
-class SystemError extends S.TaggedErrorClass<SystemError>($I`SystemError`)(
+class SystemError extends S.TaggedError<SystemError>($I`SystemError`)(
   "SystemError",
   {
     reason: SystemErrorReason,
@@ -121,9 +120,9 @@ class SystemError extends S.TaggedErrorClass<SystemError>($I`SystemError`)(
       S.String,
       S.Number
     ])),
-    cause: S.optionalKey(S.Defect)
+    cause: S.optionalKey(S.Defect())
   },
-  $I.annote(
+  $I.annoteError<SystemError>(
     "SystemError",
     {
       description: "A platform error with a reason, module, method, optional path or descriptor, and optional cause."
@@ -190,7 +189,7 @@ export const EncodingErrorReason = LiteralKit([
   "Encode", // Failed to encode to format
 ]).annotate(
   $I.annote("EncodingErrorReason", {
-    description: "Encoding errors (from Body.ts-morph, Schema)",
+    description: "Encoding errors (from Body.ts, Schema)",
   })
 );
 
@@ -232,17 +231,14 @@ export type ValidationErrorReason = typeof ValidationErrorReason.Type;
 The codebase uses flat error structures with union types for composition, not abstract base classes:
 
 ```typescript
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import {$SomePackageId} from "@beep/identity/packages";
-
-}
+import {$SchemaId} from "@beep/identity";
 import * as S from "effect/Schema";
 
-const $I = $SomePackageId.create("relative/path/to/file");
+const $I = $SchemaId.create("relative/path/to/file");
 
 // Define individual error types
-export class RequestError extends S.TaggedErrorClass<RequestError>($I`RequestError`)(
+export class RequestError extends S.TaggedError<RequestError>($I`RequestError`)(
   "RequestError",
   {
     reason: HttpClientErrorReason.pick([
@@ -251,18 +247,17 @@ export class RequestError extends S.TaggedErrorClass<RequestError>($I`RequestErr
       "InvalidUrl"
     ]),
     url: S.String,
-    cause: S.optionalKey(S.Defect)
+    cause: S.optionalKey(S.Defect())
   },
-  $I.annote(
+  $I.annoteError<RequestError>(
     "RequestError",
     {
       description: "A meaningful description"
     }
   )
-) {
-}
+) {}
 
-export class ResponseError extends S.TaggedErrorClass<ResponseError>($I`ResponseError`)(
+export class ResponseError extends S.TaggedError<ResponseError>($I`ResponseError`)(
   "ResponseError",
   {
     reason: HttpClientErrorReason.pick([
@@ -271,16 +266,15 @@ export class ResponseError extends S.TaggedErrorClass<ResponseError>($I`Response
       "EmptyBody"
     ]),
     status: S.Number,
-    cause: S.optionalKey(S.Defect)
+    cause: S.optionalKey(S.Defect())
   },
-  $I.annote(
+  $I.annoteError<ResponseError>(
     "ResponseError",
     {
       description: "A meaningful description"
     }
   )
-) {
-}
+) {}
 
 // Compose errors using effect/Schema `Union`
 export const HttpClientError = S.Union([
@@ -411,19 +405,17 @@ const readFile = (path: string) => Effect.tryPromise({
 
 ## 🔍 ERROR HANDLING COMBINATORS
 
-### Effect.catchAll Pattern
+### Effect.catch Pattern
 
 Handle all errors uniformly:
 
 ```typescript
 const robustOperation = (input: string) =>
   riskyOperation(input).pipe(
-    Effect.catch((error) => {
-      // Log error for debugging
-      Console.error(`Operation failed: ${error}`),
-        // Provide fallback or re-throw
-        Effect.succeed("fallback value")
-    })
+    Effect.catch((error) =>
+      // Log error for debugging, then provide a fallback
+      Console.error(`Operation failed: ${error.message}`).pipe(Effect.as("fallback value"))
+    )
   )
 ```
 
@@ -451,49 +443,39 @@ const handleSpecificErrors = (input: string) =>
   )
 ```
 
-### Effect.catchSome Pattern
+### Effect.catchIf Pattern
 
 Selectively handle certain errors:
 
 ```typescript
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 const handleRecoverableErrors = (input: string) =>
   operation(input).pipe(
-    Effect.catchSome((error) => {
-      if (P.isTagged(error, "NetworkError") && error.status < 500) {
-        // Only handle client errors, not server errors
-        return O.some(Effect.succeed("recovered"))
-      }
-      return O.none()
-    })
+    Effect.catchIf(
+      // Only handle client errors, not server errors
+      (error): error is NetworkError => P.isTagged(error, "NetworkError") && error.status < 500,
+      () => Effect.succeed("recovered")
+    )
   )
 ```
 
 ## 🧪 ERROR TESTING PATTERNS
 
-### Using Effect.exit for Testing
+### Using Effect.flip for Testing
 
 ```typescript
 import { assert, describe, it } from "@effect/vitest"
 import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
 import * as P from "effect/Predicate";
 describe("error handling", () => {
   it.effect("should fail with specific error", 
     Effect.fnUntraced(function*() {
-      const result = yield* Effect.exit(
+      const error = yield* Effect.flip(
         operation("invalid input")
       )
 
-      if (P.isTagged(result, "Failure")) {
-        assert.isTrue(ValidationError.isValidationError(result.cause))
-        const error = result.cause as ValidationError
-        assert.strictEqual(error.field, "input")
-      } else {
-        assert.fail("Expected operation to fail")
-      }
+      assert.isTrue(P.isTagged(error, "ValidationError"))
     }))
 
   it.effect("should handle errors with catchTag",
@@ -518,16 +500,13 @@ describe("error handling", () => {
 ```typescript
 it.effect("should transform errors correctly", 
   Effect.fnUntraced(function*() {
-    const result = yield* Effect.exit(
+    const error = yield* Effect.flip(
       Effect.fail("string error").pipe(
         Effect.mapError((msg) => new CustomError({ message: msg }))
       )
     )
 
-    assert.isTrue(Exit.isFailure(result))
-    if (Exit.isFailure(result)) {
-      assert.isTrue(CustomError.isCustomError(result.cause))
-    }
+    assert.isTrue(P.isTagged(error, "CustomError"))
   }))
 ```
 
@@ -570,7 +549,7 @@ const withErrorLogging = <A, E, R>(
 ): Effect.Effect<A, E, R> =>
   effect.pipe(
     Effect.tapError((error) => Console.error(`${name} failed:`, error)),
-    Effect.tapErrorCause((cause) => Console.error(`${name} cause:`, Cause.pretty(cause)))
+    Effect.tapCause((cause) => Console.error(`${name} cause:`, Cause.pretty(cause)))
   )
 ```
 
@@ -584,12 +563,11 @@ const withRetry = <A, E, R>(
   isRetryable: (error: E) => boolean = () => true
 ): Effect.Effect<A, E, R> =>
   operation.pipe(
-    Effect.retry(
-      Schedule.exponential("100 millis").pipe(
-        Schedule.whileInput(isRetryable),
-        Schedule.compose(Schedule.recurs(3))
-      )
-    )
+    Effect.retry({
+      schedule: Schedule.exponential("100 millis"),
+      times: 3,
+      while: isRetryable
+    })
   )
 ```
 
@@ -614,7 +592,7 @@ const withFallbacks = <A, E, R>(
   fallbacks: ReadonlyArray<Effect.Effect<A, E, R>>
 ): Effect.Effect<A, E, R> =>
   fallbacks.reduce(
-    (acc, fallback) => acc.pipe(Effect.orElse(() => fallback)),
+    (acc, fallback) => acc.pipe(Effect.catch(() => fallback)),
     primary
   )
 ```
@@ -623,7 +601,7 @@ const withFallbacks = <A, E, R>(
 
 ### Well-Handled Errors Checklist
 
-- [ ] Errors use appropriate pattern: S.TaggedErrorClass (discrimination)
+- [ ] Errors use appropriate pattern: S.TaggedError (discrimination)
 - [ ] Error types carry relevant context information
 - [ ] Custom error messages are informative via `get message()` getter
 - [ ] Error reasons are standardized and consistent
