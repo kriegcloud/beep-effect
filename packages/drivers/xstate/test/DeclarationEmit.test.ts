@@ -1,3 +1,4 @@
+import * as NodeURL from "node:url";
 import { it } from "@beep/test-runner";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -8,8 +9,10 @@ import * as Layer from "effect/Layer";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as Stream from "effect/Stream";
 
-const fixturePath = new URL("./fixtures/declaration-emit/AuditedRelease.machine.ts", import.meta.url).pathname;
-const tscPath = new URL("../../../../node_modules/.bin/tsc", import.meta.url).pathname;
+const fixturePath = NodeURL.fileURLToPath(
+  new URL("./fixtures/declaration-emit/AuditedRelease.machine.ts", import.meta.url)
+);
+const tscPath = NodeURL.fileURLToPath(new URL("../../../../node_modules/.bin/tsc", import.meta.url));
 
 // The spawner only touches the filesystem to check an explicit `cwd`, which this test never sets.
 const SpawnerLayer = NodeChildProcessSpawner.layer.pipe(

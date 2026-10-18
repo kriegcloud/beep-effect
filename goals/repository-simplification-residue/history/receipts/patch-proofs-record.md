@@ -31,24 +31,35 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 ### `effect@4.0.4`: structural equality of `Error` values under Bun
 
 - Patch: `patches/effect@4.0.4.patch`, sha256
-  `f0850fa30121f7922fc53932b5bf1ca2f814a194ded9faf7ca0ca0380197ad85`.
+  `31c7f4497b8761efa34e113d7a0719767109007f729861f5f033b2906f9506c1` (narrowed in review round 1; it was `f0850fa30121f7922fc53932b5bf1ca2f814a194ded9faf7ca0ca0380197ad85`).
 - Behavior: `Equal.equals` compares records through all own keys. JavaScriptCore adds
   own `line`, `column`, `sourceURL`, `originalLine` and `originalColumn` keys to every
   `Error`, so two equal errors built at different sites compare unequal. Upstream deletes
-  only `stack`; the patch also skips the JavaScriptCore location keys.
+  only `stack`. The patch also skips those five keys, but only when the own descriptor is
+  non-enumerable, which is how JavaScriptCore defines them.
+- Limitation: enumerable payload fields with those names stay in equality on every runtime,
+  and so does a `Schema.TaggedError` payload `line`. On JavaScriptCore only, a plain `Error`
+  subclass that assigns its own `line` (or another of the five names) inherits the runtime's
+  non-enumerable descriptor, so that field does not take part in equality. The test pins
+  both behaviors, choosing per runtime by whether a fresh `Error` owns a non-enumerable `line`.
 - Test (new):
   `packages/tooling/test-kit/test-utils/test/ErrorEqualityCompatibility.test.ts`
-  (sha256 `34bae7c415db4f5cccf9e246d629c6352fc89a843f2399e8f3438093e81ee78d`). It
-  covers plain `Error` and `Data.TaggedError`, checking equality, hash agreement and
-  inequality of different payloads.
+  (sha256 `3989a39de901b045a7250db250b537beadafbff0b37221a20097d3170aaf6886`). It
+  covers plain `Error` and `Schema.TaggedError` (the repository's canonical tagged error), checking equality, hash agreement and
+  inequality of different payloads, plus payload fields named like the location keys.
 - Finding: Vitest installs `Error.prepareStackTrace`. While that hook is set, Bun
   resolves the location keys to 0, and it resolves them lazily on first read. That
   masks the bug inside Vitest. Production Bun installs no hook, so the test clears
   the hook for its block through a scoped `it.layer` resource and restores it on release.
 - Counterfactual (`bunx --bun vitest run ErrorEqualityCompatibility.test.ts`):
-  - unpatched 4.0.4: `Tests 2 failed (2)`, `AssertionError: expected false to be true`;
-  - patched 4.0.4: `Tests 2 passed (2)`;
-  - exit tree 4.0.5 (latest published): `Tests 2 failed (2)`.
+  - unpatched 4.0.4: `Tests 2 failed | 1 passed (3)`, `AssertionError: expected false to be true`;
+  - patched 4.0.4 (narrowed patch): `Tests 3 passed (3)`;
+  - exit tree 4.0.5 (latest published): `Tests 2 failed | 1 passed (3)`.
+  The plain `Error` case and the payload case fail unpatched. The Schema tagged case passes
+  unpatched by design: `.make` constructs every instance at one site inside the class, so the
+  location keys already agree. The patch matters for plain `Error` values and for errors
+  constructed with `new` at different sites; repository source defines no `Data.TaggedError`.
+  These were rerun in review round 1 with the narrowed patch and the final test.
 - Upstream: no upstream issue or PR exists. `internal/equal.ts` on Effect-TS/effect
   `main` `84aeede040` (2026-10-17, version 4.0.5) still deletes only `stack`. No exit.
 
@@ -80,8 +91,9 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 
 - Patch: `patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch` (46 `.d.ts`/`.d.cts` files),
   sha256 `9705f7cb50ff1b270449689e815b8da704772cde55918f664c6f542b771f1be2`.
-- Behavior: Drizzle's declarations import `effect/sql/SqlError`, which
-  Effect 4.0.4 does not export (it has `effect/sql/SqlError`). Under `skipLibCheck`
+- Behavior: Drizzle's declarations import the pre-move SQL error subpath (the
+  `unstable` SQL module path that Effect retired), which Effect 4.0.4 does not export.
+  Effect 4.0.4 has `effect/sql/SqlError`. Under `skipLibCheck`
   the import becomes `any`, which collapses every migrator error union to `any`.
 - Test (new): `packages/ecosystem/effect-drizzle/typetests/drizzle-sql-error.tst.ts`
   (sha256 `9fee487bbe0d6391f823b67dcc6b67289715f4d68958fb78971e13e953daa49e`). It
@@ -110,7 +122,7 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
   declaration emit with TS4023. The patch replaces it with the string key
   `"~xstate/effect/action"`.
 - Test (new): `packages/drivers/xstate/test/DeclarationEmit.test.ts` (sha256
-  `f6503c9df81b4286ecda596d9f85bf2bd0d531a0329c85d1c0b0066242f918e1`). It runs the
+  `c1fe57419105a1fec2e8c7c8ed1641e4f88eef6c85c92b4f67c9388997b74212`). It runs the
   repository's `tsc` (TypeScript 7.0.2) with `--noEmit --declaration` against the
   fixture `packages/drivers/xstate/test/fixtures/declaration-emit/AuditedRelease.machine.ts`
   (sha256 `6bafa5d26c858040c2e0ff78fcb172e02b96188d2ab3dac48a8ff7345045fdee`). It
@@ -160,7 +172,7 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 
 | Dependency | Installed | Patch sha256 (prefix) | Test | Unpatched | Patched | Latest published | Exit |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `effect` | 4.0.4 | `f0850fa3` | test-utils `ErrorEqualityCompatibility` (new) | 2/2 fail | pass | 4.0.5 fails | none; no upstream issue |
+| `effect` | 4.0.4 | `31c7f449` | test-utils `ErrorEqualityCompatibility` (new) | 2/3 fail | pass | 4.0.5 fails | none; no upstream issue |
 | `@effect/platform-node-shared` | 4.0.4 | `7590e9b5` | test-utils `FileSystemWriteCompatibility` | 2/3 fail | pass | 4.0.5 fails | none; bun#45607 open |
 | `drizzle-orm` | 1.0.0-rc.5-ab785fc | `9705f7cb` | effect-drizzle `drizzle-sql-error.tst.ts` (new) | 2/2 assertions fail | pass | rc.5-5935859 fails | fix merged in rc5 branch (#6429), unpublished |
 | `@xstate/effect` | 0.1.0-alpha.6 | `986b449b` | xstate `DeclarationEmit` (new) | TS4023 | exit 0 | 1.0.0-alpha.8 fails | none; no upstream issue |
