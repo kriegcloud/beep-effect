@@ -244,6 +244,7 @@ describe("PACER end-to-end (mock transport)", () => {
     "deletes the report when polling is interrupted (delete %s)",
     Effect.fnUntraced(function* (deleteReport) {
       const deleted = yield* Ref.make<ReadonlyArray<number>>([]);
+      const logoutCount = yield* Ref.make(0);
       const polling = yield* Deferred.make<void>();
       const transport = Layer.effect(
         HttpClient.HttpClient,
@@ -259,6 +260,7 @@ describe("PACER end-to-end (mock transport)", () => {
         Layer.provide(
           Pacer.makePacerMockHttpClient({
             deletedReportIds: deleted,
+            logoutCount,
             deleteReport: deleteReport === "failed" ? "failed" : "success",
           })
         )
@@ -274,6 +276,8 @@ describe("PACER end-to-end (mock transport)", () => {
           expect(yield* Ref.get(deleted)).toEqual([Pacer.DEFAULT_REPORT_ID]);
         })
       );
+      // The scoped session finalizer still logs out after interrupt-driven report deletion.
+      expect(yield* Ref.get(logoutCount)).toBe(1);
     })
   );
 
