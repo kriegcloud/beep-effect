@@ -77,11 +77,13 @@ const binding = (
     note,
   });
 
-const codexDefault = O.some("Codex default since 2026-10-01; Codex uses only GPT-6.1-Sol for substantive work.");
-const cursorFallback = O.some(
-  "Step 2 of both chains; the listed id reports Claude Opus 5.5 300K Medium (verified 2026-10-14)."
+const codexDefault = O.some(
+  "Codex default since 2026-10-01 and step 2 of the Claude chain since 2026-10-18 (R11); Codex uses only GPT-6.1-Sol for substantive work."
 );
-const grokFallback = O.some("Step 3 of both chains since 2026-10-01; the grok CLI reports grok-4.7-build.");
+const cursorFallback = O.some(
+  "Step 2 of the Codex chain and step 3 of the Claude chain (R11, 2026-10-18); the listed id reports Claude Opus 5.5 300K Medium (verified 2026-10-14)."
+);
+const grokFallback = O.some("Final step of both chains since 2026-10-01; the grok CLI reports grok-4.7-build.");
 const opusChildren = O.some(
   "Every Claude sub-agent, delegation, and Workflow child; explicit id, never the opus alias."
 );
