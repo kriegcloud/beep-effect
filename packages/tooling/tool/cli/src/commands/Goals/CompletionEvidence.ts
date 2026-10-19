@@ -13,6 +13,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -49,7 +50,7 @@ import type {
   GoalMergeTimeEvidenceRequest,
   GoalObservedCheckRun,
 } from "./CompletionEvidence.schemas.ts";
-import type { GoalCompletionEvidenceVerdict, GoalCompletionOutcome } from "./Goals.schemas.ts";
+import type { GoalCompletionEvidenceVerdict, GoalCompletionOutcome, GoalRuleSourceHistory } from "./Goals.schemas.ts";
 
 const gitAdapter = {
   onSpawnFailure: (command: string) => (_cause: unknown) => YeetCommandError.make({ message: `Cannot run ${command}` }),
@@ -167,11 +168,24 @@ const RuleSuite = S.Struct({
 const RULESETS_ENDPOINT = "repos/{owner}/{repo}/rulesets?per_page=100&includes_parents=true";
 const REQUIRED_STATUS_CHECKS = "required_status_checks";
 
-const historicalRulesetApplies = Effect.fn("Goals.Completion.rulesetApplies")(function* (
+// How a merge-time ruleset version relates to the base branch: it gated the
+// merge (`applies`), was in evaluate mode (`evaluate`, never gating), or was
+// inactive or did not target this branch (`mismatch`). A rule-suite source was
+// evaluated by GitHub on this branch, so `mismatch` means GitHub's two records disagree.
+const HistoricalApplicability = LiteralKit(["applies", "evaluate", "mismatch"]);
+
+const applicabilityOfEnforcement = (enforcement: string): typeof HistoricalApplicability.Type =>
+  Match.value(enforcement).pipe(
+    Match.when("active", () => HistoricalApplicability.Enum.applies),
+    Match.when("evaluate", () => HistoricalApplicability.Enum.evaluate),
+    Match.orElse(() => HistoricalApplicability.Enum.mismatch)
+  );
+
+const historicalRulesetApplicability = Effect.fn("Goals.Completion.rulesetApplies")(function* (
   state: typeof RulesetVersion.Type.state,
   base: string
 ) {
-  if (state.enforcement !== "active" || state.target !== "branch") return false;
+  if (state.target !== "branch") return HistoricalApplicability.Enum.mismatch;
   const patterns = A.appendAll(state.conditions.ref_name.include, state.conditions.ref_name.exclude);
   if (base !== "main" && A.contains(patterns, "~DEFAULT_BRANCH"))
     return yield* YeetCommandError.make({
@@ -183,7 +197,9 @@ const historicalRulesetApplies = Effect.fn("Goals.Completion.rulesetApplies")(fu
     return yield* YeetCommandError.make({
       message: "Historical ruleset glob requires an independently evaluated branch snapshot",
     });
-  return A.some(state.conditions.ref_name.include, matches) && !A.some(state.conditions.ref_name.exclude, matches);
+  const targetsBase =
+    A.some(state.conditions.ref_name.include, matches) && !A.some(state.conditions.ref_name.exclude, matches);
+  return targetsBase ? applicabilityOfEnforcement(state.enforcement) : HistoricalApplicability.Enum.mismatch;
 });
 
 const readHistoricalRuleset = Effect.fn("Goals.Completion.historicalRuleset")(function* (
@@ -217,17 +233,25 @@ const readHistoricalRuleset = Effect.fn("Goals.Completion.historicalRuleset")(fu
   const { state } = yield* readGoalCompletionJson(root, ["api", source], RulesetVersion);
   // A version that was not active, or did not target this branch, at merge is
   // still a recovered fact: it says the ruleset did not gate this merge.
-  const applies = yield* historicalRulesetApplies(state, base);
+  const applicability = yield* historicalRulesetApplicability(state, base);
+  const applies = applicability === "applies";
   const folded = rulesetRequiredContextsFromRules(
     YeetRulesetRulesPayload.make({ base, readAt: DateTime.formatIso(mergedAt), rules: state.rules })
   );
-  return O.some({ id: ruleset.id, source, applies, contexts: applies ? folded.contexts : A.empty<string>() });
+  return O.some({
+    id: ruleset.id,
+    source,
+    applies,
+    applicability,
+    contexts: applies ? folded.contexts : A.empty<string>(),
+  });
 });
 
 type HistoricalRead = O.Option<{
   readonly id: number;
   readonly source: string;
   readonly applies: boolean;
+  readonly applicability: typeof HistoricalApplicability.Type;
   readonly contexts: ReadonlyArray<string>;
 }>;
 
@@ -423,6 +447,9 @@ export const decideGoalCompletionEvidence = (input: GoalCompletionEvidenceInput)
           ? A.of<GoalCompletionEvidenceGap>("inventory-mismatch")
           : []),
         ...(snapshot.rulesetReadsComplete ? [] : A.of<GoalCompletionEvidenceGap>("partial-ruleset-reads")),
+        ...(A.some(boundSources, (source) => source.history === "conflicting")
+          ? A.of<GoalCompletionEvidenceGap>("inventory-mismatch")
+          : []),
         ...O.match(inventory, {
           onNone: A.empty<GoalCompletionEvidenceGap>,
           onSome: (value) =>
@@ -611,8 +638,10 @@ export const observeGoalMergeTimeEvidence = Effect.fn("Goals.CompletionEvidence.
         Effect.option
       );
       // Recovered history restores the ruleset's enforcement at merge: an active,
-      // applicable version gates; an evaluate-mode, inactive or non-matching
-      // version does not, so the remaining evidence decides.
+      // applicable version gates; an evaluate-mode version does not, so the
+      // remaining evidence decides. An inactive or non-matching version
+      // contradicts the rule suite (GitHub evaluated it on this branch), so it
+      // is `conflicting`: an inventory mismatch, never verified.
       // A deleted ruleset has no listed creation time, so a read that finds no
       // version at merge fails rather than returning none; both are unrecoverable.
       return O.match(O.flatten(history), {
@@ -622,8 +651,16 @@ export const observeGoalMergeTimeEvidence = Effect.fn("Goals.CompletionEvidence.
           source: GoalMergeTimeRuleSource.make({
             ...source,
             version: O.some(version.source),
-            history: version.applies ? "gating" : "not-gating",
+            history: Match.value(version.applicability).pipe(
+              Match.when("applies", (): GoalRuleSourceHistory => "gating"),
+              Match.when("evaluate", (): GoalRuleSourceHistory => "not-gating"),
+              Match.orElse((): GoalRuleSourceHistory => "conflicting")
+            ),
           }),
+          gap:
+            version.applicability === "mismatch"
+              ? O.some<GoalCompletionEvidenceGap>("inventory-mismatch")
+              : O.none<GoalCompletionEvidenceGap>(),
           recovered: version.applies
             ? O.some({ source: version.source, contexts: version.contexts })
             : O.none<{ readonly source: string; readonly contexts: ReadonlyArray<string> }>(),

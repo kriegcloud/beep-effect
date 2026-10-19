@@ -10,6 +10,7 @@ import {
   GoalMergeResult,
   GoalMergeTimeInventory,
   GoalMergeTimeRuleSource,
+  GoalMergeTimeRuleSourceRecord,
   GoalPullRequestRef,
   GoalRequiredCheckFact,
   GoalRequiredCheckSnapshot,
@@ -19,10 +20,12 @@ import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeGoalCompletionGate = S.decodeEffect(GoalCompletionGate);
 const decodeGoalManifest = S.decodeEffect(GoalManifest);
@@ -196,6 +199,62 @@ describe("goal completion declaration", () => {
 });
 
 describe("pure goal completion resolver", () => {
+  it.effect("a legacy receipt row with a recovered version and no history fails closed as gating", () =>
+    Effect.gen(function* () {
+      const observation = fixture();
+      const snapshot = O.getOrThrow(observation.requiredChecks);
+      const deleted = GoalMergeTimeRuleSource.make({
+        sourceType: "ruleset",
+        rulesetId: O.some(999),
+        name: O.none(),
+        enforcement: "deleted ruleset",
+        requiredStatusChecks: O.some("fail"),
+        survives: false,
+        version: O.some("repos/{owner}/{repo}/rulesets/999/history/1"),
+        history: "gating",
+      });
+      const receipt = yield* GoalCompletionVerifier.resolve(
+        GoalCompletionObservation.make({
+          ...observation,
+          requiredChecks: O.some(
+            GoalRequiredCheckSnapshot.make({
+              ...snapshot,
+              mergeTimeInventory: O.some(
+                GoalMergeTimeInventory.make({
+                  ...completeInventory,
+                  ruleSources: [...completeInventory.ruleSources, deleted],
+                })
+              ),
+            })
+          ),
+        })
+      );
+      expect(receipt.outcome).toBe("unsatisfied");
+      // Rewrite the stored JSON into the shape written before `history` existed.
+      const legacyText = Str.replace(
+        /,"history":"(gating|unread)"/gu,
+        ""
+      )(yield* encodeGoalCompletionReceiptJson(receipt));
+      expect(Str.includes('"history"')(legacyText)).toBe(false);
+      const legacy = yield* decodeGoalCompletionReceiptJson(legacyText);
+      const sources = O.getOrThrow(O.flatMap(legacy.requiredChecks, (value) => value.mergeTimeInventory)).ruleSources;
+      expect(A.map(sources, (source) => source.history)).toEqual(["gating", "gating"]);
+      const reresolved = yield* GoalCompletionVerifier.resolve(
+        GoalCompletionObservation.make({ ...legacy, merged: O.some(true), grandfathered: false })
+      );
+      expect(reresolved.outcome).toBe("unsatisfied");
+      const unversioned = yield* S.decodeEffect(GoalMergeTimeRuleSourceRecord)({
+        sourceType: "ruleset",
+        rulesetId: 999,
+        name: null,
+        enforcement: "deleted ruleset",
+        requiredStatusChecks: "fail",
+        survives: false,
+        version: null,
+      });
+      expect(unversioned.history).toBe("unread");
+    })
+  );
   it.effect("requires complete historical inventory despite green surviving contexts", () =>
     Effect.gen(function* () {
       const observation = fixture();

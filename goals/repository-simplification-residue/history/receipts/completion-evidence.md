@@ -233,6 +233,52 @@ unreachable branch for a deleted ruleset whose history has no version at merge. 
 deleted ruleset has no listed creation time, so that read fails instead, and the
 case is now handled as unrecoverable.
 
+## Review round 2 (#1921)
+
+Two threads, fixed in the lane on head `0e0933a150`:
+
+- **`not-gating` was too broad.** Round 1 mapped every non-applying recovered version
+  to `not-gating`. Only evaluate mode legitimately does not gate. The rule suite
+  shows GitHub evaluated the source on `refs/heads/<base>`, so a recovered version
+  that is inactive, does not target branches, or does not match the base branch
+  contradicts GitHub's other record.
+  - `historicalRulesetApplicability` now returns `applies`, `evaluate` or
+    `mismatch`.
+  - A deleted ruleset with a `mismatch` version records the new
+    `GoalRuleSourceHistory` value `conflicting` and the gap `inventory-mismatch`.
+    The verdict re-derives that gap from the stored row, so it is always
+    `unknown`, never `verified`.
+  - Surviving rulesets keep their existing `inventory-mismatch` for any
+    non-applying version.
+  - The round-1 test that verified a release-only history now expects `unknown`
+    with `inventory-mismatch`, alongside inactive and tag-target cases. The
+    evaluate-mode test still verifies.
+- **Legacy receipts.** A receipt written before `history` existed decoded a
+  deleted ruleset's recovered version as `unread`, which skipped the
+  recovered-red rule.
+  - The new `GoalMergeTimeRuleSourceRecord` codec is a `decodeTo` transformation
+    from the wire shape (where `history` is optional).
+    `GoalMergeTimeInventory.ruleSources` uses it.
+  - A legacy row with a `version` and no `history` decodes as `gating`, matching
+    the old writer, which recorded a version only when the ruleset applied. That
+    fails closed. A row with neither decodes as `unread`, and encoding always
+    writes `history`.
+  - New test: a legacy receipt with a version, no history and a failed check
+    re-resolves to `unsatisfied`.
+- **Complexity.** The enforcement mapping moved into `applicabilityOfEnforcement`
+  to keep fallow's complexity gate at 0 findings.
+
+Final round-2 tree:
+- Scoped Bun and Node runs: 156 tests pass under each.
+- `package-verify`: exit 0 (audit 1277.1s, docgen 37.3s).
+- Coverage ratchet: ok across 340 files.
+- effect-vitest and schema-first: `introduced=0`.
+- effect-diagnostics: 0 errors on the check and test overlays.
+- oxlint: 0. fallow: exit 0, 0 findings.
+- jsdoc ratchet: `increased=0`.
+- Catalogs: current after `--write`.
+- Offline doctor: 15 advisories.
+
 ## Reversal
 
 Revert the PR. The added snapshot and receipt fields are decoding-defaulted, and

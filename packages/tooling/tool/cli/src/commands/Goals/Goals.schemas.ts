@@ -22,6 +22,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 import type * as AST from "effect/SchemaAST";
 
 const $I = $RepoCliId.create("commands/Goals/Goals.schemas");
@@ -615,8 +616,10 @@ export type GoalRuleEnforcement = typeof GoalRuleEnforcement.Type;
  *
  * `unread` means no history was read (or none could be recovered). `gating`
  * means the version effective at merge was active and applied to the base
- * branch. `not-gating` means it was in evaluate mode, inactive, or did not
- * target the base branch, so it did not gate the merge.
+ * branch. `not-gating` means it was in evaluate mode, so it did not gate the
+ * merge. `conflicting` means it was inactive, did not target branches, or did
+ * not match the base branch, although GitHub evaluated it on that branch at the
+ * push: the two GitHub records disagree, so the inventory is a mismatch.
  *
  * **Example** (Recognize a non-gating history)
  *
@@ -628,7 +631,7 @@ export type GoalRuleEnforcement = typeof GoalRuleEnforcement.Type;
  * @category models
  * @since 0.0.0
  */
-export const GoalRuleSourceHistory = LiteralKit(["unread", "gating", "not-gating"]).pipe(
+export const GoalRuleSourceHistory = LiteralKit(["unread", "gating", "not-gating", "conflicting"]).pipe(
   $I.annoteSchema("GoalRuleSourceHistory", {
     description: "What recovered ruleset history says about a rule source at merge.",
   })
@@ -673,16 +676,68 @@ export class GoalMergeTimeRuleSource extends S.Opaque<GoalMergeTimeRuleSource, {
     requiredStatusChecks: S.OptionFromNullOr(GoalRuleEvaluationResult),
     survives: S.Boolean,
     version: S.OptionFromNullOr(S.NonEmptyString),
-    history: GoalRuleSourceHistory.pipe(
-      S.withConstructorDefault(Effect.succeed<GoalRuleSourceHistory>("unread")),
-      S.withDecodingDefault(Effect.succeed<GoalRuleSourceHistory>("unread"))
-    ),
+    history: GoalRuleSourceHistory.pipe(S.withConstructorDefault(Effect.succeed<GoalRuleSourceHistory>("unread"))),
   }).pipe(
     $I.annoteSchema("GoalMergeTimeRuleSource", {
       description: "One rule source GitHub evaluated at the merge push, with its merge-time history version.",
     })
   )
 ) {}
+
+const GoalMergeTimeRuleSourceWire = S.toEncoded(
+  S.Struct({
+    ...GoalMergeTimeRuleSource.fields,
+    history: S.optionalKey(GoalRuleSourceHistory),
+  })
+);
+
+/**
+ * Stored rule-source codec that reads receipts written before `history` existed.
+ *
+ * **Details**
+ *
+ * The earlier writer recorded a `version` only for a ruleset whose history
+ * applied at merge, so a stored row with a version and no `history` decodes as
+ * `gating` (failing closed: its failed required checks stay red). A row with
+ * neither decodes as `unread`. Rows with `history` decode unchanged, and
+ * encoding always writes `history`.
+ *
+ * **Example** (Decode a legacy row with a recovered version)
+ *
+ * ```ts
+ * import { GoalMergeTimeRuleSourceRecord } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * import * as S from "effect/Schema"
+ *
+ * const row = S.decodeUnknownSync(GoalMergeTimeRuleSourceRecord)({
+ *   sourceType: "ruleset",
+ *   rulesetId: 999,
+ *   name: null,
+ *   enforcement: "deleted ruleset",
+ *   requiredStatusChecks: "fail",
+ *   survives: false,
+ *   version: "repos/{owner}/{repo}/rulesets/999/history/1",
+ * })
+ * console.log(row.history) // "gating"
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const GoalMergeTimeRuleSourceRecord = GoalMergeTimeRuleSourceWire.pipe(
+  S.decodeTo(
+    GoalMergeTimeRuleSource,
+    SchemaTransformation.transform({
+      decode: (wire): typeof GoalMergeTimeRuleSource.Encoded => ({
+        ...wire,
+        history: wire.history ?? (wire.version === null ? "unread" : "gating"),
+      }),
+      encode: (encoded) => encoded,
+    })
+  ),
+  $I.annoteSchema("GoalMergeTimeRuleSourceRecord", {
+    description: "Stored rule source; a legacy row with a recovered version and no history decodes as gating.",
+  })
+);
 
 /**
  * Records GitHub's rule suite for the merge push: the complete rule-source inventory at merge.
@@ -711,7 +766,7 @@ export class GoalMergeTimeInventory extends S.Opaque<GoalMergeTimeInventory, { r
     afterSha: S.NonEmptyString,
     pushedAt: S.DateTimeUtcFromString,
     result: GoalRuleSuiteResult,
-    ruleSources: S.Array(GoalMergeTimeRuleSource),
+    ruleSources: S.Array(GoalMergeTimeRuleSourceRecord),
   }).pipe(
     $I.annoteSchema("GoalMergeTimeInventory", {
       description: "GitHub rule suite for the merge push, listing every evaluated rule source.",

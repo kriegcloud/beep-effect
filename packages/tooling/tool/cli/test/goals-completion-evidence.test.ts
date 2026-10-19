@@ -314,27 +314,48 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal merge-time completion e
       expect(gapsOf(unrecoverable)).toContain("deleted-ruleset-unrecoverable");
     })
   );
-  it.effect("a deleted ruleset that history shows did not gate the merge does not block", () =>
-    Effect.forEach(
-      [
-        (version: unknown) => ({
+  it.effect("a deleted ruleset that history shows was in evaluate mode does not block", () =>
+    Effect.gen(function* () {
+      const receipt = yield* observe({
+        data: withEvaluations(A.append({ ...deletedRulesetEvaluation, result: "fail" })),
+        deletedHistory: true,
+        deletedVersion: (version: unknown) => ({
           state: { ...(version as { readonly state: object }).state, enforcement: "evaluate" },
         }),
+      });
+      expect(receipt.outcome).toBe("verified");
+      expect(gapsOf(receipt)).toEqual([]);
+    })
+  );
+  it.effect("an inactive or non-matching recovered version contradicts the rule suite and is never verified", () =>
+    Effect.forEach(
+      [
         (version: unknown) => ({
           state: {
             ...(version as { readonly state: object }).state,
             conditions: { ref_name: { include: ["refs/heads/release"], exclude: [] } },
           },
         }),
+        (version: unknown) => ({
+          state: { ...(version as { readonly state: object }).state, enforcement: "disabled" },
+        }),
+        (version: unknown) => ({
+          state: { ...(version as { readonly state: object }).state, target: "tag" },
+        }),
       ],
-      Effect.fn("CompletionEvidenceTest.nonGatingDeleted")(function* (deletedVersion) {
-        const receipt = yield* observe({
-          data: withEvaluations(A.append({ ...deletedRulesetEvaluation, result: "fail" })),
-          deletedHistory: true,
-          deletedVersion,
-        });
-        expect(receipt.outcome).toBe("verified");
-        expect(gapsOf(receipt)).toEqual([]);
+      Effect.fn("CompletionEvidenceTest.conflictingDeleted")(function* (deletedVersion) {
+        yield* Effect.forEach(
+          ["fail", "pass"],
+          Effect.fn("CompletionEvidenceTest.conflictingDeletedResult")(function* (result) {
+            const receipt = yield* observe({
+              data: withEvaluations(A.append({ ...deletedRulesetEvaluation, result })),
+              deletedHistory: true,
+              deletedVersion,
+            });
+            expect(receipt.outcome).toBe("unknown");
+            expect(gapsOf(receipt)).toContain("inventory-mismatch");
+          })
+        );
       })
     )
   );
