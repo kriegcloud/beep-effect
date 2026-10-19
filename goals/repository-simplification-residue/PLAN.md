@@ -51,6 +51,11 @@ Markdown TypeScript fences and decides the three upstream-copied `.patterns` fil
 #1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the
 RDF failure assertions and the Pacer logout witness are ported, and every export
 hunk has a disposition.
+#1869 `residue-telemetry-completeness` is complete
+(`history/receipts/telemetry-completeness.md`): stored session stamps carry
+independent completeness and qualification fields, historical rows decode as
+`unknown`, and a run that cannot evaluate a session keeps its verified stamp
+while the session's own contradicting evidence still clears it.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

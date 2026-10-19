@@ -115,6 +115,7 @@ import * as Base64 from "effect/encoding/Base64";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -785,6 +786,79 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           expect(status.stampGapRejectedRecords).toBe(1);
         }
       };
+      // Completeness follows collection only; qualification follows the join only.
+      // Sessions whose gap evidence failed to load while their own evidence contradicts nothing.
+      const unevaluable = ["empty-sentinel", "custom-sentinel"];
+      const assertScenarioVerdict = Effect.fnUntraced(function* (
+        scenario: typeof ForwarderStampScenario.Type,
+        result: AiMetricsForwarderRunResult,
+        expected: string | null
+      ) {
+        const db = yield* DuckDb;
+        const completeness =
+          result.hookCollectionComplete && result.stampGapCollectionComplete ? "complete" : "partial";
+        const unresolved = A.contains(unevaluable, scenario) ? "unknown" : "unqualified";
+        const qualification = expected === null ? unresolved : "qualified";
+        for (const table of ["ai_metrics_sessions", "ai_metrics_source_files"])
+          expect(
+            yield* db.query(
+              `SELECT session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ${table}`
+            )
+          ).toEqual([{ completeness, qualification }]);
+        for (const span of (yield* readAiMetricsOtlpSpanProjections).projections) {
+          expect(span.attributes["ai_metrics.session_stamp_completeness"]).toBe(completeness);
+          expect(span.attributes["ai_metrics.session_stamp_qualification"]).toBe(qualification);
+        }
+        return `${completeness}/${qualification}`;
+      });
+      const readSessionVerdict = Effect.fnUntraced(function* () {
+        const db = yield* DuckDb;
+        return yield* db.query(
+          "SELECT session_harness_hash AS stamp, session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_sessions"
+        );
+      });
+      const readLatestSourceVerdict = Effect.fnUntraced(function* () {
+        const db = yield* DuckDb;
+        return yield* db.query(
+          "SELECT session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_source_files ORDER BY ingest_run_id DESC LIMIT 1"
+        );
+      });
+      const verified = { stamp, completeness: "complete", qualification: "qualified" };
+      const assertStoredStampLifecycle = Effect.fnUntraced(function* (
+        forwarderInput: AiMetricsForwarderInput,
+        hookDir: string,
+        mixedShard: string
+      ) {
+        const ownShard = path.join(hookDir, "fixture.ndjson");
+        const unrelatedShard = path.join(hookDir, "unrelated.ndjson");
+        // (b) One undecodable line in an unrelated shard while this session has no evidence of
+        // its own in the run: the gates cannot evaluate it, so the stored stamp stays.
+        yield* fs.rename(ownShard, `${ownShard}.parked`);
+        yield* writeText(unrelatedShard, "not JSON\n");
+        expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+        expect(yield* readSessionVerdict()).toEqual([verified]);
+        expect(yield* readLatestSourceVerdict()).toEqual([{ completeness: "partial", qualification: "unknown" }]);
+        // (c) hook-events offline: also unevaluable, the stored stamp stays.
+        yield* fs.remove(unrelatedShard);
+        yield* fs.rename(`${ownShard}.parked`, ownShard);
+        yield* fs.rename(hookDir, `${hookDir}.offline`);
+        expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+        expect(yield* readSessionVerdict()).toEqual([verified]);
+        expect(yield* readLatestSourceVerdict()).toEqual([{ completeness: "partial", qualification: "unknown" }]);
+        // Restored, complete evidence re-qualifies the same stamp.
+        yield* fs.rename(`${hookDir}.offline`, hookDir);
+        yield* runAiMetricsForwarder(forwarderInput);
+        expect(yield* readSessionVerdict()).toEqual([verified]);
+        // (a) The same undecodable unrelated line, but this session's own shard now carries a
+        // second stamp: its own evidence disqualifies, so a partial run still clears the stamp.
+        yield* writeText(unrelatedShard, "not JSON\n");
+        yield* writeText(ownShard, mixedShard);
+        expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+        expect(yield* readSessionVerdict()).toEqual([
+          { stamp: null, completeness: "partial", qualification: "unqualified" },
+        ]);
+      });
+      let verdicts = HashSet.empty<string>();
       for (const scenario of ForwarderStampScenario.literals) {
         const homeDir = path.join(tmpDir, scenario, "home");
         const sourceRoot = path.join(homeDir, ".codex/sessions");
@@ -869,19 +943,18 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             A.join(yield* Effect.forEach(rows, (row) => HookPulseV1.encodeJsonEffect(row)), "\n")
           );
           yield* writeScenarioGaps(scenario, hookRoot, hookDir);
-          const result = yield* runAiMetricsForwarder(
-            AiMetricsForwarderInput.make({
-              homeDir,
-              repoRoot,
-              codexSessionsRoot: O.some(sourceRoot),
-              claudeProjectsRoot: O.some(path.join(homeDir, "missing")),
-              dataRoot: O.some(dataRoot),
-              hashSalt: O.some("storage-fixture-namespace"),
-              includeAll: true,
-              parquetExportMode: "none",
-              rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
-            })
-          );
+          const forwarderInput = AiMetricsForwarderInput.make({
+            homeDir,
+            repoRoot,
+            codexSessionsRoot: O.some(sourceRoot),
+            claudeProjectsRoot: O.some(path.join(homeDir, "missing")),
+            dataRoot: O.some(dataRoot),
+            hashSalt: O.some("storage-fixture-namespace"),
+            includeAll: true,
+            parquetExportMode: "none",
+            rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
+          });
+          const result = yield* runAiMetricsForwarder(forwarderInput);
           const status = yield* decodeForwarderRunResult(yield* forwarderRunResultToJson(result));
           assertScenarioCollection(scenario, result, status);
           const expected = A.contains(
@@ -891,11 +964,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             ? stamp
             : null;
           const db = yield* DuckDb;
-          const complete = expected !== null && result.hookCollectionComplete && result.stampGapCollectionComplete;
-          for (const table of ["ai_metrics_sessions", "ai_metrics_source_files"])
-            expect(yield* db.query(`SELECT session_stamp_collection_complete AS complete FROM ${table}`)).toEqual([
-              { complete },
-            ]);
+          verdicts = HashSet.add(verdicts, yield* assertScenarioVerdict(scenario, result, expected));
           expect(yield* db.query("SELECT session_harness_hash AS stamp FROM ai_metrics_sessions")).toEqual([
             { stamp: expected },
           ]);
@@ -906,8 +975,19 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           expect(projection.projections.length).toBeGreaterThan(0);
           for (const span of projection.projections) {
             expect(span.attributes["ai_metrics.session_harness_hash"]).toBe(expected ?? undefined);
-            expect(span.attributes["ai_metrics.session_stamp_collection_complete"]).toBe(complete);
+            expect(span.attributes).not.toHaveProperty("ai_metrics.session_stamp_collection_complete");
           }
+          if (scenario === "qualified")
+            yield* assertStoredStampLifecycle(
+              forwarderInput,
+              hookDir,
+              A.join(
+                yield* Effect.forEach([start, HookPulseV1.make({ ...start, harnessHash: O.some(otherStamp) })], (row) =>
+                  HookPulseV1.encodeJsonEffect(row)
+                ),
+                "\n"
+              )
+            );
         }).pipe(
           Effect.provideService(ConfigProvider.ConfigProvider, provider),
           provideScopedLayer(
@@ -917,6 +997,15 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           )
         );
       }
+      // Partial collection reaches qualified, unqualified and unknown, and complete collection
+      // reaches qualified and unqualified, so neither field determines the other.
+      expect(A.sort(A.fromIterable(verdicts), Order.String)).toEqual([
+        "complete/qualified",
+        "complete/unqualified",
+        "partial/qualified",
+        "partial/unknown",
+        "partial/unqualified",
+      ]);
     })
   );
 

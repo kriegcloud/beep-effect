@@ -31,6 +31,9 @@ import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
   AiMetricsParquetExportMode,
+  AiMetricsSessionStampJoin,
+  aiMetricsSessionStampCompletenessFor,
+  aiMetricsSessionStampQualificationFor,
   writeAiMetricsDerivedStorage,
 } from "./derived-storage.ts";
 import { HarnessHash } from "./harness-ledger.ts";
@@ -260,6 +263,62 @@ const recordAvoidsStampGaps = (
           ? O.exists(closedAt, (closed) => O.exists(gap.start, (first) => first > closed))
           : O.exists(gap.start, (first) => first > end))
     );
+  });
+
+// A contradiction is drawn from this session's own evidence and cannot be undone by evidence
+// a run failed to read: extra stamps or identities only accumulate, and a gap that starts
+// inside the transcript's own span intersects whatever else is found.
+const sessionStampContradicted = (input: {
+  readonly agentKind: HookPulseAgentKind;
+  readonly gaps: O.Option<ReadonlyArray<SessionStampGap>>;
+  readonly index: Pick<SessionStampIndex, "sessions" | "stamps">;
+  readonly pathHash: string;
+  readonly record: AiMetricsDerivedTranscriptRecord;
+  readonly sessionIdentityHash: O.Option<string>;
+}): boolean => {
+  const key = `${input.agentKind}:${input.pathHash}`;
+  const sanitized = input.record.privacy.sanitized;
+  const start = O.flatMap(sanitized.firstTimestamp, timestampEpoch);
+  const last = O.flatMap(sanitized.lastTimestamp, timestampEpoch);
+  const insideTranscript = (first: number): boolean =>
+    O.exists(start, (beginning) => first >= beginning) && O.exists(last, (end) => first <= end);
+  const mixedStamps = O.exists(
+    MutableHashMap.get(input.index.stamps, key),
+    (values) => HashSet.size(values) > 1 || HashSet.has(values, "unknown")
+  );
+  const foreignIdentity = O.exists(
+    MutableHashMap.get(input.index.sessions, key),
+    (identities) =>
+      HashSet.size(identities) > 1 ||
+      O.exists(input.sessionIdentityHash, (identity) => !HashSet.has(identities, identity))
+  );
+  const gapInside = O.exists(input.gaps, (known) =>
+    A.some(
+      known,
+      (gap) =>
+        (O.isNone(gap.client) || O.contains(gap.client, input.agentKind)) && O.exists(gap.start, insideTranscript)
+    )
+  );
+  return mixedStamps || foreignIdentity || gapInside;
+};
+
+const sessionStampJoinFor = (input: {
+  readonly gaps: O.Option<ReadonlyArray<SessionStampGap>>;
+  readonly index: Pick<SessionStampIndex, "sessions" | "stamps">;
+  readonly kind: O.Option<HookPulseAgentKind>;
+  readonly pathHash: string;
+  readonly record: AiMetricsDerivedTranscriptRecord;
+  readonly retained: boolean;
+  readonly sessionIdentityHash: O.Option<string>;
+}): AiMetricsSessionStampJoin =>
+  O.match(input.kind, {
+    onNone: () => AiMetricsSessionStampJoin.Enum.unsupported,
+    onSome: (agentKind) => {
+      if (input.retained) return AiMetricsSessionStampJoin.Enum.retained;
+      return sessionStampContradicted({ ...input, agentKind })
+        ? AiMetricsSessionStampJoin.Enum.contradicted
+        : AiMetricsSessionStampJoin.Enum.unresolved;
+    },
   });
 
 type SessionStampIndex = {
@@ -1453,6 +1512,12 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       }),
       { discard: true }
     );
+    // Completeness describes collection only. Qualification comes from each record's own
+    // join outcome; completeness only decides whether an unresolved join is a verdict.
+    const sessionStampCompleteness = aiMetricsSessionStampCompletenessFor(
+      hookCollectionComplete,
+      O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0)
+    );
     const stampedRecords = A.map(records, ({ record, sessionIdentityHash, hookPathHash }) => {
       const sanitized = record.privacy.sanitized;
       const kind = AiMetricsTranscriptSource.$match(sanitized.sourceKind, {
@@ -1503,13 +1568,20 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
           O.flatMap((values) => A.head(A.fromIterable(values)))
         );
       });
+      const join = sessionStampJoinFor({
+        gaps: O.map(stampGaps, (loaded) => loaded.gaps),
+        index: { sessions, stamps },
+        kind,
+        pathHash: hookPathHash,
+        record,
+        retained: O.isSome(sessionHarnessHash),
+        sessionIdentityHash,
+      });
       return AiMetricsDerivedTranscriptRecord.make({
         ...record,
         sessionHarnessHash: O.map(sessionHarnessHash, HarnessHash.make),
-        sessionStampCollectionComplete:
-          O.isSome(sessionHarnessHash) &&
-          hookCollectionComplete &&
-          O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0),
+        sessionStampCompleteness,
+        sessionStampQualification: aiMetricsSessionStampQualificationFor(join, sessionStampCompleteness),
       });
     });
     const ingestRunId = `forwarder-${startedAtEpochMillis}`;

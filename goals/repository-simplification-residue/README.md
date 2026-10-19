@@ -39,6 +39,11 @@ every stale file ([record](./history/receipts/guidance-classification.md)); the
 #1876 is complete: the RDF failure assertions and the Pacer logout teardown
 witness are ported, with a per-hunk disposition of the preserved exports
 ([record](./history/receipts/rdf-pacer-ports.md)).
+#1869 is complete: telemetry storage completeness and stamp qualification are
+separate fields, historical rows stay `unknown`, and a run that cannot evaluate a
+session keeps a verified stamp, while the session's own contradicting evidence
+still clears it
+([record](./history/receipts/telemetry-completeness.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.
