@@ -13,10 +13,10 @@ three-step pool order of 2026-09-24 (Opus only → authorized Cursor → hold). 
 exist, keyed by the orchestrator that started the work, and each step runs at medium effort
 where the route supports it:
 
-| Originator | 1 | 2 | 3 |
-| --- | --- | --- | --- |
-| Codex | `gpt-6.1-sol` medium through the Codex CLI, plugin, or `claudex` proxy | `cursor-agent --model claude-opus-5-5-medium` | grok-build (`grok -m grok-4.7 --effort medium`) |
-| Claude Code | `claude-opus-5-5` medium child (Agent tool, Workflow child, `claude -p`) | `cursor-agent --model claude-opus-5-5-medium` | grok-build (`grok -m grok-4.7 --effort medium`) |
+| Originator | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| Codex | `gpt-6.1-sol` medium through the Codex CLI, plugin, or `claudex` proxy | `cursor-agent --model claude-opus-5-5-medium` | grok-build (`grok -m grok-4.7 --effort medium`) | — |
+| Claude Code | `claude-opus-5-5` medium child (Agent tool, Workflow child, `claude -p`) | Codex `gpt-6.1-sol` medium through the Codex lane recipe (R11, 2026-10-18) | `cursor-agent --model claude-opus-5-5-medium` | grok-build (`grok -m grok-4.7 --effort medium`) |
 
 Defaults: Codex `gpt-6.1-sol` medium (`$HOME/.codex/config.toml`); the Claude Code orchestrator
 runs `claude-fable-5-1` medium (`$HOME/.claude/settings.json`) and every Claude child runs
@@ -71,10 +71,12 @@ and one whose login the provider rejects shows as
 `needs login`. The usage endpoints are undocumented and can change without notice, so inside a
 running lane the signal is still the request itself. A delegation that fails with `rate_limit_error` ("This request would exceed your
 account's rate limit") marks the Opus pool below floor for the session: finish what is already
-running, then step the Claude chain down (2026-10-01 policy): launch the next bounded lane on
-`cursor-agent --model claude-opus-5-5-medium`, and when Cursor is below floor too, on grok-build
-`grok -m grok-4.7 --effort medium`. Hold and notify only when both fallbacks are exhausted.
-Never route the step onto Codex. `claude` shows the live windows with `/usage`.
+running, then step the Claude chain down (2026-10-01 policy, amended 2026-10-18 by R11): read
+the Codex probe below first and, while Codex is above floor, launch the next bounded lane through
+the Codex lane recipe (`gpt-6.1-sol` medium, argv captured); when Codex is below floor, on
+`cursor-agent --model claude-opus-5-5-medium`; and when Cursor is below floor too, on grok-build
+`grok -m grok-4.7 --effort medium`. Hold and notify only when all three fallbacks are exhausted.
+`claude` shows the live windows with `/usage`.
 
 ### Codex
 
@@ -96,7 +98,7 @@ hold stdin for about 40 s.
 | Field | Meaning |
 | --- | --- |
 | `ordinaryUsageAllowed` | Boolean gate. `null` means unavailable — do not infer availability from percentages alone. |
-| `rateLimits.primary.usedPercent` | Primary window consumption (0–100). Codex is at or below the floor when `usedPercent` ≥ 95. For a Codex orchestrator that means: finish running lanes, then step the Codex chain down to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; never onto direct Claude. Hold and notify once both fallbacks are exhausted. |
+| `rateLimits.primary.usedPercent` | Primary window consumption (0–100). Codex is at or below the floor when `usedPercent` ≥ 95. For a Codex orchestrator that means: finish running lanes, then step the Codex chain down to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; never onto direct Claude. Hold and notify once both fallbacks are exhausted. For a Claude orchestrator stepping down under R11 it means the Codex step is skipped before admission and the lane goes straight to Cursor. |
 | `rateLimits.primary.resetsAt` | ISO timestamp when the primary window resets. |
 | `rateLimits.primary.windowDurationMins` | Window length in minutes (CLI account: 10080 = weekly). |
 | `rateLimits.secondary` | Secondary window with the same shape when present. |
@@ -107,7 +109,8 @@ CLIProxyAPI management API when it exposes quota, else probe fallback (D8).
 
 ### Cursor
 
-**Fail-open (D17, amended 2026-10-01).** Cursor is step 2 of both chains, so a confirmed quota,
+**Fail-open (D17, amended 2026-10-01).** Cursor is step 2 of the Codex chain and step 3 of the
+Claude chain (after Codex, R11), so a confirmed quota,
 availability, or unsupported-model failure on step 1 is the only trigger that moves a lane onto
 it; Cursor then counts as available until a lane proves otherwise, unless the dashboard already
 shows less than 5% remaining in the target bucket (see Human meter). A below-floor bucket marks
@@ -394,7 +397,10 @@ Workflow child:
 await agent("<bounded task>", { model: "claude-opus-5-5", phase: "Implement" })
 ```
 
-Cursor fallback (step 2 of either chain), verified 2026-10-14:
+Codex fallback (Claude chain step 2, R11 2026-10-18): when the Opus child fails on quota or
+availability and the Codex probe shows `usedPercent` below 95, run the Codex lane recipe below
+with the same bounded task; below floor, skip straight to Cursor. Cursor fallback (Codex chain
+step 2, Claude chain step 3), verified 2026-10-14:
 
 ```sh
 timeout 1800 cursor-agent -p --trust --force --sandbox enabled --workspace "$PWD" \
@@ -417,7 +423,7 @@ unshare --user --map-root-user true && echo ok    # unprivileged user namespaces
 cursor-agent sandbox run echo sandbox-ok          # Cursor's own sandbox, no model call
 ```
 
-Only when `apparmor` is listed and `unshare` fails does the host fix below apply. grok-build fallback (step 3):
+Only when `apparmor` is listed and `unshare` fails does the host fix below apply. grok-build fallback (final step of both chains):
 
 ```sh
 grok -m grok-4.7 --effort medium --always-approve --no-subagents --max-turns 60 \
@@ -461,7 +467,9 @@ and commits. Junie never delegates onward and follows the Cursor data boundary (
 
 ## Codex lane recipe
 
-A Codex orchestrator (or a task the operator names Codex for) launches the volume lane:
+A Codex orchestrator, a Claude orchestrator stepping down its chain (step 2 under R11, once the
+Codex probe shows the pool above floor), or a task the operator names Codex for launches the
+volume lane:
 
 ```sh
 codex exec --model gpt-6.1-sol -c 'model_reasoning_effort="medium"' \
@@ -488,7 +496,7 @@ interactive picker may lag while `-m gpt-6.1-sol` works.
 | Stuck subagent holds `-p` | Single-turn `-p` waits for delegated subagents; kill or avoid Explore subagents. |
 | Cursor Models spill zeros Other | Floor-check dashboard; stop Cursor-bucket lanes before 100%. |
 | `Total usage limit reached` | Mark Cursor below floor; step to grok-build (`grok -m grok-4.7 --effort medium`), then hold and notify when that is exhausted too. |
-| `rate_limit_error` on a `claude-opus-5-5` delegation | Opus pool below floor: finish running children, then step the Claude chain to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; hold and notify only after both. |
+| `rate_limit_error` on a `claude-opus-5-5` delegation | Opus pool below floor: finish running children, then step the Claude chain to Codex `gpt-6.1-sol` medium (Codex probe above floor), then `cursor-agent --model claude-opus-5-5-medium`, then grok-build; hold and notify only after all three. |
 | Sudo / YubiKey prompt hang | `Shell(sudo)` and `Shell(pkexec)` in deny list (D21). |
 | Workspace trust hang | `--trust` on every headless lane. |
 | Missing `result/success` + exit 0 | Treat as failure; inspect stderr. |

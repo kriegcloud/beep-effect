@@ -30,7 +30,14 @@ only.
 ## What changed
 
 - `AGENTS.md` and `docs/runbooks/agent-pools.md`: the Claude row gains the Codex step and the
-  chain-symmetry sentence is reworded.
+  chain-symmetry sentence is reworded. In the runbook the pool-order table, the Opus
+  rate-limit remedies (meter paragraph and failure-signature row), the Cursor fail-open and
+  step labels, the Codex `usedPercent` row and the Codex lane recipe's opening line all carry
+  the four-step Claude chain and the Codex floor check before admission.
+- Other in-repo copies of the chain: `.claude/skills/oracle/SKILL.md` and its patch
+  `.agents/skill-patches/oracle/0001-skill-md.patch`, the `Models.seed.ts` binding notes
+  (notes only; `beep models check` does not compare them), and the packet's `README.md`
+  Mission and `GOAL.md` Outcome.
 - `SPEC.md` Decision Log: R11.
 - No manifest change: the Claude chain's Codex step reuses the existing `codex.heavy` ×
   `codex-cli` binding (`gpt-6.1-sol`, medium), so `beep models check` is unaffected.

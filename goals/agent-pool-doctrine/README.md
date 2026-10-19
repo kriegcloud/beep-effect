@@ -10,9 +10,10 @@ Source: [`ops/manifest.json`](./ops/manifest.json)
 
 Make the model defaults and per-orchestrator fallback chains binding — Codex on `gpt-6.1-sol`
 medium, the Claude Code orchestrator on `claude-fable-5-1` medium with every Claude child on
-`claude-opus-5-5` medium, each chain falling back to the Cursor agent on Opus 5.5 and then to
-grok-build on `grok-4.7` (policy of 2026-10-01, amended 2026-10-14 with the review panel, Muse
-opt-in and the Junie volume pool) — and make the Cursor lane a measurable, structurally guarded pool: pulse hooks,
+`claude-opus-5-5` medium, the Codex chain falling back to the Cursor agent on Opus 5.5 and then to
+grok-build on `grok-4.7`, the Claude chain to Codex first and then the same two (policy of 2026-10-01,
+amended 2026-10-14 with the review panel, Muse opt-in and the Junie volume pool, and 2026-10-18
+with R11) — and make the Cursor lane a measurable, structurally guarded pool: pulse hooks,
 a committed deny list, and a runbook every orchestrator can copy from.
 
 ## Launch
