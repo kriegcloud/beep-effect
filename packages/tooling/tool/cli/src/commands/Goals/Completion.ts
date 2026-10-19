@@ -12,22 +12,30 @@ import * as Context from "effect/Context";
 import { Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { appendContainedFileString, readContainedFileStringNoFollow } from "../../internal/cli/FsGuards.ts";
-import { ghOutput } from "../../internal/github/index.ts";
-import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { resolveProofLedgerLocation } from "../Yeet/internal/ArtifactPaths.ts";
-import { MergeGateCheckRun } from "../Yeet/internal/MergeGate.schemas.ts";
 import { decideYeetReviewWindow, YEET_REVIEW_WINDOW_DEFAULT } from "../Yeet/internal/ReviewWindow.ts";
-import { GhBranchRule, rulesetRequiredContextsFromRules, YeetRulesetRulesPayload } from "../Yeet/internal/Settle.ts";
 import { YeetVerdict } from "../Yeet/internal/Verdict.ts";
 import { YeetCommandError } from "../Yeet/Yeet.errors.ts";
+import {
+  GoalCompletionEvidenceInput,
+  GoalMergeTimeEvidenceRequest,
+  GoalObservedCheckRun,
+} from "./CompletionEvidence.schemas.ts";
+import {
+  decideGoalCompletionEvidence,
+  describeGoalCompletionEvidence,
+  readGoalCompletionGit,
+  readGoalCompletionGithub,
+  readGoalCompletionJson,
+  readGoalMergeTimeEvidence,
+} from "./CompletionEvidence.ts";
 import {
   GoalAcceptanceEvidenceRef,
   GoalCheckConclusion,
@@ -36,22 +44,17 @@ import {
   GoalManifest,
   GoalMergeResult,
   GoalNonRequiredRed,
+  GoalRequiredCheckFact,
   GoalRequiredCheckSnapshot,
   goalPullRequestRefs,
 } from "./Goals.schemas.ts";
 import { listGoalPackets, parseGoalManifestText } from "./Inventory.ts";
 import { canonicalJsonText, sha256Hex } from "./PacketCore/PacketDigest.ts";
-import type { GoalCompletionOutcome, GoalPullRequestRef } from "./Goals.schemas.ts";
+import type { GoalCompletionEvidenceVerdict, GoalCompletionOutcome, GoalPullRequestRef } from "./Goals.schemas.ts";
 import type { GoalPacketRecord } from "./Inventory.ts";
 
 const $I = $RepoCliId.create("commands/Goals/Completion");
 const hostedRef = GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true });
-const gitAdapter = {
-  onSpawnFailure: (command: string) => (_cause: unknown) => YeetCommandError.make({ message: `Cannot run ${command}` }),
-  onNonZeroExit: ({ commandLine }: { readonly commandLine: string }) =>
-    YeetCommandError.make({ message: `${commandLine} failed` }),
-  onTruncated: O.none<(command: string) => YeetCommandError>(),
-};
 
 /**
  * Pure verification input: absence is explicit and cannot become a success by default.
@@ -79,6 +82,9 @@ export class GoalCompletionObservation extends S.Opaque<GoalCompletionObservatio
     merge: S.Option(GoalMergeResult),
     grandfathered: S.Boolean,
     evidence: S.Array(GoalEvidenceCheck),
+    requiredCheckFacts: S.Array(GoalRequiredCheckFact).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<GoalRequiredCheckFact>()))
+    ),
     nonRequiredReds: S.Array(GoalNonRequiredRed),
     subClaims: S.Array(GoalEvidenceCheck),
     verifiedAt: S.DateTimeUtcFromString,
@@ -89,11 +95,101 @@ export class GoalCompletionObservation extends S.Opaque<GoalCompletionObservatio
   )
 ) {}
 
+/**
+ * Decides the merge-time evidence verdict for an observation or stored receipt.
+ *
+ * **Details**
+ *
+ * The verdict is re-derived from the stored rule-suite inventory and head-bound
+ * facts every time, so a persisted `verified` outcome or `inventoryComplete`
+ * flag cannot bypass incomplete evidence.
+ *
+ * **Example** (Inspect the verdict reader)
+ *
+ * ```ts
+ * import { goalCompletionVerdict } from "@beep/repo-cli/commands/Goals/Completion"
+ * console.log(typeof goalCompletionVerdict)
+ * ```
+ *
+ * @param observation - Observation or receipt holding merge, head, inventory and facts.
+ * @returns The verified, unsatisfied or unknown evidence verdict.
+ * @category validation
+ * @since 0.0.0
+ */
+export const goalCompletionVerdict = (
+  observation: Pick<GoalCompletionObservation, "merge" | "acceptedHead" | "requiredChecks" | "requiredCheckFacts">
+): GoalCompletionEvidenceVerdict =>
+  decideGoalCompletionEvidence(
+    GoalCompletionEvidenceInput.make({
+      acceptedHead: observation.acceptedHead,
+      mergeCommit: O.map(observation.merge, (merge) => merge.mergeCommit),
+      requiredChecks: observation.requiredChecks,
+      facts: observation.requiredCheckFacts,
+    })
+  );
+
+/**
+ * Names every reason a non-unsatisfied observation or receipt is not verified.
+ *
+ * **Details**
+ *
+ * Empty exactly when the merge facts, accepted head, accepted-head declaration
+ * digest, every declared gating evidence check and the merge-time evidence
+ * verdict are all present and verified. Doctor prints these reasons instead of
+ * the merge-time verdict, so an unknown completion never reads as verified.
+ *
+ * **Example** (A receipt with no facts names what is missing)
+ *
+ * ```ts
+ * import { goalCompletionUnknownReasons } from "@beep/repo-cli/commands/Goals/Completion"
+ * import * as O from "effect/Option"
+ *
+ * const reasons = goalCompletionUnknownReasons({
+ *   merge: O.none(),
+ *   acceptedHead: O.none(),
+ *   acceptedDeclarationDigest: O.none(),
+ *   evidence: [],
+ *   requiredChecks: O.none(),
+ *   requiredCheckFacts: [],
+ * })
+ * console.log(reasons.length > 0) // true
+ * ```
+ *
+ * @param observation - Observation or receipt facts.
+ * @returns Plain reasons, empty when every gating fact is verified.
+ * @category validation
+ * @since 0.0.0
+ */
+export const goalCompletionUnknownReasons = (
+  observation: Pick<
+    GoalCompletionObservation,
+    "merge" | "acceptedHead" | "acceptedDeclarationDigest" | "evidence" | "requiredChecks" | "requiredCheckFacts"
+  >
+): ReadonlyArray<string> => {
+  const gating = A.filter(observation.evidence, (check) => check.ref.gating);
+  const verdict = goalCompletionVerdict(observation);
+  return [
+    ...(O.isNone(observation.merge) ? ["merge facts unobserved"] : []),
+    ...(O.isNone(observation.acceptedHead) ? ["accepted head unobserved"] : []),
+    ...(O.isNone(observation.acceptedDeclarationDigest)
+      ? ["accepted-head declaration digest unobserved (the packet manifest at the accepted head could not be read)"]
+      : []),
+    ...(A.isReadonlyArrayEmpty(gating) ? ["no gating acceptance evidence"] : []),
+    ...A.map(
+      A.filter(gating, (check) => check.outcome === "unknown" || O.isNone(check.observedHead)),
+      (check) => `gating evidence ${check.ref.kind} "${check.ref.ref}" unknown`
+    ),
+    ...(verdict._tag === "unknown" ? [`merge-time evidence gaps: ${A.join(verdict.gaps, ", ")}`] : []),
+  ];
+};
+
 const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionOutcome => {
   if (observation.grandfathered) return "verified";
   if (O.contains(false)(observation.merged)) return "unsatisfied";
+  const verdict = goalCompletionVerdict(observation);
   const gating = A.filter(observation.evidence, (check) => check.ref.gating);
   if (
+    verdict._tag === "unsatisfied" ||
     A.some(
       gating,
       (check) =>
@@ -102,19 +198,7 @@ const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionO
     )
   )
     return "unsatisfied";
-  if (
-    O.isNone(
-      O.all({
-        merged: observation.merged,
-        merge: observation.merge,
-        head: observation.acceptedHead,
-        declaration: observation.acceptedDeclarationDigest,
-      })
-    ) ||
-    A.isReadonlyArrayEmpty(gating) ||
-    !O.exists(observation.requiredChecks, (snapshot) => snapshot.inventoryComplete && snapshot.rulesetReadsComplete) ||
-    A.some(gating, (check) => check.outcome === "unknown" || O.isNone(check.observedHead))
-  )
+  if (O.isNone(observation.merged) || A.isReadonlyArrayNonEmpty(goalCompletionUnknownReasons(observation)))
     return "unknown";
   return "verified";
 };
@@ -164,6 +248,7 @@ export class GoalCompletionVerifier extends Context.Service<
         acceptedHead: observation.acceptedHead,
         merge: observation.merge,
         evidence: observation.evidence,
+        requiredCheckFacts: observation.requiredCheckFacts,
         nonRequiredReds: observation.nonRequiredReds,
         subClaims: observation.subClaims,
         outcome: overallOutcome(observation),
@@ -173,44 +258,6 @@ export class GoalCompletionVerifier extends Context.Service<
   );
 }
 
-/**
- * Supplies read-only GitHub and git observations; fixture providers never contact the network.
- *
- * **Example** (Inspect the observation port)
- *
- * ```ts
- * import { GoalCompletionIo } from "@beep/repo-cli/commands/Goals/Completion"
- * console.log(typeof GoalCompletionIo.of)
- * ```
- *
- * @category services
- * @since 0.0.0
- */
-export class GoalCompletionIo extends Context.Service<
-  GoalCompletionIo,
-  {
-    readonly github: (root: string, args: ReadonlyArray<string>) => Effect.Effect<string, YeetCommandError>;
-    readonly git: (root: string, args: ReadonlyArray<string>) => Effect.Effect<string, YeetCommandError>;
-  }
->()($I`GoalCompletionIo`) {}
-const readCompletionGit = Effect.fn("Goals.Completion.git")(function* (root: string, args: ReadonlyArray<string>) {
-  const io = yield* Effect.serviceOption(GoalCompletionIo);
-  return yield* O.isSome(io) ? io.value.git(root, args) : runGitOutput(root, args, gitAdapter);
-});
-const readCompletionGithub = Effect.fn("Goals.Completion.github")(function* (
-  root: string,
-  args: ReadonlyArray<string>
-) {
-  const io = yield* Effect.serviceOption(GoalCompletionIo);
-  return yield* O.isSome(io)
-    ? io.value.github(root, args)
-    : ghOutput({
-        cwd: root,
-        args,
-        label: "goal completion GitHub observation",
-        onFailure: (failure) => YeetCommandError.make({ message: `${failure.label}: ${failure._tag}` }),
-      });
-});
 const Pull = S.Struct({
   created_at: S.DateTimeUtcFromString,
   number: S.Int,
@@ -225,123 +272,12 @@ const Commit = S.Struct({
   parents: S.Array(S.Struct({ sha: S.NonEmptyString })),
   commit: S.Struct({ tree: S.Struct({ sha: S.NonEmptyString }) }),
 });
-const TimedCheck = S.Struct({
-  ...MergeGateCheckRun.fields,
-  head_sha: S.NonEmptyString,
-  started_at: S.OptionFromNullOr(S.DateTimeUtcFromString),
-  completed_at: S.OptionFromNullOr(S.DateTimeUtcFromString),
-});
-const CheckPages = S.Array(S.Struct({ check_runs: S.Array(TimedCheck) }));
+const CheckPages = S.Array(S.Struct({ check_runs: S.Array(GoalObservedCheckRun) }));
 const TimelinePages = S.Struct({ event: S.String, created_at: S.optionalKey(S.DateTimeUtcFromString) }).pipe(
   S.Array,
   S.Array
 );
 const ReceiptJson = JsonStringCodec(GoalCompletionReceipt);
-const readJson = Effect.fn("Goals.Completion.readJson")(function* <Sch extends S.Codec<unknown, unknown>>(
-  root: string,
-  args: ReadonlyArray<string>,
-  schema: Sch
-) {
-  const text = yield* readCompletionGithub(root, args);
-  return yield* JsonStringCodec(schema)
-    .decode(text)
-    .pipe(Effect.mapError(() => YeetCommandError.make({ message: "Invalid goal completion GitHub payload" })));
-});
-const RulesetList = S.Struct({
-  id: S.Int,
-  source_type: S.String,
-  created_at: S.optionalKey(S.DateTimeUtcFromString),
-}).pipe(S.Array, S.Array);
-const RulesetHistory = S.Struct({ version_id: S.Int, updated_at: S.DateTimeUtcFromString }).pipe(S.Array, S.Array);
-const RulesetVersion = S.Struct({
-  state: S.Struct({
-    enforcement: S.String,
-    target: S.String,
-    conditions: S.Struct({ ref_name: S.Struct({ include: S.Array(S.String), exclude: S.Array(S.String) }) }),
-    rules: S.Array(GhBranchRule),
-  }),
-});
-const historicalRulesetApplies = Effect.fn("Goals.Completion.rulesetApplies")(function* (
-  state: typeof RulesetVersion.Type.state,
-  base: string
-) {
-  if (state.enforcement !== "active" || state.target !== "branch") return false;
-  const patterns = A.appendAll(state.conditions.ref_name.include, state.conditions.ref_name.exclude);
-  if (base !== "main" && A.contains(patterns, "~DEFAULT_BRANCH"))
-    return yield* YeetCommandError.make({
-      message: "Historical ruleset ~DEFAULT_BRANCH needs an independently observed default branch",
-    });
-  const matches = (pattern: string): boolean =>
-    pattern === "~ALL" || (pattern === "~DEFAULT_BRANCH" && base === "main") || pattern === `refs/heads/${base}`;
-  if (A.some(patterns, Str.includes("*")))
-    return yield* YeetCommandError.make({
-      message: "Historical ruleset glob requires an independently evaluated branch snapshot",
-    });
-  return A.some(state.conditions.ref_name.include, matches) && !A.some(state.conditions.ref_name.exclude, matches);
-});
-const readHistoricalRuleset = Effect.fn("Goals.Completion.historicalRuleset")(function* (
-  root: string,
-  ruleset: (typeof RulesetList.Type)[number][number],
-  base: string,
-  mergedAt: DateTime.Utc
-) {
-  if (ruleset.source_type !== "Repository")
-    return yield* YeetCommandError.make({
-      message: "Inherited ruleset history is unavailable through the repository-only adapter",
-    });
-  const history = A.flatten(
-    yield* readJson(
-      root,
-      ["api", `repos/{owner}/{repo}/rulesets/${ruleset.id}/history?per_page=100`, "--paginate", "--slurp"],
-      RulesetHistory
-    )
-  );
-  const version = A.reduce(
-    A.filter(history, (row) => DateTime.toEpochMillis(row.updated_at) <= DateTime.toEpochMillis(mergedAt)),
-    O.none<(typeof RulesetHistory.Type)[number][number]>(),
-    (found, row) =>
-      O.isNone(found) || DateTime.isGreaterThan(row.updated_at, found.value.updated_at) ? O.some(row) : found
-  );
-  if (O.isNone(version)) {
-    if (ruleset.created_at !== undefined && DateTime.isGreaterThan(ruleset.created_at, mergedAt)) return O.none();
-    return yield* YeetCommandError.make({ message: "No historical ruleset version covers this merge" });
-  }
-  const source = `repos/{owner}/{repo}/rulesets/${ruleset.id}/history/${version.value.version_id}`;
-  const { state } = yield* readJson(root, ["api", source], RulesetVersion);
-  if (!(yield* historicalRulesetApplies(state, base))) return O.none();
-  const folded = rulesetRequiredContextsFromRules(
-    YeetRulesetRulesPayload.make({ base, readAt: DateTime.formatIso(mergedAt), rules: state.rules })
-  );
-  return O.some({ source, contexts: folded.contexts });
-});
-const readHistoricalRequiredChecks = Effect.fn("Goals.Completion.historicalRequiredChecks")(function* (
-  root: string,
-  base: string,
-  mergedAt: DateTime.Utc
-) {
-  const inventory = A.flatten(
-    yield* readJson(
-      root,
-      ["api", "repos/{owner}/{repo}/rulesets?per_page=100&includes_parents=true", "--paginate", "--slurp"],
-      RulesetList
-    )
-  );
-  const reads = yield* Effect.forEach(inventory, (ruleset) =>
-    readHistoricalRuleset(root, ruleset, base, mergedAt).pipe(Effect.option)
-  );
-  const snapshots = pipe(reads, A.getSomes, A.getSomes);
-  if (A.isReadonlyArrayEmpty(snapshots))
-    return yield* YeetCommandError.make({ message: "No historical applicable ruleset observed" });
-  return GoalRequiredCheckSnapshot.make({
-    contexts: A.dedupe(A.flatMap(snapshots, (snapshot) => snapshot.contexts)),
-    sources: A.map(snapshots, (snapshot) => snapshot.source),
-    effectiveAt: mergedAt,
-    // Version history covers only surviving rulesets. Deleted rulesets cannot
-    // be discovered through current enumeration; no complete historical inventory is inferred.
-    inventoryComplete: false,
-    rulesetReadsComplete: A.every(reads, O.isSome),
-  });
-});
 /**
  * Digests the decoded completion declaration, initiative identity and packet identity canonically.
  *
@@ -419,9 +355,9 @@ const readAcceptedManifest = Effect.fn("Goals.Completion.acceptedManifest")(func
   head: string,
   slug: string
 ) {
-  const acceptedText = yield* readCompletionGit(root, ["show", `${head}:goals/${slug}/ops/manifest.json`]).pipe(
+  const acceptedText = yield* readGoalCompletionGit(root, ["show", `${head}:goals/${slug}/ops/manifest.json`]).pipe(
     Effect.catchTag("YeetCommandError", () =>
-      readCompletionGithub(root, [
+      readGoalCompletionGithub(root, [
         "api",
         `repos/{owner}/{repo}/contents/goals/${slug}/ops/manifest.json?ref=${head}`,
         "-H",
@@ -455,6 +391,21 @@ const readDeclaredEvidence = Effect.fn("Goals.Completion.declaredEvidence")(func
   }
   return evidence;
 });
+
+// The hosted check records what the head-bound required facts show (a red, a
+// missing result, or all green). Overall verification separately needs the
+// complete merge-time inventory, so newer green facts can clear an older red to
+// unknown without verifying an incomplete inventory.
+const hostedRequiredOutcome = (
+  verdict: GoalCompletionEvidenceVerdict,
+  required: O.Option<ReadonlyArray<string>>,
+  facts: ReadonlyArray<GoalRequiredCheckFact>
+): GoalCompletionOutcome => {
+  if (verdict._tag === "unsatisfied") return "unsatisfied";
+  return O.isNone(required) || A.isReadonlyArrayEmpty(facts) || A.some(facts, (fact) => fact.outcome !== "verified")
+    ? "unknown"
+    : "verified";
+};
 
 /**
  * Observes a final PR on GitHub without writing receipt or manifest state.
@@ -498,9 +449,11 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
     verifiedAt,
   });
   if (initial.grandfathered) return yield* resolve(initial);
-  const pullRead = yield* readJson(root, ["api", `repos/{owner}/{repo}/pulls/${final.number}`], Pull).pipe(
-    Effect.option
-  );
+  const pullRead = yield* readGoalCompletionJson(
+    root,
+    ["api", `repos/{owner}/{repo}/pulls/${final.number}`],
+    Pull
+  ).pipe(Effect.option);
   if (O.isNone(pullRead)) return yield* resolve(initial);
   const pull = pullRead.value;
   const head = pull.head.sha;
@@ -518,7 +471,18 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
     const mergedAt = yield* Effect.fromOption(pull.merged_at).pipe(
       Effect.mapError(() => YeetCommandError.make({ message: "Merged PR has no merge time" }))
     );
-    const mergeCommit = yield* readJson(root, ["api", `repos/{owner}/{repo}/commits/${mergeSha}`], Commit);
+    // Project only the decoded fields: a large merge commit's file patches would
+    // otherwise truncate the captured response and lose the merge facts.
+    const mergeCommit = yield* readGoalCompletionJson(
+      root,
+      [
+        "api",
+        `repos/{owner}/{repo}/commits/${mergeSha}`,
+        "--jq",
+        "{sha: .sha, parents: [.parents[] | {sha: .sha}], commit: {tree: {sha: .commit.tree.sha}}}",
+      ],
+      Commit
+    );
     // GitHub binds this merge result to this PR head for all three workflows. A single-parent
     // result cannot distinguish squash from rebase reliably; retain method=None rather than guess.
     const merge = GoalMergeResult.make({
@@ -532,57 +496,41 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
     const acceptedDeclarationDigest = O.isSome(acceptedManifest)
       ? O.some(yield* goalCompletionDeclarationDigest(acceptedManifest.value))
       : O.none<string>();
-    const pages = yield* readJson(
+    const pages = yield* readGoalCompletionJson(
       root,
       ["api", `repos/{owner}/{repo}/commits/${head}/check-runs?per_page=100&filter=all`, "--paginate", "--slurp"],
       CheckPages
     );
     const checks = A.flatMap(pages, (page) => page.check_runs);
-    const requiredChecks = yield* readHistoricalRequiredChecks(root, pull.base.ref, mergedAt).pipe(Effect.option);
+    const mergeTime = yield* readGoalMergeTimeEvidence(
+      root,
+      GoalMergeTimeEvidenceRequest.make({
+        base: pull.base.ref,
+        mergeCommit: mergeSha,
+        mergedAt,
+        acceptedHead: head,
+        checkRuns: checks,
+      })
+    );
+    const requiredChecks = mergeTime.requiredChecks;
     const required = O.map(requiredChecks, (snapshot) => snapshot.contexts);
-    const gatingOutcome = O.match(required, {
-      onNone: (): GoalCompletionOutcome => "unknown",
-      onSome: (contexts): GoalCompletionOutcome => {
-        if (A.isReadonlyArrayEmpty(contexts)) return "unknown";
-        const outcomes = A.map(contexts, (name): GoalCompletionOutcome => {
-          const matching = A.filter(
-            checks,
-            (check) =>
-              check.name === name &&
-              check.head_sha === head &&
-              O.exists(check.started_at, (time) => DateTime.toEpochMillis(time) <= DateTime.toEpochMillis(mergedAt))
-          );
-          const newest = A.reduce(matching, O.none<typeof TimedCheck.Type>(), (found, check) =>
-            O.isNone(found) || check.id > found.value.id ? O.some(check) : found
-          );
-          return O.match(newest, {
-            onNone: () => "unknown",
-            onSome: (check) =>
-              check.status !== "completed" ||
-              !O.exists(check.completed_at, (time) => DateTime.toEpochMillis(time) <= DateTime.toEpochMillis(mergedAt))
-                ? "unknown"
-                : check.conclusion === "success" || check.conclusion === "neutral" || check.conclusion === "skipped"
-                  ? "verified"
-                  : "unsatisfied",
-          });
-        });
-        return A.contains(outcomes, "unsatisfied")
-          ? "unsatisfied"
-          : A.contains(outcomes, "unknown")
-            ? "unknown"
-            : "verified";
-      },
+    const verdict = goalCompletionVerdict({
+      merge: O.some(merge),
+      acceptedHead: O.some(head),
+      requiredChecks,
+      requiredCheckFacts: mergeTime.facts,
     });
+    const gatingOutcome = hostedRequiredOutcome(verdict, required, mergeTime.facts);
     const hostedEvidence = A.of(
       evidenceCheck(
         hostedRef,
         gatingOutcome,
         O.some(head),
-        `Required contexts observed at accepted head before merge; ${O.getOrElse(O.map(required, A.length), () => 0)} contexts. Versioned GitHub history supplies surviving ruleset contexts only. Deleted rulesets are not enumerable; merge-time inventory completeness is unknown, so passing observed contexts cannot verify overall completion.`
+        `Required contexts observed at accepted head before merge; ${O.getOrElse(O.map(required, A.length), () => 0)} contexts. ${describeGoalCompletionEvidence(verdict)} The merge-push rule suite supplies the merge-time ruleset inventory, including rulesets deleted since then; GitHub lists rule suites for one month.`
       )
     );
     const evidence = yield* readDeclaredEvidence(root, manifest, head, gatingOutcome, hostedEvidence);
-    const conclusion = (check: typeof TimedCheck.Type, atMerge: boolean): GoalCheckConclusion =>
+    const conclusion = (check: GoalObservedCheckRun, atMerge: boolean): GoalCheckConclusion =>
       atMerge &&
       !O.exists(check.completed_at, (time) => DateTime.toEpochMillis(time) <= DateTime.toEpochMillis(mergedAt))
         ? "pending"
@@ -598,13 +546,13 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
           A.map(A.dedupe(A.map(checks, (check) => check.name)), (name) => {
             if (A.contains(contexts, name)) return O.none<GoalNonRequiredRed>();
             const matching = A.filter(checks, (check) => check.name === name && check.head_sha === head);
-            const final = A.reduce(matching, O.none<typeof TimedCheck.Type>(), (found, check) =>
+            const final = A.reduce(matching, O.none<GoalObservedCheckRun>(), (found, check) =>
               O.isNone(found) || check.id > found.value.id ? O.some(check) : found
             );
             const beforeMerge = A.filter(matching, (check) =>
               O.exists(check.started_at, (time) => DateTime.toEpochMillis(time) <= DateTime.toEpochMillis(mergedAt))
             );
-            const atMerge = A.reduce(beforeMerge, O.none<typeof TimedCheck.Type>(), (found, check) =>
+            const atMerge = A.reduce(beforeMerge, O.none<GoalObservedCheckRun>(), (found, check) =>
               O.isNone(found) || check.id > found.value.id ? O.some(check) : found
             );
             if (O.isNone(final)) return O.none<GoalNonRequiredRed>();
@@ -622,7 +570,7 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
           })
         ),
     });
-    const timeline = yield* readJson(
+    const timeline = yield* readGoalCompletionJson(
       root,
       ["api", `repos/{owner}/{repo}/issues/${final.number}/timeline?per_page=100`, "--paginate", "--slurp"],
       TimelinePages
@@ -637,7 +585,7 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
     const lastReady = A.reduce(readyTimes, O.none<DateTime.Utc>(), (found, time) =>
       O.isNone(found) || DateTime.toEpochMillis(time) > DateTime.toEpochMillis(found.value) ? O.some(time) : found
     );
-    const suites = yield* readJson(
+    const suites = yield* readGoalCompletionJson(
       root,
       ["api", `repos/{owner}/{repo}/commits/${head}/check-suites?per_page=100`, "--paginate", "--slurp"],
       S.Struct({ check_suites: S.Array(S.Struct({ created_at: S.DateTimeUtcFromString })) }).pipe(S.Array)
@@ -730,6 +678,7 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
       acceptedDeclarationDigest,
       requiredChecks,
       evidence,
+      requiredCheckFacts: mergeTime.facts,
       nonRequiredReds,
       subClaims,
     });
@@ -769,7 +718,7 @@ export const storedGoalCompletion = Effect.fn("Goals.Completion.stored")(functio
   const lines = Str.split(text, "\n");
   const complete = Str.endsWith("\n")(text) ? lines : A.dropRight(lines, 1);
   const receipts = A.getSomes(A.map(complete, ReceiptJson.decodeOption));
-  const remote = yield* readCompletionGit(root, ["remote", "get-url", "origin"]).pipe(Effect.option);
+  const remote = yield* readGoalCompletionGit(root, ["remote", "get-url", "origin"]).pipe(Effect.option);
   const repository = O.flatMap(remote, (text) =>
     O.flatMap(Str.match(/github\.com[:/]([^/\s]+\/[^/\s]+?)(?:\.git)?\s*$/u)(text), (match) => A.get(match, 1))
   );

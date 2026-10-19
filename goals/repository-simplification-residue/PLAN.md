@@ -60,6 +60,11 @@ while the session's own contradicting evidence still clears it.
 base incremental state lives inside `outDir`, so a dist-only clean can no longer leave
 state that suppresses emit. Cold, warm and changed-input builds reproduce the complete
 output manifest.
+#1878 `residue-completion-evidence` is complete
+(`history/receipts/completion-evidence.md`): completion verifies only on a merge-push
+rule suite bound to the merge commit and green required checks at the accepted head.
+Network failures, unrecoverable deleted rulesets and partial evidence stay `unknown`.
+The five subject-only packets stay unmigrated, each with its reason.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

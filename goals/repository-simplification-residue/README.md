@@ -48,6 +48,10 @@ still clears it
 clean therefore also clears it, and cold, warm and changed-input builds all restore
 the complete public output manifest
 ([record](./history/receipts/build-restore.md)).
+#1878 is complete: goal completion verifies only on GitHub's rule suite for the
+merge push, which covers rulesets deleted since then, and on green required checks at
+the accepted head. Missing, deleted or partial evidence stays `unknown`
+([record](./history/receipts/completion-evidence.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.
