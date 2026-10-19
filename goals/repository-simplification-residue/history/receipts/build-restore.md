@@ -106,8 +106,10 @@ The incremental state now lives inside `outDir`, so any clean that removes the w
 cold fixture and the reproduction above exercise. The fix does not cover deleting
 individual files inside `dist`: removing, say, `dist/index.d.ts` keeps
 `dist/tsconfig.tsbuildinfo`, and a non-build `tsc -p` then re-emits nothing for
-unchanged inputs. Only `tsc -b` (which checks outputs) closes that case, and it is
-rejected below because it changes the compiler arrangement. `turbo.json` is unchanged: its
+unchanged inputs. Build mode does not close it either: with `incremental` and
+`composite` on, `tsc -b` judges up-to-date status from the buildinfo alone, so it
+also re-emits nothing after a per-file delete. That case stays out of scope; recovering
+from it needs a whole-`dist` clean. `turbo.json` is unchanged: its
 `dist/**` build output already covers the new location. The
 `**/node_modules/.tmp/*.tsbuildinfo` glob stays for the Storybook and drizzle configs
 that set their own state file. `tsconfig.base.json` is a global Turbo input, so every
@@ -122,8 +124,8 @@ Rejected alternatives:
   It touches about 140 generated manifests and overlaps the exploration's proposed
   build-kit, while covering the same whole-`dist` case as the one-line tsconfig change
   (neither covers a partly deleted `dist`).
-- Switching to `tsc -b`, which does check outputs. That changes the compiler
-  arrangement, which this lane must preserve.
+- Switching to `tsc -b`. That changes the compiler arrangement, which this lane must
+  preserve.
 - New Turbo output declarations. State was already declared, so no output change
   could fix a clean that runs outside Turbo.
 
