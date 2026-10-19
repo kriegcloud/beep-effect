@@ -681,9 +681,31 @@ const renderOffending = (lines: ReadonlyArray<SquashCommitlintOffendingLine>): s
     "; "
   );
 
+// Line 1 is the pinned `<PR title> (#n)` header, so only the PR title clears it;
+// every other line is a commit message, so the commit subjects and bodies do.
+const remedies = (offendingLines: ReadonlyArray<SquashCommitlintOffendingLine>): ReadonlyArray<string> => {
+  const header = A.some(offendingLines, (line) => line.line === 1);
+  const body = A.isReadonlyArrayEmpty(offendingLines) || A.some(offendingLines, (line) => line.line > 1);
+  return [
+    ...(header ? [`shorten the PR title so "<title> (#n)" is ${COMMITLINT_MAX_LINE_LENGTH} chars or fewer`] : []),
+    ...(body
+      ? [
+          `the squash body bullets every commit subject as "* <subject>", so reword commit subjects to ${SQUASH_COMMIT_SUBJECT_MAX_LENGTH} chars or fewer and keep body lines to ${COMMITLINT_MAX_LINE_LENGTH} or fewer`,
+        ]
+      : []),
+  ];
+};
+
 /**
  * One line for a verdict: `pass`, the failing rules with the offending lines
  * and the remedy, or why there is no verdict.
+ *
+ * **Details**
+ *
+ * The remedy follows the offending lines: line 1 is the pinned `<PR title>
+ * (#n)` header, which only a shorter PR title clears; any later line is a
+ * commit message, which a reworded subject or body clears. With no line over
+ * the limit (a non-length rule), the commit-message remedy is given.
  *
  * **Example** (Render a pass)
  *
@@ -702,7 +724,13 @@ export const renderSquashCommitlintVerdict = (verdict: SquashCommitlintVerdict):
   SquashCommitlintVerdict.match(verdict, {
     pass: () => "pass",
     fail: ({ rules, offendingLines }) =>
-      `${A.join(rules, ", ")}${A.isReadonlyArrayNonEmpty(offendingLines) ? ` at ${renderOffending(offendingLines)}` : ""}; the squash body bullets every commit subject as "* <subject>", so reword commit subjects to ${SQUASH_COMMIT_SUBJECT_MAX_LENGTH} chars or fewer and keep body lines under ${COMMITLINT_MAX_LINE_LENGTH}`,
+      A.join(
+        [
+          `${A.join(rules, ", ")}${A.isReadonlyArrayNonEmpty(offendingLines) ? ` at ${renderOffending(offendingLines)}` : ""}`,
+          ...remedies(offendingLines),
+        ],
+        "; "
+      ),
     unavailable: ({ detail }) => `commitlint gave no verdict (${detail}); an unknown is never a pass`,
   });
 

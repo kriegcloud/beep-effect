@@ -12,6 +12,8 @@ import {
   renderSquashCommitlintVerdict,
   renderSquashCommitMessage,
   SQUASH_COMMIT_SUBJECT_MAX_LENGTH,
+  SquashCommitlintFail,
+  SquashCommitlintOffendingLine,
   SquashCommitMessage,
   SquashMessageSource,
   SquashPullRequestFacts,
@@ -127,6 +129,22 @@ describe("squash commit message prediction", () => {
     expect(A.map(offending, (line) => [line.line, line.length])).toEqual([[7, COMMITLINT_MAX_LINE_LENGTH + 2]]);
     expect(offending[0]?.text).toBe(`* ${longSubject}`);
     expect(SQUASH_COMMIT_SUBJECT_MAX_LENGTH).toBe(98);
+  });
+
+  it("names the PR title for a header failure and the commit subjects for body lines", () => {
+    const over = (line: number) => SquashCommitlintOffendingLine.make({ line, length: 116, text: "x".repeat(116) });
+    const render = (lines: ReadonlyArray<SquashCommitlintOffendingLine>) =>
+      renderSquashCommitlintVerdict(SquashCommitlintFail.make({ rules: ["header-max-length"], offendingLines: lines }));
+    const header = render([over(1)]);
+    expect(header).toContain("shorten the PR title");
+    expect(header).not.toContain("reword commit subjects");
+    const body = render([over(7)]);
+    expect(body).not.toContain("shorten the PR title");
+    expect(body).toContain("reword commit subjects to 98 chars or fewer");
+    const both = render([over(1), over(7)]);
+    expect(both).toContain("shorten the PR title");
+    expect(both).toContain("reword commit subjects");
+    expect(render([])).toContain("reword commit subjects");
   });
 
   it("classifies a commitlint run: exit 0 passes, a named rule fails, anything else is no verdict", () => {
@@ -261,7 +279,8 @@ const withScripted = <A, E, R>(
   Effect.gen(function* () {
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
-    const repoRoot = path.resolve(process.cwd(), "..", "..", "..", "..");
+    // test/ -> cli -> tool -> tooling -> packages -> repo root, wherever vitest was started.
+    const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
     yield* fs.makeDirectory(repoRoot, { recursive: true });
     const real = yield* ChildProcessSpawner.ChildProcessSpawner;
     const calls = yield* Ref.make<ReadonlyArray<string>>(A.empty());
