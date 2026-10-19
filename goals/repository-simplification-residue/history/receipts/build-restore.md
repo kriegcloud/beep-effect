@@ -101,8 +101,13 @@ One line in `tsconfig.base.json`:
 "tsBuildInfoFile": "${configDir}/dist/tsconfig.tsbuildinfo",
 ```
 
-The incremental state now lives inside `outDir`, so any clean of `dist` also clears
-it, and outputs and state can no longer drift apart. `turbo.json` is unchanged: its
+The incremental state now lives inside `outDir`, so any clean that removes the whole
+`dist` directory (or the state file itself) also clears it. That is the case the G
+cold fixture and the reproduction above exercise. The fix does not cover deleting
+individual files inside `dist`: removing, say, `dist/index.d.ts` keeps
+`dist/tsconfig.tsbuildinfo`, and a non-build `tsc -p` then re-emits nothing for
+unchanged inputs. Only `tsc -b` (which checks outputs) closes that case, and it is
+rejected below because it changes the compiler arrangement. `turbo.json` is unchanged: its
 `dist/**` build output already covers the new location. The
 `**/node_modules/.tmp/*.tsbuildinfo` glob stays for the Storybook and drizzle configs
 that set their own state file. `tsconfig.base.json` is a global Turbo input, so every
@@ -114,8 +119,9 @@ tarball. `@beep/drivers-duckdb` already used this layout and is unaffected.
 Rejected alternatives:
 
 - A guard in the generated `beep:build` script ("clear state when `dist` is missing").
-  It touches about 140 generated manifests, covers only a missing `dist` (not a partly
-  deleted one), and overlaps the exploration's proposed build-kit.
+  It touches about 140 generated manifests and overlaps the exploration's proposed
+  build-kit, while covering the same whole-`dist` case as the one-line tsconfig change
+  (neither covers a partly deleted `dist`).
 - Switching to `tsc -b`, which does check outputs. That changes the compiler
   arrangement, which this lane must preserve.
 - New Turbo output declarations. State was already declared, so no output change
