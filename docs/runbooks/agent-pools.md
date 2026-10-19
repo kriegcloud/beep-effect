@@ -72,8 +72,9 @@ and one whose login the provider rejects shows as
 running lane the signal is still the request itself. A delegation that fails with `rate_limit_error` ("This request would exceed your
 account's rate limit") marks the Opus pool below floor for the session: finish what is already
 running, then step the Claude chain down (2026-10-01 policy, amended 2026-10-18 by R11): read
-the Codex probe below first and, while Codex is above floor, launch the next bounded lane through
-the Codex lane recipe (`gpt-6.1-sol` medium, argv captured); when Codex is below floor, on
+the Codex probe below first and, while Codex is admissible (`ordinaryUsageAllowed` is `true` and
+`usedPercent` < 95), launch the next bounded lane through the Codex lane recipe (`gpt-6.1-sol`
+medium, argv captured); when the gate is `false`/`null` or the pool is below floor, on
 `cursor-agent --model claude-opus-5-5-medium`; and when Cursor is below floor too, on grok-build
 `grok -m grok-4.7 --effort medium`. Hold and notify only when all three fallbacks are exhausted.
 `claude` shows the live windows with `/usage`.
@@ -98,7 +99,7 @@ hold stdin for about 40 s.
 | Field | Meaning |
 | --- | --- |
 | `ordinaryUsageAllowed` | Boolean gate. `null` means unavailable — do not infer availability from percentages alone. |
-| `rateLimits.primary.usedPercent` | Primary window consumption (0–100). Codex is at or below the floor when `usedPercent` ≥ 95. For a Codex orchestrator that means: finish running lanes, then step the Codex chain down to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; never onto direct Claude. Hold and notify once both fallbacks are exhausted. For a Claude orchestrator stepping down under R11 it means the Codex step is skipped before admission and the lane goes straight to Cursor. |
+| `rateLimits.primary.usedPercent` | Primary window consumption (0–100). Codex is at or below the floor when `usedPercent` ≥ 95. For a Codex orchestrator that means: finish running lanes, then step the Codex chain down to `cursor-agent --model claude-opus-5-5-medium`, then grok-build; never onto direct Claude. Hold and notify once both fallbacks are exhausted. For a Claude orchestrator stepping down under R11, a below-floor pool or an `ordinaryUsageAllowed` that is not `true` skips the Codex step before admission and the lane goes straight to Cursor. |
 | `rateLimits.primary.resetsAt` | ISO timestamp when the primary window resets. |
 | `rateLimits.primary.windowDurationMins` | Window length in minutes (CLI account: 10080 = weekly). |
 | `rateLimits.secondary` | Secondary window with the same shape when present. |
@@ -398,8 +399,9 @@ await agent("<bounded task>", { model: "claude-opus-5-5", phase: "Implement" })
 ```
 
 Codex fallback (Claude chain step 2, R11 2026-10-18): when the Opus child fails on quota or
-availability and the Codex probe shows `usedPercent` below 95, run the Codex lane recipe below
-with the same bounded task; below floor, skip straight to Cursor. Cursor fallback (Codex chain
+availability and the Codex probe shows `ordinaryUsageAllowed: true` with `usedPercent` below 95,
+run the Codex lane recipe below with the same bounded task; when the gate is `false`/`null` or
+the pool is below floor, skip straight to Cursor. Cursor fallback (Codex chain
 step 2, Claude chain step 3), verified 2026-10-14:
 
 ```sh
@@ -468,8 +470,8 @@ and commits. Junie never delegates onward and follows the Cursor data boundary (
 ## Codex lane recipe
 
 A Codex orchestrator, a Claude orchestrator stepping down its chain (step 2 under R11, once the
-Codex probe shows the pool above floor), or a task the operator names Codex for launches the
-volume lane:
+Codex probe shows `ordinaryUsageAllowed: true` and `usedPercent` < 95), or a task the operator
+names Codex for launches the volume lane:
 
 ```sh
 codex exec --model gpt-6.1-sol -c 'model_reasoning_effort="medium"' \
@@ -496,7 +498,7 @@ interactive picker may lag while `-m gpt-6.1-sol` works.
 | Stuck subagent holds `-p` | Single-turn `-p` waits for delegated subagents; kill or avoid Explore subagents. |
 | Cursor Models spill zeros Other | Floor-check dashboard; stop Cursor-bucket lanes before 100%. |
 | `Total usage limit reached` | Mark Cursor below floor; step to grok-build (`grok -m grok-4.7 --effort medium`), then hold and notify when that is exhausted too. |
-| `rate_limit_error` on a `claude-opus-5-5` delegation | Opus pool below floor: finish running children, then step the Claude chain to Codex `gpt-6.1-sol` medium (Codex probe above floor), then `cursor-agent --model claude-opus-5-5-medium`, then grok-build; hold and notify only after all three. |
+| `rate_limit_error` on a `claude-opus-5-5` delegation | Opus pool below floor: finish running children, then step the Claude chain to Codex `gpt-6.1-sol` medium (Codex probe `ordinaryUsageAllowed: true`, `usedPercent` < 95), then `cursor-agent --model claude-opus-5-5-medium`, then grok-build; hold and notify only after all three. |
 | Sudo / YubiKey prompt hang | `Shell(sudo)` and `Shell(pkexec)` in deny list (D21). |
 | Workspace trust hang | `--trust` on every headless lane. |
 | Missing `result/success` + exit 0 | Treat as failure; inspect stderr. |

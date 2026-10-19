@@ -299,9 +299,9 @@
           {
             "path": ".agents/skill-patches/oracle/0003-skill-md.patch",
             "sha256": "cdf1d704961b742b9ed6bdb625cc7955d3112647c521d9019324083d8779b9f9",
-            "label": "temporary-drift",
+            "label": "policy",
             "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
+            "dropCondition": "Never: a repo rule replayed on every bump (B42)."
           }
         ]
       },

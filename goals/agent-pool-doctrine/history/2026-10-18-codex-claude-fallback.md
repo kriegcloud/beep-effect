@@ -34,8 +34,10 @@ only.
   rate-limit remedies (meter paragraph and failure-signature row), the Cursor fail-open and
   step labels, the Codex `usedPercent` row and the Codex lane recipe's opening line all carry
   the four-step Claude chain and the Codex floor check before admission.
-- Other in-repo copies of the chain: `.claude/skills/oracle/SKILL.md` and its patch
-  `.agents/skill-patches/oracle/0001-skill-md.patch`, the `Models.seed.ts` binding notes
+- Other in-repo copies of the chain: `.claude/skills/oracle/SKILL.md`, carried as the new
+  `policy` patch `.agents/skill-patches/oracle/0003-skill-md.patch` (never dropped on a bump,
+  B42; the pre-R11 sentence that `0001-skill-md.patch` replays is overwritten by it), the
+  `Models.seed.ts` binding notes
   (notes only; `beep models check` does not compare them), and the packet's `README.md`
   Mission and `GOAL.md` Outcome.
 - `SPEC.md` Decision Log: R11.
