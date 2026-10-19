@@ -460,7 +460,13 @@ check is known to be failing, and every review thread is answered. Pending
 checks and optional lanes (`Heavy / *`) never hold it. Otherwise it refuses
 with the first blocker named (`pr-open`, `no-required-red`,
 `threads-resolved`). There is no `--force`. Flip only when no further push is
-planned: a push after the flip restarts the review window. The flip is the
+planned: a push after the flip restarts the review window. Before the flip it
+predicts the squash commit message GitHub will write and runs the repo's
+commitlint on it as an advisory: `[yeet] squash-commitlint #<n>: pass`, or a
+warning naming the rule and the offending line (a commit subject over 98
+characters becomes a `* <subject>` bullet over 100). Reword and push before
+flipping; `yeet merge-gate` holds `squash-commitlint` on the same verdict
+(`references/gh-rest.md`). The flip is the
 GraphQL-only `markPullRequestReadyForReview`, spent through the GraphQL budget
 guard: when the shared budget is spent it waits (bounded, logged) for the
 hourly reset instead of failing the way `gh pr ready` did.

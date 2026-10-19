@@ -1183,7 +1183,7 @@ const yeetMergeGateCommand = Command.make(
   flow(MergeGateCommandOptions.make, runYeetMergeGate)
 ).pipe(
   Command.withDescription(
-    "Orchestrator merge gate: re-verify one PR at a pinned head (required checks, attributed tolerances, 20-minute review window, re-read threads) and squash-merge it; --relaxed is the S11 merge over attributed reds"
+    "Orchestrator merge gate: re-verify one PR at a pinned head (required checks, attributed tolerances, 20-minute review window, re-read threads, the predicted squash message under the repo's commitlint) and squash-merge it; --relaxed is the S11 merge over attributed reds"
   )
 );
 
