@@ -231,8 +231,9 @@ const readHistoricalRuleset = Effect.fn("Goals.Completion.historicalRuleset")(fu
   }
   const source = `repos/{owner}/{repo}/rulesets/${ruleset.id}/history/${version.value.version_id}`;
   const { state } = yield* readGoalCompletionJson(root, ["api", source], RulesetVersion);
-  // A version that was not active, or did not target this branch, at merge is
-  // still a recovered fact: it says the ruleset did not gate this merge.
+  // An evaluate-mode version at merge is a recovered fact that the ruleset did not
+  // gate this merge. An inactive or non-matching version contradicts the merge-push
+  // rule suite that evaluated it on this branch, so it is a mismatch (unknown).
   const applicability = yield* historicalRulesetApplicability(state, base);
   const applies = applicability === "applies";
   const folded = rulesetRequiredContextsFromRules(
@@ -388,7 +389,10 @@ const missingVersionGap = (source: GoalMergeTimeRuleSource): GoalCompletionEvide
  * missing. A failed rule from a ruleset deleted since then whose recovered
  * history shows it gated the merge is `unsatisfied` once the rest of the
  * evidence is complete, and `unknown` before that; it is never `verified`. A
- * recovered evaluate-mode or non-applicable version does not gate. Otherwise any gap is `unknown`: no inventory, no rule suite for the
+ * recovered evaluate-mode version does not gate; a recovered inactive or
+ * non-matching version contradicts the merge-push rule suite and is an
+ * `inventory-mismatch`, so the outcome is `unknown`. Otherwise any gap is
+ * `unknown`: no inventory, no rule suite for the
  * merge commit, a rule suite bound to another commit, partial ruleset reads, a
  * required-check source with no recovered history version (deleted or
  * unsupported), stored provider gaps, no required contexts, or a context
