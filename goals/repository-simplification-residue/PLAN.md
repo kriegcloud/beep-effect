@@ -56,6 +56,11 @@ hunk has a disposition.
 independent completeness and qualification fields, historical rows decode as
 `unknown`, and a run that cannot evaluate a session keeps its verified stamp
 while the session's own contradicting evidence still clears it.
+#1878 `residue-completion-evidence` is complete
+(`history/receipts/completion-evidence.md`): completion verifies only on a merge-push
+rule suite bound to the merge commit and green required checks at the accepted head.
+Network failures, unrecoverable deleted rulesets and partial evidence stay `unknown`.
+The five subject-only packets stay unmigrated, each with its reason.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

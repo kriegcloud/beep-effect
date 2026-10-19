@@ -189,10 +189,93 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(output).toContain("legacy [completion-gate-unsatisfied]");
       expect(output).not.toContain("legacy [completion-gate-unknown]");
       expect(output).toContain("typed [completion-gate-unknown]");
-      expect(output).toContain("Overall verification requires a complete merge-time ruleset inventory");
+      expect(output).toContain("Overall verification requires the merge-push rule suite");
       expect(output).toContain("declare a final PR to inspect structured PR/head/merge facts");
       expect(output).not.toContain("use doctor --online");
     })
+  );
+  it.effect("stored receipts name a known red and unreadable merge facts plainly", () =>
+    Effect.forEach(
+      [
+        {
+          merged: true,
+          hosted: "unsatisfied" as const,
+          kind: "completion-gate-unsatisfied",
+          text: "See head-bound completion evidence",
+        },
+        {
+          merged: false,
+          hosted: "unknown" as const,
+          kind: "completion-gate-unknown",
+          text: "PR, merge or check facts could not be read",
+        },
+      ],
+      Effect.fn("GoalsDoctorTest.storedReceiptMessages")(function* (row) {
+        yield* temporaryWorkingDirectory;
+        yield* runGit(["init", "-b", "main"]);
+        const manifest = yield* decodeGoalManifest({
+          initiative: { id: "typed", status: "completed-retained" },
+          lifecycle: "completed-retained",
+          completionGate: { ...COMPLETION_GATE, pullRequests: [{ number: 7, role: "final" }] },
+        });
+        yield* writeProjectFile("goals/typed/ops/manifest.json", yield* encodeGoalManifestJson(manifest));
+        yield* writeProjectFile("goals/typed/README.md", "# Typed\n\nLifecycle: `completed-retained`\n");
+        yield* writeBaseline([]);
+        const digest = yield* goalCompletionDeclarationDigest(manifest);
+        const time = DateTime.makeUnsafe("2026-10-06T01:00:00Z");
+        const receipt = GoalCompletionReceipt.make({
+          schemaVersion: "goal-completion-receipt/v1",
+          repository: "example/repo",
+          packet: "typed",
+          declarationDigest: digest,
+          acceptedDeclarationDigest: O.some(digest),
+          finalPullRequest: 7,
+          acceptedHead: O.some("accepted-head"),
+          merge: row.merged
+            ? O.some(
+                GoalMergeResult.make({
+                  mergeCommit: "merge-result",
+                  tree: "merge-tree",
+                  mergedAt: time,
+                  method: O.none(),
+                  baseRef: "main",
+                })
+              )
+            : O.none(),
+          evidence: [
+            GoalEvidenceCheck.make({
+              ref: GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true }),
+              outcome: row.hosted,
+              observedHead: O.some("accepted-head"),
+              detail: "Recorded hosted result",
+            }),
+          ],
+          nonRequiredReds: [],
+          subClaims: [],
+          outcome: row.hosted,
+          verifiedAt: time,
+        });
+        yield* writeProjectFile(
+          ".beep/goals/completion-receipts.ndjson",
+          `${yield* encodeGoalCompletionReceiptJson(receipt)}\n`
+        );
+        const output = yield* captureOutput(
+          runGoalsCommand(["doctor"]).pipe(
+            Effect.provideService(
+              GoalCompletionIo,
+              GoalCompletionIo.of({
+                git: Effect.fn("GoalsDoctorTest.messageGit")(() => Effect.succeed("git@github.com:example/repo.git")),
+                github: Effect.fn("GoalsDoctorTest.messageGitHub")(() =>
+                  Effect.die("offline receipt read used GitHub")
+                ),
+              })
+            )
+          )
+        );
+        expect(output).toContain(`typed [${row.kind}]`);
+        expect(output).toContain(row.text);
+      })
+    )
   );
   it.effect.prop(
     "stored incomplete inventory explains why refresh cannot verify completion",
@@ -256,9 +339,8 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
           grandfathered: false,
         })
       );
-      expect(resolved.outcome).toBe(
-        snapshot.inventoryComplete && snapshot.rulesetReadsComplete ? "verified" : "unknown"
-      );
+      // An arbitrary snapshot carries no head-bound facts, so it can never verify.
+      expect(resolved.outcome).not.toBe("verified");
       const text = yield* encodeGoalCompletionReceiptJson(receipt);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
       const output = yield* captureOutput(
@@ -273,9 +355,8 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
         )
       );
       expect(output).toContain("typed [completion-gate-unknown]");
-      expect(output).toContain("Merge-time ruleset inventory completeness is unknown");
-      expect(output).toContain("rulesets deleted since the merge");
-      expect(output).toContain("neither can verify completion without a complete historical inventory");
+      expect(output).toContain("Merge-time evidence unknown");
+      expect(output).toContain("rule-suite-unavailable");
       expect(output).toContain("Online doctor inspects facts and completion refresh persists them");
       expect(output).not.toContain("Online reads and refresh record");
       expect(output).not.toContain("No matching clone receipt");

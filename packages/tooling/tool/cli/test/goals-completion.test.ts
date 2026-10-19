@@ -8,7 +8,10 @@ import {
   GoalManifest,
   GoalMergeMethod,
   GoalMergeResult,
+  GoalMergeTimeInventory,
+  GoalMergeTimeRuleSource,
   GoalPullRequestRef,
+  GoalRequiredCheckFact,
   GoalRequiredCheckSnapshot,
   goalPullRequestRefs,
 } from "@beep/repo-cli/test/Goals";
@@ -36,6 +39,36 @@ const gate = GoalCompletionGate.make({
   grandfathered: false,
 });
 const ref = GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true });
+const MERGE_COMMIT = "squash-result-not-descended-from-head";
+// A complete merge-time inventory: GitHub's merge-push rule suite, bound to the
+// merge commit, with a recovered history version for its one required-check ruleset.
+const completeInventory = GoalMergeTimeInventory.make({
+  source: "repos/{owner}/{repo}/rulesets/rule-suites/1",
+  ruleSuiteId: 1,
+  ref: "refs/heads/main",
+  afterSha: MERGE_COMMIT,
+  pushedAt: time,
+  result: "pass",
+  ruleSources: [
+    GoalMergeTimeRuleSource.make({
+      sourceType: "ruleset",
+      rulesetId: O.some(42),
+      name: O.some("main"),
+      enforcement: "active",
+      requiredStatusChecks: O.some("pass"),
+      survives: true,
+      version: O.some("repos/{owner}/{repo}/rulesets/42/history/1"),
+    }),
+  ],
+});
+const lintFact = GoalRequiredCheckFact.make({
+  context: "Lint",
+  head: "accepted-head",
+  checkRunId: O.some(1),
+  conclusion: "success",
+  outcome: "verified",
+  source: "check-run",
+});
 const fixture = () =>
   GoalCompletionObservation.make({
     repository: "example/repo",
@@ -45,18 +78,20 @@ const fixture = () =>
     requiredChecks: O.some(
       GoalRequiredCheckSnapshot.make({
         contexts: ["Lint"],
-        sources: ["complete-merge-time-inventory"],
+        sources: ["repos/{owner}/{repo}/rulesets/42/history/1"],
         effectiveAt: time,
         inventoryComplete: true,
+        mergeTimeInventory: O.some(completeInventory),
       })
     ),
+    requiredCheckFacts: [lintFact],
     finalPullRequest: 1429,
     acceptedHead: O.some("accepted-head"),
     merged: O.some(true),
     grandfathered: false,
     merge: O.some(
       GoalMergeResult.make({
-        mergeCommit: "squash-result-not-descended-from-head",
+        mergeCommit: MERGE_COMMIT,
         tree: "merge-tree",
         mergedAt: time,
         method: O.some("squash"),
@@ -186,11 +221,26 @@ describe("pure goal completion resolver", () => {
           })
         )).outcome
       ).toBe("unknown");
+      // The completeness flag alone never verifies: the stored rule suite must prove it.
       expect(
         (yield* GoalCompletionVerifier.resolve(
           GoalCompletionObservation.make({
             ...observation,
             requiredChecks: O.some(GoalRequiredCheckSnapshot.make({ ...snapshot, inventoryComplete: true })),
+          })
+        )).outcome
+      ).toBe("unknown");
+      expect(
+        (yield* GoalCompletionVerifier.resolve(
+          GoalCompletionObservation.make({
+            ...observation,
+            requiredChecks: O.some(
+              GoalRequiredCheckSnapshot.make({
+                ...snapshot,
+                inventoryComplete: true,
+                mergeTimeInventory: O.some(completeInventory),
+              })
+            ),
           })
         )).outcome
       ).toBe("verified");

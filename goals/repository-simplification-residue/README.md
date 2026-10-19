@@ -44,6 +44,10 @@ separate fields, historical rows stay `unknown`, and a run that cannot evaluate 
 session keeps a verified stamp, while the session's own contradicting evidence
 still clears it
 ([record](./history/receipts/telemetry-completeness.md)).
+#1878 is complete: goal completion verifies only on GitHub's rule suite for the
+merge push, which covers rulesets deleted since then, and on green required checks at
+the accepted head. Missing, deleted or partial evidence stays `unknown`
+([record](./history/receipts/completion-evidence.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.
