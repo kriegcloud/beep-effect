@@ -295,7 +295,14 @@ needed only for the escalation list below.
     review-body nitpicks are advisory, and outdated threads still count until
     they are explicitly resolved;
   - no failing CI jobs except Vercel deployments failing only because they were
-    rate limited; and
+    rate limited;
+  - the squash commit message GitHub will write passes the repo's commitlint
+    (`yeet merge-gate` predicts it and holds `squash-commitlint` otherwise;
+    `yeet ready` warns): GitHub squash messages are server-side commitlint
+    input and bullet every commit subject as `* <subject>`, so keep commit
+    subjects at 98 characters or fewer, and the PR title (the first commit
+    subject by default) at 100 minus the ` (#n)` suffix, about 92 for a
+    four-digit PR, because the header is `<title> (#n)`; and
   - the review window has elapsed: at least 20 minutes (`BEEP_YEET_REVIEW_WINDOW`)
     since the later of the latest "marked ready for review" event and the
     latest push to the head. No reviewer has to post (review bots never gate);
