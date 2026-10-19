@@ -39,7 +39,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { decodeYeetGhOutput, yeetGhRead } from "./GhRead.ts";
+import { decodeYeetGhOutput, yeetGh } from "./GhCall.ts";
 import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/process";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
@@ -343,8 +343,15 @@ export const renderSquashCommitMessage = (message: SquashCommitMessage): string 
 export const COMMITLINT_MAX_LINE_LENGTH = 100;
 
 /**
- * The longest commit subject that survives the squash: a subject becomes a
+ * The longest commit subject that survives the squash body: a subject becomes a
  * `* <subject>` bullet, two characters longer than itself.
+ *
+ * **Gotchas**
+ *
+ * The first commit subject usually also becomes the PR title (`yeet publish`
+ * titles the PR from it), and the header is `<PR title> (#n)` against
+ * `header-max-length` 100, so that subject has the tighter budget of
+ * {@link squashPullRequestTitleMaxLength}: about 92 for a four-digit PR.
  *
  * **Example** (Read the subject budget)
  *
@@ -358,6 +365,26 @@ export const COMMITLINT_MAX_LINE_LENGTH = 100;
  * @since 0.0.0
  */
 export const SQUASH_COMMIT_SUBJECT_MAX_LENGTH = COMMITLINT_MAX_LINE_LENGTH - 2;
+
+/**
+ * The longest PR title whose pinned header `<title> (#n)` stays within
+ * `header-max-length`: the line limit minus the ` (#n)` suffix.
+ *
+ * **Example** (A four-digit PR leaves 92 characters)
+ *
+ * ```ts
+ * import { squashPullRequestTitleMaxLength } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(squashPullRequestTitleMaxLength(1915)) // 92
+ * ```
+ *
+ * @param prNumber - The pull request number the header suffix carries.
+ * @returns The title budget in characters.
+ * @category constants
+ * @since 0.0.0
+ */
+export const squashPullRequestTitleMaxLength = (prNumber: number): number =>
+  COMMITLINT_MAX_LINE_LENGTH - Str.length(` (#${prNumber})`);
 
 /**
  * One line of the predicted message that is longer than the commitlint limit.
@@ -533,8 +560,17 @@ const namedErrorRules = (output: string): ReadonlyArray<string> =>
     Result.fromNullishOr(COMMITLINT_ERROR_RULE.exec(line)?.[1], () => undefined)
   );
 
+// The exemption @commitlint/ensure applies to every max-line-length rule.
+const COMMITLINT_URL_LINE = /\bhttps?:\/\/\S+/u;
+
 /**
  * The lines of the rendered message longer than {@link COMMITLINT_MAX_LINE_LENGTH}, 1-based.
+ *
+ * **Details**
+ *
+ * A line carrying a URL is never an offender: `@commitlint/ensure` exempts
+ * lines matching `/\bhttps?:\/\/\S+/` from every max-line-length rule, so
+ * naming one would point at a line commitlint did not fail.
  *
  * **Example** (Find the long bullet)
  *
@@ -556,7 +592,7 @@ export const squashCommitlintOffendingLines = (
   message: SquashCommitMessage
 ): ReadonlyArray<SquashCommitlintOffendingLine> =>
   A.filterMap(Str.split("\n")(renderSquashCommitMessage(message)), (text, index) =>
-    Str.length(text) > COMMITLINT_MAX_LINE_LENGTH
+    Str.length(text) > COMMITLINT_MAX_LINE_LENGTH && !COMMITLINT_URL_LINE.test(text)
       ? Result.succeed(SquashCommitlintOffendingLine.make({ line: index + 1, length: Str.length(text), text }))
       : Result.failVoid
   );
@@ -681,19 +717,22 @@ const renderOffending = (lines: ReadonlyArray<SquashCommitlintOffendingLine>): s
     "; "
   );
 
-// Line 1 is the pinned `<PR title> (#n)` header, so only the PR title clears it;
-// every other line is a commit message, so the commit subjects and bodies do.
-const remedies = (offendingLines: ReadonlyArray<SquashCommitlintOffendingLine>): ReadonlyArray<string> => {
-  const header = A.some(offendingLines, (line) => line.line === 1);
-  const body = A.isReadonlyArrayEmpty(offendingLines) || A.some(offendingLines, (line) => line.line > 1);
-  return [
-    ...(header ? [`shorten the PR title so "<title> (#n)" is ${COMMITLINT_MAX_LINE_LENGTH} chars or fewer`] : []),
-    ...(body
-      ? [
-          `the squash body bullets every commit subject as "* <subject>", so reword commit subjects to ${SQUASH_COMMIT_SUBJECT_MAX_LENGTH} chars or fewer and keep body lines to ${COMMITLINT_MAX_LINE_LENGTH} or fewer`,
-        ]
-      : []),
-  ];
+// Which part of the squash a rule judges: header, type, scope and subject rules
+// read the pinned `<PR title> (#n)` line, body and footer rules read the commit
+// messages below it. Offending line numbers back the same split (line 1 is the
+// header) for a length rule whose family name is not recognised.
+const HEADER_RULE = /^(?:header|type|scope|subject)-/u;
+const COMMITS_RULE = /^(?:body|footer)-/u;
+
+const remedies = (
+  rules: ReadonlyArray<string>,
+  offendingLines: ReadonlyArray<SquashCommitlintOffendingLine>
+): ReadonlyArray<string> => {
+  const header = A.some(rules, (rule) => HEADER_RULE.test(rule)) || A.some(offendingLines, (line) => line.line === 1);
+  const commits = A.some(rules, (rule) => COMMITS_RULE.test(rule)) || A.some(offendingLines, (line) => line.line > 1);
+  const title = `shorten or reword the PR title: the header is "<title> (#n)", ${COMMITLINT_MAX_LINE_LENGTH} chars or fewer`;
+  const subjects = `the squash body bullets every commit subject as "* <subject>", so reword commit subjects to ${SQUASH_COMMIT_SUBJECT_MAX_LENGTH} chars or fewer and keep body lines to ${COMMITLINT_MAX_LINE_LENGTH} or fewer`;
+  return header || commits ? [...(header ? [title] : []), ...(commits ? [subjects] : [])] : [title, subjects];
 };
 
 /**
@@ -702,10 +741,12 @@ const remedies = (offendingLines: ReadonlyArray<SquashCommitlintOffendingLine>):
  *
  * **Details**
  *
- * The remedy follows the offending lines: line 1 is the pinned `<PR title>
- * (#n)` header, which only a shorter PR title clears; any later line is a
- * commit message, which a reworded subject or body clears. With no line over
- * the limit (a non-length rule), the commit-message remedy is given.
+ * The remedy follows the rule family first and the offending lines second:
+ * `header-*`, `type-*`, `scope-*` and `subject-*` rules, or line 1, judge the
+ * pinned `<PR title> (#n)` header, which only the PR title clears; `body-*`
+ * and `footer-*` rules, or any later line, judge the commit messages, which a
+ * reworded subject or body clears. A rule outside both families with no line
+ * over the limit gets both remedies.
  *
  * **Example** (Render a pass)
  *
@@ -727,7 +768,7 @@ export const renderSquashCommitlintVerdict = (verdict: SquashCommitlintVerdict):
       A.join(
         [
           `${A.join(rules, ", ")}${A.isReadonlyArrayNonEmpty(offendingLines) ? ` at ${renderOffending(offendingLines)}` : ""}`,
-          ...remedies(offendingLines),
+          ...remedies(rules, offendingLines),
         ],
         "; "
       ),
@@ -767,7 +808,7 @@ export const readGitHubSquashDefaults = Effect.fn("Yeet.readGitHubSquashDefaults
   const settings = yield* decodeYeetGhOutput(
     "the repository squash settings",
     decodeSquashSettings,
-    yield* yeetGhRead(context, "gh api repos", ["api", "repos/{owner}/{repo}"])
+    yield* yeetGh(context, "gh api repos", ["api", "repos/{owner}/{repo}"])
   );
   const title = O.fromNullishOr(settings.squash_merge_commit_title).pipe(
     O.filter(S.is(GitHubSquashTitleDefault)),
@@ -831,7 +872,7 @@ export const readSquashCommitlint = Effect.fn("Yeet.readSquashCommitlint")(funct
   const pages = yield* decodeYeetGhOutput(
     "the pull request commits",
     decodeCommitPages,
-    yield* yeetGhRead(context, `gh api pulls/${facts.number}/commits`, [
+    yield* yeetGh(context, `gh api pulls/${facts.number}/commits`, [
       "api",
       `repos/{owner}/{repo}/pulls/${facts.number}/commits?per_page=100`,
       "--paginate",
@@ -876,7 +917,7 @@ export const readSquashCommitlintForPullRequest = Effect.fn("Yeet.readSquashComm
   const pull = yield* decodeYeetGhOutput(
     "the pull request",
     decodePullFacts,
-    yield* yeetGhRead(context, `gh api pulls/${prNumber}`, ["api", `repos/{owner}/{repo}/pulls/${prNumber}`])
+    yield* yeetGh(context, `gh api pulls/${prNumber}`, ["api", `repos/{owner}/{repo}/pulls/${prNumber}`])
   );
   return yield* readSquashCommitlint(
     context,

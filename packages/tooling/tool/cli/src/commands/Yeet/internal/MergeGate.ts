@@ -56,7 +56,7 @@ import * as Str from "effect/String";
 import { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import { enforceReviewerGate } from "../../Reviewer/ReviewerRuleset.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
-import { decodeYeetGhOutput, yeetGhRead } from "./GhRead.ts";
+import { decodeYeetGhOutput, yeetGh } from "./GhCall.ts";
 import { hydrateYeetReadOnlyContext } from "./Handler.ts";
 import { MergeGateCheckRun } from "./MergeGate.schemas.ts";
 import {
@@ -1013,13 +1013,13 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
   const pull = yield* decodeYeetGhOutput(
     "the pull request",
     decodePull,
-    yield* yeetGhRead(context, `gh api pulls/${prNumber}`, ["api", `repos/{owner}/{repo}/pulls/${prNumber}`])
+    yield* yeetGh(context, `gh api pulls/${prNumber}`, ["api", `repos/{owner}/{repo}/pulls/${prNumber}`])
   );
   // `--slurp` wraps pages in an array; fold the pages back into one check_runs list.
   const checkRunPages = yield* decodeYeetGhOutput(
     "the head check runs",
     decodeCheckRunPages,
-    yield* yeetGhRead(context, "gh api check-runs", [
+    yield* yeetGh(context, "gh api check-runs", [
       "api",
       `repos/{owner}/{repo}/commits/${pull.head.sha}/check-runs?per_page=100`,
       "--paginate",
@@ -1027,7 +1027,7 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
     ])
   );
   const checkRuns = A.flatMap(checkRunPages, (page) => page.check_runs);
-  const unresolvedThreads = yield* yeetGhRead(context, "gh api graphql threads", [
+  const unresolvedThreads = yield* yeetGh(context, "gh api graphql threads", [
     "api",
     "graphql",
     "-f",
@@ -1126,7 +1126,7 @@ export const executeMergeGate = Effect.fn("Yeet.executeMergeGate")(function* (
   const result = yield* decodeYeetGhOutput(
     "the merge result",
     decodeMergeResult,
-    yield* yeetGhRead(context, `gh api merge #${decision.prNumber}`, [
+    yield* yeetGh(context, `gh api merge #${decision.prNumber}`, [
       "api",
       "-X",
       "PUT",
@@ -1208,7 +1208,7 @@ const postS11MergeComment = Effect.fn("Yeet.postS11MergeComment")(function* (
   merged: MergeGateMerged,
   windowForced: boolean
 ) {
-  yield* yeetGhRead(context, `gh api comment #${decision.prNumber}`, [
+  yield* yeetGh(context, `gh api comment #${decision.prNumber}`, [
     "api",
     "-X",
     "POST",
@@ -1225,7 +1225,7 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
   context: RepoRunContext,
   headSha: string
 ) {
-  const pages = yield* yeetGhRead(context, "gh api merged head runs", [
+  const pages = yield* yeetGh(context, "gh api merged head runs", [
     "api",
     `repos/{owner}/{repo}/actions/runs?head_sha=${headSha}&per_page=100`,
     "--paginate",
@@ -1247,7 +1247,7 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
     )
   );
   const [cancelled, failures] = yield* Effect.partition(runIds, (runId) =>
-    yeetGhRead(context, `gh api cancel run ${runId}`, [
+    yeetGh(context, `gh api cancel run ${runId}`, [
       "api",
       "-X",
       "POST",

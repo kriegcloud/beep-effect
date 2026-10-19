@@ -3238,7 +3238,7 @@
     {"name":"Yeet.finishCreatedPullRequest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.finishPublishWithPullRequest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.generateAttemptId","owner":"@beep/repo-cli","family":"tooling","conforms":true},
-    {"name":"Yeet.ghRead","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Yeet.gh","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.hashText","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.hydrateMonitoredContext","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.hydrateYeetReadOnlyContext","owner":"@beep/repo-cli","family":"tooling","conforms":true},

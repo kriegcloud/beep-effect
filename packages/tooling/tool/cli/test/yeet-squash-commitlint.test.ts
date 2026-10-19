@@ -18,6 +18,7 @@ import {
   SquashMessageSource,
   SquashPullRequestFacts,
   squashCommitlintOffendingLines,
+  squashPullRequestTitleMaxLength,
 } from "@beep/repo-cli/test/Yeet";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeChildProcessSpawner, NodeCrypto } from "@effect/platform-node";
@@ -131,20 +132,48 @@ describe("squash commit message prediction", () => {
     expect(SQUASH_COMMIT_SUBJECT_MAX_LENGTH).toBe(98);
   });
 
-  it("names the PR title for a header failure and the commit subjects for body lines", () => {
+  it("picks the remedy by rule family, then by offending line", () => {
     const over = (line: number) => SquashCommitlintOffendingLine.make({ line, length: 116, text: "x".repeat(116) });
-    const render = (lines: ReadonlyArray<SquashCommitlintOffendingLine>) =>
-      renderSquashCommitlintVerdict(SquashCommitlintFail.make({ rules: ["header-max-length"], offendingLines: lines }));
-    const header = render([over(1)]);
-    expect(header).toContain("shorten the PR title");
-    expect(header).not.toContain("reword commit subjects");
-    const body = render([over(7)]);
-    expect(body).not.toContain("shorten the PR title");
-    expect(body).toContain("reword commit subjects to 98 chars or fewer");
-    const both = render([over(1), over(7)]);
-    expect(both).toContain("shorten the PR title");
+    const render = (rules: ReadonlyArray<string>, lines: ReadonlyArray<SquashCommitlintOffendingLine>) =>
+      renderSquashCommitlintVerdict(
+        SquashCommitlintFail.make({
+          rules: A.isReadonlyArrayNonEmpty(rules) ? rules : ["x-rule"],
+          offendingLines: lines,
+        })
+      );
+    // Header-family rules point at the PR title, even with no line over the limit.
+    for (const rule of ["subject-case", "type-enum", "header-full-stop", "scope-empty", "header-max-length"]) {
+      const line = render([rule], []);
+      expect(line).toContain("PR title");
+      expect(line).not.toContain("reword commit subjects");
+    }
+    // Body and footer rules point at the commits.
+    const footer = render(["footer-max-line-length"], [over(7)]);
+    expect(footer).not.toContain("PR title");
+    expect(footer).toContain("reword commit subjects to 98 chars or fewer");
+    // Line numbers back an unrecognised length rule, and both families can offend at once.
+    expect(render(["x-rule"], [over(1)])).toContain("PR title");
+    expect(render(["x-rule"], [over(1)])).not.toContain("reword commit subjects");
+    const both = render(["header-max-length", "body-max-line-length"], [over(1), over(7)]);
+    expect(both).toContain("PR title");
     expect(both).toContain("reword commit subjects");
-    expect(render([])).toContain("reword commit subjects");
+    // Nothing recognised and nothing over the limit: both remedies.
+    const unknown = render(["x-rule"], []);
+    expect(unknown).toContain("PR title");
+    expect(unknown).toContain("reword commit subjects");
+  });
+
+  it("never names a URL line as an offender (commitlint exempts them from max-line-length)", () => {
+    const url = `* docs: see https://github.com/beep-effect/beep-effect/pull/1915#issuecomment-${"9".repeat(80)}`;
+    expect(Str.length(url)).toBeGreaterThan(COMMITLINT_MAX_LINE_LENGTH);
+    const message = SquashCommitMessage.make({ header: "fix(x): y (#7)", body: `${url}\n\n* ${longSubject}` });
+    expect(A.map(squashCommitlintOffendingLines(message), (line) => line.line)).toEqual([5]);
+  });
+
+  it("budgets the PR title at the line limit minus its (#n) suffix", () => {
+    expect(squashPullRequestTitleMaxLength(1915)).toBe(92);
+    expect(squashPullRequestTitleMaxLength(7)).toBe(95);
+    expect(SQUASH_COMMIT_SUBJECT_MAX_LENGTH).toBe(98);
   });
 
   it("classifies a commitlint run: exit 0 passes, a named rule fails, anything else is no verdict", () => {

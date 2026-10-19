@@ -1,6 +1,9 @@
 /**
- * The one-call `gh` read the gate-side readers share: run `gh` from the repo
- * root, map any failure to a `YeetCommandError`, and decode the JSON it printed.
+ * The one-call `gh` invocation the gate-side modules share: run `gh` from the
+ * repo root, map any failure to a `YeetCommandError`, and decode the JSON it
+ * printed. Reads and writes alike go through it (the merge `PUT`, the S11
+ * comment `POST` and run cancels included), so nothing about the name promises
+ * a side-effect-free call.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -26,12 +29,13 @@ const ghFailure = (what: string) => (failure: GhCommandFailure) =>
 /**
  * Run `gh` with these arguments from the repo root and return its stdout; a
  * spawn failure, non-zero exit or truncated capture becomes a `YeetCommandError`
- * whose message starts with `label`.
+ * whose message starts with `label`. The call may write (a merge `PUT`, a
+ * comment `POST`), so a caller never retries it blindly.
  *
- * **Example** (Build a read)
+ * **Example** (Build a call)
  *
  * ```ts
- * import { yeetGhRead, RepoRunContext } from "@beep/repo-cli/test/Yeet"
+ * import { yeetGh, RepoRunContext } from "@beep/repo-cli/test/Yeet"
  *
  * const context = RepoRunContext.make({
  *   base: "origin/main",
@@ -43,7 +47,7 @@ const ghFailure = (what: string) => (failure: GhCommandFailure) =>
  *   repoRoot: ".",
  *   turbo: { graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] },
  * })
- * console.log(typeof yeetGhRead(context, "gh api repos", ["api", "repos/{owner}/{repo}"])) // "object"
+ * console.log(typeof yeetGh(context, "gh api repos", ["api", "repos/{owner}/{repo}"])) // "object"
  * ```
  *
  * @param context - Its `repoRoot` is the working directory `gh` resolves `{owner}/{repo}` from.
@@ -53,7 +57,7 @@ const ghFailure = (what: string) => (failure: GhCommandFailure) =>
  * @category execution
  * @since 0.0.0
  */
-export const yeetGhRead = Effect.fn("Yeet.ghRead")(function* (
+export const yeetGh = Effect.fn("Yeet.gh")(function* (
   context: RepoRunContext,
   label: string,
   args: ReadonlyArray<string>

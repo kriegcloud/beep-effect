@@ -40,8 +40,12 @@ its own budget. Use `bun run beep yeet gh <command>` instead of those `gh pr` co
   the repo's `bunx commitlint` on it, because `main`'s Commitlint range is
   previous-main..new-main and only the next merge clears a red squash (ep47,
   2026-10-19). A commit subject longer than 98 characters becomes a bullet over
-  100, so the owner rewords the subject (`git commit --amend` / interactive
-  rebase, then push); the orchestrator never merges over it. A commitlint that
+  100, and the header is `<PR title> (#n)` against `header-max-length` 100, so
+  the PR title (the first commit subject by default) has 100 minus the suffix,
+  about 92 characters for a four-digit PR. The remedy names which one to fix:
+  header, type, scope and subject rules point at the PR title, body and footer
+  rules at the commits (`git commit --amend` / interactive rebase, then push);
+  the orchestrator never merges over it. A commitlint that
   could not run is `unavailable` and holds the same way. `yeet ready` prints the
   same verdict as an advisory before the flip, never a refusal.
 - Alternate identity (its own rate-limit budget): `--token-ref op://…` or

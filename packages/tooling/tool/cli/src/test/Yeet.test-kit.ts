@@ -27,8 +27,8 @@ export {
   runYeetFallowFeedback as runYeetFallowFeedbackForTesting,
 } from "../commands/Yeet/internal/FallowFeedback.ts";
 export * from "../commands/Yeet/internal/GateStaleness.ts";
+export * from "../commands/Yeet/internal/GhCall.ts";
 export * from "../commands/Yeet/internal/GhOps.ts";
-export * from "../commands/Yeet/internal/GhRead.ts";
 export {
   currentCommitSha,
   currentYeetBranch,
