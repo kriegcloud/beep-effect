@@ -181,6 +181,58 @@ knowledge doctor read the committed tree, so the driver reruns them.
 `@beep/repo-cli` is private, so no changeset. No baseline, inventory, exception or
 suppression row is added (S31).
 
+## Review round 1 (#1921)
+
+Three P2 threads, fixed in the lane on head `06e5be3e57`:
+
+- **Deleted rulesets with a failed check.** The rule-suite red check counted only
+  `enforcement: "active"`, so a ruleset deleted after the push, which GitHub reports
+  as `deleted ruleset`, could hide a failed required check. `GoalMergeTimeRuleSource`
+  now carries `history` (`unread`, `gating` or `not-gating`, decoding default
+  `unread`). The recovered history version restores the merge-time enforcement. A
+  failed rule from a deleted ruleset that history shows gated the merge is
+  `unsatisfied` when the rest of the evidence is complete and `unknown` otherwise.
+  It is never `verified`.
+- **Non-gating history.** A recovered evaluate-mode, inactive or non-matching
+  version is now `not-gating`, so it no longer blocks verification.
+  Before, it was reported as `deleted-ruleset-unrecoverable`. A truly unreadable
+  history stays `deleted-ruleset-unrecoverable`.
+- **Doctor wording.** Doctor no longer prints the merge-time verdict for an
+  unknown completion; that verdict could read "verified" when a different fact was
+  missing. A new export, `goalCompletionUnknownReasons`, lists each missing fact:
+  merge facts, the accepted head, the accepted-head declaration digest, an unknown
+  declared gating evidence check, or the merge-time gaps. `overallOutcome` uses
+  the same list, so the printed reasons and the outcome cannot disagree.
+
+New tests:
+- A recovered-gating deleted ruleset with a failed check: `unsatisfied` with
+  complete evidence, `unknown` with a missing check, `unknown` with unrecoverable
+  history.
+- A recovered evaluate-mode version and a non-matching version: neither blocks
+  `verified`.
+- Doctor wording for a missing declaration digest, an unknown gating check, and a
+  verified receipt (no advisory).
+
+All checks were rerun on the final round-1 tree:
+
+| Check | Result |
+| --- | --- |
+| Scoped Bun / Node (six goals and merge-gate files) | 154 tests pass under each |
+| `package-verify @beep/repo-cli` | exit 0: audit 1273.0s, docgen 38.4s |
+| `bun run coverage -- --filter=@beep/repo-cli` | 340 files, `coverage-ratchet ok`. `CompletionEvidence.ts` is at 100%. |
+| effect-vitest / schema-first | `introduced=0` / parity ok |
+| effect-diagnostics | 0 errors on check and test overlays |
+| oxlint | exit 0 |
+| fallow audit | exit 0, 0 findings |
+| jsdoc ratchet | `increased=0` |
+| catalogs | observability current; schema catalog current after `--write` |
+| offline `goals doctor` | 15 advisories, 0 blocking |
+
+One ratchet run reported a single uncovered function in `CompletionEvidence.ts`: an
+unreachable branch for a deleted ruleset whose history has no version at merge. A
+deleted ruleset has no listed creation time, so that read fails instead, and the
+case is now handled as unrecoverable.
+
 ## Reversal
 
 Revert the PR. The added snapshot and receipt fields are decoding-defaulted, and

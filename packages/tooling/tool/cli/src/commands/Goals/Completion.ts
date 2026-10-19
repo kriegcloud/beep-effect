@@ -128,6 +128,61 @@ export const goalCompletionVerdict = (
     })
   );
 
+/**
+ * Names every reason a non-unsatisfied observation or receipt is not verified.
+ *
+ * **Details**
+ *
+ * Empty exactly when the merge facts, accepted head, accepted-head declaration
+ * digest, every declared gating evidence check and the merge-time evidence
+ * verdict are all present and verified. Doctor prints these reasons instead of
+ * the merge-time verdict, so an unknown completion never reads as verified.
+ *
+ * **Example** (A receipt with no facts names what is missing)
+ *
+ * ```ts
+ * import { goalCompletionUnknownReasons } from "@beep/repo-cli/commands/Goals/Completion"
+ * import * as O from "effect/Option"
+ *
+ * const reasons = goalCompletionUnknownReasons({
+ *   merge: O.none(),
+ *   acceptedHead: O.none(),
+ *   acceptedDeclarationDigest: O.none(),
+ *   evidence: [],
+ *   requiredChecks: O.none(),
+ *   requiredCheckFacts: [],
+ * })
+ * console.log(reasons.length > 0) // true
+ * ```
+ *
+ * @param observation - Observation or receipt facts.
+ * @returns Plain reasons, empty when every gating fact is verified.
+ * @category validation
+ * @since 0.0.0
+ */
+export const goalCompletionUnknownReasons = (
+  observation: Pick<
+    GoalCompletionObservation,
+    "merge" | "acceptedHead" | "acceptedDeclarationDigest" | "evidence" | "requiredChecks" | "requiredCheckFacts"
+  >
+): ReadonlyArray<string> => {
+  const gating = A.filter(observation.evidence, (check) => check.ref.gating);
+  const verdict = goalCompletionVerdict(observation);
+  return [
+    ...(O.isNone(observation.merge) ? ["merge facts unobserved"] : []),
+    ...(O.isNone(observation.acceptedHead) ? ["accepted head unobserved"] : []),
+    ...(O.isNone(observation.acceptedDeclarationDigest)
+      ? ["accepted-head declaration digest unobserved (the packet manifest at the accepted head could not be read)"]
+      : []),
+    ...(A.isReadonlyArrayEmpty(gating) ? ["no gating acceptance evidence"] : []),
+    ...A.map(
+      A.filter(gating, (check) => check.outcome === "unknown" || O.isNone(check.observedHead)),
+      (check) => `gating evidence ${check.ref.kind} "${check.ref.ref}" unknown`
+    ),
+    ...(verdict._tag === "unknown" ? [`merge-time evidence gaps: ${A.join(verdict.gaps, ", ")}`] : []),
+  ];
+};
+
 const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionOutcome => {
   if (observation.grandfathered) return "verified";
   if (O.contains(false)(observation.merged)) return "unsatisfied";
@@ -143,19 +198,7 @@ const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionO
     )
   )
     return "unsatisfied";
-  if (
-    O.isNone(
-      O.all({
-        merged: observation.merged,
-        merge: observation.merge,
-        head: observation.acceptedHead,
-        declaration: observation.acceptedDeclarationDigest,
-      })
-    ) ||
-    A.isReadonlyArrayEmpty(gating) ||
-    verdict._tag !== "verified" ||
-    A.some(gating, (check) => check.outcome === "unknown" || O.isNone(check.observedHead))
-  )
+  if (O.isNone(observation.merged) || A.isReadonlyArrayNonEmpty(goalCompletionUnknownReasons(observation)))
     return "unknown";
   return "verified";
 };

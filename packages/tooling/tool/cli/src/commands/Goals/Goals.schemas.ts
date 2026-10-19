@@ -609,6 +609,39 @@ export const GoalRuleEnforcement = LiteralKit(["active", "evaluate", "deleted ru
 export type GoalRuleEnforcement = typeof GoalRuleEnforcement.Type;
 
 /**
+ * Names what recovered ruleset history says about a rule source at merge.
+ *
+ * **Details**
+ *
+ * `unread` means no history was read (or none could be recovered). `gating`
+ * means the version effective at merge was active and applied to the base
+ * branch. `not-gating` means it was in evaluate mode, inactive, or did not
+ * target the base branch, so it did not gate the merge.
+ *
+ * **Example** (Recognize a non-gating history)
+ *
+ * ```ts
+ * import { GoalRuleSourceHistory } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRuleSourceHistory.is["not-gating"]("not-gating"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalRuleSourceHistory = LiteralKit(["unread", "gating", "not-gating"]).pipe(
+  $I.annoteSchema("GoalRuleSourceHistory", {
+    description: "What recovered ruleset history says about a rule source at merge.",
+  })
+);
+/**
+ * What recovered ruleset history says about a rule source at merge.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalRuleSourceHistory = typeof GoalRuleSourceHistory.Type;
+
+/**
  * Records one rule source GitHub evaluated at the merge push and the history version read for it.
  *
  * **Details**
@@ -617,7 +650,9 @@ export type GoalRuleEnforcement = typeof GoalRuleEnforcement.Type;
  * required-status-checks rule, absent when the source has no such rule.
  * `survives` says whether current ruleset enumeration still lists the source.
  * `version` is the ruleset history endpoint read for the merge time; it is
- * absent when no version could be recovered.
+ * absent when no version could be recovered. `history` records whether that
+ * version gated the merge, which overrides the push-time `deleted ruleset`
+ * enforcement of a ruleset deleted since then.
  *
  * **Example** (Inspect a rule-source record)
  *
@@ -638,6 +673,10 @@ export class GoalMergeTimeRuleSource extends S.Opaque<GoalMergeTimeRuleSource, {
     requiredStatusChecks: S.OptionFromNullOr(GoalRuleEvaluationResult),
     survives: S.Boolean,
     version: S.OptionFromNullOr(S.NonEmptyString),
+    history: GoalRuleSourceHistory.pipe(
+      S.withConstructorDefault(Effect.succeed<GoalRuleSourceHistory>("unread")),
+      S.withDecodingDefault(Effect.succeed<GoalRuleSourceHistory>("unread"))
+    ),
   }).pipe(
     $I.annoteSchema("GoalMergeTimeRuleSource", {
       description: "One rule source GitHub evaluated at the merge push, with its merge-time history version.",

@@ -215,16 +215,19 @@ const readHistoricalRuleset = Effect.fn("Goals.Completion.historicalRuleset")(fu
   }
   const source = `repos/{owner}/{repo}/rulesets/${ruleset.id}/history/${version.value.version_id}`;
   const { state } = yield* readGoalCompletionJson(root, ["api", source], RulesetVersion);
-  if (!(yield* historicalRulesetApplies(state, base))) return O.none();
+  // A version that was not active, or did not target this branch, at merge is
+  // still a recovered fact: it says the ruleset did not gate this merge.
+  const applies = yield* historicalRulesetApplies(state, base);
   const folded = rulesetRequiredContextsFromRules(
     YeetRulesetRulesPayload.make({ base, readAt: DateTime.formatIso(mergedAt), rules: state.rules })
   );
-  return O.some({ id: ruleset.id, source, contexts: folded.contexts });
+  return O.some({ id: ruleset.id, source, applies, contexts: applies ? folded.contexts : A.empty<string>() });
 });
 
 type HistoricalRead = O.Option<{
   readonly id: number;
   readonly source: string;
+  readonly applies: boolean;
   readonly contexts: ReadonlyArray<string>;
 }>;
 
@@ -335,6 +338,17 @@ const goalRequiredCheckFacts = ({
 const requiresChecks = (source: GoalMergeTimeRuleSource): boolean =>
   source.enforcement !== "evaluate" && O.isSome(source.requiredStatusChecks);
 
+// Whether a rule source gated the merge: recovered history wins over the
+// enforcement GitHub reported at push time (a deleted ruleset reports
+// `deleted ruleset`, which says nothing about its merge-time enforcement).
+const gatesAtMerge = (source: GoalMergeTimeRuleSource): boolean =>
+  O.isSome(source.requiredStatusChecks) &&
+  source.history !== "not-gating" &&
+  (source.history === "gating" || source.enforcement !== "evaluate");
+
+const failedRequiredChecks = (source: GoalMergeTimeRuleSource): boolean =>
+  O.contains(source.requiredStatusChecks, "fail");
+
 const missingVersionGap = (source: GoalMergeTimeRuleSource): GoalCompletionEvidenceGap =>
   source.sourceType === "ruleset" && (!source.survives || source.enforcement === "deleted ruleset")
     ? "deleted-ruleset-unrecoverable"
@@ -345,9 +359,12 @@ const missingVersionGap = (source: GoalMergeTimeRuleSource): GoalCompletionEvide
  *
  * **Details**
  *
- * A head-bound required red, or a failed active required-status-checks rule in
- * the merge-push rule suite, is `unsatisfied` even when other evidence is
- * missing. Otherwise any gap is `unknown`: no inventory, no rule suite for the
+ * A head-bound required red, or a failed required-status-checks rule from a
+ * source active at the merge push, is `unsatisfied` even when other evidence is
+ * missing. A failed rule from a ruleset deleted since then whose recovered
+ * history shows it gated the merge is `unsatisfied` once the rest of the
+ * evidence is complete, and `unknown` before that; it is never `verified`. A
+ * recovered evaluate-mode or non-applicable version does not gate. Otherwise any gap is `unknown`: no inventory, no rule suite for the
  * merge commit, a rule suite bound to another commit, partial ruleset reads, a
  * required-check source with no recovered history version (deleted or
  * unsupported), stored provider gaps, no required contexts, or a context
@@ -379,14 +396,23 @@ export const decideGoalCompletionEvidence = (input: GoalCompletionEvidenceInput)
   const inventory = O.flatMap(input.requiredChecks, (snapshot) => snapshot.mergeTimeInventory);
   const boundInventory = O.filter(inventory, (value) => O.contains(input.mergeCommit, value.afterSha));
   const reds = A.filter(relevant, (fact) => fact.outcome === "unsatisfied" && headBound(fact));
-  const ruleSuiteRed = O.exists(boundInventory, (value) =>
-    A.some(
-      value.ruleSources,
-      (source) => source.enforcement === "active" && O.contains(source.requiredStatusChecks, "fail")
-    )
+  const boundSources = O.match(boundInventory, {
+    onNone: A.empty<GoalMergeTimeRuleSource>,
+    onSome: (value) => value.ruleSources,
+  });
+  // Active at push: GitHub's own failed evaluation is a known required red.
+  const activeRed = A.some(
+    boundSources,
+    (source) => source.enforcement === "active" && source.history !== "not-gating" && failedRequiredChecks(source)
   );
-  if (A.isReadonlyArrayNonEmpty(reds) || ruleSuiteRed)
-    return GoalCompletionEvidenceUnsatisfied.make({ reds, ruleSuiteRed });
+  // Deleted since merge, with history showing it gated the merge: a red too,
+  // but reported as unsatisfied only once the rest of the evidence is complete.
+  const recoveredRed = A.some(
+    boundSources,
+    (source) => source.enforcement === "deleted ruleset" && source.history === "gating" && failedRequiredChecks(source)
+  );
+  if (A.isReadonlyArrayNonEmpty(reds) || activeRed)
+    return GoalCompletionEvidenceUnsatisfied.make({ reds, ruleSuiteRed: activeRed });
   const gaps = O.match(input.requiredChecks, {
     onNone: () => A.of<GoalCompletionEvidenceGap>("inventory-unobserved"),
     onSome: (snapshot) =>
@@ -401,7 +427,7 @@ export const decideGoalCompletionEvidence = (input: GoalCompletionEvidenceInput)
           onNone: A.empty<GoalCompletionEvidenceGap>,
           onSome: (value) =>
             A.map(
-              A.filter(value.ruleSources, (source) => requiresChecks(source) && O.isNone(source.version)),
+              A.filter(value.ruleSources, (source) => gatesAtMerge(source) && O.isNone(source.version)),
               missingVersionGap
             ),
         }),
@@ -416,6 +442,7 @@ export const decideGoalCompletionEvidence = (input: GoalCompletionEvidenceInput)
       ]),
   });
   if (A.isReadonlyArrayNonEmpty(gaps)) return GoalCompletionEvidenceUnknown.make({ gaps });
+  if (recoveredRed) return GoalCompletionEvidenceUnsatisfied.make({ reds, ruleSuiteRed: true });
   // No gap means contexts is non-empty and each has a green fact, so `relevant`
   // is non-empty; the verified schema enforces that minimum.
   return GoalCompletionEvidenceVerified.make({ facts: relevant });
@@ -522,11 +549,14 @@ export const observeGoalMergeTimeEvidence = Effect.fn("Goals.CompletionEvidence.
     Effect.orElseSucceed(() => SuiteLookup.make({ found: O.none(), gap: O.some("network-failure") }))
   );
   const surviving = A.map(current, (ruleset) => ruleset.id);
-  const applied = pipe(
-    reads,
-    A.map((entry) => entry.read),
-    A.getSomes,
-    A.getSomes
+  const applied = A.filter(
+    pipe(
+      reads,
+      A.map((entry) => entry.read),
+      A.getSomes,
+      A.getSomes
+    ),
+    (version) => version.applies
   );
   const sources = O.match(lookup.found, {
     onNone: A.empty<GoalMergeTimeRuleSource>,
@@ -557,13 +587,21 @@ export const observeGoalMergeTimeEvidence = Effect.fn("Goals.CompletionEvidence.
                   : "partial-ruleset-reads"
               ),
             }),
-            onSome: O.match({
-              onNone: () => ({ ...none, gap: O.some<GoalCompletionEvidenceGap>("inventory-mismatch") }),
-              onSome: (version) => ({
-                ...none,
-                source: GoalMergeTimeRuleSource.make({ ...source, version: O.some(version.source) }),
-              }),
-            }),
+            onSome: (read) =>
+              O.match(
+                O.filter(read, (version) => version.applies),
+                {
+                  onNone: () => ({ ...none, gap: O.some<GoalCompletionEvidenceGap>("inventory-mismatch") }),
+                  onSome: (version) => ({
+                    ...none,
+                    source: GoalMergeTimeRuleSource.make({
+                      ...source,
+                      version: O.some(version.source),
+                      history: "gating",
+                    }),
+                  }),
+                }
+              ),
           }
         );
       }
@@ -572,12 +610,23 @@ export const observeGoalMergeTimeEvidence = Effect.fn("Goals.CompletionEvidence.
       const history = yield* readHistoricalRuleset(root, { id, source_type: "Repository" }, base, mergedAt).pipe(
         Effect.option
       );
+      // Recovered history restores the ruleset's enforcement at merge: an active,
+      // applicable version gates; an evaluate-mode, inactive or non-matching
+      // version does not, so the remaining evidence decides.
+      // A deleted ruleset has no listed creation time, so a read that finds no
+      // version at merge fails rather than returning none; both are unrecoverable.
       return O.match(O.flatten(history), {
         onNone: () => ({ ...none, gap: O.some<GoalCompletionEvidenceGap>("deleted-ruleset-unrecoverable") }),
         onSome: (version) => ({
           ...none,
-          source: GoalMergeTimeRuleSource.make({ ...source, version: O.some(version.source) }),
-          recovered: O.some({ source: version.source, contexts: version.contexts }),
+          source: GoalMergeTimeRuleSource.make({
+            ...source,
+            version: O.some(version.source),
+            history: version.applies ? "gating" : "not-gating",
+          }),
+          recovered: version.applies
+            ? O.some({ source: version.source, contexts: version.contexts })
+            : O.none<{ readonly source: string; readonly contexts: ReadonlyArray<string> }>(),
         }),
       });
     })

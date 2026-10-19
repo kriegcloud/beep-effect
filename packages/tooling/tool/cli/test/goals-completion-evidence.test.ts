@@ -127,6 +127,7 @@ type Overrides = {
   readonly fail?: (endpoint: string) => boolean;
   readonly data?: (data: Recorded) => Recorded;
   readonly deletedHistory?: boolean;
+  readonly deletedVersion?: (version: unknown) => unknown;
 };
 
 const recordedIo = (data: Recorded, acceptedText: string, overrides: Overrides = {}) => {
@@ -151,7 +152,7 @@ const recordedIo = (data: Recorded, acceptedText: string, overrides: Overrides =
         Match.when(Str.includes("/rulesets/999/history"), () =>
           overrides.deletedHistory === true
             ? Str.includes("/history/")(endpoint)
-              ? ok(value.version)
+              ? ok(overrides.deletedVersion === undefined ? value.version : overrides.deletedVersion(value.version))
               : ok(value.history)
             : Effect.fail(YeetCommandError.make({ message: "HTTP 404: deleted ruleset history" }))
         ),
@@ -297,6 +298,45 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal merge-time completion e
         false
       );
     })
+  );
+  it.effect("a failed check from a deleted ruleset that history shows gated the merge is red, never verified", () =>
+    Effect.gen(function* () {
+      const failedDeleted = withEvaluations(A.append({ ...deletedRulesetEvaluation, result: "fail" }));
+      const complete = yield* observe({ data: failedDeleted, deletedHistory: true });
+      expect(complete.outcome).toBe("unsatisfied");
+      const partial = yield* observe({
+        data: flow(failedDeleted, withRuns(A.filter((run) => run.name !== "Knip"))),
+        deletedHistory: true,
+      });
+      expect(partial.outcome).toBe("unknown");
+      const unrecoverable = yield* observe({ data: failedDeleted });
+      expect(unrecoverable.outcome).toBe("unknown");
+      expect(gapsOf(unrecoverable)).toContain("deleted-ruleset-unrecoverable");
+    })
+  );
+  it.effect("a deleted ruleset that history shows did not gate the merge does not block", () =>
+    Effect.forEach(
+      [
+        (version: unknown) => ({
+          state: { ...(version as { readonly state: object }).state, enforcement: "evaluate" },
+        }),
+        (version: unknown) => ({
+          state: {
+            ...(version as { readonly state: object }).state,
+            conditions: { ref_name: { include: ["refs/heads/release"], exclude: [] } },
+          },
+        }),
+      ],
+      Effect.fn("CompletionEvidenceTest.nonGatingDeleted")(function* (deletedVersion) {
+        const receipt = yield* observe({
+          data: withEvaluations(A.append({ ...deletedRulesetEvaluation, result: "fail" })),
+          deletedHistory: true,
+          deletedVersion,
+        });
+        expect(receipt.outcome).toBe("verified");
+        expect(gapsOf(receipt)).toEqual([]);
+      })
+    )
   );
   it.effect("a deleted ruleset whose history GitHub still serves is recovered", () =>
     Effect.gen(function* () {

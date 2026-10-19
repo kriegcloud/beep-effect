@@ -37,8 +37,7 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { diffMembership } from "../../internal/ratchet/RatchetDiff.ts";
 import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../Lint/ReflectionArtifact.ts";
-import { goalCompletionVerdict, observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
-import { describeGoalCompletionEvidence } from "./CompletionEvidence.ts";
+import { goalCompletionUnknownReasons, observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
 import { decodeGoalManifest, GoalPhaseStatus, GoalStatus, goalPullRequestRefs } from "./Goals.schemas.ts";
 import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
@@ -1062,7 +1061,7 @@ const completionReceiptFindings = (
   const detail = receipt.pipe(
     O.map((row) =>
       outcome === "unknown" && O.isSome(row.merge)
-        ? `${describeGoalCompletionEvidence(goalCompletionVerdict(row))} Online doctor inspects facts and completion refresh persists them; lifecycle is unchanged.`
+        ? `Completion unknown: ${A.join(goalCompletionUnknownReasons(row), "; ")}. Online doctor inspects facts and completion refresh persists them; lifecycle is unchanged.`
         : O.isNone(row.merge) && outcome === "unknown"
           ? "PR, merge or check facts could not be read; completion evidence is unknown and lifecycle is unchanged."
           : "See head-bound completion evidence; lifecycle is unchanged."
