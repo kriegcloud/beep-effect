@@ -44,6 +44,10 @@ separate fields, historical rows stay `unknown`, and a run that cannot evaluate 
 session keeps a verified stamp, while the session's own contradicting evidence
 still clears it
 ([record](./history/receipts/telemetry-completeness.md)).
+#1874 is complete: the base incremental state lives inside `outDir`. A dist-only
+clean therefore also clears it, and cold, warm and changed-input builds all restore
+the complete public output manifest
+([record](./history/receipts/build-restore.md)).
 #1878 is complete: goal completion verifies only on GitHub's rule suite for the
 merge push, which covers rulesets deleted since then, and on green required checks at
 the accepted head. Missing, deleted or partial evidence stays `unknown`

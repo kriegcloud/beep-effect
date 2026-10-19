@@ -56,6 +56,10 @@ hunk has a disposition.
 independent completeness and qualification fields, historical rows decode as
 `unknown`, and a run that cannot evaluate a session keeps its verified stamp
 while the session's own contradicting evidence still clears it.
+#1874 `residue-build-restore` is complete (`history/receipts/build-restore.md`): the
+base incremental state lives inside `outDir`, so a dist-only clean can no longer leave
+state that suppresses emit. Cold, warm and changed-input builds reproduce the complete
+output manifest.
 #1878 `residue-completion-evidence` is complete
 (`history/receipts/completion-evidence.md`): completion verifies only on a merge-push
 rule suite bound to the merge commit and green required checks at the accepted head.
