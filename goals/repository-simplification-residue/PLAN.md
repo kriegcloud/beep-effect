@@ -54,7 +54,8 @@ hunk has a disposition.
 #1869 `residue-telemetry-completeness` is complete
 (`history/receipts/telemetry-completeness.md`): stored session stamps carry
 independent completeness and qualification fields, historical rows decode as
-`unknown`, and an incomplete run no longer erases a verified stamp.
+`unknown`, and a run that cannot evaluate a session keeps its verified stamp
+while the session's own contradicting evidence still clears it.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

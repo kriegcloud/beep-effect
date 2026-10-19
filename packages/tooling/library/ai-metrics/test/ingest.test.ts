@@ -787,14 +787,18 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
         }
       };
       // Completeness follows collection only; qualification follows the join only.
+      // Sessions whose gap evidence failed to load while their own evidence contradicts nothing.
+      const unevaluable = ["empty-sentinel", "custom-sentinel"];
       const assertScenarioVerdict = Effect.fnUntraced(function* (
+        scenario: typeof ForwarderStampScenario.Type,
         result: AiMetricsForwarderRunResult,
         expected: string | null
       ) {
         const db = yield* DuckDb;
         const completeness =
           result.hookCollectionComplete && result.stampGapCollectionComplete ? "complete" : "partial";
-        const qualification = expected === null ? "unqualified" : "qualified";
+        const unresolved = A.contains(unevaluable, scenario) ? "unknown" : "unqualified";
+        const qualification = expected === null ? unresolved : "qualified";
         for (const table of ["ai_metrics_sessions", "ai_metrics_source_files"])
           expect(
             yield* db.query(
@@ -807,46 +811,52 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
         }
         return `${completeness}/${qualification}`;
       });
-      const assertOfflineThenContrary = Effect.fnUntraced(function* (
-        forwarderInput: AiMetricsForwarderInput,
-        hookRoot: string,
-        hookDir: string
-      ) {
+      const readSessionVerdict = Effect.fnUntraced(function* () {
         const db = yield* DuckDb;
-        // A later run that cannot list hook-events keeps the stored verified stamp; its own
-        // run-scoped source-file row records the partial, unqualified observation.
-        yield* fs.rename(hookDir, `${hookDir}.offline`);
-        const offline = yield* runAiMetricsForwarder(forwarderInput);
-        expect(offline.hookCollectionComplete).toBe(false);
-        expect(
-          yield* db.query(
-            "SELECT session_harness_hash AS stamp, session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_sessions"
-          )
-        ).toEqual([{ stamp, completeness: "complete", qualification: "qualified" }]);
-        expect(
-          yield* db.query(
-            "SELECT session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_source_files ORDER BY ingest_run_id"
-          )
-        ).toContainEqual({ completeness: "partial", qualification: "unqualified" });
-        // Restored, complete evidence with an intersecting refusal is contrary and clears it.
-        yield* fs.rename(`${hookDir}.offline`, hookDir);
-        yield* writeText(
-          path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
-          yield* encodeHookPulseRefusal(
-            HookPulseRefusal.make({
-              ts: DateTime.makeUnsafe("2026-10-09T10:00:30Z"),
-              agentKind: "codex-cli",
-              reason: "timeout",
-            })
-          )
+        return yield* db.query(
+          "SELECT session_harness_hash AS stamp, session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_sessions"
         );
-        const contrary = yield* runAiMetricsForwarder(forwarderInput);
-        expect(contrary.hookCollectionComplete && contrary.stampGapCollectionComplete).toBe(true);
-        expect(
-          yield* db.query(
-            "SELECT session_harness_hash AS stamp, session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_sessions"
-          )
-        ).toEqual([{ stamp: null, completeness: "complete", qualification: "unqualified" }]);
+      });
+      const readLatestSourceVerdict = Effect.fnUntraced(function* () {
+        const db = yield* DuckDb;
+        return yield* db.query(
+          "SELECT session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_source_files ORDER BY ingest_run_id DESC LIMIT 1"
+        );
+      });
+      const verified = { stamp, completeness: "complete", qualification: "qualified" };
+      const assertStoredStampLifecycle = Effect.fnUntraced(function* (
+        forwarderInput: AiMetricsForwarderInput,
+        hookDir: string,
+        mixedShard: string
+      ) {
+        const ownShard = path.join(hookDir, "fixture.ndjson");
+        const unrelatedShard = path.join(hookDir, "unrelated.ndjson");
+        // (b) One undecodable line in an unrelated shard while this session has no evidence of
+        // its own in the run: the gates cannot evaluate it, so the stored stamp stays.
+        yield* fs.rename(ownShard, `${ownShard}.parked`);
+        yield* writeText(unrelatedShard, "not JSON\n");
+        expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+        expect(yield* readSessionVerdict()).toEqual([verified]);
+        expect(yield* readLatestSourceVerdict()).toEqual([{ completeness: "partial", qualification: "unknown" }]);
+        // (c) hook-events offline: also unevaluable, the stored stamp stays.
+        yield* fs.remove(unrelatedShard);
+        yield* fs.rename(`${ownShard}.parked`, ownShard);
+        yield* fs.rename(hookDir, `${hookDir}.offline`);
+        expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+        expect(yield* readSessionVerdict()).toEqual([verified]);
+        expect(yield* readLatestSourceVerdict()).toEqual([{ completeness: "partial", qualification: "unknown" }]);
+        // Restored, complete evidence re-qualifies the same stamp.
+        yield* fs.rename(`${hookDir}.offline`, hookDir);
+        yield* runAiMetricsForwarder(forwarderInput);
+        expect(yield* readSessionVerdict()).toEqual([verified]);
+        // (a) The same undecodable unrelated line, but this session's own shard now carries a
+        // second stamp: its own evidence disqualifies, so a partial run still clears the stamp.
+        yield* writeText(unrelatedShard, "not JSON\n");
+        yield* writeText(ownShard, mixedShard);
+        expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+        expect(yield* readSessionVerdict()).toEqual([
+          { stamp: null, completeness: "partial", qualification: "unqualified" },
+        ]);
       });
       let verdicts = HashSet.empty<string>();
       for (const scenario of ForwarderStampScenario.literals) {
@@ -954,7 +964,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             ? stamp
             : null;
           const db = yield* DuckDb;
-          verdicts = HashSet.add(verdicts, yield* assertScenarioVerdict(result, expected));
+          verdicts = HashSet.add(verdicts, yield* assertScenarioVerdict(scenario, result, expected));
           expect(yield* db.query("SELECT session_harness_hash AS stamp FROM ai_metrics_sessions")).toEqual([
             { stamp: expected },
           ]);
@@ -967,7 +977,17 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             expect(span.attributes["ai_metrics.session_harness_hash"]).toBe(expected ?? undefined);
             expect(span.attributes).not.toHaveProperty("ai_metrics.session_stamp_collection_complete");
           }
-          if (scenario === "qualified") yield* assertOfflineThenContrary(forwarderInput, hookRoot, hookDir);
+          if (scenario === "qualified")
+            yield* assertStoredStampLifecycle(
+              forwarderInput,
+              hookDir,
+              A.join(
+                yield* Effect.forEach([start, HookPulseV1.make({ ...start, harnessHash: O.some(otherStamp) })], (row) =>
+                  HookPulseV1.encodeJsonEffect(row)
+                ),
+                "\n"
+              )
+            );
         }).pipe(
           Effect.provideService(ConfigProvider.ConfigProvider, provider),
           provideScopedLayer(
@@ -977,11 +997,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           )
         );
       }
-      // Every completeness/qualification pairing occurs, so neither field determines the other.
+      // Partial collection reaches qualified, unqualified and unknown, and complete collection
+      // reaches qualified and unqualified, so neither field determines the other.
       expect(A.sort(A.fromIterable(verdicts), Order.String)).toEqual([
         "complete/qualified",
         "complete/unqualified",
         "partial/qualified",
+        "partial/unknown",
         "partial/unqualified",
       ]);
     })

@@ -856,10 +856,15 @@ export type AiMetricsSessionStampCompleteness = typeof AiMetricsSessionStampComp
  * **Details**
  *
  * `qualified` means a single fresh, identity-bound stamp passed every join and
- * gap gate. `unqualified` means the gates retained no stamp; it is never
- * evidence that a harness was unused. `unsupported` marks transcript sources
- * with no hook adapter. `unknown` is the decoding default for historical rows.
- * Qualification is derived from the join alone, never from completeness.
+ * gap gate. `unqualified` means the gates reached a negative verdict: this
+ * session's own evidence contradicts a stamp, or complete collection found none
+ * that qualifies. It is never evidence that a harness was unused. `unsupported`
+ * marks transcript sources with no hook adapter. `unknown` means the gates could
+ * not evaluate the session: collection was partial and the session's own
+ * evidence neither retained nor contradicted a stamp. It is also the decoding
+ * default for historical rows. Completeness never derives from qualification;
+ * qualification consults completeness only to decide whether an unresolved join
+ * is a verdict or `unknown`.
  *
  * **Example** (Read a qualification member)
  *
@@ -880,7 +885,7 @@ export const AiMetricsSessionStampQualification = LiteralKit([
 ]).pipe(
   $I.annoteSchema("AiMetricsSessionStampQualification", {
     description:
-      "Join qualification of a retained session harness stamp; unqualified never means unused and historical rows decode to unknown.",
+      "Join qualification of a retained session harness stamp; unqualified never means unused, and unknown marks unevaluable sessions and historical rows.",
   })
 );
 
@@ -927,32 +932,99 @@ export const aiMetricsSessionStampCompletenessFor: {
 );
 
 /**
- * Derive session stamp qualification from adapter support and the join result only.
+ * Outcome of joining one transcript against the hook and gap evidence of one run.
  *
- * **Example** (Classify a retained stamp)
+ * **Details**
+ *
+ * `retained` means a stamp passed every gate. `contradicted` means the
+ * session's own evidence already rules a stamp out in a way more evidence
+ * cannot undo: more than one stamp or an unstamped start, more than one session
+ * identity or a foreign identity, or a valid gap that starts inside the
+ * transcript's own span. `unresolved` means no stamp was retained without such a
+ * contradiction, for example because no hook evidence was found for the session
+ * or a gate depends on evidence that may be missing. `unsupported` marks
+ * transcript sources with no hook adapter.
+ *
+ * **Example** (Read a join outcome)
+ *
+ * ```ts
+ * import { AiMetricsSessionStampJoin } from "@beep/repo-ai-metrics"
+ *
+ * console.log(AiMetricsSessionStampJoin.Enum.contradicted)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AiMetricsSessionStampJoin = LiteralKit(["retained", "contradicted", "unresolved", "unsupported"]).pipe(
+  $I.annoteSchema("AiMetricsSessionStampJoin", {
+    description:
+      "Per-record outcome of joining a transcript with one run's hook and gap evidence, before collection completeness is applied.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsSessionStampJoin}.
+ *
+ * **Example** (Type a join outcome)
+ *
+ * ```ts
+ * import type { AiMetricsSessionStampJoin } from "@beep/repo-ai-metrics"
+ *
+ * const join: AiMetricsSessionStampJoin = "unresolved"
+ * console.log(join)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsSessionStampJoin = typeof AiMetricsSessionStampJoin.Type;
+
+/**
+ * Derive session stamp qualification from one record's join outcome and the run's completeness.
+ *
+ * **Details**
+ *
+ * A retained, contradicted or unsupported join maps directly to `qualified`,
+ * `unqualified` or `unsupported`, whatever the completeness. Only an unresolved
+ * join consults completeness: complete collection makes it `unqualified`, any
+ * other completeness makes it `unknown`, because the missing evidence might have
+ * held the stamp.
+ *
+ * **Example** (Classify an unresolved join under partial collection)
  *
  * ```ts
  * import { aiMetricsSessionStampQualificationFor } from "@beep/repo-ai-metrics"
- * import * as O from "effect/Option"
  *
- * console.log(aiMetricsSessionStampQualificationFor(true, O.some("stamp"))) // "qualified"
+ * console.log(aiMetricsSessionStampQualificationFor("unresolved", "partial")) // "unknown"
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
 export const aiMetricsSessionStampQualificationFor: {
-  (supported: boolean, sessionHarnessHash: O.Option<string>): AiMetricsSessionStampQualification;
-  (sessionHarnessHash: O.Option<string>): (supported: boolean) => AiMetricsSessionStampQualification;
+  (
+    join: AiMetricsSessionStampJoin,
+    completeness: AiMetricsSessionStampCompleteness
+  ): AiMetricsSessionStampQualification;
+  (
+    completeness: AiMetricsSessionStampCompleteness
+  ): (join: AiMetricsSessionStampJoin) => AiMetricsSessionStampQualification;
 } = dual(
   2,
-  (supported: boolean, sessionHarnessHash: O.Option<string>): AiMetricsSessionStampQualification =>
-    supported
-      ? O.match(sessionHarnessHash, {
-          onNone: () => AiMetricsSessionStampQualification.Enum.unqualified,
-          onSome: () => AiMetricsSessionStampQualification.Enum.qualified,
-        })
-      : AiMetricsSessionStampQualification.Enum.unsupported
+  (
+    join: AiMetricsSessionStampJoin,
+    completeness: AiMetricsSessionStampCompleteness
+  ): AiMetricsSessionStampQualification =>
+    AiMetricsSessionStampJoin.$match(join, {
+      retained: () => AiMetricsSessionStampQualification.Enum.qualified,
+      contradicted: () => AiMetricsSessionStampQualification.Enum.unqualified,
+      unsupported: () => AiMetricsSessionStampQualification.Enum.unsupported,
+      unresolved: () =>
+        completeness === AiMetricsSessionStampCompleteness.Enum.complete
+          ? AiMetricsSessionStampQualification.Enum.unqualified
+          : AiMetricsSessionStampQualification.Enum.unknown,
+    })
 );
 
 /**
@@ -1527,13 +1599,14 @@ const sessionReplacedColumnsSql = A.join(
 );
 
 // Session rows are content-addressed and rewritten by every run, so the stamp verdict is
-// resolved here rather than replaced. A run whose collection was not complete and that
-// retained no stamp cannot contradict a stored one: the stored hash, completeness,
-// qualification and legacy marker stay together. Any complete run, and any run that
-// retains its own stamp, writes its own verdict, so complete contrary evidence clears a
-// stored stamp. Preservation keys on collection completeness, never on qualification.
-const preserveStoredSessionStampSql = `EXCLUDED.session_stamp_completeness <> 'complete'
-        AND EXCLUDED.session_harness_hash IS NULL
+// resolved here rather than replaced. Only a run whose own verdict is `unknown` (partial
+// collection, and this session's evidence neither retained nor contradicted a stamp)
+// leaves a stored stamp in place: the stored hash, completeness, qualification and legacy
+// marker stay together. Any run that reaches a verdict writes it, so complete collection
+// that finds no stamp, or this session's own contradicting evidence under any
+// completeness, clears a stored stamp. A partial run is never enough to keep a stamp its
+// own evidence disqualifies.
+const preserveStoredSessionStampSql = `EXCLUDED.session_stamp_qualification = 'unknown'
         AND ai_metrics_sessions.session_harness_hash IS NOT NULL`;
 
 const sessionStampVerdictColumnsSql = A.join(

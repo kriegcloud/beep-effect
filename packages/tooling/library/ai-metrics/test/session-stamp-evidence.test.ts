@@ -6,6 +6,7 @@ import {
   AiMetricsParquetExportMode,
   AiMetricsRawArchiveObject,
   AiMetricsSessionStampCompleteness,
+  AiMetricsSessionStampJoin,
   AiMetricsSessionStampQualification,
   AiMetricsStorageLayout,
   AiMetricsTranscriptSource,
@@ -25,9 +26,11 @@ import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { expect } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 
@@ -163,22 +166,48 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, Path.layer), { timeout: "30 seco
   "@beep/repo-ai-metrics session stamp evidence",
   (it) => {
     it.effect.prop(
-      "derives completeness from collection only and qualification from the join only",
-      [S.Boolean, S.Boolean, S.Boolean, S.Option(HarnessHash)],
-      ([hookComplete, gapComplete, supported, hash]) =>
+      "derives completeness from collection only and qualification from the record's own join",
+      [S.Boolean, S.Boolean, AiMetricsSessionStampJoin],
+      ([hookComplete, gapComplete, join]) =>
         Effect.sync(() => {
           const completeness = aiMetricsSessionStampCompletenessFor(hookComplete, gapComplete);
-          const qualification = aiMetricsSessionStampQualificationFor(supported, hash);
+          const qualification = aiMetricsSessionStampQualificationFor(join, completeness);
           const expectedCompleteness = hookComplete && gapComplete ? "complete" : "partial";
-          const joined = O.isSome(hash) ? "qualified" : "unqualified";
-          const expectedQualification = supported ? joined : "unsupported";
+          const unresolved = completeness === "complete" ? "unqualified" : "unknown";
+          const expectedQualification = AiMetricsSessionStampJoin.$match(join, {
+            retained: () => "qualified",
+            contradicted: () => "unqualified",
+            unsupported: () => "unsupported",
+            unresolved: () => unresolved,
+          });
           expect(completeness).toBe(expectedCompleteness);
           expect(qualification).toBe(expectedQualification);
-          // Neither derivation ever yields the historical default.
+          // A collection derivation never yields the historical default.
           expect(completeness).not.toBe("unknown");
-          expect(qualification).not.toBe("unknown");
         }),
       { arbitrary: fcRuns(32) }
+    );
+
+    it.effect(
+      "keeps qualification and completeness mutually underdetermined",
+      Effect.fnUntraced(function* () {
+        const reachable = (completeness: AiMetricsSessionStampCompleteness) =>
+          A.dedupe(A.map(AiMetricsSessionStampJoin.literals, aiMetricsSessionStampQualificationFor(completeness)));
+        // Each completeness admits several qualifications, so completeness does not fix qualification.
+        expect(A.sort(reachable("complete"), Order.String)).toEqual(["qualified", "unqualified", "unsupported"]);
+        expect(A.sort(reachable("partial"), Order.String)).toEqual([
+          "qualified",
+          "unknown",
+          "unqualified",
+          "unsupported",
+        ]);
+        // Every verdict is reachable under both completeness values, so qualification does not
+        // fix completeness; only an unresolved join consults completeness at all.
+        for (const join of ["retained", "contradicted", "unsupported"] as const)
+          expect(aiMetricsSessionStampQualificationFor(join, "complete")).toBe(
+            aiMetricsSessionStampQualificationFor(join, "partial")
+          );
+      })
     );
 
     it.effect.prop(
@@ -211,23 +240,20 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, Path.layer), { timeout: "30 seco
     );
 
     it.effect(
-      "preserves a stored stamp only for incomplete collection and lets complete contrary evidence clear it",
+      "keeps a stored stamp only for an unknown verdict and lets any reached verdict replace it",
       Effect.fnUntraced(function* () {
         yield* Effect.gen(function* () {
+          const verified = { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true };
           // Complete stamped.
           yield* writeVerdict("run-1", { completeness: "complete", hash: O.some(stampX), qualification: "qualified" });
-          expect(yield* readSession()).toEqual([
-            { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true },
-          ]);
+          expect(yield* readSession()).toEqual([verified]);
 
-          // Incomplete collection that retained no stamp cannot contradict the stored verdict.
-          yield* writeVerdict("run-2", { completeness: "partial", hash: O.none(), qualification: "unqualified" });
-          expect(yield* readSession()).toEqual([
-            { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true },
-          ]);
+          // Partial collection the gates could not evaluate keeps the stored verdict.
+          yield* writeVerdict("run-2", { completeness: "partial", hash: O.none(), qualification: "unknown" });
+          expect(yield* readSession()).toEqual([verified]);
           // The run-scoped source-file row records what run 2 itself observed.
           expect(yield* readSourceFile("run-2")).toEqual([
-            { hash: null, completeness: "partial", qualification: "unqualified" },
+            { hash: null, completeness: "partial", qualification: "unknown" },
           ]);
           const preserved = yield* readAiMetricsOtlpSpanProjections;
           expect(preserved.projections.length).toBeGreaterThan(0);
@@ -237,30 +263,35 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, Path.layer), { timeout: "30 seco
             expect(span.attributes["ai_metrics.session_stamp_qualification"]).toBe("qualified");
           }
 
-          // Partial stamped: a stamp retained from decodable evidence replaces the stored one.
-          yield* writeVerdict("run-3", { completeness: "partial", hash: O.some(stampY), qualification: "qualified" });
-          expect(yield* readSession()).toEqual([
-            { hash: stampY, completeness: "partial", qualification: "qualified", legacy: false },
-          ]);
-
-          // Complete unstamped: complete contrary evidence clears the stored stamp.
-          yield* writeVerdict("run-4", { completeness: "complete", hash: O.none(), qualification: "unqualified" });
-          expect(yield* readSession()).toEqual([
-            { hash: null, completeness: "complete", qualification: "unqualified", legacy: false },
-          ]);
-
-          // With nothing stored, an incomplete unstamped run records its own verdict, not non-use.
-          yield* writeVerdict("run-5", { completeness: "partial", hash: O.none(), qualification: "unqualified" });
+          // Partial collection whose own evidence disqualifies the session still clears it.
+          yield* writeVerdict("run-3", { completeness: "partial", hash: O.none(), qualification: "unqualified" });
           expect(yield* readSession()).toEqual([
             { hash: null, completeness: "partial", qualification: "unqualified", legacy: false },
           ]);
 
-          // Historical-default records (unknown completeness) also never clear a stored stamp.
-          yield* writeVerdict("run-6", { completeness: "complete", hash: O.some(stampX), qualification: "qualified" });
-          yield* writeVerdict("run-7", { completeness: "unknown", hash: O.none(), qualification: "unknown" });
+          // Partial stamped: a stamp retained from decodable evidence replaces the stored one.
+          yield* writeVerdict("run-4", { completeness: "complete", hash: O.some(stampX), qualification: "qualified" });
+          yield* writeVerdict("run-5", { completeness: "partial", hash: O.some(stampY), qualification: "qualified" });
           expect(yield* readSession()).toEqual([
-            { hash: stampX, completeness: "complete", qualification: "qualified", legacy: true },
+            { hash: stampY, completeness: "partial", qualification: "qualified", legacy: false },
           ]);
+
+          // Complete unstamped: complete collection that finds no stamp clears the stored one.
+          yield* writeVerdict("run-6", { completeness: "complete", hash: O.none(), qualification: "unqualified" });
+          expect(yield* readSession()).toEqual([
+            { hash: null, completeness: "complete", qualification: "unqualified", legacy: false },
+          ]);
+
+          // With nothing stored, an unknown verdict is recorded as unknown, never as non-use.
+          yield* writeVerdict("run-7", { completeness: "partial", hash: O.none(), qualification: "unknown" });
+          expect(yield* readSession()).toEqual([
+            { hash: null, completeness: "partial", qualification: "unknown", legacy: false },
+          ]);
+
+          // Historical-default records (unknown/unknown) also never clear a stored stamp.
+          yield* writeVerdict("run-8", { completeness: "complete", hash: O.some(stampX), qualification: "qualified" });
+          yield* writeVerdict("run-9", { completeness: "unknown", hash: O.none(), qualification: "unknown" });
+          expect(yield* readSession()).toEqual([verified]);
         }).pipe(provideScopedLayer(memoryDuckDb));
       })
     );
