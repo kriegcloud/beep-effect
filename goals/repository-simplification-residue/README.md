@@ -44,6 +44,10 @@ separate fields, historical rows stay `unknown`, and a run that cannot evaluate 
 session keeps a verified stamp, while the session's own contradicting evidence
 still clears it
 ([record](./history/receipts/telemetry-completeness.md)).
+#1874 is complete: the base incremental state lives inside `outDir`. A dist-only
+clean therefore also clears it, and cold, warm and changed-input builds all restore
+the complete public output manifest
+([record](./history/receipts/build-restore.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.
