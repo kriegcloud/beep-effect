@@ -280,7 +280,7 @@ const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, { exitCode
 const scriptedSpawner = (
   script: GhScript,
   calls: Ref.Ref<ReadonlyArray<string>>,
-  real: ChildProcessSpawner.ChildProcessSpawner
+  real: ChildProcessSpawner.ChildProcessSpawner["Service"]
 ) =>
   ChildProcessSpawner.make((command) => {
     if (!ChildProcess.isStandardCommand(command)) return Effect.die("the squash reader never spawns a piped command");
@@ -301,22 +301,21 @@ const scriptedSpawner = (
 // The Node spawner only asks the filesystem whether `cwd` exists (`fs.access`), so the
 // in-memory filesystem stands in once the repo root is created there; the spawned
 // commitlint itself is real, against the repo's own config.
-const withScripted = <A, E, R>(
+const withScripted = Effect.fn("withScripted")(function* <A, E, R>(
   script: GhScript,
   use: (calls: Ref.Ref<ReadonlyArray<string>>, context: RepoRunContext) => Effect.Effect<A, E, R>
-) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const fs = yield* FileSystem.FileSystem;
-    // test/ -> cli -> tool -> tooling -> packages -> repo root, wherever vitest was started.
-    const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
-    yield* fs.makeDirectory(repoRoot, { recursive: true });
-    const real = yield* ChildProcessSpawner.ChildProcessSpawner;
-    const calls = yield* Ref.make<ReadonlyArray<string>>(A.empty());
-    return yield* use(calls, contextAt(repoRoot)).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, scriptedSpawner(script, calls, real))
-    );
-  });
+) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  // test/ -> cli -> tool -> tooling -> packages -> repo root, wherever vitest was started.
+  const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+  yield* fs.makeDirectory(repoRoot, { recursive: true });
+  const real = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const calls = yield* Ref.make<ReadonlyArray<string>>(A.empty());
+  return yield* use(calls, contextAt(repoRoot)).pipe(
+    Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, scriptedSpawner(script, calls, real))
+  );
+});
 
 const fileSystem = Layer.merge(MemoryFileSystem.layer, Path.layer);
 const platform = Layer.mergeAll(
