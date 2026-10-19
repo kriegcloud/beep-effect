@@ -1,6 +1,6 @@
 {
   "schemaVersion": "knowledge-doctor-baseline/v1",
-  "mintedAt": "379573e3ebd6e23f98a8615d4dc84b9ed1abb0e3",
+  "mintedAt": "3778297d150b6087d91a552724ad7ee4e02d7222",
   "note": "Sealed knowledge-doctor baseline. Only the CI mint writes it, and a re-mint at mintedAt reproduces it byte for byte. A branch may only delete entries; any other edit is baseline-tamper.",
   "entries": [
     {
@@ -433,33 +433,11 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:0e9edd426e88b75d3360bdfe7b99a90d2766d26025edf39edf6fc7c70170969e",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/schema-first-development/references/examples.md",
-      "subject": "repo-path:packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:0ed366eccb24ea15b80743e638685bb70503e1e5d3d1884be9a1cecf86255d99",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
       "document": "explorations/agent-governance-control-plane/CAPTURE.md",
       "subject": "repo-path:goals/agent-governance-control-plane/design",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:0f65e2514292b8c7aeac075265da1b730f9e96cd6d4b1393a19823b15b5fc488",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/05-context-graph-capability-assessment.md",
-      "subject": "repo-path:packages/flow/src/storage/triples/falkordb.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -482,17 +460,6 @@
       "kind": "unknown-beep-symbol",
       "document": "explorations/_gold-intake/ROUTING-SEED.md",
       "subject": "beep-package:@beep/courtlistener",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:0fe633aa57deaaeb367fd643f89787c9862c795c1853bff66e5e2091edbd8e59",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "docs/product/prose-to-proof.md",
-      "subject": "repo-path:docs/runtime-data-loop.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -565,17 +532,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:1277615f1b2137f389e056825c73976c93a95b7ab4a5914e5f3700f470c48358",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/schema-first-development/references/local-primitives.md",
-      "subject": "repo-path:packages/common/schema/src",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:12ac18a1be5bd4ea1f56a81195ce7b675fafae5481e0617ad4784db0d0e7bbff",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -592,17 +548,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/dedup-clone-engine/SPEC.md",
       "subject": "repo-path:standards/clone.inventory.jsonc",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:1352e48a2421f066a6954387940d3647a24e79398c1918f8f1addcab458b1cc6",
-      "group": "deleted-target-rot",
-      "kind": "unknown-beep-symbol",
-      "document": "docs/README.md",
-      "subject": "beep-package:@beep/docs",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -647,17 +592,6 @@
       "kind": "broken-tracked-path",
       "document": "explorations/gov-legal-data-driver-codegen/DECISIONS.md",
       "subject": "repo-path:packages/drivers/_shared",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:153d030f451ffa54c8d27bd7cdb119aec18a3f9158f443a5fc37bcd047cdc8a3",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/10-cross-slice-coordination.md",
-      "subject": "beep-package:@beep/billing-server",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -823,17 +757,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/oppold-corpus-pipeline/README.md",
       "subject": "repo-path:goals/ip-law-knowledge-graph",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:19b5dec9c19d93e50f8c34c09d9db88dfde5e01d1919348e28728846b6e7671d",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/atom-reactivity-specialist/references/service-pattern.md",
-      "subject": "repo-path:packages/iam/client/src/core/atoms.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -1082,17 +1005,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:208c303e4522a3acffcdeffb55c461e13ac966436b16ed46e70524025bf97a81",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "repo-path:packages/iam/use-cases/src/Membership/Membership.ports.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:20b65dcae1a50898cc42f2bc08394cb88b4b8487e5fbfffaede1749e830d5fbb",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -1258,17 +1170,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:271e8794164044ec0b746eea6978b20266a5e159d1203185e2b2e6c2872a0a6a",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "goals/effect-vitest-canon/ops/inventory/digests/beep_repo-configs.md",
-      "subject": "repo-path:packages/tooling/policy-pack/repo-configs/test/docs-eslint-config.test.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:27ec6d6a4723e961bb5429160f7567ab4c07de67415fb026c05f566ea0a9c744",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -1368,17 +1269,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:2b00c670ab039cbe9ded7208b70d23c51bfce86f037007f4591459b40fa05e10",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_VISION.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph/SPEC.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:2b0e8e6eb23eafe7e2c07a38d9d21c550d5f5502a060b585e4a37c8b14ce7344",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -1428,17 +1318,6 @@
       "kind": "unknown-beep-symbol",
       "document": "goals/repo-crispening-orchestration/PLAN.md",
       "subject": "beep-package:@beep/lexical",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:2f016b9e8bea806ac34fc5f11feb8f373052d8204c92e6a60f0471655a3ebeb1",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "beep-package:@beep/notes-use-cases",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -1599,17 +1478,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:32a4df3842292fe8f4ac53b6639ffd9e12be77f37070e0954ceacc3bcd679773",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "beep-package:@beep/tasks-use-cases",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:32d6114e456a21844b041db4a6078acb79a40d02e9a14c05cffaa77f5e772015",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -1637,17 +1505,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/effect-v4-workflow-engine-spike/SPEC.md",
       "subject": "repo-path:packages/drivers/workflow",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:338b655cbc16c16e6f0be691b8eb231f51b6124fdf73e59b0d94965a81e9689f",
-      "group": "prohibition-of-retired-surface",
-      "kind": "broken-tracked-path",
-      "document": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "subject": "repo-path:goals/ontology-modeling-foundation/SPEC.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -1731,17 +1588,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:36d9b066a6c105cefe5f89ed03459fc9bc7dbd6310953fccad9499457c9f8eca",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/10-cross-slice-coordination.md",
-      "subject": "beep-package:@beep/billing-use-cases",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:371319e55c7b87f6a36014b1322756725f0dee92800e31ee30bb86e4eb293e40",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -1813,17 +1659,6 @@
       "kind": "unknown-beep-symbol",
       "document": "goals/beep-schema-topology/README.md",
       "subject": "beep-subpath:@beep/schema/Dom",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:3959f509bfcc8aeb618ad66eb0b2858f75b889b4848dc3db3705a4b3b2c082e1",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/10-cross-slice-coordination.md",
-      "subject": "beep-package:@beep/billing-use-cases",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -2083,17 +1918,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:3ffe0ef418508b8ee7f96d79f93f10b7d4b237a786f4140a4358ac1d28a33c4a",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "beep-package:@beep/tasks-use-cases",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:40ca1856ff219de53404c40d058c5e9188d60a7eeb0d7c0eaaafca928be04b34",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -2187,17 +2011,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/effect-v4-workflow-engine-spike/SPEC.md",
       "subject": "repo-path:packages/drivers/workflow",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:42d7abb50122033a473ccdb8ca92e6c4fd4bb6343c29d29ab05d3c4f4d46e533",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "repo-path:packages/iam/server/src/Membership/Membership.http-handlers.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -2589,17 +2402,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:494f9bb72b5a90cd2c1fec5f4b3f74cbfde9be4a9d6ae90b064f826e7326d09e",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-command",
-      "document": "standards/memory-architecture/02-thread-triage.md",
-      "subject": "beep-command:graphiti",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:49b31ef026921d194d16f324a4ba23ff6970a84728c9c4885b865a5b71555410",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -2616,17 +2418,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/hybrid-retrieval-fusion-core/SPEC.md",
       "subject": "repo-path:goals/beep-effect4/packages/knowledge/server/src/GraphRAG/RrfScorer.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:49cf67eed89ce984aa6be6d69dc689f63d647618f3daebbd0597c7a761b3f535",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "docs/product/prose-to-proof.md",
-      "subject": "repo-path:docs/approval-and-autonomy-policy.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -2715,17 +2506,6 @@
       "kind": "unknown-beep-symbol",
       "document": "explorations/mcp-auth-gated-registration/RESEARCH.md",
       "subject": "beep-package:@beep/epo",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:4d15d4826a6ca499493cf49b199c0a7065ebc0c7fe2de00f48ea9d379ebdaf85",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/runbooks/ci-hosted-settings.md",
-      "subject": "repo-path:standards/schema-catalog.generated.jsonc",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -2831,33 +2611,11 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:4fd0d2523c0ec6c9b91657b2715e936dff840aa244a5b17a1ba25fd631647593",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "subject": "repo-path:goals/trustgraph-port",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:5004b59a27c0c2ebdf9f8e9dc5de7f521d2c068d85a4be0b879f667547416236",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
       "document": "explorations/legal-ontology-landscape/DECISIONS.md",
       "subject": "repo-path:explorations/legal-ontology-landscape/assets/vendor",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:50c06312012c54b421560af3bc47ccc8ede94cdd64cd4ba91beab4930d74c9aa",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph/SPEC.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -3084,17 +2842,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:55ed9e7669ec7ba1e83343e2020e9064587c5c521170e1b6b8c9bbee50bc6843",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/05-layer-composition.md",
-      "subject": "repo-path:apps/web",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:560cfd4efe5eecd3dc97e77de0a9f03fc1883c042735826f05fc160cf47c440a",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -3199,17 +2946,6 @@
       "kind": "broken-tracked-path",
       "document": "explorations/effect-jsdoc-quality/CAPTURE.md",
       "subject": "repo-path:packages/common",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:5888050c76f104326f249afe4a34973e14c2a97fcdbabfcce380e94624fcd1a3",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/05-context-graph-capability-assessment.md",
-      "subject": "repo-path:packages/flow/src/extract/knowledge-extract.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -3425,17 +3161,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:5da32f28b0d5ab8595668508a621ce603b176d7290186208a072fe089d5f723a",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/trustgraph-clone.md",
-      "subject": "repo-path:goals/trustgraph-port/README.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:5de6216c8358c560a78cf4e28367b0047642b47067ece008848074973ac1d7e1",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -3540,39 +3265,6 @@
       "kind": "unknown-beep-symbol",
       "document": "explorations/court-vocabulary-resolver/CAPTURE.md",
       "subject": "beep-package:@beep/law-practice",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:610358513e2c004d4da5ed84f085c9d40d4447172a6872d8959363732d964bef",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph/research/ontology-grounding-corpus.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:61b189b2f68c37f41292ce5fb45b2df96b012c044044847464280da06a1a6f60",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "beep-package:@beep/notes-server",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:62c1e7dbd7dd95ed35dd2c47f3ab3ae6f79756e81299eea24b20b500aa00d3c7",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/04-decision-log.md",
-      "subject": "repo-path:apps/clawhole",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -4173,17 +3865,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:717f801c4e7552bf954adf89c1f2f7401e01ec5f3885700674f31718ffbf70cd",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph/SPEC.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:71c94edcc8d20156f3856a976c1dc5721fbbdde25436039a04a403c9c884d456",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -4327,17 +4008,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:750d0a16fdb8c080305a114bbf764343f9d0aca48a891b84c1e0facbcfa034df",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:75169d1be1a200d49d06f45a5af61fe287cc7ca4e0032628e7052785cc440127",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -4409,17 +4079,6 @@
       "kind": "unknown-beep-symbol",
       "document": "explorations/citation-grounding-hallucination-guard/RESEARCH.md",
       "subject": "beep-package:@beep/courtlistener",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:77018620ce54047ccceb2190631e58c3d6f9700be928608ec33f469e969c9091",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/04-decision-log.md",
-      "subject": "repo-path:packages/ai",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -4690,17 +4349,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:819fc5e987f834bc82c05828443d7833293c88598bdd1cefc1e8e294919b776f",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph/SPEC.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:81bed507a5b36b6de8fe40295fa521084800dd05053945a3752fe96a920cfd30",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -4811,17 +4459,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:83a759df312b411b3ae6df513972d2861a5cc3385e1749581ac324e732ede78d",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/grill-with-docs/ADR-FORMAT.md",
-      "subject": "repo-path:docs/adr",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:83d937b7d9c387abc4e7ba653978e014da0e55d439a57db7f53c893d13d72b81",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -4893,17 +4530,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/mcp-stateless-kit-and-drivers/SPEC.md",
       "subject": "repo-path:goals/mcp-stateless-kit-and-drivers/client",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:855ea87f52b565ef26b5b7cac9c75ae6405fb46e138de700a7baf4f3a85fceca",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/00-recommendation.md",
-      "subject": "repo-path:goals/trustgraph-port",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -5086,17 +4712,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:8c354928962dd02c4902a0c47f8174cb18d1064079170780bf70bcb776a17f04",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "subject": "repo-path:packages/repo-memory",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:8cdf77e8dee558f4549404648d4da3e055f240b1599e4e716b779e8d81fa7a6f",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -5113,17 +4728,6 @@
       "kind": "broken-tracked-path",
       "document": "explorations/effect-jsdoc-quality/CAPTURE.md",
       "subject": "repo-path:.agents/skills/jsdoc-annotation-specialist",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:8cffd0076c8ed25cf0b44cc5683ef45ae064e2c774cf0dc81f53be75fb010c73",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/05-context-graph-capability-assessment.md",
-      "subject": "repo-path:packages/base/src/processor/flow-processor.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -5157,17 +4761,6 @@
       "kind": "broken-tracked-path",
       "document": "explorations/agent-memory-tiers-bitemporal-edges/RESEARCH.md",
       "subject": "repo-path:goals/trustgraph-port",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:8da0bdb54bef1735a80942cb7589b794e7ca0759dfc0c4a894c5a6f586f34dc4",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/04-decision-log.md",
-      "subject": "repo-path:explorations/effect-capability-kg",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -5482,17 +5075,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:96ed75d346900a0bad39d3f0a4701b8ed21d478b562f2401314bfd1835c25d33",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/grill-with-docs/SKILL.md",
-      "subject": "repo-path:packages/fixture-lab/specimen",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:96fd4426ce4d9950da80bc33f76c4dd100de3df282f9c034ae59b09954368c39",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -5608,28 +5190,6 @@
       "kind": "unknown-beep-symbol",
       "document": "goals/canvas/PLAN.md",
       "subject": "beep-package:@beep/canvas-server",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:9948714f92b7375cac2364c696164d06a5a7ba8e8062ebb6994e63d01f927503",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/00-recommendation.md",
-      "subject": "repo-path:goals/trustgraph-port",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:996604e2a3790c235422311e05bd778a632d66746768f295c1a5a66211558f82",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/10-cross-slice-coordination.md",
-      "subject": "repo-path:packages/iam/server/src/Membership/Membership.processes.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -5823,17 +5383,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:9f1f37798841782bc383778004ef92959aede7c784b4a3cee90a17fccd440050",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:9f26cea0a1c68d4ad7b21b3fe3f40b8e3050f329f03eb08d17214f7b0947f86a",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -5971,17 +5520,6 @@
       "kind": "unknown-beep-symbol",
       "document": "explorations/multi-provider-llm-dispatch-fallback/DECISIONS.md",
       "subject": "beep-package:@beep/llm-dispatch",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:a2c01577f1e2e859f89612d758094baf16b560b2316c2022f733b5f249ec7570",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "docs/product/prose-to-proof.md",
-      "subject": "repo-path:docs/runtime-data-loop.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -6340,17 +5878,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:aced4e00ed8790826d8110fd1cca6f2d826cf4fdbf9241a13bf176ecaa8bb43e",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/schema-first-development/references/repo-laws.md",
-      "subject": "repo-path:packages/ai/sdk/test/conventions-guard.test.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:ad0e76898f7dff7ca20410ecbbd17a9ebd3ca05e9454e7e6818b028081351865",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -6670,17 +6197,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:b62be6865794a805f72f28ce7d7004dfa0556746764d357283430d30baa489b4",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "subject": "repo-path:goals/trustgraph-port",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:b69ea65f8f46ea88a075470d176f2c4c5257e5c11559ca914ceb1a64402a3304",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -6791,17 +6307,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:b7f33a4f5c5532397ae0a6f3523c477514b0825c4ff477b013cad30d44483227",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/schema-first-development/references/examples.md",
-      "subject": "repo-path:packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:b86f690d5813db5ef10db9a4868d4ffed7f435c925bb1508f597c31cff774507",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -6884,17 +6389,6 @@
       "kind": "unknown-beep-symbol",
       "document": "goals/beep-schema-topology/README.md",
       "subject": "beep-subpath:@beep/schema/Location",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:bb6605a29771b632eb5b45f9183057e7419e74c18c30b1e9302f4fe739b28d0d",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/00-recommendation.md",
-      "subject": "repo-path:goals/trustgraph-port",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -7198,17 +6692,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:c2ce87018364c60bded15ed8b4f3ab5a71f985f7692259f20b9746421cfe08be",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/trustgraph-clone.md",
-      "subject": "repo-path:goals/trustgraph-port",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:c30e092784f6beb1db3839fec06a7fcf43c15e353088be5b1dda38745f3a942d",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -7368,17 +6851,6 @@
       "kind": "unknown-beep-symbol",
       "document": "explorations/_gold-intake/GOLD_SYNTHESIS.md",
       "subject": "beep-package:@beep/courtlistener",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:c92f5b1a6562801ba5bbf41a04aca45d04c7c3d19fd41e9316752ff624607098",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/00-recommendation.md",
-      "subject": "repo-path:standards/memory-architecture/01",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -7616,17 +7088,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:d35c536282c23f410347903fe97feccd2d2c732d0780cb61f6292aa30934026f",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "repo-path:standards/architecture/layer",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:d36a7f1620c04547f392477c7760e55d8e4322e185c8c429aa890fe7401855bf",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -7726,17 +7187,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:d71c6afd5b78fd0ef98f66a6bd1971c9adb253a81628fb46921b0a04a628b0c9",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/13-onboarding-the-minimum-viable-slice.md",
-      "subject": "repo-path:packages/notes",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:d7654ae2c1670de44cbba842d6009000fff62613d0744d209e4898868e6124e8",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -7819,17 +7269,6 @@
       "kind": "broken-tracked-path",
       "document": "explorations/rag-retrieval-projection/CAPTURE.md",
       "subject": "repo-path:goals/trustgraph-port",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:da125cd3e6baa07606405caa09970f04fb2c8f7618f52d2879139efb31776f8f",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/atom-reactivity-specialist/SKILL.md",
-      "subject": "repo-path:packages/iam/client/src/core/atoms.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -8111,17 +7550,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:e022483d5dc0ab9c70bf0d331deb51aef119dc8140e3835349dd2ddfff1b0690",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/memory-architecture/05-context-graph-capability-assessment.md",
-      "subject": "repo-path:packages/flow/src/retrieval/graph-rag.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:e034ffd1003e2b97c98d2121523860741f7886c28c0fc76bb2b5a184db8e8bd1",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -8149,17 +7577,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/repository-simplification-confidence/SPEC.md",
       "subject": "repo-path:scripts/enable-turbo-remote-reads.sh",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:e110a70b3839f52e652b0f1f38ac80cdb6582aa9af710d9f83b6f414b72b7c45",
-      "group": "unresolved-reference",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/08-testing.md",
-      "subject": "repo-path:apps/web/src/runtime/Layer.ts",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -8320,17 +7737,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:e656c6bc77ca1aa8c118b9504f18f9cd643122c6923c9c5925685fd1e0c9d2ee",
-      "group": "deleted-target-rot",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/08-testing.md",
-      "subject": "beep-package:@beep/iam-domain",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:e6cc6630fc752229306e344d4f3f8a19f1b9f646db5df1ba5096435ac3c7836e",
       "group": "deleted-target-rot",
       "kind": "unknown-beep-symbol",
@@ -8397,17 +7803,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:e8f5e900c56fb61854af73e08126445d465a9d6dfb82dba4f86548589c093f0a",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/trustgraph-clone.md",
-      "subject": "repo-path:goals/trustgraph-port/research/capability-map.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:e95059a76335aa6522b045996c7f23e2e2536ed19daeec17d15bba045210679b",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -8468,17 +7863,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/llm-provider-subscription-auth/SPEC.md",
       "subject": "repo-path:apps/web/src/components/settings/AddProviderInstanceDialog.tsx",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:ec46c4b718bcbb9e6cdc0cdcd52171eb265224afb93f0e6d524895bc783a098c",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/trustgraph-clone.md",
-      "subject": "repo-path:goals/trustgraph-port/PLAN.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -8584,33 +7968,11 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:efa3a89807c4ae819eba3f30e85482557a1f603176bf9aa37d5c89fd1c2b5301",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/quality-review-fix-loop/SKILL.md",
-      "subject": "repo-path:packages/fixture-lab/specimen",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:f02767e148ecf4ca94bad79c0053fdb2c26ab145713fdf4c56d35ff46a5daf5f",
       "group": "prohibition-of-retired-surface",
       "kind": "broken-tracked-path",
       "document": "explorations/_gold-intake/HANDOFF.md",
       "subject": "repo-path:scripts/generate.ts",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:f0da33830161daf3f4260f00ec315b3b20b6d37d595b7d49238ac1cf6f05c1cd",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "standards/architecture/08-testing.md",
-      "subject": "repo-path:apps/web",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -8683,17 +8045,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:f2774ff022ab71c1f892474ae08c2d144a2d2417a8daf0ebc1bfd1c535c9adba",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": ".claude/skills/grill-with-docs/SKILL.md",
-      "subject": "repo-path:packages/fixture-lab/specimen",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:f36edb9032291c80bdc4f7a7af3b05c9fd5ae9cb6359b8fc3c4f5134485b2ab3",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -8721,17 +8072,6 @@
       "kind": "broken-tracked-path",
       "document": "goals/epistemic-claim-lifecycle-gate/SPEC.md",
       "subject": "repo-path:goals/ip-law-knowledge-graph",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:f42b04a59d4895ef2df38123404749059e2fbae209058745de6c96bca7d169b3",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "subject": "repo-path:goals/ip-law-knowledge-graph/SPEC.md",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
@@ -8892,17 +8232,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:f74fbf2a6a4698fa7b7d6167ffe60616a7813f4d87759dc9eb2b59fa5954c282",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/agent-memory-infra/trustgraph-clone.md",
-      "subject": "repo-path:goals/trustgraph-port/SPEC.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:f836469bf85cfeb057b9644b894f3dee7113b957b073519b8e4ad16a615f159a",
       "group": "deleted-target-rot",
       "kind": "broken-tracked-path",
@@ -8936,17 +8265,6 @@
       ]
     },
     {
-      "key": "knowledge-doctor/v1:fa155d915341665f1ed0f52dd2e0834bdc37ca6c5871d98f73a824ddf9f7c619",
-      "group": "deleted-target-rot",
-      "kind": "broken-tracked-path",
-      "document": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "subject": "repo-path:goals/knowledge-workspace/00-event-sourced-graph.md",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
       "key": "knowledge-doctor/v1:fa991920704cd6f8d3d50e53ceb89d4df0f23b424955d159f1a0922bcc6f59b9",
       "group": "unresolved-reference",
       "kind": "broken-tracked-path",
@@ -8963,17 +8281,6 @@
       "kind": "unknown-beep-symbol",
       "document": "goals/beep-schema-topology/SPEC.md",
       "subject": "beep-subpath:@beep/schema/Http",
-      "spanClass": "verified",
-      "owners": [
-        "@kriegcloud"
-      ]
-    },
-    {
-      "key": "knowledge-doctor/v1:fc0b851225feafe5f2a6d7d07544ee186571b2213c5c9e91fc06ed6b495156e3",
-      "group": "unresolved-reference",
-      "kind": "unknown-beep-symbol",
-      "document": "standards/architecture/10-cross-slice-coordination.md",
-      "subject": "beep-package:@beep/iam-use-cases",
       "spanClass": "verified",
       "owners": [
         "@kriegcloud"
