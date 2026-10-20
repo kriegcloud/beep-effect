@@ -140,7 +140,7 @@ const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMedia
         canonicalDirectory: Str.equivalence(relativeSuffix, "")
           ? canonicalCandidate
           : path.resolve(canonicalCandidate, relativeSuffix),
-        destinationDevice: info.dev,
+        destinationDevice: Number(info.dev),
         destinationExisted: Str.equivalence(candidate, directory),
         directory,
       });

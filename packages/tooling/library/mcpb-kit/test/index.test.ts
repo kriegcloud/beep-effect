@@ -14,6 +14,8 @@ import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
+const McpbManifestJson = S.fromJsonString(McpbManifest, { space: 2 });
+
 const fields = McpbManifestFields.make({
   name: "beep-example",
   displayName: "Beep Example",
@@ -86,7 +88,7 @@ describe("mcpbManifest", () => {
 
   it.effect("encodes as two-space JSON in manifest field order", () =>
     Effect.gen(function* () {
-      const json = yield* S.encodeEffect(S.fromJsonString(McpbManifest, { space: 2 }))(
+      const json = yield* S.encodeEffect(McpbManifestJson)(
         mcpbManifest(fields, mcpbTargetSpec("linux-x64", spec.appName))
       );
       expect(json.startsWith('{\n  "manifest_version": "0.3",\n  "name": "beep-example",\n  "display_name"')).toBe(

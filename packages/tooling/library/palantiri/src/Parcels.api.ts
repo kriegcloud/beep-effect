@@ -18,15 +18,13 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Etag from "effect/http/Etag";
 import * as HttpPlatform from "effect/http/HttpPlatform";
-import {
-  HttpApi,
-  HttpApiBuilder,
-  HttpApiEndpoint,
-  HttpApiGroup,
-  HttpApiSchema,
-  HttpApiTest,
-  OpenApi,
-} from "effect/http-api";
+import * as HttpApi from "effect/http-api/HttpApi";
+import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
+import * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
+import * as HttpApiGroup from "effect/http-api/HttpApiGroup";
+import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
+import * as HttpApiTest from "effect/http-api/HttpApiTest";
+import * as OpenApi from "effect/http-api/OpenApi";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -34,7 +32,7 @@ import { ParcelBudget, ParcelReadOptions, SessionKey } from "./Parcel.models.ts"
 import { ParcelEnvelope } from "./ParcelEnvelope.models.ts";
 import { UnknownParcel } from "./Parcels.errors.ts";
 import { Parcels } from "./Parcels.service.ts";
-import type { HttpApiClient } from "effect/http-api";
+import type * as HttpApiClient from "effect/http-api/HttpApiClient";
 
 const $I = $PalantiriId.create("Parcels.api");
 

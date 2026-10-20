@@ -11,7 +11,8 @@ import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
@@ -613,8 +614,7 @@ const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (optio
  * ```ts
  * import { effectDiagnosticsCommand } from "@beep/repo-cli/commands/Quality/EffectDiagnostics"
  * import * as A from "effect/Array"
- * import { Command } from "effect/cli"
- *
+ * import * as Command from "effect/cli/Command";
  * const quality = Command.make("quality").pipe(Command.withSubcommands([effectDiagnosticsCommand]))
  * const names = A.flatMap(quality.subcommands, (group) => A.map(group.commands, (command) => command.name))
  * names // => ["effect-diagnostics"]

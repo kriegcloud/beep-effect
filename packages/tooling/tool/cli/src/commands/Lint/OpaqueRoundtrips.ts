@@ -7,7 +7,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as HashMap from "effect/HashMap";

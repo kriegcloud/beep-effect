@@ -12,8 +12,10 @@
  *
  * or cross-compile a standalone binary on any host and copy it to the VM:
  *
- *   bun build --compile --target=bun-windows-x64 \
- *     packages/drivers/windows-secrets/scripts/smoke.ts --outfile windows-secrets-smoke.exe
+ * ```sh
+ * bun build --compile --target=bun-windows-x64 \
+ *   packages/drivers/windows-secrets/scripts/smoke.ts --outfile windows-secrets-smoke.exe
+ * ```
  *
  * @since 0.0.0
  */

@@ -229,7 +229,7 @@ export const sameDirectoryIdentity: {
  * @since 0.0.0
  */
 export const directoryIdentity = (info: FileSystem.File.Info): O.Option<DirectoryIdentity> =>
-  O.map(info.ino, (ino) => DirectoryIdentity.make({ dev: info.dev, ino }));
+  O.map(info.ino, (ino) => DirectoryIdentity.make({ dev: Number(info.dev), ino: Number(ino) }));
 
 /**
  * An open descriptor on a directory together with the identity it was bound to

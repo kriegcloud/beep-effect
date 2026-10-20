@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-15",
+  "generatedOn": "2026-10-20",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -711,7 +711,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 63,
+      "line": 62,
       "owner": "@beep/epistemic-server",
       "reason": "External-Postgres race regression uses deterministic candidate identifiers to prove concurrent repository behavior; arbitrary values would make the race non-reproducible, and schema-derived identifier laws live with the owning domain models."
     },
@@ -1937,7 +1937,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 51,
+      "line": 52,
       "owner": "@beep/test-utils",
       "reason": "Subprocess regression driver: these codecs decode child-runner evidence for explicit watchdog, cancellation and finalizer-order scenarios. Native schema-derived property behavior is exercised by the runtime.test.ts.txt child fixture and Vitest.test.ts; adding a codec round-trip in the parent would not test the process lifecycle contract."
     },
@@ -2623,7 +2623,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 50,
+      "line": 51,
       "owner": "@beep/repo-cli",
       "reason": "Store regression scenarios use exact SQLite rows, staged process termination and injected audit-write failure to prove transaction, lease and resolution recovery contracts. Arbitrary operator-evidence transport properties live in agent-message-models.test.ts; random codec round-trips cannot replace these deterministic failure points."
     },
@@ -2683,7 +2683,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 22,
+      "line": 24,
       "owner": "@beep/repo-cli",
       "reason": "This executable synthetic child is a fixed crash-stage transport fixture, not a schema-law test file. It decodes staged Envelope/AmbiguityResolution documents and emits exact checkpoint receipts for the owning store tests to kill and reopen. Schema-derived transport properties live in agent-message-models.test.ts."
     },

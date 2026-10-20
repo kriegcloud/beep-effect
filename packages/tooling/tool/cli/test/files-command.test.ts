@@ -3599,7 +3599,7 @@ exit 74
           stat: (filePath) =>
             fs
               .stat(filePath)
-              .pipe(Effect.map((info) => (filePath === secondSourcePath ? { ...info, dev: info.dev + 1 } : info))),
+              .pipe(Effect.map((info) => (filePath === secondSourcePath ? { ...info, dev: info.dev + 1n } : info))),
         };
         return Layer.mergeAll(
           FilesCommandServiceLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, crossDeviceFileSystem))),

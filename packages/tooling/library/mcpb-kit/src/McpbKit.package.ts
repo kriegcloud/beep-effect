@@ -7,7 +7,8 @@
  */
 
 import * as A from "effect/Array";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as F from "effect/Function";
@@ -237,6 +238,7 @@ const packageTarget = Effect.fn("McpbPackage.packageTarget")(function* (
  * ```
  *
  * @param spec - The app's packaging spec.
+ * @returns The app-specific command that packages the selected targets.
  * @category constructors
  * @since 0.0.0
  */

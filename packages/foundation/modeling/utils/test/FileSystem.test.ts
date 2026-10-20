@@ -5,12 +5,13 @@ import { FileSystem, Path } from "@beep/utils";
 import { AppendFileSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
+import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
+import * as P from "effect/Predicate";
 
 const NFS: typeof import("node:fs") = NodeModule.createRequire(import.meta.url)("node:fs");
 
@@ -61,6 +62,9 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       expect(fileInfo.type).toBe("File");
       expect(typeof fileInfo.size).toBe("bigint");
       expect(fileInfo.size).toBe(5n);
+      assertSome(fileInfo.nlink, 1n);
+      assertTrue(Option.isSome(fileInfo.ino));
+      assertTrue(P.isBigInt(fileInfo.dev));
       assertTrue(fileInfo.mtime.pipe(Option.isSome));
 
       const dirInfo = yield* FileSystem.statSync(dir);

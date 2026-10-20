@@ -26,6 +26,8 @@ const SkillFrontmatter = S.Struct({
 
 const PluginManifest = S.Struct({ name: S.String, version: S.String });
 
+const PluginManifestJson = S.fromJsonString(PluginManifest);
+
 const readText = (url: URL) => Effect.promise(() => Bun.file(url).text());
 
 const splitSkill = (text: string) => {
@@ -45,7 +47,7 @@ describe("practice-onboarding skill", () => {
     Effect.gen(function* () {
       const { frontmatter } = splitSkill(yield* readText(skillUrl));
       const skill = yield* S.decodeUnknownEffect(SkillFrontmatter)(frontmatter, { onExcessProperty: "error" });
-      const plugin = yield* S.decodeEffect(S.fromJsonString(PluginManifest))(yield* readText(pluginUrl));
+      const plugin = yield* S.decodeEffect(PluginManifestJson)(yield* readText(pluginUrl));
       expect(skill.name).toBe("practice-onboarding");
       assertSome(R.get(skill.metadata, "version"), plugin.version);
     })

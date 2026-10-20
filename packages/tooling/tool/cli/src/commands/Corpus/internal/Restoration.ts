@@ -250,8 +250,8 @@ const sourceStat = (info: FileSystem.File.Info) => ({
 });
 
 const sourceIdentity = (info: FileSystem.File.Info): SourceIdentity => ({
-  device: info.dev,
-  inode: info.ino,
+  device: Number(info.dev),
+  inode: O.map(info.ino, Number),
   mode: info.mode,
   mtimeMillis: O.match(info.mtime, {
     onNone: () => 0,

@@ -410,8 +410,6 @@ const expectSweepConfigurationFailure = Effect.fnUntraced(function* (root: strin
 const policyTurboScmBase = (step: QualityTaskStep): string | undefined => step.env?.TURBO_SCM_BASE;
 const LABS_EXCLUDED_TASKS: ReadonlyArray<string> = [
   "check",
-  "lint",
-  "lint:fix",
   "test",
   "test:integration",
   "test:integration:parallel",
@@ -8430,12 +8428,20 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }
     });
 
-    it("ends lint and scoped coverage argvs with the labs exclude", () => {
-      expectEndsWithLabsExclude(
-        rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]))[0]
-      );
-      expectEndsWithLabsExclude(rootQualityStepsForTesting("/repo", getInvocation(["lint"]))[0]);
+    it("includes labs in lint and lint:fix, including explicit labs selections", () => {
+      for (const argv of [["lint"], ["lint", "--fix"]]) {
+        for (const options of [[], ["--affected", "--summarize"], ["--filter=./apps/labs/**"]]) {
+          const steps = rootQualityStepsForTesting("/repo", getInvocation([...argv, ...options]));
+          const args = argsOf(steps[0]);
+          expect(args).not.toContain(LABS_EXCLUDE_FILTER);
+          for (const option of options) {
+            expect(args).toContain(option);
+          }
+        }
+      }
+    });
 
+    it("keeps the labs exclude in scoped coverage argvs", () => {
       // Coverage argvs end with the Vitest topology passthrough, so the labs
       // exclude is the last turbo-owned argument instead of the last argument.
       const coverage = withEnvVar("BEEP_FC_SEED", undefined, () =>

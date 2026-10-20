@@ -7,7 +7,8 @@
 
 import { AnswerRow, VerdictRow } from "@beep/law-practice-domain";
 import { annotateFourHints, FourHintAnnotations } from "@beep/mcp-kit";
-import { Tool, Toolkit } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
+import * as Toolkit from "effect/ai/Toolkit";
 import { RecordVerdictInput } from "../ReviewQueue/ReviewQueue.ports.ts";
 import { ReviewHubToolError } from "./ReviewHub.errors.ts";
 import { LockBatchRequest, OpenItems, OpenItemsRequest, RecordAnswerRequest } from "./ReviewHub.schemas.ts";

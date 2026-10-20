@@ -9,7 +9,8 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
-import { HttpClient, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
@@ -41,6 +42,8 @@ import {
   SetupHost,
 } from "@/Setup.services";
 import type { ClaudeInstall, GatewayInstallState, SignInState, StepOutcome } from "@/Setup.models";
+
+const SetupReportJson = S.fromJsonString(SetupReport);
 
 const STATE_DIR = "/state";
 const ABC_SHA256 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
@@ -174,7 +177,7 @@ const harness = Effect.fnUntraced(function* (script: Script) {
   const all = yield* Ref.get(events);
   return {
     report,
-    written: yield* S.decodeEffect(S.fromJsonString(SetupReport))(written),
+    written: yield* S.decodeEffect(SetupReportJson)(written),
     events: all,
     opened: A.filter(all, (event) => Str.startsWith("open:")(event) || Str.startsWith("link:")(event)),
     said: pipe(

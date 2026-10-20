@@ -763,7 +763,7 @@ const candidateLockInodes = Effect.fnUntraced(function* (
   const pathService = yield* Path.Path;
   const paths = [`${candidate.path}.lock`, pathService.join(candidate.path, ".lock")];
   const infos = yield* Effect.forEach(paths, (lockPath) => fs.stat(lockPath).pipe(Effect.option), { concurrency: 2 });
-  return A.getSomes(A.map(A.getSomes(infos), (info) => info.ino));
+  return A.map(A.getSomes(A.map(A.getSomes(infos), (info) => info.ino)), Number);
 });
 
 const candidateLiveness = Effect.fnUntraced(function* (

@@ -93,8 +93,8 @@ it.layer(Subject.layer)("public core characterization", (it) => {
       assertSome((yield* fs.stat(alias)).ino, sourceInode);
       const copyInode = yield* Effect.fromOption((yield* fs.stat(copy)).ino);
       assertTrue(sourceInode !== copyInode);
-      assertSome(sourceInfo.nlink, 2);
-      assertSome((yield* fs.stat(copy)).nlink, 1);
+      assertSome(sourceInfo.nlink, 2n);
+      assertSome((yield* fs.stat(copy)).nlink, 1n);
       yield* fs.writeFileString(alias, "changed");
       strictEqual(yield* fs.readFileString(source), "changed");
       strictEqual(yield* fs.readFileString(copy), "before");
@@ -119,7 +119,7 @@ it.layer(Subject.layer)("public core characterization", (it) => {
       strictEqual(info.mode, 0o100644);
       assertSome(info.uid, 0);
       assertSome(info.gid, 0);
-      assertSome(info.nlink, 1);
+      assertSome(info.nlink, 1n);
     })
   );
 
@@ -235,7 +235,7 @@ it.layer(Subject.layer)("public core characterization", (it) => {
           return inode - copiedRootInode;
         })
       );
-      deepStrictEqual(relativeIds, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+      deepStrictEqual(relativeIds, [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n, 11n, 12n]);
       deepStrictEqual(yield* fs.glob("**/*.txt", { root: destination }), [
         "Z/Z.txt",
         "Z/a.txt",
@@ -405,7 +405,7 @@ it.layer(Subject.layer)("public core characterization", (it) => {
       yield* fs.symlink("target", `${root}/link`);
       yield* fs.link(`${root}/link`, `${root}/alias`);
       strictEqual(yield* fs.readLink(`${root}/alias`), "target");
-      assertSome((yield* fs.stat(`${root}/target`)).nlink, 1);
+      assertSome((yield* fs.stat(`${root}/target`)).nlink, 1n);
       yield* fs.remove(`${root}/link`);
       yield* fs.remove(`${root}/target`);
       yield* fs.writeFileString(`${root}/target`, "replacement");
