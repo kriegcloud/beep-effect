@@ -1,18 +1,3 @@
-import * as NodeURL from "node:url";
-import { defineConfig, mergeConfig } from "vitest/config";
-import shared, { vitestDoctestActive } from "../../../vitest.shared.ts";
+import { browserTestConfig } from "../../../vitest.shared.ts";
 
-export default mergeConfig(
-  shared,
-  defineConfig({
-    resolve: {
-      alias: {
-        "@": NodeURL.fileURLToPath(new URL("./src", import.meta.url)),
-      },
-    },
-    test: {
-      environment: "jsdom",
-      include: vitestDoctestActive ? [] : ["test/**/*.test.{ts,tsx}"],
-    },
-  })
-);
+export default browserTestConfig(import.meta.url);

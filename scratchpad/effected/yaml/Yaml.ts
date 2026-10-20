@@ -16,6 +16,8 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
+import * as O from "@beep/utils/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -38,7 +40,6 @@ import {
 	nodeToJsValue,
 } from "./YamlNode.ts";
 import * as A from "effect/Array";
-import * as R from "effect/Record";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Str from "effect/String";
 import { lexAll } from "./internal/lexer.ts";
@@ -352,25 +353,25 @@ const toParseInput = (options?: YamlParseOptions): ParseOptionsInput =>
 	options === undefined
 		? {}
 		: {
-				strict: options.strict,
-				maxAliasCount: options.maxAliasCount,
-				uniqueKeys: options.uniqueKeys,
+				...O.getSomesStruct({ strict: O.fromUndefinedOr(options.strict) }),
+				...O.getSomesStruct({ maxAliasCount: O.fromUndefinedOr(options.maxAliasCount) }),
+				...O.getSomesStruct({ uniqueKeys: O.fromUndefinedOr(options.uniqueKeys) }),
 			};
 
 const toStringifyInput = (options?: YamlStringifyOptions): StringifyOptionsInput =>
 	options === undefined
 		? {}
 		: {
-				indent: options.indent,
-				lineWidth: options.lineWidth,
-				defaultScalarStyle: options.defaultScalarStyle,
-				defaultCollectionStyle: options.defaultCollectionStyle,
-				sortKeys: options.sortKeys,
-				indentSequences: options.indentSequences,
-				quoteStyle: options.quoteStyle,
-				quoteCompat: options.quoteCompat,
-				finalNewline: options.finalNewline,
-				forceDefaultStyles: options.forceDefaultStyles,
+				...O.getSomesStruct({ indent: O.fromUndefinedOr(options.indent) }),
+				...O.getSomesStruct({ lineWidth: O.fromUndefinedOr(options.lineWidth) }),
+				...O.getSomesStruct({ defaultScalarStyle: O.fromUndefinedOr(options.defaultScalarStyle) }),
+				...O.getSomesStruct({ defaultCollectionStyle: O.fromUndefinedOr(options.defaultCollectionStyle) }),
+				...O.getSomesStruct({ sortKeys: O.fromUndefinedOr(options.sortKeys) }),
+				...O.getSomesStruct({ indentSequences: O.fromUndefinedOr(options.indentSequences) }),
+				...O.getSomesStruct({ quoteStyle: O.fromUndefinedOr(options.quoteStyle) }),
+				...O.getSomesStruct({ quoteCompat: O.fromUndefinedOr(options.quoteCompat) }),
+				...O.getSomesStruct({ finalNewline: O.fromUndefinedOr(options.finalNewline) }),
+				...O.getSomesStruct({ forceDefaultStyles: O.fromUndefinedOr(options.forceDefaultStyles) }),
 			};
 
 const toDiagnostics: {
@@ -510,7 +511,7 @@ const parseAllResultImpl: {
 				throw defect;
 			},
 		});
-		if (Result.isFailure(value)) return value;
+		if (Result.isFailure(value)) return Result.fail(value.failure);
 		values.push(value.success);
 	}
 	return Result.succeed(values);

@@ -151,16 +151,16 @@ const fileInfo = (stat: import("node:fs").BigIntStats): FileSystem.File.Info => 
 	mtime: O.fromNullishOr(stat.mtime),
 	atime: O.fromNullishOr(stat.atime),
 	birthtime: O.fromNullishOr(stat.birthtime),
-	dev: bigintToNumber(stat.dev, "dev"),
-	rdev: bigintToNumberOption(stat.rdev),
-	ino: bigintToNumberOption(stat.ino),
+	dev: stat.dev,
+	rdev: O.fromNullishOr(stat.rdev),
+	ino: O.fromNullishOr(stat.ino),
 	mode: bigintToNumber(stat.mode, "mode"),
-	nlink: bigintToNumberOption(stat.nlink),
+	nlink: O.fromNullishOr(stat.nlink),
 	uid: bigintToNumberOption(stat.uid),
 	gid: bigintToNumberOption(stat.gid),
 	size: ByteSize.bytes(stat.size),
 	blksize: stat.blksize !== undefined ? O.some(ByteSize.bytes(stat.blksize)) : O.none(),
-	blocks: bigintToNumberOption(stat.blocks),
+	blocks: O.fromNullishOr(stat.blocks),
 });
 
 // Every member outside the read set is a DEFECT, never a typed failure: a

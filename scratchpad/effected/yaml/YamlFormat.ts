@@ -18,9 +18,10 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Match from "effect/Match";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as Equal from "effect/Equal";
 import * as P from "effect/Predicate";
-import * as O from "effect/Option";
+import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import { composeAllDocuments, composeFirstDocumentCounted } from "./internal/composer/document.ts";
 import { MAX_NESTING_DEPTH } from "./internal/composer/state.ts";
@@ -44,7 +45,6 @@ import { YamlEdit, YamlRange } from "./YamlEdit.ts";
 import type { YamlNode } from "./YamlNode.ts";
 import { YamlMap, YamlPair, YamlScalar, YamlSeq } from "./YamlNode.ts";
 import * as A from "effect/Array";
-import * as R from "effect/Record";
 import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlFormat");
@@ -242,16 +242,16 @@ const toStringifyInput = (options?: YamlStringifyOptions | YamlFormattingOptions
 	options === undefined
 		? {}
 		: {
-				indent: options.indent,
-				lineWidth: options.lineWidth,
-				defaultScalarStyle: options.defaultScalarStyle,
-				defaultCollectionStyle: options.defaultCollectionStyle,
-				sortKeys: options.sortKeys,
-				indentSequences: options.indentSequences,
-				quoteStyle: options.quoteStyle,
-				quoteCompat: options.quoteCompat,
-				finalNewline: options.finalNewline,
-				forceDefaultStyles: options.forceDefaultStyles,
+				...O.getSomesStruct({ indent: O.fromUndefinedOr(options.indent) }),
+				...O.getSomesStruct({ lineWidth: O.fromUndefinedOr(options.lineWidth) }),
+				...O.getSomesStruct({ defaultScalarStyle: O.fromUndefinedOr(options.defaultScalarStyle) }),
+				...O.getSomesStruct({ defaultCollectionStyle: O.fromUndefinedOr(options.defaultCollectionStyle) }),
+				...O.getSomesStruct({ sortKeys: O.fromUndefinedOr(options.sortKeys) }),
+				...O.getSomesStruct({ indentSequences: O.fromUndefinedOr(options.indentSequences) }),
+				...O.getSomesStruct({ quoteStyle: O.fromUndefinedOr(options.quoteStyle) }),
+				...O.getSomesStruct({ quoteCompat: O.fromUndefinedOr(options.quoteCompat) }),
+				...O.getSomesStruct({ finalNewline: O.fromUndefinedOr(options.finalNewline) }),
+				...O.getSomesStruct({ forceDefaultStyles: O.fromUndefinedOr(options.forceDefaultStyles) }),
 			};
 
 /** Normalize a `format`-positional range and the options-bag fallback into one plain shape (or `undefined`). */

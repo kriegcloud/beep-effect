@@ -12,6 +12,8 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import { mergeConfig } from "vitest/config";
+import { appSourceAlias } from "./vite.shared.ts";
 import generatedAliasPaths from "./vitest.aliases.generated.json" with { type: "json" };
 import type { Plugin } from "vite";
 import type { ViteUserConfig } from "vitest/config";
@@ -297,5 +299,15 @@ const config: ViteUserConfig = {
     },
   },
 };
+
+/** Shared DOM-test defaults for browser applications with a local source alias. */
+export const browserTestConfig = (moduleUrl: string): ViteUserConfig =>
+  mergeConfig(config, {
+    resolve: { alias: appSourceAlias(moduleUrl) },
+    test: {
+      environment: "jsdom",
+      include: vitestDoctestActive ? [] : ["test/**/*.test.{ts,tsx}"],
+    },
+  });
 
 export default config;

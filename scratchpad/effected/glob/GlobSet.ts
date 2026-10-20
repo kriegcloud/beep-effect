@@ -236,7 +236,7 @@ export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>
 					throw e;
 				},
 			});
-			if (Result.isFailure(compiled)) return compiled;
+			if (Result.isFailure(compiled)) return Result.fail(compiled.failure);
 		}
 		return Result.succeed(GlobSet.make({ patterns }));
 	}

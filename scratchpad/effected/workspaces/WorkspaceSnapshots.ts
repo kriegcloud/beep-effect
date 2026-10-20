@@ -134,7 +134,7 @@ export const WorkspaceSnapshotsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceSnapshotsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+	stopAt: S.optional(S.String).pipe($I.annoteKey("WorkspaceSnapshotsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
 	/**
 	 * Catalogs every snapshot this service produces carries as its
 	 * `seededCatalogs` — consulted only where the snapshot's own catalogs cannot
@@ -478,7 +478,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 				// checked against the base side's pins, never the working tree's.
 				const lockfile = yield* lockfileText(root, ref, "pnpm");
 				const replayed = yield* injectFromDocument(hooks, root, document, inline, {
-					lockfile: O.getOrUndefined(lockfile),
+					...O.getSomesStruct({ lockfile }),
 					ref,
 				});
 				injected = replayed.injected;

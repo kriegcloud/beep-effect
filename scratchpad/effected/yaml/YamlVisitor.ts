@@ -188,9 +188,9 @@ export class YamlVisitor {
 function* visitGen(text: string, options?: YamlParseOptions): Generator<YamlVisitorEvent> {
 	const index = YamlDiagnostic.positionIndex(text);
 	const { documents, streamErrors } = composeAllDocuments(text, {
-		strict: options?.strict,
-		maxAliasCount: options?.maxAliasCount,
-		uniqueKeys: options?.uniqueKeys,
+		...O.getSomesStruct({ strict: O.fromUndefinedOr(options?.strict) }),
+		...O.getSomesStruct({ maxAliasCount: O.fromUndefinedOr(options?.maxAliasCount) }),
+		...O.getSomesStruct({ uniqueKeys: O.fromUndefinedOr(options?.uniqueKeys) }),
 	});
 
 	for (const diagnostic of YamlDiagnostic.fromRawBatch(streamErrors, text, index)) {

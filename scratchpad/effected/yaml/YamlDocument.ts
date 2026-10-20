@@ -338,25 +338,25 @@ const toParseInput = (options?: YamlParseOptions) =>
 	options === undefined
 		? {}
 		: {
-				strict: options.strict,
-				maxAliasCount: options.maxAliasCount,
-				uniqueKeys: options.uniqueKeys,
+				...O.getSomesStruct({ strict: O.fromUndefinedOr(options.strict) }),
+				...O.getSomesStruct({ maxAliasCount: O.fromUndefinedOr(options.maxAliasCount) }),
+				...O.getSomesStruct({ uniqueKeys: O.fromUndefinedOr(options.uniqueKeys) }),
 			};
 
 const toStringifyInput = (options?: YamlStringifyOptions) =>
 	options === undefined
 		? {}
 		: {
-				indent: options.indent,
-				lineWidth: options.lineWidth,
-				defaultScalarStyle: options.defaultScalarStyle,
-				defaultCollectionStyle: options.defaultCollectionStyle,
-				sortKeys: options.sortKeys,
-				indentSequences: options.indentSequences,
-				quoteStyle: options.quoteStyle,
-				quoteCompat: options.quoteCompat,
-				finalNewline: options.finalNewline,
-				forceDefaultStyles: options.forceDefaultStyles,
+				...O.getSomesStruct({ indent: O.fromUndefinedOr(options.indent) }),
+				...O.getSomesStruct({ lineWidth: O.fromUndefinedOr(options.lineWidth) }),
+				...O.getSomesStruct({ defaultScalarStyle: O.fromUndefinedOr(options.defaultScalarStyle) }),
+				...O.getSomesStruct({ defaultCollectionStyle: O.fromUndefinedOr(options.defaultCollectionStyle) }),
+				...O.getSomesStruct({ sortKeys: O.fromUndefinedOr(options.sortKeys) }),
+				...O.getSomesStruct({ indentSequences: O.fromUndefinedOr(options.indentSequences) }),
+				...O.getSomesStruct({ quoteStyle: O.fromUndefinedOr(options.quoteStyle) }),
+				...O.getSomesStruct({ quoteCompat: O.fromUndefinedOr(options.quoteCompat) }),
+				...O.getSomesStruct({ finalNewline: O.fromUndefinedOr(options.finalNewline) }),
+				...O.getSomesStruct({ forceDefaultStyles: O.fromUndefinedOr(options.forceDefaultStyles) }),
 			};
 
 /**

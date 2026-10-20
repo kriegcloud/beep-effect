@@ -339,7 +339,6 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
         const manifestPath = `${path.relative(repoRoot, dir)}/package.json`;
         const kind = kindForDirectory(path.relative(repoRoot, dir));
         if (PackageKind.is.exempt(kind)) return { manifestPath, rows: [], implDrift: [], written: false };
-        let didWrite = false;
         const file = path.join(dir, "package.json");
         const text = yield* fs.readFileString(file);
         const manifest = yield* decodeManifest(text);
@@ -358,16 +357,17 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
             ? [{ _tag: "derivation-conflict", name: "build", reason: NOEMIT_BUILD_REASON }]
             : [];
         const conflicts = [...derivationConflicts(evidence, manifestPath, expected), ...buildConflicts];
-        if (write && A.isReadonlyArrayNonEmpty(diffBlock(actual, expected))) {
-          const scripts = yield* codec.encode(expected);
-          const rendered = `${yield* jsonStringifyPretty({ ...manifest, scripts })}\n`;
-          if (rendered !== text) {
-            yield* fs.writeFileString(file, rendered);
-            didWrite = true;
-          }
-        }
-        const rows = [...diffBlock(write ? expected : actual, expected), ...conflicts];
-        return { manifestPath, rows, implDrift: implementationDrift(write ? expected : actual), written: didWrite };
+        const rendered =
+          write && A.isReadonlyArrayNonEmpty(diffBlock(actual, expected))
+            ? `${yield* codec
+                .encode(expected)
+                .pipe(Effect.flatMap((scripts) => jsonStringifyPretty({ ...manifest, scripts })))}\n`
+            : text;
+        const didWrite = rendered !== text;
+        if (didWrite) yield* fs.writeFileString(file, rendered);
+        const effective = write ? expected : actual;
+        const rows = [...diffBlock(effective, expected), ...conflicts];
+        return { manifestPath, rows, implDrift: implementationDrift(effective), written: didWrite };
       });
       const run = Effect.fn("PackageScriptsPolicy.run")(
         function* (repoRoot: string, write: boolean) {

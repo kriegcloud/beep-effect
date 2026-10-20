@@ -57,8 +57,8 @@ const $I = $ScratchpadId.create("effected/yaml/internal/requote");
 export const RequoteScalarInput = S.Struct({
 	value: S.Unknown.pipe($I.annoteKey("RequoteScalarInput.value", { description: "Parsed scalar value considered for quote conversion." })),
 	style: ScalarStyle.pipe($I.annoteKey("RequoteScalarInput.style", { description: "Presentation style of the source scalar." })),
-	tag: S.optionalKey(S.String).pipe($I.annoteKey("RequoteScalarInput.tag", { description: "Optional tag preventing quote conversion when present." })),
-	anchor: S.optionalKey(S.String).pipe($I.annoteKey("RequoteScalarInput.anchor", { description: "Optional anchor preventing quote conversion when present." })),
+	tag: S.optional(S.String).pipe($I.annoteKey("RequoteScalarInput.tag", { description: "Optional tag preventing quote conversion when present." })),
+	anchor: S.optional(S.String).pipe($I.annoteKey("RequoteScalarInput.anchor", { description: "Optional anchor preventing quote conversion when present." })),
 	offset: S.Finite.pipe($I.annoteKey("RequoteScalarInput.offset", { description: "Start of the raw scalar span in UTF-16 code units." })),
 	length: S.Finite.pipe($I.annoteKey("RequoteScalarInput.length", { description: "Length of the raw scalar span in UTF-16 code units." })),
 }).pipe($I.annoteSchema("RequoteScalarInput", {

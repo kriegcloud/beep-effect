@@ -197,6 +197,7 @@ const makePathService = (path: SyncPath): Path.Path =>
 		normalize: () => unsupported("normalize"),
 		parse: () => unsupported("parse"),
 		relative: () => unsupported("relative"),
+		resolveWithin: () => unsupported("resolveWithin"),
 		resolve: (...segments: ReadonlyArray<string>) => path.resolve(...segments),
 		toFileUrl: () => unsupported("toFileUrl"),
 		toNamespacedPath: () => unsupported("toNamespacedPath"),

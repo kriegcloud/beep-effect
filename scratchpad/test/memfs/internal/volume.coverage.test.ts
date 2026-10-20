@@ -223,7 +223,7 @@ describe("volume uncovered contracts", () => {
     yield* fs.link(target, "/wide/nested/link");
     yield* fs.rename(target, "/wide/nested/moved");
     yield* fs.remove("/wide/nested/moved");
-    assertSome((yield* file.stat).nlink, 1);
+    assertSome((yield* file.stat).nlink, 1n);
     const buffer = new Uint8Array(1);
     assert.strictEqual(yield* file.read(buffer), 1);
     assert.deepStrictEqual(buffer, new Uint8Array([128]));

@@ -860,7 +860,7 @@ export const WorkspaceCatalogsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceCatalogsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+	stopAt: S.optional(S.String).pipe($I.annoteKey("WorkspaceCatalogsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
 }).pipe($I.annoteSchema("WorkspaceCatalogsOptions", { description: "Plain-object catalog assembly options with lazy root resolution." }));
 
 /** The plain-object options described by {@link WorkspaceCatalogsOptions}.
@@ -1047,7 +1047,7 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 						: yield* fs
 								.readFileString(path.join(root, filenameFor("pnpm")))
 								.pipe(Effect.orElseSucceed(() => undefined));
-				const replayed = yield* injectFromDocument(hooks, root, document, inline, { lockfile: lockfileText });
+				const replayed = yield* injectFromDocument(hooks, root, document, inline, O.getSomesStruct({ lockfile: O.fromUndefinedOr(lockfileText) }));
 				injected = replayed.injected;
 				hookGate = replayed.injection.releaseAge;
 				peerDependencyRules = replayed.injection.peerDependencyRules;

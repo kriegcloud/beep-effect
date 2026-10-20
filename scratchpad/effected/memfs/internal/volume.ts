@@ -1824,13 +1824,13 @@ const fileInfo = (entry: InodeEntry): FileSystem.File.Info => ({
 	mtime: entry.mtime.pipe(DateTime.toDateUtc, O.some),
 	atime: entry.atime.pipe(DateTime.toDateUtc, O.some),
 	birthtime: entry.birthtime.pipe(DateTime.toDateUtc, O.some),
-	dev: 0,
-	ino: O.some(entry.ino),
+	dev: 0n,
+	ino: O.some(BigInt(entry.ino)),
 	mode: entry.mode,
-	nlink: O.some(entry.nlink),
+	nlink: O.some(BigInt(entry.nlink)),
 	uid: O.some(entry.uid),
 	gid: O.some(entry.gid),
-	rdev: O.some(0),
+	rdev: O.some(0n),
 	size: ByteSize.bytes(
 		entry._tag === "File"
 			? entry.data.length

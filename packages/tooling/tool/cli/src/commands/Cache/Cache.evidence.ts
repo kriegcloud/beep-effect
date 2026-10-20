@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { Sha256HexFromBytes } from "@beep/schema";
+import { HostProcessArchitecture, HostProcessPlatform } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
@@ -118,3 +119,25 @@ export const readCacheEvidenceBytes = Effect.fn("CacheEvidence.readBytes")(funct
   if (digest !== reference.sha256) return yield* CacheCommandError.new("Qualification evidence digest mismatch.");
   return bytes;
 }, CacheCommandError.mapError("Cannot verify qualification evidence bytes."));
+
+/**
+ * Refuse cache sandbox supervision on unsupported host platforms.
+ *
+ * **Example** (Plan the host check)
+ *
+ * ```ts
+ * import { requireCacheLinuxX64 } from "@beep/repo-cli/commands/Cache/Cache.evidence"
+ * import * as Effect from "effect/Effect"
+ * console.assert(Effect.isEffect(requireCacheLinuxX64("Linux x64 is required.")))
+ * ```
+ *
+ * @param message - Existing runner-specific diagnostic for unsupported hosts.
+ * @returns A host validation effect with a typed cache command error.
+ * @internal
+ * @category utilities
+ * @since 0.0.0
+ */
+export const requireCacheLinuxX64 = Effect.fn("CacheEvidence.requireLinuxX64")(function* (message: string) {
+  if ((yield* HostProcessPlatform) !== "linux" || (yield* HostProcessArchitecture) !== "x64")
+    return yield* CacheCommandError.new(message);
+});
