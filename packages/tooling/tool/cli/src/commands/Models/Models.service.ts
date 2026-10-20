@@ -43,7 +43,7 @@ import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.
 import { DriftFinding, ManualVerification, ModelsCheckReport } from "./Models.report.schemas.ts";
 import { modelsCheckOnlyFormat, modelsEligibility } from "./Models.spans.ts";
 import type * as Crypto from "effect/Crypto";
-import type { HttpClient } from "effect/http";
+import type * as HttpClient from "effect/http/HttpClient";
 import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CatalogModel, CatalogSource, ModelId } from "./Models.catalog.schemas.ts";

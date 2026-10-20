@@ -1164,6 +1164,7 @@
     {"name":"EffectDiagnostics.readProfile","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectDiagnostics.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectFn.runEffectFnRules","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"EffectImports.buildEffectBarrelMapping","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectImports.buildEffectRootMapping","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectImports.buildFoundationRootMappings","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"EffectImports.foundationMappingsForFiles","owner":"@beep/repo-cli","family":"tooling","conforms":true},
