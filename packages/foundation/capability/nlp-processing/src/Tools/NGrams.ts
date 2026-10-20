@@ -7,7 +7,7 @@
 
 import { $NlpProcessingId } from "@beep/identity";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { PosInt } from "../internal/PosInt.ts";
 import { AiNGram, AiToolError } from "./_schemas.ts";
@@ -25,8 +25,8 @@ const NGramMode = NGramModeKit.pipe(
   SchemaUtils.withLiteralKitStatics(NGramModeKit)
 );
 
-class NGramsParameters extends S.Class<NGramsParameters>($I`NGramsParameters`)(
-  {
+class NGramsParameters extends S.Opaque<NGramsParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.optionalKey(NGramMode).annotateKey({
       description: "Generation mode: bag counts all n-grams, edge uses edge n-grams, set keeps unique n-grams.",
     }),
@@ -41,23 +41,25 @@ class NGramsParameters extends S.Class<NGramsParameters>($I`NGramsParameters`)(
     topN: S.optionalKey(PosInt).annotateKey({
       description: "Maximum n-gram entries to return after sorting by count descending then value ascending.",
     }),
-  },
-  $I.annote("NGramsParameters", {
-    description: "Inputs required to extract deterministic character n-grams from text.",
-  })
+  }).pipe(
+    $I.annoteSchema("NGramsParameters", {
+      description: "Inputs required to extract deterministic character n-grams from text.",
+    })
+  )
 ) {}
 
-class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
-  {
+class NGramsSuccess extends S.Opaque<NGramsSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: NGramMode,
     ngrams: S.Array(AiNGram),
     size: PosInt,
     totalNGrams: S.Natural,
     uniqueNGrams: S.Natural,
-  },
-  $I.annote("NGramsSuccess", {
-    description: "Extracted n-gram entries and summary counts for the selected mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("NGramsSuccess", {
+      description: "Extracted n-gram entries and summary counts for the selected mode.",
+    })
+  )
 ) {}
 
 /**

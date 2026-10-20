@@ -15,7 +15,8 @@ import { A, Str, Text } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
@@ -58,6 +59,7 @@ import {
   resolveDocgenQualityTargets,
 } from "./internal/Quality.ts";
 import {
+  AnalyzeDocgenQualityWorkerEvalOptions,
   analyzeDocgenQualityWorkerEval,
   defaultQualityWorkerEvalPacketLimit,
   defaultQualityWorkerEvalReasoningEffort,
@@ -69,6 +71,7 @@ import {
   defaultQualityWorkerRunpodEvalPacketLimit,
   defaultQualityWorkerRunpodEvalReadinessTimeoutMs,
   generateQualityWorkerRunpodEvalJson,
+  RunDocgenQualityWorkerRunpodEvalOptions,
   requiredQualityWorkerRunpodEvalModel,
   runDocgenQualityWorkerRunpodEval,
 } from "./internal/QualityWorkerRunpodEval.ts";
@@ -904,16 +907,18 @@ const docgenQualityWorkerEvalCommand = Command.make(
         O.getOrElse(R.empty)
       );
 
-      const report = yield* analyzeDocgenQualityWorkerEval({
-        ...baseUrlOptions,
-        model,
-        packetLimit,
-        provider,
-        ...reasoningOptions,
-        report: source.report,
-        scope: source.scope,
-        sourceQualityReport: source.sourceQualityReport,
-      });
+      const report = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          ...baseUrlOptions,
+          model,
+          packetLimit,
+          provider,
+          ...reasoningOptions,
+          report: source.report,
+          scope: source.scope,
+          sourceQualityReport: source.sourceQualityReport,
+        })
+      );
       const content = yield* generateQualityWorkerEvalJson(report);
 
       if (O.isSome(output)) {
@@ -1058,25 +1063,27 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
           )
         )
       );
-      const report = yield* runDocgenQualityWorkerRunpodEval({
-        allow24GbFallback,
-        confirmRunpodEval,
-        ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(resolvedGpuTypeIds) }),
-        keepPod,
-        model,
-        otlpBaseUrl,
-        otlpEnabled: otlp,
-        otlpProject,
-        packetLimit,
-        provider,
-        readinessTimeoutMs,
-        report: source.report,
-        scope: source.scope,
-        sourceQualityReport: source.sourceQualityReport,
-        skipTemplateSearch,
-        allowPublicTemplateSearch,
-        ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
-      }).pipe((effect) =>
+      const report = yield* runDocgenQualityWorkerRunpodEval(
+        RunDocgenQualityWorkerRunpodEvalOptions.make({
+          allow24GbFallback,
+          confirmRunpodEval,
+          ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(resolvedGpuTypeIds) }),
+          keepPod,
+          model,
+          otlpBaseUrl,
+          otlpEnabled: otlp,
+          otlpProject,
+          packetLimit,
+          provider,
+          readinessTimeoutMs,
+          report: source.report,
+          scope: source.scope,
+          sourceQualityReport: source.sourceQualityReport,
+          skipTemplateSearch,
+          allowPublicTemplateSearch,
+          ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
+        })
+      ).pipe((effect) =>
         Layer.build(Runpod.makeLayer(RunpodConfigInput.make({ apiKey: runpodApiKey }))).pipe(
           Effect.flatMap((context) => effect.pipe(Effect.provide(context))),
           Effect.scoped
@@ -1202,7 +1209,7 @@ const docgenDoctestCommand = Command.make("doctest", {}).pipe(
  *
  * ```ts
  * import { docgenCommand } from "@beep/repo-cli/commands/Docgen"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * const runDocgen = Command.runWith(docgenCommand, { version: "0.0.0" })
  * const qualityArgs = ["quality", "-p", "packages/tooling/tool/cli", "--json", "--score", "codex"]
  * const program = runDocgen(qualityArgs)

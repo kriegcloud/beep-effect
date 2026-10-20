@@ -126,8 +126,8 @@ export type NormalizeSkippedReason = typeof NormalizeSkippedReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class NormalizeFilesOptions extends S.Class<NormalizeFilesOptions>($I`NormalizeFilesOptions`)(
-  {
+export class NormalizeFilesOptions extends S.Opaque<NormalizeFilesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dedupe: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     dir: S.String,
     dryRun: S.Boolean,
@@ -139,10 +139,11 @@ export class NormalizeFilesOptions extends S.Class<NormalizeFilesOptions>($I`Nor
     moveDuplicatesTo: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     outDir: S.String,
     overwrite: S.Boolean,
-  },
-  $I.annote("NormalizeFilesOptions", {
-    description: "Validated options used by the image normalization operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizeFilesOptions", {
+      description: "Validated options used by the image normalization operation.",
+    })
+  )
 ) {}
 
 /**
@@ -160,17 +161,18 @@ export class NormalizeFilesOptions extends S.Class<NormalizeFilesOptions>($I`Nor
  * @category models
  * @since 0.0.0
  */
-export class NormalizeManifestOptions extends S.Class<NormalizeManifestOptions>($I`NormalizeManifestOptions`)(
-  {
+export class NormalizeManifestOptions extends S.Opaque<NormalizeManifestOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dedupe: S.Boolean,
     format: NormalizeImageFormat,
     maxLongEdge: S.optionalKey(PositiveMediaDimension),
     moveDuplicatesTo: S.optionalKey(S.String),
     overwrite: S.Boolean,
-  },
-  $I.annote("NormalizeManifestOptions", {
-    description: "JSON-safe options recorded in the normalize manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizeManifestOptions", {
+      description: "JSON-safe options recorded in the normalize manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -188,8 +190,8 @@ export class NormalizeManifestOptions extends S.Class<NormalizeManifestOptions>(
  * @category models
  * @since 0.0.0
  */
-export class NormalizePlanEntry extends S.Class<NormalizePlanEntry>($I`NormalizePlanEntry`)(
-  {
+export class NormalizePlanEntry extends S.Opaque<NormalizePlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: NormalizeImageFormat,
     inputDimensions: MediaDimensions,
     outputDimensions: MediaDimensions,
@@ -204,10 +206,11 @@ export class NormalizePlanEntry extends S.Class<NormalizePlanEntry>($I`Normalize
     sourcePath: S.String,
     sourceRelativePath: S.String,
     sourceSizeBytes: S.String,
-  },
-  $I.annote("NormalizePlanEntry", {
-    description: "A source-to-output image transform planned by files normalize.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizePlanEntry", {
+      description: "A source-to-output image transform planned by files normalize.",
+    })
+  )
 ) {}
 
 /**
@@ -225,8 +228,8 @@ export class NormalizePlanEntry extends S.Class<NormalizePlanEntry>($I`Normalize
  * @category models
  * @since 0.0.0
  */
-export class NormalizeSkippedEntry extends S.Class<NormalizeSkippedEntry>($I`NormalizeSkippedEntry`)(
-  {
+export class NormalizeSkippedEntry extends S.Opaque<NormalizeSkippedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     duplicateOfOutputRelativePath: S.optionalKey(S.String),
     duplicateOfSourceRelativePath: S.optionalKey(S.String),
     duplicateMovedPath: S.optionalKey(S.String),
@@ -237,10 +240,11 @@ export class NormalizeSkippedEntry extends S.Class<NormalizeSkippedEntry>($I`Nor
     reason: NormalizeSkippedReason,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("NormalizeSkippedEntry", {
-    description: "A direct source entry skipped by files normalize with a machine-readable reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizeSkippedEntry", {
+      description: "A direct source entry skipped by files normalize with a machine-readable reason.",
+    })
+  )
 ) {}
 
 /**
@@ -258,8 +262,8 @@ export class NormalizeSkippedEntry extends S.Class<NormalizeSkippedEntry>($I`Nor
  * @category models
  * @since 0.0.0
  */
-export class NormalizePlan extends S.Class<NormalizePlan>($I`NormalizePlan`)(
-  {
+export class NormalizePlan extends S.Opaque<NormalizePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     duplicateDirectory: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     entries: S.Array(NormalizePlanEntry),
     manifestPath: S.String,
@@ -267,10 +271,11 @@ export class NormalizePlan extends S.Class<NormalizePlan>($I`NormalizePlan`)(
     outputDirectory: S.String,
     skipped: S.Array(NormalizeSkippedEntry),
     sourceDirectory: S.String,
-  },
-  $I.annote("NormalizePlan", {
-    description: "Planned image normalization entries plus skipped source entries.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizePlan", {
+      description: "Planned image normalization entries plus skipped source entries.",
+    })
+  )
 ) {}
 
 /**
@@ -288,8 +293,8 @@ export class NormalizePlan extends S.Class<NormalizePlan>($I`NormalizePlan`)(
  * @category models
  * @since 0.0.0
  */
-export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSummary`)(
-  {
+export class NormalizeSummary extends S.Opaque<NormalizeSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: S.String,
     duplicateCount: S.Finite,
     dryRun: S.Boolean,
@@ -305,10 +310,11 @@ export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSumm
     plannedCount: S.Finite,
     resizedCount: S.Finite,
     skippedCount: S.Finite,
-  },
-  $I.annote("NormalizeSummary", {
-    description: "Summary counts returned by files normalize.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizeSummary", {
+      description: "Summary counts returned by files normalize.",
+    })
+  )
 ) {}
 
 /**
@@ -326,18 +332,19 @@ export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSumm
  * @category models
  * @since 0.0.0
  */
-export class NormalizeManifestSummary extends S.Class<NormalizeManifestSummary>($I`NormalizeManifestSummary`)(
-  {
+export class NormalizeManifestSummary extends S.Opaque<NormalizeManifestSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     duplicateCount: S.Finite,
     movedDuplicateCount: S.Finite,
     normalizedCount: S.Finite,
     plannedCount: S.Finite,
     resizedCount: S.Finite,
     skippedCount: S.Finite,
-  },
-  $I.annote("NormalizeManifestSummary", {
-    description: "JSON-safe summary counts recorded by files normalize.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizeManifestSummary", {
+      description: "JSON-safe summary counts recorded by files normalize.",
+    })
+  )
 ) {}
 
 /**
@@ -355,8 +362,8 @@ export class NormalizeManifestSummary extends S.Class<NormalizeManifestSummary>(
  * @category models
  * @since 0.0.0
  */
-export class NormalizeManifest extends S.Class<NormalizeManifest>($I`NormalizeManifest`)(
-  {
+export class NormalizeManifest extends S.Opaque<NormalizeManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Array(NormalizePlanEntry),
     manifestPath: S.String,
     options: NormalizeManifestOptions,
@@ -365,10 +372,11 @@ export class NormalizeManifest extends S.Class<NormalizeManifest>($I`NormalizeMa
     skipped: S.Array(NormalizeSkippedEntry),
     sourceDirectory: S.String,
     summary: NormalizeManifestSummary,
-  },
-  $I.annote("NormalizeManifest", {
-    description: "JSON manifest of source-to-output transforms produced by files normalize.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizeManifest", {
+      description: "JSON manifest of source-to-output transforms produced by files normalize.",
+    })
+  )
 ) {}
 
 /**

@@ -64,9 +64,9 @@ import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("relative/path/from/pkg/src");    // file-scoped child composer
 
-// schema identifier + annotations
-export class Heading extends S.TaggedClass<Heading>($I`Heading`)(
-  "heading", { level: HeadingLevel }, $I.annote("Heading", { description: "…" })
+// plain tagged data: branded Opaque over an annotated TaggedStruct
+export class Heading extends S.Opaque<Heading, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("heading", { level: HeadingLevel }).pipe($I.annoteSchema("Heading", { description: "…" }))
 ) { static readonly is = S.is(Heading); }
 
 // pipeable schema annotation
@@ -76,12 +76,12 @@ export const HeadingLevel = LiteralKit([1,2,3,4,5,6]).pipe($I.annoteSchema("Head
 { level: HeadingLevel.annotateKey({ description: "…" }) }
 
 // typed error (identifier from $I, never a bare string)
-class ParseError extends S.TaggedError<ParseError>($I`ParseError`)(
+class ParseError extends S.TaggedError<ParseError, { readonly brand: unique symbol }>($I`ParseError`)(
   "ParseError", { operation: S.String }, $I.annote("ParseError", { description: "…" })
 ) {}
 
 // boundary-translation error (always declares message + cause explicitly)
-class DomainError extends S.TaggedError<DomainError>($I`DomainError`)(
+class DomainError extends S.TaggedError<DomainError, { readonly brand: unique symbol }>($I`DomainError`)(
   "DomainError",
   { message: S.String, cause: S.Defect({ includeStack: true }) },
   $I.annote("DomainError", { description: "…" })
@@ -92,8 +92,9 @@ class DomainError extends S.TaggedError<DomainError>($I`DomainError`)(
 ```
 
 Use the package `$I` composer for a distinct namespaced identifier. When no
-distinct identifier is needed, use `S.TaggedError<ParseError>()("ParseError",
-fields)`. Never pass a bare identifier equal to the tag.
+distinct identifier is needed, use
+`S.TaggedError<ParseError, { readonly brand: unique symbol }>()("ParseError", fields)`.
+Never pass a bare identifier equal to the tag.
 
 `$I` API: `` $I`Name` `` (schema identifier), `$I.annote(name, extras)` (annotation record),
 `$I.annoteSchema(name, extras)` / `$I.annoteKey(name, extras)` (pipeable), `$XId.create(seg)`
@@ -107,7 +108,7 @@ fields)`. Never pass a bare identifier equal to the tag.
 | `Effect.fn("Name")(function* …)` / `Effect.fnUntraced(...)` | production (traced) / tests + hot paths (untraced) — never `(a) => Effect.gen(...)`. |
 | `dual(2, impl)` | public 2–3-arg helpers get data-first + data-last for free (EF-18). |
 | `flow(...)` | passthrough `pipe` callbacks; direct helper refs over trivial lambdas. |
-| `S.toArbitrary(Schema)` + `@effect/vitest` (`FastCheck as fc`) | derive test data from the schema; delete hand fixtures. `Md.test.ts:45`, `Lexical.model.test.ts:16` |
+| `Arbitrary.schema(Schema)` (`effect/Arbitrary`) + `it.prop` (`@effect/vitest`) | derive test data from the schema; delete hand fixtures. `Md.test.ts:120`, `Lexical.model.test.ts:85` |
 
 ---
 
@@ -121,9 +122,11 @@ Distilled from `packages/foundation/modeling/md/src/` and `.../lexical/src/`.
 // before: H1..H6 as six S.TaggedClass nodes, six render arms, two lookup tables
 // after:
 export const HeadingLevel = LiteralKit([1,2,3,4,5,6]).pipe($I.annoteSchema("HeadingLevel", { … }));  // Md.model.ts:830
-export class Heading extends S.TaggedClass<Heading>($I`Heading`)("heading",
-  { level: HeadingLevel.annotateKey({ … }), children: … }, $I.annote("Heading", { … })) {
-  static readonly is = S.is(Heading);                                                                  // Md.model.ts:873
+export class Heading extends S.Opaque<Heading, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("heading", { level: HeadingLevel.annotateKey({ … }), children: … })
+    .pipe($I.annoteSchema("Heading", { … }))
+) {
+  static readonly is = S.is(Heading);
 }
 // one render arm: heading: (b) => `${Str.repeat("#")(b.level)} ${inline(b.children)}`
 // Md.h1…h6 stay as thin builders that construct Heading with a level.
@@ -169,10 +172,13 @@ export const segmentInlineRuns: {
 
 **6. Hand fixtures → schema-derived property laws.**
 ```ts
-import { FastCheck as fc } from "effect/testing";
-const DocumentArbitrary = S.toArbitrary(Document);                 // Md.test.ts:47
-it("round-trips losslessly", () => fc.assert(fc.property(DocumentArbitrary, (doc) =>
-  expect(decode(encode(doc))).toEqual(doc)), { numRuns: 50 }));
+import { fcRuns } from "@beep/test-utils";
+import { expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+const DocumentArbitrary = Arbitrary.schema(Document);              // Md.test.ts:120
+it.prop("round-trips losslessly", [DocumentArbitrary], ([doc]) => {
+  expect(decode(encode(doc))).toEqual(doc);
+}, { arbitrary: fcRuns(50) });
 // codec law: Md → Lexical → Md stabilizes after one pass (the lossiness profile IS the law).
 ```
 

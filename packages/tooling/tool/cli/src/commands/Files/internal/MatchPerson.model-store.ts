@@ -15,7 +15,9 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { HttpClient, HttpClientError, HttpClientRequest } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Match from "effect/Match";
 import * as Num from "effect/Number";
 import * as Path from "effect/Path";
@@ -45,8 +47,8 @@ const insightFaceLicenseNotice =
 const cvlFaceLicenseNotice =
   "CVLFace code is MIT-licensed; checkpoint use is also subject to the training-dataset and model-card terms at the pinned source.";
 
-class PinnedModelArtifact extends S.Class<PinnedModelArtifact>($I`PinnedModelArtifact`)(
-  {
+class PinnedModelArtifact extends S.Opaque<PinnedModelArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     component: S.Literals(["detector", "aligner", "recognizer"]),
     fileName: S.NonEmptyString,
     licenseNotice: S.NonEmptyString,
@@ -55,10 +57,11 @@ class PinnedModelArtifact extends S.Class<PinnedModelArtifact>($I`PinnedModelArt
     sha256: Sha256Hex,
     sizeBytes: PosInt,
     url: S.NonEmptyString,
-  },
-  $I.annote("PinnedModelArtifact", {
-    description: "One immutable person-match component artifact and its exact provenance and expected bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("PinnedModelArtifact", {
+      description: "One immutable person-match component artifact and its exact provenance and expected bytes.",
+    })
+  )
 ) {}
 
 const recognizerArtifact = PinnedModelArtifact.make({
@@ -108,24 +111,26 @@ const buffaloRecognizerArtifact = PinnedModelArtifact.make({
 const pinnedArtifacts = [alignerArtifact, recognizerArtifact] as const;
 const pinnedComponents = ["aligner", "recognizer"] as const;
 
-class ObservedArtifact extends S.Class<ObservedArtifact>($I`ObservedArtifact`)(
-  {
+class ObservedArtifact extends S.Opaque<ObservedArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
-  },
-  $I.annote("ObservedArtifact", {
-    description: "Bounded-memory size and SHA-256 observation for one local model artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObservedArtifact", {
+      description: "Bounded-memory size and SHA-256 observation for one local model artifact.",
+    })
+  )
 ) {}
 
-class InstalledArtifactExpectation extends S.Class<InstalledArtifactExpectation>($I`InstalledArtifactExpectation`)(
-  {
+class InstalledArtifactExpectation extends S.Opaque<InstalledArtifactExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifact: PinnedModelArtifact,
     path: S.NonEmptyString,
-  },
-  $I.annote("InstalledArtifactExpectation", {
-    description: "One pinned model artifact paired with its only accepted canonical installation path.",
-  })
+  }).pipe(
+    $I.annoteSchema("InstalledArtifactExpectation", {
+      description: "One pinned model artifact paired with its only accepted canonical installation path.",
+    })
+  )
 ) {}
 
 /**
@@ -147,14 +152,15 @@ class InstalledArtifactExpectation extends S.Class<InstalledArtifactExpectation>
  * @category models
  * @since 0.0.0
  */
-export class PreparedAdaFaceArtifacts extends S.Class<PreparedAdaFaceArtifacts>($I`PreparedAdaFaceArtifacts`)(
-  {
+export class PreparedAdaFaceArtifacts extends S.Opaque<PreparedAdaFaceArtifacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     alignerPath: S.NonEmptyString,
     recognizerPath: S.NonEmptyString,
-  },
-  $I.annote("PreparedAdaFaceArtifacts", {
-    description: "Canonical aligner and recognizer paths passed explicitly to the AdaFace worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreparedAdaFaceArtifacts", {
+      description: "Canonical aligner and recognizer paths passed explicitly to the AdaFace worker.",
+    })
+  )
 ) {}
 
 type ModelStoreRequirements = FileSystem.FileSystem | Path.Path | Crypto.Crypto | HttpClient.HttpClient;
@@ -322,9 +328,11 @@ const acquireModelStoreLock = Effect.fn("Files.PersonMatchModelStore.acquireLock
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const lockPath = path.join(modelRoot, modelStoreLockName);
-  const token = yield* crypto.randomUUIDv4.pipe(
-    Effect.mapError((cause) => acquisitionError("Failed to generate the AdaFace model-store lock token.", cause))
-  );
+  const token = yield* crypto
+    .randomUUIDv4()
+    .pipe(
+      Effect.mapError((cause) => acquisitionError("Failed to generate the AdaFace model-store lock token.", cause))
+    );
   yield* fs
     .writeFileString(lockPath, token, { flag: "wx", mode: 0o600 })
     .pipe(

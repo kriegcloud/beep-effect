@@ -389,8 +389,7 @@ const defaultJinaSettings = JinaSettings.make({});
  * @category configuration
  * @since 0.0.0
  */
-export class AppConfig extends S.Class<AppConfig>($I`AppConfig`)(
-  {
+export class AppConfig extends S.Opaque<AppConfig, { readonly brand: unique symbol }>()(S.Struct({
     llm: LlmSettings.pipe(S.withConstructorDefault(Effect.succeed(defaultLlmSettings)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultLlmSettings))),
     storage: StorageSettings.pipe(S.withConstructorDefault(Effect.succeed(defaultStorageSettings)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultStorageSettings))),
     ontology: OntologySettings.pipe(S.withConstructorDefault(Effect.succeed(defaultOntologySettings)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultOntologySettings))),
@@ -404,11 +403,9 @@ export class AppConfig extends S.Class<AppConfig>($I`AppConfig`)(
     rdf: RdfSettings.pipe(S.withConstructorDefault(Effect.succeed(defaultRdfSettings)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultRdfSettings))),
     api: ApiSettings.pipe(S.withConstructorDefault(Effect.succeed(defaultApiSettings)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultApiSettings))),
     jina: JinaSettings.pipe(S.withConstructorDefault(Effect.succeed(defaultJinaSettings)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultJinaSettings))),
-  },
-  $I.annote("AppConfig", {
+  }).pipe($I.annoteSchema("AppConfig", {
     description: "Schema-backed configuration for ontology extraction, storage, inference, and provider services.",
-  })
-) {}
+  }))) {}
 
 /**
  * Application configuration constructed exclusively from schema defaults.

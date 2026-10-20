@@ -29,7 +29,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { SqlClient } from "effect/sql";
+import * as SqlClient from "effect/sql/SqlClient";
 import { formatPgVector, normalizeDrizzleError } from "../Utils/Sql.ts";
 import type { LlmExampleRow } from "./schema.ts";
 import { LlmExamples, llmExamples } from "./schema.ts";
@@ -227,18 +227,15 @@ const exampleRetrievalOptionsMinSimilarityDefault = UnitInterval.make(0.6);
  * @category configuration
  * @since 0.0.0
  */
-export class ExampleRetrievalOptions extends S.Class<ExampleRetrievalOptions>($I`ExampleRetrievalOptions`)(
-  {
+export class ExampleRetrievalOptions extends S.Opaque<ExampleRetrievalOptions, { readonly brand: unique symbol }>()(S.Struct({
     k: PosInt.pipe(S.withConstructorDefault(Effect.succeed(exampleRetrievalOptionsKDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(exampleRetrievalOptionsKDefault))),
     minSimilarity: UnitInterval.pipe(S.withConstructorDefault(Effect.succeed(exampleRetrievalOptionsMinSimilarityDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(exampleRetrievalOptionsMinSimilarityDefault))),
     targetClass: S.optionalKey(S.NonEmptyString),
     targetPredicate: S.optionalKey(S.NonEmptyString),
     includeNegatives: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))),
-  },
-  $I.annote("ExampleRetrievalOptions", {
+  }).pipe($I.annoteSchema("ExampleRetrievalOptions", {
     description: "Validated retrieval count, threshold, optional ontology filters, and negative-example policy.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ExampleRetrievalOptions}.
@@ -272,8 +269,7 @@ export type ExampleRetrievalOptionsInput = (typeof ExampleRetrievalOptions)["~ty
  * @category models
  * @since 0.0.0
  */
-export class CreateExampleInput extends S.Class<CreateExampleInput>($I`CreateExampleInput`)(
-  {
+export class CreateExampleInput extends S.Opaque<CreateExampleInput, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString,
     exampleType: ExampleType,
     source: ExampleSource.pipe(S.withConstructorDefault(Effect.succeed(ExampleSource.Enum.manual)), S.withDecodingDefaultTypeKey(Effect.succeed(ExampleSource.Enum.manual))),
@@ -290,11 +286,9 @@ export class CreateExampleInput extends S.Class<CreateExampleInput>($I`CreateExa
     isNegative: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))),
     negativePattern: S.optionalKey(S.NonEmptyString),
     createdBy: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("CreateExampleInput", {
+  }).pipe($I.annoteSchema("CreateExampleInput", {
     description: "Validated repository input for creating a few-shot example.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link CreateExampleInput}.

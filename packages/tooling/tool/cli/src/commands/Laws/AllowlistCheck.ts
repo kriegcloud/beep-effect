@@ -6,8 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
-import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
+import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/laws/EffectLawsAllowlistSnapshotCodegen";
+import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots";
 import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
@@ -43,7 +43,7 @@ const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
  */
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
 const ALLOWLIST_SNAPSHOT_PATH =
-  "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
+  "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts";
 const NO_NATIVE_RUNTIME_RULE_ID = "beep-laws/no-native-runtime";
 
 const EffectLawsAllowlistRuleId = LiteralKit([NO_NATIVE_RUNTIME_RULE_ID]).pipe(
@@ -85,8 +85,8 @@ const DateYmdString = S.String.check(
   })
 );
 
-class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>($I`EffectLawsAllowlistEntry`)(
-  {
+class EffectLawsAllowlistEntry extends S.Opaque<EffectLawsAllowlistEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     rule: EffectLawsAllowlistRuleId,
     file: NonEmptyString,
     kind: NativeRuntimeAllowlistKind,
@@ -94,24 +94,26 @@ class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>($I`Effe
     owner: NonEmptyString,
     issue: NonEmptyString,
     expiresOn: DateYmdString.pipe(S.UndefinedOr, S.optionalKey),
-  },
-  $I.annote("EffectLawsAllowlistEntry", {
-    description: "Single allowlist entry describing a temporary exception for an Effect law.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistEntry", {
+      description: "Single allowlist entry describing a temporary exception for an Effect law.",
+    })
+  )
 ) {}
 
 // fallow-ignore-next-line code-duplication -- CLI allowlist checks intentionally keep a command-local schema boundary.
-class EffectLawsAllowlistDocument extends S.Class<EffectLawsAllowlistDocument>($I`EffectLawsAllowlistDocument`)(
-  {
+class EffectLawsAllowlistDocument extends S.Opaque<EffectLawsAllowlistDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
       S.withDecodingDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>()))
     ),
-  },
-  $I.annote("EffectLawsAllowlistDocument", {
-    description: "Schema-backed allowlist document for custom Effect law exceptions.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistDocument", {
+      description: "Schema-backed allowlist document for custom Effect law exceptions.",
+    })
+  )
 ) {}
 
 const decodeEffectLawsAllowlist = S.decodeUnknownEffect(EffectLawsAllowlistDocument);
@@ -128,13 +130,14 @@ const decodeEffectLawsAllowlist = S.decodeUnknownEffect(EffectLawsAllowlistDocum
  * @category models
  * @since 0.0.0
  */
-export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`AllowlistCheckOptions`)(
-  {
+export class AllowlistCheckOptions extends S.Opaque<AllowlistCheckOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cwd: NonEmptyString,
-  },
-  $I.annote("AllowlistCheckOptions", {
-    description: "Runtime options for effect laws allowlist integrity checks starting from a workspace directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("AllowlistCheckOptions", {
+      description: "Runtime options for effect laws allowlist integrity checks starting from a workspace directory.",
+    })
+  )
 ) {}
 
 /**
@@ -149,17 +152,18 @@ export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`All
  * @category models
  * @since 0.0.0
  */
-export class AllowlistCheckSummary extends S.Class<AllowlistCheckSummary>($I`AllowlistCheckSummary`)(
-  {
+export class AllowlistCheckSummary extends S.Opaque<AllowlistCheckSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     ok: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
     diagnostics: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("AllowlistCheckSummary", {
-    description: "Summary of effect laws allowlist integrity diagnostics.",
-  })
+  }).pipe(
+    $I.annoteSchema("AllowlistCheckSummary", {
+      description: "Summary of effect laws allowlist integrity diagnostics.",
+    })
+  )
 ) {}
 
 const parseAllowlistText = (text: string): Result.Result<unknown, ReadonlyArray<string>> => {

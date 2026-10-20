@@ -19,8 +19,10 @@ docks and tiling.
 
 ## Next Open Question
 
-None. Graduated into [`goals/review-verdict-envelope`](../../goals/review-verdict-envelope/README.md); gated MAP rows are the
-re-entry points.
+None open. The question-loop re-entry graduated (PR #1778) into
+[`goals/attorney-question-loop`](../../goals/attorney-question-loop/README.md), and
+[`research/AMENDMENT-question-card.md`](./research/AMENDMENT-question-card.md) goes to the
+owner of the `practice-claude-mod-review-queue` follow-on. Gated MAP rows remain re-entry points.
 
 ## Read This First
 
@@ -37,6 +39,10 @@ re-entry points.
 
 ## Trail
 
+- 2026-10-14: re-entered at `decompose` for the attorney question loop, routed from the docket
+  spot-check session. Align (4 rulings) and the shape review (3 rulings) are settled. The packet
+  graduates `goals/attorney-question-loop` plus a pane-card amendment; email-reply parsing and
+  auto-apply are gated.
 - 2026-10-14: graduated into `goals/review-verdict-envelope` with `bun run beep explore graduate`; goal SPEC seeded
   from the brief and reviewed independently.
 - 2026-10-14: packet opened. Six-facet research with skeptics: 29 claims confirmed, 13 corrected.

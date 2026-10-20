@@ -20,7 +20,8 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
@@ -197,8 +198,8 @@ export const CiOperationalLive = Layer.effect(
       Redacted.Redacted<string>,
     ]) {
       const raw = Redacted.value(value);
-      let delimiter = `beep_ci_env_${yield* crypto.randomUUIDv4}`;
-      while (A.contains(Str.split(raw, /\r?\n/u), delimiter)) delimiter = `beep_ci_env_${yield* crypto.randomUUIDv4}`;
+      let delimiter = `beep_ci_env_${yield* crypto.randomUUIDv4()}`;
+      while (A.contains(Str.split(raw, /\r?\n/u), delimiter)) delimiter = `beep_ci_env_${yield* crypto.randomUUIDv4()}`;
       return `${name}<<${delimiter}\n${raw}\n${delimiter}\n`;
     });
     const jobEnvironment = Effect.gen(function* () {

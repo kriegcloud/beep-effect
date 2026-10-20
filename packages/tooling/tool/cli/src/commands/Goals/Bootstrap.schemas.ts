@@ -452,14 +452,15 @@ export type MaterializationPlanId = typeof MaterializationPlanId.Type;
  * @category models
  * @since 0.0.0
  */
-export class PlanConflict extends S.Class<PlanConflict>($I`PlanConflict`)(
-  {
+export class PlanConflict extends S.Opaque<PlanConflict, { readonly brand: unique symbol }>()(
+  S.Struct({
     reason: PlanConflictReason,
     message: S.String,
-  },
-  $I.annote("PlanConflict", {
-    description: "One reason plan compilation failed closed; a conflicted plan emits no entries.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlanConflict", {
+      description: "One reason plan compilation failed closed; a conflicted plan emits no entries.",
+    })
+  )
 ) {}
 
 /**
@@ -489,8 +490,8 @@ export class PlanConflict extends S.Class<PlanConflict>($I`PlanConflict`)(
  * @category models
  * @since 0.0.0
  */
-export class PlanEntry extends S.Class<PlanEntry>($I`PlanEntry`)(
-  {
+export class PlanEntry extends S.Opaque<PlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     action: PlanAction,
     ownership: PlanOwnership,
@@ -498,8 +499,7 @@ export class PlanEntry extends S.Class<PlanEntry>($I`PlanEntry`)(
     payload: S.optionalKey(S.String),
     payloadDigest: S.optionalKey(PlanDigest),
     existingDigest: S.optionalKey(PlanDigest),
-  },
-  $I.annote("PlanEntry", { description: "One path the plan would create, retain, preserve, or report." })
+  }).pipe($I.annoteSchema("PlanEntry", { description: "One path the plan would create, retain, preserve, or report." }))
 ) {}
 
 /**
@@ -530,14 +530,13 @@ export class PlanEntry extends S.Class<PlanEntry>($I`PlanEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class PlanPreservation extends S.Class<PlanPreservation>($I`PlanPreservation`)(
-  {
+export class PlanPreservation extends S.Opaque<PlanPreservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     unmodeledKeys: S.Array(S.String),
     preImageDigest: PlanDigest,
     reason: S.String,
-  },
-  $I.annote("PlanPreservation", { description: "Bytes and unmodeled keys adoption must not lose." })
+  }).pipe($I.annoteSchema("PlanPreservation", { description: "Bytes and unmodeled keys adoption must not lose." }))
 ) {}
 
 /**
@@ -564,8 +563,8 @@ export class PlanPreservation extends S.Class<PlanPreservation>($I`PlanPreservat
  * @category models
  * @since 0.0.0
  */
-export class MaterializationPlan extends S.Class<MaterializationPlan>($I`MaterializationPlan`)(
-  {
+export class MaterializationPlan extends S.Opaque<MaterializationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("goal-materialization-plan/v1"),
     compilerVersion: S.tag("goal-materialization-compiler/v1"),
     planId: MaterializationPlanId,
@@ -578,8 +577,9 @@ export class MaterializationPlan extends S.Class<MaterializationPlan>($I`Materia
     conflicts: S.Array(PlanConflict),
     towardArchetype: S.optionalKey(PhaseArchetype),
     templateSnapshotHash: S.optionalKey(PlanDigest),
-  },
-  $I.annote("MaterializationPlan", { description: "Deterministic, content-addressed materialization intent." })
+  }).pipe(
+    $I.annoteSchema("MaterializationPlan", { description: "Deterministic, content-addressed materialization intent." })
+  )
 ) {}
 
 /**
@@ -610,8 +610,8 @@ export class MaterializationPlan extends S.Class<MaterializationPlan>($I`Materia
  * @category models
  * @since 0.0.0
  */
-export class BootstrapInput extends S.Class<BootstrapInput>($I`BootstrapInput`)(
-  {
+export class BootstrapInput extends S.Opaque<BootstrapInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: GoalSlug,
     title: S.String,
     mission: S.String,
@@ -630,8 +630,11 @@ export class BootstrapInput extends S.Class<BootstrapInput>($I`BootstrapInput`)(
         message: "Expected an explicit ISO date (YYYY-MM-DD)",
       })
     ),
-  },
-  $I.annote("BootstrapInput", { description: "Everything the pure bootstrap compiler needs; no ambient state." })
+  }).pipe(
+    $I.annoteSchema("BootstrapInput", {
+      description: "Everything the pure bootstrap compiler needs; no ambient state.",
+    })
+  )
 ) {}
 
 /**
@@ -653,15 +656,16 @@ export class BootstrapInput extends S.Class<BootstrapInput>($I`BootstrapInput`)(
  * @category models
  * @since 0.0.0
  */
-export class PacketSnapshotFile extends S.Class<PacketSnapshotFile>($I`PacketSnapshotFile`)(
-  {
+export class PacketSnapshotFile extends S.Opaque<PacketSnapshotFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     text: S.String,
     digest: PlanDigest,
-  },
-  $I.annote("PacketSnapshotFile", {
-    description: "One packet-relative file with its exact text and SHA-256 digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketSnapshotFile", {
+      description: "One packet-relative file with its exact text and SHA-256 digest.",
+    })
+  )
 ) {}
 
 /**
@@ -694,18 +698,19 @@ export class PacketSnapshotFile extends S.Class<PacketSnapshotFile>($I`PacketSna
  * @category models
  * @since 0.0.0
  */
-export class PacketSnapshot extends S.Class<PacketSnapshot>($I`PacketSnapshot`)(
-  {
+export class PacketSnapshot extends S.Opaque<PacketSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     packetPath: S.String,
     exists: S.Boolean,
     files: S.Array(PacketSnapshotFile),
     templateFiles: S.Array(PacketSnapshotFile),
     templateSnapshotHash: PlanDigest,
-  },
-  $I.annote("PacketSnapshot", {
-    description: "Read-only packet and template capture that pure adoption compilation consumes.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketSnapshot", {
+      description: "Read-only packet and template capture that pure adoption compilation consumes.",
+    })
+  )
 ) {}
 
 /**
@@ -812,12 +817,15 @@ export const validationRequirementsForGoalDoctorFinding = (
  * @category models
  * @since 0.0.0
  */
-export class MaterializedFile extends S.Class<MaterializedFile>($I`MaterializedFile`)(
-  {
+export class MaterializedFile extends S.Opaque<MaterializedFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     digest: PlanDigest,
-  },
-  $I.annote("MaterializedFile", { description: "One file a materialization write created, with its byte digest." })
+  }).pipe(
+    $I.annoteSchema("MaterializedFile", {
+      description: "One file a materialization write created, with its byte digest.",
+    })
+  )
 ) {}
 
 /**
@@ -840,16 +848,17 @@ export class MaterializedFile extends S.Class<MaterializedFile>($I`MaterializedF
  * @category models
  * @since 0.0.0
  */
-export class MaterializationReceipt extends S.Class<MaterializationReceipt>($I`MaterializationReceipt`)(
-  {
+export class MaterializationReceipt extends S.Opaque<MaterializationReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("goal-materialization-receipt/v1"),
     planId: MaterializationPlanId,
     mode: PlanMode,
     slug: S.String,
     written: S.Array(MaterializedFile),
     validations: S.Array(ValidationRequirement),
-  },
-  $I.annote("MaterializationReceipt", {
-    description: "What a --write replay of a reviewed materialization plan created and validated.",
-  })
+  }).pipe(
+    $I.annoteSchema("MaterializationReceipt", {
+      description: "What a --write replay of a reviewed materialization plan created and validated.",
+    })
+  )
 ) {}

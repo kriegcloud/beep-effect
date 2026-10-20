@@ -159,15 +159,16 @@ const decodeCogneeApiUrl = S.decodeUnknownEffect(CogneeApiUrl);
  * @internal
  * @category models
  */
-export class CogneeCardUpload extends S.Class<CogneeCardUpload>($I`CogneeCardUpload`)(
-  {
+export class CogneeCardUpload extends S.Opaque<CogneeCardUpload, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.String,
     fileName: S.String,
-  },
-  $I.annote("CogneeCardUpload", {
-    title: "Cognee Card Upload",
-    description: "One markdown card queued for upload to a Cognee dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("CogneeCardUpload", {
+      title: "Cognee Card Upload",
+      description: "One markdown card queued for upload to a Cognee dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -193,16 +194,17 @@ export class CogneeCardUpload extends S.Class<CogneeCardUpload>($I`CogneeCardUpl
  * @internal
  * @category models
  */
-export class CogneeSettings extends S.Class<CogneeSettings>($I`CogneeSettings`)(
-  {
+export class CogneeSettings extends S.Opaque<CogneeSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiUrl: CogneeApiUrl,
     email: Email,
     password: S.Redacted(S.String),
-  },
-  $I.annote("CogneeSettings", {
-    title: "Cognee Settings",
-    description: "Cognee API URL plus the login email and redacted password research cognify authenticates with.",
-  })
+  }).pipe(
+    $I.annoteSchema("CogneeSettings", {
+      title: "Cognee Settings",
+      description: "Cognee API URL plus the login email and redacted password research cognify authenticates with.",
+    })
+  )
 ) {}
 
 /**
@@ -211,35 +213,38 @@ export class CogneeSettings extends S.Class<CogneeSettings>($I`CogneeSettings`)(
  * @internal
  * @category models
  */
-export class CogneeConnection extends S.Class<CogneeConnection>($I`CogneeConnection`)(
-  {
+export class CogneeConnection extends S.Opaque<CogneeConnection, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiUrl: S.String,
     token: S.String,
-  },
-  $I.annote("CogneeConnection", {
-    title: "Cognee Connection",
-    description: "Resolved Cognee API URL and bearer token used by research cognify.",
-  })
+  }).pipe(
+    $I.annoteSchema("CogneeConnection", {
+      title: "Cognee Connection",
+      description: "Resolved Cognee API URL and bearer token used by research cognify.",
+    })
+  )
 ) {}
 
-class LoginResponse extends S.Class<LoginResponse>($I`LoginResponse`)(
-  { access_token: S.String },
-  $I.annote("LoginResponse", {
-    title: "Login Response",
-    description: "Cognee login response containing the bearer access token.",
-  })
+class LoginResponse extends S.Opaque<LoginResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ access_token: S.String }).pipe(
+    $I.annoteSchema("LoginResponse", {
+      title: "Login Response",
+      description: "Cognee login response containing the bearer access token.",
+    })
+  )
 ) {}
 const decodeLoginResponse = S.decodeUnknownEffect(LoginResponse);
 
-class CogneeRawSettings extends S.Class<CogneeRawSettings>($I`CogneeRawSettings`)(
-  {
+class CogneeRawSettings extends S.Opaque<CogneeRawSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiUrl: S.String,
     email: Email,
     password: S.Redacted(S.String),
-  },
-  $I.annote("CogneeRawSettings", {
-    description: "Cognee environment values as read, before the API URL transport check.",
-  })
+  }).pipe(
+    $I.annoteSchema("CogneeRawSettings", {
+      description: "Cognee environment values as read, before the API URL transport check.",
+    })
+  )
 ) {}
 
 const readRawCogneeSettings: Effect.Effect<O.Option<CogneeRawSettings>, ResearchCommandError> = Effect.gen(

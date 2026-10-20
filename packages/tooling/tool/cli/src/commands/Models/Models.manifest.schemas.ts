@@ -351,18 +351,19 @@ export const isEffortAllowedOnSurface: {
  * @category models
  * @since 0.0.0
  */
-export class ModelBinding extends S.Class<ModelBinding>($I`ModelBinding`)(
-  {
+export class ModelBinding extends S.Opaque<ModelBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: RoutingRole,
     surface: RoutingSurface,
     modelId: ModelId,
     effort: S.OptionFromOptionalKey(EffortLevel),
     supersedes: S.Array(ModelId).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
     note: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("ModelBinding", {
-    description: "One role-by-surface pin naming a model and, where the surface expresses one, an effort.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelBinding", {
+      description: "One role-by-surface pin naming a model and, where the surface expresses one, an effort.",
+    })
+  )
 ) {}
 
 // ── Projection targets ──────────────────────────────────────────────────────
@@ -537,15 +538,16 @@ export const LocatorFieldIs = LocatorFieldKit.is;
  * @category models
  * @since 0.0.0
  */
-export class LocatorBinding extends S.Class<LocatorBinding>($I`LocatorBinding`)(
-  {
+export class LocatorBinding extends S.Opaque<LocatorBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: RoutingRole,
     surface: RoutingSurface,
     field: LocatorField,
-  },
-  $I.annote("LocatorBinding", {
-    description: "The role-by-surface binding, and which of its values, a locator writes.",
-  })
+  }).pipe(
+    $I.annoteSchema("LocatorBinding", {
+      description: "The role-by-surface binding, and which of its values, a locator writes.",
+    })
+  )
 ) {}
 
 /**
@@ -571,14 +573,15 @@ export class LocatorBinding extends S.Class<LocatorBinding>($I`LocatorBinding`)(
  * @category models
  * @since 0.0.0
  */
-export class BindingFilter extends S.Class<BindingFilter>($I`BindingFilter`)(
-  {
+export class BindingFilter extends S.Opaque<BindingFilter, { readonly brand: unique symbol }>()(
+  S.Struct({
     roles: S.Array(RoutingRole).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
     surfaces: S.Array(RoutingSurface).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
-  },
-  $I.annote("BindingFilter", {
-    description: "Which bindings a generated block renders; an empty list on either axis means all of them.",
-  })
+  }).pipe(
+    $I.annoteSchema("BindingFilter", {
+      description: "Which bindings a generated block renders; an empty list on either axis means all of them.",
+    })
+  )
 ) {}
 
 /**
@@ -596,14 +599,15 @@ export class BindingFilter extends S.Class<BindingFilter>($I`BindingFilter`)(
  * @category models
  * @since 0.0.0
  */
-export class EffortDisplayLabel extends S.Class<EffortDisplayLabel>($I`EffortDisplayLabel`)(
-  {
+export class EffortDisplayLabel extends S.Opaque<EffortDisplayLabel, { readonly brand: unique symbol }>()(
+  S.Struct({
     effort: EffortLevel,
     label: S.NonEmptyString,
-  },
-  $I.annote("EffortDisplayLabel", {
-    description: "How one effort level is spelled in a surface that stores display labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffortDisplayLabel", {
+      description: "How one effort level is spelled in a surface that stores display labels.",
+    })
+  )
 ) {}
 
 /**
@@ -787,6 +791,124 @@ export const Locator = LiteralKit([
 export type Locator = typeof Locator.Type;
 
 /**
+ * A locator write owns only the scalar or generated-block spans it resolves.
+ * Missing and ambiguous scalar addresses fail closed. ModelsApply writes only TOML
+ * and JSON; YAML, XML and shell addresses are check-only.
+ *
+ * **Example** (Describe a scalar projection)
+ *
+ * ```ts
+ * import { ModelsLocatorWrite } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsLocatorWrite.fields.expected)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsLocatorWrite extends S.Opaque<ModelsLocatorWrite, { readonly brand: unique symbol }>()(
+  S.Struct({
+    locator: Locator,
+    expected: S.String,
+    remove: S.optionalKey(S.Literal(true)),
+  }).pipe(
+    $I.annoteSchema("ModelsLocatorWrite", {
+      description:
+        "One grammar-specific locator and its expected scalar or generated block body; never whole-file ownership.",
+    })
+  )
+) {}
+
+/**
+ * One replacement range, measured in UTF-16 offsets into the original text.
+ *
+ * **Example** (Own one quoted value)
+ *
+ * ```ts
+ * import { ModelsWriteSpan } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsWriteSpan.make({ start: 8, end: 13, before: '"old"', after: '"new"' }).start)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsWriteSpan extends S.Opaque<ModelsWriteSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
+    start: S.Int,
+    end: S.Int,
+    before: S.String,
+    after: S.String,
+  }).pipe(
+    $I.annoteSchema("ModelsWriteSpan", {
+      description: "An owned text range with its drift fence and replacement.",
+    })
+  )
+) {}
+
+/**
+ * Explicit modes for the owned-field writer; the default CLI mode is dry-run.
+ *
+ * **Example** (Check a mode)
+ *
+ * ```ts
+ * import { ModelsApplyMode } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(ModelsApplyMode)("dry-run"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ModelsApplyMode = LiteralKit(["check", "dry-run", "write"]).pipe(
+  $I.annoteSchema("ModelsApplyMode", {
+    description: "Whether to check, preview, or apply owned-field edits.",
+  })
+);
+
+/**
+ * Writer mode derived from its schema.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ModelsApplyMode = typeof ModelsApplyMode.Type;
+
+/**
+ * A private recovery record; file contents stay in the exclusive backup.
+ *
+ * **Details**
+ *
+ * Restore independently validates TOML/JSON ownership, matching canonical path
+ * extensions and current syntax. Historical tags alone never authorize a write.
+ *
+ * **Example** (Inspect recovery fields)
+ *
+ * ```ts
+ * import { ModelsApplyJournal } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsApplyJournal.fields.backup)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsApplyJournal extends S.Opaque<ModelsApplyJournal, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    file: S.NonEmptyString,
+    backup: S.NonEmptyString,
+    beforeHash: S.NonEmptyString,
+    afterHash: S.NonEmptyString,
+    mode: S.Int,
+    writes: ModelsLocatorWrite.pipe(S.NonEmptyArray, S.OptionFromOptionalKey),
+    requestedFile: S.OptionFromOptionalKey(S.NonEmptyString),
+    requestedLink: S.OptionFromOptionalKey(S.NonEmptyString),
+  }).pipe(
+    $I.annoteSchema("ModelsApplyJournal", {
+      description: "Private recovery metadata written before a native file is replaced.",
+    })
+  )
+) {}
+
+/**
  * One file the projection writes, and every locator inside it.
  *
  * **Details**
@@ -814,17 +936,18 @@ export type Locator = typeof Locator.Type;
  * @category models
  * @since 0.0.0
  */
-export class ModelSyncTarget extends S.Class<ModelSyncTarget>($I`ModelSyncTarget`)(
-  {
+export class ModelSyncTarget extends S.Opaque<ModelSyncTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TargetId,
     root: TargetRoot,
     path: S.NonEmptyString,
     optional: S.Boolean.pipe(S.withDecodingDefaultKey(Effect.succeed(false))),
     locators: S.Array(Locator),
-  },
-  $I.annote("ModelSyncTarget", {
-    description: "One projection target file, its root, and the locators the projection writes inside it.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelSyncTarget", {
+      description: "One projection target file, its root, and the locators the projection writes inside it.",
+    })
+  )
 ) {}
 
 /**
@@ -860,16 +983,17 @@ export class ModelSyncTarget extends S.Class<ModelSyncTarget>($I`ModelSyncTarget
  * @category models
  * @since 0.0.0
  */
-export class SupersededModel extends S.Class<SupersededModel>($I`SupersededModel`)(
-  {
+export class SupersededModel extends S.Opaque<SupersededModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ModelId,
     retiredAt: S.DateTimeUtcFromString,
     replacedBy: S.OptionFromOptionalKey(ModelId),
     note: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("SupersededModel", {
-    description: "A retired model id, when it was retired, and what replaced it.",
-  })
+  }).pipe(
+    $I.annoteSchema("SupersededModel", {
+      description: "A retired model id, when it was retired, and what replaced it.",
+    })
+  )
 ) {}
 
 /**
@@ -899,14 +1023,52 @@ export class SupersededModel extends S.Class<SupersededModel>($I`SupersededModel
  * @category models
  * @since 0.0.0
  */
-export class ModelsManifest extends S.Class<ModelsManifest>($I`ModelsManifest`)(
-  {
+export class ModelsManifest extends S.Opaque<ModelsManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("beep-models/v1"),
     bindings: S.Array(ModelBinding),
     targets: S.Array(ModelSyncTarget),
     superseded: S.Array(SupersededModel).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
-  },
-  $I.annote("ModelsManifest", {
-    description: "The operator's routing manifest: bindings, projection targets, and the superseded ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsManifest", {
+      description: "The operator's routing manifest: bindings, projection targets, and the superseded ledger.",
+    })
+  )
 ) {}
+
+/**
+ * Certification outcome shared by native checks, writes, and recovery.
+ *
+ * **Example** (Distinguish missing ownership)
+ *
+ * ```ts
+ * import { ModelsEligibilityResult } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * const result = ModelsEligibilityResult.cases["absent-owned-path"].make({ message: "Owned path is absent." })
+ * console.log(result._tag) // "absent-owned-path"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ModelsEligibilityResult = S.TaggedUnion({
+  eligible: { actual: S.String, content: S.String, removalsPresent: S.Boolean },
+  "absent-owned-path": { message: S.String },
+  "unsupported-removal-shape": { message: S.String },
+  "ineligible-format": { message: S.String },
+  "invalid-bytes": { message: S.String },
+  "parse-error": { message: S.String },
+  "not-canonical": { message: S.String },
+  "io-error": { message: S.String },
+}).pipe(
+  $I.annoteSchema("ModelsEligibilityResult", {
+    description: "Parsed native eligibility with distinct ownership, format, byte, canonical-path and I/O outcomes.",
+  })
+);
+
+/**
+ * Runtime type of the shared native certification outcome.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ModelsEligibilityResult = typeof ModelsEligibilityResult.Type;

@@ -58,17 +58,18 @@ const evidenceSubjectSetEquivalence = (
  * @category models
  * @since 0.0.0
  */
-export class SkillCompletionReceipt extends S.Class<SkillCompletionReceipt>($I`SkillCompletionReceipt`)(
-  {
+export class SkillCompletionReceipt extends S.Opaque<SkillCompletionReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     contractId: SkillContractId,
     contractVersion: SemanticVersion,
     gateSummary: GateSummaryReceipt,
     ladder: SemanticallyApplied,
     outputSubjects: S.NonEmptyArray(EvidenceSubject),
-  },
-  $I.annote("SkillCompletionReceipt", {
-    description: "Persistable structural receipt projected from an evaluator-only live completion proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillCompletionReceipt", {
+      description: "Persistable structural receipt projected from an evaluator-only live completion proof.",
+    })
+  )
 ) {}
 
 class SkillCompletionValue {
@@ -164,18 +165,20 @@ export const toSkillCompletionReceipt = (completion: SkillCompletion): SkillComp
  * @category models
  * @since 0.0.0
  */
-export class EvaluateSkillCompletionInput extends S.Class<EvaluateSkillCompletionInput>(
-  $I`EvaluateSkillCompletionInput`
-)(
-  {
+export class EvaluateSkillCompletionInput extends S.Opaque<
+  EvaluateSkillCompletionInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contract: SkillContract,
     gateSummary: GateSummaryReceipt,
     ladder: SemanticallyApplied,
     outputSubjects: S.NonEmptyArray(EvidenceSubject),
-  },
-  $I.annote("EvaluateSkillCompletionInput", {
-    description: "Contract, top-rung evidence, gate summary, and output subjects evaluated for live completion.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvaluateSkillCompletionInput", {
+      description: "Contract, top-rung evidence, gate summary, and output subjects evaluated for live completion.",
+    })
+  )
 ) {}
 
 /**
@@ -231,7 +234,10 @@ export type CompletionInvariantReason = typeof CompletionInvariantReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class CompletionInvariantError extends S.TaggedError<CompletionInvariantError>($I`CompletionInvariantError`)(
+export class CompletionInvariantError extends S.TaggedError<
+  CompletionInvariantError,
+  { readonly brand: unique symbol }
+>($I`CompletionInvariantError`)(
   "CompletionInvariantError",
   {
     message: S.NonEmptyString,
@@ -257,14 +263,15 @@ export class CompletionInvariantError extends S.TaggedError<CompletionInvariantE
  * @category models
  * @since 0.0.0
  */
-export class CompletionAllowed extends S.Class<CompletionAllowed>($I`CompletionAllowed`)(
-  {
+export class CompletionAllowed extends S.Opaque<CompletionAllowed, { readonly brand: unique symbol }>()(
+  S.Struct({
     completion: SkillCompletion,
     verdict: S.tag("allowed"),
-  },
-  $I.annote("CompletionAllowed", {
-    description: "Allowed completion evaluation carrying evaluator-only live proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompletionAllowed", {
+      description: "Allowed completion evaluation carrying evaluator-only live proof.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -283,14 +290,15 @@ export class CompletionAllowed extends S.Class<CompletionAllowed>($I`CompletionA
  * @category models
  * @since 0.0.0
  */
-export class CompletionDenied extends S.Class<CompletionDenied>($I`CompletionDenied`)(
-  {
+export class CompletionDenied extends S.Opaque<CompletionDenied, { readonly brand: unique symbol }>()(
+  S.Struct({
     gateSummary: GateSummaryReceipt,
     verdict: S.tag("denied"),
-  },
-  $I.annote("CompletionDenied", {
-    description: "Denied completion evaluation carrying the audited gate summary as a successful value.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompletionDenied", {
+      description: "Denied completion evaluation carrying the audited gate summary as a successful value.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -459,14 +467,15 @@ export const evaluateSkillCompletion = Effect.fn("SkillCompletion.evaluate")(fun
  * @category models
  * @since 0.0.0
  */
-export class LiveVerified extends S.Class<LiveVerified>($I`LiveVerified`)(
-  {
+export class LiveVerified extends S.Opaque<LiveVerified, { readonly brand: unique symbol }>()(
+  S.Struct({
     completion: SkillCompletion,
     terminal: S.tag("LiveVerified"),
-  },
-  $I.annote("LiveVerified", {
-    description: "Successful live terminal carrying evaluator-only completion proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("LiveVerified", {
+      description: "Successful live terminal carrying evaluator-only completion proof.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -485,16 +494,17 @@ export class LiveVerified extends S.Class<LiveVerified>($I`LiveVerified`)(
  * @category models
  * @since 0.0.0
  */
-export class DeployableBlocked extends S.Class<DeployableBlocked>($I`DeployableBlocked`)(
-  {
+export class DeployableBlocked extends S.Opaque<DeployableBlocked, { readonly brand: unique symbol }>()(
+  S.Struct({
     gateSummary: GateSummaryReceipt,
     ladder: Delivered,
     reason: S.NonEmptyString,
     terminal: S.tag("DeployableBlocked"),
-  },
-  $I.annote("DeployableBlocked", {
-    description: "Delivered terminal that remains non-deployable because gate evidence blocks completion.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeployableBlocked", {
+      description: "Delivered terminal that remains non-deployable because gate evidence blocks completion.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -513,15 +523,17 @@ export class DeployableBlocked extends S.Class<DeployableBlocked>($I`DeployableB
  * @category models
  * @since 0.0.0
  */
-export class FailedWithPartialEffects extends S.Class<FailedWithPartialEffects>($I`FailedWithPartialEffects`)(
-  {
+export class FailedWithPartialEffects extends S.Opaque<FailedWithPartialEffects, { readonly brand: unique symbol }>()(
+  S.Struct({
     failure: FailureReceipt,
     highestRung: S.Option(EvidenceLadderState),
     terminal: S.tag("FailedWithPartialEffects"),
-  },
-  $I.annote("FailedWithPartialEffects", {
-    description: "Failed terminal retaining the highest evidence rung, bounded-recovery receipt, and partial effects.",
-  })
+  }).pipe(
+    $I.annoteSchema("FailedWithPartialEffects", {
+      description:
+        "Failed terminal retaining the highest evidence rung, bounded-recovery receipt, and partial effects.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }

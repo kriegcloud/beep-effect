@@ -62,7 +62,7 @@ import {
   T7PreservationOptions,
 } from "./Preservation.schemas.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { PreservationCommandError } from "../Corpus.errors.ts";
 import type { ArchiveWriterShape, PreservationManifestStoreShape } from "./Preservation.contracts.ts";
 import type { ArchiveWriterLiveOptions, CorpusLedgerRecord } from "./Preservation.schemas.ts";
@@ -89,32 +89,47 @@ const inheritedLossRowsEquivalence = S.toEquivalence(S.Array(InheritedLossRow));
 const isT7ArchiveProvenanceRecord = S.is(T7ArchiveProvenanceRecord);
 type Sha256State = ReturnType<typeof sha256.create>;
 
-class CollectorManifestRecord extends S.Class<CollectorManifestRecord>($I`CollectorManifestRecord`)(
-  {
+/**
+ * Minimal decoded collector-ledger row used to reconcile successful destinations and inherited failures.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CollectorManifestRecord extends S.Opaque<CollectorManifestRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     dst: S.OptionFromOptionalKey(S.NonEmptyString),
     size: S.OptionFromOptionalKey(S.Natural),
     status: S.Literals(["copied", "error", "excluded-secret", "resumed"]),
-  },
-  $I.annote("CollectorManifestRecord", {
-    description:
-      "Minimal decoded collector-ledger row used to reconcile successful destinations and inherited failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorManifestRecord", {
+      description:
+        "Minimal decoded collector-ledger row used to reconcile successful destinations and inherited failures.",
+    })
+  )
 ) {}
 
-class CollectorReconciliationSummary extends S.Class<CollectorReconciliationSummary>(
-  $I`CollectorReconciliationSummary`
-)(
-  {
+/**
+ * Aggregate collector-manifest reconciliation without corpus filenames or other client-bearing evidence.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CollectorReconciliationSummary extends S.Opaque<
+  CollectorReconciliationSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     collectorErrors: S.Natural,
     deliberateExclusions: S.Natural,
     missingDestinations: S.Natural,
     reconciledDestinations: S.Natural,
     sizeMismatches: S.Natural,
-  },
-  $I.annote("CollectorReconciliationSummary", {
-    description:
-      "Aggregate collector-manifest reconciliation without corpus filenames or other client-bearing evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorReconciliationSummary", {
+      description:
+        "Aggregate collector-manifest reconciliation without corpus filenames or other client-bearing evidence.",
+    })
+  )
 ) {}
 
 const CollectorManifestRecordJson = JsonStringCodec(CollectorManifestRecord);

@@ -13,6 +13,7 @@
  */
 
 import { ApiAuth, makeApiTransport } from "@beep/api-transport";
+import { ApiTransportOptions } from "@beep/api-transport/Transport";
 import { $GovinfoId } from "@beep/identity";
 import { URLStr } from "@beep/schema";
 import { O } from "@beep/utils";
@@ -20,7 +21,7 @@ import * as Cache from "effect/Cache";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpApiClient from "effect/http-api/HttpApiClient";
 import * as Layer from "effect/Layer";
 import * as RateLimiter from "effect/persistence/RateLimiter";
@@ -70,20 +71,22 @@ export interface GovinfoShape {
   readonly search: (payload: Search.Payload) => Effect.Effect<Search.Success, GovinfoError>;
 }
 
-class ResolvedConfig extends S.Class<ResolvedConfig>($I`ResolvedConfig`)(
-  {
+class ResolvedConfig extends S.Opaque<ResolvedConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.String.pipe(S.Redacted, S.OptionFromNullishOr),
     apiUrl: URLStr,
-  },
-  $I.annote("ResolvedConfig", {
-    description: "Configuration for the GovInfo driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedConfig", {
+      description: "Configuration for the GovInfo driver.",
+    })
+  )
 ) {}
 
-const resolveConfig = (input: GovinfoConfigInput): ResolvedConfig => ({
-  apiKey: input.apiKey,
-  apiUrl: input.apiUrl,
-});
+const resolveConfig = (input: GovinfoConfigInput): ResolvedConfig =>
+  ResolvedConfig.make({
+    apiKey: input.apiKey,
+    apiUrl: input.apiUrl,
+  });
 
 const authFromKey = (apiKey: O.Option<Redacted.Redacted<string>>): ApiAuth =>
   O.match(apiKey, {
@@ -91,13 +94,14 @@ const authFromKey = (apiKey: O.Option<Redacted.Redacted<string>>): ApiAuth =>
     onSome: (key) => ApiAuth.ApiKeyQueryAuth({ key, param: GOVINFO_API_KEY_PARAM }),
   });
 
-class StatusCause extends S.Class<StatusCause>($I`StatusCause`)(
-  {
+class StatusCause extends S.Opaque<StatusCause, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: GovinfoHttpStatus,
-  },
-  $I.annote("StatusCause", {
-    description: "External HTTP client cause shape carrying a numeric response status.",
-  })
+  }).pipe(
+    $I.annoteSchema("StatusCause", {
+      description: "External HTTP client cause shape carrying a numeric response status.",
+    })
+  )
 ) {}
 
 const decodeStatusCause = S.decodeUnknownOption(StatusCause);
@@ -115,11 +119,13 @@ const mapClientError = (cause: unknown): GovinfoError => {
 };
 
 const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
-  const transport = yield* makeApiTransport({
-    auth: authFromKey(config.apiKey),
-    key: "govinfo",
-    rateLimit: { limit: GOVINFO_RATE_LIMIT, window: GOVINFO_RATE_LIMIT_WINDOW },
-  });
+  const transport = yield* makeApiTransport(
+    ApiTransportOptions.make({
+      auth: authFromKey(config.apiKey),
+      key: "govinfo",
+      rateLimit: { limit: GOVINFO_RATE_LIMIT, window: GOVINFO_RATE_LIMIT_WINDOW },
+    })
+  );
 
   const client = yield* HttpApiClient.make(GovinfoApi, {
     baseUrl: config.apiUrl,
@@ -143,7 +149,7 @@ const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
 const makeFromEnvironment = Effect.fnUntraced(function* () {
   const apiKey = yield* Config.Redacted(GOVINFO_API_KEY_ENV).pipe(Config.option);
   const apiUrl = yield* Config.String("GOVINFO_API_URL").pipe(Config.withDefault(GOVINFO_API_URL));
-  return yield* makeFromResolved({ apiKey, apiUrl: URLStr.make(apiUrl) });
+  return yield* makeFromResolved(ResolvedConfig.make({ apiKey, apiUrl: URLStr.make(apiUrl) }));
 });
 
 /**

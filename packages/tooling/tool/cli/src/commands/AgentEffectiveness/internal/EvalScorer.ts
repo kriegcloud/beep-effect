@@ -26,10 +26,10 @@ import {
 } from "../AgentEffectiveness.schemas.ts";
 import { evaluateSkillOptCompletion, readSourceSnapshots } from "./EvalFixture.ts";
 import { evaluateLaw } from "./EvalLawLanes.ts";
-import { recordAgentEffectivenessEvalScore } from "./EvalRecord.ts";
+import { RecordAgentEffectivenessEvalScoreOptions, recordAgentEffectivenessEvalScore } from "./EvalRecord.ts";
 import { EvalScoring } from "./EvalScoring.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { AgentEffectivenessEvalScoreReport } from "../AgentEffectiveness.schemas.ts";
 
 export * from "../AgentEffectiveness.errors.ts";
@@ -189,10 +189,17 @@ const environmentFailureSummary = (report: AgentEffectivenessEvalScoreReport): s
     A.join(", ")
   );
 
-class RunAgentEffectivenessEvalScoreCommandOptions extends S.Class<RunAgentEffectivenessEvalScoreCommandOptions>(
-  $I`RunAgentEffectivenessEvalScoreCommandOptions`
-)(
-  {
+/**
+ * Options for running an agent effectiveness eval score; the data root is only present when recording.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RunAgentEffectivenessEvalScoreCommandOptions extends S.Opaque<
+  RunAgentEffectivenessEvalScoreCommandOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.Option(S.String),
     dir: S.String,
     json: S.Boolean,
@@ -200,10 +207,12 @@ class RunAgentEffectivenessEvalScoreCommandOptions extends S.Class<RunAgentEffec
     reasoningEffort: S.Option(S.NonEmptyString),
     record: S.Boolean,
     taskPath: S.String,
-  },
-  $I.annote("RunAgentEffectivenessEvalScoreCommandOptions", {
-    description: "Options for running an agent effectiveness eval score; the data root is only present when recording.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunAgentEffectivenessEvalScoreCommandOptions", {
+      description:
+        "Options for running an agent effectiveness eval score; the data root is only present when recording.",
+    })
+  )
 ) {}
 
 /**
@@ -291,15 +300,17 @@ export const runAgentEffectivenessEvalScoreCommand = Effect.fn("AgentEffectivene
       onNone: () => AgentEffectivenessEvalScorerError.new("Recording an eval score requires an AI metrics data root."),
       onSome: Effect.succeed,
     });
-    yield* recordAgentEffectivenessEvalScore({
-      dataRoot: resolvedDataRoot,
-      dir,
-      elapsedMs: Duration.toMillis(elapsed),
-      modelId,
-      reasoningEffort,
-      report,
-      task,
-      taskPath,
-    });
+    yield* recordAgentEffectivenessEvalScore(
+      RecordAgentEffectivenessEvalScoreOptions.make({
+        dataRoot: resolvedDataRoot,
+        dir,
+        elapsedMs: Duration.toMillis(elapsed),
+        modelId,
+        reasoningEffort,
+        report,
+        task,
+        taskPath,
+      })
+    );
   }
 });

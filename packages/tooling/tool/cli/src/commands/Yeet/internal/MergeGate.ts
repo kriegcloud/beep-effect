@@ -12,7 +12,15 @@
  * gate also lists and cancels the merged head's leftover runs and posts a
  * comment, all best effort. Every unknown fails closed: an unreadable ruleset,
  * a GraphQL thread count that did not come back, a missing head commit time,
- * and, in strict mode, a required context with no check run.
+ * a commitlint run that gave no verdict, and, in strict mode, a required
+ * context with no check run.
+ *
+ * The read also predicts the squash commit message GitHub will write for the
+ * merge (`SquashCommitlint.ts`) and lints it with the repo's commitlint: `main`
+ * is squash-only and its Commitlint range is previous-main..new-main, so a
+ * squash body that fails `commitlint.config.ts` is a red on `main` that only
+ * the next merge clears (ep47, 2026-10-19). A failing or missing verdict holds
+ * the gate as `squash-commitlint`, in relaxed mode too.
  *
  * **Gotchas**
  *
@@ -45,9 +53,10 @@ import * as Order from "effect/Order";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ghOutput } from "../../../internal/github/index.ts";
 import { RepoRunContext } from "../../../internal/repo-run/index.ts";
+import { enforceReviewerGate } from "../../Reviewer/ReviewerRuleset.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
+import { decodeYeetGhOutput, yeetGh } from "./GhCall.ts";
 import { hydrateYeetReadOnlyContext } from "./Handler.ts";
 import { MergeGateCheckRun } from "./MergeGate.schemas.ts";
 import {
@@ -59,9 +68,14 @@ import {
 } from "./ReviewThreadState.ts";
 import { readYeetReviewWindow, renderYeetReviewWindow, YeetReviewWindow } from "./ReviewWindow.ts";
 import { readYeetRulesetRequiredContexts } from "./Settle.ts";
+import {
+  readSquashCommitlint,
+  renderSquashCommitlintVerdict,
+  SquashCommitlintReport,
+  SquashPullRequestFacts,
+} from "./SquashCommitlint.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
-import type { GhCommandFailure } from "../../../internal/github/index.ts";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 export { MergeGateCheckRun } from "./MergeGate.schemas.ts";
 
@@ -87,12 +101,13 @@ const $I = $RepoCliId.create("commands/Yeet/internal/MergeGate");
  * @category models
  * @since 0.0.0
  */
-export class MergeGateTolerance extends S.Class<MergeGateTolerance>($I`MergeGateTolerance`)(
-  { check: S.NonEmptyString, attribution: S.NonEmptyString },
-  $I.annote("MergeGateTolerance", {
-    description:
-      "A check tolerated red or pending with its attribution: non-required only, unless the gate is relaxed (S11).",
-  })
+export class MergeGateTolerance extends S.Opaque<MergeGateTolerance, { readonly brand: unique symbol }>()(
+  S.Struct({ check: S.NonEmptyString, attribution: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateTolerance", {
+      description:
+        "A check tolerated red or pending with its attribution: non-required only, unless the gate is relaxed (S11).",
+    })
+  )
 ) {}
 
 /**
@@ -246,16 +261,17 @@ export type MergeGateCheckState = typeof MergeGateCheckState.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateCheckAtMerge extends S.Class<MergeGateCheckAtMerge>($I`MergeGateCheckAtMerge`)(
-  {
+export class MergeGateCheckAtMerge extends S.Opaque<MergeGateCheckAtMerge, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: S.NonEmptyString,
     state: MergeGateCheckState,
     required: S.Boolean,
     attribution: S.NonEmptyString,
-  },
-  $I.annote("MergeGateCheckAtMerge", {
-    description: "One check that was not green when an S11 merge went through, with its attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("MergeGateCheckAtMerge", {
+      description: "One check that was not green when an S11 merge went through, with its attribution.",
+    })
+  )
 ) {}
 
 /**
@@ -281,13 +297,15 @@ export const MERGE_GATE_S11_DEFAULT_ATTRIBUTION = "S11: unattributed at merge; t
  *
  * `requiredContexts` is `None` when the base ruleset could not be read;
  * `unresolvedThreads` is `None` when the GraphQL thread read failed or was
- * truncated; `window` is `unknown` when the review-window reads failed. Each
- * unknown holds the gate rather than reading as "nothing to worry about".
+ * truncated; `window` is `unknown` when the review-window reads failed;
+ * `squashCommitlint` carries an `unavailable` verdict when commitlint could not
+ * judge the predicted squash message. Each unknown holds the gate rather than
+ * reading as "nothing to worry about".
  *
  * **Example** (Build a read)
  *
  * ```ts
- * import { MergeGateRead } from "@beep/repo-cli/test/Yeet"
+ * import { MergeGateRead, SquashCommitlintPass, SquashCommitMessage } from "@beep/repo-cli/test/Yeet"
  * import * as DateTime from "effect/DateTime";
  * import * as O from "effect/Option"
  *
@@ -301,6 +319,10 @@ export const MERGE_GATE_S11_DEFAULT_ATTRIBUTION = "S11: unattributed at merge; t
  *   checkRuns: [],
  *   window: { _tag: "elapsed", anchor: "ready-for-review", anchoredAt: "2026-10-06T08:00:52Z", windowMs: 1200000 },
  *   unresolvedThreads: O.some(0),
+ *   squashCommitlint: {
+ *     message: SquashCommitMessage.make({ header: "feat(ciops): P2 projection (#1459)", body: "" }),
+ *     verdict: SquashCommitlintPass.make({}),
+ *   },
  *   readAt: DateTime.makeUnsafe(0),
  * })
  * console.log(read.prNumber) // 1459
@@ -309,8 +331,8 @@ export const MERGE_GATE_S11_DEFAULT_ATTRIBUTION = "S11: unattributed at merge; t
  * @category models
  * @since 0.0.0
  */
-export class MergeGateRead extends S.Class<MergeGateRead>($I`MergeGateRead`)(
-  {
+export class MergeGateRead extends S.Opaque<MergeGateRead, { readonly brand: unique symbol }>()(
+  S.Struct({
     prNumber: S.Finite,
     title: S.String,
     headSha: S.NonEmptyString,
@@ -320,9 +342,9 @@ export class MergeGateRead extends S.Class<MergeGateRead>($I`MergeGateRead`)(
     checkRuns: S.Array(MergeGateCheckRun),
     window: YeetReviewWindow,
     unresolvedThreads: S.Option(S.Finite),
+    squashCommitlint: SquashCommitlintReport,
     readAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("MergeGateRead", { description: "The pull request facts the merge gate decides on." })
+  }).pipe($I.annoteSchema("MergeGateRead", { description: "The pull request facts the merge gate decides on." }))
 ) {}
 
 /**
@@ -343,6 +365,7 @@ export const MergeGateHoldReason = LiteralKit([
   "head-moved",
   "draft",
   "conflicting",
+  "squash-commitlint",
   "required-contexts-unknown",
   "required-pending",
   "required-red",
@@ -377,10 +400,10 @@ export type MergeGateHoldReason = typeof MergeGateHoldReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateHold extends S.TaggedClass<MergeGateHold>($I`MergeGateHold`)(
-  "hold",
-  { prNumber: S.Finite, reason: MergeGateHoldReason, detail: S.NonEmptyString },
-  $I.annote("MergeGateHold", { description: "The merge gate refused on its first unmet criterion." })
+export class MergeGateHold extends S.Opaque<MergeGateHold, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("hold", { prNumber: S.Finite, reason: MergeGateHoldReason, detail: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateHold", { description: "The merge gate refused on its first unmet criterion." })
+  )
 ) {}
 
 /**
@@ -411,9 +434,8 @@ export class MergeGateHold extends S.TaggedClass<MergeGateHold>($I`MergeGateHold
  * @category models
  * @since 0.0.0
  */
-export class MergeGateMerge extends S.TaggedClass<MergeGateMerge>($I`MergeGateMerge`)(
-  "merge",
-  {
+export class MergeGateMerge extends S.Opaque<MergeGateMerge, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("merge", {
     prNumber: S.Finite,
     headSha: S.NonEmptyString,
     commitTitle: S.NonEmptyString,
@@ -421,8 +443,7 @@ export class MergeGateMerge extends S.TaggedClass<MergeGateMerge>($I`MergeGateMe
     tolerated: S.Array(MergeGateTolerance),
     relaxed: S.Boolean,
     atMerge: S.Array(MergeGateCheckAtMerge),
-  },
-  $I.annote("MergeGateMerge", { description: "The merge gate is met at a pinned head." })
+  }).pipe($I.annoteSchema("MergeGateMerge", { description: "The merge gate is met at a pinned head." }))
 ) {}
 
 /**
@@ -485,15 +506,14 @@ export type MergeGateDecision = typeof MergeGateDecision.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateOptions extends S.Class<MergeGateOptions>($I`MergeGateOptions`)(
-  {
+export class MergeGateOptions extends S.Opaque<MergeGateOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     wantSha: S.NonEmptyString,
     now: S.DateTimeUtcFromString,
     tolerate: S.Array(MergeGateTolerance),
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
-  },
-  $I.annote("MergeGateOptions", { description: "What the caller asserts when it asks the gate." })
+  }).pipe($I.annoteSchema("MergeGateOptions", { description: "What the caller asserts when it asks the gate." }))
 ) {}
 
 /**
@@ -510,9 +530,10 @@ export class MergeGateOptions extends S.Class<MergeGateOptions>($I`MergeGateOpti
  * @category models
  * @since 0.0.0
  */
-export class MergeGateInput extends S.Class<MergeGateInput>($I`MergeGateInput`)(
-  { read: MergeGateRead, options: MergeGateOptions },
-  $I.annote("MergeGateInput", { description: "The read and the caller's assertions the gate decides from." })
+export class MergeGateInput extends S.Opaque<MergeGateInput, { readonly brand: unique symbol }>()(
+  S.Struct({ read: MergeGateRead, options: MergeGateOptions }).pipe(
+    $I.annoteSchema("MergeGateInput", { description: "The read and the caller's assertions the gate decides from." })
+  )
 ) {}
 
 const goodConclusion = (conclusion: string | null): boolean =>
@@ -563,6 +584,16 @@ const structuralHold = ({ read, options }: MergeGateInput): O.Option<MergeGateHo
       "conflicts with the base; owner merges main"
     ),
   ]);
+
+// The squash message GitHub will write is commitlint input on main; a failing
+// or missing verdict holds in both modes, like the structural refusals.
+const squashCommitlintHold = (read: MergeGateRead): O.Option<MergeGateHold> =>
+  holdWhen(
+    read.squashCommitlint.verdict._tag !== "pass",
+    read.prNumber,
+    "squash-commitlint",
+    renderSquashCommitlintVerdict(read.squashCommitlint.verdict)
+  );
 
 const runsHold = (
   runs: ReadonlyArray<MergeGateCheckRun>,
@@ -718,7 +749,8 @@ const threadsHold = (read: MergeGateRead): O.Option<MergeGateHold> =>
  * **Details**
  *
  * Criteria in order, first failure wins: head unchanged since the caller
- * looked; not draft; not conflicting; base ruleset readable; every required
+ * looked; not draft; not conflicting; the predicted squash commit message
+ * passes commitlint; base ruleset readable; every required
  * context registered, complete and green; every other check complete and
  * green unless tolerated with an attribution; review window known and
  * elapsed unless forced; thread count known and zero. The order puts
@@ -734,7 +766,7 @@ const threadsHold = (read: MergeGateRead): O.Option<MergeGateHold> =>
  * **Example** (A draft never merges)
  *
  * ```ts
- * import { MergeGateRead, decideMergeGate } from "@beep/repo-cli/test/Yeet"
+ * import { MergeGateRead, SquashCommitlintPass, SquashCommitMessage, decideMergeGate } from "@beep/repo-cli/test/Yeet"
  * import * as DateTime from "effect/DateTime";
  * import * as O from "effect/Option"
  *
@@ -748,6 +780,10 @@ const threadsHold = (read: MergeGateRead): O.Option<MergeGateHold> =>
  *   checkRuns: [],
  *   window: { _tag: "unknown", reason: "not read" },
  *   unresolvedThreads: O.some(0),
+ *   squashCommitlint: {
+ *     message: SquashCommitMessage.make({ header: "fix: x (#1)", body: "" }),
+ *     verdict: SquashCommitlintPass.make({}),
+ *   },
  *   readAt: DateTime.makeUnsafe(0),
  * })
  * const decision = decideMergeGate({
@@ -769,6 +805,7 @@ export const decideMergeGate = (input: MergeGateInput): MergeGateDecision => {
   const window = windowStep(input);
   return O.firstSomeOf([
     structuralHold(input),
+    squashCommitlintHold(read),
     // The ruleset holds in both modes; relaxed mode only needs one required run.
     Result.match(contexts, {
       onFailure: O.some,
@@ -863,6 +900,7 @@ export const renderMergeGateDecision = (decision: MergeGateDecision): string =>
 const GhPull = S.Struct({
   number: S.Finite,
   title: S.String,
+  body: S.String.pipe(S.NullOr, S.optionalKey),
   draft: S.Boolean,
   created_at: S.String,
   mergeable_state: S.NullOr(S.String),
@@ -944,19 +982,6 @@ const outstandingThreadCount = (
 const THREADS_QUERY =
   "query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){pullRequest(number:$number){reviewThreads(first:100){totalCount nodes{id isResolved isOutdated resolvedBy{login} comments(last:1){nodes{createdAt author{__typename login}}}}}}}}";
 
-const ghFailure = (what: string) => (failure: GhCommandFailure) =>
-  YeetCommandError.make({
-    message: `${what} failed (${failure._tag}${failure._tag === "nonzero-exit" ? ` ${failure.exitCode}: ${Str.trim(failure.output)}` : ""}).`,
-    command: failure.command,
-    exitCode: 1,
-  });
-
-const gh = (context: RepoRunContext, label: string, args: ReadonlyArray<string>) =>
-  ghOutput({ args, cwd: context.repoRoot, label, onFailure: ghFailure(label) });
-
-const decodeOrFail = <A>(what: string, decode: (input: unknown) => Effect.Effect<A, S.SchemaError>, input: string) =>
-  decode(input).pipe(Effect.mapError(YeetCommandError.new(`Failed to decode ${what}.`)));
-
 /**
  * Read everything the gate needs for one pull request, once.
  *
@@ -964,9 +989,11 @@ const decodeOrFail = <A>(what: string, decode: (input: unknown) => Effect.Effect
  *
  * REST for the pull request and check runs (core quota); the review window
  * and the base ruleset through the same readers `yeet monitor` uses; one
- * GraphQL query for the unresolved thread count. The thread read is the only
- * call allowed to fail softly, and it fails to `None`, which the decision
- * treats as a hold.
+ * GraphQL query for the unresolved thread count; REST again for the
+ * repository's squash defaults and the PR commits, from which the squash
+ * message is predicted and linted. The thread read is the only call allowed to
+ * fail softly, and it fails to `None`, which the decision treats as a hold; a
+ * commitlint run that cannot happen is an `unavailable` verdict, held the same way.
  *
  * **Example** (Build the read effect)
  *
@@ -983,16 +1010,16 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
   context: RepoRunContext,
   prNumber: number
 ): Effect.fn.Return<MergeGateRead, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
-  const pull = yield* decodeOrFail(
+  const pull = yield* decodeYeetGhOutput(
     "the pull request",
     decodePull,
-    yield* gh(context, `gh api pulls/${prNumber}`, ["api", `repos/{owner}/{repo}/pulls/${prNumber}`])
+    yield* yeetGh(context, `gh api pulls/${prNumber}`, ["api", `repos/{owner}/{repo}/pulls/${prNumber}`])
   );
   // `--slurp` wraps pages in an array; fold the pages back into one check_runs list.
-  const checkRunPages = yield* decodeOrFail(
+  const checkRunPages = yield* decodeYeetGhOutput(
     "the head check runs",
     decodeCheckRunPages,
-    yield* gh(context, "gh api check-runs", [
+    yield* yeetGh(context, "gh api check-runs", [
       "api",
       `repos/{owner}/{repo}/commits/${pull.head.sha}/check-runs?per_page=100`,
       "--paginate",
@@ -1000,7 +1027,7 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
     ])
   );
   const checkRuns = A.flatMap(checkRunPages, (page) => page.check_runs);
-  const unresolvedThreads = yield* gh(context, "gh api graphql threads", [
+  const unresolvedThreads = yield* yeetGh(context, "gh api graphql threads", [
     "api",
     "graphql",
     "-f",
@@ -1012,7 +1039,7 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
     "-F",
     `number=${prNumber}`,
   ]).pipe(
-    Effect.flatMap((output) => decodeOrFail("the review threads", decodeThreads, output)),
+    Effect.flatMap((output) => decodeYeetGhOutput("the review threads", decodeThreads, output)),
     Effect.map(({ data }) => {
       const threads = data.repository.pullRequest.reviewThreads;
       // More threads than one page: the count is unknown, never a lower bound.
@@ -1026,6 +1053,10 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
   const ruleset = yield* readYeetRulesetRequiredContexts(
     RepoRunContext.make({ ...context, base: `origin/${pull.base.ref}` })
   );
+  const squashCommitlint = yield* readSquashCommitlint(
+    context,
+    SquashPullRequestFacts.make({ number: pull.number, title: pull.title, body: O.fromNullishOr(pull.body) })
+  );
   return MergeGateRead.make({
     prNumber: pull.number,
     title: pull.title,
@@ -1038,6 +1069,7 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
     ),
     window: yield* readYeetReviewWindow(context, { prNumber: pull.number, headSha: pull.head.sha }),
     unresolvedThreads,
+    squashCommitlint,
     readAt: yield* DateTime.now,
   });
 });
@@ -1056,9 +1088,10 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
  * @category models
  * @since 0.0.0
  */
-export class MergeGateMerged extends S.Class<MergeGateMerged>($I`MergeGateMerged`)(
-  { prNumber: S.Finite, mergeSha: S.String, commitTitle: S.NonEmptyString },
-  $I.annote("MergeGateMerged", { description: "The squash merge GitHub confirmed." })
+export class MergeGateMerged extends S.Opaque<MergeGateMerged, { readonly brand: unique symbol }>()(
+  S.Struct({ prNumber: S.Finite, mergeSha: S.String, commitTitle: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateMerged", { description: "The squash merge GitHub confirmed." })
+  )
 ) {}
 
 /**
@@ -1085,10 +1118,15 @@ export const executeMergeGate = Effect.fn("Yeet.executeMergeGate")(function* (
   context: RepoRunContext,
   decision: MergeGateMerge
 ): Effect.fn.Return<MergeGateMerged, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
-  const result = yield* decodeOrFail(
+  yield* enforceReviewerGate(decision.prNumber, decision.headSha).pipe(
+    Effect.mapError(() =>
+      YeetCommandError.make({ message: "beep-reviewer gate held on the current head.", exitCode: 1 })
+    )
+  );
+  const result = yield* decodeYeetGhOutput(
     "the merge result",
     decodeMergeResult,
-    yield* gh(context, `gh api merge #${decision.prNumber}`, [
+    yield* yeetGh(context, `gh api merge #${decision.prNumber}`, [
       "api",
       "-X",
       "PUT",
@@ -1136,16 +1174,15 @@ export const executeMergeGate = Effect.fn("Yeet.executeMergeGate")(function* (
  * @category models
  * @since 0.0.0
  */
-export class MergeGateRunOptions extends S.Class<MergeGateRunOptions>($I`MergeGateRunOptions`)(
-  {
+export class MergeGateRunOptions extends S.Opaque<MergeGateRunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     prNumber: S.Finite,
     wantSha: S.NonEmptyString,
     tolerate: S.Array(MergeGateTolerance),
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
     dryRun: S.Boolean,
-  },
-  $I.annote("MergeGateRunOptions", { description: "One merge-gate invocation." })
+  }).pipe($I.annoteSchema("MergeGateRunOptions", { description: "One merge-gate invocation." }))
 ) {}
 
 // Best-effort steps after a merge print a warning and never fail the command:
@@ -1171,7 +1208,7 @@ const postS11MergeComment = Effect.fn("Yeet.postS11MergeComment")(function* (
   merged: MergeGateMerged,
   windowForced: boolean
 ) {
-  yield* gh(context, `gh api comment #${decision.prNumber}`, [
+  yield* yeetGh(context, `gh api comment #${decision.prNumber}`, [
     "api",
     "-X",
     "POST",
@@ -1188,13 +1225,13 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
   context: RepoRunContext,
   headSha: string
 ) {
-  const pages = yield* gh(context, "gh api merged head runs", [
+  const pages = yield* yeetGh(context, "gh api merged head runs", [
     "api",
     `repos/{owner}/{repo}/actions/runs?head_sha=${headSha}&per_page=100`,
     "--paginate",
     "--slurp",
   ]).pipe(
-    Effect.flatMap((output) => decodeOrFail("the merged head's workflow runs", decodeWorkflowRunPages, output)),
+    Effect.flatMap((output) => decodeYeetGhOutput("the merged head's workflow runs", decodeWorkflowRunPages, output)),
     Effect.catch((error) =>
       warnAfterMerge("listing the merged head's workflow runs")(error).pipe(
         Effect.as(A.empty<typeof GhWorkflowRuns.Type>())
@@ -1210,7 +1247,7 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
     )
   );
   const [cancelled, failures] = yield* Effect.partition(runIds, (runId) =>
-    gh(context, `gh api cancel run ${runId}`, [
+    yeetGh(context, `gh api cancel run ${runId}`, [
       "api",
       "-X",
       "POST",
@@ -1228,7 +1265,9 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
  *
  * **Details**
  *
- * A hold exits non-zero with the routed reason so a background waiter can
+ * The predicted squash message's commitlint verdict is printed first, for
+ * every outcome, so the hand-off log shows what GitHub would have written. A
+ * hold exits non-zero with the routed reason so a background waiter can
  * loop on it; a merge prints the merge sha and any tolerated attribution (a
  * relaxed merge prints its at-merge lists instead). The
  * window override is printed whenever it was used. After a relaxed (S11)
@@ -1253,16 +1292,21 @@ export const runMergeGate = Effect.fn("Yeet.runMergeGate")(function* (
   options: MergeGateRunOptions
 ): Effect.fn.Return<MergeGateDecision, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const read = yield* readMergeGate(context, options.prNumber);
-  const decision = decideMergeGate({
-    read,
-    options: {
-      wantSha: options.wantSha,
-      now: read.readAt,
-      tolerate: options.tolerate,
-      forceWindow: options.forceWindow,
-      relaxed: options.relaxed,
-    },
-  });
+  yield* Console.log(
+    `[yeet] squash-commitlint #${read.prNumber}: ${renderSquashCommitlintVerdict(read.squashCommitlint.verdict)} (header "${read.squashCommitlint.message.header}")`
+  );
+  const decision = decideMergeGate(
+    MergeGateInput.make({
+      read,
+      options: MergeGateOptions.make({
+        wantSha: options.wantSha,
+        now: read.readAt,
+        tolerate: options.tolerate,
+        forceWindow: options.forceWindow,
+        relaxed: options.relaxed,
+      }),
+    })
+  );
   yield* Console.log(
     `[yeet] ${renderMergeGateDecision(decision)}${options.forceWindow ? " (review window forced)" : ""}`
   );
@@ -1309,8 +1353,8 @@ export const runMergeGate = Effect.fn("Yeet.runMergeGate")(function* (
  * @category models
  * @since 0.0.0
  */
-export class MergeGateCommandOptions extends S.Class<MergeGateCommandOptions>($I`MergeGateCommandOptions`)(
-  {
+export class MergeGateCommandOptions extends S.Opaque<MergeGateCommandOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     head: S.String,
     packetDir: S.String,
@@ -1320,8 +1364,11 @@ export class MergeGateCommandOptions extends S.Class<MergeGateCommandOptions>($I
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
     dryRun: S.Boolean,
-  },
-  $I.annote("MergeGateCommandOptions", { description: "Parsed yeet merge-gate flags before tolerances are decoded." })
+  }).pipe(
+    $I.annoteSchema("MergeGateCommandOptions", {
+      description: "Parsed yeet merge-gate flags before tolerances are decoded.",
+    })
+  )
 ) {}
 
 /**
@@ -1350,12 +1397,15 @@ export class MergeGateCommandOptions extends S.Class<MergeGateCommandOptions>($I
 export const runYeetMergeGate = Effect.fn("Yeet.runMergeGateCommand")(function* (options: MergeGateCommandOptions) {
   const tolerate = yield* decodeAttributedCheckFlags("tolerate", options.tolerate, parseMergeGateTolerance);
   const context = yield* hydrateYeetReadOnlyContext(options);
-  yield* runMergeGate(context, {
-    prNumber: options.pr,
-    wantSha: options.sha,
-    tolerate,
-    forceWindow: options.forceWindow,
-    relaxed: options.relaxed,
-    dryRun: options.dryRun,
-  });
+  yield* runMergeGate(
+    context,
+    MergeGateRunOptions.make({
+      prNumber: options.pr,
+      wantSha: options.sha,
+      tolerate,
+      forceWindow: options.forceWindow,
+      relaxed: options.relaxed,
+      dryRun: options.dryRun,
+    })
+  );
 });

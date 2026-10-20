@@ -312,8 +312,8 @@ const admissionOwnerFields = {
  * @category models
  * @since 0.0.0
  */
-export class YeetAdmissionLease extends S.Class<YeetAdmissionLease>($I`YeetAdmissionLease`)(
-  {
+export class YeetAdmissionLease extends S.Opaque<YeetAdmissionLease, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-admission-lease/v1"),
     ...admissionOwnerFields,
     command: S.String,
@@ -330,10 +330,11 @@ export class YeetAdmissionLease extends S.Class<YeetAdmissionLease>($I`YeetAdmis
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
     runScope: S.optionalKey(RunScopeRecord),
-  },
-  $I.annote("YeetAdmissionLease", {
-    description: "One machine-wide admission lease charging heavy repository work against memory capacity.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAdmissionLease", {
+      description: "One machine-wide admission lease charging heavy repository work against memory capacity.",
+    })
+  )
 ) {}
 
 /**
@@ -379,8 +380,8 @@ export declare namespace YeetAdmissionLease {
  * @category models
  * @since 0.0.0
  */
-export class YeetAdmissionTicket extends S.Class<YeetAdmissionTicket>($I`YeetAdmissionTicket`)(
-  {
+export class YeetAdmissionTicket extends S.Opaque<YeetAdmissionTicket, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-admission-ticket/v1"),
     ...admissionOwnerFields,
     enqueuedAtMillis: S.Finite,
@@ -390,10 +391,11 @@ export class YeetAdmissionTicket extends S.Class<YeetAdmissionTicket>($I`YeetAdm
       S.withDecodingDefault(Effect.succeed(0))
     ),
     nonce: S.String,
-  },
-  $I.annote("YeetAdmissionTicket", {
-    description: "One durable admission-queue ticket owned by a waiting contender process.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAdmissionTicket", {
+      description: "One durable admission-queue ticket owned by a waiting contender process.",
+    })
+  )
 ) {}
 
 /**
@@ -489,15 +491,16 @@ const admissionReapClaimFields = {
  * @category coordination
  * @since 0.0.0
  */
-export class AdmissionLeaseReapClaim extends S.Class<AdmissionLeaseReapClaim>($I`AdmissionLeaseReapClaim`)(
-  {
+export class AdmissionLeaseReapClaim extends S.Opaque<AdmissionLeaseReapClaim, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("lease", {
     ...admissionReapClaimFields,
-    _tag: S.Literal("lease"),
+
     lease: YeetAdmissionLease,
-  },
-  $I.annote("AdmissionLeaseReapClaim", {
-    description: "Recoverable per-sink outbox for one verified dead admission lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionLeaseReapClaim", {
+      description: "Recoverable per-sink outbox for one verified dead admission lease.",
+    })
+  )
 ) {}
 
 /**
@@ -514,15 +517,16 @@ export class AdmissionLeaseReapClaim extends S.Class<AdmissionLeaseReapClaim>($I
  * @category coordination
  * @since 0.0.0
  */
-export class AdmissionTicketReapClaim extends S.Class<AdmissionTicketReapClaim>($I`AdmissionTicketReapClaim`)(
-  {
+export class AdmissionTicketReapClaim extends S.Opaque<AdmissionTicketReapClaim, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("ticket", {
     ...admissionReapClaimFields,
-    _tag: S.Literal("ticket"),
+
     ticket: YeetAdmissionTicket,
-  },
-  $I.annote("AdmissionTicketReapClaim", {
-    description: "Recoverable per-sink outbox for one verified dead admission queue ticket.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionTicketReapClaim", {
+      description: "Recoverable per-sink outbox for one verified dead admission queue ticket.",
+    })
+  )
 ) {}
 
 /**
@@ -601,10 +605,11 @@ export type AdmissionPromotionPhase = typeof AdmissionPromotionPhase.Type;
  * @category coordination
  * @since 0.0.0
  */
-export class AdmissionPromotionTransition extends S.Class<AdmissionPromotionTransition>(
-  $I`AdmissionPromotionTransition`
-)(
-  {
+export class AdmissionPromotionTransition extends S.Opaque<
+  AdmissionPromotionTransition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-admission-promotion/v1"),
     nonce: S.String,
     ticketPath: S.String,
@@ -613,10 +618,11 @@ export class AdmissionPromotionTransition extends S.Class<AdmissionPromotionTran
     lease: YeetAdmissionLease,
     phase: AdmissionPromotionPhase,
     createdAtMillis: S.Finite,
-  },
-  $I.annote("AdmissionPromotionTransition", {
-    description: "Recoverable nonce-keyed transition tying one admission ticket to its promoted lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionPromotionTransition", {
+      description: "Recoverable nonce-keyed transition tying one admission ticket to its promoted lease.",
+    })
+  )
 ) {}
 
 /**
@@ -639,8 +645,8 @@ export class AdmissionPromotionTransition extends S.Class<AdmissionPromotionTran
  * @category models
  * @since 0.0.0
  */
-export class AdmissionConfig extends S.Class<AdmissionConfig>($I`AdmissionConfig`)(
-  {
+export class AdmissionConfig extends S.Opaque<AdmissionConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     slotSizeGib: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(5))),
     reserveGib: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(10))),
     capacityMaxTokens: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(10))),
@@ -650,10 +656,11 @@ export class AdmissionConfig extends S.Class<AdmissionConfig>($I`AdmissionConfig
     progressSeconds: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(15))),
     publishAgingSeconds: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(120))),
     reviewFixClassCap: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(3))),
-  },
-  $I.annote("AdmissionConfig", {
-    description: "Machine-wide admission policy knobs with chartered ship-velocity D1 defaults.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionConfig", {
+      description: "Machine-wide admission policy knobs with chartered ship-velocity D1 defaults.",
+    })
+  )
 ) {}
 
 /**
@@ -679,8 +686,8 @@ export class AdmissionConfig extends S.Class<AdmissionConfig>($I`AdmissionConfig
  * @category models
  * @since 0.0.0
  */
-export class AdmissionRequest extends S.Class<AdmissionRequest>($I`AdmissionRequest`)(
-  {
+export class AdmissionRequest extends S.Opaque<AdmissionRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     ...attemptInputFactFields,
     kind: AdmissionWorkKind,
@@ -690,10 +697,11 @@ export class AdmissionRequest extends S.Class<AdmissionRequest>($I`AdmissionRequ
     checkoutRoot: S.String,
     branch: S.String,
     command: S.String,
-  },
-  $I.annote("AdmissionRequest", {
-    description: "One admission request for heavyweight repository work.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionRequest", {
+      description: "One admission request for heavyweight repository work.",
+    })
+  )
 ) {}
 
 /**
@@ -720,8 +728,8 @@ export class AdmissionRequest extends S.Class<AdmissionRequest>($I`AdmissionRequ
  * @category models
  * @since 0.0.0
  */
-export class AdmissionSnapshot extends S.Class<AdmissionSnapshot>($I`AdmissionSnapshot`)(
-  {
+export class AdmissionSnapshot extends S.Opaque<AdmissionSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     capacityTokens: S.Finite,
     activeTokens: S.Finite,
     memAvailableGib: S.Finite,
@@ -730,10 +738,11 @@ export class AdmissionSnapshot extends S.Class<AdmissionSnapshot>($I`AdmissionSn
     tickets: S.Array(YeetAdmissionTicket),
     dead: S.Array(S.String),
     quarantined: S.Array(S.String),
-  },
-  $I.annote("AdmissionSnapshot", {
-    description: "Point-in-time view of machine-wide admission leases, queue, and capacity.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionSnapshot", {
+      description: "Point-in-time view of machine-wide admission leases, queue, and capacity.",
+    })
+  )
 ) {}
 
 /**
@@ -828,7 +837,9 @@ type QualitySchedulerErrorReason = typeof QualitySchedulerErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class QualitySchedulerError extends S.TaggedError<QualitySchedulerError>($I`QualitySchedulerError`)(
+export class QualitySchedulerError extends S.TaggedError<QualitySchedulerError, { readonly brand: unique symbol }>(
+  $I`QualitySchedulerError`
+)(
   "QualitySchedulerError",
   {
     message: S.String,

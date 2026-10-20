@@ -15,7 +15,7 @@ import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Receipt, RecordState, SpanRef, spanRefLabel } from "@/session/Session.schema";
@@ -53,8 +53,8 @@ const $I = $TodoxId.create("components/InspectorList");
  * @category models
  * @since 0.0.0
  */
-export class InspectableRow extends S.Class<InspectableRow>($I`InspectableRow`)(
-  {
+export class InspectableRow extends S.Opaque<InspectableRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     no: S.String,
     text: S.String,
@@ -65,8 +65,7 @@ export class InspectableRow extends S.Class<InspectableRow>($I`InspectableRow`)(
     receipt: S.Option(Receipt),
     detail: S.Array(S.Tuple([S.String, S.String])),
     postDelayMs: S.Option(S.Finite),
-  },
-  $I.annote("InspectableRow", { description: "A row the record inspector can address and open." })
+  }).pipe($I.annoteSchema("InspectableRow", { description: "A row the record inspector can address and open." }))
 ) {}
 
 /**
@@ -97,12 +96,11 @@ export class InspectableRow extends S.Class<InspectableRow>($I`InspectableRow`)(
  * @category models
  * @since 0.0.0
  */
-export class RowGroup extends S.Class<RowGroup>($I`RowGroup`)(
-  {
+export class RowGroup extends S.Opaque<RowGroup, { readonly brand: unique symbol }>()(
+  S.Struct({
     heading: S.Option(S.String),
     rows: S.Array(InspectableRow),
-  },
-  $I.annote("RowGroup", { description: "Rows under one optional packet heading." })
+  }).pipe($I.annoteSchema("RowGroup", { description: "Rows under one optional packet heading." }))
 ) {}
 
 const KEY_SEPARATOR = "=>";

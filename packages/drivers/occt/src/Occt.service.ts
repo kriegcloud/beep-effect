@@ -123,10 +123,18 @@ const makeService = Effect.fn("Occt.makeService")(function* () {
     const request = yield* validateProjectionRequest(rawRequest).pipe(
       Effect.mapError((cause) => OcctError.fromUnknown("invalid-request", "Invalid projection request.", cause))
     );
-    const built = yield* build(request.solid);
+    const built = yield* build(ModelSpec.make(request.solid));
     return yield* Effect.forEach(request.cameras, (camera) =>
       Effect.try({
-        try: () => project({ oc, built, camera, withHidden: request.withHidden, shading: request.shading }),
+        try: () =>
+          project({
+            oc,
+            built,
+            camera,
+            withHidden: request.withHidden,
+            shading: request.shading,
+            overlays: request.solid.overlays,
+          }),
         catch: (cause) => OcctError.fromUnknown("projection", "Hidden-line removal failed.", cause),
       })
     );

@@ -10,7 +10,9 @@ import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -26,42 +28,51 @@ import { decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
 import { CiCommandError } from "./Ci.errors.ts";
 import { CI_LANE_DESCRIPTORS } from "./CiLane.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/Ci/CiGovernance");
 const emptyRecord: Readonly<Record<string, unknown>> = {};
 const SizeLabel = LiteralKit(["size/S", "size/M", "size/L", "size/XL"]).pipe(
   $I.annoteSchema("SizeLabel", { description: "The mutually exclusive pull request size labels." })
 );
-class PrSizeLabelDiff extends S.Class<PrSizeLabelDiff>($I`PrSizeLabelDiff`)(
-  { label: SizeLabel, remove: S.Array(S.String), add: S.Boolean },
-  $I.annote("PrSizeLabelDiff", { description: "The size label to keep and contradictory labels to remove." })
+class PrSizeLabelDiff extends S.Opaque<PrSizeLabelDiff, { readonly brand: unique symbol }>()(
+  S.Struct({ label: SizeLabel, remove: S.Array(S.String), add: S.Boolean }).pipe(
+    $I.annoteSchema("PrSizeLabelDiff", { description: "The size label to keep and contradictory labels to remove." })
+  )
 ) {}
 const textRecord = S.Record(S.String, S.Unknown);
-class WorkflowStep extends S.Class<WorkflowStep>($I`WorkflowStep`)(
-  { uses: S.optionalKey(S.String), with: S.optionalKey(textRecord), env: S.optionalKey(textRecord) },
-  $I.annote("WorkflowStep", { description: "Workflow step fields inspected by credential and artifact policy." })
+class WorkflowStep extends S.Opaque<WorkflowStep, { readonly brand: unique symbol }>()(
+  S.Struct({ uses: S.optionalKey(S.String), with: S.optionalKey(textRecord), env: S.optionalKey(textRecord) }).pipe(
+    $I.annoteSchema("WorkflowStep", {
+      description: "Workflow step fields inspected by credential and artifact policy.",
+    })
+  )
 ) {}
-class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
-  {
+class WorkflowJob extends S.Opaque<WorkflowJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String),
     environment: S.optionalKey(S.Union([S.String, S.Struct({ name: S.String })])),
     env: S.optionalKey(textRecord),
     steps: WorkflowStep.pipe(S.Array, S.optionalKey),
     strategy: S.optionalKey(S.Struct({ matrix: S.Record(S.String, S.Unknown) })),
-  },
-  $I.annote("WorkflowJob", { description: "Projected YAML job for workflow policy and producing-context checks." })
+  }).pipe(
+    $I.annoteSchema("WorkflowJob", {
+      description: "Projected YAML job for workflow policy and producing-context checks.",
+    })
+  )
 ) {}
-class WorkflowDocument extends S.Class<WorkflowDocument>($I`WorkflowDocument`)(
-  { on: S.Unknown, concurrency: S.optionalKey(textRecord), jobs: S.Record(S.String, WorkflowJob) },
-  $I.annote("WorkflowDocument", { description: "GitHub workflow document with job projections." })
+class WorkflowDocument extends S.Opaque<WorkflowDocument, { readonly brand: unique symbol }>()(
+  S.Struct({ on: S.Unknown, concurrency: S.optionalKey(textRecord), jobs: S.Record(S.String, WorkflowJob) }).pipe(
+    $I.annoteSchema("WorkflowDocument", { description: "GitHub workflow document with job projections." })
+  )
 ) {}
-class RequiredContext extends S.Class<RequiredContext>($I`RequiredContext`)(
-  { context: S.String, integration_id: S.Finite.pipe(S.NullOr, S.optionalKey) },
-  $I.annote("RequiredContext", { description: "A required status context and its producing integration." })
+class RequiredContext extends S.Opaque<RequiredContext, { readonly brand: unique symbol }>()(
+  S.Struct({ context: S.String, integration_id: S.Finite.pipe(S.NullOr, S.optionalKey) }).pipe(
+    $I.annoteSchema("RequiredContext", { description: "A required status context and its producing integration." })
+  )
 ) {}
-class RulesetRule extends S.Class<RulesetRule>($I`RulesetRule`)(
-  {
+class RulesetRule extends S.Opaque<RulesetRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     parameters: S.optionalKey(
       S.Struct({
@@ -69,24 +80,67 @@ class RulesetRule extends S.Class<RulesetRule>($I`RulesetRule`)(
         required_status_checks: RequiredContext.pipe(S.Array, S.optionalKey),
       })
     ),
-  },
-  $I.annote("RulesetRule", { description: "Required status checks projected from a GitHub ruleset." })
+  }).pipe($I.annoteSchema("RulesetRule", { description: "Required status checks projected from a GitHub ruleset." }))
 ) {}
-class Ruleset extends S.Class<Ruleset>($I`Ruleset`)(
-  { id: S.Finite, name: S.String, enforcement: S.String, rules: S.Array(RulesetRule) },
-  $I.annote("Ruleset", { description: "Live ruleset state used for capture and drift checking." })
+class Ruleset extends S.Opaque<Ruleset, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Finite, name: S.String, enforcement: S.String, rules: S.Array(RulesetRule) }).pipe(
+    $I.annoteSchema("Ruleset", { description: "Live ruleset state used for capture and drift checking." })
+  )
 ) {}
-class SettingsEnvironment extends S.Class<SettingsEnvironment>($I`SettingsEnvironment`)(
-  { protection_rules: S.Array(S.Struct({ type: S.String, reviewers: S.Unknown.pipe(S.Array, S.optionalKey) })) },
-  $I.annote("SettingsEnvironment", { description: "Desktop environment reviewer rules without secret values." })
+/**
+ * Desktop environment reviewer rules without secret values.
+ *
+ * **Example** (Require a named reviewer on the desktop environment)
+ *
+ * ```ts
+ * import { desktopEnvironmentApproved, SettingsEnvironment } from "@beep/repo-cli/commands/Ci"
+ *
+ * const unreviewed = SettingsEnvironment.make({ protection_rules: [{ type: "required_reviewers", reviewers: [] }] })
+ * const reviewed = SettingsEnvironment.make({
+ *   protection_rules: [{ type: "required_reviewers", reviewers: [{ type: "User", reviewer: { login: "octocat" } }] }]
+ * })
+ *
+ * console.log(desktopEnvironmentApproved(unreviewed)) // => false
+ * console.log(desktopEnvironmentApproved(reviewed)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SettingsEnvironment extends S.Opaque<SettingsEnvironment, { readonly brand: unique symbol }>()(
+  S.Struct({
+    protection_rules: S.Array(S.Struct({ type: S.String, reviewers: S.Unknown.pipe(S.Array, S.optionalKey) })),
+  }).pipe(
+    $I.annoteSchema("SettingsEnvironment", { description: "Desktop environment reviewer rules without secret values." })
+  )
 ) {}
-class HeldRun extends S.Class<HeldRun>($I`HeldRun`)(
-  { id: S.Finite, status: S.String, created_at: S.String, head_branch: S.String },
-  $I.annote("HeldRun", { description: "Main Check run fields required to detect a held concurrency group." })
+/**
+ * Main Check run fields required to detect a held concurrency group.
+ *
+ * **Example** (Find the stale main run holding the concurrency group)
+ *
+ * ```ts
+ * import { HeldRun, heldGroupRunIds } from "@beep/repo-cli/commands/Ci"
+ *
+ * const stale = HeldRun.make({ id: 101, status: "waiting", created_at: "2026-10-09T12:00:00Z", head_branch: "main" })
+ * const successor = HeldRun.make({ id: 102, status: "pending", created_at: "2026-10-09T13:00:00Z", head_branch: "main" })
+ * const twoHoursLater = Date.parse("2026-10-09T14:00:00Z")
+ *
+ * console.log(heldGroupRunIds([stale, successor], twoHoursLater)) // => [101]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HeldRun extends S.Opaque<HeldRun, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Finite, status: S.String, created_at: S.String, head_branch: S.String }).pipe(
+    $I.annoteSchema("HeldRun", { description: "Main Check run fields required to detect a held concurrency group." })
+  )
 ) {}
-class HeldRunList extends S.Class<HeldRunList>($I`HeldRunList`)(
-  { workflow_runs: S.Array(HeldRun) },
-  $I.annote("HeldRunList", { description: "Main-push Check runs returned by the GitHub API." })
+class HeldRunList extends S.Opaque<HeldRunList, { readonly brand: unique symbol }>()(
+  S.Struct({ workflow_runs: S.Array(HeldRun) }).pipe(
+    $I.annoteSchema("HeldRunList", { description: "Main-push Check runs returned by the GitHub API." })
+  )
 ) {}
 
 const stringListOption = S.Array(S.String).pipe(S.decodeUnknownOption);
@@ -358,8 +412,8 @@ export const heldGroupRunIds: {
  * **Example** (Missing approval)
  *
  * ```ts
- * import { desktopEnvironmentApproved } from "@beep/repo-cli/commands/Ci"
- * desktopEnvironmentApproved({ protection_rules: [] }) // => false
+ * import { desktopEnvironmentApproved, SettingsEnvironment } from "@beep/repo-cli/commands/Ci"
+ * desktopEnvironmentApproved(SettingsEnvironment.make({ protection_rules: [] })) // => false
  * ```
  *
  * @param environment - The decoded protection rules returned by GitHub.
@@ -372,21 +426,53 @@ export const desktopEnvironmentApproved = (environment: SettingsEnvironment): bo
     environment.protection_rules,
     (rule) => rule.type === "required_reviewers" && A.isReadonlyArrayNonEmpty(rule.reviewers ?? [])
   );
-const requiredContexts = (ruleset: Ruleset): ReadonlyArray<string> =>
+const requiredContextEntries = (ruleset: Ruleset): ReadonlyArray<RequiredContext> =>
   pipe(
     ruleset.rules,
-    A.flatMap((rule) =>
-      rule.type === "required_status_checks" ? (rule.parameters?.required_status_checks ?? []) : []
-    ),
-    A.map((rule) => rule.context),
+    A.flatMap((rule) => (rule.type === "required_status_checks" ? (rule.parameters?.required_status_checks ?? []) : []))
+  );
+const requiredContexts = (ruleset: Ruleset): ReadonlyArray<string> =>
+  pipe(
+    requiredContextEntries(ruleset),
+    A.map((entry) => entry.context),
     A.dedupe,
     A.sort(Order.String)
   );
+// The dedicated reviewer App publishes this check outside the CI workflow lane inventory.
+const REVIEWER_APP = { context: "beep-reviewer", integrationId: 5321138 } as const;
+const EXTERNAL_REQUIRED_CONTEXTS = [REVIEWER_APP.context] as const;
+/**
+ * Verify that the required reviewer context is pinned to its GitHub App producer.
+ *
+ * **Example** (Accept the reviewer App and reject an unpinned context)
+ *
+ * ```ts
+ * import { reviewerAppIntegrationMatches } from "@beep/repo-cli/commands/Ci"
+ *
+ * reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: 5321138 }]) // => true
+ * reviewerAppIntegrationMatches([{ context: "beep-reviewer" }]) // => false
+ * ```
+ *
+ * @param entries - Required status checks returned by the live GitHub ruleset.
+ * @returns Whether exactly one reviewer context is pinned to the expected App integration.
+ * @category predicates
+ * @since 0.0.0
+ */
+export const reviewerAppIntegrationMatches = (
+  entries: ReadonlyArray<{ readonly context: string; readonly integration_id?: number | null }>
+): boolean => {
+  const reviewerEntries = A.filter(entries, (entry) => entry.context === REVIEWER_APP.context);
+  return (
+    A.length(reviewerEntries) === 1 &&
+    O.exists(A.head(reviewerEntries), (entry) => entry.integration_id === REVIEWER_APP.integrationId)
+  );
+};
 const expectedContexts = () =>
   pipe(
     CI_LANE_DESCRIPTORS,
     A.filter((lane) => lane.required),
     A.map((lane) => lane.contextName),
+    A.appendAll(EXTERNAL_REQUIRED_CONTEXTS),
     A.dedupe,
     A.sort(Order.String)
   );
@@ -422,6 +508,10 @@ const ciRulesetCommand = Command.make(
           .read("repos/{owner}/{repo}/rulesets/10240248")
           .pipe(Effect.flatMap(decodeRulesetJson));
         yield* checkEqual(requiredContexts(ruleset), expectedContexts());
+        if (!reviewerAppIntegrationMatches(requiredContextEntries(ruleset)))
+          return yield* CiCommandError.make({
+            message: `Ruleset drift: ${REVIEWER_APP.context} must be pinned to GitHub App integration ${REVIEWER_APP.integrationId}.`,
+          });
         if (capture) {
           const now = yield* DateTime.now;
           const text = yield* encodeSnapshotJson({

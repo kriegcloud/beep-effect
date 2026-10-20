@@ -12,7 +12,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -55,6 +55,7 @@ import {
   ReviewStatus,
 } from "@/content";
 import { OipAtomProvider } from "@/runtime/OipAtomProvider";
+import { HeroClipMedia } from "../src/components/HeroVideo.tsx";
 
 const encodeCapturedLogs = S.encodeEffect(S.fromJsonString(S.Unknown));
 
@@ -144,12 +145,14 @@ const formContactRequest = (formData = contactFormData()) =>
 
 const mockMediaQueryList = (matches: boolean): MediaQueryList => ({
   addEventListener: vi.fn(),
+  // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
   addListener: vi.fn(),
   dispatchEvent: vi.fn(),
   matches,
   media: "(prefers-reduced-motion: reduce)",
   onchange: null,
   removeEventListener: vi.fn(),
+  // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
   removeListener: vi.fn(),
 });
 
@@ -597,7 +600,13 @@ describe("@beep/oip-web", { concurrent: false }, () => {
     const { container } = render(
       <OipAtomProvider>
         <HeroVideo
-          clips={[{ poster: "/oip/hero-vid-poster.jpg", mp4: "/oip/hero-vid.mp4", webm: "/oip/hero-vid.webm" }]}
+          clips={[
+            HeroClipMedia.make({
+              poster: "/oip/hero-vid-poster.jpg",
+              mp4: "/oip/hero-vid.mp4",
+              webm: "/oip/hero-vid.webm",
+            }),
+          ]}
         />
       </OipAtomProvider>
     );

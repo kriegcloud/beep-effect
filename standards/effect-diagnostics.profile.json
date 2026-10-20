@@ -1,0 +1,13 @@
+{
+  "diagnosticSeverity": {
+    "effectSleepZeroToYieldNow": "error",
+    "errorPayloadShadowsName": "error",
+    "flatMapToTap": "error",
+    "preferBarrelImport": "off",
+    "preferEffectArray": "error",
+    "preferEffectRecord": "error",
+    "preferNamespaceImport": "off",
+    "preferSchemaTaggedError": "error",
+    "schemaClassMissingBrand": "error"
+  }
+}

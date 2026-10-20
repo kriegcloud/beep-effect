@@ -53,7 +53,7 @@ const CircuitOpenErrorFields = {
  * @category errors
  * @since 0.0.0
  */
-export class CircuitOpenError extends S.TaggedError<CircuitOpenError>($I`CircuitOpenError`)(
+export class CircuitOpenError extends S.TaggedError<CircuitOpenError, { readonly brand: unique symbol }>($I`CircuitOpenError`)(
   "CircuitOpenError",
   CircuitOpenErrorFields,
   {
@@ -148,7 +148,7 @@ const RateLimitErrorFields = {
  * @category errors
  * @since 0.0.0
  */
-export class RateLimitError extends S.TaggedError<RateLimitError>($I`RateLimitError`)(
+export class RateLimitError extends S.TaggedError<RateLimitError, { readonly brand: unique symbol }>($I`RateLimitError`)(
   "RateLimitError",
   RateLimitErrorFields,
   $I.annote("RateLimitError", {

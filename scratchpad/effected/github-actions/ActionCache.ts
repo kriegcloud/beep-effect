@@ -12,8 +12,9 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "@beep/utils/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { HttpClient } from "effect/http";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as HttpClient from "effect/http/HttpClient";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import type { FileBlobTransfer } from "./BlobTransfer.ts";
 import { BlobTransferError } from "./BlobTransfer.ts";
@@ -46,7 +47,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionCache");
  * @category errors
  * @since 0.0.0
  */
-export class ActionCacheError extends S.TaggedError<ActionCacheError>($I`ActionCacheError`)("ActionCacheError", {
+export class ActionCacheError extends S.TaggedError<ActionCacheError, { readonly brand: unique symbol }>($I`ActionCacheError`)("ActionCacheError", {
 	/**
 	 * `misconfigured` — the results backend is not reachable from here (see
 	 * {@link ActionCache}). `unreachable` — it could not be contacted, or

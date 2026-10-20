@@ -70,10 +70,12 @@ import {
   DocketNeedsReviewReason,
   DocketReviewProgress,
   DocketSourceFolder,
+  DocketWrittenEntry,
   IntakeFailed,
   MatterLookupResult,
   NotDocketItem,
   ParalegalEntry,
+  SecretaryReview,
   TrackedDateType,
 } from "./DocketIntake.schemas.ts";
 import {
@@ -112,10 +114,8 @@ import type {
   DocketEntryKind,
   DocketMessage,
   DocketSourceDocument,
-  DocketWrittenEntry,
   ParalegalDocketEntry,
   ReviewRound,
-  SecretaryReview,
   TrackedDate,
 } from "./DocketIntake.schemas.ts";
 import type {
@@ -150,8 +150,8 @@ const docketIntakeConfigReviewDefault = DocketReviewConfig.make({});
  * @category models
  * @since 0.0.0
  */
-export class DocketIntakeConfig extends S.Class<DocketIntakeConfig>($I`DocketIntakeConfig`)(
-  {
+export class DocketIntakeConfig extends S.Opaque<DocketIntakeConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     mailbox: S.NonEmptyString.annotateKey({
       description: "Mailbox identity; part of every idempotency key and never logged.",
     }),
@@ -173,8 +173,7 @@ export class DocketIntakeConfig extends S.Class<DocketIntakeConfig>($I`DocketInt
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ).annotateKey({ description: "Whether agent 2 also reviews messages agent 1 found nothing to docket in." }),
-  },
-  $I.annote("DocketIntakeConfig", { description: "Settings of the docket intake pipeline." })
+  }).pipe($I.annoteSchema("DocketIntakeConfig", { description: "Settings of the docket intake pipeline." }))
 ) {}
 
 const PositiveMessageCount = S.Int.check(S.isGreaterThan(0));
@@ -202,13 +201,12 @@ const PositiveMessageCount = S.Int.check(S.isGreaterThan(0));
  * @category models
  * @since 0.0.0
  */
-export class DocketPollOptions extends S.Class<DocketPollOptions>($I`DocketPollOptions`)(
-  {
+export class DocketPollOptions extends S.Opaque<DocketPollOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxMessages: S.OptionFromOptionalKey(PositiveMessageCount)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Most pending messages one cycle processes, oldest first; all when absent." }),
-  },
-  $I.annote("DocketPollOptions", { description: "Options of one docket intake poll cycle." })
+  }).pipe($I.annoteSchema("DocketPollOptions", { description: "Options of one docket intake poll cycle." }))
 ) {}
 
 const unboundedPoll = DocketPollOptions.make({});
@@ -228,16 +226,15 @@ const unboundedPoll = DocketPollOptions.make({});
  * @category models
  * @since 0.0.0
  */
-export class DocketPollReport extends S.Class<DocketPollReport>($I`DocketPollReport`)(
-  {
+export class DocketPollReport extends S.Opaque<DocketPollReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     entered: S.Natural.annotateKey({ description: "Messages that got a dated entry this cycle." }),
     failed: S.Natural.annotateKey({ description: "Messages that failed this cycle and will be retried." }),
     needsReview: S.Natural.annotateKey({ description: "Messages that got a needs-review entry this cycle." }),
     notDocket: S.Natural.annotateKey({ description: "Messages found to need no entry this cycle." }),
     processed: S.Natural.annotateKey({ description: "Messages processed this cycle." }),
     seen: S.Natural.annotateKey({ description: "Messages the mailbox returned for the poll window." }),
-  },
-  $I.annote("DocketPollReport", { description: "Counts of one docket intake poll cycle." })
+  }).pipe($I.annoteSchema("DocketPollReport", { description: "Counts of one docket intake poll cycle." }))
 ) {}
 
 /**
@@ -256,8 +253,8 @@ export class DocketPollReport extends S.Class<DocketPollReport>($I`DocketPollRep
  * @category models
  * @since 0.0.0
  */
-export class DocketDigest extends S.Class<DocketDigest>($I`DocketDigest`)(
-  {
+export class DocketDigest extends S.Opaque<DocketDigest, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodyText: S.String.annotateKey({ description: "Digest text: dates, flags and links, no message content." }),
     day: LocalDateFromString.annotateKey({ description: "The day the digest covers." }),
     entered: S.Natural.annotateKey({ description: "Dated entries created that day." }),
@@ -267,8 +264,7 @@ export class DocketDigest extends S.Class<DocketDigest>($I`DocketDigest`)(
     written: S.Option(S.NonEmptyString).annotateKey({
       description: "Event id of the digest entry, when one was written.",
     }),
-  },
-  $I.annote("DocketDigest", { description: "The docket intake digest of one day." })
+  }).pipe($I.annoteSchema("DocketDigest", { description: "The docket intake digest of one day." }))
 ) {}
 
 /**
@@ -1018,7 +1014,7 @@ const nextRound = Effect.fnUntraced(function* (
   const disputes = reviewDisputes(previous);
   const revision = yield* ports.paralegal.revise({ disputes, message, previous: previous.entry });
   const reading = yield* A.match(rereadFields(disputes), {
-    onEmpty: () => Effect.succeed(previous.reading),
+    onEmpty: () => Effect.succeed(SecretaryReview.make(previous.reading)),
     onNonEmpty: (fields) =>
       ports.secretary
         .reread({
@@ -1096,7 +1092,7 @@ type ReviewEnd = O.Option<ReviewTerminalStatus>;
 
 const reviewEnd = (config: DocketReviewConfig, rounds: A.NonEmptyReadonlyArray<ReviewRound>): O.Option<ReviewEnd> => {
   const round = A.lastNonEmpty(rounds);
-  return bothDismiss(round.entry, round.reading)
+  return bothDismiss(round.entry, SecretaryReview.make(round.reading))
     ? O.some(O.none())
     : O.map(
         terminalStatus(
@@ -1144,8 +1140,8 @@ const writeFlagged = Effect.fnUntraced(function* (
 ): Effect.fn.Return<DocketIntakeOutcome, DocketIntakeError> {
   const { message, ports, today } = context;
   const { entry, reading } = round;
-  const candidates = [...A.fromOption(extractorDueDate(entry)), ...criticDates(reading)];
-  const references = matterReferences(entry, reading);
+  const candidates = [...A.fromOption(extractorDueDate(entry)), ...criticDates(SecretaryReview.make(reading))];
+  const references = matterReferences(entry, SecretaryReview.make(reading));
   const matter = yield* lookupMatter(ports, references);
   const tracked = yield* checkTrackedDates(ports, message, matter, references);
   const placed = placeWithSheet(
@@ -1162,7 +1158,7 @@ const writeFlagged = Effect.fnUntraced(function* (
       ...whenFlag(A.length(A.dedupeWith(candidates, sameDate)) > 1, "dates-differ"),
       ...placed.flags,
       ...matterFlags(matter),
-      ...sourceFlags(reading, A.isReadonlyArrayNonEmpty(context.documents)),
+      ...sourceFlags(SecretaryReview.make(reading), A.isReadonlyArrayNonEmpty(context.documents)),
       ...whenFlag(isBefore(placed.date, today), "due-date-past"),
     ],
     lines: [
@@ -1173,11 +1169,11 @@ const writeFlagged = Effect.fnUntraced(function* (
       ),
       "Open findings:",
       ...openLines(round),
-      ...dateLines(entry, reading),
+      ...dateLines(entry, SecretaryReview.make(reading)),
       ...placed.lines,
       NOMINAL_NOTE,
       matterLine(matter),
-      ...noteLines(entry, reading),
+      ...noteLines(entry, SecretaryReview.make(reading)),
     ],
     reason,
     review: O.some(verdict),
@@ -1194,7 +1190,7 @@ const settleAccepted = (
     ? enterDocketItem(context.ports, context.message, context.today, {
         entry: round.entry,
         hasDocuments: A.isReadonlyArrayNonEmpty(context.documents),
-        review: round.reading,
+        review: SecretaryReview.make(round.reading),
         verdict,
       })
     : escalateDisagreement(context.ports, context.message, context.today, round, verdict);
@@ -1366,12 +1362,18 @@ const digestLine: (outcome: DocketIntakeOutcome) => O.Option<string> = DocketInt
   DocketEntered: (outcome) =>
     O.some(
       A.join(
-        [`- ${iso(outcome.dueDate.date)} tentative entry`, flagsLine(outcome.flags), entryReference(outcome.entry)],
+        [
+          `- ${iso(outcome.dueDate.date)} tentative entry`,
+          flagsLine(outcome.flags),
+          entryReference(DocketWrittenEntry.make(outcome.entry)),
+        ],
         " · "
       )
     ),
   DocketNeedsReview: (outcome) =>
-    O.some(A.join([`- NEEDS REVIEW (${outcome.reason})`, entryReference(outcome.entry)], " · ")),
+    O.some(
+      A.join([`- NEEDS REVIEW (${outcome.reason})`, entryReference(DocketWrittenEntry.make(outcome.entry))], " · ")
+    ),
   IntakeFailed: (outcome) => O.some(`- still failing at stage ${outcome.stage}; will be retried`),
   NotDocketItem: () => O.none(),
 });

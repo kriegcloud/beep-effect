@@ -8,7 +8,11 @@ import {
   GoalManifest,
   GoalMergeMethod,
   GoalMergeResult,
+  GoalMergeTimeInventory,
+  GoalMergeTimeRuleSource,
+  GoalMergeTimeRuleSourceRecord,
   GoalPullRequestRef,
+  GoalRequiredCheckFact,
   GoalRequiredCheckSnapshot,
   goalPullRequestRefs,
 } from "@beep/repo-cli/test/Goals";
@@ -16,10 +20,12 @@ import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeGoalCompletionGate = S.decodeEffect(GoalCompletionGate);
 const decodeGoalManifest = S.decodeEffect(GoalManifest);
@@ -36,6 +42,36 @@ const gate = GoalCompletionGate.make({
   grandfathered: false,
 });
 const ref = GoalAcceptanceEvidenceRef.make({ kind: "hosted-required-checks", ref: "required", gating: true });
+const MERGE_COMMIT = "squash-result-not-descended-from-head";
+// A complete merge-time inventory: GitHub's merge-push rule suite, bound to the
+// merge commit, with a recovered history version for its one required-check ruleset.
+const completeInventory = GoalMergeTimeInventory.make({
+  source: "repos/{owner}/{repo}/rulesets/rule-suites/1",
+  ruleSuiteId: 1,
+  ref: "refs/heads/main",
+  afterSha: MERGE_COMMIT,
+  pushedAt: time,
+  result: "pass",
+  ruleSources: [
+    GoalMergeTimeRuleSource.make({
+      sourceType: "ruleset",
+      rulesetId: O.some(42),
+      name: O.some("main"),
+      enforcement: "active",
+      requiredStatusChecks: O.some("pass"),
+      survives: true,
+      version: O.some("repos/{owner}/{repo}/rulesets/42/history/1"),
+    }),
+  ],
+});
+const lintFact = GoalRequiredCheckFact.make({
+  context: "Lint",
+  head: "accepted-head",
+  checkRunId: O.some(1),
+  conclusion: "success",
+  outcome: "verified",
+  source: "check-run",
+});
 const fixture = () =>
   GoalCompletionObservation.make({
     repository: "example/repo",
@@ -45,18 +81,20 @@ const fixture = () =>
     requiredChecks: O.some(
       GoalRequiredCheckSnapshot.make({
         contexts: ["Lint"],
-        sources: ["complete-merge-time-inventory"],
+        sources: ["repos/{owner}/{repo}/rulesets/42/history/1"],
         effectiveAt: time,
         inventoryComplete: true,
+        mergeTimeInventory: O.some(completeInventory),
       })
     ),
+    requiredCheckFacts: [lintFact],
     finalPullRequest: 1429,
     acceptedHead: O.some("accepted-head"),
     merged: O.some(true),
     grandfathered: false,
     merge: O.some(
       GoalMergeResult.make({
-        mergeCommit: "squash-result-not-descended-from-head",
+        mergeCommit: MERGE_COMMIT,
         tree: "merge-tree",
         mergedAt: time,
         method: O.some("squash"),
@@ -161,6 +199,62 @@ describe("goal completion declaration", () => {
 });
 
 describe("pure goal completion resolver", () => {
+  it.effect("a legacy receipt row with a recovered version and no history fails closed as gating", () =>
+    Effect.gen(function* () {
+      const observation = fixture();
+      const snapshot = O.getOrThrow(observation.requiredChecks);
+      const deleted = GoalMergeTimeRuleSource.make({
+        sourceType: "ruleset",
+        rulesetId: O.some(999),
+        name: O.none(),
+        enforcement: "deleted ruleset",
+        requiredStatusChecks: O.some("fail"),
+        survives: false,
+        version: O.some("repos/{owner}/{repo}/rulesets/999/history/1"),
+        history: "gating",
+      });
+      const receipt = yield* GoalCompletionVerifier.resolve(
+        GoalCompletionObservation.make({
+          ...observation,
+          requiredChecks: O.some(
+            GoalRequiredCheckSnapshot.make({
+              ...snapshot,
+              mergeTimeInventory: O.some(
+                GoalMergeTimeInventory.make({
+                  ...completeInventory,
+                  ruleSources: [...completeInventory.ruleSources, deleted],
+                })
+              ),
+            })
+          ),
+        })
+      );
+      expect(receipt.outcome).toBe("unsatisfied");
+      // Rewrite the stored JSON into the shape written before `history` existed.
+      const legacyText = Str.replace(
+        /,"history":"(gating|unread)"/gu,
+        ""
+      )(yield* encodeGoalCompletionReceiptJson(receipt));
+      expect(Str.includes('"history"')(legacyText)).toBe(false);
+      const legacy = yield* decodeGoalCompletionReceiptJson(legacyText);
+      const sources = O.getOrThrow(O.flatMap(legacy.requiredChecks, (value) => value.mergeTimeInventory)).ruleSources;
+      expect(A.map(sources, (source) => source.history)).toEqual(["gating", "gating"]);
+      const reresolved = yield* GoalCompletionVerifier.resolve(
+        GoalCompletionObservation.make({ ...legacy, merged: O.some(true), grandfathered: false })
+      );
+      expect(reresolved.outcome).toBe("unsatisfied");
+      const unversioned = yield* S.decodeEffect(GoalMergeTimeRuleSourceRecord)({
+        sourceType: "ruleset",
+        rulesetId: 999,
+        name: null,
+        enforcement: "deleted ruleset",
+        requiredStatusChecks: "fail",
+        survives: false,
+        version: null,
+      });
+      expect(unversioned.history).toBe("unread");
+    })
+  );
   it.effect("requires complete historical inventory despite green surviving contexts", () =>
     Effect.gen(function* () {
       const observation = fixture();
@@ -186,11 +280,26 @@ describe("pure goal completion resolver", () => {
           })
         )).outcome
       ).toBe("unknown");
+      // The completeness flag alone never verifies: the stored rule suite must prove it.
       expect(
         (yield* GoalCompletionVerifier.resolve(
           GoalCompletionObservation.make({
             ...observation,
             requiredChecks: O.some(GoalRequiredCheckSnapshot.make({ ...snapshot, inventoryComplete: true })),
+          })
+        )).outcome
+      ).toBe("unknown");
+      expect(
+        (yield* GoalCompletionVerifier.resolve(
+          GoalCompletionObservation.make({
+            ...observation,
+            requiredChecks: O.some(
+              GoalRequiredCheckSnapshot.make({
+                ...snapshot,
+                inventoryComplete: true,
+                mergeTimeInventory: O.some(completeInventory),
+              })
+            ),
           })
         )).outcome
       ).toBe("verified");

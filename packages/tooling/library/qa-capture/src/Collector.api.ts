@@ -10,7 +10,11 @@
  */
 
 import { $QaCaptureId } from "@beep/identity/packages";
-import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema, OpenApi } from "effect/http-api";
+import * as HttpApi from "effect/http-api/HttpApi";
+import * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
+import * as HttpApiGroup from "effect/http-api/HttpApiGroup";
+import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
+import * as OpenApi from "effect/http-api/OpenApi";
 import * as S from "effect/Schema";
 import { SequenceNumber } from "./ActionEvent.models.ts";
 import { RoundNumber, SessionId } from "./QaCapture.models.ts";
@@ -46,8 +50,8 @@ const NonNegativeCount = S.Int.check(
  * @category models
  * @since 0.0.0
  */
-export class CollectorHealth extends S.Class<CollectorHealth>($I`CollectorHealth`)(
-  {
+export class CollectorHealth extends S.Opaque<CollectorHealth, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventsWritten: NonNegativeCount.pipe(
       $I.annoteKey("CollectorHealth.eventsWritten", {
         description: "Events accepted and appended so far.",
@@ -73,10 +77,11 @@ export class CollectorHealth extends S.Class<CollectorHealth>($I`CollectorHealth
         description: "Health discriminator; a responding collector is ok.",
       })
     ),
-  },
-  $I.annote("CollectorHealth", {
-    description: "Collector health snapshot returned by GET /health.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorHealth", {
+      description: "Collector health snapshot returned by GET /health.",
+    })
+  )
 ) {}
 
 /**
@@ -93,8 +98,8 @@ export class CollectorHealth extends S.Class<CollectorHealth>($I`CollectorHealth
  * @category models
  * @since 0.0.0
  */
-export class EventsAccepted extends S.Class<EventsAccepted>($I`EventsAccepted`)(
-  {
+export class EventsAccepted extends S.Opaque<EventsAccepted, { readonly brand: unique symbol }>()(
+  S.Struct({
     accepted: NonNegativeCount.pipe(
       $I.annoteKey("EventsAccepted.accepted", {
         description: "Lines decoded and enqueued from this batch.",
@@ -105,10 +110,11 @@ export class EventsAccepted extends S.Class<EventsAccepted>($I`EventsAccepted`)(
         description: "Lines rejected by schema decoding from this batch.",
       })
     ),
-  },
-  $I.annote("EventsAccepted", {
-    description: "Batch acknowledgement returned by POST /events.",
-  })
+  }).pipe(
+    $I.annoteSchema("EventsAccepted", {
+      description: "Batch acknowledgement returned by POST /events.",
+    })
+  )
 ) {}
 
 /**
@@ -125,8 +131,8 @@ export class EventsAccepted extends S.Class<EventsAccepted>($I`EventsAccepted`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkRequest extends S.Class<MarkRequest>($I`MarkRequest`)(
-  {
+export class MarkRequest extends S.Opaque<MarkRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.String.check(
       S.isMinLength(1, {
         identifier: $I`MarkRequestLabelNonEmptyCheck`,
@@ -139,10 +145,11 @@ export class MarkRequest extends S.Class<MarkRequest>($I`MarkRequest`)(
         description: "Semantic marker label to append to the event log.",
       })
     ),
-  },
-  $I.annote("MarkRequest", {
-    description: "Marker request accepted by POST /mark.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkRequest", {
+      description: "Marker request accepted by POST /mark.",
+    })
+  )
 ) {}
 
 /**
@@ -159,17 +166,18 @@ export class MarkRequest extends S.Class<MarkRequest>($I`MarkRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkAccepted extends S.Class<MarkAccepted>($I`MarkAccepted`)(
-  {
+export class MarkAccepted extends S.Opaque<MarkAccepted, { readonly brand: unique symbol }>()(
+  S.Struct({
     seq: SequenceNumber.pipe(
       $I.annoteKey("MarkAccepted.seq", {
         description: "Server-allocated sequence number of the appended marker.",
       })
     ),
-  },
-  $I.annote("MarkAccepted", {
-    description: "Marker acknowledgement returned by POST /mark.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkAccepted", {
+      description: "Marker acknowledgement returned by POST /mark.",
+    })
+  )
 ) {}
 
 /**
@@ -186,17 +194,18 @@ export class MarkAccepted extends S.Class<MarkAccepted>($I`MarkAccepted`)(
  * @category models
  * @since 0.0.0
  */
-export class StopAccepted extends S.Class<StopAccepted>($I`StopAccepted`)(
-  {
+export class StopAccepted extends S.Opaque<StopAccepted, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("stopping").pipe(
       $I.annoteKey("StopAccepted.status", {
         description: "Stop discriminator; the collector completes its stop deferred.",
       })
     ),
-  },
-  $I.annote("StopAccepted", {
-    description: "Stop acknowledgement returned by POST /stop.",
-  })
+  }).pipe(
+    $I.annoteSchema("StopAccepted", {
+      description: "Stop acknowledgement returned by POST /stop.",
+    })
+  )
 ) {}
 
 /**

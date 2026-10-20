@@ -28,9 +28,14 @@ import * as S from "effect/Schema";
 import sharp from "sharp";
 import { concatBytes } from "../../../internal/cli/Bytes.ts";
 import { hashFileSha256 as hashFileSha256Hex } from "../../../internal/cli/FsGuards.ts";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import { isSupportedMetadataImageExtension, normalizeBareExtension } from "../Files.media.ts";
-import { backupStagedFileTarget, canonicalizeFileTargetPath, commitStagedFileByRename } from "./FileTransaction.ts";
+import {
+  backupStagedFileTarget,
+  canonicalizeFileTargetPath,
+  commitStagedFileByRename,
+  StagedFileCommitRecord,
+} from "./FileTransaction.ts";
 import {
   encodeImageAuditManifest,
   ImageAuditCluster,
@@ -52,9 +57,8 @@ import {
 } from "./ImageCuration.schemas.ts";
 import { FileSha256Hash } from "./Media.schemas.ts";
 import type { LoadedFaceDetector } from "@beep/face-detection";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Terminal from "effect/Terminal";
-import type { StagedFileCommitRecord } from "./FileTransaction.ts";
 import type { ImageAuditOptions } from "./ImageAudit.schemas.ts";
 import type {
   ImageCurationCrop,
@@ -231,7 +235,11 @@ const collectAuditSource = Effect.fn("Files.collectImageAuditSource")(function* 
 
   const stat = yield* fs
     .stat(sourcePath)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat image audit source", sourcePath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat image audit source", sourcePath, PlatformErrorOptions.make({ cause }))
+      )
+    );
   if (stat.type !== "File") {
     return skippedAuditSource(name, sourcePath, "Only direct regular image files are audited.");
   }
@@ -266,14 +274,22 @@ const collectAuditSources = Effect.fn("Files.collectImageAuditSources")(function
     .realPath(resolvedDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to resolve image audit directory", resolvedDirectory, { cause })
+        formatPlatformError(
+          "Failed to resolve image audit directory",
+          resolvedDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const directoryStat = yield* fs
     .stat(canonicalDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to stat image audit directory", canonicalDirectory, { cause })
+        formatPlatformError(
+          "Failed to stat image audit directory",
+          canonicalDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -287,7 +303,11 @@ const collectAuditSources = Effect.fn("Files.collectImageAuditSources")(function
     .readDirectory(canonicalDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to read image audit directory", canonicalDirectory, { cause })
+        formatPlatformError(
+          "Failed to read image audit directory",
+          canonicalDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const results = yield* Effect.forEach(
@@ -738,7 +758,11 @@ const writeJsonAtomically = Effect.fn("Files.writeImageCurationJsonAtomically")(
   const resolved = path.resolve(filePath);
   const exists = yield* fs
     .exists(resolved)
-    .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to inspect ${description}`, resolved, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to inspect ${description}`, resolved, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
   if (exists && !overwrite) {
     return yield* FilesCommandError.make({
@@ -748,7 +772,11 @@ const writeJsonAtomically = Effect.fn("Files.writeImageCurationJsonAtomically")(
   if (exists) {
     const stat = yield* fs
       .stat(resolved)
-      .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to stat ${description}`, resolved, { cause })));
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError(`Failed to stat ${description}`, resolved, PlatformErrorOptions.make({ cause }))
+        )
+      );
     if (stat.type !== "File") {
       return yield* FilesCommandError.make({
         message: `Refusing to overwrite non-file ${description}: "${resolved}"`,
@@ -760,24 +788,36 @@ const writeJsonAtomically = Effect.fn("Files.writeImageCurationJsonAtomically")(
   yield* fs
     .makeDirectory(parent, { recursive: true })
     .pipe(
-      Effect.mapError((cause) => formatPlatformError(`Failed to create ${description} directory`, parent, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to create ${description} directory`, parent, PlatformErrorOptions.make({ cause }))
+      )
     );
   yield* Effect.acquireUseRelease(
     fs
       .makeTempDirectory({ directory: parent, prefix: ".beep-files-image-json-" })
-      .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to stage ${description}`, parent, { cause }))),
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError(`Failed to stage ${description}`, parent, PlatformErrorOptions.make({ cause }))
+        )
+      ),
     Effect.fnUntraced(function* (tempDir) {
       const tempPath = path.join(tempDir, path.basename(resolved));
       const content = yield* renderJsonContent(value, description);
       yield* fs
         .writeFileString(tempPath, content)
         .pipe(
-          Effect.mapError((cause) => formatPlatformError(`Failed to write staged ${description}`, tempPath, { cause }))
+          Effect.mapError((cause) =>
+            formatPlatformError(`Failed to write staged ${description}`, tempPath, PlatformErrorOptions.make({ cause }))
+          )
         );
       if (exists) yield* fs.remove(resolved, { force: true }).pipe(Effect.ignore);
       yield* fs
         .rename(tempPath, resolved)
-        .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to commit ${description}`, resolved, { cause })));
+        .pipe(
+          Effect.mapError((cause) =>
+            formatPlatformError(`Failed to commit ${description}`, resolved, PlatformErrorOptions.make({ cause }))
+          )
+        );
     }),
     (tempDir) => fs.remove(tempDir, { force: true, recursive: true }).pipe(Effect.ignore)
   );
@@ -953,7 +993,11 @@ const readDecisionDocument = Effect.fn("Files.readImageCurationDecisionDocument"
     .readFileString(decisionDocumentPath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to read image curation decision ledger", decisionDocumentPath, { cause })
+        formatPlatformError(
+          "Failed to read image curation decision ledger",
+          decisionDocumentPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   return yield* decodeImageCurationDecisionDocumentJson(content).pipe(
@@ -1383,7 +1427,11 @@ const inspectCurationDestination = Effect.fn("Files.inspectImageCurationDestinat
   const fs = yield* FileSystem.FileSystem;
   const exists = yield* fs
     .exists(targetPath)
-    .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to inspect ${description}`, targetPath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to inspect ${description}`, targetPath, PlatformErrorOptions.make({ cause }))
+      )
+    );
   if (!exists) return false;
   if (!overwrite) {
     return yield* FilesCommandError.make({
@@ -1393,7 +1441,11 @@ const inspectCurationDestination = Effect.fn("Files.inspectImageCurationDestinat
 
   const stat = yield* fs
     .stat(targetPath)
-    .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to stat ${description}`, targetPath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to stat ${description}`, targetPath, PlatformErrorOptions.make({ cause }))
+      )
+    );
   if (stat.type !== "File") {
     return yield* FilesCommandError.make({
       message: `Refusing to overwrite non-file ${description}: "${targetPath}"`,
@@ -1445,7 +1497,11 @@ const commitCurationFiles = Effect.fn("Files.commitImageCurationFiles")(function
           .makeDirectory(parent, { recursive: true })
           .pipe(
             Effect.mapError((cause) =>
-              formatPlatformError(`Failed to create ${record.description} directory`, parent, { cause })
+              formatPlatformError(
+                `Failed to create ${record.description} directory`,
+                parent,
+                PlatformErrorOptions.make({ cause })
+              )
             )
           );
       }
@@ -1498,7 +1554,11 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
     .makeDirectory(validated.outputDirectory, { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create image curation output directory", validated.outputDirectory, { cause })
+        formatPlatformError(
+          "Failed to create image curation output directory",
+          validated.outputDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const manifestParent = path.dirname(validated.manifestPath);
@@ -1506,7 +1566,11 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
     .makeDirectory(manifestParent, { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create image curation manifest directory", manifestParent, { cause })
+        formatPlatformError(
+          "Failed to create image curation manifest directory",
+          manifestParent,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -1515,7 +1579,11 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
       .makeTempDirectory({ directory: validated.outputDirectory, prefix: ".beep-files-curate-images-" })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to create image curation staging directory", validated.outputDirectory, { cause })
+          formatPlatformError(
+            "Failed to create image curation staging directory",
+            validated.outputDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       ),
     Effect.fnUntraced(function* (tempDirectory) {
@@ -1551,9 +1619,13 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
       return yield* Effect.acquireUseRelease(
         fs.makeTempDirectory({ directory: manifestParent, prefix: ".beep-files-curate-images-manifest-" }).pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to create image curation manifest staging directory", manifestParent, {
-              cause,
-            })
+            formatPlatformError(
+              "Failed to create image curation manifest staging directory",
+              manifestParent,
+              PlatformErrorOptions.make({
+                cause,
+              })
+            )
           )
         ),
         Effect.fnUntraced(function* (manifestTempDirectory) {
@@ -1562,7 +1634,11 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
             .writeFileString(stagedManifestPath, manifestContent)
             .pipe(
               Effect.mapError((cause) =>
-                formatPlatformError("Failed to write staged image curation manifest", stagedManifestPath, { cause })
+                formatPlatformError(
+                  "Failed to write staged image curation manifest",
+                  stagedManifestPath,
+                  PlatformErrorOptions.make({ cause })
+                )
               )
             );
 
@@ -1570,26 +1646,32 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
           for (let recordIndex = 0; recordIndex < staged.length; recordIndex += 1) {
             const stagedEntry = staged[recordIndex];
             if (stagedEntry === undefined) continue;
-            records = A.append(records, {
-              backedUp: false,
-              backupPath: path.join(
-                tempDirectory,
-                `backup-${`${recordIndex}`.padStart(4, "0")}-${stagedEntry.entry.outputName}`
-              ),
-              committed: false,
-              description: "curation output",
-              stagedPath: stagedEntry.stagedPath,
-              targetPath: stagedEntry.entry.outputPath,
-            });
+            records = A.append(
+              records,
+              StagedFileCommitRecord.make({
+                backedUp: false,
+                backupPath: path.join(
+                  tempDirectory,
+                  `backup-${`${recordIndex}`.padStart(4, "0")}-${stagedEntry.entry.outputName}`
+                ),
+                committed: false,
+                description: "curation output",
+                stagedPath: stagedEntry.stagedPath,
+                targetPath: stagedEntry.entry.outputPath,
+              })
+            );
           }
-          records = A.append(records, {
-            backedUp: false,
-            backupPath: path.join(manifestTempDirectory, "previous-image-curation-manifest"),
-            committed: false,
-            description: "image curation manifest",
-            stagedPath: stagedManifestPath,
-            targetPath: validated.manifestPath,
-          });
+          records = A.append(
+            records,
+            StagedFileCommitRecord.make({
+              backedUp: false,
+              backupPath: path.join(manifestTempDirectory, "previous-image-curation-manifest"),
+              committed: false,
+              description: "image curation manifest",
+              stagedPath: stagedManifestPath,
+              targetPath: validated.manifestPath,
+            })
+          );
 
           yield* commitCurationFiles(records, options.overwrite);
           return nextSummary;

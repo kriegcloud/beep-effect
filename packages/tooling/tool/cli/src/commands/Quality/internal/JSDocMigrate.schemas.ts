@@ -200,8 +200,8 @@ export type JSDocMigrateRemarksRouting = typeof JSDocMigrateRemarksRouting.Type;
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateExtractRecord extends S.Class<JSDocMigrateExtractRecord>($I`JSDocMigrateExtractRecord`)(
-  {
+export class JSDocMigrateExtractRecord extends S.Opaque<JSDocMigrateExtractRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchor: S.String,
     filePath: S.String,
     symbol: S.String,
@@ -216,10 +216,11 @@ export class JSDocMigrateExtractRecord extends S.Class<JSDocMigrateExtractRecord
     unfencedExampleCount: S.Int,
     remarksTagCount: S.Int,
     undescribedSeeCount: S.Int,
-  },
-  $I.annote("JSDocMigrateExtractRecord", {
-    description: "One affected JSDoc block: anchor, verification fields, and the original block bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateExtractRecord", {
+      description: "One affected JSDoc block: anchor, verification fields, and the original block bytes.",
+    })
+  )
 ) {}
 
 /**
@@ -251,8 +252,8 @@ export class JSDocMigrateExtractRecord extends S.Class<JSDocMigrateExtractRecord
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateTitleRecord extends S.Class<JSDocMigrateTitleRecord>($I`JSDocMigrateTitleRecord`)(
-  {
+export class JSDocMigrateTitleRecord extends S.Opaque<JSDocMigrateTitleRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchor: S.String,
     sourceHash: S.String,
     kind: JSDocMigrateBlockKind,
@@ -260,10 +261,11 @@ export class JSDocMigrateTitleRecord extends S.Class<JSDocMigrateTitleRecord>($I
     remarks: S.optionalKey(JSDocMigrateRemarksRouting),
     leadEnd: S.optionalKey(S.Int),
     seePurposes: S.Array(JSDocMigrateInlineText).pipe(S.optionalKey),
-  },
-  $I.annote("JSDocMigrateTitleRecord", {
-    description: "Frozen per-anchor title-pass output: Example titles, remarks routing, lead split, see purposes.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateTitleRecord", {
+      description: "Frozen per-anchor title-pass output: Example titles, remarks routing, lead split, see purposes.",
+    })
+  )
 ) {}
 
 /**
@@ -293,16 +295,20 @@ export class JSDocMigrateTitleRecord extends S.Class<JSDocMigrateTitleRecord>($I
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateOverrideRecord extends S.Class<JSDocMigrateOverrideRecord>($I`JSDocMigrateOverrideRecord`)(
-  {
+export class JSDocMigrateOverrideRecord extends S.Opaque<
+  JSDocMigrateOverrideRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     anchor: S.String,
     sourceHash: S.String,
     kind: JSDocMigrateBlockKind,
     block: S.String,
-  },
-  $I.annote("JSDocMigrateOverrideRecord", {
-    description: "Frozen full replacement block text for a quarantined JSDoc block.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateOverrideRecord", {
+      description: "Frozen full replacement block text for a quarantined JSDoc block.",
+    })
+  )
 ) {}
 
 /**
@@ -324,17 +330,19 @@ export class JSDocMigrateOverrideRecord extends S.Class<JSDocMigrateOverrideReco
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateQuarantineRecord extends S.Class<JSDocMigrateQuarantineRecord>(
-  $I`JSDocMigrateQuarantineRecord`
-)(
-  {
+export class JSDocMigrateQuarantineRecord extends S.Opaque<
+  JSDocMigrateQuarantineRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     anchor: S.String,
     filePath: S.String,
     reasons: S.Array(S.String),
-  },
-  $I.annote("JSDocMigrateQuarantineRecord", {
-    description: "One JSDoc block the codemod quarantined instead of writing, with violation reasons.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateQuarantineRecord", {
+      description: "One JSDoc block the codemod quarantined instead of writing, with violation reasons.",
+    })
+  )
 ) {}
 
 /**
@@ -366,18 +374,19 @@ export class JSDocMigrateQuarantineRecord extends S.Class<JSDocMigrateQuarantine
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateBindingReport extends S.Class<JSDocMigrateBindingReport>($I`JSDocMigrateBindingReport`)(
-  {
+export class JSDocMigrateBindingReport extends S.Opaque<JSDocMigrateBindingReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     extractCount: S.Int,
     recordCount: S.Int,
     orphanRecordAnchors: S.Array(S.String),
     unmatchedExtractAnchors: S.Array(S.String),
     sourceHashMismatchAnchors: S.Array(S.String),
     kindMismatchAnchors: S.Array(S.String),
-  },
-  $I.annote("JSDocMigrateBindingReport", {
-    description: "Bijection, sourceHash, and kind agreement results between frozen records and a live extract.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateBindingReport", {
+      description: "Bijection, sourceHash, and kind agreement results between frozen records and a live extract.",
+    })
+  )
 ) {}
 
 /**
@@ -453,8 +462,8 @@ export type JSDocMigrateMode = typeof JSDocMigrateMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateProofManifest extends S.Class<JSDocMigrateProofManifest>($I`JSDocMigrateProofManifest`)(
-  {
+export class JSDocMigrateProofManifest extends S.Opaque<JSDocMigrateProofManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema_version: S.Literal(1),
     generated_at: S.String,
     mode: JSDocMigrateMode,
@@ -468,10 +477,11 @@ export class JSDocMigrateProofManifest extends S.Class<JSDocMigrateProofManifest
     residueLegacyBlocks: S.Int,
     binding: JSDocMigrateBindingReport,
     quarantines: S.Array(JSDocMigrateQuarantineRecord),
-  },
-  $I.annote("JSDocMigrateProofManifest", {
-    description: "Schema-versioned exhaustive conservation and binding proof for a jsdoc-migrate run.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateProofManifest", {
+      description: "Schema-versioned exhaustive conservation and binding proof for a jsdoc-migrate run.",
+    })
+  )
 ) {}
 
 /**

@@ -4,6 +4,7 @@ import {
   AiMetricsDataRootSource,
   AiMetricsDeployTarget,
   AiMetricsInstallInput,
+  AiMetricsStateHomeInput,
   agentEvidenceRoot,
   aiMetricsStateHome,
   aiMetricsStateRoot,
@@ -144,7 +145,7 @@ describe("@beep/repo-ai-metrics data-root precedence", () => {
 
       for (const input of unresolvable) {
         assertNone(resolveAiMetricsDataRoot(input));
-        assertNone(aiMetricsStateHome(input));
+        assertNone(aiMetricsStateHome(AiMetricsStateHomeInput.make(input)));
       }
 
       // The dankserver rung and an explicit XDG_STATE_HOME still resolve without a home.
@@ -189,7 +190,7 @@ describe("@beep/repo-ai-metrics data-root precedence", () => {
 
   it("keeps the ai-metrics store a sibling of the hook-pulse agent-evidence store", () => {
     const stateHome = O.getOrThrowWith(
-      aiMetricsStateHome({ homeDir: O.some(homeDir), stateHome: O.none() }),
+      aiMetricsStateHome(AiMetricsStateHomeInput.make({ homeDir: O.some(homeDir), stateHome: O.none() })),
       () => new Error("expected a state home")
     );
     const metricsRoot = aiMetricsStateRoot(stateHome);

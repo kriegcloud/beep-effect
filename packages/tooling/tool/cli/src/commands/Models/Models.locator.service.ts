@@ -4,26 +4,36 @@
  * **Details**
  *
  * One reader per {@link Locator} tag, each reading the text it is handed and
- * performing no I/O of its own. Every reader is line- or node-anchored rather
- * than whole-file, so a future writer can edit in place without rewriting a
- * file a machine appends to.
+ * performing no I/O of its own. TOML and JSON readers parse the complete document before resolving a leaf.
+ * Span editors retain original spelling after parsed-value comparisons. Shell, YAML and XML values are hints only;
+ * consumers always require manual verification and never certify them clean.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { A, flow, O, P, pipe, R, Str } from "@beep/utils";
+import { A, O, P, pipe, R, Str } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as Regex from "effect/RegExp";
+import * as Tuple from "effect/Tuple";
 import { XMLParser } from "fast-xml-parser";
-import { parseDocument } from "yaml";
+import { SyntaxValidator } from "fast-xml-validator";
+import { getNodeValue } from "jsonc-parser";
+import { isMap, isScalar as isYamlScalar, parseDocument, visit } from "yaml";
 import { ModelsLocatorError } from "./Models.errors.ts";
-import { parseJsonText } from "./Models.paths.ts";
 import { extractGeneratedBlock } from "./Models.render.ts";
+import {
+  modelsParsedLeaf,
+  modelsParseJson,
+  modelsParseToml,
+  modelsShellScope,
+  modelsShellWords,
+} from "./Models.spans.ts";
 import type { Locator } from "./Models.manifest.schemas.ts";
 import type { ModelsTargetFile } from "./Models.paths.ts";
 
@@ -53,15 +63,15 @@ export interface ModelsLocatorReaderShape {
  * **Example** (Describe a locator read)
  *
  * ```ts
- * import { ModelsLocatorReader } from "@beep/repo-cli/commands/Models"
+ * import { LocatorBinding, ModelsLocatorReader, ModelsTargetFile } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
  * const program = ModelsLocatorReader.use((reader) =>
  *   reader.read(
- *     { root: "repo", absolutePath: "/repo/a.ts", content: 'export const x = "y";' },
+ *     ModelsTargetFile.make({ root: "repo", absolutePath: "/repo/a.ts", content: 'export const x = "y";' }),
  *     {
  *       _tag: "ts-literal",
- *       binding: { role: "qa.judge", surface: "codex-plugin", field: "model" },
+ *       binding: LocatorBinding.make({ role: "qa.judge", surface: "codex-plugin", field: "model" }),
  *       render: { _tag: "verbatim" },
  *       symbol: "x"
  *     }
@@ -77,79 +87,74 @@ export class ModelsLocatorReader extends Context.Service<ModelsLocatorReader, Mo
   $I`ModelsLocatorReader`
 ) {}
 
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const unquote = (value: string): string =>
-  pipe(Str.trim(value), (trimmed) =>
-    (Str.startsWith('"')(trimmed) && Str.endsWith('"')(trimmed)) ||
-    (Str.startsWith("'")(trimmed) && Str.endsWith("'")(trimmed))
-      ? Str.slice(1, Str.length(trimmed) - 1)(trimmed)
-      : trimmed
-  );
-
-const isTableHeader = (line: string): boolean => Str.startsWith("[")(Str.trim(line));
-
-// A quoted TOML value may itself contain `#`, so the comment cut is anchored
-// on the closing quote when the value is quoted and on the first `#` only when
-// it is not.
-const quotedTomlValue = /^(["'])(?:\\.|(?!\1).)*\1/;
-
-const stripInlineComment = (value: string): string =>
-  pipe(Str.trim(value), (trimmed) =>
-    O.match(O.fromNullishOr(quotedTomlValue.exec(trimmed)), {
-      onNone: () => Str.trim(A.headNonEmpty(Str.split(trimmed, "#"))),
-      onSome: (match) => match[0],
-    })
-  );
-
-const readKeyFromLines = (lines: ReadonlyArray<string>, key: string): O.Option<string> =>
-  O.map(
-    firstMatch(lines, new RegExp(`^\\s*${escapeRegExp(key)}\\s*=\\s*(.+?)\\s*$`)),
-    flow(stripInlineComment, unquote)
-  );
-
-const topLevelLines = (content: string): ReadonlyArray<string> =>
-  pipe(
-    Str.split(content, "\n"),
-    A.takeWhile((line) => !isTableHeader(line))
-  );
-
-const tableLines = (content: string, table: string): ReadonlyArray<string> =>
-  pipe(
-    Str.split(content, "\n"),
-    A.dropWhile((line) => Str.trim(line) !== `[${table}]`),
-    A.drop(1),
-    A.takeWhile((line) => !isTableHeader(line))
-  );
-
-const functionLines = (content: string, name: string): ReadonlyArray<string> => {
-  const opener = new RegExp(`^\\s*(?:function\\s+)?${escapeRegExp(name)}\\s*(?:\\(\\s*\\))?\\s*\\{`);
-  return pipe(
-    Str.split(content, "\n"),
-    A.dropWhile((line) => !opener.test(line)),
-    A.drop(1),
-    A.takeWhile((line) => line !== "}")
-  );
-};
-
-const readShellAssign = (content: string, variable: string, within: O.Option<string>): O.Option<string> =>
-  firstMatch(
-    pipe(
-      within,
-      O.map((name) => functionLines(content, name)),
-      O.getOrElse(() => Str.split(content, "\n"))
-    ),
-    // `--model 'grok-4.6'` and `KEY=value` are the same shape once the
-    // separator is allowed to be a space: the flag or variable name, then the
-    // value.
-    new RegExp(`${escapeRegExp(variable)}[= ]['"]?([^'"\\s]+)`)
-  );
-
-const readEnvKey = (content: string, key: string): O.Option<string> =>
-  O.map(firstMatch(Str.split(content, "\n"), new RegExp(`^\\s*(?:export\\s+)?${escapeRegExp(key)}=(.*)$`)), unquote);
+/**
+ * Read shell drift without authorizing a shell write.
+ *
+ * **Details**
+ *
+ * Only one distinct literal can establish synchronization. Conflicting values
+ * carry unsupported-form drift, so a joined display can never equal a scalar
+ * expectation and hide an incorrect occurrence.
+ *
+ * **Example** (Read an assignment)
+ *
+ * ```ts
+ * import { modelsReadShellAssign } from "@beep/repo-cli/commands/Models/Models.locator.service"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ * console.log(Effect.isEffect(modelsReadShellAssign("MODEL=old", "MODEL", O.none())))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsReadShellAssign: {
+  (content: string, variable: string, within: O.Option<string>): Effect.Effect<O.Option<string>>;
+  (variable: string, within: O.Option<string>): (content: string) => Effect.Effect<O.Option<string>>;
+} = dual(
+  3,
+  Effect.fn("Models.readShellAssign")(function* (content: string, variable: string, within: O.Option<string>) {
+    // Scope extraction cannot erase an ambiguous containing shell document,
+    // such as a function-looking block inside a here-document or open quote.
+    const allWords = yield* modelsShellWords(content, variable);
+    const words =
+      O.isSome(within) && !A.some(allWords, Str.startsWith("Unsupported shell form"))
+        ? yield* O.match(modelsShellScope(content, within.value, variable), {
+            onNone: () =>
+              Effect.succeed([
+                `Unsupported shell form: line ${A.length(
+                  Str.split(
+                    Str.slice(
+                      0,
+                      O.getOrElse(Str.indexOf(variable)(content), () => 0)
+                    )(content),
+                    "\n"
+                  )
+                )}; ambiguous function scope`,
+              ]),
+            onSome: (body) => modelsShellWords(body, variable),
+          })
+        : allWords;
+    const unsupported = A.findFirst(words, Str.startsWith("Unsupported shell form"));
+    if (O.isSome(unsupported)) return unsupported;
+    return pipe(
+      words,
+      A.dedupe,
+      A.match({
+        onEmpty: O.none<string>,
+        onNonEmpty: (values) =>
+          O.some(
+            A.length(values) === 1
+              ? A.headNonEmpty(values)
+              : `Unsupported shell form: conflicting values ${A.join(values, ", ")}`
+          ),
+      })
+    );
+  })
+);
 
 const readTsLiteral = (content: string, symbol: string): O.Option<string> =>
-  firstMatch([content], new RegExp(`export\\s+const\\s+${escapeRegExp(symbol)}\\s*(?::[^=]+)?=\\s*"([^"]*)"`));
+  firstMatch([content], new RegExp(`export\\s+const\\s+${Regex.escape(symbol)}\\s*(?::[^=]+)?=\\s*"([^"]*)"`));
 
 // Literal delimiters keep this read-only locator bounded to named examples
 // and doctrine spellings (R9). Keep every distinct value, so a mixed file
@@ -191,13 +196,83 @@ const fieldsOf = (node: unknown): O.Option<Readonly<Record<string, unknown>>> =>
   P.isObjectOrArray(node) ? O.some(node as Readonly<Record<string, unknown>>) : O.none();
 
 const walkPointer = (value: unknown, pointer: ReadonlyArray<string>): O.Option<string> =>
-  pipe(
-    pointer,
-    A.reduce(O.some(value), (current: O.Option<unknown>, segment) =>
-      O.flatMap(current, (node) => O.flatMap(fieldsOf(node), (fields) => O.fromNullishOr(fields[segment])))
-    ),
-    O.flatMap(scalarText)
+  O.filter(modelsParsedLeaf(value, pointer), P.isString);
+
+const readTomlPath = (text: string, path: ReadonlyArray<string>) =>
+  modelsParseToml(text).pipe(
+    Effect.map((value) => walkPointer(value, path)),
+    Effect.orElseSucceed(() => O.some("Unsupported TOML form: invalid document."))
   );
+
+const readJsonPointer = (
+  text: string,
+  pointer: ReadonlyArray<string>,
+  fallbacks: ReadonlyArray<ReadonlyArray<string>>
+) =>
+  modelsParseJson(text).pipe(
+    Effect.map((tree) => {
+      const json = getNodeValue(tree);
+      return A.reduce(fallbacks, walkPointer(json, pointer), (found, fallback) =>
+        O.orElse(found, () => walkPointer(json, fallback))
+      );
+    }),
+    Effect.catch((cause) =>
+      Effect.succeedSome(
+        Str.startsWith("Unsupported JSON form:")(cause.message)
+          ? cause.message
+          : `Unsupported JSON form: ${cause.message}`
+      )
+    )
+  );
+
+// Reconcile every textual name occurrence with ranges independently established
+// by a simple-form reader. Comments and quoted name tokens deliberately fail.
+const unsupportedOccurrence = (
+  content: string,
+  names: ReadonlyArray<string>,
+  ranges: ReadonlyArray<readonly [number, number]>,
+  format: string
+): O.Option<string> => {
+  const unmatched = A.findFirst(
+    A.flatMap(A.dedupe(names), (name) => A.fromIterable(Str.matchAll(new RegExp(Regex.escape(name), "g"))(content))),
+    (match) =>
+      !A.some(ranges, ([start, end]) => start <= (match.index ?? 0) && (match.index ?? 0) + Str.length(match[0]) <= end)
+  );
+  return O.map(
+    unmatched,
+    (match) => `Unsupported ${format} form: line ${A.length(Str.split(Str.slice(0, match.index)(content), "\n"))}`
+  );
+};
+
+const readYamlPath = (content: string, path: ReadonlyArray<string | number>): O.Option<string> => {
+  const names = A.map(path, (segment) => `${segment}`);
+  const doc = parseDocument(content);
+  // Only simple block mappings are modeled. No aliases, anchors, tags,
+  // flow collections, complex keys, multiline scalars or multiple documents.
+  let supported = A.isReadonlyArrayEmpty(doc.errors) && A.isReadonlyArrayEmpty(doc.warnings);
+  visit(doc, {
+    Node: (_, node) => {
+      const simple = isMap(node)
+        ? node.flow !== true && A.every(node.items, (pair) => isYamlScalar(pair.key) && pair.key.type === "PLAIN")
+        : isYamlScalar(node) && node.type !== "BLOCK_LITERAL" && node.type !== "BLOCK_FOLDED";
+      supported = supported && node.anchor === undefined && node.tag === undefined && simple;
+    },
+  });
+  const ranges = A.getSomes(
+    A.map(A.entries(path), ([depth, segment]) => {
+      const parent = doc.getIn(A.take(path, depth), true);
+      if (!isMap(parent)) return O.none<readonly [number, number]>();
+      const pair = A.findFirst(parent.items, (pair) => isYamlScalar(pair.key) && pair.key.value === segment);
+      return O.flatMap(pair, ({ key }) =>
+        isYamlScalar(key) && key.range != null ? O.some(Tuple.make(key.range[0], key.range[1])) : O.none()
+      );
+    })
+  );
+  const unsupported = unsupportedOccurrence(content, names, supported ? ranges : [], "YAML");
+  if (O.isSome(unsupported)) return unsupported;
+  const value = doc.getIn([...path]);
+  return scalarText(value);
+};
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
@@ -223,35 +298,60 @@ const attributeOfCandidate = (candidate: unknown, query: AttributeQuery): O.Opti
     O.flatMap(scalarText)
   );
 
-const findAttribute = (node: unknown, query: AttributeQuery): O.Option<string> =>
-  pipe(
-    childrenOf(node),
-    O.map((children) =>
-      pipe(
-        children,
-        A.map((child) => findAttribute(child, query)),
-        O.firstSomeOf
-      )
-    ),
-    O.orElse(() =>
-      O.map(fieldsOf(node), (fields) =>
-        pipe(
-          R.toEntries(fields),
-          A.map(([key, value]) =>
-            key === query.tag
-              ? pipe(
-                  O.getOrElse(childrenOf(value), (): ReadonlyArray<unknown> => [value]),
-                  A.map((candidate) => attributeOfCandidate(candidate, query)),
-                  O.firstSomeOf
-                )
-              : findAttribute(value, query)
-          ),
-          O.firstSomeOf
-        )
-      )
-    ),
-    O.flatten
-  );
+const findAttributes = (node: unknown, query: AttributeQuery): ReadonlyArray<string> => {
+  const children = childrenOf(node);
+  if (O.isSome(children)) return A.flatMap(children.value, (child) => findAttributes(child, query));
+  return O.match(fieldsOf(node), {
+    onNone: () => [],
+    onSome: (fields) =>
+      A.flatMap(R.toEntries(fields), ([key, value]) =>
+        key === query.tag
+          ? A.getSomes(
+              A.map(
+                O.getOrElse(childrenOf(value), (): ReadonlyArray<unknown> => [value]),
+                (candidate) => attributeOfCandidate(candidate, query)
+              )
+            )
+          : findAttributes(value, query)
+      ),
+  });
+};
+
+const xmlAttributeRanges = (
+  token: string,
+  offset: number,
+  ownsElement: boolean,
+  matchAttribute: string,
+  attribute: string
+) => {
+  const ranges: Array<readonly [number, number]> = [];
+  const attributes = /([A-Za-z_][\w:.-]*)\s*=\s*("[^"<]*"|'[^'<]*')/g;
+  for (const candidate of Str.matchAll(attributes)(token)) {
+    if (candidate[1] !== matchAttribute && candidate[1] !== attribute) continue;
+    const start = offset + (candidate.index ?? 0);
+    ranges.push([start, start + Str.length(candidate[1])]);
+    if (ownsElement) ranges.push([start, start + Str.length(candidate[0])]);
+  }
+  return ranges;
+};
+
+const xmlOccurrenceRanges = (content: string, tag: string, matchAttribute: string, attribute: string) => {
+  const ranges: Array<readonly [number, number]> = [];
+  const tokens = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<[^>]*>/g;
+  const simple = /^<\/?[A-Za-z_][\w:.-]*(?:\s+[A-Za-z_][\w:.-]*\s*=\s*(?:"[^"<]*"|'[^'<]*'))*\s*\/?>$/;
+  for (const token of Str.matchAll(tokens)(content)) {
+    if (!simple.test(token[0])) continue;
+    const offset = token.index ?? 0;
+    const element = /^<\/?([A-Za-z_][\w:.-]*)(?=[\s/>])/.exec(token[0]);
+    const ownsElement = element?.[1] === tag;
+    if (ownsElement) {
+      const start = offset + O.getOrThrow(Str.indexOf(tag)(token[0]));
+      ranges.push([start, start + Str.length(tag)]);
+    }
+    ranges.push(...xmlAttributeRanges(token[0], offset, ownsElement, matchAttribute, attribute));
+  }
+  return ranges;
+};
 
 const readXmlAttribute = Effect.fnUntraced(function* (
   file: ModelsTargetFile,
@@ -266,22 +366,25 @@ const readXmlAttribute = Effect.fnUntraced(function* (
     });
   }
 
+  const tag = selector[1] ?? "";
+  const matchAttribute = selector[2] ?? "";
+  const matchValue = selector[3] ?? "";
+  const names = [tag, matchAttribute, matchValue, attribute];
+  // Complete simple tags only: comments, CDATA, processing instructions,
+  // prefix/qualified names and arbitrary quoted data cannot account for ownership.
+  const ranges = xmlOccurrenceRanges(file.content, tag, matchAttribute, attribute);
+  const unsupported = unsupportedOccurrence(file.content, names, ranges, "XML");
+  if (O.isSome(unsupported)) return unsupported;
+  if (SyntaxValidator.validate(file.content) !== true) return O.some("Unsupported XML form: line 1");
   const parsed = yield* Effect.try({
     try: () => xmlParser.parse(file.content) as unknown,
-    catch: (cause) =>
-      ModelsLocatorError.make({
-        message: `Failed to parse XML in ${file.absolutePath}.`,
-        path: file.absolutePath,
-        cause,
-      }),
-  });
-
-  return findAttribute(parsed, {
-    tag: selector[1] ?? "",
-    matchAttribute: selector[2] ?? "",
-    matchValue: selector[3] ?? "",
-    attribute,
-  });
+    catch: () => ModelsLocatorError.make({ message: "Unsupported XML form: line 1", path: file.absolutePath }),
+  }).pipe(Effect.option);
+  if (O.isNone(parsed)) return O.some("Unsupported XML form: line 1");
+  const values = A.dedupe(findAttributes(parsed.value, { tag, matchAttribute, matchValue, attribute }));
+  return A.length(values) > 1
+    ? O.some(`Unsupported XML form: line 1; conflicting values ${A.join(values, ", ")}`)
+    : A.head(values);
 });
 
 /**
@@ -357,63 +460,55 @@ export const bindLocatorModel: {
       : locator
 );
 
-const makeLocatorReader = (): ModelsLocatorReaderShape => ({
-  read: Effect.fnUntraced(function* (file: ModelsTargetFile, locator: Locator) {
-    return yield* Match.value(locator).pipe(
-      Match.tag("md-generated-block", ({ blockId }) => Effect.succeed(extractGeneratedBlock(file.content, blockId))),
-      Match.tag("toml-top-level-key", ({ key }) => Effect.succeed(readKeyFromLines(topLevelLines(file.content), key))),
-      Match.tag("toml-table-key", ({ table, key }) =>
-        Effect.succeed(readKeyFromLines(tableLines(file.content, table), key))
-      ),
-      Match.tag("yaml-path", ({ path: yamlPath }) =>
-        Effect.try({
-          try: () => parseDocument(file.content).getIn([...yamlPath]) as unknown,
-          catch: (cause) =>
-            ModelsLocatorError.make({
-              message: `Failed to parse YAML in ${file.absolutePath}.`,
-              path: file.absolutePath,
-              cause,
-            }),
-        }).pipe(Effect.map(scalarText))
-      ),
-      Match.tag("json-key", ({ pointer, fallbacks }) =>
-        Effect.succeed(
-          pipe(
-            parseJsonText(file.content),
-            O.flatMap((json) =>
-              A.reduce(fallbacks, walkPointer(json, pointer), (found, fallback) =>
-                O.orElse(found, () => walkPointer(json, fallback))
-              )
-            )
-          )
+/**
+ * Read one model locator from supplied text without filesystem access.
+ *
+ * **Example** (Read a plain YAML scalar)
+ *
+ * ```ts
+ * import { modelsReadLocator } from "@beep/repo-cli/commands/Models/Models.locator.service"
+ * import { LocatorBinding, ModelsTargetFile } from "@beep/repo-cli/commands/Models"
+ * import * as Effect from "effect/Effect"
+ * const read = modelsReadLocator(
+ *   ModelsTargetFile.make({ root: "home", absolutePath: "synthetic.yaml", content: "model: old\n" }),
+ *   { _tag: "yaml-path", path: ["model"], render: { _tag: "verbatim" },
+ *     binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }) }
+ * )
+ * console.log(Effect.isEffect(read)) // true
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const modelsReadLocator = Effect.fn("Models.readLocator")(function* (file: ModelsTargetFile, locator: Locator) {
+  return yield* Match.value(locator).pipe(
+    Match.tag("md-generated-block", ({ blockId }) => Effect.succeed(extractGeneratedBlock(file.content, blockId))),
+    Match.tag("toml-top-level-key", ({ key }) => readTomlPath(file.content, [key])),
+    Match.tag("toml-table-key", ({ table, key }) => readTomlPath(file.content, [...Str.split(table, "."), key])),
+    Match.tag("yaml-path", ({ path: yamlPath }) => Effect.succeed(readYamlPath(file.content, yamlPath))),
+    Match.tag("json-key", ({ pointer, fallbacks }) => readJsonPointer(file.content, pointer, fallbacks)),
+    Match.tag("env-key", ({ key }) => modelsReadShellAssign(file.content, key, O.none())),
+    Match.tag("shell-assign", ({ variable, within }) => modelsReadShellAssign(file.content, variable, within)),
+    Match.tag("xml-attribute", ({ elementSelector, attribute }) => readXmlAttribute(file, elementSelector, attribute)),
+    Match.tag("xml-escaped-json-attribute", ({ elementSelector, attribute, jsonPointer }) =>
+      readXmlAttribute(file, elementSelector, attribute).pipe(
+        Effect.flatMap(
+          O.match({
+            onNone: () => Effect.succeedNone,
+            onSome: (raw) =>
+              Str.startsWith("Unsupported XML form")(raw)
+                ? Effect.succeedSome(raw)
+                : readJsonPointer(raw, jsonPointer, []),
+          })
         )
-      ),
-      Match.tag("env-key", ({ key }) => Effect.succeed(readEnvKey(file.content, key))),
-      Match.tag("shell-assign", ({ variable, within }) =>
-        Effect.succeed(readShellAssign(file.content, variable, within))
-      ),
-      Match.tag("xml-attribute", ({ elementSelector, attribute }) =>
-        readXmlAttribute(file, elementSelector, attribute)
-      ),
-      Match.tag("xml-escaped-json-attribute", ({ elementSelector, attribute, jsonPointer }) =>
-        readXmlAttribute(file, elementSelector, attribute).pipe(
-          Effect.map(
-            O.flatMap((raw) =>
-              pipe(
-                parseJsonText(raw),
-                O.flatMap((json) => walkPointer(json, jsonPointer))
-              )
-            )
-          )
-        )
-      ),
-      Match.tag("ts-literal", ({ symbol }) => Effect.succeed(readTsLiteral(file.content, symbol))),
-      Match.tag("line-value", ({ linePrefix, before, after }) =>
-        Effect.succeed(readLineValues(file.content, linePrefix, before, after))
-      ),
-      Match.exhaustive
-    );
-  }),
+      )
+    ),
+    Match.tag("ts-literal", ({ symbol }) => Effect.succeed(readTsLiteral(file.content, symbol))),
+    Match.tag("line-value", ({ linePrefix, before, after }) =>
+      Effect.succeed(readLineValues(file.content, linePrefix, before, after))
+    ),
+    Match.exhaustive
+  );
 });
 
 /**
@@ -433,5 +528,5 @@ const makeLocatorReader = (): ModelsLocatorReaderShape => ({
  */
 export const ModelsLocatorReaderLive: Layer.Layer<ModelsLocatorReader> = Layer.succeed(
   ModelsLocatorReader,
-  ModelsLocatorReader.of(makeLocatorReader())
+  ModelsLocatorReader.of({ read: modelsReadLocator })
 );

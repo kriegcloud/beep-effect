@@ -19,25 +19,72 @@ Use `Schema` for pure data models.
 
 The repo enforces this inventory with `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts`.
 
-## 2. Object Models Prefer `S.Class`
+## 2. Plain Data Is a Branded `S.Opaque`
 
-Default to `S.Class` for object schemas.
-
-Use `S.Struct` only when the boundary shape is the real output and class-style
-construction adds no value.
+Plain data schemas use `S.Opaque` over an annotated `S.Struct`. Plain data
+means no instance members, not an error, not a persisted entity, and not part
+of an `.extend` chain. Tagged data uses `S.TaggedStruct("X", {...})` as the
+source so `_tag` dispatch keeps working.
 
 Prefer:
 
 ```ts
-export class User extends S.Class<User>($I`User`)(
-  {
+export class User extends S.Opaque<User, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     name: S.String,
-  },
-  $I.annote("User", {
-    description: "Application user payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("User", {
+      description: "Application user payload.",
+    })
+  )
 ) {}
+
+const user = User.make({ id: "u-1", name: "Ada" })
+```
+
+What the shape gives you:
+
+- Values are plain objects validated by shape, so `S.is(User)`, encoding, and
+  `HttpApiClient` payloads accept any structurally valid object, and
+  `structuredClone` / `postMessage` keep the value intact.
+- The class gives an opaque nominal type and a place for `static` members.
+- `User.make(...)` constructs. `new User(...)` is not available.
+- There is no `User.extend`. Spread `User.fields` into a new `S.Struct`, or use
+  `S.fieldsAssign(...)`.
+- `User.annotate(...)` returns a plain schema without the statics. Put
+  annotations on the Struct inside the pipe.
+
+Keep `S.Class` / `S.TaggedClass` / `S.Error` / `S.TaggedError` for:
+
+- errors
+- persisted entities (built on `@beep/effect-drizzle`)
+- schemas with instance members (getters or methods)
+- `.extend` chain roots and subclasses
+
+`S.Class` checks `instanceof` on the type side. A structurally valid plain
+object fails `S.is`, encoding, and `HttpApiClient` payload encoding against
+it, which is why it is no longer the default for data.
+
+Every `S.Class`, `S.TaggedClass`, `S.Error`, `S.TaggedError`, and `S.Opaque`
+declaration carries `{ readonly brand: unique symbol }` as its brand type
+argument, for example
+``S.Class<X, { readonly brand: unique symbol }>($I`X`)(...)``. A structural
+`{}` brand needs a documented exception in
+`standards/schema-first.inventory.jsonc`.
+`schemaClassMissingBrand` is an error in the Effect diagnostics lane
+(`bun run beep quality effect-diagnostics`, profile
+`standards/effect-diagnostics.profile.json`).
+Decision: `standards/architecture/DECISIONS.md` (2026-10-14).
+
+Avoid plain data as `S.Class`:
+
+```ts
+// Rejects structurally valid plain objects; no brand.
+export class User extends S.Class<User>($I`User`)({
+  id: S.String,
+  name: S.String,
+}) {}
 ```
 
 Avoid:
@@ -87,7 +134,7 @@ Use:
 - `S.withDecodingDefaultKey(...)`
 - `S.decodeTo(...)`
 - `SchemaTransformation.transform(...)`
-- `SchemaTransformation.transformOrFail(...)`
+- `SchemaTransformation.transformEffect(...)`
 
 Prefer:
 
@@ -127,11 +174,17 @@ Use:
 Prefer:
 
 ```ts
-export class AccountInput extends S.Class<AccountInput>($I`AccountInput`)({
-  nickname: S.OptionFromNullishOr(S.String),
-  bio: S.OptionFromNullOr(S.String),
-  phone: S.OptionFromOptionalKey(S.String),
-}) {}
+export class AccountInput extends S.Opaque<AccountInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    nickname: S.OptionFromNullishOr(S.String),
+    bio: S.OptionFromNullOr(S.String),
+    phone: S.OptionFromOptionalKey(S.String),
+  }).pipe(
+    $I.annoteSchema("AccountInput", {
+      description: "Account input whose absent fields decode to Option.",
+    })
+  )
+) {}
 ```
 
 ## 6. JSON Boundaries Stay Schema-Driven
@@ -163,7 +216,8 @@ Use:
 
 - `S.is(schema)`
 - `S.toEquivalence(schema)`
-- `S.toArbitrary(schema)` for schema-modeled laws and boundary invariants
+- `Arbitrary.schema(schema)` (`effect/Arbitrary`) for schema-modeled laws and
+  boundary invariants
 - `S.TaggedUnion(...).cases` / `.guards` / `.isAnyOf` / `.match`
 - `S.toTaggedUnion(...).cases` / `.guards` / `.isAnyOf` / `.match`
 - `LiteralKit.Enum`, `.is`, `.$match`, and `.toTaggedUnion`, plus the
@@ -217,7 +271,7 @@ S.makeFilter(Str.includes("/"), {
 Property tests should import production schemas and derive data from them.
 Do not define weaker test-only schemas to make arbitrary generation easier.
 
-When `S.toArbitrary(schema)` exposes values that break a claimed invariant,
+When `Arbitrary.schema(schema)` exposes values that break a claimed invariant,
 fix or annotate the source schema unless the invariant was overstated.
 
 Broad primitives in exported/domain/boundary schemas need a deliberate reason:
@@ -235,7 +289,8 @@ When fixing schema-first issues, check:
 
 - `bun run beep lint schema-first`
 - `standards/schema-first.inventory.jsonc`
-- package-level convention tests such as `packages/ai/sdk/test/conventions-guard.test.ts`
+- package-level tests that pin the package's schema conventions, where the
+  package has them
 
 The intent is not just "make lint pass". The intent is to keep schema modeling
 central enough that runtime helpers, docs, and validation behavior all stay in

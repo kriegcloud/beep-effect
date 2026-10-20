@@ -121,14 +121,15 @@ export type SweepStepId = typeof SweepStepId.Type;
  * @category models
  * @since 0.0.0
  */
-export class SweepPrecondition extends S.Class<SweepPrecondition>($I`SweepPrecondition`)(
-  {
+export class SweepPrecondition extends S.Opaque<SweepPrecondition, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.NonEmptyString,
     satisfied: S.Boolean,
-  },
-  $I.annote("SweepPrecondition", {
-    description: "One git fact observed while planning a sweep step, paired with whether it holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepPrecondition", {
+      description: "One git fact observed while planning a sweep step, paired with whether it holds.",
+    })
+  )
 ) {}
 
 /**
@@ -158,18 +159,19 @@ export class SweepPrecondition extends S.Class<SweepPrecondition>($I`SweepPrecon
  * @category models
  * @since 0.0.0
  */
-export class SweepPlanStep extends S.Class<SweepPlanStep>($I`SweepPlanStep`)(
-  {
+export class SweepPlanStep extends S.Opaque<SweepPlanStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SweepStepId,
     action: S.NonEmptyString,
     preconditions: S.Array(SweepPrecondition),
     requiresOperator: S.Boolean,
     alreadyDone: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SweepPlanStep", {
-    description:
-      "One planned sweep step with its action, observed preconditions, operator requirement, and an optional observation that its end state already holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepPlanStep", {
+      description:
+        "One planned sweep step with its action, observed preconditions, operator requirement, and an optional observation that its end state already holds.",
+    })
+  )
 ) {}
 
 /**
@@ -192,16 +194,17 @@ export class SweepPlanStep extends S.Class<SweepPlanStep>($I`SweepPlanStep`)(
  * @category models
  * @since 0.0.0
  */
-export class SweepPlan extends S.Class<SweepPlan>($I`SweepPlan`)(
-  {
+export class SweepPlan extends S.Opaque<SweepPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-sweep-plan/v1"),
     createdAt: S.String,
     branch: S.String,
     steps: S.Array(SweepPlanStep),
-  },
-  $I.annote("SweepPlan", {
-    description: "Dry-run plan for one post-merge workspace sweep.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepPlan", {
+      description: "Dry-run plan for one post-merge workspace sweep.",
+    })
+  )
 ) {}
 
 /**
@@ -210,14 +213,15 @@ export class SweepPlan extends S.Class<SweepPlan>($I`SweepPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class SweepStepExecuted extends S.Class<SweepStepExecuted>($I`SweepStepExecuted`)(
-  {
+export class SweepStepExecuted extends S.Opaque<SweepStepExecuted, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("executed"),
     detail: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SweepStepExecuted", {
-    description: "A sweep step that ran its action.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepStepExecuted", {
+      description: "A sweep step that ran its action.",
+    })
+  )
 ) {}
 
 /**
@@ -231,14 +235,15 @@ export class SweepStepExecuted extends S.Class<SweepStepExecuted>($I`SweepStepEx
  * @category models
  * @since 0.0.0
  */
-export class SweepStepSkipped extends S.Class<SweepStepSkipped>($I`SweepStepSkipped`)(
-  {
+export class SweepStepSkipped extends S.Opaque<SweepStepSkipped, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("skipped"),
     reason: S.NonEmptyString,
-  },
-  $I.annote("SweepStepSkipped", {
-    description: "A sweep step deliberately not taken, carrying the reason it was skipped.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepStepSkipped", {
+      description: "A sweep step deliberately not taken, carrying the reason it was skipped.",
+    })
+  )
 ) {}
 
 /**
@@ -252,15 +257,16 @@ export class SweepStepSkipped extends S.Class<SweepStepSkipped>($I`SweepStepSkip
  * @category models
  * @since 0.0.0
  */
-export class SweepStepNeedsOperator extends S.Class<SweepStepNeedsOperator>($I`SweepStepNeedsOperator`)(
-  {
+export class SweepStepNeedsOperator extends S.Opaque<SweepStepNeedsOperator, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("needs-operator"),
     reason: S.NonEmptyString,
     operatorCommand: S.NonEmptyString,
-  },
-  $I.annote("SweepStepNeedsOperator", {
-    description: "A sweep step handed to the operator, carrying the reason and the exact command to run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepStepNeedsOperator", {
+      description: "A sweep step handed to the operator, carrying the reason and the exact command to run.",
+    })
+  )
 ) {}
 
 /**
@@ -315,15 +321,16 @@ export type SweepStepOutcome = typeof SweepStepOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class SweepReportStep extends S.Class<SweepReportStep>($I`SweepReportStep`)(
-  {
+export class SweepReportStep extends S.Opaque<SweepReportStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SweepStepId,
     outcome: SweepStepOutcome,
     durationMs: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SweepReportStep", {
-    description: "One planned sweep step paired with the outcome of attempting it.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepReportStep", {
+      description: "One planned sweep step paired with the outcome of attempting it.",
+    })
+  )
 ) {}
 
 /**
@@ -359,17 +366,18 @@ export class SweepReportStep extends S.Class<SweepReportStep>($I`SweepReportStep
  * @category models
  * @since 0.0.0
  */
-export class SweepReport extends S.Class<SweepReport>($I`SweepReport`)(
-  {
+export class SweepReport extends S.Opaque<SweepReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-sweep-report/v1"),
     plan: SweepPlan,
     steps: S.Array(SweepReportStep),
     startedAt: S.String,
     endedAt: S.String,
-  },
-  $I.annote("SweepReport", {
-    description: "Result document for one executed post-merge workspace sweep, echoing the plan it ran.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepReport", {
+      description: "Result document for one executed post-merge workspace sweep, echoing the plan it ran.",
+    })
+  )
 ) {}
 
 /**

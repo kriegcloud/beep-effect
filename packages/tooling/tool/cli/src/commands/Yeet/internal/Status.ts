@@ -40,6 +40,7 @@ import {
   summarizeYeetReviewThreadStates,
   YeetReviewThreadNewestComment,
   YeetReviewThreadStateCounts,
+  YeetReviewThreadStateSource,
   yeetReviewCommentAuthorKind,
   yeetReviewThreadStateInput,
 } from "./ReviewThreadState.ts";
@@ -67,7 +68,7 @@ import {
   yeetCheckRecordText,
 } from "./WatchStream.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { PrCloseoutReport } from "./Closeout.ts";
 import type { GateStalenessVerdict } from "./GateStaleness.ts";
@@ -123,16 +124,17 @@ export type YeetStatusArtifactState = typeof YeetStatusArtifactState.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusWorktree extends S.Class<YeetStatusWorktree>($I`YeetStatusWorktree`)(
-  {
+export class YeetStatusWorktree extends S.Opaque<YeetStatusWorktree, { readonly brand: unique symbol }>()(
+  S.Struct({
     clean: S.Boolean,
     staged: S.Finite,
     unstaged: S.Finite,
     untracked: S.Finite,
-  },
-  $I.annote("YeetStatusWorktree", {
-    description: "Local Git worktree counts used by yeet status.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStatusWorktree", {
+      description: "Local Git worktree counts used by yeet status.",
+    })
+  )
 ) {}
 
 /**
@@ -150,9 +152,10 @@ export class YeetStatusWorktree extends S.Class<YeetStatusWorktree>($I`YeetStatu
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusLaneDigest extends S.Class<YeetStatusLaneDigest>($I`YeetStatusLaneDigest`)(
-  { id: S.String, inputDigest: S.String },
-  $I.annote("YeetStatusLaneDigest", { description: "Lane id and the input digest its Turbo summary produced." })
+export class YeetStatusLaneDigest extends S.Opaque<YeetStatusLaneDigest, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.String, inputDigest: S.String }).pipe(
+    $I.annoteSchema("YeetStatusLaneDigest", { description: "Lane id and the input digest its Turbo summary produced." })
+  )
 ) {}
 
 /**
@@ -187,8 +190,8 @@ export class YeetStatusLaneDigest extends S.Class<YeetStatusLaneDigest>($I`YeetS
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusArtifact extends S.Class<YeetStatusArtifact>($I`YeetStatusArtifact`)(
-  {
+export class YeetStatusArtifact extends S.Opaque<YeetStatusArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     detail: S.String,
     path: S.String,
     state: YeetStatusArtifactState,
@@ -201,10 +204,11 @@ export class YeetStatusArtifact extends S.Class<YeetStatusArtifact>($I`YeetStatu
     schemaVersion: S.optionalKey(S.String),
     greptileScore: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     laneDigests: YeetStatusLaneDigest.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("YeetStatusArtifact", {
-    description: "Compact summary for a Yeet artifact read by status, including closeout head binding.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStatusArtifact", {
+      description: "Compact summary for a Yeet artifact read by status, including closeout head binding.",
+    })
+  )
 ) {}
 
 /**
@@ -239,18 +243,19 @@ export class YeetStatusArtifact extends S.Class<YeetStatusArtifact>($I`YeetStatu
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusReviewThread extends S.Class<YeetStatusReviewThread>($I`YeetStatusReviewThread`)(
-  {
+export class YeetStatusReviewThread extends S.Opaque<YeetStatusReviewThread, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: S.String,
     author: S.String,
     excerpt: S.String,
     path: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     line: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     commentDatabaseId: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetStatusReviewThread", {
-    description: "One unresolved pull request review thread with the context needed to triage and reply to it.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStatusReviewThread", {
+      description: "One unresolved pull request review thread with the context needed to triage and reply to it.",
+    })
+  )
 ) {}
 
 const yeetStatusRemoteChecksDefault = A.empty<YeetWatchCheck>();
@@ -270,8 +275,8 @@ const yeetStatusRemoteLabelsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusRemote extends S.Class<YeetStatusRemote>($I`YeetStatusRemote`)(
-  {
+export class YeetStatusRemote extends S.Opaque<YeetStatusRemote, { readonly brand: unique symbol }>()(
+  S.Struct({
     available: S.Boolean,
     checked: S.Boolean,
     detail: S.String,
@@ -326,10 +331,11 @@ export class YeetStatusRemote extends S.Class<YeetStatusRemote>($I`YeetStatusRem
     reviewWindow: YeetReviewWindow.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     state: S.optionalKey(S.String),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("YeetStatusRemote", {
-    description: "Optional remote pull request summary for yeet status.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStatusRemote", {
+      description: "Optional remote pull request summary for yeet status.",
+    })
+  )
 ) {}
 
 const yeetStatusSnapshotStaleGatesDefault = A.empty();
@@ -362,8 +368,8 @@ const yeetStatusSnapshotUnprovenGatesDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusSnapshot extends S.Class<YeetStatusSnapshot>($I`YeetStatusSnapshot`)(
-  {
+export class YeetStatusSnapshot extends S.Opaque<YeetStatusSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     branch: S.String,
     closeout: YeetStatusArtifact,
@@ -389,10 +395,11 @@ export class YeetStatusSnapshot extends S.Class<YeetStatusSnapshot>($I`YeetStatu
     // instants for the head this snapshot describes. A one-shot `yeet status`
     // read leaves it absent.
     timeline: YeetHeadTimeline.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetStatusSnapshot", {
-    description: "Machine-readable status snapshot emitted by yeet status.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStatusSnapshot", {
+      description: "Machine-readable status snapshot emitted by yeet status.",
+    })
+  )
 ) {}
 
 /**
@@ -418,14 +425,15 @@ export class YeetStatusSnapshot extends S.Class<YeetStatusSnapshot>($I`YeetStatu
  */
 export const YeetStatusSnapshotJson = JsonStringCodec(YeetStatusSnapshot);
 
-class GhStatusLabel extends S.Class<GhStatusLabel>($I`GhStatusLabel`)(
-  { name: S.String },
-  $I.annote("GhStatusLabel", { description: "One label on the pull request as gh pr view reports it." })
+class GhStatusLabel extends S.Opaque<GhStatusLabel, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.String }).pipe(
+    $I.annoteSchema("GhStatusLabel", { description: "One label on the pull request as gh pr view reports it." })
+  )
 ) {}
 
 const ghStatusPullRequestLabelsDefault = A.empty<GhStatusLabel>();
-class GhStatusPullRequest extends S.Class<GhStatusPullRequest>($I`GhStatusPullRequest`)(
-  {
+class GhStatusPullRequest extends S.Opaque<GhStatusPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     headRefOid: S.String,
     isDraft: S.Boolean,
@@ -440,34 +448,38 @@ class GhStatusPullRequest extends S.Class<GhStatusPullRequest>($I`GhStatusPullRe
     reviewDecision: S.NullOr(S.String),
     state: S.String,
     url: S.String,
-  },
-  $I.annote("GhStatusPullRequest", {
-    description: "GitHub pull request payload used by yeet status remote summaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhStatusPullRequest", {
+      description: "GitHub pull request payload used by yeet status remote summaries.",
+    })
+  )
 ) {}
 
-class GhStatusThreadComment extends S.Class<GhStatusThreadComment>($I`GhStatusThreadComment`)(
-  {
+class GhStatusThreadComment extends S.Opaque<GhStatusThreadComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.NullOr(GhActor),
     body: S.NullOr(S.String),
     databaseId: S.NullOr(S.Finite),
-  },
-  $I.annote("GhStatusThreadComment", {
-    description: "The opening comment of a review thread, used for status thread triage.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhStatusThreadComment", {
+      description: "The opening comment of a review thread, used for status thread triage.",
+    })
+  )
 ) {}
 
-class GhStatusThreadCommentConnection extends S.Class<GhStatusThreadCommentConnection>(
-  $I`GhStatusThreadCommentConnection`
-)(
-  { nodes: S.Array(GhStatusThreadComment) },
-  $I.annote("GhStatusThreadCommentConnection", {
-    description: "First-comment connection of a review thread returned by Yeet remote status.",
-  })
+class GhStatusThreadCommentConnection extends S.Opaque<
+  GhStatusThreadCommentConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ nodes: S.Array(GhStatusThreadComment) }).pipe(
+    $I.annoteSchema("GhStatusThreadCommentConnection", {
+      description: "First-comment connection of a review thread returned by Yeet remote status.",
+    })
+  )
 ) {}
 
-class GhStatusReviewThread extends S.Class<GhStatusReviewThread>($I`GhStatusReviewThread`)(
-  {
+class GhStatusReviewThread extends S.Opaque<GhStatusReviewThread, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     isResolved: S.Boolean,
     isOutdated: S.Boolean,
@@ -480,48 +492,58 @@ class GhStatusReviewThread extends S.Class<GhStatusReviewThread>($I`GhStatusRevi
     // The thread's newest comment; a resolved thread whose last word is not the
     // PR author's is a follow-up the author has not read or answered.
     latest: S.optionalKey(GhStatusThreadCommentConnection),
-  },
-  $I.annote("GhStatusReviewThread", {
-    description:
-      "Review-thread identity plus opening-comment and latest-comment triage context used by Yeet remote status.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhStatusReviewThread", {
+      description:
+        "Review-thread identity plus opening-comment and latest-comment triage context used by Yeet remote status.",
+    })
+  )
 ) {}
 
-class GhStatusReviewThreadPageInfo extends S.Class<GhStatusReviewThreadPageInfo>($I`GhStatusReviewThreadPageInfo`)(
-  {
+class GhStatusReviewThreadPageInfo extends S.Opaque<GhStatusReviewThreadPageInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     hasNextPage: S.Boolean,
     endCursor: S.NullOr(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(null)),
       S.withDecodingDefaultTypeKey(Effect.succeed(null))
     ),
-  },
-  $I.annote("GhStatusReviewThreadPageInfo", {
-    description: "Cursor metadata for one page of the Yeet review-thread status read.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhStatusReviewThreadPageInfo", {
+      description: "Cursor metadata for one page of the Yeet review-thread status read.",
+    })
+  )
 ) {}
 
-class GhStatusReviewThreadConnection extends S.Class<GhStatusReviewThreadConnection>(
-  $I`GhStatusReviewThreadConnection`
-)(
-  { nodes: S.Array(GhStatusReviewThread), pageInfo: GhStatusReviewThreadPageInfo },
-  $I.annote("GhStatusReviewThreadConnection", {
-    description: "Review threads returned by the single-query Yeet remote status check.",
-  })
+class GhStatusReviewThreadConnection extends S.Opaque<
+  GhStatusReviewThreadConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ nodes: S.Array(GhStatusReviewThread), pageInfo: GhStatusReviewThreadPageInfo }).pipe(
+    $I.annoteSchema("GhStatusReviewThreadConnection", {
+      description: "Review threads returned by the single-query Yeet remote status check.",
+    })
+  )
 ) {}
 
-class GhStatusReviewThreadsNode extends S.Class<GhStatusReviewThreadsNode>($I`GhStatusReviewThreadsNode`)(
-  { author: GhActor.pipe(S.NullOr, S.optionalKey), reviewThreads: GhStatusReviewThreadConnection },
-  $I.annote("GhStatusReviewThreadsNode", { description: "Pull request review-thread status node." })
+class GhStatusReviewThreadsNode extends S.Opaque<GhStatusReviewThreadsNode, { readonly brand: unique symbol }>()(
+  S.Struct({ author: GhActor.pipe(S.NullOr, S.optionalKey), reviewThreads: GhStatusReviewThreadConnection }).pipe(
+    $I.annoteSchema("GhStatusReviewThreadsNode", { description: "Pull request review-thread status node." })
+  )
 ) {}
 
-class GhStatusReviewThreadsData extends S.Class<GhStatusReviewThreadsData>($I`GhStatusReviewThreadsData`)(
-  { node: GhStatusReviewThreadsNode },
-  $I.annote("GhStatusReviewThreadsData", { description: "GraphQL review-thread status data." })
+class GhStatusReviewThreadsData extends S.Opaque<GhStatusReviewThreadsData, { readonly brand: unique symbol }>()(
+  S.Struct({ node: GhStatusReviewThreadsNode }).pipe(
+    $I.annoteSchema("GhStatusReviewThreadsData", { description: "GraphQL review-thread status data." })
+  )
 ) {}
 
-class GhStatusReviewThreadsDocument extends S.Class<GhStatusReviewThreadsDocument>($I`GhStatusReviewThreadsDocument`)(
-  { data: GhStatusReviewThreadsData },
-  $I.annote("GhStatusReviewThreadsDocument", { description: "GraphQL review-thread status document." })
+class GhStatusReviewThreadsDocument extends S.Opaque<
+  GhStatusReviewThreadsDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ data: GhStatusReviewThreadsData }).pipe(
+    $I.annoteSchema("GhStatusReviewThreadsDocument", { description: "GraphQL review-thread status document." })
+  )
 ) {}
 
 /**
@@ -545,15 +567,16 @@ class GhStatusReviewThreadsDocument extends S.Class<GhStatusReviewThreadsDocumen
  * @category models
  * @since 0.0.0
  */
-export class GhStatusWorkflowRun extends S.Class<GhStatusWorkflowRun>($I`GhStatusWorkflowRun`)(
-  {
+export class GhStatusWorkflowRun extends S.Opaque<GhStatusWorkflowRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     conclusion: S.NullOr(S.String),
     databaseId: S.Finite,
     headSha: S.String,
     name: S.String,
     status: S.String,
-  },
-  $I.annote("GhStatusWorkflowRun", { description: "GitHub workflow run used for rerun-failed guidance." })
+  }).pipe(
+    $I.annoteSchema("GhStatusWorkflowRun", { description: "GitHub workflow run used for rerun-failed guidance." })
+  )
 ) {}
 
 /**
@@ -569,8 +592,8 @@ export class GhStatusWorkflowRun extends S.Class<GhStatusWorkflowRun>($I`GhStatu
  * @category models
  * @since 0.0.0
  */
-export class GhStatusCheck extends S.Class<GhStatusCheck>($I`GhStatusCheck`)(
-  {
+export class GhStatusCheck extends S.Opaque<GhStatusCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     bucket: S.String,
     description: S.String.pipe(S.optionalKey),
     completedAt: S.NullOr(S.String).pipe(S.optionalKey),
@@ -579,10 +602,11 @@ export class GhStatusCheck extends S.Class<GhStatusCheck>($I`GhStatusCheck`)(
     startedAt: S.NullOr(S.String).pipe(S.optionalKey),
     state: S.String,
     workflow: S.NullOr(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("GhStatusCheck", {
-    description: "GitHub PR check payload used by yeet status remote summaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhStatusCheck", {
+      description: "GitHub PR check payload used by yeet status remote summaries.",
+    })
+  )
 ) {}
 
 const decodeYeetVerdict = S.decodeUnknownEffect(S.fromJsonString(YeetVerdict));
@@ -1204,7 +1228,8 @@ const newestThreadComment = (thread: GhStatusReviewThread): O.Option<YeetReviewT
 const reviewThreadStateInput = (
   thread: GhStatusReviewThread,
   pullRequestAuthor: O.Option<string>
-): YeetReviewThreadStateInput => yeetReviewThreadStateInput(thread, pullRequestAuthor, newestThreadComment(thread));
+): YeetReviewThreadStateInput =>
+  yeetReviewThreadStateInput(YeetReviewThreadStateSource.make(thread), pullRequestAuthor, newestThreadComment(thread));
 
 /**
  * One pull request's review threads, partitioned by what each still owes.
@@ -1234,16 +1259,17 @@ const reviewThreadStateInput = (
  * @category models
  * @since 0.0.0
  */
-export class YeetStatusThreadTriage extends S.Class<YeetStatusThreadTriage>($I`YeetStatusThreadTriage`)(
-  {
+export class YeetStatusThreadTriage extends S.Opaque<YeetStatusThreadTriage, { readonly brand: unique symbol }>()(
+  S.Struct({
     counts: YeetReviewThreadStateCounts,
     unresolvedThreads: S.Array(YeetStatusReviewThread),
     followUpThreads: S.Array(YeetStatusReviewThread),
     acknowledgedThreads: S.Array(YeetStatusReviewThread),
-  },
-  $I.annote("YeetStatusThreadTriage", {
-    description: "A pull request's review threads partitioned by classified state, with per-state tallies.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStatusThreadTriage", {
+      description: "A pull request's review threads partitioned by classified state, with per-state tallies.",
+    })
+  )
 ) {}
 
 const triageThreadsInState = (

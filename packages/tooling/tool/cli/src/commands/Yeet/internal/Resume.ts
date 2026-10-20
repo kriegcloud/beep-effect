@@ -22,7 +22,8 @@ import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -65,31 +66,51 @@ const encodeResolved = S.encodeUnknownResult(S.fromJsonString(S.Array(ResolvedRe
  * @category models
  * @since 0.0.0
  */
-export class ClaudeLiveSession extends S.Class<ClaudeLiveSession>($I`ClaudeLiveSession`)(
-  { pid: S.Int, sessionId: S.String, cwd: S.String, name: S.OptionFromNullOr(S.String) },
-  $I.annote("ClaudeLiveSession", { description: "A matching live Claude index and process entry." })
+export class ClaudeLiveSession extends S.Opaque<ClaudeLiveSession, { readonly brand: unique symbol }>()(
+  S.Struct({ pid: S.Int, sessionId: S.String, cwd: S.String, name: S.OptionFromNullOr(S.String) }).pipe(
+    $I.annoteSchema("ClaudeLiveSession", { description: "A matching live Claude index and process entry." })
+  )
 ) {}
 
-class ClaudeIndex extends S.Class<ClaudeIndex>($I`ClaudeIndex`)(
-  { pid: S.Int, sessionId: S.String, cwd: S.String, name: S.optionalKey(S.String) },
-  $I.annote("ClaudeIndex", { description: "Narrow live Claude session index boundary." })
+/**
+ * Narrow live Claude session index boundary.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ClaudeIndex extends S.Opaque<ClaudeIndex, { readonly brand: unique symbol }>()(
+  S.Struct({ pid: S.Int, sessionId: S.String, cwd: S.String, name: S.optionalKey(S.String) }).pipe(
+    $I.annoteSchema("ClaudeIndex", { description: "Narrow live Claude session index boundary." })
+  )
 ) {}
 const decodeClaudeIndex = S.decodeUnknownOption(S.fromJsonString(ClaudeIndex));
 
-class PrLink extends S.Class<PrLink>($I`PrLink`)(
-  {
+/**
+ * Narrow Claude transcript PR-link record.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PrLink extends S.Opaque<PrLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     prNumber: S.Finite,
     sessionId: S.optionalKey(S.String),
     prUrl: S.optionalKey(S.String),
     prRepository: S.optionalKey(S.String),
-  },
-  $I.annote("PrLink", { description: "Narrow Claude transcript PR-link record." })
+  }).pipe($I.annoteSchema("PrLink", { description: "Narrow Claude transcript PR-link record." }))
 ) {}
 const decodePrLink = S.decodeUnknownOption(S.fromJsonString(PrLink));
-class TranscriptCwd extends S.Class<TranscriptCwd>($I`TranscriptCwd`)(
-  { cwd: S.optionalKey(S.String) },
-  $I.annote("TranscriptCwd", { description: "Narrow transcript record carrying the session cwd." })
+/**
+ * Narrow transcript record carrying the session cwd.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TranscriptCwd extends S.Opaque<TranscriptCwd, { readonly brand: unique symbol }>()(
+  S.Struct({ cwd: S.optionalKey(S.String) }).pipe(
+    $I.annoteSchema("TranscriptCwd", { description: "Narrow transcript record carrying the session cwd." })
+  )
 ) {}
 const decodeCwd = S.decodeUnknownOption(S.fromJsonString(TranscriptCwd));
 

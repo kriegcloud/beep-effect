@@ -6,31 +6,33 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/DeleteCorpus");
 
-class DeleteCorpusParameters extends S.Class<DeleteCorpusParameters>($I`DeleteCorpusParameters`)(
-  {
+class DeleteCorpusParameters extends S.Opaque<DeleteCorpusParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String.check(S.isMinLength(1)).annotateKey({
       description: "Corpus identifier returned by CreateCorpus",
     }),
-  },
-  $I.annote("DeleteCorpusParameters", {
-    description: "Inputs required to delete a previously created corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeleteCorpusParameters", {
+      description: "Inputs required to delete a previously created corpus session.",
+    })
+  )
 ) {}
 
-class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSuccess`)(
-  {
+class DeleteCorpusSuccess extends S.Opaque<DeleteCorpusSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     deleted: S.Boolean,
-  },
-  $I.annote("DeleteCorpusSuccess", {
-    description: "Deletion outcome for a corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeleteCorpusSuccess", {
+      description: "Deletion outcome for a corpus session.",
+    })
+  )
 ) {}
 
 /**

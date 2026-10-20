@@ -36,18 +36,19 @@ const $I = $LawPracticeDomainId.create("values/MailTagging/MailTagging.report.mo
  * @category models
  * @since 0.0.0
  */
-export class CategoryAddCount extends S.Class<CategoryAddCount>($I`CategoryAddCount`)(
-  {
+export class CategoryAddCount extends S.Opaque<CategoryAddCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: MailCategoryName.annotateKey({
       description: "Owned category that was added.",
     }),
     count: S.Natural.annotateKey({
       description: "Number of messages the category was added to.",
     }),
-  },
-  $I.annote("CategoryAddCount", {
-    description: "How many times one owned category was added during a run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CategoryAddCount", {
+      description: "How many times one owned category was added during a run.",
+    })
+  )
 ) {}
 
 const byCategory: Order.Order<CategoryAddCount> = Order.mapInput(
@@ -149,8 +150,8 @@ const sumCounts = <K extends string>(
  * @category models
  * @since 0.0.0
  */
-export class TaggingRunReport extends S.Class<TaggingRunReport>($I`TaggingRunReport`)(
-  {
+export class TaggingRunReport extends S.Opaque<TaggingRunReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: TaggingMode.annotateKey({
       description: "Whether the run only reported or also wrote.",
     }),
@@ -193,10 +194,11 @@ export class TaggingRunReport extends S.Class<TaggingRunReport>($I`TaggingRunRep
     wrote: S.Boolean.annotateKey({
       description: "Whether the run performed any write.",
     }),
-  },
-  $I.annote("TaggingRunReport", {
-    description: "Counts-only outcome of one tagging run.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaggingRunReport", {
+      description: "Counts-only outcome of one tagging run.",
+    })
+  )
 ) {}
 
 const zeroUnmatched: TaggingRunReport["unmatched"] = {
@@ -346,8 +348,8 @@ export const combineTaggingRunReports: {
  * @category models
  * @since 0.0.0
  */
-export class TaggingUndoReport extends S.Class<TaggingUndoReport>($I`TaggingUndoReport`)(
-  {
+export class TaggingUndoReport extends S.Opaque<TaggingUndoReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: TaggingMode.annotateKey({
       description: "Whether the undo only reported or also wrote.",
     }),
@@ -372,8 +374,9 @@ export class TaggingUndoReport extends S.Class<TaggingUndoReport>($I`TaggingUndo
     wrote: S.Boolean.annotateKey({
       description: "Whether the undo performed any write.",
     }),
-  },
-  $I.annote("TaggingUndoReport", {
-    description: "Counts-only outcome of one undo run.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaggingUndoReport", {
+      description: "Counts-only outcome of one undo run.",
+    })
+  )
 ) {}

@@ -24,7 +24,9 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import { HttpStatusCode, Milliseconds } from "../Domain/Error/Base.ts";
 import type { ImageError } from "../Domain/Error/Image.ts";
 import {
@@ -114,17 +116,14 @@ const imageFetchOptionsMaxSizeBytesDefault = PosInt.make(DEFAULT_MAX_SIZE_BYTES)
  * @category configuration
  * @since 0.0.0
  */
-export class ImageFetchOptions extends S.Class<ImageFetchOptions>($I`ImageFetchOptions`)(
-  {
+export class ImageFetchOptions extends S.Opaque<ImageFetchOptions, { readonly brand: unique symbol }>()(S.Struct({
     timeout: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_TIMEOUT)), S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_TIMEOUT))),
     maxSizeBytes: PosInt.pipe(S.withConstructorDefault(Effect.succeed(imageFetchOptionsMaxSizeBytesDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(imageFetchOptionsMaxSizeBytesDefault))),
     allowedTypes: S.NonEmptyArray(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeed(ALLOWED_CONTENT_TYPES)), S.withDecodingDefaultTypeKey(Effect.succeed(ALLOWED_CONTENT_TYPES))),
     retry: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
-  },
-  $I.annote("ImageFetchOptions", {
+  }).pipe($I.annoteSchema("ImageFetchOptions", {
     description: "Request timeout, byte ceiling, accepted media types, and retry policy for image fetching.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ImageFetchOptions}.

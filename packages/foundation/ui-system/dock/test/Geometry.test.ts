@@ -28,7 +28,8 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import { Atom, AtomRegistry } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
+import * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import * as S from "effect/Schema";
 import { groupOne, groupThree, groupTwo, panelOne, panelThree, panelTwo, splitOne, splitTwo } from "./Fixtures.ts";
 import type { DockWorkspace, GroupMinimaRecord, SplitId } from "@beep/dock";
@@ -137,7 +138,7 @@ describe("dock geometry projection", () => {
   });
 
   it("projects an empty workspace to empty geometry", () => {
-    expect(projectWorkspace(EmptyWorkspace.make(), { container: box })).toEqual(DockGeometry.empty);
+    expect(projectWorkspace(EmptyWorkspace.make({}), { container: box })).toEqual(DockGeometry.empty);
   });
 
   it("supports data-last tree and workspace projection", () => {

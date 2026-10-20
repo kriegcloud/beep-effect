@@ -149,8 +149,8 @@ export type RegisterUnitState = typeof RegisterUnitState.Type;
  * @category models
  * @since 0.0.0
  */
-export class RegisterRow extends S.Class<RegisterRow>($I`RegisterRow`)(
-  {
+export class RegisterRow extends S.Opaque<RegisterRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("orchestrator-register/v1"),
     repository: PrRepository,
     kind: RegisterUnitKind,
@@ -164,10 +164,11 @@ export class RegisterRow extends S.Class<RegisterRow>($I`RegisterRow`)(
     note: S.OptionFromNullOr(S.String),
     recordedBy: S.OptionFromNullOr(S.String),
     recordedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("RegisterRow", {
-    description: "One coordinated unit the orchestrator session is responsible for, and how a successor reaches it.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegisterRow", {
+      description: "One coordinated unit the orchestrator session is responsible for, and how a successor reaches it.",
+    })
+  )
 ) {}
 
 /**
@@ -205,13 +206,14 @@ export const RegisterRowJson = JsonStringCodec(RegisterRow);
  * @category models
  * @since 0.0.0
  */
-export class RegisterReport extends S.Class<RegisterReport>($I`RegisterReport`)(
-  {
+export class RegisterReport extends S.Opaque<RegisterReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("orchestrator-register-report/v1"),
     repository: PrRepository,
     rows: S.Array(RegisterRow),
-  },
-  $I.annote("RegisterReport", { description: "The newest non-retired register row per unit, newest first." })
+  }).pipe(
+    $I.annoteSchema("RegisterReport", { description: "The newest non-retired register row per unit, newest first." })
+  )
 ) {}
 
 /**
@@ -332,8 +334,8 @@ export const renderRegisterMarkdown = (rows: ReadonlyArray<RegisterRow>): string
  * @category models
  * @since 0.0.0
  */
-export class RegisterNoteInput extends S.Class<RegisterNoteInput>($I`RegisterNoteInput`)(
-  {
+export class RegisterNoteInput extends S.Opaque<RegisterNoteInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: RegisterUnitKind,
     address: S.NonEmptyString,
     name: S.Option(S.String),
@@ -343,8 +345,7 @@ export class RegisterNoteInput extends S.Class<RegisterNoteInput>($I`RegisterNot
     lastContact: S.Option(S.DateTimeUtcFromString),
     orphanPlan: S.NonEmptyString,
     note: S.Option(S.String),
-  },
-  $I.annote("RegisterNoteInput", { description: "Register append input before provenance is stamped." })
+  }).pipe($I.annoteSchema("RegisterNoteInput", { description: "Register append input before provenance is stamped." }))
 ) {}
 
 /**
@@ -374,8 +375,8 @@ export class RegisterNoteInput extends S.Class<RegisterNoteInput>($I`RegisterNot
  * @category models
  * @since 0.0.0
  */
-export class RegisterNotePatch extends S.Class<RegisterNotePatch>($I`RegisterNotePatch`)(
-  {
+export class RegisterNotePatch extends S.Opaque<RegisterNotePatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: RegisterUnitKind,
     address: S.NonEmptyString,
     name: S.Option(S.String),
@@ -385,8 +386,9 @@ export class RegisterNotePatch extends S.Class<RegisterNotePatch>($I`RegisterNot
     lastContact: S.Option(S.DateTimeUtcFromString),
     orphanPlan: S.Option(S.String),
     note: S.Option(S.String),
-  },
-  $I.annote("RegisterNotePatch", { description: "A register append as typed, with omitted fields left unset." })
+  }).pipe(
+    $I.annoteSchema("RegisterNotePatch", { description: "A register append as typed, with omitted fields left unset." })
+  )
 ) {}
 
 // An empty text value clears the field; an omitted one keeps the prior value.
@@ -407,9 +409,12 @@ const patchText = (patch: O.Option<string>, prior: O.Option<string>): O.Option<s
  * @category models
  * @since 0.0.0
  */
-export class RegisterMergeInput extends S.Class<RegisterMergeInput>($I`RegisterMergeInput`)(
-  { prior: S.Option(RegisterRow), patch: RegisterNotePatch, now: S.DateTimeUtcFromString },
-  $I.annote("RegisterMergeInput", { description: "A register patch with the unit's current row and the time now." })
+export class RegisterMergeInput extends S.Opaque<RegisterMergeInput, { readonly brand: unique symbol }>()(
+  S.Struct({ prior: S.Option(RegisterRow), patch: RegisterNotePatch, now: S.DateTimeUtcFromString }).pipe(
+    $I.annoteSchema("RegisterMergeInput", {
+      description: "A register patch with the unit's current row and the time now.",
+    })
+  )
 ) {}
 
 /**

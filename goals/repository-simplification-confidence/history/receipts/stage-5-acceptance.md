@@ -16,6 +16,8 @@ Pending. C owns the ONNX test move (R23), H1 owns its exact-version hold, and A 
 
 ## Harness ledger
 
+The later [F source checkpoint](#f-source-checkpoint--operational-acceptance-remains-open) supersedes the earlier no-row F observation for the repository duplicate-removal and approved pilot-tombstone chains.
+
 Later-wave unstaged groundwork adds `harness-ledger/rows/` to `.rgignore`, `.aiignore` and `.graftignore`, leaving the compact README and supported CLI accessible. No `.gitignore` change is made. The graft meaning-tier ignore prevents row content from entering summaries; its structural graph still indexes paths per that file's contract.
 
 Before-change row hashes:
@@ -27,9 +29,29 @@ Verification: the same hashes remain after the ignore edits; `git ls-files harne
 
 ## Package gates
 
+H4, 2026-10-14: earlier default CLI audits/docgen passed at their recorded
+pre-S25 snapshots (1,257.0s/42.2s and 1,045.0s/30.8s). Current source
+`a0c0177c98` follows main's opaque-schema migration and repairs both hosted
+review findings. Independent review has zero actionable findings; 42 scoped
+cases pass on integrated main `7f55eeca0d`, with every incumbent coverage
+floor/ceiling met. Bounded docgen, references and both Fallow checks pass.
+Test-tsgo fails only main's AgentMessage test diagnostic; the JSDoc +2
+root-import regression is inherited, with no added inventory examples. Full
+package verification passes (audit 1,190.6s / docgen 46.4s), and live ruleset
+drift remains shared-owned.
+Current results are in the
+[H4 handoff](../handoffs/rsc-h4-permissions-2026-10-14.md). These qualify the
+reader; Desktop route acceptance remains open below.
+
 All eleven touched packages passed full run-5 package verification before E's main merge: box-provisioning, box, freshbooks, occt, pdf-tools, wink, colors, data, repo-ai-metrics, codegen-kit and repo-cli. The refreshed post-D CLI audit passed in 785 seconds with docgen in 28 seconds; test TSGo and full docgen also passed. E changes CLI source, so those CLI/parity passes are now historical. Ten unchanged package gates remain valid. Post-E full CLI verification fails only the live Knip workflow contract. Its docgen and the subsequent post-E parity/coverage sequence are not run. This is an S3 integration blocker requiring E-owned workflow retirement, followed by a fresh CLI/package/parity/coverage run.
 
 ## Scope
+
+H4 contributes only the Session census, synthetic tests, continuity runbook,
+agent-pools link and packet records. No home config, Claude harness setting,
+AGENTS file, manifest, lockfile or coverage baseline is changed. The independent
+source reviewer found no additional scope or privacy issue. Operator GUI
+fixtures remain external; H4 has resumed no live session and restarted no app.
 
 All writes are inside the assigned lane. No foreign worktree, clone-local residue, home configuration, hosted ruleset or other lane's owned files were changed. Local residue is deferred until post-merge, with orchestrator routing required for paths outside this lane.
 
@@ -479,3 +501,383 @@ owner with no tracked delta; all 126 entry bodies are unchanged. It changes no p
 snapshot, root manifest, lockfile or agent-loaded guidance. The reconciled
 guidance previews stay private until the serialized first refresh lands.
 No source debt is relabelled an exception in this wave.
+
+## Global configuration
+
+The later [F source checkpoint](#f-source-checkpoint--operational-acceptance-remains-open) provides synthetic writer proof; actual global configuration acceptance remains open.
+
+Earlier 19:41Z F checkpoint, 2026-10-14: **not accepted**. Read-only before evidence at
+`529d77338d` is recorded in [before measurement](stage-3-f-before-measurement.md)
+and [inventory](stage-3-f-inventory.md). All three stage-1 backups were verified;
+no F apply occurred. The offline model check has zero findings against the
+current manifest, whose Claude/lightweight/research pins differ from the lane
+brief. Scope and routing reconciliation precede applies. Native fields survive
+because this lane has not written them; that is **not** a proven owned-field
+transformation or rollback round-trip. Package implementation, synthetic
+preservation/restore fixtures, all harness probes, after measurements and the
+final panel are pending. No frozen panel input is submitted.
+
+### Earlier 19:41Z F harness ledger checkpoint — 2026-10-14
+
+The read-only inventory changed no harness surface. No execution row or
+admission was manufactured for it. R51's decision-id mapping, interview
+propose/disposition chains, the hook-window chain and deferred SkillOpt chains
+remain pending through the supported writer. Existing ledger rows were not
+rewritten. This checkpoint does not close the earlier Harness ledger section.
+
+### Earlier 19:41Z F scope checkpoint — 2026-10-14
+
+Only packet evidence and status text changed. No workspace package, generated
+projection, model manifest, shared root manifest, allowlist, hook, skill,
+plugin, home setting, or another lane's checkout was edited. This is a blocked
+pre-apply handoff, not a content-final implementation or merge-ready claim.
+
+## F source checkpoint — operational acceptance remains open
+
+At this checkpoint, source-only preservation proof exists for ModelsApply,
+restore, and skill projection safety. The 142 scoped tests pass and the source
+type check passes. The live offline model check has zero drift. Claude's
+operator-run script is prepared in gitignored .beep; its dry-run reports no
+changes for the current Fable/medium defaults. No native apply or full
+configuration acceptance is claimed. Home applies and persistent native probes
+remain pending explicit scope clarification. The terminal local source gates at
+8f47fcd4bb01912e43418906d2738d5d360b21f7 all pass: default package audit
+1,213.8s and full docgen 40.3s, bounded docgen, test-tsgo, JSDoc ratchet,
+knowledge references (zero live gated observations), and Fallow audit/health
+(zero findings). No coverage or JSDoc baseline was relaxed. See the handoff's
+terminal command table and failure attributions. These are local source
+results, not hosted PR checks or final F operational acceptance.
+
+Repository duplicate-removal execution uses cc2063ede325a958e5d9db5be1ad6d837b1e1a63. The supported writer
+appended proposal hl-20261014-2e87155d and admitted disposition
+hl-20261014-2b463e1a under RSCF-DUPLICATES-20261014, mapping to the October 9
+Workstream F owned-field/duplicate-removal decision and approved F item 4.
+Both hook lifecycles pass against lane-local synthetic state and the skill link
+resolves to canonical bytes. Native Codex re-trust and the H3 configuration wave
+remain open. No session window was manufactured and no zero-use retirement
+was performed. RSCF-SKILLOPT-20261014 maps to the October 9 approved pilot
+retirement constraints; both old deferred candidate chains gain append-only
+tombstones with their original reconsideration condition. The rejected chains
+remain untouched. Proposal hl-20260929-2072a6f9 remains pending H3 proof.
+
+| Decision id | Approved source | Execution chain | State |
+| --- | --- | --- | --- |
+| RSCF-DUPLICATES-20261014 | October 9 Workstream F decision; approved F item 4 | hl-20261014-2e87155d -> hl-20261014-2b463e1a; cc2063ede325a958e5d9db5be1ad6d837b1e1a63 | admitted repository duplicates |
+| RSCF-SKILLOPT-20261014 | October 9 pilot retirement constraints | hl-20261001-f181b84d -> hl-20261014-9e833571; hl-20261001-500b0523 -> hl-20261014-69d53a31 | tombstoned; original evidence retained |
+| in-regime SessionStart proposal | F item 6 and H3 qualification | hl-20260929-2072a6f9 | pending runtime witness; no invented window |
+
+All four new rows were appended by the supported writer. None of the existing
+rows was edited. Source-only ModelsApply implementation has no harness-admission
+row until a corresponding configuration apply occurs. Full F mapping, home
+execution chains, acceptance, and panel remain open.
+
+### F authorized global configuration proof (2026-10-14)
+
+The explicit home scope grant supersedes the earlier lane-only block. The
+current manifest is authoritative. Native Codex cleanup has run through
+ModelsApply with a private exclusive backup, staged TOML parse, and atomic
+rename. Restoring the first journal reproduces the original bytes exactly;
+reapplying reproduces the cleaned bytes exactly. All other keys and bytes
+survive, including the 496 projects and 325 hook states observed before apply.
+The two model pins are unchanged. Online `models check` reports zero findings,
+the required read-only pinned Codex probe answers OK, and
+`models codex-permissions --check` detects return of the legacy key.
+
+Recovery names and journal ids are in the F handoff and SPEC Decision Log.
+The operator-only Claude defaults script remains a no-op preview. F wrote no
+home Claude file. `skills update` changed only its lock; its terminal check
+reports current. The existing source and fixtures prove unknown skill-table
+keys, scalar spans, and rollback preservation. The matched native benchmark
+and other-client activation requirements remain open with named owners and
+reconsideration gates in RSC-F-DISPOSITIONS-20261014. These are not successful
+migrations or accepted panel results.
+
+The final configuration fingerprint receipt is
+[stage-5-f-config-fingerprint.json](stage-5-f-config-fingerprint.json). The
+configuration is frozen for review only while a fresh collector equals that
+set. The driver owns the independent three-model panel and terminal verdicts.
+
+### F harness ledger links (2026-10-14)
+
+| Decision token | SPEC row / approved basis | Execution chain |
+| --- | --- | --- |
+| RSC-F-NATIVE-20261014 | October 14 scope grant and H4 legacy-key ruling | proposal hl-20261014-70942f58; accepted hl-20261014-e979a4ad |
+| RSC-F-HOOKS-20261014 | F event-registration brief and approved A repository retirement | same explicit diff-digest chain; two touched hashes |
+| RSC-F-DUPLICATES-20261014 | Approved F confirmed-duplicate reduction | proposal hl-20261014-2e87155d; accepted hl-20261014-2b463e1a |
+| F-WINDOWS / F-H3-QUALIFY | Thirty-session requirement and wave-2 measured-gate ruling | prior proposal hl-20260929-2072a6f9 dispositioned deferred; native qualification remains open |
+| SkillOpt retirement | Approved pilot retirement; preserve immutable conclusions | tombstones hl-20261014-9e833571 and hl-20261014-69d53a31; rejected heads untouched |
+
+The supported writer appended all new rows; no existing row was changed. The
+native execution proposal references the explicit diff digest, and its commit
+carries `Harness-Ledger: hl-20261014-70942f58`. Retained surfaces with no applied
+edit have no fabricated execution chain. Historical evidence is not counted
+as current-regime sessions.
+
+### F scope at authorized publication
+
+Changes are limited to F's CLI writer/projection safety, native Codex legacy
+permission cleanup, repository canonical shims and event wiring, ledger rows,
+and packet evidence. No effect-law allowlist, root package manifest, lockfile,
+model manifest, gateway service, another lane, or home Claude file is edited.
+`skills-lock.json` is owner-regenerated. The repository reversal is the F PR
+revert; home restoration is separately drift-fenced by its recovery journal.
+
+
+### F canonical pulse adapter qualification
+
+The Codex pulse body also delegates to the canonical writer now, following the
+explicit H3 adapter contract. Eight isolated spike events preserve their core
+Codex fields; the synthetic private tool input is omitted; SessionStart gains
+a canonical harness stamp. No ordinary native trust or root/child success is
+inferred. This fourth duplicate removal changes the configuration set, so the
+fingerprint receipt was regenerated before publication.
+
+Supported ledger chain for RSC-F-PULSE-ADAPTER-20261014: proposal
+`hl-20261014-70a2e773`, accepted `hl-20261014-fb2e0a5d`. Its execution
+commit carries the proposal trailer. Native qualification remains open.
+## Permission continuity
+
+H4 checkpoint, 2026-10-14. Acceptance is **open**. The lane's read-only census
+and synthetic fixtures qualify the reader, not Desktop transport behaviour.
+No app was restarted, live thread resumed, outside-root Desktop write run,
+or home configuration changed. App versions were read with `pacman -Q`:
+ChatGPT Desktop `26.1007.71326-1`; Claude Desktop `2.37337.1-1`.
+
+| App | Route | Fixture ID | Before / after tuple | CLI build | Verdict | Missing evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| ChatGPT Desktop | Fresh | Not created | Not observed | Not observed | unknown | Operator-created fixture, self-report, marker and current effective record |
+| ChatGPT Desktop | Dormant idle | Not created | Not observed | Not observed | unknown | Typing and fixture-parent app-send variants |
+| ChatGPT Desktop | Dormant relaunch | Not created | Not observed | Not observed | unknown | Operator restart; typing, explicit reselect and app-send variants |
+| ChatGPT Desktop | Background | Not created | Not observed | Not observed | unknown | Fixture-parent app-send route; remains unsupported for live unrestricted work under standing guidance |
+| ChatGPT Desktop | Native subagent follow-up | Not created | Not observed | Not observed | unknown | Desktop fixture parent, child follow-up, child record and marker |
+| Claude Desktop | Fresh, bypass and auto | Not created | Not observed | Not observed | unknown | Separate fixture parents, app/CLI mode and markers |
+| Claude Desktop | Dormant idle, bypass and auto | Not created | Not observed | Not observed | unknown | Typing and fixture-parent send variants |
+| Claude Desktop | Dormant relaunch, bypass and auto | Not created | Not observed | Not observed | unknown | Operator restart and both continuation variants |
+| Claude Desktop | Background, bypass and auto | Not created | Not observed | Not observed | unknown | App-send and peer-message variants |
+| Claude Desktop | Native subagent follow-up, bypass and auto | Not created | Not observed | Not observed | unknown | Desktop Agent fixture, SendMessage, child record and marker |
+
+Run each row with the installed app build stated above, recording the actual
+fixture CLI version, timestamp, ID, command and tuple before/after. The
+[runbook](../../../../docs/runbooks/agent-permission-continuity.md) contains the
+reproducer protocol and candidate safe routes. Those safe alternatives have
+not been behaviourally verified on these installed builds, so H4 does not
+invoke the upstream-defect acceptance exception. R96 leaves this work with
+the orchestrator's batched GUI window. The worker has no Desktop session
+creation/continuation connector and is limited to its assigned checkout.
+
+F dependency: remove top-level legacy `sandbox_mode` only via the owned-field
+writer, preserve `default_permissions`, retain its config-backup name and
+check for key return. No backup or successful drift check is claimed by H4.
+Project Claude `permissions.defaultMode` remains `default` (R97); its edit deny
+rule is untouched. Reversal of this lane is `git revert` of its PR.
+
+### F final integrated local proof
+
+The final main merge preserves the F and H4 packet records as a union; no F
+implementation conflict occurred. The source merge head is `9d6b26dd4d`.
+Default CLI package verification passes its full audit in 1,076.0s and full
+docgen in 39.2s. After main integration, package lint/check pass, local docgen
+passes in 41.6s, and all 154 scoped coverage tests pass again. The four touched
+baseline rows still exceed their current recorded floors. Test-tsgo reports
+only the byte-identical inherited AgentMessage TS377032 diagnostic. The final
+JSDoc, refs and Fallow results are recorded in the handoff.
+
+H3 #1590 remains open at this read. Its native/global delivery items remain
+explicit measured gates under RSC-F-DISPOSITIONS-20261014; the local Codex pulse
+adapter and native callbacks do not imply that unmerged collector changes or
+namespace/OTel/archive work have landed.
+
+
+### F current-main inherited test diagnostics
+
+After the drawing-review main merge, test-tsgo reports three TS377026
+raw-JSON diagnostics in drawings-critics.test.ts, in addition to the known
+AgentMessage TS377032. The drawing test matches origin/main byte for byte,
+SHA-256 0d2e5ce9292185850f13c150d9de4d862720119208f6fcc573626297e79c5492.
+Owner: drawing-review-loop, the owner of PR #1780. AgentMessage remains owned
+by the #1767 repair lane. F makes no copy of either inherited fix. Fresh
+upstream declarations restore the package check; the related P0 is acknowledged
+environment-only, and its terminal lint/check rerun passes.
+
+### F publication proof boundary (2026-10-14 local)
+
+Integrated source bb67db8ccde1896abe85511a601f52b07d713c03 includes main
+#1792. Package lint/check, test-tsgo, 154 scoped tests, all four coverage
+floors, bounded docgen, Fallow audit/health, schema-first and retired paths
+pass. The earlier test-tsgo reds are historical and repaired on main.
+The observability catalog and Effect Vitest ratchet also pass after F's
+introduced cheap-gate repairs. Default package audit/docgen passed earlier;
+only receipt and collector changes follow this source proof.
+
+Configuration fingerprint v2 retains every native Claude registry field
+except the observed pluginUsage runtime counter. Its raw capture hash remains
+metadata. Three controls pass for ignored usage, detected MCP mutation and
+detected unknown-field mutation. The read-only equality check passes before
+publication. Every other file/link retains byte/target identity. The pinned
+native probe passes and the final online model check has zero findings.
+The driver owns the pending independent panel and serialized merge.
+
+
+### F post-H3 integration (2026-10-15 UTC)
+
+H3 #1590 is merged and integrated into F at 2c6bf96569. `bun install`
+installs Effect 4.0.4; no F-owned UUID call needs repair. The post-#1758
+codemod/check report 19 already-branded declarations and no new sites. The
+46-task package typecheck and repeated check pass; fixup reports zero changes.
+The conflicted observability artifacts were regenerated through the owner
+command and its check passes at 5,470 spans.
+
+Scoped coverage passes 171 tests in 12 files. The existing baseline is
+unchanged. Percentages are lines / statements / branches / functions:
+
+| Existing touched file | Current scoped coverage | Existing floor | Result |
+| --- | --- | --- | --- |
+| Models.command.ts | 83.85 / 83.90 / 82.53 / 69.23 | 30.00 / 29.57 / 0.00 / 0.00 | pass |
+| Models.locator.service.ts | 93.85 / 93.54 / 78.12 / 92.00 | 92.04 / 92.55 / 72.72 / 90.47 | pass |
+| Models.service.ts | 91.15 / 90.16 / 91.52 / 81.63 | 90.42 / 89.00 / 89.47 / 78.37 | pass |
+| Skills.command.ts | 91.98 / 91.81 / 77.85 / 88.23 | 89.96 / 89.69 / 72.72 / 81.69 | pass |
+
+Panel collector v3 records the unowned Claude Desktop app-written native
+configuration as observedOnly. It never enters the equality set, including
+when represented by a symlink. F-owned/repo-owned inputs remain equality
+inputs. Controls pass for an observed-only hash change and rejection of an
+owned-input change. No native config is rewritten or stabilized.
+
+The pinned read-only Codex probe answers OK and the legacy sandbox_mode
+return check passes. Online models check has one protected-field drift:
+native Codex effort xhigh versus medium. The explicit guardrail forbids F
+from changing that field. Zero drift and final panel admission remain open;
+no native write, new backup or rollback is claimed in this resume.
+
+The four H3 delivery items are separately owned measured gates in SPEC.md
+RSC-F-POST1590. All current-regime windows remain incomplete; synthetic probes
+contribute zero qualifying sessions. The current handoff is
+[the October 15 F report](../handoffs/rsc-f-agents-2026-10-15.md). The driver
+owns the independent panel, merge and retirement. No readiness monitor starts.
+
+
+### F final-wave checks and protected configuration boundary
+
+Current main through #1820 (`5861a2b012`) is integrated. The owner command
+regenerates the schema catalog with four F model entries; regenerated catalogs
+are excluded from S31. S31's 15 inventory/baseline/allowlist files match main
+exactly. F's two EV010 exception rows are removed; F-S31-EV010 in
+`research/OPPORTUNITIES.md` tracks check improvement without inventory growth.
+
+At source `90b8c39b5a`, package dependency checks (46 tasks), test-tsgo,
+bounded docgen, JSDoc ratchet, CI knowledge references, Fallow audit/health
+and retired Effect paths pass. Scoped coverage passes 155 tests in 11 files
+and every metric in all four existing touched-file floors, recorded in
+[the coverage receipt](stage-5-f-final-coverage.json). The final-wave preview
+and restrictive-temp repairs address REST comments 4277729082 / 4277729090.
+The shared module-level JSON decoder closes both F-owned oxlint findings.
+Full oxlint retains 15 findings, all in unchanged main sources; changed-file
+findings are zero. No oxlint allowlist is changed.
+
+The current online model check still reports one protected native effort drift.
+The pinned native probe exits zero and answers OK; legacy sandbox_mode stays
+absent. No home write is performed. Candidate fingerprint v3 has 355 equality
+inputs and one observed-only input. Its immediate equality check passes, but
+it is not admitted as the final panel fingerprint while zero drift is blocked.
+The October 15 handoff records the full package result and publication boundary.
+
+
+### F final-wave clearance
+
+Full `package-verify @beep/repo-cli` passes under the admitted private-temp
+binding: audit 1443.1 seconds, docgen 49.3 seconds. The initial introduced
+preview typing failures are repaired at source 90b8c39b5a and superseded by
+this complete audit/docgen pass, package checks and test-tsgo.
+
+The newest online model check reports zero findings across 361 catalog models.
+The protected effort changed outside F while the suite ran; F performed no
+home write. The final fingerprint has 355 equality inputs and one observed-only
+Desktop input. Its immediate equality check passes. The driver owns the pending
+independent panel. Earlier protected-field blocker paragraphs above are dated
+checkpoints, not the latest acceptance state.
+
+
+The final fetch integrates #1824 (`4052da587f`), which removes only the private
+H3 changeset. No implementation source changes. Install and owner catalog
+regeneration are repeated. Delivery-head package/parity verification follows
+this integration; the earlier full pass remains separately source-bound.
+
+### F panel round 1 repair evidence (2026-10-15)
+
+The current F handoff records the round-1 implementation and test checkpoint
+and one publication wave for #1797. Evidence: `stage-5-f-panel-r1-verification.json`,
+`stage-5-f-panel-r1-coverage.json`, `stage-5-f-panel-r1-attribution.json`,
+`stage-5-f-panel-r1-s31.json` and `stage-5-f-panel-r1-fingerprint.json` in this
+receipt directory. The writer detects and recovers the observed original-inode
+write window with typed failure and a retained journal; it does not claim native
+client mutual exclusion. No home configuration is written by this repair wave.
+The three operator-owned drifts remain observed-only, along with Desktop's
+app-written config. The full three-model panel must run again against the new
+head and fingerprint; this receipt does not claim panel clearance or completion
+of the existing native measurement gates or 30-session windows.
+
+
+### F panel round 2 repair evidence (2026-10-15)
+
+The current F handoff and `stage-5-f-panel-r2-verification.json` record the
+exchange-and-verify publication protocol, cached fail-closed capability probe,
+complete shell scalar lexer, and every round-2 advisory. Deterministic wrapped
+FileSystem/ChildProcess tests preserve atomic-replacing writers during apply,
+restore and recovery, including a second replacement during recovery. Every
+observed race fails typed with a retained journal and recovery event. The
+runbook records the inode-holder maintenance boundary and unsupported-platform
+refusal. No home configuration is written in this wave.
+
+`stage-5-f-panel-r2-coverage.json`, `stage-5-f-panel-r2-attribution.json`,
+`stage-5-f-panel-r2-s31-diff.json` and `stage-5-f-panel-r2-fingerprint.json`
+retain the scoped proof and frozen configuration. The same four observed-only
+files remain outside equality. The driver owns panel round 3 and hosted merge
+gating; this receipt does not claim terminal panel clearance or completion of
+the measured native gates and 30-session windows.
+
+
+### F panel round 4 repair evidence (2026-10-15)
+
+RSC-F-SHELL-CHECK-ONLY removes shell writing entirely. Checks and previews still
+report shell drift; writes and shell/ownership-unknown restore journals refuse
+before staging. Restore re-establishes canonical and requested-entry identity,
+including recorded symlinks, before any publication. The exact regular-file to
+symlink reproduction and changed parent/link targets have non-mutating refusal
+fixtures. The four nearby round-4 P2/P3 items are included; no round-4 advisory
+is deferred. Previous publication-protocol follow-ups remain recorded in SPEC.
+
+The current handoff and `stage-5-f-panel-r4-verification.json` carry source-bound
+proof; `stage-5-f-panel-r4-fingerprint.json` freezes the configuration for the
+driver's round-5 panel. No native home configuration is changed by this wave.
+Panel acceptance, hosted merge clearance, native measurement gates and the
+30-session qualification windows remain open. The lane publishes only a panel
+candidate, never merge clearance while the panel is open.
+
+
+### F round-7 candidate — manual verification boundary
+
+The round-7 wave adds independent canonical-format eligibility to TOML/JSON apply
+and historical restore. The CLI refuses excluded write requests before target
+access or optional skipping. Shell/YAML/XML checks always require manual
+verification and expose extracted values only as hints; recognized drift and
+unsupported forms still fail. Manual status alone exits zero. The SPEC Decision
+Log records the driver's reason and parser/panel reversal condition.
+
+Current candidate evidence is `stage-5-f-panel-r7-verification.json` and
+`stage-5-f-panel-r7-fingerprint.json`; the October 15 F handoff maps every finding
+to its commit and regression. This wave performs zero home applies and preserves
+all previous backups and rollback evidence. The panel remains OPEN for round 8;
+this update makes no completion or zero-actionable claim for the new candidate.
+
+### F round-9 eligibility correction (2026-10-15)
+
+Global-configuration implementation now routes all TOML/JSON certification,
+preview, apply and recovery through one canonical-path and fatal-byte gate.
+Live and backup ownership must exist in the full parsed tree, including every
+removal operation. Completed removals with absent live ownership refuse
+recovery; retained backup bytes remain the explicit recovery route. Repeated
+restore also refuses unless the live hash still equals the applied hash.
+No native files changed in this wave. The existing operator-owned diagnostics,
+30-session windows and external-owner prerequisites remain open. Driver panel
+round 10 is required on the recaptured head and fingerprint. Evidence is in
+`stage-5-f-panel-r9-verification.json` and the October 15 F handoff.

@@ -6,11 +6,12 @@
  */
 
 import { toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -18,6 +19,7 @@ import { Node, SyntaxKind } from "ts-morph";
 import { failWithReportedExit } from "../../../internal/cli/ExitCodeError.ts";
 import { todayYmd } from "../../../internal/cli/Timing.ts";
 import { diffMembership, enforceRatchet } from "../../../internal/ratchet/index.ts";
+import { createRepoTsMorphProject } from "../../../internal/tsmorph/index.ts";
 import {
   isActiveSchemaFirstRuleAdvisory,
   LiteralKitConstAssertionViolation,
@@ -25,6 +27,7 @@ import {
   SchemaFirstIncludedGlobs,
   SchemaFirstInventoryDocument,
   SchemaFirstInventoryEntry,
+  SchemaFirstSourceFileGlobs,
   schemaFirstEntryOrder,
   sortSchemaFirstEntries,
 } from "../Lint.schemas.ts";
@@ -33,11 +36,8 @@ import { SchemaFirstArbitraryCoverage } from "./SchemaFirstArbitraryCoverage.ts"
 import { SchemaFirstDetectors } from "./SchemaFirstDetectors.ts";
 import { diffSchemaFirstParity, toSchemaFirstBacklog } from "./SchemaFirstParity.ts";
 import { isSchemaCrispeningPolicyExempt } from "./SchemaFirstPolicy.ts";
-import {
-  isSchemaFirstExcludedFile,
-  makeSchemaFirstOwnerResolver,
-  makeSchemaFirstProject,
-} from "./SchemaFirstProject.ts";
+import { isSchemaFirstExcludedFile, makeSchemaFirstOwnerResolver } from "./SchemaFirstProject.ts";
+import { SchemaFirstSchemaClass } from "./SchemaFirstSchemaClass.ts";
 import {
   readCrispeningPolicyDocument,
   readSchemaFirstInventoryDocument,
@@ -53,48 +53,71 @@ import type {
 } from "../Lint.schemas.ts";
 import type { SchemaFirstLintFindings } from "../SchemaFirst.render.ts";
 import type { FunctionLikeDeclarationNode } from "./SchemaFirstDetectors.ts";
+import type { SchemaClassDeclaration } from "./SchemaFirstSchemaClass.ts";
 
 const isLiteralKitConstAssertionArgument = (argument: Node): boolean =>
   Node.isAsExpression(argument) &&
   Node.isArrayLiteralExpression(argument.getExpression()) &&
   argument.getTypeNode()?.getText() === "const";
 
-const collectLiteralKitConstAssertionViolations = Effect.fn(function* () {
-  const path = yield* Path.Path;
-  const project = yield* makeSchemaFirstProject();
-
-  const violations = A.empty<LiteralKitConstAssertionViolation>();
-
-  for (const sourceFile of project.getSourceFiles()) {
-    const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
-    if (isSchemaFirstExcludedFile(filePath)) {
+const appendLiteralKitConstAssertionViolations = (
+  violations: Array<LiteralKitConstAssertionViolation>,
+  sourceFile: SourceFile,
+  filePath: string
+): void => {
+  for (const callExpression of sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+    if (callExpression.getExpression().getText() !== "LiteralKit") {
       continue;
     }
 
-    for (const callExpression of sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)) {
-      if (callExpression.getExpression().getText() !== "LiteralKit") {
-        continue;
+    const args = callExpression.getArguments();
+    A.forEach(args, (argument, argumentIndex) => {
+      if (!isLiteralKitConstAssertionArgument(argument)) {
+        return;
       }
 
-      const args = callExpression.getArguments();
-      A.forEach(args, (argument, argumentIndex) => {
-        if (!isLiteralKitConstAssertionArgument(argument)) {
-          return;
-        }
-
-        A.appendInPlace(
-          violations,
-          LiteralKitConstAssertionViolation.make({
-            file: filePath,
-            line: sourceFile.getLineAndColumnAtPos(argument.getStart()).line,
-            argument: argumentIndex + 1,
-          })
-        );
-      });
-    }
+      A.appendInPlace(
+        violations,
+        LiteralKitConstAssertionViolation.make({
+          file: filePath,
+          line: sourceFile.getLineAndColumnAtPos(argument.getStart()).line,
+          argument: argumentIndex + 1,
+        })
+      );
+    });
   }
+};
 
-  return violations;
+const schemaFirstSourceContext = Effect.fn("schemaFirstSourceContext")(function* () {
+  const path = yield* Path.Path;
+  const project = createRepoTsMorphProject({
+    tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
+    sourceFileGlobs: [],
+  });
+  const sourcePaths = A.sort(project.getFileSystem().globSync(SchemaFirstSourceFileGlobs), Order.String);
+  return { project, sourcePaths };
+});
+
+const collectArbitraryCoverageEntries = Effect.fn("collectArbitraryCoverageEntries")(function* () {
+  const path = yield* Path.Path;
+  const ownerResolver = yield* makeSchemaFirstOwnerResolver();
+  const { project, sourcePaths } = yield* schemaFirstSourceContext();
+  const entries = A.empty<SchemaFirstInventoryEntry>();
+  const referencedClassNames = MutableHashSet.empty<string>();
+  // Arbitrary coverage is syntax-only. Keep its full existing source/test corpus
+  // while avoiding test roots in the production semantic program.
+  for (const filePath of sourcePaths) {
+    const sourceFile = project.addSourceFileAtPathIfExists(filePath);
+    if (sourceFile === undefined) continue;
+    const relativePath = toPosixPath(path.relative(process.cwd(), filePath));
+    appendArbitraryEntries(entries, sourceFile, relativePath, ownerResolver(filePath));
+    // Include references from excluded test roots without retaining their ASTs.
+    A.forEach(SchemaFirstSchemaClass.scanSourceFile(sourceFile.compilerNode).referencedNames, (name) =>
+      MutableHashSet.add(referencedClassNames, name)
+    );
+    sourceFile.forget();
+  }
+  return { entries, referencedClassNames };
 });
 
 const appendOptionEntry = (entries: Array<SchemaFirstInventoryEntry>, entry: O.Option<SchemaFirstInventoryEntry>) => {
@@ -208,9 +231,49 @@ const appendStructOrBoundaryEntry = (
     filePath,
     SchemaFirstDetectors.inferStructSymbol(callExpression),
     "object-struct-schema",
-    "Object schema should prefer an annotated S.Class over S.Struct.",
+    "Exported bare S.Struct schema should be a branded S.Opaque over that S.Struct with $I.annoteSchema metadata (D1).",
     owner
   );
+};
+
+type PlainDataSchemaClassCandidate = {
+  readonly declaration: SchemaClassDeclaration;
+  readonly file: string;
+  readonly owner: string;
+};
+
+// Records every class name the file references (tests included, so `instanceof` assertions keep a class) and, for
+// scanned files, the brand findings plus the plain-data candidates that are resolved once the whole project is read.
+const appendSchemaClassEntries = (
+  entries: Array<SchemaFirstInventoryEntry>,
+  plainDataCandidates: Array<PlainDataSchemaClassCandidate>,
+  referencedNames: MutableHashSet.MutableHashSet<string>,
+  sourceFile: SourceFile,
+  filePath: string,
+  owner: string,
+  scanned: boolean
+) => {
+  const scan = SchemaFirstSchemaClass.scanSourceFile(sourceFile.compilerNode);
+  A.forEach(scan.referencedNames, (name) => MutableHashSet.add(referencedNames, name));
+  if (!scanned) return;
+  const plainDataEligible =
+    SchemaFirstSchemaClass.isPlainDataEligibleFilePath(filePath) &&
+    !SchemaFirstSchemaClass.isGeneratedSourceText(sourceFile.getFullText());
+  for (const declaration of scan.declarations) {
+    appendOptionEntry(entries, SchemaFirstSchemaClass.unbrandedEntry(declaration, filePath, owner));
+    if (plainDataEligible) A.appendInPlace(plainDataCandidates, { declaration, file: filePath, owner });
+  }
+};
+
+const appendPlainDataSchemaClassEntries = (
+  entries: Array<SchemaFirstInventoryEntry>,
+  plainDataCandidates: ReadonlyArray<PlainDataSchemaClassCandidate>,
+  referencedNames: MutableHashSet.MutableHashSet<string>
+) => {
+  const names = HashSet.fromIterable(referencedNames);
+  for (const { declaration, file, owner } of plainDataCandidates) {
+    appendOptionEntry(entries, SchemaFirstSchemaClass.plainDataEntry(declaration, file, owner, names));
+  }
 };
 
 const appendCallEntries = (
@@ -308,17 +371,41 @@ const appendEquivalenceEntries = (
 const scanSchemaFirstInventory = Effect.fn(function* () {
   const path = yield* Path.Path;
   const ownerResolver = yield* makeSchemaFirstOwnerResolver();
-  const project = yield* makeSchemaFirstProject();
+  const coverage = yield* collectArbitraryCoverageEntries();
+  const entries = A.fromIterable(coverage.entries);
+  const { project, sourcePaths } = yield* schemaFirstSourceContext();
+  // Production checks need the shared checker. Keep relevant ambient roots too;
+  // imported dependencies still resolve normally through the compiler options.
+  for (const filePath of sourcePaths) {
+    const relativePath = toPosixPath(path.relative(process.cwd(), filePath));
+    const ambientProductionRoot =
+      Str.endsWith(".d.ts")(relativePath) && !isSchemaFirstExcludedFile(Str.replace(/\.d\.ts$/u, ".ts")(relativePath));
+    if (!isSchemaFirstExcludedFile(relativePath) || ambientProductionRoot) {
+      project.addSourceFileAtPathIfExists(filePath);
+    }
+  }
 
-  const entries = A.empty<SchemaFirstInventoryEntry>();
+  const literalKitConstAssertionViolations = A.empty<LiteralKitConstAssertionViolation>();
   const scannedFiles = A.empty<string>();
   const parityEntries = A.empty<SchemaFirstInventoryEntry>();
+  const plainDataCandidates = A.empty<PlainDataSchemaClassCandidate>();
+  const referencedClassNames = coverage.referencedClassNames;
 
   for (const sourceFile of project.getSourceFiles()) {
     const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
     const owner = ownerResolver(sourceFile.getFilePath());
-    appendArbitraryEntries(entries, sourceFile, filePath, owner);
-    if (isSchemaFirstExcludedFile(filePath)) continue;
+    const excluded = isSchemaFirstExcludedFile(filePath);
+    appendSchemaClassEntries(
+      entries,
+      plainDataCandidates,
+      referencedClassNames,
+      sourceFile,
+      filePath,
+      owner,
+      !excluded
+    );
+    if (excluded) continue;
+    appendLiteralKitConstAssertionViolations(literalKitConstAssertionViolations, sourceFile, filePath);
     A.appendInPlace(scannedFiles, filePath);
     A.appendAllInPlace(
       parityEntries,
@@ -332,7 +419,11 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     appendStaticApiEntries(entries, sourceFile, filePath, owner);
     appendDefaultsEntries(entries, sourceFile, filePath, owner);
     appendEquivalenceEntries(entries, sourceFile, filePath, owner);
+    // Keep the semantic program and source roots for cross-file resolution,
+    // but release this file's completed syntax-wrapper graph.
+    sourceFile.forgetDescendants();
   }
+  appendPlainDataSchemaClassEntries(entries, plainDataCandidates, referencedClassNames);
 
   return {
     document: SchemaFirstInventoryDocument.make({
@@ -345,6 +436,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
       backlog: toSchemaFirstBacklog(parityEntries),
     }),
     parityEntries,
+    literalKitConstAssertionViolations,
     scannedFiles: A.sort(scannedFiles, Order.String),
   };
 });
@@ -508,8 +600,12 @@ const schemaFirstLintHasFailures = (
  * @since 0.0.0
  */
 export const runSchemaFirstLint = Effect.fn("runSchemaFirstLint")(function* (options: SchemaFirstLintOptions) {
-  const { document: liveDocument, parityEntries, scannedFiles } = yield* scanSchemaFirstInventory();
-  const literalKitConstAssertionViolations = yield* collectLiteralKitConstAssertionViolations();
+  const {
+    document: liveDocument,
+    parityEntries,
+    scannedFiles,
+    literalKitConstAssertionViolations,
+  } = yield* scanSchemaFirstInventory();
   const existingDocument = yield* readSchemaFirstInventoryDocument();
   const parity = diffSchemaFirstParity(
     parityEntries,

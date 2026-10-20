@@ -14,10 +14,11 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { A, O, pipe } from "@beep/utils";
+import { A, O } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
@@ -35,13 +36,14 @@ import {
 import { catalogModelsById, diffSnapshots } from "./Models.diff.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
 import { bindLocatorModel, ModelsLocatorReader, ModelsLocatorReaderLive } from "./Models.locator.service.ts";
-import { isEffortAllowedOnSurface } from "./Models.manifest.schemas.ts";
+import { isEffortAllowedOnSurface, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 import { ModelsManifestStore, ModelsManifestStoreLive } from "./Models.manifest.service.ts";
 import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
 import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
-import { DriftFinding, ModelsCheckReport } from "./Models.report.schemas.ts";
+import { DriftFinding, ManualVerification, ModelsCheckReport } from "./Models.report.schemas.ts";
+import { modelsCheckOnlyFormat, modelsEligibility } from "./Models.spans.ts";
 import type * as Crypto from "effect/Crypto";
-import type { HttpClient } from "effect/http";
+import type * as HttpClient from "effect/http/HttpClient";
 import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CatalogModel, CatalogSource, ModelId } from "./Models.catalog.schemas.ts";
@@ -54,6 +56,7 @@ import type {
 } from "./Models.errors.ts";
 import type { ModelsLocatorReaderShape } from "./Models.locator.service.ts";
 import type {
+  BindingFilter,
   Locator,
   LocatorBinding,
   ModelBinding,
@@ -116,16 +119,17 @@ export * from "./Models.paths.ts";
  * @category models
  * @since 0.0.0
  */
-export class ModelsCheckOptions extends S.Class<ModelsCheckOptions>($I`ModelsCheckOptions`)(
-  {
+export class ModelsCheckOptions extends S.Opaque<ModelsCheckOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     home: S.NonEmptyString,
     repo: S.NonEmptyString,
     manifestPath: S.NonEmptyString,
     offline: S.Boolean,
-  },
-  $I.annote("ModelsCheckOptions", {
-    description: "Both trees, the manifest path, and the offline flag one check run executes under.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsCheckOptions", {
+      description: "Both trees, the manifest path, and the offline flag one check run executes under.",
+    })
+  )
 ) {}
 
 /**
@@ -164,11 +168,11 @@ export interface ModelsCheckShape {
  * **Example** (Describe a check run)
  *
  * ```ts
- * import { ModelsCheck } from "@beep/repo-cli/commands/Models"
+ * import { ModelsCheck, ModelsCheckOptions } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
  * const program = ModelsCheck.use((check) =>
- *   check.run({ home: "/home/op", repo: "/repo", manifestPath: "/home/op/models.yaml", offline: true })
+ *   check.run(ModelsCheckOptions.make({ home: "/home/op", repo: "/repo", manifestPath: "/home/op/models.yaml", offline: true }))
  * )
  * console.log(Effect.isEffect(program)) // true
  * ```
@@ -217,17 +221,32 @@ const finding = (
     kind,
   });
 
-const filterBindings = (
-  manifest: ModelsManifest,
-  roles: ReadonlyArray<string>,
-  surfaces: ReadonlyArray<string>
-): ReadonlyArray<ModelBinding> =>
-  A.filter(
-    manifest.bindings,
-    (candidate) =>
-      (A.isReadonlyArrayEmpty(roles) || A.contains(roles, candidate.role)) &&
-      (A.isReadonlyArrayEmpty(surfaces) || A.contains(surfaces, candidate.surface))
-  );
+/**
+ * Select manifest bindings using the existing generated-block filter contract.
+ *
+ * **Example** (Select ordinary Codex bindings)
+ *
+ * ```ts
+ * import { BindingFilter, filterBindings, seedModelsManifest } from "@beep/repo-cli/commands/Models"
+ * console.log(filterBindings(seedModelsManifest, BindingFilter.make({ roles: ["codex.heavy"], surfaces: ["codex-cli"] })).length)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const filterBindings: {
+  (filter: BindingFilter): (manifest: ModelsManifest) => ReadonlyArray<ModelBinding>;
+  (manifest: ModelsManifest, filter: BindingFilter): ReadonlyArray<ModelBinding>;
+} = dual(
+  2,
+  (manifest: ModelsManifest, filter: BindingFilter): ReadonlyArray<ModelBinding> =>
+    A.filter(
+      manifest.bindings,
+      (candidate) =>
+        (A.isReadonlyArrayEmpty(filter.roles) || A.contains(filter.roles, candidate.role)) &&
+        (A.isReadonlyArrayEmpty(filter.surfaces) || A.contains(filter.surfaces, candidate.surface))
+    )
+);
 
 const absentModelProblem = (
   binding: ModelBinding,
@@ -285,6 +304,7 @@ interface LocatorCheckInput {
   readonly file: ModelsTargetFile;
   readonly locator: Locator;
   readonly manifest: ModelsManifest;
+  readonly manual: Array<ManualVerification>;
   readonly models: HashMap.HashMap<ModelId, CatalogModel>;
   readonly reader: ModelsLocatorReaderShape;
   readonly target: ModelSyncTarget;
@@ -295,7 +315,7 @@ const expectedFor = (input: LocatorCheckInput): O.Option<string> => {
   if (locator._tag === "md-generated-block") {
     return O.some(
       renderGeneratedBlockBody(
-        filterBindings(input.manifest, locator.filter.roles, locator.filter.surfaces),
+        filterBindings(input.manifest, locator.filter),
         input.manifest.superseded,
         locator.includeSuperseded
       )
@@ -349,11 +369,42 @@ const boundLocator = (input: LocatorCheckInput): Locator =>
         onSome: (binding) => bindLocatorModel(input.locator, binding.modelId),
       });
 
+const readCurrentLocator = Effect.fnUntraced(function* (input: LocatorCheckInput) {
+  if (O.isNone(modelsCheckOnlyFormat(input.locator))) {
+    const eligible = yield* modelsEligibility(input.file.absolutePath, [
+      ModelsLocatorWrite.make({ locator: boundLocator(input), expected: "" }),
+    ]);
+    if (eligible._tag === "absent-owned-path") return O.none();
+    if (eligible._tag !== "eligible")
+      return O.some(
+        `Unsupported ${input.locator._tag === "json-key" ? "JSON" : "TOML"} form: ${eligible._tag}: ${eligible.message}`
+      );
+    return yield* input.reader.read(
+      ModelsTargetFile.make({
+        ...input.file,
+        content: eligible.content,
+        absolutePath: eligible.actual,
+      }),
+      boundLocator(input)
+    );
+  }
+  return yield* input.reader.read(input.file, boundLocator(input));
+});
+
 const checkLocator = Effect.fnUntraced(function* (
   input: LocatorCheckInput
-): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError> {
+): Effect.fn.Return<O.Option<DriftFinding>, ModelsLocatorError, Path.Path | FileSystem.FileSystem> {
+  const current = yield* readCurrentLocator(input);
+  if (O.isSome(modelsCheckOnlyFormat(input.locator)))
+    input.manual.push(
+      ManualVerification.make({
+        targetId: input.target.id,
+        path: input.target.path,
+        locator: input.locator,
+        current,
+      })
+    );
   const expected = expectedFor(input);
-  const readable = boundLocator(input);
   const upstreamProblem = bindingFinding(input, expected);
   if (O.isSome(upstreamProblem)) {
     // Catalog availability and file drift are independent observations. Keep
@@ -361,7 +412,7 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(
       DriftFinding.make({
         ...upstreamProblem.value,
-        current: yield* input.reader.read(input.file, readable),
+        current,
       })
     );
   }
@@ -370,12 +421,12 @@ const checkLocator = Effect.fnUntraced(function* (
     return O.some(finding(input.target, input.locator, O.none(), "a renderable binding value", "invalid-effort"));
   }
 
-  const current = yield* input.reader.read(input.file, readable);
   if (O.isNone(current)) {
     return O.some(finding(input.target, input.locator, O.none(), expected.value, "missing-locator"));
   }
 
-  return current.value === expected.value
+  const unsupported = /^Unsupported (?:shell|YAML|XML|JSON|TOML) form/.test(current.value);
+  return !unsupported && current.value === expected.value
     ? O.none<DriftFinding>()
     : O.some(finding(input.target, input.locator, current, expected.value, "stale"));
 });
@@ -415,6 +466,7 @@ const makeCheck = (): ModelsCheckShape => ({
       );
       const boundModels = HashSet.fromIterable(A.map(manifest.bindings, (binding) => binding.modelId));
 
+      const manual: Array<ManualVerification> = [];
       const findings = yield* Effect.forEach(
         manifest.targets,
         Effect.fnUntraced(function* (target: ModelSyncTarget) {
@@ -445,11 +497,13 @@ const makeCheck = (): ModelsCheckShape => ({
               : A.map(target.locators, (locator) => finding(target, locator, O.none(), absolutePath, "missing-file"));
           }
 
-          const content = yield* fs.readFileString(absolutePath).pipe(Effect.orElseSucceed(() => ""));
+          const content = A.some(target.locators, (locator) => O.isSome(modelsCheckOnlyFormat(locator)))
+            ? yield* fs.readFileString(absolutePath).pipe(Effect.orElseSucceed(() => ""))
+            : "";
           const file = ModelsTargetFile.make({ root: target.root, absolutePath, content });
 
           return yield* Effect.forEach(target.locators, (locator) =>
-            checkLocator({ answered, bindings, file, locator, manifest, models, reader, target })
+            checkLocator({ manual, answered, bindings, file, locator, manifest, models, reader, target })
           ).pipe(Effect.map(A.getSomes));
         })
       ).pipe(Effect.map(A.flatten));
@@ -459,6 +513,7 @@ const makeCheck = (): ModelsCheckShape => ({
         diff,
         diffScope: options.offline ? "suppressed-offline" : "full",
         findings,
+        manual,
         candidates: pipe(
           snapshot.models,
           A.filter((model) => model.availability.codexCli && !HashSet.has(boundModels, model.id)),

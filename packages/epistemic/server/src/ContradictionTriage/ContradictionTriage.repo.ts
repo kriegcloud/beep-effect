@@ -6,6 +6,12 @@
  */
 
 import {
+  ContradictionBeliefPair,
+  ContradictionCandidateContent,
+  ContradictionMatchBasis,
+  ContradictionProposalContent,
+} from "@beep/epistemic-domain";
+import {
   ContradictionCandidate,
   ContradictionDisposition,
   ContradictionReceipt,
@@ -324,7 +330,10 @@ const normalizeSubmission = Effect.fnUntraced(function* (command: SubmitContradi
     command.matchBasis.leftEvidenceIds,
     command.matchBasis.rightEvidenceIds
   );
-  const normalized = canonicalizeContradiction(command.pair, command.matchBasis);
+  const normalized = canonicalizeContradiction(
+    ContradictionBeliefPair.make(command.pair),
+    ContradictionMatchBasis.make(command.matchBasis)
+  );
   const matchBasis = normalized.matchBasis;
   const candidateKey = contradictionCandidateKey(normalized.pair, matchBasis);
   if (!Eq.equals(command.matchBasis.evidenceDigest, submittedEvidenceDigest)) {
@@ -339,14 +348,16 @@ const normalizeSubmission = Effect.fnUntraced(function* (command: SubmitContradi
     proposals,
     (proposal) =>
       Effect.fromResult(
-        contradictionProposalDigest({
-          fact: proposal.fact,
-          losingBelief: proposal.losingBelief,
-          proposalId: proposal.proposalId,
-          rationale: proposal.rationale,
-          validFrom: proposal.validFrom,
-          validTo: proposal.validTo,
-        })
+        contradictionProposalDigest(
+          ContradictionProposalContent.make({
+            fact: proposal.fact,
+            losingBelief: proposal.losingBelief,
+            proposalId: proposal.proposalId,
+            rationale: proposal.rationale,
+            validFrom: proposal.validFrom,
+            validTo: proposal.validTo,
+          })
+        )
       ).pipe(
         Effect.map(
           (proposalDigest) =>
@@ -369,13 +380,15 @@ const normalizeSubmission = Effect.fnUntraced(function* (command: SubmitContradi
     proposals,
   });
   const candidateDigest = yield* Effect.fromResult(
-    contradictionCandidateDigest({
-      assessment,
-      matchBasis,
-      pair: normalized.pair,
-      validFrom: command.validFrom,
-      validTo: command.validTo,
-    })
+    contradictionCandidateDigest(
+      ContradictionCandidateContent.make({
+        assessment,
+        matchBasis,
+        pair: normalized.pair,
+        validFrom: command.validFrom,
+        validTo: command.validTo,
+      })
+    )
   );
   return {
     assessment,
@@ -447,7 +460,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
   const writeSemaphore = Semaphore.makeUnsafe(1);
 
   return ContradictionTriageRepository.of({
-    get: Effect.fn("db.query")(function* (query) {
+    get: Effect.fn("ContradictionTriageRepository.get")(function* (query) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "select",
         "db.system": "postgresql",
@@ -517,7 +530,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       );
     }),
 
-    getExpanded: Effect.fn("db.query")(function* (query) {
+    getExpanded: Effect.fn("ContradictionTriageRepository.getExpanded")(function* (query) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "select",
         "db.system": "postgresql",
@@ -631,7 +644,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
                 verifications,
                 (verification) =>
                   Eq.equals(verification.evidenceId, evidenceId) &&
-                  EvidenceSpan.matchesAnchor(row.span, verification.verifiedAnchor.anchor)
+                  EvidenceSpan.matchesAnchor(EvidenceSpan.make(row.span), verification.verifiedAnchor.anchor)
               ),
             })
           )
@@ -678,7 +691,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       );
     }),
 
-    list: Effect.fn("db.query")(function* (query) {
+    list: Effect.fn("ContradictionTriageRepository.list")(function* (query) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "select",
         "db.system": "postgresql",
@@ -750,7 +763,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       });
     }),
 
-    review: Effect.fn("db.query")(function* (command, reviewer, scope) {
+    review: Effect.fn("ContradictionTriageRepository.review")(function* (command, reviewer, scope) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "transaction",
         "db.system": "postgresql",
@@ -813,14 +826,16 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
                       });
                     }
                     const expectedProposalDigest = yield* Effect.fromResult(
-                      contradictionProposalDigest({
-                        fact: proposal.value.fact,
-                        losingBelief: proposal.value.losingBelief,
-                        proposalId: proposal.value.proposalId,
-                        rationale: proposal.value.rationale,
-                        validFrom: proposal.value.validFrom,
-                        validTo: proposal.value.validTo,
-                      })
+                      contradictionProposalDigest(
+                        ContradictionProposalContent.make({
+                          fact: proposal.value.fact,
+                          losingBelief: proposal.value.losingBelief,
+                          proposalId: proposal.value.proposalId,
+                          rationale: proposal.value.rationale,
+                          validFrom: proposal.value.validFrom,
+                          validTo: proposal.value.validTo,
+                        })
+                      )
                     );
                     if (
                       !Eq.equals(proposal.value.proposalDigest, selection.proposalDigest) ||
@@ -846,7 +861,9 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
                     const edge = yield* Effect.fromResult(fromEdgeVersionRow(edgeRow.value)).pipe(
                       repositoryUnavailable("review")
                     );
-                    if (!edgeMatchesCandidateBelief(edge, proposal.value.losingBelief, candidate)) {
+                    if (
+                      !edgeMatchesCandidateBelief(edge, BeliefVersionRef.make(proposal.value.losingBelief), candidate)
+                    ) {
                       return yield* ContradictionReviewConflict.make({
                         candidateId: command.candidateId,
                         reason: "belief-mismatch",
@@ -942,7 +959,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       );
     }),
 
-    submit: Effect.fn("db.query")(function* (command) {
+    submit: Effect.fn("ContradictionTriageRepository.submit")(function* (command) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "transaction",
         "db.system": "postgresql",

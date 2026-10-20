@@ -39,9 +39,9 @@ const textEncoder = new TextEncoder();
 
 const attemptJournalLockToken = Effect.fnUntraced(function* () {
   const crypto = yield* Crypto.Crypto;
-  const token = yield* crypto.randomUUIDv4.pipe(
-    Effect.mapError(QualitySchedulerError.new("Failed to create an attempt journal lock identity."))
-  );
+  const token = yield* crypto
+    .randomUUIDv4()
+    .pipe(Effect.mapError(QualitySchedulerError.new("Failed to create an attempt journal lock identity.")));
   return `${process.pid}:${token}`;
 });
 
@@ -126,10 +126,13 @@ export type YeetAttemptTerminationReason = typeof YeetAttemptTerminationReason.T
  * @category domain-events
  * @since 0.0.0
  */
-export class YeetAttemptJournalCompacted extends S.Class<YeetAttemptJournalCompacted>($I`YeetAttemptJournalCompacted`)(
-  {
+export class YeetAttemptJournalCompacted extends S.Opaque<
+  YeetAttemptJournalCompacted,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("journal-compacted", {
     schemaVersion: S.Literal("yeet-attempt-journal/v1"),
-    _tag: S.Literal("journal-compacted"),
+
     recordedAt: S.String,
     evictedCount: S.Natural,
     evictedAttemptIds: S.Array(UUIDSchema).pipe(
@@ -141,10 +144,11 @@ export class YeetAttemptJournalCompacted extends S.Class<YeetAttemptJournalCompa
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("YeetAttemptJournalCompacted", {
-    description: "Receipt proving that bounded Yeet attempt-journal retention evicted older rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAttemptJournalCompacted", {
+      description: "Receipt proving that bounded Yeet attempt-journal retention evicted older rows.",
+    })
+  )
 ) {}
 
 const AttemptJournalRetentionEvent = S.Union([

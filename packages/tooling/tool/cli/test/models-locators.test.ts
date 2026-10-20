@@ -1,12 +1,16 @@
 import {
+  BindingFilter,
   BOUND_MODEL_SEGMENT,
   bindLocatorModel,
+  EffortDisplayLabel,
   expectedLocatorValue,
   extractGeneratedBlock,
   generatedBlockBegin,
+  LocatorBinding,
   ModelBinding,
   ModelsLocatorReader,
   ModelsLocatorReaderLive,
+  ModelsTargetFile,
   renderGeneratedBlockBody,
 } from "@beep/repo-cli/commands/Models";
 import { NodeServices } from "@effect/platform-node";
@@ -18,7 +22,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { readFixtureText } from "./helpers/models-fixtures.ts";
-import type { Locator, ModelId, ModelsTargetFile } from "@beep/repo-cli/commands/Models";
+import type { Locator, ModelId } from "@beep/repo-cli/commands/Models";
 
 const modelId = (value: string): ModelId => value as ModelId;
 
@@ -44,17 +48,26 @@ const encodeJsonText = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const verbatim = { _tag: "verbatim" } as const;
 const labels = {
   _tag: "effort-display-label",
-  labels: [{ effort: "medium", label: "Medium" } as const],
+  labels: [EffortDisplayLabel.make({ effort: "medium", label: "Medium" })],
 } as const;
 
 const binding = (field: "model" | "effort" | "model-effort-suffix") =>
   ({ role: "codex.heavy", surface: "codex-cli", field }) as const;
 
-const file = (content: string): ModelsTargetFile => ({
-  root: "home",
-  absolutePath: "/home/op/fixture",
-  content,
-});
+const assertRead = (actual: O.Option<string>, expected: string) => {
+  if (expected === "Unsupported shell form") {
+    expect(O.getOrThrow(actual)).toMatch(/^Unsupported shell form(?:: line [0-9]+)?/);
+  } else if (expected === "Unsupported shell form: ambiguous function scope") {
+    expect(O.getOrThrow(actual)).toMatch(/^Unsupported shell form: line [0-9]+; ambiguous function scope/);
+  } else assertSome(actual, expected);
+};
+
+const file = (content: string): ModelsTargetFile =>
+  ModelsTargetFile.make({
+    root: "home",
+    absolutePath: "/home/op/fixture",
+    content,
+  });
 
 const readFixture = Effect.fnUntraced(function* (name: string, locator: Locator) {
   const reader = yield* ModelsLocatorReader;
@@ -67,13 +80,13 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       const reader = yield* ModelsLocatorReader;
       const locator: Locator = {
         _tag: "line-value",
-        binding: binding("model"),
+        binding: LocatorBinding.make(binding("model")),
         render: verbatim,
         linePrefix: " *",
         before: 'model: "',
         after: '"',
       };
-      assertSome(
+      assertRead(
         yield* reader.read(
           file(
             A.join(
@@ -90,7 +103,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         "gpt-6-astra, gpt-daybreak-blue-latest"
       );
       assertNone(yield* reader.read(file('const model: "not-an-example" = value'), locator));
-      assertSome(
+      assertRead(
         yield* reader.read(file(' * model[0]="gpt-6-astra"'), {
           ...locator,
           before: 'model[0]="',
@@ -105,7 +118,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertNone(
         yield* reader.read(file("task --model ".repeat(20_000)), {
           _tag: "line-value",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           linePrefix: "",
           before: "task --model ",
@@ -131,7 +144,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       const found = yield* readFixture("locators.md", {
         _tag: "md-generated-block",
         blockId: "routing-doctrine",
-        filter: { roles: [], surfaces: [] },
+        filter: BindingFilter.make({ roles: [], surfaces: [] }),
         includeSuperseded: false,
       } as Locator);
       assertSome(
@@ -143,7 +156,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         yield* readFixture("locators.md", {
           _tag: "md-generated-block",
           blockId: "absent",
-          filter: { roles: [], surfaces: [] },
+          filter: BindingFilter.make({ roles: [], surfaces: [] }),
           includeSuperseded: false,
         } as Locator)
       );
@@ -239,7 +252,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.yaml", {
           _tag: "yaml-path",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           path: ["routing", "default"],
         } as Locator),
@@ -248,7 +261,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.json", {
           _tag: "json-key",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           pointer: ["nested", "model"],
           fallbacks: [],
@@ -260,7 +273,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.json", {
           _tag: "json-key",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           pointer: ["absent", "model"],
           fallbacks: [
@@ -273,22 +286,197 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.json", {
           _tag: "json-key",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           pointer: ["nested", "model"],
           fallbacks: [["absent", "model"]],
         } as Locator),
         "gpt-5.6-luna"
       );
-      assertSome(
+      assertRead(
         yield* readFixture("locators.env", {
           _tag: "env-key",
           binding: binding("model"),
           render: verbatim,
           key: "GRAFT_MODEL",
         } as Locator),
-        "claude-opus-5"
+        "Unsupported shell form"
       );
+    })
+  );
+
+  it.effect("reads shell drift including expansions without failing the whole checker", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      const locator: Locator = {
+        _tag: "shell-assign",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        variable: "MODEL",
+        within: O.none(),
+      };
+      assertRead(yield* reader.read(file("MODEL=o\\ld\nMODEL=old\n"), locator), "old");
+      assertRead(yield* reader.read(file('MODEL="gpt-6.1-sol(medium)";\n'), locator), "gpt-6.1-sol(medium)");
+      assertRead(yield* reader.read(file('MODEL="$X"\n'), locator), "Unsupported shell form");
+      assertRead(
+        yield* reader.read(file("MODEL=old\nfoo \\\n  bar\nMODEL=other\n"), locator),
+        "Unsupported shell form"
+      );
+    })
+  );
+
+  it.effect("detects every operator-adjacent assignment and fails closed on unsupported shell words", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      const locator: Locator = {
+        _tag: "shell-assign",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        variable: "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        within: O.none(),
+      };
+      for (const operator of [";", "&&", "||", "|", "&", "(", "\n"]) {
+        assertRead(
+          yield* reader.read(
+            file(
+              `:${operator}ANTHROPIC_DEFAULT_HAIKU_MODEL=wrong claude\nANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-6-luna claude\n`
+            ),
+            locator
+          ),
+          "Unsupported shell form: conflicting values wrong, gpt-6-luna"
+        );
+      }
+      const model: Locator = { ...locator, variable: "MODEL" };
+      const flag: Locator = { ...model, variable: "--model" };
+      for (const text of [
+        "claude '--model' wrong\nclaude --model old\n",
+        "claude --mo\\del wrong\nclaude --model old\n",
+        'claude "--model=wrong"\nclaude --model old\n',
+        'claude --mo\\del="$X"\nclaude --model old\n',
+      ])
+        assertRead(yield* reader.read(file(text), flag), "Unsupported shell form");
+      assertRead(yield* reader.read(file("claude --model MODEL=old\n"), flag), "MODEL=old");
+
+      for (const text of [
+        "route() { MODEL=old; }\n",
+        "route() {\nMODEL=old\n}\nro\\ute() {\nMODEL=wrong\n}\n",
+        "route() { MODEL=wrong; }\nroute() {\nMODEL=old\n}\n",
+        "route() {\nMODEL=old\n}\nroute() {\nMODEL=old\n}\n",
+        "route() {\nchild() {\nMODEL=old\n}\nMODEL=wrong\n}\n",
+        "route() {\nMODEL=old\n",
+      ])
+        assertRead(
+          yield* reader.read(file(text), { ...model, within: O.some("route") }),
+          "Unsupported shell form: ambiguous function scope"
+        );
+      assertRead(
+        yield* reader.read(file("route() {\nMODEL=old printf '{quoted}'\n}\n"), { ...model, within: O.some("route") }),
+        "old"
+      );
+
+      assertRead(
+        yield* reader.read(file("cat <<'EOF'\nroute() {\nMODEL=old\n}\nEOF\n"), { ...model, within: O.some("route") }),
+        "Unsupported shell form"
+      );
+      for (const text of [
+        "MODEL=old\r\n",
+        "MODEL=old [xy]\n",
+        "MODEL=old \u0000\n",
+        "x\\ MODEL=old\n",
+        'MODEL="$X"\n',
+        "MODEL='old\n",
+        "MODEL='old'-suffix\n",
+        "MODEL=old\\\n-suffix\n",
+        "cat <<'EOF'\nMODEL=old\nEOF\n",
+        'MODEL=old "$@"\n',
+        "MODEL=old $(echo old)\n",
+        "MODEL=old{,suffix}\n",
+      ])
+        assertRead(yield* reader.read(file(text), model), "Unsupported shell form");
+      assertRead(
+        yield* reader.read(file("echo 'MODEL=wrong';MODEL='old' # MODEL=wrong\n"), model),
+        "Unsupported shell form"
+      );
+    })
+  );
+
+  it.effect("accounts for every textual shell name occurrence, including comments and declarations", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      const locator: Locator = {
+        _tag: "shell-assign",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        variable: "MODEL",
+        within: O.none(),
+      };
+      for (const text of [
+        "export 'MODEL=wrong'; claude\nMODEL=old claude\n",
+        'export "MODEL=wrong"; claude\nMODEL=old claude\n',
+        "MODEL=old\nMODEL+=wrong\n",
+        ":;MODEL+=wrong\nMODEL=old\n",
+        "MODEL=old\nunset MODEL\n",
+        "MODEL=old\nlocal MODEL=wrong\n",
+        "MODEL=old\ndeclare MODEL=wrong\n",
+        "MODEL=old\ntypeset MODEL=wrong\n",
+        "# MODEL=old\n",
+        "echo MODEL\nMODEL=old\n",
+        "OTHER_MODEL=old\nMODEL=old\n",
+        "echo 'MODEL=wrong'\nMODEL=old\n",
+      ])
+        expect(O.getOrThrow(yield* reader.read(file(text), locator))).toMatch(/^Unsupported shell form: line [0-9]+/);
+      assertSome(yield* reader.read(file('export PATH="$HOME/bin"\nMODEL=old\n'), locator), "old");
+      assertSome(yield* reader.read(file("MODEL=old\n"), locator), "old");
+      assertSome(
+        yield* reader.read(file('export PATH="$HOME/bin:$PATH"\nother() { echo native; }\nroute() {\nMODEL=old\n}\n'), {
+          ...locator,
+          within: O.some("route"),
+        }),
+        "old"
+      );
+    })
+  );
+
+  it.effect("fails closed on unmatched YAML and XML name occurrences", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      const yaml: Locator = {
+        _tag: "yaml-path",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        path: ["model"],
+      };
+      for (const text of [
+        "# model: old\n",
+        "model: old # model\n",
+        "model: &shared old\nnative: *shared\n",
+        "model: *shared\n",
+        "'model': old\n",
+        "{model: old}\n",
+        "model: old\n---\nmodel: old\n",
+        "model: !tag old\n",
+        "model: |\n  old\n",
+      ])
+        expect(O.getOrThrow(yield* reader.read(file(text), yaml))).toMatch(/^Unsupported YAML form: line [0-9]+/);
+      assertSome(yield* reader.read(file("model: old\nnative: keep\n"), yaml), "old");
+      const xml: Locator = {
+        _tag: "xml-attribute",
+        binding: LocatorBinding.make(binding("model")),
+        render: verbatim,
+        elementSelector: 'option[name="model"]',
+        attribute: "value",
+      };
+      for (const text of [
+        '<root><!-- <option name="model" value="old"/> --></root>',
+        '<root><option-extra name="model" value="old"/></root>',
+        '<root><q:option name="model" value="old"/></root>',
+        '<root><![CDATA[<option name="model" value="old"/>]]></root>',
+        '<root note="model"><option name="model" value="old"/></root>',
+        '<root><option name="model" value="old"/><option name="model" value="wrong"/></root>',
+        '<root><option name="model" value="old" keep="model"/></root>',
+      ])
+        expect(O.getOrThrow(yield* reader.read(file(text), xml))).toMatch(/^Unsupported XML form: line [0-9]+/);
+      assertSome(yield* reader.read(file("<root><option name='model' value='old'/></root>"), xml), "old");
     })
   );
 
@@ -342,7 +530,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators.xml", {
           _tag: "xml-attribute",
-          binding: binding("effort"),
+          binding: LocatorBinding.make(binding("effort")),
           render: labels,
           elementSelector: 'option[name="modelReasoningEffort"]',
           attribute: "value",
@@ -352,7 +540,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       assertSome(
         yield* readFixture("locators-rollout.xml", {
           _tag: "xml-escaped-json-attribute",
-          binding: binding("model"),
+          binding: LocatorBinding.make(binding("model")),
           render: verbatim,
           elementSelector: 'option[name="options"]',
           attribute: "value",
@@ -393,6 +581,22 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
     strictEqual(body.includes("superseded:"), false);
   });
 
+  it.effect("duplicate JSON diagnostics carry one format prefix", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      assertRead(
+        yield* reader.read(file('{"model":"one","model":"two"}'), {
+          _tag: "json-key",
+          binding: LocatorBinding.make(binding("model")),
+          render: verbatim,
+          pointer: ["model"],
+          fallbacks: [],
+        }),
+        "Unsupported JSON form: duplicate keys."
+      );
+    })
+  );
+
   it.effect("a bound-model pointer follows the binding, not a stale literal entry", () =>
     Effect.gen(function* () {
       const reader = yield* ModelsLocatorReader;
@@ -407,15 +611,15 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       );
       const locator = {
         _tag: "json-key",
-        binding: binding("effort"),
+        binding: LocatorBinding.make(binding("effort")),
         render: verbatim,
         pointer: ["modelSettings", BOUND_MODEL_SEGMENT, "effortLevel"],
         fallbacks: [["effortLevel"]],
       } as Locator;
 
-      assertSome(yield* reader.read(settings, bindLocatorModel(locator, "claude-opus-5-6")), "high");
+      assertRead(yield* reader.read(settings, bindLocatorModel(locator, "claude-opus-5-6")), "high");
       // No per-model entry for the bound id: the top-level effort applies.
-      assertSome(yield* reader.read(settings, bindLocatorModel(locator, "claude-opus-5-7")), "low");
+      assertRead(yield* reader.read(settings, bindLocatorModel(locator, "claude-opus-5-7")), "low");
     })
   );
 });

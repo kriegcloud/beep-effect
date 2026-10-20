@@ -49,7 +49,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Hex from "effect/encoding/Hex";
@@ -110,7 +110,9 @@ const decodeFileProcessingFailureRecordLine = (line: string) => decodeFileProces
 const decodeSourceProcessingRecordLine = (line: string) => decodeSourceProcessingRecord(line);
 const isString = (value: unknown): value is string => typeof value === "string";
 
-class FilesTestError extends S.TaggedError<FilesTestError>()("FilesTestError", { cause: S.Defect() }) {}
+class FilesTestError extends S.TaggedError<FilesTestError, { readonly brand: unique symbol }>()("FilesTestError", {
+  cause: S.Defect(),
+}) {}
 
 const filesTestError = (cause: unknown) => FilesTestError.make({ cause });
 

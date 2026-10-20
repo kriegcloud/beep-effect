@@ -39,13 +39,14 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { GhPrView, ghOutput } from "../../../internal/github/index.ts";
 import { runRepoCommandCapture } from "../../../internal/repo-run/index.ts";
+import { enforceReviewerGate } from "../../Reviewer/ReviewerRuleset.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
 import { SweepReport } from "./Sweep.schemas.ts";
 import { executeSweep } from "./Sweep.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Merge");
@@ -112,15 +113,16 @@ export const defaultMergePrOptions: MergePrOptions = {
  * @category models
  * @since 0.0.0
  */
-export class MergeOutcome extends S.Class<MergeOutcome>($I`MergeOutcome`)(
-  {
+export class MergeOutcome extends S.Opaque<MergeOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     pullRequestNumber: S.Finite,
     state: S.NonEmptyString,
     sweep: SweepReport,
-  },
-  $I.annote("MergeOutcome", {
-    description: "Result of one operator-authorized squash merge and the workspace sweep that followed it.",
-  })
+  }).pipe(
+    $I.annoteSchema("MergeOutcome", {
+      description: "Result of one operator-authorized squash merge and the workspace sweep that followed it.",
+    })
+  )
 ) {}
 
 const decodePullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPrView));
@@ -236,6 +238,11 @@ export const mergePr = Effect.fn("Yeet.mergePr")(function* (
       exitCode: 1,
     });
   }
+  yield* enforceReviewerGate(view.number, pinnedHead.value).pipe(
+    Effect.mapError(() =>
+      YeetCommandError.make({ message: "beep-reviewer gate held on the current head.", exitCode: 1 })
+    )
+  );
   const mergeCommand = `gh pr merge ${view.number} --squash --match-head-commit ${pinnedHead.value}`;
   const merge = yield* runRepoCommandCapture(
     "gh",

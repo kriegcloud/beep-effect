@@ -33,7 +33,7 @@ import type { JSX } from "react";
  * @since 0.0.0
  */
 export interface EvidenceSourcePanelProps {
-  readonly highlight: ContradictionTriage.EvidenceSourceHighlight;
+  readonly highlight: ContradictionTriage.EvidenceSourcePage["highlight"];
   readonly loading?: boolean | undefined;
   readonly onPageChange: (pageIndex: number) => void;
   readonly page: ContradictionTriage.EvidenceSourcePage["page"];

@@ -6,22 +6,23 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiAnalysis, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/Analyze");
 
-class AnalyzeParameters extends S.Class<AnalyzeParameters>($I`AnalyzeParameters`)(
-  {
+class AnalyzeParameters extends S.Opaque<AnalyzeParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to analyze",
       examples: ["The quick brown fox jumps over the lazy dog. It was fast."],
     }),
-  },
-  $I.annote("AnalyzeParameters", {
-    description: "Text input used to run a composite linguistic analysis.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnalyzeParameters", {
+      description: "Text input used to run a composite linguistic analysis.",
+    })
+  )
 ) {}
 
 /**

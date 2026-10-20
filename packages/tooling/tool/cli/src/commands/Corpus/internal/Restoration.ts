@@ -202,10 +202,10 @@ const digestBytes = (bytes: Uint8Array): Sha256Hex => Sha256Hex.make(bytesToHex(
 // Streaming SHA-256. The CLI runs under Bun, whose native hasher measured
 // 1.68 GB/s against 187 MB/s for the pure-JS hasher on the 147 GB root
 // archive (2026-10-06); Effect's `Crypto` service only offers one-shot
-// digests. Node (tests) falls back to the pure-JS hasher; digests are
-// identical either way. The probe checks the hasher surface, not the `Bun`
-// global: `vitest.setup.ts` installs a partial Bun shim under Node that has
-// no `CryptoHasher`.
+// digests. A runtime without a native `CryptoHasher` falls back to the pure-JS
+// hasher; digests are identical either way. The probe checks the hasher
+// surface, not the `Bun` global, because a partial `Bun` global (such as a
+// test shim) may or may not provide one.
 interface StreamingSha256 {
   readonly digestHex: () => Sha256Hex;
   readonly update: (chunk: Uint8Array) => void;
@@ -567,9 +567,9 @@ const tryWriteExclusiveCoordinationFile = Effect.fn("CorpusRestoration.tryWriteE
 
 const reapedCoordinationPath = Effect.fnUntraced(function* (filePath: string) {
   const crypto = yield* Crypto.Crypto;
-  const token = yield* crypto.randomUUIDv4.pipe(
-    CorpusCommandError.mapError("Failed creating preservation coordination identity.")
-  );
+  const token = yield* crypto
+    .randomUUIDv4()
+    .pipe(CorpusCommandError.mapError("Failed creating preservation coordination identity."));
   return `${filePath}.reaped-${process.pid}-${token}`;
 });
 
@@ -723,9 +723,9 @@ const acquireRestorationWriterClaim = Effect.fn("CorpusRestoration.acquireWriter
     return yield* archiveError("Current preservation writer process identity is unavailable; ownership fails closed.");
   }
   const crypto = yield* Crypto.Crypto;
-  const token = yield* crypto.randomUUIDv4.pipe(
-    CorpusCommandError.mapError("Failed creating preservation writer identity.")
-  );
+  const token = yield* crypto
+    .randomUUIDv4()
+    .pipe(CorpusCommandError.mapError("Failed creating preservation writer identity."));
   const encodedClaim = yield* encodeRestorationWriterClaim({
     bootId: yield* currentBootId(),
     pid: process.pid,

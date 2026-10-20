@@ -6,15 +6,15 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { PosInt } from "../internal/PosInt.ts";
 import { AiCorpusRankedDocument, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/QueryCorpus");
 
-class QueryCorpusParameters extends S.Class<QueryCorpusParameters>($I`QueryCorpusParameters`)(
-  {
+class QueryCorpusParameters extends S.Opaque<QueryCorpusParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String.check(S.isMinLength(1)).annotateKey({
       description: "Corpus identifier returned by CreateCorpus",
     }),
@@ -27,14 +27,15 @@ class QueryCorpusParameters extends S.Class<QueryCorpusParameters>($I`QueryCorpu
     topN: S.optionalKey(PosInt).annotateKey({
       description: "Maximum ranked results to return (default: all documents)",
     }),
-  },
-  $I.annote("QueryCorpusParameters", {
-    description: "Inputs required to query a previously learned corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("QueryCorpusParameters", {
+      description: "Inputs required to query a previously learned corpus session.",
+    })
+  )
 ) {}
 
-class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSuccess`)(
-  {
+class QueryCorpusSuccess extends S.Opaque<QueryCorpusSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String.annotateKey({
       description: "Corpus identifier used for the query.",
     }),
@@ -53,10 +54,11 @@ class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSucce
     totalDocuments: S.Natural.annotateKey({
       description: "Total number of learned documents available in the corpus.",
     }),
-  },
-  $I.annote("QueryCorpusSuccess", {
-    description: "Ranked corpus query results and result-count metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("QueryCorpusSuccess", {
+      description: "Ranked corpus query results and result-count metadata.",
+    })
+  )
 ) {}
 
 /**

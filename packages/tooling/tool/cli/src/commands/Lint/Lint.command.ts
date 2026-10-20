@@ -5,17 +5,16 @@
  * @since 0.0.0
  */
 
-/// <reference path="../../../madge.d.ts" />
-
 import { $RepoCliId } from "@beep/identity/packages";
-import { FsUtils, findRepoRoot, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { FsUtils, findRepoRoot, GlobOptions, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { normalizePath } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -30,14 +29,15 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { isLabsWorkspaceDir, LABS_WORKSPACE_ROOT } from "../../internal/cli/Labs/index.ts";
+import { isLabsWorkspaceDir } from "../../internal/cli/Labs/index.ts";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { PackageScriptsReportFromWire } from "../../internal/package-scripts/PackageScripts.schemas.ts";
 import {
   PackageScriptsPolicy,
   PackageScriptsPolicyError,
 } from "../../internal/package-scripts/PackageScriptsPolicy.ts";
-import { runToExit } from "../../internal/process/StepExec.ts";
+import { qualityStepOutputBound, runCaptured, runToExit } from "../../internal/process/StepExec.ts";
+import { PosInt } from "../../internal/schema/PosInt.ts";
 import { runGoalsDoctor } from "../Goals/Doctor.ts";
 import { resolveLawsPackageScope, scanLawsPackage } from "../Laws/LawsPackage.ts";
 import { readLintPolicySweeps, runRootDeprecatedApisTask, runRootLintPolicyTask } from "../Quality/index.ts";
@@ -45,8 +45,10 @@ import { lintEcosystemPolarityCommand } from "./EcosystemPolarity.ts";
 import { lintEffectSchemaInventoryCommand } from "./EffectSchemaInventory.ts";
 import { lintEffectVitestCommand } from "./EffectVitest.ts";
 import { lintIdentityRegistryCommand } from "./IdentityRegistry.ts";
+import { SchemaFirstSchemaClass } from "./internal/SchemaFirstSchemaClass.ts";
 import { lintJudgeRubricCommand } from "./JudgeRubric.ts";
-import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.ts";
+import { LintCircularAnalysisError, LintFileDiscoveryError, LintProgramAssignmentError } from "./Lint.errors.ts";
+import { lintOpaqueRoundtripsCommand } from "./OpaqueRoundtrips.ts";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.ts";
 import { lintPackageTestTypecheckCommand } from "./PackageTestTypecheck.ts";
 import { lintReflectionArtifactsCommand } from "./ReflectionArtifact.ts";
@@ -69,49 +71,8 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
 ]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
-const DEPRECATED_API_LINT_CACHE_DIRECTORY = "node_modules/.cache/eslint-deprecated-apis";
-const DEPRECATED_API_LINT_CONCURRENCY = 4;
-const DEPRECATED_API_LINT_ESLINT_BIN = "node_modules/.bin/eslint";
-// The `packages/tooling/tool/cli` shard's type-aware program needs about 10 GB
-// resident (measured 2026-10-06: 9.5 GB on main, 10.2 GB with the drawings
-// commands); an 8 GB heap cap ends it with a V8 out-of-memory abort.
-const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=12288";
-const DEPRECATED_API_LINT_SHARDS = [
-  "apps/architecture-lab-proof",
-  LABS_WORKSPACE_ROOT,
-  "apps/oip-web",
-  "apps/professional-desktop",
-  "infra",
-  "packages/_internal",
-  "packages/agents",
-  "packages/architecture-lab",
-  "packages/drivers",
-  "packages/ecosystem",
-  "packages/epistemic/client",
-  "packages/epistemic/config",
-  "packages/epistemic/domain",
-  "packages/epistemic/server",
-  "packages/epistemic/tables",
-  "packages/epistemic/ui",
-  "packages/epistemic/use-cases",
-  "packages/foundation/capability",
-  "packages/foundation/modeling",
-  "packages/foundation/primitive",
-  "packages/foundation/ui-system",
-  "packages/law-practice",
-  "packages/shared",
-  // One `packages/tooling` shard exhausted the 8 GiB eslint heap on hosted
-  // runners (repo-cli alone is ~1,250 TypeScript files); shard it by subtree.
-  "packages/tooling/library",
-  "packages/tooling/policy-pack",
-  "packages/tooling/test-kit",
-  // CLI and docgen together also exceed 8 GiB on a cold typed scan.
-  "packages/tooling/tool/cli",
-  "packages/tooling/tool/docgen",
-  "packages/workspace",
-] as const;
-const deprecatedApiLintCacheLocation = (shard: string): string =>
-  `${DEPRECATED_API_LINT_CACHE_DIRECTORY}/.eslintcache-${Str.replaceAll("/", "__")(shard)}`;
+const OXLINT_DEPRECATED_APIS_CONFIG = ".oxlintrc.deprecated-apis.jsonc";
+
 const REQUIRED_TAGGED_UNIONS = [
   "GenerationAction",
   "TsMorphMutation",
@@ -137,16 +98,17 @@ const REQUIRED_TAGGED_UNIONS = [
  * @category models
  * @since 0.0.0
  */
-class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
-  {
+class LintViolation extends S.Opaque<LintViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     kind: S.String,
     detail: S.String,
-  },
-  $I.annote("LintViolation", {
-    description: "Lint violation report row.",
-  })
+  }).pipe(
+    $I.annoteSchema("LintViolation", {
+      description: "Lint violation report row.",
+    })
+  )
 ) {}
 
 const lineNumberAt = (content: string, offset: number): number =>
@@ -379,14 +341,16 @@ const serviceIdentityViolations = (file: string, content: string): ReadonlyArray
     "Context.Service tag must use $I`ServiceName` identity."
   );
 
+// Parsed rather than matched with `<[^>]+>`, so brand type arguments and nested generics never hide a class.
 const schemaAnnotationViolations = (file: string, content: string): ReadonlyArray<LintViolation> =>
-  patternViolations(
-    file,
-    content,
-    /S\.Class<[^>]+>\(\$I`[^`]+`\)\(/g,
-    (offset) => /\$I\.annote\(/.test(Str.slice(offset, offset + 2400)(content)),
-    "schema-annotation",
-    "S.Class schema is missing $I.annote(...) metadata."
+  A.map(SchemaFirstSchemaClass.missingIdentityAnnotationOffsets(file, content), (offset) =>
+    lintViolation(
+      file,
+      content,
+      "schema-annotation",
+      "Schema class is missing $I.annote(...) / $I.annoteSchema(...) metadata.",
+      offset
+    )
   );
 
 const runtimeSchemaFirstViolationKinds = (file: string, content: string): ReadonlyArray<string> =>
@@ -554,111 +518,150 @@ const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(functio
   yield* Console.log("[check-tooling-schema-first] OK: packages/tooling/tool/cli schema-first checks passed.");
 });
 
-const runLintCircular = Effect.fn("runLintCircular")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const dirs = ["packages/tooling/tool/cli/src", "packages/tooling/library/repo-utils/src"];
-  let hasCircular = false;
+const OXLINT_CIRCULAR_CONFIG = ".oxlintrc.circular.json";
 
-  for (const dir of dirs) {
-    if (!(yield* fs.exists(dir))) {
-      yield* Console.log(`Skipping missing directory: ${dir}`);
-      continue;
-    }
+class CircularDiagnostic extends S.Opaque<CircularDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
+    code: S.Literal("import(no-cycle)"),
+    severity: S.Literal("error"),
+    filename: S.String,
+    message: S.String,
+    note: S.OptionFromOptionalKey(S.String),
+  }).pipe($I.annoteSchema("CircularDiagnostic", { description: "Native oxlint value-import cycle diagnostic." }))
+) {}
 
-    const result = yield* Effect.tryPromise({
-      // Import madge lazily: its transitive `detective-typescript` dependency
-      // crashes at module-eval time under Bun (`ts.Extension.Cjs` undefined),
-      // so a static top-level import would take down every sibling command that
-      // shares this CLI tree (version-sync, tsconfig-sync, ...) at startup.
-      try: () =>
-        import("madge").then(({ default: madge }) =>
-          madge(dir, {
-            fileExtensions: ["ts"],
-            tsConfig: "tsconfig.json",
-            detectiveOptions: { ts: { skipTypeImports: true } },
-          })
-        ),
-      catch: (cause) =>
-        LintCircularAnalysisError.new(
-          `Failed to analyze circular deps in ${dir}: ${Inspectable.toStringUnknown(cause, 0)}`
-        ),
-    });
+class CircularLintReport extends S.Opaque<CircularLintReport, { readonly brand: unique symbol }>()(
+  S.Struct({
+    diagnostics: S.Array(CircularDiagnostic),
+    number_of_files: PosInt,
+    number_of_rules: S.Literal(1),
+  }).pipe(
+    $I.annoteSchema("CircularLintReport", {
+      description: "Single-rule oxlint cycle report proving that at least one source file was checked.",
+    })
+  )
+) {}
 
-    const circular = result.circular();
-    yield* A.match(circular, {
-      onEmpty: () => Effect.void,
-      onNonEmpty: Effect.fn("Lint.circular.onNonEmpty")(function* (cycles) {
-        hasCircular = true;
-        yield* Console.error(`Circular dependencies in ${dir}:`);
-        for (const cycle of cycles) {
-          yield* Console.error(`  ${A.join(cycle, " -> ")}`);
-        }
-      }),
-    });
+const decodeCircularLintReport = S.decodeUnknownEffect(S.fromJsonString(CircularLintReport));
+
+const runLintCircular = Effect.fn("Lint.circular")(function* () {
+  const root = yield* findRepoRoot();
+  const path = yield* Path.Path;
+  const result = yield* runCaptured({
+    command: path.join(root, "node_modules/.bin/oxlint"),
+    args: [
+      "--config",
+      path.join(root, OXLINT_CIRCULAR_CONFIG),
+      "--disable-nested-config",
+      "--tsconfig",
+      path.join(root, "tsconfig.json"),
+      "--format",
+      "json",
+      "packages/tooling/tool/cli/src",
+      "packages/tooling/library/repo-utils/src",
+    ],
+    cwd: root,
+    bound: qualityStepOutputBound,
+  }).pipe(Effect.mapError((cause) => LintCircularAnalysisError.new(Inspectable.toStringUnknown(cause, 0))));
+
+  if (result.truncated || (result.exitCode !== 0 && result.exitCode !== 1)) {
+    return yield* LintCircularAnalysisError.new(`Oxlint cycle analysis failed (${result.exitCode}): ${result.output}`);
   }
-
-  if (hasCircular) {
+  const report = yield* decodeCircularLintReport(result.output).pipe(
+    Effect.mapError((cause) =>
+      LintCircularAnalysisError.new(`Invalid oxlint cycle report: ${Inspectable.toStringUnknown(cause, 0)}`)
+    )
+  );
+  if (A.isReadonlyArrayNonEmpty(report.diagnostics)) {
+    for (const diagnostic of report.diagnostics) {
+      yield* Console.error(
+        `${diagnostic.filename}: ${diagnostic.message}\n${O.getOrElse(diagnostic.note, thunkEmptyStr)}`
+      );
+    }
     return yield* failWithReportedExit("lint circular: circular dependencies found.");
   }
-
+  if (result.exitCode !== 0) {
+    return yield* LintCircularAnalysisError.new(`Oxlint cycle analysis exited ${result.exitCode} without diagnostics.`);
+  }
   yield* Console.log("No circular dependencies found.");
 });
 
-const runDeprecatedApiLintShard = Effect.fn("runDeprecatedApiLintShard")(function* (shard: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const exists = yield* fs.exists(shard).pipe(Effect.orElseSucceed(() => false));
-
-  if (!exists) {
-    yield* Console.log(`[lint:deprecated-apis] skipping missing shard: ${shard}`);
-    return;
+const validateAssignmentEvidence = Effect.fn("Lint.validateAssignmentEvidence")(function* (
+  root: string,
+  output: string,
+  truncated: boolean
+) {
+  const path = yield* Path.Path;
+  // oxlint 1.88.0 / tsgolint 7.0.2004 emits absolute paths, one per line,
+  // after "Total programs: N. Unmatched files: N". Non-TS inputs are not law subjects.
+  const listedFiles = pipe(
+    output,
+    Str.matchAll(/Unmatched file: ([^\r\n]+)/g),
+    A.fromIterable,
+    A.map((match) => O.fromUndefinedOr(match[1])),
+    A.getSomes,
+    A.map(Str.trim)
+  );
+  const summary = Str.match(
+    /Done assigning files to programs\. Total programs: (\d+)\. Unmatched files: (\d+)(?:\r?\n|$)/
+  )(output);
+  if (O.isNone(summary) || summary.value[2] !== `${listedFiles.length}`) {
+    return yield* LintProgramAssignmentError.make({
+      files: [],
+      message: O.isNone(summary)
+        ? "lint deprecated-apis: assignment summary missing; cannot prove TypeScript coverage."
+        : "lint deprecated-apis: assignment summary disagrees with listed unmatched files.",
+    });
   }
-
-  const hasLocalEslint = yield* fs.exists(DEPRECATED_API_LINT_ESLINT_BIN).pipe(Effect.orElseSucceed(() => false));
-  const command = hasLocalEslint ? `./${DEPRECATED_API_LINT_ESLINT_BIN}` : "bunx";
-  const eslintArgs = [
-    "--cache",
-    "--cache-location",
-    deprecatedApiLintCacheLocation(shard),
-    "--cache-strategy",
-    "content",
-    "--config",
-    "eslint.config.mjs",
-    // The labs root may exist while holding zero lab apps (README-only
-    // container, goals/lab-apps-lifecycle D3); only the labs shard tolerates
-    // an unmatched pattern so an empty root cannot fail the law lane.
-    ...(shard === LABS_WORKSPACE_ROOT ? ["--no-error-on-unmatched-pattern"] : A.empty<string>()),
-    shard,
-  ];
-  const args = hasLocalEslint ? eslintArgs : ["eslint", ...eslintArgs];
-  yield* Console.log(`[lint:deprecated-apis] ${shard}: ${command} ${A.join(args, " ")}`);
-
-  const exitCode = yield* runToExit({
-    command,
-    args,
-    cwd: process.cwd(),
-    env: {
-      BEEP_ESLINT_PROFILE: "deprecated-apis",
-      NODE_OPTIONS: DEPRECATED_API_LINT_NODE_OPTIONS,
-    },
-    extendEnv: true,
-    stdio: "inherit",
-  });
-
-  if (exitCode !== 0) {
-    return yield* failWithReportedExit(`lint deprecated-apis: ${shard} failed with exit code ${exitCode}.`, exitCode);
+  const unmatchedFiles = pipe(
+    listedFiles,
+    A.filter((file) => /\.(?:ts|tsx|mts|cts)$/.test(file)),
+    A.map((file) => normalizePath(path.relative(root, path.resolve(root, file)))),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  if (truncated || A.isReadonlyArrayNonEmpty(unmatchedFiles)) {
+    return yield* LintProgramAssignmentError.make({
+      files: unmatchedFiles,
+      message: truncated
+        ? "lint deprecated-apis: assignment output truncated; cannot prove TypeScript coverage."
+        : `lint deprecated-apis: TypeScript files have no tsconfig owner:\n${A.join(unmatchedFiles, "\n")}`,
+    });
   }
 });
 
-const runDeprecatedApiLint = Effect.fn("runDeprecatedApiLint")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  yield* fs.makeDirectory(DEPRECATED_API_LINT_CACHE_DIRECTORY, { recursive: true });
-  yield* Console.log(
-    `[lint:deprecated-apis] running ${A.length(DEPRECATED_API_LINT_SHARDS)} shards with concurrency ${DEPRECATED_API_LINT_CONCURRENCY}`
-  );
-  yield* Effect.forEach(DEPRECATED_API_LINT_SHARDS, runDeprecatedApiLintShard, {
-    concurrency: DEPRECATED_API_LINT_CONCURRENCY,
+const runDeprecatedApiLint = Effect.fn("Lint.deprecatedApiWorker")(function* (
+  root: string,
+  targets: ReadonlyArray<string>
+) {
+  if (A.isReadonlyArrayEmpty(targets)) return;
+  const path = yield* Path.Path;
+  const args = [
+    "--config",
+    path.join(root, OXLINT_DEPRECATED_APIS_CONFIG),
+    "--disable-nested-config",
+    "--threads=4",
+    ...(A.every(targets, isLabsWorkspaceDir) ? ["--no-error-on-unmatched-pattern"] : []),
+    ...targets,
+  ];
+  yield* Console.log(`[lint:deprecated-apis] oxlint ${A.join(args, " ")}`);
+  const result = yield* runCaptured({
+    command: path.join(root, "node_modules/.bin/oxlint"),
+    args,
+    cwd: root,
+    env: { OXC_LOG: "debug" },
+    extendEnv: true,
+    bound: qualityStepOutputBound,
+    tee: true,
   });
-
+  yield* validateAssignmentEvidence(root, result.output, result.truncated);
+  if (result.exitCode !== 0) {
+    return yield* failWithReportedExit(
+      `lint deprecated-apis: failed with exit code ${result.exitCode}.`,
+      result.exitCode
+    );
+  }
+  yield* Console.log("[lint:deprecated-apis] assignment coverage: zero unmatched TypeScript files.");
   yield* Console.log("[lint:deprecated-apis] OK: no deprecated vendor API usage found.");
 });
 
@@ -675,37 +678,17 @@ const resolveLintPackage = Effect.fn("Lint.resolvePackage")(function* (root: str
   return normalizePath(path.relative(root, absolute)) || ".";
 });
 
-const runEslintWorker = Effect.fn("Lint.eslintWorker")(function* (
-  root: string,
-  profile: string,
-  targets: ReadonlyArray<string>
-) {
+const runDocsWorker = Effect.fn("Lint.docsWorker")(function* (root: string, targets: ReadonlyArray<string>) {
   if (A.isReadonlyArrayEmpty(targets)) return;
   const path = yield* Path.Path;
-  const nodeOptions = yield* Config.String("NODE_OPTIONS").pipe(Config.withDefault(""));
-  // Workers lint a whole package with type information; @beep/repo-cli exhausts a 4 GiB heap,
-  // so preserve the established 8 GiB default.
-  const heapOptions = /--max[-_]old[-_]space[-_]size(?:=|\s+)/.test(nodeOptions)
-    ? nodeOptions
-    : `${nodeOptions} ${DEPRECATED_API_LINT_NODE_OPTIONS}`;
   const exitCode = yield* runToExit({
-    command: path.join(root, DEPRECATED_API_LINT_ESLINT_BIN),
-    args: [
-      "--config",
-      path.join(root, "eslint.config.mjs"),
-      ...(profile === "docs" ? ["--max-warnings=0", "--no-warn-ignored"] : []),
-      ...(profile === "deprecated-apis" && A.every(targets, isLabsWorkspaceDir)
-        ? ["--no-error-on-unmatched-pattern"]
-        : []),
-      ...targets,
-    ],
+    command: path.join(root, "node_modules/.bin/oxlint"),
+    args: ["--config", path.join(root, ".oxlintrc.docs.json"), "--max-warnings=0", ...targets],
     cwd: root,
-    env: { BEEP_ESLINT_PROFILE: profile, NODE_OPTIONS: Str.trim(heapOptions) },
     extendEnv: true,
     stdio: "inherit",
   });
-  if (exitCode !== 0)
-    return yield* failWithReportedExit(`lint ${profile}: failed with exit code ${exitCode}.`, exitCode);
+  if (exitCode !== 0) return yield* failWithReportedExit(`lint jsdoc: failed with exit code ${exitCode}.`, exitCode);
 });
 
 const lintJsdocCommand = Command.make(
@@ -720,23 +703,29 @@ const lintJsdocCommand = Command.make(
     }
     const root = yield* findRepoRoot();
     if (O.isSome(directory)) {
-      return yield* runEslintWorker(root, "docs", [yield* resolveLintPackage(root, directory.value)]);
+      return yield* runDocsWorker(root, [yield* resolveLintPackage(root, directory.value)]);
     }
     const fsUtils = yield* FsUtils;
     const path = yield* Path.Path;
     const workspaces = yield* resolveWorkspaceDirs(root);
-    const files = yield* fsUtils.globFiles(["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"], {
-      cwd: root,
-      ignore: [
-        "apps/labs/**",
-        "**/node_modules/**",
-        "**/.context/**",
-        ...A.map(A.fromIterable(HashMap.values(workspaces)), (dir) => `${normalizePath(path.relative(root, dir))}/**`),
-      ],
-    });
-    yield* runEslintWorker(root, "docs", A.sort(files, Order.String));
+    const files = yield* fsUtils.globFiles(
+      ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+      GlobOptions.make({
+        cwd: root,
+        ignore: [
+          "apps/labs/**",
+          "**/node_modules/**",
+          "**/.context/**",
+          ...A.map(
+            A.fromIterable(HashMap.values(workspaces)),
+            (dir) => `${normalizePath(path.relative(root, dir))}/**`
+          ),
+        ],
+      })
+    );
+    yield* runDocsWorker(root, A.sort(files, Order.String));
   })
-).pipe(Command.withDescription("Check package or non-workspace documentation with the docs ESLint profile"));
+).pipe(Command.withDescription("Check package or non-workspace documentation with repo-owned oxlint rules"));
 
 const lintLawsCommand = Command.make(
   "laws",
@@ -796,10 +785,12 @@ const lintDeprecatedApisCommand = Command.make(
       const ci = yield* Config.String("CI").pipe(Config.withDefault(""));
       const sweeps = yield* readLintPolicySweeps(yield* findRepoRoot());
       if (!full && ci !== "true") return yield* runRootDeprecatedApisTask(base);
-      return yield* sweeps.deprecatedApis === "shards" ? runDeprecatedApiLint() : runRootDeprecatedApisTask();
+      return yield* sweeps.deprecatedApis === "oxlint"
+        ? runDeprecatedApiLint(yield* findRepoRoot(), ["apps", "packages", "infra"])
+        : runRootDeprecatedApisTask();
     }
     const root = yield* findRepoRoot();
-    yield* runEslintWorker(root, "deprecated-apis", [yield* resolveLintPackage(root, directory.value)]);
+    yield* runDeprecatedApiLint(root, [yield* resolveLintPackage(root, directory.value)]);
   })
 ).pipe(Command.withDescription("Check TypeScript sources for deprecated third-party API usage"));
 
@@ -866,12 +857,16 @@ const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, r
 
 const fingerprintPath = "standards/policy-tools.fingerprint.json";
 const rootConfigs = [
+  "standards/effect-diagnostics.profile.json",
   "standards/lint-policy.sweeps.jsonc",
-  "eslint.config.mjs",
   "tsdoc.json",
   ".oxlintrc.json",
+  ".oxlintrc.docs.json",
+  OXLINT_DEPRECATED_APIS_CONFIG,
+  OXLINT_CIRCULAR_CONFIG,
   "_typos.toml",
   ".fallowrc.jsonc",
+  "fallow-plugin-manual-development-tools.json",
   "biome.jsonc",
   "tsconfig.base.json",
   "tsconfig.json",
@@ -889,14 +884,15 @@ const rootConfigs = [
  * @category models
  * @since 0.0.0
  */
-export class PolicyToolsFingerprint extends S.Class<PolicyToolsFingerprint>($I`PolicyToolsFingerprint`)(
-  {
+export class PolicyToolsFingerprint extends S.Opaque<PolicyToolsFingerprint, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("policy-tools-fingerprint/v1"),
     inputs: S.Array(S.String),
-  },
-  $I.annote("PolicyToolsFingerprint", {
-    description: "Declared checker workspace dependency closure and root configuration inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PolicyToolsFingerprint", {
+      description: "Declared checker workspace dependency closure and root configuration inputs.",
+    })
+  )
 ) {}
 
 /**
@@ -912,17 +908,19 @@ export class PolicyToolsFingerprint extends S.Class<PolicyToolsFingerprint>($I`P
  * @category configuration
  * @since 0.0.0
  */
-export class PolicyFingerprintTurboConfiguration extends S.Class<PolicyFingerprintTurboConfiguration>(
-  $I`PolicyFingerprintTurboConfiguration`
-)(
-  {
+export class PolicyFingerprintTurboConfiguration extends S.Opaque<
+  PolicyFingerprintTurboConfiguration,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     tasks: S.Struct({
       "//#lint:policy-fingerprint": S.Struct({ inputs: PolicyToolsFingerprint.fields.inputs }),
     }),
-  },
-  $I.annote("PolicyFingerprintTurboConfiguration", {
-    description: "Only the root fingerprint task inputs are decoded; unrelated Turbo configuration is preserved.",
-  })
+  }).pipe(
+    $I.annoteSchema("PolicyFingerprintTurboConfiguration", {
+      description: "Only the root fingerprint task inputs are decoded; unrelated Turbo configuration is preserved.",
+    })
+  )
 ) {}
 
 interface PolicyToolsFingerprintPolicyShape {
@@ -1092,16 +1090,25 @@ const gateFlags = {
 const printScriptsReport = Effect.fnUntraced(function* (
   report: PackageScriptsReportFromWire,
   wire: typeof PackageScriptsReportFromWire.Encoded,
-  json: boolean
+  json: boolean,
+  implDrift: boolean
 ) {
+  if (json) return yield* Console.log(yield* jsonStringifyPretty(wire));
   yield* Console.log(
-    json
-      ? yield* jsonStringifyPretty(wire)
-      : `package-scripts: ${report.manifests} manifests, ${HashMap.size(report.drift)} drifting, ${HashSet.size(report.written)} written`
+    `package-scripts: ${report.manifests} manifests, ${HashMap.size(report.drift)} drifting, ${HashSet.size(report.written)} written, ${HashMap.size(report.implDrift)} with advisory impl drift`
   );
-  if (!json)
-    for (const [manifest, rows] of report.drift)
-      for (const row of rows) yield* Console.log(`${manifest}: ${row.name}: ${row._tag}`);
+  const violations = A.flatMap(HashMap.toEntries(report.drift), ([manifest, rows]) =>
+    A.map(rows, (row) => `${manifest}: ${row.name}: ${row._tag}`)
+  );
+  const advisories = implDrift
+    ? A.flatMap(HashMap.toEntries(report.implDrift), ([manifest, rows]) =>
+        A.map(
+          rows,
+          (row) => `${manifest}: ${row.name}: advisory impl drift: actual=${row.actual}; default=${row.expected}`
+        )
+      )
+    : [];
+  yield* Effect.forEach([...violations, ...advisories], Console.log, { discard: true });
 });
 
 /**
@@ -1120,17 +1127,22 @@ export const lintPackageScriptsCommand = Command.make(
   {
     ...gateFlags,
     json: Flag.Boolean("json").pipe(Flag.withDefault(false)),
+    implDrift: Flag.Boolean("impl-drift").pipe(Flag.withDefault(false)),
   },
-  Effect.fn("lintPackageScripts")(function* ({ check, write, json }) {
+  Effect.fn("lintPackageScripts")(function* ({ check, write, json, implDrift }) {
     if (check && write) return yield* failWithReportedExit("Choose --check or --write, not both.");
     const root = yield* findRepoRoot();
     const policy = yield* PackageScriptsPolicy.make(root);
     const report = yield* write ? policy.write(root) : policy.check(root);
     const wire = yield* encodeScriptsReport(report);
-    yield* printScriptsReport(report, wire, json);
+    yield* printScriptsReport(report, wire, json, implDrift);
     if (HashMap.size(report.drift) > 0) return yield* failWithReportedExit("Package scripts policy drift.");
   })
-).pipe(Command.withDescription("Check or repair canonical workspace scripts"));
+).pipe(
+  Command.withDescription(
+    "Check or repair canonical workspace scripts; impl differences from scaffold defaults are advisory (counted on the summary line; --impl-drift lists them). --write seeds missing impls and preserves existing values; --json includes implDrift."
+  )
+);
 
 /**
  * Fails on changed declared checker inputs or writes the current declaration.
@@ -1170,6 +1182,7 @@ const lintSubcommands = [
   lintEcosystemPolarityCommand,
   lintEffectSchemaInventoryCommand,
   lintEffectVitestCommand,
+  lintOpaqueRoundtripsCommand,
   lintGoalPacketsCommand,
   lintIdentityRegistryCommand,
   lintJudgeRubricCommand,

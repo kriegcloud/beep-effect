@@ -22,11 +22,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { formatJsonc, readArtifact, renderTruncatedLines, writeArtifact } from "../../../internal/artifacts/index.ts";
 import { diffTotals, enforceRatchet } from "../../../internal/ratchet/index.ts";
+import { DiffTotalsInput } from "../../../internal/ratchet/RatchetDiff.ts";
 import { runGitLines } from "../../../internal/repo-run/index.ts";
 import { QualityScriptCommandError } from "../Quality.errors.ts";
 import { jsdocCommentsFromSource, tagsFromComment } from "./QualityArtifactSupport.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/Quality/internal/JSDocRatchet");
 
@@ -64,14 +65,15 @@ const JSDocLegacyTag = LiteralKit(["@remarks", "@example"]).pipe(
   })
 );
 
-class JSDocLegacyFileFinding extends S.Class<JSDocLegacyFileFinding>($I`JSDocLegacyFileFinding`)(
-  {
+class JSDocLegacyFileFinding extends S.Opaque<JSDocLegacyFileFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     tag: JSDocLegacyTag,
-  },
-  $I.annote("JSDocLegacyFileFinding", {
-    description: "Legacy JSDoc tag found in a package source file under the zero-legacy scan.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocLegacyFileFinding", {
+      description: "Legacy JSDoc tag found in a package source file under the zero-legacy scan.",
+    })
+  )
 ) {}
 
 /**
@@ -161,13 +163,14 @@ const JSDocTrackedTotals = S.Record(S.String, S.Finite).pipe(
 
 type JSDocTrackedTotals = typeof JSDocTrackedTotals.Type;
 
-class JSDocInventoryTotalsDocument extends S.Class<JSDocInventoryTotalsDocument>($I`JSDocInventoryTotalsDocument`)(
-  {
+class JSDocInventoryTotalsDocument extends S.Opaque<JSDocInventoryTotalsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     totals: JSDocTrackedTotals,
-  },
-  $I.annote("JSDocInventoryTotalsDocument", {
-    description: "Minimal generated JSDoc inventory document shape consumed by the totals ratchet.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocInventoryTotalsDocument", {
+      description: "Minimal generated JSDoc inventory document shape consumed by the totals ratchet.",
+    })
+  )
 ) {}
 
 /**
@@ -193,10 +196,11 @@ class JSDocInventoryTotalsDocument extends S.Class<JSDocInventoryTotalsDocument>
  * @category models
  * @since 0.0.0
  */
-export class JSDocTotalsRegressionBaseline extends S.Class<JSDocTotalsRegressionBaseline>(
-  $I`JSDocTotalsRegressionBaseline`
-)(
-  {
+export class JSDocTotalsRegressionBaseline extends S.Opaque<
+  JSDocTotalsRegressionBaseline,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schema_version: S.Literal(1),
     source_inventory: S.String,
     regeneration_command: S.String,
@@ -204,10 +208,11 @@ export class JSDocTotalsRegressionBaseline extends S.Class<JSDocTotalsRegression
     comparison: S.String,
     generated_at: S.optionalKey(S.String),
     tracked_totals: JSDocTrackedTotals,
-  },
-  $I.annote("JSDocTotalsRegressionBaseline", {
-    description: "Committed JSDoc inventory totals used by the fail-on-growth ratchet.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocTotalsRegressionBaseline", {
+      description: "Committed JSDoc inventory totals used by the fail-on-growth ratchet.",
+    })
+  )
 ) {}
 
 /**
@@ -230,16 +235,17 @@ export class JSDocTotalsRegressionBaseline extends S.Class<JSDocTotalsRegression
  * @category models
  * @since 0.0.0
  */
-export class JSDocTotalDelta extends S.Class<JSDocTotalDelta>($I`JSDocTotalDelta`)(
-  {
+export class JSDocTotalDelta extends S.Opaque<JSDocTotalDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     metric: S.String,
     baseline: S.Finite,
     current: S.Finite,
     delta: S.Finite,
-  },
-  $I.annote("JSDocTotalDelta", {
-    description: "Difference for one tracked JSDoc documentation inventory total.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocTotalDelta", {
+      description: "Difference for one tracked JSDoc documentation inventory total.",
+    })
+  )
 ) {}
 
 /**
@@ -263,17 +269,18 @@ export class JSDocTotalDelta extends S.Class<JSDocTotalDelta>($I`JSDocTotalDelta
  * @category models
  * @since 0.0.0
  */
-export class JSDocTotalsComparison extends S.Class<JSDocTotalsComparison>($I`JSDocTotalsComparison`)(
-  {
+export class JSDocTotalsComparison extends S.Opaque<JSDocTotalsComparison, { readonly brand: unique symbol }>()(
+  S.Struct({
     current_total_count: S.Finite,
     baseline_total_count: S.Finite,
     increased: S.Array(JSDocTotalDelta),
     decreased: S.Array(JSDocTotalDelta),
     missing_current_metrics: S.Array(S.String),
-  },
-  $I.annote("JSDocTotalsComparison", {
-    description: "Comparison between current generated JSDoc inventory totals and the committed baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocTotalsComparison", {
+      description: "Comparison between current generated JSDoc inventory totals and the committed baseline.",
+    })
+  )
 ) {}
 
 const readCurrentInventoryTotals = Effect.fn("JSDocRatchet.readCurrentInventoryTotals")(function* (
@@ -308,7 +315,7 @@ const compareTotals = (
   currentTotals: JSDocTrackedTotals,
   baselineTotals: JSDocTrackedTotals
 ): JSDocTotalsComparison => {
-  const diff = diffTotals({ current: currentTotals, baseline: baselineTotals });
+  const diff = diffTotals(DiffTotalsInput.make({ current: currentTotals, baseline: baselineTotals }));
   const toJSDocDelta = (delta: {
     readonly metric: string;
     readonly baseline: number;
@@ -679,17 +686,18 @@ const enforceZeroLegacy = Effect.fn("JSDocRatchet.enforceZeroLegacy")(function* 
  * @category models
  * @since 0.0.0
  */
-export class RunJSDocRatchetOptions extends S.Class<RunJSDocRatchetOptions>($I`RunJSDocRatchetOptions`)(
-  {
+export class RunJSDocRatchetOptions extends S.Opaque<RunJSDocRatchetOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     baselinePath: S.String,
     inventoryPath: S.String,
     writeBaseline: S.Boolean,
     includeGenerated: S.optionalKey(S.Boolean),
-  },
-  $I.annote("RunJSDocRatchetOptions", {
-    description:
-      "Options accepted by runJSDocRatchet: inventory source, baseline location, write mode, and generated-inclusive zero-legacy scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunJSDocRatchetOptions", {
+      description:
+        "Options accepted by runJSDocRatchet: inventory source, baseline location, write mode, and generated-inclusive zero-legacy scope.",
+    })
+  )
 ) {}
 
 /**

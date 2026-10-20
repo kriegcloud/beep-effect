@@ -51,7 +51,7 @@ import { YeetCommandError } from "../Yeet.errors.ts";
 import { artifactDirForContext } from "./ArtifactPaths.ts";
 import { runGitOutput } from "./GitExec.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/MergedPreview");
 
@@ -105,14 +105,15 @@ export const YEET_MERGED_PREVIEW_COMMIT_MESSAGE = "chore(yeet): verify merged pr
  * @category models
  * @since 0.0.0
  */
-export class YeetMergeTreeMerged extends S.Class<YeetMergeTreeMerged>($I`YeetMergeTreeMerged`)(
-  {
+export class YeetMergeTreeMerged extends S.Opaque<YeetMergeTreeMerged, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("merged"),
     treeSha: S.NonEmptyString,
-  },
-  $I.annote("YeetMergeTreeMerged", {
-    description: "A merge preview whose tree merged cleanly, identified by the written tree object.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergeTreeMerged", {
+      description: "A merge preview whose tree merged cleanly, identified by the written tree object.",
+    })
+  )
 ) {}
 
 /**
@@ -127,15 +128,16 @@ export class YeetMergeTreeMerged extends S.Class<YeetMergeTreeMerged>($I`YeetMer
  * @category models
  * @since 0.0.0
  */
-export class YeetMergeTreeConflicted extends S.Class<YeetMergeTreeConflicted>($I`YeetMergeTreeConflicted`)(
-  {
+export class YeetMergeTreeConflicted extends S.Opaque<YeetMergeTreeConflicted, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("conflicted"),
     paths: S.Array(S.String),
     messages: S.Array(S.String),
-  },
-  $I.annote("YeetMergeTreeConflicted", {
-    description: "A merge preview that conflicts, carrying the conflicted paths and git's own messages.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergeTreeConflicted", {
+      description: "A merge preview that conflicts, carrying the conflicted paths and git's own messages.",
+    })
+  )
 ) {}
 
 /**
@@ -144,14 +146,15 @@ export class YeetMergeTreeConflicted extends S.Class<YeetMergeTreeConflicted>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetMergeTreeUnavailable extends S.Class<YeetMergeTreeUnavailable>($I`YeetMergeTreeUnavailable`)(
-  {
+export class YeetMergeTreeUnavailable extends S.Opaque<YeetMergeTreeUnavailable, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("unavailable"),
     detail: S.String,
-  },
-  $I.annote("YeetMergeTreeUnavailable", {
-    description: "A merge preview git refused to compute, carrying the reported detail.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergeTreeUnavailable", {
+      description: "A merge preview git refused to compute, carrying the reported detail.",
+    })
+  )
 ) {}
 
 /**
@@ -359,18 +362,19 @@ export const renderYeetMergePreviewConflict: {
  * @category models
  * @since 0.0.0
  */
-export class YeetMergePreview extends S.Class<YeetMergePreview>($I`YeetMergePreview`)(
-  {
+export class YeetMergePreview extends S.Opaque<YeetMergePreview, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseRef: S.String,
     baseSha: S.NonEmptyString,
     commitSha: S.NonEmptyString,
     headSha: S.NonEmptyString,
     treeSha: S.NonEmptyString,
     worktreePath: S.NonEmptyString,
-  },
-  $I.annote("YeetMergePreview", {
-    description: "A materialized merge preview of HEAD and the base ref, checked out in a throwaway worktree.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergePreview", {
+      description: "A materialized merge preview of HEAD and the base ref, checked out in a throwaway worktree.",
+    })
+  )
 ) {}
 
 /**

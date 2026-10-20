@@ -39,7 +39,7 @@ import { useAtom } from "@effect/atom-react";
 import { AudioFormat, CommitStrategy, RealtimeEvents, Scribe } from "@elevenlabs/client";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import { useCallback, useEffect, useId, useRef } from "react";
 import type {
@@ -174,12 +174,11 @@ const unknownToError = (cause: unknown): Error =>
 const closeEventToError = (event: CloseEvent): Error =>
   makeScribeError(event.reason === "" ? `Scribe connection closed with code ${event.code}` : event.reason);
 
-class ScribeConnectionFailure extends S.TaggedError<ScribeConnectionFailure>($I`ScribeConnectionFailure`)(
-  "ScribeConnectionFailure",
-  {
-    error: S.ErrorInstance(),
-  }
-) {}
+class ScribeConnectionFailure extends S.TaggedError<ScribeConnectionFailure, { readonly brand: unique symbol }>(
+  $I`ScribeConnectionFailure`
+)("ScribeConnectionFailure", {
+  error: S.ErrorInstance(),
+}) {}
 
 const toScribeConnectionFailure = (cause: unknown): ScribeConnectionFailure =>
   ScribeConnectionFailure.make({ error: unknownToError(cause) });

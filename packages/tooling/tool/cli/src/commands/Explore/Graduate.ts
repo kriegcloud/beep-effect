@@ -19,7 +19,9 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -103,11 +105,12 @@ const decodeStringArray = S.decodeUnknownOption(S.Array(S.String));
 
 const GRADUATE_ACTOR = "explore-graduate";
 
-class GoalProvenanceProbe extends S.Class<GoalProvenanceProbe>($I`GoalProvenanceProbe`)(
-  { provenance: S.Struct({ exploration: S.String }) },
-  $I.annote("GoalProvenanceProbe", {
-    description: "The provenance.exploration field a graduated goal manifest records.",
-  })
+class GoalProvenanceProbe extends S.Opaque<GoalProvenanceProbe, { readonly brand: unique symbol }>()(
+  S.Struct({ provenance: S.Struct({ exploration: S.String }) }).pipe(
+    $I.annoteSchema("GoalProvenanceProbe", {
+      description: "The provenance.exploration field a graduated goal manifest records.",
+    })
+  )
 ) {}
 
 const decodeProvenance = S.decodeUnknownOption(GoalProvenanceProbe);

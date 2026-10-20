@@ -45,7 +45,9 @@ const $I = $RepoCliId.create("commands/Models/Models.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ModelsCatalogError extends S.TaggedError<ModelsCatalogError>($I`ModelsCatalogError`)(
+export class ModelsCatalogError extends S.TaggedError<ModelsCatalogError, { readonly brand: unique symbol }>(
+  $I`ModelsCatalogError`
+)(
   "ModelsCatalogError",
   {
     message: S.String,
@@ -88,7 +90,9 @@ export class ModelsCatalogError extends S.TaggedError<ModelsCatalogError>($I`Mod
  * @category errors
  * @since 0.0.0
  */
-export class ModelsManifestError extends S.TaggedError<ModelsManifestError>($I`ModelsManifestError`)(
+export class ModelsManifestError extends S.TaggedError<ModelsManifestError, { readonly brand: unique symbol }>(
+  $I`ModelsManifestError`
+)(
   "ModelsManifestError",
   {
     message: S.String,
@@ -137,10 +141,13 @@ export class ModelsManifestError extends S.TaggedError<ModelsManifestError>($I`M
  * @category errors
  * @since 0.0.0
  */
-export class ModelsLocatorError extends S.TaggedError<ModelsLocatorError>($I`ModelsLocatorError`)(
+export class ModelsLocatorError extends S.TaggedError<ModelsLocatorError, { readonly brand: unique symbol }>(
+  $I`ModelsLocatorError`
+)(
   "ModelsLocatorError",
   {
     message: S.String,
+    reason: S.optionalKey(S.Literal("ineligible")),
     path: S.optionalKey(S.String),
     cause: S.optionalKey(OpaqueDefect),
   },
@@ -180,7 +187,9 @@ export class ModelsLocatorError extends S.TaggedError<ModelsLocatorError>($I`Mod
  * @category errors
  * @since 0.0.0
  */
-export class ModelsLedgerError extends S.TaggedError<ModelsLedgerError>($I`ModelsLedgerError`)(
+export class ModelsLedgerError extends S.TaggedError<ModelsLedgerError, { readonly brand: unique symbol }>(
+  $I`ModelsLedgerError`
+)(
   "ModelsLedgerError",
   {
     message: S.String,
@@ -230,7 +239,9 @@ export class ModelsLedgerError extends S.TaggedError<ModelsLedgerError>($I`Model
  * @category errors
  * @since 0.0.0
  */
-export class ModelsCommandError extends S.TaggedError<ModelsCommandError>($I`ModelsCommandError`)(
+export class ModelsCommandError extends S.TaggedError<ModelsCommandError, { readonly brand: unique symbol }>(
+  $I`ModelsCommandError`
+)(
   "ModelsCommandError",
   {
     message: S.String,

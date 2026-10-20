@@ -22,8 +22,9 @@ import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
-import { HttpRouter, HttpServer } from "effect/http";
-import { HttpApiBuilder } from "effect/http-api";
+import * as HttpRouter from "effect/http/HttpRouter";
+import * as HttpServer from "effect/http/HttpServer";
+import * as HttpApiBuilder from "effect/http-api/HttpApiBuilder";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Path from "effect/Path";
@@ -158,8 +159,8 @@ const collectorServeOptionsAllowedOriginsDefault = ["*"];
  * @category models
  * @since 0.0.0
  */
-export class CollectorServeOptions extends S.Class<CollectorServeOptions>($I`CollectorServeOptions`)(
-  {
+export class CollectorServeOptions extends S.Opaque<CollectorServeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowedOrigins: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(collectorServeOptionsAllowedOriginsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(collectorServeOptionsAllowedOriginsDefault)),
@@ -208,10 +209,11 @@ export class CollectorServeOptions extends S.Class<CollectorServeOptions>($I`Col
         description: "Capture session identifier.",
       })
     ),
-  },
-  $I.annote("CollectorServeOptions", {
-    description: "Options accepted by Collector.serve.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorServeOptions", {
+      description: "Options accepted by Collector.serve.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(CollectorServeOptions);
 }

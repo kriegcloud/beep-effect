@@ -51,8 +51,8 @@ const $I = $LawPracticeServerId.create("MailTagging/MailTagging.folders");
  * @category models
  * @since 0.0.0
  */
-export class MatterFolders extends S.Class<MatterFolders>($I`MatterFolders`)(
-  {
+export class MatterFolders extends S.Opaque<MatterFolders, { readonly brand: unique symbol }>()(
+  S.Struct({
     familyKey: S.NonEmptyString.annotateKey({
       description: "Practice-KG family key of the matter.",
     }),
@@ -65,10 +65,11 @@ export class MatterFolders extends S.Class<MatterFolders>($I`MatterFolders`)(
     matterFolderId: S.optionalKey(S.String).annotateKey({
       description: "Id of the matter folder itself; carried by the map and not read.",
     }),
-  },
-  $I.annote("MatterFolders", {
-    description: "Document-store folder ids of one matter's filing destinations.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterFolders", {
+      description: "Document-store folder ids of one matter's filing destinations.",
+    })
+  )
 ) {}
 
 /**
@@ -118,15 +119,16 @@ export type MatterFolderMapJson = typeof MatterFolderMapJson.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class MatterFolderMapConfig extends S.Class<MatterFolderMapConfig>($I`MatterFolderMapConfig`)(
-  {
+export class MatterFolderMapConfig extends S.Opaque<MatterFolderMapConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.annotateKey({
       description: "Full path of the folder-id map JSON file.",
     }),
-  },
-  $I.annote("MatterFolderMapConfig", {
-    description: "Location of the private matter folder-id map.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterFolderMapConfig", {
+      description: "Location of the private matter folder-id map.",
+    })
+  )
 ) {}
 
 /**

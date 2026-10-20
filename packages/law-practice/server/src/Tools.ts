@@ -43,7 +43,23 @@ import type { PracticeKgBundle } from "./PracticeKg.host.ts";
  * @category tools
  * @since 0.0.0
  */
-export { PracticeKgToolkit } from "@beep/law-practice-use-cases/server";
+/**
+ * Literal cause class of a failed practice KG tool call, re-exported so hosts
+ * can declare the `beep.practice_kg.failure_reason` telemetry values without
+ * depending on the use-cases package.
+ *
+ * **Example** (List the failure reasons)
+ *
+ * ```ts
+ * import { PracticeKgToolFailureReason } from "@beep/law-practice-server"
+ *
+ * console.log(PracticeKgToolFailureReason.literals.length) // 3
+ * ```
+ *
+ * @category tools
+ * @since 0.0.0
+ */
+export { PracticeKgToolFailureReason, PracticeKgToolkit } from "@beep/law-practice-use-cases/server";
 
 const $I = $LawPracticeServerId.create("Tools");
 
@@ -82,14 +98,15 @@ export const PracticeKgSourceAuthRegistration = SourceAuthRegistration.make({
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgMcpServerConfig extends S.Class<PracticeKgMcpServerConfig>($I`PracticeKgMcpServerConfig`)(
-  {
+export class PracticeKgMcpServerConfig extends S.Opaque<PracticeKgMcpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     version: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgMcpServerConfig", {
-    description: "Protocol-facing name and version for the practice KG MCP server.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMcpServerConfig", {
+      description: "Protocol-facing name and version for the practice KG MCP server.",
+    })
+  )
 ) {}
 
 /**

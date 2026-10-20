@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { normalizePath } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -58,14 +58,15 @@ const PROMOTED_CONCEPT_ROOT_SHIMS = [
  * @category models
  * @since 0.0.0
  */
-export class SchemaTopologyViolation extends S.Class<SchemaTopologyViolation>($I`SchemaTopologyViolation`)(
-  {
+export class SchemaTopologyViolation extends S.Opaque<SchemaTopologyViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     detail: S.String,
-  },
-  $I.annote("SchemaTopologyViolation", {
-    description: "Schema topology lint violation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaTopologyViolation", {
+      description: "Schema topology lint violation.",
+    })
+  )
 ) {}
 
 const decodeJson = S.decodeUnknownEffect(S.fromJsonString(S.Unknown));

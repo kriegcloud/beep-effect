@@ -20,34 +20,100 @@ import { AgentMessageStore } from "./AgentMessage.store.ts";
 import type { LaunchGrant } from "./AgentMessage.models.ts";
 
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.tools");
-class SendInput extends S.Class<SendInput>($I`SendInput`)(
-  {
+/**
+ * A scoped direct message; sender, policy and expiry are assigned by the host.
+ *
+ * **Example** (Refuse a send without its identifiers)
+ *
+ * ```ts
+ * import { SendInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isNone(S.decodeUnknownOption(SendInput)({ body: "hello" }))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SendInput extends S.Opaque<SendInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: Envelope.fields.messageId,
     conversationId: Envelope.fields.conversationId,
     recipient: EndpointBinding.fields.endpointId,
     body: Envelope.fields.body,
-  },
-  $I.annote("SendInput", {
-    description: "A scoped direct message; sender, policy and expiry are assigned by the host.",
-  })
+  }).pipe(
+    $I.annoteSchema("SendInput", {
+      description: "A scoped direct message; sender, policy and expiry are assigned by the host.",
+    })
+  )
 ) {}
-class ReplyInput extends S.Class<ReplyInput>($I`ReplyInput`)(
-  {
+/**
+ * Reply to an enrolled inbound message with a stable new identifier.
+ *
+ * **Example** (Refuse a reply without the message it answers)
+ *
+ * ```ts
+ * import { ReplyInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isNone(S.decodeUnknownOption(ReplyInput)({ body: "ack" }))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ReplyInput extends S.Opaque<ReplyInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: Envelope.fields.messageId,
     replyTo: Envelope.fields.messageId,
     body: Envelope.fields.body,
-  },
-  $I.annote("ReplyInput", { description: "Reply to an enrolled inbound message with a stable new identifier." })
+  }).pipe(
+    $I.annoteSchema("ReplyInput", { description: "Reply to an enrolled inbound message with a stable new identifier." })
+  )
 ) {}
-class MessageInput extends S.Class<MessageInput>($I`MessageInput`)(
-  {
+/**
+ * Select one message visible to the enrolled endpoint.
+ *
+ * **Example** (Refuse a selection without a message id)
+ *
+ * ```ts
+ * import { MessageInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isNone(S.decodeUnknownOption(MessageInput)({}))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MessageInput extends S.Opaque<MessageInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     messageId: Envelope.fields.messageId,
-  },
-  $I.annote("MessageInput", { description: "Select one message visible to the enrolled endpoint." })
+  }).pipe($I.annoteSchema("MessageInput", { description: "Select one message visible to the enrolled endpoint." }))
 ) {}
-class EmptyInput extends S.Class<EmptyInput>($I`EmptyInput`)(
-  {},
-  $I.annote("EmptyInput", { description: "No caller identity is accepted from tool parameters." })
+/**
+ * No caller identity is accepted from tool parameters.
+ *
+ * **Example** (Accept the empty parameter object)
+ *
+ * ```ts
+ * import { EmptyInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isSome(S.decodeUnknownOption(EmptyInput)({}))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class EmptyInput extends S.Opaque<EmptyInput, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("EmptyInput", { description: "No caller identity is accepted from tool parameters." })
+  )
 ) {}
 
 const writeHints = FourHintAnnotations.make({

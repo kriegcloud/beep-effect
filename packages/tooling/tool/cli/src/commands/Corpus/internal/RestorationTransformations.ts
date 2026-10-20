@@ -44,6 +44,7 @@ import {
   MailOccurrenceMembership,
   RestorationAcceptanceRecord,
   RestorationRunSummary,
+  RestorationVerifyOptions,
   TransformationLedgerRecord,
 } from "./Restoration.schemas.ts";
 import {
@@ -57,7 +58,7 @@ import {
 } from "./Restoration.ts";
 import type { ArchiveExportResult } from "@beep/file-processing/Extraction";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CapturedStep } from "../../../internal/process/StepExec.ts";
 import type {
   ArchiveLedgerRecord,
@@ -277,7 +278,7 @@ const prepareTransformationRun = Effect.fn("CorpusRestoration.prepareTransformat
   scope: "full" | "slice",
   preservationLabel: string = runLabel
 ): Effect.fn.Return<TransformationRunContext, CorpusCommandError, TransformationRequirements> {
-  yield* verifyRestorationArchiveImpl({ corpusRoot, runLabel: preservationLabel });
+  yield* verifyRestorationArchiveImpl(RestorationVerifyOptions.make({ corpusRoot, runLabel: preservationLabel }));
   const path = yield* Path.Path;
   const preservation = yield* currentPreservationEvidence(corpusRoot, preservationLabel);
   const runRoot = path.join(corpusRoot, "staging", "restoration", "runs", runLabel);
@@ -5265,7 +5266,7 @@ const reconcileAcceptanceUnderClaim = Effect.fn("CorpusRestoration.reconcileAcce
   mail: TransformationRunContext
 ): Effect.fn.Return<ReadonlyArray<RestorationAcceptanceRecord>, CorpusCommandError, TransformationRequirements> {
   const path = yield* Path.Path;
-  const preservation = yield* verifyRestorationArchiveImpl({ corpusRoot, runLabel });
+  const preservation = yield* verifyRestorationArchiveImpl(RestorationVerifyOptions.make({ corpusRoot, runLabel }));
   const preservationEvidence = yield* currentPreservationEvidence(corpusRoot, runLabel);
   const preservationOutputTree = yield* hashTransformationTree(path.join(corpusRoot, "raw", runLabel, "payload"));
   const preservationElapsedMillis = yield* deterministicPreservationElapsed(

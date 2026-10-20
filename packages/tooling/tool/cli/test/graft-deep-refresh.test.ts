@@ -9,6 +9,7 @@ import {
   GraftDeepRefreshStatus,
   GraftDeepRunner,
   GraftDeepRunnerLive,
+  GraftDeepRunnerStep,
   GraftDeepStepError,
   GraftDeepTimerOptions,
   graftCommand,
@@ -30,7 +31,7 @@ import { assertNone, assertSome, assertSuccess, strictEqual } from "@effect/vite
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Dur from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -41,7 +42,6 @@ import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { GraftDeepRunnerStep } from "@beep/repo-cli/commands/Graft";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
@@ -868,19 +868,23 @@ layer(NodeServices.layer, { excludeTestServices: true, timeout: "30 seconds" })(
     Effect.fn(function* () {
       const { directory } = yield* fixture();
       const version = yield* GraftDeepRunner.use((runner) =>
-        runner.run({ args: ["--version"], command: process.execPath, cwd: directory, phase: "build" })
+        runner.run(
+          GraftDeepRunnerStep.make({ args: ["--version"], command: process.execPath, cwd: directory, phase: "build" })
+        )
       ).pipe(withLiveRunner());
       expect(version.exitCode).toBe(0);
       expect(Str.isNonEmpty(version.output)).toBe(true);
       const missing = yield* Effect.flip(
         GraftDeepRunner.use((runner) =>
-          runner.run({
-            args: [],
-            command: "beep-graft-deep-refresh-missing-binary",
-            cwd: directory,
-            log: "/state/run.log",
-            phase: "build",
-          })
+          runner.run(
+            GraftDeepRunnerStep.make({
+              args: [],
+              command: "beep-graft-deep-refresh-missing-binary",
+              cwd: directory,
+              log: "/state/run.log",
+              phase: "build",
+            })
+          )
         )
       ).pipe(withLiveRunner());
       expect(missing._tag).toBe("GraftDeepStepError");
@@ -909,25 +913,29 @@ layer(NodeServices.layer, { excludeTestServices: true, timeout: "30 seconds" })(
       yield* Effect.forEach(phases, (phase) =>
         Effect.gen(function* () {
           const result = yield* GraftDeepRunner.use((runner) =>
-            runner.run({
-              args: ["-c", 'test -z "${GRAFT_API_KEY+x}" && test -z "${OTHER_PROVIDER_KEY+x}" && test "$CI" = true'],
-              command: "/bin/sh",
-              cwd: directory,
-              phase,
-              env: { GRAFT_API_KEY: "synthetic-provider-key", OTHER_PROVIDER_KEY: "synthetic-other-key" },
-            })
+            runner.run(
+              GraftDeepRunnerStep.make({
+                args: ["-c", 'test -z "${GRAFT_API_KEY+x}" && test -z "${OTHER_PROVIDER_KEY+x}" && test "$CI" = true'],
+                command: "/bin/sh",
+                cwd: directory,
+                phase,
+                env: { GRAFT_API_KEY: "synthetic-provider-key", OTHER_PROVIDER_KEY: "synthetic-other-key" },
+              })
+            )
           ).pipe(withLiveRunner());
           expect(result.exitCode).toBe(0);
         })
       );
       const build = yield* GraftDeepRunner.use((runner) =>
-        runner.run({
-          args: ["-c", 'test "$GRAFT_API_KEY" = synthetic-provider-key'],
-          command: "/bin/sh",
-          cwd: directory,
-          phase: "build",
-          env: { GRAFT_API_KEY: "synthetic-provider-key" },
-        })
+        runner.run(
+          GraftDeepRunnerStep.make({
+            args: ["-c", 'test "$GRAFT_API_KEY" = synthetic-provider-key'],
+            command: "/bin/sh",
+            cwd: directory,
+            phase: "build",
+            env: { GRAFT_API_KEY: "synthetic-provider-key" },
+          })
+        )
       ).pipe(withLiveRunner());
       expect(build.exitCode).toBe(0);
     })

@@ -79,7 +79,7 @@ Mark deliberately un-absorbed logic with a `crispen:` comment naming *why* and
 the *upgrade path*:
 
 ```ts
-// crispen: kept as a helper — the refinement needs a cross-field check S.filterGroup
+// crispen: kept as a helper — the refinement needs a cross-field check S.makeFilterGroup
 // can't express yet; fold into the schema when it can.
 ```
 

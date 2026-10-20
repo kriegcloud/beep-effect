@@ -381,17 +381,17 @@ export declare namespace InlineChildren {
  * @category models
  * @since 0.0.0
  */
-export class Text extends S.TaggedClass<Text>($I`Text`)(
-  "text",
-  {
+export class Text extends S.Opaque<Text, {}>()(
+  S.TaggedStruct("text", {
     value: S.String.annotateKey({
       description: "Escaped plain text payload.",
     }),
-  },
-  $I.annote("Text", {
-    po: "atom",
-    description: "Plain escaped inline text.",
-  })
+  }).pipe(
+    $I.annoteSchema("Text", {
+      po: "atom",
+      description: "Plain escaped inline text.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: Text): string => inline.value;
 
@@ -443,17 +443,17 @@ export declare namespace Text {
  * @category models
  * @since 0.0.0
  */
-export class RawMarkdown extends S.TaggedClass<RawMarkdown>($I`RawMarkdown`)(
-  "rawMarkdown",
-  {
+export class RawMarkdown extends S.Opaque<RawMarkdown, {}>()(
+  S.TaggedStruct("rawMarkdown", {
     value: S.String.annotateKey({
       description: "Trusted Markdown source preserved without escaping.",
     }),
-  },
-  $I.annote("RawMarkdown", {
-    po: "atom",
-    description: "Trusted raw Markdown inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawMarkdown", {
+      po: "atom",
+      description: "Trusted raw Markdown inline content.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: RawMarkdown): string => inline.value;
 
@@ -509,18 +509,18 @@ export declare namespace RawMarkdown {
  * @category models
  * @since 0.0.0
  */
-export class RawHtml extends S.TaggedClass<RawHtml>($I`RawHtml`)(
-  "rawHtml",
-  {
+export class RawHtml extends S.Opaque<RawHtml, {}>()(
+  S.TaggedStruct("rawHtml", {
     value: S.String.annotateKey({
       description: "Trusted HTML source preserved for adapters that opt into raw HTML.",
     }),
-  },
-  $I.annote("RawHtml", {
-    po: "atom",
-    description:
-      "Raw HTML inline content for adapters that opt into trusted HTML rendering. The built-in HTML adapter escapes this value by default.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawHtml", {
+      po: "atom",
+      description:
+        "Raw HTML inline content for adapters that opt into trusted HTML rendering. The built-in HTML adapter escapes this value by default.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: RawHtml): string => inline.value;
 
@@ -572,17 +572,17 @@ export declare namespace RawHtml {
  * @category models
  * @since 0.0.0
  */
-export class Strong extends S.TaggedClass<Strong>($I`Strong`)(
-  "strong",
-  {
+export class Strong extends S.Opaque<Strong, {}>()(
+  S.TaggedStruct("strong", {
     children: InlineChildren.annotateKey({
       description: "Inline nodes rendered with strong emphasis.",
     }),
-  },
-  $I.annote("Strong", {
-    po: "inline",
-    description: "Strong inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Strong", {
+      po: "inline",
+      description: "Strong inline content.",
+    })
+  )
 ) {
   static toPlainText(inline: Strong): string {
     return Inline.toPlainTextAll(inline.children);
@@ -641,17 +641,17 @@ export declare namespace Strong {
  * @category models
  * @since 0.0.0
  */
-export class Em extends S.TaggedClass<Em>($I`Em`)(
-  "em",
-  {
+export class Em extends S.Opaque<Em, {}>()(
+  S.TaggedStruct("em", {
     children: InlineChildren.annotateKey({
       description: "Inline nodes rendered with emphasis.",
     }),
-  },
-  $I.annote("Em", {
-    po: "inline",
-    description: "Emphasized inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Em", {
+      po: "inline",
+      description: "Emphasized inline content.",
+    })
+  )
 ) {
   static toPlainText(inline: Em): string {
     return Inline.toPlainTextAll(inline.children);
@@ -710,17 +710,17 @@ export declare namespace Em {
  * @category models
  * @since 0.0.0
  */
-export class Del extends S.TaggedClass<Del>($I`Del`)(
-  "del",
-  {
+export class Del extends S.Opaque<Del, {}>()(
+  S.TaggedStruct("del", {
     children: InlineChildren.annotateKey({
       description: "Inline nodes rendered as deleted content.",
     }),
-  },
-  $I.annote("Del", {
-    po: "inline",
-    description: "Deleted inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Del", {
+      po: "inline",
+      description: "Deleted inline content.",
+    })
+  )
 ) {
   static toPlainText(inline: Del): string {
     return Inline.toPlainTextAll(inline.children);
@@ -779,17 +779,17 @@ export declare namespace Del {
  * @category models
  * @since 0.0.0
  */
-export class Code extends S.TaggedClass<Code>($I`Code`)(
-  "code",
-  {
+export class Code extends S.Opaque<Code, {}>()(
+  S.TaggedStruct("code", {
     value: S.String.annotateKey({
       description: "Code span text rendered between inline code delimiters.",
     }),
-  },
-  $I.annote("Code", {
-    po: "atom",
-    description: "Inline code span.",
-  })
+  }).pipe(
+    $I.annoteSchema("Code", {
+      po: "atom",
+      description: "Inline code span.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: Code): string => inline.value;
 
@@ -842,9 +842,8 @@ export declare namespace Code {
  * @category models
  * @since 0.0.0
  */
-export class A extends S.TaggedClass<A>($I`A`)(
-  "a",
-  {
+export class A extends S.Opaque<A, {}>()(
+  S.TaggedStruct("a", {
     children: InlineChildren.annotateKey({
       description: "Inline nodes rendered as the link label.",
     }),
@@ -854,11 +853,12 @@ export class A extends S.TaggedClass<A>($I`A`)(
     title: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional link title rendered when present.",
     }),
-  },
-  $I.annote("A", {
-    po: "inline",
-    description: "Inline hyperlink.",
-  })
+  }).pipe(
+    $I.annoteSchema("A", {
+      po: "inline",
+      description: "Inline hyperlink.",
+    })
+  )
 ) {
   static toPlainText(inline: A): string {
     return Inline.toPlainTextAll(inline.children);
@@ -925,9 +925,8 @@ export declare namespace A {
  * @category models
  * @since 0.0.0
  */
-export class Img extends S.TaggedClass<Img>($I`Img`)(
-  "img",
-  {
+export class Img extends S.Opaque<Img, {}>()(
+  S.TaggedStruct("img", {
     alt: S.String.annotateKey({
       description: "Image alternate text.",
     }),
@@ -937,11 +936,12 @@ export class Img extends S.TaggedClass<Img>($I`Img`)(
     title: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional image title rendered when present.",
     }),
-  },
-  $I.annote("Img", {
-    po: "milestone",
-    description: "Inline image.",
-  })
+  }).pipe(
+    $I.annoteSchema("Img", {
+      po: "milestone",
+      description: "Inline image.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: Img): string => inline.alt;
 
@@ -1005,13 +1005,13 @@ export declare namespace Img {
  * @category models
  * @since 0.0.0
  */
-export class Br extends S.TaggedClass<Br>($I`Br`)(
-  "br",
-  {},
-  $I.annote("Br", {
-    po: "milestone",
-    description: "Inline line break.",
-  })
+export class Br extends S.Opaque<Br, {}>()(
+  S.TaggedStruct("br", {}).pipe(
+    $I.annoteSchema("Br", {
+      po: "milestone",
+      description: "Inline line break.",
+    })
+  )
 ) {
   static readonly toPlainText = (): string => "\n";
 
@@ -1062,17 +1062,17 @@ export declare namespace Br {
  * @category models
  * @since 0.0.0
  */
-export class InlineMath extends S.TaggedClass<InlineMath>($I`InlineMath`)(
-  "inlineMath",
-  {
+export class InlineMath extends S.Opaque<InlineMath, {}>()(
+  S.TaggedStruct("inlineMath", {
     value: S.String.annotateKey({
       description: "TeX math source rendered as inert inline math content.",
     }),
-  },
-  $I.annote("InlineMath", {
-    po: "atom",
-    description: "Inline TeX math content.",
-  })
+  }).pipe(
+    $I.annoteSchema("InlineMath", {
+      po: "atom",
+      description: "Inline TeX math content.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: InlineMath): string => inline.value;
 
@@ -1125,17 +1125,17 @@ export declare namespace InlineMath {
  * @category models
  * @since 0.0.0
  */
-export class FootnoteReference extends S.TaggedClass<FootnoteReference>($I`FootnoteReference`)(
-  "footnoteReference",
-  {
+export class FootnoteReference extends S.Opaque<FootnoteReference, {}>()(
+  S.TaggedStruct("footnoteReference", {
     identifier: FootnoteIdentifier.annotateKey({
       description: "Footnote identifier referenced from inline content.",
     }),
-  },
-  $I.annote("FootnoteReference", {
-    po: "milestone",
-    description: "Inline footnote reference.",
-  })
+  }).pipe(
+    $I.annoteSchema("FootnoteReference", {
+      po: "milestone",
+      description: "Inline footnote reference.",
+    })
+  )
 ) {
   static readonly toPlainText = (inline: FootnoteReference): string => inline.identifier;
 
@@ -1593,17 +1593,17 @@ export declare namespace ListItemChildren {
  * @category models
  * @since 0.0.0
  */
-export class P extends S.TaggedClass<P>($I`P`)(
-  "p",
-  {
+export class P extends S.Opaque<P, {}>()(
+  S.TaggedStruct("p", {
     children: InlineChildren.annotateKey({
       description: "Inline children rendered as paragraph content.",
     }),
-  },
-  $I.annote("P", {
-    po: "block",
-    description: "Paragraph block.",
-  })
+  }).pipe(
+    $I.annoteSchema("P", {
+      po: "block",
+      description: "Paragraph block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: P): string => Inline.toPlainTextAll(block.children);
 
@@ -1784,20 +1784,20 @@ export declare namespace HeadingValue {
  * @category models
  * @since 0.0.0
  */
-export class Heading extends S.TaggedClass<Heading>($I`Heading`)(
-  "heading",
-  {
+export class Heading extends S.Opaque<Heading, {}>()(
+  S.TaggedStruct("heading", {
     level: HeadingLevel.annotateKey({
       description: "Heading level from one (largest) to six (smallest).",
     }),
     children: InlineChildren.annotateKey({
       description: "Inline children rendered as heading content.",
     }),
-  },
-  $I.annote("Heading", {
-    po: "block",
-    description: "Heading block carrying its level alongside inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Heading", {
+      po: "block",
+      description: "Heading block carrying its level alongside inline content.",
+    })
+  )
 ) {
   static readonly is = S.is(Heading);
 
@@ -1869,17 +1869,17 @@ export declare namespace Heading {
  * @category models
  * @since 0.0.0
  */
-export class Li extends S.TaggedClass<Li>($I`Li`)(
-  "li",
-  {
+export class Li extends S.Opaque<Li, {}>()(
+  S.TaggedStruct("li", {
     children: ListItemChildren.annotateKey({
       description: "Inline and block children rendered inside the list item.",
     }),
-  },
-  $I.annote("Li", {
-    po: "container",
-    description: "List item node used by ordered, unordered, and task lists.",
-  })
+  }).pipe(
+    $I.annoteSchema("Li", {
+      po: "container",
+      description: "List item node used by ordered, unordered, and task lists.",
+    })
+  )
 ) {
   static readonly is = S.is(Li);
 
@@ -2010,17 +2010,17 @@ export declare namespace ListChildren {
  * @category models
  * @since 0.0.0
  */
-export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
-  "ul",
-  {
+export class Ul extends S.Opaque<Ul, {}>()(
+  S.TaggedStruct("ul", {
     children: ListChildren.annotateKey({
       description: "List items rendered as an unordered list.",
     }),
-  },
-  $I.annote("Ul", {
-    po: "table",
-    description: "Unordered list block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Ul", {
+      po: "table",
+      description: "Unordered list block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: Ul): string => Arr.join(Arr.map(block.children, Li.toPlainText), "\n");
 
@@ -2118,9 +2118,8 @@ const olStartDefault = PosInt.make(1);
  * @category models
  * @since 0.0.0
  */
-export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
-  "ol",
-  {
+export class Ol extends S.Opaque<Ol, {}>()(
+  S.TaggedStruct("ol", {
     children: ListChildren.annotateKey({
       description: "List items rendered as an ordered list.",
     }),
@@ -2130,11 +2129,12 @@ export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
     ).annotateKey({
       description: "First ordinal used by the ordered list. Defaults to one.",
     }),
-  },
-  $I.annote("Ol", {
-    po: "table",
-    description: "Ordered list block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Ol", {
+      po: "table",
+      description: "Ordered list block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: Ol): string => Arr.join(Arr.map(block.children, Li.toPlainText), "\n");
 
@@ -2192,20 +2192,20 @@ export declare namespace Ol {
  * @category models
  * @since 0.0.0
  */
-export class TaskItem extends S.TaggedClass<TaskItem>($I`TaskItem`)(
-  "taskItem",
-  {
+export class TaskItem extends S.Opaque<TaskItem, {}>()(
+  S.TaggedStruct("taskItem", {
     checked: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Whether the task list item is checked. Defaults to unchecked on construction and decode.",
     }),
     children: ListItemChildren.annotateKey({
       description: "Inline and block children rendered as the task item label.",
     }),
-  },
-  $I.annote("TaskItem", {
-    po: "container",
-    description: "GFM task list item.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskItem", {
+      po: "container",
+      description: "GFM task list item.",
+    })
+  )
 ) {
   static readonly is = S.is(TaskItem);
 
@@ -2384,17 +2384,17 @@ export declare namespace TaskItemChildren {
  * @category models
  * @since 0.0.0
  */
-export class TaskList extends S.TaggedClass<TaskList>($I`TaskList`)(
-  "taskList",
-  {
+export class TaskList extends S.Opaque<TaskList, {}>()(
+  S.TaggedStruct("taskList", {
     children: TaskItemChildren.annotateKey({
       description: "Task items rendered as a GitHub Flavored Markdown task list.",
     }),
-  },
-  $I.annote("TaskList", {
-    po: "table",
-    description: "GFM task list block.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskList", {
+      po: "table",
+      description: "GFM task list block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: TaskList): string =>
     Arr.join(Arr.map(block.children, TaskItem.toPlainText), "\n");
@@ -2453,17 +2453,17 @@ export declare namespace TaskList {
  * @category models
  * @since 0.0.0
  */
-export class BlockQuote extends S.TaggedClass<BlockQuote>($I`BlockQuote`)(
-  "blockquote",
-  {
+export class BlockQuote extends S.Opaque<BlockQuote, {}>()(
+  S.TaggedStruct("blockquote", {
     children: BlockChildren.annotateKey({
       description: "Block children rendered inside the block quote.",
     }),
-  },
-  $I.annote("BlockQuote", {
-    po: "container",
-    description: "Block quote container.",
-  })
+  }).pipe(
+    $I.annoteSchema("BlockQuote", {
+      po: "container",
+      description: "Block quote container.",
+    })
+  )
 ) {
   static toPlainText(block: BlockQuote): string {
     return Block.toPlainTextAll(block.children);
@@ -2523,9 +2523,8 @@ export declare namespace BlockQuote {
  * @category models
  * @since 0.0.0
  */
-export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
-  "pre",
-  {
+export class Pre extends S.Opaque<Pre, {}>()(
+  S.TaggedStruct("pre", {
     // Encoded form must survive a JSON boundary (jsonb columns, rpc/ndjson
     // wire): S.Option(S.String) encodes to a real Option instance that does not
     // round-trip through JSON, so persisted/transported documents stay
@@ -2545,11 +2544,12 @@ export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
     value: S.String.annotateKey({
       description: "Literal code block contents.",
     }),
-  },
-  $I.annote("Pre", {
-    po: "field",
-    description: "Fenced code block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Pre", {
+      po: "field",
+      description: "Fenced code block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: Pre): string => block.value;
 
@@ -2614,17 +2614,17 @@ export declare namespace Pre {
  * @category models
  * @since 0.0.0
  */
-export class TableCell extends S.TaggedClass<TableCell>($I`TableCell`)(
-  "tableCell",
-  {
+export class TableCell extends S.Opaque<TableCell, {}>()(
+  S.TaggedStruct("tableCell", {
     children: InlineChildren.annotateKey({
       description: "Inline nodes rendered inside this table cell.",
     }),
-  },
-  $I.annote("TableCell", {
-    po: "block",
-    description: "Table cell containing inline Markdown content.",
-  })
+  }).pipe(
+    $I.annoteSchema("TableCell", {
+      po: "block",
+      description: "Table cell containing inline Markdown content.",
+    })
+  )
 ) {
   static readonly is = S.is(TableCell);
 
@@ -2684,17 +2684,17 @@ export declare namespace TableCell {
  * @category models
  * @since 0.0.0
  */
-export class TableRow extends S.TaggedClass<TableRow>($I`TableRow`)(
-  "tableRow",
-  {
+export class TableRow extends S.Opaque<TableRow, {}>()(
+  S.TaggedStruct("tableRow", {
     children: S.Array(TableCell).annotateKey({
       description: "Table cells in column order.",
     }),
-  },
-  $I.annote("TableRow", {
-    po: "table",
-    description: "Table row containing cells in column order.",
-  })
+  }).pipe(
+    $I.annoteSchema("TableRow", {
+      po: "table",
+      description: "Table row containing cells in column order.",
+    })
+  )
 ) {
   static readonly is = S.is(TableRow);
 
@@ -2756,9 +2756,8 @@ const tableAlignDefault = Arr.empty<TableAlignment>();
  * @category models
  * @since 0.0.0
  */
-export class Table extends S.TaggedClass<Table>($I`Table`)(
-  "table",
-  {
+export class Table extends S.Opaque<Table, {}>()(
+  S.TaggedStruct("table", {
     align: S.Array(TableAlignment)
       .pipe(
         S.withConstructorDefault(Effect.succeed(tableAlignDefault)),
@@ -2773,11 +2772,12 @@ export class Table extends S.TaggedClass<Table>($I`Table`)(
     children: S.Array(TableRow).annotateKey({
       description: "Table rows in display order.",
     }),
-  },
-  $I.annote("Table", {
-    po: "table",
-    description: "Markdown table block with inline cell content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Table", {
+      po: "table",
+      description: "Markdown table block with inline cell content.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: Table): string => Arr.join(Arr.map(block.children, TableRow.toPlainText), "\n");
 
@@ -2850,17 +2850,17 @@ export declare namespace Table {
  * @category models
  * @since 0.0.0
  */
-export class YouTube extends S.TaggedClass<YouTube>($I`YouTube`)(
-  "youtube",
-  {
+export class YouTube extends S.Opaque<YouTube, {}>()(
+  S.TaggedStruct("youtube", {
     videoId: YouTubeVideoId.annotateKey({
       description: "Bare YouTube video id rendered as an embedded video.",
     }),
-  },
-  $I.annote("YouTube", {
-    po: "meta",
-    description: "YouTube video embed block.",
-  })
+  }).pipe(
+    $I.annoteSchema("YouTube", {
+      po: "meta",
+      description: "YouTube video embed block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: YouTube): string => `https://www.youtube.com/watch?v=${block.videoId}`;
 
@@ -2920,17 +2920,17 @@ export declare namespace YouTube {
  * @category models
  * @since 0.0.0
  */
-export class MathBlock extends S.TaggedClass<MathBlock>($I`MathBlock`)(
-  "mathBlock",
-  {
+export class MathBlock extends S.Opaque<MathBlock, {}>()(
+  S.TaggedStruct("mathBlock", {
     value: S.String.annotateKey({
       description: "TeX math source rendered as inert display math content.",
     }),
-  },
-  $I.annote("MathBlock", {
-    po: "field",
-    description: "Display TeX math block.",
-  })
+  }).pipe(
+    $I.annoteSchema("MathBlock", {
+      po: "field",
+      description: "Display TeX math block.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: MathBlock): string => block.value;
 
@@ -2988,20 +2988,20 @@ export declare namespace MathBlock {
  * @category models
  * @since 0.0.0
  */
-export class FootnoteDefinition extends S.TaggedClass<FootnoteDefinition>($I`FootnoteDefinition`)(
-  "footnoteDefinition",
-  {
+export class FootnoteDefinition extends S.Opaque<FootnoteDefinition, {}>()(
+  S.TaggedStruct("footnoteDefinition", {
     identifier: FootnoteIdentifier.annotateKey({
       description: "Footnote identifier defined by this block.",
     }),
     children: BlockChildren.annotateKey({
       description: "Footnote body blocks.",
     }),
-  },
-  $I.annote("FootnoteDefinition", {
-    po: "container",
-    description: "Footnote definition block.",
-  })
+  }).pipe(
+    $I.annoteSchema("FootnoteDefinition", {
+      po: "container",
+      description: "Footnote definition block.",
+    })
+  )
 ) {
   static toPlainText(block: FootnoteDefinition): string {
     return Block.toPlainTextAll(block.children);
@@ -3077,9 +3077,8 @@ export declare namespace FootnoteDefinition {
  * @category models
  * @since 0.0.0
  */
-export class Admonition extends S.TaggedClass<Admonition>($I`Admonition`)(
-  "admonition",
-  {
+export class Admonition extends S.Opaque<Admonition, {}>()(
+  S.TaggedStruct("admonition", {
     kind: AdmonitionKind.annotateKey({
       description: "Admonition kind.",
     }),
@@ -3089,11 +3088,12 @@ export class Admonition extends S.TaggedClass<Admonition>($I`Admonition`)(
     children: BlockChildren.annotateKey({
       description: "Admonition body blocks.",
     }),
-  },
-  $I.annote("Admonition", {
-    po: "container",
-    description: "Typed admonition block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Admonition", {
+      po: "container",
+      description: "Typed admonition block.",
+    })
+  )
 ) {
   static toPlainText(block: Admonition): string {
     return Block.toPlainTextAll(block.children);
@@ -3164,9 +3164,8 @@ export declare namespace Admonition {
  * @category models
  * @since 0.0.0
  */
-export class Embed extends S.TaggedClass<Embed>($I`Embed`)(
-  "embed",
-  {
+export class Embed extends S.Opaque<Embed, {}>()(
+  S.TaggedStruct("embed", {
     kind: EmbedKind.annotateKey({
       description: "Generic embed kind.",
     }),
@@ -3179,11 +3178,12 @@ export class Embed extends S.TaggedClass<Embed>($I`Embed`)(
     description: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional embed description.",
     }),
-  },
-  $I.annote("Embed", {
-    po: "meta",
-    description: "Safe generalized block embed rendered by built-in adapters as inert link or figure content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Embed", {
+      po: "meta",
+      description: "Safe generalized block embed rendered by built-in adapters as inert link or figure content.",
+    })
+  )
 ) {
   static readonly toPlainText = (block: Embed): string => O.getOrElse(block.title, () => block.src);
 
@@ -3268,13 +3268,13 @@ export declare namespace Embed {
  * @category models
  * @since 0.0.0
  */
-export class Hr extends S.TaggedClass<Hr>($I`Hr`)(
-  "hr",
-  {},
-  $I.annote("Hr", {
-    po: "meta",
-    description: "Horizontal rule block.",
-  })
+export class Hr extends S.Opaque<Hr, {}>()(
+  S.TaggedStruct("hr", {}).pipe(
+    $I.annoteSchema("Hr", {
+      po: "meta",
+      description: "Horizontal rule block.",
+    })
+  )
 ) {
   static readonly toPlainText = (): string => "";
 
@@ -3483,20 +3483,20 @@ export declare namespace Block {
  * @category models
  * @since 0.0.0
  */
-export class Document extends S.TaggedClass<Document>($I`Document`)(
-  "document",
-  {
+export class Document extends S.Opaque<Document, {}>()(
+  S.TaggedStruct("document", {
     frontmatter: S.OptionFromOptionalKey(S.JsonObject).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional JSON-compatible document metadata rendered as deterministic frontmatter.",
     }),
     children: BlockChildren.annotateKey({
       description: "Top-level block children in document order.",
     }),
-  },
-  $I.annote("Document", {
-    po: "container",
-    description: "Root Markdown document AST.",
-  })
+  }).pipe(
+    $I.annoteSchema("Document", {
+      po: "container",
+      description: "Root Markdown document AST.",
+    })
+  )
 ) {
   static readonly encodeEffect = S.encodeEffect(Document);
 

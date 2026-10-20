@@ -18,7 +18,7 @@ import { A, O } from "@beep/utils";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { makeRedactedConfigOptionReader, makeTextConfigOptionReader } from "../runtime/OipRuntimeConfig.ts";
@@ -68,7 +68,9 @@ type ContactSubmissionErrorOptions = {
  * @category errors
  * @since 0.0.0
  */
-export class ContactSubmissionError extends S.TaggedError<ContactSubmissionError>($I`ContactSubmissionError`)(
+export class ContactSubmissionError extends S.TaggedError<ContactSubmissionError, { readonly brand: unique symbol }>(
+  $I`ContactSubmissionError`
+)(
   "ContactSubmissionError",
   {
     provider: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),

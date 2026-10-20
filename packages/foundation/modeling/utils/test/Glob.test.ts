@@ -1,6 +1,6 @@
 import { tmpdir } from "node:os";
 import { it } from "@beep/test-runner";
-import { GlobError, layer as GlobLayer, Glob as GlobService } from "@beep/utils/Glob";
+import { GlobError, layer as GlobLayer, GlobOptions, Glob as GlobService } from "@beep/utils/Glob";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
@@ -14,7 +14,7 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { GlobOptions, Pattern } from "@beep/utils/Glob";
+import type { Pattern } from "@beep/utils/Glob";
 
 const isGlobError = S.is(GlobError);
 
@@ -29,7 +29,7 @@ const withFileSystem = <E>(use: (fs: FileSystem.FileSystem) => Effect.Effect<voi
 const makeDirectory = (path: string) => withFileSystem((fs) => fs.makeDirectory(path, { recursive: true }));
 const makeTempDirectory = Effect.fn("GlobTest.makeTempDirectory")(function* (prefix: string) {
   const crypto = yield* Crypto.Crypto;
-  const suffix = yield* crypto.randomUUIDv4;
+  const suffix = yield* crypto.randomUUIDv4();
   const dir = joinPath(tmpdir(), `${prefix}${suffix}`);
   yield* makeDirectory(dir);
   return dir;
@@ -75,10 +75,13 @@ const restoreBunGlob = (bunRef: typeof Bun, originalGlob: typeof Bun.Glob) => {
   Reflect.set(bunRef, "Glob", originalGlob);
 };
 
-class BunGlobMutationError extends S.TaggedError<BunGlobMutationError>()("BunGlobMutationError", {
-  action: S.String,
-  cause: S.Defect({ includeStack: true }),
-}) {}
+class BunGlobMutationError extends S.TaggedError<BunGlobMutationError, { readonly brand: unique symbol }>()(
+  "BunGlobMutationError",
+  {
+    action: S.String,
+    cause: S.Defect({ includeStack: true }),
+  }
+) {}
 
 const toGlobMutationError =
   (action: string) =>
@@ -128,10 +131,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
   it.effect("supports array patterns, ignore filters, and deduped deterministic output", () =>
     Effect.gen(function* () {
       const program = Effect.flatMap(acquireFixture, (fixture) =>
-        runGlob(["src/**/*.ts", "src/index.ts"], {
-          cwd: fixture.dir,
-          ignore: ["**/nested/**", "**/errors/**"],
-        })
+        runGlob(
+          ["src/**/*.ts", "src/index.ts"],
+          GlobOptions.make({
+            cwd: fixture.dir,
+            ignore: ["**/nested/**", "**/errors/**"],
+          })
+        )
       );
       const results = yield* program;
 
@@ -146,7 +152,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
         yield* makeDirectory(joinPath(unrelated, "nested"));
         const results = yield* Effect.acquireUseRelease(
           chmodPath(unrelated, 0),
-          () => runGlob("src/**/*.ts", { cwd: fixture.dir }),
+          () => runGlob("src/**/*.ts", GlobOptions.make({ cwd: fixture.dir })),
           () => chmodPath(unrelated, 0o700)
         );
 
@@ -158,10 +164,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
   it.effect("supports absolute paths and directory matches when nodir is false", () =>
     Effect.gen(function* () {
       const program = Effect.flatMap(acquireFixture, (fixture) =>
-        runGlob("src/**", {
-          absolute: true,
-          cwd: fixture.dir,
-        }).pipe(
+        runGlob(
+          "src/**",
+          GlobOptions.make({
+            absolute: true,
+            cwd: fixture.dir,
+          })
+        ).pipe(
           Effect.tap((results) =>
             Effect.sync(() => {
               expect(results).toContain(joinPath(fixture.dir, "src", "errors"));
@@ -179,10 +188,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
   it.effect("supports nodir by returning only files", () =>
     Effect.gen(function* () {
       const program = Effect.flatMap(acquireFixture, (fixture) =>
-        runGlob("src/**", {
-          cwd: fixture.dir,
-          nodir: true,
-        })
+        runGlob(
+          "src/**",
+          GlobOptions.make({
+            cwd: fixture.dir,
+            nodir: true,
+          })
+        )
       );
       const results = yield* program;
 
@@ -193,9 +205,9 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
   it.effect("resolves an omitted cwd the same as an explicit current directory", () =>
     Effect.gen(function* () {
       const implicitResults = yield* runGlob("package.json");
-      const explicitResults = yield* runGlob("package.json", { cwd: "." });
+      const explicitResults = yield* runGlob("package.json", GlobOptions.make({ cwd: "." }));
       const implicitNodeResults = yield* withBunGlobDisabled(runGlob("package.json"));
-      const explicitNodeResults = yield* withBunGlobDisabled(runGlob("package.json", { cwd: "." }));
+      const explicitNodeResults = yield* withBunGlobDisabled(runGlob("package.json", GlobOptions.make({ cwd: "." })));
 
       expect(implicitResults).toEqual(["package.json"]);
       expect(explicitResults).toEqual(implicitResults);
@@ -208,12 +220,15 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
     Effect.gen(function* () {
       const program = Effect.flatMap(acquireFixture, (fixture) =>
         withBunGlobDisabled(
-          runGlob("src/**", {
-            absolute: true,
-            cwd: fixture.dir,
-            ignore: ["**/errors/**"],
-            nodir: true,
-          })
+          runGlob(
+            "src/**",
+            GlobOptions.make({
+              absolute: true,
+              cwd: fixture.dir,
+              ignore: ["**/errors/**"],
+              nodir: true,
+            })
+          )
         ).pipe(
           Effect.tap((results) =>
             Effect.sync(() => {
@@ -239,8 +254,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
             nodir: true,
           };
           const pattern = ["%2F/*.ts", "symbols*/*.ts"];
-          const bunResults = yield* runGlob(pattern, options);
-          const nodeResults = yield* withBunGlobDisabled(runGlob(pattern, options));
+          const bunResults = yield* runGlob(pattern, GlobOptions.make(options));
+          const nodeResults = yield* withBunGlobDisabled(runGlob(pattern, GlobOptions.make(options)));
           const expected = [
             joinPath(fixture.dir, "%2F", "literal.ts"),
             joinPath(fixture.dir, "symbols#%", "literal.ts"),
@@ -268,8 +283,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
                 ignore,
                 nodir,
               };
-              const bunResults = yield* runGlob("src/**", options);
-              const nodeResults = yield* withBunGlobDisabled(runGlob("src/**", options));
+              const bunResults = yield* runGlob("src/**", GlobOptions.make(options));
+              const nodeResults = yield* withBunGlobDisabled(runGlob("src/**", GlobOptions.make(options)));
               const expected = nodir
                 ? ["src/index.ts", "src/nested/deep.ts"]
                 : ["src/index.ts", "src/nested", "src/nested/deep.ts"];
@@ -287,10 +302,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
   it.effect("surfaces non-missing Node filesystem errors as GlobError", () =>
     Effect.gen(function* () {
       const error = yield* withBunGlobDisabled(
-        runGlob("**/*.ts", {
-          cwd: "invalid\0cwd",
-          nodir: true,
-        })
+        runGlob(
+          "**/*.ts",
+          GlobOptions.make({
+            cwd: "invalid\0cwd",
+            nodir: true,
+          })
+        )
       ).pipe(Effect.flip);
 
       expect(isGlobError(error)).toBe(true);
@@ -303,10 +321,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
         makeSymlink(joinPath(fixture.dir, "missing.ts"), joinPath(fixture.dir, "src", "dangling.ts")).pipe(
           Effect.flatMap(() =>
             withBunGlobDisabled(
-              runGlob("src/**", {
-                cwd: fixture.dir,
-                nodir: true,
-              })
+              runGlob(
+                "src/**",
+                GlobOptions.make({
+                  cwd: fixture.dir,
+                  nodir: true,
+                })
+              )
             )
           )
         )
@@ -324,10 +345,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, GlobLayer), {
           Effect.flatMap(
             Effect.fnUntraced(function* () {
               return yield* withBunGlobDisabled(
-                runGlob("src/**", {
-                  cwd: fixture.dir,
-                  nodir: true,
-                })
+                runGlob(
+                  "src/**",
+                  GlobOptions.make({
+                    cwd: fixture.dir,
+                    nodir: true,
+                  })
+                )
               );
             })
           )

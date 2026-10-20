@@ -51,7 +51,7 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
 import type * as HttpClientError from "effect/http/HttpClientError";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
@@ -442,16 +442,16 @@ describe("@beep/m365 service", () => {
           M365GetEventRequest.make({ eventId: "event-id", userId: O.some("user-id") })
         );
 
-        expect(drives.value[0]).toBeInstanceOf(GraphDrive);
-        expect(sites.value[0]).toBeInstanceOf(GraphSite);
-        expect(site).toBeInstanceOf(GraphSite);
-        expect(delta.value[0]).toBeInstanceOf(GraphDriveItem);
-        expect(listItem).toBeInstanceOf(GraphListItem);
-        expect(versions.value[0]).toBeInstanceOf(GraphDriveItemVersion);
-        expect(messages.value[0]).toBeInstanceOf(GraphMessage);
-        expect(message).toBeInstanceOf(GraphMessage);
-        expect(events.value[0]).toBeInstanceOf(GraphEvent);
-        expect(event).toBeInstanceOf(GraphEvent);
+        expect(S.is(GraphDrive)(drives.value[0])).toBe(true);
+        expect(S.is(GraphSite)(sites.value[0])).toBe(true);
+        expect(S.is(GraphSite)(site)).toBe(true);
+        expect(S.is(GraphDriveItem)(delta.value[0])).toBe(true);
+        expect(S.is(GraphListItem)(listItem)).toBe(true);
+        expect(S.is(GraphDriveItemVersion)(versions.value[0])).toBe(true);
+        expect(S.is(GraphMessage)(messages.value[0])).toBe(true);
+        expect(S.is(GraphMessage)(message)).toBe(true);
+        expect(S.is(GraphEvent)(events.value[0])).toBe(true);
+        expect(S.is(GraphEvent)(event)).toBe(true);
 
         const captures = yield* testHttp.captures;
         const graphCaptures = A.filter(captures, (capture) => Str.startsWith(GRAPH_BASE_URL)(capture.url));
@@ -487,7 +487,7 @@ describe("@beep/m365 service", () => {
         );
         const m365 = yield* M365;
         const message = yield* m365.getMessageAuthoredText(M365GetMessageRequest.make({ messageId: "message-id" }));
-        expect(message).toBeInstanceOf(GraphMessageAuthoredText);
+        expect(S.is(GraphMessageAuthoredText)(message)).toBe(true);
         expect(message.uniqueBody.content).toContain("I approve design-figure sheet set abc for filing.");
         expect(message.from.emailAddress.address).toBe("attorney@example.com");
         const [capture] = yield* testHttp.captures;
@@ -686,7 +686,7 @@ describe("@beep/m365 service", () => {
         );
         const captures = yield* testHttp.captures;
 
-        expect(result).toBeInstanceOf(M365DownloadedContent);
+        expect(S.is(M365DownloadedContent)(result)).toBe(true);
         expect(result._tag).toBe("M365DownloadedContent");
         if (M365DriveItemDownload.guards.M365DownloadedContent(result)) {
           expect(A.fromIterable(result.bytes)).toStrictEqual([1, 2, 3]);
@@ -725,7 +725,7 @@ describe("@beep/m365 service", () => {
         );
         const captures = yield* testHttp.captures;
 
-        expect(result).toBeInstanceOf(M365SkippedEncryptedItem);
+        expect(S.is(M365SkippedEncryptedItem)(result)).toBe(true);
         expect(result._tag).toBe("M365SkippedEncryptedItem");
         expect(captures).toHaveLength(1);
       })

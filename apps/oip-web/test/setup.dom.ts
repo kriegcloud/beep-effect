@@ -57,7 +57,9 @@ if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
       matches: false,
       media: query,
       onchange: null,
+      // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
       addListener: () => {},
+      // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
       removeListener: () => {},
       addEventListener: () => {},
       removeEventListener: () => {},

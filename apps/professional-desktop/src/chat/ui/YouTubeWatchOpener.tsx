@@ -15,7 +15,8 @@ import { useAtom, useAtomMount } from "@effect/atom-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import { AsyncResult, Atom } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import { professionalBrowserRuntime } from "@/runtime/ProfessionalAtomRuntime";
 import type { JSX } from "react";
@@ -43,7 +44,9 @@ const hasTauriRuntime = (): boolean => "__TAURI_INTERNALS__" in globalThis;
  * @category errors
  * @since 0.0.0
  */
-export class YouTubeWatchOpenFailed extends S.TaggedError<YouTubeWatchOpenFailed>($I`YouTubeWatchOpenFailed`)(
+export class YouTubeWatchOpenFailed extends S.TaggedError<YouTubeWatchOpenFailed, { readonly brand: unique symbol }>(
+  $I`YouTubeWatchOpenFailed`
+)(
   "YouTubeWatchOpenFailed",
   {
     request: YouTubeWatchRequest.annotateKey({
@@ -111,7 +114,11 @@ const renderOpenFailure = (
       >
         <p>YouTube could not be opened.</p>
         <div className="mt-2 flex gap-3">
-          <button className="underline underline-offset-2" type="button" onClick={() => retry(failure.request)}>
+          <button
+            className="underline underline-offset-2"
+            type="button"
+            onClick={() => retry(YouTubeWatchRequest.make(failure.request))}
+          >
             Retry
           </button>
         </div>

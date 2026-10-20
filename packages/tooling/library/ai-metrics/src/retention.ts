@@ -31,7 +31,7 @@ import {
 } from "./derived-storage.ts";
 import { aiMetricsDerivedDuckDbPath, withAiMetricsDuckDb } from "./duckdb.ts";
 import { listAiMetricsDirectoryFileInfo } from "./file-inventory.ts";
-import { summarizeTranscriptText } from "./ingest.ts";
+import { AiMetricsTranscriptTextSummaryInput, summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { modifiedAtMillis } from "./internal/file-info.ts";
 import { normalizedRelativePath } from "./internal/transcript-utils.ts";
@@ -68,8 +68,14 @@ export const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"]).
  */
 export type AiMetricsRetentionMutationMode = typeof AiMetricsRetentionMutationMode.Type;
 const RawArchiveObjectIdPattern = /^raw-[a-f0-9]{64}$/u;
-class RawArchivePlanItem extends S.Class<RawArchivePlanItem>($I`RawArchivePlanItem`)(
-  {
+/**
+ * A plan item for a raw archive object
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class RawArchivePlanItem extends S.Opaque<RawArchivePlanItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveObjectId: S.String,
     archivePath: S.String,
     archiveRunObjectId: S.String,
@@ -78,14 +84,21 @@ class RawArchivePlanItem extends S.Class<RawArchivePlanItem>($I`RawArchivePlanIt
     plaintextContentHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
-  },
-  $I.annote("RawArchivePlanItem", {
-    description: "A plan item for a raw archive object",
-  })
+  }).pipe(
+    $I.annoteSchema("RawArchivePlanItem", {
+      description: "A plan item for a raw archive object",
+    })
+  )
 ) {}
 
-class RawArchiveObjectRow extends S.Class<RawArchiveObjectRow>($I`RawArchiveObjectRow`)(
-  {
+/**
+ * Decoded DuckDB row for one retained raw archive object.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class RawArchiveObjectRow extends S.Opaque<RawArchiveObjectRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveObjectId: S.String,
     archivePath: S.String,
     archiveRunObjectId: S.String,
@@ -94,75 +107,117 @@ class RawArchiveObjectRow extends S.Class<RawArchiveObjectRow>($I`RawArchiveObje
     plaintextContentHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
-  },
-  $I.annote("RawArchiveObjectRow", {
-    description: "Decoded DuckDB row for one retained raw archive object.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawArchiveObjectRow", {
+      description: "Decoded DuckDB row for one retained raw archive object.",
+    })
+  )
 ) {
   static readonly decodeUnknownArrayEffect = S.decodeUnknownEffect(S.Array(RawArchiveObjectRow));
 }
 
-class IngestRunRow extends S.Class<IngestRunRow>($I`IngestRunRow`)(
-  {
+/**
+ * Decoded DuckDB row for one retained ingest run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class IngestRunRow extends S.Opaque<IngestRunRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     completedAtEpochMillis: S.Natural,
     ingestRunId: S.String,
-  },
-  $I.annote("IngestRunRow", {
-    description: "Decoded DuckDB row for one retained ingest run.",
-  })
+  }).pipe(
+    $I.annoteSchema("IngestRunRow", {
+      description: "Decoded DuckDB row for one retained ingest run.",
+    })
+  )
 ) {
   static readonly decodeUnknownArrayEffect = S.decodeUnknownEffect(S.Array(IngestRunRow));
 }
 
-class OutcomeLabelRow extends S.Class<OutcomeLabelRow>($I`OutcomeLabelRow`)(
-  {
+/**
+ * Decoded DuckDB row for one outcome label with a nullable legacy timestamp.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class OutcomeLabelRow extends S.Opaque<OutcomeLabelRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     labelId: S.String,
     labeledAtEpochMillis: S.OptionFromNullOr(S.Natural),
-  },
-  $I.annote("OutcomeLabelRow", {
-    description: "Decoded DuckDB row for one outcome label with a nullable legacy timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutcomeLabelRow", {
+      description: "Decoded DuckDB row for one outcome label with a nullable legacy timestamp.",
+    })
+  )
 ) {
   static readonly decodeUnknownArrayEffect = S.decodeUnknownEffect(S.Array(OutcomeLabelRow));
 }
 
-class BenchmarkRunRow extends S.Class<BenchmarkRunRow>($I`BenchmarkRunRow`)(
-  {
+/**
+ * Decoded DuckDB row for one benchmark run with a nullable legacy timestamp.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class BenchmarkRunRow extends S.Opaque<BenchmarkRunRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkRunId: S.String,
     recordedAtEpochMillis: S.OptionFromNullOr(S.Natural),
-  },
-  $I.annote("BenchmarkRunRow", {
-    description: "Decoded DuckDB row for one benchmark run with a nullable legacy timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("BenchmarkRunRow", {
+      description: "Decoded DuckDB row for one benchmark run with a nullable legacy timestamp.",
+    })
+  )
 ) {
   static readonly decodeUnknownArrayEffect = S.decodeUnknownEffect(S.Array(BenchmarkRunRow));
 }
 
-class ScorecardRow extends S.Class<ScorecardRow>($I`ScorecardRow`)(
-  {
+/**
+ * Decoded DuckDB row for one scorecard with a nullable legacy window end.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class ScorecardRow extends S.Opaque<ScorecardRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     scorecardId: S.String,
     windowEndEpochMillis: S.OptionFromNullOr(S.Natural),
-  },
-  $I.annote("ScorecardRow", {
-    description: "Decoded DuckDB row for one scorecard with a nullable legacy window end.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScorecardRow", {
+      description: "Decoded DuckDB row for one scorecard with a nullable legacy window end.",
+    })
+  )
 ) {
   static readonly decodeUnknownArrayEffect = S.decodeUnknownEffect(S.Array(ScorecardRow));
 }
 
-class PathPlanItem extends S.Class<PathPlanItem>($I`PathPlanItem`)(
-  {
+/**
+ * A plan item for a path
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PathPlanItem extends S.Opaque<PathPlanItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     absolutePath: S.String,
     modifiedAtEpochMillis: S.Natural,
     relativePath: S.String,
-  },
-  $I.annote("PathPlanItem", {
-    description: "A plan item for a path",
-  })
+  }).pipe(
+    $I.annoteSchema("PathPlanItem", {
+      description: "A plan item for a path",
+    })
+  )
 ) {}
 
-class RetentionPlan extends S.Class<RetentionPlan>($I`RetentionPlan`)(
-  {
+/**
+ * A plan for retention of data
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class RetentionPlan extends S.Opaque<RetentionPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkRunIds: S.Array(S.String),
     derivedExportItems: S.Array(PathPlanItem),
     ingestRunIds: S.Array(S.String),
@@ -170,10 +225,11 @@ class RetentionPlan extends S.Class<RetentionPlan>($I`RetentionPlan`)(
     rawArchiveItems: S.Array(RawArchivePlanItem),
     reportItems: S.Array(PathPlanItem),
     scorecardIds: S.Array(S.String),
-  },
-  $I.annote("RetentionPlan", {
-    description: "A plan for retention of data",
-  })
+  }).pipe(
+    $I.annoteSchema("RetentionPlan", {
+      description: "A plan for retention of data",
+    })
+  )
 ) {}
 
 const retentionFailure = (message: string, cause: unknown): AiMetricsRetentionError =>
@@ -277,7 +333,9 @@ const validateRawArchivePath = (
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsRetentionError extends S.TaggedError<AiMetricsRetentionError>($I`AiMetricsRetentionError`)(
+export class AiMetricsRetentionError extends S.TaggedError<AiMetricsRetentionError, { readonly brand: unique symbol }>(
+  $I`AiMetricsRetentionError`
+)(
   "AiMetricsRetentionError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -312,32 +370,38 @@ export class AiMetricsRetentionError extends S.TaggedError<AiMetricsRetentionErr
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionSelector extends S.Class<AiMetricsRetentionSelector>($I`AiMetricsRetentionSelector`)(
+export class AiMetricsRetentionSelector extends S.Opaque<
+  AiMetricsRetentionSelector,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     beforeEpochMillis: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
     dataRoot: S.String,
     sinceEpochMillis: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
     untilEpochMillis: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  }).check(
-    S.makeFilter(
-      (selector) => {
-        const upper = O.orElse(selector.beforeEpochMillis, () => selector.untilEpochMillis);
-        return O.getOrElse(
-          O.zipWith(selector.sinceEpochMillis, upper, (lower, upperBound) => lower < upperBound),
-          () => true
-        );
-      },
-      {
-        identifier: $I`OrderedRetentionWindowCheck`,
-        title: "Ordered retention window",
-        description: "Requires a retention window lower bound to precede its upper bound when both are present.",
-        message: "Retention window lower bound must be before its upper bound",
-      }
-    )
-  ),
-  $I.annote("AiMetricsRetentionSelector", {
-    description: "Local data root and optional explicit time window for AI metrics retention operations.",
   })
+    .check(
+      S.makeFilter(
+        (selector) => {
+          const upper = O.orElse(selector.beforeEpochMillis, () => selector.untilEpochMillis);
+          return O.getOrElse(
+            O.zipWith(selector.sinceEpochMillis, upper, (lower, upperBound) => lower < upperBound),
+            () => true
+          );
+        },
+        {
+          identifier: $I`OrderedRetentionWindowCheck`,
+          title: "Ordered retention window",
+          description: "Requires a retention window lower bound to precede its upper bound when both are present.",
+          message: "Retention window lower bound must be before its upper bound",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("AiMetricsRetentionSelector", {
+        description: "Local data root and optional explicit time window for AI metrics retention operations.",
+      })
+    )
 ) {}
 
 /**
@@ -372,20 +436,22 @@ export class AiMetricsRetentionSelector extends S.Class<AiMetricsRetentionSelect
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionRawArchiveItem extends S.Class<AiMetricsRetentionRawArchiveItem>(
-  $I`AiMetricsRetentionRawArchiveItem`
-)(
-  {
+export class AiMetricsRetentionRawArchiveItem extends S.Opaque<
+  AiMetricsRetentionRawArchiveItem,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveObjectId: S.String,
     encryptedAtEpochMillis: S.Natural,
     ingestRunId: S.String,
     plaintextContentHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
-  },
-  $I.annote("AiMetricsRetentionRawArchiveItem", {
-    description: "Path-free retained raw archive row selected for local operator workflows.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionRawArchiveItem", {
+      description: "Path-free retained raw archive row selected for local operator workflows.",
+    })
+  )
 ) {}
 
 /**
@@ -413,14 +479,18 @@ export class AiMetricsRetentionRawArchiveItem extends S.Class<AiMetricsRetention
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionFileItem extends S.Class<AiMetricsRetentionFileItem>($I`AiMetricsRetentionFileItem`)(
-  {
+export class AiMetricsRetentionFileItem extends S.Opaque<
+  AiMetricsRetentionFileItem,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     modifiedAtEpochMillis: S.Natural,
     relativePath: S.String,
-  },
-  $I.annote("AiMetricsRetentionFileItem", {
-    description: "Retained derived or report file represented relative to the AI metrics data root.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionFileItem", {
+      description: "Retained derived or report file represented relative to the AI metrics data root.",
+    })
+  )
 ) {}
 
 /**
@@ -474,8 +544,11 @@ export class AiMetricsRetentionFileItem extends S.Class<AiMetricsRetentionFileIt
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionInventory extends S.Class<AiMetricsRetentionInventory>($I`AiMetricsRetentionInventory`)(
-  {
+export class AiMetricsRetentionInventory extends S.Opaque<
+  AiMetricsRetentionInventory,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     derivedExports: S.Array(AiMetricsRetentionFileItem),
     explicitWindow: S.Boolean,
     rawArchiveObjects: S.Array(AiMetricsRetentionRawArchiveItem),
@@ -486,10 +559,11 @@ export class AiMetricsRetentionInventory extends S.Class<AiMetricsRetentionInven
     selectedDerivedExportCount: S.Natural,
     selectedRawArchiveObjectCount: S.Natural,
     selectedReportCount: S.Natural,
-  },
-  $I.annote("AiMetricsRetentionInventory", {
-    description: "Path-safe retained AI metrics raw, derived, and report inventory for one selector.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionInventory", {
+      description: "Path-safe retained AI metrics raw, derived, and report inventory for one selector.",
+    })
+  )
 ) {}
 
 const AiMetricsRetentionInventoryFromJsonString = S.fromJsonString(AiMetricsRetentionInventory);
@@ -526,10 +600,11 @@ const AiMetricsRetentionInventoryFromJsonString = S.fromJsonString(AiMetricsRete
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionMutationResult extends S.Class<AiMetricsRetentionMutationResult>(
-  $I`AiMetricsRetentionMutationResult`
-)(
-  {
+export class AiMetricsRetentionMutationResult extends S.Opaque<
+  AiMetricsRetentionMutationResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     deletedDerivedExportCount: S.Natural,
     deletedRawArchiveObjectCount: S.Natural,
     deletedReportCount: S.Natural,
@@ -539,10 +614,11 @@ export class AiMetricsRetentionMutationResult extends S.Class<AiMetricsRetention
     schemaVersion: S.Literal("beep.ai_metrics.retention_mutation.v1").pipe(
       S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_mutation.v1"))
     ),
-  },
-  $I.annote("AiMetricsRetentionMutationResult", {
-    description: "Summary for an AI metrics retention delete or compaction run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionMutationResult", {
+      description: "Summary for an AI metrics retention delete or compaction run.",
+    })
+  )
 ) {}
 
 const AiMetricsRetentionMutationResultFromJsonString = S.fromJsonString(AiMetricsRetentionMutationResult);
@@ -571,10 +647,11 @@ const AiMetricsRetentionMutationResultFromJsonString = S.fromJsonString(AiMetric
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionEnforcementPolicy extends S.Class<AiMetricsRetentionEnforcementPolicy>(
-  $I`AiMetricsRetentionEnforcementPolicy`
-)(
-  {
+export class AiMetricsRetentionEnforcementPolicy extends S.Opaque<
+  AiMetricsRetentionEnforcementPolicy,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.String,
     dryRun: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
@@ -584,10 +661,11 @@ export class AiMetricsRetentionEnforcementPolicy extends S.Class<AiMetricsRetent
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
-  },
-  $I.annote("AiMetricsRetentionEnforcementPolicy", {
-    description: "Preventive policy for removing old per-run AI metrics Parquet snapshots.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionEnforcementPolicy", {
+      description: "Preventive policy for removing old per-run AI metrics Parquet snapshots.",
+    })
+  )
 ) {}
 
 /**
@@ -621,10 +699,11 @@ export class AiMetricsRetentionEnforcementPolicy extends S.Class<AiMetricsRetent
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionEnforcementResult extends S.Class<AiMetricsRetentionEnforcementResult>(
-  $I`AiMetricsRetentionEnforcementResult`
-)(
-  {
+export class AiMetricsRetentionEnforcementResult extends S.Opaque<
+  AiMetricsRetentionEnforcementResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.String,
     deletedDerivedExportCount: S.Natural,
     dryRun: S.Boolean,
@@ -633,10 +712,11 @@ export class AiMetricsRetentionEnforcementResult extends S.Class<AiMetricsRetent
     schemaVersion: S.Literal("beep.ai_metrics.retention_enforcement.v1").pipe(
       S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_enforcement.v1"))
     ),
-  },
-  $I.annote("AiMetricsRetentionEnforcementResult", {
-    description: "Summary for preventive AI metrics Parquet snapshot retention enforcement.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionEnforcementResult", {
+      description: "Summary for preventive AI metrics Parquet snapshot retention enforcement.",
+    })
+  )
 ) {}
 
 const AiMetricsRetentionEnforcementResultFromJsonString = S.fromJsonString(AiMetricsRetentionEnforcementResult);
@@ -675,10 +755,11 @@ const AiMetricsRetentionEnforcementResultFromJsonString = S.fromJsonString(AiMet
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionRestoreDrillInput extends S.Class<AiMetricsRetentionRestoreDrillInput>(
-  $I`AiMetricsRetentionRestoreDrillInput`
-)(
-  {
+export class AiMetricsRetentionRestoreDrillInput extends S.Opaque<
+  AiMetricsRetentionRestoreDrillInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hashSalt: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     maxObjects: S.Int.check(S.isGreaterThan(0)).pipe(
       S.withConstructorDefault(Effect.succeed(1)),
@@ -687,10 +768,11 @@ export class AiMetricsRetentionRestoreDrillInput extends S.Class<AiMetricsRetent
     rawArchiveKey: AiMetricsRawArchiveKey,
     restoreRoot: S.String,
     selector: AiMetricsRetentionSelector,
-  },
-  $I.annote("AiMetricsRetentionRestoreDrillInput", {
-    description: "Restore drill request that replays selected archive objects into disposable derived storage.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionRestoreDrillInput", {
+      description: "Restore drill request that replays selected archive objects into disposable derived storage.",
+    })
+  )
 ) {}
 
 /**
@@ -726,10 +808,11 @@ export class AiMetricsRetentionRestoreDrillInput extends S.Class<AiMetricsRetent
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRetentionRestoreDrillResult extends S.Class<AiMetricsRetentionRestoreDrillResult>(
-  $I`AiMetricsRetentionRestoreDrillResult`
-)(
-  {
+export class AiMetricsRetentionRestoreDrillResult extends S.Opaque<
+  AiMetricsRetentionRestoreDrillResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     derivedDuckDbPath: S.String,
     hashMatches: S.Boolean,
     replayedObjectCount: S.Natural,
@@ -738,11 +821,12 @@ export class AiMetricsRetentionRestoreDrillResult extends S.Class<AiMetricsReten
       S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_restore_drill.v1"))
     ),
     transcriptTextPrinted: S.Boolean,
-  },
-  $I.annote("AiMetricsRetentionRestoreDrillResult", {
-    description:
-      "Proof that retained encrypted archive objects can decrypt and replay into disposable derived storage.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRetentionRestoreDrillResult", {
+      description:
+        "Proof that retained encrypted archive objects can decrypt and replay into disposable derived storage.",
+    })
+  )
 ) {}
 
 const AiMetricsRetentionRestoreDrillResultFromJsonString = S.fromJsonString(AiMetricsRetentionRestoreDrillResult);
@@ -776,11 +860,12 @@ const listDirectoryFiles = Effect.fn("AiMetrics.retention.listDirectoryFiles")(f
   return pipe(
     files,
     A.map(
-      ([absolutePath, info]): PathPlanItem => ({
-        absolutePath,
-        modifiedAtEpochMillis: modifiedAtMillis(info),
-        relativePath: relativeToDataRoot(dataRoot, absolutePath),
-      })
+      ([absolutePath, info]): PathPlanItem =>
+        PathPlanItem.make({
+          absolutePath,
+          modifiedAtEpochMillis: modifiedAtMillis(info),
+          relativePath: relativeToDataRoot(dataRoot, absolutePath),
+        })
     ),
     A.sort(Order.mapInput(Order.String, (item: PathPlanItem) => item.relativePath))
   );
@@ -930,7 +1015,7 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
     A.filter((item) => withinWindow(item.modifiedAtEpochMillis))
   );
 
-  return {
+  return RetentionPlan.make({
     benchmarkRunIds,
     derivedExportItems,
     ingestRunIds,
@@ -938,7 +1023,7 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
     rawArchiveItems,
     reportItems,
     scorecardIds,
-  } satisfies RetentionPlan;
+  });
 });
 
 const planToInventory = (input: AiMetricsRetentionSelector, plan: RetentionPlan): AiMetricsRetentionInventory =>
@@ -1018,7 +1103,7 @@ export const listAiMetricsRetentionInventory = Effect.fn("AiMetrics.listAiMetric
   const plan = yield* withAiMetricsDuckDb(readRetentionPlan(input), duckDbPath).pipe(
     Effect.mapError((cause) => retentionFailure("Failed to read AI metrics retention inventory.", cause))
   );
-  return planToInventory(input, plan);
+  return planToInventory(input, RetentionPlan.make(plan));
 });
 
 const deleteRowsWithIds = Effect.fn("AiMetrics.retention.deleteRowsWithIds")(function* (
@@ -1252,7 +1337,7 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
     yield* removePlanPaths(plan.reportItems);
     if (deletesRawArchive) {
       yield* removeRawArchivePaths(input.dataRoot, plan.rawArchiveItems);
-      yield* withAiMetricsDuckDb(deleteRowsForPlan(plan), duckDbPath).pipe(
+      yield* withAiMetricsDuckDb(deleteRowsForPlan(RetentionPlan.make(plan)), duckDbPath).pipe(
         Effect.mapError((cause) => retentionFailure("Failed to delete selected AI metrics derived rows.", cause))
       );
     }
@@ -1509,12 +1594,14 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
         });
       }
       const restoreSourcePath = path.join(input.restoreRoot, "restore-source", `${item.archiveObjectId}.jsonl`);
-      const summary = yield* summarizeTranscriptText({
-        content: plaintext,
-        hashSalt: input.hashSalt,
-        sourceKind: item.sourceKind,
-        sourcePath: restoreSourcePath,
-      }).pipe(Effect.mapError((cause) => retentionFailure("Failed to summarize restored archive plaintext.", cause)));
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content: plaintext,
+          hashSalt: input.hashSalt,
+          sourceKind: item.sourceKind,
+          sourcePath: restoreSourcePath,
+        })
+      ).pipe(Effect.mapError((cause) => retentionFailure("Failed to summarize restored archive plaintext.", cause)));
       const privacy = yield* makeAiMetricsPrivacyCheckResult({
         content: plaintext,
         hashSalt: input.hashSalt,

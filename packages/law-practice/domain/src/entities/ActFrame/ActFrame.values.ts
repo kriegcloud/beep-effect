@@ -233,15 +233,16 @@ const PositionDerivationKinds = PositionDerivationKind.pipe(S.HashSet, S.toCodec
  * @category models
  * @since 0.0.0
  */
-export class PositionDerivation extends S.Class<PositionDerivation>($I`PositionDerivation`)(
-  {
+export class PositionDerivation extends S.Opaque<PositionDerivation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kinds: PositionDerivationKinds.annotateKey({
       description: "Ways this act derives positions; several at once is ordinary, and none is rejected.",
     }),
-  },
-  $I.annote("PositionDerivation", {
-    description: "The non-empty set of ways one act frame derives the positions it names.",
-  })
+  }).pipe(
+    $I.annoteSchema("PositionDerivation", {
+      description: "The non-empty set of ways one act frame derives the positions it names.",
+    })
+  )
 ) {}
 
 /**
@@ -405,8 +406,8 @@ export const hasActorSlot = (slots: ReadonlyArray<ActFrameSlot>): boolean => A.s
  * @category models
  * @since 0.0.0
  */
-export class ActFramePrecondition extends S.Class<ActFramePrecondition>($I`ActFramePrecondition`)(
-  {
+export class ActFramePrecondition extends S.Opaque<ActFramePrecondition, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: ActFrameElementLabel.annotateKey({
       description: "The frame's name for this condition, and the address a pointer uses to reach it.",
     }),
@@ -419,10 +420,11 @@ export class ActFramePrecondition extends S.Class<ActFramePrecondition>($I`ActFr
     source: NormSourceReference.annotateKey({
       description: "Norm text this condition was read from.",
     }),
-  },
-  $I.annote("ActFramePrecondition", {
-    description: "One condition a recorded act frame states, able to require a fact's absence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActFramePrecondition", {
+      description: "One condition a recorded act frame states, able to require a fact's absence.",
+    })
+  )
 ) {}
 
 /**
@@ -477,8 +479,8 @@ export class ActFramePrecondition extends S.Class<ActFramePrecondition>($I`ActFr
  * @category models
  * @since 0.0.0
  */
-export class PositionTransition extends S.Class<PositionTransition>($I`PositionTransition`)(
-  {
+export class PositionTransition extends S.Opaque<PositionTransition, { readonly brand: unique symbol }>()(
+  S.Struct({
     bearer: ActFrameElementLabel.annotateKey({
       description: "Slot label of the role that holds the position after the transition.",
     }),
@@ -494,10 +496,11 @@ export class PositionTransition extends S.Class<PositionTransition>($I`PositionT
     source: NormSourceReference.annotateKey({
       description: "Norm text this transition was read from.",
     }),
-  },
-  $I.annote("PositionTransition", {
-    description: "One position a recorded act frame creates or terminates, between two of its slots.",
-  })
+  }).pipe(
+    $I.annoteSchema("PositionTransition", {
+      description: "One position a recorded act frame creates or terminates, between two of its slots.",
+    })
+  )
 ) {}
 
 /**

@@ -6,14 +6,14 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiEntity, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/ExtractEntities");
 
-class ExtractEntitiesParameters extends S.Class<ExtractEntitiesParameters>($I`ExtractEntitiesParameters`)(
-  {
+class ExtractEntitiesParameters extends S.Opaque<ExtractEntitiesParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     includeCustom: S.optionalKey(S.Boolean).annotateKey({
       default: true,
       description: "Include custom entities learned via LearnCustomEntities (default: true)",
@@ -22,14 +22,15 @@ class ExtractEntitiesParameters extends S.Class<ExtractEntitiesParameters>($I`Ex
       description: "The text to analyze for entities",
       examples: ["Email john@example.com by 2026-01-15. Budget is $1200 for New York."],
     }),
-  },
-  $I.annote("ExtractEntitiesParameters", {
-    description: "Inputs required to extract built-in and optional custom entities from text.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractEntitiesParameters", {
+      description: "Inputs required to extract built-in and optional custom entities from text.",
+    })
+  )
 ) {}
 
-class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractEntitiesSuccess`)(
-  {
+class ExtractEntitiesSuccess extends S.Opaque<ExtractEntitiesSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     allEntities: S.Array(AiEntity).annotateKey({
       description: "Combined built-in and custom entity matches",
     }),
@@ -44,10 +45,11 @@ class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractE
     }),
     entityCount: S.Natural,
     entityTypes: S.Array(S.String),
-  },
-  $I.annote("ExtractEntitiesSuccess", {
-    description: "Entity extraction result including built-in entities and optional learned custom entities.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractEntitiesSuccess", {
+      description: "Entity extraction result including built-in entities and optional learned custom entities.",
+    })
+  )
 ) {}
 
 /**

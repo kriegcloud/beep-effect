@@ -7,7 +7,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as LanguageModel from "effect/ai/LanguageModel";
 import * as Response from "effect/ai/Response";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -49,6 +49,7 @@ import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { assertFalse, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
 import { ProviderCache } from "@/services/ProviderCache";
+import { LabConfigValue } from "../src/runtime/Config.ts";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
@@ -200,22 +201,24 @@ const makeGoldTestLayer = (
   );
   const config = Layer.succeed(
     LabConfig,
-    LabConfig.of({
-      corpusRoot: O.none(),
-      embeddingDimension: PosInt.make(1536),
-      embeddingModel: "text-embedding-3-small",
-      embeddingRevision: "text-embedding-3-small@2024-01-25",
-      extractionTimeout: Duration.minutes(15),
-      extractorModel: "stub-extractor-20260826",
-      goldDirectory: "fixtures/gold/v1",
-      goldGenerationTimeout,
-      goldModel: "stub-gold-20260826",
-      ledgerRoot: ".beep/semantica/ledger",
-      mode: "replay",
-      offline: true,
-      projectionTimeout: Duration.seconds(30),
-      providerCacheDirectory: ".beep/semantica/provider-cache",
-    })
+    LabConfig.of(
+      LabConfigValue.make({
+        corpusRoot: O.none(),
+        embeddingDimension: PosInt.make(1536),
+        embeddingModel: "text-embedding-3-small",
+        embeddingRevision: "text-embedding-3-small@2024-01-25",
+        extractionTimeout: Duration.minutes(15),
+        extractorModel: "stub-extractor-20260826",
+        goldDirectory: "fixtures/gold/v1",
+        goldGenerationTimeout,
+        goldModel: "stub-gold-20260826",
+        ledgerRoot: ".beep/semantica/ledger",
+        mode: "replay",
+        offline: true,
+        projectionTimeout: Duration.seconds(30),
+        providerCacheDirectory: ".beep/semantica/provider-cache",
+      })
+    )
   );
   const canonicalizer = CanonicalizerLive.pipe(Layer.provide(BunServices.layer));
 

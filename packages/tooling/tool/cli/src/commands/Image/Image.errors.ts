@@ -27,7 +27,9 @@ const $I = $RepoCliId.create("commands/Image/Image.errors");
  * @category error-handling
  * @since 0.0.0
  */
-export class ImageCommandError extends S.TaggedError<ImageCommandError>($I`ImageCommandError`)(
+export class ImageCommandError extends S.TaggedError<ImageCommandError, { readonly brand: unique symbol }>(
+  $I`ImageCommandError`
+)(
   "ImageCommandError",
   {
     message: S.String,

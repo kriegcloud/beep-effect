@@ -14,9 +14,9 @@ import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { HttpClient } from "effect/http";
-import type { ChildProcess } from "effect/process";
-import { ChildProcessSpawner } from "effect/process";
+import * as HttpClient from "effect/http/HttpClient";
+import type * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { tarExtractCommand, unzipCommand } from "./internal/archiveCommands.ts";
 import { isErrno, typeAt } from "./internal/fsProbe.ts";
@@ -40,7 +40,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ToolInstaller");
  * @category errors
  * @since 0.0.0
  */
-export class ToolInstallerError extends S.TaggedError<ToolInstallerError>($I`ToolInstallerError`)("ToolInstallerError", {
+export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { readonly brand: unique symbol }>($I`ToolInstallerError`)("ToolInstallerError", {
 	/**
 	 * `downloadFailed` — the archive could not be fetched. `extractFailed` — the
 	 * extraction tool refused the archive or is not installed. `cacheFailed` —

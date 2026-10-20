@@ -51,7 +51,7 @@ import { YeetPrWave } from "./InboxView.ts";
 import { distinctPrSessions, PrNumber, PrRepository } from "./Provenance.ts";
 import { makePrSessionRegistryLive } from "./PrSessionRegistry.ts";
 import { isClaudeSessionLive, selectResumeRecord } from "./Resume.ts";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { PrSessionRecord } from "./Provenance.ts";
 import type { PrSessionRegistryError } from "./PrSessionRegistry.ts";
 
@@ -176,15 +176,16 @@ export type YeetPrWaveOwnerReason = typeof YeetPrWaveOwnerReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetPrWaveOwnerVerdict extends S.Class<YeetPrWaveOwnerVerdict>($I`YeetPrWaveOwnerVerdict`)(
-  {
+export class YeetPrWaveOwnerVerdict extends S.Opaque<YeetPrWaveOwnerVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     live: S.Boolean,
     reason: YeetPrWaveOwnerReason,
     owner: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetPrWaveOwnerVerdict", {
-    description: "Whether a pull request's owner session is live, why, and the owner's harness and workspace label.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrWaveOwnerVerdict", {
+      description: "Whether a pull request's owner session is live, why, and the owner's harness and workspace label.",
+    })
+  )
 ) {}
 
 /**
@@ -251,8 +252,8 @@ export type YeetPrWaveUrgency = typeof YeetPrWaveUrgency.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetPrWaveDescriptor extends S.Class<YeetPrWaveDescriptor>($I`YeetPrWaveDescriptor`)(
-  {
+export class YeetPrWaveDescriptor extends S.Opaque<YeetPrWaveDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(YEET_PR_WAVE_DESCRIPTOR_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_PR_WAVE_DESCRIPTOR_SCHEMA_VERSION))
     ),
@@ -268,11 +269,12 @@ export class YeetPrWaveDescriptor extends S.Class<YeetPrWaveDescriptor>($I`YeetP
     desktopTitle: S.String,
     desktopBody: S.String,
     createdAt: S.String,
-  },
-  $I.annote("YeetPrWaveDescriptor", {
-    description:
-      "One dead-owner wave for the pr-wave notifier: rows that resolve it, the head it belongs to, and local desktop text.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrWaveDescriptor", {
+      description:
+        "One dead-owner wave for the pr-wave notifier: rows that resolve it, the head it belongs to, and local desktop text.",
+    })
+  )
 ) {}
 
 /**
@@ -346,15 +348,16 @@ export type YeetPrWaveEscalationOutcome = typeof YeetPrWaveEscalationOutcome.Typ
  * @category models
  * @since 0.0.0
  */
-export class YeetPrWaveEscalation extends S.Class<YeetPrWaveEscalation>($I`YeetPrWaveEscalation`)(
-  {
+export class YeetPrWaveEscalation extends S.Opaque<YeetPrWaveEscalation, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: YeetPrWaveEscalationOutcome,
     waveKey: S.String,
     owner: YeetPrWaveOwnerVerdict,
-  },
-  $I.annote("YeetPrWaveEscalation", {
-    description: "One escalation attempt's outcome, the wave key it claimed, and the owner verdict behind it.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrWaveEscalation", {
+      description: "One escalation attempt's outcome, the wave key it claimed, and the owner verdict behind it.",
+    })
+  )
 ) {}
 
 const ownerLabel = (record: PrSessionRecord): string => `${record.harness} · ${record.workspace}`;
@@ -560,18 +563,19 @@ export const renderYeetPrWaveSummary: {
  * @category models
  * @since 0.0.0
  */
-export class YeetPrWaveDescriptorInput extends S.Class<YeetPrWaveDescriptorInput>($I`YeetPrWaveDescriptorInput`)(
-  {
+export class YeetPrWaveDescriptorInput extends S.Opaque<YeetPrWaveDescriptorInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     wave: YeetPrWave,
     headSha: S.NonEmptyString,
     checkout: S.String,
     waveKey: S.String,
     owner: YeetPrWaveOwnerVerdict,
     createdAt: S.String,
-  },
-  $I.annote("YeetPrWaveDescriptorInput", {
-    description: "The wave, head, checkout, wave key, owner verdict, and time a wave descriptor is built from.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrWaveDescriptorInput", {
+      description: "The wave, head, checkout, wave key, owner verdict, and time a wave descriptor is built from.",
+    })
+  )
 ) {}
 
 /**

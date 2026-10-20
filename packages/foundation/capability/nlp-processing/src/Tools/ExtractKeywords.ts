@@ -6,15 +6,15 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { PosInt } from "../internal/PosInt.ts";
 import { AiKeyword, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/ExtractKeywords");
 
-class ExtractKeywordsParameters extends S.Class<ExtractKeywordsParameters>($I`ExtractKeywordsParameters`)(
-  {
+class ExtractKeywordsParameters extends S.Opaque<ExtractKeywordsParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to extract keywords from",
       examples: ["Machine learning algorithms process data efficiently."],
@@ -24,19 +24,21 @@ class ExtractKeywordsParameters extends S.Class<ExtractKeywordsParameters>($I`Ex
       description: "Maximum number of keywords to return (default: 10)",
       examples: [PosInt.make(5), PosInt.make(10), PosInt.make(20)],
     }),
-  },
-  $I.annote("ExtractKeywordsParameters", {
-    description: "Inputs required to extract ranked keywords from a text document.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractKeywordsParameters", {
+      description: "Inputs required to extract ranked keywords from a text document.",
+    })
+  )
 ) {}
 
-class ExtractKeywordsSuccess extends S.Class<ExtractKeywordsSuccess>($I`ExtractKeywordsSuccess`)(
-  {
+class ExtractKeywordsSuccess extends S.Opaque<ExtractKeywordsSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     keywords: S.Array(AiKeyword),
-  },
-  $I.annote("ExtractKeywordsSuccess", {
-    description: "Ranked keyword entries extracted from the input text.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractKeywordsSuccess", {
+      description: "Ranked keyword entries extracted from the input text.",
+    })
+  )
 ) {}
 
 /**

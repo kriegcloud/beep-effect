@@ -55,7 +55,7 @@ import { $PackageNameId } from "@beep/identity/packages"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class MissingConfigError extends S.TaggedError<MissingConfigError>($I`MissingConfigError`)(
+class MissingConfigError extends S.TaggedError<MissingConfigError, { readonly brand: unique symbol }>($I`MissingConfigError`)(
   "MissingConfigError",
   { key: S.String },
   $I.annote("MissingConfigError", { description: "Required configuration key is missing" })
@@ -102,7 +102,7 @@ const toDisplayName = (rawName: string | null | undefined) =>
 - When schema errors cross a local boundary, immediately map them into the boundary's typed error with `Effect.mapError(...)`.
 - Use `S.decodeUnknownResult` / `S.decodeResult` or `S.decodeUnknownOption` only for deliberately synchronous, non-throwing local paths. Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync` by default.
 - Never use `JSON.parse` / `JSON.stringify`; use schema JSON codecs (`S.fromJsonString`, `S.decodeUnknownEffect`, `S.encodeUnknownEffect`, or the explicit non-throwing Result/Option forms).
-- Prefer `S.Class` over `S.Struct` for object/domain schemas.
+- Model plain object data as a branded `S.Opaque` over an annotated `S.Struct`; keep `S.Class` for errors, persisted entities, classes with instance members, and `.extend` chains (EF-33).
 - Repo-wide outstanding schema-first findings are tracked in `standards/schema-first.inventory.jsonc` and verified by `bun run beep lint schema-first`.
 - Do not name schemas with a `Schema` suffix; schema constants should be named after the domain type.
 - For non-class schemas, export type aliases with the same identifier name as the schema value.
@@ -116,7 +116,7 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class CreateTaskInputError extends S.TaggedError<CreateTaskInputError>($I`CreateTaskInputError`)(
+class CreateTaskInputError extends S.TaggedError<CreateTaskInputError, { readonly brand: unique symbol }>($I`CreateTaskInputError`)(
   "CreateTaskInputError",
   { message: S.String },
   $I.annote("CreateTaskInputError", {
@@ -124,11 +124,15 @@ class CreateTaskInputError extends S.TaggedError<CreateTaskInputError>($I`Create
   })
 ) {}
 
-export class CreateTaskInput extends S.Class<CreateTaskInput>($I`CreateTaskInput`)({
-  id: S.String,
-  title: S.String,
-  priority: S.Int
-}) {}
+export class CreateTaskInput extends S.Opaque<CreateTaskInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.String,
+    title: S.String,
+    priority: S.Int
+  }).pipe($I.annoteSchema("CreateTaskInput", {
+    description: "Input payload for creating a task."
+  }))
+) {}
 
 export const decodeCreateTaskInput = (input: unknown) =>
   S.decodeUnknownEffect(CreateTaskInput)(input).pipe(
@@ -248,8 +252,8 @@ export class MyService extends Context.Service<MyService, {
 - Use `@effect/vitest` and `it.effect(...)` for effectful tests.
 - Keep fixtures typed and schema-validated where useful.
 - When behavior claims to hold across a schema-modeled domain, prefer
-  `S.toArbitrary(sourceSchema)` with FastCheck over happy-path fixture data
-  alone. Add arbitrary annotations to the source schema when generation needs
+  `Arbitrary.schema(sourceSchema)` (`effect/Arbitrary`) with `it.prop` over
+  happy-path fixture data alone. Add arbitrary annotations to the source schema when generation needs
   domain-specific realism.
 
 ### EF-11: Public APIs are documented
@@ -282,7 +286,7 @@ export type Tenant = typeof Tenant.Type
 ### EF-12b: Schema-first internal domain building blocks
 
 - If an intermediate domain concept is named, reused, matched on, or structurally validated, model it as a schema first instead of an ad-hoc boolean helper.
-- Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncludes` before reaching for `S.makeFilter`.
+- Prefer built-in schema constructors/checks such as `S.NonEmptyString`, `S.NonEmptyArray`, `S.TupleWithRest`, `S.Union`, `S.isPattern`, and `S.isIncluding` before reaching for `S.makeFilter`.
 - Where upstream covers a `foundation/modeling` concept's intent, its covered facets retire in the same PR that migrates their consumers, with no alias; the whole concept retires unless the lines reading its uncovered members outnumber the lines using its covered facets (ADAPT, per the facet census in `standards/architecture/DECISIONS.md` "Upstream-First Foundation/Modeling").
 - Derive domain guards with `S.is(SomeSchema)`.
 - Use `LiteralKit` for a named internal literal domain, especially one that needs `.Enum`, `.is`, `$match`, `.toTaggedUnion`, or an annotation-bearing schema value; use `S.Literals` for anonymous inline unions never referenced by name.
@@ -307,8 +311,9 @@ export type Tenant = typeof Tenant.Type
   `state`, `category`, `profile`, or `family`), compose variants with
   `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalize with
   `S.toTaggedUnion("<field>")`.
-- Prefer `S.Class` for tagged union member schemas, and use the schema-derived
-  `.match` helper when branching directly on the union.
+- Define tagged union member schemas as branded `S.Opaque` classes over
+  `S.Struct` (EF-33), and use the schema-derived `.match` helper when
+  branching directly on the union.
 - Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
 - Reference: [Effect schema docs](../.repos/effect/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](../.repos/effect/packages/effect/SCHEMA.md:1934).
 
@@ -324,25 +329,23 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 const ExternalJobKind = LiteralKit(["created", "completed"])
 
-export class ExternalJobCreated extends S.Class<ExternalJobCreated>($I`ExternalJobCreated`)(
-  {
+export class ExternalJobCreated extends S.Opaque<ExternalJobCreated, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("created"),
     id: S.String
-  },
-  $I.annote("ExternalJobCreated", {
+  }).pipe($I.annoteSchema("ExternalJobCreated", {
     description: "Created event from external job source."
-  })
+  }))
 ) {}
 
-export class ExternalJobCompleted extends S.Class<ExternalJobCompleted>($I`ExternalJobCompleted`)(
-  {
+export class ExternalJobCompleted extends S.Opaque<ExternalJobCompleted, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("completed"),
     id: S.String,
     at: S.String
-  },
-  $I.annote("ExternalJobCompleted", {
+  }).pipe($I.annoteSchema("ExternalJobCompleted", {
     description: "Completed event from external job source."
-  })
+  }))
 ) {}
 
 export const ExternalJobEvent = ExternalJobKind
@@ -454,12 +457,16 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class AccountInput extends S.Class<AccountInput>($I`AccountInput`)({
-  nickname: S.OptionFromNullishOr(S.String),
-  bio: S.OptionFromNullOr(S.String),
-  phone: S.OptionFromOptionalKey(S.String),
-  timezone: S.OptionFromOptional(S.String)
-}) {}
+export class AccountInput extends S.Opaque<AccountInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    nickname: S.OptionFromNullishOr(S.String),
+    bio: S.OptionFromNullOr(S.String),
+    phone: S.OptionFromOptionalKey(S.String),
+    timezone: S.OptionFromOptional(S.String)
+  }).pipe($I.annoteSchema("AccountInput", {
+    description: "Account input whose absent fields decode to Option."
+  }))
+) {}
 ```
 
 ### EF-18: Exported helper APIs should be dual
@@ -501,7 +508,7 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class UserJsonError extends S.TaggedError<UserJsonError>($I`UserJsonError`)(
+class UserJsonError extends S.TaggedError<UserJsonError, { readonly brand: unique symbol }>($I`UserJsonError`)(
   "UserJsonError",
   { message: S.String },
   $I.annote("UserJsonError", {
@@ -509,10 +516,14 @@ class UserJsonError extends S.TaggedError<UserJsonError>($I`UserJsonError`)(
   })
 ) {}
 
-export class User extends S.Class<User>($I`User`)({
-  id: S.String,
-  name: S.String
-}) {}
+export class User extends S.Opaque<User, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.String,
+    name: S.String
+  }).pipe($I.annoteSchema("User", {
+    description: "User payload carried as JSON."
+  }))
+) {}
 
 const UserJson = S.fromJsonString(User)
 
@@ -710,16 +721,16 @@ Example:
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 const loadPort = Effect.fn("Config.loadPort")(function* () {
-  return yield* Config.int("PORT")
+  return yield* Config.Port("PORT")
 })
 ```
 
 ### EF-29: Secrets must stay redacted
 
-- Use `Config.redacted` for secret config values.
+- Use `Config.Redacted` for secret config values.
 - Use `Redacted.make` for sensitive values coming from non-config sources.
 - Never log secret values after unwrapping.
-- Reference: [Config.redacted](../.repos/effect/packages/effect/src/Config.ts:1161) and [Redacted](../.repos/effect/packages/effect/src/Redacted.ts).
+- Reference: [Config.Redacted](../.repos/effect/packages/effect/src/Config.ts) and [Redacted](../.repos/effect/packages/effect/src/Redacted.ts).
 
 Example:
 
@@ -727,7 +738,7 @@ Example:
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 const loadApiKey = Effect.fn("Config.loadApiKey")(function* () {
-  const apiKey = yield* Config.redacted("API_KEY")
+  const apiKey = yield* Config.Redacted("API_KEY")
   yield* Effect.logDebug(`apiKey=${String(apiKey)}`)
   return apiKey
 })
@@ -796,7 +807,31 @@ const runIsolated = program.pipe(
 ### EF-33: Schema-first development for domain models
 
 - If a domain data model can be expressed as `Schema`, define the schema first.
-- Prefer `S.Class` (or another schema constructor) over plain `type` / `interface` for property-based domain shapes.
+- Prefer a schema constructor over plain `type` / `interface` for property-based domain shapes.
+- Plain data schemas use a branded `S.Opaque` over an annotated `S.Struct`:
+  `class X extends S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct({...}).pipe($I.annoteSchema("X", {...}))) { static ... }`.
+  Tagged data uses `S.TaggedStruct("X", {...})` as the source. Plain data means
+  no instance members, not an error, not a persisted entity, and not part of an
+  `.extend` chain.
+- Opaque values are plain objects validated by shape. The class gives an opaque
+  nominal type and a place for statics. Construct with `X.make(...)`; `new X(...)`
+  is not available. There is no `X.extend`: build a wider struct by spreading
+  `X.fields` into a new `S.Struct`, or with `S.fieldsAssign(...)`.
+  `X.annotate(...)` returns a plain schema without the statics, so annotate the
+  Struct inside the pipe.
+- `S.Class`, `S.TaggedClass`, `S.Error`, and `S.TaggedError` stay for errors,
+  persisted entities (built on `@beep/effect-drizzle`), schemas with instance
+  members (getters or methods), and `.extend` chains. `bun run beep lint
+  schema-first` flags a plain-data `S.Class` outside those cases.
+- Every `S.Class` / `S.TaggedClass` / `S.Error` / `S.TaggedError` / `S.Opaque`
+  declaration carries `{ readonly brand: unique symbol }` as its brand type
+  argument. A structural `{}` brand needs a documented exception in
+  `standards/schema-first.inventory.jsonc`. `schemaClassMissingBrand` becomes an
+  error at the `@effect/tsgo` 0.52 bump.
+- Why not `S.Class` for data: its type-side check is `instanceof`, so a
+  structurally valid plain object fails `S.is`, encoding, and `HttpApiClient`
+  payload encoding, and `structuredClone` / `postMessage` strip the class.
+  Decision: `standards/architecture/DECISIONS.md` (2026-10-14).
 - Derive runtime types from schema definitions instead of duplicating parallel `type` / `interface` models.
 - Keep plain `type` / `interface` for cases schema cannot represent cleanly (complex type-level transforms, utility types, overload-only surfaces).
 - Before choosing nontrivial Schema APIs, check the local Effect v4 source at
@@ -810,16 +845,35 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-// Prefer schema-first over plain interfaces for domain payloads.
-export class CreateOrderInput extends S.Class<CreateOrderInput>($I`CreateOrderInput`)(
-  {
+// Plain data: branded Opaque over an annotated Struct.
+export class CreateOrderInput extends S.Opaque<CreateOrderInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     orderId: S.String,
     customerId: S.String
-  },
-  $I.annote("CreateOrderInput", {
+  }).pipe($I.annoteSchema("CreateOrderInput", {
     description: "Input payload for creating an order."
+  }))
+) {}
+
+// Tagged data: TaggedStruct keeps `_tag` for Match / catchTag dispatch.
+export class OrderPlaced extends S.Opaque<OrderPlaced, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("OrderPlaced", {
+    orderId: S.String
+  }).pipe($I.annoteSchema("OrderPlaced", {
+    description: "Event recorded when an order is placed."
+  }))
+) {}
+
+// Errors stay schema classes, branded.
+export class OrderRejected extends S.TaggedError<OrderRejected, { readonly brand: unique symbol }>($I`OrderRejected`)(
+  "OrderRejected",
+  { reason: S.String },
+  $I.annote("OrderRejected", {
+    description: "The order could not be accepted."
   })
 ) {}
+
+const input = CreateOrderInput.make({ orderId: "o-1", customerId: "c-1" })
 ```
 
 ### EF-34: Schema defaults over fallback object logic
@@ -837,8 +891,8 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class VersionSyncOptions extends S.Class<VersionSyncOptions>($I`VersionSyncOptions`)(
-  {
+export class VersionSyncOptions extends S.Opaque<VersionSyncOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     shouldCheck: S.Boolean.pipe(
       S.withDecodingDefault(() => true),
       S.withConstructorDefault(() => O.some(true))
@@ -847,10 +901,9 @@ export class VersionSyncOptions extends S.Class<VersionSyncOptions>($I`VersionSy
       S.withDecodingDefault(() => []),
       S.withConstructorDefault(() => O.some([]))
     )
-  },
-  $I.annote("VersionSyncOptions", {
+  }).pipe($I.annoteSchema("VersionSyncOptions", {
     description: "Version sync options with schema-level defaults."
-  })
+  }))
 ) {}
 ```
 
@@ -890,7 +943,7 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 const TopicKind = LiteralKit(["plain", "scoped"])
 
 const ContainsScopeSeparator = S.String.check(
-  S.isIncludes(":", {
+  S.isIncluding(":", {
     identifier: $I`ContainsScopeSeparatorCheck`,
     title: "Contains Scope Separator",
     description: "A string that contains `:`.",
@@ -984,8 +1037,9 @@ Avoid this:
 - Use class-local statics for repeated `decode`, `encode`, `arbitrary`, and
   `equivalence` helpers when they reduce repeated plumbing without introducing
   import cycles.
-- Reference scratch proof:
-  `scratchpad/test/schema-static-apis.test.ts`.
+- Reference proofs:
+  `packages/foundation/modeling/schema/test/LiteralKit.test.ts` and
+  `packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts`.
 
 ### EF-36: Prefer schema equivalence for domain comparisons
 
@@ -1074,7 +1128,7 @@ import { $PackageNameId } from "@beep/identity/packages"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class DomainError extends S.TaggedError<DomainError>($I`DomainError`)(
+class DomainError extends S.TaggedError<DomainError, { readonly brand: unique symbol }>($I`DomainError`)(
   "DomainError",
   {
     message: S.String
@@ -1085,8 +1139,9 @@ class DomainError extends S.TaggedError<DomainError>($I`DomainError`)(
 
 Use the package `$I` composer when a distinct namespaced schema identifier is
 wanted. If no distinct identifier is needed, omit it:
-`S.TaggedError<DomainError>()("DomainError", fields)`. Never pass a bare
-identifier equal to the tag; `redundantSchemaTagIdentifier` rejects it.
+`S.TaggedError<DomainError, { readonly brand: unique symbol }>()("DomainError", fields)`.
+Never pass a bare identifier equal to the tag; `redundantSchemaTagIdentifier`
+rejects it.
 
 Cause-carrying errors declare `cause: S.Defect({ includeStack: true })`
 explicitly in their fields.
@@ -1112,9 +1167,13 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class Payload extends S.Class<Payload>($I`Payload`)({
-  query: S.String
-}) {}
+export class Payload extends S.Opaque<Payload, { readonly brand: unique symbol }>()(
+  S.Struct({
+    query: S.String
+  }).pipe($I.annoteSchema("Payload", {
+    description: "Search request payload."
+  }))
+) {}
 
 const decodePayload = S.decodeUnknownEffect(Payload)
 ```
@@ -1136,14 +1195,13 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class UserProfile extends S.Class<UserProfile>($I`UserProfile`)(
-  {
+export class UserProfile extends S.Opaque<UserProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     displayName: S.String
-  },
-  $I.annote("UserProfile", {
+  }).pipe($I.annoteSchema("UserProfile", {
     description: "User profile model used in domain workflows."
-  })
+  }))
 ) {}
 ```
 
@@ -1187,8 +1245,8 @@ const summarize = (items: ReadonlyArray<string>) =>
     onNonEmpty: (values) => `count:${A.length(values)}`
   })
 
-export class SomeErrorOne extends S.TaggedError<SomeErrorOne>($I`SomeErrorOne`)("SomeErrorOne", { message: S.String}) {}
-export class SomeErrorTwo extends S.TaggedError<SomeErrorTwo>($I`SomeErrorTwo`)("SomeErrorTwo", { message: S.String}) {}
+export class SomeErrorOne extends S.TaggedError<SomeErrorOne, { readonly brand: unique symbol }>($I`SomeErrorOne`)("SomeErrorOne", { message: S.String}) {}
+export class SomeErrorTwo extends S.TaggedError<SomeErrorTwo, { readonly brand: unique symbol }>($I`SomeErrorTwo`)("SomeErrorTwo", { message: S.String}) {}
 
 export const SomeError = S.Union(
   [
@@ -1231,10 +1289,14 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class Input extends S.Class<Input>($I`Input`)({
-  maybeName: S.OptionFromNullishOr(S.String),
-  maybeEmail: S.OptionFromOptionalKey(S.String)
-}) {}
+export class Input extends S.Opaque<Input, { readonly brand: unique symbol }>()(
+  S.Struct({
+    maybeName: S.OptionFromNullishOr(S.String),
+    maybeEmail: S.OptionFromOptionalKey(S.String)
+  }).pipe($I.annoteSchema("Input", {
+    description: "Input whose absent fields decode to Option."
+  }))
+) {}
 ```
 
 ### Template: Dual helper (data-first + data-last)
@@ -1256,9 +1318,13 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class Payload extends S.Class<Payload>($I`Payload`)({
-  query: S.String
-}) {}
+export class Payload extends S.Opaque<Payload, { readonly brand: unique symbol }>()(
+  S.Struct({
+    query: S.String
+  }).pipe($I.annoteSchema("Payload", {
+    description: "Search request payload."
+  }))
+) {}
 
 const PayloadJson = S.fromJsonString(Payload)
 
@@ -1310,8 +1376,8 @@ export const resilientTask = task.pipe(
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 export const loadConfig = Effect.fn("Config.load")(function* () {
-  const port = yield* Config.int("PORT")
-  const apiKey = yield* Config.redacted("API_KEY")
+  const port = yield* Config.Port("PORT")
+  const apiKey = yield* Config.Redacted("API_KEY")
   return { port, apiKey }
 })
 ```
@@ -1346,7 +1412,7 @@ Use this before submitting code:
 14. Nullish schema fields use `S.OptionFrom*` helpers when representing absence as `Option`.
 15. Exported helper combinators support dual API via `dual`.
 16. No `JSON.parse` / `JSON.stringify` in Effect-first domain paths.
-17. Prefer `S.Class` over `S.Struct` for new object schemas.
+17. New plain-data object schemas are branded `S.Opaque` classes; every `S.Class` / `S.TaggedClass` / `S.Error` / `S.TaggedError` / `S.Opaque` carries `{ readonly brand: unique symbol }`.
 18. Required verification commands are green.
 19. `Effect.run*` appears only in runtime boundaries (entrypoint/test harness).
 20. Promise-based APIs are lifted with `Effect.tryPromise`.
@@ -1356,7 +1422,7 @@ Use this before submitting code:
 24. Forking intent is explicit (`forkChild` default; `forkDetach` justified).
 25. Large fan-out operations specify concurrency deliberately.
 26. Config values come from `Config` / `ConfigProvider`, not direct `process.env` in domain logic.
-27. Secrets are `Redacted` (`Config.redacted` / `Redacted.make`) and not logged raw.
+27. Secrets are `Redacted` (`Config.Redacted` / `Redacted.make`) and not logged raw.
 28. Recovery uses `catchTag` / `catchFilter` for targeted cases.
 29. Expected failures use `Effect.fail`; defects are reserved for invariants.
 30. Isolation-sensitive layer provisioning uses `{ local: true }` or `Layer.fresh`.

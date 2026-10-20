@@ -13,7 +13,8 @@ import * as PubSub from "effect/PubSub";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { KeyValueStore, Persistence } from "effect/persistence";
+import * as KeyValueStore from "effect/persistence/KeyValueStore";
+import * as Persistence from "effect/persistence/Persistence";
 import { BatchId } from "../Domain/Identity.ts";
 import { BatchState } from "../Domain/Model/BatchWorkflow.ts";
 import { PathLayout } from "../Domain/PathLayout.ts";
@@ -46,7 +47,7 @@ const decodeState = S.decodeUnknownEffect(S.fromJsonString(BatchState));
  * @category errors
  * @since 0.0.0
  */
-export class BatchStatePersistenceError extends S.TaggedError<BatchStatePersistenceError>(
+export class BatchStatePersistenceError extends S.TaggedError<BatchStatePersistenceError, { readonly brand: unique symbol }>(
   $I`BatchStatePersistenceError`
 )(
   "BatchStatePersistenceError",
@@ -80,7 +81,7 @@ export class BatchStatePersistenceError extends S.TaggedError<BatchStatePersiste
  * @category errors
  * @since 0.0.0
  */
-export class BatchStateDecodeError extends S.TaggedError<BatchStateDecodeError>($I`BatchStateDecodeError`)(
+export class BatchStateDecodeError extends S.TaggedError<BatchStateDecodeError, { readonly brand: unique symbol }>($I`BatchStateDecodeError`)(
   "BatchStateDecodeError",
   {
     batchId: BatchId,

@@ -7,6 +7,7 @@
  * their use-case Effects/streams (no rpc transport).
  */
 import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
+import { UserTurnHistoryItem } from "@beep/agents-use-cases";
 import { FixtureTurnKernel, fixtureBlocksFor, fixtureEventsFor } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import { UsageRecord } from "@beep/epistemic-domain";
@@ -31,7 +32,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
 import { decodeWorkspaceId, userDocument, userParagraphDocument } from "@/chat/ChatFixtures";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink, UsageRecordSink, UsageRecordSinkInMemory } from "@/chat/UsageRecordSink";
@@ -107,7 +108,7 @@ describe("@beep/professional-desktop chat contract", () => {
         const thread = yield* operations.createThread(workspaceId, "Contract");
         const content = userDocument("Hi");
 
-        const expectedBlocks = fixtureBlocksFor([{ role: "user", text: "Hi" }]);
+        const expectedBlocks = fixtureBlocksFor([UserTurnHistoryItem.make({ role: "user", text: "Hi" })]);
         const emitted = yield* Stream.runCollect(operations.sendMessage(thread.id, content));
 
         // 1) the stream emits the fixture's deterministic blocks
@@ -218,7 +219,9 @@ describe("@beep/professional-desktop chat contract", () => {
         const thread = yield* operations.createThread(workspaceId, "New thread");
         const content = userDocument("Best effort title");
 
-        const expectedBlocks = fixtureBlocksFor([{ role: "user", text: "Best effort title" }]);
+        const expectedBlocks = fixtureBlocksFor([
+          UserTurnHistoryItem.make({ role: "user", text: "Best effort title" }),
+        ]);
         const emitted = yield* Stream.runCollect(operations.sendMessage(thread.id, content));
 
         expect([...emitted]).toStrictEqual([...expectedBlocks]);
@@ -534,7 +537,7 @@ describe("@beep/professional-desktop chat contract", () => {
 
         const history = yield* Ref.get(historyRef);
         const firstAssistantText = documentToPlainText(
-          assistantContentToDocument(fixtureBlocksFor([{ role: "user", text: "first" }]))
+          assistantContentToDocument(fixtureBlocksFor([UserTurnHistoryItem.make({ role: "user", text: "first" })]))
         );
         const wireHistory = yield* Effect.forEach(history, (item) => encodeTurnHistoryItem(item));
         const decodedHistory = yield* Effect.forEach(wireHistory, (item) => decodeTurnHistoryItem(item));

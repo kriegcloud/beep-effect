@@ -50,7 +50,7 @@ import {
 } from "./CoverageScope.ts";
 import { discoverWorkspacePackages, repoRelative } from "./QualityArtifactSupport.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { GitCommandErrorAdapter } from "../../../internal/repo-run/GitExec.ts";
 import type { WorkspacePackageInfo } from "./QualityArtifactSupport.ts";
 
@@ -212,16 +212,17 @@ const coverageConfigurationError = (message: string, cause: unknown): DomainErro
  * @category models
  * @since 0.0.0
  */
-export class CoverageUncoveredCounts extends S.Class<CoverageUncoveredCounts>($I`CoverageUncoveredCounts`)(
-  {
+export class CoverageUncoveredCounts extends S.Opaque<CoverageUncoveredCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     lines: S.Natural,
     statements: S.Natural,
     branches: S.Natural,
     functions: S.Natural,
-  },
-  $I.annote("CoverageUncoveredCounts", {
-    description: "Absolute uncovered counts per metric for one workspace package.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageUncoveredCounts", {
+      description: "Absolute uncovered counts per metric for one workspace package.",
+    })
+  )
 ) {}
 
 /**
@@ -246,17 +247,18 @@ export class CoverageUncoveredCounts extends S.Class<CoverageUncoveredCounts>($I
  * @category models
  * @since 0.0.0
  */
-export class CoverageFileBaseline extends S.Class<CoverageFileBaseline>($I`CoverageFileBaseline`)(
-  {
+export class CoverageFileBaseline extends S.Opaque<CoverageFileBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     lines: Percentage,
     statements: Percentage,
     branches: Percentage,
     functions: Percentage,
     uncovered: CoverageUncoveredCounts,
-  },
-  $I.annote("CoverageFileBaseline", {
-    description: "Coverage metrics for one repo-relative source file in a workspace package.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageFileBaseline", {
+      description: "Coverage metrics for one repo-relative source file in a workspace package.",
+    })
+  )
 ) {}
 
 const CoverageRepoRelativeFiles = S.Record(S.String, CoverageFileBaseline)
@@ -303,8 +305,8 @@ const CoverageRepoRelativeFiles = S.Record(S.String, CoverageFileBaseline)
  * @category models
  * @since 0.0.0
  */
-export class CoveragePackageBaseline extends S.Class<CoveragePackageBaseline>($I`CoveragePackageBaseline`)(
-  {
+export class CoveragePackageBaseline extends S.Opaque<CoveragePackageBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: CoverageRepoRelativePackagePath,
     lines: Percentage,
     statements: Percentage,
@@ -312,22 +314,30 @@ export class CoveragePackageBaseline extends S.Class<CoveragePackageBaseline>($I
     functions: Percentage,
     uncovered: CoverageUncoveredCounts,
     files: CoverageRepoRelativeFiles,
-  },
-  $I.annote("CoveragePackageBaseline", {
-    description: "Committed package coverage totals with required per-file provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoveragePackageBaseline", {
+      description: "Committed package coverage totals with required per-file provenance.",
+    })
+  )
 ) {}
 
-class CoverageTieredMinimum extends S.Class<CoverageTieredMinimum>($I`CoverageTieredMinimum`)(
-  {
+/**
+ * Repository-wide minimum coverage percentages by metric.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageTieredMinimum extends S.Opaque<CoverageTieredMinimum, { readonly brand: unique symbol }>()(
+  S.Struct({
     lines: Percentage,
     statements: Percentage,
     branches: Percentage,
     functions: Percentage,
-  },
-  $I.annote("CoverageTieredMinimum", {
-    description: "Repository-wide minimum coverage percentages by metric.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageTieredMinimum", {
+      description: "Repository-wide minimum coverage percentages by metric.",
+    })
+  )
 ) {}
 
 /**
@@ -336,8 +346,11 @@ class CoverageTieredMinimum extends S.Class<CoverageTieredMinimum>($I`CoverageTi
  * @category models
  * @since 0.0.0
  */
-export class CoverageRegressionBaseline extends S.Class<CoverageRegressionBaseline>($I`CoverageRegressionBaseline`)(
-  {
+export class CoverageRegressionBaseline extends S.Opaque<
+  CoverageRegressionBaseline,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schema_version: S.Literal(2),
     generated_at: S.String,
     git_sha: S.String,
@@ -347,10 +360,11 @@ export class CoverageRegressionBaseline extends S.Class<CoverageRegressionBaseli
     exemptions: S.Record(S.String, S.NonEmptyString),
     follow_ups: S.Record(S.String, S.NonEmptyString),
     packages: S.Record(S.String, CoveragePackageBaseline),
-  },
-  $I.annote("CoverageRegressionBaseline", {
-    description: "Package coverage percentages used by the fail-on-drop ratchet.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageRegressionBaseline", {
+      description: "Package coverage percentages used by the fail-on-drop ratchet.",
+    })
+  )
 ) {}
 const encodeCoverageRegressionBaseline = S.encodeEffect(CoverageRegressionBaseline);
 
@@ -417,16 +431,23 @@ const baselineReadError = (cause: unknown): DomainError =>
 const baselineDecodeError = (cause: unknown): DomainError =>
   coverageConfigurationError(`Failed to parse ${coverageRegressionBaselinePath}.`, cause);
 
-class VitestCoverageMetric extends S.Class<VitestCoverageMetric>($I`VitestCoverageMetric`)(
-  {
+/**
+ * Vitest coverage-summary metric payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VitestCoverageMetric extends S.Opaque<VitestCoverageMetric, { readonly brand: unique symbol }>()(
+  S.Struct({
     total: S.Natural,
     covered: S.Natural,
     skipped: S.Natural,
     pct: VitestCoveragePct,
-  },
-  $I.annote("VitestCoverageMetric", {
-    description: "Vitest coverage-summary metric payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("VitestCoverageMetric", {
+      description: "Vitest coverage-summary metric payload.",
+    })
+  )
 ) {}
 
 const ValidVitestCoverageMetric = VitestCoverageMetric.check(
@@ -448,16 +469,26 @@ const ValidVitestCoverageMetric = VitestCoverageMetric.check(
   })
 );
 
-class VitestCoverageSummaryTotal extends S.Class<VitestCoverageSummaryTotal>($I`VitestCoverageSummaryTotal`)(
-  {
+/**
+ * Total coverage metrics from a Vitest coverage-summary.json file.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VitestCoverageSummaryTotal extends S.Opaque<
+  VitestCoverageSummaryTotal,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     lines: ValidVitestCoverageMetric,
     statements: ValidVitestCoverageMetric,
     branches: ValidVitestCoverageMetric,
     functions: ValidVitestCoverageMetric,
-  },
-  $I.annote("VitestCoverageSummaryTotal", {
-    description: "Total coverage metrics from a Vitest coverage-summary.json file.",
-  })
+  }).pipe(
+    $I.annoteSchema("VitestCoverageSummaryTotal", {
+      description: "Total coverage metrics from a Vitest coverage-summary.json file.",
+    })
+  )
 ) {}
 
 const VitestCoverageSummary = S.StructWithRest(S.Struct({ total: VitestCoverageSummaryTotal }), [
@@ -485,14 +516,15 @@ type VitestCoverageSummary = typeof VitestCoverageSummary.Type;
  * @category models
  * @since 0.0.0
  */
-export class CoverageSnapshotEntry extends S.Class<CoverageSnapshotEntry>($I`CoverageSnapshotEntry`)(
-  {
+export class CoverageSnapshotEntry extends S.Opaque<CoverageSnapshotEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseline: CoveragePackageBaseline,
     packageName: S.String,
-  },
-  $I.annote("CoverageSnapshotEntry", {
-    description: "Baseline entry paired with the package it covers.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageSnapshotEntry", {
+      description: "Baseline entry paired with the package it covers.",
+    })
+  )
 ) {}
 
 /**
@@ -560,16 +592,18 @@ export type CoverageBaselineRowDisposition = typeof CoverageBaselineRowDispositi
  * @category models
  * @since 0.0.0
  */
-export class CoverageBaselineChangeSet extends S.Class<CoverageBaselineChangeSet>($I`CoverageBaselineChangeSet`)(
-  {
+export class CoverageBaselineChangeSet extends S.Opaque<CoverageBaselineChangeSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseDescription: S.NonEmptyString,
     packageNames: S.Array(S.String),
     dependentPackageNames: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
     fullReasons: S.Array(S.String),
-  },
-  $I.annote("CoverageBaselineChangeSet", {
-    description: "Coverage-row adoption owners, full-run diagnostics, and the Git comparison base used to derive them.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageBaselineChangeSet", {
+      description:
+        "Coverage-row adoption owners, full-run diagnostics, and the Git comparison base used to derive them.",
+    })
+  )
 ) {}
 
 /**
@@ -606,17 +640,18 @@ export class CoverageBaselineChangeSet extends S.Class<CoverageBaselineChangeSet
  * @category models
  * @since 0.0.0
  */
-export class CoverageBaselineWritePlan extends S.Class<CoverageBaselineWritePlan>($I`CoverageBaselineWritePlan`)(
-  {
+export class CoverageBaselineWritePlan extends S.Opaque<CoverageBaselineWritePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     changeSet: CoverageBaselineChangeSet,
     packages: S.Record(S.String, CoveragePackageBaseline),
     dispositions: S.Record(S.String, CoverageBaselineRowDisposition),
     carriedUnmeasured: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
-  },
-  $I.annote("CoverageBaselineWritePlan", {
-    description:
-      "Coverage baseline package rows to write, the disposition of every measured or removed package, and the adoption-set packages a scoped run never measured.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageBaselineWritePlan", {
+      description:
+        "Coverage baseline package rows to write, the disposition of every measured or removed package, and the adoption-set packages a scoped run never measured.",
+    })
+  )
 ) {}
 
 /**
@@ -644,9 +679,17 @@ const CoverageComparisonFailureFields = {
   packagePath: CoverageRepoRelativePackagePath,
 };
 
-class CoverageBaselineDropFailure extends S.TaggedClass<CoverageBaselineDropFailure>($I`CoverageBaselineDropFailure`)(
-  "baseline-drop",
-  {
+/**
+ * One package or existing-file metric that dropped below its committed baseline.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageBaselineDropFailure extends S.Opaque<
+  CoverageBaselineDropFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("baseline-drop", {
     ...CoverageComparisonFailureFields,
     baseline: Percentage,
     // Present only when this pull request lowered the row and the package was
@@ -657,28 +700,41 @@ class CoverageBaselineDropFailure extends S.TaggedClass<CoverageBaselineDropFail
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("CoverageBaselineDropFailure", {
-    description: "One package or existing-file metric that dropped below its committed baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageBaselineDropFailure", {
+      description: "One package or existing-file metric that dropped below its committed baseline.",
+    })
+  )
 ) {}
 
-class CoverageNewUncoveredFileFailure extends S.TaggedClass<CoverageNewUncoveredFileFailure>(
-  $I`CoverageNewUncoveredFileFailure`
-)(
-  "new-uncovered-file",
-  {
+/**
+ * A newly observed file with uncovered units and no prior file baseline identity.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageNewUncoveredFileFailure extends S.Opaque<
+  CoverageNewUncoveredFileFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("new-uncovered-file", {
     ...CoverageComparisonFailureFields,
     uncovered: S.Natural,
-  },
-  $I.annote("CoverageNewUncoveredFileFailure", {
-    description: "A newly observed file with uncovered units and no prior file baseline identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageNewUncoveredFileFailure", {
+      description: "A newly observed file with uncovered units and no prior file baseline identity.",
+    })
+  )
 ) {}
 
-class CoverageRaisedRowFailure extends S.TaggedClass<CoverageRaisedRowFailure>($I`CoverageRaisedRowFailure`)(
-  "row-raised-beyond-reach",
-  {
+/**
+ * A baseline row this pull request raised above the base revision's row and beyond what the lane measured.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageRaisedRowFailure extends S.Opaque<CoverageRaisedRowFailure, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("row-raised-beyond-reach", {
     ...CoverageComparisonFailureFields,
     base: Percentage,
     proposed: Percentage,
@@ -687,11 +743,12 @@ class CoverageRaisedRowFailure extends S.TaggedClass<CoverageRaisedRowFailure>($
     baseUncovered: S.Natural,
     proposedUncovered: S.Natural,
     actualUncovered: S.Natural,
-  },
-  $I.annote("CoverageRaisedRowFailure", {
-    description:
-      "A baseline row this pull request raised above the base revision's row and beyond what the lane measured.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageRaisedRowFailure", {
+      description:
+        "A baseline row this pull request raised above the base revision's row and beyond what the lane measured.",
+    })
+  )
 ) {}
 
 /**
@@ -722,17 +779,18 @@ class CoverageRaisedRowFailure extends S.TaggedClass<CoverageRaisedRowFailure>($
  * @category models
  * @since 0.0.0
  */
-export class CoveragePackageRowRemovedFailure extends S.TaggedClass<CoveragePackageRowRemovedFailure>(
-  $I`CoveragePackageRowRemovedFailure`
-)(
-  "package-row-removed",
-  {
+export class CoveragePackageRowRemovedFailure extends S.Opaque<
+  CoveragePackageRowRemovedFailure,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("package-row-removed", {
     packageName: S.String,
     packagePath: CoverageRepoRelativePackagePath,
-  },
-  $I.annote("CoveragePackageRowRemovedFailure", {
-    description: "A measured package whose baseline row the pull request removed without deleting the package.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoveragePackageRowRemovedFailure", {
+      description: "A measured package whose baseline row the pull request removed without deleting the package.",
+    })
+  )
 ) {}
 
 /**
@@ -768,8 +826,8 @@ export class CoveragePackageRowRemovedFailure extends S.TaggedClass<CoveragePack
  * @category models
  * @since 0.0.0
  */
-export class CoverageLoweredFloor extends S.Class<CoverageLoweredFloor>($I`CoverageLoweredFloor`)(
-  {
+export class CoverageLoweredFloor extends S.Opaque<CoverageLoweredFloor, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: CoverageRepoRelativePackagePath,
     filePath: CoverageRepoRelativeFilePath.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -778,10 +836,11 @@ export class CoverageLoweredFloor extends S.Class<CoverageLoweredFloor>($I`Cover
     lowered: Percentage,
     actual: Percentage,
     tighten: S.Boolean,
-  },
-  $I.annote("CoverageLoweredFloor", {
-    description: "A floor the pull request lowered on a package it could not have moved, with the measured value.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageLoweredFloor", {
+      description: "A floor the pull request lowered on a package it could not have moved, with the measured value.",
+    })
+  )
 ) {}
 
 /**
@@ -817,15 +876,19 @@ export class CoverageLoweredFloor extends S.Class<CoverageLoweredFloor>($I`Cover
  * @category models
  * @since 0.0.0
  */
-export class CoverageMeasuredRowProposal extends S.Class<CoverageMeasuredRowProposal>($I`CoverageMeasuredRowProposal`)(
-  {
+export class CoverageMeasuredRowProposal extends S.Opaque<
+  CoverageMeasuredRowProposal,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packageName: S.String,
     filePath: CoverageRepoRelativeFilePath.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     row: CoverageFileBaseline,
-  },
-  $I.annote("CoverageMeasuredRowProposal", {
-    description: "A coverage row this run measured for a path some failure reported.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageMeasuredRowProposal", {
+      description: "A coverage row this run measured for a path some failure reported.",
+    })
+  )
 ) {}
 
 /**
@@ -894,8 +957,8 @@ export type CoverageComparisonFailure = typeof CoverageComparisonFailure.Type;
  * @category models
  * @since 0.0.0
  */
-export class CoverageComparisonResult extends S.Class<CoverageComparisonResult>($I`CoverageComparisonResult`)(
-  {
+export class CoverageComparisonResult extends S.Opaque<CoverageComparisonResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     comparedCount: S.Int,
     failures: S.Array(CoverageComparisonFailure),
     raisedRowFailures: S.Array(CoverageComparisonFailure),
@@ -917,10 +980,11 @@ export class CoverageComparisonResult extends S.Class<CoverageComparisonResult>(
       S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))
     ),
     basePinned: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed<boolean>(false))),
-  },
-  $I.annote("CoverageComparisonResult", {
-    description: "Outcome of comparing current coverage against the committed baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageComparisonResult", {
+      description: "Outcome of comparing current coverage against the committed baseline.",
+    })
+  )
 ) {}
 
 /**
@@ -962,8 +1026,11 @@ export class CoverageComparisonResult extends S.Class<CoverageComparisonResult>(
  * @category models
  * @since 0.0.0
  */
-export class CoverageComparisonBaselines extends S.Class<CoverageComparisonBaselines>($I`CoverageComparisonBaselines`)(
-  {
+export class CoverageComparisonBaselines extends S.Opaque<
+  CoverageComparisonBaselines,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseline: CoverageRegressionBaseline,
     proposed: S.Option(CoverageRegressionBaseline),
     // The merge-base document decides authorship: a row that differs from it is
@@ -971,10 +1038,11 @@ export class CoverageComparisonBaselines extends S.Class<CoverageComparisonBasel
     // row `main` moved after the branch diverged to the branch.
     mergeBase: CoverageRegressionBaseline.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     selfJudge: CoverageSelfJudgeScope.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CoverageComparisonBaselines", {
-    description: "Base-pinned comparison floors plus the branch's own baseline rows when a base is pinned.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageComparisonBaselines", {
+      description: "Base-pinned comparison floors plus the branch's own baseline rows when a base is pinned.",
+    })
+  )
 ) {}
 
 const baseOnlyComparison = (baseline: CoverageRegressionBaseline): CoverageComparisonBaselines =>
@@ -1072,18 +1140,18 @@ const uncoveredCount = (metric: VitestCoverageMetric): number => S.Natural.make(
 
 const toCoverageUncoveredCounts = (summary: VitestCoverageSummaryTotal): CoverageUncoveredCounts =>
   CoverageUncoveredCounts.make({
-    lines: uncoveredCount(summary.lines),
-    statements: uncoveredCount(summary.statements),
-    branches: uncoveredCount(summary.branches),
-    functions: uncoveredCount(summary.functions),
+    lines: uncoveredCount(VitestCoverageMetric.make(summary.lines)),
+    statements: uncoveredCount(VitestCoverageMetric.make(summary.statements)),
+    branches: uncoveredCount(VitestCoverageMetric.make(summary.branches)),
+    functions: uncoveredCount(VitestCoverageMetric.make(summary.functions)),
   });
 
 const toCoverageFileBaseline = (summary: VitestCoverageSummaryTotal): CoverageFileBaseline =>
   CoverageFileBaseline.make({
-    lines: coveragePercentageFromCounts(summary.lines),
-    statements: coveragePercentageFromCounts(summary.statements),
-    branches: coveragePercentageFromCounts(summary.branches),
-    functions: coveragePercentageFromCounts(summary.functions),
+    lines: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.lines)),
+    statements: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.statements)),
+    branches: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.branches)),
+    functions: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.functions)),
     uncovered: toCoverageUncoveredCounts(summary),
   });
 
@@ -1163,10 +1231,10 @@ const toCoveragePackageBaseline = Effect.fn("CoverageRegression.toCoveragePackag
   const files = yield* coverageFiles(repoRoot, packageRoot, path, summary);
   return CoveragePackageBaseline.make({
     path: repoRelative(packageRoot, repoRoot, path),
-    lines: coveragePercentageFromCounts(summary.total.lines),
-    statements: coveragePercentageFromCounts(summary.total.statements),
-    branches: coveragePercentageFromCounts(summary.total.branches),
-    functions: coveragePercentageFromCounts(summary.total.functions),
+    lines: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.total.lines)),
+    statements: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.total.statements)),
+    branches: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.total.branches)),
+    functions: coveragePercentageFromCounts(VitestCoverageMetric.make(summary.total.functions)),
     uncovered: toCoverageUncoveredCounts(summary.total),
     files,
   });
@@ -1287,10 +1355,12 @@ const maybeSnapshotEntry = Effect.fn("CoverageRegression.maybeSnapshotEntry")(fu
   }
 
   const summary = yield* readCoverageSummary(summaryPath);
-  return O.some({
-    packageName: info.name,
-    baseline: yield* toCoveragePackageBaseline(repoRoot, info.absolutePath, path, summary),
-  });
+  return O.some(
+    CoverageSnapshotEntry.make({
+      packageName: info.name,
+      baseline: yield* toCoveragePackageBaseline(repoRoot, info.absolutePath, path, summary),
+    })
+  );
 });
 
 /**
@@ -1447,16 +1517,18 @@ const coverageUnmeasuredPackageNames = (
  * @category models
  * @since 0.0.0
  */
-export class CoverageBaselineWriteOptions extends S.Class<CoverageBaselineWriteOptions>(
-  $I`CoverageBaselineWriteOptions`
-)(
-  {
+export class CoverageBaselineWriteOptions extends S.Opaque<
+  CoverageBaselineWriteOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     carryUnmeasured: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed<boolean>(false))),
     replaceAll: S.Boolean,
-  },
-  $I.annote("CoverageBaselineWriteOptions", {
-    description: "How one coverage baseline write treats measured rows and committed rows it never measured.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageBaselineWriteOptions", {
+      description: "How one coverage baseline write treats measured rows and committed rows it never measured.",
+    })
+  )
 ) {}
 
 /**
@@ -3465,7 +3537,7 @@ const compareCoverage = (
 
   const raisedRowFailures = A.getSomes(raisedRowJudgements);
 
-  return {
+  return CoverageComparisonResult.make({
     comparedCount: A.length(actuals) - A.length(newPackages),
     failures,
     raisedRowFailures,
@@ -3481,7 +3553,7 @@ const compareCoverage = (
     packageRowRemovals: floors.packageRowRemovals,
     selfJudgeEligiblePackageNames: floors.eligiblePackageNames,
     basePinned,
-  };
+  });
 };
 
 /**

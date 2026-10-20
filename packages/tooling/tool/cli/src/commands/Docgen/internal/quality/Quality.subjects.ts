@@ -87,14 +87,15 @@ const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(valu
  * @category models
  * @since 0.0.0
  */
-export class QualityRuntimeBudget extends S.Class<QualityRuntimeBudget>($I`QualityRuntimeBudget`)(
-  {
+export class QualityRuntimeBudget extends S.Opaque<QualityRuntimeBudget, { readonly brand: unique symbol }>()(
+  S.Struct({
     startedAtMs: S.Finite,
     timeoutMs: S.Finite,
-  },
-  $I.annote("QualityRuntimeBudget", {
-    description: "Wall-clock budget used while collecting package quality subjects.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityRuntimeBudget", {
+      description: "Wall-clock budget used while collecting package quality subjects.",
+    })
+  )
 ) {}
 
 /**
@@ -687,7 +688,7 @@ const makeSubjectCandidate = ({
   const jsDocDescription = descriptionFromRawJsDoc(rawJsDoc);
   const categoryValues = tagValues(tags, "category");
   const identityStem = `${packageName}:${repoPath}:${declarationKind}:${exportName}`;
-  return {
+  return DocgenQualitySubjectCandidate.make({
     packageName,
     packagePath,
     filePath,
@@ -709,7 +710,7 @@ const makeSubjectCandidate = ({
     categoryValues,
     categoryIssues: categoryIssueMessages(categoryValues),
     hashSourceText: A.join([packageName, repoPath, declarationKind, exportName, hashSourceText], "\n"),
-  };
+  });
 };
 
 const isInterestingSourceFile = (
@@ -889,16 +890,20 @@ export const finalizeSubject = Effect.fn("DocgenQuality.finalizeSubject")(functi
  * @category models
  * @since 0.0.0
  */
-class PackageSubjectCandidateResult extends S.Class<PackageSubjectCandidateResult>($I`PackageSubjectCandidateResult`)(
-  {
+class PackageSubjectCandidateResult extends S.Opaque<
+  PackageSubjectCandidateResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidates: S.Array(DocgenQualitySubjectCandidate),
     error: S.NullOr(S.String),
     status: DocgenQualityPackageStatus,
     timedOut: S.Boolean,
-  },
-  $I.annote("PackageSubjectCandidateResult", {
-    description: "Result of collecting package subject candidates for docgen quality analysis",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageSubjectCandidateResult", {
+      description: "Result of collecting package subject candidates for docgen quality analysis",
+    })
+  )
 ) {}
 
 /**
@@ -949,12 +954,12 @@ export const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectP
 
       for (const sourceFile of project.getSourceFiles()) {
         if (budgetExceeded(budget)) {
-          return {
+          return PackageSubjectCandidateResult.make({
             candidates: subjects,
             error: packageTimeoutMessage(target, budget),
             status: "partial" as const,
             timedOut: true,
-          } satisfies PackageSubjectCandidateResult;
+          });
         }
 
         if (!isInterestingSourceFile(target, sourceFile, srcDir, exclude, path)) {
@@ -987,12 +992,12 @@ export const collectPackageSubjectCandidates = Effect.fn("DocgenQuality.collectP
         ];
       }
 
-      return {
+      return PackageSubjectCandidateResult.make({
         candidates: subjects,
         error: null,
         status: "completed" as const,
         timedOut: false,
-      } satisfies PackageSubjectCandidateResult;
+      });
     },
     catch: DomainError.newCause(`Failed to inspect ${target.relativePath} source files for JSDoc quality.`),
   });

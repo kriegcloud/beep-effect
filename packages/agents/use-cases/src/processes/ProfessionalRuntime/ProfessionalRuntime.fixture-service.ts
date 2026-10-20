@@ -14,7 +14,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { RuntimeScope } from "./ProfessionalRuntime.contracts.ts";
+import { CandidateOutputSet, RuntimeScope, SdkContextPacket } from "./ProfessionalRuntime.contracts.ts";
 import {
   ProfessionalRuntimePromotionBlocked,
   ProfessionalRuntimeValidationError,
@@ -22,7 +22,7 @@ import {
 import { runRuntimeFixture } from "./ProfessionalRuntime.fixtures.ts";
 import type { PromotionGateShape } from "@beep/shared-use-cases/server";
 import type { ProposeCandidateOutputSet } from "./ProfessionalRuntime.commands.ts";
-import type { CandidateOutputSet, RuntimeEvidenceRef, SdkContextPacket } from "./ProfessionalRuntime.contracts.ts";
+import type { RuntimeEvidenceRef } from "./ProfessionalRuntime.contracts.ts";
 import type { RuntimeFixtureInput } from "./ProfessionalRuntime.fixtures.ts";
 import type { GetContextPacket } from "./ProfessionalRuntime.queries.ts";
 import type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.ts";
@@ -127,7 +127,7 @@ const collectApprovalGateIssues =
 
 const collectOutputIssues = (outputSet: CandidateOutputSet, producedByPrincipalId: string): ReadonlyArray<string> => {
   const principalIds = HashSet.fromIterable(outputSet.contextPacket.principals);
-  const sourceArtifactSpans = collectSourceArtifactSpans(outputSet.contextPacket);
+  const sourceArtifactSpans = collectSourceArtifactSpans(SdkContextPacket.make(outputSet.contextPacket));
   const candidateIds = collectCandidateIds(outputSet);
   const claimIds = A.map(outputSet.claims, (claim) => claim.claimId);
   const taskIds = A.map(outputSet.tasks, (task) => task.taskId);
@@ -315,7 +315,7 @@ export const makeInMemoryProfessionalRuntimeSdk = (options: {
       `${query.scenarioId}: context packet scope does not match query scope`
     );
 
-    return outputSet.contextPacket;
+    return SdkContextPacket.make(outputSet.contextPacket);
   }),
   proposeCandidateOutputSet: Effect.fn("ProfessionalRuntimeSdk.proposeCandidateOutputSet")(function* (
     command: ProposeCandidateOutputSet
@@ -327,7 +327,7 @@ export const makeInMemoryProfessionalRuntimeSdk = (options: {
       sameScope(command.outputSet.contextPacket.scope, command.scope),
       `${command.outputSet.scenarioId}: proposed output scope does not match command scope`
     );
-    yield* validateOutputSet(command.outputSet, command.producedByPrincipalId);
+    yield* validateOutputSet(CandidateOutputSet.make(command.outputSet), command.producedByPrincipalId);
     yield* ensure(
       toPlainJson(command.outputSet) === toPlainJson(generatedOutputSet),
       `${command.outputSet.scenarioId}: proposed output set does not match deterministic fixture output`
@@ -335,6 +335,6 @@ export const makeInMemoryProfessionalRuntimeSdk = (options: {
     yield* requirePromotionClear(options.promotionGate, command, fixture.promotionSubjects);
     yield* Effect.annotateCurrentSpan({ "agents.professional_runtime.outcome": "accepted" });
 
-    return command.outputSet;
+    return CandidateOutputSet.make(command.outputSet);
   }),
 });

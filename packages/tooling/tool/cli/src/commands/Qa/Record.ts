@@ -33,7 +33,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { Socket } from "effect/socket";
+import * as Socket from "effect/socket/Socket";
 import { readOptionalRedactedConfigString } from "../../internal/cli/EnvConfig.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { printLines } from "../../internal/cli/Printer.ts";
@@ -54,7 +54,7 @@ import {
 } from "./Qa.session.ts";
 import type { CollectorRunning, RoundLayout, RoundNumber } from "@beep/qa-capture";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Scope from "effect/Scope";
 import type { CliReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import type { QaRecordOptions } from "./Qa.schemas.ts";
@@ -89,8 +89,8 @@ const OBS_PASSWORD_ENV = "OBS_WEBSOCKET_PASSWORD";
  * @category models
  * @since 0.0.0
  */
-export class HarnessEnvOptions extends S.Class<HarnessEnvOptions>($I`HarnessEnvOptions`)(
-  {
+export class HarnessEnvOptions extends S.Opaque<HarnessEnvOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     beacon: S.Boolean.pipe(
       $I.annoteKey("HarnessEnvOptions.beacon", {
         description: "Whether the witness paints the clock-sync beacon.",
@@ -126,10 +126,11 @@ export class HarnessEnvOptions extends S.Class<HarnessEnvOptions>($I`HarnessEnvO
         description: "Directory the harness writes its recorded video into.",
       })
     ),
-  },
-  $I.annote("HarnessEnvOptions", {
-    description: "Inputs of the lane A harness environment contract.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessEnvOptions", {
+      description: "Inputs of the lane A harness environment contract.",
+    })
+  )
 ) {}
 
 /**
@@ -192,8 +193,8 @@ export const harnessEnv = (options: HarnessEnvOptions): Record<string, string> =
  * @category models
  * @since 0.0.0
  */
-export class RecordOutcome extends S.Class<RecordOutcome>($I`RecordOutcome`)(
-  {
+export class RecordOutcome extends S.Opaque<RecordOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: S.Int.pipe(
       $I.annoteKey("RecordOutcome.exitCode", {
         description: "Exit code the CLI mirrors; lane A propagates the harness exit.",
@@ -211,10 +212,11 @@ export class RecordOutcome extends S.Class<RecordOutcome>($I`RecordOutcome`)(
         description: "Recorded container path, when the lane produced one.",
       })
     ),
-  },
-  $I.annote("RecordOutcome", {
-    description: "How a recording lane finished.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecordOutcome", {
+      description: "How a recording lane finished.",
+    })
+  )
 ) {}
 
 /**

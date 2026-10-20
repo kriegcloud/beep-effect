@@ -5,11 +5,13 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { Md } from "@beep/md";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, Str, Struct, thunkEffectVoid, thunkTrue } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
@@ -23,6 +25,7 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { resolveRunMode as resolveSharedRunMode, runModeFlagsConflict } from "../../internal/cli/RunMode.ts";
 import { formatJson } from "./internal/Source.ts";
 import {
+  SyncDataFileResult,
   SyncDataRunMode,
   SyncDataTargetResult,
   SyncDataToTsDriftError,
@@ -30,9 +33,11 @@ import {
 } from "./SyncDataToTs.schemas.ts";
 import { syncDataTargets } from "./targets/index.ts";
 import type * as Crypto from "effect/Crypto";
-import type { HttpClient } from "effect/http";
+import type * as HttpClient from "effect/http/HttpClient";
 import type * as JsonPatch from "effect/JsonPatch";
-import type { SyncDataFileResult, SyncDataTarget } from "./SyncDataToTs.schemas.ts";
+import type { SyncDataTarget } from "./SyncDataToTs.schemas.ts";
+
+const $I = $RepoCliId.create("commands/SyncDataToTs/SyncDataToTs.command");
 
 const targetFlag = Flag.String("target").pipe(
   Flag.withAlias("t"),
@@ -66,11 +71,13 @@ const reportDirFlag = Flag.String("report-dir").pipe(
 const syncDataCanonicalDiffer = S.toDifferJsonPatch(S.Json);
 const decodeJsonText = S.decodeUnknownEffect(S.fromJsonString(S.Json));
 
-class SyncDataTargetSelection extends S.Class<SyncDataTargetSelection>("SyncDataTargetSelection")({
-  targetId: S.Option(S.String),
-  all: S.Boolean,
-  includeAuthenticated: S.Boolean,
-}) {}
+class SyncDataTargetSelection extends S.Opaque<SyncDataTargetSelection, { readonly brand: unique symbol }>()(
+  S.Struct({
+    targetId: S.Option(S.String),
+    all: S.Boolean,
+    includeAuthenticated: S.Boolean,
+  }).pipe($I.annoteSchema("SyncDataTargetSelection"))
+) {}
 
 const runModeFlagConflictError = () =>
   SyncDataToTsError.make({
@@ -263,10 +270,10 @@ const syncOutputFile = Effect.fn("SyncDataToTs.syncOutputFile")(function* (
     Effect.asVoid
   );
 
-  return {
+  return SyncDataFileResult.make({
     path: file.path,
     changed,
-  };
+  });
 });
 
 const syncTarget = Effect.fn("syncTarget")(function* (
@@ -540,7 +547,7 @@ const renderSyncDataError = (error: SyncDataToTsError): string =>
  *
  * ```ts
  * import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect";
  * const run = Command.run(syncDataToTsCommand, { version: "0.0.0" })
  * console.log(Effect.isEffect(run)) // true

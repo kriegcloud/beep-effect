@@ -432,6 +432,40 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("accepts Effect-valued live clock reads as live-mode justification", () =>
+    Effect.gen(function* () {
+      const clockImport = 'import * as Clock from "effect/Clock";';
+      for (const body of [
+        'it.live("millis", () => Fx.gen(function* () { yield* Clock.currentTimeMillis; }));',
+        'it.live("nanos", Fx.fnUntraced(function* () { const now = yield* Clock.currentTimeNanos; }));',
+      ])
+        assertFalse(yield* hasRule(`${clockImport}\n${body}`, "EV009"));
+      for (const body of [
+        'it.live("lookalike", () => Fx.gen(function* () { yield* Fixtures.currentTimeMillis; }));',
+        'it.live("shadow", () => Fx.gen(function* () { const Clock = fake; yield* Clock.currentTimeMillis; }));',
+        'it.live("unrelated", () => Fx.gen(function* () { yield* Fx.sleep("1 millis"); }));',
+      ])
+        assertTrue(yield* hasRule(`${clockImport}\n${body}`, "EV009"));
+      const namedRead = 'it.live("named", () => Fx.gen(function* () { yield* currentTimeMillis; }));';
+      for (const named of [
+        'import { currentTimeMillis } from "effect/Clock";',
+        'import { currentTimeNanos as currentTimeMillis } from "effect/Clock";',
+      ])
+        assertFalse(yield* hasRule(`${named}\n${namedRead}`, "EV009"));
+      for (const named of [
+        'import { currentTimeMillis } from "./fixtures";',
+        'import { currentTimeMillis } from "effect/Clock"; const shadow = () => { const currentTimeMillis = fake; return currentTimeMillis; };',
+      ])
+        assertTrue(
+          yield* hasRule(
+            `${named}\nit.live("named", () => Fx.gen(function* () { const currentTimeMillis = fake; yield* currentTimeMillis; }));`,
+            "EV009"
+          )
+        );
+      assertTrue(yield* hasRule('import { currentTimeMillis } from "./fixtures";\n' + namedRead, "EV009"));
+    })
+  );
+
   it.effect("emits deterministic distinct identities for same-line occurrences", () =>
     Effect.gen(function* () {
       const source = 'it("x", () => Fx.zip(Fx.runSync(left), Fx.runSync(right)));';
@@ -549,6 +583,21 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
           "EV014"
         )
       );
+      for (const pure of [
+        'it.layer(L.empty)("x", it => {});',
+        'it.layer(L.empty, { excludeTestServices: true })("x", it => {});',
+        'const stub = L.mergeAll(L.empty, L.succeed(A, {})); it.layer(stub)("x", it => {});',
+        'import { empty } from "effect/Layer"; it.layer(empty)("x", it => {});',
+      ])
+        assertFalse(yield* hasRule(pure, "EV014"));
+      for (const lookalike of [
+        'it.layer(Fixtures.empty)("x", it => {});',
+        'const f = (L) => it.layer(L.empty)("x", it => {});',
+        'it.layer(L.mergeAll(L.empty, ImportedLive))("x", it => {});',
+      ])
+        assertTrue(
+          A.some(yield* findings(lookalike), (row) => row.ruleId === "EV014" && row.mechanization === "judgment")
+        );
       assertFalse(
         yield* hasRule(
           'import { layer as shared } from "@effect/vitest"; shared(ImportedLive, { timeout: "2 seconds" })("x", it => {});',
@@ -1322,6 +1371,59 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         [["platform-resource-provenance-review", "judgment"]]
       );
       assertTrue(A.every(residue, (row) => row.replacement.sketch.includes("unproven")));
+    })
+  );
+
+  it.effect("classifies proven native filesystem integration subjects apart from opaque platform residue", () =>
+    Effect.gen(function* () {
+      const harness = 'import { layer } from "@effect/vitest";';
+      const subject = 'import { SubjectLive } from "@beep/example/Subject";';
+      const consume = (operation: string) =>
+        `((it) => { it.effect("x", () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; ${operation} })); });`;
+      const reviewClasses = Effect.fnUntraced(function* (body: string) {
+        return A.map(
+          A.filter(yield* findings(body), (row) => row.ruleId === "EV010"),
+          (row) => row.class
+        );
+      });
+      for (const body of [
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; const platform = L.mergeAll(NodeServices.layer); const live = SubjectLive.pipe(L.provide(platform)); layer(L.mergeAll(platform, live))${consume("yield* fs.makeTempDirectoryScoped();")}`,
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; it.layer(L.provide(SubjectLive, NodeServices.layer))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import * as Services from "@effect/platform-bun/BunServices"; layer(Services.layer)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import * as Platform from "@effect/platform-node"; layer(Platform.NodeServices.layer)${consume('yield* fs.chmod("a", 0o600);')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const models = L.mergeAll(ModelsLive); layer(L.mergeAll(NodeServices.layer, models))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(L.provide(TestLive, NodeServices.layer))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provideMerge(Exchange), L.provideMerge(L.mergeAll(NodeServices.layer))))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} ${subject} import { pipe } from "effect/Function"; import { NodeServices } from "@effect/platform-node"; layer(pipe(SubjectLive, L.provide(NodeServices.layer)))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer((NodeServices.layer))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import * as Platform from "@effect/platform-node"; const path = Platform.NodePath.layer; layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
+      ])
+        deepStrictEqual(yield* reviewClasses(body), []);
+      for (const body of [
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.readFileString("a");')}`,
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; layer(SubjectLive.pipe(L.provide(NodeServices.layer)))((it) => { it.effect("x", () => Fx.void); });`,
+        `${harness} import { TestLive } from "@beep/test-utils/Layer"; import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provide(NodeServices.layer)))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import * as FakeFs from "./fake-fs"; import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)((it) => { it.effect("x", () => Fx.gen(function* () { const fs = yield* FakeFs.FileSystem; yield* fs.symlink("a", "b"); })); });`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.symlink("a", "b");')} it.effect("y", () => program.pipe(Fx.provide(NodeServices.layer)));`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; function f(layer) { layer(NodeServices.layer)${consume('yield* fs.symlink("a", "b");')} }`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('const other = makeFake(); yield* other.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const pass = (value) => value; layer(pass(NodeServices))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const wrap = (value) => Fake.layer; layer(wrap(NodeServices.layer))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(flag ? NodeServices.layer : Fake.layer)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const pass = (value) => value; const x = pass(NodeServices.layer); layer(x)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provideMerge(NodeServices.layer), wrap))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer.pipe(wrap))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; layer(L.provide(NodeServices.layer, SubjectLive))${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const stage = L.provideMerge(NodeServices.layer); layer(TestLive.pipe(stage))${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer())${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(TestLive, NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; let platform = NodeServices.layer; layer(platform)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const platform = NodeServices.layer; use(platform); layer(platform)${consume('yield* fs.symlink("a", "b");')}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; const platform = NodeServices.layer;`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)(suite);`,
+        `${harness} import * as Platform from "@effect/platform-node"; use(Platform); layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
+      ])
+        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
     })
   );
 

@@ -30,7 +30,7 @@ import * as Str from "effect/String";
 import { runRepoCommandCapture } from "../../../internal/repo-run/index.ts";
 import { mergeReadyCriterionHolds, YeetMergeReadyCriterion } from "./Verdict.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetMergeReadyCriteria } from "./Verdict.ts";
 
@@ -152,12 +152,17 @@ export type YeetReviewWindowAnchor = typeof YeetReviewWindowAnchor.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewWindowOpen extends S.TaggedClass<YeetReviewWindowOpen>($I`YeetReviewWindowOpen`)(
-  "open",
-  { anchor: YeetReviewWindowAnchor, anchoredAt: S.String, remainingMs: S.Finite, windowMs: S.Finite },
-  $I.annote("YeetReviewWindowOpen", {
-    description: "The review window is still running on the current head; the merge gate holds.",
-  })
+export class YeetReviewWindowOpen extends S.Opaque<YeetReviewWindowOpen, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("open", {
+    anchor: YeetReviewWindowAnchor,
+    anchoredAt: S.String,
+    remainingMs: S.Finite,
+    windowMs: S.Finite,
+  }).pipe(
+    $I.annoteSchema("YeetReviewWindowOpen", {
+      description: "The review window is still running on the current head; the merge gate holds.",
+    })
+  )
 ) {}
 
 /**
@@ -177,12 +182,12 @@ export class YeetReviewWindowOpen extends S.TaggedClass<YeetReviewWindowOpen>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewWindowElapsed extends S.TaggedClass<YeetReviewWindowElapsed>($I`YeetReviewWindowElapsed`)(
-  "elapsed",
-  { anchor: YeetReviewWindowAnchor, anchoredAt: S.String, windowMs: S.Finite },
-  $I.annote("YeetReviewWindowElapsed", {
-    description: "The review window has run its full length on the current head.",
-  })
+export class YeetReviewWindowElapsed extends S.Opaque<YeetReviewWindowElapsed, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("elapsed", { anchor: YeetReviewWindowAnchor, anchoredAt: S.String, windowMs: S.Finite }).pipe(
+    $I.annoteSchema("YeetReviewWindowElapsed", {
+      description: "The review window has run its full length on the current head.",
+    })
+  )
 ) {}
 
 /**
@@ -200,12 +205,12 @@ export class YeetReviewWindowElapsed extends S.TaggedClass<YeetReviewWindowElaps
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewWindowUnknown extends S.TaggedClass<YeetReviewWindowUnknown>($I`YeetReviewWindowUnknown`)(
-  "unknown",
-  { reason: S.NonEmptyString },
-  $I.annote("YeetReviewWindowUnknown", {
-    description: "The review window could not be established; unknown never satisfies the merge gate.",
-  })
+export class YeetReviewWindowUnknown extends S.Opaque<YeetReviewWindowUnknown, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("unknown", { reason: S.NonEmptyString }).pipe(
+    $I.annoteSchema("YeetReviewWindowUnknown", {
+      description: "The review window could not be established; unknown never satisfies the merge gate.",
+    })
+  )
 ) {}
 
 /**

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-7.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-8.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
     "test": {
@@ -7,7 +7,8 @@
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/turbo.json",
         "$TURBO_ROOT$/goals/time-to-certainty/research/economics.json",
-        "$TURBO_ROOT$/goals/time-to-certainty/research/gate-order-handoff.json"
+        "$TURBO_ROOT$/goals/time-to-certainty/research/gate-order-handoff.json",
+        "$TURBO_ROOT$/standards/effect-diagnostics.profile.json"
       ]
     },
     "test:property": {
@@ -15,7 +16,8 @@
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/turbo.json",
         "$TURBO_ROOT$/goals/time-to-certainty/research/economics.json",
-        "$TURBO_ROOT$/goals/time-to-certainty/research/gate-order-handoff.json"
+        "$TURBO_ROOT$/goals/time-to-certainty/research/gate-order-handoff.json",
+        "$TURBO_ROOT$/standards/effect-diagnostics.profile.json"
       ]
     }
   }

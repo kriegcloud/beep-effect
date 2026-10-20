@@ -32,7 +32,7 @@ import * as Str from "effect/String";
 import { configStringOption } from "../cli/EnvConfig.ts";
 import { runRepoCommandCaptureRaw } from "../repo-run/RepoRun.executor.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("internal/github/GithubIdentity");
 
@@ -118,7 +118,7 @@ export type GithubIdentityKind = typeof GithubIdentityKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class GithubIdentity extends S.Class<GithubIdentity>($I`GithubIdentity`)(
+export class GithubIdentity extends S.Class<GithubIdentity, { readonly brand: unique symbol }>($I`GithubIdentity`)(
   {
     kind: GithubIdentityKind,
     tokenRef: S.Option(S.String),
@@ -169,7 +169,9 @@ export const GithubIdentityErrorReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class GithubIdentityError extends S.TaggedError<GithubIdentityError>($I`GithubIdentityError`)(
+export class GithubIdentityError extends S.TaggedError<GithubIdentityError, { readonly brand: unique symbol }>(
+  $I`GithubIdentityError`
+)(
   "GithubIdentityError",
   { reason: GithubIdentityErrorReason, message: S.String },
   $I.annoteError<GithubIdentityError>("GithubIdentityError", {
@@ -275,9 +277,12 @@ const readOpReference = (reference: string, cwd: string, what: string) =>
  * @category models
  * @since 0.0.0
  */
-export class GithubClientRequest extends S.Class<GithubClientRequest>($I`GithubClientRequest`)(
-  { identity: GithubIdentity, cwd: S.String },
-  $I.annote("GithubClientRequest", { description: "An identity and the working directory to resolve its token in." })
+export class GithubClientRequest extends S.Opaque<GithubClientRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ identity: GithubIdentity, cwd: S.String }).pipe(
+    $I.annoteSchema("GithubClientRequest", {
+      description: "An identity and the working directory to resolve its token in.",
+    })
+  )
 ) {}
 
 /**

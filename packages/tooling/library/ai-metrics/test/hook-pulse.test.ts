@@ -7,6 +7,8 @@ import {
   HookPulseInstrumentClass,
   HookPulseNotificationType,
   HookPulseRawEvent,
+  HookPulseRefusal,
+  HookPulseSwitchTransition,
   HookPulseV1,
   HookPulseV1Arbitrary,
   HookPulseV1FromLegacyRecord,
@@ -24,6 +26,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -337,10 +340,42 @@ const hookPulseEquivalent = S.toEquivalence(HookPulseV1);
 const isHookPulseWaitReason = S.is(HookPulseWaitReason);
 
 describe("HookPulseV1", () => {
+  it.effect("rejects calendar rollover in refusal and switch transition timestamps", () =>
+    Effect.sync(() => {
+      A.forEach(["2026-02-30T00:00:00Z", "2026-08-01T24:00:00Z"], (ts) => {
+        S.decodeResult(HookPulseRefusal)({ ts, agentKind: "claude-code", reason: "timeout" }).pipe(
+          Result.isFailure,
+          assertTrue
+        );
+        S.decodeResult(HookPulseSwitchTransition)({ ts, action: "arm" }).pipe(Result.isFailure, assertTrue);
+      });
+    })
+  );
+
   it.prop(
     "round-trips disarm artifacts through their production JSON codecs",
-    [Arbitrary.schema(HookPulseDisarmSentinel), Arbitrary.schema(HookPulseDisarmWindow)],
-    ([sentinel, window]) => {
+    [
+      Arbitrary.map(
+        Arbitrary.schema(S.Struct({ start: S.DateTimeUtc, end: S.DateTimeUtc, unknown: S.Boolean, reason: S.String })),
+        ({ start, end, unknown, reason }) => {
+          const first = Math.min(DateTime.toEpochMillis(start), DateTime.toEpochMillis(end));
+          const last = Math.max(DateTime.toEpochMillis(start), DateTime.toEpochMillis(end));
+          const disarmedAt = DateTime.formatIso(DateTime.makeUnsafe(first));
+          return [
+            HookPulseDisarmSentinel.make({ disarmedAt, reason, evidenceTier: "unknown" }),
+            HookPulseDisarmWindow.make({
+              disarmedAt: unknown ? O.none() : O.some(disarmedAt),
+              rearmedAt: DateTime.formatIso(DateTime.makeUnsafe(last)),
+              reason: O.some(reason),
+              evidenceTier: "unknown",
+              schemaVersion: "hook-pulse-disarm-window/v1",
+            }),
+          ] as const;
+        }
+      ),
+    ],
+    ([pair]) => {
+      const [sentinel, window] = pair;
       const sentinelJson = Result.getOrThrow(HookPulseDisarmSentinel.encodeJsonResult(sentinel));
 
       const windowJson = Result.getOrThrow(HookPulseDisarmWindow.encodeJsonResult(window));
@@ -374,7 +409,7 @@ describe("HookPulseV1", () => {
       const decoded = yield* withSaltEnv({}, decodeHookPulseFromLegacy(legacy));
       const serialized = yield* encodeUnknownJsonEffect(yield* encodeHookPulse(decoded));
 
-      expect(decoded).toBeInstanceOf(HookPulseV1);
+      expect(S.is(HookPulseV1)(decoded)).toBe(true);
       expect(decoded.sessionId).toMatch(/^[0-9a-f]{64}$/u);
       expect(decoded.cwd).toMatch(/^[0-9a-f]{64}$/u);
       expect(O.getOrThrow(decoded.transcriptPath)).toMatch(/^[0-9a-f]{64}$/u);
@@ -855,7 +890,7 @@ describe("HookPulseV1", () => {
         })
       );
 
-      expect(decoded).toBeInstanceOf(HookPulseV1);
+      expect(S.is(HookPulseV1)(decoded)).toBe(true);
       expect(decoded.hookEvent).toBe("Notification");
       expect(decoded.waitReason).toBe("unknown");
       assertNone(decoded.notificationType);
@@ -1128,7 +1163,7 @@ describe("HookPulseV1", () => {
     // The Result adapter proves the already-hashed fast path stays synchronous.
     const decoded = Result.getOrThrow(S.decodeResult(HookPulseV1FromRawEvent)(alreadyHashedRawInput));
 
-    expect(decoded).toBeInstanceOf(HookPulseV1);
+    expect(S.is(HookPulseV1)(decoded)).toBe(true);
     expect(decoded.sessionId).toBe(alreadyHashedRawEventFixture.session_id);
   });
   it.effect(

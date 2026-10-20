@@ -40,7 +40,7 @@ import { ProofLedger } from "./ProofLedger.ts";
 import { captureRepoCommandStrict, readYeetChangedPathsStrict } from "./Settle.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext, runRepoCommandCapture } from "../../../internal/repo-run/index.ts";
 import type { QualityTaskLaneRun, QualityTaskLaneRunReport } from "../../Quality/Quality.schemas.ts";
 import type { YeetAttemptStarted } from "./AttemptJournal.ts";
@@ -99,16 +99,17 @@ const isPassed = ProofOutcome.is.passed;
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowEnforcementBar extends S.Class<ProofShadowEnforcementBar>($I`ProofShadowEnforcementBar`)(
-  {
+export class ProofShadowEnforcementBar extends S.Opaque<ProofShadowEnforcementBar, { readonly brand: unique symbol }>()(
+  S.Struct({
     attempts: ProofCount,
     branches: ProofCount,
     disagreements: ProofCount,
-  },
-  $I.annote("ProofShadowEnforcementBar", {
-    description:
-      "Minimum attempts and distinct branches, and the maximum disagreements, shadow mode must record before enforcement.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowEnforcementBar", {
+      description:
+        "Minimum attempts and distinct branches, and the maximum disagreements, shadow mode must record before enforcement.",
+    })
+  )
 ) {
   static readonly ratified = ProofShadowEnforcementBar.make({ attempts: 200, branches: 10, disagreements: 0 });
 }
@@ -136,18 +137,19 @@ export class ProofShadowEnforcementBar extends S.Class<ProofShadowEnforcementBar
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowDisagreement extends S.Class<ProofShadowDisagreement>($I`ProofShadowDisagreement`)(
-  {
+export class ProofShadowDisagreement extends S.Opaque<ProofShadowDisagreement, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptId: S.NonEmptyString,
     laneId: S.NonEmptyString,
     branch: S.NonEmptyString,
     stage: ProofStage,
     key: S.NonEmptyString,
     recordedAt: S.NonEmptyString,
-  },
-  $I.annote("ProofShadowDisagreement", {
-    description: "A lane the ledger would have reused that failed when it actually ran.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowDisagreement", {
+      description: "A lane the ledger would have reused that failed when it actually ran.",
+    })
+  )
 ) {}
 
 /**
@@ -156,14 +158,15 @@ export class ProofShadowDisagreement extends S.Class<ProofShadowDisagreement>($I
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowMissCount extends S.Class<ProofShadowMissCount>($I`ProofShadowMissCount`)(
-  {
+export class ProofShadowMissCount extends S.Opaque<ProofShadowMissCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     reason: ProofMissReason,
     count: ProofCount,
-  },
-  $I.annote("ProofShadowMissCount", {
-    description: "Shadow lookups that missed for one reuse-miss reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowMissCount", {
+      description: "Shadow lookups that missed for one reuse-miss reason.",
+    })
+  )
 ) {}
 
 /**
@@ -218,8 +221,8 @@ export class ProofShadowMissCount extends S.Class<ProofShadowMissCount>($I`Proof
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowReport extends S.Class<ProofShadowReport>($I`ProofShadowReport`)(
-  {
+export class ProofShadowReport extends S.Opaque<ProofShadowReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(PROOF_SHADOW_REPORT_SCHEMA_VERSION),
     generatedAt: S.NonEmptyString,
     ledgerPath: S.NonEmptyString,
@@ -241,11 +244,12 @@ export class ProofShadowReport extends S.Class<ProofShadowReport>($I`ProofShadow
     barDisagreements: ProofCount,
     enforcementReady: S.Boolean,
     since: S.DateTimeUtcFromString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProofShadowReport", {
-    description:
-      "Shadow-mode disagreement report: sample size, would-have-reused decisions, misses by reason, disagreements, ledger health, and the enforcement bar verdict over the first enforced pair's stage and env profile, optionally bounded to rows recorded since an instant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowReport", {
+      description:
+        "Shadow-mode disagreement report: sample size, would-have-reused decisions, misses by reason, disagreements, ledger health, and the enforcement bar verdict over the first enforced pair's stage and env profile, optionally bounded to rows recorded since an instant.",
+    })
+  )
 ) {}
 
 /**
@@ -277,18 +281,19 @@ export const ProofShadowReportJson = JsonStringCodec(ProofShadowReport);
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowAttemptSummary extends S.Class<ProofShadowAttemptSummary>($I`ProofShadowAttemptSummary`)(
-  {
+export class ProofShadowAttemptSummary extends S.Opaque<ProofShadowAttemptSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptId: S.NonEmptyString,
     recorded: ProofCount,
     wouldReuse: ProofCount,
     disagreements: ProofCount,
     undeclared: ProofCount,
     tripped: ProofCount.pipe(S.withConstructorDefault(Effect.succeed(0))),
-  },
-  $I.annote("ProofShadowAttemptSummary", {
-    description: "Lanes shadowed for one attempt, how many the ledger would have reused, and how many disagreed.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowAttemptSummary", {
+      description: "Lanes shadowed for one attempt, how many the ledger would have reused, and how many disagreed.",
+    })
+  )
 ) {}
 
 /**
@@ -314,8 +319,8 @@ export class ProofShadowAttemptSummary extends S.Class<ProofShadowAttemptSummary
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowAttemptFacts extends S.Class<ProofShadowAttemptFacts>($I`ProofShadowAttemptFacts`)(
-  {
+export class ProofShadowAttemptFacts extends S.Opaque<ProofShadowAttemptFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptId: S.NonEmptyString,
     runId: S.NonEmptyString,
     branch: S.NonEmptyString,
@@ -323,10 +328,11 @@ export class ProofShadowAttemptFacts extends S.Class<ProofShadowAttemptFacts>($I
     tier: YeetProofTier,
     stage: ProofStage,
     envProfile: ProofEnvProfile,
-  },
-  $I.annote("ProofShadowAttemptFacts", {
-    description: "Attempt identity, branch, head, tier, stage and env profile the shadow pass records against.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowAttemptFacts", {
+      description: "Attempt identity, branch, head, tier, stage and env profile the shadow pass records against.",
+    })
+  )
 ) {}
 
 /**
@@ -398,15 +404,16 @@ export const proofShadowAttemptFacts = (attempt: YeetAttemptStarted): ProofShado
  * @category models
  * @since 0.0.0
  */
-export class ProofChangedPackagesKnown extends S.Class<ProofChangedPackagesKnown>($I`ProofChangedPackagesKnown`)(
-  {
+export class ProofChangedPackagesKnown extends S.Opaque<ProofChangedPackagesKnown, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("known"),
     packages: S.Array(S.String),
     paths: ProofCount,
-  },
-  $I.annote("ProofChangedPackagesKnown", {
-    description: "Workspace packages an attempt's changed paths touch, with how many paths were mapped.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofChangedPackagesKnown", {
+      description: "Workspace packages an attempt's changed paths touch, with how many paths were mapped.",
+    })
+  )
 ) {}
 
 /**
@@ -427,16 +434,18 @@ export class ProofChangedPackagesKnown extends S.Class<ProofChangedPackagesKnown
  * @category models
  * @since 0.0.0
  */
-export class ProofChangedPackagesUnavailable extends S.Class<ProofChangedPackagesUnavailable>(
-  $I`ProofChangedPackagesUnavailable`
-)(
-  {
+export class ProofChangedPackagesUnavailable extends S.Opaque<
+  ProofChangedPackagesUnavailable,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("unavailable"),
     reason: S.NonEmptyString,
-  },
-  $I.annote("ProofChangedPackagesUnavailable", {
-    description: "Why an attempt's changed package set could not be read.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofChangedPackagesUnavailable", {
+      description: "Why an attempt's changed package set could not be read.",
+    })
+  )
 ) {}
 
 /**
@@ -1134,8 +1143,8 @@ const recordedSince =
  * @category models
  * @since 0.0.0
  */
-export class ProofShadowReportInput extends S.Class<ProofShadowReportInput>($I`ProofShadowReportInput`)(
-  {
+export class ProofShadowReportInput extends S.Opaque<ProofShadowReportInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     generatedAt: S.NonEmptyString,
     ledgerPath: S.NonEmptyString,
     rows: S.Array(ProofLedgerShadowRow),
@@ -1144,11 +1153,12 @@ export class ProofShadowReportInput extends S.Class<ProofShadowReportInput>($I`P
     malformedRows: ProofCount,
     bar: S.optionalKey(ProofShadowEnforcementBar),
     since: S.DateTimeUtc.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProofShadowReportInput", {
-    description:
-      "Shadow rows, ledger health counts, an optional enforcement-bar override, and an optional lower bound on the rows the enforcement bar counts, to fold into a report.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofShadowReportInput", {
+      description:
+        "Shadow rows, ledger health counts, an optional enforcement-bar override, and an optional lower bound on the rows the enforcement bar counts, to fold into a report.",
+    })
+  )
 ) {}
 
 /**
@@ -1325,15 +1335,16 @@ export const renderProofShadowReport = (report: ProofShadowReport): string => {
  * @category models
  * @since 0.0.0
  */
-export class YeetProofReportOptions extends S.Class<YeetProofReportOptions>($I`YeetProofReportOptions`)(
-  {
+export class YeetProofReportOptions extends S.Opaque<YeetProofReportOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     json: S.Boolean,
     since: S.DateTimeUtc.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetProofReportOptions", {
-    description:
-      "Parsed `yeet proof-report` flags: whether to print the report as JSON, and an optional lower bound on the rows the enforcement bar counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetProofReportOptions", {
+      description:
+        "Parsed `yeet proof-report` flags: whether to print the report as JSON, and an optional lower bound on the rows the enforcement bar counts.",
+    })
+  )
 ) {}
 
 /**

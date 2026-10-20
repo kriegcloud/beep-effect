@@ -10,7 +10,7 @@ import { Sanity, SanityConfigInput, SanityQueryRequest } from "@beep/sanity";
 import { LiteralKit } from "@beep/schema";
 import { O } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { makeRedactedConfigOptionReader, makeTextConfigOptionReader } from "../runtime/OipRuntimeConfig.ts";
@@ -61,7 +61,9 @@ type OipContentLoadErrorOptions = {
  * @category errors
  * @since 0.0.0
  */
-export class OipContentLoadError extends S.TaggedError<OipContentLoadError>($I`OipContentLoadError`)(
+export class OipContentLoadError extends S.TaggedError<OipContentLoadError, { readonly brand: unique symbol }>(
+  $I`OipContentLoadError`
+)(
   "OipContentLoadError",
   {
     provider: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),

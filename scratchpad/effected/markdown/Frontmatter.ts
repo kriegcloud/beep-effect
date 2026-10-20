@@ -47,7 +47,7 @@ const $I = $ScratchpadId.create("effected/markdown/Frontmatter");
  * @category errors
  * @since 0.0.0
  */
-export class FrontmatterFormatMismatchError extends S.TaggedError<FrontmatterFormatMismatchError>($I`FrontmatterFormatMismatchError`)(
+export class FrontmatterFormatMismatchError extends S.TaggedError<FrontmatterFormatMismatchError, { readonly brand: unique symbol }>($I`FrontmatterFormatMismatchError`)(
 	"FrontmatterFormatMismatchError",
 	{
 		/** The format the codec decodes. */
@@ -100,7 +100,7 @@ export class FrontmatterFormatMismatchError extends S.TaggedError<FrontmatterFor
  * @category errors
  * @since 0.0.0
  */
-export class FrontmatterDecodeError extends S.TaggedError<FrontmatterDecodeError>($I`FrontmatterDecodeError`)("FrontmatterDecodeError", {
+export class FrontmatterDecodeError extends S.TaggedError<FrontmatterDecodeError, { readonly brand: unique symbol }>($I`FrontmatterDecodeError`)("FrontmatterDecodeError", {
 	/** The format that failed to parse. */
 	format: FrontmatterFormat.annotateKey({ description: "The format that failed to parse." }),
 	/** The underlying format-package failure, preserved structurally. */
@@ -150,7 +150,7 @@ export class FrontmatterDecodeError extends S.TaggedError<FrontmatterDecodeError
  * @category errors
  * @since 0.0.0
  */
-export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError>($I`FrontmatterEncodeError`)("FrontmatterEncodeError", {
+export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError, { readonly brand: unique symbol }>($I`FrontmatterEncodeError`)("FrontmatterEncodeError", {
 	/** The format that failed to serialize. */
 	format: FrontmatterFormat.annotateKey({ description: "The format that failed to serialize." }),
 	/** The underlying format-package failure, preserved structurally. */
@@ -285,7 +285,7 @@ export type FrontmatterMissingReason = typeof FrontmatterMissingReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class FrontmatterMissingError extends S.TaggedError<FrontmatterMissingError>($I`FrontmatterMissingError`)("FrontmatterMissingError", {
+export class FrontmatterMissingError extends S.TaggedError<FrontmatterMissingError, { readonly brand: unique symbol }>($I`FrontmatterMissingError`)("FrontmatterMissingError", {
 	/** Why there is no capture: no block at all, or capture left off. */
 	reason: FrontmatterMissingReason.annotateKey({ description: "Why there is no capture: no block at all, or capture left off." }),
 }, $I.annote("FrontmatterMissingError", { description: "Indicates that a document handed to a frontmatter decoder carries no frontmatter capture." })) {
@@ -341,7 +341,7 @@ export class FrontmatterMissingError extends S.TaggedError<FrontmatterMissingErr
  * @category errors
  * @since 0.0.0
  */
-export class FrontmatterValidationError extends S.TaggedError<FrontmatterValidationError>($I`FrontmatterValidationError`)(
+export class FrontmatterValidationError extends S.TaggedError<FrontmatterValidationError, { readonly brand: unique symbol }>($I`FrontmatterValidationError`)(
 	"FrontmatterValidationError",
 	{
 		/** The structured schema issue. Never a string. */

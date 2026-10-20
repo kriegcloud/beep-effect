@@ -26,7 +26,8 @@ import * as Match from "effect/Match";
 import * as Num from "effect/Number";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Stream from "effect/Stream";
@@ -38,7 +39,7 @@ import {
   synthesizeEmlHeaderBlock,
 } from "./Libpff.eml.ts";
 import { libpffOperationError } from "./Libpff.error-translation.ts";
-import { makeLibpffError } from "./Libpff.errors.ts";
+import { LibpffErrorOptions, makeLibpffError } from "./Libpff.errors.ts";
 import { PFFEXPORT_MESSAGES_SUFFIX, PffexportMessageRecord } from "./Libpff.messages.ts";
 import { LibpffFileProcessingEngine, LibpffFileProcessingEngineDescriptor } from "./Libpff.service.ts";
 import type { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation";
@@ -271,8 +272,8 @@ export type PffexportExistingExportPolicy = typeof PffexportExistingExportPolicy
  * @category configuration
  * @since 0.0.0
  */
-export class PffexportEngineConfig extends S.Class<PffexportEngineConfig>($I`PffexportEngineConfig`)(
-  {
+export class PffexportEngineConfig extends S.Opaque<PffexportEngineConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     bwrapPath: S.OptionFromOptionalKey(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
@@ -326,11 +327,12 @@ export class PffexportEngineConfig extends S.Class<PffexportEngineConfig>($I`Pff
         description: "Positive per-archive subprocess timeout in milliseconds when configured.",
       })
     ),
-  },
-  $I.annote("PffexportEngineConfig", {
-    description:
-      "Configuration for the real pffexport subprocess engine: target export root, binary path, mode, format, existing-export policy, optional sandbox, and optional per-archive timeout.",
-  })
+  }).pipe(
+    $I.annoteSchema("PffexportEngineConfig", {
+      description:
+        "Configuration for the real pffexport subprocess engine: target export root, binary path, mode, format, existing-export policy, optional sandbox, and optional per-archive timeout.",
+    })
+  )
 ) {}
 
 const targetTreeSuffixesFor = (mode: PffexportMode): ReadonlyArray<string> =>
@@ -610,7 +612,12 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
                 )
               )
               .pipe(
-                Effect.mapError(() => makeLibpffError("engine-unavailable", { cause: "pffexport resolution failed" }))
+                Effect.mapError(() =>
+                  makeLibpffError(
+                    "engine-unavailable",
+                    LibpffErrorOptions.make({ cause: "pffexport resolution failed" })
+                  )
+                )
               );
             const [stdout, , exitCode] = yield* Effect.all(
               [captureBoundedProcessText(handle.stdout), drainStream(handle.stderr), handle.exitCode],
@@ -618,7 +625,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
             );
             const resolved = Str.trim(stdout);
             if (exitCode !== 0 || Str.isEmpty(resolved) || Str.includes("\n")(resolved)) {
-              return yield* makeLibpffError("engine-unavailable", { cause: "pffexport resolution failed" });
+              return yield* makeLibpffError(
+                "engine-unavailable",
+                LibpffErrorOptions.make({ cause: "pffexport resolution failed" })
+              );
             }
             return resolved;
           })
@@ -626,12 +636,23 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     const absoluteCandidate = path.isAbsolute(candidate) ? candidate : path.resolve(candidate);
     const canonical = yield* fs
       .realPath(absoluteCandidate)
-      .pipe(Effect.mapError(() => makeLibpffError("engine-unavailable", { cause: "pffexport resolution failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("engine-unavailable", LibpffErrorOptions.make({ cause: "pffexport resolution failed" }))
+        )
+      );
     const info = yield* fs
       .stat(canonical)
-      .pipe(Effect.mapError(() => makeLibpffError("engine-unavailable", { cause: "pffexport resolution failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("engine-unavailable", LibpffErrorOptions.make({ cause: "pffexport resolution failed" }))
+        )
+      );
     if (info.type !== "File") {
-      return yield* makeLibpffError("engine-unavailable", { cause: "pffexport is not a regular file" });
+      return yield* makeLibpffError(
+        "engine-unavailable",
+        LibpffErrorOptions.make({ cause: "pffexport is not a regular file" })
+      );
     }
     return canonical;
   });
@@ -709,7 +730,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     const { commandParts, envArguments } = envShebangInvocation(shebangArgument);
     const envCommand = envShebangCommand(commandParts);
     if (envCommand === undefined || !/^[A-Za-z0-9._+ -]+$/u.test(envCommand)) {
-      return yield* makeLibpffError("config", { cause: "sandbox env shebang command is unsupported" });
+      return yield* makeLibpffError(
+        "config",
+        LibpffErrorOptions.make({ cause: "sandbox env shebang command is unsupported" })
+      );
     }
     const resolvedEnvInterpreter = yield* Effect.scoped(
       Effect.gen(function* () {
@@ -726,31 +750,46 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
         );
         const resolved = Str.trim(stdout);
         if (exitCode !== 0 || Str.isEmpty(resolved) || Str.includes("\n")(resolved)) {
-          return yield* makeLibpffError("engine-unavailable", { cause: "env shebang interpreter resolution failed" });
+          return yield* makeLibpffError(
+            "engine-unavailable",
+            LibpffErrorOptions.make({ cause: "env shebang interpreter resolution failed" })
+          );
         }
         return resolved;
       })
     ).pipe(
       Effect.mapError(() =>
-        makeLibpffError("engine-unavailable", { cause: "env shebang interpreter resolution failed" })
+        makeLibpffError(
+          "engine-unavailable",
+          LibpffErrorOptions.make({ cause: "env shebang interpreter resolution failed" })
+        )
       )
     );
     const canonicalEnvInterpreter = yield* fs
       .realPath(resolvedEnvInterpreter)
       .pipe(
         Effect.mapError(() =>
-          makeLibpffError("engine-unavailable", { cause: "env shebang interpreter resolution failed" })
+          makeLibpffError(
+            "engine-unavailable",
+            LibpffErrorOptions.make({ cause: "env shebang interpreter resolution failed" })
+          )
         )
       );
     const envInterpreterInfo = yield* fs
       .stat(canonicalEnvInterpreter)
       .pipe(
         Effect.mapError(() =>
-          makeLibpffError("engine-unavailable", { cause: "env shebang interpreter resolution failed" })
+          makeLibpffError(
+            "engine-unavailable",
+            LibpffErrorOptions.make({ cause: "env shebang interpreter resolution failed" })
+          )
         )
       );
     if (envInterpreterInfo.type !== "File") {
-      return yield* makeLibpffError("engine-unavailable", { cause: "env shebang interpreter is not a regular file" });
+      return yield* makeLibpffError(
+        "engine-unavailable",
+        LibpffErrorOptions.make({ cause: "env shebang interpreter is not a regular file" })
+      );
     }
     const envRuntimePrefixes = A.dedupe(
       A.map(
@@ -762,7 +801,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       )
     );
     if (A.some(envRuntimePrefixes, (runtimePrefix) => runtimePrefix === path.parse(runtimePrefix).root)) {
-      return yield* makeLibpffError("config", { cause: "sandbox env interpreter bind cannot expose the host root" });
+      return yield* makeLibpffError(
+        "config",
+        LibpffErrorOptions.make({ cause: "sandbox env interpreter bind cannot expose the host root" })
+      );
     }
     return {
       bindArguments: A.flatMap(envRuntimePrefixes, (runtimePrefix) => ["--ro-bind", runtimePrefix, runtimePrefix]),
@@ -779,7 +821,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       if (sandboxRuntimeCovers(interpreter)) continue;
       const runtimePrefix = runtimePrefixFor(interpreter);
       if (runtimePrefix === path.parse(runtimePrefix).root) {
-        return yield* makeLibpffError("config", { cause: "sandbox runtime bind cannot expose the host root" });
+        return yield* makeLibpffError(
+          "config",
+          LibpffErrorOptions.make({ cause: "sandbox runtime bind cannot expose the host root" })
+        );
       }
       if (!A.contains(binds, runtimePrefix)) binds.push(runtimePrefix);
     }
@@ -804,7 +849,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       )
     ).pipe(
       Effect.mapError(() =>
-        makeLibpffError("engine-unavailable", { cause: "pffexport interpreter inspection failed" })
+        makeLibpffError(
+          "engine-unavailable",
+          LibpffErrorOptions.make({ cause: "pffexport interpreter inspection failed" })
+        )
       ),
       Effect.map((bytes) => textDecoder.decode(bytes)),
       Effect.map((contents) => Str.split("\n")(contents)[0] ?? ""),
@@ -820,18 +868,27 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       .realPath(prefix)
       .pipe(
         Effect.mapError(() =>
-          makeLibpffError("engine-unavailable", { cause: "pffexport interpreter resolution failed" })
+          makeLibpffError(
+            "engine-unavailable",
+            LibpffErrorOptions.make({ cause: "pffexport interpreter resolution failed" })
+          )
         )
       );
     const interpreterInfo = yield* fs
       .stat(canonicalInterpreter)
       .pipe(
         Effect.mapError(() =>
-          makeLibpffError("engine-unavailable", { cause: "pffexport interpreter resolution failed" })
+          makeLibpffError(
+            "engine-unavailable",
+            LibpffErrorOptions.make({ cause: "pffexport interpreter resolution failed" })
+          )
         )
       );
     if (interpreterInfo.type !== "File") {
-      return yield* makeLibpffError("engine-unavailable", { cause: "pffexport interpreter is not a regular file" });
+      return yield* makeLibpffError(
+        "engine-unavailable",
+        LibpffErrorOptions.make({ cause: "pffexport interpreter is not a regular file" })
+      );
     }
 
     const bindArguments = yield* sandboxInterpreterBinds([prefix, canonicalInterpreter]);
@@ -854,18 +911,24 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
   ): Effect.fn.Return<ReturnType<typeof ChildProcess.make>, LibpffError> {
     const relativeTarget = path.relative(config.exportRoot, targetBase);
     if (path.isAbsolute(relativeTarget) || relativeTarget === ".." || Str.startsWith(`..${path.sep}`)(relativeTarget)) {
-      return yield* makeLibpffError("config", { cause: "sandbox target escaped export root" });
+      return yield* makeLibpffError("config", LibpffErrorOptions.make({ cause: "sandbox target escaped export root" }));
     }
     const sandboxTarget = `/output/${A.join(Str.split(path.sep)(relativeTarget), "/")}`;
     if (!path.isAbsolute(hostPffexportPath)) {
-      return yield* makeLibpffError("engine-unavailable", {
-        cause: "sandboxed pffexport executable could not be resolved",
-      });
+      return yield* makeLibpffError(
+        "engine-unavailable",
+        LibpffErrorOptions.make({
+          cause: "sandboxed pffexport executable could not be resolved",
+        })
+      );
     }
     const runtimeCoversPffexport = sandboxRuntimeCovers(hostPffexportPath);
     const executableRuntimePrefix = runtimePrefixFor(hostPffexportPath);
     if (!runtimeCoversPffexport && executableRuntimePrefix === path.parse(executableRuntimePrefix).root) {
-      return yield* makeLibpffError("config", { cause: "sandbox executable bind cannot expose the host root" });
+      return yield* makeLibpffError(
+        "config",
+        LibpffErrorOptions.make({ cause: "sandbox executable bind cannot expose the host root" })
+      );
     }
     const executableBind = runtimeCoversPffexport
       ? []
@@ -960,9 +1023,12 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     targetBase: string
   ): Effect.fn.Return<ReturnType<typeof ChildProcess.make>, LibpffError> {
     if (O.isSome(config.maxOutputBytes) && O.isNone(config.bwrapPath)) {
-      return yield* makeLibpffError("config", {
-        cause: "maxOutputBytes requires bubblewrap so pffexport writes only to a quota-limited tmpfs",
-      });
+      return yield* makeLibpffError(
+        "config",
+        LibpffErrorOptions.make({
+          cause: "maxOutputBytes requires bubblewrap so pffexport writes only to a quota-limited tmpfs",
+        })
+      );
     }
     return yield* O.match(config.bwrapPath, {
       onNone: () =>
@@ -1017,7 +1083,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     absolutePath: string
   ): Effect.fn.Return<string, LibpffError> {
     if (O.isSome(yield* fs.readLink(absolutePath).pipe(Effect.option))) {
-      return yield* makeLibpffError("process", { cause: "export tree contains a symbolic link" });
+      return yield* makeLibpffError(
+        "process",
+        LibpffErrorOptions.make({ cause: "export tree contains a symbolic link" })
+      );
     }
     // Bun's realpath interprets literal backslashes. Resolve each checked
     // parent, retaining every component verbatim until the escape pass.
@@ -1027,7 +1096,11 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     }
     return yield* fs
       .realPath(absolutePath)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export entry resolution failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "export entry resolution failed" }))
+        )
+      );
   });
 
   const requireCanonicalExportEntry = Effect.fn("Libpff.pffexport.requireCanonicalExportEntry")(function* (
@@ -1041,11 +1114,16 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       relativeCanonicalPath === ".." ||
       Str.startsWith(`..${path.sep}`)(relativeCanonicalPath)
     ) {
-      return yield* makeLibpffError("process", { cause: "export entry escaped the export root" });
+      return yield* makeLibpffError(
+        "process",
+        LibpffErrorOptions.make({ cause: "export entry escaped the export root" })
+      );
     }
     return yield* fs
       .stat(absolutePath)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export tree stat failed" })));
+      .pipe(
+        Effect.mapError(() => makeLibpffError("process", LibpffErrorOptions.make({ cause: "export tree stat failed" })))
+      );
   });
 
   const walkFilesWithin = Effect.fn("Libpff.pffexport.walkFilesWithin")(function* (
@@ -1055,7 +1133,9 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
   ): Effect.fn.Return<Array<WalkedFile>, LibpffError> {
     const entries = yield* fs
       .readDirectory(directory)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export tree read failed" })));
+      .pipe(
+        Effect.mapError(() => makeLibpffError("process", LibpffErrorOptions.make({ cause: "export tree read failed" })))
+      );
     const collected: Array<WalkedFile> = [];
 
     for (const entry of A.sort(entries, Str.Order)) {
@@ -1074,7 +1154,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
           sizeBytes: Number(stat.size),
         });
       } else {
-        return yield* makeLibpffError("process", { cause: "export tree contains a non-regular entry" });
+        return yield* makeLibpffError(
+          "process",
+          LibpffErrorOptions.make({ cause: "export tree contains a non-regular entry" })
+        );
       }
     }
 
@@ -1087,7 +1170,11 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
   ): Effect.fn.Return<Array<WalkedFile>, LibpffError> {
     const canonicalRoot = yield* fs
       .realPath(root)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export root resolution failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "export root resolution failed" }))
+        )
+      );
     return yield* walkFilesWithin(canonicalRoot, root, directory);
   });
 
@@ -1099,15 +1186,25 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     const permittedNames = A.map(targetTreeSuffixesFor(exportMode), (suffix) => `${targetName}${suffix}`);
     const stagedNames = yield* fs
       .readDirectory(stagingRoot)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "quota handoff inspection failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "quota handoff inspection failed" }))
+        )
+      );
     if (A.some(stagedNames, (name) => !A.contains(permittedNames, name))) {
-      return yield* makeLibpffError("process", { cause: "quota handoff contained an unexpected entry" });
+      return yield* makeLibpffError(
+        "process",
+        LibpffErrorOptions.make({ cause: "quota handoff contained an unexpected entry" })
+      );
     }
     for (const name of stagedNames) {
       const stagedTree = path.join(stagingRoot, name);
       const info = yield* requireCanonicalExportEntry(stagingRoot, stagedTree);
       if (info.type !== "Directory") {
-        return yield* makeLibpffError("process", { cause: "quota handoff tree was not a directory" });
+        return yield* makeLibpffError(
+          "process",
+          LibpffErrorOptions.make({ cause: "quota handoff tree was not a directory" })
+        );
       }
       yield* walkFiles(stagingRoot, stagedTree);
     }
@@ -1128,7 +1225,7 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
           (publishedPath) => fs.remove(publishedPath, { recursive: true }).pipe(Effect.ignore),
           { discard: true }
         );
-        return yield* makeLibpffError("process", { cause: "quota handoff publish failed" });
+        return yield* makeLibpffError("process", LibpffErrorOptions.make({ cause: "quota handoff publish failed" }));
       }
       published.push(destination);
     }
@@ -1146,20 +1243,31 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       Effect.gen(function* () {
         const handle = yield* spawner
           .spawn(command)
-          .pipe(Effect.mapError(() => makeLibpffError("engine-unavailable", { cause: "pffexport spawn failed" })));
+          .pipe(
+            Effect.mapError(() =>
+              makeLibpffError("engine-unavailable", LibpffErrorOptions.make({ cause: "pffexport spawn failed" }))
+            )
+          );
         const directProcessResult: Effect.Effect<PffexportProcessResult, LibpffError> = Effect.all(
           [drainStream(handle.stdout), captureBoundedProcessText(handle.stderr), handle.exitCode],
           { concurrency: "unbounded" }
         ).pipe(
           Effect.map(([, capturedStderr, code]) => ({ exitCode: code, stderr: capturedStderr })),
-          Effect.mapError(() => makeLibpffError("process", { cause: "pffexport terminated abnormally" }))
+          Effect.mapError(() =>
+            makeLibpffError("process", LibpffErrorOptions.make({ cause: "pffexport terminated abnormally" }))
+          )
         );
         const quotaProcessResult: Effect.Effect<PffexportProcessResult, LibpffError, Scope.Scope> = Effect.gen(
           function* () {
             const stagingRoot = yield* fs
               .makeTempDirectoryScoped({ directory: config.exportRoot, prefix: ".pffexport-quota-" })
               .pipe(
-                Effect.mapError(() => makeLibpffError("process", { cause: "quota handoff directory creation failed" }))
+                Effect.mapError(() =>
+                  makeLibpffError(
+                    "process",
+                    LibpffErrorOptions.make({ cause: "quota handoff directory creation failed" })
+                  )
+                )
               );
             const extractor = yield* spawner
               .spawn(
@@ -1179,7 +1287,12 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
                 )
               )
               .pipe(
-                Effect.mapError(() => makeLibpffError("engine-unavailable", { cause: "tar extraction spawn failed" }))
+                Effect.mapError(() =>
+                  makeLibpffError(
+                    "engine-unavailable",
+                    LibpffErrorOptions.make({ cause: "tar extraction spawn failed" })
+                  )
+                )
               );
             const [, capturedStderr, code, , tarStderr, tarExitCode] = yield* Effect.all(
               [
@@ -1196,16 +1309,23 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
             );
             if (code !== 0) return { exitCode: code, stderr: capturedStderr };
             if (tarExitCode !== 0) {
-              return yield* makeLibpffError("process", {
-                cause: Str.isNonEmpty(tarStderr) ? tarStderr : "quota handoff extraction failed",
-              });
+              return yield* makeLibpffError(
+                "process",
+                LibpffErrorOptions.make({
+                  cause: Str.isNonEmpty(tarStderr) ? tarStderr : "quota handoff extraction failed",
+                })
+              );
             }
 
             const stagedNames = yield* inspectQuotaHandoff(stagingRoot, targetBase);
             yield* publishQuotaHandoff(stagingRoot, stagedNames);
             return { exitCode: code, stderr: capturedStderr };
           }
-        ).pipe(Effect.mapError(() => makeLibpffError("process", { cause: "pffexport terminated abnormally" })));
+        ).pipe(
+          Effect.mapError(() =>
+            makeLibpffError("process", LibpffErrorOptions.make({ cause: "pffexport terminated abnormally" }))
+          )
+        );
         const processResult: Effect.Effect<PffexportProcessResult, LibpffError, Scope.Scope> = O.isNone(
           config.maxOutputBytes
         )
@@ -1228,16 +1348,25 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     );
 
     if (exitCode === sandboxOutputLimitExitCode || exitCode === sandboxOutputEntryLimitExitCode) {
-      return yield* makeLibpffError("output-limit", { cause: "pffexport quota-limited output ceiling exceeded" });
+      return yield* makeLibpffError(
+        "output-limit",
+        LibpffErrorOptions.make({ cause: "pffexport quota-limited output ceiling exceeded" })
+      );
     }
     if (exitCode === sandboxUnexpectedEntryExitCode) {
-      return yield* makeLibpffError("process", { cause: "pffexport emitted a non-regular output entry" });
+      return yield* makeLibpffError(
+        "process",
+        LibpffErrorOptions.make({ cause: "pffexport emitted a non-regular output entry" })
+      );
     }
     if (exitCode !== 0) {
-      return yield* makeLibpffError("process", {
-        exitCode: S.Natural.make(Math.max(0, exitCode)),
-        ...O.getSomesStruct({ processClassification: classifyProcessFailure(stderr) }),
-      });
+      return yield* makeLibpffError(
+        "process",
+        LibpffErrorOptions.make({
+          exitCode: S.Natural.make(Math.max(0, exitCode)),
+          ...O.getSomesStruct({ processClassification: classifyProcessFailure(stderr) }),
+        })
+      );
     }
   });
 
@@ -1254,35 +1383,49 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     for (const candidate of candidates) {
       const exists = yield* fs
         .exists(candidate)
-        .pipe(Effect.mapError(() => makeLibpffError("config", { cause: "export target check failed" })));
+        .pipe(
+          Effect.mapError(() =>
+            makeLibpffError("config", LibpffErrorOptions.make({ cause: "export target check failed" }))
+          )
+        );
       if (!exists) {
         continue;
       }
       if (PffexportExistingExportPolicy.is.fail(config.existingExportPolicy)) {
-        return yield* makeLibpffError("config", { cause: "export target already exists" });
+        return yield* makeLibpffError("config", LibpffErrorOptions.make({ cause: "export target already exists" }));
       }
       yield* fs
         .remove(candidate, { recursive: true })
-        .pipe(Effect.mapError(() => makeLibpffError("config", { cause: "stale export removal failed" })));
+        .pipe(
+          Effect.mapError(() =>
+            makeLibpffError("config", LibpffErrorOptions.make({ cause: "stale export removal failed" }))
+          )
+        );
     }
   });
 
   const readItemText = (absolutePath: string): Effect.Effect<string, LibpffError> =>
     fs
       .readFileString(absolutePath)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export item read failed" })));
+      .pipe(
+        Effect.mapError(() => makeLibpffError("process", LibpffErrorOptions.make({ cause: "export item read failed" })))
+      );
 
   const readItemBytes = (absolutePath: string): Effect.Effect<Uint8Array, LibpffError> =>
     fs
       .readFile(absolutePath)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export item read failed" })));
+      .pipe(
+        Effect.mapError(() => makeLibpffError("process", LibpffErrorOptions.make({ cause: "export item read failed" })))
+      );
 
   const decodeChildPath = (value: string): Effect.Effect<O.Option<PosixPath>> =>
     decodePosixPath(value).pipe(Effect.option);
 
   const deriveChildId = (operation: ExportArchiveOperation, relativePath: string) =>
     deriveArtifactId([operation.source.id, relativePath]).pipe(
-      Effect.mapError(() => makeLibpffError("process", { cause: "child artifact id derivation failed" }))
+      Effect.mapError(() =>
+        makeLibpffError("process", LibpffErrorOptions.make({ cause: "child artifact id derivation failed" }))
+      )
     );
 
   const collectExportedFiles = Effect.fn("Libpff.pffexport.collectExportedFiles")(function* (
@@ -1294,7 +1437,11 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       const treeRoot = `${targetBase}${suffix}`;
       const treeExists = yield* fs
         .exists(treeRoot)
-        .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export tree check failed" })));
+        .pipe(
+          Effect.mapError(() =>
+            makeLibpffError("process", LibpffErrorOptions.make({ cause: "export tree check failed" }))
+          )
+        );
       if (!treeExists) {
         continue;
       }
@@ -1313,27 +1460,41 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
   ): Effect.fn.Return<HashMap.HashMap<string, string>, LibpffError> {
     const names = yield* fs
       .readDirectory(directory)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export name inspection failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "export name inspection failed" }))
+        )
+      );
     let retainedNames = originalNames;
     for (const name of A.sort(names, Str.Order)) {
       const source = path.join(directory, name);
       const info = yield* requireCanonicalExportEntry(canonicalRoot, source);
       const escaped = yield* decodePffexportNameComponent(name).pipe(
-        Effect.mapError(() => makeLibpffError("process", { cause: "export name escape failed" }))
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "export name escape failed" }))
+        )
       );
       const destination = path.join(directory, escaped);
       let entryPath = source;
       if (escaped !== name) {
         const collision = yield* fs
           .exists(destination)
-          .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "escaped export name inspection failed" })));
+          .pipe(
+            Effect.mapError(() =>
+              makeLibpffError("process", LibpffErrorOptions.make({ cause: "escaped export name inspection failed" }))
+            )
+          );
         if (collision) {
           warnings.push(nonPortablePathWarning(Number(info.size)));
           continue;
         }
         yield* fs
           .rename(source, destination)
-          .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export name escape rename failed" })));
+          .pipe(
+            Effect.mapError(() =>
+              makeLibpffError("process", LibpffErrorOptions.make({ cause: "export name escape rename failed" }))
+            )
+          );
         entryPath = destination;
       }
       retainedNames = yield* Match.value(info.type).pipe(
@@ -1342,7 +1503,9 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
           Effect.succeed(HashMap.set(retainedNames, path.relative(config.exportRoot, entryPath), name))
         ),
         Match.orElse(() =>
-          Effect.fail(makeLibpffError("process", { cause: "export tree contains a non-regular entry" }))
+          Effect.fail(
+            makeLibpffError("process", LibpffErrorOptions.make({ cause: "export tree contains a non-regular entry" }))
+          )
         )
       );
     }
@@ -1356,13 +1519,21 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
   ): Effect.fn.Return<HashMap.HashMap<string, string>, LibpffError> {
     const canonicalRoot = yield* fs
       .realPath(config.exportRoot)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export root resolution failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "export root resolution failed" }))
+        )
+      );
     let originalNames = HashMap.empty<string, string>();
     for (const suffix of treeSuffixes) {
       const root = `${targetBase}${suffix}`;
       const exists = yield* fs
         .exists(root)
-        .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "export tree check failed" })));
+        .pipe(
+          Effect.mapError(() =>
+            makeLibpffError("process", LibpffErrorOptions.make({ cause: "export tree check failed" }))
+          )
+        );
       if (exists) originalNames = yield* escapeExportDirectory(canonicalRoot, root, originalNames, warnings);
     }
     return originalNames;
@@ -1422,12 +1593,14 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       readItemBytes(entry.absolutePath).pipe(Effect.map((bytes) => ({ bytes, fileName: entry.originalName })))
     );
     const boundaryId = yield* deriveArtifactId([operation.source.id, item.directoryPath, "boundary"]).pipe(
-      Effect.mapError(() => makeLibpffError("process", { cause: "child artifact id derivation failed" }))
+      Effect.mapError(() =>
+        makeLibpffError("process", LibpffErrorOptions.make({ cause: "child artifact id derivation failed" }))
+      )
     );
     const boundary = `=_beep-${boundaryId.slice(artifactIdPrefixLength, artifactIdPrefixLength + emlBoundaryHexLength)}`;
     const eml = yield* Effect.try({
       try: () => assembleEml({ attachments, body, boundary, headerBlock }),
-      catch: () => makeLibpffError("process", { cause: "eml assembly failed" }),
+      catch: () => makeLibpffError("process", LibpffErrorOptions.make({ cause: "eml assembly failed" })),
     });
     return textEncoder.encode(eml);
   });
@@ -1445,7 +1618,11 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     }
     yield* fs
       .writeFile(path.join(config.exportRoot, item.directoryPath, PFFEXPORT_EML_FILE_NAME), emlBytes)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "eml artifact write failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "eml artifact write failed" }))
+        )
+      );
     const emlId = yield* deriveChildId(operation, emlRelativePath.value);
     return O.some(
       ArtifactReference.make({
@@ -1514,15 +1691,24 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       return O.none<ArtifactReference>();
     }
     const lines = yield* Effect.forEach(records, (record) => PffexportMessageRecord.encodeJson(record)).pipe(
-      Effect.mapError(() => makeLibpffError("process", { cause: "message record encoding failed" }))
+      Effect.mapError(() =>
+        makeLibpffError("process", LibpffErrorOptions.make({ cause: "message record encoding failed" }))
+      )
     );
     const jsonlBytes = textEncoder.encode(`${A.join(lines, "\n")}\n`);
     if (O.exists(budget, (limit) => state.materializedBytes + jsonlBytes.length > limit)) {
-      return yield* makeLibpffError("output-limit", { cause: "messages metadata exceeds export output ceiling" });
+      return yield* makeLibpffError(
+        "output-limit",
+        LibpffErrorOptions.make({ cause: "messages metadata exceeds export output ceiling" })
+      );
     }
     yield* fs
       .writeFile(messagesJsonlPath, jsonlBytes)
-      .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "messages jsonl write failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("process", LibpffErrorOptions.make({ cause: "messages jsonl write failed" }))
+        )
+      );
     state.materializedBytes += jsonlBytes.length;
     const jsonlRelativePath = yield* decodeChildPath(messagesJsonlName);
     if (O.isNone(jsonlRelativePath)) {
@@ -1556,8 +1742,11 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       .pipe(
         Effect.mapError((error) =>
           error.reason._tag === "AlreadyExists"
-            ? makeLibpffError("config", { cause: "export target is claimed by another export" })
-            : makeLibpffError("config", { cause: "export claim could not be created" })
+            ? makeLibpffError(
+                "config",
+                LibpffErrorOptions.make({ cause: "export target is claimed by another export" })
+              )
+            : makeLibpffError("config", LibpffErrorOptions.make({ cause: "export claim could not be created" }))
         )
       );
   });
@@ -1603,7 +1792,10 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
     rawOutputBytes: number
   ): Effect.fn.Return<void, LibpffError> {
     if (O.exists(config.maxOutputBytes, (limit) => rawOutputBytes > limit)) {
-      return yield* makeLibpffError("output-limit", { cause: "pffexport output ceiling exceeded" });
+      return yield* makeLibpffError(
+        "output-limit",
+        LibpffErrorOptions.make({ cause: "pffexport output ceiling exceeded" })
+      );
     }
   });
 
@@ -1705,7 +1897,11 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
 
     yield* fs
       .makeDirectory(config.exportRoot, { recursive: true })
-      .pipe(Effect.mapError(() => makeLibpffError("config", { cause: "export root could not be created" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeLibpffError("config", LibpffErrorOptions.make({ cause: "export root could not be created" }))
+        )
+      );
 
     yield* acquireExportClaim(claimPath);
     return yield* performExport(
@@ -1752,11 +1948,19 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
         Effect.gen(function* () {
           const directory = yield* fs
             .makeTempDirectoryScoped({ prefix: "beep-pffexport-source-" })
-            .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "source snapshot directory failed" })));
+            .pipe(
+              Effect.mapError(() =>
+                makeLibpffError("process", LibpffErrorOptions.make({ cause: "source snapshot directory failed" }))
+              )
+            );
           const sourcePath = path.join(directory, `source.${operation.source.extension}`);
           yield* fs
             .writeFile(sourcePath, bytes, { flag: "wx", mode: 0o600 })
-            .pipe(Effect.mapError(() => makeLibpffError("process", { cause: "source snapshot write failed" })));
+            .pipe(
+              Effect.mapError(() =>
+                makeLibpffError("process", LibpffErrorOptions.make({ cause: "source snapshot write failed" }))
+              )
+            );
           return yield* exportArchiveImpl(operation, sourcePath);
         })
       ).pipe(Effect.mapError((error) => libpffOperationError(operation, error)));

@@ -1148,8 +1148,11 @@ describe("streaming hasher", () => {
   it.effect("uses Bun's native CryptoHasher when the runtime exposes one", () =>
     Effect.sync(() => {
       const bun = Reflect.get(globalThis, "Bun");
-      // Under a real Bun runtime the native path is already live; the Node shim has no hasher.
-      if (!P.isObject(bun) || P.isFunction(Reflect.get(bun, "CryptoHasher"))) return;
+      // Both lanes have a Bun global: the real runtime, or the Node shim in
+      // vitest.setup.ts (which now provides a CryptoHasher). Swap in a fake and
+      // restore whatever was there, so the native branch is always exercised.
+      if (!P.isObject(bun)) return;
+      const original = Reflect.get(bun, "CryptoHasher");
       const seen: Array<number> = [];
       class FakeCryptoHasher {
         update(chunk: Uint8Array): FakeCryptoHasher {
@@ -1167,22 +1170,24 @@ describe("streaming hasher", () => {
         expect(hasher.digestHex()).toBe("ab".repeat(32));
         expect(seen).toEqual([3]);
       } finally {
-        Reflect.deleteProperty(bun, "CryptoHasher");
+        Reflect.set(bun, "CryptoHasher", original);
       }
     })
   );
 
-  it.effect("falls back to the portable hasher when no Bun global exists at all", () =>
+  it.effect("falls back to the portable hasher when the runtime has no native CryptoHasher", () =>
     Effect.sync(() => {
+      // Hide the native hasher unconditionally (both lanes now have one) and
+      // restore it afterwards, so the portable branch is always exercised.
       const bun = Reflect.get(globalThis, "Bun");
-      if (P.isObject(bun) && P.isFunction(Reflect.get(bun, "CryptoHasher"))) return;
-      Reflect.deleteProperty(globalThis, "Bun");
+      const original = P.isObject(bun) ? Reflect.get(bun, "CryptoHasher") : undefined;
+      if (P.isObject(bun)) Reflect.set(bun, "CryptoHasher", undefined);
       try {
         const hasher = RA.createStreamingSha256();
         hasher.update(new TextEncoder().encode("abc"));
         expect(hasher.digestHex()).toBe("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
       } finally {
-        Reflect.set(globalThis, "Bun", bun);
+        if (P.isObject(bun)) Reflect.set(bun, "CryptoHasher", original);
       }
     })
   );

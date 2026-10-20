@@ -14,8 +14,10 @@
 
 import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { O } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 
 const $I = $TechnicalDrawingId.create("Geometry.schemas");
 
@@ -116,8 +118,8 @@ export type PositiveLength = typeof PositiveLength.Type;
  * @category models
  * @since 0.0.0
  */
-export class Rotation extends S.Class<Rotation>($I`Rotation`)(
-  {
+export class Rotation extends S.Opaque<Rotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     axis: Vec3.annotateKey({ description: "Axis direction; need not be normalised." }),
     origin: Vec3.pipe(
       S.withConstructorDefault(Effect.succeed([0, 0, 0] as const)),
@@ -125,13 +127,68 @@ export class Rotation extends S.Class<Rotation>($I`Rotation`)(
       S.annotateKey({ description: "Point the axis passes through. Defaults to the origin." })
     ),
     degrees: S.Finite.annotateKey({ description: "Signed rotation angle in degrees (right-hand rule)." }),
-  },
-  $I.annote("Rotation", {
-    description: "Rotation about an axis through a point, in degrees.",
-  })
+  }).pipe(
+    $I.annoteSchema("Rotation", {
+      description: "Rotation about an axis through a point, in degrees.",
+    })
+  )
 ) {}
 
-const placementFields = {
+const PartLineStyleBase = LiteralKit(["solid", "broken"]);
+
+/**
+ * Line style of a part's visible edges, or of the surface one primitive covers inside a solid part.
+ *
+ * **Details**
+ *
+ * `solid` parts are the claimed design. `broken` parts are unclaimed subject
+ * matter (37 CFR 1.152): their visible edges go to the broken-line layer and
+ * are drawn dashed. An add primitive of a solid part may carry `broken` too:
+ * the edges of the surface only it covers are then drawn dashed while the
+ * part stays one fused solid (see {@link Box}).
+ *
+ * **Gotchas**
+ *
+ * Broken lines mark unclaimed subject matter, never hidden lines. A broken
+ * part's hidden edges are not collected, and the part is never shaded.
+ *
+ * **Example** (Read the styles)
+ *
+ * ```ts
+ * import { PartLineStyle } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(PartLineStyle.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const PartLineStyle = PartLineStyleBase.pipe(
+  $I.annoteSchema("PartLineStyle", {
+    description: "Line style of a part's visible edges: solid (claimed) or broken (unclaimed, 37 CFR 1.152).",
+  }),
+  SchemaUtils.withLiteralKitStatics(PartLineStyleBase)
+);
+
+/**
+ * Type for {@link PartLineStyle}.
+ *
+ * **Example** (Annotate a style)
+ *
+ * ```ts
+ * import type { PartLineStyle } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const style: PartLineStyle = "broken"
+ * console.log(style)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PartLineStyle = typeof PartLineStyle.Type;
+
+// Fields every primitive shares: its placement and the line style of its own faces.
+const primitiveFields = {
   rotate: S.Array(Rotation).pipe(
     S.withConstructorDefault(Effect.succeed([])),
     S.withDecodingDefaultTypeKey(Effect.succeed([])),
@@ -142,10 +199,34 @@ const placementFields = {
     S.withDecodingDefaultTypeKey(Effect.succeed([0, 0, 0] as const)),
     S.annotateKey({ description: "Translation applied after the rotations." })
   ),
+  lineStyle: S.OptionFromOptionalKey(PartLineStyle).pipe(
+    S.withConstructorDefault(Effect.succeedNone),
+    S.annotateKey({
+      description: "Line style of this primitive's own faces inside its part; absent, the part's style.",
+    })
+  ),
 };
 
 /**
  * Axis-aligned box spanning two opposite corners, then placed.
+ *
+ * **Details**
+ *
+ * Every primitive takes an optional `lineStyle`. Absent, its faces are drawn
+ * in its part's style. On an add primitive of a solid part, `broken` marks
+ * unclaimed matter fused into the claimed part, such as a flap's coplanar
+ * tabs: the part is still built as one solid, so no seam line crosses the tab
+ * root. The part's surface outside every solid add primitive is unclaimed:
+ * every edge and silhouette bounding it is drawn in broken lines (its hidden
+ * stretches not at all), a face lying only on broken primitives is never
+ * shaded, and a face shared with a solid primitive (the flap and tab top
+ * surface) is shaded only on the solid primitive's part of it. Where a
+ * claimed and an unclaimed edge project onto one line, the nearer is drawn.
+ *
+ * **Gotchas**
+ *
+ * Only add primitives of a solid part are read: a broken part draws every
+ * face broken, and a subtract primitive's style is ignored.
  *
  * **Example** (A 40 × 30 × 20 box on the XY plane)
  *
@@ -156,23 +237,46 @@ const placementFields = {
  * console.log(box.kind)
  * ```
  *
+ * **Example** (A flap with an unclaimed tab fused into it)
+ *
+ * ```ts
+ * import { Box, Part } from "@beep/technical-drawing/Geometry.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const flap = Part.make({
+ *   name: "flap",
+ *   add: [
+ *     Box.make({ min: [0, 0, 0], max: [40, 20, 2] }),
+ *     Box.make({ min: [17, -8, 0], max: [23, 0, 2], lineStyle: O.some("broken") })
+ *   ]
+ * })
+ * console.log(flap.add.length)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export class Box extends S.Class<Box>($I`Box`)(
-  {
+export class Box extends S.Opaque<Box, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("box").annotateKey({ description: "Primitive discriminator." }),
     min: Vec3.annotateKey({ description: "Corner with the smaller coordinates." }),
     max: Vec3.annotateKey({ description: "Corner with the larger coordinates." }),
-    ...placementFields,
-  },
-  $I.annote("Box", {
-    description: "Axis-aligned box between two corners, then rotated and translated.",
-  })
+    ...primitiveFields,
+  }).pipe(
+    $I.annoteSchema("Box", {
+      description: "Axis-aligned box between two corners, then rotated and translated.",
+    })
+  )
 ) {}
 
 /**
  * Planar polygon profile extruded along a vector, then placed.
+ *
+ * **Details**
+ *
+ * `lineStyle` works as on {@link Box}: absent, the part's style; `broken` on
+ * an add primitive of a solid part draws its unclaimed surface's edges in
+ * broken lines.
  *
  * **Example** (A triangular wedge)
  *
@@ -189,8 +293,8 @@ export class Box extends S.Class<Box>($I`Box`)(
  * @category models
  * @since 0.0.0
  */
-export class Prism extends S.Class<Prism>($I`Prism`)(
-  {
+export class Prism extends S.Opaque<Prism, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("prism").annotateKey({ description: "Primitive discriminator." }),
     profile: S.Array(Vec3)
       .check(
@@ -203,15 +307,22 @@ export class Prism extends S.Class<Prism>($I`Prism`)(
       )
       .annotateKey({ description: "Closed planar polygon vertices in order; the last joins the first." }),
     extrusion: Vec3.annotateKey({ description: "Extrusion vector; its length is the prism depth." }),
-    ...placementFields,
-  },
-  $I.annote("Prism", {
-    description: "Closed planar polygon extruded along a vector, then rotated and translated.",
-  })
+    ...primitiveFields,
+  }).pipe(
+    $I.annoteSchema("Prism", {
+      description: "Closed planar polygon extruded along a vector, then rotated and translated.",
+    })
+  )
 ) {}
 
 /**
  * Right circular cylinder from a base point along an axis, then placed.
+ *
+ * **Details**
+ *
+ * `lineStyle` works as on {@link Box}: absent, the part's style; `broken` on
+ * an add primitive of a solid part draws its unclaimed surface's edges in
+ * broken lines.
  *
  * **Example** (A peg)
  *
@@ -225,18 +336,19 @@ export class Prism extends S.Class<Prism>($I`Prism`)(
  * @category models
  * @since 0.0.0
  */
-export class Cylinder extends S.Class<Cylinder>($I`Cylinder`)(
-  {
+export class Cylinder extends S.Opaque<Cylinder, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("cylinder").annotateKey({ description: "Primitive discriminator." }),
     base: Vec3.annotateKey({ description: "Centre of the base disc." }),
     axis: Vec3.annotateKey({ description: "Axis direction from the base; need not be normalised." }),
     radius: PositiveLength.annotateKey({ description: "Disc radius." }),
     height: PositiveLength.annotateKey({ description: "Length along the axis." }),
-    ...placementFields,
-  },
-  $I.annote("Cylinder", {
-    description: "Right circular cylinder from a base point along an axis, then rotated and translated.",
-  })
+    ...primitiveFields,
+  }).pipe(
+    $I.annoteSchema("Cylinder", {
+      description: "Right circular cylinder from a base point along an axis, then rotated and translated.",
+    })
+  )
 ) {}
 
 /**
@@ -280,57 +392,6 @@ export const Primitive = S.Union([Box, Prism, Cylinder]).pipe(
  */
 export type Primitive = typeof Primitive.Type;
 
-const PartLineStyleBase = LiteralKit(["solid", "broken"]);
-
-/**
- * Line style of a part's visible edges.
- *
- * **Details**
- *
- * `solid` parts are the claimed design. `broken` parts are unclaimed subject
- * matter (37 CFR 1.152): their visible edges go to the broken-line layer and
- * are drawn dashed.
- *
- * **Gotchas**
- *
- * Broken lines mark unclaimed subject matter, never hidden lines. A broken
- * part's hidden edges are not collected, and the part is never shaded.
- *
- * **Example** (Read the styles)
- *
- * ```ts
- * import { PartLineStyle } from "@beep/technical-drawing"
- *
- * console.log(PartLineStyle.literals)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export const PartLineStyle = PartLineStyleBase.pipe(
-  $I.annoteSchema("PartLineStyle", {
-    description: "Line style of a part's visible edges: solid (claimed) or broken (unclaimed, 37 CFR 1.152).",
-  }),
-  SchemaUtils.withLiteralKitStatics(PartLineStyleBase)
-);
-
-/**
- * Type for {@link PartLineStyle}.
- *
- * **Example** (Annotate a style)
- *
- * ```ts
- * import type { PartLineStyle } from "@beep/technical-drawing"
- *
- * const style: PartLineStyle = "broken"
- * console.log(style)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type PartLineStyle = typeof PartLineStyle.Type;
-
 /**
  * One solid of a model: the fusion of its `add` primitives minus its `subtract` primitives.
  *
@@ -339,7 +400,9 @@ export type PartLineStyle = typeof PartLineStyle.Type;
  * Parts stay separate solids in the final compound, so edges where two parts
  * touch are still drawn. Use one part per physical piece (panel, tab, peg).
  * `lineStyle` chooses how the part's visible edges are drawn; it defaults to
- * `solid`.
+ * `solid`. An add primitive of a solid part may set its own `lineStyle` to
+ * draw the surface only it covers in broken lines without splitting the
+ * part.
  *
  * **Gotchas**
  *
@@ -365,8 +428,8 @@ export type PartLineStyle = typeof PartLineStyle.Type;
  * @category models
  * @since 0.0.0
  */
-export class Part extends S.Class<Part>($I`Part`)(
-  {
+export class Part extends S.Opaque<Part, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Stable part name used in diagnostics." }),
     add: S.Array(Primitive)
       .check(
@@ -391,10 +454,146 @@ export class Part extends S.Class<Part>($I`Part`)(
           "How the part's visible edges are drawn: solid, or broken for unclaimed subject matter (37 CFR 1.152). Defaults to solid.",
       })
     ),
-  },
-  $I.annote("Part", {
-    description: "One solid: fused `add` primitives minus `subtract` primitives, drawn in solid or broken lines.",
+  }).pipe(
+    $I.annoteSchema("Part", {
+      description: "One solid: fused `add` primitives minus `subtract` primitives, drawn in solid or broken lines.",
+    })
+  )
+) {}
+
+const OverlayStyleBase = LiteralKit(["emphasis", "broken"]);
+
+/**
+ * Line class of an authored overlay line.
+ *
+ * **Details**
+ *
+ * `emphasis` lines are drawn on top of the outlines in the sheet's heavier
+ * emphasis weight, such as the edge where a tab sits flush in its slot.
+ * `broken` lines join the broken-line layer and are drawn dashed exactly like
+ * a broken part's edges: unclaimed subject matter (37 CFR 1.152), such as the
+ * corrugation on an exposed board edge.
+ *
+ * **Example** (Read the styles)
+ *
+ * ```ts
+ * import { OverlayStyle } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(OverlayStyle.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const OverlayStyle = OverlayStyleBase.pipe(
+  $I.annoteSchema("OverlayStyle", {
+    description:
+      "Line class of an overlay line: emphasis (heavier than outlines) or broken (dashed, unclaimed, 37 CFR 1.152).",
+  }),
+  SchemaUtils.withLiteralKitStatics(OverlayStyleBase)
+);
+
+/**
+ * Type for {@link OverlayStyle}.
+ *
+ * **Example** (Annotate a style)
+ *
+ * ```ts
+ * import type { OverlayStyle } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const style: OverlayStyle = "emphasis"
+ * console.log(style)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OverlayStyle = typeof OverlayStyle.Type;
+
+const OverlayFacing = Vec3.check(
+  S.makeFilter((v: Vec3) => Math.hypot(v[0], v[1], v[2]) > 0, {
+    identifier: $I`OverlayFacingCheck`,
+    title: "Overlay Facing",
+    description: "An overlay's facing is the outward normal of the face it lies on, so it has a direction.",
+    message: "Expected a non-zero facing vector",
   })
+);
+
+/**
+ * An authored 3D polyline drawn over the projected outlines of a model.
+ *
+ * **Details**
+ *
+ * The spec author draws an overlay line in model space; the pipeline only
+ * projects it. Consecutive points are joined, and the polyline stays open.
+ * The line goes through the same hidden-line removal as the outlines, so a
+ * part standing in front of it hides it.
+ *
+ * `facing` is the outward normal of the face the line lies on. With a facing,
+ * the line is drawn only in views whose eye direction makes a cosine above 0.2
+ * with it. A line on a face seen edge-on or from behind therefore never prints
+ * over an outline. The line is also moved `lift` model units along the facing
+ * before hidden-line removal, so the face it lies on does not hide it. Without
+ * a facing the line is drawn in every view and is not moved.
+ *
+ * **Gotchas**
+ *
+ * A `broken` overlay is unclaimed subject matter: its visible pieces join the
+ * broken-line layer, and an empty facing makes it print in every view.
+ *
+ * **Example** (A heavy edge along a tab seated in its slot)
+ *
+ * ```ts
+ * import { OverlayLine } from "@beep/technical-drawing/Geometry.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const seat = OverlayLine.make({
+ *   name: "tab-seat",
+ *   style: "emphasis",
+ *   points: [[20, -2, 43], [30, -2, 43]],
+ *   facing: O.some([0, -1, 0])
+ * })
+ * console.log(seat.lift)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OverlayLine extends S.Opaque<OverlayLine, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: S.NonEmptyString.annotateKey({ description: "Stable overlay name used in diagnostics." }),
+    style: OverlayStyle.annotateKey({ description: "Line class: emphasis or broken." }),
+    points: S.Array(Vec3)
+      .check(
+        S.isMinLength(2, {
+          identifier: $I`OverlayLinePointsCheck`,
+          title: "Overlay Line Points",
+          description: "An overlay line joins at least two points.",
+          message: "Expected at least two overlay points",
+        })
+      )
+      .annotateKey({ description: "Open polyline vertices in model units; consecutive points are joined." }),
+    facing: S.OptionFromOptionalKey(OverlayFacing).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Outward normal of the face the line lies on. When present, the line is drawn only in views whose eye direction makes a cosine above 0.2 with it; none draws it in every view.",
+      })
+    ),
+    lift: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(0.01)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0.01)),
+      S.annotateKey({
+        description:
+          "Model units the line is moved along its facing, toward the viewer, so hidden-line removal sees it in front of the face it lies on. Ignored without a facing. Defaults to 0.01.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("OverlayLine", {
+      description:
+        "Authored open 3D polyline drawn as an emphasis or broken line, culled by an optional face normal and lifted off its face.",
+    })
+  )
 ) {}
 
 const LengthUnitBase = LiteralKit(["mm", "in"]);
@@ -438,7 +637,12 @@ export const LengthUnit = LengthUnitBase.pipe(
 export type LengthUnit = typeof LengthUnit.Type;
 
 /**
- * A model: a compound of named parts.
+ * A model: a compound of named parts, plus authored overlay lines.
+ *
+ * **Details**
+ *
+ * `overlays` defaults to none, so a spec written before overlay lines existed
+ * decodes and projects unchanged.
  *
  * **Example** (A one-part model)
  *
@@ -454,8 +658,8 @@ export type LengthUnit = typeof LengthUnit.Type;
  * @category models
  * @since 0.0.0
  */
-export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
-  {
+export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     units: LengthUnit.pipe(
       S.withConstructorDefault(Effect.succeed("mm" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("mm" as const)),
@@ -477,11 +681,83 @@ export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
         })
       )
       .annotateKey({ description: "Parts kept as separate solids in one compound." }),
-  },
-  $I.annote("ModelSpec", {
-    description: "Compound of named parts built from primitives.",
-  })
+    overlays: S.Array(OverlayLine).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description: "Authored emphasis and broken overlay lines, projected with the parts. Defaults to none.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ModelSpec", {
+      description: "Compound of named parts built from primitives, plus authored overlay lines.",
+    })
+  )
 ) {}
+
+const HiddenLinePassAboutBase = LiteralKit(["origin", "target"]);
+
+/**
+ * Point a camera's hidden-line pass runs about.
+ *
+ * **Details**
+ *
+ * `origin` runs the pass about the model's own origin, as every camera did
+ * before the field existed. `target` runs it about the camera's target: a
+ * kernel whose perspective pass places its eye relative to the pass origin
+ * then sees the model from the camera's own eye point. A camera whose target
+ * stands well clear of the model (a two-point pictorial) needs `target`.
+ *
+ * **Example** (Read the pass origins)
+ *
+ * ```ts
+ * import { HiddenLinePassAbout } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(HiddenLinePassAbout.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HiddenLinePassAbout = HiddenLinePassAboutBase.pipe(
+  $I.annoteSchema("HiddenLinePassAbout", {
+    description: "Point a camera's hidden-line pass runs about: the model's `origin` or the camera's `target`.",
+  }),
+  SchemaUtils.withLiteralKitStatics(HiddenLinePassAboutBase)
+);
+
+/**
+ * Type for {@link HiddenLinePassAbout}.
+ *
+ * **Example** (Annotate a pass origin)
+ *
+ * ```ts
+ * import type { HiddenLinePassAbout } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const about: HiddenLinePassAbout = "target"
+ * console.log(about)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HiddenLinePassAbout = typeof HiddenLinePassAbout.Type;
+
+// Encoded only when it is not `origin`, so cameras written before the field existed encode byte for byte as before.
+const hiddenLinePassAboutKey = S.optionalKey(HiddenLinePassAbout).pipe(
+  S.decodeTo(
+    HiddenLinePassAbout,
+    SchemaTransformation.transformOptional<HiddenLinePassAbout, HiddenLinePassAbout>({
+      decode: (about) => O.some(O.getOrElse(about, () => HiddenLinePassAbout.Enum.origin)),
+      encode: O.filter((about) => about !== HiddenLinePassAbout.Enum.origin),
+    })
+  ),
+  S.withConstructorDefault(Effect.succeed(HiddenLinePassAbout.Enum.origin)),
+  S.annotateKey({
+    description:
+      "Point the hidden-line pass runs about: `origin` (the model's, the default, omitted when encoded) or `target`.",
+  })
+);
 
 /**
  * Viewing camera for hidden-line projection.
@@ -491,6 +767,14 @@ export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
  * `eye` points from the target toward the viewer and `up` fixes the roll;
  * neither needs normalising. `focus` is the eye-to-target distance of a
  * perspective camera in model units; absent, the projection is orthographic.
+ * `sight` is the direction toward the viewer that face-facing decisions
+ * (shading, faced overlay lines) read in place of `eye`. A camera aimed at
+ * the model's centre needs none; a two-point camera, whose level line of
+ * sight would read every level face as edge-on, carries the direction from
+ * the box centre to its eye point. `hiddenLinePassAbout` says where the
+ * hidden-line pass runs (see {@link HiddenLinePassAbout}); it is set apart
+ * from `sight`, so a camera can change what it reads as facing without
+ * moving its pass.
  *
  * **Example** (Front orthographic and an upper-left perspective)
  *
@@ -500,14 +784,14 @@ export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
  *
  * const front = Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] })
  * const persp = Camera.make({ eye: [-1, -1.3, 0.9], up: [0, 0, 1], target: [20, 15, 10], focus: O.some(250) })
- * console.log(front.focus, persp.focus)
+ * console.log(front.focus, persp.focus, persp.hiddenLinePassAbout)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Camera extends S.Class<Camera>($I`Camera`)(
-  {
+export class Camera extends S.Opaque<Camera, { readonly brand: unique symbol }>()(
+  S.Struct({
     eye: Vec3.annotateKey({ description: "Direction from the target toward the viewer." }),
     up: Vec3.annotateKey({ description: "Approximate up direction; projected to be orthogonal to `eye`." }),
     target: Vec3.pipe(
@@ -519,10 +803,20 @@ export class Camera extends S.Class<Camera>($I`Camera`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Perspective eye distance from the target; none means orthographic." })
     ),
-  },
-  $I.annote("Camera", {
-    description: "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus.",
-  })
+    sight: S.OptionFromOptionalKey(Vec3).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Direction toward the viewer that shading and faced overlay lines read for which way a face turns; none means `eye`.",
+      })
+    ),
+    hiddenLinePassAbout: hiddenLinePassAboutKey,
+  }).pipe(
+    $I.annoteSchema("Camera", {
+      description:
+        "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus, optional facing sight, and the point its hidden-line pass runs about.",
+    })
+  )
 ) {}
 
 /**
@@ -571,6 +865,7 @@ const ShadingSkipReasonBase = LiteralKit([
   "lit",
   "no-straight-edge",
   "edge-on",
+  "narrow",
 ]);
 
 /**
@@ -636,14 +931,110 @@ export type ShadingSkipReason = typeof ShadingSkipReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class ShadingSkip extends S.Class<ShadingSkip>($I`ShadingSkip`)(
-  {
+export class ShadingSkip extends S.Opaque<ShadingSkip, { readonly brand: unique symbol }>()(
+  S.Struct({
     reason: ShadingSkipReason.annotateKey({ description: "Why the faces got no lines." }),
     faces: S.Natural.annotateKey({ description: "Faces skipped for this reason." }),
-  },
-  $I.annote("ShadingSkip", {
-    description: "Count of faces in one view left unshaded for one reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingSkip", {
+      description: "Count of faces in one view left unshaded for one reason.",
+    })
+  )
+) {}
+
+const ShadingStretchSkipReasonBase = LiteralKit(["narrow", "sliver", "no-room", "ink-order"]);
+
+/**
+ * Why a visible stretch of a face given shading lines drew no band.
+ *
+ * **Details**
+ *
+ * `narrow`: the rules found room for one line only, and one line beside an
+ * outline reads as a doubled edge. `sliver`: the rules found room for no
+ * line. `no-room`: lines were planned, but fewer than two of their strokes
+ * reach the legible stroke length. `ink-order`: the band, drawn on its whole
+ * chords (its taper, or hidden-line removal, left its tapered strokes no room)
+ * and cut back to its taper, still carried more ink than a darker face beside
+ * it at the lit floor, so it was left bare.
+ *
+ * **Example** (Read the reasons)
+ *
+ * ```ts
+ * import { ShadingStretchSkipReason } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(ShadingStretchSkipReason.literals) // ["narrow", "sliver", "no-room", "ink-order"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ShadingStretchSkipReason = ShadingStretchSkipReasonBase.pipe(
+  $I.annoteSchema("ShadingStretchSkipReason", {
+    description:
+      "Why a visible stretch of a face given shading lines drew no band: narrow, sliver, no-room, or ink-order.",
+  }),
+  SchemaUtils.withLiteralKitStatics(ShadingStretchSkipReasonBase)
+);
+
+/**
+ * Type for {@link ShadingStretchSkipReason}.
+ *
+ * **Example** (Annotate a stretch skip reason)
+ *
+ * ```ts
+ * import type { ShadingStretchSkipReason } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const reason: ShadingStretchSkipReason = "narrow"
+ * console.log(reason)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ShadingStretchSkipReason = typeof ShadingStretchSkipReason.Type;
+
+/**
+ * Number of visible stretches of one view's shaded faces that drew no band
+ * for one reason, and how many of them had measured room for a band.
+ *
+ * **Details**
+ *
+ * A stretch has room for a band when the part of it whose visible chord
+ * reaches the legible stroke length is at least 3.4 minimum pitches across on
+ * the sheet: a first line one pitch in, a second 1.4 pitches past it, and a
+ * pitch to spare (`stretchFitsBand` in `Shading.rules`). A skipped stretch
+ * with that room is a band the planner failed to draw, which the validator
+ * reports.
+ *
+ * **Example** (Two narrow stretches, one of them with room for a band)
+ *
+ * ```ts
+ * import { ShadingStretchSkip } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(ShadingStretchSkip.make({ reason: "narrow", stretches: 2, fitting: 1 }).fitting) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingStretchSkip extends S.Opaque<ShadingStretchSkip, { readonly brand: unique symbol }>()(
+  S.Struct({
+    reason: ShadingStretchSkipReason.annotateKey({ description: "Why the stretches drew no band." }),
+    stretches: S.Natural.annotateKey({ description: "Visible stretches skipped for this reason." }),
+    fitting: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "How many of those stretches had measured room for a band: legible chords at least 3.4 minimum pitches across. Defaults to 0.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ShadingStretchSkip", {
+      description:
+        "Count of visible stretches of one view's shaded faces that drew no band for one reason, and how many had room for one.",
+    })
+  )
 ) {}
 
 /**
@@ -653,7 +1044,14 @@ export class ShadingSkip extends S.Class<ShadingSkip>($I`ShadingSkip`)(
  *
  * Counted before hidden-line removal, so a shaded face may still be hidden
  * by another part. Skips are listed in {@link ShadingSkipReason} order with
- * zero counts left out.
+ * zero counts left out. Under graded shading every visible stretch of a face
+ * given lines is planned on its own: a stretch that drew no band by design is
+ * counted in `skippedStretches` ({@link ShadingStretchSkipReason} order, zero
+ * counts left out), and a band drawn again on its whole chords after
+ * hidden-line removal cut its tapered strokes in `redrawnStretches`. The
+ * engine counts `lostFaces` and `lostStretches` on the strokes it projects;
+ * a render adds the bands the sheet's re-clip beside separated outlines then
+ * empties (`reclippedCoverage`), so its manifest counts what the sheet draws.
  *
  * **Example** (Five shaded faces, one sliver)
  *
@@ -670,8 +1068,8 @@ export class ShadingSkip extends S.Class<ShadingSkip>($I`ShadingSkip`)(
  * @category models
  * @since 0.0.0
  */
-export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage`)(
-  {
+export class ShadingCoverage extends S.Opaque<ShadingCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({
     shadedFaces: S.Natural.annotateKey({ description: "Faces given shading lines." }),
     skippedFaces: S.Array(ShadingSkip).annotateKey({
       description: "Faces left unshaded, per reason, in reason order; zero counts left out.",
@@ -681,14 +1079,78 @@ export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({
         description:
-          "Faces given shading lines whose every stroke the hidden-line and legibility passes then removed; counted in `shadedFaces` too. Defaults to 0.",
+          "Faces given shading lines whose every stroke the hidden-line and legibility passes, or on the sheet the re-clip beside separated outlines, then removed; counted in `shadedFaces` too. Defaults to 0.",
       })
     ),
-  },
-  $I.annote("ShadingCoverage", {
-    description:
-      "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal.",
-  })
+    lostStretches: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Visible stretches of faces that were planned at least two shading lines and drew none after the hidden-line and legibility passes, or on the sheet after the re-clip beside separated outlines; a face with another stretch still drawn is not a lost face. Defaults to 0.",
+      })
+    ),
+    skippedStretches: S.Array(ShadingStretchSkip).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible stretches of faces given shading lines that drew no band by design, per reason, in reason order; zero counts left out. Defaults to none.",
+      })
+    ),
+    redrawnStretches: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Tapered bands that hidden-line removal and the legibility pass left with fewer than two strokes, drawn again on their whole chords and cut back to their taper. Defaults to 0.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ShadingCoverage", {
+      description:
+        "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal or the sheet's re-clip, planned stretches that drew nothing, stretches skipped by design, and bands redrawn on their whole chords.",
+    })
+  )
+) {}
+
+/**
+ * One visible stretch of a face that drew shading lines: the face it shades
+ * and the strokes of its band.
+ *
+ * **Details**
+ *
+ * `strokes` index the view's `EdgeSet.shading`, which keeps the one canonical
+ * stroke order the sheet draws. A pass that changes strokes after projection
+ * (the re-clip beside outlines the sheet separates) reads through them which
+ * stretch, and which face, it left bare. `face` numbers the faces the view
+ * planned shading for, so the bands of one face share it; the numbering is
+ * the engine's and means nothing across views.
+ *
+ * **Example** (A band of three strokes on the view's first planned face)
+ *
+ * ```ts
+ * import { ShadingBand } from "@beep/technical-drawing"
+ *
+ * console.log(ShadingBand.make({ face: 0, strokes: [0, 2, 5] }).strokes.length) // 3
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingBand extends S.Opaque<ShadingBand, { readonly brand: unique symbol }>()(
+  S.Struct({
+    face: S.Natural.annotateKey({
+      description: "The face the band shades, numbered among the faces the view planned; bands of one face share it.",
+    }),
+    strokes: S.NonEmptyArray(S.Natural).annotateKey({
+      description: "Indices into the view's `shading` of the strokes the band drew, ascending.",
+    }),
+  }).pipe(
+    $I.annoteSchema("ShadingBand", {
+      description: "A visible stretch of a face that drew shading lines: its face and the indices of its strokes.",
+    })
+  )
 ) {}
 
 /**
@@ -700,7 +1162,12 @@ export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage
  * per curve), coordinates are rounded to three decimals, each segment is
  * direction-normalised, and the lists are sorted, so equal geometry yields
  * byte-equal output. `visible` and `hidden` hold the edges of solid parts;
- * `broken` holds only the visible edges of broken-line parts.
+ * `broken` holds only the visible edges of broken-line parts, the visible
+ * edges of faces a solid part's broken primitives alone own (see {@link Box}),
+ * and the visible pieces of `broken` overlay lines; `emphasis` holds the
+ * visible pieces of `emphasis` overlay lines (see {@link OverlayLine}).
+ * `shadingBands` group the shading strokes by the visible stretch that drew
+ * them (see {@link ShadingBand}).
  *
  * **Example** (An empty edge set)
  *
@@ -713,8 +1180,8 @@ export class ShadingCoverage extends S.Class<ShadingCoverage>($I`ShadingCoverage
  * @category models
  * @since 0.0.0
  */
-export class EdgeSet extends S.Class<EdgeSet>($I`EdgeSet`)(
-  {
+export class EdgeSet extends S.Opaque<EdgeSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     visible: S.Array(Segment2).annotateKey({ description: "Visible edges, including silhouettes." }),
     hidden: S.Array(Segment2).annotateKey({ description: "Hidden edges, including silhouettes." }),
     shading: S.Array(Segment2).pipe(
@@ -726,18 +1193,36 @@ export class EdgeSet extends S.Class<EdgeSet>($I`EdgeSet`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Faces shaded and skipped; absent when the view was not shaded." })
     ),
+    shadingBands: S.Array(ShadingBand).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible stretches that drew shading lines, each with its face and its strokes' indices in `shading`; every stroke belongs to one band. Empty when the view was not shaded.",
+      })
+    ),
     broken: S.Array(Segment2).pipe(
       S.withConstructorDefault(Effect.succeed([])),
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
       S.annotateKey({
         description:
-          "Visible edges of broken-line parts (unclaimed subject matter), drawn dashed; empty when no part is broken.",
+          "Visible edges of broken-line parts and of the surface only broken primitives cover, and visible pieces of broken overlay lines (unclaimed subject matter), drawn dashed; empty when nothing is broken.",
       })
     ),
-  },
-  $I.annote("EdgeSet", {
-    description: "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view.",
-  })
+    emphasis: S.Array(Segment2).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible pieces of emphasis overlay lines, drawn heavier than the outlines; empty when the model has none.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("EdgeSet", {
+      description:
+        "Canonically ordered visible, hidden, shading, broken-line, and emphasis projected segments of one view, with the shading's coverage and bands.",
+    })
+  )
 ) {}
 
 const ShadingStyleBase = LiteralKit(["uniform", "graded"]);
@@ -867,8 +1352,10 @@ const ExposureThreshold = S.Finite.check(
  * shadow edge (see {@link ShadingStyle}); `axis` picks the line direction
  * (see {@link HatchAxis}); faces narrower than `minFaceSpan` are never
  * hatched, and chords shorter than `minStroke` on the view plane are dropped. Only planar faces turned toward the camera are shaded, and the
- * lines pass through the same hidden-line removal as the outlines. The
- * defaults reproduce the original hatch exactly.
+ * lines pass through the same hidden-line removal as the outlines. A graded
+ * band whose edge has another drawn line within `ladderReach` beyond it,
+ * running alongside the edge, starts behind a gutter. The defaults reproduce
+ * the original hatch exactly.
  *
  * **Example** (A plan in millimetres)
  *
@@ -882,8 +1369,8 @@ const ExposureThreshold = S.Finite.check(
  * @category models
  * @since 0.0.0
  */
-export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
-  {
+export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     minPitch: PositiveLength.annotateKey({ description: "Line pitch on the darkest faces, in model units." }),
     maxPitch: PositiveLength.annotateKey({ description: "Line pitch on the faintest shaded faces, in model units." }),
     litThreshold: ExposureThreshold.pipe(
@@ -941,11 +1428,19 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
           "Distance, in model units, a graded stroke end keeps from every drawn outline after hidden-line removal; none means half the minimum pitch. A sheet sets it to the larger of half its pitch and the validator's spacing floor, so a render passes its own check.",
       })
     ),
-  },
-  $I.annote("ShadingPlan", {
-    description:
-      "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, and outline clearance of straight-line shading, in model units.",
-  })
+    ladderReach: S.OptionFromOptionalKey(PositiveLength).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "How far beyond a graded band's edge, in model units, a drawn line running alongside that edge makes the band and the lines read as one ladder, so the band starts behind a gutter; none means five thirds of the minimum pitch. A sheet sets it from the validator's ladder reach, so a render passes its own check.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ShadingPlan", {
+      description:
+        "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, outline clearance, and ladder reach of straight-line shading, in model units.",
+    })
+  )
 ) {}
 
 /**
@@ -962,14 +1457,15 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class BoundingBox extends S.Class<BoundingBox>($I`BoundingBox`)(
-  {
+export class BoundingBox extends S.Opaque<BoundingBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     min: Vec3.annotateKey({ description: "Minimum corner." }),
     max: Vec3.annotateKey({ description: "Maximum corner." }),
-  },
-  $I.annote("BoundingBox", {
-    description: "Axis-aligned bounding box.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundingBox", {
+      description: "Axis-aligned bounding box.",
+    })
+  )
 ) {}
 
 /**
@@ -998,8 +1494,8 @@ export class BoundingBox extends S.Class<BoundingBox>($I`BoundingBox`)(
  * @category models
  * @since 0.0.0
  */
-export class ModelSummary extends S.Class<ModelSummary>($I`ModelSummary`)(
-  {
+export class ModelSummary extends S.Opaque<ModelSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     boundingBox: BoundingBox.annotateKey({ description: "Bounding box of the whole compound." }),
     volume: S.Finite.annotateKey({ description: "Total volume in cubic model units, rounded to three decimals." }),
     faceCount: S.Natural.annotateKey({ description: "Number of faces across all parts." }),
@@ -1012,8 +1508,9 @@ export class ModelSummary extends S.Class<ModelSummary>($I`ModelSummary`)(
           "Pairs of parts whose common volume exceeds the kernel tolerance; parts that only touch do not count. Defaults to 0.",
       })
     ),
-  },
-  $I.annote("ModelSummary", {
-    description: "Bounding box, volume, topology counts, and part-overlap count of a built model.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelSummary", {
+      description: "Bounding box, volume, topology counts, and part-overlap count of a built model.",
+    })
+  )
 ) {}

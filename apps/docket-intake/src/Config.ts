@@ -33,8 +33,8 @@ const UnitIntervalFromString = S.FiniteFromString.pipe(S.decodeTo(UnitInterval))
  * @category models
  * @since 0.0.0
  */
-export class DocketIntakeAppConfig extends S.Class<DocketIntakeAppConfig>($I`DocketIntakeAppConfig`)(
-  {
+export class DocketIntakeAppConfig extends S.Opaque<DocketIntakeAppConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     certPrivateKey: S.Redacted(S.NonEmptyString).annotateKey({
       description: "Private key of the registered certificate; never printed.",
     }),
@@ -52,6 +52,9 @@ export class DocketIntakeAppConfig extends S.Class<DocketIntakeAppConfig>($I`Doc
     maxConsecutiveFailures: PositiveCount.annotateKey({
       description: "Poll cycles that may fail in a row before the service exits non-zero.",
     }),
+    reviewHubDirectory: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
+      description: "Review hub data directory the needs-review questions are stored in; no questions when absent.",
+    }),
     reviewAcceptThreshold: UnitInterval.annotateKey({
       description: "Confidence score, from 0 to 1, a review round must reach for an item to be accepted.",
     }),
@@ -67,8 +70,7 @@ export class DocketIntakeAppConfig extends S.Class<DocketIntakeAppConfig>($I`Doc
     stateDirectory: S.NonEmptyString.annotateKey({ description: "Directory of the state file and the digests." }),
     tenantId: S.NonEmptyString.annotateKey({ description: "Entra tenant id." }),
     timeZone: S.TimeZoneNamed.annotateKey({ description: "IANA time zone of the practice." }),
-  },
-  $I.annote("DocketIntakeAppConfig", { description: "Resolved settings of the docket intake service." })
+  }).pipe($I.annoteSchema("DocketIntakeAppConfig", { description: "Resolved settings of the docket intake service." }))
 ) {}
 
 const DEFAULT_MAX_CONSECUTIVE_FAILURES = 6;
@@ -109,6 +111,7 @@ export const DocketIntakeAppConfigFromEnv: Config.Config<DocketIntakeAppConfig> 
   maxConsecutiveFailures: Config.schema(PositiveCountFromString, "DOCKET_INTAKE_MAX_CONSECUTIVE_FAILURES").pipe(
     Config.withDefault(DEFAULT_MAX_CONSECUTIVE_FAILURES)
   ),
+  reviewHubDirectory: Config.option(Config.NonEmptyString("DOCKET_INTAKE_REVIEW_HUB_DIR")),
   reviewAcceptThreshold: Config.schema(UnitIntervalFromString, "DOCKET_INTAKE_REVIEW_ACCEPT_THRESHOLD").pipe(
     Config.withDefault(DEFAULT_REVIEW.acceptThreshold)
   ),

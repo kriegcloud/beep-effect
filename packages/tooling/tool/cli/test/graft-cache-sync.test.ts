@@ -14,7 +14,7 @@ import { expect, it, layer } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
@@ -115,7 +115,7 @@ const assertReportRoundTrip = Effect.fn("GraftCacheSyncTest.assertReportRoundTri
 it.effect.prop(
   "round-trips arbitrary reports without losing plan entries, reasons, or counters",
   [GraftCacheSyncReport],
-  ([report]) => Effect.map(assertReportRoundTrip(report), () => true)
+  ([report]) => Effect.map(assertReportRoundTrip(GraftCacheSyncReport.make(report)), () => true)
 );
 
 layer(testLayer)("Graft cache sync", (it) => {

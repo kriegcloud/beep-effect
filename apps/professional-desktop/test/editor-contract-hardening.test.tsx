@@ -8,7 +8,7 @@ import {
   TYPEAHEAD_MENU_ATTRIBUTE,
 } from "@beep/editor/chat/atoms";
 import { ChatComposer } from "@beep/editor/chat/chat-composer";
-import { ComposerFeatures } from "@beep/editor/chat/config";
+import { ComposerFeatures, SlashItem } from "@beep/editor/chat/config";
 import { EditorWireComposer } from "@beep/editor/composer";
 import { decodeEditorStateForRuntime } from "@beep/editor/runtime";
 import { EditorCompatibilityViewer, EditorViewer } from "@beep/editor/viewer";
@@ -33,7 +33,8 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
-import { AsyncResult, AtomRegistry } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import * as S from "effect/Schema";
 import { $createParagraphNode, $createTextNode, $getRoot, createEditor } from "lexical";
 import {
@@ -42,7 +43,7 @@ import {
   prepareComposerDocumentSafetyGate,
 } from "@/chat/ui/Composer.atoms";
 import { composerDocumentFromEditorState } from "@/chat/ui/ComposerPolicy";
-import type { Atom } from "effect/reactivity";
+import type * as Atom from "effect/reactivity/Atom";
 
 const decodeYouTubeWatchRequestResult = S.decodeResult(YouTubeWatchRequest);
 const decodeComposerFeatures = S.decodeEffect(ComposerFeatures);
@@ -615,7 +616,7 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "keeps a pending mention lookup visible and owns Enter until it settles",
     Effect.fnUntraced(function* () {
-      const lookup = yield* Deferred.make<ReadonlyArray<MentionOption>>();
+      const lookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
       const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
       const source = vi.fn<MentionSource>(() => lookup.pipe(Deferred.await, runPromise));
       const onSend = vi.fn(() => true);
@@ -699,8 +700,8 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "keeps only the latest out-of-order mention response",
     Effect.fnUntraced(function* () {
-      const firstLookup = yield* Deferred.make<ReadonlyArray<MentionOption>>();
-      const secondLookup = yield* Deferred.make<ReadonlyArray<MentionOption>>();
+      const firstLookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
+      const secondLookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
       const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
       const source = vi.fn<MentionSource>((query) =>
         (query === "ab" ? secondLookup : firstLookup).pipe(Deferred.await, runPromise)
@@ -732,7 +733,7 @@ describe("editor contract hardening", { concurrent: false }, () => {
   it.effect(
     "interrupts a pending mention lookup and releases DOM listeners immediately under the production idle TTL",
     Effect.fnUntraced(function* () {
-      const lookup = yield* Deferred.make<ReadonlyArray<MentionOption>>();
+      const lookup = yield* Deferred.make<ReadonlyArray<typeof MentionOption.Encoded>>();
       const runPromise = Effect.runPromiseWith(yield* Effect.context<never>());
       const scheduler = makeControlledScheduler();
       const source = vi.fn<MentionSource>(() => lookup.pipe(Deferred.await, runPromise));
@@ -1057,8 +1058,8 @@ describe("editor contract hardening", { concurrent: false }, () => {
         <ChatComposer
           namespace="duplicate-slash-fallback"
           slashItems={[
-            { key: "duplicate", label: "Unsafe first", onSelect: () => undefined },
-            { key: "duplicate", label: "Unsafe second", onSelect: () => undefined },
+            SlashItem.make({ key: "duplicate", label: "Unsafe first", onSelect: () => undefined }),
+            SlashItem.make({ key: "duplicate", label: "Unsafe second", onSelect: () => undefined }),
           ]}
         >
           <SeedEditor label="Seed slash trigger" text="/" />

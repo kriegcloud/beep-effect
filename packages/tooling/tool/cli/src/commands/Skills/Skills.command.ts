@@ -11,16 +11,21 @@ import { LiteralKit } from "@beep/schema";
 import { A, O, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Crypto from "effect/Crypto";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
-import { HttpClient, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -28,6 +33,7 @@ import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
+import { expectPlanDigestFlag } from "./internal/PlanFlags.ts";
 import { checkInstalledSkills } from "./internal/SkillFrontmatterCheck.ts";
 import {
   SkillFrontmatterError,
@@ -64,6 +70,7 @@ import {
 } from "./SkillsRelock.render.ts";
 import { SkillTrainPullRequests } from "./SkillsRelock.schemas.ts";
 import { isSkillReplayClean, SkillUpdateTrain, SkillUpdateTrainLive } from "./SkillsRelock.service.ts";
+import { skillsPatchCommand, skillsReviewCommand } from "./SkillsReview.command.ts";
 import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
@@ -137,18 +144,19 @@ type SkillDriftLineFormatter<Tag extends SkillDrift["_tag"]> = (drift: SkillDrif
  * @category models
  * @since 0.0.0
  */
-export class RemoteSkillSource extends S.Class<RemoteSkillSource>($I`RemoteSkillSource`)(
-  {
+export class RemoteSkillSource extends S.Opaque<RemoteSkillSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     source: S.String,
     sourceType: S.Literal("github"),
     ref: S.String,
     skillPath: S.String,
-  },
-  $I.annote("RemoteSkillSource", {
-    title: "Remote Skill Source",
-    description: "A repo-local skill folder mirrored from a GitHub repository path.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemoteSkillSource", {
+      title: "Remote Skill Source",
+      description: "A repo-local skill folder mirrored from a GitHub repository path.",
+    })
+  )
 ) {}
 
 /**
@@ -167,18 +175,19 @@ export class RemoteSkillSource extends S.Class<RemoteSkillSource>($I`RemoteSkill
  * @category models
  * @since 0.0.0
  */
-export class SkillLockEntry extends S.Class<SkillLockEntry>($I`SkillLockEntry`)(
-  {
+export class SkillLockEntry extends S.Opaque<SkillLockEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String,
     sourceType: LiteralKit(["github", "local"]),
     computedHash: S.String,
     ref: S.optionalKey(S.String),
     skillPath: S.optionalKey(S.String),
-  },
-  $I.annote("SkillLockEntry", {
-    title: "Skill Lock Entry",
-    description: "Resolved source metadata and content hash for one repo-local skill.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillLockEntry", {
+      title: "Skill Lock Entry",
+      description: "Resolved source metadata and content hash for one repo-local skill.",
+    })
+  )
 ) {}
 
 /**
@@ -197,76 +206,82 @@ export class SkillLockEntry extends S.Class<SkillLockEntry>($I`SkillLockEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillLockFile extends S.Class<SkillLockFile>($I`SkillLockFile`)(
-  {
+export class SkillLockFile extends S.Opaque<SkillLockFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal(1),
     skills: S.Record(S.String, SkillLockEntry),
-  },
-  $I.annote("SkillLockFile", {
-    title: "Skill Lock File",
-    description: "Repo-local skill lockfile written by bun run skills:update.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillLockFile", {
+      title: "Skill Lock File",
+      description: "Repo-local skill lockfile written by bun run skills:update.",
+    })
+  )
 ) {}
 
 const SuspendSkillLockFile = S.suspend(() => SkillLockFile);
 
-class GitHubTreeEntry extends S.Class<GitHubTreeEntry>($I`GitHubTreeEntry`)(
-  {
+class GitHubTreeEntry extends S.Opaque<GitHubTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     type: LiteralKit(["blob", "tree", "commit"]),
     sha: S.String,
     size: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("GitHubTreeEntry", {
-    title: "GitHub Tree Entry",
-    description: "One entry from the GitHub git tree API.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTreeEntry", {
+      title: "GitHub Tree Entry",
+      description: "One entry from the GitHub git tree API.",
+    })
+  )
 ) {}
 
-class GitHubTree extends S.Class<GitHubTree>($I`GitHubTree`)(
-  {
+class GitHubTree extends S.Opaque<GitHubTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     tree: S.Array(GitHubTreeEntry),
     truncated: S.Boolean,
-  },
-  $I.annote("GitHubTree", {
-    title: "GitHub Tree",
-    description: "GitHub recursive tree API response.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTree", {
+      title: "GitHub Tree",
+      description: "GitHub recursive tree API response.",
+    })
+  )
 ) {}
 
 const SuspendGitHubTree = S.suspend(() => GitHubTree);
 
-class CodexSkillEntry extends S.Class<CodexSkillEntry>($I`CodexSkillEntry`)(
-  {
+class CodexSkillEntry extends S.Opaque<CodexSkillEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     enabled: S.Boolean,
-  },
-  $I.annote("CodexSkillEntry", {
-    title: "Codex Skill Entry",
-    description: "Minimal Codex skill entry used by the skills updater.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSkillEntry", {
+      title: "Codex Skill Entry",
+      description: "Minimal Codex skill entry used by the skills updater.",
+    })
+  )
 ) {}
 
-class CodexSkillsSection extends S.Class<CodexSkillsSection>($I`CodexSkillsSection`)(
-  {
+class CodexSkillsSection extends S.Opaque<CodexSkillsSection, { readonly brand: unique symbol }>()(
+  S.Struct({
     include_instructions: S.Boolean,
     config: S.Array(CodexSkillEntry),
-  },
-  $I.annote("CodexSkillsSection", {
-    title: "Codex Skills Section",
-    description: "The .codex/config.toml skills table managed by the skills updater.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSkillsSection", {
+      title: "Codex Skills Section",
+      description: "The .codex/config.toml skills table managed by the skills updater.",
+    })
+  )
 ) {}
 
-class CodexSkillsConfig extends S.Class<CodexSkillsConfig>($I`CodexSkillsConfig`)(
-  {
+class CodexSkillsConfig extends S.Opaque<CodexSkillsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     skills: CodexSkillsSection,
-  },
-  $I.annote("CodexSkillsConfig", {
-    title: "Codex Skills Config",
-    description: "Minimal .codex/config.toml shape required by the skills updater.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSkillsConfig", {
+      title: "Codex Skills Config",
+      description: "Minimal .codex/config.toml shape required by the skills updater.",
+    })
+  )
 ) {}
 
 const SuspendCodexSkillsConfig = S.suspend(() => CodexSkillsConfig);
@@ -463,15 +478,96 @@ const makeParentDirectory = Effect.fn("Skills.makeParentDirectory")(function* (
     .pipe(SkillsCommandError.mapError(`Failed to create parent directory for ${absolutePath}.`, absolutePath));
 });
 
+// Resolve existing targets and every existing parent before creating backups or
+// stages. Missing ordinary paths are allowed; dangling links and escapes are not.
+const resolveSkillDestination = Effect.fn("Skills.resolveDestination")(function* (
+  repoRoot: string,
+  destination: string
+): Effect.fn.Return<string, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = yield* fs.realPath(repoRoot).pipe(SkillsCommandError.mapError("Cannot resolve skill root."));
+  let ancestor = path.resolve(destination);
+  let suffix = "";
+  while (!(yield* fs.exists(ancestor).pipe(SkillsCommandError.mapError("Cannot inspect skill destination.")))) {
+    if (O.isSome(yield* fs.readLink(ancestor).pipe(Effect.option)))
+      return yield* SkillsCommandError.make({
+        message: "Refusing dangling skill destination link.",
+        file: destination,
+      });
+    suffix = path.join(path.basename(ancestor), suffix);
+    const parent = path.dirname(ancestor);
+    if (parent === ancestor)
+      return yield* SkillsCommandError.make({
+        message: "Cannot resolve skill destination ancestor.",
+        file: destination,
+      });
+    ancestor = parent;
+  }
+  const canonical = path.resolve(
+    yield* fs.realPath(ancestor).pipe(SkillsCommandError.mapError("Cannot resolve skill destination.")),
+    suffix
+  );
+  const relative = path.relative(root, canonical);
+  if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
+    return yield* SkillsCommandError.make({
+      message: "Refusing skill destination outside repository root.",
+      file: destination,
+    });
+  return canonical;
+});
+
 const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
   absolutePath: string,
   content: string
 ): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  yield* makeParentDirectory(absolutePath);
+  const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Cannot locate skill backup root."));
+  const target = yield* resolveSkillDestination(repoRoot, absolutePath);
+  yield* makeParentDirectory(target);
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const now = yield* DateTime.now;
+  const salt = yield* Random.nextIntBetween(0, 0xffffff);
+  const stamp = now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""));
+  const suffix = `${stamp}-${salt}`;
+  const existing = yield* readExistingFile(target);
+  if (O.isSome(existing) && existing.value === content) return;
+  const directory = path.join(repoRoot, ".beep", "skills-backups");
   yield* fs
-    .writeFileString(absolutePath, content)
-    .pipe(SkillsCommandError.mapError(`Failed to write ${absolutePath}.`, absolutePath));
+    .makeDirectory(directory, { recursive: true, mode: 0o700 })
+    .pipe(SkillsCommandError.mapError("Cannot create skill backup directory."));
+  if (O.isSome(existing)) {
+    yield* fs
+      .writeFileString(path.join(directory, `${path.basename(target)}.${suffix}`), existing.value, {
+        flag: "wx",
+        mode: 0o600,
+      })
+      .pipe(SkillsCommandError.mapError("Cannot back up skill projection."));
+  }
+  const temporary = `${target}.tmp-${suffix}`;
+  yield* Effect.acquireUseRelease(
+    fs
+      .writeFileString(temporary, content, { flag: "wx", mode: 0o600 })
+      .pipe(SkillsCommandError.mapError("Cannot stage skill projection.")),
+    Effect.fnUntraced(function* () {
+      const current = yield* readExistingFile(target);
+      if (!S.toEquivalence(S.Option(S.String))(current, existing))
+        return yield* SkillsCommandError.make({
+          message: "Skill projection drifted after planning.",
+          file: target,
+        });
+      if (O.isSome(existing)) {
+        const info = yield* fs.stat(target).pipe(SkillsCommandError.mapError("Cannot read projection permissions."));
+        yield* fs
+          .chmod(temporary, info.mode)
+          .pipe(SkillsCommandError.mapError("Cannot preserve projection permissions."));
+      } else {
+        yield* fs.chmod(temporary, 0o644).pipe(SkillsCommandError.mapError("Cannot set projection permissions."));
+      }
+      yield* fs.rename(temporary, target).pipe(SkillsCommandError.mapError("Cannot replace skill projection."));
+    }),
+    () => Effect.ignore(fs.remove(temporary))
+  );
 });
 
 const writeByteFile = Effect.fn("Skills.writeByteFile")(function* (
@@ -649,24 +745,55 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
 ): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const skillDir = path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name);
+  const skillDir = yield* resolveSkillDestination(repoRoot, path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name));
+  const now = yield* DateTime.now;
+  const salt = yield* Random.nextIntBetween(0, 0xffffff);
+  const suffix = `${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
+  const backups = path.join(repoRoot, ".beep", "skills-backups");
   yield* fs
-    .remove(skillDir, { recursive: true, force: true })
-    .pipe(SkillsCommandError.mapError(`Failed to remove stale skill directory ${skillDir}.`, skillDir, source.name));
-
-  for (const file of snapshot.files) {
-    const relativePath = yield* validateSkillFilePath(file.path, source.name);
-    const writePath = path.resolve(skillDir, relativePath);
-    const containmentPath = normalizeSlashes(path.relative(skillDir, writePath));
-    if (!isSafeRelativeSkillFilePath(containmentPath)) {
-      return yield* SkillsCommandError.make({
-        message: `Refusing to write remote skill "${source.name}" outside ${skillDir}: ${file.path}`,
-        file: file.path,
-        skill: source.name,
-      });
-    }
-    yield* writeByteFile(writePath, file.bytes);
-  }
+    .makeDirectory(backups, { recursive: true, mode: 0o700 })
+    .pipe(SkillsCommandError.mapError("Cannot create remote skill backup directory."));
+  const backup = path.join(backups, `${source.name}.${suffix}`);
+  const existed = yield* fs.exists(skillDir).pipe(SkillsCommandError.mapError("Cannot inspect remote skill."));
+  if (existed)
+    yield* fs
+      .copy(skillDir, backup, { overwrite: false, preserveTimestamps: true })
+      .pipe(SkillsCommandError.mapError("Cannot back up remote skill."));
+  const stage = path.join(path.dirname(skillDir), `.${source.name}.stage-${suffix}`);
+  // Keep deferred cleanup outside discovery: it is recovery state, not an installed skill.
+  const previous = path.join(backups, `${source.name}.${suffix}.previous`);
+  yield* makeParentDirectory(stage);
+  yield* Effect.acquireUseRelease(
+    fs.makeDirectory(stage).pipe(SkillsCommandError.mapError("Cannot stage remote skill.")),
+    Effect.fnUntraced(function* () {
+      for (const file of snapshot.files) {
+        const relativePath = yield* validateSkillFilePath(file.path, source.name);
+        const writePath = path.resolve(stage, relativePath);
+        const containmentPath = normalizeSlashes(path.relative(stage, writePath));
+        if (!isSafeRelativeSkillFilePath(containmentPath))
+          return yield* SkillsCommandError.make({
+            message: "Refusing a remote skill file outside its staged tree.",
+            file: file.path,
+            skill: source.name,
+          });
+        yield* writeByteFile(writePath, file.bytes);
+      }
+      yield* Effect.uninterruptible(
+        Effect.gen(function* () {
+          if (existed)
+            yield* fs
+              .rename(skillDir, previous)
+              .pipe(SkillsCommandError.mapError("Cannot preserve previous remote skill."));
+          yield* fs.rename(stage, skillDir).pipe(
+            Effect.onError(() => (existed ? Effect.ignore(fs.rename(previous, skillDir)) : Effect.void)),
+            SkillsCommandError.mapError("Cannot publish staged remote skill.")
+          );
+          if (existed) yield* Effect.ignore(fs.remove(previous, { recursive: true, force: true }));
+        })
+      );
+    }),
+    () => Effect.ignore(fs.remove(stage, { recursive: true, force: true }))
+  );
 });
 
 const readLockFile = Effect.fn("Skills.readLockFile")(function* (
@@ -753,6 +880,11 @@ const renderSkillsBlock = (names: ReadonlyArray<string>): string =>
     "\n"
   );
 
+const renderEnabledSkillRow = (row: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const rendered = A.map(row, Str.replace(/^(\s*enabled\s*=\s*)(?:true|false)/, "$1true"));
+  return A.some(row, (entry) => /^\s*enabled\s*=/.test(entry)) ? rendered : A.append(rendered, "    enabled = true");
+};
+
 /**
  * Render `.codex/config.toml` with skills sourced from `.claude/skills`.
  *
@@ -784,16 +916,67 @@ export const renderCodexConfigWithSkills: {
     return `${trimmed}\n\n${skillsBlock}`;
   }
 
-  const nextTableRelative = A.findFirstIndex(
-    A.drop(lines, start.value + 1),
-    (line) => /^\s*\[/.test(line) && !/^\s*\[\[skills\.config\]\]\s*$/.test(line)
-  );
-  const end = O.match(nextTableRelative, {
+  // Own include_instructions and the generated config rows. Preserve other
+  // parent keys and subtables verbatim instead of replacing the whole [skills] tree.
+  const parentEndRelative = A.findFirstIndex(A.drop(lines, start.value + 1), (line) => /^\s*\[/.test(line));
+  const parentEnd = O.match(parentEndRelative, {
     onNone: () => lines.length,
     onSome: (index) => start.value + 1 + index,
   });
-
-  return A.join([...A.take(lines, start.value), skillsBlock, ...A.drop(lines, end)], "\n");
+  const parentLines = A.filter(
+    A.slice(lines, { start: start.value + 1, end: parentEnd }),
+    (line) => !/^\s*include_instructions\s*=/.test(line)
+  );
+  const remainder = A.drop(lines, parentEnd);
+  let kept: ReadonlyArray<string> = [];
+  let seen = HashSet.empty<string>();
+  let cursor = 0;
+  let inManagedBlock = true;
+  while (cursor < remainder.length) {
+    const line = O.getOrElse(A.get(remainder, cursor), () => "");
+    if (!/^\s*\[\[skills\.config\]\]\s*$/.test(line)) {
+      if (/^\s*\[/.test(line)) inManagedBlock = false;
+      kept = A.append(kept, line);
+      cursor += 1;
+      continue;
+    }
+    const next = A.findFirstIndex(A.drop(remainder, cursor + 1), (entry) => /^\s*\[/.test(entry));
+    const end = O.match(next, { onNone: () => remainder.length, onSome: (index) => cursor + 1 + index });
+    const row = A.slice(remainder, { start: cursor, end });
+    const name = O.flatMap(
+      A.findFirst(row, (entry) => /^\s*name\s*=/.test(entry)),
+      (entry) =>
+        O.flatMap(O.fromNullishOr(/^\s*name\s*=\s*["']([^"']*)["']/.exec(entry)), (match) =>
+          O.fromUndefinedOr(match[1])
+        )
+    );
+    const unknown = A.some(A.drop(row, 1), (entry) => !/^\s*(?:(?:name|enabled)\s*=|#|$)/.test(entry));
+    const nextHeader = O.getOrElse(A.get(remainder, end), () => "");
+    const hasNested = /^\s*\[skills\.config\./.test(nextHeader);
+    const managed = O.filter(name, (value) => A.contains(names, value));
+    const rendered = O.match(managed, {
+      onSome: (value) => {
+        seen = HashSet.add(seen, value);
+        return renderEnabledSkillRow(row);
+      },
+      // Unknown native fields keep their owner until an explicit lifecycle decision.
+      onNone: () => (!inManagedBlock || unknown || hasNested || O.isNone(name) ? row : []),
+    });
+    kept = A.appendAll(kept, rendered);
+    cursor = end;
+  }
+  const missing = A.filter(names, (name) => !HashSet.has(seen, name));
+  return A.join(
+    [
+      ...A.take(lines, start.value),
+      "[skills]",
+      "  include_instructions = true",
+      ...parentLines,
+      ...(A.isReadonlyArrayEmpty(missing) ? [] : A.drop(Str.split(renderSkillsBlock(missing), "\n"), 2)),
+      ...kept,
+    ],
+    "\n"
+  );
 });
 
 const renderDesiredCodexConfig = Effect.fn("Skills.renderDesiredCodexConfig")(function* (
@@ -871,7 +1054,7 @@ const driftLineFormatters = {
   CodexConfigDrift: (): string => `- ${CODEX_CONFIG_PATH}`,
   AgentsMirrorDrift: (): string => `- ${AGENTS_SKILLS_DIR}`,
   HandEditedVendoredOutput: (drift): string =>
-    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; revert it with beep skills materialize --skill ${drift.name}, or keep it as a patch under .agents/skill-patches/${drift.name} and re-record the lock with beep skills lock-plan (beep skills patch add is not available yet)`,
+    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; revert it with beep skills materialize --skill ${drift.name}, or keep it as a patch with beep skills patch add --skill ${drift.name} (plan, then --expect <planDigest>)`,
 } satisfies { readonly [Tag in SkillDrift["_tag"]]: SkillDriftLineFormatter<Tag> };
 
 const driftLine = (drift: SkillDrift): string => {
@@ -1175,9 +1358,17 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
 > {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Failed to locate repository root."));
+  // Preflight all destinations before any update writes a backup or projection.
+  yield* resolveSkillDestination(repoRoot, path.join(repoRoot, CODEX_CONFIG_PATH));
+  yield* resolveSkillDestination(repoRoot, path.join(repoRoot, SKILLS_LOCK_PATH));
   const lock = yield* readLockV2(repoRoot);
   yield* refuseVendoredRefetch(lock, options.skill);
   const sources = yield* floatingSources(lock, yield* resolveSourcesToFetch(options.skill));
+  yield* Effect.forEach(
+    sources,
+    (source) => resolveSkillDestination(repoRoot, path.join(repoRoot, CLAUDE_SKILLS_DIR, source.name)),
+    { concurrency: 1 }
+  );
   const fetchedSnapshots = yield* Effect.forEach(sources, fetchRemoteSkillSnapshot, {
     concurrency: 3,
   });
@@ -1495,10 +1686,7 @@ const skillsRelockCommand = Command.make(
   "relock",
   {
     skill: Flag.String("skill").pipe(Flag.withDescription("The vendored lock entry whose pin moved")),
-    expect: Flag.String("expect").pipe(
-      Flag.optional,
-      Flag.withDescription("The reviewed planDigest (from --json) that the write must match")
-    ),
+    expect: expectPlanDigestFlag,
     json: Flag.Boolean("json").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Print the skills-relock-plan/v1 receipt as JSON")
@@ -1572,7 +1760,7 @@ const skillsTrainIssueCommand = Command.make(
  *
  * ```ts
  * import { skillsCommand } from "@beep/repo-cli/commands/Skills"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect";
  * const run = Command.run(skillsCommand, { version: "0.0.0" })
  * console.log(Effect.isEffect(run)) // true
@@ -1583,7 +1771,7 @@ const skillsTrainIssueCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>\n- bun run beep skills review [--skill <name>] [--json] [--interactive | --decisions <file>] [--reviewer <handle>] [--ghost] [--budget <minutes>]\n- bun run beep skills patch add --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills patch label --skill <name> [--json] [--expect <planDigest>]"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),
@@ -1595,5 +1783,7 @@ export const skillsCommand = Command.make("skills", {}, () =>
     skillsReplayCommand,
     skillsRelockCommand,
     skillsTrainIssueCommand,
+    skillsReviewCommand,
+    skillsPatchCommand,
   ])
 );

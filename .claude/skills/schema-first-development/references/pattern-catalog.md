@@ -13,15 +13,16 @@ Trigger:
 Preferred replacement:
 
 ```ts
-export class TaskInput extends S.Class<TaskInput>($I`TaskInput`)(
-  {
+export class TaskInput extends S.Opaque<TaskInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     title: S.String,
     priority: S.Int,
-  },
-  $I.annote("TaskInput", {
-    description: "Input payload for task creation.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskInput", {
+      description: "Input payload for task creation.",
+    })
+  )
 ) {}
 ```
 
@@ -29,13 +30,28 @@ Keep the schema value as the source of truth and derive types from it.
 
 ## 2. Build an Object Model
 
-Default:
+Default for plain data:
 
-- `S.Class` for domain objects and reusable payloads
+- `S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct({...}).pipe($I.annoteSchema("X", {...})))`
+  for domain objects and reusable payloads
+- `S.TaggedStruct("X", {...})` as the Opaque source for `_tag` data
+- construct with `X.make(...)`; no `new X(...)`, no `.extend` (spread
+  `X.fields` or use `S.fieldsAssign(...)`)
+- annotate the Struct inside the pipe; `X.annotate(...)` drops the statics
+
+Stay on a branded `S.Class` / `S.TaggedClass` / `S.Error` / `S.TaggedError`:
+
+- errors
+- persisted entities (built on `@beep/effect-drizzle`)
+- schemas with instance members (getters or methods)
+- `.extend` chain roots and subclasses
+
+Every schema class and Opaque declaration carries `{ readonly brand: unique symbol }`.
 
 Boundary exception:
 
-- `S.Struct` for plain shape composition when class construction adds nothing
+- an unwrapped `S.Struct` for plain shape composition that is never exported
+  as a domain model
 - If you use `S.Struct`, export `type X = typeof X.Type`
 
 ## 3. Model Boundary Normalization and Defaults
@@ -102,7 +118,7 @@ Use this split:
 Repo-preferred construction for reusable literal domains:
 
 1. Define the literal kit.
-2. Define member schemas, usually with `S.Class`.
+2. Define member schemas, usually as branded `S.Opaque` classes over `S.Struct`.
 3. Assemble members with `.mapMembers(...)`.
 4. Finalize with `S.toTaggedUnion("field")`.
 
@@ -122,7 +138,7 @@ Use:
 
 - `S.is(schema)` for guards
 - `S.toEquivalence(schema)` for comparisons
-- `S.toArbitrary(schema)` for schema-modeled property tests
+- `Arbitrary.schema(schema)` (`effect/Arbitrary`) for schema-modeled property tests
 - schema tagged-union `.cases`, `.guards`, `.isAnyOf`, and `.match`
 - `LiteralKit.Enum`, `.is`, `.$match`, and `.toTaggedUnion`, plus the
   inherited `S.Literals` members `.literals`, `.pick(...)` and `.mapMembers(...)`
@@ -177,7 +193,12 @@ If the check is reusable, include:
 ## 10. Common Anti-Patterns and Replacements
 
 - Exported data `interface`
-  Replace with `S.Class` or annotated `S.Struct`
+  Replace with a branded `S.Opaque` over an annotated `S.Struct`
+- Plain data declared as `S.Class`
+  Replace with a branded `S.Opaque`; `S.Class` rejects plain objects in
+  `S.is` and encoding
+- Schema class or Opaque without a brand type argument
+  Add `{ readonly brand: unique symbol }`
 - `type X = { ... }` plus separate decoder
   Replace with one schema value and derived type alias
 - `JSON.parse` / `JSON.stringify`

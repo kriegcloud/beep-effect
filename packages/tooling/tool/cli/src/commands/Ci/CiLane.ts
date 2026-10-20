@@ -17,7 +17,9 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Console from "effect/Console";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -58,7 +60,7 @@ import {
 } from "./CiLanePartitions.ts";
 import type { FsUtils } from "@beep/repo-utils";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { QualityTaskConfigurationError, QualityTaskGroupFailed, QualityTaskLaneInput } from "../Quality/Tasks.ts";
 import type { CiLanePartition, PartitionedCiLane } from "./CiLanePartitions.ts";
 
@@ -214,6 +216,7 @@ export const CI_LANE_ID_VALUES = [
   "labs",
   "lint",
   "lint-policy",
+  "effect-diagnostics",
   "nix",
   "property",
   "repo-sanity",
@@ -344,8 +347,8 @@ const CiWorkflow = LiteralKit(["check", "heavy", "storybook"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class CiLaneDescriptor extends S.Class<CiLaneDescriptor>($I`CiLaneDescriptor`)(
-  {
+export class CiLaneDescriptor extends S.Opaque<CiLaneDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     contextName: S.String,
     workflow: CiWorkflow.pipe(
@@ -357,10 +360,11 @@ export class CiLaneDescriptor extends S.Class<CiLaneDescriptor>($I`CiLaneDescrip
     replay: CiLaneReplay,
     flags: S.Array(S.String),
     notes: S.optionalKey(S.String),
-  },
-  $I.annote("CiLaneDescriptor", {
-    description: "Machine-readable descriptor for a hosted CI lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneDescriptor", {
+      description: "Machine-readable descriptor for a hosted CI lane.",
+    })
+  )
 ) {}
 
 const TURBO_SHAPE_FLAGS = ["--affected", "--base", "--summarize"] as const;
@@ -409,6 +413,17 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
     laneClass: "cli-runnable",
     replay: "exact",
     flags: [],
+  }),
+  CiLaneDescriptor.make({
+    id: "effect-diagnostics",
+    workflow: "heavy",
+    contextName: "Heavy / Effect Diagnostics",
+    required: true,
+    laneClass: "cli-runnable",
+    replay: "exact",
+    flags: [...TURBO_SHAPE_FLAGS],
+    notes:
+      "Independent Effect rules: affected workspace dependents on PRs, full inventory on main; hosted job has a 19-GiB cgroup cap.",
   }),
   CiLaneDescriptor.make({
     id: "repo-sanity",
@@ -685,8 +700,8 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
  * @category models
  * @since 0.0.0
  */
-export class CiLaneRunOptions extends S.Class<CiLaneRunOptions>($I`CiLaneRunOptions`)(
-  {
+export class CiLaneRunOptions extends S.Opaque<CiLaneRunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     affected: S.Boolean,
     base: S.String,
     head: S.String,
@@ -704,10 +719,11 @@ export class CiLaneRunOptions extends S.Class<CiLaneRunOptions>($I`CiLaneRunOpti
     inventory: S.optionalKey(S.String),
     dryRun: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     force: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("CiLaneRunOptions", {
-    description: "Shape and optional Turbo scope for running one CI lane body.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneRunOptions", {
+      description: "Shape and optional Turbo scope for running one CI lane body.",
+    })
+  )
 ) {}
 
 // The property lane invokes turbo directly (not through a root script, so it misses the
@@ -869,18 +885,19 @@ const NonNegativeTaskCount = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class CiLanePartitionProof extends S.Class<CiLanePartitionProof>($I`CiLanePartitionProof`)(
-  {
+export class CiLanePartitionProof extends S.Opaque<CiLanePartitionProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: PartitionedCiLaneSchema,
     partition: CiLanePartitionId,
     selectedTaskCount: NonNegativeTaskCount,
     partitionTaskCount: NonNegativeTaskCount,
     packages: S.Array(S.String),
     shard: S.optionalKey(CiLanePartitionShard),
-  },
-  $I.annote("CiLanePartitionProof", {
-    description: "Validated intersection between Turbo's selected task set and one committed partition.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLanePartitionProof", {
+      description: "Validated intersection between Turbo's selected task set and one committed partition.",
+    })
+  )
 ) {}
 
 const proveCiLanePartitionDefinition = Effect.fn("CiLane.proveCiLanePartitionDefinition")(function* (
@@ -1234,11 +1251,12 @@ const partitionExecutionArgs = (
  * @category models
  * @since 0.0.0
  */
-export class CiLanePartitionArgs extends S.Class<CiLanePartitionArgs>($I`CiLanePartitionArgs`)(
-  { selection: S.Array(S.String), execution: S.Array(S.String) },
-  $I.annote("CiLanePartitionArgs", {
-    description: "Exact Turbo argv for partition selection and execution.",
-  })
+export class CiLanePartitionArgs extends S.Opaque<CiLanePartitionArgs, { readonly brand: unique symbol }>()(
+  S.Struct({ selection: S.Array(S.String), execution: S.Array(S.String) }).pipe(
+    $I.annoteSchema("CiLanePartitionArgs", {
+      description: "Exact Turbo argv for partition selection and execution.",
+    })
+  )
 ) {}
 
 /**
@@ -1338,24 +1356,26 @@ export const ciLanePartitionArgsForTesting: {
     })
 );
 
-class TurboDryRunTask extends S.Class<TurboDryRunTask>($I`TurboDryRunTask`)(
-  {
+class TurboDryRunTask extends S.Opaque<TurboDryRunTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.String,
     package: S.String,
     task: S.String,
     taskId: S.String,
-  },
-  $I.annote("TurboDryRunTask", {
-    description: "Task entry read from Turbo's JSON dry-run plan for a CI lane selection probe.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboDryRunTask", {
+      description: "Task entry read from Turbo's JSON dry-run plan for a CI lane selection probe.",
+    })
+  )
 ) {}
 
-class TurboDryRun extends S.Class<TurboDryRun>($I`TurboDryRun`)(
-  { tasks: S.Array(TurboDryRunTask) },
-  $I.annote("TurboDryRun", {
-    description:
-      "Turbo JSON dry-run document read by the partition proof and the Storybook affected probe to learn which tasks Turbo selected.",
-  })
+class TurboDryRun extends S.Opaque<TurboDryRun, { readonly brand: unique symbol }>()(
+  S.Struct({ tasks: S.Array(TurboDryRunTask) }).pipe(
+    $I.annoteSchema("TurboDryRun", {
+      description:
+        "Turbo JSON dry-run document read by the partition proof and the Storybook affected probe to learn which tasks Turbo selected.",
+    })
+  )
 ) {}
 
 const decodeTurboDryRun = S.decodeUnknownEffect(S.fromJsonString(TurboDryRun));
@@ -1641,6 +1661,14 @@ export const ciLaneStepsForTesting: {
       // from ambient `CI=true`, so a local replay scans the same repo-wide
       // surface the required Lint Policy context does. Hosted runs are
       // unchanged: `beep lint policy` already forces the full sweep under CI.
+      "effect-diagnostics": () => [
+        bunRunStep(repoRoot, "ci:effect-diagnostics", [
+          "beep",
+          "quality",
+          "effect-diagnostics",
+          ...(options.affected ? ["--base", options.base] : []),
+        ]),
+      ],
       "lint-policy": () => [bunRunStep(repoRoot, "ci:lint-policy", ["beep", "lint", "policy", "--full"])],
       nix: () => [
         QualityTaskStep.make({
@@ -1670,7 +1698,9 @@ export const ciLaneStepsForTesting: {
         }),
       ],
       "repo-sanity": () => [
+        bunRunStep(repoRoot, "lint:schema-catalog", ["beep", "lint", "schema-catalog"]),
         bunRunStep(repoRoot, "ci:repo-sanity:changeset-graph", ["beep", "quality", "changeset-graph"]),
+        bunRunStep(repoRoot, "ci:repo-sanity:catalog-usage", ["beep", "quality", "catalog-usage"]),
         bunRunStep(repoRoot, "ci:repo-sanity", ["audit:github", "repo-sanity"]),
         ...(options.changesetStatus
           ? [
@@ -2265,7 +2295,7 @@ const reportCiCommandError = (error: { readonly message: string }) =>
  *
  * ```ts
  * import { ciLaneCommand } from "@beep/repo-cli/commands/Ci"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect"
  *
  * const run = Command.run(ciLaneCommand, { version: "0.0.0" })
@@ -2498,15 +2528,16 @@ const currentGitBranch = Effect.fn("CiLane.currentGitBranch")(function* (
  * @category models
  * @since 0.0.0
  */
-export class CiLocalStepPlan extends S.Class<CiLocalStepPlan>($I`CiLocalStepPlan`)(
-  {
+export class CiLocalStepPlan extends S.Opaque<CiLocalStepPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     affected: S.Boolean,
     base: S.String,
     onMainBranch: S.Boolean,
-  },
-  $I.annote("CiLocalStepPlan", {
-    description: "Resolved shape for planning the local battery's lane dispatch steps.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLocalStepPlan", {
+      description: "Resolved shape for planning the local battery's lane dispatch steps.",
+    })
+  )
 ) {}
 
 const ciLocalLaneFlags = (laneId: CiLaneId, plan: CiLocalStepPlan): ReadonlyArray<string> => {
@@ -2526,6 +2557,7 @@ const ciLocalLaneFlags = (laneId: CiLaneId, plan: CiLocalStepPlan): ReadonlyArra
     "desktop-ipc": A.empty<string>,
     docgen: () => ["--mode", plan.affected ? "auto" : "full", "--base", plan.base],
     doctest: A.empty<string>,
+    "effect-diagnostics": () => turboShapeFlags,
     ecosystem: A.empty<string>,
     fallow: () => ["--base", plan.base, "--validate-envelopes"],
     "jsdoc-ratchet": A.empty<string>,
@@ -2710,7 +2742,7 @@ export const runCiLocal = Effect.fn("CiLane.runCiLocal")(function* (
  *
  * ```ts
  * import { ciLocalCommand } from "@beep/repo-cli/commands/Ci"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect"
  *
  * const run = Command.run(ciLocalCommand, { version: "0.0.0" })

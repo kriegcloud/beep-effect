@@ -1,4 +1,10 @@
-import { syncTsconfigAtRoot, tsconfigSyncCommand } from "@beep/repo-cli/commands/TsconfigSync";
+import {
+  syncTsconfigAtRoot,
+  TsconfigSyncRunOptions,
+  TsconfigSyncRunOptionsCheck,
+  TsconfigSyncRunOptionsSync,
+  tsconfigSyncCommand,
+} from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
@@ -10,7 +16,7 @@ import { assert, describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
@@ -277,11 +283,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             packageName: "@beep/example-domain",
           });
 
-          const result = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "sync",
-            filter: "@beep/example-domain",
-            verbose: false,
-          });
+          const result = yield* syncTsconfigAtRoot(
+            rootDir,
+            TsconfigSyncRunOptionsSync.make({
+              mode: "sync",
+              filter: "@beep/example-domain",
+              verbose: false,
+            })
+          );
 
           expect(A.map(result.changes, (change) => change.section)).toEqual([
             "root-syncpack",
@@ -338,11 +347,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
                 },
               });
 
-              yield* syncTsconfigAtRoot(rootDir, {
-                mode: "sync",
-                filter: "@beep/repo-cli",
-                verbose: false,
-              });
+              yield* syncTsconfigAtRoot(
+                rootDir,
+                TsconfigSyncRunOptionsSync.make({
+                  mode: "sync",
+                  filter: "@beep/repo-cli",
+                  verbose: false,
+                })
+              );
 
               const paths = yield* decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
               assert.deepStrictEqual(paths.compilerOptions.paths["@beep/repo-cli/test/Knowledge"], [
@@ -379,11 +391,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
                   "./package.json": "./package.json",
                 },
               });
-              yield* syncTsconfigAtRoot(rootDir, {
-                mode: "sync",
-                filter: "@beep/mcp-kit",
-                verbose: false,
-              });
+              yield* syncTsconfigAtRoot(
+                rootDir,
+                TsconfigSyncRunOptionsSync.make({
+                  mode: "sync",
+                  filter: "@beep/mcp-kit",
+                  verbose: false,
+                })
+              );
               const paths = yield* decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
               assert.deepStrictEqual(paths.compilerOptions.paths["@beep/mcp-kit/test/Conformance"], [
                 "./packages/foundation/capability/mcp-kit/src/test/Conformance.test-kit.ts",
@@ -427,11 +442,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             },
           });
 
-          const result = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "sync",
-            filter: "@beep/example-use-cases",
-            verbose: false,
-          });
+          const result = yield* syncTsconfigAtRoot(
+            rootDir,
+            TsconfigSyncRunOptionsSync.make({
+              mode: "sync",
+              filter: "@beep/example-use-cases",
+              verbose: false,
+            })
+          );
 
           expect(
             A.sort(
@@ -491,11 +509,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             },
           });
 
-          yield* syncTsconfigAtRoot(rootDir, {
-            mode: "sync",
-            filter: undefined,
-            verbose: false,
-          });
+          yield* syncTsconfigAtRoot(
+            rootDir,
+            TsconfigSyncRunOptionsSync.make({
+              mode: "sync",
+              filter: undefined,
+              verbose: false,
+            })
+          );
 
           const paths = yield* decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
           expect(paths.compilerOptions.paths).toMatchObject({
@@ -574,11 +595,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             },
           });
 
-          const result = yield* syncTsconfigAtRoot(rootDir, {
-            mode: "sync",
-            filter: "@beep/identity",
-            verbose: false,
-          });
+          const result = yield* syncTsconfigAtRoot(
+            rootDir,
+            TsconfigSyncRunOptionsSync.make({
+              mode: "sync",
+              filter: "@beep/identity",
+              verbose: false,
+            })
+          );
 
           expect(result.changes).toHaveLength(1);
           expect(result.changes[0]?.section).toBe("package-docgen");
@@ -709,11 +733,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
               },
             });
 
-            const drift = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: "@beep/example-protocol",
-              verbose: false,
-            }).pipe(
+            const drift = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: "@beep/example-protocol",
+                verbose: false,
+              })
+            ).pipe(
               Effect.match({
                 onFailure: (error) => error,
                 onSuccess: () => undefined,
@@ -726,11 +753,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             }
             expect(drift.fileCount).toBe(1);
 
-            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "sync",
-              filter: "@beep/example-protocol",
-              verbose: false,
-            });
+            const syncResult = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({
+                mode: "sync",
+                filter: "@beep/example-protocol",
+                verbose: false,
+              })
+            );
 
             expect(syncResult.changes).toHaveLength(1);
             expect(syncResult.changes[0]?.section).toBe("package-docgen");
@@ -806,11 +836,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
               references: ["../foundation/modeling/identity/tsconfig.json", "../example-orphan/tsconfig.json"],
             });
 
-            const drift = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: "@beep/example-domain",
-              verbose: false,
-            }).pipe(
+            const drift = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: "@beep/example-domain",
+                verbose: false,
+              })
+            ).pipe(
               Effect.match({
                 onFailure: (error) => error,
                 onSuccess: () => undefined,
@@ -818,11 +851,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             );
             expect(drift?._tag).toBe("TsconfigSyncDriftError");
 
-            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "sync",
-              filter: "@beep/example-domain",
-              verbose: true,
-            });
+            const syncResult = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({
+                mode: "sync",
+                filter: "@beep/example-domain",
+                verbose: true,
+              })
+            );
             const referenceChanges = A.filter(syncResult.changes, (change) => change.section === "package-references");
             expect(referenceChanges).toHaveLength(1);
 
@@ -881,11 +917,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
               checkReferences: [],
             });
 
-            const drift = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: "@beep/example-domain",
-              verbose: false,
-            }).pipe(
+            const drift = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: "@beep/example-domain",
+                verbose: false,
+              })
+            ).pipe(
               Effect.match({
                 onFailure: (error) => error,
                 onSuccess: () => undefined,
@@ -897,11 +936,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             }
             expect(drift.fileCount).toBe(2);
 
-            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "sync",
-              filter: "@beep/example-domain",
-              verbose: false,
-            });
+            const syncResult = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({
+                mode: "sync",
+                filter: "@beep/example-domain",
+                verbose: false,
+              })
+            );
             expect(A.map(syncResult.changes, (change) => change.section)).toEqual([
               "package-check-references",
               "package-references",
@@ -929,11 +971,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             expect(overlayText).toContain('"noEmit": true');
 
             // Steady state: the mirrored overlay causes no further drift.
-            const steadyState = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: undefined,
-              verbose: false,
-            });
+            const steadyState = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: undefined,
+                verbose: false,
+              })
+            );
             expect(steadyState.changes).toHaveLength(0);
           })
         ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
@@ -983,11 +1028,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
               checkReferences: ["../foundation/modeling/identity/tsconfig.json", "../stale/tsconfig.json"],
             });
 
-            const drift = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: undefined,
-              verbose: false,
-            }).pipe(
+            const drift = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: undefined,
+                verbose: false,
+              })
+            ).pipe(
               Effect.match({
                 onFailure: (error) => error,
                 onSuccess: () => undefined,
@@ -999,11 +1047,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             }
             expect(drift.fileCount).toBe(1);
 
-            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "sync",
-              filter: undefined,
-              verbose: false,
-            });
+            const syncResult = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({
+                mode: "sync",
+                filter: undefined,
+                verbose: false,
+              })
+            );
             expect(syncResult.changes).toHaveLength(1);
             expect(syncResult.changes[0]?.section).toBe("package-check-references");
             expect(syncResult.changes[0]?.summary).toBe("references: 2 -> 1 (add 0, remove 1)");
@@ -1103,11 +1154,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
 `
             );
 
-            const drift = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: "@beep/example-docgen",
-              verbose: false,
-            }).pipe(
+            const drift = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: "@beep/example-docgen",
+                verbose: false,
+              })
+            ).pipe(
               Effect.match({
                 onFailure: (error) => error,
                 onSuccess: () => undefined,
@@ -1116,11 +1170,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
 
             expect(drift?._tag).toBe("TsconfigSyncDriftError");
 
-            const syncResult = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "sync",
-              filter: "@beep/example-docgen",
-              verbose: false,
-            });
+            const syncResult = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({
+                mode: "sync",
+                filter: "@beep/example-docgen",
+                verbose: false,
+              })
+            );
 
             expect(syncResult.changes).toHaveLength(1);
             expect(syncResult.changes[0]?.section).toBe("package-docgen");
@@ -1179,11 +1236,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
               `export const workspaceName = "@beep/probe";\n`
             );
 
-            yield* syncTsconfigAtRoot(rootDir, {
-              mode: "sync",
-              filter: undefined,
-              verbose: false,
-            });
+            yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({
+                mode: "sync",
+                filter: undefined,
+                verbose: false,
+              })
+            );
 
             // Ratified lab-apps row 2: the hand-added lab root reference is
             // actively removed while non-lab workspaces stay referenced.
@@ -1214,11 +1274,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             expect(syncpackConfig).toContain(`"apps/labs/*/package.json"`);
 
             // Steady state: a present lab causes zero root churn in check mode.
-            const steadyState = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: undefined,
-              verbose: false,
-            });
+            const steadyState = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: undefined,
+                verbose: false,
+              })
+            );
             expect(steadyState.changes).toHaveLength(0);
           })
         ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
@@ -1268,11 +1331,14 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
               `export const workspaceName = "@beep/probe";\n`
             );
 
-            const drift = yield* syncTsconfigAtRoot(rootDir, {
-              mode: "check",
-              filter: undefined,
-              verbose: false,
-            }).pipe(
+            const drift = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({
+                mode: "check",
+                filter: undefined,
+                verbose: false,
+              })
+            ).pipe(
               Effect.match({
                 onFailure: (error) => error,
                 onSuccess: () => undefined,
@@ -1301,7 +1367,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             const aliasesPath = path.join(rootDir, "vitest.aliases.generated.json");
             const boundariesPath = path.join(rootDir, "standards", "fallow.boundaries.generated.jsonc");
             const runMode = (mode: "check" | "dry-run" | "sync") =>
-              syncTsconfigAtRoot(rootDir, { mode, filter: undefined, verbose: false });
+              syncTsconfigAtRoot(rootDir, TsconfigSyncRunOptions.make({ mode, filter: undefined, verbose: false }));
             const driftSections = Effect.map(runMode("dry-run"), (result) =>
               A.map(result.changes, (change) => change.section)
             );
@@ -1376,7 +1442,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             const rootDir = process.cwd();
             const aliasesPath = path.join(rootDir, "vitest.aliases.generated.json");
             const runMode = (mode: "check" | "sync") =>
-              syncTsconfigAtRoot(rootDir, { mode, filter: undefined, verbose: false });
+              syncTsconfigAtRoot(rootDir, TsconfigSyncRunOptions.make({ mode, filter: undefined, verbose: false }));
 
             yield* bootstrapRootConfig(rootDir, {
               workspaces: ["packages/core", "packages/app"],
@@ -1421,7 +1487,10 @@ it.layer(TestLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             });
             yield* bootstrapWorkspace(rootDir, { relativeDir: "packages/core", packageName: "@beep/core" });
 
-            const result = yield* syncTsconfigAtRoot(rootDir, { mode: "sync", filter: undefined, verbose: false });
+            const result = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsSync.make({ mode: "sync", filter: undefined, verbose: false })
+            );
 
             expect(A.map(result.changes, (change) => change.section)).not.toContain("root-vitest-aliases");
             expect(A.map(result.changes, (change) => change.section)).not.toContain("root-fallow-boundaries");

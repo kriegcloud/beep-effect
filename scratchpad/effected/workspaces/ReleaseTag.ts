@@ -217,7 +217,7 @@ export type TrackingTagOptions = typeof TrackingTagOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export class TrackingTag extends S.Class<TrackingTag>($I`TrackingTag`)({
+export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique symbol }>($I`TrackingTag`)({
 	/**
 	 * The tag string exactly as it appears in git.
 	 */
@@ -431,7 +431,7 @@ export const classifyTag = (tag: string): TagClassification => {
  * @category models
  * @since 0.0.0
  */
-export class ReleaseTag extends S.Class<ReleaseTag>($I`ReleaseTag`)({
+export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique symbol }>($I`ReleaseTag`)({
 	/**
 	 * The tag string exactly as it appears in git.
 	 */

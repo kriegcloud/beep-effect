@@ -40,18 +40,19 @@ const $I = $DuckdbId.create("DuckDb.models");
  * @category models
  * @since 0.0.0
  */
-export class DuckDbConnectionOptions extends S.Class<DuckDbConnectionOptions>($I`DuckDbConnectionOptions`)(
-  {
+export class DuckDbConnectionOptions extends S.Opaque<DuckDbConnectionOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     databaseOptions: S.optionalKey(S.Record(S.String, S.String)).annotateKey({
       description: "Native DuckDB database option map passed through when present.",
     }),
     databasePath: S.String.annotateKey({
       description: "DuckDB database path, including ':memory:' for an in-memory database.",
     }),
-  },
-  $I.annote("DuckDbConnectionOptions", {
-    description: "Connection options for a DuckDB database.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuckDbConnectionOptions", {
+      description: "Connection options for a DuckDB database.",
+    })
+  )
 ) {}
 
 /**
@@ -80,18 +81,19 @@ export class DuckDbConnectionOptions extends S.Class<DuckDbConnectionOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class DuckDbParquetExport extends S.Class<DuckDbParquetExport>($I`DuckDbParquetExport`)(
-  {
+export class DuckDbParquetExport extends S.Opaque<DuckDbParquetExport, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String.annotateKey({
       description: "Filesystem path where DuckDB writes the Parquet file.",
     }),
     tableName: S.NonEmptyString.annotateKey({
       description: "DuckDB table identifier to export.",
     }),
-  },
-  $I.annote("DuckDbParquetExport", {
-    description: "Parquet export request for a DuckDB table.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuckDbParquetExport", {
+      description: "Parquet export request for a DuckDB table.",
+    })
+  )
 ) {}
 
 /**

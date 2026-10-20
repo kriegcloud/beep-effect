@@ -25,7 +25,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { LanguageModel } from "effect/ai";
+import * as LanguageModel from "effect/ai/LanguageModel";
 import { ErrorMessage, OptionalErrorCause } from "../Domain/Error/Base.ts";
 import type { JinaContent } from "../Domain/Model/EnrichedContent.ts";
 import { EnrichedContent } from "../Domain/Model/EnrichedContent.ts";
@@ -57,7 +57,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/ContentEnrichmentAgent"
  * @category errors
  * @since 0.0.0
  */
-export class ContentEnrichmentError extends S.TaggedError<ContentEnrichmentError>($I`ContentEnrichmentError`)(
+export class ContentEnrichmentError extends S.TaggedError<ContentEnrichmentError, { readonly brand: unique symbol }>($I`ContentEnrichmentError`)(
   "ContentEnrichmentError",
   {
     message: ErrorMessage.annotateKey({

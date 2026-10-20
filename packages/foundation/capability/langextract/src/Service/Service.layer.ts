@@ -24,6 +24,7 @@ import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { AnnotatedDocumentInput } from "../Handoff/Handoff.model.ts";
 import { ensureRemoteExtractionAllowed } from "./Service.policy.ts";
 import { buildPrompt } from "./Service.prompt.ts";
 import { LangExtractGenerationTimeout, LangExtractRemotePolicy, LangExtractService } from "./Service.service.ts";
@@ -86,13 +87,15 @@ export const make = Effect.fn("LangExtractService.make")(function* () {
       const candidates = yield* parseModelOutput(response.text);
       const extractions = alignCandidates(candidates, AlignmentSource.fromRequest(request));
       const timestamp = yield* Clock.currentTimeMillis;
-      const annotatedDocument = toAnnotatedDocument({
-        documentId: request.documentId,
-        extractions,
-        generatedBy: GENERATED_BY,
-        text: request.text,
-        timestamp,
-      });
+      const annotatedDocument = toAnnotatedDocument(
+        AnnotatedDocumentInput.make({
+          documentId: request.documentId,
+          extractions,
+          generatedBy: GENERATED_BY,
+          text: request.text,
+          timestamp,
+        })
+      );
       const alignedCount = pipe(
         extractions,
         A.filter(GroundedExtraction.isAnyOf(["match_exact", "match_lesser", "match_minimal_fold", "match_fuzzy"])),
@@ -129,8 +132,8 @@ export const make = Effect.fn("LangExtractService.make")(function* () {
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import * as Stream from "effect/Stream";
- * import { LanguageModel, Response } from "effect/ai"
- *
+ * import * as LanguageModel from "effect/ai/LanguageModel";
+ * import * as Response from "effect/ai/Response";
  * const usage = Response.Usage.make({
  *   inputTokens: { cacheRead: undefined, cacheWrite: undefined, total: 10, uncached: 10 },
  *   outputTokens: { reasoning: undefined, text: 8, total: 8 }

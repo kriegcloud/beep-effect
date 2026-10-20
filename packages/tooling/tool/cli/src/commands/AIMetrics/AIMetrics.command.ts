@@ -12,7 +12,8 @@ import {
   AiMetricsTool,
   AiMetricsTranscriptSource,
 } from "@beep/repo-ai-metrics";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import { pipe } from "effect/Function";
 import { aiMetricsDataRootEnvVar, aiMetricsDataRootFlag as dataRootFlag, jsonFlag } from "../../internal/cli/Flags.ts";
 import { printLines } from "../../internal/cli/Printer.ts";
@@ -33,6 +34,30 @@ import {
   makeInstallPreviewProgram,
 } from "./internal/Install.ts";
 import { makeMirrorBuildProgram, makeMirrorStatusProgram, makeMirrorSyncProgram } from "./internal/Mirror.ts";
+import {
+  MakeBenchmarkCaseAddProgramOptions,
+  MakeBenchmarkCaseListProgramOptions,
+  MakeBenchmarkRunProgramOptions,
+  MakeConfigSnapshotProgramOptions,
+  MakeForwarderRunProgramOptions,
+  MakeForwarderTimerProgramOptions,
+  MakeIngestProgramOptions,
+  MakeInstallApplyProgramOptions,
+  MakeInstallComposeProgramOptions,
+  MakeInstallDoctorProgramOptions,
+  MakeInstallPlanProgramOptions,
+  MakeInstallPreviewProgramOptions,
+  MakeLabelAddProgramOptions,
+  MakeLabelQueueProgramOptions,
+  MakeMirrorStatusProgramParams,
+  MakeMirrorSyncProgramOpts,
+  MakeOtlpExportProgramOptions,
+  MakePrivacyCheckProgramOptions,
+  MakeRetentionListProgramParams,
+  MakeRetentionMutationProgramParams,
+  MakeSourcesDiscoverProgramOptions,
+  MakeWeeklyReportProgramOptions,
+} from "./internal/Programs.ts";
 import {
   makeArchiveDrillProgram,
   makeRetentionEnforceProgram,
@@ -264,13 +289,15 @@ const installPreviewCommand = Command.make(
   },
   ({ hashSaltSecretRef, json, rawArchiveKeySecretRef, target, tool }) =>
     runAiMetricsProgram(
-      makeInstallPreviewProgram({
-        hashSaltSecretRef,
-        json,
-        rawArchiveKeySecretRef,
-        target,
-        tool,
-      })
+      makeInstallPreviewProgram(
+        MakeInstallPreviewProgramOptions.make({
+          hashSaltSecretRef,
+          json,
+          rawArchiveKeySecretRef,
+          target,
+          tool,
+        })
+      )
     )
 ).pipe(Command.withDescription("Preview the target-agnostic AI metrics install spec"));
 
@@ -285,13 +312,15 @@ const installPlanCommand = Command.make(
   },
   ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
-      makeInstallPlanProgram({
-        dataRoot,
-        hashSaltSecretRef,
-        json,
-        rawArchiveKeySecretRef,
-        target,
-      })
+      makeInstallPlanProgram(
+        MakeInstallPlanProgramOptions.make({
+          dataRoot,
+          hashSaltSecretRef,
+          json,
+          rawArchiveKeySecretRef,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Render the typed P5a AI metrics install plan"));
 
@@ -328,21 +357,23 @@ const installDoctorCommand = Command.make(
     target,
   }) =>
     runAiMetricsProgram(
-      makeInstallDoctorProgram({
-        all,
-        dataRoot,
-        hashSalt,
-        hashSaltSecretRef,
-        homeDir,
-        json,
-        maxFileBytes,
-        maxFiles,
-        openClawUnit,
-        rawArchiveKeySecretRef,
-        repoRoot,
-        since,
-        target,
-      })
+      makeInstallDoctorProgram(
+        MakeInstallDoctorProgramOptions.make({
+          all,
+          dataRoot,
+          hashSalt,
+          hashSaltSecretRef,
+          homeDir,
+          json,
+          maxFileBytes,
+          maxFiles,
+          openClawUnit,
+          rawArchiveKeySecretRef,
+          repoRoot,
+          since,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Validate the P5a AI metrics install contract without resolving secrets or SSH"));
 
@@ -358,14 +389,16 @@ const installApplyCommand = Command.make(
   },
   ({ dataRoot, dryRun, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
-      makeInstallApplyProgram({
-        dataRoot,
-        dryRun,
-        hashSaltSecretRef,
-        json,
-        rawArchiveKeySecretRef,
-        target,
-      })
+      makeInstallApplyProgram(
+        MakeInstallApplyProgramOptions.make({
+          dataRoot,
+          dryRun,
+          hashSaltSecretRef,
+          json,
+          rawArchiveKeySecretRef,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Dry-run the P5a AI metrics install apply workflow"));
 
@@ -378,11 +411,13 @@ const installComposeCommand = Command.make(
   },
   ({ json, target, tool }) =>
     runAiMetricsProgram(
-      makeInstallComposeProgram({
-        json,
-        target,
-        tool,
-      })
+      makeInstallComposeProgram(
+        MakeInstallComposeProgramOptions.make({
+          json,
+          target,
+          tool,
+        })
+      )
     )
 ).pipe(Command.withDescription("Render the dedicated local Phoenix compose smoke target"));
 
@@ -397,13 +432,15 @@ const ingestCommand = Command.make(
   },
   ({ hashSalt, input, json, source, target }) =>
     runAiMetricsProgram(
-      makeIngestProgram({
-        hashSalt,
-        input,
-        json,
-        source,
-        target,
-      })
+      makeIngestProgram(
+        MakeIngestProgramOptions.make({
+          hashSalt,
+          input,
+          json,
+          source,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Summarize a Codex, Claude, or OpenClaw JSONL transcript"));
 
@@ -423,18 +460,20 @@ const sourcesDiscoverCommand = Command.make(
   },
   ({ all, hashSalt, homeDir, json, maxFileBytes, maxFiles, openClawUnit, repoRoot, since, target }) =>
     runAiMetricsProgram(
-      makeSourcesDiscoverProgram({
-        all,
-        hashSalt,
-        homeDir,
-        json,
-        maxFileBytes,
-        maxFiles,
-        openClawUnit,
-        repoRoot,
-        since,
-        target,
-      })
+      makeSourcesDiscoverProgram(
+        MakeSourcesDiscoverProgramOptions.make({
+          all,
+          hashSalt,
+          homeDir,
+          json,
+          maxFileBytes,
+          maxFiles,
+          openClawUnit,
+          repoRoot,
+          since,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Discover Codex, Claude, and OpenClaw local metrics sources"));
 
@@ -453,10 +492,12 @@ const configSnapshotCommand = Command.make(
   },
   ({ json, repoRoot }) =>
     runAiMetricsProgram(
-      makeConfigSnapshotProgram({
-        json,
-        repoRoot,
-      })
+      makeConfigSnapshotProgram(
+        MakeConfigSnapshotProgramOptions.make({
+          json,
+          repoRoot,
+        })
+      )
     )
 ).pipe(Command.withDescription("Hash the repo-local agent-facing configuration snapshot"));
 
@@ -477,12 +518,14 @@ const privacyCheckCommand = Command.make(
   },
   ({ hashSalt, input, json, source }) =>
     runAiMetricsProgram(
-      makePrivacyCheckProgram({
-        hashSalt,
-        input,
-        json,
-        source,
-      })
+      makePrivacyCheckProgram(
+        MakePrivacyCheckProgramOptions.make({
+          hashSalt,
+          input,
+          json,
+          source,
+        })
+      )
     )
 ).pipe(Command.withDescription("Prove a transcript projection does not expose raw prompt or output text"));
 
@@ -557,29 +600,31 @@ const forwarderRunCommand = Command.make(
     target,
   }) =>
     runAiMetricsProgram(
-      makeForwarderRunProgram({
-        all,
-        dataRoot,
-        hashSalt,
-        hashSaltSecretRef,
-        homeDir,
-        json,
-        maxFileBytes,
-        maxFiles,
-        openClawUnit,
-        otlp,
-        otlpBaseUrl,
-        parquetExportMode,
-        rawArchiveKeySecretRef,
-        repoRoot,
-        // Local forwarder runs always self-prune the per-run Parquet snapshots so the
-        // `<data-root>/derived/parquet` directory cannot grow unbounded; keep-N is tunable via
-        // --max-snapshot-exports. Snapshot retention history is opt-in on the `timer` command instead.
-        retentionEnforce: true,
-        retentionMaxSnapshotExports,
-        since,
-        target,
-      })
+      makeForwarderRunProgram(
+        MakeForwarderRunProgramOptions.make({
+          all,
+          dataRoot,
+          hashSalt,
+          hashSaltSecretRef,
+          homeDir,
+          json,
+          maxFileBytes,
+          maxFiles,
+          openClawUnit,
+          otlp,
+          otlpBaseUrl,
+          parquetExportMode,
+          rawArchiveKeySecretRef,
+          repoRoot,
+          // Local forwarder runs always self-prune the per-run Parquet snapshots so the
+          // `<data-root>/derived/parquet` directory cannot grow unbounded; keep-N is tunable via
+          // --max-snapshot-exports. Snapshot retention history is opt-in on the `timer` command instead.
+          retentionEnforce: true,
+          retentionMaxSnapshotExports,
+          since,
+          target,
+        })
+      )
     )
 ).pipe(
   Command.withDescription("Run durable local transcript ingest into encrypted raw archive and derived DuckDB storage")
@@ -625,22 +670,24 @@ const forwarderTimerCommand = Command.make(
     target,
   }) =>
     runAiMetricsProgram(
-      makeForwarderTimerProgram({
-        bunPath,
-        dataRoot,
-        hashSaltSecretRef,
-        intervalMinutes,
-        json,
-        maxFileBytes,
-        maxFiles,
-        otlpBaseUrl,
-        parquetExportMode,
-        rawArchiveKeySecretRef,
-        repoRoot,
-        retentionEnforce,
-        retentionMaxSnapshotExports,
-        target,
-      })
+      makeForwarderTimerProgram(
+        MakeForwarderTimerProgramOptions.make({
+          bunPath,
+          dataRoot,
+          hashSaltSecretRef,
+          intervalMinutes,
+          json,
+          maxFileBytes,
+          maxFiles,
+          otlpBaseUrl,
+          parquetExportMode,
+          rawArchiveKeySecretRef,
+          repoRoot,
+          retentionEnforce,
+          retentionMaxSnapshotExports,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Render a workstation systemd user timer for live AI metrics collection"));
 
@@ -670,14 +717,16 @@ const otlpExportCommand = Command.make(
   },
   ({ dataRoot, hashSaltSecretRef, json, otlpBaseUrl, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
-      makeOtlpExportProgram({
-        dataRoot,
-        hashSaltSecretRef,
-        json,
-        otlpBaseUrl,
-        rawArchiveKeySecretRef,
-        target,
-      })
+      makeOtlpExportProgram(
+        MakeOtlpExportProgramOptions.make({
+          dataRoot,
+          hashSaltSecretRef,
+          json,
+          otlpBaseUrl,
+          rawArchiveKeySecretRef,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Export redacted derived AI metrics spans through OTLP"));
 
@@ -714,19 +763,21 @@ const benchmarkRunCommand = Command.make(
     target,
   }) =>
     runAiMetricsProgram(
-      makeBenchmarkRunProgram({
-        caseId,
-        configSnapshotId,
-        dataRoot,
-        elapsedMs,
-        hashSaltSecretRef,
-        json,
-        note,
-        passed,
-        qualityGate,
-        rawArchiveKeySecretRef,
-        target,
-      })
+      makeBenchmarkRunProgram(
+        MakeBenchmarkRunProgramOptions.make({
+          caseId,
+          configSnapshotId,
+          dataRoot,
+          elapsedMs,
+          hashSaltSecretRef,
+          json,
+          note,
+          passed,
+          qualityGate,
+          rawArchiveKeySecretRef,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Record a benchmark run result for a config snapshot"));
 
@@ -757,18 +808,20 @@ const benchmarkCaseAddCommand = Command.make(
     title,
   }) =>
     runAiMetricsProgram(
-      makeBenchmarkCaseAddProgram({
-        caseId,
-        checks,
-        dataRoot,
-        hashSaltSecretRef,
-        json,
-        promptHash,
-        promptRef,
-        rawArchiveKeySecretRef,
-        target,
-        title,
-      })
+      makeBenchmarkCaseAddProgram(
+        MakeBenchmarkCaseAddProgramOptions.make({
+          caseId,
+          checks,
+          dataRoot,
+          hashSaltSecretRef,
+          json,
+          promptHash,
+          promptRef,
+          rawArchiveKeySecretRef,
+          target,
+          title,
+        })
+      )
     )
 ).pipe(Command.withDescription("Add or replace a deploy-safe benchmark case"));
 
@@ -783,13 +836,15 @@ const benchmarkCaseListCommand = Command.make(
   },
   ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, target }) =>
     runAiMetricsProgram(
-      makeBenchmarkCaseListProgram({
-        dataRoot,
-        hashSaltSecretRef,
-        json,
-        rawArchiveKeySecretRef,
-        target,
-      })
+      makeBenchmarkCaseListProgram(
+        MakeBenchmarkCaseListProgramOptions.make({
+          dataRoot,
+          hashSaltSecretRef,
+          json,
+          rawArchiveKeySecretRef,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("List deploy-safe benchmark cases"));
 
@@ -838,16 +893,18 @@ const labelQueueCommand = Command.make(
   },
   ({ dataRoot, hashSaltSecretRef, json, limit, rawArchiveKeySecretRef, since, target, until }) =>
     runAiMetricsProgram(
-      makeLabelQueueProgram({
-        dataRoot,
-        hashSaltSecretRef,
-        json,
-        limit,
-        rawArchiveKeySecretRef,
-        since,
-        target,
-        until,
-      })
+      makeLabelQueueProgram(
+        MakeLabelQueueProgramOptions.make({
+          dataRoot,
+          hashSaltSecretRef,
+          json,
+          limit,
+          rawArchiveKeySecretRef,
+          since,
+          target,
+          until,
+        })
+      )
     )
 ).pipe(Command.withDescription("List unlabeled AI metrics tasks"));
 
@@ -882,20 +939,22 @@ const labelAddCommand = Command.make(
     taskId,
   }) =>
     runAiMetricsProgram(
-      makeLabelAddProgram({
-        dataRoot,
-        followUpFix,
-        hashSaltSecretRef,
-        interventions,
-        json,
-        note,
-        passed,
-        qualityGate,
-        rating,
-        rawArchiveKeySecretRef,
-        target,
-        taskId,
-      })
+      makeLabelAddProgram(
+        MakeLabelAddProgramOptions.make({
+          dataRoot,
+          followUpFix,
+          hashSaltSecretRef,
+          interventions,
+          json,
+          note,
+          passed,
+          qualityGate,
+          rating,
+          rawArchiveKeySecretRef,
+          target,
+          taskId,
+        })
+      )
     )
 ).pipe(Command.withDescription("Add or replace a structured human outcome label"));
 
@@ -924,15 +983,17 @@ const reportWeeklyCommand = Command.make(
   },
   ({ dataRoot, hashSaltSecretRef, json, rawArchiveKeySecretRef, since, target, until }) =>
     runAiMetricsProgram(
-      makeWeeklyReportProgram({
-        dataRoot,
-        hashSaltSecretRef,
-        json,
-        rawArchiveKeySecretRef,
-        since,
-        target,
-        until,
-      })
+      makeWeeklyReportProgram(
+        MakeWeeklyReportProgramOptions.make({
+          dataRoot,
+          hashSaltSecretRef,
+          json,
+          rawArchiveKeySecretRef,
+          since,
+          target,
+          until,
+        })
+      )
     )
 ).pipe(Command.withDescription("Generate a weekly config-impact scorecard report"));
 
@@ -976,15 +1037,17 @@ const mirrorSyncCommand = Command.make(
   },
   ({ bundle, confirm, dataRoot, host, json, remoteRoot, target }) =>
     runAiMetricsProgram(
-      makeMirrorSyncProgram({
-        bundle,
-        confirm,
-        dataRoot,
-        host,
-        json,
-        remoteRoot,
-        target,
-      })
+      makeMirrorSyncProgram(
+        MakeMirrorSyncProgramOpts.make({
+          bundle,
+          confirm,
+          dataRoot,
+          host,
+          json,
+          remoteRoot,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Preview or rsync a sanitized P7 mirror bundle to the remote mirror root"));
 
@@ -998,12 +1061,14 @@ const mirrorStatusCommand = Command.make(
   },
   ({ host, json, remoteRoot, target }) =>
     runAiMetricsProgram(
-      makeMirrorStatusProgram({
-        host,
-        json,
-        remoteRoot,
-        target,
-      })
+      makeMirrorStatusProgram(
+        MakeMirrorStatusProgramParams.make({
+          host,
+          json,
+          remoteRoot,
+          target,
+        })
+      )
     )
 ).pipe(Command.withDescription("Read the remote sanitized P7 mirror manifest"));
 
@@ -1030,13 +1095,15 @@ const retentionListCommand = Command.make(
   },
   ({ before, dataRoot, json, since, until }) =>
     runAiMetricsProgram(
-      makeRetentionListProgram({
-        before,
-        dataRoot,
-        json,
-        since,
-        until,
-      })
+      makeRetentionListProgram(
+        MakeRetentionListProgramParams.make({
+          before,
+          dataRoot,
+          json,
+          since,
+          until,
+        })
+      )
     )
 ).pipe(Command.withDescription("List retained AI metrics raw archive, derived, and report artifacts"));
 
@@ -1052,15 +1119,17 @@ const retentionDeleteCommand = Command.make(
   },
   ({ before, confirm, dataRoot, json, since, until }) =>
     runAiMetricsProgram(
-      makeRetentionMutationProgram({
-        before,
-        confirm,
-        dataRoot,
-        json,
-        mode: "delete",
-        since,
-        until,
-      })
+      makeRetentionMutationProgram(
+        MakeRetentionMutationProgramParams.make({
+          before,
+          confirm,
+          dataRoot,
+          json,
+          mode: "delete",
+          since,
+          until,
+        })
+      )
     )
 ).pipe(Command.withDescription("Dry-run or apply an explicit-window AI metrics retention delete"));
 
@@ -1076,15 +1145,17 @@ const retentionCompactCommand = Command.make(
   },
   ({ before, confirm, dataRoot, json, since, until }) =>
     runAiMetricsProgram(
-      makeRetentionMutationProgram({
-        before,
-        confirm,
-        dataRoot,
-        json,
-        mode: "compact",
-        since,
-        until,
-      })
+      makeRetentionMutationProgram(
+        MakeRetentionMutationProgramParams.make({
+          before,
+          confirm,
+          dataRoot,
+          json,
+          mode: "compact",
+          since,
+          until,
+        })
+      )
     )
 ).pipe(Command.withDescription("Dry-run or apply an explicit-window AI metrics derived/report compaction"));
 
@@ -1201,8 +1272,7 @@ const archiveCommand = Command.make("archive", {}, () =>
  * ```ts
  * import { aiMetricsCommand } from "@beep/repo-cli/commands/AIMetrics/index"
  * import * as Effect from "effect/Effect";
- * import { Command } from "effect/cli"
- *
+ * import * as Command from "effect/cli/Command";
  * const run = Command.run(aiMetricsCommand, { version: "0.0.0" })
  *
  * console.log(Effect.isEffect(run)) // true

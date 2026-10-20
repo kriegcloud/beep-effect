@@ -11,7 +11,12 @@ Read when `yeet sweep --retire` refuses, names a holder, or you retire a lane fr
   branch other than `main` keeps that checkout: the sweep updates refs only,
   because a `git switch` or `bun install` there could land under another
   session's running verify (receipt 2026-09-28). It refuses until the PR is
-  MERGED and heads this branch, so running it early is safe:
+  MERGED and heads this branch, so running it early is safe. A lane whose
+  branch never headed a PR (a scratch checkout, a stacked parent, a branch
+  pushed straight to main) retires once `origin/main` already contains its
+  tip and its tree is clean; the plan prints the verdict as `gate:` or
+  `blocked:` (`pr-merged`, `pr-less-on-main`, or `refused` with the reason in
+  the JSON documents):
 
 ```bash
 bun run beep yeet sweep --retire --plan
@@ -47,7 +52,12 @@ CLONE="$(git rev-parse --path-format=absolute --git-common-dir)/.." && bun run b
 cd <clone> && bun run <lane>/packages/tooling/tool/cli/src/bin.ts -- yeet sweep --retire --lane <lane>
 ```
 
-  `--json` prints one document; `--branch` is refused with `--retire`. Both
+  `--json` prints one document (`yeet-retire-sweep-plan/v2` with `--plan`,
+  `yeet-retire-sweep-report/v2` otherwise, each carrying the `verdict`);
+  `--branch` is refused with `--retire`. `bun run beep worktree remove <name>
+  --archive --delete-branch` runs behind the same fence and the same
+  invoker/session exemption, so a desktop session can remove its own lane
+  that way too. Both
   the plan and the report name every goal packet the retired branch touched
   whose lifecycle is still `active` and whose manifest carries no
   `statusNote` or `blockedBy` saying why it stays open (`[yeet] packet still

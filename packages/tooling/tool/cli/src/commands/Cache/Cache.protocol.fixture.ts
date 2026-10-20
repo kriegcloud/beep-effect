@@ -11,7 +11,10 @@ import { BunHttpServer } from "@effect/platform-bun";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
-import { Headers, HttpServer, HttpServerRequest, HttpServerResponse } from "effect/http";
+import * as Headers from "effect/http/Headers";
+import * as HttpServer from "effect/http/HttpServer";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
@@ -28,9 +31,12 @@ const hashBytes = S.decodeEffect(Sha256HexFromBytes);
 const Tag = S.NonEmptyString.check(S.isMaxLength(256)).annotate(
   $I.annote("ArtifactTag", { description: "Bounded opaque artifact tag preserved by the fixture." })
 );
-class StoredArtifact extends S.Class<StoredArtifact>($I`StoredArtifact`)(
-  { body: S.Uint8Array, digest: Sha256Hex, tag: Tag },
-  $I.annote("StoredArtifact", { description: "Private opaque artifact bytes and tag held only by the fixture server." })
+class StoredArtifact extends S.Opaque<StoredArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({ body: S.Uint8Array, digest: Sha256Hex, tag: Tag }).pipe(
+    $I.annoteSchema("StoredArtifact", {
+      description: "Private opaque artifact bytes and tag held only by the fixture server.",
+    })
+  )
 ) {}
 
 const fixtureRole = (credentials: CacheFixtureCredentials, bearer: O.Option<string>) =>

@@ -14,7 +14,8 @@ import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { constant, dual, identity, pipe } from "effect/Function";
-import { HttpClient, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Match from "effect/Match";
 import * as N from "effect/Number";
 import * as O from "effect/Option";
@@ -41,26 +42,28 @@ const STABLE_DOCKER_TAG_PATTERN = /^(?!latest$)(?!.*(?:rc|beta|alpha|nightly|dev
  * @category validation
  * @since 0.0.0
  */
-class DockerTagResult extends S.Class<DockerTagResult>($I`DockerTagResult`)(
-  {
+class DockerTagResult extends S.Opaque<DockerTagResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
-  },
-  $I.annote("DockerTagResult", {
-    description: "Docker image tag result schema",
-  })
+  }).pipe(
+    $I.annoteSchema("DockerTagResult", {
+      description: "Docker image tag result schema",
+    })
+  )
 ) {}
 
 /**
  * @category validation
  * @since 0.0.0
  */
-class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsResponse`)(
-  {
+class DockerTagsResponse extends S.Opaque<DockerTagsResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     results: S.Array(DockerTagResult),
-  },
-  $I.annote("DockerTagsResponse", {
-    description: "Docker image tags response schema",
-  })
+  }).pipe(
+    $I.annoteSchema("DockerTagsResponse", {
+      description: "Docker image tags response schema",
+    })
+  )
 ) {}
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -71,7 +74,7 @@ class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsRespon
  * @category models
  * @since 0.0.0
  */
-class DockerImageRef extends S.Class<DockerImageRef>($I`DockerImageRef`)(
+class DockerImageRef extends S.Class<DockerImageRef, { readonly brand: unique symbol }>($I`DockerImageRef`)(
   {
     service: S.String,
     fullImage: S.String,
@@ -94,25 +97,27 @@ class DockerImageElement extends DockerImageRef.extend<DockerImageElement>($I`Do
   })
 ) {}
 
-class DockerComposeService extends S.Class<DockerComposeService>($I`DockerComposeService`)(
-  {
+class DockerComposeService extends S.Opaque<DockerComposeService, { readonly brand: unique symbol }>()(
+  S.Struct({
     image: S.optionalKey(S.Unknown),
-  },
-  $I.annote("DockerComposeService", {
-    description: "Subset of docker-compose service fields required for image version resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockerComposeService", {
+      description: "Subset of docker-compose service fields required for image version resolution.",
+    })
+  )
 ) {}
 
-class DockerComposeDocument extends S.Class<DockerComposeDocument>($I`DockerComposeDocument`)(
-  {
+class DockerComposeDocument extends S.Opaque<DockerComposeDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     services: S.Record(S.String, DockerComposeService).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, DockerComposeService>())),
       S.withDecodingDefault(Effect.succeed(R.empty<string, DockerComposeService>()))
     ),
-  },
-  $I.annote("DockerComposeDocument", {
-    description: "Subset of docker-compose fields required for image version resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockerComposeDocument", {
+      description: "Subset of docker-compose fields required for image version resolution.",
+    })
+  )
 ) {}
 
 const decodeDockerComposeDocument = decodeYamlTextWith(S.decodeUnknownEffect(DockerComposeDocument));
@@ -122,16 +127,17 @@ const decodeDockerComposeDocument = decodeYamlTextWith(S.decodeUnknownEffect(Doc
  * @category models
  * @since 0.0.0
  */
-export class DockerImageState extends S.Class<DockerImageState>($I`DockerImageState`)(
-  {
+export class DockerImageState extends S.Opaque<DockerImageState, { readonly brand: unique symbol }>()(
+  S.Struct({
     images: S.Array(DockerImageElement).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<DockerImageElement>())),
       S.withDecodingDefault(Effect.succeed(A.empty<DockerImageElement>()))
     ),
-  },
-  $I.annote("DockerImageState", {
-    description: "Resolved Docker image state",
-  })
+  }).pipe(
+    $I.annoteSchema("DockerImageState", {
+      description: "Resolved Docker image state",
+    })
+  )
 ) {}
 
 const StableDockerTag = S.String.check(S.isPattern(STABLE_DOCKER_TAG_PATTERN)).pipe(

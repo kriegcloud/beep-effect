@@ -6,32 +6,34 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/WordCount");
 
-class WordCountParameters extends S.Class<WordCountParameters>($I`WordCountParameters`)(
-  {
+class WordCountParameters extends S.Opaque<WordCountParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to count words and characters in",
       examples: ["Hello brave new world."],
     }),
-  },
-  $I.annote("WordCountParameters", {
-    description: "Text input used to count word-like tokens and characters.",
-  })
+  }).pipe(
+    $I.annoteSchema("WordCountParameters", {
+      description: "Text input used to count word-like tokens and characters.",
+    })
+  )
 ) {}
 
-class WordCountSuccess extends S.Class<WordCountSuccess>($I`WordCountSuccess`)(
-  {
+class WordCountSuccess extends S.Opaque<WordCountSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     characterCount: S.Natural,
     wordCount: S.Natural,
-  },
-  $I.annote("WordCountSuccess", {
-    description: "Count word-like tokens and characters in text.",
-  })
+  }).pipe(
+    $I.annoteSchema("WordCountSuccess", {
+      description: "Count word-like tokens and characters in text.",
+    })
+  )
 ) {}
 
 /**
@@ -65,4 +67,8 @@ export const WordCount = Tool.make("WordCount", {
   failureMode: "return",
   parameters: WordCountParameters,
   success: S.toEncoded(WordCountSuccess),
-});
+})
+  .annotate(Tool.Readonly, true)
+  .annotate(Tool.Destructive, false)
+  .annotate(Tool.Idempotent, true)
+  .annotate(Tool.OpenWorld, false);

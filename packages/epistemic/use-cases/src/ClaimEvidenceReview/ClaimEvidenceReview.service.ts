@@ -11,6 +11,7 @@ import {
   ClaimEvidenceVerification,
   reviewStatusFor,
 } from "@beep/epistemic-domain/values/ClaimEvidenceReview";
+import { TextAnchor } from "@beep/provenance/TextAnchor";
 import { VerifyTextAnchorInput, verifyTextAnchor } from "@beep/provenance/VerifiedTextAnchor";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -54,7 +55,7 @@ export const explainClaimEvidence = Effect.fn("ClaimEvidenceReview.explain")(fun
   const snapshot = yield* snapshotExplanation(input);
   const result = yield* verifyTextAnchor(
     VerifyTextAnchorInput.make({
-      anchor: snapshot.basis.evidence,
+      anchor: TextAnchor.make(snapshot.basis.evidence),
       expectedSource: snapshot.basis.source,
       source: snapshot.currentSource,
       sourceText: snapshot.sourceText,
@@ -103,7 +104,7 @@ export const approveClaimEvidence = Effect.fn("ClaimEvidenceReview.approve")(fun
   const snapshot = yield* snapshotApproval(input);
   yield* verifyTextAnchor(
     VerifyTextAnchorInput.make({
-      anchor: snapshot.basis.evidence,
+      anchor: TextAnchor.make(snapshot.basis.evidence),
       expectedSource: snapshot.basis.source,
       source: snapshot.currentSource,
       sourceText: snapshot.sourceText,

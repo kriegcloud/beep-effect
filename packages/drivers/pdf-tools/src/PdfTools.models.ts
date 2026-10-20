@@ -9,6 +9,7 @@
 
 import { $PdfToolsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -19,6 +20,13 @@ const PdfVersionBase = LiteralKit(["1.4", "1.5", "1.6", "1.7"]);
 
 /**
  * PDF versions `rsvg-convert` can be asked to emit.
+ *
+ * **Details**
+ *
+ * cairo writes the same bytes for 1.5, 1.6 and 1.7 apart from the header
+ * line. PDF 1.4 output has no object or cross-reference streams, and
+ * `rsvg-convert` writes it one SVG at a time, so a 1.4 conversion takes a
+ * single SVG.
  *
  * **Example** (Read the versions)
  *
@@ -167,14 +175,15 @@ const AbsoluteDirectory = S.NonEmptyString.check(
  * @category models
  * @since 0.0.0
  */
-export class FontFamilyAlias extends S.Class<FontFamilyAlias>($I`FontFamilyAlias`)(
-  {
+export class FontFamilyAlias extends S.Opaque<FontFamilyAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
     requested: S.NonEmptyString.annotateKey({ description: "Family name an SVG `font-family` requests." }),
     family: S.NonEmptyString.annotateKey({ description: "Family name of the font file in the pinned directory." }),
-  },
-  $I.annote("FontFamilyAlias", {
-    description: "A requested font family and the pinned family it is bound to.",
-  })
+  }).pipe(
+    $I.annoteSchema("FontFamilyAlias", {
+      description: "A requested font family and the pinned family it is bound to.",
+    })
+  )
 ) {}
 
 /**
@@ -205,14 +214,15 @@ export class FontFamilyAlias extends S.Class<FontFamilyAlias>($I`FontFamilyAlias
  * @category models
  * @since 0.0.0
  */
-export class PinnedFonts extends S.Class<PinnedFonts>($I`PinnedFonts`)(
-  {
+export class PinnedFonts extends S.Opaque<PinnedFonts, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: AbsoluteDirectory.annotateKey({ description: "The only directory fonts are read from." }),
     families: S.Array(FontFamilyAlias).annotateKey({ description: "Requested families and their bindings." }),
-  },
-  $I.annote("PinnedFonts", {
-    description: "Font directory and family bindings an SVG to PDF conversion is pinned to.",
-  })
+  }).pipe(
+    $I.annoteSchema("PinnedFonts", {
+      description: "Font directory and family bindings an SVG to PDF conversion is pinned to.",
+    })
+  )
 ) {}
 
 /**
@@ -234,14 +244,15 @@ export class PinnedFonts extends S.Class<PinnedFonts>($I`PinnedFonts`)(
  * @category models
  * @since 0.0.0
  */
-export class PinnedFontconfigRequest extends S.Class<PinnedFontconfigRequest>($I`PinnedFontconfigRequest`)(
-  {
+export class PinnedFontconfigRequest extends S.Opaque<PinnedFontconfigRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     fonts: PinnedFonts.annotateKey({ description: "The font directory and family bindings to pin." }),
     cacheDirectory: AbsoluteDirectory.annotateKey({ description: "Where fontconfig keeps its cache for this run." }),
-  },
-  $I.annote("PinnedFontconfigRequest", {
-    description: "Pinned fonts and the cache directory a fontconfig file is written from.",
-  })
+  }).pipe(
+    $I.annoteSchema("PinnedFontconfigRequest", {
+      description: "Pinned fonts and the cache directory a fontconfig file is written from.",
+    })
+  )
 ) {}
 
 /**
@@ -253,6 +264,12 @@ export class PinnedFontconfigRequest extends S.Class<PinnedFontconfigRequest>($I
  * `CreationDate`; the driver always sets it (default 0) so output bytes do not
  * depend on the wall clock. `fonts` pins the fonts `<text>` elements are set
  * in (see {@link PinnedFonts}); without it the host's fontconfig is used.
+ *
+ * **Gotchas**
+ *
+ * A PDF 1.4 request takes exactly one SVG: `rsvg-convert` refuses several
+ * inputs for a versioned format, and only its 1.5-and-later output can be
+ * relabelled (see {@link PdfVersion}).
  *
  * **Example** (Two sheets into one PDF 1.6)
  *
@@ -266,8 +283,8 @@ export class PinnedFontconfigRequest extends S.Class<PinnedFontconfigRequest>($I
  * @category models
  * @since 0.0.0
  */
-export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest`)(
-  {
+export class SvgToPdfRequest extends S.Opaque<SvgToPdfRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     svgPaths: S.Array(S.NonEmptyString)
       .check(
         S.isMinLength(1, {
@@ -293,10 +310,22 @@ export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Font directory and bindings for `<text>`. Absent, the host fontconfig is used." })
     ),
-  },
-  $I.annote("SvgToPdfRequest", {
-    description: "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
   })
+    .check(
+      S.makeFilter((request) => request.pdfVersion !== "1.4" || A.length(request.svgPaths) === 1, {
+        identifier: $I`SvgToPdfRequestPdf14PagesCheck`,
+        title: "PDF 1.4 Pages",
+        description:
+          "rsvg-convert writes several pages only at PDF 1.5 or later, so a PDF 1.4 conversion takes one SVG.",
+        message: "Expected exactly one SVG path for PDF 1.4 output",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("SvgToPdfRequest", {
+        description:
+          "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
+      })
+    )
 ) {}
 
 /**
@@ -313,15 +342,16 @@ export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest
  * @category models
  * @since 0.0.0
  */
-export class SvgToPdfResult extends S.Class<SvgToPdfResult>($I`SvgToPdfResult`)(
-  {
+export class SvgToPdfResult extends S.Opaque<SvgToPdfResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputPath: S.NonEmptyString.annotateKey({ description: "Written PDF path." }),
     pageCount: S.Natural.annotateKey({ description: "Pages written." }),
     bytes: S.Natural.annotateKey({ description: "Size of the written PDF in bytes." }),
-  },
-  $I.annote("SvgToPdfResult", {
-    description: "Written PDF path, page count, and size.",
-  })
+  }).pipe(
+    $I.annoteSchema("SvgToPdfResult", {
+      description: "Written PDF path, page count, and size.",
+    })
+  )
 ) {}
 
 /**
@@ -338,14 +368,15 @@ export class SvgToPdfResult extends S.Class<SvgToPdfResult>($I`SvgToPdfResult`)(
  * @category models
  * @since 0.0.0
  */
-export class PageSize extends S.Class<PageSize>($I`PageSize`)(
-  {
+export class PageSize extends S.Opaque<PageSize, { readonly brand: unique symbol }>()(
+  S.Struct({
     widthPt: S.Finite.annotateKey({ description: "MediaBox width in points." }),
     heightPt: S.Finite.annotateKey({ description: "MediaBox height in points." }),
-  },
-  $I.annote("PageSize", {
-    description: "MediaBox size in points.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageSize", {
+      description: "MediaBox size in points.",
+    })
+  )
 ) {}
 
 /**
@@ -362,7 +393,7 @@ export class PageSize extends S.Class<PageSize>($I`PageSize`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfFont extends S.Class<PdfFont>($I`PdfFont`)(
+export class PdfFont extends S.Class<PdfFont, { readonly brand: unique symbol }>($I`PdfFont`)(
   {
     name: S.String.annotateKey({ description: "BaseFont name, possibly subset-prefixed." }),
     embedded: S.Boolean.annotateKey({ description: "Whether a font program is embedded." }),
@@ -391,6 +422,89 @@ export class PdfFont extends S.Class<PdfFont>($I`PdfFont`)(
 }
 
 /**
+ * A FlateDecode stream whose bytes a strict zlib inflate rejects.
+ *
+ * **Details**
+ *
+ * A strict inflate needs the whole zlib stream, including the trailing
+ * Adler-32 checksum, so a stream that lost even its last byte is reported
+ * here although every byte of its payload may still inflate. Lenient
+ * readers show such a file; strict ones refuse the stream. Object streams
+ * and cross-reference streams are checked like any other stream.
+ *
+ * **Example** (A truncated font program)
+ *
+ * ```ts
+ * import { UndecodableStream } from "@beep/pdf-tools"
+ *
+ * const stream = UndecodableStream.make({ objectNumber: 52, generation: 0, reason: "unexpected end of file" })
+ * console.log(`${stream.objectNumber} ${stream.generation} R: ${stream.reason}`)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UndecodableStream extends S.Opaque<UndecodableStream, { readonly brand: unique symbol }>()(
+  S.Struct({
+    objectNumber: S.Natural.annotateKey({ description: "Object number of the stream." }),
+    generation: S.Natural.annotateKey({ description: "Generation number of the stream." }),
+    reason: S.NonEmptyString.annotateKey({ description: "Why the inflate failed, as zlib reports it." }),
+  }).pipe(
+    $I.annoteSchema("UndecodableStream", {
+      description: "Object number, generation, and zlib error of a FlateDecode stream that fails a strict inflate.",
+    })
+  )
+) {}
+
+const StreamCheckBase = LiteralKit(["complete", "encrypted", "limit-reached"]);
+
+/**
+ * How far the strict-inflate check of a file's FlateDecode streams got.
+ *
+ * **Details**
+ *
+ * `complete`: every FlateDecode stream was inflated, so the undecodable
+ * streams listed are all there are. `encrypted`: the check did not run,
+ * because the streams are ciphertext. `limit-reached`: the check stopped once
+ * the bytes it inflated reached the inspection limit (`maxInflatedBytes` on
+ * the driver config), so streams later in object order were not checked.
+ *
+ * **Example** (Read the outcomes)
+ *
+ * ```ts
+ * import { StreamCheck } from "@beep/pdf-tools"
+ *
+ * console.log(StreamCheck.literals) // ["complete", "encrypted", "limit-reached"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const StreamCheck = StreamCheckBase.pipe(
+  $I.annoteSchema("StreamCheck", {
+    description: "Whether the strict-inflate check covered every FlateDecode stream, skipped them, or stopped early.",
+  }),
+  SchemaUtils.withLiteralKitStatics(StreamCheckBase)
+);
+
+/**
+ * Type for {@link StreamCheck}.
+ *
+ * **Example** (Annotate an outcome)
+ *
+ * ```ts
+ * import type { StreamCheck } from "@beep/pdf-tools"
+ *
+ * const check: StreamCheck = "limit-reached"
+ * console.log(check)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StreamCheck = typeof StreamCheck.Type;
+
+/**
  * Structural facts about a PDF file.
  *
  * **Example** (Make a structure)
@@ -412,8 +526,8 @@ export class PdfFont extends S.Class<PdfFont>($I`PdfFont`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfStructure extends S.Class<PdfStructure>($I`PdfStructure`)(
-  {
+export class PdfStructure extends S.Opaque<PdfStructure, { readonly brand: unique symbol }>()(
+  S.Struct({
     headerVersion: S.String.annotateKey({ description: "Version from the `%PDF-` header line." }),
     pages: S.Array(PageSize).annotateKey({ description: "MediaBox of every page, in order." }),
     fonts: S.Array(PdfFont).annotateKey({ description: "Distinct fonts referenced by page resources." }),
@@ -422,10 +536,26 @@ export class PdfStructure extends S.Class<PdfStructure>($I`PdfStructure`)(
       description: "Whether the catalog declares layers (`/OCProperties`).",
     }),
     encrypted: S.Boolean.annotateKey({ description: "Whether the file is encrypted." }),
-  },
-  $I.annote("PdfStructure", {
-    description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
-  })
+    undecodableStreams: S.Array(UndecodableStream).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "FlateDecode streams, object and cross-reference streams included, that fail a strict inflate, in object order. `streamCheck` says how many were checked.",
+      })
+    ),
+    streamCheck: StreamCheck.pipe(
+      S.withConstructorDefault(Effect.succeed("complete" as const)),
+      S.annotateKey({
+        description:
+          "Whether every FlateDecode stream was checked (`complete`), none were because the file is encrypted (`encrypted`), or the check stopped at the inflate limit (`limit-reached`).",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PdfStructure", {
+      description:
+        "Header version, page sizes, fonts, annotations, layers, encryption, undecodable streams, and how far their check got, of a PDF.",
+    })
+  )
 ) {}
 
 /**
@@ -448,8 +578,8 @@ export class PdfStructure extends S.Class<PdfStructure>($I`PdfStructure`)(
  * @category models
  * @since 0.0.0
  */
-export class RasterRequest extends S.Class<RasterRequest>($I`RasterRequest`)(
-  {
+export class RasterRequest extends S.Opaque<RasterRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF to rasterise." }),
     page: PageNumber.annotateKey({ description: "One-based page to rasterise." }),
     dpi: Dpi.annotateKey({ description: "Resolution." }),
@@ -459,10 +589,11 @@ export class RasterRequest extends S.Class<RasterRequest>($I`RasterRequest`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(128)),
       S.annotateKey({ description: "Luminance below which a pixel counts as ink (0–255). Defaults to 128." })
     ),
-  },
-  $I.annote("RasterRequest", {
-    description: "One page, resolution, anti-aliasing switch, and ink threshold.",
-  })
+  }).pipe(
+    $I.annoteSchema("RasterRequest", {
+      description: "One page, resolution, anti-aliasing switch, and ink threshold.",
+    })
+  )
 ) {}
 
 /**
@@ -479,16 +610,17 @@ export class RasterRequest extends S.Class<RasterRequest>($I`RasterRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class PixelBox extends S.Class<PixelBox>($I`PixelBox`)(
-  {
+export class PixelBox extends S.Opaque<PixelBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     minX: S.Natural.annotateKey({ description: "Leftmost ink column." }),
     minY: S.Natural.annotateKey({ description: "Topmost ink row." }),
     maxX: S.Natural.annotateKey({ description: "Rightmost ink column." }),
     maxY: S.Natural.annotateKey({ description: "Bottommost ink row." }),
-  },
-  $I.annote("PixelBox", {
-    description: "Inclusive pixel bounds of the ink on a page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PixelBox", {
+      description: "Inclusive pixel bounds of the ink on a page.",
+    })
+  )
 ) {}
 
 /**
@@ -523,8 +655,8 @@ export class PixelBox extends S.Class<PixelBox>($I`PixelBox`)(
  * @category models
  * @since 0.0.0
  */
-export class RasterMetrics extends S.Class<RasterMetrics>($I`RasterMetrics`)(
-  {
+export class RasterMetrics extends S.Opaque<RasterMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     width: S.Natural.annotateKey({ description: "Raster width in pixels." }),
     height: S.Natural.annotateKey({ description: "Raster height in pixels." }),
     dpi: Dpi.annotateKey({ description: "Resolution the page was rendered at." }),
@@ -533,10 +665,11 @@ export class RasterMetrics extends S.Class<RasterMetrics>($I`RasterMetrics`)(
     impurePixels: S.Natural.annotateKey({ description: "Pixels that are neither pure black nor pure white." }),
     chromaPixels: S.Natural.annotateKey({ description: "Pixels whose RGB channels differ." }),
     largestBlackSquare: S.Natural.annotateKey({ description: "Side of the largest all-ink square, in pixels." }),
-  },
-  $I.annote("RasterMetrics", {
-    description: "Size, ink bounds, purity counts, and largest solid-ink square of a rendered page.",
-  })
+  }).pipe(
+    $I.annoteSchema("RasterMetrics", {
+      description: "Size, ink bounds, purity counts, and largest solid-ink square of a rendered page.",
+    })
+  )
 ) {}
 
 /**
@@ -553,16 +686,17 @@ export class RasterMetrics extends S.Class<RasterMetrics>($I`RasterMetrics`)(
  * @category models
  * @since 0.0.0
  */
-export class PngRequest extends S.Class<PngRequest>($I`PngRequest`)(
-  {
+export class PngRequest extends S.Opaque<PngRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF to render." }),
     page: PageNumber.annotateKey({ description: "One-based page to render." }),
     dpi: Dpi.annotateKey({ description: "Resolution." }),
     outputPath: S.NonEmptyString.annotateKey({ description: "Destination PNG path; overwritten." }),
-  },
-  $I.annote("PngRequest", {
-    description: "One page rendered to a PNG file at a resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("PngRequest", {
+      description: "One page rendered to a PNG file at a resolution.",
+    })
+  )
 ) {}
 
 /**
@@ -579,14 +713,15 @@ export class PngRequest extends S.Class<PngRequest>($I`PngRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class PageTextRequest extends S.Class<PageTextRequest>($I`PageTextRequest`)(
-  {
+export class PageTextRequest extends S.Opaque<PageTextRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF to read." }),
     page: PageNumber.annotateKey({ description: "One-based page whose text is extracted." }),
-  },
-  $I.annote("PageTextRequest", {
-    description: "One page of a PDF whose text is extracted.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageTextRequest", {
+      description: "One page of a PDF whose text is extracted.",
+    })
+  )
 ) {}
 
 /**
@@ -609,16 +744,17 @@ export class PageTextRequest extends S.Class<PageTextRequest>($I`PageTextRequest
  * @category models
  * @since 0.0.0
  */
-export class PdfRect extends S.Class<PdfRect>($I`PdfRect`)(
-  {
+export class PdfRect extends S.Opaque<PdfRect, { readonly brand: unique symbol }>()(
+  S.Struct({
     xMin: S.Finite.annotateKey({ description: "Left edge, points from the page's left edge." }),
     yMin: S.Finite.annotateKey({ description: "Top edge, points down from the page's top edge." }),
     xMax: S.Finite.annotateKey({ description: "Right edge, points from the page's left edge." }),
     yMax: S.Finite.annotateKey({ description: "Bottom edge, points down from the page's top edge." }),
-  },
-  $I.annote("PdfRect", {
-    description: "Rectangle in points from the page's top-left corner, as pdftotext reports it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfRect", {
+      description: "Rectangle in points from the page's top-left corner, as pdftotext reports it.",
+    })
+  )
 ) {}
 
 /**
@@ -644,14 +780,15 @@ export class PdfRect extends S.Class<PdfRect>($I`PdfRect`)(
  * @category models
  * @since 0.0.0
  */
-export class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
-  {
+export class TextBlock extends S.Opaque<TextBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({ description: "Words joined by spaces, lines joined by newlines." }),
     rect: PdfRect.annotateKey({ description: "Bounding rectangle of the block." }),
-  },
-  $I.annote("TextBlock", {
-    description: "A text block from `pdftotext -bbox-layout` and its rectangle.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextBlock", {
+      description: "A text block from `pdftotext -bbox-layout` and its rectangle.",
+    })
+  )
 ) {}
 
 /**
@@ -668,14 +805,15 @@ export class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfPageRef extends S.Class<PdfPageRef>($I`PdfPageRef`)(
-  {
+export class PdfPageRef extends S.Opaque<PdfPageRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF file." }),
     page: PageNumber.annotateKey({ description: "One-based page." }),
-  },
-  $I.annote("PdfPageRef", {
-    description: "A PDF file and a one-based page in it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfPageRef", {
+      description: "A PDF file and a one-based page in it.",
+    })
+  )
 ) {}
 
 /**
@@ -705,16 +843,17 @@ export class PdfPageRef extends S.Class<PdfPageRef>($I`PdfPageRef`)(
  * @category models
  * @since 0.0.0
  */
-export class InkCoverageRequest extends S.Class<InkCoverageRequest>($I`InkCoverageRequest`)(
-  {
+export class InkCoverageRequest extends S.Opaque<InkCoverageRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: PdfPageRef.annotateKey({ description: "Page whose ink must be covered (the sheet that was sent)." }),
     marked: PdfPageRef.annotateKey({ description: "Page that may cover it (the page that came back)." }),
     dpi: Dpi.annotateKey({ description: "Resolution both pages are rasterised at." }),
     dilatePx: S.Natural.annotateKey({ description: "Pixels the marked ink is grown by before comparing." }),
-  },
-  $I.annote("InkCoverageRequest", {
-    description: "Two pages, a resolution, and a tolerance for a raster ink-coverage comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("InkCoverageRequest", {
+      description: "Two pages, a resolution, and a tolerance for a raster ink-coverage comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -739,16 +878,17 @@ export class InkCoverageRequest extends S.Class<InkCoverageRequest>($I`InkCovera
  * @category models
  * @since 0.0.0
  */
-export class InkCoverage extends S.Class<InkCoverage>($I`InkCoverage`)(
-  {
+export class InkCoverage extends S.Opaque<InkCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseInkPixels: S.Natural.annotateKey({ description: "Ink pixels on the base page." }),
     coveredPixels: S.Natural.annotateKey({ description: "Base ink pixels the dilated marked ink covers." }),
     markedInkPixels: S.Natural.annotateKey({ description: "Ink pixels on the marked page, before dilation." }),
     coverage: S.Finite.annotateKey({ description: "coveredPixels / baseInkPixels; 0 for a blank base page." }),
-  },
-  $I.annote("InkCoverage", {
-    description: "Base ink, covered ink, marked ink, and the covered fraction of a raster comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("InkCoverage", {
+      description: "Base ink, covered ink, marked ink, and the covered fraction of a raster comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -773,15 +913,16 @@ export class InkCoverage extends S.Class<InkCoverage>($I`InkCoverage`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfAnnotation extends S.Class<PdfAnnotation>($I`PdfAnnotation`)(
-  {
+export class PdfAnnotation extends S.Opaque<PdfAnnotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     page: PageNumber.annotateKey({ description: "One-based page the annotation sits on." }),
     subtype: S.String.annotateKey({ description: "`/Subtype` name, such as Text, FreeText, or Highlight." }),
     rect: PdfRect.annotateKey({ description: "`/Rect`, converted to points from the page's top-left corner." }),
     contents: S.Option(S.String).annotateKey({ description: "`/Contents` text, when present." }),
     author: S.Option(S.String).annotateKey({ description: "`/T` author, when present." }),
-  },
-  $I.annote("PdfAnnotation", {
-    description: "Page, subtype, rectangle, contents, and author of one PDF annotation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfAnnotation", {
+      description: "Page, subtype, rectangle, contents, and author of one PDF annotation.",
+    })
+  )
 ) {}

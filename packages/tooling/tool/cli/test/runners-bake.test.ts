@@ -39,7 +39,8 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -245,8 +246,8 @@ describe("runner bake schemas", () => {
     [BakeReport],
     ([original]) =>
       Effect.gen(function* () {
-        const encoded = yield* BakeReportJson.encode(original);
-        expect(yield* BakeReportJson.decode(encoded)).toStrictEqual(original);
+        const encoded = yield* BakeReportJson.encode(BakeReport.make(original));
+        expect(yield* BakeReportJson.decode(encoded)).toStrictEqual(BakeReport.make(original));
       }),
     { arbitrary: fcRuns(100) }
   );

@@ -44,7 +44,7 @@ import {
   RUNNER_AMI_PIN_PARAMETER,
 } from "./Runners.schemas.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { BakeConfig } from "./Runners.schemas.ts";
 
 const decodeSha256Hex = S.decodeEffect(Sha256Hex);
@@ -81,26 +81,31 @@ const AwsTagResourceType = LiteralKit(["image", "instance"]).pipe(
   $I.annoteSchema("AwsTagResourceType", { description: "EC2 resource types tagged by the runner bake." })
 );
 
-class AwsTagSpecification extends S.Class<AwsTagSpecification>($I`AwsTagSpecification`)(
-  { ResourceType: AwsTagResourceType, Tags: S.Array(AwsTag) },
-  $I.annote("AwsTagSpecification", { description: "Complete JSON EC2 tag specification passed to the AWS CLI." })
+class AwsTagSpecification extends S.Opaque<AwsTagSpecification, { readonly brand: unique symbol }>()(
+  S.Struct({ ResourceType: AwsTagResourceType, Tags: S.Array(AwsTag) }).pipe(
+    $I.annoteSchema("AwsTagSpecification", {
+      description: "Complete JSON EC2 tag specification passed to the AWS CLI.",
+    })
+  )
 ) {}
 
-class AwsEbsBlockDevice extends S.Class<AwsEbsBlockDevice>($I`AwsEbsBlockDevice`)(
-  {
+class AwsEbsBlockDevice extends S.Opaque<AwsEbsBlockDevice, { readonly brand: unique symbol }>()(
+  S.Struct({
     DeleteOnTermination: S.Boolean,
     Encrypted: S.Boolean,
     Iops: S.Int,
     Throughput: S.Int,
     VolumeSize: S.Int,
     VolumeType: S.Literal("gp3"),
-  },
-  $I.annote("AwsEbsBlockDevice", { description: "EBS settings for the temporary bake instance root volume." })
+  }).pipe(
+    $I.annoteSchema("AwsEbsBlockDevice", { description: "EBS settings for the temporary bake instance root volume." })
+  )
 ) {}
 
-class AwsBlockDeviceMapping extends S.Class<AwsBlockDeviceMapping>($I`AwsBlockDeviceMapping`)(
-  { DeviceName: S.Literal("/dev/xvda"), Ebs: AwsEbsBlockDevice },
-  $I.annote("AwsBlockDeviceMapping", { description: "EC2 root block-device override for a runner bake." })
+class AwsBlockDeviceMapping extends S.Opaque<AwsBlockDeviceMapping, { readonly brand: unique symbol }>()(
+  S.Struct({ DeviceName: S.Literal("/dev/xvda"), Ebs: AwsEbsBlockDevice }).pipe(
+    $I.annoteSchema("AwsBlockDeviceMapping", { description: "EC2 root block-device override for a runner bake." })
+  )
 ) {}
 
 /**
@@ -124,7 +129,9 @@ class AwsBlockDeviceMapping extends S.Class<AwsBlockDeviceMapping>($I`AwsBlockDe
  * @category errors
  * @since 0.0.0
  */
-export class AwsResourcePending extends S.TaggedError<AwsResourcePending>($I`AwsResourcePending`)(
+export class AwsResourcePending extends S.TaggedError<AwsResourcePending, { readonly brand: unique symbol }>(
+  $I`AwsResourcePending`
+)(
   "AwsResourcePending",
   {
     actual: S.NonEmptyString,
@@ -167,17 +174,18 @@ const encodeBlockDeviceMappings = S.encodeEffect(S.fromJsonString(S.Array(AwsBlo
  * @category models
  * @since 0.0.0
  */
-export class BakeLocalInputs extends S.Class<BakeLocalInputs>($I`BakeLocalInputs`)(
-  {
+export class BakeLocalInputs extends S.Opaque<BakeLocalInputs, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.NonEmptyString,
     lockfileSha256: Sha256Hex,
     bunArchiveSha256: Sha256Hex,
     bunVersion: S.NonEmptyString,
     gitRevision: S.NonEmptyString,
-  },
-  $I.annote("BakeLocalInputs", {
-    description: "Repository root, revision, lock digest, Bun archive digest, and Bun version used by a bake.",
-  })
+  }).pipe(
+    $I.annoteSchema("BakeLocalInputs", {
+      description: "Repository root, revision, lock digest, Bun archive digest, and Bun version used by a bake.",
+    })
+  )
 ) {}
 
 /**

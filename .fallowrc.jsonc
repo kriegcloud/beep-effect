@@ -8,6 +8,8 @@
     "packages/**/src/*.ts",
     "packages/**/src/*/index.ts",
     "infra/src/internal/*-entry.ts",
+    // Preloaded by every infra Pulumi.yaml (runtime.options.nodeargs).
+    "infra/pulumi-typescript6.cjs",
     "apps/*/src/main.tsx",
     // The `service` AppKind's entry point; peer of the labs-depth glob below.
     "apps/*/src/main.ts",
@@ -72,6 +74,11 @@
     // the stories glob in apps/storybook/.storybook/main.ts.
     "packages/foundation/ui-system/*/stories/**/*.stories.tsx",
     "packages/drivers/graph-3d/stories/**/*.stories.tsx",
+    // Instrument declaration files are tool-loaded roots: `beep observability catalog`
+    // discovers every `src/**/*.instruments.ts` by path and imports it dynamically,
+    // so their declaration exports have no static importer.
+    "packages/**/src/**/*.instruments.ts",
+    "apps/**/src/**/*.instruments.ts",
     // Ecosystem-member tool-loaded roots: tstyche discovers the typetests file,
     // drizzle-kit receives the sqlite schema module via --schema, the perf
     // consumer compiles out of band, and the bundle consumer is a Bun.build
@@ -80,19 +87,17 @@
     "packages/ecosystem/effect-drizzle/test/integration/sqlite-drizzle-schema.ts",
     "packages/ecosystem/effect-drizzle/test/perf.consumer.ts",
     "packages/ecosystem/effect-drizzle/test/bundle-pg-integer.consumer.ts",
-    // Tool-loaded roots: syncpack auto-loads its config, eslint.config.mjs is
-    // profile-selected by the Lint command, Changesets loads its changelog
+    // Tool-loaded roots: syncpack auto-loads its config, Changesets loads its changelog
     // module from config, and global-cleanup.ts is the vitest globalSetup for
     // @beep/repo-cli.
     "syncpack.config.ts",
-    "eslint.config.mjs",
     "scripts/changeset-changelog.cjs",
+    // Human-operated, memory-only GitHub App registration, invoked directly with Bun.
+    "scripts/github-app/create-beep-reviewer.ts",
+    "scripts/github-app/create-beep-knowledge-mint.ts",
     "packages/tooling/tool/cli/test/global-cleanup.ts",
     // Standalone article builder, invoked by path rather than imported.
     "explorations/beep-ci-operational-ontology/assets/agentic-yoyo/build.mjs",
-    // Vendored Impeccable detector CLI: invoked through the root package script
-    // and editor integrations, with parser dependencies resolved from the root.
-    ".claude/skills/impeccable/scripts/detector/cli/main.mjs",
     // Fallow 3.6.0 resolves an explicit `.ts` suffix exactly and does not yet
     // apply TypeScript's `.ts` -> `.tsx` source fallback. Keep the affected TSX
     // modules reachable without making every TSX file an entry point; the
@@ -111,8 +116,6 @@
   ],
   // Approximates dead-code path suppression; Knip retired in October 2026; narrower detection is accepted.
   "ignorePatterns": [
-    // The GitHub Copilot Impeccable tree mirrors the analyzed Claude Code source.
-    ".github/skills/impeccable/**",
     // Vendored upstream skill tree (shadcn showcase assets and scripts) pinned by
     // skills-lock.json; beep skills update rewrites it byte-for-byte from upstream.
     ".claude/skills/shadcn/**",
@@ -126,6 +129,8 @@
     ".claude/teaching/**",
     "goals/**",
     "scratchpad/**",
+    "!goals/schema-opaque-default/ops/codemod/**",
+    "!scratchpad/.jsdoc-loop/census.ts",
     "infra/ci-runners/sdks/**",
     // Self-contained Lambda bundle source (own package.json + lockfile, not a workspace
     // member): esbuild bundles it into the deployed ZIP via infra/lambda/turbo-cache/build.sh,
@@ -187,10 +192,6 @@
     "packages/drivers/govinfo/src/_generated/**",
     "packages/drivers/runpod/src/_generated/**"
   ],
-  // Impeccable is vendored hook code with many standalone command entries and
-  // public test seams. Analyze its module graph for dependency accounting while
-  // retaining the prior exclusion of source-owned dead-code findings.
-  "ignoreFindings": [".claude/skills/impeccable/**"],
   // Exact compatibility list for authored `.ts` specifiers whose source file
   // is TSX. Do not broaden this to `**/*.ts`: real unresolved imports must keep
   // failing Fallow. Remove these entries when Fallow supports the TS fallback.
@@ -212,22 +213,6 @@
   "ignoreDependencies": [
     // The host engine supplies claude-code and claude-code/testing at runtime.
     "claude-code",
-    // brace-expansion, fast-uri, hono, nanoid: root `dependencies` entries that exist solely to
-    // back the security-pin `overrides` in package.json; nothing imports them at root.
-    "brace-expansion",
-    "fast-uri",
-    "hono",
-    "nanoid",
-    // css-select, css-tree, domutils, htmlparser2: root devDependencies imported by the
-    // vendored Impeccable detector CLI, which is declared an entry point above for
-    // dependency accounting. The private root package is never installed with
-    // `--production`, so `dev-dependencies-in-production` cannot break a deployment here;
-    // keeping them in devDependencies is what satisfies the sherif
-    // `root-package-dependencies` rule (a private root declares devDependencies only).
-    "css-select",
-    "css-tree",
-    "domutils",
-    "htmlparser2",
     "@effect/vitest",
     "@effect/language-service",
     "babel-plugin-annotate-pure-calls",
@@ -241,15 +226,12 @@
     "babel-plugin-transform-next-use-client",
     "@babel/plugin-transform-export-namespace-from",
     "@babel/plugin-transform-modules-commonjs",
-    "@typescript-eslint/parser",
-    // tsgo >= 0.18 native TypeScript backend: consumed by the effect-tsgo patch
-    // step at install time, never imported from source.
+    // TypeScript 7 is installed under two names; retain the native alias for
+    // effect-tsgo patching and unstable API consumers until alias consolidation.
     "@typescript/native",
     // Repo-local `tsgo` bin shim over the patched @typescript/native backend;
     // consumed via node_modules/.bin, never imported from source.
     "@beep/tsgo-shim",
-    "eslint-plugin-jsdoc",
-    "eslint-plugin-tsdoc",
     "tailwindcss",
     "@tailwindcss/postcss",
     // @shadcn/lint: the oxlint JS plugin named by `jsPlugins` in .oxlintrc.shadcn.json
@@ -295,27 +277,11 @@
     // analysis), so fallow can't see the import and reads it as unused.
     "@effect/platform-node"
   ],
-  // Root overrides below intentionally pin transitive packages. The @effect/tsgo
-  // entries cover optional platform binaries; the remaining entries retain the
-  // dependency-update security floors. They therefore have no direct manifest
-  // declaration for Fallow to associate with the override.
+  // Root override below intentionally pins a transitive package (the browser-bundle
+  // hold in syncpack.config.ts), so it has no direct manifest declaration for
+  // Fallow to associate with the override.
   "ignoreDependencyOverrides": [
-    { "package": "@effect/tsgo-darwin-arm64", "source": "package.json" },
-    { "package": "@effect/tsgo-darwin-x64", "source": "package.json" },
-    { "package": "@effect/tsgo-linux-arm", "source": "package.json" },
-    { "package": "@effect/tsgo-linux-arm64", "source": "package.json" },
-    { "package": "@effect/tsgo-linux-x64", "source": "package.json" },
-    { "package": "@effect/tsgo-win32-arm64", "source": "package.json" },
-    { "package": "@effect/tsgo-win32-x64", "source": "package.json" },
-    { "package": "@hono/node-server", "source": "package.json" },
-    { "package": "@opentelemetry/propagator-jaeger", "source": "package.json" },
-    { "package": "brace-expansion", "source": "package.json" },
-    { "package": "detailed-xml-validator", "source": "package.json" },
-    { "package": "fast-uri", "source": "package.json" },
-    { "package": "hono", "source": "package.json" },
-    { "package": "js-yaml", "source": "package.json" },
-    { "package": "minimatch", "source": "package.json" },
-    { "package": "postcss", "source": "package.json" }
+    { "package": "detailed-xml-validator", "source": "package.json" }
   ],
   // `instant` is a Next.js framework config export (blocking-prerender opt-out,
   // see nextjs.org/docs/messages/blocking-prerender-dynamic). The framework
@@ -323,6 +289,12 @@
   // recognize it, and deleting it breaks `next build` (proven 2026-06-11 in
   // goals/fallow-zero-dead-code).
   "ignoreExports": [
+    // Knowledge mint App bootstrap: its test drives the handler from a Bun child
+    // (`bun --eval` with a dynamic import), which static analysis cannot follow.
+    {
+      "file": "packages/tooling/tool/cli/scripts/CreateKnowledgeMintApp.ts",
+      "exports": ["makeKnowledgeMintHandler"]
+    },
     // @beep/canvas command bridge: documented request/schema values kept as
     // public bridge contracts for typed host integrations.
     {
@@ -366,14 +338,8 @@
     { "file": "apps/*/src/app/**/*.tsx", "exports": ["instant"] }
   ],
   "duplicates": {
-    // Vendored Impeccable scripts keep their upstream shape; dependency graph
-    // analysis above must not opt that vendor tree into authored-code cloning.
     // The two graft shims are one-line delegations to the repo-owned loader.
-    "ignore": [
-      ".claude/skills/impeccable/**",
-      ".claude/skills/shadcn/**",
-      ".claude/helpers/**"
-    ]
+    "ignore": [".claude/skills/shadcn/**", ".claude/helpers/**"]
   },
   "health": {
     // Complexity ceilings — ratified 2026-07-30 (law in standards/effect-laws-v1.md;
@@ -386,14 +352,16 @@
     "maxCyclomatic": 20,
     "maxCrap": 30,
     "maxUnitSize": 60,
-    // Preserve the vendor tree's prior exclusion from authored-code complexity
-    // while its module graph remains visible to dead-code dependency analysis.
     // The graft shims are generated; the loader's platform trust checks are
     // security-boundary code kept whole rather than split for a ceiling.
+    // The manual TS6-bridge tools (goal codemod, JSDoc census) entered discovery
+    // only so dead-code analysis sees the bridge's consumers; complexity scope
+    // stays as on main, where both paths were never health-scored.
     "ignore": [
-      ".claude/skills/impeccable/**",
       ".claude/skills/shadcn/**",
-      ".claude/helpers/**"
+      ".claude/helpers/**",
+      "goals/schema-opaque-default/ops/codemod/**",
+      "scratchpad/.jsdoc-loop/census.ts"
     ],
     "thresholdOverrides": [
       {
@@ -621,8 +589,8 @@
   },
   "rules": {
     "duplicate-exports": "off",
-    // Fallow does not count catalog references under Bun root overrides, so enabling this
-    // falsely reports the seven required @effect/tsgo platform pins.
+    // Fallow does not count catalog references under Bun root overrides;
+    // `beep quality catalog-usage` owns unused catalog entries instead.
     "unused-catalog-entries": "off",
     "empty-catalog-groups": "off",
     "boundary-violation": "error",

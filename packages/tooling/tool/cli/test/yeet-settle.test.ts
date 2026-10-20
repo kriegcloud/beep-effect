@@ -69,7 +69,8 @@ import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
@@ -138,7 +139,7 @@ const onlyGatedOpen = (input: YeetSettleInput, result: YeetSettleVerdict): boole
   A.isReadonlyArrayNonEmpty(input.checks);
 const heavyContexts = ["Lint", "Heavy / Check", "Heavy / Docgen"];
 const heavyFamilies = expected(heavyContexts).pipe(O.getOrThrow, yeetGatedFamiliesFor);
-const verdict = (values: Partial<YeetSettleInput> = {}) =>
+const verdict = (values: Partial<Parameters<typeof YeetSettleInput.make>[0]> = {}) =>
   deriveSettleVerdict(
     YeetSettleInput.make({
       checks: [],

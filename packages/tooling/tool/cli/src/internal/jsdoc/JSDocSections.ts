@@ -6,6 +6,7 @@ import { getSomesStruct } from "@beep/utils/Option";
 import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
 import { Node } from "ts-morph";
 import type { SourceFile } from "ts-morph";
@@ -27,15 +28,16 @@ const $I = $RepoCliId.create("internal/jsdoc/JSDocSections");
  * @category models
  * @since 0.0.0
  */
-export class RawJSDocSpan extends S.Class<RawJSDocSpan>($I`RawJSDocSpan`)(
-  {
+export class RawJSDocSpan extends S.Opaque<RawJSDocSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: S.Natural,
     end: S.Natural,
     text: S.String,
-  },
-  $I.annote("RawJSDocSpan", {
-    description: "One raw JSDoc block paired with its exact source start and end offsets.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawJSDocSpan", {
+      description: "One raw JSDoc block paired with its exact source start and end offsets.",
+    })
+  )
 ) {}
 
 const fenceState = (line: string, openFence: string | undefined): readonly [string | undefined, boolean] => {
@@ -299,16 +301,17 @@ export const JSDocSectionName = LiteralKit(["When to use", "Details", "Gotchas",
 export type JSDocSectionName = typeof JSDocSectionName.Type;
 const isJSDocSectionName = S.is(JSDocSectionName);
 
-export class JSDocSection extends S.Class<JSDocSection>($I`JSDocSection`)(
-  {
+export class JSDocSection extends S.Opaque<JSDocSection, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: JSDocSectionName,
     title: S.optionalKey(S.String),
     lineOffset: S.Int,
     body: S.Array(S.String),
-  },
-  $I.annote("JSDocSection", {
-    description: "One parsed canonical JSDoc body section and its unfenced source lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocSection", {
+      description: "One parsed canonical JSDoc body section and its unfenced source lines.",
+    })
+  )
 ) {}
 
 export const jsDocSectionOrder: Record<Exclude<JSDocSectionName, "Example">, number> = {
@@ -321,8 +324,6 @@ const stripCommentFraming = (commentText: string): ReadonlyArray<string> =>
   A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
     Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
   );
-
-const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
 const blankLinesLike = (value: string): string =>
   A.join(
@@ -339,7 +340,7 @@ const maskFencedContent = (lines: ReadonlyArray<string>): ReadonlyArray<string> 
   const masked = A.reduce(blocks, normalized, (text, block) =>
     Str.isEmpty(block.code)
       ? text
-      : Str.replace(new RegExp(escapeRegExp(block.code), "g"), blankLinesLike(block.code))(text)
+      : Str.replace(new RegExp(Regex.escape(block.code), "g"), blankLinesLike(block.code))(text)
   );
   return Str.split(/\r?\n/)(masked);
 };
@@ -368,11 +369,12 @@ const sectionHeadingPattern = /^\s*\*\*(When to use|Details|Gotchas|Example)\*\*
  * @category models
  * @since 0.0.0
  */
-export class ParseJSDocSectionsOptions extends S.Class<ParseJSDocSectionsOptions>($I`ParseJSDocSectionsOptions`)(
-  { commentText: S.String },
-  $I.annote("ParseJSDocSectionsOptions", {
-    description: "Raw JSDoc comment text supplied to the canonical section parser.",
-  })
+export class ParseJSDocSectionsOptions extends S.Opaque<ParseJSDocSectionsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({ commentText: S.String }).pipe(
+    $I.annoteSchema("ParseJSDocSectionsOptions", {
+      description: "Raw JSDoc comment text supplied to the canonical section parser.",
+    })
+  )
 ) {}
 
 /**
@@ -390,14 +392,15 @@ export class ParseJSDocSectionsOptions extends S.Class<ParseJSDocSectionsOptions
  * @category models
  * @since 0.0.0
  */
-export class ParseJSDocSectionsResult extends S.Class<ParseJSDocSectionsResult>($I`ParseJSDocSectionsResult`)(
-  {
+export class ParseJSDocSectionsResult extends S.Opaque<ParseJSDocSectionsResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodyLines: S.Array(S.String),
     sections: S.Array(JSDocSection),
-  },
-  $I.annote("ParseJSDocSectionsResult", {
-    description: "Unfenced JSDoc body lines and the canonical sections parsed from them.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParseJSDocSectionsResult", {
+      description: "Unfenced JSDoc body lines and the canonical sections parsed from them.",
+    })
+  )
 ) {}
 
 /**

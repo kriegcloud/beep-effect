@@ -25,6 +25,7 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Option from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -575,7 +576,7 @@ describe("C0 schema exports", () => {
       metricStatus: "scored" as MetricStatusValue,
     };
 
-    expect(A.length(Object.keys(types))).toBe(28);
+    expect(A.length(R.keys(types))).toBe(28);
     expect([
       isDocumentId(documentId),
       isChunkId(chunkId),
@@ -902,13 +903,16 @@ describe("document and text refinements", () => {
   });
 
   it("accepts each claim-body width and rejects each inconsistent width", () => {
-    pipe([entityBody, relationBody, structureBody].every(isClaimBody), assertTrue);
+    pipe(A.every([entityBody, relationBody, structureBody], isClaimBody), assertTrue);
     pipe(
-      [
-        { ...entityBody, endChar: 5 },
-        { ...relationBody, endChar: 5 },
-        { ...structureBody, endChar: 5 },
-      ].every((body) => rejects(ClaimBody, body)),
+      A.every(
+        [
+          { ...entityBody, endChar: 5 },
+          { ...relationBody, endChar: 5 },
+          { ...structureBody, endChar: 5 },
+        ],
+        (body) => rejects(ClaimBody, body)
+      ),
       assertTrue
     );
   });
@@ -1116,7 +1120,7 @@ describe("provenance refinements", () => {
     pipe(isProvenanceEvent(event), assertTrue);
     pipe(rejects(ProvenanceEvent, { ...event, id: acquired }), assertTrue);
     roundTrip(ProvenanceEvent, event);
-    pipe(Object.hasOwn(Result.getOrThrow(encodeProvenanceEventResult(event)), "timestamp"), assertFalse);
+    pipe(R.has<string, unknown>(Result.getOrThrow(encodeProvenanceEventResult(event)), "timestamp"), assertFalse);
   });
 });
 

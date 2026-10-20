@@ -51,8 +51,8 @@ const $I = $LawPracticeDomainId.create("values/DocketCitation/DocketCitation.mod
  * @category models
  * @since 0.0.0
  */
-export class DocketCitation extends S.Class<DocketCitation>($I`DocketCitation`)(
-  {
+export class DocketCitation extends S.Opaque<DocketCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("docket"),
     docketNumber: S.String.annotateKey({
@@ -142,10 +142,11 @@ export class DocketCitation extends S.Class<DocketCitation>($I`DocketCitation`)(
         description: "Full span covering citation from case name through closing parenthetical.",
       })
     ),
-  },
-  $I.annote("DocketCitation", {
-    description: 'A docket-number-only case citation (type: "docket").',
-  })
+  }).pipe(
+    $I.annoteSchema("DocketCitation", {
+      description: 'A docket-number-only case citation (type: "docket").',
+    })
+  )
 ) {}
 
 /**

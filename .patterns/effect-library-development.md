@@ -206,42 +206,40 @@ const internalTransform = Effect.fnUntraced(function*(pull, scope) {
 - Function is called many times per operation
 - Tracing overhead is unacceptable
 
-### Error Handling with S.TaggedErrorClass
+### Error Handling with S.TaggedError
 
-Create structured, typed errors using `TaggedErrorClass` from `@beep/schema`:
+Create structured, typed errors using `S.TaggedError` from `effect/Schema`:
 
 ```typescript
 import * as Effect from "effect/Effect";
-import { $SomePackageId } from "@beep/identity/packages";
+import { $SchemaId } from "@beep/identity";
 import * as Str from "effect/String";
 import * as S from "effect/Schema";
 
-const $I = $SomePackageId.create("relative/path/to/file");
+const $I = $SchemaId.create("relative/path/to/file");
 
 // Define custom error types
-class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
+class ValidationError extends S.TaggedError<ValidationError>($I`ValidationError`)(
   "ValidationError",
   {
     field: S.String,
     message: S.String
   },
-  $I.annote("ValidationError", {
+  $I.annoteError<ValidationError>("ValidationError", {
     description: "a meaningful description of the error"
   })
-) {
-}
+) {}
 
-class NetworkError extends S.TaggedErrorClass($I`NetworkError`)(
+class NetworkError extends S.TaggedError<NetworkError>($I`NetworkError`)(
   "NetworkError",
   {
     status: S.Int,
-        url: S.String
-    },
-  $I.annote("NetworkError", {
+    url: S.String
+  },
+  $I.annoteError<NetworkError>("NetworkError", {
     description: "a meaningful description of the error"
   })
-) {
-}
+) {}
 
 // Use in operations
 const validateAndFetch = 
@@ -374,7 +372,7 @@ const AppLayer = UserServiceLive.pipe(Layer.provide(DatabaseServiceLive));
 
 ```bash
 # After editing any TypeScript file
-biome check . --write packages/effect/src/ModifiedFile.ts-morph
+biome check --write packages/<family>/<package>/src/ModifiedFile.ts
 
 # This ensures:
 # - Consistent code formatting
@@ -388,7 +386,7 @@ Run comprehensive validation after implementation:
 
 ```bash
 # 1. Lint all modified files
-biome check . --write packages/effect/src/*.ts-morph
+biome check --write packages/<family>/<package>/src/*.ts
 
 # 2. Validate JSDoc examples compile
 bun run docgen
@@ -397,7 +395,7 @@ bun run docgen
 bun run check
 
 # 4. Run tests
-bun run test packages/effect/test/ModifiedTest.ts-morph
+bun run test packages/<family>/<package>/test/ModifiedTest.ts
 
 # 5. Build project
 bun run build
@@ -408,22 +406,20 @@ bun run build
 Break complex features into validated increments:
 
 ```typescript
-import * as S from "effect/Schema";
 import {$SomePackageId} from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
 const $I = $SomePackageId.create("relative/path/to/file");
 
-export class FeatureConfig extends S.Class<FeatureConfig>($I`FeatureConfig`)(
-  {
+// Plain data: a branded Opaque over an annotated Struct.
+export class FeatureConfig extends S.Opaque<FeatureConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     option1: S.String,
     option2: S.Number
-  },
-  $I.annote(
-    "FeatureConfig",
-    {
+  }).pipe(
+    $I.annoteSchema("FeatureConfig", {
       description: "Configuration for a feature"
-    }
+    })
   )
 ) {}
 
@@ -431,7 +427,7 @@ export class FeatureConfig extends S.Class<FeatureConfig>($I`FeatureConfig`)(
 
 // Step 2: Core implementation
 const createFeature = Effect.fn("createFeature")(function* (
-  config: FeatureConfig // S.Class is opaque and can be used as a type
+  config: FeatureConfig // nominal through the brand; an unbranded schema class is only structural
 ) {
   // Basic implementation
   yield* Console.log("Feature created");
@@ -461,7 +457,7 @@ const createFeatureWithValidation = Effect.fn("createFeatureWithValidation")(fun
 Structure module exports for clarity and discoverability:
 
 ````typescript
-// ModuleName.ts-morph
+// ModuleName.ts
 /**
  * @since 1.0.0
  */
@@ -521,6 +517,7 @@ Structure tests to validate all aspects of functionality:
 import { assert, describe, it } from "@effect/vitest"
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
 import * as TestClock from "effect/testing/TestClock";
 import * as ModuleName from "../src/ModuleName.js"
 
@@ -548,14 +545,14 @@ describe("ModuleName", () => {
   describe("time-dependent operations", () => {
     it.effect("should handle delays properly", 
       Effect.fn(function*() {
-        const fiber = yield* Effect.fork(
+        const fiber = yield* Effect.forkChild(
           ModuleName.delayedOperation(Duration.seconds(5))
         )
 
         // Use TestClock to advance time
-        yield* TestClock.advance(Duration.seconds(5))
+        yield* TestClock.adjust(Duration.seconds(5))
 
-        const result = yield* Effect.join(fiber)
+        const result = yield* Fiber.join(fiber)
         assert.strictEqual(result, "completed")
       }))
   })

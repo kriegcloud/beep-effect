@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "attorney-question-loop",
+    "packetId": "goal-packet/v1:333722c3a5de144e6caca083c5dc5af6dc829e953bbd6817067a0cfc18dd2f32",
+    "title": "Attorney Question Loop",
+    "status": "completed-retained",
+    "created": "2026-10-14",
+    "updated": "2026-10-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/attorney-question-loop",
+  "lifecycle": "completed-retained",
+  "mission": "Agents ask the attorney through the review queue: a question ReviewItem, an append-only AnswerRow (decided, pending-on-client with resurfaceOn, keep-reminding, withdrawn), a QuestionQueue with daily digest selection, operator-approved write batches applied through the docket-intake calendar adapter, docket-intake as the first producer, and a daily notice email.",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/attorney-review-workspace",
+    "graduated": "2026-10-14"
+  },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/attorney-question-loop/README.md",
+    "goals/attorney-question-loop/SPEC.md",
+    "goals/attorney-question-loop/PLAN.md",
+    "goals/attorney-question-loop/GOAL.md",
+    "goals/attorney-question-loop/research/SOURCES.md"
+  ],
+  "researchReports": ["research/SOURCES.md"],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/attorney-question-loop/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Schema",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Contract",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Implementation",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Producer + notice",
+      "status": "complete"
+    },
+    {
+      "id": "P4",
+      "name": "Handoff",
+      "status": "complete"
+    },
+    {
+      "id": "P5",
+      "name": "Yeet: PR to mergeable",
+      "status": "complete"
+    },
+    {
+      "id": "P6",
+      "name": "Close",
+      "status": "complete"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/attorney-question-loop/GOAL.md)\" -le 4000",
+    "jq . goals/attorney-question-loop/ops/manifest.json",
+    "rg -n \"attorney-question-loop|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/attorney-question-loop",
+    "git diff --check -- goals/attorney-question-loop",
+    "bun run beep lint reflection-artifacts",
+    "bun run beep quality package-verify @beep/law-practice-domain",
+    "bun run beep quality package-verify @beep/law-practice-use-cases",
+    "bun run beep quality package-verify @beep/law-practice-server"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ],
+  "statusNote": "Completed 2026-10-15: P0 (#1801), P1-P3b (#1814), and P3c plus the closeout in the final PR. The operator enables the services through docs/runbooks/practice-review-hub.md; follow-ups are listed in PLAN.md."
+}

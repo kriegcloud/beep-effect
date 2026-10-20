@@ -7,12 +7,13 @@
 
 import { $EpistemicClientId } from "@beep/identity/packages";
 import { O, pipe, Str } from "@beep/utils";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
-import { Atom } from "effect/reactivity";
-import { RpcClient, RpcSerialization } from "effect/rpc";
+import * as Atom from "effect/reactivity/Atom";
+import * as RpcClient from "effect/rpc/RpcClient";
+import * as RpcSerialization from "effect/rpc/RpcSerialization";
 import * as S from "effect/Schema";
 
 const $I = $EpistemicClientId.create("Protocol");
@@ -20,22 +21,24 @@ const LOOPBACK_EPISTEMIC_RPC_URL = "http://127.0.0.1:3939/rpc";
 const WINDOWS_TAURI_HTTP_ORIGIN = "http://tauri.localhost";
 const WINDOWS_TAURI_HTTPS_ORIGIN = "https://tauri.localhost";
 
-class BrowserHttpLocation extends S.Class<BrowserHttpLocation>($I`BrowserHttpLocation`)(
-  {
+class BrowserHttpLocation extends S.Opaque<BrowserHttpLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     origin: S.String,
-  },
-  $I.annote("BrowserHttpLocation", {
-    description: "Browser location fields required to resolve an epistemic RPC endpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserHttpLocation", {
+      description: "Browser location fields required to resolve an epistemic RPC endpoint.",
+    })
+  )
 ) {}
 
-class BrowserHttpRuntime extends S.Class<BrowserHttpRuntime>($I`BrowserHttpRuntime`)(
-  {
+class BrowserHttpRuntime extends S.Opaque<BrowserHttpRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({
     location: BrowserHttpLocation,
-  },
-  $I.annote("BrowserHttpRuntime", {
-    description: "Browser runtime fields required to resolve an epistemic RPC endpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserHttpRuntime", {
+      description: "Browser runtime fields required to resolve an epistemic RPC endpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -58,7 +61,9 @@ class BrowserHttpRuntime extends S.Class<BrowserHttpRuntime>($I`BrowserHttpRunti
  * @category utilities
  * @since 0.0.0
  */
-export const resolveEpistemicRpcHttpUrl = (runtime: BrowserHttpRuntime | undefined = globalThis.window): string => {
+export const resolveEpistemicRpcHttpUrl = (
+  runtime: typeof BrowserHttpRuntime.Encoded | undefined = globalThis.window
+): string => {
   const origin = runtime?.location.origin;
   if (origin === WINDOWS_TAURI_HTTP_ORIGIN || origin === WINDOWS_TAURI_HTTPS_ORIGIN) {
     return LOOPBACK_EPISTEMIC_RPC_URL;
@@ -110,8 +115,7 @@ export const HttpEpistemicProtocolLive: Layer.Layer<RpcClient.Protocol> = RpcCli
  *   epistemicProtocolLayerAtom,
  *   HttpEpistemicProtocolLive,
  * } from "@beep/epistemic-client"
- * import { AtomRegistry } from "effect/reactivity"
- *
+ * import * as AtomRegistry from "effect/reactivity/AtomRegistry";
  * const registry = AtomRegistry.make()
  * registry.set(epistemicProtocolLayerAtom, HttpEpistemicProtocolLive)
  * console.log(registry.get(epistemicProtocolLayerAtom))

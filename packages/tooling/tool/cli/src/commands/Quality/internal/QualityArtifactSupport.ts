@@ -6,7 +6,7 @@ import { A, Err, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
@@ -18,8 +18,9 @@ import { Node } from "ts-morph";
 import { fencedLineState } from "../../../internal/jsdoc/JSDocSections.ts";
 import { runCaptured } from "../../../internal/process/index.ts";
 import { OpaqueDefect } from "../../../internal/schema/OpaqueDefect.ts";
+import { QualityScriptCommandError } from "../Quality.errors.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 export { fencedLineState, jsdocCommentsFromSource } from "../../../internal/jsdoc/JSDocSections.ts";
 
@@ -37,9 +38,10 @@ type QualityArtifactGeneratorErrorOptions = {
  * @category errors
  * @since 0.0.0
  */
-export class QualityArtifactGeneratorError extends S.TaggedError<QualityArtifactGeneratorError>(
-  $I`QualityArtifactGeneratorError`
-)(
+export class QualityArtifactGeneratorError extends S.TaggedError<
+  QualityArtifactGeneratorError,
+  { readonly brand: unique symbol }
+>($I`QualityArtifactGeneratorError`)(
   "QualityArtifactGeneratorError",
   {
     message: S.String,
@@ -129,8 +131,8 @@ const PackageJsonDependencyRecord = S.Record(S.String, S.String);
  * @category models
  * @since 0.0.0
  */
-export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
-  {
+export class PackageJson extends S.Opaque<PackageJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scripts: S.optionalKey(S.Record(S.String, S.String)),
     workspaces: S.optionalKey(S.Unknown),
@@ -139,10 +141,11 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
     devDependencies: S.optionalKey(PackageJsonDependencyRecord),
     peerDependencies: S.optionalKey(PackageJsonDependencyRecord),
     optionalDependencies: S.optionalKey(PackageJsonDependencyRecord),
-  },
-  $I.annote("PackageJson", {
-    description: "Package manifest fields used by repo CLI support scripts.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageJson", {
+      description: "Package manifest fields used by repo CLI support scripts.",
+    })
+  )
 ) {}
 
 /**
@@ -151,16 +154,17 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
  * @category models
  * @since 0.0.0
  */
-export class WorkspacePackageInfo extends S.Class<WorkspacePackageInfo>($I`WorkspacePackageInfo`)(
-  {
+export class WorkspacePackageInfo extends S.Opaque<WorkspacePackageInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     path: S.String,
     absolutePath: S.String,
     packageJson: PackageJson,
-  },
-  $I.annote("WorkspacePackageInfo", {
-    description: "Discovered workspace package metadata used by repo CLI support scripts.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspacePackageInfo", {
+      description: "Discovered workspace package metadata used by repo CLI support scripts.",
+    })
+  )
 ) {}
 
 const decodePackageJsonResult = S.decodeUnknownResult(PackageJson);
@@ -799,3 +803,76 @@ export const declarationKind = (node: Node): string => {
   }
   return node.getKindName();
 };
+
+const collectFilesImpl = Effect.fn("QualityScriptCommands.collectFiles")(function* (
+  searchRoot: string,
+  shouldInclude: (normalizedPath: string, name: string) => boolean,
+  shouldSkipDirectory: (normalizedPath: string, name: string) => boolean
+): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const exists = yield* fs.exists(searchRoot).pipe(Effect.orElseSucceed(thunkFalse));
+
+  if (!exists) {
+    return A.empty<string>();
+  }
+
+  // Symlinks are never followed; a directory contributes its subtree unless skipped, a file
+  // contributes itself when included, and anything else contributes nothing.
+  const visitEntry = Effect.fn("QualityScriptCommands.collectFiles.visitEntry")(function* (
+    currentPath: string,
+    entry: string
+  ): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+    const childPath = path.join(currentPath, entry);
+    const normalized = Str.replaceAll("\\", "/")(childPath);
+    const symlinkTarget = yield* fs.readLink(childPath).pipe(Effect.option);
+    if (O.isSome(symlinkTarget)) {
+      return A.empty<string>();
+    }
+
+    const stat = yield* fs.stat(childPath).pipe(QualityScriptCommandError.mapError(`Failed to stat ${childPath}.`));
+    if (stat.type === "Directory") {
+      return shouldSkipDirectory(`${normalized}/`, entry) ? A.empty<string>() : yield* visit(childPath);
+    }
+    return stat.type === "File" && shouldInclude(normalized, entry) ? A.of(childPath) : A.empty<string>();
+  });
+
+  const visit = Effect.fn("QualityScriptCommands.collectFiles.visit")(function* (
+    currentPath: string
+  ): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+    const entries = yield* fs
+      .readDirectory(currentPath)
+      .pipe(QualityScriptCommandError.mapError(`Failed to read directory ${currentPath}.`));
+    return yield* Effect.forEach(entries, (entry) => visitEntry(currentPath, entry), { concurrency: 1 }).pipe(
+      Effect.map(A.flatten)
+    );
+  });
+
+  return pipe(yield* visit(searchRoot), A.sort(Order.String));
+});
+
+/**
+ * Walk regular files without following symlinks, using caller-owned inclusion rules.
+ *
+ * **Example** (Build a bounded file walk)
+ * ```ts
+ * import { collectFiles } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(collectFiles(".", () => true, () => true))) // true
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const collectFiles: {
+  (
+    include: (path: string, name: string) => boolean,
+    skip: (path: string, name: string) => boolean
+  ): (
+    root: string
+  ) => Effect.Effect<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path>;
+  (
+    root: string,
+    include: (path: string, name: string) => boolean,
+    skip: (path: string, name: string) => boolean
+  ): Effect.Effect<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path>;
+} = dual(3, collectFilesImpl);

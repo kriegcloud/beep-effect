@@ -27,8 +27,8 @@ import { MatchPersonError } from "./MatchPerson.errors.ts";
 import { prepareAdaFaceArtifacts, verifyPersonMatchModelArtifacts } from "./MatchPerson.model-store.ts";
 import { decodePersonMatchWorkerReportJson, PERSON_MATCH_MAX_REPORTED_FACES } from "./MatchPerson.schemas.ts";
 import type * as Crypto from "effect/Crypto";
-import type { HttpClient } from "effect/http";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as HttpClient from "effect/http/HttpClient";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type {
   MatchPersonConfigError,
   MatchPersonLicenseError,
@@ -76,9 +76,10 @@ const isNonNegativeInt = S.is(S.Natural);
 const PersonMatchWorkerEnvironment = LiteralKit(["primary", "cpu"]);
 type PersonMatchWorkerEnvironment = typeof PersonMatchWorkerEnvironment.Type;
 
-class MatchPersonWorkerEnvironmentSetupError extends S.TaggedError<MatchPersonWorkerEnvironmentSetupError>(
-  $I`MatchPersonWorkerEnvironmentSetupError`
-)(
+class MatchPersonWorkerEnvironmentSetupError extends S.TaggedError<
+  MatchPersonWorkerEnvironmentSetupError,
+  { readonly brand: unique symbol }
+>($I`MatchPersonWorkerEnvironmentSetupError`)(
   "MatchPersonWorkerEnvironmentSetupError",
   {
     environment: PersonMatchWorkerEnvironment,
@@ -90,16 +91,18 @@ class MatchPersonWorkerEnvironmentSetupError extends S.TaggedError<MatchPersonWo
   })
 ) {}
 
-class MaterializedPersonMatchWorkerEnvironment extends S.Class<MaterializedPersonMatchWorkerEnvironment>(
-  $I`MaterializedPersonMatchWorkerEnvironment`
-)(
-  {
+class MaterializedPersonMatchWorkerEnvironment extends S.Opaque<
+  MaterializedPersonMatchWorkerEnvironment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     environment: PersonMatchWorkerEnvironment,
     workerLibraryPath: S.Option(S.NonEmptyString),
-  },
-  $I.annote("MaterializedPersonMatchWorkerEnvironment", {
-    description: "One synchronized worker environment and its resolved runtime library path.",
-  })
+  }).pipe(
+    $I.annoteSchema("MaterializedPersonMatchWorkerEnvironment", {
+      description: "One synchronized worker environment and its resolved runtime library path.",
+    })
+  )
 ) {}
 
 /**
@@ -130,8 +133,11 @@ class MaterializedPersonMatchWorkerEnvironment extends S.Class<MaterializedPerso
  * @category models
  * @since 0.0.0
  */
-export class CanonicalMatchPersonInputs extends S.Class<CanonicalMatchPersonInputs>($I`CanonicalMatchPersonInputs`)(
-  {
+export class CanonicalMatchPersonInputs extends S.Opaque<
+  CanonicalMatchPersonInputs,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cacheRoot: S.NonEmptyString,
     candidateDirectory: S.NonEmptyString,
     manifestPath: S.NonEmptyString,
@@ -142,10 +148,11 @@ export class CanonicalMatchPersonInputs extends S.Class<CanonicalMatchPersonInpu
     uvCpuEnvironment: S.NonEmptyString,
     uvEnvironment: S.NonEmptyString,
     uvPath: S.NonEmptyString,
-  },
-  $I.annote("CanonicalMatchPersonInputs", {
-    description: "Canonical source, report, model, uv cache, environment, and executable paths for one worker run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalMatchPersonInputs", {
+      description: "Canonical source, report, model, uv cache, environment, and executable paths for one worker run.",
+    })
+  )
 ) {}
 
 /**

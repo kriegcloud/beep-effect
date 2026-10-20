@@ -15,8 +15,12 @@ import * as FileSystem from "effect/FileSystem";
 import { dual, flow } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
-import { Headers, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
+import * as Headers from "effect/http/Headers";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -78,6 +82,7 @@ import {
 import type { Sha256Hex } from "@beep/schema";
 import type * as Crypto from "effect/Crypto";
 import type { ComputedSkillTree, HashedSkillFile } from "./internal/SkillTree.ts";
+import type { SkillPatchLabel } from "./Skills.schemas.ts";
 import type { SkillDriftRow, SkillPinProposal, SkillsLockDocument } from "./SkillsLock.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
@@ -90,26 +95,28 @@ const decodeSkillTreeMode = S.decodeUnknownEffect(SkillTreeMode);
 const GitHubTreeEntryType = LiteralKit(["blob", "tree", "commit"]);
 const GitHubTreeMode = LiteralKit(["100644", "100755", "120000", "040000", "160000"]);
 
-class GitHubTreeEntry extends S.Class<GitHubTreeEntry>($I`GitHubTreeEntry`)(
-  {
+class GitHubTreeEntry extends S.Opaque<GitHubTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: GitHubTreeMode,
     type: GitHubTreeEntryType,
     sha: S.String,
-  },
-  $I.annote("GitHubTreeEntry", {
-    description: "Mode-aware entry returned by the GitHub recursive tree API.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTreeEntry", {
+      description: "Mode-aware entry returned by the GitHub recursive tree API.",
+    })
+  )
 ) {}
 
-class GitHubTree extends S.Class<GitHubTree>($I`GitHubTree`)(
-  {
+class GitHubTree extends S.Opaque<GitHubTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     tree: S.Array(GitHubTreeEntry),
     truncated: S.Boolean,
-  },
-  $I.annote("GitHubTree", {
-    description: "GitHub recursive tree response used by the pinned upstream content source.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTree", {
+      description: "GitHub recursive tree response used by the pinned upstream content source.",
+    })
+  )
 ) {}
 
 const decodeGitHubTree = S.decodeUnknownEffect(S.fromJsonString(S.suspend(() => GitHubTree)));
@@ -310,6 +317,36 @@ export const renderSkillTreeDiff = Effect.fn("SkillsProvenance.renderSkillTreeDi
 });
 
 const PATCH_DROP_CONDITION = "Drop when upstream contains an equivalent change.";
+
+/**
+ * The drop condition a patch carries for its review label (B42).
+ *
+ * **Details**
+ *
+ * `policy` enforces a repo rule and is replayed on every bump, `repo-adaptation` is
+ * replayed until upstream offers an equivalent option, and `temporary-drift` is dropped
+ * once upstream contains the change. Generated patches start as `temporary-drift`.
+ *
+ * **Example** (Read the condition for a policy patch)
+ *
+ * ```ts
+ * import { skillPatchDropCondition } from "@beep/repo-cli/commands/Skills"
+ *
+ * console.log(skillPatchDropCondition("policy")) // "Never: a repo rule replayed on every bump (B42)."
+ * ```
+ *
+ * @param label - The patch's review label.
+ * @returns The drop condition recorded in the lock for that label.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const skillPatchDropCondition = (label: SkillPatchLabel): string =>
+  Match.value(label).pipe(
+    Match.when("policy", () => "Never: a repo rule replayed on every bump (B42)."),
+    Match.when("repo-adaptation", () => "Drop when upstream offers an equivalent option (B42)."),
+    Match.when("temporary-drift", () => PATCH_DROP_CONDITION),
+    Match.exhaustive
+  );
 
 const patchSlug = flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));
 
@@ -705,8 +742,7 @@ const makeSkillUpstreamContentSource = Effect.gen(function* () {
  * ```ts
  * import { SkillUpstreamContentSourceLive } from "@beep/repo-cli/commands/Skills/Skills.service"
  * import * as Layer from "effect/Layer";
- * import { FetchHttpClient } from "effect/http"
- *
+ * import * as FetchHttpClient from "effect/http/FetchHttpClient";
  * const ready = SkillUpstreamContentSourceLive.pipe(Layer.provide(FetchHttpClient.layer))
  *
  * console.log(Layer.isLayer(ready)) // true
@@ -971,6 +1007,55 @@ const driftPathsOf = (upstreamTree: ComputedSkillTree, localTree: ComputedSkillT
     ),
     differsFromUpstream(upstreamTree, localTree)
   );
+
+/**
+ * Generates the patches that turn one tree into another, one per changed
+ * file, numbered from `firstIndex` (zero-based) in sorted path order.
+ *
+ * **Details**
+ *
+ * Each patch is rendered exactly as the lock migration renders a generated
+ * patch (`.agents/skill-patches/<skill>/NNNN-<slug>.patch`), labelled
+ * `temporary-drift` until a review classifies it (B8), owned by the
+ * CODEOWNERS owner of the installed file (B9), and carrying the default drop
+ * condition. `skills patch add` uses it to append patches for a hand edit
+ * after the existing series. Binary content fails typed.
+ *
+ * **Example** (Inspect the requirements before providing them)
+ *
+ * ```ts
+ * import { buildSkillPatchAdditions } from "@beep/repo-cli/commands/Skills/Skills.service"
+ *
+ * console.log(typeof buildSkillPatchAdditions) // "function"
+ * ```
+ *
+ * @param skill - The skill's lock key; must be one safe path segment.
+ * @param repoRoot - Absolute repository root, used to resolve owners.
+ * @param before - The tree the patches apply to, such as the recorded effective tree.
+ * @param after - The tree the patches produce, such as the hand-edited install.
+ * @param firstIndex - Zero-based series index of the first new patch.
+ * @returns Each new patch's lock row paired with its bytes, in series order.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const buildSkillPatchAdditions = Effect.fn("SkillsProvenance.buildSkillPatchAdditions")(function* (
+  skill: string,
+  repoRoot: string,
+  before: ComputedSkillTree,
+  after: ComputedSkillTree,
+  firstIndex: number
+): Effect.fn.Return<
+  ReadonlyArray<readonly [SkillPatch, SkillPatchFile]>,
+  SkillsCommandError,
+  SkillPatchOwnerSource | Crypto.Crypto
+> {
+  return yield* Effect.forEach(driftPathsOf(before, after), (filePath, index) =>
+    Effect.map(
+      buildPatch(skill, repoRoot, before, after, filePath, firstIndex + index),
+      ({ patch, file }) => [patch, file] as const
+    )
+  );
+});
 
 // Hashes the tree and license at `resolution.upstream.sourceRevision`, both installed targets,
 // and the patch series of every drifted file, and returns the patch bytes beside the report.
@@ -1253,8 +1338,7 @@ export const SkillProvenanceServiceLayer = Layer.effect(SkillProvenanceService, 
  * ```ts
  * import { SkillProvenanceServiceLive } from "@beep/repo-cli/commands/Skills/Skills.service"
  * import * as Layer from "effect/Layer";
- * import { FetchHttpClient } from "effect/http"
- *
+ * import * as FetchHttpClient from "effect/http/FetchHttpClient";
  * const withHttp = SkillProvenanceServiceLive.pipe(Layer.provide(FetchHttpClient.layer))
  *
  * console.log(Layer.isLayer(withHttp)) // true

@@ -39,7 +39,7 @@ import { VectorizerError, WinkVectorizer } from "./WinkVectorizer.service.ts";
 import type { Token } from "@beep/nlp/Core/Token";
 import type { BM25Norm } from "@beep/nlp/Core/Vectorization";
 import type { AiToolError } from "@beep/nlp-processing/Tools";
-import type { Tool } from "effect/ai";
+import type * as Tool from "effect/ai/Tool";
 
 const decodeNonEmptyBracketStringToPatternElementArray = S.decodeEffect(S.NonEmptyArray(BracketStringToPatternElement));
 
@@ -186,14 +186,15 @@ const setJaccard = (leftValues: ReadonlyArray<string>, rightValues: ReadonlyArra
   });
 };
 
-class EntityOutputDetail extends S.Class<EntityOutputDetail>($I`EntityOutputDetail`)(
-  {
+class EntityOutputDetail extends S.Opaque<EntityOutputDetail, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.optionalKey(S.Unknown),
     value: S.optionalKey(S.Unknown),
-  },
-  $I.annote("EntityOutputDetail", {
-    description: "Loose detail object returned by wink entity output records.",
-  })
+  }).pipe(
+    $I.annoteSchema("EntityOutputDetail", {
+      description: "Loose detail object returned by wink entity output records.",
+    })
+  )
 ) {}
 
 const EntityOutputDetailUnknowns = S.Array(S.Unknown).pipe(

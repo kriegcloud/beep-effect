@@ -88,12 +88,13 @@ import {
 import {
   deriveYeetReviewThreadState,
   YeetReviewThreadNewestComment,
+  YeetReviewThreadStateSource,
   YeetReviewThreadStateTag,
   yeetReviewCommentAuthorKind,
   yeetReviewThreadStateInput,
 } from "./ReviewThreadState.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { GhCommandFailure } from "../../../internal/github/index.ts";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { GhRepoView } from "./closeout/Gh.schemas.ts";
@@ -223,15 +224,16 @@ query YeetReplyReviewThreads($owner: String!, $name: String!, $number: Int!, $cu
  * @category models
  * @since 0.0.0
  */
-export class ReplyThreadComment extends S.Class<ReplyThreadComment>($I`ReplyThreadComment`)(
-  {
+export class ReplyThreadComment extends S.Opaque<ReplyThreadComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     databaseId: S.NullOr(S.Finite),
     id: S.String,
     author: GhActor.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("ReplyThreadComment", {
-    description: "Review thread comment carrying the GraphQL node id and the numeric REST database id.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplyThreadComment", {
+      description: "Review thread comment carrying the GraphQL node id and the numeric REST database id.",
+    })
+  )
 ) {}
 
 /**
@@ -252,16 +254,18 @@ export class ReplyThreadComment extends S.Class<ReplyThreadComment>($I`ReplyThre
  * @category models
  * @since 0.0.0
  */
-export class ReplyThreadCommentConnection extends S.Class<ReplyThreadCommentConnection>(
-  $I`ReplyThreadCommentConnection`
-)(
-  {
+export class ReplyThreadCommentConnection extends S.Opaque<
+  ReplyThreadCommentConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     nodes: S.Array(ReplyThreadComment),
     pageInfo: GhPageInfo,
-  },
-  $I.annote("ReplyThreadCommentConnection", {
-    description: "Comment connection nested under a live pull request review thread.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplyThreadCommentConnection", {
+      description: "Comment connection nested under a live pull request review thread.",
+    })
+  )
 ) {}
 
 /**
@@ -271,11 +275,12 @@ export class ReplyThreadCommentConnection extends S.Class<ReplyThreadCommentConn
  * @category models
  * @since 0.0.0
  */
-export class ReplyThreadLatestComment extends S.Class<ReplyThreadLatestComment>($I`ReplyThreadLatestComment`)(
-  { author: GhActor.pipe(S.NullOr, S.optionalKey) },
-  $I.annote("ReplyThreadLatestComment", {
-    description: "Author of a review thread's newest comment.",
-  })
+export class ReplyThreadLatestComment extends S.Opaque<ReplyThreadLatestComment, { readonly brand: unique symbol }>()(
+  S.Struct({ author: GhActor.pipe(S.NullOr, S.optionalKey) }).pipe(
+    $I.annoteSchema("ReplyThreadLatestComment", {
+      description: "Author of a review thread's newest comment.",
+    })
+  )
 ) {}
 
 /**
@@ -284,11 +289,15 @@ export class ReplyThreadLatestComment extends S.Class<ReplyThreadLatestComment>(
  * @category models
  * @since 0.0.0
  */
-export class ReplyThreadLatestConnection extends S.Class<ReplyThreadLatestConnection>($I`ReplyThreadLatestConnection`)(
-  { nodes: S.Array(ReplyThreadLatestComment) },
-  $I.annote("ReplyThreadLatestConnection", {
-    description: "`comments(last: 1)` connection of a review thread.",
-  })
+export class ReplyThreadLatestConnection extends S.Opaque<
+  ReplyThreadLatestConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ nodes: S.Array(ReplyThreadLatestComment) }).pipe(
+    $I.annoteSchema("ReplyThreadLatestConnection", {
+      description: "`comments(last: 1)` connection of a review thread.",
+    })
+  )
 ) {}
 
 /**
@@ -323,8 +332,8 @@ export class ReplyThreadLatestConnection extends S.Class<ReplyThreadLatestConnec
  * @category models
  * @since 0.0.0
  */
-export class ReplyLiveThread extends S.Class<ReplyLiveThread>($I`ReplyLiveThread`)(
-  {
+export class ReplyLiveThread extends S.Opaque<ReplyLiveThread, { readonly brand: unique symbol }>()(
+  S.Struct({
     comments: ReplyThreadCommentConnection,
     // The thread's newest comment regardless of how many pages it spans.
     latest: S.optionalKey(ReplyThreadLatestConnection),
@@ -344,10 +353,11 @@ export class ReplyLiveThread extends S.Class<ReplyLiveThread>($I`ReplyLiveThread
       S.withConstructorDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved")),
       S.withDecodingDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved"))
     ),
-  },
-  $I.annote("ReplyLiveThread", {
-    description: "Live pull request review thread inspected before a drafted reply is written.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplyLiveThread", {
+      description: "Live pull request review thread inspected before a drafted reply is written.",
+    })
+  )
 ) {}
 
 const ReplyLiveThreadConnection = S.Struct({
@@ -399,7 +409,8 @@ const newestReplyComment = (thread: ReplyLiveThread): O.Option<YeetReviewThreadN
 const replyThreadStateInput = (
   thread: ReplyLiveThread,
   pullRequestAuthor: O.Option<string>
-): YeetReviewThreadStateInput => yeetReviewThreadStateInput(thread, pullRequestAuthor, newestReplyComment(thread));
+): YeetReviewThreadStateInput =>
+  yeetReviewThreadStateInput(YeetReviewThreadStateSource.make(thread), pullRequestAuthor, newestReplyComment(thread));
 
 /**
  * Stamp each live thread with the state the merge gate classifies it as.
@@ -482,9 +493,8 @@ const decodeReplyReviewThreadsDocument = S.decodeUnknownEffect(S.fromJsonString(
  * @category models
  * @since 0.0.0
  */
-export class ReplyPostAction extends S.TaggedClass<ReplyPostAction>($I`ReplyPostAction`)(
-  "post",
-  {
+export class ReplyPostAction extends S.Opaque<ReplyPostAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("post", {
     draft: ReplyDraft,
     threadId: S.NonEmptyString,
     // Why this thread is postable, which is also what decides whether the
@@ -493,10 +503,11 @@ export class ReplyPostAction extends S.TaggedClass<ReplyPostAction>($I`ReplyPost
       S.withConstructorDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved")),
       S.withDecodingDefault(Effect.succeed<YeetReviewThreadStateTag>("unresolved"))
     ),
-  },
-  $I.annote("ReplyPostAction", {
-    description: "Drafted reply resolved to a live, unresolved review thread and ready to write.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplyPostAction", {
+      description: "Drafted reply resolved to a live, unresolved review thread and ready to write.",
+    })
+  )
 ) {}
 
 /**
@@ -521,14 +532,14 @@ export class ReplyPostAction extends S.TaggedClass<ReplyPostAction>($I`ReplyPost
  * @category models
  * @since 0.0.0
  */
-export class ReplySettledAction extends S.TaggedClass<ReplySettledAction>($I`ReplySettledAction`)(
-  "settled",
-  {
+export class ReplySettledAction extends S.Opaque<ReplySettledAction, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("settled", {
     outcome: ReplyDraftOutcome,
-  },
-  $I.annote("ReplySettledAction", {
-    description: "Drafted reply whose outcome was decided during validation, before any write.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplySettledAction", {
+      description: "Drafted reply whose outcome was decided during validation, before any write.",
+    })
+  )
 ) {}
 
 /**

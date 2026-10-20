@@ -49,8 +49,10 @@
     "./Observed": "./src/Observed.ts",
     "./PhaseProfiler": "./src/PhaseProfiler.ts",
     "./Version": "./src/Version.ts",
+    "./catalog": "./src/catalog/index.ts",
     "./experimental/server": "./src/experimental/server/index.ts",
     "./server": "./src/server/index.ts",
+    "./strict": "./src/strict/index.ts",
     "./web": "./src/web/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
@@ -77,8 +79,10 @@
       "./Observed": "./dist/Observed.js",
       "./PhaseProfiler": "./dist/PhaseProfiler.js",
       "./Version": "./dist/Version.js",
+      "./catalog": "./dist/catalog/index.js",
       "./experimental/server": "./dist/experimental/server/index.js",
       "./server": "./dist/server/index.js",
+      "./strict": "./dist/strict/index.js",
       "./web": "./dist/web/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"

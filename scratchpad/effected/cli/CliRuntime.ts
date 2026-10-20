@@ -12,7 +12,7 @@ import * as MutableRef from "effect/MutableRef";
 import * as Runtime from "effect/Runtime";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { CliError } from "effect/cli";
+import * as CliError from "effect/cli/CliError";
 import { Cancelled } from "./Cancelled.ts";
 import { CliColor } from "./CliColor.ts";
 import type { CliEnvOptions, CliEnvServices } from "./CliEnv.ts";
@@ -43,7 +43,7 @@ import * as P from "effect/Predicate";
 const $I = $ScratchpadId.create("effected/cli/CliRuntime");
 
 /** A runtime invariant failure or a non-Error value wrapped for teardown. */
-class CliRuntimeError extends S.TaggedError<CliRuntimeError>($I`CliRuntimeError`)(
+class CliRuntimeError extends S.TaggedError<CliRuntimeError, { readonly brand: unique symbol }>($I`CliRuntimeError`)(
 	"CliRuntimeError",
 	{
 		message: S.String.annotate({ description: "The runtime invariant or reported failure that needs teardown handling." }),

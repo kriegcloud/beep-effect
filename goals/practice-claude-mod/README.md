@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,12 +31,13 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — first slice (plain-language rows + verdict capture) built, tested in the engine, proven on the operator machine and installed on the attorney's PC; next: matter band + visible timer, then the ported skills.
+Complete (completed-retained, 2026-10-14). Shipped in #1730, #1756 and the closeout PR; P1b review queue moved to a gated follow-on (SPEC D24).
 
 ## Latest Evidence
 
 - [`history/2026-10-14-engine-contract.md`](./history/2026-10-14-engine-contract.md)
 - [`history/2026-10-14-operator-machine-proof.md`](./history/2026-10-14-operator-machine-proof.md)
+- [`history/reflections/2026-10-14-claude.md`](./history/reflections/2026-10-14-claude.md)
 
 ## Notes
 

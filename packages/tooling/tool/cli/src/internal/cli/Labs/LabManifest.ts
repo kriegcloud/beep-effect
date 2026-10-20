@@ -84,17 +84,18 @@ export const isLabPostgresSchemaName = S.is(LabPostgresSchemaName);
  * @category schemas
  * @since 0.0.0
  */
-export class LabManifest extends S.Class<LabManifest>($I`LabManifest`)(
-  {
+export class LabManifest extends S.Opaque<LabManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("lab-manifest/v1"),
     purpose: S.NonEmptyString,
     created: LocalDateFromString,
     disposition: LabDisposition,
     postgresSchema: S.OptionFromOptionalKey(LabPostgresSchemaName),
-  },
-  $I.annote("LabManifest", {
-    description: "Schema-validated lab lifecycle manifest (D9/D12); decoded, never hand-parsed.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabManifest", {
+      description: "Schema-validated lab lifecycle manifest (D9/D12); decoded, never hand-parsed.",
+    })
+  )
 ) {}
 
 /**

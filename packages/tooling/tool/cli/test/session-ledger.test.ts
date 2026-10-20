@@ -26,7 +26,7 @@ import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -35,7 +35,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
@@ -240,7 +241,7 @@ describe("session ledger rows", () => {
 });
 
 describe("sweep ledger gate", () => {
-  it("writes the done row only for an observed MERGED pull request on a checkout that held the branch", () => {
+  it("writes the done row for a retired lane, else only for an observed MERGED pull request on a checkout that held the branch", () => {
     const merged = SweepGitState.make({ ...gitStateBase, pullRequestState: O.some("MERGED") });
     expect(sweepWritesLedgerDone(merged, O.none())).toBe(true);
     expect(
@@ -254,11 +255,13 @@ describe("sweep ledger gate", () => {
     // checkout's own row stays.
     const parked = SweepGitState.make({ ...merged, headBranch: "feat/other" });
     expect(sweepWritesLedgerDone(parked, O.none())).toBe(false);
-    // A retirement vouches for the lane it removed.
+    // A retirement vouches for the lane it removed: its own gate proved the
+    // lane done (MERGED pull request, or a pull-request-less tip already on
+    // origin/main), so the row closes without a pull request observation.
     expect(sweepWritesLedgerDone(parked, O.some("/lanes/lane"))).toBe(true);
     expect(
       sweepWritesLedgerDone(SweepGitState.make({ ...gitStateBase, headBranch: "feat/other" }), O.some("/lanes/lane"))
-    ).toBe(false);
+    ).toBe(true);
   });
 });
 

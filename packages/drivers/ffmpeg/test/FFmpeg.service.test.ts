@@ -1,4 +1,5 @@
 import {
+  BuildExtractFramesArgsOptions,
   buildExtractFramesArgs,
   buildFfprobeArgs,
   ExtractFramesManifest,
@@ -10,6 +11,7 @@ import {
   FFmpegEvent,
   FFmpegProgressEvent,
   FFmpegProgressPercent,
+  FormatFrameFileNameOptions,
   FrameCount,
   FrameIndex,
   formatFrameFileName,
@@ -36,7 +38,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -267,19 +270,23 @@ describe("@beep/ffmpeg", () => {
 
   it("formats frame names and command arguments", () => {
     expect(
-      formatFrameFileName({
-        index: 7,
-        padding: 5,
-        prefix: "clip_frame",
-      })
+      formatFrameFileName(
+        FormatFrameFileNameOptions.make({
+          index: 7,
+          padding: 5,
+          prefix: "clip_frame",
+        })
+      )
     ).toBe("clip_frame_00007.png");
     expect(buildFfprobeArgs(ProbeVideoRequest.make({ videoPath: "./clip.mp4" }))).toContain("./clip.mp4");
     expect(
-      buildExtractFramesArgs({
-        fps: "1",
-        outputPattern: "./frames/frame_%05d.png",
-        videoPath: "./clip.mp4",
-      })
+      buildExtractFramesArgs(
+        BuildExtractFramesArgsOptions.make({
+          fps: "1",
+          outputPattern: "./frames/frame_%05d.png",
+          videoPath: "./clip.mp4",
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",

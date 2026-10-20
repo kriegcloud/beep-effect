@@ -207,6 +207,89 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   datasource does not exist in Renovate. Reverse: B18's fallback, a scheduled
   `beep skills bump --plan` that proposes a pin only when the skill's path history moved.
 
+## Decisions recorded while landing B-6 (B34–B41)
+
+- **B34 — the old revision is the merge-base lock's pin.** `skills review` reads
+  `skills-lock.json` at the merge-base of `HEAD` and `origin/main` and keys each hunk's
+  old revision on that lock's `sourceRevision`. On a Renovate branch that is the pin the
+  bump moved from; on `main`, and for any skill the base lock does not carry, old and new
+  revision are both the current pin, which is how the first ritual's rows are keyed.
+  Reason: the bumped lock no longer names its old pin, and the base branch is the one
+  place that does without a new lock field. Reverse: add a `--base <ref>` flag, or record
+  the previous pin in the lock at bump time.
+- **B35 — the queue has two kinds of item, and they settle differently.** A hunk that
+  did not apply exactly at the pin under review is a `conflict` item, settled by any
+  decision recorded at its exact key (keep, drop, rebase, promote-candidate). A hunk that
+  applies but was never classified is a `classification` item, settled by a labelled
+  `keep` or a `drop` recorded under its identity at any key, so a classification survives
+  later bumps of a byte-identical hunk. A classification answer that is not a labelled
+  keep or a drop is refused (`invalid-decision`). Reason: Ritual 1 has no bump to key on,
+  and re-asking Benjamin to classify an unchanged hunk on every bump would waste the
+  budget. Reverse: key classifications on the exact key as well.
+- **B36 — the two-strike query counts recorded conflicts at other pins.** A hunk is a
+  second strike when the ledger holds a non-`applied` decision for the same skill and
+  hunk identity at a different new revision. Clean bumps write no ledger rows, so
+  "consecutive" is read as "no re-cut since", and a rebased hunk gets a new identity, so
+  its count restarts. The replay report carries the flag as `promoteCandidates` (the PR
+  comment and the batch issue print "two strikes: promote-candidate"); the field decodes
+  to empty when absent, so `skills-replay/v1` markers written before B-6 still decode.
+  Reason: B4 marks the candidate and keeps graduation a human decision. Reverse: write a
+  ledger row for every replay, clean ones included, and count strictly consecutive bumps.
+- **B37 — `--ghost` replays only within one pin.** It replays the latest non-`applied`
+  decision for the same skill and hunk identity at the same new revision under a different
+  key (the base pin or the patch-set hash moved), keeps that row's reviewer, and marks the
+  new row `origin: "ghost"`. It never replays across pins and never answers a two-strike
+  item: a recurrence at another pin is exactly what the two-strike rule hands to a human.
+  Reason: a ghost replays a human decision; it must not hide the signal B4 exists to raise.
+  Reverse: ghost across pins and keep the two-strike flag as a warning only.
+- **B38 — answers come from a decider; listing is read-only.** `skills review` without
+  `--interactive` or `--decisions` only lists the queue and writes nothing, ghost
+  replays included. `--interactive` asks the terminal per hunk; `--decisions <file>`
+  answers from a JSON list of `{ hunk, decision, label? }` (an identity or a unique prefix
+  of at least 12 hex characters), refusing an entry that names no hunk or several. Both
+  record under a required `--reviewer`, the human who decided, check the `--budget`
+  (default 20 minutes) before each hunk, and append every answer as it is given, so
+  quitting or running out of budget keeps the checkpoint. Reason: B21 lets agents prepare
+  and transcribe a session but never decide it, and the scripted file is what makes the
+  ledger replay provable in tests. Reverse: drop the scripted mode and keep only the
+  terminal.
+- **B39 — `skills patch add` appends patches, proven before sealing.** It reconstructs
+  the verified effective tree (B17), requires every install target to exist and hold one
+  tree, and plans one `temporary-drift` patch per changed file numbered after the existing
+  series (owner from CODEOWNERS at the merge-base, B9). The new patches must replay with
+  the strict applier onto the effective tree and reproduce the installed tree. The
+  `skills-patch-add-plan/v1` digest seals the lock's SHA-256, the skill, its pin, and the
+  new `patches` and `effective` blocks; `--expect` writes the patch files exclusive-create,
+  then publishes the lock through the re-checked staged rename, and removes the new files
+  if anything fails. Reason: the remedy `update --check` names must keep the effective hash
+  deliberately recorded (B22) and never overwrite an existing patch. Reverse: regenerate
+  the whole series from pristine through `lock-plan --write`.
+- **B40 — `skills patch label` moves lock labels to the ledger.** A patch takes a label
+  only when every one of its hunks has a latest classification that keeps it under that
+  same label. Unclassified, mixed, and dropped patches stay as they are and are reported
+  as pending. The `skills-patch-label-plan/v1` digest seals the lock's SHA-256, the skill,
+  and the label changes; labels are outside the patch-set and effective hashes, so a
+  relabel never touches an installed tree. Reason: the first ritual's classification must
+  reach the lock without a hand edit (B23). Reverse: record labels per hunk in the lock.
+- **B41 — `lock-plan --write` carries the ledger through its patch-tree swap.** Contract
+  7 puts the ledger at `.agents/skill-patches/ledger.jsonl`, inside the directory the lock
+  migration write replaces wholesale. The write now copies the ledger into its stage and
+  leaves it out of the patch-tree digests that decide `already-applied`. Reason: an
+  append-only ledger must survive every writer of its directory. Reverse: move the ledger
+  out of the patch root (for example `.agents/skill-ledger.jsonl`).
+- **B42 — the three patch labels mean what a bump does with the patch (operator, Ritual 1,
+  2026-10-15).** `SkillPatchLabel` named the labels but nothing defined them, so the review
+  ritual asked for a classification without saying what it committed to. `policy`: the
+  patch enforces a repo rule (safety, money, path hygiene) and is replayed on every bump
+  whatever upstream does. `repo-adaptation`: the patch fits the skill to this repo's tools
+  or workflow; it is replayed, and dropped once upstream offers an equivalent option.
+  `temporary-drift`: the difference is expected to vanish and is dropped when upstream
+  contains an equivalent change (the default every generated patch carries). The labels
+  carry no tool behavior yet; they tell the reviewer of a conflicting bump whether to fight
+  for the hunk or let it go. Reason: a classification is only useful if both the operator
+  and the next reviewer read it the same way. Reverse: drop this entry and leave the labels
+  as free-form review tags.
+
 ## Sequencing
 
 - **B-4 (P4) — landed.** `beep skills materialize [--check] [--skill <name>]`
@@ -225,7 +308,7 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   no-op. Main's lock carried stale local hashes for `orchestrate` and `yeet` (edited
   after #1679 recorded the lock), so `skills update --check` was red at `08fa45bd98`;
   this lane refreshed those two local entries with `beep skills update`.
-- **B-5 (P5) — landed in this PR.** `beep skills replay [--skill <name>] [--json]
+- **B-5 (P5) — landed (#1732).** `beep skills replay [--skill <name>] [--json]
   [--markdown <file>]` (read-only per-hunk report, `skills-replay/v1`), `beep skills
   relock --skill <name> [--json] [--expect <planDigest>]` (`skills-relock-plan/v1`), and
   `beep skills train-issue --batch <id> --prs <file> --body-out <file>` on the
@@ -244,9 +327,26 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   `--strict` mode also asks to migrate the pre-existing `matchPackagePatterns` rules,
   which this PR does not touch). The workflow run on a synthetic bump branch needs a
   pushed branch, so it is the first hosted proof after this PR merges.
-- **B-6 (P5):** the hunk ledger, `--ghost`, the two-strike query, `skills patch add`,
-  and `skills review` with budget checkpoints. Proof: a scripted ledger replay over
-  fixture bumps.
-- **Ritual 1 (operator):** the initial HITL classification of oracle's two patches,
-  prepared by `skills review` and decided by Benjamin. It is the only step on this list
-  that needs him. Every other piece runs without him.
+- **B-6 (P5) — landed in this PR.** The append-only hunk ledger
+  (`.agents/skill-patches/ledger.jsonl`, `skills-hunk-ledger/v1`), `beep skills review
+  [--skill <name>] [--json] [--interactive | --decisions <file>] [--reviewer <handle>]
+  [--ghost] [--budget <minutes>]` on the `SkillHunkReview` service, the two-strike query
+  in the replay report (`promoteCandidates`), and `beep skills patch add|label --skill
+  <name> [--json] [--expect <planDigest>]` on the `SkillPatchRecorder` service. `update
+  --check` now names `skills patch add` as the keep remedy for hand-edited vendored
+  output. Proof (`test/skills-review.test.ts`): a scripted ledger replay over fixture
+  bumps (classification checkpoints and resume, a script replayed as a no-op, refusals
+  for an unlabelled keep, an unknown and a doubly answered hunk, the budget and quit
+  stops, a hunk conflicting at two pins flagged as a promote candidate in the review and
+  the PR report and never ghosted, a ghost replay after the base pin moved, and a
+  malformed ledger line), `patch add` plan then `--expect` write then `materialize
+  --check` current with its refusals, and `patch label` moving a label only when every
+  hunk agrees. Decisions B34–B41 above.
+- **Ritual 1 (operator):** the initial HITL classification of the generated
+  `temporary-drift` patches (oracle's two and shadcn's one), prepared by `skills review`
+  and decided by Benjamin. It is the only step on this list that needs him. Every other
+  piece runs without him. The session: `bun run beep skills review` lists the queue;
+  `bun run beep skills review --interactive --reviewer @kriegcloud` walks it within the
+  budget (or an agent transcribes his answers into a `--decisions` file); then `bun run
+  beep skills patch label --skill <name> --json` and `--expect <planDigest>` move the
+  lock labels.

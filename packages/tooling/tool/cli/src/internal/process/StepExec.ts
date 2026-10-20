@@ -33,14 +33,14 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { JsonStringCodec } from "../schema/JsonCodec.ts";
 import { PosInt } from "../schema/PosInt.ts";
 import type * as PlatformError from "effect/PlatformError";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("internal/process/StepExec");
 
@@ -84,14 +84,15 @@ export type CaptureSource = "all" | "merge" | "stdout";
  * @category models
  * @since 0.0.0
  */
-export class OutputBound extends S.Class<OutputBound>($I`OutputBound`)(
-  {
+export class OutputBound extends S.Opaque<OutputBound, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxChars: S.Finite,
     truncatedNotice: S.String,
-  },
-  $I.annote("OutputBound", {
-    description: "Character cap and the notice appended once captured subprocess output overflows it.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutputBound", {
+      description: "Character cap and the notice appended once captured subprocess output overflows it.",
+    })
+  )
 ) {}
 
 /**
@@ -109,14 +110,15 @@ export class OutputBound extends S.Class<OutputBound>($I`OutputBound`)(
  * @category models
  * @since 0.0.0
  */
-export class BoundedOutput extends S.Class<BoundedOutput>($I`BoundedOutput`)(
-  {
+export class BoundedOutput extends S.Opaque<BoundedOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     truncated: S.Boolean,
-  },
-  $I.annote("BoundedOutput", {
-    description: "Accumulator produced by the bounded subprocess output fold.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundedOutput", {
+      description: "Accumulator produced by the bounded subprocess output fold.",
+    })
+  )
 ) {}
 
 /**
@@ -134,15 +136,16 @@ export class BoundedOutput extends S.Class<BoundedOutput>($I`BoundedOutput`)(
  * @category models
  * @since 0.0.0
  */
-export class CapturedStep extends S.Class<CapturedStep>($I`CapturedStep`)(
-  {
+export class CapturedStep extends S.Opaque<CapturedStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: S.Finite,
     output: S.String,
     truncated: S.Boolean,
-  },
-  $I.annote("CapturedStep", {
-    description: "Combined captured subprocess result: exit code, folded output, and truncation flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapturedStep", {
+      description: "Combined captured subprocess result: exit code, folded output, and truncation flag.",
+    })
+  )
 ) {}
 
 /**
@@ -160,17 +163,18 @@ export class CapturedStep extends S.Class<CapturedStep>($I`CapturedStep`)(
  * @category models
  * @since 0.0.0
  */
-export class CapturedStreams extends S.Class<CapturedStreams>($I`CapturedStreams`)(
-  {
+export class CapturedStreams extends S.Opaque<CapturedStreams, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: S.Finite,
     stdout: S.String,
     stderr: S.String,
     truncated: S.Boolean,
-  },
-  $I.annote("CapturedStreams", {
-    description:
-      "Captured subprocess result with stdout and stderr kept separate, flagged when either stream hit the bound.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapturedStreams", {
+      description:
+        "Captured subprocess result with stdout and stderr kept separate, flagged when either stream hit the bound.",
+    })
+  )
 ) {}
 
 /**
@@ -235,8 +239,8 @@ export type StepFlakeQuarantinePolicy = typeof StepFlakeQuarantinePolicy.Type;
  * @category models
  * @since 0.0.0
  */
-export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep`)(
-  {
+export class QualityTaskStep extends S.Opaque<QualityTaskStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.String,
     command: S.String,
     args: S.Array(S.String),
@@ -245,10 +249,11 @@ export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep
     useLocalEnv: S.optionalKey(S.Boolean),
     flakeQuarantine: S.optionalKey(StepFlakeQuarantinePolicy),
     captureTimeoutMillis: S.optionalKey(PosInt),
-  },
-  $I.annote("QualityTaskStep", {
-    description: "Planned subprocess invocation shared by repo-quality command families.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityTaskStep", {
+      description: "Planned subprocess invocation shared by repo-quality command families.",
+    })
+  )
 ) {}
 
 /**
@@ -467,9 +472,10 @@ type SpawnFields = {
  * @category errors
  * @since 0.0.0
  */
-export class AdmissionWorkloadRegistrationError extends S.TaggedError<AdmissionWorkloadRegistrationError>(
-  $I`AdmissionWorkloadRegistrationError`
-)(
+export class AdmissionWorkloadRegistrationError extends S.TaggedError<
+  AdmissionWorkloadRegistrationError,
+  { readonly brand: unique symbol }
+>($I`AdmissionWorkloadRegistrationError`)(
   "AdmissionWorkloadRegistrationError",
   { message: S.String },
   $I.annoteError<AdmissionWorkloadRegistrationError>("AdmissionWorkloadRegistrationError", {
@@ -494,27 +500,41 @@ const AdmissionWorkloadState = S.Union([
 
 const AdmissionWorkloadJson = JsonStringCodec(AdmissionWorkloadState);
 
-class AdmissionWorkloadBinding extends S.Class<AdmissionWorkloadBinding>($I`AdmissionWorkloadBinding`)(
-  {
+/**
+ * Fiber-local admission generation inherited by every subprocess spawn in one governed operation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AdmissionWorkloadBinding extends S.Opaque<AdmissionWorkloadBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     workloadPath: S.String,
     leaseId: S.String,
-  },
-  $I.annote("AdmissionWorkloadBinding", {
-    description: "Fiber-local admission generation inherited by every subprocess spawn in one governed operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionWorkloadBinding", {
+      description: "Fiber-local admission generation inherited by every subprocess spawn in one governed operation.",
+    })
+  )
 ) {}
 
 const AdmissionWorkloadOwnership = LiteralKit(["owned", "inherited"]);
 
-class ResolvedAdmissionWorkload extends S.Class<ResolvedAdmissionWorkload>($I`ResolvedAdmissionWorkload`)(
-  {
+/**
+ * Admission workload binding plus whether this process owns its detached process-group registration.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ResolvedAdmissionWorkload extends S.Opaque<ResolvedAdmissionWorkload, { readonly brand: unique symbol }>()(
+  S.Struct({
     workloadPath: S.String,
     leaseId: S.String,
     ownership: AdmissionWorkloadOwnership,
-  },
-  $I.annote("ResolvedAdmissionWorkload", {
-    description: "Admission workload binding plus whether this process owns its detached process-group registration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedAdmissionWorkload", {
+      description: "Admission workload binding plus whether this process owns its detached process-group registration.",
+    })
+  )
 ) {}
 
 const CurrentAdmissionWorkload = Context.Reference<O.Option<AdmissionWorkloadBinding>>($I`CurrentAdmissionWorkload`, {
@@ -559,7 +579,7 @@ const writeAdmissionWorkload = Effect.fn("StepExec.writeAdmissionWorkload")(func
     )
   );
   const crypto = yield* Crypto.Crypto;
-  const token = yield* crypto.randomUUIDv4.pipe(
+  const token = yield* crypto.randomUUIDv4().pipe(
     Effect.mapError((cause) =>
       AdmissionWorkloadRegistrationError.make({
         message: `Failed to create admission workload identity ${leaseId}: ${cause.message}`,
@@ -765,7 +785,9 @@ const captureTextStream = (
  * @category errors
  * @since 0.0.0
  */
-export class CapturePipeWedgedError extends S.TaggedError<CapturePipeWedgedError>($I`CapturePipeWedgedError`)(
+export class CapturePipeWedgedError extends S.TaggedError<CapturePipeWedgedError, { readonly brand: unique symbol }>(
+  $I`CapturePipeWedgedError`
+)(
   "CapturePipeWedgedError",
   {
     commandLine: S.String,
@@ -783,9 +805,10 @@ export class CapturePipeWedgedError extends S.TaggedError<CapturePipeWedgedError
  * @category errors
  * @since 0.0.0
  */
-export class CaptureCommandTimedOutError extends S.TaggedError<CaptureCommandTimedOutError>(
-  $I`CaptureCommandTimedOutError`
-)(
+export class CaptureCommandTimedOutError extends S.TaggedError<
+  CaptureCommandTimedOutError,
+  { readonly brand: unique symbol }
+>($I`CaptureCommandTimedOutError`)(
   "CaptureCommandTimedOutError",
   {
     commandLine: S.String,

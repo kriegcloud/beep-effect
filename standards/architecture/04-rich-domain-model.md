@@ -147,8 +147,8 @@ domain — move it to a use-case service or to the appropriate adapter.
 
 Schema is the one borderline case: domain may construct and apply schemas, and
 may yield decoded values, because schemas are pure values themselves. Domain may
-not, however, depend on `S.Layer`-style live encoder/decoder services that read
-configuration.
+not, however, depend on live encoder/decoder services, provided through a
+`Layer`, that read configuration.
 
 ## Example Shape
 
@@ -234,7 +234,9 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
    * @category predicates
    * @since 0.0.0
    */
-  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status)
+  canRevoke(): boolean {
+    return !MembershipStatus.is.revoked(this.status)
+  }
 
   /**
    * Pure transition that revokes the membership when allowed.
@@ -242,22 +244,31 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
    * @category combinators
    * @since 0.0.0
    */
-  readonly revoke: () => Effect.Effect<Membership, MembershipAlreadyRevoked> = Effect.fn("Membership.revoke")(
-    function* (this: Membership) {
-      if (!this.canRevoke()) {
-        return yield* Effect.fail(new MembershipAlreadyRevoked())
-      }
-      return Membership.make({
-        id: this.id,
-        organizationId: this.organizationId,
-        actorId: this.actorId,
-        role: this.role,
-        status: MembershipStatus.Enum.revoked,
-      })
-    }
-  )
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
+      ? Effect.succeed(
+          Membership.make({
+            id: this.id,
+            organizationId: this.organizationId,
+            actorId: this.actorId,
+            role: this.role,
+            status: MembershipStatus.Enum.revoked,
+          })
+        )
+      : Effect.fail(new MembershipAlreadyRevoked())
+  }
 }
 ````
+
+**Gotcha** (instance members). Write model behavior as prototype methods or
+getters, never as arrow-function class fields such as
+`readonly canRevoke = () => ...`. An arrow field is an own property on every
+instance, so two decodes of the same row hold different function references
+and `Equal.equals` reports them unequal; it also shows up in spreads and
+`Object.keys`, and `structuredClone` throws on it. Entities and other models
+with instance members stay schema classes. Plain data with no members is a
+branded `S.Opaque` over `S.Struct` (`standards/effect-first-development.md`
+EF-33; `DECISIONS.md` 2026-10-14).
 
 `Membership.policy.ts` can own larger pure decisions:
 

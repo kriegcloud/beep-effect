@@ -19,7 +19,8 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
-import { AsyncResult, Atom } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import { useId } from "react";
 import type { MermaidConfig } from "mermaid";
@@ -49,7 +50,9 @@ const unsafeDiagramMessage = "Diagram output did not satisfy the desktop safety 
  * @category errors
  * @since 0.0.0
  */
-export class MermaidRenderError extends S.TaggedError<MermaidRenderError>($I`MermaidRenderError`)(
+export class MermaidRenderError extends S.TaggedError<MermaidRenderError, { readonly brand: unique symbol }>(
+  $I`MermaidRenderError`
+)(
   "MermaidRenderError",
   {
     message: S.String.annotateKey({ description: "User-safe diagram failure message." }),

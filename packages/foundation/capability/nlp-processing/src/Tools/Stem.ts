@@ -6,32 +6,34 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/Stem");
 
-class StemParameters extends S.Class<StemParameters>($I`StemParameters`)(
-  {
+class StemParameters extends S.Opaque<StemParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text whose word tokens should be reduced to stems",
       examples: ["running runners ran"],
     }),
-  },
-  $I.annote("StemParameters", {
-    description: "Text input used to reduce word tokens to their stems.",
-  })
+  }).pipe(
+    $I.annoteSchema("StemParameters", {
+      description: "Text input used to reduce word tokens to their stems.",
+    })
+  )
 ) {}
 
-class StemSuccess extends S.Class<StemSuccess>($I`StemSuccess`)(
-  {
+class StemSuccess extends S.Opaque<StemSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     count: S.Natural,
     stems: S.Array(S.String),
-  },
-  $I.annote("StemSuccess", {
-    description: "Reduce word tokens to their stems.",
-  })
+  }).pipe(
+    $I.annoteSchema("StemSuccess", {
+      description: "Reduce word tokens to their stems.",
+    })
+  )
 ) {}
 
 /**

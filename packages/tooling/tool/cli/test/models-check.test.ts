@@ -2,8 +2,10 @@ import {
   CatalogModel,
   CatalogSnapshot,
   CodexModelsCache,
+  ModelId,
   ModelsCatalog,
   ModelsCatalogLive,
+  ModelsCatalogOptions,
   ModelsCatalogSources,
   ModelsCheck,
   ModelsCheckLive,
@@ -38,6 +40,7 @@ import {
 } from "./helpers/models-fixtures.ts";
 import type { DriftKind } from "@beep/repo-cli/commands/Models";
 
+const decodeModelId = S.decodeEffect(ModelId);
 const decodeUpstream = S.decodeEffect(UpstreamCatalog);
 const decodeCodex = S.decodeEffect(CodexModelsCache);
 const encodeReportJson = S.encodeUnknownEffect(S.fromJsonString(ModelsCheckReport));
@@ -52,7 +55,6 @@ const stageWorkspace = Effect.fnUntraced(function* (manifestFixture = "manifest.
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const root = yield* fs.makeTempDirectoryScoped({
-    directory: process.cwd(),
     prefix: ".models-check-test-",
   });
 
@@ -98,6 +100,64 @@ const models = Layer.mergeAll(
 ).pipe(Layer.provide(platform));
 
 layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
+  it.effect("keeps task-assigned panels separate from October 14 defaults and specialist routes", () =>
+    Effect.gen(function* () {
+      const pin = (role: string, surface: string) =>
+        A.findFirst(seedModelsManifest.bindings, (entry) => entry.role === role && entry.surface === surface);
+      assertSome(
+        O.map(pin("codex.heavy", "codex-cli"), (entry) => entry.modelId),
+        yield* decodeModelId("gpt-6.1-sol")
+      );
+      assertSome(
+        O.flatMap(pin("codex.heavy", "codex-cli"), (entry) => entry.effort),
+        "medium"
+      );
+      assertSome(
+        O.map(pin("orchestrator", "claude-code"), (entry) => entry.modelId),
+        yield* decodeModelId("claude-fable-5-1")
+      );
+      assertSome(
+        O.map(pin("child.heavy", "claude-code"), (entry) => entry.modelId),
+        yield* decodeModelId("claude-opus-5-5")
+      );
+      assertSome(
+        O.map(pin("fallback.cursor", "cursor-seat"), (entry) => entry.modelId),
+        yield* decodeModelId("claude-opus-5-5-medium")
+      );
+      assertSome(
+        O.map(pin("child.lightweight", "proxy-workflow"), (entry) => entry.modelId),
+        yield* decodeModelId("gpt-6-luna")
+      );
+      assertSome(
+        O.map(pin("research.web", "proxy-workflow"), (entry) => entry.modelId),
+        yield* decodeModelId("grok-4.7")
+      );
+      assertSome(
+        O.map(pin("jsdoc.migrate-titles", "grok-cli"), (entry) => entry.modelId),
+        yield* decodeModelId("grok-4.7")
+      );
+      assertSome(
+        O.map(pin("review.panel", "codex-cli"), (entry) => entry.modelId),
+        yield* decodeModelId("gpt-6-astra")
+      );
+      assertSome(
+        O.flatMap(pin("review.panel", "codex-cli"), (entry) => entry.effort),
+        "xhigh"
+      );
+      assertSome(
+        O.map(pin("muse.opt-in", "proxy-workflow"), (entry) => entry.modelId),
+        yield* decodeModelId("muse-wonder-1.0")
+      );
+      assertSome(
+        O.map(pin("junie.default", "junie-cli"), (entry) => entry.modelId),
+        yield* decodeModelId("gemini-3-flash-preview")
+      );
+      strictEqual(
+        A.some(seedModelsManifest.superseded, (entry) => entry.id === "gpt-6-astra"),
+        false
+      );
+    })
+  );
   it.effect.prop(
     "round trips schema-derived check reports",
     [ModelsCheckReport],
@@ -146,7 +206,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
   it.effect("validates a Codex binding against its cache ladder rather than upstream levels", () =>
     Effect.gen(function* () {
       const catalog = yield* ModelsCatalog;
-      const snapshot = yield* catalog.snapshot({ home: "/home/op", offline: false });
+      const snapshot = yield* catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: false }));
       const restricted = CatalogSnapshot.make({
         ...snapshot,
         models: A.map(snapshot.models, (model) =>
@@ -172,7 +232,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const check = yield* ModelsCheck;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: process.cwd(), prefix: ".models-check-effort-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: ".models-check-effort-" });
       const manifestPath = path.join(root, "models.yaml");
       const settingsPath = path.join(root, "settings.json");
       yield* fs.writeFileString(
@@ -402,7 +462,6 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({
-        directory: process.cwd(),
         prefix: ".models-init-test-",
       });
       const store = yield* ModelsManifestStore;

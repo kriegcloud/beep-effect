@@ -44,7 +44,9 @@ const $I = $RepoAiMetricsId.create("ingest");
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsIngestError extends S.TaggedError<AiMetricsIngestError>($I`AiMetricsIngestError`)(
+export class AiMetricsIngestError extends S.TaggedError<AiMetricsIngestError, { readonly brand: unique symbol }>(
+  $I`AiMetricsIngestError`
+)(
   "AiMetricsIngestError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -74,18 +76,20 @@ export class AiMetricsIngestError extends S.TaggedError<AiMetricsIngestError>($I
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsTranscriptTextSummaryInput extends S.Class<AiMetricsTranscriptTextSummaryInput>(
-  $I`AiMetricsTranscriptTextSummaryInput`
-)(
-  {
+export class AiMetricsTranscriptTextSummaryInput extends S.Opaque<
+  AiMetricsTranscriptTextSummaryInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: S.String,
     hashSalt: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     sourceKind: AiMetricsTranscriptSource,
     sourcePath: S.String,
-  },
-  $I.annote("AiMetricsTranscriptTextSummaryInput", {
-    description: "Schema-backed input for summarizing one in-memory transcript JSONL document.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsTranscriptTextSummaryInput", {
+      description: "Schema-backed input for summarizing one in-memory transcript JSONL document.",
+    })
+  )
 ) {}
 
 const codexTurn = (sourcePathHash: string, lineNumber: number, line: CodexTranscriptLine): AgentTurn =>
@@ -172,18 +176,22 @@ const timestampList: (events: ReadonlyArray<AgentTurn>) => ReadonlyArray<string>
  * **Example** (Summarize transcript with Effect)
  *
  * ```ts
- * import { summarizeTranscriptText } from "@beep/repo-ai-metrics"
- * import * as Effect from "effect/Effect";
+ * import { AiMetricsTranscriptTextSummaryInput, summarizeTranscriptText } from "@beep/repo-ai-metrics"
+ * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
- * const result = Effect.runPromise(
- *   summarizeTranscriptText({
- *     content: "{\"type\":\"event_msg\"}",
+ *
+ * const program = summarizeTranscriptText(
+ *   AiMetricsTranscriptTextSummaryInput.make({
+ *     content: "{\"type\":\"event_msg\"}\nnot json",
  *     hashSalt: O.some("local-smoke-salt"),
  *     sourceKind: "codex",
  *     sourcePath: "sample.jsonl"
  *   })
  * )
- * console.log(result)
+ *
+ * Effect.runPromise(program).then((summary) => {
+ *   console.log(summary.totalLines, summary.acceptedEvents, summary.rejectedLines) // 2 1 1
+ * })
  * ```
  *
  * @category services

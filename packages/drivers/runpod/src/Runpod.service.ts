@@ -11,7 +11,7 @@ import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
@@ -23,7 +23,7 @@ import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
 import * as G from "./_generated/Runpod.operations.gen.ts";
 import { RUNPOD_API_URL, RunpodConfigInput, RunpodConfigUrl } from "./Runpod.config.ts";
-import { RunpodError, RunpodHttpStatusCode } from "./Runpod.errors.ts";
+import { RunpodError, RunpodErrorOptionsInput, RunpodHttpStatusCode, RunpodRawErrorOptions } from "./Runpod.errors.ts";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type * as Redacted from "effect/Redacted";
 
@@ -135,8 +135,8 @@ const runpodRawRequestQueryDefault = R.empty();
  * @category models
  * @since 0.1.0
  */
-export class RunpodRawRequest extends S.Class<RunpodRawRequest>($I`RunpodRawRequest`)(
-  {
+export class RunpodRawRequest extends S.Opaque<RunpodRawRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     authenticated: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
@@ -152,10 +152,11 @@ export class RunpodRawRequest extends S.Class<RunpodRawRequest>($I`RunpodRawRequ
       S.withConstructorDefault(Effect.succeed(runpodRawRequestQueryDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(runpodRawRequestQueryDefault))
     ),
-  },
-  $I.annote("RunpodRawRequest", {
-    description: "Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodRawRequest", {
+      description: "Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document.",
+    })
+  )
 ) {}
 const decodeRunpodRawRequest = S.decodeEffect(RunpodRawRequest);
 
@@ -178,16 +179,17 @@ const decodeRunpodRawRequest = S.decodeEffect(RunpodRawRequest);
  * @category models
  * @since 0.1.0
  */
-export class RunpodRawResponse extends S.Class<RunpodRawResponse>($I`RunpodRawResponse`)(
-  {
+export class RunpodRawResponse extends S.Opaque<RunpodRawResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.optionalKey(S.Unknown),
     headers: S.Record(S.String, S.String),
     status: RunpodHttpStatusCode,
     text: S.optionalKey(S.String),
-  },
-  $I.annote("RunpodRawResponse", {
-    description: "Raw Runpod HTTP response returned by the raw escape hatch.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodRawResponse", {
+      description: "Raw Runpod HTTP response returned by the raw escape hatch.",
+    })
+  )
 ) {}
 
 /**
@@ -212,15 +214,16 @@ export interface RunpodShape extends G.RunpodOperationsShape<RunpodError> {
   readonly raw: (request: RunpodRawRequest) => Effect.Effect<RunpodRawResponse, RunpodError>;
 }
 
-class ResolvedRunpodConfig extends S.Class<ResolvedRunpodConfig>($I`ResolvedRunpodConfig`)(
-  {
+class ResolvedRunpodConfig extends S.Opaque<ResolvedRunpodConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.String.pipe(S.Redacted, S.Option),
     apiUrl: S.String,
     headers: S.Record(S.String, S.String),
-  },
-  $I.annote("ResolvedRunpodConfig", {
-    description: "Resolved runtime configuration for the Runpod service.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedRunpodConfig", {
+      description: "Resolved runtime configuration for the Runpod service.",
+    })
+  )
 ) {}
 
 const RunpodUrlParamValue = S.Union([S.String, S.Array(S.String)]).pipe(
@@ -331,7 +334,9 @@ const decodeRequest = Effect.fnUntraced(function* <Request>(
 ): Effect.fn.Return<Request, RunpodError> {
   return yield* pipe(
     S.decodeUnknownEffect(requestSchema)(request),
-    Effect.mapError((cause) => RunpodError.fromDescriptor(descriptor, "request encoding", { cause }))
+    Effect.mapError((cause) =>
+      RunpodError.fromDescriptor(descriptor, "request encoding", RunpodErrorOptionsInput.make({ cause }))
+    )
   );
 });
 
@@ -425,7 +430,9 @@ const addJsonBody = Effect.fnUntraced(function* (
       onSome: (body) =>
         pipe(
           HttpClientRequest.bodyJson(request, body),
-          Effect.mapError((cause) => RunpodError.fromDescriptor(descriptor, "request encoding", { cause }))
+          Effect.mapError((cause) =>
+            RunpodError.fromDescriptor(descriptor, "request encoding", RunpodErrorOptionsInput.make({ cause }))
+          )
         ),
     })
   );
@@ -459,7 +466,9 @@ const executeRawResponse = Effect.fn("Runpod.executeRawResponse")(function* (
   request: HttpClientRequest.HttpClientRequest
 ) {
   return yield* client.execute(request).pipe(
-    Effect.mapError((cause) => RunpodError.fromDescriptor(descriptor, "transport", { cause })),
+    Effect.mapError((cause) =>
+      RunpodError.fromDescriptor(descriptor, "transport", RunpodErrorOptionsInput.make({ cause }))
+    ),
     Effect.tapError(logDriverFailure("transport"))
   );
 });
@@ -472,7 +481,11 @@ const ensureSuccessStatus = Effect.fnUntraced(function* (
     return response;
   }
 
-  const error = RunpodError.fromDescriptor(descriptor, "response status", { status: response.status });
+  const error = RunpodError.fromDescriptor(
+    descriptor,
+    "response status",
+    RunpodErrorOptionsInput.make({ status: response.status })
+  );
   yield* logStatusFailure(error);
   return yield* error;
 });
@@ -483,12 +496,16 @@ const decodeJsonResponse = Effect.fnUntraced(function* <Response>(
   response: HttpClientResponse.HttpClientResponse
 ): Effect.fn.Return<Response, RunpodError> {
   const body = yield* response.json.pipe(
-    Effect.mapError((cause) => RunpodError.fromDescriptor(descriptor, "response decoding", { cause }))
+    Effect.mapError((cause) =>
+      RunpodError.fromDescriptor(descriptor, "response decoding", RunpodErrorOptionsInput.make({ cause }))
+    )
   );
 
   return yield* pipe(
     S.decodeEffect(responseSchema)(body),
-    Effect.mapError((cause) => RunpodError.fromDescriptor(descriptor, "response decoding", { cause }))
+    Effect.mapError((cause) =>
+      RunpodError.fromDescriptor(descriptor, "response decoding", RunpodErrorOptionsInput.make({ cause }))
+    )
   );
 });
 
@@ -497,7 +514,9 @@ const decodeTextResponse = Effect.fnUntraced(function* (
   response: HttpClientResponse.HttpClientResponse
 ): Effect.fn.Return<string, RunpodError> {
   return yield* response.text.pipe(
-    Effect.mapError((cause) => RunpodError.fromDescriptor(descriptor, "response decoding", { cause }))
+    Effect.mapError((cause) =>
+      RunpodError.fromDescriptor(descriptor, "response decoding", RunpodErrorOptionsInput.make({ cause }))
+    )
   );
 });
 
@@ -652,12 +671,14 @@ const addRawBody = Effect.fnUntraced(function* (
         pipe(
           HttpClientRequest.bodyJson(request, body),
           Effect.mapError((cause) =>
-            RunpodError.raw({
-              cause,
-              method: rawRequest.method,
-              path: rawRequest.path,
-              reason: "request encoding",
-            })
+            RunpodError.raw(
+              RunpodRawErrorOptions.make({
+                cause,
+                method: rawRequest.method,
+                path: rawRequest.path,
+                reason: "request encoding",
+              })
+            )
           )
         ),
     })
@@ -675,7 +696,10 @@ const rawToken = Effect.fnUntraced(function* (
   return yield* pipe(
     config.apiKey,
     O.match({
-      onNone: () => Effect.fail(RunpodError.raw({ method: request.method, path: request.path, reason: "config" })),
+      onNone: () =>
+        Effect.fail(
+          RunpodError.raw(RunpodRawErrorOptions.make({ method: request.method, path: request.path, reason: "config" }))
+        ),
       onSome: (token) => Effect.succeedSome(token),
     })
   );
@@ -697,12 +721,14 @@ const rawResponseBody = Effect.fnUntraced(function* (
         })
       ),
       Effect.mapError((cause) =>
-        RunpodError.raw({
-          cause,
-          method: request.method,
-          path: request.path,
-          reason: "response decoding",
-        })
+        RunpodError.raw(
+          RunpodRawErrorOptions.make({
+            cause,
+            method: request.method,
+            path: request.path,
+            reason: "response decoding",
+          })
+        )
       )
     );
   }
@@ -717,12 +743,14 @@ const rawResponseBody = Effect.fnUntraced(function* (
       })
     ),
     Effect.mapError((cause) =>
-      RunpodError.raw({
-        cause,
-        method: request.method,
-        path: request.path,
-        reason: "response decoding",
-      })
+      RunpodError.raw(
+        RunpodRawErrorOptions.make({
+          cause,
+          method: request.method,
+          path: request.path,
+          reason: "response decoding",
+        })
+      )
     )
   );
 });
@@ -735,12 +763,14 @@ const executeRawRequest = Effect.fn("Runpod.raw")(function* (
   const decodedRequest = yield* pipe(
     decodeRunpodRawRequest(rawRequest),
     Effect.mapError((cause) =>
-      RunpodError.raw({
-        cause,
-        method: rawRequest.method,
-        path: rawRequest.path,
-        reason: "request encoding",
-      })
+      RunpodError.raw(
+        RunpodRawErrorOptions.make({
+          cause,
+          method: rawRequest.method,
+          path: rawRequest.path,
+          reason: "request encoding",
+        })
+      )
     )
   );
   const token = yield* rawToken(config, decodedRequest);
@@ -762,12 +792,14 @@ const executeRawRequest = Effect.fn("Runpod.raw")(function* (
   const httpRequest = yield* addRawBody(requestWithHeaders, decodedRequest);
   const response = yield* client.execute(httpRequest).pipe(
     Effect.mapError((cause) =>
-      RunpodError.raw({
-        cause,
-        method: decodedRequest.method,
-        path: decodedRequest.path,
-        reason: "transport",
-      })
+      RunpodError.raw(
+        RunpodRawErrorOptions.make({
+          cause,
+          method: decodedRequest.method,
+          path: decodedRequest.path,
+          reason: "transport",
+        })
+      )
     ),
     Effect.tapError(logDriverFailure("transport"))
   );

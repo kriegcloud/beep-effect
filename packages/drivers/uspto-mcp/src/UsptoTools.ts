@@ -15,7 +15,8 @@ import { $UsptoMcpId } from "@beep/identity/packages";
 import { ApiKeyRequiredFailure, annotateFourHints, readOnlyToolHints } from "@beep/mcp-kit";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { UsptoApplicationMetadata, UsptoApplicationNumber } from "@beep/uspto";
-import { Tool, Toolkit } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
+import * as Toolkit from "effect/ai/Toolkit";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { PosInt } from "./internal/PosInt.ts";
@@ -94,8 +95,8 @@ export type UsptoToolErrorReason = typeof UsptoToolErrorReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class UsptoToolError extends S.Class<UsptoToolError>($I`UsptoToolError`)(
-  {
+export class UsptoToolError extends S.Opaque<UsptoToolError, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.NonEmptyString.annotateKey({
       description: "Human-readable failure message safe to return to an MCP tool caller.",
     }),
@@ -105,10 +106,11 @@ export class UsptoToolError extends S.Class<UsptoToolError>($I`UsptoToolError`)(
     tool: S.NonEmptyString.annotateKey({
       description: "MCP tool that returned the failure.",
     }),
-  },
-  $I.annote("UsptoToolError", {
-    description: "Structured USPTO MCP tool failure surfaced after the credential gate has already passed.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoToolError", {
+      description: "Structured USPTO MCP tool failure surfaced after the credential gate has already passed.",
+    })
+  )
 ) {}
 
 /**
@@ -179,17 +181,19 @@ export type UsptoMcpFailure = typeof UsptoMcpFailure.Type;
  * @category models
  * @since 0.0.0
  */
-export class UsptoSearchApplicationsParams extends S.Class<UsptoSearchApplicationsParams>(
-  $I`UsptoSearchApplicationsParams`
-)(
-  {
+export class UsptoSearchApplicationsParams extends S.Opaque<
+  UsptoSearchApplicationsParams,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     query: S.NonEmptyString.annotateKey({
       description: "USPTO Open Data Portal search query expression.",
     }),
-  },
-  $I.annote("UsptoSearchApplicationsParams", {
-    description: "Inputs required to search USPTO applications by an Open Data Portal query expression.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoSearchApplicationsParams", {
+      description: "Inputs required to search USPTO applications by an Open Data Portal query expression.",
+    })
+  )
 ) {}
 
 /**
@@ -243,8 +247,8 @@ export const UsptoSearchApplicationsTool = annotateFourHints(
  * @category models
  * @since 0.0.0
  */
-export class UsptoGetDocumentsParams extends S.Class<UsptoGetDocumentsParams>($I`UsptoGetDocumentsParams`)(
-  {
+export class UsptoGetDocumentsParams extends S.Opaque<UsptoGetDocumentsParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumber: UsptoApplicationNumber.annotateKey({
       description: "Eight-digit USPTO application number to list file-wrapper documents for.",
     }),
@@ -254,10 +258,11 @@ export class UsptoGetDocumentsParams extends S.Class<UsptoGetDocumentsParams>($I
     ).annotateKey({
       description: "Maximum serialized size, in bytes, the reshaped response must fit within. Defaults to 8000.",
     }),
-  },
-  $I.annote("UsptoGetDocumentsParams", {
-    description: "Inputs required to list and field-tier-project an application's file-wrapper documents.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoGetDocumentsParams", {
+      description: "Inputs required to list and field-tier-project an application's file-wrapper documents.",
+    })
+  )
 ) {}
 
 /**

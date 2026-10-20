@@ -39,6 +39,7 @@ import {
   AgentEffectivenessEvalScoreReport,
   SkillOptTaskManifest,
 } from "../AgentEffectiveness.schemas.ts";
+import type { ChildProcessSpawner } from "effect/process";
 
 const $I = $RepoCliId.create("commands/AgentEffectiveness/internal/EvalRecord");
 const normalizePathSeparators = Str.replaceAll("\\", "/");
@@ -47,10 +48,17 @@ const normalizeRelativePath: (value: string) => string = flow(normalizePathSepar
 const recordNote = (report: AgentEffectivenessEvalScoreReport): string =>
   `skillopt scorer score=${report.score} completion=${report.breakdown.completion} schemaFirst=${report.breakdown.schemaFirst} tsgo=${report.breakdown.tsgo} biome=${report.breakdown.biome}`;
 
-class RecordAgentEffectivenessEvalScoreOptions extends S.Class<RecordAgentEffectivenessEvalScoreOptions>(
-  $I`RecordAgentEffectivenessEvalScoreOptions`
-)(
-  {
+/**
+ * Options for recording an agent effectiveness eval score.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RecordAgentEffectivenessEvalScoreOptions extends S.Opaque<
+  RecordAgentEffectivenessEvalScoreOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dataRoot: S.String,
     dir: S.String,
     elapsedMs: S.Finite,
@@ -59,10 +67,11 @@ class RecordAgentEffectivenessEvalScoreOptions extends S.Class<RecordAgentEffect
     report: AgentEffectivenessEvalScoreReport,
     task: SkillOptTaskManifest,
     taskPath: S.String,
-  },
-  $I.annote("RecordAgentEffectivenessEvalScoreOptions", {
-    description: "Options for recording an agent effectiveness eval score.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecordAgentEffectivenessEvalScoreOptions", {
+      description: "Options for recording an agent effectiveness eval score.",
+    })
+  )
 ) {}
 
 const candidateSkillRoots = [".agents", ".claude"];
@@ -204,7 +213,7 @@ export const recordAgentEffectivenessEvalScore = Effect.fn("AgentEffectivenessEv
 }: RecordAgentEffectivenessEvalScoreOptions): Effect.fn.Return<
   AgentEffectivenessEvalRecordResult,
   AgentEffectivenessEvalScorerError,
-  FileSystem.FileSystem | Path.Path
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;

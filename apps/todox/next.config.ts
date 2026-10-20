@@ -9,6 +9,8 @@ import type { NextConfig } from "next";
 // from main this filter matches nothing.
 process.execArgv = A.filter(process.execArgv, (flag) => flag !== "--js-float16array");
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  experimental: { useTypeScriptCli: true },
+};
 
 export default nextConfig;

@@ -12,9 +12,9 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Clock from "effect/Clock";
 import * as DateTime from "effect/DateTime";
-import { HttpClient } from "effect/http";
-import type { ChildProcess } from "effect/process";
-import { ChildProcessSpawner } from "effect/process";
+import * as HttpClient from "effect/http/HttpClient";
+import type * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import type { FileBlobTransfer } from "./BlobTransfer.ts";
 import { BlobTransferError } from "./BlobTransfer.ts";
@@ -48,7 +48,7 @@ const Json = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class ArtifactError extends S.TaggedError<ArtifactError>($I`ArtifactError`)("ArtifactError", {
+export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand: unique symbol }>($I`ArtifactError`)("ArtifactError", {
 	/**
 	 * `misconfigured` — the results backend is not reachable from here (see
 	 * {@link Artifact}). `unreachable` — it could not be contacted, or answered

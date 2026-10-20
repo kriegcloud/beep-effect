@@ -80,31 +80,32 @@ export type XAiModelName = typeof XAiModelName.Type;
  * **Example** (Create language model options)
  *
  * ```ts
- * import type { XAiLanguageModel } from "@beep/xai"
+ * import { XAiLanguageModel } from "@beep/xai"
  * import * as O from "effect/Option"
  *
- * const options: XAiLanguageModel.XAiLanguageModelOptions = {
+ * const options = XAiLanguageModel.XAiLanguageModelOptions.make({
  *   config: O.none(),
  *   model: "grok-3"
- * }
+ * })
  *
- * console.log(options)
+ * console.log(options.model) // "grok-3"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class XAiLanguageModelOptions extends S.Class<XAiLanguageModelOptions>($I`XAiLanguageModelOptions`)(
-  {
+export class XAiLanguageModelOptions extends S.Opaque<XAiLanguageModelOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     config: S.OptionFromOptionalKey(OpenAiCompatLanguageModelConfig).pipe(S.withConstructorDefault(Effect.succeedNone)),
     model: XAiModelName,
-  },
-  $I.annote("XAiLanguageModelOptions", {
-    description: "Options accepted by the xAI Effect AI language-model adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiLanguageModelOptions", {
+      description: "Options accepted by the xAI Effect AI language-model adapter.",
+    })
+  )
 ) {}
 
-type XAiLanguageModelOptionsInput = ConstructorParameters<typeof XAiLanguageModelOptions>[0];
+type XAiLanguageModelOptionsInput = Exclude<(typeof XAiLanguageModelOptions)["~type.make.in"], void>;
 
 const moduleName = "XAiLanguageModel.service";
 

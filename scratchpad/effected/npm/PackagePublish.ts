@@ -13,7 +13,8 @@ import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import * as Hex from "effect/encoding/Hex";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { IntegrityHash } from "./IntegrityHash.ts";
 import { NpmExecutor } from "./NpmExecutor.ts";
 import { PublishError } from "./PublishError.ts";
@@ -90,7 +91,7 @@ const PackJsonFromString = S.fromJsonString(PackJson);
  * @category models
  * @since 0.0.0
  */
-export class PackedTarball extends S.Class<PackedTarball>($I`PackedTarball`)({
+export class PackedTarball extends S.Class<PackedTarball, { readonly brand: unique symbol }>($I`PackedTarball`)({
 	/** Absolute path to the tarball on disk. */
 	tarballPath: S.String.annotateKey({ description: "Absolute path to the tarball on disk." }),
 	/** Package name, as npm reported it. */
@@ -545,7 +546,7 @@ const make = Effect.fnUntraced(function* () {
 const integrityField = (raw: string | undefined): { integrity?: typeof IntegrityHash.Type } =>
 	O.getSomesStruct({ integrity: O.flatMap(O.fromUndefinedOr(raw), S.decodeOption(IntegrityHash)) });
 
-class UnstubbedPublishMethodError extends S.TaggedError<UnstubbedPublishMethodError>($I`UnstubbedPublishMethodError`)(
+class UnstubbedPublishMethodError extends S.TaggedError<UnstubbedPublishMethodError, { readonly brand: unique symbol }>($I`UnstubbedPublishMethodError`)(
 	"UnstubbedPublishMethodError",
 	{ message: S.String },
 	$I.annote("UnstubbedPublishMethodError", { description: "An unstubbed publish test-double method was invoked." }),

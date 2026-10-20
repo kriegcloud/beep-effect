@@ -7,22 +7,28 @@
  */
 
 import { $PracticeClaudeModId } from "@beep/identity/packages";
+import { ReviewBatchId, ReviewItemId, Verdict, VerdictRow } from "@beep/law-practice-domain/values";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Semaphore from "effect/Semaphore";
+import * as Str from "effect/String";
 import { ModHost } from "./PracticeMod.host.ts";
-import { KgAnswerItem, Verdict, VerdictRow } from "./PracticeMod.values.ts";
+import { KgAnswerItem } from "./PracticeMod.values.ts";
 import type { ModHostError } from "./PracticeMod.host.ts";
 
 const $I = $PracticeClaudeModId.create("PracticeMod.verdicts");
 
 const ItemsKey = "verdict-items";
-const RowsKey = "verdict-rows";
+const RowsKey = "verdict-rows/v2";
+const LegacyRowsKey = "verdict-rows";
 
 const StoredItems = S.Array(KgAnswerItem);
 const StoredRows = S.Array(VerdictRow);
@@ -34,7 +40,7 @@ const RowLine = S.fromJsonString(VerdictRow);
  * @category errors
  * @since 0.0.0
  */
-class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
+class VerdictLocked extends S.TaggedError<VerdictLocked, { readonly brand: unique symbol }>($I`VerdictLocked`)(
   "VerdictLocked",
   { itemId: S.NonEmptyString },
   $I.annote("VerdictLocked", { description: "A verdict was refused because its item is locked." })
@@ -46,7 +52,9 @@ class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
  * @category errors
  * @since 0.0.0
  */
-class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable>($I`VerdictStoreUnreadable`)(
+class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable, { readonly brand: unique symbol }>(
+  $I`VerdictStoreUnreadable`
+)(
   "VerdictStoreUnreadable",
   { key: S.NonEmptyString, message: S.String },
   $I.annote("VerdictStoreUnreadable", { description: "The plugin store held verdict data that did not decode." })
@@ -77,20 +85,23 @@ type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
  *   question: "What changed?",
  *   matter: O.none(),
  * })
- * const input = VerdictInput.make({ item, verdict: O.none(), note: O.none() })
- * console.log(O.isNone(input.verdict)) // true
+ * const input = VerdictInput.make({ item, verdict: "withdrawn", note: O.none() })
+ * console.log(input.verdict) // "withdrawn"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class VerdictInput extends S.Class<VerdictInput>($I`VerdictInput`)(
-  {
+export class VerdictInput extends S.Opaque<VerdictInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     item: KgAnswerItem,
-    verdict: S.Option(Verdict),
+    verdict: Verdict,
     note: S.Option(S.NonEmptyString),
-  },
-  $I.annote("VerdictInput", { description: "A verdict (or an undo when none) and an optional note on one answer." })
+  }).pipe(
+    $I.annoteSchema("VerdictInput", {
+      description: "A verdict (withdrawn for undo) and an optional note on one answer.",
+    })
+  )
 ) {}
 
 /**
@@ -141,11 +152,69 @@ const writeStored = Effect.fn("VerdictLog.writeStored")(function* <A, I>(
   yield* host.storeSet(key, encoded);
 });
 
-const latestFor = (rows: ReadonlyArray<VerdictRow>, itemId: string): O.Option<VerdictRow> =>
-  pipe(
-    A.filter(rows, (row) => row.itemId === itemId),
-    A.last
+// Decode the old wire format before converting it; legacy revisions were zero-based.
+const LegacyRow = S.Struct({
+  schemaVersion: S.Literal("practice-verdict/v1"),
+  itemId: S.NonEmptyString.check(S.isPattern(/^kg-answer:.+:.+$/)),
+  verdict: S.OptionFromNullOr(Verdict.pick(["right", "wrong", "partly"])),
+  note: S.OptionFromNullOr(S.NonEmptyString),
+  revision: S.Natural,
+  recordedAt: S.DateTimeUtcFromString,
+  lockedAt: S.OptionFromNullOr(S.DateTimeUtcFromString),
+}).pipe($I.annoteSchema("LegacyVerdictRow", { description: "The untouched practice-verdict/v1 store format." }));
+
+const legacyBatch = (itemId: string) =>
+  ReviewBatchId.make(`session:${pipe(itemId, Str.slice(10), Str.split(":"), A.dropRight(1), A.join(":"))}`);
+
+const MigratedRows = S.Array(LegacyRow).pipe(
+  S.decodeTo(
+    S.toType(StoredRows),
+    SchemaTransformation.transform({
+      decode: (rows): ReadonlyArray<VerdictRow> =>
+        A.map(rows, (row, index) =>
+          VerdictRow.make({
+            itemId: ReviewItemId.make(row.itemId),
+            batchId: legacyBatch(row.itemId),
+            verdict: O.getOrElse(row.verdict, () => "withdrawn"),
+            note: row.note,
+            revision: 1 + A.filter(A.take(rows, index), (prior) => prior.itemId === row.itemId).length,
+            recordedAt: row.recordedAt,
+            lockedAt: row.lockedAt,
+          })
+        ),
+      encode: (rows) =>
+        A.map(rows, (row) => ({
+          schemaVersion: "practice-verdict/v1",
+          itemId: row.itemId,
+          verdict: row.verdict === "withdrawn" ? O.none() : O.some(row.verdict),
+          note: row.note,
+          revision: S.Natural.make(row.revision - 1),
+          recordedAt: row.recordedAt,
+          lockedAt: row.lockedAt,
+        })),
+    })
+  )
+);
+
+// The envelope rule: an item's current verdict is the row with the greatest
+// recordedAt, a tie going to the row appended last; lock rows never count as
+// verdicts. Revisions restart per batch, so they never break ties.
+const currentVerdictFor = (rows: ReadonlyArray<VerdictRow>, itemId: string): O.Option<VerdictRow> =>
+  A.reduce(rows, O.none<VerdictRow>(), (latest, row) =>
+    row.itemId !== itemId || O.isSome(row.lockedAt)
+      ? latest
+      : O.match(latest, {
+          onNone: () => O.some(row),
+          onSome: (previous) =>
+            DateTime.toEpochMillis(row.recordedAt) >= DateTime.toEpochMillis(previous.recordedAt)
+              ? O.some(row)
+              : latest,
+        })
   );
+
+// A lock closes one batch: any lock row in it refuses further writes.
+const batchLocked = (rows: ReadonlyArray<VerdictRow>, batchId: string): boolean =>
+  A.some(rows, (row) => row.batchId === batchId && O.isSome(row.lockedAt));
 
 /**
  * Builds the verdict log over the mod host's store.
@@ -168,23 +237,37 @@ export const makeVerdictLog = Effect.gen(function* () {
   // overlapping records cannot both append to the same snapshot.
   const writes = yield* Semaphore.make(1);
 
-  const current = Effect.fn("VerdictLog.current")(function* (itemId: string) {
+  const readRows = Effect.fn("VerdictLog.readRows")(function* () {
     const rows = yield* readStored(host, RowsKey, StoredRows);
-    return latestFor(rows, itemId);
+    if (A.isReadonlyArrayNonEmpty(rows)) return rows;
+    const migrated = yield* readStored(host, LegacyRowsKey, MigratedRows);
+    if (A.isReadonlyArrayNonEmpty(migrated)) yield* writeStored(host, RowsKey, StoredRows, migrated);
+    return migrated;
+  });
+
+  const currentUnserialized = Effect.fn("VerdictLog.current")(function* (itemId: string) {
+    const rows = yield* readRows();
+    return currentVerdictFor(rows, itemId);
   });
 
   const recordUnserialized = Effect.fn("VerdictLog.record")(function* (input: VerdictInput) {
-    const rows = yield* readStored(host, RowsKey, StoredRows);
-    const previous = latestFor(rows, input.item.itemId);
-    if (O.isSome(previous) && O.isSome(previous.value.lockedAt)) {
+    const rows = yield* readRows();
+    const batchId = ReviewBatchId.make(`session:${input.item.sessionId}`);
+    if (batchLocked(rows, batchId)) {
       return yield* VerdictLocked.make({ itemId: input.item.itemId });
     }
     const row = VerdictRow.make({
-      schemaVersion: "practice-verdict/v1",
+      batchId,
       itemId: input.item.itemId,
       verdict: input.verdict,
       note: input.note,
-      revision: S.Natural.make(O.match(previous, { onNone: () => 0, onSome: (last) => last.revision + 1 })),
+      revision:
+        1 +
+        A.reduce(
+          A.filter(rows, (row) => row.itemId === input.item.itemId && row.batchId === batchId),
+          0,
+          (max, row) => Num.max(max, row.revision)
+        ),
       recordedAt: yield* host.now,
       lockedAt: O.none(),
     });
@@ -196,8 +279,8 @@ export const makeVerdictLog = Effect.gen(function* () {
     return row;
   });
 
-  const exportJsonl = Effect.gen(function* () {
-    const rows = yield* readStored(host, RowsKey, StoredRows);
+  const exportUnserialized = Effect.gen(function* () {
+    const rows = yield* readRows();
     const lines = yield* Effect.forEach(rows, (row) =>
       S.encodeEffect(RowLine)(row).pipe(Effect.mapError(unreadable(RowsKey)))
     );
@@ -206,6 +289,8 @@ export const makeVerdictLog = Effect.gen(function* () {
 
   const record = (input: VerdictInput) => Semaphore.withPermit(writes)(recordUnserialized(input));
 
+  const current = (itemId: string) => Semaphore.withPermit(writes)(currentUnserialized(itemId));
+  const exportJsonl = Semaphore.withPermit(writes)(exportUnserialized);
   return VerdictLog.of({ record, current, exportJsonl });
 });
 

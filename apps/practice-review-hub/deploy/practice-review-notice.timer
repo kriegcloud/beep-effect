@@ -1,0 +1,19 @@
+# Sample systemd USER timer that starts practice-review-notice.service each
+# morning. Nothing installs this file; see docs/runbooks/practice-review-hub.md.
+#
+# OnCalendar is in the workstation's local time. When the practice is in
+# another time zone, add the zone after the time, for example
+# "OnCalendar=*-*-* 08:30:00 America/Chicago".
+
+[Unit]
+Description=Practice review hub: run the daily notice each morning
+Documentation=https://github.com/beep-effect/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
+
+[Timer]
+OnCalendar=*-*-* 08:30:00
+# A morning missed while the workstation was off runs at the next start; the
+# notice itself still sends at most one email a day.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

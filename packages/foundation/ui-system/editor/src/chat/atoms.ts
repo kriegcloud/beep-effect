@@ -18,7 +18,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import {
   $createParagraphNode,
   $getRoot,
@@ -65,7 +65,7 @@ import type { AttachmentPort } from "./config.ts";
  * @since 0.0.0
  */
 export const featuresAtom = Atom.family((_editor: LexicalEditor) =>
-  Atom.make<ComposerFeatures>(ComposerFeatures.make())
+  Atom.make<ComposerFeatures>(ComposerFeatures.make({}))
 );
 
 /**
@@ -394,8 +394,7 @@ const closeAttachmentLifecycle = (
  * ```ts
  * import { composerRuntime } from "@beep/editor/chat/atoms"
  * import * as Effect from "effect/Effect";
- * import { Atom } from "effect/reactivity"
- *
+ * import * as Atom from "effect/reactivity/Atom";
  * type WriteValue<A> = A extends Atom.Writable<unknown, infer W> ? W : never
  *
  * const noopComposerMutation = composerRuntime.fn<{ readonly editorId: string }>()(() => Effect.void)

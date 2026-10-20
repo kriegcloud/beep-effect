@@ -15,7 +15,8 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
-import { HttpClient, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableList from "effect/MutableList";
@@ -56,36 +57,64 @@ const JsonSchemaDefinitions = S.Record(S.String, JsonSchemaNode).pipe(
   })
 );
 
-class OpenApiComponents extends S.Class<OpenApiComponents>($I`OpenApiComponents`)(
-  { schemas: S.optionalKey(JsonSchemaDefinitions) },
-  $I.annote("OpenApiComponents", {
-    description: "OpenAPI components subset used to locate shared schemas.",
-  })
+/**
+ * OpenAPI components subset used to locate shared schemas.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class OpenApiComponents extends S.Opaque<OpenApiComponents, { readonly brand: unique symbol }>()(
+  S.Struct({ schemas: S.optionalKey(JsonSchemaDefinitions) }).pipe(
+    $I.annoteSchema("OpenApiComponents", {
+      description: "OpenAPI components subset used to locate shared schemas.",
+    })
+  )
 ) {}
 
-class DefinitionDocument extends S.Class<DefinitionDocument>($I`DefinitionDocument`)(
-  {
+/**
+ * Supported definition containers across JSON Schema, OpenAPI, and Swagger documents.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class DefinitionDocument extends S.Opaque<DefinitionDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $defs: S.optionalKey(JsonSchemaDefinitions),
     definitions: S.optionalKey(JsonSchemaDefinitions),
     components: S.optionalKey(OpenApiComponents),
-  },
-  $I.annote("DefinitionDocument", {
-    description: "Supported definition containers across JSON Schema, OpenAPI, and Swagger documents.",
-  })
+  }).pipe(
+    $I.annoteSchema("DefinitionDocument", {
+      description: "Supported definition containers across JSON Schema, OpenAPI, and Swagger documents.",
+    })
+  )
 ) {}
 
-class OpenApiInfo extends S.Class<OpenApiInfo>($I`OpenApiInfo`)(
-  { version: S.NonEmptyString },
-  $I.annote("OpenApiInfo", {
-    description: "OpenAPI info fields required to validate a source version pin.",
-  })
+/**
+ * OpenAPI info fields required to validate a source version pin.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class OpenApiInfo extends S.Opaque<OpenApiInfo, { readonly brand: unique symbol }>()(
+  S.Struct({ version: S.NonEmptyString }).pipe(
+    $I.annoteSchema("OpenApiInfo", {
+      description: "OpenAPI info fields required to validate a source version pin.",
+    })
+  )
 ) {}
 
-class OpenApiVersionDocument extends S.Class<OpenApiVersionDocument>($I`OpenApiVersionDocument`)(
-  { info: OpenApiInfo },
-  $I.annote("OpenApiVersionDocument", {
-    description: "OpenAPI document subset containing the upstream version used for pin validation.",
-  })
+/**
+ * OpenAPI document subset containing the upstream version used for pin validation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class OpenApiVersionDocument extends S.Opaque<OpenApiVersionDocument, { readonly brand: unique symbol }>()(
+  S.Struct({ info: OpenApiInfo }).pipe(
+    $I.annoteSchema("OpenApiVersionDocument", {
+      description: "OpenAPI document subset containing the upstream version used for pin validation.",
+    })
+  )
 ) {}
 
 const OpenApiDocument = S.declare<OpenAPISpec>((input): input is OpenAPISpec => P.isObject(input), {

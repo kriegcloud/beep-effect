@@ -148,7 +148,13 @@ bun run beep worktree doctor
   changes unless you use the preservation-first `--archive` mode. Forced
   removal is unsupported. Archive mode can also delete the preserved local
   branch with `--delete-branch`; otherwise the command prints the separate
-  `git branch -D <branch>` cleanup command.
+  `git branch -D <branch>` cleanup command. Its archive fence grants the same
+  exemption `yeet sweep --retire` does: the invoker's own ancestry and, under
+  Claude Code (`CLAUDE_PID`), everything that session spawned into the lane,
+  so a desktop session removes its own lane; started inside the lane, it
+  steps out first and leaves an idle Claude Desktop Terminal panel shell in
+  place. Other sessions' processes and a panel shell when the command starts
+  elsewhere still refuse it.
 - `worktree doctor` is read-only. It lists every worktree under the worktrees
   root with its branch, clean/dirty and unpushed status, missing bootstrap files
   (`.env`, `node_modules`), and any prunable metadata from
@@ -205,6 +211,15 @@ decision to create an archive ref. Step the shell into the swept clone afterward
 clone; when only the clone is at hand and its checkout predates `--retire`,
 run the lane's own CLI from the clone:
 `cd <clone> && bun run <lane>/packages/tooling/tool/cli/src/bin.ts -- yeet sweep --retire --lane <lane>`.
+The gate is a verdict the plan prints and the JSON documents carry
+(`yeet-retire-sweep-plan/v2`, `yeet-retire-sweep-report/v2`): `pr-merged`
+when the branch's pull request is MERGED and heads it; `pr-less-on-main` for
+a branch that never headed a pull request whose tip `origin/main` already
+contains (`git merge-base --is-ancestor`) while the tree is clean, the
+leftover-lane case, in which the local branch is deleted and no remote branch
+is touched; `refused` otherwise, with the first reason an operator would
+check (pull request not MERGED or heading another branch, tip not on
+`origin/main`, uncommitted changes).
 
 Forced removal is unsupported and remains denied by agent policy. Archive mode
 is the only removal path for local residue: the CLI inspects tracked and
@@ -391,7 +406,7 @@ For an existing duplicate clone:
 ## Repo-Specific Gotchas
 
 - `flake.nix` now derives its Bun cache name from the active worktree root, so each worktree gets its own cache namespace.
-- `.turbo`, `.sst`, `.beep`, and `node_modules` are intentionally local to
+- `.turbo`, `.beep`, and `node_modules` are intentionally local to
   each worktree. `.idea` is tracked (whitelist `.idea/.gitignore`); only its
   ignored machine-local files (`compiler.xml`, `effect.intellij.xml`,
   `workspace.xml`) stay per-worktree.

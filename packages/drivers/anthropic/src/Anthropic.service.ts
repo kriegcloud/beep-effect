@@ -6,12 +6,12 @@
  */
 
 import { AnthropicClient, AnthropicLanguageModel } from "@effect/ai-anthropic";
-import { AiError } from "effect/ai";
+import * as AiError from "effect/ai/AiError";
 import * as Config from "effect/Config";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as ExecutionPlan from "effect/ExecutionPlan";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
 import {
@@ -120,7 +120,7 @@ export const makeAnthropicLanguageModelLayer = (
  * @since 0.0.0
  */
 export const makeAnthropicLanguageModelLiveLayer = (
-  options: Omit<ConstructorParameters<typeof AnthropicLanguageModelOptions>[0], "model"> = {}
+  options: Omit<Exclude<(typeof AnthropicLanguageModelOptions)["~type.make.in"], void>, "model"> = {}
 ) =>
   Layer.unwrap(
     Config.NonEmptyString(ANTHROPIC_MODEL_ENV).pipe(

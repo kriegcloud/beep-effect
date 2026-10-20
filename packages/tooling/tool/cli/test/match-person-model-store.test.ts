@@ -8,7 +8,9 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Path from "effect/Path";
@@ -91,7 +93,10 @@ const respondWithPayload = (
     Match.orElse((range) => Effect.die(`Unexpected fixture range: ${range ?? "missing"}`))
   );
 
-class FixtureDecodeFailure extends S.TaggedError<FixtureDecodeFailure>()("FixtureDecodeFailure", {}) {}
+class FixtureDecodeFailure extends S.TaggedError<FixtureDecodeFailure, { readonly brand: unique symbol }>()(
+  "FixtureDecodeFailure",
+  {}
+) {}
 
 const makeMidBodyFailureResponse = (
   request: HttpClientRequest.HttpClientRequest,

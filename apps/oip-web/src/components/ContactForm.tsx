@@ -11,8 +11,8 @@ import { $OipWebId } from "@beep/identity";
 import { EmailString } from "@beep/schema";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as P from "effect/Predicate";
-import { Atom } from "effect/reactivity";
 import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import { OipContactHttpApiClient } from "../contact/ContactSubmission.http.ts";
 import { ContactSubmissionStatus, contactSubmissionPayloadFromFormData } from "../contact/ContactSubmission.model.ts";
@@ -37,14 +37,15 @@ const DOMHtmlFormElement = S.declare(isHTMLFormElement).pipe(
   })
 );
 
-class SubmitContactForm extends S.Class<SubmitContactForm>($I`SubmitContactForm`)(
-  {
+class SubmitContactForm extends S.Opaque<SubmitContactForm, { readonly brand: unique symbol }>()(
+  S.Struct({
     form: DOMHtmlFormElement,
     initialSubmittedAt: S.Finite,
-  },
-  $I.annote("SubmitContactForm", {
-    description: "A form for submitting contact information.",
-  })
+  }).pipe(
+    $I.annoteSchema("SubmitContactForm", {
+      description: "A form for submitting contact information.",
+    })
+  )
 ) {}
 
 const currentTimestamp = (): number => Math.trunc(globalThis.performance.timeOrigin + globalThis.performance.now());
@@ -88,15 +89,22 @@ const submitContactFormAtom = Atom.writable(
   }
 );
 
-class ContactFormProps extends S.Class<ContactFormProps>($I`ContactFormProps`)(
-  {
+/**
+ * The return type of the ContactForm component.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class ContactFormProps extends S.Opaque<ContactFormProps, { readonly brand: unique symbol }>()(
+  S.Struct({
     email: EmailString,
     initialSubmittedAt: S.Finite,
     status: S.UndefinedOr(ContactSubmissionStatus),
-  },
-  $I.annote("ContactFormProps", {
-    description: "The return type of the ContactForm component.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactFormProps", {
+      description: "The return type of the ContactForm component.",
+    })
+  )
 ) {}
 
 /**
@@ -114,7 +122,7 @@ class ContactFormProps extends S.Class<ContactFormProps>($I`ContactFormProps`)(
  * @category components
  * @since 0.0.0
  */
-export function ContactForm({ email, initialSubmittedAt, status }: ContactFormProps) {
+export function ContactForm({ email, initialSubmittedAt, status }: S.Struct.Type<typeof ContactFormProps.fields>) {
   const effectiveSubmittedAt = useAtomValue(effectiveSubmittedAtAtom(initialSubmittedAt));
   const markStarted = useAtomSet(markContactStartedAtom);
   const submitForm = useAtomSet(submitContactFormAtom);
@@ -142,7 +150,7 @@ export function ContactForm({ email, initialSubmittedAt, status }: ContactFormPr
       onFocus={() => markStarted(initialSubmittedAt)}
       onSubmit={(event) => {
         event.preventDefault();
-        submitForm({ form: event.currentTarget, initialSubmittedAt });
+        submitForm(SubmitContactForm.make({ form: event.currentTarget, initialSubmittedAt }));
       }}
     >
       <input aria-hidden="true" className="hidden" name="website" tabIndex={-1} autoComplete="off" />

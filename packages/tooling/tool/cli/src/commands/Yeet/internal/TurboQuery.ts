@@ -26,99 +26,109 @@ import { emptyTurboPlanSnapshot, YEET_FEEDBACK_TASKS, YeetRunMode } from "./Plan
 import type * as Crypto from "effect/Crypto";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { YeetRunOptions } from "../Yeet.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/TurboQuery");
 
-class TurboQueryAffectedReason extends S.Class<TurboQueryAffectedReason>($I`TurboQueryAffectedReason`)(
-  {
+class TurboQueryAffectedReason extends S.Opaque<TurboQueryAffectedReason, { readonly brand: unique symbol }>()(
+  S.Struct({
     __typename: S.String,
-  },
-  $I.annote("TurboQueryAffectedReason", {
-    description: "Turbo affected query reason metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryAffectedReason", {
+      description: "Turbo affected query reason metadata.",
+    })
+  )
 ) {}
 
-class TurboQueryAffectedPackageRef extends S.Class<TurboQueryAffectedPackageRef>($I`TurboQueryAffectedPackageRef`)(
-  {
+class TurboQueryAffectedPackageRef extends S.Opaque<TurboQueryAffectedPackageRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
-  },
-  $I.annote("TurboQueryAffectedPackageRef", {
-    description: "Package reference nested in a Turbo affected task result.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryAffectedPackageRef", {
+      description: "Package reference nested in a Turbo affected task result.",
+    })
+  )
 ) {}
 
-class TurboQueryAffectedTask extends S.Class<TurboQueryAffectedTask>($I`TurboQueryAffectedTask`)(
-  {
+class TurboQueryAffectedTask extends S.Opaque<TurboQueryAffectedTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     fullName: S.String,
     name: S.String,
     package: TurboQueryAffectedPackageRef,
     reason: S.optionalKey(TurboQueryAffectedReason),
-  },
-  $I.annote("TurboQueryAffectedTask", {
-    description: "One task returned by Turbo query affected.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryAffectedTask", {
+      description: "One task returned by Turbo query affected.",
+    })
+  )
 ) {}
 
-class TurboQueryAffectedTaskConnection extends S.Class<TurboQueryAffectedTaskConnection>(
-  $I`TurboQueryAffectedTaskConnection`
-)(
-  {
+class TurboQueryAffectedTaskConnection extends S.Opaque<
+  TurboQueryAffectedTaskConnection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     items: S.Array(TurboQueryAffectedTask),
     length: S.Finite,
-  },
-  $I.annote("TurboQueryAffectedTaskConnection", {
-    description: "Turbo affected task connection payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryAffectedTaskConnection", {
+      description: "Turbo affected task connection payload.",
+    })
+  )
 ) {}
 
-class TurboQueryAffectedData extends S.Class<TurboQueryAffectedData>($I`TurboQueryAffectedData`)(
-  {
+class TurboQueryAffectedData extends S.Opaque<TurboQueryAffectedData, { readonly brand: unique symbol }>()(
+  S.Struct({
     affectedTasks: TurboQueryAffectedTaskConnection,
-  },
-  $I.annote("TurboQueryAffectedData", {
-    description: "Data payload returned by Turbo query affected.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryAffectedData", {
+      description: "Data payload returned by Turbo query affected.",
+    })
+  )
 ) {}
 
-class TurboQueryAffectedDocument extends S.Class<TurboQueryAffectedDocument>($I`TurboQueryAffectedDocument`)(
-  {
+class TurboQueryAffectedDocument extends S.Opaque<TurboQueryAffectedDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: TurboQueryAffectedData,
-  },
-  $I.annote("TurboQueryAffectedDocument", {
-    description: "Turbo query affected JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryAffectedDocument", {
+      description: "Turbo query affected JSON document.",
+    })
+  )
 ) {}
 
-class TurboQueryPackage extends S.Class<TurboQueryPackage>($I`TurboQueryPackage`)(
-  {
+class TurboQueryPackage extends S.Opaque<TurboQueryPackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     path: S.String,
-  },
-  $I.annote("TurboQueryPackage", {
-    description: "One workspace package returned by Turbo query ls.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryPackage", {
+      description: "One workspace package returned by Turbo query ls.",
+    })
+  )
 ) {}
 
-class TurboQueryPackageConnection extends S.Class<TurboQueryPackageConnection>($I`TurboQueryPackageConnection`)(
-  {
+class TurboQueryPackageConnection extends S.Opaque<TurboQueryPackageConnection, { readonly brand: unique symbol }>()(
+  S.Struct({
     count: S.Finite,
     items: S.Array(TurboQueryPackage),
-  },
-  $I.annote("TurboQueryPackageConnection", {
-    description: "Turbo package list connection payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryPackageConnection", {
+      description: "Turbo package list connection payload.",
+    })
+  )
 ) {}
 
-class TurboQueryLsDocument extends S.Class<TurboQueryLsDocument>($I`TurboQueryLsDocument`)(
-  {
+class TurboQueryLsDocument extends S.Opaque<TurboQueryLsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageManager: S.optionalKey(S.String),
     packages: TurboQueryPackageConnection,
-  },
-  $I.annote("TurboQueryLsDocument", {
-    description: "Turbo query ls JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboQueryLsDocument", {
+      description: "Turbo query ls JSON document.",
+    })
+  )
 ) {}
 
 const decodeTurboQueryAffectedDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryAffectedDocument));

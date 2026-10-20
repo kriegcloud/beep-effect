@@ -125,14 +125,15 @@ export type AdmissionEvictionEmission = typeof AdmissionEvictionEmission.Type;
  * @category models
  * @since 0.0.0
  */
-export class AdmissionProtocol extends S.Class<AdmissionProtocol>($I`AdmissionProtocol`)(
-  {
+export class AdmissionProtocol extends S.Opaque<AdmissionProtocol, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-admission-protocol/v2"),
     eviction: AdmissionEvictionEmission,
-  },
-  $I.annote("AdmissionProtocol", {
-    description: "Versioned rollout marker controlling admission-journal eviction event emission.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionProtocol", {
+      description: "Versioned rollout marker controlling admission-journal eviction event emission.",
+    })
+  )
 ) {}
 
 const disabledAdmissionProtocol = AdmissionProtocol.make({
@@ -165,18 +166,20 @@ const encodeAdmissionProtocol = S.encodeUnknownEffect(S.fromJsonString(Admission
  * @category coordination
  * @since 0.0.0
  */
-export class AdmissionJournalLockGeneration extends S.Class<AdmissionJournalLockGeneration>(
-  $I`AdmissionJournalLockGeneration`
-)(
-  {
+export class AdmissionJournalLockGeneration extends S.Opaque<
+  AdmissionJournalLockGeneration,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal-lock/v1"),
     pid: S.Finite,
     procStart: S.NonEmptyString,
     ownerToken: S.NonEmptyString,
-  },
-  $I.annote("AdmissionJournalLockGeneration", {
-    description: "PID-reuse-fenced ownership generation stored in a serialized journal lock.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionJournalLockGeneration", {
+      description: "PID-reuse-fenced ownership generation stored in a serialized journal lock.",
+    })
+  )
 ) {}
 
 const encodeLockGeneration = S.encodeUnknownEffect(S.fromJsonString(AdmissionJournalLockGeneration));
@@ -188,17 +191,19 @@ const decodeLegacyReapAdopterPathParts = S.decodeUnknownEffect(
   S.Tuple([S.FiniteFromString, S.StringFromBase64Url, S.StringFromBase64Url])
 );
 
-class AdmissionJournalLockReapAdopter extends S.Class<AdmissionJournalLockReapAdopter>(
-  $I`AdmissionJournalLockReapAdopter`
-)(
-  {
+class AdmissionJournalLockReapAdopter extends S.Opaque<
+  AdmissionJournalLockReapAdopter,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal-lock-reap-adopter/v1"),
     generation: AdmissionJournalLockGeneration,
     claimedAtMillis: S.Finite,
-  },
-  $I.annote("AdmissionJournalLockReapAdopter", {
-    description: "Process-fenced ownership record for one journal-lock reap adoption.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionJournalLockReapAdopter", {
+      description: "Process-fenced ownership record for one journal-lock reap adoption.",
+    })
+  )
 ) {}
 
 /**
@@ -215,10 +220,10 @@ class AdmissionJournalLockReapAdopter extends S.Class<AdmissionJournalLockReapAd
  * @category domain-events
  * @since 0.0.0
  */
-export class AdmissionJournalAdmitted extends S.Class<AdmissionJournalAdmitted>($I`AdmissionJournalAdmitted`)(
-  {
+export class AdmissionJournalAdmitted extends S.Opaque<AdmissionJournalAdmitted, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("admission-admitted", {
     schemaVersion: S.Literal("yeet-admission-journal/v1"),
-    _tag: S.Literal("admission-admitted"),
+
     nonce: S.String,
     pid: S.Finite,
     procStart: S.String,
@@ -229,10 +234,11 @@ export class AdmissionJournalAdmitted extends S.Class<AdmissionJournalAdmitted>(
     enqueuedAtMillis: S.Finite,
     admittedAtMillis: S.Finite,
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AdmissionJournalAdmitted", {
-    description: "Durable transition recorded when a queued ticket becomes an active admission lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionJournalAdmitted", {
+      description: "Durable transition recorded when a queued ticket becomes an active admission lease.",
+    })
+  )
 ) {}
 
 /**
@@ -249,19 +255,20 @@ export class AdmissionJournalAdmitted extends S.Class<AdmissionJournalAdmitted>(
  * @category domain-events
  * @since 0.0.0
  */
-export class AdmissionJournalReleased extends S.Class<AdmissionJournalReleased>($I`AdmissionJournalReleased`)(
-  {
+export class AdmissionJournalReleased extends S.Opaque<AdmissionJournalReleased, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("admission-released", {
     schemaVersion: S.Literal("yeet-admission-journal/v1"),
-    _tag: S.Literal("admission-released"),
+
     nonce: S.String,
     pid: S.Finite,
     releasedAtMillis: S.Finite,
     memoryPeakBytes: S.optionalKey(S.Finite),
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AdmissionJournalReleased", {
-    description: "Durable transition recorded when an active admission lease is released.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionJournalReleased", {
+      description: "Durable transition recorded when an active admission lease is released.",
+    })
+  )
 ) {}
 
 /**
@@ -316,21 +323,23 @@ export type AdmissionLeaseEvictionReason = typeof AdmissionLeaseEvictionReason.T
  * @category domain-events
  * @since 0.0.0
  */
-export class AdmissionJournalLeaseEvicted extends S.Class<AdmissionJournalLeaseEvicted>(
-  $I`AdmissionJournalLeaseEvicted`
-)(
-  {
+export class AdmissionJournalLeaseEvicted extends S.Opaque<
+  AdmissionJournalLeaseEvicted,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("admission-lease-evicted", {
     schemaVersion: S.Literal("yeet-admission-journal/v2"),
-    _tag: S.Literal("admission-lease-evicted"),
+
     nonce: S.String,
     pid: S.Finite,
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     evictedAtMillis: S.Finite,
     reason: AdmissionLeaseEvictionReason,
-  },
-  $I.annote("AdmissionJournalLeaseEvicted", {
-    description: "Durable transition recorded after the scheduler reaps a verified dead admission lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionJournalLeaseEvicted", {
+      description: "Durable transition recorded after the scheduler reaps a verified dead admission lease.",
+    })
+  )
 ) {}
 
 /**
@@ -384,24 +393,26 @@ export type AdmissionTicketEvictionReason = typeof AdmissionTicketEvictionReason
  * @category domain-events
  * @since 0.0.0
  */
-export class AdmissionJournalTicketEvicted extends S.Class<AdmissionJournalTicketEvicted>(
-  $I`AdmissionJournalTicketEvicted`
-)(
-  {
+export class AdmissionJournalTicketEvicted extends S.Opaque<
+  AdmissionJournalTicketEvicted,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("admission-ticket-evicted", {
     schemaVersion: S.Literal("yeet-admission-journal/v2"),
-    _tag: S.Literal("admission-ticket-evicted"),
+
     nonce: S.String,
     pid: S.Finite,
     attemptId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     evictedAtMillis: S.Finite,
     reason: AdmissionTicketEvictionReason,
-  },
-  $I.annote("AdmissionJournalTicketEvicted", {
-    description: "Durable transition recorded after the scheduler atomically claims a dead queue ticket.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionJournalTicketEvicted", {
+      description: "Durable transition recorded after the scheduler atomically claims a dead queue ticket.",
+    })
+  )
 ) {}
 
-class AdmissionJournalQueuedIdentity extends S.Class<AdmissionJournalQueuedIdentity>(
+class AdmissionJournalQueuedIdentity extends S.Class<AdmissionJournalQueuedIdentity, { readonly brand: unique symbol }>(
   $I`AdmissionJournalQueuedIdentity`
 )(
   {
@@ -472,9 +483,10 @@ export class AdmissionJournalWithdrawn extends AdmissionJournalQueuedIdentity.ex
   $I.annote("AdmissionJournalWithdrawn", { description: "A queued request left without becoming admitted work." })
 ) {}
 
-class AdmissionJournalCheckoutIdentity extends S.Class<AdmissionJournalCheckoutIdentity>(
-  $I`AdmissionJournalCheckoutIdentity`
-)(
+class AdmissionJournalCheckoutIdentity extends S.Class<
+  AdmissionJournalCheckoutIdentity,
+  { readonly brand: unique symbol }
+>($I`AdmissionJournalCheckoutIdentity`)(
   Struct.pick(YeetAdmissionTicket.fields, ["checkoutRoot", "branch"]),
   $I.annote("AdmissionJournalCheckoutIdentity", {
     description: "Checkout attribution retained after admission state files disappear.",
@@ -807,7 +819,7 @@ const takenJournalLockIsOwned = Effect.fnUntraced(function* (
   });
 });
 
-const randomIdentity = Effect.orDie(Effect.flatMap(Crypto.Crypto, (crypto) => crypto.randomUUIDv4));
+const randomIdentity = Effect.orDie(Effect.flatMap(Crypto.Crypto, (crypto) => crypto.randomUUIDv4()));
 
 const journalLockReapClaimPath = Effect.fnUntraced(function* (lockPath: string, observedToken: string) {
   const crypto = yield* Crypto.Crypto;
@@ -1420,9 +1432,9 @@ const acquireFencedGeneration = Effect.fnUntraced(function* (
   busyMessage: string
 ): Effect.fn.Return<string, QualitySchedulerError, Crypto.Crypto | FileSystem.FileSystem | Path.Path> {
   const crypto = yield* Crypto.Crypto;
-  const identity = yield* crypto.randomUUIDv4.pipe(
-    Effect.mapError(QualitySchedulerError.new("Failed to create journal lock identity."))
-  );
+  const identity = yield* crypto
+    .randomUUIDv4()
+    .pipe(Effect.mapError(QualitySchedulerError.new("Failed to create journal lock identity.")));
   const lockToken = `${process.pid}:${identity}`;
   if (yield* acquireJournalFileLock(lockPath, lockToken)) {
     return lockToken;

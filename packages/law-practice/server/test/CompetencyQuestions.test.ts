@@ -43,6 +43,7 @@ import {
   AdvantagePositionKind,
   CorrectionDelta,
   correlativePosition,
+  HohfeldPosition,
   HohfeldPositionKind,
   LegalActPolarity,
   LegalOppositionCandidate,
@@ -1086,9 +1087,10 @@ describe("FLINT's out-of-scope competency questions are excluded from porting", 
         const privilege = byId(relators, PRIVILEGE_TO_ENTER);
         expect(privilege.positionKind).toBe("privilege");
         expect(policy.correlativeView(privilege).position.kind).toBe("noRight");
-        expect(oppositePosition(correlativePosition({ content: privilege.content, kind: "immunity" })).kind).toBe(
-          "power"
-        );
+        expect(
+          oppositePosition(correlativePosition(HohfeldPosition.make({ content: privilege.content, kind: "immunity" })))
+            .kind
+        ).toBe("power");
       })
     );
 

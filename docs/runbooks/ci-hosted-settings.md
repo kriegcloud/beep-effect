@@ -20,3 +20,25 @@
 Most required contexts use PR-ref workflows. A same-repository author can modify those workflows. This repository deliberately accepts that single-operator posture; the trusted reusable Heavy workflow and environment-only writer secret are independent boundaries. Reconsider this posture when independent contributors or maintainers become regular users.
 
 Cache-writer expressions stay in trusted caller workflows. The composite setup action and its environment exporter execute PR code and may only receive the already-guarded tuple. Fork Heavy execution requires both admission labels; fork documentation changes stay held rather than marking required contexts satisfied without proof.
+
+## Generated catalog gates
+
+Hosted `Check / Repo Sanity` runs `lint:schema-catalog`
+(`bun run beep lint schema-catalog`) through `bun run beep ci lane repo-sanity`,
+before the other sanity steps. The command defaults to check mode and fails
+when any per-package shard under `standards/schema-catalog/` differs from
+current source, is missing, or has no owning package (including the retired
+single-file catalog, `schema-catalog.generated.jsonc` at the root of
+`standards/`); refresh intentional
+changes with `bun run beep lint schema-catalog --write` and review the diff.
+Both generated catalogs (schema and instrumentation) are sharded per owning
+package so pull requests that touch different packages do not conflict; see
+`standards/generated-artifacts.policy.md`.
+
+The schema catalog stays out of the local `beep quality github-checks
+cheap-gates` preflight. That tier runs four lanes at once and excludes
+heavyweight work, and the catalog generator peaks near 12 GB RSS (measured
+2026-10-15: killed under a 6 GB cgroup cap, passes under 12 GB, about 25 s).
+Repo Sanity runs its steps one at a time on a 16 GB runner, so the check fits
+there. `observability:catalog-check` remains a local cheap gate. Run the
+schema catalog check by hand before publishing a schema change.

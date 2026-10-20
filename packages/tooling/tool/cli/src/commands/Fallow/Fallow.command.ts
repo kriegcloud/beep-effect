@@ -9,7 +9,8 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { buildRepoDependencyIndex, findRepoRoot, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -74,8 +75,14 @@ type FallowBoundaryConfig = {
   };
 };
 
-class FallowBoundaryViolation extends S.Class<FallowBoundaryViolation>($I`FallowBoundaryViolation`)(
-  {
+/**
+ * Boundary violation emitted by `fallow dead-code --boundary-violations`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class FallowBoundaryViolation extends S.Opaque<FallowBoundaryViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     from_path: S.String,
     to_path: S.String,
     from_zone: S.String,
@@ -83,19 +90,27 @@ class FallowBoundaryViolation extends S.Class<FallowBoundaryViolation>($I`Fallow
     import_specifier: S.String,
     line: S.Finite,
     col: S.Finite,
-  },
-  $I.annote("FallowBoundaryViolation", {
-    description: "Boundary violation emitted by `fallow dead-code --boundary-violations`.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowBoundaryViolation", {
+      description: "Boundary violation emitted by `fallow dead-code --boundary-violations`.",
+    })
+  )
 ) {}
 
-class FallowBoundaryReport extends S.Class<FallowBoundaryReport>($I`FallowBoundaryReport`)(
-  {
+/**
+ * Fallow boundary report subset used for doctrine-pinned layer checks.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class FallowBoundaryReport extends S.Opaque<FallowBoundaryReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     boundary_violations: S.Array(FallowBoundaryViolation),
-  },
-  $I.annote("FallowBoundaryReport", {
-    description: "Fallow boundary report subset used for doctrine-pinned layer checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowBoundaryReport", {
+      description: "Fallow boundary report subset used for doctrine-pinned layer checks.",
+    })
+  )
 ) {}
 
 const decodeFallowBoundaryReport = S.decodeUnknownEffect(S.fromJsonString(FallowBoundaryReport));
@@ -560,7 +575,7 @@ const boundariesCommand = Command.make(
  *
  * ```ts
  * import { fallowCommand } from "@beep/repo-cli/commands/Fallow"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect";
  * const run = Command.run(fallowCommand, { version: "0.0.0" })
  * console.log(Effect.isEffect(run)) // true

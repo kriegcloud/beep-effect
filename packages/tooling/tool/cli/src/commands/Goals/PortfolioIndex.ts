@@ -15,7 +15,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, O, pipe, Str } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow } from "effect/Function";
@@ -78,8 +79,8 @@ const GROUP_TITLES: Readonly<Record<GoalStatus, string>> = {
  * @category models
  * @since 0.0.0
  */
-export class PortfolioIndexRow extends S.Class<PortfolioIndexRow>($I`PortfolioIndexRow`)(
-  {
+export class PortfolioIndexRow extends S.Opaque<PortfolioIndexRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     title: S.String,
     status: GoalStatus,
@@ -87,10 +88,11 @@ export class PortfolioIndexRow extends S.Class<PortfolioIndexRow>($I`PortfolioIn
     phasesTotal: S.Finite,
     updated: S.optionalKey(S.String),
     mission: S.optionalKey(S.String),
-  },
-  $I.annote("PortfolioIndexRow", {
-    description: "One rendered goals-index row (slug, title, status, phase progress, updated, mission).",
-  })
+  }).pipe(
+    $I.annoteSchema("PortfolioIndexRow", {
+      description: "One rendered goals-index row (slug, title, status, phase progress, updated, mission).",
+    })
+  )
 ) {}
 
 const rowBySlug = Order.mapInput(Order.String, (row: PortfolioIndexRow) => row.slug);

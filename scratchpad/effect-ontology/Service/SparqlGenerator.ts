@@ -27,7 +27,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { LanguageModel } from "effect/ai";
+import * as LanguageModel from "effect/ai/LanguageModel";
 import { ErrorMessage, OptionalErrorCause, OptionalNonNegativeInt } from "../Domain/Error/Base.ts";
 import type { OntologyContext } from "../Domain/Model/Ontology.ts";
 import { extractLocalNameFromIri as extractLocalName } from "../Utils/Iri.ts";
@@ -59,7 +59,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/SparqlGenerator");
  * @category errors
  * @since 0.0.0
  */
-export class SparqlGenerationError extends S.TaggedError<SparqlGenerationError>($I`SparqlGenerationError`)(
+export class SparqlGenerationError extends S.TaggedError<SparqlGenerationError, { readonly brand: unique symbol }>($I`SparqlGenerationError`)(
   "SparqlGenerationError",
   {
     message: ErrorMessage.annotateKey({
@@ -97,7 +97,7 @@ export class SparqlGenerationError extends S.TaggedError<SparqlGenerationError>(
  * @category errors
  * @since 0.0.0
  */
-export class SparqlSyntaxError extends S.TaggedError<SparqlSyntaxError>($I`SparqlSyntaxError`)(
+export class SparqlSyntaxError extends S.TaggedError<SparqlSyntaxError, { readonly brand: unique symbol }>($I`SparqlSyntaxError`)(
   "SparqlSyntaxError",
   {
     message: ErrorMessage.annotateKey({
@@ -136,7 +136,7 @@ export class SparqlSyntaxError extends S.TaggedError<SparqlSyntaxError>($I`Sparq
  * @category errors
  * @since 0.0.0
  */
-export class SparqlCorrectionError extends S.TaggedError<SparqlCorrectionError>($I`SparqlCorrectionError`)(
+export class SparqlCorrectionError extends S.TaggedError<SparqlCorrectionError, { readonly brand: unique symbol }>($I`SparqlCorrectionError`)(
   "SparqlCorrectionError",
   {
     message: ErrorMessage.annotateKey({

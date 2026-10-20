@@ -19,7 +19,8 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
@@ -67,15 +68,16 @@ const IdentityRegistryViolationKind = LiteralKit([
   })
 );
 
-class IdentityRegistryViolation extends S.Class<IdentityRegistryViolation>($I`IdentityRegistryViolation`)(
-  {
+class IdentityRegistryViolation extends S.Opaque<IdentityRegistryViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: IdentityRegistryViolationKind,
     subject: S.String,
     detail: S.String,
-  },
-  $I.annote("IdentityRegistryViolation", {
-    description: "Identity registry lint violation row: violation kind, offending subject, and remediation detail.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdentityRegistryViolation", {
+      description: "Identity registry lint violation row: violation kind, offending subject, and remediation detail.",
+    })
+  )
 ) {}
 
 const collectSourceFiles = Effect.fn("IdentityRegistry.collectSourceFiles")(function* (sourceRoot: string) {

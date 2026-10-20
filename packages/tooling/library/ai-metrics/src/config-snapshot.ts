@@ -13,25 +13,28 @@ import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Random from "effect/Random";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import { isNestedGitRoot } from "./identity-registry.ts";
 import { fileSizeBytes } from "./internal/file-info.ts";
-import { statOption } from "./internal/jsonl-discovery.ts";
 import { ConfigSnapshot } from "./models.ts";
 import { hashPublicTextSha256 } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("config-snapshot");
 
-const CONFIG_ROOTS = [".codex", ".claude", ".ai", ".aiassistant"] as const;
+const CONFIG_ROOTS = [".codex", ".claude", ".ai", ".aiassistant", ".cursor", ".agents", ".junie", ".grok"] as const;
 const AgentDocName = LiteralKit(["AGENTS.md", "CLAUDE.md"]);
 const SessionScopePath = LiteralKit([
   ".claude/settings.json",
   ".claude/settings.local.json",
   ".codex/config.toml",
+  ".mcp.json",
   "AGENTS.md",
   "CLAUDE.md",
 ]);
@@ -158,18 +161,20 @@ export type AiMetricsConfigSnapshotStage = typeof AiMetricsConfigSnapshotStage.T
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotStageTiming extends S.Class<AiMetricsConfigSnapshotStageTiming>(
-  $I`AiMetricsConfigSnapshotStageTiming`
-)(
-  {
+export class AiMetricsConfigSnapshotStageTiming extends S.Opaque<
+  AiMetricsConfigSnapshotStageTiming,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     byteCount: S.Natural,
     durationMillis: S.Natural,
     fileCount: S.Natural,
     stage: AiMetricsConfigSnapshotStage,
-  },
-  $I.annote("AiMetricsConfigSnapshotStageTiming", {
-    description: "Duration, file count, and byte count for one AI metrics config snapshot stage.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotStageTiming", {
+      description: "Duration, file count, and byte count for one AI metrics config snapshot stage.",
+    })
+  )
 ) {}
 
 /**
@@ -196,30 +201,32 @@ export class AiMetricsConfigSnapshotStageTiming extends S.Class<AiMetricsConfigS
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotBudget extends S.Class<AiMetricsConfigSnapshotBudget>(
-  $I`AiMetricsConfigSnapshotBudget`
-)(
-  {
-    maxDepth: S.Finite.pipe(
+export class AiMetricsConfigSnapshotBudget extends S.Opaque<
+  AiMetricsConfigSnapshotBudget,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    maxDepth: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_DEPTH)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_DEPTH))
     ),
-    maxFileBytes: S.Finite.pipe(
+    maxFileBytes: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILE_BYTES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILE_BYTES))
     ),
-    maxFiles: S.Finite.pipe(
+    maxFiles: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
-    maxTotalBytes: S.Finite.pipe(
+    maxTotalBytes: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_TOTAL_BYTES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_TOTAL_BYTES))
     ),
-  },
-  $I.annote("AiMetricsConfigSnapshotBudget", {
-    description: "Depth, file-count, per-file byte, and total byte bounds applied to a config snapshot walk.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotBudget", {
+      description: "Depth, file-count, per-file byte, and total byte bounds applied to a config snapshot walk.",
+    })
+  )
 ) {}
 
 const defaultConfigSnapshotBudget = AiMetricsConfigSnapshotBudget.make({});
@@ -286,10 +293,11 @@ export type AiMetricsConfigSnapshotTruncationReason = typeof AiMetricsConfigSnap
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotBoundsReport extends S.Class<AiMetricsConfigSnapshotBoundsReport>(
-  $I`AiMetricsConfigSnapshotBoundsReport`
-)(
-  {
+export class AiMetricsConfigSnapshotBoundsReport extends S.Opaque<
+  AiMetricsConfigSnapshotBoundsReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     budget: AiMetricsConfigSnapshotBudget.pipe(
       S.withConstructorDefault(Effect.succeed(defaultConfigSnapshotBudget)),
       S.withDecodingDefaultKey(Effect.succeed(defaultConfigSnapshotBudget))
@@ -301,10 +309,11 @@ export class AiMetricsConfigSnapshotBoundsReport extends S.Class<AiMetricsConfig
     truncationReason: S.OptionFromOptionalKey(AiMetricsConfigSnapshotTruncationReason).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("AiMetricsConfigSnapshotBoundsReport", {
-    description: "Budget, nested-root exclusions, and truncation outcome for one AI metrics config snapshot walk.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotBoundsReport", {
+      description: "Budget, nested-root exclusions, and truncation outcome for one AI metrics config snapshot walk.",
+    })
+  )
 ) {}
 
 const emptyConfigSnapshotBoundsReport = AiMetricsConfigSnapshotBoundsReport.make({
@@ -340,10 +349,11 @@ const emptyConfigSnapshotBoundsReport = AiMetricsConfigSnapshotBoundsReport.make
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapshotInput>(
-  $I`AiMetricsConfigSnapshotInput`
-)(
-  {
+export class AiMetricsConfigSnapshotInput extends S.Opaque<
+  AiMetricsConfigSnapshotInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     budget: AiMetricsConfigSnapshotBudget.pipe(
       S.withConstructorDefault(Effect.succeed(defaultConfigSnapshotBudget)),
       S.withDecodingDefaultKey(Effect.succeed(defaultConfigSnapshotBudget))
@@ -354,10 +364,11 @@ export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapsho
     ),
     previousSnapshotPath: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     repoRoot: S.String,
-  },
-  $I.annote("AiMetricsConfigSnapshotInput", {
-    description: "Repo root and label used to build an agent-facing configuration snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotInput", {
+      description: "Repo root and label used to build an agent-facing configuration snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -389,16 +400,20 @@ export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapsho
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotDiff extends S.Class<AiMetricsConfigSnapshotDiff>($I`AiMetricsConfigSnapshotDiff`)(
-  {
+export class AiMetricsConfigSnapshotDiff extends S.Opaque<
+  AiMetricsConfigSnapshotDiff,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     addedPaths: S.Array(S.String),
     modifiedPaths: S.Array(S.String),
     removedPaths: S.Array(S.String),
     unchangedPaths: S.Array(S.String),
-  },
-  $I.annote("AiMetricsConfigSnapshotDiff", {
-    description: "Path-level before/after diff for agent-facing configuration snapshots.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotDiff", {
+      description: "Path-level before/after diff for agent-facing configuration snapshots.",
+    })
+  )
 ) {}
 
 const emptyConfigSnapshotDiff = AiMetricsConfigSnapshotDiff.make({
@@ -438,8 +453,11 @@ const emptyConfigSnapshotDiff = AiMetricsConfigSnapshotDiff.make({
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshotFile>($I`AiMetricsConfigSnapshotFile`)(
-  {
+export class AiMetricsConfigSnapshotFile extends S.Opaque<
+  AiMetricsConfigSnapshotFile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contentHash: S.String,
     relativePath: S.String,
     scope: AiMetricsConfigScope.pipe(
@@ -447,10 +465,11 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsConfigScope.Enum.baseline))
     ),
     sizeBytes: S.Natural,
-  },
-  $I.annote("AiMetricsConfigSnapshotFile", {
-    description: "Repo-relative agent-facing configuration file and its deterministic content hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotFile", {
+      description: "Repo-relative agent-facing configuration file and its deterministic content hash.",
+    })
+  )
 ) {}
 
 /**
@@ -501,10 +520,11 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapshotResult>(
-  $I`AiMetricsConfigSnapshotResult`
-)(
-  {
+export class AiMetricsConfigSnapshotResult extends S.Opaque<
+  AiMetricsConfigSnapshotResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baselineHash: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultKey(Effect.succeed(""))
@@ -527,10 +547,11 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
       S.withConstructorDefault(Effect.succeed(A.empty<AiMetricsConfigSnapshotStageTiming>())),
       S.withDecodingDefaultKey(Effect.succeed(A.empty<AiMetricsConfigSnapshotStageTiming>()))
     ),
-  },
-  $I.annote("AiMetricsConfigSnapshotResult", {
-    description: "Config snapshot manifest used to attribute AI-agent metrics to repo guidance changes.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsConfigSnapshotResult", {
+      description: "Config snapshot manifest used to attribute AI-agent metrics to repo guidance changes.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsConfigSnapshotResult));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(AiMetricsConfigSnapshotResult));
@@ -562,9 +583,10 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotError extends S.TaggedError<AiMetricsConfigSnapshotError>(
-  $I`AiMetricsConfigSnapshotError`
-)(
+export class AiMetricsConfigSnapshotError extends S.TaggedError<
+  AiMetricsConfigSnapshotError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsConfigSnapshotError`)(
   "AiMetricsConfigSnapshotError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -611,12 +633,210 @@ const isSessionScopePath = S.is(SessionScopePath);
 const scopeFor = (relativePath: string): AiMetricsConfigScope =>
   isSessionScopePath(relativePath) ? AiMetricsConfigScope.Enum.session : AiMetricsConfigScope.Enum.baseline;
 
+const readTrackedSnapshotPaths = Effect.fn("AiMetrics.readTrackedSnapshotPaths")(function* (repoRoot: string) {
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const handle = yield* spawner
+    .spawn(
+      ChildProcess.make("git", ["ls-files", "-z"], {
+        cwd: repoRoot,
+        stdout: "pipe",
+        stderr: "ignore",
+      })
+    )
+    .pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot start Git index enumeration.", cause)));
+  const [text, status] = yield* Effect.all([handle.stdout.pipe(Stream.decodeText, Stream.mkString), handle.exitCode], {
+    concurrency: "unbounded",
+  }).pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot read Git snapshot index.", cause)));
+  if (status !== 0) return yield* configSnapshotFailure("Git index enumeration failed.", status);
+  return O.some<ReadonlyArray<string>>(pipe(text, Str.split("\0"), A.filter(Str.isNonEmpty)));
+});
+
+/**
+ * Recognizes only a HEAD-bearing directory or a gitdir file, following symlinks.
+ * Dangling `.git` symlinks count as absent metadata and permit the bounded walk.
+ */
+const hasGitMetadata = Effect.fnUntraced(function* (directory: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const metadata = path.join(directory, ".git");
+  return yield* fs.stat(metadata).pipe(
+    Effect.flatMap((info) => {
+      if (info.type === "Directory") return fs.exists(path.join(metadata, "HEAD"));
+      if (info.type === "File") return fs.readFileString(metadata).pipe(Effect.map(Str.startsWith("gitdir:")));
+      return Effect.succeed(false);
+    }),
+    Effect.catchIf(
+      (cause) => cause.reason._tag === "NotFound",
+      () => Effect.succeed(false)
+    ),
+    Effect.mapError((cause) => configSnapshotFailure("Cannot inspect Git snapshot metadata.", cause))
+  );
+});
+
+const assertIndexedGitBoundary = Effect.fnUntraced(function* (repoRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const top = yield* spawner
+    .string(ChildProcess.make("git", ["rev-parse", "--show-toplevel"], { cwd: repoRoot, stderr: "ignore" }))
+    .pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot resolve indexed checkout root.", cause)));
+  const indexedTop = Str.replace(/\n$/u, "")(top);
+  if (Str.isEmpty(indexedTop)) return yield* configSnapshotFailure("Git returned no indexed checkout root.", undefined);
+  const physicalTop = yield* fs
+    .realPath(indexedTop)
+    .pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot resolve physical checkout root.", cause)));
+  let directory = yield* fs
+    .realPath(path.resolve(repoRoot))
+    .pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot resolve indexed scan root.", cause)));
+  while (directory !== physicalTop) {
+    if (yield* hasGitMetadata(directory))
+      return yield* configSnapshotFailure("Git skipped unresolved nested metadata.", undefined);
+    const parent = path.dirname(directory);
+    if (parent === directory)
+      return yield* configSnapshotFailure("Git checkout root does not contain the scan root.", undefined);
+    directory = parent;
+  }
+});
+
+const hasAncestorGitMetadata = Effect.fnUntraced(function* (repoRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  let directory = yield* fs
+    .realPath(path.resolve(repoRoot))
+    .pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot resolve Git snapshot ancestry.", cause)));
+  while (true) {
+    if (yield* hasGitMetadata(directory)) return true;
+    const parent = path.dirname(directory);
+    if (parent === directory) return false;
+    directory = parent;
+  }
+});
+
+const indexedSnapshotTruncation = (fileCount: number, maxFiles: number, depthTruncated: boolean) => {
+  if (fileCount > maxFiles) return O.some(AiMetricsConfigSnapshotTruncationReason.Enum["max-files"]);
+  return depthTruncated ? O.some(AiMetricsConfigSnapshotTruncationReason.Enum["max-depth"]) : O.none();
+};
+
 const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths")(function* (
   repoRoot: string,
   budget: AiMetricsConfigSnapshotBudget
-): Effect.fn.Return<ConfigSnapshotEnumeration, never, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<
+  ConfigSnapshotEnumeration,
+  AiMetricsConfigSnapshotError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const fs = yield* FileSystem.FileSystem;
   const pathApi = yield* Path.Path;
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  // Non-git fixtures retain the bounded filesystem walk. A real checkout uses
+  // the index, so ignored hook-state/log noise cannot split identical heads.
+  const [gitCode, gitStderr] = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* spawner.spawn(
+        ChildProcess.make("git", ["rev-parse", "--git-dir"], {
+          cwd: repoRoot,
+          stdout: "ignore",
+          stderr: "pipe",
+        })
+      );
+      return yield* Effect.all(
+        [
+          handle.exitCode,
+          // Drain stderr while retaining only its first 2 Ki characters.
+          handle.stderr.pipe(
+            Stream.decodeText,
+            Stream.runFold(
+              () => "",
+              (text, chunk) => Str.slice(0, 2048)(text + chunk)
+            )
+          ),
+        ],
+        { concurrency: "unbounded" }
+      );
+    })
+  ).pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot probe Git snapshot metadata.", cause)));
+  if (gitCode !== 0 && (yield* hasAncestorGitMetadata(repoRoot)))
+    return yield* configSnapshotFailure("Git metadata exists but cannot be resolved.", {
+      exitCode: gitCode,
+      stderr: gitStderr,
+    });
+  if (gitCode === 0) yield* assertIndexedGitBoundary(repoRoot);
+  const tracked = yield* gitCode === 0
+    ? Effect.scoped(readTrackedSnapshotPaths(repoRoot))
+    : Effect.succeed(O.none<ReadonlyArray<string>>());
+  if (O.isSome(tracked)) {
+    const selected = A.filter(tracked.value, (relative) => {
+      const parts = Str.split(relative, "/");
+      const inConfigRoot = A.some(CONFIG_ROOTS, (root) => Str.startsWith(`${root}/`)(relative));
+      return (
+        !A.some(parts, isExcludedDirectoryName) &&
+        (relative === ".mcp.json" || isAgentDocName(pathApi.basename(relative)) || inConfigRoot)
+      );
+    });
+    const bounded = A.filter(
+      selected,
+      (relative) =>
+        A.length(Str.split(relative, "/")) <=
+        budget.maxDepth + (A.some(CONFIG_ROOTS, (root) => Str.startsWith(`${root}/`)(relative)) ? 1 : 0)
+    );
+    const local = pathApi.join(pathApi.resolve(repoRoot), ".claude/settings.local.json");
+    const candidates = pipe(
+      A.map(bounded, (relative) => pathApi.join(pathApi.resolve(repoRoot), relative)),
+      A.append(local),
+      A.dedupe
+    );
+    const excluded = yield* Ref.make(A.empty<string>());
+    const probes = MutableHashMap.empty<string, boolean>();
+    const scanRoot = pathApi.resolve(repoRoot);
+    const outsideNestedCheckout = Effect.fnUntraced(function* (file: string) {
+      let parent = pathApi.dirname(file);
+      while (parent !== scanRoot && parent !== pathApi.dirname(parent)) {
+        const dirPath = parent;
+        const nested = yield* O.match(MutableHashMap.get(probes, dirPath), {
+          onSome: Effect.succeed,
+          onNone: () =>
+            isNestedGitRoot({ dirPath, scanRoot }).pipe(
+              Effect.tap((value) => Effect.sync(() => MutableHashMap.set(probes, dirPath, value)))
+            ),
+        });
+        if (nested) {
+          yield* Ref.update(excluded, (paths) => A.append(paths, normalizeRepoPath(pathApi, repoRoot, dirPath)));
+          return false;
+        }
+        parent = pathApi.dirname(parent);
+      }
+      return true;
+    });
+    const eligible = yield* Effect.filter(candidates, outsideNestedCheckout);
+    const existing = yield* Effect.filter(eligible, (file) =>
+      fs.stat(file).pipe(
+        Effect.map((info) => info.type === "File"),
+        Effect.catchIf(
+          (cause) => cause.reason._tag === "NotFound",
+          () => Effect.succeed(false)
+        ),
+        Effect.mapError((cause) => configSnapshotFailure("Cannot inspect indexed config snapshot file.", cause))
+      )
+    );
+    const sessionPaths = A.filter(existing, (file) => {
+      const relative = normalizeRepoPath(pathApi, repoRoot, file);
+      return isSessionScopePath(relative);
+    });
+    const paths = pipe(existing, A.dedupe, A.sort(Order.String));
+    const prioritized = A.appendAll(
+      sessionPaths,
+      A.filter(paths, (file) => !A.contains(sessionPaths, file))
+    );
+    return {
+      excludedNestedRootPaths: pipe(yield* Ref.get(excluded), A.dedupe, A.sort(Order.String)),
+      paths: pipe(prioritized, A.take(budget.maxFiles), A.sort(Order.String)),
+      truncationReason: indexedSnapshotTruncation(
+        A.length(paths),
+        budget.maxFiles,
+        A.length(bounded) < A.length(selected)
+      ),
+    };
+  }
   const pathsRef = yield* Ref.make(A.empty<string>());
   const excludedRef = yield* Ref.make(A.empty<string>());
   const truncationRef = yield* Ref.make(O.none<AiMetricsConfigSnapshotTruncationReason>());
@@ -630,12 +850,20 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
     currentPath: string,
     depth: number,
     includeFile: (basename: string) => boolean
-  ): Effect.fn.Return<void, never, FileSystem.FileSystem | Path.Path> {
+  ): Effect.fn.Return<void, AiMetricsConfigSnapshotError, FileSystem.FileSystem | Path.Path> {
+    if (A.contains(yield* Ref.get(pathsRef), currentPath)) return;
     if (A.length(yield* Ref.get(pathsRef)) >= budget.maxFiles) {
       return yield* markTruncated(AiMetricsConfigSnapshotTruncationReason.Enum["max-files"]);
     }
 
-    const info = yield* statOption(currentPath);
+    const info = yield* fs.stat(currentPath).pipe(
+      Effect.asSome,
+      Effect.catchIf(
+        (cause) => cause.reason._tag === "NotFound",
+        () => Effect.succeedNone
+      ),
+      Effect.mapError((cause) => configSnapshotFailure("Cannot inspect fallback snapshot path.", cause))
+    );
     if (O.isNone(info)) {
       return;
     }
@@ -643,7 +871,9 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
     // A `File` the filter rejects falls through to the directory guard below, which
     // returns for any non-`Directory` type — the same early exit the collected branch takes.
     if (info.value.type === "File" && includeFile(pathApi.basename(currentPath))) {
-      return yield* Ref.update(pathsRef, (paths) => A.append(paths, currentPath));
+      return yield* Ref.update(pathsRef, (paths) =>
+        A.contains(paths, currentPath) ? paths : A.append(paths, currentPath)
+      );
     }
 
     if (info.value.type !== "Directory") {
@@ -655,7 +885,9 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
     }
 
     const entries = pipe(
-      yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(A.empty<string>)),
+      yield* fs
+        .readDirectory(currentPath)
+        .pipe(Effect.mapError((cause) => configSnapshotFailure("Cannot read fallback snapshot directory.", cause))),
       A.sort(Order.String)
     );
     yield* Effect.forEach(entries, (entry) => walkEntry(currentPath, entry, depth, includeFile), { discard: true });
@@ -668,7 +900,7 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
     entry: string,
     depth: number,
     includeFile: (basename: string) => boolean
-  ): Effect.fn.Return<void, never, FileSystem.FileSystem | Path.Path> {
+  ): Effect.fn.Return<void, AiMetricsConfigSnapshotError, FileSystem.FileSystem | Path.Path> {
     if (isExcludedDirectoryName(entry)) {
       return;
     }
@@ -690,14 +922,50 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
   // exhaust the budget and starve `AGENTS.md`/`CLAUDE.md` out of the snapshot entirely. That is
   // worse than truncation: both are session-scope paths, so losing them silently changes the
   // session/baseline split and corrupts `sessionHash` rather than merely shrinking the snapshot.
+  yield* Effect.forEach(
+    SessionScopePath.literals,
+    Effect.fnUntraced(function* (relative) {
+      const parts = Str.split(relative, "/");
+      const configRoot = A.findFirst(CONFIG_ROOTS, (root) => Str.startsWith(`${root}/`)(relative));
+      if (A.length(parts) > budget.maxDepth + (O.isSome(configRoot) ? 1 : 0))
+        return yield* markTruncated(AiMetricsConfigSnapshotTruncationReason.Enum["max-depth"]);
+      if (O.isSome(configRoot)) {
+        const dirPath = pathApi.join(repoRoot, configRoot.value);
+        if (yield* isNestedGitRoot({ dirPath, scanRoot: repoRoot }))
+          return yield* Ref.update(excludedRef, (paths) => A.append(paths, configRoot.value));
+      }
+      const file = pathApi.join(repoRoot, relative);
+      const info = yield* fs.stat(file).pipe(
+        Effect.asSome,
+        Effect.catchIf(
+          (cause) => cause.reason._tag === "NotFound",
+          () => Effect.succeedNone
+        ),
+        Effect.mapError((cause) => configSnapshotFailure("Cannot inspect prioritized snapshot file.", cause))
+      );
+      if (O.exists(info, (value) => value.type === "File")) yield* walk(file, A.length(parts), () => true);
+    }),
+    { discard: true }
+  );
   yield* walk(repoRoot, 0, isAgentDocName);
-  yield* Effect.forEach(CONFIG_ROOTS, (rootName) => walk(pathApi.join(repoRoot, rootName), 0, () => true), {
-    discard: true,
-  });
+  yield* Effect.forEach(
+    CONFIG_ROOTS,
+    Effect.fnUntraced(function* (rootName) {
+      const dirPath = pathApi.join(repoRoot, rootName);
+      if (yield* isNestedGitRoot({ dirPath, scanRoot: repoRoot })) {
+        return yield* Ref.update(excludedRef, (paths) =>
+          A.append(paths, normalizeRepoPath(pathApi, repoRoot, dirPath))
+        );
+      }
+      return yield* walk(dirPath, 0, () => true);
+    }),
+    { discard: true }
+  );
 
+  const walked = yield* Ref.get(pathsRef);
   return {
     excludedNestedRootPaths: pipe(yield* Ref.get(excludedRef), A.dedupe, A.sort(Order.String)),
-    paths: pipe(yield* Ref.get(pathsRef), A.dedupe, A.sort(Order.String)),
+    paths: pipe(walked, A.dedupe, A.sort(Order.String)),
     truncationReason: yield* Ref.get(truncationRef),
   };
 });
@@ -719,8 +987,15 @@ const readSnapshotFiles = Effect.fn("AiMetrics.readConfigSnapshotFiles")(functio
     }),
     { concurrency: 16 }
   );
+  const sessionCandidates = A.filter(candidates, (candidate) =>
+    isSessionScopePath(normalizeRepoPath(pathApi, repoRoot, candidate.filePath))
+  );
+  const prioritized = A.appendAll(
+    sessionCandidates,
+    A.filter(candidates, (candidate) => !isSessionScopePath(normalizeRepoPath(pathApi, repoRoot, candidate.filePath)))
+  );
   const selected = A.reduce(
-    candidates,
+    prioritized,
     {
       included: A.empty<{ readonly filePath: string; readonly sizeBytes: number }>(),
       skippedOversizeFileCount: 0,
@@ -926,6 +1201,9 @@ const readPreviousSnapshot = (previousSnapshotPath: O.Option<string>) =>
  * {@link AiMetricsConfigSnapshotBudget} bound what survives the boundary, and
  * every included file is tagged `session` or `baseline` so attribution can tell
  * an operator settings change apart from repo guidance drift.
+ * Git metadata requires a HEAD-bearing directory or a file starting with
+ * `gitdir:`, following symlinks. Dangling `.git` symlinks count as absent
+ * metadata and permit the bounded filesystem walk.
  *
  * **Gotchas**
  *

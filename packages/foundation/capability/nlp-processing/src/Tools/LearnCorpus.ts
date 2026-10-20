@@ -6,24 +6,25 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/LearnCorpus");
 
-class LearnCorpusDocument extends S.Class<LearnCorpusDocument>($I`LearnCorpusDocument`)(
-  {
+class LearnCorpusDocument extends S.Opaque<LearnCorpusDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.optionalKey(S.String.check(S.isMinLength(1))),
     text: S.String,
-  },
-  $I.annote("LearnCorpusDocument", {
-    description: "One document to learn into a corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCorpusDocument", {
+      description: "One document to learn into a corpus session.",
+    })
+  )
 ) {}
 
-class LearnCorpusParameters extends S.Class<LearnCorpusParameters>($I`LearnCorpusParameters`)(
-  {
+class LearnCorpusParameters extends S.Opaque<LearnCorpusParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String.check(S.isMinLength(1)).annotateKey({
       description: "Corpus identifier returned by CreateCorpus",
     }),
@@ -33,24 +34,26 @@ class LearnCorpusParameters extends S.Class<LearnCorpusParameters>($I`LearnCorpu
     documents: S.NonEmptyArray(LearnCorpusDocument).annotateKey({
       description: "Documents to learn into the corpus",
     }),
-  },
-  $I.annote("LearnCorpusParameters", {
-    description: "Inputs required to incrementally learn documents into an existing corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCorpusParameters", {
+      description: "Inputs required to incrementally learn documents into an existing corpus session.",
+    })
+  )
 ) {}
 
-class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSuccess`)(
-  {
+class LearnCorpusSuccess extends S.Opaque<LearnCorpusSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     learnedCount: S.Natural,
     reindexRequired: S.Boolean,
     skippedCount: S.Natural,
     totalDocuments: S.Natural,
     vocabularySize: S.Natural,
-  },
-  $I.annote("LearnCorpusSuccess", {
-    description: "Learning result summary for an incremental corpus update.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCorpusSuccess", {
+      description: "Learning result summary for an incremental corpus update.",
+    })
+  )
 ) {}
 
 /**

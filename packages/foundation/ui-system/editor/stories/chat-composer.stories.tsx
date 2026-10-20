@@ -1,16 +1,16 @@
 import { ChatComposer } from "@beep/editor/chat/chat-composer";
+import { MentionOption } from "@beep/editor/chat/config";
 import { EditorComposer } from "@beep/editor/composer";
 import * as A from "effect/Array";
 import { expect, fn, userEvent, within } from "storybook/test";
 import { draftReplyInitialState as initialState } from "./fixtures.ts";
-import type { MentionOption } from "@beep/editor/chat/config";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 // Sample app-injected `@` mention source (ephemeral; serializes to plain text).
 const MENTIONS: ReadonlyArray<MentionOption> = [
-  { id: "ada", label: "Ada Lovelace", hint: "collaborator" },
-  { id: "grace", label: "Grace Hopper", hint: "collaborator" },
-  { id: "assistant", label: "assistant", hint: "the workspace agent" },
+  MentionOption.make({ id: "ada", label: "Ada Lovelace", hint: "collaborator" }),
+  MentionOption.make({ id: "grace", label: "Grace Hopper", hint: "collaborator" }),
+  MentionOption.make({ id: "assistant", label: "assistant", hint: "the workspace agent" }),
 ];
 const sampleMentionSource = (query: string): ReadonlyArray<MentionOption> =>
   A.filter(MENTIONS, (m) => m.label.toLowerCase().includes(query.toLowerCase()));

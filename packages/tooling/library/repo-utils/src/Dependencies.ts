@@ -17,9 +17,10 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import { topologicalSort } from "./Graph.ts";
+import { WorkspaceDeps } from "./schemas/WorkspaceDeps.ts";
 import type { CyclicDependencyError } from "./errors/index.ts";
 import type { PackageJson } from "./schemas/PackageJson.ts";
-import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.ts";
+import type { DependencyRecord } from "./schemas/WorkspaceDeps.ts";
 
 /**
  * Classify a single dependency record into workspace and npm buckets.
@@ -91,7 +92,7 @@ export const extractWorkspaceDependencies: {
   const peerDeps = classifyRecord(packageJson.peerDependencies, workspaceNames);
   const optDeps = classifyRecord(packageJson.optionalDependencies, workspaceNames);
 
-  return {
+  return WorkspaceDeps.make({
     packageName: packageJson.name,
     workspace: {
       dependencies: deps.workspace,
@@ -105,7 +106,7 @@ export const extractWorkspaceDependencies: {
       peerDependencies: peerDeps.npm,
       optionalDependencies: optDeps.npm,
     },
-  };
+  });
 });
 
 const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> =>

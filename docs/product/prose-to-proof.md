@@ -9,8 +9,10 @@
 > [User Story](../PROSE_TO_PROOF_USER_STORY.md) → [Architecture Map](../PROSE_TO_PROOF_ARCHITECTURE_MAP.md) → **this**.
 > Sibling substrate: [Workspace Substrate](./workspace-substrate.md) — how the workbench is *inhabited* (docks + blocks + agent-operated panels).
 > See also the [Visualization](../PROSE_TO_PROOF_VISUALIZATION.html).
-> Governing specs: `goals/agentic-professional-runtime/SPEC.md`, its `docs/runtime-data-loop.md`
-> and `docs/approval-and-autonomy-policy.md`, and `docs/BEEPGRAPH_ARCHITECTURE.md`.
+> Governing specs: `goals/agentic-professional-runtime/SPEC.md`,
+> `goals/agentic-professional-runtime/docs/runtime-data-loop.md` and
+> `goals/agentic-professional-runtime/docs/approval-and-autonomy-policy.md`, and
+> `docs/BEEPGRAPH_ARCHITECTURE.md`.
 
 ---
 
@@ -73,7 +75,7 @@ He is the first user *and* the corpus source *and* the standard of quality.
 Today `apps/professional-desktop` (v0.0.3) is a local chat app (Tauri + React + Bun sidecar,
 PGlite persistence, `ChatRpcs`, `AnthropicTurnKernel`/`FixtureTurnKernel`). The MVP turns it
 into the document portal by walking the **same runtime data loop** already locked as the
-first proof (`docs/runtime-data-loop.md`) — only the input changes from a normalized email
+first proof (`goals/agentic-professional-runtime/docs/runtime-data-loop.md`) — only the input changes from a normalized email
 to a matter document:
 
 ```
@@ -184,8 +186,8 @@ Gemini's grounding model and Perplexity's inline citations are the consumer refe
 ## 14. References
 
 Internal: `goals/agentic-professional-runtime/{SPEC.md, docs/product-vision-law-practice.md,
-docs/runtime-data-loop.md, docs/approval-and-autonomy-policy.md}` · `goals/ip-law-knowledge-graph/SPEC.md`
-· `goals/oppold-corpus-pipeline/SPEC.md` · `docs/BEEPGRAPH_ARCHITECTURE.md` · the
+docs/runtime-data-loop.md, docs/approval-and-autonomy-policy.md}` · the deleted
+`ip-law-knowledge-graph` packet SPEC (git history) · `goals/oppold-corpus-pipeline/SPEC.md` · `docs/BEEPGRAPH_ARCHITECTURE.md` · the
 [Architecture Map](../PROSE_TO_PROOF_ARCHITECTURE_MAP.md).
 
 External (market context):

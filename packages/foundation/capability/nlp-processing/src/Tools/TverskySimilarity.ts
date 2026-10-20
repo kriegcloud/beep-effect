@@ -8,7 +8,7 @@
 import { $NlpProcessingId } from "@beep/identity";
 import { SimilarityMethod } from "@beep/nlp/Core/Similarity";
 import { UnitInterval } from "@beep/schema/UnitInterval";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
@@ -17,8 +17,8 @@ const $I = $NlpProcessingId.create("Tools/TverskySimilarity");
 
 const tverskySimilarityParametersAlphaDefault = UnitInterval.make(0.5);
 const tverskySimilarityParametersBetaDefault = UnitInterval.make(0.5);
-class TverskySimilarityParameters extends S.Class<TverskySimilarityParameters>($I`TverskySimilarityParameters`)(
-  {
+class TverskySimilarityParameters extends S.Opaque<TverskySimilarityParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     alpha: UnitInterval.pipe(
       S.withConstructorDefault(Effect.succeed(tverskySimilarityParametersAlphaDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(tverskySimilarityParametersAlphaDefault))
@@ -39,14 +39,15 @@ class TverskySimilarityParameters extends S.Class<TverskySimilarityParameters>($
       description: "Second text to compare",
       examples: ["alpha beta"],
     }),
-  },
-  $I.annote("TverskySimilarityParameters", {
-    description: "Inputs required to compute asymmetric set similarity between two texts.",
-  })
+  }).pipe(
+    $I.annoteSchema("TverskySimilarityParameters", {
+      description: "Inputs required to compute asymmetric set similarity between two texts.",
+    })
+  )
 ) {}
 
-class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`TverskySimilaritySuccess`)(
-  {
+class TverskySimilaritySuccess extends S.Opaque<TverskySimilaritySuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     alpha: UnitInterval.annotateKey({
       description: "Applied alpha parameter",
     }),
@@ -59,10 +60,11 @@ class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`Tver
     score: UnitInterval.annotateKey({
       description: "Similarity score from 0 (no overlap) to 1 (identical sets)",
     }),
-  },
-  $I.annote("TverskySimilaritySuccess", {
-    description: "Asymmetric Tversky similarity score and applied parameter values.",
-  })
+  }).pipe(
+    $I.annoteSchema("TverskySimilaritySuccess", {
+      description: "Asymmetric Tversky similarity score and applied parameter values.",
+    })
+  )
 ) {}
 
 /**

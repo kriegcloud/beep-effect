@@ -35,7 +35,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { LanguageModel } from "effect/ai";
+import * as LanguageModel from "effect/ai/LanguageModel";
 import { ErrorMessage, OptionalErrorCause } from "../Domain/Error/Base.ts";
 import type { ExtractionError } from "../Domain/Error/Extraction.ts";
 import type { OntologyFileNotFound, OntologyParsingFailed } from "../Domain/Error/Ontology.ts";
@@ -120,7 +120,7 @@ type OntologyQueryError =
  * @category errors
  * @since 0.0.0
  */
-export class OntologyAgentError extends S.TaggedError<OntologyAgentError>($I`OntologyAgentError`)(
+export class OntologyAgentError extends S.TaggedError<OntologyAgentError, { readonly brand: unique symbol }>($I`OntologyAgentError`)(
   "OntologyAgentError",
   {
     operation: OntologyAgentOperation.annotateKey({

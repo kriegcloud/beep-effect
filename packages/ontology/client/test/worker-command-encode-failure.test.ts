@@ -7,7 +7,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
-import { AtomRegistry } from "effect/reactivity";
+import * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import * as Schedule from "effect/Schedule";
 import { vi } from "vitest";
 
@@ -21,12 +21,12 @@ vi.mock("@beep/ontology-use-cases/aggregates/Session", (importOriginal) =>
     import("effect/Result"),
     import("effect/Schema"),
   ]).then(([actual, ResultModule, SchemaModule]) => {
-    class ForcedWorkerCommandEncodeFailure extends SchemaModule.TaggedError<ForcedWorkerCommandEncodeFailure>()(
-      "ForcedWorkerCommandEncodeFailure",
-      {
-        message: SchemaModule.String,
-      }
-    ) {}
+    class ForcedWorkerCommandEncodeFailure extends SchemaModule.TaggedError<
+      ForcedWorkerCommandEncodeFailure,
+      { readonly brand: unique symbol }
+    >()("ForcedWorkerCommandEncodeFailure", {
+      message: SchemaModule.String,
+    }) {}
     return {
       ...actual,
       encodeWorkerCommand: () =>

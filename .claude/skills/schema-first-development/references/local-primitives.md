@@ -85,15 +85,15 @@ const Status = StatusBase.pipe(withLiteralKitStatics(StatusBase))
 
 ## Prefer Shared Schemas Before New Brands
 
-Check `packages/common/schema/src/` before writing a custom primitive.
+Check `packages/foundation/modeling/schema/src/` before writing a custom primitive.
 
 Examples worth reusing:
 
 - `FilePath`
 - `PosixPath`
 - `Email`
-- integer and numeric helpers from `Int.ts` and `Number.ts`
-- SQL-focused schemas under `Sql/`
+- numeric helpers such as `Double.ts`, `Float.ts`, and `UnitInterval.ts`
+  (integers come from upstream `S.Int` and `S.isInt`)
 
 If the domain already exists there, reuse it or extend it instead of cloning the
 logic locally.
@@ -131,7 +131,7 @@ modeling style.
 Prefer:
 
 ```ts
-export class InputError extends S.TaggedError<InputError>($I`InputError`)(
+export class InputError extends S.TaggedError<InputError, { readonly brand: unique symbol }>($I`InputError`)(
   "InputError",
   { message: S.String },
   $I.annote("InputError", {
@@ -142,15 +142,15 @@ export class InputError extends S.TaggedError<InputError>($I`InputError`)(
 
 Use the package `$I` composer when a distinct namespaced schema identifier is
 wanted. If no distinct identifier is needed, use
-`S.TaggedError<InputError>()("InputError", fields)`. Never pass a bare
-identifier equal to the tag. Cause-carrying errors declare
+`S.TaggedError<InputError, { readonly brand: unique symbol }>()("InputError", fields)`.
+Never pass a bare identifier equal to the tag. Cause-carrying errors declare
 `cause: S.Defect({ includeStack: true })` explicitly.
 
 ## Decide Between Raw `effect/Schema` and Local Helpers
 
 Use raw `effect/Schema` when:
 
-- composing an object model with `S.Class`
+- composing a plain-data object model with a branded `S.Opaque` over `S.Struct`
 - building a one-off local codec
 - using standard helpers such as `OptionFrom*`, `decodeTo`, or JSON codecs
 

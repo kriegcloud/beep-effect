@@ -73,7 +73,7 @@ export type YamlTokenKind = typeof YamlTokenKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class YamlToken extends S.Class<YamlToken>($I`YamlToken`)({
+export class YamlToken extends S.Class<YamlToken, { readonly brand: unique symbol }>($I`YamlToken`)({
 	kind: YamlTokenKind.annotateKey({ description: "Lexical category assigned by the YAML tokenizer" }),
 	text: S.String.annotateKey({ description: "Raw source slice covered by the token, preserving quotes and whitespace" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based start position in the YAML source, measured in UTF-16 code units" }),

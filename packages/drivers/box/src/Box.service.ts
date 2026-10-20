@@ -40,7 +40,7 @@ const $I = $BoxId.create("Box.service");
  */
 export type BoxShape = BoxGeneratedOperations & BoxStreamingOperations;
 
-const runSdkCall: BoxRunSdkCall = (manager, method, methodName, payloadSchema, successSchema, payload, invoke) =>
+const runSdkCall: BoxRunSdkCall = (manager, _method, methodName, payloadSchema, successSchema, payload, invoke) =>
   acquireSdkCallController({
     methodName,
     payloadSchema,
@@ -54,7 +54,7 @@ const runSdkCall: BoxRunSdkCall = (manager, method, methodName, payloadSchema, s
           decodeWith(successSchema, result, { method: methodName, reason: "response decoding" })
         ),
         Effect.tapError(logDriverFailure("box.driver_failure")),
-        Effect.withSpan(`box.${manager}.${method}`, {
+        Effect.withSpan("Box.invoke", {
           attributes: {
             "box.manager": manager,
             "box.method": methodName,

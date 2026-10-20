@@ -136,7 +136,7 @@ import type { PopplerError } from "@beep/poppler";
 import type { TesseractScript } from "@beep/tesseract";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CorpusArchiveMoveError } from "../Corpus.errors.ts";
 import type {
   CorpusArchiveMoveOptions,
@@ -277,26 +277,40 @@ WHERE sha256 IS NOT NULL AND referenced_raw_path IS NOT NULL
 GROUP BY sha256
 ORDER BY sha256, "destPath"`;
 
-class SourceTotalsRow extends S.Class<SourceTotalsRow>($I`SourceTotalsRow`)(
-  {
+/**
+ * Aggregate file, byte, and digest totals queried from the corpus catalog.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SourceTotalsRow extends S.Opaque<SourceTotalsRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     distinctDigests: S.Finite,
     sourceFiles: S.Finite,
     totalBytes: S.Finite,
-  },
-  $I.annote("SourceTotalsRow", {
-    description: "Aggregate file, byte, and digest totals queried from the corpus catalog.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceTotalsRow", {
+      description: "Aggregate file, byte, and digest totals queried from the corpus catalog.",
+    })
+  )
 ) {}
 
-class DuplicateTotalsRow extends S.Class<DuplicateTotalsRow>($I`DuplicateTotalsRow`)(
-  {
+/**
+ * Aggregate duplicate-set totals queried from the corpus catalog.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DuplicateTotalsRow extends S.Opaque<DuplicateTotalsRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     duplicateFiles: S.Finite,
     duplicateSets: S.Finite,
     redundantBytes: S.Finite,
-  },
-  $I.annote("DuplicateTotalsRow", {
-    description: "Aggregate duplicate-set totals queried from the corpus catalog.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuplicateTotalsRow", {
+      description: "Aggregate duplicate-set totals queried from the corpus catalog.",
+    })
+  )
 ) {}
 
 const decodeSourceTotalsRows = S.decodeUnknownEffect(S.Array(SourceTotalsRow));
@@ -427,14 +441,21 @@ export const decodeProvenanceLinesForTesting = decodeProvenanceLines;
 
 const baseCatalogRunLabel = "base";
 
-class CatalogManifest extends S.Class<CatalogManifest>($I`CatalogManifest`)(
-  {
+/**
+ * A provenance manifest selected for corpus catalog unioning.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CatalogManifest extends S.Opaque<CatalogManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestPath: S.NonEmptyString,
     runLabel: S.NonEmptyString,
-  },
-  $I.annote("CatalogManifest", {
-    description: "A provenance manifest selected for corpus catalog unioning.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogManifest", {
+      description: "A provenance manifest selected for corpus catalog unioning.",
+    })
+  )
 ) {}
 
 const catalogCopyModeFor = (record: CorpusProvenanceRecord): "copied" | "provenance-only" =>

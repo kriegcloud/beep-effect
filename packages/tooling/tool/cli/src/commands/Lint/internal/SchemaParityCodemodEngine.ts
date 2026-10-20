@@ -8,7 +8,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { FsUtils } from "@beep/repo-utils/FsUtils";
+import { FsUtils, GlobOptions } from "@beep/repo-utils/FsUtils";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
@@ -44,7 +44,7 @@ import {
 import { findSchemaParityCodemodEditOverlap, renderSchemaParityCodemodEdits } from "./SchemaParityCodemodEdits.ts";
 import { schemaParityCodemodValueImports } from "./SchemaParityCodemodImports.ts";
 import { literalKitFacetsRule } from "./SchemaParityCodemodLiteralKitRule.ts";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { SourceFile } from "ts-morph";
 import type {
   SchemaParityCodemodOptions,
@@ -286,11 +286,11 @@ const discoverSources = Effect.fn("SchemaParityCodemod.discoverSources")(functio
   const files = yield* fsUtils
     .globFiles(
       A.map(roots, (root) => `${Str.replace(/\/+$/u, "")(root)}/**/*.{ts,tsx}`),
-      {
+      GlobOptions.make({
         absolute: true,
         cwd: repoRoot,
         ignore: ["**/node_modules/**", "**/dist/**", "**/docs/**", "**/build/**", "**/.turbo/**", "**/*.d.ts"],
-      }
+      })
     )
     .pipe(SchemaParityCodemodError.mapError("Failed to discover codemod source files."));
   return A.sort(A.dedupe(files), Order.String);
@@ -361,9 +361,9 @@ const applyPlannedWrites = Effect.fn("SchemaParityCodemod.applyPlannedWrites")(f
     Effect.fnUntraced(function* (write) {
       const extension = path.extname(write.filePath);
       const stem = Str.slice(0, write.filePath.length - extension.length)(write.filePath);
-      const nonce = yield* crypto.randomUUIDv4.pipe(
-        SchemaParityCodemodError.mapError("Failed to identify codemod stage.")
-      );
+      const nonce = yield* crypto
+        .randomUUIDv4()
+        .pipe(SchemaParityCodemodError.mapError("Failed to identify codemod stage."));
       return { ...write, stagedPath: `${stem}${STAGED_SUFFIX}-${nonce}${extension}` };
     })
   );

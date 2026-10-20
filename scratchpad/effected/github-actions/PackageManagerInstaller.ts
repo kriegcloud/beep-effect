@@ -18,7 +18,8 @@ import type * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { digestFileHex } from "./internal/digest.ts";
 import { typeAt } from "./internal/fsProbe.ts";
@@ -71,7 +72,7 @@ const isWindowsShimTarget = S.is(WindowsShimTarget);
  * @category errors
  * @since 0.0.0
  */
-export class PackageManagerInstallerError extends S.TaggedError<PackageManagerInstallerError>($I`PackageManagerInstallerError`)(
+export class PackageManagerInstallerError extends S.TaggedError<PackageManagerInstallerError, { readonly brand: unique symbol }>($I`PackageManagerInstallerError`)(
 	"PackageManagerInstallerError",
 	{
 		/**
@@ -312,7 +313,7 @@ export type PackageManagerInstallOptions = typeof PackageManagerInstallOptions.T
  * @category models
  * @since 0.0.0
  */
-export class AmbientPackageManager extends S.Class<AmbientPackageManager>($I`AmbientPackageManager`)({
+export class AmbientPackageManager extends S.Class<AmbientPackageManager, { readonly brand: unique symbol }>($I`AmbientPackageManager`)({
 	/** The discriminant: the runner's own toolchain answered. */
 	source: S.tag("ambient").annotateKey({ description: "The discriminant: the runner's own toolchain answered." }),
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */
@@ -362,7 +363,7 @@ export class AmbientPackageManager extends S.Class<AmbientPackageManager>($I`Amb
  * @category models
  * @since 0.0.0
  */
-export class CachedPackageManager extends S.Class<CachedPackageManager>($I`CachedPackageManager`)({
+export class CachedPackageManager extends S.Class<CachedPackageManager, { readonly brand: unique symbol }>($I`CachedPackageManager`)({
 	/** The discriminant: the manager lives in the tool cache. */
 	source: S.tag("tool-cache").annotateKey({ description: "The discriminant: the manager lives in the tool cache." }),
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */

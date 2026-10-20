@@ -10,7 +10,8 @@ import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-util
 import { normalizePath } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
@@ -139,15 +140,16 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
  * @category models
  * @since 0.0.0
  */
-export class PurgeSummary extends S.Class<PurgeSummary>($I`PurgeSummary`)(
-  {
+export class PurgeSummary extends S.Opaque<PurgeSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     targetedCount: S.Finite,
     removedCount: S.Finite,
     workspaceCount: S.Finite,
-  },
-  $I.annote("PurgeSummary", {
-    description: "Summary statistics returned after a purge run.",
-  })
+  }).pipe(
+    $I.annoteSchema("PurgeSummary", {
+      description: "Summary statistics returned after a purge run.",
+    })
+  )
 ) {}
 
 /**

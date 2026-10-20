@@ -140,11 +140,12 @@ const EvalSelectionChecks = S.makeFilterGroup(
  * @category models
  * @since 0.0.0
  */
-export class EvalSelection extends S.Class<EvalSelection>($I`EvalSelection`)(
-  EvalSelectionFields.check(EvalSelectionChecks),
-  $I.annote("EvalSelection", {
-    description: "Unique W1 paper ids and non-empty F1 fixture ids selected for one evaluation run.",
-  })
+export class EvalSelection extends S.Opaque<EvalSelection, { readonly brand: unique symbol }>()(
+  EvalSelectionFields.check(EvalSelectionChecks).pipe(
+    $I.annoteSchema("EvalSelection", {
+      description: "Unique W1 paper ids and non-empty F1 fixture ids selected for one evaluation run.",
+    })
+  )
 ) {}
 
 const EvalRunBody = S.Struct({
@@ -247,11 +248,14 @@ const EvalRunChecks = S.makeFilterGroup([
  * @category models
  * @since 0.0.0
  */
-export class EvalRun extends S.Class<EvalRun>($I`EvalRun`)(
-  EvalRunFields.mapFields(identity).check(EvalRunChecks),
-  $I.annote("EvalRun", {
-    description: "Replay-stable evaluation inputs with independent gold and hosted-extraction provider families.",
-  })
+export class EvalRun extends S.Opaque<EvalRun, { readonly brand: unique symbol }>()(
+  EvalRunFields.mapFields(identity)
+    .check(EvalRunChecks)
+    .pipe(
+      $I.annoteSchema("EvalRun", {
+        description: "Replay-stable evaluation inputs with independent gold and hosted-extraction provider families.",
+      })
+    )
 ) {}
 
 /**
@@ -428,11 +432,14 @@ const MetricScoreChecks = S.makeFilterGroup(
  * @category models
  * @since 0.0.0
  */
-export class MetricScore extends S.Class<MetricScore>($I`MetricScore`)(
-  MetricScoreFields.mapFields(identity).check(MetricScoreChecks),
-  $I.annote("MetricScore", {
-    description: "Unit-interval metric value with subset, lane, support count, and explicit support status.",
-  })
+export class MetricScore extends S.Opaque<MetricScore, { readonly brand: unique symbol }>()(
+  MetricScoreFields.mapFields(identity)
+    .check(MetricScoreChecks)
+    .pipe(
+      $I.annoteSchema("MetricScore", {
+        description: "Unit-interval metric value with subset, lane, support count, and explicit support status.",
+      })
+    )
 ) {}
 
 /**
@@ -449,15 +456,16 @@ export class MetricScore extends S.Class<MetricScore>($I`MetricScore`)(
  * @category models
  * @since 0.0.0
  */
-export class RequiredMetric extends S.Class<RequiredMetric>($I`RequiredMetric`)(
-  {
+export class RequiredMetric extends S.Opaque<RequiredMetric, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: MetricName,
     subset: MetricSubset,
     lane: ExtractionLane,
-  },
-  $I.annote("RequiredMetric", {
-    description: "Required evaluation coordinate composed of metric name, gold subset, and extraction lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("RequiredMetric", {
+      description: "Required evaluation coordinate composed of metric name, gold subset, and extraction lane.",
+    })
+  )
 ) {}
 
 const C0RequiredMetrics: ReadonlyArray<RequiredMetric> = [
@@ -525,8 +533,8 @@ const DocumentClaimCounts = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class DocumentOutcome extends S.Class<DocumentOutcome>($I`DocumentOutcome`)(
-  {
+export class DocumentOutcome extends S.Opaque<DocumentOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     document: DocumentId,
     origin: Origin,
     parse: DocumentParseOutcome,
@@ -543,11 +551,12 @@ export class DocumentOutcome extends S.Class<DocumentOutcome>($I`DocumentOutcome
     anchorsVerified: S.Natural,
     anchorsFailed: S.Natural,
     cacheKeys: S.Array(Sha256Hex),
-  },
-  $I.annote("DocumentOutcome", {
-    description:
-      "Per-document accounting for parsing, both extraction lanes, claims, anchors, and provider cache keys.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentOutcome", {
+      description:
+        "Per-document accounting for parsing, both extraction lanes, claims, anchors, and provider cache keys.",
+    })
+  )
 ) {}
 
 const EvalReportFields = S.Struct({
@@ -773,9 +782,12 @@ const EvalReportChecks = S.makeFilterGroup(
  * @category models
  * @since 0.0.0
  */
-export class EvalReport extends S.Class<EvalReport>($I`EvalReport`)(
-  EvalReportFields.mapFields(identity).check(EvalReportChecks),
-  $I.annote("EvalReport", {
-    description: "Content-addressed evaluation report with exact stage metrics and derived degradation accounting.",
-  })
+export class EvalReport extends S.Opaque<EvalReport, { readonly brand: unique symbol }>()(
+  EvalReportFields.mapFields(identity)
+    .check(EvalReportChecks)
+    .pipe(
+      $I.annoteSchema("EvalReport", {
+        description: "Content-addressed evaluation report with exact stage metrics and derived degradation accounting.",
+      })
+    )
 ) {}

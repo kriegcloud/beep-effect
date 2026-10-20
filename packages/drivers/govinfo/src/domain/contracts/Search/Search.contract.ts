@@ -8,7 +8,7 @@ import { $GovinfoId } from "@beep/identity";
 import { SchemaUtils } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as HttpStatus from "effect/http/HttpStatus";
-import { HttpApiSchema } from "effect/http-api";
+import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
 import * as S from "effect/Schema";
 import { SearchBody } from "../..//values/index.ts";
 import { SearchResponse } from "../../values/SearchResponse/index.ts";
@@ -112,7 +112,9 @@ export class Success extends SearchResponse.extend<Success>($I`Success`)(
  * @category errors
  * @since 0.0.0
  */
-export class FailureBadRequest extends S.TaggedError<FailureBadRequest>($I`FailureBadRequest`)(
+export class FailureBadRequest extends S.TaggedError<FailureBadRequest, { readonly brand: unique symbol }>(
+  $I`FailureBadRequest`
+)(
   "FailureBadRequest",
   {
     cause: S.OptionFromOptionalKey(S.Defect().pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))).pipe(
@@ -144,7 +146,9 @@ export class FailureBadRequest extends S.TaggedError<FailureBadRequest>($I`Failu
  * @category errors
  * @since 0.0.0
  */
-export class FailureNotFound extends S.TaggedError<FailureNotFound>($I`FailureNotFound`)(
+export class FailureNotFound extends S.TaggedError<FailureNotFound, { readonly brand: unique symbol }>(
+  $I`FailureNotFound`
+)(
   "FailureNotFound",
   {
     cause: S.OptionFromOptionalKey(S.Defect().pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))).pipe(
@@ -176,9 +180,10 @@ export class FailureNotFound extends S.TaggedError<FailureNotFound>($I`FailureNo
  * @category errors
  * @since 0.0.0
  */
-export class FailureInternalServerError extends S.TaggedError<FailureInternalServerError>(
-  $I`FailureInternalServerError`
-)(
+export class FailureInternalServerError extends S.TaggedError<
+  FailureInternalServerError,
+  { readonly brand: unique symbol }
+>($I`FailureInternalServerError`)(
   "FailureInternalServerError",
   {
     cause: S.OptionFromOptionalKey(S.Defect().pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))).pipe(

@@ -1,6 +1,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import {
   AgentMessageStore,
+  AgentMessageStoreLimits,
   AmbiguityResolution,
   EndpointBinding,
   EndpointDispatch,
@@ -23,7 +24,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as Result from "effect/Result";
 import * as Reactivity from "effect/reactivity/Reactivity";
 import * as S from "effect/Schema";
@@ -109,7 +110,7 @@ const fixture = Effect.fnUntraced(function* <T, E, R>(
   const directory = yield* fs.makeTempDirectoryScoped({ directory: cache, prefix: "store-" });
   const filename = path.join(directory, "messages.sqlite");
   const client = yield* makeAgentMessageSqliteClient(filename, "50 millis");
-  const store = yield* makeAgentMessageStore(maxPending, maxPendingPerEndpoint).pipe(
+  const store = yield* makeAgentMessageStore(AgentMessageStoreLimits.make({ maxPending, maxPendingPerEndpoint })).pipe(
     Effect.provideService(SqlClient.SqlClient, client)
   );
   yield* store.register(yield* binding("a"));
@@ -1067,9 +1068,16 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             yield* store.accept(envelope("global-full"), 100);
             expect((yield* Effect.flip(store.accept(envelope("other-global", "a", "c"), 101))).code).toBe("queueFull");
             const client = yield* makeAgentMessageSqliteClient(filename);
+            // `make` validates, so the invalid per-endpoint limit is built with checks
+            // disabled: the store's own decode must reject it.
+            const invalidLimits = AgentMessageStoreLimits.make(
+              { maxPending: 1, maxPendingPerEndpoint: 0 },
+              { disableChecks: true }
+            );
             expect(
-              (yield* Effect.flip(makeAgentMessageStore(1, 0).pipe(Effect.provideService(SqlClient.SqlClient, client))))
-                .code
+              (yield* Effect.flip(
+                makeAgentMessageStore(invalidLimits).pipe(Effect.provideService(SqlClient.SqlClient, client))
+              )).code
             ).toBe("storage");
           }),
         1,

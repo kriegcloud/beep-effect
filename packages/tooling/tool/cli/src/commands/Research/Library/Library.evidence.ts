@@ -7,6 +7,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { COMMON_HTML, CURRENCY, ENTITY_ACTION, EntityDecoder } from "@nodable/entities";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -16,6 +17,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { XMLParser } from "fast-xml-parser";
 import { SyntaxValidator } from "fast-xml-validator";
+import { HTML as HTML_CONTEXT, isUnsafe, XML as XML_CONTEXT } from "is-unsafe";
 import { decodeLibraryJson, encodeLibraryJson, runLibraryCommand } from "./Library.adapter.ts";
 import { LibraryError } from "./Library.errors.ts";
 import { readLibraryProviderEvents } from "./Library.events.ts";
@@ -40,8 +42,8 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.evidence");
  * @category models
  * @since 0.0.0
  */
-export class LibraryProbeEvidence extends S.Class<LibraryProbeEvidence>($I`LibraryProbeEvidence`)(
-  {
+export class LibraryProbeEvidence extends S.Opaque<LibraryProbeEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     adapter: S.String,
     sourceId: S.String,
     sourceUrl: S.String,
@@ -49,10 +51,11 @@ export class LibraryProbeEvidence extends S.Class<LibraryProbeEvidence>($I`Libra
     captureId: S.String,
     complete: S.Boolean,
     artifacts: S.Array(LibraryArtifact),
-  },
-  $I.annote("LibraryProbeEvidence", {
-    description: "Operational probe referring to an actual complete source capture and hashed evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryProbeEvidence", {
+      description: "Operational probe referring to an actual complete source capture and hashed evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -165,7 +168,11 @@ export const libraryQualificationValid = Effect.fn("Library.qualificationValid")
     const probe = yield* fs
       .readFileString(path.join(root, artifact.path))
       .pipe(Effect.flatMap(decodeLibraryJson(LibraryProbeEvidence)), Effect.option);
-    if (O.isSome(probe) && (yield* validateQualificationProbe(root, catalog, qualification, probe.value))) return true;
+    if (
+      O.isSome(probe) &&
+      (yield* validateQualificationProbe(root, catalog, qualification, LibraryProbeEvidence.make(probe.value)))
+    )
+      return true;
   }
   return false;
 });
@@ -178,18 +185,19 @@ const TargetMetadata = S.Struct({
   capturedRevision: S.optionalKey(S.String),
   paperId: S.optionalKey(S.String),
 });
-class WebRedirectProof extends S.Class<WebRedirectProof>($I`WebRedirectProof`)(
-  {
+class WebRedirectProof extends S.Opaque<WebRedirectProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     requestedUrl: S.String,
     resolvedUrl: S.String,
     status: S.Finite,
     providerSourceUrl: S.String,
     identityMerged: S.Literal(false),
-  },
-  $I.annote("WebRedirectProof", {
-    description:
-      "Retained HTTP confirmation linking a requested page to the provider's resolved URL without merging identities.",
-  })
+  }).pipe(
+    $I.annoteSchema("WebRedirectProof", {
+      description:
+        "Retained HTTP confirmation linking a requested page to the provider's resolved URL without merging identities.",
+    })
+  )
 ) {}
 const CitationResolution = S.Struct({
   sourceId: S.String,
@@ -295,15 +303,23 @@ const XmlCaptionTranscript = S.Struct({
   transcript: S.Struct({ text: S.Union([XmlCaptionCue, XmlCaptionCues]) }),
 });
 const CaptionTextNode = S.Struct({ r: S.String });
-const captionXmlParser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: "",
-  parseAttributeValue: false,
-  parseTagValue: false,
-  textNodeName: "#text",
-  trimValues: false,
-  htmlEntities: true,
-});
+const makeCaptionXmlParser = () =>
+  new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "",
+    parseAttributeValue: false,
+    parseTagValue: false,
+    textNodeName: "#text",
+    trimValues: false,
+    // Preserve fast-xml-parser 5.11.2's htmlEntities maps, expansion limit and DOCTYPE filtering.
+    entityDecoder: new EntityDecoder({
+      namedEntities: { ...COMMON_HTML, ...CURRENCY },
+      numericAllowed: true,
+      limit: { maxTotalExpansions: Number.POSITIVE_INFINITY, maxExpandedLength: 100_000, applyLimitsTo: "all" },
+      onInputEntity: (_name, value) =>
+        isUnsafe(value, [HTML_CONTEXT, XML_CONTEXT]) ? ENTITY_ACTION.BLOCK : ENTITY_ACTION.ALLOW,
+    }),
+  });
 const parseCaptionXml = Effect.fn("Library.parseCaptionXml")(function* (text: string) {
   const validation = yield* Effect.try({
     try: () => SyntaxValidator.validate(text),
@@ -313,7 +329,7 @@ const parseCaptionXml = Effect.fn("Library.parseCaptionXml")(function* (text: st
     return yield* LibraryError.make({ message: "Malformed retained caption XML.", cause: validation.err });
   }
   return yield* Effect.try({
-    try: () => captionXmlParser.parse(text),
+    try: () => makeCaptionXmlParser().parse(text),
     catch: (cause) => LibraryError.make({ message: "Malformed retained caption XML.", cause }),
   });
 });
@@ -955,7 +971,13 @@ const validateYoutubeApi = Effect.fn("Library.validateYoutubeApi")(function* (
 
   if (A.some(artifacts, (item) => item.bytes > 8_000_000)) return false;
   const envelopes = yield* json("import-provenance", LibraryImportPayload);
-  if (!A.some(envelopes, (item) => item.provider === "youtube-transcript-api" && importedCaptureBound(context, item)))
+  if (
+    !A.some(
+      envelopes,
+      (item) =>
+        item.provider === "youtube-transcript-api" && importedCaptureBound(context, LibraryImportPayload.make(item))
+    )
+  )
     return false;
   const receipts = A.flatten(yield* json("http-response-provenance", CaptionHttpReceipts));
   const apis = yield* json("raw-api-response", CaptionApi);
@@ -1162,12 +1184,13 @@ const validateImportedEvidence = Effect.fn("Library.validateImportedEvidence")(f
   const { source, role, json, webResponseValid } = context;
   const imports = yield* json("import-provenance", LibraryImportPayload);
   if (A.isReadonlyArrayEmpty(imports)) return undefined;
-  const imported = A.findFirst(imports, (item) => importedCaptureBound(context, item));
+  const imported = A.findFirst(imports, (item) => importedCaptureBound(context, LibraryImportPayload.make(item)));
   if (O.isNone(imported)) return false;
   const events = yield* readLibraryProviderEvents(context.root, role("raw-provider-events"));
-  if (source.kind === "paper") return yield* validateImportedPaper(context, imported.value, events);
-  if (source.kind === "x") return yield* validateXImport(context, imported.value, events);
-  if (importedFirecrawlMatches(context, imported.value)) return yield* webResponseValid();
+  if (source.kind === "paper")
+    return yield* validateImportedPaper(context, LibraryImportPayload.make(imported.value), events);
+  if (source.kind === "x") return yield* validateXImport(context, LibraryImportPayload.make(imported.value), events);
+  if (importedFirecrawlMatches(context, LibraryImportPayload.make(imported.value))) return yield* webResponseValid();
   // A generic interpretation envelope is not independent source evidence.
   return false;
 });
@@ -1333,16 +1356,17 @@ const currentCaptureClaim = Effect.fn("Library.currentCaptureClaim")(function* (
  * @category models
  * @since 0.0.0
  */
-export class LibraryEffectiveCapture extends S.Class<LibraryEffectiveCapture>($I`LibraryEffectiveCapture`)(
-  {
+export class LibraryEffectiveCapture extends S.Opaque<LibraryEffectiveCapture, { readonly brand: unique symbol }>()(
+  S.Struct({
     revision: S.String,
     capture: S.NullOr(LibraryCapture),
     category: S.String,
-  },
-  $I.annote("LibraryEffectiveCapture", {
-    description:
-      "Validated current claim for one requested revision: its capture, if any, and the category it settles on.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryEffectiveCapture", {
+      description:
+        "Validated current claim for one requested revision: its capture, if any, and the category it settles on.",
+    })
+  )
 ) {}
 
 /**

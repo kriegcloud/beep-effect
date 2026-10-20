@@ -27,7 +27,8 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { HttpClient, HttpClientRequest } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -147,8 +148,8 @@ describe("professional desktop ontology MCP streamable HTTP mount", { concurrent
       "round-trips MCP request codecs with schema-derived arbitraries",
       { openInspect: OpenInspectRequest, query: OntologySparqlQueryRequest },
       ({ openInspect, query }) => {
-        assertSchemaRoundTrip(OpenInspectRequest, openInspect);
-        assertSchemaRoundTrip(OntologySparqlQueryRequest, query);
+        assertSchemaRoundTrip(OpenInspectRequest, OpenInspectRequest.make(openInspect));
+        assertSchemaRoundTrip(OntologySparqlQueryRequest, OntologySparqlQueryRequest.make(query));
       },
       { arbitrary: fcRuns(10) }
     );

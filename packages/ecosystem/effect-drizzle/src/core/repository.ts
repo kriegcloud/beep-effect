@@ -15,7 +15,7 @@ import { isTagged } from "effect/Predicate";
 import { filter, get, isEmptyReadonlyRecord, toEntries } from "effect/Record";
 import { Int, is, isSchema, NonEmptyString, TaggedError, Unknown } from "effect/Schema";
 import { toEncoded } from "effect/SchemaAST";
-import { VariantSchema } from "effect/schema";
+import * as VariantSchema from "effect/schema/VariantSchema";
 import { SqlClient } from "effect/sql/SqlClient";
 import { makeRepository as makeSqlRepository } from "effect/sql/SqlModel";
 import { findOne } from "effect/sql/SqlSchema";
@@ -26,7 +26,7 @@ import * as Meta from "./Meta.ts";
 import { ModelInvariantError } from "./model.ts";
 import type { Effect, Success } from "effect/Effect";
 import type { SchemaError } from "effect/Schema";
-import type { Model as EffectModel } from "effect/schema";
+import type * as EffectModel from "effect/schema/Model";
 import type { SqlError } from "effect/sql/SqlError";
 import type { UnknownRecord } from "../internal/guards.ts";
 import type { AnyModel } from "./model.ts";
@@ -59,7 +59,7 @@ import type { AnyModel } from "./model.ts";
  * @category errors
  * @since 0.0.0
  */
-export class VersionConflictError extends TaggedError<VersionConflictError>(
+export class VersionConflictError extends TaggedError<VersionConflictError, { readonly brand: unique symbol }>(
   "@beep/effect-drizzle/VersionConflictError"
 )(
   "VersionConflictError",
@@ -428,9 +428,11 @@ export const makeRepository: {
               })
             )
           ),
+          // Static span name per the instrumentation catalog; the per-repository prefix is a bounded
+          // attribute instead of a name segment.
           withSpan(
-            `${options.spanPrefix}.updateOptimistic`,
-            { attributes: { id, expectedVersion } },
+            "EffectDrizzleRepository.updateOptimistic",
+            { attributes: { "repository.entity": options.spanPrefix, id, expectedVersion } },
             { captureStackTrace: false }
           )
         );

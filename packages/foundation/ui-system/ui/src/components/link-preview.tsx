@@ -15,7 +15,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import { useId } from "react";
 import { cn, sanitizeAnchorHref } from "../lib/index.ts";
@@ -23,18 +23,19 @@ import type { ReactNode } from "react";
 
 const $I = $UiId.create("components/link-preview");
 
-class UrlMetadata extends S.Class<UrlMetadata>($I`UrlMetadata`)(
-  {
+class UrlMetadata extends S.Opaque<UrlMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.NullOr(S.String),
     favicon: S.NullOr(S.String),
     title: S.NullOr(S.String),
     url: S.String,
     websiteImage: S.NullOr(S.String),
     websiteName: S.NullOr(S.String),
-  },
-  $I.annote("UrlMetadata", {
-    description: "Network-derived metadata rendered by a link preview.",
-  })
+  }).pipe(
+    $I.annoteSchema("UrlMetadata", {
+      description: "Network-derived metadata rendered by a link preview.",
+    })
+  )
 ) {}
 
 interface LinkPreviewProps {

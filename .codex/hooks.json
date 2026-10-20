@@ -1,5 +1,5 @@
 {
-  "description": "Checkout-local Yeet inbox backpressure, agent-effectiveness pulses, and UI design hooks.",
+  "description": "Checkout-local Yeet inbox backpressure and agent-effectiveness pulses.",
   "hooks": {
     "SessionStart": [
       {
@@ -16,6 +16,11 @@
             "timeout": 2,
             "additionalContextLimit": 1200,
             "statusMessage": "Reading Yeet inbox"
+          },
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel)/.codex/hooks/hook-pulse.sh\"",
+            "timeout": 5
           }
         ]
       }
@@ -54,18 +59,6 @@
           {
             "type": "command",
             "command": "\"$(git rev-parse --show-toplevel)/.codex/hooks/law-pulse.sh\""
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|apply_patch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[ ! -f \".agents/skills/impeccable/scripts/hook.mjs\" ] || node \".agents/skills/impeccable/scripts/hook.mjs\"",
-            "timeout": 5,
-            "statusMessage": "Checking UI changes",
-            "commandWindows": "if exist \".agents/skills/impeccable/scripts/hook.mjs\" (node \".agents/skills/impeccable/scripts/hook.mjs\" & exit /b)"
           }
         ]
       },
@@ -119,15 +112,14 @@
             "statusMessage": "Checking Yeet inbox"
           }
         ]
-      },
+      }
+    ],
+    "PostToolUseFailure": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "[ ! -f \".agents/skills/impeccable/scripts/hook.mjs\" ] || node \".agents/skills/impeccable/scripts/hook.mjs\"",
-            "timeout": 30,
-            "statusMessage": "Design deep pass",
-            "commandWindows": "if exist \".agents/skills/impeccable/scripts/hook.mjs\" (node \".agents/skills/impeccable/scripts/hook.mjs\" & exit /b)"
+            "command": "BEEP_HOOK_PULSE_NOTIFIER_REV=desktop-ntfy-1 \"$(git rev-parse --show-toplevel)/.codex/hooks/hook-pulse.sh\""
           }
         ]
       }

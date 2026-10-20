@@ -24,7 +24,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import type { AppConfig } from "../Service/Config.ts";
 import { ConfigService } from "../Service/Config.ts";
 import { EntityExtractor, MentionExtractor, RelationExtractor } from "../Service/Extraction.ts";
@@ -77,7 +77,7 @@ export {
  * @category errors
  * @since 0.0.0
  */
-export class UnsupportedLlmProviderError extends S.TaggedError<UnsupportedLlmProviderError>(
+export class UnsupportedLlmProviderError extends S.TaggedError<UnsupportedLlmProviderError, { readonly brand: unique symbol }>(
   $I`UnsupportedLlmProviderError`
 )(
   "UnsupportedLlmProviderError",

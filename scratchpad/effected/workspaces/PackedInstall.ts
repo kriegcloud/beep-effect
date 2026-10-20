@@ -12,8 +12,8 @@ import * as O from "@beep/utils/Option";
 import * as Path from "effect/Path";
 import type * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
-import type { ChildProcessSpawner } from "effect/process";
-import { ChildProcess } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
@@ -294,7 +294,7 @@ export interface PackedInstallOptions extends PackedInstallClosureOptions {
  * @category errors
  * @since 0.0.0
  */
-export class PackedInstallError extends S.TaggedError<PackedInstallError>($I`PackedInstallError`)("PackedInstallError", {
+export class PackedInstallError extends S.TaggedError<PackedInstallError, { readonly brand: unique symbol }>($I`PackedInstallError`)("PackedInstallError", {
 	/** What failed. */
 	reason: S.Literals([
 		"UnsupportedPlatform",
@@ -461,7 +461,7 @@ export type BinProvenance = typeof BinProvenance.Type;
  * @category models
  * @since 0.0.0
  */
-export class InstalledConsumer extends S.Class<InstalledConsumer>($I`InstalledConsumer`)({
+export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly brand: unique symbol }>($I`InstalledConsumer`)({
 	/** The package manager that installed it. */
 	manager: PackageManagerName.annotateKey({ description: "The package manager that installed it." }),
 	/** The version it reported and was pinned to. */
@@ -840,7 +840,7 @@ const collectBin = (
  * @category models
  * @since 0.0.0
  */
-export class PackedInstallResult extends S.Class<PackedInstallResult>($I`PackedInstallResult`)({
+export class PackedInstallResult extends S.Class<PackedInstallResult, { readonly brand: unique symbol }>($I`PackedInstallResult`)({
 	/** One consumer per available manager, in the order requested. */
 	consumers: S.Array(InstalledConsumer).annotateKey({ description: "One consumer per available manager, in the order requested." }),
 	/** The requested managers that did not answer `--version`. */

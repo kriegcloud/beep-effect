@@ -173,7 +173,7 @@ import { escalateYeetPrWave } from "./WaveNotifier.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetPrCommentRow } from "./Inbox.ts";
 import type { YeetMonitorLoopPolicy } from "./MonitorPolicy.ts";
@@ -462,8 +462,8 @@ export const isolateYeetMonitorJobLogFailure = (log: string): O.Option<string> =
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorFailedJob extends S.Class<YeetMonitorFailedJob>($I`YeetMonitorFailedJob`)(
-  {
+export class YeetMonitorFailedJob extends S.Opaque<YeetMonitorFailedJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     databaseId: S.Finite,
     name: S.String,
     flakeClass: YeetMonitorFlakeClass.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -475,10 +475,11 @@ export class YeetMonitorFailedJob extends S.Class<YeetMonitorFailedJob>($I`YeetM
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ),
-  },
-  $I.annote("YeetMonitorFailedJob", {
-    description: "One failed hosted job paired with the flake class its log matched, if any.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorFailedJob", {
+      description: "One failed hosted job paired with the flake class its log matched, if any.",
+    })
+  )
 ) {}
 
 /**
@@ -487,17 +488,18 @@ export class YeetMonitorFailedJob extends S.Class<YeetMonitorFailedJob>($I`YeetM
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorRerunJob extends S.Class<YeetMonitorRerunJob>($I`YeetMonitorRerunJob`)(
-  {
+export class YeetMonitorRerunJob extends S.Opaque<YeetMonitorRerunJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("rerun"),
     databaseId: S.Finite,
     name: S.String,
     flakeClass: YeetMonitorFlakeClass,
     command: S.NonEmptyString,
-  },
-  $I.annote("YeetMonitorRerunJob", {
-    description: "A flake-matching job the merge loop reruns once for this head SHA.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorRerunJob", {
+      description: "A flake-matching job the merge loop reruns once for this head SHA.",
+    })
+  )
 ) {}
 
 /**
@@ -514,16 +516,17 @@ export class YeetMonitorRerunJob extends S.Class<YeetMonitorRerunJob>($I`YeetMon
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorRerunSpent extends S.Class<YeetMonitorRerunSpent>($I`YeetMonitorRerunSpent`)(
-  {
+export class YeetMonitorRerunSpent extends S.Opaque<YeetMonitorRerunSpent, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("rerun-spent"),
     databaseId: S.Finite,
     name: S.String,
     flakeClass: YeetMonitorFlakeClass,
-  },
-  $I.annote("YeetMonitorRerunSpent", {
-    description: "A flake-matching job whose one rerun for this head SHA is already spent.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorRerunSpent", {
+      description: "A flake-matching job whose one rerun for this head SHA is already spent.",
+    })
+  )
 ) {}
 
 /**
@@ -532,15 +535,16 @@ export class YeetMonitorRerunSpent extends S.Class<YeetMonitorRerunSpent>($I`Yee
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorNeedsCodeFix extends S.Class<YeetMonitorNeedsCodeFix>($I`YeetMonitorNeedsCodeFix`)(
-  {
+export class YeetMonitorNeedsCodeFix extends S.Opaque<YeetMonitorNeedsCodeFix, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("needs-code-fix"),
     databaseId: S.Finite,
     name: S.String,
-  },
-  $I.annote("YeetMonitorNeedsCodeFix", {
-    description: "A red job the merge loop refuses to rerun because its failure matched no known flake class.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorNeedsCodeFix", {
+      description: "A red job the merge loop refuses to rerun because its failure matched no known flake class.",
+    })
+  )
 ) {}
 
 /**
@@ -566,15 +570,16 @@ export class YeetMonitorNeedsCodeFix extends S.Class<YeetMonitorNeedsCodeFix>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorAwaitingLog extends S.Class<YeetMonitorAwaitingLog>($I`YeetMonitorAwaitingLog`)(
-  {
+export class YeetMonitorAwaitingLog extends S.Opaque<YeetMonitorAwaitingLog, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("awaiting-log"),
     databaseId: S.Finite,
     name: S.String,
-  },
-  $I.annote("YeetMonitorAwaitingLog", {
-    description: "A red job inside an in-progress run whose failing-step log is not yet fetchable.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorAwaitingLog", {
+      description: "A red job inside an in-progress run whose failing-step log is not yet fetchable.",
+    })
+  )
 ) {}
 
 /**
@@ -598,15 +603,16 @@ export class YeetMonitorAwaitingLog extends S.Class<YeetMonitorAwaitingLog>($I`Y
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorAwaitingRun extends S.Class<YeetMonitorAwaitingRun>($I`YeetMonitorAwaitingRun`)(
-  {
+export class YeetMonitorAwaitingRun extends S.Opaque<YeetMonitorAwaitingRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("awaiting-run"),
     databaseId: S.Finite,
     name: S.String,
-  },
-  $I.annote("YeetMonitorAwaitingRun", {
-    description: "A flake-matching red job deferred until its parent workflow run completes.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorAwaitingRun", {
+      description: "A flake-matching red job deferred until its parent workflow run completes.",
+    })
+  )
 ) {}
 
 /**
@@ -932,9 +938,10 @@ export const yeetMonitorTerminalState: (state: O.Option<string>) => O.Option<Yee
   )
 );
 
-class GhMonitorRunJobs extends S.Class<GhMonitorRunJobs>($I`GhMonitorRunJobs`)(
-  { jobs: S.Array(GithubJobRecord) },
-  $I.annote("GhMonitorRunJobs", { description: "Job list of one workflow run used by the yeet merge loop." })
+class GhMonitorRunJobs extends S.Opaque<GhMonitorRunJobs, { readonly brand: unique symbol }>()(
+  S.Struct({ jobs: S.Array(GithubJobRecord) }).pipe(
+    $I.annoteSchema("GhMonitorRunJobs", { description: "Job list of one workflow run used by the yeet merge loop." })
+  )
 ) {}
 
 const decodeGhMonitorRunJobs = S.decodeUnknownEffect(S.fromJsonString(GhMonitorRunJobs));
@@ -1285,8 +1292,8 @@ const monitorHeadStateFamiliesDefault = A.empty<YeetGatedContextFamily>();
 const monitorHeadStateChangedPathsDefault = A.empty<string>();
 const monitorHeadStateRegisteredDefault = HashSet.empty<string>();
 const monitorHeadStateConflictCorruptNoticedDefault = HashSet.empty<number>();
-class MonitorHeadState extends S.Class<MonitorHeadState>($I`MonitorHeadState`)(
-  {
+class MonitorHeadState extends S.Opaque<MonitorHeadState, { readonly brand: unique symbol }>()(
+  S.Struct({
     timeline: YeetHeadTimeline,
     firstObservedMs: S.Finite,
     settleClockMs: S.Finite,
@@ -1345,11 +1352,12 @@ class MonitorHeadState extends S.Class<MonitorHeadState>($I`MonitorHeadState`)(
     // names a red beyond it is a new wave even if its row id was already there.
     waveRedSet: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     verdict: YeetSettleVerdict.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("MonitorHeadState", {
-    description:
-      "Cached ruleset, gated families, merge-base diff, admission, and first observations for the current head.",
-  })
+  }).pipe(
+    $I.annoteSchema("MonitorHeadState", {
+      description:
+        "Cached ruleset, gated families, merge-base diff, admission, and first observations for the current head.",
+    })
+  )
 ) {}
 
 const decideMonitorAdmission = (snapshot: YeetStatusSnapshot, changedPaths: ReadonlyArray<string>): HeavyAdmission =>
@@ -1382,8 +1390,8 @@ const readPushedAt = Effect.fn("YeetMonitorLoop.readPushedAt")(function* (
   );
 });
 
-class MonitorPoll extends S.Class<MonitorPoll>($I`MonitorPoll`)(
-  {
+class MonitorPoll extends S.Opaque<MonitorPoll, { readonly brand: unique symbol }>()(
+  S.Struct({
     budget: S.HashSet(S.String),
     head: MonitorHeadState.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     terminal: YeetMonitorTerminalState.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -1392,8 +1400,11 @@ class MonitorPoll extends S.Class<MonitorPoll>($I`MonitorPoll`)(
     // its first cycle open until a tick reports true, so a failed read or a
     // read without a pull request number cannot spend the one replay.
     replayed: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("MonitorPoll", { description: "One loop tick, retaining per-head state across recoverable read failures." })
+  }).pipe(
+    $I.annoteSchema("MonitorPoll", {
+      description: "One loop tick, retaining per-head state across recoverable read failures.",
+    })
+  )
 ) {}
 
 const requiredName = (snapshot: YeetStatusSnapshot, verdict: O.Option<YeetSettleVerdict>, name: string): boolean =>
@@ -1452,14 +1463,15 @@ const reportMonitorPushToAck = Effect.fn("YeetMonitorLoop.reportPushToAck")(func
   yield* Console.log(`[yeet] ${renderYeetPushToAckTimeline(joined)}`);
 });
 
-class MonitorObservation extends S.Class<MonitorObservation>($I`MonitorObservation`)(
-  {
+class MonitorObservation extends S.Opaque<MonitorObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     snapshot: YeetStatusSnapshot,
     poll: MonitorPoll,
     at: S.String,
     millis: S.Finite,
-  },
-  $I.annote("MonitorObservation", { description: "Status, head state, and clock at one monitor observation." })
+  }).pipe(
+    $I.annoteSchema("MonitorObservation", { description: "Status, head state, and clock at one monitor observation." })
+  )
 ) {}
 
 const observeMonitorHead = Effect.fn("YeetMonitorLoop.observeHead")(function* (

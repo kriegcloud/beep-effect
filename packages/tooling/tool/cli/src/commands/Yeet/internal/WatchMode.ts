@@ -114,21 +114,22 @@ import {
 } from "./WatchStream.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetMonitorCommentWatermark } from "./MonitorComments.ts";
 import type { YeetWatchEvent } from "./WatchStream.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/WatchMode");
 
-class WatchPullRequestLabel extends S.Class<WatchPullRequestLabel>($I`WatchPullRequestLabel`)(
-  { name: S.String },
-  $I.annote("WatchPullRequestLabel", { description: "One label on the pull request as gh pr view reports it." })
+class WatchPullRequestLabel extends S.Opaque<WatchPullRequestLabel, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.String }).pipe(
+    $I.annoteSchema("WatchPullRequestLabel", { description: "One label on the pull request as gh pr view reports it." })
+  )
 ) {}
 
 const watchPullRequestViewLabelsDefault = A.empty<WatchPullRequestLabel>();
-class WatchPullRequestView extends S.Class<WatchPullRequestView>($I`WatchPullRequestView`)(
-  {
+class WatchPullRequestView extends S.Opaque<WatchPullRequestView, { readonly brand: unique symbol }>()(
+  S.Struct({
     headRefOid: S.NonEmptyString,
     id: S.NonEmptyString,
     isDraft: S.Boolean,
@@ -142,48 +143,56 @@ class WatchPullRequestView extends S.Class<WatchPullRequestView>($I`WatchPullReq
     number: S.Finite,
     reviewDecision: S.NullOr(S.String),
     state: S.String,
-  },
-  $I.annote("WatchPullRequestView", {
-    description: "The minimal gh pr view payload the watch stream reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("WatchPullRequestView", {
+      description: "The minimal gh pr view payload the watch stream reads.",
+    })
+  )
 ) {}
 
-class WatchCheckRow extends S.Class<WatchCheckRow>($I`WatchCheckRow`)(
-  {
+class WatchCheckRow extends S.Opaque<WatchCheckRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     bucket: S.String,
     description: S.String.pipe(S.optionalKey),
     link: S.NullOr(S.String),
     name: S.String,
     state: S.String,
     workflow: S.NullOr(S.String),
-  },
-  $I.annote("WatchCheckRow", {
-    description: "One raw gh pr checks row: name, unclassified bucket/state strings, job link, and workflow.",
-  })
+  }).pipe(
+    $I.annoteSchema("WatchCheckRow", {
+      description: "One raw gh pr checks row: name, unclassified bucket/state strings, job link, and workflow.",
+    })
+  )
 ) {}
 
-class WatchThreadComment extends S.Class<WatchThreadComment>($I`WatchThreadComment`)(
-  { author: GhActor.pipe(S.NullOr, S.optionalKey), createdAt: S.optionalKey(S.String) },
-  $I.annote("WatchThreadComment", { description: "One review-thread comment reduced to its author and timestamp." })
+class WatchThreadComment extends S.Opaque<WatchThreadComment, { readonly brand: unique symbol }>()(
+  S.Struct({ author: GhActor.pipe(S.NullOr, S.optionalKey), createdAt: S.optionalKey(S.String) }).pipe(
+    $I.annoteSchema("WatchThreadComment", {
+      description: "One review-thread comment reduced to its author and timestamp.",
+    })
+  )
 ) {}
 
 const watchThreadCommentConnectionNodesDefault = A.empty<WatchThreadComment>();
-class WatchThreadCommentConnection extends S.Class<WatchThreadCommentConnection>($I`WatchThreadCommentConnection`)(
-  {
+class WatchThreadCommentConnection extends S.Opaque<WatchThreadCommentConnection, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodes: S.Array(WatchThreadComment).pipe(
       S.withConstructorDefault(Effect.succeed(watchThreadCommentConnectionNodesDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(watchThreadCommentConnectionNodesDefault))
     ),
-  },
-  $I.annote("WatchThreadCommentConnection", { description: "The newest-comment connection of one review thread." })
+  }).pipe(
+    $I.annoteSchema("WatchThreadCommentConnection", {
+      description: "The newest-comment connection of one review thread.",
+    })
+  )
 ) {}
 
 // `isOutdated`, `resolvedBy` and `latest` default rather than being required:
 // they are what the state rule reads, and a payload recorded before the watch
 // asked for them classifies as the conservative unresolved/answered pair
 // instead of failing the whole poll.
-class WatchThreadNode extends S.Class<WatchThreadNode>($I`WatchThreadNode`)(
-  {
+class WatchThreadNode extends S.Opaque<WatchThreadNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     isResolved: S.Boolean,
     isOutdated: S.Boolean.pipe(
@@ -200,20 +209,20 @@ class WatchThreadNode extends S.Class<WatchThreadNode>($I`WatchThreadNode`)(
     ),
     resolvedBy: GhActor.pipe(S.NullOr, S.optionalKey),
     latest: S.optionalKey(WatchThreadCommentConnection),
-  },
-  $I.annote("WatchThreadNode", { description: "One review thread's identity, resolution, and newest comment." })
+  }).pipe(
+    $I.annoteSchema("WatchThreadNode", { description: "One review thread's identity, resolution, and newest comment." })
+  )
 ) {}
 
-class WatchThreadPageInfo extends S.Class<WatchThreadPageInfo>($I`WatchThreadPageInfo`)(
-  {
+class WatchThreadPageInfo extends S.Opaque<WatchThreadPageInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     endCursor: S.NullOr(S.String),
     hasNextPage: S.Boolean,
-  },
-  $I.annote("WatchThreadPageInfo", { description: "Cursor metadata for one review-thread page." })
+  }).pipe($I.annoteSchema("WatchThreadPageInfo", { description: "Cursor metadata for one review-thread page." }))
 ) {}
 
-class WatchThreadsDocument extends S.Class<WatchThreadsDocument>($I`WatchThreadsDocument`)(
-  {
+class WatchThreadsDocument extends S.Opaque<WatchThreadsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: S.Struct({
       node: S.NullOr(
         S.Struct({
@@ -222,8 +231,9 @@ class WatchThreadsDocument extends S.Class<WatchThreadsDocument>($I`WatchThreads
         })
       ),
     }),
-  },
-  $I.annote("WatchThreadsDocument", { description: "The GraphQL document shape of the watch's thread query." })
+  }).pipe(
+    $I.annoteSchema("WatchThreadsDocument", { description: "The GraphQL document shape of the watch's thread query." })
+  )
 ) {}
 
 const decodePullRequestView = S.decodeUnknownEffect(S.fromJsonString(WatchPullRequestView));
@@ -508,8 +518,8 @@ export const collectYeetWatchSnapshot = Effect.fn("Yeet.collectYeetWatchSnapshot
 const watchSettleStateFamiliesDefault = A.empty<YeetGatedContextFamily>();
 const watchSettleStateChangedPathsDefault = A.empty<string>();
 const watchSettleStateRegisteredDefault = HashSet.empty<string>();
-class WatchSettleState extends S.Class<WatchSettleState>($I`WatchSettleState`)(
-  {
+class WatchSettleState extends S.Opaque<WatchSettleState, { readonly brand: unique symbol }>()(
+  S.Struct({
     headSha: S.NonEmptyString,
     firstObservedMs: S.Finite,
     settleClockMs: S.Finite,
@@ -529,20 +539,22 @@ class WatchSettleState extends S.Class<WatchSettleState>($I`WatchSettleState`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(watchSettleStateRegisteredDefault))
     ),
     verdict: YeetSettleVerdict.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("WatchSettleState", {
-    description: "One head's cached ruleset, gated families, merge-base diff, admission, and settle clock origin.",
-  })
+  }).pipe(
+    $I.annoteSchema("WatchSettleState", {
+      description: "One head's cached ruleset, gated families, merge-base diff, admission, and settle clock origin.",
+    })
+  )
 ) {}
 
-class WatchSettleStep extends S.Class<WatchSettleStep>($I`WatchSettleStep`)(
-  {
+class WatchSettleStep extends S.Opaque<WatchSettleStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     head: WatchSettleState,
     checks: S.Array(YeetSettleCheck),
-  },
-  $I.annote("WatchSettleStep", {
-    description: "One poll's advanced head state plus the checks the settle rule reads, recalled names included.",
-  })
+  }).pipe(
+    $I.annoteSchema("WatchSettleStep", {
+      description: "One poll's advanced head state plus the checks the settle rule reads, recalled names included.",
+    })
+  )
 ) {}
 
 // A new head: read the ruleset and the merge-base diff once, start both clocks.

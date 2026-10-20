@@ -110,18 +110,19 @@ export type WildcardAliasTarget = typeof WildcardAliasTarget.Type;
  * @category models
  * @since 0.0.0
  */
-export class CanonicalAliasTargets extends S.Class<CanonicalAliasTargets>($I`CanonicalAliasTargets`)(
-  {
+export class CanonicalAliasTargets extends S.Opaque<CanonicalAliasTargets, { readonly brand: unique symbol }>()(
+  S.Struct({
     rootAliasTarget: RootAliasTarget.annotateKey({
       description: "Concrete root import target for the package alias.",
     }),
     wildcardAliasTarget: WildcardAliasTarget.annotateKey({
       description: "Wildcard import target for package subpath aliases.",
     }),
-  },
-  $I.annote("CanonicalAliasTargets", {
-    description: "Canonical root and wildcard alias targets derived for a package root export.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalAliasTargets", {
+      description: "Canonical root and wildcard alias targets derived for a package root export.",
+    })
+  )
 ) {}
 
 const isRelativeDotPath = (value: unknown): value is string => P.isString(value) && Str.startsWith("./")(value);

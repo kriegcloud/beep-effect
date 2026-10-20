@@ -72,8 +72,8 @@ const PostgresDiagnosticFields = {
  * @category errors
  * @since 0.0.0
  */
-export class PostgresErrorContext extends S.Class<PostgresErrorContext>($I`PostgresErrorContext`)(
-  {
+export class PostgresErrorContext extends S.Opaque<PostgresErrorContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...PostgresDiagnosticFields,
     sourceLocation: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
@@ -87,10 +87,11 @@ export class PostgresErrorContext extends S.Class<PostgresErrorContext>($I`Postg
     where: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Contextual where-clause or stack detail reported by Postgres." }),
-  },
-  $I.annote("PostgresErrorContext", {
-    description: "Optional diagnostic context captured while normalizing Postgres-adjacent failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("PostgresErrorContext", {
+      description: "Optional diagnostic context captured while normalizing Postgres-adjacent failures.",
+    })
+  )
 ) {
   static readonly is = S.is(PostgresErrorContext);
 }
@@ -362,7 +363,7 @@ const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
  * @category errors
  * @since 0.0.0
  */
-export class PostgresError extends S.TaggedError<PostgresError>($I`PostgresError`)(
+export class PostgresError extends S.TaggedError<PostgresError, { readonly brand: unique symbol }>($I`PostgresError`)(
   "PostgresError",
   {
     operation: S.String.annotateKey({ description: "Driver operation being performed when the failure occurred." }),

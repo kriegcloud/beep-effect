@@ -30,17 +30,19 @@ const $I = $RepoUtilsId.create("JSDoc/models/CanonicalJSDocSourceMetadata.model"
  * @category models
  * @since 0.0.0
  */
-export class CanonicalJSDocSourceMetadata extends S.Class<CanonicalJSDocSourceMetadata>(
-  $I`CanonicalJSDocSourceMetadata`
-)(
-  {
+export class CanonicalJSDocSourceMetadata extends S.Opaque<
+  CanonicalJSDocSourceMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.String,
     url: S.URLFromString,
     retrievedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("CanonicalJSDocSourceMetadata", {
-    description: "Metadata for a canonical JSDoc source.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalJSDocSourceMetadata", {
+      description: "Metadata for a canonical JSDoc source.",
+    })
+  )
 ) {}
 
 /**

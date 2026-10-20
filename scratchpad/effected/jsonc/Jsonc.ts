@@ -82,7 +82,7 @@ export type JsoncParseErrorCode = typeof JsoncParseErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsoncParseErrorDetail extends S.Class<JsoncParseErrorDetail>($I`JsoncParseErrorDetail`)(
+export class JsoncParseErrorDetail extends S.Class<JsoncParseErrorDetail, { readonly brand: unique symbol }>($I`JsoncParseErrorDetail`)(
   {
     code: JsoncParseErrorCode,
     offset: S.Finite,
@@ -122,7 +122,7 @@ export class JsoncParseErrorDetail extends S.Class<JsoncParseErrorDetail>($I`Jso
  * @category errors
  * @since 0.0.0
  */
-export class JsoncParseError extends S.TaggedError<JsoncParseError>($I.make("JsoncParseError"))(
+export class JsoncParseError extends S.TaggedError<JsoncParseError, { readonly brand: unique symbol }>($I.make("JsoncParseError"))(
   "JsoncParseError",
   {
     errors: S.Array(JsoncParseErrorDetail),
@@ -186,7 +186,7 @@ export class JsoncParseError extends S.TaggedError<JsoncParseError>($I.make("Jso
  * @category models
  * @since 0.0.0
  */
-export class JsoncParseOptions extends S.Class<JsoncParseOptions>($I`JsoncParseOptions`)(
+export class JsoncParseOptions extends S.Class<JsoncParseOptions, { readonly brand: unique symbol }>($I`JsoncParseOptions`)(
   {
     disallowComments: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
@@ -277,7 +277,7 @@ export type JsoncStringifyErrorCode = typeof JsoncStringifyErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsoncStringifyOptions extends S.Class<JsoncStringifyOptions>($I`JsoncStringifyOptions`)(
+export class JsoncStringifyOptions extends S.Class<JsoncStringifyOptions, { readonly brand: unique symbol }>($I`JsoncStringifyOptions`)(
   {
     tabSize: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(2)), S.withDecodingDefaultKey(Effect.succeed(2))),
     insertSpaces: S.Boolean.pipe(
@@ -318,7 +318,7 @@ export class JsoncStringifyOptions extends S.Class<JsoncStringifyOptions>($I`Jso
  * @category errors
  * @since 0.0.0
  */
-export class JsoncStringifyError extends S.TaggedError<JsoncStringifyError>($I.make("JsoncStringifyError"))(
+export class JsoncStringifyError extends S.TaggedError<JsoncStringifyError, { readonly brand: unique symbol }>($I.make("JsoncStringifyError"))(
   "JsoncStringifyError",
   {
     code: JsoncStringifyErrorCode,

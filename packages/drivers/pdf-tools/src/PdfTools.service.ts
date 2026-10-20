@@ -15,7 +15,8 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { PDFDocument } from "pdf-lib";
@@ -52,25 +53,29 @@ const validateInkCoverageRequest = S.decodeUnknownEffect(S.toType(InkCoverageReq
 const COVERAGE_BLACK_THRESHOLD = 128;
 const encoder = new TextEncoder();
 
-// pdf-lib always writes a `%PDF-1.7` header; the merged pages only use the
-// constructs cairo emitted for the requested version, so the header is
-// rewritten in place (same byte length, so offsets stay valid).
-const mergePages = Effect.fn("PdfTools.mergePages")(function* (pages: ReadonlyArray<Uint8Array>, version: PdfVersion) {
-  const out = yield* Effect.promise(() => PDFDocument.create({ updateMetadata: false }));
-  yield* Effect.forEach(pages, (bytes) =>
-    Effect.promise(() => PDFDocument.load(bytes, { updateMetadata: false })).pipe(
-      Effect.flatMap((source) => Effect.promise(() => out.copyPages(source, source.getPageIndices()))),
-      Effect.map((copied) => {
-        for (const page of copied) {
-          out.addPage(page);
-        }
-      })
-    )
-  );
-  const saved = yield* Effect.promise(() => out.save({ useObjectStreams: false, updateFieldAppearances: false }));
-  saved.set(encoder.encode(`%PDF-${version}`), 0);
-  return saved;
-});
+// rsvg-convert writes one page per input, in order, but takes several inputs
+// only with the unversioned `pdf` format, which cairo writes as PDF 1.7.
+// cairo's 1.5, 1.6 and 1.7 output differ only in the header line (checked on
+// rsvg-convert 2.63.2 with cairo 1.18.6), so a multi-page conversion runs at
+// `pdf` and the requested version is written over the header, same length so
+// every offset stays valid. A single SVG converts at its own `pdf1.x`; 1.4,
+// whose output differs in structure, is single-SVG only (SvgToPdfRequest).
+// Converting page by page and re-serialising with pdf-lib is not an option:
+// pdf-lib cuts a stream whose /Length is indirect at the EOL before
+// `endstream`, which drops a final 0x0D data byte and truncates the stream.
+const pdfHeader = /^%PDF-1\.\d/;
+
+const rsvgFormatOf = (request: SvgToPdfRequest): string =>
+  A.length(request.svgPaths) === 1 ? `pdf${request.pdfVersion}` : "pdf";
+
+const stampHeader = (bytes: Uint8Array, version: PdfVersion): O.Option<Uint8Array> => {
+  if (!pdfHeader.test(new TextDecoder("latin1").decode(bytes.subarray(0, 8)))) {
+    return O.none();
+  }
+  const stamped = bytes.slice();
+  stamped.set(encoder.encode(`%PDF-${version}`), 0);
+  return O.some(stamped);
+};
 
 /**
  * The fontconfig file a pinned conversion runs under.
@@ -117,7 +122,8 @@ export const pinnedFontconfig = ({ fonts, cacheDirectory }: PinnedFontconfigRequ
   );
 
 /**
- * Technical knobs: executable names and the process kill grace period.
+ * Technical knobs: executable names, the process kill grace period, and how
+ * much `inspect` may inflate while checking a file's streams.
  *
  * **Example** (Defaults)
  *
@@ -130,8 +136,8 @@ export const pinnedFontconfig = ({ fonts, cacheDirectory }: PinnedFontconfigRequ
  * @category services
  * @since 0.0.0
  */
-export class PdfToolsConfig extends S.Class<PdfToolsConfig>($I`PdfToolsConfig`)(
-  {
+export class PdfToolsConfig extends S.Opaque<PdfToolsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     rsvgConvertPath: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("rsvg-convert")),
       S.annotateKey({ description: "rsvg-convert executable. Defaults to the PATH name." })
@@ -157,10 +163,19 @@ export class PdfToolsConfig extends S.Class<PdfToolsConfig>($I`PdfToolsConfig`)(
         description: "Longest a single tool run may take before it is stopped. Defaults to two minutes.",
       })
     ),
-  },
-  $I.annote("PdfToolsConfig", {
-    description: "Executable paths, per-run timeout, and kill grace period for the PDF tools driver.",
-  })
+    maxInflatedBytes: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(512 * 1024 * 1024)),
+      S.annotateKey({
+        description:
+          "Bytes `inspect` may inflate while checking one file's FlateDecode streams; past it the check stops and reports `limit-reached`. Defaults to 512 MiB.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PdfToolsConfig", {
+      description:
+        "Executable paths, per-run timeout, kill grace period, and stream-check inflate limit for the PDF tools driver.",
+    })
+  )
 ) {}
 
 /**
@@ -261,9 +276,6 @@ const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfTool
       })
     );
 
-  // rsvg-convert 2.62 refuses several inputs when the format is a versioned
-  // `pdf1.x`, and pdfunite stamps a random /ID into every merge, so pages are
-  // converted one at a time and merged in-process with pdf-lib.
   const svgToPdf = Effect.fn("PdfTools.svgToPdf")(function* (rawRequest: SvgToPdfRequest) {
     const request = yield* validateSvgToPdfRequest(rawRequest).pipe(
       Effect.mapError((cause) => PdfToolsError.fromUnknown("invalid-request", "Invalid SVG to PDF request.", cause))
@@ -297,29 +309,28 @@ const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfTool
       }),
     });
     const env = { SOURCE_DATE_EPOCH: `${request.sourceDateEpoch}`, ...fontconfig };
-    const pagePaths = yield* Effect.forEach(request.svgPaths, (svgPath, index) => {
-      const pagePath = path.join(dir, `page-${index + 1}.pdf`);
-      return run(
-        config.rsvgConvertPath,
-        ["--format", `pdf${request.pdfVersion}`, "--output", pagePath, path.resolve(svgPath)],
-        env,
-        `converting page ${index + 1} to PDF`
-      ).pipe(Effect.as(pagePath));
-    });
-    const pages = yield* Effect.forEach(pagePaths, (pagePath) =>
-      fs.readFile(pagePath).pipe(Effect.mapError(io(`Could not read "${pagePath}".`)))
+    const pageCount = A.length(request.svgPaths);
+    const converted = path.join(dir, "converted.pdf");
+    yield* run(
+      config.rsvgConvertPath,
+      [
+        "--format",
+        rsvgFormatOf(request),
+        "--output",
+        converted,
+        ...A.map(request.svgPaths, (svgPath) => path.resolve(svgPath)),
+      ],
+      env,
+      `converting ${pageCount} SVG ${pageCount === 1 ? "page" : "pages"} to PDF`
     );
-    const merged = yield* mergePages(pages, request.pdfVersion).pipe(
-      Effect.catchDefect((cause) =>
-        PdfToolsError.fromUnknown("parse", "pdf-lib could not merge the converted pages.", cause)
+    const written = yield* fs.readFile(converted).pipe(Effect.mapError(io(`Could not read "${converted}".`)));
+    const pdf = yield* stampHeader(written, request.pdfVersion).pipe(
+      Effect.fromOption(() =>
+        PdfToolsError.make({ reason: "parse", message: `${config.rsvgConvertPath} wrote no %PDF-1.x header.` })
       )
     );
-    yield* fs.writeFile(outputPath, merged).pipe(Effect.mapError(io(`Could not write "${outputPath}".`)));
-    return SvgToPdfResult.make({
-      outputPath,
-      pageCount: request.svgPaths.length,
-      bytes: merged.byteLength,
-    });
+    yield* fs.writeFile(outputPath, pdf).pipe(Effect.mapError(io(`Could not write "${outputPath}".`)));
+    return SvgToPdfResult.make({ outputPath, pageCount, bytes: pdf.byteLength });
   }, Effect.scoped);
 
   const loadDocument = Effect.fn("PdfTools.loadDocument")(function* (pdfPath: string) {
@@ -336,7 +347,7 @@ const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfTool
   const inspect = Effect.fn("PdfTools.inspect")(function* (pdfPath: string) {
     const loaded = yield* loadDocument(pdfPath);
     return yield* Effect.try({
-      try: () => structureOf(loaded),
+      try: () => structureOf({ ...loaded, maxInflatedBytes: config.maxInflatedBytes }),
       catch: (cause) => PdfToolsError.fromUnknown("parse", `Could not walk the structure of "${pdfPath}".`, cause),
     });
   });

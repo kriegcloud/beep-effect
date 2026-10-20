@@ -23,7 +23,7 @@ import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import { Base64Url } from "effect/encoding";
+import * as Base64Url from "effect/encoding/Base64Url";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -34,7 +34,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
@@ -188,16 +189,18 @@ const isRejectedStatus = (status: number): boolean => status === 401 || status =
 // too (verified live 2026-10-14 against the stale stored Junie access token).
 const isJunieTokenRejected = (status: number): boolean => isRejectedStatus(status) || status === 407;
 
-class JunieRefreshResponse extends S.Class<JunieRefreshResponse>($I`JunieRefreshResponse`)(
-  { stored: S.String.pipe(S.Redacted), status: S.Finite, body: S.String },
-  $I.annote("JunieRefreshResponse", {
-    description: "Stored token and JetBrains OAuth response to validate without persisting.",
-  })
+class JunieRefreshResponse extends S.Opaque<JunieRefreshResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ stored: S.String.pipe(S.Redacted), status: S.Finite, body: S.String }).pipe(
+    $I.annoteSchema("JunieRefreshResponse", {
+      description: "Stored token and JetBrains OAuth response to validate without persisting.",
+    })
+  )
 ) {}
 
-class GrokUsageResponse extends S.Class<GrokUsageResponse>($I`GrokUsageResponse`)(
-  { identity: S.Option(S.String), status: S.Finite, body: S.Uint8Array },
-  $I.annote("GrokUsageResponse", { description: "Account identity and binary Grok billing response." })
+class GrokUsageResponse extends S.Opaque<GrokUsageResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ identity: S.Option(S.String), status: S.Finite, body: S.Uint8Array }).pipe(
+    $I.annoteSchema("GrokUsageResponse", { description: "Account identity and binary Grok billing response." })
+  )
 ) {}
 
 type UsageTextResponse = {
@@ -342,9 +345,10 @@ const junieAudienceRotated = AccountUsageOutcome.cases.NeedsLogin.make({
 
 type JunieOkOutcome = (typeof AccountUsageOutcome.cases.Ok)["Type"];
 
-class JunieQuotaReply extends S.Class<JunieQuotaReply>($I`JunieQuotaReply`)(
-  { status: S.Finite, body: S.String },
-  $I.annote("JunieQuotaReply", { description: "One Grazie quota endpoint's HTTP status and body text." })
+class JunieQuotaReply extends S.Opaque<JunieQuotaReply, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.Finite, body: S.String }).pipe(
+    $I.annoteSchema("JunieQuotaReply", { description: "One Grazie quota endpoint's HTTP status and body text." })
+  )
 ) {}
 
 const isJunieAudienceRotation = (status: number, body: string, stored: Redacted.Redacted<string>): boolean =>
@@ -529,7 +533,7 @@ export const junieUsageOutcome = (response: UsageTextResponse): AccountUsageOutc
  * @since 0.0.0
  */
 export const junieRefreshOutcome = (
-  response: JunieRefreshResponse
+  response: S.Struct.Type<typeof JunieRefreshResponse.fields>
 ): Result.Result<JunieRefreshBody, AccountUsageOutcome> => {
   const { stored, status, body } = response;
   if (status !== 200)
@@ -552,22 +556,24 @@ export const junieRefreshOutcome = (
   return Result.succeed(decoded.value);
 };
 
-class JunieAccessToken extends S.Class<JunieAccessToken>($I`JunieAccessToken`)(
-  {
+class JunieAccessToken extends S.Opaque<JunieAccessToken, { readonly brand: unique symbol }>()(
+  S.Struct({
     access_token: S.String.pipe(S.Redacted),
     id_token: S.String.pipe(S.Redacted, S.Option),
     expiresAt: S.Finite,
     credentialFingerprint: S.String,
-  },
-  $I.annote("JunieAccessToken", {
-    description:
-      "A service-local Junie access token, its expiry in milliseconds, and the stored credential fingerprint.",
-  })
+  }).pipe(
+    $I.annoteSchema("JunieAccessToken", {
+      description:
+        "A service-local Junie access token, its expiry in milliseconds, and the stored credential fingerprint.",
+    })
+  )
 ) {}
 
-class JunieExchangeToken extends S.Class<JunieExchangeToken>($I`JunieExchangeToken`)(
-  { token: S.String.pipe(S.Redacted), expiresAt: S.Finite, credentialFingerprint: S.String },
-  $I.annote("JunieExchangeToken", { description: "A credential-bound, memory-only Grazie token." })
+class JunieExchangeToken extends S.Opaque<JunieExchangeToken, { readonly brand: unique symbol }>()(
+  S.Struct({ token: S.String.pipe(S.Redacted), expiresAt: S.Finite, credentialFingerprint: S.String }).pipe(
+    $I.annoteSchema("JunieExchangeToken", { description: "A credential-bound, memory-only Grazie token." })
+  )
 ) {}
 
 const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieStoredCredential }));
@@ -589,7 +595,7 @@ const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieS
  * @category utilities
  * @since 0.0.0
  */
-export const grokUsageOutcome = (response: GrokUsageResponse): AccountUsageOutcome => {
+export const grokUsageOutcome = (response: S.Struct.Type<typeof GrokUsageResponse.fields>): AccountUsageOutcome => {
   if (isRejectedStatus(response.status)) return loginRejected;
   if (response.status !== 200) return failed(`Grok billing answered HTTP ${response.status}`);
   return O.match(grokUsageWindows(response.body), {

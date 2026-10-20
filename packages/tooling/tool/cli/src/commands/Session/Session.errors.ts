@@ -63,7 +63,9 @@ export type SessionLedgerErrorReason = typeof SessionLedgerErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SessionLedgerError extends S.TaggedError<SessionLedgerError>($I`SessionLedgerError`)(
+export class SessionLedgerError extends S.TaggedError<SessionLedgerError, { readonly brand: unique symbol }>(
+  $I`SessionLedgerError`
+)(
   "SessionLedgerError",
   { reason: SessionLedgerErrorReason, message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
   $I.annoteError<SessionLedgerError>("SessionLedgerError", {

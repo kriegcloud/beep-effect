@@ -9,8 +9,8 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
-import { Reactivity } from "effect/reactivity";
-import { TestClock } from "effect/testing";
+import * as Reactivity from "effect/reactivity/Reactivity";
+import * as TestClock from "effect/testing/TestClock";
 import { vi } from "vitest";
 import { workspaceVaultKey } from "@/intake/DesktopIntake.client";
 import { documentIntakeStateOf, vaultSelectionOf, vaultStatusOf } from "@/intake/DocumentIntake.machine";
@@ -295,7 +295,7 @@ describe("document intake machine", { concurrent: false }, () => {
             current.matches({ vault: { watching: { unconfigured: { manual: "editing" } } } })
           );
           expect(prompt).not.toHaveBeenCalled();
-          expect(vaultSelectionOf(manual)).toStrictEqual(VaultSelectionState.cases.manual.make());
+          expect(vaultSelectionOf(manual)).toStrictEqual(VaultSelectionState.cases.manual.make({}));
           prompt.mockRestore();
         })
       );

@@ -32,15 +32,16 @@ const $I = $RepoCliId.create("commands/Qa/JudgeSkill");
  * @category models
  * @since 0.0.0
  */
-export class QaJudgeSkillOptions extends S.Class<QaJudgeSkillOptions>($I`QaJudgeSkillOptions`)(
-  {
+export class QaJudgeSkillOptions extends S.Opaque<QaJudgeSkillOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Option(S.String).annotateKey({
       description: "Destination path for the rendered artifact; absent means print the exact bytes to stdout.",
     }),
-  },
-  $I.annote("QaJudgeSkillOptions", {
-    description: "Options for rendering the qa-inventory judge contract as SKILL.md.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaJudgeSkillOptions", {
+      description: "Options for rendering the qa-inventory judge contract as SKILL.md.",
+    })
+  )
 ) {}
 
 const writeArtifact = Effect.fn("QaJudgeSkill.write")(function* (outputPath: string, markdown: string) {

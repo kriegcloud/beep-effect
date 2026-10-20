@@ -71,9 +71,10 @@ const PatentDocumentNormalizationReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class PatentDocumentNormalizationError extends S.TaggedError<PatentDocumentNormalizationError>(
-  $I`PatentDocumentNormalizationError`
-)(
+export class PatentDocumentNormalizationError extends S.TaggedError<
+  PatentDocumentNormalizationError,
+  { readonly brand: unique symbol }
+>($I`PatentDocumentNormalizationError`)(
   "PatentDocumentNormalizationError",
   {
     message: S.NonEmptyString.annotateKey({
@@ -444,6 +445,52 @@ const parseClaim = Effect.fn("PatentDocument.parseClaim")(function* (
     : PatentClaim.cases.independent.make({ body, claimNumber, claimText, preamble, transition });
 });
 
+/**
+ * Normalize numbered claim texts into a validated patent claim set.
+ *
+ * **Details**
+ *
+ * Each entry is a claim number as written (`"1"`, `"00001"`) and its raw
+ * claim text without the number. The text is whitespace-collapsed, split at
+ * its first supported transition phrase into preamble and body, and read for
+ * parent-claim references, exactly as the Markdown normalizer reads a claims
+ * section. The result must be a consecutively numbered, acyclic claim set.
+ *
+ * **Example** (Normalize two numbered claims)
+ *
+ * ```ts
+ * import * as A from "effect/Array"
+ * import * as Effect from "effect/Effect"
+ * import { normalizePatentClaims } from "@beep/law-practice-domain/values/PatentDocument"
+ *
+ * const claims = Effect.runSync(
+ *   normalizePatentClaims([
+ *     ["1", "A system comprising: a sensor."],
+ *     ["2", "The system of claim 1, wherein the sensor is optical."]
+ *   ])
+ * )
+ * console.log(A.map(claims, ({ claimType }) => claimType)) // ["independent", "dependent"]
+ * ```
+ *
+ * @category normalization
+ * @since 0.0.0
+ */
+export const normalizePatentClaims = Effect.fn("PatentDocument.normalizeClaims")(function* (
+  numberedClaims: ReadonlyArray<readonly [claimNumberText: string, claimText: string]>
+): Effect.fn.Return<PatentClaims, PatentDocumentNormalizationError> {
+  const claims = yield* Effect.forEach(numberedClaims, ([claimNumberText, claimText]) =>
+    parseClaim(claimNumberText, claimText)
+  );
+  return yield* decodeUnknownPatentClaims(claims).pipe(
+    Effect.mapError((cause) =>
+      PatentDocumentNormalizationError.make({
+        message: `Invalid patent claim dependency graph: ${String(cause)}`,
+        reason: "invalid-claim",
+      })
+    )
+  );
+});
+
 const claimsFromDraft = Effect.fn("PatentDocument.claimsFromDraft")(function* (
   draft: SectionDraft
 ): Effect.fn.Return<PatentClaims, PatentDocumentNormalizationError> {
@@ -455,16 +502,11 @@ const claimsFromDraft = Effect.fn("PatentDocument.claimsFromDraft")(function* (
       reason: "invalid-claim",
     });
   }
-  const claims = yield* Effect.forEach(matches, (match) =>
-    parseClaim(pipe(A.get(match, 1), O.getOrThrow), pipe(A.get(match, 2), O.getOrThrow))
-  );
-  return yield* decodeUnknownPatentClaims(claims).pipe(
-    Effect.mapError((cause) =>
-      PatentDocumentNormalizationError.make({
-        message: `Invalid patent claim dependency graph: ${String(cause)}`,
-        reason: "invalid-claim",
-      })
-    )
+  return yield* normalizePatentClaims(
+    A.map(matches, (match): readonly [string, string] => [
+      pipe(A.get(match, 1), O.getOrThrow),
+      pipe(A.get(match, 2), O.getOrThrow),
+    ])
   );
 });
 

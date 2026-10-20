@@ -45,6 +45,7 @@ import { ReplyDrafts } from "../../commands/Yeet/internal/Reply.schemas.ts";
 import { withJournalFileLock } from "./AdmissionJournal.ts";
 import {
   BoundMoveOutcome,
+  DirectoryIdentity,
   directoryIdentity,
   openDirectoryHandle,
   removeThroughDirectoryHandle,
@@ -71,9 +72,9 @@ import {
   ResidueReapReport,
   ResidueRetentionRuling,
 } from "./ResidueReap.schemas.ts";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Scope from "effect/Scope";
-import type { BoundRemovalOutcome, DirectoryHandleError, DirectoryIdentity } from "./DirectoryHandle.ts";
+import type { BoundRemovalOutcome, DirectoryHandleError } from "./DirectoryHandle.ts";
 import type { QualitySchedulerError } from "./QualityScheduler.schemas.ts";
 import type { ResidueReapSkipReason } from "./ResidueReap.schemas.ts";
 
@@ -1422,7 +1423,9 @@ const fenceArchiveMove = Effect.fnUntraced(function* (intent: ResidueArchiveInte
     kinds: ProcessAttachmentKind.literals,
   });
   if (O.isNone(attachments) || A.isReadonlyArrayNonEmpty(attachments.value)) {
-    const rolledBack = yield* archive.move(intent.destination, intent.source, intent).pipe(Effect.scoped);
+    const rolledBack = yield* archive
+      .move(intent.destination, intent.source, DirectoryIdentity.make(intent))
+      .pipe(Effect.scoped);
     const restored = BoundMoveOutcome.is.moved(rolledBack) || BoundMoveOutcome.is["moved-unsynced"](rolledBack);
     if (restored) {
       yield* syncDirectory(path.dirname(intent.source));
@@ -2282,7 +2285,7 @@ const resolveSettings = Effect.fnUntraced(function* (options: ResidueReapOptions
     ),
   };
   return {
-    runId: yield* (yield* Crypto.Crypto).randomUUIDv4,
+    runId: yield* (yield* Crypto.Crypto).randomUUIDv4(),
     beepCacheRoot,
     checkoutRoots,
     checkoutBoundaries,
@@ -2457,7 +2460,9 @@ const restoreArchivedIntent = Effect.fnUntraced(function* (context: RecoveryInte
   const archive = yield* ResidueArchive;
   const refuse = recoveryRefusal;
   if (yield* fs.exists(intent.source)) return yield* refuse("Restore refuses an occupied source", "path-changed");
-  const moved = yield* archive.move(intent.destination, intent.source, intent).pipe(Effect.scoped);
+  const moved = yield* archive
+    .move(intent.destination, intent.source, DirectoryIdentity.make(intent))
+    .pipe(Effect.scoped);
   if (!BoundMoveOutcome.is.moved(moved) && !BoundMoveOutcome.is["moved-unsynced"](moved))
     return yield* refuse(
       `Restore failed: ${moved}; archive intent retained`,
@@ -2533,7 +2538,7 @@ const recoverArchiveIntent = Effect.fnUntraced(function* (context: RecoveryInten
   const identityAt = Effect.fnUntraced(function* (target: string) {
     if (O.isSome(yield* fs.readLink(target).pipe(Effect.option))) return false;
     return O.exists(O.flatMap(yield* fs.stat(target).pipe(Effect.option), directoryIdentity), (identity) =>
-      sameDirectoryIdentity(identity, intent)
+      sameDirectoryIdentity(identity, DirectoryIdentity.make(intent))
     );
   });
   const sourceMatches = yield* identityAt(intent.source);
@@ -2666,7 +2671,7 @@ const recoverArchiveRun = Effect.fnUntraced(function* (settings: ResidueReapSett
   const warnings = A.flatMap(rows, (row) => row.warnings);
   const refusalWarnings = A.flatMap(rows, (row) => (row.refused ? row.warnings : []));
   const crypto = yield* Crypto.Crypto;
-  const recoveryPath = path.join(root, `recovery-${yield* crypto.randomUUIDv4}.json`);
+  const recoveryPath = path.join(root, `recovery-${yield* crypto.randomUUIDv4()}.json`);
   const result = ResidueReapReport.make({
     ...report,
     reportPath: recoveryPath,

@@ -8,17 +8,17 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
-import { Reactivity } from "effect/reactivity";
+import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Stream from "effect/Stream";
 import { DesktopIntakeClient, workspaceVaultKey } from "@/intake/DesktopIntake.client";
-import { batchIdFor } from "@/intake/DocumentIntake.models";
+import { batchIdFor, IntakeBatchInput } from "@/intake/DocumentIntake.models";
 import { intakeBatchMachine } from "@/intake/IntakeBatch.machine";
 import { intakeClient, intakeFile, workspaceId } from "./support/IntakeHarness.ts";
 import type { IntakeResultEntry } from "@/intake/DocumentIntake.models";
 
 const startBatch = (client: DesktopIntakeClient["Service"], files: ReadonlyArray<File>) =>
   createEffectActor(intakeBatchMachine, {
-    input: { intakeBatchId: batchIdFor(files, 1), workspaceId, files },
+    input: IntakeBatchInput.make({ intakeBatchId: batchIdFor(files, 1), workspaceId, files }),
   }).pipe(Effect.provideService(DesktopIntakeClient, client));
 
 // `join` types its failure as `unknown`; waiting for the final snapshot keeps the error channel typed.

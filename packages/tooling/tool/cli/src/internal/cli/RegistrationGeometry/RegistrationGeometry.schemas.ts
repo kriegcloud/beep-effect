@@ -42,6 +42,7 @@ export const RegistrationWriter = LiteralKit([
   "jsdoc-inventory",
   "schema-first-inventory",
   "schema-catalog",
+  "instrumentation-catalog",
   "coverage-baseline-replacement",
   "test-typecheck-baseline",
   "docs-aggregate-clean",
@@ -54,32 +55,34 @@ export const RegistrationWriter = LiteralKit([
 );
 export type RegistrationWriter = typeof RegistrationWriter.Type;
 
-export class OwnedTreeSurface extends S.Class<OwnedTreeSurface>($I`OwnedTreeSurface`)(
-  {
+export class OwnedTreeSurface extends S.Opaque<OwnedTreeSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("owned-tree"),
     id: S.NonEmptyString,
     root: PosixPath,
     artifacts: S.Array(Glob),
-  },
-  $I.annote("OwnedTreeSurface", {
-    description: "A target-owned directory whose tracked and ignored contents share its lifecycle.",
-  })
+  }).pipe(
+    $I.annoteSchema("OwnedTreeSurface", {
+      description: "A target-owned directory whose tracked and ignored contents share its lifecycle.",
+    })
+  )
 ) {}
 
-export class WorkspaceLiteralSurface extends S.Class<WorkspaceLiteralSurface>($I`WorkspaceLiteralSurface`)(
-  {
+export class WorkspaceLiteralSurface extends S.Opaque<WorkspaceLiteralSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("workspace-literal"),
     id: S.NonEmptyString,
     file: PosixPath,
     workspacePath: PosixPath,
-  },
-  $I.annote("WorkspaceLiteralSurface", {
-    description: "An exact workspace-array member removed only when it is not a covering glob.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceLiteralSurface", {
+      description: "An exact workspace-array member removed only when it is not a covering glob.",
+    })
+  )
 ) {}
 
-export class IdentitySegmentSurface extends S.Class<IdentitySegmentSurface>($I`IdentitySegmentSurface`)(
-  {
+export class IdentitySegmentSurface extends S.Opaque<IdentitySegmentSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("identity-segment"),
     id: S.NonEmptyString,
     registryFile: PosixPath,
@@ -87,47 +90,51 @@ export class IdentitySegmentSurface extends S.Class<IdentitySegmentSurface>($I`I
     slug: S.NonEmptyString,
     accessor: S.NonEmptyString,
     generatedGroup: S.OptionFromOptionalKey(S.NonEmptyString),
-  },
-  $I.annote("IdentitySegmentSurface", {
-    description: "A package identity compose argument and its exported composer accessor.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdentitySegmentSurface", {
+      description: "A package identity compose argument and its exported composer accessor.",
+    })
+  )
 ) {}
 
-export class DerivedRebuildSurface extends S.Class<DerivedRebuildSurface>($I`DerivedRebuildSurface`)(
-  {
+export class DerivedRebuildSurface extends S.Opaque<DerivedRebuildSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("derived-rebuild"),
     id: S.NonEmptyString,
     writer: RegistrationWriter,
     outputs: S.Array(PosixPath),
-  },
-  $I.annote("DerivedRebuildSurface", {
-    description: "Committed outputs replaced by a named reconstructive writer.",
-  })
+  }).pipe(
+    $I.annoteSchema("DerivedRebuildSurface", {
+      description: "Committed outputs replaced by a named reconstructive writer.",
+    })
+  )
 ) {}
 
-export class GeneratedInventorySurface extends S.Class<GeneratedInventorySurface>($I`GeneratedInventorySurface`)(
-  {
+export class GeneratedInventorySurface extends S.Opaque<GeneratedInventorySurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("generated-inventory"),
     id: S.NonEmptyString,
     writer: RegistrationWriter,
     outputs: S.Array(PosixPath),
     membershipKey: S.NonEmptyString,
-  },
-  $I.annote("GeneratedInventorySurface", {
-    description: "A writer-owned inventory whose target membership is derivable and probeable.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedInventorySurface", {
+      description: "A writer-owned inventory whose target membership is derivable and probeable.",
+    })
+  )
 ) {}
 
-export class AuthoredReferenceSurface extends S.Class<AuthoredReferenceSurface>($I`AuthoredReferenceSurface`)(
-  {
+export class AuthoredReferenceSurface extends S.Opaque<AuthoredReferenceSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("authored-reference"),
     id: S.NonEmptyString,
     files: S.Array(Glob),
     needles: S.Array(S.NonEmptyString),
-  },
-  $I.annote("AuthoredReferenceSurface", {
-    description: "An explicit target reference requiring a modeled edit or operator review.",
-  })
+  }).pipe(
+    $I.annoteSchema("AuthoredReferenceSurface", {
+      description: "An explicit target reference requiring a modeled edit or operator review.",
+    })
+  )
 ) {}
 
 export const DeletionNotePolicy = LiteralKit(["emit-empty-note", "labs-exempt", "private-exempt"]).pipe(
@@ -138,55 +145,59 @@ export const DeletionNotePolicy = LiteralKit(["emit-empty-note", "labs-exempt", 
 );
 export type DeletionNotePolicy = typeof DeletionNotePolicy.Type;
 
-export class PendingChangesetSurface extends S.Class<PendingChangesetSurface>($I`PendingChangesetSurface`)(
-  {
+export class PendingChangesetSurface extends S.Opaque<PendingChangesetSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pending-changeset"),
     id: S.NonEmptyString,
     changesetGlob: Glob,
     retiredRegistry: PosixPath,
     packageName: S.NonEmptyString,
     deletionNotePolicy: DeletionNotePolicy,
-  },
-  $I.annote("PendingChangesetSurface", {
-    description: "Pending changeset keys and retired-name policy for one package name.",
-  })
+  }).pipe(
+    $I.annoteSchema("PendingChangesetSurface", {
+      description: "Pending changeset keys and retired-name policy for one package name.",
+    })
+  )
 ) {}
 
-export class RuntimeArtifactSurface extends S.Class<RuntimeArtifactSurface>($I`RuntimeArtifactSurface`)(
-  {
+export class RuntimeArtifactSurface extends S.Opaque<RuntimeArtifactSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("runtime-artifact"),
     id: S.NonEmptyString,
     globs: S.Array(Glob),
-  },
-  $I.annote("RuntimeArtifactSurface", {
-    description: "Ignored or local artifacts that must be absent after deletion.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeArtifactSurface", {
+      description: "Ignored or local artifacts that must be absent after deletion.",
+    })
+  )
 ) {}
 
-export class DataResourceSurface extends S.Class<DataResourceSurface>($I`DataResourceSurface`)(
-  {
+export class DataResourceSurface extends S.Opaque<DataResourceSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("data-resource"),
     id: S.NonEmptyString,
     owner: S.NonEmptyString,
     resourceName: S.NonEmptyString,
     localOnly: S.Boolean,
     destructiveConsentFlag: S.NonEmptyString,
-  },
-  $I.annote("DataResourceSurface", {
-    description: "Manifest-owned destructive state requiring ownership proof and explicit consent.",
-  })
+  }).pipe(
+    $I.annoteSchema("DataResourceSurface", {
+      description: "Manifest-owned destructive state requiring ownership proof and explicit consent.",
+    })
+  )
 ) {}
 
-export class HistoricalRecordSurface extends S.Class<HistoricalRecordSurface>($I`HistoricalRecordSurface`)(
-  {
+export class HistoricalRecordSurface extends S.Opaque<HistoricalRecordSurface, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("historical-record"),
     id: S.NonEmptyString,
     files: S.Array(Glob),
     needles: S.Array(S.NonEmptyString),
-  },
-  $I.annote("HistoricalRecordSurface", {
-    description: "Historical evidence classified and preserved rather than pruned.",
-  })
+  }).pipe(
+    $I.annoteSchema("HistoricalRecordSurface", {
+      description: "Historical evidence classified and preserved rather than pruned.",
+    })
+  )
 ) {}
 
 export const RegistrationSurface = RegistrationSurfaceKind.mapMembers(
@@ -210,27 +221,29 @@ export const RegistrationSurface = RegistrationSurfaceKind.mapMembers(
 );
 export type RegistrationSurface = typeof RegistrationSurface.Type;
 
-export class LabTargetFacts extends S.Class<LabTargetFacts>($I`LabTargetFacts`)(
-  {
+export class LabTargetFacts extends S.Opaque<LabTargetFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestFile: PosixPath,
     postgresSchema: S.OptionFromOptionalKey(S.NonEmptyString),
     localOnly: S.Boolean,
-  },
-  $I.annote("LabTargetFacts", {
-    description: "Decoded lab-manifest facts (manifest path, optional Postgres schema, locality) for a labs target.",
-  })
+  }).pipe(
+    $I.annoteSchema("LabTargetFacts", {
+      description: "Decoded lab-manifest facts (manifest path, optional Postgres schema, locality) for a labs target.",
+    })
+  )
 ) {}
 
-export class RegistrationTarget extends S.Class<RegistrationTarget>($I`RegistrationTarget`)(
-  {
+export class RegistrationTarget extends S.Opaque<RegistrationTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.NonEmptyString,
     packagePath: PosixPath,
     private: S.Boolean,
     lab: S.OptionFromOptionalKey(LabTargetFacts).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RegistrationTarget", {
-    description: "Resolved workspace identity used to instantiate registration geometry.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegistrationTarget", {
+      description: "Resolved workspace identity used to instantiate registration geometry.",
+    })
+  )
 ) {}
 
 export const RegistrationOperationKind = LiteralKit(["write", "remove", "rebuild", "preserve", "require-consent"]).pipe(
@@ -240,26 +253,28 @@ export const RegistrationOperationKind = LiteralKit(["write", "remove", "rebuild
 );
 export type RegistrationOperationKind = typeof RegistrationOperationKind.Type;
 
-export class RegistrationOperation extends S.Class<RegistrationOperation>($I`RegistrationOperation`)(
-  {
+export class RegistrationOperation extends S.Opaque<RegistrationOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     surfaceId: S.NonEmptyString,
     operation: RegistrationOperationKind,
     detail: S.NonEmptyString,
-  },
-  $I.annote("RegistrationOperation", {
-    description: "One deterministic forward or inverse operation derived from a surface.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegistrationOperation", {
+      description: "One deterministic forward or inverse operation derived from a surface.",
+    })
+  )
 ) {}
 
-export class RegistrationPlan extends S.Class<RegistrationPlan>($I`RegistrationPlan`)(
-  {
+export class RegistrationPlan extends S.Opaque<RegistrationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("registration-plan/v1"),
     target: RegistrationTarget,
     operations: S.Array(RegistrationOperation),
-  },
-  $I.annote("RegistrationPlan", {
-    description: "Serializable package registration plan produced before any mutation.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegistrationPlan", {
+      description: "Serializable package registration plan produced before any mutation.",
+    })
+  )
 ) {}
 
 export const RegistrationObservationStatus = LiteralKit([
@@ -276,15 +291,16 @@ export const RegistrationObservationStatus = LiteralKit([
 );
 export type RegistrationObservationStatus = typeof RegistrationObservationStatus.Type;
 
-export class RegistrationObservation extends S.Class<RegistrationObservation>($I`RegistrationObservation`)(
-  {
+export class RegistrationObservation extends S.Opaque<RegistrationObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     surfaceId: S.NonEmptyString,
     status: RegistrationObservationStatus,
     evidence: S.Array(S.NonEmptyString),
-  },
-  $I.annote("RegistrationObservation", {
-    description: "Declared-versus-actual result for one registration surface.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegistrationObservation", {
+      description: "Declared-versus-actual result for one registration surface.",
+    })
+  )
 ) {}
 
 export const DependentHitKind = LiteralKit([
@@ -306,27 +322,29 @@ export const DependentHitKind = LiteralKit([
 );
 export type DependentHitKind = typeof DependentHitKind.Type;
 
-export class DependentHit extends S.Class<DependentHit>($I`DependentHit`)(
-  {
+export class DependentHit extends S.Opaque<DependentHit, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: DependentHitKind,
     owner: S.NonEmptyString,
     file: PosixPath,
     line: S.OptionFromOptionalKey(S.Int),
     direct: S.Boolean,
-  },
-  $I.annote("DependentHit", {
-    description: "One classified manifest, import, path, packet, baseline, or historical hit.",
-  })
+  }).pipe(
+    $I.annoteSchema("DependentHit", {
+      description: "One classified manifest, import, path, packet, baseline, or historical hit.",
+    })
+  )
 ) {}
 
-export class DependentsReport extends S.Class<DependentsReport>($I`DependentsReport`)(
-  {
+export class DependentsReport extends S.Opaque<DependentsReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: RegistrationTarget,
     directWorkspaceDependents: S.Array(S.NonEmptyString),
     transitiveWorkspaceDependents: S.Array(S.NonEmptyString),
     hits: S.Array(DependentHit),
-  },
-  $I.annote("DependentsReport", {
-    description: "Deterministic reverse-dependency closure plus import and authored-reference evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("DependentsReport", {
+      description: "Deterministic reverse-dependency closure plus import and authored-reference evidence.",
+    })
+  )
 ) {}

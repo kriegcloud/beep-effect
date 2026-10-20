@@ -49,8 +49,8 @@ const $I = $LawPracticeDomainId.create("values/CanonCitation/CanonCitation.model
  * @category models
  * @since 0.0.0
  */
-export class CanonCitation extends S.Class<CanonCitation>($I`CanonCitation`)(
-  {
+export class CanonCitation extends S.Opaque<CanonCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("canon"),
     canon: S.String.annotateKey({
@@ -70,10 +70,11 @@ export class CanonCitation extends S.Class<CanonCitation>($I`CanonCitation`)(
         description: 'Rule set when stated explicitly, e.g. "Code of Judicial Conduct".',
       })
     ),
-  },
-  $I.annote("CanonCitation", {
-    description: "Judicial-conduct canon citation (#310).",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonCitation", {
+      description: "Judicial-conduct canon citation (#310).",
+    })
+  )
 ) {}
 
 /**

@@ -6,33 +6,35 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/RemoveStopWords");
 
-class RemoveStopWordsParameters extends S.Class<RemoveStopWordsParameters>($I`RemoveStopWordsParameters`)(
-  {
+class RemoveStopWordsParameters extends S.Opaque<RemoveStopWordsParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to filter stop words from",
       examples: ["the quick brown fox jumps over the lazy dog"],
     }),
-  },
-  $I.annote("RemoveStopWordsParameters", {
-    description: "Text input used to drop stop words and keep meaningful word tokens.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemoveStopWordsParameters", {
+      description: "Text input used to drop stop words and keep meaningful word tokens.",
+    })
+  )
 ) {}
 
-class RemoveStopWordsSuccess extends S.Class<RemoveStopWordsSuccess>($I`RemoveStopWordsSuccess`)(
-  {
+class RemoveStopWordsSuccess extends S.Opaque<RemoveStopWordsSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     count: S.Natural,
     removedCount: S.Natural,
     tokens: S.Array(S.String),
-  },
-  $I.annote("RemoveStopWordsSuccess", {
-    description: "Remove stop words from text, returning the remaining word tokens.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemoveStopWordsSuccess", {
+      description: "Remove stop words from text, returning the remaining word tokens.",
+    })
+  )
 ) {}
 
 /**

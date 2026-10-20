@@ -23,16 +23,17 @@ const $I = $SemanticaId.create("services/DocumentSource");
  * @category schemas
  * @since 0.0.0
  */
-export class DocumentSelection extends S.Class<DocumentSelection>($I`DocumentSelection`)(
-  {
+export class DocumentSelection extends S.Opaque<DocumentSelection, { readonly brand: unique symbol }>()(
+  S.Struct({
     fixtures: F1Index,
     includeW1: S.Boolean,
     manifest: CorpusManifest,
     paper: S.OptionFromNullOr(CorpusPaperId),
-  },
-  $I.annote("DocumentSelection", {
-    description: "Verified manifest, F1 index, W1 inclusion, and optional W1 paper selection.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentSelection", {
+      description: "Verified manifest, F1 index, W1 inclusion, and optional W1 paper selection.",
+    })
+  )
 ) {}
 
 /**

@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { it } from "@beep/test-runner";
 import { FileSystem, Path } from "@beep/utils";
+import { AppendFileSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -15,7 +16,7 @@ const NFS: typeof import("node:fs") = createRequire(import.meta.url)("node:fs");
 
 const makeTempDir = Effect.fn("FileSystemTest.makeTempDir")(function* () {
   const crypto = yield* Crypto.Crypto;
-  const uuid = yield* crypto.randomUUIDv4;
+  const uuid = yield* crypto.randomUUIDv4();
   const dir = Path.join(tmpdir(), `beep-fs-${uuid}`);
   return yield* Effect.acquireRelease(
     Effect.sync(() => {
@@ -34,7 +35,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       const file = Path.join(dir, "log.txt");
       yield* FileSystem.appendFileSync(file, "a");
       yield* FileSystem.appendFileSync(file, "b");
-      yield* pipe(file, FileSystem.appendFileSync("c", { flag: "a" }));
+      yield* pipe(file, FileSystem.appendFileSync("c", AppendFileSyncOptions.make({ flag: "a" })));
       expect(NFS.readFileSync(file, "utf8")).toBe("abc");
     })
   );
@@ -112,7 +113,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       const target = Path.join(dir, "tree");
       NFS.mkdirSync(target);
       yield* FileSystem.appendFileSync(Path.join(target, "leaf.txt"), "x");
-      yield* FileSystem.rmSync(target, { recursive: true, force: true });
+      yield* FileSystem.rmSync(target, RmSyncOptions.make({ recursive: true, force: true }));
       expect(yield* FileSystem.existsSync(target)).toBe(false);
     })
   );
@@ -121,7 +122,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
     "maps ENOENT to a PlatformError whose reason is NotFound",
     Effect.fnUntraced(function* () {
       const crypto = yield* Crypto.Crypto;
-      const uuid = yield* crypto.randomUUIDv4;
+      const uuid = yield* crypto.randomUUIDv4();
       const error = yield* Effect.flip(FileSystem.statSync(Path.join(tmpdir(), `beep-missing-${uuid}`)));
       expect(error.reason._tag).toBe("NotFound");
       expect(error.reason.module).toBe("FileSystem");

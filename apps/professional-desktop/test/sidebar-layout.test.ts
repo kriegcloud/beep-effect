@@ -3,7 +3,7 @@ import { describe, expect } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { AtomRegistry } from "effect/reactivity";
+import * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import * as S from "effect/Schema";
 import {
   clampSidebarPercent,
@@ -15,6 +15,7 @@ import {
   sidebarPercentAtom,
   sidebarSize,
 } from "@/chat/ui/layout.atoms";
+import { SidebarLayoutChanged } from "../src/chat/ui/layout.atoms.ts";
 
 const decodeSidebarPercent = S.decodeUnknownOption(SidebarPercent);
 
@@ -66,17 +67,23 @@ describe("completed sidebar layouts", () => {
       registry.mount(sidebarPercentAtom);
       registry.mount(persistSidebarLayoutAtom);
 
-      registry.set(persistSidebarLayoutAtom, {
-        layout: { "sidebar-pane": 31, "main-pane": 69 },
-        isUserInteraction: false,
-      });
+      registry.set(
+        persistSidebarLayoutAtom,
+        SidebarLayoutChanged.make({
+          layout: { "sidebar-pane": 31, "main-pane": 69 },
+          isUserInteraction: false,
+        })
+      );
       yield* AtomRegistry.getResult(registry, persistSidebarLayoutAtom);
       expect(registry.get(sidebarPercentAtom)).toBe(SIDEBAR_DEFAULT_PERCENT);
 
-      registry.set(persistSidebarLayoutAtom, {
-        layout: { "sidebar-pane": 31, "main-pane": 69 },
-        isUserInteraction: true,
-      });
+      registry.set(
+        persistSidebarLayoutAtom,
+        SidebarLayoutChanged.make({
+          layout: { "sidebar-pane": 31, "main-pane": 69 },
+          isUserInteraction: true,
+        })
+      );
       yield* AtomRegistry.getResult(registry, persistSidebarLayoutAtom);
       expect(registry.get(sidebarPercentAtom)).toBe(31);
     })

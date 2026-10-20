@@ -1,4 +1,9 @@
+import { fcRuns } from "@beep/fc-runs";
 import { qualityCommand } from "@beep/repo-cli/commands/Quality";
+import {
+  effectDiagnosticsProjectConfig,
+  readEffectDiagnosticsProfile,
+} from "@beep/repo-cli/commands/Quality/EffectDiagnostics";
 import { MemoryStats, provideRuntimeRootForTesting, RuntimeRootChoice } from "@beep/repo-cli/test/RepoRun";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
@@ -6,14 +11,19 @@ import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -27,6 +37,8 @@ const CommandTestLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   FixedMemoryStatsLayer
 );
+const decodeUnknownJsonResult = S.decodeResult(S.fromJsonString(S.Unknown));
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const runQualityCommand = Command.runWith(qualityCommand, { version: "0.0.0" });
 const encoder = new TextEncoder();
 
@@ -84,6 +96,14 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
+  it.effect("dispatches catalog-usage against the live checkout", () =>
+    Effect.gen(function* () {
+      yield* runQualityCommand(["catalog-usage"]);
+
+      expect(yield* consoleText()).toMatch(/\[catalog-usage\] catalog_entries=\d+ .*findings=0/);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
   it.effect("parses and dispatches pure profile commands", () =>
     Effect.gen(function* () {
       yield* runQualityCommand(["profile", "config", "workstation"]);
@@ -114,6 +134,87 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       Effect.provideServiceEffect(Console.Console, TestConsole.make)
     );
   });
+
+  it.effect("decodes Effect diagnostics stdout when stderr contains a runtime warning", () => {
+    const spawned: Array<string> = [];
+    const stdout = Stream.make(
+      encoder.encode(
+        '{"diagnostics":[],"summary":{"filesChecked":1,"filesWithoutPlugin":0,"totalFiles":1,"errors":0,"warnings":0,"messages":0}}'
+      )
+    );
+    const stderr = Stream.make(encoder.encode("Warning: runtime deprecation notice\n"));
+    const configs: Array<unknown> = [];
+    const spawner = ChildProcessSpawner.make((command) => {
+      if (!ChildProcess.isStandardCommand(command)) return Effect.die("Expected a standard diagnostics command");
+      A.appendInPlace(spawned, A.join([command.command, ...command.args], " "));
+      const index = A.findFirstIndex(command.args, (arg) => arg === "--lspconfig");
+      if (O.isNone(index)) return Effect.die("Missing merged lspconfig");
+      const text = command.args[index.value + 1];
+      if (text === undefined) return Effect.die("Missing lspconfig value");
+      A.appendInPlace(configs, Result.getOrThrow(decodeUnknownJsonResult(text)));
+      return Effect.succeed(
+        ChildProcessSpawner.makeHandle({ ...successfulHandle, all: Stream.concat(stdout, stderr), stdout, stderr })
+      );
+    });
+
+    return Effect.gen(function* () {
+      yield* runQualityCommand(["effect-diagnostics", "--filter", "@beep/effect-drizzle"]);
+
+      const output = yield* consoleText();
+      expect(output).toContain("0 errors, 0 warnings, 0 messages");
+      expect(output).toContain("checked 2 projects, 2 file visits");
+      expect(spawned).toHaveLength(2);
+      expect(A.length(configs)).toBe(2);
+      for (const config of configs) {
+        expect(config).toMatchObject({
+          name: "@effect/language-service",
+          effectFn: ["span", "inferred-span", "suggested-span"],
+          diagnosticSeverity: {
+            missedPipeableOpportunity: "off",
+            preferEffectArray: "error",
+            errorPayloadShadowsName: "error",
+            schemaClassMissingBrand: "error",
+          },
+          overrides: [],
+        });
+      }
+    }).pipe(
+      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+      Effect.provideServiceEffect(Console.Console, TestConsole.make)
+    );
+  });
+
+  it.effect.prop(
+    "preserves inherited plugin options and per-file overrides when merging the lane profile",
+    [S.NonEmptyString.pipe(S.Array, Arbitrary.schema)],
+    Effect.fnUntraced(function* ([includes]) {
+      const fs = yield* FileSystem.FileSystem;
+      const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-merge-" });
+      const profile = yield* readEffectDiagnosticsProfile(new URL("../../../../..", import.meta.url).pathname);
+      const plugin = {
+        name: "@effect/language-service",
+        effectFn: ["untraced"],
+        diagnosticSeverity: { missedPipeableOpportunity: "off" },
+        overrides: [{ include: ["test/**", ...includes], diagnosticSeverity: { floatingEffect: "off" } }],
+      };
+      yield* fs.writeFileString(
+        `${dir}/base.json`,
+        yield* encodeUnknownJson({ compilerOptions: { plugins: [plugin] } })
+      );
+      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encodeUnknownJson({ extends: "./base.json" }));
+      const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
+      const value = Result.getOrThrow(decodeUnknownJsonResult(merged));
+      expect(value).toMatchObject({
+        ...plugin,
+        diagnosticSeverity: {
+          ...plugin.diagnosticSeverity,
+          preferEffectArray: "error",
+          schemaClassMissingBrand: "error",
+        },
+      });
+    }),
+    { arbitrary: fcRuns() }
+  );
 
   it.effect("stops before OSV when the ONNX installer mitigation proof fails", () => {
     const spawned: Array<string> = [];

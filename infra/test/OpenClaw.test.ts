@@ -42,7 +42,8 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import { pipe } from "effect/Function";
 import * as P from "effect/Predicate";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -512,11 +513,13 @@ describe("@beep/infra OpenClaw", () => {
         const changedSoulHash = OpenclawSha256Hex.make(yield* sha256Hex(`${openClawLegalSoulMarkdown}\n`));
 
         expect(
-          yield* makeOpenClawBundleHash({
-            configHash: defaultGeneration.configHash,
-            proofSkillHash: defaultGeneration.proofSkillHash,
-            soulHash: changedSoulHash,
-          })
+          yield* makeOpenClawBundleHash(
+            OpenClawBundleHashInput.make({
+              configHash: defaultGeneration.configHash,
+              proofSkillHash: defaultGeneration.proofSkillHash,
+              soulHash: changedSoulHash,
+            })
+          )
         ).not.toBe(defaultGeneration.generationId);
       })
     )
@@ -623,17 +626,25 @@ describe("@beep/infra OpenClaw", () => {
 
   it("never renders a login shell and never resolves sudo by name", () => {
     const rendered = [
-      renderOpenClawPreflightScript({ generation: defaultGeneration, identity }),
+      renderOpenClawPreflightScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      ),
       renderOpenClawStageScript(defaultGeneration),
       renderOpenClawApplyScript(defaultGeneration),
       renderOpenClawRollbackScript(defaultGeneration),
-      renderOpenClawDriftAuditScript({ generation: defaultGeneration, identity }),
-      renderOpenClawProbeScript({ generation: defaultGeneration, identity }),
+      renderOpenClawDriftAuditScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      ),
+      renderOpenClawProbeScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      ),
       renderOpenClawLiveAcceptanceScript(defaultGeneration),
-      renderOpenClawBackupShipScript({
-        backup: OpenClawBackupConfig.make({ passphraseSecretRef: "op://beep-openclaw/backup/passphrase" }),
-        generation: defaultGeneration,
-      }),
+      renderOpenClawBackupShipScript(
+        OpenClawBackupShipScriptInput.make({
+          backup: OpenClawBackupConfig.make({ passphraseSecretRef: "op://beep-openclaw/backup/passphrase" }),
+          generation: defaultGeneration,
+        })
+      ),
     ];
 
     for (const command of rendered) {
@@ -659,7 +670,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("asserts sudo is the real setuid binary rather than trusting a name lookup", () => {
-    const script = scriptBody(renderOpenClawPreflightScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawPreflightScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).toContain("[ -u /usr/bin/sudo ] || fail '/usr/bin/sudo is missing or not setuid root'");
     expect(script).not.toContain("command -v sudo");
@@ -679,7 +694,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("binds preflight to the declared identity and fails closed on unreadable values", () => {
-    const script = scriptBody(renderOpenClawPreflightScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawPreflightScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).toContain("PREFLIGHT-FAIL");
     expect(script).toContain("exit 78");
@@ -691,7 +710,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("checks linger, a real bus round-trip, the socket cap, and an armed sudo ticket in preflight", () => {
-    const script = scriptBody(renderOpenClawPreflightScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawPreflightScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).toContain("loginctl show-user 'elpresidank' -p Linger --value");
     expect(script).toContain("linger not enabled for elpresidank");
@@ -705,7 +728,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("accepts a degraded user manager without depending on is-system-running's exit code", () => {
-    const script = scriptBody(renderOpenClawPreflightScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawPreflightScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).toContain('manager_state="$(systemctl --user is-system-running 2>&1 || true)"');
     expect(script).toContain("user manager unreachable (state=");
@@ -788,7 +815,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("audits every drift dimension with alert-only output", () => {
-    const script = scriptBody(renderOpenClawDriftAuditScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawDriftAuditScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).toContain("ALERT: OPENCLAW_CONFIG_DRIFT %s expected=%s actual=%s");
     expect(script).toContain("alert generation-pointer");
@@ -808,7 +839,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("normalizes file modes through stat's octal form so 33188 can never read as drift", () => {
-    const script = scriptBody(renderOpenClawDriftAuditScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawDriftAuditScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).toContain("stat -c '%a'");
     expect(script).toContain("alert config-mode 644");
@@ -817,7 +852,11 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("mutates nothing in the drift audit", () => {
-    const script = scriptBody(renderOpenClawDriftAuditScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawDriftAuditScript(
+        OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+      )
+    );
 
     expect(script).not.toContain("/usr/bin/sudo -n");
     expect(script).not.toContain("mv -T");
@@ -826,7 +865,9 @@ describe("@beep/infra OpenClaw", () => {
   });
 
   it("folds the drift inventory into the alert-only acceptance probe", () => {
-    const script = scriptBody(renderOpenClawProbeScript({ generation: defaultGeneration, identity }));
+    const script = scriptBody(
+      renderOpenClawProbeScript(OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity }))
+    );
 
     expect(script).toContain("PROBE-LIVENESS");
     expect(script).toContain("http://127.0.0.1:19031/health");
@@ -864,13 +905,15 @@ describe("@beep/infra OpenClaw", () => {
 
   it("encrypts snapshot archives locally and verifies a remote sha256 receipt", () => {
     const script = scriptBody(
-      renderOpenClawBackupShipScript({
-        backup: OpenClawBackupConfig.make({
-          agentSocketPath: O.some("/run/user/1000/gcr/ssh"),
-          passphraseSecretRef: "op://beep-openclaw/backup/passphrase",
-        }),
-        generation: defaultGeneration,
-      })
+      renderOpenClawBackupShipScript(
+        OpenClawBackupShipScriptInput.make({
+          backup: OpenClawBackupConfig.make({
+            agentSocketPath: O.some("/run/user/1000/gcr/ssh"),
+            passphraseSecretRef: "op://beep-openclaw/backup/passphrase",
+          }),
+          generation: defaultGeneration,
+        })
+      )
     );
 
     expect(script).toContain("export SSH_AUTH_SOCK='/run/user/1000/gcr/ssh'");
@@ -888,10 +931,12 @@ describe("@beep/infra OpenClaw", () => {
 
   it("omits the ssh agent export when no agent socket is declared", () => {
     const script = scriptBody(
-      renderOpenClawBackupShipScript({
-        backup: OpenClawBackupConfig.make({ passphraseSecretRef: "op://beep-openclaw/backup/passphrase" }),
-        generation: defaultGeneration,
-      })
+      renderOpenClawBackupShipScript(
+        OpenClawBackupShipScriptInput.make({
+          backup: OpenClawBackupConfig.make({ passphraseSecretRef: "op://beep-openclaw/backup/passphrase" }),
+          generation: defaultGeneration,
+        })
+      )
     );
 
     expect(script).not.toContain("SSH_AUTH_SOCK");
@@ -904,7 +949,11 @@ describe("@beep/infra OpenClaw", () => {
       renderOpenClawRunScript(defaultGeneration),
       scriptBody(renderOpenClawStageScript(defaultGeneration)),
       scriptBody(renderOpenClawApplyScript(defaultGeneration)),
-      scriptBody(renderOpenClawProbeScript({ generation: defaultGeneration, identity })),
+      scriptBody(
+        renderOpenClawProbeScript(
+          OpenClawGenerationIdentityScriptInput.make({ generation: defaultGeneration, identity })
+        )
+      ),
       defaultGeneration.canonicalJson,
     ];
 

@@ -6,15 +6,15 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { PosInt } from "../internal/PosInt.ts";
 import { AiCorpusStats, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/CorpusStats");
 
-class CorpusStatsParameters extends S.Class<CorpusStatsParameters>($I`CorpusStatsParameters`)(
-  {
+class CorpusStatsParameters extends S.Opaque<CorpusStatsParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String.check(S.isMinLength(1)).annotateKey({
       description: "Corpus identifier returned by CreateCorpus",
     }),
@@ -27,10 +27,11 @@ class CorpusStatsParameters extends S.Class<CorpusStatsParameters>($I`CorpusStat
     topIdfTerms: S.optionalKey(PosInt).annotateKey({
       description: "When includeIdf=true, maximum number of top-IDF terms to return",
     }),
-  },
-  $I.annote("CorpusStatsParameters", {
-    description: "Inputs used to inspect corpus internals and optional matrix details.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusStatsParameters", {
+      description: "Inputs used to inspect corpus internals and optional matrix details.",
+    })
+  )
 ) {}
 
 /**

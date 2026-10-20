@@ -85,7 +85,7 @@ import * as Clock from "effect/Clock";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Crypto from "effect/Crypto";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -104,7 +104,7 @@ import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const decodeUUID = S.decodeEffect(UUID);
@@ -3296,19 +3296,19 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
             // an orphan the way it cannot shield a dead lease.
             const staleLegacy = path.join(
               tempRoot.leases,
-              `nonce-${DEAD_PID}.lease.json.tmp-${DEAD_PID}-${yield* crypto.randomUUIDv4}`
+              `nonce-${DEAD_PID}.lease.json.tmp-${DEAD_PID}-${yield* crypto.randomUUIDv4()}`
             );
             const liveLegacy = path.join(
               tempRoot.queue,
-              `nonce-${process.pid}.ticket.json.tmp-${process.pid}-${yield* crypto.randomUUIDv4}`
+              `nonce-${process.pid}.ticket.json.tmp-${process.pid}-${yield* crypto.randomUUIDv4()}`
             );
             const reusedPid = path.join(
               tempRoot.leases,
-              `nonce-${process.pid}.lease.json.tmp-${process.pid}-${Hex.encode("proc:1")}-${yield* crypto.randomUUIDv4}`
+              `nonce-${process.pid}.lease.json.tmp-${process.pid}-${Hex.encode("proc:1")}-${yield* crypto.randomUUIDv4()}`
             );
             const current = path.join(
               tempRoot.queue,
-              `nonce-${process.pid}.ticket.json.tmp-${process.pid}-${Hex.encode(ownIdentity)}-${yield* crypto.randomUUIDv4}`
+              `nonce-${process.pid}.ticket.json.tmp-${process.pid}-${Hex.encode(ownIdentity)}-${yield* crypto.randomUUIDv4()}`
             );
             yield* Effect.forEach([staleLegacy, liveLegacy, reusedPid, current], (file) =>
               fs.writeFileString(file, "")

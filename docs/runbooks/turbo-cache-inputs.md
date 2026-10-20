@@ -50,7 +50,7 @@ match the actual task implementation were discarded.
 | Task | Cache boundary |
 | --- | --- |
 | `doctest` | Source, tests, shared Vitest files and the utils dependency graph; no file outputs required. |
-| `lint:deprecated-apis` | Explicit source globs must follow the ESLint scanner's output exclusions; policy fingerprint and transit carry implementation dependencies. |
+| `lint:deprecated-apis` | Explicit source globs must follow the dedicated type-aware Oxlint profile's output exclusions; policy fingerprint and transit carry implementation dependencies. |
 | `lint:jsdoc` | Explicit source globs exclude artifacts ignored by the JSDoc scanner; policy fingerprint carries implementation changes. |
 | `lint:laws` | Law inputs retain authored source and policy files; generated declarations and reports are excluded when the scanner excludes them. |
 | `build` | Defaults retain package source and configuration; the workspace tsgo wrapper is an explicit input. Declared outputs restore build products. App exceptions are below. |
@@ -136,25 +136,12 @@ zero seconds. Three decisions follow:
 - The overlay, test-typecheck, effect-vitest and JSDoc ratchet checks moved from
   repo-cli subprocess steps into cached root Turbo tasks inside the medium and
   state phases. `quality:test-tsgo` stays a repo-cli step because its Turbo task
-  (`package-test-typecheck`) is uncached by tripwire ruling. The root ESLint
-  program (`lint:jsdoc`) has no Turbo task and keeps a content-keyed ESLint cache
-  under `node_modules/.cache/eslint-root/<key>/` instead, where `<key>` digests
-  `eslint.config.mjs`, `tsdoc.json` and the whole policy-pack configs package
-  source (rule modules import helpers from `src/internal/eslint`): ESLint keys
-  its own cache on the serialized config, which cannot see an edit inside an
-  in-repo rule module or its helpers, so the directory moves instead. The key also
-  follows the flat config's static runtime imports/re-exports (including literal
-  `import()` and `require()` calls) through workspace source, hashing shared
-  config files, local plugin/rule helpers outside `repo-configs/src`, and owning
-  workspace manifests for package imports. Installed
-  ESLint, parser and plugin versions come from their resolved `package.json`,
-  including plugins without `meta` and arbitrary config namespace aliases.
-  Runtime, installed peer and optional dependency manifests of external config
-  packages are followed as well.
-  This is a conservative closure: both statically imported config profiles and
-  declared runtime dependencies contribute, even when the selected profile does
-  not execute them. Sorted relative paths, source contents and package identities
-  keep unchanged runs stable; unrelated workspace files do not enter the closure.
+  (`package-test-typecheck`) is uncached by tripwire ruling. The root documentation
+  program (`lint:jsdoc`) runs oxlint with `.oxlintrc.docs.json` and no persistent result cache.
+  Turbo owns package and non-workspace documentation caching: inputs include the docs config,
+  `tsdoc.json` and `@beep/lint-rules` source. The documentation input digest includes the
+  dependency lock and plugin manifest. Deprecated-API shards use the dedicated oxlint
+  configuration; no ESLint profile environment or result cache remains.
 
 ## Workspace overrides
 

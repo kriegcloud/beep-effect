@@ -22,6 +22,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 import type * as AST from "effect/SchemaAST";
 
 const $I = $RepoCliId.create("commands/Goals/Goals.schemas");
@@ -335,9 +336,10 @@ export type GoalRedAttribution = typeof GoalRedAttribution.Type;
  * @category models
  * @since 0.0.0
  */
-export class GoalPullRequestRef extends S.Class<GoalPullRequestRef>($I`GoalPullRequestRef`)(
-  { number: S.Int.check(S.isGreaterThan(0)), role: GoalPullRequestRole },
-  $I.annote("GoalPullRequestRef", { description: "Declares one pull request by number and delivery role." })
+export class GoalPullRequestRef extends S.Opaque<GoalPullRequestRef, { readonly brand: unique symbol }>()(
+  S.Struct({ number: S.Int.check(S.isGreaterThan(0)), role: GoalPullRequestRole }).pipe(
+    $I.annoteSchema("GoalPullRequestRef", { description: "Declares one pull request by number and delivery role." })
+  )
 ) {}
 
 /**
@@ -353,15 +355,16 @@ export class GoalPullRequestRef extends S.Class<GoalPullRequestRef>($I`GoalPullR
  * @category models
  * @since 0.0.0
  */
-export class GoalAcceptanceEvidenceRef extends S.Class<GoalAcceptanceEvidenceRef>($I`GoalAcceptanceEvidenceRef`)(
-  {
+export class GoalAcceptanceEvidenceRef extends S.Opaque<GoalAcceptanceEvidenceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: GoalAcceptanceEvidenceKind,
     ref: S.NonEmptyString,
     gating: S.Boolean.pipe(S.withDecodingDefault(Effect.succeed(true))),
-  },
-  $I.annote("GoalAcceptanceEvidenceRef", {
-    description: "Points to acceptance evidence bound to a commit, with an explicit gating policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalAcceptanceEvidenceRef", {
+      description: "Points to acceptance evidence bound to a commit, with an explicit gating policy.",
+    })
+  )
 ) {}
 
 /**
@@ -377,17 +380,18 @@ export class GoalAcceptanceEvidenceRef extends S.Class<GoalAcceptanceEvidenceRef
  * @category models
  * @since 0.0.0
  */
-export class GoalMergeResult extends S.Class<GoalMergeResult>($I`GoalMergeResult`)(
-  {
+export class GoalMergeResult extends S.Opaque<GoalMergeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     mergeCommit: S.NonEmptyString,
     tree: S.NonEmptyString,
     mergedAt: S.DateTimeUtcFromString,
     method: S.OptionFromNullOr(GoalMergeMethod),
     baseRef: S.NonEmptyString,
-  },
-  $I.annote("GoalMergeResult", {
-    description: "Records GitHub merge identity and tree without requiring squash-head ancestry.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalMergeResult", {
+      description: "Records GitHub merge identity and tree without requiring squash-head ancestry.",
+    })
+  )
 ) {}
 
 /**
@@ -403,14 +407,17 @@ export class GoalMergeResult extends S.Class<GoalMergeResult>($I`GoalMergeResult
  * @category models
  * @since 0.0.0
  */
-export class GoalEvidenceCheck extends S.Class<GoalEvidenceCheck>($I`GoalEvidenceCheck`)(
-  {
+export class GoalEvidenceCheck extends S.Opaque<GoalEvidenceCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     ref: GoalAcceptanceEvidenceRef,
     outcome: GoalCompletionOutcome,
     observedHead: S.OptionFromNullOr(S.NonEmptyString),
     detail: S.String,
-  },
-  $I.annote("GoalEvidenceCheck", { description: "Records the outcome and observed head of one acceptance reference." })
+  }).pipe(
+    $I.annoteSchema("GoalEvidenceCheck", {
+      description: "Records the outcome and observed head of one acceptance reference.",
+    })
+  )
 ) {}
 
 /**
@@ -452,15 +459,478 @@ export const GoalCheckConclusion = LiteralKit([
 export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
 
 /**
+ * Names the GitHub record that supplied one merge-time completion fact.
+ *
+ * **Details**
+ *
+ * `rule-suite` is GitHub's evaluation of every rule source at the merge push,
+ * `ruleset-version` is the ruleset history version effective at merge, and
+ * `check-run` is a check result on the accepted head.
+ *
+ * **Example** (Enumerate fact sources)
+ *
+ * ```ts
+ * import { GoalEvidenceFactSource } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalEvidenceFactSource.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalEvidenceFactSource = LiteralKit(["rule-suite", "ruleset-version", "check-run"]).pipe(
+  $I.annoteSchema("GoalEvidenceFactSource", {
+    description: "GitHub record that supplied one merge-time completion fact.",
+  })
+);
+/**
+ * GitHub record that supplied one merge-time completion fact.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalEvidenceFactSource = typeof GoalEvidenceFactSource.Type;
+
+/**
+ * Names why merge-time completion evidence stays unknown.
+ *
+ * **Details**
+ *
+ * Every gap blocks verification. `network-failure` is a failed GitHub read,
+ * `rule-suite-unavailable` means GitHub kept no rule suite for the merge push
+ * (rule-suite listing reaches back one month), and
+ * `deleted-ruleset-unrecoverable` means the merge push evaluated a ruleset
+ * whose history GitHub no longer serves.
+ *
+ * **Example** (Recognize a deleted-ruleset gap)
+ *
+ * ```ts
+ * import { GoalCompletionEvidenceGap } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCompletionEvidenceGap.is["deleted-ruleset-unrecoverable"]("deleted-ruleset-unrecoverable"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalCompletionEvidenceGap = LiteralKit([
+  "network-failure",
+  "inventory-unobserved",
+  "rule-suite-unavailable",
+  "deleted-ruleset-unrecoverable",
+  "unsupported-rule-source",
+  "inventory-mismatch",
+  "partial-ruleset-reads",
+  "required-check-unobserved",
+]).pipe(
+  $I.annoteSchema("GoalCompletionEvidenceGap", {
+    description: "Reason merge-time completion evidence is incomplete and therefore unknown.",
+  })
+);
+/**
+ * Reason merge-time completion evidence is incomplete and therefore unknown.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalCompletionEvidenceGap = typeof GoalCompletionEvidenceGap.Type;
+
+/**
+ * Names GitHub's overall rule-suite result for one push.
+ *
+ * **Example** (Recognize a bypassed push)
+ *
+ * ```ts
+ * import { GoalRuleSuiteResult } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRuleSuiteResult.is.bypass("bypass"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalRuleSuiteResult = LiteralKit(["pass", "fail", "bypass"]).pipe(
+  $I.annoteSchema("GoalRuleSuiteResult", { description: "GitHub's overall rule-suite result for one push." })
+);
+/**
+ * GitHub's overall rule-suite result for one push.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalRuleSuiteResult = typeof GoalRuleSuiteResult.Type;
+
+/**
+ * Names GitHub's result for one evaluated rule.
+ *
+ * **Example** (Recognize a failed rule)
+ *
+ * ```ts
+ * import { GoalRuleEvaluationResult } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRuleEvaluationResult.is.fail("fail"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalRuleEvaluationResult = LiteralKit(["pass", "fail"]).pipe(
+  $I.annoteSchema("GoalRuleEvaluationResult", { description: "GitHub's result for one evaluated rule." })
+);
+/**
+ * GitHub's result for one evaluated rule.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalRuleEvaluationResult = typeof GoalRuleEvaluationResult.Type;
+
+/**
+ * Names how GitHub enforced one evaluated rule source.
+ *
+ * **Details**
+ *
+ * GitHub reports `deleted ruleset` for an evaluation whose ruleset was later deleted.
+ *
+ * **Example** (Recognize a deleted ruleset evaluation)
+ *
+ * ```ts
+ * import { GoalRuleEnforcement } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRuleEnforcement.is["deleted ruleset"]("deleted ruleset"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalRuleEnforcement = LiteralKit(["active", "evaluate", "deleted ruleset"]).pipe(
+  $I.annoteSchema("GoalRuleEnforcement", { description: "How GitHub enforced one evaluated rule source." })
+);
+/**
+ * How GitHub enforced one evaluated rule source.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalRuleEnforcement = typeof GoalRuleEnforcement.Type;
+
+/**
+ * Names what recovered ruleset history says about a rule source at merge.
+ *
+ * **Details**
+ *
+ * `unread` means no history was read (or none could be recovered). `gating`
+ * means the version effective at merge was active and applied to the base
+ * branch. `not-gating` means it was in evaluate mode, so it did not gate the
+ * merge. `conflicting` means it was inactive, did not target branches, or did
+ * not match the base branch, although GitHub evaluated it on that branch at the
+ * push: the two GitHub records disagree, so the inventory is a mismatch.
+ *
+ * **Example** (Recognize a non-gating history)
+ *
+ * ```ts
+ * import { GoalRuleSourceHistory } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRuleSourceHistory.is["not-gating"]("not-gating"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalRuleSourceHistory = LiteralKit(["unread", "gating", "not-gating", "conflicting"]).pipe(
+  $I.annoteSchema("GoalRuleSourceHistory", {
+    description: "What recovered ruleset history says about a rule source at merge.",
+  })
+);
+/**
+ * What recovered ruleset history says about a rule source at merge.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalRuleSourceHistory = typeof GoalRuleSourceHistory.Type;
+
+/**
+ * Records one rule source GitHub evaluated at the merge push and the history version read for it.
+ *
+ * **Details**
+ *
+ * `requiredStatusChecks` is GitHub's own merge-time result for the source's
+ * required-status-checks rule, absent when the source has no such rule.
+ * `survives` says whether current ruleset enumeration still lists the source.
+ * `version` is the ruleset history endpoint read for the merge time; it is
+ * absent when no version could be recovered. `history` records whether that
+ * version gated the merge, which overrides the push-time `deleted ruleset`
+ * enforcement of a ruleset deleted since then.
+ *
+ * **Example** (Inspect a rule-source record)
+ *
+ * ```ts
+ * import { GoalMergeTimeRuleSource } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalMergeTimeRuleSource.fields.version)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalMergeTimeRuleSource extends S.Opaque<GoalMergeTimeRuleSource, { readonly brand: unique symbol }>()(
+  S.Struct({
+    sourceType: S.NonEmptyString,
+    rulesetId: S.OptionFromNullOr(S.Int),
+    name: S.OptionFromNullOr(S.String),
+    enforcement: GoalRuleEnforcement,
+    requiredStatusChecks: S.OptionFromNullOr(GoalRuleEvaluationResult),
+    survives: S.Boolean,
+    version: S.OptionFromNullOr(S.NonEmptyString),
+    history: GoalRuleSourceHistory.pipe(S.withConstructorDefault(Effect.succeed<GoalRuleSourceHistory>("unread"))),
+  }).pipe(
+    $I.annoteSchema("GoalMergeTimeRuleSource", {
+      description: "One rule source GitHub evaluated at the merge push, with its merge-time history version.",
+    })
+  )
+) {}
+
+const GoalMergeTimeRuleSourceWire = S.toEncoded(
+  S.Struct({
+    ...GoalMergeTimeRuleSource.fields,
+    history: S.optionalKey(GoalRuleSourceHistory),
+  })
+);
+
+/**
+ * Stored rule-source codec that reads receipts written before `history` existed.
+ *
+ * **Details**
+ *
+ * The earlier writer recorded a `version` only for a ruleset whose history
+ * applied at merge, so a stored row with a version and no `history` decodes as
+ * `gating` (failing closed: its failed required checks stay red). A row with
+ * neither decodes as `unread`. Rows with `history` decode unchanged, and
+ * encoding always writes `history`.
+ *
+ * **Example** (Decode a legacy row with a recovered version)
+ *
+ * ```ts
+ * import { GoalMergeTimeRuleSourceRecord } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * import * as S from "effect/Schema"
+ *
+ * const row = S.decodeUnknownSync(GoalMergeTimeRuleSourceRecord)({
+ *   sourceType: "ruleset",
+ *   rulesetId: 999,
+ *   name: null,
+ *   enforcement: "deleted ruleset",
+ *   requiredStatusChecks: "fail",
+ *   survives: false,
+ *   version: "repos/{owner}/{repo}/rulesets/999/history/1",
+ * })
+ * console.log(row.history) // "gating"
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const GoalMergeTimeRuleSourceRecord = GoalMergeTimeRuleSourceWire.pipe(
+  S.decodeTo(
+    GoalMergeTimeRuleSource,
+    SchemaTransformation.transform({
+      decode: (wire): typeof GoalMergeTimeRuleSource.Encoded => ({
+        ...wire,
+        history: wire.history ?? (wire.version === null ? "unread" : "gating"),
+      }),
+      encode: (encoded) => encoded,
+    })
+  ),
+  $I.annoteSchema("GoalMergeTimeRuleSourceRecord", {
+    description: "Stored rule source; a legacy row with a recovered version and no history decodes as gating.",
+  })
+);
+
+/**
+ * Records GitHub's rule suite for the merge push: the complete rule-source inventory at merge.
+ *
+ * **Details**
+ *
+ * The rule suite lists every rule source GitHub evaluated for the push that
+ * created the merge commit, including rulesets deleted since then. `afterSha`
+ * must equal the merge commit for the inventory to bind to the merge.
+ *
+ * **Example** (Inspect the inventory source)
+ *
+ * ```ts
+ * import { GoalMergeTimeInventory } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalMergeTimeInventory.fields.source)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalMergeTimeInventory extends S.Opaque<GoalMergeTimeInventory, { readonly brand: unique symbol }>()(
+  S.Struct({
+    source: S.NonEmptyString,
+    ruleSuiteId: S.Int,
+    ref: S.NonEmptyString,
+    afterSha: S.NonEmptyString,
+    pushedAt: S.DateTimeUtcFromString,
+    result: GoalRuleSuiteResult,
+    ruleSources: S.Array(GoalMergeTimeRuleSourceRecord),
+  }).pipe(
+    $I.annoteSchema("GoalMergeTimeInventory", {
+      description: "GitHub rule suite for the merge push, listing every evaluated rule source.",
+    })
+  )
+) {}
+
+/**
+ * Records one required context's result bound to the accepted head, with its source.
+ *
+ * **Details**
+ *
+ * `checkRunId` is the newest run for the context on `head` that started before
+ * merge. A context with no such run has no id, conclusion `unknown` and outcome
+ * `unknown`; a run still pending at merge has conclusion `pending`.
+ *
+ * **Example** (Inspect a head-bound check fact)
+ *
+ * ```ts
+ * import { GoalRequiredCheckFact } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalRequiredCheckFact.fields.head)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalRequiredCheckFact extends S.Opaque<GoalRequiredCheckFact, { readonly brand: unique symbol }>()(
+  S.Struct({
+    context: S.NonEmptyString,
+    head: S.NonEmptyString,
+    checkRunId: S.OptionFromNullOr(S.Finite),
+    conclusion: GoalCheckConclusion,
+    outcome: GoalCompletionOutcome,
+    source: GoalEvidenceFactSource,
+  }).pipe(
+    $I.annoteSchema("GoalRequiredCheckFact", {
+      description: "One required context's merge-time result bound to the accepted head.",
+    })
+  )
+) {}
+
+/**
+ * Completion evidence that is complete and green at the accepted head.
+ *
+ * **Example** (Inspect the verified case)
+ *
+ * ```ts
+ * import { GoalCompletionEvidenceVerified } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCompletionEvidenceVerified.fields.facts)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalCompletionEvidenceVerified extends S.Opaque<
+  GoalCompletionEvidenceVerified,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("verified", { facts: S.Array(GoalRequiredCheckFact).check(S.isMinLength(1)) }).pipe(
+    $I.annoteSchema("GoalCompletionEvidenceVerified", {
+      description: "Every required fact is complete and green at the accepted head.",
+    })
+  )
+) {}
+
+/**
+ * Completion evidence holding a known required red.
+ *
+ * **Details**
+ *
+ * `reds` are head-bound required check failures. `ruleSuiteRed` is true when
+ * GitHub's merge-push rule suite itself failed an active required-status-checks rule.
+ *
+ * **Example** (Inspect the unsatisfied case)
+ *
+ * ```ts
+ * import { GoalCompletionEvidenceUnsatisfied } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCompletionEvidenceUnsatisfied.fields.ruleSuiteRed)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalCompletionEvidenceUnsatisfied extends S.Opaque<
+  GoalCompletionEvidenceUnsatisfied,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("unsatisfied", { reds: S.Array(GoalRequiredCheckFact), ruleSuiteRed: S.Boolean }).pipe(
+    $I.annoteSchema("GoalCompletionEvidenceUnsatisfied", {
+      description: "A known required red: a head-bound required check failure or a failed merge-push rule suite.",
+    })
+  )
+) {}
+
+/**
+ * Completion evidence that is missing or partial.
+ *
+ * **Example** (Inspect the unknown case)
+ *
+ * ```ts
+ * import { GoalCompletionEvidenceUnknown } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCompletionEvidenceUnknown.fields.gaps)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalCompletionEvidenceUnknown extends S.Opaque<
+  GoalCompletionEvidenceUnknown,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("unknown", { gaps: S.NonEmptyArray(GoalCompletionEvidenceGap) }).pipe(
+    $I.annoteSchema("GoalCompletionEvidenceUnknown", {
+      description: "Evidence is missing or partial; the gaps name each reason.",
+    })
+  )
+) {}
+
+/**
+ * The merge-time completion evidence verdict: verified, unsatisfied or unknown.
+ *
+ * **Example** (Discriminate a verdict)
+ *
+ * ```ts
+ * import { GoalCompletionEvidenceUnknown, GoalCompletionEvidenceVerdict } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * const verdict = GoalCompletionEvidenceUnknown.make({ gaps: ["network-failure"] })
+ * console.log(GoalCompletionEvidenceVerdict.guards.unknown(verdict))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalCompletionEvidenceVerdict = S.Union([
+  GoalCompletionEvidenceVerified,
+  GoalCompletionEvidenceUnsatisfied,
+  GoalCompletionEvidenceUnknown,
+]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("GoalCompletionEvidenceVerdict", {
+    description: "Merge-time completion evidence verdict: verified, unsatisfied or unknown.",
+  })
+);
+/**
+ * The merge-time completion evidence verdict.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GoalCompletionEvidenceVerdict = typeof GoalCompletionEvidenceVerdict.Type;
+
+/**
  * Records historical required contexts, their ruleset versions and merge-time inventory completeness.
  *
  * **Details**
  *
- * Current ruleset enumeration omits rulesets deleted since merge. Its inventory
- * is incomplete; absent completeness on older receipts also decodes to false.
- * Legacy snapshots used an all-or-nothing ruleset reader, so an omitted
- * `rulesetReadsComplete` defaults to true. Missing inventory completeness
- * still defaults to false; successful reads cannot prove deleted rulesets absent.
+ * Current ruleset enumeration omits rulesets deleted since merge, so it cannot
+ * prove a complete inventory alone. `mergeTimeInventory` holds GitHub's rule
+ * suite for the merge push, which lists every evaluated rule source including
+ * deleted rulesets; `gaps` names everything that kept the inventory from being
+ * complete. Older receipts decode with no rule suite, no gaps and
+ * `inventoryComplete` false. Legacy snapshots used an all-or-nothing ruleset
+ * reader, so an omitted `rulesetReadsComplete` defaults to true. The verdict
+ * never trusts `inventoryComplete` alone: it re-derives completeness from the
+ * stored rule suite.
  *
  * **Example** (Inspect required-check provenance)
  *
@@ -472,8 +942,8 @@ export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
  * @category models
  * @since 0.0.0
  */
-export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot>($I`GoalRequiredCheckSnapshot`)(
-  {
+export class GoalRequiredCheckSnapshot extends S.Opaque<GoalRequiredCheckSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     contexts: S.Array(S.NonEmptyString),
     sources: S.Array(S.NonEmptyString),
     effectiveAt: S.DateTimeUtcFromString,
@@ -482,10 +952,19 @@ export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultKey(Effect.succeed(true))
     ),
-  },
-  $I.annote("GoalRequiredCheckSnapshot", {
-    description: "Historical required-context list with source version references and merge-time applicability.",
-  })
+    mergeTimeInventory: S.OptionFromNullOr(GoalMergeTimeInventory).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.withDecodingDefault(Effect.succeed(null))
+    ),
+    gaps: S.Array(GoalCompletionEvidenceGap).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<GoalCompletionEvidenceGap>())),
+      S.withDecodingDefault(Effect.succeed([]))
+    ),
+  }).pipe(
+    $I.annoteSchema("GoalRequiredCheckSnapshot", {
+      description: "Historical required-context list with source version references and merge-time applicability.",
+    })
+  )
 ) {}
 
 /**
@@ -501,16 +980,17 @@ export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot
  * @category models
  * @since 0.0.0
  */
-export class GoalNonRequiredRed extends S.Class<GoalNonRequiredRed>($I`GoalNonRequiredRed`)(
-  {
+export class GoalNonRequiredRed extends S.Opaque<GoalNonRequiredRed, { readonly brand: unique symbol }>()(
+  S.Struct({
     lane: S.NonEmptyString,
     conclusionAtMerge: GoalCheckConclusion,
     conclusionFinal: GoalCheckConclusion,
     attribution: GoalRedAttribution,
-  },
-  $I.annote("GoalNonRequiredRed", {
-    description: "Retains merge-time and final conclusions alongside independently attributed failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalNonRequiredRed", {
+      description: "Retains merge-time and final conclusions alongside independently attributed failures.",
+    })
+  )
 ) {}
 
 /**
@@ -526,8 +1006,8 @@ export class GoalNonRequiredRed extends S.Class<GoalNonRequiredRed>($I`GoalNonRe
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionReceipt extends S.Class<GoalCompletionReceipt>($I`GoalCompletionReceipt`)(
-  {
+export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("goal-completion-receipt/v1"),
     repository: S.NonEmptyString,
     packet: S.NonEmptyString,
@@ -541,14 +1021,19 @@ export class GoalCompletionReceipt extends S.Class<GoalCompletionReceipt>($I`Goa
     acceptedHead: S.OptionFromNullOr(S.NonEmptyString),
     merge: S.OptionFromNullOr(GoalMergeResult),
     evidence: S.Array(GoalEvidenceCheck),
+    requiredCheckFacts: S.Array(GoalRequiredCheckFact).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<GoalRequiredCheckFact>())),
+      S.withDecodingDefault(Effect.succeed([]))
+    ),
     nonRequiredReds: S.Array(GoalNonRequiredRed),
     subClaims: S.Array(GoalEvidenceCheck),
     outcome: GoalCompletionOutcome,
     verifiedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("GoalCompletionReceipt", {
-    description: "Binds a derived completion observation to the repository, packet, declaration and accepted head.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalCompletionReceipt", {
+      description: "Binds a derived completion observation to the repository, packet, declaration and accepted head.",
+    })
+  )
 ) {}
 
 /**
@@ -578,8 +1063,8 @@ export class GoalCompletionReceipt extends S.Class<GoalCompletionReceipt>($I`Goa
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompletionGate`)(
-  {
+export class GoalCompletionGate extends S.Opaque<GoalCompletionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     operator: S.String,
     requiresPullRequest: S.Boolean,
     requiresMergeable: S.Boolean,
@@ -597,10 +1082,11 @@ export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompl
       )
     ),
     acceptanceEvidence: GoalAcceptanceEvidenceRef.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("GoalCompletionGate", {
-    description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalCompletionGate", {
+      description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
+    })
+  )
 ) {}
 
 /**
@@ -624,8 +1110,8 @@ export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompl
  * @category models
  * @since 0.0.0
  */
-export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
-  {
+export class GoalInitiative extends S.Opaque<GoalInitiative, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     packetId: S.optionalKey(S.String),
     status: GoalStatus,
@@ -633,10 +1119,11 @@ export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
     created: S.optionalKey(S.String),
     updated: S.optionalKey(S.String),
     packetAnchorDocument: S.optionalKey(S.String),
-  },
-  $I.annote("GoalInitiative", {
-    description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalInitiative", {
+      description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -659,16 +1146,17 @@ export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
  * @category models
  * @since 0.0.0
  */
-export class GoalPhase extends S.Class<GoalPhase>($I`GoalPhase`)(
-  {
+export class GoalPhase extends S.Opaque<GoalPhase, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: GoalPhaseStatus,
     id: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
     exit: S.optionalKey(S.String),
-  },
-  $I.annote("GoalPhase", {
-    description: "One goal-manifest phase entry with a normalized status.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalPhase", {
+      description: "One goal-manifest phase entry with a normalized status.",
+    })
+  )
 ) {}
 
 const CapabilitySegment = S.String.check(
@@ -816,7 +1304,7 @@ const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
+export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     initiative: GoalInitiative,
     completionGate: GoalCompletionGate,
@@ -838,10 +1326,13 @@ export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
     phases: S.Union([S.Array(GoalPhase), S.Record(S.String, GoalPhase)]).pipe(S.optionalKey),
     provides: CapabilitySlugList,
     requires: CapabilitySlugList,
-  }).check(GoalManifestCapabilitySelfCycleCheck),
-  $I.annote("GoalManifest", {
-    description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
   })
+    .check(GoalManifestCapabilitySelfCycleCheck)
+    .pipe(
+      $I.annoteSchema("GoalManifest", {
+        description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
+      })
+    )
 ) {}
 
 /**

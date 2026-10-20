@@ -207,8 +207,8 @@ const m365ConfigInputRedirectUriDefault = makeNormalizedUrl(DEFAULT_REDIRECT_URI
  * @category models
  * @since 0.0.0
  */
-export class M365ConfigInput extends S.Class<M365ConfigInput>($I`M365ConfigInput`)(
-  {
+export class M365ConfigInput extends S.Opaque<M365ConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     tenantId: S.NonEmptyString.annotateKey({
       description: "Entra tenant id (a GUID, `common`, `organizations`, or `consumers`).",
     }),
@@ -249,10 +249,11 @@ export class M365ConfigInput extends S.Class<M365ConfigInput>($I`M365ConfigInput
       .annotateKey({
         description: "Filesystem path for the encrypted MSAL token cache; in-memory cache when omitted.",
       }),
-  },
-  $I.annote("M365ConfigInput", {
-    description: "Runtime configuration accepted by the Microsoft 365 Graph driver layers.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ConfigInput", {
+      description: "Runtime configuration accepted by the Microsoft 365 Graph driver layers.",
+    })
+  )
 ) {}
 
 /**
@@ -274,8 +275,8 @@ export class M365ConfigInput extends S.Class<M365ConfigInput>($I`M365ConfigInput
  * @category models
  * @since 0.0.0
  */
-export class ResolvedM365Config extends S.Class<ResolvedM365Config>($I`ResolvedM365Config`)(
-  {
+export class ResolvedM365Config extends S.Opaque<ResolvedM365Config, { readonly brand: unique symbol }>()(
+  S.Struct({
     tenantId: S.NonEmptyString.annotateKey({ description: "Resolved Entra tenant id." }),
     clientId: S.NonEmptyString.annotateKey({ description: "Resolved Entra public-client application id." }),
     authority: URLStr.annotateKey({ description: "Resolved normalized authority URL." }),
@@ -286,10 +287,11 @@ export class ResolvedM365Config extends S.Class<ResolvedM365Config>($I`ResolvedM
     tokenCachePath: S.Option(S.NonEmptyString).annotateKey({
       description: "Resolved encrypted token-cache path, if persistence is configured.",
     }),
-  },
-  $I.annote("ResolvedM365Config", {
-    description: "Resolved Microsoft 365 driver configuration with defaults applied.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedM365Config", {
+      description: "Resolved Microsoft 365 driver configuration with defaults applied.",
+    })
+  )
 ) {}
 
 /**
@@ -350,19 +352,19 @@ export const resolveM365Config = (input: M365ConfigInput): ResolvedM365Config =>
  * @category models
  * @since 0.0.0
  */
-export class M365CertificateCredential extends S.TaggedClass<M365CertificateCredential>($I`M365CertificateCredential`)(
-  "M365CertificateCredential",
-  {
+export class M365CertificateCredential extends S.Opaque<M365CertificateCredential, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("M365CertificateCredential", {
     privateKey: S.NonEmptyString.pipe(S.RedactedFromValue).annotateKey({
       description: "PEM private key of the registered certificate; redacted.",
     }),
     thumbprintSha256: S.NonEmptyString.annotateKey({
       description: "Hex SHA-256 thumbprint of the registered certificate.",
     }),
-  },
-  $I.annote("M365CertificateCredential", {
-    description: "Certificate credential for the Microsoft 365 app-only lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365CertificateCredential", {
+      description: "Certificate credential for the Microsoft 365 app-only lane.",
+    })
+  )
 ) {}
 
 /**
@@ -385,18 +387,19 @@ export class M365CertificateCredential extends S.TaggedClass<M365CertificateCred
  * @category models
  * @since 0.0.0
  */
-export class M365ClientSecretCredential extends S.TaggedClass<M365ClientSecretCredential>(
-  $I`M365ClientSecretCredential`
-)(
-  "M365ClientSecretCredential",
-  {
+export class M365ClientSecretCredential extends S.Opaque<
+  M365ClientSecretCredential,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("M365ClientSecretCredential", {
     clientSecret: S.NonEmptyString.pipe(S.RedactedFromValue).annotateKey({
       description: "Entra client secret; redacted. Dev/test fallback only.",
     }),
-  },
-  $I.annote("M365ClientSecretCredential", {
-    description: "Client-secret credential for the Microsoft 365 app-only lane (dev/test fallback).",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ClientSecretCredential", {
+      description: "Client-secret credential for the Microsoft 365 app-only lane (dev/test fallback).",
+    })
+  )
 ) {}
 
 /**
@@ -468,8 +471,8 @@ export type M365AppOnlyCredential = typeof M365AppOnlyCredential.Type;
  * @category models
  * @since 0.0.0
  */
-export class M365AppOnlyConfigInput extends S.Class<M365AppOnlyConfigInput>($I`M365AppOnlyConfigInput`)(
-  {
+export class M365AppOnlyConfigInput extends S.Opaque<M365AppOnlyConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     tenantId: S.NonEmptyString.annotateKey({
       description: "Entra tenant id (a GUID or verified domain); multi-tenant aliases are not valid for app-only.",
     }),
@@ -494,10 +497,11 @@ export class M365AppOnlyConfigInput extends S.Class<M365AppOnlyConfigInput>($I`M
     ).annotateKey({
       description: "Throttle-retry budget honored on 429/503; defaults to DEFAULT_MAX_RETRIES.",
     }),
-  },
-  $I.annote("M365AppOnlyConfigInput", {
-    description: "Runtime configuration for the Microsoft 365 app-only (confidential client) lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365AppOnlyConfigInput", {
+      description: "Runtime configuration for the Microsoft 365 app-only (confidential client) lane.",
+    })
+  )
 ) {}
 
 /**

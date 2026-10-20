@@ -17,7 +17,11 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { generateDocsIndexContent } from "../Docgen.render.ts";
-import { byDocsOutputPathAscending, DocgenAggregateResult } from "../Docgen.schemas.ts";
+import {
+  byDocsOutputPathAscending,
+  DocgenAggregateResult,
+  ResolveDocgenWorkspacePackageOptions,
+} from "../Docgen.schemas.ts";
 import {
   assertNoOrphanDocgenConfigPaths,
   discoverDocgenWorkspacePackages,
@@ -166,7 +170,10 @@ export const aggregateGeneratedDocs: (options?: {
   const docsRoot = path.join(repoRoot, "docs", "generated");
   const selectedPackage = P.isUndefined(options?.package)
     ? undefined
-    : yield* resolveDocgenWorkspacePackage(options.package, { rootDir: repoRoot });
+    : yield* resolveDocgenWorkspacePackage(
+        options.package,
+        ResolveDocgenWorkspacePackageOptions.make({ rootDir: repoRoot })
+      );
   const packages = yield* pipe(
     O.fromUndefinedOr(selectedPackage),
     O.match({

@@ -229,7 +229,9 @@ export type ScriptState = typeof ScriptState.Type;
  * @category errors
  * @since 0.0.0
  */
-export class InvalidScriptType extends S.TaggedError<InvalidScriptType>($I`InvalidScriptType`)(
+export class InvalidScriptType extends S.TaggedError<InvalidScriptType, { readonly brand: unique symbol }>(
+  $I`InvalidScriptType`
+)(
   "InvalidScriptType",
   {
     value: S.String,

@@ -8,8 +8,12 @@ pre-commit:
       stage_fixed: true
     jsdoc:
       glob: "packages/tooling/*/*/src/**/*.ts"
-      exclude: "packages/tooling/*/*/src/internal/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
-      run: bunx eslint --no-warn-ignored --config eslint.config.mjs {staged_files}
+      exclude:
+        - "packages/tooling/*/*/src/internal/**"
+        - "**/*.test.ts"
+        - "**/*.spec.ts"
+        - "**/*.d.ts"
+      run: bunx oxlint --config .oxlintrc.docs.json {staged_files}
     gitleaks:
       run: gitleaks protect --staged --verbose --config .gitleaks.toml
     typos:

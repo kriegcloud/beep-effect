@@ -1,9 +1,12 @@
 import { fileURLToPath } from "node:url";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const settingsPath = fileURLToPath(new URL("../../../../../.claude/settings.json", import.meta.url));
@@ -19,10 +22,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook launch project con
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const settings = yield* S.decodeEffect(HookSettingsJson)(yield* fs.readFileString(settingsPath));
-      const commands = Object.values(settings.hooks).flatMap((groups) =>
-        groups.flatMap((group) => group.hooks.map((hook) => hook.command))
+      const commands = A.flatMap(R.values(settings.hooks), (groups) =>
+        A.flatMap(groups, (group) => A.map(group.hooks, (hook) => hook.command))
       );
-      const guarded = commands.filter(
+      const guarded = A.filter(
+        commands,
         (command) => command.includes(".claude/hooks/") || command.includes("graft-hooks.cjs")
       );
       expect(guarded.length).toBeGreaterThan(0);
@@ -51,8 +55,12 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook launch project con
           `console.log("${label}-node");\n`
         );
       }
-      const shellCommand = guarded.find((command) => command.includes("hook-pulse.sh")) ?? "";
-      const nodeCommand = guarded.find((command) => command.includes("graft-hooks.cjs")) ?? "";
+      const shellCommand = A.findFirst(guarded, (command) => command.includes("hook-pulse.sh")).pipe(
+        O.getOrElse(() => "")
+      );
+      const nodeCommand = A.findFirst(guarded, (command) => command.includes("graft-hooks.cjs")).pipe(
+        O.getOrElse(() => "")
+      );
       expect(shellCommand).not.toBe("");
       expect(nodeCommand).not.toBe("");
       const commandCases: ReadonlyArray<readonly [string, string]> = [

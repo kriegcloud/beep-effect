@@ -44,8 +44,8 @@ const $I = $DocumentsUseCasesId.create("entities/SyncItem/SyncItem.repository");
  * @category repositories
  * @since 0.0.0
  */
-export class SyncItemSeed extends S.Class<SyncItemSeed>($I`SyncItemSeed`)(
-  {
+export class SyncItemSeed extends S.Opaque<SyncItemSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentDigest: S.Option(DocumentContentDigest).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Digest of the local bytes last observed for this item; none for folders.",
     }),
@@ -88,10 +88,11 @@ export class SyncItemSeed extends S.Class<SyncItemSeed>($I`SyncItemSeed`)(
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault owns the mirrored item.",
     }),
-  },
-  $I.annote("SyncItemSeed", {
-    description: "Creation input for one sync-tracking row, excluding ProductEntity audit fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncItemSeed", {
+      description: "Creation input for one sync-tracking row, excluding ProductEntity audit fields.",
+    })
+  )
 ) {}
 
 /**
@@ -114,9 +115,10 @@ export class SyncItemSeed extends S.Class<SyncItemSeed>($I`SyncItemSeed`)(
  * @category errors
  * @since 0.0.0
  */
-export class SyncItemRepositoryConflict extends S.TaggedError<SyncItemRepositoryConflict>(
-  $I`SyncItemRepositoryConflict`
-)(
+export class SyncItemRepositoryConflict extends S.TaggedError<
+  SyncItemRepositoryConflict,
+  { readonly brand: unique symbol }
+>($I`SyncItemRepositoryConflict`)(
   "SyncItemRepositoryConflict",
   {
     localRelPath: VaultRelPath.annotateKey({
@@ -153,9 +155,10 @@ export class SyncItemRepositoryConflict extends S.TaggedError<SyncItemRepository
  * @category errors
  * @since 0.0.0
  */
-export class SyncItemRepositoryNotFound extends S.TaggedError<SyncItemRepositoryNotFound>(
-  $I`SyncItemRepositoryNotFound`
-)(
+export class SyncItemRepositoryNotFound extends S.TaggedError<
+  SyncItemRepositoryNotFound,
+  { readonly brand: unique symbol }
+>($I`SyncItemRepositoryNotFound`)(
   "SyncItemRepositoryNotFound",
   {
     syncItemId: DocumentsIdentity.SyncItemId.annotateKey({
@@ -185,9 +188,10 @@ export class SyncItemRepositoryNotFound extends S.TaggedError<SyncItemRepository
  * @category errors
  * @since 0.0.0
  */
-export class SyncItemRepositoryUnavailable extends S.TaggedError<SyncItemRepositoryUnavailable>(
-  $I`SyncItemRepositoryUnavailable`
-)(
+export class SyncItemRepositoryUnavailable extends S.TaggedError<
+  SyncItemRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`SyncItemRepositoryUnavailable`)(
   "SyncItemRepositoryUnavailable",
   {
     reason: S.NonEmptyString.annotateKey({
@@ -224,8 +228,8 @@ export class SyncItemRepositoryUnavailable extends S.TaggedError<SyncItemReposit
  * @category repositories
  * @since 0.0.0
  */
-export class FindSyncItemByPathInput extends S.Class<FindSyncItemByPathInput>($I`FindSyncItemByPathInput`)(
-  {
+export class FindSyncItemByPathInput extends S.Opaque<FindSyncItemByPathInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     localRelPath: VaultRelPath.annotateKey({
       description: "Vault-root-relative path of the tracked local item.",
     }),
@@ -235,10 +239,11 @@ export class FindSyncItemByPathInput extends S.Class<FindSyncItemByPathInput>($I
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault owns the tracked item.",
     }),
-  },
-  $I.annote("FindSyncItemByPathInput", {
-    description: "Lookup input addressing one sync-tracking row by vault-relative path.",
-  })
+  }).pipe(
+    $I.annoteSchema("FindSyncItemByPathInput", {
+      description: "Lookup input addressing one sync-tracking row by vault-relative path.",
+    })
+  )
 ) {}
 
 /**
@@ -263,8 +268,11 @@ export class FindSyncItemByPathInput extends S.Class<FindSyncItemByPathInput>($I
  * @category repositories
  * @since 0.0.0
  */
-export class FindSyncItemByRemoteIdInput extends S.Class<FindSyncItemByRemoteIdInput>($I`FindSyncItemByRemoteIdInput`)(
-  {
+export class FindSyncItemByRemoteIdInput extends S.Opaque<
+  FindSyncItemByRemoteIdInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider that assigned the remote identifier.",
     }),
@@ -274,10 +282,11 @@ export class FindSyncItemByRemoteIdInput extends S.Class<FindSyncItemByRemoteIdI
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault owns the tracked item.",
     }),
-  },
-  $I.annote("FindSyncItemByRemoteIdInput", {
-    description: "Lookup input addressing one sync-tracking row by provider remote id.",
-  })
+  }).pipe(
+    $I.annoteSchema("FindSyncItemByRemoteIdInput", {
+      description: "Lookup input addressing one sync-tracking row by provider remote id.",
+    })
+  )
 ) {}
 
 /**
@@ -300,20 +309,22 @@ export class FindSyncItemByRemoteIdInput extends S.Class<FindSyncItemByRemoteIdI
  * @category repositories
  * @since 0.0.0
  */
-export class ListSyncItemsByWorkspaceInput extends S.Class<ListSyncItemsByWorkspaceInput>(
-  $I`ListSyncItemsByWorkspaceInput`
-)(
-  {
+export class ListSyncItemsByWorkspaceInput extends S.Opaque<
+  ListSyncItemsByWorkspaceInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider whose mirror is listed.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault mirror is listed.",
     }),
-  },
-  $I.annote("ListSyncItemsByWorkspaceInput", {
-    description: "Listing input addressing every sync-tracking row of one workspace mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListSyncItemsByWorkspaceInput", {
+      description: "Listing input addressing every sync-tracking row of one workspace mirror.",
+    })
+  )
 ) {}
 
 /**

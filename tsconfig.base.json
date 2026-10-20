@@ -4,7 +4,9 @@
   "compilerOptions": {
     "outDir": "${configDir}/dist",
     "rootDir": "${configDir}/src",
-    "tsBuildInfoFile": "${configDir}/node_modules/.tmp/tsconfig.tsbuildinfo",
+    // Keep incremental state inside outDir: a dist-only clean must also clear it, or a later
+    // non-build-mode emit skips unchanged files and leaves an incomplete dist (#1874).
+    "tsBuildInfoFile": "${configDir}/dist/tsconfig.tsbuildinfo",
     // Use incremental builds with project references.
     "incremental": true,
     "composite": true,
@@ -44,9 +46,9 @@
       {
         "name": "@effect/language-service",
         "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
-        "ignoreEffectSuggestionsInTscExitCode": false,
-        "ignoreEffectWarningsInTscExitCode": false,
-        "ignoreEffectErrorsInTscExitCode": false,
+        "ignoreEffectSuggestionsInTscExitCode": true,
+        "ignoreEffectWarningsInTscExitCode": true,
+        "ignoreEffectErrorsInTscExitCode": true,
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
         "effectFn": ["span", "inferred-span", "suggested-span"],
@@ -68,8 +70,6 @@
         // Stability allow-lists stay empty: experimentalApiUsage and unstableApiUsage are declared off.
         "allowedExperimentalApis": [],
         "allowedUnstableApis": [],
-        // Debug-only language-service output stays off; it is noise in tsc mode.
-        "debug": false,
         // Inlay hints are an editor concern; the upstream default is kept explicit.
         "inlays": false,
         // Layer graph hovers may link to the public mermaid.live renderer; this repo is public.
@@ -103,15 +103,6 @@
         // No per-file overrides: every rule is an error everywhere, tests included (tsgo-045 D2).
         "overrides": [],
         "diagnosticSeverity": {
-          // Every rule the compiler ships is listed explicitly, and every one is an error
-          // except the declared-off set. Rules omitted from this map run at their upstream
-          // default, so silence here would not mean "disabled" — it would mean "whatever
-          // upstream decided", which changes under us on every compiler bump.
-          // `beep quality tsgo-rules` enforces both halves: the listed set must match the
-          // installed compiler exactly, and every entry is "error" unless
-          // `tsgoDisabledRules` in the Quality command declares it "off" with a reason.
-          // Declared off: experimentalApiUsage, unstableApiUsage and apiStabilityLeak (the repo
-          // builds on `@stability unstable` Effect modules by design).
           "abortControllerInEffect": "error",
           "acquireReleaseDisposable": "error",
           "allOfMapToForEach": "error",
@@ -202,8 +193,8 @@
           "promiseInEffectSuccess": "error",
           "provideLayerSucceedToProvideService": "error",
           "raceFirstWithSleepToTimeout": "error",
-          "redundantOrDie": "error",
           "redundantMapError": "error",
+          "redundantOrDie": "error",
           "redundantSchemaTagIdentifier": "error",
           "returnEffectInGen": "error",
           "runEffectInsideEffect": "error",

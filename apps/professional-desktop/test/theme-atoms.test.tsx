@@ -6,7 +6,7 @@ import { RegistryProvider } from "@effect/atom-react";
 import { afterEach, describe, expect, vi } from "@effect/vitest";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import * as Effect from "effect/Effect";
-import { AtomRegistry } from "effect/reactivity";
+import * as AtomRegistry from "effect/reactivity/AtomRegistry";
 import * as S from "effect/Schema";
 import { ThemeToggle } from "@/chat/ui/ThemeToggle";
 import { ProfessionalStorageLive } from "@/runtime/ProfessionalAtomRuntime";
@@ -139,7 +139,9 @@ describe("Atom-owned workbench theme", { concurrent: false }, () => {
               },
               media: query,
               onchange: null,
+              // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
               addListener: () => {},
+              // oxlint-disable-next-line typescript/no-deprecated -- MediaQueryList compatibility mock must implement its legacy DOM members.
               removeListener: () => {},
               addEventListener: (_type: string, listener: EventListenerOrEventListenerObject) => {
                 listeners.push(listener);

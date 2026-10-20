@@ -12,7 +12,7 @@ import type { PretextCapture } from "@beep/pretext";
 import type * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import type * as O from "effect/Option";
-import type { Atom } from "effect/reactivity";
+import type * as Atom from "effect/reactivity/Atom";
 import type React from "react";
 import type { RatioOverride, TabDrag } from "./internal/Gesture.models.ts";
 
@@ -50,13 +50,14 @@ const $I = $DockReactId.create("DockReact.types");
  * @category models
  * @since 0.0.0
  */
-export class DockPanelApi extends S.Class<DockPanelApi>($I`DockPanelApi`)(
-  {
+export class DockPanelApi extends S.Opaque<DockPanelApi, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PanelIdSchema,
-  },
-  $I.annote("DockPanelApi", {
-    description: "Renderer-facing API identifying the dock panel currently being rendered.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockPanelApi", {
+      description: "Renderer-facing API identifying the dock panel currently being rendered.",
+    })
+  )
 ) {}
 
 /**

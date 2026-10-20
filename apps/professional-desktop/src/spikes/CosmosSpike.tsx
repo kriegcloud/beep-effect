@@ -23,7 +23,8 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
-import { AsyncResult, Atom } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Atom from "effect/reactivity/Atom";
 import * as RpcClient from "effect/rpc/RpcClient";
 import * as S from "effect/Schema";
 import * as Tuple from "effect/Tuple";
@@ -59,9 +60,10 @@ const CosmosWorkerInitializationErrorFields = {
  * @category errors
  * @since 0.0.0
  */
-export class CosmosWorkerInitializationError extends S.TaggedError<CosmosWorkerInitializationError>(
-  $I`CosmosWorkerInitializationError`
-)(
+export class CosmosWorkerInitializationError extends S.TaggedError<
+  CosmosWorkerInitializationError,
+  { readonly brand: unique symbol }
+>($I`CosmosWorkerInitializationError`)(
   "CosmosWorkerInitializationError",
   CosmosWorkerInitializationErrorFields,
   $I.annoteError<CosmosWorkerInitializationError>("CosmosWorkerInitializationError", {
@@ -90,18 +92,19 @@ export class CosmosWorkerInitializationError extends S.TaggedError<CosmosWorkerI
  * @category models
  * @since 0.0.0
  */
-export class CosmosSpikeProbeContract extends S.Class<CosmosSpikeProbeContract>($I`CosmosSpikeProbeContract`)(
-  {
+export class CosmosSpikeProbeContract extends S.Opaque<CosmosSpikeProbeContract, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: CosmosBackend,
     elementCount: SyntheticProjectionNodeCount,
     foldLevel: S.tag("L3"),
     fps: Fn({ output: S.Finite }),
     projectedEdgeCount: SyntheticProjectionCount,
     projectedNodeCount: SyntheticProjectionNodeCount,
-  },
-  $I.annote("CosmosSpikeProbeContract", {
-    description: "Headless probe contract exposed by the mounted Cosmos spike.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosSpikeProbeContract", {
+      description: "Headless probe contract exposed by the mounted Cosmos spike.",
+    })
+  )
 ) {}
 
 const SpikeSizeLabel = LiteralKit(["1k", "10k", "100k"]).pipe(
@@ -131,45 +134,49 @@ type SpikeSizeLabel = typeof SpikeSizeLabel.Type;
  * @category models
  * @since 0.0.0
  */
-export class CosmosSpikeSize extends S.Class<CosmosSpikeSize>($I`CosmosSpikeSize`)(
-  {
+export class CosmosSpikeSize extends S.Opaque<CosmosSpikeSize, { readonly brand: unique symbol }>()(
+  S.Struct({
     edgeCount: SyntheticProjectionCount,
     elementCount: SyntheticProjectionNodeCount,
     label: SpikeSizeLabel,
     nodeCount: SyntheticProjectionNodeCount,
-  },
-  $I.annote("CosmosSpikeSize", {
-    description: "Node and edge counts for a synthetic Cosmos spike preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosSpikeSize", {
+      description: "Node and edge counts for a synthetic Cosmos spike preset.",
+    })
+  )
 ) {}
 
-class CosmosSpikeStatusFailed extends S.Class<CosmosSpikeStatusFailed>($I`CosmosSpikeStatusFailed`)(
-  {
+class CosmosSpikeStatusFailed extends S.Opaque<CosmosSpikeStatusFailed, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("failed"),
     message: S.NonEmptyString,
-  },
-  $I.annote("CosmosSpikeStatusFailed", {
-    description: "Cosmos spike state after worker or renderer failure.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosSpikeStatusFailed", {
+      description: "Cosmos spike state after worker or renderer failure.",
+    })
+  )
 ) {}
 
-class CosmosSpikeStatusReady extends S.Class<CosmosSpikeStatusReady>($I`CosmosSpikeStatusReady`)(
-  {
+class CosmosSpikeStatusReady extends S.Opaque<CosmosSpikeStatusReady, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("ready"),
     backend: CosmosBackend,
     handle: CosmosRenderHandle,
     setupDuration: S.Duration,
-  },
-  $I.annote("CosmosSpikeStatusReady", {
-    description: "Cosmos spike state with an active renderer handle.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosSpikeStatusReady", {
+      description: "Cosmos spike state with an active renderer handle.",
+    })
+  )
 ) {}
 
-class CosmosSpikeStatusRendering extends S.Class<CosmosSpikeStatusRendering>($I`CosmosSpikeStatusRendering`)(
-  { state: S.tag("rendering") },
-  $I.annote("CosmosSpikeStatusRendering", {
-    description: "Cosmos spike state while projection and renderer setup are in flight.",
-  })
+class CosmosSpikeStatusRendering extends S.Opaque<CosmosSpikeStatusRendering, { readonly brand: unique symbol }>()(
+  S.Struct({ state: S.tag("rendering") }).pipe(
+    $I.annoteSchema("CosmosSpikeStatusRendering", {
+      description: "Cosmos spike state while projection and renderer setup are in flight.",
+    })
+  )
 ) {}
 
 const CosmosSpikeState = LiteralKit(["rendering", "ready", "failed"]).pipe(
@@ -186,7 +193,7 @@ const CosmosSpikeState = LiteralKit(["rendering", "ready", "failed"]).pipe(
  * ```ts
  * import { CosmosSpikeStatus } from "@/spikes/CosmosSpike"
  *
- * const status = CosmosSpikeStatus.cases.rendering.make()
+ * const status = CosmosSpikeStatus.cases.rendering.make({})
  * console.log(CosmosSpikeStatus.guards.rendering(status)) // true
  * ```
  *
@@ -238,7 +245,7 @@ const initialSpikeSize = pipe(
   O.map(spikeSizeFor),
   O.getOrElse(() => spikeSizeFor(SpikeSizeLabel.Enum["1k"]))
 );
-const renderingStatus: CosmosSpikeStatus = CosmosSpikeStatus.cases.rendering.make();
+const renderingStatus: CosmosSpikeStatus = CosmosSpikeStatus.cases.rendering.make({});
 
 declare global {
   interface Window {

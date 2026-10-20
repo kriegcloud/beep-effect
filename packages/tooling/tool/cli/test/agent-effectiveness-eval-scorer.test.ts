@@ -12,8 +12,10 @@ import {
   evalConfigurationId,
   evaluateLaw,
   evaluateSkillOptCompletion,
+  LawComponentScores,
   LawEvaluation,
   lawComponentScore,
+  RunAgentEffectivenessEvalScoreCommandOptions,
   readSourceSnapshots,
   runAgentEffectivenessEvalScoreCommand,
   SkillOptTaskManifest,
@@ -36,7 +38,8 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -363,7 +366,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     expect(lawComponentScore(0)).toBe(1);
     expect(lawComponentScore(1)).toBe(0.5);
     expect(lawComponentScore(2)).toBe(0.333333);
-    expect(aggregateLawFraction({ schemaFirst: 1, tsgo: 0.5, biome: 0.25 })).toBe(0.583333);
+    expect(aggregateLawFraction(LawComponentScores.make({ schemaFirst: 1, tsgo: 0.5, biome: 0.25 }))).toBe(0.583333);
   });
 
   it.effect.prop(
@@ -681,15 +684,17 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     Effect.gen(function* () {
       const spawned = yield* Ref.make<ReadonlyArray<string>>([]);
       const configs = yield* Ref.make<ReadonlyArray<string>>([]);
-      const exit = yield* runAgentEffectivenessEvalScoreCommand({
-        dataRoot: O.none(),
-        dir: fixtureRoot,
-        json: false,
-        modelId: O.none(),
-        reasoningEffort: O.none(),
-        record: true,
-        taskPath,
-      }).pipe(
+      const exit = yield* runAgentEffectivenessEvalScoreCommand(
+        RunAgentEffectivenessEvalScoreCommandOptions.make({
+          dataRoot: O.none(),
+          dir: fixtureRoot,
+          json: false,
+          modelId: O.none(),
+          reasoningEffort: O.none(),
+          record: true,
+          taskPath,
+        })
+      ).pipe(
         Effect.provideServiceEffect(
           ChildProcessSpawner.ChildProcessSpawner,
           fakeLawSpawner(spawned, configs, { biome: {} })

@@ -25,7 +25,7 @@ import { QaCommandError } from "./Qa.errors.ts";
 import type { RoundLayout } from "@beep/qa-capture";
 import type { R } from "@beep/utils";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const decodeRoundNumber = S.decodeEffect(RoundNumber);
 
@@ -122,8 +122,8 @@ export type AppNamespace = typeof AppNamespace.Type;
  * @category models
  * @since 0.0.0
  */
-export class AppHostTarget extends S.Class<AppHostTarget>($I`AppHostTarget`)(
-  {
+export class AppHostTarget extends S.Opaque<AppHostTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.pipe(
       $I.annoteKey("AppHostTarget.name", {
         description: "Portless app name; the leading host segment.",
@@ -134,10 +134,11 @@ export class AppHostTarget extends S.Class<AppHostTarget>($I`AppHostTarget`)(
         description: "apps produces <name>.beep.localhost; labs produces <name>.labs.beep.localhost.",
       })
     ),
-  },
-  $I.annote("AppHostTarget", {
-    description: "Decoded portless target: app name plus the workspace family that fixes its host shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("AppHostTarget", {
+      description: "Decoded portless target: app name plus the workspace family that fixes its host shape.",
+    })
+  )
 ) {}
 
 /**
@@ -226,8 +227,8 @@ export const resolveAppHostTarget = Effect.fn("QaSession.resolveAppHostTarget")(
  * @category models
  * @since 0.0.0
  */
-export class CaptureTarget extends S.Class<CaptureTarget>($I`CaptureTarget`)(
-  {
+export class CaptureTarget extends S.Opaque<CaptureTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowedOrigins: S.Array(S.String).pipe(
       $I.annoteKey("CaptureTarget.allowedOrigins", {
         description: "Exact origins the collector accepts witness posts from.",
@@ -238,10 +239,11 @@ export class CaptureTarget extends S.Class<CaptureTarget>($I`CaptureTarget`)(
         description: "Absolute URL the harness or browser navigates to.",
       })
     ),
-  },
-  $I.annote("CaptureTarget", {
-    description: "The page a capture round drives, with its allowed witness origins.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaptureTarget", {
+      description: "The page a capture round drives, with its allowed witness origins.",
+    })
+  )
 ) {}
 
 const originsOf = (url: URL): ReadonlyArray<string> => {
@@ -268,8 +270,8 @@ const originsOf = (url: URL): ReadonlyArray<string> => {
  * @category models
  * @since 0.0.0
  */
-export class CaptureTargetRequest extends S.Class<CaptureTargetRequest>($I`CaptureTargetRequest`)(
-  {
+export class CaptureTargetRequest extends S.Opaque<CaptureTargetRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     app: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("CaptureTargetRequest.app", {
@@ -282,10 +284,11 @@ export class CaptureTargetRequest extends S.Class<CaptureTargetRequest>($I`Captu
         description: "Absolute URL, which wins over `app` when both are supplied.",
       })
     ),
-  },
-  $I.annote("CaptureTargetRequest", {
-    description: "Unresolved capture target as the operator supplied it on the command line.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaptureTargetRequest", {
+      description: "Unresolved capture target as the operator supplied it on the command line.",
+    })
+  )
 ) {}
 
 /**
@@ -441,8 +444,8 @@ export const resolveExistingRound = Effect.fn("QaSession.resolveExistingRound")(
  * @category models
  * @since 0.0.0
  */
-export class QaEventLog extends S.Class<QaEventLog>($I`QaEventLog`)(
-  {
+export class QaEventLog extends S.Opaque<QaEventLog, { readonly brand: unique symbol }>()(
+  S.Struct({
     events: S.Array(ActionEvent).pipe(
       $I.annoteKey("QaEventLog.events", {
         description: "Events that decoded cleanly, in log order.",
@@ -453,10 +456,11 @@ export class QaEventLog extends S.Class<QaEventLog>($I`QaEventLog`)(
         description: "Lines that failed schema decoding; recorded, never fatal.",
       })
     ),
-  },
-  $I.annote("QaEventLog", {
-    description: "Witness events decoded from one round's NDJSON log.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaEventLog", {
+      description: "Witness events decoded from one round's NDJSON log.",
+    })
+  )
 ) {}
 
 /**
@@ -526,8 +530,8 @@ const capturedText = (command: string, args: ReadonlyArray<string>) =>
  * @category models
  * @since 0.0.0
  */
-export class CommitProvenance extends S.Class<CommitProvenance>($I`CommitProvenance`)(
-  {
+export class CommitProvenance extends S.Opaque<CommitProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     dirty: S.Boolean.pipe(
       $I.annoteKey("CommitProvenance.dirty", {
         description: "Whether the working tree had uncommitted changes at capture time.",
@@ -538,10 +542,11 @@ export class CommitProvenance extends S.Class<CommitProvenance>($I`CommitProvena
         description: 'Resolved HEAD commit sha, or "unknown" outside a git checkout.',
       })
     ),
-  },
-  $I.annote("CommitProvenance", {
-    description: "Commit provenance of the checkout a capture round was recorded from.",
-  })
+  }).pipe(
+    $I.annoteSchema("CommitProvenance", {
+      description: "Commit provenance of the checkout a capture round was recorded from.",
+    })
+  )
 ) {}
 
 /**

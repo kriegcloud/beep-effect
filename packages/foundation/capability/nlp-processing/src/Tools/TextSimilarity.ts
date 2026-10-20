@@ -8,14 +8,14 @@
 import { $NlpProcessingId } from "@beep/identity";
 import { SimilarityMethod } from "@beep/nlp/Core/Similarity";
 import { UnitInterval } from "@beep/schema/UnitInterval";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/TextSimilarity");
 
-class TextSimilarityParameters extends S.Class<TextSimilarityParameters>($I`TextSimilarityParameters`)(
-  {
+class TextSimilarityParameters extends S.Opaque<TextSimilarityParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text1: S.String.annotateKey({
       description: "First text to compare",
       examples: ["Cats are wonderful pets."],
@@ -24,24 +24,26 @@ class TextSimilarityParameters extends S.Class<TextSimilarityParameters>($I`Text
       description: "Second text to compare",
       examples: ["Felines make great companions."],
     }),
-  },
-  $I.annote("TextSimilarityParameters", {
-    description: "Inputs required to compute cosine similarity between two texts.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextSimilarityParameters", {
+      description: "Inputs required to compute cosine similarity between two texts.",
+    })
+  )
 ) {}
 
-class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimilaritySuccess`)(
-  {
+class TextSimilaritySuccess extends S.Opaque<TextSimilaritySuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     method: S.Literal(SimilarityMethod.Enum["vector.cosine"]).annotateKey({
       description: "The similarity method used",
     }),
     score: UnitInterval.annotateKey({
       description: "Similarity score from 0 (unrelated) to 1 (identical)",
     }),
-  },
-  $I.annote("TextSimilaritySuccess", {
-    description: "Cosine similarity score for two text inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextSimilaritySuccess", {
+      description: "Cosine similarity score for two text inputs.",
+    })
+  )
 ) {}
 
 /**

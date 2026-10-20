@@ -31,7 +31,7 @@ const $I = $ScratchpadId.create("effected/package-json/Dependency");
  * @category models
  * @since 0.0.0
  */
-export class Dependency extends S.Class<Dependency>($I`Dependency`)({
+export class Dependency extends S.Class<Dependency, { readonly brand: unique symbol }>($I`Dependency`)({
 	/**
 	 * The package name.
 	 *

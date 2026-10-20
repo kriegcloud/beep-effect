@@ -1,4 +1,10 @@
-import { LoggingConfig, observeWorkflow, PrettyLoggerConfig, renderLogBanner } from "@beep/observability";
+import {
+  LoggingConfig,
+  observeWorkflow,
+  PrettyLoggerConfig,
+  RenderLogBannerOptions,
+  renderLogBanner,
+} from "@beep/observability";
 import {
   HttpApiTelemetryDescriptor,
   httpApiSuccessStatus,
@@ -11,7 +17,7 @@ import {
 } from "@beep/observability/server";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
-import { HttpApiSchema } from "effect/http-api";
+import * as HttpApiSchema from "effect/http-api/HttpApiSchema";
 import * as Metric from "effect/Metric";
 import * as S from "effect/Schema";
 
@@ -47,10 +53,13 @@ const httpDescriptor = HttpApiTelemetryDescriptor.make({
 void loggingConfig;
 void layerLocalLgtmServer(serverConfig);
 void layerNodeSdkServer(serverConfig);
-void renderLogBanner("Server Safe", {
-  kind: "phase",
-  pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
-});
+void renderLogBanner(
+  "Server Safe",
+  RenderLogBannerOptions.make({
+    kind: "phase",
+    pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
+  })
+);
 void observeWorkflow(
   {
     name: "fixture-workflow",

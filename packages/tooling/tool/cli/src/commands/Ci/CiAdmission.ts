@@ -18,7 +18,8 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -38,7 +39,7 @@ import {
   renderHeavyAdmissionSummary,
 } from "./HeavyAdmission.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/Ci/CiAdmission");
 
@@ -81,8 +82,8 @@ export const HeavyAdmissionJson = JsonStringCodec(HeavyAdmission);
  * @category models
  * @since 0.0.0
  */
-export class CiAdmissionInput extends S.Class<CiAdmissionInput>($I`CiAdmissionInput`)(
-  {
+export class CiAdmissionInput extends S.Opaque<CiAdmissionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventName: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     eventPath: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     base: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -92,10 +93,11 @@ export class CiAdmissionInput extends S.Class<CiAdmissionInput>($I`CiAdmissionIn
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ),
     cwd: S.String,
-  },
-  $I.annote("CiAdmissionInput", {
-    description: "Resolved flags and environment of one ci admission invocation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiAdmissionInput", {
+      description: "Resolved flags and environment of one ci admission invocation.",
+    })
+  )
 ) {}
 
 const decodeEventName = S.decodeUnknownEffect(HeavyAdmissionEventName);
@@ -207,8 +209,7 @@ const resolveCiAdmissionInput = Effect.fn("Ci.resolveCiAdmissionInput")(function
  *
  * ```ts
  * import { ciAdmissionCommand } from "@beep/repo-cli/commands/Ci"
- * import { Command } from "effect/cli"
- *
+ * import * as Command from "effect/cli/Command";
  * const ci = Command.make("ci").pipe(Command.withSubcommands([ciAdmissionCommand]))
  * console.log(typeof ci) // "object"
  * ```

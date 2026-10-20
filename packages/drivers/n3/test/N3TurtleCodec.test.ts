@@ -1,5 +1,13 @@
 import { N3ParseTurtleRequest, N3SerializeTurtleRequest, N3TurtleCodec, N3TurtleCodecLive } from "@beep/n3";
-import { makeBlankNode, makeDataset, makeLiteral, makeNamedNode, makeQuad, PrefixMap } from "@beep/rdf/Rdf";
+import {
+  MakeQuadOptionsInput,
+  makeBlankNode,
+  makeDataset,
+  makeLiteral,
+  makeNamedNode,
+  makeQuad,
+  PrefixMap,
+} from "@beep/rdf/Rdf";
 import { RDF_NAMESPACE } from "@beep/rdf/Vocab/Rdf";
 import { XSD_DOUBLE, XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { it } from "@beep/test-runner";
@@ -81,10 +89,14 @@ it.layer(N3TurtleCodecLive)("N3TurtleCodec", (it) => {
     "rejects named graph quads for Turtle serialization",
     Effect.fnUntraced(function* () {
       const dataset = makeDataset([
-        makeQuad(makeNamedNode("https://example.test/alice"), makeNamedNode("https://example.test/name"), {
-          object: makeLiteral("Alice", XSD_STRING.value),
-          graph: makeNamedNode("https://example.test/graph"),
-        }),
+        makeQuad(
+          makeNamedNode("https://example.test/alice"),
+          makeNamedNode("https://example.test/name"),
+          MakeQuadOptionsInput.make({
+            object: makeLiteral("Alice", XSD_STRING.value),
+            graph: makeNamedNode("https://example.test/graph"),
+          })
+        ),
       ]);
       const codec = yield* N3TurtleCodec;
       const error = yield* codec.serialize(N3SerializeTurtleRequest.make({ dataset })).pipe(Effect.flip);

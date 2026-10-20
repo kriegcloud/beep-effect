@@ -594,6 +594,12 @@
         ]
       },
       {
+        "name": "@beep/palantiri",
+        "patterns": [
+          "packages/tooling/library/palantiri/src/**"
+        ]
+      },
+      {
         "name": "@beep/pandoc-ast",
         "patterns": [
           "packages/foundation/modeling/pandoc-ast/src/**"
@@ -657,6 +663,12 @@
         "name": "@beep/practice-mail-tagging",
         "patterns": [
           "apps/practice-mail-tagging/src/**"
+        ]
+      },
+      {
+        "name": "@beep/practice-review-hub",
+        "patterns": [
+          "apps/practice-review-hub/src/**"
         ]
       },
       {
@@ -3152,6 +3164,25 @@
         ]
       },
       {
+        "from": "@beep/palantiri",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/palantiri",
+          "@beep/repo-ai-metrics",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/palantiri",
+          "@beep/repo-ai-metrics",
+          "@beep/schema"
+        ]
+      },
+      {
         "from": "@beep/pandoc-ast",
         "allow": [
           "@beep/identity",
@@ -3271,12 +3302,14 @@
         "from": "@beep/practice-claude-mod",
         "allow": [
           "@beep/identity",
+          "@beep/law-practice-domain",
           "@beep/practice-claude-mod",
           "@beep/schema",
           "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/law-practice-domain",
           "@beep/practice-claude-mod",
           "@beep/schema",
           "@beep/test-runner"
@@ -3308,6 +3341,8 @@
           "@beep/duckdb",
           "@beep/identity",
           "@beep/law-practice-server",
+          "@beep/mcp-kit",
+          "@beep/observability",
           "@beep/pglite",
           "@beep/practice-kg-mcp",
           "@beep/schema",
@@ -3320,6 +3355,8 @@
           "@beep/duckdb",
           "@beep/identity",
           "@beep/law-practice-server",
+          "@beep/mcp-kit",
+          "@beep/observability",
           "@beep/pglite",
           "@beep/practice-kg-mcp",
           "@beep/schema",
@@ -3376,6 +3413,33 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/practice-review-hub",
+        "allow": [
+          "@beep/identity",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/m365",
+          "@beep/mcp-kit",
+          "@beep/practice-review-hub",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/m365",
+          "@beep/mcp-kit",
+          "@beep/practice-review-hub",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/utils"
         ]
       },
       {
@@ -3587,6 +3651,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
+          "@beep/observability",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
           "@beep/schema",
@@ -3599,6 +3664,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
+          "@beep/observability",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
           "@beep/schema",
@@ -3629,6 +3695,7 @@
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
+          "@beep/palantiri",
           "@beep/pdf-tools",
           "@beep/phoenix",
           "@beep/poppler",
@@ -3670,6 +3737,7 @@
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
+          "@beep/palantiri",
           "@beep/pdf-tools",
           "@beep/phoenix",
           "@beep/poppler",

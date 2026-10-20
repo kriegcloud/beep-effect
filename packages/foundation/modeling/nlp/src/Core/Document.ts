@@ -199,7 +199,7 @@ const filterDocument = (document: Document, predicate: (token: Token) => boolean
  * @category models
  * @since 0.0.0
  */
-export class Document extends S.Class<Document>($I`Document`)(
+export class Document extends S.Class<Document, { readonly brand: unique symbol }>($I`Document`)(
   {
     id: DocumentId,
     text: S.String,

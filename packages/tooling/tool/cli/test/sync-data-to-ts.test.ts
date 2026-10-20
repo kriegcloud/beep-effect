@@ -38,11 +38,13 @@ import { describe, expect } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientError from "effect/http/HttpClientError";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Runtime from "effect/Runtime";
@@ -272,10 +274,12 @@ const generatedFileExists = outputFileExists(generatedOutputPath);
 const writeGeneratedFile = (content: string) => writeOutputFile(generatedOutputPath, content);
 
 const csvTarget: SyncDataTarget = {
-  id: "test-csv",
-  access: "public",
-  description: "Fixture CSV target used to verify sync-data-to-ts CSV parsing.",
-  sourceUrls: [csvFixtureSourceUrl],
+  ...SyncDataTargetMetadata.make({
+    id: "test-csv",
+    access: "public",
+    description: "Fixture CSV target used to verify sync-data-to-ts CSV parsing.",
+    sourceUrls: [csvFixtureSourceUrl],
+  }),
   acquire: Effect.gen(function* () {
     const source = yield* fetchSource("test-csv", "fixture-csv", csvFixtureSourceUrl);
     const rows = yield* parseCsvSource("test-csv", source);

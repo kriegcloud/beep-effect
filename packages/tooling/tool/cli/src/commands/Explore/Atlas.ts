@@ -20,7 +20,8 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
@@ -169,13 +170,14 @@ export type ExplorationProjectionAuthority = typeof ExplorationProjectionAuthori
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifestLinks extends S.Class<ExplorationManifestLinks>($I`ExplorationManifestLinks`)(
-  {
+export class ExplorationManifestLinks extends S.Opaque<ExplorationManifestLinks, { readonly brand: unique symbol }>()(
+  S.Struct({
     goals: S.Array(S.String),
-  },
-  $I.annote("ExplorationManifestLinks", {
-    description: "Goal packet links recorded by an exploration manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationManifestLinks", {
+      description: "Goal packet links recorded by an exploration manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -199,18 +201,19 @@ export class ExplorationManifestLinks extends S.Class<ExplorationManifestLinks>(
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifestEntry extends S.Class<ExplorationManifestEntry>($I`ExplorationManifestEntry`)(
-  {
+export class ExplorationManifestEntry extends S.Opaque<ExplorationManifestEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: PacketSlug,
     title: S.NonEmptyString,
     status: ExplorationStatus,
     stage: ExplorationStage,
     updated: S.NonEmptyString,
     links: S.optionalKey(ExplorationManifestLinks),
-  },
-  $I.annote("ExplorationManifestEntry", {
-    description: "Manifest adoption fields and navigation metadata consumed by the exploration projector.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationManifestEntry", {
+      description: "Manifest adoption fields and navigation metadata consumed by the exploration projector.",
+    })
+  )
 ) {}
 
 /**
@@ -239,14 +242,15 @@ export class ExplorationManifestEntry extends S.Class<ExplorationManifestEntry>(
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifest extends S.Class<ExplorationManifest>($I`ExplorationManifest`)(
-  {
+export class ExplorationManifest extends S.Opaque<ExplorationManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("exploration-manifest/v1"),
     exploration: ExplorationManifestEntry,
-  },
-  $I.annote("ExplorationManifest", {
-    description: "Minimal exploration manifest contract consumed by the Atlas and README projector.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationManifest", {
+      description: "Minimal exploration manifest contract consumed by the Atlas and README projector.",
+    })
+  )
 ) {}
 
 /**
@@ -269,16 +273,20 @@ export class ExplorationManifest extends S.Class<ExplorationManifest>($I`Explora
  * @category models
  * @since 0.0.0
  */
-export class ExplorationProjectionState extends S.Class<ExplorationProjectionState>($I`ExplorationProjectionState`)(
-  {
+export class ExplorationProjectionState extends S.Opaque<
+  ExplorationProjectionState,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     authority: ExplorationProjectionAuthority,
     status: ExplorationStatus,
     furthestStage: ExplorationStage,
     resumeStage: ExplorationStage,
-  },
-  $I.annote("ExplorationProjectionState", {
-    description: "Normalized D3 exploration state derived from a stream or an explicit manifest adoption snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationProjectionState", {
+      description: "Normalized D3 exploration state derived from a stream or an explicit manifest adoption snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -305,8 +313,8 @@ export class ExplorationProjectionState extends S.Class<ExplorationProjectionSta
  * @category models
  * @since 0.0.0
  */
-export class ExplorationAtlasRow extends S.Class<ExplorationAtlasRow>($I`ExplorationAtlasRow`)(
-  {
+export class ExplorationAtlasRow extends S.Opaque<ExplorationAtlasRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: PacketSlug,
     title: S.String,
     status: ExplorationStatus,
@@ -314,24 +322,27 @@ export class ExplorationAtlasRow extends S.Class<ExplorationAtlasRow>($I`Explora
     resumeStage: ExplorationStage,
     authority: ExplorationProjectionAuthority,
     updated: S.String,
-  },
-  $I.annote("ExplorationAtlasRow", {
-    description: "One deterministic Atlas navigation row derived from normalized D3 exploration state.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationAtlasRow", {
+      description: "One deterministic Atlas navigation row derived from normalized D3 exploration state.",
+    })
+  )
 ) {}
 
-class ExplorationReadmeProjection extends S.Class<ExplorationReadmeProjection>($I`ExplorationReadmeProjection`)(
-  { path: S.String, existing: S.String, projected: S.String },
-  $I.annote("ExplorationReadmeProjection", {
-    description: "Existing and deterministic projected bytes for one exploration README.",
-  })
+class ExplorationReadmeProjection extends S.Opaque<ExplorationReadmeProjection, { readonly brand: unique symbol }>()(
+  S.Struct({ path: S.String, existing: S.String, projected: S.String }).pipe(
+    $I.annoteSchema("ExplorationReadmeProjection", {
+      description: "Existing and deterministic projected bytes for one exploration README.",
+    })
+  )
 ) {}
 
-class ExplorationProjectionIssue extends S.Class<ExplorationProjectionIssue>($I`ExplorationProjectionIssue`)(
-  { slug: S.String, path: S.String, detail: S.String },
-  $I.annote("ExplorationProjectionIssue", {
-    description: "Fail-closed reason one exploration cannot be projected from its declared authority.",
-  })
+class ExplorationProjectionIssue extends S.Opaque<ExplorationProjectionIssue, { readonly brand: unique symbol }>()(
+  S.Struct({ slug: S.String, path: S.String, detail: S.String }).pipe(
+    $I.annoteSchema("ExplorationProjectionIssue", {
+      description: "Fail-closed reason one exploration cannot be projected from its declared authority.",
+    })
+  )
 ) {}
 
 /**
@@ -355,16 +366,17 @@ class ExplorationProjectionIssue extends S.Class<ExplorationProjectionIssue>($I`
  * @category models
  * @since 0.0.0
  */
-export class ExplorationProjection extends S.Class<ExplorationProjection>($I`ExplorationProjection`)(
-  {
+export class ExplorationProjection extends S.Opaque<ExplorationProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: S.String,
     atlasContent: S.String,
     readmes: S.Array(ExplorationReadmeProjection),
     issues: S.Array(ExplorationProjectionIssue),
-  },
-  $I.annote("ExplorationProjection", {
-    description: "Whole Atlas and README projection plan plus fail-closed derivation issues.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationProjection", {
+      description: "Whole Atlas and README projection plan plus fail-closed derivation issues.",
+    })
+  )
 ) {}
 
 const rowOrder = Order.mapInput(Order.String, (row: ExplorationAtlasRow) => row.slug);

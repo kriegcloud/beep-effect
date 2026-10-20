@@ -85,7 +85,7 @@ Is this state...
 ## References (load on demand)
 
 - `references/api-reference.md` -- full API: Atom constructors/combinators, AtomContext, AtomRuntime, AsyncResult, Reactivity, AtomRpc, @effect/atom-react hooks/provider/ScopedAtom/SSR
-- `references/service-pattern.md` -- 5-step canonical frontend service pattern; canonical in-repo example is `packages/iam/client/src/core/atoms.ts`
+- `references/service-pattern.md` -- 5-step canonical frontend service pattern; canonical in-repo example is `packages/agents/client/src/Chat.atoms.ts`
 - `references/examples-antipatterns.md` -- 10 Always/Never examples, anti-pattern table, extended verification greps
 
 ## Escalation

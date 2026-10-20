@@ -3,6 +3,8 @@ import {
   Box,
   Camera,
   cameraForView,
+  closeOutlineGaps,
+  commonScale,
   composeSheet,
   DrawingError,
   drawnBrokenGapMm,
@@ -22,16 +24,23 @@ import {
   marginFindings,
   marginsCm,
   mirrorSegments,
+  nearestOutlineDistance,
+  OUTLINE_COINCIDENCE_MM,
+  OverlayLine,
+  outlineSpacingFindings,
   PageMetrics,
   Part,
   PdfBackend,
   PdfFacts,
   PdfFontFact,
   PdfPageSize,
+  PdfStreamFact,
   PT_PER_MM,
   purityFindings,
   RenderManifest,
   RenderRequest,
+  Segment2,
+  ShadingBand,
   ShadingCoverage,
   ShadingSkip,
   SheetFonts,
@@ -43,10 +52,10 @@ import {
   ValidationOptions,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
-import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, vi } from "@effect/vitest";
-import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
+import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -57,7 +66,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { ShadingPlan } from "@beep/technical-drawing";
+import type { OutlineSeparation, ShadingPlan } from "@beep/technical-drawing";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -71,8 +80,14 @@ const square: ReadonlyArray<readonly [number, number, number, number]> = [
 ];
 const shifted = A.map(square, ([a, b, c, d]) => [a + 1, b, c + 1, d] as const);
 
-// `plans` collects every shading plan the engine is asked for, per layer.
-const fakeEngineWith = (plans: Array<ShadingPlan>) =>
+type FakeSegment = readonly [number, number, number, number];
+
+// `plans` collects every shading plan the engine is asked for, per layer. A `graded` scene replaces the graded
+// hatch with its own strokes and adds its own lines to every view's outline.
+const fakeEngineWith = (
+  plans: Array<ShadingPlan>,
+  graded?: { readonly shading: ReadonlyArray<FakeSegment>; readonly visible: ReadonlyArray<FakeSegment> }
+) =>
   Layer.succeed(
     GeometryEngine,
     GeometryEngine.of({
@@ -94,13 +109,19 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
         // apart, which the spacing rule must flag; a model with a broken-line part
         // carries one broken segment per view
         O.map(shading, (plan) => plans.push(plan));
+        const scene = O.filter(O.fromUndefinedOr(graded), () => O.exists(shading, (plan) => plan.style === "graded"));
         const hatch = O.match(shading, {
           onNone: () => [],
           onSome: (plan) =>
             plan.style === "graded"
-              ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const]
+              ? O.match(scene, {
+                  onNone: () => [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const],
+                  onSome: (own) => own.shading,
+                })
               : [[0.2, 0.2, 4, 4] as const],
         });
+        const outline = (base: ReadonlyArray<FakeSegment>) =>
+          O.match(scene, { onNone: () => base, onSome: (own) => [...base, ...own.visible] });
         const coverage = O.map(shading, () =>
           ShadingCoverage.make({
             shadedFaces: 1,
@@ -108,13 +129,18 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
           })
         );
         const broken = A.some(model.parts, (part) => part.lineStyle === "broken") ? [[2, 1, 8, 1] as const] : [];
+        // a model with an emphasis overlay carries one emphasis segment along the bottom edge per view
+        const emphasis = A.some(model.overlays, (overlay) => overlay.style === "emphasis")
+          ? [[0, 0, 10, 0] as const]
+          : [];
         return A.map(cameras, (camera) =>
           EdgeSet.make({
-            visible: camera.eye[1] > 0 ? shifted : square,
+            visible: outline(camera.eye[1] > 0 ? shifted : square),
             hidden: [],
             shading: hatch,
             shadingCoverage: coverage,
             broken,
+            emphasis,
           })
         );
       }),
@@ -195,12 +221,16 @@ const spec = (
   omissions: ReadonlyArray<unknown> = [],
   extra: Readonly<Record<string, unknown>> = {},
   part: Readonly<Record<string, unknown>> = body,
-  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = []
+  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = [],
+  overlays: ReadonlyArray<Readonly<Record<string, unknown>>> = []
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [part, ...moreParts] },
+    // a spec without overlays leaves the key out, as specs written before overlay lines did
+    model: A.isReadonlyArrayNonEmpty(overlays)
+      ? { parts: [part, ...moreParts], overlays }
+      : { parts: [part, ...moreParts] },
     figures,
     omissions,
   });
@@ -208,7 +238,7 @@ const spec = (
 // A label-alphabet font built in-test with opentype.js (the package's own parser), so the
 // operator fontFile route runs on every runner without a committed font: each inked
 // glyph is a 400 x 700 box on a 1000-unit em, the space is blank.
-const OPENTYPE_MODULE = ["opentype", "js"].join(".");
+const OPENTYPE_MODULE = A.join(["opentype", "js"], ".");
 interface OpenTypeBuilder {
   readonly Font: new (options: Readonly<Record<string, unknown>>) => { toArrayBuffer(): ArrayBuffer };
   readonly Glyph: new (options: Readonly<Record<string, unknown>>) => unknown;
@@ -471,6 +501,170 @@ describe("@beep/technical-drawing", () => {
     );
 
     it.effect(
+      "composeSheet chains broken segments that meet end to end into one dashed subpath",
+      Effect.fnUntraced(function* () {
+        const base = {
+          segments: square,
+          shading: [],
+          figure: 1,
+          sheet: 1,
+          sheets: 1,
+          scale: 5,
+          options: SheetOptions.make({}),
+        } as const;
+        // SVG and PDF restart the dash pattern at each subpath: the points of each
+        // subpath of the broken layer, in the order they are written
+        const subpathsOf = (svg: string) =>
+          pipe(
+            /<path id="broken" d="([^"]*)"/.exec(svg)?.[1] ?? "",
+            Str.split("M"),
+            A.filter(Str.isNonEmpty),
+            A.map(Str.split("L"))
+          );
+        // a corrugation wave of 80 segments 2.5 pt long, each far shorter than the
+        // 8.504 pt dash, in the engine's canonical order, plus one straight line
+        const wave = A.makeBy(80, (i) => {
+          const x = i / 2;
+          return [x, 2 + Math.sin(x), x + 0.5, 2 + Math.sin(x + 0.5)] as const;
+        });
+        const waved = subpathsOf(composeSheet({ ...base, broken: [...wave, [0, 4, 10, 4]] }));
+        expect(A.map(waved, A.length)).toEqual([81, 2]);
+        // a closed ring whose canonical segments run both ways round is one subpath
+        // that ends where it starts
+        const ring = subpathsOf(
+          composeSheet({
+            ...base,
+            broken: [
+              [1, 1, 1, 3],
+              [1, 1, 4, 1],
+              [1, 3, 4, 3],
+              [4, 1, 4, 3],
+            ],
+          })
+        );
+        expect(A.map(ring, A.length)).toEqual([5]);
+        expect(A.map(ring, (points) => A.head(points))).toEqual(A.map(ring, (points) => A.last(points)));
+        // where three segments meet the chain runs on into the first in order; the
+        // third starts its own subpath
+        const tee = subpathsOf(
+          composeSheet({
+            ...base,
+            broken: [
+              [0, 1, 5, 1],
+              [5, 1, 10, 1],
+              [5, 1, 5, 4],
+            ],
+          })
+        );
+        expect(A.map(tee, A.length)).toEqual([3, 2]);
+        // segments that do not touch keep one `M..L..` subpath each, as before chaining
+        const apart = /<path id="broken" d="([^"]*)"/.exec(
+          composeSheet({
+            ...base,
+            broken: [
+              [2, 1, 8, 1],
+              [2, 2, 8, 2],
+            ],
+          })
+        )?.[1];
+        expect(apart).toMatch(/^M[\d.]+ [\d.]+L[\d.]+ [\d.]+M[\d.]+ [\d.]+L[\d.]+ [\d.]+$/);
+      })
+    );
+
+    it.effect(
+      "composeSheet draws emphasis lines over the outlines only when they exist",
+      Effect.fnUntraced(function* () {
+        const options = SheetOptions.make({});
+        const base = { segments: square, shading: [], figure: 1, sheet: 1, sheets: 1, scale: 20, options } as const;
+        const plain = composeSheet(base);
+        // an empty emphasis layer leaves the sheet byte-identical, golden included
+        expect(composeSheet({ ...base, emphasis: [] })).toBe(plain);
+        expect(plain).not.toContain('id="emphasis"');
+        const styledEmpty = composeSheet({
+          segments: square,
+          shading: [],
+          emphasis: [],
+          figure: 3,
+          sheet: 3,
+          sheets: 8,
+          scale: 20,
+          options: styled,
+        });
+        expect(yield* sha256Hex(styledEmpty)).toBe("dcfb8611b16781c15f0caf34506a913c44d795e88ce09fc01e6a33bb2b1f6112");
+        // 0.7 mm by default, the outline caps and joins, drawn last so it sits on the outline it runs along
+        const withEmphasis = composeSheet({ ...base, emphasis: [[0, 0, 10, 0]] });
+        expect(SheetOptions.make({}).emphasisWeightMm).toBe(0.7);
+        expect(withEmphasis).toContain('<path id="emphasis" d="M');
+        expect(withEmphasis).toContain(
+          'fill="none" stroke="#000000" stroke-width="1.984" stroke-linecap="round" stroke-linejoin="round"/>\n</svg>'
+        );
+        expect(withEmphasis.indexOf('id="figure"')).toBeLessThan(withEmphasis.indexOf('id="emphasis"'));
+        // the emphasis line runs along the outline, so the outlines do not move
+        const figureOf = (svg: string) =>
+          svg.slice(svg.indexOf('<path id="figure"'), svg.indexOf('<path id="emphasis"'));
+        expect(figureOf(withEmphasis)).toBe(plain.slice(plain.indexOf('<path id="figure"'), plain.indexOf("</svg>")));
+        const heavy = composeSheet({
+          ...base,
+          emphasis: [[0, 0, 10, 0]],
+          options: SheetOptions.make({ emphasisWeightMm: 1 }),
+        });
+        expect(heavy).toContain('<path id="emphasis" d="M');
+        expect(heavy).toContain('stroke-width="2.835"');
+        expect(() => SheetOptions.make({ emphasisWeightMm: 0.3 })).toThrow();
+      })
+    );
+
+    it.effect(
+      "a model decodes without overlays, and an overlay line joins at least two points",
+      Effect.fnUntraced(function* () {
+        const legacy = yield* S.decodeUnknownEffect(ModelSpec)({ parts: [body] });
+        expect(legacy.overlays).toEqual([]);
+        // raw JSON-shaped input, as a spec file carries it
+        const decodeOverlay = (input: unknown) => S.decodeUnknownOption(OverlayLine)(input);
+        const line = { name: "seat", style: "emphasis", points: [[0, 0, 0]] };
+        assertNone(decodeOverlay(line));
+        assertNone(decodeOverlay({ ...line, points: [], style: "broken" }));
+        // a facing must have a direction
+        assertNone(
+          decodeOverlay({
+            ...line,
+            points: [
+              [0, 0, 0],
+              [1, 0, 0],
+            ],
+            facing: [0, 0, 0],
+          })
+        );
+        const overlay = yield* S.decodeUnknownEffect(OverlayLine)({
+          ...line,
+          points: [
+            [0, 0, 0],
+            [1, 0, 0],
+          ],
+        });
+        expect(overlay.lift).toBe(0.01);
+        assertNone(overlay.facing);
+        const model = yield* S.decodeUnknownEffect(ModelSpec)({
+          parts: [body],
+          overlays: [
+            {
+              ...line,
+              style: "broken",
+              points: [
+                [0, 0, 0],
+                [0, 0, 5],
+                [10, 0, 5],
+              ],
+              facing: [0, -1, 0],
+            },
+          ],
+        });
+        expect(A.map(model.overlays, (o) => [o.style, A.length(o.points)])).toEqual([["broken", 3]]);
+        assertSome(model.overlays[0]!.facing, [0, -1, 0]);
+      })
+    );
+
+    it.effect(
       "segment comparison is order- and direction-insensitive; mirroring is about the view centre",
       Effect.fnUntraced(function* () {
         expect(
@@ -552,6 +746,134 @@ describe("@beep/technical-drawing", () => {
         const iso = cameraForView({ view: "top-perspective", box, projection: "isometric" });
         expect(iso.eye[0]).toBeCloseTo(iso.eye[1], 12);
         expect(Math.abs(iso.eye[0])).toBeCloseTo(Math.abs(iso.eye[2]), 12);
+      })
+    );
+
+    it.effect(
+      "cameras: a set elevation lowers the isometric; without one every pictorial camera is unchanged",
+      Effect.fnUntraced(function* () {
+        const box = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] });
+        const elevationOf = (eye: readonly [number, number, number]) =>
+          (Math.asin(eye[2] / Math.hypot(...eye)) * 180) / Math.PI;
+        const top = cameraForView({ view: "top-perspective", box, projection: "isometric", elevationDeg: O.some(20) });
+        const bottom = cameraForView({
+          view: "bottom-perspective",
+          box,
+          projection: "isometric",
+          elevationDeg: O.some(20),
+        });
+        assertNone(top.focus);
+        expect(elevationOf(top.eye)).toBeCloseTo(20, 9);
+        expect(elevationOf(bottom.eye)).toBeCloseTo(-20, 9);
+        // the azimuth still swings it: 45° by default
+        expect(top.eye[0]).toBeCloseTo(top.eye[1], 12);
+        // without an elevation the isometric is the camera written before the field existed, bit for bit, and it
+        // ignores a set focus
+        const az = (45 * Math.PI) / 180;
+        const el = Math.atan(1 / Math.SQRT2);
+        const isometricOf = (zSign: 1 | -1) =>
+          Camera.make({
+            eye: [-Math.sin(az) * Math.cos(el), -Math.cos(az) * Math.cos(el), Math.sin(el) * zSign],
+            up: [0, 0, 1],
+          });
+        A.forEach(
+          [
+            ["top-perspective", 1],
+            ["bottom-perspective", -1],
+          ] as const,
+          ([view, zSign]) => {
+            const isometric = cameraForView({ view, box, projection: "isometric" });
+            expect(isometric).toEqual(isometricOf(zSign));
+            expect(cameraForView({ view, box, projection: "isometric", focusDiagonals: O.some(4) })).toEqual(
+              isometricOf(zSign)
+            );
+            assertNone(isometric.sight);
+            expect(isometric.hiddenLinePassAbout).toBe("origin");
+          }
+        );
+        // a perspective ignores a set elevation (a set passes its elevation to every view; the spec refuses one that
+        // no pictorial reads), so it keeps the camera written before the field existed, bit for bit
+        const perspective = Camera.make({
+          eye: [-1, -1.2, 0.85],
+          up: [0, 0, 1],
+          target: [20, 15, 10],
+          focus: O.some(Math.max(Math.hypot(40, 30, 20) * 2.5, 1)),
+        });
+        expect(cameraForView({ view: "top-perspective", box, elevationDeg: O.some(20) })).toEqual(perspective);
+        // a set focus moves a perspective's eye in or out
+        assertSome(
+          cameraForView({ view: "top-perspective", box, focusDiagonals: O.some(4) }).focus,
+          4 * Math.hypot(40, 30, 20)
+        );
+      })
+    );
+
+    it.effect(
+      "cameras: a two-point pictorial looks level from above the top or below the bottom, seeing the box's near corner at the elevation",
+      Effect.fnUntraced(function* () {
+        const box = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] });
+        const diagonal = Math.hypot(40, 30, 20);
+        const az = Math.PI / 6;
+        const el = (20 * Math.PI) / 180;
+        const level = (view: "top-perspective" | "bottom-perspective") =>
+          cameraForView({ view, box, projection: "two-point", azimuthDeg: O.some(30), elevationDeg: O.some(20) });
+        const top = level("top-perspective");
+        const bottom = level("bottom-perspective");
+        // a level line of sight along the azimuth, up +Z: the view plane is upright, so verticals stay vertical
+        A.forEach([top, bottom], (camera) => {
+          expect(camera.eye[0]).toBeCloseTo(-Math.sin(az), 12);
+          expect(camera.eye[1]).toBeCloseTo(-Math.cos(az), 12);
+          expect(camera.eye[2]).toBe(0);
+          expect(camera.up).toEqual([0, 0, 1]);
+          assertSome(camera.focus, 2.5 * diagonal);
+          expect([camera.target[0], camera.target[1]]).toEqual([20, 15]);
+        });
+        // the eye stands `focus` from the target along the eye direction, so its depth to the face's nearest point
+        // (the near corner, `reach` from the centre along the sight line) is focus − reach, and that point sits `el`
+        // below (above) it
+        const reach = (Math.sin(az) * 40 + Math.cos(az) * 30) / 2;
+        const depth = 2.5 * diagonal - reach;
+        expect(Math.atan2(top.target[2] - 20, depth)).toBeCloseTo(el, 12);
+        expect(Math.atan2(0 - bottom.target[2], depth)).toBeCloseTo(el, 12);
+        // the near corner of the top face, through the camera: depth along the sight line and drop below the eye
+        const nearTop = [0, 0, 20] as const;
+        const along = (p: readonly [number, number, number]) =>
+          (p[0] - top.target[0]) * top.eye[0] + (p[1] - top.target[1]) * top.eye[1];
+        expect(along(nearTop)).toBeCloseTo(reach, 9);
+        expect(Math.atan2(top.target[2] - nearTop[2], 2.5 * diagonal - along(nearTop))).toBeCloseTo(el, 12);
+        // the sight runs from the box centre to the eye point, above (below) the box centre
+        const sightOf = (camera: typeof top) => O.getOrThrow(camera.sight);
+        expect(sightOf(top)[0] / sightOf(top)[1]).toBeCloseTo(Math.tan(az), 12);
+        expect(sightOf(top)[2]).toBeCloseTo(top.target[2] - 10, 9);
+        expect(sightOf(bottom)[2]).toBeCloseTo(bottom.target[2] - 10, 9);
+        expect(sightOf(bottom)[2]).toBeLessThan(0);
+        // its hidden-line pass runs about its target, which stands well clear of the model
+        expect(top.hiddenLinePassAbout).toBe("target");
+        expect(bottom.hiddenLinePassAbout).toBe("target");
+        // without an elevation it sees the near corner at 20°, and without an azimuth looks along 45°
+        const plain = cameraForView({ view: "top-perspective", box, projection: "two-point" });
+        const plainReach = (Math.SQRT1_2 * 40 + Math.SQRT1_2 * 30) / 2;
+        expect(Math.atan2(plain.target[2] - 20, 2.5 * diagonal - plainReach)).toBeCloseTo(el, 12);
+        expect(plain.eye[0]).toBeCloseTo(plain.eye[1], 12);
+        // its field stays within half the 60° cone of vision; an isometric takes any elevation below a plan
+        expect(
+          Math.atan2(
+            cameraForView({ view: "top-perspective", box, projection: "two-point", elevationDeg: O.some(30) })
+              .target[2] - 20,
+            2.5 * diagonal - plainReach
+          )
+        ).toBeCloseTo(Math.PI / 6, 12);
+        expect(() =>
+          cameraForView({ view: "top-perspective", box, projection: "two-point", elevationDeg: O.some(31) })
+        ).toThrow();
+        expect(
+          cameraForView({ view: "top-perspective", box, projection: "isometric", elevationDeg: O.some(60) }).eye[2]
+        ).toBeCloseTo(Math.sin(Math.PI / 3), 12);
+        // a set focus moves the eye; a nearer eye converges more
+        assertSome(
+          cameraForView({ view: "top-perspective", box, projection: "two-point", focusDiagonals: O.some(1.5) }).focus,
+          1.5 * diagonal
+        );
       })
     );
 
@@ -830,6 +1152,51 @@ describe("@beep/technical-drawing", () => {
         expect(
           structuralFindings({ facts: clean, options: ValidationOptions.make({ expectedPages: O.some(1) }) })
         ).toEqual([]);
+        // a FlateDecode stream a strict reader refuses fails the set, with every such stream named
+        const truncated = PdfFacts.make({
+          ...clean,
+          undecodableStreams: [
+            PdfStreamFact.make({ objectNumber: 5, generation: 0, reason: "unexpected end of file" }),
+            PdfStreamFact.make({ objectNumber: 9, generation: 0, reason: "incorrect header check" }),
+          ],
+        });
+        const undecodable = structuralFindings({
+          facts: truncated,
+          options: ValidationOptions.make({ expectedPages: O.some(1) }),
+        });
+        expect(A.map(undecodable, (f) => f.code)).toEqual(["pdf-stream-undecodable"]);
+        assertNone(undecodable[0]!.page);
+        expect(undecodable[0]!.message).toBe(
+          "2 FlateDecode stream(s) fail a strict inflate: 5 0 R (unexpected end of file), 9 0 R (incorrect header check)."
+        );
+        // a check that stopped at the inflate limit leaves later streams unverified: it fails the set too
+        const unchecked = structuralFindings({
+          facts: PdfFacts.make({ ...clean, streamCheck: "limit-reached" }),
+          options: ValidationOptions.make({ expectedPages: O.some(1) }),
+        });
+        expect(A.map(unchecked, (f) => [f.code, f.message])).toEqual([
+          [
+            "pdf-stream-undecodable",
+            "The strict-inflate check stopped at the inflate limit before every FlateDecode stream was checked, so the file is unverified.",
+          ],
+        ]);
+        const truncatedAndUnchecked = structuralFindings({
+          facts: PdfFacts.make({ ...truncated, streamCheck: "limit-reached" }),
+          options: ValidationOptions.make({ expectedPages: O.some(1) }),
+        });
+        expect(A.map(truncatedAndUnchecked, (f) => f.message)).toEqual([
+          "2 FlateDecode stream(s) fail a strict inflate: 5 0 R (unexpected end of file), 9 0 R (incorrect header check). The check stopped at the inflate limit, so the FlateDecode streams after it were not checked.",
+        ]);
+        // an encrypted file's streams are not checked; the encrypted finding alone fails it
+        expect(
+          A.map(
+            structuralFindings({
+              facts: PdfFacts.make({ ...clean, encrypted: true, streamCheck: "encrypted" }),
+              options: ValidationOptions.make({ expectedPages: O.some(1) }),
+            }),
+            (f) => f.code
+          )
+        ).toEqual(["encrypted"]);
       })
     );
 
@@ -1019,6 +1386,54 @@ describe("@beep/technical-drawing", () => {
           expect(A.map(broken.manifest.omissions, (o) => o.proven)).toEqual([true]);
           // the broken segment lies inside the outline, so the scale is unchanged
           expect(broken.manifest.scale).toBe(solid.manifest.scale);
+        })
+      );
+
+      it.effect(
+        "draws emphasis overlays as a heavier layer and records them only when drawn",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const service = yield* FigureSet;
+          const figures = [{ view: "front", description: "is a front elevation view" }];
+          const render = Effect.fnUntraced(function* (name: string, text: string) {
+            const specPath = path.join(dir, `${name}.json`);
+            yield* fs.writeFileString(specPath, text);
+            const out = path.join(dir, name);
+            const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: out, validate: false }));
+            return {
+              manifest,
+              svg: yield* fs.readFileString(path.join(out, "fig-1.svg")),
+              json: yield* fs.readFileString(path.join(out, "manifest.json")),
+            };
+          });
+          const seat = {
+            name: "seat",
+            style: "emphasis",
+            points: [
+              [0, 0, 0],
+              [10, 0, 0],
+            ],
+            facing: [0, -1, 0],
+          };
+          const plain = yield* render("plain", spec(figures));
+          const emphasised = yield* render(
+            "emphasis",
+            spec(figures, [], { sheet: { emphasisWeightMm: 1 } }, body, [], [seat])
+          );
+          // a render without overlays writes no emphasis layer and no emphasis count
+          expect(plain.svg).not.toContain('id="emphasis"');
+          expect(plain.json).not.toContain("emphasisSegments");
+          assertNone(plain.manifest.figures[0]!.emphasisSegments);
+          expect(emphasised.svg).toContain('<path id="emphasis" d="M');
+          expect(emphasised.svg).toContain(
+            'stroke-width="2.835" stroke-linecap="round" stroke-linejoin="round"/>\n</svg>'
+          );
+          assertSome(emphasised.manifest.figures[0]!.emphasisSegments, 1);
+          expect(yield* S.decodeEffect(RenderManifestJson)(emphasised.json)).toEqual(emphasised.manifest);
+          // the emphasis line runs along the outline, so the scale is unchanged
+          expect(emphasised.manifest.scale).toBe(plain.manifest.scale);
         })
       );
 
@@ -1384,6 +1799,113 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "threads the set elevation and focus into two-point pictorials, and checks them",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          const service = yield* FigureSet;
+          const renderSpec = (contents: string) =>
+            fs
+              .writeFileString(specPath, contents)
+              .pipe(
+                Effect.andThen(
+                  service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), validate: false }))
+                )
+              );
+          const figures = [
+            { view: "top-perspective", description: "is a top view", projection: "two-point" },
+            { view: "front", description: "is a front elevation view" },
+          ];
+          const manifest = yield* renderSpec(
+            spec(figures, [{ omitted: "bottom-perspective", shown: "top-perspective", relation: "identical" }], {
+              pictorialAzimuthDeg: 30,
+              pictorialElevationDeg: 20,
+              pictorialFocusDiagonals: 3,
+            })
+          );
+          // the fake engine's model box is 10 × 5 × 5
+          const diagonal = Math.hypot(10, 5, 5);
+          const camera = O.getOrThrow(manifest.figures[0]!.camera);
+          expect(camera.eye[2]).toBe(0);
+          assertSome(camera.focus, 3 * diagonal);
+          const reach = (Math.sin(Math.PI / 6) * 10 + Math.cos(Math.PI / 6) * 5) / 2;
+          expect(Math.atan2(camera.target[2] - 5, 3 * diagonal - reach)).toBeCloseTo((20 * Math.PI) / 180, 12);
+          assertSome(
+            O.map(camera.sight, (sight) => sight[2] > 0),
+            true
+          );
+          // the camera, sight included, round-trips through the manifest
+          const written = yield* fs.readFileString(path.join(dir, "out", "manifest.json"));
+          expect(written).toContain('"sight"');
+          expect(yield* S.decodeEffect(RenderManifestJson)(written)).toEqual(manifest);
+          // a set without a two-point pictorial writes no sight
+          const plain = yield* renderSpec(
+            spec(
+              [{ view: "top-perspective", description: "is a top view", projection: "isometric" }, figures[1]!],
+              [],
+              {
+                pictorialElevationDeg: 20,
+              }
+            )
+          );
+          assertNone(O.getOrThrow(plain.figures[0]!.camera).sight);
+          const plainWritten = yield* fs.readFileString(path.join(dir, "out", "manifest.json"));
+          expect(plainWritten).not.toContain('"sight"');
+          expect(plainWritten).not.toContain('"hiddenLinePassAbout"');
+          expect(written).toContain('"hiddenLinePassAbout":"target"');
+          // the elevation lies strictly between level and plan; the focus keeps the eye a diagonal clear; a
+          // two-point projection belongs to a pictorial only
+          const refused = (contents: string) => Effect.flip(renderSpec(contents)).pipe(Effect.map((e) => e.reason));
+          expect(yield* refused(spec(figures, [], { pictorialElevationDeg: 0 }))).toBe("spec");
+          expect(yield* refused(spec(figures, [], { pictorialElevationDeg: 90 }))).toBe("spec");
+          expect(yield* refused(spec(figures, [], { pictorialFocusDiagonals: 0.9 }))).toBe("spec");
+          expect(
+            yield* refused(spec([{ view: "front", description: "is a front elevation view", projection: "two-point" }]))
+          ).toBe("spec");
+          // a two-point field stays within half the 60° cone of vision, also for an omitted pictorial claimed from a
+          // two-point figure
+          expect(yield* refused(spec(figures, [], { pictorialElevationDeg: 31 }))).toBe("spec");
+          const isometricTop = { view: "top-perspective", description: "is a top view", projection: "isometric" };
+          const perspectiveTop = { view: "top-perspective", description: "is a top view" };
+          // an elevation needs an isometric or two-point pictorial to read it, and a focus a perspective or two-point
+          // one: on a set without one, either would render the set unchanged
+          expect(yield* refused(spec([perspectiveTop, figures[1]!], [], { pictorialElevationDeg: 20 }))).toBe("spec");
+          expect(yield* refused(spec([isometricTop, figures[1]!], [], { pictorialFocusDiagonals: 3 }))).toBe("spec");
+          expect(
+            yield* refused(
+              spec([figures[1]!], [{ omitted: "rear", shown: "front", relation: "identical" }], {
+                pictorialElevationDeg: 20,
+                pictorialFocusDiagonals: 3,
+              })
+            )
+          ).toBe("spec");
+          // an omitted pictorial reads them as the figure it is claimed from does
+          const mirrored = yield* renderSpec(
+            spec(
+              [perspectiveTop, figures[1]!],
+              [{ omitted: "bottom-perspective", shown: "top-perspective", relation: "identical" }],
+              { pictorialFocusDiagonals: 3 }
+            )
+          );
+          assertSome(
+            O.flatMap(mirrored.figures[0]!.camera, (camera) => camera.focus),
+            3 * diagonal
+          );
+          // a set mixing an isometric and a perspective pictorial takes both, each read by its own figure
+          const mixed = yield* renderSpec(
+            spec([isometricTop, { view: "bottom-perspective", description: "is a bottom view" }, figures[1]!], [], {
+              pictorialElevationDeg: 20,
+              pictorialFocusDiagonals: 3,
+            })
+          );
+          assertNone(O.getOrThrow(mixed.figures[0]!.camera).focus);
+          assertSome(O.getOrThrow(mixed.figures[1]!.camera).focus, 3 * diagonal);
+        })
+      );
+
+      it.effect(
         "refuses an omission claim the projections disprove",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1557,6 +2079,11 @@ describe("graded shading through fake ports", () => {
         expect([plan?.style, plan?.axis]).toEqual(["graded", "surface-class"]);
         expect(plan?.minFaceSpan).toBeCloseTo((1.5 * PT_PER_MM) / manifest.scale, 9);
         expect(plan?.minStroke).toBeCloseTo((2 * PT_PER_MM) / manifest.scale, 9);
+        // the kernel's ladder reach is the validator's, 2.5 mm on the sheet
+        expect(O.getOrElse(plan?.ladderReach ?? O.none(), () => Number.NaN)).toBeCloseTo(
+          (2.5 * PT_PER_MM) / manifest.scale,
+          9
+        );
         assertSome(
           manifest.figures[0]!.shadingCoverage,
           ShadingCoverage.make({
@@ -1589,6 +2116,315 @@ describe("graded shading through fake ports", () => {
           O.map(uniform.validation, (v) => A.map(v.findings, (f) => f.code)),
           []
         );
+      })
+    );
+  });
+});
+
+// A three-line band (gaps 0.1 and 0.15 model units) whose first stroke stands 0.07 from its edge, with two lines 0.09
+// and 0.15 beyond that edge: band, edge and lines read as one ladder at any scale from 5 to 24 mm a unit (the gaps
+// clear the validator's spacing floor, the lines lie within its reach, the band within one companion distance).
+const ladderScene = {
+  shading: [
+    [4.75, 1, 4.75, 4],
+    [4.9, 1, 4.9, 4],
+    [5, 1, 5, 4],
+  ] as const,
+  visible: [
+    [5.07, 1, 5.07, 4],
+    [5.16, 1, 5.16, 4],
+    [5.22, 1, 5.22, 4],
+  ] as const,
+};
+
+describe("graded shading ladder through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(fakeEngineWith([], ladderScene), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "flags a band that reads as one ladder with the lines beyond its edge in the render's validation",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: { shadingStyle: "graded", shadingAxis: "surface-class" },
+          })
+        );
+        const manifest = yield* (yield* FigureSet).render(
+          RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), shade: true })
+        );
+        // the scene's scale lies inside the range it was drawn for
+        const mmPerUnit = manifest.scale / PT_PER_MM;
+        expect(mmPerUnit).toBeGreaterThan(5);
+        expect(mmPerUnit).toBeLessThan(24);
+        assertTrue(
+          O.exists(manifest.validation, (v) =>
+            A.some(v.findings, (f) => f.code === "shading-band-ladder" && O.contains(f.page, 1))
+          )
+        );
+      })
+    );
+  });
+});
+
+// A fake engine whose every view draws the unit square and the given lines, and whose shading pass draws the given
+// strokes, grouped into the given bands (one face shaded when none are given).
+const engineDrawing = (
+  lines: ReadonlyArray<FakeSegment>,
+  strokes: ReadonlyArray<FakeSegment> = [],
+  bands: ReadonlyArray<ShadingBand> = []
+) =>
+  Layer.succeed(
+    GeometryEngine,
+    GeometryEngine.of({
+      info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
+      summarize: Effect.fnUntraced(function* () {
+        return ModelSummary.make({
+          boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
+          volume: 250,
+          faceCount: 6,
+          edgeCount: 12,
+          partOverlaps: 0,
+        });
+      }),
+      project: Effect.fnUntraced(function* (_model, cameras, shading) {
+        return A.map(cameras, () =>
+          EdgeSet.make({
+            visible: [...square, ...lines],
+            hidden: [],
+            shading: O.match(shading, { onNone: A.empty, onSome: () => strokes }),
+            shadingCoverage: O.map(shading, () =>
+              ShadingCoverage.make({
+                shadedFaces: Math.max(1, A.length(A.dedupe(A.map(bands, (band) => band.face)))),
+                skippedFaces: [],
+              })
+            ),
+            shadingBands: O.match(shading, { onNone: A.empty, onSome: () => bands }),
+          })
+        );
+      }),
+    })
+  );
+
+// The square sets the sheet scale; a line 0.4 mm above its bottom edge (a thin board's bottom face seen nearly
+// edge-on) runs along it, with a T-end standing on it.
+const sheetScale = commonScale({ views: [square], options: SheetOptions.make({}) });
+const unitsPerMm = PT_PER_MM / sheetScale;
+const lift = 0.4 * unitsPerMm;
+const closeScene: ReadonlyArray<FakeSegment> = [
+  [1, lift, 9, lift],
+  [5, lift, 5, 3],
+];
+const figureSegmentsMm = (svg: string, layer = "figure"): ReadonlyArray<Segment2> =>
+  pipe(
+    new RegExp(`<path id="${layer}" d="([^"]*)"`).exec(svg)?.[1] ?? "",
+    (d) => [...d.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)],
+    A.map((m) => Segment2.make([Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])])),
+    A.map(([x1, y1, x2, y2]) => Segment2.make([x1 / PT_PER_MM, y1 / PT_PER_MM, x2 / PT_PER_MM, y2 / PT_PER_MM]))
+  );
+
+describe("outline spacing through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(engineDrawing(closeScene), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "opens outlines drawn closer than 0.7 mm on the sheet, records the move, and validates clean",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(specPath, spec([{ view: "front", description: "is a front elevation view" }]));
+        const outputDir = path.join(dir, "out");
+        const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir }));
+        expect(manifest.scale).toBe(sheetScale);
+        // drawn as the engine projects them, the bottom edge and the line beside it print 0.4 mm apart
+        const projectedMm = A.map([...square, ...closeScene], ([x1, y1, x2, y2]) =>
+          Segment2.make([x1 / unitsPerMm, y1 / unitsPerMm, x2 / unitsPerMm, y2 / unitsPerMm])
+        );
+        const options = ValidationOptions.make({ expectedPages: O.none() });
+        expect(A.map(outlineSpacingFindings({ page: 1, segmentsMm: projectedMm, options }), (f) => f.message)).toEqual([
+          expect.stringContaining("closest are 0.4 mm apart"),
+        ]);
+        // on the sheet the line moved 0.305 mm to stand 0.7 mm clear with a 0.005 mm margin for the printed
+        // coordinates (review loop 4, R4-06), still a second line, and its T-end followed it
+        const drawn = figureSegmentsMm(yield* fs.readFileString(path.join(outputDir, "fig-1.svg")));
+        expect(A.length(drawn)).toBe(A.length(square) + A.length(closeScene));
+        const tolerances = { minOverlap: 1, coincidence: OUTLINE_COINCIDENCE_MM };
+        expect(closeOutlineGaps({ segments: drawn, minSpacing: 0.7, ...tolerances })).toEqual([]);
+        const [pair = 0] = closeOutlineGaps({ segments: drawn, minSpacing: 0.75, ...tolerances });
+        expect(pair).toBeCloseTo(0.705, 3);
+        const [, , , , moved = Segment2.make([0, 0, 0, 0]), tee = Segment2.make([0, 0, 0, 0])] = drawn;
+        expect(Math.abs(tee[1] - moved[1])).toBeLessThan(1e-3);
+        const figure = manifest.figures[0];
+        assertSome(
+          O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+            separation.lines,
+            Math.round(separation.largestMoveMm * 1e6) / 1e6,
+          ]),
+          [1, 0.305]
+        );
+        expect(figure?.visibleSegments).toBe(A.length(square) + A.length(closeScene));
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
+      })
+    );
+  });
+});
+
+// Graded strokes on the face above the close line, as the kernel plans them against the line as projected: their feet
+// stand 0.65 mm above it, clear of the 0.6 mm clearance (half the 1.2 mm least pitch).
+const strokeFoot = lift + 0.65 * unitsPerMm;
+const faceStrokes: ReadonlyArray<FakeSegment> = A.map([2, 3, 7, 8], (x) => [x, strokeFoot, x, 4] as const);
+
+describe("graded shading beside a separated outline through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(engineDrawing(closeScene, faceStrokes), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "clips graded strokes again where the separation moves an outline toward their ends",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: { shadingStyle: "graded", shadingAxis: "surface-class" },
+          })
+        );
+        const outputDir = path.join(dir, "out");
+        const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir, shade: true }));
+        const svg = yield* fs.readFileString(path.join(outputDir, "fig-1.svg"));
+        const strokes = figureSegmentsMm(svg, "shading");
+        const outline = figureSegmentsMm(svg, "figure");
+        // the close line moved 0.305 mm up, toward the strokes' feet, which stood 0.65 mm off it: on the sheet every
+        // stroke end stands the plan's 0.6 mm clear of every drawn line again (review loop 4, thread on
+        // FigureSet.service.ts:538), the strokes cut back by no more than that
+        const clearances = A.flatMap(strokes, ([x1, y1, x2, y2]) => [
+          nearestOutlineDistance({ x: x1, y: y1, outlines: outline }),
+          nearestOutlineDistance({ x: x2, y: y2, outlines: outline }),
+        ]);
+        expect(A.length(strokes)).toBe(A.length(faceStrokes));
+        expect(Math.min(...clearances)).toBeGreaterThanOrEqual(0.6 - 1e-3);
+        expect(Math.min(...clearances)).toBeCloseTo(0.6, 2);
+        const figure = manifest.figures[0];
+        expect(figure?.shadingSegments).toBe(A.length(faceStrokes));
+        assertSome(
+          O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+            separation.lines,
+            separation.trimmedStrokes,
+            separation.droppedStrokes,
+          ]),
+          [1, 4, 0]
+        );
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
+      })
+    );
+  });
+});
+
+// Two faces' strokes above the close line, the bands of the first face (0) and the second (1). The line moves 0.305
+// mm up, toward their feet, which stood 0.65 mm above it. A 1.2 mm stroke cut back to the 0.6 mm clearance falls
+// under the 1 mm least stroke; a stroke running on to the top keeps a long piece.
+const shortStroke = 1.2 * unitsPerMm;
+const shortAt = (x: number): FakeSegment => [x, strokeFoot, x, strokeFoot + shortStroke];
+const longAt = (x: number): FakeSegment => [x, strokeFoot, x, 4];
+const twoFaceBands = [ShadingBand.make({ face: 0, strokes: [0, 1] }), ShadingBand.make({ face: 1, strokes: [2, 3] })];
+
+// The figure set over a fake engine drawing the close scene and the two faces' strokes in their bands.
+const reclipLayer = (strokes: ReadonlyArray<FakeSegment>) =>
+  Layer.fresh(FigureSet.layer).pipe(
+    Layer.provide(Layer.merge(engineDrawing(closeScene, strokes, twoFaceBands), fakeBackend)),
+    Layer.provideMerge(NodeServices.layer)
+  );
+
+// Renders the two faces' strokes graded beside the separated line and returns where the strokes drawn stand (model x),
+// the separation's trimmed and dropped strokes, the coverage's shaded faces, lost faces and lost stretches, and the
+// finding codes.
+const reclippedFaces = Effect.fnUntraced(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const dir = yield* fs.makeTempDirectoryScoped();
+  const specPath = path.join(dir, "spec.json");
+  yield* fs.writeFileString(
+    specPath,
+    spec([{ view: "front", description: "is a front elevation view" }], [], {
+      sheet: { shadingStyle: "graded", shadingAxis: "surface-class", shadingMinStrokeMm: 1 },
+    })
+  );
+  const outputDir = path.join(dir, "out");
+  const manifest = yield* (yield* FigureSet).render(RenderRequest.make({ specPath, outputDir, shade: true }));
+  const svg = yield* fs.readFileString(path.join(outputDir, "fig-1.svg"));
+  const figure = manifest.figures[0];
+  // the square's left edge stands at x = 0 in model units
+  const left = Math.min(...A.map(figureSegmentsMm(svg), ([x1, , x2]) => Math.min(x1, x2)));
+  return {
+    drawn: A.map(figureSegmentsMm(svg, "shading"), ([x1]) => Math.round((x1 - left) * unitsPerMm)),
+    separation: O.map(figure?.outlineSeparations ?? O.none<OutlineSeparation>(), (separation) => [
+      separation.trimmedStrokes,
+      separation.droppedStrokes,
+    ]),
+    coverage: O.map(figure?.shadingCoverage ?? O.none<ShadingCoverage>(), (coverage) => [
+      coverage.shadedFaces,
+      coverage.lostFaces,
+      coverage.lostStretches,
+    ]),
+    findings: O.map(manifest.validation, (v) => A.map(v.findings, (f) => f.code)),
+  };
+});
+
+describe("a face the re-clip beside a separated outline leaves bare through fake ports", () => {
+  it.layer(reclipLayer([shortAt(2), shortAt(3), longAt(7), longAt(8)]), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "counts a face whose every stroke the re-clip drops lost in the manifest's coverage and on the sheet",
+      Effect.fnUntraced(function* () {
+        // both short strokes of the first face go: the sheet draws only the second face (PR #1842 thread on
+        // FigureSet.service.ts:646)
+        const render = yield* reclippedFaces();
+        expect(render.drawn).toEqual([7, 8]);
+        assertSome(render.separation, [2, 2]);
+        assertSome(render.coverage, [2, 1, 1]);
+        assertSome(render.findings, ["shading-lost-face", "shading-lost-stretch"]);
+      })
+    );
+  });
+});
+
+describe("a band the re-clip beside a separated outline leaves with one stroke through fake ports", () => {
+  it.layer(reclipLayer([longAt(2), shortAt(3), longAt(7), longAt(8)]), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "draws none of the band, as the engine draws no band below two strokes, and counts its face lost",
+      Effect.fnUntraced(function* () {
+        // the first face's long stroke is cut back and kept, its short one dropped: alone, the long one would read
+        // as a stray line, so it goes too
+        const render = yield* reclippedFaces();
+        expect(render.drawn).toEqual([7, 8]);
+        assertSome(render.separation, [2, 2]);
+        assertSome(render.coverage, [2, 1, 1]);
+        assertSome(render.findings, ["shading-lost-face", "shading-lost-stretch"]);
       })
     );
   });

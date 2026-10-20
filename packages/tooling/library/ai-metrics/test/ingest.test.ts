@@ -12,6 +12,7 @@ import {
   AiMetricsDerivedTranscriptRecord,
   AiMetricsForwarderInput,
   AiMetricsForwarderOtlpExport,
+  AiMetricsForwarderRunResult,
   AiMetricsForwarderTimerInput,
   AiMetricsInstallDoctorInput,
   AiMetricsInstallInput,
@@ -54,6 +55,11 @@ import {
   forwarderRunResultToJson,
   forwarderTimerPlanToJson,
   generateAiMetricsWeeklyReport,
+  HookPulseDisarmSentinel,
+  HookPulseDisarmWindow,
+  HookPulseRefusal,
+  HookPulseV1,
+  HookPulseV1FromRawEvent,
   hashPrivateIdentifier,
   hashPublicTextSha256,
   listAiMetricsBenchmarkCases,
@@ -92,6 +98,7 @@ import {
   writeAiMetricsConfigSnapshotArtifacts,
   writeAiMetricsDerivedStorage,
 } from "@beep/repo-ai-metrics";
+import { LiteralKit, Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
@@ -99,6 +106,8 @@ import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
 import { assertFalse, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as ConfigProvider from "effect/ConfigProvider";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
@@ -106,18 +115,44 @@ import * as Base64 from "effect/encoding/Base64";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
+import { ChildProcess } from "effect/process";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
+
+const ForwarderStampScenario = LiteralKit([
+  "qualified",
+  "mixed-refusal",
+  "rejected-refusal",
+  "mixed",
+  "unknown",
+  "missing",
+  "late",
+  "reused",
+  "mismatch",
+  "corrupt",
+  "unreadable",
+  "refused",
+  "trailing-refusal",
+  "closed-before-refusal",
+  "disarmed",
+  "prefix",
+  "empty-sentinel",
+  "custom-sentinel",
+  "future-sentinel",
+]);
 
 const encodeUnknownJsonEffect = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const encodeHookPulseRefusal = S.encodeEffect(S.fromJsonString(HookPulseRefusal));
+const decodeForwarderRunResult = S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult));
 
 const expectSchemaMakeToFail = (run: () => unknown, messagePart: string): void => {
   const formatIssue = SchemaIssue.makeFormatterDefault();
@@ -165,12 +200,20 @@ const writeText = Effect.fn("AiMetricsTest.writeText")(function* (filePath: stri
 
 const makeGitRoot = Effect.fn("AiMetricsTest.makeGitRoot")(function* (repoRoot: string) {
   const path = yield* Path.Path;
+  yield* writeText(path.join(repoRoot, "AGENTS.md"), "# fixture guide\n");
   yield* writeText(path.join(repoRoot, ".git/HEAD"), "ref: refs/heads/main\n");
   yield* writeText(path.join(repoRoot, ".git/refs/heads/main"), `${pipe("a", Str.repeat(40))}\n`);
   yield* writeText(
     path.join(repoRoot, ".git/config"),
     '[remote "origin"]\n\turl = git@github.com:beep-effect/beep-effect.git\n'
   );
+  for (const args of [
+    ["init", "-q"],
+    ["add", "--", "AGENTS.md"],
+  ]) {
+    const child = yield* ChildProcess.make("git", args, { cwd: repoRoot, stdout: "ignore", stderr: "ignore" });
+    expect(yield* child.exitCode).toBe(0);
+  }
 });
 
 const relativeSnapshotPaths = (files: ReadonlyArray<{ readonly relativePath: string }>): ReadonlyArray<string> =>
@@ -386,7 +429,368 @@ it("rejects impossible line and measurement values at construction", () => {
   ).toThrow();
 });
 
-it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
+// Session-stamp binding fixtures. Each ForwarderStampScenario runs as its own case against
+// its own temp directory, repo root, hook root and DuckDB file, so no case reads state that
+// another case wrote.
+type StampScenario = typeof ForwarderStampScenario.Type;
+const fixtureStamp = Sha256Hex.make("b".repeat(64));
+const fixtureOtherStamp = Sha256Hex.make("c".repeat(64));
+const decodeHookPulse = S.decodeEffect(HookPulseV1FromRawEvent);
+const encodeHookPulseRows = Effect.fnUntraced(function* (rows: ReadonlyArray<HookPulseV1>) {
+  return A.join(yield* Effect.forEach(rows, (row) => HookPulseV1.encodeJsonEffect(row)), "\n");
+});
+// Scenarios whose stamp survives the join; every other scenario stores no stamp.
+const stampKeepingScenarios = ["qualified", "closed-before-refusal", "corrupt", "unreadable", "rejected-refusal"];
+// Sessions whose gap evidence failed to load while their own evidence contradicts nothing.
+const unevaluableScenarios = ["empty-sentinel", "custom-sentinel"];
+// The completeness/qualification pair each scenario reaches, pinned per scenario.
+const expectedStampVerdict = (scenario: StampScenario): string =>
+  ForwarderStampScenario.$match(scenario, {
+    qualified: () => "complete/qualified",
+    "mixed-refusal": () => "partial/unqualified",
+    "rejected-refusal": () => "partial/qualified",
+    mixed: () => "complete/unqualified",
+    unknown: () => "complete/unqualified",
+    missing: () => "complete/unqualified",
+    late: () => "complete/unqualified",
+    reused: () => "complete/unqualified",
+    mismatch: () => "complete/unqualified",
+    corrupt: () => "partial/qualified",
+    unreadable: () => "partial/qualified",
+    refused: () => "complete/unqualified",
+    "trailing-refusal": () => "complete/unqualified",
+    "closed-before-refusal": () => "complete/qualified",
+    disarmed: () => "complete/unqualified",
+    prefix: () => "complete/unqualified",
+    "empty-sentinel": () => "partial/unknown",
+    "custom-sentinel": () => "partial/unknown",
+    "future-sentinel": () => "complete/unqualified",
+  });
+const scenarioPulseRows = (
+  scenario: StampScenario,
+  start: HookPulseV1,
+  tool: HookPulseV1
+): ReadonlyArray<HookPulseV1> =>
+  ForwarderStampScenario.$match(scenario, {
+    qualified: () => [start, tool],
+    "mixed-refusal": () => [start, tool],
+    "rejected-refusal": () => [start, tool],
+    mixed: () => [start, HookPulseV1.make({ ...start, harnessHash: O.some(fixtureOtherStamp) })],
+    unknown: () => [HookPulseV1.make({ ...start, harnessHash: O.none() }), tool],
+    missing: () => [tool],
+    late: () => [HookPulseV1.make({ ...tool, ts: DateTime.makeUnsafe("2026-10-09T09:59:00Z") }), start],
+    reused: () => [start, HookPulseV1.make({ ...tool, sessionId: Sha256Hex.make("e".repeat(64)) })],
+    mismatch: () => [start, tool],
+    corrupt: () => [start, tool],
+    unreadable: () => [start, tool],
+    refused: () => [start, tool],
+    "trailing-refusal": () => [start, tool],
+    "closed-before-refusal": () => [
+      start,
+      tool,
+      HookPulseV1.make({ ...tool, hookEvent: "SessionEnd", ts: DateTime.makeUnsafe("2026-10-09T10:01:30Z") }),
+    ],
+    disarmed: () => [start, tool],
+    prefix: () => [start, tool],
+    "empty-sentinel": () => [start, tool],
+    "custom-sentinel": () => [start, tool],
+    "future-sentinel": () => [start, tool],
+  });
+const writeScenarioSentinel = Effect.fnUntraced(function* (scenario: StampScenario, hookRoot: string) {
+  const path = yield* Path.Path;
+  if (scenario === "empty-sentinel") yield* writeText(path.join(hookRoot, "hook-pulse.disarmed"), "");
+  if (scenario === "custom-sentinel") yield* writeText(path.join(hookRoot, "custom.disarmed"), "");
+  if (scenario === "future-sentinel")
+    yield* writeText(
+      path.join(hookRoot, "hook-pulse.disarmed"),
+      yield* HookPulseDisarmSentinel.encodeJsonEffect(
+        HookPulseDisarmSentinel.make({
+          disarmedAt: "2099-01-01T00:00:00Z",
+          reason: "fixture",
+          evidenceTier: "unknown",
+        })
+      )
+    );
+});
+const writeRejectedRefusalFixture = Effect.fnUntraced(function* (scenario: StampScenario, hookRoot: string) {
+  const path = yield* Path.Path;
+  if (scenario === "mixed-refusal" || scenario === "rejected-refusal")
+    yield* writeText(
+      path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
+      scenario === "mixed-refusal"
+        ? 'not JSON\n{"ts":"2026-10-09T10:00:30Z","agentKind":"codex-cli","reason":"timeout"}\n'
+        : 'not JSON\n{"ts":"2026-10-09T09:00:00Z","agentKind":"codex-cli","reason":"timeout"}\n'
+    );
+});
+const writeScenarioRefusal = Effect.fnUntraced(function* (scenario: StampScenario, hookRoot: string) {
+  const path = yield* Path.Path;
+  if (A.contains(["refused", "trailing-refusal", "closed-before-refusal"], scenario))
+    yield* writeText(
+      path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
+      yield* encodeHookPulseRefusal(
+        HookPulseRefusal.make({
+          ts: DateTime.makeUnsafe(scenario === "refused" ? "2026-10-09T10:00:30Z" : "2026-10-09T10:02:00Z"),
+          agentKind: "codex-cli",
+          reason: "timeout",
+        })
+      )
+    );
+});
+const writeScenarioDisarmWindow = Effect.fnUntraced(function* (scenario: StampScenario, hookRoot: string) {
+  const path = yield* Path.Path;
+  if (scenario === "disarmed")
+    yield* writeText(
+      path.join(hookRoot, "hook-pulse-disarm-windows.ndjson"),
+      yield* HookPulseDisarmWindow.encodeJsonEffect(
+        HookPulseDisarmWindow.make({
+          disarmedAt: O.some("2026-10-09T10:00:30Z"),
+          rearmedAt: "2026-10-09T10:00:45Z",
+          reason: O.none(),
+          evidenceTier: "unknown",
+          schemaVersion: "hook-pulse-disarm-window/v1",
+        })
+      )
+    );
+});
+const writeScenarioGaps = Effect.fnUntraced(function* (scenario: StampScenario, hookRoot: string, hookDir: string) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  if (scenario === "corrupt") yield* writeText(path.join(hookDir, "bad.ndjson"), "not JSON\n");
+  if (scenario === "unreadable") yield* fs.makeDirectory(path.join(hookDir, "bad.ndjson"));
+  yield* writeScenarioRefusal(scenario, hookRoot);
+  yield* writeScenarioDisarmWindow(scenario, hookRoot);
+  yield* writeRejectedRefusalFixture(scenario, hookRoot);
+  yield* writeScenarioSentinel(scenario, hookRoot);
+});
+const assertScenarioCollection = (
+  scenario: StampScenario,
+  result: AiMetricsForwarderRunResult,
+  status: AiMetricsForwarderRunResult
+) => {
+  const badShard = scenario === "corrupt" || scenario === "unreadable";
+  expect(result.hookCollectionComplete).toBe(!badShard);
+  expect(result.failedHookShards).toEqual(badShard ? ["bad.ndjson"] : []);
+  expect(result.hookRejectedRecords).toBe(scenario === "corrupt" ? 1 : 0);
+  expect(status.hookCollectionComplete).toBe(!badShard);
+  expect(status.failedHookShards).toEqual(result.failedHookShards);
+  if (scenario === "mixed-refusal" || scenario === "rejected-refusal") {
+    expect(result.stampGapCollectionComplete).toBe(false);
+    expect(result.stampGapRejectedRecords).toBe(1);
+    expect(status.stampGapRejectedRecords).toBe(1);
+  }
+};
+// Completeness follows collection only; qualification follows the join only.
+const assertScenarioVerdict = Effect.fnUntraced(function* (
+  scenario: StampScenario,
+  result: AiMetricsForwarderRunResult,
+  expected: string | null
+) {
+  const db = yield* DuckDb;
+  const completeness = result.hookCollectionComplete && result.stampGapCollectionComplete ? "complete" : "partial";
+  const unresolved = A.contains(unevaluableScenarios, scenario) ? "unknown" : "unqualified";
+  const qualification = expected === null ? unresolved : "qualified";
+  for (const table of ["ai_metrics_sessions", "ai_metrics_source_files"])
+    expect(
+      yield* db.query(
+        `SELECT session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ${table}`
+      )
+    ).toEqual([{ completeness, qualification }]);
+  for (const span of (yield* readAiMetricsOtlpSpanProjections).projections) {
+    expect(span.attributes["ai_metrics.session_stamp_completeness"]).toBe(completeness);
+    expect(span.attributes["ai_metrics.session_stamp_qualification"]).toBe(qualification);
+  }
+  return `${completeness}/${qualification}`;
+});
+const assertScenarioStampStorage = Effect.fnUntraced(function* (expected: string | null) {
+  const db = yield* DuckDb;
+  expect(yield* db.query("SELECT session_harness_hash AS stamp FROM ai_metrics_sessions")).toEqual([
+    { stamp: expected },
+  ]);
+  expect(yield* db.query("SELECT session_harness_hash AS stamp FROM ai_metrics_source_files")).toEqual([
+    { stamp: expected },
+  ]);
+  const projection = yield* readAiMetricsOtlpSpanProjections;
+  expect(projection.projections.length).toBeGreaterThan(0);
+  for (const span of projection.projections) {
+    expect(span.attributes["ai_metrics.session_harness_hash"]).toBe(expected ?? undefined);
+    expect(span.attributes).not.toHaveProperty("ai_metrics.session_stamp_collection_complete");
+  }
+});
+const readSessionVerdict = Effect.fnUntraced(function* () {
+  const db = yield* DuckDb;
+  return yield* db.query(
+    "SELECT session_harness_hash AS stamp, session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_sessions"
+  );
+});
+const readLatestSourceVerdict = Effect.fnUntraced(function* () {
+  const db = yield* DuckDb;
+  return yield* db.query(
+    "SELECT session_stamp_completeness AS completeness, session_stamp_qualification AS qualification FROM ai_metrics_source_files ORDER BY ingest_run_id DESC LIMIT 1"
+  );
+});
+const verifiedStampVerdict = { stamp: fixtureStamp, completeness: "complete", qualification: "qualified" };
+// Ordered sequence over one stored stamp: every step reads the state the previous step left.
+const assertStoredStampLifecycle = Effect.fnUntraced(function* (
+  forwarderInput: AiMetricsForwarderInput,
+  hookDir: string,
+  mixedShard: string
+) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  const ownShard = path.join(hookDir, "fixture.ndjson");
+  const unrelatedShard = path.join(hookDir, "unrelated.ndjson");
+  // (b) One undecodable line in an unrelated shard while this session has no evidence of
+  // its own in the run: the gates cannot evaluate it, so the stored stamp stays.
+  yield* fs.rename(ownShard, `${ownShard}.parked`);
+  yield* writeText(unrelatedShard, "not JSON\n");
+  expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+  expect(yield* readSessionVerdict()).toEqual([verifiedStampVerdict]);
+  expect(yield* readLatestSourceVerdict()).toEqual([{ completeness: "partial", qualification: "unknown" }]);
+  // (c) hook-events offline: also unevaluable, the stored stamp stays.
+  yield* fs.remove(unrelatedShard);
+  yield* fs.rename(`${ownShard}.parked`, ownShard);
+  yield* fs.rename(hookDir, `${hookDir}.offline`);
+  expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+  expect(yield* readSessionVerdict()).toEqual([verifiedStampVerdict]);
+  expect(yield* readLatestSourceVerdict()).toEqual([{ completeness: "partial", qualification: "unknown" }]);
+  // Restored, complete evidence re-qualifies the same stamp.
+  yield* fs.rename(`${hookDir}.offline`, hookDir);
+  yield* runAiMetricsForwarder(forwarderInput);
+  expect(yield* readSessionVerdict()).toEqual([verifiedStampVerdict]);
+  // (a) The same undecodable unrelated line, but this session's own shard now carries a
+  // second stamp: its own evidence disqualifies, so a partial run still clears the stamp.
+  yield* writeText(unrelatedShard, "not JSON\n");
+  yield* writeText(ownShard, mixedShard);
+  expect((yield* runAiMetricsForwarder(forwarderInput)).hookCollectionComplete).toBe(false);
+  expect(yield* readSessionVerdict()).toEqual([{ stamp: null, completeness: "partial", qualification: "unqualified" }]);
+});
+const writeScenarioTranscript = Effect.fnUntraced(function* (scenario: StampScenario, sourcePath: string) {
+  yield* writeText(
+    sourcePath,
+    A.join(
+      [
+        scenario === "prefix"
+          ? '{"type":"session_meta","timestamp":"2026-10-09T09:59:00Z","payload":{"id":"current"}}'
+          : '{"type":"session_meta","timestamp":"2026-10-09T10:00:00Z","payload":{"id":"current"}}',
+        '{"type":"response_item","timestamp":"2026-10-09T10:01:00Z","payload":{"type":"function_call","name":"fixture","arguments":"{}"}}',
+      ],
+      "\n"
+    )
+  );
+});
+const makeScenarioPulses = Effect.fnUntraced(function* (scenario: StampScenario, sourcePath: string, repoRoot: string) {
+  const initial = yield* decodeHookPulse({
+    event: {
+      hook_event_name: "SessionStart",
+      session_id: scenario === "mismatch" ? "previous" : "current",
+      transcript_path: sourcePath,
+      cwd: repoRoot,
+      source: "startup",
+    },
+    notifierRev: "fixture",
+    instrumentClass: "production",
+    agentKind: "codex-cli",
+    evidenceTier: "derived",
+    ts: "2026-10-09T10:00:00Z",
+  });
+  const start = HookPulseV1.make({
+    ...initial,
+    agentKind: "codex-cli",
+    ts: DateTime.makeUnsafe("2026-10-09T10:00:00Z"),
+    harnessHash: O.some(fixtureStamp),
+  });
+  const tool = HookPulseV1.make({
+    ...start,
+    hookEvent: "PostToolUse",
+    waitReason: "none",
+    harnessHash: O.none(),
+    sessionStartSource: O.none(),
+    ts: DateTime.makeUnsafe("2026-10-09T10:01:00Z"),
+  });
+  return { start, tool };
+});
+// Runs one scenario end to end and returns the completeness/qualification verdict it reached.
+const runStampScenario = Effect.fnUntraced(function* (scenario: StampScenario) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  const tmpDir = yield* fs.makeTempDirectoryScoped();
+  const repoRoot = path.join(tmpDir, "repo");
+  yield* makeGitRoot(repoRoot);
+  yield* writeText(path.join(repoRoot, "AGENTS.md"), "# stamp fixture\n");
+  const homeDir = path.join(tmpDir, scenario, "home");
+  const sourceRoot = path.join(homeDir, ".codex/sessions");
+  const sourcePath = path.join(sourceRoot, "session.jsonl");
+  const hookRoot = path.join(tmpDir, scenario, "hooks");
+  const dataRoot = path.join(tmpDir, scenario, "data");
+  const hookDir = path.join(hookRoot, "hook-events");
+  yield* fs.makeDirectory(hookDir, { recursive: true });
+  yield* writeScenarioTranscript(scenario, sourcePath);
+  const provider = ConfigProvider.fromUnknown({
+    BEEP_HOOK_PULSE_HASH_SALT: "hook-fixture-namespace",
+    BEEP_AGENT_EVIDENCE_ROOT: hookRoot,
+    BEEP_HOOK_PULSE_DISARM_SENTINEL: scenario === "custom-sentinel" ? path.join(hookRoot, "custom.disarmed") : "",
+  });
+  return yield* Effect.gen(function* () {
+    const { start, tool } = yield* makeScenarioPulses(scenario, sourcePath, repoRoot);
+    yield* writeText(
+      path.join(hookDir, "fixture.ndjson"),
+      yield* encodeHookPulseRows(scenarioPulseRows(scenario, start, tool))
+    );
+    yield* writeScenarioGaps(scenario, hookRoot, hookDir);
+    const forwarderInput = AiMetricsForwarderInput.make({
+      homeDir,
+      repoRoot,
+      codexSessionsRoot: O.some(sourceRoot),
+      claudeProjectsRoot: O.some(path.join(homeDir, "missing")),
+      dataRoot: O.some(dataRoot),
+      hashSalt: O.some("storage-fixture-namespace"),
+      includeAll: true,
+      parquetExportMode: "none",
+      rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
+    });
+    const result = yield* runAiMetricsForwarder(forwarderInput);
+    const status = yield* decodeForwarderRunResult(yield* forwarderRunResultToJson(result));
+    assertScenarioCollection(scenario, result, status);
+    const expected = A.contains(stampKeepingScenarios, scenario) ? fixtureStamp : null;
+    const verdict = yield* assertScenarioVerdict(scenario, result, expected);
+    yield* assertScenarioStampStorage(expected);
+    if (scenario === "qualified")
+      yield* assertStoredStampLifecycle(
+        forwarderInput,
+        hookDir,
+        yield* encodeHookPulseRows([start, HookPulseV1.make({ ...start, harnessHash: O.some(fixtureOtherStamp) })])
+      );
+    return verdict;
+  }).pipe(
+    Effect.provideService(ConfigProvider.ConfigProvider, provider),
+    provideScopedLayer(
+      DuckDb.makeNodeLayer(
+        DuckDbConnectionOptions.make({ databasePath: path.join(dataRoot, "derived/ai-metrics.duckdb") })
+      )
+    )
+  );
+});
+
+// Partial collection reaches qualified, unqualified and unknown, and complete collection
+// reaches qualified and unqualified, so neither field determines the other. Each per-scenario
+// case below asserts that its run reaches exactly its pinned verdict, so the pinned table's
+// coverage is the coverage the runs reach.
+it("pins stamp verdicts so neither completeness nor qualification determines the other", () => {
+  expect(
+    A.sort(
+      A.fromIterable(HashSet.fromIterable(A.map(ForwarderStampScenario.literals, expectedStampVerdict))),
+      Order.String
+    )
+  ).toEqual([
+    "complete/qualified",
+    "complete/unqualified",
+    "partial/qualified",
+    "partial/unknown",
+    "partial/unqualified",
+  ]);
+});
+
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics", (it) => {
   it.effect(
     "summarizes Codex JSONL and counts rejected lines",
     Effect.fn(function* () {
@@ -399,12 +803,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
         A.join("\n")
       );
 
-      const summary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.none(),
-        sourceKind: AiMetricsTranscriptSource.Enum.codex,
-        sourcePath: "codex.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.none(),
+          sourceKind: AiMetricsTranscriptSource.Enum.codex,
+          sourcePath: "codex.jsonl",
+        })
+      );
 
       expect(summary.sourceKind).toBe("codex");
       expect(summary.totalLines).toBe(3);
@@ -425,12 +831,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
     Effect.fn(function* () {
       const content = '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}';
 
-      const summary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.none(),
-        sourceKind: AiMetricsTranscriptSource.Enum.claude,
-        sourcePath: "claude.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.none(),
+          sourceKind: AiMetricsTranscriptSource.Enum.claude,
+          sourcePath: "claude.jsonl",
+        })
+      );
 
       expect(summary.acceptedEvents).toBe(1);
       expect(summary.eventNames).toEqual(["message"]);
@@ -646,6 +1054,15 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
     })
   );
 
+  for (const scenario of ForwarderStampScenario.literals) {
+    it.effect(
+      `binds session stamps through hook namespace, storage and OTLP without borrowing ambiguous identities: ${scenario}`,
+      Effect.fnUntraced(function* () {
+        expect(yield* runStampScenario(scenario)).toBe(expectedStampVerdict(scenario));
+      })
+    );
+  }
+
   it.effect(
     "supports disabled and latest-only Parquet export modes",
     Effect.fn(function* () {
@@ -661,12 +1078,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.codex,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -838,12 +1257,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.codex,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -1369,10 +1790,12 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
       expect(plan.serviceUnit).toContain("flock -n");
       expect(plan.serviceUnit).toContain('"status":"failed"');
       expect(plan.serviceUnit).toContain("json.dumps");
-      expect(plan.serviceUnit).toContain('decode("utf-8","replace")');
+      expect(plan.serviceUnit).toContain("forwarder-command-failed");
+      expect(plan.serviceUnit).toContain("2>/dev/null");
+      expect(plan.serviceUnit).not.toContain("stderr.tmp");
       expect(plan.serviceUnit).toContain("uses the resolved Bun executable");
       expect(plan.serviceUnit).toContain("'/home/example/.bun/bin/bun'");
-      expect(plan.serviceUnit).toMatch(/exit_code=0; > .*latest\.json\.stderr\.tmp.*; if flock -n/su);
+      expect(plan.serviceUnit).toMatch(/exit_code=0; if flock -n/su);
       expect(plan.serviceUnit).not.toContain("sed 's/");
       expect(plan.serviceUnit).toContain("StartLimitBurst=3\nStartLimitIntervalSec=30m\n\n[Service]");
       expect(plan.serviceUnit).toContain("Restart=on-failure");
@@ -1512,12 +1935,14 @@ volumes:
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.claude,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.claude,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -1667,12 +2092,14 @@ volumes:
   it.effect(
     "falls back unknown transcript type metadata to bounded event names",
     Effect.fn(function* () {
-      const summary = yield* summarizeTranscriptText({
-        content: '{"type":"sk-secretfixture","timestamp":"2026-05-05T10:00:00Z"}',
-        hashSalt: O.some("test-salt"),
-        sourceKind: AiMetricsTranscriptSource.Enum.codex,
-        sourcePath: "codex.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content: '{"type":"sk-secretfixture","timestamp":"2026-05-05T10:00:00Z"}',
+          hashSalt: O.some("test-salt"),
+          sourceKind: AiMetricsTranscriptSource.Enum.codex,
+          sourcePath: "codex.jsonl",
+        })
+      );
 
       expect(summary.eventNames).toEqual(["event"]);
     })
@@ -1692,12 +2119,14 @@ volumes:
             ],
             A.join("\n")
           );
-          const summary = yield* summarizeTranscriptText({
-            content,
-            hashSalt: O.some("test-salt"),
-            sourceKind: AiMetricsTranscriptSource.Enum.codex,
-            sourcePath,
-          });
+          const summary = yield* summarizeTranscriptText(
+            AiMetricsTranscriptTextSummaryInput.make({
+              content,
+              hashSalt: O.some("test-salt"),
+              sourceKind: AiMetricsTranscriptSource.Enum.codex,
+              sourcePath,
+            })
+          );
           const result = yield* makeAiMetricsPrivacyCheckResult({
             content,
             hashSalt: O.some("test-salt"),
@@ -1741,12 +2170,14 @@ volumes:
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.codex,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -2888,12 +3319,14 @@ volumes:
     "reports derived UI as safe when secret-shaped values are absent",
     Effect.fn(function* () {
       const content = '{"type":"session_meta","timestamp":"2026-05-05T12:00:00Z"}';
-      const summary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.some("test-salt"),
-        sourceKind: AiMetricsTranscriptSource.Enum.codex,
-        sourcePath: "codex.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.some("test-salt"),
+          sourceKind: AiMetricsTranscriptSource.Enum.codex,
+          sourcePath: "codex.jsonl",
+        })
+      );
       const result = yield* makeAiMetricsPrivacyCheckResult({
         content,
         hashSalt: O.some("test-salt"),
@@ -3321,12 +3754,14 @@ volumes:
     "uses caller-relative paths for Claude source role attribution",
     Effect.fn(function* () {
       const content = '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z"}';
-      const primarySummary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.some("test-salt"),
-        sourceKind: AiMetricsTranscriptSource.Enum.claude,
-        sourcePath: "/tmp/subagents/workspace/claude.jsonl",
-      });
+      const primarySummary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.some("test-salt"),
+          sourceKind: AiMetricsTranscriptSource.Enum.claude,
+          sourcePath: "/tmp/subagents/workspace/claude.jsonl",
+        })
+      );
       const primary = yield* makeAiMetricsPrivacyCheckResult({
         content,
         hashSalt: O.some("test-salt"),

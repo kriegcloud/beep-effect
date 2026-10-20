@@ -6,32 +6,34 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/Paragraphize");
 
-class ParagraphizeParameters extends S.Class<ParagraphizeParameters>($I`ParagraphizeParameters`)(
-  {
+class ParagraphizeParameters extends S.Opaque<ParagraphizeParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to split into paragraphs",
       examples: ["First paragraph.\n\nSecond paragraph."],
     }),
-  },
-  $I.annote("ParagraphizeParameters", {
-    description: "Text input used to split content into paragraph segments.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParagraphizeParameters", {
+      description: "Text input used to split content into paragraph segments.",
+    })
+  )
 ) {}
 
-class ParagraphizeSuccess extends S.Class<ParagraphizeSuccess>($I`ParagraphizeSuccess`)(
-  {
+class ParagraphizeSuccess extends S.Opaque<ParagraphizeSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     count: S.Natural,
     paragraphs: S.Array(S.String),
-  },
-  $I.annote("ParagraphizeSuccess", {
-    description: "Split text into paragraphs on blank-line boundaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParagraphizeSuccess", {
+      description: "Split text into paragraphs on blank-line boundaries.",
+    })
+  )
 ) {}
 
 /**

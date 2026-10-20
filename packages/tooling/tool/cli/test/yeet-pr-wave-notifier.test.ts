@@ -49,7 +49,8 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -393,8 +394,10 @@ it.layer(platform, { timeout: "30 seconds" })("W9 descriptor rendering", (it) =>
     { descriptor: YeetPrWaveDescriptor },
     ({ descriptor }) =>
       Effect.gen(function* () {
-        const decoded = yield* YeetPrWaveDescriptorJson.decode(yield* YeetPrWaveDescriptorJson.encode(descriptor));
-        expect(decoded).toStrictEqual(descriptor);
+        const decoded = yield* YeetPrWaveDescriptorJson.decode(
+          yield* YeetPrWaveDescriptorJson.encode(YeetPrWaveDescriptor.make(descriptor))
+        );
+        expect(decoded).toStrictEqual(YeetPrWaveDescriptor.make(descriptor));
         expect(isPrNumber(decoded.prNumber)).toBe(true);
       })
   );

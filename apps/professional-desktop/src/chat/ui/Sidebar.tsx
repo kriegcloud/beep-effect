@@ -14,6 +14,7 @@
  */
 "use client";
 
+import { CreateThreadAtomInput } from "@beep/agents-client";
 import { createThreadAtom, editTargetAtom, selectedThreadAtom, threadsAtoms } from "@beep/agents-client/Chat.atoms";
 import { LogRedactedCauseOptions, logRedactedCause } from "@beep/observability/CauseRedaction";
 import { Button } from "@beep/ui/components/button";
@@ -25,7 +26,7 @@ import * as O from "@beep/utils/Option";
 import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as Effect from "effect/Effect";
 import * as Order from "effect/Order";
-import { AsyncResult } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
 import * as Stream from "effect/Stream";
 import { professionalBrowserRuntime } from "@/runtime/ProfessionalAtomRuntime";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
@@ -108,7 +109,7 @@ export function Sidebar({ workspaceId }: { readonly workspaceId: WorkspaceId }):
           type="button"
           className="w-full"
           variant="outline"
-          onClick={() => createThread({ workspaceId, title: "New thread" })}
+          onClick={() => createThread(CreateThreadAtomInput.make({ workspaceId, title: "New thread" }))}
           data-testid="sidebar-new"
         >
           + New thread

@@ -9,7 +9,8 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Argument, Command } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -28,43 +29,46 @@ const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).pipe(
 
 type DocsSectionName = typeof DocsSectionName.Type;
 
-class DocsSectionLaws extends S.Class<DocsSectionLaws>($I`DocsSectionLaws`)(
-  {
+class DocsSectionLaws extends S.Opaque<DocsSectionLaws, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag("laws"),
     title: S.String,
     summary: S.String,
     lines: S.Array(S.String),
     keywords: S.Array(S.String),
-  },
-  $I.annote("DocsSectionLaws", {
-    description: "Docs section for repository laws.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocsSectionLaws", {
+      description: "Docs section for repository laws.",
+    })
+  )
 ) {}
 
-class DocsSectionSkills extends S.Class<DocsSectionSkills>($I`DocsSectionSkills`)(
-  {
+class DocsSectionSkills extends S.Opaque<DocsSectionSkills, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag("skills"),
     title: S.String,
     summary: S.String,
     lines: S.Array(S.String),
     keywords: S.Array(S.String),
-  },
-  $I.annote("DocsSectionSkills", {
-    description: "Docs section for agent skills.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocsSectionSkills", {
+      description: "Docs section for agent skills.",
+    })
+  )
 ) {}
 
-class DocsSectionPolicies extends S.Class<DocsSectionPolicies>($I`DocsSectionPolicies`)(
-  {
+class DocsSectionPolicies extends S.Opaque<DocsSectionPolicies, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag("policies"),
     title: S.String,
     summary: S.String,
     lines: S.Array(S.String),
     keywords: S.Array(S.String),
-  },
-  $I.annote("DocsSectionPolicies", {
-    description: "Docs section for policy gates.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocsSectionPolicies", {
+      description: "Docs section for policy gates.",
+    })
+  )
 ) {}
 
 /**

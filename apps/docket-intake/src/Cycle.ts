@@ -29,6 +29,7 @@ import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import { DigestProgress, digestDayDue } from "./Digest.ts";
+import { DocketQuestionPublisher } from "./Questions.ts";
 import type { DocketIntakeError } from "@beep/law-practice-use-cases/DocketIntake";
 import type { LocalDate } from "@beep/schema/LocalDate";
 import type * as FileSystem from "effect/FileSystem";
@@ -53,12 +54,11 @@ const $I = $DocketIntakeId.create("Cycle");
  * @category models
  * @since 0.0.0
  */
-export class DocketCycleReport extends S.Class<DocketCycleReport>($I`DocketCycleReport`)(
-  {
+export class DocketCycleReport extends S.Opaque<DocketCycleReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     runId: DocketRunId.annotateKey({ description: "Id of the run; `undo --run` takes it back." }),
     ...DocketPollReport.fields,
-  },
-  $I.annote("DocketCycleReport", { description: "Run id and counts of one docket intake poll cycle." })
+  }).pipe($I.annoteSchema("DocketCycleReport", { description: "Run id and counts of one docket intake poll cycle." }))
 ) {}
 
 /**
@@ -179,6 +179,12 @@ export const pollCycle = Effect.fn("DocketIntakeApp.pollCycle")(function* (
   const report = yield* intake.pollOnce(today, options);
   // Every run gets a line, also one that wrote nothing, so `runs` lists it and `undo` finds it.
   yield* recordDocketRunCompleted(report);
+  // Only when the review hub is configured: its questions for every needs-review message.
+  const store = yield* DocketIntakeStore;
+  yield* O.match(yield* Effect.serviceOption(DocketQuestionPublisher), {
+    onNone: () => Effect.void,
+    onSome: (publisher) => Effect.flatMap(store.load, publisher.publish),
+  });
   yield* Effect.logInfo("docket intake poll finished", {
     entered: report.entered,
     failed: report.failed,

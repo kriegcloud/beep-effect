@@ -11,7 +11,7 @@ import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import Image from "next/image";
@@ -42,20 +42,38 @@ const DOMHtmlVideoElement = S.declare(isHTMLVideoElement).pipe(
 /**
  * A single rotating hero background clip: an optimized poster plus its background
  * video sources.
+ *
+ * **Example** (Describe one rotating hero clip)
+ *
+ * ```ts
+ * import { HeroClipMedia } from "@beep/oip-web/components/HeroVideo"
+ *
+ * const clip = HeroClipMedia.make({
+ *   poster: "/hero/patent-drafting.webp",
+ *   mp4: "/hero/patent-drafting.mp4",
+ *   webm: "/hero/patent-drafting.webm"
+ * })
+ *
+ * console.log(clip.mp4) // => "/hero/patent-drafting.mp4"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
  */
-class HeroClipMedia extends S.Class<HeroClipMedia>($I`HeroClipMedia`)(
-  {
+export class HeroClipMedia extends S.Opaque<HeroClipMedia, { readonly brand: unique symbol }>()(
+  S.Struct({
     poster: S.String,
     mp4: S.String,
     webm: S.optionalKey(S.String),
-  },
-  $I.annote("HeroClipMedia", {
-    description: "A single rotating hero background clip: an optimized poster plus its background video sources.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeroClipMedia", {
+      description: "A single rotating hero background clip: an optimized poster plus its background video sources.",
+    })
+  )
 ) {}
 
-class HeroVideoState extends S.Class<HeroVideoState>($I`HeroVideoState`)(
-  {
+class HeroVideoState extends S.Opaque<HeroVideoState, { readonly brand: unique symbol }>()(
+  S.Struct({
     element: S.NullOr(DOMHtmlVideoElement).pipe(
       S.withConstructorDefault(Effect.succeed(null)),
       S.withDecodingDefaultTypeKey(Effect.succeed(null))
@@ -64,12 +82,13 @@ class HeroVideoState extends S.Class<HeroVideoState>($I`HeroVideoState`)(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("HeroVideoState", {
-    description: "The state of a single rotating hero background clip.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeroVideoState", {
+      description: "The state of a single rotating hero background clip.",
+    })
+  )
 ) {
-  static readonly empty = HeroVideoState.make();
+  static readonly empty = HeroVideoState.make({});
 }
 
 const heroClipKey = (poster: string, mp4: string, webm: string | undefined): string =>
@@ -82,10 +101,13 @@ const heroVideoElementAtom = Atom.family((key: string) =>
     (get) => get(heroVideoStateAtom(key)).element,
     (ctx, element: HTMLVideoElement | null) => {
       const state = ctx.get(heroVideoStateAtom(key));
-      ctx.set(heroVideoStateAtom(key), {
-        element,
-        playing: element === null ? false : state.playing,
-      });
+      ctx.set(
+        heroVideoStateAtom(key),
+        HeroVideoState.make({
+          element,
+          playing: element === null ? false : state.playing,
+        })
+      );
     }
   )
 );
@@ -173,7 +195,7 @@ const heroVideoAutoplayAtom = Atom.family((key: string) =>
  */
 export const HERO_ROTATE_MS = 7000;
 
-const rotationSetKey = (clips: ReadonlyArray<HeroClipMedia>): string =>
+const rotationSetKey = (clips: ReadonlyArray<S.Struct.Type<typeof HeroClipMedia.fields>>): string =>
   `${clips.length}::${A.join(
     A.map(clips, (clip) => heroClipKey(clip.poster, clip.mp4, clip.webm)),
     "||"
@@ -312,7 +334,7 @@ function HeroClipLayer({
  * @category components
  * @since 0.0.0
  */
-export function HeroVideo({ clips }: { readonly clips: ReadonlyArray<HeroClipMedia> }) {
+export function HeroVideo({ clips }: { readonly clips: ReadonlyArray<S.Struct.Type<typeof HeroClipMedia.fields>> }) {
   const rotationKey = rotationSetKey(clips);
   const rotationIndex = useAtomValue(heroRotationIndexAtom(rotationKey));
   useAtomMount(heroRotationDriverAtom(rotationKey));

@@ -88,33 +88,90 @@ const OnBeforeDeferredEntries = S.declare<NonNullable<ExperimentalConfigFromNext
   })
 );
 
-class CacheLifeProfile extends S.Class<CacheLifeProfile>($I`CacheLifeProfile`)(
-  {
+/**
+ * Cache life timing profile for a named cache strategy.
+ *
+ * **Example** (Define an hourly cache profile)
+ *
+ * ```ts
+ * import { CacheLifeProfile } from "@beep/repo-configs/next"
+ *
+ * const hourly = CacheLifeProfile.make({ stale: 300, revalidate: 3_600, expire: 86_400 })
+ *
+ * console.log(hourly.revalidate) // => 3600
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CacheLifeProfile extends S.Opaque<CacheLifeProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     stale: S.optionalKey(S.Finite),
     revalidate: S.optionalKey(S.Finite),
     expire: S.optionalKey(S.Finite),
-  },
-  $I.annote("CacheLifeProfile", {
-    description: "Cache life timing profile for a named cache strategy.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheLifeProfile", {
+      description: "Cache life timing profile for a named cache strategy.",
+    })
+  )
 ) {}
 
 const CacheLife = S.Record(S.String, CacheLifeProfile);
 
-class PrefetchInliningOptions extends S.Class<PrefetchInliningOptions>($I`PrefetchInliningOptions`)(
-  {
+/**
+ * Prefetch inlining size limits.
+ *
+ * **Example** (Cap inlined prefetch payloads)
+ *
+ * ```ts
+ * import { PrefetchInliningOptions } from "@beep/repo-configs/next"
+ *
+ * const inlining = PrefetchInliningOptions.make({ maxSize: 2_048, maxBundleSize: 16_384 })
+ *
+ * console.log(inlining.maxBundleSize) // => 16384
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PrefetchInliningOptions extends S.Opaque<PrefetchInliningOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxSize: S.optionalKey(S.Finite),
     maxBundleSize: S.optionalKey(S.Finite),
-  },
-  $I.annote("PrefetchInliningOptions", {
-    description: "Prefetch inlining size limits.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrefetchInliningOptions", {
+      description: "Prefetch inlining size limits.",
+    })
+  )
 ) {}
 
 const PrefetchInlining = S.Union([S.Boolean, PrefetchInliningOptions]);
 
-class StaleTimes extends S.Class<StaleTimes>($I`StaleTimes`)(
-  {
+/**
+ * Stale time settings, in seconds, for dynamic and static routes.
+ *
+ * **Details**
+ *
+ * The static stale time must be at least 30 seconds.
+ *
+ * **Example** (Reject a static stale time under 30 seconds)
+ *
+ * ```ts
+ * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
+ * import { StaleTimes } from "@beep/repo-configs/next"
+ *
+ * const decode = S.decodeUnknownExit(StaleTimes)
+ *
+ * console.log(Exit.isSuccess(decode({ dynamic: 0, static: 180 }))) // => true
+ * console.log(Exit.isSuccess(decode({ static: 10 }))) // => false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StaleTimes extends S.Opaque<StaleTimes, { readonly brand: unique symbol }>()(
+  S.Struct({
     dynamic: S.optionalKey(S.Finite),
     static: S.optionalKey(
       S.Finite.check(
@@ -125,14 +182,31 @@ class StaleTimes extends S.Class<StaleTimes>($I`StaleTimes`)(
         })
       )
     ),
-  },
-  $I.annote("StaleTimes", {
-    description: "Stale time settings for dynamic and static routes.",
-  })
+  }).pipe(
+    $I.annoteSchema("StaleTimes", {
+      description: "Stale time settings for dynamic and static routes.",
+    })
+  )
 ) {}
 
-class SwcEnvOptions extends S.Class<SwcEnvOptions>($I`SwcEnvOptions`)(
-  {
+/**
+ * SWC environment transform options.
+ *
+ * **Example** (Polyfill by usage for older browsers)
+ *
+ * ```ts
+ * import { SwcEnvOptions } from "@beep/repo-configs/next"
+ *
+ * const env = SwcEnvOptions.make({ mode: "usage", coreJs: "3.38", shippedProposals: true })
+ *
+ * console.log(env.mode) // => "usage"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SwcEnvOptions extends S.Opaque<SwcEnvOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.optionalKey(SwcEnvMode),
     coreJs: S.optionalKey(S.String),
     skip: S.optionalKey(StringArray),
@@ -142,66 +216,155 @@ class SwcEnvOptions extends S.Class<SwcEnvOptions>($I`SwcEnvOptions`)(
     forceAllTransforms: S.optionalKey(S.Boolean),
     debug: S.optionalKey(S.Boolean),
     loose: S.optionalKey(S.Boolean),
-  },
-  $I.annote("SwcEnvOptions", {
-    description: "SWC environment transform options.",
-  })
+  }).pipe(
+    $I.annoteSchema("SwcEnvOptions", {
+      description: "SWC environment transform options.",
+    })
+  )
 ) {}
 
-class SriConfig extends S.Class<SriConfig>($I`SriConfig`)(
-  {
+/**
+ * Subresource integrity configuration.
+ *
+ * **Example** (Emit SHA-384 subresource integrity hashes)
+ *
+ * ```ts
+ * import { SriConfig } from "@beep/repo-configs/next"
+ *
+ * const sri = SriConfig.make({ algorithm: "sha384" })
+ *
+ * console.log(sri.algorithm) // => "sha384"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SriConfig extends S.Opaque<SriConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     algorithm: S.optionalKey(SubresourceIntegrityAlgorithm),
-  },
-  $I.annote("SriConfig", {
-    description: "Subresource integrity configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("SriConfig", {
+      description: "Subresource integrity configuration.",
+    })
+  )
 ) {}
 
-class MdxRsConfig extends S.Class<MdxRsConfig>($I`MdxRsConfig`)(
-  {
+/**
+ * Rust MDX compiler configuration.
+ *
+ * **Example** (Compile GitHub-flavored MDX with the Rust compiler)
+ *
+ * ```ts
+ * import { MdxRsConfig } from "@beep/repo-configs/next"
+ *
+ * const mdxRs = MdxRsConfig.make({ mdxType: "gfm", jsxRuntime: "automatic", providerImportSource: "@mdx-js/react" })
+ *
+ * console.log(mdxRs.mdxType) // => "gfm"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MdxRsConfig extends S.Opaque<MdxRsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     development: S.optionalKey(S.Boolean),
     jsx: S.optionalKey(S.Boolean),
     jsxRuntime: S.optionalKey(S.String),
     jsxImportSource: S.optionalKey(S.String),
     providerImportSource: S.optionalKey(S.String),
     mdxType: S.optionalKey(MdxType),
-  },
-  $I.annote("MdxRsConfig", {
-    description: "Rust MDX compiler configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("MdxRsConfig", {
+      description: "Rust MDX compiler configuration.",
+    })
+  )
 ) {}
 
-class ServerActions extends S.Class<ServerActions>($I`ServerActions`)(
-  {
+/**
+ * Server Actions configuration.
+ *
+ * **Example** (Allow larger form uploads from one origin)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ServerActions } from "@beep/repo-configs/next"
+ *
+ * const actions = S.decodeUnknownSync(ServerActions)({ bodySizeLimit: "4mb", allowedOrigins: ["app.oip.law"] })
+ *
+ * console.log(actions.bodySizeLimit) // => "4mb"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ServerActions extends S.Opaque<ServerActions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodySizeLimit: S.optionalKey(SizeLimit),
     allowedOrigins: S.optionalKey(StringArray),
-  },
-  $I.annote("ServerActions", {
-    description: "Server Actions configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ServerActions", {
+      description: "Server Actions configuration.",
+    })
+  )
 ) {}
 
-class SlowModuleDetection extends S.Class<SlowModuleDetection>($I`SlowModuleDetection`)(
-  {
+/**
+ * Slow module detection configuration: modules whose build time exceeds the threshold, in
+ * milliseconds, are reported.
+ *
+ * **Example** (Flag modules that take longer than 500 ms to build)
+ *
+ * ```ts
+ * import { SlowModuleDetection } from "@beep/repo-configs/next"
+ *
+ * const detection = SlowModuleDetection.make({ buildTimeThresholdMs: 500 })
+ *
+ * console.log(detection.buildTimeThresholdMs) // => 500
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SlowModuleDetection extends S.Opaque<SlowModuleDetection, { readonly brand: unique symbol }>()(
+  S.Struct({
     buildTimeThresholdMs: S.Int.annotateKey({ description: "Build time threshold in milliseconds." }),
-  },
-  $I.annote("SlowModuleDetection", {
-    description: "Slow module detection configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("SlowModuleDetection", {
+      description: "Slow module detection configuration.",
+    })
+  )
 ) {}
 
-class BrowserDebugInfoInTerminalOptions extends S.Class<BrowserDebugInfoInTerminalOptions>(
-  $I`BrowserDebugInfoInTerminalOptions`
-)(
-  {
+/**
+ * Browser debug output controls for terminal rendering.
+ *
+ * **Example** (Forward browser warnings to the dev terminal)
+ *
+ * ```ts
+ * import { BrowserDebugInfoInTerminalOptions } from "@beep/repo-configs/next"
+ *
+ * const debug = BrowserDebugInfoInTerminalOptions.make({ level: "warn", depthLimit: 3, showSourceLocation: true })
+ *
+ * console.log(debug.level) // => "warn"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BrowserDebugInfoInTerminalOptions extends S.Opaque<
+  BrowserDebugInfoInTerminalOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     level: S.optionalKey(BrowserDebugLevel),
     depthLimit: S.optionalKey(S.Finite),
     edgeLimit: S.optionalKey(S.Finite),
     showSourceLocation: S.optionalKey(S.Boolean),
-  },
-  $I.annote("BrowserDebugInfoInTerminalOptions", {
-    description: "Browser debug output controls for terminal rendering.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserDebugInfoInTerminalOptions", {
+      description: "Browser debug output controls for terminal rendering.",
+    })
+  )
 ) {}
 
 const BrowserDebugInfoInTerminal = S.Union([S.Boolean, BrowserDebugLevel, BrowserDebugInfoInTerminalOptions]);
@@ -225,8 +388,8 @@ const SwcPlugins = S.Tuple([S.String, UnknownRecord]).pipe(S.mutable, S.Array, S
  * @category schemas
  * @since 0.0.0
  */
-export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`ExperimentalConfig`)(
-  {
+export class ExperimentalConfig extends S.Opaque<ExperimentalConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputHashSalt: S.optionalKey(S.String),
     appNewScrollHandler: S.optionalKey(S.Boolean),
     useSkewCookie: S.optionalKey(S.Boolean),
@@ -300,6 +463,11 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     fallbackNodePolyfills: S.optionalKey(S.Literal(false)),
     sri: S.optionalKey(SriConfig),
     webVitalsAttribution: S.optionalKey(WebVitalsMetric.pipe(S.Array, S.mutable)),
+    useTypeScriptCli: S.optionalKey(
+      S.Boolean.annotateKey({
+        description: "Run TypeScript checks through the compiler CLI instead of the classic JS API.",
+      })
+    ),
     optimizePackageImports: S.optionalKey(StringArray),
     optimizeServerReact: S.optionalKey(S.Boolean),
     strictRouteTypes: S.optionalKey(S.Boolean),
@@ -385,8 +553,9 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     deferredEntries: S.optionalKey(StringArray),
     onBeforeDeferredEntries: S.optionalKey(OnBeforeDeferredEntries),
     reportSystemEnvInlining: S.optionalKey(ReportSystemEnvInlining),
-  },
-  $I.annote("ExperimentalConfig", {
-    description: "Public experimental configuration accepted by Next.js.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExperimentalConfig", {
+      description: "Public experimental configuration accepted by Next.js.",
+    })
+  )
 ) {}

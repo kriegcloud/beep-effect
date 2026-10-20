@@ -6,32 +6,34 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiSentence, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/Sentences");
 
-class SentencesParameters extends S.Class<SentencesParameters>($I`SentencesParameters`)(
-  {
+class SentencesParameters extends S.Opaque<SentencesParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to split into sentences",
       examples: ["Hello world. How are you? I am fine."],
     }),
-  },
-  $I.annote("SentencesParameters", {
-    description: "Text input used to split content into sentence segments.",
-  })
+  }).pipe(
+    $I.annoteSchema("SentencesParameters", {
+      description: "Text input used to split content into sentence segments.",
+    })
+  )
 ) {}
 
-class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
-  {
+class SentencesSuccess extends S.Opaque<SentencesSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     sentenceCount: S.Natural,
     sentences: S.Array(AiSentence),
-  },
-  $I.annote("SentencesSuccess", {
-    description: "Sentence segmentation result and the total number of detected sentences.",
-  })
+  }).pipe(
+    $I.annoteSchema("SentencesSuccess", {
+      description: "Sentence segmentation result and the total number of detected sentences.",
+    })
+  )
 ) {}
 
 /**

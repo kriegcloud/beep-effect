@@ -21,6 +21,17 @@ import * as SqlClient from "effect/sql/SqlClient";
 const EnvelopeJson = S.fromJsonString(Envelope);
 const ResolutionJson = S.fromJsonString(AmbiguityResolution);
 const ReceiptJson = S.fromJsonString(Receipt);
+const decodeAmbiguityResolutionJson = S.decodeEffect(ResolutionJson);
+const encodeReceiptJson = S.encodeEffect(ReceiptJson);
+
+// The parent polls for the checkpoint and reads it as soon as it exists, so a
+// plain write could be observed empty; write a sibling file, then rename it.
+const writeCheckpoint = Effect.fnUntraced(function* (checkpoint: string, content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const staged = `${checkpoint}.partial`;
+  yield* fs.writeFileString(staged, content, { mode: 0o600 });
+  yield* fs.rename(staged, checkpoint);
+});
 
 const program = Effect.scoped(
   Effect.gen(function* () {
@@ -32,7 +43,7 @@ const program = Effect.scoped(
     const fs = yield* FileSystem.FileSystem;
     if (stage === "lock") {
       yield* client`BEGIN IMMEDIATE`;
-      yield* fs.writeFileString(checkpoint, "locked", { mode: 0o600 });
+      yield* writeCheckpoint(checkpoint, "locked");
       yield* fs
         .exists(`${checkpoint}.release`)
         .pipe(Effect.repeat({ schedule: Schedule.spaced("10 millis"), until: identity<boolean> }));
@@ -41,19 +52,19 @@ const program = Effect.scoped(
     }
     if (stage === "resolve") {
       const input = yield* Config.String("BEEP_MESSAGE_FIXTURE_ENVELOPE");
-      const request = yield* fs.readFileString(input).pipe(Effect.flatMap(S.decodeEffect(ResolutionJson)));
+      const request = yield* fs.readFileString(input).pipe(Effect.flatMap(decodeAmbiguityResolutionJson));
       const receipt = yield* store.resolveAmbiguity(request, 202);
-      yield* fs.writeFileString(checkpoint, yield* S.encodeEffect(ReceiptJson)(receipt), { mode: 0o600 });
+      yield* writeCheckpoint(checkpoint, yield* encodeReceiptJson(receipt));
       return yield* Effect.never;
     }
     if (stage === "accept") {
       const input = yield* Config.String("BEEP_MESSAGE_FIXTURE_ENVELOPE");
       const message = yield* fs.readFileString(input).pipe(Effect.flatMap(S.decodeEffect(EnvelopeJson)));
       yield* store.accept(message, 100);
-      yield* fs.writeFileString(checkpoint, "accepted", { mode: 0o600 });
+      yield* writeCheckpoint(checkpoint, "accepted");
     } else {
       const claim = yield* store.claimNext("b", "b-owner", 101, 201);
-      yield* fs.writeFileString(checkpoint, O.isSome(claim) ? "claimed" : "none", { mode: 0o600 });
+      yield* writeCheckpoint(checkpoint, O.isSome(claim) ? "claimed" : "none");
     }
     return yield* Effect.never;
   })

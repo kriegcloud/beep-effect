@@ -1,6 +1,9 @@
 name: beep-ci-runners
 runtime:
   name: nodejs
+  options:
+    # Classic TypeScript API for the Pulumi runtime: infra's TS6 (path from src/internal).
+    nodeargs: --require ../../pulumi-typescript6.cjs
 description: Egress-only CI runner groundwork plus the pinned terraform-module ephemeral GitHub Actions controller.
 main: ../src/internal/ci-runners-entry.ts
 packages:

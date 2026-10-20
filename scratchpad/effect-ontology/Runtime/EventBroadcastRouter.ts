@@ -38,7 +38,9 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import * as Str from "effect/String";
-import { HttpRouter, HttpServerRequest, HttpServerResponse } from "effect/http";
+import * as HttpRouter from "effect/http/HttpRouter";
+import * as HttpServerRequest from "effect/http/HttpServerRequest";
+import * as HttpServerResponse from "effect/http/HttpServerResponse";
 import type * as Socket from "effect/socket/Socket";
 import { OntologyName } from "../Domain/Identity.ts";
 import { OntologyEventEntry } from "../Domain/Schema/EventSchema.ts";
@@ -289,7 +291,7 @@ export class EventBroadcastHub extends Context.Service<EventBroadcastHub, EventB
 /**
  * Configuration for Cloud Pub/Sub event subscription
  */
-class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError>($I`PubSubSubscriptionError`)(
+class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError, { readonly brand: unique symbol }>($I`PubSubSubscriptionError`)(
   "PubSubSubscriptionError",
   {
     message: S.NonEmptyString,
@@ -302,7 +304,7 @@ class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError>($I`
 
 const isSubscriptionAlreadyExists = S.is(S.Struct({ code: S.Literal(6) }));
 
-class PubSubCreateError extends S.TaggedError<PubSubCreateError>($I`PubSubCreateError`)("PubSubCreateError", {
+class PubSubCreateError extends S.TaggedError<PubSubCreateError, { readonly brand: unique symbol }>($I`PubSubCreateError`)("PubSubCreateError", {
   alreadyExists: S.Boolean,
   cause: S.Defect({ includeStack: true }),
 }) {}
@@ -596,7 +598,7 @@ export const EventBroadcastHubLive = Layer.unwrap(
  *
  * ```ts
  * import * as Layer from "effect/Layer";
- * import { HttpRouter } from "effect/http"
+ * import * as HttpRouter from "effect/http/HttpRouter";
  * import { EventBroadcastRouter } from "@effect-ontology/Runtime/EventBroadcastRouter"
  *
  * const served = Layer.provide(EventBroadcastRouter, HttpRouter.layer)

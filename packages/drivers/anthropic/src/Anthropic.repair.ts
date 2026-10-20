@@ -7,7 +7,9 @@
 
 import { $AnthropicId } from "@beep/identity";
 import * as A from "effect/Array";
-import { AiError, LanguageModel, Response } from "effect/ai";
+import * as AiError from "effect/ai/AiError";
+import * as LanguageModel from "effect/ai/LanguageModel";
+import * as Response from "effect/ai/Response";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as ExecutionPlan from "effect/ExecutionPlan";
@@ -21,8 +23,9 @@ import { AnthropicLanguageModelOptions } from "./Anthropic.config.ts";
 import { RepairError } from "./Anthropic.errors.ts";
 import { makeAnthropicLanguageModelLayer } from "./Anthropic.service.ts";
 import { PosInt } from "./internal/PosInt.ts";
-import type { Tool, Toolkit } from "effect/ai";
 import type { GenerateTextOptions } from "effect/ai/LanguageModel";
+import type * as Tool from "effect/ai/Tool";
+import type * as Toolkit from "effect/ai/Toolkit";
 import type * as Config from "effect/Config";
 
 const $I = $AnthropicId.create("Anthropic.repair");
@@ -177,8 +180,7 @@ export const makeAnthropicRepairPlan = (
  * import { collectToolParamsJson } from "@beep/anthropic"
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
- * import { Response } from "effect/ai"
- *
+ * import * as Response from "effect/ai/Response";
  * const json = Effect.runSync(
  *   collectToolParamsJson(
  *     Stream.make(
@@ -212,8 +214,7 @@ export const collectToolParamsJson = <Tools extends Record<string, Tool.Any>, E,
  *
  * ```ts
  * import { AnthropicToolJsonResponse } from "@beep/anthropic"
- * import { Response } from "effect/ai"
- *
+ * import * as Response from "effect/ai/Response";
  * const result = AnthropicToolJsonResponse.make({
  *   paramsJson: '{"repairs":[]}',
  *   usage: Response.Usage.make({
@@ -227,14 +228,15 @@ export const collectToolParamsJson = <Tools extends Record<string, Tool.Any>, E,
  * @category models
  * @since 0.0.0
  */
-export class AnthropicToolJsonResponse extends S.Class<AnthropicToolJsonResponse>($I`AnthropicToolJsonResponse`)(
-  {
+export class AnthropicToolJsonResponse extends S.Opaque<AnthropicToolJsonResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     paramsJson: S.String.annotateKey({ description: "Collected forced-tool parameter JSON." }),
     usage: Response.Usage.annotateKey({ description: "Provider-reported token usage for the repair call." }),
-  },
-  $I.annote("AnthropicToolJsonResponse", {
-    description: "Collected forced-tool parameter JSON and provider usage for one Anthropic repair call.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnthropicToolJsonResponse", {
+      description: "Collected forced-tool parameter JSON and provider usage for one Anthropic repair call.",
+    })
+  )
 ) {}
 
 const isFinishPart = <Tools extends Record<string, Tool.Any>, ParametersMode extends Response.ToolParametersMode>(
@@ -263,8 +265,7 @@ const isToolParamsDeltaPart = <
  * import { collectToolParamsJsonWithUsage } from "@beep/anthropic"
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
- * import { Response } from "effect/ai"
- *
+ * import * as Response from "effect/ai/Response";
  * const parts: Stream.Stream<Response.StreamPart<{}>> = Stream.fromIterable([])
  *
  * const program = Effect.gen(function* () {
@@ -317,8 +318,8 @@ export const collectToolParamsJsonWithUsage = Effect.fn("collectToolParamsJsonWi
  * import { generateAnthropicToolJson } from "@beep/anthropic"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
- * import { Tool, Toolkit } from "effect/ai"
- *
+ * import * as Tool from "effect/ai/Tool";
+ * import * as Toolkit from "effect/ai/Toolkit";
  * const RepairTool = Tool.make("repair", {
  *   description: "Return a corrected JSON object.",
  *   parameters: S.Struct({ issue: S.String }),

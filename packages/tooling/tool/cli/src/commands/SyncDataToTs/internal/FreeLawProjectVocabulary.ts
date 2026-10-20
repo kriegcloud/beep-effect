@@ -6,9 +6,39 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { A, O, Str } from "@beep/utils";
 import { dual, pipe } from "effect/Function";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("commands/SyncDataToTs/internal/FreeLawProjectVocabulary");
+
+/**
+ * Context-bearing alias retained in a generated court or reporter vocabulary.
+ *
+ * **Example** (Build a contextual alias)
+ *
+ * ```ts
+ * import { VocabularyContextualAlias } from "@beep/repo-cli/commands/SyncDataToTs/internal/FreeLawProjectVocabulary"
+ *
+ * const alias = VocabularyContextualAlias.make({ alias: "Cal.", context: "California" })
+ * console.log(alias.context) // "California"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VocabularyContextualAlias extends S.Opaque<VocabularyContextualAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
+    alias: S.NonEmptyString,
+    context: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("VocabularyContextualAlias", {
+      description: "Context-bearing alias retained in a generated court or reporter vocabulary.",
+    })
+  )
+) {}
 
 /**
  * Exact combined court/reporter artifact version for the two pinned sources.

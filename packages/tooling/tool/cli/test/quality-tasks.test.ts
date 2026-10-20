@@ -9,6 +9,7 @@ import {
   LintPolicySweeps,
   QUALITY_TASK_LANE_RUN_ARTIFACT_PATH_ENV,
   QUALITY_TASK_LANE_RUN_PARENT_ID_ENV,
+  QualityProfileDetectionInput,
 } from "@beep/repo-cli/commands/Quality";
 import {
   collectAuditDiffInputForTesting,
@@ -40,6 +41,7 @@ import {
   CoverageRegressionBaseline,
   CoverageScopeOwner,
   CoverageSelfJudgeScope,
+  CoverageSnapshotEntry,
   CoverageUncoveredCounts,
   changedCoverageOwners,
   cleanCoverageRegressionOutputs,
@@ -116,7 +118,7 @@ import {
   renderCoverageRemediation,
   resolveLaneInputDigestForTesting,
   reviewFixDocgenLocalArgsForTesting,
-  rootEslintCacheKey,
+  rootDocsCacheKey,
   rootLintPolicyStepsForTesting,
   rootQualityStepsForTesting,
   runBunAudit,
@@ -175,7 +177,6 @@ import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { flow, identity, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
-import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -388,7 +389,7 @@ const LABS_EXCLUDE_FILTER = "--filter=!./apps/labs/**";
 const policyTurboStep = (
   label: string,
   base?: string,
-  deprecatedApis: PolicySweepProgram = "shards"
+  deprecatedApis: PolicySweepProgram = "oxlint"
 ): QualityTaskStep =>
   O.getOrThrow(
     A.findFirst(
@@ -562,7 +563,7 @@ const qualityCommandHandle = (output: string, exitCode: number) =>
 const policyCommandKey = (text: string): string =>
   pipe(
     Str.split(text, " "),
-    A.dropWhile((word) => word !== "bunx" && word !== "bun" && word !== "./node_modules/.bin/eslint" && word !== "git"),
+    A.dropWhile((word) => word !== "bunx" && word !== "bun" && word !== "git"),
     A.filter((word) => !Str.startsWith("--cache=")(word) && word !== "--force"),
     A.join(" ")
   );
@@ -1021,6 +1022,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:build",
         "quality:lint",
         "quality:lint-policy",
+        "quality:effect-diagnostics",
         "quality:check",
         "quality:shadcn-lint",
         "quality:jsdoc-ratchet",
@@ -1075,6 +1077,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
+        "observability:catalog-check",
+        "quality:catalog-usage",
         "repo-sanity:tsconfig-sync",
         "lint:effect-imports",
         "lint:effect-imports-markdown",
@@ -1103,6 +1107,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         expectedTurboArgs("lint:retired-effect-paths", ["--summarize"])
       );
       expect(qualityLaneArgs(lanes, "lint:effect-vitest")).toEqual(["run", "beep", "lint", "effect-vitest"]);
+      expect(qualityLaneArgs(lanes, "quality:catalog-usage")).toEqual(["run", "beep", "quality", "catalog-usage"]);
       expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:committed")).toEqual([
         "run",
         "beep",
@@ -1138,6 +1143,41 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       // D9: the cheap tier runs four abreast; heavy pre-push lanes stay serial.
       expect(githubCheckTierConcurrency("cheap-gates")).toBe(4);
       expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+    });
+
+    it("keeps cheap gates within the configured worker budget and warns on malformed settings", () => {
+      const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      try {
+        for (const [value, expected, malformed] of [
+          [undefined, 4, false],
+          ["1", 1, false],
+          ["2", 2, false],
+          ["3", 3, false],
+          ["4", 4, false],
+          ["0", 1, true],
+          ["5", 1, true],
+          ["2.5", 1, true],
+          ["01", 1, true],
+          ["serial", 1, true],
+          ["", 1, true],
+        ] as const) {
+          warning.mockClear();
+          withEnvVar("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY", value, () => {
+            expect(githubCheckTierConcurrency("cheap-gates")).toBe(expected);
+            expect(warning).toHaveBeenCalledTimes(malformed ? 1 : 0);
+            if (malformed) {
+              expect(warning).toHaveBeenCalledWith(
+                "[quality] Invalid BEEP_QUALITY_CHEAP_GATE_CONCURRENCY; expected 1, 2, 3 or 4. Using 1 lane."
+              );
+            }
+            warning.mockClear();
+            expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+            expect(warning).not.toHaveBeenCalled();
+          });
+        }
+      } finally {
+        warning.mockRestore();
+      }
     });
 
     // ship-velocity B1: a local green must mean what a hosted green means, so the
@@ -2340,7 +2380,10 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const cryptoFailure = PlatformError.badArgument({ module: "Crypto", method: "test" });
 
             const withoutIndexIdentity = yield* prepareLaneProofSession([lane], "active").pipe(
-              Effect.provideService(Crypto.Crypto, { ...platformCrypto, randomUUIDv4: Effect.fail(cryptoFailure) })
+              Effect.provideService(Crypto.Crypto, {
+                ...platformCrypto,
+                randomUUIDv4: () => Effect.fail(cryptoFailure),
+              })
             );
             assertNone(withoutIndexIdentity);
 
@@ -2355,10 +2398,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const stagingFailure = yield* persistLaneProofs(session, [[lane, 12]]).pipe(
               Effect.provideService(Crypto.Crypto, {
                 ...platformCrypto,
-                randomUUIDv4: Effect.suspend(() => {
-                  identityCalls = identityCalls + 1;
-                  return identityCalls > 1 ? Effect.fail(cryptoFailure) : platformCrypto.randomUUIDv4;
-                }),
+                randomUUIDv4: () =>
+                  Effect.suspend(() => {
+                    identityCalls = identityCalls + 1;
+                    return identityCalls > 1 ? Effect.fail(cryptoFailure) : platformCrypto.randomUUIDv4();
+                  }),
               }),
               Effect.flip
             );
@@ -3450,31 +3494,37 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 
     it("detects explicit quality hardware profiles", () => {
       expect(
-        detectQualityProfileForTesting({
-          ci: true,
-          cpuCount: 64,
-          totalMemoryBytes: 128 * 1024 * 1024 * 1024,
-        })
+        detectQualityProfileForTesting(
+          QualityProfileDetectionInput.make({
+            ci: true,
+            cpuCount: 64,
+            totalMemoryBytes: 128 * 1024 * 1024 * 1024,
+          })
+        )
       ).toMatchObject({
         profile: "ci",
         config: { fullProofSlots: 1, reviewFixSlots: 1 },
       });
       expect(
-        detectQualityProfileForTesting({
-          ci: false,
-          cpuCount: 64,
-          totalMemoryBytes: 128 * 1024 * 1024 * 1024,
-        })
+        detectQualityProfileForTesting(
+          QualityProfileDetectionInput.make({
+            ci: false,
+            cpuCount: 64,
+            totalMemoryBytes: 128 * 1024 * 1024 * 1024,
+          })
+        )
       ).toMatchObject({
         profile: "workstation",
         config: { docgenParallel: 6, reviewFixSlots: 3 },
       });
       expect(
-        detectQualityProfileForTesting({
-          ci: false,
-          cpuCount: 8,
-          totalMemoryBytes: 16 * 1024 * 1024 * 1024,
-        })
+        detectQualityProfileForTesting(
+          QualityProfileDetectionInput.make({
+            ci: false,
+            cpuCount: 8,
+            totalMemoryBytes: 16 * 1024 * 1024 * 1024,
+          })
+        )
       ).toMatchObject({
         profile: "current",
         config: { docgenParallel: 3, reviewFixSlots: 1 },
@@ -3733,6 +3783,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:tsconfig-overlay",
         "lint:package-test-typecheck",
         "lint:effect-vitest",
+        "lint:opaque-roundtrips",
         "lint:jsdoc",
         "lint:jsdoc:root",
       ]);
@@ -3755,7 +3806,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }
       expect(local[2]?.args).not.toContain("--affected");
       expect(policyTurboScmBase(O.getOrThrow(A.get(local, 2)))).toBeUndefined();
-      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "--report"));
+      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(
+        repoCliEntryArgs("knowledge", "doctor", "ci", "--base", "review-base")
+      );
       for (const step of A.filter(A.take(local, 5), (planned) => planned.label !== "knowledge:doctor")) {
         expect(step.args).toContain("--summarize");
         expect(step.args).toContain("--continue=dependencies-successful");
@@ -3770,6 +3823,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         expect(O.getOrThrow(optionUnderTest)).toEqual(expectedOptionValue);
       }
       const full = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, true);
+      expect(O.getOrThrow(A.get(full, 2)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "ci"));
       expect(A.map(full, (step) => step.label)).toEqual([
         "lint:policy:cheap",
         "lint:policy:medium",
@@ -3779,11 +3833,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:test-tsgo",
       ]);
       expect(taskNames(O.getOrThrow(A.get(full, 1)))).toEqual([
-        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(11)),
+        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(12)),
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
       // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
-      // report-only knowledge doctor to the hosted plan; the changed-scope plan still carries them.
+      // knowledge doctor (report-only until the first seal) to the hosted plan; the changed-scope
+      // plan still carries them.
       const localFull = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, false);
       expect(A.map(localFull, (step) => step.label)).toEqual(
         A.filter(
@@ -3801,27 +3856,21 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(A.every(full, (step) => !A.contains(step.args, "--affected"))).toBe(true);
       expect(policyTurboStep("lint:jsdoc").args).toEqual([
-        "eslint",
+        "oxlint",
         ".",
+        "--config",
+        ".oxlintrc.docs.json",
         "--max-warnings=0",
-        "--cache",
-        "--cache-location",
-        "node_modules/.cache/eslint-root/unkeyed/.eslintcache",
-        "--cache-strategy",
-        "content",
       ]);
       expect(rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, true, "abc123")).toContainEqual(
-        expect.objectContaining({
-          label: "lint:jsdoc",
-          args: expect.arrayContaining(["node_modules/.cache/eslint-root/abc123/.eslintcache"]),
-        })
+        expect.objectContaining({ label: "lint:jsdoc", args: expect.arrayContaining([".oxlintrc.docs.json"]) })
       );
       expect(policyTurboStep("lint:deprecated-apis").args).toEqual(
         repoCliEntryArgs("lint", "deprecated-apis", "--full")
       );
       expect(policyTurboStep("lint:deprecated-apis", undefined, "turbo").args).toContain("turbo");
       expect(policyTurboStep("lint:deprecated-apis", "review-base", "turbo")).toEqual(
-        policyTurboStep("lint:deprecated-apis", "review-base", "shards")
+        policyTurboStep("lint:deprecated-apis", "review-base", "oxlint")
       );
       expect(rootQualityStepsForTesting("/repo", getInvocation(["lint"]))).toEqual([
         expect.objectContaining({ label: "lint", args: expectedRootTurboArgs("lint", []) }),
@@ -3878,6 +3927,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "jsdoc:ratchet:check",
           "lint:shadcn",
           "lint:effect-vitest",
+          "lint:opaque-roundtrips",
           "lint:retired-effect-paths",
           "quality:test-tsgo",
           "knowledge:doctor",
@@ -3952,7 +4002,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(path.join(tmpDir, "standards"), { recursive: true });
           yield* fs.writeFileString(
             path.join(tmpDir, "standards/lint-policy.sweeps.jsonc"),
-            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
           yield* fs.makeDirectory(binDir, { recursive: true });
           yield* fs.writeFileString(fakeBunxPath, A.join(["#!/usr/bin/env sh", "exit 0", ""], "\n"));
@@ -3991,7 +4041,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(`${root}/standards`, { recursive: true });
           yield* fs.writeFileString(
             `${root}/standards/lint-policy.sweeps.jsonc`,
-            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+            '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
           );
           yield* withEnvVarEffect(
             "CI",
@@ -4424,7 +4474,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const result = compareCoverageRegressionSnapshotsForTesting(
         coverageRegressionBaseline,
         [
-          {
+          CoverageSnapshotEntry.make({
             packageName: "@beep/existing",
             baseline: CoveragePackageBaseline.make({
               path: "packages/existing",
@@ -4433,11 +4483,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               uncovered: coverageUncovered(1),
               files: {},
             }),
-          },
-          {
+          }),
+          CoverageSnapshotEntry.make({
             packageName: "@beep/new",
             baseline: coveragePackageBaseline("packages/new"),
-          },
+          }),
         ],
         false
       );
@@ -4601,7 +4651,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             assert.include(error.message, "Failed to parse coverage summary fixture");
             assert.isAtMost(Str.length(error.message), 4_096);
             assert.isDefined(error.cause);
-            assert.isAbove(Str.length(Inspectable.toStringUnknown(error.cause, 0)), 16_384);
+            // Effect 4.0.4 abbreviates the offending value when it renders a SchemaError, so
+            // assert the typed cause is kept rather than the length of its rendering.
+            assert.isTrue(S.isSchemaError(error.cause));
           }
         }),
         Effect.provideServiceEffect(Console.Console, TestConsole.make)
@@ -5058,7 +5110,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       });
       const failures = compareCoverageRegressionSnapshotsForTesting(
         before,
-        [{ packageName, baseline: actual }],
+        [CoverageSnapshotEntry.make({ packageName, baseline: actual })],
         false
       ).failures;
       const rendered = renderCoverageFailuresForTesting(failures);
@@ -5087,8 +5139,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const result = compareCoverageRegressionSnapshotsForTesting(
         policyBaseline,
         [
-          { packageName: "@beep/debt", baseline: coveragePackageBaseline("packages/debt", 10) },
-          {
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/debt",
+            baseline: coveragePackageBaseline("packages/debt", 10),
+          }),
+          CoverageSnapshotEntry.make({
             packageName: "@beep/existing",
             baseline: CoveragePackageBaseline.make({
               path: "packages/existing",
@@ -5099,7 +5154,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               uncovered: coverageUncovered(0),
               files: {},
             }),
-          },
+          }),
         ],
         false
       );
@@ -5319,10 +5374,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
                 "@beep/a": coveragePackageBaseline("packages/a", 80),
                 "@beep/b": coveragePackageBaseline("packages/b", 80),
               };
-              const measured = A.map(["a", "b"], (name) => ({
-                packageName: `@beep/${name}`,
-                baseline: coveragePackageBaseline(`packages/${name}`, 60),
-              }));
+              const measured = A.map(["a", "b"], (name) =>
+                CoverageSnapshotEntry.make({
+                  packageName: `@beep/${name}`,
+                  baseline: coveragePackageBaseline(`packages/${name}`, 60),
+                })
+              );
               expect(
                 planCoverageBaselineWrite(
                   previous,
@@ -5833,7 +5890,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const compare = (proposed: O.Option<CoverageRegressionBaseline>, actual: CoveragePackageBaseline) =>
           compareCoverageRegressionSnapshotsWithProposedForTesting(
             CoverageComparisonBaselines.make({ baseline: baseFloors, proposed }),
-            [{ packageName: "@beep/existing", baseline: actual }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
             false
           );
         const allMetrics = ["branches", "functions", "lines", "statements"];
@@ -5912,7 +5969,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               }),
               proposed: proposing(packageRow(80, 20, { [filePath]: coverageFileBaseline(50, 2) })),
             }),
-            [{ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) })],
             false
           );
 
@@ -5972,7 +6029,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
                 })
               ),
             }),
-            [{ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) })],
             false
           );
 
@@ -6042,7 +6099,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               mergeBase: O.some(rows(mergeBase)),
               selfJudge: O.some(planCoverageSelfJudgeScope(owners, changedFiles)),
             }),
-            [{ packageName: "@beep/existing", baseline: actual }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
             false
           );
         const base = packageRow(80, 20, { [filePath]: coverageFileBaseline(80, 20) });
@@ -6198,7 +6255,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               mergeBase: O.some(strictBase),
               selfJudge: O.some(planCoverageSelfJudgeScope(owners, [])),
             }),
-            [{ packageName: "@beep/existing", baseline: measured }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: measured })],
             false
           );
 
@@ -6213,7 +6270,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               mergeBase: O.some(rows(base)),
               selfJudge: O.some(planCoverageSelfJudgeScope(owners, [])),
             }),
-            [{ packageName: "@beep/existing", baseline: base }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: base })],
             false
           );
 
@@ -6370,8 +6427,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               const result = compareCoverageRegressionSnapshotsWithProposedForTesting(
                 baselines,
                 [
-                  { packageName: "@beep/touched", baseline: workspaceRow("touched", 70, 30) },
-                  { packageName: "@beep/untouched", baseline: workspaceRow("untouched", 70, 30) },
+                  CoverageSnapshotEntry.make({
+                    packageName: "@beep/touched",
+                    baseline: workspaceRow("touched", 70, 30),
+                  }),
+                  CoverageSnapshotEntry.make({
+                    packageName: "@beep/untouched",
+                    baseline: workspaceRow("untouched", 70, 30),
+                  }),
                 ],
                 false
               );
@@ -6540,9 +6603,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const result = compareCoverageRegressionSnapshotsForTesting(
           baseline,
           [
-            { packageName: "@beep/b", baseline: regressed("packages/b") },
-            { packageName: "@beep/a", baseline: regressed("packages/a") },
-            { packageName: "@beep/ok", baseline: coveragePackageBaseline("packages/ok", 50) },
+            CoverageSnapshotEntry.make({ packageName: "@beep/b", baseline: regressed("packages/b") }),
+            CoverageSnapshotEntry.make({ packageName: "@beep/a", baseline: regressed("packages/a") }),
+            CoverageSnapshotEntry.make({
+              packageName: "@beep/ok",
+              baseline: coveragePackageBaseline("packages/ok", 50),
+            }),
           ],
           false
         );
@@ -6570,7 +6636,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const belowTier = renderCoverageRemediation(
           compareCoverageRegressionSnapshotsForTesting(
             tiered,
-            [{ packageName: "@beep/ok", baseline: coveragePackageBaseline("packages/ok", 50) }],
+            [
+              CoverageSnapshotEntry.make({
+                packageName: "@beep/ok",
+                baseline: coveragePackageBaseline("packages/ok", 50),
+              }),
+            ],
             false
           )
         );
@@ -6581,7 +6652,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           renderCoverageRemediation(
             compareCoverageRegressionSnapshotsForTesting(
               baseline,
-              [{ packageName: "@beep/ok", baseline: coveragePackageBaseline("packages/ok", 50) }],
+              [
+                CoverageSnapshotEntry.make({
+                  packageName: "@beep/ok",
+                  baseline: coveragePackageBaseline("packages/ok", 50),
+                }),
+              ],
               false
             )
           )
@@ -6850,7 +6926,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const compare = (actual: CoveragePackageBaseline) =>
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures;
 
@@ -6910,7 +6986,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       });
       const failures = compareCoverageRegressionSnapshotsForTesting(
         before,
-        [{ packageName: "@beep/existing", baseline: actual }],
+        [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
         false
       ).failures;
 
@@ -6944,7 +7020,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual([]);
@@ -6973,7 +7049,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7005,7 +7081,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7049,7 +7125,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7086,7 +7162,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 
       const failures = compareCoverageRegressionSnapshotsForTesting(
         before,
-        [{ packageName: "@beep/existing", baseline: actual }],
+        [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
         false
       ).failures;
 
@@ -7132,7 +7208,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual([]);
@@ -7167,7 +7243,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7204,7 +7280,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7246,8 +7322,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "@beep/held": committedHeld,
         },
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/held", baseline: measuredHeld },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({ packageName: "@beep/held", baseline: measuredHeld }),
         ],
         changeSet,
         CoverageBaselineWriteOptions.make({ replaceAll: false })
@@ -7290,9 +7369,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "@beep/removed": coveragePackageBaseline("packages/removed", 70),
         },
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/held", baseline: measuredHeld },
-          { packageName: "@beep/new", baseline: coveragePackageBaseline("packages/new", 90) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({ packageName: "@beep/held", baseline: measuredHeld }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/new",
+            baseline: coveragePackageBaseline("packages/new", 90),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "origin/main merge-base a1b2c3d",
@@ -7323,8 +7408,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "@beep/b": coveragePackageBaseline("packages/b", 50),
         },
         [
-          { packageName: "@beep/a", baseline: coveragePackageBaseline("packages/a", 80) },
-          { packageName: "@beep/b", baseline: coveragePackageBaseline("packages/b", 90) },
+          CoverageSnapshotEntry.make({ packageName: "@beep/a", baseline: coveragePackageBaseline("packages/a", 80) }),
+          CoverageSnapshotEntry.make({ packageName: "@beep/b", baseline: coveragePackageBaseline("packages/b", 90) }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "dirty worktree only",
@@ -7343,8 +7428,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const plan = planCoverageBaselineWrite(
         { "@beep/existing": coveragePackageBaseline("packages/existing", 50) },
         [
-          { packageName: "@beep/existing", baseline: coveragePackageBaseline("packages/existing", 80) },
-          { packageName: "@beep/new", baseline: coveragePackageBaseline("packages/new", 90) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/existing",
+            baseline: coveragePackageBaseline("packages/existing", 80),
+          }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/new",
+            baseline: coveragePackageBaseline("packages/new", 90),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "dirty worktree only",
@@ -7442,8 +7533,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const plan = planCoverageBaselineWrite(
         previous,
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/fresh", baseline: coveragePackageBaseline("packages/fresh", 88) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/fresh",
+            baseline: coveragePackageBaseline("packages/fresh", 88),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "dirty worktree only",
@@ -7478,8 +7575,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "@beep/unmeasured": coveragePackageBaseline("packages/unmeasured", 70),
       };
       const entries = [
-        { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-        { packageName: "@beep/held", baseline: measuredHeld },
+        CoverageSnapshotEntry.make({
+          packageName: "@beep/changed",
+          baseline: coveragePackageBaseline("packages/changed", 80),
+        }),
+        CoverageSnapshotEntry.make({ packageName: "@beep/held", baseline: measuredHeld }),
       ];
       const changeSet = CoverageBaselineChangeSet.make({
         baseDescription: "dirty worktree only",
@@ -7519,8 +7619,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "@beep/dependent": coveragePackageBaseline("packages/dependent", 61),
       };
       const entries = [
-        { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-        { packageName: "@beep/dependent", baseline: coveragePackageBaseline("packages/dependent", 93) },
+        CoverageSnapshotEntry.make({
+          packageName: "@beep/changed",
+          baseline: coveragePackageBaseline("packages/changed", 80),
+        }),
+        CoverageSnapshotEntry.make({
+          packageName: "@beep/dependent",
+          baseline: coveragePackageBaseline("packages/dependent", 93),
+        }),
       ];
       const changeSet = CoverageBaselineChangeSet.make({
         baseDescription: "dirty worktree only",
@@ -7572,7 +7678,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       // this run never measured.
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+        ],
         changeSet,
         CoverageBaselineWriteOptions.make({ replaceAll: false, carryUnmeasured: true })
       );
@@ -7592,7 +7703,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       };
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+        ],
         CoverageBaselineChangeSet.make({
           baseDescription: "origin/main merge-base a1b2c3d",
           packageNames: ["@beep/changed"],
@@ -7616,8 +7732,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const plan = planCoverageBaselineWrite(
         previous,
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/dependent", baseline: coveragePackageBaseline("packages/dependent", 93) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/dependent",
+            baseline: coveragePackageBaseline("packages/dependent", 93),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "origin/main merge-base a1b2c3d",
@@ -7642,7 +7764,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       };
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/held", baseline: coveragePackageBaseline("packages/held", 93) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/held",
+            baseline: coveragePackageBaseline("packages/held", 93),
+          }),
+        ],
         CoverageBaselineChangeSet.make({ baseDescription: "dirty worktree only", packageNames: [], fullReasons: [] }),
         CoverageBaselineWriteOptions.make({ replaceAll: true, carryUnmeasured: true })
       );
@@ -7656,7 +7783,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const previous = { "@beep/held": coveragePackageBaseline("packages/held", 61) };
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/held", baseline: coveragePackageBaseline("packages/held", 93) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/held",
+            baseline: coveragePackageBaseline("packages/held", 93),
+          }),
+        ],
         CoverageBaselineChangeSet.make({ baseDescription: "dirty worktree only", packageNames: [], fullReasons: [] }),
         CoverageBaselineWriteOptions.make({ replaceAll: false, carryUnmeasured: true })
       );
@@ -8517,202 +8649,33 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
   });
 });
 
-// The root ESLint cache directory is keyed by the ESLint configuration sources, so an edit to
-// an in-repo rule module (which ESLint's own config digest cannot see) starts an empty cache.
-describe("root ESLint cache key", () => {
+describe("documentation input digest", () => {
   it.layer(FileSystemLayer, { timeout: "30 seconds" })((it) => {
-    it.effect("skips nested package markers without losing installed or workspace package identities", () =>
+    it.effect("invalidates config, plugin source and dependency changes while keeping unrelated edits stable", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
-        yield* fs.makeDirectory(path.join(root, "packages/tooling/policy-pack/repo-configs/src"), { recursive: true });
-        yield* fs.makeDirectory(path.join(root, "node_modules/eslint"), { recursive: true });
-        yield* fs.writeFileString(
-          path.join(root, "node_modules/eslint/package.json"),
-          '{"name":"eslint","version":"9.0.0","main":"index.js"}'
-        );
-        yield* fs.writeFileString(path.join(root, "node_modules/eslint/index.js"), "module.exports = {};\n");
-        const installed = path.join(root, "node_modules/eslint-plugin-fixture");
-        const first = path.join(root, "workspace/eslint-plugin-first");
-        const second = path.join(root, "workspace/eslint-plugin-second");
-        for (const directory of [installed, first, second]) {
-          yield* fs.makeDirectory(path.join(directory, "dist/cjs"), { recursive: true });
-          yield* fs.writeFileString(path.join(directory, "dist/cjs/package.json"), '{"type":"commonjs"}');
-          yield* fs.writeFileString(path.join(directory, "dist/cjs/index.js"), "module.exports = { rules: {} };\n");
-        }
-        const writeManifest = Effect.fnUntraced(function* (directory: string, name: string, version: string) {
-          yield* fs.writeFileString(
-            path.join(directory, "package.json"),
-            `{"name":"${name}","version":"${version}","main":"dist/cjs/index.js"}`
-          );
-        });
-        yield* writeManifest(installed, "eslint-plugin-fixture", "1.0.0");
-        yield* writeManifest(first, "eslint-plugin-first", "1.0.0");
-        yield* writeManifest(second, "eslint-plugin-second", "1.0.0");
-        yield* fs.symlink(first, path.join(root, "node_modules/eslint-plugin-first"));
-        yield* fs.symlink(second, path.join(root, "node_modules/eslint-plugin-second"));
-        yield* fs.writeFileString(
-          path.join(root, "eslint.config.mjs"),
-          'import installed from "eslint-plugin-fixture"; import first from "eslint-plugin-first"; import second from "eslint-plugin-second"; export default [{ plugins: { installed, first, second } }];\n'
-        );
-        yield* fs.writeFileString(path.join(root, "tsdoc.json"), "{}\n");
-        const initial = yield* rootEslintCacheKey(root);
+        const source = "packages/tooling/policy-pack/lint-rules";
+        yield* fs.makeDirectory(`${root}/${source}/src/rules`, { recursive: true });
+        const fixtures: ReadonlyArray<readonly [string, string]> = [
+          [".oxlintrc.docs.json", "{}"],
+          ["tsdoc.json", "{}"],
+          ["bun.lock", "lock"],
+          [`${source}/package.json`, "{}"],
+          [`${source}/src/rules/docs.ts`, "export {}"],
+        ];
+        for (const [file, content] of fixtures) yield* fs.writeFileString(`${root}/${file}`, content);
+        const initial = yield* rootDocsCacheKey(root);
         expect(initial).toMatch(/^[0-9a-f]{16}$/);
-        expect(yield* rootEslintCacheKey(root)).toBe(initial);
-        for (const directory of [installed, first, second]) {
-          const name = path.basename(directory);
-          yield* writeManifest(directory, name, "1.0.1");
-          const bumped = yield* rootEslintCacheKey(root);
-          expect(bumped).toMatch(/^[0-9a-f]{16}$/);
-          expect(bumped).not.toBe(initial);
-          expect(yield* rootEslintCacheKey(root)).toBe(bumped);
-          yield* writeManifest(directory, name, "1.0.0");
-          expect(yield* rootEslintCacheKey(root)).toBe(initial);
+        expect(yield* rootDocsCacheKey(root)).toBe(initial);
+        yield* fs.writeFileString(`${root}/unrelated.ts`, "export {}");
+        expect(yield* rootDocsCacheKey(root)).toBe(initial);
+        for (const file of [".oxlintrc.docs.json", "tsdoc.json", "bun.lock", `${source}/src/rules/docs.ts`]) {
+          const before = yield* rootDocsCacheKey(root);
+          yield* fs.writeFileString(`${root}/${file}`, "changed");
+          expect(yield* rootDocsCacheKey(root)).not.toBe(before);
         }
-      })
-    );
-
-    it.effect("keys installed plugin versions and workspace inputs while keeping unchanged inputs stable", () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const root = yield* fs.makeTempDirectoryScoped();
-        const rule = path.join(root, "packages/tooling/policy-pack/repo-configs/src/eslint/RequireCategoryTagRule.ts");
-        yield* fs.makeDirectory(path.dirname(rule), { recursive: true });
-        yield* fs.makeDirectory(path.join(root, "node_modules/eslint"), { recursive: true });
-        yield* fs.writeFileString(
-          path.join(root, "node_modules/eslint/package.json"),
-          '{"name":"eslint","version":"9.0.0","main":"index.js"}'
-        );
-        yield* fs.writeFileString(path.join(root, "node_modules/eslint/index.js"), "module.exports = {}\n");
-        yield* fs.writeFileString(path.join(root, "eslint.config.mjs"), "export default []\n");
-        yield* fs.writeFileString(path.join(root, "tsdoc.json"), "{}\n");
-        yield* fs.writeFileString(rule, "const CATEGORY_PATTERN = /@category/\n");
-        const initial = yield* rootEslintCacheKey(root);
-        expect(initial).toMatch(/^[0-9a-f]{16}$/);
-        expect(yield* rootEslintCacheKey(root)).toBe(initial);
-        // A module-level helper edit, invisible to ESLint's serialized config, moves the key.
-        yield* fs.writeFileString(rule, "const CATEGORY_PATTERN = /@categoryX/\n");
-        const edited = yield* rootEslintCacheKey(root);
-        expect(edited).toMatch(/^[0-9a-f]{16}$/);
-        expect(edited).not.toBe(initial);
-        // So does an edit to a helper the rule imports from `src/internal/eslint`.
-        const helper = path.join(root, "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleHelpers.ts");
-        yield* fs.makeDirectory(path.dirname(helper), { recursive: true });
-        yield* fs.writeFileString(helper, "export const optionToReadonlyArray = 1\n");
-        const withHelper = yield* rootEslintCacheKey(root);
-        expect(withHelper).not.toBe(edited);
-        yield* fs.writeFileString(helper, "export const optionToReadonlyArray = 2\n");
-        expect(yield* rootEslintCacheKey(root)).not.toBe(withHelper);
-        // A valid meta-less plugin is imported under an arbitrary namespace. Versions
-        // come from its installed manifest, never the namespace or plugin object.
-        const plugin = path.join(root, "node_modules/eslint-plugin-fixture");
-        yield* fs.makeDirectory(plugin, { recursive: true });
-        const pluginManifest = (version: string) =>
-          `{ "name": "eslint-plugin-fixture", "version": "${version}", "main": "index.js" }`;
-        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.0"));
-        yield* fs.writeFileString(path.join(plugin, "index.js"), "module.exports = { rules: {} }\n");
-        const shared = path.join(root, "shared/eslint.mjs");
-        const localRule = path.join(root, "shared/rule.mjs");
-        yield* fs.makeDirectory(path.dirname(shared), { recursive: true });
-        yield* fs.writeFileString(
-          shared,
-          'import plugin from "eslint-plugin-fixture"; import rule from "./rule.mjs"; export default [{ plugins: { arbitrary: plugin, local: { rules: { fixture: rule } } } }];\n'
-        );
-        yield* fs.writeFileString(localRule, "export default { create() { return {} } };\n");
-        yield* fs.writeFileString(
-          path.join(root, "eslint.config.mjs"),
-          'export { default } from "./shared/eslint.mjs";\n'
-        );
-        const withPlugin = yield* rootEslintCacheKey(root);
-        expect(withPlugin).toMatch(/^[0-9a-f]{16}$/);
-        expect(yield* rootEslintCacheKey(root)).toBe(withPlugin);
-        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.1"));
-        const bumpedPlugin = yield* rootEslintCacheKey(root);
-        expect(bumpedPlugin).toMatch(/^[0-9a-f]{16}$/);
-        expect(bumpedPlugin).not.toBe(withPlugin);
-        expect(yield* rootEslintCacheKey(root)).toBe(bumpedPlugin);
-        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.0"));
-        expect(yield* rootEslintCacheKey(root)).toBe(withPlugin);
-        yield* fs.writeFileString(localRule, "export default { create() { return { Program() {} } } };\n");
-        const changedWorkspace = yield* rootEslintCacheKey(root);
-        expect(changedWorkspace).toMatch(/^[0-9a-f]{16}$/);
-        expect(changedWorkspace).not.toBe(withPlugin);
-        expect(yield* rootEslintCacheKey(root)).toBe(changedWorkspace);
-        yield* fs.writeFileString(
-          shared,
-          'import plugin from "eslint-plugin-fixture"; export default [{ plugins: { arbitrary: plugin } }];\n'
-        );
-        const changedShared = yield* rootEslintCacheKey(root);
-        expect(changedShared).not.toBe(changedWorkspace);
-        yield* fs.writeFileString(
-          path.join(root, "node_modules/eslint/package.json"),
-          '{"name":"eslint","version":"9.0.1","main":"index.js"}'
-        );
-        expect(yield* rootEslintCacheKey(root)).not.toBe(changedShared);
-        // External configs can obtain a meta-less plugin through peers, including a
-        // package whose exports hide package.json. Manifest discovery bypasses exports.
-        const externalConfig = path.join(root, "node_modules/eslint-config-fixture");
-        yield* fs.makeDirectory(externalConfig, { recursive: true });
-        yield* fs.writeFileString(
-          path.join(externalConfig, "package.json"),
-          '{"name":"eslint-config-fixture","version":"1.0.0","exports":"./index.js","peerDependencies":{"eslint-plugin-fixture":"*","missing-optional-peer":"*"}}'
-        );
-        yield* fs.writeFileString(
-          path.join(externalConfig, "index.js"),
-          'module.exports = [{ plugins: { arbitrary: require("eslint-plugin-fixture") } }];\n'
-        );
-        yield* fs.writeFileString(
-          path.join(root, "eslint.config.mjs"),
-          'export { default } from "eslint-config-fixture";\n'
-        );
-        const indirectPlugin = yield* rootEslintCacheKey(root);
-        expect(indirectPlugin).toMatch(/^[0-9a-f]{16}$/);
-        expect(yield* rootEslintCacheKey(root)).toBe(indirectPlugin);
-        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("2.0.0"));
-        const indirectBump = yield* rootEslintCacheKey(root);
-        expect(indirectBump).toMatch(/^[0-9a-f]{16}$/);
-        expect(indirectBump).not.toBe(indirectPlugin);
-        const linked = path.join(root, "workspace/eslint-plugin-linked");
-        yield* fs.makeDirectory(linked, { recursive: true });
-        yield* fs.writeFileString(
-          path.join(linked, "package.json"),
-          '{"name":"eslint-plugin-linked","version":"1.0.0","main":"index.js"}'
-        );
-        yield* fs.writeFileString(path.join(linked, "index.js"), "module.exports = { rules: {} };\n");
-        yield* fs.symlink(linked, path.join(root, "node_modules/eslint-plugin-linked"));
-        yield* fs.writeFileString(
-          path.join(externalConfig, "package.json"),
-          '{"name":"eslint-config-fixture","version":"1.0.0","exports":"./index.js","dependencies":{"eslint-plugin-linked":"*"}}'
-        );
-        yield* fs.writeFileString(
-          path.join(externalConfig, "index.js"),
-          'module.exports = [{ plugins: { linked: require("eslint-plugin-linked") } }];\n'
-        );
-        const linkedInitial = yield* rootEslintCacheKey(root);
-        expect(linkedInitial).toMatch(/^[0-9a-f]{16}$/);
-        yield* fs.writeFileString(path.join(linked, "index.js"), "module.exports = { rules: { changed: {} } };\n");
-        const linkedEdited = yield* rootEslintCacheKey(root);
-        expect(linkedEdited).toMatch(/^[0-9a-f]{16}$/);
-        expect(linkedEdited).not.toBe(linkedInitial);
-        yield* fs.writeFileString(
-          path.join(root, "eslint.config.mjs"),
-          'import plugin from "eslint-plugin-linked"; export default [{ plugins: { linked: plugin } }];\n'
-        );
-        const linkedDirect = yield* rootEslintCacheKey(root);
-        expect(linkedDirect).toMatch(/^[0-9a-f]{16}$/);
-        yield* fs.writeFileString(
-          path.join(linked, "package.json"),
-          '{"name":"eslint-plugin-linked","version":"1.0.1","main":"index.js"}'
-        );
-        expect(yield* rootEslintCacheKey(root)).not.toBe(linkedDirect);
-        // Unrelated workspace source does not enter the closure.
-        const beforeUnrelated = yield* rootEslintCacheKey(root);
-        yield* fs.writeFileString(path.join(root, "unrelated.ts"), "export const unused = 1;\n");
-        expect(yield* rootEslintCacheKey(root)).toBe(beforeUnrelated);
-        // A repository without the sources falls back to the shared unkeyed directory.
-        expect(yield* rootEslintCacheKey(yield* fs.makeTempDirectoryScoped())).toBe("unkeyed");
+        expect(yield* rootDocsCacheKey(yield* fs.makeTempDirectoryScoped())).toBe("unkeyed");
       })
     );
   });

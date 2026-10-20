@@ -36,10 +36,13 @@ export const encodeConfig: (input: unknown) => string = flow(
  * @category errors
  * @since 0.0.0
  */
-export class JsonReportError extends S.TaggedError<JsonReportError>()("JsonReportError", {
-  stdout: S.String,
-  cause: S.Defect({ includeStack: true }),
-}) {}
+export class JsonReportError extends S.TaggedError<JsonReportError, { readonly brand: unique symbol }>()(
+  "JsonReportError",
+  {
+    stdout: S.String,
+    cause: S.Defect({ includeStack: true }),
+  }
+) {}
 
 /**
  * Decode subprocess stdout with the supplied report schema, retaining failed output
@@ -91,14 +94,17 @@ export const jsonReportParser: {
  * @category errors
  * @since 0.0.0
  */
-export class LinterProcessError extends S.TaggedError<LinterProcessError>()("LinterProcessError", {
-  exitCode: S.Int,
-  stdout: S.String,
-  stderr: S.String,
-  signal: S.Option(S.String),
-  timedOut: S.Boolean,
-  outputTruncated: S.Boolean,
-}) {}
+export class LinterProcessError extends S.TaggedError<LinterProcessError, { readonly brand: unique symbol }>()(
+  "LinterProcessError",
+  {
+    exitCode: S.Int,
+    stdout: S.String,
+    stderr: S.String,
+    signal: S.Option(S.Union([S.String, S.Int])),
+    timedOut: S.Boolean,
+    outputTruncated: S.Boolean,
+  }
+) {}
 
 const isLintExit = S.is(S.Literals([0, 1]));
 

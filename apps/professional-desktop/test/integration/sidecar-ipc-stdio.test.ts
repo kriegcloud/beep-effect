@@ -26,24 +26,25 @@ import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
-import { RpcClient, RpcSerialization } from "effect/rpc";
+import * as RpcClient from "effect/rpc/RpcClient";
+import * as RpcSerialization from "effect/rpc/RpcSerialization";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { Socket } from "effect/socket";
+import * as Socket from "effect/socket/Socket";
 import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 import { SidecarReadyMarker } from "@/runtime/Migrations";
 
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
 const bootMarker = SidecarReadyMarker;
 
-class SidecarBinaryResolutionError extends S.TaggedError<SidecarBinaryResolutionError>()(
-  "SidecarBinaryResolutionError",
-  {
-    message: S.String,
-  }
-) {}
+class SidecarBinaryResolutionError extends S.TaggedError<
+  SidecarBinaryResolutionError,
+  { readonly brand: unique symbol }
+>()("SidecarBinaryResolutionError", {
+  message: S.String,
+}) {}
 
 const resolveSidecarBinaryPath = Effect.try({
   try: () => {

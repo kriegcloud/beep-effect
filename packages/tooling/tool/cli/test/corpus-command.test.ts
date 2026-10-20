@@ -52,6 +52,7 @@ import { NodeServices } from "@effect/platform-node";
 import { assertDefined, assertNone, assertSome, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
@@ -64,7 +65,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
@@ -231,28 +232,38 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus evidence schemas", (it) =
   });
   it.effect.prop(
     "round-trips schema-derived archive move manifest",
-    [CorpusArchiveMoveManifestRecord],
+    [Arbitrary.schema(CorpusArchiveMoveManifestRecord)],
     archiveMoveRoundTrip,
     { arbitrary: fcRuns(10) }
   );
-  it.effect.prop("round-trips schema-derived provenance", [CorpusProvenanceRecord], provenanceRoundTrip, {
-    arbitrary: fcRuns(10),
-  });
+  it.effect.prop(
+    "round-trips schema-derived provenance",
+    [Arbitrary.schema(CorpusProvenanceRecord)],
+    provenanceRoundTrip,
+    {
+      arbitrary: fcRuns(10),
+    }
+  );
   it.effect.prop(
     "round-trips schema-derived archive preflight",
-    [ArchiveLedgerRecord.cases["archive-preflight"]],
+    [Arbitrary.schema(ArchiveLedgerRecord.cases["archive-preflight"])],
     archivePreflightRoundTrip,
     { arbitrary: fcRuns(10) }
   );
   it.effect.prop(
     "round-trips schema-derived family summary",
-    [TransformationLedgerRecord.cases["family-run-summary"]],
+    [Arbitrary.schema(TransformationLedgerRecord.cases["family-run-summary"])],
     familySummaryRoundTrip,
     { arbitrary: fcRuns(10) }
   );
-  it.effect.prop("round-trips schema-derived verify options", [RestorationVerifyOptions], verifyOptionsRoundTrip, {
-    arbitrary: fcRuns(10),
-  });
+  it.effect.prop(
+    "round-trips schema-derived verify options",
+    [Arbitrary.schema(RestorationVerifyOptions)],
+    verifyOptionsRoundTrip,
+    {
+      arbitrary: fcRuns(10),
+    }
+  );
 
   it("decodes inherited collector failures and secret exclusions without destination fields", () => {
     decodeUnknownCollectorManifestRecordResult({

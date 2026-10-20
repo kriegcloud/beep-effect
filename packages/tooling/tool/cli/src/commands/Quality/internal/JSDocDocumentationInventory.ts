@@ -44,7 +44,7 @@ import {
   valuesForTag,
 } from "./QualityArtifactSupport.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { SourceFile } from "ts-morph";
 import type { JSDocSectionName } from "../../../internal/jsdoc/JSDocSections.ts";
 import type { GitCommandErrorAdapter } from "../../../internal/repo-run/index.ts";
@@ -268,20 +268,22 @@ const JSDocInventoryGeneratedAt = S.String.pipe(
  * @category configuration
  * @since 0.0.0
  */
-export class JSDocDocumentationInventoryOptions extends S.Class<JSDocDocumentationInventoryOptions>(
-  $I`JSDocDocumentationInventoryOptions`
-)(
-  {
+export class JSDocDocumentationInventoryOptions extends S.Opaque<
+  JSDocDocumentationInventoryOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rootDir: S.optionalKey(JSDocInventoryDirectoryPath),
     outputJsonPath: S.optionalKey(JSDocInventoryOutputPath),
     outputMarkdownPath: S.optionalKey(JSDocInventoryOutputPath),
     ciOutputJsonPath: S.optionalKey(JSDocInventoryOutputPath),
     ciOutputMarkdownPath: S.optionalKey(JSDocInventoryOutputPath),
     generatedAt: S.optionalKey(JSDocInventoryGeneratedAt),
-  },
-  $I.annote("JSDocDocumentationInventoryOptions", {
-    description: "Options for building or writing the JSDoc documentation inventory artifacts.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocDocumentationInventoryOptions", {
+      description: "Options for building or writing the JSDoc documentation inventory artifacts.",
+    })
+  )
 ) {}
 
 /**
@@ -290,21 +292,23 @@ export class JSDocDocumentationInventoryOptions extends S.Class<JSDocDocumentati
  * @category models
  * @since 0.0.0
  */
-export class JSDocDocumentationInventoryWriteResult extends S.Class<JSDocDocumentationInventoryWriteResult>(
-  $I`JSDocDocumentationInventoryWriteResult`
-)(
-  {
+export class JSDocDocumentationInventoryWriteResult extends S.Opaque<
+  JSDocDocumentationInventoryWriteResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     outputJsonPath: S.String,
     outputMarkdownPath: S.String,
     totals: JsonRecord,
-  },
-  $I.annote("JSDocDocumentationInventoryWriteResult", {
-    description: "Output metadata returned after writing JSDoc documentation inventory artifacts.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocDocumentationInventoryWriteResult", {
+      description: "Output metadata returned after writing JSDoc documentation inventory artifacts.",
+    })
+  )
 ) {}
 
 const resolveJSDocInventoryOptions = Effect.fn("JSDocDocumentationInventory.resolveOptions")(function* (
-  options: JSDocDocumentationInventoryOptions = {}
+  options: JSDocDocumentationInventoryOptions = JSDocDocumentationInventoryOptions.make({})
 ) {
   const path = yield* Path.Path;
   const repoRoot = options.rootDir ?? defaultRepoRoot;
@@ -1597,7 +1601,7 @@ const renderMarkdown = (inventory: Inventory): string => {
  * @since 0.0.0
  */
 export const buildJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInventory.build")(function* (
-  options: JSDocDocumentationInventoryOptions = {}
+  options: JSDocDocumentationInventoryOptions = JSDocDocumentationInventoryOptions.make({})
 ): Effect.fn.Return<
   Inventory,
   QualityArtifactGeneratorError,
@@ -1674,7 +1678,7 @@ export const buildJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInv
  * @since 0.0.0
  */
 export const writeJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInventory.write")(function* (
-  options: JSDocDocumentationInventoryOptions = {}
+  options: JSDocDocumentationInventoryOptions = JSDocDocumentationInventoryOptions.make({})
 ): Effect.fn.Return<
   JSDocDocumentationInventoryWriteResult,
   QualityArtifactGeneratorError,
@@ -1711,11 +1715,11 @@ export const writeJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInv
   yield* writeJSDocInventoryMirror(options.ciOutputJsonPath, jsonContent);
   yield* writeJSDocInventoryMirror(options.ciOutputMarkdownPath, markdownContent);
 
-  return {
+  return JSDocDocumentationInventoryWriteResult.make({
     outputJsonPath,
     outputMarkdownPath,
     totals: inventory.totals,
-  };
+  });
 });
 
 const writeJSDocInventoryMirror = Effect.fn("JSDocDocumentationInventory.writeMirror")(function* (

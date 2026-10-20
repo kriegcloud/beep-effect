@@ -52,7 +52,7 @@ const respond = <A>(effect: Effect.Effect<A, DomainError>) =>
         message: "request failed",
         cause: Cause.pretty(cause)
       }).pipe(
-        Effect.zipRight(Effect.fail(error))
+        Effect.andThen(Effect.fail(error))
       )
     })
   )
@@ -109,12 +109,16 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class ProfileInput extends S.Class<ProfileInput>($I`ProfileInput`)({
-  nickname: S.OptionFromNullishOr(S.String),
-  email: S.OptionFromOptionalKey(S.String),
-  backupEmail: S.OptionFromOptional(S.String),
-  avatarUrl: S.OptionFromNullOr(S.String)
-}) {}
+export class ProfileInput extends S.Opaque<ProfileInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    nickname: S.OptionFromNullishOr(S.String),
+    email: S.OptionFromOptionalKey(S.String),
+    backupEmail: S.OptionFromOptional(S.String),
+    avatarUrl: S.OptionFromNullOr(S.String)
+  }).pipe($I.annoteSchema("ProfileInput", {
+    description: "Profile input whose absent fields decode to Option."
+  }))
+) {}
 ```
 
 For runtime `Option` object fields, prefer `O.getSomesStruct({...})` (`@beep/utils`) for heterogeneous struct spreads with known keys — runtime-identical to `R.getSomes` but type-preserving per key — and reserve `R.getSomes({...})` for homogeneous dynamic-key dictionaries; use `O.all({...})` when the whole object should exist only if every field is `Some`. When a single `Option` becomes an object, prefer `O.map(...)` plus `O.getOrElse(() => ({}))` over `O.match(...)` with `onNone: () => ({})`. (Amended 2026-07-05 — see `standards/architecture/DECISIONS.md`.)
@@ -141,7 +145,7 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class UserJsonCodecError extends S.TaggedError<UserJsonCodecError>($I`UserJsonCodecError`)(
+class UserJsonCodecError extends S.TaggedError<UserJsonCodecError, { readonly brand: unique symbol }>($I`UserJsonCodecError`)(
   "UserJsonCodecError",
   { message: S.String },
   $I.annote("UserJsonCodecError", {
@@ -149,10 +153,14 @@ class UserJsonCodecError extends S.TaggedError<UserJsonCodecError>($I`UserJsonCo
   })
 ) {}
 
-export class User extends S.Class<User>($I`User`)({
-  id: S.String,
-  name: S.String
-}) {}
+export class User extends S.Opaque<User, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.String,
+    name: S.String
+  }).pipe($I.annoteSchema("User", {
+    description: "User payload carried as JSON."
+  }))
+) {}
 
 const UserJson = S.fromJsonString(User)
 

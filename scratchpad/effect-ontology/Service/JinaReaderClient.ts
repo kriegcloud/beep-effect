@@ -25,7 +25,9 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import { HttpStatusCode, Milliseconds } from "../Domain/Error/Base.ts";
 import { JinaApiError, JinaParseError, JinaRateLimitError, JinaTimeoutError } from "../Domain/Error/Jina.ts";
 import { JinaContent } from "../Domain/Model/EnrichedContent.ts";
@@ -52,19 +54,16 @@ const $I = $ScratchpadId.create("effect-ontology/Service/JinaReaderClient");
  * @category configuration
  * @since 0.0.0
  */
-export class FetchOptions extends S.Class<FetchOptions>($I`FetchOptions`)(
-  {
+export class FetchOptions extends S.Opaque<FetchOptions, { readonly brand: unique symbol }>()(S.Struct({
     includeImages: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))),
     includeLinks: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
     returnLinks: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))),
     targetSelector: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     waitForSelector: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     timeout: S.Duration.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FetchOptions", {
+  }).pipe($I.annoteSchema("FetchOptions", {
     description: "Reader rendering switches, optional selectors, and optional request-timeout override.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link FetchOptions}.
@@ -106,15 +105,12 @@ export type FetchOptionsInput = (typeof FetchOptions)["~type.make.in"];
  * @category models
  * @since 0.0.0
  */
-export class JinaResponse extends S.Class<JinaResponse>($I`JinaResponse`)(
-  {
+export class JinaResponse extends S.Opaque<JinaResponse, { readonly brand: unique symbol }>()(S.Struct({
     content: JinaContent,
     links: S.Array(S.String).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("JinaResponse", {
+  }).pipe($I.annoteSchema("JinaResponse", {
     description: "Reader content and optional forward links discovered in the source page.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Internal Response Schema

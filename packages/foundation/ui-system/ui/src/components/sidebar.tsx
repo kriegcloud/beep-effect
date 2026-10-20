@@ -11,11 +11,11 @@ import { make as makeScopedAtom, useAtom, useAtomMount, useAtomValue } from "@ef
 import { ListIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as React from "react";
 import { mediaQueryAtom } from "../internal/react-atoms.ts";
 import { cn } from "../lib/index.ts";
-import { requireReactContext } from "../lib/react-invariant.ts";
+import { ReactContextInvariantOptions, requireReactContext } from "../lib/react-invariant.ts";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
@@ -89,7 +89,10 @@ const sidebarStorageHydrationAtom = Atom.family((stateAtom: Atom.Writable<Sideba
  */
 function useSidebar() {
   const context = React.useContext(SidebarContext);
-  return requireReactContext(context, { message: "useSidebar must be used within a SidebarProvider." });
+  return requireReactContext(
+    context,
+    ReactContextInvariantOptions.make({ message: "useSidebar must be used within a SidebarProvider." })
+  );
 }
 
 interface SidebarProviderProps extends React.ComponentPropsWithoutRef<"div"> {

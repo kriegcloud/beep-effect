@@ -41,7 +41,7 @@ import * as Metric from "effect/Metric";
 import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
-import { Socket } from "effect/socket";
+import * as Socket from "effect/socket/Socket";
 import { SidecarTransport } from "./SidecarTransport.ts";
 import type { UnlistenFn } from "@tauri-apps/api/event";
 import type * as Scope from "effect/Scope";
@@ -122,18 +122,19 @@ const SidecarClosedKind = LiteralKit(["error", "terminated", "event-stream-close
  * @category models
  * @since 0.0.0
  */
-export class SidecarClosedPayload extends S.Class<SidecarClosedPayload>($I`SidecarClosedPayload`)(
-  {
+export class SidecarClosedPayload extends S.Opaque<SidecarClosedPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.OptionFromNullOr(S.Int).pipe(S.withConstructorDefault(Effect.succeedNone)),
     kind: SidecarClosedKind.annotateKey({
       description: "Terminal sidecar lifecycle reason.",
     }),
     message: S.OptionFromNullOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     signal: S.OptionFromNullOr(S.Int).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SidecarClosedPayload", {
-    description: "Terminal sidecar lifecycle payload delivered on `sidecar://closed`.",
-  })
+  }).pipe(
+    $I.annoteSchema("SidecarClosedPayload", {
+      description: "Terminal sidecar lifecycle payload delivered on `sidecar://closed`.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(SidecarClosedPayload);
 }
@@ -169,7 +170,9 @@ const sidecarClosedMessage = (payload: SidecarClosedPayload): string =>
  * @category errors
  * @since 0.0.0
  */
-export class SidecarClosedError extends S.TaggedError<SidecarClosedError>($I`SidecarClosedError`)(
+export class SidecarClosedError extends S.TaggedError<SidecarClosedError, { readonly brand: unique symbol }>(
+  $I`SidecarClosedError`
+)(
   "SidecarClosedError",
   {
     message: S.String,
@@ -199,7 +202,9 @@ export class SidecarClosedError extends S.TaggedError<SidecarClosedError>($I`Sid
  * @category errors
  * @since 0.0.0
  */
-export class SidecarSendError extends S.TaggedError<SidecarSendError>($I`SidecarSendError`)(
+export class SidecarSendError extends S.TaggedError<SidecarSendError, { readonly brand: unique symbol }>(
+  $I`SidecarSendError`
+)(
   "SidecarSendError",
   {
     causeMessage: S.String,

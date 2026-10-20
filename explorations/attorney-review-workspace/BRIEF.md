@@ -123,3 +123,64 @@ What the attorney does:
 - No client files in spikes, fixtures or the repo.
 - No edits to the `practice-claude-mod` packet from this exploration; its owner applies the
   amendment.
+
+## Re-entry 2026-10-14: the attorney question loop
+
+### Problem
+
+Agents often need a decision or a fact from the attorney: a renewal instruction, a confirmed due
+date, whether something was filed. Today that is an email plus an agent polling an inbox inside a
+chat session. The poll dies with the session, it parses free text, and on 2026-10-14 it missed a
+reply. Most items need no question at all: records settled 28 of 34. The few that do need one
+place to answer, structured answers, honest "not yet" states, and reminders that do not depend on
+a session staying alive.
+
+### Appetite
+
+One goal: the schema, the services, the first producer (docket-intake) and the digest. The pane
+card ships as an amendment to `practice-claude-mod`. Email interpretation and auto-apply stay
+gated.
+
+### Solution sketch
+
+- **Question item.** A `question` member of the `ReviewItem` union carries:
+  - the question text;
+  - the facts already checked, each with its `SourceRef`;
+  - two to five options, each optionally naming the write it implies;
+  - the matter and the mail thread (`conversationId`) it belongs to.
+
+  A producer must try records first. A question is raised only for an item that records cannot
+  settle.
+- **Answer row.** An append-only `AnswerRow` (`itemId`, `revision`, `recordedAt`, optional note)
+  with one of these states:
+  - `decided` with an `optionId`;
+  - `pending-on-client` with a `resurfaceOn` date;
+  - `keep-reminding`;
+  - `withdrawn`.
+
+  The latest row wins, by the same recency rule as `VerdictRow`. It is a separate row type because
+  answers are not right or wrong.
+- **Queue and digest.** `QuestionQueue` lists the open questions. The daily digest selects every
+  question that has no answer, or whose answer is `keep-reminding`, or whose answer is
+  `pending-on-client` with a `resurfaceOn` date on or before today. A practice-services timer sends
+  one notice a day ("N questions are waiting in Claude"), only when the digest is non-empty.
+- **Write proposals.** Each `decided` answer whose option names a write becomes a proposed change.
+  The operator approves a batch, and the docket-intake calendar adapter applies it, journaled with
+  the prior state and undoable. Notes never write.
+- **Pane card** (amendment): facts and sources, one button per option, "Pending on client" with a
+  date picker, "Keep reminding", a note, and undo.
+
+### Rabbit holes
+
+- Parsing free-text replies. It is gated (`question-email-replies`), and when it lands it only ever
+  proposes.
+- Generic workflow engines. A question is one item with one answer log, not a state machine.
+- Calendar sync beyond the adapter's provisional categories. Its guards stay as they are.
+
+### No-gos
+
+- No writes without operator approval in this goal.
+- No client documents in fixtures, tests or the repo; the evidence stays in the out-of-repo
+  handoff.
+- No inbox polling from chat sessions; notices are sent by the timer job.
+- No new app: the attorney answers in the Claude review queue.

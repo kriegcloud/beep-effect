@@ -18,7 +18,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -70,20 +70,21 @@ const ReflectionFindingCategory = LiteralKit([
   })
 );
 
-class ReflectionFinding extends S.Class<ReflectionFinding>($I`ReflectionFinding`)(
-  {
+class ReflectionFinding extends S.Opaque<ReflectionFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: ReflectionFindingCategory,
     confidence: ReflectionConfidence,
     instruction: S.String,
     explanation: S.String,
-  },
-  $I.annote("ReflectionFinding", {
-    description: "One information-rich reflection finding (what to change plus why).",
-  })
+  }).pipe(
+    $I.annoteSchema("ReflectionFinding", {
+      description: "One information-rich reflection finding (what to change plus why).",
+    })
+  )
 ) {}
 
-class ReflectionFrontmatter extends S.Class<ReflectionFrontmatter>($I`ReflectionFrontmatter`)(
-  {
+class ReflectionFrontmatter extends S.Opaque<ReflectionFrontmatter, { readonly brand: unique symbol }>()(
+  S.Struct({
     goal: S.String,
     agent: S.String,
     date: S.String,
@@ -97,10 +98,11 @@ class ReflectionFrontmatter extends S.Class<ReflectionFrontmatter>($I`Reflection
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("ReflectionFrontmatter", {
-    description: "Schema-validated YAML frontmatter for a goal-packet reflection artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReflectionFrontmatter", {
+      description: "Schema-validated YAML frontmatter for a goal-packet reflection artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -137,8 +139,8 @@ const ReflectionPolicySeverity = LiteralKit(["warning", "error"]).pipe(
   })
 );
 
-class ReflectionPolicyFinding extends S.Class<ReflectionPolicyFinding>($I`ReflectionPolicyFinding`)(
-  {
+class ReflectionPolicyFinding extends S.Opaque<ReflectionPolicyFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.Literal("reflection-policy"),
     ruleId: S.Literal("reflection-artifact"),
     severity: ReflectionPolicySeverity,
@@ -146,10 +148,11 @@ class ReflectionPolicyFinding extends S.Class<ReflectionPolicyFinding>($I`Reflec
     file: S.optionalKey(S.String),
     message: S.String,
     remediation: S.String,
-  },
-  $I.annote("ReflectionPolicyFinding", {
-    description: "Machine-readable reflection-artifact lint finding consumed by Yeet quality issue packets.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReflectionPolicyFinding", {
+      description: "Machine-readable reflection-artifact lint finding consumed by Yeet quality issue packets.",
+    })
+  )
 ) {}
 
 const encodePolicyFinding = S.encodeUnknownEffect(ReflectionPolicyFinding);

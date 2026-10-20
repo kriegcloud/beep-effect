@@ -852,6 +852,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
         "quality:test-unit",
         "quality:storybook",
         "quality:coverage",
+        "quality:effect-diagnostics",
       ]);
       // Plan half of the gate-order handoff fixture 5 (TTC ruling 78): the rendered plan and
       // the committed handoff both come from the same pure orderWaveLanes over the same lanes.
@@ -4001,8 +4002,8 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
           paths: ["src/a.ts"],
         });
 
-        expect(staged).toBeInstanceOf(YeetStagedPublishIntent);
-        expect(existing).toBeInstanceOf(YeetExistingCommitPublishIntent);
+        expect(S.is(YeetStagedPublishIntent)(staged)).toBe(true);
+        expect(S.is(YeetExistingCommitPublishIntent)(existing)).toBe(true);
       })
     );
 
@@ -4017,7 +4018,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
 
         const intent = yield* collectPublishIntent(tempContext, false);
 
-        expect(intent).toBeInstanceOf(YeetExistingCommitPublishIntent);
+        expect(S.is(YeetExistingCommitPublishIntent)(intent)).toBe(true);
         if (intent.kind === "existing-commit") {
           expect(intent.paths).toEqual(["tracked.txt"]);
           expect(intent.commitSha).toBe(Str.trim(yield* runGitCapture(tmpDir, ["rev-parse", "HEAD"])));

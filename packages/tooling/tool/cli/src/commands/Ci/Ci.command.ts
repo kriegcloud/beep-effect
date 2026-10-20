@@ -10,7 +10,9 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -32,94 +34,102 @@ import { ciLaneTimingsCommand } from "./LaneTimings.ts";
 
 const $I = $RepoCliId.create("commands/Ci/Ci.command");
 
-class TurboSummaryExecution extends S.Class<TurboSummaryExecution>($I`TurboSummaryExecution`)(
-  {
+class TurboSummaryExecution extends S.Opaque<TurboSummaryExecution, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.optionalKey(S.String),
     attempted: S.optionalKey(S.Finite),
     success: S.optionalKey(S.Finite),
     startTime: S.optionalKey(S.Finite),
     endTime: S.optionalKey(S.Finite),
-  },
-  $I.annote("TurboSummaryExecution", {
-    description: "Execution metadata emitted by a Turbo run summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummaryExecution", {
+      description: "Execution metadata emitted by a Turbo run summary.",
+    })
+  )
 ) {}
 
-class TurboSummaryTaskExecution extends S.Class<TurboSummaryTaskExecution>($I`TurboSummaryTaskExecution`)(
-  {
+class TurboSummaryTaskExecution extends S.Opaque<TurboSummaryTaskExecution, { readonly brand: unique symbol }>()(
+  S.Struct({
     startTime: S.optionalKey(S.Finite),
     endTime: S.optionalKey(S.Finite),
-  },
-  $I.annote("TurboSummaryTaskExecution", {
-    description: "Task execution timing metadata emitted by Turbo.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummaryTaskExecution", {
+      description: "Task execution timing metadata emitted by Turbo.",
+    })
+  )
 ) {}
 
-class TurboSummaryTaskCache extends S.Class<TurboSummaryTaskCache>($I`TurboSummaryTaskCache`)(
-  {
+class TurboSummaryTaskCache extends S.Opaque<TurboSummaryTaskCache, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.optionalKey(S.String),
     local: S.optionalKey(S.Boolean),
     remote: S.optionalKey(S.Boolean),
-  },
-  $I.annote("TurboSummaryTaskCache", {
-    description: "Task cache metadata emitted by Turbo.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummaryTaskCache", {
+      description: "Task cache metadata emitted by Turbo.",
+    })
+  )
 ) {}
 
-class TurboSummaryTaskDefinition extends S.Class<TurboSummaryTaskDefinition>($I`TurboSummaryTaskDefinition`)(
-  {
+class TurboSummaryTaskDefinition extends S.Opaque<TurboSummaryTaskDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     cache: S.optionalKey(S.Boolean),
-  },
-  $I.annote("TurboSummaryTaskDefinition", {
-    description: "Resolved task definition metadata emitted by Turbo.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummaryTaskDefinition", {
+      description: "Resolved task definition metadata emitted by Turbo.",
+    })
+  )
 ) {}
 
-class TurboSummaryTask extends S.Class<TurboSummaryTask>($I`TurboSummaryTask`)(
-  {
+class TurboSummaryTask extends S.Opaque<TurboSummaryTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.optionalKey(S.String),
     execution: S.optionalKey(TurboSummaryTaskExecution),
     cache: S.optionalKey(TurboSummaryTaskCache),
     resolvedTaskDefinition: S.optionalKey(TurboSummaryTaskDefinition),
-  },
-  $I.annote("TurboSummaryTask", {
-    description: "Task entry emitted by a Turbo run summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummaryTask", {
+      description: "Task entry emitted by a Turbo run summary.",
+    })
+  )
 ) {}
 
 const TurboSummaryTasks = S.Union([S.Array(TurboSummaryTask), S.Record(S.String, TurboSummaryTask)]);
 
-class TurboSummary extends S.Class<TurboSummary>($I`TurboSummary`)(
-  {
+class TurboSummary extends S.Opaque<TurboSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     execution: S.optionalKey(TurboSummaryExecution),
     tasks: S.optionalKey(TurboSummaryTasks),
-  },
-  $I.annote("TurboSummary", {
-    description: "Turbo run summary document consumed by CI summary rendering.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboSummary", {
+      description: "Turbo run summary document consumed by CI summary rendering.",
+    })
+  )
 ) {}
 
 const decodeTurboSummary = S.decodeUnknownEffect(S.fromJsonString(TurboSummary));
 
-class SummaryCandidate extends S.Class<SummaryCandidate>($I`SummaryCandidate`)(
-  {
+class SummaryCandidate extends S.Opaque<SummaryCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mtimeMillis: S.Finite,
-  },
-  $I.annote("SummaryCandidate", {
-    description: "Candidate file for Turbo summary parsing.",
-  })
+  }).pipe(
+    $I.annoteSchema("SummaryCandidate", {
+      description: "Candidate file for Turbo summary parsing.",
+    })
+  )
 ) {}
 
-class LongestTask extends S.Class<LongestTask>($I`LongestTask`)(
-  {
+class LongestTask extends S.Opaque<LongestTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.String,
     durationMs: S.Finite,
     cacheStatus: S.String,
-  },
-  $I.annote("LongestTask", {
-    description: "Task with the longest duration in a Turbo summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("LongestTask", {
+      description: "Task with the longest duration in a Turbo summary.",
+    })
+  )
 ) {}
 
 const formatDuration = (durationMs: number): string => formatDurationSeconds(durationMs, 2);
@@ -190,14 +200,16 @@ const resolveSummaryPaths = Effect.fn("Ci.resolveSummaryPaths")(function* (
     Effect.fn(function* (entry) {
       const candidatePath = path.join(runDirectory, entry);
       const stat = yield* fs.stat(candidatePath).pipe(CiCommandError.mapError(`Failed to stat ${candidatePath}.`));
-      return O.some({
-        path: candidatePath,
-        mtimeMillis: pipe(
-          stat.mtime,
-          O.map((mtime) => mtime.getTime()),
-          O.getOrElse(() => 0)
-        ),
-      });
+      return O.some(
+        SummaryCandidate.make({
+          path: candidatePath,
+          mtimeMillis: pipe(
+            stat.mtime,
+            O.map((mtime) => mtime.getTime()),
+            O.getOrElse(() => 0)
+          ),
+        })
+      );
     }),
     { concurrency: 4 }
   ).pipe(Effect.map(A.getSomes));
@@ -215,11 +227,12 @@ const renderTurboSummary = (repoRoot: string, summaryPath: string, run: TurboSum
   const longestTasks = pipe(
     tasks,
     A.map(
-      (task): LongestTask => ({
-        taskId: task.taskId ?? "unknown",
-        durationMs: taskDuration(task),
-        cacheStatus: taskCacheStatus(task),
-      })
+      (task): LongestTask =>
+        LongestTask.make({
+          taskId: task.taskId ?? "unknown",
+          durationMs: taskDuration(task),
+          cacheStatus: taskCacheStatus(task),
+        })
     ),
     A.filter((task) => task.durationMs > 0),
     A.sort(Order.mapInput(Order.Number, (task: LongestTask) => -task.durationMs)),

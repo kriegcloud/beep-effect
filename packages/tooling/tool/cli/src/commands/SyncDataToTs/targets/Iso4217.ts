@@ -26,7 +26,7 @@ import {
   parseXmlSource,
   sourceMetadata,
 } from "../internal/Source.ts";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
+import { SyncDataTargetMetadata, SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
 import type { SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/Iso4217");
@@ -43,16 +43,18 @@ const canonicalPath = "packages/foundation/primitive/data/src/generated/iso4217.
 export const ISO4217_SOURCE_URL =
   "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml" as const;
 
-class Iso4217CurrencyNameWithMetadata extends S.Class<Iso4217CurrencyNameWithMetadata>(
-  $I`Iso4217CurrencyNameWithMetadata`
-)(
-  {
+class Iso4217CurrencyNameWithMetadata extends S.Opaque<
+  Iso4217CurrencyNameWithMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     "#text": S.String,
     IsFund: S.optionalKey(S.String),
-  },
-  $I.annote("Iso4217CurrencyNameWithMetadata", {
-    description: "Currency name node emitted when the ISO 4217 XML uses inline attributes.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso4217CurrencyNameWithMetadata", {
+      description: "Currency name node emitted when the ISO 4217 XML uses inline attributes.",
+    })
+  )
 ) {}
 
 const Iso4217CurrencyName = S.Union([S.String, Iso4217CurrencyNameWithMetadata]).pipe(
@@ -61,59 +63,64 @@ const Iso4217CurrencyName = S.Union([S.String, Iso4217CurrencyNameWithMetadata])
   })
 );
 
-class Iso4217CurrencyCountry extends S.Class<Iso4217CurrencyCountry>($I`Iso4217CurrencyCountry`)(
-  {
+class Iso4217CurrencyCountry extends S.Opaque<Iso4217CurrencyCountry, { readonly brand: unique symbol }>()(
+  S.Struct({
     CtryNm: S.String,
     CcyNm: Iso4217CurrencyName,
     Ccy: S.optionalKey(S.String),
     CcyNbr: S.optionalKey(S.String),
     CcyMnrUnts: S.optionalKey(S.String),
-  },
-  $I.annote("Iso4217CurrencyCountry", {
-    description: "Single country or fund row from the official ISO 4217 List One XML document.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso4217CurrencyCountry", {
+      description: "Single country or fund row from the official ISO 4217 List One XML document.",
+    })
+  )
 ) {}
 
-class Iso4217CurrencyTable extends S.Class<Iso4217CurrencyTable>($I`Iso4217CurrencyTable`)(
-  {
+class Iso4217CurrencyTable extends S.Opaque<Iso4217CurrencyTable, { readonly brand: unique symbol }>()(
+  S.Struct({
     CcyNtry: Iso4217CurrencyCountry.pipe(S.Array),
-  },
-  $I.annote("Iso4217CurrencyTable", {
-    description: "Currency table section from the official ISO 4217 XML document.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso4217CurrencyTable", {
+      description: "Currency table section from the official ISO 4217 XML document.",
+    })
+  )
 ) {}
 
-class Iso4217Root extends S.Class<Iso4217Root>($I`Iso4217Root`)(
-  {
+class Iso4217Root extends S.Opaque<Iso4217Root, { readonly brand: unique symbol }>()(
+  S.Struct({
     Pblshd: S.String,
     CcyTbl: Iso4217CurrencyTable,
-  },
-  $I.annote("Iso4217Root", {
-    description: "Top-level ISO 4217 XML document payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso4217Root", {
+      description: "Top-level ISO 4217 XML document payload.",
+    })
+  )
 ) {}
 
-class Iso4217Document extends S.Class<Iso4217Document>($I`Iso4217Document`)(
-  {
+class Iso4217Document extends S.Opaque<Iso4217Document, { readonly brand: unique symbol }>()(
+  S.Struct({
     ISO_4217: Iso4217Root,
-  },
-  $I.annote("Iso4217Document", {
-    description: "Decoded XML document for the official SIX ISO 4217 List One feed.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso4217Document", {
+      description: "Decoded XML document for the official SIX ISO 4217 List One feed.",
+    })
+  )
 ) {}
 const decodeUnknownIso4217Document = S.decodeUnknownEffect(Iso4217Document);
 
-class Iso4217CurrencyEntry extends S.Class<Iso4217CurrencyEntry>($I`Iso4217CurrencyEntry`)(
-  {
+class Iso4217CurrencyEntry extends S.Opaque<Iso4217CurrencyEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
     number: S.String,
     digits: S.Finite,
     currency: S.String,
     countries: S.Array(S.String),
-  },
-  $I.annote("Iso4217CurrencyEntry", {
-    description: "Normalized ISO 4217 currency entry rendered into @beep/data.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso4217CurrencyEntry", {
+      description: "Normalized ISO 4217 currency entry rendered into @beep/data.",
+    })
+  )
 ) {}
 
 type Iso4217CurrencyEntryType = Iso4217CurrencyEntry;
@@ -451,9 +458,11 @@ const acquireIso4217Projection = Effect.fn("SyncDataToTs.Iso4217.acquire")(funct
  * @since 0.0.0
  */
 export const iso4217Target: SyncDataTarget = {
-  id: targetId,
-  access: "public",
-  description: "Sync official ISO 4217 currency codes from SIX List One (XML).",
-  sourceUrls: [ISO4217_SOURCE_URL],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "public",
+    description: "Sync official ISO 4217 currency codes from SIX List One (XML).",
+    sourceUrls: [ISO4217_SOURCE_URL],
+  }),
   acquire: acquireIso4217Projection(),
 };

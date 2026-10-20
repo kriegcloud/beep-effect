@@ -15,7 +15,7 @@ import { thunkNull } from "@beep/utils/thunk";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as DateTime from "effect/DateTime";
 import { pipe } from "effect/Function";
-import { AsyncResult } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
 import { DEFAULT_PROFESSIONAL_WORKSPACE_ID } from "@/workspace/ProfessionalWorkspace";
 import {
   VaultSyncCommand,
@@ -339,7 +339,7 @@ export function VaultSyncPanel({ floating = true }: { readonly floating?: boolea
         <Button
           type="button"
           size="sm"
-          onClick={() => runCommand(VaultSyncCommand.cases.trigger.make())}
+          onClick={() => runCommand(VaultSyncCommand.cases.trigger.make({}))}
           disabled={busy || !connected}
           data-testid="vault-sync-trigger"
         >

@@ -1,61 +1,28 @@
 import { lintCommand } from "@beep/repo-cli";
 import { LintCommandTestKit } from "@beep/repo-cli/test/Lint";
-import { TSMorphServiceLive } from "@beep/repo-utils";
+import { findRepoRoot, TSMorphServiceLive } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import { expectReportedExit, temporaryWorkingDirectory } from "./support/CommandTest.ts";
+import { expectReportedExit, NodeCommandTestLayer, temporaryWorkingDirectory } from "./support/CommandTest.ts";
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
-const deprecatedApiLintShards = [
-  "apps/architecture-lab-proof",
-  "apps/labs",
-  "apps/oip-web",
-  "apps/professional-desktop",
-  "infra",
-  "packages/_internal",
-  "packages/agents",
-  "packages/architecture-lab",
-  "packages/drivers",
-  "packages/ecosystem",
-  "packages/epistemic/client",
-  "packages/epistemic/config",
-  "packages/epistemic/domain",
-  "packages/epistemic/server",
-  "packages/epistemic/tables",
-  "packages/epistemic/ui",
-  "packages/epistemic/use-cases",
-  "packages/foundation/capability",
-  "packages/foundation/modeling",
-  "packages/foundation/primitive",
-  "packages/foundation/ui-system",
-  "packages/law-practice",
-  "packages/shared",
-  "packages/tooling/library",
-  "packages/tooling/policy-pack",
-  "packages/tooling/test-kit",
-  "packages/tooling/tool/cli",
-  "packages/tooling/tool/docgen",
-  "packages/workspace",
-];
-
 const testLayer = Layer.mergeAll(
-  NodeServices.layer,
+  NodeCommandTestLayer,
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   TSMorphServiceLive.pipe(Layer.provide(NodeServices.layer))
 );
@@ -102,52 +69,134 @@ const writeSchemaFirstSourceFixture = Effect.fn("writeSchemaFirstSourceFixture")
   yield* writeSchemaFirstFileFixture("packages/example/src/Example.ts", sourceLines);
 });
 
-const writeDeprecatedApiLintFixture = Effect.fn("writeDeprecatedApiLintFixture")(function* (options?: {
-  readonly failingShard?: string;
-  readonly omitShard?: string;
-}) {
+const writeDeprecatedApiLintFixture = Effect.fn("writeDeprecatedApiLintFixture")(function* (
+  fails: boolean,
+  omitLabs: boolean
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   yield* fs.writeFileString("bun.lock", "");
   yield* fs.makeDirectory("standards", { recursive: true });
   yield* fs.writeFileString(
     "standards/lint-policy.sweeps.jsonc",
-    '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
+    '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"oxlint"}'
   );
-  const failingShard = options?.failingShard;
-  const shards = A.filter(deprecatedApiLintShards, (shard) => shard !== options?.omitShard);
-  yield* Effect.forEach(shards, (shard) => fs.makeDirectory(shard, { recursive: true }), {
-    concurrency: 4,
-  });
-
-  const eslintPath = path.join("node_modules", ".bin", "eslint");
-  yield* fs.makeDirectory(path.dirname(eslintPath), { recursive: true });
+  yield* Effect.forEach(
+    ["apps", "packages", "infra", ...(omitLabs ? [] : ["apps/labs"])],
+    (directory) => fs.makeDirectory(directory, { recursive: true }),
+    { concurrency: 1 }
+  );
+  const binary = path.join("node_modules", ".bin", "oxlint");
+  yield* fs.makeDirectory(path.dirname(binary), { recursive: true });
   yield* fs.writeFileString(
-    eslintPath,
+    binary,
     A.join(
       [
         "#!/usr/bin/env sh",
-        ...(P.isUndefined(failingShard)
-          ? A.empty<string>()
-          : ['case "$*" in', `  *${failingShard}*) exit 7 ;;`, "esac"]),
-        "exit 0",
+        'echo "$*" >> native-invocations.txt',
+        // The worker requires tsgolint's assignment summary as positive coverage evidence (#1791).
+        'echo "2026/10/14 00:00:00.000000 Done assigning files to programs. Total programs: 1. Unmatched files: 0"',
+        fails ? "exit 7" : "exit 0",
         "",
       ],
       "\n"
     )
   );
-  yield* fs.chmod(eslintPath, 0o755);
+  yield* fs.chmod(binary, 0o755);
 });
 
-const argumentAfter = (line: string, argument: string): O.Option<string> => {
-  const parts = Str.split(line, " ");
-  return pipe(
-    A.findFirstIndex(parts, Str.equivalence(argument)),
-    O.flatMap((index) => A.get(parts, index + 1))
+const nativeInvocations = Effect.fn("LintTest.nativeInvocations")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  return A.filter(Str.split(yield* fs.readFileString("native-invocations.txt"), "\n"), Str.isNonEmpty);
+});
+
+const writeCircularLintFixture = Effect.fn("LintTest.circularFixture")(function* (cycle: boolean) {
+  const root = yield* findRepoRoot();
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* temporaryWorkingDirectory;
+  yield* fs.writeFileString("bun.lock", "");
+  yield* fs.writeFileString("package.json", encodeJson({ name: "@beep/cycle-fixture", private: true }));
+  yield* fs.writeFileString(
+    "tsconfig.json",
+    encodeJson({ compilerOptions: { module: "esnext", moduleResolution: "bundler" } })
   );
-};
+  yield* fs.copyFile(path.join(root, ".oxlintrc.circular.json"), ".oxlintrc.circular.json");
+  yield* fs.makeDirectory("node_modules/.bin", { recursive: true });
+  yield* fs.symlink(path.join(root, "node_modules/.bin/oxlint"), "node_modules/.bin/oxlint");
+  yield* fs.makeDirectory("packages/tooling/tool/cli/src", { recursive: true });
+  yield* fs.makeDirectory("packages/tooling/library/repo-utils/src", { recursive: true });
+  yield* fs.writeFileString(
+    "packages/tooling/tool/cli/src/a.ts",
+    'import { b } from "./b.ts"; export const a = () => b;'
+  );
+  yield* fs.writeFileString(
+    "packages/tooling/tool/cli/src/b.ts",
+    cycle ? 'import { a } from "./a.ts"; export const b = () => a;' : "export const b = 1;"
+  );
+});
 
 it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
+  describe("native circular dependency lint", () => {
+    it.effect("reports a value-import cycle and fails the command", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(true);
+        const exit = yield* Effect.exit(runLintCommand(["circular"]));
+        expectReportedExit(exit);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("Dependency cycle detected")]));
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("a.ts")]));
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("b.ts")]));
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("accepts a clean value-import graph", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(false);
+        yield* runLintCommand(["circular"]);
+        expect(yield* TestConsole.logLines).toContain("No circular dependencies found.");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("ignores type-only import cycles", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(true);
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.writeFileString(
+          "packages/tooling/tool/cli/src/a.ts",
+          'import type { B } from "./b.ts"; export type A = { b: B };'
+        );
+        yield* fs.writeFileString(
+          "packages/tooling/tool/cli/src/b.ts",
+          'import type { A } from "./a.ts"; export type B = { a: A };'
+        );
+        yield* runLintCommand(["circular"]);
+        expect(yield* TestConsole.logLines).toContain("No circular dependencies found.");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("rejects a zero-file analysis", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(false);
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.remove("packages/tooling/tool/cli/src/a.ts");
+        yield* fs.remove("packages/tooling/tool/cli/src/b.ts");
+        const error = yield* Effect.flip(runLintCommand(["circular"]));
+        expect(error).toHaveProperty("_tag", "LintCircularAnalysisError");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("reports a missing native executable as an analysis failure", () =>
+      Effect.gen(function* () {
+        yield* writeCircularLintFixture(false);
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.remove("node_modules/.bin/oxlint");
+        const error = yield* Effect.flip(runLintCommand(["circular"]));
+        expect(error).toHaveProperty("_tag", "LintCircularAnalysisError");
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+  });
+
   describe("tooling schema-first lint detectors", () => {
     it("reports runtime and schema metadata violations through the pure test seam", () => {
       const kinds = LintCommandTestKit.runtimeSchemaFirstViolationKinds(
@@ -181,103 +230,87 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
     });
   });
 
-  const checkShardCacheCommands = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture();
-    yield* runLintCommand(["deprecated-apis", "--full"]);
+  describe("tooling schema-class identity annotations", () => {
+    const annotationKinds = (lines: ReadonlyArray<string>) =>
+      A.filter(
+        LintCommandTestKit.runtimeSchemaFirstViolationKinds(
+          "packages/tooling/tool/cli/src/commands/Lint/Example.ts",
+          A.join(lines, "\n")
+        ),
+        (kind) => kind === "schema-annotation"
+      );
 
-    const logLines = A.filter(yield* TestConsole.logLines, P.isString);
-    const invocationLines = A.filter(
-      logLines,
-      (line) => Str.startsWith("[lint:deprecated-apis] ")(line) && Str.includes(": ./node_modules/.bin/eslint ")(line)
-    );
-    const cacheLocations = A.getSomes(A.map(invocationLines, (line) => argumentAfter(line, "--cache-location")));
+    it("flags branded S.Class and inline S.Opaque declarations without $I annotations", () => {
+      expect(
+        annotationKinds([
+          "export class Branded extends S.Class<Branded, { readonly brand: unique symbol }>($I`Branded`)({ a: S.String }) {}",
+          "export class Nested extends S.Class<Nested, Brand<Readonly<{ tag: string }>>>($I`Nested`)({ a: S.String }) {}",
+          "export class Plain extends S.Opaque<Plain, { readonly brand: unique symbol }>()(",
+          '  S.Struct({ a: S.String }).annotate({ identifier: "Plain" })',
+          ") {}",
+        ])
+      ).toEqual(["schema-annotation", "schema-annotation", "schema-annotation"]);
+    });
 
-    expect(logLines).toContain("[lint:deprecated-apis] running 29 shards with concurrency 4");
-    expect(invocationLines).toHaveLength(29);
-    expect(A.dedupe(cacheLocations)).toHaveLength(29);
-    expect(A.every(invocationLines, (line) => Str.includes("--cache-strategy content")(line))).toBe(true);
-    expect(A.every(cacheLocations, Str.startsWith("node_modules/.cache/eslint-deprecated-apis/.eslintcache-"))).toBe(
-      true
-    );
-  });
-
-  const checkShardFailure = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture({ failingShard: "packages/agents" });
-
-    const exit = yield* Effect.exit(runLintCommand(["deprecated-apis", "--full"]));
-
-    expectReportedExit(exit, 7);
-    expect(A.filter(yield* TestConsole.logLines, P.isString)).not.toContain(
-      "[lint:deprecated-apis] OK: no deprecated vendor API usage found."
-    );
-  });
-
-  const checkMissingLabsShard = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture({ omitShard: "apps/labs" });
-    yield* runLintCommand(["deprecated-apis", "--full"]);
-
-    const logLines = A.filter(yield* TestConsole.logLines, P.isString);
-    const invocationLines = A.filter(
-      logLines,
-      (line) => Str.startsWith("[lint:deprecated-apis] ")(line) && Str.includes(": ./node_modules/.bin/eslint ")(line)
-    );
-
-    expect(logLines).toContain("[lint:deprecated-apis] skipping missing shard: apps/labs");
-    expect(invocationLines).toHaveLength(28);
-    expect(logLines).toContain("[lint:deprecated-apis] OK: no deprecated vendor API usage found.");
-  });
-
-  const checkLabsShardTolerance = Effect.fnUntraced(function* () {
-    yield* writeDeprecatedApiLintFixture();
-    yield* runLintCommand(["deprecated-apis", "--full"]);
-
-    const logLines = A.filter(yield* TestConsole.logLines, P.isString);
-    const invocationLines = A.filter(
-      logLines,
-      (line) => Str.startsWith("[lint:deprecated-apis] ")(line) && Str.includes(": ./node_modules/.bin/eslint ")(line)
-    );
-    const labsLines = A.filter(invocationLines, Str.startsWith("[lint:deprecated-apis] apps/labs: "));
-    const flaggedLines = A.filter(invocationLines, Str.includes("--no-error-on-unmatched-pattern"));
-
-    expect(labsLines).toHaveLength(1);
-    expect(flaggedLines).toEqual(labsLines);
+    it("accepts $I.annote / $I.annoteSchema metadata and skips classes without $I identity or over named schemas", () => {
+      expect(
+        annotationKinds([
+          "export class Branded extends S.Class<Branded, { readonly brand: unique symbol }>($I`Branded`)(",
+          "  { a: S.String },",
+          '  $I.annote("Branded", { description: "Branded." })',
+          ") {}",
+          "export class Plain extends S.Opaque<Plain, { readonly brand: unique symbol }>()(",
+          '  S.Struct({ a: S.String }).pipe($I.annoteSchema("Plain", { description: "Plain." }))',
+          ") {}",
+          "export class Named extends S.Opaque<Named, { readonly brand: unique symbol }>()(PlainStruct) {}",
+          'export class Legacy extends S.Class<Legacy>("Legacy")({ a: S.String }) {}',
+        ])
+      ).toEqual([]);
+    });
   });
 
   describe("deprecated-apis lint command", { concurrent: false }, () => {
-    it.effect(
-      "constructs unique content-cache shard commands at concurrency four",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkShardCacheCommands()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("executes one bounded native full sweep without ESLint caching", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(false, false);
+        yield* runLintCommand(["deprecated-apis", "--full"]);
+        const calls = yield* nativeInvocations();
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toContain("--disable-nested-config --threads=4 apps packages infra");
+        expect(calls[0]).toContain(".oxlintrc.deprecated-apis.jsonc");
+        expect(calls[0]).not.toContain("--cache");
+      })
     );
-
-    it.effect(
-      "fails the aggregate when any shard exits nonzero",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkShardFailure()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("propagates the native process exit code", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(true, false);
+        const exit = yield* Effect.exit(runLintCommand(["deprecated-apis", "--full"]));
+        expectReportedExit(exit, 7);
+        expect(yield* nativeInvocations()).toHaveLength(1);
+      })
     );
-
-    it.effect(
-      "skips the labs shard when the labs root is absent",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkMissingLabsShard()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("keeps the full apps scope when the labs directory is absent", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(false, true);
+        yield* runLintCommand(["deprecated-apis", "--full"]);
+        const calls = yield* nativeInvocations();
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toContain("apps packages infra");
+      })
     );
-
-    it.effect(
-      "passes --no-error-on-unmatched-pattern to the labs shard only",
-      () =>
-        Effect.andThen(temporaryWorkingDirectory, checkLabsShardTolerance()).pipe(
-          Effect.provideServiceEffect(Console.Console, TestConsole.make)
-        ),
-      10_000
+    it.effect("uses the same bounded worker for a package scope", () =>
+      Effect.gen(function* () {
+        yield* temporaryWorkingDirectory;
+        yield* writeDeprecatedApiLintFixture(false, false);
+        yield* runLintCommand(["deprecated-apis", "--package", "packages"]);
+        const calls = yield* nativeInvocations();
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toContain("--disable-nested-config --threads=4 packages");
+        expect(calls[0]).not.toContain("apps packages infra");
+      })
     );
   });
 
@@ -383,6 +416,108 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           expect(scannedLine(yield* TestConsole.logLines)).toEqual([
             '[schema-first:scanned] ["packages/example/src/Example.ts"]',
           ]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    const writeSchemaClassFixtures = Effect.fn("writeSchemaClassFixtures")(function* () {
+      yield* writeSchemaFirstSourceFixture([
+        'import * as S from "effect/Schema";',
+        'export class Plain extends S.Class<Plain>("Plain")({ id: S.String }) {}',
+        'export class Behaviour extends S.Class<Behaviour, { readonly brand: unique symbol }>("Behaviour")({',
+        "  id: S.String,",
+        "}) {",
+        "  get label(): string {",
+        "    return this.id;",
+        "  }",
+        "}",
+        'export class Checked extends S.Class<Checked, { readonly brand: unique symbol }>("Checked")({ id: S.String }) {}',
+        "export class Structural extends S.Opaque<Structural, {}>()(S.Struct({ id: S.String })) {}",
+        "export class Branded extends S.Opaque<Branded, { readonly brand: unique symbol }>()(S.Struct({ id: S.String })) {}",
+        "",
+      ]);
+      yield* writeSchemaFirstFileFixture("packages/example/src/Generated.ts", [
+        "// @generated by the example generator. Do not edit.",
+        'import * as S from "effect/Schema";',
+        'export class Gen extends S.Class<Gen>("Gen")({ id: S.String }) {}',
+        "",
+      ]);
+      yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+        'import { Checked } from "../src/Example.ts";',
+        "export const isChecked = (value: unknown) => value instanceof Checked;",
+        "",
+      ]);
+    });
+
+    const schemaClassFindingLines = (lines: ReadonlyArray<unknown>, symbol: string) =>
+      A.filter(
+        lines,
+        (line) =>
+          P.isString(line) && Str.startsWith("- packages/example/src/")(line) && Str.includes(` :: ${symbol} [`)(line)
+      );
+
+    it.effect("reports plain-data and unbranded schema classes, keeping classes with a reason to stay classes", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeSchemaClassFixtures();
+
+          const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+          const errorLines = yield* TestConsole.errorLines;
+          expectReportedExit(exit);
+          expect(errorLines).toContain(
+            "- packages/example/src/Example.ts :: Plain [plain-data-schema-class] Plain-data S.Class should be a branded S.Opaque over S.Struct (D1)."
+          );
+          expect(errorLines).toContain(
+            "- packages/example/src/Example.ts :: Plain [unbranded-schema-class] S.Class declaration has no brand type argument; add { readonly brand: unique symbol } (D4)."
+          );
+          expect(errorLines).toContain(
+            "- packages/example/src/Example.ts :: Structural [unbranded-schema-class] S.Opaque declaration carries the structural {} brand; use { readonly brand: unique symbol } or record a schema-first exception (D4)."
+          );
+          expect(errorLines).toContain(
+            "- packages/example/src/Generated.ts :: Gen [unbranded-schema-class] S.Class declaration has no brand type argument; add { readonly brand: unique symbol } (D4)."
+          );
+          expect(schemaClassFindingLines(errorLines, "Gen")).toHaveLength(2);
+          expect(schemaClassFindingLines(errorLines, "Behaviour")).toEqual([]);
+          expect(schemaClassFindingLines(errorLines, "Checked")).toEqual([]);
+          expect(schemaClassFindingLines(errorLines, "Branded")).toEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("accepts inventoried exceptions for the schema-class kinds", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeSchemaClassFixtures();
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const exception = (file: string, symbol: string, kind: string) => ({
+            file,
+            symbol,
+            kind,
+            status: "exception",
+            owner: "@beep/example",
+            reason: "Fixture exception.",
+          });
+          yield* fs.makeDirectory("standards");
+          yield* fs.writeFileString(
+            path.join("standards", "schema-first.inventory.jsonc"),
+            `${encodeJson({
+              version: 1,
+              generatedOn: "2026-10-14",
+              scope: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/{src,test}/**/*.ts"],
+              entries: [
+                exception("packages/example/src/Example.ts", "Plain", "plain-data-schema-class"),
+                exception("packages/example/src/Example.ts", "Plain", "unbranded-schema-class"),
+                exception("packages/example/src/Example.ts", "Structural", "unbranded-schema-class"),
+                exception("packages/example/src/Generated.ts", "Gen", "unbranded-schema-class"),
+              ],
+            })}\n`
+          );
+
+          yield* runSchemaFirstAndExpectNoErrors();
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
@@ -496,9 +631,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           yield* writeSchemaFirstSourceFixture([
             'import { Email } from "@beep/schema";',
             'import * as S from "effect/Schema";',
-            'export class Contact extends S.Class<Contact>("Contact")({',
+            "export class Contact extends S.Opaque<Contact, { readonly brand: unique symbol }>()(S.Struct({",
             "  email: Email,",
-            "}) {}",
+            "})) {}",
             "",
           ]);
 
@@ -545,9 +680,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
         Effect.gen(function* () {
           yield* writeSchemaFirstFileFixture("packages/example/src/Example.tsx", [
             'import * as S from "effect/Schema";',
-            'export class Widget extends S.Class<Widget>("Widget")({',
+            "export class Widget extends S.Opaque<Widget, { readonly brand: unique symbol }>()(S.Struct({",
             "  id: S.String,",
-            "}) {}",
+            "})) {}",
             "export function UpdateWidgetDemo(input: { id: string; name: string }): void {}",
             "",
           ]);
@@ -563,9 +698,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
         Effect.gen(function* () {
           yield* writeSchemaFirstSourceFixture([
             'import * as S from "effect/Schema";',
-            'export class Contact extends S.Class<Contact>("Contact")({',
+            "export class Contact extends S.Opaque<Contact, { readonly brand: unique symbol }>()(S.Struct({",
             "  email: S.String,",
-            "}) {}",
+            "})) {}",
             "",
           ]);
           yield* writePrecisionAuditInventory(
@@ -825,10 +960,10 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
         Effect.gen(function* () {
           yield* writeSchemaFirstSourceFixture([
             'import * as S from "effect/Schema";',
-            'export class Worker extends S.Class<Worker>("Worker")({',
+            "export class Worker extends S.Opaque<Worker, { readonly brand: unique symbol }>()(S.Struct({",
             "  id: S.String,",
             "  name: S.String,",
-            "}) {}",
+            "})) {}",
             "export const equals = S.toEquivalence(Worker);",
             "",
           ]);
@@ -923,9 +1058,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           yield* writeSchemaFirstSourceFixture([
             'import { Effect } from "effect";',
             'import * as S from "effect/Schema";',
-            'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+            "export class WorkerOptions extends S.Opaque<WorkerOptions, { readonly brand: unique symbol }>()(S.Struct({",
             "  timeoutMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(5000))),",
-            "}) {}",
+            "})) {}",
             "export const runWorker = (params = WorkerOptions.make({})) => params.timeoutMs;",
             "",
           ]);
@@ -1187,9 +1322,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
             "interface AliasedData { readonly id: string }",
             "export default interface DefaultData { readonly id: string }",
             "interface ListedSchemaOwned { readonly id: string }",
-            'class ListedSchemaOwned extends S.Class<ListedSchemaOwned>("ListedSchemaOwned")({',
+            "class ListedSchemaOwned extends S.Opaque<ListedSchemaOwned, { readonly brand: unique symbol }>()(S.Struct({",
             "  id: S.String,",
-            "}) {}",
+            "})) {}",
             "const ListedStruct = S.Struct({ id: S.String });",
             "const AliasedStruct = S.Struct({ id: S.String });",
             "function listedFunction(input: { readonly id: string }): void { void input; }",

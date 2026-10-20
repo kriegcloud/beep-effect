@@ -29,6 +29,7 @@ import {
   SucceededSourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
 import { FileProcessingOperationError } from "@beep/file-processing/Operation";
+import { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation/Operation.schema";
 import { collectSourceOutcomeRecords } from "@beep/file-processing/Service";
 import {
   classifyFormatFromExtension,
@@ -36,6 +37,7 @@ import {
   SupportedSelectedStrategy,
   UnsupportedSelectedStrategy,
 } from "@beep/file-processing/Strategy";
+import { StrategyPreference } from "@beep/file-processing/Strategy/Strategy.schema";
 import { TestFileProcessingEngine } from "@beep/file-processing/test";
 import {
   LibpffFileProcessingEngineDescriptor,
@@ -43,6 +45,7 @@ import {
   makePffexportFileProcessingEngine,
   PffexportEngineConfig,
 } from "@beep/libpff";
+import { LibpffFileProcessingEngineOptions } from "@beep/libpff/Libpff.service";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { NativePathToPosixPath, normalizePath } from "@beep/schema/PosixPath";
 import {
@@ -66,7 +69,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import { FilesConcurrency } from "../Files.progress.ts";
 import { ProcessFilesSummary } from "../Files.schemas.ts";
 import type {
@@ -85,7 +88,7 @@ import type { MimeType } from "@beep/schema/MimeType";
 import type { PosixPath } from "@beep/schema/PosixPath";
 import type * as Crypto from "effect/Crypto";
 import type * as HttpClient from "effect/http/HttpClient";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { ProcessFilesOptions } from "../Files.schemas.ts";
 
 const decodeSha256HexFromBytes = S.decodeEffect(Sha256HexFromBytes);
@@ -210,7 +213,7 @@ const processOperationErrorSkipReason = (error: FileProcessingOperationError): O
   );
 
 const syntheticLibpffEngine = (): FileProcessingEngineShape =>
-  makeLibpffFileProcessingEngine({ syntheticExport: true });
+  makeLibpffFileProcessingEngine(LibpffFileProcessingEngineOptions.make({ syntheticExport: true }));
 
 // Static engine descriptors let skip/deferral records name their engine
 // without constructing a real engine, so a run that never dispatches to a
@@ -352,7 +355,11 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
     .readDirectory(currentDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to read process input directory", currentDirectory, { cause })
+        formatPlatformError(
+          "Failed to read process input directory",
+          currentDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   let files: ReadonlyArray<ProcessCollectedFile> = A.empty();
@@ -373,7 +380,11 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
 
     const stat = yield* fs
       .stat(canonicalPath.value)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat process input", sourcePath, { cause })));
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to stat process input", sourcePath, PlatformErrorOptions.make({ cause }))
+        )
+      );
 
     if (stat.type === "Directory") {
       if (HashSet.has(visited, canonicalPath.value)) {
@@ -420,13 +431,21 @@ const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(fun
   const sourcePath = path.resolve(input);
   const stat = yield* fs
     .stat(sourcePath)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat process input", sourcePath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat process input", sourcePath, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
   if (stat.type === "File") {
     const sourceRoot = path.dirname(sourcePath);
     const canonicalPath = yield* fs
       .realPath(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to resolve process input", sourcePath, { cause })));
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to resolve process input", sourcePath, PlatformErrorOptions.make({ cause }))
+        )
+      );
     const canonicalSourceRoot = path.dirname(canonicalPath);
     const name = path.basename(sourcePath);
 
@@ -456,7 +475,11 @@ const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(fun
     .realPath(sourcePath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to resolve process input directory", sourcePath, { cause })
+        formatPlatformError(
+          "Failed to resolve process input directory",
+          sourcePath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const collection = yield* collectProcessDirectoryFiles(
@@ -491,7 +514,11 @@ const canonicalizeProcessTargetPath = Effect.fn("Files.canonicalizeProcessTarget
       .realPath(absolutePath)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to resolve process output path", absolutePath, { cause })
+          formatPlatformError(
+            "Failed to resolve process output path",
+            absolutePath,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
   }
@@ -539,7 +566,11 @@ const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
       .remove(outputDirectory, { force: true, recursive: true })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to remove existing process output", outputDirectory, { cause })
+          formatPlatformError(
+            "Failed to remove existing process output",
+            outputDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
   }
@@ -548,7 +579,11 @@ const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
       .readDirectory(outputDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to inspect existing process output", outputDirectory, { cause })
+          formatPlatformError(
+            "Failed to inspect existing process output",
+            outputDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
     if (A.length(entries) > 0) {
@@ -562,14 +597,22 @@ const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
     .makeDirectory(path.join(outputDirectory, "text"), { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create process text directory", outputDirectory, { cause })
+        formatPlatformError(
+          "Failed to create process text directory",
+          outputDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   yield* fs
     .makeDirectory(path.join(outputDirectory, "children"), { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create process children directory", outputDirectory, { cause })
+        formatPlatformError(
+          "Failed to create process children directory",
+          outputDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -584,7 +627,13 @@ const prepareProcessSource = Effect.fn("Files.prepareProcessSource")(function* (
   const bytes = yield* fs
     .readFile(sourceFile.sourcePath)
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to read process source", sourceFile.sourcePath, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError(
+          "Failed to read process source",
+          sourceFile.sourcePath,
+          PlatformErrorOptions.make({ cause })
+        )
+      )
     );
   const digest = yield* makeContentDigest(bytes, sourceFile.relativePath);
   const artifactId = yield* makeArtifactId(digest, sourceFile.relativePath);
@@ -966,16 +1015,18 @@ const processPreparedSource = Effect.fn("Files.processPreparedSource")(function*
     const engine = yield* engineFor(prepared.format);
     const source = yield* makeDispatchSourceArtifact(prepared, options);
     return yield* engine
-      .exportArchive({
-        format: prepared.format,
-        operationId: prepared.operationId,
-        operationKind: "export-archive",
-        preference: { engine: options.engine },
-        source,
-        ...O.getSomesStruct({
-          maxMaterializedBytes: O.fromUndefinedOr(options.maxMaterializedBytes),
-        }),
-      })
+      .exportArchive(
+        ExportArchiveOperation.make({
+          format: prepared.format,
+          operationId: prepared.operationId,
+          operationKind: "export-archive",
+          preference: StrategyPreference.make({ engine: options.engine }),
+          source,
+          ...O.getSomesStruct({
+            maxMaterializedBytes: O.fromUndefinedOr(options.maxMaterializedBytes),
+          }),
+        })
+      )
       .pipe(
         Effect.match({
           onFailure: (error) => processFailureOutcome(descriptor, prepared, error),
@@ -993,16 +1044,18 @@ const processPreparedSource = Effect.fn("Files.processPreparedSource")(function*
   const engine = yield* engineFor(prepared.format);
   const source = yield* makeDispatchSourceArtifact(prepared, options);
   return yield* engine
-    .extract({
-      format: prepared.format,
-      operationId: prepared.operationId,
-      operationKind: "extract",
-      preference: { engine: options.engine },
-      source,
-      ...O.getSomesStruct({
-        maxMaterializedBytes: O.fromUndefinedOr(options.maxMaterializedBytes),
-      }),
-    })
+    .extract(
+      ExtractFileOperation.make({
+        format: prepared.format,
+        operationId: prepared.operationId,
+        operationKind: "extract",
+        preference: StrategyPreference.make({ engine: options.engine }),
+        source,
+        ...O.getSomesStruct({
+          maxMaterializedBytes: O.fromUndefinedOr(options.maxMaterializedBytes),
+        }),
+      })
+    )
     .pipe(
       Effect.match({
         onFailure: (error) => processFailureOutcome(descriptor, prepared, error),
@@ -1076,12 +1129,20 @@ const writeProcessStringFile = Effect.fn("Files.writeProcessStringFile")(functio
     .makeDirectory(path.dirname(outputPath), { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create process output directory", outputPath, { cause })
+        formatPlatformError(
+          "Failed to create process output directory",
+          outputPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   yield* fs
     .writeFileString(outputPath, content)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to write process output", outputPath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to write process output", outputPath, PlatformErrorOptions.make({ cause }))
+      )
+    );
 });
 
 const writeProcessOutcomeArtifacts = Effect.fn("Files.writeProcessOutcomeArtifacts")(function* (

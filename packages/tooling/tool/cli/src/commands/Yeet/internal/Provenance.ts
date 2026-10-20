@@ -28,7 +28,7 @@ import * as Str from "effect/String";
 import { renderPrettyCommandJson } from "../../../internal/cli/Json.ts";
 import { runGitOutput } from "./GitExec.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Provenance");
 const PrProvenancePath = S.NonEmptyString.pipe(
@@ -451,9 +451,10 @@ const GitHubName = S.NonEmptyString.check(
  * @category models
  * @since 0.0.0
  */
-export class PrRepository extends S.Class<PrRepository>($I`PrRepository`)(
-  { host: S.Literal("github.com"), owner: GitHubName, name: GitHubName },
-  $I.annote("PrRepository", { description: "GitHub repository identity for local PR-session state." })
+export class PrRepository extends S.Opaque<PrRepository, { readonly brand: unique symbol }>()(
+  S.Struct({ host: S.Literal("github.com"), owner: GitHubName, name: GitHubName }).pipe(
+    $I.annoteSchema("PrRepository", { description: "GitHub repository identity for local PR-session state." })
+  )
 ) {}
 /**
  * Workstation-local harness identity and filesystem evidence for one agent session.
@@ -495,7 +496,7 @@ export class PrRepository extends S.Class<PrRepository>($I`PrRepository`)(
  * @category models
  * @since 0.0.0
  */
-export class PrProvenance extends S.Class<PrProvenance>($I`PrProvenance`)(
+export class PrProvenance extends S.Class<PrProvenance, { readonly brand: unique symbol }>($I`PrProvenance`)(
   {
     branch: PrProvenanceBranch,
     harness: PrProvenanceHarness,
@@ -608,8 +609,8 @@ export class PrSessionRecord extends PrProvenance.extend<PrSessionRecord>($I`PrS
  * @category models
  * @since 0.0.0
  */
-export class PublicAgent extends S.Class<PublicAgent>($I`PublicAgent`)(
-  {
+export class PublicAgent extends S.Opaque<PublicAgent, { readonly brand: unique symbol }>()(
+  S.Struct({
     harness: PrProvenanceHarness,
     entrypoint: PrProvenanceEntrypoint,
     hostHarness: S.OptionFromNullOr(PrProvenanceHarness),
@@ -617,8 +618,7 @@ export class PublicAgent extends S.Class<PublicAgent>($I`PublicAgent`)(
     label: S.OptionFromNullOr(PrProvenanceLabel),
     workspace: S.OptionFromNullOr(PrProvenanceLabel),
     role: PrProvenanceRole,
-  },
-  $I.annote("PublicAgent", { description: "Public-safe agent ledger entry." })
+  }).pipe($I.annoteSchema("PublicAgent", { description: "Public-safe agent ledger entry." }))
 ) {}
 /**
  * Legacy version-one footer payload retained only so existing footers can be replaced.
@@ -645,11 +645,12 @@ export class PublicAgent extends S.Class<PublicAgent>($I`PublicAgent`)(
  * @category models
  * @since 0.0.0
  */
-export class PublicPrProvenanceV1 extends S.Class<PublicPrProvenanceV1>($I`PublicPrProvenanceV1`)(
-  { schemaVersion: S.Literal(1), branch: PrProvenanceBranch, harness: PrProvenanceHarness },
-  $I.annote("PublicPrProvenanceV1", {
-    description: "Legacy public provenance payload accepted only while replacing a footer.",
-  })
+export class PublicPrProvenanceV1 extends S.Opaque<PublicPrProvenanceV1, { readonly brand: unique symbol }>()(
+  S.Struct({ schemaVersion: S.Literal(1), branch: PrProvenanceBranch, harness: PrProvenanceHarness }).pipe(
+    $I.annoteSchema("PublicPrProvenanceV1", {
+      description: "Legacy public provenance payload accepted only while replacing a footer.",
+    })
+  )
 ) {}
 /**
  * Version-two public provenance payload permitted to cross into a GitHub PR body.
@@ -686,15 +687,16 @@ export class PublicPrProvenanceV1 extends S.Class<PublicPrProvenanceV1>($I`Publi
  * @category models
  * @since 0.0.0
  */
-export class PublicPrProvenance extends S.Class<PublicPrProvenance>($I`PublicPrProvenance`)(
-  {
+export class PublicPrProvenance extends S.Opaque<PublicPrProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(2),
     pr: S.OptionFromNullOr(PrNumber),
     branch: PrProvenanceBranch,
     workspace: PrProvenanceLabel,
     agents: S.Array(PublicAgent).check(S.isMaxLength(4)),
-  },
-  $I.annote("PublicPrProvenance", { description: "Only provenance data permitted to enter a GitHub PR body." })
+  }).pipe(
+    $I.annoteSchema("PublicPrProvenance", { description: "Only provenance data permitted to enter a GitHub PR body." })
+  )
 ) {}
 /**
  * Union schema decoding either replaceable legacy or current public footer data.
@@ -1018,9 +1020,12 @@ export const renderPrProvenance = (provenance: PublicPrProvenance): string => {
  * @category models
  * @since 0.0.0
  */
-export class PrProvenanceFooterRange extends S.Class<PrProvenanceFooterRange>($I`PrProvenanceFooterRange`)(
-  { start: S.Int, end: S.Int },
-  $I.annote("PrProvenanceFooterRange", { description: "Character offsets bounding a replaceable provenance footer." })
+export class PrProvenanceFooterRange extends S.Opaque<PrProvenanceFooterRange, { readonly brand: unique symbol }>()(
+  S.Struct({ start: S.Int, end: S.Int }).pipe(
+    $I.annoteSchema("PrProvenanceFooterRange", {
+      description: "Character offsets bounding a replaceable provenance footer.",
+    })
+  )
 ) {}
 const markerStart = "<!-- yeet-provenance:start -->";
 const markerEnd = "<!-- yeet-provenance:end -->";
@@ -1096,47 +1101,80 @@ export const splicePrProvenanceFooter: {
   })
 );
 
-class ClaudeSessionIndex extends S.Class<ClaudeSessionIndex>($I`ClaudeSessionIndex`)(
-  {
+/**
+ * Boundary shape of a live Claude session index file.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ClaudeSessionIndex extends S.Opaque<ClaudeSessionIndex, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: S.Int,
     sessionId: S.String,
     cwd: S.String,
     name: S.optionalKey(S.String),
     nameSource: S.optionalKey(S.String),
     entrypoint: S.optionalKey(S.String),
-  },
-  $I.annote("ClaudeSessionIndex", { description: "Boundary shape of a live Claude session index file." })
+  }).pipe($I.annoteSchema("ClaudeSessionIndex", { description: "Boundary shape of a live Claude session index file." }))
 ) {}
 const decodeClaudeIndex = S.decodeUnknownOption(S.fromJsonString(ClaudeSessionIndex));
-class TranscriptRecord extends S.Class<TranscriptRecord>($I`TranscriptRecord`)(
-  {
+/**
+ * Narrow Claude transcript record used for provenance detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TranscriptRecord extends S.Opaque<TranscriptRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.optionalKey(S.String),
     cwd: S.optionalKey(S.String),
     message: S.optionalKey(S.Struct({ model: S.optionalKey(S.String) })),
-  },
-  $I.annote("TranscriptRecord", { description: "Narrow Claude transcript record used for provenance detection." })
+  }).pipe(
+    $I.annoteSchema("TranscriptRecord", {
+      description: "Narrow Claude transcript record used for provenance detection.",
+    })
+  )
 ) {}
 const decodeTranscriptRecord = S.decodeUnknownOption(S.fromJsonString(TranscriptRecord));
-class CodexSessionHeader extends S.Class<CodexSessionHeader>($I`CodexSessionHeader`)(
-  {
+/**
+ * Narrow Codex rollout session header.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodexSessionHeader extends S.Opaque<CodexSessionHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     payload: S.Struct({ id: S.String, cwd: S.String }),
-  },
-  $I.annote("CodexSessionHeader", { description: "Narrow Codex rollout session header." })
+  }).pipe($I.annoteSchema("CodexSessionHeader", { description: "Narrow Codex rollout session header." }))
 ) {}
 const decodeCodexHeader = S.decodeUnknownOption(S.fromJsonString(CodexSessionHeader));
-class CodexTurnContext extends S.Class<CodexTurnContext>($I`CodexTurnContext`)(
-  {
+/**
+ * Narrow Codex turn context used for active-model detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodexTurnContext extends S.Opaque<CodexTurnContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     model: S.optionalKey(S.String),
-  },
-  $I.annote("CodexTurnContext", { description: "Narrow Codex turn context used for active-model detection." })
+  }).pipe(
+    $I.annoteSchema("CodexTurnContext", { description: "Narrow Codex turn context used for active-model detection." })
+  )
 ) {}
 const decodeCodexTurnContext = S.decodeUnknownOption(S.fromJsonString(CodexTurnContext));
-class ProvenanceDetectionEnvironment extends S.Class<ProvenanceDetectionEnvironment>(
-  $I`ProvenanceDetectionEnvironment`
-)(
-  {
+/**
+ * Decoded environment inputs used by local provenance detection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProvenanceDetectionEnvironment extends S.Opaque<
+  ProvenanceDetectionEnvironment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     home: S.OptionFromNullOr(S.String),
     claudeId: S.OptionFromNullOr(S.String),
     claudePid: S.OptionFromNullOr(S.Int),
@@ -1145,23 +1183,31 @@ class ProvenanceDetectionEnvironment extends S.Class<ProvenanceDetectionEnvironm
     childSession: S.Boolean,
     companionTranscript: S.OptionFromNullOr(S.String),
     codexId: S.OptionFromNullOr(S.String),
-  },
-  $I.annote("ProvenanceDetectionEnvironment", {
-    description: "Decoded environment inputs used by local provenance detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProvenanceDetectionEnvironment", {
+      description: "Decoded environment inputs used by local provenance detection.",
+    })
+  )
 ) {}
-class ProvenanceSessionEvidence extends S.Class<ProvenanceSessionEvidence>($I`ProvenanceSessionEvidence`)(
-  {
+/**
+ * Session metadata enriched from local transcript and live-index evidence.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProvenanceSessionEvidence extends S.Opaque<ProvenanceSessionEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionHome: S.OptionFromNullOr(PrProvenancePath),
     sessionHomeSource: PrProvenanceSessionHomeSource,
     entrypoint: PrProvenanceEntrypoint,
     sessionName: S.OptionFromNullOr(S.String),
     nameSource: PrProvenanceNameSource,
     model: PrProvenanceModel,
-  },
-  $I.annote("ProvenanceSessionEvidence", {
-    description: "Session metadata enriched from local transcript and live-index evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProvenanceSessionEvidence", {
+      description: "Session metadata enriched from local transcript and live-index evidence.",
+    })
+  )
 ) {}
 const optionalConfigString = (name: string): Effect.Effect<O.Option<string>> =>
   Config.option(Config.String(name)).pipe(Effect.orElseSucceed(O.none));

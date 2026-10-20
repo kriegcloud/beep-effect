@@ -45,12 +45,13 @@ export const RuntimeRootKind = LiteralKit(["canonical", "test-override"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class RuntimeRootChoice extends S.Class<RuntimeRootChoice>($I`RuntimeRootChoice`)(
-  {
+export class RuntimeRootChoice extends S.Opaque<RuntimeRootChoice, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: RuntimeRootKind,
     root: S.String,
-  },
-  $I.annote("RuntimeRootChoice", {
-    description: "Absolute base directory for machine-wide coordination state and how it was selected.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeRootChoice", {
+      description: "Absolute base directory for machine-wide coordination state and how it was selected.",
+    })
+  )
 ) {}

@@ -46,7 +46,7 @@ const $I = $SharedDomainId.create("values/LocalDate/LocalDate.behavior");
  * @category constructors
  * @since 0.0.0
  */
-export const make = (input: CalendarParts): LocalDate.Model => LocalDate.Model.make(input);
+export const make = (input: typeof CalendarParts.Encoded): LocalDate.Model => LocalDate.Model.make(input);
 
 /**
  * Optional constructor for a `LocalDate` model.
@@ -71,7 +71,8 @@ export const make = (input: CalendarParts): LocalDate.Model => LocalDate.Model.m
  * @category constructors
  * @since 0.0.0
  */
-export const makeOption = (input: CalendarParts): O.Option<LocalDate.Model> => LocalDate.Model.makeOption(input);
+export const makeOption = (input: typeof CalendarParts.Encoded): O.Option<LocalDate.Model> =>
+  LocalDate.Model.makeOption(input);
 
 /**
  * Effectful constructor for a `LocalDate` model.
@@ -102,7 +103,7 @@ export const makeOption = (input: CalendarParts): O.Option<LocalDate.Model> => L
  * @category constructors
  * @since 0.0.0
  */
-export const makeEffect = (input: CalendarParts): Effect.Effect<LocalDate.Model, S.SchemaError> =>
+export const makeEffect = (input: typeof CalendarParts.Encoded): Effect.Effect<LocalDate.Model, S.SchemaError> =>
   pipe(
     LocalDate.Model.makeEffect(input),
     Effect.mapError((issue) => new S.SchemaError(issue))
@@ -130,7 +131,7 @@ export const isLocalDate = LocalDate.Model.is;
 
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-const toCalendarParts = (match: RegExpMatchArray): O.Option<CalendarParts> =>
+const toCalendarParts = (match: RegExpMatchArray): O.Option<typeof CalendarParts.Encoded> =>
   pipe(
     O.all([A.get(match, 1), A.get(match, 2), A.get(match, 3)]),
     O.map(([yearString, monthString, dayString]) => ({
@@ -143,7 +144,7 @@ const toCalendarParts = (match: RegExpMatchArray): O.Option<CalendarParts> =>
 const decodeLocalDateFromString: (
   dateString: string,
   options: AST.ParseOptions
-) => Effect.Effect<LocalDate.Model, SchemaIssue.Issue> = Effect.fn("LocalDateFromString.decode")(function* (
+) => Effect.Effect<LocalDate.Model, SchemaIssue.Issue> = Effect.fn("LocalDateModelFromString.decode")(function* (
   dateString: string,
   _options: AST.ParseOptions
 ) {
@@ -170,14 +171,14 @@ const decodeLocalDateFromString: (
   return LocalDate.Model.make(parts);
 });
 
-const formatCalendarParts = ({ day, month, year }: CalendarParts): string => {
+const formatCalendarParts = ({ day, month, year }: typeof CalendarParts.Encoded): string => {
   const paddedYear = Str.padStart(4, "0")(`${year}`);
   const paddedMonth = Str.padStart(2, "0")(`${month}`);
   const paddedDay = Str.padStart(2, "0")(`${day}`);
   return `${paddedYear}-${paddedMonth}-${paddedDay}`;
 };
 
-const encodeLocalDateFromString = (localDate: CalendarParts): string => formatCalendarParts(localDate);
+const encodeLocalDateFromString = (localDate: typeof CalendarParts.Encoded): string => formatCalendarParts(localDate);
 const LocalDateEquivalence = S.toEquivalence(LocalDate.Model);
 
 /**

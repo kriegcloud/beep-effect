@@ -22,7 +22,7 @@ import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -36,6 +36,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
+import { ChildProcess } from "effect/process";
 import * as Result from "effect/Result";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
@@ -118,6 +119,14 @@ const writeText = Effect.fn("AIMetricsCommandTest.writeText")(function* (filePat
 // needs a real `.git` layout.
 const seedGitRoot = Effect.fn("AIMetricsCommandTest.seedGitRoot")(function* (repoRoot: string) {
   const path = yield* Path.Path;
+  yield* writeText(path.join(repoRoot, "AGENTS.md"), "# fixture\n");
+  for (const args of [
+    ["init", "-q"],
+    ["add", "--", "AGENTS.md"],
+  ]) {
+    const git = yield* ChildProcess.make("git", args, { cwd: repoRoot, stdout: "ignore", stderr: "ignore" });
+    expect(yield* git.exitCode).toBe(0);
+  }
   yield* writeText(path.join(repoRoot, ".git/HEAD"), "ref: refs/heads/main\n");
   yield* writeText(path.join(repoRoot, ".git/refs/heads/main"), `${pipe("a", Str.repeat(40))}\n`);
   yield* writeText(

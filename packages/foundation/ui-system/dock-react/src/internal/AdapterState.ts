@@ -24,7 +24,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
 import type {
   ActivatePanelCommand,
@@ -107,7 +107,7 @@ const withEstimateFallback = (
   config: DockTitleMinimaOptions,
   measured: Atom.Atom<Readonly<Record<string, number>>>
 ): Atom.Atom<Readonly<Record<string, number>>> => {
-  const chrome = O.getOrElse(O.fromUndefinedOr(config.chrome), () => TabChrome.make());
+  const chrome = O.getOrElse(O.fromUndefinedOr(config.chrome), () => TabChrome.make({}));
   return Atom.readable((get) => R.union(estimateMinima(get(graph.workspaceAtom), chrome), get(measured), (_, b) => b));
 };
 
@@ -123,7 +123,7 @@ const stateKey = (gap: number, minGroupExtent: number, titleMinima: O.Option<Doc
     onNone: () => `${gap}\u0000${minGroupExtent}`,
     onSome: (config) => {
       const captureKey = O.getOrElse(O.fromUndefinedOr(config.captureKey), () => "live");
-      const chrome = O.getOrElse(O.fromUndefinedOr(config.chrome), () => TabChrome.make());
+      const chrome = O.getOrElse(O.fromUndefinedOr(config.chrome), () => TabChrome.make({}));
 
       return `${gap}\u0000${minGroupExtent}\u0000${config.font}\u0000${config.lineHeight}\u0000${chrome.perTab}\u0000${chrome.strip}\u0000${captureKey}`;
     },
@@ -187,7 +187,7 @@ export const adapterState: {
     const key = stateKey(gap, minGroupExtent, titleMinima);
     const existing = MutableHashMap.get(byOptions, key);
     if (O.isSome(existing)) return existing.value;
-    const containerAtom = Atom.make(DockBox.make()).pipe(Atom.keepAlive);
+    const containerAtom = Atom.make(DockBox.make({})).pipe(Atom.keepAlive);
     const focusedGroupAtom = Atom.make<O.Option<GroupId>>(O.none()).pipe(Atom.keepAlive);
     const dragAtom = Atom.make<O.Option<TabDrag>>(O.none()).pipe(Atom.keepAlive);
     const overflowAtom = Atom.family((_groupId: GroupId) =>

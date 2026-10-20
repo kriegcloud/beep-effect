@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-7.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-8.turborepo.dev/schema.json",
   "agentGuidance": false,
   "futureFlags": {
     "affectedUsingTaskInputs": true,
@@ -16,7 +16,7 @@
       "tsconfig.base.json",
       "tsconfig.packages.json"
     ],
-    "env": ["BEEP_ESLINT_PROFILE", "VITE_COSMOS_SPIKE", "REGEN_GOLDENS"],
+    "env": ["VITE_COSMOS_SPIKE", "REGEN_GOLDENS"],
     "passThroughEnv": [
       "BEEP_AGENT_SESSION_ID",
       "BEEP_NODE_BIN",
@@ -80,16 +80,12 @@
       "cache": true,
       "outputs": [],
       "dependsOn": ["^transit", "//#lint:policy-fingerprint"],
-      "env": ["NODE_OPTIONS"],
       "inputs": [
         "**/*.{ts,tsx,js,jsx,mjs,cjs}",
         "package.json",
         "tsconfig*.json",
-        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/.oxlintrc.deprecated-apis.jsonc",
         "$TURBO_ROOT$/tsconfig*.json",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/package.json",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/eslint/**",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/internal/eslint/**",
         "$TURBO_ROOT$/packages/**/tsconfig*.json",
         "$TURBO_ROOT$/apps/**/tsconfig*.json",
         "$TURBO_ROOT$/infra/**/tsconfig*.json",
@@ -127,11 +123,11 @@
       "inputs": [
         "**/*.{ts,tsx,js,jsx,mjs,cjs}",
         "package.json",
-        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/.oxlintrc.docs.json",
         "$TURBO_ROOT$/tsdoc.json",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/package.json",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/eslint/**",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/internal/eslint/**",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/lint-rules/package.json",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/lint-rules/src/rules/**",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/lint-rules/src/**",
         "!node_modules/**",
         "!**/node_modules/**",
         "!**/dist/**",
@@ -164,10 +160,10 @@
         "!apps/labs/**/*.{ts,tsx}",
         "!**/.context/**/*.{ts,tsx}",
         "!**/node_modules/**",
-        "eslint.config.mjs",
+        ".oxlintrc.docs.json",
         "tsdoc.json",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/**",
-        "packages/tooling/policy-pack/repo-configs/src/internal/eslint/**",
+        "packages/tooling/policy-pack/lint-rules/src/rules/**",
+        "packages/tooling/policy-pack/lint-rules/src/**",
         "!**/.turbo/**",
         "!**/dist/**",
         "!**/coverage/**",
@@ -187,10 +183,13 @@
       "outputs": [],
       "inputs": [
         ".fallowrc.jsonc",
+        ".oxlintrc.circular.json",
+        ".oxlintrc.deprecated-apis.jsonc",
+        ".oxlintrc.docs.json",
         ".oxlintrc.json",
         "_typos.toml",
         "biome.jsonc",
-        "eslint.config.mjs",
+        "fallow-plugin-manual-development-tools.json",
         "package.json",
         "packages/drivers/acp/package.json",
         "packages/drivers/acp/src/**",
@@ -262,6 +261,8 @@
         "packages/tooling/library/ai-metrics/src/**",
         "packages/tooling/library/ai-sync/package.json",
         "packages/tooling/library/ai-sync/src/**",
+        "packages/tooling/library/palantiri/package.json",
+        "packages/tooling/library/palantiri/src/**",
         "packages/tooling/library/qa-capture/package.json",
         "packages/tooling/library/qa-capture/src/**",
         "packages/tooling/library/repo-utils/package.json",
@@ -278,6 +279,7 @@
         "packages/tooling/tool/cli/src/**",
         "packages/tooling/tool/docgen/package.json",
         "packages/tooling/tool/docgen/src/**",
+        "standards/effect-diagnostics.profile.json",
         "standards/lint-policy.sweeps.jsonc",
         "standards/policy-tools.fingerprint.json",
         "tsconfig.base.json",
@@ -609,9 +611,9 @@
         "tsconfig*.json",
         "$TURBO_ROOT$/tsconfig*.json",
         "$TURBO_ROOT$/packages/**/package.json",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
         "!node_modules/**",
         "!**/node_modules/**",
@@ -638,9 +640,9 @@
       "inputs": [
         "scratchpad/**/*.{ts,tsx}",
         "packages/_internal/db-admin/effect-ontology/**/*.{ts,tsx}",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
-        "packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
-        "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+        "packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+        "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         "standards/effect-laws.allowlist.jsonc",
         "!**/node_modules/**",
         "!**/dist/**",
@@ -773,7 +775,8 @@
         "vitest.aliases.generated.json",
         "!**/node_modules/**",
         "!**/dist/**",
-        "!**/coverage/**"
+        "!**/coverage/**",
+        "standards/effect-diagnostics.profile.json"
       ]
     },
     "//#lint:oxlint": {
@@ -781,6 +784,7 @@
       "outputs": [],
       "inputs": [
         ".oxlintrc.json",
+        ".oxlintrc.docs.json",
         ".gitignore",
         "**/.gitignore",
         "*.{js,mjs,cjs,ts,tsx,jsx}",
@@ -815,7 +819,7 @@
       "dependsOn": ["//#lint:policy-fingerprint"],
       "inputs": [
         "standards/effect-laws.allowlist.jsonc",
-        "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+        "packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
         "{packages,apps,infra}/**/*.{ts,tsx}",
         "!**/node_modules/**"
       ]
@@ -1107,6 +1111,22 @@
         "!**/test/fixtures/**"
       ]
     },
+    "//#lint:opaque-roundtrips": {
+      "cache": true,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*.test.{ts,tsx}",
+        "scratchpad/**/*.{ts,tsx}",
+        "{apps,packages,infra,goals,explorations,tools}/**/test/**/*.{ts,tsx}",
+        "{apps,packages,infra,goals,explorations,tools}/**/src/**/*.{ts,tsx}",
+        "{apps,packages,infra,scratchpad,goals,explorations,tools}/**/tsconfig*.json",
+        "tsconfig*.json",
+        "tsconfig.base.json",
+        "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
+        "!**/node_modules/**"
+      ]
+    },
     "//#lint:effect-vitest": {
       "cache": true,
       "outputs": [],
@@ -1147,6 +1167,7 @@
       "outputs": [],
       "dependsOn": ["//#lint:policy-fingerprint"],
       "inputs": [
+        ".oxlintrc.circular.json",
         "packages/tooling/**/src/**/*.ts",
         "packages/foundation/**/src/**/*.{ts,tsx}",
         "tsconfig.json",

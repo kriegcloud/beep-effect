@@ -173,8 +173,8 @@ export type SinkDestination = typeof SinkDestination.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExecutionSink extends S.Class<ExecutionSink>($I`ExecutionSink`)(
-  {
+export class ExecutionSink extends S.Opaque<ExecutionSink, { readonly brand: unique symbol }>()(
+  S.Struct({
     sinkClass: SinkClass.annotateKey({
       description: "Which governed sink class this sink belongs to.",
     }),
@@ -184,10 +184,11 @@ export class ExecutionSink extends S.Class<ExecutionSink>($I`ExecutionSink`)(
     destination: SinkDestination.annotateKey({
       description: "Raw granted destination; never persisted in execution records.",
     }),
-  },
-  $I.annote("ExecutionSink", {
-    description: "Governed sink triple (class, audience, destination).",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionSink", {
+      description: "Governed sink triple (class, audience, destination).",
+    })
+  )
 ) {
   static readonly is = S.is(ExecutionSink);
 }
@@ -370,15 +371,16 @@ export type PolicyRevision = typeof PolicyRevision.Type;
  * @category models
  * @since 0.0.0
  */
-export class GrantBudget extends S.Class<GrantBudget>($I`GrantBudget`)(
-  {
+export class GrantBudget extends S.Opaque<GrantBudget, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxToolCalls: S.Natural.pipe(S.OptionFromNullOr, S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Recorded ceiling on tool calls; not enforced in v1.",
     }),
-  },
-  $I.annote("GrantBudget", {
-    description: "Recorded, unenforced grant budget (v1 carries the field, denies on nothing).",
-  })
+  }).pipe(
+    $I.annoteSchema("GrantBudget", {
+      description: "Recorded, unenforced grant budget (v1 carries the field, denies on nothing).",
+    })
+  )
 ) {
   static readonly is = S.is(GrantBudget);
 }
@@ -414,8 +416,8 @@ export class GrantBudget extends S.Class<GrantBudget>($I`GrantBudget`)(
  * @category models
  * @since 0.0.0
  */
-export class ExecutionGrant extends S.Class<ExecutionGrant>($I`ExecutionGrant`)(
-  {
+export class ExecutionGrant extends S.Opaque<ExecutionGrant, { readonly brand: unique symbol }>()(
+  S.Struct({
     principal: Principal.annotateKey({
       description: "Principal the authority belongs to; the agent never holds the grant itself.",
     }),
@@ -440,11 +442,12 @@ export class ExecutionGrant extends S.Class<ExecutionGrant>($I`ExecutionGrant`)(
     expiresAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Instant after which the grant no longer authorizes anything.",
     }),
-  },
-  $I.annote("ExecutionGrant", {
-    description:
-      "Pre-authorized authority unit: principal, purpose, resource, operation, sink, budget, policy revision, expiry.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExecutionGrant", {
+      description:
+        "Pre-authorized authority unit: principal, purpose, resource, operation, sink, budget, policy revision, expiry.",
+    })
+  )
 ) {
   static readonly is = S.is(ExecutionGrant);
 }

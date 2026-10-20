@@ -30,7 +30,8 @@ import type * as EventGroup from "effect/eventlog/EventGroup";
 import * as EventJournal from "effect/eventlog/EventJournal";
 import * as SqlEventJournal from "effect/eventlog/SqlEventJournal";
 import * as PersistedQueue from "effect/persistence/PersistedQueue";
-import { SqlClient, SqlSchema } from "effect/sql";
+import * as SqlClient from "effect/sql/SqlClient";
+import * as SqlSchema from "effect/sql/SqlSchema";
 import { EventBusError } from "../Domain/Error/EventBus.ts";
 import { CurationEventGroup, ExtractionEventGroup, OntologyEventEntry } from "../Domain/Schema/EventSchema.ts";
 import { BackgroundJob } from "../Domain/Schema/JobSchema.ts";
@@ -73,16 +74,13 @@ const $I = $ScratchpadId.create("effect-ontology/Service/EventBus");
  * @category models
  * @since 0.0.0
  */
-export class JobWithMetadata extends S.Class<JobWithMetadata>($I`JobWithMetadata`)(
-  {
+export class JobWithMetadata extends S.Opaque<JobWithMetadata, { readonly brand: unique symbol }>()(S.Struct({
     job: BackgroundJob,
     id: S.NonEmptyString,
     attempts: S.Int.check(S.isGreaterThanOrEqualTo(0, { message: "Queue attempts must be non-negative." })),
-  },
-  $I.annote("JobWithMetadata", {
+  }).pipe($I.annoteSchema("JobWithMetadata", {
     description: "A schema-backed background job paired with queue identity and retry attempts.",
-  })
-) {}
+  }))) {}
 
 /**
  * Runtime schema for a canonical event entry from the journal.

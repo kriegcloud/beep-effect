@@ -45,7 +45,7 @@ import { writeTextFile } from "./IssueArtifacts.ts";
 import { parseYeetReviewBodySignal, YeetReviewBodySignal, YeetReviewBodySignalInput } from "./ReviewBodySignal.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/MonitorComments");
@@ -87,14 +87,15 @@ export const YEET_MONITOR_COMMENT_EXCERPT_LENGTH = 200;
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorCommentCursor extends S.Class<YeetMonitorCommentCursor>($I`YeetMonitorCommentCursor`)(
-  {
+export class YeetMonitorCommentCursor extends S.Opaque<YeetMonitorCommentCursor, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdAt: S.String,
     id: S.Finite,
-  },
-  $I.annote("YeetMonitorCommentCursor", {
-    description: "Timestamp and numeric id watermark for one GitHub pull request comment collection.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorCommentCursor", {
+      description: "Timestamp and numeric id watermark for one GitHub pull request comment collection.",
+    })
+  )
 ) {}
 
 /**
@@ -126,9 +127,8 @@ export class YeetMonitorCommentCursor extends S.Class<YeetMonitorCommentCursor>(
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorReviewComment extends S.TaggedClass<YeetMonitorReviewComment>($I`YeetMonitorReviewComment`)(
-  "review",
-  {
+export class YeetMonitorReviewComment extends S.Opaque<YeetMonitorReviewComment, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("review", {
     author: S.String,
     body: S.String,
     createdAt: S.String,
@@ -137,10 +137,11 @@ export class YeetMonitorReviewComment extends S.TaggedClass<YeetMonitorReviewCom
     path: S.String,
     url: S.String,
     authorType: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetMonitorReviewComment", {
-    description: "Normalized GitHub inline review comment streamed during Yeet monitoring.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorReviewComment", {
+      description: "Normalized GitHub inline review comment streamed during Yeet monitoring.",
+    })
+  )
 ) {}
 
 /**
@@ -164,19 +165,19 @@ export class YeetMonitorReviewComment extends S.TaggedClass<YeetMonitorReviewCom
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorIssueComment extends S.TaggedClass<YeetMonitorIssueComment>($I`YeetMonitorIssueComment`)(
-  "issue",
-  {
+export class YeetMonitorIssueComment extends S.Opaque<YeetMonitorIssueComment, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("issue", {
     author: S.String,
     body: S.String,
     createdAt: S.String,
     id: S.Finite,
     url: S.String,
     authorType: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetMonitorIssueComment", {
-    description: "Normalized GitHub pull request conversation comment streamed during Yeet monitoring.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorIssueComment", {
+      description: "Normalized GitHub pull request conversation comment streamed during Yeet monitoring.",
+    })
+  )
 ) {}
 
 /**
@@ -213,9 +214,8 @@ export class YeetMonitorIssueComment extends S.TaggedClass<YeetMonitorIssueComme
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorReviewBody extends S.TaggedClass<YeetMonitorReviewBody>($I`YeetMonitorReviewBody`)(
-  "review-body",
-  {
+export class YeetMonitorReviewBody extends S.Opaque<YeetMonitorReviewBody, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("review-body", {
     author: S.String,
     body: S.String,
     id: S.Finite,
@@ -224,10 +224,11 @@ export class YeetMonitorReviewBody extends S.TaggedClass<YeetMonitorReviewBody>(
     submittedAt: S.String,
     url: S.String,
     authorType: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetMonitorReviewBody", {
-    description: "Normalized GitHub pull request review body streamed during Yeet monitoring.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorReviewBody", {
+      description: "Normalized GitHub pull request review body streamed during Yeet monitoring.",
+    })
+  )
 ) {}
 
 const isYeetMonitorReviewComment = S.is(YeetMonitorReviewComment);
@@ -368,8 +369,8 @@ export const yeetMonitorCommentFromBot = (comment: YeetMonitorComment): boolean 
  * @category models
  * @since 0.0.0
  */
-export class GhRestReviewComment extends S.Class<GhRestReviewComment>($I`GhRestReviewComment`)(
-  {
+export class GhRestReviewComment extends S.Opaque<GhRestReviewComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.NullOr(S.String),
     created_at: S.String,
     html_url: S.String,
@@ -378,10 +379,11 @@ export class GhRestReviewComment extends S.Class<GhRestReviewComment>($I`GhRestR
     original_line: S.NullOr(S.Finite),
     path: S.String,
     user: S.NullOr(GhActor),
-  },
-  $I.annote("GhRestReviewComment", {
-    description: "GitHub REST inline review comment payload used by Yeet monitor.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhRestReviewComment", {
+      description: "GitHub REST inline review comment payload used by Yeet monitor.",
+    })
+  )
 ) {}
 
 /**
@@ -390,17 +392,18 @@ export class GhRestReviewComment extends S.Class<GhRestReviewComment>($I`GhRestR
  * @category models
  * @since 0.0.0
  */
-export class GhRestIssueComment extends S.Class<GhRestIssueComment>($I`GhRestIssueComment`)(
-  {
+export class GhRestIssueComment extends S.Opaque<GhRestIssueComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.NullOr(S.String),
     created_at: S.String,
     html_url: S.String,
     id: S.Finite,
     user: S.NullOr(GhActor),
-  },
-  $I.annote("GhRestIssueComment", {
-    description: "GitHub REST issue comment payload used by Yeet monitor.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhRestIssueComment", {
+      description: "GitHub REST issue comment payload used by Yeet monitor.",
+    })
+  )
 ) {}
 
 /**
@@ -409,18 +412,19 @@ export class GhRestIssueComment extends S.Class<GhRestIssueComment>($I`GhRestIss
  * @category models
  * @since 0.0.0
  */
-export class GhRestReview extends S.Class<GhRestReview>($I`GhRestReview`)(
-  {
+export class GhRestReview extends S.Opaque<GhRestReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.NullOr(S.String),
     html_url: S.String,
     id: S.Finite,
     state: S.String,
     submitted_at: S.NullOr(S.String),
     user: S.NullOr(GhActor),
-  },
-  $I.annote("GhRestReview", {
-    description: "GitHub REST submitted pull request review payload used by Yeet monitor.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhRestReview", {
+      description: "GitHub REST submitted pull request review payload used by Yeet monitor.",
+    })
+  )
 ) {}
 
 /**
@@ -447,27 +451,35 @@ export class GhRestReview extends S.Class<GhRestReview>($I`GhRestReview`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorCommentWatermark extends S.Class<YeetMonitorCommentWatermark>($I`YeetMonitorCommentWatermark`)(
-  {
+export class YeetMonitorCommentWatermark extends S.Opaque<
+  YeetMonitorCommentWatermark,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     issue: YeetMonitorCommentCursor,
     review: YeetMonitorCommentCursor,
     reviewBody: YeetMonitorCommentCursor,
-  },
-  $I.annote("YeetMonitorCommentWatermark", {
-    description: "Per-collection comment and review-body cursors for one pull request monitor session.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorCommentWatermark", {
+      description: "Per-collection comment and review-body cursors for one pull request monitor session.",
+    })
+  )
 ) {}
 
 // The v1 watermark, kept only so a position written before review bodies were
 // streamed still resumes. It is never written again.
-class YeetMonitorCommentWatermarkV1 extends S.Class<YeetMonitorCommentWatermarkV1>($I`YeetMonitorCommentWatermarkV1`)(
-  {
+class YeetMonitorCommentWatermarkV1 extends S.Opaque<
+  YeetMonitorCommentWatermarkV1,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     issue: YeetMonitorCommentCursor,
     review: YeetMonitorCommentCursor,
-  },
-  $I.annote("YeetMonitorCommentWatermarkV1", {
-    description: "The pre-review-body comment cursors carried by a v1 monitor comment artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorCommentWatermarkV1", {
+      description: "The pre-review-body comment cursors carried by a v1 monitor comment artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -500,31 +512,33 @@ class YeetMonitorCommentWatermarkV1 extends S.Class<YeetMonitorCommentWatermarkV
  * @category models
  * @since 0.0.0
  */
-export class YeetMonitorCommentState extends S.Class<YeetMonitorCommentState>($I`YeetMonitorCommentState`)(
-  {
+export class YeetMonitorCommentState extends S.Opaque<YeetMonitorCommentState, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-monitor-comments/v2"),
     prNumber: S.Int.check(S.isGreaterThan(0)),
     updatedAt: S.String,
     watermark: YeetMonitorCommentWatermark,
-  },
-  $I.annote("YeetMonitorCommentState", {
-    description: "Branch-scoped comment stream position carried between Yeet monitor runs.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorCommentState", {
+      description: "Branch-scoped comment stream position carried between Yeet monitor runs.",
+    })
+  )
 ) {}
 
 // The v1 artifact. Accepted on read and upgraded in place on the next write,
 // because the alternative — treating it as a decode miss — restarts the stream
 // from now and drops exactly the comments a resumed session exists to print.
-class YeetMonitorCommentStateV1 extends S.Class<YeetMonitorCommentStateV1>($I`YeetMonitorCommentStateV1`)(
-  {
+class YeetMonitorCommentStateV1 extends S.Opaque<YeetMonitorCommentStateV1, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-monitor-comments/v1"),
     prNumber: S.Int.check(S.isGreaterThan(0)),
     updatedAt: S.String,
     watermark: YeetMonitorCommentWatermarkV1,
-  },
-  $I.annote("YeetMonitorCommentStateV1", {
-    description: "The pre-review-body branch-scoped comment stream position.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMonitorCommentStateV1", {
+      description: "The pre-review-body branch-scoped comment stream position.",
+    })
+  )
 ) {}
 
 const YeetMonitorCommentStateStored = S.Union([YeetMonitorCommentState, YeetMonitorCommentStateV1]);
@@ -993,16 +1007,17 @@ export const renderYeetMonitorCommentTruncation = (endpoint: string): string =>
 // then advances only as far as they reach. The capture's own truncation notice
 // is removed first — it carries brackets of its own, and a scanner that read
 // them would balance the document against text GitHub never sent.
-class ClipScan extends S.Class<ClipScan>($I`ClipScan`)(
-  {
+class ClipScan extends S.Opaque<ClipScan, { readonly brand: unique symbol }>()(
+  S.Struct({
     depth: S.Finite,
     inString: S.Boolean,
     escaped: S.Boolean,
     // Offset just past the last container that closed, and the depth it left.
     lastComplete: S.Finite,
     closeDepth: S.Finite,
-  },
-  $I.annote("ClipScan", { description: "The scanner state after one character of a clipped JSON capture." })
+  }).pipe(
+    $I.annoteSchema("ClipScan", { description: "The scanner state after one character of a clipped JSON capture." })
+  )
 ) {}
 
 const clipScanStart = ClipScan.make({ depth: 0, inString: false, escaped: false, lastComplete: 0, closeDepth: 0 });

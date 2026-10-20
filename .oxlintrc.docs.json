@@ -1,0 +1,72 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": [],
+  "categories": {
+    "correctness": "off",
+    "suspicious": "off",
+    "perf": "off",
+    "style": "off",
+    "pedantic": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "jsPlugins": [
+    "./packages/tooling/policy-pack/lint-rules/src/rules/docs.index.ts"
+  ],
+  "ignorePatterns": [
+    "apps/labs/**",
+    "**/.next/**",
+    ".repos/**",
+    "**/coverage/**",
+    "**/dist/**",
+    "**/docs/**",
+    "infra/ci-runners/sdks/ghaRunners/**",
+    "**/node_modules/**",
+    "**/storybook-static/**",
+    "**/.turbo/**",
+    "**/src-tauri/target/**",
+    "**/*.d.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.stories.tsx",
+    "**/test/**",
+    "**/tests/**",
+    "**/.storybook/**",
+    "**/vitest.storybook.config.ts",
+    "packages/tooling/*/*/scripts/**",
+    "packages/tooling/*/*/src/internal/**"
+  ],
+  "rules": {},
+  "overrides": [
+    {
+      "files": [
+        "apps/**/*.{ts,tsx}",
+        "packages/**/*.{ts,tsx}",
+        "infra/**/*.ts"
+      ],
+      "rules": {
+        "beep/tsdoc-syntax": "warn"
+      }
+    },
+    {
+      "files": ["packages/tooling/*/*/src/**/*.ts"],
+      "rules": {
+        "beep/require-jsdoc": "error",
+        "beep/informative-docs": "error",
+        "beep/no-blank-block-descriptions": "error",
+        "beep/check-tag-names": "error",
+        "beep/check-param-names": "error",
+        "beep/require-category-tag": "warn",
+        "beep/require-description": "warn",
+        "beep/require-param": "warn",
+        "beep/require-param-description": "warn",
+        "beep/require-returns": "warn",
+        "beep/require-returns-description": "warn",
+        "beep/match-description": "warn",
+        "beep/require-file-overview": "warn"
+      }
+    }
+  ]
+}

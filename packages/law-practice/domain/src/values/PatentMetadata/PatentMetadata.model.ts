@@ -107,8 +107,8 @@ const normalizeDateText = (raw: string): O.Option<string> =>
  * @category models
  * @since 0.0.0
  */
-export class PatentFigure extends S.Class<PatentFigure>($I`PatentFigure`)(
-  {
+export class PatentFigure extends S.Opaque<PatentFigure, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.OptionFromOptionalKey(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("PatentFigure.label", {
@@ -126,10 +126,11 @@ export class PatentFigure extends S.Class<PatentFigure>($I`PatentFigure`)(
         description: "Short alternate text for accessibility.",
       })
     ),
-  },
-  $I.annote("PatentFigure", {
-    description: "Patent figure image reference with display and accessibility metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentFigure", {
+      description: "Patent figure image reference with display and accessibility metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -152,8 +153,8 @@ export class PatentFigure extends S.Class<PatentFigure>($I`PatentFigure`)(
  * @category models
  * @since 0.0.0
  */
-export class PatentAssignee extends S.Class<PatentAssignee>($I`PatentAssignee`)(
-  {
+export class PatentAssignee extends S.Opaque<PatentAssignee, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.pipe(
       $I.annoteKey("PatentAssignee.name", {
         description: "Assignee name as printed in the patent record.",
@@ -165,10 +166,11 @@ export class PatentAssignee extends S.Class<PatentAssignee>($I`PatentAssignee`)(
         description: "Optional assignee location.",
       })
     ),
-  },
-  $I.annote("PatentAssignee", {
-    description: "Entity assigned ownership rights in the patent record.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentAssignee", {
+      description: "Entity assigned ownership rights in the patent record.",
+    })
+  )
 ) {}
 
 /**
@@ -192,8 +194,8 @@ export class PatentAssignee extends S.Class<PatentAssignee>($I`PatentAssignee`)(
  * @category models
  * @since 0.0.0
  */
-export class PatentReference extends S.Class<PatentReference>($I`PatentReference`)(
-  {
+export class PatentReference extends S.Opaque<PatentReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     country: OfficeCode.pipe(
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
@@ -215,10 +217,11 @@ export class PatentReference extends S.Class<PatentReference>($I`PatentReference
         description: "WIPO ST.16 kind code parsed from the reference.",
       })
     ),
-  },
-  $I.annote("PatentReference", {
-    description: "Parsed patent document reference components.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentReference", {
+      description: "Parsed patent document reference components.",
+    })
+  )
 ) {
   static readonly empty = (): PatentReference => PatentReference.make({});
 }
@@ -244,8 +247,8 @@ export class PatentReference extends S.Class<PatentReference>($I`PatentReference
  * @category models
  * @since 0.0.0
  */
-export class PatentMetadata extends S.Class<PatentMetadata>($I`PatentMetadata`)(
-  {
+export class PatentMetadata extends S.Opaque<PatentMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     patentNumber: PatentNumber.pipe(
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone),
@@ -331,10 +334,11 @@ export class PatentMetadata extends S.Class<PatentMetadata>($I`PatentMetadata`)(
         description: "Cooperative Patent Classification symbols.",
       })
     ),
-  },
-  $I.annote("PatentMetadata", {
-    description: "Jurisdiction-aware patent metadata for US, EPO, WIPO, and other ST.3 offices.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentMetadata", {
+      description: "Jurisdiction-aware patent metadata for US, EPO, WIPO, and other ST.3 offices.",
+    })
+  )
 ) {}
 
 /**
@@ -452,8 +456,8 @@ export type PatentStatus = typeof PatentStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class PatentOffice extends S.Class<PatentOffice>($I`PatentOffice`)(
-  {
+export class PatentOffice extends S.Opaque<PatentOffice, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: PatentOfficeCode.pipe(
       $I.annoteKey("PatentOffice.code", {
         description: "Office presentation metadata key.",
@@ -479,10 +483,11 @@ export class PatentOffice extends S.Class<PatentOffice>($I`PatentOffice`)(
         description: "Office flag or symbol.",
       })
     ),
-  },
-  $I.annote("PatentOffice", {
-    description: "WIPO ST.16 office logo and flag metadata for jurisdiction-aware UI.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentOffice", {
+      description: "WIPO ST.16 office logo and flag metadata for jurisdiction-aware UI.",
+    })
+  )
 ) {}
 
 /**
@@ -547,17 +552,18 @@ export const PATENT_OFFICES = {
  * @category models
  * @since 0.0.0
  */
-export class PatentDisplayMetadata extends S.Class<PatentDisplayMetadata>($I`PatentDisplayMetadata`)(
-  {
+export class PatentDisplayMetadata extends S.Opaque<PatentDisplayMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     patent_number: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     patentNumber: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     country: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     kind_code: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     kindCode: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PatentDisplayMetadata", {
-    description: "Snake-case or camelCase patent metadata fields accepted by display helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentDisplayMetadata", {
+      description: "Snake-case or camelCase patent metadata fields accepted by display helpers.",
+    })
+  )
 ) {}
 
 /**
@@ -622,8 +628,8 @@ export declare namespace PatentDisplayMetadata {
  * @category models
  * @since 0.0.0
  */
-export class PatentDisplay extends S.Class<PatentDisplay>($I`PatentDisplay`)(
-  {
+export class PatentDisplay extends S.Opaque<PatentDisplay, { readonly brand: unique symbol }>()(
+  S.Struct({
     country: OfficeCode,
     number: PatentNumber.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     kindCode: KindCode.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -631,10 +637,11 @@ export class PatentDisplay extends S.Class<PatentDisplay>($I`PatentDisplay`)(
     office: PatentOffice,
     status: PatentStatus,
     statusLabel: S.NonEmptyString,
-  },
-  $I.annote("PatentDisplay", {
-    description: "Display-ready patent identifier, office metadata, and derived document status.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentDisplay", {
+      description: "Display-ready patent identifier, office metadata, and derived document status.",
+    })
+  )
 ) {}
 
 const patentClassificationsIpcDefault = A.empty<string>();
@@ -658,8 +665,8 @@ const patentClassificationsCpcDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class PatentClassifications extends S.Class<PatentClassifications>($I`PatentClassifications`)(
-  {
+export class PatentClassifications extends S.Opaque<PatentClassifications, { readonly brand: unique symbol }>()(
+  S.Struct({
     ipc: S.NonEmptyString.pipe(
       S.Array,
       S.withConstructorDefault(Effect.succeed(patentClassificationsIpcDefault)),
@@ -670,10 +677,11 @@ export class PatentClassifications extends S.Class<PatentClassifications>($I`Pat
       S.withConstructorDefault(Effect.succeed(patentClassificationsCpcDefault)),
       S.withDecodingDefaultType(Effect.succeed(patentClassificationsCpcDefault))
     ),
-  },
-  $I.annote("PatentClassifications", {
-    description: "IPC and CPC classification symbols extracted from patent content.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentClassifications", {
+      description: "IPC and CPC classification symbols extracted from patent content.",
+    })
+  )
 ) {}
 
 /**
@@ -740,17 +748,18 @@ export type PatentSectionKind = typeof PatentSectionKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class PatentSections extends S.Class<PatentSections>($I`PatentSections`)(
-  {
+export class PatentSections extends S.Opaque<PatentSections, { readonly brand: unique symbol }>()(
+  S.Struct({
     abstract: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     claims: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     description: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     citations: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     drawings: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PatentSections", {
-    description: "Optional patent content sections extracted from markdown-like patent text.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatentSections", {
+      description: "Optional patent content sections extracted from markdown-like patent text.",
+    })
+  )
 ) {}
 
 /**

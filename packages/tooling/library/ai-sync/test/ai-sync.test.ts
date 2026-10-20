@@ -33,6 +33,7 @@ import {
   validateRepoConfig,
   validateRepoSafetyPolicy,
 } from "@beep/ai-sync";
+import { CodexMcpServer, McpJsonServer } from "@beep/ai-sync/_generated/schemas.gen";
 import { renderGeneratedSchemas } from "@beep/ai-sync/generator";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -45,7 +46,8 @@ import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { HttpClient, HttpClientResponse } from "effect/http";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -299,35 +301,35 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
   it.effect.prop(
     "round-trips AiSyncSourceMetadata through its encoded shape",
     [AiSyncSourceMetadata],
-    ([value]) => expectSchemaRoundTrip(AiSyncSourceMetadata, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncSourceMetadata, AiSyncSourceMetadata.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncSchemaCell through its encoded shape",
     [AiSyncSchemaCell],
-    ([value]) => expectSchemaRoundTrip(AiSyncSchemaCell, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncSchemaCell, AiSyncSchemaCell.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncDriftFinding through its encoded shape",
     [AiSyncDriftFinding],
-    ([value]) => expectSchemaRoundTrip(AiSyncDriftFinding, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncDriftFinding, AiSyncDriftFinding.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncDriftReport through its encoded shape",
     [AiSyncDriftReport],
-    ([value]) => expectSchemaRoundTrip(AiSyncDriftReport, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncDriftReport, AiSyncDriftReport.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AiSyncValidationResult through its encoded shape",
     [AiSyncValidationResult],
-    ([value]) => expectSchemaRoundTrip(AiSyncValidationResult, value),
+    ([value]) => expectSchemaRoundTrip(AiSyncValidationResult, AiSyncValidationResult.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
@@ -345,21 +347,21 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
   it.effect.prop(
     "round-trips AgentCommandMetadata through its encoded shape",
     [AgentCommandMetadata],
-    ([value]) => expectSchemaRoundTrip(AgentCommandMetadata, value),
+    ([value]) => expectSchemaRoundTrip(AgentCommandMetadata, AgentCommandMetadata.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips AgentPluginManifestMetadata through its encoded shape",
     [AgentPluginManifestMetadata],
-    ([value]) => expectSchemaRoundTrip(AgentPluginManifestMetadata, value),
+    ([value]) => expectSchemaRoundTrip(AgentPluginManifestMetadata, AgentPluginManifestMetadata.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
   it.effect.prop(
     "round-trips UnknownNativeSchemaCell through its encoded shape",
     [UnknownNativeSchemaCell],
-    ([value]) => expectSchemaRoundTrip(UnknownNativeSchemaCell, value),
+    ([value]) => expectSchemaRoundTrip(UnknownNativeSchemaCell, UnknownNativeSchemaCell.make(value)),
     { arbitrary: fcRuns(25) }
   );
 
@@ -481,10 +483,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
       const transformed = codexMcpServersToClaudeMcpJson(
         CodexConfig.make({
           mcp_servers: {
-            shadcn: {
+            shadcn: CodexMcpServer.make({
               command: "npx",
               args: ["-y", "shadcn@4.7.0", "mcp"],
-            },
+            }),
           },
         })
       );
@@ -504,11 +506,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
     Effect.fn(function* () {
       const config = ClaudeMcpJson.make({
         mcpServers: {
-          local: {
+          local: McpJsonServer.make({
             type: "stdio",
             command: "node",
             args: ["mcp.js"],
-          },
+          }),
         },
       });
 

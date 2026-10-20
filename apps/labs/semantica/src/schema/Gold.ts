@@ -88,11 +88,15 @@ const GoldSubsetChecks = S.makeFilterGroup([
  * @category models
  * @since 0.0.0
  */
-export class GoldSubset extends S.Class<GoldSubset>($I`GoldSubset`)(
-  GoldSubsetFields.mapFields(identity).check(GoldSubsetChecks),
-  $I.annote("GoldSubset", {
-    description: "Unique, exact-sized gold paper ids satisfying relation proper-subset entity proper-subset structure.",
-  })
+export class GoldSubset extends S.Opaque<GoldSubset, { readonly brand: unique symbol }>()(
+  GoldSubsetFields.mapFields(identity)
+    .check(GoldSubsetChecks)
+    .pipe(
+      $I.annoteSchema("GoldSubset", {
+        description:
+          "Unique, exact-sized gold paper ids satisfying relation proper-subset entity proper-subset structure.",
+      })
+    )
 ) {}
 
 const GoldRefFields = S.Struct({
@@ -127,11 +131,14 @@ const GoldRefProposerCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GoldRef extends S.Class<GoldRef>($I`GoldRef`)(
-  GoldRefFields.mapFields(identity).check(GoldRefProposerCheck),
-  $I.annote("GoldRef", {
-    description: "Content-addressed gold-v1 reference with spot-check coverage and an independent proposer model.",
-  })
+export class GoldRef extends S.Opaque<GoldRef, { readonly brand: unique symbol }>()(
+  GoldRefFields.mapFields(identity)
+    .check(GoldRefProposerCheck)
+    .pipe(
+      $I.annoteSchema("GoldRef", {
+        description: "Content-addressed gold-v1 reference with spot-check coverage and an independent proposer model.",
+      })
+    )
 ) {}
 
 const GoldStructureLabelFields = S.Struct({
@@ -155,11 +162,14 @@ const GoldStructureLabelFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class GoldStructureLabel extends S.Class<GoldStructureLabel>($I`GoldStructureLabel`)(
-  GoldStructureLabelFields.mapFields(identity).check(TextAnchorWidthCheck),
-  $I.annote("GoldStructureLabel", {
-    description: "Paper structural role and depth grounded to canonical text with a spot-check marker.",
-  })
+export class GoldStructureLabel extends S.Opaque<GoldStructureLabel, { readonly brand: unique symbol }>()(
+  GoldStructureLabelFields.mapFields(identity)
+    .check(TextAnchorWidthCheck)
+    .pipe(
+      $I.annoteSchema("GoldStructureLabel", {
+        description: "Paper structural role and depth grounded to canonical text with a spot-check marker.",
+      })
+    )
 ) {}
 
 const GoldEntityLabelFields = S.Struct({
@@ -184,12 +194,15 @@ const GoldEntityLabelFields = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class GoldEntityLabel extends S.Class<GoldEntityLabel>($I`GoldEntityLabel`)(
-  GoldEntityLabelFields.mapFields(identity).check(TextAnchorWidthCheck),
-  $I.annote("GoldEntityLabel", {
-    description:
-      "Entity surface label, explicit coreference cluster, and type grounded to canonical paper text with a spot-check marker.",
-  })
+export class GoldEntityLabel extends S.Opaque<GoldEntityLabel, { readonly brand: unique symbol }>()(
+  GoldEntityLabelFields.mapFields(identity)
+    .check(TextAnchorWidthCheck)
+    .pipe(
+      $I.annoteSchema("GoldEntityLabel", {
+        description:
+          "Entity surface label, explicit coreference cluster, and type grounded to canonical paper text with a spot-check marker.",
+      })
+    )
 ) {}
 
 const GoldRelationLabelFields = S.Struct({
@@ -230,11 +243,15 @@ const GoldRelationEndpointWidthCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GoldRelationLabel extends S.Class<GoldRelationLabel>($I`GoldRelationLabel`)(
-  GoldRelationLabelFields.mapFields(identity).check(TextAnchorWidthCheck, GoldRelationEndpointWidthCheck),
-  $I.annote("GoldRelationLabel", {
-    description: "Relation predicate and endpoint surfaces grounded to canonical paper text with a spot-check marker.",
-  })
+export class GoldRelationLabel extends S.Opaque<GoldRelationLabel, { readonly brand: unique symbol }>()(
+  GoldRelationLabelFields.mapFields(identity)
+    .check(TextAnchorWidthCheck, GoldRelationEndpointWidthCheck)
+    .pipe(
+      $I.annoteSchema("GoldRelationLabel", {
+        description:
+          "Relation predicate and endpoint surfaces grounded to canonical paper text with a spot-check marker.",
+      })
+    )
 ) {}
 
 /**
@@ -282,18 +299,19 @@ const sliceForDigest = (
     : Effect.fail(digestMismatch(input, options, field));
 };
 
-class EncodedGoldStructureLabel extends S.Class<EncodedGoldStructureLabel>($I`EncodedGoldStructureLabel`)(
-  {
+class EncodedGoldStructureLabel extends S.Opaque<EncodedGoldStructureLabel, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: StructureRole,
     depth: S.Natural,
     startChar: TextAnchorFields.startChar,
     endChar: TextAnchorFields.endChar,
     quoteSha256: Sha256Hex,
     verified: S.Boolean,
-  },
-  $I.annote("EncodedGoldStructureLabel", {
-    description: "Digest-only persisted structural gold label without W1 corpus text.",
-  })
+  }).pipe(
+    $I.annoteSchema("EncodedGoldStructureLabel", {
+      description: "Digest-only persisted structural gold label without W1 corpus text.",
+    })
+  )
 ) {}
 
 const GoldStructureLabelFromEncoded = EncodedGoldStructureLabel.pipe(
@@ -328,8 +346,8 @@ const GoldStructureLabelFromEncoded = EncodedGoldStructureLabel.pipe(
   })
 );
 
-class EncodedGoldEntityLabel extends S.Class<EncodedGoldEntityLabel>($I`EncodedGoldEntityLabel`)(
-  {
+class EncodedGoldEntityLabel extends S.Opaque<EncodedGoldEntityLabel, { readonly brand: unique symbol }>()(
+  S.Struct({
     cluster: CoreferenceCluster,
     endChar: TextAnchorFields.endChar,
     entityType: S.NonEmptyString,
@@ -337,10 +355,11 @@ class EncodedGoldEntityLabel extends S.Class<EncodedGoldEntityLabel>($I`EncodedG
     quoteSha256: Sha256Hex,
     startChar: TextAnchorFields.startChar,
     verified: S.Boolean,
-  },
-  $I.annote("EncodedGoldEntityLabel", {
-    description: "Digest-only persisted entity gold label without W1 corpus text.",
-  })
+  }).pipe(
+    $I.annoteSchema("EncodedGoldEntityLabel", {
+      description: "Digest-only persisted entity gold label without W1 corpus text.",
+    })
+  )
 ) {}
 
 const GoldEntityLabelFromEncoded = EncodedGoldEntityLabel.pipe(
@@ -395,8 +414,8 @@ const GoldEntityLabelFromEncoded = EncodedGoldEntityLabel.pipe(
   })
 );
 
-class EncodedGoldRelationLabel extends S.Class<EncodedGoldRelationLabel>($I`EncodedGoldRelationLabel`)(
-  {
+class EncodedGoldRelationLabel extends S.Opaque<EncodedGoldRelationLabel, { readonly brand: unique symbol }>()(
+  S.Struct({
     predicate: S.NonEmptyString,
     subjectStartChar: S.Natural,
     subjectEndChar: S.Natural,
@@ -408,10 +427,11 @@ class EncodedGoldRelationLabel extends S.Class<EncodedGoldRelationLabel>($I`Enco
     endChar: TextAnchorFields.endChar,
     quoteSha256: Sha256Hex,
     verified: S.Boolean,
-  },
-  $I.annote("EncodedGoldRelationLabel", {
-    description: "Digest-only persisted relation gold label with anchored subject and object surfaces.",
-  })
+  }).pipe(
+    $I.annoteSchema("EncodedGoldRelationLabel", {
+      description: "Digest-only persisted relation gold label with anchored subject and object surfaces.",
+    })
+  )
 ) {}
 
 const GoldRelationLabelFromEncoded = EncodedGoldRelationLabel.pipe(
@@ -476,43 +496,46 @@ const GoldRelationLabelFromEncoded = EncodedGoldRelationLabel.pipe(
   })
 );
 
-class GoldStructureFile extends S.Class<GoldStructureFile>($I`GoldStructureFile`)(
-  {
+class GoldStructureFile extends S.Opaque<GoldStructureFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("gold/v1"),
     paperId: CorpusPaperId,
     subset: S.tag("structure"),
     labels: S.Array(GoldStructureLabelFromEncoded),
     proposer: ModelIdentity,
-  },
-  $I.annote("GoldStructureFile", {
-    description: "Gold-v1 structural labels for one W1 paper.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoldStructureFile", {
+      description: "Gold-v1 structural labels for one W1 paper.",
+    })
+  )
 ) {}
 
-class GoldEntityFile extends S.Class<GoldEntityFile>($I`GoldEntityFile`)(
-  {
+class GoldEntityFile extends S.Opaque<GoldEntityFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("gold/v1"),
     paperId: CorpusPaperId,
     subset: S.tag("entity"),
     labels: S.Array(GoldEntityLabelFromEncoded),
     proposer: ModelIdentity,
-  },
-  $I.annote("GoldEntityFile", {
-    description: "Gold-v1 entity labels for one W1 paper.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoldEntityFile", {
+      description: "Gold-v1 entity labels for one W1 paper.",
+    })
+  )
 ) {}
 
-class GoldRelationFile extends S.Class<GoldRelationFile>($I`GoldRelationFile`)(
-  {
+class GoldRelationFile extends S.Opaque<GoldRelationFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("gold/v1"),
     paperId: CorpusPaperId,
     subset: S.tag("relation"),
     labels: S.Array(GoldRelationLabelFromEncoded),
     proposer: ModelIdentity,
-  },
-  $I.annote("GoldRelationFile", {
-    description: "Gold-v1 relation labels for one W1 paper.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoldRelationFile", {
+      description: "Gold-v1 relation labels for one W1 paper.",
+    })
+  )
 ) {}
 
 const GoldFileSubset = LiteralKit(["structure", "entity", "relation"]);

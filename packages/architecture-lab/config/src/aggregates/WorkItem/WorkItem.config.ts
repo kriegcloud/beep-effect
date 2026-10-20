@@ -45,19 +45,20 @@ const WorkItemMigrationSchemaName = S.NonEmptyString.check(
  * @category configuration
  * @since 0.0.0
  */
-export class WorkItemPublicConfig extends S.Class<WorkItemPublicConfig>($I`WorkItemPublicConfig`)(
-  {
+export class WorkItemPublicConfig extends S.Opaque<WorkItemPublicConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     assignmentEnabled: SchemaUtils.BoolKeyDefaultTrue.annotateKey({
       description: "Whether WorkItem assignment controls are available to clients.",
     }),
     reopenCompletedEnabled: SchemaUtils.BoolKeyDefaultTrue.annotateKey({
       description: "Whether completed WorkItems may be reopened by clients.",
     }),
-  },
-  $I.annote("WorkItemPublicConfig", {
-    title: "WorkItem public config",
-    description: "Client-safe feature flags for the architecture lab WorkItem proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemPublicConfig", {
+      title: "WorkItem public config",
+      description: "Client-safe feature flags for the architecture lab WorkItem proof.",
+    })
+  )
 ) {}
 
 /**
@@ -80,8 +81,8 @@ export class WorkItemPublicConfig extends S.Class<WorkItemPublicConfig>($I`WorkI
  * @category configuration
  * @since 0.0.0
  */
-export class WorkItemServerConfig extends S.Class<WorkItemServerConfig>($I`WorkItemServerConfig`)(
-  {
+export class WorkItemServerConfig extends S.Opaque<WorkItemServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     repositoryName: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("architecture-lab-work-items")),
       S.withDecodingDefaultTypeKey(Effect.succeed("architecture-lab-work-items"))
@@ -94,11 +95,12 @@ export class WorkItemServerConfig extends S.Class<WorkItemServerConfig>($I`WorkI
     ).annotateKey({
       description: "Database schema name used for architecture lab WorkItem migrations.",
     }),
-  },
-  $I.annote("WorkItemServerConfig", {
-    title: "WorkItem server config",
-    description: "Server-side repository and migration names for the architecture lab WorkItem proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemServerConfig", {
+      title: "WorkItem server config",
+      description: "Server-side repository and migration names for the architecture lab WorkItem proof.",
+    })
+  )
 ) {}
 
 /**
@@ -120,19 +122,20 @@ export class WorkItemServerConfig extends S.Class<WorkItemServerConfig>($I`WorkI
  * @category configuration
  * @since 0.0.0
  */
-export class WorkItemSecretConfig extends S.Class<WorkItemSecretConfig>($I`WorkItemSecretConfig`)(
-  {
+export class WorkItemSecretConfig extends S.Opaque<WorkItemSecretConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     connectionName: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("architecture-lab-proof")),
       S.withDecodingDefaultTypeKey(Effect.succeed("architecture-lab-proof"))
     ).annotateKey({
       description: "Secret connection reference name for the WorkItem backing connection.",
     }),
-  },
-  $I.annote("WorkItemSecretConfig", {
-    title: "WorkItem secret config",
-    description: "Secret connection reference for the architecture lab WorkItem proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemSecretConfig", {
+      title: "WorkItem secret config",
+      description: "Secret connection reference for the architecture lab WorkItem proof.",
+    })
+  )
 ) {}
 
 /**

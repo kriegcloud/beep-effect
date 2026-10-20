@@ -23,7 +23,9 @@ import { today } from "@beep/schema/LocalDate";
 import { A, Str, Text, thunkFalse } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Console from "effect/Console";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -35,7 +37,11 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
-import { applyJsoncModification as applySharedJsoncModification, decodeJsoncTextAs } from "../../internal/cli/Jsonc.ts";
+import {
+  applyJsoncModification as applySharedJsoncModification,
+  decodeJsoncTextAs,
+  JsoncModification,
+} from "../../internal/cli/Jsonc.ts";
 import {
   encodeLabManifestJson,
   isLabsWorkspacePath,
@@ -50,6 +56,7 @@ import { printLines } from "../../internal/cli/Printer.ts";
 import { scaffoldPackageScripts } from "../../internal/package-scripts/PackageScripts.schemas.ts";
 import { runToExit } from "../../internal/process/StepExec.ts";
 import { syncTsconfigAtRoot } from "../TsconfigSync/index.ts";
+import { TsconfigSyncRunOptionsSync } from "../TsconfigSync/TsconfigSync.schemas.ts";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
@@ -297,14 +304,15 @@ const decodeToolingKindEffect = (input: unknown) =>
 const PackageKind = S.Union([FoundationKind, ToolingKind]);
 type PackageKind = typeof PackageKind.Type;
 
-class BeepPackageMetadata extends S.Class<BeepPackageMetadata>($I`BeepPackageMetadata`)(
-  {
+class BeepPackageMetadata extends S.Opaque<BeepPackageMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: PackageFamily,
     kind: S.optionalKey(PackageKind),
-  },
-  $I.annote("BeepPackageMetadata", {
-    description: "Metadata for a Beep package, including its family and optional kind.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepPackageMetadata", {
+      description: "Metadata for a Beep package, including its family and optional kind.",
+    })
+  )
 ) {}
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
@@ -493,15 +501,16 @@ const SERVICE_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = templateSpecsFro
  * Decoded scaffold-mode selector threaded through template, file, directory,
  * and manifest planning so lab/kind dispatch never travels as loose booleans.
  */
-class ScaffoldShape extends S.Class<ScaffoldShape>($I`ScaffoldShape`)(
-  {
+class ScaffoldShape extends S.Opaque<ScaffoldShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     appKind: S.OptionFromOptionalKey(AppKind),
     lab: S.Boolean,
     withStoriesTsconfig: S.Boolean,
-  },
-  $I.annote("ScaffoldShape", {
-    description: "Decoded scaffold-mode selector threaded through template, file, and manifest planning.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScaffoldShape", {
+      description: "Decoded scaffold-mode selector threaded through template, file, and manifest planning.",
+    })
+  )
 ) {}
 
 const packageTemplateSpecsFor = (withStoriesTsconfig: boolean): ReadonlyArray<TemplateSpec> =>
@@ -761,8 +770,8 @@ const fileGenerationPlanService = createFileGenerationPlanService();
  * @category models
  * @since 0.0.0
  */
-export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext`)(
-  {
+export class TemplateContext extends S.Opaque<TemplateContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scopedName: S.String,
     type: PackageType,
@@ -790,10 +799,11 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
     identityAccessor: S.String,
     effectLanguageServicePlugins: S.String,
     nextjsLanguageServicePlugins: S.String,
-  },
-  $I.annote("TemplateContext", {
-    description: "Variables passed into every template during package scaffolding.",
-  })
+  }).pipe(
+    $I.annoteSchema("TemplateContext", {
+      description: "Variables passed into every template during package scaffolding.",
+    })
+  )
 ) {}
 
 /**
@@ -893,12 +903,14 @@ const applyJsoncModification = (
   value: unknown,
   options?: { readonly isArrayInsertion?: boolean }
 ): string =>
-  applySharedJsoncModification({
-    content,
-    path,
-    value,
-    ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
-  });
+  applySharedJsoncModification(
+    JsoncModification.make({
+      content,
+      path,
+      value,
+      ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
+    })
+  );
 
 const appendWorkspaceEntry = (content: string, currentWorkspaces: unknown, packagePath: string): string => {
   if (P.isUndefined(currentWorkspaces)) {
@@ -1126,7 +1138,7 @@ const refreshBunLockfile = Effect.fn("CreatePackage.refreshBunLockfile")(functio
  *
  * ```ts
  * import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage"
- * import { Command } from "effect/cli"
+ * import * as Command from "effect/cli/Command";
  * import * as Effect from "effect/Effect";
  * const run = Command.run(createPackageCommand, { version: "0.0.0" })
  * console.log(Effect.isEffect(run)) // true
@@ -1543,10 +1555,12 @@ export const createPackageCommand = Command.make(
     );
 
     const packageMetadata = O.isSome(packageFamily)
-      ? O.some<BeepPackageMetadata>({
-          family: packageFamily.value,
-          ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
-        })
+      ? O.some<BeepPackageMetadata>(
+          BeepPackageMetadata.make({
+            family: packageFamily.value,
+            ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
+          })
+        )
       : O.none<BeepPackageMetadata>();
     const ecosystemMetadata = pipe(
       packageMetadata,
@@ -1623,11 +1637,14 @@ export const createPackageCommand = Command.make(
     const identityUpdated = yield* lab
       ? Effect.map(LabIdentitySegment.syncLabIdentitySegment(repoRoot), ({ changed }) => changed)
       : ensureIdentityPackageRegistration(identityPackagesFilePath, name);
-    const syncResult = yield* syncTsconfigAtRoot(repoRoot, {
-      mode: "sync",
-      filter: undefined,
-      verbose: false,
-    });
+    const syncResult = yield* syncTsconfigAtRoot(
+      repoRoot,
+      TsconfigSyncRunOptionsSync.make({
+        mode: "sync",
+        filter: undefined,
+        verbose: false,
+      })
+    );
     // Sanctioned reuse restores the name's provenance: leaving the entry behind
     // would leave the registry claiming a live package is retired, and would
     // wedge the later `delete-package` retirement of the recreated name.

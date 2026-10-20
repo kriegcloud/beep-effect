@@ -11,7 +11,8 @@ import { $PracticeKgMcpId } from "@beep/identity/packages";
 import { PracticeKgToolkit } from "@beep/law-practice-server";
 import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
@@ -21,6 +22,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { assertBundleGraph, NativeAddonExternals } from "./BundleGraph.ts";
 import { runEntrypoint } from "./entrypoint.ts";
 import { PackageFailure } from "./PracticeKgMcp.errors.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "./Version.ts";
@@ -37,23 +39,14 @@ const DuckDbVersion = "1.5.6-r.1";
 const WindowsBindingsSha512 =
   "5Rpn5WXEG5gY/u7Keh+c4kuwG/LiE31pCP9CoCohv+u0aFensk/yRIQVW/CXuIoITky9xFhdRzaWUtAnGTYxJQ==";
 const WindowsBindingsUrl = `https://registry.npmjs.org/@duckdb/node-bindings-win32-x64/-/node-bindings-win32-x64-${DuckDbVersion}.tgz`;
-class BindingsManifest extends S.Class<BindingsManifest>($I`BindingsManifest`)(
-  { version: S.String },
-  $I.annote("BindingsManifest", {
-    description: "Version field of an installed DuckDB bindings package manifest.",
-  })
+class BindingsManifest extends S.Opaque<BindingsManifest, { readonly brand: unique symbol }>()(
+  S.Struct({ version: S.String }).pipe(
+    $I.annoteSchema("BindingsManifest", {
+      description: "Version field of an installed DuckDB bindings package manifest.",
+    })
+  )
 ) {}
 const decodeBindingsPackageJson = S.decodeUnknownEffect(S.fromJsonString(BindingsManifest));
-const NativeAddonExternals = [
-  "@duckdb/node-bindings-linux-x64/duckdb.node",
-  "@duckdb/node-bindings-linux-x64-musl/duckdb.node",
-  "@duckdb/node-bindings-linux-arm64/duckdb.node",
-  "@duckdb/node-bindings-linux-arm64-musl/duckdb.node",
-  "@duckdb/node-bindings-darwin-arm64/duckdb.node",
-  "@duckdb/node-bindings-darwin-x64/duckdb.node",
-  "@duckdb/node-bindings-win32-arm64/duckdb.node",
-  "@duckdb/node-bindings-win32-x64/duckdb.node",
-];
 const ForbiddenArchiveFragments = [
   "claims.ts",
   "build.ts",
@@ -309,6 +302,9 @@ const packageTarget = Effect.fn("PracticeKgPackage.packageTarget")(function* (
   yield* fs.makeDirectory(bundleDir, { recursive: true });
   const manifest = manifestFor(platform, executable);
   yield* fs.writeFileString(path.join(bundleDir, "manifest.json"), `${manifest}\n`);
+  // The compiled executable is opaque to the archive check, so the strict
+  // tier's bundle hygiene is proven on the module graph before compiling.
+  yield* assertBundleGraph(path.join(repoRoot, "apps/practice-kg-mcp/src/bin.ts"));
   yield* run(
     [
       "bun",

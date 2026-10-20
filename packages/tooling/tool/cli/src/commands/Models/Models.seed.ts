@@ -25,6 +25,7 @@ import * as O from "effect/Option";
 import { BOUND_MODEL_SEGMENT } from "./Models.locator.service.ts";
 import {
   BindingFilter,
+  EffortDisplayLabel,
   LocatorBinding,
   ModelBinding,
   ModelSyncTarget,
@@ -50,12 +51,12 @@ const verbatim: LocatorRender = { _tag: "verbatim" };
 const jetBrainsEffortLabels: LocatorRender = {
   _tag: "effort-display-label",
   labels: [
-    { effort: "low", label: "Low" },
-    { effort: "medium", label: "Medium" },
-    { effort: "high", label: "High" },
-    { effort: "xhigh", label: "Extra High" },
-    { effort: "max", label: "Max" },
-    { effort: "ultra", label: "Ultra" },
+    EffortDisplayLabel.make({ effort: "low", label: "Low" }),
+    EffortDisplayLabel.make({ effort: "medium", label: "Medium" }),
+    EffortDisplayLabel.make({ effort: "high", label: "High" }),
+    EffortDisplayLabel.make({ effort: "xhigh", label: "Extra High" }),
+    EffortDisplayLabel.make({ effort: "max", label: "Max" }),
+    EffortDisplayLabel.make({ effort: "ultra", label: "Ultra" }),
   ],
 };
 
@@ -76,11 +77,13 @@ const binding = (
     note,
   });
 
-const codexDefault = O.some("Codex default since 2026-10-01; Codex uses only GPT-6.1-Sol for substantive work.");
-const cursorFallback = O.some(
-  "Step 2 of both chains; the listed id reports Claude Opus 5.5 300K Medium (verified 2026-10-14)."
+const codexDefault = O.some(
+  "Codex default since 2026-10-01 and step 2 of the Claude chain since 2026-10-18 (R11); Codex uses only GPT-6.1-Sol for substantive work."
 );
-const grokFallback = O.some("Step 3 of both chains since 2026-10-01; the grok CLI reports grok-4.7-build.");
+const cursorFallback = O.some(
+  "Step 2 of the Codex chain and step 3 of the Claude chain (R11, 2026-10-18); the listed id reports Claude Opus 5.5 300K Medium (verified 2026-10-14)."
+);
+const grokFallback = O.some("Final step of both chains since 2026-10-01; the grok CLI reports grok-4.7-build.");
 const opusChildren = O.some(
   "Every Claude sub-agent, delegation, and Workflow child; explicit id, never the opus alias."
 );
@@ -322,26 +325,6 @@ const seedTargets: ReadonlyArray<ModelSyncTarget> = [
   target("repo.skills.oracle", "repo", ".claude/skills/oracle/SKILL.md", false, [
     block("codex-heavy", onlyRoles(["codex.heavy"]), false),
   ]),
-  codexPluginSeat(
-    "repo.skills.impeccable.finish-reviewer",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_finish_reviewer.toml"
-  ),
-  codexPluginSeat(
-    "repo.skills.impeccable.documenter",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_documenter.toml"
-  ),
-  codexPluginSeat(
-    "repo.skills.impeccable.asset-producer",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_asset_producer.toml"
-  ),
-  codexPluginSeat(
-    "repo.skills.impeccable.manual-edit-applier",
-    "repo",
-    ".claude/skills/impeccable/agents/impeccable_manual_edit_applier.toml"
-  ),
   target(
     "repo.code.jsdoc-migrate-titles",
     "repo",

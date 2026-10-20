@@ -265,11 +265,12 @@ const F1FixtureDefinition = F1FixtureFields.check(F1FixtureExpectationCheck);
  * @category fixtures
  * @since 0.0.0
  */
-export class F1Fixture extends S.Class<F1Fixture>($I`F1Fixture`)(
-  F1FixtureDefinition,
-  $I.annote("F1Fixture", {
-    description: "Content-addressed F1 document metadata with a declared parser outcome.",
-  })
+export class F1Fixture extends S.Opaque<F1Fixture, { readonly brand: unique symbol }>()(
+  F1FixtureDefinition.pipe(
+    $I.annoteSchema("F1Fixture", {
+      description: "Content-addressed F1 document metadata with a declared parser outcome.",
+    })
+  )
 ) {}
 
 const F1IndexFields = S.Struct({
@@ -338,11 +339,12 @@ const F1IndexDefinition = F1IndexFields.check(F1IndexChecks);
  * @category fixtures
  * @since 0.0.0
  */
-export class F1Index extends S.Class<F1Index>($I`F1Index`)(
-  F1IndexDefinition,
-  $I.annote("F1Index", {
-    description: "Validated F1 fixture index with deterministic coverage and uniqueness constraints.",
-  })
+export class F1Index extends S.Opaque<F1Index, { readonly brand: unique symbol }>()(
+  F1IndexDefinition.pipe(
+    $I.annoteSchema("F1Index", {
+      description: "Validated F1 fixture index with deterministic coverage and uniqueness constraints.",
+    })
+  )
 ) {}
 
 const F1DriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]);
@@ -424,7 +426,9 @@ export type F1Diff = typeof F1Diff.Type;
  * @category errors
  * @since 0.0.0
  */
-export class F1IndexDecodeFailed extends S.TaggedError<F1IndexDecodeFailed>($I`F1IndexDecodeFailed`)(
+export class F1IndexDecodeFailed extends S.TaggedError<F1IndexDecodeFailed, { readonly brand: unique symbol }>(
+  $I`F1IndexDecodeFailed`
+)(
   "F1IndexDecodeFailed",
   {
     message: S.NonEmptyString,
@@ -457,7 +461,7 @@ export class F1IndexDecodeFailed extends S.TaggedError<F1IndexDecodeFailed>($I`F
  * @category errors
  * @since 0.0.0
  */
-export class F1Drift extends S.TaggedError<F1Drift>($I`F1Drift`)(
+export class F1Drift extends S.TaggedError<F1Drift, { readonly brand: unique symbol }>($I`F1Drift`)(
   "F1Drift",
   {
     message: S.NonEmptyString,

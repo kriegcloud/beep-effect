@@ -4,7 +4,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -42,7 +42,9 @@ const generation =
   "apps/labs/ciops";
 
 /** The clone cannot answer ancestry probes: its history is shallow or treeless. */
-class KpiAdoptionRepositoryError extends S.TaggedError<KpiAdoptionRepositoryError>($I`KpiAdoptionRepositoryError`)(
+class KpiAdoptionRepositoryError extends S.TaggedError<KpiAdoptionRepositoryError, { readonly brand: unique symbol }>(
+  $I`KpiAdoptionRepositoryError`
+)(
   "KpiAdoptionRepositoryError",
   { message: S.String },
   $I.annoteError<KpiAdoptionRepositoryError>("KpiAdoptionRepositoryError", {

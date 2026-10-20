@@ -50,13 +50,16 @@ import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
-import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -461,7 +464,7 @@ const fixture = Effect.fn("PilotOrchestrationTest.fixture")(function* (
                     16
                   )(
                     yield* hash(
-                      `${sourceText}:${readme}:${added}:${rootConfigBytes}:${profileBytes}:${env.BEEP_ESLINT_PROFILE ?? "absent"}:${enabled}:${mutationKey()}:${A.join(signedRootInputs, ":")}:${isSignedInvocation() ? child + dependencySource : ""}`
+                      `${sourceText}:${readme}:${added}:${rootConfigBytes}:${profileBytes}:${env.VITE_COSMOS_SPIKE ?? "absent"}:${enabled}:${mutationKey()}:${A.join(signedRootInputs, ":")}:${isSignedInvocation() ? child + dependencySource : ""}`
                     )
                   );
                   const cacheFile = `cache/${taskHash}`;

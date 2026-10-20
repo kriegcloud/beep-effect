@@ -6,6 +6,7 @@ import {
   diffSnapshots,
   ModelsCatalog,
   ModelsCatalogLive,
+  ModelsCatalogOptions,
   ModelsCatalogSources,
   ModelsCatalogSourcesLive,
   ModelsLedger,
@@ -139,7 +140,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
   it.effect("records which overlays answered and degrades when one is absent", () =>
     Effect.gen(function* () {
       const catalog = yield* ModelsCatalog;
-      const answered = yield* catalog.snapshot({ home: "/home/op", offline: false });
+      const answered = yield* catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: false }));
       expect([...answered.summary.sources]).toEqual([
         "router-for-me",
         "codex-cache",
@@ -148,7 +149,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
         "proxy-v1-models",
       ]);
 
-      const offline = yield* catalog.snapshot({ home: "/home/op", offline: true });
+      const offline = yield* catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: true }));
       expect(offline.summary.sources).not.toContain("router-for-me");
       expect(offline.summary.modelCount).toBeLessThan(answered.summary.modelCount);
     })
@@ -157,7 +158,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
   it.effect("diffs added, removed, and levels-changed models", () =>
     Effect.gen(function* () {
       const catalog = yield* ModelsCatalog;
-      const full = yield* catalog.snapshot({ home: "/home/op", offline: false });
+      const full = yield* catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: false }));
       const reduced = CatalogSnapshot.make({
         summary: full.summary,
         models: A.filter(full.models, (model) => model.id !== "grok-4.7"),
@@ -188,7 +189,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
   it.effect("reports each source ladder change even when normalized levels stay unchanged", () =>
     Effect.gen(function* () {
       const catalog = yield* ModelsCatalog;
-      const full = yield* catalog.snapshot({ home: "/home/op", offline: false });
+      const full = yield* catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: false }));
       strictEqual(diffSnapshots(O.some(full), full).levelsChanged.length, 0);
       for (const source of ["upstream", "codex", "grok"] as const) {
         const changed = CatalogSnapshot.make({
@@ -213,12 +214,11 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const home = yield* fs.makeTempDirectoryScoped({
-        directory: process.cwd(),
         prefix: ".models-ledger-test-",
       });
       const catalog = yield* ModelsCatalog;
       const ledger = yield* ModelsLedger;
-      const snapshot = yield* catalog.snapshot({ home, offline: false });
+      const snapshot = yield* catalog.snapshot(ModelsCatalogOptions.make({ home, offline: false }));
 
       assertNone(yield* ledger.latest(home));
 
@@ -243,7 +243,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
         yield* ledger.record(home, snapshot),
         path.join(home, ".local", "state", "beep", "models", "latest.json")
       );
-    }).pipe(Effect.scoped)
+    })
   );
 });
 

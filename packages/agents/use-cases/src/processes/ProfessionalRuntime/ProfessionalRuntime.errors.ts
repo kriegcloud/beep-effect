@@ -27,9 +27,10 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  * @category errors
  * @since 0.0.0
  */
-export class ProfessionalRuntimeValidationError extends S.TaggedError<ProfessionalRuntimeValidationError>(
-  $I`ProfessionalRuntimeValidationError`
-)(
+export class ProfessionalRuntimeValidationError extends S.TaggedError<
+  ProfessionalRuntimeValidationError,
+  { readonly brand: unique symbol }
+>($I`ProfessionalRuntimeValidationError`)(
   "ProfessionalRuntimeValidationError",
   {
     message: S.String,
@@ -71,9 +72,10 @@ export class ProfessionalRuntimeValidationError extends S.TaggedError<Profession
  * @category errors
  * @since 0.0.0
  */
-export class ProfessionalRuntimePromotionBlocked extends S.TaggedError<ProfessionalRuntimePromotionBlocked>(
-  $I`ProfessionalRuntimePromotionBlocked`
-)(
+export class ProfessionalRuntimePromotionBlocked extends S.TaggedError<
+  ProfessionalRuntimePromotionBlocked,
+  { readonly brand: unique symbol }
+>($I`ProfessionalRuntimePromotionBlocked`)(
   "ProfessionalRuntimePromotionBlocked",
   {
     reason: PromotionBlockReason.annotateKey({

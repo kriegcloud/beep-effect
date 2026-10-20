@@ -6,14 +6,22 @@
  */
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { MemoryStatsLive } from "../../internal/repo-run/QualityScheduler.ts";
+import { HOT_PARCELS_TIMEOUT, printHotParcels } from "../Palantiri/Palantiri.hot.ts";
+import { layerPalantiriRuntime } from "../Palantiri/Palantiri.runtime.ts";
+import { layerPalantiriSourcesLive } from "../Palantiri/Palantiri.service.ts";
 import { PrNumber } from "../Yeet/internal/Provenance.ts";
+import { sessionContinuityCommand } from "./Continuity.command.ts";
 import { sessionRegisterCommand } from "./Register.command.ts";
 import { reportSessionFailure, SessionLedgerError, sessionUsageError } from "./Session.errors.ts";
 import {
@@ -176,7 +184,9 @@ export const sessionNoteCommand = Command.make(
 );
 
 /**
- * `beep session open`: the live rows for this repository, newest first.
+ * `beep session open`: the live rows for this repository, newest first,
+ * then (in text mode) the hot Palantiri parcels: account headroom, lane reds
+ * and host pressure, each one line with its freshness, read within 2 seconds.
  *
  * **Example** (Read the command name)
  *
@@ -222,6 +232,17 @@ export const sessionOpenCommand = Command.make(
       yield* Effect.forEach(rows, (row) => Console.log(renderSessionRow(row)), { discard: true });
     });
     yield* reportSessionFailure(program);
+    // The hot parcels follow the ledger rows in text mode; the block is
+    // bounded in time and never fails the command. Its sources bring their
+    // own memory reader and HTTP client, so `session open` needs nothing more
+    // than the ledger does.
+    if (!json) {
+      yield* layerPalantiriSourcesLive.pipe(
+        Layer.provide(Layer.mergeAll(MemoryStatsLive, FetchHttpClient.layer)),
+        layerPalantiriRuntime(Layer.empty),
+        printHotParcels(HOT_PARCELS_TIMEOUT)
+      );
+    }
   })
 ).pipe(
   Command.withDescription("List where every session on this machine stopped in this repository"),
@@ -249,6 +270,7 @@ export const sessionCommand = Command.make("session", {}, () =>
         "Session commands:",
         '- bun run beep session note --state <open|blocked|done> --next "<one line>" [--summary "<one line>"] [--pr <n>] [--role orchestrator|member]',
         "- bun run beep session open [--json]",
+        "- bun run beep session continuity --input <manifest.json>",
         "- bun run beep session register add|list",
       ],
       "\n"
@@ -256,5 +278,5 @@ export const sessionCommand = Command.make("session", {}, () =>
   )
 ).pipe(
   Command.withDescription("Record and read where harness sessions stopped across every clone on this machine"),
-  Command.withSubcommands([sessionNoteCommand, sessionOpenCommand, sessionRegisterCommand])
+  Command.withSubcommands([sessionNoteCommand, sessionOpenCommand, sessionRegisterCommand, sessionContinuityCommand])
 );

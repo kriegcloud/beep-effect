@@ -6,15 +6,15 @@
  */
 
 import { $NlpProcessingId } from "@beep/identity";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { PosInt } from "../internal/PosInt.ts";
 import { AiPhoneticAlgorithm, AiPhoneticMatch, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/PhoneticMatch");
 
-class PhoneticMatchParameters extends S.Class<PhoneticMatchParameters>($I`PhoneticMatchParameters`)(
-  {
+class PhoneticMatchParameters extends S.Opaque<PhoneticMatchParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     algorithm: S.optionalKey(AiPhoneticAlgorithm).annotateKey({
       description: "Phonetic algorithm to apply (default: soundex)",
     }),
@@ -29,10 +29,11 @@ class PhoneticMatchParameters extends S.Class<PhoneticMatchParameters>($I`Phonet
       description: "Second text to compare phonetically",
       examples: ["Steven Hocking"],
     }),
-  },
-  $I.annote("PhoneticMatchParameters", {
-    description: "Inputs required to compare two texts by phonetic overlap.",
-  })
+  }).pipe(
+    $I.annoteSchema("PhoneticMatchParameters", {
+      description: "Inputs required to compare two texts by phonetic overlap.",
+    })
+  )
 ) {}
 
 /**

@@ -10,7 +10,7 @@ import { ConfigFile } from "../../../effected/config-file/ConfigFile.ts";
 import { JsonCodec } from "../../../effected/config-file/JsonCodec.ts";
 import { MergeStrategy } from "../../../effected/config-file/MergeStrategy.ts";
 
-class AppShape extends S.Class<AppShape>("AppShape")({ port: S.Finite }) {}
+class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()(
 	"test/SeededConfig",
 ) {}

@@ -22,7 +22,8 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, O, pipe, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow } from "effect/Function";
@@ -37,7 +38,7 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { diffMembership } from "../../internal/ratchet/RatchetDiff.ts";
 import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../Lint/ReflectionArtifact.ts";
-import { observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
+import { goalCompletionUnknownReasons, observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
 import { decodeGoalManifest, GoalPhaseStatus, GoalStatus, goalPullRequestRefs } from "./Goals.schemas.ts";
 import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
@@ -189,28 +190,30 @@ const GoalDoctorSeverity = LiteralKit(["blocking", "advisory"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class GoalDoctorFinding extends S.Class<GoalDoctorFinding>($I`GoalDoctorFinding`)(
-  {
+export class GoalDoctorFinding extends S.Opaque<GoalDoctorFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     kind: GoalDoctorFindingKind,
     severity: GoalDoctorSeverity,
     key: S.String,
     message: S.String,
-  },
-  $I.annote("GoalDoctorFinding", {
-    description: "One goals-doctor finding with a stable baseline-membership key.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalDoctorFinding", {
+      description: "One goals-doctor finding with a stable baseline-membership key.",
+    })
+  )
 ) {}
 
-class GoalsDoctorBaseline extends S.Class<GoalsDoctorBaseline>($I`GoalsDoctorBaseline`)(
-  {
+class GoalsDoctorBaseline extends S.Opaque<GoalsDoctorBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("goals-doctor-baseline/v1"),
     note: S.optionalKey(S.String),
     findings: S.Array(S.String),
-  },
-  $I.annote("GoalsDoctorBaseline", {
-    description: "Committed goals-doctor baseline: the inherited blocking-finding keys (may only shrink).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalsDoctorBaseline", {
+      description: "Committed goals-doctor baseline: the inherited blocking-finding keys (may only shrink).",
+    })
+  )
 ) {}
 
 const decodeBaseline = S.decodeUnknownEffect(GoalsDoctorBaseline);
@@ -247,15 +250,16 @@ const finding = (
  * @category models
  * @since 0.0.0
  */
-export class GoalDoctorClassification extends S.Class<GoalDoctorClassification>($I`GoalDoctorClassification`)(
-  {
+export class GoalDoctorClassification extends S.Opaque<GoalDoctorClassification, { readonly brand: unique symbol }>()(
+  S.Struct({
     introduced: S.Array(GoalDoctorFinding),
     inherited: S.Array(GoalDoctorFinding),
     resolved: S.Array(S.String),
-  },
-  $I.annote("GoalDoctorClassification", {
-    description: "Baseline-ratchet classification: introduced blocks, inherited stays advisory, resolved shrinks.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalDoctorClassification", {
+      description: "Baseline-ratchet classification: introduced blocks, inherited stays advisory, resolved shrinks.",
+    })
+  )
 ) {}
 
 /**
@@ -862,7 +866,7 @@ const completionGateAdvisories = (
             packet.record.slug,
             "completion-gate-unsatisfied",
             "advisory",
-            "Legacy completion declaration has no PR reference or packet citation in the scanned commit subjects; declare a final PR to inspect structured PR/head/merge facts. Overall verification also requires a complete merge-time ruleset inventory."
+            "Legacy completion declaration has no PR reference or packet citation in the scanned commit subjects; declare a final PR to inspect structured PR/head/merge facts. Overall verification also requires a complete merge-time rule-suite inventory."
           )
         )
       ),
@@ -1057,13 +1061,15 @@ const completionReceiptFindings = (
   const outcome = O.isSome(receipt) ? receipt.value.outcome : "unknown";
   const detail = receipt.pipe(
     O.map((row) =>
-      outcome === "unknown" && O.exists(row.requiredChecks, (snapshot) => !snapshot.inventoryComplete)
-        ? "Merge-time ruleset inventory completeness is unknown: GitHub cannot enumerate rulesets deleted since the merge. Online doctor inspects facts and completion refresh persists them; neither can verify completion without a complete historical inventory."
-        : "See head-bound completion evidence; lifecycle is unchanged."
+      outcome === "unknown" && O.isSome(row.merge)
+        ? `Completion unknown: ${A.join(goalCompletionUnknownReasons(row), "; ")}. Online doctor inspects facts and completion refresh persists them; lifecycle is unchanged.`
+        : O.isNone(row.merge) && outcome === "unknown"
+          ? "PR, merge or check facts could not be read; completion evidence is unknown and lifecycle is unchanged."
+          : "See head-bound completion evidence; lifecycle is unchanged."
     ),
     O.getOrElse(
       () =>
-        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh persists them. Overall verification requires a complete merge-time ruleset inventory, which GitHub's current inventory cannot reconstruct."
+        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh persists them. Overall verification requires the merge-push rule suite (GitHub lists rule suites for one month) and green required checks at the accepted head."
     )
   );
   const findings =

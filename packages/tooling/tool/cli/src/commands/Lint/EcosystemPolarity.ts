@@ -10,7 +10,8 @@ import { findRepoRoot, readPackageJsonFile } from "@beep/repo-utils";
 import { normalizePath } from "@beep/schema";
 import { A, Str, Text, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -43,13 +44,14 @@ const SOURCE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts"] as const;
  * @category models
  * @since 0.0.0
  */
-export class EcosystemPolarityOptions extends S.Class<EcosystemPolarityOptions>($I`EcosystemPolarityOptions`)(
-  {
+export class EcosystemPolarityOptions extends S.Opaque<EcosystemPolarityOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     includePaths: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("EcosystemPolarityOptions", {
-    description: "Optional changed-file scope for the ecosystem dependency-polarity lint.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcosystemPolarityOptions", {
+      description: "Optional changed-file scope for the ecosystem dependency-polarity lint.",
+    })
+  )
 ) {}
 
 /**
@@ -72,16 +74,20 @@ export class EcosystemPolarityOptions extends S.Class<EcosystemPolarityOptions>(
  * @category models
  * @since 0.0.0
  */
-export class EcosystemPolarityViolation extends S.Class<EcosystemPolarityViolation>($I`EcosystemPolarityViolation`)(
-  {
+export class EcosystemPolarityViolation extends S.Opaque<
+  EcosystemPolarityViolation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     kind: S.Literals(["runtime-dependency", "bundled-dependencies", "source-import"] as const),
     detail: S.String,
-  },
-  $I.annote("EcosystemPolarityViolation", {
-    description: "A forbidden repo-internal runtime edge in an ecosystem member.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcosystemPolarityViolation", {
+      description: "A forbidden repo-internal runtime edge in an ecosystem member.",
+    })
+  )
 ) {}
 
 /**
@@ -99,15 +105,16 @@ export class EcosystemPolarityViolation extends S.Class<EcosystemPolarityViolati
  * @category models
  * @since 0.0.0
  */
-export class EcosystemPolaritySummary extends S.Class<EcosystemPolaritySummary>($I`EcosystemPolaritySummary`)(
-  {
+export class EcosystemPolaritySummary extends S.Opaque<EcosystemPolaritySummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkedMembers: S.Finite,
     scannedSourceFiles: S.Finite,
     violations: S.Array(EcosystemPolarityViolation),
-  },
-  $I.annote("EcosystemPolaritySummary", {
-    description: "Members, source files, and violations observed by the ecosystem-polarity lint.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcosystemPolaritySummary", {
+      description: "Members, source files, and violations observed by the ecosystem-polarity lint.",
+    })
+  )
 ) {}
 
 /**
@@ -125,7 +132,9 @@ export class EcosystemPolaritySummary extends S.Class<EcosystemPolaritySummary>(
  * @category errors
  * @since 0.0.0
  */
-export class EcosystemPolarityError extends S.TaggedError<EcosystemPolarityError>($I`EcosystemPolarityError`)(
+export class EcosystemPolarityError extends S.TaggedError<EcosystemPolarityError, { readonly brand: unique symbol }>(
+  $I`EcosystemPolarityError`
+)(
   "EcosystemPolarityError",
   { message: S.String },
   $I.annoteError<EcosystemPolarityError>("EcosystemPolarityError", {
@@ -135,15 +144,16 @@ export class EcosystemPolarityError extends S.TaggedError<EcosystemPolarityError
   static readonly new = (message: string): EcosystemPolarityError => EcosystemPolarityError.make({ message });
 }
 
-class EcosystemMember extends S.Class<EcosystemMember>($I`EcosystemMember`)(
-  {
+class EcosystemMember extends S.Opaque<EcosystemMember, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     root: S.String,
     manifestPath: S.String,
-  },
-  $I.annote("EcosystemMember", {
-    description: "A directly nested package under packages/ecosystem.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcosystemMember", {
+      description: "A directly nested package under packages/ecosystem.",
+    })
+  )
 ) {}
 
 const isSourceFile = (filePath: string): boolean =>

@@ -29,7 +29,9 @@ const $I = $RepoCliId.create("commands/Docgen/Doctest.errors");
  * @category errors
  * @since 0.0.0
  */
-export class DoctestAnalysisError extends S.TaggedError<DoctestAnalysisError>($I`DoctestAnalysisError`)(
+export class DoctestAnalysisError extends S.TaggedError<DoctestAnalysisError, { readonly brand: unique symbol }>(
+  $I`DoctestAnalysisError`
+)(
   "DoctestAnalysisError",
   {
     message: S.NonEmptyString,
@@ -60,7 +62,9 @@ export class DoctestAnalysisError extends S.TaggedError<DoctestAnalysisError>($I
  * @category errors
  * @since 0.0.0
  */
-export class DoctestRewriteError extends S.TaggedError<DoctestRewriteError>($I`DoctestRewriteError`)(
+export class DoctestRewriteError extends S.TaggedError<DoctestRewriteError, { readonly brand: unique symbol }>(
+  $I`DoctestRewriteError`
+)(
   "DoctestRewriteError",
   {
     message: S.NonEmptyString,

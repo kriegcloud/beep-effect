@@ -200,7 +200,7 @@ degradation history, operational direction of travel, and ontology alignment.
 deterministic code-intelligence / repo-memory v0 body of work was a **learning
 vehicle** -- the user grounding themselves in software to learn ontology/graph/memory
 architecture -- and was **deliberately pruned** (spec corpus `309649ebcc` 2026-03-08;
-repo-memory hosts `apps/clawhole` + `packages/ai` `78f5d3fb0e` 2026-04-07; last UI
+repo-memory hosts, the clawhole app and the ai package, `78f5d3fb0e` 2026-04-07; last UI
 residue `6c8bab5b25` 2026-04-27), with this standard crystallized *after* the prune.
 Yet this README's Core Thesis + Imperative #1, `01-memory-layer-taxonomy.md`,
 `02-thread-triage.md`, and `docs/BEEPGRAPH_ARCHITECTURE.md` still framed code
@@ -228,7 +228,8 @@ standard trustworthy on a cold read.
   `01-memory-layer-taxonomy.md` (L3, repo-memory, BeepGraph) and `02-thread-triage.md`
   (thread 1) annotated as superseded; `docs/BEEPGRAPH_ARCHITECTURE.md` L3 row relabeled
   "dev tooling, not a product moat."
-- `explorations/effect-capability-kg` (the code-intelligence tooling track) is **parked**.
+- The `effect-capability-kg` exploration (the code-intelligence tooling track) is **parked**
+  (since removed from the tree).
 - `goals/file-processing-capability` status corrected `pending-implementation → active`
   (the capability + tika/libpff drivers are built; P1 underway). A broader
   goal-status-vocabulary normalization is a separate, **deferred** cleanup.
@@ -509,3 +510,16 @@ protocol, and `Bash(graft build:*)` also approved `--deep`.
 pass (fixed at eight workers); the prompt-hook unit bug and the missing
 synthesis checkpoint belong upstream; re-check the stamp guard against any
 new graft version before upgrading.
+
+### 2026-10-14 — Documentation lint routing during the TS7 exit
+
+The docs lint lane now uses repo-owned oxlint JS plugins. Earlier references to ESLint as
+a graft-wiring linter describe their recorded state. ESLint remains for deprecated-API
+checks until that lane merges; its eventual removal is a separate follow-up.
+
+### 2026-10-15 — TS7 exit B2: ESLint removal
+
+Both documentation and deprecated-API lanes now use oxlint (PRs #1791 and #1753).
+The ESLint config, parser and plugins are removed by `goals/eslint-removal`;
+governance helpers moved to `@beep/repo-configs/laws/*` and `internal/laws/*`.
+Earlier entries retain their historical tool names.

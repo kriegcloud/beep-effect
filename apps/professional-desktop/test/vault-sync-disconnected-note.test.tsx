@@ -9,7 +9,8 @@ import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { AsyncResult, Reactivity } from "effect/reactivity";
+import * as AsyncResult from "effect/reactivity/AsyncResult";
+import * as Reactivity from "effect/reactivity/Reactivity";
 import * as S from "effect/Schema";
 import {
   DesktopSyncClient,
@@ -48,7 +49,7 @@ const noConflicts: ReadonlyArray<SyncConflict> = [];
 const renderWithStatus = (
   status: VaultSyncStatus,
   conflicts: AsyncResult.AsyncResult<ReadonlyArray<SyncConflict>, unknown> = AsyncResult.success(noConflicts),
-  panelState: VaultSyncPanelState = VaultSyncPanelState.cases.idle.make()
+  panelState: VaultSyncPanelState = VaultSyncPanelState.cases.idle.make({})
 ) =>
   render(
     <RegistryProvider

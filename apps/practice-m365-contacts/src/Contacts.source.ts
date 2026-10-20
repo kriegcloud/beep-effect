@@ -20,9 +20,10 @@ import { ContactCensus, ContactsError, CsvCensus } from "./Contacts.schemas.ts";
 import type { ContactInputs } from "./Contacts.schemas.ts";
 
 const $I = $PracticeM365ContactsId.create("Contacts.source");
-class SourceFile extends S.Class<SourceFile>($I`SourceFile`)(
-  { hash: S.NonEmptyString, text: S.String },
-  $I.annote("SourceFile", { description: "Private hash-deduplicated source text." })
+class SourceFile extends S.Opaque<SourceFile, { readonly brand: unique symbol }>()(
+  S.Struct({ hash: S.NonEmptyString, text: S.String }).pipe(
+    $I.annoteSchema("SourceFile", { description: "Private hash-deduplicated source text." })
+  )
 ) {}
 const failInput = () => ContactsError.make({ reason: "input" });
 

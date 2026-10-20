@@ -29,7 +29,7 @@ import { assert, describe } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
@@ -37,7 +37,8 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -138,7 +139,7 @@ describe("knowledge doctor classification rule table", () => {
             : span.surface === "live"
               ? "verified"
               : "unclassified";
-        const spanClass = classifyKnowledgeSpan({ span, validCitation });
+        const spanClass = classifyKnowledgeSpan({ span: KnowledgeSpan.make(span), validCitation });
         assert.strictEqual(spanClass, expected);
         assert.isTrue(KnowledgeSpanClass.is[spanClass](spanClass));
         assert.isTrue(A.some(KNOWLEDGE_SPAN_CLASSIFICATION_RULES, (row) => row.spanClass === spanClass));
@@ -667,10 +668,12 @@ describe("knowledge doctor counterfactual harness", () => {
 
 const ROOT_MODULE_PATH = "packages/tooling/tool/cli/src/commands/Root.ts";
 
-class RuntimeCommandFlags extends S.Class<RuntimeCommandFlags>("RuntimeCommandFlags")({
-  path: S.String,
-  flags: S.Array(S.String),
-}) {}
+class RuntimeCommandFlags extends S.Opaque<RuntimeCommandFlags, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: S.String,
+    flags: S.Array(S.String),
+  }).annotate({ identifier: "RuntimeCommandFlags" })
+) {}
 
 const RuntimeCommandFlagsJson = RuntimeCommandFlags.pipe(S.Array, S.fromJsonString);
 const SHARED_FLAGS_PATH = "packages/tooling/tool/cli/src/internal/cli/Flags.ts";

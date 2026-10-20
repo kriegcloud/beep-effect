@@ -50,17 +50,18 @@ const NonNegativeLineCount = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class EngineProfile extends S.Class<EngineProfile>($I`EngineProfile`)(
-  {
+export class EngineProfile extends S.Opaque<EngineProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     lineFitEpsilon: NonNegativeAdvance,
     carryCJKAfterClosingQuote: S.Boolean,
     breakKeepAllAfterPunctuation: S.Boolean,
     preferPrefixWidthsForBreakableRuns: S.Boolean,
     preferEarlySoftHyphenBreak: S.Boolean,
-  },
-  $I.annote("EngineProfile", {
-    description: "Per-engine layout quirk fences mirroring upstream pretext's EngineProfile.",
-  })
+  }).pipe(
+    $I.annoteSchema("EngineProfile", {
+      description: "Per-engine layout quirk fences mirroring upstream pretext's EngineProfile.",
+    })
+  )
 ) {}
 
 /**
@@ -98,8 +99,8 @@ export class EngineProfile extends S.Class<EngineProfile>($I`EngineProfile`)(
  * @category models
  * @since 0.0.0
  */
-export class FontMetrics extends S.Class<FontMetrics>($I`FontMetrics`)(
-  {
+export class FontMetrics extends S.Opaque<FontMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     // capturedAt is opaque provenance, not a datetime contract: live captures
     // write full ISO, curated fixtures may carry date-only stamps.
     capturedAt: S.String,
@@ -115,10 +116,12 @@ export class FontMetrics extends S.Class<FontMetrics>($I`FontMetrics`)(
     sentence: S.OptionFromOptionalKey(S.String),
     oracle: S.OptionFromOptionalKey(S.String),
     domLineCounts: S.OptionFromOptionalKey(S.Record(S.String, NonNegativeLineCount)),
-  },
-  $I.annote("FontMetrics", {
-    description: "A single engine's font measurement capture: word widths, space advance, line height, engine profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("FontMetrics", {
+      description:
+        "A single engine's font measurement capture: word widths, space advance, line height, engine profile.",
+    })
+  )
 ) {}
 
 /**
@@ -143,14 +146,15 @@ export class FontMetrics extends S.Class<FontMetrics>($I`FontMetrics`)(
  * @category models
  * @since 0.0.0
  */
-export class FontMetricsSnapshotV1 extends S.Class<FontMetricsSnapshotV1>($I`FontMetricsSnapshotV1`)(
-  {
+export class FontMetricsSnapshotV1 extends S.Opaque<FontMetricsSnapshotV1, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.tag(1),
     metrics: FontMetrics,
-  },
-  $I.annote("FontMetricsSnapshotV1", {
-    description: "Versioned font-metrics snapshot envelope: version tag plus a single engine's capture.",
-  })
+  }).pipe(
+    $I.annoteSchema("FontMetricsSnapshotV1", {
+      description: "Versioned font-metrics snapshot envelope: version tag plus a single engine's capture.",
+    })
+  )
 ) {
   static readonly is = S.is(FontMetricsSnapshotV1);
   static readonly fromUnknown = (input: unknown): FontMetricsSnapshotV1 =>
@@ -208,14 +212,15 @@ export type FontMetricsSnapshotV1Encoded = typeof FontMetricsSnapshotV1.Encoded;
  * @category models
  * @since 0.0.0
  */
-export class TextLayoutInput extends S.Class<TextLayoutInput>($I`TextLayoutInput`)(
-  {
+export class TextLayoutInput extends S.Opaque<TextLayoutInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxWidth: NonNegativeAdvance,
     text: S.String,
-  },
-  $I.annote("TextLayoutInput", {
-    description: "Text and maximum width used by pure font-metrics layout calculations.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextLayoutInput", {
+      description: "Text and maximum width used by pure font-metrics layout calculations.",
+    })
+  )
 ) {}
 
 /**
@@ -235,15 +240,16 @@ export class TextLayoutInput extends S.Class<TextLayoutInput>($I`TextLayoutInput
  * @category models
  * @since 0.0.0
  */
-export class LineRange extends S.Class<LineRange>($I`LineRange`)(
-  {
+export class LineRange extends S.Opaque<LineRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     startWord: NonNegativeLineCount,
     endWord: NonNegativeLineCount,
     width: NonNegativeAdvance,
-  },
-  $I.annote("LineRange", {
-    description: "A word-indexed half-open line range and its measured advance width.",
-  })
+  }).pipe(
+    $I.annoteSchema("LineRange", {
+      description: "A word-indexed half-open line range and its measured advance width.",
+    })
+  )
 ) {}
 
 /**
@@ -263,14 +269,15 @@ export class LineRange extends S.Class<LineRange>($I`LineRange`)(
  * @category models
  * @since 0.0.0
  */
-export class LineStats extends S.Class<LineStats>($I`LineStats`)(
-  {
+export class LineStats extends S.Opaque<LineStats, { readonly brand: unique symbol }>()(
+  S.Struct({
     lineCount: NonNegativeLineCount,
     maxLineWidth: NonNegativeAdvance,
-  },
-  $I.annote("LineStats", {
-    description: "Aggregate line count and maximum line width from a greedy text layout.",
-  })
+  }).pipe(
+    $I.annoteSchema("LineStats", {
+      description: "Aggregate line count and maximum line width from a greedy text layout.",
+    })
+  )
 ) {}
 
 const wordWidths = (metrics: FontMetrics, text: string): O.Option<ReadonlyArray<number>> =>
@@ -324,13 +331,13 @@ export const naturalWidth: {
  * **Example** (Compute greedy line ranges)
  *
  * ```ts
- * import { chromeLinuxArial16, lineRanges } from "@beep/pretext"
+ * import { chromeLinuxArial16, lineRanges, TextLayoutInput } from "@beep/pretext"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
  * const metrics = Effect.runSync(chromeLinuxArial16).metrics
  *
- * const ranges = lineRanges(metrics, { text: "the the", maxWidth: 40 })
+ * const ranges = lineRanges(metrics, TextLayoutInput.make({ text: "the the", maxWidth: 40 }))
  *
  * console.log(O.isOption(ranges))
  * ```
@@ -381,13 +388,13 @@ export const lineRanges: {
  * **Example** (Compute aggregate line stats)
  *
  * ```ts
- * import { chromeLinuxArial16, lineStats } from "@beep/pretext"
+ * import { chromeLinuxArial16, lineStats, TextLayoutInput } from "@beep/pretext"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
  * const metrics = Effect.runSync(chromeLinuxArial16).metrics
  *
- * const stats = lineStats(metrics, { text: "the the", maxWidth: 40 })
+ * const stats = lineStats(metrics, TextLayoutInput.make({ text: "the the", maxWidth: 40 }))
  *
  * console.log(O.isOption(stats))
  * ```
@@ -417,13 +424,13 @@ export const lineStats: {
  * **Example** (Compute greedy line count)
  *
  * ```ts
- * import { chromeLinuxArial16, lineCount } from "@beep/pretext"
+ * import { chromeLinuxArial16, lineCount, TextLayoutInput } from "@beep/pretext"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
  * const metrics = Effect.runSync(chromeLinuxArial16).metrics
  *
- * const lines = lineCount(metrics, { text: "the the", maxWidth: 320 })
+ * const lines = lineCount(metrics, TextLayoutInput.make({ text: "the the", maxWidth: 320 }))
  *
  * console.log(O.isOption(lines))
  * ```
@@ -460,13 +467,13 @@ export const lineCount: {
  * **Example** (Compute greedy text height)
  *
  * ```ts
- * import { chromeLinuxArial16, textHeight } from "@beep/pretext"
+ * import { chromeLinuxArial16, textHeight, TextLayoutInput } from "@beep/pretext"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
  *
  * const metrics = Effect.runSync(chromeLinuxArial16).metrics
  *
- * const height = textHeight(metrics, { text: "the the", maxWidth: 320 })
+ * const height = textHeight(metrics, TextLayoutInput.make({ text: "the the", maxWidth: 320 }))
  *
  * console.log(O.isOption(height))
  * ```

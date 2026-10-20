@@ -19,6 +19,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Configuration from "./Configuration.ts";
 import * as Domain from "./Domain.ts";
+import { DocEntry, Position } from "./Domain.ts";
 import * as Parser from "./Parser.ts";
 import type { Block, Inline } from "@beep/md";
 
@@ -237,7 +238,7 @@ type PrintEntryOptions = {
 const printEntry = (model: Domain.DocEntry, options: PrintEntryOptions) =>
   printModel(model.name, model.doc, {
     signature: model.signature,
-    position: model.position,
+    position: Position.make(model.position),
     indentation: options.indentation,
     postfix: options.postfix,
   });
@@ -261,7 +262,7 @@ const printProperty = (model: Domain.DocEntry) =>
   });
 
 const printClass = Effect.fn("printClass")(function* (model: Domain.Class) {
-  const header = yield* printEntry(model, { postfix: "(class)" });
+  const header = yield* printEntry(DocEntry.make(model), { postfix: "(class)" });
   const staticMethods = yield* Effect.forEach(model.staticMethods, printStaticMethod);
   const methods = yield* Effect.forEach(model.methods, printMethod);
   const properties = yield* Effect.forEach(model.properties, printProperty);
@@ -269,14 +270,14 @@ const printClass = Effect.fn("printClass")(function* (model: Domain.Class) {
   return A.flatten([header, A.flatten(staticMethods), A.flatten(methods), A.flatten(properties)]);
 });
 
-const printConstant = (model: Domain.Constant) => printEntry(model, {});
+const printConstant = (model: Domain.Constant) => printEntry(DocEntry.make(model), {});
 
 const printExport = (model: Domain.Export) =>
-  printEntry(model, {
+  printEntry(DocEntry.make(model), {
     postfix: model.isNamespaceExport ? "(namespace export)" : undefined,
   });
 
-const printFunction = (model: Domain.Function) => printEntry(model, {});
+const printFunction = (model: Domain.Function) => printEntry(DocEntry.make(model), {});
 
 const printInterface: {
   (
@@ -289,7 +290,7 @@ const printInterface: {
     model: Domain.Interface
   ) => Effect.Effect<ReadonlyArray<Block>, never, Configuration.Configuration | Parser.Source>;
 } = dual(2, (model: Domain.Interface, indentation: number) =>
-  printEntry(model, {
+  printEntry(DocEntry.make(model), {
     indentation,
     postfix: "(interface)",
   })
@@ -306,7 +307,7 @@ const printTypeAlias: {
     model: Domain.TypeAlias
   ) => Effect.Effect<ReadonlyArray<Block>, never, Configuration.Configuration | Parser.Source>;
 } = dual(2, (model: Domain.TypeAlias, indentation: number) =>
-  printEntry(model, {
+  printEntry(DocEntry.make(model), {
     indentation,
     postfix: "(type alias)",
   })
@@ -329,7 +330,7 @@ const printNamespace: {
     indentation: number
   ): Effect.fn.Return<ReadonlyArray<Block>, never, Configuration.Configuration | Parser.Source> {
     const header = yield* printModel(model.name, model.doc, {
-      position: model.position,
+      position: Position.make(model.position),
       indentation,
       postfix: "(namespace)",
     });
@@ -374,7 +375,13 @@ const printBlocks = Match.type<Printable>().pipe(
  *   ConfigurationShape,
  *   defaultCompilerOptions
  * } from "@beep/repo-docgen/Configuration"
- * import { Constant, Doc, Position } from "@beep/repo-docgen/Domain"
+ * import {
+ *   Constant,
+ *   Doc,
+ *   DocNewOptions,
+ *   Position,
+ *   SignaturePositionOptions
+ * } from "@beep/repo-docgen/Domain"
  * import { Source, SourceShape } from "@beep/repo-docgen/Parser"
  * import { print } from "@beep/repo-docgen/Printer"
  * const project = new Project({ useInMemoryFileSystem: true })
@@ -397,7 +404,7 @@ const printBlocks = Match.type<Printable>().pipe(
  *   theme: DEFAULT_THEME,
  *   tscExecutable: "tsc"
  * })
- * const doc = Doc.new("The answer exported by the example module.", {
+ * const doc = Doc.new("The answer exported by the example module.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: ["console.log(42)"],
@@ -405,11 +412,11 @@ const printBlocks = Match.type<Printable>().pipe(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = Constant.new("answer", doc, {
+ * }))
+ * const model = Constant.new("answer", doc, SignaturePositionOptions.make({
  *   signature: "const answer: 42",
  *   position: Position.new(1, 14)
- * })
+ * }))
  * const markdown = Effect.runSync(
  *   print(model).pipe(Effect.provide(Layer.mergeAll(Configuration.layer(config), Source.layer(source))))
  * )
@@ -466,7 +473,15 @@ const sortByName: <
  *   ConfigurationShape,
  *   defaultCompilerOptions
  * } from "@beep/repo-docgen/Configuration"
- * import { Constant, Doc, Module, Position } from "@beep/repo-docgen/Domain"
+ * import {
+ *   Constant,
+ *   Doc,
+ *   DocNewOptions,
+ *   Module,
+ *   ModuleNewOptions,
+ *   Position,
+ *   SignaturePositionOptions
+ * } from "@beep/repo-docgen/Domain"
  * import { SourceShape } from "@beep/repo-docgen/Parser"
  * import { printModule } from "@beep/repo-docgen/Printer"
  * const project = new Project({ useInMemoryFileSystem: true })
@@ -489,7 +504,7 @@ const sortByName: <
  *   theme: DEFAULT_THEME,
  *   tscExecutable: "tsc"
  * })
- * const doc = Doc.new("Example module.", {
+ * const doc = Doc.new("Example module.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -497,12 +512,12 @@ const sortByName: <
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const constant = Constant.new("answer", doc, {
+ * }))
+ * const constant = Constant.new("answer", doc, SignaturePositionOptions.make({
  *   signature: "const answer: 42",
  *   position: Position.new(1, 14)
- * })
- * const module = Module.new(source, "example.ts", {
+ * }))
+ * const module = Module.new(source, "example.ts", ModuleNewOptions.make({
  *   doc,
  *   path: ["src", "example.ts"],
  *   classes: [],
@@ -512,7 +527,7 @@ const sortByName: <
  *   constants: [constant],
  *   exports: [],
  *   namespaces: []
- * })
+ * }))
  * const markdown = Effect.runSync(printModule(module).pipe(Effect.provide(Configuration.layer(config))))
  * console.log(markdown.includes("# models"))
  * ```
@@ -555,14 +570,14 @@ export const printModule = (module: Domain.Module) =>
  *
  * ```ts
  * import { Project } from "ts-morph"
- * import { Doc, Module } from "@beep/repo-docgen/Domain"
+ * import { Doc, DocNewOptions, Module, ModuleNewOptions } from "@beep/repo-docgen/Domain"
  * import { SourceShape } from "@beep/repo-docgen/Parser"
  * import { printFrontMatter } from "@beep/repo-docgen/Printer"
  *
  * const project = new Project({ useInMemoryFileSystem: true })
  * const sourceFile = project.createSourceFile("src/example.ts", "")
  * const source = SourceShape.new(["src", "example.ts"], sourceFile)
- * const doc = Doc.new("Example module.", {
+ * const doc = Doc.new("Example module.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -570,8 +585,8 @@ export const printModule = (module: Domain.Module) =>
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const module = Module.new(source, "example.ts", {
+ * }))
+ * const module = Module.new(source, "example.ts", ModuleNewOptions.make({
  *   doc,
  *   path: ["src", "example.ts"],
  *   classes: [],
@@ -581,7 +596,7 @@ export const printModule = (module: Domain.Module) =>
  *   constants: [],
  *   exports: [],
  *   namespaces: []
- * })
+ * }))
  *
  * const frontMatter = printFrontMatter(module, 3)
  * console.log(frontMatter.includes("nav_order: 3"))

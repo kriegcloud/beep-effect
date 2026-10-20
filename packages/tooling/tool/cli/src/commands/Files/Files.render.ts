@@ -13,7 +13,7 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { FilesCommandError, formatPlatformError } from "./Files.errors.ts";
+import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "./Files.errors.ts";
 import {
   ArchivePoorCandidatesManifest,
   ArchivePoorCandidatesManifestSummary,
@@ -23,7 +23,7 @@ import {
   encodeNormalizeManifest,
 } from "./Files.schemas.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type {
   ArchivePoorCandidatesEntry,
   ArchivePoorCandidatesManifest as ArchivePoorCandidatesManifestModel,
@@ -558,14 +558,22 @@ export const writeDetectFacesManifest = Effect.fn("Files.writeDetectFacesManifes
     .makeDirectory(path.dirname(report.manifestPath), { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create detect-faces manifest directory", report.manifestPath, { cause })
+        formatPlatformError(
+          "Failed to create detect-faces manifest directory",
+          report.manifestPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   yield* fs
     .writeFileString(report.manifestPath, content)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to write detect-faces manifest", report.manifestPath, { cause })
+        formatPlatformError(
+          "Failed to write detect-faces manifest",
+          report.manifestPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 });

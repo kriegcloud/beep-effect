@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DocumentIntakeActionError, DocumentsRpcs } from "@beep/documents-use-cases/public";
+import { DocumentIntakeActionError, DocumentsRpcs, IntakeDroppedFileInput } from "@beep/documents-use-cases/public";
 import * as DocumentUseCases from "@beep/documents-use-cases/server";
 import { LogRedactedCauseOptions, logRedactedCause } from "@beep/observability/CauseRedaction";
 import { observeWorkflow } from "@beep/observability/Metric";
@@ -16,12 +16,10 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Metric from "effect/Metric";
 import * as O from "effect/Option";
+import { IntakeOperationDuration, IntakeOperations } from "@/ProfessionalDesktop.instruments";
 
-const intakeStarted = Metric.counter("desktop_intake_operations_started_total", { incremental: true });
-const intakeCompleted = Metric.counter("desktop_intake_operations_completed_total", { incremental: true });
-const intakeFailed = Metric.counter("desktop_intake_operations_failed_total", { incremental: true });
-const intakeInterrupted = Metric.counter("desktop_intake_operations_interrupted_total", { incremental: true });
-const intakeDuration = Metric.timer("desktop_intake_operation_duration");
+const intakeOperations = Metric.counter(IntakeOperations.name, { incremental: true });
+const intakeDuration = Metric.timer(IntakeOperationDuration.name);
 
 const observeIntakeOperation = Effect.fnUntraced(function* <A, E, R>(
   operation: string,
@@ -29,13 +27,10 @@ const observeIntakeOperation = Effect.fnUntraced(function* <A, E, R>(
 ): Effect.fn.Return<A, E, R> {
   return yield* observeWorkflow(effect, {
     name: `professional_desktop.intake.${operation}`,
-    attributes: { "professional_desktop.intake.operation": operation },
-    started: intakeStarted,
-    completed: intakeCompleted,
-    failed: intakeFailed,
-    interrupted: intakeInterrupted,
+    attributes: { "beep.desktop.operation": operation },
+    outcomes: intakeOperations,
     duration: intakeDuration,
-  }).pipe(Effect.withSpan(`professional_desktop.intake.${operation}`));
+  }).pipe(Effect.withSpan("DesktopIntake.run", { attributes: { "beep.desktop.operation": operation } }));
 });
 
 /**
@@ -164,7 +159,7 @@ export const DocumentIntakeHandlersLive = DocumentsRpcs.toLayer(
               })
             );
             return yield* documentIntake
-              .intakeDroppedFile({ ...payload, vaultRootPath })
+              .intakeDroppedFile(IntakeDroppedFileInput.make({ ...payload, vaultRootPath }))
               .pipe(Effect.catch(toDocumentIntakeActionError("IntakeDroppedFile")));
           })
         );

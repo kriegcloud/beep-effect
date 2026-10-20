@@ -97,13 +97,17 @@ export type PracticeKgEmailParticipantRole = typeof PracticeKgEmailParticipantRo
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgEmailParticipant extends S.Class<PracticeKgEmailParticipant>($I`PracticeKgEmailParticipant`)(
-  {
+export class PracticeKgEmailParticipant extends S.Opaque<
+  PracticeKgEmailParticipant,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     address: S.NonEmptyString,
     name: S.NullOr(S.String),
     role: PracticeKgEmailParticipantRole,
-  },
-  $I.annote("PracticeKgEmailParticipant", { description: "Lower-cased address, header name, and header role." })
+  }).pipe(
+    $I.annoteSchema("PracticeKgEmailParticipant", { description: "Lower-cased address, header name, and header role." })
+  )
 ) {}
 
 /**
@@ -128,16 +132,17 @@ export class PracticeKgEmailParticipant extends S.Class<PracticeKgEmailParticipa
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgEmailMessage extends S.Class<PracticeKgEmailMessage>($I`PracticeKgEmailMessage`)(
-  {
+export class PracticeKgEmailMessage extends S.Opaque<PracticeKgEmailMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdAt: S.NullOr(S.String),
     digest: S.NonEmptyString,
     messageId: S.optionalKey(S.NonEmptyString),
     participants: S.Array(PracticeKgEmailParticipant),
-  },
-  $I.annote("PracticeKgEmailMessage", {
-    description: "Digest, creation time, participants, and, when known, the Message-ID of one email.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgEmailMessage", {
+      description: "Digest, creation time, participants, and, when known, the Message-ID of one email.",
+    })
+  )
 ) {}
 
 const messageIdBracketsPattern = /^<|>$/gu;
@@ -204,8 +209,11 @@ const identityOf = (message: PracticeKgEmailMessage): string =>
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentRow extends S.Class<PracticeKgCorrespondentRow>($I`PracticeKgCorrespondentRow`)(
-  {
+export class PracticeKgCorrespondentRow extends S.Opaque<
+  PracticeKgCorrespondentRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     address: S.NonEmptyString,
     ccCount: S.Finite,
     contactId: S.NullOr(S.String),
@@ -219,10 +227,11 @@ export class PracticeKgCorrespondentRow extends S.Class<PracticeKgCorrespondentR
     messageCount: S.Finite,
     roleAddress: S.Boolean,
     toCount: S.Finite,
-  },
-  $I.annote("PracticeKgCorrespondentRow", {
-    description: "Message counts for one address on one matter, as persisted in matter_correspondents.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentRow", {
+      description: "Message counts for one address on one matter, as persisted in matter_correspondents.",
+    })
+  )
 ) {}
 
 /**
@@ -246,19 +255,21 @@ export class PracticeKgCorrespondentRow extends S.Class<PracticeKgCorrespondentR
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgContactClientLinkRow extends S.Class<PracticeKgContactClientLinkRow>(
-  $I`PracticeKgContactClientLinkRow`
-)(
-  {
+export class PracticeKgContactClientLinkRow extends S.Opaque<
+  PracticeKgContactClientLinkRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     clientNumber: S.NonEmptyString,
     contactId: S.NonEmptyString,
     evidence: S.String,
     familyKey: S.NullOr(S.String),
     source: PracticeKgContactLinkSource,
-  },
-  $I.annote("PracticeKgContactClientLinkRow", {
-    description: "Contact link to a client and optional matter, as persisted in contact_client_links.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgContactClientLinkRow", {
+      description: "Contact link to a client and optional matter, as persisted in contact_client_links.",
+    })
+  )
 ) {}
 
 /**
@@ -283,18 +294,22 @@ export class PracticeKgContactClientLinkRow extends S.Class<PracticeKgContactCli
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgContactAddressRow extends S.Class<PracticeKgContactAddressRow>($I`PracticeKgContactAddressRow`)(
-  {
+export class PracticeKgContactAddressRow extends S.Opaque<
+  PracticeKgContactAddressRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     address: S.NonEmptyString,
     contactId: S.NonEmptyString,
     displayName: S.String,
     isPracticeAddress: S.Boolean,
     organization: S.NullOr(S.String),
     roleAddress: S.Boolean,
-  },
-  $I.annote("PracticeKgContactAddressRow", {
-    description: "Contact that owns an email address, as persisted in contact_addresses.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgContactAddressRow", {
+      description: "Contact that owns an email address, as persisted in contact_addresses.",
+    })
+  )
 ) {}
 
 /**
@@ -312,17 +327,19 @@ export class PracticeKgContactAddressRow extends S.Class<PracticeKgContactAddres
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentTables extends S.Class<PracticeKgCorrespondentTables>(
-  $I`PracticeKgCorrespondentTables`
-)(
-  {
+export class PracticeKgCorrespondentTables extends S.Opaque<
+  PracticeKgCorrespondentTables,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     addresses: S.Array(PracticeKgContactAddressRow),
     correspondents: S.Array(PracticeKgCorrespondentRow),
     links: S.Array(PracticeKgContactClientLinkRow),
-  },
-  $I.annote("PracticeKgCorrespondentTables", {
-    description: "Rows for matter_correspondents, contact_client_links, and contact_addresses.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentTables", {
+      description: "Rows for matter_correspondents, contact_client_links, and contact_addresses.",
+    })
+  )
 ) {}
 
 /**
@@ -345,18 +362,20 @@ export class PracticeKgCorrespondentTables extends S.Class<PracticeKgCorresponde
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentTablesInput extends S.Class<PracticeKgCorrespondentTablesInput>(
-  $I`PracticeKgCorrespondentTablesInput`
-)(
-  {
+export class PracticeKgCorrespondentTablesInput extends S.Opaque<
+  PracticeKgCorrespondentTablesInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributions: S.Array(PracticeKgDocumentAttribution),
     contacts: S.Array(PracticeKgContact),
     messages: S.Array(PracticeKgEmailMessage),
     practiceDomains: S.Array(S.String),
-  },
-  $I.annote("PracticeKgCorrespondentTablesInput", {
-    description: "Document attributions, email headers, contacts, and the practice's own mail domains.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentTablesInput", {
+      description: "Document attributions, email headers, contacts, and the practice's own mail domains.",
+    })
+  )
 ) {}
 
 /**
@@ -374,16 +393,18 @@ export class PracticeKgCorrespondentTablesInput extends S.Class<PracticeKgCorres
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgEmailMessagesInput extends S.Class<PracticeKgEmailMessagesInput>(
-  $I`PracticeKgEmailMessagesInput`
-)(
-  {
+export class PracticeKgEmailMessagesInput extends S.Opaque<
+  PracticeKgEmailMessagesInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     databasePath: S.String,
     sourceSpecs: S.Array(GraphTextSourceSpec),
-  },
-  $I.annote("PracticeKgEmailMessagesInput", {
-    description: "Bundle DuckDB and the extraction sources whose metadata holds the email headers.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgEmailMessagesInput", {
+      description: "Bundle DuckDB and the extraction sources whose metadata holds the email headers.",
+    })
+  )
 ) {}
 
 const normalizeAddress = (address: string): string => Str.toLowerCase(Str.trim(address));
@@ -498,13 +519,15 @@ export const parsePracticeKgHeaderParticipants =
 
 const TikaValue = S.Union([S.String, S.Array(S.String)]);
 
-class TikaEmailFields extends S.Class<TikaEmailFields>($I`TikaEmailFields`)({
-  "dcterms:created": S.optionalKey(TikaValue),
-  "Message-Cc": S.optionalKey(TikaValue),
-  "Message-From": S.optionalKey(TikaValue),
-  "Message-To": S.optionalKey(TikaValue),
-  "Message:From-Email": S.optionalKey(TikaValue),
-}) {}
+class TikaEmailFields extends S.Opaque<TikaEmailFields, { readonly brand: unique symbol }>()(
+  S.Struct({
+    "dcterms:created": S.optionalKey(TikaValue),
+    "Message-Cc": S.optionalKey(TikaValue),
+    "Message-From": S.optionalKey(TikaValue),
+    "Message-To": S.optionalKey(TikaValue),
+    "Message:From-Email": S.optionalKey(TikaValue),
+  }).pipe($I.annoteSchema("TikaEmailFields"))
+) {}
 
 const TikaRecord = S.Record(S.String, S.Unknown);
 type TikaRecord = typeof TikaRecord.Type;
@@ -561,11 +584,13 @@ const messageFrom = (digest: string, fields: TikaEmailFields, messageId: O.Optio
     ],
   });
 
-class EmailSourceRow extends S.Class<EmailSourceRow>($I`EmailSourceRow`)({
-  digest: S.NonEmptyString,
-  metadataDir: S.String,
-  operationId: S.NonEmptyString,
-}) {}
+class EmailSourceRow extends S.Opaque<EmailSourceRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    digest: S.NonEmptyString,
+    metadataDir: S.String,
+    operationId: S.NonEmptyString,
+  }).pipe($I.annoteSchema("EmailSourceRow"))
+) {}
 
 const decodeEmailSourceRows = S.decodeUnknownEffect(S.Array(EmailSourceRow));
 

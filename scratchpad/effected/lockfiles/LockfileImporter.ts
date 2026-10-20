@@ -34,7 +34,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/LockfileImporter");
  * @category models
  * @since 0.0.0
  */
-export class LockfileImporter extends S.Class<LockfileImporter>($I`LockfileImporter`)({
+export class LockfileImporter extends S.Class<LockfileImporter, { readonly brand: unique symbol }>($I`LockfileImporter`)({
 	path: S.NonEmptyString.annotateKey({ description: "Importer path relative to the workspace root, with `.` identifying the root package" }),
 	dependencies: S.Array(ImporterDependency).annotateKey({ description: "Dependencies declared by this importer across its runtime, development, peer and optional sections" }),
 }, $I.annote("LockfileImporter", { description: "One workspace importer's declared dependencies, as the lockfile records them." })) {}

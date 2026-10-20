@@ -39,8 +39,8 @@ const $I = $McpKitId.create("ToolAnnotations");
  * @category models
  * @since 0.0.0
  */
-export class FourHintAnnotations extends S.Class<FourHintAnnotations>($I`FourHintAnnotations`)(
-  {
+export class FourHintAnnotations extends S.Opaque<FourHintAnnotations, { readonly brand: unique symbol }>()(
+  S.Struct({
     destructive: S.Boolean.annotateKey({
       description: "Emitted as the MCP destructiveHint.",
     }),
@@ -53,10 +53,11 @@ export class FourHintAnnotations extends S.Class<FourHintAnnotations>($I`FourHin
     readOnly: S.Boolean.annotateKey({
       description: "Emitted as the MCP readOnlyHint.",
     }),
-  },
-  $I.annote("FourHintAnnotations", {
-    description: "The four MCP tool-behavior hints as a single record.",
-  })
+  }).pipe(
+    $I.annoteSchema("FourHintAnnotations", {
+      description: "The four MCP tool-behavior hints as a single record.",
+    })
+  )
 ) {
   static readonly readOnly: FourHintAnnotations = FourHintAnnotations.make({
     readOnly: true,
@@ -106,7 +107,7 @@ export type AnnotatedTool<T extends AiTool.Any> = T extends unknown ? T : never;
  * **Example** (Annotate tool with four hints)
  *
  * ```ts
- * import { Tool } from "effect/ai"
+ * import * as Tool from "effect/ai/Tool";
  * import { annotateFourHints, readOnlyToolHints } from "@beep/mcp-kit"
  *
  * const searchTool = annotateFourHints(Tool.make("search_patents"), readOnlyToolHints)

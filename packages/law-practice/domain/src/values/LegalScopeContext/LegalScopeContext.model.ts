@@ -101,8 +101,8 @@ const LegalScopeAxis = LegalScopeValue.pipe(S.HashSet, S.toCodecJson);
  * @category models
  * @since 0.0.0
  */
-export class LegalScopeContext extends S.Class<LegalScopeContext>($I`LegalScopeContext`)(
-  {
+export class LegalScopeContext extends S.Opaque<LegalScopeContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     material: LegalScopeAxis.annotateKey({
       description: "Recorded subject matter the position is about.",
     }),
@@ -118,8 +118,9 @@ export class LegalScopeContext extends S.Class<LegalScopeContext>($I`LegalScopeC
     territorial: LegalScopeAxis.annotateKey({
       description: "Recorded jurisdictions or territories the position is held to apply within.",
     }),
-  },
-  $I.annote("LegalScopeContext", {
-    description: "The five recorded scope axes a legal position is held to apply within.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalScopeContext", {
+      description: "The five recorded scope axes a legal position is held to apply within.",
+    })
+  )
 ) {}

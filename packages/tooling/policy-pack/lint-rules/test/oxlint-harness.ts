@@ -20,6 +20,7 @@
  * JSON through `effect/Schema` rather than `JSON.parse`.
  */
 
+import { DocsRuleId } from "@beep/lint-rules/oxlint-docs";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -32,6 +33,8 @@ import { encodeConfig, jsonReportParser, validateLinterProcess } from "./codec.t
 const packageRoot = decodeURIComponent(new URL("../", import.meta.url).pathname);
 
 /** Absolute path to the oxlint plugin entry (`src/rules/index.ts`). */
+const docsPluginEntry = decodeURIComponent(new URL("../src/rules/docs.index.ts", import.meta.url).pathname);
+
 const pluginEntry = decodeURIComponent(new URL("../src/rules/index.ts", import.meta.url).pathname);
 
 /** The oxlint rule ids this harness can exercise (the `beep/<slug>` plugin rules). */
@@ -50,7 +53,7 @@ export const OXLINT_RULES = [
  * @category models
  * @since 0.1.0
  */
-export type OxlintRule = (typeof OXLINT_RULES)[number];
+export type OxlintRule = (typeof OXLINT_RULES)[number] | DocsRuleId;
 
 /** One normalized oxlint diagnostic: the rule slug it belongs to and its 1-based line. */
 type Finding = {
@@ -72,7 +75,7 @@ const ruleConfig = (rule: OxlintRule) => ({
     restriction: "off",
     nursery: "off",
   },
-  jsPlugins: [pluginEntry],
+  jsPlugins: [S.is(DocsRuleId)(rule) ? docsPluginEntry : pluginEntry],
   rules: { [`beep/${rule}`]: "warn" },
 });
 
@@ -108,11 +111,13 @@ export const OxlintReport = S.Struct({
 /** Decode stdout and retain malformed-report failures. */
 const parseReport = jsonReportParser(OxlintReport);
 
-class OxlintFixture extends S.Class<OxlintFixture>("OxlintFixture")({
-  configPath: S.String,
-  sourcePath: S.String,
-  tempDir: S.String,
-}) {}
+class OxlintFixture extends S.Opaque<OxlintFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
+    configPath: S.String,
+    sourcePath: S.String,
+    tempDir: S.String,
+  }).annotate({ identifier: "OxlintFixture" })
+) {}
 
 const writeSupportingFile = Effect.fnUntraced(function* (
   tempDir: string,
@@ -199,11 +204,14 @@ export const runOxlintRule = Effect.fn("oxlintHarness.runOxlintRule")(function* 
           // Run from the package root so `bunx oxlint` and the plugin's `@oxlint/plugins` /
           // `effect` imports resolve against the repo's node_modules; the config and fixture
           // are passed by absolute path, so the working directory does not affect what is read.
-          const result = Bun.spawnSync(["bunx", "oxlint", "--format=json", `--config=${configPath}`, sourcePath], {
-            cwd: packageRoot,
-            stdout: "pipe",
-            stderr: "pipe",
-          });
+          const result = Bun.spawnSync(
+            ["bunx", "oxlint", "--threads=2", "--format=json", `--config=${configPath}`, sourcePath],
+            {
+              cwd: packageRoot,
+              stdout: "pipe",
+              stderr: "pipe",
+            }
+          );
           return result;
         });
 
@@ -250,7 +258,7 @@ export const runOxlintRuleFix = Effect.fn("oxlintHarness.runOxlintRuleFix")(func
     ({ configPath, sourcePath }) =>
       Effect.gen(function* () {
         const result = yield* Effect.sync(() =>
-          Bun.spawnSync(["bunx", "oxlint", "--fix", `--config=${configPath}`, sourcePath], {
+          Bun.spawnSync(["bunx", "oxlint", "--threads=2", "--fix", `--config=${configPath}`, sourcePath], {
             cwd: packageRoot,
             stdout: "pipe",
             stderr: "pipe",

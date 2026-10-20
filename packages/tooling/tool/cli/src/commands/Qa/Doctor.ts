@@ -21,7 +21,7 @@ import * as S from "effect/Schema";
 import { configStringOption } from "../../internal/cli/EnvConfig.ts";
 import { runCaptured } from "../../internal/process/index.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/Qa/Doctor");
 
@@ -93,8 +93,8 @@ export type QaProbeStatus = typeof QaProbeStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class QaProbe extends S.Class<QaProbe>($I`QaProbe`)(
-  {
+export class QaProbe extends S.Opaque<QaProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     detail: S.String.pipe(
       $I.annoteKey("QaProbe.detail", {
         description: "Version, path, or remediation hint for the probed tool.",
@@ -115,10 +115,11 @@ export class QaProbe extends S.Class<QaProbe>($I`QaProbe`)(
         description: "Probe outcome.",
       })
     ),
-  },
-  $I.annote("QaProbe", {
-    description: "Result of probing one tool the recorded-QA pipeline depends on.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaProbe", {
+      description: "Result of probing one tool the recorded-QA pipeline depends on.",
+    })
+  )
 ) {}
 
 /**

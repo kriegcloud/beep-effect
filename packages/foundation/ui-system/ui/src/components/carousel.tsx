@@ -9,11 +9,11 @@
 import { Button } from "@beep/ui/components/button";
 import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import useEmblaCarousel from "embla-carousel-react";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
-import { requireReactContext } from "../lib/react-invariant.ts";
+import { ReactContextInvariantOptions, requireReactContext } from "../lib/react-invariant.ts";
 import type { UseEmblaCarouselType } from "embla-carousel-react";
 
 /**
@@ -160,7 +160,10 @@ const carouselEffectAtom = Atom.family((scope: string) =>
  */
 function useCarousel() {
   const context = React.useContext(CarouselContext);
-  return requireReactContext(context, { message: "useCarousel must be used within a <Carousel />" });
+  return requireReactContext(
+    context,
+    ReactContextInvariantOptions.make({ message: "useCarousel must be used within a <Carousel />" })
+  );
 }
 
 /**

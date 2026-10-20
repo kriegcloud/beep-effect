@@ -23,7 +23,7 @@ import {
   FourHintAnnotations,
 } from "@beep/mcp-kit";
 import { LiteralKit } from "@beep/schema";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { PosInt } from "./internal/PosInt.ts";
@@ -101,46 +101,141 @@ const BudgetBytes = PosInt.pipe(
   description: "Maximum serialized response size in bytes. Defaults to 8000.",
 });
 
-class BudgetParams extends S.Class<BudgetParams>($I`BudgetParams`)(
-  { budgetBytes: BudgetBytes },
-  $I.annote("BudgetParams", { description: "Shared byte budget accepted by practice KG read tools." })
+/**
+ * Shared byte budget accepted by practice KG read tools.
+ *
+ * **Example** (Fall back to the default response budget)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BudgetParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const defaults = S.decodeUnknownSync(BudgetParams)({})
+ * const tight = S.decodeUnknownSync(BudgetParams)({ budgetBytes: 2000 })
+ *
+ * console.log(defaults.budgetBytes) // => 8000
+ * console.log(tight.budgetBytes) // => 2000
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BudgetParams extends S.Opaque<BudgetParams, { readonly brand: unique symbol }>()(
+  S.Struct({ budgetBytes: BudgetBytes }).pipe(
+    $I.annoteSchema("BudgetParams", { description: "Shared byte budget accepted by practice KG read tools." })
+  )
 ) {}
 
-class DocketFamilyParams extends S.Class<DocketFamilyParams>($I`DocketFamilyParams`)(
-  {
+/**
+ * Parameters for resolving one docket family.
+ *
+ * **Details**
+ *
+ * A bare family number such as 10008 returns every client-keyed family sharing it; a client-keyed form
+ * such as 12345.10008 returns one.
+ *
+ * **Example** (Resolve every client family sharing a bare number)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DocketFamilyParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(DocketFamilyParams)({ family: "10008" })
+ *
+ * console.log(params.family.includes(".")) // => false
+ * console.log(params.budgetBytes) // => 8000
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocketFamilyParams extends S.Opaque<DocketFamilyParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     family: S.NonEmptyString.annotateKey({
       description:
         "Docket-family key. A bare family number such as 10008 returns every client-keyed family sharing it; a client-keyed form such as 12345.10008 returns one.",
     }),
-  },
-  $I.annote("DocketFamilyParams", { description: "Parameters for resolving one docket family." })
+  }).pipe($I.annoteSchema("DocketFamilyParams", { description: "Parameters for resolving one docket family." }))
 ) {}
 
-class ApplicationLookupParams extends S.Class<ApplicationLookupParams>($I`ApplicationLookupParams`)(
-  {
+/**
+ * Application lookup by application number, patent number, or docket. A docket may be bare (10008US01) or client-keyed (12345.10008US01).
+ *
+ * **Example** (Look up an application by client-keyed docket)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ApplicationLookupParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(ApplicationLookupParams)({ docket: "12345.10008US01" })
+ *
+ * console.log(params.docket) // => "12345.10008US01"
+ * console.log(params.application_number) // => undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ApplicationLookupParams extends S.Opaque<ApplicationLookupParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     application_number: S.optionalKey(S.NonEmptyString),
     budgetBytes: BudgetBytes,
     docket: S.optionalKey(S.NonEmptyString),
     patent_number: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("ApplicationLookupParams", {
-    description:
-      "Application lookup by application number, patent number, or docket. A docket may be bare (10008US01) or client-keyed (12345.10008US01).",
-  })
+  }).pipe(
+    $I.annoteSchema("ApplicationLookupParams", {
+      description:
+        "Application lookup by application number, patent number, or docket. A docket may be bare (10008US01) or client-keyed (12345.10008US01).",
+    })
+  )
 ) {}
 
-class FindParams extends S.Class<FindParams>($I`FindParams`)(
-  {
+/**
+ * Parameters for finding graph spine nodes by a case-insensitive node label or natural-key fragment.
+ *
+ * **Example** (Find graph nodes by a label fragment)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FindParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(FindParams)({ query: "robotic gripper", budgetBytes: 4000 })
+ *
+ * console.log(params.query) // => "robotic gripper"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FindParams extends S.Opaque<FindParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     query: S.NonEmptyString.annotateKey({ description: "Case-insensitive node label or natural-key fragment." }),
-  },
-  $I.annote("FindParams", { description: "Parameters for finding graph spine nodes." })
+  }).pipe($I.annoteSchema("FindParams", { description: "Parameters for finding graph spine nodes." }))
 ) {}
 
 const searchTextParamsLimitDefault = PosInt.make(20);
-class SearchTextParams extends S.Class<SearchTextParams>($I`SearchTextParams`)(
-  {
+/**
+ * Parameters for BM25 corpus full-text search.
+ *
+ * **Example** (Search one family's corpus with the default page size)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SearchTextParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(SearchTextParams)({ query: "final rejection 103", family: "12345.10008" })
+ *
+ * console.log(params.limit) // => 20
+ * console.log(params.family) // => "12345.10008"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SearchTextParams extends S.Opaque<SearchTextParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     family: S.optionalKey(S.NonEmptyString),
     limit: PosInt.pipe(
@@ -148,23 +243,58 @@ class SearchTextParams extends S.Class<SearchTextParams>($I`SearchTextParams`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(searchTextParamsLimitDefault))
     ),
     query: S.NonEmptyString,
-  },
-  $I.annote("SearchTextParams", { description: "Parameters for BM25 corpus full-text search." })
+  }).pipe($I.annoteSchema("SearchTextParams", { description: "Parameters for BM25 corpus full-text search." }))
 ) {}
 
-class DocumentRange extends S.Class<DocumentRange>($I`DocumentRange`)(
-  {
+/**
+ * One-based text start and positive character length.
+ *
+ * **Example** (Read the second 4 KiB window of a document)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DocumentRange } from "@beep/law-practice-use-cases/server"
+ *
+ * const range = S.decodeUnknownSync(DocumentRange)({ start: 4097, length: 4096 })
+ *
+ * console.log(range.start + range.length - 1) // => 8192
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocumentRange extends S.Opaque<DocumentRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     length: PosInt,
     start: PosInt,
-  },
-  $I.annote("DocumentRange", { description: "One-based text start and positive character length." })
+  }).pipe($I.annoteSchema("DocumentRange", { description: "One-based text start and positive character length." }))
 ) {}
 
 /* Whole-document read: start at 1 with a 2 MiB character budget. */
 const defaultDocumentRange = DocumentRange.make({ length: PosInt.make(2_097_152), start: PosInt.make(1) });
 
-class GetDocumentParams extends S.Class<GetDocumentParams>($I`GetDocumentParams`)(
-  {
+/**
+ * Document lookup by digest or organized corpus path.
+ *
+ * **Example** (Fetch a document by digest with the default range)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { GetDocumentParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(GetDocumentParams)({
+ *   digest: "sha256:9f2c4a7e1b0d3c5f8a6e2d4b7c9f1a3e5d7b9c2f4a6e8d0b2c4f6a8e0d2b4c6f"
+ * })
+ *
+ * console.log(params.range.start) // => 1
+ * console.log(params.organized_path) // => undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GetDocumentParams extends S.Opaque<GetDocumentParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     digest: S.optionalKey(S.NonEmptyString),
     organized_path: S.optionalKey(S.NonEmptyString),
@@ -172,44 +302,105 @@ class GetDocumentParams extends S.Class<GetDocumentParams>($I`GetDocumentParams`
       S.withConstructorDefault(Effect.succeed(defaultDocumentRange)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultDocumentRange))
     ),
-  },
-  $I.annote("GetDocumentParams", { description: "Document lookup by digest or organized corpus path." })
+  }).pipe($I.annoteSchema("GetDocumentParams", { description: "Document lookup by digest or organized corpus path." }))
 ) {}
 
-class EmailSearchParams extends S.Class<EmailSearchParams>($I`EmailSearchParams`)(
-  {
+/**
+ * Header-only email search filters.
+ *
+ * **Example** (Search mail headers from one sender in a date window)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EmailSearchParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(EmailSearchParams)({
+ *   sender: "examiner@uspto.gov",
+ *   after: "2026-01-01",
+ *   before: "2026-06-30"
+ * })
+ *
+ * console.log([params.after, params.before]) // => ["2026-01-01", "2026-06-30"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class EmailSearchParams extends S.Opaque<EmailSearchParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     after: S.optionalKey(S.NonEmptyString),
     before: S.optionalKey(S.NonEmptyString),
     budgetBytes: BudgetBytes,
     family: S.optionalKey(S.NonEmptyString),
     query: S.optionalKey(S.NonEmptyString),
     sender: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("EmailSearchParams", { description: "Header-only email search filters." })
+  }).pipe($I.annoteSchema("EmailSearchParams", { description: "Header-only email search filters." }))
 ) {}
 
-class CandidateClaimsParams extends S.Class<CandidateClaimsParams>($I`CandidateClaimsParams`)(
-  {
+/**
+ * Candidate-claim lookup key accepted before the claims batch is loaded.
+ *
+ * **Details**
+ *
+ * The family may be bare (10008) or client-keyed (12345.10008).
+ *
+ * **Example** (Load candidate claims for one family)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CandidateClaimsParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(CandidateClaimsParams)({ family: "12345.10008" })
+ *
+ * console.log(params.family) // => "12345.10008"
+ * console.log(params.digest === undefined && params.docket === undefined) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CandidateClaimsParams extends S.Opaque<CandidateClaimsParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     digest: S.optionalKey(S.NonEmptyString),
     docket: S.optionalKey(S.NonEmptyString),
     family: S.optionalKey(S.NonEmptyString).annotateKey({
       description: "Docket family, bare (10008) or client-keyed (12345.10008).",
     }),
-  },
-  $I.annote("CandidateClaimsParams", {
-    description: "Candidate-claim lookup key accepted before the claims batch is loaded.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateClaimsParams", {
+      description: "Candidate-claim lookup key accepted before the claims batch is loaded.",
+    })
+  )
 ) {}
 
-class ProvenanceParams extends S.Class<ProvenanceParams>($I`ProvenanceParams`)(
-  {
+/**
+ * Optional graph or document identity for provenance lookup.
+ *
+ * **Example** (Trace where a graph node came from)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ProvenanceParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(ProvenanceParams)({ natural_key: "application:14/783,547" })
+ *
+ * console.log(params.natural_key) // => "application:14/783,547"
+ * console.log(params.iri) // => undefined
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProvenanceParams extends S.Opaque<ProvenanceParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     digest: S.optionalKey(S.NonEmptyString),
     iri: S.optionalKey(S.NonEmptyString),
     natural_key: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("ProvenanceParams", { description: "Optional graph or document identity for provenance lookup." })
+  }).pipe(
+    $I.annoteSchema("ProvenanceParams", { description: "Optional graph or document identity for provenance lookup." })
+  )
 ) {}
 
 /**
@@ -227,15 +418,16 @@ class ProvenanceParams extends S.Class<ProvenanceParams>($I`ProvenanceParams`)(
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgToolError extends S.Class<PracticeKgToolError>($I`PracticeKgToolError`)(
-  {
+export class PracticeKgToolError extends S.Opaque<PracticeKgToolError, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.NonEmptyString,
     reason: S.optionalKey(PracticeKgToolFailureReason),
     tool: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgToolError", {
-    description: "Sanitized failure returned by a read-only practice knowledge-graph tool.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgToolError", {
+      description: "Sanitized failure returned by a read-only practice knowledge-graph tool.",
+    })
+  )
 ) {}
 
 /**
@@ -262,8 +454,8 @@ export class PracticeKgToolError extends S.Class<PracticeKgToolError>($I`Practic
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgToolResult extends S.Class<PracticeKgToolResult>($I`PracticeKgToolResult`)(
-  {
+export class PracticeKgToolResult extends S.Opaque<PracticeKgToolResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundle_version: S.NonEmptyString,
     data: ColumnarEnvelope,
     epistemic_status: PracticeKgEpistemicStatus,
@@ -275,10 +467,11 @@ export class PracticeKgToolResult extends S.Class<PracticeKgToolResult>($I`Pract
       description:
         "Columns the complete tier carries that this response left out to fit the byte budget. Re-ask with a larger budgetBytes to get them.",
     }),
-  },
-  $I.annote("PracticeKgToolResult", {
-    description: "Budgeted columnar practice KG response with authority and bundle labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgToolResult", {
+      description: "Budgeted columnar practice KG response with authority and bundle labels.",
+    })
+  )
 ) {}
 
 /**
@@ -301,18 +494,20 @@ export class PracticeKgToolResult extends S.Class<PracticeKgToolResult>($I`Pract
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCandidateClaimsNotLoadedResult extends S.Class<PracticeKgCandidateClaimsNotLoadedResult>(
-  $I`PracticeKgCandidateClaimsNotLoadedResult`
-)(
-  {
+export class PracticeKgCandidateClaimsNotLoadedResult extends S.Opaque<
+  PracticeKgCandidateClaimsNotLoadedResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     available: S.Literal(false),
     bundle_version: S.NonEmptyString,
     epistemic_status: S.Literal("candidate-unreviewed"),
     reason: S.Literal("claims batch not yet loaded"),
-  },
-  $I.annote("PracticeKgCandidateClaimsNotLoadedResult", {
-    description: "Manifest-labelled empty result used before candidate claims are loaded.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCandidateClaimsNotLoadedResult", {
+      description: "Manifest-labelled empty result used before candidate claims are loaded.",
+    })
+  )
 ) {}
 
 /**
@@ -377,8 +572,8 @@ export type PracticeKgCandidateClaimsResult = typeof PracticeKgCandidateClaimsRe
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgGraphToolRow extends S.Class<PracticeKgGraphToolRow>($I`PracticeKgGraphToolRow`)(
-  {
+export class PracticeKgGraphToolRow extends S.Opaque<PracticeKgGraphToolRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributionSource: S.NullOr(KgAttributionSource),
     client: S.NullOr(S.String),
     count: S.NullOr(S.Finite),
@@ -390,8 +585,9 @@ export class PracticeKgGraphToolRow extends S.Class<PracticeKgGraphToolRow>($I`P
     naturalKey: S.String,
     provenanceKind: PracticeKgToolProvenanceKind,
     provenanceRef: S.String,
-  },
-  $I.annote("PracticeKgGraphToolRow", { description: "Decoded graph row exposed through practice KG tools." })
+  }).pipe(
+    $I.annoteSchema("PracticeKgGraphToolRow", { description: "Decoded graph row exposed through practice KG tools." })
+  )
 ) {}
 
 /**
@@ -408,8 +604,8 @@ export class PracticeKgGraphToolRow extends S.Class<PracticeKgGraphToolRow>($I`P
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgFamilyToolRow extends S.Class<PracticeKgFamilyToolRow>($I`PracticeKgFamilyToolRow`)(
-  {
+export class PracticeKgFamilyToolRow extends S.Opaque<PracticeKgFamilyToolRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     application: S.NullOr(S.String),
     applicationCount: S.Finite,
     docket: S.NullOr(S.String),
@@ -419,8 +615,7 @@ export class PracticeKgFamilyToolRow extends S.Class<PracticeKgFamilyToolRow>($I
     documentLabel: S.NullOr(S.String),
     family: S.String,
     patent: S.NullOr(S.String),
-  },
-  $I.annote("PracticeKgFamilyToolRow", { description: "Decoded docket-family aggregate tool row." })
+  }).pipe($I.annoteSchema("PracticeKgFamilyToolRow", { description: "Decoded docket-family aggregate tool row." }))
 ) {}
 
 /**
@@ -437,8 +632,8 @@ export class PracticeKgFamilyToolRow extends S.Class<PracticeKgFamilyToolRow>($I
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgDocumentToolRow extends S.Class<PracticeKgDocumentToolRow>($I`PracticeKgDocumentToolRow`)(
-  {
+export class PracticeKgDocumentToolRow extends S.Opaque<PracticeKgDocumentToolRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     digest: S.String,
     docket: S.NullOr(S.String),
     family: S.NullOr(S.String),
@@ -451,8 +646,7 @@ export class PracticeKgDocumentToolRow extends S.Class<PracticeKgDocumentToolRow
     sourceRelativePath: S.NullOr(S.String),
     text: S.NullOr(S.String),
     truncated: S.NullOr(S.Boolean),
-  },
-  $I.annote("PracticeKgDocumentToolRow", { description: "Decoded corpus document tool row." })
+  }).pipe($I.annoteSchema("PracticeKgDocumentToolRow", { description: "Decoded corpus document tool row." }))
 ) {}
 
 /**
@@ -469,8 +663,8 @@ export class PracticeKgDocumentToolRow extends S.Class<PracticeKgDocumentToolRow
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgEmailToolRow extends S.Class<PracticeKgEmailToolRow>($I`PracticeKgEmailToolRow`)(
-  {
+export class PracticeKgEmailToolRow extends S.Opaque<PracticeKgEmailToolRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveDigest: S.String,
     conversationTopic: S.NullOr(S.String),
     deliveryIso: S.NullOr(S.String),
@@ -481,8 +675,7 @@ export class PracticeKgEmailToolRow extends S.Class<PracticeKgEmailToolRow>($I`P
     senderName: S.NullOr(S.String),
     subject: S.String,
     submitIso: S.NullOr(S.String),
-  },
-  $I.annote("PracticeKgEmailToolRow", { description: "Decoded header-only email tool row." })
+  }).pipe($I.annoteSchema("PracticeKgEmailToolRow", { description: "Decoded header-only email tool row." }))
 ) {}
 
 /**
@@ -499,10 +692,11 @@ export class PracticeKgEmailToolRow extends S.Class<PracticeKgEmailToolRow>($I`P
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgCandidateClaimToolRow extends S.Class<PracticeKgCandidateClaimToolRow>(
-  $I`PracticeKgCandidateClaimToolRow`
-)(
-  {
+export class PracticeKgCandidateClaimToolRow extends S.Opaque<
+  PracticeKgCandidateClaimToolRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     activityOperation: S.String,
     claimText: S.String,
     client: S.NullOr(S.String),
@@ -516,11 +710,12 @@ export class PracticeKgCandidateClaimToolRow extends S.Class<PracticeKgCandidate
     sourceDocumentDigest: S.NullOr(S.String),
     sourceFile: S.String,
     startChar: S.Natural,
-  },
-  $I.annote("PracticeKgCandidateClaimToolRow", {
-    description:
-      "Candidate claim row carrying its docket join, extraction activity, evidence span, and the catalogued source-document digest when the input resolved to one.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCandidateClaimToolRow", {
+      description:
+        "Candidate claim row carrying its docket join, extraction activity, evidence span, and the catalogued source-document digest when the input resolved to one.",
+    })
+  )
 ) {}
 
 /**
@@ -661,24 +856,39 @@ export const practiceKgEmailFieldTiers = defineFieldTiers({
   }),
 });
 
-class PracticeKgCandidateClaimMinimalRow extends S.Class<PracticeKgCandidateClaimMinimalRow>(
-  $I`PracticeKgCandidateClaimMinimalRow`
-)(
-  {
+/**
+ * Minimal grounded candidate-claim projection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PracticeKgCandidateClaimMinimalRow extends S.Opaque<
+  PracticeKgCandidateClaimMinimalRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     claimText: PracticeKgCandidateClaimToolRow.fields.claimText,
     docket: PracticeKgCandidateClaimToolRow.fields.docket,
     label: PracticeKgCandidateClaimToolRow.fields.label,
     sourceFile: PracticeKgCandidateClaimToolRow.fields.sourceFile,
-  },
-  $I.annote("PracticeKgCandidateClaimMinimalRow", {
-    description: "Minimal grounded candidate-claim projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCandidateClaimMinimalRow", {
+      description: "Minimal grounded candidate-claim projection.",
+    })
+  )
 ) {}
 
-class PracticeKgCandidateClaimBalancedRow extends S.Class<PracticeKgCandidateClaimBalancedRow>(
-  $I`PracticeKgCandidateClaimBalancedRow`
-)(
-  {
+/**
+ * Balanced grounded candidate-claim projection.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class PracticeKgCandidateClaimBalancedRow extends S.Opaque<
+  PracticeKgCandidateClaimBalancedRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     claimText: PracticeKgCandidateClaimToolRow.fields.claimText,
     digest: PracticeKgCandidateClaimToolRow.fields.digest,
     docket: PracticeKgCandidateClaimToolRow.fields.docket,
@@ -687,10 +897,11 @@ class PracticeKgCandidateClaimBalancedRow extends S.Class<PracticeKgCandidateCla
     familyKey: PracticeKgCandidateClaimToolRow.fields.familyKey,
     label: PracticeKgCandidateClaimToolRow.fields.label,
     sourceDocumentDigest: PracticeKgCandidateClaimToolRow.fields.sourceDocumentDigest,
-  },
-  $I.annote("PracticeKgCandidateClaimBalancedRow", {
-    description: "Balanced grounded candidate-claim projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCandidateClaimBalancedRow", {
+      description: "Balanced grounded candidate-claim projection.",
+    })
+  )
 ) {}
 
 /**
@@ -718,15 +929,37 @@ export const practiceKgCandidateClaimFieldTiers = defineFieldTiers({
  * MCP openWorldHint must be false — the mcp-kit readOnly preset advertises an
  * open world, which is wrong here.
  */
-class MatterLookupParams extends S.Class<MatterLookupParams>($I`MatterLookupParams`)(
-  {
+/**
+ * Single reference to resolve to practice matters.
+ *
+ * **Details**
+ *
+ * The reference is one identifier as it appears in mail or a document: a client-keyed docket
+ * (12345.10008US01), a bare docket (10008US01), a family, a USPTO application (14/783,547) or patent
+ * number, or a client number.
+ *
+ * **Example** (Resolve a USPTO application number to its matter)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MatterLookupParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(MatterLookupParams)({ reference: "14/783,547" })
+ *
+ * console.log(params.reference) // => "14/783,547"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MatterLookupParams extends S.Opaque<MatterLookupParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetBytes: BudgetBytes,
     reference: S.NonEmptyString.annotateKey({
       description:
         "One identifier as it appears in mail or a document: client-keyed docket (12345.10008US01), bare docket (10008US01), family, USPTO application (14/783,547) or patent number, or client number.",
     }),
-  },
-  $I.annote("MatterLookupParams", { description: "Single reference to resolve to practice matters." })
+  }).pipe($I.annoteSchema("MatterLookupParams", { description: "Single reference to resolve to practice matters." }))
 ) {}
 
 /**
@@ -743,8 +976,8 @@ class MatterLookupParams extends S.Class<MatterLookupParams>($I`MatterLookupPara
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgMatterToolRow extends S.Class<PracticeKgMatterToolRow>($I`PracticeKgMatterToolRow`)(
-  {
+export class PracticeKgMatterToolRow extends S.Opaque<PracticeKgMatterToolRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     applications: S.String,
     attributionSource: KgAttributionSource,
     client: S.NullOr(S.String),
@@ -759,10 +992,11 @@ export class PracticeKgMatterToolRow extends S.Class<PracticeKgMatterToolRow>($I
     matchedOn: S.Array(PracticeKgMatterMatchedOn),
     patents: S.String,
     resolution: PracticeKgMatterResolution,
-  },
-  $I.annote("PracticeKgMatterToolRow", {
-    description: "One docket of a matched practice matter with how the reference resolved.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterToolRow", {
+      description: "One docket of a matched practice matter with how the reference resolved.",
+    })
+  )
 ) {}
 
 /**
@@ -804,15 +1038,41 @@ export const practiceKgMatterFieldTiers = defineFieldTiers({
   }),
 });
 
-class CorrespondentLookupParams extends S.Class<CorrespondentLookupParams>($I`CorrespondentLookupParams`)(
-  {
+/**
+ * Single email address to resolve to practice matters.
+ *
+ * **Details**
+ *
+ * The address may be bare (`pat@example.com`) or one From, To, or Cc entry
+ * (`Pat Example <pat@example.com>`). A whole header with several addresses is refused; look each address up on its
+ * own.
+ *
+ * **Example** (Resolve one From entry to its matters)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CorrespondentLookupParams } from "@beep/law-practice-use-cases/server"
+ *
+ * const params = S.decodeUnknownSync(CorrespondentLookupParams)({ address: "Pat Example <pat@example.com>" })
+ *
+ * console.log(params.address) // => "Pat Example <pat@example.com>"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CorrespondentLookupParams extends S.Opaque<CorrespondentLookupParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.NonEmptyString.annotateKey({
       description:
         "One email address, bare (pat@example.com) or as one From, To, or Cc entry (Pat Example <pat@example.com>). A whole header with several addresses is refused; look each address up on its own.",
     }),
     budgetBytes: BudgetBytes,
-  },
-  $I.annote("CorrespondentLookupParams", { description: "Single email address to resolve to practice matters." })
+  }).pipe(
+    $I.annoteSchema("CorrespondentLookupParams", {
+      description: "Single email address to resolve to practice matters.",
+    })
+  )
 ) {}
 
 /**
@@ -837,10 +1097,11 @@ class CorrespondentLookupParams extends S.Class<CorrespondentLookupParams>($I`Co
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentToolRow extends S.Class<PracticeKgCorrespondentToolRow>(
-  $I`PracticeKgCorrespondentToolRow`
-)(
-  {
+export class PracticeKgCorrespondentToolRow extends S.Opaque<
+  PracticeKgCorrespondentToolRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     address: S.String,
     ccCount: S.Finite,
     clientName: S.NullOr(S.String),
@@ -859,10 +1120,11 @@ export class PracticeKgCorrespondentToolRow extends S.Class<PracticeKgCorrespond
     resolution: PracticeKgCorrespondentRowResolution,
     roleAddress: S.Boolean,
     toCount: S.Finite,
-  },
-  $I.annote("PracticeKgCorrespondentToolRow", {
-    description: "One matter or client an email address is tied to, by filed email or by contact link.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentToolRow", {
+      description: "One matter or client an email address is tied to, by filed email or by contact link.",
+    })
+  )
 ) {}
 
 /**

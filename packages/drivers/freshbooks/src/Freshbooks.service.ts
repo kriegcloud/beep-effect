@@ -19,7 +19,7 @@ import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
@@ -86,18 +86,19 @@ export const FRESHBOOKS_MAX_PER_PAGE = 100;
  * @category models
  * @since 0.0.0
  */
-export class ResolvedFreshbooksConfig extends S.Class<ResolvedFreshbooksConfig>($I`ResolvedFreshbooksConfig`)(
-  {
+export class ResolvedFreshbooksConfig extends S.Opaque<ResolvedFreshbooksConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientId: S.NonEmptyString,
     clientSecret: S.Redacted(S.String),
     redirectUri: S.String,
     apiUrl: FreshbooksBaseUrl,
     authUrl: FreshbooksBaseUrl,
     headers: S.Record(S.String, S.String),
-  },
-  $I.annote("ResolvedFreshbooksConfig", {
-    description: "Resolved runtime configuration for the FreshBooks services.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedFreshbooksConfig", {
+      description: "Resolved runtime configuration for the FreshBooks services.",
+    })
+  )
 ) {}
 
 /**

@@ -14,14 +14,16 @@ import { getSomesStruct } from "@beep/utils/Option";
 import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -55,9 +57,11 @@ import {
 import { CacheQualificationLive, runCachePolicyAudit } from "../Cache/index.ts";
 import { FleetMirrorService, FleetMirrorServiceLive } from "../Worktree/Fleet.service.ts";
 import { WaveOrder } from "../Yeet/internal/WaveOrder.ts";
+import { CatalogUsageSourceLive, runCatalogUsageCheck } from "./CatalogUsage.ts";
 import { runChangesetGraphCheck } from "./ChangesetGraph.ts";
 import { changesetStatusCommand } from "./ChangesetStatus.ts";
 import { checkCensusCommand } from "./CheckCensus.ts";
+import { effectDiagnosticsCommand, readEffectDiagnosticsProfile } from "./EffectDiagnostics.ts";
 import { qualityFallowCommand } from "./FallowQuality.command.ts";
 import {
   githubCheckChangesetStatusLane,
@@ -87,14 +91,20 @@ import {
 } from "./internal/JSDocMigrateApply.ts";
 import { RunJSDocMigrateExtractOptions, runJSDocMigrateExtract } from "./internal/JSDocMigrateExtract.ts";
 import { RunJSDocMigrateTitlesOptions, runJSDocMigrateTitles } from "./internal/JSDocMigrateTitles.ts";
-import { defaultJSDocInventoryPath, defaultJSDocTotalsBaselinePath, runJSDocRatchet } from "./internal/JSDocRatchet.ts";
+import {
+  defaultJSDocInventoryPath,
+  defaultJSDocTotalsBaselinePath,
+  RunJSDocRatchetOptions,
+  runJSDocRatchet,
+} from "./internal/JSDocRatchet.ts";
 import { runPackageVerifyCli } from "./internal/PackageVerify.ts";
-import { repoRelative } from "./internal/QualityArtifactSupport.ts";
-import { testTsgoSyntheticConfigTemplate } from "./internal/TestTsgoSyntheticConfig.ts";
+import { collectFiles, repoRelative } from "./internal/QualityArtifactSupport.ts";
+import { testTsgoPrograms } from "./internal/TestTsgoPrograms.ts";
 import {
   renderTurboConfigProofReport,
   renderTurboConfigProofReportJson,
   runTurboConfigProof,
+  TurboConfigProofOptions,
 } from "./internal/TurboConfigProof.ts";
 import { QualityScriptCommandError } from "./Quality.errors.ts";
 import {
@@ -117,7 +127,7 @@ import {
 } from "./Quality.schemas.ts";
 import { runQualityTaskGithubCheckLaneWaves, runQualityTaskStreamingStepGroup } from "./Tasks.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { ParseError } from "jsonc-parser";
 import type { AdmissionSnapshot } from "../../internal/repo-run/index.ts";
 import type {
@@ -132,6 +142,13 @@ const encodeUnknownResidueReapReport = S.encodeUnknownEffect(ResidueReapReport);
 
 const encodeUnknownTmpfsReapReport = S.encodeUnknownEffect(TmpfsReapReport);
 
+/**
+ * Synthetic tsgo test config fields shared by package workers.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export { testTsgoSyntheticConfigTemplate } from "./internal/TestTsgoSyntheticConfig.ts";
 /**
  * Public quality script command error export.
  *
@@ -154,13 +171,6 @@ export {
   QualityProfileConfig,
   QualityProfileDetection,
 } from "./Quality.schemas.ts";
-/**
- * Synthetic tsgo test config fields shared by package workers.
- *
- * @category configuration
- * @since 0.0.0
- */
-export { testTsgoSyntheticConfigTemplate };
 /**
  * Host facts used when selecting a quality profile.
  *
@@ -326,14 +336,6 @@ export const activeOsvIgnoreIdsForTesting = activeOsvIgnoreIdsForTestingImpl;
 const $I = $RepoCliId.create("commands/Quality/ScriptCommands");
 const { githubCheckLaneWaves, githubCheckOrderedLaneWaves } = githubCheckLanePlan;
 
-const ignoredTestDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
-// infra/lambda/**: self-contained esbuild-bundled Lambda packages typecheck
-// their own tests via tsc in build.sh; they are not workspace test surface.
-const ignoredTestPathSegments = ["/test/fixtures/", "/infra/lambda/"] as const;
-// No `tooling` root: tooling workspaces live under `packages/tooling/*`, which
-// the `packages` root already walks. A top-level `tooling/` directory has never
-// existed in this repo, so the entry only cost a wasted existence probe.
-const testSearchRoots = ["apps", "packages", "infra"] as const;
 const moduleTagScannedRoots = [".patterns", "apps", "packages", "tooling"] as const;
 const moduleTagScannedExtensions = [".hbs", ".md", ".ts", ".tsx"] as const;
 // Scratchpad is an unshipped lab; its compiler diagnostic experiments are intentionally local.
@@ -425,17 +427,19 @@ const EffectDiagnosticsExemptRule = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class EffectDiagnosticsDirectiveExemption extends S.Class<EffectDiagnosticsDirectiveExemption>(
-  $I`EffectDiagnosticsDirectiveExemption`
-)(
-  {
+export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
+  EffectDiagnosticsDirectiveExemption,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: EffectDiagnosticsExemptPath,
     rules: S.NonEmptyArray(EffectDiagnosticsExemptRule),
     reason: S.NonEmptyString,
-  },
-  $I.annote("EffectDiagnosticsDirectiveExemption", {
-    description: "A repository path and the exact Effect diagnostics skip-file rules the quality gate admits there.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectDiagnosticsDirectiveExemption", {
+      description: "A repository path and the exact Effect diagnostics skip-file rules the quality gate admits there.",
+    })
+  )
 ) {}
 
 /**
@@ -446,7 +450,9 @@ export class EffectDiagnosticsDirectiveExemption extends S.Class<EffectDiagnosti
  * Exactly three entries exist and the tuple type keeps it that way: the root Bun-compat shim,
  * which implements `Bun.*` over node builtins before any Effect runtime exists, the root Vitest
  * shared config, whose include list is scanned synchronously before any Effect runtime exists,
- * and the effect-vitest-canon D14 conformance entrypoint. Every other `@effect-diagnostics`
+ * and the effect-vitest-canon D14 conformance entrypoint. Five dated catalog payload
+ * next-line directives are separately admitted until the split public rename PR;
+ * they do not admit file-wide disables. Every other `@effect-diagnostics`
  * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, and the
  * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a fourth entry
  * has found a rule-card gap, not a reason to grow this list.
@@ -489,15 +495,21 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
   }),
 ];
 
-const TsgoDisabledRuleName = LiteralKit(["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage"]);
+const TsgoDisabledRuleName = LiteralKit([
+  "apiStabilityLeak",
+  "experimentalApiUsage",
+  "unstableApiUsage",
+  "preferNamespaceImport",
+  "preferBarrelImport",
+]);
 
 /**
- * One installed `@effect/tsgo` rule the root profile declares `"off"`, with the reason.
+ * One installed `@effect/tsgo` rule the root or standalone profile declares `"off"`, with the reason.
  *
  * **Details**
  *
  * The rule domain is a closed literal set, so turning another rule off is a schema change
- * reviewed in this file. A declared rule must be configured exactly `"off"` in the root
+ * reviewed in this file. A declared rule must be configured exactly `"off"` in the combined
  * `diagnosticSeverity` map; every other installed rule must stay `"error"`.
  *
  * **Example** (Declare a disabled rule)
@@ -515,14 +527,15 @@ const TsgoDisabledRuleName = LiteralKit(["apiStabilityLeak", "experimentalApiUsa
  * @category models
  * @since 0.0.0
  */
-export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledRule`)(
-  {
+export class TsgoDisabledRule extends S.Opaque<TsgoDisabledRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     rule: TsgoDisabledRuleName,
     reason: S.NonEmptyString,
-  },
-  $I.annote("TsgoDisabledRule", {
-    description: "An installed @effect/tsgo rule the root profile configures off, with the reason it is off.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsgoDisabledRule", {
+      description: "An installed @effect/tsgo rule the root profile configures off, with the reason it is off.",
+    })
+  )
 ) {}
 
 /**
@@ -530,11 +543,14 @@ export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledR
  *
  * **Details**
  *
- * All three entries are the stability rules: `experimentalApiUsage` and `unstableApiUsage` (from
+ * Three entries are the stability rules: `experimentalApiUsage` and `unstableApiUsage` (from
  * `@effect/tsgo` 0.47) flag every import of an API tagged `@stability experimental` or
  * `@stability unstable`, and `apiStabilityLeak` (0.50) flags every untagged export whose types
  * expose one. This repository builds on Effect's `@stability unstable` modules (`effect/http`,
  * `effect/http-api`, `effect/cli`, and friends) on purpose.
+ *
+ * The import-style rules stay off: named helper imports are deliberate, and
+ * barrel imports contradict the dedicated Effect module-path law.
  *
  * **Example** (Read the disabled rule names)
  *
@@ -543,13 +559,19 @@ export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledR
  * import * as A from "effect/Array"
  *
  * console.log(A.map(tsgoDisabledRules, (disabled) => disabled.rule))
- * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage"]
+ * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage", "preferNamespaceImport", "preferBarrelImport"]
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
-export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule, TsgoDisabledRule] = [
+export const tsgoDisabledRules: readonly [
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+  TsgoDisabledRule,
+] = [
   TsgoDisabledRule.make({
     rule: "apiStabilityLeak",
     reason:
@@ -562,6 +584,15 @@ export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule, Ts
   TsgoDisabledRule.make({
     rule: "unstableApiUsage",
     reason: "The repository builds on @stability unstable Effect modules by design, so every import would be reported.",
+  }),
+  TsgoDisabledRule.make({
+    rule: "preferNamespaceImport",
+    reason:
+      "Namespace auto-import preferences do not prohibit deliberate named @beep helper and identity imports; enforcing this needs a separate import migration.",
+  }),
+  TsgoDisabledRule.make({
+    rule: "preferBarrelImport",
+    reason: "The code law requires dedicated Effect module paths rather than root barrel imports.",
   }),
 ];
 
@@ -618,69 +649,77 @@ export const isRejectedEffectDiagnosticsDirectiveForTesting: {
     !isExemptEffectDiagnosticsDirective(line, normalizedRepoRelativePath)
 );
 
-class EffectTsgoRuleCell extends S.Class<EffectTsgoRuleCell>($I`EffectTsgoRuleCell`)(
-  {
+class EffectTsgoRuleCell extends S.Opaque<EffectTsgoRuleCell, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
-  },
-  $I.annote("EffectTsgoRuleCell", {
-    description: "Parsed diagnostics table cell containing an Effect tsgo rule code.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoRuleCell", {
+      description: "Parsed diagnostics table cell containing an Effect tsgo rule code.",
+    })
+  )
 ) {}
 
-class EffectTsgoLinkedRuleCell extends S.Class<EffectTsgoLinkedRuleCell>($I`EffectTsgoLinkedRuleCell`)(
-  {
+class EffectTsgoLinkedRuleCell extends S.Opaque<EffectTsgoLinkedRuleCell, { readonly brand: unique symbol }>()(
+  S.Struct({
     a: EffectTsgoRuleCell,
-  },
-  $I.annote("EffectTsgoLinkedRuleCell", {
-    description: "Diagnostics table cell whose rule code is wrapped in a link to that rule's doc page.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoLinkedRuleCell", {
+      description: "Diagnostics table cell whose rule code is wrapped in a link to that rule's doc page.",
+    })
+  )
 ) {}
 
-class EffectTsgoRuleRow extends S.Class<EffectTsgoRuleRow>($I`EffectTsgoRuleRow`)(
-  {
+class EffectTsgoRuleRow extends S.Opaque<EffectTsgoRuleRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     td: S.Array(S.Unknown),
-  },
-  $I.annote("EffectTsgoRuleRow", {
-    description: "Parsed diagnostics table row from the installed Effect tsgo README.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoRuleRow", {
+      description: "Parsed diagnostics table row from the installed Effect tsgo README.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsTbody extends S.Class<EffectTsgoDiagnosticsTbody>($I`EffectTsgoDiagnosticsTbody`)(
-  {
+class EffectTsgoDiagnosticsTbody extends S.Opaque<EffectTsgoDiagnosticsTbody, { readonly brand: unique symbol }>()(
+  S.Struct({
     tr: S.Array(S.Unknown),
-  },
-  $I.annote("EffectTsgoDiagnosticsTbody", {
-    description: "Parsed diagnostics table body containing Effect tsgo rule rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsTbody", {
+      description: "Parsed diagnostics table body containing Effect tsgo rule rows.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsTableNode extends S.Class<EffectTsgoDiagnosticsTableNode>(
-  $I`EffectTsgoDiagnosticsTableNode`
-)(
-  {
+class EffectTsgoDiagnosticsTableNode extends S.Opaque<
+  EffectTsgoDiagnosticsTableNode,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     tbody: EffectTsgoDiagnosticsTbody,
-  },
-  $I.annote("EffectTsgoDiagnosticsTableNode", {
-    description: "Parsed diagnostics table node from the installed Effect tsgo README.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsTableNode", {
+      description: "Parsed diagnostics table node from the installed Effect tsgo README.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsRoot extends S.Class<EffectTsgoDiagnosticsRoot>($I`EffectTsgoDiagnosticsRoot`)(
-  {
+class EffectTsgoDiagnosticsRoot extends S.Opaque<EffectTsgoDiagnosticsRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     table: EffectTsgoDiagnosticsTableNode,
-  },
-  $I.annote("EffectTsgoDiagnosticsRoot", {
-    description: "Root wrapper used to parse the Effect tsgo diagnostics table fragment.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsRoot", {
+      description: "Root wrapper used to parse the Effect tsgo diagnostics table fragment.",
+    })
+  )
 ) {}
 
-class EffectTsgoDiagnosticsTable extends S.Class<EffectTsgoDiagnosticsTable>($I`EffectTsgoDiagnosticsTable`)(
-  {
+class EffectTsgoDiagnosticsTable extends S.Opaque<EffectTsgoDiagnosticsTable, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: EffectTsgoDiagnosticsRoot,
-  },
-  $I.annote("EffectTsgoDiagnosticsTable", {
-    description: "Parsed diagnostics table fragment from the installed Effect tsgo README.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectTsgoDiagnosticsTable", {
+      description: "Parsed diagnostics table fragment from the installed Effect tsgo README.",
+    })
+  )
 ) {}
 
 const decodeEffectTsgoRuleCellOption = S.decodeUnknownOption(EffectTsgoRuleCell);
@@ -710,50 +749,45 @@ type TsgoDiagnosticOutput = {
 
 const TestTsgoPackageResultVersion = LiteralKit(["test-tsgo-package-result/v1"]);
 
-class TestTsgoPackageManifest extends S.Class<TestTsgoPackageManifest>($I`TestTsgoPackageManifest`)(
-  {
-    name: S.String,
-    scripts: S.optionalKey(S.Record(S.String, S.String)),
-  },
-  $I.annote("TestTsgoPackageManifest", {
-    description: "Package identity needed to address one package-owned Turbo task.",
-  })
-) {}
-
-class TestTsgoPackageResultArtifact extends S.Class<TestTsgoPackageResultArtifact>($I`TestTsgoPackageResultArtifact`)(
-  {
+class TestTsgoPackageResultArtifact extends S.Opaque<
+  TestTsgoPackageResultArtifact,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: TestTsgoPackageResultVersion,
     packageName: S.String,
     output: S.String,
     exitCode: S.Natural,
-  },
-  $I.annote("TestTsgoPackageResultArtifact", {
-    description: "One package worker result consumed by the repo-wide tsgo test renderer.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTsgoPackageResultArtifact", {
+      description: "One package worker result consumed by the repo-wide tsgo test renderer.",
+    })
+  )
 ) {}
 
-class TestTsgoTurboTaskSummary extends S.Class<TestTsgoTurboTaskSummary>($I`TestTsgoTurboTaskSummary`)(
-  {
+class TestTsgoTurboTaskSummary extends S.Opaque<TestTsgoTurboTaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.String,
     hash: S.String,
-  },
-  $I.annote("TestTsgoTurboTaskSummary", {
-    description: "Task identity and hash recorded by the tsgo tests Turbo run.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTsgoTurboTaskSummary", {
+      description: "Task identity and hash recorded by the tsgo tests Turbo run.",
+    })
+  )
 ) {}
 
-class TestTsgoTurboRunSummary extends S.Class<TestTsgoTurboRunSummary>($I`TestTsgoTurboRunSummary`)(
-  { tasks: S.Array(TestTsgoTurboTaskSummary) },
-  $I.annote("TestTsgoTurboRunSummary", {
-    description: "Turbo run-summary fields consumed by the tsgo tests aggregate lane.",
-  })
+class TestTsgoTurboRunSummary extends S.Opaque<TestTsgoTurboRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ tasks: S.Array(TestTsgoTurboTaskSummary) }).pipe(
+    $I.annoteSchema("TestTsgoTurboRunSummary", {
+      description: "Turbo run-summary fields consumed by the tsgo tests aggregate lane.",
+    })
+  )
 ) {}
 
-const decodeTestTsgoPackageManifest = S.decodeUnknownEffect(S.fromJsonString(TestTsgoPackageManifest));
 const decodeTestTsgoPackageResultArtifact = S.decodeUnknownEffect(S.fromJsonString(TestTsgoPackageResultArtifact));
 const decodeTestTsgoTurboRunSummary = S.decodeUnknownEffect(S.fromJsonString(TestTsgoTurboRunSummary));
 
-const testTsgoPackageTaskName = "package-test-typecheck";
+const testTsgoPackageTaskName = testTsgoPrograms.taskName;
 const testTsgoPackageTaskScript = "beep-cli quality test-tsgo-package";
 const testTsgoPackageResultRelativePath = ".turbo/package-test-typecheck-result.json";
 
@@ -1349,8 +1383,6 @@ const runSastScan = Effect.fn("QualityScriptCommands.runSastScan")(function* (
     A.map(Str.trim),
     A.filter(Str.isNonEmpty),
     A.filter(P.not(Str.startsWith(".repos/"))),
-    A.filter(P.not(Str.startsWith(".claude/skills/impeccable/"))),
-    A.filter(P.not(Str.startsWith(".github/skills/impeccable/"))),
     A.filter(P.not(Str.startsWith("infra/ci-runners/sdks/")))
   );
   const semgrepFiles = yield* Effect.forEach(
@@ -1549,68 +1581,6 @@ const runGithubChecksPlanContractCheck = Effect.fn("QualityScriptCommands.runGit
 
 const normalizePath = Str.replaceAll("\\", "/");
 
-const pathContainsSegment = (filePath: string, segments: ReadonlyArray<string>): boolean =>
-  A.some(segments, (segment) => Str.includes(segment)(filePath));
-
-const collectFiles = Effect.fn("QualityScriptCommands.collectFiles")(function* (
-  searchRoot: string,
-  shouldInclude: (normalizedPath: string, name: string) => boolean,
-  shouldSkipDirectory: (normalizedPath: string, name: string) => boolean
-): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const exists = yield* fs.exists(searchRoot).pipe(Effect.orElseSucceed(thunkFalse));
-
-  if (!exists) {
-    return A.empty<string>();
-  }
-
-  // Symlinks are never followed; a directory contributes its subtree unless skipped, a file
-  // contributes itself when included, and anything else contributes nothing.
-  const visitEntry = Effect.fn("QualityScriptCommands.collectFiles.visitEntry")(function* (
-    currentPath: string,
-    entry: string
-  ): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-    const childPath = path.join(currentPath, entry);
-    const normalized = normalizePath(childPath);
-    const symlinkTarget = yield* fs.readLink(childPath).pipe(Effect.option);
-    if (O.isSome(symlinkTarget)) {
-      return A.empty<string>();
-    }
-
-    const stat = yield* fs.stat(childPath).pipe(QualityScriptCommandError.mapError(`Failed to stat ${childPath}.`));
-    if (stat.type === "Directory") {
-      return shouldSkipDirectory(`${normalized}/`, entry) ? A.empty<string>() : yield* visit(childPath);
-    }
-    return stat.type === "File" && shouldInclude(normalized, entry) ? A.of(childPath) : A.empty<string>();
-  });
-
-  const visit = Effect.fn("QualityScriptCommands.collectFiles.visit")(function* (
-    currentPath: string
-  ): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-    const entries = yield* fs
-      .readDirectory(currentPath)
-      .pipe(QualityScriptCommandError.mapError(`Failed to read directory ${currentPath}.`));
-    return yield* Effect.forEach(entries, (entry) => visitEntry(currentPath, entry), { concurrency: 1 }).pipe(
-      Effect.map(A.flatten)
-    );
-  });
-
-  return pipe(yield* visit(searchRoot), A.sort(Order.String));
-});
-
-const isTestTsgoFile = (normalizedPath: string, name: string): boolean =>
-  Str.includes("/test/")(normalizedPath) &&
-  !pathContainsSegment(normalizedPath, ignoredTestPathSegments) &&
-  /\.(?:cts|mts|ts|tsx)$/u.test(name);
-
-const isIgnoredTestTsgoDirectory = (normalizedPath: string, name: string): boolean =>
-  A.contains(ignoredTestDirectoryNames as ReadonlyArray<string>, name) ||
-  pathContainsSegment(normalizedPath, ignoredTestPathSegments);
-
-const collectTestTsgoFilesUnder = (searchRoot: string) =>
-  collectFiles(searchRoot, isTestTsgoFile, isIgnoredTestTsgoDirectory);
-
 type TestTsgoPackageGroup = {
   readonly packageName: string;
   readonly packageDir: string;
@@ -1634,119 +1604,11 @@ type TestTsgoPackageResult = {
   readonly exitCode: number;
 };
 
-const tsgoTestPackageLabel = (repoRoot: string, packageDir: string): string =>
-  pipe(packageDir, Str.replace(`${repoRoot}/`, ""), Str.replaceAll("/", "-"), Str.replaceAll("@", ""));
-
-const findOwningPackageDir = Effect.fn("QualityScriptCommands.findOwningPackageDir")(function* (
-  repoRoot: string,
-  filePath: string
-): Effect.fn.Return<string, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  let current = path.dirname(filePath);
-
-  while (current !== repoRoot && Str.startsWith(repoRoot)(current)) {
-    const packageJsonPath = path.join(current, "package.json");
-    const hasPackageJson = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
-
-    if (hasPackageJson) {
-      return current;
-    }
-
-    current = path.dirname(current);
-  }
-
-  return repoRoot;
-});
-
-const collectOwnedTestTsgoFiles = Effect.fn("QualityScriptCommands.collectOwnedTestTsgoFiles")(function* (
-  repoRoot: string,
-  packageDir: string
-): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-  const candidates = yield* collectTestTsgoFilesUnder(packageDir);
-  const ownership = yield* Effect.forEach(
-    candidates,
-    Effect.fnUntraced(function* (filePath) {
-      const owner = yield* findOwningPackageDir(repoRoot, filePath);
-      return owner === packageDir ? O.some(filePath) : O.none<string>();
-    }),
-    { concurrency: 1 }
-  );
-
-  return A.getSomes(ownership);
-});
-
-const resolveTestTsconfigPath = Effect.fn("QualityScriptCommands.resolveTestTsconfigPath")(function* (
-  packageDir: string
-): Effect.fn.Return<string, never, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const candidates = [
-    path.join(packageDir, "tsconfig.test.json"),
-    path.join(packageDir, "test", "tsconfig.json"),
-    path.join(packageDir, "tsconfig.json"),
-  ];
-
-  for (const candidate of candidates) {
-    const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(thunkFalse));
-
-    if (exists) {
-      return candidate;
-    }
-  }
-
-  return path.join(packageDir, "tsconfig.json");
-});
-
-const collectTestTsgoPackageGroups = Effect.fn("QualityScriptCommands.collectTestTsgoPackageGroups")(function* (
-  repoRoot: string,
-  discoveredFiles: ReadonlyArray<string>
-): Effect.fn.Return<ReadonlyArray<TestTsgoPackageGroup>, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const fileEntries = yield* Effect.forEach(
-    discoveredFiles,
-    Effect.fnUntraced(function* (filePath) {
-      const packageDir = yield* findOwningPackageDir(repoRoot, filePath);
-      return [packageDir, filePath] as const;
-    }),
-    { concurrency: 1 }
-  );
-  const packageDirs = pipe(
-    fileEntries,
-    A.map(([packageDir]) => packageDir),
-    A.dedupe,
-    A.sort(Order.String)
-  );
-
-  return yield* Effect.forEach(
-    packageDirs,
-    Effect.fnUntraced(function* (packageDir) {
-      const packageManifest = yield* decodeTestTsgoPackageManifest(
-        yield* fs
-          .readFileString(path.join(packageDir, "package.json"))
-          .pipe(QualityScriptCommandError.mapError(`Failed to read ${path.join(packageDir, "package.json")}.`))
-      ).pipe(QualityScriptCommandError.mapError(`Failed to decode ${path.join(packageDir, "package.json")}.`));
-      const tsconfigPath = yield* resolveTestTsconfigPath(packageDir);
-      const files = pipe(
-        fileEntries,
-        A.filter(([entryPackageDir]) => entryPackageDir === packageDir),
-        A.map(([, filePath]) => filePath),
-        A.sort(Order.String)
-      );
-      const scripts = packageManifest.scripts ?? R.empty<string, string>();
-      return {
-        packageName: packageManifest.name,
-        packageDir,
-        tsconfigPath,
-        files,
-        scripts,
-        hasTaskScript: R.has(scripts, testTsgoPackageTaskName),
-      } satisfies TestTsgoPackageGroup;
-    }),
-    { concurrency: 1 }
-  );
-});
+const isTestTsgoFile = testTsgoPrograms.isTestFile;
+const isIgnoredTestTsgoDirectory = testTsgoPrograms.isIgnoredDirectory;
+const tsgoTestPackageLabel = testTsgoPrograms.packageLabel;
+const collectOwnedTestTsgoFiles = testTsgoPrograms.collectOwnedFiles;
+const collectTestTsgoPackageGroups = testTsgoPrograms.collectGroups;
 
 const partitionTestTsgoPackageGroupsByCoverage = Effect.fn(
   "QualityScriptCommands.partitionTestTsgoPackageGroupsByCoverage"
@@ -1784,24 +1646,7 @@ const runTestTsgoPackageGroup = Effect.fn("QualityScriptCommands.runTestTsgoPack
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const groupLabel = tsgoTestPackageLabel(repoRoot, group.packageDir);
-  const syntheticConfigPath = path.join(tempDir, `${groupLabel}.tsconfig.json`);
-  const syntheticConfig = {
-    ...testTsgoSyntheticConfigTemplate,
-    extends: group.tsconfigPath,
-    include: group.files,
-    compilerOptions: {
-      ...testTsgoSyntheticConfigTemplate.compilerOptions,
-      rootDir: repoRoot,
-      tsBuildInfoFile: path.join(tempDir, `${groupLabel}.tsbuildinfo`),
-    },
-  };
-  const configText = yield* jsonStringifyPretty(syntheticConfig).pipe(
-    QualityScriptCommandError.mapError(`Failed to encode ${groupLabel} test tsconfig.`)
-  );
-
-  yield* fs
-    .writeFileString(syntheticConfigPath, `${configText}\n`)
-    .pipe(QualityScriptCommandError.mapError(`Failed to write ${syntheticConfigPath}.`));
+  const syntheticConfigPath = yield* testTsgoPrograms.writeConfig(repoRoot, tempDir, group);
 
   const result = yield* collectOutput(
     QualityTaskStep.make({
@@ -2986,12 +2831,14 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
     });
   }
 
-  const configuredRuleNames = pipe(R.keys(diagnosticSeverity.value), A.sort(Order.String));
+  const profile = yield* readEffectDiagnosticsProfile(repoRoot);
+  const combinedSeverity = { ...diagnosticSeverity.value, ...profile.diagnosticSeverity };
+  const configuredRuleNames = pipe(R.keys(combinedSeverity), A.sort(Order.String));
   const missingRuleNames = A.filter(installedRuleNames, (ruleName) => !A.contains(configuredRuleNames, ruleName));
   const extraRuleNames = A.filter(configuredRuleNames, (ruleName) => !A.contains(installedRuleNames, ruleName));
   const { nonErrorSeverities, disabledSeverityEntries } = collectTsgoSeverityDiagnostics({
-    plugin: plugin.value,
-    diagnosticSeverity: diagnosticSeverity.value,
+    plugin: { ...plugin.value, diagnosticSeverity: combinedSeverity },
+    diagnosticSeverity: combinedSeverity,
   });
   const pluginOptionDiagnostics = collectPluginOptionParityDiagnostics(documentedOptionNames, plugin.value);
   const pluginProfileDiagnostics = yield* collectWorkspaceTsconfigProfileDiagnostics(repoRoot, plugin.value);
@@ -3080,21 +2927,14 @@ const resolveTestTsgoPackageGroups = Effect.fn("QualityScriptCommands.resolveTes
   QualityScriptCommandError,
   QualityScriptEnvironment
 > {
-  const path = yield* Path.Path;
-  const discoveredFiles = yield* Effect.forEach(
-    testSearchRoots,
-    (root) => collectTestTsgoFilesUnder(path.join(repoRoot, root)),
-    { concurrency: 1 }
-  ).pipe(Effect.map(A.flatten));
+  const discoveredGroups = yield* testTsgoPrograms.discover(repoRoot);
 
-  if (A.isReadonlyArrayEmpty(discoveredFiles)) {
+  if (A.isReadonlyArrayEmpty(discoveredGroups)) {
     yield* Console.log("[quality:test-tsgo] no test files found");
     return O.none();
   }
 
-  const { covered, uncovered } = yield* partitionTestTsgoPackageGroupsByCoverage(
-    yield* collectTestTsgoPackageGroups(repoRoot, discoveredFiles)
-  );
+  const { covered, uncovered } = yield* partitionTestTsgoPackageGroupsByCoverage(discoveredGroups);
 
   if (A.isReadonlyArrayNonEmpty(covered)) {
     yield* Console.log(
@@ -3204,7 +3044,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
   const srcDir = path.join(smokeDir, "src");
   const tsconfigPath = path.join(smokeDir, "tsconfig.json");
   const sourcePath = path.join(srcDir, "index.ts");
-  const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "tsgo");
+  const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "effect-tsgo");
 
   yield* fs
     .makeDirectory(srcDir, { recursive: true })
@@ -3246,7 +3086,7 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
     QualityTaskStep.make({
       label: "quality:tsgo-smoke",
       command: tsgoPath,
-      args: ["-p", tsconfigPath, "--pretty", "false"],
+      args: ["diagnostics", "--project", tsconfigPath, "--format", "text", "--strict"],
       cwd: repoRoot,
     })
   ).pipe(Effect.ensuring(fs.remove(smokeDir, { recursive: true }).pipe(Effect.ignore)));
@@ -3396,7 +3236,7 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
  * @since 0.0.0
  */
 export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInventory")(function* (
-  options: JSDocDocumentationInventoryOptions = {}
+  options: JSDocDocumentationInventoryOptions = JSDocDocumentationInventoryOptions.make({})
 ): Effect.fn.Return<
   void,
   QualityScriptCommandError,
@@ -3659,11 +3499,13 @@ const jsdocRatchetCommand = Command.make(
   },
   ({ baseline, inventory, writeBaseline }) =>
     runQualityProgram(
-      runJSDocRatchet({
-        baselinePath: baseline,
-        inventoryPath: inventory,
-        writeBaseline,
-      })
+      runJSDocRatchet(
+        RunJSDocRatchetOptions.make({
+          baselinePath: baseline,
+          inventoryPath: inventory,
+          writeBaseline,
+        })
+      )
     )
 ).pipe(Command.withDescription("Run JSDoc inventory totals as a fail-on-growth regression-baseline gate"));
 
@@ -3813,12 +3655,15 @@ const turboConfigProofCommand = Command.make(
       findRepoRoot().pipe(
         QualityScriptCommandError.mapError("Failed to locate repository root."),
         Effect.flatMap((repoRoot) =>
-          runTurboConfigProof(repoRoot, {
-            base,
-            head,
-            selector,
-            tasks: variadicStrings(taskArgs),
-          }).pipe(
+          runTurboConfigProof(
+            repoRoot,
+            TurboConfigProofOptions.make({
+              base,
+              head,
+              selector,
+              tasks: variadicStrings(taskArgs),
+            })
+          ).pipe(
             Effect.mapError((error) =>
               QualityScriptCommandError.new(error, error.message, {
                 command: "bun run beep quality turbo-config-proof",
@@ -3892,6 +3737,25 @@ const changesetGraphCommand = Command.make("changeset-graph", {}, () =>
     )
   )
 ).pipe(Command.withDescription("Validate changesets against the current workspace package graph"));
+
+const catalogUsageCommand = Command.make("catalog-usage", {}, () =>
+  runQualityProgram(
+    findRepoRoot().pipe(
+      QualityScriptCommandError.mapError("Failed to locate repository root."),
+      Effect.flatMap((repoRoot) =>
+        runCatalogUsageCheck(repoRoot).pipe(
+          Effect.provide(CatalogUsageSourceLive),
+          Effect.mapError((error) =>
+            QualityScriptCommandError.new(error, error.message, {
+              command: "bun run beep quality catalog-usage",
+              exitCode: 1,
+            })
+          )
+        )
+      )
+    )
+  )
+).pipe(Command.withDescription("Fail when a root catalog entry or root override has no consumer"));
 
 const qualityProfileDetectCommand = Command.make(
   "detect",
@@ -4444,6 +4308,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality bun-audit",
     "- bun run beep quality test-tsgo",
     "- bun run beep quality tsgo-smoke",
+    "- bun run beep quality effect-diagnostics [--base <ref>] [--concurrency <1..6>] [--filter <workspace>]",
     "- bun run beep quality check-census [--filter <name>] [--output-json <path>]",
     "- bun run beep quality tsgo-rules",
     "- bun run beep quality jsdoc-module-tags",
@@ -4459,6 +4324,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality residue-reap [--apply] [--json] [--fleet] [--classes <class>]",
     "- bun run beep quality package-verify @beep/repo-cli",
     "- bun run beep quality changeset-graph",
+    "- bun run beep quality catalog-usage",
     "- bun run beep quality fallow audit --advisory",
   ])
 ).pipe(
@@ -4470,6 +4336,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     testTsgoCommand,
     testTsgoPackageCommand,
     tsgoSmokeCommand,
+    effectDiagnosticsCommand,
     checkCensusCommand,
     tsgoRulesCommand,
     jsdocModuleTagsCommand,
@@ -4485,6 +4352,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     residueReapCommand,
     packageVerifyCommand,
     changesetGraphCommand,
+    catalogUsageCommand,
     changesetStatusCommand,
     qualityFallowCommand,
   ])

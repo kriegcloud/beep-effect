@@ -13,7 +13,9 @@
  */
 
 import * as Console from "effect/Console";
-import { Argument, Command, Flag } from "effect/cli";
+import * as Argument from "effect/cli/Argument";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -90,14 +92,14 @@ export const loadCapabilityProjection = Effect.fn("Goals.loadCapabilityProjectio
   return compileCapabilityProjection(manifests);
 });
 
-const renderJson = <A, I>(schema: S.Codec<A, I>, report: A) =>
+const renderJson = <A, I>(schema: S.ConstraintCodec<A, I>, report: A) =>
   S.encodeUnknownEffect(schema)(report).pipe(
     Effect.map(canonicalJsonTextPretty),
     Effect.mapError(GoalGraphOperationalError.new("Failed to encode the capability-graph report."))
   );
 
 const printReport = Effect.fn("Goals.printGraphReport")(function* <A, I>(
-  schema: S.Codec<A, I>,
+  schema: S.ConstraintCodec<A, I>,
   report: A,
   json: boolean,
   human: (report: A) => string

@@ -7,7 +7,7 @@
 
 import { $NlpProcessingId } from "@beep/identity";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
-import { Tool } from "effect/ai";
+import * as Tool from "effect/ai/Tool";
 import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
@@ -34,8 +34,8 @@ const TransformOperation = TransformOperationKit.pipe(
   SchemaUtils.withLiteralKitStatics(TransformOperationKit)
 );
 
-class TransformTextParameters extends S.Class<TransformTextParameters>($I`TransformTextParameters`)(
-  {
+class TransformTextParameters extends S.Opaque<TransformTextParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Ordered list of transformations to apply */
     operations: S.Array(TransformOperation).annotateKey({
       description: "Ordered list of transformations to apply",
@@ -46,14 +46,15 @@ class TransformTextParameters extends S.Class<TransformTextParameters>($I`Transf
       description: "The text to transform",
       examples: ["<b>Hello</b>  WORLD!! "],
     }),
-  },
-  $I.annote("TransformTextParameters", {
-    description: "Inputs required to apply a sequence of text normalization operations.",
-  })
+  }).pipe(
+    $I.annoteSchema("TransformTextParameters", {
+      description: "Inputs required to apply a sequence of text normalization operations.",
+    })
+  )
 ) {}
 
-class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTextSuccess`)(
-  {
+class TransformTextSuccess extends S.Opaque<TransformTextSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** List of operations that were applied */
     operationsApplied: S.Array(S.String).annotateKey({
       description: "List of operations that were applied",
@@ -62,10 +63,11 @@ class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTex
     result: S.String.annotateKey({
       description: "The transformed text",
     }),
-  },
-  $I.annote("TransformTextSuccess", {
-    description: "Transformed text and the ordered operations that were applied.",
-  })
+  }).pipe(
+    $I.annoteSchema("TransformTextSuccess", {
+      description: "Transformed text and the ordered operations that were applied.",
+    })
+  )
 ) {}
 
 /**

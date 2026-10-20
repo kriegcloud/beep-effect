@@ -221,8 +221,8 @@ export type IdsOfficeTreatmentState = typeof IdsOfficeTreatmentState.Type;
  * @category models
  * @since 0.0.0
  */
-export class IdsCandidateWindowFacts extends S.Class<IdsCandidateWindowFacts>($I`IdsCandidateWindowFacts`)(
-  {
+export class IdsCandidateWindowFacts extends S.Opaque<IdsCandidateWindowFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationFilingDate: optionalDate("Actual national filing date of the application, as observed."),
     candidateWindow: IdsCandidateWindow.annotateKey({
       description: "Candidate 37 CFR 1.97 window the controlling dates point at.",
@@ -249,11 +249,12 @@ export class IdsCandidateWindowFacts extends S.Class<IdsCandidateWindowFacts>($I
     weekendOrDcHolidayShiftApplies: S.Boolean.annotateKey({
       description: "Whether a controlling date falls on a weekend or DC holiday and shifts, as observed.",
     }),
-  },
-  $I.annote("IdsCandidateWindowFacts", {
-    description:
-      "Controlling prosecution dates and timing edge cases behind a candidate 37 CFR 1.97 window; never a compliance finding.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdsCandidateWindowFacts", {
+      description:
+        "Controlling prosecution dates and timing edge cases behind a candidate 37 CFR 1.97 window; never a compliance finding.",
+    })
+  )
 ) {}
 
 /**
@@ -278,18 +279,19 @@ export class IdsCandidateWindowFacts extends S.Class<IdsCandidateWindowFacts>($I
  * @category models
  * @since 0.0.0
  */
-export class IdsFeeFacts extends S.Class<IdsFeeFacts>($I`IdsFeeFacts`)(
-  {
+export class IdsFeeFacts extends S.Opaque<IdsFeeFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     sizeFeePresent: S.Boolean.annotateKey({
       description: "Whether the 37 CFR 1.17(v) information-disclosure size fee accompanied the submission.",
     }),
     timingFeePresent: S.Boolean.annotateKey({
       description: "Whether the 37 CFR 1.17(p) timing fee accompanied the submission.",
     }),
-  },
-  $I.annote("IdsFeeFacts", {
-    description: "Presence of the 37 CFR 1.17(p) timing fee and the 1.17(v) size fee, as observed.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdsFeeFacts", {
+      description: "Presence of the 37 CFR 1.17(p) timing fee and the 1.17(v) size fee, as observed.",
+    })
+  )
 ) {}
 
 /**
@@ -326,8 +328,8 @@ export class IdsFeeFacts extends S.Class<IdsFeeFacts>($I`IdsFeeFacts`)(
  * @category models
  * @since 0.0.0
  */
-export class IdsStatementFacts extends S.Class<IdsStatementFacts>($I`IdsStatementFacts`)(
-  {
+export class IdsStatementFacts extends S.Opaque<IdsStatementFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     sizeFeeAssertionPresent: S.Boolean.annotateKey({
       description: "Whether the 37 CFR 1.98(a)(4) written assertion about the size fee was present.",
     }),
@@ -337,10 +339,11 @@ export class IdsStatementFacts extends S.Class<IdsStatementFacts>($I`IdsStatemen
     statementType: S.OptionFromNullOr(IdsStatementType).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Which 37 CFR 1.97(e) statement was present, when one was.",
     }),
-  },
-  $I.annote("IdsStatementFacts", {
-    description: "Presence and type of the 37 CFR 1.97(e) statement and the 1.98(a)(4) written assertion.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdsStatementFacts", {
+      description: "Presence and type of the 37 CFR 1.97(e) statement and the 1.98(a)(4) written assertion.",
+    })
+  )
 ) {}
 
 /**
@@ -377,8 +380,8 @@ export class IdsStatementFacts extends S.Class<IdsStatementFacts>($I`IdsStatemen
  * @category models
  * @since 0.0.0
  */
-export class IdsContentPresenceFacts extends S.Class<IdsContentPresenceFacts>($I`IdsContentPresenceFacts`)(
-  {
+export class IdsContentPresenceFacts extends S.Opaque<IdsContentPresenceFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     conciseExplanationPresent: S.Boolean.annotateKey({
       description: "Whether a 37 CFR 1.98(a)(3) concise explanation of relevance was present for non-English items.",
     }),
@@ -394,10 +397,11 @@ export class IdsContentPresenceFacts extends S.Class<IdsContentPresenceFacts>($I
     translationPresent: S.Boolean.annotateKey({
       description: "Whether a written English translation was present for non-English information.",
     }),
-  },
-  $I.annote("IdsContentPresenceFacts", {
-    description: "Presence of 37 CFR 1.98 content items in a submission, as observed.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdsContentPresenceFacts", {
+      description: "Presence of 37 CFR 1.98 content items in a submission, as observed.",
+    })
+  )
 ) {}
 
 /**
@@ -423,18 +427,19 @@ export class IdsContentPresenceFacts extends S.Class<IdsContentPresenceFacts>($I
  * @category models
  * @since 0.0.0
  */
-export class IdsOfficeTreatmentFacts extends S.Class<IdsOfficeTreatmentFacts>($I`IdsOfficeTreatmentFacts`)(
-  {
+export class IdsOfficeTreatmentFacts extends S.Opaque<IdsOfficeTreatmentFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     markingsRaw: optionalText("Examiner initials, stamps, and other markings preserved verbatim as observed."),
     state: IdsOfficeTreatmentState.annotateKey({
       description: "Treatment state the Office recorded, as observed and never inferred.",
     }),
     statedReason: optionalText("Reason the Office stated for the treatment, preserved verbatim."),
     treatmentDate: optionalDate("Date the Office recorded the treatment, as observed."),
-  },
-  $I.annote("IdsOfficeTreatmentFacts", {
-    description: "Office treatment of a submission recorded exactly as observed, with no inference of reliance.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdsOfficeTreatmentFacts", {
+      description: "Office treatment of a submission recorded exactly as observed, with no inference of reliance.",
+    })
+  )
 ) {}
 
 /**
@@ -466,16 +471,17 @@ export class IdsOfficeTreatmentFacts extends S.Class<IdsOfficeTreatmentFacts>($I
  * @category models
  * @since 0.0.0
  */
-export class LegalSourceVersion extends S.Class<LegalSourceVersion>($I`LegalSourceVersion`)(
-  {
+export class LegalSourceVersion extends S.Opaque<LegalSourceVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
     cfrCapture: S.NonEmptyString.annotateKey({
       description: "Identifier of the CFR capture the fact state was modeled from.",
     }),
     mpepRevision: S.NonEmptyString.annotateKey({
       description: "MPEP revision the fact state was modeled from.",
     }),
-  },
-  $I.annote("LegalSourceVersion", {
-    description: "Citation of the CFR capture and MPEP revision a recorded fact state was modeled from.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalSourceVersion", {
+      description: "Citation of the CFR capture and MPEP revision a recorded fact state was modeled from.",
+    })
+  )
 ) {}

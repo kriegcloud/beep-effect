@@ -21,17 +21,19 @@ Named roles below are explicit assignments, not substitutions. Preserve the
 lightweight route (`child.lightweight` = `gpt-6-luna`,
 `ANTHROPIC_DEFAULT_HAIKU_MODEL`) for lightweight tasks.
 
-**Fallback chains**, keyed by the originating orchestrator, medium effort
-wherever the route supports it:
+**Fallback chains**, only on confirmed quota, availability or unsupported-model
+failures, with existing subscriptions and authorized billing:
 
-| Originator | 1 | 2 | 3 |
-| --- | --- | --- | --- |
-| Codex | `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` |
-| Claude Code | `claude-opus-5-5` medium child | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` |
+| Originator | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| Codex | `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` | — |
+| Claude Code | `claude-opus-5-5` medium child | Codex `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` |
 
-- Direct Claude is never a fallback in the Codex chain and direct Codex is
-  never a fallback in the Claude chain. Cursor is the next route after the
-  originating provider; grok-build is the final route.
+- Direct Claude is never a fallback in the Codex chain. Codex (`gpt-6.1-sol`
+  medium, the `codex.heavy` codex-cli binding) is the first fallback in the
+  Claude chain (operator ruling 2026-10-18,
+  `goals/agent-pool-doctrine/history/2026-10-18-codex-claude-fallback.md`);
+  Cursor follows; grok-build is the final route in both chains.
 - Cursor-agent, grok-build and Junie workers never initiate delegation to
   other providers. The originating orchestrator owns every cross-provider
   decision and launch; a worker returns its result or blocker to it.
@@ -98,8 +100,15 @@ reports drift against the manifest):
   tree dirty for the orchestrator to commit, and follow the same data
   boundary as Cursor lanes (D11).
 
-Manifest projection (tool-owned; `beep models check` compares it with
-`~/.config/beep/models.yaml`):
+**Surface pins.** Codex CLI uses `--model gpt-6.1-sol` and
+`-c 'model_reasoning_effort="medium"'`; plugins use `--effort medium`; proxy
+Workflow children use `gpt-6.1-sol(medium)`. Native Claude children use the
+explicit Opus id with medium effort. Cursor CLI uses the medium-suffixed id;
+its SDK has a separate model/effort contract. Keep Cursor's existing sandbox,
+D11 corpus boundary and D21 git/sudo/pkexec denials. grok-build uses grok-4.7
+medium and must return its result or blocker without further delegation.
+
+Manifest projection (tool-owned; `beep models check`):
 
 <!-- beep-models:begin volume-pools -->
 | Role | Surface | Model | Effort |
@@ -169,7 +178,8 @@ Runbook: `docs/runbooks/agent-pools.md`.
   import every Effect module from its current `effect/<Module>` path
   (`.patterns/effect-module-paths.md`). Import `pipe`,
   `flow`, and `identity` from `effect/Function`. Do not import from the root
-  `effect` barrel in code, JSDoc examples, or Markdown code blocks.
+  `effect` barrel or nested barrels such as `effect/cli` and `effect/http` in
+  code, JSDoc examples, or Markdown code blocks; use dedicated public leaves.
 - Use every module and feature Effect ships, `@stability unstable` ones
   included: the tag means the API may change on a bump, not that it is unfit
   for production. Never hand-roll what an Effect module provides (e.g.
@@ -293,7 +303,14 @@ needed only for the escalation list below.
     review-body nitpicks are advisory, and outdated threads still count until
     they are explicitly resolved;
   - no failing CI jobs except Vercel deployments failing only because they were
-    rate limited; and
+    rate limited;
+  - the squash commit message GitHub will write passes the repo's commitlint
+    (`yeet merge-gate` predicts it and holds `squash-commitlint` otherwise;
+    `yeet ready` warns): GitHub squash messages are server-side commitlint
+    input and bullet every commit subject as `* <subject>`, so keep commit
+    subjects at 98 characters or fewer, and the PR title (the first commit
+    subject by default) at 100 minus the ` (#n)` suffix, about 92 for a
+    four-digit PR, because the header is `<title> (#n)`; and
   - the review window has elapsed: at least 20 minutes (`BEEP_YEET_REVIEW_WINDOW`)
     since the later of the latest "marked ready for review" event and the
     latest push to the head. No reviewer has to post (review bots never gate);
@@ -329,7 +346,9 @@ needed only for the escalation list below.
   inside the lane worktree as the last command of the session:
   `CLONE="$(git rev-parse --path-format=absolute --git-common-dir)/.." && bun run beep yeet sweep --retire && cd "$CLONE"`
   (archives residue, deletes the branch, sweeps the clone; it refuses until the
-  PR is MERGED and heads that branch, so running it early is safe). The swept
+  PR is MERGED and heads that branch, so running it early is safe; a lane whose
+  branch never headed a PR retires once `origin/main` already contains its tip
+  and its tree is clean, the `pr-less-on-main` verdict). The swept
   clone is returned to `main` only when it already stands on `main`; a clone
   on another live branch is left where it is (refs updated, no `git switch`,
   no `bun install`) because that checkout may carry another session's running
@@ -369,7 +388,9 @@ needed only for the escalation list below.
   memory): agent worktrees belong in the sibling `-worktrees` root, disposable
   installs under `~/.cache/beep/`. `beep quality tmpfs-reap` is the janitor;
   retire a lane with `bun run beep worktree remove <name> --archive [--delete-branch]`
-  (sibling root or the clone's `.claude/worktrees/<name>`), or from inside it after
+  (sibling root or the clone's `.claude/worktrees/<name>`; its archive fence
+  grants the same invoker and `CLAUDE_PID` session exemption as `--retire`, so
+  a desktop session removes its own lane), or from inside it after
   the merge with `bun run beep yeet sweep --retire`.
 
 ## Touch → Skill / Command
@@ -385,6 +406,7 @@ If you touch this, load or run this first. Do not hand-author around it.
 | JSDoc on exports | `.patterns/jsdoc-documentation.md` |
 | Gesture-bearing UI | browser-qa-loop skill |
 | Tailwind className / style props in UI code | bun run lint:shadcn (strict @shadcn/lint; policy .oxlintrc.shadcn.json, runbook docs/runbooks/design-system-lint.md) |
+| `@effect/tsgo` / `tsc-rs` / `@typescript/native` bumps | [TypeScript toolchain runbook](docs/runbooks/typescript-toolchain.md) |
 | PR publish / checks | yeet skill |
 | Any stopping point (done, blocked, merge-ready, retired) | closeout skill |
 

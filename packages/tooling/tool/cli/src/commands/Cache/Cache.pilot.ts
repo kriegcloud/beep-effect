@@ -114,17 +114,19 @@ const $I = $RepoCliId.create("commands/Cache/Cache.pilot");
 const decodeSignedPilotRun = S.decodeUnknownEffect(S.toType(CacheSignedPilotRun));
 const PilotMode = LiteralKit(["local", "signed"]);
 const PilotCapability = S.Redacted(S.NonEmptyString);
-class PilotTransport extends S.Class<PilotTransport>($I`PilotTransport`)(
-  {
+class PilotTransport extends S.Opaque<PilotTransport, { readonly brand: unique symbol }>()(
+  S.Struct({
     endpoint: S.NonEmptyString,
     namespace: S.NonEmptyString,
     bearer: PilotCapability,
     signing: PilotCapability,
     secrets: S.Array(PilotCapability),
-  },
-  $I.annote("PilotTransport", {
-    description: "Supervisor-owned ephemeral transport for one signed execution; never decoded from a public request.",
-  })
+  }).pipe(
+    $I.annoteSchema("PilotTransport", {
+      description:
+        "Supervisor-owned ephemeral transport for one signed execution; never decoded from a public request.",
+    })
+  )
 ) {}
 
 const identityDirectory = "packages/foundation/modeling/identity";
@@ -167,12 +169,13 @@ const NativeTask = S.Struct({
   ),
 });
 const NativeSummary = S.Struct({ tasks: S.Array(NativeTask) });
-class PilotFile extends S.Class<PilotFile>($I`PilotFile`)(
-  { path: S.NonEmptyString, mode: S.Natural, sha256: Sha256Hex },
-  $I.annote("PilotFile", { description: "A regular package source file observed before or after execution." })
+class PilotFile extends S.Opaque<PilotFile, { readonly brand: unique symbol }>()(
+  S.Struct({ path: S.NonEmptyString, mode: S.Natural, sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("PilotFile", { description: "A regular package source file observed before or after execution." })
+  )
 ) {}
-class PilotRoot extends S.Class<PilotRoot>($I`PilotRoot`)(
-  {
+class PilotRoot extends S.Opaque<PilotRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: CachePilotRun.fields.root,
     source: S.NonEmptyString,
     directory: S.NonEmptyString,
@@ -185,22 +188,24 @@ class PilotRoot extends S.Class<PilotRoot>($I`PilotRoot`)(
     rootFiles: S.Record(S.String, S.String),
     omitted: S.Array(S.NonEmptyString),
     omitChild: S.Boolean,
-  },
-  $I.annote("PilotRoot", {
-    description: "Owned disposable package overlays backed by a read-only registered worktree.",
-  })
+  }).pipe(
+    $I.annoteSchema("PilotRoot", {
+      description: "Owned disposable package overlays backed by a read-only registered worktree.",
+    })
+  )
 ) {}
-class PilotShadowScenario extends S.Class<PilotShadowScenario>($I`PilotShadowScenario`)(
-  {
+class PilotShadowScenario extends S.Opaque<PilotShadowScenario, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CacheSignedPilotShadow.fields.case,
     sourceChange: LiteralKit(["none", "source-comment", "added-source", "readme"]),
     env: S.Record(S.String, S.String),
     guest: S.NonEmptyString,
     expectedInputHash: CachePilotShadow.fields.expectedInputHash,
-  },
-  $I.annote("PilotShadowScenario", {
-    description: "A fixed local perturbation with a declared task-hash expectation and separate fresh authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("PilotShadowScenario", {
+      description: "A fixed local perturbation with a declared task-hash expectation and separate fresh authority.",
+    })
+  )
 ) {}
 
 const captureHost = Effect.fn("CachePilot.captureHost")(function* (root: string, args: ReadonlyArray<string>) {
@@ -1145,16 +1150,17 @@ const runPilot = Effect.fn("CachePilot.run")(
         sourceChange: "readme",
         expectedInputHash: "changed",
       }),
+      // Exercise a live shared declared environment input without the retired ESLint profile.
       PilotShadowScenario.make({
         ...unchanged,
         id: "declared-env",
-        env: { BEEP_ESLINT_PROFILE: "qualification" },
+        env: { VITE_COSMOS_SPIKE: "qualification" },
         expectedInputHash: "changed",
       }),
       PilotShadowScenario.make({
         ...unchanged,
         id: "declared-env-empty",
-        env: { BEEP_ESLINT_PROFILE: "" },
+        env: { VITE_COSMOS_SPIKE: "" },
         expectedInputHash: "changed",
       }),
       PilotShadowScenario.make({
@@ -1176,16 +1182,17 @@ const runPilot = Effect.fn("CachePilot.run")(
       "generated-alias",
       "dependency-source",
     ]);
-    class PilotMutationChange extends S.Class<PilotMutationChange>($I`PilotMutationChange`)(
-      {
+    class PilotMutationChange extends S.Opaque<PilotMutationChange, { readonly brand: unique symbol }>()(
+      S.Struct({
         fixture: PilotRoot,
         changedPath: CachePilotMutation.fields.changedPath,
         beforeSha256: Sha256Hex,
         afterSha256: CachePilotMutation.fields.afterSha256,
-      },
-      $I.annote("PilotMutationChange", {
-        description: "Owned fixture mutation and exact changed configuration evidence.",
-      })
+      }).pipe(
+        $I.annoteSchema("PilotMutationChange", {
+          description: "Owned fixture mutation and exact changed configuration evidence.",
+        })
+      )
     ) {}
     const sameMutationDigest = S.toEquivalence(CachePilotMutation.fields.afterSha256);
     const prepareMutationBaseline = Effect.fn("CachePilot.prepareMutationBaseline")(function* (
@@ -1631,9 +1638,12 @@ const runPilot = Effect.fn("CachePilot.run")(
       );
       yield* validateCacheSignedPilotConcurrency(freshPairs);
       const mutations = A.empty<CacheSignedPilotMutation>();
-      class SignedMutationSeed extends S.Class<SignedMutationSeed>($I`SignedMutationSeed`)(
-        { seed: CacheSignedPilotRun, change: PilotMutationChange },
-        $I.annote("SignedMutationSeed", { description: "Owned seed execution and matching changed fixture inputs." })
+      class SignedMutationSeed extends S.Opaque<SignedMutationSeed, { readonly brand: unique symbol }>()(
+        S.Struct({ seed: CacheSignedPilotRun, change: PilotMutationChange }).pipe(
+          $I.annoteSchema("SignedMutationSeed", {
+            description: "Owned seed execution and matching changed fixture inputs.",
+          })
+        )
       ) {}
       const validateSignedProducerAuthority = Effect.fn("CachePilot.validateSignedProducerAuthority")(function* (
         authoritative: CachePilotRun,
