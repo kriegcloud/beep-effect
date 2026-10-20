@@ -16,7 +16,6 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { isLabsWorkspacePath } from "../../../internal/cli/Labs/index.ts";
 import { globMatches } from "../../../internal/GlobPattern.ts";
 import { QualityTaskConfigurationError } from "../Quality.errors.ts";
 import { discoverWorkspacePackages } from "./QualityArtifactSupport.ts";
@@ -629,13 +628,6 @@ const fullReasonForFile = (owners: ReadonlyArray<CoverageScopeOwner>, filePath: 
     return O.some(`${filePath}: global coverage input changed`);
   }
 
-  // Lab-app paths are coverage-inert (goals/lab-apps-lifecycle D2): a lab-only
-  // change must neither force a full run ("no current workspace owner" /
-  // package-identity reasons) nor join a selected scope.
-  if (isLabsWorkspacePath(filePath)) {
-    return O.none();
-  }
-
   if (A.some(owners, (owner) => filePath === packageJsonPath(owner))) {
     return O.some(`${filePath}: package identity or coverage task may have changed`);
   }
@@ -661,8 +653,7 @@ const fullReasonForFile = (owners: ReadonlyArray<CoverageScopeOwner>, filePath: 
   );
 };
 
-const isMeasurableOwner = (owner: CoverageScopeOwner): boolean =>
-  owner.hasCoverage && !isLabsWorkspacePath(owner.packagePath);
+const isMeasurableOwner = (owner: CoverageScopeOwner): boolean => owner.hasCoverage;
 
 const selectedOwnersForFile = (owners: ReadonlyArray<CoverageScopeOwner>, filePath: string): ReadonlyArray<string> =>
   pipe(
@@ -679,13 +670,12 @@ const isOwnerTestPath = (owner: CoverageScopeOwner, filePath: string): boolean =
 
 // Owners whose exported surface may have changed. Coverage capability is not
 // required here: a package without a coverage task can still change what its
-// coverage-bearing dependents execute. Lab paths stay coverage-inert
-// (lab-apps-lifecycle D2) and repository fixtures only feed their owner's own
-// tests, so neither seeds dependents.
+// coverage-bearing dependents execute. Repository fixtures only feed their
+// owner's own tests, so they do not seed dependents.
 const dependentSeedOwnerForFile = (owners: ReadonlyArray<CoverageScopeOwner>, filePath: string): O.Option<string> =>
   pipe(
     ownerForFile(owners, filePath),
-    O.filter((owner) => !isLabsWorkspacePath(owner.packagePath) && !isOwnerTestPath(owner, filePath)),
+    O.filter((owner) => !isOwnerTestPath(owner, filePath)),
     O.map((owner) => owner.packageName)
   );
 

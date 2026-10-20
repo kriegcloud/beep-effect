@@ -6,6 +6,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Yaml from "effect/encoding/Yaml";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -32,7 +33,7 @@ const readText = (url: URL) => Effect.promise(() => Bun.file(url).text());
 
 const splitSkill = (text: string) => {
   const [, frontmatter = "", body = ""] = Str.split(text, "---\n");
-  return { frontmatter: Bun.YAML.parse(frontmatter), body };
+  return { frontmatter: Yaml.parse(frontmatter), body };
 };
 
 const backticked = (body: string) =>

@@ -25,6 +25,9 @@ export default mergeConfig(
       isolate: true,
       coverage: coverageThresholds,
       globals: true,
+      // Runtime harnesses opt in when launching their fixture subprocesses.
+      // biome-ignore lint/suspicious/noUndeclaredEnvVars: Set only by this package's fixture subprocess harness, never a Turbo task input.
+      exclude: process.env.BEEP_INSTRUMENTED_IT_FIXTURE ? [] : ["test/fixtures/**"],
       // This package owns the shared PGLite integration harness. The CI server
       // is single-connection, so package files cannot run concurrently when the
       // shared external URL is present.

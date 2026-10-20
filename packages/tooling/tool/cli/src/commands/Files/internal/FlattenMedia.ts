@@ -31,7 +31,7 @@ const $I = $RepoCliId.create("commands/Files/internal/FlattenMedia");
 class FlattenMediaTarget extends S.Opaque<FlattenMediaTarget, { readonly brand: unique symbol }>()(
   S.Struct({
     canonicalDirectory: S.String,
-    destinationDevice: S.Finite,
+    destinationDevice: S.BigInt,
     destinationExisted: S.Boolean,
     directory: S.String,
   }).pipe(
@@ -43,7 +43,7 @@ class FlattenMediaTarget extends S.Opaque<FlattenMediaTarget, { readonly brand: 
 
 class FlattenMediaDirectories extends S.Opaque<FlattenMediaDirectories, { readonly brand: unique symbol }>()(
   S.Struct({
-    destinationDevice: S.Finite,
+    destinationDevice: S.BigInt,
     destinationDirectory: S.String,
     destinationExisted: S.Boolean,
     sourceDirectory: S.String,
@@ -70,7 +70,7 @@ class FlattenMediaPlanEntry extends S.Opaque<FlattenMediaPlanEntry, { readonly b
 class FlattenMediaPlan extends S.Opaque<FlattenMediaPlan, { readonly brand: unique symbol }>()(
   S.Struct({
     collisionCount: S.Finite,
-    destinationDevice: S.Finite,
+    destinationDevice: S.BigInt,
     destinationDirectory: S.String,
     destinationExisted: S.Boolean,
     entries: S.Array(FlattenMediaPlanEntry),
@@ -140,7 +140,7 @@ const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMedia
         canonicalDirectory: Str.equivalence(relativeSuffix, "")
           ? canonicalCandidate
           : path.resolve(canonicalCandidate, relativeSuffix),
-        destinationDevice: Number(info.dev),
+        destinationDevice: info.dev,
         destinationExisted: Str.equivalence(candidate, directory),
         directory,
       });

@@ -27,7 +27,7 @@ const FRONTMATTER_FENCE = /^---\s*$/m;
  * console.log(skillBody("---\nname: x\n---\n\n# Guide\n")) // "# Guide"
  * ```
  *
- * @category transformations
+ * @category utilities
  * @since 0.0.0
  */
 export const skillBody = (markdown: string): string => {
@@ -46,7 +46,7 @@ export const skillBody = (markdown: string): string => {
  * console.log(renderOnboardingSkillModule("# Guide").includes("ONBOARDING_SKILL_BODY"))
  * ```
  *
- * @category transformations
+ * @category utilities
  * @since 0.0.0
  */
 export const renderOnboardingSkillModule = (body: string): string => `/**

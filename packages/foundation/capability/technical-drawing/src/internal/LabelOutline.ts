@@ -135,7 +135,14 @@ interface OpenTypeFontLike {
     readonly advanceWidth?: number | undefined;
     readonly path: { readonly commands: ReadonlyArray<Readonly<Record<string, unknown>>> };
   };
-  readonly names?: Readonly<Record<string, Readonly<Record<string, string>> | undefined>> | undefined;
+  readonly names?:
+    | Readonly<
+        Record<
+          "unicode" | "macintosh" | "windows",
+          Readonly<Record<string, Readonly<Record<string, string>> | undefined>> | undefined
+        >
+      >
+    | undefined;
   readonly tables: { readonly os2?: { readonly sCapHeight?: number | undefined } | undefined };
   readonly unitsPerEm: number;
 }
@@ -332,7 +339,10 @@ export const fontNamesOf = Effect.fnUntraced(function* (fontFile: string, bytes:
   const font = yield* parseFont(fontFile, bytes);
   const name = (key: string): string =>
     pipe(
-      O.fromUndefinedOr(font.names?.[key]),
+      O.fromUndefinedOr(font.names?.unicode),
+      O.orElse(() => O.fromUndefinedOr(font.names?.macintosh)),
+      O.orElse(() => O.fromUndefinedOr(font.names?.windows)),
+      O.flatMap((names) => O.fromUndefinedOr(names[key])),
       O.flatMap((entries) => O.orElse(O.fromUndefinedOr(entries.en), () => A.head(R.values(entries)))),
       O.getOrElse(() => "")
     );

@@ -3597,9 +3597,13 @@ exit 74
               renameCallCount += 1;
             }).pipe(Effect.flatMap(() => fs.rename(fromPath, toPath))),
           stat: (filePath) =>
-            fs
-              .stat(filePath)
-              .pipe(Effect.map((info) => (filePath === secondSourcePath ? { ...info, dev: info.dev + 1n } : info))),
+            fs.stat(filePath).pipe(
+              Effect.map((info) => ({
+                ...info,
+                // Adjacent device IDs above Number's exact integer range must stay distinct.
+                dev: filePath === secondSourcePath ? 9_007_199_254_740_993n : 9_007_199_254_740_992n,
+              }))
+            ),
         };
         return Layer.mergeAll(
           FilesCommandServiceLive.pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, crossDeviceFileSystem))),
@@ -3610,6 +3614,7 @@ exit 74
                 FlattenMediaOptions.make({ dir: sourceDir, dryRun: false, outDir })
               ).pipe(Effect.flip);
               expect(error.message).toContain("different filesystems");
+              expect(error.message).toContain(secondSourcePath);
               expect(renameCallCount).toBe(0);
               expect(yield* fs.readFileString(firstSourcePath)).toBe("first");
               expect(yield* fs.readFileString(secondSourcePath)).toBe("second");

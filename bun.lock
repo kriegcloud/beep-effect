@@ -41,7 +41,7 @@
         "syncpack": "catalog:",
         "toml": "catalog:",
         "tsc-rs": "catalog:",
-        "turbo": "^2.11.9",
+        "turbo": "catalog:",
         "typescript": "catalog:",
         "vitest": "catalog:",
       },

@@ -342,27 +342,34 @@ it.layer(platform, { timeout: "60 seconds" })("squash commitlint against the rep
     )
   );
 
-  it.effect("a 102-character bullet from a 100-character subject fails footer-max-line-length (ep47)", () =>
-    withScripted(
-      {
-        commits: [
-          commit("docs(doctrine): admit Codex", "Why."),
-          commit("chore(doctrine): re-request review"),
-          commit(longSubject, "Every Codex selection point."),
-        ],
-      },
-      (_calls, context) =>
-        Effect.gen(function* () {
-          const report = yield* readSquashCommitlint(context, pullFacts);
-          expect(report.verdict._tag).toBe("fail");
-          if (report.verdict._tag === "fail") {
-            expect(report.verdict.rules).toEqual(["footer-max-line-length"]);
-            expect(A.map(report.verdict.offendingLines, (line) => [line.length, line.text])).toEqual([
-              [102, `* ${longSubject}`],
-            ]);
-          }
-          expect(renderSquashCommitlintVerdict(report.verdict)).toContain(`"* ${longSubject}"`);
-        })
+  it.effect("honors the repo's 150-character footer budget for squash bullets", () =>
+    Effect.forEach(
+      [
+        { subject: longSubject, expected: "pass" },
+        { subject: `${longSubject} ${longSubject}`, expected: "fail" },
+      ],
+      ({ subject, expected }) =>
+        withScripted(
+          {
+            commits: [
+              commit("docs(doctrine): admit Codex", "Why."),
+              commit("chore(doctrine): re-request review"),
+              commit(subject, "Every Codex selection point."),
+            ],
+          },
+          (_calls, context) =>
+            Effect.gen(function* () {
+              const report = yield* readSquashCommitlint(context, pullFacts);
+              expect(report.verdict._tag).toBe(expected);
+              if (report.verdict._tag === "fail") {
+                expect(report.verdict.rules).toEqual(["footer-max-line-length"]);
+                expect(A.map(report.verdict.offendingLines, (line) => [line.length, line.text])).toEqual([
+                  [Str.length(subject) + 2, `* ${subject}`],
+                ]);
+                expect(renderSquashCommitlintVerdict(report.verdict)).toContain(`"* ${subject}"`);
+              }
+            })
+        )
     )
   );
 

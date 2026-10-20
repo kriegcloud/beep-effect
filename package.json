@@ -277,15 +277,15 @@
     "syncpack": "catalog:",
     "toml": "catalog:",
     "tsc-rs": "catalog:",
-    "turbo": "^2.11.9",
+    "turbo": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "name": "@beep/root",
   "config": {
     "effectSource": {
-      "version": "4.0.4",
-      "commit": "e17ecdbe902aa7108f775c8ab9c0ddf9f38801ab"
+      "version": "4.0.5",
+      "commit": "7f524e25cfb49a71ac39b0f44278d08d40dda5de"
     }
   },
   "overrides": {

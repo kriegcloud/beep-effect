@@ -30,7 +30,6 @@ import * as S from "effect/Schema";
 import * as Tuple from "effect/Tuple";
 import { formatJsonc, readArtifact, writeArtifact } from "../../../internal/artifacts/index.ts";
 import { configStringOption } from "../../../internal/cli/EnvConfig.ts";
-import { isLabsWorkspacePath } from "../../../internal/cli/Labs/index.ts";
 import { runCaptured } from "../../../internal/process/index.ts";
 import { enforceRatchet } from "../../../internal/ratchet/index.ts";
 import { collectChangedFiles, collectDirtyWorktreeFiles } from "../../../internal/repo-run/ChangedFiles.ts";
@@ -1172,9 +1171,7 @@ const workspaceCoverageDispositionGaps = Effect.fn("CoverageRegression.workspace
   );
   const workspacePackages = pipe(
     A.fromIterable(MutableHashMap.values(packageMap)),
-    // Labs never owe a coverage disposition: they are ceremony-exempt
-    // (goals/lab-apps-lifecycle D2) and appear as neither gaps nor exemptions.
-    A.filter((info) => info.path !== "." && !isLabsWorkspacePath(info.path))
+    A.filter((info) => info.path !== ".")
   );
 
   return coverageDispositionGapsForTesting(
@@ -1325,9 +1322,7 @@ const workspaceCoveragePackages = Effect.fn("CoverageRegression.workspaceCoverag
 
   return pipe(
     A.fromIterable(MutableHashMap.values(packageMap)),
-    // A lab that illegally defines a coverage script must never enter the
-    // snapshot/replacement universe (goals/lab-apps-lifecycle D2).
-    A.filter((info) => hasCoverageScript(info) && !isLabsWorkspacePath(info.path)),
+    A.filter(hasCoverageScript),
     A.sort(Order.mapInput(Order.String, (info: WorkspacePackageInfo) => info.name))
   );
 });

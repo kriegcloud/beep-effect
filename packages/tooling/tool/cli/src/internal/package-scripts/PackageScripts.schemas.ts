@@ -883,7 +883,12 @@ export const taskScriptRules: ReadonlyArray<TaskScriptRule> = [
     binding: { _tag: "owned" },
   }),
   TaskScriptRule.make({ kind: "app", name: "coverage", presence: { _tag: "optional" }, binding: { _tag: "owned" } }),
-  TaskScriptRule.make({ kind: "lab", name: "coverage", presence: { _tag: "absent" }, binding: { _tag: "owned" } }),
+  TaskScriptRule.make({
+    kind: "lab",
+    name: "coverage",
+    presence: { _tag: "required" },
+    binding: { _tag: "indirection", impl: "beep:coverage", ifPresent: false },
+  }),
   TaskScriptRule.make({
     kind: "infra",
     name: "coverage",
@@ -1328,6 +1333,11 @@ export const implScriptDefaults: ReadonlyArray<ImplScriptDefault> = [
   ImplScriptDefault.make({ kind: "lab", name: "beep:lint", value: "biome check ." }),
   ImplScriptDefault.make({ kind: "lab", name: "beep:lint:fix", value: "biome check . --write" }),
   ImplScriptDefault.make({ kind: "lab", name: "beep:test", value: "bunx --bun vitest run" }),
+  ImplScriptDefault.make({
+    kind: "lab",
+    name: "beep:coverage",
+    value: "bunx vitest run --coverage --exclude=test/integration/**",
+  }),
   ImplScriptDefault.make({
     kind: "lab",
     name: "beep:test:integration",

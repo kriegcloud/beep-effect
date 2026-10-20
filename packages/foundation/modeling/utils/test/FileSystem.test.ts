@@ -63,7 +63,7 @@ it.layer(NodeCrypto.layer, { timeout: "5 seconds" })("FileSystem sync wrappers",
       expect(typeof fileInfo.size).toBe("bigint");
       expect(fileInfo.size).toBe(5n);
       assertSome(fileInfo.nlink, 1n);
-      assertTrue(Option.isSome(fileInfo.ino));
+      fileInfo.ino.pipe(Option.isSome, assertTrue);
       assertTrue(P.isBigInt(fileInfo.dev));
       assertTrue(fileInfo.mtime.pipe(Option.isSome));
 
