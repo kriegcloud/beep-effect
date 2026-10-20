@@ -19,8 +19,10 @@ import * as S from "effect/Schema";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const EnvelopeJson = S.fromJsonString(Envelope);
-const decodeAmbiguityResolutionJson = S.decodeEffect(S.fromJsonString(AmbiguityResolution));
-const encodeReceiptJson = S.encodeEffect(S.fromJsonString(Receipt));
+const ResolutionJson = S.fromJsonString(AmbiguityResolution);
+const ReceiptJson = S.fromJsonString(Receipt);
+const decodeAmbiguityResolutionJson = S.decodeEffect(ResolutionJson);
+const encodeReceiptJson = S.encodeEffect(ReceiptJson);
 
 // The parent polls for the checkpoint and reads it as soon as it exists, so a
 // plain write could be observed empty; write a sibling file, then rename it.
