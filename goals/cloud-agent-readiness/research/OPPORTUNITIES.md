@@ -337,3 +337,16 @@ through its wrapper. Claude Code labels custom proxy models unrecognized and
 disables native organization connectors when proxy credentials take precedence;
 successful inference does not qualify those connectors. Proxy tool execution,
 account-pool redundancy and reboot recovery remain open.
+
+### 2026-10-20: concurrent PR #1750 integration and detached launch
+
+While qualifying PR #1750, the remote branch advanced from b6f027e178e0 to
+another main-integration merge, dade5d6bea34, before the local publish pushed.
+The local publish was interrupted before its push, then the remote merge was
+integrated without conflicts. A branch ownership lease visible before publish
+would prevent duplicate integration work. Preserve both histories; no force push.
+
+The initial detached publish failed with "require an active systemd user
+manager". A command-local XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS probe
+reached the user manager. Use that environment for the next detached launch;
+do not change service configuration or authentication to repair shell discovery.
