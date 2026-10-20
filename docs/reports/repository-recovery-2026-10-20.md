@@ -100,6 +100,28 @@ rejected the internal subpath. No package was published. Bun's workspace-aware
 resolver selects the source workspace when run inside this clone, so Node was
 used for the external package-resolution proof.
 
+## Native session lifecycle proof for #1586
+
+Claude now records transport termination before failing active work or admitting
+another prompt. Cleanup has its own idempotence guard, so a prior EOF cannot
+suppress process cleanup; killing an already exited owned child is harmless.
+The write guard and pending-receipt cleanup also cover a transport ending between
+the initial admission check and queue submission. No failed turn is replayed.
+
+Synthetic child fixtures prove successful completion followed by idle EOF,
+active EOF with a queued second prompt, one received prompt, and one closed event
+after repeated close. Codex/Grok can return the denial phrase twice successfully;
+a quoted Cursor response also preserves session health. The existing captured
+Cursor denial still fails as access-blocked despite end_turn. The remaining
+heuristic is explicit: Cursor text beginning with the bare denial phrase is
+classified as denial, because its terminal marker does not distinguish an actual
+subscription rejection from an otherwise identical model answer.
+
+The package audit passes all 63 Bun tests, build, type checks, and lint; docgen
+passes. Three new regressions also pass under Node. Standalone diagnostics pass
+both driver projects, and the Effect test ratchet adds zero findings. One existing
+fixture advisory location is refreshed; its reviewed reason is preserved.
+
 ## Open issue acceptance tracking
 
 | Issue | Requested outcome | Status |
@@ -109,7 +131,7 @@ used for the external package-resolution proof.
 | [#1579](https://github.com/beep-effect/beep-effect/issues/1579) | feat(agent-message): qualify ambiguity reconciliation and capacity fairness | Acceptance review pending |
 | [#1581](https://github.com/beep-effect/beep-effect/issues/1581) | fix(agent-comms): qualify historical probe and snapshot evidence | Acceptance review pending |
 | [#1582](https://github.com/beep-effect/beep-effect/issues/1582) | fix(goals): distinguish proposed closeout from operative completion | Acceptance review pending |
-| [#1586](https://github.com/beep-effect/beep-effect/issues/1586) | Fence ended native sessions and scope Cursor denial classification | Acceptance review pending |
+| [#1586](https://github.com/beep-effect/beep-effect/issues/1586) | Fence ended native sessions and scope Cursor denial classification | Claude transport termination fences future/queued prompts; cleanup is independent and idempotent; Cursor-only denial classification preserves quoted output; 63 package tests, audit, and docgen pass |
 | [#1587](https://github.com/beep-effect/beep-effect/issues/1587) | Tighten agent-messaging probe opt-in and test portability | Acceptance review pending |
 | [#1603](https://github.com/beep-effect/beep-effect/issues/1603) | fix(agent-message): reconcile completion after attached lease expiry | Only expired terminal completion defers to recovery; live-clock regression proves one submission, surviving worker, and ambiguity fence |
 | [#1607](https://github.com/beep-effect/beep-effect/issues/1607) | fix(t3-code): qualify built root export before publication | Published root and canonical generator use dist/index.js; 21 generator tests, package audit/docgen, and packed Node root/subpath import proof pass; package remains private |
