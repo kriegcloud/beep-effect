@@ -56,5 +56,10 @@ export default {
   ],
   rules: {
     "body-max-line-length": [2, "always", 100],
+    // GitHub appends `Co-authored-by: <login>[bot] <id+login[bot]@users.noreply.github.com>` trailers to
+    // every squash whose commits have another author; for a GitHub App that single trailer line is
+    // over 100 characters and nobody can shape it (ep49: main c6d2656bfe went red on #1922, the
+    // knowledge-baseline mint bot). The footer budget admits such trailers; header and body stay at 100.
+    "footer-max-line-length": [2, "always", 150],
   },
 };
