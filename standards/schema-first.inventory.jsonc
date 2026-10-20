@@ -2613,7 +2613,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 84,
+      "line": 86,
       "owner": "@beep/repo-cli",
       "reason": "Native runtime regressions decode real synthetic-child and SQLite receipts to verify enrollment, policy rejection, delivery, cancellation cleanup and writer-lock behavior. Generated envelope/reference properties live in agent-message-models.test.ts; arbitrary codec round-trips do not exercise these fixed subprocess lifecycle scenarios. Reconsider if reusable schemas or schema-law assertions move into this file."
     },

@@ -44,6 +44,7 @@ const decodeGoalManifest = S.decodeEffect(GoalManifest);
 const decodeGoalRequiredCheckSnapshot = S.decodeEffect(GoalRequiredCheckSnapshot);
 const decodeGoalCompletionReceiptJson = S.decodeEffect(S.fromJsonString(GoalCompletionReceipt));
 const encodeGoalCompletionReceiptJson = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+const encodeGoalManifestJson = S.encodeEffect(S.fromJsonString(GoalManifest));
 
 const time = DateTime.makeUnsafe("2026-10-06T00:55:25Z");
 const gate = GoalCompletionGate.make({
@@ -518,7 +519,7 @@ it.layer(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       yield* fs.makeDirectory("/workspace/goals/unmentioned-packet/ops", { recursive: true });
-      const text = yield* S.encodeEffect(S.fromJsonString(GoalManifest))(manifest());
+      const text = yield* encodeGoalManifestJson(manifest());
       yield* fs.writeFileString("/workspace/goals/unmentioned-packet/ops/manifest.json", text);
       const views = yield* readGoalCloseoutViews("/workspace");
       expect(views).toEqual([

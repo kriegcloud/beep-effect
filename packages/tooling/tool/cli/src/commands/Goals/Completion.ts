@@ -882,20 +882,19 @@ export const readGoalCloseoutViews = Effect.fn("Goals.Completion.closeoutViews")
   const records = yield* listGoalPackets(root);
   const views = yield* Effect.forEach(
     records,
-    (record) =>
-      Effect.gen(function* () {
-        const parsed = O.flatMap(O.fromUndefinedOr(record.manifestText), parseGoalManifestText);
-        if (O.isNone(parsed)) return O.none<GoalCloseoutView>();
-        const manifest = yield* S.decodeUnknownEffect(GoalManifest)(parsed.value).pipe(Effect.option);
-        if (O.isNone(manifest) || manifest.value.proposedCloseout === undefined) return O.none<GoalCloseoutView>();
-        return O.some(
-          GoalCloseoutView.make({
-            packet: record.slug,
-            proposedCloseout: manifest.value.proposedCloseout,
-            operativeStatus: yield* readGoalLifecycle(root, record.slug, manifest.value),
-          })
-        );
-      }),
+    Effect.fnUntraced(function* (record) {
+      const parsed = O.flatMap(O.fromUndefinedOr(record.manifestText), parseGoalManifestText);
+      if (O.isNone(parsed)) return O.none<GoalCloseoutView>();
+      const manifest = yield* S.decodeUnknownEffect(GoalManifest)(parsed.value).pipe(Effect.option);
+      if (O.isNone(manifest) || manifest.value.proposedCloseout === undefined) return O.none<GoalCloseoutView>();
+      return O.some(
+        GoalCloseoutView.make({
+          packet: record.slug,
+          proposedCloseout: manifest.value.proposedCloseout,
+          operativeStatus: yield* readGoalLifecycle(root, record.slug, manifest.value),
+        })
+      );
+    }),
     { concurrency: 1 }
   );
   return A.getSomes(views);
