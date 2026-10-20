@@ -18,7 +18,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFArray, PDFDocument, PDFName, PDFNumber, PDFRawStream, PDFRef, rgb, StandardFonts } from "pdf-lib";
 
 // Live lane: exercises the real rsvg-convert, pdftoppm, and pdftotext binaries
 // on PATH. A machine without librsvg or poppler skips explicitly; any other
@@ -45,6 +45,8 @@ const TOOLS = [
 ] as const;
 
 const missingTool = Effect.findFirst(TOOLS, ([command, flag]) => Effect.map(toolPresent(command, flag), (ok) => !ok));
+
+const missingRsvg = Effect.map(toolPresent("rsvg-convert", "--version"), (ok) => !ok);
 
 const missingPoppler = Effect.findFirst(
   A.filter(TOOLS, ([command]) => command !== "rsvg-convert"),
@@ -79,6 +81,46 @@ const sheetSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="612pt" height="
 </svg>
 `;
 
+// Two sheets of different sizes, each with a path and a text label. With rsvg-convert 2.63.2 (cairo 1.18.6)
+// and this host's default font, the first page's content stream ends in 0x0D (the `H119` is what makes it so).
+const writeTwoSheets = Effect.fnUntraced(function* (dir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const first = path.join(dir, "first.svg");
+  const second = path.join(dir, "second.svg");
+  yield* fs.writeFileString(
+    first,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="612pt" height="792pt" viewBox="0 0 612 792"><path d="M72 72H540V720H119Z" fill="none" stroke="#000"/><text x="300" y="400" font-size="14">FIG. 1</text></svg>\n`
+  );
+  yield* fs.writeFileString(
+    second,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="300pt" height="400pt" viewBox="0 0 300 400"><circle cx="150" cy="200" r="80" fill="none" stroke="#000"/><text x="120" y="380" font-size="14">FIG. 2</text></svg>\n`
+  );
+  return [first, second] as const;
+});
+
+// FlateDecode streams under an indirect /Length that pdf-lib reads shorter than declared: the ones its
+// re-serialisation truncates.
+const shortenedFlateStreams = Effect.fnUntraced(function* (bytes: Uint8Array) {
+  const doc = yield* Effect.promise(() => PDFDocument.load(bytes, { updateMetadata: false }));
+  const lookup = (value: unknown) => (value instanceof PDFRef ? doc.context.lookup(value) : value);
+  return A.length(
+    A.filter(doc.context.enumerateIndirectObjects(), ([, object]) => {
+      if (!(object instanceof PDFRawStream)) return false;
+      const length = object.dict.get(PDFName.of("Length"));
+      const declared = lookup(length);
+      const filter = lookup(object.dict.get(PDFName.of("Filter")));
+      const first = filter instanceof PDFArray ? lookup(filter.get(0)) : filter;
+      return (
+        length instanceof PDFRef &&
+        declared instanceof PDFNumber &&
+        first === PDFName.of("FlateDecode") &&
+        declared.asNumber() !== object.contents.length
+      );
+    })
+  );
+});
+
 describe("@beep/pdf-tools live tools", () => {
   it.layer(LiveLayer, { timeout: "120 seconds" })((it) => {
     it.effect(
@@ -110,6 +152,7 @@ describe("@beep/pdf-tools live tools", () => {
         expect(structure.fonts).toEqual([]);
         expect(structure.annotationCount).toBe(0);
         expect(structure.encrypted).toBe(false);
+        expect(structure.undecodableStreams).toEqual([]);
 
         const metrics = yield* tools.measurePage(
           RasterRequest.make({ pdfPath: pdfA, page: 2, dpi: 72, antiAlias: false })
@@ -138,6 +181,91 @@ describe("@beep/pdf-tools live tools", () => {
         const text = yield* tools.pageText(PageTextRequest.make({ pdfPath: textPdf, page: 2 }));
         expect(text).toContain("Initialed page AB");
         expect(text).not.toContain("Request page");
+      })
+    );
+
+    it.effect(
+      "converts two SVGs in one run: pages in input order, the requested header, every stream decodable",
+      Effect.fnUntraced(function* (context) {
+        if (yield* missingRsvg) {
+          context.skip("Missing native prerequisite: rsvg-convert on PATH");
+          return;
+        }
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tools = yield* PdfTools;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const svgPaths = yield* writeTwoSheets(dir);
+        const out = path.join(dir, "sheets.pdf");
+        const result = yield* tools.svgToPdf(SvgToPdfRequest.make({ svgPaths, outputPath: out }));
+        expect(result.pageCount).toBe(2);
+        expect(
+          Buffer.from(yield* fs.readFile(out))
+            .subarray(0, 8)
+            .toString("latin1")
+        ).toBe("%PDF-1.6");
+
+        const structure = yield* tools.inspect(out);
+        expect(structure.headerVersion).toBe("1.6");
+        // pages in input order, each at its own SVG's size
+        expect(A.map(structure.pages, (page) => [Math.round(page.widthPt), Math.round(page.heightPt)])).toEqual([
+          [612, 792],
+          [300, 400],
+        ]);
+        // every stream inflates, cairo's object and cross-reference streams included
+        expect(structure.undecodableStreams).toEqual([]);
+        expect(structure.streamCheck).toBe("complete");
+      })
+    );
+
+    it.effect(
+      "flags the streams the per-page pdf-lib merge the one-run conversion replaced truncates",
+      Effect.fnUntraced(function* (context) {
+        if (yield* missingRsvg) {
+          context.skip("Missing native prerequisite: rsvg-convert on PATH");
+          return;
+        }
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tools = yield* PdfTools;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const svgPaths = yield* writeTwoSheets(dir);
+        // The pipeline svgToPdf replaced: one PDF 1.6 conversion per page, merged and re-serialised by pdf-lib.
+        const pages = yield* Effect.forEach(svgPaths, (svg, index) => {
+          const pagePath = path.join(dir, `page-${index + 1}.pdf`);
+          return tools
+            .svgToPdf(SvgToPdfRequest.make({ svgPaths: [svg], outputPath: pagePath }))
+            .pipe(Effect.andThen(fs.readFile(pagePath)));
+        });
+        // pdf-lib cuts a stream whose /Length is indirect at the EOL before `endstream`, so only a stream whose
+        // data ends in 0x0D comes out short; whether cairo writes one depends on its build and the host's fonts.
+        const shortened = A.reduce(
+          yield* Effect.forEach(pages, shortenedFlateStreams),
+          0,
+          (total, count) => total + count
+        );
+        if (shortened === 0) {
+          context.skip(
+            "This rsvg-convert/cairo build ends no per-page FlateDecode stream under an indirect /Length in 0x0D, so the merge truncates nothing here; the unit test of an indirect /Length covers the read"
+          );
+          return;
+        }
+        const mergedDoc = yield* Effect.promise(() => PDFDocument.create({ updateMetadata: false }));
+        yield* Effect.forEach(pages, (bytes) =>
+          Effect.promise(() => PDFDocument.load(bytes, { updateMetadata: false })).pipe(
+            Effect.flatMap((source) => Effect.promise(() => mergedDoc.copyPages(source, source.getPageIndices()))),
+            Effect.map(A.forEach((page) => mergedDoc.addPage(page)))
+          )
+        );
+        const merged = yield* Effect.promise(() =>
+          mergedDoc.save({ useObjectStreams: false, updateFieldAppearances: false })
+        );
+        const mergedPath = path.join(dir, "merged.pdf");
+        yield* fs.writeFile(mergedPath, merged);
+        const broken = yield* tools.inspect(mergedPath);
+        expect(A.map(broken.undecodableStreams, (stream) => stream.reason)).toEqual(
+          A.makeBy(shortened, () => "unexpected end of file")
+        );
       })
     );
 

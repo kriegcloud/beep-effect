@@ -147,6 +147,7 @@ export class ModelsLocatorError extends S.TaggedError<ModelsLocatorError, { read
   "ModelsLocatorError",
   {
     message: S.String,
+    reason: S.optionalKey(S.Literal("ineligible")),
     path: S.optionalKey(S.String),
     cause: S.optionalKey(OpaqueDefect),
   },

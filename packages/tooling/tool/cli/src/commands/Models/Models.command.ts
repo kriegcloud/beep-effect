@@ -3,9 +3,9 @@
  *
  * **Details**
  *
- * Slice 1 is read-only. `check` reports drift and exits non-zero on it,
+ * `check` reports drift and exits non-zero on it,
  * `catalog` prints the assembled layered catalog, and `init` seeds a manifest
- * only when none exists. No subcommand writes a projection target.
+ * only when none exists. `apply --write` performs journaled owned-field writes; restore rejects native drift.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -25,19 +25,33 @@ import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { writeContainedFileString } from "../../internal/cli/FsGuards.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
+import { ModelsApply, ModelsApplyLive } from "./Models.apply.service.ts";
 import { CatalogSnapshot } from "./Models.catalog.schemas.ts";
 import { ModelsCatalogOptions } from "./Models.catalog.service.ts";
 import { ModelsCommandError } from "./Models.errors.ts";
+import { bindLocatorModel, modelsReadLocator } from "./Models.locator.service.ts";
+import {
+  LocatorBinding,
+  ModelSyncTarget,
+  ModelsEligibilityResult,
+  ModelsLocatorWrite,
+  TargetId,
+} from "./Models.manifest.schemas.ts";
+import { ModelsTargetFile, ModelsTargetLocation, resolveTargetPath } from "./Models.paths.ts";
+import { expectedLocatorValue, renderGeneratedBlockBody } from "./Models.render.ts";
 import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
 import {
   defaultManifestRelativePath,
+  filterBindings,
   ModelsCatalog,
   ModelsCheck,
   ModelsCheckOptions,
   ModelsLive,
   ModelsManifestStore,
 } from "./Models.service.ts";
+import { modelsCheckOnlyFormat, modelsEligibility, modelsWritePreflight } from "./Models.spans.ts";
+import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
 const encodeReport = S.encodeUnknownEffect(ModelsCheckReport);
@@ -110,7 +124,11 @@ const resolvePaths = Effect.fnUntraced(function* (
     O.match({
       onNone: () =>
         Config.String("HOME").pipe(
-          Effect.mapError(() => ModelsCommandError.make({ message: "HOME is unset; pass --home <dir> explicitly." }))
+          Effect.mapError(() =>
+            ModelsCommandError.make({
+              message: "HOME is unset; pass --home <dir> explicitly.",
+            })
+          )
         ),
       onSome: Effect.succeed,
     })
@@ -161,6 +179,12 @@ const renderReportMarkdown = (report: ModelsCheckReport): string =>
       `Catalog: ${report.catalog.modelCount} model(s) from ${A.join(report.catalog.sources, ", ")}`,
       renderCatalogDiff(report),
       `Unbound Codex candidates (propose only): ${A.join(report.candidates, ", ")}`,
+      `Manual verification required: ${A.length(A.dedupe(A.map(report.manual, (entry) => entry.targetId)))} target(s)`,
+      ...A.map(
+        report.manual,
+        (entry) =>
+          `- ${entry.targetId}: manual verification required; hint=${O.getOrElse(entry.current, () => "<absent>")}`
+      ),
       `Drift: ${report.hasDrift ? "yes" : "no"} (${A.length(report.findings)} finding(s))`,
       "",
       "| Target | Locator | Kind | Current | Expected |",
@@ -224,8 +248,16 @@ const runCheck = Effect.fnUntraced(function* (flags: ModelsCommandFlags) {
     yield* Console.log(formatJsonValue(encoded));
   } else {
     yield* Effect.forEach(report.findings, (entry) => Console.log(renderFinding(entry)), { discard: true });
+    yield* Effect.forEach(
+      report.manual,
+      (entry) =>
+        Console.log(
+          `models: ${entry.targetId} [${entry.locator._tag}] manual verification required; hint=${O.getOrElse(entry.current, () => "<absent>")}`
+        ),
+      { discard: true }
+    );
     yield* Console.log(
-      `models: ${A.length(report.findings)} finding(s) across ${report.catalog.modelCount} catalog model(s) ` +
+      `models: ${A.length(A.dedupe(A.map(report.manual, (entry) => entry.targetId)))} manual target(s); ${A.length(report.findings)} finding(s) across ${report.catalog.modelCount} catalog model(s) ` +
         `from ${A.join(report.catalog.sources, ", ")}`
     );
     yield* Console.log(`models: ${renderCatalogDiff(report)}`);
@@ -318,6 +350,286 @@ const initCommand = Command.make(
   Command.withDescription("Seed the routing manifest when none exists; --adopt rewrites an existing one with a backup")
 );
 
+const resolveApplyFile = Effect.fnUntraced(function* (paths: ResolvedPaths, target: ModelSyncTarget) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const file = resolveTargetPath(
+    ModelsTargetLocation.make({
+      ...paths,
+      root: target.root,
+      path: target.path,
+    })
+  );
+  if (O.isNone(file))
+    return yield* ModelsCommandError.make({
+      message: `Target ${target.id} escapes its root.`,
+    });
+  const exists = yield* fs.exists(file.value).pipe(ModelsCommandError.mapError("Cannot inspect target."));
+  if (!exists) {
+    yield* fs.readLink(file.value).pipe(
+      Effect.option,
+      Effect.filterOrFail(O.isNone, () =>
+        ModelsCommandError.make({
+          message: `Target ${target.id} is a dangling symlink.`,
+        })
+      )
+    );
+    if (target.optional) return O.none<string>();
+  }
+  const root = yield* fs
+    .realPath(target.root === "home" ? paths.home : paths.repo)
+    .pipe(ModelsCommandError.mapError("Cannot resolve target root."));
+  const actual = yield* fs.realPath(file.value).pipe(ModelsCommandError.mapError("Cannot resolve target file."));
+  const relative = path.relative(root, actual);
+  if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
+    return yield* ModelsCommandError.make({
+      message: `Target ${target.id} symlink escapes its root.`,
+    });
+  return O.some(file.value);
+});
+
+const renderModelWrite = Effect.fnUntraced(function* (manifest: ModelsManifest, locator: Locator) {
+  if (locator._tag === "md-generated-block")
+    return ModelsLocatorWrite.make({
+      locator,
+      expected: renderGeneratedBlockBody(
+        filterBindings(manifest, locator.filter),
+        manifest.superseded,
+        locator.includeSuperseded
+      ),
+    });
+  const binding = A.findFirst(
+    manifest.bindings,
+    (entry) => entry.role === locator.binding.role && entry.surface === locator.binding.surface
+  );
+  if (O.isNone(binding))
+    return yield* ModelsCommandError.make({
+      message: "Unbound model locator.",
+    });
+  const expected = expectedLocatorValue(binding.value, locator.binding.field, locator.render);
+  if (O.isNone(expected))
+    return yield* ModelsCommandError.make({
+      message: "Unrenderable model locator.",
+    });
+  return ModelsLocatorWrite.make({
+    locator: bindLocatorModel(locator, binding.value.modelId),
+    expected: expected.value,
+  });
+});
+
+const certifyPreviewWrites = (file: string, requests: ReadonlyArray<ModelsLocatorWrite>) =>
+  modelsEligibility(file, requests).pipe(
+    Effect.filterOrFail(ModelsEligibilityResult.guards.eligible, (result) =>
+      ModelsCommandError.make({
+        message: `Ineligible native target: ${result._tag === "eligible" ? "Unexpected eligible refusal." : result.message}`,
+      })
+    )
+  );
+
+const previewModelChange = Effect.fnUntraced(function* (
+  file: string,
+  target: ModelSyncTarget,
+  content: string,
+  request: ModelsLocatorWrite
+) {
+  const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
+  return request.remove === true
+    ? (yield* certifyPreviewWrites(file, [request])).removalsPresent
+    : manual
+      ? yield* modelsReadLocator(
+          ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
+          request.locator
+        ).pipe(
+          Effect.tap((hint) =>
+            Console.log(`models: hint ${target.id} [${request.locator._tag}] ${O.getOrElse(hint, () => "<absent>")}`)
+          ),
+          Effect.map(
+            (current) =>
+              O.exists(current, (value) => /^Unsupported (?:shell|YAML|XML|JSON) form/.test(value)) ||
+              !O.contains(current, request.expected)
+          )
+        )
+      : yield* modelsReadLocator(
+          ModelsTargetFile.make({ root: target.root, absolutePath: file, content }),
+          request.locator
+        ).pipe(Effect.map((current) => !O.contains(current, request.expected)));
+});
+
+const previewModelWrites = Effect.fnUntraced(function* (
+  file: string,
+  target: ModelSyncTarget,
+  writes: ReadonlyArray<ModelsLocatorWrite>
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const certifiable = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
+  const content = A.isReadonlyArrayNonEmpty(certifiable)
+    ? (yield* certifyPreviewWrites(file, certifiable)).content
+    : yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
+  for (const request of writes) {
+    const manual = O.isSome(modelsCheckOnlyFormat(request.locator));
+    const change = yield* previewModelChange(file, target, content, request);
+
+    yield* Console.log(
+      `models: preview ${target.id} [${request.locator._tag}] ${manual ? "manual verification required; recognized drift=" : "change="}${change} expected=${request.remove === true ? "<absent>" : request.expected}`
+    );
+  }
+});
+
+const applyModelTarget = Effect.fnUntraced(function* (
+  paths: ResolvedPaths,
+  manifest: ModelsManifest,
+  target: ModelSyncTarget,
+  mode: ModelsApplyMode
+) {
+  if (mode === "write")
+    yield* modelsWritePreflight(target.path, target.locators).pipe(Effect.mapError(ModelsCommandError.fromInternal));
+  const file = yield* resolveApplyFile(paths, target);
+  if (O.isNone(file)) return;
+  const path = yield* Path.Path;
+  const writer = yield* ModelsApply;
+  const writes = yield* Effect.forEach(target.locators, (locator) => renderModelWrite(manifest, locator), {
+    concurrency: 1,
+  });
+  if (mode === "dry-run" || mode === "check") yield* previewModelWrites(file.value, target, writes);
+  const journal = yield* writer
+    .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
+    .pipe(Effect.mapError((error) => ModelsCommandError.make({ message: error.message })));
+  yield* Console.log(
+    `models: ${mode} ${target.id}; ${A.some(target.locators, (locator) => O.isSome(modelsCheckOnlyFormat(locator))) ? "manual verification required; " : ""}${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
+  );
+  if (O.isSome(journal)) yield* Console.log(`models: restore --journal ${journal.value.id}`);
+});
+
+const applyCommand = Command.make(
+  "apply",
+  {
+    ...modelsFlags,
+    check: Flag.Boolean("check").pipe(Flag.withDefault(false)),
+    dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+    write: Flag.Boolean("write").pipe(Flag.withDefault(false)),
+    target: Flag.String("target").pipe(Flag.optional),
+  },
+  Effect.fn("ModelsCommand.apply")(function* (flags) {
+    if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
+      return yield* ModelsCommandError.make({
+        message: "Choose one of --check, --dry-run, --write.",
+      });
+    const paths = yield* resolvePaths(flags);
+    const store = yield* ModelsManifestStore;
+    const manifest = yield* store.load(paths.manifestPath).pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    const targets = A.filter(manifest.targets, (target) => O.isNone(flags.target) || target.id === flags.target.value);
+    if (A.isReadonlyArrayEmpty(targets))
+      return yield* ModelsCommandError.make({
+        message: "No manifest target matched.",
+      });
+    const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
+    const results = yield* Effect.forEach(
+      targets,
+      (target) =>
+        applyModelTarget(paths, manifest, target, mode).pipe(
+          Effect.as(true),
+          Effect.catchTag("ModelsCommandError", (error) =>
+            Console.error(`models: refused ${target.id}: ${error.message}`).pipe(Effect.as(false))
+          )
+        ),
+      { concurrency: 1 }
+    );
+    if (A.some(results, (success) => !success))
+      return yield* ModelsCommandError.make({
+        message: "One or more targets refused; see per-target reports.",
+      });
+  })
+).pipe(Command.withDescription("Check or preview owned native fields; --write backs up and journals each replacement"));
+
+const codexPermissionsCommand = Command.make(
+  "codex-permissions",
+  {
+    ...modelsFlags,
+    check: Flag.Boolean("check").pipe(Flag.withDefault(false)),
+    dryRun: Flag.Boolean("dry-run").pipe(Flag.withDefault(false)),
+    write: Flag.Boolean("write").pipe(Flag.withDefault(false)),
+  },
+  Effect.fn("ModelsCommand.codexPermissions")(function* (flags) {
+    if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
+      return yield* ModelsCommandError.make({
+        message: "Choose one of --check, --dry-run, --write.",
+      });
+    const paths = yield* resolvePaths(flags);
+    const path = yield* Path.Path;
+    const fs = yield* FileSystem.FileSystem;
+    const file = path.join(paths.home, ".codex", "config.toml");
+    const actual = yield* fs.realPath(file).pipe(ModelsCommandError.mapError("Cannot resolve Codex config."));
+    const home = yield* fs.realPath(paths.home).pipe(ModelsCommandError.mapError("Cannot resolve home."));
+    if (Str.startsWith("..")(path.relative(home, actual)) || path.isAbsolute(path.relative(home, actual)))
+      return yield* ModelsCommandError.make({
+        message: "Codex config resolves outside its home.",
+      });
+    const writer = yield* ModelsApply;
+    const request = ModelsLocatorWrite.make({
+      locator: {
+        _tag: "toml-top-level-key",
+        key: "sandbox_mode",
+        binding: LocatorBinding.make({
+          role: "codex.heavy",
+          surface: "codex-cli",
+          field: "model",
+        }),
+        render: { _tag: "verbatim" },
+      },
+      expected: "",
+      remove: true,
+    });
+    const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
+    if (mode === "dry-run")
+      yield* previewModelWrites(
+        file,
+        ModelSyncTarget.make({
+          id: TargetId.make("home.codex.config"),
+          root: "home",
+          path: "$HOME/.codex/config.toml",
+          optional: false,
+          locators: [request.locator],
+        }),
+        [request]
+      );
+    const journal = yield* writer
+      .apply(file, [request], mode, path.join(paths.home, ".config-backups"))
+      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    yield* Console.log(
+      O.match(journal, {
+        onNone: () => `models: codex-permissions ${mode} complete; no file written`,
+        onSome: (entry) => `models: codex-permissions journal ${entry.id}`,
+      })
+    );
+  })
+).pipe(
+  Command.withDescription("Detect or remove only legacy Codex sandbox_mode; model pins and native fields survive")
+);
+
+const restoreCommand = Command.make(
+  "restore",
+  {
+    ...modelsFlags,
+    journal: Flag.String("journal"),
+  },
+  Effect.fn("ModelsCommand.restore")(function* (flags) {
+    const paths = yield* resolvePaths(flags);
+    const path = yield* Path.Path;
+    const writer = yield* ModelsApply;
+    if (!/^models-[\w-]+$/.test(flags.journal))
+      return yield* ModelsCommandError.make({
+        message: "Pass a journal id, not a file path.",
+      });
+    const directory = path.join(paths.home, ".config-backups");
+    yield* writer
+      .restore(path.join(directory, `${flags.journal}.json`), directory)
+      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    yield* Console.log(`models: restored ${flags.journal}`);
+  })
+).pipe(
+  Command.withDescription("Restore a writer backup only when the live file still matches its applied fingerprint")
+);
+
 /**
  * The `beep models` command group.
  *
@@ -344,6 +656,14 @@ export const modelsCommand = Command.make(
   Effect.fn(runCheck, Effect.catchTag("ModelsCommandError", failWithModelsError))
 ).pipe(
   Command.withDescription("Check every routing surface against the operator model manifest"),
-  Command.withSubcommands([checkCommand, catalogCommand, initCommand]),
+  Command.withSubcommands([
+    checkCommand,
+    catalogCommand,
+    initCommand,
+    applyCommand,
+    codexPermissionsCommand,
+    restoreCommand,
+  ]),
+  Command.provide(ModelsApplyLive),
   Command.provide(ModelsLive)
 );

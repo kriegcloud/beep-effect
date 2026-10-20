@@ -24,7 +24,12 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
-import { ensureAiMetricsDerivedStorage } from "./derived-storage.ts";
+import {
+  AiMetricsSessionStampCompleteness,
+  AiMetricsSessionStampQualification,
+  ensureAiMetricsDerivedStorage,
+} from "./derived-storage.ts";
+import { HarnessHash } from "./harness-ledger.ts";
 import {
   AiMetricsDeployTarget,
   AiMetricsOtlpEndpointSpec,
@@ -57,6 +62,9 @@ export const AiMetricsOtlpAttributeKey = LiteralKit([
   "ai_metrics.agent_nickname_hash",
   "ai_metrics.agent_role_hash",
   "ai_metrics.config_snapshot_id",
+  "ai_metrics.session_harness_hash",
+  "ai_metrics.session_stamp_completeness",
+  "ai_metrics.session_stamp_qualification",
   "ai_metrics.event_name",
   "ai_metrics.forked_from_id_hash",
   "ai_metrics.ingest_run_id",
@@ -382,6 +390,9 @@ class AiMetricsOtlpTurnExportRow extends S.Opaque<AiMetricsOtlpTurnExportRow, { 
     agentRoleHash: S.OptionFromNullOr(S.String),
     agentSessionId: S.String,
     configSnapshotId: S.String,
+    sessionHarnessHash: S.OptionFromNullOr(HarnessHash),
+    sessionStampCompleteness: AiMetricsSessionStampCompleteness,
+    sessionStampQualification: AiMetricsSessionStampQualification,
     eventName: S.String,
     forkedFromIdHash: S.OptionFromNullOr(S.String),
     ingestRunId: S.String,
@@ -485,7 +496,10 @@ const readTurnRows = Effect.fn("AiMetrics.otlp.readTurnRows")(function* () {
          s.thread_spawn AS "threadSpawn",
          s.agent_role_hash AS "agentRoleHash",
          s.agent_nickname_hash AS "agentNicknameHash",
-         s.config_snapshot_id AS "configSnapshotId"
+         s.config_snapshot_id AS "configSnapshotId",
+         s.session_harness_hash AS "sessionHarnessHash",
+         COALESCE(s.session_stamp_completeness, 'unknown') AS "sessionStampCompleteness",
+         COALESCE(s.session_stamp_qualification, 'unknown') AS "sessionStampQualification"
        FROM ai_metrics_turns t
        JOIN ai_metrics_sessions s ON s.agent_session_id = t.agent_session_id
        WHERE t.otlp_exported_at_epoch_ms IS NULL
@@ -560,6 +574,9 @@ const sessionProjection = (
         "ai_metrics.thread_spawn": row.threadSpawn,
       }),
       "ai_metrics.config_snapshot_id": row.configSnapshotId,
+      ...O.getSomesStruct({ "ai_metrics.session_harness_hash": row.sessionHarnessHash }),
+      "ai_metrics.session_stamp_completeness": row.sessionStampCompleteness,
+      "ai_metrics.session_stamp_qualification": row.sessionStampQualification,
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.source_kind": row.sourceKind,
       "ai_metrics.source_path_hash": row.sourcePathHash,
@@ -588,6 +605,9 @@ const turnProjection = Effect.fnUntraced(function* (
         "tool.name": toolName,
       }),
       "ai_metrics.config_snapshot_id": row.configSnapshotId,
+      ...O.getSomesStruct({ "ai_metrics.session_harness_hash": row.sessionHarnessHash }),
+      "ai_metrics.session_stamp_completeness": row.sessionStampCompleteness,
+      "ai_metrics.session_stamp_qualification": row.sessionStampQualification,
       "ai_metrics.event_name": row.eventName,
       "ai_metrics.ingest_run_id": row.ingestRunId,
       "ai_metrics.line_number": row.lineNumber,

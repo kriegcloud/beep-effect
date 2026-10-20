@@ -40,7 +40,7 @@ Use these surfaces instead:
 - `standards/architecture/02-shared-kernel.md` - shared-kernel promotion record rules.
 - `standards/architecture/13-onboarding-the-minimum-viable-slice.md` - smallest legal slice and first cross-slice promotion.
 - Package README files - promotion records and package-local ownership policy.
-- `packages/fixture-lab/specimen` - executable proof target for package shape, boundary subpaths, and strict port-to-action error translation.
+- `packages/architecture-lab/*` with `apps/architecture-lab-proof` - executable proof target for package shape, boundary subpaths, and strict port-to-action error translation.
 
 When a plan touches a specific doctrine area, read the matching numbered doc before asking the next question:
 
@@ -111,7 +111,7 @@ Prefer targeted reads and searches:
 - root package, workspace, and export maps when package boundaries are involved
 - package README and package manifests when shared/foundation/driver/tooling placement is involved
 - role files and imports when topology or subpath safety is involved
-- `packages/fixture-lab/specimen` when strict architecture proof is relevant
+- `packages/architecture-lab/*` when strict architecture proof is relevant
 - existing tests when acceptance criteria or slice-isolation claims are involved
 
 If code contradicts doctrine, say so plainly and classify the contradiction:

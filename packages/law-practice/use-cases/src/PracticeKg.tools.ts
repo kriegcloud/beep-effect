@@ -1043,8 +1043,8 @@ export const practiceKgMatterFieldTiers = defineFieldTiers({
  *
  * **Details**
  *
- * The address may be bare (pat@example.com) or one From, To, or Cc entry (Pat Example
- * <pat@example.com>). A whole header with several addresses is refused; look each address up on its
+ * The address may be bare (`pat@example.com`) or one From, To, or Cc entry
+ * (`Pat Example <pat@example.com>`). A whole header with several addresses is refused; look each address up on its
  * own.
  *
  * **Example** (Resolve one From entry to its matters)

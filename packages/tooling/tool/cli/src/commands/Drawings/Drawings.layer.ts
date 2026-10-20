@@ -30,6 +30,7 @@ import {
   PdfFacts,
   PdfFontFact,
   PdfPageSize,
+  PdfStreamFact,
   SheetSetApproval,
 } from "@beep/technical-drawing";
 import { A, O } from "@beep/utils";
@@ -102,6 +103,14 @@ const backendFromPdfTools = Effect.fn("DrawingsLayer.backendFromPdfTools")(funct
       annotationCount: structure.annotationCount,
       hasOptionalContent: structure.hasOptionalContent,
       encrypted: structure.encrypted,
+      undecodableStreams: A.map(structure.undecodableStreams, (stream) =>
+        PdfStreamFact.make({
+          objectNumber: stream.objectNumber,
+          generation: stream.generation,
+          reason: stream.reason,
+        })
+      ),
+      streamCheck: structure.streamCheck,
     });
   });
   const measurePage = Effect.fn("DrawingsLayer.measurePage")(function* (request: {
@@ -158,7 +167,32 @@ export const GeometryEngineOcctLive: Layer.Layer<GeometryEngine, OcctError, File
   Layer.effect(GeometryEngine, engineFromOcct()).pipe(Layer.provide(Occt.layer));
 
 /**
- * PDF-backend port served by `@beep/pdf-tools`.
+ * PDF-backend port over any `@beep/pdf-tools` service, so a caller picks the
+ * driver's config (executables, timeouts, the stream-check inflate limit).
+ *
+ * **Example** (A backend with a smaller stream-check limit)
+ *
+ * ```ts
+ * import { PdfBackendFromPdfTools } from "@beep/repo-cli/commands/Drawings"
+ * import { PdfTools, PdfToolsConfig } from "@beep/pdf-tools"
+ * import * as Layer from "effect/Layer"
+ *
+ * const backend = PdfBackendFromPdfTools.pipe(
+ *   Layer.provide(PdfTools.makeLayer(PdfToolsConfig.make({ maxInflatedBytes: 64 * 1024 * 1024 })))
+ * )
+ * console.log(Layer.isLayer(backend)) // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const PdfBackendFromPdfTools: Layer.Layer<PdfBackend, never, PdfTools> = Layer.effect(
+  PdfBackend,
+  backendFromPdfTools()
+);
+
+/**
+ * PDF-backend port served by `@beep/pdf-tools` at its default config.
  *
  * **Example** (Reference the layer)
  *
@@ -175,7 +209,7 @@ export const PdfBackendToolsLive: Layer.Layer<
   PdfBackend,
   never,
   ChildProcessSpawner.ChildProcessSpawner | FileSystem.FileSystem | Path.Path
-> = Layer.effect(PdfBackend, backendFromPdfTools()).pipe(Layer.provide(PdfTools.makeLayer()));
+> = PdfBackendFromPdfTools.pipe(Layer.provide(PdfTools.makeLayer()));
 
 /**
  * The figure-set service over the live kernel and PDF tools.

@@ -13,11 +13,12 @@ import { makeAnnotation } from "@beep/schema/Conformance";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
-import { assertDefined, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertDefined, assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { mapResultFailureTag } from "./helpers/FailureTags.ts";
 import type { SemanticSchemaMetadata } from "@beep/rdf/SemanticSchemaMetadata";
 import type { Annotation } from "@beep/schema/Conformance";
 
@@ -200,12 +201,12 @@ describe("semantic schema conformance", () => {
     const collectedResult = collectSemanticSchemaMetadataResult(Invalid);
     const metadataResult = makeSemanticSchemaMetadataResult({ kind: "unknown" });
 
-    pipe(collectedResult, Result.isFailure, assertTrue);
+    assertFailure(mapResultFailureTag(collectedResult), "SchemaError");
     if (Result.isFailure(collectedResult)) {
       expect(collectedResult.failure).toBeInstanceOf(S.SchemaError);
     }
     expect(() => collectSemanticSchemaMetadata(Invalid)).toThrow(S.SchemaError);
-    pipe(metadataResult, Result.isFailure, assertTrue);
+    assertFailure(mapResultFailureTag(metadataResult), "SchemaError");
     if (Result.isFailure(metadataResult)) {
       expect(metadataResult.failure).toBeInstanceOf(S.SchemaError);
     }
@@ -219,7 +220,7 @@ describe("semantic schema conformance", () => {
 
     const result = collectSemanticSchemaMetadataResult(Broken);
 
-    pipe(result, Result.isFailure, assertTrue);
+    assertFailure(mapResultFailureTag(result), "SchemaError");
     if (Result.isFailure(result)) {
       expect(result.failure).toBeInstanceOf(S.SchemaError);
     }

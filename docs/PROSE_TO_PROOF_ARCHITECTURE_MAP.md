@@ -45,8 +45,8 @@ entailment** (vectors + an LLM, revisable guesses); **right of it, everything do
 | **Persisted epistemic store** | Claims/evidence survive restarts | `@beep/epistemic-tables` (Drizzle), local **PGlite** in the desktop app | **Have** (tables) |
 | **Chat / agent turns** | Ask the workbench in natural language | `@beep/agents-{domain,client,server,use-cases}`; `ChatRpcs`, `AnthropicTurnKernel`, `FixtureTurnKernel` | **Have** (today's app) |
 | **Workspace / threads / tasks / approvals** | The practice's containers and work items | `@beep/workspace-{domain,server,use-cases}`; `@beep/shared-domain` | **Have** (slices) |
-| **Law-specific overlays** | Clients, matters, IP assets, filings, docket | `@beep/law-practice-domain` (domain; thin) + `goals/ip-law-knowledge-graph` | **Specced / partial** |
-| **Graph projection (Cypher traversal)** | Walk the practice graph fast | FalkorDB, fed from accepted claims — `goals/ip-law-knowledge-graph/SPEC.md` (ADR-002), `goals/trustgraph-port` | **Specced** |
+| **Law-specific overlays** | Clients, matters, IP assets, filings, docket | `@beep/law-practice-domain` (domain; thin) + the deleted `ip-law-knowledge-graph` packet (git history) | **Specced / partial** |
+| **Graph projection (Cypher traversal)** | Walk the practice graph fast | FalkorDB, fed from accepted claims — the deleted `ip-law-knowledge-graph` (ADR-002) and `trustgraph-port` packets (git history) | **Specced** |
 | **Ask & check (GraphRAG + conflicts)** | Q&A and cross-matter conflict checks | BeepGraph retrieval shell — `docs/BEEPGRAPH_ARCHITECTURE.md` | **Specced** |
 | **Reasoner (entailment)** | Compute what *follows*, soundly | OWL 2 EL/RL reasoning over the TBox (§4) | **Build** |
 | **AI librarian (ingest the corpus)** | The tireless filer | corpus lane over `goals/oppold-corpus-pipeline` output | **Build** |
@@ -82,8 +82,8 @@ constraints). Each layer is a published standard so the model is defensible, not
 
 > The `ip-law-knowledge-graph` packet locks a **7-ontology source-of-truth set** (S1 LKIF-Core,
 > S2 IPRonto/ALIS, S3 Copyright Ontology, S4 JudO, S5 LCBR, S6 ESTRELLA, S7 WIPO IPC) and
-> requires every node/edge type to cite ≥1 source. See `goals/ip-law-knowledge-graph/SPEC.md`
-> and `goals/ip-law-knowledge-graph/research/ontology-grounding-corpus.md`. The FOLIO ontology
+> requires every node/edge type to cite ≥1 source. The packet (its SPEC and
+> ontology-grounding-corpus research note) has since been deleted; recover it from git history. The FOLIO ontology
 > lives at `…/research/ontology_research/legal_ontologies/openlegalstandards_folio/FOLIO/FOLIO.owl`
 > (≈18k concepts; **shallow on patent/trademark specifics** — it's the backbone, not the IP layer).
 
@@ -144,5 +144,5 @@ From `goals/agentic-professional-runtime/SPEC.md` and `standards/ARCHITECTURE.md
 - [Product Vision](./PROSE_TO_PROOF_VISION.md) · [For Tom](./PROSE_TO_PROOF_FOR_TOM.md) · [User Story](./PROSE_TO_PROOF_USER_STORY.md) · [Visualization](./PROSE_TO_PROOF_VISUALIZATION.html) · [Draft PRD](./product/prose-to-proof.md)
 - [BeepGraph Architecture](./BEEPGRAPH_ARCHITECTURE.md) — authority/projection/cache; EO spine + TG shell
 - `goals/agentic-professional-runtime/docs/architecture-map.md` — slice ownership & boundary rules
-- `goals/ip-law-knowledge-graph/SPEC.md` — the 7-ontology TBox and FalkorDB projection
+- the deleted `ip-law-knowledge-graph` packet SPEC (git history) — the 7-ontology TBox and FalkorDB projection
 - `goals/oppold-corpus-pipeline/SPEC.md` — the corpus feeder

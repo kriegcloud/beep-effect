@@ -22,6 +22,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { QaSeverity } from "../Qa/Inventory.schemas.ts";
@@ -402,6 +403,8 @@ const encodeCriticReportJson = S.encodeEffect(reportCodec);
  * Effect.runPromise(decodeCriticReport(text)).then((r) => console.log(r.verdict)) // "accept"
  * ```
  *
+ * @param text - JSON document containing one reviewer report.
+ * @returns An effect yielding the validated report, or a schema decoding failure.
  * @category decoding
  * @since 0.0.0
  */
@@ -420,6 +423,8 @@ export const decodeCriticReport = (text: string) => decodeCriticReportJson(text)
  * Effect.runPromise(encodeCriticReport(report)).then((text) => console.log(text.length > 0)) // true
  * ```
  *
+ * @param report - Validated report whose findings and prior assessments will be serialized.
+ * @returns An effect yielding JSON text suitable for storing as a reviewer report.
  * @category encoding
  * @since 0.0.0
  */
@@ -440,6 +445,7 @@ export const encodeCriticReport = (report: CriticReport) => encodeCriticReportJs
  * console.log(JSON.parse(criticReportJsonSchema()).required) // ["reviewer", "verdict", ...]
  * ```
  *
+ * @returns Pretty-printed JSON Schema with definitions inlined and unsupported strict-mode keywords removed.
  * @category encoding
  * @since 0.0.0
  */
@@ -463,13 +469,12 @@ const STRICT_KEYWORDS = HashSet.fromIterable([
   "description",
 ]);
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value);
 
 // Keep only the keywords the strict structured-output modes accept, recursively;
 // the children of `properties` are property names, not keywords, and stay.
 const strictKeywords = (node: unknown): unknown =>
-  Array.isArray(node)
+  A.isArray(node)
     ? A.map(node, strictKeywords)
     : isRecord(node)
       ? pipe(
@@ -534,6 +539,13 @@ export class CriticPackManifest extends S.Opaque<CriticPackManifest, { readonly 
       description: "Pack-relative context images (markup pages, photographs) attached to image-taking routes.",
     }),
     strokeTable: S.NonEmptyString.annotateKey({ description: "Pack-relative stroke table (RENDER.md)." }),
+    measurements: S.OptionFromOptionalKey(S.NonEmptyString).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Pack-relative MEASUREMENTS.md (beside measurements.json) the harness measured; absent in packs built before it did.",
+      })
+    ),
     brief: S.NonEmptyString.annotateKey({ description: "Pack-relative brief every reviewer reads first." }),
   }).pipe($I.annoteSchema("CriticPackManifest", { description: "Hashes and pack-relative files of a critic pack." }))
 ) {}
@@ -561,6 +573,8 @@ const encodeCriticPackManifestJson = S.encodeEffect(manifestCodec);
  * Effect.runPromise(decodeCriticPackManifest(text)).then((manifest) => console.log(manifest.sheets)) // ["render/pg-1.png"]
  * ```
  *
+ * @param text - JSON document describing pack hashes and pack-relative input files.
+ * @returns An effect yielding the validated manifest, or a schema decoding failure.
  * @category decoding
  * @since 0.0.0
  */
@@ -579,13 +593,176 @@ export const decodeCriticPackManifest = (text: string) => decodeCriticPackManife
  * Effect.runPromise(Effect.flatMap(decodeCriticPackManifest(text), encodeCriticPackManifest)).then(console.log)
  * ```
  *
+ * @param manifest - Validated pack manifest with paths relative to the pack directory.
+ * @returns An effect yielding JSON text suitable for the pack.json file.
  * @category encoding
  * @since 0.0.0
  */
 export const encodeCriticPackManifest = (manifest: CriticPackManifest) => encodeCriticPackManifestJson(manifest);
 
+const CriticSeatUnavailableReasonBase = LiteralKit(["sandbox-deny-path-unresolved", "time-limit", "output-limit"]);
+
+/**
+ * Why a reviewer's seat ended without a report: it could not start on this
+ * host, or it stopped at a limit.
+ *
+ * **Details**
+ *
+ * `sandbox-deny-path-unresolved`: the Grok CLI refused to start because its
+ * `--sandbox strict` profile could not resolve a runtime-socket path it must
+ * deny, so it would not run with its protections missing.
+ *
+ * `time-limit`: the seat ran past the run's `--timeout-minutes` and the
+ * harness stopped it. What it printed before then is kept as `<name>.log`
+ * (stderr) and `<name>.raw` (stdout) in the loop directory, and is never read
+ * as a report.
+ *
+ * `output-limit`: a `claude -p` seat ended with `api_error`
+ * `max_output_tokens`: one response ran past the output-token cap, so the run
+ * ended without a final message.
+ *
+ * **Example** (Reason literals)
+ *
+ * ```ts
+ * import { CriticSeatUnavailableReason } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CriticSeatUnavailableReason.literals) // ["sandbox-deny-path-unresolved", "time-limit", "output-limit"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CriticSeatUnavailableReason = CriticSeatUnavailableReasonBase.pipe(
+  $I.annoteSchema("CriticSeatUnavailableReason", {
+    description:
+      "Why a reviewer seat ended without a report: it could not start on this host, or it stopped at a limit.",
+  }),
+  SchemaUtils.withLiteralKitStatics(CriticSeatUnavailableReasonBase)
+);
+
+const CriticSeatLimitUnitBase = LiteralKit(["minutes", "output-tokens"]);
+
+/**
+ * The unit of a seat limit: minutes of run time, or output tokens in one
+ * response.
+ *
+ * **Example** (Unit literals)
+ *
+ * ```ts
+ * import { CriticSeatLimitUnit } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(CriticSeatLimitUnit.literals) // ["minutes", "output-tokens"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CriticSeatLimitUnit = CriticSeatLimitUnitBase.pipe(
+  $I.annoteSchema("CriticSeatLimitUnit", {
+    description: "Unit of a seat limit: minutes of run time, or output tokens in one response.",
+  }),
+  SchemaUtils.withLiteralKitStatics(CriticSeatLimitUnitBase)
+);
+
+/**
+ * The limit a seat reached: an amount and its unit.
+ *
+ * **Example** (The 90-minute seat limit)
+ *
+ * ```ts
+ * import { CriticSeatLimit } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const limit = CriticSeatLimit.make({ amount: 90, unit: "minutes" })
+ * console.log(limit.amount, limit.unit) // 90 "minutes"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticSeatLimit extends S.Opaque<CriticSeatLimit, { readonly brand: unique symbol }>()(
+  S.Struct({
+    amount: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "The limit, counted in `unit`." }),
+    unit: CriticSeatLimitUnit.annotateKey({ description: "Minutes of run time, or output tokens in one response." }),
+  }).pipe(
+    $I.annoteSchema("CriticSeatLimit", {
+      description: "Amount and unit of the limit a reviewer seat reached.",
+    })
+  )
+) {}
+
+/**
+ * A reviewer seat that ended without a report: the reason, the path the
+ * failure names (when it names one), the limit it reached (when it stopped at
+ * one), and a sentence for the loop record and the summary.
+ *
+ * **Details**
+ *
+ * `limit` is null for a seat that could not start; a seat record written
+ * before the key existed decodes it as null.
+ *
+ * **Example** (The Grok seat whose sandbox could not resolve a deny path)
+ *
+ * ```ts
+ * import { CriticSeatUnavailable } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const seat = CriticSeatUnavailable.make({
+ *   reason: "sandbox-deny-path-unresolved",
+ *   path: O.some("/run/example/runtime.sock"),
+ *   detail: "grok refused to start: its --sandbox strict profile could not resolve the runtime-socket deny path /run/example/runtime.sock on this host",
+ * })
+ * console.log(seat.reason, O.isNone(seat.limit)) // "sandbox-deny-path-unresolved" true
+ * ```
+ *
+ * **Example** (A seat stopped at its time limit)
+ *
+ * ```ts
+ * import { CriticSeatLimit, CriticSeatUnavailable } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const seat = CriticSeatUnavailable.make({
+ *   reason: "time-limit",
+ *   path: O.none(),
+ *   limit: O.some(CriticSeatLimit.make({ amount: 90, unit: "minutes" })),
+ *   detail: "the seat ran past its 90-minute limit and was stopped",
+ * })
+ * console.log(seat.reason) // "time-limit"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticSeatUnavailable extends S.Opaque<CriticSeatUnavailable, { readonly brand: unique symbol }>()(
+  S.Struct({
+    reason: CriticSeatUnavailableReason.annotateKey({ description: "Why the seat ended without a report." }),
+    path: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
+      description: "The path the failure names; null when the message names none.",
+    }),
+    limit: S.OptionFromNullOr(CriticSeatLimit).pipe(
+      S.withDecodingDefaultKey(Effect.succeed(null)),
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({ description: "The limit the seat reached; null when it stopped at none." })
+    ),
+    detail: S.NonEmptyString.annotateKey({ description: "One sentence for the loop record and the summary." }),
+  }).pipe(
+    $I.annoteSchema("CriticSeatUnavailable", {
+      description:
+        "Reason, named path, reached limit, and explanation of a reviewer seat that could not run on this host or stopped at a limit.",
+    })
+  )
+) {}
+
 /**
  * One reviewer's run inside a loop.
+ *
+ * **Details**
+ *
+ * `unavailable` is set when the reviewer's seat ended without a report for a
+ * reason the harness recognises: it could not start on this host, it ran past
+ * its time limit, or a `claude -p` seat ended at its output-token cap. It is
+ * `null` for every other run, whatever its exit code. A seat stopped at its
+ * time limit never exited, so its `exitCode` is 124, the `timeout(1)`
+ * convention. A record written before the key existed decodes it as `null`.
  *
  * **Example** (Reference the class)
  *
@@ -610,9 +787,16 @@ export class CriticRunRecord extends S.Opaque<CriticRunRecord, { readonly brand:
     findings: S.Natural.annotateKey({ description: "Findings in the report; 0 when absent." }),
     startedAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 start." }),
     finishedAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 end." }),
+    unavailable: S.OptionFromNullOr(CriticSeatUnavailable).pipe(
+      S.withDecodingDefaultKey(Effect.succeed(null)),
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description: "Why the seat ended without a report: it could not start or stopped at a limit; null otherwise.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("CriticRunRecord", {
-      description: "Order, reviewer, exit code, report file, hash, count, and times of one run.",
+      description: "Order, reviewer, exit code, report file, hash, count, times, and seat outcome of one run.",
     })
   )
 ) {}
@@ -663,6 +847,8 @@ const encodeCriticLoopRecordJson = S.encodeEffect(recordCodec);
  * Effect.runPromise(decodeCriticLoopRecord(text)).then((record) => console.log(record.loop)) // 1
  * ```
  *
+ * @param text - JSON document recording a loop number, sheet-set hash, and reviewer runs.
+ * @returns An effect yielding the validated loop record, or a schema decoding failure.
  * @category decoding
  * @since 0.0.0
  */
@@ -681,7 +867,303 @@ export const decodeCriticLoopRecord = (text: string) => decodeCriticLoopRecordJs
  * Effect.runPromise(Effect.flatMap(decodeCriticLoopRecord(text), encodeCriticLoopRecord)).then(console.log)
  * ```
  *
+ * @param record - Validated loop record whose reviewer run order will be preserved.
+ * @returns An effect yielding JSON text suitable for persisting the loop record.
  * @category encoding
  * @since 0.0.0
  */
 export const encodeCriticLoopRecord = (record: CriticLoopRecord) => encodeCriticLoopRecordJson(record);
+
+const optionalDirectory = (description: string) =>
+  S.OptionFromOptionalKey(S.NonEmptyString).pipe(
+    S.withConstructorDefault(Effect.succeedNone),
+    S.annotateKey({ description })
+  );
+
+/**
+ * A request to build a critic pack from a render manifest: the manifest, the
+ * pack directory to create, the brief, an optional context directory, the
+ * context-image directories, and the 300 dpi zooms to cut.
+ *
+ * **Example** (A pack with one zoom and no context directory)
+ *
+ * ```ts
+ * import { CriticPackRequest, CriticZoom } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const request = CriticPackRequest.make({
+ *   manifestPath: "render/manifest.json",
+ *   outDir: "packs/loop-1",
+ *   briefPath: "BRIEF.md",
+ *   imagesDirs: [],
+ *   zooms: [CriticZoom.make({ figure: 1, label: "walls", x: 500, y: 1500, width: 1700, height: 1400 })],
+ * })
+ * console.log(O.isNone(request.contextDir)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticPackRequest extends S.Opaque<CriticPackRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    manifestPath: S.NonEmptyString.annotateKey({ description: "Render manifest.json of the sheet set to review." }),
+    outDir: S.NonEmptyString.annotateKey({ description: "Pack directory to create." }),
+    briefPath: S.NonEmptyString.annotateKey({ description: "Brief copied into the pack as BRIEF.md." }),
+    contextDir: optionalDirectory("Directory copied into the pack as context/, when given."),
+    imagesDirs: S.Array(S.NonEmptyString).annotateKey({
+      description: "Directories of context images copied under images/<name>/.",
+    }),
+    zooms: S.Array(CriticZoom).annotateKey({ description: "300 dpi crops cut from the sheet set." }),
+  }).pipe(
+    $I.annoteSchema("CriticPackRequest", {
+      description: "Manifest, pack directory, brief, context directory, image directories, and zooms of a pack build.",
+    })
+  )
+) {}
+
+/**
+ * A request to run reviewers on a pack: the loop number and directory, the
+ * pack, the reviewers in order, the synthetic pack and workspace a
+ * synthetic-scope reviewer uses, and the minutes each reviewer may run.
+ *
+ * **Example** (The default sequence on loop 1)
+ *
+ * ```ts
+ * import { CriticRunRequest, DEFAULT_CRITIC_REVIEWERS } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const request = CriticRunRequest.make({
+ *   loop: 1,
+ *   loopDir: "loops/1",
+ *   packDir: "packs/loop-1",
+ *   reviewers: DEFAULT_CRITIC_REVIEWERS,
+ *   timeoutMinutes: 90,
+ * })
+ * console.log(request.reviewers.length) // 5
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticRunRequest extends S.Opaque<CriticRunRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    loop: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "One-based loop number." }),
+    loopDir: S.NonEmptyString.annotateKey({
+      description: "Directory that receives this loop's reports, logs, prior/ and loop.json.",
+    }),
+    packDir: S.NonEmptyString.annotateKey({ description: "Pack directory built by the pack step." }),
+    reviewers: S.Array(CriticReviewer).annotateKey({ description: "Reviewers, run in this order." }),
+    syntheticPack: optionalDirectory("Client-free pack a synthetic-scope reviewer reviews, when given."),
+    timeoutMinutes: S.Int.check(S.isGreaterThan(0)).annotateKey({
+      description: "Minutes a reviewer may run before it is stopped and recorded as a time-limit outcome.",
+    }),
+    workspace: optionalDirectory("Repository checkout a synthetic-scope reviewer works in, when given."),
+  }).pipe(
+    $I.annoteSchema("CriticRunRequest", {
+      description: "Loop, loop directory, pack, reviewers, synthetic pack, timeout, and workspace of a critic run.",
+    })
+  )
+) {}
+
+const CriticReportSourceKind = LiteralKit(["file", "stdout"]);
+
+/**
+ * Where a route leaves its report, tagged on `kind`: a file it was told to
+ * write, or its stdout.
+ *
+ * **Example** (A report file)
+ *
+ * ```ts
+ * import { CriticReportSource } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const source = CriticReportSource.cases.file.make({ kind: "file", path: "/loop/codex-gpt-6-astra.json" })
+ * console.log(source.kind) // "file"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CriticReportSource = CriticReportSourceKind.toTaggedUnion("kind")({
+  file: {
+    path: S.NonEmptyString.annotateKey({ description: "Report file the route was told to write." }),
+  },
+  stdout: {},
+}).pipe(
+  $I.annoteSchema("CriticReportSource", {
+    description: "file: the route writes the report to a path; stdout: the report is read from its standard output.",
+  })
+);
+
+/**
+ * Type for {@link CriticReportSource}.
+ *
+ * **Example** (Annotate a stdout source)
+ *
+ * ```ts
+ * import { CriticReportSource } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const source: CriticReportSource = CriticReportSource.cases.stdout.make({ kind: "stdout" })
+ * console.log(source.kind) // "stdout"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CriticReportSource = typeof CriticReportSource.Type;
+
+/**
+ * A reviewer's invocation: what to spawn, where, with which environment, and
+ * how its report comes back.
+ *
+ * **Example** (A Grok invocation that reports on stdout)
+ *
+ * ```ts
+ * import { CriticInvocation, CriticReportSource } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const invocation = CriticInvocation.make({
+ *   executable: "grok",
+ *   args: ["-m", "grok-4.7", "-p", "review"],
+ *   cwd: "/pack",
+ *   env: { HOME: "/home/reviewer" },
+ *   reportFrom: CriticReportSource.cases.stdout.make({ kind: "stdout" }),
+ * })
+ * console.log(invocation.reportFrom.kind) // "stdout"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticInvocation extends S.Opaque<CriticInvocation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    executable: S.NonEmptyString.annotateKey({ description: "CLI to spawn." }),
+    args: S.Array(S.String).annotateKey({ description: "Arguments passed to the CLI, in order." }),
+    cwd: S.NonEmptyString.annotateKey({ description: "Working directory of the spawned CLI." }),
+    env: S.Record(S.String, S.String).annotateKey({
+      description: "The whole environment the CLI runs with; nothing else is inherited.",
+    }),
+    reportFrom: CriticReportSource.annotateKey({
+      description: "Where the route writes its report: a file it was told to write, or its stdout.",
+    }),
+  }).pipe(
+    $I.annoteSchema("CriticInvocation", {
+      description: "Executable, arguments, working directory, environment, and report source of one reviewer run.",
+    })
+  )
+) {}
+
+/**
+ * The `result` event `claude -p` prints when a run ends: the whole
+ * `--output-format json` envelope, or the last `result` event of a
+ * `--verbose` run (a JSON array, or one event per line with `stream-json`).
+ *
+ * **Details**
+ *
+ * Only the keys the critic loop reads are modeled; the CLI's other keys
+ * (`subtype`, `duration_ms`, `session_id`, …) are ignored on decode. An
+ * absent `is_error` decodes as `false`. An event without `result` (an
+ * `error_max_turns` stop, for one) carries no final message.
+ *
+ * **Example** (Decode a successful envelope)
+ *
+ * ```ts
+ * import { CriticClaudeResult } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * const event = S.decodeUnknownSync(CriticClaudeResult)({ type: "result", subtype: "success", is_error: false, result: "{}" })
+ * console.log(event.is_error, O.getOrElse(event.result, () => "")) // false "{}"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticClaudeResult extends S.Opaque<CriticClaudeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    type: S.Literal("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
+    is_error: S.Boolean.pipe(
+      S.withDecodingDefaultKey(Effect.succeed(false)),
+      S.annotateKey({ description: "Whether the run ended in an error; absent means it did not." })
+    ),
+    result: S.OptionFromOptionalKey(S.String).annotateKey({
+      description: "The reviewer's final message, absent when the run stopped without one.",
+    }),
+  }).pipe(
+    $I.annoteSchema("CriticClaudeResult", {
+      description: "Error flag and final message of the result event a claude -p run prints.",
+    })
+  )
+) {}
+
+/**
+ * The `result` event of a `claude -p` run that ended because one response ran
+ * past the output-token cap (`CLAUDE_CODE_MAX_OUTPUT_TOKENS`).
+ *
+ * **Details**
+ *
+ * The CLI flags such a run `is_error`, sets `api_error` to
+ * `"max_output_tokens"` (and `terminal_reason` to `"api_error"`, which is not
+ * read), and puts its own message, naming the cap, in `result`. Only `type`,
+ * `api_error` and `result` are modeled; any other `api_error` does not decode.
+ *
+ * **Example** (Decode the stop)
+ *
+ * ```ts
+ * import { CriticClaudeOutputLimitStop } from "@beep/repo-cli/commands/Drawings"
+ * import * as S from "effect/Schema"
+ *
+ * const stop = S.decodeUnknownSync(CriticClaudeOutputLimitStop)({ type: "result", is_error: true, api_error: "max_output_tokens", result: "API Error: Claude's response exceeded the 64000 output token maximum." })
+ * console.log(stop.api_error) // "max_output_tokens"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticClaudeOutputLimitStop extends S.Opaque<
+  CriticClaudeOutputLimitStop,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    type: S.Literal("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
+    api_error: S.Literal("max_output_tokens").annotateKey({
+      description: "The API error the run ended on: one response ran past the output-token cap.",
+    }),
+    result: S.OptionFromOptionalKey(S.String).annotateKey({
+      description: "The CLI's message, which names the cap; absent when it printed none.",
+    }),
+  }).pipe(
+    $I.annoteSchema("CriticClaudeOutputLimitStop", {
+      description: "The result event of a claude -p run that ended at the output-token cap, with the CLI's message.",
+    })
+  )
+) {}
+
+/**
+ * Any event `claude -p` prints with `--output-format stream-json --verbose`:
+ * a JSON object whose `type` is a string.
+ *
+ * **Details**
+ *
+ * Only `type` is modeled, so every event kind (`system`, `assistant`,
+ * `user`, `result`) decodes; a line that is JSON but not such an object
+ * (a bare number, an array) is not an event.
+ *
+ * **Example** (Tell an event from other JSON)
+ *
+ * ```ts
+ * import { CriticClaudeEvent } from "@beep/repo-cli/commands/Drawings"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(CriticClaudeEvent)({ type: "system", subtype: "init" }), S.is(CriticClaudeEvent)([1])) // true false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CriticClaudeEvent extends S.Opaque<CriticClaudeEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
+    type: S.String.annotateKey({ description: "Event kind." }),
+  }).pipe(
+    $I.annoteSchema("CriticClaudeEvent", {
+      description: "Any claude -p stream-json event: a JSON object with a string `type`.",
+    })
+  )
+) {}

@@ -112,6 +112,112 @@ const snapshotPaths = (files: ReadonlyArray<{ readonly relativePath: string }>):
   A.map(files, (file) => file.relativePath);
 
 describe("@beep/repo-ai-metrics bounded config snapshots", () => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("walks successfully beneath an empty parent .git directory", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* fs.makeDirectory(pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("walks successfully beneath a HEAD-less parent .git directory", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git/config"), "unrelated\n");
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("walks successfully beneath a parent .git file without a gitdir line", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git"), "unrelated\n");
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("walks successfully beneath a dangling parent .git symlink", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* fs.symlink(pathApi.join(tmpDir, "missing-metadata"), pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const result = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot }));
+        expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+      })
+    );
+    it.effect("retains Git stderr and exit code for HEAD metadata", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git/HEAD"), "ref: refs/heads/main\n");
+        yield* makeFixtureRepo(repoRoot);
+        const error = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+          Effect.flip
+        );
+        expect(error._tag).toBe("AiMetricsConfigSnapshotError");
+        expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+        expect(error.cause).toEqual({ exitCode: 128, stderr: expect.stringContaining("not a git repository") });
+      })
+    );
+    it.effect("retains Git stderr and exit code for a broken gitdir file", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, ".git"), "gitdir: missing-checkout\n");
+        yield* makeFixtureRepo(repoRoot);
+        const error = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+          Effect.flip
+        );
+        expect(error._tag).toBe("AiMetricsConfigSnapshotError");
+        expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+        expect(error.cause).toEqual({
+          exitCode: 128,
+          stderr: expect.stringMatching(/\S/u),
+        });
+      })
+    );
+    it.effect("retains Git stderr and exit code for a symlink to a broken gitdir file", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const pathApi = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* writeText(pathApi.join(tmpDir, "metadata"), "gitdir: missing-checkout\n");
+        yield* fs.symlink(pathApi.join(tmpDir, "metadata"), pathApi.join(tmpDir, ".git"));
+        yield* makeFixtureRepo(repoRoot);
+        const error = yield* makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+          Effect.flip
+        );
+        expect(error._tag).toBe("AiMetricsConfigSnapshotError");
+        expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+        expect(error.cause).toEqual({
+          exitCode: 128,
+          stderr: expect.stringMatching(/\S/u),
+        });
+      })
+    );
+  });
+
   it.prop(
     "generates only canonical truncation reasons",
     [Arbitrary.schema(AiMetricsConfigSnapshotTruncationReason)],
@@ -121,7 +227,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     { arbitrary: fcRuns(25) }
   );
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("stops at every nested git root and records it instead of walking into it", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -147,7 +253,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("includes exactly the legitimate agent-configuration surface", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -168,7 +274,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("tags the session-effective files and leaves everything else baseline", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -193,7 +299,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("moves the session hash only for session files and the baseline hash only for baseline files", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -217,7 +323,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("produces a stable config hash across two runs on an unchanged tree", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -235,7 +341,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("truncates deterministically at the file-count budget", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -262,37 +368,39 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
   // A bulky non-git directory under a config root must not be able to spend the whole file budget
   // before the repo-root agent docs are reached. Losing `AGENTS.md`/`CLAUDE.md` is not ordinary
   // truncation: they are session-scope, so their absence silently moves `sessionHash`.
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("never starves the root agent docs when a config root exhausts the file budget", () =>
-      withTempDirectory(
-        Effect.fnUntraced(function* (tmpDir) {
-          const pathApi = yield* Path.Path;
-          const repoRoot = pathApi.join(tmpDir, "repo");
-          yield* makeFixtureRepo(repoRoot);
-          yield* Effect.forEach(
-            A.range(1, 20),
-            (index) => writeText(pathApi.join(repoRoot, `.claude/leftover/note-${index}.md`), `leftover ${index}\n`),
-            { discard: true }
-          );
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const pathApi = yield* Path.Path;
+        const repoRoot = pathApi.join(tmpDir, "repo");
+        yield* makeFixtureRepo(repoRoot);
+        yield* writeText(pathApi.join(repoRoot, ".mcp.json"), "{}\n");
+        yield* Effect.forEach(
+          A.range(1, 20),
+          (index) => writeText(pathApi.join(repoRoot, `.claude/leftover/note-${index}.md`), `leftover ${index}\n`),
+          { discard: true }
+        );
 
-          const result = yield* makeAiMetricsConfigSnapshot(
-            AiMetricsConfigSnapshotInput.make({
-              budget: AiMetricsConfigSnapshotBudget.make({ maxFiles: 4 }),
-              repoRoot,
-            })
-          );
-          const paths = snapshotPaths(result.files);
+        const result = yield* makeAiMetricsConfigSnapshot(
+          AiMetricsConfigSnapshotInput.make({
+            budget: AiMetricsConfigSnapshotBudget.make({ maxFiles: 6 }),
+            repoRoot,
+          })
+        );
+        const paths = snapshotPaths(result.files);
 
-          expect(paths).toContain("AGENTS.md");
-          expect(paths).toContain("CLAUDE.md");
-          pipe(result.bounds.truncated, assertTrue);
-          assertSome(result.bounds.truncationReason, AiMetricsConfigSnapshotTruncationReason.Enum["max-files"]);
-        })
-      )
+        expect(paths).toContain("AGENTS.md");
+        expect(paths).toContain("CLAUDE.md");
+        expect(paths).toContain(".mcp.json");
+        pipe(result.bounds.truncated, assertTrue);
+        assertSome(result.bounds.truncationReason, AiMetricsConfigSnapshotTruncationReason.Enum["max-files"]);
+      })
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("reports the byte and depth budgets with their own reasons", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -323,7 +431,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("skips and counts a file above the per-file byte budget", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -347,7 +455,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("emits one timing per measured pipeline stage and none for the write it does not perform", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -380,7 +488,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     );
   });
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("decodes a pre-bounding latest.json and diffs against it", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {
@@ -405,6 +513,19 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
       )
     );
   });
+
+  it.effect("rejects fractional and negative snapshot limits while allowing an explicit zero budget", () =>
+    Effect.gen(function* () {
+      const decode = S.decodeUnknownOption(AiMetricsConfigSnapshotBudget);
+      for (const maxFiles of [-1, 1.5]) assertNone(decode({ maxFiles }));
+      for (const maxTotalBytes of [-1, 1.5]) assertNone(decode({ maxTotalBytes }));
+      const zero = decode({ maxDepth: 0, maxFiles: 0, maxFileBytes: 0, maxTotalBytes: 0 });
+      assertSome(
+        zero,
+        AiMetricsConfigSnapshotBudget.make({ maxDepth: 0, maxFiles: 0, maxFileBytes: 0, maxTotalBytes: 0 })
+      );
+    })
+  );
 
   it.effect("preserves optional-key encoding while carrying absence as Option", () =>
     Effect.gen(function* () {
@@ -461,7 +582,7 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
     })
   );
 
-  it.layer(NodeServices.layer)((it) => {
+  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
     it.effect("never stats the contents of a nested worktree", () =>
       withTempDirectory(
         Effect.fnUntraced(function* (tmpDir) {

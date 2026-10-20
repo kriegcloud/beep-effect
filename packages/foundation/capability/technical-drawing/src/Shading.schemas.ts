@@ -234,6 +234,10 @@ export class FaceFacts extends S.Opaque<FaceFacts, { readonly brand: unique symb
  *
  * `eye` points toward the viewer, `right` and `up` span the sheet, and
  * `light` comes from the sheet's upper left, toward the viewer, at 45°.
+ * A two-point view also carries `picture`, the level normal of its vertical
+ * picture plane: there `eye` follows the tilted sight while the light is
+ * built on the picture plane, so a face parallel to the sheet takes one tone
+ * whether the eye stands above or below the article.
  *
  * **Example** (The front elevation)
  *
@@ -254,9 +258,17 @@ export class ViewFacts extends S.Opaque<ViewFacts, { readonly brand: unique symb
     right: Vec3.annotateKey({ description: "Unit sheet-right direction." }),
     up: Vec3.annotateKey({ description: "Unit sheet-up direction." }),
     light: Vec3.annotateKey({ description: "Unit direction toward the 1.84(m) light." }),
+    picture: S.OptionFromOptionalKey(Vec3).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Unit normal of the picture plane, toward the viewer, when the sheet is not square to `eye` (a two-point view's level eye). None means the sheet is square to `eye`.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("ViewFacts", {
-      description: "Sheet frame (eye, right, up) and 1.84(m) light of one view in model coordinates.",
+      description:
+        "Sheet frame (eye, right, up), 1.84(m) light, and picture-plane normal (when not square to the eye) of one view in model coordinates.",
     })
   )
 ) {}
@@ -382,10 +394,59 @@ export class ShadingLines extends S.Opaque<ShadingLines, { readonly brand: uniqu
 const CutIndex = S.Int.check(S.isGreaterThanOrEqualTo(0));
 
 /**
+ * The room a visible stretch of a face leaves a stroke at one position across
+ * it: the length, along the face's lines, of the longest piece of the face's
+ * chord at that offset that the view shows inside the stretch.
+ *
+ * **Details**
+ *
+ * A geometry engine measures it by putting a chord along the lines through
+ * hidden-line removal, so a stretch glimpsed past a part in front of the face
+ * is judged by what shows, not by the face's whole chord. Both measures are in
+ * model units.
+ *
+ * **Example** (Room 6 units tall, 4 units across from the shadow anchor)
+ *
+ * ```ts
+ * import { ShadingRoom } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * console.log(ShadingRoom.make({ offset: 4, length: 6 }).length) // 6
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingRoom extends S.Opaque<ShadingRoom, { readonly brand: unique symbol }>()(
+  S.Struct({
+    offset: S.Finite.annotateKey({
+      description: "Position across the stretch along the step, from the shadow anchor.",
+    }),
+    length: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
+      description: "Length along the lines of the longest piece of the chord there that the view shows.",
+    }),
+  }).pipe(
+    $I.annoteSchema("ShadingRoom", {
+      description: "The visible room for a stroke at one offset across a stretch of a face, along its lines.",
+    })
+  )
+) {}
+
+/**
  * A visible stretch of one face along its shading step, in model units from
  * the shadow anchor. Graded lines are planned per stretch, so a face that
  * another part hides at its shadow edge or splits in the middle gets a band
  * at the shadow side of every stretch that shows.
+ *
+ * **Details**
+ *
+ * A `lead` moves the band's first line further in from the stretch's edge.
+ * The geometry engine sets one only when other drawn lines run close beyond
+ * that edge, alongside it (see `bandLead` in `Shading.rules`). A `room`
+ * holds the stretch's measured room for a stroke ({@link ShadingRoom}) at
+ * offsets across it, in offset order: a band position is then judged by
+ * what the view shows there, read linearly between the samples, rather than
+ * by the face's whole chord, and a band its taper would empty is planned on
+ * whole chords instead.
  *
  * **Example** (The stretch of a wall left of a post)
  *
@@ -413,6 +474,22 @@ export class ShadingWindow extends S.Opaque<ShadingWindow, { readonly brand: uni
     high: S.OptionFromOptionalKey(S.Finite).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Highest position along the lines at which the stretch was seen." })
+    ),
+    lead: S.OptionFromOptionalKey(S.Finite.check(S.isGreaterThan(0))).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Distance of the band's first line from the stretch's edge on the sheet, in model units: a gutter set where drawn lines beyond the edge would read with the band as one ladder. None puts the first line one minimum pitch in.",
+      })
+    ),
+    room: ShadingRoom.pipe(
+      S.Array,
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "The stretch's measured room for a stroke at offsets across it, in offset order. None judges each position by the face's whole chord.",
+      })
     ),
   }).pipe(
     $I.annoteSchema("ShadingWindow", {
@@ -457,6 +534,168 @@ export class ShadingProbe extends S.Opaque<ShadingProbe, { readonly brand: uniqu
   }).pipe(
     $I.annoteSchema("ShadingProbe", {
       description: "A probe line across one face, for the hidden-line pass to read the face's visible stretches from.",
+    })
+  )
+) {}
+
+const BandTaperBase = LiteralKit(["full", "lit", "lit-floor"]);
+
+/**
+ * How far a graded band is cut back so a face turned toward the light never
+ * carries more ink than a darker face it shares a visible edge with.
+ *
+ * **Details**
+ *
+ * `full` is the band the face's own tone gives. `lit` draws the same lines
+ * with no full-length stroke: every stroke takes the lit taper of the 1993
+ * Guide (Appendix 4, Example 32), from 60% down to 40% of its chord.
+ * `lit-floor` does the same and keeps at most the two lines a band needs.
+ * A band steps from `full` toward `lit-floor` only while it out-inks a darker
+ * neighbour.
+ *
+ * **Example** (Read the tapers)
+ *
+ * ```ts
+ * import { BandTaper } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * console.log(BandTaper.literals) // ["full", "lit", "lit-floor"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const BandTaper = BandTaperBase.pipe(
+  $I.annoteSchema("BandTaper", {
+    description: "How far a graded band is cut back against a darker neighbour: full, lit, or lit-floor.",
+  }),
+  SchemaUtils.withLiteralKitStatics(BandTaperBase)
+);
+
+/**
+ * Type for {@link BandTaper}.
+ *
+ * **Example** (Annotate a taper)
+ *
+ * ```ts
+ * import type { BandTaper } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const taper: BandTaper = "lit"
+ * console.log(taper)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BandTaper = typeof BandTaper.Type;
+
+/**
+ * The planned ink of one banded face in one view: the face, its exposure to
+ * the 1.84(m) light, and its ink density.
+ *
+ * **Details**
+ *
+ * `density` is the planned strokes' total length on the view plane times the
+ * plan's minimum pitch, over the face's visible area on the view plane. It is
+ * independent of the sheet scale, so two faces of one view compare directly.
+ *
+ * **Example** (A light face drawn at a quarter of its area)
+ *
+ * ```ts
+ * import { BandInk } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * console.log(BandInk.make({ face: 3, exposure: 0.5, density: 0.25 }).density) // 0.25
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BandInk extends S.Opaque<BandInk, { readonly brand: unique symbol }>()(
+  S.Struct({
+    face: CutIndex.annotateKey({ description: "Index of the face in its shape." }),
+    exposure: S.Finite.annotateKey({ description: "Cosine between the face normal and the 1.84(m) light." }),
+    density: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
+      description: "Planned stroke length times the minimum pitch, over the face's visible area on the view plane.",
+    }),
+  }).pipe(
+    $I.annoteSchema("BandInk", {
+      description: "A banded face's exposure to the 1.84(m) light and its planned ink density in one view.",
+    })
+  )
+) {}
+
+/**
+ * A legible run of a graded band drawn on its whole chords: its length on
+ * the view plane, and the extent and rank of the planned stroke it was cut
+ * from.
+ *
+ * **Details**
+ *
+ * Where hidden-line removal leaves a tapered band too little to draw, a
+ * geometry engine draws the band's whole chords and cuts each visible run
+ * back to its taper (review loop 4, K-08). `rank` counts the band's lines
+ * from its shadow edge, 0 first; `extent` is the planned fraction of the
+ * chord, as on {@link ShadingCut}. It is a scratch record of one
+ * projection: never encoded or persisted.
+ *
+ * **Example** (The run nearest a band's shadow edge)
+ *
+ * ```ts
+ * import { BandRun } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * console.log(BandRun.make({ length: 4, extent: 0.6, rank: 0 }).extent) // 0.6
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BandRun extends S.Opaque<BandRun, { readonly brand: unique symbol }>()(
+  S.Struct({
+    length: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
+      description: "Length of the visible run on the view plane.",
+    }),
+    extent: StrokeExtent.annotateKey({ description: "Planned fraction of the chord the run's stroke draws." }),
+    rank: CutIndex.annotateKey({ description: "The run's line in its band, counted from the shadow edge, 0 first." }),
+  }).pipe(
+    $I.annoteSchema("BandRun", {
+      description: "A visible run of a band drawn on its whole chords, with its planned stroke's extent and rank.",
+    })
+  )
+) {}
+
+/**
+ * The first line of a planned graded band, as a geometry engine hands it
+ * over to read what lies beyond the band's edge.
+ *
+ * **Details**
+ *
+ * `first` holds the line's planned strokes, each by its two ends in model
+ * coordinates, and `back` is the step in model space from that line back to
+ * the band's edge. The engine projects both onto the view plane and reads the
+ * drawn lines just beyond the edge with `ladderPitch` (see `Shading.rules`),
+ * so a band whose edge has lines running alongside it starts behind a gutter.
+ * It is a scratch record of one projection: never encoded or persisted.
+ *
+ * **Example** (A band's first line one unit inside a wall's right edge)
+ *
+ * ```ts
+ * import { BandEdge } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const band = BandEdge.make({ first: [[[19, 0, 0], [19, 0, 20]]], back: [1, 0, 0] })
+ * console.log(band.back) // [1, 0, 0]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BandEdge extends S.Opaque<BandEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
+    first: S.Array(S.Tuple([Vec3, Vec3])).annotateKey({
+      description: "Planned strokes of the band's first line, each by its two ends in model coordinates.",
+    }),
+    back: Vec3.annotateKey({ description: "Step in model space from the band's first line back to its edge." }),
+  }).pipe(
+    $I.annoteSchema("BandEdge", {
+      description: "The planned first line of a graded band and the step back to the band's edge, in model space.",
     })
   )
 ) {}

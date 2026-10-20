@@ -6,15 +6,20 @@
  */
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
-import { SchemaUtils } from "@beep/schema";
+import { SchemaUtils, Sha256Hex } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Clock from "effect/Clock";
+import * as Config from "effect/Config";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { flow, identity, pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { AiMetricsRawArchiveKey, writeEncryptedRawArchiveObject } from "./archive.ts";
 import {
@@ -26,8 +31,25 @@ import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
   AiMetricsParquetExportMode,
+  AiMetricsSessionStampJoin,
+  aiMetricsSessionStampCompletenessFor,
+  aiMetricsSessionStampQualificationFor,
   writeAiMetricsDerivedStorage,
 } from "./derived-storage.ts";
+import { HarnessHash } from "./harness-ledger.ts";
+import {
+  agentEvidenceRoot,
+  HookPulseAgentKind,
+  HookPulseDisarmSentinel,
+  HookPulseDisarmWindow,
+  HookPulseRefusal,
+  HookPulseRefusalReason,
+  HookPulseV1,
+  hookPulseDisarmSentinelPath,
+  hookPulseDisarmWindowsPath,
+  hookPulseHashSalt,
+  hookPulseLedgerDir,
+} from "./hook-pulse.ts";
 import { AiMetricsIdentityRegistryUpsertInput, upsertAiMetricsIdentityRegistry } from "./identity-registry.ts";
 import { AiMetricsTranscriptTextSummaryInput, summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
@@ -65,6 +87,310 @@ const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
     description: "Forwarder timer command argv with an absolute executable path.",
   })
 );
+
+class ProcessedForwarderSource extends S.Opaque<ProcessedForwarderSource, { readonly brand: unique symbol }>()(
+  S.Struct({
+    record: AiMetricsDerivedTranscriptRecord,
+    hookPathHash: Sha256Hex.pipe(S.toEncoded),
+    sessionIdentityHash: S.OptionFromOptionalKey(Sha256Hex.pipe(S.toEncoded)),
+  }).pipe(
+    $I.annoteSchema("ProcessedForwarderSource", {
+      description: "Processed transcript source and its hook-namespace attribution keys.",
+    })
+  )
+) {}
+
+const SessionIdentityRow = S.fromJsonString(
+  S.Struct({
+    type: S.optionalKey(S.String),
+    sessionId: S.optionalKey(S.NonEmptyString),
+    payload: S.optionalKey(S.Struct({ id: S.optionalKey(S.NonEmptyString) })),
+  })
+);
+const decodeSessionIdentityRow = S.decodeResult(SessionIdentityRow);
+const readSessionIdentityHash = Effect.fnUntraced(function* (
+  content: string,
+  sourceKind: AiMetricsTranscriptSource,
+  hashSalt: O.Option<string>
+) {
+  let identities = HashSet.empty<string>();
+  let complete = true;
+  for (const line of A.filter(Str.split(content, "\n"), Str.isNonEmpty)) {
+    Result.match(decodeSessionIdentityRow(line), {
+      onFailure: () => {
+        complete = false;
+      },
+      onSuccess: (row) => {
+        const identity =
+          sourceKind === "claude"
+            ? O.fromUndefinedOr(row.sessionId)
+            : row.type === "session_meta"
+              ? O.fromUndefinedOr(row.payload?.id)
+              : O.none<string>();
+        O.match(identity, {
+          onNone: () => {},
+          onSome: (value) => {
+            identities = HashSet.add(identities, value);
+          },
+        });
+      },
+    });
+  }
+  const identity = complete && HashSet.size(identities) === 1 ? A.head(A.fromIterable(identities)) : O.none<string>();
+  return yield* O.match(identity, {
+    onNone: () => Effect.succeedNone,
+    onSome: (value) => hashPrivateIdentifier(value, hashSalt).pipe(Effect.asSome),
+  });
+});
+
+class SessionStampGap extends S.Opaque<SessionStampGap, { readonly brand: unique symbol }>()(
+  S.Struct({
+    start: S.OptionFromOptionalKey(S.Finite),
+    end: S.OptionFromOptionalKey(S.Finite),
+    client: S.OptionFromOptionalKey(HookPulseAgentKind),
+    eventLoss: S.Boolean,
+  }).pipe(
+    $I.annoteSchema("SessionStampGap", {
+      description: "Closed collection gap used to exclude uncertain forwarder session stamps.",
+    })
+  )
+) {}
+const timestampEpoch = flow(S.decodeOption(S.DateTimeUtcFromString), O.map(DateTime.toEpochMillis));
+const readOptionalEvidence = Effect.fnUntraced(function* (file: string) {
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs.readFileString(file).pipe(
+    Effect.catchIf(
+      (cause) => cause.reason._tag === "NotFound",
+      () => Effect.succeed("")
+    )
+  );
+});
+const readRefusalStampGaps = Effect.fnUntraced(function* (evidenceRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const gaps = A.empty<SessionStampGap>();
+  let rejectedRecords = 0;
+  const files = yield* fs.readDirectory(evidenceRoot).pipe(
+    Effect.catchIf(
+      (cause) => cause.reason._tag === "NotFound",
+      () => Effect.succeed(A.empty<string>())
+    )
+  );
+  for (const name of A.filter(files, Str.startsWith("hook-pulse-refusals-"))) {
+    const text = yield* fs.readFileString(path.join(evidenceRoot, name));
+    const refusals = A.filterMap(A.filter(Str.split(text, "\n"), Str.isNonEmpty), (line) => {
+      const decoded = HookPulseRefusal.decodeJsonResult(line);
+      if (Result.isFailure(decoded)) rejectedRecords += 1;
+      return decoded;
+    });
+    for (const refusal of A.filter(refusals, (row) => row.reason !== HookPulseRefusalReason.Enum["stamp-failed"])) {
+      const at = O.some(refusal.ts.pipe(DateTime.toEpochMillis));
+      gaps.push(
+        SessionStampGap.make({
+          start: at,
+          end: O.map(at, (value) => value + 999),
+          client: refusal.agentKind === "unknown" ? O.none() : O.some(refusal.agentKind),
+          eventLoss: true,
+        })
+      );
+    }
+  }
+  return { gaps, rejectedRecords };
+});
+const readStampGaps = Effect.fnUntraced(function* (evidenceRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const gaps = A.empty<SessionStampGap>();
+  const defaultSentinel = hookPulseDisarmSentinelPath(evidenceRoot);
+  const sentinelPath = yield* Config.String("BEEP_HOOK_PULSE_DISARM_SENTINEL").pipe(
+    Config.withDefault(defaultSentinel),
+    Effect.map((value) => (value === "" ? defaultSentinel : value))
+  );
+  const sentinelExists = yield* fs.exists(sentinelPath);
+  if (sentinelExists) {
+    const sentinel = yield* HookPulseDisarmSentinel.decodeJsonEffect(yield* fs.readFileString(sentinelPath));
+    const observedNow = yield* Clock.currentTimeMillis;
+    gaps.push(
+      SessionStampGap.make({
+        start: O.filter(timestampEpoch(sentinel.disarmedAt), (start) => start <= observedNow),
+        end: O.none(),
+        client: O.none(),
+        eventLoss: false,
+      })
+    );
+  }
+  const windows = yield* readOptionalEvidence(hookPulseDisarmWindowsPath(evidenceRoot));
+  for (const line of A.filter(Str.split(windows, "\n"), Str.isNonEmpty)) {
+    const window = yield* HookPulseDisarmWindow.decodeJsonEffect(line);
+    gaps.push(
+      SessionStampGap.make({
+        start: O.flatMap(window.disarmedAt, timestampEpoch),
+        end: timestampEpoch(window.rearmedAt),
+        client: O.none(),
+        eventLoss: false,
+      })
+    );
+  }
+  const refusals = yield* readRefusalStampGaps(evidenceRoot);
+  gaps.push(...refusals.gaps);
+  return { gaps, rejectedRecords: refusals.rejectedRecords };
+});
+const recordAvoidsStampGaps = (
+  record: AiMetricsDerivedTranscriptRecord,
+  client: HookPulseAgentKind,
+  gaps: O.Option<ReadonlyArray<SessionStampGap>>,
+  closedAt: O.Option<number>,
+  openingAt: O.Option<number>,
+  observedThrough: O.Option<number>
+): boolean =>
+  O.exists(gaps, (known) => {
+    const relevant = A.filter(known, (gap) => O.isNone(gap.client) || O.contains(gap.client, client));
+    const sanitized = record.privacy.sanitized;
+    const start = O.flatMap(sanitized.firstTimestamp, timestampEpoch);
+    const last = O.flatMap(sanitized.lastTimestamp, timestampEpoch);
+    if (O.isNone(start) || O.isNone(last) || last.value < start.value) return false;
+    if (O.isNone(openingAt) || openingAt.value > start.value) return false;
+    const beginning = openingAt.value;
+    const end = Math.max(
+      last.value,
+      O.getOrElse(observedThrough, () => last.value),
+      O.getOrElse(closedAt, () => last.value)
+    );
+    return A.every(
+      relevant,
+      (gap) =>
+        O.exists(gap.end, (last) => last < beginning) ||
+        (gap.eventLoss
+          ? O.exists(closedAt, (closed) => O.exists(gap.start, (first) => first > closed))
+          : O.exists(gap.start, (first) => first > end))
+    );
+  });
+
+// A contradiction is drawn from this session's own evidence and cannot be undone by evidence
+// a run failed to read: extra stamps or identities only accumulate, and a gap that starts
+// inside the transcript's own span intersects whatever else is found.
+const sessionStampContradicted = (input: {
+  readonly agentKind: HookPulseAgentKind;
+  readonly gaps: O.Option<ReadonlyArray<SessionStampGap>>;
+  readonly index: Pick<SessionStampIndex, "sessions" | "stamps">;
+  readonly pathHash: string;
+  readonly record: AiMetricsDerivedTranscriptRecord;
+  readonly sessionIdentityHash: O.Option<string>;
+}): boolean => {
+  const key = `${input.agentKind}:${input.pathHash}`;
+  const sanitized = input.record.privacy.sanitized;
+  const start = O.flatMap(sanitized.firstTimestamp, timestampEpoch);
+  const last = O.flatMap(sanitized.lastTimestamp, timestampEpoch);
+  const insideTranscript = (first: number): boolean =>
+    O.exists(start, (beginning) => first >= beginning) && O.exists(last, (end) => first <= end);
+  const mixedStamps = O.exists(
+    MutableHashMap.get(input.index.stamps, key),
+    (values) => HashSet.size(values) > 1 || HashSet.has(values, "unknown")
+  );
+  const foreignIdentity = O.exists(
+    MutableHashMap.get(input.index.sessions, key),
+    (identities) =>
+      HashSet.size(identities) > 1 ||
+      O.exists(input.sessionIdentityHash, (identity) => !HashSet.has(identities, identity))
+  );
+  const gapInside = O.exists(input.gaps, (known) =>
+    A.some(
+      known,
+      (gap) =>
+        (O.isNone(gap.client) || O.contains(gap.client, input.agentKind)) && O.exists(gap.start, insideTranscript)
+    )
+  );
+  return mixedStamps || foreignIdentity || gapInside;
+};
+
+const sessionStampJoinFor = (input: {
+  readonly gaps: O.Option<ReadonlyArray<SessionStampGap>>;
+  readonly index: Pick<SessionStampIndex, "sessions" | "stamps">;
+  readonly kind: O.Option<HookPulseAgentKind>;
+  readonly pathHash: string;
+  readonly record: AiMetricsDerivedTranscriptRecord;
+  readonly retained: boolean;
+  readonly sessionIdentityHash: O.Option<string>;
+}): AiMetricsSessionStampJoin =>
+  O.match(input.kind, {
+    onNone: () => AiMetricsSessionStampJoin.Enum.unsupported,
+    onSome: (agentKind) => {
+      if (input.retained) return AiMetricsSessionStampJoin.Enum.retained;
+      return sessionStampContradicted({ ...input, agentKind })
+        ? AiMetricsSessionStampJoin.Enum.contradicted
+        : AiMetricsSessionStampJoin.Enum.unresolved;
+    },
+  });
+
+type SessionStampIndex = {
+  readonly stamps: MutableHashMap.MutableHashMap<string, HashSet.HashSet<string>>;
+  readonly sessions: MutableHashMap.MutableHashMap<string, HashSet.HashSet<string>>;
+  readonly freshStarts: MutableHashMap.MutableHashMap<string, HashSet.HashSet<number>>;
+  readonly firstObserved: MutableHashMap.MutableHashMap<string, number>;
+  readonly lastObserved: MutableHashMap.MutableHashMap<string, number>;
+  readonly endings: MutableHashMap.MutableHashMap<string, number>;
+  readonly sessionLastObserved: MutableHashMap.MutableHashMap<string, number>;
+};
+
+const collectSessionStamp = (index: SessionStampIndex, pulse: HookPulseV1): void => {
+  if (pulse.instrumentClass !== "production" || O.isNone(pulse.transcriptPath)) return;
+  const { stamps, sessions, freshStarts, firstObserved, lastObserved, endings, sessionLastObserved } = index;
+  const key = `${pulse.agentKind}:${pulse.transcriptPath.value}`;
+  const observedAt = DateTime.toEpochMillis(pulse.ts);
+  const sessionKey = `${pulse.agentKind}:${pulse.sessionId}`;
+  MutableHashMap.set(
+    sessionLastObserved,
+    sessionKey,
+    Math.max(
+      O.getOrElse(MutableHashMap.get(sessionLastObserved, sessionKey), () => observedAt),
+      observedAt
+    )
+  );
+  MutableHashMap.set(
+    lastObserved,
+    key,
+    Math.max(
+      O.getOrElse(MutableHashMap.get(lastObserved, key), () => observedAt),
+      observedAt
+    )
+  );
+  if (pulse.hookEvent === "SessionEnd")
+    MutableHashMap.set(
+      endings,
+      key,
+      Math.max(
+        O.getOrElse(MutableHashMap.get(endings, key), () => observedAt),
+        observedAt
+      )
+    );
+  MutableHashMap.set(
+    firstObserved,
+    key,
+    Math.min(
+      O.getOrElse(MutableHashMap.get(firstObserved, key), () => observedAt),
+      observedAt
+    )
+  );
+  MutableHashMap.set(
+    sessions,
+    key,
+    HashSet.add(O.getOrElse(MutableHashMap.get(sessions, key), HashSet.empty<string>), pulse.sessionId)
+  );
+  if (pulse.hookEvent !== "SessionStart") return;
+  if (O.contains(pulse.sessionStartSource, "startup"))
+    MutableHashMap.set(
+      freshStarts,
+      key,
+      HashSet.add(O.getOrElse(MutableHashMap.get(freshStarts, key), HashSet.empty<number>), observedAt)
+    );
+  MutableHashMap.set(
+    stamps,
+    key,
+    HashSet.add(
+      O.getOrElse(MutableHashMap.get(stamps, key), HashSet.empty<string>),
+      O.getOrElse(pulse.harnessHash, () => "unknown")
+    )
+  );
+};
 
 /**
  * Typed failure raised anywhere inside one durable forwarder run.
@@ -395,11 +721,15 @@ export type AiMetricsForwarderOtlpExport = typeof AiMetricsForwarderOtlpExport.T
  *
  * **Details**
  *
- * Every field is either a count, a path, or an identifier — nothing derived from
+ * Every field is a count, a path, an identifier, or a collection flag — nothing derived from
  * transcript content — so the result can be logged, printed by the CLI, or
  * exported without a privacy review. `configSnapshotId` is the join back to the
  * agent-configuration manifest that was in force for the run, which is what
- * makes a metric attributable to a guidance change.
+ * makes a metric attributable to a guidance change. Hook and stamp-gap completeness
+ * flags distinguish partial evidence from unstamped sessions. Failed shards and
+ * rejected-record counts remain visible while decodable records are retained.
+ * Unreadable gap evidence still prevents stamp joining. Historical results decode
+ * with completeness flags set to false.
  *
  * **Example** (Reporting a completed run)
  *
@@ -447,12 +777,33 @@ export class AiMetricsForwarderRunResult extends S.Opaque<
       S.withConstructorDefault(Effect.succeed([])),
       S.withDecodingDefaultKey(Effect.succeed([]))
     ),
+    hookCollectionComplete: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    failedHookShards: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultKey(Effect.succeed([]))
+    ),
+    hookRejectedRecords: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
+    stampGapCollectionComplete: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
+    stampGapRejectedRecords: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
     sourceFileCount: S.Natural,
     target: AiMetricsDeployTarget,
     turnCount: S.Natural,
   }).pipe(
     $I.annoteSchema("AiMetricsForwarderRunResult", {
-      description: "Safe counts and storage paths returned by one durable AI metrics forwarder run.",
+      description:
+        "Safe counts, storage paths and explicit hook/stamp-gap collection completeness returned by one durable AI metrics forwarder run. Historical results default to unverified collection.",
     })
   )
 ) {
@@ -677,20 +1028,17 @@ export const renderAiMetricsForwarderTimerPlan = (input: AiMetricsForwarderTimer
   const serviceUnitName = `${serviceName}.service`;
   const timerUnitName = `${serviceName}.timer`;
   const statusTmpPath = `${timerInput.statusPath}.tmp`;
-  const stderrTmpPath = `${timerInput.statusPath}.stderr.tmp`;
   const envFileShellPath = "~/.config/beep/ai-metrics.env";
   const envFileUnitPath = "%h/.config/beep/ai-metrics.env";
   const command = shellCommandFromArgv(timerInput.command);
   const failureStatusPython =
-    'import json,sys; data=open(sys.argv[2],"rb").read(2000).decode("utf-8","replace"); print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"stderr":data},separators=(",",":")))';
+    'import json,sys; print(json.dumps({"status":"failed","exitCode":int(sys.argv[1]),"diagnostic":"forwarder-command-failed"},separators=(",",":")))';
   const execCommand = pipe(
     [
       "set -euo pipefail",
       `mkdir -p "$(dirname ${shellQuote(timerInput.statusPath)})" "$(dirname ${shellQuote(timerInput.lockPath)})"`,
       "exit_code=0",
-      `> ${shellQuote(stderrTmpPath)}`,
-      `if flock -n ${shellQuote(timerInput.lockPath)} ${command} > ${shellQuote(statusTmpPath)} 2> ${shellQuote(stderrTmpPath)}; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" ${shellQuote(stderrTmpPath)} > ${shellQuote(statusTmpPath)}; fi`,
-      `rm -f ${shellQuote(stderrTmpPath)}`,
+      `if flock -n ${shellQuote(timerInput.lockPath)} ${command} > ${shellQuote(statusTmpPath)} 2>/dev/null; then :; else exit_code=$?; python3 -c ${shellQuote(failureStatusPython)} "$exit_code" > ${shellQuote(statusTmpPath)}; fi`,
       `mv ${shellQuote(statusTmpPath)} ${shellQuote(timerInput.statusPath)}`,
       'exit "$exit_code"',
     ],
@@ -933,7 +1281,12 @@ const discoverForwarderSourceFiles = Effect.fn("AiMetrics.forwarder.discoverSour
 });
 
 const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
-  function* (input: AiMetricsForwarderInput, rawArchiveDir: string, sourceFile: ForwarderSourceFile) {
+  function* (
+    input: AiMetricsForwarderInput,
+    rawArchiveDir: string,
+    sourceFile: ForwarderSourceFile,
+    hookSalt: O.Option<string>
+  ) {
     const fs = yield* FileSystem.FileSystem;
     const diagnosticSourcePathHash = yield* sourcePathHashForDiagnostics(input, sourceFile);
     const content = yield* fs.readFileString(sourceFile.sourcePath).pipe(
@@ -971,7 +1324,16 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
       summary,
     }).pipe(Effect.mapError((cause) => forwarderFailure("Failed to build AI metrics privacy projection.", cause)));
 
-    return AiMetricsDerivedTranscriptRecord.make({ archiveObject, privacy });
+    const sessionIdentityHash = yield* readSessionIdentityHash(content, sourceFile.sourceKind, hookSalt).pipe(
+      Effect.mapError((cause) => forwarderFailure("Failed to bind transcript session identity.", cause))
+    );
+    return ProcessedForwarderSource.make({
+      record: AiMetricsDerivedTranscriptRecord.make({ archiveObject, privacy }),
+      sessionIdentityHash,
+      hookPathHash: yield* hashPrivateIdentifier(sourceFile.sourcePath, hookSalt).pipe(
+        Effect.mapError((cause) => forwarderFailure("Failed to bind transcript path identity.", cause))
+      ),
+    });
   },
   (effect, _input, _rawArchiveDir, sourceFile) =>
     effect.pipe(
@@ -1085,18 +1447,150 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       Effect.mapError((cause) => forwarderFailure("Failed to hash AI metrics repo root.", cause))
     );
     const sourceSelection = yield* discoverForwarderSourceFiles(input);
+    const hookSalt = yield* hookPulseHashSalt.pipe(
+      Effect.mapError((cause) => forwarderFailure("Cannot resolve hook hash namespace.", cause))
+    );
     const records = yield* Effect.forEach(
       sourceSelection.files,
-      (sourceFile) => processSourceFile(input, installSpec.storage.rawArchiveDir, sourceFile),
+      (sourceFile) => processSourceFile(input, installSpec.storage.rawArchiveDir, sourceFile, hookSalt),
       { concurrency: 4 }
     );
+    // Session-time stamps stay separate from the ingest-time snapshot. Unknown
+    // or mixed stamps remain absent; backfill never receives today's regime.
+    const fs = yield* FileSystem.FileSystem;
+    const stateHome = yield* Config.String("XDG_STATE_HOME").pipe(
+      Config.withDefault(pathApi.join(input.homeDir, ".local/state")),
+      Effect.map((value) => (value === "" ? pathApi.join(input.homeDir, ".local/state") : value)),
+      Effect.mapError((cause) => forwarderFailure("Cannot resolve XDG state home.", cause))
+    );
+    const evidenceRoot = yield* Config.String("BEEP_AGENT_EVIDENCE_ROOT").pipe(
+      Config.withDefault(agentEvidenceRoot(stateHome)),
+      Effect.map((value) => (value === "" ? agentEvidenceRoot(stateHome) : value)),
+      Effect.mapError((cause) => forwarderFailure("Cannot resolve hook evidence root.", cause))
+    );
+    const stampGaps = yield* readStampGaps(evidenceRoot).pipe(Effect.option);
+    const hookDir = hookPulseLedgerDir(evidenceRoot);
+    const shardListing = yield* fs.readDirectory(hookDir).pipe(Effect.option);
+    const shards = O.getOrElse(shardListing, A.empty<string>);
+    const stamps = MutableHashMap.empty<string, HashSet.HashSet<string>>();
+    const sessions = MutableHashMap.empty<string, HashSet.HashSet<string>>();
+    const freshStarts = MutableHashMap.empty<string, HashSet.HashSet<number>>();
+    const firstObserved = MutableHashMap.empty<string, number>();
+    const lastObserved = MutableHashMap.empty<string, number>();
+    const endings = MutableHashMap.empty<string, number>();
+    const sessionLastObserved = MutableHashMap.empty<string, number>();
+    let failedHookShards = HashSet.empty<string>();
+    let hookRejectedRecords = 0;
+    let hookCollectionComplete = O.isSome(shardListing);
+    yield* Effect.forEach(
+      A.filter(shards, Str.endsWith(".ndjson")),
+      Effect.fnUntraced(function* (name) {
+        const text = yield* fs.readFileString(pathApi.join(hookDir, name)).pipe(
+          Effect.match({
+            onFailure: () => {
+              hookCollectionComplete = false;
+              failedHookShards = HashSet.add(failedHookShards, name);
+              return "";
+            },
+            onSuccess: identity,
+          })
+        );
+        for (const line of A.filter(Str.split(text, "\n"), Str.isNonEmpty)) {
+          Result.match(HookPulseV1.decodeJsonResult(line), {
+            onFailure: () => {
+              hookCollectionComplete = false;
+              hookRejectedRecords += 1;
+              failedHookShards = HashSet.add(failedHookShards, name);
+            },
+            onSuccess: (pulse) =>
+              collectSessionStamp(
+                { stamps, sessions, freshStarts, firstObserved, lastObserved, endings, sessionLastObserved },
+                pulse
+              ),
+          });
+        }
+      }),
+      { discard: true }
+    );
+    // Completeness describes collection only. Qualification comes from each record's own
+    // join outcome; completeness only decides whether an unresolved join is a verdict.
+    const sessionStampCompleteness = aiMetricsSessionStampCompletenessFor(
+      hookCollectionComplete,
+      O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0)
+    );
+    const stampedRecords = A.map(records, ({ record, sessionIdentityHash, hookPathHash }) => {
+      const sanitized = record.privacy.sanitized;
+      const kind = AiMetricsTranscriptSource.$match(sanitized.sourceKind, {
+        claude: () => O.some(HookPulseAgentKind.Enum["claude-code"]),
+        codex: () => O.some(HookPulseAgentKind.Enum["codex-cli"]),
+        openclaw: () => O.none<HookPulseAgentKind>(),
+      });
+      const sessionHarnessHash = O.flatMap(kind, (agentKind) => {
+        const key = `${agentKind}:${hookPathHash}`;
+        const observedThrough = MutableHashMap.get(sessions, key).pipe(
+          O.flatMap((identities) => A.head(A.fromIterable(identities))),
+          O.flatMap((identity) => MutableHashMap.get(sessionLastObserved, `${agentKind}:${identity}`))
+        );
+        const closedAt = O.filter(
+          MutableHashMap.get(endings, key),
+          (end) =>
+            O.exists(MutableHashMap.get(lastObserved, key), (last) => end >= last) &&
+            O.exists(observedThrough, (last) => end >= last) &&
+            O.exists(O.flatMap(sanitized.lastTimestamp, timestampEpoch), (last) => end >= last)
+        );
+        if (
+          !recordAvoidsStampGaps(
+            record,
+            agentKind,
+            O.map(stampGaps, (loaded) => loaded.gaps),
+            closedAt,
+            MutableHashMap.get(firstObserved, key),
+            observedThrough
+          )
+        )
+          return O.none();
+        return pipe(
+          MutableHashMap.get(sessions, key),
+          O.filter(() =>
+            O.exists(
+              MutableHashMap.get(firstObserved, key),
+              (first) =>
+                O.exists(O.flatMap(sanitized.firstTimestamp, timestampEpoch), (beginning) => first <= beginning) &&
+                O.exists(MutableHashMap.get(freshStarts, key), (starts) => HashSet.has(starts, first))
+            )
+          ),
+          O.filter(
+            (values) =>
+              HashSet.size(values) === 1 && O.exists(sessionIdentityHash, (identity) => HashSet.has(values, identity))
+          ),
+          O.flatMap(() => MutableHashMap.get(stamps, key)),
+          O.filter((values) => HashSet.size(values) === 1 && !HashSet.has(values, "unknown")),
+          O.flatMap((values) => A.head(A.fromIterable(values)))
+        );
+      });
+      const join = sessionStampJoinFor({
+        gaps: O.map(stampGaps, (loaded) => loaded.gaps),
+        index: { sessions, stamps },
+        kind,
+        pathHash: hookPathHash,
+        record,
+        retained: O.isSome(sessionHarnessHash),
+        sessionIdentityHash,
+      });
+      return AiMetricsDerivedTranscriptRecord.make({
+        ...record,
+        sessionHarnessHash: O.map(sessionHarnessHash, HarnessHash.make),
+        sessionStampCompleteness,
+        sessionStampQualification: aiMetricsSessionStampQualificationFor(join, sessionStampCompleteness),
+      });
+    });
     const ingestRunId = `forwarder-${startedAtEpochMillis}`;
     const derived = yield* writeAiMetricsDerivedStorage(
       AiMetricsDerivedStorageWriteInput.make({
         configSnapshot: configSnapshot.snapshot,
         ingestRunId,
         parquetExportMode: input.parquetExportMode,
-        records,
+        records: stampedRecords,
         repoRootHash,
         startedAtEpochMillis,
         storage: installSpec.storage,
@@ -1118,6 +1612,14 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       parquetTables: derived.parquetTables,
       rawArchiveDir: installSpec.storage.rawArchiveDir,
       sourceCoverage: sourceSelection.coverage,
+      hookCollectionComplete,
+      failedHookShards: A.fromIterable(failedHookShards),
+      hookRejectedRecords,
+      stampGapCollectionComplete: O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0),
+      stampGapRejectedRecords: O.getOrElse(
+        O.map(stampGaps, (loaded) => loaded.rejectedRecords),
+        () => 0
+      ),
       sourceFileCount: derived.sourceFileCount,
       target: input.target,
       turnCount: derived.turnCount,

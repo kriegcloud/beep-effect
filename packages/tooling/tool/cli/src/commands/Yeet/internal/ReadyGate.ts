@@ -47,6 +47,7 @@ import { YEET_READY_COMMAND } from "./MonitorPolicy.ts";
 import { findLiveReadyMonitorJob } from "./ProofJob.ts";
 import { ProofJobLauncher } from "./ProofJobLauncher.ts";
 import { YEET_REVIEW_WINDOW_DEFAULT } from "./ReviewWindow.ts";
+import { readSquashCommitlintForPullRequest, renderSquashCommitlintVerdict } from "./SquashCommitlint.ts";
 import { collectYeetStatus, YeetStatusRemote } from "./Status.ts";
 import { mergeReadyCriterionHolds, YeetMergeReady } from "./Verdict.ts";
 import type * as Crypto from "effect/Crypto";
@@ -56,6 +57,7 @@ import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetReadyOptions } from "../Yeet.schemas.ts";
 import type { ProofJobRecord } from "./ProofJob.ts";
+import type { SquashCommitlintReport } from "./SquashCommitlint.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/ReadyGate");
 
@@ -528,7 +530,36 @@ interface YeetReadyGateDependencies {
     entries: ReadonlyArray<YeetReadyInheritedRed>,
     headSha: string
   ) => Effect.Effect<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
+  readonly squashCommitlint?: (
+    context: RepoRunContext,
+    prNumber: number
+  ) => Effect.Effect<SquashCommitlintReport, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
 }
+
+// Advisory only: the merge gate holds on the same verdict, so the flip never
+// refuses on it, but the owner learns here, before the flip starts the review
+// window, that a reword is due. A read that fails loses only the advice.
+const adviseSquashCommitlint = Effect.fn("Yeet.adviseSquashCommitlint")(function* (
+  context: RepoRunContext,
+  dependencies: YeetReadyGateDependencies,
+  prNumber: number
+) {
+  const report = yield* (dependencies.squashCommitlint ?? readSquashCommitlintForPullRequest)(context, prNumber).pipe(
+    Effect.option
+  );
+  yield* O.match(report, {
+    onNone: () =>
+      Console.log(
+        `[yeet] warning: squash-commitlint check skipped for #${prNumber}: could not read the pull request commits or run commitlint`
+      ),
+    onSome: ({ verdict }) =>
+      verdict._tag === "pass"
+        ? Console.log(`[yeet] squash-commitlint #${prNumber}: pass`)
+        : Console.log(
+            `[yeet] warning: the squash commit message GitHub will write for #${prNumber} fails commitlint: ${renderSquashCommitlintVerdict(verdict)}. The merge gate holds on squash-commitlint until it passes; reword before the gate runs.`
+          ),
+  });
+});
 
 const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(function* (
   context: RepoRunContext,
@@ -577,6 +608,10 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
  * the applied ones in the PR body (REST), and a failed record refuses the flip
  * with `YeetCommandError`. A second confirmation after the body write requires
  * the same head, a passing gate, and the same applied attributions before flipping.
+ * Before a flip, and for an already-ready pull request, the squash commit
+ * message GitHub will write is predicted and linted as an advisory
+ * (`SquashCommitlint.ts`): a failing verdict prints the rule and the offending
+ * line but never refuses the flip, because the merge gate holds on it.
  * When no reds apply, stale-section cleanup is best effort: an existing section
  * is rewritten to a head-pinned None record, but a failed read or write only
  * warns. An empty set without a section adds nothing. The post-record gate
@@ -625,9 +660,12 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
           message: `yeet ready refused: blocked on ${blocked.blocker}: ${blocked.detail}. Re-run \`${YEET_READY_COMMAND}\` once it clears.`,
         })
       ),
-    "already-ready": ({ prNumber }) =>
-      Console.log(`[yeet] pull request #${prNumber} is already ready for review; nothing to flip`),
+    "already-ready": Effect.fnUntraced(function* ({ prNumber }) {
+      yield* Console.log(`[yeet] pull request #${prNumber} is already ready for review; nothing to flip`);
+      yield* adviseSquashCommitlint(context, dependencies, prNumber);
+    }),
     flip: Effect.fnUntraced(function* ({ prNumber, headSha }) {
+      yield* adviseSquashCommitlint(context, dependencies, prNumber);
       // The gate decided on a read taken moments ago. A push, a check rerun,
       // or a new thread can land in between, even on the same head, so take
       // the whole gate read again immediately before the flip and require the

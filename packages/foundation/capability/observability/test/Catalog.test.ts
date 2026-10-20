@@ -246,11 +246,13 @@ describe("mergeDeclarations", () => {
       O.map((catalog) => A.map(catalog.attributes, (entry) => entry.key))
     );
     assertSome(keys, [
+      AttributeKeyName.make("beep.duration_bucket"),
       AttributeKeyName.make("beep.family"),
       AttributeKeyName.make("beep.identity_source"),
       AttributeKeyName.make("beep.outcome"),
       AttributeKeyName.make("beep.package"),
       AttributeKeyName.make("beep.privacy_tier"),
+      AttributeKeyName.make("beep.schema_failure_tag"),
     ]);
   });
 
@@ -509,6 +511,8 @@ describe("kernel declarations", () => {
         { key: "beep.privacy_tier", cardinality: "static", minTier: "shape-only" },
         { key: "beep.identity_source", cardinality: "static", minTier: "shape-only" },
         { key: "beep.outcome", cardinality: "static", minTier: "shape-only" },
+        { key: "beep.schema_failure_tag", cardinality: "static", minTier: "shape-only" },
+        { key: "beep.duration_bucket", cardinality: "static", minTier: "shape-only" },
       ]
     );
     assertTrue(

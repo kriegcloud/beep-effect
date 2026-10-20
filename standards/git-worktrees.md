@@ -406,7 +406,7 @@ For an existing duplicate clone:
 ## Repo-Specific Gotchas
 
 - `flake.nix` now derives its Bun cache name from the active worktree root, so each worktree gets its own cache namespace.
-- `.turbo`, `.sst`, `.beep`, and `node_modules` are intentionally local to
+- `.turbo`, `.beep`, and `node_modules` are intentionally local to
   each worktree. `.idea` is tracked (whitelist `.idea/.gitignore`); only its
   ignored machine-local files (`compiler.xml`, `effect.intellij.xml`,
   `workspace.xml`) stay per-worktree.

@@ -1,5 +1,16 @@
-import { Box, Camera, Cylinder, EdgeSet, ModelSpec, Occt, Part, ProjectionRequest, ShadingPlan } from "@beep/occt";
-import { ShadingSkip } from "@beep/technical-drawing";
+import {
+  BoundingBox,
+  Box,
+  Camera,
+  Cylinder,
+  EdgeSet,
+  ModelSpec,
+  Occt,
+  Part,
+  ProjectionRequest,
+  ShadingPlan,
+} from "@beep/occt";
+import { cameraForView, ShadingSkip } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { A, O } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -32,6 +43,14 @@ const persp = Camera.make({ eye: [-1, -1.2, 0.85], up: [0, 0, 1], target: [20, 1
 // upper front left, orthographic and in perspective, over the plate's middle
 const axo = Camera.make({ eye: [-1, -1.2, 0.85], up: [0, 0, 1], target: [20, 10, 1] });
 const axoPersp = Camera.make({ eye: [-1, -1.2, 0.85], up: [0, 0, 1], target: [20, 10, 1], focus: O.some(200) });
+// upper front left in a two-point pictorial of the plate and a boss 4 tall on it: a level line of sight from a target
+// raised far above the model, which the hidden-line pass runs about instead of the model's origin
+const twoPoint = cameraForView({
+  view: "top-perspective",
+  box: BoundingBox.make({ min: [0, 0, 0], max: [40, 20, 6] }),
+  projection: "two-point",
+  azimuthDeg: O.some(30),
+});
 // from below, front and right: the plate's bottom face (merged with the tab's) faces the eye
 const below = Camera.make({ eye: [0.3, -0.5, -1], up: [0, 0, 1] });
 
@@ -85,7 +104,7 @@ const ontoGround = (camera: Camera) => {
   const right = unit(cross(unit(camera.up), direction));
   const up = cross(direction, right);
   return (x: number, y: number): readonly [number, number] => {
-    const p = [0, 1, 2].map((i) => x * (right[i] ?? 0) + y * (up[i] ?? 0));
+    const p = A.map([0, 1, 2], (i) => x * (right[i] ?? 0) + y * (up[i] ?? 0));
     const t = -(p[2] ?? 0) / direction[2];
     return [(p[0] ?? 0) + t * direction[0], (p[1] ?? 0) + t * direction[1]];
   };
@@ -300,7 +319,9 @@ describe("@beep/occt primitive line style", () => {
       Effect.fnUntraced(function* () {
         const peg = (lineStyle: O.Option<"solid" | "broken">) =>
           Cylinder.make({ base: [10, 10, 2], axis: [0, 0, 1], radius: 3, height: 4, lineStyle });
-        const cameras = [axo, axoPersp];
+        // the two-point view's silhouettes are traced back from the eye the pass saw them from, about its target
+        expect(twoPoint.hiddenLinePassAbout).toBe("target");
+        const cameras = [axo, axoPersp, twoPoint];
         const boss = yield* project(one("boss", [plate, peg(O.some("broken"))]), cameras, true);
         // without hidden lines the outline and the broken layer are the same
         const bossOutline = yield* project(one("boss", [plate, peg(O.some("broken"))]), cameras);

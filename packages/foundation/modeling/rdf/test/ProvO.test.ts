@@ -25,15 +25,16 @@ import {
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
-import { assertFalse, assertTrue } from "@effect/vitest/utils";
+import { assertExitFailure, assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as Cause from "effect/Cause";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { mapFailureTags } from "./helpers/FailureTags.ts";
 
 const decodeUnknown = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
   S.decodeUnknownEffect(schema);
@@ -200,18 +201,22 @@ describe("ProvO", () => {
 
   it.effect("rejects invalid provenance values for the current schema surface", () =>
     Effect.gen(function* () {
-      pipe(yield* Effect.exit(decodeProvO({ provType: "Bundle" })), Exit.isFailure, assertTrue);
-      pipe(
-        yield* Effect.exit(decodeCollection({ id: "collection:1", provType: "Collection" })),
-        Exit.isFailure,
-        assertTrue
+      assertExitFailure(
+        mapFailureTags(yield* Effect.exit(decodeProvO({ provType: "Bundle" }))),
+        Cause.fail("SchemaError")
       );
-      pipe(
-        yield* Effect.exit(decodeUsage({ provType: "Usage", activity: "activity:ingest" })),
-        Exit.isFailure,
-        assertTrue
+      assertExitFailure(
+        mapFailureTags(yield* Effect.exit(decodeCollection({ id: "collection:1", provType: "Collection" }))),
+        Cause.fail("SchemaError")
       );
-      pipe(yield* Effect.exit(decodeObjectRef("not valid whitespace ref")), Exit.isFailure, assertTrue);
+      assertExitFailure(
+        mapFailureTags(yield* Effect.exit(decodeUsage({ provType: "Usage", activity: "activity:ingest" }))),
+        Cause.fail("SchemaError")
+      );
+      assertExitFailure(
+        mapFailureTags(yield* Effect.exit(decodeObjectRef("not valid whitespace ref"))),
+        Cause.fail("SchemaError")
+      );
     })
   );
 

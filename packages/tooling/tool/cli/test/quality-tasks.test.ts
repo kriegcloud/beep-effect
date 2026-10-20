@@ -1022,6 +1022,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:build",
         "quality:lint",
         "quality:lint-policy",
+        "quality:effect-diagnostics",
         "quality:check",
         "quality:shadcn-lint",
         "quality:jsdoc-ratchet",
@@ -1077,6 +1078,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "goals:index-check",
         "explore:atlas-check",
         "observability:catalog-check",
+        "quality:catalog-usage",
         "repo-sanity:tsconfig-sync",
         "lint:effect-imports",
         "lint:effect-imports-markdown",
@@ -1105,6 +1107,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         expectedTurboArgs("lint:retired-effect-paths", ["--summarize"])
       );
       expect(qualityLaneArgs(lanes, "lint:effect-vitest")).toEqual(["run", "beep", "lint", "effect-vitest"]);
+      expect(qualityLaneArgs(lanes, "quality:catalog-usage")).toEqual(["run", "beep", "quality", "catalog-usage"]);
       expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:committed")).toEqual([
         "run",
         "beep",
@@ -1140,6 +1143,41 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       // D9: the cheap tier runs four abreast; heavy pre-push lanes stay serial.
       expect(githubCheckTierConcurrency("cheap-gates")).toBe(4);
       expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+    });
+
+    it("keeps cheap gates within the configured worker budget and warns on malformed settings", () => {
+      const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      try {
+        for (const [value, expected, malformed] of [
+          [undefined, 4, false],
+          ["1", 1, false],
+          ["2", 2, false],
+          ["3", 3, false],
+          ["4", 4, false],
+          ["0", 1, true],
+          ["5", 1, true],
+          ["2.5", 1, true],
+          ["01", 1, true],
+          ["serial", 1, true],
+          ["", 1, true],
+        ] as const) {
+          warning.mockClear();
+          withEnvVar("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY", value, () => {
+            expect(githubCheckTierConcurrency("cheap-gates")).toBe(expected);
+            expect(warning).toHaveBeenCalledTimes(malformed ? 1 : 0);
+            if (malformed) {
+              expect(warning).toHaveBeenCalledWith(
+                "[quality] Invalid BEEP_QUALITY_CHEAP_GATE_CONCURRENCY; expected 1, 2, 3 or 4. Using 1 lane."
+              );
+            }
+            warning.mockClear();
+            expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+            expect(warning).not.toHaveBeenCalled();
+          });
+        }
+      } finally {
+        warning.mockRestore();
+      }
     });
 
     // ship-velocity B1: a local green must mean what a hosted green means, so the
@@ -3745,6 +3783,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:tsconfig-overlay",
         "lint:package-test-typecheck",
         "lint:effect-vitest",
+        "lint:opaque-roundtrips",
         "lint:jsdoc",
         "lint:jsdoc:root",
       ]);
@@ -3794,7 +3833,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:test-tsgo",
       ]);
       expect(taskNames(O.getOrThrow(A.get(full, 1)))).toEqual([
-        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(11)),
+        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(12)),
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
       // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
@@ -3888,6 +3927,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "jsdoc:ratchet:check",
           "lint:shadcn",
           "lint:effect-vitest",
+          "lint:opaque-roundtrips",
           "lint:retired-effect-paths",
           "quality:test-tsgo",
           "knowledge:doctor",

@@ -214,7 +214,6 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const home = yield* fs.makeTempDirectoryScoped({
-        directory: process.cwd(),
         prefix: ".models-ledger-test-",
       });
       const catalog = yield* ModelsCatalog;
@@ -244,7 +243,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
         yield* ledger.record(home, snapshot),
         path.join(home, ".local", "state", "beep", "models", "latest.json")
       );
-    }).pipe(Effect.scoped)
+    })
   );
 });
 

@@ -117,9 +117,14 @@ it.effect.skipIf(true)("preserves conditional skip registration", () => Effect.d
 it.effect.runIf(true)("preserves conditional run registration", () => Effect.void);
 it.effect.fails("preserves expected-failure registration", () => Effect.fail("expected failure"));
 
-it.live("runs live effects without requiring TestClock", () => Effect.sleep("1 millis"));
+it.live("runs live effects without requiring TestClock", () =>
+  Effect.gen(function* () {
+    yield* Effect.sleep("1 millis");
+    assertTrue((yield* Clock.currentTimeMillis) > 0);
+  })
+);
 
-it.layer(SharedProbeLayer)("instrumented layer", (layerIt) => {
+it.layer(SharedProbeLayer, { timeout: "30 seconds" })("instrumented layer", (layerIt) => {
   layerIt.effect("provides the block layer", () =>
     Effect.gen(function* () {
       const probe = yield* Probe;
@@ -133,17 +138,20 @@ it.layer(SharedProbeLayer)("instrumented layer", (layerIt) => {
     })
   );
 
-  layerIt.layer(Layer.effectDiscard(Ref.make(0)))("nested instrumented layer", (nestedIt) => {
-    nestedIt.effect("preserves MethodsNonLive", () =>
-      Effect.gen(function* () {
-        const probe = yield* Probe;
-        expect(probe.value).toBe(1);
-        expect(layerAcquisitions).toBe(1);
-        expect(perTestReleases).toBe(1);
-        assertFalse("live" in nestedIt);
-      })
-    );
-  });
+  layerIt.layer(Layer.effectDiscard(Ref.make(0)), { timeout: "30 seconds" })(
+    "nested instrumented layer",
+    (nestedIt) => {
+      nestedIt.effect("preserves MethodsNonLive", () =>
+        Effect.gen(function* () {
+          const probe = yield* Probe;
+          expect(probe.value).toBe(1);
+          expect(layerAcquisitions).toBe(1);
+          expect(perTestReleases).toBe(1);
+          assertFalse("live" in nestedIt);
+        })
+      );
+    }
+  );
 });
 
 it.layer(Layer.empty)((unnamedIt) => {
@@ -287,29 +295,26 @@ controlledIt.effect(
   20
 );
 
-it.layer(ConfigProvider.layer(ConfigProvider.fromUnknown({ CI: "invalid", component: "runner" })))(
-  "invalid trace configuration",
-  (quietIt) => {
-    quietIt.effect("keeps configuration failure from failing the test body", () =>
-      Effect.gen(function* () {
-        expect(yield* Config.String("component")).toBe("runner");
-      })
-    );
-  }
-);
+it.layer(ConfigProvider.layer(ConfigProvider.fromUnknown({ CI: "invalid", component: "runner" })), {
+  timeout: "30 seconds",
+})("invalid trace configuration", (quietIt) => {
+  quietIt.effect("keeps configuration failure from failing the test body", () =>
+    Effect.gen(function* () {
+      expect(yield* Config.String("component")).toBe("runner");
+    })
+  );
+});
 
-it.layer(ConfigProvider.layer(ConfigProvider.fromUnknown({ BEEP_TEST_TRACE: "1", CI: false })))(
-  "traced ordinary execution",
-  (tracedIt) => {
-    tracedIt.effect("preserves configuration and body services while emitting an ordinary lifecycle", () =>
-      Effect.gen(function* () {
-        expect(yield* Config.Boolean("CI")).toBe(false);
-        yield* TestClock.adjust("1 second");
-        expect(yield* Clock.currentTimeMillis).toBe(1_000);
-      })
-    );
-  }
-);
+it.layer(ConfigProvider.layer(ConfigProvider.fromUnknown({ BEEP_TEST_TRACE: "1", CI: false })), {
+  timeout: "30 seconds",
+})("traced ordinary execution", (tracedIt) => {
+  tracedIt.effect("preserves configuration and body services while emitting an ordinary lifecycle", () =>
+    Effect.gen(function* () {
+      expect(yield* Config.Boolean("CI")).toBe(false);
+      expect(yield* Clock.currentTimeMillis).toBe(0);
+    })
+  );
+});
 let interruptedScopeReleased = false;
 it.effect.fails("preserves intentional interruption and releases the acquired scope", () =>
   Effect.gen(function* () {

@@ -108,7 +108,7 @@ Never pass a bare identifier equal to the tag.
 | `Effect.fn("Name")(function* …)` / `Effect.fnUntraced(...)` | production (traced) / tests + hot paths (untraced) — never `(a) => Effect.gen(...)`. |
 | `dual(2, impl)` | public 2–3-arg helpers get data-first + data-last for free (EF-18). |
 | `flow(...)` | passthrough `pipe` callbacks; direct helper refs over trivial lambdas. |
-| `S.toArbitrary(Schema)` + `@effect/vitest` (`FastCheck as fc`) | derive test data from the schema; delete hand fixtures. `Md.test.ts:45`, `Lexical.model.test.ts:16` |
+| `Arbitrary.schema(Schema)` (`effect/Arbitrary`) + `it.prop` (`@effect/vitest`) | derive test data from the schema; delete hand fixtures. `Md.test.ts:120`, `Lexical.model.test.ts:85` |
 
 ---
 
@@ -172,10 +172,13 @@ export const segmentInlineRuns: {
 
 **6. Hand fixtures → schema-derived property laws.**
 ```ts
-import * as fc from "fast-check";
-const DocumentArbitrary = S.toArbitrary(Document);                 // Md.test.ts:47
-it("round-trips losslessly", () => fc.assert(fc.property(DocumentArbitrary, (doc) =>
-  expect(decode(encode(doc))).toEqual(doc)), { numRuns: 50 }));
+import { fcRuns } from "@beep/test-utils";
+import { expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+const DocumentArbitrary = Arbitrary.schema(Document);              // Md.test.ts:120
+it.prop("round-trips losslessly", [DocumentArbitrary], ([doc]) => {
+  expect(decode(encode(doc))).toEqual(doc);
+}, { arbitrary: fcRuns(50) });
 // codec law: Md → Lexical → Md stabilizes after one pass (the lossiness profile IS the law).
 ```
 

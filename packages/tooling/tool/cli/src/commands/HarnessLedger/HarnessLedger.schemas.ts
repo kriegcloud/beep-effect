@@ -17,6 +17,8 @@ import {
   HarnessLedgerDelta,
   HarnessLedgerRow,
   HarnessLedgerRowId,
+  HookPulseAgentKind,
+  HookPulseClientCoverage,
   LedgerDisposition,
   MechanismClass,
 } from "@beep/repo-ai-metrics";
@@ -171,6 +173,8 @@ export class HarnessLedgerSurfaceRef extends S.Opaque<HarnessLedgerSurfaceRef, {
     })
   )
 ) {}
+
+const PruneTelemetryClient = LiteralKit([...HookPulseAgentKind.literals, "junie", "grok"]);
 
 const EditSpecPrefix = LiteralKit(["commit", "diff"]);
 const decodeEditSpecPrefix = S.decodeUnknownEffect(EditSpecPrefix);
@@ -404,6 +408,10 @@ export class HarnessLedgerPruneOptions extends S.Opaque<HarnessLedgerPruneOption
     repoRoot: S.String,
     stateDir: S.String,
     windowSessions: WindowSessions,
+    agentKind: HookPulseAgentKind.pipe(
+      S.withConstructorDefault(Effect.succeed(HookPulseAgentKind.Enum["claude-code"])),
+      S.withDecodingDefaultTypeKey(Effect.succeed(HookPulseAgentKind.Enum["claude-code"]))
+    ),
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
@@ -472,7 +480,7 @@ export class PruneProposal extends S.Opaque<PruneProposal, { readonly brand: uni
 
 /**
  * Observed hook-pulse window: the last N distinct sessions by newest event
- * that ran under the current harness hash, the surface ids they touched, and
+ * that ran under the current harness hash, positive surface use across scanned history, and
  * the sessions skipped to find them.
  *
  * **Details**
@@ -516,6 +524,32 @@ export class ObservedSessionWindow extends S.Opaque<ObservedSessionWindow, { rea
     sessionsObserved: S.Finite,
     sessionsSkippedOutOfRegime: S.Finite,
     sessionsSkippedUnstamped: S.Finite,
+    sessionsSkippedMixedFingerprint: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    refusalsByAgentKind: S.Record(HookPulseAgentKind, S.Natural).pipe(
+      S.withConstructorDefault(Effect.succeed({ "claude-code": 0, "codex-cli": 0, "cursor-cli": 0 }))
+    ),
+    clientCoverage: S.Record(PruneTelemetryClient, S.OptionFromNullOr(HookPulseClientCoverage)).pipe(
+      S.withConstructorDefault(
+        Effect.succeed({
+          "claude-code": O.none(),
+          "codex-cli": O.none(),
+          "cursor-cli": O.none(),
+          junie: O.some(HookPulseClientCoverage.Enum.unsupported),
+          grok: O.some(HookPulseClientCoverage.Enum.unsupported),
+        })
+      )
+    ),
+    sessionsSkippedDisarmed: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedRefused: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedCorrupt: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedUnknownRestart: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    writerRefusalsTotal: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedRole: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsBelowActivityFloor: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsByAgentKind: S.Record(HookPulseAgentKind, S.Natural).pipe(
+      S.withConstructorDefault(Effect.succeed({ "claude-code": 0, "codex-cli": 0, "cursor-cli": 0 }))
+    ),
+
     windowEnd: S.OptionFromOptionalKey(S.DateTimeUtcFromString),
     touched: S.HashSet(S.String),
     shardsRead: S.Finite,
@@ -523,7 +557,7 @@ export class ObservedSessionWindow extends S.Opaque<ObservedSessionWindow, { rea
   }).pipe(
     $I.annoteSchema("ObservedSessionWindow", {
       description:
-        "Last N hook-pulse sessions under the current harness hash, their touched surface ids, skip counts, and shard decode tallies.",
+        "Last N hook-pulse sessions under the current harness hash, positive surface use across scanned history, skip counts, and shard decode tallies.",
     })
   )
 ) {}
@@ -535,11 +569,14 @@ export class ObservedSessionWindow extends S.Opaque<ObservedSessionWindow, { rea
  *
  * `sessionsObserved` counts only sessions under `harnessHash`, the current
  * harness hash; the two skip counts say how many newer sessions ran under
- * another regime or carry no stamp. `undecodableLines` counts hook-pulse lines
- * that did not decode as `HookPulseV1`; they are skipped, not fatal.
- * `windowFull` is true when `sessionsObserved` reached `windowSessions`;
- * `--write` appends only then, and a partial window's proposals are shown but
- * never written. `alreadyProposed` counts zero-touch surfaces skipped because
+ * another regime or carry no stamp. `undecodableLines` includes undecodable
+ * hook and refusal rows. Collection, refusal, role, activity, disarm and restart
+ * counters cover all scanned history; regime skip counts cover observations
+ * newer than the selected window boundary (all history when the window is short).
+ * `windowFull` is true when `sessionsObserved` reached `windowSessions`.
+ * A full window alone does not qualify non-use. Proposals remain advisory
+ * and `--write` currently appends nothing. `alreadyProposed` counts zero-touch
+ * surfaces skipped because
  * an open `proposed` chain already targets them, under any harness.
  * `decidedUnderHarness` counts those skipped because a chain targeting them
  * ends in a human decision (`accepted`, `rejected`, `deferred`, `waived`)
@@ -564,8 +601,36 @@ export class HarnessLedgerPruneReport extends S.Opaque<HarnessLedgerPruneReport,
     harnessHash: HarnessHash,
     sessionsObserved: S.Finite,
     windowFull: S.Boolean,
+    sharedHarnessWindowFull: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    nonUseQualified: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     sessionsSkippedOutOfRegime: S.Finite,
     sessionsSkippedUnstamped: S.Finite,
+    sessionsSkippedMixedFingerprint: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    refusalsByAgentKind: S.Record(HookPulseAgentKind, S.Natural).pipe(
+      S.withConstructorDefault(Effect.succeed({ "claude-code": 0, "codex-cli": 0, "cursor-cli": 0 }))
+    ),
+    clientCoverage: S.Record(PruneTelemetryClient, S.OptionFromNullOr(HookPulseClientCoverage)).pipe(
+      S.withConstructorDefault(
+        Effect.succeed({
+          "claude-code": O.none(),
+          "codex-cli": O.none(),
+          "cursor-cli": O.none(),
+          junie: O.some(HookPulseClientCoverage.Enum.unsupported),
+          grok: O.some(HookPulseClientCoverage.Enum.unsupported),
+        })
+      )
+    ),
+    sessionsSkippedDisarmed: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedRefused: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedCorrupt: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedUnknownRestart: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    writerRefusalsTotal: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsSkippedRole: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsBelowActivityFloor: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))),
+    sessionsByAgentKind: S.Record(HookPulseAgentKind, S.Natural).pipe(
+      S.withConstructorDefault(Effect.succeed({ "claude-code": 0, "codex-cli": 0, "cursor-cli": 0 }))
+    ),
+
     windowEnd: S.OptionFromOptionalKey(S.DateTimeUtcFromString),
     shardsRead: S.Finite,
     undecodableLines: S.Finite,
@@ -579,6 +644,41 @@ export class HarnessLedgerPruneReport extends S.Opaque<HarnessLedgerPruneReport,
     $I.annoteSchema("HarnessLedgerPruneReport", {
       description:
         "Current-harness session window, skip and decode tallies, the zero-touch proposals of one pruning scan, and whether they were appended.",
+    })
+  )
+) {}
+
+/**
+ * Payload-free transcript reconciliation counts for one harness.
+ *
+ * **Example** (Inspect the report constructor)
+ *
+ * ```ts
+ * import { HarnessTelemetryReconciliation } from "@beep/repo-cli/commands/HarnessLedger"
+ * console.log(typeof HarnessTelemetryReconciliation.make) // "function"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HarnessTelemetryReconciliation extends S.Opaque<
+  HarnessTelemetryReconciliation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    agentKind: HookPulseAgentKind,
+    transcriptFiles: S.Natural,
+    transcriptToolEvents: S.Natural,
+    hookedToolEvents: S.Natural,
+    sessionsWithoutHooks: S.Natural,
+    undecodableLines: S.Natural,
+    ratio: S.OptionFromOptionalKey(S.Finite),
+    qualifiedForNonUse: S.Boolean,
+    basis: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("HarnessTelemetryReconciliation", {
+      description:
+        "Read-only transcript versus hook counts, including nested child transcripts; no payload or digest is returned.",
     })
   )
 ) {}

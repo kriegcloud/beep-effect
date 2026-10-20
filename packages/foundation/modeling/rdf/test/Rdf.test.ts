@@ -115,7 +115,7 @@ import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
-import { assertFalse, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertExitFailure, assertFalse, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
@@ -125,6 +125,7 @@ import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { mapFailureTags } from "./helpers/FailureTags.ts";
 
 const LanguageTagEncodeEffect = S.encodeEffect(LanguageTag);
 const LanguageTagDecodeEffect = S.decodeEffect(LanguageTag);
@@ -485,7 +486,7 @@ describe("@beep/rdf RDF term and dataset models", () => {
         "Prefix labels must be empty for the default prefix or begin with an ASCII letter"
       );
       const invalidCurie = yield* Effect.exit(decodeCurie("missing-colon"));
-      pipe(invalidCurie, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalidCurie), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalidCurie)) {
         expect(Cause.pretty(invalidCurie.cause)).toContain("CURIE values must be of the form");
       }
@@ -494,12 +495,12 @@ describe("@beep/rdf RDF term and dataset models", () => {
       );
       expect(() => makeBlankNode("")).toThrow("Blank node labels must not be empty");
       const emptyBlank = yield* Effect.exit(decodeBlankNode({ termType: "BlankNode", value: "" }));
-      pipe(emptyBlank, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(emptyBlank), Cause.fail("SchemaError"));
       if (Exit.isFailure(emptyBlank)) {
         expect(Cause.pretty(emptyBlank.cause)).toContain("Blank node labels must not be empty");
       }
       const whitespaceBlank = yield* Effect.exit(decodeBlankNode({ termType: "BlankNode", value: " b0" }));
-      pipe(whitespaceBlank, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(whitespaceBlank), Cause.fail("SchemaError"));
       if (Exit.isFailure(whitespaceBlank)) {
         expect(Cause.pretty(whitespaceBlank.cause)).toContain(
           "Blank node labels must not contain leading or trailing whitespace"
@@ -686,7 +687,7 @@ describe("@beep/rdf semantic metadata", () => {
           kind: "unknown",
         })
       );
-      pipe(invalid, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalid), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalid)) {
         expect(Cause.pretty(invalid.cause)).toContain("SemanticSchemaMetadataKind");
       }

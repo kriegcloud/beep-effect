@@ -36,7 +36,7 @@ packages/notes/
       Note/
         Note.commands.ts     # command schemas (intent shapes only)
         Note.queries.ts      # query schemas (read-side intent shapes)
-        Note.ports.ts        # port interfaces, e.g. NoteRepository (Context.Tag)
+        Note.ports.ts        # port interfaces, e.g. NoteRepository (Context.Service)
         Note.service.ts      # use-case service composing ports + domain
       public/                # client-safe re-exports: commands, queries, errors
       server/                # server-only re-exports: ports, service interfaces
@@ -59,7 +59,7 @@ What each file owns, in one or two sentences:
 - `Note.service.ts` — the use-case service. It depends on ports and domain values, and is the only thing the server-side Layer needs to wire.
 - `Note.repo.ts` — the live `NoteRepository`. Implementation lives in `server` because adapters are server-side.
 - `Note.http-handlers.ts` — HTTP wiring: schema-validated request decoding into use-case calls.
-- `server/src/Layer.ts` — composes the slice's live `Layer`, exported through the package's `./layer` subpath.
+- `server/src/Layer.ts` — composes the slice's live `Layer`, exported through the package's `layer` subpath export.
 
 > `domain` has no `Layer` because it has no live services. `use-cases` defines ports but never implements them. `server` is the only package that knows how the slice runs.
 
@@ -98,7 +98,7 @@ The promotion record (one per export) is appended to the new or existing `shared
 >
 > - **Date promoted:** 2026-04-30
 > - **Shared product semantics:** the durable identity of a note as a referenceable product entity across slices.
-> - **Current consumers:** `@beep/notes-use-cases`, `@beep/tasks-use-cases`.
+> - **Current consumers:** the `notes` and `tasks` use-cases packages.
 > - **Rejected homes:**
 >   - Owning slice — `tasks` cannot import directly from `notes`; cross-slice imports across slice packages are forbidden.
 >   - Foundation — `NoteId` encodes a product concept, not a domain-agnostic identity primitive.
@@ -111,9 +111,9 @@ The promotion record (one per export) is appended to the new or existing `shared
 >
 > - **Date promoted:** 2026-04-30
 > - **Shared product semantics:** the cross-slice signal that a new note exists and may be subscribed to by other slices.
-> - **Current consumers:** `@beep/notes-server` (publisher), `@beep/tasks-use-cases` (subscriber).
+> - **Current consumers:** the `notes` server package (publisher), the `tasks` use-cases package (subscriber).
 > - **Rejected homes:**
->   - Owning slice — `tasks` cannot subscribe to events declared inside `packages/notes`; the event contract must be reachable through the kernel.
+>   - Owning slice — `tasks` cannot subscribe to events declared inside the `notes` slice packages; the event contract must be reachable through the kernel.
 >   - Foundation — the event encodes product semantics specific to notes.
 > - **Surface:** `NoteCreated` (event schema), published from `@beep/shared-use-cases/public`.
 > - **Runtime limits:** contract-only.
@@ -124,9 +124,11 @@ That is the entire ceremony: one PR, two records, one canonical subpath.
 
 ## 4. Reading a slice path: a 60-second guide
 
-Decode this path piece-by-piece:
+Decode this illustrative path piece-by-piece. There is no `iam` slice in the
+tree today; the shape is what matters:
 
-`packages/iam/server/src/Membership/Membership.http-handlers.ts`
+`packages/<slice>/server/src/<Concept>/<Concept>.http-handlers.ts`, read with
+`<slice>` = `iam` and `<Concept>` = `Membership`:
 
 - `packages/` — the monorepo packages root.
 - `iam/` — the slice name (the bounded context).
@@ -134,7 +136,7 @@ Decode this path piece-by-piece:
 - `src/Membership/` — the concept folder for the `Membership` aggregate.
 - `Membership.http-handlers.ts` — the role file: HTTP-handler implementations for the `Membership` concept, in the server layer.
 
-From the path alone you know: this file is HTTP wiring for membership operations, lives in the iam slice's server adapter, and composes ports declared in `packages/iam/use-cases/src/Membership/Membership.ports.ts`.
+From the path alone you know: this file is HTTP wiring for membership operations, lives in the iam slice's server adapter, and composes ports declared in `packages/<slice>/use-cases/src/<Concept>/<Concept>.ports.ts`.
 
 ### Common role suffixes
 
@@ -146,7 +148,7 @@ From the path alone you know: this file is HTTP wiring for membership operations
 | `.behavior.ts`      | pure transitions (`Effect.fn` returning typed failures).                    |
 | `.commands.ts`      | command schemas (intent shapes).                                            |
 | `.queries.ts`       | query schemas (read-side intent shapes).                                    |
-| `.ports.ts`         | port service interfaces (`Context.Tag` declarations).                       |
+| `.ports.ts`         | port service interfaces (`Context.Service` declarations).                   |
 | `.service.ts`       | use-case service composing ports + domain.                                  |
 | `.repo.ts`          | port implementation (server side).                                          |
 | `.http-handlers.ts` | HTTP handler implementations (server side).                                 |
