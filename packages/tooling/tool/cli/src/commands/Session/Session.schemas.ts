@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { newestPerKey } from "../../internal/state/JsonLinesStore.ts";
+import { GoalCloseoutView } from "../Goals/Goals.schemas.ts";
 import { PrNumber, PrProvenanceHarness, PrRepository } from "../Yeet/internal/Provenance.ts";
 
 const $I = $RepoCliId.create("commands/Session/Session.schemas");
@@ -168,6 +169,7 @@ export class SessionOpenReport extends S.Opaque<SessionOpenReport, { readonly br
     schemaVersion: S.Literal("session-open/v1"),
     repository: PrRepository,
     rows: S.Array(SessionLedgerRow),
+    goalCloseouts: GoalCloseoutView.pipe(S.Array, S.optionalKey),
   }).pipe(
     $I.annoteSchema("SessionOpenReport", { description: "The newest non-done ledger row per checkout, newest first." })
   )

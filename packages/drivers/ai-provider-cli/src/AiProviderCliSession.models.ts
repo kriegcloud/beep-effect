@@ -150,6 +150,64 @@ export class ManagedSessionSteering extends S.Opaque<ManagedSessionSteering, { r
 ) {}
 
 /**
+ * Trusted adapter settlement correlated to the original serialized prompt.
+ *
+ * **Details**
+ * Codex additionally carries its observed native turn identifier. ACP and Claude
+ * correlate the actual terminal response to the in-flight host message; they do
+ * not expose an invented native result identifier. Text is never evidence.
+ *
+ * **Example** (Describe a correlated Codex completion)
+ * ```ts
+ * import { ManagedTerminalEvidence } from "@beep/ai-provider-cli"
+ * console.log(ManagedTerminalEvidence.make({ adapter: "codex", sessionId: "thread", messageId: "message", turnId: "turn", outcome: "delivered", stopReason: "completed" }).adapter)
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ManagedTerminalEvidence = LiteralKit(["codex", "claude", "grok", "cursor"])
+  .toTaggedUnion("adapter")({
+    codex: {
+      sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
+      messageId: S.NonEmptyString.check(S.isMaxLength(128)),
+      turnId: S.NonEmptyString.check(S.isMaxLength(128)),
+      outcome: S.Literal("delivered"),
+      stopReason: S.Literal("completed"),
+    },
+    claude: {
+      sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
+      messageId: S.NonEmptyString.check(S.isMaxLength(128)),
+      outcome: S.Literal("delivered"),
+      stopReason: S.Literal("completed"),
+    },
+    grok: {
+      sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
+      messageId: S.NonEmptyString.check(S.isMaxLength(128)),
+      outcome: S.Literal("delivered"),
+      stopReason: S.Literal("end_turn"),
+    },
+    cursor: {
+      sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
+      messageId: S.NonEmptyString.check(S.isMaxLength(128)),
+      outcome: S.Literal("delivered"),
+      stopReason: S.Literal("end_turn"),
+    },
+  })
+  .pipe(
+    $I.annoteSchema("ManagedTerminalEvidence", {
+      description:
+        "Successful original-runtime terminal response correlated by the trusted adapter, independent of model text.",
+    })
+  );
+
+/**
+ * Terminal evidence derived from the adapter contract.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ManagedTerminalEvidence = typeof ManagedTerminalEvidence.Type;
+
+/**
  * Observed model response and terminal stop reason.
  * **Example** (Inspect terminal response)
  * ```ts
@@ -160,7 +218,15 @@ export class ManagedSessionSteering extends S.Opaque<ManagedSessionSteering, { r
  * @since 0.0.0
  */
 export class ManagedTurnResult extends S.Opaque<ManagedTurnResult, { readonly brand: unique symbol }>()(
-  S.Struct({ messageId: S.NonEmptyString, text: S.String, stopReason: S.NonEmptyString }).pipe(
+  S.Struct({
+    messageId: S.NonEmptyString,
+    text: S.String,
+    stopReason: S.NonEmptyString,
+    terminalEvidence: ManagedTerminalEvidence.pipe(
+      S.OptionFromOptionalKey,
+      S.withConstructorDefault(Effect.succeedNone)
+    ),
+  }).pipe(
     $I.annoteSchema("ManagedTurnResult", {
       description: "Provider response, not broker acceptance or task-completion proof.",
     })

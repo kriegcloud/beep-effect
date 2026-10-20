@@ -121,10 +121,10 @@ const duplicatesFor = (
     A.map((capability) => DuplicateCapabilityDeclaration.make({ packetId, capability, edge }))
   );
 
-const packetRow = (manifest: GoalManifest): GraphPacketRow =>
+const packetRow = (manifest: GoalManifest, status: GoalStatus): GraphPacketRow =>
   GraphPacketRow.make({
     packetId: manifest.initiative.id,
-    status: manifest.initiative.status,
+    status,
     executionCapable: manifest.executionCapable === true,
     title: manifest.initiative.title ?? manifest.initiative.id,
     ...(manifest.mission === undefined || manifest.mission === null ? {} : { mission: manifest.mission }),
@@ -162,43 +162,64 @@ const packetRow = (manifest: GoalManifest): GraphPacketRow =>
  * ```
  *
  * @param manifests - Decoded manifests in any discovery order.
+ * @param operativeStatuses - Receipt-derived status overrides; proposals alone never populate these.
  * @returns The sorted, duplicate-free projection.
  * @category projections
  * @since 0.0.0
  */
-export const compileCapabilityProjection = (manifests: ReadonlyArray<GoalManifest>): CapabilityProjection => {
-  const provides = pipe(
-    manifests,
-    A.flatMap((manifest) => edgesFor(manifest.initiative.id, manifest.provides)),
-    A.sort(byCapabilityThenPacket)
-  );
-  const requires = pipe(
-    manifests,
-    A.flatMap((manifest) => edgesFor(manifest.initiative.id, manifest.requires)),
-    A.sort(byPacketThenCapability)
-  );
-  return CapabilityProjection.make({
-    packets: pipe(manifests, A.map(packetRow), A.sort(byPacketId)),
-    capabilities: pipe(
-      A.appendAll(provides, requires),
-      A.map((edge) => edge.capability),
-      A.dedupe,
-      A.sort(Order.String)
-    ),
-    provides,
-    requires,
-    duplicates: pipe(
+export const compileCapabilityProjection: {
+  (
+    operativeStatuses?: Readonly<Record<string, GoalStatus>>
+  ): (manifests: ReadonlyArray<GoalManifest>) => CapabilityProjection;
+  (
+    manifests: ReadonlyArray<GoalManifest>,
+    operativeStatuses?: Readonly<Record<string, GoalStatus>>
+  ): CapabilityProjection;
+} = dual(
+  (args) => A.isArray(args[0]),
+  (
+    manifests: ReadonlyArray<GoalManifest>,
+    operativeStatuses: Readonly<Record<string, GoalStatus>> = {}
+  ): CapabilityProjection => {
+    const provides = pipe(
       manifests,
-      A.flatMap((manifest) =>
-        A.appendAll(
-          duplicatesFor(manifest.initiative.id, "provides", manifest.provides),
-          duplicatesFor(manifest.initiative.id, "requires", manifest.requires)
-        )
+      A.flatMap((manifest) => edgesFor(manifest.initiative.id, manifest.provides)),
+      A.sort(byCapabilityThenPacket)
+    );
+    const requires = pipe(
+      manifests,
+      A.flatMap((manifest) => edgesFor(manifest.initiative.id, manifest.requires)),
+      A.sort(byPacketThenCapability)
+    );
+    return CapabilityProjection.make({
+      packets: pipe(
+        manifests,
+        A.map((manifest) =>
+          packetRow(manifest, operativeStatuses[manifest.initiative.id] ?? manifest.initiative.status)
+        ),
+        A.sort(byPacketId)
       ),
-      A.sort(duplicateOrder)
-    ),
-  });
-};
+      capabilities: pipe(
+        A.appendAll(provides, requires),
+        A.map((edge) => edge.capability),
+        A.dedupe,
+        A.sort(Order.String)
+      ),
+      provides,
+      requires,
+      duplicates: pipe(
+        manifests,
+        A.flatMap((manifest) =>
+          A.appendAll(
+            duplicatesFor(manifest.initiative.id, "provides", manifest.provides),
+            duplicatesFor(manifest.initiative.id, "requires", manifest.requires)
+          )
+        ),
+        A.sort(duplicateOrder)
+      ),
+    });
+  }
+);
 
 /**
  * Groups SCC membership pairs into sorted cycles.

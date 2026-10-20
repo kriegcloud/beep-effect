@@ -2,14 +2,18 @@
 
 ## 🎯 PURPOSE
 
-This directory provides reusable solutions and best practices for Effect TypeScript development, ensuring consistency and quality across the Effect library codebase.
+This directory contains Beep guidance and retained upstream Effect references.
+The [architecture standard](../standards/ARCHITECTURE.md) defines this
+repository's package topology. The three upstream references below are labeled
+in their scope sections; their illustrative examples are not a compiled
+repository template.
 
 ## 📚 AVAILABLE PATTERNS
 
 ### Core Development Patterns
 
-- **[effect-library-development.md](./effect-library-development.md)** - Fundamental patterns for Effect library development
-- **[module-organization.md](./module-organization.md)** - Module structure, exports, and naming conventions
+- **[effect-library-development.md](./effect-library-development.md)** - Upstream Effect library reference; scope and example limits are stated in the file
+- **[module-organization.md](./module-organization.md)** - Upstream Effect module layout reference; Beep topology follows the architecture standard
 - **[effect-module-paths.md](./effect-module-paths.md)** - Current Effect module import paths and the retired `unstable` mapping
 - **[error-handling.md](./error-handling.md)** - Structured error management with Effect
 
@@ -19,7 +23,7 @@ This directory provides reusable solutions and best practices for Effect TypeScr
 
 ### Testing Patterns
 
-- **[testing-patterns.md](./testing-patterns.md)** - Testing strategies with @effect/vitest and TestClock
+- **[testing-patterns.md](./testing-patterns.md)** - Upstream Effect testing reference; use current package test conventions
 
 ### Architecture Patterns
 

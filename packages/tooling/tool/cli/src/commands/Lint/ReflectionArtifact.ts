@@ -33,7 +33,7 @@ import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import { makePolicyFindingLogger } from "../../internal/cli/PolicyFindingLogger.ts";
 import { extractFrontmatter } from "../../internal/schema/Frontmatter.ts";
 import { decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
-import { GoalStatus } from "../Goals/Goals.schemas.ts";
+import { GoalProposedCloseout, GoalStatus } from "../Goals/Goals.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Lint/ReflectionArtifact");
 
@@ -223,13 +223,15 @@ export const reflectionFileNameIsArtifact = (file: string): boolean => REFLECTIO
 const readManifestStatus = (manifest: unknown): { readonly status: string; readonly reflectionRequired: boolean } => {
   const record = (manifest ?? {}) as Record<string, unknown>;
   const initiative = (record.initiative ?? {}) as Record<string, unknown>;
+  const proposal = S.decodeUnknownOption(GoalProposedCloseout)(record.proposedCloseout);
   const status = pipe(
-    [initiative.status, record.status, record.lifecycle],
+    [O.getOrUndefined(O.map(proposal, (value) => value.status)), initiative.status, record.status, record.lifecycle],
     A.map((value) => (P.isString(value) ? value : "")),
     A.findFirst((value) => value.length > 0),
     O.getOrElse(thunkEmptyStr)
   );
-  const reflectionRequired = record.reflectionRequired === true || initiative.reflectionRequired === true;
+  const reflectionRequired =
+    O.isSome(proposal) || record.reflectionRequired === true || initiative.reflectionRequired === true;
   return { status, reflectionRequired };
 };
 
@@ -300,7 +302,12 @@ const inspectCompletedReflection = Effect.fnUntraced(function* (
     return { advisories: [], blocking: [] };
   }
 
-  if (((manifestJson ?? {}) as Record<string, unknown>).reflectionRequired === false) {
+  if (
+    ((manifestJson ?? {}) as Record<string, unknown>).reflectionRequired === false &&
+    O.isNone(
+      S.decodeUnknownOption(GoalProposedCloseout)(((manifestJson ?? {}) as Record<string, unknown>).proposedCloseout)
+    )
+  ) {
     return {
       blocking: [],
       advisories: [

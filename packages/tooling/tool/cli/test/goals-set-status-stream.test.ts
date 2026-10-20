@@ -79,6 +79,40 @@ const expectReportedFailure = (exit: Exit.Exit<unknown, unknown>) => {
 
 it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
   describe("set-status guarded stream writer", () => {
+    it.effect("refuses a proposed closeout status flip before writing the manifest or event stream", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* writeStreamPacket("proposal");
+          const manifestPath = "goals/proposal/ops/manifest.json";
+          const manifest = yield* encodeJson({
+            initiative: { id: "proposal", status: "active" },
+            lifecycle: "active",
+            completionGate: {
+              ...COMPLETION_GATE,
+              acceptanceEvidence: [
+                {
+                  kind: "yeet-verdict",
+                  ref: ".beep/yeet/verdict.json",
+                  gating: true,
+                },
+              ],
+            },
+            proposedCloseout: { status: "completed-retained", finalPullRequest: 1429 },
+          });
+          yield* fs.writeFileString(manifestPath, manifest);
+          for (const flags of [[], ["--preview"]]) {
+            expectReportedFailure(
+              yield* Effect.exit(runGoalsCommand(["set-status", "proposal", "completed-retained", ...flags]))
+            );
+            expect(yield* fs.readFileString(manifestPath)).toBe(manifest);
+            expect(yield* listEventFiles("proposal")).toEqual([]);
+          }
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect(
       "seeds genesis plus status-set, writes the trace, and keeps appending on later transitions",
       () =>

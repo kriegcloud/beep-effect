@@ -8,6 +8,7 @@ import { it } from "@beep/test-runner";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Config from "effect/Config";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
@@ -15,6 +16,7 @@ import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
@@ -409,6 +411,14 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
       );
       assert.equal(result.text, "synthetic-only-echo");
       assert.equal(result.stopReason, "completed");
+      assertSome(result.terminalEvidence, {
+        adapter: "codex",
+        sessionId: session.identity.sessionId,
+        messageId: "synthetic",
+        turnId: "owned-turn-1",
+        outcome: "delivered",
+        stopReason: "completed",
+      });
       yield* session.close;
       const error = yield* session
         .prompt(ManagedSessionMessage.make({ messageId: "late", text: "must-not-send" }))
@@ -487,10 +497,23 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         );
         assert.equal(result.text, "synthetic-only-echo");
         assert.equal(result.stopReason, provider === "claude" ? "completed" : "end_turn");
+        assertSome(
+          O.map(result.terminalEvidence, (evidence) => ({
+            adapter: evidence.adapter,
+            sessionId: evidence.sessionId,
+            messageId: evidence.messageId,
+            outcome: evidence.outcome,
+          })),
+          { adapter: provider, sessionId: session.identity.sessionId, messageId: "synthetic", outcome: "delivered" }
+        );
         const second = yield* session.prompt(
           ManagedSessionMessage.make({ messageId: "second", text: "synthetic-second" })
         );
         assert.equal(second.text, "synthetic-second");
+        assertSome(
+          O.map(second.terminalEvidence, (evidence) => evidence.messageId),
+          "second"
+        );
         yield* session.close;
       })
     );
@@ -765,8 +788,10 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
             return;
           }
           assert.equal(result._tag, "Success");
-          if (result._tag === "Success")
+          if (result._tag === "Success") {
             assert.equal(result.success.stopReason, control === "steer" ? "completed" : "interrupted");
+            if (control === "cancel") assertNone(result.success.terminalEvidence);
+          }
         });
         yield* verifyTerminal();
       })

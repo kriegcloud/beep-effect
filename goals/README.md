@@ -121,17 +121,48 @@ work.
 
 ## Completion gate
 
-A goal is not **achieved** — it may not be declared `completed-retained` —
-until its work has shipped as a **pull request driven to
-mergeable via `/yeet`** (`bun run beep yeet`: repair → verify → publish `--pr`
-→ monitor, until GitHub checks and review are green and the branch is
-merge-ready). Passing local proof is necessary but not sufficient; the durable
-artifact of an achieved goal is the merged/mergeable PR.
+A goal is **achieved** only after exact-head hosted readiness and merge evidence
+verify its final delivery PR. Local proof, a proposed lifecycle, and GitHub's
+structural mergeability field do not establish achievement.
+
+Ship the lifecycle intent and reflection in the final implementation PR. Keep
+`initiative.status`, `lifecycle` (when present), the README `Lifecycle:` line,
+and any external execution/session ledger operative (`active` or `paused`).
+Declare the prospective closeout separately in `ops/manifest.json`:
+
+```json
+"proposedCloseout": {
+  "status": "completed-retained",
+  "finalPullRequest": 1582
+}
+```
+
+The PR number identifies the final delivery PR, not this documentation's issue.
+If `completionGate.pullRequests` declares a final PR, it must match the proposal.
+`completionGate.acceptanceEvidence` must include a gating `yeet-verdict` reference
+to the retained final-head verdict. Its `resolvedHeadSha` must match the accepted
+head and `mergeReady.ready` must be true; missing or failed review/window/readiness
+proof blocks promotion even when required hosted checks passed.
+The reflection is required in this same PR even while the operative status stays
+active. Phase entries may record completed implementation work; phase completion
+and a proposal are neither hosted readiness nor merge evidence.
+
+After merge, `bun run beep goals completion refresh --slug <slug>` explicitly observes
+GitHub and writes a clone-scoped receipt. Portfolio and capability views derive
+`completed-retained` only from a matching declaration/packet/final-PR receipt
+whose merge facts, accepted head, hosted gating evidence and complete merge-time
+required-check inventory revalidate. Unknown reads, stale heads, failed gates and
+unmerged PRs retain the operative status. The proposal remains in the merged
+manifest; no second PR is required to rewrite it as achieved. New clones refresh
+their own receipts. Session `done` records session work, and must never be used
+as goal completion proof; keep goal execution open until this verification passes.
+Launchers must resume the outstanding gate work when a proposal is present.
 
 The gate is declared in every goal manifest as `completionGate` and binds
-regardless of a packet's phase names. Goals whose work shipped before this gate
-was introduced (2026-06-30) carry `completionGate.grandfathered: true` and are
-not reopened.
+regardless of phase names. Legacy packets without a proposal retain their
+declared lifecycle and continue to receive the doctor's structured completion
+advisories. Goals shipped before 2026-06-30 with
+`completionGate.grandfathered: true` are not reopened or rewritten.
 
 ## Source Hierarchy
 

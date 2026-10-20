@@ -1482,6 +1482,83 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("keeps the TsNativeApi subject opaque when platform filesystem provenance is unproven", () =>
+    Effect.gen(function* () {
+      for (const module of ["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"]) {
+        const rows = yield* findingsWithHarness(
+          `import { it } from "${module}";`,
+          `import { TsNativeApi, TsNativeConfig } from "@beep/repo-utils/TsNativeApi";
+import { NodeServices } from "@effect/platform-node";
+const subject = TsNativeApi.layer(TsNativeConfig.make({ cwd: fixture })).pipe(L.provide(NodeServices.layer));
+it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+  it.layer(subject, { timeout: "30 seconds" })((it) => {
+    it.effect("program", () => Fx.gen(function* () { const api = yield* TsNativeApi; yield* api.program(); }));
+  });
+  it.effect("spawn failure", () => Fx.gen(function* () {
+    const unavailable = TsNativeApi.layer(config).pipe(L.provide(NodeServices.layer));
+    yield* L.build(unavailable);
+  }));
+  it.effect("explicit teardown", () => Fx.gen(function* () { yield* L.buildWithScope(L.fresh(subject), scope); }));
+});`
+        );
+        const platform = A.filter(rows, (row) => row.ruleId === "EV010");
+        deepStrictEqual(
+          A.map(platform, (row) => [row.class, row.mechanization]),
+          [["platform-resource-provenance-review", "judgment"]]
+        );
+        assertTrue(A.every(platform, (row) => row.replacement.sketch.includes("unproven")));
+      }
+    })
+  );
+
+  it.effect("does not borrow native filesystem evidence from a nested layer with a different owner", () =>
+    Effect.gen(function* () {
+      for (const module of ["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"]) {
+        for (const callback of ["(it) =>", "function (it)"]) {
+          const rows = yield* findingsWithHarness(
+            `import { it } from "${module}";`,
+            `import { NodeServices } from "@effect/platform-node";
+it.layer(NodeServices.layer)((it) => {
+  it.layer(FakeFileSystemLive)(${callback} {
+    it.effect("fake native operation", () => Fx.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.realPath("fixture");
+    }));
+  });
+});`
+          );
+          deepStrictEqual(
+            A.map(
+              A.filter(rows, (row) => row.ruleId === "EV010"),
+              (row) => row.class
+            ),
+            ["platform-resource-provenance-review"]
+          );
+        }
+      }
+    })
+  );
+
+  it.effect("retains per-test resource findings beside an owned native platform layer", () =>
+    Effect.gen(function* () {
+      for (const module of ["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"]) {
+        const rows = yield* findingsWithHarness(
+          `import { it } from "${module}";`,
+          `import { NodeServices } from "@effect/platform-node";
+it.layer(NodeServices.layer)((it) => {
+  it.effect("native boundary", () => Fx.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    yield* fs.realPath("fixture");
+    yield* program.pipe(Fx.provide(L.effect(Service, acquire)));
+  }));
+});`
+        );
+        assertFalse(A.some(rows, (row) => row.ruleId === "EV010"));
+        assertTrue(A.some(rows, (row) => row.ruleId === "EV002" && row.class === "per-test-layer-provide"));
+      }
+    })
+  );
+
   it.effect("indexes for-of and for-in retry candidates with explicit loop presence and ordinary loop negatives", () =>
     Effect.gen(function* () {
       const project = new Project({ useInMemoryFileSystem: true, skipAddingFilesFromTsConfig: true });

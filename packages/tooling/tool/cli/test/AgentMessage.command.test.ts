@@ -269,6 +269,10 @@ it.layer(
         evidence: "Fixture-only original attempt terminal receipt",
         reason: "The fixture operator confirmed the original attempt finished",
       });
+      yield* f.store.recordSettlement(claim, resolution.runtimeEvidence, f.now + 2);
+      expect(yield* f.execute(["settlement", "--message-id", resolution.messageId])).toEqual([
+        { evidence: resolution.runtimeEvidence },
+      ]);
       const filename = yield* f.write("resolution.json", yield* S.encodeEffect(AmbiguityResolution)(resolution));
       const invoke = () => f.execute(["resolve-ambiguity", "--file", filename]);
       const first = yield* A.head(yield* invoke()).pipe(O.getOrThrow, S.decodeUnknownEffect(Receipt));

@@ -25,6 +25,7 @@ import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { writeContainedFileString } from "../../internal/cli/FsGuards.ts";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
+import { readGoalLifecycle } from "./Completion.ts";
 import { decodeGoalManifest, GoalPhaseStatus, GoalStatus } from "./Goals.schemas.ts";
 import { renderCapabilityMermaidSection } from "./Graph.mermaid.ts";
 import { compileCapabilityProjection, evaluateCapabilityGraph } from "./Graph.projection.ts";
@@ -203,6 +204,7 @@ export const buildPortfolioIndexContent = Effect.fn("Goals.buildPortfolioIndexCo
   let rows = A.empty<PortfolioIndexRow>();
   let invalid = A.empty<string>();
   let decoded = A.empty<readonly [string, GoalManifest]>();
+  const operativeStatuses: Record<string, GoalStatus> = {};
 
   for (const record of records) {
     const parsed = record.manifestText === undefined ? O.none() : parseGoalManifestText(record.manifestText);
@@ -216,6 +218,8 @@ export const buildPortfolioIndexContent = Effect.fn("Goals.buildPortfolioIndexCo
       continue;
     }
     decoded = A.append(decoded, [record.slug, manifest.value] as const);
+    const status = yield* readGoalLifecycle(repoRoot, record.slug, manifest.value);
+    operativeStatuses[record.slug] = status;
     const phases = goalManifestPhases(manifest.value);
     const mission = pipe(
       O.fromNullishOr(manifest.value.mission),
@@ -226,7 +230,7 @@ export const buildPortfolioIndexContent = Effect.fn("Goals.buildPortfolioIndexCo
       PortfolioIndexRow.make({
         slug: record.slug,
         title: manifest.value.initiative.title ?? record.slug,
-        status: manifest.value.initiative.status,
+        status,
         phasesComplete: A.length(A.filter(phases, (phase) => GoalPhaseStatus.is.complete(phase.status))),
         phasesTotal: A.length(phases),
         ...optionalProp("updated", O.fromUndefinedOr(manifest.value.initiative.updated)),
@@ -242,7 +246,8 @@ export const buildPortfolioIndexContent = Effect.fn("Goals.buildPortfolioIndexCo
       decoded,
       A.filter(([slug, manifest]) => manifest.initiative.id === slug),
       A.map(([, manifest]) => manifest)
-    )
+    ),
+    operativeStatuses
   );
   const graph = renderCapabilityMermaidSection(projection, evaluateCapabilityGraph(projection));
   return `${renderPortfolioIndex(A.sort(rows, rowBySlug), A.sort(invalid, Order.String))}${graph}\n`;

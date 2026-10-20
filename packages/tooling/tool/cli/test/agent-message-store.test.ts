@@ -4,6 +4,7 @@ import {
   AgentMessageStore,
   AgentMessageStoreLimits,
   AmbiguityResolution,
+  Claim,
   EndpointBinding,
   EndpointDispatch,
   Envelope,
@@ -11,6 +12,8 @@ import {
   makeAgentMessageRouter,
   makeAgentMessageSqliteClient,
   makeAgentMessageStore,
+  OriginalRuntimeEvidence,
+  PolicySnapshot,
   Receipt,
   RouterError,
 } from "@beep/repo-cli/test/AgentMessage";
@@ -86,6 +89,22 @@ const envelope = (id: string, from = "a", to = "b", expiresAt = 10000) =>
     capabilityFingerprint: "cap-v1",
     policyFingerprint: "policy-v1",
   });
+// Represents the original trusted adapter settlement in synthetic-only fixtures.
+const persistSettlement = Effect.fn("persistSettlement")(function* (
+  store: AgentMessageStoreShape,
+  request: AmbiguityResolution
+) {
+  yield* store.recordSettlement(
+    Claim.make({
+      envelope: yield* store.message(request.messageId),
+      ownerId: request.attemptOwnerId,
+      generation: request.attemptGeneration,
+      leaseUntil: 201,
+    }),
+    request.runtimeEvidence,
+    202
+  );
+});
 const grant = (maxMessages = 1) =>
   LaunchGrant.make({
     grantId: "grant-a",
@@ -101,7 +120,8 @@ const grant = (maxMessages = 1) =>
 const fixture = Effect.fnUntraced(function* <T, E, R>(
   run: (store: AgentMessageStoreShape, filename: string) => Effect.Effect<T, E, R>,
   maxPending = 1000,
-  maxPendingPerEndpoint = 100
+  maxPendingPerEndpoint = 100,
+  maxStoredMessages = 100000
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -111,9 +131,9 @@ const fixture = Effect.fnUntraced(function* <T, E, R>(
   const directory = yield* fs.makeTempDirectoryScoped({ directory: cache, prefix: "store-" });
   const filename = path.join(directory, "messages.sqlite");
   const client = yield* makeAgentMessageSqliteClient(filename, "50 millis");
-  const store = yield* makeAgentMessageStore(AgentMessageStoreLimits.make({ maxPending, maxPendingPerEndpoint })).pipe(
-    Effect.provideService(SqlClient.SqlClient, client)
-  );
+  const store = yield* makeAgentMessageStore(
+    AgentMessageStoreLimits.make({ maxPending, maxPendingPerEndpoint, maxStoredMessages })
+  ).pipe(Effect.provideService(SqlClient.SqlClient, client));
   yield* store.register(yield* binding("a"));
   yield* store.register(yield* binding("b"));
   return yield* run(store, filename);
@@ -686,6 +706,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               evidence: "Fixture original native attempt returned failure",
               reason: "Known terminal outcome confirmed",
             });
+            yield* persistSettlement(store, request);
             const receipt = yield* store.resolveAmbiguity(request, 202);
             expect(receipt.status).toBe("failed");
             expect(receipt.attemptGeneration).toBe(1);
@@ -751,6 +772,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           yield* store.claimNext("b", "b-owner", 101, 201);
           expect((yield* Effect.flip(store.resolveAmbiguity(request, 102))).code).toBe("conflict");
           yield* store.recover(201);
+          yield* persistSettlement(store, request);
           const invalid = [
             AmbiguityResolution.make({ ...request, endpointId: "a" }),
             AmbiguityResolution.make({ ...request, endpointGeneration: 2 }),
@@ -765,9 +787,10 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               runtimeEvidence: {
                 adapter: "codex",
                 sessionId: "b-session",
+                messageId: request.messageId,
                 turnId: "unrelated-turn",
                 outcome: "delivered",
-                source: "Wrong adapter terminal record",
+                stopReason: "completed",
               },
             }),
             AmbiguityResolution.make({
@@ -783,8 +806,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             "staleClaim",
             "staleClaim",
             "staleClaim",
-            "staleClaim",
-            "staleClaim",
+            "conflict",
+            "conflict",
             "conflict",
           ]);
           expect(S.is(AmbiguityResolution)({ ...request, evidence: "" })).toBe(false);
@@ -833,6 +856,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               evidence: "Fixture known native failure despite consumption ACK",
               reason: "Release original terminal native hold",
             });
+            yield* persistSettlement(store, request);
             yield* store.resolveAmbiguity(request, 202);
             expect(yield* store.acknowledge("resolved-ack", "b", 203)).toEqual(acknowledged);
             expect(A.map(yield* store.receipts("resolved-ack"), (row) => row.status)).toEqual([
@@ -875,6 +899,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             evidence: "Fixture known terminal result",
             reason: "Confirmed original attempt",
           });
+          yield* persistSettlement(store, request);
           const client = yield* makeAgentMessageSqliteClient(filename);
           const contender = yield* makeAgentMessageStore().pipe(Effect.provideService(SqlClient.SqlClient, client));
           const outcomes = yield* Effect.all(
@@ -900,6 +925,14 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
         Effect.gen(function* () {
           yield* store.accept(envelope("confirmed-delivery-resolution", "a", "b", 110), 100);
           const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+          const originalTerminal = {
+            adapter: "injected",
+            sessionId: "b-session",
+            terminalId: "fixture-terminal",
+            outcome: "delivered",
+            source: "Synthetic original runtime terminal record",
+          };
+          yield* store.recordSettlement(claim, yield* S.decodeEffect(OriginalRuntimeEvidence)(originalTerminal), 102);
           yield* store.complete(claim, "delivered", 102);
           expect(yield* store.recover(110)).toBe(1);
           const before = yield* store.receipts(claim.envelope.messageId);
@@ -983,6 +1016,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               evidence: "Fixture original native attempt confirmed terminal delivery",
               reason: "Known result verified after TTL",
             });
+            yield* persistSettlement(store, request);
             const resolved = yield* store.resolveAmbiguity(request, 202);
             expect(yield* store.recover(203)).toBe(0);
             expect(yield* store.recover(204)).toBe(0);
@@ -1037,6 +1071,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             evidence: "Synthetic owned attempt terminal failure",
             reason: "Fixture confirms known result",
           });
+          yield* persistSettlement(store, request);
           const process = yield* processFixture(filename, "resolve", "resolution-checkpoint", O.some(request));
           const committed = yield* S.decodeEffect(ReceiptJson)(yield* process.wait);
           yield* process.child.kill({ killSignal: "SIGKILL" });
@@ -1048,6 +1083,162 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           expect(
             yield* client`SELECT state, dispatch_active, attempt_generation FROM agent_messages WHERE id = ${request.messageId}`
           ).toEqual([{ state: "failed", dispatch_active: 0, attempt_generation: 1 }]);
+        })
+      )
+    );
+
+    it.effect(
+      "original settlement survives process kill, stays immutable and reconciles without another dispatch",
+      () =>
+        fixture((store, filename) =>
+          Effect.gen(function* () {
+            yield* store.accept(envelope("settlement-crash"), 100);
+            const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+            const request = AmbiguityResolution.make({
+              resolutionId: "settlement-crash-resolution",
+              messageId: "settlement-crash",
+              endpointId: "b",
+              endpointGeneration: 1,
+              attemptGeneration: 1,
+              attemptOwnerId: "b-owner",
+              operatorId: "fixture-operator",
+              disposition: "delivered",
+              runtimeEvidence: {
+                adapter: "injected",
+                sessionId: "b-session",
+                terminalId: "original-terminal",
+                outcome: "delivered",
+                source: "Synthetic actual original settlement",
+              },
+              evidence: "Original persisted synthetic terminal result",
+              reason: "Reconcile after host crash",
+            });
+            const process = yield* processFixture(filename, "settle", "settled-checkpoint", O.some(request));
+            expect(yield* process.wait).toBe("settled");
+            yield* process.child.kill({ killSignal: "SIGKILL" });
+            const client = yield* makeAgentMessageSqliteClient(filename);
+            const reopened = yield* makeAgentMessageStore().pipe(Effect.provideService(SqlClient.SqlClient, client));
+            assertSome(yield* reopened.settlement(request.messageId), request.runtimeEvidence);
+            yield* reopened.recordSettlement(claim, request.runtimeEvidence, 202);
+            const changed = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+              ...request.runtimeEvidence,
+              terminalId: "wrong-terminal",
+            });
+            expect((yield* Effect.flip(reopened.recordSettlement(claim, changed, 202))).code).toBe("conflict");
+            yield* reopened.recover(201);
+            expect(
+              (yield* Effect.flip(
+                reopened.resolveAmbiguity(AmbiguityResolution.make({ ...request, runtimeEvidence: changed }), 202)
+              )).code
+            ).toBe("conflict");
+            assertNone(yield* reopened.claimNext("b", "b-owner", 202, 302));
+            const receipt = yield* reopened.resolveAmbiguity(request, 203);
+            expect(yield* reopened.resolveAmbiguity(request, 204)).toEqual(receipt);
+            expect(yield* client`SELECT count(*) AS count FROM agent_message_settlements`).toEqual([{ count: 1 }]);
+            expect(yield* reopened.receipts(request.messageId)).toHaveLength(4);
+          })
+        )
+    );
+
+    it.effect("native terminal proof must identify the original prompt before it can be persisted", () =>
+      fixture((store) =>
+        Effect.gen(function* () {
+          const original = yield* binding("c");
+          yield* store.register(
+            EndpointBinding.make({
+              ...original,
+              policy: PolicySnapshot.make({ ...original.policy, provider: "codex" }),
+            })
+          );
+          yield* store.accept(envelope("original-native-prompt", "a", "c"), 100);
+          const claim = O.getOrThrow(yield* store.claimNext("c", "c-owner", 101, 201));
+          const wrongMessage = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+            adapter: "codex",
+            sessionId: "c-session",
+            messageId: "another-prompt",
+            turnId: "synthetic-observed-turn",
+            stopReason: "completed",
+            outcome: "delivered",
+          });
+          expect((yield* Effect.flip(store.recordSettlement(claim, wrongMessage, 102))).message).toBe(
+            "Native terminal response does not identify the original prompt."
+          );
+          assertNone(yield* store.settlement(claim.envelope.messageId));
+          const evidence = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+            ...wrongMessage,
+            messageId: claim.envelope.messageId,
+          });
+          yield* store.recordSettlement(claim, evidence, 103);
+          assertSome(yield* store.settlement(claim.envelope.messageId), evidence);
+          yield* store.recover(201);
+          const request = AmbiguityResolution.make({
+            resolutionId: "native-original",
+            messageId: claim.envelope.messageId,
+            endpointId: "c",
+            endpointGeneration: 1,
+            attemptGeneration: claim.generation,
+            attemptOwnerId: claim.ownerId,
+            operatorId: "host",
+            disposition: "delivered",
+            runtimeEvidence: evidence,
+            evidence: "Synthetic original native terminal response",
+            reason: "Reconcile original synthetic prompt",
+          });
+          expect((yield* store.resolveAmbiguity(request, 202)).status).toBe("delivered");
+        })
+      )
+    );
+
+    it.effect("legacy holds and failed settlement transactions cannot be cleared by an assertion", () =>
+      fixture((store, filename) =>
+        Effect.gen(function* () {
+          yield* store.accept(envelope("legacy-hold"), 100);
+          const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+          const evidence = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+            adapter: "injected",
+            sessionId: "b-session",
+            terminalId: "original-terminal",
+            outcome: "delivered",
+            source: "Synthetic settlement",
+          });
+          const client = yield* makeAgentMessageSqliteClient(filename);
+          yield* client`CREATE TRIGGER fixture_settlement_abort BEFORE INSERT ON agent_message_settlements BEGIN SELECT RAISE(ABORT, 'fixture settlement abort'); END`;
+          expect((yield* Effect.flip(store.recordSettlement(claim, evidence, 102))).code).toBe("storage");
+          assertNone(yield* store.settlement(claim.envelope.messageId));
+          yield* store.recover(201);
+          const request = AmbiguityResolution.make({
+            resolutionId: "legacy-assertion",
+            messageId: "legacy-hold",
+            endpointId: "b",
+            endpointGeneration: 1,
+            attemptGeneration: 1,
+            attemptOwnerId: "b-owner",
+            operatorId: "operator",
+            disposition: "delivered",
+            runtimeEvidence: evidence,
+            evidence: "Unpersisted operator assertion",
+            reason: "Must retain legacy hold",
+          });
+          const rejected = yield* Effect.flip(store.resolveAmbiguity(request, 202));
+          expect(rejected.message).toBe("No original runtime terminal settlement was persisted; retain this hold.");
+          expect(yield* store.receipts(request.messageId)).toHaveLength(3);
+          assertNone(yield* store.claimNext("b", "b-owner", 203, 303));
+          yield* client`DROP TRIGGER fixture_settlement_abort`;
+          for (const stale of [
+            Claim.make({ ...claim, generation: 2 }),
+            Claim.make({ ...claim, leaseUntil: 202 }),
+            Claim.make({ ...claim, envelope: Envelope.make({ ...claim.envelope, body: "changed original message" }) }),
+          ]) {
+            expect((yield* Effect.flip(store.recordSettlement(stale, evidence, 204))).code).toBe("staleClaim");
+          }
+          const wrongOwner = Claim.make({ ...claim, ownerId: "wrong-owner" });
+          expect((yield* Effect.flip(store.recordSettlement(wrongOwner, evidence, 204))).code).toBe("staleClaim");
+          const wrongSession = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+            ...evidence,
+            sessionId: "replacement-session",
+          });
+          expect((yield* Effect.flip(store.recordSettlement(claim, wrongSession, 204))).code).toBe("staleClaim");
+          assertNone(yield* store.settlement(request.messageId));
         })
       )
     );
@@ -1077,6 +1268,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             evidence: "Fixture known native terminal failure",
             reason: "Verified original attempt",
           });
+          yield* persistSettlement(store, request);
           const client = yield* makeAgentMessageSqliteClient(filename);
           yield* client`CREATE TRIGGER fixture_resolution_abort BEFORE INSERT ON agent_message_resolutions BEGIN SELECT RAISE(ABORT, 'fixture audit abort'); END`;
           expect((yield* Effect.flip(store.resolveAmbiguity(request, 202))).code).toBe("storage");
@@ -1120,6 +1312,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             evidence: "Fixture native failure",
             reason: "Fixture known result",
           });
+          yield* persistSettlement(store, request);
           const client = yield* makeAgentMessageSqliteClient(filename);
           yield* client`UPDATE agent_messages SET target_generation = 2 WHERE id = ${request.messageId}`;
           expect((yield* Effect.flip(store.resolveAmbiguity(request, 202))).code).toBe("staleClaim");
@@ -1139,6 +1332,17 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             yield* store.accept(envelope("retained-cap", "a", "b", 110), 100);
             const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
             expect((yield* Effect.flip(store.accept(envelope("claimed-cap"), 102))).code).toBe("queueFull");
+            yield* store.recordSettlement(
+              claim,
+              yield* S.decodeEffect(OriginalRuntimeEvidence)({
+                adapter: "injected",
+                sessionId: "b-session",
+                terminalId: "fixture-terminal",
+                outcome: "delivered",
+                source: "Synthetic original runtime terminal record",
+              }),
+              103
+            );
             yield* store.complete(claim, "delivered", 103);
             expect((yield* Effect.flip(store.accept(envelope("delivered-cap"), 104))).code).toBe("queueFull");
             yield* store.recover(110);
@@ -1224,6 +1428,28 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           }),
         1,
         10
+      )
+    );
+
+    it.effect("global retained-message ceiling includes terminal history and preserves exact acceptance replay", () =>
+      fixture(
+        (store) =>
+          Effect.gen(function* () {
+            const original = envelope("retained-history");
+            const accepted = yield* store.accept(original, 100);
+            const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+            yield* store.complete(claim, "failed", 102);
+            expect(yield* store.accept(original, 103)).toEqual(accepted);
+            const rejected = yield* Effect.flip(store.accept(envelope("history-overflow"), 104));
+            expect(rejected.code).toBe("queueFull");
+            expect(rejected.message).toBe(
+              "Retained message history is at the global storage ceiling; archive this store before new admission."
+            );
+            expect(yield* store.receipts(original.messageId)).toHaveLength(3);
+          }),
+        10,
+        5,
+        1
       )
     );
 

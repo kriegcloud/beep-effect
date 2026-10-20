@@ -1,4 +1,5 @@
 import {
+  compileCapabilityProjection,
   GoalAcceptanceEvidenceRef,
   GoalCompletionGate,
   GoalCompletionObservation,
@@ -11,19 +12,30 @@ import {
   GoalMergeTimeInventory,
   GoalMergeTimeRuleSource,
   GoalMergeTimeRuleSourceRecord,
+  GoalProposedCloseout,
   GoalPullRequestRef,
   GoalRequiredCheckFact,
   GoalRequiredCheckSnapshot,
+  goalCompletionDeclarationDigest,
   goalPullRequestRefs,
+  projectGoalLifecycle,
+  readGoalCloseoutViews,
 } from "@beep/repo-cli/test/Goals";
 import { it } from "@beep/test-runner";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -442,6 +454,183 @@ describe("pure goal completion resolver", () => {
         (yield* GoalCompletionVerifier.resolve(GoalCompletionObservation.make({ ...fixture(), subClaims: [check] })))
           .outcome
       ).toBe("verified");
+    })
+  );
+});
+
+it.layer(
+  Layer.mergeAll(
+    MemoryFileSystem.layer,
+    Path.layer,
+    NodeCrypto.layer,
+    Layer.succeed(
+      ChildProcessSpawner.ChildProcessSpawner,
+      ChildProcessSpawner.make(() =>
+        Effect.fail(
+          PlatformError.systemError({
+            _tag: "NotFound",
+            module: "ChildProcess",
+            method: "spawn",
+            pathOrDescriptor: "git",
+            description: "The fixture has no Git remote.",
+          })
+        )
+      )
+    )
+  ),
+  { timeout: "10 seconds" }
+)("prospective goal closeout", (it) => {
+  const proposal = GoalProposedCloseout.make({ status: "completed-retained", finalPullRequest: 1429 });
+  const readiness = GoalAcceptanceEvidenceRef.make({
+    kind: "yeet-verdict",
+    ref: ".beep/yeet/verdict.json",
+    gating: true,
+  });
+  const proposalGate = GoalCompletionGate.make({ ...gate, acceptanceEvidence: [readiness] });
+  const manifest = () =>
+    GoalManifest.make({
+      initiative: { id: "unmentioned-packet", status: "active" },
+      completionGate: proposalGate,
+      proposedCloseout: proposal,
+      provides: ["goals/example"],
+    });
+  const receipt = Effect.fnUntraced(function* () {
+    const digest = yield* goalCompletionDeclarationDigest(manifest());
+    return yield* GoalCompletionVerifier.resolve(
+      GoalCompletionObservation.make({
+        ...fixture(),
+        evidence: [
+          ...fixture().evidence,
+          GoalEvidenceCheck.make({
+            ref: readiness,
+            outcome: "verified",
+            observedHead: O.some("accepted-head"),
+            detail: "Exact-head Yeet readiness: review threads/window and hosted checks satisfied",
+          }),
+        ],
+        declarationDigest: digest,
+        acceptedDeclarationDigest: O.some(digest),
+      })
+    );
+  });
+
+  it.effect("keeps proposed closeouts explicit in checkout-local session views", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.makeDirectory("/workspace/goals/unmentioned-packet/ops", { recursive: true });
+      const text = yield* S.encodeEffect(S.fromJsonString(GoalManifest))(manifest());
+      yield* fs.writeFileString("/workspace/goals/unmentioned-packet/ops/manifest.json", text);
+      const views = yield* readGoalCloseoutViews("/workspace");
+      expect(views).toEqual([
+        {
+          packet: "unmentioned-packet",
+          operativeStatus: "active",
+          proposedCloseout: proposal,
+        },
+      ]);
+    })
+  );
+
+  it.effect("keeps an unmerged proposal active in lifecycle and capability projections", () =>
+    Effect.gen(function* () {
+      const value = manifest();
+      expect(goalPullRequestRefs(value)).toEqual([{ number: 1429, role: "final" }]);
+      expect(yield* projectGoalLifecycle(value, O.none())).toBe("active");
+      expect(compileCapabilityProjection([value]).packets[0]?.status).toBe("active");
+      const row = yield* receipt();
+      expect(yield* projectGoalLifecycle(value, O.some(GoalCompletionReceipt.make({ ...row, merge: O.none() })))).toBe(
+        "active"
+      );
+    })
+  );
+  it.effect("activates a merged proposal with exact-head hosted proof without rewriting its manifest", () =>
+    Effect.gen(function* () {
+      const value = manifest();
+      const status = yield* projectGoalLifecycle(value, O.some(yield* receipt()));
+      expect(status).toBe("completed-retained");
+      expect(compileCapabilityProjection([value], { [value.initiative.id]: status }).packets[0]?.status).toBe(
+        "completed-retained"
+      );
+      expect(value.initiative.status).toBe("active");
+    })
+  );
+  it.effect(
+    "rejects failed gates, stale heads, missing inventories and mismatched declarations despite a verified flag",
+    () =>
+      Effect.gen(function* () {
+        const row = yield* receipt();
+        const bad = [
+          GoalCompletionReceipt.make({ ...row, requiredChecks: O.none() }),
+          GoalCompletionReceipt.make({ ...row, evidence: fixture().evidence }),
+          GoalCompletionReceipt.make({
+            ...row,
+            evidence: [
+              ...fixture().evidence,
+              GoalEvidenceCheck.make({
+                ref: readiness,
+                outcome: "unsatisfied",
+                observedHead: row.acceptedHead,
+                detail: "review/window failed",
+              }),
+            ],
+          }),
+          GoalCompletionReceipt.make({ ...row, acceptedHead: O.some("later-head") }),
+          GoalCompletionReceipt.make({ ...row, acceptedDeclarationDigest: O.some("different-declaration") }),
+          GoalCompletionReceipt.make({ ...row, declarationDigest: "different-declaration" }),
+          GoalCompletionReceipt.make({ ...row, packet: "another-packet" }),
+          GoalCompletionReceipt.make({ ...row, finalPullRequest: 1430 }),
+          GoalCompletionReceipt.make({
+            ...row,
+            evidence: [
+              GoalEvidenceCheck.make({
+                ref,
+                outcome: "unsatisfied",
+                observedHead: row.acceptedHead,
+                detail: "failed gate",
+              }),
+            ],
+          }),
+          GoalCompletionReceipt.make({
+            ...row,
+            requiredCheckFacts: [
+              GoalRequiredCheckFact.make({
+                ...lintFact,
+                conclusion: "failure",
+                outcome: "unsatisfied",
+              }),
+            ],
+          }),
+        ];
+        for (const candidate of bad) expect(yield* projectGoalLifecycle(manifest(), O.some(candidate))).toBe("active");
+      })
+  );
+  it.effect("validates operative status and final PR identity independently of prose", () =>
+    Effect.gen(function* () {
+      for (const candidate of [
+        { ...manifest(), initiative: { id: "unmentioned-packet", status: "completed-retained" } },
+        { ...manifest(), proposedCloseout: { ...proposal, status: "achieved" } },
+        { ...manifest(), completionGate: { ...gate, pullRequests: [{ number: 99, role: "final" }] } },
+      ])
+        expect((yield* S.decodeUnknownEffect(GoalManifest)(candidate).pipe(Effect.exit))._tag).toBe("Failure");
+      expect(
+        goalPullRequestRefs(
+          GoalManifest.make({
+            ...manifest(),
+            completionGate: {
+              ...proposalGate,
+              pullRequests: [{ number: 10, role: "supporting" }],
+            },
+          })
+        )
+      ).toEqual([
+        { number: 1429, role: "final" },
+        { number: 10, role: "supporting" },
+      ]);
+      expect(
+        (yield* S.decodeEffect(GoalManifest)({ ...manifest(), completionGate: gate }).pipe(Effect.exit))._tag
+      ).toBe("Failure");
+      const paused = GoalManifest.make({ ...manifest(), initiative: { id: "unmentioned-packet", status: "paused" } });
+      expect(yield* projectGoalLifecycle(paused, O.none())).toBe("paused");
     })
   );
 });

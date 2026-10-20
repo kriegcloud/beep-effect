@@ -12,7 +12,6 @@ export default mergeConfig(
     },
     test: {
       include: vitestDoctestActive ? [] : ["test/**/*.test.ts"],
-      pool: "threads",
     },
   })
 );

@@ -197,6 +197,49 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(output).not.toContain("use doctor --online");
     })
   );
+  it.effect("offline proposals declare their final PR without a legacy missing-PR advisory", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      yield* runGit(["init", "-b", "main"]);
+      yield* runGit(["config", "user.name", "Fixture"]);
+      yield* runGit(["config", "user.email", "fixture@example.invalid"]);
+      for (const slug of ["proposal-cited", "proposal-uncited"]) {
+        yield* writeActivePacket(slug);
+        yield* writeProjectFile(
+          `goals/${slug}/ops/manifest.json`,
+          `${encodeJson({
+            initiative: { id: slug, status: "active" },
+            lifecycle: "active",
+            completionGate: {
+              ...COMPLETION_GATE,
+              acceptanceEvidence: [{ kind: "yeet-verdict", ref: ".beep/yeet/verdict.json", gating: true }],
+            },
+            proposedCloseout: { status: "completed-retained", finalPullRequest: 7 },
+          })}\n`
+        );
+      }
+      yield* writeBaseline([]);
+      yield* runGit(["add", "."]);
+      yield* runGit(["commit", "-m", "chore: proposal-cited fixture"]);
+      const output = yield* captureOutput(
+        runGoalsCommand(["doctor"]).pipe(
+          Effect.provideService(
+            GoalCompletionIo,
+            GoalCompletionIo.of({
+              git: Effect.fn("GoalsDoctorTest.proposalGit")(() => Effect.succeed("git@github.com:example/repo.git")),
+              github: Effect.fn("GoalsDoctorTest.proposalGitHub")(() => Effect.die("offline proposal used GitHub")),
+            })
+          )
+        )
+      );
+      for (const slug of ["proposal-cited", "proposal-uncited"]) {
+        expect(output).toContain(`${slug} [completion-gate-unknown]`);
+        expect(output).not.toContain(`${slug} [completion-gate-unsatisfied]`);
+      }
+      expect(output).toContain("Final PR #7: unknown. No matching clone receipt.");
+      expect(output).not.toContain("Legacy completion declaration has no PR reference");
+    })
+  );
   it.effect("doctor prints the missing fact for unknown completion and nothing for verified", () =>
     Effect.forEach(
       [

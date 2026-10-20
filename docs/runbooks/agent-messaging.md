@@ -126,10 +126,10 @@ an already settled attempt cannot re-open it.
 
 An ambiguity requires evidence from the original owned runtime and its receipts.
 The operator-only `resolve-ambiguity` command records a known terminal delivery
-or failure for that exact message, endpoint enrollment and dispatch attempt. It
-does not query a provider, verify the supplied evidence remotely, or replay work.
-The operator must establish the terminal outcome before using it; elapsed time,
-a replacement session or peer text is insufficient evidence. Do not delete rows,
+for that exact message, endpoint enrollment and dispatch attempt by comparing
+against immutable terminal proof recorded by the original host adapter. It does
+not query a provider or replay work. An operator assertion cannot create proof;
+elapsed time, a replacement session or peer text is insufficient evidence. Do not delete rows,
 reset quotas or change generations to bypass a hold.
 
 Supply a private `0600` JSON file using the `AmbiguityResolution` contract:
@@ -148,9 +148,10 @@ Supply a private `0600` JSON file using the `AmbiguityResolution` contract:
   "runtimeEvidence": {
     "adapter": "codex",
     "sessionId": "original-owned-session",
+    "messageId": "owned-message-1",
     "turnId": "original-native-turn",
     "outcome": "delivered",
-    "source": "Sanitized reference to the original host-owned terminal turn record"
+    "stopReason": "completed"
   },
   "reason": "The owning operator established this exact attempt's terminal outcome"
 }
@@ -172,25 +173,39 @@ released.
 
 The authenticated principal is the local OS owner of the private state directory
 and private evidence file; `operatorId` is an audit label, never a credential.
-The host must inspect an original native terminal record before submitting the
-attestation. The evidence contract is adapter-specific: Codex requires its
-original thread/session and terminal `turnId`; Claude requires the original
-session and terminal `resultId`; Grok requires the original conversation/session
-and terminal `responseId`; Cursor requires the original session and terminal
-`requestId`. `injected` uses `terminalId` only for deterministic tests. Each
-variant includes a sanitized `source` reference and `outcome`. A completed
-successful terminal record supports `delivered`; a terminal rejection/failure
-supports `failed` only when it establishes that exact native attempt's outcome.
-A timeout, interrupted stream, accepted submission, new session, or participant
-message cannot supply a terminal attestation. If that adapter does not expose a
-correlatable original terminal record, retain the hold.
+Inspect the original immutable evidence first:
 
-The store rejects a mismatched adapter, original session or terminal outcome,
-in addition to its message, owner and generation fences. The complete native
-record reference survives in the durable audit, including after receipt detail
-truncation. This is host-attested reconciliation: the store does not contact the
-provider or independently authenticate the contents of the referenced record.
-Automatic adapter verification remains outside this operation.
+```sh
+bun run beep agent-message settlement --state-dir "$OWNED_STATE" --message-id "$MESSAGE_ID"
+```
+
+`serve` records the terminal response before recording delivery completion. Each
+settlement atomically retains the full original claim (message, owner, attempt,
+lease), endpoint generation, original session, adapter and actual terminal
+response correlation. The first settlement is immutable; identical writes are
+idempotent and conflicting writes fail. Model text and operator input never
+create a settlement. Reconciliation compares the complete submitted evidence to
+that original record before releasing the hold.
+
+The native contracts reflect the transports: Codex requires the observed
+`turn/start` ID and the matching original thread/turn `completed` notification.
+Claude requires a successful terminal `result` from the verified original
+session associated with the serialized active prompt. Grok and Cursor require
+the actual `end_turn` response to the original in-flight ACP `session/prompt`
+request. All include the host's original `messageId`; this is request correlation,
+not an invented provider result ID. Claude and ACP do not claim a native turn ID
+that the adapter has not observed. A native error, timeout, interrupted stream,
+subscription rejection or accepted submission produces no successful terminal
+proof and cannot be recast as verified failure. The `injected` evidence variant
+exists only for deterministic failure and rollback tests.
+
+If the process dies after the settlement commit but before completion, the
+original record survives and an authorized host can reconcile without another
+inference. If it dies before a settlement commits, the attempt stays uncertain.
+A store from an older runtime, including either retained live ambiguity hold,
+has no qualifying original settlement: `settlement` reports the missing proof,
+and `resolve-ambiguity` refuses to release it. Startup does not fabricate or
+backfill evidence, and there is no operator command to insert native proof.
 
 This operation is absent from peer commands and model-accessible MCP tools.
 It has no automatic startup behavior: existing holds are unchanged unless their
@@ -201,9 +216,15 @@ endpoint. The default store limits are 1,000 globally and 100 per endpoint;
 factory callers may set both, and a lower global bound still wins. Configure
 `maxPendingPerEndpoint < maxPending` when shared-capacity isolation is required;
 a configuration with the endpoint limit equal to or larger than the global
-limit explicitly provides no reserved headroom. The limits bound pending storage,
-not append-only historical audit retention. Unresolved
-attempts and delivered messages awaiting ACK count toward both limits. Exact
+limit explicitly provides no reserved headroom. A separate `maxStoredMessages`
+ceiling (default 100,000) counts every retained message, terminal history included.
+At that ceiling new admission stops, exact acceptance replay still works, and no
+receipt or history is deleted. Retain and back up the stopped store; provision a
+separate explicitly enrolled mailbox only for independent new work. Unresolved
+original attempts cannot be replayed or cleared by moving to another store. This is a logical retained-message
+storage bound, not a filesystem byte or WAL size guarantee. Each message has one
+attempt and at most one immutable settlement and resolution; terminal history
+cannot grow without new admitted messages. Unresolved attempts and delivered messages awaiting ACK count toward both limits. Exact
 acceptance retries remain idempotent at capacity, and rejected admission does
 not spend a launch grant's message budget.
 

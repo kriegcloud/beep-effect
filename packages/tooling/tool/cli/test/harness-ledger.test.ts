@@ -30,7 +30,7 @@ import {
 } from "@beep/repo-cli/commands/HarnessLedger";
 import { CommandJsonOutput } from "@beep/repo-cli/test/Cli";
 import { Sha256Hex } from "@beep/schema";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { A, pipe, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it, layer } from "@effect/vitest";
@@ -190,6 +190,20 @@ const proposePending = (repoRoot: string) =>
   );
 
 describe("harness-ledger CLI", () => {
+  it.effect("parses edit and surface tokens", () =>
+    Effect.gen(function* () {
+      expect((yield* parseHarnessEditSpec("pending")).kind).toBe("pending");
+      expect(yield* parseHarnessEditSpec("commit:489ea7c488")).toMatchObject({ kind: "commit", ref: "489ea7c488" });
+      expect((yield* parseHarnessEditSpec(`diff:${"d".repeat(64)}`)).kind).toBe("diff-digest");
+      const bad = yield* Effect.flip(parseHarnessEditSpec("diff:not-a-digest"));
+      expect(bad._tag).toBe("HarnessLedgerInputError");
+      expect(yield* parseHarnessSurfaceSpec("skill:yeet")).toMatchObject({ kind: "skill", name: "yeet" });
+      expect((yield* Effect.flip(parseHarnessSurfaceSpec("bogus:yeet")))._tag).toBe("HarnessLedgerInputError");
+    })
+  );
+});
+
+layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
   it.effect("command rejects partial hypotheses before appending a proposal", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(
@@ -200,7 +214,7 @@ describe("harness-ledger CLI", () => {
           "pending",
           "--hypothesis",
           "fewer failures",
-        ]).pipe(provideScopedLayer(NodeServices.layer))
+        ])
       );
       expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
       expect(error.message).toContain("given together or not at all");
@@ -219,7 +233,7 @@ describe("harness-ledger CLI", () => {
           "fixture",
           "--score",
           "1",
-        ]).pipe(provideScopedLayer(NodeServices.layer))
+        ])
       );
       expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
       expect(error.message).toContain("--score and --cost are given together");
@@ -229,29 +243,13 @@ describe("harness-ledger CLI", () => {
   it.effect("command rejects a zero-session pruning window", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(
-        Command.runWith(harnessLedgerPruneProposalsCommand, { version: "0.0.0" })(["--window", "0"]).pipe(
-          provideScopedLayer(NodeServices.layer)
-        )
+        Command.runWith(harnessLedgerPruneProposalsCommand, { version: "0.0.0" })(["--window", "0"])
       );
       expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
       expect(error.message).toContain("--window must be at least 1");
     })
   );
 
-  it.effect("parses edit and surface tokens", () =>
-    Effect.gen(function* () {
-      expect((yield* parseHarnessEditSpec("pending")).kind).toBe("pending");
-      expect(yield* parseHarnessEditSpec("commit:489ea7c488")).toMatchObject({ kind: "commit", ref: "489ea7c488" });
-      expect((yield* parseHarnessEditSpec(`diff:${"d".repeat(64)}`)).kind).toBe("diff-digest");
-      const bad = yield* Effect.flip(parseHarnessEditSpec("diff:not-a-digest"));
-      expect(bad._tag).toBe("HarnessLedgerInputError");
-      expect(yield* parseHarnessSurfaceSpec("skill:yeet")).toMatchObject({ kind: "skill", name: "yeet" });
-      expect((yield* Effect.flip(parseHarnessSurfaceSpec("bogus:yeet")))._tag).toBe("HarnessLedgerInputError");
-    })
-  );
-});
-
-layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
   it.effect("propose appends one line that HarnessLedgerRow decodes", () =>
     Effect.gen(function* () {
       const root = yield* makeRepo();

@@ -873,17 +873,27 @@ const isNativeFileSystemOperation = (
   );
 };
 
+const harnessCallbackKinds = HashSet.fromIterable([SyntaxKind.ArrowFunction, SyntaxKind.FunctionExpression]);
+
 const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestImports): boolean =>
   O.exists(harnessCallback(flow.harness), (callback) => {
-    const services = A.filter(callback.getDescendantsOfKind(SyntaxKind.VariableDeclaration), (declaration) =>
-      isFileSystemService(declaration, imports)
-    );
+    const services = A.empty<VariableDeclaration>();
+    const calls = A.empty<CallExpression>();
+    callback.forEachDescendant((node, traversal) => {
+      if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
+      if (Node.isCallExpression(node)) calls.push(node);
+      // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
+      if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
+      const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
+      if (harness === undefined) return;
+      // A nested layer owns its callback's services and may replace FileSystem.
+      if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
+        traversal.skip();
+      }
+    });
     return (
       !A.isReadonlyArrayEmpty(services) &&
-      (flow.subject ||
-        A.some(callback.getDescendantsOfKind(SyntaxKind.CallExpression), (call) =>
-          isNativeFileSystemOperation(call, services, imports)
-        ))
+      (flow.subject || A.some(calls, (call) => isNativeFileSystemOperation(call, services, imports)))
     );
   });
 

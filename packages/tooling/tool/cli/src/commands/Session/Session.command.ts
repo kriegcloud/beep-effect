@@ -17,6 +17,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { MemoryStatsLive } from "../../internal/repo-run/QualityScheduler.ts";
+import { readGoalCloseoutViews } from "../Goals/Completion.ts";
 import { HOT_PARCELS_TIMEOUT, printHotParcels } from "../Palantiri/Palantiri.hot.ts";
 import { layerPalantiriRuntime } from "../Palantiri/Palantiri.runtime.ts";
 import { layerPalantiriSourcesLive } from "../Palantiri/Palantiri.service.ts";
@@ -207,8 +208,14 @@ export const sessionOpenCommand = Command.make(
       const facts = yield* sessionCheckoutFacts(process.cwd());
       const ledger = yield* SessionLedger;
       const rows = openSessionRows(yield* ledger.list(facts.repository));
+      const goalCloseouts = yield* readGoalCloseoutViews(facts.checkout);
       if (json) {
-        const report = SessionOpenReport.make({ schemaVersion: "session-open/v1", repository: facts.repository, rows });
+        const report = SessionOpenReport.make({
+          schemaVersion: "session-open/v1",
+          repository: facts.repository,
+          rows,
+          goalCloseouts,
+        });
         const encoded = yield* SessionOpenReportJson.encode(report).pipe(
           Effect.mapError((cause) =>
             SessionLedgerError.make({ reason: "decode", message: "Failed to encode the session report.", cause })
@@ -219,6 +226,14 @@ export const sessionOpenCommand = Command.make(
         yield* Console.log(encoded);
         return;
       }
+      yield* Effect.forEach(
+        goalCloseouts,
+        (view) =>
+          Console.log(
+            `[session:goal] ${view.packet}: operative=${view.operativeStatus}; proposed=${view.proposedCloseout.status} via #${view.proposedCloseout.finalPullRequest}`
+          ),
+        { discard: true }
+      );
       if (!A.isReadonlyArrayNonEmpty(rows)) {
         yield* Console.log(
           `[session] no live sessions recorded for ${facts.repository.owner}/${facts.repository.name}`

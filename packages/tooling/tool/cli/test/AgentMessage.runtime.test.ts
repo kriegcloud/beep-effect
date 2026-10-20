@@ -317,6 +317,15 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer,
         sequence: 6,
       });
       expect((yield* store.receipts("native-delivery"))[2]?.status).toBe("delivered");
+      assertSome(yield* store.settlement("native-delivery"), {
+        adapter: "codex",
+        sessionId: "owned-thread",
+        messageId: "native-delivery",
+        turnId: "owned-turn-1",
+        outcome: "delivered",
+        stopReason: "completed",
+      });
+      assertNone(yield* store.settlement("outside-conversation"));
       expect((yield* store.receipts("outside-conversation"))[2]?.status).toBe("failed");
       // Advance the persisted grant past expiry without waiting an hour of wall time.
       const sql = yield* makeAgentMessageSqliteClient(path.join(f.state, "messages.sqlite"));

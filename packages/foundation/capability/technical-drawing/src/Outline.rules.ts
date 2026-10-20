@@ -506,14 +506,17 @@ const blockingOf = (
   );
 };
 
-const candidateOf = (mover: number, anchor: number, context: Context, placement: Placement): O.Option<Candidate> => {
-  const pushes = pushesOf(anchor, mover, context, placement.offsets);
-  if (!A.isReadonlyArrayNonEmpty(pushes)) {
-    return O.none();
-  }
+const candidateOf = (mover: number, anchor: number, context: Context, placement: Placement): Candidate => {
+  // nextConflict retained a short contact of this pair; either orientation has that push.
+  const pushes = O.getOrThrow(
+    O.liftPredicate<ReadonlyArray<Push>, A.NonEmptyReadonlyArray<Push>>(
+      pushesOf(anchor, mover, context, placement.offsets),
+      A.isReadonlyArrayNonEmpty
+    )
+  );
   const offset = pushedOffset(anchor, mover, context, placement.offsets, pushes);
   const line = A.getUnsafe(context.lines, mover);
-  return O.some({
+  return {
     mover,
     anchor,
     offset,
@@ -521,7 +524,7 @@ const candidateOf = (mover: number, anchor: number, context: Context, placement:
     blocking: blockingOf({ anchor, mover, offset }, context, placement),
     settled: A.getUnsafe(placement.settled, mover) ? 1 : 0,
     drawn: line.drawn,
-  });
+  };
 };
 
 // An emphasised line moves last; then the move that crowds no settled line, then a line not yet placed, then the
@@ -553,18 +556,11 @@ const separatePair = (candidate: Candidate, context: Context, placement: Placeme
 
 const resolveConflict = (conflict: Conflict, context: Context, placement: Placement): void => {
   const [x, y] = conflict.pair;
-  pipe(
-    A.getSomes([candidateOf(y, x, context, placement), candidateOf(x, y, context, placement)]),
-    A.sort(candidateOrder),
-    A.head,
-    O.match({
-      onNone: () => {
-        placement.settled[x] = true;
-        placement.settled[y] = true;
-      },
-      onSome: (candidate) => separatePair(candidate, context, placement),
-    })
+  const candidate = A.min(
+    [candidateOf(y, x, context, placement), candidateOf(x, y, context, placement)],
+    candidateOrder
   );
+  separatePair(candidate, context, placement);
 };
 
 // Where the line through `first` meets the line through `second`.

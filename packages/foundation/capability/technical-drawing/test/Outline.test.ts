@@ -36,6 +36,26 @@ const offLine = ([x, y]: readonly [number, number], [x1, y1, x2, y2]: Segment2):
 const round = (segment: Segment2): ReadonlyArray<number> => A.map(segment, (v) => Math.round(v * 1e9) / 1e9 + 0);
 
 describe("separateCloseOutlines", () => {
+  it("leaves degenerate points intact while separating the surrounding drawn outlines", () => {
+    const point: Segment2 = [10, 0.34, 10, 0.34];
+    const result = separate([[0, 0, 100, 0], [0, 0.34, 90, 0.34], point]);
+    expect(result.segments[2]).toEqual(point);
+    expect(gaps(result.segments)).toEqual([]);
+    expect(result.moves).toHaveLength(1);
+  });
+
+  it("returns an unchanged drawing when transitive coincidence leaves no distinct line to move", () => {
+    const input: ReadonlyArray<Segment2> = [
+      [0, 0, 10, 0],
+      [0, 0.12, 10, 0.12],
+      [0, 0.24, 10, 0.24],
+    ];
+    const result = separate(input);
+    expect(result.segments).toBe(input);
+    expect(result.moves).toEqual([]);
+    expect(gaps(result.segments)).toEqual(gaps(input));
+  });
+
   it("separates near-vertical outlines across the angle ordering boundary", () => {
     const input: ReadonlyArray<Segment2> = [
       [0, 0, 0.01, 10],

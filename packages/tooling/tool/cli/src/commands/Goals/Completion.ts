@@ -13,6 +13,7 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import { identity } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -40,6 +41,7 @@ import {
 import {
   GoalAcceptanceEvidenceRef,
   GoalCheckConclusion,
+  GoalCloseoutView,
   GoalCompletionReceipt,
   GoalEvidenceCheck,
   GoalManifest,
@@ -301,6 +303,7 @@ export const goalCompletionDeclarationDigest = Effect.fn("Goals.Completion.decla
       initiative: { id: manifest.initiative.id },
       packetId: manifest.initiative.packetId,
       completionGate: gate.completionGate,
+      proposedCloseout: gate.proposedCloseout,
       pullRequests: goalPullRequestRefs(manifest),
     })
   );
@@ -757,6 +760,145 @@ export const storedGoalCompletion = Effect.fn("Goals.Completion.stored")(functio
       })
     )
   );
+});
+
+/**
+ * Projects operative lifecycle from a proposal and a matching, revalidated receipt.
+ *
+ * **Details**
+ *
+ * Never trusts the receipt outcome flag alone. Packet, final PR and current
+ * declaration must match; merge facts, exact-head hosted evidence and the
+ * merge-time required-check inventory must independently verify.
+ *
+ * **Example** (Build an offline lifecycle projection)
+ *
+ * ```ts
+ * import { projectGoalLifecycle } from "@beep/repo-cli/commands/Goals/Completion"
+ * console.log(typeof projectGoalLifecycle)
+ * ```
+ *
+ * @category projections
+ * @since 0.0.0
+ */
+export const projectGoalLifecycle = Effect.fn("Goals.Completion.projectLifecycle")(function* (
+  manifest: GoalManifest,
+  receipt: O.Option<GoalCompletionReceipt>
+) {
+  const proposal = manifest.proposedCloseout;
+  if (proposal === undefined || O.isNone(receipt)) return manifest.initiative.status;
+  const row = receipt.value;
+  const digest = yield* goalCompletionDeclarationDigest(manifest);
+  if (
+    A.some(
+      [
+        row.packet !== manifest.initiative.id,
+        row.finalPullRequest !== proposal.finalPullRequest,
+        row.declarationDigest !== digest,
+        !O.contains(digest)(row.acceptedDeclarationDigest),
+      ],
+      identity
+    )
+  )
+    return manifest.initiative.status;
+  const verified = yield* GoalCompletionVerifier.resolve(
+    GoalCompletionObservation.make({
+      ...row,
+      merged: O.isSome(row.merge) ? O.some(true) : O.none(),
+      grandfathered: false,
+    })
+  );
+  const hosted = A.some(row.evidence, (check) =>
+    A.every(
+      [
+        check.ref.kind === "hosted-required-checks",
+        check.ref.gating,
+        check.outcome === "verified",
+        O.exists(check.observedHead, (head) => O.contains(head)(row.acceptedHead)),
+      ],
+      identity
+    )
+  );
+  const declared = manifest.completionGate.acceptanceEvidence ?? [];
+  const readiness =
+    A.some(declared, (ref) => ref.kind === "yeet-verdict" && ref.gating) &&
+    A.every(
+      A.filter(declared, (ref) => ref.gating),
+      (ref) =>
+        A.some(
+          row.evidence,
+          (check) =>
+            check.ref.kind === ref.kind &&
+            check.ref.ref === ref.ref &&
+            check.ref.gating &&
+            check.outcome === "verified" &&
+            O.isSome(row.acceptedHead) &&
+            O.exists(check.observedHead, (head) => O.contains(head)(row.acceptedHead))
+        )
+    );
+  return verified.outcome === "verified" && hosted && readiness ? proposal.status : manifest.initiative.status;
+});
+
+/**
+ * Reads clone-scoped completion facts for lifecycle views without network writes.
+ *
+ * **Example** (Inspect the lifecycle reader)
+ *
+ * ```ts
+ * import { readGoalLifecycle } from "@beep/repo-cli/commands/Goals/Completion"
+ * console.log(typeof readGoalLifecycle)
+ * ```
+ *
+ * @category queries
+ * @since 0.0.0
+ */
+export const readGoalLifecycle = Effect.fn("Goals.Completion.readLifecycle")(function* (
+  root: string,
+  slug: string,
+  manifest: GoalManifest
+) {
+  const proposal = manifest.proposedCloseout;
+  if (proposal === undefined) return manifest.initiative.status;
+  const final = A.findFirst(goalPullRequestRefs(manifest), (ref) => ref.role === "final");
+  if (O.isNone(final)) return manifest.initiative.status;
+  const receipt = yield* storedGoalCompletion(root, slug, manifest, final.value).pipe(Effect.orElseSucceed(O.none));
+  return yield* projectGoalLifecycle(manifest, receipt).pipe(Effect.orElseSucceed(() => manifest.initiative.status));
+});
+
+/**
+ * Collects this checkout's prospective closeouts for session resume views.
+ *
+ * **Example** (Inspect the read-only session query)
+ *
+ * ```ts
+ * import { readGoalCloseoutViews } from "@beep/repo-cli/commands/Goals/Completion"
+ * console.log(typeof readGoalCloseoutViews)
+ * ```
+ *
+ * @category queries
+ * @since 0.0.0
+ */
+export const readGoalCloseoutViews = Effect.fn("Goals.Completion.closeoutViews")(function* (root: string) {
+  const records = yield* listGoalPackets(root);
+  const views = yield* Effect.forEach(
+    records,
+    (record) =>
+      Effect.gen(function* () {
+        const parsed = O.flatMap(O.fromUndefinedOr(record.manifestText), parseGoalManifestText);
+        if (O.isNone(parsed)) return O.none<GoalCloseoutView>();
+        const manifest = yield* S.decodeUnknownEffect(GoalManifest)(parsed.value).pipe(Effect.option);
+        if (O.isNone(manifest) || manifest.value.proposedCloseout === undefined) return O.none<GoalCloseoutView>();
+        return O.some(
+          GoalCloseoutView.make({
+            packet: record.slug,
+            proposedCloseout: manifest.value.proposedCloseout,
+            operativeStatus: yield* readGoalLifecycle(root, record.slug, manifest.value),
+          })
+        );
+      }),
+    { concurrency: 1 }
+  );
+  return A.getSomes(views);
 });
 
 const readRefreshManifest = Effect.fn("Goals.Completion.refreshManifest")(function* (record: GoalPacketRecord) {

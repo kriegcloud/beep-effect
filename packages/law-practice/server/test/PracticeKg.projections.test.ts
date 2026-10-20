@@ -1353,64 +1353,73 @@ describe("practice KG projections", () => {
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {
-    it.effect(
-      "attaches a dominant family's application and records who writes about each matter",
-      Effect.fnUntraced(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const corpusRoot = yield* makeFixtureCorpus();
-        const contactsPath = yield* addMailRun(corpusRoot);
-        const bundleOut = path.join(corpusRoot, "bundle-mail");
-        yield* runBuild(
-          PracticeKgOptions.make({
-            ...graphOptions(corpusRoot, bundleOut),
-            contactsPath,
-            includeRuns: [mailRun],
-            practiceDomains: [practiceDomain],
-            skipEmails: true,
-          }),
-          bundleOut
-        );
-        const manifest = yield* fs
-          .readFileString(path.join(bundleOut, "bundle.manifest.json"))
-          .pipe(Effect.flatMap(decodeManifestJson));
-        expect([manifest.bundleVersion, manifest.schemaVersion.duckdb, manifest.schemaVersion.pglite]).toStrictEqual([
-          "2026-10-07-04",
-          "4",
-          "4",
-        ]);
-
-        yield* Effect.gen(function* () {
-          const db = yield* DuckDb;
-          const lines = (statement: string) =>
-            db.query(statement).pipe(Effect.flatMap(decodeDumpLines), Effect.map(A.map((row) => row.line)));
-          expect(
-            yield* lines(
-              "SELECT to_json(x)::VARCHAR AS line FROM (SELECT family_key, address, contact_id, display_name, role_address, is_practice_address, message_count, from_count, to_count, cc_count, first_at, last_at, epistemic_status FROM matter_correspondents ORDER BY family_key, address) x"
-            )
-          ).toStrictEqual([
-            `{"family_key":"${fixtureClients.alpha}.20001","address":"ann@${practiceDomain}","contact_id":null,"display_name":"Ann Attorney","role_address":false,"is_practice_address":true,"message_count":1,"from_count":0,"to_count":1,"cc_count":0,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-02-01T10:00:00Z","epistemic_status":"mention-derived"}`,
-            `{"family_key":"${fixtureClients.alpha}.20001","address":"docketing@example.com","contact_id":"c_bbbbbbbbbbbb","display_name":"Example Docketing","role_address":true,"is_practice_address":false,"message_count":1,"from_count":0,"to_count":0,"cc_count":1,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-02-01T10:00:00Z","epistemic_status":"mention-derived"}`,
-            `{"family_key":"${fixtureClients.alpha}.20001","address":"pat@example.com","contact_id":"c_aaaaaaaaaaaa","display_name":"Pat Example","role_address":false,"is_practice_address":false,"message_count":2,"from_count":1,"to_count":1,"cc_count":0,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-03-01T09:00:00Z","epistemic_status":"mention-derived"}`,
-            `{"family_key":"${fixtureClients.alpha}.20001","address":"sam@other.test","contact_id":"c_cccccccccccc","display_name":"Sam Other","role_address":false,"is_practice_address":false,"message_count":2,"from_count":1,"to_count":1,"cc_count":0,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-03-01T09:00:00Z","epistemic_status":"mention-derived"}`,
+    it.layer(
+      Layer.unwrap(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const corpusRoot = yield* makeFixtureCorpus();
+          const contactsPath = yield* addMailRun(corpusRoot);
+          const bundleOut = path.join(corpusRoot, "bundle-mail");
+          yield* runBuild(
+            PracticeKgOptions.make({
+              ...graphOptions(corpusRoot, bundleOut),
+              contactsPath,
+              includeRuns: [mailRun],
+              practiceDomains: [practiceDomain],
+              skipEmails: true,
+            }),
+            bundleOut
+          );
+          const manifest = yield* fs
+            .readFileString(path.join(bundleOut, "bundle.manifest.json"))
+            .pipe(Effect.flatMap(decodeManifestJson));
+          expect([manifest.bundleVersion, manifest.schemaVersion.duckdb, manifest.schemaVersion.pglite]).toStrictEqual([
+            "2026-10-07-04",
+            "4",
+            "4",
           ]);
-          expect(
-            yield* lines(
-              "SELECT to_json(x)::VARCHAR AS line FROM (SELECT COUNT(*) AS links FROM contact_client_links) x"
-            )
-          ).toStrictEqual(['{"links":9}']);
-        }).pipe(withDuckDb(path.join(bundleOut, "practice.duckdb")));
 
-        const bundleContext = PracticeKgBundleContext.make({ bundleDir: bundleOut, corpusRoot, manifest });
-        const resources = Layer.mergeAll(
-          Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") }),
-          DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: path.join(bundleOut, "practice.duckdb") })),
-          Layer.succeed(PracticeKgBundle, PracticeKgBundle.of(bundleContext))
-        );
-        const host = Layer.mergeAll(McpServer.McpServer.layer, PracticeKgToolkitLayer).pipe(
-          Layer.provideMerge(resources)
-        );
-        yield* Effect.gen(function* () {
+          yield* Effect.gen(function* () {
+            const db = yield* DuckDb;
+            const lines = (statement: string) =>
+              db.query(statement).pipe(Effect.flatMap(decodeDumpLines), Effect.map(A.map((row) => row.line)));
+            expect(
+              yield* lines(
+                "SELECT to_json(x)::VARCHAR AS line FROM (SELECT family_key, address, contact_id, display_name, role_address, is_practice_address, message_count, from_count, to_count, cc_count, first_at, last_at, epistemic_status FROM matter_correspondents ORDER BY family_key, address) x"
+              )
+            ).toStrictEqual([
+              `{"family_key":"${fixtureClients.alpha}.20001","address":"ann@${practiceDomain}","contact_id":null,"display_name":"Ann Attorney","role_address":false,"is_practice_address":true,"message_count":1,"from_count":0,"to_count":1,"cc_count":0,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-02-01T10:00:00Z","epistemic_status":"mention-derived"}`,
+              `{"family_key":"${fixtureClients.alpha}.20001","address":"docketing@example.com","contact_id":"c_bbbbbbbbbbbb","display_name":"Example Docketing","role_address":true,"is_practice_address":false,"message_count":1,"from_count":0,"to_count":0,"cc_count":1,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-02-01T10:00:00Z","epistemic_status":"mention-derived"}`,
+              `{"family_key":"${fixtureClients.alpha}.20001","address":"pat@example.com","contact_id":"c_aaaaaaaaaaaa","display_name":"Pat Example","role_address":false,"is_practice_address":false,"message_count":2,"from_count":1,"to_count":1,"cc_count":0,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-03-01T09:00:00Z","epistemic_status":"mention-derived"}`,
+              `{"family_key":"${fixtureClients.alpha}.20001","address":"sam@other.test","contact_id":"c_cccccccccccc","display_name":"Sam Other","role_address":false,"is_practice_address":false,"message_count":2,"from_count":1,"to_count":1,"cc_count":0,"first_at":"2026-02-01T10:00:00Z","last_at":"2026-03-01T09:00:00Z","epistemic_status":"mention-derived"}`,
+            ]);
+            expect(
+              yield* lines(
+                "SELECT to_json(x)::VARCHAR AS line FROM (SELECT COUNT(*) AS links FROM contact_client_links) x"
+              )
+            ).toStrictEqual(['{"links":9}']);
+          }).pipe(withDuckDb(path.join(bundleOut, "practice.duckdb")));
+
+          const bundleContext = PracticeKgBundleContext.make({ bundleDir: bundleOut, corpusRoot, manifest });
+          const resources = Layer.mergeAll(
+            Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") }),
+            DuckDb.makeNodeLayer(
+              DuckDbConnectionOptions.make({ databasePath: path.join(bundleOut, "practice.duckdb") })
+            ),
+            Layer.succeed(PracticeKgBundle, PracticeKgBundle.of(bundleContext))
+          );
+          const host = Layer.mergeAll(McpServer.McpServer.layer, PracticeKgToolkitLayer).pipe(
+            Layer.provideMerge(resources)
+          );
+          return host;
+        })
+      ),
+      { timeout: "2 minutes" }
+    )((it) => {
+      it.effect(
+        "attaches a dominant family's application and records who writes about each matter",
+        Effect.fnUntraced(function* () {
           const toolRows = (name: string, args: Readonly<Record<string, unknown>>) =>
             callToolText(name, { budgetBytes: 20_000, ...args }).pipe(
               Effect.flatMap(decodeToolResultJson),
@@ -1540,10 +1549,10 @@ describe("practice KG projections", () => {
             Effect.flatMap(decodeToolErrorJson)
           );
           expect([failure.tool, failure.reason]).toStrictEqual(["kg_correspondent_lookup", "store-query-failed"]);
-        }).pipe(provideScopedLayer(host));
-      }),
-      { timeout: 120_000 }
-    );
+        }),
+        { timeout: 120_000 }
+      );
+    });
   });
 
   it.layer(Layer.fresh(testLayer), { timeout: "10 seconds" })((it) => {

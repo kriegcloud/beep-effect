@@ -1,4 +1,14 @@
-import { PdfTools, PdfToolsConfig, PdfToolsError, PixelBox, RasterMetrics, SvgToPdfResult } from "@beep/pdf-tools";
+import {
+  PageTextRequest,
+  PdfTools,
+  PdfToolsConfig,
+  PdfToolsError,
+  PixelBox,
+  RasterMetrics,
+  RasterRequest,
+  SvgToPdfRequest,
+  SvgToPdfResult,
+} from "@beep/pdf-tools";
 import {
   DrawingsCommandError,
   drawingsCommand,
@@ -28,11 +38,11 @@ import {
   ValidationOptions,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf, deepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -42,7 +52,6 @@ import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
 import * as TestConsole from "effect/testing/TestConsole";
 import { PDFDocument, StandardFonts } from "pdf-lib";
-import type { PageTextRequest, RasterRequest, SvgToPdfRequest } from "@beep/pdf-tools";
 
 // Command-level coverage that needs no native PDF tools: every case fails or
 // prints before a tool would run, so it holds on hosted runners too.
@@ -172,80 +181,91 @@ it.layer(
   );
 });
 
-it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) => {
-  it.effect(
-    "maps PDF raster and text ports and preserves driver failures without native executables",
-    Effect.fnUntraced(function* () {
-      const calls = yield* Ref.make<ReadonlyArray<unknown>>([]);
-      const driverFailure = PdfToolsError.make({ reason: "tool-failed", message: "fixture tool refusal" });
-      const fakeTools = Layer.effect(
-        PdfTools,
-        Effect.gen(function* () {
-          const tools = yield* PdfTools;
-          return PdfTools.of({
-            ...tools,
-            measurePage: Effect.fn("TestPdfTools.measurePage")(
-              (request: RasterRequest): Effect.Effect<RasterMetrics, PdfToolsError> =>
-                request.pdfPath === "missing.pdf"
-                  ? Effect.fail(driverFailure)
-                  : Ref.update(calls, A.append(request)).pipe(
-                      Effect.as(
-                        RasterMetrics.make({
-                          width: 100,
-                          height: 80,
-                          dpi: request.dpi,
-                          inkBox: O.some(PixelBox.make({ minX: 10, minY: 20, maxX: 40, maxY: 50 })),
-                          inkPixels: 100,
-                          impurePixels: 2,
-                          chromaPixels: 0,
-                          largestBlackSquare: 3,
-                        })
-                      )
-                    )
-            ),
-            pageText: Effect.fn("TestPdfTools.pageText")(
-              (request: PageTextRequest): Effect.Effect<string, PdfToolsError> =>
-                request.pdfPath === "missing.pdf"
-                  ? Effect.fail(driverFailure)
-                  : Ref.update(calls, A.append(request)).pipe(Effect.as("adapter fixture"))
-            ),
-            svgToPdf: Effect.fn("TestPdfTools.svgToPdf")((request: SvgToPdfRequest) =>
-              Ref.update(calls, A.append(request)).pipe(
+class PdfRequests extends Context.Service<PdfRequests, Ref.Ref<ReadonlyArray<unknown>>>()(
+  "@beep/repo-cli/test/drawings-command.test/PdfRequests"
+) {}
+const unusedPdfOperation = () => Effect.die("This PDF port is not used by the adapter fixture.");
+const driverFailure = PdfToolsError.make({ reason: "tool-failed", message: "fixture tool refusal" });
+const fakeTools = Layer.effect(
+  PdfTools,
+  Effect.gen(function* () {
+    const calls = yield* PdfRequests;
+    return PdfTools.of({
+      annotations: unusedPdfOperation,
+      inkCoverage: unusedPdfOperation,
+      inspect: unusedPdfOperation,
+      pageWords: unusedPdfOperation,
+      renderPng: unusedPdfOperation,
+      measurePage: Effect.fn("TestPdfTools.measurePage")(
+        (request: RasterRequest): Effect.Effect<RasterMetrics, PdfToolsError> =>
+          request.pdfPath === "missing.pdf"
+            ? Effect.fail(driverFailure)
+            : Ref.update(calls, A.append(request)).pipe(
                 Effect.as(
-                  SvgToPdfResult.make({
-                    outputPath: request.outputPath,
-                    pageCount: 1,
-                    bytes: 100,
+                  RasterMetrics.make({
+                    width: 100,
+                    height: 80,
+                    dpi: request.dpi,
+                    inkBox: O.some(PixelBox.make({ minX: 10, minY: 20, maxX: 40, maxY: 50 })),
+                    inkPixels: 100,
+                    impurePixels: 2,
+                    chromaPixels: 0,
+                    largestBlackSquare: 3,
                   })
                 )
               )
-            ),
-          });
-        })
-      ).pipe(Layer.provide(PdfTools.makeLayer()));
-      yield* Effect.gen(function* () {
-        const backend = yield* PdfBackend;
-        const measured = yield* backend.measurePage({ pdfPath: "fixture.pdf", page: 2, dpi: 144, antiAlias: false });
-        expect([measured.width, measured.height, measured.dpi, measured.antiAliased]).toEqual([100, 80, 144, false]);
-        expect(O.getOrThrow(measured.inkBounds)).toEqual({ minX: 10, minY: 20, maxX: 40, maxY: 50 });
-        expect([measured.inkPixels, measured.impurePixels, measured.largestBlackSquare]).toEqual([100, 2, 3]);
-        expect(yield* backend.pageText("fixture.pdf", 2)).toBe("adapter fixture");
-        yield* backend.svgToPdf(["sheet.svg"], "out.pdf", O.none());
-        const requests = yield* Ref.get(calls);
-        expect(requests).toMatchObject([
-          { pdfPath: "fixture.pdf", page: 2, dpi: 144, antiAlias: false },
-          { pdfPath: "fixture.pdf", page: 2 },
-          { svgPaths: ["sheet.svg"], outputPath: "out.pdf", fonts: O.none() },
-        ]);
-        const failures = yield* Effect.all([
-          Effect.flip(backend.pageText("missing.pdf", 1)),
-          Effect.flip(backend.measurePage({ pdfPath: "missing.pdf", page: 1, dpi: 72, antiAlias: true })),
-        ]);
-        expect(A.map(failures, (error) => [error.reason, error.message])).toEqual([
-          ["pdf", "The PDF backend failed."],
-          ["pdf", "The PDF backend failed."],
-        ]);
-      }).pipe(provideScopedLayer(PdfBackendFromPdfTools.pipe(Layer.provide(fakeTools))));
+      ),
+      pageText: Effect.fn("TestPdfTools.pageText")(
+        (request: PageTextRequest): Effect.Effect<string, PdfToolsError> =>
+          request.pdfPath === "missing.pdf"
+            ? Effect.fail(driverFailure)
+            : Ref.update(calls, A.append(request)).pipe(Effect.as("adapter fixture"))
+      ),
+      svgToPdf: Effect.fn("TestPdfTools.svgToPdf")((request: SvgToPdfRequest) =>
+        Ref.update(calls, A.append(request)).pipe(
+          Effect.as(
+            SvgToPdfResult.make({
+              outputPath: request.outputPath,
+              pageCount: 1,
+              bytes: 100,
+            })
+          )
+        )
+      ),
+    });
+  })
+);
+
+const pdfAdapterFixture = PdfBackendFromPdfTools.pipe(
+  Layer.provide(fakeTools),
+  Layer.provideMerge(Layer.effect(PdfRequests, Ref.make<ReadonlyArray<unknown>>([])))
+);
+it.layer(pdfAdapterFixture, { timeout: "10 seconds" })((it) => {
+  it.effect(
+    "maps PDF raster and text ports and preserves driver failures without native executables",
+    Effect.fnUntraced(function* () {
+      const calls = yield* PdfRequests;
+      const backend = yield* PdfBackend;
+      const measured = yield* backend.measurePage({ pdfPath: "fixture.pdf", page: 2, dpi: 144, antiAlias: false });
+      expect([measured.width, measured.height, measured.dpi, measured.antiAliased]).toEqual([100, 80, 144, false]);
+      expect(O.getOrThrow(measured.inkBounds)).toEqual({ minX: 10, minY: 20, maxX: 40, maxY: 50 });
+      expect([measured.inkPixels, measured.impurePixels, measured.largestBlackSquare]).toEqual([100, 2, 3]);
+      expect(yield* backend.pageText("fixture.pdf", 2)).toBe("adapter fixture");
+      yield* backend.svgToPdf(["sheet.svg"], "out.pdf", O.none());
+      const requests = yield* Ref.get(calls);
+      deepStrictEqual(requests, [
+        RasterRequest.make({ pdfPath: "fixture.pdf", page: 2, dpi: 144, antiAlias: false }),
+        PageTextRequest.make({ pdfPath: "fixture.pdf", page: 2 }),
+        SvgToPdfRequest.make({ svgPaths: ["sheet.svg"], outputPath: "out.pdf", fonts: O.none() }),
+      ]);
+      const failures = yield* Effect.all([
+        Effect.flip(backend.pageText("missing.pdf", 1)),
+        Effect.flip(backend.measurePage({ pdfPath: "missing.pdf", page: 1, dpi: 72, antiAlias: true })),
+      ]);
+      expect(A.map(failures, (error) => [error.reason, error.message])).toEqual([
+        ["pdf", "The PDF backend failed."],
+        ["pdf", "The PDF backend failed."],
+      ]);
     })
   );
 });

@@ -23,7 +23,12 @@ import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { ManagedSessionEvent, ManagedSessionIdentity, ManagedTurnResult } from "./AiProviderCliSession.models.ts";
+import {
+  ManagedSessionEvent,
+  ManagedSessionIdentity,
+  ManagedTerminalEvidence,
+  ManagedTurnResult,
+} from "./AiProviderCliSession.models.ts";
 import { encodeJson, failure, transportFailure } from "./AiProviderCliSession.profile.service.ts";
 import {
   ClaudeControl,
@@ -210,6 +215,15 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
         messageId: yield* Ref.get(messageId),
         text: result.result ?? "",
         stopReason: "completed",
+        terminalEvidence: O.some(
+          ManagedTerminalEvidence.make({
+            adapter: "claude",
+            sessionId,
+            messageId: yield* Ref.get(messageId),
+            outcome: "delivered",
+            stopReason: "completed",
+          })
+        ),
       })
     );
   });

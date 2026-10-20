@@ -411,6 +411,11 @@ const setStatusForSlug = Effect.fn("Goals.setStatusForSlug")(function* (
   const fs = yield* FileSystem.FileSystem;
   const writer = yield* PacketTransitionWriter;
   const { decoded, manifest, manifestText, record, rewrittenReadme } = yield* loadPacketSurfaces(slug, status);
+  if (decoded.proposedCloseout !== undefined && status !== "active" && status !== "paused") {
+    return yield* GoalStatusInputError.new(
+      "A proposed closeout retains active/paused declared status; completion is derived from exact-head readiness and merge proof."
+    );
+  }
   const now = yield* DateTime.now;
   const today = pipe(DateTime.formatIso(now), Str.slice(0, 10));
   const plan = yield* planStreamTransition(slug, status, decoded, record, DateTime.formatIso(now));

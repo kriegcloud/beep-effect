@@ -33,6 +33,7 @@ import {
 } from "./AgentMessage.models.ts";
 import { EndpointDispatch, makeAgentMessageRouter } from "./AgentMessage.service.ts";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
+import type { ManagedTurnResult } from "@beep/ai-provider-cli";
 import type { Claim } from "./AgentMessage.models.ts";
 import type { AgentMessageStoreShape } from "./AgentMessage.store.ts";
 
@@ -42,6 +43,24 @@ const ProfileJson = S.fromJsonString(ManagedLaunchProfile);
 const BindingJson = S.fromJsonString(EndpointBinding);
 const GrantJson = S.fromJsonString(LaunchGrant);
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.runtime");
+const recordNativeSettlement = Effect.fn("AgentMessage.recordNativeSettlement")(function* (
+  store: AgentMessageStoreShape,
+  claim: Claim,
+  response: ManagedTurnResult
+) {
+  if (response.messageId !== claim.envelope.messageId || O.isNone(response.terminalEvidence))
+    return yield* RouterError.make({
+      code: "conflict",
+      message: "Native response lacks original correlated terminal evidence; retain the dispatch hold.",
+    });
+  if (response.stopReason !== response.terminalEvidence.value.stopReason)
+    return yield* RouterError.make({
+      code: "conflict",
+      message: "Native response contradicts its terminal evidence; retain the dispatch hold.",
+    });
+  yield* store.recordSettlement(claim, response.terminalEvidence.value, yield* Clock.currentTimeMillis);
+  return "delivered";
+});
 const ownsReceivingGrant = (
   grant: LaunchGrant,
   endpointId: string,
@@ -350,11 +369,7 @@ export const agentMessageServeCommand = Command.make(
               })
             )
           );
-        if (response.stopReason === "completed" || response.stopReason === "end_turn") return "delivered";
-        return yield* RouterError.make({
-          code: "storage",
-          message: "Native turn ended without a successful terminal status; reconciliation is required before retry.",
-        });
+        return yield* recordNativeSettlement(store, claim, response);
       });
       yield* Console.log(yield* S.encodeEffect(BindingJson)(binding));
       const complete = makeAgentMessageCompletion(store, invalidReceivingGrant);

@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { ManagedTerminalEvidence } from "@beep/ai-provider-cli";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
@@ -545,20 +546,42 @@ export const AmbiguityDisposition = LiteralKit(["delivered", "failed"]).pipe(
  */
 export type AmbiguityDisposition = typeof AmbiguityDisposition.Type;
 
-const OriginalRuntimeEvidence = LiteralKit(["codex", "claude", "grok", "cursor", "injected"])
+const InjectedRuntimeEvidence = LiteralKit(["injected"])
   .toTaggedUnion("adapter")({
-    codex: { sessionId: Identity, turnId: Identity, outcome: AmbiguityDisposition, source: Detail },
-    claude: { sessionId: Identity, resultId: Identity, outcome: AmbiguityDisposition, source: Detail },
-    grok: { sessionId: Identity, responseId: Identity, outcome: AmbiguityDisposition, source: Detail },
-    cursor: { sessionId: Identity, requestId: Identity, outcome: AmbiguityDisposition, source: Detail },
     injected: { sessionId: Identity, terminalId: Identity, outcome: AmbiguityDisposition, source: Detail },
   })
   .pipe(
-    $I.annoteSchema("OriginalRuntimeEvidence", {
+    $I.annoteSchema("InjectedRuntimeEvidence", {
       description:
-        "Host-attested original runtime terminal record: Codex turn, Claude result, Grok response, Cursor result, or synthetic fixture. Source identifies the inspected native terminal record, never a replacement session.",
+        "Original terminal evidence from a deterministic injected adapter, reserved for synthetic qualification.",
     })
   );
+
+/**
+ * Original terminal evidence accepted only when the runtime already persisted it.
+ *
+ * **Example** (Inspect a synthetic terminal record)
+ * ```ts
+ * import { OriginalRuntimeEvidence } from "@beep/repo-cli/commands/AgentMessage"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(OriginalRuntimeEvidence)({ adapter: "injected", sessionId: "session", terminalId: "terminal", outcome: "failed", source: "Synthetic original settlement" }))
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const OriginalRuntimeEvidence = S.Union([ManagedTerminalEvidence, InjectedRuntimeEvidence]).pipe(
+  $I.annoteSchema("OriginalRuntimeEvidence", {
+    description:
+      "Adapter-correlated original settlement or explicit deterministic fixture evidence; neither model text nor an operator assertion can create native proof.",
+  })
+);
+
+/**
+ * Original evidence derived from its runtime schema.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type OriginalRuntimeEvidence = typeof OriginalRuntimeEvidence.Type;
 
 /**
  * Immutable operator assertion identifying the original ambiguous attempt and its known terminal evidence.
@@ -568,14 +591,16 @@ const OriginalRuntimeEvidence = LiteralKit(["codex", "claude", "grok", "cursor",
  * The trusted local operator supplies evidence of a known native terminal result. This request
  * releases a dispatch hold without retrying the provider or discarding participant acknowledgement.
  * Its adapter and original session must match enrollment; its outcome must match disposition.
- * The native terminal correlation remains a host attestation. The host authenticates through private state and input-file ownership;
- * operatorId is an audit label. Its identity and full payload remain in the durable resolution audit.
+ * Its complete evidence must equal the immutable original settlement previously
+ * recorded by the trusted adapter. Missing original proof cannot be supplied by
+ * an operator assertion. The host authenticates through private state and input-file
+ * ownership; operatorId is an audit label. The full payload remains in the durable audit.
  *
  * **Example** (Record a known terminal result)
  *
  * ```ts
  * import { AmbiguityResolution } from "@beep/repo-cli/test/AgentMessage"
- * const request = AmbiguityResolution.make({ resolutionId: "resolve-1", messageId: "m1", endpointId: "peer", endpointGeneration: 1, attemptGeneration: 1, attemptOwnerId: "owner", operatorId: "operator", disposition: "delivered", evidence: "Owned session terminal receipt", runtimeEvidence: { adapter: "codex", sessionId: "original-session", turnId: "original-turn", outcome: "delivered", source: "Owned Codex terminal turn record" }, reason: "Confirmed original attempt completed" })
+ * const request = AmbiguityResolution.make({ resolutionId: "resolve-1", messageId: "m1", endpointId: "peer", endpointGeneration: 1, attemptGeneration: 1, attemptOwnerId: "owner", operatorId: "operator", disposition: "delivered", evidence: "Owned session terminal receipt", runtimeEvidence: { adapter: "codex", sessionId: "original-session", messageId: "m1", turnId: "original-turn", outcome: "delivered", stopReason: "completed" }, reason: "Confirmed original attempt completed" })
  * console.log(request.disposition) // delivered
  * ```
  *
