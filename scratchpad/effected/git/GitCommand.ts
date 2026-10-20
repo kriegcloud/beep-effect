@@ -4,7 +4,7 @@ import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as Stream from "effect/Stream";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 

@@ -126,7 +126,7 @@ import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
 
 const ForwarderStampScenario = LiteralKit([
   "qualified",

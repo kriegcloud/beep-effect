@@ -305,6 +305,40 @@
         "typescript": "catalog:",
       },
     },
+    "apps/practice-gateway": {
+      "name": "@beep/practice-gateway",
+      "version": "0.0.0",
+      "bin": {
+        "practice-gateway": "./src/bin.ts",
+      },
+      "dependencies": {
+        "@beep/doc-text": "workspace:^",
+        "@beep/duckdb": "workspace:^",
+        "@beep/file-processing": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
+        "@beep/law-practice-server": "workspace:^",
+        "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/m365": "workspace:^",
+        "@beep/m365-mcp": "workspace:^",
+        "@beep/mcp-kit": "workspace:^",
+        "@beep/mcpb-kit": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@beep/windows-secrets": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "@electric-sql/pglite": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-runner": "workspace:^",
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "pdf-lib": "catalog:",
+      },
+    },
     "apps/practice-identify": {
       "name": "@beep/practice-identify",
       "version": "0.0.0",
@@ -341,6 +375,7 @@
         "@beep/duckdb": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/law-practice-server": "workspace:^",
+        "@beep/mcpb-kit": "workspace:^",
         "@beep/observability": "workspace:^",
         "@beep/pglite": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -421,6 +456,28 @@
         "@beep/test-runner": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "apps/practice-setup": {
+      "name": "@beep/practice-setup",
+      "version": "0.0.0",
+      "bin": {
+        "practice-setup": "./src/bin.ts",
+      },
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/mcpb-kit": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-runner": "workspace:^",
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1902,6 +1959,21 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/windows-secrets": {
+      "name": "@beep/windows-secrets",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/platform-bun": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/drivers/wink": {
       "name": "@beep/wink",
       "version": "0.0.0",
@@ -2838,6 +2910,7 @@
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
+        "@beep/pglite": "workspace:^",
         "@beep/postgres": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -2851,7 +2924,6 @@
       "devDependencies": {
         "@beep/md": "workspace:^",
         "@beep/nlp": "workspace:^",
-        "@beep/pglite": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
@@ -3154,6 +3226,22 @@
       },
       "devDependencies": {
         "@beep/test-runner": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/tooling/library/mcpb-kit": {
+      "name": "@beep/mcpb-kit",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -4149,6 +4237,8 @@
 
     "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
 
+    "@beep/mcpb-kit": ["@beep/mcpb-kit@workspace:packages/tooling/library/mcpb-kit"],
+
     "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
 
     "@beep/n3": ["@beep/n3@workspace:packages/drivers/n3"],
@@ -4209,6 +4299,8 @@
 
     "@beep/practice-claude-mod": ["@beep/practice-claude-mod@workspace:apps/practice-claude-mod"],
 
+    "@beep/practice-gateway": ["@beep/practice-gateway@workspace:apps/practice-gateway"],
+
     "@beep/practice-identify": ["@beep/practice-identify@workspace:apps/practice-identify"],
 
     "@beep/practice-kg-mcp": ["@beep/practice-kg-mcp@workspace:apps/practice-kg-mcp"],
@@ -4218,6 +4310,8 @@
     "@beep/practice-mail-tagging": ["@beep/practice-mail-tagging@workspace:apps/practice-mail-tagging"],
 
     "@beep/practice-review-hub": ["@beep/practice-review-hub@workspace:apps/practice-review-hub"],
+
+    "@beep/practice-setup": ["@beep/practice-setup@workspace:apps/practice-setup"],
 
     "@beep/pretext": ["@beep/pretext@workspace:packages/drivers/pretext"],
 
@@ -4296,6 +4390,8 @@
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
     "@beep/venice-ai": ["@beep/venice-ai@workspace:packages/drivers/venice-ai"],
+
+    "@beep/windows-secrets": ["@beep/windows-secrets@workspace:packages/drivers/windows-secrets"],
 
     "@beep/wink": ["@beep/wink@workspace:packages/drivers/wink"],
 
@@ -7209,7 +7305,7 @@
 
     "hoist-non-react-statics": ["hoist-non-react-statics@3.3.2", "", { "dependencies": { "react-is": "^16.7.0" } }, "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="],
 
-    "hono": ["hono@4.13.7", "", {}, "sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ=="],
+    "hono": ["hono@4.13.13", "", {}, "sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA=="],
 
     "hookified": ["hookified@1.15.1", "", {}, "sha512-MvG/clsADq1GPM2KGo2nyfaWVyn9naPiXrqIe4jYjXNZQt238kWyOGrsyc/DmRAQ+Re6yeo6yX/yoNCG5KAEVg=="],
 

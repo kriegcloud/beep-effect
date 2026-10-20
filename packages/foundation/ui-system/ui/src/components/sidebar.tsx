@@ -12,7 +12,7 @@ import { ListIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
-import { Atom } from "effect/reactivity";
+import * as Atom from "effect/reactivity/Atom";
 import * as React from "react";
 import { mediaQueryAtom } from "../internal/react-atoms.ts";
 import { cn } from "../lib/index.ts";

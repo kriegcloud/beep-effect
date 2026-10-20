@@ -1,5 +1,7 @@
 // The archiver command lines this package spawns, spelled once.
 //
+import * as ChildProcess from "effect/process/ChildProcess";
+
 // `Artifact` (pack and unpack) and `ToolInstaller` (unpack only) each spawn
 // the same three shapes — a zip, an unzip, a tar extraction — and each has a
 // Windows half that no test on a POSIX host can execute. Two hand-written
@@ -61,7 +63,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { ChildProcess } from "effect/process";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 

@@ -21,8 +21,9 @@ import * as Stream from "effect/Stream";
 import * as Result from "effect/Result";
 import { flow, identity, dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import { FetchHttpClient } from "effect/http";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import {
 	ActionEnvironment,
 	AmbientPackageManager,

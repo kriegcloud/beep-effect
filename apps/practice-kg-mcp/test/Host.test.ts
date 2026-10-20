@@ -9,6 +9,12 @@ import {
   PracticeKgToolFailureReason,
   PracticeKgToolkit,
 } from "@beep/law-practice-server";
+import {
+  loadPracticeKgBundleContext,
+  PracticeKgHostError,
+  PracticeKgSelfCheckRefusal,
+  PracticeKgSelfCheckReport,
+} from "@beep/law-practice-server/PracticeKgHost";
 import { connectStdio, withStdioServer } from "@beep/mcp-kit/test/Conformance";
 import {
   GateRule,
@@ -24,7 +30,6 @@ import {
 } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { afterAll, describe, expect } from "@effect/vitest";
@@ -36,7 +41,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
-import { Base64 } from "effect/encoding";
+import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
@@ -46,7 +51,6 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
@@ -54,18 +58,9 @@ import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 import * as TestConsole from "effect/testing/TestConsole";
 import { SelfCheckFailure } from "../src/PracticeKgMcp.errors.ts";
-import {
-  loadPracticeKgBundleContext,
-  makePracticeKgHostServerLayer,
-  PracticeKgHostError,
-} from "../src/runtime/Host.ts";
+import { makePracticeKgHostServerLayer } from "../src/runtime/Host.ts";
 import { processCpuGauge, processRssGauge } from "../src/runtime/ProcessMetrics.ts";
-import {
-  PracticeKgSelfCheckRefusal,
-  PracticeKgSelfCheckReport,
-  printPracticeKgSelfCheck,
-  runPracticeKgSelfCheck,
-} from "../src/runtime/SelfCheck.ts";
+import { printPracticeKgSelfCheck, runPracticeKgMcpSelfCheck } from "../src/runtime/SelfCheck.ts";
 import {
   layerInMemoryStrictSalt,
   layerPracticeKgTelemetryFor,
@@ -121,7 +116,7 @@ const printed = <A, E, R>(self: Effect.Effect<A, E, R>) =>
 
 // Runs a failing self-check and returns the one refusal line it printed.
 const refusalLine = Effect.fnUntraced(function* (bundleDir: string) {
-  const { lines, value: error } = yield* runPracticeKgSelfCheck(bundleDir).pipe(
+  const { lines, value: error } = yield* runPracticeKgMcpSelfCheck(bundleDir).pipe(
     printPracticeKgSelfCheck,
     Effect.flip,
     printed
@@ -161,137 +156,6 @@ const manifest = PracticeKgBundleManifest.make({
   }),
 });
 
-for (const [adapter, services] of [
-  ["native", TestServices],
-  ["memory", Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer)],
-] as const) {
-  describe(`@beep/practice-kg-mcp runtime host (${adapter})`, () => {
-    it.layer(Layer.fresh(services), { timeout: "10 seconds" })((it) => {
-      it.effect(
-        "loads a portable bundle manifest and preserves an optional corpus root",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          const corpusRoot = path.join(bundleDir, "corpus");
-          yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), yield* encodeManifest(manifest));
-
-          const context = yield* loadPracticeKgBundleContext(bundleDir, corpusRoot);
-
-          expect(context.bundleDir).toBe(bundleDir);
-          expect(context.manifest).toEqual(manifest);
-          expect(context.corpusRoot).toBe(corpusRoot);
-        })
-      );
-
-      it.effect(
-        "omits the corpus root when the caller does not provide one",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), yield* encodeManifest(manifest));
-
-          const context = yield* loadPracticeKgBundleContext(bundleDir);
-
-          expect(context.corpusRoot).toBeUndefined();
-        })
-      );
-
-      it.effect(
-        "refuses a bundle built for an older graph store format by naming both formats",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          yield* fs.writeFileString(
-            path.join(bundleDir, "bundle.manifest.json"),
-            '{"builtAt":"2026-07-03T19:02:49.365Z","bundleVersion":"2026-07-27-01","corpusRootExpected":true,"counts":{"documents":1,"edges":1,"emails":1,"nodes":1},"schemaVersion":{"duckdb":"1","pglite":"1"},"sourceRuns":{"base":"included","refresh202607":"excluded"}}'
-          );
-
-          const error = yield* Effect.flip(loadPracticeKgBundleContext(bundleDir));
-
-          expect(error.message).toContain("store format pglite 1 / duckdb 1");
-          expect(error.message).toContain("reads pglite 4 / duckdb 4");
-        })
-      );
-
-      it.effect(
-        "refuses the previous store format, which has no client names, by naming both formats",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          yield* fs.writeFileString(
-            path.join(bundleDir, "bundle.manifest.json"),
-            '{"builtAt":"2026-10-06T00:00:00.000Z","bundleVersion":"2026-10-06-01","corpusRootExpected":true,"corpusSnapshotAt":"2026-10-05T00:00:00.000Z","counts":{"documents":1,"edges":1,"emails":1,"nodes":1},"schemaVersion":{"duckdb":"2","pglite":"2"},"sourceRuns":{"base":"included","refresh202607":"excluded"}}'
-          );
-
-          const error = yield* Effect.flip(loadPracticeKgBundleContext(bundleDir));
-
-          expect(error.message).toContain("store format pglite 2 / duckdb 2");
-          expect(error.message).toContain("reads pglite 4 / duckdb 4");
-        })
-      );
-
-      it.effect(
-        "refuses store format 3, which has no correspondent tables, by naming both formats",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          yield* fs.writeFileString(
-            path.join(bundleDir, "bundle.manifest.json"),
-            '{"builtAt":"2026-10-06T00:00:00.000Z","bundleVersion":"2026-10-06-03","corpusRootExpected":true,"corpusSnapshotAt":"2026-10-05T00:00:00.000Z","counts":{"documents":1,"edges":1,"emails":1,"nodes":1},"schemaVersion":{"duckdb":"3","pglite":"3"},"sourceRuns":{"base":"included","includedRuns":[],"refresh202607":"excluded"}}'
-          );
-
-          const error = yield* Effect.flip(loadPracticeKgBundleContext(bundleDir));
-
-          expect(error.message).toContain("store format pglite 3 / duckdb 3");
-          expect(error.message).toContain("reads pglite 4 / duckdb 4");
-        })
-      );
-
-      it.effect(
-        "maps missing and invalid manifests to sanitized typed host errors",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          const missing = yield* Effect.result(loadPracticeKgBundleContext(bundleDir));
-
-          yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), "not-json");
-          const invalid = yield* Effect.result(loadPracticeKgBundleContext(bundleDir));
-
-          missing.pipe(Result.isFailure, assertTrue);
-          invalid.pipe(Result.isFailure, assertTrue);
-          if (Result.isFailure(missing) && Result.isFailure(invalid)) {
-            expect(missing.failure).toBeInstanceOf(PracticeKgHostError);
-            expect(missing.failure.message).toContain("Failed reading practice KG bundle manifest");
-            expect(invalid.failure).toBeInstanceOf(PracticeKgHostError);
-            expect(invalid.failure.message).toContain("bundle manifest");
-          }
-        })
-      );
-      it.effect(
-        "rejects parseable JSON that does not satisfy the production manifest schema",
-        Effect.fnUntraced(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-" });
-          yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), "{}");
-          const invalid = yield* Effect.result(loadPracticeKgBundleContext(bundleDir));
-          if (!Result.isFailure(invalid)) throw new Error("Expected a failed manifest result");
-          expect(invalid.failure).toBeInstanceOf(PracticeKgHostError);
-          expect(invalid.failure.message).toBe(
-            `Practice KG bundle manifest at "${path.join(bundleDir, "bundle.manifest.json")}" is invalid.`
-          );
-        })
-      );
-    });
-  });
-}
-
 describe("@beep/practice-kg-mcp self-check", () => {
   it.layer(Layer.fresh(TestServices), { timeout: "2 minutes" })((it) => {
     it.effect(
@@ -302,7 +166,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const bundleDir = yield* copySmokeBundle(root);
         const context = yield* loadPracticeKgBundleContext(bundleDir);
 
-        const { lines } = yield* runPracticeKgSelfCheck(bundleDir).pipe(printPracticeKgSelfCheck, printed);
+        const { lines } = yield* runPracticeKgMcpSelfCheck(bundleDir).pipe(printPracticeKgSelfCheck, printed);
 
         expect(lines).toHaveLength(1);
         const line = lines[0] ?? "";
@@ -330,7 +194,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
           '{"builtAt":"2026-10-06T00:00:00.000Z","bundleVersion":"2026-10-06-01","corpusRootExpected":true,"corpusSnapshotAt":"2026-10-05T00:00:00.000Z","counts":{"documents":1,"edges":1,"emails":1,"nodes":1},"schemaVersion":{"duckdb":"2","pglite":"2"},"sourceRuns":{"base":"included","refresh202607":"excluded"}}'
         );
 
-        const { lines, value: error } = yield* runPracticeKgSelfCheck(bundleDir).pipe(
+        const { lines, value: error } = yield* runPracticeKgMcpSelfCheck(bundleDir).pipe(
           printPracticeKgSelfCheck,
           Effect.flip,
           printed
@@ -356,7 +220,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
         const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-self-check-" });
         yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), yield* encodeManifest(manifest));
 
-        const missing = yield* Effect.flip(runPracticeKgSelfCheck(bundleDir));
+        const missing = yield* Effect.flip(runPracticeKgMcpSelfCheck(bundleDir));
         expect(missing.message).toBe(
           `Practice KG graph store (kg.pglite) at "${bundleDir}" is missing or not an initialised store; install the bundle that matches this server.`
         );
@@ -467,7 +331,7 @@ describe("@beep/practice-kg-mcp self-check", () => {
           )
         );
 
-        const { lines, value: error } = yield* runPracticeKgSelfCheck(bundleDir).pipe(
+        const { lines, value: error } = yield* runPracticeKgMcpSelfCheck(bundleDir).pipe(
           printPracticeKgSelfCheck,
           Effect.flip,
           printed

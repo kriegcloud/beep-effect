@@ -12,10 +12,10 @@ import * as Exit from "effect/Exit";
 import * as Result from "effect/Result";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import type * as Param from "effect/cli/Param";
+import * as Prompt from "effect/cli/Prompt";
 import * as O from "@beep/utils/Option";
 import * as Semaphore from "effect/Semaphore";
-import type { Param } from "effect/cli";
-import { Prompt } from "effect/cli";
 import type { ReactElement, ReactNode } from "react";
 import { Cancelled } from "../Cancelled.ts";
 import { CliInteractive } from "../CliInteractive.ts";
@@ -750,7 +750,7 @@ export class CliUi {
 	 * ```ts
 	 * import { CliUi } from "@beep/scratchpad/effected/cli/ui/CliUi"
 	 * import { Confirm } from "@beep/scratchpad/effected/cli/ui/Confirm"
-	 * import { Flag } from "effect/cli"
+	 * import * as Flag from "effect/cli/Flag";
 	 * const yes = Flag.Boolean("yes").pipe(
 	 *   Flag.withFallbackPrompt(
 	 *     CliUi.fallback(

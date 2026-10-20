@@ -199,7 +199,7 @@ export abstract class ChildEnv {
 	 *
 	 * ```ts
 	 * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
-	 * import { ChildProcess } from "effect/process";
+	 * import * as ChildProcess from "effect/process/ChildProcess";
 	 *
 	 * const command = ChildProcess.make("pnpm", ["install"], {
 	 *   ...ChildEnv.prependPath(["/opt/hostedtoolcache/pnpm/10.13.1/x64/bin"], {

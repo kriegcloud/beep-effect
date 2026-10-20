@@ -28,7 +28,7 @@ import * as Effect from "effect/Effect";
 import * as Base64 from "effect/encoding/Base64";
 import { constTrue, dual, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
-import { FetchHttpClient } from "effect/http";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
@@ -62,7 +62,7 @@ import {
 } from "./M365.schemas.ts";
 import type { LocalDate } from "@beep/schema/LocalDate";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
-import type { M365AuthShape, M365InteractiveAuthorizer } from "./M365.auth.ts";
+import type { M365AuthShape, M365DelegatedAuthOptions } from "./M365.auth.ts";
 import type { M365AppOnlyConfigInput } from "./M365.config.ts";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" })).annotate({
@@ -3609,7 +3609,7 @@ export class M365 extends Context.Service<M365, M365Shape>()($I`M365`) {
    */
   static readonly makeLiveLayer = (
     config: M365ConfigInput,
-    options: { readonly interactiveAuthorizer?: M365InteractiveAuthorizer } = {}
+    options: M365DelegatedAuthOptions = {}
   ): Layer.Layer<M365, M365Error> =>
     M365.makeLayer(config).pipe(
       Layer.provide(M365Auth.makeLayer(config, options)),
