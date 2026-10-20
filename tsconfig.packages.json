@@ -34,6 +34,9 @@
       "path": "apps/practice-mail-tagging"
     },
     {
+      "path": "apps/practice-review-hub"
+    },
+    {
       "path": "apps/practice-setup"
     },
     {
@@ -422,6 +425,9 @@
     },
     {
       "path": "packages/tooling/library/mcpb-kit"
+    },
+    {
+      "path": "packages/tooling/library/palantiri"
     },
     {
       "path": "packages/tooling/library/qa-capture"

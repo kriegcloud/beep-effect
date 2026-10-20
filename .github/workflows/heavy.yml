@@ -189,7 +189,7 @@ jobs:
 
       - name: Install typos
         if: steps.lane-gate.outputs.should_run == 'true' && matrix.install_typos == 'true'
-        uses: taiki-e/install-action@ab6895351a88b908e96a4697860d4ffea5e57dbe # v2.87.27
+        uses: taiki-e/install-action@8cca0918f8471c33515202b73f56ab27f2bed283 # v2.87.29
         with:
           tool: typos-cli@1.50.3
 
@@ -263,9 +263,11 @@ jobs:
               run_lane ci lane "${{ matrix.id }}" "${shape_args[@]}"
               ;;
             effect-diagnostics)
+              # Required and the only Effect-rule gate: a checkout without the
+              # lane must fail, never report success with zero programs.
               if [[ ! -f packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts ]]; then
-                echo '::notice::Effect diagnostics lane unavailable in this checkout; skipping.'
-                exit 0
+                echo '::error::Effect diagnostics lane missing from this checkout; merge main.'
+                exit 1
               fi
               run_lane ci lane effect-diagnostics "${shape_args[@]}"
               ;;

@@ -17,6 +17,12 @@ import {
   renderMergeGateDecision,
   runMergeGate,
   runYeetMergeGate,
+  SquashCommitlintFail,
+  SquashCommitlintOffendingLine,
+  SquashCommitlintPass,
+  SquashCommitlintReport,
+  SquashCommitlintUnavailable,
+  SquashCommitMessage,
   YeetReviewWindowElapsed,
   YeetReviewWindowOpen,
   YeetReviewWindowUnknown,
@@ -31,7 +37,8 @@ import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as PlatformError from "effect/PlatformError";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -78,6 +85,21 @@ const openWindow = YeetReviewWindowOpen.make({
 });
 const windowClosed = DateTime.add(anchoredAt, { minutes: 21 });
 
+const squashMessage = SquashCommitMessage.make({ header: `${pullFixture.title} (#${pullFixture.number})`, body: "" });
+const squashPass = SquashCommitlintReport.make({ message: squashMessage, verdict: SquashCommitlintPass.make({}) });
+const longBullet = `* ${"docs(agent-pool-doctrine): gate the Claude chain Codex step on ordinaryUsageAllowed (review round 2)"}`;
+const squashFail = SquashCommitlintReport.make({
+  message: SquashCommitMessage.make({ ...squashMessage, body: `* fix(x): one\n\n${longBullet}\n\n---------` }),
+  verdict: SquashCommitlintFail.make({
+    rules: ["footer-max-line-length"],
+    offendingLines: [SquashCommitlintOffendingLine.make({ line: 5, length: 102, text: longBullet })],
+  }),
+});
+const squashUnavailable = SquashCommitlintReport.make({
+  message: squashMessage,
+  verdict: SquashCommitlintUnavailable.make({ detail: "bunx commitlint could not run: spawn ENOENT" }),
+});
+
 const read = (overrides: Partial<Parameters<typeof MergeGateRead.make>[0]> = {}) =>
   MergeGateRead.make({
     prNumber: pullFixture.number,
@@ -89,6 +111,7 @@ const read = (overrides: Partial<Parameters<typeof MergeGateRead.make>[0]> = {})
     checkRuns: fixtureRuns,
     window: elapsedWindow,
     unresolvedThreads: O.some(0),
+    squashCommitlint: squashPass,
     readAt: windowClosed,
     ...overrides,
   });
@@ -134,6 +157,53 @@ describe("yeet merge-gate decision", () => {
     expect(
       holdReason(decideMergeGate(MergeGateInput.make({ read: read({ mergeableState: "dirty" }), options: options() })))
     ).toBe("conflicting");
+  });
+
+  it("holds on squash-commitlint when the predicted squash message fails the repo's commitlint (ep47)", () => {
+    const decision = decideMergeGate(
+      MergeGateInput.make({ read: read({ squashCommitlint: squashFail }), options: options() })
+    );
+    expect(holdReason(decision)).toBe("squash-commitlint");
+    const line = renderMergeGateDecision(decision);
+    expect(line).toMatch(/^#1459 HOLD squash-commitlint: footer-max-line-length at line 5 \(102 chars\): "\* docs/u);
+    expect(line).toContain("98 chars or fewer");
+  });
+
+  it("holds on squash-commitlint when commitlint gave no verdict, and in relaxed mode too", () => {
+    for (const relaxed of [false, true]) {
+      const decision = decideMergeGate(
+        MergeGateInput.make({ read: read({ squashCommitlint: squashUnavailable }), options: options({ relaxed }) })
+      );
+      expect(holdReason(decision)).toBe("squash-commitlint");
+      expect(renderMergeGateDecision(decision)).toContain("never a pass");
+    }
+    expect(
+      holdReason(
+        decideMergeGate(
+          MergeGateInput.make({ read: read({ squashCommitlint: squashFail }), options: options({ relaxed: true }) })
+        )
+      )
+    ).toBe("squash-commitlint");
+  });
+
+  it("the squash-commitlint hold comes after the structural holds and before the checks", () => {
+    expect(
+      holdReason(
+        decideMergeGate(
+          MergeGateInput.make({ read: read({ squashCommitlint: squashFail, draft: true }), options: options() })
+        )
+      )
+    ).toBe("draft");
+    expect(
+      holdReason(
+        decideMergeGate(
+          MergeGateInput.make({
+            read: read({ squashCommitlint: squashFail, checkRuns: withRun("Lint", { conclusion: "failure" }) }),
+            options: options(),
+          })
+        )
+      )
+    ).toBe("squash-commitlint");
   });
 
   it("fails closed when the base ruleset could not be read", () => {
@@ -480,6 +550,8 @@ interface GhScript {
   readonly cancelFailId?: number;
   readonly checkRuns?: unknown;
   readonly commentExit?: number;
+  readonly commitlint?: ScriptedAnswer;
+  readonly commits?: ReadonlyArray<string>;
   readonly mergeResponse: string;
   readonly pull?: unknown;
   readonly queuedExit?: number;
@@ -549,6 +621,29 @@ const scriptReviewerPage = (script: GhScript) => {
   const runs = script.reviewerRuns ?? [];
   return { total_count: runs.length, check_runs: runs };
 };
+// The squash prediction's three reads: the PR commits (one slurped page) before the PR
+// itself, which is a prefix of it, and the repository's squash settings last, because every
+// other `repos/{owner}/{repo}/...` call contains that fragment.
+const squashAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAnswer]> => {
+  const commits = script.commits ?? [`${pullFixture.title}\n\nThe one commit.`];
+  return [
+    [
+      `/pulls/${pullFixture.number}/commits`,
+      { exitCode: 0, output: encodeJson([A.map(commits, (message) => ({ commit: { message } }))]) },
+    ],
+    [`/pulls/${pullFixture.number}`, { exitCode: 0, output: encodeJson(script.pull ?? pullFixture) }],
+    [
+      "repos/{owner}/{repo}",
+      {
+        exitCode: 0,
+        output: encodeJson({
+          squash_merge_commit_title: "COMMIT_OR_PR_TITLE",
+          squash_merge_commit_message: "COMMIT_MESSAGES",
+        }),
+      },
+    ],
+  ];
+};
 const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAnswer]> => [
   ["/merge", { exitCode: 0, output: script.mergeResponse }],
   // S11 post-merge steps: the PR comment, the leftover-run listings, and each cancel.
@@ -573,16 +668,20 @@ const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAn
   ["rules/branches/", { exitCode: script.rulesExit, output: encodeJson(scriptReviewerRules(script)) }],
   ["?check_name=beep-reviewer", { exitCode: 0, output: encodeJson(scriptReviewerPage(script)) }],
   ["/check-runs", { exitCode: 0, output: encodeJson([script.checkRuns ?? checkRunsFixture]) }],
-  [`/pulls/${pullFixture.number}`, { exitCode: 0, output: encodeJson(script.pull ?? pullFixture) }],
+  ...squashAnswers(script),
 ];
 
+// `bunx commitlint` is scripted too: the gate's own tests never run the real
+// linter (yeet-squash-commitlint.test.ts does); by default it passes.
 const answerFor = (script: GhScript, command: string, line: string): ScriptedAnswer =>
   command === "git"
     ? { exitCode: 0, output: "feat/gate\n" }
-    : A.findFirst(ghAnswers(script), ([fragment]) => Str.includes(fragment)(line)).pipe(
-        O.map(([, answer]) => answer),
-        O.getOrElse(() => ({ exitCode: 1, output: `unexpected command: ${line}` }))
-      );
+    : command === "bunx"
+      ? (script.commitlint ?? { exitCode: 0, output: "✔   found 0 problems, 0 warnings" })
+      : A.findFirst(ghAnswers(script), ([fragment]) => Str.includes(fragment)(line)).pipe(
+          O.map(([, answer]) => answer),
+          O.getOrElse(() => ({ exitCode: 1, output: `unexpected command: ${line}` }))
+        );
 
 const scriptedGh = (script: GhScript, calls: Ref.Ref<ReadonlyArray<string>>) =>
   ChildProcessSpawner.make((command) => {
@@ -648,8 +747,46 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           expect(result.window._tag).toBe("elapsed");
           if (result.window._tag === "elapsed") expect(result.window.anchoredAt).toBe(DateTime.formatIso(anchoredAt));
           expect(result.unresolvedThreads).toEqual(O.some(0));
+          expect(result.squashCommitlint.verdict._tag).toBe("pass");
+          expect(result.squashCommitlint.message.header).toBe(`${pullFixture.title} (#${pullFixture.number})`);
+          expect(result.squashCommitlint.message.body).toBe("The one commit.");
           expect(yield* mergeWasSent(calls)).toBe(false);
         })
+      )
+    );
+
+    it.effect("a failing squash commitlint holds the gate and is printed before the decision, no merge sent", () =>
+      withScriptedGh(
+        {
+          ...defaultScript,
+          commits: ["fix(x): one\n\nBody.", longBullet.slice(2)],
+          commitlint: {
+            exitCode: 1,
+            output:
+              "✖   footer's lines must not be longer than 100 characters [footer-max-line-length]\n✖   found 1 problems, 0 warnings",
+          },
+        },
+        (calls) =>
+          Effect.gen(function* () {
+            const error = yield* runMergeGate(
+              context,
+              MergeGateRunOptions.make({
+                prNumber: pullFixture.number,
+                wantSha: headSha,
+                tolerate: [],
+                forceWindow: false,
+                relaxed: true,
+                dryRun: false,
+              })
+            ).pipe(Effect.flip);
+            // The recorded #1459 title is 116 characters with its suffix, so the header is listed first.
+            expect(error.message).toContain("HOLD squash-commitlint: footer-max-line-length at line 1 (116 chars)");
+            expect(error.message).toContain(`line 7 (102 chars): "${longBullet}"`);
+            expect(yield* mergeWasSent(calls)).toBe(false);
+            const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+            expect(printed).toContain(`[yeet] squash-commitlint #${pullFixture.number}: footer-max-line-length`);
+            expect(printed).toContain(`#${pullFixture.number} HOLD squash-commitlint`);
+          })
       )
     );
 

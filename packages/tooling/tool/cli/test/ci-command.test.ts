@@ -3,7 +3,7 @@ import { FsUtilsLive } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
@@ -24,10 +24,11 @@ const runCiLaneCommand = Command.runWith(ciLaneCommand, { version: "0.0.0" });
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
 const isString = (value: unknown): value is string => typeof value === "string";
 
-const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
+const withTempRepo = <A, E, R>(use: (root: string) => Effect.Effect<A, E, R>) =>
   Effect.scoped(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
       const tmpDir = yield* fs.makeTempDirectoryScoped();
       const previousCwd = process.cwd();
       const previousGithubStepSummary = Bun.env.GITHUB_STEP_SUMMARY;
@@ -44,9 +45,9 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       );
       process.chdir(tmpDir);
       delete Bun.env.GITHUB_STEP_SUMMARY;
-      yield* fs.makeDirectory(".git", { recursive: true });
+      yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
-      return yield* use;
+      return yield* use(tmpDir);
     })
   );
 
@@ -84,7 +85,7 @@ describe("CI commands", () => {
 
   ciTest("fails local planning when Git cannot resolve the current branch", (it) => {
     it.effect("runs", () =>
-      withTempRepo(
+      withTempRepo(() =>
         Effect.gen(function* () {
           const error = yield* runCiLocal({
             affected: false,
@@ -102,11 +103,11 @@ describe("CI commands", () => {
 
   ciTest("renders current Turbo summary files whose tasks are arrays", (it) => {
     it.effect("runs", () =>
-      withTempRepo(
+      withTempRepo((root) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const summaryPath = path.join(process.cwd(), ".turbo", "runs", "summary.json");
+          const summaryPath = path.join(root, ".turbo", "runs", "summary.json");
 
           yield* fs.makeDirectory(path.dirname(summaryPath), { recursive: true });
           yield* fs.writeFileString(
@@ -152,11 +153,11 @@ describe("CI commands", () => {
 
   ciTest("renders every Turbo summary when aggregation is requested", (it) => {
     it.effect("runs", () =>
-      withTempRepo(
+      withTempRepo((root) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const runDirectory = path.join(process.cwd(), ".turbo", "runs");
+          const runDirectory = path.join(root, ".turbo", "runs");
 
           yield* fs.makeDirectory(runDirectory, { recursive: true });
           yield* Effect.forEach(["build", "coverage"], (task, index) =>

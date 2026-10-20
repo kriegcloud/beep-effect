@@ -5,7 +5,7 @@ import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as Stream from "effect/Stream";
 
 const bootstrapUrl = new URL("../scripts/CreateKnowledgeMintApp.ts", import.meta.url).href;
@@ -32,8 +32,10 @@ globalThis.fetch = async () => new Response(JSON.stringify({
   id: 123, slug: "beep-knowledge-mint-2", client_id: "fixture-client", pem: "${PLACEHOLDER}"
 }), { status: ${conversionStatus}, headers: { "content-type": "application/json" } });
 const { makeKnowledgeMintHandler } = await import(${JSON.stringify(bootstrapUrl)});
+const Effect = await import("effect/Effect");
+const { FetchHttpClient } = await import("effect/http");
 const handle = makeKnowledgeMintHandler("fixture-state", JSON.stringify({ name: "beep-knowledge-mint" }));
-const get = (url) => handle(new Request(url));
+const get = (url) => Effect.runPromise(Effect.provide(handle(new Request(url)), FetchHttpClient.layer));
 if ((await get("http://evil.example:8787/")).status !== 400) process.exit(90);
 const form = await (await get("http://localhost:8787/")).text();
 if (!form.includes("organizations/beep-effect/settings/apps/new?state=fixture-state")) process.exit(91);

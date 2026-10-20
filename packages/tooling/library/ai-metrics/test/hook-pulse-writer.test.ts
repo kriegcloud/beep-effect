@@ -41,7 +41,8 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -67,6 +68,7 @@ const notifierPath = `${repoRoot}.claude/hooks/sequence-break-notifier.sh`;
 const switchPath = `${repoRoot}.claude/hooks/hook-pulse-switch.sh`;
 
 // Module scope: the compiled guard is built once, as the oxlint hoist rule requires.
+const decodeHookPulseRefusalJson = S.decodeEffect(S.fromJsonString(HookPulseRefusal));
 const isHookPulseAgentKind = S.is(HookPulseAgentKind);
 
 // Two guards exit before the writer reads stdin: the kill switch and an agent kind
@@ -714,9 +716,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const run = yield* runWriter(yield* encodeJson(preToolUsePayload), { agentKind: "other" });
       expectSilentRefusal(run);
       expect(run.refusals).toHaveLength(1);
-      const refusal = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(
-        pipe(A.head(run.refusals), O.getOrThrow)
-      );
+      const refusal = yield* decodeHookPulseRefusalJson(pipe(A.head(run.refusals), O.getOrThrow));
       expect(refusal.agentKind).toBe("unknown");
       expect(refusal.reason).toBe("unknown-agent-kind");
       expect(pipe(A.head(run.refusals), O.getOrThrow)).not.toContain(CANARY);
@@ -1137,11 +1137,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       expect(run.exitCode).toBe(0);
       expect(run.stdout).toBe("");
       expect(run.rows).toHaveLength(0);
-      const refusal = yield* pipe(
-        A.head(run.refusals),
-        O.getOrThrow,
-        S.decodeEffect(S.fromJsonString(HookPulseRefusal))
-      );
+      const refusal = yield* pipe(A.head(run.refusals), O.getOrThrow, decodeHookPulseRefusalJson);
       expect(refusal.reason).toBe("timeout");
     })
   );
@@ -1339,12 +1335,12 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
     Effect.gen(function* () {
       const invalid = yield* runWriter("", { writerArgs: ["--refuse", "timeout"], attemptUtc: "2026-02-30T00:00:00Z" });
       expect(invalid.refusals).toHaveLength(1);
-      const row = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(A.getUnsafe(invalid.refusals, 0));
+      const row = yield* decodeHookPulseRefusalJson(A.getUnsafe(invalid.refusals, 0));
       expect(DateTime.formatIso(row.ts)).not.toBe("2026-03-02T00:00:00.000Z");
       const valid = yield* runWriter("", { writerArgs: ["--refuse", "timeout"], attemptUtc: "2026-08-01T23:59:59Z" });
       expect(valid.refusalFiles).toEqual(["hook-pulse-refusals-2026-08-01.ndjson"]);
       expect(valid.refusals).toHaveLength(1);
-      const validRow = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(A.getUnsafe(valid.refusals, 0));
+      const validRow = yield* decodeHookPulseRefusalJson(A.getUnsafe(valid.refusals, 0));
       expect(DateTime.formatIso(validRow.ts)).toBe("2026-08-01T23:59:59.000Z");
     })
   );
@@ -1490,9 +1486,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
 
       expectSilentRefusal(run);
       expect(run.refusals).toHaveLength(1);
-      const refusal = yield* S.decodeEffect(S.fromJsonString(HookPulseRefusal))(
-        pipe(A.head(run.refusals), O.getOrThrow)
-      );
+      const refusal = yield* decodeHookPulseRefusalJson(pipe(A.head(run.refusals), O.getOrThrow));
       expect(refusal.reason).toBe("disabled");
     })
   );

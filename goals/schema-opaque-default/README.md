@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Yeet — codemod applied on main 3749e7ca4a and proven; the D7 proof (0.52.0 installed, `schemaClassMissingBrand` at error) reports 0 hits; publishing under operator ruling S25 (finalize now, S11 gate).
+Closed 2026-10-15. #1758 landed the codemod and its output; the closing PR arms `schemaClassMissingBrand` at error in the Effect diagnostics lane and adds `lint:opaque-roundtrips`. Reflection: [`history/reflections/2026-10-15-claude.md`](./history/reflections/2026-10-15-claude.md).
 
 ## Latest Evidence
 
@@ -42,4 +42,5 @@ P3 Yeet — codemod applied on main 3749e7ca4a and proven; the D7 proof (0.52.0 
 ## Notes
 
 - Re-run the codemod on `origin/main` to resolve conflicts (`bun run goals/schema-opaque-default/ops/codemod/run.ts`, then `--check`); never hand-merge its output.
-- `schemaClassMissingBrand` cannot be configured until the `@effect/tsgo` 0.52 bump (tsc-rs parity, #1636); the proof installs 0.52 temporarily.
+- `schemaClassMissingBrand` is armed in `standards/effect-diagnostics.profile.json`, which the `beep quality effect-diagnostics` lane (`@effect/tsgo` 0.53, #1810) reads. It is not in `tsconfig.base.json`: tsc-rs 0.6.0 exits 2 on rule names it does not know.
+- `bun run beep lint opaque-roundtrips` fails a test that compares a raw `Arbitrary` sample of an `S.Opaque` value with a freshly built one using `toStrictEqual`; normalise the sample with `X.make` or compare encoded values.

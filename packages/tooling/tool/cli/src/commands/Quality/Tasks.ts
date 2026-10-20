@@ -126,7 +126,7 @@ import {
 } from "./Quality.schemas.ts";
 import type { DomainError, NoSuchFileError } from "@beep/repo-utils";
 import type { PgliteTestcontainerResource } from "@beep/test-utils";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Scope from "effect/Scope";
 import type { CaptureCommandTimedOutError } from "../../internal/process/index.ts";
 import type { CoverageBaselineRowDelta, CoverageScopeOwner } from "./internal/CoverageScope.ts";
@@ -2949,6 +2949,7 @@ const policyMediumTasks = [
   "lint:tsconfig-overlay",
   "lint:package-test-typecheck",
   "lint:effect-vitest",
+  "lint:opaque-roundtrips",
 ];
 // The git-delta checks compare the merge-base archive with HEAD. They are uncached by
 // contract and cost about two minutes on a clean tree, so a local full-scope `bun run lint`

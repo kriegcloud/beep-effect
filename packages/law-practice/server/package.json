@@ -44,9 +44,12 @@
     "./LegalPositionRecord": "./src/LegalPositionRecord/index.ts",
     "./DocumentIdentification": "./src/DocumentIdentification/index.ts",
     "./MailTagging": "./src/MailTagging/index.ts",
+    "./NoticeMailbox": "./src/NoticeMailbox/index.ts",
     "./internal/*": null,
     "./PracticeKgHost": "./src/PracticeKgHost/index.ts",
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
+    "./QuestionCalendar": "./src/QuestionCalendar/index.ts",
+    "./ReviewFiles": "./src/ReviewFiles/index.ts",
     "./UsptoClaims": "./src/UsptoClaims/index.ts",
     "./package.json": "./package.json"
   },

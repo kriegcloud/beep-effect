@@ -2,7 +2,12 @@ import { it } from "@beep/test-runner";
 import { describe } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as S from "effect/Schema";
-import { SelfCheckFailure, SmokeFailure } from "../src/PracticeKgMcp.errors.ts";
+import {
+  PackageFailure,
+  SelfCheckFailure,
+  SmokeFailure,
+  TelemetryKeyFailure,
+} from "../src/PracticeKgMcp.errors.ts";
 
 const expectOpaqueCauseEquivalence = <A>(same: (self: A, that: A) => boolean, first: A, second: A, different: A) => {
   assertTrue(same(first, second));
@@ -10,6 +15,15 @@ const expectOpaqueCauseEquivalence = <A>(same: (self: A, that: A) => boolean, fi
 };
 
 describe("practice KG MCP tagged-error declared equivalence", () => {
+  it("ignores PackageFailure cause and compares diagnostic fields", () => {
+    const same = S.toEquivalence(PackageFailure);
+    const first = PackageFailure.make({ cause: { diagnostic: "first" }, message: "Packaging failed." });
+    const second = PackageFailure.make({ cause: { diagnostic: "second" }, message: "Packaging failed." });
+    const different = PackageFailure.make({ cause: { diagnostic: "first" }, message: "Packaging timed out." });
+
+    expectOpaqueCauseEquivalence(same, first, second, different);
+  });
+
   it("ignores SmokeFailure cause and compares diagnostic fields", () => {
     const same = S.toEquivalence(SmokeFailure);
     const first = SmokeFailure.make({ cause: { diagnostic: "first" }, message: "Compiled smoke failed." });
@@ -24,6 +38,15 @@ describe("practice KG MCP tagged-error declared equivalence", () => {
     const first = SelfCheckFailure.make({ cause: { diagnostic: "first" }, message: "Self-check failed." });
     const second = SelfCheckFailure.make({ cause: { diagnostic: "second" }, message: "Self-check failed." });
     const different = SelfCheckFailure.make({ cause: { diagnostic: "first" }, message: "Self-check timed out." });
+
+    expectOpaqueCauseEquivalence(same, first, second, different);
+  });
+
+  it("ignores TelemetryKeyFailure cause and compares diagnostic fields", () => {
+    const same = S.toEquivalence(TelemetryKeyFailure);
+    const first = TelemetryKeyFailure.make({ cause: { diagnostic: "first" }, message: "Key wrap failed." });
+    const second = TelemetryKeyFailure.make({ cause: { diagnostic: "second" }, message: "Key wrap failed." });
+    const different = TelemetryKeyFailure.make({ cause: { diagnostic: "first" }, message: "Key unwrap failed." });
 
     expectOpaqueCauseEquivalence(same, first, second, different);
   });

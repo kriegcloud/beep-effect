@@ -64,6 +64,14 @@ export * from "./Manifest.digest.ts";
  */
 export * from "./Manifest.schemas.ts";
 /**
+ * Pure outline-spacing rules: drawn lines side by side closer than a legible
+ * spacing, and their separation.
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export * from "./Outline.rules.ts";
+/**
  * Pure 1.84(m) surface-shading rules.
  *
  * @since 0.0.0

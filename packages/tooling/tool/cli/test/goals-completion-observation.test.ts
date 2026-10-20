@@ -5,6 +5,8 @@ import {
   GoalCompletionVerifier,
   GoalInitiative,
   GoalManifest,
+  GoalMergeTimeInventory,
+  GoalMergeTimeRuleSource,
   GoalPullRequestRef,
   GoalRequiredCheckSnapshot,
   goalCompletionDeclarationDigest,
@@ -21,7 +23,7 @@ import { expect } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -238,7 +240,34 @@ const completeReceipt = Effect.fn("CompletionTest.completeReceipt")(function* ()
       ...receipt,
       merged: O.some(true),
       grandfathered: false,
-      requiredChecks: O.some(GoalRequiredCheckSnapshot.make({ ...snapshot, inventoryComplete: true })),
+      requiredChecks: O.some(
+        GoalRequiredCheckSnapshot.make({
+          ...snapshot,
+          inventoryComplete: true,
+          gaps: [],
+          mergeTimeInventory: O.some(
+            GoalMergeTimeInventory.make({
+              source: "repos/{owner}/{repo}/rulesets/rule-suites/1",
+              ruleSuiteId: 1,
+              ref: "refs/heads/main",
+              afterSha: "merge-result",
+              pushedAt: receipt.verifiedAt,
+              result: "pass",
+              ruleSources: [
+                GoalMergeTimeRuleSource.make({
+                  sourceType: "ruleset",
+                  rulesetId: O.some(42),
+                  name: O.some("main"),
+                  enforcement: "active",
+                  requiredStatusChecks: O.some("pass"),
+                  survives: true,
+                  version: O.some("repos/{owner}/{repo}/rulesets/42/history/1"),
+                }),
+              ],
+            })
+          ),
+        })
+      ),
     })
   );
 });

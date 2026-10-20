@@ -19,7 +19,8 @@ import {
 import { makePracticeKgPgliteLayer } from "@beep/law-practice-server/PracticeKgHost";
 import { runMcpbEntrypoint } from "@beep/mcpb-kit";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";

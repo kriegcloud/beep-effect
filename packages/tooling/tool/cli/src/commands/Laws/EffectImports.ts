@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import * as NodeUrl from "node:url";
+import * as NodeURL from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import { extractFencedCodeBlockDetails } from "@beep/repo-docgen/Core";
 import { jsonParse } from "@beep/repo-utils/JsonUtils";
@@ -334,11 +334,6 @@ const defaultTarget = (source: string): ImportTarget => ({ kind: "default", sour
  */
 const CENSUS_MAPPING_OVERRIDES: RootImportMappings = {};
 
-const mappingCandidatesEntry = (
-  binding: string,
-  targets: ReadonlyArray<ImportTarget>
-): readonly [string, ReadonlyArray<ImportTarget>] => [binding, targets];
-
 const FlatPackageExports = S.Record(S.String, S.Union([S.String, S.Null])).pipe(
   $I.annoteSchema("FlatPackageExports", {
     title: "Flat Package Exports",
@@ -351,120 +346,10 @@ type FlatPackageExports = typeof FlatPackageExports.Type;
 const isFlatPackageExports = S.is(FlatPackageExports);
 const isUnknownJsonObject = S.is(S.Record(S.String, S.Unknown));
 
-/**
- * Complete executable Effect-root namespace map from the packet census.
- *
- * This list is deliberately data, not a `effect/${binding}` guess: an unseen
- * binding joins manual review until the census and export validation are
- * extended. Flat Function exports are modeled separately below.
- */
-const EFFECT_NAMESPACE_BINDINGS = [
-  "Arbitrary",
-  "Array",
-  "BigDecimal",
-  "BigInt",
-  "ByteSize",
-  "Brand",
-  "Cache",
-  "Cause",
-  "Chunk",
-  "Clock",
-  "Config",
-  "ConfigProvider",
-  "Console",
-  "Context",
-  "Crypto",
-  "Data",
-  "DateTime",
-  "Deferred",
-  "Duration",
-  "Effect",
-  "Encoding",
-  "Equal",
-  "Equivalence",
-  "ErrorReporter",
-  "ExecutionPlan",
-  "Exit",
-  "Fiber",
-  "FiberMap",
-  "FiberSet",
-  "FileSystem",
-  "Formatter",
-  "Function",
-  "Graph",
-  "Hash",
-  "HashMap",
-  "HashSet",
-  "Inspectable",
-  "Iterable",
-  "JsonPatch",
-  "JsonPointer",
-  "Layer",
-  "Logger",
-  "ManagedRuntime",
-  "Match",
-  "Metric",
-  "MutableHashMap",
-  "MutableHashSet",
-  "MutableList",
-  "MutableRef",
-  "Number",
-  "Option",
-  "Order",
-  "Path",
-  "PlatformError",
-  "Predicate",
-  "PrimaryKey",
-  "PubSub",
-  "Queue",
-  "Random",
-  "Redacted",
-  "Ref",
-  "References",
-  "RegExp",
-  "Request",
-  "RequestResolver",
-  "Result",
-  "Runtime",
-  "Schedule",
-  "Schema",
-  "SchemaAST",
-  "SchemaGetter",
-  "SchemaIssue",
-  "SchemaParser",
-  "SchemaTransformation",
-  "Scope",
-  "Semaphore",
-  "Sink",
-  "Stdio",
-  "Stream",
-  "Struct",
-  "Terminal",
-  "Tracer",
-  "Tuple",
-  "TxQueue",
-  "TxRef",
-  "Types",
-  "Unify",
-] as const;
+// Flat Function exports retain their named-import form at the root barrel.
+const EFFECT_FUNCTION_BINDINGS = ["absurd", "cast", "flow", "hole", "identity", "pipe"] as const;
 
-const EFFECT_FUNCTION_BINDINGS = ["cast", "flow", "identity", "pipe"] as const;
-
-const EFFECT_ROOT_MAPPING: ImportTargetCandidates = R.fromEntries(
-  A.appendAll(
-    A.appendAll(
-      A.map(EFFECT_NAMESPACE_BINDINGS, (binding) =>
-        mappingCandidatesEntry(binding, A.of(namespaceTarget(`effect/${binding}`)))
-      ),
-      A.of(mappingCandidatesEntry("TestClock", A.of(namespaceTarget("effect/testing/TestClock"))))
-    ),
-    A.map(EFFECT_FUNCTION_BINDINGS, (binding) =>
-      mappingCandidatesEntry(binding, A.of(namedTarget("effect/Function", binding)))
-    )
-  )
-);
-
-const EFFECT_PACKAGE_JSON_PATH = NodeUrl.fileURLToPath(import.meta.resolve("effect/package.json"));
+const EFFECT_PACKAGE_JSON_PATH = NodeURL.fileURLToPath(import.meta.resolve("effect/package.json"));
 
 const CODE_GLOBS = [
   "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
@@ -476,7 +361,6 @@ const CODE_GLOBS = [
   "explorations/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "scratchpad/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "tools/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
-  "plugins/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "research/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   ".claude/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   ".github/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
@@ -561,19 +445,19 @@ const publicSubpathsForSourceTarget = (exports: FlatPackageExports, sourceTarget
     A.dedupe
   );
 
-const exportMapCoversSubpath = (exports: FlatPackageExports, subpath: string): boolean =>
-  pipe(
-    R.get(exports, subpath),
-    O.filter(P.isString),
-    O.match({
-      onNone: () =>
-        A.some(
-          R.toEntries(exports),
-          ([candidate, target]) => P.isString(target) && O.isSome(wildcardCapture(candidate, subpath))
-        ),
-      onSome: () => true,
-    })
+const exportMapCoversSubpath = (exports: FlatPackageExports, subpath: string): boolean => {
+  const exact = R.get(exports, subpath);
+  if (O.isSome(exact)) {
+    return P.isString(exact.value);
+  }
+  const matchingPatterns = A.filter(R.toEntries(exports), ([candidate]) =>
+    O.isSome(wildcardCapture(candidate, subpath))
   );
+  return (
+    !A.some(matchingPatterns, ([, target]) => P.isNull(target)) &&
+    A.some(matchingPatterns, ([, target]) => P.isString(target))
+  );
+};
 
 const isSafePublicSubpath = (subpath: string): boolean =>
   Str.startsWith("./")(subpath) &&
@@ -749,8 +633,109 @@ const buildFoundationRootMappings = Effect.fn("EffectImports.buildFoundationRoot
   return rootMappings;
 });
 
+const publicEffectBarrels = (exports: FlatPackageExports) =>
+  pipe(
+    R.toEntries(exports),
+    A.map(([subpath, sourceTarget]) => {
+      if (!P.isString(sourceTarget) || !Str.endsWith("/index.js")(sourceTarget)) {
+        return O.none();
+      }
+      if (subpath !== "." && (!isSafePublicSubpath(subpath) || !exportMapCoversSubpath(exports, subpath))) {
+        return O.none();
+      }
+      return O.some({ subpath, sourceTarget });
+    }),
+    A.getSomes
+  );
+
+const effectFunctionCandidates = (declaration: ExportDeclaration, targetSpecifier: string): ImportTargetCandidates =>
+  pipe(
+    declaration.getNamedExports(),
+    A.filter((namedExport) => A.contains(EFFECT_FUNCTION_BINDINGS, namedExport.getName())),
+    A.map((namedExport): readonly [string, ReadonlyArray<ImportTarget>] => [
+      namedExport.getAliasNode()?.getText() ?? namedExport.getName(),
+      A.of(namedTarget(targetSpecifier, namedExport.getName())),
+    ]),
+    R.fromEntries
+  );
+
+const effectDeclarationCandidates = (
+  subpath: string,
+  declaration: ExportDeclaration,
+  targetSubpaths: ReadonlyArray<string>
+): ImportTargetCandidates => {
+  let candidates = R.empty<string, ReadonlyArray<ImportTarget>>();
+  for (const targetSubpath of targetSubpaths) {
+    const targetSpecifier = `effect${Str.slice(1)(targetSubpath)}`;
+    const namespaceExport = declaration.getNamespaceExport();
+    if (P.isNotUndefined(namespaceExport)) {
+      candidates = appendMappingCandidate(candidates, namespaceExport.getName(), namespaceTarget(targetSpecifier));
+      continue;
+    }
+    if (subpath !== "." || targetSpecifier !== "effect/Function") {
+      continue;
+    }
+    candidates = R.union(candidates, effectFunctionCandidates(declaration, targetSpecifier), (left, right) =>
+      A.appendAll(left, right)
+    );
+  }
+  return candidates;
+};
+
+const buildEffectBarrelMapping = Effect.fn("EffectImports.buildEffectBarrelMapping")(function* (
+  exports: FlatPackageExports,
+  subpath: string,
+  barrel: SourceFile
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const packageDirectory = path.dirname(EFFECT_PACKAGE_JSON_PATH);
+  let candidates = R.empty<string, ReadonlyArray<ImportTarget>>();
+  for (const declaration of barrel.getExportDeclarations()) {
+    const moduleSpecifier = declaration.getModuleSpecifierValue();
+    if (P.isUndefined(moduleSpecifier) || !Str.startsWith(".")(moduleSpecifier)) {
+      continue;
+    }
+    const targetPath = path.resolve(path.dirname(barrel.getFilePath()), moduleSpecifier);
+    if (!(yield* fs.exists(targetPath))) {
+      continue;
+    }
+    const targetSubpaths = pipe(
+      `./${toPosixPath(path.relative(packageDirectory, targetPath))}`,
+      (target) => publicSubpathsForSourceTarget(exports, target),
+      A.filter(isSafePublicSubpath),
+      A.filter((target) => exportMapCoversSubpath(exports, target))
+    );
+    candidates = R.union(candidates, effectDeclarationCandidates(subpath, declaration, targetSubpaths), (left, right) =>
+      A.appendAll(left, right)
+    );
+  }
+  return candidates;
+});
+
+const foundationMappingsForFiles = Effect.fn("EffectImports.foundationMappingsForFiles")(function* (
+  discoveredSourceFiles: ReadonlyArray<string>,
+  effectExports: FlatPackageExports
+) {
+  const path = yield* Path.Path;
+  // Semantic export resolution belongs only to the foundation mapping phase.
+  // Never seed it with the complete executable corpus.
+  const mappingProject = createRepoTsMorphProject({
+    tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
+    sourceFileGlobs: [],
+  });
+  for (const filePath of discoveredSourceFiles) {
+    const relativePath = toPosixPath(path.relative(process.cwd(), filePath));
+    if (Str.startsWith("packages/foundation/")(relativePath)) {
+      mappingProject.addSourceFileAtPathIfExists(filePath);
+    }
+  }
+  return yield* buildFoundationRootMappings(mappingProject, effectExports);
+});
+
 const buildEffectRootMapping = Effect.fn("EffectImports.buildEffectRootMapping")(function* () {
   const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const manifest = yield* fs.readFileString(EFFECT_PACKAGE_JSON_PATH).pipe(Effect.flatMap(jsonParse));
   const exports = pipe(
     O.liftPredicate(manifest, isUnknownJsonObject),
@@ -758,24 +743,22 @@ const buildEffectRootMapping = Effect.fn("EffectImports.buildEffectRootMapping")
     O.flatMap(flatExportsFrom)
   );
   if (O.isNone(exports)) {
-    return {
-      exports: R.empty<string, string | null>(),
-      mappings: R.empty<string, ReadonlyArray<ImportTarget>>(),
-    } as const;
+    return yield* EffectImportRulesConfigurationError.new(
+      "The installed Effect package must expose an unconditional string-or-null export map."
+    );
   }
 
-  return {
-    exports: exports.value,
-    mappings: pipe(
-      R.toEntries(EFFECT_ROOT_MAPPING),
-      A.filter(([, targets]) =>
-        A.every(targets, (target) =>
-          exportMapCoversSubpath(exports.value, `./${Str.slice(Str.length("effect/"))(target.source)}`)
-        )
-      ),
-      R.fromEntries
-    ),
-  } as const;
+  const packageDirectory = path.dirname(EFFECT_PACKAGE_JSON_PATH);
+  const barrelProject = new Project({ useInMemoryFileSystem: true });
+  let mappings = R.empty<string, ImportTargetCandidates>();
+  for (const { subpath, sourceTarget } of publicEffectBarrels(exports.value)) {
+    const barrelPath = path.resolve(packageDirectory, sourceTarget);
+    const barrel = barrelProject.createSourceFile(barrelPath, yield* fs.readFileString(barrelPath));
+    const candidates = yield* buildEffectBarrelMapping(exports.value, subpath, barrel);
+    mappings = R.set(mappings, subpath === "." ? "effect" : `effect${Str.slice(1)(subpath)}`, candidates);
+  }
+
+  return { exports: exports.value, mappings } as const;
 });
 
 const importTargetFor = (
@@ -1570,7 +1553,7 @@ const markdownImportFences = (content: string) =>
     })
   );
 
-const ROOT_EFFECT_IMPORT_PATTERN = /(?:from\s*|import\s*\(|import\s+|require\s*\()\s*["']effect["']/u;
+const ROOT_EFFECT_IMPORT_PATTERN = /["']effect(?:\/[^"']+)?["']/u;
 
 const tryTransformSourceFile = (
   mappings: RootImportMappings,
@@ -1749,15 +1732,11 @@ export const runEffectImportRules = Effect.fn("EffectImports.runEffectImportRule
     tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
     sourceFileGlobs: [],
   });
-  for (const filePath of discoveredSourceFiles) {
-    project.addSourceFileAtPathIfExists(filePath);
-  }
-
   const effectMapping = yield* buildEffectRootMapping();
   const foundationMappings = options.effectOnly
     ? R.empty<string, ImportTargetCandidates>()
-    : yield* buildFoundationRootMappings(project, effectMapping.exports);
-  const rootMappings = R.set(foundationMappings, "effect", effectMapping.mappings);
+    : yield* foundationMappingsForFiles(discoveredSourceFiles, effectMapping.exports);
+  const rootMappings = R.fromEntries(A.appendAll(R.toEntries(foundationMappings), R.toEntries(effectMapping.mappings)));
 
   let rootImportsRewritten = 0;
   let rootExportsRewritten = 0;
@@ -1831,24 +1810,26 @@ export const runEffectImportRules = Effect.fn("EffectImports.runEffectImportRule
       }
     }
   } else {
-    const sourceFiles = pipe(
-      project.getSourceFiles(),
-      A.map((sourceFile) => ({
-        sourceFile,
-        relativePath: toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath())),
-      })),
-      A.filter(({ relativePath }) => isPathInActiveScope(options, excludePaths, relativePath))
+    const sourcePaths = pipe(
+      discoveredSourceFiles,
+      A.map((filePath) => ({ filePath, relativePath: toPosixPath(path.relative(process.cwd(), filePath)) })),
+      A.filter(({ relativePath }) => isPathInActiveScope(options, excludePaths, relativePath)),
+      A.sortBy(Order.mapInput(Order.String, ({ relativePath }) => relativePath))
     );
-    scannedFiles = A.length(sourceFiles);
 
-    for (const { sourceFile, relativePath } of sourceFiles) {
+    for (const { filePath, relativePath } of sourcePaths) {
+      // These checks inspect syntax, not cross-file types. Retain only the current
+      // source tree; forgetting it releases ts-morph's descendant wrapper cache.
+      const sourceFile = project.addSourceFileAtPathIfExists(filePath);
+      if (P.isUndefined(sourceFile)) continue;
+      scannedFiles += 1;
       let fileAffected = false;
       if (options.mode === "code") {
         const transformed = tryTransformSourceFile(rootMappings, relativePath, sourceFile);
         if (O.isNone(transformed)) {
           parserWarnings = A.append(parserWarnings, `${relativePath}: cannot parse root Effect import`);
           changedFiles = A.append(changedFiles, relativePath);
-          sourceFile.refreshFromFileSystemSync();
+          sourceFile.forget();
           continue;
         }
         const sourceSummary = transformed.value;
@@ -1891,17 +1872,17 @@ export const runEffectImportRules = Effect.fn("EffectImports.runEffectImportRule
       if (fileAffected) {
         changedFiles = A.append(changedFiles, relativePath);
       }
+      if (options.write) {
+        yield* Effect.tryPromise({
+          try: () => sourceFile.save(),
+          catch: (cause) =>
+            EffectImportRulesPersistenceError.new(
+              `Failed to persist per-module import updates: ${Inspectable.toStringUnknown(cause, 0)}`
+            ),
+        });
+      }
+      sourceFile.forget();
     }
-  }
-
-  if (options.write && options.mode !== "markdown") {
-    yield* Effect.tryPromise({
-      try: () => project.save(),
-      catch: (cause) =>
-        EffectImportRulesPersistenceError.new(
-          `Failed to persist per-module import updates: ${Inspectable.toStringUnknown(cause, 0)}`
-        ),
-    });
   }
 
   const touchedFiles = A.length(changedFiles);

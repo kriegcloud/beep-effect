@@ -1,4 +1,5 @@
 [default.extend-words]
+optin = "optin" # Models manifest role muse.optin
 wdth = "wdth" # OpenType variable-font width axis tag (font-variation-settings)
 # Effect-TS vocabulary
 Struct = "Struct"
@@ -12,6 +13,9 @@ annote = "annote"
 bimap = "bimap"
 # OCCT surface type name as replicad reports it (Face.geomType)
 CYLINDRE = "CYLINDRE"
+# PDF stream filter name (ISO 32000 FlateDecode) and pdf-lib's `flateStream`
+Flate = "Flate"
+flate = "flate"
 # GnuPG --with-colons record tag for a key fingerprint line (scripts/cloud/bootstrap.sh)
 fpr = "fpr"
 retriev = "retriev"
@@ -146,3 +150,9 @@ extend-exclude = [
   # which is not prose and trips the dictionary on context hunk headers.
   "patches/**",
 ]
+
+# Immutable harness rows store Git refs as hex, including abbreviated refs.
+# Check their prose normally; dictionary words inside ref fields are not prose.
+[type.harness-ledger]
+extend-glob = ["*.jsonl"]
+extend-ignore-re = ['"(?:ref|repoRevision)":"[0-9a-f]{7,40}"']

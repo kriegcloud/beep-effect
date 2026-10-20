@@ -13,14 +13,15 @@ import { expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -36,6 +37,8 @@ const CommandTestLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   FixedMemoryStatsLayer
 );
+const decodeUnknownJsonResult = S.decodeResult(S.fromJsonString(S.Unknown));
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const runQualityCommand = Command.runWith(qualityCommand, { version: "0.0.0" });
 const encoder = new TextEncoder();
 
@@ -93,6 +96,14 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
+  it.effect("dispatches catalog-usage against the live checkout", () =>
+    Effect.gen(function* () {
+      yield* runQualityCommand(["catalog-usage"]);
+
+      expect(yield* consoleText()).toMatch(/\[catalog-usage\] catalog_entries=\d+ .*findings=0/);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
   it.effect("parses and dispatches pure profile commands", () =>
     Effect.gen(function* () {
       yield* runQualityCommand(["profile", "config", "workstation"]);
@@ -140,7 +151,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       if (O.isNone(index)) return Effect.die("Missing merged lspconfig");
       const text = command.args[index.value + 1];
       if (text === undefined) return Effect.die("Missing lspconfig value");
-      A.appendInPlace(configs, Result.getOrThrow(S.decodeResult(S.fromJsonString(S.Unknown))(text)));
+      A.appendInPlace(configs, Result.getOrThrow(decodeUnknownJsonResult(text)));
       return Effect.succeed(
         ChildProcessSpawner.makeHandle({ ...successfulHandle, all: Stream.concat(stdout, stderr), stdout, stderr })
       );
@@ -162,7 +173,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
             missedPipeableOpportunity: "off",
             preferEffectArray: "error",
             errorPayloadShadowsName: "error",
-            schemaClassMissingBrand: "off",
+            schemaClassMissingBrand: "error",
           },
           overrides: [],
         });
@@ -179,7 +190,6 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     Effect.fnUntraced(function* ([includes]) {
       const fs = yield* FileSystem.FileSystem;
       const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-merge-" });
-      const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
       const profile = yield* readEffectDiagnosticsProfile(new URL("../../../../..", import.meta.url).pathname);
       const plugin = {
         name: "@effect/language-service",
@@ -187,16 +197,19 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
         diagnosticSeverity: { missedPipeableOpportunity: "off" },
         overrides: [{ include: ["test/**", ...includes], diagnosticSeverity: { floatingEffect: "off" } }],
       };
-      yield* fs.writeFileString(`${dir}/base.json`, yield* encode({ compilerOptions: { plugins: [plugin] } }));
-      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encode({ extends: "./base.json" }));
+      yield* fs.writeFileString(
+        `${dir}/base.json`,
+        yield* encodeUnknownJson({ compilerOptions: { plugins: [plugin] } })
+      );
+      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encodeUnknownJson({ extends: "./base.json" }));
       const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
-      const value = Result.getOrThrow(S.decodeResult(S.fromJsonString(S.Unknown))(merged));
+      const value = Result.getOrThrow(decodeUnknownJsonResult(merged));
       expect(value).toMatchObject({
         ...plugin,
         diagnosticSeverity: {
           ...plugin.diagnosticSeverity,
           preferEffectArray: "error",
-          schemaClassMissingBrand: "off",
+          schemaClassMissingBrand: "error",
         },
       });
     }),

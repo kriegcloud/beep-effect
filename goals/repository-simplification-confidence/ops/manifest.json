@@ -4,13 +4,13 @@
     "id": "repository-simplification-confidence",
     "packetId": "goal-packet/v1:5bb5449956df01568f7d856c0dba3cae08f7827c96b10a53b0bdac50743a2730",
     "title": "Repository Simplification and Confidence",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-09",
-    "updated": "2026-10-09",
+    "updated": "2026-10-16",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/repository-simplification-confidence",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Retire tools without a demonstrated purpose, reach honest zero actionable debt, and give operational claims current evidence",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -18,7 +18,7 @@
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "statement": "Implementation PRs are merged; final closeout requires the driver-owned Yeet/S11 thread, window and conflict gate. The original unmet outcomes and post-merge receipt/retirement evidence remain explicit in stage-6-closeout-acceptance.md and issue #1883.",
     "grandfathered": false
   },
   "currentSourceOfTruth": [
@@ -29,7 +29,10 @@
     "goals/repository-simplification-confidence/PLAN.md",
     "goals/repository-simplification-confidence/GOAL.md",
     "goals/repository-simplification-confidence/research/SOURCES.md",
-    "goals/repository-simplification-confidence/research/BRIEF-2026-10-09.md"
+    "goals/repository-simplification-confidence/research/BRIEF-2026-10-09.md",
+    "goals/repository-simplification-confidence/history/receipts/stage-6-closeout-acceptance.md",
+    "goals/repository-simplification-confidence/history/receipts/final-program-report.md",
+    "goals/repository-simplification-confidence/history/receipts/stage-5-panel.md"
   ],
   "researchReports": [
     "research/SOURCES.md",
@@ -60,22 +63,22 @@
     {
       "id": "P1",
       "name": "Implement",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

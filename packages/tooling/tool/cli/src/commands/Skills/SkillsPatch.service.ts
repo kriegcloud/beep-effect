@@ -48,8 +48,8 @@ import {
 import { applySkillPatch, listSkillPatchHunks } from "./SkillPatches.apply.ts";
 import { SkillPatchRefusal, SkillsCommandError, SkillsLockWriteRefusal } from "./Skills.errors.ts";
 import { SkillPatchOwnerSourceLive } from "./Skills.patches.ts";
-import { SkillEffective, SkillPatch, SkillPatches } from "./Skills.schemas.ts";
-import { buildSkillPatchAdditions, SkillUpstreamContentSourceLive } from "./Skills.service.ts";
+import { SkillEffective, SkillPatch, SkillPatches, SkillPatchLabel } from "./Skills.schemas.ts";
+import { buildSkillPatchAdditions, SkillUpstreamContentSourceLive, skillPatchDropCondition } from "./Skills.service.ts";
 import { VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
 import { publishSkillsLockEntry } from "./SkillsLock.write.ts";
 import { reconstructVendoredSkill } from "./SkillsMaterialize.service.ts";
@@ -64,7 +64,7 @@ import type * as Crypto from "effect/Crypto";
 import type { ComputedSkillTree } from "./internal/SkillTree.ts";
 import type { SkillMaterializeRefusal, SkillPatchApplyError, SkillUpstreamContentError } from "./Skills.errors.ts";
 import type { SkillPatchOwnerSource } from "./Skills.patches.ts";
-import type { SkillPatchLabel, SkillUpstreamContentFile } from "./Skills.schemas.ts";
+import type { SkillUpstreamContentFile } from "./Skills.schemas.ts";
 import type { SkillUpstreamContentSource } from "./Skills.service.ts";
 import type {
   SkillPatchFile,
@@ -368,6 +368,16 @@ const classifyPatch = Effect.fn("SkillsPatch.classifyPatch")(function* (
   return verdictOf(A.map(hunks, (hunk) => latestClassification(ledger, { skill, hunkHash: hunk.hunkHash })));
 });
 
+// The canonical B42 texts; any other drop condition was written by hand and is kept.
+const canonicalDropConditions = HashSet.fromIterable(A.map(SkillPatchLabel.literals, skillPatchDropCondition));
+
+// A moved label takes its canonical condition; an unmoved label replaces only a canonical
+// text that belongs to another label, never a hand-authored retirement condition.
+const nextDropCondition = (patch: SkillPatch, label: SkillPatchLabel): string =>
+  label !== patch.label || HashSet.has(canonicalDropConditions, patch.dropCondition)
+    ? skillPatchDropCondition(label)
+    : patch.dropCondition;
+
 const labelPatches = Effect.fn("SkillsPatch.labelPatches")(function* (
   repoRoot: string,
   skill: string,
@@ -380,11 +390,23 @@ const labelPatches = Effect.fn("SkillsPatch.labelPatches")(function* (
   const verdicts = yield* Effect.forEach(A.zip(entry.patches.series, files), ([patch, file]) =>
     Effect.map(classifyPatch(skill, ledger, patch, file.bytes), (verdict) => [patch, verdict] as const)
   );
-  const changes = A.flatMap(verdicts, ([patch, verdict]) =>
-    verdict._tag === "label" && verdict.label !== patch.label
-      ? [SkillPatchLabelChange.make({ patch: patch.path, from: patch.label, to: verdict.label })]
-      : A.empty<SkillPatchLabelChange>()
-  );
+  const changes = A.flatMap(verdicts, ([patch, verdict]) => {
+    if (verdict._tag !== "label") {
+      return A.empty<SkillPatchLabelChange>();
+    }
+    const toDropCondition = nextDropCondition(patch, verdict.label);
+    return verdict.label !== patch.label || !Str.Equivalence(toDropCondition, patch.dropCondition)
+      ? [
+          SkillPatchLabelChange.make({
+            patch: patch.path,
+            from: patch.label,
+            to: verdict.label,
+            fromDropCondition: patch.dropCondition,
+            toDropCondition,
+          }),
+        ]
+      : A.empty<SkillPatchLabelChange>();
+  });
   const pending = A.flatMap(verdicts, ([patch, verdict]) =>
     verdict._tag === "pending"
       ? [SkillPatchLabelPending.make({ patch: patch.path, reason: verdict.reason })]
@@ -395,7 +417,7 @@ const labelPatches = Effect.fn("SkillsPatch.labelPatches")(function* (
       schemaVersion: PATCH_LABEL_SCHEMA_VERSION,
       lockSha256: lock.sha256,
       skill,
-      changes: A.map(changes, ({ patch, from, to }) => ({ patch, from, to })),
+      changes: A.map(changes, ({ patch, from, to, toDropCondition }) => ({ patch, from, to, toDropCondition })),
     },
     PATCH_LABEL_SCHEMA_VERSION
   );
@@ -421,7 +443,7 @@ const labelPatches = Effect.fn("SkillsPatch.labelPatches")(function* (
       A.findFirst(changes, (change) => Str.Equivalence(change.patch, patch.path)),
       {
         onNone: () => patch,
-        onSome: (change) => SkillPatch.make({ ...patch, label: change.to }),
+        onSome: (change) => SkillPatch.make({ ...patch, label: change.to, dropCondition: change.toDropCondition }),
       }
     );
   const relabelled = VendoredSkillLockEntry.make({
@@ -558,8 +580,7 @@ export const SkillPatchRecorderLayer = Layer.effect(SkillPatchRecorder, makeSkil
  * ```ts
  * import { SkillPatchRecorderLive } from "@beep/repo-cli/commands/Skills/SkillsPatch.service"
  * import * as Layer from "effect/Layer"
- * import { FetchHttpClient } from "effect/http"
- *
+ * import * as FetchHttpClient from "effect/http/FetchHttpClient";
  * console.log(Layer.isLayer(SkillPatchRecorderLive.pipe(Layer.provide(FetchHttpClient.layer)))) // true
  * ```
  *

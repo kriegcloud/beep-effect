@@ -22,7 +22,8 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { A, O, pipe, Str } from "@beep/utils";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
-import { Command, Flag } from "effect/cli";
+import * as Command from "effect/cli/Command";
+import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -55,6 +56,7 @@ const encodeListJson = S.encodeUnknownEffect(S.toCodecJson(S.Array(HarnessLedger
 const encodePruneJson = S.encodeUnknownEffect(S.toCodecJson(HarnessLedgerPruneReport));
 const decodeMonth = S.decodeUnknownEffect(HarnessLedgerMonth);
 const decodeDispositionOptions = S.decodeEffect(HarnessLedgerDispositionOptions);
+const encodeReconciliationJson = S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation));
 
 const resolveRepoRoot = findRepoRoot().pipe(
   Effect.mapError(HarnessLedgerIoError.wrap("Failed to locate the repo root."))
@@ -629,7 +631,7 @@ export const harnessLedgerReconcileCommand = Command.make(
       );
       const ledger = yield* HarnessLedgerService;
       const report = yield* ledger.reconcile(input.stateDir, input.transcriptDir, kind);
-      const encoded = yield* S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation))(report).pipe(
+      const encoded = yield* encodeReconciliationJson(report).pipe(
         Effect.mapError(HarnessLedgerIoError.wrap("Cannot encode reconciliation."))
       );
       yield* printCommandJson(encoded);

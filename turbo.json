@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-7.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-8.turborepo.dev/schema.json",
   "agentGuidance": false,
   "futureFlags": {
     "affectedUsingTaskInputs": true,
@@ -183,11 +183,13 @@
       "outputs": [],
       "inputs": [
         ".fallowrc.jsonc",
+        ".oxlintrc.circular.json",
         ".oxlintrc.deprecated-apis.jsonc",
         ".oxlintrc.docs.json",
         ".oxlintrc.json",
         "_typos.toml",
         "biome.jsonc",
+        "fallow-plugin-manual-development-tools.json",
         "package.json",
         "packages/drivers/acp/package.json",
         "packages/drivers/acp/src/**",
@@ -259,6 +261,8 @@
         "packages/tooling/library/ai-metrics/src/**",
         "packages/tooling/library/ai-sync/package.json",
         "packages/tooling/library/ai-sync/src/**",
+        "packages/tooling/library/palantiri/package.json",
+        "packages/tooling/library/palantiri/src/**",
         "packages/tooling/library/qa-capture/package.json",
         "packages/tooling/library/qa-capture/src/**",
         "packages/tooling/library/repo-utils/package.json",
@@ -1107,6 +1111,22 @@
         "!**/test/fixtures/**"
       ]
     },
+    "//#lint:opaque-roundtrips": {
+      "cache": true,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*.test.{ts,tsx}",
+        "scratchpad/**/*.{ts,tsx}",
+        "{apps,packages,infra,goals,explorations,tools}/**/test/**/*.{ts,tsx}",
+        "{apps,packages,infra,goals,explorations,tools}/**/src/**/*.{ts,tsx}",
+        "{apps,packages,infra,scratchpad,goals,explorations,tools}/**/tsconfig*.json",
+        "tsconfig*.json",
+        "tsconfig.base.json",
+        "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
+        "!**/node_modules/**"
+      ]
+    },
     "//#lint:effect-vitest": {
       "cache": true,
       "outputs": [],
@@ -1147,6 +1167,7 @@
       "outputs": [],
       "dependsOn": ["//#lint:policy-fingerprint"],
       "inputs": [
+        ".oxlintrc.circular.json",
         "packages/tooling/**/src/**/*.ts",
         "packages/foundation/**/src/**/*.{ts,tsx}",
         "tsconfig.json",

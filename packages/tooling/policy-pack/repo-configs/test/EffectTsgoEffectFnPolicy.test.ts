@@ -12,7 +12,7 @@ import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -195,7 +195,7 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
         expect(tscRs.stdout, context).not.toContain("+effect-tsgo");
         const { catalog } = decodeRootCatalog(yield* fs.readFileString(rootManifestPath));
         expect(catalog["tsc-rs"]).toBe("0.6.0");
-        expect(catalog["@effect/tsgo"]).toBe("0.53.0");
+        expect(catalog["@effect/tsgo"]).toBe("0.53.4");
       })
     );
   });
@@ -243,7 +243,7 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
       expect(`${result.stdout}\n${result.stderr}`).not.toContain("unknownRuleName");
     })
   );
-  it.effect("keeps shared Effect rules and TypeScript failures gating tsc-rs", () =>
+  it.effect("leaves Effect rules to the diagnostics lane while TypeScript failures gate tsc-rs", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -251,7 +251,7 @@ it.layer(TestLayer, { timeout: "10 seconds" })((it) => {
       yield* bootstrapTsgoProject(projectDir);
       const args = [tscRsBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")];
       const effectOnly = yield* runCommand(process.execPath, args, projectDir);
-      expect(effectOnly.exitCode, effectOnly.stdout).toBe(2);
+      expect(effectOnly.exitCode, effectOnly.stdout).toBe(0);
       expect(effectOnly.stdout).toContain("effect(effectFnOpportunity)");
       const diagnostics = yield* runTsgoOnProject(projectDir);
       expect(diagnostics.exitCode, diagnostics.stdout).toBe(1);

@@ -5,8 +5,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import { accountsCommand } from "./Accounts/index.ts";
 import { agentEffectivenessCommand } from "./AgentEffectiveness/index.ts";
 import { agentMessageCommand } from "./AgentMessage/index.ts";
@@ -35,6 +34,7 @@ import { lawsCommand } from "./Laws/index.ts";
 import { lintCommand } from "./Lint/index.ts";
 import { modelsCommand } from "./Models/index.ts";
 import { observabilityCommand } from "./Observability/index.ts";
+import { palantiriCommand } from "./Palantiri/index.ts";
 import { purgeCommand } from "./Purge/index.ts";
 import { qaCommand } from "./Qa/index.ts";
 import { qualityCommand } from "./Quality/index.ts";
@@ -104,6 +104,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     lawsCommand,
     modelsCommand,
     observabilityCommand,
+    palantiriCommand,
     qualityCommand,
     researchCommand,
     reviewerCommand,

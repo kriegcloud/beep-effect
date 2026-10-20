@@ -1,0 +1,35 @@
+# Sample systemd USER unit for the workstation review hub.
+#
+# Nothing installs this file. Copy it to $HOME/.config/systemd/user/ by hand.
+# Install steps, tailscale serve, upgrades and removal:
+# docs/runbooks/practice-review-hub.md.
+# Replace every REPLACE_ value first: systemd does not expand them.
+#
+# The hub listens on 127.0.0.1 only; `tailscale serve` exposes it on the
+# tailnet and sets the Tailscale-User-Login header the allow-list checks. It
+# reads no secrets, so it runs without op run and without an environment file.
+
+[Unit]
+Description=Practice review hub: review items, answers and verdicts over MCP on 127.0.0.1
+Documentation=https://github.com/beep-effect/beep-effect/blob/main/docs/runbooks/practice-review-hub.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+UMask=0077
+# PLACEHOLDER: absolute path of the deploy checkout the hub runs from.
+WorkingDirectory=/REPLACE_WITH_CHECKOUT_PATH
+Environment=PATH=/REPLACE_WITH_HOME/.local/share/mise/shims:/usr/bin:/bin
+# PLACEHOLDERS: the bun shim; the data directory (it holds items.jsonl,
+# verdicts.jsonl and answers.jsonl, and docket intake writes items.jsonl);
+# the attorney's tailnet login, or several separated by commas; the loopback
+# port tailscale serve proxies to.
+ExecStart=/REPLACE_WITH_BUN_PATH run apps/practice-review-hub/src/main.ts serve --data-dir /REPLACE_WITH_DATA_DIR --allowed-logins REPLACE_WITH_TAILNET_LOGIN --port REPLACE_WITH_PORT
+Restart=on-failure
+RestartSec=30s
+MemoryHigh=384M
+MemoryMax=512M
+
+[Install]
+WantedBy=default.target

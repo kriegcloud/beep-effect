@@ -22,7 +22,7 @@ import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
@@ -313,6 +313,52 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           expect(authoredDirty.status).toBe("residue");
           expect(authoredDirty.evidence).toContain("infra/deploy.yml");
           expect(A.some(authoredDirty.evidence, Str.startsWith(".beep/"))).toBe(false);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("probes the target's catalog shards, not the retired single-file catalogs", () =>
+      Effect.flatMap(temporaryDirectory, (repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const statusOf = Effect.fn(function* (surfaceId: string) {
+            const observations = yield* inspectTargetAtRoot(repoRoot, target);
+            return O.getOrThrow(A.findFirst(observations, (item) => item.surfaceId === surfaceId));
+          });
+          yield* fs.makeDirectory(path.join(repoRoot, "standards", "schema-catalog", "@beep"), { recursive: true });
+          yield* fs.makeDirectory(path.join(repoRoot, "standards", "instrumentation-catalog", "@beep"), {
+            recursive: true,
+          });
+          yield* fs.writeFileString(
+            path.join(repoRoot, "standards", "schema-catalog.generated.jsonc"),
+            '{ "file": "packages/drivers/courtlistener/src/Client.ts", "owner": "@beep/courtlistener" }\n'
+          );
+          yield* fs.writeFileString(
+            path.join(repoRoot, "standards", "instrumentation-catalog.generated.jsonc"),
+            '{ "owner": "@beep/courtlistener" }\n'
+          );
+          expect((yield* statusOf("schema-catalog")).status).toBe("clean");
+          expect((yield* statusOf("instrumentation-catalog")).status).toBe("clean");
+
+          yield* fs.writeFileString(
+            path.join(repoRoot, "standards", "schema-catalog", "@beep", "courtlistener.generated.jsonc"),
+            '{ "file": "packages/drivers/courtlistener/src/Client.ts", "owner": "@beep/courtlistener" }\n'
+          );
+          yield* fs.writeFileString(
+            path.join(repoRoot, "standards", "instrumentation-catalog", "@beep", "courtlistener.generated.jsonc"),
+            '{ "package": "@beep/courtlistener" }\n'
+          );
+          const schemaCatalog = yield* statusOf("schema-catalog");
+          const instrumentationCatalog = yield* statusOf("instrumentation-catalog");
+          expect(schemaCatalog.status).toBe("residue");
+          expect(schemaCatalog.evidence).toStrictEqual([
+            "standards/schema-catalog/@beep/courtlistener.generated.jsonc",
+          ]);
+          expect(instrumentationCatalog.status).toBe("residue");
+          expect(instrumentationCatalog.evidence).toStrictEqual([
+            "standards/instrumentation-catalog/@beep/courtlistener.generated.jsonc",
+          ]);
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );

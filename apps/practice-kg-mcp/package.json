@@ -48,6 +48,8 @@
     "@beep/identity": "workspace:^",
     "@beep/law-practice-server": "workspace:^",
     "@beep/mcpb-kit": "workspace:^",
+    "@beep/observability": "workspace:^",
+    "@beep/pglite": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-bun": "catalog:",
@@ -55,6 +57,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/mcp-kit": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@effect/vitest": "catalog:",

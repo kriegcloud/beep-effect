@@ -1,12 +1,15 @@
+import { PdfTools, PdfToolsConfig } from "@beep/pdf-tools";
 import {
   DrawingsCommandError,
   drawingsCommand,
+  PdfBackendFromPdfTools,
   PdfBackendToolsLive,
   renderManifestSummary,
 } from "@beep/repo-cli/commands/Drawings";
 import {
   BoundingBox,
   Camera,
+  cameraForView,
   DrawingError,
   EngineInfo,
   FigureRecord,
@@ -16,13 +19,15 @@ import {
   RenderManifest,
   SheetFonts,
   SheetOptions,
+  structuralFindings,
+  ValidationOptions,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf, deepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
-import { Command } from "effect/cli";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -60,6 +65,38 @@ it.layer(PdfBackendToolsLive.pipe(Layer.provideMerge(NodeServices.layer)), { tim
       );
       expect(facts.annotationCount).toBe(0);
       expect(facts.encrypted).toBe(false);
+      deepStrictEqual(facts.undecodableStreams, []);
+    })
+  );
+
+  it.effect(
+    "carries a FlateDecode stream a strict reader refuses into the facts, and the validator fails the file",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const dir = yield* fs.makeTempDirectoryScoped();
+      const pdfPath = path.join(dir, "undecodable.pdf");
+      const doc = yield* Effect.promise(() => PDFDocument.create({ updateMetadata: false }));
+      doc.addPage([612, 792]);
+      // bytes declared FlateDecode that are not zlib data at all
+      const stream = doc.context.register(
+        doc.context.stream(new TextEncoder().encode("not zlib data"), { Filter: "FlateDecode" })
+      );
+      yield* fs.writeFile(pdfPath, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+      const facts = yield* (yield* PdfBackend).inspect(pdfPath);
+      deepStrictEqual(
+        A.map(facts.undecodableStreams, (s) => [s.objectNumber, s.generation]),
+        [[stream.objectNumber, stream.generationNumber]]
+      );
+      const findings = structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.some(1) }) });
+      // pdf-lib writes a 1.7 header, which is flagged on its own; the stream is the finding under test
+      deepStrictEqual(
+        A.filter(
+          A.map(findings, (f) => f.code),
+          (code) => code !== "pdf-version"
+        ),
+        ["pdf-stream-undecodable"]
+      );
     })
   );
 
@@ -86,6 +123,43 @@ it.layer(PdfBackendToolsLive.pipe(Layer.provideMerge(NodeServices.layer)), { tim
       assertInstanceOf(error, DrawingError);
       expect(error.reason).toBe("pdf");
       expect(O.getOrThrow(error.cause)).toContain(`The pinned font directory "${fontDirectory}" does not exist.`);
+    })
+  );
+});
+
+// A one-byte inflate limit stops the stream check at the first FlateDecode stream: the backend carries
+// `limit-reached` into the facts and the validator fails the file as unverified.
+it.layer(
+  PdfBackendFromPdfTools.pipe(
+    Layer.provide(PdfTools.makeLayer(PdfToolsConfig.make({ maxInflatedBytes: 1 }))),
+    Layer.provideMerge(NodeServices.layer)
+  ),
+  { timeout: "30 seconds" }
+)((it) => {
+  it.effect(
+    "carries a stream check that stopped at the inflate limit into the facts, and the validator fails the file",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const dir = yield* fs.makeTempDirectoryScoped();
+      const pdfPath = path.join(dir, "unchecked.pdf");
+      const doc = yield* Effect.promise(() => PDFDocument.create({ updateMetadata: false }));
+      doc.addPage([612, 792]);
+      // a valid FlateDecode stream that inflates past the one-byte limit
+      doc.context.register(doc.context.flateStream("q 0 0 m 100 100 l S Q\n"));
+      yield* fs.writeFile(pdfPath, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+      const facts = yield* (yield* PdfBackend).inspect(pdfPath);
+      deepStrictEqual(facts.undecodableStreams, []);
+      expect(facts.streamCheck).toBe("limit-reached");
+      const findings = structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.some(1) }) });
+      // pdf-lib writes a 1.7 header, which is flagged on its own; the unfinished check is the finding under test
+      deepStrictEqual(
+        A.filter(
+          A.map(findings, (f) => f.code),
+          (code) => code !== "pdf-version"
+        ),
+        ["pdf-stream-undecodable"]
+      );
     })
   );
 });
@@ -152,6 +226,27 @@ describe("beep drawings render summary", () => {
       expect(fromSpec).toContain("  FIG. 1 top-perspective: fig-1.svg (4 segments, isometric)");
       expect(fromSpec).toContain("  FIG. 2 bottom-perspective: fig-2.svg (4 segments, perspective)");
       expect(fromSpec).toContain("  FIG. 3 front: fig-3.svg (4 segments)");
+      // a converging pictorial with a facing sight is the two-point perspective
+      const twoPoint = manifestWith(O.some(requested));
+      const camera = cameraForView({
+        view: "top-perspective",
+        box: twoPoint.model.boundingBox,
+        projection: "two-point",
+      });
+      const withCamera = (pictorial: Camera) =>
+        RenderManifest.make({
+          ...twoPoint,
+          figures: A.map(twoPoint.figures, (f) =>
+            f.figure === 1 ? FigureRecord.make({ ...f, camera: O.some(pictorial) }) : f
+          ),
+        });
+      expect(renderManifestSummary({ manifest: withCamera(camera), requested })).toContain(
+        "  FIG. 1 top-perspective: fig-1.svg (4 segments, two-point)"
+      );
+      // a level converging camera without a sight is not labelled two-point
+      expect(
+        renderManifestSummary({ manifest: withCamera(Camera.make({ ...camera, sight: O.none() })), requested })
+      ).toContain("  FIG. 1 top-perspective: fig-1.svg (4 segments, perspective)");
       expect(renderManifestSummary({ manifest: manifestWith(O.some(requested)), requested })).toContain(
         "sheet: letter, margins cfr-cm"
       );

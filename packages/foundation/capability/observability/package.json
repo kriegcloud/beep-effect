@@ -52,6 +52,7 @@
     "./catalog": "./src/catalog/index.ts",
     "./experimental/server": "./src/experimental/server/index.ts",
     "./server": "./src/server/index.ts",
+    "./strict": "./src/strict/index.ts",
     "./web": "./src/web/index.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
@@ -81,6 +82,7 @@
       "./catalog": "./dist/catalog/index.js",
       "./experimental/server": "./dist/experimental/server/index.js",
       "./server": "./dist/server/index.js",
+      "./strict": "./dist/strict/index.js",
       "./web": "./dist/web/index.js",
       "./internal/*": null,
       "./package.json": "./package.json"

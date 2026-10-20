@@ -1,8 +1,8 @@
 # Architecture Decision Format
 
 In this repo, architecture-wide decisions live in
-`standards/architecture/DECISIONS.md`. Do not create a generic `docs/adr/`
-directory for beep-effect2 architecture work.
+`standards/architecture/DECISIONS.md`. Do not create a generic ADR directory
+under `docs/` for architecture work.
 
 Use `DECISIONS.md` only for decisions that amend, supersede, retire, or clarify
 architecture-wide doctrine. Package-local decisions belong in the affected

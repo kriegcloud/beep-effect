@@ -1043,7 +1043,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         heavyWorkflowText,
         "if [[ ! -f packages/tooling/tool/cli/src/commands/Quality/EffectDiagnostics.ts ]]; then"
       );
-      assert.include(heavyWorkflowText, "::notice::Effect diagnostics lane unavailable in this checkout; skipping.");
+      assert.include(heavyWorkflowText, "::error::Effect diagnostics lane missing from this checkout; merge main.");
+      assert.notInclude(heavyWorkflowText, "Effect diagnostics lane unavailable in this checkout; skipping.");
       assert.include(heavyWorkflowText, "--property=MemoryMax=19G --property=MemorySwapMax=0");
       assert.include(heavyWorkflowText, "check|test-integration|coverage|build)");
     })

@@ -17,6 +17,8 @@ import {
   runMcpbEntrypoint,
 } from "@beep/mcpb-kit";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import { assertBundleGraph } from "./BundleGraph.ts";
 import * as R from "effect/Record";
 import { PRACTICE_KG_EXTENSION_VERSION } from "./Version.ts";
 
@@ -83,4 +85,7 @@ const program = mcpbPackageProgram(
     }),
   })
 );
-runMcpbEntrypoint({ isMain: import.meta.main, program });
+runMcpbEntrypoint({
+  isMain: import.meta.main,
+  program: assertBundleGraph(Bun.fileURLToPath(new URL("./bin.ts", import.meta.url))).pipe(Effect.andThen(program)),
+});

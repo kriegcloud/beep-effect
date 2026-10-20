@@ -73,13 +73,20 @@ hunk-review ritual with ledger + ghost replay, batch report parent PR.
 
 Status: B-5 (#1732) landed the Renovate manager, `skills replay`/`relock`/`train-issue`,
 and the update-train workflow (the batch report is a parent tracking issue, contract 9).
-B-6 (this PR) lands the hunk ledger, `skills review` with `--ghost` and budget
+B-6 (#1759) landed the hunk ledger, `skills review` with `--ghost` and budget
 checkpoints, the two-strike flag in the replay report, and `skills patch add`/`label`.
-Ritual 1 (Benjamin's classification of the generated patches) remains.
+Ritual 1 ran on 2026-10-15: the operator classified oracle `SKILL.md` and shadcn
+`design-system.md` as `policy` and oracle `agents/openai.yaml` as `repo-adaptation`
+(B42 defines the labels). P5 is complete.
 
 ## P6 — Close
 
 Same-PR packet-state flip, closeout reflection via `/reflect`, gates remain standing.
+
+Status: complete (2026-10-16). The first sealed baseline (#1790) is on main, so the
+knowledge-doctor gate is live; this PR writes the reflection
+(`history/reflections/2026-10-16-claude.md`) and flips the lifecycle to
+`completed-retained`. The gates stay standing: the baseline mint runs weekly.
 
 ## Deliverable discipline
 

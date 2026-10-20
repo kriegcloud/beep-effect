@@ -1,9 +1,9 @@
 # Canonical Frontend Service Pattern
 
-Canonical in-repo example: `packages/iam/client/src/core/atoms.ts`. Prefer
+Canonical in-repo example: `packages/agents/client/src/Chat.atoms.ts`. Prefer
 reading and mirroring that file over the prose below — it is the living
-reference for runtime creation, query atoms, and mutation atoms with toast
-feedback in this repo.
+reference for runtime creation, query atoms, and `runtime.fn` mutation atoms
+in this repo.
 
 ## Table of Contents
 

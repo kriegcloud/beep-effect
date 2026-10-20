@@ -1,6 +1,6 @@
 {
   "schemaVersion": "branch-protection-contexts/v1",
-  "capturedAt": "2026-10-14T21:34:08.053Z",
+  "capturedAt": "2026-10-15T19:15:22.432Z",
   "repository": "beep-effect/beep-effect",
   "branch": "main",
   "rulesetId": 10240248,
@@ -13,6 +13,7 @@
     "Heavy / Check",
     "Heavy / Docgen",
     "Heavy / Doctest",
+    "Heavy / Effect Diagnostics",
     "Heavy / Test Integration",
     "JSDoc Ratchet",
     "Lint",
