@@ -145,6 +145,13 @@ Supply a private `0600` JSON file using the `AmbiguityResolution` contract:
   "operatorId": "owning-operator",
   "disposition": "delivered",
   "evidence": "Original owned runtime terminal receipt and its recorded correlation",
+  "runtimeEvidence": {
+    "adapter": "codex",
+    "sessionId": "original-owned-session",
+    "turnId": "original-native-turn",
+    "outcome": "delivered",
+    "source": "Sanitized reference to the original host-owned terminal turn record"
+  },
   "reason": "The owning operator established this exact attempt's terminal outcome"
 }
 ```
@@ -161,8 +168,29 @@ to the send queue. A `failed` decision is rejected when that exact attempt alrea
 has a confirmed `delivered` receipt; an expired ACK deadline cannot overturn
 recorded delivery. Delivery still requires participant acknowledgement. If an
 ACK was already recorded, it remains recorded while the native dispatch hold is
-released. An operator decision is distinct from adapter-verified reconciliation;
-adapter-specific automatic evidence qualification remains separate work.
+released.
+
+The authenticated principal is the local OS owner of the private state directory
+and private evidence file; `operatorId` is an audit label, never a credential.
+The host must inspect an original native terminal record before submitting the
+attestation. The evidence contract is adapter-specific: Codex requires its
+original thread/session and terminal `turnId`; Claude requires the original
+session and terminal `resultId`; Grok requires the original conversation/session
+and terminal `responseId`; Cursor requires the original session and terminal
+`requestId`. `injected` uses `terminalId` only for deterministic tests. Each
+variant includes a sanitized `source` reference and `outcome`. A completed
+successful terminal record supports `delivered`; a terminal rejection/failure
+supports `failed` only when it establishes that exact native attempt's outcome.
+A timeout, interrupted stream, accepted submission, new session, or participant
+message cannot supply a terminal attestation. If that adapter does not expose a
+correlatable original terminal record, retain the hold.
+
+The store rejects a mismatched adapter, original session or terminal outcome,
+in addition to its message, owner and generation fences. The complete native
+record reference survives in the durable audit, including after receipt detail
+truncation. This is host-attested reconciliation: the store does not contact the
+provider or independently authenticate the contents of the referenced record.
+Automatic adapter verification remains outside this operation.
 
 This operation is absent from peer commands and model-accessible MCP tools.
 It has no automatic startup behavior: existing holds are unchanged unless their
@@ -170,7 +198,11 @@ owning operator explicitly submits a valid decision.
 
 Admission retains the global pending ceiling and also bounds each destination
 endpoint. The default store limits are 1,000 globally and 100 per endpoint;
-factory callers may set both, and a lower global bound still wins. Unresolved
+factory callers may set both, and a lower global bound still wins. Configure
+`maxPendingPerEndpoint < maxPending` when shared-capacity isolation is required;
+a configuration with the endpoint limit equal to or larger than the global
+limit explicitly provides no reserved headroom. The limits bound pending storage,
+not append-only historical audit retention. Unresolved
 attempts and delivered messages awaiting ACK count toward both limits. Exact
 acceptance retries remain idempotent at capacity, and rejected admission does
 not spend a launch grant's message budget.

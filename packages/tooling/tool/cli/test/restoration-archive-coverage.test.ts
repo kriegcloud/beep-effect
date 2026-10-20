@@ -251,6 +251,14 @@ describe("restoration archive boundary helpers", () => {
         const signature = RA.archiveInventorySignature([directory], [file]);
         expect(signature).toHaveLength(64);
         expect(RA.sourceIdentityToken({ ...identity, inode: O.none() })).toContain("\u0000-1\u0000");
+        const unknownInode = { ...identity, inode: O.none<number>() };
+        expect(RA.sameSourceIdentityExceptMtime(unknownInode, { ...unknownInode, mtimeMillis: 1 })).toBe(true);
+        expect(RA.sameSourceIdentity(unknownInode, { ...unknownInode, mtimeMillis: identity.mtimeMillis + 1 })).toBe(
+          false
+        );
+        expect(RA.sameSourceIdentityExceptMtime(unknownInode, { ...identity, inode: O.some(17) })).toBe(false);
+        expect(RA.sameSourceIdentityExceptMtime({ ...identity, inode: O.some(17) }, unknownInode)).toBe(false);
+        expect(RA.sameDeviceAndInode(unknownInode, unknownInode)).toBe(false);
         expect(RA.archiveInventorySignature([directory], [{ ...file, sourceRelativePath: "other.bin" }])).not.toBe(
           signature
         );

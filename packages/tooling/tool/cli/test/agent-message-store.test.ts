@@ -676,6 +676,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               attemptOwnerId: "b-owner",
               operatorId: "fixture-operator",
               disposition: "failed",
+              runtimeEvidence: {
+                adapter: "injected",
+                sessionId: "b-session",
+                terminalId: "fixture-terminal",
+                outcome: "failed",
+                source: "Synthetic original runtime terminal record",
+              },
               evidence: "Fixture original native attempt returned failure",
               reason: "Known terminal outcome confirmed",
             });
@@ -730,6 +737,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: "b-owner",
             operatorId: "fixture-operator",
             disposition: "delivered",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "delivered",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Fixture original session terminal result",
             reason: "Known result verified",
           });
@@ -742,6 +756,24 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             AmbiguityResolution.make({ ...request, endpointGeneration: 2 }),
             AmbiguityResolution.make({ ...request, attemptGeneration: 2 }),
             AmbiguityResolution.make({ ...request, attemptOwnerId: "other-owner" }),
+            AmbiguityResolution.make({
+              ...request,
+              runtimeEvidence: { ...request.runtimeEvidence, sessionId: "replacement-session" },
+            }),
+            AmbiguityResolution.make({
+              ...request,
+              runtimeEvidence: {
+                adapter: "codex",
+                sessionId: "b-session",
+                turnId: "unrelated-turn",
+                outcome: "delivered",
+                source: "Wrong adapter terminal record",
+              },
+            }),
+            AmbiguityResolution.make({
+              ...request,
+              runtimeEvidence: { ...request.runtimeEvidence, outcome: "failed" },
+            }),
           ];
           const errors = yield* Effect.forEach(invalid, (decision) =>
             Effect.flip(store.resolveAmbiguity(decision, 202))
@@ -751,8 +783,15 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             "staleClaim",
             "staleClaim",
             "staleClaim",
+            "staleClaim",
+            "staleClaim",
+            "conflict",
           ]);
           expect(S.is(AmbiguityResolution)({ ...request, evidence: "" })).toBe(false);
+          expect(S.is(AmbiguityResolution)({ ...request, runtimeEvidence: undefined })).toBe(false);
+          expect(
+            S.is(AmbiguityResolution)({ ...request, runtimeEvidence: { ...request.runtimeEvidence, terminalId: "" } })
+          ).toBe(false);
           expect(S.is(AmbiguityResolution)({ ...request, reason: "" })).toBe(false);
           expect(S.is(AmbiguityResolution)({ ...request, disposition: "abandoned" })).toBe(false);
           expect(yield* store.receipts(request.messageId)).toHaveLength(3);
@@ -784,6 +823,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               attemptOwnerId: "b-owner",
               operatorId: "fixture-operator",
               disposition: "failed",
+              runtimeEvidence: {
+                adapter: "injected",
+                sessionId: "b-session",
+                terminalId: "fixture-terminal",
+                outcome: "failed",
+                source: "Synthetic original runtime terminal record",
+              },
               evidence: "Fixture known native failure despite consumption ACK",
               reason: "Release original terminal native hold",
             });
@@ -819,6 +865,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: "b-owner",
             operatorId: "fixture-operator",
             disposition: "failed",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "failed",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Fixture known terminal result",
             reason: "Confirmed original attempt",
           });
@@ -859,6 +912,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: claim.ownerId,
             operatorId: "fixture-operator",
             disposition: "failed",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "failed",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Fixture operator assertion conflicting with stored delivery",
             reason: "Reject contradictory assertion",
           });
@@ -874,6 +934,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           const delivered = AmbiguityResolution.make({
             ...request,
             disposition: "delivered",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "delivered",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Stored fixture original attempt terminal delivery",
             reason: "Confirm known terminal result",
           });
@@ -906,6 +973,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               attemptOwnerId: "b-owner",
               operatorId: "fixture-operator",
               disposition: "delivered",
+              runtimeEvidence: {
+                adapter: "injected",
+                sessionId: "b-session",
+                terminalId: "fixture-terminal",
+                outcome: "delivered",
+                source: "Synthetic original runtime terminal record",
+              },
               evidence: "Fixture original native attempt confirmed terminal delivery",
               reason: "Known result verified after TTL",
             });
@@ -953,6 +1027,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: "b-owner",
             operatorId: "fixture-operator",
             disposition: "failed",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "failed",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Synthetic owned attempt terminal failure",
             reason: "Fixture confirms known result",
           });
@@ -986,6 +1067,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: "b-owner",
             operatorId: "fixture-operator",
             disposition: "failed",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "failed",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Fixture known native terminal failure",
             reason: "Verified original attempt",
           });
@@ -1022,6 +1110,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: "b-owner",
             operatorId: "fixture-operator",
             disposition: "failed",
+            runtimeEvidence: {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "fixture-terminal",
+              outcome: "failed",
+              source: "Synthetic original runtime terminal record",
+            },
             evidence: "Fixture native failure",
             reason: "Fixture known result",
           });
@@ -1058,6 +1153,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
                 attemptOwnerId: "b-owner",
                 operatorId: "fixture-operator",
                 disposition: "delivered",
+                runtimeEvidence: {
+                  adapter: "injected",
+                  sessionId: "b-session",
+                  terminalId: "fixture-terminal",
+                  outcome: "delivered",
+                  source: "Synthetic original runtime terminal record",
+                },
                 evidence: "Fixture confirmed terminal delivery",
                 reason: "Known fixture result",
               }),

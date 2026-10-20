@@ -112,15 +112,22 @@ checks/review/window rules. Land scoped lifecycle/reflection updates with final
 work in the same PR, effective only upon the exact final-head gate and merge;
 then merge at the existing gate and retire the lane.
 
-## Current next action: final qualification gates
+## Final branch snapshot, 2026-10-09
+
+The state below describes the pre-merge branch. The
+[publication update](../../explorations/cross-provider-agent-communication/README.md#evidence-boundary)
+records the subsequently verified merge; it does not infer historical hosted
+check outcomes or retirement.
+
+### Next action at that snapshot: final qualification gates
 
 The [current T3 receipt](research/T3-INTEGRATION-QUALIFICATION.json) records the
 hardened forward/reverse AGENTS.md audits: four ACKed/settled messages at attempt
 one, each persisted grant used twice, and seven completed same-identity native
 runs per provider including prime and earlier exercises. At that historical receipt, both providers were idle
 with no nonterminal runs. The inbound scope guard passed independent review and
-nine regression cases. Both bridges are stopped, external credentials were
-revoked/re-probed401, peer grants invalidated and register units retired as
+nine regression cases. Both bridges are stopped. External credentials were revoked; the re-probe
+returned HTTP 401. Peer grants were invalidated and register units retired as
 metadata; the app/conversations remain. The no-tool prime remains negative scope
 evidence in the [initial receipt](research/T3-INTEGRATION-INITIAL-QUALIFICATION.json).
 
@@ -139,8 +146,8 @@ The later [refactor reconciliation](research/T3-REFACTOR-RECONCILIATION.json)
 records four h3 ACKs and both coordinator reports, with only the forward pair
 settled. After restoring the original host profile, Codex run ten completed and
 Claude run ten was cancelled; neither remains active. Canonical recovery holds
-both reverse claims ambiguous. Both external credentials re-probed HTTP401;
-bridges were absent and not restarted, and immutable peer grants remain behind
+both reverse claims ambiguous. Both external credentials were revoked; the re-probe returned HTTP 401.
+Bridges were absent and not restarted, and immutable peer grants remain behind
 the ambiguity fences. No resend occurred. This partial refactor exercise does
 not replace the earlier complete hardened proof or finish final goal gates.
 

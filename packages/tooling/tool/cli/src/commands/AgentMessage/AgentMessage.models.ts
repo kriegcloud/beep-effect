@@ -545,6 +545,21 @@ export const AmbiguityDisposition = LiteralKit(["delivered", "failed"]).pipe(
  */
 export type AmbiguityDisposition = typeof AmbiguityDisposition.Type;
 
+const OriginalRuntimeEvidence = LiteralKit(["codex", "claude", "grok", "cursor", "injected"])
+  .toTaggedUnion("adapter")({
+    codex: { sessionId: Identity, turnId: Identity, outcome: AmbiguityDisposition, source: Detail },
+    claude: { sessionId: Identity, resultId: Identity, outcome: AmbiguityDisposition, source: Detail },
+    grok: { sessionId: Identity, responseId: Identity, outcome: AmbiguityDisposition, source: Detail },
+    cursor: { sessionId: Identity, requestId: Identity, outcome: AmbiguityDisposition, source: Detail },
+    injected: { sessionId: Identity, terminalId: Identity, outcome: AmbiguityDisposition, source: Detail },
+  })
+  .pipe(
+    $I.annoteSchema("OriginalRuntimeEvidence", {
+      description:
+        "Host-attested original runtime terminal record: Codex turn, Claude result, Grok response, Cursor result, or synthetic fixture. Source identifies the inspected native terminal record, never a replacement session.",
+    })
+  );
+
 /**
  * Immutable operator assertion identifying the original ambiguous attempt and its known terminal evidence.
  *
@@ -552,13 +567,15 @@ export type AmbiguityDisposition = typeof AmbiguityDisposition.Type;
  *
  * The trusted local operator supplies evidence of a known native terminal result. This request
  * releases a dispatch hold without retrying the provider or discarding participant acknowledgement.
- * Its identity and full payload remain in the durable resolution audit.
+ * Its adapter and original session must match enrollment; its outcome must match disposition.
+ * The native terminal correlation remains a host attestation. The host authenticates through private state and input-file ownership;
+ * operatorId is an audit label. Its identity and full payload remain in the durable resolution audit.
  *
  * **Example** (Record a known terminal result)
  *
  * ```ts
  * import { AmbiguityResolution } from "@beep/repo-cli/test/AgentMessage"
- * const request = AmbiguityResolution.make({ resolutionId: "resolve-1", messageId: "m1", endpointId: "peer", endpointGeneration: 1, attemptGeneration: 1, attemptOwnerId: "owner", operatorId: "operator", disposition: "delivered", evidence: "Owned session terminal receipt", reason: "Confirmed original attempt completed" })
+ * const request = AmbiguityResolution.make({ resolutionId: "resolve-1", messageId: "m1", endpointId: "peer", endpointGeneration: 1, attemptGeneration: 1, attemptOwnerId: "owner", operatorId: "operator", disposition: "delivered", evidence: "Owned session terminal receipt", runtimeEvidence: { adapter: "codex", sessionId: "original-session", turnId: "original-turn", outcome: "delivered", source: "Owned Codex terminal turn record" }, reason: "Confirmed original attempt completed" })
  * console.log(request.disposition) // delivered
  * ```
  *
@@ -576,6 +593,7 @@ export class AmbiguityResolution extends S.Opaque<AmbiguityResolution, { readonl
     operatorId: Identity,
     disposition: AmbiguityDisposition,
     evidence: Detail,
+    runtimeEvidence: OriginalRuntimeEvidence,
     reason: Detail,
   }).pipe(
     $I.annoteSchema("AmbiguityResolution", {

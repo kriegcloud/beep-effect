@@ -259,6 +259,13 @@ it.layer(
         attemptOwnerId: claim.ownerId,
         operatorId: "fixture-operator",
         disposition: "delivered",
+        runtimeEvidence: {
+          adapter: "injected",
+          sessionId: "b-session",
+          terminalId: "fixture-terminal",
+          outcome: "delivered",
+          source: "Synthetic original runtime terminal record",
+        },
         evidence: "Fixture-only original attempt terminal receipt",
         reason: "The fixture operator confirmed the original attempt finished",
       });
@@ -289,6 +296,13 @@ it.layer(
           attemptOwnerId: claim.ownerId,
           operatorId: "fixture-operator",
           disposition: "failed",
+          runtimeEvidence: {
+            adapter: "injected",
+            sessionId: "b-session",
+            terminalId: "fixture-terminal",
+            outcome: "failed",
+            source: "Synthetic original runtime terminal record",
+          },
           evidence: "Fixture-only evidence with a wrong enrollment generation",
           reason: "Reject stale evidence",
         });

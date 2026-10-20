@@ -21,7 +21,7 @@
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "Prospective completed-retained declaration for merged main only. Operative execution remains active until this final packet/implementation head passes required hosted checks, fresh review-thread closure and the latest-push/ready review window, then PR1571 actually merges through Yeet. Phase-complete values describe that merged state, not current hosted readiness or retirement. Preserve two reverse ambiguity holds; retire only after actual merge.",
+    "statement": "Final branch snapshot dated 2026-10-09. Prospective completed-retained declaration for merged main only. Operative execution remains active until this final packet/implementation head passes required hosted checks, fresh review-thread closure and the latest-push/ready review window, then PR #1571 actually merges through Yeet. Phase-complete values describe that merged state, not current hosted readiness or retirement. Preserve two reverse ambiguity holds; retire only after actual merge.",
     "grandfathered": false
   },
   "currentSourceOfTruth": [
@@ -134,5 +134,5 @@
   ],
   "dependsOn": ["goals/agent-message-router"],
   "resumeCondition": "Satisfied on 2026-10-09: documented versioned router contract and combined 20 injected/schema/tool/filesystem tests passed. Execution activated; later review findings are remediation within active work.",
-  "statusNote": "Prospective completed-retained state for merged main only; execution remains active. Corrective head27c8b24596 is published and this final packet wave will have its own head. Source-bound hardened task proof, later parity/review, package verification, scoped reflection and runtime-portability repairs are recorded. Main1597 integrated91c9bf69e2; required final-head hosted/review/window gates and actual merge remain unproved. No current green/merge/retirement claim. Two reverse ambiguity holds, revoked external credentials and original conversations remain retained."
+  "statusNote": "Final branch snapshot dated 2026-10-09. Prospective completed-retained state for merged main only; execution remains active. Corrective head 27c8b24596 is published and this final packet wave will have its own head. Source-bound hardened task proof, later parity/review, package verification, scoped reflection and runtime-portability repairs are recorded. Main PR #1597 integrated at 91c9bf69e2; required final-head hosted/review/window gates and actual merge remain unproved. No current green/merge/retirement claim. Two reverse ambiguity holds, revoked external credentials and original conversations remain retained."
 }

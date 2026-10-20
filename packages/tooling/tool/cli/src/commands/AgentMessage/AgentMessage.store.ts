@@ -671,6 +671,14 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
       const validateResolutionEvidence = Effect.fn("AgentMessageStore.validateResolutionEvidence")(function* (
         request: AmbiguityResolution
       ) {
+        const binding = yield* endpoint(request.endpointId);
+        if (
+          request.runtimeEvidence.adapter !== binding.policy.provider ||
+          request.runtimeEvidence.sessionId !== binding.sessionId
+        )
+          return yield* error("staleClaim", "Terminal evidence does not identify the original adapter and session.");
+        if (request.runtimeEvidence.outcome !== request.disposition)
+          return yield* error("conflict", "Terminal evidence outcome contradicts the requested disposition.");
         if (request.disposition !== "failed") return;
         const confirmed = A.some(
           yield* receipts(request.messageId),

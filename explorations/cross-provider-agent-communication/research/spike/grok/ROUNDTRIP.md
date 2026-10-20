@@ -6,6 +6,13 @@
 2. The controller forwarded that actual model output to the owned Grok `grok-4.7` medium ACP session. Grok generated a JSON reply addressed to Codex, retaining the nonce and returning `GROK_ACK`.
 3. The controller forwarded that actual Grok reply back to the same owned Codex thread. Codex generated a nonce-correlated `CODEX_ACK_GROK_REPLY` acknowledgement.
 
+The historical check verified the peer nonce and `GROK_ACK`, forwarded that
+actual reply, and checked a nonce-correlated Codex marker. It did not validate
+a returned peer-payload digest or exact echo. The retained replay was repaired
+on 2026-10-20 to require an exact peer-reply echo bounded to 4096 UTF-8 bytes
+and compute its verified SHA-256 locally, with zero-model positive and negative
+regressions. That repair does not strengthen the original receipt.
+
 Both directions were checked from model-generated output, not from transport acceptance alone. Private correlation evidence retains exact thread/session/turn IDs and all three bounded envelopes. Public `roundtrip-result.json` contains identity-continuity booleans and sanitized model/permission receipts.
 
 This was **controller-mediated output forwarding**, not autonomous reply-tool integration, production message delivery, or existing-app attachment. No broker, remote routing, group delivery, crash-replay or ambient fleet session was involved.

@@ -1,4 +1,16 @@
 import asyncio,json,os,pathlib,time,uuid
+def validate_ack(ack, nonce, peer_reply):
+ """Bind a new ACK to the exact bounded peer reply, not a controller-supplied digest."""
+ import hashlib
+ if len(peer_reply.encode('utf-8')) > 4096:
+  raise ValueError('peer reply exceeds 4096-byte ACK bound')
+ if ack.get('nonce') != nonce or ack.get('acknowledgement') != 'CODEX_ACK_GROK_REPLY':
+  raise ValueError('ACK nonce or marker mismatch')
+ echo=ack.get('peerReplyEcho')
+ if not isinstance(echo,str) or echo != peer_reply:
+  raise ValueError('ACK peer reply echo mismatch')
+ return hashlib.sha256(echo.encode('utf-8')).hexdigest()
+
 os.umask(0o077)
 import argparse, shutil, subprocess, tempfile
 parser=argparse.ArgumentParser(description="Owned disposable Grok synthetic communication probe")
@@ -120,9 +132,10 @@ async def main():
   envelope=json.loads(request_text);assert envelope['nonce']==nonce and envelope['recipient']=='grok'
   gt0=len(text);gr=await request('session/prompt',{'sessionId':sid,'prompt':[{'type':'text','text':'Synthetic peer request follows. No tools. Output only JSON reply with sender="grok", recipient="codex", nonce copied from request, reply="GROK_ACK". Request: '+request_text}]})
   grok_reply=''.join(text[gt0:]);reply=json.loads(grok_reply);assert reply['nonce']==nonce and reply['reply']=='GROK_ACK'
-  start=len(c.events);rr=c.call('turn/start',{'threadId':tid,'input':input_text('Synthetic peer reply follows. No tools. Verify nonce equals '+nonce+' and reply GROK_ACK. Output only JSON acknowledgement with nonce and acknowledgement="CODEX_ACK_GROK_REPLY". Reply: '+grok_reply),'model':'gpt-6.1-sol','effort':'medium','environments':[]});turn2=getturn(rr);complete(c,turn2,start);ack_text=final_text(c.events[start:],turn2);ack=json.loads(ack_text);assert ack['nonce']==nonce and ack['acknowledgement']=='CODEX_ACK_GROK_REPLY'
-  (ROOT/'roundtrip-correlation.private.json').write_text(json.dumps({'codexThread':tid,'codexTurns':[turn,turn2],'grokSession':sid,'nonce':nonce,'request':envelope,'reply':reply,'acknowledgement':ack},indent=2))
-  report.update(outcome='passed',codexToGrokNonceReceived=True,grokToCodexReplyAcknowledged=True,allSessionsOwned=True,sameSessionsThroughout=True,elapsedSeconds=round(time.time()-t0,3),codexReverseRequestsDenied=sum(x.get('method')=='probe/reverse-request-denied' for x in c.events),grokReverseRequests=sum('id'in x and 'method'in x for x in events),grokStopReason=gr.get('result',{}).get('stopReason'))
+  if len(grok_reply.encode('utf-8')) > 4096:raise ValueError('peer reply exceeds 4096-byte ACK bound')
+  start=len(c.events);rr=c.call('turn/start',{'threadId':tid,'input':input_text('Synthetic peer reply follows. No tools. Verify nonce equals '+nonce+' and reply GROK_ACK. Output only JSON acknowledgement with nonce, acknowledgement="CODEX_ACK_GROK_REPLY", and peerReplyEcho containing the exact complete reply string (JSON escaped). Reply: '+grok_reply),'model':'gpt-6.1-sol','effort':'medium','environments':[]});turn2=getturn(rr);complete(c,turn2,start);ack_text=final_text(c.events[start:],turn2);ack=json.loads(ack_text);peer_digest=validate_ack(ack,nonce,grok_reply)
+  (ROOT/'roundtrip-correlation.private.json').write_text(json.dumps({'codexThread':tid,'codexTurns':[turn,turn2],'grokSession':sid,'nonce':nonce,'request':envelope,'reply':reply,'acknowledgement':ack,'verifiedPeerReplySha256':peer_digest},indent=2))
+  report.update(outcome='passed',peerReplyEchoVerified=True,peerReplySha256=peer_digest,codexToGrokNonceReceived=True,grokToCodexReplyAcknowledged=True,allSessionsOwned=True,sameSessionsThroughout=True,elapsedSeconds=round(time.time()-t0,3),codexReverseRequestsDenied=sum(x.get('method')=='probe/reverse-request-denied' for x in c.events),grokReverseRequests=sum('id'in x and 'method'in x for x in events),grokStopReason=gr.get('result',{}).get('stopReason'))
   task.cancel()
  except Exception as e:report.update(outcome='failed',errorType=type(e).__name__,error='See private local trace for provider error details');print('FAILURE',type(e).__name__,flush=True)
  finally:
