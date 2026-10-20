@@ -301,6 +301,7 @@
     "protobufjs": "^7.6.6",
     "sharp": "catalog:",
     "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/server": "2.3.1",
     "follow-redirects": "1.16.1",
     "http-cache-semantics": "4.3.0",
     "launch-editor": "2.14.2"
