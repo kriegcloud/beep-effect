@@ -1039,7 +1039,7 @@ const ciFreshTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
 const isUnscopedInvocation = (args: ReadonlyArray<string>): boolean => A.isReadonlyArrayEmpty(args);
 
 // lab-apps-lifecycle P2 (ratified row 9): labs stay outside required root
-// check/test/coverage graphs. Lint and lint:fix include all workspaces.
+// test/coverage graphs. Check, lint and lint:fix include all workspaces.
 // The exclude filter joins the argv at final assembly, AFTER the owned-arg
 // parsers (isExplicitTurboScopeArg, shouldRunRepoWideSteps,
 // parseCoverageTaskOptions) have classified the caller-visible args, so it can
@@ -1047,7 +1047,6 @@ const isUnscopedInvocation = (args: ReadonlyArray<string>): boolean => A.isReado
 // stays outside this set deliberately (ratified-minimal); the coverage:prebuild
 // step carries the filter explicitly instead.
 const LABS_EXCLUDED_TURBO_TASKS: ReadonlyArray<string> = [
-  "check",
   "test",
   "test:integration",
   "test:integration:parallel",

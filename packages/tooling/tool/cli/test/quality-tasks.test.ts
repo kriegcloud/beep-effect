@@ -409,7 +409,6 @@ const expectSweepConfigurationFailure = Effect.fnUntraced(function* (root: strin
 });
 const policyTurboScmBase = (step: QualityTaskStep): string | undefined => step.env?.TURBO_SCM_BASE;
 const LABS_EXCLUDED_TASKS: ReadonlyArray<string> = [
-  "check",
   "test",
   "test:integration",
   "test:integration:parallel",
@@ -8410,26 +8409,22 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
   describe("labs turbo exclusion", () => {
     const argsOf = (step: QualityTaskStep | undefined): ReadonlyArray<string> => [...(step?.args ?? [])];
 
-    const expectEndsWithLabsExclude = (step: QualityTaskStep | undefined): void => {
-      expect(A.takeRight(argsOf(step), 1)).toEqual([LABS_EXCLUDE_FILTER]);
-    };
-
     const argIndexOf = (args: ReadonlyArray<string>, target: string): number =>
       pipe(
         A.findFirstIndex(args, (arg) => arg === target),
         O.getOrElse(() => -1)
       );
 
-    it("ends check argvs with the labs exclude while repo-wide tsgo steps survive", () => {
+    it("includes labs in check while repo-wide tsgo steps survive", () => {
       for (const argv of [["check", "--affected", "--summarize"], ["check"]]) {
         const steps = rootQualityStepsForTesting("/repo", getInvocation(argv));
         expect(A.map(steps, (step) => step.label)).toEqual(["check", "quality:test-tsgo", "quality:tsgo-smoke"]);
-        expectEndsWithLabsExclude(steps[0]);
+        expect(argsOf(steps[0])).not.toContain(LABS_EXCLUDE_FILTER);
       }
     });
 
-    it("includes labs in lint and lint:fix, including explicit labs selections", () => {
-      for (const argv of [["lint"], ["lint", "--fix"]]) {
+    it("includes labs in check, lint and lint:fix, including explicit labs selections", () => {
+      for (const argv of [["check"], ["lint"], ["lint", "--fix"]]) {
         for (const options of [[], ["--affected", "--summarize"], ["--filter=./apps/labs/**"]]) {
           const steps = rootQualityStepsForTesting("/repo", getInvocation([...argv, ...options]));
           const args = argsOf(steps[0]);
@@ -8452,11 +8447,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(argIndexOf(coverageArgs, "--")).toBe(argIndexOf(coverageArgs, LABS_EXCLUDE_FILTER) + 1);
     });
 
-    it("composes an explicit user filter with the labs exclude while still dropping repo-wide steps", () => {
+    it("preserves an explicit check filter while still dropping repo-wide steps", () => {
       const steps = rootQualityStepsForTesting("/repo", getInvocation(["check", "--filter=@beep/schema"]));
       expect(steps).toHaveLength(1);
       expect(argsOf(steps[0])).toContain("--filter=@beep/schema");
-      expectEndsWithLabsExclude(steps[0]);
+      expect(argsOf(steps[0])).not.toContain(LABS_EXCLUDE_FILTER);
     });
 
     it("keeps the labs exclude ahead of the coverage vitest passthrough and inside every shard", () => {
