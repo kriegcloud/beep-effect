@@ -20,6 +20,9 @@ import {
   HarnessLedgerPruneOptions,
   HarnessLedgerService,
   HarnessLedgerServiceLive,
+  harnessLedgerDispositionCommand,
+  harnessLedgerProposeCommand,
+  harnessLedgerPruneProposalsCommand,
   harnessLedgerPruneReportLines,
   harnessLedgerReconcileCommand,
   parseHarnessEditSpec,
@@ -27,7 +30,7 @@ import {
 } from "@beep/repo-cli/commands/HarnessLedger";
 import { CommandJsonOutput } from "@beep/repo-cli/test/Cli";
 import { Sha256Hex } from "@beep/schema";
-import { fcRuns } from "@beep/test-utils";
+import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { A, pipe, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it, layer } from "@effect/vitest";
@@ -187,6 +190,54 @@ const proposePending = (repoRoot: string) =>
   );
 
 describe("harness-ledger CLI", () => {
+  it.effect("command rejects partial hypotheses before appending a proposal", () =>
+    Effect.gen(function* () {
+      const error = yield* Effect.flip(
+        Command.runWith(harnessLedgerProposeCommand, { version: "0.0.0" })([
+          "--mechanism",
+          "skill",
+          "--edit",
+          "pending",
+          "--hypothesis",
+          "fewer failures",
+        ]).pipe(provideScopedLayer(NodeServices.layer))
+      );
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("given together or not at all");
+    })
+  );
+
+  it.effect("command rejects a score without its cost before changing a disposition", () =>
+    Effect.gen(function* () {
+      const error = yield* Effect.flip(
+        Command.runWith(harnessLedgerDispositionCommand, { version: "0.0.0" })([
+          "--row",
+          "hl-20261020-12345678",
+          "--to",
+          "accepted",
+          "--evidence",
+          "fixture",
+          "--score",
+          "1",
+        ]).pipe(provideScopedLayer(NodeServices.layer))
+      );
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("--score and --cost are given together");
+    })
+  );
+
+  it.effect("command rejects a zero-session pruning window", () =>
+    Effect.gen(function* () {
+      const error = yield* Effect.flip(
+        Command.runWith(harnessLedgerPruneProposalsCommand, { version: "0.0.0" })(["--window", "0"]).pipe(
+          provideScopedLayer(NodeServices.layer)
+        )
+      );
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("--window must be at least 1");
+    })
+  );
+
   it.effect("parses edit and surface tokens", () =>
     Effect.gen(function* () {
       expect((yield* parseHarnessEditSpec("pending")).kind).toBe("pending");

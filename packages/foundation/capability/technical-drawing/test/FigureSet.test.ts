@@ -1881,6 +1881,18 @@ describe("@beep/technical-drawing", () => {
               })
             )
           ).toBe("spec");
+          // A missing shown figure uses the default perspective for camera checks, then fails omission validation.
+          expect(
+            yield* refused(
+              spec(
+                [figures[1]!],
+                [{ omitted: "bottom-perspective", shown: "top-perspective", relation: "identical" }],
+                {
+                  pictorialFocusDiagonals: 3,
+                }
+              )
+            )
+          ).toBe("omission");
           // an omitted pictorial reads them as the figure it is claimed from does
           const mirrored = yield* renderSpec(
             spec(

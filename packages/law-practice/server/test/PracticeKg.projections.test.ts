@@ -79,6 +79,7 @@ import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
+import * as Tracer from "effect/Tracer";
 import { OFFICE_ACTION_FIXTURE } from "./fixture.ts";
 import type { TestContext } from "@effect/vitest";
 
@@ -1490,9 +1491,22 @@ describe("practice KG projections", () => {
           expect(yield* correspondent("kim@example.com")).toStrictEqual([
             ["ambiguous", `${fixtureClients.alpha}.20001`, fixtureClients.beta, 0, "attorney-answer", false],
           ]);
+          const spans = MutableRef.make<ReadonlyArray<Tracer.Span>>([]);
+          const tracer = Tracer.make({
+            span(options) {
+              const span = new Tracer.NativeSpan(options);
+              MutableRef.update(spans, A.append(span));
+              return span;
+            },
+          });
           const invalid = yield* callToolText("kg_correspondent_lookup", {
             address: "Pat Example <pat@example.com>, sam@other.test",
-          }).pipe(Effect.flatMap(decodeToolErrorJson));
+          }).pipe(Effect.flatMap(decodeToolErrorJson), Effect.provideService(Tracer.Tracer, tracer));
+          const failedSpan = A.findLast(
+            MutableRef.get(spans),
+            (span) => span.name === "PracticeKgTools.kg_correspondent_lookup"
+          );
+          expect(O.getOrThrow(failedSpan).attributes.get("beep.practice_kg.failure_reason")).toBe("invalid-input");
           expect([invalid.tool, invalid.reason, invalid.message]).toStrictEqual([
             "kg_correspondent_lookup",
             "invalid-input",
