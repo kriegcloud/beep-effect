@@ -140,7 +140,7 @@ export default defineConfig({
       // module worker (vite resolves workers with browser conditions). The
       // default build is DOM-free and behaves identically on the main thread.
       "decode-named-character-reference": NodeURL.fileURLToPath(
-        new URL("../../node_modules/decode-named-character-reference/index.js", import.meta.url)
+        import.meta.resolve("decode-named-character-reference")
       ),
     },
   },

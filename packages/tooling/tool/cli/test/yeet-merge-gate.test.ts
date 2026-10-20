@@ -557,6 +557,7 @@ interface GhScript {
   readonly queuedExit?: number;
   readonly reviewerRequired?: boolean;
   readonly reviewerRuns?: ReadonlyArray<unknown>;
+  readonly reviewerTotal?: number;
   readonly rulesExit: number;
   readonly spawnFails?: boolean;
   readonly threads?: unknown;
@@ -619,7 +620,7 @@ const scriptReviewerRules = (script: GhScript) =>
     : rulesFixture;
 const scriptReviewerPage = (script: GhScript) => {
   const runs = script.reviewerRuns ?? [];
-  return { total_count: runs.length, check_runs: runs };
+  return { total_count: script.reviewerTotal ?? runs.length, check_runs: runs };
 };
 // The squash prediction's three reads: the PR commits (one slurped page) before the PR
 // itself, which is a prefix of it, and the repository's squash settings last, because every
@@ -918,6 +919,27 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           })
         );
       })
+    );
+
+    it.effect("holds after one empty reviewer page with an inflated total count", () =>
+      withScriptedGh({ ...defaultScript, reviewerRequired: true, reviewerRuns: [], reviewerTotal: 999 }, (calls) =>
+        Effect.gen(function* () {
+          const held = yield* runMergeGate(
+            context,
+            MergeGateRunOptions.make({
+              prNumber: pullFixture.number,
+              wantSha: headSha,
+              tolerate: [],
+              forceWindow: false,
+              relaxed: true,
+              dryRun: false,
+            })
+          ).pipe(Effect.result);
+          expect(held._tag).toBe("Failure");
+          expect(A.filter(yield* Ref.get(calls), Str.includes("?check_name=beep-reviewer"))).toHaveLength(1);
+          expect(yield* mergeWasSent(calls)).toBe(false);
+        })
+      )
     );
 
     it.effect("a decline without a message, and a merge without a sha, are still reported", () =>

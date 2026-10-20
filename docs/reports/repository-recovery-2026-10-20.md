@@ -16,8 +16,8 @@ inventory records work in progress; it does not declare any issue resolved.
   preserve existing floors and minimums. Coverage-policy tests: 267 passed.
 - Full coverage: pending; discovery found a Node-incompatible YAML test and a
   missing temporary V8 report. Clean verification remains required.
-- Docgen: gateway metadata and scratchpad source/example compatibility repaired.
-  Scratchpad generation passed 2,685 examples; repository-wide proof remains pending.
+- Docgen: repository-wide generation passed all 145 tasks at `5683e4fd3b`,
+  including the 2,685 scratchpad examples. Subsequent changes remain subject to CI.
 - Audit: filesystem test pipe diagnostic repaired; full verification pending.
 - Hosted checks and legitimate review findings: tracked on the PR.
 
@@ -37,6 +37,12 @@ inventory records work in progress; it does not declare any issue resolved.
   using the canonical tmpfs test environment. The larger selected run passed
   5,706 tests with only the known filesystem-environment case failing; the
   canonical memfs rerun covers that case.
+- The next wave repairs the disabled Collapsible browser test (six stories pass),
+  expresses Trustgraph startup with Effect (full lab audit passes), and pins Fallow
+  to the main-compatible 3.33.1 analysis while preserving the zero-findings gate.
+  See [the migration hold](fallow-compatibility-hold-2026-10-20.md).
+- Review-hub configuration validation now covers normalized logins, empty required
+  inputs, and an invalid port. Coverage measurement and its baseline row are pending.
 
 ## Open issue acceptance tracking
 
@@ -52,12 +58,12 @@ inventory records work in progress; it does not declare any issue resolved.
 | [#1603](https://github.com/beep-effect/beep-effect/issues/1603) | fix(agent-message): reconcile completion after attached lease expiry | Acceptance review pending |
 | [#1607](https://github.com/beep-effect/beep-effect/issues/1607) | fix(t3-code): qualify built root export before publication | Acceptance review pending |
 | [#1613](https://github.com/beep-effect/beep-effect/issues/1613) | fix(agent-message): scope prior envelope reuse to the sending grant | Acceptance review pending |
-| [#1702](https://github.com/beep-effect/beep-effect/issues/1702) | knowledge doctor: lexer-aware block-comment blanking and v2 lock decode errors (#1690 follow-ups) | Acceptance review pending |
+| [#1702](https://github.com/beep-effect/beep-effect/issues/1702) | knowledge doctor: lexer-aware block-comment blanking and v2 lock decode errors (#1690 follow-ups) | Implemented on main in ec580c30a2; 14 evaluator regressions passed |
 | [#1708](https://github.com/beep-effect/beep-effect/issues/1708) | effect-vitest: EV010 flags every platform-node import, including canonical it.layer setups | Acceptance review pending |
 | [#1740](https://github.com/beep-effect/beep-effect/issues/1740) | Nightly property-law sweep failures | Acceptance review pending |
 | [#1742](https://github.com/beep-effect/beep-effect/issues/1742) | docs(skills): align replay comment example with GraphQL bot login | Already implemented in 5169ea9584; replay regressions passed |
 | [#1772](https://github.com/beep-effect/beep-effect/issues/1772) | Handle invalid receiving grant when receipt write exhausts lock retries | Acceptance review pending |
-| [#1789](https://github.com/beep-effect/beep-effect/issues/1789) | fix(reviewer): preserve terminal checks and stop empty pagination | Acceptance review pending |
+| [#1789](https://github.com/beep-effect/beep-effect/issues/1789) | fix(reviewer): preserve terminal checks and stop empty pagination | Active-only cancellation and empty-page termination fixed; 84 reviewer/bootstrap/merge-gate tests passed |
 | [#1835](https://github.com/beep-effect/beep-effect/issues/1835) | fix(observability): name schema-first scan spans by domain | Span names fixed; catalog conforming; focused tests passed |
 | [#1848](https://github.com/beep-effect/beep-effect/issues/1848) | drawings critics test: measure the late-limit seat start from the sequence's own start | Sequence-relative clock assertion fixed; critic tests passed |
 | [#1851](https://github.com/beep-effect/beep-effect/issues/1851) | rsc follow-up: finish the later repository retirement waves | Acceptance review pending |
