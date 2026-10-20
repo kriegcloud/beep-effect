@@ -2090,10 +2090,11 @@ export const detectEffectVitestFindings: {
     for (const call of calls) inspectCall(call, state);
 
     for (const definition of definitions) detectResourceDefinition(definition, state);
-    for (const declaration of imports.plainVitestImports) {
-      if (imports.hasEffectImport && !requiresVitestMockHoisting(declaration, imports))
-        findings.push(makeFinding({ ruleId: "EV011", node: declaration, file, owner, symbol: "vitest-import" }));
-    }
+    for (const declaration of A.filter(
+      imports.plainVitestImports,
+      (declaration) => imports.hasEffectImport && !requiresVitestMockHoisting(declaration, imports)
+    ))
+      findings.push(makeFinding({ ruleId: "EV011", node: declaration, file, owner, symbol: "vitest-import" }));
 
     for (const declaration of sourceFile.getImportDeclarations()) detectPlatformImport(declaration, state);
 
