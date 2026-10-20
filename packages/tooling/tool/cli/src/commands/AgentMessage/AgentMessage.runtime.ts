@@ -43,11 +43,42 @@ const ProfileJson = S.fromJsonString(ManagedLaunchProfile);
 const BindingJson = S.fromJsonString(EndpointBinding);
 const GrantJson = S.fromJsonString(LaunchGrant);
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.runtime");
-const recordNativeSettlement = Effect.fn("AgentMessage.recordNativeSettlement")(function* (
+/**
+ * Persist an already correlated native result before reporting delivery, retrying only mailbox lock contention.
+ *
+ * **Example** (Persist an original result without repeating inference)
+ * ```ts
+ * import { ManagedTerminalEvidence, ManagedTurnResult } from "@beep/ai-provider-cli"
+ * import { AgentMessageStore, Claim } from "@beep/repo-cli/commands/AgentMessage"
+ * import { recordNativeSettlement } from "@beep/repo-cli/commands/AgentMessage/AgentMessage.runtime"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * const persist = Effect.gen(function* () {
+ *   const store = yield* AgentMessageStore
+ *   const envelope = yield* store.message("owned-message")
+ *   const claim = Claim.make({ envelope, ownerId: "owner", generation: 1, leaseUntil: 1000 })
+ *   const response = ManagedTurnResult.make({
+ *     messageId: envelope.messageId, text: "", stopReason: "completed",
+ *     terminalEvidence: O.some(ManagedTerminalEvidence.make({
+ *       adapter: "codex", sessionId: "original-session", messageId: envelope.messageId,
+ *       turnId: "original-turn", outcome: "delivered", stopReason: "completed",
+ *     })),
+ *   })
+ *   return yield* recordNativeSettlement(store, claim, response)
+ * })
+ * console.log(Effect.isEffect(persist)) // true; no inference or database write runs here
+ * ```
+ *
+ * @category processes
+ * @since 0.0.0
+ * @internal
+ */
+export const recordNativeSettlement = Effect.fn("AgentMessage.recordNativeSettlement")(function* (
   store: AgentMessageStoreShape,
   claim: Claim,
   response: ManagedTurnResult
-) {
+): Effect.fn.Return<"delivered", RouterError> {
   if (response.messageId !== claim.envelope.messageId || O.isNone(response.terminalEvidence))
     return yield* RouterError.make({
       code: "conflict",
@@ -58,7 +89,9 @@ const recordNativeSettlement = Effect.fn("AgentMessage.recordNativeSettlement")(
       code: "conflict",
       message: "Native response contradicts its terminal evidence; retain the dispatch hold.",
     });
-  yield* store.recordSettlement(claim, response.terminalEvidence.value, yield* Clock.currentTimeMillis);
+  yield* retryMailboxLock(
+    store.recordSettlement(claim, response.terminalEvidence.value, yield* Clock.currentTimeMillis)
+  );
   return "delivered";
 });
 const ownsReceivingGrant = (

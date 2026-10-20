@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { ManagedLaunchProfile } from "@beep/ai-provider-cli";
+import { ManagedLaunchProfile, ManagedTerminalEvidence, ManagedTurnResult } from "@beep/ai-provider-cli";
 import {
   AgentMessageStore,
   agentMessageServeCommand,
@@ -9,10 +9,12 @@ import {
   LaunchGrant,
   makeAgentMessageCompletion,
   makeAgentMessageStore,
+  PolicySnapshot,
   Receipt,
   RouterError,
   runAgentMessageDispatchLoop,
 } from "@beep/repo-cli/commands/AgentMessage";
+import { recordNativeSettlement } from "@beep/repo-cli/commands/AgentMessage/AgentMessage.runtime";
 import { agentMessageStoreLayer, makeAgentMessageSqliteClient } from "@beep/repo-cli/test/AgentMessage";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -464,6 +466,90 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           expect(completeCalls).toBe(3);
           expect((yield* store.acknowledge("message", "target", 0)).status).toBe("acknowledged");
           yield* Fiber.interrupt(fiber);
+        })
+      )
+    );
+
+    it.effect("native settlement retries one mailbox lock before delivery and does not retry other errors", () =>
+      fixture((store) =>
+        Effect.gen(function* () {
+          const original = yield* store.endpoint("target");
+          yield* store.register(
+            EndpointBinding.make({
+              ...original,
+              endpointId: "native",
+              participantId: "native",
+              ownerId: "native-owner",
+              sessionId: "native-session",
+              policy: PolicySnapshot.make({ ...original.policy, provider: "codex" }),
+            })
+          );
+          const now = yield* Clock.currentTimeMillis;
+          const envelope = Envelope.make({
+            ...(yield* store.message("message")),
+            messageId: "native-message",
+            idempotencyKey: "native-message",
+            to: { kind: "direct", endpointId: "native" },
+          });
+          yield* store.accept(envelope, now);
+          const claim = O.getOrThrow(yield* store.claimNext("native", "native-owner", now, now + 30000));
+          const evidence = ManagedTerminalEvidence.make({
+            adapter: "codex",
+            sessionId: "native-session",
+            messageId: envelope.messageId,
+            turnId: "original-native-turn",
+            outcome: "delivered",
+            stopReason: "completed",
+          });
+          const response = ManagedTurnResult.make({
+            messageId: envelope.messageId,
+            text: "",
+            stopReason: "completed",
+            terminalEvidence: O.some(evidence),
+          });
+          let writes = 0;
+          const attempted = yield* Deferred.make<void>();
+          const wrapped: AgentMessageStoreShape = {
+            ...store,
+            recordSettlement: Effect.fnUntraced(function* (
+              ...args: Parameters<AgentMessageStoreShape["recordSettlement"]>
+            ) {
+              writes++;
+              if (writes === 1) {
+                yield* Deferred.succeed(attempted, undefined);
+                return yield* lockTimeout;
+              }
+              return yield* store.recordSettlement(...args);
+            }),
+          };
+          const recording = yield* recordNativeSettlement(wrapped, claim, response).pipe(Effect.forkChild);
+          yield* Deferred.await(attempted);
+          assertNone(yield* store.settlement(envelope.messageId));
+          expect(A.map(yield* store.receipts(envelope.messageId), (receipt) => receipt.status)).toEqual([
+            "accepted",
+            "claimed",
+          ]);
+          yield* TestClock.adjust(Duration.millis(250));
+          const status = yield* Fiber.join(recording);
+          expect(status).toBe("delivered");
+          expect(writes).toBe(2);
+          assertSome(yield* store.settlement(envelope.messageId), evidence);
+          expect((yield* store.complete(claim, status, yield* Clock.currentTimeMillis)).status).toBe("delivered");
+          const failure = RouterError.make({ code: "conflict", message: "Synthetic non-lock settlement failure." });
+          let failures = 0;
+          const rejected = yield* recordNativeSettlement(
+            {
+              ...store,
+              recordSettlement: Effect.fnUntraced(function* () {
+                failures++;
+                return yield* failure;
+              }),
+            },
+            claim,
+            response
+          ).pipe(Effect.flip);
+          expect(rejected).toEqual(failure);
+          expect(failures).toBe(1);
         })
       )
     );

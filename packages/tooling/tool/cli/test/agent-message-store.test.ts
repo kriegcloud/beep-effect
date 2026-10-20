@@ -749,6 +749,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
       fixture((store) =>
         Effect.gen(function* () {
           yield* store.accept(envelope("fenced-resolution"), 100);
+          const runtimeEvidence = {
+            adapter: "injected",
+            sessionId: "b-session",
+            terminalId: "fixture-terminal",
+            outcome: "delivered",
+            source: "Synthetic original runtime terminal record",
+          } satisfies OriginalRuntimeEvidence;
           const request = AmbiguityResolution.make({
             resolutionId: "fenced",
             messageId: "fenced-resolution",
@@ -758,13 +765,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             attemptOwnerId: "b-owner",
             operatorId: "fixture-operator",
             disposition: "delivered",
-            runtimeEvidence: {
-              adapter: "injected",
-              sessionId: "b-session",
-              terminalId: "fixture-terminal",
-              outcome: "delivered",
-              source: "Synthetic original runtime terminal record",
-            },
+            runtimeEvidence,
             evidence: "Fixture original session terminal result",
             reason: "Known result verified",
           });
@@ -795,7 +796,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             }),
             AmbiguityResolution.make({
               ...request,
-              runtimeEvidence: { ...request.runtimeEvidence, outcome: "failed" },
+              runtimeEvidence: { ...runtimeEvidence, outcome: "failed" },
             }),
           ];
           const errors = yield* Effect.forEach(invalid, (decision) =>
@@ -931,7 +932,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             terminalId: "fixture-terminal",
             outcome: "delivered",
             source: "Synthetic original runtime terminal record",
-          };
+          } satisfies OriginalRuntimeEvidence;
           yield* store.recordSettlement(claim, yield* S.decodeEffect(OriginalRuntimeEvidence)(originalTerminal), 102);
           yield* store.complete(claim, "delivered", 102);
           expect(yield* store.recover(110)).toBe(1);
@@ -1094,6 +1095,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           Effect.gen(function* () {
             yield* store.accept(envelope("settlement-crash"), 100);
             const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+            const runtimeEvidence = {
+              adapter: "injected",
+              sessionId: "b-session",
+              terminalId: "original-terminal",
+              outcome: "delivered",
+              source: "Synthetic actual original settlement",
+            } satisfies OriginalRuntimeEvidence;
             const request = AmbiguityResolution.make({
               resolutionId: "settlement-crash-resolution",
               messageId: "settlement-crash",
@@ -1103,13 +1111,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               attemptOwnerId: "b-owner",
               operatorId: "fixture-operator",
               disposition: "delivered",
-              runtimeEvidence: {
-                adapter: "injected",
-                sessionId: "b-session",
-                terminalId: "original-terminal",
-                outcome: "delivered",
-                source: "Synthetic actual original settlement",
-              },
+              runtimeEvidence,
               evidence: "Original persisted synthetic terminal result",
               reason: "Reconcile after host crash",
             });
@@ -1121,7 +1123,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             assertSome(yield* reopened.settlement(request.messageId), request.runtimeEvidence);
             yield* reopened.recordSettlement(claim, request.runtimeEvidence, 202);
             const changed = yield* S.decodeEffect(OriginalRuntimeEvidence)({
-              ...request.runtimeEvidence,
+              ...runtimeEvidence,
               terminalId: "wrong-terminal",
             });
             expect((yield* Effect.flip(reopened.recordSettlement(claim, changed, 202))).code).toBe("conflict");
@@ -1152,14 +1154,14 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           );
           yield* store.accept(envelope("original-native-prompt", "a", "c"), 100);
           const claim = O.getOrThrow(yield* store.claimNext("c", "c-owner", 101, 201));
-          const wrongMessage = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+          const wrongMessage = {
             adapter: "codex",
             sessionId: "c-session",
             messageId: "another-prompt",
             turnId: "synthetic-observed-turn",
             stopReason: "completed",
             outcome: "delivered",
-          });
+          } satisfies OriginalRuntimeEvidence;
           expect((yield* Effect.flip(store.recordSettlement(claim, wrongMessage, 102))).message).toBe(
             "Native terminal response does not identify the original prompt."
           );
