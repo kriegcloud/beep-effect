@@ -1100,7 +1100,7 @@ jobs:
           bun x --no-install vitest run --root packages/drivers/face-detection test/OnnxRuntimeInstall.test.ts
 
       - name: OSV vulnerability scan
-        uses: google/osv-scanner-action/osv-scanner-action@a345acffa64b0eaede81a3d9aae6141214d9c8fc # v2.6.0
+        uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
         with:
           scan-args: |-
             --lockfile=bun.lock
@@ -1143,7 +1143,7 @@ jobs:
           cache-write: "false"
 
       - name: Install Nix
-        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        uses: cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702 # v31
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
