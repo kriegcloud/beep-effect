@@ -5,8 +5,8 @@ Branch: `fix/slop-10-14-26`. Snapshot: 2026-10-20, 61 open issues.
 
 Each issue stays open until its acceptance criteria have source, test, or live
 qualification evidence. Green quality checks do not substitute for historical
-completion, native runtime, owner-verified cleanup, or signing evidence. This
-inventory records work in progress; it does not declare any issue resolved.
+completion, native runtime, owner-verified cleanup, or signing evidence. Rows distinguish completed acceptance evidence from outstanding work; GitHub
+closure remains conditional on this PR merging.
 
 ## Quality gates
 
@@ -122,6 +122,37 @@ passes. Three new regressions also pass under Node. Standalone diagnostics pass
 both driver projects, and the Effect test ratchet adds zero findings. One existing
 fixture advisory location is refreshed; its reviewed reason is preserved.
 
+## Probe and path proof for #1587
+
+The retained explicit-policy mitigation script requires `--run-model-probes`
+before workspace mutation or provider setup. Umask 077 precedes creation, and
+existing workspaces must be owned, empty, real directories with mode 0700.
+Existing socket paths and nonprivate probe directories are refused. Seven
+standalone Python guard tests pass with a synthetic child HOME and no provider
+executables or configuration. Reproduction documents the opt-in and a separate
+`--prepare-only` zero-model path; policy assertions, deadlines, owned-thread
+isolation, cleanup, and historical receipts are unchanged.
+
+The prospective lifecycle decision is back inside its original Decision Log
+table. The installed Marked GFM parser confirms the rendered table contains both
+the initial decision and the prospective row, including its before-merge condition.
+
+The already published `fileURLToPath` corrections were qualified using unchanged
+copies of both process-backed suites and their child fixtures under the physical
+`.beep/encoded fixture café/` path in this clone. Both suites pass all 45 tests
+under Node and all 45 under Bun, including real SQLite contention, READY
+synchronization, deadlines, and child cleanup. No second clone was created.
+
+## Fallow follow-up
+
+Hosted head `03158fb833` exposed one introduced cognitive-complexity finding in
+the detector's main loop. `f4c71ac1c7` filters the declarations before the loop,
+preserving the predicate while reducing nesting. All 218 detector regressions
+and CLI quick lint/type verification pass; the Fallow audit reports zero
+introduced findings. No baseline or threshold changed. Full lint policy also
+completed successfully during this repair wave; current-head hosted checks
+remain authoritative.
+
 ## Open issue acceptance tracking
 
 | Issue | Requested outcome | Status |
@@ -132,7 +163,7 @@ fixture advisory location is refreshed; its reviewed reason is preserved.
 | [#1581](https://github.com/beep-effect/beep-effect/issues/1581) | fix(agent-comms): qualify historical probe and snapshot evidence | Acceptance review pending |
 | [#1582](https://github.com/beep-effect/beep-effect/issues/1582) | fix(goals): distinguish proposed closeout from operative completion | Acceptance review pending |
 | [#1586](https://github.com/beep-effect/beep-effect/issues/1586) | Fence ended native sessions and scope Cursor denial classification | Claude transport termination fences future/queued prompts; cleanup is independent and idempotent; Cursor-only denial classification preserves quoted output; 63 package tests, audit, and docgen pass |
-| [#1587](https://github.com/beep-effect/beep-effect/issues/1587) | Tighten agent-messaging probe opt-in and test portability | Acceptance review pending |
+| [#1587](https://github.com/beep-effect/beep-effect/issues/1587) | Tighten agent-messaging probe opt-in and test portability | Seven zero-model admission/permission tests pass; lifecycle row renders in its decision table; both process-backed suites pass 45 tests under Node and Bun from a physical space/Unicode path |
 | [#1603](https://github.com/beep-effect/beep-effect/issues/1603) | fix(agent-message): reconcile completion after attached lease expiry | Only expired terminal completion defers to recovery; live-clock regression proves one submission, surviving worker, and ambiguity fence |
 | [#1607](https://github.com/beep-effect/beep-effect/issues/1607) | fix(t3-code): qualify built root export before publication | Published root and canonical generator use dist/index.js; 21 generator tests, package audit/docgen, and packed Node root/subpath import proof pass; package remains private |
 | [#1613](https://github.com/beep-effect/beep-effect/issues/1613) | fix(agent-message): scope prior envelope reuse to the sending grant | Cross-sender ID rejected before metadata reuse; real-store boundary tests cover idempotence, changed content, unchanged inbox and receipt count |

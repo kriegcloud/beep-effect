@@ -31,4 +31,22 @@ The experiment applied server defaults and explicit resume/queue policy together
 
 ## Reproduce
 
-Copy this directory into a new owned directory under `~/.cache/beep/`, inspect `mitigation_probe.py`, then run `timeout 180s python mitigation_probe.py`. Requires Python `websockets`, installed Codex CLI and the existing ChatGPT subscription login. The public script uses runtime HOME and refuses to run outside the Beep cache. Never run against an existing user thread. No new model run was performed while packaging this artifact.
+Copy this directory into a new owned directory under `~/.cache/beep/`, inspect `mitigation_probe.py`, then run `timeout 180s python3 mitigation_probe.py --run-model-probes`. Requires Python `websockets`, installed Codex CLI and the existing ChatGPT subscription login. The public script uses runtime HOME and refuses to run outside the Beep cache. Never run against an existing user thread. No new model run was performed while packaging this artifact.
+
+## Guard follow-up (2026-10-20)
+
+The retained script requires `--run-model-probes` before creating a workspace,
+reading provider configuration, importing transport dependencies, or launching
+anything. The owned probe directory must already be mode 0700. Umask 077 is set
+before workspace creation; an existing workspace is accepted only when it is an
+owned, empty, real directory with mode 0700. Existing socket paths are refused.
+The script does not repair permissions on existing directories.
+
+For a zero-model guard check, copy the script into a new private cache directory
+and run `python3 mitigation_probe.py --run-model-probes --prepare-only`. This
+creates/validates only the private workspace and exits before provider setup.
+The standalone guard suite runs with
+`python3 -m unittest discover -s explorations/cross-provider-agent-communication/research/spike/codex-mitigation -p 'test_*.py'`.
+All fixtures stay inside this checkout and use a synthetic child HOME. Historical
+receipts and the original policy, deadline, thread-ownership, and cleanup checks
+are unchanged. No live model calls are part of the guard suite.

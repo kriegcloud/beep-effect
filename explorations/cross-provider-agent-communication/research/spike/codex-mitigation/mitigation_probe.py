@@ -1,12 +1,32 @@
+import argparse
 import json, os, pathlib, subprocess, socket, threading, queue, time, uuid, tomllib, statistics, signal
-from websockets.sync.client import unix_connect
+import stat
+
+parser = argparse.ArgumentParser(description="Explicit-policy mitigation probe; live model turns require opt-in.")
+parser.add_argument("--run-model-probes", action="store_true")
+parser.add_argument("--prepare-only", action="store_true", help="Validate/create the private workspace without starting a provider.")
+options = parser.parse_args()
+if not options.run_model_probes:
+ parser.error("--run-model-probes is required before any workspace or provider mutation")
 BASE=pathlib.Path(__file__).resolve().parent
 CACHE_ROOT=pathlib.Path.home()/'.cache'/'beep'
 if not BASE.is_relative_to(CACHE_ROOT.resolve()):
  raise SystemExit('Copy this fixture to a new owned directory under ~/.cache/beep before running')
-(BASE/'workspace').mkdir(exist_ok=True)
-os.umask(0o077)
+if BASE.stat().st_uid != os.geteuid() or stat.S_IMODE(BASE.stat().st_mode) != 0o700:
+ raise SystemExit('The owned probe directory must have mode 0700')
 WORK=BASE/'workspace';SOCK=BASE/'control.sock'
+if SOCK.exists() or SOCK.is_symlink():
+ raise SystemExit('Refusing a pre-existing control socket path')
+os.umask(0o077)
+try:
+ WORK.mkdir(mode=0o700)
+except FileExistsError:
+ if WORK.is_symlink() or not WORK.is_dir() or WORK.stat().st_uid != os.geteuid() or stat.S_IMODE(WORK.stat().st_mode) != 0o700 or any(WORK.iterdir()):
+  raise SystemExit('A pre-existing workspace must be an owned empty real directory with mode 0700')
+if options.prepare_only:
+ print('Private workspace ready; no provider or model was started')
+ raise SystemExit(0)
+from websockets.sync.client import unix_connect
 CONFIG=tomllib.loads((pathlib.Path.home()/'.codex'/'config.toml').read_text())
 args=['codex','app-server','--listen','unix://'+str(SOCK)]
 for key,value in {'sandbox_mode':'read-only','approval_policy':'never','model':'gpt-6.1-sol','model_reasoning_effort':'medium','forced_login_method':'chatgpt','project_doc_max_bytes':0,'features.plugins':False,'features.hooks':False,'features.apps':False,'features.memories':False,'features.multi_agent':False,'features.shell_snapshot':False}.items():
