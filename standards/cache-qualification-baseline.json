@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 medium (repository-simplification-residue driver)",
-      "reason": "Record the root scripts-digest change from removing the impeccable:detect script and Impeccable-only root dependencies in #1900; no root task command, input, output, env or dependency changed; preserve scope, profile, epoch and qualification ledger without granting reuse qualification.",
+      "reviewer": "Codex branch integration review",
+      "reason": "Reconcile main baseline with retained branch inputs: Graft environment names, generated no-emit contacts build override, and CLI scripts typecheck. No expanded qualification.",
       "basis": {
-        "path": "goals/turborepo-task-qualification/research/impeccable-root-script-baseline-review.md",
-        "sha256": "2921739a3cd73f82776065c260542191bfbb310a625fde20d61ad0b1db42ac98"
+        "path": "docs/reports/branch-main-sync-2026-10-20.md",
+        "sha256": "38127089cf6d3c86099ae6c4fb0f405b586df10d51efa7913a1d812907fe5713"
       }
     },
     "@beep/acp": {
@@ -882,11 +882,11 @@
       }
     },
     "@beep/practice-m365-contacts": {
-      "reviewer": "Codex TS7 exit B2 implementation lane",
-      "reason": "Record ESLint removal and governance input path moves without granting qualification.",
+      "reviewer": "Codex branch integration review",
+      "reason": "Reconcile main baseline with retained branch inputs: Graft environment names, generated no-emit contacts build override, and CLI scripts typecheck. No expanded qualification.",
       "basis": {
-        "path": "goals/eslint-removal/research/cache-baseline-basis.md",
-        "sha256": "20955a3572c52c77460ab2fd06f8b0658c5e7065204b64d202e5040d70b73370"
+        "path": "docs/reports/branch-main-sync-2026-10-20.md",
+        "sha256": "38127089cf6d3c86099ae6c4fb0f405b586df10d51efa7913a1d812907fe5713"
       }
     },
     "@beep/practice-mail-tagging": {
@@ -962,11 +962,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "schema-opaque-default closing lane (Claude)",
-      "reason": "Round-1 review: widen //#lint:opaque-roundtrips inputs to the full scan surface, and re-admit it after merging main 23d2088b3e (#1817); preserve task behavior and qualification scope.",
+      "reviewer": "Codex branch integration review",
+      "reason": "Reconcile main baseline with retained branch inputs: Graft environment names, generated no-emit contacts build override, and CLI scripts typecheck. No expanded qualification.",
       "basis": {
-        "path": "goals/schema-opaque-default/research/cache-baseline-review-close.md",
-        "sha256": "34fbe9b93f4b56582d7fcd1a3e41ceeeb54862a1ec4730e8aa6c19da38430a21"
+        "path": "docs/reports/branch-main-sync-2026-10-20.md",
+        "sha256": "38127089cf6d3c86099ae6c4fb0f405b586df10d51efa7913a1d812907fe5713"
       }
     },
     "@beep/repo-configs": {
@@ -1309,6 +1309,8 @@
           "CODEX_SESSION_ID",
           "CODEX_THREAD_ID",
           "GITHUB_ACTIONS",
+          "GRAFT_CRUX_MODULE",
+          "GRAFT_EXTRACT_MODULE",
           "TURBO_CACHE",
           "TURBO_FORCE",
           "TURBO_TOKEN",
@@ -75392,20 +75394,7 @@
           ],
           "env": [],
           "passThroughEnv": [],
-          "outputs": [
-            "!**/.turbo/**",
-            "!.next/cache/**",
-            "**/node_modules/.tmp/*.tsbuildinfo",
-            ".expo/**",
-            ".next/**",
-            ".output/**",
-            ".vercel/output/**",
-            "_next/**",
-            "build/**",
-            "dist/**",
-            "next-env.d.ts",
-            "storybook-static/**"
-          ],
+          "outputs": [],
           "dependsOn": [
             "^build"
           ],
@@ -82281,7 +82270,7 @@
       {
         "computation": "@beep/repo-cli#audit",
         "command": "bun run --if-present beep:audit",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#audit",
           "@beep/ai-sync#audit",
@@ -82380,7 +82369,7 @@
       {
         "computation": "@beep/repo-cli#build",
         "command": "bun run beep:build",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
@@ -82466,7 +82455,7 @@
       {
         "computation": "@beep/repo-cli#check",
         "command": "bun run beep:check",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
@@ -82539,7 +82528,7 @@
       {
         "computation": "@beep/repo-cli#coverage",
         "command": "bunx vitest run --coverage",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
@@ -82624,7 +82613,7 @@
       {
         "computation": "@beep/repo-cli#docgen",
         "command": "bun run beep:docgen",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/repo-cli#transit",
           "@beep/repo-docgen#transit"
@@ -82663,7 +82652,7 @@
       {
         "computation": "@beep/repo-cli#doctest",
         "command": "bun run beep:doctest",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -82747,7 +82736,7 @@
       {
         "computation": "@beep/repo-cli#lint",
         "command": "bun run beep:lint",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [],
         "configuration": {
           "cache": true,
@@ -82782,7 +82771,7 @@
       {
         "computation": "@beep/repo-cli#lint:deprecated-apis",
         "command": "beep-cli lint deprecated-apis --package .",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/ai-provider-cli#transit",
@@ -82884,7 +82873,7 @@
       {
         "computation": "@beep/repo-cli#lint:fix",
         "command": "bun run beep:lint:fix",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [],
         "configuration": {
           "cache": false,
@@ -82913,7 +82902,7 @@
       {
         "computation": "@beep/repo-cli#lint:jsdoc",
         "command": "beep-cli lint jsdoc --package .",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -82968,7 +82957,7 @@
       {
         "computation": "@beep/repo-cli#lint:laws",
         "command": "beep-cli lint laws --package .",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -83022,7 +83011,7 @@
       {
         "computation": "@beep/repo-cli#package-test-typecheck",
         "command": "beep-cli quality test-tsgo-package",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -83101,7 +83090,7 @@
       {
         "computation": "@beep/repo-cli#test",
         "command": "bun run beep:test",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -83187,7 +83176,7 @@
       {
         "computation": "@beep/repo-cli#test:property",
         "command": "bun run beep:test",
-        "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
+        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -106659,6 +106648,10 @@
         "sha256": "c122c7e03a1a055c5adcc8fc264c327616fd2c3cca2752bd7a0e7109d7cc674d"
       },
       {
+        "path": "apps/practice-m365-contacts/turbo.json",
+        "sha256": "c122c7e03a1a055c5adcc8fc264c327616fd2c3cca2752bd7a0e7109d7cc674d"
+      },
+      {
         "path": "apps/practice-mail-tagging/turbo.json",
         "sha256": "c122c7e03a1a055c5adcc8fc264c327616fd2c3cca2752bd7a0e7109d7cc674d"
       },
@@ -106712,7 +106705,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "e7b90d86060cc42457eb4a52bd3fb1fa9a4a61cb08a8294add597607cd03649f"
+        "sha256": "339328fed3bc52afccf22bed702e0e0b6ae7adee17548d1b8590c264be72ea08"
       }
     ]
   }
