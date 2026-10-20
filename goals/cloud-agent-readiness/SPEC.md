@@ -239,3 +239,13 @@ required operations separately from installing their CLI binaries.
 - This is repo-operations work under the tooling family, not new product language
   or a foundation/shared package. Keep goal-specific host evidence in this packet;
   any reusable typed CLI changes belong in existing tooling ownership boundaries.
+
+### PR #1750 mergeability continuation (2026-10-20)
+
+Continue the existing published branch by merging current main, preserving its
+history and the worker evidence already recorded. Reconcile documentation and
+regenerate catalogs with the owning commands. No worker synchronization or
+remote provisioning is required to qualify this repository change. Reversal
+is a revert of the integration commit; the previous branch tip is b6f027e178e0.
+The requested endpoint is mergeable, with the PR left open. Existing host and
+provider qualification gaps remain bounded by their recorded evidence.
