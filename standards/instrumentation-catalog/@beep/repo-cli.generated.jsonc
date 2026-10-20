@@ -173,6 +173,7 @@
     {"name":"AgentMessageStore.completeAcknowledged","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"AgentMessageStore.duplicateAcceptance","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"AgentMessageStore.endpoint","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"AgentMessageStore.make","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"AgentMessageStore.receipts","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"AgentMessageStore.reconcileReplacement","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"AgentMessageStore.replayResolution","owner":"@beep/repo-cli","family":"tooling","conforms":true},

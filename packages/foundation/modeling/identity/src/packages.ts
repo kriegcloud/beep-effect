@@ -209,6 +209,10 @@ const generatedComposers = $I.compose(
   "practice-m365-contacts",
   "practice-claude-mod",
   "t3-code",
+  "windows-secrets",
+  "practice-gateway",
+  "mcpb-kit",
+  "practice-setup",
   "practice-review-hub",
   "palantiri"
 );
@@ -2919,3 +2923,71 @@ export const $PracticeReviewHubId: Identity.IdentityComposer<"@beep/practice-rev
  * @since 0.0.0
  */
 export const $PalantiriId: Identity.IdentityComposer<"@beep/palantiri"> = composers.$PalantiriId;
+
+/**
+ * Identity composer for `@beep/windows-secrets`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $WindowsSecretsId } from "@beep/identity/packages"
+ *
+ * const id = $WindowsSecretsId.make("WindowsSecrets")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $WindowsSecretsId: Identity.IdentityComposer<"@beep/windows-secrets"> = composers.$WindowsSecretsId;
+
+/**
+ * Identity composer for `@beep/practice-gateway`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $PracticeGatewayId } from "@beep/identity/packages"
+ *
+ * const id = $PracticeGatewayId.make("PracticeGateway")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $PracticeGatewayId: Identity.IdentityComposer<"@beep/practice-gateway"> = composers.$PracticeGatewayId;
+
+/**
+ * Identity composer for `@beep/mcpb-kit`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $McpbKitId } from "@beep/identity/packages"
+ *
+ * const id = $McpbKitId.make("McpbKit")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $McpbKitId: Identity.IdentityComposer<"@beep/mcpb-kit"> = composers.$McpbKitId;
+
+/**
+ * Identity composer for `@beep/practice-setup`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $PracticeSetupId } from "@beep/identity/packages"
+ *
+ * const id = $PracticeSetupId.make("PracticeSetup")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $PracticeSetupId: Identity.IdentityComposer<"@beep/practice-setup"> = composers.$PracticeSetupId;

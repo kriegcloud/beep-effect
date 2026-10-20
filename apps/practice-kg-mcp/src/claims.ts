@@ -16,6 +16,8 @@ import {
   runPracticeKgClaimsBatch,
   writePracticeKgClaimsCarry,
 } from "@beep/law-practice-server";
+import { makePracticeKgPgliteLayer } from "@beep/law-practice-server/PracticeKgHost";
+import { runMcpbEntrypoint } from "@beep/mcpb-kit";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
@@ -23,8 +25,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { runEntrypoint } from "./entrypoint.ts";
-import { makePracticeKgPgliteLayer } from "./runtime/index.ts";
 
 const inputs = Flag.Directory("inputs", { mustExist: true }).pipe(Flag.optional);
 const bundleOut = Flag.Directory("bundle-out", { mustExist: true });
@@ -85,4 +85,4 @@ const claimsCommand = Command.make(
 );
 
 const program = Command.run(claimsCommand, { version: "0.0.0" });
-runEntrypoint({ isMain: import.meta.main, program });
+runMcpbEntrypoint({ isMain: import.meta.main, program });

@@ -46,6 +46,7 @@
     "./MailTagging": "./src/MailTagging/index.ts",
     "./NoticeMailbox": "./src/NoticeMailbox/index.ts",
     "./internal/*": null,
+    "./PracticeKgHost": "./src/PracticeKgHost/index.ts",
     "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
     "./QuestionCalendar": "./src/QuestionCalendar/index.ts",
     "./ReviewFiles": "./src/ReviewFiles/index.ts",
@@ -76,6 +77,7 @@
     "@beep/libpff": "workspace:^",
     "@beep/m365": "workspace:^",
     "@beep/mcp-kit": "workspace:^",
+    "@beep/pglite": "workspace:^",
     "@beep/postgres": "workspace:^",
     "@beep/provenance": "workspace:^",
     "@beep/schema": "workspace:^",
@@ -89,7 +91,6 @@
   "devDependencies": {
     "@beep/md": "workspace:^",
     "@beep/nlp": "workspace:^",
-    "@beep/pglite": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@beep/test-utils": "workspace:^",
