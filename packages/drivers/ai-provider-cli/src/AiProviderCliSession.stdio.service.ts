@@ -324,7 +324,7 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     const text = yield* Ref.get(chunks);
     if (yield* Ref.get(overflow))
       return yield* failure.make("prompt", "provider-failure", "Model response exceeded the 1 MiB collection bound");
-    if (Str.includes("Upgrade your plan to continue")(text)) {
+    if (profile.provider === "cursor" && Str.startsWith("Upgrade your plan to continue")(Str.trim(text))) {
       yield* close.pipe(Effect.ignore);
       return yield* failure.make("prompt", "access-blocked", "Existing subscription denied model access");
     }

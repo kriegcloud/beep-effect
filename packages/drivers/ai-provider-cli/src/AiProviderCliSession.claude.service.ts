@@ -152,25 +152,33 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
   const messageId = yield* Ref.make("");
   const verified = yield* Ref.make(false);
   const closed = yield* Ref.make(false);
+  const finalized = yield* Ref.make(false);
   const lock = yield* Semaphore.make(1);
   const publish = (kind: ManagedSessionEvent["kind"]) =>
     PubSub.publish(events, ManagedSessionEvent.make({ kind, payload: {} })).pipe(Effect.asVoid);
-  const send = (value: unknown) =>
-    encodeJson(value).pipe(
+  const send = Effect.fnUntraced(function* (value: unknown) {
+    if (yield* Ref.get(closed)) return yield* failure.make("write", "closed", "Owned Claude transport is closed");
+    return yield* encodeJson(value).pipe(
       transportFailure("encode"),
       Effect.flatMap((line) => Queue.offer(outbound, Str.concat("\n")(line))),
       Effect.asVoid
     );
+  });
   const failPending = Effect.fn("ManagedClaude.failPending")(function* (error: ManagedSessionError) {
     yield* Deferred.fail(ready, error);
     const pending = yield* Ref.get(active);
     if (O.isSome(pending)) yield* Deferred.fail(pending.value, error);
   });
+  const endTransport = Effect.fnUntraced(function* (error: ManagedSessionError) {
+    const alreadyClosed = yield* Ref.getAndSet(closed, true);
+    yield* failPending(error);
+    if (!alreadyClosed) yield* publish("closed");
+  });
   yield* Stream.fromQueue(outbound).pipe(
     Stream.encodeText,
     Stream.run(handle.stdin),
     transportFailure("write"),
-    Effect.onError(() => failPending(failure.make("write", "transport", "Claude input transport failed"))),
+    Effect.onError(() => endTransport(failure.make("write", "transport", "Claude input transport failed"))),
     Effect.forkChild
   );
   yield* handle.stderr.pipe(Stream.runDrain, Effect.forkChild);
@@ -237,15 +245,19 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
     Stream.flatMap(Stream.fromIterable),
     Stream.runForEach(receive),
     transportFailure("read"),
-    Effect.catch(failPending),
-    Effect.ensuring(failPending(failure.make("read", "closed", "Claude stream closed before terminal receipt"))),
+    Effect.catch(endTransport),
+    Effect.ensuring(endTransport(failure.make("read", "closed", "Claude stream closed before terminal receipt"))),
     Effect.forkChild
   );
   const close = Effect.gen(function* () {
-    if (!(yield* Ref.getAndSet(closed, true))) {
-      yield* failPending(failure.make("close", "closed", "Owned Claude runtime closed"));
-      yield* handle.kill({ forceKillAfter: Duration.seconds(3) }).pipe(transportFailure("close"));
-      yield* publish("closed");
+    if (!(yield* Ref.getAndSet(finalized, true))) {
+      yield* endTransport(failure.make("close", "closed", "Owned Claude runtime closed"));
+      yield* handle.kill({ forceKillAfter: Duration.seconds(3) }).pipe(
+        Effect.catch((error) =>
+          handle.isRunning.pipe(Effect.flatMap((running) => (running ? Effect.fail(error) : Effect.void)))
+        ),
+        transportFailure("close")
+      );
     }
   });
   yield* Effect.addFinalizer(() => close.pipe(Effect.ignore));
@@ -261,8 +273,8 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
     const pending = yield* Deferred.make<ManagedTurnResult, ManagedSessionError>();
     yield* Ref.set(active, O.some(pending));
     yield* Ref.set(messageId, message.messageId);
-    yield* send({ type: "user", message: { role: "user", content: message.text } });
-    return yield* Deferred.await(pending).pipe(
+    return yield* send({ type: "user", message: { role: "user", content: message.text } }).pipe(
+      Effect.andThen(Deferred.await(pending)),
       Effect.timeoutOrElse({
         duration: Duration.minutes(2),
         orElse: () =>

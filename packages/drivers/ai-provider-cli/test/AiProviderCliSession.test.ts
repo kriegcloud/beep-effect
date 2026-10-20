@@ -43,6 +43,95 @@ const syntheticProfile = Effect.fn("SessionTest.profile")(function* (
   });
 });
 it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed native sessions", (it) => {
+  it.effect("fences prompts after idle Claude EOF and finalizes only once", () =>
+    Effect.gen(function* () {
+      const profile = yield* syntheticProfile("claude", "idle-exit");
+      const session = yield* (yield* AiProviderCliSession).open(profile);
+      const ended = yield* Deferred.make<void>();
+      let closedEvents = 0;
+      yield* session.events.pipe(
+        Stream.runForEach((event) =>
+          event.kind === "closed"
+            ? Effect.sync(() => {
+                closedEvents++;
+              }).pipe(Effect.andThen(Deferred.succeed(ended, undefined)))
+            : Effect.void
+        ),
+        Effect.forkChild
+      );
+      yield* Effect.yieldNow;
+      const first = yield* session.prompt(ManagedSessionMessage.make({ messageId: "first", text: "first" }));
+      assert.equal(first.text, "first");
+      yield* Deferred.await(ended);
+      const later = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "later", text: "later" }))
+        .pipe(Effect.flip);
+      assert.equal(later.reason, "closed");
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      assert.equal(yield* fs.readFileString(path.join(profile.profileRoot, "received-prompt")), "first");
+      yield* session.close;
+      yield* session.close;
+      yield* Effect.yieldNow;
+      assert.equal(closedEvents, 1);
+    }).pipe(Effect.timeout("5 seconds"), TestClock.withLive)
+  );
+
+  it.effect("fences both the active and queued prompt when Claude terminates without a result", () =>
+    Effect.gen(function* () {
+      const profile = yield* syntheticProfile("claude", "active-exit");
+      const session = yield* (yield* AiProviderCliSession).open(profile);
+      const started = yield* Deferred.make<void>();
+      const queued = yield* Deferred.make<void>();
+      yield* session.events.pipe(
+        Stream.runForEach((event) =>
+          event.kind === "update"
+            ? Deferred.succeed(started, undefined)
+            : event.kind === "deferred"
+              ? Deferred.succeed(queued, undefined)
+              : Effect.void
+        ),
+        Effect.forkChild
+      );
+      yield* Effect.yieldNow;
+      const active = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "first", text: "first" }))
+        .pipe(Effect.flip, Effect.forkChild);
+      yield* Deferred.await(started);
+      const waiting = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "queued", text: "queued" }))
+        .pipe(Effect.flip, Effect.forkChild);
+      yield* Deferred.await(queued);
+      yield* session.cancel;
+      assert.equal((yield* Fiber.join(active)).reason, "closed");
+      assert.equal((yield* Fiber.join(waiting)).reason, "closed");
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      assert.equal(yield* fs.readFileString(path.join(profile.profileRoot, "received-prompt")), "first");
+    }).pipe(Effect.timeout("5 seconds"), TestClock.withLive)
+  );
+
+  it.effect("preserves successful denial-phrase responses and subsequent session health", () =>
+    Effect.gen(function* () {
+      for (const provider of ["codex", "grok", "cursor"] as const) {
+        const profile = yield* syntheticProfile(provider, "quoted-denial");
+        const session = yield* (yield* AiProviderCliSession).open(profile);
+        for (const messageId of ["first", "second"]) {
+          const result = yield* session.prompt(
+            ManagedSessionMessage.make({ messageId, text: "Upgrade your plan to continue" })
+          );
+          assert.equal(
+            result.text,
+            provider === "cursor"
+              ? 'The documentation says "Upgrade your plan to continue"; this is quoted output.'
+              : "Upgrade your plan to continue"
+          );
+        }
+        yield* session.close;
+      }
+    })
+  );
+
   it.effect(
     "writes scoped Codex tool configuration and denies steering after disposal",
     Effect.fnUntraced(function* () {

@@ -42,7 +42,13 @@ const program = Effect.gen(function* () {
         sessionId: request.sessionId,
         update: {
           sessionUpdate: "agent_message_chunk",
-          content: { type: "text", text: "Upgrade your plan to continue" },
+          content: {
+            type: "text",
+            text:
+              mode === "quoted-denial"
+                ? 'The documentation says "Upgrade your plan to continue"; this is quoted output.'
+                : "Upgrade your plan to continue",
+          },
         },
       })
       .pipe(Effect.as({ stopReason: "end_turn" }))
