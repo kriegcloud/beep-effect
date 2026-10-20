@@ -2101,7 +2101,7 @@ const generatePackageJson: (
         provenance: true,
         exports: {
           "./package.json": "./package.json",
-          ".": "./dist/index.ts",
+          ".": "./dist/index.js",
           "./*": "./dist/*.js",
           "./internal/*": null,
         },

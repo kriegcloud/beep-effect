@@ -113,6 +113,7 @@ const DriverPackageMetadata = S.Struct({
     family: S.Literal("drivers"),
   }),
   scripts: S.Record(S.String, S.String),
+  publishConfig: S.Struct({ exports: S.Record(S.String, S.NullOr(S.String)) }),
 });
 const EcosystemPackageMetadata = S.Struct({
   private: S.Literal(true),
@@ -1422,6 +1423,8 @@ export const $IdentityId: Identity.IdentityComposer<"@beep/identity"> = composer
               expect(generatedPackage.beep).toEqual({
                 family: "drivers",
               });
+              expect(generatedPackage.publishConfig.exports["."]).toBe("./dist/index.js");
+              expect(generatedPackage.publishConfig.exports["./*"]).toBe("./dist/*.js");
               expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
               expect(generatedPackage.scripts.docgen).toBe("bun run beep:docgen");
 

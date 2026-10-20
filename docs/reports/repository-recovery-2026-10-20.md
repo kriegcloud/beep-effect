@@ -83,6 +83,23 @@ MCP bundle test, and schema parity test. All five additional affected packages
 pass quick lint/type verification. Focused standalone diagnostics are running;
 this does not claim the hosted rerun has passed.
 
+## Built export proof for #1607
+
+The T3 package and generic package generator now map the published root to
+`./dist/index.js`. Source exports, internal export denial, private status, and
+generated task scripts are preserved. All 21 generator regressions pass, and
+T3 package audit and docgen pass.
+
+For the package fixture, Bun packed the built package and resolved workspace and
+catalog versions. Its pack command preserves source exports and retains the
+publication override. The extracted archive was then packed with pnpm, which
+applies `publishConfig.exports`. That archive was installed by extraction into
+an isolated fixture under `.beep/`. Node resolved both the root and
+`T3Code.models` subpath to existing JavaScript, imported both successfully, and
+rejected the internal subpath. No package was published. Bun's workspace-aware
+resolver selects the source workspace when run inside this clone, so Node was
+used for the external package-resolution proof.
+
 ## Open issue acceptance tracking
 
 | Issue | Requested outcome | Status |
@@ -95,7 +112,7 @@ this does not claim the hosted rerun has passed.
 | [#1586](https://github.com/beep-effect/beep-effect/issues/1586) | Fence ended native sessions and scope Cursor denial classification | Acceptance review pending |
 | [#1587](https://github.com/beep-effect/beep-effect/issues/1587) | Tighten agent-messaging probe opt-in and test portability | Acceptance review pending |
 | [#1603](https://github.com/beep-effect/beep-effect/issues/1603) | fix(agent-message): reconcile completion after attached lease expiry | Only expired terminal completion defers to recovery; live-clock regression proves one submission, surviving worker, and ambiguity fence |
-| [#1607](https://github.com/beep-effect/beep-effect/issues/1607) | fix(t3-code): qualify built root export before publication | Acceptance review pending |
+| [#1607](https://github.com/beep-effect/beep-effect/issues/1607) | fix(t3-code): qualify built root export before publication | Published root and canonical generator use dist/index.js; 21 generator tests, package audit/docgen, and packed Node root/subpath import proof pass; package remains private |
 | [#1613](https://github.com/beep-effect/beep-effect/issues/1613) | fix(agent-message): scope prior envelope reuse to the sending grant | Cross-sender ID rejected before metadata reuse; real-store boundary tests cover idempotence, changed content, unchanged inbox and receipt count |
 | [#1702](https://github.com/beep-effect/beep-effect/issues/1702) | knowledge doctor: lexer-aware block-comment blanking and v2 lock decode errors (#1690 follow-ups) | Implemented on main in ec580c30a2; 14 evaluator regressions passed |
 | [#1708](https://github.com/beep-effect/beep-effect/issues/1708) | effect-vitest: EV010 flags every platform-node import, including canonical it.layer setups | Acceptance review pending |
