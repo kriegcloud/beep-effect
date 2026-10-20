@@ -43,8 +43,11 @@ export const LABS_WORKSPACE_GLOB = "apps/labs/*";
 export const LABS_PATH_IGNORE_GLOB = "apps/labs/**";
 
 /**
- * Turbo filter that excludes lab workspaces from required lanes (ratified
- * lab-apps-lifecycle row 9).
+ * Turbo filter for hosted product lint/test partitioning in `CiLane`.
+ *
+ * Root lint, check, test, and coverage commands include labs (operator amendment
+ * 2026-10-20, lab-apps-lifecycle D15). Hosted product partitions retain this
+ * filter because the separate labs lane owns their lab-specific execution.
  *
  * @category configuration
  * @since 0.0.0

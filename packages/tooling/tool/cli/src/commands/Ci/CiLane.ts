@@ -1647,7 +1647,8 @@ export const ciLaneStepsForTesting: {
       // therefore runs only the package Turbo graph instead of duplicating
       // that battery through the root `bun run lint` aggregate. The lane
       // invokes turbo directly (bypassing Quality/Tasks.ts turboRunArgs), so
-      // the labs exclude filter is applied explicitly here (row 9).
+      // the hosted product-partition filter is applied here; root commands
+      // include labs under lab-apps-lifecycle D15.
       lint: () => [
         turboTaskLaneStep(
           repoRoot,

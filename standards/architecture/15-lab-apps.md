@@ -21,11 +21,16 @@ Lab apps obey the full code law:
 - secret scanning, SAST, and dependency security
 - portless dev-server naming
 
-Labs are exempt only from package ceremony, by path construction. They do not
-publish docgen surfaces, enter JSDoc or coverage ratchets, require changesets,
-or register Storybook stories. These are not waivers for code quality. A new or
-changed lab must pass its lab lane on its own PR; the lane remains non-required
-for unrelated product work.
+Labs are exempt from publishing docgen surfaces, the JSDoc ratchet, changesets,
+and Storybook registration. They participate in root `lint`, `check`, `test`,
+and `coverage`, including coverage disposition, minimums, and per-file ratchets.
+Generated lab manifests require a coverage script. This posture was amended by
+the operator on 2026-10-20 (lab-apps-lifecycle D15).
+
+Hosted product lint/test partitions still select labs separately through the
+labs lane; that lane must pass for a new or changed lab and remains non-required
+for unrelated product work. This partition does not exclude labs from the root
+commands or the repository-wide coverage judge.
 
 The Scratchpad Lane remains the home for throwaway, law-relaxed exploration. A
 lab is the next step: production-shaped enough to test architecture and
@@ -36,8 +41,9 @@ not turn an experiment into permanent topology.
 
 The repository carries one workspace glob and one set of path-scoped gate
 rules for the labs root. Creating or deleting a lab MUST NOT add or remove a
-lab-specific row in root workspace, changeset, coverage, docgen, Storybook, or
-CI configuration.
+manually authored lab-specific row in root workspace, changeset, docgen,
+Storybook, or CI configuration. Coverage rows are measured artifacts generated
+by the coverage writer; creation enrolls the lab and deletion prunes its rows.
 
 Registration is declared as geometry shared by create-package,
 delete-package, and doctor:

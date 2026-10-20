@@ -308,11 +308,10 @@
   "packageManager": "bun@1.4.3",
   "patchedDependencies": {
     "onnxruntime-node@1.30.0": "patches/onnxruntime-node@1.30.0.patch",
-    "@effect/platform-node-shared@4.0.4": "patches/@effect%2Fplatform-node-shared@4.0.4.patch",
     "drizzle-orm@1.0.0-rc.5-ab785fc": "patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch",
-    "effect@4.0.4": "patches/effect@4.0.4.patch",
-    "@xstate/effect@0.1.0-alpha.7": "patches/@xstate%2Feffect@0.1.0-alpha.7.patch",
-    "xstate@6.0.0-alpha.65": "patches/xstate@6.0.0-alpha.65.patch"
+    "effect@4.0.5": "patches/effect@4.0.5.patch",
+    "@effect/platform-node-shared@4.0.5": "patches/@effect%2Fplatform-node-shared@4.0.5.patch",
+    "@xstate/effect@1.0.0-alpha.8": "patches/@xstate%2Feffect@1.0.0-alpha.8.patch"
   },
   "private": true,
   "repository": {

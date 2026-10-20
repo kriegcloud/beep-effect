@@ -88,7 +88,7 @@ const appendLiteralKitConstAssertionViolations = (
   }
 };
 
-const schemaFirstSourceContext = Effect.fn("schemaFirstSourceContext")(function* () {
+const schemaFirstSourceContext = Effect.fn("SchemaFirstScan.sourceContext")(function* () {
   const path = yield* Path.Path;
   const project = createRepoTsMorphProject({
     tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
@@ -98,7 +98,7 @@ const schemaFirstSourceContext = Effect.fn("schemaFirstSourceContext")(function*
   return { project, sourcePaths };
 });
 
-const collectArbitraryCoverageEntries = Effect.fn("collectArbitraryCoverageEntries")(function* () {
+const collectArbitraryCoverageEntries = Effect.fn("SchemaFirstScan.collectArbitraryCoverageEntries")(function* () {
   const path = yield* Path.Path;
   const ownerResolver = yield* makeSchemaFirstOwnerResolver();
   const { project, sourcePaths } = yield* schemaFirstSourceContext();

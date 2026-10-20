@@ -96,6 +96,7 @@ it.layer(PlatformLayer, { timeout: "30 seconds" })("doctest Turbo inputs", (it) 
         "packages/consumer/tsconfig.test.json",
         "packages/consumer/package.json",
         "vitest.shared.ts",
+        "vite.shared.ts",
         "vitest.setup.ts",
         "vitest.aliases.generated.json",
         "packages/foundation/modeling/utils/src/index.ts",
@@ -179,6 +180,7 @@ it.layer(PlatformLayer, { timeout: "30 seconds" })("test and docgen Turbo cache 
         "packages/helper/src/index.ts",
         "packages/utils/src/index.ts",
         "vitest.shared.ts",
+        "vite.shared.ts",
         "vitest.setup.ts",
         "vitest.aliases.generated.json",
       ];
@@ -263,7 +265,13 @@ it.layer(PlatformLayer, { timeout: "30 seconds" })("test and docgen Turbo cache 
         const mutated = yield* hashes();
         const generator = A.contains(["packages/docgen/src/index.ts", "packages/helper/src/index.ts"], file);
         const sharedTestConfig = A.contains(
-          ["vitest.shared.ts", "vitest.setup.ts", "vitest.aliases.generated.json", "packages/utils/src/index.ts"],
+          [
+            "vitest.shared.ts",
+            "vite.shared.ts",
+            "vitest.setup.ts",
+            "vitest.aliases.generated.json",
+            "packages/utils/src/index.ts",
+          ],
           file
         );
         expect(mutated[0] === baseline[0], `${file}: test`).toBe(generator);

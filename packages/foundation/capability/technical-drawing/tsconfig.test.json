@@ -11,6 +11,11 @@
     "outDir": "dist-test",
     "rootDir": ".",
     "sourceMap": false,
-    "types": ["node", "bun-types"]
+    "types": ["node", "bun-types"],
+    "paths": {
+      "@beep/technical-drawing/internal/LabelOutline": [
+        "./src/internal/LabelOutline.ts"
+      ]
+    }
   }
 }

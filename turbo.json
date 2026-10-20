@@ -69,6 +69,7 @@
         "tsconfig*.json",
         "vitest*.config.ts",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "$TURBO_ROOT$/packages/foundation/modeling/utils/src/**",
@@ -300,7 +301,10 @@
         "$TURBO_ROOT$/tools/tsgo-shim/tsgo.js",
         "$TURBO_ROOT$/tools/tsgo-shim/package.json",
         ".env",
-        ".env.*"
+        ".env.*",
+        "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
+        "$TURBO_ROOT$/vitest.aliases.generated.json"
       ],
       "outputs": [
         "dist/**",
@@ -363,7 +367,10 @@
         "$TURBO_ROOT$/tools/tsgo-shim/tsgo.js",
         "$TURBO_ROOT$/tools/tsgo-shim/package.json",
         ".env",
-        ".env.*"
+        ".env.*",
+        "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
+        "$TURBO_ROOT$/vitest.aliases.generated.json"
       ],
       "outputs": []
     },
@@ -376,6 +383,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "!.beep/**",
@@ -408,6 +416,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "!.beep/**",
@@ -429,6 +438,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "!.beep/**",
@@ -448,6 +458,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "!.beep/**",
@@ -461,6 +472,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "!.beep/**",
@@ -487,6 +499,7 @@
         "vitest.coverage.config.ts",
         "$TURBO_ROOT$/vitest.aliases.generated.json",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "$TURBO_ROOT$/vitest.setup.ts"
       ],
       "outputs": ["coverage/**"]
@@ -503,6 +516,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/biome.jsonc",
         "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/vite.shared.ts",
         "!.beep/**",
         "!.fallow/**"
       ],

@@ -89,7 +89,7 @@ class NetworkError extends S.TaggedError<NetworkError>($I`NetworkError`)(
   {
     status: S.Number,
     url: S.String,
-    cause: S.optionalKey(S.Defect())
+    cause: S.optionalKey(S.Defect({ includeStack: true }))
   },
   $I.annoteError<NetworkError>(
     "NetworkError",
@@ -120,7 +120,7 @@ class SystemError extends S.TaggedError<SystemError>($I`SystemError`)(
       S.String,
       S.Number
     ])),
-    cause: S.optionalKey(S.Defect())
+    cause: S.optionalKey(S.Defect({ includeStack: true }))
   },
   $I.annoteError<SystemError>(
     "SystemError",
@@ -247,7 +247,7 @@ export class RequestError extends S.TaggedError<RequestError>($I`RequestError`)(
       "InvalidUrl"
     ]),
     url: S.String,
-    cause: S.optionalKey(S.Defect())
+    cause: S.optionalKey(S.Defect({ includeStack: true }))
   },
   $I.annoteError<RequestError>(
     "RequestError",
@@ -266,7 +266,7 @@ export class ResponseError extends S.TaggedError<ResponseError>($I`ResponseError
       "EmptyBody"
     ]),
     status: S.Number,
-    cause: S.optionalKey(S.Defect())
+    cause: S.optionalKey(S.Defect({ includeStack: true }))
   },
   $I.annoteError<ResponseError>(
     "ResponseError",
@@ -454,7 +454,7 @@ const handleRecoverableErrors = (input: string) =>
   operation(input).pipe(
     Effect.catchIf(
       // Only handle client errors, not server errors
-      (error): error is NetworkError => P.isTagged(error, "NetworkError") && error.status < 500,
+      (error): boolean => P.isTagged(error, "NetworkError") && error.status < 500,
       () => Effect.succeed("recovered")
     )
   )

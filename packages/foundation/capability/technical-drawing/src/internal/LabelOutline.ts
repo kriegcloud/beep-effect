@@ -339,11 +339,16 @@ export const fontNamesOf = Effect.fnUntraced(function* (fontFile: string, bytes:
   const font = yield* parseFont(fontFile, bytes);
   const name = (key: string): string =>
     pipe(
-      O.fromUndefinedOr(font.names?.unicode),
-      O.orElse(() => O.fromUndefinedOr(font.names?.macintosh)),
-      O.orElse(() => O.fromUndefinedOr(font.names?.windows)),
-      O.flatMap((names) => O.fromUndefinedOr(names[key])),
-      O.flatMap((entries) => O.orElse(O.fromUndefinedOr(entries.en), () => A.head(R.values(entries)))),
+      [font.names?.unicode?.[key], font.names?.macintosh?.[key], font.names?.windows?.[key]],
+      A.map((entries) =>
+        O.fromUndefinedOr(entries).pipe(
+          O.flatMap((translations) =>
+            O.orElse(O.fromUndefinedOr(translations.en), () => A.head(R.values(translations)))
+          )
+        )
+      ),
+      A.getSomes,
+      A.head,
       O.getOrElse(() => "")
     );
   return { family: name("fontFamily"), subfamily: name("fontSubfamily") } as const;

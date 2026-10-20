@@ -5,7 +5,6 @@
   "owner": "@beep/practice-kg-mcp",
   "entries": [
     {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"PackageFailure","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"PackageFailure"},
-    {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"PracticeKgHostError","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"PracticeKgHostError"},
     {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"SelfCheckFailure","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"SelfCheckFailure"},
     {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"SmokeFailure","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"SmokeFailure"},
     {"file":"apps/practice-kg-mcp/src/PracticeKgMcp.errors.ts","symbol":"TelemetryKeyFailure","kind":"tagged-error","owner":"@beep/practice-kg-mcp","identity":"TelemetryKeyFailure"},
@@ -15,8 +14,6 @@
     {"file":"apps/practice-kg-mcp/src/runtime/ProcessMetrics.ts","symbol":"ProcessSample","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"ProcessSample","description":"Host process reading stamped with the clock time it was taken at."},
     {"file":"apps/practice-kg-mcp/src/runtime/ProcessMetrics.ts","symbol":"ProcessWindow","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"ProcessWindow","description":"Closed 5-minute process window: mean CPU percent of one core and largest resident set bytes."},
     {"file":"apps/practice-kg-mcp/src/runtime/ProcessMetrics.ts","symbol":"ProcessWindowState","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"ProcessWindowState","description":"Running fold of the open process-metrics window: last sample, CPU and wall time, peak RSS."},
-    {"file":"apps/practice-kg-mcp/src/runtime/SelfCheck.ts","symbol":"PracticeKgSelfCheckRefusal","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgSelfCheckRefusal","description":"Reason an installed practice KG host could not read its bundle."},
-    {"file":"apps/practice-kg-mcp/src/runtime/SelfCheck.ts","symbol":"PracticeKgSelfCheckReport","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgSelfCheckReport","description":"Versions and store counts proving an installed practice KG host can read its bundle."},
     {"file":"apps/practice-kg-mcp/src/runtime/TelemetryCheck.ts","symbol":"PracticeKgTelemetrySelfCheckReport","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgTelemetrySelfCheckReport","description":"Outcome of the telemetry key smoke: ok, the key path that ran, and the telemetry directory."},
     {"file":"apps/practice-kg-mcp/src/runtime/TelemetryKey.ts","symbol":"PracticeKgKeyReport","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgKeyReport","description":"Read-only telemetry key description: status, wrapping path and epoch, never key material."},
     {"file":"apps/practice-kg-mcp/src/runtime/TelemetryKey.ts","symbol":"PracticeKgTelemetryKeyFile","kind":"struct-const","owner":"@beep/practice-kg-mcp","identity":"PracticeKgTelemetryKeyFile","description":"Stored telemetry root key: epoch, wrapping path and wrapped bytes."},

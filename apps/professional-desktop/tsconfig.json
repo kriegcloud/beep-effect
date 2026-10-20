@@ -10,6 +10,7 @@
     "vitest.coverage.config.ts",
     "vitest.integration.config.ts",
     "../../vitest.shared.ts",
+    "../../vite.shared.ts",
     "../../vitest.aliases.generated.json"
   ],
   "compilerOptions": {

@@ -55,11 +55,11 @@ inventory records work in progress; it does not declare any issue resolved.
 | [#1702](https://github.com/beep-effect/beep-effect/issues/1702) | knowledge doctor: lexer-aware block-comment blanking and v2 lock decode errors (#1690 follow-ups) | Acceptance review pending |
 | [#1708](https://github.com/beep-effect/beep-effect/issues/1708) | effect-vitest: EV010 flags every platform-node import, including canonical it.layer setups | Acceptance review pending |
 | [#1740](https://github.com/beep-effect/beep-effect/issues/1740) | Nightly property-law sweep failures | Acceptance review pending |
-| [#1742](https://github.com/beep-effect/beep-effect/issues/1742) | docs(skills): align replay comment example with GraphQL bot login | Acceptance review pending |
+| [#1742](https://github.com/beep-effect/beep-effect/issues/1742) | docs(skills): align replay comment example with GraphQL bot login | Already implemented in 5169ea9584; replay regressions passed |
 | [#1772](https://github.com/beep-effect/beep-effect/issues/1772) | Handle invalid receiving grant when receipt write exhausts lock retries | Acceptance review pending |
 | [#1789](https://github.com/beep-effect/beep-effect/issues/1789) | fix(reviewer): preserve terminal checks and stop empty pagination | Acceptance review pending |
-| [#1835](https://github.com/beep-effect/beep-effect/issues/1835) | fix(observability): name schema-first scan spans by domain | Acceptance review pending |
-| [#1848](https://github.com/beep-effect/beep-effect/issues/1848) | drawings critics test: measure the late-limit seat start from the sequence's own start | Acceptance review pending |
+| [#1835](https://github.com/beep-effect/beep-effect/issues/1835) | fix(observability): name schema-first scan spans by domain | Span names fixed; catalog conforming; focused tests passed |
+| [#1848](https://github.com/beep-effect/beep-effect/issues/1848) | drawings critics test: measure the late-limit seat start from the sequence's own start | Sequence-relative clock assertion fixed; critic tests passed |
 | [#1851](https://github.com/beep-effect/beep-effect/issues/1851) | rsc follow-up: finish the later repository retirement waves | Acceptance review pending |
 | [#1852](https://github.com/beep-effect/beep-effect/issues/1852) | rsc follow-up: qualify retained repository tool workflows | Acceptance review pending |
 | [#1853](https://github.com/beep-effect/beep-effect/issues/1853) | rsc follow-up: complete all retained patch regression and exit proofs | Acceptance review pending |
@@ -100,8 +100,23 @@ inventory records work in progress; it does not declare any issue resolved.
 | [#1893](https://github.com/beep-effect/beep-effect/issues/1893) | coverage follow-up: strict-tier drops in practice-kg-mcp, law-practice-server and repo-cli (observability-palantiri lane) | Acceptance review pending |
 | [#1894](https://github.com/beep-effect/beep-effect/issues/1894) | coverage follow-up: drawing review loop drops in occt, technical-drawing and repo-cli Drawings (drawings lane) | Acceptance review pending |
 | [#1895](https://github.com/beep-effect/beep-effect/issues/1895) | coverage follow-up: ai-metrics config-snapshot drops after the git-metadata fix (#1830) | Acceptance review pending |
-| [#1910](https://github.com/beep-effect/beep-effect/issues/1910) | rsc follow-up: #1909 round-3 guidance review findings (#1856) | Acceptance review pending |
-| [#1916](https://github.com/beep-effect/beep-effect/issues/1916) | squash-commitlint follow-ups from #1915 round 3: header URL exemption, yeet SKILL.md length | Acceptance review pending |
+| [#1910](https://github.com/beep-effect/beep-effect/issues/1910) | rsc follow-up: #1909 round-3 guidance review findings (#1856) | Four documentation corrections; installed declarations, skills metadata, and goal doctor checked |
+| [#1916](https://github.com/beep-effect/beep-effect/issues/1916) | squash-commitlint follow-ups from #1915 round 3: header URL exemption, yeet SKILL.md length | Header URL diagnostic fixed; regression passed; skill is 495 lines |
 | [#1920](https://github.com/beep-effect/beep-effect/issues/1920) | rsc follow-up: persist verified completion receipts before the rule-suite window closes (~2026-11-05) | Acceptance review pending |
 
 Closing references will be added only after the matching acceptance evidence is recorded.
+
+## Review wave 1 evidence
+
+- Runtime patch keys refreshed from pristine releases; see
+  [runtime patch refresh](runtime-patch-refresh-2026-10-20.md).
+- Font lookup now falls back per name field across platform tables, including
+  empty translation tables. Fifty font/render regressions passed; the full
+  technical-drawing package audit and docgen passed.
+- Lab standard and lifecycle D15 now describe root quality and coverage
+  enrollment while retaining the separate hosted product partition.
+- Todox production build passed after including the shared root configuration
+  in the fourteen existing explicit TypeScript project file lists.
+- Four real-Turbo hash tests passed, including invalidation when vite.shared.ts
+  changes. The cache recorder adopted the audited input-set change without
+  altering qualification scope, profile, epoch, or qualification states.

@@ -27,6 +27,7 @@ const EXPECTED_COVERAGE_INPUTS: ReadonlyArray<string> = [
   "vitest.coverage.config.ts",
   "$TURBO_ROOT$/vitest.aliases.generated.json",
   "$TURBO_ROOT$/vitest.shared.ts",
+  "$TURBO_ROOT$/vite.shared.ts",
   "$TURBO_ROOT$/vitest.setup.ts",
 ];
 
@@ -163,6 +164,7 @@ describe("coverage Turbo inputs", () => {
         });
         yield* writeFixtureJson(root, "vitest.aliases.generated.json", {});
         yield* writeFixtureFile(root, "vitest.shared.ts", "export const shared = true;\n");
+        yield* writeFixtureFile(root, "vite.shared.ts", "export const browser = true;\n");
         yield* writeFixtureFile(root, "vitest.setup.ts", "export const setup = true;\n");
         yield* writeFixtureFile(root, "packages/coverage/server/index.ts", "export const serverValue = 1;\n");
         yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 1;\n");
@@ -174,6 +176,11 @@ describe("coverage Turbo inputs", () => {
         yield* writeFixtureFile(root, "packages/coverage/README.md", "# Initial docs\n");
 
         const baselineHash = yield* coverageHashFromSummary(root, turboBinary);
+
+        yield* writeFixtureFile(root, "vite.shared.ts", "export const browser = false;\n");
+        expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
+        yield* writeFixtureFile(root, "vite.shared.ts", "export const browser = true;\n");
+        expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
 
         yield* writeFixtureFile(root, "packages/coverage/README.md", "# Docs-only edit\n");
         expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);

@@ -10,6 +10,7 @@
     "next.config.ts",
     "vitest.config.ts",
     "../../vitest.shared.ts",
+    "../../vite.shared.ts",
     "../../vitest.aliases.generated.json"
   ],
   "compilerOptions": {

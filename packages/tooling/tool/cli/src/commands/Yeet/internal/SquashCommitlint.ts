@@ -560,7 +560,7 @@ const namedErrorRules = (output: string): ReadonlyArray<string> =>
     Result.fromNullishOr(COMMITLINT_ERROR_RULE.exec(line)?.[1], () => undefined)
   );
 
-// The exemption @commitlint/ensure applies to every max-line-length rule.
+// Body and footer max-line-length rules exempt URL lines; the header never does.
 const COMMITLINT_URL_LINE = /\bhttps?:\/\/\S+/u;
 
 /**
@@ -568,9 +568,8 @@ const COMMITLINT_URL_LINE = /\bhttps?:\/\/\S+/u;
  *
  * **Details**
  *
- * A line carrying a URL is never an offender: `@commitlint/ensure` exempts
- * lines matching `/\bhttps?:\/\/\S+/` from every max-line-length rule, so
- * naming one would point at a line commitlint did not fail.
+ * Body and footer lines carrying URLs are exempt under `@commitlint/ensure`.
+ * The header has no URL exemption and is reported whenever it exceeds the limit.
  *
  * **Example** (Find the long bullet)
  *
@@ -592,7 +591,7 @@ export const squashCommitlintOffendingLines = (
   message: SquashCommitMessage
 ): ReadonlyArray<SquashCommitlintOffendingLine> =>
   A.filterMap(Str.split("\n")(renderSquashCommitMessage(message)), (text, index) =>
-    Str.length(text) > COMMITLINT_MAX_LINE_LENGTH && !COMMITLINT_URL_LINE.test(text)
+    Str.length(text) > COMMITLINT_MAX_LINE_LENGTH && (index === 0 || !COMMITLINT_URL_LINE.test(text))
       ? Result.succeed(SquashCommitlintOffendingLine.make({ line: index + 1, length: Str.length(text), text }))
       : Result.failVoid
   );

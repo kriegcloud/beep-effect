@@ -164,11 +164,11 @@ describe("squash commit message prediction", () => {
     expect(unknown).toContain("reword commit subjects");
   });
 
-  it("never names a URL line as an offender (commitlint exempts them from max-line-length)", () => {
+  it("exempts body URL lines while still reporting an overlong URL header", () => {
     const url = `* docs: see https://github.com/beep-effect/beep-effect/pull/1915#issuecomment-${"9".repeat(80)}`;
     expect(Str.length(url)).toBeGreaterThan(COMMITLINT_MAX_LINE_LENGTH);
-    const message = SquashCommitMessage.make({ header: "fix(x): y (#7)", body: `${url}\n\n* ${longSubject}` });
-    expect(A.map(squashCommitlintOffendingLines(message), (line) => line.line)).toEqual([5]);
+    const message = SquashCommitMessage.make({ header: `fix(docs): ${url} (#7)`, body: `${url}\n\n* ${longSubject}` });
+    expect(A.map(squashCommitlintOffendingLines(message), (line) => line.line)).toEqual([1, 5]);
   });
 
   it("budgets the PR title at the line limit minus its (#n) suffix", () => {
