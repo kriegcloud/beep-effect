@@ -208,10 +208,10 @@ remain authoritative.
 | [#1881](https://github.com/beep-effect/beep-effect/issues/1881) | rsc follow-up: qualify atomic skill publication and replacing-writer recovery | Acceptance review pending |
 | [#1882](https://github.com/beep-effect/beep-effect/issues/1882) | rsc follow-up: qualify dependency-review fixture-path filtering | Acceptance review pending |
 | [#1883](https://github.com/beep-effect/beep-effect/issues/1883) | rsc follow-up: resolve post-merge completion and lane retirement evidence | Acceptance review pending |
-| [#1889](https://github.com/beep-effect/beep-effect/issues/1889) | coverage follow-up: @beep/practice-review-hub sits below the repository tier minimum | Acceptance review pending |
-| [#1890](https://github.com/beep-effect/beep-effect/issues/1890) | coverage follow-up: record a baseline row for @beep/palantiri | Acceptance review pending |
-| [#1891](https://github.com/beep-effect/beep-effect/issues/1891) | coverage follow-up: record a baseline row for @beep/practice-claude-mod | Acceptance review pending |
-| [#1892](https://github.com/beep-effect/beep-effect/issues/1892) | coverage follow-up: record a baseline row for @beep/t3-code | Acceptance review pending |
+| [#1889](https://github.com/beep-effect/beep-effect/issues/1889) | coverage follow-up: @beep/practice-review-hub sits below the repository tier minimum | Hosted coverage at 03158fb833 matches the generated @beep/practice-review-hub baseline row; all repository floors met; no existing rows or floors changed |
+| [#1890](https://github.com/beep-effect/beep-effect/issues/1890) | coverage follow-up: record a baseline row for @beep/palantiri | Hosted coverage at 03158fb833 matches the generated @beep/palantiri baseline row; all repository floors met; no existing rows or floors changed |
+| [#1891](https://github.com/beep-effect/beep-effect/issues/1891) | coverage follow-up: record a baseline row for @beep/practice-claude-mod | Hosted coverage at 03158fb833 matches the generated @beep/practice-claude-mod baseline row; all repository floors met; no existing rows or floors changed |
+| [#1892](https://github.com/beep-effect/beep-effect/issues/1892) | coverage follow-up: record a baseline row for @beep/t3-code | Hosted coverage at 03158fb833 matches the generated @beep/t3-code baseline row; all repository floors met; no existing rows or floors changed |
 | [#1893](https://github.com/beep-effect/beep-effect/issues/1893) | coverage follow-up: strict-tier drops in practice-kg-mcp, law-practice-server and repo-cli (observability-palantiri lane) | Acceptance review pending |
 | [#1894](https://github.com/beep-effect/beep-effect/issues/1894) | coverage follow-up: drawing review loop drops in occt, technical-drawing and repo-cli Drawings (drawings lane) | Acceptance review pending |
 | [#1895](https://github.com/beep-effect/beep-effect/issues/1895) | coverage follow-up: ai-metrics config-snapshot drops after the git-metadata fix (#1830) | Acceptance review pending |
@@ -258,3 +258,20 @@ hook timeout pass 254 focused contract/detector tests locally. Its separate
 knowledge semantic-delta failure came from this report spelling an illustrative
 packed entry point as a tracked relative path; the prose now names the artifact
 without a false source link. These corrections still require hosted confirmation.
+
+## Hosted baseline qualification for #1889–#1892
+
+The coverage job in [run 39495252453](https://github.com/beep-effect/beep-effect/actions/runs/39495252453)
+completed the four package measurements before the unrelated CLI contract test
+stopped the overall lane. Each total matches the scoped baseline writer exactly:
+
+| Package | Lines | Statements | Branches | Functions |
+| --- | ---: | ---: | ---: | ---: |
+| Practice Review Hub | 72.97 | 71.79 | 100 | 69.23 |
+| Palantiri | 97.81 | 97.77 | 95 | 95.63 |
+| Practice Claude Mod | 82.70 | 82.92 | 68.85 | 83.62 |
+| T3 Code | 96.46 | 87.87 | 83.92 | 71.05 |
+
+The baseline change adds only these four package rows. All existing package
+rows, the 70/70/50/60 floors and epsilon remain unchanged. This qualifies the
+four baseline issues; the repo-wide coverage lane still needs a passing rerun.

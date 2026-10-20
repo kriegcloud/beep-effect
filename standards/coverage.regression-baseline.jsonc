@@ -21479,6 +21479,273 @@
         }
       }
     },
+    "@beep/palantiri": {
+      "path": "packages/tooling/library/palantiri",
+      "lines": 97.81,
+      "statements": 97.77,
+      "branches": 95,
+      "functions": 95.63,
+      "uncovered": {
+        "lines": 9,
+        "statements": 10,
+        "branches": 4,
+        "functions": 10
+      },
+      "files": {
+        "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/AccountHeadroom.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/AppErrorClasses.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Freshness.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/GaugeSeries.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 75,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/HostPressure.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/HostPressure.ts": {
+          "lines": 98.55,
+          "statements": 98.57,
+          "branches": 90,
+          "functions": 97.56,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/tooling/library/palantiri/src/LaneReds.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/LaneReds.ts": {
+          "lines": 96.66,
+          "statements": 95.58,
+          "branches": 100,
+          "functions": 92.1,
+          "uncovered": {
+            "lines": 2,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "packages/tooling/library/palantiri/src/Palantiri.instruments.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcel.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/ParcelEnvelope.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcels.api.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcels.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcels.service.ts": {
+          "lines": 95.71,
+          "statements": 95.94,
+          "branches": 100,
+          "functions": 92.5,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "packages/tooling/library/palantiri/src/Redaction.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/SinceLastCheck.ts": {
+          "lines": 98.14,
+          "statements": 98.38,
+          "branches": 95,
+          "functions": 97.29,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 1,
+            "functions": 1
+          }
+        },
+        "packages/tooling/library/palantiri/src/TraceParent.ts": {
+          "lines": 85.71,
+          "statements": 87.5,
+          "branches": 100,
+          "functions": 80,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "packages/tooling/library/palantiri/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/internal/Plural.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
     "@beep/pandoc-ast": {
       "path": "packages/foundation/modeling/pandoc-ast",
       "lines": 90.63,
@@ -22013,6 +22280,117 @@
         }
       }
     },
+    "@beep/practice-claude-mod": {
+      "path": "apps/practice-claude-mod",
+      "lines": 82.7,
+      "statements": 82.92,
+      "branches": 68.85,
+      "functions": 83.62,
+      "uncovered": {
+        "lines": 64,
+        "statements": 70,
+        "branches": 38,
+        "functions": 28
+      },
+      "files": {
+        "apps/practice-claude-mod/src/PracticeMod.hooks.ts": {
+          "lines": 95.2,
+          "statements": 94.08,
+          "branches": 84.21,
+          "functions": 89.28,
+          "uncovered": {
+            "lines": 8,
+            "statements": 11,
+            "branches": 6,
+            "functions": 9
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.host.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.matters.ts": {
+          "lines": 95.83,
+          "statements": 96.42,
+          "branches": 100,
+          "functions": 92.3,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.phrases.ts": {
+          "lines": 76.66,
+          "statements": 76.66,
+          "branches": 38.46,
+          "functions": 61.11,
+          "uncovered": {
+            "lines": 7,
+            "statements": 7,
+            "branches": 24,
+            "functions": 7
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.timers.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.values.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.verdicts.ts": {
+          "lines": 98.46,
+          "statements": 97.29,
+          "branches": 83.33,
+          "functions": 92.85,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 4,
+            "functions": 2
+          }
+        },
+        "apps/practice-claude-mod/src/build-plugin.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 47,
+            "statements": 49,
+            "branches": 4,
+            "functions": 9
+          }
+        }
+      }
+    },
     "@beep/practice-identify": {
       "path": "apps/practice-identify",
       "lines": 92.9,
@@ -22525,6 +22903,69 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/practice-review-hub": {
+      "path": "apps/practice-review-hub",
+      "lines": 72.97,
+      "statements": 71.79,
+      "branches": 100,
+      "functions": 69.23,
+      "uncovered": {
+        "lines": 10,
+        "statements": 11,
+        "branches": 0,
+        "functions": 4
+      },
+      "files": {
+        "apps/practice-review-hub/src/Config.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-review-hub/src/Notice.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-review-hub/src/main.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 9,
+            "statements": 10,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "apps/practice-review-hub/src/runtime/Layer.ts": {
+          "lines": 92.3,
+          "statements": 92.85,
+          "branches": 100,
+          "functions": 85.71,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
           }
         }
       }
@@ -41059,6 +41500,69 @@
           }
         },
         "packages/foundation/modeling/skill-contract/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/t3-code": {
+      "path": "packages/drivers/t3-code",
+      "lines": 96.46,
+      "statements": 87.87,
+      "branches": 83.92,
+      "functions": 71.05,
+      "uncovered": {
+        "lines": 4,
+        "statements": 16,
+        "branches": 9,
+        "functions": 11
+      },
+      "files": {
+        "packages/drivers/t3-code/src/T3Code.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/t3-code/src/T3Code.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/t3-code/src/T3Code.service.ts": {
+          "lines": 96.19,
+          "statements": 87.09,
+          "branches": 83.92,
+          "functions": 71.05,
+          "uncovered": {
+            "lines": 4,
+            "statements": 16,
+            "branches": 9,
+            "functions": 11
+          }
+        },
+        "packages/drivers/t3-code/src/index.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
