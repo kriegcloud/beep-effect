@@ -791,6 +791,124 @@ export const Locator = LiteralKit([
 export type Locator = typeof Locator.Type;
 
 /**
+ * A locator write owns only the scalar or generated-block spans it resolves.
+ * Missing and ambiguous scalar addresses fail closed. ModelsApply writes only TOML
+ * and JSON; YAML, XML and shell addresses are check-only.
+ *
+ * **Example** (Describe a scalar projection)
+ *
+ * ```ts
+ * import { ModelsLocatorWrite } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsLocatorWrite.fields.expected)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsLocatorWrite extends S.Opaque<ModelsLocatorWrite, { readonly brand: unique symbol }>()(
+  S.Struct({
+    locator: Locator,
+    expected: S.String,
+    remove: S.optionalKey(S.Literal(true)),
+  }).pipe(
+    $I.annoteSchema("ModelsLocatorWrite", {
+      description:
+        "One grammar-specific locator and its expected scalar or generated block body; never whole-file ownership.",
+    })
+  )
+) {}
+
+/**
+ * One replacement range, measured in UTF-16 offsets into the original text.
+ *
+ * **Example** (Own one quoted value)
+ *
+ * ```ts
+ * import { ModelsWriteSpan } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsWriteSpan.make({ start: 8, end: 13, before: '"old"', after: '"new"' }).start)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsWriteSpan extends S.Opaque<ModelsWriteSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
+    start: S.Int,
+    end: S.Int,
+    before: S.String,
+    after: S.String,
+  }).pipe(
+    $I.annoteSchema("ModelsWriteSpan", {
+      description: "An owned text range with its drift fence and replacement.",
+    })
+  )
+) {}
+
+/**
+ * Explicit modes for the owned-field writer; the default CLI mode is dry-run.
+ *
+ * **Example** (Check a mode)
+ *
+ * ```ts
+ * import { ModelsApplyMode } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(ModelsApplyMode)("dry-run"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ModelsApplyMode = LiteralKit(["check", "dry-run", "write"]).pipe(
+  $I.annoteSchema("ModelsApplyMode", {
+    description: "Whether to check, preview, or apply owned-field edits.",
+  })
+);
+
+/**
+ * Writer mode derived from its schema.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ModelsApplyMode = typeof ModelsApplyMode.Type;
+
+/**
+ * A private recovery record; file contents stay in the exclusive backup.
+ *
+ * **Details**
+ *
+ * Restore independently validates TOML/JSON ownership, matching canonical path
+ * extensions and current syntax. Historical tags alone never authorize a write.
+ *
+ * **Example** (Inspect recovery fields)
+ *
+ * ```ts
+ * import { ModelsApplyJournal } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * console.log(ModelsApplyJournal.fields.backup)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsApplyJournal extends S.Opaque<ModelsApplyJournal, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    file: S.NonEmptyString,
+    backup: S.NonEmptyString,
+    beforeHash: S.NonEmptyString,
+    afterHash: S.NonEmptyString,
+    mode: S.Int,
+    writes: ModelsLocatorWrite.pipe(S.NonEmptyArray, S.OptionFromOptionalKey),
+    requestedFile: S.OptionFromOptionalKey(S.NonEmptyString),
+    requestedLink: S.OptionFromOptionalKey(S.NonEmptyString),
+  }).pipe(
+    $I.annoteSchema("ModelsApplyJournal", {
+      description: "Private recovery metadata written before a native file is replaced.",
+    })
+  )
+) {}
+
+/**
  * One file the projection writes, and every locator inside it.
  *
  * **Details**
@@ -917,3 +1035,40 @@ export class ModelsManifest extends S.Opaque<ModelsManifest, { readonly brand: u
     })
   )
 ) {}
+
+/**
+ * Certification outcome shared by native checks, writes, and recovery.
+ *
+ * **Example** (Distinguish missing ownership)
+ *
+ * ```ts
+ * import { ModelsEligibilityResult } from "@beep/repo-cli/commands/Models/Models.manifest.schemas"
+ * const result = ModelsEligibilityResult.cases["absent-owned-path"].make({ message: "Owned path is absent." })
+ * console.log(result._tag) // "absent-owned-path"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ModelsEligibilityResult = S.TaggedUnion({
+  eligible: { actual: S.String, content: S.String, removalsPresent: S.Boolean },
+  "absent-owned-path": { message: S.String },
+  "unsupported-removal-shape": { message: S.String },
+  "ineligible-format": { message: S.String },
+  "invalid-bytes": { message: S.String },
+  "parse-error": { message: S.String },
+  "not-canonical": { message: S.String },
+  "io-error": { message: S.String },
+}).pipe(
+  $I.annoteSchema("ModelsEligibilityResult", {
+    description: "Parsed native eligibility with distinct ownership, format, byte, canonical-path and I/O outcomes.",
+  })
+);
+
+/**
+ * Runtime type of the shared native certification outcome.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ModelsEligibilityResult = typeof ModelsEligibilityResult.Type;

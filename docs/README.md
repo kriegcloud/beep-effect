@@ -18,7 +18,7 @@ Operational guidance includes [recovering from local Graft configuration
 drift](runbooks/graft-local-recovery.md). Timer units, their refresh, and the agent-run post-merge closeout: [systemd timers](runbooks/systemd-timers.md). The 1Password `BEEP_SECRETS` item's section rule and rename debt: [BEEP_SECRETS layout](runbooks/onepassword-beep-secrets-layout.md).
 External research intake, source acquisition, provenance, and portable navigation:
 [research reference library](runbooks/research-library.md).
-Which TypeScript compiler runs where, why `typescript@6` and `@typescript/native` coexist, and
+Which TypeScript compiler runs where, how `typescript@7`, its native alias, and the TS6 bridge coexist, and
 how to wire the Effect compiler into WebStorm: [TypeScript toolchain](runbooks/typescript-toolchain.md).
 Bootstrapping the repo inside Claude cloud sessions, Codex cloud, and Cursor Cloud Agents, with the
 per-account paste text and allowlists: [cloud environments](runbooks/cloud-environments.md).
@@ -51,4 +51,4 @@ Owned provider sessions, scoped peer tools, durable receipts and ambiguity recov
   candidates via their `SUGGESTED_ACTIONS.md`. Conventions:
   `research/README.md`.
 - Never hand-edit anything under `docs/generated/` — it is overwritten by `beep docgen aggregate` (the `--clean` flag removes only `docs/generated/`).
-- A future docs site (e.g. a `@beep/docs` app in the style of <https://effect-ts.github.io/effect/>) should consume `docs/generated/` as its content source.
+- A future docs site (e.g. a dedicated docs app, not yet created, in the style of <https://effect-ts.github.io/effect/>) should consume `docs/generated/` as its content source.

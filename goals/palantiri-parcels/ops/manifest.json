@@ -4,13 +4,13 @@
     "id": "palantiri-parcels",
     "packetId": "goal-packet/v1:eadd2070a75e4ca7aa2900704d94184899a07b42bd011c25f8388a4165678f2c",
     "title": "Palantiri Parcels",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/palantiri-parcels",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Agent-facing Palantiri: schema-typed, freshness-checked parcels served through beep palantiri and palantiri-mcp, starting with account headroom.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -60,22 +60,22 @@
     {
       "id": "P2",
       "name": "Parcels",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "MCP + session",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Yeet",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "ts7-typescript-catalog-7",
+    "packetId": "goal-packet/v1:249eb03d1bf29dcbc396d71a3e5650f13f82a55523d8401c85bc8d9d653176c2",
+    "title": "Move the TypeScript catalog to 7",
+    "status": "completed-retained",
+    "created": "2026-10-15",
+    "updated": "2026-10-15",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/ts7-typescript-catalog-7",
+  "lifecycle": "completed-retained",
+  "mission": "Retain TypeScript 7 as the root catalog, isolate required classic APIs, replace Madge with native cycle lint, and re-record only reviewed root cache drift.",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Lane deliverable completed by the explicit 2026-10-15 Wave 4 orchestrator ruling after ca9d9a5828 and main integration baf501b4aa; publication remains orchestrator-owned and is not asserted by this packet.",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/ts7-typescript-catalog-7/README.md",
+    "goals/ts7-typescript-catalog-7/SPEC.md",
+    "goals/ts7-typescript-catalog-7/PLAN.md",
+    "goals/ts7-typescript-catalog-7/GOAL.md",
+    "goals/ts7-typescript-catalog-7/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/OPPORTUNITIES.md",
+    "research/cache-baseline-basis.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/ts7-typescript-catalog-7/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Orchestrator integration",
+      "status": "complete"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "complete"
+    }
+  ],
+  "verificationCommands": [
+    "bun run beep lint reflection-artifacts",
+    "jq . goals/ts7-typescript-catalog-7/ops/manifest.json",
+    "bun run beep goals doctor",
+    "bun run beep goals index --check",
+    "wc -m goals/ts7-typescript-catalog-7/GOAL.md",
+    "bun run beep cache audit",
+    "git diff --check"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

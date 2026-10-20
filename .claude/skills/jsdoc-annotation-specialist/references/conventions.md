@@ -70,7 +70,7 @@ After:
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
- * const decodeUserName = S.decodeUnknownOption(S.NonEmptyTrimmedString)
+ * const decodeUserName = S.decodeUnknownOption(S.Trimmed.check(S.isNonEmpty()))
  *
  * console.log(O.isSome(decodeUserName("Ada"))) // true
  * console.log(O.isNone(decodeUserName(""))) // true

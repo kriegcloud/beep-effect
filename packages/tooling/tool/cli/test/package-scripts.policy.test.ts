@@ -1,5 +1,6 @@
 import {
   DerivationEvidence,
+  ImplScriptDrift,
   PackageScriptsPolicy,
   policyToolsFingerprint,
   ScriptsRecord,
@@ -176,6 +177,46 @@ describe("package scripts policy", () => {
         expect(b).toContain('"beep:doctest": "BEEP_VITEST_DOCTEST=1 bunx vitest run"');
         expect(yield* fs.readFileString(`${root}/scratchpad/package.json`)).toBe(before);
         expect(yield* fs.readFileString(`${root}/infra/lambda/x/package.json`)).toContain("out of domain");
+      })
+    );
+  });
+  it.layer(platform, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "keeps impl differences advisory in check and write while ignoring matching, missing and exempt impls",
+      Effect.fnUntraced(function* () {
+        const root = yield* fixture({
+          "package.json": { name: "root", workspaces: ["packages/*", "scratchpad"] },
+          "packages/a/package.json": { name: "@beep/a", scripts: { coverage: "owned coverage" } },
+          "scratchpad/package.json": { name: "scratchpad", scripts: { "beep:check": "custom exempt" } },
+        });
+        const fs = yield* FileSystem.FileSystem;
+        const policy = yield* PackageScriptsPolicy.make(root);
+        const initial = yield* policy.check(root);
+        expect(HashMap.size(initial.implDrift)).toBe(0);
+        yield* policy.write(root);
+        const file = `${root}/packages/a/package.json`;
+        const manifest = yield* decodeManifest(yield* fs.readFileString(file));
+        yield* fs.writeFileString(
+          file,
+          yield* jsonStringifyPretty({
+            name: "@beep/a",
+            scripts: { ...manifest.scripts, "beep:check": "tsgo -p tsconfig.check.json" },
+          })
+        );
+        const before = yield* fs.readFileString(file);
+        for (const report of [yield* policy.check(root), yield* policy.write(root)]) {
+          expect(HashMap.size(report.drift)).toBe(0);
+          expect(HashMap.size(report.implDrift)).toBe(1);
+          assertSome(HashMap.get(report.implDrift, "packages/a/package.json"), [
+            ImplScriptDrift.make({
+              name: "beep:check",
+              actual: "tsgo -p tsconfig.check.json",
+              expected: "tsc-rs -p tsconfig.check.json && bun run beep:check:tests",
+            }),
+          ]);
+          expect(HashSet.size(report.written)).toBe(0);
+        }
+        expect(yield* fs.readFileString(file)).toBe(before);
       })
     );
   });

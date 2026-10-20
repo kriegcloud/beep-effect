@@ -321,6 +321,13 @@ run it to reproduce a hosted red, never to unblock a publish. Package-scoped
 alone are inner-loop tools, not proof. Details, what the full proof does not
 replay, and plan mode: [`references/gates-and-proof.md`](references/gates-and-proof.md).
 
+## Cache baseline after a script-word or root-config change
+
+Run `bun run beep cache audit`; review configuration-drift BLOCKs against the
+changed inputs before requesting a baseline update. Follow
+[the reviewed baseline recipe](references/gates-and-proof.md#cache-baseline-after-a-script-word-or-root-config-change)
+for S31b subject limits, exact-text hashes and main-merge changes.
+
 ## CI / security fixes: validate against the CI token's permissions
 
 A change that alters CI or security-gate behavior (for example making a `gh api`
@@ -453,7 +460,9 @@ check is known to be failing, and every review thread is answered. Pending
 checks and optional lanes (`Heavy / *`) never hold it. Otherwise it refuses
 with the first blocker named (`pr-open`, `no-required-red`,
 `threads-resolved`). There is no `--force`. Flip only when no further push is
-planned: a push after the flip restarts the review window. The flip is the
+planned: a push after the flip restarts the review window. It also lints the
+squash message GitHub will write as an advisory (budgets: commit subjects 98,
+PR title 100 minus ` (#n)`); `merge-gate` holds on it (`references/gh-rest.md`). The flip is the
 GraphQL-only `markPullRequestReadyForReview`, spent through the GraphQL budget
 guard: when the shared budget is spent it waits (bounded, logged) for the
 hourly reset instead of failing the way `gh pr ready` did.

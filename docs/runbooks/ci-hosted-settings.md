@@ -28,7 +28,8 @@ Hosted `Check / Repo Sanity` runs `lint:schema-catalog`
 before the other sanity steps. The command defaults to check mode and fails
 when any per-package shard under `standards/schema-catalog/` differs from
 current source, is missing, or has no owning package (including the retired
-single file `standards/schema-catalog.generated.jsonc`); refresh intentional
+single-file catalog, `schema-catalog.generated.jsonc` at the root of
+`standards/`); refresh intentional
 changes with `bun run beep lint schema-catalog --write` and review the diff.
 Both generated catalogs (schema and instrumentation) are sharded per owning
 package so pull requests that touch different packages do not conflict; see

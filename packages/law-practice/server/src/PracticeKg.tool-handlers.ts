@@ -209,6 +209,40 @@ const projectRows = (
   );
 };
 
+/**
+ * Span attribute key that carries a failed tool call's
+ * {@link PracticeKgToolFailureReason} on the `PracticeKgTools.<tool>` span.
+ *
+ * **Details**
+ *
+ * Tools return their failures as results, so a failed call would otherwise
+ * look like a success to telemetry. The value is always a literal reason,
+ * never the failure message.
+ *
+ * **Example** (Read the failure reason key)
+ *
+ * ```ts
+ * import { PracticeKgFailureReasonKey } from "@beep/law-practice-server"
+ *
+ * console.log(PracticeKgFailureReasonKey) // "beep.practice_kg.failure_reason"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const PracticeKgFailureReasonKey = "beep.practice_kg.failure_reason";
+
+// Runs inside each handler's span, so the literal reason lands on that span.
+const stampFailureReason = <A, R>(
+  self: Effect.Effect<A, PracticeKgToolError, R>
+): Effect.Effect<A, PracticeKgToolError, R> =>
+  Effect.tapError(self, (error) =>
+    O.match(O.fromUndefinedOr(error.reason), {
+      onNone: () => Effect.void,
+      onSome: (reason) => Effect.annotateCurrentSpan(PracticeKgFailureReasonKey, reason),
+    })
+  );
+
 const isToolError = S.is(PracticeKgToolError);
 const isAddressError = S.is(PracticeKgCorrespondentAddressError);
 
@@ -295,7 +329,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
           Effect.mapError(toolFailure("kg_clients"))
         );
         return projectRows(A.map(rows, toToolRecord), practiceKgGraphFieldTiers, request.budgetBytes, version);
-      }),
+      }, stampFailureReason),
       kg_docket_family: Effect.fn("PracticeKgTools.kg_docket_family")(function* (request) {
         const rows = yield* queryPglite(
           sql,
@@ -304,7 +338,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
           decodePracticeKgFamilyRows
         ).pipe(Effect.mapError(toolFailure("kg_docket_family")));
         return projectRows(A.map(rows, toToolRecord), practiceKgFamilyFieldTiers, request.budgetBytes, version);
-      }),
+      }, stampFailureReason),
       kg_application_lookup: Effect.fn("PracticeKgTools.kg_application_lookup")(function* (request) {
         const rows = yield* queryPglite(
           sql,
@@ -313,7 +347,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
           decodePracticeKgGraphRows
         ).pipe(Effect.mapError(toolFailure("kg_application_lookup")));
         return projectRows(A.map(rows, toToolRecord), practiceKgGraphFieldTiers, request.budgetBytes, version);
-      }),
+      }, stampFailureReason),
       kg_find: Effect.fn("PracticeKgTools.kg_find")(function* (request) {
         const rows = yield* queryPglite(
           sql,
@@ -322,7 +356,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
           decodePracticeKgGraphRows
         ).pipe(Effect.mapError(toolFailure("kg_find")));
         return projectRows(A.map(rows, toToolRecord), practiceKgGraphFieldTiers, request.budgetBytes, version);
-      }),
+      }, stampFailureReason),
       corpus_search_text: Effect.fn("PracticeKgTools.corpus_search_text")(function* (request) {
         const rows = yield* duckdb
           .query(PracticeKgQueries.searchText, [request.query, request.family ?? null, request.limit])
@@ -333,7 +367,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
             Effect.mapError(toolFailure("corpus_search_text"))
           );
         return projectRows(A.map(rows, toToolRecord), practiceKgDocumentFieldTiers, request.budgetBytes, version);
-      }),
+      }, stampFailureReason),
       corpus_get_document: Effect.fn("PracticeKgTools.corpus_get_document")(function* (request) {
         const rows = yield* duckdb
           .query(PracticeKgQueries.getDocument, [
@@ -349,7 +383,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
             Effect.mapError(toolFailure("corpus_get_document"))
           );
         return projectRows(A.map(rows, toToolRecord), practiceKgDocumentFieldTiers, request.budgetBytes, version);
-      }),
+      }, stampFailureReason),
       email_search: Effect.fn("PracticeKgTools.email_search")(function* (request) {
         const rows = yield* duckdb
           .query(PracticeKgQueries.email, [
@@ -371,7 +405,7 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
           version,
           emailLinkageNote
         );
-      }),
+      }, stampFailureReason),
       kg_candidate_claims: Effect.fn("PracticeKgTools.kg_candidate_claims")(
         function* (request) {
           const tables = yield* sql.unsafe(PracticeKgQueries.claimsTableProbe);
@@ -398,7 +432,8 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
             candidateStatus
           );
         },
-        Effect.mapError(toolFailure("kg_candidate_claims"))
+        Effect.mapError(toolFailure("kg_candidate_claims")),
+        stampFailureReason
       ),
       kg_matter_lookup: Effect.fn("PracticeKgTools.kg_matter_lookup")(
         function* (request) {
@@ -449,7 +484,8 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
             `${matterLookupNote} resolution: ${result.resolution}.`
           );
         },
-        Effect.mapError(toolFailure("kg_matter_lookup"))
+        Effect.mapError(toolFailure("kg_matter_lookup")),
+        stampFailureReason
       ),
       kg_correspondent_lookup: Effect.fn("PracticeKgTools.kg_correspondent_lookup")(
         function* (request) {
@@ -475,7 +511,8 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
                   tool: "kg_correspondent_lookup",
                 })
               : toolFailure("kg_correspondent_lookup")(cause)
-        )
+        ),
+        stampFailureReason
       ),
       kg_provenance: Effect.fn("PracticeKgTools.kg_provenance")(
         function* (request) {
@@ -526,7 +563,8 @@ export const PracticeKgToolkitHandlersLive: Layer.Layer<
             A.isReadonlyArrayNonEmpty(rows) ? nodeProvenanceNote : provenanceNotFoundNote
           );
         },
-        Effect.mapError(toolFailure("kg_provenance"))
+        Effect.mapError(toolFailure("kg_provenance")),
+        stampFailureReason
       ),
     });
   })

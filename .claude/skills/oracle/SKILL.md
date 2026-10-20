@@ -48,8 +48,8 @@ Two resolutions:
    second-model-family opinion and the ChatGPT-UI Pro extended-thinking mode.
    The `codex:codex-rescue` route (`--model gpt-6.1-sol --effort medium`)
    keeps the ChatGPT-Pro-backed pool; under the `AGENTS.md` Volume pools
-   policy (2026-10-01) it is the Codex chain's own first route, never a
-   fallback for a Claude orchestrator. Manifest projection:
+   policy (2026-10-01, R11 of 2026-10-18) it is the Codex chain's first route
+   and the Claude chain's first fallback (step 2). Manifest projection:
 
 <!-- beep-models:begin codex-heavy -->
 | Role | Surface | Model | Effort |

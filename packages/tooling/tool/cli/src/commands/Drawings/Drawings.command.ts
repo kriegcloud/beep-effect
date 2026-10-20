@@ -26,14 +26,21 @@ import { A, Str } from "@beep/utils";
 import * as Config from "effect/Config";
 import { Argument, Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
-import { DEFAULT_CRITIC_REVIEWERS, DrawingCritics, parseZoomFlag, selectReviewers } from "./Drawings.critics.ts";
+import { CriticPackRequest, CriticRunRequest } from "./Drawings.critics.schemas.ts";
+import {
+  criticRunLine,
+  DEFAULT_CRITIC_REVIEWERS,
+  DrawingCritics,
+  parseZoomFlag,
+  selectReviewers,
+} from "./Drawings.critics.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { drawingIntakeLaneLayer, runDrawingIntake } from "./Drawings.intake.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
@@ -54,7 +61,7 @@ import {
 import { DrawingReview } from "./Drawings.review.ts";
 import type { OcctError } from "@beep/occt";
 import type { Sha256Hex } from "@beep/schema";
-import type { DrawingError, RenderManifest, ValidationReport } from "@beep/technical-drawing";
+import type { Camera, DrawingError, RenderManifest, ValidationReport } from "@beep/technical-drawing";
 import type { ReviewFinding, ReviewStatus } from "./Drawings.review.schemas.ts";
 
 const specFlag = Flag.File("spec", { mustExist: true }).pipe(Flag.withDescription("Figure-set spec JSON"));
@@ -112,14 +119,21 @@ const sheetSummary = (manifest: RenderManifest, requested: SheetOptions): Readon
     })
   );
 
-// A pictorial camera without a focus is the isometric projection.
+// A pictorial camera without a focus is the isometric projection; a converging one that carries a facing sight is
+// the two-point perspective (only a two-point camera carries one).
+const cameraProjectionNote = (camera: Camera): string =>
+  O.match(camera.focus, {
+    onNone: () => ", isometric",
+    onSome: () => (O.isSome(camera.sight) ? ", two-point" : ", perspective"),
+  });
+
 const projectionNote = (figure: RenderManifest["figures"][number]): string =>
   isPerspectiveView(figure.view)
     ? pipe(
         figure.camera,
         O.match({
           onNone: () => "",
-          onSome: (camera) => (O.isNone(camera.focus) ? ", isometric" : ", perspective"),
+          onSome: cameraProjectionNote,
         })
       )
     : "";
@@ -133,7 +147,7 @@ const projectionNote = (figure: RenderManifest["figures"][number]): string =>
  * spec's own sheet options replaced the ones the flags asked for. Each font
  * embedded for text labels is listed with its file and sha256. Pictorial
  * figures carry their projection (a pictorial camera without a focus is
- * isometric).
+ * isometric; one with a focus and a facing sight is two-point).
  *
  * **Example** (Summarise a manifest)
  *
@@ -817,7 +831,9 @@ const criticsSyntheticPackFlag = Flag.Directory("synthetic-pack", { mustExist: t
 );
 const criticsTimeoutFlag = Flag.Int("timeout-minutes").pipe(
   Flag.withDefault(90),
-  Flag.withDescription("Minutes a reviewer may run")
+  Flag.withDescription(
+    "Minutes a reviewer may run; a seat past it is stopped, recorded as a time-limit outcome, and the next seat runs"
+  )
 );
 
 const runCriticsPack = Effect.fn("DrawingsCommand.criticsPack")(function* (options: {
@@ -830,16 +846,17 @@ const runCriticsPack = Effect.fn("DrawingsCommand.criticsPack")(function* (optio
 }) {
   const critics = yield* DrawingCritics;
   const zooms = yield* Effect.forEach(options.zoom, parseZoomFlag);
-  const pack = yield* critics.buildPack({
+  const request = yield* CriticPackRequest.makeEffect({
     manifestPath: options.manifest,
     outDir: options.out,
     briefPath: options.brief,
     contextDir: options.context,
     imagesDirs: options.images,
     zooms,
-  });
+  }).pipe(DrawingsCommandError.mapError("The critic pack flags do not form a pack request."));
+  const pack = yield* critics.buildPack(request);
   yield* say(
-    `critic pack ${options.out}: ${A.length(pack.sheets)} sheet(s), ${A.length(pack.zooms)} zoom(s), ${A.length(pack.images)} image(s); sheet-set ${pack.sheetSetSha256}`
+    `critic pack ${options.out}: ${A.length(pack.sheets)} sheet(s), ${A.length(pack.zooms)} zoom(s), ${A.length(pack.images)} image(s), measurements ${O.getOrElse(pack.measurements, () => "none")}; sheet-set ${pack.sheetSetSha256}`
   );
 });
 
@@ -856,7 +873,7 @@ const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options
   const reviewers = yield* selectReviewers(
     pipe(Str.split(options.reviewers, ","), A.map(Str.trim), A.filter(Str.isNonEmpty))
   );
-  const record = yield* critics.runSequence({
+  const request = yield* CriticRunRequest.makeEffect({
     packDir: options.pack,
     loopDir: options.loopDir,
     loop: options.loop,
@@ -864,12 +881,13 @@ const runCriticsRun = Effect.fn("DrawingsCommand.criticsRun")(function* (options
     workspace: options.workspace,
     syntheticPack: options.syntheticPack,
     timeoutMinutes: options.timeoutMinutes,
-  });
-  yield* Effect.forEach(record.runs, (run) =>
-    say(
-      `${run.order}. ${run.reviewer.name}: exit ${run.exitCode}, ${run.findings} finding(s)${O.isNone(run.report) ? " (no report)" : ""}`
+  }).pipe(
+    DrawingsCommandError.mapError(
+      "The critic run flags do not form a run request; --loop and --timeout-minutes must be at least 1."
     )
   );
+  const record = yield* critics.runSequence(request);
+  yield* Effect.forEach(record.runs, flow(criticRunLine, say));
   yield* say(
     `loop ${record.loop} on ${record.sheetSetSha256}: ${A.length(record.runs)} run(s); ALL-FINDINGS.md written`
   );
@@ -901,7 +919,7 @@ const drawingsCriticsCommand = Command.make("critics", {}, () =>
         runCriticsPack
       ).pipe(
         Command.withDescription(
-          "Build a critic pack: sheet rasters, zooms, SVGs, stroke tables, context, brief, schema"
+          "Build a critic pack: sheet rasters, zooms, SVGs, stroke tables, measurements, context, brief, schema"
         )
       ),
       Command.make(

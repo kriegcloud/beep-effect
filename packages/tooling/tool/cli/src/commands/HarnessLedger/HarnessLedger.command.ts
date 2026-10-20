@@ -55,6 +55,7 @@ const encodeListJson = S.encodeUnknownEffect(S.toCodecJson(S.Array(HarnessLedger
 const encodePruneJson = S.encodeUnknownEffect(S.toCodecJson(HarnessLedgerPruneReport));
 const decodeMonth = S.decodeUnknownEffect(HarnessLedgerMonth);
 const decodeDispositionOptions = S.decodeEffect(HarnessLedgerDispositionOptions);
+const encodeReconciliationJson = S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation));
 
 const resolveRepoRoot = findRepoRoot().pipe(
   Effect.mapError(HarnessLedgerIoError.wrap("Failed to locate the repo root."))
@@ -629,7 +630,7 @@ export const harnessLedgerReconcileCommand = Command.make(
       );
       const ledger = yield* HarnessLedgerService;
       const report = yield* ledger.reconcile(input.stateDir, input.transcriptDir, kind);
-      const encoded = yield* S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation))(report).pipe(
+      const encoded = yield* encodeReconciliationJson(report).pipe(
         Effect.mapError(HarnessLedgerIoError.wrap("Cannot encode reconciliation."))
       );
       yield* printCommandJson(encoded);

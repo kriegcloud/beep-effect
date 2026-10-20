@@ -1,0 +1,438 @@
+{
+  "provenance": "Recorded read-only from beep-effect/beep-effect GitHub REST on 2026-10-18 for PR #1429 (merge 2f2426b695). Trimmed to the fields the completion decoders read; check runs limited to the 16 required contexts.",
+  "pull": {
+    "number": 1429,
+    "created_at": "2026-10-05T20:35:14Z",
+    "merged": true,
+    "merged_at": "2026-10-06T00:55:25Z",
+    "merge_commit_sha": "2f2426b695ff2d082443dceb484a40c0c41c1b77",
+    "head": {
+      "sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3"
+    },
+    "base": {
+      "ref": "main",
+      "repo": {
+        "full_name": "beep-effect/beep-effect"
+      }
+    }
+  },
+  "mergeCommit": {
+    "sha": "2f2426b695ff2d082443dceb484a40c0c41c1b77",
+    "parents": [
+      {
+        "sha": "61d1b494f05cb3974538071d5b5d1b32a25443d0"
+      }
+    ],
+    "commit": {
+      "tree": {
+        "sha": "016cbfded124c482360f8e52257458c5e1189639"
+      }
+    }
+  },
+  "rulesets": [
+    [
+      {
+        "id": 10240248,
+        "source_type": "Repository",
+        "created_at": "2025-11-20T22:12:15.649-06:00"
+      }
+    ]
+  ],
+  "ruleSuites": [
+    [
+      {
+        "id": 4377188695,
+        "ref": "refs/heads/main",
+        "after_sha": "2f2426b695ff2d082443dceb484a40c0c41c1b77"
+      },
+      {
+        "id": 4383622002,
+        "ref": "refs/heads/main",
+        "after_sha": "98c3947d44359fd230a9adfb082268847e3174fb"
+      },
+      {
+        "id": 4377574834,
+        "ref": "refs/heads/main",
+        "after_sha": "01d8c18f314661a7957ef6420b2180ffb29804d1"
+      }
+    ]
+  ],
+  "ruleSuite": {
+    "id": 4377188695,
+    "ref": "refs/heads/main",
+    "after_sha": "2f2426b695ff2d082443dceb484a40c0c41c1b77",
+    "pushed_at": "2026-10-05T19:55:25-05:00",
+    "result": "pass",
+    "rule_evaluations": [
+      {
+        "rule_source": {
+          "type": "ruleset",
+          "id": 10240248,
+          "name": "main"
+        },
+        "enforcement": "active",
+        "result": "pass",
+        "rule_type": "required_status_checks"
+      },
+      {
+        "rule_source": {
+          "type": "ruleset",
+          "id": 10240248,
+          "name": "main"
+        },
+        "enforcement": "active",
+        "result": "pass",
+        "rule_type": "pull_request"
+      },
+      {
+        "rule_source": {
+          "type": "ruleset",
+          "id": 10240248,
+          "name": "main"
+        },
+        "enforcement": "active",
+        "result": "pass",
+        "rule_type": "non_fast_forward"
+      },
+      {
+        "rule_source": {
+          "type": "ruleset",
+          "id": 10240248,
+          "name": "main"
+        },
+        "enforcement": "active",
+        "result": "pass",
+        "rule_type": "deletion"
+      }
+    ]
+  },
+  "history": [
+    [
+      {
+        "version_id": 53390820,
+        "updated_at": "2026-10-15T14:10:04.484-05:00"
+      },
+      {
+        "version_id": 53232671,
+        "updated_at": "2026-10-14T15:07:57.213-05:00"
+      },
+      {
+        "version_id": 53211930,
+        "updated_at": "2026-10-14T12:55:21.339-05:00"
+      },
+      {
+        "version_id": 53095924,
+        "updated_at": "2026-10-13T21:36:17.131-05:00"
+      },
+      {
+        "version_id": 52592290,
+        "updated_at": "2026-10-09T10:56:31.256-05:00"
+      },
+      {
+        "version_id": 52153287,
+        "updated_at": "2026-10-06T12:22:35.514-05:00"
+      },
+      {
+        "version_id": 50918272,
+        "updated_at": "2026-09-25T09:46:59.802-05:00"
+      },
+      {
+        "version_id": 49479116,
+        "updated_at": "2026-09-11T20:46:53.354-05:00"
+      },
+      {
+        "version_id": 48600030,
+        "updated_at": "2026-09-03T12:12:53.589-05:00"
+      },
+      {
+        "version_id": 47676581,
+        "updated_at": "2026-08-25T23:16:24.765-05:00"
+      },
+      {
+        "version_id": 47547256,
+        "updated_at": "2026-08-24T23:32:29.842-05:00"
+      },
+      {
+        "version_id": 46764933,
+        "updated_at": "2026-08-17T10:49:47.684-05:00"
+      },
+      {
+        "version_id": 46764930,
+        "updated_at": "2026-08-17T10:49:44.128-05:00"
+      },
+      {
+        "version_id": 46693378,
+        "updated_at": "2026-08-16T14:50:04.113-05:00"
+      },
+      {
+        "version_id": 46693351,
+        "updated_at": "2026-08-16T14:49:42.816-05:00"
+      },
+      {
+        "version_id": 46263082,
+        "updated_at": "2026-08-11T18:35:39.773-05:00"
+      },
+      {
+        "version_id": 46219299,
+        "updated_at": "2026-08-11T10:22:16.748-05:00"
+      },
+      {
+        "version_id": 46218303,
+        "updated_at": "2026-08-11T10:11:22.648-05:00"
+      },
+      {
+        "version_id": 45943796,
+        "updated_at": "2026-08-08T00:46:26.056-05:00"
+      },
+      {
+        "version_id": 45729228,
+        "updated_at": "2026-08-06T17:01:05.369-05:00"
+      },
+      {
+        "version_id": 45724346,
+        "updated_at": "2026-08-06T15:44:04.568-05:00"
+      },
+      {
+        "version_id": 45707220,
+        "updated_at": "2026-08-06T12:31:22.378-05:00"
+      },
+      {
+        "version_id": 42201330,
+        "updated_at": "2026-07-06T12:41:53.592-05:00"
+      },
+      {
+        "version_id": 40717075,
+        "updated_at": "2026-06-18T05:41:25.087-05:00"
+      }
+    ]
+  ],
+  "version": {
+    "state": {
+      "enforcement": "active",
+      "target": "branch",
+      "conditions": {
+        "ref_name": {
+          "exclude": [],
+          "include": ["~DEFAULT_BRANCH"]
+        }
+      },
+      "rules": [
+        {
+          "type": "deletion"
+        },
+        {
+          "type": "non_fast_forward"
+        },
+        {
+          "type": "pull_request"
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": false,
+            "required_status_checks": [
+              {
+                "context": "Lint"
+              },
+              {
+                "context": "Heavy / Check"
+              },
+              {
+                "context": "Test Unit"
+              },
+              {
+                "context": "Heavy / Test Integration"
+              },
+              {
+                "context": "Heavy / Docgen"
+              },
+              {
+                "context": "Codegen Drift"
+              },
+              {
+                "context": "Repo Sanity"
+              },
+              {
+                "context": "Knip"
+              },
+              {
+                "context": "Commitlint"
+              },
+              {
+                "context": "Secret Scanning"
+              },
+              {
+                "context": "Security"
+              },
+              {
+                "context": "SAST"
+              },
+              {
+                "context": "Nix Shell"
+              },
+              {
+                "context": "Professional Desktop IPC Stdio"
+              },
+              {
+                "context": "Heavy / Doctest"
+              },
+              {
+                "context": "JSDoc Ratchet"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "checkRuns": [
+    {
+      "check_runs": [
+        {
+          "id": 112040719318,
+          "name": "Codegen Drift",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:11:16Z",
+          "completed_at": "2026-10-06T00:14:12Z"
+        },
+        {
+          "id": 112040719275,
+          "name": "Commitlint",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:10:36Z",
+          "completed_at": "2026-10-06T00:12:19Z"
+        },
+        {
+          "id": 112041342802,
+          "name": "Heavy / Check",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:40:09Z",
+          "completed_at": "2026-10-06T00:47:50Z"
+        },
+        {
+          "id": 112041342952,
+          "name": "Heavy / Docgen",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:44:47Z",
+          "completed_at": "2026-10-06T00:52:19Z"
+        },
+        {
+          "id": 112041342893,
+          "name": "Heavy / Doctest",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:48:45Z",
+          "completed_at": "2026-10-06T00:53:04Z"
+        },
+        {
+          "id": 112041342837,
+          "name": "Heavy / Test Integration",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:48:57Z",
+          "completed_at": "2026-10-06T00:53:09Z"
+        },
+        {
+          "id": 112040719157,
+          "name": "JSDoc Ratchet",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:10:04Z",
+          "completed_at": "2026-10-06T00:18:53Z"
+        },
+        {
+          "id": 112040719382,
+          "name": "Knip",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:10:50Z",
+          "completed_at": "2026-10-06T00:12:52Z"
+        },
+        {
+          "id": 112045092048,
+          "name": "Lint",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:24:57Z",
+          "completed_at": "2026-10-06T00:24:59Z"
+        },
+        {
+          "id": 112040719302,
+          "name": "Nix Shell",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:11:33Z",
+          "completed_at": "2026-10-06T00:13:42Z"
+        },
+        {
+          "id": 112040719139,
+          "name": "Professional Desktop IPC Stdio",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:11:06Z",
+          "completed_at": "2026-10-06T00:13:19Z"
+        },
+        {
+          "id": 112040719400,
+          "name": "Repo Sanity",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:11:23Z",
+          "completed_at": "2026-10-06T00:16:05Z"
+        },
+        {
+          "id": 112040719078,
+          "name": "SAST",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:09:57Z",
+          "completed_at": "2026-10-06T00:11:48Z"
+        },
+        {
+          "id": 112040719159,
+          "name": "Secret Scanning",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:09:58Z",
+          "completed_at": "2026-10-06T00:11:14Z"
+        },
+        {
+          "id": 112040719129,
+          "name": "Security",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:10:00Z",
+          "completed_at": "2026-10-06T00:11:03Z"
+        },
+        {
+          "id": 112044190808,
+          "name": "Test Unit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "e9eafb4a6f296ffb5f24a5b5cf610624199c43c3",
+          "started_at": "2026-10-06T00:21:51Z",
+          "completed_at": "2026-10-06T00:21:54Z"
+        }
+      ]
+    }
+  ]
+}

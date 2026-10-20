@@ -51,9 +51,6 @@
     name = "grilling"
     enabled = true
   [[skills.config]]
-    name = "impeccable"
-    enabled = true
-  [[skills.config]]
     name = "jsdoc-annotation-specialist"
     enabled = true
   [[skills.config]]
