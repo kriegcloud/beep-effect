@@ -63,8 +63,8 @@ const makeIdentityRefMember = <Encoding extends IdentityEncoding>(encoding: S.Li
  * @category schemas
  * @since 0.0.0
  */
-export const IdentityRef = IdentityEncoding.mapMembers(
-  Tuple.evolve([makeIdentityRefMember, makeIdentityRefMember, makeIdentityRefMember])
+export const IdentityRef = IdentityEncoding.mapMembers(([identity, iri, curie]) =>
+  Tuple.make(makeIdentityRefMember(identity), makeIdentityRefMember(iri), makeIdentityRefMember(curie))
 ).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("IdentityRef", {
