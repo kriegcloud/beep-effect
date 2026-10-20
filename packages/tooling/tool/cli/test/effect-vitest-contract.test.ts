@@ -610,8 +610,8 @@ it.layer(BunCrypto.layer)((it) => {
 
   // Regression (2026-10-14): `lint effect-vitest --write` reset both EV002
   // exceptions in AgentMessage.layer.test.ts to open because two identical
-  // `query(directory)` calls on one line share an occurrence anchor. This
-  // mirrors that line: a Layer.build helper called twice in one Effect.all.
+  // `query(directory)` calls on one line share an occurrence anchor.
+  // This fixture forwards a real Layer while retaining that duplicate call shape.
   it.effect("keeps both reviewed EV002 exceptions on two identical helper calls in one statement", () =>
     Effect.gen(function* () {
       const source = new Project({ useInMemoryFileSystem: true }).createSourceFile(
@@ -621,15 +621,15 @@ it.layer(BunCrypto.layer)((it) => {
             'import { it } from "@effect/vitest";',
             'import * as Effect from "effect/Effect";',
             'import * as Layer from "effect/Layer";',
-            "declare const storeLayer: (directory: string) => Layer.Layer<never>;",
-            "const query = Effect.fn(function* (directory: string) {",
-            "  const context = yield* Layer.build(storeLayer(directory));",
+            "declare const storeLayer: Layer.Layer<never>;",
+            "const query = Effect.fn(function* (layer: Layer.Layer<never>) {",
+            "  const context = yield* Layer.build(layer);",
             "  return yield* Effect.void.pipe(Effect.provide(context));",
             "});",
             'it.effect("races first opens", () =>',
             "  Effect.gen(function* () {",
-            '    const directory = "fresh-router";',
-            '    yield* Effect.all([query(directory), query(directory)], { concurrency: "unbounded" });',
+            "    const layer = storeLayer;",
+            '    yield* Effect.all([query(layer), query(layer)], { concurrency: "unbounded" });',
             "  })",
             ");",
           ],
