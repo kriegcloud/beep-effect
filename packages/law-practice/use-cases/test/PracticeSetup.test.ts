@@ -16,6 +16,7 @@ import {
 } from "@beep/law-practice-use-cases/PracticeSetup";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -83,7 +84,7 @@ describe("orderRequirements", () => {
     Effect.gen(function* () {
       const { all, install, signIn } = yield* requirements;
       const ordered = yield* orderRequirements(all);
-      expect(ordered.map((requirement) => requirement.id)).toEqual([install.id, signIn.id]);
+      expect(A.map(ordered, (requirement) => requirement.id)).toEqual([install.id, signIn.id]);
     })
   );
 
@@ -117,7 +118,7 @@ describe("SetupDoctor with approvals", () => {
         const { all, install, signIn } = yield* requirements;
         const doctor = yield* SetupDoctor;
         const report = yield* doctor.check(all);
-        expect(report.checks.map((check) => check.state)).toEqual(["probed", "blocked"]);
+        expect(A.map(report.checks, (check) => check.state)).toEqual(["probed", "blocked"]);
         expect(report.humanSteps).toEqual([]);
         expect(report.complete).toBe(false);
 
@@ -126,8 +127,8 @@ describe("SetupDoctor with approvals", () => {
         expect(approving.repaired).toEqual([install.id]);
 
         const next = yield* doctor.check(all);
-        expect(next.checks.map((check) => check.state)).toEqual(["probed", "probed"]);
-        expect(next.humanSteps.map((step) => step.requirement)).toEqual([signIn.id]);
+        expect(A.map(next.checks, (check) => check.state)).toEqual(["probed", "probed"]);
+        expect(A.map(next.humanSteps, (step) => step.requirement)).toEqual([signIn.id]);
         expect(next.complete).toBe(false);
       })
     );

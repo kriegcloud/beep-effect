@@ -20,6 +20,7 @@ import {
 } from "@beep/practice-gateway/SetupTools";
 import { describe, expect, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -74,12 +75,15 @@ describe("setup tools", () => {
       complete: false,
     });
     expect(summarizeReport(report, requirements)).toBe(
-      [
-        "1 of 4 checks pass.",
-        "You need to: Open Claude and sign in.",
-        `I can do this for you once you approve it: ${AutomaticRemediation.make({ summary: "Install Box Drive for your Windows account." }).summary}`,
-        "1 more checks wait on the steps above.",
-      ].join("\n")
+      A.join(
+        [
+          "1 of 4 checks pass.",
+          "You need to: Open Claude and sign in.",
+          `I can do this for you once you approve it: ${AutomaticRemediation.make({ summary: "Install Box Drive for your Windows account." }).summary}`,
+          "1 more checks wait on the steps above.",
+        ],
+        "\n"
+      )
     );
   });
 
@@ -98,7 +102,7 @@ describe("setup tools", () => {
       humanSteps: [],
       complete: false,
     });
-    expect(repairableRequirements(report, requirements).map((requirement) => requirement.id)).toEqual([
+    expect(A.map(repairableRequirements(report, requirements), (requirement) => requirement.id)).toEqual([
       "m365-consented",
     ]);
   });
@@ -124,7 +128,7 @@ describe("setup tools", () => {
         recordedAt: "1760000000000",
       });
       expect(fromStrings.itLimits.adminRights).toBe("available");
-      expect(fromStrings.choices.map((choice) => choice.kind)).toEqual(["supported"]);
+      expect(A.map(fromStrings.choices, (choice) => choice.kind)).toEqual(["supported"]);
       expect(fromPlain.recordedAt).toEqual(fromStrings.recordedAt);
     })
   );

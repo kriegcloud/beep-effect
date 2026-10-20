@@ -20,6 +20,7 @@ import * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import { m365NotConfigured, settingsLayer } from "./fixtures.ts";
 
 const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
@@ -36,7 +37,7 @@ const answeringBrowser = (answer: (state: string) => Record<string, string>) =>
         open: Effect.fn("AnsweringBrowser.open")(function* (authUrl: string) {
           const url = new URL(authUrl);
           const redirect = new URL(url.searchParams.get("redirect_uri") ?? "");
-          for (const [key, value] of Object.entries(answer(url.searchParams.get("state") ?? ""))) {
+          for (const [key, value] of R.toEntries(answer(url.searchParams.get("state") ?? ""))) {
             redirect.searchParams.set(key, value);
           }
           yield* client.get(redirect.toString()).pipe(

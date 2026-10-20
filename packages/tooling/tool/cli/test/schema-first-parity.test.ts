@@ -13,9 +13,10 @@ import {
 import { TSMorphServiceLive } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { provideScopedLayer } from "@beep/test-utils";
-import { A, Str } from "@beep/utils";
+import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -1119,12 +1120,15 @@ it.layer(testLayer, { timeout: "60 seconds" })("schema-first parity ratchet comm
       yield* fs.makeDirectory("packages/example/test", { recursive: true });
       yield* fs.writeFileString(
         "packages/example/test/Codec.test.ts",
-        [
-          'import * as S from "effect/Schema";',
-          "S.decodeUnknownEffect(S.String);",
-          "S.decodeUnknownResult(S.String);",
-          "S.encodeUnknownEffect(S.String);",
-        ].join("\n")
+        A.join(
+          [
+            'import * as S from "effect/Schema";',
+            "S.decodeUnknownEffect(S.String);",
+            "S.decodeUnknownResult(S.String);",
+            "S.encodeUnknownEffect(S.String);",
+          ],
+          "\n"
+        )
       );
       yield* runSchemaFirst(["--write"]);
       const inventory = yield* decodeInventory(yield* fs.readFileString("standards/schema-first.inventory.jsonc"));

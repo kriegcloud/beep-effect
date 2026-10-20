@@ -12,6 +12,7 @@ import {
 } from "@beep/mcpb-kit";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const McpbManifestJson = S.fromJsonString(McpbManifest, { space: 2 });
@@ -65,7 +66,7 @@ describe("mcpbManifest", () => {
     expect(manifest.compatibility.platforms).toEqual(["win32"]);
     expect(manifest.server.entry_point).toBe("example-mcp.exe");
     expect(manifest.server.mcp_config.command).toBe("${__dirname}/example-mcp.exe");
-    expect(Object.keys(manifest.server.mcp_config.env)).toEqual(["DATA_DIR", "NODE_PATH", "ZETA"]);
+    expect(R.keys(manifest.server.mcp_config.env)).toEqual(["DATA_DIR", "NODE_PATH", "ZETA"]);
     expect(manifest.server.mcp_config.env.NODE_PATH).toBe("${__dirname}/node_modules");
     expect(manifest.user_config.data_dir).toEqual({
       type: "directory",

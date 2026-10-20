@@ -73,7 +73,15 @@ package verification for CLI, AI metrics, and Trustgraph pass.
 
 Three existing schema advisory locations and two fixed detector source ranges
 are refreshed without adding exceptions or changing the reference classifier.
+The committed-tree reference check now reports zero live gated observations.
 Full policy verification and hosted confirmation remain pending.
+
+The same hosted head also failed Effect Diagnostics at 16 collection call sites
+(17 project diagnostics, including one shared source visited twice). The repair
+uses Effect Array/Record helpers in the gateway, setup app, law-practice tests,
+MCP bundle test, and schema parity test. All five additional affected packages
+pass quick lint/type verification. Focused standalone diagnostics are running;
+this does not claim the hosted rerun has passed.
 
 ## Open issue acceptance tracking
 

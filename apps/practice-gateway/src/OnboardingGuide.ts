@@ -8,6 +8,7 @@
  */
 
 import { $PracticeGatewayId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as McpServer from "effect/ai/McpServer";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
@@ -38,15 +39,18 @@ const $I = $PracticeGatewayId.create("OnboardingGuide");
  * @category constants
  * @since 0.0.0
  */
-export const BUILT_IN_ONBOARDING_GUIDE = [
-  "# Set up this computer for the practice",
-  "",
-  "1. Call setup_profile_get. If no profile is saved, interview the lawyer in plain language: which documents system (Box Drive), mail and calendar (Microsoft 365) and whether the practice knowledge graph is used, plus whether they have administrator rights and use a proxy. Save the answers with setup_profile_save. Never put passwords, client names or client data in the profile.",
-  "2. Call setup_status and relay its summary in plain language.",
-  "3. For each requirement listed as repairable, offer the change and call setup_repair; the lawyer approves it in a prompt. If the prompt cannot be shown, ask the lawyer in chat first.",
-  "4. Steps only the lawyer can take (signing in, consenting, installing, asking IT) are listed in the report: give them one at a time and wait until the lawyer says they are done.",
-  "5. Call setup_status again after each step until setup is complete. After saving a profile or connecting a provider, ask the lawyer to restart Claude so the practice tools appear.",
-].join("\n");
+export const BUILT_IN_ONBOARDING_GUIDE = A.join(
+  [
+    "# Set up this computer for the practice",
+    "",
+    "1. Call setup_profile_get. If no profile is saved, interview the lawyer in plain language: which documents system (Box Drive), mail and calendar (Microsoft 365) and whether the practice knowledge graph is used, plus whether they have administrator rights and use a proxy. Save the answers with setup_profile_save. Never put passwords, client names or client data in the profile.",
+    "2. Call setup_status and relay its summary in plain language.",
+    "3. For each requirement listed as repairable, offer the change and call setup_repair; the lawyer approves it in a prompt. If the prompt cannot be shown, ask the lawyer in chat first.",
+    "4. Steps only the lawyer can take (signing in, consenting, installing, asking IT) are listed in the report: give them one at a time and wait until the lawyer says they are done.",
+    "5. Call setup_status again after each step until setup is complete. After saving a profile or connecting a provider, ask the lawyer to restart Claude so the practice tools appear.",
+  ],
+  "\n"
+);
 
 /**
  * The body of the `practice-onboarding` skill shipped in

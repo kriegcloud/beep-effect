@@ -11,6 +11,7 @@
 import { mcpbTargetSpec } from "@beep/mcpb-kit";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BunServices from "@effect/platform-bun/BunServices";
+import * as A from "effect/Array";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
@@ -56,15 +57,18 @@ export const embeddedEntrySource: {
   (version: string): (srcImport: string) => string;
   (srcImport: string, version: string): string;
 } = dual(2, (srcImport: string, version: string): string =>
-  [
-    `import bundle from "./${BESIDE_BUNDLE_FILE}" with { type: "file" };`,
-    `import * as O from "effect/Option";`,
-    `import { main } from ${JSON.stringify(`${srcImport}/bin.ts`)};`,
-    `import { EmbeddedGateway } from ${JSON.stringify(`${srcImport}/Setup.models.ts`)};`,
-    "",
-    `main(O.some(EmbeddedGateway.make({ bundle, version: ${JSON.stringify(version)} })));`,
-    "",
-  ].join("\n")
+  A.join(
+    [
+      `import bundle from "./${BESIDE_BUNDLE_FILE}" with { type: "file" };`,
+      `import * as O from "effect/Option";`,
+      `import { main } from ${JSON.stringify(`${srcImport}/bin.ts`)};`,
+      `import { EmbeddedGateway } from ${JSON.stringify(`${srcImport}/Setup.models.ts`)};`,
+      "",
+      `main(O.some(EmbeddedGateway.make({ bundle, version: ${JSON.stringify(version)} })));`,
+      "",
+    ],
+    "\n"
+  )
 );
 
 const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(GatewayBundleManifest));
