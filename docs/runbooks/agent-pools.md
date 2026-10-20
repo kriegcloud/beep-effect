@@ -32,6 +32,12 @@ bounded implementation, exploration and second-opinion review lanes to Junie fir
 below). Junie is not a chain step: a quota failure elsewhere still steps the originating chain
 down, and a Junie worker never delegates onward.
 
+Keep GPT-6 Luna lightweight routes and Grok 4.7 web research. Graft deep uses
+Opus 5.5 through the proxy. Junie is a bounded spend-down pool when JetBrains
+credits remain, not a fallback; Muse remains opt-in. The manifest's separate
+JSDoc title-migration specialist uses Grok 4.7. Historical probes below retain
+their dates and results; current recipes use the live declared pins.
+
 Step down a chain only on a confirmed quota, availability, or unsupported-model failure. Direct
 Claude never appears in the Codex chain; Codex (`gpt-6.1-sol` medium) is the first step down the
 Claude chain since 2026-10-18 (`goals/agent-pool-doctrine/history/2026-10-18-codex-claude-fallback.md`),
