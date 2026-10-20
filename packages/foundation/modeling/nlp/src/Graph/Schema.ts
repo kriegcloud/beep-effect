@@ -205,10 +205,8 @@ const textEdgeFields = <T extends TextEdgeRelation>(literal: S.Literal<T>) => ({
   weight: S.optionalKey(S.Finite),
 });
 
-const textEdgeMember =
-  <T extends TextEdgeRelation>(name: string, description: string) =>
-  (literal: S.Literal<T>) =>
-    literal.pipe(textEdgeFields, S.Struct, $I.annoteSchema(name, { description }));
+const textEdgeMember = <T extends TextEdgeRelation>(literal: S.Literal<T>, name: string, description: string) =>
+  literal.pipe(textEdgeFields, S.Struct, $I.annoteSchema(name, { description }));
 
 /**
  * Edge between text nodes, labeled with a structural or linguistic relation.
@@ -227,18 +225,31 @@ const textEdgeMember =
  * @since 0.0.0
  */
 export const TextEdge = TextEdgeRelation.mapMembers(
-  Tuple.evolve([
-    textEdgeMember("ContainsTextEdge", "Structural text-graph edge indicating containment."),
-    textEdgeMember("FollowsTextEdge", "Structural text-graph edge indicating sequence order."),
-    textEdgeMember("DerivedFromTextEdge", "Structural text-graph edge indicating derivation lineage."),
-    textEdgeMember("ParentOfTextEdge", "Structural text-graph edge indicating parentage."),
-    textEdgeMember("TaggedAsTextEdge", "Linguistic text-graph edge linking a token to a part-of-speech tag."),
-    textEdgeMember("LemmaOfTextEdge", "Linguistic text-graph edge linking a lemma to its token."),
-    textEdgeMember("HeadOfTextEdge", "Linguistic text-graph edge indicating a dependency head."),
-    textEdgeMember("DependentOfTextEdge", "Linguistic text-graph edge indicating a dependency dependent."),
-    textEdgeMember("EntityMentionTextEdge", "Linguistic text-graph edge linking an entity mention to source text."),
-    textEdgeMember("RelatesToTextEdge", "Linguistic text-graph edge linking related extracted entities."),
-  ])
+  ([contains, follows, derivedFrom, parentOf, taggedAs, lemmaOf, headOf, dependentOf, entityMention, relatesTo]) =>
+    Tuple.make(
+      textEdgeMember(contains, "ContainsTextEdge", "Structural text-graph edge indicating containment."),
+      textEdgeMember(follows, "FollowsTextEdge", "Structural text-graph edge indicating sequence order."),
+      textEdgeMember(derivedFrom, "DerivedFromTextEdge", "Structural text-graph edge indicating derivation lineage."),
+      textEdgeMember(parentOf, "ParentOfTextEdge", "Structural text-graph edge indicating parentage."),
+      textEdgeMember(
+        taggedAs,
+        "TaggedAsTextEdge",
+        "Linguistic text-graph edge linking a token to a part-of-speech tag."
+      ),
+      textEdgeMember(lemmaOf, "LemmaOfTextEdge", "Linguistic text-graph edge linking a lemma to its token."),
+      textEdgeMember(headOf, "HeadOfTextEdge", "Linguistic text-graph edge indicating a dependency head."),
+      textEdgeMember(
+        dependentOf,
+        "DependentOfTextEdge",
+        "Linguistic text-graph edge indicating a dependency dependent."
+      ),
+      textEdgeMember(
+        entityMention,
+        "EntityMentionTextEdge",
+        "Linguistic text-graph edge linking an entity mention to source text."
+      ),
+      textEdgeMember(relatesTo, "RelatesToTextEdge", "Linguistic text-graph edge linking related extracted entities.")
+    )
 ).pipe(
   $I.annoteSchema("TextEdge", {
     description: "Text-graph edge labeled with a structural or linguistic-annotation relation.",

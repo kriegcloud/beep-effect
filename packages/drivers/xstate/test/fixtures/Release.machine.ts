@@ -1,4 +1,4 @@
-import { fromEffect, setupEffect } from "@xstate/effect";
+import { createEffectLogic, setupEffect } from "@xstate/effect";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -15,7 +15,7 @@ export const ReleaseEvents = {
   RETRY: S.Struct({}),
 };
 
-const deploy = fromEffect({
+const deploy = createEffectLogic({
   schemas: { input: ReleaseInput },
   effect: ({ input }) => Deployments.use((api) => api.deploy(input.release)),
 });

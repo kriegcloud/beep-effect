@@ -188,12 +188,12 @@ const makeShaclValidationViolationMember = <Severity extends ShaclSeverity>(seve
  * @category models
  * @since 0.0.0
  */
-export const ShaclValidationViolation = ShaclSeverityDefinition.mapMembers(
-  Tuple.evolve([
-    makeShaclValidationViolationMember,
-    makeShaclValidationViolationMember,
-    makeShaclValidationViolationMember,
-  ])
+export const ShaclValidationViolation = ShaclSeverityDefinition.mapMembers(([info, warning, violation]) =>
+  Tuple.make(
+    makeShaclValidationViolationMember(info),
+    makeShaclValidationViolationMember(warning),
+    makeShaclValidationViolationMember(violation)
+  )
 ).pipe(
   S.toTaggedUnion("severity"),
   $I.annoteSchema("ShaclValidationViolation", {

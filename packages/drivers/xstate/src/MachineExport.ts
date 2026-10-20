@@ -10,7 +10,7 @@ import { $XstateId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
-import { serializeMachine } from "xstate";
+import { machineToJSON } from "xstate";
 import { MachineExportError } from "./Xstate.errors.ts";
 import type { AnyStateMachine, MachineJSON } from "xstate";
 
@@ -56,7 +56,7 @@ export const MachineJsonText = S.fromJsonString(S.Unknown, { space: 2 }).pipe(
  * @category combinators
  * @since 0.0.0
  */
-export const toMachineJson = (machine: AnyStateMachine): MachineJSON => serializeMachine(machine);
+export const toMachineJson = (machine: AnyStateMachine): MachineJSON => machineToJSON(machine);
 
 /**
  * Serializes a machine into pretty-printed JSON text for Studio import,

@@ -24,7 +24,7 @@ import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const ChoicesJson = S.fromJsonString(S.NonEmptyArray(CapabilityChoice));
+const ChoicesJson = CapabilityChoice.pipe(S.NonEmptyArray, S.fromJsonString);
 const ItLimitsJson = S.fromJsonString(ItLimits);
 
 const id = SetupRequirementId.make;
@@ -35,7 +35,7 @@ describe("setup tools", () => {
     { choices: ChoicesJson, itLimits: ItLimitsJson },
     ({ choices, itLimits }) =>
       Effect.gen(function* () {
-        const decoded = yield* S.decodeUnknownEffect(SetupProfileSaveInput)({
+        const decoded = yield* S.decodeEffect(SetupProfileSaveInput)({
           choices: yield* S.encodeEffect(ChoicesJson)(choices),
           itLimits: yield* S.encodeEffect(ItLimitsJson)(itLimits),
           recordedAt: 0,

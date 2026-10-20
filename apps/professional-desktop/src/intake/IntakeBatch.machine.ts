@@ -15,7 +15,7 @@
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as P from "@beep/utils/Predicate";
-import { fromEffect, setupEffect } from "@xstate/effect";
+import { createEffectLogic, setupEffect } from "@xstate/effect";
 import * as Effect from "effect/Effect";
 import * as Reactivity from "effect/reactivity/Reactivity";
 import { failureMessageOr } from "@/lib/failureMessage";
@@ -55,7 +55,7 @@ const recordEntry = (
   entries: A.append(context.entries, entry),
 });
 
-const readFile = fromEffect({
+const readFile = createEffectLogic({
   schemas: { input: ReadFileInput },
   effect: Effect.fn("professional_desktop.intake.read_file")(function* ({ input }: EffectSourceArgs<ReadFileInput>) {
     const buffer = yield* Effect.tryPromise({
@@ -66,7 +66,7 @@ const readFile = fromEffect({
   }),
 });
 
-const submitFile = fromEffect({
+const submitFile = createEffectLogic({
   schemas: { input: DroppedDocumentInput },
   effect: Effect.fn("professional_desktop.intake.submit_file")(function* ({
     input,

@@ -176,8 +176,8 @@ const makeDurableLocatorMember = <T extends typeof DurableLocatorSpace.Type>(lit
  * @category models
  * @since 0.0.0
  */
-export const DurableLocator = DurableLocatorSpace.mapMembers(
-  Tuple.evolve([makeDurableLocatorMember, makeDurableLocatorMember])
+export const DurableLocator = DurableLocatorSpace.mapMembers(([original, clean]) =>
+  Tuple.make(makeDurableLocatorMember(original), makeDurableLocatorMember(clean))
 ).pipe(
   S.toTaggedUnion("space"),
   $I.annoteSchema("DurableLocator", {

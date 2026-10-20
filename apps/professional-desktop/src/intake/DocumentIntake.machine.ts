@@ -23,7 +23,7 @@ import * as O from "@beep/utils/Option";
 import * as P from "@beep/utils/Predicate";
 import { SetWorkspaceVaultInput } from "@beep/workspace-use-cases/public";
 import { invoke } from "@tauri-apps/api/core";
-import { fromEffect, fromEffectStream, setupEffect } from "@xstate/effect";
+import { createEffectLogic, createEffectStreamLogic, setupEffect } from "@xstate/effect";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Reactivity from "effect/reactivity/Reactivity";
@@ -78,7 +78,7 @@ const outcome = (value: VaultSelectionOutcome) => ({ type: "vault.outcome" as co
 
 // Re-reads the vault configuration whenever a mutation invalidates its key, so
 // saving a vault root or filing a document reaches the machine as an event.
-const vaultConfigFeed = fromEffectStream({
+const vaultConfigFeed = createEffectStreamLogic({
   schemas: { input: VaultConfigFeedInput },
   stream: ({ input }: EffectSourceArgs<VaultConfigFeedInput>) =>
     Stream.unwrap(
@@ -92,18 +92,18 @@ const vaultConfigFeed = fromEffectStream({
     ),
 });
 
-const pickNative = fromEffect(
+const pickNative = createEffectLogic(
   Effect.tryPromise({
     try: () => invoke<string | null>("select_vault_directory"),
     catch: (cause) => VaultDirectoryPickerInvocationError.make({ cause }),
   }).pipe(Effect.map(O.fromNullishOr))
 );
 
-const pickSidecar = fromEffect(
+const pickSidecar = createEffectLogic(
   DesktopIntakeClient.pipe(Effect.flatMap((client) => client("PickVaultDirectory", void 0)))
 );
 
-const persistVaultRoot = fromEffect({
+const persistVaultRoot = createEffectLogic({
   schemas: { input: PersistVaultRootInput },
   effect: Effect.fn("professional_desktop.intake.persist_vault_root")(function* ({
     input,
