@@ -301,7 +301,11 @@
     },
     "postcss-selector-parser": "^7.1.6",
     "protobufjs": "^7.6.6",
-    "sharp": "catalog:"
+    "sharp": "catalog:",
+    "@modelcontextprotocol/client": "2.3.1",
+    "follow-redirects": "1.16.1",
+    "http-cache-semantics": "4.3.0",
+    "launch-editor": "2.14.2"
   },
   "packageManager": "bun@1.4.3",
   "patchedDependencies": {
