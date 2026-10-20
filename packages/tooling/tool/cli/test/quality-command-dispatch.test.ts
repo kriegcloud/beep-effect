@@ -28,7 +28,6 @@ import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const decodeUnknownJson = S.decodeResult(S.fromJsonString(S.Unknown));
-const encodeJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 
 const FixedMemoryStatsLayer = Layer.succeed(
   MemoryStats,
@@ -39,6 +38,7 @@ const CommandTestLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   FixedMemoryStatsLayer
 );
+const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const runQualityCommand = Command.runWith(qualityCommand, { version: "0.0.0" });
 const encoder = new TextEncoder();
 
@@ -93,6 +93,14 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       expect(output).toContain("Quality profile commands:");
       expect(output).toContain("Quality scheduler commands:");
       expect(output).toContain("JSDoc carrier-migration commands:");
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
+  it.effect("dispatches catalog-usage against the live checkout", () =>
+    Effect.gen(function* () {
+      yield* runQualityCommand(["catalog-usage"]);
+
+      expect(yield* consoleText()).toMatch(/\[catalog-usage\] catalog_entries=\d+ .*findings=0/);
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
@@ -189,8 +197,11 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
         diagnosticSeverity: { missedPipeableOpportunity: "off" },
         overrides: [{ include: ["test/**", ...includes], diagnosticSeverity: { floatingEffect: "off" } }],
       };
-      yield* fs.writeFileString(`${dir}/base.json`, yield* encodeJson({ compilerOptions: { plugins: [plugin] } }));
-      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encodeJson({ extends: "./base.json" }));
+      yield* fs.writeFileString(
+        `${dir}/base.json`,
+        yield* encodeUnknownJson({ compilerOptions: { plugins: [plugin] } })
+      );
+      yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encodeUnknownJson({ extends: "./base.json" }));
       const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
       const value = Result.getOrThrow(decodeUnknownJson(merged));
       expect(value).toMatchObject({

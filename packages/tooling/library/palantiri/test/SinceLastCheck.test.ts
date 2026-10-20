@@ -23,12 +23,15 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import { failingSources } from "./fixtures/Sources.ts";
 import type { Freshness, SessionChange } from "@beep/palantiri";
+
+const encodeParcelEnvelope = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 
 const NOW = DateTime.makeUnsafe("2026-10-15T12:00:00.000Z");
 const minutesAgo = (minutes: number) => DateTime.subtract(NOW, { minutes });
@@ -129,7 +132,7 @@ describe("reduceSinceLastCheck", () => {
         inbox: [],
         inboxReadable: true,
       });
-      const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(reduceSinceLastCheck(input, NOW, 20));
+      const json = yield* encodeParcelEnvelope(reduceSinceLastCheck(input, NOW, 20));
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/Users/"))).toBe(false);
       expect(pipe(json, Str.includes("/home/"))).toBe(false);
@@ -171,10 +174,13 @@ describe("sinceLastCheckCursor", () => {
     expect(A.map(changes(reduceSinceLastCheck(tied, NOW, 2)), (change) => change.lane)).toEqual(["lane-c"]);
     assertSome(sinceLastCheckCursor(tied, NOW, 2), minutesAgo(30));
     const next = SinceLastCheckInput.make({ ...tied, cursor: O.some(minutesAgo(30)) });
-    expect(A.map(changes(reduceSinceLastCheck(next, NOW, 2)), (change) => change.lane).toSorted()).toEqual([
-      "lane-a",
-      "lane-b",
-    ]);
+    expect(
+      pipe(
+        changes(reduceSinceLastCheck(next, NOW, 2)),
+        A.map((change) => change.lane),
+        A.sort(Order.String)
+      )
+    ).toEqual(["lane-a", "lane-b"]);
     assertSome(sinceLastCheckCursor(next, NOW, 2), NOW);
   });
 

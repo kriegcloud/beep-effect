@@ -46,11 +46,12 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { HarnessLedgerPruneReport } from "@beep/repo-cli/commands/HarnessLedger";
 
-const decodeReconcileReportJson = S.decodeEffect(
+const decodeReconcileReport = S.decodeEffect(
   S.fromJsonString(S.Struct({ agentKind: HookPulseAgentKind, transcriptFiles: S.Natural }))
 );
-const encodeUnknownJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
-const encodeJson = S.encodeEffect(S.fromJsonString(S.Unknown));
+const transcriptJson = S.fromJsonString(S.Unknown);
+const encodeUnknownTranscript = S.encodeUnknownEffect(transcriptJson);
+const encodeTranscript = S.encodeEffect(transcriptJson);
 
 const TestLayer = HarnessLedgerServiceLive.pipe(
   Layer.provideMerge(NodeServices.layer),
@@ -1179,7 +1180,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
           "--agent-kind",
           agentKind,
         ]).pipe(Effect.provideService(CommandJsonOutput, (text) => Ref.set(output, text)));
-        const report = yield* decodeReconcileReportJson(yield* Ref.get(output));
+        const report = yield* decodeReconcileReport(yield* Ref.get(output));
         expect(report.agentKind).toBe(agentKind);
         expect(report.transcriptFiles).toBe(0);
       }),
@@ -1197,7 +1198,8 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
       const nested = path.join(transcriptDir, parent, "workflow");
       yield* fs.makeDirectory(nested, { recursive: true });
       yield* fs.makeDirectory(stateDir);
-      const toolRow = yield* encodeUnknownJson({ sessionId: parent, message: { content: [{ type: "tool_use", id: "one" }] } });
+      const encode = encodeUnknownTranscript;
+      const toolRow = yield* encode({ sessionId: parent, message: { content: [{ type: "tool_use", id: "one" }] } });
       yield* fs.writeFileString(path.join(transcriptDir, `${parent}.jsonl`), toolRow);
       yield* fs.writeFileString(path.join(nested, "child.jsonl"), toolRow);
       const identity = Sha256Hex.make(yield* hashPrivateIdentifier(parent, yield* hookPulseHashSalt));
@@ -1233,12 +1235,16 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped({ prefix: "harness-mixed-transcript-" });
       const stateDir = yield* makeHookStateDir("harness-mixed-hooks-");
+      const encode = encodeTranscript;
       yield* fs.writeFileString(
         path.join(root, "mixed.jsonl"),
-        [
-          yield* encodeJson({ sessionId: "first", message: { content: [{ type: "tool_use" }] } }),
-          yield* encodeJson({ sessionId: "second", message: { content: [{ type: "tool_use" }] } }),
-        ].join("\n")
+        A.join(
+          [
+            yield* encode({ sessionId: "first", message: { content: [{ type: "tool_use" }] } }),
+            yield* encode({ sessionId: "second", message: { content: [{ type: "tool_use" }] } }),
+          ],
+          "\n"
+        )
       );
       const firstIdentity = Sha256Hex.make(yield* hashPrivateIdentifier("first", yield* hookPulseHashSalt));
       const hook = yield* HookPulseV1.decodeJsonEffect(yield* pulse(firstIdentity, "2026-10-09T10:00:00Z", O.none()));

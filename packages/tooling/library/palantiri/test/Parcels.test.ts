@@ -22,6 +22,7 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -32,6 +33,7 @@ import * as Metric from "effect/Metric";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -45,6 +47,7 @@ const NOON_TIME = DateTime.makeUnsafe(NOON);
 const TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736";
 const TRACEPARENT = `00-${TRACE_ID}-00f067aa0ca902c7-01`;
 
+const encodeParcelEnvelopeJson = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 const window = (kind: string, usedPercent: number) => ({ kind, scope: null, usedPercent, resetsAt: null });
 const scopedWindow = (scope: string, usedPercent: number) => ({
   kind: "weekly-scoped",
@@ -144,7 +147,7 @@ describe("reduceAccountHeadroom", () => {
       ]);
       // amy sorts before zed, so ordinal 1 carries amy's 30% weekly headroom.
       expect(A.map(accountItems(parcel)[0]?.windows ?? [], (window) => window.remainingPercent)).toEqual([30, 50, 90]);
-      const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(parcel);
+      const json = yield* encodeParcelEnvelopeJson(parcel);
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home"))).toBe(false);
       expect(pipe(json, Str.includes("example"))).toBe(false);
@@ -342,6 +345,51 @@ describe("in-process client", () => {
       })
     );
   });
+});
+
+describe("stale gauge series in a long-lived host", () => {
+  const providersOf = Effect.map(Metric.snapshot, (snapshot) =>
+    A.dedupe(
+      A.filterMap(snapshot, (metric) =>
+        metric.id === AccountsWindowRemaining.name
+          ? Result.succeed(`${metric.attributes?.["beep.provider"]}`)
+          : Result.failVoid
+      )
+    )
+  );
+
+  it.effect("drops a provider's series once its reading is stale", () =>
+    Effect.gen(function* () {
+      const parcels = yield* sampleInput.pipe(Effect.orDie, parcelsWith, Layer.build, Effect.map(Context.get(Parcels)));
+      yield* NOON_TIME.pipe(DateTime.toEpochMillis, TestClock.setTime);
+      yield* parcels.read("account-headroom");
+      expect(yield* providersOf).toEqual(["anthropic"]);
+      // Same process, same registry: ten minutes on, every Claude reading is past its bound.
+      yield* TestClock.adjust(Duration.minutes(10));
+      const later = yield* parcels.read("account-headroom");
+      expect(A.every(later.items, (item) => item.freshness._tag === "Unknown")).toBe(true);
+      expect(yield* providersOf).toEqual([]);
+    }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
+  );
+
+  it.effect("drops every series once the source fails", () =>
+    Effect.gen(function* () {
+      const failing = yield* Ref.make(false);
+      const snapshot = Effect.flatMap(Ref.get(failing), (fail) =>
+        fail
+          ? Effect.fail(SourceFailed.make({ parcel: "account-headroom", detail: "accounts report unavailable" }))
+          : sampleInput.pipe(Effect.orDie)
+      );
+      const parcels = yield* snapshot.pipe(parcelsWith, Layer.build, Effect.map(Context.get(Parcels)));
+      yield* NOON_TIME.pipe(DateTime.toEpochMillis, TestClock.setTime);
+      yield* parcels.read("account-headroom");
+      expect(yield* providersOf).toEqual(["anthropic"]);
+      yield* Ref.set(failing, true);
+      const later = yield* parcels.read("account-headroom");
+      expect(reasonOf(later.freshness)).toBe("unreachable");
+      expect(yield* providersOf).toEqual([]);
+    }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
+  );
 });
 
 describe("TRACEPARENT", () => {

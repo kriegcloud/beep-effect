@@ -12,7 +12,7 @@ import { A, O } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
-import { BoundingBox, Camera, ModelSpec } from "./Geometry.schemas.ts";
+import { BoundingBox, Camera, HiddenLinePassAbout, ModelSpec } from "./Geometry.schemas.ts";
 import { SheetOptions } from "./Sheet.schemas.ts";
 import type { Vec3 } from "./Geometry.schemas.ts";
 
@@ -83,21 +83,71 @@ const ISOMETRIC_AZIMUTH_DEG = 45;
 
 const orthographic = (eye: Vec3, up: Vec3) => Camera.make({ eye, up });
 
-const PictorialProjectionBase = LiteralKit(["perspective", "isometric"]);
+const radians = (deg: number): number => (deg * Math.PI) / 180;
+
+// Default field of a two-point pictorial when the set gives none: low enough that a box of ordinary proportions,
+// walls included, stays near the 60° cone of vision.
+const TWO_POINT_ELEVATION_DEG = 20;
+// Half the 60° cone of vision. A two-point field above it puts the near top corner outside the cone, and the walls
+// below that corner further out still; moving the eye back does not bring them in.
+const TWO_POINT_MAX_ELEVATION_DEG = 30;
+
+const PictorialElevationDeg = S.Finite.check(
+  S.isGreaterThan(0, {
+    identifier: $I`PictorialElevationMinCheck`,
+    title: "Pictorial Elevation Minimum",
+    description: "A pictorial looks at the top (or bottom) from above (or below) it, never level with it.",
+    message: "Expected a pictorial elevation above 0 degrees",
+  }),
+  S.isLessThan(90, {
+    identifier: $I`PictorialElevationMaxCheck`,
+    title: "Pictorial Elevation Maximum",
+    description: "A pictorial at 90 degrees would be a plan view.",
+    message: "Expected a pictorial elevation below 90 degrees",
+  })
+).pipe(
+  $I.annoteSchema("PictorialElevationDeg", {
+    description:
+      "Pictorial sight angle in degrees above the top (below the bottom), strictly between level (0) and plan (90); a two-point pictorial takes at most 30.",
+  })
+);
+
+const PictorialFocusDiagonals = S.Finite.check(
+  S.isGreaterThanOrEqualTo(1, {
+    identifier: $I`PictorialFocusDiagonalsCheck`,
+    title: "Pictorial Focus Diagonals",
+    description:
+      "A converging pictorial's eye stands at least one box diagonal from the box centre, clear of the model.",
+    message: "Expected a pictorial focus of at least 1 box diagonal",
+  })
+).pipe(
+  $I.annoteSchema("PictorialFocusDiagonals", {
+    description: "Eye distance of a converging pictorial in box diagonals, at least 1.",
+  })
+);
+
+const PictorialProjectionBase = LiteralKit(["perspective", "isometric", "two-point"]);
 
 /**
  * Projection of a pictorial (top or bottom perspective-slot) figure.
  *
  * **Details**
  *
- * `perspective` is the converging camera the sets were first drawn with.
+ * `perspective` is the converging camera the sets were first drawn with: it
+ * looks down (or up) at the box centre, so vertical edges converge as well.
  * `isometric` is a parallel projection at the isometric elevation
- * (atan(1/√2) ≈ 35.264°): tops and bottoms keep their size and vertical sides
- * stay vertical. Without a set azimuth it looks along the 45° bearing, where
- * the model's X, Y and Z axes foreshorten equally. Any other azimuth gives the
- * isometric view of the model turned by (azimuth − 45°) about +Z, so its own
- * X and Y edges foreshorten unequally. The view names `top-perspective` and
- * `bottom-perspective` stay figure-slot names either way.
+ * (atan(1/√2) ≈ 35.264°) unless the set gives another: tops and bottoms keep
+ * their size and vertical sides stay vertical. Without a set azimuth it looks
+ * along the 45° bearing, where the model's X, Y and Z axes foreshorten
+ * equally. Any other azimuth gives the isometric view of the model turned by
+ * (azimuth − 45°) about +Z, so its own X and Y edges foreshorten unequally.
+ * `two-point` is a perspective with a level line of sight: the eye stands
+ * above the top (below the bottom for the bottom figure) and looks
+ * horizontally along the azimuth, so every vertical edge stays vertical and
+ * parallel on the sheet while level edges run to two vanishing points on the
+ * horizon. Its field defaults to 20° and may not exceed 30°, half the 60°
+ * cone of vision. The view names `top-perspective` and `bottom-perspective`
+ * stay figure-slot names whatever the projection.
  *
  * **Example** (Read the projections)
  *
@@ -113,7 +163,7 @@ const PictorialProjectionBase = LiteralKit(["perspective", "isometric"]);
 export const PictorialProjection = PictorialProjectionBase.pipe(
   $I.annoteSchema("PictorialProjection", {
     description:
-      "`perspective` (converging) or `isometric` (parallel, at the isometric elevation) pictorial projection.",
+      "`perspective` (converging, looking down or up), `isometric` (parallel, at the isometric or a set elevation) or `two-point` (converging, level line of sight, verticals kept vertical) pictorial projection.",
   }),
   SchemaUtils.withLiteralKitStatics(PictorialProjectionBase)
 );
@@ -203,6 +253,18 @@ const negate = (v: Vec3): Vec3 => [v[0] === 0 ? 0 : -v[0], v[1] === 0 ? 0 : -v[1
  */
 export const isPerspectiveView = S.is(ViewName.pick(["top-perspective", "bottom-perspective"]));
 
+// A two-point pictorial's set field is at most half the 60° cone of vision; other views and projections take any.
+const twoPointFieldInCone = (input: {
+  readonly view: ViewName;
+  readonly projection: PictorialProjection;
+  readonly elevationDeg: O.Option<number>;
+}): boolean =>
+  !(
+    input.projection === PictorialProjection.Enum["two-point"] &&
+    isPerspectiveView(input.view) &&
+    O.exists(input.elevationDeg, (deg) => deg > TWO_POINT_MAX_ELEVATION_DEG)
+  );
+
 /**
  * Input of {@link cameraForView}: the view, the model's bounding box, and the
  * set-level camera choices.
@@ -211,6 +273,7 @@ export const isPerspectiveView = S.is(ViewName.pick(["top-perspective", "bottom-
  *
  * Every field but `view` and `box` has a default equal to the camera written
  * before the field existed, so `cameraForView({ view, box })` is unchanged.
+ * A two-point pictorial with an `elevationDeg` above 30 is refused.
  *
  * **Example** (Make an input)
  *
@@ -237,7 +300,23 @@ export class CameraForViewInput extends S.Opaque<CameraForViewInput, { readonly 
       S.withDecodingDefaultTypeKey(Effect.succeedNone),
       S.annotateKey({
         description:
-          "Pictorial azimuth in degrees from the front toward the left. None keeps the original perspective eye (about 39.8°), or 45° for an isometric pictorial.",
+          "Pictorial azimuth in degrees from the front toward the left. None keeps the original perspective eye (about 39.8°), or 45° for an isometric or two-point pictorial.",
+      })
+    ),
+    elevationDeg: S.Option(PictorialElevationDeg).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.withDecodingDefaultTypeKey(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Pictorial sight angle in degrees. An isometric looks down (up) at the model at it, within (0, 90); none keeps the isometric elevation, about 35.264°. A two-point eye sees the near top (bottom) corner of the bounding box at it, not any face of the article, within (0, 30]; none keeps 20°. A perspective ignores it.",
+      })
+    ),
+    focusDiagonals: S.Option(PictorialFocusDiagonals).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.withDecodingDefaultTypeKey(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Eye distance of a converging (perspective or two-point) pictorial in box diagonals, at least 1. None keeps 2.5. An isometric ignores it.",
       })
     ),
     planFacing: ElevationView.pipe(
@@ -245,11 +324,21 @@ export class CameraForViewInput extends S.Opaque<CameraForViewInput, { readonly 
       S.withDecodingDefaultTypeKey(Effect.succeed("front" as const)),
       S.annotateKey({ description: "Elevation whose viewer stands at the page bottom of both plans." })
     ),
-  }).pipe(
-    $I.annoteSchema("CameraForViewInput", {
-      description: "View name, model bounding box, pictorial projection and azimuth, and plan facing.",
-    })
-  )
+  })
+    .check(
+      S.makeFilter(twoPointFieldInCone, {
+        identifier: $I`CameraForViewInputTwoPointElevationCheck`,
+        title: "Two-Point Elevation",
+        description: "A two-point pictorial's field stays within half the 60° cone of vision.",
+        message: "Expected a two-point pictorial elevation of at most 30 degrees",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("CameraForViewInput", {
+        description:
+          "View name, model bounding box, pictorial projection, azimuth, elevation and focus, and plan facing.",
+      })
+    )
 ) {}
 
 const CameraForView = Fn({ input: CameraForViewInput, output: Camera }).pipe(
@@ -264,25 +353,44 @@ const CameraForView = Fn({ input: CameraForViewInput, output: Camera }).pipe(
  * **Details**
  *
  * Orthographic views ignore the box. Perspectives aim at the box centre with
- * a focus of 2.5 box diagonals, far enough to read as a drawing rather than a
- * photograph while still converging visibly. An isometric pictorial has no
- * focus: its eye is `[-sin(az)·cos(el), -cos(az)·cos(el), ±sin(el)]` with
- * `el = atan(1/√2)`, `az` 45° unless set, and up +Z. Both plans take their up vector from
- * `planFacing` (up = −eye of that elevation), so the bottom plan stays the
- * left–right mirror of the top plan.
+ * a focus of 2.5 box diagonals (or the set `focusDiagonals`), far enough to
+ * read as a drawing rather than a photograph while still converging visibly.
+ * An isometric pictorial has no focus: its eye is
+ * `[-sin(az)·cos(el), -cos(az)·cos(el), ±sin(el)]` with `el = atan(1/√2)`
+ * unless set, `az` 45° unless set, and up +Z. A two-point pictorial looks
+ * along the level direction `eye = [-sin(az), -cos(az), 0]` (`az` 45° unless
+ * set) with up +Z and the same focus `f` as a perspective. Its target is the
+ * box centre's x and y at the eye height `h = top + (f − r)·tan(el)` (bottom
+ * view: `bottom − (f − r)·tan(el)`), with `el` 20° unless set (at most 30°),
+ * where `r` is how far the box reaches from its centre toward the eye along
+ * the sight line. The projector stands the eye `f` from the target along
+ * `eye`, so `f − r` is the eye's depth to the bounding box's near top
+ * (bottom) corner, which it sees exactly `el` below (above) the horizon.
+ * That corner need not be a point of the article: a part standing above the
+ * top face puts that face's own near corner steeper than `el`, and a
+ * rounded or chamfered plan puts its nearest top point deeper, so shallower.
+ * An isometric applies `el` to every point, so an isometric and a two-point
+ * at one elevation are not like for like. Its `sight`, the direction
+ * face-facing decisions read, runs from the box centre to that eye, and its
+ * hidden-line pass runs about its target. Both plans take their up vector
+ * from `planFacing` (up = −eye of that elevation), so the bottom plan stays
+ * the left–right mirror of the top plan.
  *
  * **Gotchas**
  *
  * The input is decoded, so it takes the encoded form: omitted defaulted keys
  * get their defaults.
  *
- * **Example** (Front and top-perspective cameras)
+ * **Example** (Front, top-perspective and two-point cameras)
  *
  * ```ts
  * import { BoundingBox, cameraForView } from "@beep/technical-drawing"
+ * import * as O from "effect/Option"
  *
  * const box = BoundingBox.make({ min: [0, 0, 0], max: [40, 30, 20] })
  * console.log(cameraForView({ view: "front", box }).focus, cameraForView({ view: "top-perspective", box }).focus)
+ * const level = cameraForView({ view: "top-perspective", box, projection: "two-point", elevationDeg: O.some(20) })
+ * console.log(level.eye[2], level.target[2] > 20)
  * ```
  *
  * @category utilities
@@ -308,32 +416,73 @@ const pictorial = (input: CameraForViewInput, zSign: 1 | -1): Camera =>
   PictorialProjection.$match(input.projection, {
     perspective: () => perspective(input, zSign),
     isometric: () => {
-      const az = (O.getOrElse(input.azimuthDeg, () => ISOMETRIC_AZIMUTH_DEG) * Math.PI) / 180;
-      const reach = Math.cos(ISOMETRIC_ELEVATION);
-      return orthographic(
-        [-Math.sin(az) * reach, -Math.cos(az) * reach, Math.sin(ISOMETRIC_ELEVATION) * zSign],
-        [0, 0, 1]
-      );
+      const az = radians(O.getOrElse(input.azimuthDeg, () => ISOMETRIC_AZIMUTH_DEG));
+      const el = pictorialElevation(input);
+      const reach = Math.cos(el);
+      return orthographic([-Math.sin(az) * reach, -Math.cos(az) * reach, Math.sin(el) * zSign], [0, 0, 1]);
     },
+    "two-point": () => twoPoint(input, zSign),
   });
 
-const perspective = ({ box, azimuthDeg }: CameraForViewInput, zSign: 1 | -1): Camera => {
-  const target: Vec3 = [(box.min[0] + box.max[0]) / 2, (box.min[1] + box.max[1]) / 2, (box.min[2] + box.max[2]) / 2];
-  const diagonal = Math.hypot(box.max[0] - box.min[0], box.max[1] - box.min[1], box.max[2] - box.min[2]);
+// Without a set elevation, the isometric one.
+const pictorialElevation = ({ elevationDeg }: CameraForViewInput): number =>
+  O.match(elevationDeg, { onNone: () => ISOMETRIC_ELEVATION, onSome: radians });
+
+// Without a set elevation, the two-point default field.
+const twoPointElevation = ({ elevationDeg }: CameraForViewInput): number =>
+  radians(O.getOrElse(elevationDeg, () => TWO_POINT_ELEVATION_DEG));
+
+const boxCentre = ({ min, max }: CameraForViewInput["box"]): Vec3 => [
+  (min[0] + max[0]) / 2,
+  (min[1] + max[1]) / 2,
+  (min[2] + max[2]) / 2,
+];
+
+// Eye distance of a converging pictorial; 2.5 diagonals unless set.
+const pictorialFocus = ({ box, focusDiagonals }: CameraForViewInput): number =>
+  Math.max(
+    Math.hypot(box.max[0] - box.min[0], box.max[1] - box.min[1], box.max[2] - box.min[2]) *
+      O.getOrElse(focusDiagonals, () => PERSPECTIVE_FOCUS_DIAGONALS),
+    1
+  );
+
+const perspective = (input: CameraForViewInput, zSign: 1 | -1): Camera => {
   // Without a set azimuth the legacy eye is used verbatim, so default goldens stay byte-equal.
-  const [ex, ey] = O.match(azimuthDeg, {
+  const [ex, ey] = O.match(input.azimuthDeg, {
     onNone: () => [PERSPECTIVE_EYE[0], PERSPECTIVE_EYE[1]] as const,
     onSome: (deg) =>
-      [
-        -Math.sin((deg * Math.PI) / 180) * PERSPECTIVE_REACH,
-        -Math.cos((deg * Math.PI) / 180) * PERSPECTIVE_REACH,
-      ] as const,
+      [-Math.sin(radians(deg)) * PERSPECTIVE_REACH, -Math.cos(radians(deg)) * PERSPECTIVE_REACH] as const,
   });
   return Camera.make({
     eye: [ex, ey, PERSPECTIVE_EYE[2] * zSign],
     up: [0, 0, 1],
-    target,
-    focus: O.some(Math.max(diagonal * PERSPECTIVE_FOCUS_DIAGONALS, 1)),
+    target: boxCentre(input.box),
+    focus: O.some(pictorialFocus(input)),
+  });
+};
+
+// A level line of sight keeps every vertical edge vertical on the sheet. The projector stands the eye `focus` from
+// the target along `eye`, so with the target over the box centre the eye's depth to the bounding box's near top
+// (bottom) corner is `focus − reach`; lifting the target (and the eye with it) by that depth times tan(el) above the
+// top (below the bottom) sees that corner at `el` from the horizon, and every farther point of the box's top lower.
+const twoPoint = (input: CameraForViewInput, zSign: 1 | -1): Camera => {
+  const { box } = input;
+  const az = radians(O.getOrElse(input.azimuthDeg, () => ISOMETRIC_AZIMUTH_DEG));
+  const eye: Vec3 = [-Math.sin(az), -Math.cos(az), 0];
+  const focus = pictorialFocus(input);
+  const reach = (Math.abs(eye[0]) * (box.max[0] - box.min[0]) + Math.abs(eye[1]) * (box.max[1] - box.min[1])) / 2;
+  const rise = (focus - reach) * Math.tan(twoPointElevation(input));
+  const centre = boxCentre(box);
+  const height = zSign === 1 ? box.max[2] + rise : box.min[2] - rise;
+  return Camera.make({
+    eye,
+    up: [0, 0, 1],
+    target: [centre[0], centre[1], height],
+    focus: O.some(focus),
+    // the eye point seen from the box centre: the direction a camera aimed at the box centre would carry as `eye`
+    sight: O.some([eye[0] * focus, eye[1] * focus, height - centre[2]]),
+    // the target stands well clear of the model, so the pass runs about it to see the model from this eye
+    hiddenLinePassAbout: HiddenLinePassAbout.Enum.target,
   });
 };
 
@@ -449,6 +598,53 @@ export class OmissionClaim extends S.Opaque<OmissionClaim, { readonly brand: uni
 const projectionsFitViews = (figures: ReadonlyArray<FigureSpec>): boolean =>
   A.every(figures, (f) => f.projection === "perspective" || isPerspectiveView(f.view));
 
+// The projection each pictorial of a set is drawn in: a shown pictorial's own, an omitted one's from the figure it is
+// claimed from (as the renderer projects it).
+const pictorialProjectionsOf = (set: {
+  readonly figures: ReadonlyArray<FigureSpec>;
+  readonly omissions: ReadonlyArray<OmissionClaim>;
+}): ReadonlyArray<PictorialProjection> => [
+  ...pipe(
+    set.figures,
+    A.filter((f) => isPerspectiveView(f.view)),
+    A.map((f) => f.projection)
+  ),
+  ...pipe(
+    set.omissions,
+    A.filter((o) => isPerspectiveView(o.omitted)),
+    A.map((o) =>
+      pipe(
+        A.findFirst(set.figures, (f) => f.view === o.shown),
+        O.map((f) => f.projection),
+        O.getOrElse(() => PictorialProjection.Enum.perspective)
+      )
+    )
+  ),
+];
+
+const readsElevation = S.is(PictorialProjection.pick(["isometric", "two-point"]));
+const readsFocus = S.is(PictorialProjection.pick(["perspective", "two-point"]));
+
+type PictorialChoices = {
+  readonly figures: ReadonlyArray<FigureSpec>;
+  readonly omissions: ReadonlyArray<OmissionClaim>;
+  readonly pictorialElevationDeg: O.Option<number>;
+  readonly pictorialFocusDiagonals: O.Option<number>;
+};
+
+// A set elevation is read by an isometric or two-point pictorial; a perspective alone would drop it unseen.
+const elevationIsRead = (set: PictorialChoices): boolean =>
+  O.isNone(set.pictorialElevationDeg) || A.some(pictorialProjectionsOf(set), readsElevation);
+
+// A set focus is read by a perspective or two-point pictorial; an isometric alone would drop it unseen.
+const focusIsRead = (set: PictorialChoices): boolean =>
+  O.isNone(set.pictorialFocusDiagonals) || A.some(pictorialProjectionsOf(set), readsFocus);
+
+// A set with a two-point pictorial keeps its elevation within half the 60° cone of vision.
+const twoPointElevationInCone = (set: PictorialChoices): boolean =>
+  !A.contains(pictorialProjectionsOf(set), PictorialProjection.Enum["two-point"]) ||
+  !O.exists(set.pictorialElevationDeg, (deg) => deg > TWO_POINT_MAX_ELEVATION_DEG);
+
 const viewsAreUnique = (figures: ReadonlyArray<FigureSpec>): boolean =>
   pipe(
     figures,
@@ -499,7 +695,8 @@ export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: uni
           identifier: $I`FigureSetProjectionsCheck`,
           title: "Figure Set Projections",
           description: "Only the pictorial views take a projection other than the default.",
-          message: "Expected `projection: isometric` only on top-perspective or bottom-perspective figures",
+          message:
+            "Expected `projection: isometric` or `projection: two-point` only on top-perspective or bottom-perspective figures",
         })
       )
       .annotateKey({ description: "Figures in FIG. 1..n order." }),
@@ -534,7 +731,21 @@ export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: uni
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
         description:
-          "Azimuth of both pictorial figures in degrees, from the front (−Y) toward the left (−X). Absent, a perspective keeps the original eye (about 39.8°) and an isometric looks along 45°; another azimuth turns the isometric frame by (azimuth − 45°) about +Z.",
+          "Azimuth of both pictorial figures in degrees, from the front (−Y) toward the left (−X). Absent, a perspective keeps the original eye (about 39.8°) and an isometric or two-point looks along 45°; another azimuth turns the isometric frame by (azimuth − 45°) about +Z.",
+      })
+    ),
+    pictorialElevationDeg: S.OptionFromOptionalKey(PictorialElevationDeg).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Sight angle of the pictorial figures in degrees above the top (below the bottom). An isometric looks down (up) at this elevation instead of the isometric 35.264°, within (0, 90). A two-point eye sees the bounding box's near top (bottom) corner at it, not any face of the article, and the rest of the box lower; with a two-point pictorial it is at most 30 (half the 60° cone of vision), and absent the two-point takes 20°. Only a set with an isometric or two-point pictorial (shown, or omitted and claimed from one) may set it.",
+      })
+    ),
+    pictorialFocusDiagonals: S.OptionFromOptionalKey(PictorialFocusDiagonals).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Eye distance of the converging (perspective or two-point) pictorial figures in box diagonals, at least 1: nearer converges more strongly. Absent keeps 2.5. Only a set with a perspective or two-point pictorial (shown, or omitted and claimed from one) may set it.",
       })
     ),
     planFacing: ElevationView.pipe(
@@ -552,10 +763,34 @@ export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: uni
           "Sheet options carried by the spec, so they hash with it. When present they win wholesale over the options of the render request.",
       })
     ),
-  }).pipe(
-    $I.annoteSchema("FigureSetSpec", {
-      description:
-        "Model, claimed figures in order, omission claims, recorded approver, pictorial azimuth, plan facing, and sheet options of one figure set.",
-    })
-  )
+  })
+    .check(
+      S.makeFilter(elevationIsRead, {
+        identifier: $I`FigureSetElevationReadCheck`,
+        title: "Figure Set Pictorial Elevation",
+        description:
+          "A set elevation needs an isometric or two-point pictorial to read it; a perspective ignores it, so the set would render unchanged.",
+        message: "Expected `pictorialElevationDeg` only with an isometric or two-point pictorial",
+      }),
+      S.makeFilter(focusIsRead, {
+        identifier: $I`FigureSetFocusReadCheck`,
+        title: "Figure Set Pictorial Focus",
+        description:
+          "A set focus needs a perspective or two-point pictorial to read it; an isometric has no focus, so the set would render unchanged.",
+        message: "Expected `pictorialFocusDiagonals` only with a perspective or two-point pictorial",
+      }),
+      S.makeFilter(twoPointElevationInCone, {
+        identifier: $I`FigureSetTwoPointElevationCheck`,
+        title: "Figure Set Two-Point Elevation",
+        description:
+          "A two-point pictorial's field stays within half the 60° cone of vision; above it the article falls outside the cone whatever the focus.",
+        message: "Expected `pictorialElevationDeg` of at most 30 degrees with a two-point pictorial",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("FigureSetSpec", {
+        description:
+          "Model, claimed figures in order, omission claims, recorded approver, pictorial azimuth, elevation and focus, plan facing, and sheet options of one figure set.",
+      })
+    )
 ) {}

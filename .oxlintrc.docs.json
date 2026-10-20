@@ -17,7 +17,6 @@
     "apps/labs/**",
     "**/.next/**",
     ".repos/**",
-    "**/.sst/**",
     "**/coverage/**",
     "**/dist/**",
     "**/docs/**",

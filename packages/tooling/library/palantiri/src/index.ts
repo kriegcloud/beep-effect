@@ -40,6 +40,13 @@ export * from "./AppErrorClasses.ts";
  */
 export * from "./Freshness.ts";
 /**
+ * Gauge series replacement exports.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
+export * from "./GaugeSeries.ts";
+/**
  * Host-pressure input and item schema exports.
  *
  * @category models

@@ -12,7 +12,7 @@
 // are the declared exemption that `beep quality tsgo-rules` admits for this
 // path and nowhere else (goals/tsgo-045-effect-idiom-sweep, D1); the gate
 // compares them exactly, so the reasons live here:
-// - nodeBuiltinImport: the shim implements Bun.spawn/file/serve over node:child_process, node:fs, node:http
+// - nodeBuiltinImport: the shim implements Bun.spawn/file/serve/CryptoHasher over node:child_process, node:fs, node:http, node:crypto
 // - asyncFunction: Bun.file().text(), Bun.write, Bun.serve fetch handlers are async by contract
 // - newPromise: Bun.spawn().exited, Bun.sleep, and server.stop are Promises by contract
 // - processEnv: fast-check floor/seed env is read before any Effect runtime exists
@@ -25,6 +25,7 @@
 // @effect-diagnostics globalTimers:skip-file
 // @effect-diagnostics globalRandom:skip-file
 import * as NodeChildProcess from "node:child_process";
+import { createHash, createHmac } from "node:crypto";
 import * as NodeFS from "node:fs";
 import * as NodeFSP from "node:fs/promises";
 import * as NodeHttp from "node:http";
@@ -124,6 +125,7 @@ type BunSpawnSyncObject = BunSpawnSyncOptions & {
 };
 
 type BunTestShim = {
+  readonly CryptoHasher: new (algorithm: string, hmacKey?: string | Uint8Array) => CryptoHasherShim;
   readonly Glob: new (pattern: string) => object;
   readonly JSONL: {
     readonly parseChunk: (content: string) => {
@@ -180,6 +182,7 @@ const hasFunctionProperty = (value: unknown, key: string): boolean =>
 // fallow-ignore-next-line complexity -- structural feature detection intentionally probes the Bun shim's required API surface
 const isBunTestShim = (value: unknown): value is BunTestShim =>
   isObject(value) &&
+  hasFunctionProperty(value, "CryptoHasher") &&
   P.hasProperty(value, "Glob") &&
   P.hasProperty(value, "JSONL") &&
   P.hasProperty(value, "TOML") &&
@@ -455,6 +458,26 @@ const scanRootForGlobPattern = (pattern: string): string => {
 const isMissingPathError = (cause: unknown): boolean =>
   P.isError(cause) && P.hasProperty(cause, "code") && cause.code === "ENOENT";
 
+// Bun.CryptoHasher over node:crypto: a plain hash, or an HMAC when a key is given.
+class CryptoHasherShim {
+  private readonly hasher: ReturnType<typeof createHash> | ReturnType<typeof createHmac>;
+
+  constructor(algorithm: string, hmacKey?: string | Uint8Array) {
+    this.hasher = P.isUndefined(hmacKey) ? createHash(algorithm) : createHmac(algorithm, hmacKey);
+  }
+
+  update(data: string | Uint8Array): this {
+    this.hasher.update(data);
+    return this;
+  }
+
+  digest(): Buffer;
+  digest(encoding: "base64" | "base64url" | "hex"): string;
+  digest(encoding?: "base64" | "base64url" | "hex"): Buffer | string {
+    return P.isUndefined(encoding) ? this.hasher.digest() : this.hasher.digest(encoding);
+  }
+}
+
 class GlobShim {
   private readonly matcher: (value: string) => boolean;
 
@@ -552,6 +575,7 @@ const renderMarkdownHtml = (content: string, options?: BunMarkdownOptions): stri
 
 if (!isBunTestShim(Reflect.get(globalThis, "Bun"))) {
   Reflect.set(globalThis, "Bun", {
+    CryptoHasher: CryptoHasherShim,
     Glob: GlobShim,
     JSONL: {
       parseChunk: parseJsonlChunk,

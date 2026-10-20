@@ -477,7 +477,6 @@ const CODE_GLOBS = [
   "explorations/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "scratchpad/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "tools/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
-  "plugins/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   "research/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   ".claude/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",
   ".github/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}",

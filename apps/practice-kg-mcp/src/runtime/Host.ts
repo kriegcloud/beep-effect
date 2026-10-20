@@ -23,6 +23,7 @@ import { PracticeKgHostError } from "../PracticeKgMcp.errors.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "../Version.ts";
 import { makePracticeKgDuckDbLayer } from "./DuckDb.ts";
 import { makePracticeKgPgliteLayer } from "./Pglite.ts";
+import { layerPracticeKgTelemetryProduction } from "./Telemetry.ts";
 
 const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(PracticeKgBundleManifest));
 // Mirrors `PracticeKgSchemaVersions`; bumped with every breaking kg_node/kg_edge or DuckDB table layout change.
@@ -138,7 +139,42 @@ export const makePracticeKgHostResourcesLayer = (context: PracticeKgBundleContex
   );
 
 /**
- * Compose the stdio server with app-owned PGlite and DuckDB resources.
+ * Compose the stdio server with app-owned PGlite and DuckDB resources, leaving
+ * its telemetry to the caller.
+ *
+ * **Details**
+ *
+ * The telemetry layer must be provided to this layer, not beside it: the MCP
+ * server forks its request fibers while it builds, and they keep the tracer
+ * and loggers in place at that moment.
+ *
+ * **Example** (Compose the server without telemetry)
+ *
+ * ```ts
+ * import { makePracticeKgHostServerLayer } from "../../src/runtime/Host.ts"
+ * import type { PracticeKgBundleContext } from "@beep/law-practice-server"
+ *
+ * const compose = (context: PracticeKgBundleContext) => makePracticeKgHostServerLayer(context)
+ * console.log(typeof compose)
+ * ```
+ *
+ * @param context - Validated bundle paths and manifest metadata.
+ * @category layers
+ * @since 0.0.0
+ */
+export const makePracticeKgHostServerLayer = (context: PracticeKgBundleContext) =>
+  makePracticeKgServerLayer(
+    PracticeKgMcpServerConfig.make({
+      name: "beep-practice-kg",
+      version: PRACTICE_KG_EXTENSION_VERSION,
+    })
+  ).pipe(Layer.provide(makePracticeKgHostResourcesLayer(context)));
+
+/**
+ * Compose the stdio server with app-owned PGlite and DuckDB resources and the
+ * strict-tier telemetry, which exports nothing, seals every held-back export
+ * into the encrypted spool under the telemetry directory, and keeps stderr
+ * shape-only.
  *
  * **Example** (Compose practice host layer)
  *
@@ -155,9 +191,4 @@ export const makePracticeKgHostResourcesLayer = (context: PracticeKgBundleContex
  * @since 0.0.0
  */
 export const makePracticeKgHostLayer = (context: PracticeKgBundleContext) =>
-  makePracticeKgServerLayer(
-    PracticeKgMcpServerConfig.make({
-      name: "beep-practice-kg",
-      version: PRACTICE_KG_EXTENSION_VERSION,
-    })
-  ).pipe(Layer.provide(makePracticeKgHostResourcesLayer(context)));
+  makePracticeKgHostServerLayer(context).pipe(Layer.provide(layerPracticeKgTelemetryProduction));

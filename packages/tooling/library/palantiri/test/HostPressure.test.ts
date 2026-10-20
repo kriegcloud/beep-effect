@@ -17,6 +17,7 @@ import {
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -38,6 +39,7 @@ const MEMORY =
 const IO =
   "some avg10=4.30 avg60=3.90 avg300=2.10 total=55443322\nfull avg10=1.20 avg60=1.00 avg300=0.70 total=33221100\n";
 
+const encodeParcelEnvelopeJson = S.encodeEffect(S.fromJsonString(ParcelEnvelope));
 const reasonOf = (freshness: Freshness): string => (freshness._tag === "Unknown" ? freshness.reason : "fresh");
 
 const inputWith = (files: ReadonlyArray<PressureFile>, readAt = NOW) =>
@@ -163,7 +165,7 @@ describe("reduceHostPressure", () => {
     Effect.gen(function* () {
       const parcel = reduceHostPressure(healthy, NOW, 2);
       expect(parcel.receipt).toEqual({ shown: 2, total: 5 });
-      const json = yield* S.encodeEffect(S.fromJsonString(ParcelEnvelope))(parcel);
+      const json = yield* encodeParcelEnvelopeJson(parcel);
       expect(pipe(json, Str.includes("@"))).toBe(false);
       expect(pipe(json, Str.includes("/home/"))).toBe(false);
     })
@@ -191,6 +193,21 @@ describe("Parcels.read host-pressure", () => {
       }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
     );
   });
+
+  it.effect("drops each resource's series once its reading is stale, read twice in one process", () =>
+    Effect.gen(function* () {
+      const parcels = yield* withSource(healthy).pipe(Layer.build, Effect.map(Context.get(Parcels)));
+      const resources = Effect.map(Metric.snapshot, (snapshot) =>
+        A.filter(snapshot, (metric) => metric.id === HostPressureStall.name)
+      );
+      yield* NOW.pipe(DateTime.toEpochMillis, TestClock.setTime);
+      yield* parcels.read("host-pressure");
+      expect(yield* resources).toHaveLength(3);
+      yield* TestClock.adjust("5 minutes");
+      yield* parcels.read("host-pressure");
+      expect(yield* resources).toEqual([]);
+    }).pipe(Effect.provideService(Metric.MetricRegistry, new Map()))
+  );
 
   it.layer(withSource(healthy), { timeout: "30 seconds" })("with stale readings", (it) => {
     it.effect("records no gauge", () =>

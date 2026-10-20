@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-17",
+  "comments": [
+    {
+      "issue": 1851,
+      "lane": "residue-a-retire",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1851#issuecomment-6230344323",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-a-retire"
+    },
+    {
+      "issue": 1853,
+      "lane": "residue-patch-proofs",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1853#issuecomment-6230344465",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-patch-proofs"
+    },
+    {
+      "issue": 1855,
+      "lane": "residue-detectors",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1855#issuecomment-6230344604",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-detectors"
+    },
+    {
+      "issue": 1856,
+      "lane": "residue-guidance",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1856#issuecomment-6230344746",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-guidance"
+    },
+    {
+      "issue": 1860,
+      "lane": "residue-catalog",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1860#issuecomment-6230344863",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-catalog"
+    },
+    {
+      "issue": 1861,
+      "lane": "residue-hold-exits",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1861#issuecomment-6230344987",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-hold-exits"
+    },
+    {
+      "issue": 1869,
+      "lane": "residue-telemetry-completeness",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1869#issuecomment-6230345169",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-telemetry-completeness"
+    },
+    {
+      "issue": 1874,
+      "lane": "residue-build-restore",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1874#issuecomment-6230345292",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-build-restore"
+    },
+    {
+      "issue": 1875,
+      "lane": "residue-vitest-canon",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1875#issuecomment-6230345492",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-vitest-canon"
+    },
+    {
+      "issue": 1876,
+      "lane": "residue-rdf-pacer",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1876#issuecomment-6230345688",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-rdf-pacer"
+    },
+    {
+      "issue": 1878,
+      "lane": "residue-completion-evidence",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1878#issuecomment-6230345806",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-completion-evidence"
+    },
+    {
+      "issue": 1879,
+      "lane": "residue-target-exchange",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1879#issuecomment-6230345960",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-target-exchange"
+    },
+    {
+      "issue": 1880,
+      "lane": "residue-exchange-recovery",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1880#issuecomment-6230346096",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-exchange-recovery"
+    },
+    {
+      "issue": 1881,
+      "lane": "residue-skill-publication",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1881#issuecomment-6230346213",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-skill-publication"
+    },
+    {
+      "issue": 1882,
+      "lane": "residue-dependency-review",
+      "comment": "https://github.com/beep-effect/beep-effect/issues/1882#issuecomment-6230346335",
+      "body": "Owned by goals/repository-simplification-residue (S36); lane residue-dependency-review"
+    }
+  ]
+}

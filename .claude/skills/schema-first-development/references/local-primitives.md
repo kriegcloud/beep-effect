@@ -85,15 +85,15 @@ const Status = StatusBase.pipe(withLiteralKitStatics(StatusBase))
 
 ## Prefer Shared Schemas Before New Brands
 
-Check `packages/common/schema/src/` before writing a custom primitive.
+Check `packages/foundation/modeling/schema/src/` before writing a custom primitive.
 
 Examples worth reusing:
 
 - `FilePath`
 - `PosixPath`
 - `Email`
-- integer and numeric helpers from `Int.ts` and `Number.ts`
-- SQL-focused schemas under `Sql/`
+- numeric helpers such as `Double.ts`, `Float.ts`, and `UnitInterval.ts`
+  (integers come from upstream `S.Int` and `S.isInt`)
 
 If the domain already exists there, reuse it or extend it instead of cloning the
 logic locally.

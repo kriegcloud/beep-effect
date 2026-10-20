@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
-import { findRepoRoot } from "@beep/repo-utils";
+import { findRepoRoot, readPackageJsonFile } from "@beep/repo-utils";
 import { resolveWorkspacePackages } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
@@ -20,6 +20,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { parseTsconfig } from "get-tsconfig";
@@ -27,9 +28,13 @@ import { configStringOption } from "../../internal/cli/EnvConfig.ts";
 import { runCapturedStreams } from "../../internal/process/index.ts";
 import { collectChangedFiles } from "../../internal/repo-run/ChangedFiles.ts";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
-import { workspaceCoverageScopeOwners, workspaceDependentOwners } from "./internal/CoverageScope.ts";
+import {
+  CoverageScopeOwner,
+  workspaceCoverageScopeOwners,
+  workspaceDependentOwners,
+} from "./internal/CoverageScope.ts";
+import { testTsgoPrograms } from "./internal/TestTsgoPrograms.ts";
 import { QualityScriptCommandError } from "./Quality.errors.ts";
-import type { CoverageScopeOwner } from "./internal/CoverageScope.ts";
 
 const $I = $RepoCliId.create("commands/Quality/EffectDiagnostics");
 
@@ -55,9 +60,7 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
   )
 ) {}
 
-const decodeEffectDiagnosticsProfileJson = S.decodeEffect(S.fromJsonString(EffectDiagnosticsProfile), {
-  onExcessProperty: "error",
-});
+const decodeProfile = S.decodeEffect(S.fromJsonString(EffectDiagnosticsProfile), { onExcessProperty: "error" });
 
 /**
  * Read the checked-in rules that only the standalone diagnostics compiler knows.
@@ -77,10 +80,12 @@ const decodeEffectDiagnosticsProfileJson = S.decodeEffect(S.fromJsonString(Effec
 export const readEffectDiagnosticsProfile = Effect.fn("EffectDiagnostics.readProfile")(function* (repoRoot: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  return yield* fs.readFileString(path.join(repoRoot, effectDiagnosticsProfilePath)).pipe(
-    Effect.flatMap((text) => decodeEffectDiagnosticsProfileJson(text)),
-    QualityScriptCommandError.mapError("Invalid standalone Effect diagnostics profile.")
-  );
+  return yield* fs
+    .readFileString(path.join(repoRoot, effectDiagnosticsProfilePath))
+    .pipe(
+      Effect.flatMap(decodeProfile),
+      QualityScriptCommandError.mapError("Invalid standalone Effect diagnostics profile.")
+    );
 });
 
 const RuleSeverity = LiteralKit(["off", "error", "warning", "suggestion", "message"]).pipe(
@@ -195,10 +200,204 @@ export const effectDiagnosticsAffectedPackages: {
       Str.startsWith("packages/tooling/tool/cli/src/internal/")(file)
   );
   const direct = A.map(
-    A.filter(owners, (owner) => global || A.some(files, (file) => Str.startsWith(`${owner.packagePath}/`)(file))),
+    A.filter(
+      owners,
+      (owner) =>
+        global ||
+        A.some(files, (file) =>
+          owner.packagePath === "."
+            ? Str.endsWith(".ts")(file) ||
+              Str.endsWith(".tsx")(file) ||
+              A.some(
+                owners,
+                (workspace) => workspace.packagePath !== "." && Str.startsWith(`${workspace.packagePath}/`)(file)
+              )
+            : Str.startsWith(`${owner.packagePath}/`)(file)
+        )
+    ),
     (owner) => owner.packageName
   );
   return pipe(A.union(direct, workspaceDependentOwners(owners, direct)), A.sort(Order.String));
+});
+
+const checkCommands = (scripts: Readonly<Record<string, string>>, root: boolean) => {
+  let pending = A.filter(
+    R.keys(scripts),
+    (name) => name === "check" || name === "beep:check" || (root && Str.startsWith("check:")(name))
+  );
+  let visited = HashSet.empty<string>();
+  let commands = A.empty<string>();
+  while (A.isReadonlyArrayNonEmpty(pending)) {
+    const [name, ...rest] = pending;
+    pending = rest;
+    if (HashSet.has(visited, name)) continue;
+    visited = HashSet.add(visited, name);
+    const script = pipe(
+      scripts,
+      R.get(name),
+      O.getOrElse(() => "")
+    );
+    commands = A.appendAll(commands, Str.split(script, /&&|\|\||[;|]/u));
+    pending = A.appendAll(
+      pending,
+      pipe(
+        script,
+        Str.matchAll(/\bbun\s+run\s+(?:--if-present\s+)?([\w:-]+)/gu),
+        A.fromIterable,
+        A.flatMap((match) => A.fromOption(O.fromUndefinedOr(match[1])))
+      )
+    );
+  }
+  return pipe(
+    commands,
+    A.map(Str.trim),
+    A.filter((command) => O.isSome(Str.match(/^(?:tsc-rs|tsgo)\s/u)(command)))
+  );
+};
+
+const scriptProjects = (commands: ReadonlyArray<string>, build: boolean) =>
+  pipe(
+    commands,
+    A.flatMap((command) =>
+      pipe(
+        command,
+        Str.matchAll(
+          build
+            ? /(?:^|\s)(?:-b|--build)(?:=|\s+)([^;&|]+)/gu
+            : /(?:^|\s)(?:-p|--project)(?:=|\s+)("[^"]+"|'[^']+'|[^\s;&|]+)/gu
+        ),
+        A.fromIterable,
+        A.flatMap((match) =>
+          pipe(
+            O.fromUndefinedOr(match[1]),
+            O.map((value) => (build ? Str.split(value, /\s+/u) : [value])),
+            O.getOrElse(() => A.empty<string>())
+          )
+        ),
+        A.filter((value) => !Str.startsWith("-")(value)),
+        A.map(Str.replace(/^['"]|['"]$/gu, ""))
+      )
+    )
+  );
+
+const buildProjects = Effect.fn("EffectDiagnostics.buildProjects")(function* (initial: ReadonlyArray<string>) {
+  const path = yield* Path.Path;
+  let pending = initial;
+  let visited = HashSet.empty<string>();
+  while (A.isReadonlyArrayNonEmpty(pending)) {
+    const [next, ...rest] = pending;
+    pending = rest;
+    const project = Str.endsWith(".json")(next) ? next : path.join(next, "tsconfig.json");
+    if (HashSet.has(visited, project)) continue;
+    visited = HashSet.add(visited, project);
+    const config = yield* Effect.try(() => parseTsconfig(project)).pipe(
+      QualityScriptCommandError.mapError(`Failed to resolve build project ${project}.`)
+    );
+    pending = A.appendAll(
+      pending,
+      A.map(config.references ?? [], (ref) => path.resolve(path.dirname(project), ref.path))
+    );
+  }
+  return A.fromIterable(visited);
+});
+
+const checkProjects = Effect.fn("EffectDiagnostics.checkProjects")(function* (
+  dir: string,
+  scripts: Readonly<Record<string, string>>,
+  root: boolean
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const commands = checkCommands(scripts, root);
+  const normalize = (project: string) => {
+    const resolved = path.resolve(dir, project);
+    return Str.endsWith(".json")(resolved) ? resolved : path.join(resolved, "tsconfig.json");
+  };
+  const builds = yield* buildProjects(A.map(scriptProjects(commands, true), normalize));
+  const projects = pipe(
+    A.appendAll(A.map(scriptProjects(commands, false), normalize), builds),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  yield* Effect.forEach(
+    projects,
+    Effect.fnUntraced(function* (project) {
+      if (!(yield* fs.exists(project)))
+        return yield* QualityScriptCommandError.make({
+          message: `Missing check project ${project}.`,
+          exitCode: 1,
+        });
+    }),
+    { concurrency: 1 }
+  );
+  return projects;
+});
+
+/**
+ * Derive each owner's diagnostics programs from its canonical check scripts.
+ *
+ * **Details**
+ * Includes the repository manifest and expands build-mode references recursively.
+ * Missing declared projects fail instead of silently dropping rule coverage.
+ *
+ * **Example** (Discover the repository programs)
+ *
+ * ```ts
+ * import { effectDiagnosticsProjects } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(effectDiagnosticsProjects("."))) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(function* (repoRoot: string) {
+  const path = yield* Path.Path;
+  const workspaces = yield* resolveWorkspacePackages(repoRoot);
+  const root = yield* readPackageJsonFile(path.join(repoRoot, "package.json"));
+  const owners = A.append(
+    A.map(HashMap.toEntries(workspaces), ([name, workspace]) => [name, workspace.dir, workspace.scripts] as const),
+    [root.name, repoRoot, O.getOrElse(root.scripts, () => ({}))] as const
+  );
+  let inventory = HashMap.fromIterable(
+    yield* Effect.forEach(
+      owners,
+      ([name, dir, scripts]) =>
+        Effect.map(checkProjects(dir, scripts, dir === repoRoot), (projects) => [name, projects] as const),
+      { concurrency: 1 }
+    )
+  );
+  const tests = yield* testTsgoPrograms.uncovered(repoRoot);
+  for (const program of tests) {
+    inventory = HashMap.set(
+      inventory,
+      program.packageName,
+      pipe(
+        O.getOrElse(HashMap.get(inventory, program.packageName), () => A.empty<string>()),
+        A.append(program.tsconfigPath),
+        A.dedupe,
+        A.sort(Order.String)
+      )
+    );
+  }
+  return [inventory, tests] as const;
+});
+
+/**
+ * Resolve compiler-script projects plus the shared fallback test-tsgo programs.
+ *
+ * **Example** (Inspect complete rule-gate discovery)
+ * ```ts
+ * import { effectDiagnosticsProjects } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(effectDiagnosticsProjects("."))) // true
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const effectDiagnosticsProjects = Effect.fn("EffectDiagnostics.projects")(function* (repoRoot: string) {
+  const [inventory] = yield* collectDiagnosticsInventory(repoRoot);
+  return inventory;
 });
 
 const decodeOutput = S.decodeUnknownEffect(S.fromJsonString(EffectDiagnosticsOutput));
@@ -253,10 +452,11 @@ const runProject = Effect.fn("EffectDiagnostics.project")(function* (
   repoRoot: string,
   node: string,
   project: string,
-  profile: EffectDiagnosticsProfile
+  profile: EffectDiagnosticsProfile,
+  config: string = project
 ) {
   const path = yield* Path.Path;
-  const label = path.relative(repoRoot, project);
+  const label = `${path.relative(repoRoot, project)}${config === project ? "" : " [test-tsgo overlay]"}`;
   const lspconfig = yield* effectDiagnosticsProjectConfig(profile, project);
   const result = yield* runCapturedStreams({
     command: node,
@@ -264,7 +464,7 @@ const runProject = Effect.fn("EffectDiagnostics.project")(function* (
       path.join(repoRoot, "node_modules", "@effect", "tsgo", "dist", "effect-tsgo.cjs"),
       "diagnostics",
       "--project",
-      project,
+      config,
       "--format",
       "json",
       "--strict",
@@ -309,37 +509,53 @@ const runProject = Effect.fn("EffectDiagnostics.project")(function* (
   return report;
 });
 
-const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (options: EffectDiagnosticsOptions) {
+const runDiscoveredProject = Effect.fn("EffectDiagnostics.discoveredProject")(function* (
+  repoRoot: string,
+  node: string,
+  project: string,
+  profile: EffectDiagnosticsProfile,
+  tests: Effect.Success<ReturnType<typeof testTsgoPrograms.uncovered>>
+) {
+  const program = A.findFirst(tests, (test) => test.tsconfigPath === project);
+  if (O.isNone(program)) return yield* runProject(repoRoot, node, project, profile);
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+  const tempDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-effect-diagnostics-" });
+  const config = yield* testTsgoPrograms.writeConfig(repoRoot, tempDir, program.value);
+  return yield* runProject(repoRoot, node, project, profile, config);
+});
+
+const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (options: EffectDiagnosticsOptions) {
   const repoRoot = yield* findRepoRoot();
   const profile = yield* readEffectDiagnosticsProfile(repoRoot);
   const node = O.getOrElse(yield* configStringOption("BEEP_NODE_BIN"), () => "node");
-  const workspaces = yield* resolveWorkspacePackages(repoRoot);
+  const [inventory, tests] = yield* collectDiagnosticsInventory(repoRoot);
+  const root = yield* readPackageJsonFile(`${repoRoot}/package.json`);
+  const owners = A.append(
+    yield* workspaceCoverageScopeOwners(repoRoot),
+    CoverageScopeOwner.make({
+      packageName: root.name,
+      packagePath: ".",
+      workspaceDependencies: [],
+      hasCoverage: false,
+    })
+  );
   const selected = O.isSome(options.base)
     ? O.some(
         HashSet.fromIterable(
-          effectDiagnosticsAffectedPackages(
-            yield* workspaceCoverageScopeOwners(repoRoot),
-            yield* collectChangedFiles(repoRoot, options.base.value, "HEAD")
-          )
+          effectDiagnosticsAffectedPackages(owners, yield* collectChangedFiles(repoRoot, options.base.value, "HEAD"))
         )
       )
     : O.none<HashSet.HashSet<string>>();
-  const candidates = pipe(
-    HashMap.toEntries(workspaces),
+  const projects = pipe(
+    HashMap.toEntries(inventory),
     A.filter(([name]) => O.isNone(selected) || HashSet.has(selected.value, name)),
     A.filter(([name]) =>
       O.match(options.filter, { onNone: () => true, onSome: (filter) => Str.includes(filter)(name) })
     ),
-    A.flatMap(([, workspace]) =>
-      A.map(["tsconfig.check.json", "tsconfig.test.json", "test/tsconfig.json"], (config) =>
-        path.join(workspace.dir, config)
-      )
-    ),
+    A.flatMap(([, projects]) => projects),
+    A.dedupe,
     A.sort(Order.String)
   );
-  const projects = yield* Effect.filter(candidates, fs.exists);
   if (A.isReadonlyArrayEmpty(projects)) {
     if (O.isSome(options.base) && O.isNone(options.filter)) {
       yield* Console.log("[quality:effect-diagnostics] no affected projects (skipped)");
@@ -349,11 +565,15 @@ const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (optio
   }
 
   yield* Console.log(
-    `[quality:effect-diagnostics] checking ${A.length(projects)} workspace project(s), concurrency ${options.concurrency}`
+    `[quality:effect-diagnostics] checking ${A.length(projects)} check program(s), concurrency ${options.concurrency}`
   );
-  const reports = yield* Effect.forEach(projects, (project) => runProject(repoRoot, node, project, profile), {
-    concurrency: options.concurrency,
-  });
+  const reports = yield* Effect.forEach(
+    projects,
+    (project) => runDiscoveredProject(repoRoot, node, project, profile, tests).pipe(Effect.scoped),
+    {
+      concurrency: options.concurrency,
+    }
+  );
   let census = HashMap.empty<string, number>();
   for (const diagnostic of A.flatMap(reports, (report) => report.diagnostics)) {
     census = HashMap.set(census, diagnostic.name, O.getOrElse(HashMap.get(census, diagnostic.name), () => 0) + 1);
@@ -378,14 +598,14 @@ const runEffectDiagnostics = Effect.fn("EffectDiagnostics.run")(function* (optio
 });
 
 /**
- * Run the installed Effect rules over every workspace check and test project.
+ * Run the installed Effect rules over every workspace and root check program.
  *
  * **Details**
  *
  * Project plugin configuration is authoritative, including documented package
  * exceptions. The bounded runner requires complete JSON coverage and never treats
  * a malformed response, missing plugin or unexpected child exit as a clean pass.
- * `test/tsconfig.json` includes the CLI's test project, which has no root test overlay.
+ * Shared test-tsgo discovery and overlays retain rule coverage for fallback test programs.
  * A dedicated hosted heavy matrix job calls this same CLI implementation.
  *
  * **Example** (Register the diagnostics command)

@@ -112,7 +112,7 @@ Why it matters:
 
 File:
 
-- `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts`
+- `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.schemas.ts`
 - `packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts`
 
 Use this file when you need:
@@ -132,18 +132,17 @@ Why it matters:
   domains that become tagged unions
 - it keeps the case set anchored to the literal domain instead of a raw union
 
-## 6. Scratch Proofs for Underused Schema Capabilities
+## 6. Test Proofs for Underused Schema Capabilities
 
 Files:
 
-- `scratchpad/index.ts`
-- `scratchpad/test/schema-arbitrary-fastcheck.test.ts`
-- `scratchpad/test/schema-static-apis.test.ts`
+- `packages/foundation/modeling/md/test/Md.test.ts`
+- `packages/foundation/modeling/schema/test/LiteralKit.test.ts`
+- `packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts`
 
 Use these files when you need:
 
-- concrete default-combinator semantics;
-- schema-derived property tests with FastCheck and Faker;
+- schema-derived property tests with `Arbitrary.schema` and `it.prop`;
 - `TaggedUnion`, `LiteralKit`, and `MappedLiteralKit` static API examples.
 
 Why it matters:
@@ -163,8 +162,8 @@ Why it matters:
   Start with `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts`
 - Need a `kind` or `type` tagged union:
   Start with `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
-  or `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts`
+  or `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.schemas.ts`
 - Need a static API refresher:
-  Start with `scratchpad/test/schema-static-apis.test.ts`
+  Start with `packages/foundation/modeling/schema/test/LiteralKit.test.ts`
 - Need schema-derived property test scaffolding:
-  Start with `scratchpad/test/schema-arbitrary-fastcheck.test.ts`
+  Start with `packages/foundation/modeling/md/test/Md.test.ts`

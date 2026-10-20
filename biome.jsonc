@@ -23,10 +23,6 @@
       "!.repos",
       "!.codex",
       "!.claude/worktrees",
-      // Impeccable is vendored agent tooling mirrored for Claude Code and
-      // GitHub Copilot; keep upstream bundles outside authored repo formatting.
-      "!.claude/skills/impeccable",
-      "!.github/skills/impeccable",
       // Vendored skills (every `vendored` entry in skills-lock.json) must stay
       // byte-exact upstream so the lock can pin them pristine (design B23);
       // `.agents` is excluded above, and the skills-command test fails when a

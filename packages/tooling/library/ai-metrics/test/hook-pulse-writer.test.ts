@@ -715,9 +715,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const run = yield* runWriter(yield* encodeJson(preToolUsePayload), { agentKind: "other" });
       expectSilentRefusal(run);
       expect(run.refusals).toHaveLength(1);
-      const refusal = yield* decodeHookPulseRefusalJson(
-        pipe(A.head(run.refusals), O.getOrThrow)
-      );
+      const refusal = yield* decodeHookPulseRefusalJson(pipe(A.head(run.refusals), O.getOrThrow));
       expect(refusal.agentKind).toBe("unknown");
       expect(refusal.reason).toBe("unknown-agent-kind");
       expect(pipe(A.head(run.refusals), O.getOrThrow)).not.toContain(CANARY);
@@ -1138,11 +1136,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       expect(run.exitCode).toBe(0);
       expect(run.stdout).toBe("");
       expect(run.rows).toHaveLength(0);
-      const refusal = yield* pipe(
-        A.head(run.refusals),
-        O.getOrThrow,
-        decodeHookPulseRefusalJson
-      );
+      const refusal = yield* pipe(A.head(run.refusals), O.getOrThrow, decodeHookPulseRefusalJson);
       expect(refusal.reason).toBe("timeout");
     })
   );
@@ -1491,9 +1485,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
 
       expectSilentRefusal(run);
       expect(run.refusals).toHaveLength(1);
-      const refusal = yield* decodeHookPulseRefusalJson(
-        pipe(A.head(run.refusals), O.getOrThrow)
-      );
+      const refusal = yield* decodeHookPulseRefusalJson(pipe(A.head(run.refusals), O.getOrThrow));
       expect(refusal.reason).toBe("disabled");
     })
   );

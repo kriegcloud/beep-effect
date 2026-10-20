@@ -24,14 +24,16 @@ lightweight route (`child.lightweight` = `gpt-6-luna`,
 **Fallback chains**, keyed by the originating orchestrator, medium effort
 wherever the route supports it:
 
-| Originator | 1 | 2 | 3 |
-| --- | --- | --- | --- |
-| Codex | `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` |
-| Claude Code | `claude-opus-5-5` medium child | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` |
+| Originator | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| Codex | `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` | — |
+| Claude Code | `claude-opus-5-5` medium child | Codex `gpt-6.1-sol` medium via the approved Codex route | `cursor-agent --model claude-opus-5-5-medium` | grok-build `grok -m grok-4.7 --effort medium` |
 
-- Direct Claude is never a fallback in the Codex chain and direct Codex is
-  never a fallback in the Claude chain. Cursor is the next route after the
-  originating provider; grok-build is the final route.
+- Direct Claude is never a fallback in the Codex chain. Codex (`gpt-6.1-sol`
+  medium, the `codex.heavy` codex-cli binding) is the first fallback in the
+  Claude chain (operator ruling 2026-10-18,
+  `goals/agent-pool-doctrine/history/2026-10-18-codex-claude-fallback.md`);
+  Cursor follows; grok-build is the final route in both chains.
 - Cursor-agent, grok-build and Junie workers never initiate delegation to
   other providers. The originating orchestrator owns every cross-provider
   decision and launch; a worker returns its result or blocker to it.
@@ -300,7 +302,14 @@ needed only for the escalation list below.
     review-body nitpicks are advisory, and outdated threads still count until
     they are explicitly resolved;
   - no failing CI jobs except Vercel deployments failing only because they were
-    rate limited; and
+    rate limited;
+  - the squash commit message GitHub will write passes the repo's commitlint
+    (`yeet merge-gate` predicts it and holds `squash-commitlint` otherwise;
+    `yeet ready` warns): GitHub squash messages are server-side commitlint
+    input and bullet every commit subject as `* <subject>`, so keep commit
+    subjects at 98 characters or fewer, and the PR title (the first commit
+    subject by default) at 100 minus the ` (#n)` suffix, about 92 for a
+    four-digit PR, because the header is `<title> (#n)`; and
   - the review window has elapsed: at least 20 minutes (`BEEP_YEET_REVIEW_WINDOW`)
     since the later of the latest "marked ready for review" event and the
     latest push to the head. No reviewer has to post (review bots never gate);

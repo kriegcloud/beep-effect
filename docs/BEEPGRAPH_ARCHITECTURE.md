@@ -47,9 +47,10 @@ altitudes:
 - **`goals/agentic-professional-runtime`** — the durable product spine. Doctrine: *claim +
   evidence + provenance + lifecycle is the authoritative memory primitive; graph views are
   rebuildable projections* (`SPEC.md`).
-- **`goals/ip-law-knowledge-graph`** — a typed, OWL-grounded IP-law graph (7 published
-  ontologies → Effect Schema → FalkorDB/Cypher). Carries an **unresolved P0**: *is FalkorDB a
-  second source of truth, or a projection?* (`research/ontology-grounding-corpus.md:29-39`).
+- **`ip-law-knowledge-graph`** (packet since deleted; recover it from git history) — a typed,
+  OWL-grounded IP-law graph (7 published ontologies → Effect Schema → FalkorDB/Cypher). Carries
+  an **unresolved P0**: *is FalkorDB a second source of truth, or a projection?* (its
+  ontology-grounding-corpus research note, lines 29-39).
 - **`goals/oppold-corpus-pipeline`** — completed batch salvage (8,438 files → DuckDB catalog +
   `@beep/file-processing` manifests) that **feeds** the other two.
 
@@ -157,7 +158,7 @@ packets. The spine must satisfy them.
 | **Explainability DAG** (`explain_graph`/`explain_triples`) | TG-Py `trustgraph-base/.../base/graph_rag_client.py` | Audit-grade "why this answer" for regulated legal work |
 | Graph-vs-document embeddings (separated) | TG-Py `.../storage/graph_embeddings/*` | pgvector cache (graph entity vs chunk) |
 | **Knowledge Cores** (portable triples+embeddings bundle) | TG-TS `ts/packages/flow/src/cores/service.ts` | Portable, loadable domain-KG snapshots |
-| **Librarian** curated-doc library + processing queue | TG-TS `ts/packages/flow/src/librarian/service.ts` | Already the target of `goals/trustgraph-port` Phase 1 |
+| **Librarian** curated-doc library + processing queue | TG-TS `ts/packages/flow/src/librarian/service.ts` | Already the target of the retired `trustgraph-port` packet's Phase 1 |
 | Multi-store decomposition (relational / vector / graph) | TG storage adapters | The authority / projection / cache split itself |
 
 ### Leave from effect-ontology
@@ -221,7 +222,7 @@ semantic degradation *managed* rather than load-bearing.
 
 **Call: FalkorDB is a PROJECTION (rebuildable read model), not a second source of truth.**
 
-This resolves the P0 flagged in `research/ontology-grounding-corpus.md:29-39` in favor of the
+This resolves the P0 flagged in the ontology-grounding-corpus note (lines 29-39) in favor of the
 runtime doctrine. Concretely:
 
 - The 7 OWL ontologies (LKIF-Core, IPRonto/ALIS, Copyright Ontology, JudO, LCBR, ESTRELLA, WIPO
@@ -257,16 +258,17 @@ graph authority.
 | RDF value models (IRI/Quad/Dataset, OWL/PROV vocab) | **Live** | `packages/foundation/modeling/rdf/src/Rdf.ts`, `Vocab/Owl.ts` |
 | PROV-O provenance + bounded SHACL | **Live** | `packages/foundation/modeling/rdf/src/Prov.ts`, `packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts` |
 | Epistemic authority (claims/evidence/lifecycle) | **Live (domain only)** | `packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle` |
-| Ontology authoring over Effect Schema → JSON-LD/Turtle | **Specced, blocked** | `goals/ontology-modeling-foundation/SPEC.md` (`@beep/ontology`, retired) |
-| EventLog → graph projection | **Specced** | `goals/knowledge-workspace/00-event-sourced-graph.md` |
-| Curated-doc library + processing queue + grounded retrieval | **Specced** | `goals/trustgraph-port/{SPEC,PLAN}.md` → `packages/repo-memory` |
-| FalkorDB projection + Cypher | **Specced** | `goals/ip-law-knowledge-graph/SPEC.md` (ADR-002/005) |
+| Ontology authoring over Effect Schema → JSON-LD/Turtle | **Specced, blocked** | retired `ontology-modeling-foundation` packet (`@beep/ontology`, retired) |
+| EventLog → graph projection | **Specced** | retired `knowledge-workspace` packet (00-event-sourced-graph) |
+| Curated-doc library + processing queue + grounded retrieval | **Specced** | retired `trustgraph-port` packet → the archived repo-memory package |
+| FalkorDB projection + Cypher | **Specced** | retired `ip-law-knowledge-graph` packet (ADR-002/005) |
 | GraphRAG + explainability DAG; Knowledge Cores; graph/doc embeddings | **Net-new (graft from TG)** | pgvector available (`docker-compose.yml`), unused |
-| EO-style ontology-guided extraction + monoid-fold merge | **Net-new (graft from EO)** | pattern bridge cited in `ip-law-knowledge-graph/research/ontology-grounding-corpus.md:13` |
+| EO-style ontology-guided extraction + monoid-fold merge | **Net-new (graft from EO)** | pattern bridge cited in the retired `ip-law-knowledge-graph` ontology-grounding-corpus note (line 13) |
 
 Net: the **authority spine is largely already built**; the **projection/retrieval shell** (TG
-grafts) and the **extraction kernel** (EO graft) are the principal net-new work, and both already
-have homes (`trustgraph-port`, `ip-law-knowledge-graph`, `knowledge-workspace`).
+grafts) and the **extraction kernel** (EO graft) are the principal net-new work. Their 2026-06-15
+homes (`trustgraph-port`, `ip-law-knowledge-graph`, `knowledge-workspace`) have since been
+deleted from the tree; recover them from git history.
 
 ---
 
@@ -318,9 +320,9 @@ multi-store projection, retrieval, and packaging that effect-ontology lacks.
 `EO` = `@core-v2/src/` in the effect-ontology project (machine-local checkout) ·
 `TG-Py` = the trustgraph repo root (upstream: https://github.com/trustgraph-ai/trustgraph) · `TG-TS` = its `ts/` subtree
 
-- **Authority / criteria:** `beep standards/memory-architecture/{00-no-escape-theorem,01-memory-layer-taxonomy,04-decision-log,05-context-graph-capability-assessment}.md`; `beep goals/agentic-professional-runtime/SPEC.md`; `beep goals/ontology-modeling-foundation/SPEC.md:10-11`.
-- **beep live:** `beep packages/foundation/modeling/rdf/src/{Rdf.ts,Vocab/Owl.ts}`; `beep packages/foundation/capability/semantic-web/src/{prov.ts,adapters/shacl-engine.ts}`; `beep packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle`; `beep docker-compose.yml` (`pgvector/pgvector:pg17`).
-- **beep specced:** `beep goals/{trustgraph-port,knowledge-workspace,ip-law-knowledge-graph,ontology-modeling-foundation}/`.
+- **Authority / criteria:** `beep standards/memory-architecture/{00-no-escape-theorem,01-memory-layer-taxonomy,04-decision-log,05-context-graph-capability-assessment}.md`; `beep goals/agentic-professional-runtime/SPEC.md`; the retired `ontology-modeling-foundation` SPEC, lines 10-11 (git history).
+- **beep live:** `beep packages/foundation/modeling/rdf/src/{Rdf.ts,Vocab/Owl.ts}`; `beep packages/foundation/modeling/rdf/src/Prov.ts`; `beep packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts`; `beep packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle`; `beep docker-compose.yml` (`pgvector/pgvector:pg17`).
+- **beep specced (packets since deleted; git history):** `trustgraph-port`, `knowledge-workspace`, `ip-law-knowledge-graph`, `ontology-modeling-foundation`.
 - **EO spine:** `EO Workflow/{StreamingExtraction.ts,Merge.ts:161}`; `EO Service/{Shacl,Sparql,GraphRAG,EntityResolution}.ts`; `EO Domain/Model/{Ontology,Entity,EntityResolution}.ts`; `EO Repository/Embedding.ts`.
 - **TG shell:** `TG-Py trustgraph-flow/trustgraph/storage/triples/{cassandra,neo4j,memgraph,falkordb}`, `trustgraph-base/trustgraph/schema/knowledge/knowledge.py`, `trustgraph-base/trustgraph/base/graph_rag_client.py`; `TG-TS ts/packages/flow/src/{storage/triples/falkordb.ts,retrieval/graph-rag.ts,cores/service.ts,librarian/service.ts}`.
 - **Full comparison:** `EO ../docs/ontology_research/trustgraph_comparison_research.md`.

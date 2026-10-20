@@ -1,0 +1,62 @@
+# Repository simplification residue
+
+Lifecycle: `active`
+
+Source: [ops/manifest.json](./ops/manifest.json).
+
+This is the S36 executable successor to
+[repository-simplification-confidence](../repository-simplification-confidence/README.md),
+closed by #1884. It owns fifteen unmet source outcomes; the eighteen externally
+gated follow-ups remain cross-references. All fifteen implementation acceptances
+are still outstanding at packet opening.
+
+Read [SPEC.md](./SPEC.md) for the per-issue contract and standing rulings,
+[PLAN.md](./PLAN.md) for lanes, admission and waves, and
+[research/SOURCES.md](./research/SOURCES.md) for provenance and external references.
+[GOAL.md](./GOAL.md) is the compact launcher.
+
+```text
+/goal follow the instructions in goals/repository-simplification-residue/GOAL.md
+```
+
+P0 Research and admission is in progress. Wave 1 is the A/catalog retirement
+train (#1851/#1860) plus detector repairs (#1855), starting with F-S31-EV010.
+#1860 is complete: the third A-train PR landed the catalog removals and the
+`beep quality catalog-usage` detector
+([record](./history/receipts/catalog-removals-record.md)).
+#1853 is complete: all five retained patches have a focused test and a
+fail-unpatched/pass-patched pair at the installed version, and none has a published
+upstream exit yet ([record](./history/receipts/patch-proofs-record.md)).
+#1861 is complete ahead of its 2026-10-30 deadline: the hold register records
+every retained override, patch, catalog hold and OSV exception, with the removed
+and renewed holds proved ([register](./history/receipts/hold-register.md)).
+#1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
+every stale file ([record](./history/receipts/guidance-classification.md)); the
+660-directive review and a Markdown example compile check remain.
+#1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
+`@beep/test-runner` cohorts and left 689 open rows
+([record](./history/receipts/vitest-canon-wave-1.md)).
+#1876 is complete: the RDF failure assertions and the Pacer logout teardown
+witness are ported, with a per-hunk disposition of the preserved exports
+([record](./history/receipts/rdf-pacer-ports.md)).
+#1869 is complete: telemetry storage completeness and stamp qualification are
+separate fields, historical rows stay `unknown`, and a run that cannot evaluate a
+session keeps a verified stamp, while the session's own contradicting evidence
+still clears it
+([record](./history/receipts/telemetry-completeness.md)).
+#1874 is complete: the base incremental state lives inside `outDir`. A dist-only
+clean therefore also clears it, and cold, warm and changed-input builds all restore
+the complete public output manifest
+([record](./history/receipts/build-restore.md)).
+#1878 is complete: goal completion verifies only on GitHub's rule suite for the
+merge push, which covers rulesets deleted since then, and on green required checks at
+the accepted head. Missing, deleted or partial evidence stays `unknown`
+([record](./history/receipts/completion-evidence.md)).
+The repository-wide six-open-PR cap usually
+permits one or two residue lanes. S23 forbids parking for size and S31 forbids
+added debt/exception/baseline rows.
+
+Opening provenance is in
+[the bootstrap receipt](./history/receipts/bootstrap-materialization.json).
+The worker's proof and publication state are in
+[the opening handoff](./history/handoffs/rsc-residue-packet-2026-10-17.md).

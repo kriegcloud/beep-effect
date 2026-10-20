@@ -242,7 +242,7 @@ export const AppLayer = Layer.mergeAll(IamLive, BillingLive);
 
 Each slice publishes a single live Layer from its `/layer` canonical subpath.
 The slice owns its own composition; the app composes slices, not concepts.
-Renaming a slice's internal repository changes nothing in `apps/web`.
+Renaming a slice's internal repository changes nothing in the app.
 
 **Diagnostic:** if `apps/<app>/src/runtime/Layer.ts` mentions a concept name
 (e.g., `Membership`, `Subscription`), it has reached past the slice boundary.

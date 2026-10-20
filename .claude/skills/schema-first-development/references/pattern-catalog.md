@@ -138,7 +138,7 @@ Use:
 
 - `S.is(schema)` for guards
 - `S.toEquivalence(schema)` for comparisons
-- `S.toArbitrary(schema)` for schema-modeled property tests
+- `Arbitrary.schema(schema)` (`effect/Arbitrary`) for schema-modeled property tests
 - schema tagged-union `.cases`, `.guards`, `.isAnyOf`, and `.match`
 - `LiteralKit.Enum`, `.is`, `.$match`, and `.toTaggedUnion`, plus the
   inherited `S.Literals` members `.literals`, `.pick(...)` and `.mapMembers(...)`

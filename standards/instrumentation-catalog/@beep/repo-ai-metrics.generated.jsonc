@@ -147,6 +147,7 @@
     {"name":"AiMetrics.retention.removePlanPaths","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":false},
     {"name":"AiMetrics.retention.removeRawArchivePaths","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":false},
     {"name":"AiMetrics.retention.runMutation","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":false},
+    {"name":"AiMetrics.rollbackAiMetricsSessionStampEvidence","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":true},
     {"name":"AiMetrics.runAiMetricsForwarder","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":true},
     {"name":"AiMetrics.runAiMetricsOtlpExport","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":true},
     {"name":"AiMetrics.runAiMetricsOtlpProjectionBatchExport.untraced","owner":"@beep/repo-ai-metrics","family":"tooling","conforms":false},

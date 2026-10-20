@@ -4,6 +4,8 @@
 
 Established patterns for organizing modules in the Effect library, based on analysis of the core codebase structure and conventions.
 
+Paths in this file that start at the `effect` package (its `src/` and `test/` trees) describe the upstream Effect repository layout, which is available locally in the Effect reference checkout (`bun run beep refs provision`). They are not paths in this repo.
+
 ## DIRECTORY STRUCTURE PATTERNS
 
 ### Core Module Organization
@@ -120,7 +122,7 @@ export {
    * @since 2.0.0
    */
   pipe
-} from "./Function.ts-morph"
+} from "./Function.ts"
 
 // @barrel: Auto-generated exports. Do not edit manually.
 
@@ -129,17 +131,17 @@ export {
  *
  * @since 2.0.0
  */
-export * as Array from "./Array.ts-morph"
+export * as Array from "./Array.ts"
 
 /**
  * @since 2.0.0
  */
-export * as BigDecimal from "./BigDecimal.ts-morph"
+export * as BigDecimal from "./BigDecimal.ts"
 
 /**
  * @since 2.0.0
  */
-export * as Effect from "./Effect.ts-morph"
+export * as Effect from "./Effect.ts"
 
 // ... flat namespace exports for all modules
 ```
@@ -162,16 +164,16 @@ export * as Effect from "./Effect.ts-morph"
  * @since 2.0.0
  */
 
-// Imports (organized by category) - use .ts-morph extensions
-import * as Cause from "./Cause.ts-morph"
-import * as Deferred from "./Deferred.ts-morph"
-import * as Effect from "./Effect.ts-morph"
-import { dual } from "./Function.ts-morph"
-import type * as Inspectable from "./Inspectable.ts-morph"
-import { PipeInspectableProto } from "./internal/core.ts-morph"
-import { type Pipeable } from "./Pipeable.ts-morph"
-import * as Predicate from "./Predicate.ts-morph"
-import type * as Scope from "./Scope.ts-morph"
+// Imports (organized by category) - use .ts extensions
+import * as Cause from "./Cause.ts"
+import * as Deferred from "./Deferred.ts"
+import * as Effect from "./Effect.ts"
+import { dual } from "./Function.ts"
+import type * as Inspectable from "./Inspectable.ts"
+import { PipeInspectableProto } from "./internal/core.ts"
+import { type Pipeable } from "./Pipeable.ts"
+import * as Predicate from "./Predicate.ts"
+import type * as Scope from "./Scope.ts"
 
 // TypeId - string literal pattern (NOT Symbol.for)
 const TypeId = "~effect/ModuleName"
@@ -206,8 +208,8 @@ const Proto = {
 ```typescript
 /** @internal */
 
-import { identity } from "../Function.ts-morph"
-import { pipeArguments } from "../Pipeable.ts-morph"
+import { identity } from "../Function.ts"
+import { pipeArguments } from "../Pipeable.ts"
 
 // Private implementation details
 const ArrayProto = {
@@ -453,10 +455,10 @@ export interface Layer<in ROut, out E = never, out RIn = never> extends Variance
 ### Pipeable Implementation
 
 ```typescript
-import type * as Inspectable from "./Inspectable.ts-morph"
-import { PipeInspectableProto } from "./internal/core.ts-morph"
-import { pipeArguments } from "./Pipeable.ts-morph"
-import type { Pipeable } from "./Pipeable.ts-morph"
+import type * as Inspectable from "./Inspectable.ts"
+import { PipeInspectableProto } from "./internal/core.ts"
+import { pipeArguments } from "./Pipeable.ts"
+import type { Pipeable } from "./Pipeable.ts"
 
 const TypeId = "~effect/ModuleName"
 
@@ -491,12 +493,12 @@ export const make = <A>(value: A): ModuleName<A> => {
 **Always use `.ts` extensions in imports:**
 
 ```typescript
-// CORRECT - use .ts-morph extensions
-import * as Array from "./Array.ts-morph"
-import * as Effect from "./Effect.ts-morph"
-import { dual } from "./Function.ts-morph"
-import { PipeInspectableProto } from "./internal/core.ts-morph"
-import type * as Scope from "./Scope.ts-morph"
+// CORRECT - use .ts extensions
+import * as Array from "./Array.ts"
+import * as Effect from "./Effect.ts"
+import { dual } from "./Function.ts"
+import { PipeInspectableProto } from "./internal/core.ts"
+import type * as Scope from "./Scope.ts"
 
 // WRONG - do NOT use .js extensions
 // import * as Effect from "./Effect.js"
@@ -507,24 +509,24 @@ import type * as Scope from "./Scope.ts-morph"
 ```typescript
 // 1. External imports (if any)
 
-// 2. Effect module imports (alphabetical, .ts-morph extension)
-import * as Cause from "./Cause.ts-morph"
-import * as Deferred from "./Deferred.ts-morph"
-import * as Effect from "./Effect.ts-morph"
-import * as Exit from "./Exit.ts-morph"
-import * as Fiber from "./Fiber.ts-morph"
+// 2. Effect module imports (alphabetical, .ts extension)
+import * as Cause from "./Cause.ts"
+import * as Deferred from "./Deferred.ts"
+import * as Effect from "./Effect.ts"
+import * as Exit from "./Exit.ts"
+import * as Fiber from "./Fiber.ts"
 
 // 3. Utility imports
-import { constVoid, dual } from "./Function.ts-morph"
-import { type Pipeable } from "./Pipeable.ts-morph"
-import * as Predicate from "./Predicate.ts-morph"
+import { constVoid, dual } from "./Function.ts"
+import { type Pipeable } from "./Pipeable.ts"
+import * as Predicate from "./Predicate.ts"
 
 // 4. Internal imports
-import { PipeInspectableProto } from "./internal/core.ts-morph"
+import { PipeInspectableProto } from "./internal/core.ts"
 
 // 5. Type-only imports
-import type * as Inspectable from "./Inspectable.ts-morph"
-import type * as Scope from "./Scope.ts-morph"
+import type * as Inspectable from "./Inspectable.ts"
+import type * as Scope from "./Scope.ts"
 ```
 
 ## SUCCESS CRITERIA

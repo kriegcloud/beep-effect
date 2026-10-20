@@ -256,6 +256,37 @@ export class DriftFinding extends S.Opaque<DriftFinding, { readonly brand: uniqu
 ) {}
 
 /**
+ * Extracted hints from a target that cannot be certified by a full parser.
+ *
+ * **Example** (Inspect the manual verification schema)
+ *
+ * ```ts
+ * import { ManualVerification } from "@beep/repo-cli/commands/Models/Models.report.schemas"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(ManualVerification)({})) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ManualVerification extends S.Opaque<ManualVerification, { readonly brand: unique symbol }>()(
+  S.Struct({
+    targetId: TargetId,
+    path: S.NonEmptyString,
+    locator: Locator,
+    current: S.OptionFromOptionalKey(S.String),
+    status: S.Literal("manual verification required").pipe(
+      S.withDecodingDefaultKey(Effect.succeed<"manual verification required">("manual verification required")),
+      S.withConstructorDefault(Effect.succeed<"manual verification required">("manual verification required"))
+    ),
+  }).pipe(
+    $I.annoteSchema("ManualVerification", {
+      description: "Reader hints requiring manual verification; never a clean certification or drift by itself.",
+    })
+  )
+) {}
+
+/**
  * The whole result of a `beep models check` run.
  *
  * **Details**
@@ -306,6 +337,10 @@ export class ModelsCheckReport extends S.Opaque<ModelsCheckReport, { readonly br
     diff: CatalogDiff,
     diffScope: CatalogDiffScope.pipe(S.withDecodingDefaultKey(Effect.succeed<CatalogDiffScope>("full"))),
     findings: S.Array(DriftFinding),
+    manual: S.Array(ManualVerification).pipe(
+      S.withDecodingDefaultKey(Effect.succeed([])),
+      S.withConstructorDefault(Effect.succeed([]))
+    ),
     candidates: S.Array(ModelId).pipe(
       S.withDecodingDefaultKey(Effect.succeed([])),
       S.withConstructorDefault(Effect.succeed([]))

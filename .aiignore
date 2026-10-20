@@ -12,3 +12,6 @@ build/
 out/
 .turbo/
 .coverage/
+
+# Keep immutable decision rows available explicitly, outside default context.
+harness-ledger/rows/

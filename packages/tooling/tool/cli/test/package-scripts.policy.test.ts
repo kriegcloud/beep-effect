@@ -1,5 +1,6 @@
 import {
   DerivationEvidence,
+  ImplScriptDrift,
   PackageScriptsPolicy,
   policyToolsFingerprint,
   ScriptsRecord,
@@ -237,11 +238,11 @@ describe("package scripts policy", () => {
           expect(HashMap.size(report.drift)).toBe(0);
           expect(HashMap.size(report.implDrift)).toBe(1);
           assertSome(HashMap.get(report.implDrift, "packages/a/package.json"), [
-            {
+            ImplScriptDrift.make({
               name: "beep:check",
               actual: "tsgo -p tsconfig.check.json",
               expected: "tsc-rs -p tsconfig.check.json && bun run beep:check:tests",
-            },
+            }),
           ]);
           expect(HashSet.size(report.written)).toBe(0);
         }
