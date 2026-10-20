@@ -22,8 +22,8 @@ import {
   printPracticeKgPrivacyReceipt,
   printPracticeKgSelfCheck,
   printPracticeKgTelemetrySelfCheck,
-  runPracticeKgPrivacyReceipt,
   runPracticeKgMcpSelfCheck,
+  runPracticeKgPrivacyReceipt,
   runPracticeKgTelemetrySelfCheck,
 } from "./runtime/index.ts";
 import "../../../node_modules/@electric-sql/pglite/dist/initdb.wasm" with { type: "file" };

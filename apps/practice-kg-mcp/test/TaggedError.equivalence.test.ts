@@ -2,12 +2,7 @@ import { it } from "@beep/test-runner";
 import { describe } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as S from "effect/Schema";
-import {
-  PackageFailure,
-  SelfCheckFailure,
-  SmokeFailure,
-  TelemetryKeyFailure,
-} from "../src/PracticeKgMcp.errors.ts";
+import { PackageFailure, SelfCheckFailure, SmokeFailure, TelemetryKeyFailure } from "../src/PracticeKgMcp.errors.ts";
 
 const expectOpaqueCauseEquivalence = <A>(same: (self: A, that: A) => boolean, first: A, second: A, different: A) => {
   assertTrue(same(first, second));
