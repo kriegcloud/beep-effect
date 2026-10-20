@@ -7,9 +7,9 @@ import {
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -218,7 +218,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("config snapshot failure
         })
       );
       expect(capped.files).toEqual([]);
-      expect(capped.bounds.truncationReason).toEqual(O.some("max-files"));
+      assertSome(capped.bounds.truncationReason, "max-files");
       const shallow = yield* makeAiMetricsConfigSnapshot(
         AiMetricsConfigSnapshotInput.make({
           repoRoot: subdirectory,
@@ -226,7 +226,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("config snapshot failure
         })
       );
       expect(shallow.files).toEqual([]);
-      expect(shallow.bounds.truncationReason).toEqual(O.some("max-depth"));
+      assertSome(shallow.bounds.truncationReason, "max-depth");
       const inconsistentTop = yield* makeAiMetricsConfigSnapshot(input).pipe(
         Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, {
           ...spawner,
@@ -284,7 +284,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("config snapshot failure
         })
       );
       expect(bounded.files).toEqual([]);
-      expect(bounded.bounds.truncationReason).toEqual(O.some("max-depth"));
+      assertSome(bounded.bounds.truncationReason, "max-depth");
     })
   );
 

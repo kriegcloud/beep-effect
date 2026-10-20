@@ -538,7 +538,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               const terminal = yield* store.complete(claim, status, 103, detail);
               expect(terminal.status).toBe(status);
               expect(terminal.detail).toEqual(detail);
-              expect(terminal.owner).toEqual(O.some("b-owner"));
+              assertSome(terminal.owner, "b-owner");
               expect(terminal.attemptGeneration).toBe(claim.generation);
               expect(yield* store.acknowledge("ack-terminal", "b", 104)).toEqual(acknowledged);
               expect((yield* store.complete(claim, status, 105, detail).pipe(Effect.flip)).code).toBe("staleClaim");

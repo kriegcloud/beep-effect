@@ -1,8 +1,8 @@
 import { it } from "@beep/test-runner";
-import { expect } from "@effect/vitest";
+import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { createRoot } from "react-dom/client";
-import { describe, vi } from "vitest";
+import { vi } from "vitest";
 
 vi.mock("react-dom/client", () => ({
   createRoot: vi.fn(() => ({ render: vi.fn() })),

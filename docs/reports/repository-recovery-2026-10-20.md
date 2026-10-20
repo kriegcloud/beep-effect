@@ -53,6 +53,28 @@ inventory records work in progress; it does not declare any issue resolved.
   The package audit and docgen pass. Hosted measurement and raised baseline rows
   remain required.
 
+## Hosted lint-policy repair
+
+The hosted run at `78005fb683` passed build, check, docgen, doctest, integration,
+unit tests, labs, Storybook, security, and ordinary lint. Heavy lint policy failed
+on Effect test findings, stale schema advisory locations, and two stale detector
+source ranges. Remaining jobs were still running at that observation.
+
+The repair keeps the Effect test inventory unchanged. Native filesystem
+provenance now follows the instrumented layer harness; fixed-layer toolkit
+helpers retain resource-definition review without misclassifying their data
+arguments as supplied layers. Direct `vi` imports are permitted only when required
+by hoisted module mocks; registration imports remain under the Effect harness.
+Negative detector fixtures retain mixed imports, shadowing, and actual supplied
+resource layers. The retry regression owns its clock, the Turbo hash regression
+uses the public scoped layer harness, and Option comparisons use canonical
+assertions. Three focused suites pass all 228 tests; the test compiler and quick
+package verification for CLI, AI metrics, and Trustgraph pass.
+
+Three existing schema advisory locations and two fixed detector source ranges
+are refreshed without adding exceptions or changing the reference classifier.
+Full policy verification and hosted confirmation remain pending.
+
 ## Open issue acceptance tracking
 
 | Issue | Requested outcome | Status |

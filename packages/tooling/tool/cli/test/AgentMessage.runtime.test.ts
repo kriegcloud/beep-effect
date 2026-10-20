@@ -457,48 +457,54 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
     );
 
     it.effect("an invalid receiving grant remains fatal when completion exhausts its lock retries", () =>
-      fixture((store) =>
-        Effect.gen(function* () {
-          const invalid = RouterError.make({ code: "invalidGrant", message: "Pinned receiving grant expired." });
-          const priorLogs = (yield* TestConsole.logLines).length;
-          const invalidReceivingGrant = yield* Ref.make(O.none<RouterError>());
-          let completions = 0;
-          let submissions = 0;
-          const wrapped: AgentMessageStoreShape = {
-            ...store,
-            complete: makeAgentMessageCompletion(
-              {
-                ...store,
-                complete: Effect.fnUntraced(function* () {
-                  completions++;
-                  return yield* lockTimeout;
+      Effect.gen(function* () {
+        const clock = yield* TestClock.make();
+        return yield* fixture((store) =>
+          Effect.gen(function* () {
+            const invalid = RouterError.make({ code: "invalidGrant", message: "Pinned receiving grant expired." });
+            const priorLogs = (yield* TestConsole.logLines).length;
+            const invalidReceivingGrant = yield* Ref.make(O.none<RouterError>());
+            let completions = 0;
+            let submissions = 0;
+            const wrapped: AgentMessageStoreShape = {
+              ...store,
+              complete: makeAgentMessageCompletion(
+                {
+                  ...store,
+                  complete: Effect.fnUntraced(function* () {
+                    completions++;
+                    return yield* lockTimeout;
+                  }),
+                },
+                invalidReceivingGrant
+              ),
+            };
+            const fiber = yield* runAgentMessageDispatchLoop("target", "target-owner").pipe(
+              Effect.provideService(AgentMessageStore, wrapped),
+              Effect.provideService(EndpointDispatch, {
+                submit: Effect.fnUntraced(function* () {
+                  submissions++;
+                  yield* Ref.set(invalidReceivingGrant, O.some(invalid));
+                  return yield* invalid;
                 }),
-              },
-              invalidReceivingGrant
-            ),
-          };
-          const fiber = yield* runAgentMessageDispatchLoop("target", "target-owner").pipe(
-            Effect.provideService(AgentMessageStore, wrapped),
-            Effect.provideService(EndpointDispatch, {
-              submit: Effect.fnUntraced(function* () {
-                submissions++;
-                yield* Ref.set(invalidReceivingGrant, O.some(invalid));
-                return yield* invalid;
               }),
-            }),
-            Effect.forkChild
-          );
-          yield* TestClock.adjust(Duration.seconds(3));
-          expect(yield* Fiber.join(fiber).pipe(Effect.flip)).toEqual(invalid);
-          expect(completions).toBe(9);
-          expect(submissions).toBe(1);
-          expect(A.map(yield* store.receipts("message"), (receipt) => receipt.status)).toEqual(["accepted", "claimed"]);
-          assertNone(yield* store.claimNext("target", "target-owner", 3000, 4000));
-          const logs = A.filter(A.drop(yield* TestConsole.logLines, priorLogs), S.is(S.String));
-          expect(A.filterMap(logs, (line) => S.decodeResult(ReceiptJson)(line))).toEqual([]);
-          expect(A.some(logs, Str.includes("receipt was not persisted"))).toBe(true);
-        })
-      )
+              Effect.forkChild
+            );
+            yield* clock.adjust(Duration.seconds(3));
+            expect(yield* Fiber.join(fiber).pipe(Effect.flip)).toEqual(invalid);
+            expect(completions).toBe(9);
+            expect(submissions).toBe(1);
+            expect(A.map(yield* store.receipts("message"), (receipt) => receipt.status)).toEqual([
+              "accepted",
+              "claimed",
+            ]);
+            assertNone(yield* store.claimNext("target", "target-owner", 3000, 4000));
+            const logs = A.filter(A.drop(yield* TestConsole.logLines, priorLogs), S.is(S.String));
+            expect(A.filterMap(logs, (line) => S.decodeResult(ReceiptJson)(line))).toEqual([]);
+            expect(A.some(logs, Str.includes("receipt was not persisted"))).toBe(true);
+          })
+        ).pipe(Effect.provideService(Clock.Clock, clock));
+      })
     );
 
     it.effect("exhausted completion retries retain the claim and owned process until cancellation", () =>

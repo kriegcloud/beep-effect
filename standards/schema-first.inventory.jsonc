@@ -2613,7 +2613,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 80,
+      "line": 84,
       "owner": "@beep/repo-cli",
       "reason": "Native runtime regressions decode real synthetic-child and SQLite receipts to verify enrollment, policy rejection, delivery, cancellation cleanup and writer-lock behavior. Generated envelope/reference properties live in agent-message-models.test.ts; arbitrary codec round-trips do not exercise these fixed subprocess lifecycle scenarios. Reconsider if reusable schemas or schema-law assertions move into this file."
     },
@@ -2623,7 +2623,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 51,
+      "line": 52,
       "owner": "@beep/repo-cli",
       "reason": "Store regression scenarios use exact SQLite rows, staged process termination and injected audit-write failure to prove transaction, lease and resolution recovery contracts. Arbitrary operator-evidence transport properties live in agent-message-models.test.ts; random codec round-trips cannot replace these deterministic failure points."
     },
@@ -2653,7 +2653,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 15,
+      "line": 14,
       "owner": "@beep/repo-cli",
       "reason": "Turbo input regression encodes fixed JSON fixture documents and decodes turbo summaries through S.fromJsonString codecs; the schemas are external turbo shapes exercised against real output, not domain schemas with a round-trip law."
     },

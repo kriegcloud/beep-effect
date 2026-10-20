@@ -563,6 +563,22 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("keeps fixed-layer fixtures under resource review without treating their data arguments as layers", () =>
+    Effect.gen(function* () {
+      const rows = yield* findings(
+        'const callTool = Fx.fn(function* (grant, input) { const context = yield* L.build(HandlersLive); return yield* handle(input).pipe(Fx.provide(context)); }); it.effect("send", () => callTool("grant-a", { body: "private" }));'
+      );
+      assertFalse(A.some(rows, (row) => row.ruleId === "EV002"));
+      assertTrue(A.some(rows, (row) => row.ruleId === "EV003"));
+      assertTrue(
+        yield* hasRule(
+          'const supply = (layer, effect) => L.build(layer).pipe(Fx.flatMap(context => effect.pipe(Fx.provide(context)))); it.effect("resource", () => supply(L.effect(Service, acquire), program));',
+          "EV002"
+        )
+      );
+    })
+  );
+
   it.effect("judges imported and unknown layer constructors but permits proven pure compositions", () =>
     Effect.gen(function* () {
       for (const layer of [
@@ -1333,6 +1349,33 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("permits only the direct vi import required by Vitest mock hoisting", () =>
+    Effect.gen(function* () {
+      for (const body of [
+        'import { vi } from "vitest"; vi.mock("react-dom/client", () => ({ createRoot: vi.fn() }));',
+        'import { vi as mocks } from "vitest"; const fake = mocks.hoisted(() => mocks.fn());',
+      ])
+        assertFalse(
+          A.some(
+            yield* findingsWithHarness('import { it, expect } from "@effect/vitest";', body),
+            (row) => row.ruleId === "EV011"
+          )
+        );
+      for (const body of [
+        'import { vi, it } from "vitest"; vi.mock("subject");',
+        'import { vi } from "vitest"; vi.fn();',
+        'import { vi } from "vitest"; function f(vi) { vi.mock("subject"); }',
+        'import * as Vitest from "vitest"; Vitest.vi.mock("subject");',
+      ])
+        assertTrue(
+          A.some(
+            yield* findingsWithHarness('import { it, expect } from "@effect/vitest";', body),
+            (row) => row.ruleId === "EV011"
+          )
+        );
+    })
+  );
+
   it.effect("narrows root platform and CommonJS imports to filesystem provenance and explicit opaque residue", () =>
     Effect.gen(function* () {
       for (const body of [
@@ -1424,6 +1467,18 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${harness} import * as Platform from "@effect/platform-node"; use(Platform); layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
       ])
         deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
+    })
+  );
+
+  it.effect("retains native filesystem provenance through the instrumented layer harness", () =>
+    Effect.gen(function* () {
+      for (const module of ["@beep/test-runner", "@beep/test-utils/Vitest", "@effect/vitest"]) {
+        const rows = yield* findingsWithHarness(
+          `import { it as instrumentedIt } from "${module}";`,
+          'import { NodeServices } from "@effect/platform-node"; instrumentedIt.layer(NodeServices.layer, { timeout: "10 seconds" })("native", (it) => { it.effect("physical root", () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.realPath("fixture"); })); });'
+        );
+        assertFalse(A.some(rows, (row) => row.ruleId === "EV010"));
+      }
     })
   );
 
