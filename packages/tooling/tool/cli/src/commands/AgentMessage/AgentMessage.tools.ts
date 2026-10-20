@@ -250,6 +250,8 @@ export const agentMessageHandlersLayer = (grantId: string) =>
         const now = yield* Clock.currentTimeMillis;
         const target = yield* store.endpoint(input.recipient);
         const previous = yield* store.findMessage(input.messageId);
+        if (O.isSome(previous) && previous.value.from !== authority.endpointId)
+          return yield* RouterError.make({ code: "conflict", message: "Message identity belongs to another sender." });
         const envelope = Envelope.make({
           messageId: input.messageId,
           idempotencyKey: input.messageId,

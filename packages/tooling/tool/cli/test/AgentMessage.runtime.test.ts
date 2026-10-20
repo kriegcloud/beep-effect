@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { ManagedLaunchProfile } from "@beep/ai-provider-cli";
 import {
   AgentMessageStore,
@@ -6,6 +7,7 @@ import {
   EndpointDispatch,
   Envelope,
   LaunchGrant,
+  makeAgentMessageCompletion,
   makeAgentMessageStore,
   Receipt,
   RouterError,
@@ -17,6 +19,7 @@ import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
@@ -38,6 +41,7 @@ import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -452,6 +456,51 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
       )
     );
 
+    it.effect("an invalid receiving grant remains fatal when completion exhausts its lock retries", () =>
+      fixture((store) =>
+        Effect.gen(function* () {
+          const invalid = RouterError.make({ code: "invalidGrant", message: "Pinned receiving grant expired." });
+          const priorLogs = (yield* TestConsole.logLines).length;
+          const invalidReceivingGrant = yield* Ref.make(O.none<RouterError>());
+          let completions = 0;
+          let submissions = 0;
+          const wrapped: AgentMessageStoreShape = {
+            ...store,
+            complete: makeAgentMessageCompletion(
+              {
+                ...store,
+                complete: Effect.fnUntraced(function* () {
+                  completions++;
+                  return yield* lockTimeout;
+                }),
+              },
+              invalidReceivingGrant
+            ),
+          };
+          const fiber = yield* runAgentMessageDispatchLoop("target", "target-owner").pipe(
+            Effect.provideService(AgentMessageStore, wrapped),
+            Effect.provideService(EndpointDispatch, {
+              submit: Effect.fnUntraced(function* () {
+                submissions++;
+                yield* Ref.set(invalidReceivingGrant, O.some(invalid));
+                return yield* invalid;
+              }),
+            }),
+            Effect.forkChild
+          );
+          yield* TestClock.adjust(Duration.seconds(3));
+          expect(yield* Fiber.join(fiber).pipe(Effect.flip)).toEqual(invalid);
+          expect(completions).toBe(9);
+          expect(submissions).toBe(1);
+          expect(A.map(yield* store.receipts("message"), (receipt) => receipt.status)).toEqual(["accepted", "claimed"]);
+          assertNone(yield* store.claimNext("target", "target-owner", 3000, 4000));
+          const logs = A.filter(A.drop(yield* TestConsole.logLines, priorLogs), S.is(S.String));
+          expect(A.filterMap(logs, (line) => S.decodeResult(ReceiptJson)(line))).toEqual([]);
+          expect(A.some(logs, Str.includes("receipt was not persisted"))).toBe(true);
+        })
+      )
+    );
+
     it.effect("exhausted completion retries retain the claim and owned process until cancellation", () =>
       fixture((store) =>
         Effect.gen(function* () {
@@ -498,12 +547,55 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
       )
     );
 
+    it.effect("late terminal completion keeps the worker alive for ambiguity recovery without another submission", () =>
+      fixture((store) =>
+        Effect.gen(function* () {
+          const recovered = yield* Deferred.make<void>();
+          let elapsed = 0;
+          let submissions = 0;
+          const wrapped: AgentMessageStoreShape = {
+            ...store,
+            complete: (claim, status, now, detail) => store.complete(claim, status, now + elapsed, detail),
+            recover: Effect.fnUntraced(function* (now: number) {
+              const count = yield* store.recover(now + elapsed);
+              if (count === 1) yield* Deferred.succeed(recovered, undefined);
+              return count;
+            }),
+          };
+          const fiber = yield* runAgentMessageDispatchLoop("target", "target-owner").pipe(
+            Effect.provideService(AgentMessageStore, wrapped),
+            Effect.provideService(EndpointDispatch, {
+              submit: () =>
+                Effect.sync(() => {
+                  submissions++;
+                  elapsed = 190000;
+                  return "delivered";
+                }),
+            }),
+            Effect.forkChild
+          );
+          yield* Deferred.await(recovered);
+          expect(fiber.pollUnsafe()).toBeUndefined();
+          expect(submissions).toBe(1);
+          expect(A.map(yield* store.receipts("message"), (receipt) => receipt.status)).toEqual([
+            "accepted",
+            "claimed",
+            "ambiguous",
+          ]);
+          const now = yield* Clock.currentTimeMillis;
+          assertNone(yield* store.claimNext("target", "target-owner", now + elapsed, now + elapsed + 1000));
+          yield* Fiber.interrupt(fiber);
+        })
+      ).pipe(TestClock.withLive)
+    );
+
     it.effect("permanent storage and policy errors remain fatal and finalize the scope", () =>
       fixture((store) =>
         Effect.forEach(
           [
             RouterError.make({ code: "storage", message: "Agent message storage decoding failed: SchemaError." }),
             RouterError.make({ code: "policyMismatch", message: "Synthetic fatal policy mismatch." }),
+            RouterError.make({ code: "staleClaim", message: "Dispatch lease expired before its result was recorded." }),
           ],
           (failure) =>
             Effect.gen(function* () {
@@ -574,7 +666,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
                   submits++;
                   const lock = yield* ChildProcess.make(
                     process.execPath,
-                    [new URL("./fixtures/agent-message/process.ts", import.meta.url).pathname],
+                    [fileURLToPath(new URL("./fixtures/agent-message/process.ts", import.meta.url))],
                     {
                       env: {
                         BEEP_MESSAGE_FIXTURE_DATABASE: filename,

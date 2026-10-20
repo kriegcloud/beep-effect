@@ -9,12 +9,19 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
 import type { Claim, Receipt, RouterError } from "./AgentMessage.models.ts";
 import type { AgentMessageStoreShape } from "./AgentMessage.store.ts";
 
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.service");
+const isExpiredCompletion = S.is(
+  S.Struct({
+    code: S.Literal("staleClaim"),
+    message: S.Literal("Dispatch lease expired before its result was recorded."),
+  })
+);
 
 /**
  * Native endpoint port, with context receipt distinguished from socket acceptance.
@@ -113,17 +120,22 @@ export const makeAgentMessageRouter: Effect.Effect<
       if (O.isNone(claimed)) return O.none<Receipt>();
       const outcome = yield* Effect.result(endpoints.submit(claimed.value));
       const at = yield* completedAt();
-      return O.some(
-        yield* Result.match(outcome, {
-          onSuccess: (status) => store.complete(claimed.value, status, at),
-          onFailure: (failure) =>
-            store.complete(
-              claimed.value,
-              "ambiguous",
-              at,
-              O.some(Str.takeLeft(`${failure.code}: ${failure.message}`, 1024))
-            ),
-        })
+      return yield* Result.match(outcome, {
+        onSuccess: (status) => store.complete(claimed.value, status, at),
+        onFailure: (failure) =>
+          store.complete(
+            claimed.value,
+            "ambiguous",
+            at,
+            O.some(Str.takeLeft(`${failure.code}: ${failure.message}`, 1024))
+          ),
+      }).pipe(
+        Effect.asSome,
+        Effect.catchIf(isExpiredCompletion, () =>
+          Effect.logWarning("Terminal dispatch exceeded its lease; recovery must fence the retained claim.").pipe(
+            Effect.as(O.none<Receipt>())
+          )
+        )
       );
     }),
   };

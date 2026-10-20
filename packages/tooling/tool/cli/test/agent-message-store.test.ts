@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import {
   AgentMessageStore,
@@ -137,7 +138,7 @@ const processFixture = Effect.fn("AgentMessageTest.processFixture")(function* (
   });
   const child = yield* ChildProcess.make(
     process.execPath,
-    [new URL("./fixtures/agent-message/process.ts", import.meta.url).pathname],
+    [fileURLToPath(new URL("./fixtures/agent-message/process.ts", import.meta.url))],
     {
       env: {
         BEEP_MESSAGE_FIXTURE_DATABASE: filename,
@@ -512,8 +513,47 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           expect(O.getOrThrow(yield* store.claimNext("b", "b-owner", 105, 205)).envelope.messageId).toBe(
             "after-settled"
           );
-          expect(yield* store.receipts("settled")).toHaveLength(3);
+          expect(yield* store.receipts("settled")).toHaveLength(4);
         })
+      )
+    );
+
+    it.effect("retains delivered and failed receipts after a mid-turn ACK without changing its idempotent result", () =>
+      Effect.forEach(
+        [
+          { status: "delivered", uncertain: false },
+          { status: "failed", uncertain: false },
+          { status: "delivered", uncertain: true },
+          { status: "failed", uncertain: true },
+        ] as const,
+        ({ status, uncertain }) =>
+          fixture((store) =>
+            Effect.gen(function* () {
+              yield* store.accept(envelope("ack-terminal"), 100);
+              yield* store.accept(envelope("after-terminal"), 100);
+              const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+              const acknowledged = yield* store.acknowledge("ack-terminal", "b", 102);
+              if (uncertain) yield* store.complete(claim, "ambiguous", 102);
+              const detail = O.some(`Native ${status} detail`);
+              const terminal = yield* store.complete(claim, status, 103, detail);
+              expect(terminal.status).toBe(status);
+              expect(terminal.detail).toEqual(detail);
+              expect(terminal.owner).toEqual(O.some("b-owner"));
+              expect(terminal.attemptGeneration).toBe(claim.generation);
+              expect(yield* store.acknowledge("ack-terminal", "b", 104)).toEqual(acknowledged);
+              expect((yield* store.complete(claim, status, 105, detail).pipe(Effect.flip)).code).toBe("staleClaim");
+              expect(A.map(yield* store.receipts("ack-terminal"), (receipt) => receipt.status)).toEqual([
+                "accepted",
+                "claimed",
+                "acknowledged",
+                ...(uncertain ? ["ambiguous"] : []),
+                status,
+              ]);
+              expect(O.getOrThrow(yield* store.claimNext("b", "b-owner", 106, 206)).envelope.messageId).toBe(
+                "after-terminal"
+              );
+            })
+          )
       )
     );
 

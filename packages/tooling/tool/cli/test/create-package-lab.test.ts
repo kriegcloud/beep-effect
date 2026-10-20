@@ -351,10 +351,9 @@ const expectNoPackageCeremony = (manifest: {
   expect(manifest.files).toBeUndefined();
   expect(manifest.publishConfig).toBeUndefined();
   expect(manifest.scripts.docgen).toBeUndefined();
-  // Ratified row 7 omits the coverage script from lab templates outright, on top
-  // of the coverage discovery/disposition exclusions ("Never give labs a
-  // `coverage` script" — research/04-governance-gates.md).
-  expect(manifest.scripts.coverage).toBeUndefined();
+  // Lifecycle D15 enrolls labs in coverage while preserving the other ceremony exclusions.
+  expect(manifest.scripts.coverage).toBe("bun run beep:coverage");
+  expect(manifest.scripts["beep:coverage"]).toBe("bunx vitest run --coverage --exclude=test/integration/**");
 };
 
 it.layer(CommandTestLayer, { concurrent: false, timeout: "30 seconds" })((it) => {

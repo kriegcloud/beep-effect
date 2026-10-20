@@ -15,6 +15,7 @@ import * as Flag from "effect/cli/Flag";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -33,6 +34,7 @@ import {
 import { EndpointDispatch, makeAgentMessageRouter } from "./AgentMessage.service.ts";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
 import type { Claim } from "./AgentMessage.models.ts";
+import type { AgentMessageStoreShape } from "./AgentMessage.store.ts";
 
 const ReceiptJson = S.fromJsonString(Receipt);
 const EnvelopeJson = S.fromJsonString(Envelope);
@@ -66,6 +68,68 @@ const retryMailboxLock = <A, R>(operation: Effect.Effect<A, RouterError, R>) =>
     ),
     Effect.retry({ while: isMailboxLockTimeout, times: 8, schedule: Schedule.spaced(Duration.millis(250)) })
   );
+
+/**
+ * Complete a dispatch while preserving a pinned receiving-grant failure.
+ *
+ * **Details**
+ * Invalid-grant completion gets bounded storage retries. Exhaustion logs the
+ * unsaved receipt and fails with the original grant error, retaining the claim
+ * for reconciliation. Only successfully persisted receipts are printed.
+ *
+ * **Example** (Compose completion with an invalidation reference)
+ * ```ts
+ * import { AgentMessageStore, makeAgentMessageCompletion, RouterError } from "@beep/repo-cli/commands/AgentMessage"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ * import * as Ref from "effect/Ref"
+ * const program = Effect.gen(function* () {
+ *   const store = yield* AgentMessageStore
+ *   const invalid = yield* Ref.make(O.none<RouterError>())
+ *   return { ...store, complete: makeAgentMessageCompletion(store, invalid) }
+ * })
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @internal
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeAgentMessageCompletion: {
+  (
+    invalidReceivingGrant: Ref.Ref<O.Option<RouterError>>
+  ): (store: AgentMessageStoreShape) => AgentMessageStoreShape["complete"];
+  (
+    store: AgentMessageStoreShape,
+    invalidReceivingGrant: Ref.Ref<O.Option<RouterError>>
+  ): AgentMessageStoreShape["complete"];
+} = dual(2, (store: AgentMessageStoreShape, invalidReceivingGrant: Ref.Ref<O.Option<RouterError>>) =>
+  Effect.fn("AgentMessage.complete")(function* (
+    claim: Claim,
+    status: "ambiguous" | "delivered" | "failed",
+    at: number,
+    detail?: O.Option<string>
+  ) {
+    const invalid = yield* Ref.get(invalidReceivingGrant);
+    const operation = store.complete(
+      claim,
+      status,
+      at,
+      O.isSome(invalid) ? O.some("invalidGrant: receiving grant expired or enrollment replaced.") : detail
+    );
+    if (O.isNone(invalid)) return yield* operation;
+    const receipt = yield* retryMailboxLock(operation).pipe(
+      Effect.catch((storageFailure) =>
+        Effect.logWarning(
+          "Invalid-grant receipt was not persisted; the dispatch claim is retained.",
+          storageFailure
+        ).pipe(Effect.andThen(invalid.value))
+      )
+    );
+    yield* Console.log(yield* S.encodeEffect(ReceiptJson)(receipt));
+    return yield* invalid.value;
+  })
+);
 
 /**
  * Keep an owned dispatcher alive across classified mailbox contention.
@@ -293,25 +357,7 @@ export const agentMessageServeCommand = Command.make(
         });
       });
       yield* Console.log(yield* S.encodeEffect(BindingJson)(binding));
-      const complete = Effect.fn("AgentMessage.complete")(function* (
-        claim: Claim,
-        status: "ambiguous" | "delivered" | "failed",
-        at: number,
-        detail?: O.Option<string>
-      ) {
-        const invalid = yield* Ref.get(invalidReceivingGrant);
-        const receipt = yield* store.complete(
-          claim,
-          status,
-          at,
-          O.isSome(invalid) ? O.some("invalidGrant: receiving grant expired or enrollment replaced.") : detail
-        );
-        if (O.isSome(invalid)) {
-          yield* Console.log(yield* S.encodeEffect(ReceiptJson)(receipt));
-          return yield* invalid.value;
-        }
-        return receipt;
-      });
+      const complete = makeAgentMessageCompletion(store, invalidReceivingGrant);
       return yield* runAgentMessageDispatchLoop(endpointId, ownerId).pipe(
         Effect.provideService(EndpointDispatch, { submit }),
         Effect.provideService(AgentMessageStore, { ...store, complete })

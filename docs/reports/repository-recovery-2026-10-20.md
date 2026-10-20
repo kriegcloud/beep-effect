@@ -43,26 +43,35 @@ inventory records work in progress; it does not declare any issue resolved.
   See [the migration hold](fallow-compatibility-hold-2026-10-20.md).
 - Review-hub configuration validation now covers normalized logins, empty required
   inputs, and an invalid port. Coverage measurement and its baseline row are pending.
+- The latest local full coverage run reached all ten shards; the repo-cli shard
+  failed nine assertions retaining the retired labs coverage exclusions. The three
+  affected suites now pass all 40 tests. The full audit also loaded changing source
+  and tests, so neither run is final-head proof.
+- AI-metrics snapshot publication and Git-boundary fault tests restore
+  `config-snapshot.ts` to 96.81% lines, 97.04% statements, 91.07% functions, and
+  100% branches; transcript-role tests restore `hook-pulse.ts` branches to 100%.
+  The package audit and docgen pass. Hosted measurement and raised baseline rows
+  remain required.
 
 ## Open issue acceptance tracking
 
 | Issue | Requested outcome | Status |
 | --- | --- | --- |
-| [#1576](https://github.com/beep-effect/beep-effect/issues/1576) | fix(agent-message): retain terminal receipts after mid-turn acknowledgment | Acceptance review pending |
+| [#1576](https://github.com/beep-effect/beep-effect/issues/1576) | fix(agent-message): retain terminal receipts after mid-turn acknowledgment | Terminal history/detail retained for active and ambiguous acknowledged dispatches; ACK identity, stale-claim rejection, and queue serialization covered |
 | [#1578](https://github.com/beep-effect/beep-effect/issues/1578) | fix(ai-provider-cli): allowlist managed launch environments per provider | Acceptance review pending |
 | [#1579](https://github.com/beep-effect/beep-effect/issues/1579) | feat(agent-message): qualify ambiguity reconciliation and capacity fairness | Acceptance review pending |
 | [#1581](https://github.com/beep-effect/beep-effect/issues/1581) | fix(agent-comms): qualify historical probe and snapshot evidence | Acceptance review pending |
 | [#1582](https://github.com/beep-effect/beep-effect/issues/1582) | fix(goals): distinguish proposed closeout from operative completion | Acceptance review pending |
 | [#1586](https://github.com/beep-effect/beep-effect/issues/1586) | Fence ended native sessions and scope Cursor denial classification | Acceptance review pending |
 | [#1587](https://github.com/beep-effect/beep-effect/issues/1587) | Tighten agent-messaging probe opt-in and test portability | Acceptance review pending |
-| [#1603](https://github.com/beep-effect/beep-effect/issues/1603) | fix(agent-message): reconcile completion after attached lease expiry | Acceptance review pending |
+| [#1603](https://github.com/beep-effect/beep-effect/issues/1603) | fix(agent-message): reconcile completion after attached lease expiry | Only expired terminal completion defers to recovery; live-clock regression proves one submission, surviving worker, and ambiguity fence |
 | [#1607](https://github.com/beep-effect/beep-effect/issues/1607) | fix(t3-code): qualify built root export before publication | Acceptance review pending |
-| [#1613](https://github.com/beep-effect/beep-effect/issues/1613) | fix(agent-message): scope prior envelope reuse to the sending grant | Acceptance review pending |
+| [#1613](https://github.com/beep-effect/beep-effect/issues/1613) | fix(agent-message): scope prior envelope reuse to the sending grant | Cross-sender ID rejected before metadata reuse; real-store boundary tests cover idempotence, changed content, unchanged inbox and receipt count |
 | [#1702](https://github.com/beep-effect/beep-effect/issues/1702) | knowledge doctor: lexer-aware block-comment blanking and v2 lock decode errors (#1690 follow-ups) | Implemented on main in ec580c30a2; 14 evaluator regressions passed |
 | [#1708](https://github.com/beep-effect/beep-effect/issues/1708) | effect-vitest: EV010 flags every platform-node import, including canonical it.layer setups | Acceptance review pending |
 | [#1740](https://github.com/beep-effect/beep-effect/issues/1740) | Nightly property-law sweep failures | Acceptance review pending |
 | [#1742](https://github.com/beep-effect/beep-effect/issues/1742) | docs(skills): align replay comment example with GraphQL bot login | Already implemented in 5169ea9584; replay regressions passed |
-| [#1772](https://github.com/beep-effect/beep-effect/issues/1772) | Handle invalid receiving grant when receipt write exhausts lock retries | Acceptance review pending |
+| [#1772](https://github.com/beep-effect/beep-effect/issues/1772) | Handle invalid receiving grant when receipt write exhausts lock retries | Pinned invalidGrant survives nine failed completion writes; unsaved receipt logged, claim retained, dispatch loop exits without resubmission |
 | [#1789](https://github.com/beep-effect/beep-effect/issues/1789) | fix(reviewer): preserve terminal checks and stop empty pagination | Active-only cancellation and empty-page termination fixed; 84 reviewer/bootstrap/merge-gate tests passed |
 | [#1835](https://github.com/beep-effect/beep-effect/issues/1835) | fix(observability): name schema-first scan spans by domain | Span names fixed; catalog conforming; focused tests passed |
 | [#1848](https://github.com/beep-effect/beep-effect/issues/1848) | drawings critics test: measure the late-limit seat start from the sequence's own start | Sequence-relative clock assertion fixed; critic tests passed |

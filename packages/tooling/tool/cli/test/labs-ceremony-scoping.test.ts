@@ -29,20 +29,30 @@ const productOwner = CoverageScopeOwner.make({
 
 describe("labs ceremony scoping", () => {
   describe("planCoverageAffectedScope", () => {
-    it("treats lab source changes as coverage no-ops", () => {
+    it("does not select an owner that has no coverage task", () => {
       expect(planCoverageAffectedScope([labOwner], ["apps/labs/demo/src/App.tsx"])).toEqual({ _tag: "noop" });
     });
 
-    it("does not treat a lab package manifest as a package-identity full reason", () => {
-      expect(planCoverageAffectedScope([labOwner], ["apps/labs/demo/package.json"])).toEqual({ _tag: "noop" });
+    it("treats a lab package manifest as a package-identity full reason", () => {
+      expect(planCoverageAffectedScope([labOwner], ["apps/labs/demo/package.json"])).toEqual({
+        _tag: "full",
+        reasons: ["apps/labs/demo/package.json: package identity or coverage task may have changed"],
+      });
     });
 
-    it("treats lab paths as no-ops even without any lab owner", () => {
-      expect(planCoverageAffectedScope([productOwner], ["apps/labs/demo/src/App.tsx"])).toEqual({ _tag: "noop" });
+    it("requires full coverage when a changed lab has no known owner", () => {
+      expect(planCoverageAffectedScope([productOwner], ["apps/labs/demo/src/App.tsx"])).toEqual({
+        _tag: "full",
+        reasons: ["apps/labs/demo/src/App.tsx: no current workspace owner"],
+      });
     });
 
-    it("never selects a lab owner that illegally defines coverage", () => {
-      expect(planCoverageAffectedScope([coveredLabOwner], ["apps/labs/demo/src/App.tsx"])).toEqual({ _tag: "noop" });
+    it("selects an enrolled lab owner for its source changes", () => {
+      expect(planCoverageAffectedScope([coveredLabOwner], ["apps/labs/demo/src/App.tsx"])).toEqual({
+        _tag: "selected",
+        packageNames: ["@beep/lab-demo"],
+        dependentPackageNames: [],
+      });
     });
 
     it("keeps product owners selected when labs change alongside them", () => {
@@ -51,7 +61,7 @@ describe("labs ceremony scoping", () => {
           [coveredLabOwner, productOwner],
           ["apps/labs/demo/src/App.tsx", "packages/a/src/A.ts"]
         )
-      ).toEqual({ _tag: "selected", packageNames: ["@beep/a"], dependentPackageNames: [] });
+      ).toEqual({ _tag: "selected", packageNames: ["@beep/a", "@beep/lab-demo"], dependentPackageNames: [] });
     });
   });
 

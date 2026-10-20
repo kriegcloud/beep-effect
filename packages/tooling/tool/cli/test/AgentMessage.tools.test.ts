@@ -152,6 +152,38 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("AgentMessage enrollment
     )
   );
 
+  it.effect("rejects another sender's stable ID before reusing its envelope metadata", () =>
+    fixture(
+      Effect.gen(function* () {
+        const store = yield* AgentMessageStore;
+        const input = {
+          messageId: "shared-id",
+          conversationId: "private-conversation",
+          recipient: "b",
+          body: "private-body",
+        };
+        const first = yield* call("grant-a", "agent_message_send", input);
+        expect(first.isFailure).toBe(false);
+        const original = yield* store.message(input.messageId);
+        const conflict = yield* call("grant-b", "agent_message_send", { ...input, recipient: "a", body: "other body" });
+        expect(conflict.isFailure).toBe(true);
+        const failure = yield* S.decodeUnknownEffect(RouterError)(conflict.encodedResult);
+        expect(failure.code).toBe("conflict");
+        expect(failure.message).toBe("Message identity belongs to another sender.");
+        expect(failure.message).not.toContain(input.body);
+        expect(failure.message).not.toContain(input.conversationId);
+        const repeated = yield* call("grant-a", "agent_message_send", input);
+        expect(repeated.isFailure).toBe(false);
+        expect(repeated.encodedResult).toEqual(first.encodedResult);
+        expect((yield* call("grant-a", "agent_message_send", { ...input, body: "changed" })).isFailure).toBe(true);
+        expect(yield* store.message(input.messageId)).toEqual(original);
+        expect(yield* store.receipts(input.messageId)).toHaveLength(1);
+        expect(yield* store.inbox("b")).toEqual([original]);
+        expect(yield* store.inbox("a")).toEqual([]);
+      })
+    )
+  );
+
   it.effect("stable sends and replies preserve identity, correlation and budget", () =>
     fixture(
       Effect.gen(function* () {
@@ -289,7 +321,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("AgentMessage enrollment
         expect((yield* S.decodeUnknownEffect(Receipt)(ack.encodedResult)).status).toBe("acknowledged");
         Utils.assertNone(yield* store.claimNext("b", "owner-b", now, now + 10000));
         yield* store.complete(claim, "delivered", now + 1);
-        expect(O.getOrThrow(A.last(yield* store.receipts("m1"))).status).toBe("acknowledged");
+        expect(O.getOrThrow(A.last(yield* store.receipts("m1"))).status).toBe("delivered");
         yield* store
           .claimNext("b", "owner-b", now + 2, now + 10000)
           .pipe(Effect.map(O.isSome), Effect.map(Utils.assertTrue));

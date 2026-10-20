@@ -553,15 +553,17 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
               )
             )
           );
-        if (status !== "ambiguous" && current.dispatch_active === 2)
+        if (status !== "ambiguous")
           return yield* append(
             claim.envelope.messageId,
             status,
             now,
             claim.generation,
             O.some(claim.ownerId),
-            O.some(
-              "Original owned native attempt reached a known terminal result; its dispatch hold is released and participant acknowledgement is retained."
+            O.orElse(detail, () =>
+              O.some(
+                "Original owned native attempt reached a known terminal result; its dispatch hold is released and participant acknowledgement is retained."
+              )
             )
           );
         const last = A.last(yield* receipts(claim.envelope.messageId));
