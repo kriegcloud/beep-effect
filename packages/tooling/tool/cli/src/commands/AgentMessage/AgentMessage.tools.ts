@@ -23,6 +23,16 @@ const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.tools");
 /**
  * A scoped direct message; sender, policy and expiry are assigned by the host.
  *
+ * **Example** (Refuse a send without its identifiers)
+ *
+ * ```ts
+ * import { SendInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isNone(S.decodeUnknownOption(SendInput)({ body: "hello" }))) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -41,6 +51,16 @@ export class SendInput extends S.Opaque<SendInput, { readonly brand: unique symb
 /**
  * Reply to an enrolled inbound message with a stable new identifier.
  *
+ * **Example** (Refuse a reply without the message it answers)
+ *
+ * ```ts
+ * import { ReplyInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isNone(S.decodeUnknownOption(ReplyInput)({ body: "ack" }))) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -56,6 +76,16 @@ export class ReplyInput extends S.Opaque<ReplyInput, { readonly brand: unique sy
 /**
  * Select one message visible to the enrolled endpoint.
  *
+ * **Example** (Refuse a selection without a message id)
+ *
+ * ```ts
+ * import { MessageInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isNone(S.decodeUnknownOption(MessageInput)({}))) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -66,6 +96,16 @@ export class MessageInput extends S.Opaque<MessageInput, { readonly brand: uniqu
 ) {}
 /**
  * No caller identity is accepted from tool parameters.
+ *
+ * **Example** (Accept the empty parameter object)
+ *
+ * ```ts
+ * import { EmptyInput } from "@beep/repo-cli/test/AgentMessage"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(O.isSome(S.decodeUnknownOption(EmptyInput)({}))) // true
+ * ```
  *
  * @category models
  * @since 0.0.0

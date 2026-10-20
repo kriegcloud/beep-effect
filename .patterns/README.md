@@ -54,7 +54,7 @@ This directory provides reusable solutions and best practices for Effect TypeScr
 ### Mandatory Patterns (ALWAYS USE)
 
 - __return yield_ for errors_*: Makes termination explicit in generators
-- **Immediate linting**: `biome check . --write` after editing TypeScript files
+- **Immediate linting**: `biome check --write <changed files>` after editing TypeScript files
 - **JSDoc compilation validation**: `bun run docgen` must pass
 - **Effect testing patterns**: Use @effect/vitest with `it.effect`
 - **TestClock for time**: Use TestClock for any time-dependent operations

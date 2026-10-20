@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 /**
- * The Impeccable direction contract for the current world, emitted as an HTML
+ * The design direction contract for the current world, emitted as an HTML
  * comment that is the first child of the document body so it survives the
  * production build and can be audited.
  *

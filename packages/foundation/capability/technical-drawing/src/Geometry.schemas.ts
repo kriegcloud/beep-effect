@@ -14,8 +14,10 @@
 
 import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { O } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 
 const $I = $TechnicalDrawingId.create("Geometry.schemas");
 
@@ -693,6 +695,70 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
   )
 ) {}
 
+const HiddenLinePassAboutBase = LiteralKit(["origin", "target"]);
+
+/**
+ * Point a camera's hidden-line pass runs about.
+ *
+ * **Details**
+ *
+ * `origin` runs the pass about the model's own origin, as every camera did
+ * before the field existed. `target` runs it about the camera's target: a
+ * kernel whose perspective pass places its eye relative to the pass origin
+ * then sees the model from the camera's own eye point. A camera whose target
+ * stands well clear of the model (a two-point pictorial) needs `target`.
+ *
+ * **Example** (Read the pass origins)
+ *
+ * ```ts
+ * import { HiddenLinePassAbout } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(HiddenLinePassAbout.literals)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HiddenLinePassAbout = HiddenLinePassAboutBase.pipe(
+  $I.annoteSchema("HiddenLinePassAbout", {
+    description: "Point a camera's hidden-line pass runs about: the model's `origin` or the camera's `target`.",
+  }),
+  SchemaUtils.withLiteralKitStatics(HiddenLinePassAboutBase)
+);
+
+/**
+ * Type for {@link HiddenLinePassAbout}.
+ *
+ * **Example** (Annotate a pass origin)
+ *
+ * ```ts
+ * import type { HiddenLinePassAbout } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const about: HiddenLinePassAbout = "target"
+ * console.log(about)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HiddenLinePassAbout = typeof HiddenLinePassAbout.Type;
+
+// Encoded only when it is not `origin`, so cameras written before the field existed encode byte for byte as before.
+const hiddenLinePassAboutKey = S.optionalKey(HiddenLinePassAbout).pipe(
+  S.decodeTo(
+    HiddenLinePassAbout,
+    SchemaTransformation.transformOptional<HiddenLinePassAbout, HiddenLinePassAbout>({
+      decode: (about) => O.some(O.getOrElse(about, () => HiddenLinePassAbout.Enum.origin)),
+      encode: O.filter((about) => about !== HiddenLinePassAbout.Enum.origin),
+    })
+  ),
+  S.withConstructorDefault(Effect.succeed(HiddenLinePassAbout.Enum.origin)),
+  S.annotateKey({
+    description:
+      "Point the hidden-line pass runs about: `origin` (the model's, the default, omitted when encoded) or `target`.",
+  })
+);
+
 /**
  * Viewing camera for hidden-line projection.
  *
@@ -701,6 +767,14 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
  * `eye` points from the target toward the viewer and `up` fixes the roll;
  * neither needs normalising. `focus` is the eye-to-target distance of a
  * perspective camera in model units; absent, the projection is orthographic.
+ * `sight` is the direction toward the viewer that face-facing decisions
+ * (shading, faced overlay lines) read in place of `eye`. A camera aimed at
+ * the model's centre needs none; a two-point camera, whose level line of
+ * sight would read every level face as edge-on, carries the direction from
+ * the box centre to its eye point. `hiddenLinePassAbout` says where the
+ * hidden-line pass runs (see {@link HiddenLinePassAbout}); it is set apart
+ * from `sight`, so a camera can change what it reads as facing without
+ * moving its pass.
  *
  * **Example** (Front orthographic and an upper-left perspective)
  *
@@ -710,7 +784,7 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
  *
  * const front = Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] })
  * const persp = Camera.make({ eye: [-1, -1.3, 0.9], up: [0, 0, 1], target: [20, 15, 10], focus: O.some(250) })
- * console.log(front.focus, persp.focus)
+ * console.log(front.focus, persp.focus, persp.hiddenLinePassAbout)
  * ```
  *
  * @category models
@@ -729,9 +803,18 @@ export class Camera extends S.Opaque<Camera, { readonly brand: unique symbol }>(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Perspective eye distance from the target; none means orthographic." })
     ),
+    sight: S.OptionFromOptionalKey(Vec3).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Direction toward the viewer that shading and faced overlay lines read for which way a face turns; none means `eye`.",
+      })
+    ),
+    hiddenLinePassAbout: hiddenLinePassAboutKey,
   }).pipe(
     $I.annoteSchema("Camera", {
-      description: "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus.",
+      description:
+        "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus, optional facing sight, and the point its hidden-line pass runs about.",
     })
   )
 ) {}
@@ -859,6 +942,101 @@ export class ShadingSkip extends S.Opaque<ShadingSkip, { readonly brand: unique 
   )
 ) {}
 
+const ShadingStretchSkipReasonBase = LiteralKit(["narrow", "sliver", "no-room", "ink-order"]);
+
+/**
+ * Why a visible stretch of a face given shading lines drew no band.
+ *
+ * **Details**
+ *
+ * `narrow`: the rules found room for one line only, and one line beside an
+ * outline reads as a doubled edge. `sliver`: the rules found room for no
+ * line. `no-room`: lines were planned, but fewer than two of their strokes
+ * reach the legible stroke length. `ink-order`: the band, drawn on its whole
+ * chords (its taper, or hidden-line removal, left its tapered strokes no room)
+ * and cut back to its taper, still carried more ink than a darker face beside
+ * it at the lit floor, so it was left bare.
+ *
+ * **Example** (Read the reasons)
+ *
+ * ```ts
+ * import { ShadingStretchSkipReason } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(ShadingStretchSkipReason.literals) // ["narrow", "sliver", "no-room", "ink-order"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ShadingStretchSkipReason = ShadingStretchSkipReasonBase.pipe(
+  $I.annoteSchema("ShadingStretchSkipReason", {
+    description:
+      "Why a visible stretch of a face given shading lines drew no band: narrow, sliver, no-room, or ink-order.",
+  }),
+  SchemaUtils.withLiteralKitStatics(ShadingStretchSkipReasonBase)
+);
+
+/**
+ * Type for {@link ShadingStretchSkipReason}.
+ *
+ * **Example** (Annotate a stretch skip reason)
+ *
+ * ```ts
+ * import type { ShadingStretchSkipReason } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * const reason: ShadingStretchSkipReason = "narrow"
+ * console.log(reason)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ShadingStretchSkipReason = typeof ShadingStretchSkipReason.Type;
+
+/**
+ * Number of visible stretches of one view's shaded faces that drew no band
+ * for one reason, and how many of them had measured room for a band.
+ *
+ * **Details**
+ *
+ * A stretch has room for a band when the part of it whose visible chord
+ * reaches the legible stroke length is at least 3.4 minimum pitches across on
+ * the sheet: a first line one pitch in, a second 1.4 pitches past it, and a
+ * pitch to spare (`stretchFitsBand` in `Shading.rules`). A skipped stretch
+ * with that room is a band the planner failed to draw, which the validator
+ * reports.
+ *
+ * **Example** (Two narrow stretches, one of them with room for a band)
+ *
+ * ```ts
+ * import { ShadingStretchSkip } from "@beep/technical-drawing/Geometry.schemas"
+ *
+ * console.log(ShadingStretchSkip.make({ reason: "narrow", stretches: 2, fitting: 1 }).fitting) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingStretchSkip extends S.Opaque<ShadingStretchSkip, { readonly brand: unique symbol }>()(
+  S.Struct({
+    reason: ShadingStretchSkipReason.annotateKey({ description: "Why the stretches drew no band." }),
+    stretches: S.Natural.annotateKey({ description: "Visible stretches skipped for this reason." }),
+    fitting: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "How many of those stretches had measured room for a band: legible chords at least 3.4 minimum pitches across. Defaults to 0.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ShadingStretchSkip", {
+      description:
+        "Count of visible stretches of one view's shaded faces that drew no band for one reason, and how many had room for one.",
+    })
+  )
+) {}
+
 /**
  * Shading coverage of one view: faces given lines and faces skipped by reason.
  *
@@ -866,7 +1044,14 @@ export class ShadingSkip extends S.Opaque<ShadingSkip, { readonly brand: unique 
  *
  * Counted before hidden-line removal, so a shaded face may still be hidden
  * by another part. Skips are listed in {@link ShadingSkipReason} order with
- * zero counts left out.
+ * zero counts left out. Under graded shading every visible stretch of a face
+ * given lines is planned on its own: a stretch that drew no band by design is
+ * counted in `skippedStretches` ({@link ShadingStretchSkipReason} order, zero
+ * counts left out), and a band drawn again on its whole chords after
+ * hidden-line removal cut its tapered strokes in `redrawnStretches`. The
+ * engine counts `lostFaces` and `lostStretches` on the strokes it projects;
+ * a render adds the bands the sheet's re-clip beside separated outlines then
+ * empties (`reclippedCoverage`), so its manifest counts what the sheet draws.
  *
  * **Example** (Five shaded faces, one sliver)
  *
@@ -894,7 +1079,7 @@ export class ShadingCoverage extends S.Opaque<ShadingCoverage, { readonly brand:
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({
         description:
-          "Faces given shading lines whose every stroke the hidden-line and legibility passes then removed; counted in `shadedFaces` too. Defaults to 0.",
+          "Faces given shading lines whose every stroke the hidden-line and legibility passes, or on the sheet the re-clip beside separated outlines, then removed; counted in `shadedFaces` too. Defaults to 0.",
       })
     ),
     lostStretches: S.Natural.pipe(
@@ -902,13 +1087,68 @@ export class ShadingCoverage extends S.Opaque<ShadingCoverage, { readonly brand:
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({
         description:
-          "Visible stretches of faces that were planned at least two shading lines and drew none after the hidden-line and legibility passes; a face with another stretch still drawn is not a lost face. Defaults to 0.",
+          "Visible stretches of faces that were planned at least two shading lines and drew none after the hidden-line and legibility passes, or on the sheet after the re-clip beside separated outlines; a face with another stretch still drawn is not a lost face. Defaults to 0.",
+      })
+    ),
+    skippedStretches: S.Array(ShadingStretchSkip).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible stretches of faces given shading lines that drew no band by design, per reason, in reason order; zero counts left out. Defaults to none.",
+      })
+    ),
+    redrawnStretches: S.Natural.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Tapered bands that hidden-line removal and the legibility pass left with fewer than two strokes, drawn again on their whole chords and cut back to their taper. Defaults to 0.",
       })
     ),
   }).pipe(
     $I.annoteSchema("ShadingCoverage", {
       description:
-        "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal, and planned stretches that drew nothing.",
+        "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal or the sheet's re-clip, planned stretches that drew nothing, stretches skipped by design, and bands redrawn on their whole chords.",
+    })
+  )
+) {}
+
+/**
+ * One visible stretch of a face that drew shading lines: the face it shades
+ * and the strokes of its band.
+ *
+ * **Details**
+ *
+ * `strokes` index the view's `EdgeSet.shading`, which keeps the one canonical
+ * stroke order the sheet draws. A pass that changes strokes after projection
+ * (the re-clip beside outlines the sheet separates) reads through them which
+ * stretch, and which face, it left bare. `face` numbers the faces the view
+ * planned shading for, so the bands of one face share it; the numbering is
+ * the engine's and means nothing across views.
+ *
+ * **Example** (A band of three strokes on the view's first planned face)
+ *
+ * ```ts
+ * import { ShadingBand } from "@beep/technical-drawing"
+ *
+ * console.log(ShadingBand.make({ face: 0, strokes: [0, 2, 5] }).strokes.length) // 3
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingBand extends S.Opaque<ShadingBand, { readonly brand: unique symbol }>()(
+  S.Struct({
+    face: S.Natural.annotateKey({
+      description: "The face the band shades, numbered among the faces the view planned; bands of one face share it.",
+    }),
+    strokes: S.NonEmptyArray(S.Natural).annotateKey({
+      description: "Indices into the view's `shading` of the strokes the band drew, ascending.",
+    }),
+  }).pipe(
+    $I.annoteSchema("ShadingBand", {
+      description: "A visible stretch of a face that drew shading lines: its face and the indices of its strokes.",
     })
   )
 ) {}
@@ -926,6 +1166,8 @@ export class ShadingCoverage extends S.Opaque<ShadingCoverage, { readonly brand:
  * edges of faces a solid part's broken primitives alone own (see {@link Box}),
  * and the visible pieces of `broken` overlay lines; `emphasis` holds the
  * visible pieces of `emphasis` overlay lines (see {@link OverlayLine}).
+ * `shadingBands` group the shading strokes by the visible stretch that drew
+ * them (see {@link ShadingBand}).
  *
  * **Example** (An empty edge set)
  *
@@ -951,6 +1193,14 @@ export class EdgeSet extends S.Opaque<EdgeSet, { readonly brand: unique symbol }
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Faces shaded and skipped; absent when the view was not shaded." })
     ),
+    shadingBands: S.Array(ShadingBand).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.withDecodingDefaultTypeKey(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Visible stretches that drew shading lines, each with its face and its strokes' indices in `shading`; every stroke belongs to one band. Empty when the view was not shaded.",
+      })
+    ),
     broken: S.Array(Segment2).pipe(
       S.withConstructorDefault(Effect.succeed([])),
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
@@ -970,7 +1220,7 @@ export class EdgeSet extends S.Opaque<EdgeSet, { readonly brand: unique symbol }
   }).pipe(
     $I.annoteSchema("EdgeSet", {
       description:
-        "Canonically ordered visible, hidden, shading, broken-line, and emphasis projected segments of one view.",
+        "Canonically ordered visible, hidden, shading, broken-line, and emphasis projected segments of one view, with the shading's coverage and bands.",
     })
   )
 ) {}
@@ -1102,8 +1352,10 @@ const ExposureThreshold = S.Finite.check(
  * shadow edge (see {@link ShadingStyle}); `axis` picks the line direction
  * (see {@link HatchAxis}); faces narrower than `minFaceSpan` are never
  * hatched, and chords shorter than `minStroke` on the view plane are dropped. Only planar faces turned toward the camera are shaded, and the
- * lines pass through the same hidden-line removal as the outlines. The
- * defaults reproduce the original hatch exactly.
+ * lines pass through the same hidden-line removal as the outlines. A graded
+ * band whose edge has another drawn line within `ladderReach` beyond it,
+ * running alongside the edge, starts behind a gutter. The defaults reproduce
+ * the original hatch exactly.
  *
  * **Example** (A plan in millimetres)
  *
@@ -1176,10 +1428,17 @@ export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique 
           "Distance, in model units, a graded stroke end keeps from every drawn outline after hidden-line removal; none means half the minimum pitch. A sheet sets it to the larger of half its pitch and the validator's spacing floor, so a render passes its own check.",
       })
     ),
+    ladderReach: S.OptionFromOptionalKey(PositiveLength).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "How far beyond a graded band's edge, in model units, a drawn line running alongside that edge makes the band and the lines read as one ladder, so the band starts behind a gutter; none means five thirds of the minimum pitch. A sheet sets it from the validator's ladder reach, so a render passes its own check.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("ShadingPlan", {
       description:
-        "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, and outline clearance of straight-line shading, in model units.",
+        "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, outline clearance, and ladder reach of straight-line shading, in model units.",
     })
   )
 ) {}

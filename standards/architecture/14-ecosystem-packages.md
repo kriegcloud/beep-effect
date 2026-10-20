@@ -3,7 +3,7 @@
 `ecosystem` is the package family for repo-authored libraries built for the
 wider TypeScript/effect ecosystem: packages this repo intends to publish to
 npm and then consume like any external dependency. The family was chartered
-2026-08-10 for the graduation of `scratchpad/bsl` into
+2026-08-10 for the graduation of the scratchpad `bsl` experiment into
 `@beep/effect-drizzle`; see the matching `DECISIONS.md` entry.
 
 Every other family exists to serve this repo's product. An ecosystem package

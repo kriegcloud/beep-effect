@@ -28,6 +28,27 @@ export * from "./Bootstrap.schemas.ts";
 export * from "./Bootstrap.ts";
 export * from "./Completion.ts";
 /**
+ * Merge-time completion evidence request and result schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./CompletionEvidence.schemas.ts";
+/**
+ * Completion GitHub port and merge-time evidence provider contracts.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./CompletionEvidence.service.ts";
+/**
+ * Merge-time completion evidence provider and pure verdict.
+ *
+ * @category queries
+ * @since 0.0.0
+ */
+export * from "./CompletionEvidence.ts";
+/**
  * Doctor command and baseline-ratchet exports.
  *
  * @category cli-commands

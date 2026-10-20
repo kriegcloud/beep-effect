@@ -6,7 +6,7 @@
     "title": "Practice KG MCP Strict Telemetry Tier",
     "status": "active",
     "created": "2026-10-14",
-    "updated": "2026-10-14",
+    "updated": "2026-10-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/practice-kg-mcp-strict-tier",
@@ -34,7 +34,11 @@
     "goals/practice-kg-mcp-strict-tier/GOAL.md",
     "goals/practice-kg-mcp-strict-tier/research/SOURCES.md"
   ],
-  "researchReports": ["research/SOURCES.md"],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/source-survey.md",
+    "research/strict-tier-design.md"
+  ],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -50,22 +54,22 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Gate",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Spool + tier",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Proof",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P4",

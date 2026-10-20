@@ -114,11 +114,11 @@ not win package topology, runtime authority, or source-of-truth status.
 
 ### Local TrustGraph TypeScript Port
 
-Source: the machine-local TrustGraph TypeScript port (upstream: https://github.com/trustgraph-ai/trustgraph), inspected read-only. Relevant anchors:
-`package.json`, `packages/base/src/processor/flow-processor.ts`,
-`packages/flow/src/retrieval/graph-rag.ts`,
-`packages/flow/src/storage/triples/falkordb.ts`,
-`packages/flow/src/extract/knowledge-extract.ts`.
+Source: the machine-local TrustGraph TypeScript port (upstream: https://github.com/trustgraph-ai/trustgraph), inspected read-only. Relevant anchors, relative to that checkout:
+`<tg-ts>/package.json`, `<tg-ts>/packages/base/src/processor/flow-processor.ts`,
+`<tg-ts>/packages/flow/src/retrieval/graph-rag.ts`,
+`<tg-ts>/packages/flow/src/storage/triples/falkordb.ts`,
+`<tg-ts>/packages/flow/src/extract/knowledge-extract.ts`.
 
 **Use as:** runnable TypeScript comparison harness and component donor.
 

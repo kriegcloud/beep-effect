@@ -6,6 +6,7 @@ import { getSomesStruct } from "@beep/utils/Option";
 import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
 import { Node } from "ts-morph";
 import type { SourceFile } from "ts-morph";
@@ -324,8 +325,6 @@ const stripCommentFraming = (commentText: string): ReadonlyArray<string> =>
     Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
   );
 
-const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
-
 const blankLinesLike = (value: string): string =>
   A.join(
     A.map(Str.split(/\r?\n/)(value), () => ""),
@@ -341,7 +340,7 @@ const maskFencedContent = (lines: ReadonlyArray<string>): ReadonlyArray<string> 
   const masked = A.reduce(blocks, normalized, (text, block) =>
     Str.isEmpty(block.code)
       ? text
-      : Str.replace(new RegExp(escapeRegExp(block.code), "g"), blankLinesLike(block.code))(text)
+      : Str.replace(new RegExp(Regex.escape(block.code), "g"), blankLinesLike(block.code))(text)
   );
   return Str.split(/\r?\n/)(masked);
 };

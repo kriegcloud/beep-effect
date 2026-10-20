@@ -1,0 +1,49 @@
+{
+  "mode": "bootstrap",
+  "planId": "goal-plan/v1:bfdd8882137de439cda99d49c3938c3d10c2b40ec072482741ab7692b8877c0b",
+  "schemaVersion": "goal-materialization-receipt/v1",
+  "slug": "repository-simplification-residue",
+  "validations": [
+    "manifest-decodes",
+    "goal-md-within-budget",
+    "readme-lifecycle-line"
+  ],
+  "written": [
+    {
+      "digest": "6e776fd3afbc28bceb486726615783e8a76da5ce8ce203ea425d81e0ef681907",
+      "path": "goals/repository-simplification-residue/ops/manifest.json"
+    },
+    {
+      "digest": "deb5342e3011d222b1c2209ec786b5879433b9ccae9eb5a9d30829b7df2c417e",
+      "path": "goals/repository-simplification-residue/README.md"
+    },
+    {
+      "digest": "59dfa51acde83d65e54fd8857f4cec778ee6db9e3f26ba6d99bc5b145ea171c1",
+      "path": "goals/repository-simplification-residue/GOAL.md"
+    },
+    {
+      "digest": "109c5e94f3e6241efcbf8b06c36186df48601c90edb61f10751862943780e56f",
+      "path": "goals/repository-simplification-residue/SPEC.md"
+    },
+    {
+      "digest": "86a68c4f3d058ab0cb749c1a0787c68247b5dc32df721062a53a39faf6724b0c",
+      "path": "goals/repository-simplification-residue/PLAN.md"
+    },
+    {
+      "digest": "b5e8e1f81fda124fcd8a802cdcdf01672acc1c97a30448baa7bc57e151218ace",
+      "path": "goals/repository-simplification-residue/research/SOURCES.md"
+    },
+    {
+      "digest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "path": "goals/repository-simplification-residue/research/.gitkeep"
+    },
+    {
+      "digest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "path": "goals/repository-simplification-residue/history/.gitkeep"
+    },
+    {
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "goals/repository-simplification-residue/history/reflections/.gitkeep"
+    }
+  ]
+}

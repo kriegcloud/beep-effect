@@ -1,0 +1,14 @@
+{
+  "extends": "../../../../../../tsconfig.base.json",
+  "include": ["./strict-safe.ts"],
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    "rootDir": "../..",
+    "sourceMap": false,
+    "types": ["bun-types"]
+  }
+}

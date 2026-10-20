@@ -134,7 +134,7 @@ Use:
 - `S.withDecodingDefaultKey(...)`
 - `S.decodeTo(...)`
 - `SchemaTransformation.transform(...)`
-- `SchemaTransformation.transformOrFail(...)`
+- `SchemaTransformation.transformEffect(...)`
 
 Prefer:
 
@@ -216,7 +216,8 @@ Use:
 
 - `S.is(schema)`
 - `S.toEquivalence(schema)`
-- `S.toArbitrary(schema)` for schema-modeled laws and boundary invariants
+- `Arbitrary.schema(schema)` (`effect/Arbitrary`) for schema-modeled laws and
+  boundary invariants
 - `S.TaggedUnion(...).cases` / `.guards` / `.isAnyOf` / `.match`
 - `S.toTaggedUnion(...).cases` / `.guards` / `.isAnyOf` / `.match`
 - `LiteralKit.Enum`, `.is`, `.$match`, and `.toTaggedUnion`, plus the
@@ -270,7 +271,7 @@ S.makeFilter(Str.includes("/"), {
 Property tests should import production schemas and derive data from them.
 Do not define weaker test-only schemas to make arbitrary generation easier.
 
-When `S.toArbitrary(schema)` exposes values that break a claimed invariant,
+When `Arbitrary.schema(schema)` exposes values that break a claimed invariant,
 fix or annotate the source schema unless the invariant was overstated.
 
 Broad primitives in exported/domain/boundary schemas need a deliberate reason:
@@ -288,7 +289,8 @@ When fixing schema-first issues, check:
 
 - `bun run beep lint schema-first`
 - `standards/schema-first.inventory.jsonc`
-- package-level convention tests such as `packages/ai/sdk/test/conventions-guard.test.ts`
+- package-level tests that pin the package's schema conventions, where the
+  package has them
 
 The intent is not just "make lint pass". The intent is to keep schema modeling
 central enough that runtime helpers, docs, and validation behavior all stay in

@@ -73,6 +73,7 @@ describe("Boundary", () => {
           ".": "./src/index.ts",
           "./experimental/server": "./src/experimental/server/index.ts",
           "./server": "./src/server/index.ts",
+          "./strict": "./src/strict/index.ts",
           "./web": "./src/web/index.ts",
         });
         expect(packageJson.exports).not.toHaveProperty("./*");
@@ -100,9 +101,42 @@ describe("Boundary", () => {
     { timeout: 60_000 }
   );
 
+  it.effect(
+    "keeps the strict entrypoint free from server, SDK and platform imports",
+    () =>
+      Effect.gen(function* () {
+        const strictSources = yield* Effect.forEach(
+          [
+            "src/strict/index.ts",
+            "src/strict/StrictGate.layer.ts",
+            "src/strict/StrictGate.schemas.ts",
+            "src/strict/StrictGate.service.ts",
+            "src/strict/StrictSpool.errors.ts",
+            "src/strict/StrictSpool.layer.ts",
+            "src/strict/StrictSpool.schemas.ts",
+            "src/strict/StrictSpool.service.ts",
+            "src/strict/StrictTier.behavior.ts",
+            "src/strict/StrictTier.schemas.ts",
+          ],
+          readText
+        );
+
+        for (const source of strictSources) {
+          expect(source).not.toContain("../server");
+          expect(source).not.toContain("../experimental");
+          expect(source).not.toContain("../web");
+          expect(source).not.toContain("@effect/opentelemetry");
+          expect(source).not.toContain("@opentelemetry/");
+          expect(source).not.toContain("@effect/platform-");
+          expect(source).not.toContain("node:");
+        }
+      }),
+    { timeout: 60_000 }
+  );
+
   it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) => {
     it.effect(
-      "typechecks browser-safe, server-safe, and experimental-server fixtures",
+      "typechecks browser-safe, server-safe, experimental-server and strict-safe fixtures",
       () => {
         const program = Effect.gen(function* () {
           const tscPath = joinPath(repoRoot, "node_modules/.bin/tsc");
@@ -110,6 +144,7 @@ describe("Boundary", () => {
             joinPath(packageRoot, "test/fixtures/tsconfig.browser.json"),
             joinPath(packageRoot, "test/fixtures/tsconfig.server.json"),
             joinPath(packageRoot, "test/fixtures/tsconfig.experimental-server.json"),
+            joinPath(packageRoot, "test/fixtures/tsconfig.strict.json"),
           ];
 
           for (const tsconfigPath of fixtureTsconfigs) {

@@ -52,7 +52,7 @@ const respond = <A>(effect: Effect.Effect<A, DomainError>) =>
         message: "request failed",
         cause: Cause.pretty(cause)
       }).pipe(
-        Effect.zipRight(Effect.fail(error))
+        Effect.andThen(Effect.fail(error))
       )
     })
   )

@@ -1,5 +1,11 @@
 import { PdfTools, SvgToPdfRequest } from "@beep/pdf-tools";
-import { FigureSetLive } from "@beep/repo-cli/commands/Drawings";
+import {
+  CriticPackRequest,
+  DrawingCritics,
+  decodeCriticMeasurements,
+  decodeCriticPackManifest,
+  FigureSetLive,
+} from "@beep/repo-cli/commands/Drawings";
 import { FigureSet, RenderRequest, ValidationOptions } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
@@ -37,8 +43,16 @@ const missingTool = Effect.gen(function* () {
   return (yield* toolPresent("pdftoppm", "-v")) ? O.none<string>() : O.some("pdftoppm");
 });
 
-const skipWithoutTools = (context: { readonly skip: (note?: string) => void }) =>
-  missingTool.pipe(
+// The critic pack also reads the PDF with pdfinfo and pdffonts (poppler, beside pdftoppm).
+const missingPackTool = Effect.gen(function* () {
+  const render = yield* missingTool;
+  if (O.isSome(render)) return render;
+  if (!(yield* toolPresent("pdfinfo", "-v"))) return O.some("pdfinfo");
+  return (yield* toolPresent("pdffonts", "-v")) ? O.none<string>() : O.some("pdffonts");
+});
+
+const skipWithoutTools = (context: { readonly skip: (note?: string) => void }, probe = missingTool) =>
+  probe.pipe(
     Effect.map((missing) =>
       O.match(missing, {
         onNone: () => false,
@@ -113,53 +127,57 @@ const renderAgainstGolden = Effect.fnUntraced(function* (path: string) {
   return { first, outputDir: paths.join(dir, "a") };
 });
 
-const LiveLayer = Layer.mergeAll(FigureSetLive, PdfTools.makeLayer()).pipe(Layer.provideMerge(NodeServices.layer));
+const PdfToolsLive = PdfTools.makeLayer();
+const LiveLayer = Layer.mergeAll(
+  FigureSetLive,
+  PdfToolsLive,
+  DrawingCritics.layer.pipe(Layer.provide(PdfToolsLive))
+).pipe(Layer.provideMerge(NodeServices.layer));
 
 describe("beep drawings live", () => {
   it.layer(LiveLayer, { timeout: "180 seconds" })((it) => {
     it.effect(
       "renders the synthetic bracket to the committed goldens, byte-stable across two runs, validator clean",
-      (context) =>
-        Effect.gen(function* () {
-          if (yield* skipWithoutTools(context)) return;
-          const { first } = yield* renderAgainstGolden(goldenPath);
-          // the bracket has no broken-line parts and no overlapping parts
-          expect(A.map(first.figures, (f) => f.brokenSegments)).toEqual(A.makeBy(8, () => 0));
-          expect(first.model.partOverlaps).toBe(0);
-        })
+      Effect.fnUntraced(function* (context) {
+        if (yield* skipWithoutTools(context)) return;
+        const { first } = yield* renderAgainstGolden(goldenPath);
+        // the bracket has no broken-line parts and no overlapping parts
+        expect(A.map(first.figures, (f) => f.brokenSegments)).toEqual(A.makeBy(8, () => 0));
+        expect(first.model.partOverlaps).toBe(0);
+      })
     );
 
     it.effect(
       "renders the synthetic crate with a dashed broken-line tab to the committed goldens, byte-stable, validator clean",
-      (context) =>
-        Effect.gen(function* () {
-          if (yield* skipWithoutTools(context)) return;
-          const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const { first, outputDir } = yield* renderAgainstGolden(crateGoldenPath);
-          // zero-clearance halving slots, lid and tab: parts touch, none overlap
-          expect(first.model.partOverlaps).toBe(0);
-          // the tab shows above the lid in every view but the two from below
-          const shows = A.map(first.figures, (f) => [f.view, f.brokenSegments > 0] as const);
-          expect(shows).toEqual([
-            ["top-perspective", true],
-            ["bottom-perspective", false],
-            ["top-plan", true],
-            ["bottom-plan", false],
-            ["front", true],
-            ["rear", true],
-            ["left", true],
-            ["right", true],
-          ]);
-          const topPlan = yield* fs.readFileString(path.join(outputDir, "fig-3.svg"));
-          const bottomPlan = yield* fs.readFileString(path.join(outputDir, "fig-4.svg"));
-          expect(topPlan).toContain('stroke-dasharray="8.504 4.252"');
-          expect(bottomPlan).not.toContain('id="broken"');
-        })
+      Effect.fnUntraced(function* (context) {
+        if (yield* skipWithoutTools(context)) return;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { first, outputDir } = yield* renderAgainstGolden(crateGoldenPath);
+        // zero-clearance halving slots, lid and tab: parts touch, none overlap
+        expect(first.model.partOverlaps).toBe(0);
+        // the tab shows above the lid in every view but the two from below
+        const shows = A.map(first.figures, (f) => [f.view, f.brokenSegments > 0] as const);
+        expect(shows).toEqual([
+          ["top-perspective", true],
+          ["bottom-perspective", false],
+          ["top-plan", true],
+          ["bottom-plan", false],
+          ["front", true],
+          ["rear", true],
+          ["left", true],
+          ["right", true],
+        ]);
+        const topPlan = yield* fs.readFileString(path.join(outputDir, "fig-3.svg"));
+        const bottomPlan = yield* fs.readFileString(path.join(outputDir, "fig-4.svg"));
+        expect(topPlan).toContain('stroke-dasharray="8.504 4.252"');
+        expect(bottomPlan).not.toContain('id="broken"');
+      })
     );
 
-    it.effect("shades the synthetic bracket deterministically, perspectives only, validator clean", (context) =>
-      Effect.gen(function* () {
+    it.effect(
+      "shades the synthetic bracket deterministically, perspectives only, validator clean",
+      Effect.fnUntraced(function* (context) {
         if (yield* skipWithoutTools(context)) return;
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
@@ -186,8 +204,76 @@ describe("beep drawings live", () => {
       })
     );
 
-    it.effect("flags a margin violation, a gray stroke, and a PDF 1.7 header", (context) =>
-      Effect.gen(function* () {
+    it.effect(
+      "packs the shaded synthetic bracket with the PDF facts and per-figure measurements a read-only critic reads",
+      Effect.fnUntraced(function* (context) {
+        if (yield* skipWithoutTools(context, missingPackTool)) return;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const figureSet = yield* FigureSet;
+        const critics = yield* DrawingCritics;
+        const golden = yield* fs.readFileString(goldenPath).pipe(Effect.flatMap(decodeGolden));
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const manifest = yield* figureSet.render(
+          RenderRequest.make({
+            specPath: path.join(repoRoot, golden.spec),
+            outputDir: path.join(dir, "render"),
+            shade: true,
+          })
+        );
+        yield* fs.writeFileString(path.join(dir, "BRIEF.md"), "# Synthetic bracket\n");
+        const pack = yield* critics.buildPack(
+          CriticPackRequest.make({
+            manifestPath: path.join(dir, "render", "manifest.json"),
+            outDir: path.join(dir, "pack"),
+            briefPath: path.join(dir, "BRIEF.md"),
+            imagesDirs: [],
+            zooms: [],
+          })
+        );
+        assertSome(pack.measurements, "render/MEASUREMENTS.md");
+        const written = yield* fs
+          .readFileString(path.join(dir, "pack", "pack.json"))
+          .pipe(Effect.flatMap(decodeCriticPackManifest));
+        assertSome(written.measurements, "render/MEASUREMENTS.md");
+        const measurements = yield* fs
+          .readFileString(path.join(dir, "pack", "render", "measurements.json"))
+          .pipe(Effect.flatMap(decodeCriticMeasurements));
+        const { pdf } = measurements;
+        expect([pdf.pageCount, A.length(pdf.pages), pdf.streamCheck]).toStrictEqual([8, 8, "complete"]);
+        expect(pdf.undecodableStreams).toStrictEqual([]);
+        // every page box is the sheet the SVG states, the CropBox the MediaBox
+        expect(
+          A.map(pdf.pages, (page) => [page.page, page.mediaBox.widthMm, page.mediaBox.heightMm, page.cropBox.widthMm])
+        ).toStrictEqual(
+          A.map(measurements.figures, (figure) => [
+            figure.figure,
+            figure.sheetWidthMm,
+            figure.sheetHeightMm,
+            figure.sheetWidthMm,
+          ])
+        );
+        // the validator passed the set, so every figure's ink clears every 1.84(g) margin
+        const clear = A.map(measurements.figures, (figure) =>
+          O.match(figure.ink, {
+            onNone: () => [figure.figure, "no ink"],
+            onSome: (box) => [figure.figure, box.top.meets && box.left.meets && box.right.meets && box.bottom.meets],
+          })
+        );
+        expect(clear).toStrictEqual(A.map(measurements.figures, (figure) => [figure.figure, true]));
+        // the shading statistics count the strokes the render drew
+        expect(A.map(measurements.figures, (figure) => figure.shading.count)).toStrictEqual(
+          A.map(manifest.figures, (figure) => figure.shadingSegments)
+        );
+        const markdown = yield* fs.readFileString(path.join(dir, "pack", "render", "MEASUREMENTS.md"));
+        expect(markdown).toContain('# MEASUREMENTS.md — measured facts of "');
+        expect(markdown).toContain("## FIG 8 (");
+      })
+    );
+
+    it.effect(
+      "flags a margin violation, a gray stroke, and a PDF 1.7 header",
+      Effect.fnUntraced(function* (context) {
         if (yield* skipWithoutTools(context)) return;
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;

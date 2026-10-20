@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "pulumi-to-alchemy",
+    "title": "Pulumi to Alchemy",
+    "status": "killed",
+    "stage": "align",
+    "openQuestions": [],
+    "sources": ["research/SOURCES.md"],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-10-15",
+    "updated": "2026-10-15"
+  }
+}

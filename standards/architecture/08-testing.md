@@ -98,8 +98,8 @@ describe("Membership", () => {
 });
 ````
 
-The fixtures `activeMembership` and `revokedMembership` are owned by
-`@beep/iam-domain/test` (see Fixture Ownership below). Domain tests never
+The fixtures `activeMembership` and `revokedMembership` are owned by the
+illustrative `iam` domain package's `test` subpath (see Fixture Ownership below). Domain tests never
 depend on use-case ports, server adapters, drivers, or any application Layer.
 
 Schema-derived property tests complement fixtures. Keep fixtures for exact
@@ -356,7 +356,7 @@ not see).
 | Smell                                                      | Diagnostic                                                                                                                |
 |------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
 | Test imports `@beep/<other-slice>-server`                  | Cross-slice coupling. Refactor to stub the boundary; if the dependency is real, promote a contract to future `shared/use-cases`. |
-| Test imports `apps/web/src/runtime/Layer.ts`               | The test is testing the app, not the slice. Move it under `apps/web`.                                                     |
+| Test imports `apps/<app>/src/runtime/Layer.ts`             | The test is testing the app, not the slice. Move it under `apps/<app>`.                                                   |
 | Test mocks `Effect` itself or `effect/Schema`              | Testing the framework, not your code. Remove.                                                                             |
 | Test reads `process.env` directly                          | Test should provide a `ConfigProvider` test Layer from `tooling/test-kit/` or `@beep/<kernel>-config/test`.               |
 | Test depends on wall-clock time without `TestClock`        | Flake. Use `TestClock` from `effect/testing`.                                                                             |

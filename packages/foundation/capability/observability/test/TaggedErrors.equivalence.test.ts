@@ -15,6 +15,7 @@ import {
   UnauthorizedError,
   UnprocessableEntityError,
 } from "@beep/observability";
+import { StrictSpoolError } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { describe } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
@@ -52,6 +53,15 @@ describe("observability declared-field equivalence", () => {
 
     assertTrue(same(a, b));
     assertFalse(same(a, different));
+  });
+
+  it("compares StrictSpoolError by stable fields and ignores cause", () => {
+    const a = StrictSpoolError.make({ cause: "same cause", message: "same", operation: "append" });
+    const b = StrictSpoolError.make({ cause: "same cause", message: "same", operation: "append" });
+    const different = StrictSpoolError.make({ cause: "same cause", message: "same", operation: "replay" });
+    const differentCause = StrictSpoolError.make({ cause: "different cause", message: "same", operation: "append" });
+
+    expectDeclaredEquivalence(StrictSpoolError, a, b, different, differentCause);
   });
 
   it("compares ClientHttpError by stable fields and ignores cause", () => {

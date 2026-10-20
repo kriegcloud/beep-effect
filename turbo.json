@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-7.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-8.turborepo.dev/schema.json",
   "agentGuidance": false,
   "futureFlags": {
     "affectedUsingTaskInputs": true,
@@ -183,11 +183,13 @@
       "outputs": [],
       "inputs": [
         ".fallowrc.jsonc",
+        ".oxlintrc.circular.json",
         ".oxlintrc.deprecated-apis.jsonc",
         ".oxlintrc.docs.json",
         ".oxlintrc.json",
         "_typos.toml",
         "biome.jsonc",
+        "fallow-plugin-manual-development-tools.json",
         "package.json",
         "packages/drivers/acp/package.json",
         "packages/drivers/acp/src/**",
@@ -1165,6 +1167,7 @@
       "outputs": [],
       "dependsOn": ["//#lint:policy-fingerprint"],
       "inputs": [
+        ".oxlintrc.circular.json",
         "packages/tooling/**/src/**/*.ts",
         "packages/foundation/**/src/**/*.{ts,tsx}",
         "tsconfig.json",

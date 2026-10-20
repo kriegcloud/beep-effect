@@ -416,7 +416,7 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
     id: "effect-diagnostics",
     workflow: "heavy",
     contextName: "Heavy / Effect Diagnostics",
-    required: false,
+    required: true,
     laneClass: "cli-runnable",
     replay: "exact",
     flags: [...TURBO_SHAPE_FLAGS],
@@ -1698,6 +1698,7 @@ export const ciLaneStepsForTesting: {
       "repo-sanity": () => [
         bunRunStep(repoRoot, "lint:schema-catalog", ["beep", "lint", "schema-catalog"]),
         bunRunStep(repoRoot, "ci:repo-sanity:changeset-graph", ["beep", "quality", "changeset-graph"]),
+        bunRunStep(repoRoot, "ci:repo-sanity:catalog-usage", ["beep", "quality", "catalog-usage"]),
         bunRunStep(repoRoot, "ci:repo-sanity", ["audit:github", "repo-sanity"]),
         ...(options.changesetStatus
           ? [

@@ -73,7 +73,7 @@ Additional checks with no law counterpart below:
 31. Forking defaults to `Effect.forkChild`; `Effect.forkDetach` requires explicit daemon intent.
 32. Parallel fan-out should set explicit concurrency for `Effect.forEach` / `Effect.all` / `Effect.validate` when load is non-trivial.
 33. Config should be modeled via `Config` and `ConfigProvider`, not direct `process.env` access in domain services.
-34. Secrets must be represented as `Redacted` values (`Config.redacted` / `Redacted.make`) and never logged raw.
+34. Secrets must be represented as `Redacted` values (`Config.Redacted` / `Redacted.make`) and never logged raw.
 35. Error recovery should be precise (`catchTag` / `catchFilter`) instead of blanket recovery that hides unrelated failures; at outer HTTP/worker boundaries prefer `Effect.catchCause` / `Effect.matchCauseEffect`. At process entrypoints, prefer platform `runMain` teardown instead.
 36. Use `Effect.fail` for expected business errors and reserve `Effect.die` / `Effect.orDie` for invariants and impossible states.
 37. When layer memoization sharing is unsafe, force isolation with `Effect.provide(..., { local: true })` or `Layer.fresh`.

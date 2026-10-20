@@ -64,7 +64,7 @@ Use `$I.annoteSchema` via `.pipe(...)`:
 
 ```ts
 const MySchema = S.String.pipe(
-  S.pattern(/^[a-z]+$/),
+  S.check(S.isPattern(/^[a-z]+$/)),
   $I.annoteSchema("MySchema", {
     description: "A meaningful description."
   })

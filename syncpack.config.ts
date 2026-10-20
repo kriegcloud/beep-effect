@@ -131,33 +131,24 @@ const config = {
   },
   updateGroups: [
     {
-      // Held back from `deps:update`. Classic typescript stays ^6 for the
-      // programmatic (JS) compiler API, while @typescript/native provides
-      // the TS7 compiler. TypeScript 7.0 ships no stable programmatic API
-      // (7.1 is the target), so its actual consumers cannot move:
-      // Remaining programmatic consumers need a separate TS6 API review.
-      // Commitlint loads its config through jiti; ts-morph vendors its own TS6 copy.
-      // tstyche is pinned exactly to 8.0.0-beta.0 for its TypeScript 7.1 backend.
-      // Explicit targets use its own store, independent of root typescript@6.
-      // Exit this hold when stable 8.0 supports the same matrix and all existing
-      // effect-drizzle assertions pass on that release.
-      // Microsoft's @typescript/typescript6 bridge was blocked by
-      // oven-sh/bun#33834; that fix merged 2026-08-06 (bun 1.4.0 shipped
-      // after it), so the bridge is now an option but a separate decision.
+      // Held back from `deps:update`: tstyche stays at 8.0.0-beta.0 until
+      // stable 8.0 passes effect-drizzle's existing explicit-target matrix.
+      // Targets use its own compiler store, independent of root TypeScript.
       // Full layout: docs/runbooks/typescript-toolchain.md.
       // fast-xml-validator 1.3+ / detailed-xml-validator 2.2+ pull
       // @nodable/flexible-xml-parser, which references Buffer at module
       // scope and breaks every browser bundle.
-      // @effect/tsgo and its seven platform binaries move together. A reviewed
-      // bump updates the combined root/lane diagnosticSeverity map and the standalone
-      // `beep quality effect-diagnostics` census before these pins move.
+      // @effect/tsgo pins its seven platform binaries exactly, so only its own
+      // catalog entry moves. A reviewed bump updates the combined root/lane
+      // diagnosticSeverity map and the standalone `beep quality effect-diagnostics`
+      // census before this pin moves.
       // Effect rules come from @effect/tsgo through that diagnostics lane;
-      // tsc-rs still gates shared embedded rules until that lane is required.
-      // After one green main run, promote the lane and ruleset context, then
-      // fold the lane profile into compiler maps, set the three ignore flags
-      // true and delete standards/effect-diagnostics.profile.json.
+      // That lane is required; the three ignore flags are true, so tsc-rs
+      // gates TypeScript errors only. Fold standards/effect-diagnostics.profile.json
+      // into compiler maps once tsc-rs knows its rule names (TS377134 otherwise).
       // 0.53.0 was measured across all workspace check/test projects on
-      // 2026-10-14 (goals/effect-rules-diagnostics-lane). All six 0.52 rules are
+      // 2026-10-14 (goals/effect-rules-diagnostics-lane); the patch-only 0.53.4
+      // bump added no rules (hold register, 2026-10-17). All six 0.52 rules are
       // errors; schema-opaque-default armed schemaClassMissingBrand on
       // 2026-10-15 in its closing PR.
       // The import-style rules remain declared off; named helper imports are
@@ -166,11 +157,11 @@ const config = {
       // effect-tsgo 0.51.1 and its TypeScript pin is 7.1.0-dev.20261008.1.
       // Re-couple only after tsc-rs ports the newest rules and parity is proved,
       // then remove the standalone diagnostics lane. See the toolchain runbook.
-      // @biomejs/biome 2.5.7 stops formatting JSON piped through
-      // `biome format --stdin-file-path`, so `renderBiomeJson` — the writer
-      // behind `beep tsconfig-sync` for docgen.json/tsconfig.json — emits
-      // compact JSON instead of formatted. Pinned exactly (no caret) because a
-      // range would resolve straight back to the broken release.
+      // @biomejs/biome stays at 2.5.6: 2.5.15 reformats four @beep/html and
+      // @beep/provenance sources and adds a noDeprecatedImports error in
+      // @beep/repo-cli (hold register, 2026-10-17). Bump it with that
+      // format/lint wave. `renderBiomeJson` no longer pipes stdin, so the
+      // original 2.5.7 stdin regression no longer applies.
       // lexical 0.51 deprecates `LexicalComposer` (Biome `noDeprecatedImports`
       // fails every composer in @beep/editor and @beep/ui) in favour of
       // `LexicalExtensionComposer`, whose extension-based config is a
@@ -179,11 +170,12 @@ const config = {
       // jsdom 30.1.0 breaks every vitest 5 jsdom-environment file at worker
       // start ("'addEventListener' called on an object that is not a valid
       // instance of EventTarget" from vitest's catchWindowErrors), so no
-      // React test file runs. Pinned exactly at 30.0.1 (a range resolves
-      // straight back to the broken release) until vitest or jsdom ships the fix.
+      // React test file runs. Still reproduced on 30.1.3 under the `--bun`
+      // vitest runtime on 2026-10-17 (Node passes). Pinned exactly at 30.0.1 (a
+      // range resolves straight back to the broken release) until vitest or
+      // jsdom ships the fix.
       label: "Held back — do not auto-update (see changeset portless-default-react-grab-storybook)",
       dependencies: [
-        "typescript",
         "tstyche",
         "lexical",
         "@lexical/**",
@@ -192,19 +184,22 @@ const config = {
         "detailed-xml-validator",
         "@biomejs/biome",
         "@effect/tsgo",
-        "@effect/tsgo-darwin-arm64",
-        "@effect/tsgo-darwin-x64",
-        "@effect/tsgo-linux-arm",
-        "@effect/tsgo-linux-arm64",
-        "@effect/tsgo-linux-x64",
-        "@effect/tsgo-win32-arm64",
-        "@effect/tsgo-win32-x64",
         "tsc-rs",
       ],
       isIgnored: true,
     },
   ],
   versionGroups: [
+    {
+      // Pulumi's nodejs runtime needs the classic TypeScript API, so infra
+      // keeps its own nested TypeScript 6: infra/pulumi-typescript6.cjs points
+      // the runtime at it, and the ghaRunners SDK build guards a 6.x compiler.
+      label: "infra keeps TypeScript 6 for the Pulumi runtime and ghaRunners SDK",
+      packages: ["@beep/infra"],
+      dependencies: ["typescript"],
+      dependencyTypes: ["dev"],
+      pinVersion: "^6.0.3",
+    },
     {
       // The private workspace root is an orchestration manifest, not a
       // publishable package. Keep its intentionally absent version out of

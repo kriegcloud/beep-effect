@@ -10,13 +10,14 @@ import {
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
-import { assertFalse, assertTrue } from "@effect/vitest/utils";
+import { assertExitFailure, assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
+import { mapFailureTags } from "./helpers/FailureTags.ts";
 
 const URIDecodeEffect = S.decodeEffect(URI);
 const URIIs = S.is(URI);
@@ -65,13 +66,13 @@ describe("URI", () => {
   it.effect("rejects malformed absolute and relative URI values", () =>
     Effect.gen(function* () {
       const invalidAbsolute = yield* Effect.exit(decodeAbsoluteUri("folder/child"));
-      pipe(invalidAbsolute, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalidAbsolute), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalidAbsolute)) {
         expect(Cause.pretty(invalidAbsolute.cause)).toContain("Expected a valid RFC 3986 absolute URI");
       }
 
       const leadingWhitespace = yield* Effect.exit(decodeUri(" https://example.com"));
-      pipe(leadingWhitespace, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(leadingWhitespace), Cause.fail("SchemaError"));
       if (Exit.isFailure(leadingWhitespace)) {
         expect(Cause.pretty(leadingWhitespace.cause)).toContain(
           "URI values must not contain leading or trailing whitespace"
@@ -79,7 +80,7 @@ describe("URI", () => {
       }
 
       const invalidRelative = yield* Effect.exit(decodeRelativeUriReference("scheme://example.com"));
-      pipe(invalidRelative, Exit.isFailure, assertTrue);
+      assertExitFailure(mapFailureTags(invalidRelative), Cause.fail("SchemaError"));
       if (Exit.isFailure(invalidRelative)) {
         expect(Cause.pretty(invalidRelative.cause)).toContain("Expected a valid RFC 3986 relative URI reference");
       }

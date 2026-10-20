@@ -23,6 +23,14 @@ import type { ReviewHubConfig } from "../Config.ts";
 /**
  * Header `tailscale serve` sets to the caller's tailnet login.
  *
+ * **Example** (Read the caller's login header)
+ *
+ * ```ts
+ * import { TAILSCALE_LOGIN_HEADER } from "@/runtime/Layer"
+ *
+ * console.log(TAILSCALE_LOGIN_HEADER) // "tailscale-user-login"
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */

@@ -116,11 +116,31 @@ describe("canonical package scripts schemas", () => {
         rules: "package-scripts-rules/v1",
         manifests: 2,
         drift: { "apps/a/package.json": [{ _tag: "missing-task", name: "lint:laws" }] },
+        implDrift: {
+          "apps/a/package.json": [
+            { name: "beep:check", actual: "custom check", expected: "tsc-rs -p tsconfig.check.json" },
+          ],
+        },
         written: ["apps/a/package.json"],
       };
       const report = yield* decodeReport(wire);
       expect(HashSet.has(report.written, "apps/a/package.json")).toBe(true);
       expect(yield* encodeReport(report)).toEqual(wire);
+    })
+  );
+  it.effect(
+    "decodes a v1 report written before implDrift existed",
+    Effect.fnUntraced(function* () {
+      const legacy = {
+        schemaVersion: "package-scripts-report/v1",
+        rules: "package-scripts-rules/v1",
+        manifests: 1,
+        drift: {},
+        written: [],
+      } as const;
+      const report = yield* decodeReport(legacy);
+      expect(HashMap.size(report.implDrift)).toBe(0);
+      expect(yield* encodeReport(report)).toEqual({ ...legacy, implDrift: {} });
     })
   );
 });
