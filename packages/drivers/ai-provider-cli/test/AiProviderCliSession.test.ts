@@ -16,6 +16,8 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Path from "effect/Path";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
@@ -34,15 +36,71 @@ const syntheticProfile = Effect.fn("SessionTest.profile")(function* (
   return ManagedLaunchProfile.make({
     provider,
     executable: "bun",
-    prefixArgs: ["run", path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`)],
+    prefixArgs: [
+      "run",
+      path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`),
+      `--beep-fixture-mode=${mode}`,
+    ],
     workspace,
     profileRoot: home,
-    env: { HOME: home, PATH: yield* Config.String("PATH"), FIXTURE_MODE: mode, CODEX_HOME: path.join(home, ".codex") },
+    env: {
+      HOME: home,
+      PATH: yield* Config.String("PATH"),
+      ...(provider === "codex" ? { CODEX_HOME: path.join(home, ".codex") } : {}),
+    },
     authLane: "existing-subscription",
     tools: [],
   });
 });
 it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed native sessions", (it) => {
+  it.effect("rejects unreviewed environment keys before creating a process or provider home", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const sessions = yield* AiProviderCliSession;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const launches = yield* Ref.make(0);
+      const watched = ChildProcessSpawner.make((command) =>
+        Ref.update(launches, (count) => count + 1).pipe(Effect.andThen(spawner.spawn(command)))
+      );
+      for (const provider of ["claude", "codex", "cursor", "grok"] as const) {
+        const profile = yield* syntheticProfile(provider);
+        for (const key of [
+          "CURSOR_API_KEY",
+          "CODEX_API_KEY",
+          "OPENAI_API_KEY",
+          "ANTHROPIC_API_KEY",
+          "XAI_API_KEY",
+          "OPENAI_BASE_URL",
+          "ANTHROPIC_BASE_URL",
+          "GROK_BASE_URL",
+          "NODE_OPTIONS",
+          "BUN_OPTIONS",
+          "LD_PRELOAD",
+          "LC_ALL",
+          "TMPDIR",
+          "XDG_CONFIG_HOME",
+          "FIXTURE_MODE",
+          "STALL_AT",
+          "UNKNOWN_KEY",
+          ...(provider === "codex" ? [] : ["CODEX_HOME"]),
+        ]) {
+          const rejected = yield* sessions
+            .open(
+              ManagedLaunchProfile.make({
+                ...profile,
+                env: { ...profile.env, [key]: "synthetic-private-value" },
+              })
+            )
+            .pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip);
+          assert.equal(rejected.reason, "invalid-profile");
+          assert.notInclude(rejected.message, "synthetic-private-value");
+        }
+        assert.equal(yield* fs.exists(profile.profileRoot), false);
+      }
+      assert.equal(yield* Ref.get(launches), 0);
+    })
+  );
+
   it.effect("fences prompts after idle Claude EOF and finalizes only once", () =>
     Effect.gen(function* () {
       const profile = yield* syntheticProfile("claude", "idle-exit");
@@ -113,7 +171,7 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
 
   it.effect("preserves successful denial-phrase responses and subsequent session health", () =>
     Effect.gen(function* () {
-      for (const provider of ["codex", "grok", "cursor"] as const) {
+      for (const provider of ["claude", "codex", "grok", "cursor"] as const) {
         const profile = yield* syntheticProfile(provider, "quoted-denial");
         const session = yield* (yield* AiProviderCliSession).open(profile);
         for (const messageId of ["first", "second"]) {
@@ -372,14 +430,17 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         ManagedLaunchProfile.make({
           provider: "codex",
           executable: "bun",
-          prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts")],
+          prefixArgs: [
+            "run",
+            path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts"),
+            "--beep-fixture-mode=wrong-resume",
+          ],
           workspace,
           profileRoot: home,
           env: {
             HOME: home,
             CODEX_HOME: path.join(home, ".codex"),
             PATH: yield* Config.String("PATH"),
-            FIXTURE_MODE: "wrong-resume",
           },
           authLane: "existing-subscription",
           tools: [],
@@ -449,14 +510,17 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
           ManagedLaunchProfile.make({
             provider: "codex",
             executable: "bun",
-            prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts")],
+            prefixArgs: [
+              "run",
+              path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts"),
+              "--beep-fixture-mode=wrong-policy",
+            ],
             workspace,
             profileRoot: home,
             env: {
               HOME: home,
               CODEX_HOME: path.join(home, ".codex"),
               PATH: yield* Config.String("PATH"),
-              FIXTURE_MODE: "wrong-policy",
             },
             authLane: "existing-subscription",
             tools: [],
@@ -540,10 +604,14 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         ManagedLaunchProfile.make({
           provider: "claude",
           executable: "bun",
-          prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-claude-peer.ts")],
+          prefixArgs: [
+            "run",
+            path.join(import.meta.dirname, "fixtures/managed-claude-peer.ts"),
+            "--beep-fixture-mode=oversized",
+          ],
           workspace,
           profileRoot: home,
-          env: { HOME: home, PATH: yield* Config.String("PATH"), FIXTURE_MODE: "oversized" },
+          env: { HOME: home, PATH: yield* Config.String("PATH") },
           authLane: "existing-subscription",
           tools: [],
         })
@@ -612,14 +680,17 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
           ManagedLaunchProfile.make({
             provider: "codex",
             executable: "bun",
-            prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts")],
+            prefixArgs: [
+              "run",
+              path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts"),
+              "--beep-fixture-mode=busy",
+            ],
             workspace,
             profileRoot: home,
             env: {
               HOME: home,
               CODEX_HOME: path.join(home, ".codex"),
               PATH: yield* Config.String("PATH"),
-              FIXTURE_MODE: "busy",
             },
             authLane: "existing-subscription",
             tools: [],
@@ -724,10 +795,14 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
             ManagedLaunchProfile.make({
               provider,
               executable: "bun",
-              prefixArgs: ["run", path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`)],
+              prefixArgs: [
+                "run",
+                path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`),
+                `--beep-fixture-stall-at=${operation}`,
+              ],
               workspace,
               profileRoot: home,
-              env: { HOME: home, PATH: yield* Config.String("PATH"), STALL_AT: operation },
+              env: { HOME: home, PATH: yield* Config.String("PATH") },
               authLane: "existing-subscription",
               tools: [],
             })

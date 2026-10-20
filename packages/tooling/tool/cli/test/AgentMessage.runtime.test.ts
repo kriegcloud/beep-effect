@@ -181,7 +181,10 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer,
     Effect.gen(function* () {
       const f = yield* managedCommandFixture();
       yield* f.write(
-        ManagedLaunchProfile.make({ ...f.profile, env: { ...f.profile.env, FIXTURE_MODE: "wrong-policy" } })
+        ManagedLaunchProfile.make({
+          ...f.profile,
+          prefixArgs: [...f.profile.prefixArgs, "--beep-fixture-mode=wrong-policy"],
+        })
       );
       const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
       const started = yield* Deferred.make<ChildProcessHandle>();

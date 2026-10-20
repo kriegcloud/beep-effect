@@ -1,13 +1,13 @@
 import { Errors, Protocol } from "@beep/acp";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeServices from "@effect/platform-node/NodeServices";
-import * as Config from "effect/Config";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import { fixtureMode } from "./session-options.ts";
 import type { AcpPatchedProtocol } from "@beep/acp/protocol";
 
 const Input = S.Struct({ input: S.Array(S.Struct({ text: S.String })) });
@@ -20,7 +20,7 @@ const start = {
 };
 const main = Effect.scoped(
   Effect.gen(function* () {
-    const mode = yield* Config.String("FIXTURE_MODE").pipe(Config.withDefault("echo"));
+    const mode = fixtureMode;
     let hasTurn = false;
     let count = 0;
     let activeId = "";

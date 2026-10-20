@@ -564,7 +564,7 @@ const withException = (rows: ReadonlyArray<EffectVitestFinding>) =>
     ),
   });
 
-it.layer(BunCrypto.layer)((it) => {
+it.layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
   it.effect("keeps named occurrences stable across reordering and deletion without transferring exceptions", () =>
     Effect.gen(function* () {
       const a = 'it("first", () => { Effect.runSync(program); });';

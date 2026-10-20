@@ -21,24 +21,22 @@ const ProtocolJson = S.fromJsonString(S.Unknown).annotate(
   $I.annote("ProtocolJson", { description: "Serialized native protocol payload without provider-specific decoding." })
 );
 const encodeProtocolJson = S.encodeEffect(ProtocolJson);
-const ForbiddenEnvironmentKey = LiteralKit([
-  "OPENAI_API_KEY",
-  "OPENAI_BASE_URL",
-  "ANTHROPIC_API_KEY",
-  "ANTHROPIC_AUTH_TOKEN",
-  "ANTHROPIC_BASE_URL",
-  "CLAUDE_CODE_USE_BEDROCK",
-  "CLAUDE_CODE_USE_VERTEX",
-  "CLAUDE_CODE_USE_FOUNDRY",
-  "XAI_API_KEY",
-  "GROK_API_KEY",
-  "GROK_BASE_URL",
-]).annotate(
-  $I.annote("ForbiddenEnvironmentKey", {
-    description: "Environment selectors excluded from approved subscription launches.",
+const CommonEnvironmentKey = LiteralKit(["HOME", "PATH"]).annotate(
+  $I.annote("CommonEnvironmentKey", {
+    description: "Owned home and executable lookup required by managed subscription launches.",
   })
 );
-const forbiddenEnvironmentKey = S.is(ForbiddenEnvironmentKey);
+const CodexEnvironmentKey = LiteralKit([...CommonEnvironmentKey.literals, "CODEX_HOME"]).annotate(
+  $I.annote("CodexEnvironmentKey", {
+    description: "Managed Codex launch essentials, including its verified owned configuration root.",
+  })
+);
+const providerEnvironmentKeys = {
+  claude: CommonEnvironmentKey,
+  codex: CodexEnvironmentKey,
+  cursor: CommonEnvironmentKey,
+  grok: CommonEnvironmentKey,
+};
 
 /**
  * Constructs typed managed-session errors from a safe operation, reason and message.
@@ -238,7 +236,14 @@ export const prepareGrok = Effect.fn("AiProviderCliSession.prepareGrok")(functio
 });
 
 /**
- * Rejects nonisolated profiles and environment selectors that would change the approved auth route.
+ * Validates owned roots and each provider's reviewed subscription environment.
+ *
+ * **Details**
+ *
+ * All four providers accept HOME and PATH. Codex also accepts CODEX_HOME, whose
+ * owned location is checked by prepareCodex. Unknown credential, endpoint,
+ * locale, temporary-directory, and runtime selectors are rejected before
+ * provider preparation or process creation.
  *
  * **Example** (Compose launch validation)
  * ```ts
@@ -272,10 +277,10 @@ export const validateProfile = Effect.fn("ManagedSession.validateProfile")(funct
     );
   }
 
-  if (A.some(R.keys(profile.env), forbiddenEnvironmentKey))
+  if (A.some(R.keys(profile.env), (key) => !S.is(providerEnvironmentKeys[profile.provider])(key)))
     return yield* failure.make(
       "open",
       "invalid-profile",
-      "Managed subscription launch rejects API credentials and alternative billing endpoints"
+      "Managed subscription launch rejects environment keys outside the provider allowlist"
     );
 });

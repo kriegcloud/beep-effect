@@ -6,13 +6,14 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import { fixtureMode, fixtureStallAt } from "./session-options.ts";
 
 const model = "claude-opus-5-5[context=300k,effort=medium,fast=false]";
 const program = Effect.gen(function* () {
   const agent = yield* Agent.AcpAgent;
-  const stalled = yield* Config.String("STALL_AT").pipe(Config.withDefault("none"));
+  const stalled = fixtureStallAt;
   const home = yield* Config.String("HOME");
-  const mode = yield* Config.String("FIXTURE_MODE").pipe(Config.withDefault("echo"));
+  const mode = fixtureMode;
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const checkpoint = (operation: string) =>

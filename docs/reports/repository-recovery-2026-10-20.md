@@ -86,8 +86,8 @@ this does not claim the hosted rerun has passed.
 ## Built export proof for #1607
 
 The T3 package and generic package generator now map the published root to
-`./dist/index.js`. Source exports, internal export denial, private status, and
-generated task scripts are preserved. All 21 generator regressions pass, and
+the JavaScript entry point in the packed `dist` directory. Source exports,
+internal export denial, private status, and generated task scripts are preserved. All 21 generator regressions pass, and
 T3 package audit and docgen pass.
 
 For the package fixture, Bun packed the built package and resolved workspace and
@@ -158,7 +158,7 @@ remain authoritative.
 | Issue | Requested outcome | Status |
 | --- | --- | --- |
 | [#1576](https://github.com/beep-effect/beep-effect/issues/1576) | fix(agent-message): retain terminal receipts after mid-turn acknowledgment | Terminal history/detail retained for active and ambiguous acknowledged dispatches; ACK identity, stale-claim rejection, and queue serialization covered |
-| [#1578](https://github.com/beep-effect/beep-effect/issues/1578) | fix(ai-provider-cli): allowlist managed launch environments per provider | Acceptance review pending |
+| [#1578](https://github.com/beep-effect/beep-effect/issues/1578) | fix(ai-provider-cli): allowlist managed launch environments per provider | HOME/PATH allowlists plus owned CODEX_HOME for Codex; 71 rejected key/provider cases prove no spawn or profile creation; fixture switches use test argv; 46 session and nine runtime tests pass; package audit/docgen and standalone diagnostics pass |
 | [#1579](https://github.com/beep-effect/beep-effect/issues/1579) | feat(agent-message): qualify ambiguity reconciliation and capacity fairness | Acceptance review pending |
 | [#1581](https://github.com/beep-effect/beep-effect/issues/1581) | fix(agent-comms): qualify historical probe and snapshot evidence | Acceptance review pending |
 | [#1582](https://github.com/beep-effect/beep-effect/issues/1582) | fix(goals): distinguish proposed closeout from operative completion | Acceptance review pending |
@@ -235,3 +235,26 @@ Closing references will be added only after the matching acceptance evidence is 
 - Four real-Turbo hash tests passed, including invalidation when vite.shared.ts
   changes. The cache recorder adopted the audited input-set change without
   altering qualification scope, profile, epoch, or qualification states.
+
+## Provider environment admission proof for #1578
+
+Managed native launches admit HOME and PATH for all four providers and CODEX_HOME
+only for Codex, where its existing owned-directory check remains mandatory. Both
+spawn paths retain isolated environments. Credentials, endpoint overrides, loader
+switches, locale/temp/runtime overrides and synthetic fixture environment keys
+are rejected before profile preparation or spawning. Fixture behavior now travels
+through test-only child arguments.
+
+A table covers 71 rejected key/provider combinations, verifies zero spawns and no
+profile-directory creation, and checks that failure text does not disclose the
+synthetic value. Healthy two-turn sessions cover all four providers. The 46
+provider session tests and nine CLI runtime tests pass under Node; the provider
+package audit and docgen pass, as do standalone Effect diagnostics. The repo-wide
+Effect test-policy ratchet reports zero introduced findings.
+
+The hosted run at 03158fb833 reports one contract-fixture failure in unit,
+property and coverage jobs. The supplied-layer correction and explicit layer
+hook timeout pass 254 focused contract/detector tests locally. Its separate
+knowledge semantic-delta failure came from this report spelling an illustrative
+packed entry point as a tracked relative path; the prose now names the artifact
+without a false source link. These corrections still require hosted confirmation.

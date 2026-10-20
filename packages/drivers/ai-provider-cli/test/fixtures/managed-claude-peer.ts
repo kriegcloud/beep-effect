@@ -9,6 +9,7 @@ import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import { fixtureMode } from "./session-options.ts";
 
 const Frame = S.Struct({
   type: S.String,
@@ -23,7 +24,7 @@ const JsonFrame = S.fromJsonString(Frame);
 const decodeSettings = S.decodeUnknownEffect(JsonSettings);
 const decodeFrame = S.decodeEffect(JsonFrame);
 const program = Effect.gen(function* () {
-  const mode = yield* Config.String("FIXTURE_MODE").pipe(Config.withDefault("echo"));
+  const mode = fixtureMode;
   const home = yield* Config.String("HOME");
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
