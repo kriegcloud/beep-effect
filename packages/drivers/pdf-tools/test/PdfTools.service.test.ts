@@ -31,11 +31,12 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
 import { PDFDict, PDFDocument, PDFHexString, PDFName, PDFRawStream, PDFRef, PDFString, StandardFonts } from "pdf-lib";
 import type * as PlatformError from "effect/PlatformError";
 
