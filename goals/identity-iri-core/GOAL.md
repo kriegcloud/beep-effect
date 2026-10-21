@@ -34,7 +34,8 @@ Scope:
 Workflow:
 
 1. BLOCKING INPUT: confirm authority host with elpresidank
-   (`https://ns.beep.sh/` is a placeholder).
+   (`https://ns[.]beep[.]sh/` was a placeholder; superseded 2026-10-20 by
+   `https://beep-effect.com/ns/`, see goal public-origin-beep-effect-com).
 2. Build the shape-stable harness FIRST from
    `explorations/identity-as-iri/research/11-audit-identity-coupling.md`
    (pin named imports, `make()` compat, create-package codegen output).

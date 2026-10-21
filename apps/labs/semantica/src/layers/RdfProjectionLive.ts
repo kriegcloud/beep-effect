@@ -1,3 +1,4 @@
+import { $SemanticaId } from "@beep/identity/packages";
 import * as Rdf from "@beep/rdf/Rdf";
 import { MakeQuadOptionsInput } from "@beep/rdf/Rdf";
 import { SparqlQueryRequest, SparqlQueryService } from "@beep/semantic-web/services/sparql-query";
@@ -20,7 +21,25 @@ import type { EvidenceBatch, EvidenceClaim } from "@/schema/Evidence";
 import type { LedgerSnapshot } from "@/schema/Ledger";
 import type { SparqlExpectation } from "@/schema/Projection";
 
-const BASE = "https://beep.sh/semantica/";
+// IRI namespace for the semantica lab's RDF projection: the `@beep/semantica`
+// identity composer's IRI with a trailing slash.
+const BASE = `${$SemanticaId.iri}/` as const;
+
+/**
+ * Builds the IRI of a term in the semantica lab ontology namespace.
+ *
+ * **Example** (Build an ontology class IRI)
+ *
+ * ```ts
+ * import { semanticaOntologyIri } from "@/layers/RdfProjectionLive"
+ * console.log(semanticaOntologyIri("EvidenceClaim").endsWith("/ns/semantica/ontology/EvidenceClaim")) // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const semanticaOntologyIri = <const Term extends string>(term: Term) => `${BASE}ontology/${term}` as const;
+
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 const RDF_TYPE = Rdf.makeNamedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDF_SUBJECT = Rdf.makeNamedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject");

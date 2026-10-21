@@ -247,7 +247,7 @@ export class IdentityDatasetDecodeError extends S.TaggedError<
  *
  * const entry = IdentityEntry.make({
  *   identity: "@beep/semantic-web/Example",
- *   iri: "https://ns.beep.sh/semantic-web/Example",
+ *   iri: "https://beep-effect.com/ns/semantic-web/Example",
  *   curie: "beep:semantic-web/Example",
  *   fibers: {}
  * })

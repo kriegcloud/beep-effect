@@ -86,7 +86,7 @@ Search gaps:
 
 ## (c) Provenance Stamping Recommendation
 
-Recommendation: use a two-layer provenance profile. Canonical internal metadata should be PROV-O-aligned plus a narrow `https://ns.beep.sh/extr/` namespace; RDF-star/RDF 1.2 quoted triples should be an export/projection form for assertion-level annotations, not the only storage contract in v1. Treat each extraction run as a `prov:Activity` that `prov:used` the source chunk, ontology slice/version, prompt template, and model, and make each admitted assertion/entity `prov:wasGeneratedBy` that activity and `prov:wasDerivedFrom` the text anchor. Put extraction-specific fields in `extr:*`: `extr:confidence`, `extr:usedModel`, `extr:ontologyVersion`, `extr:sourceChunk`, `extr:extractionMethod`, `extr:alignmentStatus`, and optional `extr:promptHash`/`extr:shapeVersion`. When exporting RDF, annotate quoted triples with the same PROV/EXTR predicates and keep named graphs for batch/source boundaries. This gives Beep stable ns.beep.sh authority and interoperable provenance now, while preserving an RDF-star path once the repo's RDF canonicalization, SHACL, and downstream stores fully support quoted triples.
+Recommendation: use a two-layer provenance profile. Canonical internal metadata should be PROV-O-aligned plus a narrow `https://beep-effect.com/ns/extr/` namespace; RDF-star/RDF 1.2 quoted triples should be an export/projection form for assertion-level annotations, not the only storage contract in v1. Treat each extraction run as a `prov:Activity` that `prov:used` the source chunk, ontology slice/version, prompt template, and model, and make each admitted assertion/entity `prov:wasGeneratedBy` that activity and `prov:wasDerivedFrom` the text anchor. Put extraction-specific fields in `extr:*`: `extr:confidence`, `extr:usedModel`, `extr:ontologyVersion`, `extr:sourceChunk`, `extr:extractionMethod`, `extr:alignmentStatus`, and optional `extr:promptHash`/`extr:shapeVersion`. When exporting RDF, annotate quoted triples with the same PROV/EXTR predicates and keep named graphs for batch/source boundaries. This gives Beep stable beep-effect.com/ns/ authority and interoperable provenance now, while preserving an RDF-star path once the repo's RDF canonicalization, SHACL, and downstream stores fully support quoted triples.
 
 Rationale:
 
@@ -95,7 +95,7 @@ Rationale:
 - RDF-star/RDF 1.2 is attractive for assertion-level confidence and evidence, but RDF 1.2 Concepts was a Candidate Recommendation Snapshot on 2026-04-07 and syntax documents were still moving through the W3C publication pipeline in June/July 2026. Use it as an export shape and later internal optimization, not the only v1 persistence contract (`https://www.w3.org/TR/rdf12-concepts/`; `https://www.w3.org/groups/wg/rdf-star/publications`).
 - Named graphs or dataset partitions should preserve source artifact, extraction batch, ontology version, and validation run boundaries. SHACL-DS is a useful research signal here because it explicitly targets dataset-aware validation without flattening named graph provenance (`arxiv:2605.10540`).
 
-Minimum extraction metadata fields for `ns.beep.sh`:
+Minimum extraction metadata fields for `beep-effect.com/ns/`:
 
 - `extr:confidence`: decimal in `[0,1]`, aligned with the existing `UnitInterval` confidence fields.
 - `extr:usedModel`: model/provider identifier or repo-owned model alias.

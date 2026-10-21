@@ -2652,6 +2652,20 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/public-site": {
+      "name": "@beep/public-site",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/rdf": {
       "name": "@beep/rdf",
       "version": "0.0.0",
@@ -4466,6 +4480,8 @@
     "@beep/professional-desktop": ["@beep/professional-desktop@workspace:apps/professional-desktop"],
 
     "@beep/provenance": ["@beep/provenance@workspace:packages/foundation/modeling/provenance"],
+
+    "@beep/public-site": ["@beep/public-site@workspace:packages/foundation/modeling/public-site"],
 
     "@beep/qa-capture": ["@beep/qa-capture@workspace:packages/tooling/library/qa-capture"],
 

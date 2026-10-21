@@ -15,10 +15,10 @@
 > predates or misses:
 >
 > - **Identity.** `$I` IRIs are the authority plus the `@beep` package path,
->   with no kind or version segment. On `main` the authority is still
->   `https://ns.beep.sh/`. A 2026-10-20 operator ruling, not yet in the
->   repository (it lands with PR #1946), moves dereference to
->   `https://beep-effect.com/ns/` and reserves that path permanently. The
+>   with no kind or version segment. Until PR #1946 the authority was the
+>   placeholder `https://ns[.]beep[.]sh/`. A 2026-10-20 operator ruling,
+>   landed by PR #1946, moved it to `https://beep-effect.com/ns/` and
+>   reserves that path permanently for dereference. The
 >   `/id/{kind}/v4/...` scheme below conflicts with the `$I` shape either way,
 >   and `$I` cannot mint IRIs for upstream Effect symbols such as
 >   `Schema.Struct`.

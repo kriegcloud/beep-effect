@@ -11,5 +11,5 @@ export const expandCurie = (curie: string): string | null => {
     return null;
   }
 
-  return `https://ns.beep.sh/${prefix}/${localName}`;
+  return `https://beep-effect.com/ns/${prefix}/${localName}`;
 };

@@ -40,7 +40,7 @@ landed-content evidence.
 `identity-iri-core` landed with every existing `$I = $PkgId.create(...)` call
 site compiling unchanged, and schema authors can write
 `$BeepId.create("x").iri` / `.curie` and get exact literal-typed
-`https://ns.beep.sh/x` / `beep:x` under the confirmed authority, with
+`https://beep-effect.com/ns/x` / `beep:x` under the confirmed authority, with
 `"skos:prefLabl"`-style typos as compile errors. Verified by: the audit-B
 shape-stable harness (existing surface pinned by tests), type-level literal
 assertions, CURIE codec property tests ported from
@@ -53,7 +53,8 @@ packages.
 - Compile blast radius: `Curie<V>` unions × identity's import graph —
   measure `tsc --extendedDiagnostics` before/after; module-boundary the vocab
   machinery if hot (named acceptance item in core).
-- Authority host resolved by the completed core: `https://ns.beep.sh/`.
+- Authority host resolved by the completed core; since 2026-10-20 it is
+  `https://beep-effect.com/ns/` (goal public-origin-beep-effect-com).
 - Fibered 2-cells temptation — discrete case only; versions/migrations out of
   scope (fibered packet constraint).
 - General PN_LOCAL escaped-emission — acceptance-model codec + full-IRI

@@ -6,6 +6,15 @@ archive hashes, concept counts, lookups and M1 same-manifest regression.
 
 ## Admission and identity
 
+> **Supersession 2026-10-20 (authority cut).** Every IRI in this contract moved from the
+> retired placeholder authority `https://ns[.]beep[.]sh/` to `https://beep-effect.com/ns/`
+> with paths and version unchanged (goal `public-origin-beep-effect-com`, D1 and D6). This is
+> the one deliberate exception to the no-re-point rule below: nothing durable was minted under
+> the placeholder, so the old IRIs are retired rather than deprecated. A pin recorded before
+> 2026-10-20 resolves to the same notation under the new authority, but there is no alias or
+> rebase map: a consumer that retained a resolved IRI must replace it with the newly minted
+> value. A version pin alone does not perform that replacement.
+
 Load `ClassificationRegistry.load(manifestPath, vendorRoot, pin)` with an explicit
 `ClassificationPin` containing `kind` and `edition`. The pinned editions are
 IPC `2026.01`, CPC `2026.08` and Nice `13-2026`. Unknown, empty and unsupported
@@ -13,7 +22,7 @@ pins fail closed; there is no latest alias. Full master data stays in ignored
 vendor files. The tracked fixtures contain synthetic titles.
 
 Scheme IRIs are minted through `$SemanticFoundationId` as
-`https://ns.beep.sh/ontology/semantic-foundation/classification/<kind>/<edition>`.
+`https://beep-effect.com/ns/ontology/semantic-foundation/classification/<kind>/<edition>`.
 Concept IRIs append `/concept/<notation>`, with a patent notation's slash
 replaced by a hyphen. IPC `A01B1/02` and CPC `A01B1/02` therefore have different
 identities. Nice classes use `1` through `45`; a basic identifier is its

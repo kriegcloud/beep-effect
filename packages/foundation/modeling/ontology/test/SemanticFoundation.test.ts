@@ -1,3 +1,4 @@
+import { $SemanticFoundationId } from "@beep/identity/packages";
 import {
   ConceptAlignment,
   DocumentClass,
@@ -58,7 +59,7 @@ const manifestPath = "test/fixtures/vendor-manifest.jsonl";
 const vendorRoot = "test/fixtures";
 const slicePath = "test/fixtures/fixture-slice.jsonld";
 const folioSlicePath = "test/fixtures/folio-email-communication.jsonld";
-const emailMessageIri = IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/email-message");
+const emailMessageIri = IRIReference.make($SemanticFoundationId.create("concept/email-message").iri);
 const folioEmailCommunicationIri = IRIReference.make("https://folio.openlegalstandard.org/RDQy4rbUg82ScgiiXEQ7ZBU");
 const folioEmailCommunicationSourceIri = IRIReference.make(
   "https://folio.openlegalstandard.org/RDQy4rbUg82ScgiiXEQ7ZBU/jsonld"
@@ -135,7 +136,7 @@ it.layer(Layer.merge(TaxonomyLoader.layer, BunFileSystem.layer), { timeout: "30 
             concepts: [],
             filingRoots: [],
             pathTemplateSegments: ["root", "client", "matter", "taxonomy-concept", "document-class", "file-name"],
-            schemeIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/taxonomy/fixture"),
+            schemeIri: IRIReference.make($SemanticFoundationId.create("taxonomy/fixture").iri),
             title: "Fixture vendor slice",
           })
         );
@@ -276,7 +277,7 @@ it.layer(Layer.merge(TaxonomyLoader.layer, BunFileSystem.layer), { timeout: "30 
             format: "jsonld",
             id: "folio-email-communication",
             loadStatus: "VETTED",
-            localConceptIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/missing"),
+            localConceptIri: IRIReference.make($SemanticFoundationId.create("concept/missing").iri),
             mappingKind: "closeMatch",
             namespaceIri: IRIReference.make("https://folio.openlegalstandard.org/"),
             path: "folio-email-communication.jsonld",
@@ -362,13 +363,13 @@ it.layer(Layer.merge(TaxonomyLoader.layer, BunFileSystem.layer), { timeout: "30 
                 definition: "A legacy slice attempting to bypass manifested alignment admission.",
                 documentClasses: ["received"],
                 filingSegment: "legacy-alignment",
-                iri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/legacy-alignment"),
+                iri: IRIReference.make($SemanticFoundationId.create("concept/legacy-alignment").iri),
                 prefLabel: "Legacy alignment",
               }),
             ],
             filingRoots: [],
             pathTemplateSegments: ["root", "client", "matter", "taxonomy-concept", "document-class", "file-name"],
-            schemeIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/taxonomy/legacy"),
+            schemeIri: IRIReference.make($SemanticFoundationId.create("taxonomy/legacy").iri),
             title: "Legacy alignment slice",
           })
         );
@@ -491,7 +492,7 @@ it.layer(Layer.merge(TaxonomyLoader.layer, BunFileSystem.layer), { timeout: "30 
             concepts: [],
             filingRoots: [],
             pathTemplateSegments: ["root", "client", "matter", "taxonomy-concept", "document-class", "file-name"],
-            schemeIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/taxonomy/outside"),
+            schemeIri: IRIReference.make($SemanticFoundationId.create("taxonomy/outside").iri),
             title: "Outside vendor slice",
           })
         );
@@ -524,7 +525,7 @@ it.layer(Layer.merge(TaxonomyLoader.layer, BunFileSystem.layer), { timeout: "30 
             concepts: [],
             filingRoots: [],
             pathTemplateSegments: ["root", "client", "matter", "taxonomy-concept", "document-class", "file-name"],
-            schemeIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/taxonomy/windows"),
+            schemeIri: IRIReference.make($SemanticFoundationId.create("taxonomy/windows").iri),
             title: "Windows vendor slice",
           })
         );
@@ -672,7 +673,7 @@ it.layer(Layer.merge(TaxonomyLoader.layer, BunFileSystem.layer), { timeout: "30 
         const decoded = yield* Effect.sync(() =>
           decodeLibrarianInputResult({
             client: "acme",
-            conceptIri: "https://ns.beep.sh/ontology/semantic-foundation/concept/email-message",
+            conceptIri: emailMessageIri,
             documentClass: "received",
             fileName: "../../other-matter/document.pdf",
             matter: "aurora",

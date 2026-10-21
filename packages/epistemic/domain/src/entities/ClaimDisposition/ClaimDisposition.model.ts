@@ -31,6 +31,7 @@ const ClaimDispositionReason = S.NonEmptyString.pipe(
  *
  * ```ts
  * import { ClaimDisposition } from "@beep/epistemic-domain"
+ * import { $EpistemicId } from "@beep/identity/packages"
  * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
  * import * as S from "effect/Schema"
  *
@@ -52,9 +53,9 @@ const ClaimDispositionReason = S.NonEmptyString.pipe(
  *   updatedByPrincipal: { kind: "System", component: "Runtime" },
  *   violations: [
  *     {
- *       focusNode: "https://beep.dev/epistemic/claim/patentability",
+ *       focusNode: $EpistemicId.create("claim/patentability").iri,
  *       message: "Expected at least 1 value(s) for evidence.",
- *       path: "https://beep.dev/epistemic/hasEvidenceQuote",
+ *       path: $EpistemicId.create("hasEvidenceQuote").iri,
  *       severity: "violation"
  *     }
  *   ]

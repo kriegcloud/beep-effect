@@ -83,7 +83,7 @@ Broken excerpt:
 const meta = makeSemanticSchemaMetadata({
   kind: "ontologyConstruct",
   canonicalName: "PatentApplication",
-  canonicalIri: "https://beep.dev/ip#PatentApplication",
+  canonicalIri: "https://beep-effect.com/ns/ip#PatentApplication",
   preferredPrefix: "ip",
 })
 ```
@@ -102,7 +102,7 @@ const meta = makeSemanticSchemaMetadata({
     { name: "Internal legal ontology profile", disposition: "informative" },
   ],
   equivalenceBasis: "Identity by canonical application IRI.",
-  canonicalIri: "https://beep.dev/ip#PatentApplication",
+  canonicalIri: "https://beep-effect.com/ns/ip#PatentApplication",
   preferredPrefix: "ip",
 })
 ```
