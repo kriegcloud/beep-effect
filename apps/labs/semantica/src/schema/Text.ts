@@ -63,8 +63,8 @@ const ParseOutcomeKind = LiteralKit(["Parsed", "Degraded"]);
  * @since 0.0.0
  */
 export const ParseOutcome = ParseOutcomeKind.mapMembers(Tuple.evolve([() => ParsedOutcome, () => DegradedParseOutcome]))
-  .annotate(
-    $I.annote("ParseOutcome", {
+  .pipe(
+    $I.annoteSchema("ParseOutcome", {
       description: "Parser outcome preserving either raw text or a typed degraded state.",
     })
   )

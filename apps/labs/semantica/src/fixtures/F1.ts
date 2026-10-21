@@ -134,8 +134,8 @@ export type FixtureMediaType = typeof FixtureMediaType.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FixtureExpectation = LiteralKit(["parses", "degraded"]).annotate(
-  $I.annote("FixtureExpectation", {
+export const FixtureExpectation = LiteralKit(["parses", "degraded"]).pipe(
+  $I.annoteSchema("FixtureExpectation", {
     description: "Expected successful parse or declared typed degradation for an F1 fixture.",
   })
 );
@@ -174,8 +174,8 @@ export type FixtureExpectation = typeof FixtureExpectation.Type;
  */
 export const FixtureDegradedKind = LiteralKit(
   DegradedKind.pick(["invalid-utf8", "truncated", "extraction-failed"]).literals
-).annotate(
-  $I.annote("FixtureDegradedKind", {
+).pipe(
+  $I.annoteSchema("FixtureDegradedKind", {
     description: "Invalid UTF-8, truncation, or extraction failure declared by a degraded F1 fixture.",
   })
 );

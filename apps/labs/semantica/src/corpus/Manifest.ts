@@ -253,8 +253,8 @@ export class CorpusManifest extends S.Opaque<CorpusManifest, { readonly brand: u
   )
 ) {}
 
-const ManifestDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]).annotate(
-  $I.annote("ManifestDriftKind", {
+const ManifestDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]).pipe(
+  $I.annoteSchema("ManifestDriftKind", {
     description: "Row-level drift variants reported while checking the W1 manifest.",
   })
 );
@@ -320,8 +320,8 @@ class ManifestBytesMismatch extends S.Opaque<ManifestBytesMismatch, { readonly b
 export const ManifestDiff = ManifestDriftKind.mapMembers(
   Tuple.evolve([() => MissingManifestFile, () => ManifestSha256Mismatch, () => ManifestBytesMismatch])
 )
-  .annotate(
-    $I.annote("ManifestDiff", {
+  .pipe(
+    $I.annoteSchema("ManifestDiff", {
       description: "Exhaustive row-level W1 manifest drift details.",
     })
   )
@@ -341,8 +341,8 @@ const CorpusRootUnavailableReason = LiteralKit([
   "missing-directory",
   "unreadable-directory",
   "insufficient-pdfs",
-]).annotate(
-  $I.annote("CorpusRootUnavailableReason", {
+]).pipe(
+  $I.annoteSchema("CorpusRootUnavailableReason", {
     description: "Reasons the external W1 corpus root cannot supply the required first 25 PDFs.",
   })
 );

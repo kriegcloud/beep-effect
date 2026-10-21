@@ -386,8 +386,8 @@ const ClaimBodyKind = LiteralKit(["Entity", "Relation", "Structure"]);
 export const ClaimBody = ClaimBodyKind.mapMembers(
   Tuple.evolve([() => EntityClaimBody, () => RelationClaimBody, () => StructureClaimBody])
 )
-  .annotate(
-    $I.annote("ClaimBody", {
+  .pipe(
+    $I.annoteSchema("ClaimBody", {
       description: "Exhaustive anchored entity, relation, and structure evidence bodies.",
     })
   )
@@ -813,8 +813,8 @@ const ExtractOutcomeKind = LiteralKit(["Extracted", "Degraded"]);
 export const ExtractOutcome = ExtractOutcomeKind.mapMembers(
   Tuple.evolve([() => ExtractedOutcome, () => DegradedExtractOutcome])
 )
-  .annotate(
-    $I.annote("ExtractOutcome", {
+  .pipe(
+    $I.annoteSchema("ExtractOutcome", {
       description: "Extraction result preserving either a validated batch or a typed degraded state.",
     })
   )

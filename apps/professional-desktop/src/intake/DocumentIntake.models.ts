@@ -150,8 +150,8 @@ const IntakeResultEntryKind = LiteralKit(["document", "failure"]).pipe(
 export const IntakeResultEntry = IntakeResultEntryKind.mapMembers(
   Tuple.evolve([() => IntakeResultEntryDocument, () => IntakeResultEntryFailure])
 )
-  .annotate(
-    $I.annote("IntakeResultEntry", {
+  .pipe(
+    $I.annoteSchema("IntakeResultEntry", {
       description: "Exhaustive per-file outcome emitted by desktop document intake.",
     })
   )
@@ -245,8 +245,8 @@ export const VaultSelectionState = VaultSelectionStateKind.mapMembers(
     () => VaultSelectionFailed,
   ])
 )
-  .annotate(
-    $I.annote("VaultSelectionState", {
+  .pipe(
+    $I.annoteSchema("VaultSelectionState", {
       description: "Workspace vault picker and persistence lifecycle state.",
     })
   )
@@ -974,8 +974,8 @@ export const PickerOutcome = PickerOutcomeKind.mapMembers(
     () => PickerOutcomeManual,
   ])
 )
-  .annotate(
-    $I.annote("PickerOutcome", {
+  .pipe(
+    $I.annoteSchema("PickerOutcome", {
       description: "How one native or sidecar vault picker flow finished.",
     })
   )
@@ -1020,8 +1020,8 @@ const ManualOutcomeKind = LiteralKit(["cancelled", "saved"]).pipe(
 export const ManualOutcome = ManualOutcomeKind.mapMembers(
   Tuple.evolve([() => ManualOutcomeCancelled, () => ManualOutcomeSaved])
 )
-  .annotate(
-    $I.annote("ManualOutcome", {
+  .pipe(
+    $I.annoteSchema("ManualOutcome", {
       description: "How one manual vault path entry finished.",
     })
   )
