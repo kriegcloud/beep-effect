@@ -13,6 +13,7 @@
 import { $LibpffId } from "@beep/identity";
 import { A, O, R, Str } from "@beep/utils";
 import * as Base64 from "effect/encoding/Base64";
+import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
@@ -85,15 +86,18 @@ const sanitizeQuotedValue = (value: string): string =>
 const foldBase64Lines = (encoded: string): string => {
   const lines: Array<string> = [];
   for (let index = 0; index < encoded.length; index += base64LineLength) {
-    lines.push(encoded.slice(index, index + base64LineLength));
+    lines.push(pipe(encoded, Str.slice(index, index + base64LineLength)));
   }
   return A.join(lines, CRLF);
 };
 
-const headerName = (line: string): O.Option<string> => {
-  const separator = line.indexOf(":");
-  return separator > 0 ? O.some(Str.toLowerCase(Str.trim(line.slice(0, separator)))) : O.none();
-};
+const headerName = (line: string): O.Option<string> =>
+  pipe(
+    line,
+    Str.indexOf(":"),
+    O.filter((separator) => separator > 0),
+    O.map((separator) => Str.toLowerCase(Str.trim(pipe(line, Str.slice(0, separator)))))
+  );
 
 const octetLength = (value: string): number => textEncoder.encode(value).length;
 
@@ -270,16 +274,16 @@ export const stripMimeStructuralHeaders = (headerBlock: string): string => {
 export const parseOutlookHeaders = (text: string): Record<string, string> => {
   const parsed: Record<string, string> = {};
 
-  for (const line of text.split(lineBreakPattern)) {
-    const separator = line.indexOf(":");
-    if (separator <= 0) {
+  for (const line of pipe(text, Str.split(lineBreakPattern))) {
+    const separator = Str.indexOf(":")(line);
+    if (O.isNone(separator) || separator.value <= 0) {
       continue;
     }
-    const key = Str.trim(line.slice(0, separator));
+    const key = Str.trim(pipe(line, Str.slice(0, separator.value)));
     if (Str.isEmpty(key) || R.has(parsed, key)) {
       continue;
     }
-    parsed[key] = sanitizeHeaderValue(line.slice(separator + 1));
+    parsed[key] = sanitizeHeaderValue(pipe(line, Str.slice(separator.value + 1)));
   }
 
   return parsed;
@@ -380,7 +384,7 @@ const emptyBody: EmlBodyPart = { content: "", contentType: "text/plain; charset=
 // a deliberate safe over-trigger for the one break style RFC 5322 does not
 // recognize.
 const bodySectionLines = (body: EmlBodyPart): ReadonlyArray<string> =>
-  A.some(body.content.split(lineBreakPattern), (line) => octetLength(line) > headerLineOctetLimit)
+  A.some(pipe(body.content, Str.split(lineBreakPattern)), (line) => octetLength(line) > headerLineOctetLimit)
     ? [
         `Content-Type: ${body.contentType}`,
         "Content-Transfer-Encoding: base64",
@@ -522,11 +526,11 @@ const splitAddresses = (value: string): ReadonlyArray<string> => {
   let start = 0;
   for (let i = 0; i < value.length; i++) {
     if (addressSeparator(state, value[i])) {
-      parts.push(Str.trim(value.slice(start, i)));
+      parts.push(Str.trim(pipe(value, Str.slice(start, i))));
       start = i + 1;
     }
   }
-  parts.push(Str.trim(value.slice(start)));
+  parts.push(Str.trim(pipe(value, Str.slice(start))));
   return A.filter(parts, Str.isNonEmpty);
 };
 
@@ -563,10 +567,10 @@ const internetHeaderValues = Match.type<{ key: string; value: string }>().pipe(
 export const parseInternetHeaders = (text: string): InternetHeaderMap => {
   const headers = MutableHashMap.empty<string, ReadonlyArray<string>>();
   for (const line of unfoldInternetHeaders(text)) {
-    const colon = line.indexOf(":");
-    if (colon <= 0) continue;
-    const key = Str.toLowerCase(Str.trim(line.slice(0, colon)));
-    const value = Str.trim(line.slice(colon + 1));
+    const colon = Str.indexOf(":")(line);
+    if (O.isNone(colon) || colon.value <= 0) continue;
+    const key = Str.toLowerCase(Str.trim(pipe(line, Str.slice(0, colon.value))));
+    const value = Str.trim(pipe(line, Str.slice(colon.value + 1)));
     const previous = O.getOrElse(MutableHashMap.get(headers, key), A.empty<string>);
     MutableHashMap.set(headers, key, A.appendAll(previous, internetHeaderValues({ key, value })));
   }

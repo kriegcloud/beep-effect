@@ -162,6 +162,12 @@
         ]
       },
       {
+        "name": "@beep/commands",
+        "patterns": [
+          "packages/drivers/commands/src/**"
+        ]
+      },
+      {
         "name": "@beep/cosmos",
         "patterns": [
           "packages/drivers/cosmos/src/**"
@@ -348,6 +354,18 @@
         ]
       },
       {
+        "name": "@beep/github-commands",
+        "patterns": [
+          "packages/foundation/modeling/github-commands/src/**"
+        ]
+      },
+      {
+        "name": "@beep/github-references",
+        "patterns": [
+          "packages/foundation/modeling/github-references/src/**"
+        ]
+      },
+      {
         "name": "@beep/gov-legal-mcp",
         "patterns": [
           "packages/drivers/gov-legal-mcp/src/**"
@@ -387,6 +405,18 @@
         "name": "@beep/infra",
         "patterns": [
           "infra/src/**"
+        ]
+      },
+      {
+        "name": "@beep/jsonc",
+        "patterns": [
+          "packages/foundation/modeling/jsonc/src/**"
+        ]
+      },
+      {
+        "name": "@beep/jsonl",
+        "patterns": [
+          "packages/foundation/modeling/jsonl/src/**"
         ]
       },
       {
@@ -774,6 +804,12 @@
         ]
       },
       {
+        "name": "@beep/schema-org",
+        "patterns": [
+          "packages/foundation/modeling/schema-org/src/**"
+        ]
+      },
+      {
         "name": "@beep/scratchpad",
         "patterns": [
           "scratchpad/src/**"
@@ -789,6 +825,12 @@
         "name": "@beep/semantica",
         "patterns": [
           "apps/labs/semantica/src/**"
+        ]
+      },
+      {
+        "name": "@beep/semver",
+        "patterns": [
+          "packages/foundation/modeling/semver/src/**"
         ]
       },
       {
@@ -819,6 +861,12 @@
         "name": "@beep/skill-contract",
         "patterns": [
           "packages/foundation/modeling/skill-contract/src/**"
+        ]
+      },
+      {
+        "name": "@beep/spdx",
+        "patterns": [
+          "packages/foundation/modeling/spdx/src/**"
         ]
       },
       {
@@ -1538,6 +1586,23 @@
         ]
       },
       {
+        "from": "@beep/commands",
+        "allow": [
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/cosmos",
         "allow": [
           "@beep/cosmos",
@@ -2227,6 +2292,34 @@
         ]
       },
       {
+        "from": "@beep/github-commands",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity"
+        ]
+      },
+      {
+        "from": "@beep/github-references",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/github-references",
+          "@beep/identity",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/github-references",
+          "@beep/identity",
+          "@beep/schema"
+        ]
+      },
+      {
         "from": "@beep/gov-legal-mcp",
         "allow": [
           "@beep/ecfr",
@@ -2361,6 +2454,42 @@
           "@beep/repo-ai-metrics",
           "@beep/schema",
           "@beep/test-runner",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/jsonc",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/jsonl",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonl",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonl",
+          "@beep/schema",
           "@beep/test-utils",
           "@beep/utils"
         ]
@@ -3982,8 +4111,24 @@
         ]
       },
       {
+        "from": "@beep/schema-org",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/schema-org"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/schema-org"
+        ]
+      },
+      {
         "from": "@beep/scratchpad",
         "allow": [
+          "@beep/commands",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -3991,7 +4136,10 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/github-commands",
+          "@beep/github-references",
           "@beep/identity",
+          "@beep/jsonc",
           "@beep/md",
           "@beep/n3",
           "@beep/nlp",
@@ -4008,12 +4156,15 @@
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
+          "@beep/semver",
           "@beep/shacl",
+          "@beep/spdx",
           "@beep/test-utils",
           "@beep/utils",
           "@beep/wink"
         ],
         "allowTypeOnly": [
+          "@beep/commands",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4021,7 +4172,10 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/github-commands",
+          "@beep/github-references",
           "@beep/identity",
+          "@beep/jsonc",
           "@beep/md",
           "@beep/n3",
           "@beep/nlp",
@@ -4038,7 +4192,9 @@
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
+          "@beep/semver",
           "@beep/shacl",
+          "@beep/spdx",
           "@beep/test-utils",
           "@beep/utils",
           "@beep/wink"
@@ -4114,6 +4270,21 @@
           "@beep/test-utils",
           "@beep/wink",
           "@beep/xai"
+        ]
+      },
+      {
+        "from": "@beep/semver",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/semver"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/semver"
         ]
       },
       {
@@ -4207,6 +4378,19 @@
           "@beep/skill-contract",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/spdx",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/spdx"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/spdx"
         ]
       },
       {

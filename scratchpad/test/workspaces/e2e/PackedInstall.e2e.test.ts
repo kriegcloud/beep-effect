@@ -27,7 +27,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, describe, layer } from "@effect/vitest";
-import { Run } from "../../../effected/commands/index.ts";
+import { Run } from "@beep/commands";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

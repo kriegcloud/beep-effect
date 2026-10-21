@@ -1,6 +1,7 @@
 /**
  * `SetupApprovals` for the gateway: the lawyer approves each automatic
- * repair in an MCP elicitation prompt.
+ * repair in an MCP elicitation prompt, or, when the MCP client cannot show
+ * one, in a Windows Yes/No dialog on their desktop.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -17,6 +18,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { WindowsHost, YesNoQuestion } from "./WindowsHost.ts";
 import type { SetupRequirement } from "@beep/law-practice-domain";
 
 const $I = $PracticeGatewayId.create("Approvals");
@@ -99,16 +101,41 @@ export const approvalMessage = (requirement: SetupRequirement): string => {
 
 const declined = Effect.succeed(RepairDecision.Enum.declined);
 
+/**
+ * Title of the Windows approval dialog.
+ *
+ * **Example** (Read the dialog title)
+ *
+ * ```ts
+ * import { APPROVAL_DIALOG_TITLE } from "@beep/practice-gateway/Approvals"
+ *
+ * console.log(APPROVAL_DIALOG_TITLE) // "Practice gateway: approve a change"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const APPROVAL_DIALOG_TITLE = "Practice gateway: approve a change";
+
+// Timeouts, failures and interrupts all leave the machine unchanged.
+const failClosed = <E, R>(answer: Effect.Effect<RepairDecision, E, R>) =>
+  answer.pipe(
+    Effect.timeoutOption(APPROVAL_TIMEOUT),
+    Effect.map(O.getOrElse(() => RepairDecision.Enum.declined)),
+    Effect.catchCause(() => declined)
+  );
+
 const ask = (client: McpSchema.McpServerClient["Service"], requirement: SetupRequirement) =>
   McpServer.elicit({ message: approvalMessage(requirement), schema: RepairApprovalAnswer }).pipe(
     Effect.map((answer) => (answer.approve ? RepairDecision.Enum.approved : RepairDecision.Enum.declined)),
     Effect.provideService(McpSchema.McpServerClient, client),
-    Effect.timeoutOption(APPROVAL_TIMEOUT),
-    Effect.map(O.getOrElse(() => RepairDecision.Enum.declined)),
     // Declined, cancelled (an interrupt from `elicit`), failed or malformed
     // answers all leave the machine unchanged.
-    Effect.catchCause(() => declined)
+    failClosed
   );
+
+const supportsElicitation = (client: McpSchema.McpServerClient["Service"]) =>
+  P.isNotUndefined(client.clientCapabilities.elicitation);
 
 /**
  * Ask for approval through MCP elicitation, failing closed.
@@ -141,11 +168,62 @@ export const ElicitedApprovals = Layer.succeed(
       Effect.flatMap(
         O.match({
           onNone: () => declined,
-          onSome: (client) =>
-            P.isNotUndefined(client.clientCapabilities.elicitation) ? ask(client, requirement) : declined,
+          onSome: (client) => (supportsElicitation(client) ? ask(client, requirement) : declined),
         })
       ),
       Effect.withSpan("PracticeGateway.approveRepair", { attributes: { requirement: requirement.id } })
     )
   )
+);
+
+/**
+ * Ask through MCP elicitation when the client supports it, otherwise in a
+ * Windows Yes/No dialog, failing closed.
+ *
+ * **Details**
+ *
+ * Claude Desktop does not advertise elicitation (proof run 2026-10-20), so
+ * without this fallback every automatic repair was declined unseen. The
+ * dialog is shown only while an MCP client is calling the gateway, on
+ * Windows, where the gateway runs in the lawyer's desktop session; the
+ * `--self-check` command line still declines without asking. No, closing
+ * the dialog, a failure or {@link APPROVAL_TIMEOUT} all decline.
+ *
+ * **Example** (Compose the approvals)
+ *
+ * ```ts
+ * import { GatewayApprovals } from "@beep/practice-gateway/Approvals"
+ * import * as Layer from "effect/Layer"
+ *
+ * console.log(Layer.isLayer(GatewayApprovals))
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const GatewayApprovals = Layer.effect(
+  SetupApprovals,
+  Effect.gen(function* () {
+    const host = yield* WindowsHost;
+    const dialog = (requirement: SetupRequirement) =>
+      host.isWindows
+        ? host
+            .askYesNo(YesNoQuestion.make({ title: APPROVAL_DIALOG_TITLE, message: approvalMessage(requirement) }))
+            .pipe(
+              Effect.map((yes) => (yes ? RepairDecision.Enum.approved : RepairDecision.Enum.declined)),
+              failClosed
+            )
+        : declined;
+    return makeSetupApprovals((requirement) =>
+      Effect.serviceOption(McpSchema.McpServerClient).pipe(
+        Effect.flatMap(
+          O.match({
+            onNone: () => declined,
+            onSome: (client) => (supportsElicitation(client) ? ask(client, requirement) : dialog(requirement)),
+          })
+        ),
+        Effect.withSpan("PracticeGateway.approveRepair", { attributes: { requirement: requirement.id } })
+      )
+    );
+  })
 );

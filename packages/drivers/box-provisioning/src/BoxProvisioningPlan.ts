@@ -8,8 +8,10 @@
 import { $BoxProvisioningId } from "@beep/identity";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { BoxPlanName, BoxSourceRevision } from "./BoxProvisioningIntent.ts";
 import { BoxProviderId, BoxProviderRevision } from "./BoxProvisioningObserved.ts";
 
@@ -201,12 +203,12 @@ const commonActionFields = {
 } satisfies S.Struct.Fields;
 
 const actionExampleFields = {
-  actionKey: Sha256Hex.make("a".repeat(64)),
-  afterDigest: O.some(Sha256Hex.make("b".repeat(64))),
+  actionKey: Sha256Hex.make(pipe("a", Str.repeat(64))),
+  afterDigest: O.some(Sha256Hex.make(pipe("b", Str.repeat(64)))),
   beforeDigest: O.none<Sha256Hex>(),
   dependencies: [],
   destructive: false,
-  logicalKeyDigest: Sha256Hex.make("c".repeat(64)),
+  logicalKeyDigest: Sha256Hex.make(pipe("c", Str.repeat(64))),
   precondition: BoxActionPrecondition.make({ etag: O.none(), providerId: O.none(), state: "absent" }),
   resourceKind: "folder" as const,
 };

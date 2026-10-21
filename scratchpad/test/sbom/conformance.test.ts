@@ -21,7 +21,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { License, isValidExpression } from "../../effected/spdx/index.ts";
+import { License, isValidExpression } from "@beep/spdx";
 import { Component, Contact, ExternalReference, Sbom, SbomMetadata, Supplier } from "../../effected/sbom/index.ts";
 
 const RequiredProperties = S.Struct({ required: S.String.pipe(S.Array, S.optionalKey) });

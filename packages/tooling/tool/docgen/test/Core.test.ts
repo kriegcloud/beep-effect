@@ -5,9 +5,11 @@ import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const fixturePath = new URL("./fixtures/section-example/", import.meta.url).pathname;
 const docgenBinPath = new URL("../src/bin.ts", import.meta.url).pathname;
@@ -57,9 +59,9 @@ describe("Core", () =>
       expect(detail).toBeDefined();
       if (detail === undefined) return;
       expect(detail.infoString).toBe("typescript import.meta.vitest name='sample'");
-      expect(source.slice(detail.infoStart, detail.infoEnd)).toBe(detail.infoString);
-      expect(source.slice(detail.codeStart, detail.codeEnd)).toBe("const value = 1\n");
-      expect(source.slice(detail.fenceStart, detail.fenceEnd)).toBe(
+      expect(pipe(source, Str.slice(detail.infoStart, detail.infoEnd))).toBe(detail.infoString);
+      expect(pipe(source, Str.slice(detail.codeStart, detail.codeEnd))).toBe("const value = 1\n");
+      expect(pipe(source, Str.slice(detail.fenceStart, detail.fenceEnd))).toBe(
         "```typescript import.meta.vitest name='sample'\nconst value = 1\n```"
       );
       expect(detail.extension).toBe(".ts");

@@ -14,7 +14,7 @@ import * as McpServer from "effect/ai/McpServer";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { ElicitedApprovals } from "./Approvals.ts";
+import { GatewayApprovals } from "./Approvals.ts";
 import { BoxDriveProviderLayer } from "./BoxDriveTools.ts";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { M365ProviderLayer } from "./M365Provider.ts";
@@ -67,7 +67,7 @@ const withPlatformSecrets = <A, E, R>(layer: Layer.Layer<A, E, R>) =>
 
 /**
  * Setup services: settings, profile store, Windows host and the setup doctor
- * with the gateway's probes and elicited approvals. The settings, profile
+ * with the gateway's probes and approvals (elicitation, or a Windows dialog). The settings, profile
  * store, Windows host, Microsoft 365 sign-in and the knowledge-graph module
  * loader are also exposed to the provider layers.
  *
@@ -89,7 +89,7 @@ const withPlatformSecrets = <A, E, R>(layer: Layer.Layer<A, E, R>) =>
  * @since 0.0.0
  */
 export const GatewayServicesLayer = SetupDoctor.layer.pipe(
-  Layer.provide(Layer.merge(withPlatformSecrets(GatewaySetupProbes), ElicitedApprovals)),
+  Layer.provide(Layer.merge(withPlatformSecrets(GatewaySetupProbes), GatewayApprovals)),
   Layer.provideMerge(withPlatformSecrets(M365SignIn.layer)),
   Layer.provide(SystemBrowser.layer),
   Layer.provideMerge(PracticeKgModuleLoader.layer),

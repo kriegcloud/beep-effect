@@ -22,7 +22,7 @@ import { HarnessHash } from "./harness-ledger.ts";
 import { AiMetricsStorageLayout } from "./install.ts";
 import { AiMetricsDeployTarget, ConfigSnapshot } from "./models.ts";
 import { AiMetricsPrivacyCheckResult, hashPublicTextSha256 } from "./privacy.ts";
-import type { DuckDbClient, DuckDbError } from "@beep/duckdb";
+import type { DuckDbAdapter, DuckDbError } from "@beep/duckdb";
 
 const $I = $RepoAiMetricsId.create("derived-storage");
 
@@ -1283,7 +1283,7 @@ const runDerivedStorageMigrationOnce: (migration: DerivedStorageMigration) => Ef
     }
 
     const appliedAtEpochMillis = globalThis.String(yield* Clock.currentTimeMillis);
-    const recordMigration = (client: Pick<DuckDbClient, "run">): Effect.Effect<void, DuckDbError> =>
+    const recordMigration = (client: Pick<DuckDbAdapter, "run">): Effect.Effect<void, DuckDbError> =>
       client.run(
         `INSERT OR REPLACE INTO ai_metrics_schema_migrations (
       migration_id,
@@ -1984,7 +1984,7 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
 
     yield* duckdb
       .withTransaction(
-        Effect.fn("AiMetrics.derivedStorage.writeTransaction")(function* (transaction: DuckDbClient) {
+        Effect.fn("AiMetrics.derivedStorage.writeTransaction")(function* (transaction: DuckDbAdapter) {
           yield* writeDerivedRows(input, completedAtEpochMillis, turnCount).pipe(
             Effect.provideService(DuckDb, transaction)
           );

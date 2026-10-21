@@ -12,8 +12,10 @@ import { describe, expect } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Base64 from "effect/encoding/Base64";
+import { pipe } from "effect/Function";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 const octets = (value: string): number => new TextEncoder().encode(value).length;
 
@@ -23,15 +25,15 @@ describe("foldHeaderLine", () => {
   });
 
   it("folds an over-long DKIM-Signature at space boundaries and unfolds losslessly", () => {
-    const original = `DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=example.com; ${"h=from:to:subject; ".repeat(70)}b=signature`;
+    const original = `DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=example.com; ${pipe("h=from:to:subject; ", Str.repeat(70))}b=signature`;
     const folded = foldHeaderLine(original);
 
     expect(original.length).toBeGreaterThan(998);
     expect(folded.length).toBeGreaterThan(1);
     expect(A.every(folded, (line) => octets(line) <= 998)).toBe(true);
     // Continuations carry the single-space indent that marks them as folded.
-    expect(A.every(folded.slice(1), (line) => line.startsWith(" "))).toBe(true);
-    expect(folded[0]?.startsWith(" ")).toBe(false);
+    expect(A.every(folded.slice(1), (line) => pipe(line, Str.startsWith(" ")))).toBe(true);
+    expect(pipe(O.fromNullishOr(folded[0]), O.map(Str.startsWith(" ")), O.getOrUndefined)).toBe(false);
     // Unfolding per RFC 5322 restores the original byte for byte.
     expect(A.join(folded, "")).toBe(original);
   });
@@ -40,13 +42,13 @@ describe("foldHeaderLine", () => {
     // Nothing to promote to a continuation indent. Splitting would insert
     // whitespace that survives unfolding and corrupt the value, so the
     // over-long line is emitted exactly as it arrived.
-    const original = "a".repeat(3000);
+    const original = pipe("a", Str.repeat(3000));
 
     expect(foldHeaderLine(original)).toStrictEqual([original]);
   });
 
   it("keeps an unbreakable value whole while still folding at the one real space", () => {
-    const token = "a".repeat(3000);
+    const token = pipe("a", Str.repeat(3000));
     const original = `X-Blob: ${token}`;
     const folded = foldHeaderLine(original);
 
@@ -57,14 +59,14 @@ describe("foldHeaderLine", () => {
   });
 
   it("folds up to the unbreakable run and leaves that run whole", () => {
-    const token = "b".repeat(1500);
-    const original = `X-Mixed: ${"word ".repeat(300)}${token}`;
+    const token = pipe("b", Str.repeat(1500));
+    const original = `X-Mixed: ${pipe("word ", Str.repeat(300))}${token}`;
     const folded = foldHeaderLine(original);
 
     expect(folded.length).toBeGreaterThan(1);
     // Every foldable line respects the limit; only the unbreakable token is over.
     expect(A.filter(folded, (line) => octets(line) > 998)).toHaveLength(1);
-    expect(A.some(folded, (line) => line.includes(token))).toBe(true);
+    expect(A.some(folded, (line) => pipe(line, Str.includes(token)))).toBe(true);
     // Still byte-for-byte reversible, because every break sat on a real space.
     expect(A.join(folded, "")).toBe(original);
   });
@@ -72,7 +74,7 @@ describe("foldHeaderLine", () => {
   it("measures octets rather than characters", () => {
     // Each euro sign is three octets, so 400 of them exceed the limit while the
     // character count alone would not. Spaces give it somewhere to fold.
-    const original = `Subject: ${"€ ".repeat(400)}`;
+    const original = `Subject: ${pipe("€ ", Str.repeat(400))}`;
 
     expect(original.length).toBeLessThan(998);
     expect(octets(original)).toBeGreaterThan(998);
@@ -135,12 +137,12 @@ describe("rfc5322DateFromOutlookTimestamp", () => {
 
 describe("stripMimeStructuralHeaders", () => {
   it("folds an over-long verbatim header line", () => {
-    const long = `X-Trace: ${"hop ".repeat(400)}end`;
+    const long = `X-Trace: ${pipe("hop ", Str.repeat(400))}end`;
     const stripped = stripMimeStructuralHeaders(`Subject: hi\r\n${long}\r\n`);
 
     expect(octets(long)).toBeGreaterThan(998);
-    expect(A.every(stripped.split("\r\n"), (line) => octets(line) <= 998)).toBe(true);
-    expect(stripped.startsWith("Subject: hi\r\n")).toBe(true);
+    expect(A.every(pipe(stripped, Str.split("\r\n")), (line) => octets(line) <= 998)).toBe(true);
+    expect(pipe(stripped, Str.startsWith("Subject: hi\r\n"))).toBe(true);
   });
 
   it("leaves an already-folded block alone", () => {
@@ -164,9 +166,14 @@ describe("assembleEml", () => {
   // Strips the RFC 2045 76-column wrapping and decodes the payload back to
   // the body string the part was assembled from.
   const decodeBase64Payload = (payload: string): string =>
-    Result.getOrElse(Base64.decodeString(A.join(payload.split("\r\n"), "")), () => "");
+    Result.getOrElse(Base64.decodeString(A.join(pipe(payload, Str.split("\r\n")), "")), () => "");
 
-  const singlePartPayload = (eml: string): string => eml.slice(eml.indexOf("\r\n\r\n") + 4);
+  const singlePartPayload = (eml: string): string =>
+    pipe(
+      eml,
+      Str.indexOf("\r\n\r\n"),
+      O.match({ onNone: () => pipe(eml, Str.slice(3)), onSome: (separator) => pipe(eml, Str.slice(separator + 4)) })
+    );
 
   it("keeps a short body 8bit and byte-identical", () => {
     expect(singlePart("hello")).toBe(
@@ -185,17 +192,17 @@ describe("assembleEml", () => {
   });
 
   it("flips a single 999-octet line to wrapped base64 that round-trips", () => {
-    const content = "a".repeat(999);
+    const content = pipe("a", Str.repeat(999));
     const eml = singlePart(content);
 
     expect(eml).toContain("Content-Transfer-Encoding: base64");
     const payload = singlePartPayload(eml);
-    expect(A.every(payload.split("\r\n"), (line) => line.length <= 76)).toBe(true);
+    expect(A.every(pipe(payload, Str.split("\r\n")), (line) => line.length <= 76)).toBe(true);
     expect(decodeBase64Payload(payload)).toBe(content);
   });
 
   it("keeps a body line of exactly 998 octets 8bit", () => {
-    const content = "a".repeat(998);
+    const content = pipe("a", Str.repeat(998));
     const eml = singlePart(content);
 
     expect(eml).toContain("Content-Transfer-Encoding: 8bit");
@@ -206,7 +213,7 @@ describe("assembleEml", () => {
   it("measures octets rather than characters", () => {
     // Each euro sign is three octets, so 333 of them cross the limit while
     // the character count stays far below it.
-    const content = "€".repeat(333);
+    const content = pipe("€", Str.repeat(333));
     const eml = singlePart(content);
 
     expect(content.length).toBe(333);
@@ -216,7 +223,7 @@ describe("assembleEml", () => {
   });
 
   it("preserves mixed line endings byte for byte through base64", () => {
-    const content = `a\r\nb\n${"x".repeat(999)}`;
+    const content = `a\r\nb\n${pipe("x", Str.repeat(999))}`;
     const eml = singlePart(content);
 
     expect(eml).toContain("Content-Transfer-Encoding: base64");
@@ -226,7 +233,7 @@ describe("assembleEml", () => {
   it("counts a lone CR toward its physical line", () => {
     // No recognized line break splits this, so it is one 1001-octet physical
     // line: the bare CR is content, not a terminator.
-    const content = `${"c".repeat(500)}\r${"d".repeat(500)}`;
+    const content = `${pipe("c", Str.repeat(500))}\r${pipe("d", Str.repeat(500))}`;
     const eml = singlePart(content);
 
     expect(eml).toContain("Content-Transfer-Encoding: base64");
@@ -234,7 +241,7 @@ describe("assembleEml", () => {
   });
 
   it("encodes a long multipart body while leaving the attachment part and boundaries unchanged", () => {
-    const content = `<p>${"x".repeat(1200)}</p>`;
+    const content = `<p>${pipe("x", Str.repeat(1200))}</p>`;
     const eml = assembleEml({
       attachments: [{ bytes: new TextEncoder().encode("pdfbytes"), fileName: "report.pdf" }],
       body: O.some({ content, contentType: "text/html; charset=utf-8" }),
@@ -247,10 +254,21 @@ describe("assembleEml", () => {
     expect(eml).toContain('Content-Type: application/octet-stream; name="report.pdf"');
     expect(eml).toContain('Content-Disposition: attachment; filename="report.pdf"');
     expect(eml).toContain("cGRmYnl0ZXM=");
-    expect(eml.endsWith(`--${boundary}--`)).toBe(true);
+    expect(pipe(eml, Str.endsWith(`--${boundary}--`))).toBe(true);
 
-    const bodySection = eml.split(`\r\n--${boundary}\r\n`)[1] ?? "";
-    expect(decodeBase64Payload(bodySection.slice(bodySection.indexOf("\r\n\r\n") + 4))).toBe(content);
+    const bodySection = pipe(eml, Str.split(`\r\n--${boundary}\r\n`))[1] ?? "";
+    expect(
+      decodeBase64Payload(
+        pipe(
+          bodySection,
+          Str.indexOf("\r\n\r\n"),
+          O.match({
+            onNone: () => pipe(bodySection, Str.slice(3)),
+            onSome: (separator) => pipe(bodySection, Str.slice(separator + 4)),
+          })
+        )
+      )
+    ).toBe(content);
   });
 
   it("keeps a missing body 8bit with an empty part", () => {
@@ -300,10 +318,10 @@ describe("synthesizeEmlHeaderBlock", () => {
   });
 
   it("folds a synthesized line that the flattened Outlook value made over-long", () => {
-    const block = synthesizeEmlHeaderBlock({ Subject: "word ".repeat(400) });
+    const block = synthesizeEmlHeaderBlock({ Subject: pipe("word ", Str.repeat(400)) });
 
-    expect(A.every(block.split("\r\n"), (line) => octets(line) <= 998)).toBe(true);
-    expect(block.split("\r\n").length).toBeGreaterThan(1);
+    expect(A.every(pipe(block, Str.split("\r\n")), (line) => octets(line) <= 998)).toBe(true);
+    expect(pipe(block, Str.split("\r\n")).length).toBeGreaterThan(1);
   });
 });
 

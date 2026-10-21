@@ -4,7 +4,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
-import { CommandNeutralizer } from "../../../effected/github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as MutableRef from "effect/MutableRef";

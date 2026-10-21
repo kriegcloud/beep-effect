@@ -17,7 +17,7 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { Lockfile, ResolvedPackage } from "../lockfiles/index.ts";
-import { Range, SemVer } from "../semver/index.ts";
+import { Range, SemVer } from "@beep/semver";
 import * as O from "effect/Option";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";

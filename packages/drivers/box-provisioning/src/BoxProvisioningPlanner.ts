@@ -21,6 +21,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { BoxProvisioningSchemaError } from "./BoxProvisioningErrors.ts";
 import {
   BoxCollaborationIntent,
@@ -673,7 +674,7 @@ const planBoxProvisioningRaw = Effect.fn("BoxProvisioningPlanner.plan")(function
     rootFolderId: canonicalObserved.rootFolderId,
     desiredStateDigest: yield* encodedDigest(BoxDesiredState, canonicalDesired),
     liveStateDigest: yield* encodedDigest(BoxObservedState, canonicalObserved),
-    planDigest: Sha256Hex.make("0".repeat(64)),
+    planDigest: Sha256Hex.make(pipe("0", Str.repeat(64))),
     actions,
     foreignResources: A.flatten([foreignFolders, foreignCollaborations, foreignWebhooks]),
     blockerCount: A.length(A.filter(actions, (action) => action._tag === "Blocked")),

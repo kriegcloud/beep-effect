@@ -2175,26 +2175,66 @@
       "@beep/law-practice-use-cases/PracticeSetup": [
         "./packages/law-practice/use-cases/src/PracticeSetup/index.ts"
       ],
-      "@beep/mcpb-kit": [
-        "./packages/tooling/library/mcpb-kit/src/index.ts"
-      ],
-      "@beep/mcpb-kit/*": [
-        "./packages/tooling/library/mcpb-kit/src/*"
-      ],
-      "@beep/practice-gateway": [
-        "./apps/practice-gateway/src/index.ts"
-      ],
-      "@beep/practice-gateway/*": [
-        "./apps/practice-gateway/src/*"
-      ],
+      "@beep/mcpb-kit": ["./packages/tooling/library/mcpb-kit/src/index.ts"],
+      "@beep/mcpb-kit/*": ["./packages/tooling/library/mcpb-kit/src/*"],
+      "@beep/practice-gateway": ["./apps/practice-gateway/src/index.ts"],
+      "@beep/practice-gateway/*": ["./apps/practice-gateway/src/*"],
       "@beep/windows-secrets": [
         "./packages/drivers/windows-secrets/src/index.ts"
       ],
-      "@beep/windows-secrets/*": [
-        "./packages/drivers/windows-secrets/src/*"
-      ],
+      "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
       "@beep/windows-secrets/internal/*": [
         "./packages/drivers/windows-secrets/src/internal/*"
+      ],
+      "@beep/duckdb/DuckDbClient": [
+        "./packages/drivers/duckdb/src/DuckDbClient.service.ts"
+      ],
+      "@beep/duckdb/DuckDbMigrator": [
+        "./packages/drivers/duckdb/src/DuckDbMigrator.service.ts"
+      ],
+      "@beep/commands": ["./packages/drivers/commands/src/index.ts"],
+      "@beep/commands/*": ["./packages/drivers/commands/src/*"],
+      "@beep/commands/internal/*": [
+        "./packages/drivers/commands/src/internal/*"
+      ],
+      "@beep/github-commands": [
+        "./packages/foundation/modeling/github-commands/src/index.ts"
+      ],
+      "@beep/github-commands/*": [
+        "./packages/foundation/modeling/github-commands/src/*"
+      ],
+      "@beep/github-references": [
+        "./packages/foundation/modeling/github-references/src/index.ts"
+      ],
+      "@beep/github-references/*": [
+        "./packages/foundation/modeling/github-references/src/*"
+      ],
+      "@beep/jsonc": ["./packages/foundation/modeling/jsonc/src/index.ts"],
+      "@beep/jsonc/*": ["./packages/foundation/modeling/jsonc/src/*"],
+      "@beep/jsonc/internal/*": [
+        "./packages/foundation/modeling/jsonc/src/internal/*"
+      ],
+      "@beep/jsonl": ["./packages/foundation/modeling/jsonl/src/index.ts"],
+      "@beep/jsonl/*": ["./packages/foundation/modeling/jsonl/src/*"],
+      "@beep/jsonl/internal/*": [
+        "./packages/foundation/modeling/jsonl/src/internal/*"
+      ],
+      "@beep/schema-org": [
+        "./packages/foundation/modeling/schema-org/src/index.ts"
+      ],
+      "@beep/schema-org/*": ["./packages/foundation/modeling/schema-org/src/*"],
+      "@beep/schema-org/internal/*": [
+        "./packages/foundation/modeling/schema-org/src/internal/*"
+      ],
+      "@beep/semver": ["./packages/foundation/modeling/semver/src/index.ts"],
+      "@beep/semver/*": ["./packages/foundation/modeling/semver/src/*"],
+      "@beep/semver/internal/*": [
+        "./packages/foundation/modeling/semver/src/internal/*"
+      ],
+      "@beep/spdx": ["./packages/foundation/modeling/spdx/src/index.ts"],
+      "@beep/spdx/*": ["./packages/foundation/modeling/spdx/src/*"],
+      "@beep/spdx/internal/*": [
+        "./packages/foundation/modeling/spdx/src/internal/*"
       ]
     }
   }

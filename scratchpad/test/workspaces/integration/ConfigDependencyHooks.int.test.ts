@@ -6,7 +6,7 @@ import * as Context from "effect/Context";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
-import { ScriptedSpawner } from "../../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 import { Git } from "../../../effected/git/index.ts";
 import { CatalogAssemblyError } from "../../../effected/npm/index.ts";
 import * as Effect from "effect/Effect";
