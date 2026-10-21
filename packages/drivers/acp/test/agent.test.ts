@@ -36,8 +36,8 @@ const DeleteSessionRequest = jsonRpcRequest("session/delete", AcpSchema.DeleteSe
 const ListProvidersRequest = jsonRpcRequest("providers/list", AcpSchema.ListProvidersRequest);
 const ListProvidersResponse = jsonRpcResponse(AcpSchema.ListProvidersResponse);
 const EmptyResponse = jsonRpcResponse(S.Struct({}));
-const ConnectMcpRequest = jsonRpcRequest("mcp/connect", AcpSchema.ConnectMcpRequest);
-const ConnectMcpResponse = jsonRpcResponse(AcpSchema.ConnectMcpResponse);
+const MessageMcpRequest = jsonRpcRequest("mcp/message", AcpSchema.MessageMcpRequest);
+const MessageMcpResponse = jsonRpcResponse(AcpSchema.MessageMcpResponse);
 const MessageMcpNotification = jsonRpcNotification("mcp/message", AcpSchema.MessageMcpNotification);
 const ErrorResponse = S.Struct({
   error: S.Struct({ code: S.Finite, message: S.String }),
@@ -52,8 +52,7 @@ const decodeExtResponse = S.decodeEffect(S.fromJsonString(ExtResponse));
 const decodeResumeSessionResponse = S.decodeEffect(S.fromJsonString(ResumeSessionResponse));
 const decodeListProvidersResponse = S.decodeEffect(S.fromJsonString(ListProvidersResponse));
 const decodeEmptyResponse = S.decodeEffect(S.fromJsonString(EmptyResponse));
-const decodeConnectMcpRequest = S.decodeEffect(S.fromJsonString(ConnectMcpRequest));
-const decodeMessageMcpNotification = S.decodeEffect(S.fromJsonString(MessageMcpNotification));
+const decodeMessageMcpRequest = S.decodeEffect(S.fromJsonString(MessageMcpRequest));
 const decodeErrorResponse = S.decodeEffect(S.fromJsonString(ErrorResponse));
 const encodeInitializeResponse = S.encodeEffect(S.fromJsonString(InitializeResponse));
 const encodeSessionCancelNotification = S.encodeEffect(S.fromJsonString(SessionCancelNotification));
@@ -428,24 +427,32 @@ it.layer(Layer.fresh(agentFixtureLayer), { timeout: "10 seconds" })((it) => {
 
 it.layer(Layer.fresh(agentFixtureLayer), { timeout: "10 seconds" })((it) => {
   it.effect(
-    "sends MCP-over-ACP requests and notifications to the client",
+    "sends MCP-over-ACP requests to the client and handles its notifications",
     Effect.fnUntraced(function* () {
       const { input, output } = yield* AgentTransport;
       const agent = yield* AcpAgent.AcpAgent;
+      const params = { serverId: "test-server", requestId: "mcp-1", method: "tools/list" };
 
-      const connectFiber = yield* agent.client.connectMcp({ serverId: "test-server" }).pipe(Effect.forkScoped);
-      const connect = yield* decodeConnectMcpRequest(yield* Queue.take(output));
-      assert.strictEqual(connect.id, AcpProtocol.RPC_REQUEST_ID_START);
-      assert.deepStrictEqual(connect.params, { serverId: "test-server" });
+      const messageFiber = yield* agent.client.messageMcp(params).pipe(Effect.forkScoped);
+      const message = yield* decodeMessageMcpRequest(yield* Queue.take(output));
+      assert.strictEqual(message.id, AcpProtocol.RPC_REQUEST_ID_START);
+      assert.deepStrictEqual(message.params, params);
       yield* Queue.offer(
         input,
-        yield* encodeJsonl(ConnectMcpResponse, { jsonrpc: "2.0", id: connect.id, result: { connectionId: "conn-1" } })
+        yield* encodeJsonl(MessageMcpResponse, { jsonrpc: "2.0", id: message.id, result: { result: { tools: [] } } })
       );
-      assert.strictEqual((yield* Fiber.join(connectFiber)).connectionId, "conn-1");
+      assert.deepStrictEqual(yield* Fiber.join(messageFiber), { result: { tools: [] } });
 
-      yield* agent.client.notifyMcp({ connectionId: "conn-1", method: "notifications/initialized" });
-      const notification = yield* decodeMessageMcpNotification(yield* Queue.take(output));
-      assert.deepStrictEqual(notification.params, { connectionId: "conn-1", method: "notifications/initialized" });
+      const notified = yield* Deferred.make<AcpSchema.MessageMcpNotification>();
+      yield* agent.handleMcpNotification((notification) =>
+        Deferred.succeed(notified, notification).pipe(Effect.asVoid)
+      );
+      const progress = { serverId: "test-server", requestId: "mcp-1", method: "notifications/progress" };
+      yield* Queue.offer(
+        input,
+        yield* encodeJsonl(MessageMcpNotification, { jsonrpc: "2.0", method: "mcp/message", params: progress })
+      );
+      assert.deepStrictEqual(yield* Deferred.await(notified), progress);
     })
   );
 });

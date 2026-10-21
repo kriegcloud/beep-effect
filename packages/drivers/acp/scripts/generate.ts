@@ -9,9 +9,9 @@ import * as S from "effect/Schema";
 import type { ExtraRenderer, NamedTransform, SpecSource } from "@beep/codegen-kit";
 
 /** Pinned ACP generation-2 schema release (GitHub prerelease tag). */
-const V2_SCHEMA_RELEASE = "schema-v2.0.0-alpha.3";
+const V2_SCHEMA_RELEASE = "schema-v2.0.0-alpha.9";
 /** Pinned ACP generation-1 schema release (GitHub release tag). */
-const V1_SCHEMA_RELEASE = "schema-v1.21.0";
+const V1_SCHEMA_RELEASE = "schema-v1.26.0";
 
 const packageRoot = `${import.meta.dirname}/..`;
 const $I = $AcpId.create("scripts/generate");
@@ -37,13 +37,16 @@ const V1_CACHE_DIR = "spec/v1";
 /**
  * JSON Schema normalizations the pinned specs need before the Effect importer can read them:
  * nullable type arrays, `unevaluatedProperties: true`, forward-compatible `not` discriminator
- * exclusions, discriminated `oneOf` as `anyOf`, and `allOf` distribution over unions.
+ * exclusions, discriminated `oneOf` as `anyOf`, base properties that union branches narrow (the
+ * `IdleStateUpdate` stop reasons since `schema-v2.0.0-alpha.9` / `schema-v1.26.0`), and `allOf`
+ * distribution over unions.
  */
 const acpTransforms: ReadonlyArray<NamedTransform> = [
   "nullableTypeArray",
   "unevaluatedPropertiesOpen",
   "notDiscriminatorPattern",
   "uniqueDiscriminatorOneOfAsAnyOf",
+  "intersectSiblingProperties",
   "distributeAllOf",
 ];
 

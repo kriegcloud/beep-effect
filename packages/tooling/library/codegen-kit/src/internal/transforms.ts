@@ -289,6 +289,137 @@ const isAnnotationKeyword = (key: string): boolean => A.contains(annotationKeywo
 
 const isAnnotationOnly = (node: Record<string, unknown>): boolean => A.every(R.keys(node), isAnnotationKeyword);
 
+const failIntersect = (message: string): never => transformFailure("intersectSiblingProperties", message);
+
+// `number` contains `integer`, so that pair intersects to `integer`; any other pair of distinct
+// single types is disjoint.
+const isNumberIntegerPair = (left: unknown, right: unknown): boolean =>
+  left !== right && A.every([left, right], (type) => type === "number" || type === "integer");
+
+const disjointTypes = (left: unknown, right: unknown): boolean =>
+  P.isString(left) && P.isString(right) && left !== right && !isNumberIntegerPair(left, right);
+
+const disjointAlternatives = (left: Record<string, unknown>, right: Record<string, unknown>): boolean =>
+  disjointTypes(left.type, right.type) ||
+  (left.const !== undefined && right.const !== undefined && !Equal.equals(left.const, right.const));
+
+// Splits a property schema into its alternatives: a nullable type array is lowered first, and the
+// annotations next to an `anyOf` are copied onto every member.
+const propertyAlternatives = (name: string, schema: unknown): ReadonlyArray<Record<string, unknown>> => {
+  const node = pipe(
+    recordValue(schema),
+    O.map(nullableTypeArray),
+    O.getOrElse(() => failIntersect(`Unsupported overlapping property ${name}: expected an object schema`))
+  );
+  const { anyOf, ...annotations } = node;
+  if (!A.isArray(anyOf)) return [node];
+  if (!isAnnotationOnly(annotations)) {
+    return failIntersect(`Unsupported overlapping property ${name}: anyOf with sibling constraints`);
+  }
+  return A.map(anyOf, (member) =>
+    pipe(
+      recordValue(member),
+      O.map((entry) => ({ ...annotations, ...entry })),
+      O.getOrElse(() => failIntersect(`Unsupported overlapping property ${name}: expected object alternatives`))
+    )
+  );
+};
+
+const constraintAgrees =
+  (left: Record<string, unknown>, right: Record<string, unknown>) =>
+  (key: string): boolean =>
+    isAnnotationKeyword(key) ||
+    right[key] === undefined ||
+    Equal.equals(left[key], right[key]) ||
+    (key === "type" && isNumberIntegerPair(left.type, right.type));
+
+const conflictingConstraint = (left: Record<string, unknown>, right: Record<string, unknown>): O.Option<string> =>
+  A.findFirst(R.keys(left), P.not(constraintAgrees(left, right)));
+
+const intersectedType = (left: Record<string, unknown>, right: Record<string, unknown>): Record<string, unknown> =>
+  isNumberIntegerPair(left.type, right.type) ? { type: "integer" } : {};
+
+const intersectAlternatives =
+  (name: string) =>
+  ([left, right]: readonly [Record<string, unknown>, Record<string, unknown>]): O.Option<Record<string, unknown>> => {
+    if (disjointAlternatives(left, right)) return O.none();
+    if (P.isString(left.$ref) || P.isString(right.$ref)) {
+      return failIntersect(`Unsupported overlapping property ${name}: $ref alternatives`);
+    }
+    return O.match(conflictingConstraint(left, right), {
+      onNone: () => O.some({ ...left, ...right, ...intersectedType(left, right) }),
+      onSome: (key) => failIntersect(`Unsupported conflicting constraint ${key} on overlapping property ${name}`),
+    });
+  };
+
+// Intersects a base property with a branch's redeclaration; disjoint alternatives drop out.
+const intersectProperty = (name: string, base: unknown, branch: unknown): unknown =>
+  A.match(
+    A.getSomes(
+      A.map(
+        A.cartesian(propertyAlternatives(name, base), propertyAlternatives(name, branch)),
+        intersectAlternatives(name)
+      )
+    ),
+    {
+      onEmpty: () => failIntersect(`Unsatisfiable overlapping property ${name}`),
+      onNonEmpty: (members) => (A.length(members) === 1 ? A.headNonEmpty(members) : { anyOf: members }),
+    }
+  );
+
+const redeclares =
+  (properties: Record<string, unknown>) =>
+  (name: string) =>
+  (branch: unknown): boolean =>
+    pipe(
+      recordValue(branch),
+      O.flatMap((entry) => recordValue(entry.properties)),
+      O.flatMap((own) => R.get(own, name)),
+      O.exists((schema) => !Equal.equals(schema, properties[name]))
+    );
+
+const narrowBranch =
+  (properties: Record<string, unknown>, overlapping: ReadonlyArray<string>) =>
+  (branch: unknown): Record<string, unknown> => {
+    const entry = pipe(
+      recordValue(branch),
+      O.filter((schema) => !P.isString(schema.$ref)),
+      O.getOrElse(() => failIntersect("Unsupported union branch: expected an inline object schema"))
+    );
+    const own = O.getOrElse(recordValue(entry.properties), R.empty<string, unknown>);
+    const narrowed = R.fromEntries(
+      A.map(overlapping, (name) => {
+        const narrowedProperty = O.match(R.get(own, name), {
+          onNone: () => properties[name],
+          onSome: (schema) =>
+            Equal.equals(schema, properties[name]) ? schema : intersectProperty(name, properties[name], schema),
+        });
+        return [name, narrowedProperty] as const;
+      })
+    );
+    return { ...entry, properties: { ...own, ...narrowed } };
+  };
+
+/**
+ * Pushes every base property that a union branch redeclares down into all branches, intersected with
+ * each branch's own declaration, so no branch overlaps its siblings any more.
+ */
+const intersectSiblingProperties: NodeTransform = (node) =>
+  pipe(
+    O.all({ key: unionKey(node), properties: propertyRecord(node) }),
+    O.flatMap(({ key, properties }) => {
+      const branches: ReadonlyArray<unknown> = A.isArray(node[key]) ? node[key] : [];
+      const overlapping = A.filter(R.keys(properties), (name) => A.some(branches, redeclares(properties)(name)));
+      return A.isReadonlyArrayNonEmpty(overlapping) ? O.some({ key, properties, branches, overlapping }) : O.none();
+    }),
+    O.map(({ key, properties, branches, overlapping }) => ({
+      ...node,
+      properties: R.filter(properties, (_, name) => !A.contains(overlapping, name)),
+      [key]: A.map(branches, narrowBranch(properties, overlapping)),
+    })),
+    O.getOrElse(() => node)
+  );
+
 const literalValueKeywords: ReadonlyArray<string> = ["const", "enum", "default", "examples", "example"];
 
 const schemaMapKeywords: ReadonlyArray<string> = [
@@ -434,6 +565,7 @@ const baseRegistry = (
   notDiscriminatorPattern,
   unevaluatedPropertiesOpen,
   uniqueDiscriminatorOneOfAsAnyOf,
+  intersectSiblingProperties,
 });
 
 const isNodeTransformName = (name: NamedTransform): name is Exclude<NamedTransform, "distributeAllOf"> =>

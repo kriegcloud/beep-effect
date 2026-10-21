@@ -3,9 +3,9 @@
  *
  * **Details**
  *
- * The schemas are generated from the pinned `schema-v2.0.0-alpha.3` release. The method tables
+ * The schemas are generated from the pinned `schema-v2.0.0-alpha.9` release. The method tables
  * cover generation 2 (`AGENT_METHODS`, `CLIENT_METHODS`, `PROTOCOL_VERSION`) and generation 1
- * (`V1_AGENT_METHODS`, `V1_CLIENT_METHODS`, `V1_PROTOCOL_VERSION`, from `schema-v1.21.0`).
+ * (`V1_AGENT_METHODS`, `V1_CLIENT_METHODS`, `V1_PROTOCOL_VERSION`, from `schema-v1.26.0`).
  * Generation-1 schemas live in `@beep/acp/schema-v1`, and the normalized client surface in
  * `@beep/acp/compat`. This module has no generation-1 aliases: `LoadSessionRequest` or
  * `SessionNotification` are generation-1 names and are only exported by `@beep/acp/schema-v1`.
