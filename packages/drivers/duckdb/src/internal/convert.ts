@@ -218,14 +218,13 @@ const safeIntegerConverter = makeConverter(sharedConverters);
  * **Example** (Reading rows with the default converter)
  *
  * ```ts
- * import type { DuckDBConnection } from "@duckdb/node-api"
+ * import { DuckDBInstance } from "@duckdb/node-api"
  * import { converterFor } from "./convert.ts"
  *
- * const readRows = async (connection: DuckDBConnection) => {
- *   const reader = await connection.runAndReadAll("select 1::bigint as n")
- *   return reader.convertRowObjects(converterFor(false))
- * }
- * console.log(readRows)
+ * DuckDBInstance.create(":memory:")
+ *   .then((instance) => instance.connect())
+ *   .then((connection) => connection.runAndReadAll("select 1::bigint as n"))
+ *   .then((reader) => console.log(reader.convertRowObjects(converterFor(false)))) // [{ n: 1 }]
  * ```
  *
  * @category utilities

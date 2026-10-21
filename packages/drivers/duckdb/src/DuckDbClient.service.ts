@@ -91,10 +91,10 @@ export const TypeId: TypeId = "~@beep/duckdb/DuckDbClient";
  * **Example** (Name the type identifier)
  *
  * ```ts
- * import type { DuckDbClient } from "@beep/duckdb"
+ * import { DuckDbClient } from "@beep/duckdb"
  *
  * const typeId: DuckDbClient.TypeId = "~@beep/duckdb/DuckDbClient"
- * console.log(typeId)
+ * console.log(typeId === DuckDbClient.TypeId) // true
  * ```
  *
  * @category type-ids
@@ -387,7 +387,7 @@ export const make = Effect.fn("DuckDbClient.make")(function* (
  *   return yield* sql`select 42 as answer`
  * }).pipe(Effect.scoped, Effect.provide(Reactivity.layer))
  *
- * Effect.runPromise(program)
+ * Effect.runPromise(program).then((rows) => console.log(rows)) // [{ answer: 42 }]
  * ```
  *
  * @category constructors
@@ -433,7 +433,7 @@ export const fromInstance = Effect.fn("DuckDbClient.fromInstance")(function* (
  *   return yield* sql`select 42 as answer`
  * }).pipe(Effect.scoped, Effect.provide(Reactivity.layer))
  *
- * Effect.runPromise(program)
+ * Effect.runPromise(program).then((rows) => console.log(rows)) // [{ answer: 42 }]
  * ```
  *
  * @category constructors
@@ -466,7 +466,7 @@ export const fromConnection = Effect.fn("DuckDbClient.fromConnection")(function*
  *   return yield* sql`select 1 as n`
  * }).pipe(Effect.provide(DuckDbClient.layer({ databasePath: ":memory:" })))
  *
- * Effect.runPromise(program)
+ * Effect.runPromise(program).then((rows) => console.log(rows)) // [{ n: 1 }]
  * ```
  *
  * @category layers
@@ -499,7 +499,7 @@ export const layer = (config: DuckDbClientConfig): Layer.Layer<DuckDbClient | Sq
  *   return yield* duckdb`select 1 as n`
  * }).pipe(Effect.provide(DuckDbClient.layerClient({ databasePath: ":memory:" })))
  *
- * Effect.runPromise(program)
+ * Effect.runPromise(program).then((rows) => console.log(rows)) // [{ n: 1 }]
  * ```
  *
  * @category layers
@@ -517,12 +517,24 @@ export const layerClient = (config: DuckDbClientConfig): Layer.Layer<DuckDbClien
  * ```ts
  * import { DuckDbClient } from "@beep/duckdb"
  * import * as Config from "effect/Config"
+ * import * as ConfigProvider from "effect/ConfigProvider"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
+ * import * as SqlClient from "effect/sql/SqlClient"
  *
  * const DuckDbLive = DuckDbClient.layerConfig({
  *   databasePath: Config.String("DUCKDB_PATH"),
  *   readOnly: Config.Boolean("DUCKDB_READ_ONLY").pipe(Config.withDefault(false))
- * })
- * console.log(DuckDbLive)
+ * }).pipe(Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ DUCKDB_PATH: ":memory:" }))))
+ *
+ * const program = Effect.gen(function* () {
+ *   const client = yield* DuckDbClient.DuckDbClient
+ *   const sql = yield* SqlClient.SqlClient
+ *   const rows = yield* sql`select 1 as n`
+ *   return [client.config.databasePath, rows] as const
+ * }).pipe(Effect.provide(DuckDbLive))
+ *
+ * Effect.runPromise(program).then(console.log) // [":memory:", [{ n: 1 }]]
  * ```
  *
  * @category layers
@@ -552,11 +564,19 @@ export const layerConfig = (
  * ```ts
  * import { DuckDbClient } from "@beep/duckdb"
  * import * as Config from "effect/Config"
+ * import * as ConfigProvider from "effect/ConfigProvider"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
  *
  * const DuckDbLive = DuckDbClient.layerClientConfig({
  *   databasePath: Config.String("DUCKDB_PATH")
- * })
- * console.log(DuckDbLive)
+ * }).pipe(Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ DUCKDB_PATH: ":memory:" }))))
+ *
+ * const program = Effect.flatMap(DuckDbClient.DuckDbClient, (duckdb) => duckdb`select 1 as n`).pipe(
+ *   Effect.provide(DuckDbLive)
+ * )
+ *
+ * Effect.runPromise(program).then((rows) => console.log(rows)) // [{ n: 1 }]
  * ```
  *
  * @category layers
