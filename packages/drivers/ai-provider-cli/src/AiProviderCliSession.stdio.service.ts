@@ -47,11 +47,11 @@ import type {
 import type { ManagedSession } from "./AiProviderCliSession.service.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCliSession.stdio.service");
-const OfferedTool = S.Struct({ tool_name: S.String }).annotate(
-  $I.annote("OfferedTool", { description: "Partial native permission request carrying the offered tool name." })
+const OfferedTool = S.Struct({ tool_name: S.String }).pipe(
+  $I.annoteSchema("OfferedTool", { description: "Partial native permission request carrying the offered tool name." })
 );
-const SteeredTurn = S.Struct({ turnId: S.NonEmptyString }).annotate(
-  $I.annote("SteeredTurn", { description: "Native steering receipt identifying the accepted active turn." })
+const SteeredTurn = S.Struct({ turnId: S.NonEmptyString }).pipe(
+  $I.annoteSchema("SteeredTurn", { description: "Native steering receipt identifying the accepted active turn." })
 );
 const decodeOfferedTool = S.decodeUnknownOption(OfferedTool);
 const decodeSteeredTurn = S.decodeUnknownEffect(SteeredTurn);
