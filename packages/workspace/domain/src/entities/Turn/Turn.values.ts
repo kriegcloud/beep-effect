@@ -199,8 +199,8 @@ export const TurnItem = TurnItemTag.mapMembers(
   Tuple.evolve([() => MessageItem, () => ToolCallItem, () => ToolResultItem, () => ArtifactRefItem, () => ActivityItem])
 )
   .pipe(S.toTaggedUnion("itemType"))
-  .annotate(
-    $I.annote("TurnItem", {
+  .pipe(
+    $I.annoteSchema("TurnItem", {
       description: "Ordered typed item held by a turn aggregate.",
     })
   );

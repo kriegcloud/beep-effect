@@ -12,8 +12,8 @@ import { LawPracticeText } from "../LawPracticeEntity.fields.ts";
 
 const $I = $LawPracticeDomainId.create("entities/Distinction/Distinction.values");
 
-const DistinctionKind = LiteralKit(["missing_limitation"]).annotate(
-  $I.annote("DistinctionKind", {
+const DistinctionKind = LiteralKit(["missing_limitation"]).pipe(
+  $I.annoteSchema("DistinctionKind", {
     description: "Distinction detail kinds supported by law-practice proof entities.",
   })
 );

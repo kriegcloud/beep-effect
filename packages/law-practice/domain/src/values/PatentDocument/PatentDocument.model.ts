@@ -107,8 +107,8 @@ export const PatentClaimTransition = LiteralKit([
  */
 export type PatentClaimTransition = typeof PatentClaimTransition.Type;
 
-const PatentClaimType = LiteralKit(["independent", "dependent"]).annotate(
-  $I.annote("PatentClaimType", {
+const PatentClaimType = LiteralKit(["independent", "dependent"]).pipe(
+  $I.annoteSchema("PatentClaimType", {
     description: "Independent and dependent patent claim variants.",
   })
 );
