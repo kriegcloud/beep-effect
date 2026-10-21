@@ -1,15 +1,22 @@
-// The non-mutating text-edit vocabulary shared by the formatter and modifier:
-// YamlEdit, YamlRange, YamlPath and YamlSegment.
-//
-// Edits describe replacements as `offset`/`length`/`content`; applying them in
-// reverse-offset order is byte-minimal and preserves comments and whitespace —
-// the core value proposition over `yaml` round-trips.
-//
-// `YamlEdit`, `YamlRange`, `YamlPath`, `YamlSegment` and
-// `YamlFormattingOptions` are bound by the cross-package parity convention:
-// they are structurally identical to their `Jsonc*`, `Toml*` and `Markdown*`
-// counterparts (same field names, types, optionality and semantics) so
-// consumer code can be written once over "a document codec's Edit/Range/Path".
+/**
+ * The non-mutating text-edit vocabulary shared by the formatter and modifier:
+ * YamlEdit, YamlRange, YamlPath and YamlSegment.
+ *
+ * **Details**
+ *
+ * Edits describe replacements as `offset`/`length`/`content`; applying them in
+ * reverse-offset order is byte-minimal and preserves comments and whitespace —
+ * the core value proposition over `yaml` round-trips.
+ *
+ * `YamlEdit`, `YamlRange`, `YamlPath`, `YamlSegment` and
+ * `YamlFormattingOptions` are bound by the cross-package parity convention:
+ * they are structurally identical to their `Jsonc*`, `Toml*` and `Markdown*`
+ * counterparts (same field names, types, optionality and semantics) so
+ * consumer code can be written once over "a document codec's Edit/Range/Path".
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import * as A from "effect/Array";

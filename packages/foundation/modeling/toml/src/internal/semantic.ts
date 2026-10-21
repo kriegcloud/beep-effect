@@ -1,5 +1,7 @@
 import { $TomlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+// Sets keys as own data properties, `__proto__` included (yaml/jsonc precedent).
+import { setOwnProperty } from "@beep/utils/Record";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Match from "effect/Match";
@@ -391,20 +393,6 @@ export const analyze: {
     }
   }
 );
-
-/** Set a key as an own data property — `__proto__` included (yaml/jsonc precedent). */
-const setOwnProperty: {
-  (target: Record<string, unknown>, key: string, value: unknown): void;
-  (key: string, value: unknown): (target: Record<string, unknown>) => void;
-} = dual(3, (target: Record<string, unknown>, key: string, value: unknown): void => {
-  if (key === "__proto__") {
-    // Own data property, not a prototype mutation — matches JSON.parse
-    // semantics and the packages/yaml/src/YamlNode.ts precedent.
-    Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
-  } else {
-    target[key] = value;
-  }
-});
 
 /** Own-property read that never leaks through the prototype chain (`__proto__` included). */
 const getOwnProperty: {

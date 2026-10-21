@@ -2,6 +2,7 @@ import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as R from "effect/Record";
 import { caseInsensitiveSuite } from "./CaseInsensitiveContract.ts";
 import { firstEvent } from "./helpers.ts";
 
@@ -18,7 +19,7 @@ describe("case-insensitive facade", () => {
       assert.isTrue(volume.isDirectory("/rEpO"));
       assert.deepStrictEqual(volume.readDirectory("/repo"), ["Docs.json"]);
       assert.deepStrictEqual(volume.paths(), ["/Repo/Docs.json"]);
-      assert.deepStrictEqual(Object.keys(volume.snapshot()), ["/Repo/Docs.json"]);
+      assert.deepStrictEqual(R.keys(volume.snapshot()), ["/Repo/Docs.json"]);
       assert.strictEqual(volume.lstat("/REPO/DOCS.JSON")?.kind, "file");
       assert.strictEqual(MemoryFileSystem.syncFileSystem(volume).readFile("/repo/docs.json"), "{}");
       assert.deepStrictEqual(MemoryFileSystem.syncFileSystem(volume).readDirectory("/REPO"), ["Docs.json"]);

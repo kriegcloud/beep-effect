@@ -15,6 +15,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import { applyMultiDocCanonical, applySingleDocCanonical } from "./support/canonical.ts";
 import {
   buildAnchorMap,
@@ -50,12 +51,12 @@ function deepEqual(a: unknown, b: unknown): boolean {
 }
 
 function arraysEqual(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
-  return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+  return a.length === b.length && A.every(a, (v, i) => deepEqual(v, b[i]));
 }
 
 function recordsEqual(a: { readonly [x: PropertyKey]: unknown }, b: { readonly [x: PropertyKey]: unknown }): boolean {
-  const keysA = Object.keys(a);
-  return keysA.length === Object.keys(b).length && keysA.every((k) => deepEqual(a[k], b[k]));
+  const keysA = R.keys(a);
+  return keysA.length === R.keys(b).length && A.every(keysA, (k) => deepEqual(a[k], b[k]));
 }
 
 const parseOptions = () => ParseOptionsInput.make({ uniqueKeys: false });
@@ -64,7 +65,7 @@ const parseOptions = () => ParseOptionsInput.make({ uniqueKeys: false });
 const parseDocumentValues = (yaml: string) =>
   parseAllDocuments(yaml, parseOptions()).pipe(
     Effect.map((docs) =>
-      docs.map((doc) => {
+      A.map(docs, (doc) => {
         const anchors = buildAnchorMap(doc.contents);
         return getNodeValue(doc.contents, anchors);
       })
@@ -84,8 +85,10 @@ const assertJsonMatch = Effect.fn(function* (tc: TestCase) {
 const canonicalOutput = Effect.fn(function* (tc: TestCase) {
   if (tc.isMultiDocument) {
     const docs = yield* parseAllDocuments(tc.yaml, parseOptions());
-    const parts = docs.map((doc) => stringifyDocument(doc, StringifyOptionsInput.make({ forceDefaultStyles: true })));
-    const joined = parts.join("");
+    const parts = A.map(docs, (doc) =>
+      stringifyDocument(doc, StringifyOptionsInput.make({ forceDefaultStyles: true }))
+    );
+    const joined = A.join(parts, "");
     return applyMultiDocCanonical(joined, docs);
   }
   const doc = yield* parseDocument(tc.yaml, parseOptions());

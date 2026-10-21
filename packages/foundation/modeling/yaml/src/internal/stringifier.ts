@@ -341,14 +341,13 @@ const requiresQuoting: {
   (s: string, ignoreType?: boolean, quoteCompat?: QuoteCompat, inFlow?: boolean): boolean;
 } = dual(
   (args) => P.isString(args[0]),
-  // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-  (s: string, ignoreType: boolean = false, quoteCompat?: QuoteCompat, inFlow: boolean = false): boolean =>
+  (s: string, ignoreType?: boolean, quoteCompat?: QuoteCompat, inFlow?: boolean): boolean =>
     // Empty string must be quoted
     s === "" ||
     // Flow context: any flow indicator anywhere terminates or corrupts the
     // enclosing collection
-    (inFlow && /[,[\]{}]/.test(s)) ||
-    wouldBeCoerced(s, ignoreType, quoteCompat) ||
+    (inFlow === true && /[,[\]{}]/.test(s)) ||
+    wouldBeCoerced(s, ignoreType === true, quoteCompat) ||
     hasUnsafeLeadingIndicator(s) ||
     hasAmbiguousPlainSyntax(s) ||
     hasUnplainableChar(s)
@@ -636,20 +635,20 @@ const renderString: {
     s: string,
     style: ScalarStyle,
     indent: string,
-    // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-    ignoreType: boolean = false,
-    // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-    canonical: boolean = false,
+    ignoreTypeArg?: boolean,
+    canonicalArg?: boolean,
     explicitChomp?: ScalarChomp,
     parentPosition?: ParentPosition,
     quoteStyle: QuoteStyle = "single",
     explicitIndent?: number,
     quoteCompat?: QuoteCompat,
-    // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-    inFlow: boolean = false,
-    // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-    nested: boolean = false
+    inFlowArg?: boolean,
+    nestedArg?: boolean
   ): string => {
+    const ignoreType = ignoreTypeArg === true;
+    const canonical = canonicalArg === true;
+    const inFlow = inFlowArg === true;
+    const nested = nestedArg === true;
     // Fidelity mode (everything but canonical) re-emits the EXPLICIT header
     // indicators the source spelled — a redundant `+` keep-chomp or `|2`
     // indentation indicator is normalized away only under forceDefaultStyles.
@@ -911,8 +910,7 @@ const stringifyLines: {
   (value: unknown, ctx: StringifyContext, depth: number, allowFold?: boolean): string[];
 } = dual(
   (args) => P.isObjectKeyword(args[1]),
-  // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-  (value: unknown, ctx: StringifyContext, depth: number, allowFold: boolean = true): string[] => {
+  (value: unknown, ctx: StringifyContext, depth: number, allowFold?: boolean): string[] => {
     // Depth guard: the value-stringifier trio (this fn, stringifyArrayLines and
     // stringifyObjectLines) is mutually recursive with no natural bound, so a
     // deeply-nested acyclic value would overflow the stack as a RangeError
@@ -920,7 +918,7 @@ const stringifyLines: {
     // error the facade materializes into a YamlStringifyError.
     if (depth > MAX_NESTING_DEPTH)
       throw StringifyDepthExceeded.make({ message: `Nesting depth exceeded maximum of ${MAX_NESTING_DEPTH}` });
-    if (P.isString(value)) return stringifyStringLines(value, ctx, depth, allowFold);
+    if (P.isString(value)) return stringifyStringLines(value, ctx, depth, allowFold !== false);
     if (A.isArray(value)) return withAncestor(value, ctx, () => stringifyArrayLines(value, ctx, depth));
     // object (plain object / record)
     if (P.isObject(value)) return withAncestor(value, ctx, () => stringifyObjectLines(value, ctx, depth));
@@ -1086,7 +1084,7 @@ function renderFlowObject(
 
 /**
  * Render a block mapping key — must be single-line for block mappings, so
- * multiline keys use double-quoted style with \n escapes.
+ * multiline keys use double-quoted style with `\n` escapes.
  */
 const renderBlockKey = (k: string, ctx: StringifyContext): string =>
   k.includes("\n") ? renderDoubleQuoted(k, ctx.forceDefaultStyles) : renderPlainKey(k, ctx, false);

@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   CHECK_CENSUS_BASELINE_PATH,
   CHECK_CENSUS_DEFAULT_TARGETS,
@@ -26,7 +27,6 @@ import {
   runCheckCensusGate,
   writeCheckCensusBaseline,
 } from "@beep/repo-cli/test/Quality";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, it } from "@effect/vitest";
 import { assertInstanceOf, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";

@@ -1,5 +1,6 @@
 import { CommentStyle } from "@beep/managed-section";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 
 describe("CommentStyle", () => {
@@ -21,7 +22,7 @@ describe("CommentStyle", () => {
 
     it("collects every preset in `presets`", () => {
       assert.deepStrictEqual(
-        [...CommentStyle.presets].map((style) => style.prefix),
+        A.map([...CommentStyle.presets], (style) => style.prefix),
         ["#", "//", ";", "--", "<!--", "/*"]
       );
     });

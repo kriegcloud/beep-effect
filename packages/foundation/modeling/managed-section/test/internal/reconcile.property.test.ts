@@ -3,6 +3,7 @@ import { ReconcileInput, ReconcileOutput, reconcile } from "@beep/managed-sectio
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -88,7 +89,7 @@ it.effect.prop(
           assert.strictEqual(again.text, result.text);
           assertFalse(again.changed);
           assert.deepStrictEqual(
-            reparsed.sections.map((entry) => entry.section.key),
+            A.map(reparsed.sections, (entry) => entry.section.key),
             ["foreign", "tool"]
           );
         }

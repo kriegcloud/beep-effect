@@ -20,6 +20,7 @@ import {
 } from "@beep/git/Git";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -123,7 +124,7 @@ describe("Git", () => {
       });
       yield* run(program, () => ({ stdout: "", exit: 0 })).pipe(Effect.withTracer(tracer));
       assert.deepStrictEqual(
-        spans.map((span) => span.name),
+        A.map(spans, (span) => span.name),
         ["Git.configSet", "Git.configGetAll", "Git.untrackedFiles", "Git.lsRemote"]
       );
     })
@@ -163,10 +164,13 @@ describe("Git", () => {
           const git = yield* Git;
           return yield* git.lsTree(cwd, "HEAD");
         });
-        const entries = [
-          "100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391\tfile with space.txt",
-          "100644 blob 3f786850e387550fdab836ed7e6dc881de23001b\tline\none.txt",
-        ].join("\0");
+        const entries = A.join(
+          [
+            "100644 blob e69de29bb2d1d6434b8b29ae775ad8c2e48c5391\tfile with space.txt",
+            "100644 blob 3f786850e387550fdab836ed7e6dc881de23001b\tline\none.txt",
+          ],
+          "\0"
+        );
         const result = yield* run(program, () => ({ stdout: `${entries}\0`, exit: 0 }));
         assert.deepStrictEqual(result, [
           LsTreeEntry.make({
@@ -379,8 +383,8 @@ describe("Git", () => {
         return { stdout: "", exit: 0 };
       });
       return {
-        diffs: seen.filter((args) => args[0] === "diff"),
-        lsFiles: seen.filter((args) => args[0] === "ls-files"),
+        diffs: A.filter(seen, (args) => args[0] === "diff"),
+        lsFiles: A.filter(seen, (args) => args[0] === "ls-files"),
       };
     });
 
@@ -392,8 +396,8 @@ describe("Git", () => {
           assert.strictEqual(diffs.length, 2);
           // All three sources share the cwd-relative base: --relative on the diffs
           // (and never --no-relative), plain ls-files (which is cwd-relative by default).
-          assert.isTrue(diffs.every((args) => args.includes("--relative")));
-          assert.isTrue(diffs.every((args) => !args.includes("--no-relative")));
+          assert.isTrue(A.every(diffs, (args) => args.includes("--relative")));
+          assert.isTrue(A.every(diffs, (args) => !args.includes("--no-relative")));
           assert.strictEqual(lsFiles.length, 1);
           assert.isFalse(lsFiles[0]?.includes("--relative"));
           assert.isFalse(lsFiles[0]?.includes("--full-name"));
@@ -410,8 +414,8 @@ describe("Git", () => {
           // the diffs (so an inherited diff.relative=true cannot make them
           // cwd-relative), and --full-name on ls-files (which would otherwise be
           // cwd-relative).
-          assert.isTrue(diffs.every((args) => args.includes("--no-relative")));
-          assert.isTrue(diffs.every((args) => !args.includes("--relative")));
+          assert.isTrue(A.every(diffs, (args) => args.includes("--no-relative")));
+          assert.isTrue(A.every(diffs, (args) => !args.includes("--relative")));
           assert.strictEqual(lsFiles.length, 1);
           assert.isTrue(lsFiles[0]?.includes("--full-name"));
         })
@@ -742,20 +746,23 @@ describe("Git", () => {
           const git = yield* Git;
           return yield* git.nameStatus(cwd, { base: "abc123" });
         });
-        const output = [
-          "M",
-          "a.txt",
-          "D",
-          "b.txt",
-          "R100",
-          "old name.txt",
-          "new\nname.txt",
-          "C75",
-          "src.txt",
-          "copy.txt",
-          "A",
-          "staged.txt",
-        ].join("\0");
+        const output = A.join(
+          [
+            "M",
+            "a.txt",
+            "D",
+            "b.txt",
+            "R100",
+            "old name.txt",
+            "new\nname.txt",
+            "C75",
+            "src.txt",
+            "copy.txt",
+            "A",
+            "staged.txt",
+          ],
+          "\0"
+        );
         const result = yield* run(program, (args) => {
           assert.deepStrictEqual(args, ["diff", "--name-status", "-z", "--no-relative", "abc123"]);
           return { stdout: `${output}\0`, exit: 0 };
@@ -1235,14 +1242,10 @@ describe("Git", () => {
           return yield* git.status(cwd);
         });
         // R entries in porcelain -z order NEW path first, then ORIGINAL.
-        const output = [
-          "M  a.txt",
-          "D  b.txt",
-          "R  renamed.txt",
-          "sub/c.txt",
-          "A  staged.txt",
-          "?? untracked.txt",
-        ].join("\0");
+        const output = A.join(
+          ["M  a.txt", "D  b.txt", "R  renamed.txt", "sub/c.txt", "A  staged.txt", "?? untracked.txt"],
+          "\0"
+        );
         const result = yield* run(program, (args) => {
           assert.deepStrictEqual(args, ["status", "--porcelain", "-z"]);
           return { stdout: `${output}\0`, exit: 0 };
@@ -1304,7 +1307,7 @@ describe("Git", () => {
           const git = yield* Git;
           return yield* git.status(cwd);
         });
-        const output = ["M  a.txt", "R  renamed.txt", "sub/c.txt"].join("\0");
+        const output = A.join(["M  a.txt", "R  renamed.txt", "sub/c.txt"], "\0");
         const parsed = yield* run(program, () => ({ stdout: `${output}\0`, exit: 0 }));
         assert.strictEqual(StatusEntry.format(parsed), "M  a.txt\nR  renamed.txt");
       })
@@ -2219,13 +2222,16 @@ describe("Git", () => {
     it.effect("submoduleStatus decodes every state prefix, the describe suffix and a path with spaces", () =>
       Effect.gen(function* () {
         const sha = "a".repeat(40);
-        const output = [
-          ` ${sha} .repos/effect (effect@4.0.0-beta.101)`,
-          `-${sha} vendor/uninitialized`,
-          `+${sha} vendor/out of sync (v1.0-2-gabcdef)`,
-          `U${sha} vendor/conflicted`,
-          "",
-        ].join("\n");
+        const output = A.join(
+          [
+            ` ${sha} .repos/effect (effect@4.0.0-beta.101)`,
+            `-${sha} vendor/uninitialized`,
+            `+${sha} vendor/out of sync (v1.0-2-gabcdef)`,
+            `U${sha} vendor/conflicted`,
+            "",
+          ],
+          "\n"
+        );
         const program = Effect.gen(function* () {
           const git = yield* Git;
           return yield* git.submoduleStatus(cwd);
@@ -2323,8 +2329,8 @@ describe("Git", () => {
         );
         assert.instanceOf(failure, GitCommandError);
         if (S.is(GitCommandError)(failure)) {
-          assert.notInclude(failure.args.join(" "), "ghp_secret");
-          assert.include(failure.args.join(" "), "https://<redacted>@github.com/a/r.git");
+          assert.notInclude(A.join(failure.args, " "), "ghp_secret");
+          assert.include(A.join(failure.args, " "), "https://<redacted>@github.com/a/r.git");
           assert.notInclude(failure.message, "ghp_secret");
           assert.include(failure.message, "<redacted>");
         }
@@ -2340,7 +2346,7 @@ describe("Git", () => {
         const failure = yield* Effect.flip(run(program, () => ({ stderr: "error: cannot write\n", exit: 255 })));
         assert.instanceOf(failure, GitCommandError);
         if (S.is(GitCommandError)(failure)) {
-          assert.notInclude(failure.args.join(" "), "tok123");
+          assert.notInclude(A.join(failure.args, " "), "tok123");
           assert.deepStrictEqual([...failure.args], ["config", "http.extraheader", "<redacted>"]);
           assert.notInclude(failure.message, "tok123");
         }
@@ -2468,12 +2474,10 @@ describe("Git — remaining tiers (round 2)", () => {
         });
         const sha = "9d41fb9d5825a52a6ab6d3232a8c7a111920bf94";
         const peeled = "ac28891d7c72307eb31c5bbe6c5e35ae4a7788c9";
-        const output = [
-          `${sha}\trefs/tags/effect@4.0.0-beta.101`,
-          `${peeled}\trefs/tags/v1`,
-          `${sha}\trefs/tags/v1^{}`,
-          "",
-        ].join("\n");
+        const output = A.join(
+          [`${sha}\trefs/tags/effect@4.0.0-beta.101`, `${peeled}\trefs/tags/v1`, `${sha}\trefs/tags/v1^{}`, ""],
+          "\n"
+        );
         const result = yield* run(program, () => ({ stdout: output, exit: 0 }));
         assert.deepStrictEqual(result, [
           LsRemoteEntry.make({ sha, ref: "refs/tags/effect@4.0.0-beta.101" }),
@@ -2493,7 +2497,7 @@ describe("Git — remaining tiers (round 2)", () => {
       // advertises `effect@4.0.0-beta.101` — a near miss behind a separator.
       const matches = LsRemoteEntry.nearMatches(entries, "4.0.0-beta.101");
       assert.deepStrictEqual(
-        matches.map((entry) => entry.ref),
+        A.map(matches, (entry) => entry.ref),
         ["refs/tags/effect@4.0.0-beta.101"]
       );
       // An exact match is a MATCH, not a near miss.
@@ -2721,7 +2725,10 @@ describe("Git — remaining tiers (round 2)", () => {
           const git = yield* Git;
           return yield* git.forEachRef(cwd, { patterns: ["refs/tags"] });
         });
-        const output = [`refs/tags/v1\0${"a".repeat(40)}\0tag`, `refs/tags/v2\0${"b".repeat(40)}\0commit`].join("\n");
+        const output = A.join(
+          [`refs/tags/v1\0${"a".repeat(40)}\0tag`, `refs/tags/v2\0${"b".repeat(40)}\0commit`],
+          "\n"
+        );
         const result = yield* run(program, () => ({ stdout: `${output}\n`, exit: 0 }));
         assert.deepStrictEqual(result, [
           RefEntry.make({ ref: "refs/tags/v1", sha: "a".repeat(40), objectType: "tag" }),
@@ -3259,7 +3266,7 @@ describe("Git — remaining tiers (round 2)", () => {
         const { seen, env } = yield* spawned({ network: false });
         assert.isUndefined(env?.GIT_SSH_COMMAND);
         // A member that never invokes ssh must not pay the config read.
-        assert.isFalse(seen.some((spawn) => isSshProbe(spawn.args)));
+        assert.isFalse(A.some(seen, (spawn) => isSshProbe(spawn.args)));
       })
     );
 
@@ -3270,7 +3277,7 @@ describe("Git — remaining tiers (round 2)", () => {
         // passphrase or host-key confirmation from /dev/tty; no askpass pin
         // reaches those (probed under a real pty).
         assert.strictEqual(env?.GIT_SSH_COMMAND, "ssh -o BatchMode=yes");
-        assert.isTrue(seen.some((spawn) => isSshProbe(spawn.args)));
+        assert.isTrue(A.some(seen, (spawn) => isSshProbe(spawn.args)));
       })
     );
 
@@ -3284,8 +3291,8 @@ describe("Git — remaining tiers (round 2)", () => {
         // it ahead of core.sshCommand — so that probe is skipped. The
         // ssh.variant probe still runs: the variant decides the argument
         // grammar and is a separate question from which command to run.
-        assert.isFalse(seen.some((spawn) => spawn.args[2] === "core.sshCommand"));
-        assert.isTrue(seen.some((spawn) => spawn.args[2] === "ssh.variant"));
+        assert.isFalse(A.some(seen, (spawn) => spawn.args[2] === "core.sshCommand"));
+        assert.isTrue(A.some(seen, (spawn) => spawn.args[2] === "ssh.variant"));
       })
     );
 
@@ -3512,7 +3519,7 @@ describe("Git — remaining tiers (round 2)", () => {
             provideGit(recording),
             Effect.catchCause(() => Effect.void)
           );
-          const invocation = seen.find((spawn) => !isSshProbe(spawn.args));
+          const invocation = O.getOrUndefined(A.findFirst(seen, (spawn) => !isSshProbe(spawn.args)));
           assert.isDefined(invocation);
           assert.strictEqual(invocation.options.env?.GIT_SSH_COMMAND, "ssh -o BatchMode=yes");
         })
@@ -3525,7 +3532,11 @@ describe("Git — remaining tiers (round 2)", () => {
         // environment read is a property of the instance, not of a call.
         let reads = 0;
         const counting = ConfigProvider.make((path) => {
-          if (path.join(".").includes("GIT_SSH_COMMAND")) reads += 1;
+          const key = A.join(
+            A.map(path, (segment) => `${segment}`),
+            "."
+          );
+          if (key.includes("GIT_SSH_COMMAND")) reads += 1;
           return Effect.as(Effect.void, undefined);
         });
         yield* Effect.gen(function* () {

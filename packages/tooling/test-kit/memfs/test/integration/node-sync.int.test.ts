@@ -1,24 +1,27 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
 // The differential oracle for NodeSyncFileSystem: every read member it serves
 // must agree with @effect/platform-node's NodeFileSystem on the same real
 // directory — success values identical, failures identical in tag, method and
 // errno. The node adapter is the reference; a mismatch is a NodeSyncFileSystem
 // bug. Each case builds its own fixture under a scoped host temp directory.
 
-import { join } from "node:path";
 import { NodeSyncFileSystem } from "@beep/memfs/NodeSyncFileSystem";
 import { NodeServices } from "@effect/platform-node";
 import { assert, layer } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { deliberatelyInvalid } from "../deliberatelyInvalid.ts";
 import type * as PlatformError from "effect/PlatformError";
+
+// Fixture paths are plain POSIX segments under a scoped temp directory.
+const join = (...segments: ReadonlyArray<string>) => A.join(segments, "/");
 
 // The subject, built once per use; its reads are compared with the harness's
 // own FileSystem, which NodeServices serves from @effect/platform-node's
@@ -27,7 +30,7 @@ const nodeSync = Effect.map(Layer.build(NodeSyncFileSystem.layer), Context.get(F
 
 const failureShape = (exit: Exit.Exit<unknown, PlatformError.PlatformError>) => {
   if (Exit.isSuccess(exit)) return "success";
-  const failure = exit.cause.reasons.find(Cause.isFailReason);
+  const failure = O.getOrUndefined(A.findFirst(exit.cause.reasons, Cause.isFailReason));
   const error = failure?.error;
   const cause = error?.reason.cause;
   return {
@@ -65,7 +68,8 @@ layer(NodeServices.layer, { timeout: "30 seconds" })("NodeSyncFileSystem agrees 
   // Paths under test: fixture entries, plus two argument errors node rejects
   // before any syscall (a NUL byte, a non-string) — BadArgument, not errno.
   const paths: ReadonlyArray<readonly [label: string, path: (d: string) => string]> = [
-    ...["f.txt", "dir", "to-dir", "dangling", "nope", "f.txt/child"].map(
+    ...A.map(
+      ["f.txt", "dir", "to-dir", "dangling", "nope", "f.txt/child"],
       (p) => [p, (d: string) => join(d, p)] as const
     ),
     ["NUL byte", (d: string) => join(d, "a\0b")],

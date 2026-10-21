@@ -249,6 +249,7 @@
   },
   "devDependencies": {
     "@beep/fc-runs": "workspace:^",
+    "@beep/memfs": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@commitlint/is-ignored": "catalog:",
     "@effect/platform-node-shared": "catalog:",

@@ -1,6 +1,7 @@
 import { cstEvents } from "@beep/yaml/internal/cst-visitor";
 import { YamlVisitor, YamlVisitorEvent } from "@beep/yaml/YamlVisitor";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isMap, isScalar, isSeq, parseDocument } from "yaml";
@@ -67,8 +68,14 @@ describe("CST key/value projections", () => {
     it.effect(name, () =>
       Effect.gen(function* () {
         const events = [...cstEvents(source)];
-        const cstKeys = events.filter((event) => event._tag === "CstKeyEvent").map((event) => event.source);
-        const cstValues = events.filter((event) => event._tag === "CstValueEvent").map((event) => event.source);
+        const cstKeys = A.map(
+          A.filter(events, (event) => event._tag === "CstKeyEvent"),
+          (event) => event.source
+        );
+        const cstValues = A.map(
+          A.filter(events, (event) => event._tag === "CstValueEvent"),
+          (event) => event.source
+        );
         assert.deepStrictEqual(cstKeys, keys);
         assert.deepStrictEqual(cstValues, values);
         const oracle = parseDocument(source);
@@ -82,13 +89,16 @@ describe("CST key/value projections", () => {
         // above covers omitted flow values independently of the composer.
         if (!source.startsWith("{")) {
           const astEvents = yield* Stream.runCollect(YamlVisitor.visit(source));
-          const pairs = astEvents.filter(YamlVisitorEvent.$is("Pair"));
+          const pairs = A.filter(astEvents, YamlVisitorEvent.$is("Pair"));
           assert.deepStrictEqual(
-            pairs.map((pair) => pair.key),
+            A.map(pairs, (pair) => pair.key),
             cstKeys
           );
           assert.deepStrictEqual(
-            pairs.filter((pair) => pair.value !== null).map((pair) => String(pair.value)),
+            A.map(
+              A.filter(pairs, (pair) => pair.value !== null),
+              (pair) => String(pair.value)
+            ),
             cstValues
           );
         }
@@ -127,11 +137,17 @@ describe("CST raw mapping role regressions", () => {
       Effect.sync(() => {
         const events = [...cstEvents(source)];
         assert.deepStrictEqual(
-          events.filter((event) => event._tag === "CstKeyEvent").map((event) => event.source),
+          A.map(
+            A.filter(events, (event) => event._tag === "CstKeyEvent"),
+            (event) => event.source
+          ),
           keys
         );
         assert.deepStrictEqual(
-          events.filter((event) => event._tag === "CstValueEvent").map((event) => event.source),
+          A.map(
+            A.filter(events, (event) => event._tag === "CstValueEvent"),
+            (event) => event.source
+          ),
           values
         );
         assert.deepStrictEqual(parseDocument(source).errors, []);

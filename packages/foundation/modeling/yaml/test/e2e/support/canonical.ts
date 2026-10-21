@@ -7,6 +7,7 @@
  */
 
 import { YamlMap, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Schema from "effect/Schema";
 import type { RawYamlDocument } from "@beep/yaml/internal/raw-document";
@@ -256,18 +257,19 @@ export function applyMultiDocCanonical(
     // specific to this all-explicit-with-private-tags shape.
     if (
       docs.length >= 2 &&
-      docs.every((d) => d.hasDocumentStart) &&
-      docs.some((d) => d.directives.some((dir) => dir.name === "TAG" && dir.parameters[0] === "!"))
+      A.every(docs, (d) => d.hasDocumentStart) &&
+      A.some(docs, (d) => A.some(d.directives, (dir) => dir.name === "TAG" && dir.parameters[0] === "!"))
     ) {
       const segments = splitMultiDocOutput(result, docs);
       if (segments !== null) {
-        result = segments
-          .map((segment, idx) => {
+        result = A.join(
+          A.map(segments, (segment, idx) => {
             const doc = docs[idx];
             if (doc === undefined || doc.contents === null) return segment;
             return splitDocStartFromTaggedScalar(segment);
-          })
-          .join("");
+          }),
+          ""
+        );
       }
     }
 
@@ -283,7 +285,7 @@ export function applyMultiDocCanonical(
         last.contents === null &&
         last.hasDocumentStart &&
         !last.hasDocumentEnd &&
-        docs.slice(0, -1).some((d) => d.contents !== null) &&
+        A.some(docs.slice(0, -1), (d) => d.contents !== null) &&
         result.endsWith("---\n")
       ) {
         result = `${result}...\n`;
@@ -339,7 +341,7 @@ function splitDocStartFromTaggedScalar(segment: string): string {
 }
 
 function hasReservedDirective(doc: RawYamlDocument): boolean {
-  return doc.directives.some((d) => d.name !== "YAML" && d.name !== "TAG");
+  return A.some(doc.directives, (d) => d.name !== "YAML" && d.name !== "TAG");
 }
 
 /**
@@ -363,8 +365,9 @@ function hadDocStartOnOwnLine(source: string): boolean {
  * via the scalar's source-text region.
  */
 function hasExplicitIndentInMapValue(seq: YamlSeq, source: string): boolean {
-  return seq.items.some(
-    (item) => isYamlMap(item) && item.items.some((pair) => isExplicitIndentBlockScalar(pair.value, source))
+  return A.some(
+    seq.items,
+    (item) => isYamlMap(item) && A.some(item.items, (pair) => isExplicitIndentBlockScalar(pair.value, source))
   );
 }
 

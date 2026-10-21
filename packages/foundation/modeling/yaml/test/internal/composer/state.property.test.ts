@@ -10,6 +10,7 @@ import {
 } from "@beep/yaml/internal/composer/state";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -55,7 +56,13 @@ describe("composer state properties", () => {
     ([text]) =>
       Effect.sync(() => {
         const starts = getLineStarts(text);
-        assert.strictEqual(starts.map((start, index) => text.slice(start, starts[index + 1])).join(""), text);
+        assert.strictEqual(
+          A.join(
+            A.map(starts, (start, index) => text.slice(start, starts[index + 1])),
+            ""
+          ),
+          text
+        );
         for (let offset = 0; offset <= text.length; offset++) {
           const prefix = text.slice(0, offset);
           const lineStart = prefix.lastIndexOf("\n") + 1;

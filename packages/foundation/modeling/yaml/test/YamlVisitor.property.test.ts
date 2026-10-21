@@ -4,6 +4,7 @@ import { YamlFormat } from "@beep/yaml/YamlFormat";
 import { YamlVisitor, YamlVisitorEvent } from "@beep/yaml/YamlVisitor";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -37,11 +38,11 @@ describe("YamlVisitor parsing properties", () => {
         const text = yield* Yaml.stringify(value);
         const events = yield* Stream.runCollect(YamlVisitor.visit(`# lead\n---\n${text}...\n# tail\n`));
         assert.deepStrictEqual(
-          events.filter(YamlVisitorEvent.$is("Scalar")).map((e) => e.value),
+          A.map(A.filter(events, YamlVisitorEvent.$is("Scalar")), (e) => e.value),
           [value]
         );
         assert.deepStrictEqual(
-          events.filter(YamlVisitorEvent.$is("Comment")).map((e) => e.text),
+          A.map(A.filter(events, YamlVisitorEvent.$is("Comment")), (e) => e.text),
           [" lead", " tail"]
         );
       }),

@@ -1,3 +1,11 @@
+/**
+ * Typed `.gitmodules` documents: decode submodule entries from git-config
+ * text and edit them without disturbing the rest of the file.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
@@ -193,7 +201,7 @@ export class GitmodulesEntry extends S.Opaque<GitmodulesEntry, { readonly brand:
  * ```ts
  * import { GitmodulesDecodeError } from "@beep/git/Gitmodules"
  *
- * const error = GitmodulesDecodeError.make({ name: "lib", reason: "missingPath" })
+ * const error = GitmodulesDecodeError.make({ submodule: "lib", reason: "missingPath" })
  * console.log(error.message) // submodule "lib" has no path
  * ```
  *
@@ -207,8 +215,8 @@ export class GitmodulesDecodeError extends S.TaggedError<GitmodulesDecodeError, 
   "GitmodulesDecodeError",
   {
     /** The submodule name (the section's subsection) that failed to decode. */
-    name: S.String.pipe(
-      $I.annoteKey("GitmodulesDecodeError.name", {
+    submodule: S.String.pipe(
+      $I.annoteKey("GitmodulesDecodeError.submodule", {
         description: "The submodule name (the section's subsection) that failed to decode.",
       })
     ),
@@ -239,7 +247,7 @@ export class GitmodulesDecodeError extends S.TaggedError<GitmodulesDecodeError, 
    * ```ts
    * import { GitmodulesDecodeError } from "@beep/git/Gitmodules"
    *
-   * const error = GitmodulesDecodeError.make({ name: "lib", reason: "missingUrl" })
+   * const error = GitmodulesDecodeError.make({ submodule: "lib", reason: "missingUrl" })
    * console.log(error.message) // submodule "lib" has no url
    * ```
    *
@@ -248,10 +256,10 @@ export class GitmodulesDecodeError extends S.TaggedError<GitmodulesDecodeError, 
    */
   override get message(): string {
     return this.reason === "missingPath"
-      ? `submodule "${this.name}" has no path`
+      ? `submodule "${this.submodule}" has no path`
       : this.reason === "missingUrl"
-        ? `submodule "${this.name}" has no url`
-        : `submodule "${this.name}": invalid value ${Result.getOrThrowWith(encodeDiagnosticJsonString(this.value ?? ""), identity)} for ${this.field ?? "a field"}`;
+        ? `submodule "${this.submodule}" has no url`
+        : `submodule "${this.submodule}": invalid value ${Result.getOrThrowWith(encodeDiagnosticJsonString(this.value ?? ""), identity)} for ${this.field ?? "a field"}`;
   }
 }
 
@@ -286,7 +294,7 @@ const rawSubmoduleField = (fields: RawSubmoduleFields, key: string): string | nu
 
 const invalidSubmoduleField = (name: string, field: string, value: string | null): GitmodulesDecodeError =>
   GitmodulesDecodeError.make({
-    name,
+    submodule: name,
     field,
     ...(value !== null ? { value } : {}),
     reason: "invalidValue",
@@ -300,7 +308,7 @@ const requiredSubmoduleField = (
 ): Result.Result<string, GitmodulesDecodeError> => {
   const value = rawSubmoduleField(fields, field);
   return value === undefined || value === null
-    ? Result.fail(GitmodulesDecodeError.make({ name, field, reason }))
+    ? Result.fail(GitmodulesDecodeError.make({ submodule: name, field, reason }))
     : Result.succeed(value);
 };
 

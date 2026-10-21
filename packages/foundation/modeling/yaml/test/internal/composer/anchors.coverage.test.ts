@@ -15,6 +15,7 @@ import { ParseOptionsInput } from "@beep/yaml/internal/options";
 import { YamlAlias, YamlMap, YamlPair, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 
@@ -57,7 +58,7 @@ describe("anchor machinery boundary behavior", () => {
       makeAlias(cst, state);
       assert.strictEqual(state.aliasCount, 2);
       assert.deepStrictEqual(
-        state.errors.map((e) => e.code),
+        A.map(state.errors, (e) => e.code),
         ["DuplicateAnchor", "UndefinedAlias", "AliasCountExceeded"]
       );
     })

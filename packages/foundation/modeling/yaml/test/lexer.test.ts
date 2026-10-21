@@ -1,13 +1,15 @@
 import { createScanner, lexAll } from "@beep/yaml/internal/lexer";
 import { YamlToken } from "@beep/yaml/internal/token";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 
 describe("lexer", () => {
   describe("anchor and alias token spans", () => {
     const text = "a: &anc 1\nb: *anc\n";
 
     it("anchor token span covers the & sigil and the full name", () => {
-      const anchor = lexAll(text).find((t) => t.kind === "anchor");
+      const anchor = O.getOrUndefined(A.findFirst(lexAll(text), (t) => t.kind === "anchor"));
       if (anchor === undefined) {
         assert.fail("expected an anchor token");
       }
@@ -17,7 +19,7 @@ describe("lexer", () => {
     });
 
     it("alias token span covers the * sigil and the full name", () => {
-      const alias = lexAll(text).find((t) => t.kind === "alias");
+      const alias = O.getOrUndefined(A.findFirst(lexAll(text), (t) => t.kind === "alias"));
       if (alias === undefined) {
         assert.fail("expected an alias token");
       }
@@ -28,20 +30,20 @@ describe("lexer", () => {
 
     it("anchor and alias token values stay the bare name without the sigil", () => {
       const tokens = lexAll(text);
-      assert.strictEqual(tokens.find((t) => t.kind === "anchor")?.value, "anc");
-      assert.strictEqual(tokens.find((t) => t.kind === "alias")?.value, "anc");
+      assert.strictEqual(O.getOrUndefined(A.findFirst(tokens, (t) => t.kind === "anchor"))?.value, "anc");
+      assert.strictEqual(O.getOrUndefined(A.findFirst(tokens, (t) => t.kind === "alias"))?.value, "anc");
     });
   });
 
   describe("leading byte-order mark (#694)", () => {
     it("the BOM occupies no column, so the first line lexes at the same indent as the rest", () => {
       const tokens = lexAll("\uFEFFa: 1\nb: 2\n");
-      const scalars = tokens.filter((t) => t.kind === "scalar" && (t.value === "a" || t.value === "b"));
+      const scalars = A.filter(tokens, (t) => t.kind === "scalar" && (t.value === "a" || t.value === "b"));
       assert.deepStrictEqual(
-        scalars.map((t) => t.column),
+        A.map(scalars, (t) => t.column),
         [0, 0]
       );
-      assert.strictEqual(tokens.filter((t) => t.kind === "block-map-start").length, 1);
+      assert.strictEqual(A.filter(tokens, (t) => t.kind === "block-map-start").length, 1);
     });
 
     it("setPosition replays the BOM without a column, matching scan", () => {
@@ -57,9 +59,9 @@ describe("newline positions and scanner reset", () => {
   for (const newline of ["\r", "\r\n", "\n"]) {
     it(`counts ${JSON.stringify(newline)} once and resets indentation`, () => {
       const source = `a:${newline}  b: 1${newline}  c: 2${newline}d: 3${newline}`;
-      const keys = lexAll(source).filter((token) => ["a", "b", "c", "d"].includes(token.value));
+      const keys = A.filter(lexAll(source), (token) => ["a", "b", "c", "d"].includes(token.value));
       assert.deepStrictEqual(
-        keys.map((token) => [token.value, token.line, token.column]),
+        A.map(keys, (token) => [token.value, token.line, token.column]),
         [
           ["a", 0, 0],
           ["b", 1, 2],
@@ -92,16 +94,19 @@ describe("plain scalar trailing whitespace", () => {
   for (const source of ["hello  ", "a: hello \t", "hello  : value"]) {
     it(`emits consumed whitespace separately for ${JSON.stringify(source)}`, () => {
       const tokens = lexAll(source);
-      const scalar = tokens.find((token) => token.value === "hello");
+      const scalar = O.getOrUndefined(A.findFirst(tokens, (token) => token.value === "hello"));
       assert.isDefined(scalar);
       assert.strictEqual(scalar?.length, 5);
-      const whitespace = tokens.find(
-        (token) => token.kind === "whitespace" && token.offset === (scalar?.offset ?? 0) + 5
+      const whitespace = O.getOrUndefined(
+        A.findFirst(tokens, (token) => token.kind === "whitespace" && token.offset === (scalar?.offset ?? 0) + 5)
       );
       assert.isDefined(whitespace);
       assert.strictEqual(whitespace?.column, (scalar?.column ?? 0) + 5);
       assert.strictEqual(
-        tokens.map((token) => source.slice(token.offset, token.offset + token.length)).join(""),
+        A.join(
+          A.map(tokens, (token) => source.slice(token.offset, token.offset + token.length)),
+          ""
+        ),
         source
       );
     });
@@ -131,11 +136,14 @@ describe("double quoted escape dispatch", () => {
       "\u2028",
       "\u2029",
     ];
-    const source = `"${escapes.map((escape) => `\\${escape}`).join("")}"`;
+    const source = `"${A.join(
+      A.map(escapes, (escape) => `\\${escape}`),
+      ""
+    )}"`;
     const tokens = lexAll(source);
     assert.strictEqual(tokens.length, 1);
     assert.strictEqual(tokens[0]?.kind, "scalar");
-    assert.strictEqual(tokens[0]?.value, expected.join(""));
+    assert.strictEqual(tokens[0]?.value, A.join(expected, ""));
     assert.strictEqual(tokens[0]?.length, source.length);
   });
   it("retains hex escapes, line continuations and invalid-escape errors", () => {
@@ -168,7 +176,7 @@ describe("block-scalar header recovery", () => {
         const tokens = lexAll(`${indicator}${modifiers}\n  a\n`);
         assert.strictEqual(tokens[0]?.kind, "scalar");
         assert.strictEqual(tokens[0]?.value, modifiers.includes("-") ? "a" : "a\n");
-        assert.isFalse(tokens.some((token) => token.kind === "error"));
+        assert.isFalse(A.some(tokens, (token) => token.kind === "error"));
       }
     }
   });
@@ -200,7 +208,7 @@ describe("quoted physical line breaks", () => {
   it("folds lone CR and preserves the following token's physical position", () => {
     for (const quote of ['"', "'"]) {
       const source = `${quote}a\rb${quote}\rc`;
-      const scalars = lexAll(source).filter((token) => token.kind === "scalar");
+      const scalars = A.filter(lexAll(source), (token) => token.kind === "scalar");
       assert.deepStrictEqual(scalars, [
         YamlToken.make({ kind: "scalar", value: "a b", offset: 0, length: 5, line: 0, column: 0 }),
         YamlToken.make({ kind: "scalar", value: "c", offset: 6, length: 1, line: 2, column: 0 }),

@@ -1,3 +1,10 @@
+/**
+ * The pure string-to-string core of managed sections: parsing a document
+ * into sections, reconciling desired sections, and the parse error.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ManagedSectionId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";

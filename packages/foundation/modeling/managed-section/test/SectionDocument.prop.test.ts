@@ -1,6 +1,7 @@
 import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "@beep/managed-section";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -39,7 +40,7 @@ const declaredArb = Arbitrary.schema(Declared).pipe(
         continue;
       }
       MutableHashSet.add(seen, identity);
-      declared.push(SectionId.make({ key, commentStyle }).section(content.join("\n")));
+      declared.push(SectionId.make({ key, commentStyle }).section(A.join(content, "\n")));
     }
     return declared;
   })
@@ -48,7 +49,7 @@ const declaredArb = Arbitrary.schema(Declared).pipe(
 /** Plain user documents, with no markers in them. */
 const documentArb = Arbitrary.schema(
   S.Array(S.Literals(["", "#!/bin/sh", "user line", "  spaced", "## heading", "set -e"])).check(S.isMaxLength(6))
-).pipe(Arbitrary.map((parts) => parts.join("\n")));
+).pipe(Arbitrary.map((parts) => A.join(parts, "\n")));
 
 const reconcile = (text: string, declared: ReadonlyArray<Section>): SectionReconciliation => {
   const parsed = SectionDocument.parseResult(text, SectionDialect.default);
@@ -69,7 +70,7 @@ describe("SectionDocument properties", () => {
     assert.strictEqual(second.text, first.text);
     assert.isFalse(second.changed);
     assert.isTrue(
-      second.outcomes.every((outcome) => outcome._tag === "Unchanged"),
+      A.every(second.outcomes, (outcome) => outcome._tag === "Unchanged"),
       "every section should be Unchanged on the second pass"
     );
     // A third pass cannot drift either.
@@ -79,7 +80,7 @@ describe("SectionDocument properties", () => {
 
   it.prop("every user line survives reconciliation, in order", [documentArb, declaredArb], ([text, declared]) => {
     const result = reconcile(text, declared);
-    const original = text.split("\n").filter((line) => line.trim() !== "");
+    const original = A.filter(text.split("\n"), (line) => line.trim() !== "");
     const produced = result.text.split("\n");
     let cursor = 0;
     for (const line of original) {
@@ -97,8 +98,8 @@ describe("SectionDocument properties", () => {
       assert.fail(`output should re-parse: ${parsed.failure.reason}`);
     }
     assert.deepStrictEqual(
-      parsed.success.sections.map((placed) => placed.section.key),
-      declared.map((section) => section.key)
+      A.map(parsed.success.sections, (placed) => placed.section.key),
+      A.map(declared, (section) => section.key)
     );
     return true;
   });
@@ -118,11 +119,11 @@ describe("SectionDocument properties", () => {
         assert.fail("reordered output should re-parse");
       }
       assert.deepStrictEqual(
-        parsed.success.sections.map((placed) => placed.section.key),
-        reversed.map((section) => section.key)
+        A.map(parsed.success.sections, (placed) => placed.section.key),
+        A.map(reversed, (section) => section.key)
       );
       // Reordering moves text but changes no content.
-      assert.isTrue(result.outcomes.every((outcome) => outcome._tag === "Unchanged"));
+      assert.isTrue(A.every(result.outcomes, (outcome) => outcome._tag === "Unchanged"));
       return true;
     }
   );

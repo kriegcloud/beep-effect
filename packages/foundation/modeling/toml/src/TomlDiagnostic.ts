@@ -1,13 +1,21 @@
-// The structured diagnostic concept: TomlDiagnostic and the staged
-// error-code literal unions.
-//
-// Cycle firewall: the internal engine emits raw `{ code, message, offset,
-// length }` records; this module materializes them into `TomlDiagnostic`,
-// deriving `line`/`character` from `offset` against the source text. The
-// dependency edge runs public modules → engine only.
+/**
+ * The structured diagnostic concept: TomlDiagnostic and the staged
+ * error-code literal unions.
+ *
+ * **Details**
+ *
+ * Cycle firewall: the internal engine emits raw records carrying `code`,
+ * `message`, `offset` and `length`; this module materializes them into
+ * `TomlDiagnostic`, deriving `line`/`character` from `offset` against the
+ * source text. The dependency edge runs public modules → engine only.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as Text from "@beep/utils/Text";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import {
@@ -284,7 +292,7 @@ export class TomlDiagnostic extends S.Opaque<TomlDiagnostic, { readonly brand: u
       source: string,
       raw: { readonly code: TomlErrorCode; readonly message: string; readonly offset: number; readonly length: number }
     ): TomlDiagnostic => {
-      const { line, character } = lineChar(source, raw.offset);
+      const { line, character } = Text.lineCharacterAt(source, raw.offset);
       return TomlDiagnostic.make({
         code: raw.code,
         message: raw.message,
@@ -296,31 +304,3 @@ export class TomlDiagnostic extends S.Opaque<TomlDiagnostic, { readonly brand: u
     }
   );
 }
-
-/**
- * Compute the zero-based line/character position of `offset` within `text`.
- * Recognizes `\n`, `\r` and `\r\n` as line breaks (TOML's newline grammar);
- * a CRLF pair counts as a single newline.
- */
-const lineChar: {
-  (text: string, offset: number): { line: number; character: number };
-  (offset: number): (text: string) => { line: number; character: number };
-} = dual(2, (text: string, offset: number): { line: number; character: number } => {
-  let line = 0;
-  let lineStart = 0;
-  const limit = Math.min(offset, text.length);
-  for (let i = 0; i < limit; i++) {
-    const ch = text.charCodeAt(i);
-    if (ch === 0x0a) {
-      line++;
-      lineStart = i + 1;
-    } else if (ch === 0x0d) {
-      if (i + 1 < text.length && text.charCodeAt(i + 1) === 0x0a) {
-        i++;
-      }
-      line++;
-      lineStart = i + 1;
-    }
-  }
-  return { line, character: offset - lineStart };
-});

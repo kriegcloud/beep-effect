@@ -1,3 +1,10 @@
+/**
+ * The marker dialect for managed sections: how BEGIN/END markers are
+ * rendered and scanned, line endings, and the render error.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ManagedSectionId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";

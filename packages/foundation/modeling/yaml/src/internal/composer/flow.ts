@@ -599,7 +599,7 @@ const isTerminalExplicitKeyScalar = (children: readonly CstNode[], index: number
 /**
  * Check for # without preceding space — YAML 1.2 §6.6 requires whitespace
  * before # for it to be a comment indicator. When # appears as a plain scalar
- * immediately after , or ] or }, it means # wasn't preceded by whitespace.
+ * immediately after `,` or `]` or `}`, it means `#` wasn't preceded by whitespace.
  */
 const reportUnspacedCommentIndicator = (child: CstNode, state: ComposerState): void => {
   if (!child.source.startsWith("#") || child.offset <= 0) return;

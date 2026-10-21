@@ -182,15 +182,14 @@ export const walkScalars: {
     node: YamlNode | null,
     role: ScalarRole,
     visit: (scalar: YamlScalar, role: ScalarRole) => void,
-    // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-    excludeMappingKeys: boolean = false
+    excludeMappingKeys?: boolean
   ): void => {
-    if (node === null || (excludeMappingKeys && role === "key")) return;
+    if (node === null || (excludeMappingKeys === true && role === "key")) return;
     if (isScalar(node)) {
       visit(node, role);
       return;
     }
-    walkScalarChildren(node, visit, excludeMappingKeys);
+    walkScalarChildren(node, visit, excludeMappingKeys === true);
   }
 );
 

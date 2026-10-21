@@ -82,6 +82,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -330,6 +331,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -385,6 +387,7 @@
       },
       "devDependencies": {
         "@beep/mcp-kit": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -429,6 +432,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -472,8 +476,8 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -544,6 +548,7 @@
         "xstate": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -1246,6 +1251,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -2410,6 +2416,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -2489,6 +2496,7 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -2566,7 +2574,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
-        "@beep/test-utils": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
@@ -2661,6 +2669,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -3138,6 +3147,7 @@
       },
       "devDependencies": {
         "@beep/md": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/nlp": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/test-runner": "workspace:^",
@@ -3401,6 +3411,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -3419,6 +3430,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -3457,6 +3469,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -3515,6 +3528,7 @@
         "ts-morph": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -3594,6 +3608,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@effect/platform-bun": "catalog:",
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
@@ -3707,6 +3722,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@commitlint/is-ignored": "catalog:",
         "@effect/platform-node-shared": "catalog:",
@@ -3785,6 +3801,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",

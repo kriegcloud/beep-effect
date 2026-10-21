@@ -3,6 +3,7 @@
 
 import { YamlLint, YamlLintConfig } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import { builtin, testRule } from "./harness.ts";
 
 testRule(builtin("parse-validity"), [
@@ -27,6 +28,6 @@ testRule(builtin("parse-validity"), [
 describe("parse-validity always-on contract", () => {
   it("runs under an empty config (no rules entry required)", () => {
     const diagnostics = YamlLint.run("a: *missing\n", YamlLint.builtins, YamlLintConfig.make({ rules: {} }));
-    assert.isAbove(diagnostics.filter((d) => d.rule === "parse-validity").length, 0);
+    assert.isAbove(A.filter(diagnostics, (d) => d.rule === "parse-validity").length, 0);
   });
 });

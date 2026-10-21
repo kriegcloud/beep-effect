@@ -15,6 +15,7 @@ import { Toml } from "@beep/toml/Toml";
 import { TomlLocalDate, TomlLocalDateTime, TomlLocalTime, TomlOffsetDateTime } from "@beep/toml/TomlDateTime";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -53,7 +54,7 @@ it.effect.prop(
   [Arbitrary.schema(Characters)],
   ([characters]) =>
     Effect.gen(function* () {
-      const value = characters.join("");
+      const value = A.join(characters, "");
       const encoded = yield* S.encodeEffect(JsonString)(value);
       const basic = scanBasicString(encoded, 0);
       assert.deepStrictEqual(basic, { value, end: encoded.length });
@@ -73,7 +74,7 @@ it.effect.prop(
   [Arbitrary.schema(LiteralCharacters)],
   ([characters]) =>
     Effect.sync(() => {
-      const value = characters.join("");
+      const value = A.join(characters, "");
       const literal = `'${value}'`;
       const parsed = scanLiteralString(literal, 0);
       assert.deepStrictEqual(parsed, { value, end: literal.length });
@@ -95,9 +96,9 @@ it.effect.prop(
   ],
   ([keyCharacters, commentCharacters, newline]) =>
     Effect.sync(() => {
-      const key = `a${keyCharacters.join("")}`;
+      const key = `a${A.join(keyCharacters, "")}`;
       assert.deepStrictEqual(scanBareKey(`${key}=1`, 0), { value: key, end: key.length });
-      const comment = commentCharacters.join("");
+      const comment = A.join(commentCharacters, "");
       const scanned = scanComment(`#${comment}${newline}`, 0);
       assert.deepStrictEqual(scanned, { value: comment, end: comment.length + 1 });
       assert.deepStrictEqual(scanComment(`#${scanned.value}${newline}`, 0), scanned);

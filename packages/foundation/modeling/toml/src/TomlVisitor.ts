@@ -1,23 +1,30 @@
-// SAX-style event stream over the semantic walk: `TableStart`/
-// `ArrayTableStart`/`KeyValue` events ride `analyze`'s existing iterative pass
-// (no added recursion — analyze's own header/dotted-key navigation is already
-// iterative, and this module adds only a flat second pass plus a sort, never
-// a walk of its own). Comment events — standalone trivia comments and
-// expression trailing comments — are collected by that second pass over the
-// same `TomlExpression` array and merged with the semantic events by source
-// offset, so the merged sequence streams in document order.
-//
-// Offset semantics (pinned in `__test__/TomlVisitor.test.ts`): a `Comment`
-// event's `offset` is the position of its `#` marker in the source text. For
-// a standalone trivia comment that is the `#` found inside the trivia's raw
-// slice; for a trailing comment it is located by searching forward from the
-// end of the value span (key-values) or the last key span (headers) — the
-// first position a `#` can legally appear, since nothing between there and
-// the comment marker can itself contain a `#` character.
-//
-// Cycle firewall: same materialization as `Toml.parse` — the engine
-// throws raw carriers (`RawTomlError`, `GuardExceeded`); this module builds
-// the typed `TomlParseError`, never letting a raw carrier escape as a defect.
+/**
+ * SAX-style event stream over the semantic walk: `TableStart`/
+ * `ArrayTableStart`/`KeyValue` events ride `analyze`'s existing iterative pass
+ * (no added recursion — analyze's own header/dotted-key navigation is already
+ * iterative, and this module adds only a flat second pass plus a sort, never
+ * a walk of its own). Comment events — standalone trivia comments and
+ * expression trailing comments — are collected by that second pass over the
+ * same `TomlExpression` array and merged with the semantic events by source
+ * offset, so the merged sequence streams in document order.
+ *
+ * **Details**
+ *
+ * Offset semantics (pinned in `test/TomlVisitor.test.ts`): a `Comment`
+ * event's `offset` is the position of its `#` marker in the source text. For
+ * a standalone trivia comment that is the `#` found inside the trivia's raw
+ * slice; for a trailing comment it is located by searching forward from the
+ * end of the value span (key-values) or the last key span (headers) — the
+ * first position a `#` can legally appear, since nothing between there and
+ * the comment marker can itself contain a `#` character.
+ *
+ * Cycle firewall: same materialization as `Toml.parse` — the engine
+ * throws raw carriers (`RawTomlError`, `GuardExceeded`); this module builds
+ * the typed `TomlParseError`, never letting a raw carrier escape as a defect.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import * as A from "effect/Array";

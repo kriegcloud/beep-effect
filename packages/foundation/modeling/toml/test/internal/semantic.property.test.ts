@@ -5,6 +5,7 @@ import { renderInlineValue, renderKey, stringifyValue } from "@beep/toml/interna
 import { TomlDocument } from "@beep/toml/TomlDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -22,24 +23,27 @@ const samples = Arbitrary.schema(Sample).pipe(
   Arbitrary.filter((sample) => sample.key.isWellFormed() && sample.text.isWellFormed())
 );
 const source = (sample: typeof Sample.Type) =>
-  [
-    "# preserved leading comment",
-    "",
-    `${renderKey(`sample:${sample.key}`)} = ${renderInlineValue(sample.text)} # preserved trailing comment`,
-    `count = ${sample.count}`,
-    `wide = ${18_014_398_509_481_984n + BigInt(sample.count)}`,
-    `float = ${sample.float}`,
-    `enabled = ${sample.enabled}`,
-    `date = ${sample.date}`,
-    "[nested.child]",
-    `items = [${sample.count}, { a.b = ${renderInlineValue(sample.text)} }]`,
-    "[[rows]]",
-    `value = ${sample.count}`,
-    "[[rows]]",
-    "value = 2",
-    "# preserved final comment",
-    "",
-  ].join(sample.newline);
+  A.join(
+    [
+      "# preserved leading comment",
+      "",
+      `${renderKey(`sample:${sample.key}`)} = ${renderInlineValue(sample.text)} # preserved trailing comment`,
+      `count = ${sample.count}`,
+      `wide = ${18_014_398_509_481_984n + BigInt(sample.count)}`,
+      `float = ${sample.float}`,
+      `enabled = ${sample.enabled}`,
+      `date = ${sample.date}`,
+      "[nested.child]",
+      `items = [${sample.count}, { a.b = ${renderInlineValue(sample.text)} }]`,
+      "[[rows]]",
+      `value = ${sample.count}`,
+      "[[rows]]",
+      "value = 2",
+      "# preserved final comment",
+      "",
+    ],
+    sample.newline
+  );
 
 const events = (text: string) => {
   const result: Array<readonly [string, ReadonlyArray<string>, number | undefined]> = [];
@@ -87,7 +91,7 @@ describe("semantic property floor", () => {
         const canonical = stringifyValue(before, "\n");
         analyze(parseExpressions(canonical));
         assert.deepStrictEqual(buildValue(parseExpressions(canonical)), before);
-        assert.strictEqual(first.filter(([kind]) => kind === "array").length, 2);
+        assert.strictEqual(A.filter(first, ([kind]) => kind === "array").length, 2);
       }),
     runs
   );

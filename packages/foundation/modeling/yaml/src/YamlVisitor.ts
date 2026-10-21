@@ -1,13 +1,20 @@
-// SAX-style AST visitor: a demand-driven `Stream` of typed events over a
-// parsed YAML document, enabling early termination (`Stream.take`) without
-// building a full in-memory result beyond the AST itself.
-//
-// The event union is a `Data.TaggedEnum` — serializable tagged values with
-// structural equality, consistent with the rest of the library; `_tag`
-// narrowing suffices, so there are no `is*` guards. There is no collecting
-// variant: `Stream.filter` + `Stream.runCollect` cover it.
-//
-// This is the AST-level visitor only — the CST layer stays internal.
+/**
+ * SAX-style AST visitor: a demand-driven `Stream` of typed events over a
+ * parsed YAML document, enabling early termination (`Stream.take`) without
+ * building a full in-memory result beyond the AST itself.
+ *
+ * **Details**
+ *
+ * The event union is a `Data.TaggedEnum` — serializable tagged values with
+ * structural equality, consistent with the rest of the library; `_tag`
+ * narrowing suffices, so there are no `is*` guards. There is no collecting
+ * variant: `Stream.filter` + `Stream.runCollect` cover it.
+ *
+ * This is the AST-level visitor only — the CST layer stays internal.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";

@@ -16,6 +16,7 @@
 
 import { assert, describe, layer } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertNone } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as ByteSize from "effect/ByteSize";
 import * as Cause from "effect/Cause";
 import * as DateTime from "effect/DateTime";
@@ -39,7 +40,7 @@ const makeTestContext = Effect.gen(function* () {
   const root = yield* fs.makeTempDirectoryScoped({ prefix: "effect-filesystem-test-" });
   return {
     fs,
-    path: (...segments: ReadonlyArray<string>) => [root, ...segments].join("/"),
+    path: (...segments: ReadonlyArray<string>) => A.join([root, ...segments], "/"),
   };
 });
 
@@ -169,9 +170,9 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
         const { fs, path } = yield* makeTestContext;
         yield* writeSourceTree(fs, path);
 
-        const entries = (yield* fs.readDirectory(path("src"), { recursive: true }))
-          .map((path) => path.replaceAll("\\", "/"))
-          .sort();
+        const entries = A.map(yield* fs.readDirectory(path("src"), { recursive: true }), (path) =>
+          path.replaceAll("\\", "/")
+        ).sort();
 
         assert.isTrue(entries.includes("features/chat.ts"));
         assert.isTrue(entries.includes("index.ts"));
@@ -476,9 +477,21 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
           })
           .pipe(Stream.runCollect);
 
-        assert.strictEqual(defaultChunks.map((d) => decoder.decode(d)).join(""), "678");
-        assert.isTrue(chunks.every((chunk) => chunk.length > 0 && chunk.length <= 2));
-        assert.strictEqual(chunks.map((d) => decoder.decode(d)).join(""), "23456");
+        assert.strictEqual(
+          A.join(
+            A.map(defaultChunks, (d) => decoder.decode(d)),
+            ""
+          ),
+          "678"
+        );
+        assert.isTrue(A.every(chunks, (chunk) => chunk.length > 0 && chunk.length <= 2));
+        assert.strictEqual(
+          A.join(
+            A.map(chunks, (d) => decoder.decode(d)),
+            ""
+          ),
+          "23456"
+        );
       })
     );
 
@@ -1022,7 +1035,13 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
         const emptyChunks = yield* fs.stream(empty).pipe(Stream.runCollect);
         const pastEnd = yield* fs.stream(populated, { offset: 20 }).pipe(Stream.runCollect);
 
-        assert.strictEqual(whole.map((d) => decoder.decode(d)).join(""), "content");
+        assert.strictEqual(
+          A.join(
+            A.map(whole, (d) => decoder.decode(d)),
+            ""
+          ),
+          "content"
+        );
         assert.strictEqual(emptyChunks.length, 0);
         assert.strictEqual(pastEnd.length, 0);
       })
@@ -1255,12 +1274,13 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
         yield* fs.writeFileString(`${root}/src/index.test.ts`, "export {}");
         yield* fs.writeFileString(`${root}/src/readme.md`, "readme");
 
-        const matches = (yield* fs.glob("**/*.ts", {
-          root,
-          exclude: ["**/*.test.ts"],
-        }))
-          .map((entry) => entry.replaceAll("\\", "/"))
-          .sort();
+        const matches = A.map(
+          yield* fs.glob("**/*.ts", {
+            root,
+            exclude: ["**/*.test.ts"],
+          }),
+          (entry) => entry.replaceAll("\\", "/")
+        ).sort();
 
         assert.strictEqual(matches.length, 1);
         assert.isTrue(matches[0]?.endsWith("src/index.ts") === true);

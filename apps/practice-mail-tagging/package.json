@@ -46,6 +46,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/memfs": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@effect/vitest": "catalog:",

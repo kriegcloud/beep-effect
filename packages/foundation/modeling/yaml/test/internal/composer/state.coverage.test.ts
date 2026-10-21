@@ -16,13 +16,14 @@ import { RawDiagnostic } from "@beep/yaml/internal/diagnostics";
 import { ParseOptionsInput } from "@beep/yaml/internal/options";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Struct from "effect/Struct";
 
 describe("composer state coverage", () => {
   it.effect("metadata preserves empty strings and false while consumed keys become absent", () =>
     Effect.sync(() => {
       for (const meta of [{}, { anchor: "" }, { tag: "" }, { comment: "" }]) {
         const pending = NodeMeta.make(meta);
-        assert.strictEqual(hasMeta(pending), Object.keys(pending).length > 0);
+        assert.strictEqual(hasMeta(pending), Struct.keys(pending).length > 0);
         clearMeta(pending);
         assert.deepStrictEqual(pending, NodeMeta.make({}));
         assert.strictEqual(hasMeta(pending), false);

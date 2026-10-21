@@ -1,11 +1,18 @@
-// TOML's four date-time types: an offset date-time, a local date-time, a
-// local date and a local time. Effect's DateTime module models none of the
-// local-only variants (no offset, no time zone), so all four land here as
-// Schema.Class value objects with calendar validity, canonical `toString`
-// and structural equality.
-//
-// Leaf module: imports only `effect`. The scanner constructs these, value
-// stringify prints them, and the corpus harness compares them.
+/**
+ * TOML's four date-time types: an offset date-time, a local date-time, a
+ * local date and a local time. Effect's DateTime module models none of the
+ * local-only variants (no offset, no time zone), so all four land here as
+ * Schema.Class value objects with calendar validity, canonical `toString`
+ * and structural equality.
+ *
+ * **Details**
+ *
+ * Leaf module: imports only `effect`. The scanner constructs these, value
+ * stringify prints them, and the corpus harness compares them.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import * as A from "effect/Array";

@@ -3,7 +3,9 @@ import { createState, MAX_NESTING_DEPTH, NodeMeta } from "@beep/yaml/internal/co
 import { parseCSTAll } from "@beep/yaml/internal/cst-parser";
 import { ParseOptionsInput } from "@beep/yaml/internal/options";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import type { CstNode, CstNodeType } from "@beep/yaml/internal/cst";
 import type { YamlSeq } from "@beep/yaml/YamlNode";
 
@@ -18,7 +20,9 @@ const collection = (type: "flow-map" | "flow-seq", children?: readonly CstNode[]
   children === undefined ? token(type, source) : { ...token(type, source), children };
 const findFlow = (text: string): CstNode => {
   const root = parseCSTAll(text)[0];
-  const flow = root?.children?.find((child) => child.type === "flow-map" || child.type === "flow-seq");
+  const flow = O.getOrUndefined(
+    A.findFirst(root?.children ?? [], (child) => child.type === "flow-map" || child.type === "flow-seq")
+  );
   if (flow === undefined) throw new Error(`Missing flow CST: ${text}`);
   return flow;
 };
@@ -105,7 +109,7 @@ describe("flow composer recovery and metadata", () => {
         assert.strictEqual(items.length, 1);
       }
       assert.deepStrictEqual(
-        state.errors.map((error) => error.code),
+        A.map(state.errors, (error) => error.code),
         Array(5).fill("UnexpectedToken")
       );
       assert.strictEqual(state.errors[0]?.message, "Unexpected content: (empty)");

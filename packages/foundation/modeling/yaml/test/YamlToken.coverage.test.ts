@@ -1,5 +1,6 @@
 import { YamlTokens } from "@beep/yaml/YamlToken";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 
@@ -8,7 +9,10 @@ describe("YamlTokens runtime API", () => {
     Effect.gen(function* () {
       const tokens = yield* Stream.runCollect(YamlTokens.stream("a\rb\r\nc\nd"));
       assert.deepStrictEqual(
-        tokens.filter((t) => t.kind === "scalar").map((t) => [t.text, t.line, t.character]),
+        A.map(
+          A.filter(tokens, (t) => t.kind === "scalar"),
+          (t) => [t.text, t.line, t.character]
+        ),
         [
           ["a", 0, 0],
           ["b", 1, 0],

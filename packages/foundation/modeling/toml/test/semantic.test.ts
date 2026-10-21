@@ -3,8 +3,10 @@ import { parseExpressions } from "@beep/toml/internal/parser";
 import { analyze, buildValue } from "@beep/toml/internal/semantic";
 import { TomlLocalDate } from "@beep/toml/TomlDateTime";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import type { TomlSemanticErrorCodeRaw } from "@beep/toml/internal/diagnostics";
 import type { TomlArrayTableHeader, TomlKeyValue, TomlTableHeader } from "@beep/toml/TomlNode";
 
@@ -249,22 +251,25 @@ describe("semantic", () => {
       assert.deepStrictEqual(build(""), {});
     });
     it("materializes a mixed document into plain values", () => {
-      const src = [
-        'title = "TOML Example"',
-        "[owner]",
-        'name = "Tom"',
-        "dob = 1979-05-27",
-        "big = 9223372036854775807",
-        "ratio = 0.5",
-        "active = true",
-        'tags = ["a", "b", 3]',
-        "point = { x = 1, y = 2 }",
-        "[[products]]",
-        "sku = 1",
-        "[[products]]",
-        "sku = 2",
-        'color.name = "red"',
-      ].join("\n");
+      const src = A.join(
+        [
+          'title = "TOML Example"',
+          "[owner]",
+          'name = "Tom"',
+          "dob = 1979-05-27",
+          "big = 9223372036854775807",
+          "ratio = 0.5",
+          "active = true",
+          'tags = ["a", "b", 3]',
+          "point = { x = 1, y = 2 }",
+          "[[products]]",
+          "sku = 1",
+          "[[products]]",
+          "sku = 2",
+          'color.name = "red"',
+        ],
+        "\n"
+      );
       const expected = {
         title: "TOML Example",
         owner: {
@@ -299,13 +304,13 @@ describe("semantic", () => {
   describe("proto safety", () => {
     it('sets "__proto__" as an own data property, never the prototype', () => {
       const value = build('"__proto__" = 1');
-      assert.isTrue(Object.hasOwn(value, "__proto__"));
+      assert.isTrue(R.has(value, "__proto__"));
       assert.strictEqual(Object.getOwnPropertyDescriptor(value, "__proto__")?.value, 1);
       assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
     });
     it('navigates dotted "__proto__" segments without polluting Object.prototype', () => {
       const value = build('"__proto__".x = 1\n"__proto__".y = 2');
-      assert.isTrue(Object.hasOwn(value, "__proto__"));
+      assert.isTrue(R.has(value, "__proto__"));
       assert.deepStrictEqual(Object.getOwnPropertyDescriptor(value, "__proto__")?.value, { x: 1, y: 2 });
       assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
       const probe: Record<string, unknown> = {};
@@ -318,7 +323,7 @@ describe("semantic", () => {
       if (!P.isObject(table)) {
         assert.fail("expected an inline table");
       }
-      assert.isTrue(Object.hasOwn(table, "__proto__"));
+      assert.isTrue(R.has(table, "__proto__"));
       assert.strictEqual(Object.getOwnPropertyDescriptor(table, "__proto__")?.value, 1);
       assert.strictEqual(Object.getPrototypeOf(table), Object.prototype);
     });
@@ -392,11 +397,17 @@ describe("semantic", () => {
 
   describe("iterative navigation", () => {
     it("handles a 5000-segment dotted header without overflowing", () => {
-      const header = `[${Array.from({ length: 5000 }, () => "a").join(".")}]`;
+      const header = `[${A.join(
+        Array.from({ length: 5000 }, () => "a"),
+        "."
+      )}]`;
       assert.isUndefined(analyzeSrc(header));
     });
     it("builds a 5000-segment dotted key without overflowing", () => {
-      const src = `${Array.from({ length: 5000 }, () => "a").join(".")} = 1`;
+      const src = `${A.join(
+        Array.from({ length: 5000 }, () => "a"),
+        "."
+      )} = 1`;
       let cursor = build(src);
       for (let i = 0; i < 4999; i++) {
         const child = cursor.a;

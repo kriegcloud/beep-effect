@@ -207,7 +207,7 @@ function consumeLeafToken(state: ParserState): CstNode {
 }
 
 /**
- * Parse a flow mapping: { ... }
+ * Parse a flow mapping: `{ ... }`
  */
 function parseFlowMapping(state: ParserState): CstNode {
   return parseFlowCollection(state, "flow-map-end", "flow-map");
@@ -412,7 +412,7 @@ const parseBlockMapping: {
  * ":" (not same-line). Also don't stop when we're in the middle of consuming
  * an explicit key (`?` seen, no `:` yet) and the seq IS the explicit key
  * (KK5P, M5DY: `? - a`). The lexer emits block-seq-start at lineIndent which
- * can be <= the mapping indent in this case.
+ * can be at or below the mapping indent in this case.
  *
  * A block-seq-entry at or left of the indent belongs to a parent sequence,
  * except a same-indent entry after a dangling ":", which starts a compact
@@ -550,7 +550,7 @@ const parseBlockMappingInner: {
  * **Details**
  *
  * A block sequence starting on the same line as ":" in an explicit mapping
- * (e.g., "? key\n: - one") is the value; the lexer's block-seq-start column
+ * (e.g., `? key\n: - one`) is the value; the lexer's block-seq-start column
  * may not match the entry column (it uses lineIndent from the ":"
  * indicator), so the actual entry column is the sequence indent. Inline
  * sequences after implicit keys (e.g., "key: - a") are invalid per YAML 1.2
@@ -598,12 +598,11 @@ const parseBlockValue: {
   (state: ParserState, parentIndent: number, explicitKey?: boolean): CstNode[];
 } = dual(
   (args) => P.isObjectKeyword(args[0]),
-  // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-  (state: ParserState, parentIndent: number, explicitKey: boolean = false): CstNode[] => {
+  (state: ParserState, parentIndent: number, explicitKey?: boolean): CstNode[] => {
     const nodes: CstNode[] = [];
     while (!atEnd(state)) {
       const token = peek(state);
-      const end = parseBlockValueEnd(state, token, parentIndent, explicitKey);
+      const end = parseBlockValueEnd(state, token, parentIndent, explicitKey === true);
       if (end !== undefined) {
         nodes.push(end);
         break;
@@ -673,7 +672,7 @@ function implicitMapVerdict(t: YamlToken.Data, seqIndent: number): boolean | und
  * Look ahead (without consuming) to see if a block-map-value token exists
  * before the next newline / sequence entry at this indent.
  * Document boundaries are line-start tokens, so their preceding newline stops the scan.
- * Flow depth is tracked so a ":" inside { } or [ ] is not mistaken for a
+ * Flow depth is tracked so a ":" inside `{ }` or `[ ]` is not mistaken for a
  * block mapping value indicator.
  */
 const hasImplicitMapAhead: {

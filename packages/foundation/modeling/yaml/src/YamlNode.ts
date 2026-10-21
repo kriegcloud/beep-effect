@@ -1,11 +1,18 @@
-// The mutually-recursive YAML AST: YamlScalar, YamlMap, YamlSeq, YamlPair,
-// YamlAlias and the YamlNode union, co-located in one module to break the
-// import cycle inherent in the recursive node types.
-//
-// Nodes deliberately carry no parent pointers (circular references would
-// break structural equality, serialization and Schema encode/decode). Child
-// relationships are expressed via `items`/`key`/`value`, and the recursive
-// types are handled with `Schema.suspend`.
+/**
+ * The mutually-recursive YAML AST: YamlScalar, YamlMap, YamlSeq, YamlPair,
+ * YamlAlias and the YamlNode union, co-located in one module to break the
+ * import cycle inherent in the recursive node types.
+ *
+ * **Details**
+ *
+ * Nodes deliberately carry no parent pointers (circular references would
+ * break structural equality, serialization and Schema encode/decode). Child
+ * relationships are expressed via `items`/`key`/`value`, and the recursive
+ * types are handled with `Schema.suspend`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -551,8 +558,8 @@ export class YamlAlias extends YamlNodeBase.extend<YamlAlias, {}, { readonly bra
  * ```ts
  * import type { YamlScalar } from "@beep/yaml/YamlNode"
  *
- * declare const encoded: YamlScalar.Encoded
- * console.log(encoded._tag)
+ * const tagOf = (encoded: YamlScalar.Encoded): string => encoded._tag
+ * console.log(tagOf)
  * ```
  *
  * @public
@@ -580,8 +587,8 @@ export declare namespace YamlScalar {
  * ```ts
  * import type { YamlMap } from "@beep/yaml/YamlNode"
  *
- * declare const encoded: YamlMap.Encoded
- * console.log(encoded._tag)
+ * const tagOf = (encoded: YamlMap.Encoded): string => encoded._tag
+ * console.log(tagOf)
  * ```
  *
  * @public
@@ -608,8 +615,8 @@ export declare namespace YamlMap {
  * ```ts
  * import type { YamlSeq } from "@beep/yaml/YamlNode"
  *
- * declare const encoded: YamlSeq.Encoded
- * console.log(encoded._tag)
+ * const tagOf = (encoded: YamlSeq.Encoded): string => encoded._tag
+ * console.log(tagOf)
  * ```
  *
  * @public
@@ -636,8 +643,8 @@ export declare namespace YamlSeq {
  * ```ts
  * import type { YamlAlias } from "@beep/yaml/YamlNode"
  *
- * declare const encoded: YamlAlias.Encoded
- * console.log(encoded._tag)
+ * const tagOf = (encoded: YamlAlias.Encoded): string => encoded._tag
+ * console.log(tagOf)
  * ```
  *
  * @public
@@ -1241,10 +1248,9 @@ const nodeToValue: {
     node: YamlNode | null,
     anchors?: MutableHashMap.MutableHashMap<string, YamlNode>,
     budget: ExpansionBudget = defaultBudget(),
-    // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-    counting: boolean = false,
+    counting?: boolean,
     ancestors: ReadonlyArray<YamlNode> = []
-  ): unknown => (node === null ? null : walkValue(node, { anchors, budget, counting, ancestors }))
+  ): unknown => (node === null ? null : walkValue(node, { anchors, budget, counting: counting === true, ancestors }))
 );
 
 /** The shared state of one value-extraction walk. */

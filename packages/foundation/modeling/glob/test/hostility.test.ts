@@ -9,6 +9,7 @@ import { braceExpand, Minimatch } from "@beep/glob/internal/minimatch";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
 import { assert, describe, it } from "@effect/vitest";
 import { assertInstanceOf } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -154,14 +155,14 @@ describe("hostility: globstar backtracking", () => {
     // 500 non-adjacent ** sections exceed maxGlobstarRecursion (200): the
     // engine returns a boolean — upstream's intentional false negative,
     // an acceptable break in correctness for security — and never throws.
-    const pattern = Array.from({ length: 500 }, () => "**/x").join("/");
-    const candidate = Array.from({ length: 60 }, () => "x").join("/");
+    const pattern = A.join(A.replicate("**/x", 500), "/");
+    const candidate = A.join(A.replicate("x", 60), "/");
     const m = new Minimatch(pattern);
     assert.isBoolean(m.match(candidate));
   });
 
   it("matches a 10k-segment path against a simple globstar pattern fast", () => {
-    const candidate = Array.from({ length: 10_000 }, () => "a").join("/");
+    const candidate = A.join(A.replicate("a", 10_000), "/");
     assert.isFalse(new Minimatch("**/x").match(candidate));
     assert.isTrue(new Minimatch("**/a").match(candidate));
   });

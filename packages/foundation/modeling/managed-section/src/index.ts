@@ -6,6 +6,7 @@
  * scanned.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { CommentStyle } from "./CommentStyle.ts";

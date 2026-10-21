@@ -693,7 +693,7 @@ export function createScanner(text: string): YamlScanner {
    * **Details**
    *
    * A tab-only blank line is separation unless an empty block scalar was just
-   * emitted (e.g. "foo: |\n\t\n", where the tab line could be intended as
+   * emitted (e.g. `foo: |\n\t\n`, where the tab line could be intended as
    * tab-indented block scalar content). A tab before a flow-opening indicator
    * is separation, and so is any tab while no block structure is active (e.g.
    * plain scalar continuation, YAML 1.2 §6.2).
@@ -892,7 +892,7 @@ export function createScanner(text: string): YamlScanner {
 
   /**
    * Change 5b: a tab after a bare line break in a double-quoted scalar is
-   * forbidden when the scalar is nested (sCol > 0), since the tab would be
+   * forbidden when the scalar is nested (`sCol > 0`), since the tab would be
    * acting as indentation. At column 0, tabs are just leading whitespace.
    */
   function doubleQuotedLineFold(ch: string, sCol: number): string | null {
@@ -955,7 +955,7 @@ export function createScanner(text: string): YamlScanner {
   /**
    * After the indicator and modifiers, only whitespace, a comment (preceded
    * by whitespace), or newline/EOF is allowed on the header line. Any other
-   * content (e.g. "first line" in "> first line") is invalid: it becomes an
+   * content (e.g. "first line" in `> first line`) is invalid: it becomes an
    * `error` token, and a comment that ends it is queued behind it.
    */
   function scanBlockHeaderTail(start: number, sLine: number, sCol: number): YamlToken.Data | null {
@@ -1260,7 +1260,7 @@ export function createScanner(text: string): YamlScanner {
 
   /**
    * Comma is only valid as an item separator inside flow context. Outside
-   * flow ({...}/[...]), a stand-alone comma is malformed input — e.g., U99R
+   * flow (`{...}`/`[...]`), a stand-alone comma is malformed input — e.g., U99R
    * `!!str, xxx` where the comma trails a tag.
    */
   function scanComma(): YamlToken.Data {
@@ -1358,7 +1358,7 @@ export function createScanner(text: string): YamlScanner {
    * collection used as an implicit-mapping key (e.g. `[ {JSON: like}:v ]`).
    * In flow context the flags survive whitespace, newlines, and comments, so
    * that a colon on the next line after a quoted key is still recognized as
-   * a value indicator (e.g., { "foo"\n  :bar } or { "foo" # comment\n  :bar }).
+   * a value indicator (e.g., `{ "foo"\n  :bar }` or `{ "foo" # comment\n  :bar }`).
    */
   function rollTokenFlags(ch: string): void {
     prevWasQuoted = afterQuotedScalar;

@@ -4,6 +4,7 @@ import { buildAnchorMap, getNodeValue } from "@beep/yaml/internal/composer/ancho
 import { composeAllDocuments, composeFirstDocument } from "@beep/yaml/internal/composer/document";
 import { isFatalCode } from "@beep/yaml/internal/diagnostics";
 import { stringifyDocument as stringifyRawDocument, stringifyValue } from "@beep/yaml/internal/stringifier";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -45,7 +46,7 @@ export function parseDocument(
     function parseDocument(text: string, options?: ParseOptionsInput): Effect.Effect<RawYamlDocument, RawParseFailure> {
       return Effect.suspend(() => {
         const doc = composeFirstDocument(text, options);
-        const fatal = doc.errors.filter((e) => isFatalCode(e.code));
+        const fatal = A.filter(doc.errors, (e) => isFatalCode(e.code));
         return fatal.length > 0 ? Effect.fail({ errors: fatal }) : Effect.succeed(doc);
       });
     }
@@ -81,8 +82,8 @@ export function parseAllDocuments(
       return Effect.suspend(() => {
         const { documents, streamErrors } = composeAllDocuments(text, options);
         const fatal = [
-          ...streamErrors.filter((e) => e.code === "InvalidDirective"),
-          ...documents.flatMap((d) => d.errors.filter((e) => isFatalCode(e.code))),
+          ...A.filter(streamErrors, (e) => e.code === "InvalidDirective"),
+          ...A.flatMap(documents, (d) => A.filter(d.errors, (e) => isFatalCode(e.code))),
         ];
         return fatal.length > 0 ? Effect.fail({ errors: fatal }) : Effect.succeed(documents);
       });
@@ -108,7 +109,7 @@ export function parse(
       return parseDocument(text, options).pipe(
         Effect.flatMap((doc) => {
           if (uniqueKeys) {
-            const dupErrors = doc.warnings.filter((w) => w.code === "DuplicateKey");
+            const dupErrors = A.filter(doc.warnings, (w) => w.code === "DuplicateKey");
             if (dupErrors.length > 0) {
               return Effect.fail({ errors: dupErrors });
             }

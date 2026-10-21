@@ -3,6 +3,7 @@ import { Toml, TomlDocument, TomlFormat } from "@beep/toml";
 import { parseExpressions } from "@beep/toml/internal/parser";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -26,9 +27,10 @@ it.effect.prop(
       const parsed = yield* Toml.parse(text);
       assert.deepStrictEqual(yield* Toml.parse(yield* Toml.stringify(parsed)), parsed);
       const expressions = parseExpressions(text);
-      const reconstructed = expressions
-        .map((expression) => text.slice(expression.offset, expression.offset + expression.length))
-        .join("");
+      const reconstructed = A.join(
+        A.map(expressions, (expression) => text.slice(expression.offset, expression.offset + expression.length)),
+        ""
+      );
       assert.strictEqual(reconstructed, text);
       assert.deepStrictEqual(parseExpressions(reconstructed), expressions);
       assert.strictEqual((yield* TomlDocument.parse(text)).stringify(), text);

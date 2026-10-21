@@ -4,6 +4,7 @@ import { parseDirective, resolveTagHandle, validateTagHandlesInDocument } from "
 import { RawDiagnostic } from "@beep/yaml/internal/diagnostics";
 import { RawDirective } from "@beep/yaml/internal/raw-document";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -50,7 +51,7 @@ describe("tag composer coverage", () => {
       assert.strictEqual(resolveTagHandle("!bad%ZZ", state), "!bad%ZZ");
       assert.strictEqual(resolveTagHandle("!bad%ZZ", state), "!bad%ZZ");
       assert.deepStrictEqual(
-        state.errors.map((error) => [error.code, error.offset]),
+        A.map(state.errors, (error) => [error.code, error.offset]),
         [
           ["UnexpectedToken", 11],
           ["UnresolvedTag", 11],
@@ -86,13 +87,14 @@ describe("tag composer coverage", () => {
         token("directive", "%YAML 1.2"),
         token("directive", "%TAG !short!"),
         token("directive", "%TAG !app! urn:app"),
-        ...["!<uri>", "!!str", "!", "!local", "!app!x", "!missing!x", "!!bad%ZZ", "!app!bad%ZZ"].map((source, index) =>
-          token("tag", source, index * 20)
+        ...A.map(
+          ["!<uri>", "!!str", "!", "!local", "!app!x", "!missing!x", "!!bad%ZZ", "!app!bad%ZZ"],
+          (source, index) => token("tag", source, index * 20)
         ),
       ];
       validateTagHandlesInDocument({ ...token("document", ""), children }, state);
       assert.deepStrictEqual(
-        state.errors.map((error) => [error.code, error.offset]),
+        A.map(state.errors, (error) => [error.code, error.offset]),
         [
           ["UnresolvedTag", 140],
           ["UnresolvedTag", 120],

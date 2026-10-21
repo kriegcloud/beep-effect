@@ -6,7 +6,7 @@
  */
 import { DocketFileStoreOptions, makeDocketFileStoreLayer } from "@beep/law-practice-server/DocketIntake";
 import { GraphEvent, GraphMessage, M365Error } from "@beep/m365";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

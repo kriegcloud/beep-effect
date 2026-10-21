@@ -7,6 +7,7 @@
 import { Toml, TomlParseError } from "@beep/toml/Toml";
 import { TomlFormat, TomlFormattingOptions, TomlModificationError } from "@beep/toml/TomlFormat";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { TomlPath } from "@beep/toml/TomlEdit";
@@ -394,7 +395,7 @@ describe("TomlFormat", () => {
     it.effect("a 300-segment path fails typed instead of overflowing the stack", () =>
       Effect.gen(function* () {
         const segments = Array.from({ length: 300 }, (_, i) => `k${i}`);
-        const doc = `${segments.join(".")} = 1\n`;
+        const doc = `${A.join(segments, ".")} = 1\n`;
         const error = yield* modifyError(doc, segments, 2);
         assert.strictEqual(error.diagnostic.code, "NestingDepthExceeded");
       })

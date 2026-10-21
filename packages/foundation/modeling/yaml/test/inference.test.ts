@@ -15,6 +15,7 @@ import {
 import { YamlLintInference } from "@beep/yaml/YamlLint";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -28,7 +29,7 @@ const observation = S.Union([StyleVote, StyleFloor]);
 const observations = S.Array(observation);
 
 const combineAll = (evidences: ReadonlyArray<StyleEvidence>): StyleEvidence =>
-  evidences.reduce((acc, e) => StyleEvidence.combine(acc, e), StyleEvidence.empty);
+  A.reduce(evidences, StyleEvidence.empty, (acc, e) => StyleEvidence.combine(acc, e));
 
 type StyleConflict = YamlStyleConflictError["conflicts"][number];
 type StyleCandidate = StyleConflict["candidates"][number];
@@ -42,11 +43,11 @@ const candidateSource = (text: string, candidate: StyleCandidate | undefined): s
 const assertQuoteConflictCandidates = (text: string, conflict: StyleConflict | undefined): void => {
   const candidates = conflict?.candidates ?? [];
   assert.sameDeepMembers(
-    candidates.map((c) => c.value),
+    A.map(candidates, (c) => c.value),
     ["single", "double"]
   );
-  const single = candidates.find((c) => c.value === "single");
-  const double = candidates.find((c) => c.value === "double");
+  const single = O.getOrUndefined(A.findFirst(candidates, (c) => c.value === "single"));
+  const double = O.getOrUndefined(A.findFirst(candidates, (c) => c.value === "double"));
   assert.strictEqual(candidateSource(text, single), "'x'");
   assert.strictEqual(candidateSource(text, double), '"y"');
 };
@@ -66,7 +67,7 @@ describe("inference identity regressions", () => {
     const right = StyleEvidence.fromObservations("a", [vote("b\u0000c", 3)]);
     const combined = StyleEvidence.combine(left, right);
     assert.deepStrictEqual(
-      combined.votes.map((tally) => [tally.rule, tally.dimension, tally.count, tally.offset]),
+      A.map(combined.votes, (tally) => [tally.rule, tally.dimension, tally.count, tally.offset]),
       [
         ["a", "b\u0000c", 1, 3],
         ["a\u0000b", "c", 2, 7],
@@ -84,7 +85,7 @@ describe("inference identity regressions", () => {
     const right = StyleEvidence.fromObservations("a", [StyleFloor.make({ dimension: "b\u0000c", value: 80 })]);
     const combined = StyleEvidence.combine(left, right);
     assert.deepStrictEqual(
-      combined.floors.map((tally) => [tally.rule, tally.dimension, tally.value]),
+      A.map(combined.floors, (tally) => [tally.rule, tally.dimension, tally.value]),
       [
         ["a", "b\u0000c", 80],
         ["a\u0000b", "c", 40],
@@ -186,17 +187,17 @@ describe("StyleEvidence — the monoid", () => {
 
   it("multi-file: observing N snippets and merging equals the concatenation-equivalent evidence", () => {
     const parts = ["a: 'x'\n", "b: 'y'\n", 'c: "z"\n'];
-    const merged = combineAll(parts.map(YamlLint.observe(YamlLint.builtins)));
-    const quoteVotes = merged.votes.filter((v) => v.rule === "quoted-strings" && v.dimension === "quoteType");
+    const merged = combineAll(A.map(parts, YamlLint.observe(YamlLint.builtins)));
+    const quoteVotes = A.filter(merged.votes, (v) => v.rule === "quoted-strings" && v.dimension === "quoteType");
     assert.deepStrictEqual(
-      quoteVotes.map((v) => [v.value, v.count]),
+      A.map(quoteVotes, (v) => [v.value, v.count]),
       [
         ["double", 1],
         ["single", 2],
       ]
     );
     // The merge is fold-order independent (associativity, applied).
-    const [e1, e2, e3] = parts.map(YamlLint.observe(YamlLint.builtins));
+    const [e1, e2, e3] = A.map(parts, YamlLint.observe(YamlLint.builtins));
     assert.isDefined(e1);
     assert.isDefined(e2);
     assert.isDefined(e3);
@@ -234,8 +235,8 @@ describe("YamlLint.resolveStrict", () => {
     assertFailure(resolved, resolved.pipe(Result.flip, Result.getOrThrow));
     if (Result.isFailure(resolved)) {
       assert.instanceOf(resolved.failure, YamlStyleConflictError);
-      const conflict = resolved.failure.conflicts.find(
-        (c) => c.rule === "quoted-strings" && c.dimension === "quoteType"
+      const conflict = O.getOrUndefined(
+        A.findFirst(resolved.failure.conflicts, (c) => c.rule === "quoted-strings" && c.dimension === "quoteType")
       );
       assert.isDefined(conflict);
       assertQuoteConflictCandidates(text, conflict);
@@ -250,8 +251,10 @@ describe("YamlLint.resolveStrict", () => {
     if (Result.isSuccess(resolved)) {
       assert.fail("a mixed-quote corpus must not resolve strictly");
     }
-    const conflict = resolved.failure.conflicts.find((c) => c.rule === "quoted-strings" && c.dimension === "quoteType");
-    const double = conflict?.candidates.find((c) => c.value === "double");
+    const conflict = O.getOrUndefined(
+      A.findFirst(resolved.failure.conflicts, (c) => c.rule === "quoted-strings" && c.dimension === "quoteType")
+    );
+    const double = O.getOrUndefined(A.findFirst(conflict?.candidates ?? [], (c) => c.value === "double"));
     assert.strictEqual(double?.line, 1);
     assert.strictEqual(double?.character, 3);
     assert.include(resolved.failure.message, '"double" (1×, first at 2:4)');
@@ -332,7 +335,7 @@ describe("YamlLint.resolveLenient / inferLenient", () => {
     // The residual IS a plain run with the inferred config — reused, not
     // reimplemented.
     assert.deepStrictEqual(residual, YamlLint.run(text, YamlLint.builtins, config));
-    const deviation = residual.filter((d) => d.rule === "quoted-strings");
+    const deviation = A.filter(residual, (d) => d.rule === "quoted-strings");
     assert.strictEqual(deviation.length, 1);
     assert.strictEqual(
       text.slice(deviation[0]?.offset, (deviation[0]?.offset ?? 0) + (deviation[0]?.length ?? 0)),
@@ -344,7 +347,7 @@ describe("YamlLint.resolveLenient / inferLenient", () => {
     const { config, residual } = YamlLint.inferLenient("a: 'x'\nb: 'y'\n", YamlLint.builtins);
     assert.deepStrictEqual(config.rules["quoted-strings"], { quoteType: "single" });
     assert.deepStrictEqual(
-      residual.filter((d) => d.rule === "quoted-strings"),
+      A.filter(residual, (d) => d.rule === "quoted-strings"),
       []
     );
   });

@@ -4,8 +4,8 @@
  */
 import { DocketTrackedDatesCsvOptions, makeDocketTrackedDatesCsvLayer } from "@beep/law-practice-server/DocketIntake";
 import { DocketIntakeError, DocketTrackedDates } from "@beep/law-practice-use-cases/DocketIntake";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf } from "@effect/vitest/utils";
 import * as A from "effect/Array";

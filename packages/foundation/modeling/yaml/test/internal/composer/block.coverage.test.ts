@@ -19,6 +19,7 @@ import { createState, MAX_NESTING_DEPTH, NodeMeta } from "@beep/yaml/internal/co
 import { ParseOptionsInput } from "@beep/yaml/internal/options";
 import { YamlAlias, YamlMap, YamlPair, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -34,7 +35,13 @@ const tokens = (parts: ReadonlyArray<readonly [CstNodeType, string]>) => {
     children.push({ type, source, offset, length: source.length });
     offset += source.length;
   }
-  return { text: parts.map((part) => part[1]).join(""), children };
+  return {
+    text: A.join(
+      A.map(parts, (part) => part[1]),
+      ""
+    ),
+    children,
+  };
 };
 const wrapper = (type: CstNodeType, text: string, children?: ReadonlyArray<CstNode>): CstNode => ({
   type,
@@ -662,7 +669,7 @@ describe("block composer edge coverage", () => {
         const state = createState(text, flow);
         flattenBlockMapChildren(children, state);
         assert.strictEqual(
-          state.errors.some((error) => error.message === diagnostic),
+          A.some(state.errors, (error) => error.message === diagnostic),
           diagnostic !== undefined
         );
         assert.strictEqual(state.depth, 0);
@@ -851,7 +858,7 @@ describe("block composer edge coverage", () => {
         const state = createState(text, flow);
         flattenBlockMapChildren(children, state);
         assert.strictEqual(
-          state.errors.some((error) => error.message === "Mapping key after multiline plain scalar value"),
+          A.some(state.errors, (error) => error.message === "Mapping key after multiline plain scalar value"),
           true
         );
       }
@@ -869,7 +876,7 @@ describe("block composer edge coverage", () => {
       const state = createState(text, flow);
       flattenBlockMapChildren(children, state);
       assert.strictEqual(
-        state.errors.some((error) => error.message === "Mapping key after multiline plain scalar value"),
+        A.some(state.errors, (error) => error.message === "Mapping key after multiline plain scalar value"),
         false
       );
     })
@@ -886,7 +893,7 @@ describe("block composer edge coverage", () => {
       const state = createState(text, flow);
       flattenBlockMapChildren(children, state);
       assert.strictEqual(
-        state.errors.some((error) => error.message === "Scalar cannot have two tag declarations"),
+        A.some(state.errors, (error) => error.message === "Scalar cannot have two tag declarations"),
         true
       );
     })
@@ -906,7 +913,7 @@ describe("block composer edge coverage", () => {
       const items = flattenBlockMapChildren(children, state);
       assert.strictEqual(items[0]?.kind, "node");
       assert.strictEqual(
-        state.errors.some((error) => error.message === "Scalar cannot have two anchor declarations"),
+        A.some(state.errors, (error) => error.message === "Scalar cannot have two anchor declarations"),
         false
       );
     })
@@ -1034,7 +1041,7 @@ describe("block composer edge coverage", () => {
       ]);
       const items = flattenBlockMapChildren(explicit.children, createState(explicit.text, flow));
       assert.deepStrictEqual(
-        items.flatMap((item) => (item.kind === "node" ? [item.node.toValue()] : [])),
+        A.flatMap(items, (item) => (item.kind === "node" ? [item.node.toValue()] : [])),
         ["a", "b"]
       );
       const state = createState("'a'-", flow);

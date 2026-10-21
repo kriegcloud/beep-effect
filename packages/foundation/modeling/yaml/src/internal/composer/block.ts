@@ -787,7 +787,7 @@ const flattenBlockValueSep = (scan: BlockMapScan, child: CstNode, state: Compose
 /**
  * Check for sequence entry on same line as value-sep (5U3A: `key: - a`).
  * Only flag for implicit key mappings (has a key scalar on the same line
- * before ":"), not explicit mappings (? key\n: - value) where this is valid.
+ * before ":"), not explicit mappings (`? key\n: - value`) where this is valid.
  *
  * 4HVU: a stray block-seq entry indicator "-" outside any block-seq (e.g.
  * after a sibling block-seq value at a different indent) is malformed.
@@ -865,7 +865,7 @@ const isAfterImplicitValueSep = (scan: BlockMapScan, text: string): boolean =>
  * If we're in value position and this scalar is followed by ":" on the same
  * line as both the preceding ":" AND the scalar itself, AND the preceding ":"
  * was from an implicit key (has non-whitespace before it on the same line),
- * it's an invalid nested mapping. Skip for explicit mappings (? key\n: value)
+ * it's an invalid nested mapping. Skip for explicit mappings (`? key\n: value`)
  * where `:` starts a value.
  */
 const reportSameLineNestedKey = (scan: BlockMapScan, child: CstNode, state: ComposerState): void => {
@@ -934,7 +934,7 @@ const nextLineScalarColumn = (children: readonly CstNode[], index: number, text:
 /**
  * Check that we're preceded by "?" (explicit key context) and that the next
  * continuation scalar is indented beyond the "?" column.
- * `? a\n  true\n:` → merge (true at col 2 > ? at col 0) (JTV5)
+ * `? a\n  true\n:` → merge (`true` at col 2 is right of `?` at col 0) (JTV5)
  * `? b\nc:\n` → don't merge (c at col 0 = ? at col 0) (7W2P)
  */
 const isIndentedExplicitKeyContinuation = (children: readonly CstNode[], index: number, text: string): boolean => {
@@ -951,7 +951,7 @@ const isMultilineKeyCandidate = (scan: BlockMapScan, child: CstNode): boolean =>
   hasValueSepThroughPlainScalars(scan.children, scan.index + 1);
 
 /**
- * For explicit keys (? key\n  continuation\n:), use collectMultilineKey which
+ * For explicit keys (`? key\n  continuation\n:`), use collectMultilineKey which
  * merges plain scalars up to the ":" value-sep (JTV5).
  */
 const composeExplicitMultilineKey = (scan: BlockMapScan, child: CstNode, state: ComposerState): boolean => {
@@ -980,7 +980,7 @@ const reportTrailingKeyContent = (scan: BlockMapScan, child: CstNode, state: Com
 /**
  * In value position for implicit mappings (key and ":" on the same line),
  * continuation lines must be indented more than the key column. For explicit
- * mappings (? key\n: value), don't constrain.
+ * mappings (`? key\n: value`), don't constrain.
  */
 const implicitValueMinColumn = (scan: BlockMapScan, text: string): number | undefined => {
   const isImplicitMapping =
@@ -1488,7 +1488,7 @@ const takeExplicitKeyNode = (build: PairBuild): YamlNode | undefined => {
 };
 
 /**
- * Comments between key and value-sep (e.g., ? key # comment\n: value) attach
+ * Comments between key and value-sep (e.g., `? key # comment\n: value`) attach
  * to the pair's trailing comment — they have no own construct in the pair model.
  */
 const takeKeyComments = (build: PairBuild): string | undefined => {

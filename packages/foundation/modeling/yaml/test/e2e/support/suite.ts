@@ -1,17 +1,35 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
 /**
  * Test data loader for the official yaml-test-suite.
  *
  * Reads raw fixture files from the vendored corpus at
- * `__test__/fixtures/yaml-test-suite/` (pinned to data-2022-01-17 — see
- * VENDORED.md there).
+ * `test/fixtures/yaml-test-suite/` (pinned to data-2022-01-17 — see
+ * VENDORED.md there). Vite's glob import inlines every case file's raw text at
+ * transform time, so the loader never touches a filesystem at test time.
  */
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 
-/** Root directory of the yaml-test-suite data checkout. */
-const SUITE_DIR = resolve(import.meta.dirname, "../../fixtures/yaml-test-suite");
+/** Glob-key prefix shared by every suite fixture. */
+const SUITE_PREFIX = "../../fixtures/yaml-test-suite/";
+
+/**
+ * Raw text of every case file, keyed by its glob path. The four-character
+ * top-level class keeps the `name/` and `tags/` symlink indexes out, exactly as
+ * the former directory walk skipped symlinked entries.
+ */
+const suiteFiles: Record<string, string> = {
+  ...import.meta.glob<string>(
+    "../../fixtures/yaml-test-suite/[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]/{===,in.yaml,in.json,out.yaml,test.event,error}",
+    { query: "?raw", import: "default", eager: true }
+  ),
+  ...import.meta.glob<string>(
+    "../../fixtures/yaml-test-suite/[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z]/*/{===,in.yaml,in.json,out.yaml,test.event,error}",
+    { query: "?raw", import: "default", eager: true }
+  ),
+};
 
 /** A single yaml-test-suite test case. */
 export interface TestCase {
@@ -143,51 +161,22 @@ function parseMultiJson(text: string): ParsedJson {
   };
 }
 
-/**
- * Load a single test case from a directory that contains `in.yaml`, `===`, etc.
- */
-function loadFromDir(dir: string, id: string): TestCase | null {
-  const inYamlPath = join(dir, "in.yaml");
-  if (!existsSync(inYamlPath)) return null;
+/** Raw text of `file` inside the case directory `id`, when the file exists. */
+const caseFile = (id: string, file: string): O.Option<string> => R.get(suiteFiles, `${SUITE_PREFIX}${id}/${file}`);
 
-  const yaml = readFileSync(inYamlPath, "utf-8");
-  const name = existsSync(join(dir, "===")) ? readFileSync(join(dir, "==="), "utf-8").trim() : id;
-  const events = existsSync(join(dir, "test.event")) ? readFileSync(join(dir, "test.event"), "utf-8") : "";
-  const isError = existsSync(join(dir, "error"));
-
-  let json: unknown;
-  let isMultiDocument = false;
-  const jsonPath = join(dir, "in.json");
-  if (existsSync(jsonPath)) {
-    const parsed = parseMultiJson(readFileSync(jsonPath, "utf-8"));
-    json = parsed.value;
-    isMultiDocument = parsed.isMultiDocument;
-  }
-
-  let outYaml: string | undefined;
-  const outPath = join(dir, "out.yaml");
-  if (existsSync(outPath)) {
-    outYaml = readFileSync(outPath, "utf-8");
-  }
-
-  return { id, name, yaml, events, json, outYaml, isError, isMultiDocument };
-}
-
-/**
- * Load the case(s) under one top-level suite entry: the entry itself when it is a
- * flat test, otherwise each numbered subdirectory (multi-case test).
- */
-function loadEntry(name: string): TestCase[] {
-  const dir = join(SUITE_DIR, name);
-  const flat = loadFromDir(dir, name);
-  if (flat !== null) return [flat];
-
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((sub) => sub.isDirectory())
-    .flatMap((sub) => {
-      const subCase = loadFromDir(join(dir, sub.name), `${name}/${sub.name}`);
-      return subCase === null ? [] : [subCase];
-    });
+/** Build the test case whose files live under the case directory `id`. */
+function loadCase(id: string, yaml: string): TestCase {
+  const parsed = O.map(caseFile(id, "in.json"), parseMultiJson);
+  return {
+    id,
+    name: O.match(caseFile(id, "==="), { onNone: () => id, onSome: Str.trim }),
+    yaml,
+    events: O.getOrElse(caseFile(id, "test.event"), () => ""),
+    json: O.getOrUndefined(O.map(parsed, (result) => result.value)),
+    outYaml: O.getOrUndefined(caseFile(id, "out.yaml")),
+    isError: O.isSome(caseFile(id, "error")),
+    isMultiDocument: O.exists(parsed, (result) => result.isMultiDocument),
+  };
 }
 
 /**
@@ -197,13 +186,13 @@ function loadEntry(name: string): TestCase[] {
  * multi-case directories with numbered subdirectories (e.g., `3RLN/00/`, `3RLN/01/`).
  */
 export function loadAllTestCases(): TestCase[] {
-  if (!existsSync(SUITE_DIR)) {
-    throw new Error(`yaml-test-suite not found at ${SUITE_DIR}.`);
+  const cases = A.map(
+    A.filter(R.toEntries(suiteFiles), ([path]) => Str.endsWith("/in.yaml")(path)),
+    ([path, text]) => loadCase(path.slice(SUITE_PREFIX.length, -"/in.yaml".length), text)
+  );
+  if (A.isReadonlyArrayEmpty(cases)) {
+    throw new Error(`yaml-test-suite not found under ${SUITE_PREFIX}.`);
   }
-
-  const cases = readdirSync(SUITE_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .flatMap((entry) => loadEntry(entry.name));
 
   return cases.sort((a, b) => a.id.localeCompare(b.id));
 }

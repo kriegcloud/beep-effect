@@ -819,7 +819,7 @@ const continuationSourceText = (cur: PlainScalarCursor, child: CstNode): string 
  * True when a node at `childCol` sits on a continuation line. Directive nodes
  * (e.g., %YAML 1.2) inside document content are always continuations since
  * real directives only appear before `---` (XLQ9). Other nodes must be
- * indented (column > 0) and, when the caller specifies an implicit-mapping
+ * indented (`column > 0`) and, when the caller specifies an implicit-mapping
  * continuation indent, at least that deep (ZVH3: `key: value\n - item1` — the
  * nested block-seq at col 1 isn't a continuation of the value at col 7+).
  */
@@ -909,9 +909,8 @@ export const findNextSignificantChild: {
   (children: readonly CstNode[], startIdx: number, stopAtDash?: boolean): number | null;
 } = dual(
   (args) => A.isArray(args[0]),
-  // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-  (children: readonly CstNode[], startIdx: number, stopAtDash: boolean = false): number | null => {
-    const j = scanPastTrivia(children, startIdx, (c) => stopAtDash && c.source.trim() === "-");
+  (children: readonly CstNode[], startIdx: number, stopAtDash?: boolean): number | null => {
+    const j = scanPastTrivia(children, startIdx, (c) => stopAtDash === true && c.source.trim() === "-");
     return j < 0 || children[j]?.type === "whitespace" ? null : j;
   }
 );
@@ -1679,7 +1678,7 @@ const reportOverIndentedEmpty = (
   emptyIndents: ReadonlyArray<{ indent: number; offsetInRaw: number }>,
   contentIndent: number
 ): void => {
-  const empty = emptyIndents.find((e) => e.indent > contentIndent);
+  const empty = O.getOrUndefined(A.findFirst(emptyIndents, (e) => e.indent > contentIndent));
   if (empty === undefined) return;
   state.errors.push(
     RawDiagnostic.make({

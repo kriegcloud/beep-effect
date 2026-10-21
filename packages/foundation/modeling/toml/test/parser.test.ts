@@ -16,6 +16,7 @@ import {
   TomlTrivia,
 } from "@beep/toml/TomlNode";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Schema from "effect/Schema";
 import type { TomlErrorCodeRaw } from "@beep/toml/internal/diagnostics";
 import type { TomlExpression } from "@beep/toml/TomlNode";
@@ -23,7 +24,13 @@ import type { TomlExpression } from "@beep/toml/TomlNode";
 /** Parse and assert the span-tiling invariant: the expression slices rebuild the source byte-exactly. */
 function tiles(src: string): ReadonlyArray<TomlExpression> {
   const exprs = parseExpressions(src);
-  assert.strictEqual(exprs.map((e) => src.slice(e.offset, e.offset + e.length)).join(""), src);
+  assert.strictEqual(
+    A.join(
+      A.map(exprs, (e) => src.slice(e.offset, e.offset + e.length)),
+      ""
+    ),
+    src
+  );
   return exprs;
 }
 
@@ -64,26 +71,29 @@ function checkedNode<T>(node: unknown, schema: Schema.Schema<T>): T {
 describe("parser", () => {
   describe("tiling", () => {
     it("tiles a mixed document with headers, dotted keys, comments and blank runs", () => {
-      const src = [
-        "# top comment",
-        "# second line",
-        "",
-        'title = "TOML" # trailing',
-        "",
-        "[owner]",
-        'name = "Tom"',
-        "dob = 1979-05-27T07:32:00-08:00",
-        "",
-        "[[products]]",
-        "sku = 738594937",
-        "a.b.c = 1",
-        "",
-      ].join("\n");
+      const src = A.join(
+        [
+          "# top comment",
+          "# second line",
+          "",
+          'title = "TOML" # trailing',
+          "",
+          "[owner]",
+          'name = "Tom"',
+          "dob = 1979-05-27T07:32:00-08:00",
+          "",
+          "[[products]]",
+          "sku = 738594937",
+          "a.b.c = 1",
+          "",
+        ],
+        "\n"
+      );
       const exprs = tiles(src);
       // the two comment lines and the following blank line coalesce into ONE trivia
       assert.isTrue(Schema.is(TomlTrivia)(exprs[0]));
       assert.isFalse(Schema.is(TomlTrivia)(exprs[1]));
-      assert.strictEqual(exprs.filter((e) => Schema.is(TomlTrivia)(e)).length, 3);
+      assert.strictEqual(A.filter(exprs, (e) => Schema.is(TomlTrivia)(e)).length, 3);
     });
     it("tiles a CRLF document", () => {
       const src = "[a]\r\n# c\r\nx = 1\r\n\r\ny = 2 # done\r\n";
@@ -104,16 +114,10 @@ describe("parser", () => {
       assert.strictEqual(keyValueAt(exprs, 1).comment, "after");
     });
     it("tiles a multi-line array with inner comments", () => {
-      const src = [
-        "arr = [ # opening",
-        "\t1, # one",
-        "\t2,",
-        "\t# a lone comment line",
-        "\t3,",
-        "]",
-        "done = true",
-        "",
-      ].join("\n");
+      const src = A.join(
+        ["arr = [ # opening", "\t1, # one", "\t2,", "\t# a lone comment line", "\t3,", "]", "done = true", ""],
+        "\n"
+      );
       const exprs = tiles(src);
       assert.strictEqual(exprs.length, 2);
       const arr = keyValueAt(exprs, 0).value;
@@ -139,11 +143,11 @@ describe("parser", () => {
     it("parses a dotted key with mixed kinds", () => {
       const kv = keyValueAt(parseExpressions('a.b."c d" = 1'), 0);
       assert.deepStrictEqual(
-        kv.keyPath.map((k) => k.kind),
+        A.map(kv.keyPath, (k) => k.kind),
         ["bare", "bare", "basic"]
       );
       assert.deepStrictEqual(
-        kv.keyPath.map((k) => k.value),
+        A.map(kv.keyPath, (k) => k.value),
         ["a", "b", "c d"]
       );
       assert.isTrue(Schema.is(TomlInteger)(kv.value));
@@ -153,13 +157,13 @@ describe("parser", () => {
       const header = exprs[0];
       assert.isTrue(Schema.is(TomlTableHeader)(header));
       assert.deepStrictEqual(
-        checkedNode(header, TomlTableHeader).keyPath.map((k) => k.value),
+        A.map(checkedNode(header, TomlTableHeader).keyPath, (k) => k.value),
         ["t", "u"]
       );
       const arrayHeader = exprs[1];
       assert.isTrue(Schema.is(TomlArrayTableHeader)(arrayHeader));
       assert.deepStrictEqual(
-        checkedNode(arrayHeader, TomlArrayTableHeader).keyPath.map((k) => k.value),
+        A.map(checkedNode(arrayHeader, TomlArrayTableHeader).keyPath, (k) => k.value),
         ["t", "u", "v"]
       );
     });
@@ -170,7 +174,7 @@ describe("parser", () => {
       assert.isTrue(Schema.is(TomlTableHeader)(header));
       assert.strictEqual(checkedNode(header, TomlTableHeader).comment, "section");
       const bare = keyValueAt(parseExpressions("a = 1\n"), 0);
-      assert.isFalse(Object.hasOwn(bare, "comment"));
+      assert.notInclude(Reflect.ownKeys(bare), "comment");
     });
     it("records key spans into the source", () => {
       const src = "  'k' = 1\n";
@@ -189,7 +193,7 @@ describe("parser", () => {
       const inner = checkedNode(outer.items[0], TomlArray);
       assert.isTrue(Schema.is(TomlArray)(inner));
       assert.deepStrictEqual(
-        inner.items.map((i) => checkedNode(i, TomlInteger).value),
+        A.map(inner.items, (i) => checkedNode(i, TomlInteger).value),
         [1, 2]
       );
       const table = checkedNode(outer.items[1], TomlInlineTable);
@@ -217,7 +221,7 @@ describe("parser", () => {
       const kv = keyValueAt(parseExpressions("t = {a.b = 1}"), 0);
       const table = checkedNode(kv.value, TomlInlineTable);
       assert.deepStrictEqual(
-        table.entries[0]?.keyPath.map((k) => k.value),
+        A.map(table.entries[0]?.keyPath ?? [], (k) => k.value),
         ["a", "b"]
       );
     });
@@ -233,7 +237,7 @@ describe("parser", () => {
     });
     it("records string styles for all four forms", () => {
       const exprs = parseExpressions("a = \"b\"\nc = 'd'\ne = \"\"\"f\"\"\"\ng = '''h'''\n");
-      const styles = [0, 1, 2, 3].map((i) => checkedNode(keyValueAt(exprs, i).value, TomlString).style);
+      const styles = A.map([0, 1, 2, 3], (i) => checkedNode(keyValueAt(exprs, i).value, TomlString).style);
       assert.deepStrictEqual(styles, ["basic", "literal", "multiline-basic", "multiline-literal"]);
     });
     it("allows a trailing comma in arrays", () => {
@@ -245,13 +249,13 @@ describe("parser", () => {
       assert.strictEqual(checkedNode(kv.value, TomlInlineTable).entries.length, 1);
     });
     it("allows newlines and comments inside inline tables (TOML 1.1)", () => {
-      const src = ["t = { # opening", "\ta = 1, # one", "\t# a lone comment line", "\tb = 2,", "}", ""].join("\n");
+      const src = A.join(["t = { # opening", "\ta = 1, # one", "\t# a lone comment line", "\tb = 2,", "}", ""], "\n");
       const exprs = tiles(src);
       assert.strictEqual(exprs.length, 1);
       const table = checkedNode(keyValueAt(exprs, 0).value, TomlInlineTable);
       assert.strictEqual(table.entries.length, 2);
       assert.deepStrictEqual(
-        table.entries.map((entry) => entry.keyPath[0]?.value),
+        A.map(table.entries, (entry) => entry.keyPath[0]?.value),
         ["a", "b"]
       );
     });

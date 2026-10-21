@@ -1,7 +1,9 @@
 import { makePromisesFileSystem, makeSyncFileSystem, syscallForMethod, withFaults } from "@beep/memfs/internal/ports";
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import { deliberatelyInvalid } from "../deliberatelyInvalid.ts";
 
 it.effect("stat reports disappearance between path resolution and metadata inspection", () =>
@@ -61,7 +63,7 @@ it.effect("dirent inspection preserves an entry that disappears after directory 
       lstat: (path: string) => (path === "/file" ? undefined : handle.volume.lstat(path)),
     };
     const entries = yield* Effect.promise(() => makePromisesFileSystem(volume).readdir("/", { withFileTypes: true }));
-    const entry = entries.find((entry) => entry.name === "file");
+    const entry = O.getOrUndefined(A.findFirst(entries, (entry) => entry.name === "file"));
     assert.isDefined(entry);
     if (entry === undefined) return assert.fail("the listing must retain the entry name");
     assert.isFalse(entry.isFile());

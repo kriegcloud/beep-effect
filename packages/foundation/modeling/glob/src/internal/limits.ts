@@ -2,6 +2,7 @@
 
 import { $GlobId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as N from "@beep/utils/Number";
 import * as Equivalence from "effect/Equivalence";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
@@ -341,14 +342,6 @@ export const isGuardExceeded = S.is(GuardExceeded);
  * @category assertions
  * @since 0.0.0
  */
-export const assertCap: {
-  (value: number): (name: string) => number;
-  (name: string, value: number): number;
-} = dual(2, (name: string, value: number): number => {
-  if (!Number.isSafeInteger(value) || value < 1) {
-    throw InvalidCap.make({
-      message: `@effected/glob internal cap ${name} must be a positive integer, received ${value}`,
-    });
-  }
-  return value;
-});
+export const assertCap: N.CapAssertion = N.makeCapAssertion("@effected/glob", (message) =>
+  InvalidCap.make({ message })
+);

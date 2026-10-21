@@ -1,19 +1,26 @@
-// The formatting/modification concept: non-mutating text splices (TomlEdit)
-// that conservatively normalize whitespace or change a value at a path, both
-// computed against the linear CST so comments and layout survive every
-// operation. Format is syntactic and structural — every edit derives from an
-// expression or value span, never from naive line splitting, so a byte
-// inside a multi-line string is untouchable by construction. Modify resolves
-// its path through the SEMANTIC view and pins the insertion-placement rules:
-// root inserts land after the last root expression (before the first
-// header), section inserts after the section's last non-trivia expression,
-// dotted tables render as dotted keys appended to their defining section,
-// and inline or implicit tables refuse with a typed error.
-//
-// Cycle firewall: the engine throws raw carriers (RawTomlError,
-// GuardExceeded); this module materializes TomlDiagnostic instances and the
-// tagged TomlModificationError. The dependency edge runs facade → engine
-// only.
+/**
+ * The formatting/modification concept: non-mutating text splices (TomlEdit)
+ * that conservatively normalize whitespace or change a value at a path, both
+ * computed against the linear CST so comments and layout survive every
+ * operation. Format is syntactic and structural — every edit derives from an
+ * expression or value span, never from naive line splitting, so a byte
+ * inside a multi-line string is untouchable by construction. Modify resolves
+ * its path through the SEMANTIC view and pins the insertion-placement rules:
+ * root inserts land after the last root expression (before the first
+ * header), section inserts after the section's last non-trivia expression,
+ * dotted tables render as dotted keys appended to their defining section,
+ * and inline or implicit tables refuse with a typed error.
+ *
+ * **Details**
+ *
+ * Cycle firewall: the engine throws raw carriers (RawTomlError,
+ * GuardExceeded); this module materializes TomlDiagnostic instances and the
+ * tagged TomlModificationError. The dependency edge runs facade → engine
+ * only.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

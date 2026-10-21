@@ -6,6 +6,7 @@ import { YamlFormat } from "@beep/yaml/YamlFormat";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -63,7 +64,7 @@ describe("formatting navigation and regional fallbacks", () => {
       assert.deepStrictEqual(yield* Yaml.parse(folded), { a: "one two three four five six" });
       const failure = yield* Effect.flip(YamlFormat.modifyToString("? a\n", ["a", "b"], 1));
       assert.deepStrictEqual(
-        failure.diagnostics.map((d) => d.code),
+        A.map(failure.diagnostics, (d) => d.code),
         ["PathNotFound"]
       );
       const untouched = "a: [1]\n";

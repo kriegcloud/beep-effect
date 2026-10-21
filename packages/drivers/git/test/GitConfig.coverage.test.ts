@@ -1,6 +1,7 @@
 import { GitConfig, GitConfigEditError, GitConfigParseError } from "@beep/git/GitConfig";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 
@@ -12,7 +13,7 @@ describe("GitConfig coverage", () => {
       if (Result.isSuccess(failed)) assert.fail("Expected a typed failure");
       assertFailure(failed, failed.failure);
       assert.deepStrictEqual(
-        failed.failure.diagnostics.map((d) => [d.line, d.character]),
+        A.map(failed.failure.diagnostics, (d) => [d.line, d.character]),
         [
           [0, 0],
           [3, 0],
@@ -62,7 +63,7 @@ describe("GitConfig coverage", () => {
         '[core]\npath = other\n[include "ignored"]\npath = ignored\n[includeIf]\npath = ignored\n[include]\nother = ignored\npath\npath = plain\n[includeIf "gitdir:work/"]\npath = conditional\n'
       );
       assert.deepStrictEqual(
-        config.includes().map((i) => [i.path, i.condition]),
+        A.map(config.includes(), (i) => [i.path, i.condition]),
         [
           ["plain", undefined],
           ["conditional", "gitdir:work/"],

@@ -12,11 +12,11 @@ import {
   ResolvedSourceText,
   SOURCE_TEXT_PAGE_CODE_UNITS,
 } from "@beep/file-processing/SourceText";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { makeDrizzleLayer, PostgresDrizzle } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { it } from "@beep/test-runner";
 import { makePgliteSqlTestLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as Str from "@beep/utils/Str";

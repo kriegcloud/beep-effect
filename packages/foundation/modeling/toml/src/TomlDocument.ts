@@ -1,13 +1,20 @@
-// The lossless document concept: TomlDocument pairs the source text with the
-// parser's linear expression CST and any semantic violations as diagnostics
-// data. Syntax errors fail `parse` typed; a syntactically valid but
-// semantically illegal document still parses, stays editable, and refuses
-// only at `toValue`.
-//
-// Cycle firewall: same discipline as `Toml.ts` — the engine throws raw
-// carriers (`RawTomlError`, `GuardExceeded`); this module materializes
-// `TomlDiagnostic` instances and the tagged `TomlParseError`. The dependency
-// edge runs facade → engine only.
+/**
+ * The lossless document concept: TomlDocument pairs the source text with the
+ * parser's linear expression CST and any semantic violations as diagnostics
+ * data. Syntax errors fail `parse` typed; a syntactically valid but
+ * semantically illegal document still parses, stays editable, and refuses
+ * only at `toValue`.
+ *
+ * **Details**
+ *
+ * Cycle firewall: same discipline as `Toml.ts` — the engine throws raw
+ * carriers (`RawTomlError`, `GuardExceeded`); this module materializes
+ * `TomlDiagnostic` instances and the tagged `TomlParseError`. The dependency
+ * edge runs facade → engine only.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";

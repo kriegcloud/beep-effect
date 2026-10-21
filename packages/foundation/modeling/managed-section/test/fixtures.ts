@@ -1,9 +1,7 @@
-// This filesystem factory is an internal test helper with a direct-call contract.
-// @effect-diagnostics missingPipeableSignature:skip-file
-
 import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "@beep/managed-section";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as PlatformError from "effect/PlatformError";
@@ -50,12 +48,11 @@ const systemError = (tag: "NotFound" | "PermissionDenied", method: string, path:
  * counted AND really happens — a stub that swallowed it would leave every
  * later read reporting the pre-write contents.
  */
-export const memoryFs = (
-  initial: MemoryFileSystemSeed = {},
-  options: { readonly unreadable?: string; readonly unwritable?: string } = {}
+export const memoryFsWith = (
+  options: { readonly seed?: MemoryFileSystemSeed; readonly unreadable?: string; readonly unwritable?: string } = {}
 ): MemoryFs => {
   let writeCount = 0;
-  const handle = MemoryFileSystem.makeSync(initial, {
+  const handle = MemoryFileSystem.makeSync(options.seed ?? {}, {
     faults: {
       readFile: (path) =>
         options.unreadable === String(path)
@@ -79,6 +76,9 @@ export const memoryFs = (
   };
 };
 
+/** A fault-free {@link memoryFsWith} volume seeded with `initial`. */
+export const memoryFs = (initial: MemoryFileSystemSeed = {}): MemoryFs => memoryFsWith({ seed: initial });
+
 /** A section identity in the default `#` style. */
 export const id = (key: string) => SectionId.make({ key, commentStyle: CommentStyle.hash });
 
@@ -95,10 +95,10 @@ export const end = (key: string) => `# --- END ${key} MANAGED SECTION ---`;
 export const block: {
   (key: string, content: string): string;
   (content: string): (key: string) => string;
-} = dual(2, (key: string, content: string) => [begin(key), content, end(key)].join("\n"));
+} = dual(2, (key: string, content: string) => A.join([begin(key), content, end(key)], "\n"));
 
 /** Join lines with LF; the trailing newline is explicit at each call site. */
-export const lines = (...parts: ReadonlyArray<string>) => parts.join("\n");
+export const lines = (...parts: ReadonlyArray<string>) => A.join(parts, "\n");
 
 /** Rewrite an LF fixture as CRLF. */
 export const crlf = (text: string) => text.replace(/\n/g, "\r\n");

@@ -6,6 +6,7 @@ import * as Equal from "effect/Equal";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const scalar = (value: unknown, offset: number, length: number) =>
@@ -129,7 +130,7 @@ describe("YamlNode", () => {
       const value = map.toValue();
       assert.ok(P.isObject(value));
       assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
-      assert.isTrue(Object.hasOwn(value, "__proto__"));
+      assert.isTrue(R.has(value, "__proto__"));
     });
   });
 

@@ -10,6 +10,7 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, layer } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -135,8 +136,8 @@ layer(MemoryFileSystem.layer, { timeout: "30 seconds" })("FileSystem (memory-spe
 
       const contents = yield* fs.readFileString(appendPath);
       assert.isTrue(contents === "AB" || contents === "BA");
-      assert.strictEqual(creates.filter(Result.isSuccess).length, 1);
-      assert.strictEqual(creates.filter(Result.isFailure).length, 1);
+      assert.strictEqual(A.filter(creates, Result.isSuccess).length, 1);
+      assert.strictEqual(A.filter(creates, Result.isFailure).length, 1);
     })
   );
 

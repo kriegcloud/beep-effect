@@ -7,7 +7,9 @@ import { YamlDocument } from "@beep/yaml/YamlDocument";
 import { YamlFormat } from "@beep/yaml/YamlFormat";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -17,10 +19,18 @@ const Sample = S.Struct({
 });
 const sourceOf = (sample: typeof Sample.Type): string =>
   sample.map
-    ? `{${sample.values.map((value, index) => `k${index}: ${value}`).join(", ")}}`
-    : `[${sample.values.map((value) => `"${value}"`).join(", ")}]`;
+    ? `{${A.join(
+        A.map(sample.values, (value, index) => `k${index}: ${value}`),
+        ", "
+      )}}`
+    : `[${A.join(
+        A.map(sample.values, (value) => `"${value}"`),
+        ", "
+      )}]`;
 const compose = (text: string) => {
-  const cst = parseCSTAll(text)[0]?.children?.find((child) => child.type === "flow-map" || child.type === "flow-seq");
+  const cst = O.getOrUndefined(
+    A.findFirst(parseCSTAll(text)[0]?.children ?? [], (child) => child.type === "flow-map" || child.type === "flow-seq")
+  );
   if (cst === undefined) throw new Error("Expected flow collection");
   const state = createState(text, { composeFlowMap, composeFlowSeq });
   return { cst, state, node: cst.type === "flow-map" ? composeFlowMap(cst, state) : composeFlowSeq(cst, state) };
@@ -50,7 +60,10 @@ describe("flow composer properties", () => {
     [S.Int.pipe(S.Array, Arbitrary.schema)],
     ([values]) =>
       Effect.sync(() => {
-        const text = `[${values.map((value) => `"${value}"`).join(", ")}]`;
+        const text = `[${A.join(
+          A.map(values, (value) => `"${value}"`),
+          ", "
+        )}]`;
         const { cst, node } = compose(text);
         const children = cst.children ?? [];
         const first = flattenFlowChildren(children, createState(text, { composeFlowMap, composeFlowSeq }));
@@ -59,10 +72,10 @@ describe("flow composer properties", () => {
           first
         );
         assert.deepStrictEqual(
-          first.flatMap((item) => (item.kind === "node" && item.node !== undefined ? [item.node.toValue()] : [])),
+          A.flatMap(first, (item) => (item.kind === "node" && item.node !== undefined ? [item.node.toValue()] : [])),
           node.toValue()
         );
-        assert.deepStrictEqual(node.toValue(), values.map(String));
+        assert.deepStrictEqual(node.toValue(), A.map(values, String));
       }),
     runs
   );

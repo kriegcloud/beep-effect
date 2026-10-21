@@ -20,6 +20,8 @@
 
 import { $JsoncId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { makeTextDecodeTo } from "@beep/utils/Schema";
+import * as Text from "@beep/utils/Text";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -39,6 +41,7 @@ import {
   parseValue as parseValueInternal,
 } from "./internal/parser.ts";
 import { createScanner, SyntaxKind } from "./internal/scanner.ts";
+import type { TextDecodeTo } from "@beep/utils/Schema";
 import type { RawParseError } from "./internal/parser.ts";
 import type { JsoncNode } from "./JsoncNode.ts";
 
@@ -372,27 +375,9 @@ export class JsoncStringifyError extends S.TaggedError<JsoncStringifyError, { re
 
 const toFlags = (options?: JsoncParseOptions): ParseFlags => ParseFlags.make(options ?? JsoncParseOptions.make({}));
 
-const lineChar: {
-  (text: string, offset: number): { readonly line: number; readonly character: number };
-  (offset: number): (text: string) => { readonly line: number; readonly character: number };
-} = dual(2, (text: string, offset: number): { readonly line: number; readonly character: number } => {
-  let line = 0;
-  let lineStart = 0;
-  const limit = Math.min(offset, text.length);
-  for (let i = 0; i < limit; i++) {
-    const ch = text.charCodeAt(i);
-    if (ch === 0x0d && i + 1 < text.length && text.charCodeAt(i + 1) === 0x0a) {
-      i++;
-    }
-    // LS and PS count as line breaks in the scanner; stay aligned so error
-    // positions after them are correct.
-    if (ch === 0x0a || ch === 0x0d || ch === 0x2028 || ch === 0x2029) {
-      line++;
-      lineStart = i + 1;
-    }
-  }
-  return { line, character: offset - lineStart };
-});
+// LS and PS count as line breaks in the scanner; stay aligned so error
+// positions after them are correct.
+const lineGrammar = { unicodeSeparators: true } as const;
 
 const toDetails: {
   (text: string, errors: ReadonlyArray<RawParseError>): ReadonlyArray<JsoncParseErrorDetail>;
@@ -400,7 +385,7 @@ const toDetails: {
 } = dual(
   2,
   (text: string, errors: ReadonlyArray<RawParseError>): ReadonlyArray<JsoncParseErrorDetail> =>
-    A.map(errors, (e) => JsoncParseErrorDetail.make({ ...e, ...lineChar(text, e.offset) }))
+    A.map(errors, (e) => JsoncParseErrorDetail.make({ ...e, ...Text.lineCharacterAt(text, e.offset, lineGrammar) }))
 );
 
 const aggregate: {
@@ -990,21 +975,7 @@ export abstract class Jsonc {
    * @param options - Parse options controlling the JSONC decode step.
    * @returns A codec decoding JSONC text straight into `T`.
    */
-  static readonly schema: {
-    <T, E, RD = never, RE = never>(
-      target: S.Codec<T, E, RD, RE>,
-      options?: JsoncParseOptions
-    ): S.Codec<T, string, RD, RE>;
-    (
-      options?: JsoncParseOptions
-    ): <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>) => S.Codec<T, string, RD, RE>;
-  } = dual(
-    (args) => S.isSchema(args[0]),
-    <T, E, RD = never, RE = never>(
-      target: S.Codec<T, E, RD, RE>,
-      options?: JsoncParseOptions
-    ): S.Codec<T, string, RD, RE> => Jsonc.fromString(options).pipe(S.decodeTo(target))
-  );
+  static readonly schema: TextDecodeTo<JsoncParseOptions> = makeTextDecodeTo(Jsonc.fromString);
 
   /**
    * Bind a target schema to the JSONC codec once, yielding the composed

@@ -2,7 +2,9 @@ import { MemoryFileSystem, MemoryFileSystemVolumeStat } from "@beep/memfs";
 import { UnknownFaultKeyError } from "@beep/memfs/internal/faults";
 import { withFaults } from "@beep/memfs/internal/ports";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -243,12 +245,12 @@ describe("promises port", () => {
       const { volume } = yield* tree;
       const fsp = MemoryFileSystem.promisesFileSystem(volume);
       const dirents = yield* Effect.promise(() => fsp.readdir("/r", { withFileTypes: true }));
-      const link = dirents.find((d) => d.name === "to-dir");
+      const link = O.getOrUndefined(A.findFirst(dirents, (d) => d.name === "to-dir"));
       assert.isDefined(link);
       assert.isTrue(link?.isSymbolicLink());
       assert.isFalse(link?.isDirectory());
       assert.isFalse(link?.isFile());
-      assert.isTrue(dirents.find((d) => d.name === "file.txt")?.isFile());
+      assert.isTrue(O.getOrUndefined(A.findFirst(dirents, (d) => d.name === "file.txt"))?.isFile());
       assert.deepStrictEqual(yield* Effect.promise(() => fsp.readdir("/r/dir")), ["inner.txt"]);
     })
   );
@@ -326,7 +328,7 @@ describe("promises port", () => {
       assert.deepStrictEqual(yield* Effect.promise(() => fsp.readdir("/r/dir")), ["fake.txt"]);
       const dirents = yield* Effect.promise(() => fsp.readdir("/r/dir", { withFileTypes: true }));
       assert.deepStrictEqual(
-        dirents.map((d) => d.name),
+        A.map(dirents, (d) => d.name),
         ["inner.txt"]
       );
     })

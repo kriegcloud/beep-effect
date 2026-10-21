@@ -117,6 +117,9 @@
       "path": "../../test-kit/fc-runs/tsconfig.json"
     },
     {
+      "path": "../../test-kit/memfs/tsconfig.json"
+    },
+    {
       "path": "../../test-kit/test-runner/tsconfig.json"
     },
     {

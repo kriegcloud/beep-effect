@@ -13,6 +13,7 @@ import {
 } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -25,7 +26,7 @@ describe("YamlDocument", () => {
         const doc = yield* YamlDocument.parse("%YAML 1.2\n---\nname: Alice\n...\n");
         assert.instanceOf(doc.contents, YamlMap);
         assert.deepStrictEqual(
-          doc.directives.map((d) => ({ name: d.name, parameters: [...d.parameters] })),
+          A.map(doc.directives, (d) => ({ name: d.name, parameters: [...d.parameters] })),
           [{ name: "YAML", parameters: ["1.2"] }]
         );
         assert.isTrue(doc.hasDocumentStart);
@@ -39,7 +40,7 @@ describe("YamlDocument", () => {
         // A duplicate mapping key is recorded as a warning on the document;
         // only the value-level Yaml.parse promotes it under uniqueKeys.
         const doc = yield* YamlDocument.parse("a: 1\na: 2");
-        assert.isTrue(doc.warnings.some((w) => w.code === "DuplicateKey"));
+        assert.isTrue(A.some(doc.warnings, (w) => w.code === "DuplicateKey"));
         assert.isAbove(doc.warnings[0]?.line ?? -1, -1);
       })
     );
@@ -48,7 +49,7 @@ describe("YamlDocument", () => {
       Effect.gen(function* () {
         const error = yield* Effect.flip(YamlDocument.parse("a: *missing"));
         assert.instanceOf(error, YamlParseError);
-        assert.isTrue(error.diagnostics.some((d) => d.code === "UndefinedAlias"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "UndefinedAlias"));
       })
     );
 
@@ -143,7 +144,7 @@ describe("YamlDocument", () => {
     it.effect("roundtrips the pnpm snapshots explicit-key shape through the node path (#322/#323)", () =>
       Effect.gen(function* () {
         const key = `pkg-b@2.0.0(${"b".repeat(1100)})`;
-        const source = ["snapshots:", `  ? ${key}`, "  : dependencies:", "      dep-one: 1.2.3", ""].join("\n");
+        const source = A.join(["snapshots:", `  ? ${key}`, "  : dependencies:", "      dep-one: 1.2.3", ""], "\n");
         const doc = yield* YamlDocument.parse(source);
         const text = yield* doc.stringify();
         // The explicit form survives re-emission (the key is still >1024).
@@ -169,7 +170,7 @@ describe("YamlDocument", () => {
 
         const viaNodePath = yield* doc.stringify(YamlStringifyOptions.make({ lineWidth: 30 }));
         // Inert: the long scalar stays on one physical line, far past column 30.
-        assert.isTrue(viaNodePath.split("\n").some((line) => line.length > 40));
+        assert.isTrue(A.some(viaNodePath.split("\n"), (line) => line.length > 40));
 
         // The documented workaround folds: render the plain value instead.
         const viaValuePath = yield* Yaml.stringify(doc.toValue(), YamlStringifyOptions.make({ lineWidth: 30 }));

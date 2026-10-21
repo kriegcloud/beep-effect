@@ -12,6 +12,7 @@
 import { escape as escapePattern, Minimatch } from "@beep/glob/internal/minimatch";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -249,11 +250,11 @@ const magicSeg = S.Literals([
   "!x",
 ]);
 const patternArb = Arbitrary.schema(S.Array(S.Union([literalSeg, magicSeg])).check(S.isBetweenLength(1, 5))).pipe(
-  Arbitrary.map((xs) => xs.join("/"))
+  Arbitrary.map((xs) => A.join(xs, "/"))
 );
 const candidateArb = Arbitrary.schema(
   S.Array(S.Literals(["a", "b", "abc", ".hidden", "x", "a.b+c", ""])).check(S.isBetweenLength(1, 6))
-).pipe(Arbitrary.map((xs) => xs.join("/")));
+).pipe(Arbitrary.map((xs) => A.join(xs, "/")));
 // Every key is optional so the bag ranges from `{}` to fully specified — the
 // generator draws a random subset of the optional keys per run.
 const optionBagArb = Arbitrary.schema(
@@ -278,7 +279,7 @@ const optionBagArb = Arbitrary.schema(
 const printableNoSlashArb = Arbitrary.schema(S.String.check(S.isPattern(/^[ -.0-9:-@A-Z[\]-~]{1,30}$/)));
 const braceSegArb = Arbitrary.schema(
   S.Array(S.Literals(["a", "{b,c}", "{1..4}", "x{y,z}w", "{a,{b,c}}", "plain"])).check(S.isBetweenLength(1, 4))
-).pipe(Arbitrary.map((xs) => xs.join("/")));
+).pipe(Arbitrary.map((xs) => A.join(xs, "/")));
 
 describe("engine compliance: oracle properties", () => {
   it.effect.prop(

@@ -15,10 +15,12 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { begin, block, end, id, lines, memoryFs, parse, parseFailure, section } from "./fixtures.ts";
@@ -28,7 +30,7 @@ import type { Section, SectionDocument, SectionRenderError } from "@beep/managed
 const beginWith = (key: string, run: string) => `# --- BEGIN ${key} MANAGED SECTION ${run} ---`;
 
 /** A rendered block whose BEGIN marker carries a raw attribute run. */
-const blockWith = (key: string, run: string, content: string) => [beginWith(key, run), content, end(key)].join("\n");
+const blockWith = (key: string, run: string, content: string) => A.join([beginWith(key, run), content, end(key)], "\n");
 
 const expectRender = (result: Result.Result<string, SectionRenderError>): string => {
   if (!Result.isSuccess(result)) {
@@ -90,7 +92,7 @@ describe("marker attributes", () => {
       assert.strictEqual(second.text, first.text);
       assert.isFalse(second.changed);
       assert.deepStrictEqual(
-        second.outcomes.map((o) => o._tag),
+        A.map(second.outcomes, (o) => o._tag),
         ["Unchanged"]
       );
     });
@@ -120,7 +122,7 @@ describe("marker attributes", () => {
       const result = reconcile(doc, [id("k").section("x", { a: "1", b: "2" })]);
       assert.include(result.text, 'a="1" b="2"');
       assert.deepStrictEqual(
-        result.outcomes.map((o) => o._tag),
+        A.map(result.outcomes, (o) => o._tag),
         ["Unchanged"]
       );
     });
@@ -188,7 +190,7 @@ describe("marker attributes", () => {
       assert.strictEqual(doc.check(declared)._tag, "Drifted");
       const result = reconcile(doc, [declared]);
       assert.deepStrictEqual(
-        result.outcomes.map((o) => o._tag),
+        A.map(result.outcomes, (o) => o._tag),
         ["Updated"]
       );
       assert.include(result.text, 'a="2"');
@@ -200,7 +202,7 @@ describe("marker attributes", () => {
       const declared = id("k").section("x", { a: "1" });
       assert.strictEqual(doc.check(declared)._tag, "Drifted");
       assert.deepStrictEqual(
-        reconcile(doc, [declared]).outcomes.map((o) => o._tag),
+        A.map(reconcile(doc, [declared]).outcomes, (o) => o._tag),
         ["Updated"]
       );
     });
@@ -210,7 +212,7 @@ describe("marker attributes", () => {
       assert.strictEqual(doc.check(section("k", "x"))._tag, "Drifted");
       const result = reconcile(doc, [section("k", "x")]);
       assert.deepStrictEqual(
-        result.outcomes.map((o) => o._tag),
+        A.map(result.outcomes, (o) => o._tag),
         ["Updated"]
       );
       assert.strictEqual(result.text, `${block("k", "x")}\n`);
@@ -222,7 +224,7 @@ describe("marker attributes", () => {
       assert.strictEqual(doc.check(reversed)._tag, "UpToDate");
       const first = reconcile(doc, [reversed]);
       assert.deepStrictEqual(
-        first.outcomes.map((o) => o._tag),
+        A.map(first.outcomes, (o) => o._tag),
         ["Unchanged"]
       );
       // The rewrite renders declared order; the pass after it is a fixed point.
@@ -338,7 +340,7 @@ describe("marker attributes", () => {
     // Unique by name, or the pairs would collapse into fewer entries than
     // were generated and the round trip would compare against the wrong map.
     const attrsArb = Arbitrary.schema(S.Array(S.Tuple([Name, Value])).check(S.isUniqueKey(), S.isMaxLength(3))).pipe(
-      Arbitrary.map((pairs) => Object.fromEntries(pairs))
+      Arbitrary.map((pairs) => R.fromEntries(pairs))
     );
     const Content = S.Literals(["", "echo hi", "a\nb", "  indented"]);
     const Document = S.Literals(["", "#!/bin/sh\n", "user line\nsecond\n"]);

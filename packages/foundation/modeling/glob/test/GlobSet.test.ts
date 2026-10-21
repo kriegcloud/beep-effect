@@ -9,6 +9,7 @@ import { GlobPattern, GlobPatternError, GlobSet } from "@beep/glob";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -297,7 +298,7 @@ describe("GlobSet: literals key on the effective unescaped path", () => {
       for (const candidate of ["foo*bar", "foo\\*bar", "a{b", "#c", "plain/lit", "", "other"]) {
         assert.strictEqual(
           set.matches(candidate),
-          members.some((m) => m.matches(candidate)),
+          A.some(members, (m) => m.matches(candidate)),
           `candidate ${yield* S.encodeEffect(JsonString)(candidate)}`
         );
       }
@@ -425,12 +426,12 @@ describe("GlobSet.compileResult", () => {
       }
       assert.deepStrictEqual(sync.success.literals, eff.literals);
       assert.deepStrictEqual(
-        sync.success.wildcards.map((w) => w.source),
-        eff.wildcards.map((w) => w.source)
+        A.map(sync.success.wildcards, (w) => w.source),
+        A.map(eff.wildcards, (w) => w.source)
       );
       assert.deepStrictEqual(
-        sync.success.excludes.map((e) => e.source),
-        eff.excludes.map((e) => e.source)
+        A.map(sync.success.excludes, (e) => e.source),
+        A.map(eff.excludes, (e) => e.source)
       );
     })
   );

@@ -28,7 +28,9 @@ import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { expectFailure } from "./expectFailure.ts";
@@ -57,7 +59,7 @@ const codeOf = (error: TomlParseError): string | undefined => error.diagnostics[
 const assertPrototypeUnpolluted = (): void => {
   const probe: Record<string, unknown> = {};
   assert.strictEqual(probe.x, undefined);
-  assert.isFalse(Object.hasOwn(Object.prototype, "x"));
+  assert.notInclude(Reflect.ownKeys(Object.prototype), "x");
   assert.isFalse("x" in {});
 };
 
@@ -181,8 +183,8 @@ describe("hostile input", () => {
         if (!Exit.isFailure(exit)) {
           return assert.fail("expected the getter throw to surface as a failure exit");
         }
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason), "must not surface as a typed Fail");
-        const die = exit.cause.reasons.find(Cause.isDieReason);
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason), "must not surface as a typed Fail");
+        const die = O.getOrUndefined(A.findFirst(exit.cause.reasons, Cause.isDieReason));
         if (die === undefined) {
           return assert.fail("expected a Die reason carrying the getter's error");
         }
@@ -207,8 +209,8 @@ describe("hostile input", () => {
         if (!Exit.isFailure(exit)) {
           return assert.fail("expected the misuse to surface as a failure exit");
         }
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason), "must not surface as a typed Fail");
-        const die = exit.cause.reasons.find(Cause.isDieReason);
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason), "must not surface as a typed Fail");
+        const die = O.getOrUndefined(A.findFirst(exit.cause.reasons, Cause.isDieReason));
         if (die === undefined) {
           return assert.fail("expected a Die reason carrying the TypeError");
         }
@@ -291,12 +293,12 @@ describe("hostile input", () => {
             { length: 50_000 },
             (_, i) => `k${String(i).padStart(5, "0")} = "${"x".repeat(28)}"`
           );
-          const doc = `${lines.join("\n")}\n`;
+          const doc = `${A.join(lines, "\n")}\n`;
           assert.isAtLeast(doc.length, 2_000_000);
           const started = performance.now();
           const value = checkedTable(yield* Toml.parse(doc));
           const elapsed = performance.now() - started;
-          assert.strictEqual(Object.keys(value).length, 50_000);
+          assert.strictEqual(R.size(value), 50_000);
           assert.strictEqual(value.k49999, "x".repeat(28));
           assert.isBelow(elapsed, ELAPSED_BOUND_MS);
         }),
@@ -335,7 +337,7 @@ describe("hostile input", () => {
     it.effect('"__proto__ = 1" lands as an own data property', () =>
       Effect.gen(function* () {
         const value = checkedTable(yield* Toml.parse("__proto__ = 1\n"));
-        assert.isTrue(Object.hasOwn(value, "__proto__"));
+        assert.isTrue(R.has(value, "__proto__"));
         assert.strictEqual(Object.getOwnPropertyDescriptor(value, "__proto__")?.value, 1);
         assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
         assertPrototypeUnpolluted();
@@ -345,9 +347,9 @@ describe("hostile input", () => {
     it.effect('"[__proto__]" defines an own table, not a prototype', () =>
       Effect.gen(function* () {
         const value = checkedTable(yield* Toml.parse("[__proto__]\nx = 1\n"));
-        assert.isTrue(Object.hasOwn(value, "__proto__"));
+        assert.isTrue(R.has(value, "__proto__"));
         const table = checkedTable(Object.getOwnPropertyDescriptor(value, "__proto__")?.value);
-        assert.isTrue(Object.hasOwn(table, "x"));
+        assert.isTrue(R.has(table, "x"));
         assert.strictEqual(table.x, 1);
         assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
         assertPrototypeUnpolluted();
@@ -357,19 +359,19 @@ describe("hostile input", () => {
     it.effect('"[[__proto__]]" defines an own array of tables', () =>
       Effect.gen(function* () {
         const value = checkedTable(yield* Toml.parse("[[__proto__]]\nx = 1\n"));
-        assert.isTrue(Object.hasOwn(value, "__proto__"));
+        assert.isTrue(R.has(value, "__proto__"));
         const array: unknown = Object.getOwnPropertyDescriptor(value, "__proto__")?.value;
         if (!A.isArray(array)) {
           assert.fail("expected an array of tables");
         }
-        assert.isTrue(Array.isArray(array));
+        assert.isTrue(A.isArray(array));
         assert.strictEqual(array.length, 1);
         const first = array[0];
         assert.isDefined(first);
         if (!P.isObject(first)) {
           assert.fail("expected the first array element to be a table");
         }
-        assert.isTrue(Object.hasOwn(first, "x"));
+        assert.isTrue(R.has(first, "x"));
         assert.strictEqual(first.x, 1);
         assertPrototypeUnpolluted();
       })
@@ -381,13 +383,13 @@ describe("hostile input", () => {
         // "prototype" — they must be own plain-object properties, never a
         // walk up the real constructor/prototype chain.
         const value = checkedTable(yield* Toml.parse("constructor.prototype.x = 1\n"));
-        assert.isTrue(Object.hasOwn(value, "constructor"));
+        assert.isTrue(R.has(value, "constructor"));
         const constructorTable = checkedTable(value.constructor);
         assert.notStrictEqual<unknown>(constructorTable, Object);
         assert.strictEqual(Object.getPrototypeOf(constructorTable), Object.prototype);
-        assert.isTrue(Object.hasOwn(constructorTable, "prototype"));
+        assert.isTrue(R.has(constructorTable, "prototype"));
         const prototypeTable = checkedTable(constructorTable.prototype);
-        assert.isTrue(Object.hasOwn(prototypeTable, "x"));
+        assert.isTrue(R.has(prototypeTable, "x"));
         assert.strictEqual(prototypeTable.x, 1);
         assertPrototypeUnpolluted();
       })
@@ -507,9 +509,12 @@ describe("hostile input", () => {
   describe("header abuse", () => {
     it.effect("10_000 distinct headers parse fine", () =>
       Effect.gen(function* () {
-        const doc = `${Array.from({ length: 10_000 }, (_, i) => `[t${i}]`).join("\n")}\n`;
+        const doc = `${A.join(
+          Array.from({ length: 10_000 }, (_, i) => `[t${i}]`),
+          "\n"
+        )}\n`;
         const value = checkedTable(yield* Toml.parse(doc));
-        assert.strictEqual(Object.keys(value).length, 10_000);
+        assert.strictEqual(R.size(value), 10_000);
         assert.deepStrictEqual(value.t9999, {});
       })
     );
@@ -520,23 +525,29 @@ describe("hostile input", () => {
         // nesting (arrays/inline tables) is recursive and guarded. This must
         // parse and materialize a 5_001-deep table.
         const segments = 5_001;
-        const doc = `[${Array.from({ length: segments }, () => "a").join(".")}]\n`;
+        const doc = `[${A.join(
+          Array.from({ length: segments }, () => "a"),
+          "."
+        )}]\n`;
         let current = checkedTable(yield* Toml.parse(doc));
         for (let i = 0; i < segments; i++) {
-          assert.isTrue(Object.hasOwn(current, "a"), `own property missing at depth ${i}`);
+          assert.isTrue(R.has(current, "a"), `own property missing at depth ${i}`);
           current = checkedTable(current.a);
         }
-        assert.deepStrictEqual(Object.keys(current), []);
+        assert.deepStrictEqual(R.keys(current), []);
       })
     );
 
     it.effect("a 5_001-segment dotted KEY is also data-driven", () =>
       Effect.gen(function* () {
         const segments = 5_001;
-        const doc = `${Array.from({ length: segments }, () => "a").join(".")} = 1\n`;
+        const doc = `${A.join(
+          Array.from({ length: segments }, () => "a"),
+          "."
+        )} = 1\n`;
         let current = checkedTable(yield* Toml.parse(doc));
         for (let i = 0; i < segments - 1; i++) {
-          assert.isTrue(Object.hasOwn(current, "a"), `own property missing at depth ${i}`);
+          assert.isTrue(R.has(current, "a"), `own property missing at depth ${i}`);
           current = checkedTable(current.a);
         }
         assert.strictEqual(current.a, 1);

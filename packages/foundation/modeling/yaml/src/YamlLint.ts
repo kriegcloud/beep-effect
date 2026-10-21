@@ -1,11 +1,18 @@
-// The lint engine: the rule-aware config schema and the `YamlLint`
-// facade (`run`, `fix`, `builtins`). The rule model (`LintContext`,
-// `YamlRule`, `YamlLintDiagnostic`) lives in `YamlLintRule.ts` — see the
-// cycle-firewall note there.
-//
-// The governing constraint: this is the pure half only. No file discovery, no
-// config-file loading, no IO, no CLI — strings in, diagnostics or a fixed
-// string out. The runner is someone else's tier.
+/**
+ * The lint engine: the rule-aware config schema and the `YamlLint`
+ * facade (`run`, `fix`, `builtins`). The rule model (`LintContext`,
+ * `YamlRule`, `YamlLintDiagnostic`) lives in `YamlLintRule.ts` — see the
+ * cycle-firewall note there.
+ *
+ * **Details**
+ *
+ * The governing constraint: this is the pure half only. No file discovery, no
+ * config-file loading, no IO, no CLI — strings in, diagnostics or a fixed
+ * string out. The runner is someone else's tier.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import * as A from "effect/Array";

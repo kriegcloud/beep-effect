@@ -2,6 +2,8 @@ import { CommentStyle, SectionDialect as Dialect, SectionId } from "@beep/manage
 import { ReconcileInput, ReconcileOutput, reconcile as reconcileCore } from "@beep/managed-section/internal/reconcile";
 import { SectionReconciliation as Reconciliation } from "@beep/managed-section/SectionDocument";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { block, crlf, lines, parse, section } from "./fixtures.ts";
@@ -27,15 +29,15 @@ const runFailure = (text: string, sections: ReadonlyArray<Section>): SectionRend
   return result.failure;
 };
 
-const tags = (outcome: SectionReconciliation) => outcome.outcomes.map((o) => o._tag);
+const tags = (outcome: SectionReconciliation) => A.map(outcome.outcomes, (o) => o._tag);
 
-const A = section("alpha", "a-body");
-const B = section("beta", "b-body");
+const sectionA = section("alpha", "a-body");
+const sectionB = section("beta", "b-body");
 
 describe("SectionDocument.reconcile", () => {
   describe("the v3 scenario floor", () => {
     it("scenario 1: writes [A, B] in declared order into an empty file", () => {
-      const result = run("", [A, B]);
+      const result = run("", [sectionA, sectionB]);
       assert.deepStrictEqual(tags(result), ["Created", "Created"]);
       assert.strictEqual(result.text, lines(block("alpha", "a-body"), "", block("beta", "b-body"), ""));
       assert.isTrue(result.changed);
@@ -43,21 +45,21 @@ describe("SectionDocument.reconcile", () => {
 
     it("scenario 2: inserts a missing block immediately before its declared sibling", () => {
       const before = lines("header", block("beta", "b-body"), "");
-      const result = run(before, [A, B]);
+      const result = run(before, [sectionA, sectionB]);
       assert.deepStrictEqual(tags(result), ["Created", "Unchanged"]);
       assert.strictEqual(result.text, lines("header", block("alpha", "a-body"), "", block("beta", "b-body"), ""));
     });
 
     it("scenario 3: updates in place, preserving intervening user content", () => {
       const before = lines(block("alpha", "old"), "user text", block("beta", "b-body"), "");
-      const result = run(before, [A, B]);
+      const result = run(before, [sectionA, sectionB]);
       assert.deepStrictEqual(tags(result), ["Updated", "Unchanged"]);
       assert.strictEqual(result.text, lines(block("alpha", "a-body"), "user text", block("beta", "b-body"), ""));
     });
 
     it("scenario 4: normalizes an out-of-order document to declared order", () => {
       const before = lines(block("beta", "b-body"), "", block("alpha", "a-body"), "");
-      const result = run(before, [A, B]);
+      const result = run(before, [sectionA, sectionB]);
       assert.deepStrictEqual(tags(result), ["Unchanged", "Unchanged"]);
       assert.strictEqual(result.text, lines(block("alpha", "a-body"), "", block("beta", "b-body"), ""));
       assert.isTrue(result.changed, "the text moved even though no content changed");
@@ -65,15 +67,15 @@ describe("SectionDocument.reconcile", () => {
 
     it("scenario 5: preserves an unrelated section while managing its own", () => {
       const before = lines(block("foreign", "not ours"), "", block("alpha", "a-body"), "");
-      const result = run(before, [A]);
+      const result = run(before, [sectionA]);
       assert.deepStrictEqual(tags(result), ["Unchanged"]);
       assert.include(result.text, block("foreign", "not ours"));
       assert.isFalse(result.changed);
     });
 
     it("scenario 6: a second identical call is idempotent and rewrites nothing", () => {
-      const first = run("", [A, B]);
-      const second = run(first.text, [A, B]);
+      const first = run("", [sectionA, sectionB]);
+      const second = run(first.text, [sectionA, sectionB]);
       assert.deepStrictEqual(tags(second), ["Unchanged", "Unchanged"]);
       assert.strictEqual(second.text, first.text);
       assert.isFalse(second.changed);
@@ -81,14 +83,14 @@ describe("SectionDocument.reconcile", () => {
 
     it("appends a missing block after its present predecessor when no later sibling exists", () => {
       const before = lines("header", block("alpha", "a-body"), "");
-      const result = run(before, [A, B]);
+      const result = run(before, [sectionA, sectionB]);
       assert.deepStrictEqual(tags(result), ["Unchanged", "Created"]);
       assert.strictEqual(result.text, lines("header", block("alpha", "a-body"), "", block("beta", "b-body"), ""));
     });
 
     it("reorders its own sections around an unrelated one left in place", () => {
       const before = lines(block("beta", "b-body"), block("foreign", "x"), block("alpha", "a-body"), "");
-      const result = run(before, [A, B]);
+      const result = run(before, [sectionA, sectionB]);
       // The foreign block does not move; the two managed slots swap contents.
       assert.strictEqual(
         result.text,
@@ -98,7 +100,7 @@ describe("SectionDocument.reconcile", () => {
 
     it("reports Updated carrying both sides", () => {
       const before = lines(block("alpha", "drifted"), "");
-      const outcome = run(before, [A]).outcomes[0];
+      const outcome = run(before, [sectionA]).outcomes[0];
       assert.strictEqual(outcome?._tag, "Updated");
       if (outcome?._tag !== "Updated") {
         return;
@@ -111,7 +113,7 @@ describe("SectionDocument.reconcile", () => {
   describe("outcome ordering", () => {
     it("returns one outcome per declared section, in declared order", () => {
       const before = lines(block("beta", "b-body"), "");
-      const result = run(before, [A, B]);
+      const result = run(before, [sectionA, sectionB]);
       assert.lengthOf(result.outcomes, 2);
       assert.deepStrictEqual(tags(result), ["Created", "Unchanged"]);
     });
@@ -120,7 +122,7 @@ describe("SectionDocument.reconcile", () => {
   describe("text preservation", () => {
     it("leaves every byte outside a managed span untouched", () => {
       const before = lines("# a user comment", "", block("alpha", "old"), "", "trailing prose", "");
-      const result = run(before, [A]);
+      const result = run(before, [sectionA]);
       assert.include(result.text, "# a user comment");
       assert.include(result.text, "trailing prose");
       assert.strictEqual(result.text.indexOf("# a user comment"), before.indexOf("# a user comment"));
@@ -128,19 +130,19 @@ describe("SectionDocument.reconcile", () => {
 
     it("preserves a byte-order mark", () => {
       const before = `﻿${lines("header", block("alpha", "old"), "")}`;
-      assert.isTrue(run(before, [A]).text.startsWith("﻿"));
+      assert.isTrue(run(before, [sectionA]).text.startsWith("﻿"));
     });
 
     it("leaves a file with no trailing newline without one", () => {
       const before = lines("header", block("alpha", "old"));
-      assert.isFalse(run(before, [A]).text.endsWith("\n"));
+      assert.isFalse(run(before, [sectionA]).text.endsWith("\n"));
     });
   });
 
   describe("line endings", () => {
     it("renders into a CRLF document with CRLF markers", () => {
       const before = crlf(lines("header", ""));
-      const result = run(before, [A]);
+      const result = run(before, [sectionA]);
       assert.include(result.text, "\r\n");
       assert.isFalse(/[^\r]\n/.test(result.text), "every LF must be preceded by a CR");
     });
@@ -156,8 +158,8 @@ describe("SectionDocument.reconcile", () => {
     });
 
     it("is idempotent on a CRLF document", () => {
-      const first = run(crlf(lines("header", "")), [A]);
-      const second = run(first.text, [A]);
+      const first = run(crlf(lines("header", "")), [sectionA]);
+      const second = run(first.text, [sectionA]);
       assert.deepStrictEqual(tags(second), ["Unchanged"]);
       assert.isFalse(second.changed);
       assert.strictEqual(second.text, first.text);
@@ -183,14 +185,14 @@ describe("SectionDocument.reconcile", () => {
     });
 
     it("refuses one identity declared twice, rather than picking an intention", () => {
-      const error = runFailure(lines("header", ""), [A, section("alpha", "a different body")]);
+      const error = runFailure(lines("header", ""), [sectionA, section("alpha", "a different body")]);
       assert.strictEqual(error.reason, "duplicateDeclaration");
       assert.strictEqual(error.key, "alpha");
     });
 
     it("refuses the whole batch when one section is unrenderable", () => {
       const hostile = section("beta", "# --- BEGIN beta MANAGED SECTION ---");
-      const error = runFailure(lines("header", ""), [A, hostile]);
+      const error = runFailure(lines("header", ""), [sectionA, hostile]);
       assert.strictEqual(error.key, "beta");
     });
   });
@@ -198,7 +200,7 @@ describe("SectionDocument.reconcile", () => {
 
 describe("reconciliation anchor review regressions", () => {
   it("prefers successors through mixed anchors and preserves foreign spans and text", () => {
-    const declarations = ["first", "alpha", "between1", "between2", "beta", "last1", "last2"].map((key) =>
+    const declarations = A.map(["first", "alpha", "between1", "between2", "beta", "last1", "last2"], (key) =>
       section(key, key)
     );
     const foreign =
@@ -252,10 +254,14 @@ describe("reconciliation anchor review regressions", () => {
   });
 
   it("appends all unanchored declarations in order after exact preserved spans", () => {
-    const declarations = ["one", "two", "three", "four"].map((key) => section(key, key));
+    const declarations = A.map(["one", "two", "three", "four"], (key) => section(key, key));
     const foreign = block("foreign", "  unchanged  ");
     for (const source of ["", lines("header  ", foreign, "footer", "")]) {
-      const expected = declarations.map((value) => block(value.key, value.content)).join("\n\n") + "\n";
+      const expected =
+        A.join(
+          A.map(declarations, (value) => block(value.key, value.content)),
+          "\n\n"
+        ) + "\n";
       const result = run(source, declarations);
       assert.strictEqual(result.text, source === "" ? expected : lines("header  ", foreign, "footer", "", expected));
       assert.deepStrictEqual(tags(result), ["Created", "Created", "Created", "Created"]);
@@ -265,14 +271,20 @@ describe("reconciliation anchor review regressions", () => {
 
   it("validates core contracts with the same schema as public plain outputs", () => {
     const doc = parse(block("alpha", "a-body"));
-    const input = { text: doc.text, placed: doc.sections, declared: [A, B], dialect: doc.dialect, eol: doc.eol };
+    const input = {
+      text: doc.text,
+      placed: doc.sections,
+      declared: [sectionA, sectionB],
+      dialect: doc.dialect,
+      eol: doc.eol,
+    };
     assert.isTrue(S.is(ReconcileInput)(input));
     const result = reconcileCore(ReconcileInput.make(input));
     if (!Result.isSuccess(result)) assert.fail("valid core input must reconcile");
     assert.strictEqual(ReconcileOutput, Reconciliation);
     assert.isTrue(S.is(ReconcileOutput)(result.success));
     assert.strictEqual(Object.getPrototypeOf(result.success), Object.prototype);
-    assert.deepStrictEqual(Object.keys(result.success), ["text", "outcomes", "changed"]);
+    assert.deepStrictEqual(R.keys(result.success), ["text", "outcomes", "changed"]);
     assert.isFalse(S.is(ReconcileOutput)({ ...result.success, outcomes: [{ _tag: "Created" }] }));
   });
 });
@@ -295,12 +307,12 @@ describe("blank-prefix insertion regressions", () => {
       const doc = parse(prefix);
       const eol = doc.eol;
       const separator = prefix === "" || /(?:\r?\n){2}$/.test(prefix) ? "" : prefix.endsWith("\n") ? eol : eol + eol;
-      const rendered = Result.getOrThrow(Dialect.default.render(A, eol));
-      const first = run(prefix, [A]);
+      const rendered = Result.getOrThrow(Dialect.default.render(sectionA, eol));
+      const first = run(prefix, [sectionA]);
       assert.strictEqual(first.text, prefix + separator + rendered + eol);
       assert.isTrue(first.text.startsWith(prefix));
       assert.deepStrictEqual(tags(first), ["Created"]);
-      const second = run(first.text, [A]);
+      const second = run(first.text, [sectionA]);
       assert.strictEqual(second.text, first.text);
       assert.isFalse(second.changed);
       assert.deepStrictEqual(tags(second), ["Unchanged"]);

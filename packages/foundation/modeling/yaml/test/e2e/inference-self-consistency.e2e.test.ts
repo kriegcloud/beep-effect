@@ -8,6 +8,7 @@
 import { StyleEvidence, Yaml, YamlLint } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
 
 const values: ReadonlyArray<unknown> = [
@@ -32,7 +33,7 @@ describe("e2e: strict inference over the stringifier's own emit (#345)", () => {
     // Positive control: the corpus must actually exercise the inferable
     // dimensions — an inference pass that observed nothing would resolve
     // "without conflict" vacuously.
-    const voted = new Set(evidence.votes.map((v) => `${v.rule}.${v.dimension}`));
+    const voted = new Set(A.map(evidence.votes, (v) => `${v.rule}.${v.dimension}`));
     assert.isTrue(voted.has("quoted-strings.quoteType"), "corpus must produce quote-style votes");
     assert.isTrue(voted.has("indentation.spaces"), "corpus must produce indent-unit votes");
     assert.isTrue(voted.has("indentation.indentSequences"), "corpus must produce sequence-policy votes");

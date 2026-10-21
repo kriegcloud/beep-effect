@@ -6,6 +6,7 @@ import { GlobPattern, GlobPatternError, GlobPatternOptions } from "@beep/glob";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -285,11 +286,11 @@ describe("GlobPattern oracle (public seam)", () => {
   const literalSeg = S.Literals(["a", "b", "abc", "x-y", "a.b+c", ".hidden", ""]);
   const magicSeg = S.Literals(["*", "?", "**", "*.js", "a*", "+(a|b)", "[abc]", "{a,b}", "!x"]);
   const patternArb = Arbitrary.schema(S.Array(S.Union([literalSeg, magicSeg])).check(S.isBetweenLength(1, 4))).pipe(
-    Arbitrary.map((xs) => xs.join("/"))
+    Arbitrary.map((xs) => A.join(xs, "/"))
   );
   const candidateArb = Arbitrary.schema(
     S.Array(S.Literals(["a", "b", "abc", ".hidden", "x", ""])).check(S.isBetweenLength(1, 5))
-  ).pipe(Arbitrary.map((xs) => xs.join("/")));
+  ).pipe(Arbitrary.map((xs) => A.join(xs, "/")));
 
   it.effect.prop(
     "agrees with upstream through compile and matches",

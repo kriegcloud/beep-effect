@@ -19,6 +19,7 @@
 // symlink), memfs the one the conflict concerns.
 
 import { assert, describe, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -615,7 +616,7 @@ export const errnoCases: {
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const root = yield* fs.makeTempDirectoryScoped({ prefix: "effect-filesystem-errno-" });
-          const p = (...segments: ReadonlyArray<string>) => [root, ...segments].join("/");
+          const p = (...segments: ReadonlyArray<string>) => A.join([root, ...segments], "/");
           yield* seedTree(fs, p);
           const exit = yield* testCase.run(fs, p).pipe(Effect.exit);
           assertOutcome(exit, resolveExpectation(testCase.expect, implementation));

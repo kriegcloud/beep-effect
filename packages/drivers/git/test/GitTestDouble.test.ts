@@ -1,6 +1,7 @@
 import { Git, LsTreeEntry, NotStubbedError } from "@beep/git/Git";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -88,9 +89,9 @@ describe("Git.makeTest", () => {
       const exit = yield* Effect.exit(double.status(cwd));
       assertExitFailure(exit, exit.pipe(Exit.getCause, O.getOrThrow));
       if (Exit.isFailure(exit)) {
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason));
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason));
         assert.isTrue(Cause.hasDies(exit.cause));
-        const die = exit.cause.reasons.find(Cause.isDieReason);
+        const die = O.getOrUndefined(A.findFirst(exit.cause.reasons, Cause.isDieReason));
         assert.isDefined(die);
         const defect = die?.defect;
         assert.instanceOf(defect, NotStubbedError);
@@ -218,7 +219,7 @@ describe("Git.layerTest", () => {
         assertSome(shown, "{}");
         const entries = yield* git.lsTree(cwd, "HEAD");
         assert.deepStrictEqual(
-          entries.map((entry) => entry.path),
+          A.map(entries, (entry) => entry.path),
           ["package.json"]
         );
       })

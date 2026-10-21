@@ -4,8 +4,10 @@ import { ATTRIBUTE_NAME_PATTERN, AttributeName, AttributeValue } from "@beep/man
 import { Eol } from "@beep/managed-section/SectionDialect";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { Immer } from "immer";
@@ -77,7 +79,8 @@ describe("SectionDialect", () => {
       const text = expectSuccess(SectionDialect.default.render(hashId.section("echo hi")));
       assert.strictEqual(
         text,
-        ["# --- BEGIN example-tool MANAGED SECTION ---", "echo hi", "# --- END example-tool MANAGED SECTION ---"].join(
+        A.join(
+          ["# --- BEGIN example-tool MANAGED SECTION ---", "echo hi", "# --- END example-tool MANAGED SECTION ---"],
           "\n"
         )
       );
@@ -87,7 +90,7 @@ describe("SectionDialect", () => {
       const text = expectSuccess(SectionDialect.default.render(hashId.section("")));
       assert.strictEqual(
         text,
-        ["# --- BEGIN example-tool MANAGED SECTION ---", "", "# --- END example-tool MANAGED SECTION ---"].join("\n")
+        A.join(["# --- BEGIN example-tool MANAGED SECTION ---", "", "# --- END example-tool MANAGED SECTION ---"], "\n")
       );
     });
 
@@ -168,7 +171,8 @@ describe("SectionDialect review regressions", () => {
       const text = expectSuccess(SectionDialect.default.render(section, eol));
       assert.strictEqual(
         text,
-        [SectionDialect.default.beginMarker(hashId), "a", "b", "c", "", SectionDialect.default.endMarker(hashId)].join(
+        A.join(
+          [SectionDialect.default.beginMarker(hashId), "a", "b", "c", "", SectionDialect.default.endMarker(hashId)],
           eol
         )
       );
@@ -213,7 +217,7 @@ describe("SectionDialect review regressions", () => {
       dialect.matchers();
       const encoded = yield* S.encodeEffect(SectionDialect)(dialect);
       assert.deepStrictEqual(encoded, { phrase: "MANAGED SECTION", styles: [{ prefix: "#" }] });
-      assert.deepStrictEqual(Object.keys(dialect), ["phrase", "styles"]);
+      assert.deepStrictEqual(R.keys(dialect), ["phrase", "styles"]);
     })
   );
 
@@ -414,7 +418,7 @@ it("keeps marker-shaped Unicode attribute text inside its owning marker span", (
   const markers = [...SectionDialect.default.markerMatches(rendered)];
   assert.strictEqual(markers.length, 2);
   assert.deepStrictEqual(
-    markers.map(([, match]) => [match[1], match[2]]),
+    A.map(markers, ([, match]) => [match[1], match[2]]),
     [
       ["BEGIN", hashId.key],
       ["END", hashId.key],

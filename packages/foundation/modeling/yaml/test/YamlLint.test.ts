@@ -10,6 +10,7 @@ import { LintLine } from "@beep/yaml/YamlLintRule";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
@@ -23,9 +24,9 @@ const todoRule = YamlRule.make({
   check: dual(
     2,
     (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> =>
-      ctx.tokens
-        .filter((t) => t.kind === "scalar" && t.text === "TODO")
-        .map((t) =>
+      A.map(
+        A.filter(ctx.tokens, (t) => t.kind === "scalar" && t.text === "TODO"),
+        (t) =>
           YamlLintDiagnostic.make({
             rule: "no-todo",
             severity: "error",
@@ -36,7 +37,7 @@ const todoRule = YamlRule.make({
             character: t.character,
             fix: YamlEdit.make({ offset: t.offset, length: t.length, content: "DONE" }),
           })
-        )
+      )
   ),
 });
 
@@ -183,13 +184,13 @@ describe("YamlLint.run", () => {
       [...YamlLint.builtins, todoRule],
       YamlLintConfig.make({ rules: { "no-todo": "error" } })
     );
-    const offsets = found.map((d) => d.offset);
+    const offsets = A.map(found, (d) => d.offset);
     assert.deepStrictEqual(
       offsets,
       [...offsets].sort((x, y) => x - y)
     );
-    assert.isTrue(found.some((d) => d.rule === "no-todo"));
-    assert.isTrue(found.some((d) => d.rule === "parse-validity"));
+    assert.isTrue(A.some(found, (d) => d.rule === "no-todo"));
+    assert.isTrue(A.some(found, (d) => d.rule === "parse-validity"));
   });
 });
 
@@ -220,9 +221,9 @@ describe("YamlLint.fix", () => {
       check: dual(
         2,
         (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> =>
-          ctx.tokens
-            .filter((t) => t.kind === "scalar" && t.text === "TODO")
-            .map((t) =>
+          A.map(
+            A.filter(ctx.tokens, (t) => t.kind === "scalar" && t.text === "TODO"),
+            (t) =>
               YamlLintDiagnostic.make({
                 rule: "rival",
                 severity: "error",
@@ -233,7 +234,7 @@ describe("YamlLint.fix", () => {
                 character: t.character,
                 fix: YamlEdit.make({ offset: t.offset, length: t.length, content: "RIVAL" }),
               })
-            )
+          )
       ),
     });
     const result = YamlLint.fix(

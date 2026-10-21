@@ -1,18 +1,26 @@
-// The structured diagnostic concept: YamlDiagnostic (carried by both error
-// payloads and YamlDocument's warnings-as-data arrays), the staged error-code
-// literal unions, and the single fatal-code predicate.
-//
-// Cycle firewall: the internal engine emits raw `{ code, message, offset,
-// length }` records; this module materializes them into `YamlDiagnostic`,
-// deriving `line`/`character` from `offset` against the source text. The
-// dependency edge runs public modules → engine only.
-//
-// The five-field positional core (`code`/`offset`/`length`/`line`/`character`)
-// is structurally identical to `JsoncParseErrorDetail` per the jsonc/yaml
-// parity convention; `message` is yaml's additive extra.
+/**
+ * The structured diagnostic concept: YamlDiagnostic (carried by both error
+ * payloads and YamlDocument's warnings-as-data arrays), the staged error-code
+ * literal unions, and the single fatal-code predicate.
+ *
+ * **Details**
+ *
+ * Cycle firewall: the internal engine emits raw
+ * `{ code, message, offset, length }` records; this module materializes them into `YamlDiagnostic`,
+ * deriving `line`/`character` from `offset` against the source text. The
+ * dependency edge runs public modules → engine only.
+ *
+ * The five-field positional core (`code`/`offset`/`length`/`line`/`character`)
+ * is structurally identical to `JsoncParseErrorDetail` per the jsonc/yaml
+ * parity convention; `message` is yaml's additive extra.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as Text from "@beep/utils/Text";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -349,7 +357,8 @@ export class YamlDiagnostic extends S.Opaque<YamlDiagnostic, { readonly brand: u
       text: string,
       index?: ReturnType<typeof YamlDiagnostic.positionIndex>
     ): YamlDiagnostic => {
-      const { line, character } = index === undefined ? lineChar(text, raw.offset) : index(raw.offset);
+      const { line, character } =
+        index === undefined ? Text.lineCharacterAt(text, raw.offset, lineGrammar) : index(raw.offset);
       return YamlDiagnostic.make({
         code: raw.code,
         message: raw.message,
@@ -444,32 +453,8 @@ export class YamlDiagnostic extends S.Opaque<YamlDiagnostic, { readonly brand: u
   );
 }
 
-/** Width of the line break starting at `i` (CRLF counts as one break of width 2), or 0. */
-const lineBreakWidth = (text: string, i: number, limit: number): number => {
-  const ch = text.charCodeAt(i);
-  if (ch === 0x0a || ch === 0x2028 || ch === 0x2029) return 1;
-  if (ch !== 0x0d) return 0;
-  return i + 1 < limit && text.charCodeAt(i + 1) === 0x0a ? 2 : 1;
-};
-
-/** Preserve the prefix-only scan for standalone diagnostic conversion. */
-const lineChar: {
-  (text: string, offset: number): { line: number; character: number };
-  (offset: number): (text: string) => { line: number; character: number };
-} = dual(2, (text: string, offset: number): { line: number; character: number } => {
-  let line = 0;
-  let lineStart = 0;
-  const limit = Math.min(offset, text.length);
-  let i = 0;
-  while (i < limit) {
-    const width = lineBreakWidth(text, i, limit);
-    if (width === 0) {
-      i++;
-      continue;
-    }
-    line++;
-    i += width;
-    lineStart = i;
-  }
-  return { line, character: offset - lineStart };
-});
+/**
+ * YAML newline grammar: LF, CR, CRLF, LS and PS, with the CRLF pair check
+ * kept inside the scanned prefix for standalone diagnostic conversion.
+ */
+const lineGrammar = { unicodeSeparators: true, crlfLookahead: "prefix" } as const;

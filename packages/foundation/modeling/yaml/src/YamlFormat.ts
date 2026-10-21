@@ -1,18 +1,25 @@
-// The formatting/modification concept: computing non-mutating edits that
-// reformat a document or change a value at a path, via the library's
-// parse → transform AST → stringify → diff pipeline.
-//
-// Cycle firewall: this module drives the internal engine directly
-// (`composeFirstDocumentCounted`, `stringifyDocument`) exactly as `Yaml.ts`
-// does; nothing imports `YamlFormat.ts` back.
-//
-// `format` builds its output AST from composer-bounded parsed nodes.
-// `modify`'s `jsValueToNode` rejects circular references and excessive
-// replacement depth while lowering the caller's value. The document and
-// replacement can still exceed the depth cap together, so `modify` also
-// translates `StringifyDepthExceeded` from its final stringify into a typed
-// `NestingDepthExceeded` diagnostic. Unexpected stringifier failures,
-// including `StringifyFailure`, remain defects.
+/**
+ * The formatting/modification concept: computing non-mutating edits that
+ * reformat a document or change a value at a path, via the library's
+ * parse → transform AST → stringify → diff pipeline.
+ *
+ * **Details**
+ *
+ * Cycle firewall: this module drives the internal engine directly
+ * (`composeFirstDocumentCounted`, `stringifyDocument`) exactly as `Yaml.ts`
+ * does; nothing imports `YamlFormat.ts` back.
+ *
+ * `format` builds its output AST from composer-bounded parsed nodes.
+ * `modify`'s `jsValueToNode` rejects circular references and excessive
+ * replacement depth while lowering the caller's value. The document and
+ * replacement can still exceed the depth cap together, so `modify` also
+ * translates `StringifyDepthExceeded` from its final stringify into a typed
+ * `NestingDepthExceeded` diagnostic. Unexpected stringifier failures,
+ * including `StringifyFailure`, remain defects.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

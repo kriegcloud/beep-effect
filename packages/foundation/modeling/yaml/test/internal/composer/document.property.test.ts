@@ -12,6 +12,7 @@ import { stringifyDocument, stringifyValue } from "@beep/yaml/internal/stringifi
 import { YamlMap } from "@beep/yaml/YamlNode";
 import { describe, expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { RawYamlDocument } from "@beep/yaml/internal/raw-document";
@@ -84,18 +85,29 @@ describe("document composer property floor", () => {
     [Arbitrary.schema(S.Array(Sample).check(S.isMinLength(1)))],
     ([values]) =>
       Effect.sync(() => {
-        const text = values.map((value) => `# header\n---\n${stringifyValue(value)}...\n# tail\n`).join("");
+        const text = A.join(
+          A.map(values, (value) => `# header\n---\n${stringifyValue(value)}...\n# tail\n`),
+          ""
+        );
         const parsed = composeAllDocuments(text);
         expect(parsed.streamErrors).toEqual([]);
-        expect(parsed.documents.map((document) => document.contents?.toValue())).toEqual(values);
-        const formatted = parsed.documents.map((document) => stringifyDocument(document)).join("");
+        expect(A.map(parsed.documents, (document) => document.contents?.toValue())).toEqual(values);
+        const formatted = A.join(
+          A.map(parsed.documents, (document) => stringifyDocument(document)),
+          ""
+        );
         const reparsed = composeAllDocuments(formatted);
         expect(reparsed.streamErrors).toEqual([]);
-        expect(reparsed.documents.map((document) => document.contents?.toValue())).toEqual(values);
-        expect(reparsed.documents.map((document) => [document.commentBefore, document.comment])).toEqual(
-          parsed.documents.map((document) => [document.commentBefore, document.comment])
+        expect(A.map(reparsed.documents, (document) => document.contents?.toValue())).toEqual(values);
+        expect(A.map(reparsed.documents, (document) => [document.commentBefore, document.comment])).toEqual(
+          A.map(parsed.documents, (document) => [document.commentBefore, document.comment])
         );
-        expect(reparsed.documents.map((document) => stringifyDocument(document)).join("")).toBe(formatted);
+        expect(
+          A.join(
+            A.map(reparsed.documents, (document) => stringifyDocument(document)),
+            ""
+          )
+        ).toBe(formatted);
       }),
     runs
   );

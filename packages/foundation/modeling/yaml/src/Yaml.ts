@@ -1,20 +1,28 @@
-// The `Yaml` facade: value-level parsing, stringification, comment stripping,
-// semantic equality and the flagship schema factories, plus the parse and
-// stringify options and errors they raise.
-//
-// `Yaml` is a namespace of statics over the internal engine and the schema
-// layer — not itself a schema class. Per the package Effect-wrapping policy,
-// `parse`/`parseAll`/`stringify` and schema decoding carry real typed error
-// channels; `stripComments`/`equals`/`equalsValue` are pure total functions.
-//
-// Cycle firewall: the internal engine returns raw `{ code, message, offset,
-// length }` diagnostic records and plain document records; this module
-// materializes YamlDiagnostic instances (deriving `line`/`character` from
-// `offset`) and constructs the aggregate YamlParseError / YamlStringifyError.
-// The dependency edge runs facade → engine only, so `noImportCycles` stays
-// satisfied.
+/**
+ * The `Yaml` facade: value-level parsing, stringification, comment stripping,
+ * semantic equality and the flagship schema factories, plus the parse and
+ * stringify options and errors they raise.
+ *
+ * **Details**
+ *
+ * `Yaml` is a namespace of statics over the internal engine and the schema
+ * layer — not itself a schema class. Per the package Effect-wrapping policy,
+ * `parse`/`parseAll`/`stringify` and schema decoding carry real typed error
+ * channels; `stripComments`/`equals`/`equalsValue` are pure total functions.
+ *
+ * Cycle firewall: the internal engine returns raw
+ * `{ code, message, offset, length }` diagnostic records and plain document records; this module
+ * materializes YamlDiagnostic instances (deriving `line`/`character` from
+ * `offset`) and constructs the aggregate YamlParseError / YamlStringifyError.
+ * The dependency edge runs facade → engine only, so `noImportCycles` stays
+ * satisfied.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
+import { makeTextDecodeTo } from "@beep/utils/Schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
@@ -40,6 +48,7 @@ import {
   QuoteStyle,
   ScalarStyle,
 } from "./YamlNode.ts";
+import type { TextDecodeTo } from "@beep/utils/Schema";
 import type { RawDiagnostic } from "./internal/diagnostics.ts";
 import type { RawYamlDocument } from "./internal/raw-document.ts";
 import type { YamlNode } from "./YamlNode.ts";
@@ -1210,7 +1219,7 @@ export class Yaml {
             Yaml.parseAll(input, options).pipe(
               Effect.mapError((error) => new SchemaIssue.InvalidValue({ message: error.message }, input))
             ),
-          encode: Effect.fn("encode")(function* (values: ReadonlyArray<unknown>) {
+          encode: Effect.fn("Yaml.encodeAll")(function* (values: ReadonlyArray<unknown>) {
             if (values.length === 0) return "";
             const parts: Array<string> = [];
             for (let index = 0; index < values.length; index++) {
@@ -1255,21 +1264,7 @@ export class Yaml {
    * @category schemas
    * @since 0.0.0
    */
-  static readonly schema: {
-    (
-      options?: YamlParseOptions
-    ): <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>) => S.Codec<T, string, RD, RE>;
-    <T, E, RD = never, RE = never>(
-      target: S.Codec<T, E, RD, RE>,
-      options?: YamlParseOptions
-    ): S.Codec<T, string, RD, RE>;
-  } = dual(
-    (args) => S.isSchema(args[0]),
-    <T, E, RD = never, RE = never>(
-      target: S.Codec<T, E, RD, RE>,
-      options?: YamlParseOptions
-    ): S.Codec<T, string, RD, RE> => Yaml.fromString(options).pipe(S.decodeTo(target))
-  );
+  static readonly schema: TextDecodeTo<YamlParseOptions> = makeTextDecodeTo(Yaml.fromString);
 
   /**
    * Bind a target schema to the YAML codec once, yielding the composed

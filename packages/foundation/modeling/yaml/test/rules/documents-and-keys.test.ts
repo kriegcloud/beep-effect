@@ -4,6 +4,7 @@
 
 import { Yaml, YamlLint, YamlLintConfig } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
 import * as YAML from "yaml";
 import { builtin, testRule } from "./harness.ts";
@@ -88,20 +89,20 @@ describe("document-start semantic fidelity", () => {
       const after = YAML.parseAllDocuments(fixed);
       assert.strictEqual(after.length, 2);
       assert.deepStrictEqual(
-        before.map((document) => document.errors),
+        A.map(before, (document) => document.errors),
         [[], []]
       );
       assert.deepStrictEqual(
-        after.map((document) => document.errors),
+        A.map(after, (document) => document.errors),
         [[], []]
       );
       assert.deepStrictEqual(
-        after.map((document) => document.toJS()),
+        A.map(after, (document) => document.toJS()),
         [null, { a: 1 }]
       );
       assert.deepStrictEqual(
-        after.map((document) => document.toJS()),
-        before.map((document) => document.toJS())
+        A.map(after, (document) => document.toJS()),
+        A.map(before, (document) => document.toJS())
       );
     }
   });
@@ -117,7 +118,7 @@ describe("document-start semantic fidelity", () => {
     const fixed = Result.getOrThrow(YamlLint.fix(input, [rule], config));
     assert.strictEqual(fixed, "...\n---\na: 1\n");
     assert.deepStrictEqual(
-      YAML.parseAllDocuments(fixed).map((document) => document.toJS()),
+      A.map(YAML.parseAllDocuments(fixed), (document) => document.toJS()),
       [null, { a: 1 }]
     );
   });

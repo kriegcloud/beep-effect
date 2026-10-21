@@ -7,6 +7,7 @@ import { Yaml } from "@beep/yaml/Yaml";
 import { YamlFormat } from "@beep/yaml/YamlFormat";
 import { describe, expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -53,14 +54,14 @@ describe("scalar parser properties", () => {
     [Arbitrary.schema(S.Array(S.Int).check(S.isMinLength(1), S.isMaxLength(12)))],
     ([values]) =>
       Effect.sync(() => {
-        const words = values.map((value) => `word${value}`);
-        const source = words.join("\n  ");
-        const expected = words.join(" ");
+        const words = A.map(values, (value) => `word${value}`);
+        const source = A.join(words, "\n  ");
+        const expected = A.join(words, " ");
         expect(C.foldFlowLines(source)).toBe(expected);
         expect(C.foldFlowLines(C.foldFlowLines(source))).toBe(expected);
         expect(C.getScalarValue(node(`'${source}'`))).toBe(expected);
         expect(C.getScalarValue(node(renderDoubleQuoted(C.getScalarValue(node(`'${source}'`)))))).toBe(expected);
-        const children = words.map(node);
+        const children = A.map(words, node);
         const key = C.collectMultilineKey(children, 0).value;
         const plain = C.collectMultilinePlainScalar(children, 0).value;
         expect(key).toBe(expected);
@@ -92,13 +93,16 @@ describe("scalar parser properties", () => {
     [Arbitrary.schema(S.Array(S.Int).check(S.isMinLength(1), S.isMaxLength(12)))],
     ([values]) =>
       Effect.gen(function* () {
-        const words = values.map((value) => `word${value}`);
+        const words = A.map(values, (value) => `word${value}`);
         for (const indicator of ["|", ">"] as const) {
-          const source = `${indicator}- # header\n${words.map((word) => `  ${word}`).join("\n")}\n`;
+          const source = `${indicator}- # header\n${A.join(
+            A.map(words, (word) => `  ${word}`),
+            "\n"
+          )}\n`;
           const cst: CstNode = { type: "block-scalar", source, offset: 0, length: source.length };
           const state = createState(source, { composeFlowMap, composeFlowSeq });
           const composed = C.makeScalar(cst, state);
-          const expected = words.join(indicator === "|" ? "\n" : " ");
+          const expected = A.join(words, indicator === "|" ? "\n" : " ");
           expect(C.getScalarValue(cst, source)).toBe(expected);
           expect(composed.value).toBe(expected);
           expect(composed.comment).toBe(" header");

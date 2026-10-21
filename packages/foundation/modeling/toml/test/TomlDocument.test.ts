@@ -10,6 +10,7 @@ import { TomlDocument } from "@beep/toml/TomlDocument";
 import { TomlInteger, TomlKey, TomlKeyValue } from "@beep/toml/TomlNode";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { readValid, validCases } from "./corpus.ts";
@@ -18,24 +19,27 @@ import { expectFailure } from "./expectFailure.ts";
 // Count recorded in the fixture README — guards against a silently-empty walk.
 const README_VALID_COUNT = 214;
 
-const MIXED = [
-  "# top-level comment",
-  "",
-  'title = "example"',
-  "[owner]",
-  'name = "Tom"   # trailing comment',
-  "dob = 1979-05-27T07:32:00-08:00",
-  "",
-  "[servers.alpha]",
-  'ip = "10.0.0.1"',
-  "ports = [ 8000, 8001,",
-  "          8002 ]",
-  "",
-  "[[products]]",
-  'name = "Hammer"',
-  "point = { x = 1, y = 2 }",
-  "",
-].join("\n");
+const MIXED = A.join(
+  [
+    "# top-level comment",
+    "",
+    'title = "example"',
+    "[owner]",
+    'name = "Tom"   # trailing comment',
+    "dob = 1979-05-27T07:32:00-08:00",
+    "",
+    "[servers.alpha]",
+    'ip = "10.0.0.1"',
+    "ports = [ 8000, 8001,",
+    "          8002 ]",
+    "",
+    "[[products]]",
+    'name = "Hammer"',
+    "point = { x = 1, y = 2 }",
+    "",
+  ],
+  "\n"
+);
 
 describe("TomlDocument", () => {
   describe("parse", () => {

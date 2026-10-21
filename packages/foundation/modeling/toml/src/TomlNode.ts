@@ -1,11 +1,18 @@
-// The lossless linear CST: a TOML document is a flat list of expressions
-// (key-values, table headers, array-of-table headers and trivia runs) whose
-// source spans tile the document exactly — concatenating every expression's
-// source slice in order reproduces the input byte-for-byte. Value nodes
-// recurse only through arrays and inline tables, handled with the
-// `Schema.suspend` idiom (the `packages/yaml/src/YamlNode.ts` precedent).
-//
-// Leaf module: imports only `effect` and `./TomlDateTime.js`.
+/**
+ * The lossless linear CST: a TOML document is a flat list of expressions
+ * (key-values, table headers, array-of-table headers and trivia runs) whose
+ * source spans tile the document exactly — concatenating every expression's
+ * source slice in order reproduces the input byte-for-byte. Value nodes
+ * recurse only through arrays and inline tables, handled with the
+ * `Schema.suspend` idiom (the `packages/foundation/modeling/yaml/src/YamlNode.ts` precedent).
+ *
+ * **Details**
+ *
+ * Leaf module: imports only `effect` and `./TomlDateTime.ts`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

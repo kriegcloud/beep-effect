@@ -24,8 +24,8 @@ describe("indexed diagnostic batches", () => {
         const diagnostics = YamlDiagnostic.fromRawBatch(records, text, index);
         assert.strictEqual(diagnostics.length, count - 1);
         assert.deepStrictEqual(
-          diagnostics.map((d) => [d.offset, d.line, d.character]),
-          records.map((raw, i) => [raw.offset, i + 1, 0])
+          A.map(diagnostics, (d) => [d.offset, d.line, d.character]),
+          A.map(records, (raw, i) => [raw.offset, i + 1, 0])
         );
         assert.strictEqual(reads.mock.calls.length, text.length);
         YamlDiagnostic.fromRawBatch(records, text, index);
@@ -58,7 +58,7 @@ describe("indexed diagnostic batches", () => {
         indexes.mockClear();
         const documents = yield* YamlDocument.parseAll(`${text}---\n${text}`);
         assert.deepStrictEqual(
-          documents.map((doc) => doc.warnings.length),
+          A.map(documents, (doc) => doc.warnings.length),
           [127, 127]
         );
         assert.strictEqual(indexes.mock.calls.length, 1);
@@ -66,7 +66,7 @@ describe("indexed diagnostic batches", () => {
         const stream = YamlVisitor.visit(text);
         assert.strictEqual(indexes.mock.calls.length, 0);
         const events = yield* Stream.runCollect(stream);
-        assert.strictEqual(events.filter(YamlVisitorEvent.$is("Error")).length, 127);
+        assert.strictEqual(A.filter(events, YamlVisitorEvent.$is("Error")).length, 127);
         assert.strictEqual(indexes.mock.calls.length, 1);
         indexes.mockClear();
         const malformed = "a: *missing\n".repeat(128);
@@ -87,7 +87,7 @@ describe("indexed diagnostic batches", () => {
       );
       const diagnostics = YamlDiagnostic.fromRawBatch(records, text);
       assert.deepStrictEqual(
-        diagnostics.map((d) => [d.offset, d.line, d.character]),
+        A.map(diagnostics, (d) => [d.offset, d.line, d.character]),
         [
           [11, 5, 0],
           [2, 1, 0],
@@ -100,7 +100,7 @@ describe("indexed diagnostic batches", () => {
           [99, 5, 88],
         ]
       );
-      assert.deepStrictEqual(diagnostics, records.map(YamlDiagnostic.fromRaw(text)));
+      assert.deepStrictEqual(diagnostics, A.map(records, YamlDiagnostic.fromRaw(text)));
       const index = YamlDiagnostic.positionIndex(text);
       for (const offset of [-1, 0.5, 1.5, 2.5, 3.5, 99]) {
         const raw = { code: "UnexpectedToken", message: "fractional position", offset, length: 0 } as const;

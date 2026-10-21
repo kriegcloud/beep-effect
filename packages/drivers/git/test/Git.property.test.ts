@@ -2,6 +2,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import * as G from "@beep/git/Git";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -85,15 +86,15 @@ const atom = (text: string): boolean =>
 const nulStrings = S.String.pipe(
   S.Array,
   Arbitrary.schema,
-  Arbitrary.filter((values) => values.every((text) => noNul(text) && text.length > 0))
+  Arbitrary.filter((values) => A.every(values, (text) => noNul(text) && text.length > 0))
 );
 const lines = S.String.pipe(
   S.Array,
   Arbitrary.schema,
-  Arbitrary.filter((values) => values.every((text) => lineField(text) && text.length > 0))
+  Arbitrary.filter((values) => A.every(values, (text) => lineField(text) && text.length > 0))
 );
-const nulJoin = (values: ReadonlyArray<string>): string => (values.length === 0 ? "" : `${values.join("\0")}\0`);
-const lineJoin = (values: ReadonlyArray<string>): string => (values.length === 0 ? "" : `${values.join("\n")}\n`);
+const nulJoin = (values: ReadonlyArray<string>): string => (values.length === 0 ? "" : `${A.join(values, "\0")}\0`);
+const lineJoin = (values: ReadonlyArray<string>): string => (values.length === 0 ? "" : `${A.join(values, "\n")}\n`);
 
 describe("Git exported schema property floor", () => {
   roundTrips("GitCommandError", G.GitCommandError);
@@ -127,7 +128,7 @@ describe("Git parser and formatter property floor", () => {
     S.String.pipe(
       S.Array,
       Arbitrary.schema,
-      Arbitrary.filter((values) => values.every(noNul))
+      Arbitrary.filter((values) => A.every(values, noNul))
     ),
     nulJoin,
     (git) => git.configGetAll(cwd, "a.b")
@@ -140,9 +141,11 @@ describe("Git parser and formatter property floor", () => {
     "lsTree preserves raw path bytes",
     trees,
     Arbitrary.schema(trees).pipe(
-      Arbitrary.filter((entries) => entries.every((entry) => atom(entry.mode) && atom(entry.oid) && noNul(entry.path)))
+      Arbitrary.filter((entries) =>
+        A.every(entries, (entry) => atom(entry.mode) && atom(entry.oid) && noNul(entry.path))
+      )
     ),
-    (entries) => nulJoin(entries.map((entry) => `${entry.mode} ${entry.type} ${entry.oid}\t${entry.path}`)),
+    (entries) => nulJoin(A.map(entries, (entry) => `${entry.mode} ${entry.type} ${entry.oid}\t${entry.path}`)),
     (git) => git.lsTree(cwd, "HEAD")
   );
 
@@ -152,12 +155,13 @@ describe("Git parser and formatter property floor", () => {
     files,
     Arbitrary.schema(files).pipe(
       Arbitrary.filter((entries) =>
-        entries.every(
+        A.every(
+          entries,
           (entry) => atom(entry.mode) && atom(entry.oid) && noNul(entry.path) && Object.is(entry.stage, -0) === false
         )
       )
     ),
-    (entries) => nulJoin(entries.map((entry) => `${entry.mode} ${entry.oid} ${entry.stage}\t${entry.path}`)),
+    (entries) => nulJoin(A.map(entries, (entry) => `${entry.mode} ${entry.oid} ${entry.stage}\t${entry.path}`)),
     (git) => git.lsFiles(cwd)
   );
 
@@ -178,7 +182,8 @@ describe("Git parser and formatter property floor", () => {
     names,
     Arbitrary.schema(names).pipe(
       Arbitrary.filter((entries) =>
-        entries.every(
+        A.every(
+          entries,
           (entry) =>
             noNul(entry.path) &&
             (entry.status === "renamed" || entry.status === "copied"
@@ -188,11 +193,13 @@ describe("Git parser and formatter property floor", () => {
       )
     ),
     (entries) =>
-      entries
-        .map(
+      A.join(
+        A.map(
+          entries,
           (entry) => `${codes[entry.status]}\0${entry.oldPath === undefined ? "" : `${entry.oldPath}\0`}${entry.path}\0`
-        )
-        .join(""),
+        ),
+        ""
+      ),
     (git) => git.nameStatus(cwd, { base: "HEAD" })
   );
 
@@ -204,7 +211,8 @@ describe("Git parser and formatter property floor", () => {
     status,
     Arbitrary.schema(status).pipe(
       Arbitrary.filter((entries) =>
-        entries.every(
+        A.every(
+          entries,
           (entry) =>
             noNul(entry.path) &&
             (rename(entry) ? entry.origPath !== undefined && noNul(entry.origPath) : entry.origPath === undefined)
@@ -212,11 +220,13 @@ describe("Git parser and formatter property floor", () => {
       )
     ),
     (entries) =>
-      entries
-        .map(
+      A.join(
+        A.map(
+          entries,
           (entry) => `${entry.x}${entry.y} ${entry.path}\0${entry.origPath === undefined ? "" : `${entry.origPath}\0`}`
-        )
-        .join(""),
+        ),
+        ""
+      ),
     (git) => git.status(cwd)
   );
 
@@ -234,22 +244,25 @@ describe("Git parser and formatter property floor", () => {
     log,
     Arbitrary.schema(log).pipe(
       Arbitrary.filter((entries) =>
-        entries.every(
+        A.every(
+          entries,
           (entry) =>
             noNul(entry.sha) &&
             noNul(entry.authorName) &&
             noNul(entry.authorEmail) &&
-            entry.paths.every((path) => noNul(path) && path.length > 0)
+            A.every(entry.paths, (path) => noNul(path) && path.length > 0)
         )
       )
     ),
     (entries) =>
-      entries
-        .map(
+      A.join(
+        A.map(
+          entries,
           (entry) =>
-            `\0${entry.sha}\0${DateTime.formatIso(entry.authoredAt)}\0${DateTime.formatIso(entry.committedAt)}\0${entry.authorName}\0${entry.authorEmail}\0${entry.paths.length === 0 ? "" : `\n${entry.paths.join("\0")}\0`}`
-        )
-        .join(""),
+            `\0${entry.sha}\0${DateTime.formatIso(entry.authoredAt)}\0${DateTime.formatIso(entry.committedAt)}\0${entry.authorName}\0${entry.authorEmail}\0${entry.paths.length === 0 ? "" : `\n${A.join(entry.paths, "\0")}\0`}`
+        ),
+        ""
+      ),
     (git) => git.log(cwd)
   );
 
@@ -259,10 +272,10 @@ describe("Git parser and formatter property floor", () => {
     remote,
     Arbitrary.schema(remote).pipe(
       Arbitrary.filter((entries) =>
-        entries.every((entry) => lineField(entry.sha) && entry.sha.includes("\t") === false && lineField(entry.ref))
+        A.every(entries, (entry) => lineField(entry.sha) && entry.sha.includes("\t") === false && lineField(entry.ref))
       )
     ),
-    (entries) => lineJoin(entries.map((entry) => `${entry.sha}\t${entry.ref}`)),
+    (entries) => lineJoin(A.map(entries, (entry) => `${entry.sha}\t${entry.ref}`)),
     (git) => git.lsRemote(cwd, "origin")
   );
 
@@ -272,7 +285,8 @@ describe("Git parser and formatter property floor", () => {
     stashes,
     Arbitrary.schema(stashes).pipe(
       Arbitrary.filter((entries) =>
-        entries.every(
+        A.every(
+          entries,
           (entry) =>
             noNul(entry.ref) &&
             entry.ref.includes("\u001f") === false &&
@@ -282,7 +296,7 @@ describe("Git parser and formatter property floor", () => {
         )
       )
     ),
-    (entries) => nulJoin(entries.map((entry) => `${entry.ref}\u001f${entry.sha}\u001f${entry.message}`)),
+    (entries) => nulJoin(A.map(entries, (entry) => `${entry.ref}\u001f${entry.sha}\u001f${entry.message}`)),
     (git) => git.stashList(cwd)
   );
 
@@ -291,9 +305,9 @@ describe("Git parser and formatter property floor", () => {
     "branchList",
     branches,
     Arbitrary.schema(branches).pipe(
-      Arbitrary.filter((entries) => entries.every((entry) => lineField(entry.name) && lineField(entry.sha)))
+      Arbitrary.filter((entries) => A.every(entries, (entry) => lineField(entry.name) && lineField(entry.sha)))
     ),
-    (entries) => lineJoin(entries.map((entry) => `${entry.current ? "*" : " "}\0${entry.name}\0${entry.sha}`)),
+    (entries) => lineJoin(A.map(entries, (entry) => `${entry.current ? "*" : " "}\0${entry.name}\0${entry.sha}`)),
     (git) => git.branchList(cwd)
   );
 
@@ -302,9 +316,9 @@ describe("Git parser and formatter property floor", () => {
     "forEachRef",
     refs,
     Arbitrary.schema(refs).pipe(
-      Arbitrary.filter((entries) => entries.every((entry) => lineField(entry.ref) && lineField(entry.sha)))
+      Arbitrary.filter((entries) => A.every(entries, (entry) => lineField(entry.ref) && lineField(entry.sha)))
     ),
-    (entries) => lineJoin(entries.map((entry) => `${entry.ref}\0${entry.sha}\0${entry.objectType}`)),
+    (entries) => lineJoin(A.map(entries, (entry) => `${entry.ref}\0${entry.sha}\0${entry.objectType}`)),
     (git) => git.forEachRef(cwd)
   );
 
@@ -313,9 +327,9 @@ describe("Git parser and formatter property floor", () => {
     "configList preserves newlines in values",
     config,
     Arbitrary.schema(config).pipe(
-      Arbitrary.filter((entries) => entries.every((entry) => lineField(entry.key) && noNul(entry.value)))
+      Arbitrary.filter((entries) => A.every(entries, (entry) => lineField(entry.key) && noNul(entry.value)))
     ),
-    (entries) => nulJoin(entries.map((entry) => `${entry.key}\n${entry.value}`)),
+    (entries) => nulJoin(A.map(entries, (entry) => `${entry.key}\n${entry.value}`)),
     (git) => git.configList(cwd)
   );
 
@@ -325,29 +339,34 @@ describe("Git parser and formatter property floor", () => {
     worktrees,
     Arbitrary.schema(worktrees).pipe(
       Arbitrary.filter((entries) =>
-        entries.every((entry) =>
-          [entry.path, entry.head, entry.branch, entry.locked, entry.prunable].every(
+        A.every(entries, (entry) =>
+          A.every(
+            [entry.path, entry.head, entry.branch, entry.locked, entry.prunable],
             (value) => value === undefined || noNul(value)
           )
         )
       )
     ),
     (entries) =>
-      entries
-        .map((entry) =>
-          [
-            `worktree ${entry.path}`,
-            ...(entry.head === undefined ? [] : [`HEAD ${entry.head}`]),
-            ...(entry.branch === undefined ? [] : [`branch ${entry.branch}`]),
-            ...(entry.detached ? ["detached"] : []),
-            ...(entry.bare ? ["bare"] : []),
-            ...(entry.locked === undefined ? [] : [`locked ${entry.locked}`]),
-            ...(entry.prunable === undefined ? [] : [`prunable ${entry.prunable}`]),
-            "",
-            "",
-          ].join("\0")
-        )
-        .join(""),
+      A.join(
+        A.map(entries, (entry) =>
+          A.join(
+            [
+              `worktree ${entry.path}`,
+              ...(entry.head === undefined ? [] : [`HEAD ${entry.head}`]),
+              ...(entry.branch === undefined ? [] : [`branch ${entry.branch}`]),
+              ...(entry.detached ? ["detached"] : []),
+              ...(entry.bare ? ["bare"] : []),
+              ...(entry.locked === undefined ? [] : [`locked ${entry.locked}`]),
+              ...(entry.prunable === undefined ? [] : [`prunable ${entry.prunable}`]),
+              "",
+              "",
+            ],
+            "\0"
+          )
+        ),
+        ""
+      ),
     (git) => git.worktreeList(cwd)
   );
 
@@ -358,7 +377,8 @@ describe("Git parser and formatter property floor", () => {
     submodules,
     Arbitrary.schema(submodules).pipe(
       Arbitrary.filter((entries) =>
-        entries.every(
+        A.every(
+          entries,
           (entry) =>
             atom(entry.sha) &&
             lineField(entry.path) &&
@@ -369,7 +389,8 @@ describe("Git parser and formatter property floor", () => {
     ),
     (entries) =>
       lineJoin(
-        entries.map(
+        A.map(
+          entries,
           (entry) =>
             `${prefixes[entry.state]}${entry.sha} ${entry.path}${entry.describe === undefined ? "" : ` (${entry.describe})`}`
         )
@@ -384,16 +405,21 @@ describe("Git parser and formatter property floor", () => {
       Effect.sync(() => {
         assert.strictEqual(
           G.StatusEntry.format(entries),
-          entries.map((entry) => `${entry.x}${entry.y} ${entry.path}`).join("\n")
+          A.join(
+            A.map(entries, (entry) => `${entry.x}${entry.y} ${entry.path}`),
+            "\n"
+          )
         );
         assert.strictEqual(
           G.StatusEntry.format(entries, { renames: "arrow" }),
-          entries
-            .map(
+          A.join(
+            A.map(
+              entries,
               (entry) =>
                 `${entry.x}${entry.y} ${entry.origPath === undefined ? entry.path : `${entry.origPath} -> ${entry.path}`}`
-            )
-            .join("\n")
+            ),
+            "\n"
+          )
         );
       }),
     runs
@@ -406,14 +432,14 @@ describe("Git parser and formatter property floor", () => {
         S.Array,
         Arbitrary.schema,
         Arbitrary.filter((entries) =>
-          entries.every((entry) => rename(entry) === false && entry.origPath === undefined && lineField(entry.path))
+          A.every(entries, (entry) => rename(entry) === false && entry.origPath === undefined && lineField(entry.path))
         )
       ),
     ],
     ([entries]) =>
       Effect.gen(function* () {
         const rendered = G.StatusEntry.format(entries);
-        const parsed = yield* parseWith((git) => git.status(cwd), rendered.split("\n").join("\0"));
+        const parsed = yield* parseWith((git) => git.status(cwd), A.join(rendered.split("\n"), "\0"));
         assert.strictEqual(G.StatusEntry.format(parsed), rendered);
         assert.strictEqual(S.toEquivalence(status)(parsed, entries), true);
       }),

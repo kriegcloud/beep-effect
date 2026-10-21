@@ -12,11 +12,13 @@ import {
 } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
@@ -137,7 +139,7 @@ describe("Yaml", () => {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
-        assert.isTrue(error.diagnostics.some((d) => d.code === "DuplicateKey"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "DuplicateKey"));
         const value = yield* Yaml.parse("a: 1\na: 2", YamlParseOptions.make({ uniqueKeys: false }));
         assert.deepStrictEqual(value, { a: 2 });
       })
@@ -203,17 +205,20 @@ describe("Yaml", () => {
           // inside the `snapshots:` mapping.
           const k1 = `pkg-a@1.0.0(${"a".repeat(1100)})`;
           const k2 = `pkg-b@2.0.0(${"b".repeat(1100)})`;
-          const text = [
-            "snapshots:",
-            `  ? '${k1}'`,
-            "  : dependencies:",
-            "      dep-one: 1.2.3",
-            "      dep-two: 4.5.6",
-            `  ? '${k2}'`,
-            "  : dependencies:",
-            "      dep-three: 7.8.9",
-            "",
-          ].join("\n");
+          const text = A.join(
+            [
+              "snapshots:",
+              `  ? '${k1}'`,
+              "  : dependencies:",
+              "      dep-one: 1.2.3",
+              "      dep-two: 4.5.6",
+              `  ? '${k2}'`,
+              "  : dependencies:",
+              "      dep-three: 7.8.9",
+              "",
+            ],
+            "\n"
+          );
           const value = yield* Yaml.parse(text);
           assert.deepStrictEqual(value, {
             snapshots: {
@@ -245,7 +250,7 @@ describe("Yaml", () => {
               onSuccess: Effect.die,
             });
             assert.isTrue(
-              error.diagnostics.some((d) => d.code === "DuplicateKey"),
+              A.some(error.diagnostics, (d) => d.code === "DuplicateKey"),
               doc
             );
           })
@@ -287,18 +292,21 @@ describe("Yaml", () => {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
-        assert.isTrue(error.diagnostics.some((d) => d.code === "UnexpectedToken"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "UnexpectedToken"));
       })
     );
 
     it.effect("enforces the maxAliasCount DoS guard", () =>
       Effect.gen(function* () {
-        const text = `x: &a 1\n${Array.from({ length: 5 }, (_, i) => `k${i}: *a`).join("\n")}`;
+        const text = `x: &a 1\n${A.join(
+          Array.from({ length: 5 }, (_, i) => `k${i}: *a`),
+          "\n"
+        )}`;
         const error = yield* Effect.matchEffect(Yaml.parse(text, YamlParseOptions.make({ maxAliasCount: 3 })), {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
-        assert.isTrue(error.diagnostics.some((d) => d.code === "AliasCountExceeded"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "AliasCountExceeded"));
       })
     );
   });
@@ -356,7 +364,7 @@ describe("Yaml", () => {
     it.effect("fails when any document carries a fatal diagnostic", () =>
       Effect.gen(function* () {
         const error = yield* Effect.flip(Yaml.parseAll("ok: 1\n---\nbad: *missing"));
-        assert.isTrue(error.diagnostics.some((d) => d.code === "UndefinedAlias"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "UndefinedAlias"));
       })
     );
   });
@@ -378,7 +386,7 @@ describe("Yaml", () => {
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
       if (!Result.isFailure(result)) return;
       assert.instanceOf(result.failure, YamlParseError);
-      assert.isTrue(result.failure.diagnostics.some((d) => d.code === "UndefinedAlias"));
+      assert.isTrue(A.some(result.failure.diagnostics, (d) => d.code === "UndefinedAlias"));
     });
 
     it("an empty stream succeeds with one empty document, matching parse('')", () => {
@@ -418,8 +426,8 @@ describe("Yaml", () => {
           assert.fail("parseAllResult must fail when any document is fatal");
         }
         assert.deepStrictEqual(
-          sync.failure.diagnostics.map((d) => d.code),
-          error.diagnostics.map((d) => d.code)
+          A.map(sync.failure.diagnostics, (d) => d.code),
+          A.map(error.diagnostics, (d) => d.code)
         );
       })
     );
@@ -428,7 +436,7 @@ describe("Yaml", () => {
       const result = Yaml.parseAllResult("a: &shared 1\n---\nb: *shared\n");
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
       if (!Result.isFailure(result)) return;
-      assert.isTrue(result.failure.diagnostics.some((d) => d.code === "UndefinedAlias"));
+      assert.isTrue(A.some(result.failure.diagnostics, (d) => d.code === "UndefinedAlias"));
     });
 
     it("an anchor on a complex mapping key resolves identically to parseResult (incremental registration)", () => {
@@ -452,7 +460,7 @@ describe("Yaml", () => {
       const result = Yaml.parseAllResult(misplaced);
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
       if (!Result.isFailure(result)) return;
-      assert.isTrue(result.failure.diagnostics.some((d) => d.code === "InvalidDirective"));
+      assert.isTrue(A.some(result.failure.diagnostics, (d) => d.code === "InvalidDirective"));
       assert.deepStrictEqual(YamlFormat.format(misplaced), []);
     });
   });
@@ -928,7 +936,7 @@ describe("Yaml", () => {
 
       it.effect("round-trips through the package's own parser unchanged", () =>
         Effect.gen(function* () {
-          const value = Object.fromEntries(coercible.map(([, v], i) => [`k${i}`, v]));
+          const value = R.fromEntries(A.map(coercible, ([, v], i) => [`k${i}`, v]));
           assert.deepStrictEqual(yield* Yaml.parse(yield* Yaml.stringify(value, compat)), value);
         })
       );
@@ -1091,7 +1099,7 @@ describe("Yaml", () => {
           // line must survive uncut so the literal round-trips byte-for-byte.
           const value = { text: `${long}\nsecond line` };
           const out = yield* Yaml.stringify(value, YamlStringifyOptions.make({ lineWidth: 20 }));
-          assert.isTrue(out.split("\n").some((l) => l.length > 40));
+          assert.isTrue(A.some(out.split("\n"), (l) => l.length > 40));
           assert.deepStrictEqual(yield* Yaml.parse(out), value);
         })
       );
@@ -1143,7 +1151,7 @@ describe("Yaml", () => {
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
       if (!Result.isFailure(result)) return;
       assert.instanceOf(result.failure, YamlParseError);
-      assert.isTrue(result.failure.diagnostics.some((d) => d.code === "UndefinedAlias"));
+      assert.isTrue(A.some(result.failure.diagnostics, (d) => d.code === "UndefinedAlias"));
     });
 
     it.effect("stringifyResult succeeds and matches Yaml.stringify on valid input", () =>
@@ -1185,18 +1193,28 @@ describe("Yaml", () => {
     it("parseResult surfaces an alias 'billion laughs' bomb as a typed Failure, never OOM", () => {
       const width = 10;
       const depth = 8;
-      const lines: string[] = [`a1: &a1 [${Array.from({ length: width }, () => "x").join(", ")}]`];
+      const lines: string[] = [
+        `a1: &a1 [${A.join(
+          Array.from({ length: width }, () => "x"),
+          ", "
+        )}]`,
+      ];
       for (let i = 2; i <= depth; i++) {
-        lines.push(`a${i}: &a${i} [${Array.from({ length: width }, () => `*a${i - 1}`).join(", ")}]`);
+        lines.push(
+          `a${i}: &a${i} [${A.join(
+            Array.from({ length: width }, () => `*a${i - 1}`),
+            ", "
+          )}]`
+        );
       }
       lines.push(`top: *a${depth}`);
       let result: Result.Result<unknown, YamlParseError> = Result.succeed(undefined);
       assert.doesNotThrow(() => {
-        result = Yaml.parseResult(lines.join("\n"));
+        result = Yaml.parseResult(A.join(lines, "\n"));
       });
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
       if (!Result.isFailure(result)) return;
-      assert.isTrue(result.failure.diagnostics.some((d) => d.code === "AliasCountExceeded"));
+      assert.isTrue(A.some(result.failure.diagnostics, (d) => d.code === "AliasCountExceeded"));
     });
   });
 
@@ -1276,7 +1294,7 @@ describe("Yaml", () => {
         const value = yield* Yaml.parse('"__proto__":\n  polluted: true');
         assert.ok(P.isObject(value));
         assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
-        assert.isTrue(Object.hasOwn(value, "__proto__"));
+        assert.isTrue(R.has(value, "__proto__"));
         assert.isFalse("polluted" in {});
       })
     );
@@ -1287,12 +1305,12 @@ describe("Yaml", () => {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
-        assert.isTrue(plain.diagnostics.some((d) => d.code === "UnexpectedCharacter"));
+        assert.isTrue(A.some(plain.diagnostics, (d) => d.code === "UnexpectedCharacter"));
         const quoted = yield* Effect.matchEffect(Yaml.parse(`a: "x${String.fromCharCode(7)}y"`), {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
-        assert.isTrue(quoted.diagnostics.some((d) => d.code === "UnexpectedCharacter"));
+        assert.isTrue(A.some(quoted.diagnostics, (d) => d.code === "UnexpectedCharacter"));
       })
     );
 
@@ -1325,7 +1343,7 @@ describe("Yaml", () => {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
-        assert.isTrue(error.diagnostics.some((d) => d.code === "NestingDepthExceeded"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "NestingDepthExceeded"));
       })
     );
 
@@ -1334,7 +1352,7 @@ describe("Yaml", () => {
         let text = "";
         for (let i = 0; i < 4000; i++) text += `${" ".repeat(i)}k:\n`;
         const error = yield* Effect.matchEffect(Yaml.parse(text), { onFailure: Effect.succeed, onSuccess: Effect.die });
-        assert.isTrue(error.diagnostics.some((d) => d.code === "NestingDepthExceeded"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "NestingDepthExceeded"));
       })
     );
 
@@ -1347,18 +1365,28 @@ describe("Yaml", () => {
         // per-token guard cannot catch it; the value-extraction budget must.
         const width = 10;
         const depth = 8;
-        const lines: string[] = [`a1: &a1 [${Array.from({ length: width }, () => "x").join(", ")}]`];
+        const lines: string[] = [
+          `a1: &a1 [${A.join(
+            Array.from({ length: width }, () => "x"),
+            ", "
+          )}]`,
+        ];
         for (let i = 2; i <= depth; i++) {
-          lines.push(`a${i}: &a${i} [${Array.from({ length: width }, () => `*a${i - 1}`).join(", ")}]`);
+          lines.push(
+            `a${i}: &a${i} [${A.join(
+              Array.from({ length: width }, () => `*a${i - 1}`),
+              ", "
+            )}]`
+          );
         }
         lines.push(`top: *a${depth}`);
-        const bomb = lines.join("\n");
+        const bomb = A.join(lines, "\n");
 
         const result = yield* Effect.exit(Yaml.parse(bomb));
         assertExitFailure(result, result.pipe(Exit.getCause, O.getOrThrow));
         const error = result.cause.pipe(Cause.findError, Result.getOrThrow);
         assert.instanceOf(error, YamlParseError);
-        assert.isTrue(error.diagnostics.some((d) => d.code === "AliasCountExceeded"));
+        assert.isTrue(A.some(error.diagnostics, (d) => d.code === "AliasCountExceeded"));
       })
     );
 
@@ -1369,7 +1397,7 @@ describe("Yaml", () => {
         // output, not raw alias tokens, so legitimate alias-heavy documents pass.
         const anchors = Array.from({ length: 90 }, (_, i) => `a${i}: &n${i} ${i}`);
         const refs = Array.from({ length: 90 }, (_, i) => `r${i}: *n${i}`);
-        const doc = [...anchors, ...refs].join("\n");
+        const doc = A.join([...anchors, ...refs], "\n");
 
         const result = yield* Effect.exit(Yaml.parse(doc));
         assertExitSuccess(result, result.pipe(Exit.getSuccess, O.getOrThrow));

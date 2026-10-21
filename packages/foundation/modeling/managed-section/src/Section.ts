@@ -1,3 +1,10 @@
+/**
+ * Managed-section identities and content: section keys, ids, sections and
+ * sections placed at a position in a document.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ManagedSectionId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";

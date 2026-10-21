@@ -10,15 +10,15 @@ describe("Gitmodules coverage", () => {
   it.effect("decode errors render field-specific and generic invalid values", () =>
     Effect.sync(() => {
       assert.strictEqual(
-        GitmodulesDecodeError.make({ name: "lib", reason: "missingUrl" }).message,
+        GitmodulesDecodeError.make({ submodule: "lib", reason: "missingUrl" }).message,
         'submodule "lib" has no url'
       );
       assert.strictEqual(
-        GitmodulesDecodeError.make({ name: "lib", reason: "invalidValue" }).message,
+        GitmodulesDecodeError.make({ submodule: "lib", reason: "invalidValue" }).message,
         'submodule "lib": invalid value "" for a field'
       );
       assert.strictEqual(
-        GitmodulesDecodeError.make({ name: "lib", reason: "invalidValue", field: "ignore", value: "bad" }).message,
+        GitmodulesDecodeError.make({ submodule: "lib", reason: "invalidValue", field: "ignore", value: "bad" }).message,
         'submodule "lib": invalid value "bad" for ignore'
       );
     })

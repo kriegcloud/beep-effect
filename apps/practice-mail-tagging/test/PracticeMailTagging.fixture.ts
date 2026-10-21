@@ -28,7 +28,7 @@ import {
   MatterDirectory,
   MatterDirectoryShape,
 } from "@beep/law-practice-use-cases/MailTagging";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";

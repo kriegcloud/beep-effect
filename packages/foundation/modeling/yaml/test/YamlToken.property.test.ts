@@ -3,6 +3,7 @@ import { YamlToken, YamlTokenKind, YamlTokens } from "@beep/yaml/YamlToken";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -34,7 +35,10 @@ describe("YamlToken property floor", () => {
         const result = YamlTokens.tokenize(text);
         assertSuccess(result, Result.getOrThrow(result));
         const tokens = result.success;
-        const reconstructed = tokens.map((token) => token.text).join("");
+        const reconstructed = A.join(
+          A.map(tokens, (token) => token.text),
+          ""
+        );
         assert.strictEqual(reconstructed, text);
         for (const token of tokens) {
           assert.strictEqual(token.text, text.slice(token.offset, token.offset + token.length));

@@ -49,7 +49,12 @@ describe("MemoryFileSystem.Volume.paths", () => {
       yield* fileSystem.rename("/wide/entry-000", "/wide/renamed");
       yield* fileSystem.remove("/wide/entry-001");
       const expected = A.sort(
-        [...names.slice(2).map((name) => `/wide/${name}`), "/wide/nested/hard-link", "/wide/nested/z", "/wide/renamed"],
+        [
+          ...A.map(names.slice(2), (name) => `/wide/${name}`),
+          "/wide/nested/hard-link",
+          "/wide/nested/z",
+          "/wide/renamed",
+        ],
         Order.String
       );
       assert.deepStrictEqual(volume.paths(), expected);

@@ -5,6 +5,7 @@ import { TomlVisitor } from "@beep/toml/TomlVisitor";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -36,31 +37,31 @@ it.effect.prop(
       const text = `# lead\n[table] # header\nvalue = ${value} # value\n[[rows]]\nenabled = true\n`;
       const events = yield* Stream.runCollect(TomlVisitor.visit(text));
       assert.deepStrictEqual(
-        events.map((event) => event._tag),
+        A.map(events, (event) => event._tag),
         ["TableStart", "Comment", "TableStart", "Comment", "KeyValue", "Comment", "ArrayTableStart", "KeyValue"]
       );
-      const assignments = events.filter(Model.TomlVisitorEvent.$is("KeyValue"));
+      const assignments = A.filter(events, Model.TomlVisitorEvent.$is("KeyValue"));
       assert.deepStrictEqual(
-        assignments.map((event) => event.path),
+        A.map(assignments, (event) => event.path),
         [
           ["table", "value"],
           ["rows", "enabled"],
         ]
       );
       assert.deepStrictEqual(
-        assignments.map((event) => event.node.value),
+        A.map(assignments, (event) => event.node.value),
         [
           Node.TomlInteger.make({ value, offset: text.indexOf(String(value)), length: String(value).length }),
           Node.TomlBoolean.make({ value: true, offset: text.indexOf("true"), length: 4 }),
         ]
       );
-      const comments = events.filter(Model.TomlVisitorEvent.$is("Comment"));
+      const comments = A.filter(events, Model.TomlVisitorEvent.$is("Comment"));
       assert.deepStrictEqual(
-        comments.map((event) => event.text),
+        A.map(comments, (event) => event.text),
         ["lead", "header", "value"]
       );
       assert.deepStrictEqual(
-        comments.map((event) => text.charAt(event.offset)),
+        A.map(comments, (event) => text.charAt(event.offset)),
         ["#", "#", "#"]
       );
     }),

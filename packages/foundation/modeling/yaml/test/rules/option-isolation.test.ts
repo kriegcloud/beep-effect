@@ -1,6 +1,7 @@
 import { YamlLint, YamlLintConfig } from "@beep/yaml";
 import { YamlRule } from "@beep/yaml/YamlLintRule";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { builtin } from "./harness.ts";
 import type { LintContext, YamlLintDiagnostic } from "@beep/yaml/YamlLintRule";
@@ -9,16 +10,22 @@ import type { LintContext, YamlLintDiagnostic } from "@beep/yaml/YamlLintRule";
 // straight to the rule.check boundary, bypassing configuration decoding.
 const directCheck = (id: string, text: string, options: unknown) => {
   const rule = builtin(id);
-  return YamlLint.run(
-    text,
-    [
-      YamlRule.make({
-        id,
-        check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => rule.check(ctx, options)),
-      }),
-    ],
-    YamlLintConfig.make({ rules: { [id]: "error" } })
-  ).filter((d) => d.rule === id);
+  return A.filter(
+    YamlLint.run(
+      text,
+      [
+        YamlRule.make({
+          id,
+          check: dual(
+            2,
+            (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => rule.check(ctx, options)
+          ),
+        }),
+      ],
+      YamlLintConfig.make({ rules: { [id]: "error" } })
+    ),
+    (d) => d.rule === id
+  );
 };
 
 describe("direct rule option isolation", () => {

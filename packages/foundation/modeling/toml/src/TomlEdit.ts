@@ -1,14 +1,21 @@
-// The non-mutating text-edit vocabulary shared by the formatter and the
-// modifier: TomlEdit, TomlRange, TomlPath and TomlSegment. Edits are text
-// splices computed against the linear CST's expression spans — applying them
-// in reverse-offset order is byte-minimal and preserves comments and layout,
-// the core value proposition over parse → re-stringify round trips.
-//
-// `TomlEdit`, `TomlRange`, `TomlPath` and `TomlSegment` are bound by the
-// cross-package parity convention: they are structurally identical to their
-// `Jsonc*`, `Yaml*` and `Markdown*` counterparts (same field names, types and
-// semantics) so consumer code can be written once over "a document codec's
-// Edit/Range/Path".
+/**
+ * The non-mutating text-edit vocabulary shared by the formatter and the
+ * modifier: TomlEdit, TomlRange, TomlPath and TomlSegment. Edits are text
+ * splices computed against the linear CST's expression spans — applying them
+ * in reverse-offset order is byte-minimal and preserves comments and layout,
+ * the core value proposition over parse → re-stringify round trips.
+ *
+ * **Details**
+ *
+ * `TomlEdit`, `TomlRange`, `TomlPath` and `TomlSegment` are bound by the
+ * cross-package parity convention: they are structurally identical to their
+ * `Jsonc*`, `Yaml*` and `Markdown*` counterparts (same field names, types and
+ * semantics) so consumer code can be written once over "a document codec's
+ * Edit/Range/Path".
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import * as A from "effect/Array";

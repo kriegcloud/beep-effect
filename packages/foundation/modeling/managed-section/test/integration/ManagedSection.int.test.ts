@@ -8,9 +8,10 @@
 // an error" degrade on.
 
 import { CommentStyle, ManagedSection, SectionId } from "@beep/managed-section";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { NodeServices } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -18,13 +19,11 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as TestClock from "effect/testing/TestClock";
 
-const tempDir = Effect.flatMap(FileSystem.FileSystem, (fs) =>
-  fs.makeTempDirectoryScoped({ prefix: "effected-templates-" })
-);
+const tempDirOptions = { prefix: "effected-templates-" } as const;
 
 const id = (key: string) => SectionId.make({ key, commentStyle: CommentStyle.hash });
 
-it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem.layer, NodePath.layer))), {
+it.layer(ManagedSection.layer.pipe(Layer.provideMerge(NodeServices.layer)), {
   timeout: "30 seconds",
 })("ManagedSection (real filesystem)", (it) => {
   describe("the missing-file assumption", () => {
@@ -35,8 +34,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
         // suite constructs this error itself and so cannot prove it. If this
         // tag ever changes, `sync` silently loses the ability to create
         // files and every in-memory test stays green.
-        const dir = yield* tempDir;
         const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         // Asserted against `readFile`, the method `ManagedSection` actually
         // calls — pinning the tag on a method it does not use would prove
@@ -49,7 +48,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
 
     it.effect("reads a missing file as a document with no sections", () =>
       Effect.gen(function* () {
-        const dir = yield* tempDir;
+        const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         const sections = yield* ManagedSection;
         const path = nodePath.join(dir, "absent");
@@ -61,8 +61,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
 
     it.effect("creates a file that does not exist yet", () =>
       Effect.gen(function* () {
-        const dir = yield* tempDir;
         const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         const sections = yield* ManagedSection;
         const path = nodePath.join(dir, "created");
@@ -78,7 +78,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
       Effect.gen(function* () {
         // The converse of the degrade: reading a DIRECTORY as a file is a
         // real platform failure, and it must not be mistaken for "absent".
-        const dir = yield* tempDir;
+        const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const sections = yield* ManagedSection;
         const error = yield* Effect.flip(sections.read(dir, id("example-tool")));
         assert.strictEqual(error._tag, "SectionFileError");
@@ -94,8 +95,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
   describe("real bytes on disk", () => {
     it.effect("round-trips a CRLF file without downgrading its line endings", () =>
       Effect.gen(function* () {
-        const dir = yield* tempDir;
         const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         const sections = yield* ManagedSection;
         const path = nodePath.join(dir, "crlf.sh");
@@ -116,8 +117,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
 
     it.effect("does not touch the file's mtime when nothing changed", () =>
       Effect.gen(function* () {
-        const dir = yield* tempDir;
         const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         const sections = yield* ManagedSection;
         const path = nodePath.join(dir, "stable.sh");
@@ -142,8 +143,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
 
     it.effect("preserves a byte-order mark through a sync", () =>
       Effect.gen(function* () {
-        const dir = yield* tempDir;
         const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         const sections = yield* ManagedSection;
         const path = nodePath.join(dir, "bom.md");
@@ -158,8 +159,8 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
   describe("the consumer lifecycle", () => {
     it.effect("creates ordered sections, is idempotent, then removes them", () =>
       Effect.gen(function* () {
-        const dir = yield* tempDir;
         const fs = yield* FileSystem.FileSystem;
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped(tempDirOptions));
         const nodePath = yield* Path.Path;
         const sections = yield* ManagedSection;
         const path = nodePath.join(dir, "pre-commit");
@@ -168,7 +169,7 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
         const declared = [id("base").section("preamble"), id("tool").section("run-the-tool")];
         const created = yield* sections.syncAll(path, declared);
         assert.deepStrictEqual(
-          created.map((outcome) => outcome._tag),
+          A.map(created, (outcome) => outcome._tag),
           ["Created", "Created"]
         );
 
@@ -182,7 +183,7 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(Layer.merge(NodeFileSystem
 
         const again = yield* sections.syncAll(path, declared);
         assert.deepStrictEqual(
-          again.map((outcome) => outcome._tag),
+          A.map(again, (outcome) => outcome._tag),
           ["Unchanged", "Unchanged"]
         );
 

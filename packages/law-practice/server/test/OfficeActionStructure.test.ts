@@ -12,9 +12,9 @@ import {
   OfficeActionStructureAttempt,
   OfficeActionStructureStore,
 } from "@beep/law-practice-use-cases/OfficeActionStructure";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
 import { VerifySourceTextIdentityInput } from "@beep/provenance/VerifiedTextAnchor";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { expect, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";

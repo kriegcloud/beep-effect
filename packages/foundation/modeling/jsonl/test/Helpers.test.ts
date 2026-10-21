@@ -5,7 +5,7 @@ import { utf8Length } from "@beep/jsonl/internal/utf8";
 import { InvalidUtf8 } from "@beep/jsonl/JsonlError";
 import { ByteCount, LineSlice } from "@beep/jsonl/LineSlice";
 import { CursoredSlice, matchesFrame, Slice } from "@beep/jsonl/Slice";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";

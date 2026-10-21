@@ -1,4 +1,3 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
 // The smol-toml differential oracle: property tests cross-checking the engine
 // against the reference implementation (smol-toml 1.7.0, exact-pinned), plus
 // a corpus-wide differential over every toml-test valid file. This is the
@@ -34,13 +33,15 @@
 // - NaN is excluded from the equality properties (canonicalized to a sentinel
 //   defensively for the corpus side) and round-trips in a dedicated test.
 
-import { isDeepStrictEqual } from "node:util";
 import { Toml } from "@beep/toml/Toml";
 import { TomlLocalDate, TomlLocalDateTime, TomlLocalTime, TomlOffsetDateTime } from "@beep/toml/TomlDateTime";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Equal from "effect/Equal";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { parse as oracleParse, stringify as oracleStringify } from "smol-toml";
@@ -157,12 +158,12 @@ const canonContainer = (value: unknown): unknown => {
   if (value instanceof Date) {
     return canonOracleDate(value);
   }
-  if (Array.isArray(value)) {
-    return value.map(canon);
+  if (A.isArray(value)) {
+    return A.map(value, canon);
   }
   if (P.isObject(value)) {
     const record = value;
-    return Object.fromEntries(Object.keys(record).map((key) => [key, canon(record[key])]));
+    return R.fromEntries(A.map(R.keys(record), (key): [string, unknown] => [key, canon(record[key])]));
   }
   return value;
 };
@@ -176,8 +177,20 @@ const canonBigInt = (value: bigint): unknown =>
   value >= -MAX_SAFE_BIG && value <= MAX_SAFE_BIG ? Number(value) : value;
 
 /**
+ * NaN and negative zero become sentinel records, so the structural
+ * `Equal.equals` (which equates NaN with NaN and 0 with -0) keeps the strict
+ * float comparison the differential needs.
+ */
+const canonNumber = (value: number): unknown => {
+  if (Number.isNaN(value)) {
+    return { $nan: true };
+  }
+  return Object.is(value, -0) ? { $negativeZero: true } : value;
+};
+
+/**
  * Map either parser's result onto one comparable model: integral bigints
- * within ±(2^53 − 1) become number, NaN becomes a sentinel record, our
+ * within ±(2^53 − 1) become number, NaN and -0 become sentinel records, our
  * datetime classes and the oracle's TomlDate both become tagged records
  * truncated to millisecond precision (the oracle's ceiling), containers
  * recurse.
@@ -187,7 +200,7 @@ const canon = (value: unknown): unknown => {
     case "bigint":
       return canonBigInt(value);
     case "number":
-      return Number.isNaN(value) ? { $nan: true } : value;
+      return canonNumber(value);
     case "string":
     case "boolean":
       return value;
@@ -215,7 +228,7 @@ function weighted<A>(
   first: readonly [weight: number, arbitrary: Arbitrary.Arbitrary<A>],
   ...rest: ReadonlyArray<readonly [weight: number, arbitrary: Arbitrary.Arbitrary<A>]>
 ): Arbitrary.Arbitrary<A> {
-  const total = rest.reduce((sum, [weight]) => sum + weight, first[0]);
+  const total = A.reduce(rest, first[0], (sum, [weight]) => sum + weight);
   return Arbitrary.schema(S.Int.check(S.isBetween({ minimum: 0, maximum: total - 1 }))).pipe(
     Arbitrary.flatMap((ticket) => {
       let remaining = ticket - first[0];
@@ -251,7 +264,7 @@ const nastyCharArb = Arbitrary.schema(
 );
 
 const stringArb = arrayOf(weighted([5, scalarCharArb], [3, nastyCharArb]), { maxLength: 12 }).pipe(
-  Arbitrary.map((chars) => chars.join(""))
+  Arbitrary.map((chars) => A.join(chars, ""))
 );
 
 const bareKeyArb = Arbitrary.schema(S.String.check(S.isPattern(/^[abzAZ_\-019]{1,8}$/)));
@@ -276,10 +289,20 @@ const INT64_MAX = 2n ** 63n - 1n;
 
 const bigintArb = Arbitrary.schema(S.BigInt.check(S.isBetweenBigInt({ minimum: -INT64_MAX, maximum: INT64_MAX })));
 
-/** Finite-or-infinite doubles — NaN stays out of the equality properties. */
-// TOML float round-trip properties must include infinities, as the scalar tests require.
-// @effect-diagnostics-next-line schemaNumber:off
-const floatArb = Arbitrary.schema(S.Number.check(S.makeFilter((n) => !Number.isNaN(n))));
+/** Either signed infinity: TOML's `inf` / `-inf`. */
+const infinityArb = Arbitrary.schema(S.Boolean).pipe(
+  Arbitrary.map((positive) => (positive ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY))
+);
+
+/**
+ * Finite-or-infinite doubles — NaN stays out of the equality properties.
+ *
+ * **Details**
+ *
+ * TOML float round-trip properties must include infinities, as the scalar
+ * tests require, so finite doubles are mixed with both signed infinities.
+ */
+const floatArb = weighted<number>([9, Arbitrary.schema(S.Finite)], [1, infinityArb]);
 
 const leafArb: Arbitrary.Arbitrary<unknown> = weighted<unknown>(
   [3, stringArb],
@@ -298,7 +321,7 @@ function valueArb(depth: number): Arbitrary.Arbitrary<unknown> {
 
 function tableArb(depth: number): Arbitrary.Arbitrary<Record<string, unknown>> {
   return arrayOf(Arbitrary.all([keyArb, valueArb(depth)]), { maxLength: 5 }).pipe(
-    Arbitrary.map((entries) => Object.fromEntries(entries))
+    Arbitrary.map((entries) => R.fromEntries(entries))
   );
 }
 
@@ -397,7 +420,7 @@ describe("corpus differential", () => {
           return;
         }
         const theirs = oracleResult.success;
-        if (isDeepStrictEqual(canon(ours), canon(theirs))) {
+        if (Equal.equals(canon(ours), canon(theirs))) {
           return;
         }
         divergences.push({ file: relPath, detail: "oracle parse disagrees with ours" });
@@ -408,7 +431,7 @@ describe("corpus differential", () => {
 
   // Defined last so every per-file test above has already run.
   it("pins the oracle divergence log", () => {
-    assert.deepStrictEqual(divergences.map((divergence) => `${divergence.file}: ${divergence.detail}`).sort(), [
+    assert.deepStrictEqual(A.map(divergences, (divergence) => `${divergence.file}: ${divergence.detail}`).sort(), [
       ...EXPECTED_ORACLE_DIVERGENCES,
     ]);
   });

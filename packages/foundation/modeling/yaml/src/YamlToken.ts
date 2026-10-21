@@ -1,12 +1,19 @@
-// The public positioned token stream: promotes the internal lexer
-// token to public surface for lint- and LSP-class consumers. The internal
-// token spells two fields differently (`value`, `column`); promotion
-// reconciles them to the positioned-diagnostic vocabulary the public surface
-// already uses in `YamlDiagnostic` (`text`, `character`).
-//
-// Cycle firewall: this module imports the internal lexer and the `Yaml`
-// facade's error type; nothing imports `YamlToken.ts` back except the lint
-// layer above it.
+/**
+ * The public positioned token stream: promotes the internal lexer
+ * token to public surface for lint- and LSP-class consumers. The internal
+ * token spells two fields differently (`value`, `column`); promotion
+ * reconciles them to the positioned-diagnostic vocabulary the public surface
+ * already uses in `YamlDiagnostic` (`text`, `character`).
+ *
+ * **Details**
+ *
+ * Cycle firewall: this module imports the internal lexer and the `Yaml`
+ * facade's error type; nothing imports `YamlToken.ts` back except the lint
+ * layer above it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import * as A from "effect/Array";

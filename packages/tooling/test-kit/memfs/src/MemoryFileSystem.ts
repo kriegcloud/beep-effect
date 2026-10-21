@@ -1,22 +1,29 @@
-import * as A from "effect/Array";
-import { dual } from "effect/Function";
-import * as Result from "effect/Result";
-
-// The public surface over the vendored engine (see internal/volume.ts for the
-// port header): the public types and the MemoryFileSystem class. The machinery
-// lives in internal/ — seeding (seed.ts), the inspection view (view.ts), the
-// node-shaped ports (ports.ts), fault injection (faults.ts) and errno
-// (errno.ts) — all extensions beyond the vendored port.
+/**
+ * The public surface over the vendored in-memory filesystem engine: the
+ * public types and the `MemoryFileSystem` namespace class.
+ *
+ * **Details**
+ *
+ * The machinery lives in `internal/`: seeding, the inspection view, the
+ * node-shaped ports, fault injection and errno, all extensions beyond the
+ * vendored port of Effect-TS/effect PR #6573.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $MemfsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ErrnoException, errnoError, nodeErrno } from "./internal/errno.ts";
 import { wrapFaulty } from "./internal/faults.ts";
@@ -804,7 +811,10 @@ const buildHandle: {
   ): (seed: MemoryFileSystemSeed) => Effect.Effect<MemoryFileSystemHandle, PlatformError.PlatformError>;
 } = dual(
   2,
-  Effect.fn("buildHandle")(function* (seed: MemoryFileSystemSeed, options: MemoryFileSystemOptionsInput | undefined) {
+  Effect.fn("MemoryFileSystem.buildHandle")(function* (
+    seed: MemoryFileSystemSeed,
+    options: MemoryFileSystemOptionsInput | undefined
+  ) {
     const engine = yield* internal.makeInspectableWith(engineOptions(options));
     const raw = engine.fileSystem;
     yield* seedWith(raw, seed, options);

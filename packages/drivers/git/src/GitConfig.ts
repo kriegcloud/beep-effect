@@ -1,3 +1,11 @@
+/**
+ * Lossless git-config documents: parse, query and surgically edit
+ * git-config(5) text while preserving every untouched byte.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GitId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";

@@ -8,6 +8,7 @@ import { composeFlowMap, composeFlowSeq } from "@beep/yaml/internal/composer/flo
 import { createState } from "@beep/yaml/internal/composer/state";
 import { YamlMap, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import { describe, expect, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { CstNode, CstNodeType } from "@beep/yaml/internal/cst";
@@ -26,7 +27,7 @@ const compose = (text: string, children?: readonly CstNode[], subsequent = false
     subsequent,
     next
   );
-const messages = (document: ReturnType<typeof compose>) => document.errors.map((error) => error.message);
+const messages = (document: ReturnType<typeof compose>) => A.map(document.errors, (error) => error.message);
 
 const isCollection = (value: unknown): value is YamlMap | YamlSeq => S.is(YamlMap)(value) || S.is(YamlSeq)(value);
 
@@ -169,7 +170,7 @@ describe("document composition coverage", () => {
           previous,
           node("document", "%YAML 1.2", 2, [node("comment", "# c"), node("directive", "%YAML 1.2", 2)]),
         ]);
-        expect(state.errors.map((error) => error.message)).toContain(
+        expect(A.map(state.errors, (error) => error.message)).toContain(
           "Directive between documents requires a document-end marker (...) after the previous document"
         );
       }

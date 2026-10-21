@@ -1,3 +1,10 @@
+/**
+ * The `FileSystem`-backed service that reads, syncs and checks managed
+ * sections in files, and its file-level error.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ManagedSectionId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

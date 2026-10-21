@@ -7,6 +7,7 @@ import {
 } from "@beep/toml/internal/diagnostics";
 import { TomlDiagnostic } from "@beep/toml/TomlDiagnostic";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 
 describe("TomlDiagnostic", () => {
   it("derives line and character from offset against LF source", () => {
@@ -54,7 +55,8 @@ describe("TomlDiagnostic", () => {
     const parse = new Set(TOML_PARSE_ERROR_CODES);
     const semantic = new Set(TOML_SEMANTIC_ERROR_CODES);
     const stringify = new Set(TOML_STRINGIFY_ERROR_CODES);
-    const intersect = (a: ReadonlySet<string>, b: ReadonlySet<string>) => [...a].filter((code) => b.has(code)).sort();
+    const intersect = (a: ReadonlySet<string>, b: ReadonlySet<string>) =>
+      A.filter([...a], (code) => b.has(code)).sort();
 
     // The lex and semantic stages share no codes with any other stage.
     assert.deepStrictEqual(intersect(lex, parse), []);

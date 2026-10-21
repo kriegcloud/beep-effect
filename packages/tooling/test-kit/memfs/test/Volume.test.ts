@@ -6,12 +6,15 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import * as internal from "@beep/memfs/internal/volume";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as TestClock from "effect/testing/TestClock";
 import { denied } from "./helpers.ts";
 
@@ -104,7 +107,7 @@ describe("MemoryFileSystem.layerWith — Volume", () => {
         yield* fs.writeFileString("/repo/written.txt", "later");
 
         const snapshot = volume.snapshot();
-        assert.deepStrictEqual(Object.keys(snapshot).sort(), [
+        assert.deepStrictEqual(R.keys(snapshot).sort(), [
           "/repo/bin/run.sh",
           "/repo/package.json",
           "/repo/written.txt",
@@ -329,10 +332,11 @@ describe("engine snapshot size", () => {
       yield* fileSystem.makeDirectory("/d");
       yield* fileSystem.writeFileString("/d/f.txt", "héllo");
       yield* fileSystem.symlink("/d/f.txt", "/d/l");
-      const byPath = new Map(entries().map((e) => [e.path, e]));
-      assert.strictEqual(byPath.get("/d/f.txt")?.size, 6);
-      assert.strictEqual(byPath.get("/d/l")?.size, 8);
-      assert.strictEqual(byPath.get("/d")?.size, 0);
+      const byPath = HashMap.fromIterable(A.map(entries(), (e) => [e.path, e] as const));
+      const sizeAt = (path: string) => O.getOrUndefined(HashMap.get(byPath, path))?.size;
+      assert.strictEqual(sizeAt("/d/f.txt"), 6);
+      assert.strictEqual(sizeAt("/d/l"), 8);
+      assert.strictEqual(sizeAt("/d"), 0);
     })
   );
 });

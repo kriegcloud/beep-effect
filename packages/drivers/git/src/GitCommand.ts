@@ -1,3 +1,11 @@
+/**
+ * Pure `git` argv constructors: each builds a spawnable command plus the
+ * redacted diagnostic argv the error taxonomy may persist.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";

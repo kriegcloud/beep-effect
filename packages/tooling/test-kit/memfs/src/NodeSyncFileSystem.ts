@@ -11,6 +11,7 @@
  * does. Import it only where Node's filesystem is the platform you mean.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 import { $MemfsId } from "@beep/identity/packages";

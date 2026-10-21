@@ -13,6 +13,7 @@ import {
 import { LintContext, YamlLintDiagnostic, YamlRule } from "@beep/yaml/YamlLintRule";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -105,7 +106,7 @@ describe("YamlLint line and own-key regressions", () => {
 
   it("absent toString and constructor rules never run", () => {
     let checks = 0;
-    const rules = ["toString", "constructor"].map((id) =>
+    const rules = A.map(["toString", "constructor"], (id) =>
       YamlRule.make({
         id,
         check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {

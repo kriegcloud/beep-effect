@@ -2,6 +2,7 @@ import { GitConfig, GitConfigEditError } from "@beep/git/GitConfig";
 import { isValidKey, isValidSectionName } from "@beep/git/internal/config";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -244,7 +245,7 @@ describe("GitConfig", () => {
 
   it("EOF backslashes still reject open quotes and a following terminal CR", () => {
     assert.include(
-      failure('[core]\nkey="first\\').diagnostics.map((diagnostic) => diagnostic.code),
+      A.map(failure('[core]\nkey="first\\').diagnostics, (diagnostic) => diagnostic.code),
       "unterminatedQuote"
     );
     assert.strictEqual(failure("[core]\nkey=first\\\r").diagnostics[0]?.code, "invalidEscape");
@@ -329,7 +330,7 @@ describe("GitConfig", () => {
       const section = doc.sections[0];
       assert.isDefined(section);
       assert.strictEqual(section?.entries[0]?.key, "on");
-      assert.isFalse(Object.hasOwn(section?.entries[0] ?? {}, "value"));
+      assert.notProperty(section?.entries[0] ?? {}, "value");
       assert.strictEqual(section?.entries[1]?.value, "false");
     });
   });
@@ -398,7 +399,7 @@ describe("GitConfig", () => {
       const includes = doc.includes();
       assert.strictEqual(includes.length, 2);
       assert.strictEqual(includes[0]?.path, "~/.gitconfig.local");
-      assert.isFalse(Object.hasOwn(includes[0] ?? {}, "condition"));
+      assert.notProperty(includes[0] ?? {}, "condition");
       assert.strictEqual(includes[1]?.path, "work.inc");
       assert.strictEqual(includes[1]?.condition, "gitdir:~/work/");
     });

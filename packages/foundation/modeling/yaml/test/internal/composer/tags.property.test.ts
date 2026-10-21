@@ -5,6 +5,7 @@ import { parseDirective, resolveTagHandle } from "@beep/yaml/internal/composer/t
 import { RawDirective } from "@beep/yaml/internal/raw-document";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -14,7 +15,7 @@ const runs = { arbitrary: fcRuns(100) };
 const word = S.Literals(["A", "B", "C", "0", "1"]).pipe(
   S.Array,
   Arbitrary.schema,
-  Arbitrary.map((value) => `D${value.join("")}`)
+  Arbitrary.map((value) => `D${A.join(value, "")}`)
 );
 describe("tag parser properties", () => {
   it.effect.prop(
@@ -27,10 +28,11 @@ describe("tag parser properties", () => {
         if (parsed === null) {
           assert.strictEqual(O.getOrNull(parseDirective(input.trim())), null);
         } else {
-          const canonical = `%${[parsed.name, ...parsed.parameters].join(" ")}`;
+          const canonical = `%${A.join([parsed.name, ...parsed.parameters], " ")}`;
           const reparsed = O.getOrNull(parseDirective(canonical));
           assert.deepStrictEqual(reparsed, parsed);
-          if (reparsed !== null) assert.strictEqual(`%${[reparsed.name, ...reparsed.parameters].join(" ")}`, canonical);
+          if (reparsed !== null)
+            assert.strictEqual(`%${A.join([reparsed.name, ...reparsed.parameters], " ")}`, canonical);
         }
       }),
     runs
@@ -44,7 +46,7 @@ describe("tag parser properties", () => {
     ],
     ([name, parameters, comment]) =>
       Effect.sync(() => {
-        const text = `%${name} ${parameters.join("\t")} # ${comment.replaceAll("\n", " ")}`;
+        const text = `%${name} ${A.join(parameters, "\t")} # ${comment.replaceAll("\n", " ")}`;
         assert.deepStrictEqual(O.getOrNull(parseDirective(text)), RawDirective.make({ name, parameters }));
       }),
     runs

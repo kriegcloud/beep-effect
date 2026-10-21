@@ -99,7 +99,7 @@ describe("TomlNode", () => {
         offset: 0,
         length: 6,
       });
-      assert.isFalse(Object.hasOwn(bare, "comment"));
+      assert.notInclude(Reflect.ownKeys(bare), "comment");
     });
     it("constructs both header classes and TomlTrivia", () => {
       const header = TomlTableHeader.make({

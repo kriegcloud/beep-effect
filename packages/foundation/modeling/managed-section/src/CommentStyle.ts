@@ -1,3 +1,10 @@
+/**
+ * How a file format writes comments, so section markers can be rendered
+ * and recognised as comments in that format.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ManagedSectionId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

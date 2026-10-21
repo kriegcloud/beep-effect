@@ -31,6 +31,7 @@
 import { Yaml, YamlFormat } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 
@@ -337,7 +338,7 @@ describe("oracle-differential (yaml@2.9.0 semantic expectations)", () => {
   //      property holds trivially — asserted, not skipped.
   describe("format properties", () => {
     const allInputs: ReadonlyArray<readonly [string, string]> = [
-      ...groups.flatMap(([groupName, cases]) => cases.map((c) => [`${groupName}: ${c.name}`, c.input] as const)),
+      ...A.flatMap(groups, ([groupName, cases]) => A.map(cases, (c) => [`${groupName}: ${c.name}`, c.input] as const)),
       ["multi-document boundaries: trailing comment before ---", "outer:\n  b: 2 # note\n---\nnext: 1\n"],
     ];
 

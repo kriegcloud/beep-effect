@@ -3,6 +3,7 @@ import { ManagedSectionTestError, SectionFileError } from "@beep/managed-section
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -10,7 +11,7 @@ import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { block, id, lines, memoryFs, section } from "./fixtures.ts";
+import { block, id, lines, memoryFs, memoryFsWith, section } from "./fixtures.ts";
 
 const isErrorInstance = S.is(S.ErrorInstance());
 
@@ -53,7 +54,7 @@ describe("ManagedSection", () => {
             const service = yield* ManagedSection;
             const all = yield* service.readAll(HOOK);
             assert.deepStrictEqual(
-              all.map((s) => s.key),
+              A.map(all, (s) => s.key),
               ["a", "b"]
             );
           })
@@ -146,7 +147,7 @@ describe("ManagedSection", () => {
             const service = yield* ManagedSection;
             const outcomes = yield* service.syncAll(HOOK, [section("base", "preamble"), section("tool", "run")]);
             assert.deepStrictEqual(
-              outcomes.map((o) => o._tag),
+              A.map(outcomes, (o) => o._tag),
               ["Created", "Created"]
             );
             const written = fs.text(HOOK) ?? "";
@@ -171,7 +172,7 @@ describe("ManagedSection", () => {
             const writesAfterFirst = fs.writes();
             const second = yield* service.syncAll(HOOK, [section("base", "preamble"), section("tool", "run")]);
             assert.deepStrictEqual(
-              second.map((o) => o._tag),
+              A.map(second, (o) => o._tag),
               ["Unchanged", "Unchanged"]
             );
             assert.strictEqual(fs.writes(), writesAfterFirst, "the second sync must not write");
@@ -205,7 +206,7 @@ describe("ManagedSection", () => {
             const service = yield* ManagedSection;
             const outcomes = yield* service.checkAll(HOOK, [section("a", "1"), section("b", "2")]);
             assert.deepStrictEqual(
-              outcomes.map((o) => o._tag),
+              A.map(outcomes, (o) => o._tag),
               ["UpToDate", "Absent"]
             );
           })
@@ -300,7 +301,7 @@ describe("ManagedSection", () => {
     }
 
     {
-      const fs = memoryFs({ [HOOK]: "x" }, { unreadable: HOOK });
+      const fs = memoryFsWith({ seed: { [HOOK]: "x" }, unreadable: HOOK });
       it.layer(ManagedSection.layer.pipe(Layer.provide(fs.layer)), { timeout: "30 seconds" })((it) => {
         it.effect("wraps an unreadable file, preserving the cause structurally", () =>
           Effect.gen(function* () {
@@ -319,7 +320,7 @@ describe("ManagedSection", () => {
     }
 
     {
-      const fs = memoryFs({}, { unwritable: HOOK });
+      const fs = memoryFsWith({ unwritable: HOOK });
       it.layer(ManagedSection.layer.pipe(Layer.provide(fs.layer)), { timeout: "30 seconds" })((it) => {
         it.effect("distinguishes a write failure from a read failure", () =>
           Effect.gen(function* () {
@@ -377,8 +378,10 @@ describe("ManagedSection", () => {
           assertExitFailure(exit, O.getOrThrow(cause));
           assert.isTrue(Cause.hasDies(exit.cause), "must be a defect, not a typed failure");
           assert.isFalse(Cause.hasFails(exit.cause), "must not be laundered into the error channel");
-          const die = exit.cause.reasons.find(Cause.isDieReason);
-          const defect = die?.defect;
+          const defect = A.findFirst(exit.cause.reasons, Cause.isDieReason).pipe(
+            O.map((die) => die.defect),
+            O.getOrUndefined
+          );
           if (!S.is(ManagedSectionTestError)(defect)) {
             assert.fail("expected the unstubbed member's defect to be a ManagedSectionTestError");
           }

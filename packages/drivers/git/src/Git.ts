@@ -1,3 +1,11 @@
+/**
+ * The `Git` service: typed repository introspection plus a clearly-marked
+ * mutating tier, run through Effect's `ChildProcessSpawner`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";

@@ -2,6 +2,7 @@ import { ErrnoException } from "@beep/memfs/internal/errno";
 import { EngineOptions, make, makeInspectableWith, VolumeEntrySnapshot } from "@beep/memfs/internal/volume";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
@@ -326,25 +327,28 @@ describe("volume uncovered contracts", () => {
       yield* file.seek(0n, "start");
       yield* file.writeAll(new Uint8Array([9, 8]));
       assert.deepStrictEqual(yield* fs.readFile("/wide/nested/link"), new Uint8Array([9, 8]));
-      assert.deepStrictEqual(engine.list("/wide"), [...names.filter((name) => name !== "entry-128"), "nested"]);
+      assert.deepStrictEqual(engine.list("/wide"), [...A.filter(names, (name) => name !== "entry-128"), "nested"]);
       yield* fails(fs.rename("/wide", "/wide/nested/descendant"));
       yield* fs.rename("/wide/nested", "/moved");
       assert.deepStrictEqual(yield* fs.readDirectory("/moved"), ["link"]);
       assert.deepStrictEqual(
         yield* fs.readDirectory("/wide"),
-        names.filter((name) => name !== "entry-128")
+        A.filter(names, (name) => name !== "entry-128")
       );
       assert.deepStrictEqual(yield* fs.readFile("/wide/entry-255"), new Uint8Array([255]));
       assert.deepStrictEqual(engine.lookup("/moved/link")?.data, new Uint8Array([9, 8]));
       assert.deepStrictEqual(
-        engine.entries().map((entry) => entry.path),
+        A.map(engine.entries(), (entry) => entry.path),
         [
           "/",
           "/moved",
           "/moved/link",
           "/tmp",
           "/wide",
-          ...names.filter((name) => name !== "entry-128").map((name) => `/wide/${name}`),
+          ...A.map(
+            A.filter(names, (name) => name !== "entry-128"),
+            (name) => `/wide/${name}`
+          ),
         ]
       );
     })
@@ -481,7 +485,7 @@ describe("volume uncovered contracts", () => {
       assert.strictEqual(engine.list("/alias"), undefined);
       assert.strictEqual(engine.lookup("/missing"), undefined);
       assert.deepStrictEqual(
-        engine.entries().map((entry) => entry.path),
+        A.map(engine.entries(), (entry) => entry.path),
         ["/", "/Dir", "/Dir/Sub", "/Dir/Sub/Z", "/alias", "/tmp"]
       );
     })
@@ -604,7 +608,7 @@ describe("volume uncovered contracts", () => {
     Effect.gen(function* () {
       const fs = yield* make;
       const components = Array.from({ length: 259 }, () => "d");
-      const tail = components.join("/");
+      const tail = A.join(components, "/");
       yield* fs.makeDirectory(`/deep/${tail}`, { recursive: true });
       yield* fs.makeDirectory(`/existing/${tail}`, { recursive: true });
       yield* fails(fs.copy("/deep", "/new"));

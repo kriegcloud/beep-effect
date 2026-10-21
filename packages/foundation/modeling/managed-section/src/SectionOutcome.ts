@@ -1,3 +1,9 @@
+/**
+ * Tagged outcomes of syncing and checking a managed section.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ManagedSectionId } from "@beep/identity/packages";
 import * as Data from "effect/Data";
 import * as S from "effect/Schema";

@@ -1,13 +1,20 @@
-// The `Toml` facade: value-level parsing, canonical stringification and the
-// flagship schema factories, plus the stringify options and the errors the
-// entry points raise.
-//
-// Cycle firewall: the internal engine throws raw carriers (`RawTomlError`
-// with a `{ code, message, offset, length }` record, `GuardExceeded` from the
-// depth guards); this module materializes `TomlDiagnostic` instances
-// (deriving `line`/`character` from `offset`) and constructs the tagged
-// TomlParseError / TomlStringifyError. The dependency edge runs facade →
-// engine only, so `noImportCycles` stays satisfied.
+/**
+ * The `Toml` facade: value-level parsing, canonical stringification and the
+ * flagship schema factories, plus the stringify options and the errors the
+ * entry points raise.
+ *
+ * **Details**
+ *
+ * Cycle firewall: the internal engine throws raw carriers (`RawTomlError`
+ * with a `{ code, message, offset, length }` record, `GuardExceeded` from the
+ * depth guards); this module materializes `TomlDiagnostic` instances
+ * (deriving `line`/`character` from `offset`) and constructs the tagged
+ * TomlParseError / TomlStringifyError. The dependency edge runs facade →
+ * engine only, so `noImportCycles` stays satisfied.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $TomlId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";

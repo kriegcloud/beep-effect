@@ -155,21 +155,21 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git surface — introspection re
         const git = yield* Git;
         const entries = yield* git.nameStatus(dirA, { base: "HEAD" });
 
-        const modified = entries.find((entry) => entry.path === "a.txt");
+        const modified = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "a.txt"));
         assert.isDefined(modified);
         assert.strictEqual(modified?.status, "modified");
 
-        const renamed = entries.find((entry) => entry.path === "renamed.txt");
+        const renamed = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "renamed.txt"));
         assert.isDefined(renamed);
         assert.strictEqual(renamed?.status, "renamed");
         assert.strictEqual(renamed?.oldPath, "sub/c.txt");
 
-        const added = entries.find((entry) => entry.path === "staged.txt");
+        const added = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "staged.txt"));
         assert.isDefined(added);
         assert.strictEqual(added?.status, "added");
 
         // untracked.txt never appears in a diff.
-        assert.isUndefined(entries.find((entry) => entry.path === "untracked.txt"));
+        assert.isUndefined(O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "untracked.txt")));
       })
     );
 
@@ -197,12 +197,12 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git surface — introspection re
         const git = yield* Git;
         const entries = yield* git.status(dirA);
 
-        const untrackedEntry = entries.find((entry) => entry.path === "untracked.txt");
+        const untrackedEntry = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "untracked.txt"));
         assert.isDefined(untrackedEntry);
         assert.strictEqual(untrackedEntry?.x, "?");
         assert.strictEqual(untrackedEntry?.y, "?");
 
-        const renamedEntry = entries.find((entry) => entry.path === "renamed.txt");
+        const renamedEntry = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "renamed.txt"));
         assert.isDefined(renamedEntry);
         assert.strictEqual(renamedEntry?.x, "R");
         assert.strictEqual(renamedEntry?.origPath, "sub/c.txt");
@@ -214,7 +214,7 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git surface — introspection re
         const git = yield* Git;
         const entries = yield* git.lsTree(dirA, commit1Sha, { pathspec: ["sub"] });
         assert.deepStrictEqual(
-          entries.map((entry) => entry.path),
+          A.map(entries, (entry) => entry.path),
           ["sub/c.txt"]
         );
       })
@@ -387,11 +387,11 @@ it.layer(Layer.provideMerge(FixtureBLayer, TestLayer), { timeout: "30 seconds" }
           yield* git.add(superDir, [".gitmodules", "vendor/lib"]);
           const entries = yield* git.status(superDir);
 
-          const gitmodules = entries.find((entry) => entry.path === ".gitmodules");
+          const gitmodules = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === ".gitmodules"));
           assert.isDefined(gitmodules);
           assert.strictEqual(gitmodules?.x, "A");
 
-          const vendorLib = entries.find((entry) => entry.path === "vendor/lib");
+          const vendorLib = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "vendor/lib"));
           assert.isDefined(vendorLib);
           assert.strictEqual(vendorLib?.x, "A");
         }),
@@ -555,17 +555,17 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git.log — history repository (
         // (probed against git 2.54), so the two walks are the same LENGTH here
         // and only their contents discriminate.
         assert.include(
-          followed.flatMap((entry) => entry.paths),
+          A.flatMap(followed, (entry) => entry.paths),
           "tracked/old.txt"
         );
         assert.notInclude(
-          unfollowed.flatMap((entry) => entry.paths),
+          A.flatMap(unfollowed, (entry) => entry.paths),
           "tracked/old.txt"
         );
         // ...and the merge, present unfollowed, is gone under --follow.
-        const merged = unfollowed.find((entry) => entry.paths.length === 0);
+        const merged = O.getOrUndefined(A.findFirst(unfollowed, (entry) => entry.paths.length === 0));
         assert.isDefined(merged);
-        assert.isUndefined(followed.find((entry) => entry.sha === merged?.sha));
+        assert.isUndefined(O.getOrUndefined(A.findFirst(followed, (entry) => entry.sha === merged?.sha)));
       })
     );
 
@@ -599,7 +599,7 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git.log — history repository (
         // The control: c2's rename IS in the unscoped walk, so the absence
         // above is scoping rather than an empty query.
         assert.include(
-          everything.flatMap((entry) => entry.paths),
+          A.flatMap(everything, (entry) => entry.paths),
           "tracked/new.txt"
         );
       })

@@ -74,7 +74,7 @@ describe("TomlFormat remaining observable paths", () => {
           (expressions, visitor) => {
             for (const expr of expressions) {
               if (P.isTagged(expr, "TomlKeyValue")) {
-                visitor?.onKeyValue?.(["missing", ...expr.keyPath.map((key) => key.value)], expr);
+                visitor?.onKeyValue?.(["missing", ...A.map(expr.keyPath, (key) => key.value)], expr);
               }
             }
           }

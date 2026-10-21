@@ -5,6 +5,7 @@ import { Eol, SectionDialect } from "@beep/managed-section/SectionDialect";
 import { SectionDocument, SectionParseError, SectionReconciliation } from "@beep/managed-section/SectionDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -52,7 +53,7 @@ it.effect.prop(
       assert.strictEqual(second.text, first.text);
       assert.isFalse(second.changed);
       assert.deepStrictEqual(
-        second.outcomes.map((outcome) => outcome._tag),
+        A.map(second.outcomes, (outcome) => outcome._tag),
         ["Unchanged"]
       );
       assert.strictEqual(formatted.check(next)._tag, "UpToDate");
@@ -71,7 +72,11 @@ it.effect.prop(
   ([whitespace, bom, value, eol]) =>
     Effect.gen(function* () {
       const prefix =
-        (bom ? "\uFEFF" : "") + whitespace.map((character) => (character === "\n" ? eol : character)).join("");
+        (bom ? "\uFEFF" : "") +
+        A.join(
+          A.map(whitespace, (character) => (character === "\n" ? eol : character)),
+          ""
+        );
       const id = SectionId.make({ key: "tool", commentStyle: CommentStyle.hash });
       const section = id.section(`data:${value.replace(/\r/g, "").replace(/\n/g, "\ndata:")}`);
       const parsed = yield* SectionDocument.parse(prefix);
@@ -86,7 +91,7 @@ it.effect.prop(
       assert.strictEqual(first.text, prefix + separator + block + parsed.eol);
       assert.strictEqual(first.text.slice(0, prefix.length), prefix);
       assert.deepStrictEqual(
-        first.outcomes.map((outcome) => outcome._tag),
+        A.map(first.outcomes, (outcome) => outcome._tag),
         ["Created"]
       );
       const formatted = yield* SectionDocument.parse(first.text);
@@ -95,7 +100,7 @@ it.effect.prop(
       assert.strictEqual(second.text, first.text);
       assert.isFalse(second.changed);
       assert.deepStrictEqual(
-        second.outcomes.map((outcome) => outcome._tag),
+        A.map(second.outcomes, (outcome) => outcome._tag),
         ["Unchanged"]
       );
       const reparsed = yield* SectionDocument.parse(formatted.text);

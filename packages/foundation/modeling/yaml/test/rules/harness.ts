@@ -1,4 +1,7 @@
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 
 // The shared per-rule fixture harness (#129): one harness, N rule fixture
 // sets, each fixture a triple — input → expected diagnostics → expected
@@ -53,7 +56,7 @@ export interface RuleFixture {
  * test that uses it instead of surfacing as a module-collection error.
  */
 export function builtin(id: string): YamlRule {
-  const rule = YamlLint.builtins.find((r) => r.id === id);
+  const rule = O.getOrUndefined(A.findFirst(YamlLint.builtins, (r) => r.id === id));
   if (rule === undefined) {
     throw new Error(`builtin rule "${id}" is not in YamlLint.builtins`);
   }
@@ -66,7 +69,7 @@ const configFor = (rule: YamlRule, setting?: YamlLintRuleSetting): YamlLintConfi
     : YamlLintConfig.make({ rules: { [rule.id]: setting ?? "error" } });
 
 const ruleFindings = (rule: YamlRule, fixture: RuleFixture, impl: YamlRule = rule): ReadonlyArray<YamlLintDiagnostic> =>
-  YamlLint.run(fixture.input, [impl], configFor(rule, fixture.setting)).filter((d) => d.rule === rule.id);
+  A.filter(YamlLint.run(fixture.input, [impl], configFor(rule, fixture.setting)), (d) => d.rule === rule.id);
 
 /** Register the uniform fixture suite (and mutation proofs) for one rule. */
 export const testRule: {
@@ -78,31 +81,36 @@ export const testRule: {
       it(fixture.name, () => {
         // Parse-clean guard: expectations against a rejected document
         // assert nothing.
-        const parseErrors = YamlLint.run(
-          fixture.input,
-          YamlLint.builtins.filter((r) => r.id === "parse-validity"),
-          YamlLintConfig.make({ rules: {} })
-        ).filter((d) => d.severity === "error");
+        const parseErrors = A.filter(
+          YamlLint.run(
+            fixture.input,
+            A.filter(YamlLint.builtins, (r) => r.id === "parse-validity"),
+            YamlLintConfig.make({ rules: {} })
+          ),
+          (d) => d.severity === "error"
+        );
         if (fixture.expectsParseErrors === true) {
           assert.isAbove(parseErrors.length, 0, "fixture declares parse errors but its input parses cleanly");
         } else {
           assert.strictEqual(
             parseErrors.length,
             0,
-            `fixture input must parse cleanly (or declare expectsParseErrors): ${parseErrors
-              .map((d) => `${d.line}:${d.character} ${d.message}`)
-              .join(" | ")}`
+            `fixture input must parse cleanly (or declare expectsParseErrors): ${A.join(
+              A.map(parseErrors, (d) => `${d.line}:${d.character} ${d.message}`),
+              " | "
+            )}`
           );
         }
         const diagnostics = ruleFindings(rule, fixture);
         assert.strictEqual(
           diagnostics.length,
           fixture.expected.length,
-          `expected ${fixture.expected.length} diagnostic(s), got ${diagnostics.length}: ${diagnostics
-            .map((d) => `${d.line}:${d.character} ${d.message}`)
-            .join(" | ")}`
+          `expected ${fixture.expected.length} diagnostic(s), got ${diagnostics.length}: ${A.join(
+            A.map(diagnostics, (d) => `${d.line}:${d.character} ${d.message}`),
+            " | "
+          )}`
         );
-        fixture.expected.forEach((expected, i) => {
+        A.forEach(fixture.expected, (expected, i) => {
           const actual = diagnostics[i];
           assert.isDefined(actual);
           assert.strictEqual(actual.line, expected.line, `diagnostic ${i} line`);
@@ -137,7 +145,8 @@ export const testRule: {
         id: rule.id,
         check: dual(2, (_ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => []),
       });
-      const discriminates = fixtures.some(
+      const discriminates = A.some(
+        fixtures,
         (fixture) => fixture.expected.length !== ruleFindings(rule, fixture, dead).length
       );
       assert.isTrue(
@@ -146,7 +155,7 @@ export const testRule: {
       );
     });
 
-    const fixing = fixtures.filter((f) => f.fixed !== undefined && f.fixed !== f.input);
+    const fixing = A.filter(fixtures, (f) => f.fixed !== undefined && f.fixed !== f.input);
     if (fixing.length > 0) {
       it("mutation proof: the unfixing mutant fails the fixed expectations", () => {
         const unfixing = YamlRule.make({
@@ -154,10 +163,10 @@ export const testRule: {
           check: dual(
             2,
             (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> =>
-              [...rule.check(ctx, options)].map(({ fix: _fix, ...rest }) => YamlLintDiagnostic.make(rest))
+              A.map([...rule.check(ctx, options)], ({ fix: _fix, ...rest }) => YamlLintDiagnostic.make(rest))
           ),
         });
-        const discriminates = fixing.some((fixture) => {
+        const discriminates = A.some(fixing, (fixture) => {
           const result = YamlLint.fix(fixture.input, [unfixing], configFor(rule, fixture.setting));
           return Result.isSuccess(result) && result.success !== fixture.fixed;
         });
@@ -194,15 +203,17 @@ export interface InferenceFixture {
 const emptyBase = YamlLintConfig.make({ rules: {} });
 
 const evidenceFor = (impl: YamlRule, inputs: ReadonlyArray<string>): StyleEvidence =>
-  inputs.reduce((acc, input) => StyleEvidence.combine(acc, YamlLint.observe(input, [impl])), StyleEvidence.empty);
+  A.reduce(inputs, StyleEvidence.empty, (acc, input) => StyleEvidence.combine(acc, YamlLint.observe(input, [impl])));
 
 type StrictResolution = Result.Result<YamlLintConfig, YamlStyleConflictError>;
 type ConflictExpectation = Extract<InferenceExpectation, { readonly kind: "conflict" }>;
 type StyleConflictCandidate = YamlStyleConflictError["conflicts"][number]["candidates"][number];
 
 const assertFloors = (rule: YamlRule, evidence: StyleEvidence, floors: Record<string, number>): void => {
-  for (const [dimension, value] of Object.entries(floors)) {
-    const floor = evidence.floors.find((f) => f.rule === rule.id && f.dimension === dimension);
+  for (const [dimension, value] of R.toEntries(floors)) {
+    const floor = O.getOrUndefined(
+      A.findFirst(evidence.floors, (f) => f.rule === rule.id && f.dimension === dimension)
+    );
     assert.isDefined(floor, `expected a floor for ${rule.id}.${dimension}`);
     assert.strictEqual(floor?.value, value, `floor ${rule.id}.${dimension}`);
   }
@@ -214,7 +225,7 @@ const assertRealOccurrence = (inputs: ReadonlyArray<string>, candidate: StyleCon
   assert.isAtLeast(candidate.count, 1);
   assert.isAtLeast(candidate.offset, 0);
   assert.isTrue(
-    inputs.some((input) => candidate.offset <= input.length),
+    A.some(inputs, (input) => candidate.offset <= input.length),
     "candidate position must fall inside an observed input"
   );
 };
@@ -227,11 +238,13 @@ const assertStrictConflict = (
 ): void => {
   assertFailure(strict, strict.pipe(Result.flip, Result.getOrThrow));
   if (!Result.isFailure(strict)) return;
-  const conflict = strict.failure.conflicts.find((c) => c.rule === rule.id && c.dimension === expectation.dimension);
+  const conflict = O.getOrUndefined(
+    A.findFirst(strict.failure.conflicts, (c) => c.rule === rule.id && c.dimension === expectation.dimension)
+  );
   assert.isDefined(conflict, `expected a conflict on ${rule.id}.${expectation.dimension}`);
   if (conflict === undefined) return;
   assert.sameDeepMembers(
-    conflict.candidates.map((c) => c.value),
+    A.map(conflict.candidates, (c) => c.value),
     [...expectation.values],
     "conflicting spellings"
   );
@@ -288,9 +301,9 @@ export const testRuleInference: {
 
     it("mutation proof: the dead-infer mutant fails the fixture set", () => {
       const dead = YamlRule.make({ id: rule.id, check: rule.check, infer: () => [] });
-      const discriminates = fixtures.some((fixture) => {
+      const discriminates = A.some(fixtures, (fixture) => {
         const evidence = evidenceFor(dead, fixture.inputs);
-        if (fixture.floors !== undefined && Object.keys(fixture.floors).length > 0 && evidence.floors.length === 0) {
+        if (fixture.floors !== undefined && R.keys(fixture.floors).length > 0 && evidence.floors.length === 0) {
           return true;
         }
         const strict = YamlLint.resolveStrict(evidence, emptyBase);

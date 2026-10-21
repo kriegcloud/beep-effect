@@ -22,7 +22,9 @@ import { Yaml } from "@beep/yaml/Yaml";
 import { YamlMap, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -88,16 +90,16 @@ describe("composer review regressions", () => {
   it("rejects a second structural colon without a comma", () => {
     const source = "{foo: 1 bar: 2}";
     const document = composeFirstDocument(source);
-    assert.ok(document.errors.some((error) => error.code === "MalformedFlowCollection" && error.offset === 11));
+    assert.ok(A.some(document.errors, (error) => error.code === "MalformedFlowCollection" && error.offset === 11));
     const result = Yaml.parseResult(source);
     assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
   });
 
   it("reports the missing comma only at the second structural colon", () => {
     for (const source of ["{foo: 1 bar: 2}", "{foo: 1\n bar: 2}"]) {
-      const errors = composeFirstDocument(source).errors.filter((error) => error.code === "MalformedFlowCollection");
+      const errors = A.filter(composeFirstDocument(source).errors, (error) => error.code === "MalformedFlowCollection");
       assert.deepStrictEqual(
-        errors.map((error) => [error.offset, error.length]),
+        A.map(errors, (error) => [error.offset, error.length]),
         [[source.lastIndexOf(":"), 1]]
       );
     }
@@ -153,7 +155,8 @@ describe("composer review regressions", () => {
       const source = `${directive}\n---\nvalue\n`;
       const document = composeFirstDocument(source);
       assert.ok(
-        document.errors.some(
+        A.some(
+          document.errors,
           (error) => error.code === "InvalidDirective" && error.offset === 0 && error.length >= directive.length
         )
       );
@@ -173,7 +176,7 @@ describe("g8 required composer regressions", () => {
     it(`rejects duplicate node properties at ${offset}: ${source.trim()}`, () => {
       const document = composeFirstDocument(source);
       assert.deepStrictEqual(
-        document.errors.map((error) => [error.code, error.offset, error.length]),
+        A.map(document.errors, (error) => [error.code, error.offset, error.length]),
         [["UnexpectedToken", offset, length]]
       );
       const result = Yaml.parseResult(source, YamlParseOptions.make({ strict: true }));
@@ -209,14 +212,14 @@ describe("g8 required composer regressions", () => {
     const map = document.contents.items[0]?.value;
     assert.ok(S.is(YamlMap)(map));
     assert.deepStrictEqual(
-      map.items.map((pair) => [pair.key.offset, pair.key.length, pair.key.toValue(), pair.value]),
+      A.map(map.items, (pair) => [pair.key.offset, pair.key.length, pair.key.toValue(), pair.value]),
       [
         [9, 0, null, null],
         [13, 0, null, null],
       ]
     );
     assert.deepStrictEqual(
-      document.warnings.map((warning) => [warning.code, warning.offset, warning.length]),
+      A.map(document.warnings, (warning) => [warning.code, warning.offset, warning.length]),
       [["DuplicateKey", 13, 0]]
     );
     const result = Yaml.parseResult(source);
@@ -226,7 +229,7 @@ describe("g8 required composer regressions", () => {
 
   for (const source of ["{foo #c\n bar: baz}", "[foo #c\n bar]", '{"foo" #c\n "bar": baz}', '["foo" #c\n "bar"]']) {
     it(`requires a comma between comment-separated entries: ${source}`, () => {
-      const errors = composeFirstDocument(source).errors.filter((error) => error.code === "MalformedFlowCollection");
+      const errors = A.filter(composeFirstDocument(source).errors, (error) => error.code === "MalformedFlowCollection");
       assert.strictEqual(errors.length, 1);
       assert.strictEqual(errors[0]?.offset, source.indexOf("bar") - (source.includes('"bar"') ? 1 : 0));
       const result = Yaml.parseResult(source);
@@ -279,10 +282,12 @@ describe("g8 required composer regressions", () => {
   it("keeps separator-validation source reads linear on malformed comma-free segments", () => {
     const readsAt = (count: number): number => {
       const text = `{k: ${"x [b] ".repeat(count)}}`;
-      const cst = parseCSTAll(text)[0]?.children?.find((child) => child.type === "flow-map");
+      const cst = O.getOrUndefined(
+        A.findFirst(parseCSTAll(text)[0]?.children ?? [], (child) => child.type === "flow-map")
+      );
       assert.ok(cst);
       let reads = 0;
-      const children = (cst.children ?? []).map((child) => ({
+      const children = A.map(cst.children ?? [], (child) => ({
         ...child,
         get source() {
           reads++;
@@ -296,7 +301,7 @@ describe("g8 required composer regressions", () => {
       );
       composeFlowMap({ ...cst, children }, state);
       assert.strictEqual(
-        state.errors.filter((error) => error.code === "MalformedFlowCollection").length,
+        A.filter(state.errors, (error) => error.code === "MalformedFlowCollection").length,
         count * 2 - 1
       );
       assert.ok(reads < children.length * 100);

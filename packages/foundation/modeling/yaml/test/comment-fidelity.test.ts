@@ -19,6 +19,7 @@ import {
   YamlVisitor,
 } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -1066,9 +1067,9 @@ describe("comment fidelity (#127)", () => {
         const events = yield* Stream.runCollect(
           YamlVisitor.visit("# header\n# section\na: 1 # trailing\n...\n# tail\n")
         );
-        const comments = [...events].filter((e) => e._tag === "Comment");
+        const comments = A.filter([...events], (e) => e._tag === "Comment");
         assert.deepStrictEqual(
-          comments.map((c) => [c.placement, c.text]),
+          A.map(comments, (c) => [c.placement, c.text]),
           [
             ["leading", " header\n section"],
             ["trailing", " trailing"],

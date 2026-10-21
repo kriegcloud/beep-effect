@@ -11,7 +11,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import type { GlobPattern } from "@beep/glob";
+import type { GlobPattern } from "@beep/glob/GlobPattern";
 import * as PlatformError from "effect/PlatformError";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -580,7 +580,7 @@ const descendImpl: (
 * **Example** (Expand a compiled glob pattern)
 *
 * ```ts
-* import { GlobPattern } from "@beep/glob";
+* import { GlobPattern } from "@beep/glob/GlobPattern";
 * import { descend } from "@beep/scratchpad/effected/walker/Descend";
 * import * as Effect from "effect/Effect";
 *

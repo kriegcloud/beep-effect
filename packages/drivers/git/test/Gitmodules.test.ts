@@ -105,8 +105,8 @@ describe("Gitmodules", () => {
       const modules = ok(Gitmodules.parseResult('[submodule "a"]\n\tpath = a\n\turl = u\n'));
       const entry = modules.entries[0];
       assert.isDefined(entry);
-      assert.isFalse(Object.hasOwn(entry ?? {}, "branch"));
-      assert.isFalse(Object.hasOwn(entry ?? {}, "shallow"));
+      assert.notProperty(entry ?? {}, "branch");
+      assert.notProperty(entry ?? {}, "shallow");
     });
 
     it("git's boolean vocabulary decodes for shallow, including the bare shorthand", () => {
@@ -163,7 +163,7 @@ describe("Gitmodules", () => {
       assert.strictEqual(noPath._tag, "GitmodulesDecodeError");
       if (noPath._tag !== "GitmodulesDecodeError") assert.fail("expected GitmodulesDecodeError");
       assert.strictEqual(noPath.reason, "missingPath");
-      assert.strictEqual(noPath.name, "a");
+      assert.strictEqual(noPath.submodule, "a");
       const noUrl = decodeFailure('[submodule "a"]\n\tpath = p\n');
       if (noUrl._tag !== "GitmodulesDecodeError") assert.fail("expected GitmodulesDecodeError");
       assert.strictEqual(noUrl.reason, "missingUrl");
@@ -373,8 +373,8 @@ describe("Gitmodules round-1 codec regressions", () => {
       const encoded = yield* S.encodeEffect(Gitmodules.FromString)(modules);
       const decoded = yield* S.decodeEffect(Gitmodules.FromString)(encoded);
       assert.deepStrictEqual(decoded, modules);
-      assert.isFalse(Object.hasOwn(decoded.entries[1] ?? {}, "branch"));
-      assert.isFalse(Object.hasOwn(decoded.entries[1] ?? {}, "update"));
+      assert.notProperty(decoded.entries[1] ?? {}, "branch");
+      assert.notProperty(decoded.entries[1] ?? {}, "update");
     })
   );
 

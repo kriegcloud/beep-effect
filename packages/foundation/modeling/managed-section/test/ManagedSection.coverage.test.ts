@@ -10,6 +10,7 @@ import { SectionDialect } from "@beep/managed-section/SectionDialect";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -67,7 +68,7 @@ describe("ManagedSection uncovered contracts", () => {
         );
         assert.deepStrictEqual(yield* service.readAll("file"), [section]);
         assert.deepStrictEqual(
-          (yield* service.checkAll("file", [section])).map((outcome) => outcome._tag),
+          A.map(yield* service.checkAll("file", [section]), (outcome) => outcome._tag),
           ["UpToDate"]
         );
       })

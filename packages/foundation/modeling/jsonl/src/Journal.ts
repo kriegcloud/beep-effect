@@ -1564,7 +1564,7 @@ export interface JournalClass<Self, Id extends string, R extends JsonlEvent.Regi
    * import { $JsonlId } from "@beep/identity/packages";
    * import { Journal } from "@beep/jsonl/Journal";
    * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
-   * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+   * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
    * import * as S from "effect/Schema";

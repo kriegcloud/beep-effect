@@ -6,6 +6,7 @@
 import { CommitLogEntry, Git, GitCommandError, NotARepositoryError } from "@beep/git/Git";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -40,8 +41,8 @@ const record = (
   authorEmail: string,
   paths: ReadonlyArray<string>
 ): string => {
-  const header = `\0${[sha, authoredAt, committedAt, authorName, authorEmail].join("\0")}\0`;
-  return paths.length === 0 ? header : `${header}\n${paths.join("\0")}\0`;
+  const header = `\0${A.join([sha, authoredAt, committedAt, authorName, authorEmail], "\0")}\0`;
+  return paths.length === 0 ? header : `${header}\n${A.join(paths, "\0")}\0`;
 };
 
 const SHA_A = "a".repeat(40);
@@ -87,7 +88,7 @@ describe("Git.log", () => {
         })
       );
       assert.deepStrictEqual(
-        entries.map((entry) => entry.paths),
+        A.map(entries, (entry) => entry.paths),
         [[], ["f.txt"]]
       );
     })
@@ -121,7 +122,7 @@ describe("Git.log", () => {
           record(SHA_A, "2026-01-03T00:00:00Z", "2026-01-03T00:00:00Z", "Ada", "ada@example.com", ["last\x1epath"]),
       }));
       assert.deepStrictEqual(
-        entries.map((entry) => entry.paths),
+        A.map(entries, (entry) => entry.paths),
         [paths, [], ["last\x1epath"]]
       );
       assert.strictEqual(entries[0]?.authorName, "Ada\x1eLovelace");

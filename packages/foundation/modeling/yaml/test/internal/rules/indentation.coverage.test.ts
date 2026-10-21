@@ -1,6 +1,7 @@
 import { indentation } from "@beep/yaml/internal/rules/indentation";
 import { YamlLint, YamlLintConfig } from "@beep/yaml/YamlLint";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
 it.effect("directives, tabs and framing do not train block indentation", () =>
@@ -8,7 +9,7 @@ it.effect("directives, tabs and framing do not train block indentation", () =>
     const text = "%YAML 1.2\n---\na:\n\tbad: x\n...\n";
     const findings = YamlLint.run(text, [indentation], YamlLintConfig.make({ rules: { indentation: { spaces: 2 } } }));
     assert.deepStrictEqual(
-      findings.filter((finding) => finding.rule === "indentation"),
+      A.filter(findings, (finding) => finding.rule === "indentation"),
       []
     );
     const evidence = YamlLint.observe(text, [indentation]);
@@ -27,12 +28,18 @@ it.effect("compact nested sequences train their actual indentation and stable se
     assert.deepStrictEqual(findings, []);
     const evidence = YamlLint.observe(text, [indentation]);
     assert.deepStrictEqual(
-      evidence.votes.filter((vote) => vote.dimension === "indentSequences").map((vote) => vote.value),
+      A.map(
+        A.filter(evidence.votes, (vote) => vote.dimension === "indentSequences"),
+        (vote) => vote.value
+      ),
       [true]
     );
-    assert.isAbove(evidence.votes.filter((vote) => vote.dimension === "spaces").length, 0);
+    assert.isAbove(A.filter(evidence.votes, (vote) => vote.dimension === "spaces").length, 0);
     assert.deepStrictEqual(
-      evidence.votes.filter((vote) => vote.dimension === "indentSequences").map((vote) => vote.count),
+      A.map(
+        A.filter(evidence.votes, (vote) => vote.dimension === "indentSequences"),
+        (vote) => vote.count
+      ),
       [2]
     );
   })
@@ -47,11 +54,11 @@ it.effect("an unindented first sequence establishes policy before an indentation
     );
     const evidence = YamlLint.observe(text, [indentation]);
     assert.deepStrictEqual(
-      evidence.votes.map((vote) => vote.value),
+      A.map(evidence.votes, (vote) => vote.value),
       [false]
     );
     assert.deepStrictEqual(
-      evidence.votes.map((vote) => vote.count),
+      A.map(evidence.votes, (vote) => vote.count),
       [2]
     );
   })

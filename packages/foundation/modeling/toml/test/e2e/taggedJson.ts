@@ -16,6 +16,7 @@ import { assert } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 
 /** The eight toml-test leaf tags. */
 const LEAF_TAGS = new Set([
@@ -46,7 +47,7 @@ function isTaggedLeaf(candidate: unknown): candidate is TaggedLeaf {
   }
   const record = candidate;
   return (
-    Object.keys(record).length === 2 &&
+    R.size(record) === 2 &&
     typeof record.type === "string" &&
     typeof record.value === "string" &&
     LEAF_TAGS.has(record.type)
@@ -134,7 +135,7 @@ const LEAF_ASSERTERS: Record<string, LeafAsserter> = {
 };
 
 function assertLeaf(actual: unknown, expected: TaggedLeaf, path: string): void {
-  const asserter = Object.hasOwn(LEAF_ASSERTERS, expected.type) ? LEAF_ASSERTERS[expected.type] : undefined;
+  const asserter = R.has(LEAF_ASSERTERS, expected.type) ? LEAF_ASSERTERS[expected.type] : undefined;
   if (asserter === undefined) {
     assert.fail(`${path}: unknown toml-test tag ${expected.type}`);
   }
@@ -157,12 +158,12 @@ function assertTableMatches(actual: unknown, expected: unknown, path: string): v
     assert.fail(`${path}: corpus expectation is not an object, array or tagged leaf`);
   }
   if (!P.isObject(actual)) {
-    assert.fail(`${path}: expected a table, got ${Array.isArray(actual) ? "array" : typeof actual}`);
+    assert.fail(`${path}: expected a table, got ${A.isArray(actual) ? "array" : typeof actual}`);
   }
   const expectedRecord = expected;
   const actualRecord = actual;
-  const expectedKeys = Object.keys(expectedRecord).sort();
-  const actualKeys = Object.keys(actualRecord).sort();
+  const expectedKeys = R.keys(expectedRecord).sort();
+  const actualKeys = R.keys(actualRecord).sort();
   assert.deepStrictEqual(actualKeys, expectedKeys, `${path}: key set mismatch`);
   for (const key of expectedKeys) {
     assertMatchesTagged(actualRecord[key], expectedRecord[key], `${path}.${key}`);
@@ -192,7 +193,7 @@ const assertMatchesTaggedDual: {
     assertLeaf(actual, expected, path);
     return;
   }
-  if (Array.isArray(expected)) {
+  if (A.isArray(expected)) {
     assertArrayMatches(actual, expected, path);
     return;
   }

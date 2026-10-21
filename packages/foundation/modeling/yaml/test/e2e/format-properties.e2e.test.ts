@@ -24,6 +24,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import { loadAllTestCases } from "./support/suite.ts";
 
@@ -38,12 +39,12 @@ function deepEqual(a: unknown, b: unknown): boolean {
 }
 
 function arraysEqual(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
-  return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+  return a.length === b.length && A.every(a, (v, i) => deepEqual(v, b[i]));
 }
 
 function recordsEqual(a: { readonly [x: PropertyKey]: unknown }, b: { readonly [x: PropertyKey]: unknown }): boolean {
-  const keysA = Object.keys(a);
-  return keysA.length === Object.keys(b).length && keysA.every((k) => deepEqual(a[k], b[k]));
+  const keysA = R.keys(a);
+  return keysA.length === R.keys(b).length && A.every(keysA, (k) => deepEqual(a[k], b[k]));
 }
 
 // ── Known-defect ledgers (exact-match ratchets) ─────────────────────────────

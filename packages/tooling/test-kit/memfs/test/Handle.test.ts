@@ -1,4 +1,3 @@
-// @effect-diagnostics asyncFunction:skip-file
 // MemoryFileSystem.makeHandle (inside Effect) and makeSync (at describe
 // scope): every view over one volume, and the node-shaped mutators.
 
@@ -268,7 +267,7 @@ describe("MemoryFileSystem.makeSync", () => {
     assert.strictEqual(e.path, "f/child.txt");
   });
 
-  it("withFaults returns faulted ports over the same volume; the handle's own ports stay unfaulted", async () => {
+  it("withFaults returns faulted ports over the same volume; the handle's own ports stay unfaulted", () => {
     const vol = MemoryFileSystem.makeSync({ "/a.txt": "a" });
     const { sync, promises } = vol.withFaults({
       sync: {
@@ -294,17 +293,23 @@ describe("MemoryFileSystem.makeSync", () => {
       assert.fail("a sync-throwing promises fault must reject, not throw");
     }
     assert.isDefined(pending);
-    const rejected = await pending.then(
-      () => undefined,
-      (e: { code?: string }) => e.code
-    );
-    assert.strictEqual(rejected, "EACCES");
-    assert.isTrue((await vol.promises.stat("/a.txt")).isFile());
-    assert.throws(
-      () => vol.withFaults({ sync: deliberatelyInvalid<never>({ readFileSting: () => undefined }) }),
-      UnknownFaultKeyError,
-      /readFileSting/
-    );
+    return pending
+      .then(
+        () => undefined,
+        (e: { code?: string }) => e.code
+      )
+      .then((rejected) => {
+        assert.strictEqual(rejected, "EACCES");
+        return vol.promises.stat("/a.txt");
+      })
+      .then((stat) => {
+        assert.isTrue(stat.isFile());
+        assert.throws(
+          () => vol.withFaults({ sync: deliberatelyInvalid<never>({ readFileSting: () => undefined }) }),
+          UnknownFaultKeyError,
+          /readFileSting/
+        );
+      });
   });
 
   it("write accepts bytes", () => {
@@ -338,12 +343,14 @@ describe("MemoryFileSystem.makeSync", () => {
     })
   );
 
-  it("a Promise-style suite needs no Effect import to mutate and read", async () => {
+  it("a Promise-style suite needs no Effect import to mutate and read", () => {
     const vol = MemoryFileSystem.makeSync({ "src/a.ts": "" }, { root: "/p" });
-    const before = await vol.promises.readdir("/p/src");
-    vol.write("/p/src/b.ts", "");
-    const after = await vol.promises.readdir("/p/src");
-    assert.deepStrictEqual([before, after], [["a.ts"], ["a.ts", "b.ts"]]);
+    return vol.promises.readdir("/p/src").then((before) => {
+      vol.write("/p/src/b.ts", "");
+      return vol.promises.readdir("/p/src").then((after) => {
+        assert.deepStrictEqual([before, after], [["a.ts"], ["a.ts", "b.ts"]]);
+      });
+    });
   });
 });
 

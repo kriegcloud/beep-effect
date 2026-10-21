@@ -298,18 +298,18 @@ describe("g8 tag diagnostic provenance", () => {
   ] as const) {
     it(`reports each malformed tag once at its own span: ${source}`, () => {
       const composed = composeAllDocuments(source);
-      const errors = [...composed.streamErrors, ...composed.documents.flatMap((document) => document.errors)];
-      const malformed = errors.filter((error) => error.message.startsWith("Malformed percent encoding"));
+      const errors = [...composed.streamErrors, ...A.flatMap(composed.documents, (document) => document.errors)];
+      const malformed = A.filter(errors, (error) => error.message.startsWith("Malformed percent encoding"));
       assert.deepStrictEqual(
-        malformed.map((error) => [error.offset, error.length]),
-        expected.map((span) => [...span])
+        A.map(malformed, (error) => [error.offset, error.length]),
+        A.map(expected, (span) => [...span])
       );
       assert.strictEqual(malformed.length, errors.length);
       const result = Yaml.parseAllResult(source);
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
       assert.deepStrictEqual(
-        result.failure.diagnostics.map((error) => [error.offset, error.length, error.code] as const),
-        expected.map(([offset, length]) => [offset, length, "UnresolvedTag"] as const)
+        A.map(result.failure.diagnostics, (error) => [error.offset, error.length, error.code] as const),
+        A.map(expected, ([offset, length]) => [offset, length, "UnresolvedTag"] as const)
       );
     });
   }
@@ -327,7 +327,7 @@ describe("g8 tag diagnostic provenance", () => {
     );
     assert.strictEqual(state.errors.length, 2);
     assert.deepStrictEqual(
-      state.errors.map((error) => error.message),
+      A.map(state.errors, (error) => error.message),
       ["Malformed percent encoding in tag !missing!bad%GG", "Tag handle !missing! is not declared in this document"]
     );
   });

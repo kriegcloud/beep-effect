@@ -1,30 +1,26 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
 // Differential oracle for the sync port: the same tree on a real tmpdir and in
 // memfs, compared call for call. node's synchronous node:fs API is the
 // reference — its thrown errno shapes are what the sync and promises ports
 // imitate, and Effect's FileSystem exposes neither that API nor its errors —
-// so node:fs is imported for the calls under comparison only. Every host
+// so node:fs is loaded for the calls under comparison only. Every host
 // fixture is built through the harness's FileSystem (NodeServices, the node
 // adapter) under a scoped temp directory.
-import {
-  existsSync,
-  lstatSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { join } from "node:path";
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ErrnoFields } from "../helpers.ts";
+
+// node's synchronous fs API is the oracle under comparison; Effect's FileSystem
+// exposes neither those calls nor their thrown errno shapes.
+const { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, statSync, symlinkSync, writeFileSync } =
+  process.getBuiltinModule("node:fs");
+// Fixture paths are plain POSIX segments under a scoped temp directory.
+const join = (...segments: ReadonlyArray<string>) => A.join(segments, "/");
 
 interface StatLike {
   isDirectory(): boolean;
@@ -51,8 +47,8 @@ const errorOutcome = (host: string, e: unknown) => {
   return {
     code: error.code,
     syscall: error.syscall,
-    message: error.message.split(host).join("/r"),
-    path: error.path?.split(host).join("/r"),
+    message: A.join(error.message.split(host), "/r"),
+    path: error.path === undefined ? undefined : A.join(error.path.split(host), "/r"),
   };
 };
 
@@ -172,7 +168,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
         ];
         const memory = yield* Effect.promise(() => fsp.readdir("/r", { withFileTypes: true }));
         const real = readdirSync(host, { withFileTypes: true });
-        assert.deepStrictEqual(memory.map(kinds).sort(), real.map(kinds).sort());
+        assert.deepStrictEqual(A.map(memory, kinds).sort(), A.map(real, kinds).sort());
         for (const c of cases) {
           // readFile without an encoding: bytes on both sides.
           const memoryBytes = yield* settled(() => fsp.readFile(`/r/${c}`).then((b) => [...b]));
@@ -376,7 +372,7 @@ layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
           );
         }
         assert.deepStrictEqual(
-          paths.map((path) => host.get(path)),
+          A.map(paths, (path) => host.get(path)),
           [
             "ENOENT mkdir",
             "ENOENT mkdir",

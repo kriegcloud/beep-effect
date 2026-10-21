@@ -1239,6 +1239,7 @@
         "allow": [
           "@beep/ai-sync",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1247,6 +1248,7 @@
         "allowTypeOnly": [
           "@beep/ai-sync",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1791,6 +1793,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
@@ -1803,6 +1806,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
@@ -2207,6 +2211,7 @@
         "allow": [
           "@beep/exiftool",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -2215,6 +2220,7 @@
         "allowTypeOnly": [
           "@beep/exiftool",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -2378,13 +2384,15 @@
           "@beep/fc-runs",
           "@beep/glob",
           "@beep/identity",
-          "@beep/schema"
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/fc-runs",
           "@beep/glob",
           "@beep/identity",
-          "@beep/schema"
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -2549,16 +2557,16 @@
           "@beep/fc-runs",
           "@beep/identity",
           "@beep/jsonl",
+          "@beep/memfs",
           "@beep/schema",
-          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/fc-runs",
           "@beep/identity",
           "@beep/jsonl",
+          "@beep/memfs",
           "@beep/schema",
-          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -2630,6 +2638,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/nlp",
           "@beep/pglite",
           "@beep/postgres",
@@ -2661,6 +2670,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/nlp",
           "@beep/pglite",
           "@beep/postgres",
@@ -2920,12 +2930,14 @@
         "allow": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/utils"
         ]
@@ -3078,6 +3090,7 @@
         "allow": [
           "@beep/colors",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/schema",
           "@beep/test-runner",
@@ -3087,6 +3100,7 @@
         "allowTypeOnly": [
           "@beep/colors",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/schema",
           "@beep/test-runner",
@@ -3167,6 +3181,7 @@
         "from": "@beep/ontology",
         "allow": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/ontology",
           "@beep/rdf",
           "@beep/schema",
@@ -3176,6 +3191,7 @@
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/ontology",
           "@beep/rdf",
           "@beep/schema",
@@ -3601,6 +3617,7 @@
           "@beep/m365-mcp",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-gateway",
           "@beep/schema",
           "@beep/test-runner",
@@ -3620,6 +3637,7 @@
           "@beep/m365-mcp",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-gateway",
           "@beep/schema",
           "@beep/test-runner",
@@ -3656,6 +3674,7 @@
           "@beep/law-practice-server",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/pglite",
           "@beep/practice-kg-mcp",
@@ -3671,6 +3690,7 @@
           "@beep/law-practice-server",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/pglite",
           "@beep/practice-kg-mcp",
@@ -3711,6 +3731,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/practice-mail-tagging",
           "@beep/schema",
           "@beep/test-runner",
@@ -3724,6 +3745,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/practice-mail-tagging",
           "@beep/schema",
           "@beep/test-runner",
@@ -3762,18 +3784,18 @@
         "allow": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-setup",
           "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils"
+          "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-setup",
           "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils"
+          "@beep/test-runner"
         ]
       },
       {
@@ -3823,6 +3845,7 @@
           "@beep/lexical-schema",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/ontology-client",
           "@beep/ontology-config",
@@ -3874,6 +3897,7 @@
           "@beep/lexical-schema",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/ontology-client",
           "@beep/ontology-config",
@@ -3985,6 +4009,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -3998,6 +4023,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -4026,6 +4052,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
@@ -4068,6 +4095,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
@@ -4142,6 +4170,7 @@
         "from": "@beep/repo-utils",
         "allow": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/repo-utils",
           "@beep/schema",
           "@beep/test-runner",
@@ -4150,6 +4179,7 @@
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/repo-utils",
           "@beep/schema",
           "@beep/test-runner",
@@ -4875,6 +4905,7 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/md",
+          "@beep/memfs",
           "@beep/postgres",
           "@beep/provenance",
           "@beep/schema",
@@ -4892,6 +4923,7 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/md",
+          "@beep/memfs",
           "@beep/postgres",
           "@beep/provenance",
           "@beep/schema",

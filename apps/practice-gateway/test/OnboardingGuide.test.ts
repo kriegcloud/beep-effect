@@ -1,4 +1,5 @@
 import { SetupDoctor } from "@beep/law-practice-use-cases/PracticeSetup";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import {
   BUILT_IN_ONBOARDING_GUIDE,
@@ -12,7 +13,6 @@ import { ProfileStore } from "@beep/practice-gateway/ProfileStore";
 import { PRACTICE_GATEWAY_INSTRUCTIONS } from "@beep/practice-gateway/Server";
 import { SetupOnboardingGuide, SetupToolkit, SetupToolkitHandlers } from "@beep/practice-gateway/SetupTools";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";

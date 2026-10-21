@@ -793,8 +793,8 @@ const decodeNanosecond = (fraction: string | undefined): number =>
   fraction === undefined ? 0 : Number(`${fraction}000000000`.slice(0, 9));
 
 /**
- * Validated date and time fields from capture groups 1-7 (`year month day
- * hour minute second? fraction?`) shared by the offset and local date-time
+ * Validated date and time fields from capture groups 1-7
+ * (`year month day hour minute second? fraction?`) shared by the offset and local date-time
  * patterns. TOML 1.1 optional seconds: an absent seconds group materializes
  * as 0.
  */

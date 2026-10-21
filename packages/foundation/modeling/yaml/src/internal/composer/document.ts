@@ -245,12 +245,11 @@ const checkTrailingContentAfterDocValue: {
   (children: readonly CstNode[], startIdx: number, state: ComposerState, allowMappingKey?: boolean): void;
 } = dual(
   (args) => A.isArray(args[0]),
-  // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-  (children: readonly CstNode[], startIdx: number, state: ComposerState, allowMappingKey: boolean = true): void => {
+  (children: readonly CstNode[], startIdx: number, state: ComposerState, allowMappingKey?: boolean): void => {
     const j = findTrailingCandidate(children, startIdx);
     if (j < 0) return;
     const next = A.getUnsafe(children, j);
-    if (allowMappingKey && isSiblingMappingKey(children, j, next)) return;
+    if (allowMappingKey !== false && isSiblingMappingKey(children, j, next)) return;
     if (A.contains(TRAILING_CONTENT_TYPES, next.type)) {
       pushUnexpectedToken(state, next, "Trailing content after document value");
     }
@@ -986,15 +985,14 @@ const validateDirectives: {
   (directives: RawDirective[], cst: CstNode, state: ComposerState, hasSubsequentDocuments?: boolean): void;
 } = dual(
   (args) => A.isArray(args[0]),
-  // biome-ignore lint/style/noInferrableTypes: dual() leaves an unannotated defaulted parameter typed any
-  (directives: RawDirective[], cst: CstNode, state: ComposerState, hasSubsequentDocuments: boolean = false): void => {
+  (directives: RawDirective[], cst: CstNode, state: ComposerState, hasSubsequentDocuments?: boolean): void => {
     const children = cst.children ?? [];
     reportDuplicateYamlDirective(directives, children, state);
     for (const child of children) {
       if (isDirectiveChild(child)) validateDirectiveSyntax(child, state);
     }
     reportDirectiveWithoutDocStart(children, state);
-    if (hasSubsequentDocuments) reportDirectivesAfterContent(children, state);
+    if (hasSubsequentDocuments === true) reportDirectivesAfterContent(children, state);
   }
 );
 

@@ -1,11 +1,18 @@
-// The GlobPattern facade: single-pattern compilation, total matching, the
-// enumerator metadata getters, the schema-validated options surface, the
-// FromString codec and the escape statics — plus GlobPatternError, the
-// package's typed failure vocabulary (errors-near-domain rule).
-//
-// Cycle firewall: this module imports the engine; the engine never imports
-// it. The engine throws raw GuardExceeded records at compile time; ONLY this
-// facade materializes them into the typed GlobPatternError.
+/**
+ * The GlobPattern facade: single-pattern compilation, total matching, the
+ * enumerator metadata getters, the schema-validated options surface, the
+ * FromString codec and the escape statics, plus GlobPatternError, the
+ * package's typed failure vocabulary.
+ *
+ * **Details**
+ *
+ * Cycle firewall: this module imports the engine; the engine never imports
+ * it. The engine throws raw GuardExceeded records at compile time; only this
+ * facade materializes them into the typed GlobPatternError.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $GlobId } from "@beep/identity/packages";
 import * as A from "effect/Array";

@@ -6,7 +6,9 @@
 import { YamlToken, YamlTokens } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -46,14 +48,14 @@ describe("YamlTokens", () => {
 
     it("reports line/character zero-based, matching the diagnostic vocabulary", () => {
       const tokens = tokensOf("a: 1\nb: 2\n");
-      const b = tokens.find((t) => t.text === "b");
+      const b = O.getOrUndefined(A.findFirst(tokens, (t) => t.text === "b"));
       assert.isDefined(b);
       assert.strictEqual(b?.line, 1);
       assert.strictEqual(b?.character, 0);
     });
 
     it("tokenizes comments as comment-kind tokens carrying the raw # slice", () => {
-      const comment = tokensOf("a: 1 # note\n").find((t) => t.kind === "comment");
+      const comment = O.getOrUndefined(A.findFirst(tokensOf("a: 1 # note\n"), (t) => t.kind === "comment"));
       assert.isDefined(comment);
       assert.strictEqual(comment?.text, "# note");
     });
@@ -101,20 +103,20 @@ describe("public token CR positions", () => {
   for (const newline of ["\r", "\r\n", "\n"]) {
     it(`uses one line break for ${JSON.stringify(newline)}`, () => {
       const source = `a: 1${newline}  b: 2${newline}c: 3${newline}`;
-      const keys = tokensOf(source).filter((token) => ["a", "b", "c"].includes(token.text));
+      const keys = A.filter(tokensOf(source), (token) => ["a", "b", "c"].includes(token.text));
       assert.deepStrictEqual(
-        keys.map((token) => [token.text, token.line, token.character]),
+        A.map(keys, (token) => [token.text, token.line, token.character]),
         [
           ["a", 0, 0],
           ["b", 1, 2],
           ["c", 2, 0],
         ]
       );
-      assert.strictEqual(tokensOf(source).filter((token) => token.kind === "newline").length, 3);
+      assert.strictEqual(A.filter(tokensOf(source), (token) => token.kind === "newline").length, 3);
     });
   }
   it("indexes adjacent lone CR and CRLF breaks separately", () => {
-    const key = tokensOf("a: 1\r\r\nb: 2").find((token) => token.text === "b");
+    const key = O.getOrUndefined(A.findFirst(tokensOf("a: 1\r\r\nb: 2"), (token) => token.text === "b"));
     assert.strictEqual(key?.line, 2);
     assert.strictEqual(key?.character, 0);
   });

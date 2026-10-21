@@ -1,6 +1,7 @@
 import * as GitModule from "@beep/git";
 import { GitCommand, GitConfigScope } from "@beep/git/GitCommand";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -809,12 +810,12 @@ describe("GitCommand", () => {
         if ("stream" in stdin) assert.fail("expected a direct stdin stream");
         const chunks = yield* Stream.runCollect(stdin);
         const decoded = new TextDecoder().decode(
-          chunks.reduce((acc, chunk) => {
+          A.reduce(chunks, new Uint8Array(0), (acc, chunk) => {
             const merged = new Uint8Array(acc.length + chunk.length);
             merged.set(acc);
             merged.set(chunk, acc.length);
             return merged;
-          }, new Uint8Array(0))
+          })
         );
         assert.strictEqual(decoded, "ig.txt\0path with space.txt\0");
       })

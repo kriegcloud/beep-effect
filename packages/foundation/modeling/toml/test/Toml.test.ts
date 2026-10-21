@@ -407,7 +407,7 @@ describe("Toml", () => {
       ["an empty table", {}],
       ["a null value TOML cannot represent", { nope: null }],
       ["an out-of-int64-range bigint", { n: 2n ** 64n }],
-      ["a nesting-depth bomb", { a: Array.from({ length: 300 }).reduce<unknown>((acc) => [acc], 1) }],
+      ["a nesting-depth bomb", { a: A.reduce<unknown, unknown>(Array.from({ length: 300 }), 1, (acc) => [acc]) }],
     ];
 
     for (const [label, value] of stringifyRows) {

@@ -12,6 +12,7 @@
  * or an unhandled defect on malformed or adversarial input.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { Toml, TomlParseError, TomlStringifyError, TomlStringifyOptions } from "./Toml.ts";

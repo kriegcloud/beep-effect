@@ -1656,17 +1656,17 @@ const cloneInode: {
         })
     );
     return yield* InodeEntry.match(source, {
-      File: Effect.fn("File")(function* (source: FileInode) {
+      File: Effect.fn("Volume.cloneFile")(function* (source: FileInode) {
         const [createdState, inode] = yield* createFile(state, source.data);
         const nextState = applyMetadata(createdState, yield* getInode(createdState, inode, method, path));
         return [nextState, inode] as const;
       }),
-      SymbolicLink: Effect.fn("SymbolicLink")(function* (source: SymbolicLinkInode) {
+      SymbolicLink: Effect.fn("Volume.cloneSymbolicLink")(function* (source: SymbolicLinkInode) {
         const [createdState, inode] = yield* createSymbolicLink(state, source.target);
         const nextState = applyMetadata(createdState, yield* getInode(createdState, inode, method, path));
         return [nextState, inode] as const;
       }),
-      Directory: Effect.fn("Directory")(function* (source: DirectoryInode) {
+      Directory: Effect.fn("Volume.cloneDirectory")(function* (source: DirectoryInode) {
         let [nextState, inode] = yield* createDirectory(state);
         const children = A.sort(source.entries, InodeNameOrder);
         for (const [name, childInode] of children) {
@@ -3793,7 +3793,7 @@ export class EngineOptions extends S.Opaque<EngineOptions, { readonly brand: uni
 ) {}
 const defaultEngineOptions = EngineOptions.make({ caseSensitive: true });
 
-const makeVolume = Effect.fn("makeVolume")(function* (options: EngineOptions) {
+const makeVolume = Effect.fn("Volume.make")(function* (options: EngineOptions) {
   const now = yield* DateTime.now;
   // NOTE: One permit covers a transition, its state assignment, and event publication;
   // acquiring that permit remains interruptible.
@@ -3935,7 +3935,7 @@ const toFileSystem = (volume: Volume): FileSystem.FileSystem =>
     writeFile: writeFile(volume),
   });
 
-const makeReadyVolume: (options: EngineOptions) => Effect.Effect<Volume> = Effect.fn("makeReadyVolume")(
+const makeReadyVolume: (options: EngineOptions) => Effect.Effect<Volume> = Effect.fn("Volume.makeReady")(
   function* (options) {
     const volume = yield* makeVolume(options);
     yield* Effect.orDie(makeDirectory(volume)(TEMP_DIR, { recursive: true }));

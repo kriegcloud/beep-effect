@@ -390,11 +390,7 @@ const effectTsgoReadmeParser = new XMLParser({
 export const isEffectDiagnosticsDirectiveForTesting = (line: string): boolean =>
   effectDiagnosticsDirectivePattern.test(line);
 
-const EffectDiagnosticsExemptPath = LiteralKit([
-  "vitest.setup.ts",
-  "vitest.shared.ts",
-  "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts",
-]);
+const EffectDiagnosticsExemptPath = LiteralKit(["vitest.setup.ts", "vitest.shared.ts"]);
 const EffectDiagnosticsExemptRule = LiteralKit([
   "asyncFunction",
   "globalRandom",
@@ -402,7 +398,6 @@ const EffectDiagnosticsExemptRule = LiteralKit([
   "newPromise",
   "nodeBuiltinImport",
   "processEnv",
-  "strictEffectProvide",
 ]);
 
 /**
@@ -421,9 +416,9 @@ const EffectDiagnosticsExemptRule = LiteralKit([
  * import { EffectDiagnosticsDirectiveExemption } from "@beep/repo-cli/commands/Quality/Quality.command"
  *
  * const exemption = EffectDiagnosticsDirectiveExemption.make({
- *   path: "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts",
- *   rules: ["strictEffectProvide"],
- *   reason: "The conformance entrypoint provides the filesystem layer under test.",
+ *   path: "vitest.shared.ts",
+ *   rules: ["nodeBuiltinImport"],
+ *   reason: "The shared Vitest config scans its include list before any Effect runtime exists.",
  * })
  * console.log(exemption.rules.length) // => 1
  * ```
@@ -451,14 +446,14 @@ export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
  *
  * **Details**
  *
- * Exactly three entries exist and the tuple type keeps it that way: the root Bun-compat shim,
- * which implements `Bun.*` over node builtins before any Effect runtime exists, the root Vitest
- * shared config, whose include list is scanned synchronously before any Effect runtime exists,
- * and the effect-vitest-canon D14 conformance entrypoint. Five dated catalog payload
+ * Exactly two entries exist and the tuple type keeps it that way: the root Bun-compat shim,
+ * which implements `Bun.*` over node builtins before any Effect runtime exists, and the root
+ * Vitest shared config, whose include list is scanned synchronously before any Effect runtime
+ * exists. Five dated catalog payload
  * next-line directives are separately admitted until the split public rename PR;
  * they do not admit file-wide disables. Every other `@effect-diagnostics`
  * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, and the
- * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a fourth entry
+ * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a third entry
  * has found a rule-card gap, not a reason to grow this list.
  *
  * **Example** (Read the admitted paths)
@@ -468,14 +463,13 @@ export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
  * import * as A from "effect/Array"
  *
  * console.log(A.map(effectDiagnosticsDirectiveExemptions, (exemption) => exemption.path))
- * // => ["vitest.setup.ts", "vitest.shared.ts", "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts"]
+ * // => ["vitest.setup.ts", "vitest.shared.ts"]
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
 export const effectDiagnosticsDirectiveExemptions: readonly [
-  EffectDiagnosticsDirectiveExemption,
   EffectDiagnosticsDirectiveExemption,
   EffectDiagnosticsDirectiveExemption,
 ] = [
@@ -490,12 +484,6 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
     rules: ["nodeBuiltinImport"],
     reason:
       "Root Vitest shared config: the include list is scanned synchronously with node builtins at config time, before any Effect runtime exists.",
-  }),
-  EffectDiagnosticsDirectiveExemption.make({
-    path: "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts",
-    rules: ["strictEffectProvide"],
-    reason:
-      "effect-vitest-canon D14: the shared conformance entrypoint provides the filesystem layer under test in each registration.",
   }),
 ];
 
@@ -625,15 +613,15 @@ const isExemptEffectDiagnosticsDirective = (line: string, normalizedRepoRelative
  * trailing text. Paths and directive lines are compared exactly, without trimming. The
  * production collector uses this same predicate after normalizing its paths.
  *
- * **Example** (Keep the conformance exception local)
+ * **Example** (Keep the shared-config exception local)
  *
- * ```ts import.meta.vitest name="Keep the conformance exception local"
+ * ```ts import.meta.vitest name="Keep the shared-config exception local"
  * import { isRejectedEffectDiagnosticsDirectiveForTesting } from "@beep/repo-cli/commands/Quality/Quality.command"
  * import { pipe } from "effect/Function"
  *
- * const line = "// @effect-diagnostics strictEffectProvide:skip-file"
- * const conformancePath = "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts"
- * isRejectedEffectDiagnosticsDirectiveForTesting(line, conformancePath) // => false
+ * const line = "// @effect-diagnostics nodeBuiltinImport:skip-file"
+ * const sharedConfigPath = "vitest.shared.ts"
+ * isRejectedEffectDiagnosticsDirectiveForTesting(line, sharedConfigPath) // => false
  * pipe(line, isRejectedEffectDiagnosticsDirectiveForTesting("packages/example/src/main.ts")) // => true
  * ```
  *

@@ -1,8 +1,10 @@
 import { Yaml, YamlParseOptions } from "@beep/yaml/Yaml";
 import { YamlVisitor, YamlVisitorEvent } from "@beep/yaml/YamlVisitor";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 
@@ -14,7 +16,7 @@ describe("YamlVisitor", () => {
     it.effect("emits a well-formed event sequence for a mapping", () =>
       Effect.gen(function* () {
         const events = yield* Stream.runCollect(YamlVisitor.visit("a: 1\n"));
-        const tags = events.map((e) => e._tag);
+        const tags = A.map(events, (e) => e._tag);
         assert.deepStrictEqual(tags, [
           "DocumentStart",
           "MapStart",
@@ -30,7 +32,9 @@ describe("YamlVisitor", () => {
     it.effect("carries path context on nested scalar events", () =>
       Effect.gen(function* () {
         const events = yield* Stream.runCollect(YamlVisitor.visit("a:\n  b: 42\n"));
-        const scalar = events.find((e) => YamlVisitorEvent.$is("Scalar")(e) && e.value === 42);
+        const scalar = O.getOrUndefined(
+          A.findFirst(events, (e) => YamlVisitorEvent.$is("Scalar")(e) && e.value === 42)
+        );
         assert.isDefined(scalar);
         assert.deepStrictEqual(scalar !== undefined && "path" in scalar ? [...scalar.path] : undefined, ["a", "b"]);
       })
@@ -39,7 +43,7 @@ describe("YamlVisitor", () => {
     it.effect("emits Pair events with resolved key/value", () =>
       Effect.gen(function* () {
         const events = yield* Stream.runCollect(YamlVisitor.visit("name: Alice\n"));
-        const pair = events.find(YamlVisitorEvent.$is("Pair"));
+        const pair = O.getOrUndefined(A.findFirst(events, YamlVisitorEvent.$is("Pair")));
         assert.isDefined(pair);
         assert.strictEqual(pair?.key, "name");
         assert.strictEqual(pair?.value, "Alice");
@@ -50,9 +54,9 @@ describe("YamlVisitor", () => {
       Effect.gen(function* () {
         const text = "outer:\n  .nan: .nan\n  .inf: .inf\n  +.inf: +.inf\n  -.inf: -.inf\n  42: 42\n";
         const events = yield* Stream.runCollect(YamlVisitor.visit(text, YamlParseOptions.make({ uniqueKeys: false })));
-        const pairs = events.filter(YamlVisitorEvent.$is("Pair"));
+        const pairs = A.filter(events, YamlVisitorEvent.$is("Pair"));
         assert.deepStrictEqual(
-          pairs.map((event) => event.path),
+          A.map(pairs, (event) => event.path),
           [
             ["outer"],
             ["outer", "NaN"],
@@ -63,7 +67,7 @@ describe("YamlVisitor", () => {
           ]
         );
         assert.deepStrictEqual(
-          pairs.slice(1).map((event) => [event.key, event.value]),
+          A.map(pairs.slice(1), (event) => [event.key, event.value]),
           [
             [Number.NaN, Number.NaN],
             [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY],
@@ -72,9 +76,9 @@ describe("YamlVisitor", () => {
             [42, 42],
           ]
         );
-        const scalars = events.filter(YamlVisitorEvent.$is("Scalar"));
+        const scalars = A.filter(events, YamlVisitorEvent.$is("Scalar"));
         assert.deepStrictEqual(
-          scalars.slice(1).map((event) => [event.path, event.value]),
+          A.map(scalars.slice(1), (event) => [event.path, event.value]),
           [
             [["outer", "NaN"], Number.NaN],
             [["outer", "NaN"], Number.NaN],
@@ -88,8 +92,8 @@ describe("YamlVisitor", () => {
             [["outer", 42], 42],
           ]
         );
-        assert.isTrue(events.every((event) => isPath(event.path)));
-        assert.deepStrictEqual(events.filter(YamlVisitorEvent.$is("Error")), []);
+        assert.isTrue(A.every(events, (event) => isPath(event.path)));
+        assert.deepStrictEqual(A.filter(events, YamlVisitorEvent.$is("Error")), []);
       })
     );
 
@@ -108,9 +112,9 @@ describe("YamlVisitor", () => {
     it.effect("surfaces malformed input as Error events in the union and still completes", () =>
       Effect.gen(function* () {
         const events = yield* Stream.runCollect(YamlVisitor.visit("a: *undefined\n"));
-        const errors = events.filter(YamlVisitorEvent.$is("Error"));
+        const errors = A.filter(events, YamlVisitorEvent.$is("Error"));
         assert.isAbove(errors.length, 0);
-        assert.isTrue(errors.some((e) => e.diagnostic.code === "UndefinedAlias"));
+        assert.isTrue(A.some(errors, (e) => e.diagnostic.code === "UndefinedAlias"));
         // The stream must still complete normally.
         assert.strictEqual(events[events.length - 1]?._tag, "DocumentEnd");
       })
@@ -121,18 +125,18 @@ describe("YamlVisitor", () => {
         const events = yield* Stream.runCollect(
           YamlVisitor.visit("a: &x 1\nb: *x\nc: *x\n", YamlParseOptions.make({ maxAliasCount: 1 }))
         );
-        const errors = events.filter(YamlVisitorEvent.$is("Error"));
-        assert.isTrue(errors.some((e) => e.diagnostic.code === "AliasCountExceeded"));
+        const errors = A.filter(events, YamlVisitorEvent.$is("Error"));
+        assert.isTrue(A.some(errors, (e) => e.diagnostic.code === "AliasCountExceeded"));
       })
     );
 
     it.effect("emits per-directive events and DocumentStart directives", () =>
       Effect.gen(function* () {
         const events = yield* Stream.runCollect(YamlVisitor.visit("%YAML 1.2\n---\na: 1\n"));
-        const directiveEvent = events.find(YamlVisitorEvent.$is("Directive"));
+        const directiveEvent = O.getOrUndefined(A.findFirst(events, YamlVisitorEvent.$is("Directive")));
         assert.isDefined(directiveEvent);
         assert.strictEqual(directiveEvent?.name, "YAML");
-        const start = events.find(YamlVisitorEvent.$is("DocumentStart"));
+        const start = O.getOrUndefined(A.findFirst(events, YamlVisitorEvent.$is("DocumentStart")));
         assert.isDefined(start);
         assert.strictEqual(start?.directives.length, 1);
         assert.strictEqual(start?.directives[0]?.name, "YAML");
@@ -142,8 +146,8 @@ describe("YamlVisitor", () => {
     it.effect("emits a separate DocumentStart/DocumentEnd pair per document in a multi-doc stream", () =>
       Effect.gen(function* () {
         const events = yield* Stream.runCollect(YamlVisitor.visit("a: 1\n---\nb: 2\n"));
-        const starts = events.filter(YamlVisitorEvent.$is("DocumentStart"));
-        const ends = events.filter(YamlVisitorEvent.$is("DocumentEnd"));
+        const starts = A.filter(events, YamlVisitorEvent.$is("DocumentStart"));
+        const ends = A.filter(events, YamlVisitorEvent.$is("DocumentEnd"));
         assert.strictEqual(starts.length, 2);
         assert.strictEqual(ends.length, 2);
       })

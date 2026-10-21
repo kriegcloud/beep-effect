@@ -6,6 +6,7 @@ import { expand } from "@beep/glob/internal/braceExpansion";
 import { GuardExceeded, InvalidCap } from "@beep/glob/internal/limits";
 import { assert, describe, it } from "@effect/vitest";
 import { assertInstanceOf } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { braceExpand as oracleExpand } from "minimatch";
 
@@ -323,14 +324,14 @@ describe("braceExpansion round-3 regressions", () => {
   });
 
   it("rejects siblings without materializing their full member arrays", () => {
-    const source = `{${Array.from({ length: 32 }, () => "{1..1000}").join(",")}}`;
+    const source = `{${A.join(A.replicate("{1..1000}", 32), ",")}}`;
     const push = Array.prototype.push;
     let retained = 0;
     let members = 0;
     Array.prototype.push = function (this: Array<unknown>, ...items: Array<unknown>) {
       const size = push.apply(this, items);
       retained = Math.max(retained, size);
-      members += items.filter((item) => S.is(S.String)(item) && /^\d+$/.test(item)).length;
+      members += A.countBy(items, (item) => S.is(S.String)(item) && /^\d+$/.test(item));
       return size;
     };
     let failure: unknown;

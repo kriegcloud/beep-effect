@@ -1,5 +1,6 @@
 import { $TomlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as N from "@beep/utils/Number";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
@@ -170,14 +171,6 @@ export const isGuardExceeded = S.is(GuardExceeded);
  * @category assertions
  * @since 0.0.0
  */
-export const assertCap: {
-  (name: string, value: number): number;
-  (value: number): (name: string) => number;
-} = dual(2, (name: string, value: number): number => {
-  if (!Number.isSafeInteger(value) || value < 1) {
-    throw TomlCapError.make({
-      message: `@effected/toml internal cap ${name} must be a positive integer, received ${value}`,
-    });
-  }
-  return value;
-});
+export const assertCap: N.CapAssertion = N.makeCapAssertion("@effected/toml", (message) =>
+  TomlCapError.make({ message })
+);

@@ -2,6 +2,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { AST, ASTError, ExtglobType } from "@beep/glob/internal/ast";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { AST as OracleAST } from "minimatch";
@@ -15,7 +16,7 @@ const pattern = Arbitrary.schema(ExtglobType).pipe(
     S.Literals(["a", "b", "*", "?", "[ab]", "."]).pipe(
       S.Array,
       Arbitrary.schema,
-      Arbitrary.map((parts) => `${op}(a|${parts.join("|")})`)
+      Arbitrary.map((parts) => `${op}(a|${A.join(parts, "|")})`)
     )
   )
 );
@@ -65,7 +66,7 @@ describe("AST property floor", () => {
     [patterns, S.Literals(["a", "b", "c", "."]).pipe(S.Array, Arbitrary.schema), Arbitrary.schema(S.Boolean)],
     ([text, chars, dot]) =>
       Effect.sync(() => {
-        const candidate = chars.join("");
+        const candidate = A.join(chars, "");
         const actual = AST.fromGlob(text, { dot }).toMMPattern();
         const expected = OracleAST.fromGlob(text, { dot }).toMMPattern();
         assert.strictEqual(

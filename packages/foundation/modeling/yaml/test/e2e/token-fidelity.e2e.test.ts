@@ -17,6 +17,7 @@ import { YamlTokens } from "@beep/yaml";
 import { parseCSTAll } from "@beep/yaml/internal/cst-parser";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
 import { loadAllTestCases } from "./support/suite.ts";
 import type { YamlToken } from "@beep/yaml";
@@ -111,9 +112,21 @@ describe("EOF source fidelity regressions", () => {
         cursor += token.length;
       }
       assert.strictEqual(cursor, source.length);
-      assert.strictEqual(tokens.map((token) => token.text).join(""), source);
+      assert.strictEqual(
+        A.join(
+          A.map(tokens, (token) => token.text),
+          ""
+        ),
+        source
+      );
       const documents = parseCSTAll(source);
-      assert.strictEqual(documents.map((document) => document.source).join(""), source);
+      assert.strictEqual(
+        A.join(
+          A.map(documents, (document) => document.source),
+          ""
+        ),
+        source
+      );
       assert.strictEqual(documents[0]?.offset, 0);
       assert.strictEqual(documents[0]?.length, source.length);
     });

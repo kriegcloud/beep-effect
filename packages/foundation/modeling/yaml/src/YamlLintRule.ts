@@ -1,11 +1,18 @@
-// The lint rule model: the context handed to every rule, the public
-// rule interface, the severity vocabulary and the lint diagnostic.
-//
-// Cycle firewall: built-in rules must construct `YamlLintDiagnostic` while the
-// facade must import the built-in catalog — one module owning both would close the cycle
-// `YamlLint → rules → YamlLint` (`noImportCycles` is error-level). So the
-// model lives here, `src/internal/rules/*` import it, and `YamlLint.ts`
-// (config + facade) imports both. Nothing imports this module back.
+/**
+ * The lint rule model: the context handed to every rule, the public
+ * rule interface, the severity vocabulary and the lint diagnostic.
+ *
+ * **Details**
+ *
+ * Cycle firewall: built-in rules must construct `YamlLintDiagnostic` while the
+ * facade must import the built-in catalog — one module owning both would close the cycle
+ * `YamlLint → rules → YamlLint` (`noImportCycles` is error-level). So the
+ * model lives here, `src/internal/rules/*` import it, and `YamlLint.ts`
+ * (config + facade) imports both. Nothing imports this module back.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";

@@ -32,6 +32,7 @@
  * volume-inspection APIs are extensions beyond it.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { UnknownFaultKeyError } from "./internal/faults.ts";

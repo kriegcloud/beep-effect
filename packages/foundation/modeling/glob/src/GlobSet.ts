@@ -1,12 +1,21 @@
-// The GlobSet facade: multi-pattern include/exclude sets with glob-core's SET
-// semantics — a leading bang marks an exclusion filter applied after positive
-// matching. This is deliberately distinct from minimatch's whole-pattern
-// negation: both exist, at different levels, on purpose.
-//
-// GlobSet pins DEFAULT options internally and takes no options surface of its
-// own, so a set means the same thing everywhere. Braced patterns classify per
-// expanded alternative, so {tools/cli,packages/*} contributes a literal AND a
-// wildcard.
+/**
+ * The GlobSet facade: multi-pattern include/exclude sets with glob-core's set
+ * semantics, where a leading bang marks an exclusion filter applied after
+ * positive matching.
+ *
+ * **Details**
+ *
+ * This is deliberately distinct from minimatch's whole-pattern negation: both
+ * exist, at different levels, on purpose.
+ *
+ * GlobSet pins default options internally and takes no options surface of its
+ * own, so a set means the same thing everywhere. Braced patterns classify per
+ * expanded alternative, so `{tools/cli,packages/*}` contributes a literal and
+ * a wildcard.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $GlobId } from "@beep/identity/packages";
 import * as A from "effect/Array";

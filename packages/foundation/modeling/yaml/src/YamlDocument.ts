@@ -1,10 +1,17 @@
-// The parsed-document concept: YamlDocument (root AST node plus
-// errors/warnings-as-data, directives and document framing) and
-// YamlDirective.
-//
-// The recoverable-parse design lives here: non-fatal diagnostics surface as
-// data on `errors`/`warnings` while fatal ones fail `parse`/`parseAll` with a
-// typed `YamlParseError`.
+/**
+ * The parsed-document concept: YamlDocument (root AST node plus
+ * errors/warnings-as-data, directives and document framing) and
+ * YamlDirective.
+ *
+ * **Details**
+ *
+ * The recoverable-parse design lives here: non-fatal diagnostics surface as
+ * data on `errors`/`warnings` while fatal ones fail `parse`/`parseAll` with a
+ * typed `YamlParseError`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $YamlId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";

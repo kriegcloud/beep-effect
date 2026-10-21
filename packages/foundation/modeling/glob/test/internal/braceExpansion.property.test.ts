@@ -2,6 +2,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { expand } from "@beep/glob/internal/braceExpansion";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { braceExpand } from "minimatch";
@@ -18,13 +19,16 @@ describe("brace expansion property floor", () => {
     [alternatives],
     ([parts]) =>
       Effect.sync(() => {
-        const prefix = parts.map((part) => `\u0024{${part}}`).join("");
+        const prefix = A.join(
+          A.map(parts, (part) => `\u0024{${part}}`),
+          ""
+        );
         const text = `${prefix}{left,right}`;
         const parsed = expand(text);
         assert.deepStrictEqual(parsed, [`${prefix}left`, `${prefix}right`]);
         assert.deepStrictEqual(parsed, braceExpand(text));
         assert.deepStrictEqual(
-          parsed.flatMap((part) => expand(part)),
+          A.flatMap(parsed, (part) => expand(part)),
           parsed
         );
       }),
@@ -35,19 +39,19 @@ describe("brace expansion property floor", () => {
     [alternatives],
     ([parts]) =>
       Effect.sync(() => {
-        const text = `pre{${parts.join(",")},end}post`;
+        const text = `pre{${A.join(parts, ",")},end}post`;
         const parsed = expand(text);
-        const rendered = `{${parsed.join(",")}}`;
+        const rendered = `{${A.join(parsed, ",")}}`;
         assert.deepStrictEqual(expand(rendered), parsed);
         assert.deepStrictEqual(
-          parsed.flatMap((part) => expand(part)),
+          A.flatMap(parsed, (part) => expand(part)),
           parsed
         );
-        assert.deepStrictEqual(expand(`{${expand(rendered).join(",")}}`), parsed);
+        assert.deepStrictEqual(expand(`{${A.join(expand(rendered), ",")}}`), parsed);
         assert.deepStrictEqual(parsed, braceExpand(text));
         assert.deepStrictEqual(
           parsed,
-          (parts.length === 0 ? ["", "end"] : [...parts, "end"]).map((part) => `pre${part}post`)
+          A.map(parts.length === 0 ? ["", "end"] : [...parts, "end"], (part) => `pre${part}post`)
         );
       }),
     runs
@@ -61,10 +65,10 @@ describe("brace expansion property floor", () => {
         const parsed = expand(text);
         assert.deepStrictEqual(parsed, braceExpand(text));
         assert.deepStrictEqual(
-          parsed.flatMap((part) => expand(part)),
+          A.flatMap(parsed, (part) => expand(part)),
           parsed
         );
-        assert.deepStrictEqual(expand(`{${parsed.join(",")},sentinel}`).slice(0, -1), parsed);
+        assert.deepStrictEqual(expand(`{${A.join(parsed, ",")},sentinel}`).slice(0, -1), parsed);
       }),
     runs
   );

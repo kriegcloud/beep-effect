@@ -14,10 +14,12 @@ import { CheckOutcome, SyncOutcome } from "@beep/managed-section/SectionOutcome"
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { begin, block, crlf, end, id, lines, parse, parseFailure, section } from "./fixtures.ts";
@@ -60,7 +62,7 @@ describe("SectionDocument.parseResult", () => {
       );
       const doc = parse(text);
       assert.deepStrictEqual(
-        doc.sections.map((placed) => placed.section.key),
+        A.map(doc.sections, (placed) => placed.section.key),
         ["first", "second"]
       );
     });
@@ -274,7 +276,7 @@ describe("SectionDocument.parseResult", () => {
 describe("SectionDocument review regressions", () => {
   it("reads a first-line BEGIN after the BOM and preserves its bytes on reconciliation", () => {
     for (const eol of Eol.literals) {
-      const text = "\uFEFF" + [begin("tool"), "old", end("tool"), "footer", ""].join(eol);
+      const text = "\uFEFF" + A.join([begin("tool"), "old", end("tool"), "footer", ""], eol);
       const doc = parse(text);
       assert.strictEqual(doc.text, text);
       assert.strictEqual(doc.eol, eol);
@@ -287,7 +289,10 @@ describe("SectionDocument review regressions", () => {
       assert.isFalse(same.success.changed);
       const updated = doc.reconcile([section("tool", "new")]);
       if (!Result.isSuccess(updated)) assert.fail("BOM document must update");
-      assert.strictEqual(updated.success.text, "\uFEFF" + [begin("tool"), "new", end("tool"), "footer", ""].join(eol));
+      assert.strictEqual(
+        updated.success.text,
+        "\uFEFF" + A.join([begin("tool"), "new", end("tool"), "footer", ""], eol)
+      );
     }
   });
 
@@ -330,8 +335,8 @@ describe("SectionDocument review regressions", () => {
       eol: doc.eol,
     };
     assert.isTrue(S.is(ReconcileInput)(input));
-    for (const key of Object.keys(input)) {
-      const incomplete = Object.fromEntries(Object.entries(input).filter(([name]) => name !== key));
+    for (const key of R.keys(input)) {
+      const incomplete = R.remove(input, key);
       assert.isFalse(S.is(ReconcileInput)(incomplete));
     }
     assert.isFalse(S.is(ReconcileInput)({ ...input, eol: "\r" }));
@@ -471,7 +476,7 @@ describe("SectionDocument round-2 regressions", () => {
   it("preserves a leading BOM without introducing a gap when the first section is removed", () => {
     for (const eol of Eol.literals) {
       for (const footer of ["", `footer${eol}`]) {
-        const original = "\uFEFF" + [begin("tool"), "body", end("tool"), "", footer].join(eol);
+        const original = "\uFEFF" + A.join([begin("tool"), "body", end("tool"), "", footer], eol);
         const remainder = O.getOrThrow(parse(original).remove(id("tool")));
         assert.strictEqual(remainder, "\uFEFF" + footer);
         assertNone(parse(remainder).remove(id("tool")));
@@ -485,12 +490,12 @@ describe("SectionDocument round-2 regressions", () => {
           assert.strictEqual(text, remainder);
         }
       }
-      const middle = "\uFEFF" + ["header", "", begin("tool"), "body", end("tool"), "", "footer", ""].join(eol);
+      const middle = "\uFEFF" + A.join(["header", "", begin("tool"), "body", end("tool"), "", "footer", ""], eol);
       assert.strictEqual(
         O.getOrThrow(parse(middle).remove(id("tool"))),
-        "\uFEFF" + ["header", "", "footer", ""].join(eol)
+        "\uFEFF" + A.join(["header", "", "footer", ""], eol)
       );
-      const last = "\uFEFF" + ["header", "", begin("tool"), "body", end("tool"), ""].join(eol);
+      const last = "\uFEFF" + A.join(["header", "", begin("tool"), "body", end("tool"), ""], eol);
       assert.strictEqual(O.getOrThrow(parse(last).remove(id("tool"))), "\uFEFFheader" + eol);
     }
   });

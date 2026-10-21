@@ -213,7 +213,7 @@ it.layer(Layer.provideMerge(RepoFixtureLayer, TestLayer), { timeout: "30 seconds
       Effect.gen(function* () {
         const git = yield* Git;
         const entries = yield* git.lsTree(fixture.dir, fixture.commit1);
-        const spaced = entries.find((entry) => entry.path === "file with space.txt");
+        const spaced = O.getOrUndefined(A.findFirst(entries, (entry) => entry.path === "file with space.txt"));
         assert.isDefined(spaced);
         assert.strictEqual(spaced?.type, "blob");
         assert.match(spaced?.oid ?? "", /^[0-9a-f]{40}$/);
@@ -476,10 +476,10 @@ it.layer(Layer.provideMerge(RepoFixtureLayer, TestLayer), { timeout: "30 seconds
           assertExitFailure(outcome, outcome.pipe(Exit.getCause, O.getOrThrow));
           const fs = yield* FileSystem.FileSystem;
           const recorded = yield* fs.readFileString(argvLog, "utf8");
-          const argv = Str.split(recorded, "\n").filter((line) => line !== "");
+          const argv = A.filter(Str.split(recorded, "\n"), (line) => line !== "");
           // The pin arrived at a REAL git, which passed it through to ssh.
           assert.isTrue(
-            argv.some((token, index) => token === "-o" && argv[index + 1] === "BatchMode=yes"),
+            A.some(argv, (token, index) => token === "-o" && argv[index + 1] === "BatchMode=yes"),
             `expected "-o BatchMode=yes" in the ssh argv, got: ${yield* encodeSshArgvJson(argv)}`
           );
         })
