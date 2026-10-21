@@ -117,6 +117,15 @@ test "$(git ls-files -- goals/codex-security-findings-2026-10-20/raw/)" = \
 
 ## Decision Log
 
+- 2026-10-21: PR #1930 merged before classic monitoring could persist its
+  verdict. All eight Cloud and 123 Dependabot IDs are verified fixed. Recover
+  completion explicitly from the original successful detached monitor job and
+  its pre-merge, exact-head status through `goals completion refresh
+  --readiness-job`. Keep the accepted declaration and verdict bytes unchanged.
+  A separate maintenance change adds validation and negative controls; revert
+  that change to remove the new recovery path. This supersedes the classic-only
+  closeout instruction for this already merged PR.
+
 - 2026-10-20: Operator holds all verification, quality checks, and publication
   until PR #1928 merges. Source inspection and draft remediation may proceed.
   After merge, fetch and merge main into this branch before running proof.

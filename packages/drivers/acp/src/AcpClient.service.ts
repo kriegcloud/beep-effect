@@ -36,6 +36,7 @@ import * as AcpError from "./Acp.errors.ts";
 import * as Compat from "./AcpCompat.models.ts";
 import * as AcpProtocol from "./AcpProtocol.service.ts";
 import * as AcpRpcs from "./AcpRpc.models.ts";
+import * as AcpStderr from "./AcpStderr.models.ts";
 import * as Normalize from "./internal/normalize.ts";
 import {
   callRpc,
@@ -976,6 +977,13 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
 /**
  * Child-process handle plus client options accepted by {@link layerChildProcess}.
  *
+ * **Details**
+ *
+ * `stderrTail` is a collector over the same handle's stderr, from
+ * `@beep/acp/stderr` `collectStderrTail`. When it is present, an `AcpProcessExitedError` that ends
+ * the connection carries its sanitized excerpt. The client never reads the child's stderr itself:
+ * without a collector the caller must drain it, or the peer can block on a full pipe.
+ *
  * **Example** (Configuring a child-process client)
  *
  * ```ts
@@ -993,6 +1001,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
  */
 export interface AcpClientChildProcessOptions extends AcpClientOptions {
   readonly handle: ChildProcessSpawner.ChildProcessHandle;
+  readonly stderrTail?: AcpStderr.AcpStderrCollector | undefined;
 }
 
 /**
@@ -1016,7 +1025,11 @@ export interface AcpClientChildProcessOptions extends AcpClientOptions {
  * @category layers
  * @since 0.0.0
  */
-export const layerChildProcess = ({ handle, ...options }: AcpClientChildProcessOptions): Layer.Layer<AcpClient> => {
+export const layerChildProcess = ({
+  handle,
+  stderrTail,
+  ...options
+}: AcpClientChildProcessOptions): Layer.Layer<AcpClient> => {
   const stdio: AcpProtocol.AcpStdio = {
     ...makeChildStdio(handle),
     stdin: O.match(O.fromUndefinedOr(options.transformStdout), {
@@ -1024,5 +1037,9 @@ export const layerChildProcess = ({ handle, ...options }: AcpClientChildProcessO
       onSome: (transform) => transform(handle.stdout),
     }),
   };
-  return Layer.effect(AcpClient, make(stdio, options, makeTerminationError(handle)));
+  const terminationError = O.match(O.fromUndefinedOr(stderrTail), {
+    onNone: () => makeTerminationError(handle),
+    onSome: (collector) => Effect.flatMap(makeTerminationError(handle), AcpStderr.withStderrExcerpt(collector)),
+  });
+  return Layer.effect(AcpClient, make(stdio, options, terminationError));
 };

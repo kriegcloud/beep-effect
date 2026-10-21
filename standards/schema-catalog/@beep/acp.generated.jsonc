@@ -18,6 +18,8 @@
     {"file":"packages/drivers/acp/src/Acp.errors.ts","symbol":"AcpTransportError","kind":"tagged-error","owner":"@beep/acp","identity":"AcpTransportError"},
     {"file":"packages/drivers/acp/src/Acp.errors.ts","symbol":"AcpTransportOperation","kind":"literal-kit","owner":"@beep/acp","identity":"AcpTransportOperation","description":"Transport step at which an ACP transport error was produced."},
     {"file":"packages/drivers/acp/src/AcpClient.service.ts","symbol":"AcpClientProtocolGeneration","kind":"literal-kit","owner":"@beep/acp","identity":"AcpClientProtocolGeneration","description":"How the ACP client picks the protocol generation of a connection."},
+    {"file":"packages/drivers/acp/src/AcpClientTerminals.service.ts","symbol":"AcpClientTerminalLimits","kind":"struct-const","owner":"@beep/acp","identity":"AcpClientTerminalLimits","description":"Resource bounds of the client-side ACP terminal service."},
+    {"file":"packages/drivers/acp/src/AcpClientTerminals.service.ts","symbol":"AcpClientTerminalsOptions","kind":"struct-const","owner":"@beep/acp","identity":"AcpClientTerminalsOptions","description":"Options of the client-side ACP terminal service."},
     {"file":"packages/drivers/acp/src/AcpCompat.models.ts","symbol":"AuthMethod","kind":"union","owner":"@beep/acp","identity":"AuthMethod","description":"Auth method as the client delivers it, with generation-1 id keys."},
     {"file":"packages/drivers/acp/src/AcpCompat.models.ts","symbol":"ContentBlock","kind":"union","owner":"@beep/acp","identity":"ContentBlock","description":"Content block as the client delivers it: known generation-2 or generation-1 content, or unknown."},
     {"file":"packages/drivers/acp/src/AcpCompat.models.ts","symbol":"LegacyElicitationResponse","kind":"struct-const","owner":"@beep/acp","identity":"LegacyElicitationResponse","description":"Nested elicitation result expected by native agents from the legacy session/elicitation methods."},
@@ -41,6 +43,8 @@
     {"file":"packages/drivers/acp/src/AcpProtocol.service.ts","symbol":"AcpProtocolLogEvent","kind":"schema-class","owner":"@beep/acp","identity":"AcpProtocolLogIncomingEvent","description":"Structured incoming log event emitted by the ACP protocol adapter."},
     {"file":"packages/drivers/acp/src/AcpProtocol.service.ts","symbol":"AcpProtocolLoggingOptions","kind":"struct-const","owner":"@beep/acp","identity":"AcpProtocolLoggingOptions","description":"Schema-backed ACP protocol logging flags."},
     {"file":"packages/drivers/acp/src/AcpProtocol.service.ts","symbol":"AcpRequestContext","kind":"struct-const","owner":"@beep/acp","identity":"AcpRequestContext","description":"Identity of an inbound ACP request, passed to request and extension handlers."},
+    {"file":"packages/drivers/acp/src/AcpStderr.models.ts","symbol":"AcpStderrCollectorOptions","kind":"struct-const","owner":"@beep/acp","identity":"AcpStderrCollectorOptions","description":"Options of the scoped ACP stderr tail collector."},
+    {"file":"packages/drivers/acp/src/AcpStderr.models.ts","symbol":"AcpStderrTail","kind":"struct-const","owner":"@beep/acp","identity":"AcpStderrTail","description":"Bounded tail of an ACP peer's standard error."},
     {"file":"packages/drivers/acp/src/internal/normalize.ts","symbol":"ProtocolGeneration","kind":"literal-kit","owner":"@beep/acp","identity":"ProtocolGeneration","description":"ACP protocol generation a connection negotiated."}
   ]
 }

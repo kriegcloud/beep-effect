@@ -1595,6 +1595,7 @@
     {"name":"Goals.Completion.readJson","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Goals.Completion.readLifecycle","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Goals.Completion.receiptLocation","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Goals.Completion.recoverReadiness","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Goals.Completion.refresh","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Goals.Completion.refreshManifest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Goals.Completion.refreshRecord","owner":"@beep/repo-cli","family":"tooling","conforms":true},
