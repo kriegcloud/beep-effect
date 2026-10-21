@@ -24,8 +24,9 @@ const LAB_HOST_SUFFIX = /\.labs\.beep(?:\.localhost)?$/u;
  * **Details**
  *
  * The path is relative to the route: one or more non-empty `/`-separated
- * segments with no whitespace, no `?` or `#`, and no `.` or `..` segment, so
- * a decoded path cannot leave its route or add a query or fragment.
+ * segments with no whitespace, no backslash, no `?` or `#`, and no `.` or `..`
+ * segment, percent-encoded (`%2e`, any case) or not, so a decoded path cannot
+ * leave its route after URL parsing or add a query or fragment.
  *
  * **Example** (Validate a nested path)
  *
@@ -43,10 +44,10 @@ const LAB_HOST_SUFFIX = /\.labs\.beep(?:\.localhost)?$/u;
  * @since 0.0.0
  */
 export const SitePath = S.String.pipe(
-  S.check(S.isPattern(/^(?!\.{1,2}(?:\/|$))(?!.*\/\.{1,2}(?:\/|$))[^/\s?#]+(?:\/[^/\s?#]+)*$/u)),
+  S.check(S.isPattern(/^(?!(?:\.|%2e){1,2}(?:\/|$))(?!.*\/(?:\.|%2e){1,2}(?:\/|$))[^/\\\s?#]+(?:\/[^/\\\s?#]+)*$/iu)),
   $I.annoteSchema("SitePath", {
     description:
-      "A relative path below a reserved route: non-empty segments, no whitespace, no query or fragment, no dot segments.",
+      "A relative path below a reserved route: non-empty segments, no whitespace or backslash, no query or fragment, no plain or percent-encoded dot segments.",
   })
 );
 

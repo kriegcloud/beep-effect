@@ -31,7 +31,7 @@ import {
   resolveFallowAuditCacheSettings,
   runRepoCommandCapture,
 } from "../../../internal/repo-run/index.ts";
-import { invokerExemption } from "../../Worktree/Worktree.command.ts";
+import { describeInotifyWatcher, invokerExemption } from "../../Worktree/Worktree.command.ts";
 import { WorktreeRemovalRequest } from "../../Worktree/Worktree.schemas.ts";
 import { WorktreeRemovalService } from "../../Worktree/Worktree.service.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
@@ -617,6 +617,11 @@ export const renderRetirement: {
         receipt.idleTerminalShells,
         (pid) =>
           `  note: the idle Claude Desktop Terminal panel shell (pid ${pid}) stood in the lane and was left running; the lane was removed under it, so run \`cd ~\` in that Terminal tab before using it`
+      ),
+      ...A.map(
+        receipt.inotifyWatchers,
+        (watcher) =>
+          `  warning: ${describeInotifyWatcher(watcher)} held only an inotify watch on the lane, which cannot write into it, so the lane was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once \`.claude/worktrees\` is excluded from its project`
       ),
     ],
     "\n"

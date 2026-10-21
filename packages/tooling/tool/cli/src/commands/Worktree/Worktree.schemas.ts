@@ -468,7 +468,8 @@ export class WorktreeInvokerExemption extends S.Opaque<WorktreeInvokerExemption,
  * atomic rename before capturing residue, so the archive is complete with
  * respect to everything that arrived before the fence, refuses while any
  * same-uid process still holds the fenced copy by cwd or open descriptor (a
- * writer the archive could not see), and the branch ref
+ * writer the archive could not see; a process holding only an inotify watch
+ * cannot write and is named in the receipt instead), and the branch ref
  * itself always falls to an atomic `git update-ref -d` compare-and-swap on
  * the archived head — an advance at any point up to the final ref update
  * fails the deletion instead of orphaning commits; directory removal never
@@ -580,6 +581,78 @@ export class WorktreeUnpushedInspection extends S.Opaque<
 ) {}
 
 /**
+ * A process the archive fence found watching the checkout through inotify and left running.
+ *
+ * **Details**
+ *
+ * An editor's file watcher (WebStorm's `fsnotifier`, for one) holds an
+ * inotify watch on every directory of the tree it watches. A watch is a
+ * subscription to events, not a handle: nothing can be written through it,
+ * so the fence names the watcher instead of refusing. `command` is the
+ * kernel's short executable name, `None` when it could not be read.
+ *
+ * **Example** (Name an editor watcher)
+ *
+ * ```ts
+ * import { WorktreeInotifyWatcher } from "@beep/repo-cli/commands/Worktree"
+ * import * as O from "effect/Option"
+ *
+ * const watcher = WorktreeInotifyWatcher.make({ pid: 2966722, command: O.some("fsnotifier") })
+ * console.log(watcher.pid) // 2966722
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WorktreeInotifyWatcher extends S.Opaque<WorktreeInotifyWatcher, { readonly brand: unique symbol }>()(
+  S.Struct({
+    pid: ProcessPid,
+    command: S.OptionFromNullOr(S.String),
+  }).pipe(
+    $I.annoteSchema("WorktreeInotifyWatcher", {
+      description: "A process holding only an inotify watch on a retired checkout, with its kernel command name.",
+    })
+  )
+) {}
+
+/**
+ * How long the archive fence waits out an inotify watcher re-walking the fenced tree.
+ *
+ * **Details**
+ *
+ * The fence renames the checkout aside, and a recursive watcher (an editor's
+ * `fsnotifier`) answers a directory moved inside its tree by walking the
+ * moved tree again, opening each directory to add its watch. Those directory
+ * descriptors are handles, so the fence does not exempt them: it scans again
+ * every `interval`, at most `attempts` scans in all, until the watcher holds
+ * nothing but its watches, and refuses if the walk outlasts the budget.
+ *
+ * **Example** (A quick policy for tests)
+ *
+ * ```ts
+ * import { WorktreeFenceSettlePolicy } from "@beep/repo-cli/commands/Worktree"
+ * import * as Duration from "effect/Duration"
+ *
+ * const policy = WorktreeFenceSettlePolicy.make({ interval: Duration.millis(10), attempts: 3 })
+ * console.log(policy.attempts) // 3
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WorktreeFenceSettlePolicy extends S.Opaque<WorktreeFenceSettlePolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
+    interval: S.Duration,
+    attempts: PosInt,
+  }).pipe(
+    $I.annoteSchema("WorktreeFenceSettlePolicy", {
+      description:
+        "Spacing and scan budget the archive fence uses to wait out an inotify watcher walking the fenced tree.",
+    })
+  )
+) {}
+
+/**
  * Result returned after a worktree removal completes.
  *
  * **Details**
@@ -591,6 +664,9 @@ export class WorktreeUnpushedInspection extends S.Opaque<
  * `idleTerminalShells` names the idle Claude Desktop Terminal panel shells the
  * archive fence left standing in the checkout: the checkout was removed under
  * them, so each one's working directory is now gone.
+ * `inotifyWatchers` names the processes the fence found holding only an
+ * inotify watch on the checkout, which it left running and warns about
+ * instead of refusing.
  *
  * **Example** (Represent a clean archive removal)
  *
@@ -625,6 +701,10 @@ export class WorktreeRemovalReceipt extends S.Opaque<WorktreeRemovalReceipt, { r
     idleTerminalShells: S.Array(ProcessPid).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<ProcessPid>())),
       S.withDecodingDefaultKey(Effect.succeed(A.empty<ProcessPid>()))
+    ),
+    inotifyWatchers: S.Array(WorktreeInotifyWatcher).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<WorktreeInotifyWatcher>())),
+      S.withDecodingDefaultKey(Effect.succeed(A.empty()))
     ),
   }).pipe(
     $I.annoteSchema("WorktreeRemovalReceipt", {

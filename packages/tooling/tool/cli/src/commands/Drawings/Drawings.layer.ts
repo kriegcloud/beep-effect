@@ -111,6 +111,7 @@ const backendFromPdfTools = Effect.fn("DrawingsLayer.backendFromPdfTools")(funct
         })
       ),
       streamCheck: structure.streamCheck,
+      containerDiscovery: structure.containerDiscovery,
     });
   });
   const measurePage = Effect.fn("DrawingsLayer.measurePage")(function* (request: {

@@ -121,7 +121,24 @@ describe("hostedUrl", () => {
     expect(S.is(SitePath)("a/b.html")).toBe(true);
     expect(S.is(SitePath)("/a")).toBe(false);
     expect(S.is(SitePath)(".well-known-ish/x")).toBe(true);
-    for (const unsafe of ["..", "../x", ".", "./x", "a/../b", "a/./b", "a/..", "a?b", "a#b", "a//b", "a/"]) {
+    for (const unsafe of [
+      "..",
+      "../x",
+      ".",
+      "./x",
+      "a/../b",
+      "a/./b",
+      "a/..",
+      "a?b",
+      "a#b",
+      "a//b",
+      "a/",
+      "%2e%2e/x",
+      "a/.%2E/b",
+      "%2E",
+      "a\\..\\b",
+      "..\\x",
+    ]) {
       expect(S.is(SitePath)(unsafe)).toBe(false);
     }
   });

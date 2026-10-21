@@ -28,6 +28,7 @@ import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
@@ -890,15 +891,21 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
             : yield* mintExchange(time);
         });
         const quotaRequest = Effect.fnUntraced(function* (exchange: Redacted.Redacted<string>, suffix: string) {
-          const result = yield* client.execute(
-            yield* HttpClientRequest.post(`https://api.jetbrains.ai/user/v5/quota/${suffix}`).pipe(
-              HttpClientRequest.setHeaders({
-                "Grazie-Authenticate-JWT": Redacted.value(exchange),
-                "Grazie-Agent": JUNIE_GRAZIE_AGENT,
-              }),
-              HttpClientRequest.bodyJson({})
+          // Extend the caller's rules for both request and response client-span attributes.
+          const redactedNames = yield* Headers.CurrentRedactedNames;
+          const result = yield* client
+            .execute(
+              yield* HttpClientRequest.post(`https://api.jetbrains.ai/user/v5/quota/${suffix}`).pipe(
+                HttpClientRequest.setHeaders({
+                  "Grazie-Authenticate-JWT": Redacted.value(exchange),
+                  "Grazie-Agent": JUNIE_GRAZIE_AGENT,
+                }),
+                HttpClientRequest.bodyJson({})
+              )
             )
-          );
+            .pipe(
+              Effect.provideService(Headers.CurrentRedactedNames, A.append(redactedNames, "grazie-authenticate-jwt"))
+            );
           return JunieQuotaReply.make({ status: result.status, body: yield* result.text });
         });
         const quotaReplies = (exchange: Redacted.Redacted<string>) =>

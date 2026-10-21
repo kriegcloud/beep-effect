@@ -186,9 +186,17 @@ looking at the wrong files.
 If the Settings → Extensions install does not take (the listed version does
 not change), the extension can be replaced by file with Claude Desktop closed:
 back up the extension folder, mirror the unpacked new package into it, and
-update that extension's entry in `extensions-installations.json` (version, and
-`hash` = the SHA-256 of the `.mcpb` file). This was done on the attorney's PC on
-2026-10-06 for version `0.2.1`.
+update that extension's entry in `extensions-installations.json`: `version`,
+`hash` (the SHA-256 of the `.mcpb` file) and `manifest` (the new package's
+`manifest.json`, which carries the version and the tool list Claude Desktop
+shows). This was done on the attorney's PC on
+2026-10-06 for version `0.2.1`. It was done again on 2026-10-21 for `0.5.0`, the
+first build with the strict telemetry tier: with Claude Desktop stopped, the
+extension folder and `extensions-installations.json` were backed up, the
+unpacked package was mirrored in with `robocopy /MIR`, and the entry's
+`version`, `hash` and `manifest` were replaced. Both self-checks then passed from
+the installed folder, and Claude Desktop was relaunched into the desktop
+session with a one-shot interactive scheduled task.
 
 After any install, proof that it works is a tool call from a chat
 (`kg_provenance` with no arguments reporting the expected bundle version), not
