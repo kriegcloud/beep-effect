@@ -277,7 +277,14 @@ QA caught one real bug: the reviewer id `qa-synthetic` was stored as `user:qa--y
 
 ## 8. Open questions and next steps
 
-- **O1 — placement (architecture).** Does `@beep/epistemic-domain` belong under `foundation/modeling`? And does Party become a product slice (`packages/party/*`) or a foundation modeling package? Proposed test: if no type in it names a product concept (matter, client, docket), it is foundation, so `ClaimVersion`, signals and admission machinery qualify. `Party` + `Proposition` arguably qualify too. `ContextRole` vocabularies stay with their slices. Route through `/grill-with-docs` against `07-non-slice-families.md` and `02-shared-kernel.md` before any package is created with `bun run beep create-package`.
+- **O1 — placement (decided 2026-10-21, `standards/architecture/DECISIONS.md` "Epistemic Vocabulary Is Foundation; Party Is A Product Slice; Propositions Are Slice-Owned").**
+  - The tenant-free epistemic values move to `foundation/modeling` as `@beep/epistemics`, including the generic `Claim<P>` and edge-version envelope.
+  - The org-scoped entities, tables, edge authority and triage stay in the epistemic slice.
+  - `ExecutionGrant` and its relatives are recorded as misfiled.
+  - Party becomes a product slice, `packages/party/*`.
+  - `PartyId` moves to a neutral `shared/domain` `identity/Party` kit.
+  - Each slice owns its proposition union.
+  - Order: the epistemics extraction first, then the party slice on top of it.
 - **O2 — `EdgeVersion` endpoint shape.** Typed per-proposition endpoints, or a `Proposition` payload with a derived logical key?
 - **O3c — reviewer loop + mailbox grouping (done, §7.4).** Next: ranking within a lead by message volume; feeding reviewed `SameParty` clusters back into the mail projections (`identityView`) so attributed events use reviewed identities.
 - **O3b — collision evidence beyond the address book (domain evidence done, §7.3; signatures pending a pandoc driver).** 1,469 collisions are unresolved because contact books cover only 2.6% of mail identifiers. Next evidence sources, in order of expected yield:
