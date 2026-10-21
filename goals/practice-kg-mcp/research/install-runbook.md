@@ -106,6 +106,19 @@ with code 0:
   `%LOCALAPPDATA%\Packages\Claude_<publisher id>\LocalCache\Local\`; the
   terminal run is not redirected.
 
+From SSH, the desktop session can still be reached while the user is logged in
+(`query user` shows the console session `Active`): a one-shot interactive
+scheduled task runs a small PowerShell wrapper in that session. The wrapper
+starts the executable with `Start-Process … -RedirectStandardOutput
+-RedirectStandardError -Wait -PassThru` and writes the exit code to a file.
+Create the task with `schtasks /create /tn <name> /tr "powershell.exe -NoProfile
+-File <wrapper>" /sc once /st 23:59 /it /f`, start it with `schtasks /run`,
+wait for the exit-code file, then `schtasks /delete /tn <name> /f`. Do not
+write the wrapper as a `.cmd` with `echo exit=%ERRORLEVEL%>> file`: an exit
+code of 0 becomes `0>>`, a redirect of stdin, and the line is never written.
+This is how acceptance #4 of `goals/practice-kg-mcp-strict-tier` passed on
+2026-10-20 (`keyPath: dpapi-ffi`).
+
 Nothing in this check, or in the host, sends telemetry anywhere; AC-5 below is
 unchanged.
 

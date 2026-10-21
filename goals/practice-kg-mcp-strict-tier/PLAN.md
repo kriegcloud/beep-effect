@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active`
+Status: `completed-retained`
 
 ## Phases
 
@@ -11,9 +11,9 @@ Status: `active`
 | P0 Research | complete | Seam pin test; DPAPI feasibility; tool enum. | Facts recorded. |
 | P1 Gate | complete | Serializer gate + egress client + stderr logger. | Golden + canary tests green. |
 | P2 Spool + tier | complete | Encrypted spool; fail-closed tier resolution. | Spool round-trip + tier tests green. |
-| P3 Proof | in-progress (code complete; operator DPAPI smoke pending) | Mutation tests; privacy receipt; Windows smoke. | All proofs green, including the operator smoke (acceptance #4). |
-| P4 Yeet | pending | PR to mergeable. | Merge gate passes. |
-| P5 Close | pending | Reflection; packet flip. | completed-retained. |
+| P3 Proof | complete | Mutation tests; privacy receipt; Windows smoke. | All proofs green, including the operator smoke (acceptance #4). |
+| P4 Yeet | complete | PR to mergeable. | Merge gate passes. |
+| P5 Close | complete | Reflection; packet flip. | completed-retained. |
 
 ## Closeout Checklist
 
@@ -96,6 +96,11 @@ Before marking the packet closed:
   unpacked extension folder run `practice-kg-mcp.exe --self-check-telemetry`.
   Pass: exit 0 and `{"ok":true,"keyPath":"dpapi-ffi"|"dpapi-powershell",…}`;
   record the `keyPath` (a `dpapi-powershell` result records the fallback).
+- Acceptance #4 (2026-10-20): the smoke passed on `tom-pc-1`: exit 0,
+  `{"ok":true,"keyPath":"dpapi-ffi",…}` in the attorney's console session,
+  run through a one-shot interactive scheduled task from a fresh build of main
+  in a hand-off folder (the installed 0.4.0 extension predates the flag).
+  Decision in `SPEC.md`; shipping the strict-tier host to the PC is #1933.
 - Finding (resolved in P3 by the host leak probe): no canary reaches pre-gate telemetry today (handler errors use
   canned messages, SQL spans carry statements without parameters, and mcp-kit
   strips `parameters`); with the content rules turned off the canary test
