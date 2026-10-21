@@ -1,10 +1,11 @@
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "@effect/vitest";
 import {
   AppResult,
   Conversation,
@@ -44,34 +45,36 @@ const base = {
 };
 
 describe("Conversation", () => {
-  it("decodes missing and null options and rewrites mirrors", () => {
-    const missing = Conversation.make(base);
-    expect(O.isNone(missing.language)).toBe(true);
-    expect(O.isNone(missing.geolocation)).toBe(true);
-    expect(missing.transcriptSegments).toEqual([]);
-    const encoded = Effect.runSync(encodeConversation(missing));
-    const nulled = decode(Conversation, { ...encoded, language: null, geolocation: null, processingState: null });
-    expect(O.isNone(nulled.language)).toBe(true);
-    expect(O.isNone(nulled.geolocation)).toBe(true);
-    expect(O.isNone(nulled.processingState)).toBe(true);
-    const initialized = Effect.runSync(
-      initializeConversation({
-        ...encoded,
-        processingConversationId: "mem-1",
-        appsResults: [Effect.runSync(encodeAppResult(AppResult.make({ appId: O.some("app"), content: "done" })))],
-        pluginsResults: [Effect.runSync(encodePluginResult(PluginResult.make({ pluginId: O.none(), content: "stale" })))],
-        transcriptSegments: [
-          Effect.runSync(
-            encodeTranscriptSegment(
+  it.layer(BunCrypto.layer)("with platform cryptography", (it) => {
+    it.effect(
+      "decodes missing and null options and rewrites mirrors",
+      Effect.fnUntraced(function* () {
+        const missing = Conversation.make(base);
+        expect(O.isNone(missing.language)).toBe(true);
+        expect(O.isNone(missing.geolocation)).toBe(true);
+        expect(missing.transcriptSegments).toEqual([]);
+        const encoded = yield* encodeConversation(missing);
+        const nulled = decode(Conversation, { ...encoded, language: null, geolocation: null, processingState: null });
+        expect(O.isNone(nulled.language)).toBe(true);
+        expect(O.isNone(nulled.geolocation)).toBe(true);
+        expect(O.isNone(nulled.processingState)).toBe(true);
+        const initialized = yield* initializeConversation({
+          ...encoded,
+          processingConversationId: "mem-1",
+          appsResults: [yield* encodeAppResult(AppResult.make({ appId: O.some("app"), content: "done" }))],
+          pluginsResults: [yield* encodePluginResult(PluginResult.make({ pluginId: O.none(), content: "stale" }))],
+          transcriptSegments: [
+            yield* encodeTranscriptSegment(
               TranscriptSegment.make({ id: "", text: "Hi", isUser: true, speakerId: 0, start: 0, end: 1 }),
             ),
-          ),
-        ],
+          ],
+        });
+        expect(O.getOrElse(initialized.processingMemoryId, () => "")).toBe("mem-1");
+        expect(initialized.pluginsResults[0]?.content).toBe("done");
+        // uuid.uuid5(uuid.NAMESPACE_URL, "omi/conversations/c1/transcript-segments/0") in Python.
+        expect(initialized.transcriptSegments[0]?.id).toBe("e99f768b-31bb-5bf4-9a99-308fdfc5a770");
       }),
     );
-    expect(O.getOrElse(initialized.processingMemoryId, () => "")).toBe("mem-1");
-    expect(initialized.pluginsResults[0]?.content).toBe("done");
-    expect(initialized.transcriptSegments[0]?.id.length).toBeGreaterThan(0);
   });
 
   it("formats transcripts, projects a share, and decodes sync arms", () => {

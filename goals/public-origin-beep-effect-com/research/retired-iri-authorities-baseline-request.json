@@ -1,5 +1,5 @@
 {
-  "previous": "bab18d96b29f5c4f97fb5ac3430999de609877b3d5b317741069de85e30f72ac",
+  "previous": "5d593dd8cca2d61ef8f98d85058f1d3700139c1d98127f66a8c6500f3ea1e602",
   "review": {
     "reviewer": "Claude Opus 5.5 (feat/public-origin-beep-effect-com)",
     "reason": "Record the uncached //#lint:retired-iri-authorities root computation, attribute the shared root scripts-digest change to its added root script, and review the nine generated @beep/public-site task nodes; no other command, input, output, env, dependency edge or cache flag changes, and no qualification is granted.",

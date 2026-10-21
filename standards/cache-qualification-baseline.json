@@ -3039,15 +3039,17 @@
             "!**/coverage/**",
             "!**/dist/**",
             "!**/node_modules/**",
+            "**/.gitignore",
+            "*.{cts,mts,ts,tsx}",
             "./.bun-version",
             "./.nvmrc",
             "./package.json",
             "./tsconfig.base.json",
             "./tsconfig.json",
             "./tsconfig.packages.json",
+            ".gitignore",
             "standards/effect-diagnostics.profile.json",
-            "tsconfig.base.json",
-            "tsconfig.json",
+            "tsconfig*.json",
             "vitest.aliases.generated.json",
             "{apps,packages,infra,scratchpad}/**/tsconfig*.json",
             "{apps,packages,tooling,infra}/**/*.{cts,mts,ts,tsx}"
@@ -111807,7 +111809,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "8b5fd1cb9e31b160434a373ea341023eb91c252f0f27a79abe82f262e8cfcc33"
+        "sha256": "dd8f17d7860e210638090d1818faeb304c0bcf365275ff4354ec150baa5825e4"
       }
     ]
   }
