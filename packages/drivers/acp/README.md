@@ -17,7 +17,7 @@ bun add @beep/acp
 
 | Subpath | Module | What it holds |
 | --- | --- | --- |
-| `@beep/acp` | `src/index.ts` | Namespaces `Errors`, `Schema`, `SchemaV1`, `Compat`, `Agent`, `Client`, `Json`, `Protocol`, `Rpc` |
+| `@beep/acp` | `src/index.ts` | Namespaces `Errors`, `Schema`, `SchemaV1`, `Compat`, `Agent`, `Client`, `Json`, `Protocol`, `Rpc`, `Stderr`, `Terminals` |
 | `@beep/acp/client` | `AcpClient.service.ts` | `AcpClient` service, `make`, `layerChildProcess`, `AcpClientOptions`, `AcpClientProtocolGeneration`, `makeTerminationError` |
 | `@beep/acp/agent` | `AcpAgent.service.ts` | `AcpAgent` service (generation 2 only), `make`, `layer`, `layerStdio` |
 | `@beep/acp/protocol` | `AcpProtocol.service.ts` | `makeAcpPatchedProtocol`, `AcpRequestContext`, `AcpRequestHandler`, `AcpStdio`, `RPC_REQUEST_ID_START`, logging and notification schemas |
@@ -27,6 +27,8 @@ bun add @beep/acp
 | `@beep/acp/rpc` | `AcpRpc.models.ts` | `AgentRpcs`, `ClientRpcs`, `CompatAgentRpcs`, `CompatClientRpcs`, `LEGACY_AGENT_METHODS`, `LEGACY_CLIENT_METHODS` |
 | `@beep/acp/errors` | `Acp.errors.ts` | `AcpError` union and its members, `AcpRequestId`, `AcpRequestDiagnostics`, operation literal kits |
 | `@beep/acp/json` | `AcpJson.codec.ts` | JSON text codec with the escaped-key guard |
+| `@beep/acp/stderr` | `AcpStderr.models.ts` | `AcpStderrTail`, `appendStderrTail`, `sanitizeStderrExcerpt`, `collectStderrTail`, `withStderrExcerpt` |
+| `@beep/acp/terminals` | `AcpClientTerminals.service.ts` | `AcpClientTerminals` service, `make`, `layer`, `register`, `AcpClientTerminalLimits`, `AcpClientTerminalsOptions`, `AcpTerminalSessionEnvironment` |
 
 `_generated/*` is not exported. `internal/*` resolves inside the workspace only
 so package tests can reach the normalizers; it is `null` in
@@ -325,6 +327,23 @@ Further deviations from t3, each deliberate:
   reports as `closed`; other ACP failures stay `transport` with only the
   JSON-RPC code. To reverse, drop the `EndedRuntime` arm in
   `transportFailure` (`AiProviderCliSession.profile.service.ts`).
+
+### Host kit (provider-acp port)
+
+`@beep/acp/stderr` and `@beep/acp/terminals` port the product-neutral parts of
+t3code `packages/provider-acp` at commit
+`e64766c56ac6fc1678e6107052feb0047a35337f` (MIT, same notice): `stderr.ts`,
+`clientTerminals.ts`, and the stderr enrichment of `AcpSessionRuntime.ts`.
+
+| ID | Decision | Reason | Reversal |
+| --- | --- | --- | --- |
+| H1 | Port `stderr.ts` as `AcpStderr.models.ts` and the runtime's process-exit enrichment as `collectStderrTail` + `withStderrExcerpt`; `layerChildProcess` takes an optional `stderrTail` collector. | `AcpProcessExitedError.stderr` existed, but nothing filled it. The caller owns the handle's single-read stderr, so the client never reads it. | Drop the option; callers enrich errors themselves. |
+| H2 | Home directories are an argument of `sanitizeStderrExcerpt`, not read from `process.env`; GitHub (`gh*_`, `github_pat_`) and 1Password service-account (`ops_`) token shapes join the redaction list. | No ambient environment reads in Effect code; both token kinds appear on this workstation's agent stderr. | Remove the patterns. |
+| H3 | Port `clientTerminals.ts` as the `AcpClientTerminals` service with `layer` and `register`; ids are `acp-term-<n>`; limits (a branded `AcpClientTerminalLimits` with t3's values as constructor defaults) and options are schemas, and t3's `environmentForSession` callback is the separate second argument of `make` (`layer` takes the options only). | Schema-first options, testable bounds, product-neutral ids. This reverses D5 as a client host kit. | Delete the module (D5). |
+| H4 | `environment`, when given, is the complete base environment (`extendEnv: false`); without it commands inherit the host environment. | effect `ChildProcess` replaces the environment when `env` is set without `extendEnv`, so t3's merge dropped `PATH`. | Always extend. |
+| H5 | `resolveEmbeddedTerminalContent` is not ported; `readOutputSnapshot` (also answering for retained released terminals) is the hook a renderer needs. | It rewrites tool-call content for display, which is presentation, not protocol. | Port it next to the renderer that needs it. |
+| H6 | Not ported: `AcpSessionRuntime`'s session state machine, process-group, cgroup and process-ledger containment, `runtimeModel`, `sessionConfig`, `coreRuntimeEvents`, `nativeLogging`, `clientPolicy`, `adapter`, and `mcpOverAcpBridge`. | The state machine and models depend on `@t3tools/contracts`. Containment is OS process supervision, not ACP. The MCP bridge depends on t3's MCP payload helpers. | Port each in its own PR when a consumer needs it. |
+| H7 | `@beep/ai-provider-cli` collects the bounded tail instead of draining stderr, passes it to `layerChildProcess`, and logs the redacted excerpt at debug level when a session closes or fails to open. It does not use the terminal service. | Managed sessions advertise `terminal: false` under a read-only policy. Serving terminals would grant shell execution, a policy change rather than a refactor. `ManagedSessionError` stays value-free. | Restore `Stream.runDrain`. |
 
 ## Development
 

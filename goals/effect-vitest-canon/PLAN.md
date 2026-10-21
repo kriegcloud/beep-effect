@@ -663,13 +663,18 @@ Gate: each charter cites only tag-pinned APIs; the instrumented `it` passes its 
 
 ### P0.5 — MemoryFileSystem promotion (its own PR, D8)
 
+Status: done, then superseded. The test-utils MemoryFileSystem module and FileSystemConformance.ts
+this phase created were retired on 2026-10-21 by effected-promotion D-25: `packages/tooling/test-kit/memfs`
+now owns the engine (`packages/tooling/test-kit/memfs/src/internal/volume.ts`) and the conformance
+contract (`packages/tooling/test-kit/memfs/test/FileSystemContract.ts`). The steps below are the plan as run.
+
 1. Port [upstream FileSystem.test-utils.ts](https://github.com/Effect-TS/effect/blob/d3b837aee836f35d625d55205f7d6e61305fc198/packages/effect/test/FileSystem.test-utils.ts) (`testLayer`, `TestLayerOptions`) into
    `@beep/test-utils` as `FileSystemConformance.ts`, parametrized exactly like upstream, replacing
    upstream's `runPromise`-in-plain-`it` with `it.effect` + `Effect.provide(layer)` per test (the
    layer under test is the subject, so per-test provide is correct here — record this as a D14
    exception with reason).
 2. Run it against `NodeFileSystem.layer`, `BunFileSystem.layer` and `MemoryFileSystem.layer`.
-3. Promote `scratchpad/MemoryFileSystem/**` to `packages/tooling/test-kit/test-utils/src/MemoryFileSystem/`
+3. Promote `scratchpad/MemoryFileSystem/**` into test-utils as its MemoryFileSystem module
    (`$TestUtilsId` instead of `$ScratchpadId`, JSDoc per `.patterns/jsdoc-documentation.md`), move
    its test, keep the fresh-volume-per-`it.layer` gotcha in the docs.
 4. Delete the scratchpad copies (pending Benjamin's answer); if `memfs`'s seed / fault / inspect

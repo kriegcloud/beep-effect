@@ -1,6 +1,7 @@
 import * as NodeURL from "node:url";
 import { defineBeepNextConfig } from "@beep/repo-configs/next";
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 import { oipRedirects } from "./src/config/OipRedirects.ts";
 
 // Transitional guard for the coverage lane's job-wide node wrapper (removed
@@ -70,7 +71,7 @@ export default defineBeepNextConfig({
         config.plugins = config.plugins ?? [];
         config.plugins.push(
           new webpack.NormalModuleReplacementPlugin(/^node:/u, (resource: { request: string }) => {
-            resource.request = resource.request.replace(/^node:/u, "");
+            resource.request = Str.replace(/^node:/u, "")(resource.request);
           })
         );
         config.resolve = config.resolve ?? {};

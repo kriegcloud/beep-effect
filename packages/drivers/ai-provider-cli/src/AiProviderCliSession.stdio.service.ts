@@ -24,7 +24,7 @@ import { codexArguments, negotiateCodex } from "./AiProviderCliSession.codex.ser
 import { cursorArguments, verifyCursor } from "./AiProviderCliSession.cursor.service.ts";
 import { grokArguments, verifyGrok } from "./AiProviderCliSession.grok.service.ts";
 import { ManagedSessionEvent, ManagedTerminalEvidence, ManagedTurnResult } from "./AiProviderCliSession.models.ts";
-import { failure, transportFailure } from "./AiProviderCliSession.profile.service.ts";
+import { collectStderr, failure, logStderrExcerpt, transportFailure } from "./AiProviderCliSession.profile.service.ts";
 import {
   AcpText,
   CodexComplete,
@@ -99,7 +99,7 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     stderr: "pipe",
     forceKillAfter: Duration.seconds(3),
   }).pipe(transportFailure("spawn"));
-  yield* handle.stderr.pipe(Stream.runDrain, Effect.forkChild);
+  const stderrTail = yield* handle.stderr.pipe(collectStderr(profile));
   // Grok and Cursor pin ACP generation 1 and send a pure v1 `initialize`. Their managed paths call
   // methods that generation 2 removed: Grok `authenticate` with `cached_token`, Cursor
   // `session/set_mode`, and the legacy `models` readback for both. A live smoke on 2026-10-21
@@ -109,7 +109,7 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
   // not support. Switch a provider to "negotiate" once its managed path supports generation 2.
   // Codex never initializes through the ACP agent API, so it keeps the default.
   const protocolGeneration = profile.provider === "codex" ? "negotiate" : "v1";
-  const context = yield* Layer.build(AcpClient.layerChildProcess({ handle, protocolGeneration }));
+  const context = yield* Layer.build(AcpClient.layerChildProcess({ handle, protocolGeneration, stderrTail }));
   const client = Context.get(context, AcpClient.AcpClient);
   const events = yield* PubSub.sliding<ManagedSessionEvent>(128);
   const chunks = yield* Ref.make("");
@@ -258,7 +258,11 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     return identity;
   });
   const identity = yield* negotiation.pipe(
-    Effect.onError(() => handle.kill({ forceKillAfter: Duration.seconds(3) }).pipe(Effect.ignore))
+    Effect.onError(() =>
+      handle
+        .kill({ forceKillAfter: Duration.seconds(3) })
+        .pipe(Effect.ignore, Effect.andThen(logStderrExcerpt("open")(stderrTail)))
+    )
   );
   const prompt = Effect.fn("ManagedSession.prompt")(function* (message: ManagedSessionMessage) {
     if (yield* Ref.get(closed)) return yield* failure.make("prompt", "closed", "Owned runtime is closed");
@@ -358,7 +362,9 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
   });
   const close = Effect.gen(function* () {
     if (!(yield* Ref.getAndSet(closed, true))) {
-      yield* handle.kill({ forceKillAfter: Duration.seconds(3) }).pipe(transportFailure("close"));
+      yield* handle
+        .kill({ forceKillAfter: Duration.seconds(3) })
+        .pipe(transportFailure("close"), Effect.ensuring(logStderrExcerpt("close")(stderrTail)));
       yield* publish("closed", {});
       const pending = yield* Ref.get(active);
       if (O.isSome(pending))

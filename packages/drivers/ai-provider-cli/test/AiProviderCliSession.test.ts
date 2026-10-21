@@ -15,11 +15,13 @@ import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
+import * as References from "effect/References";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
@@ -293,14 +295,26 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
   );
 
   it.effect(
-    "classifies a native process that exits mid-prompt as closed",
+    "classifies a native process that exits mid-prompt as closed and logs only its redacted stderr",
     Effect.fnUntraced(function* () {
-      const session = yield* (yield* AiProviderCliSession).open(yield* syntheticProfile("grok", "exit-on-prompt"));
+      const profile = yield* syntheticProfile("grok", "exit-on-prompt");
+      const session = yield* (yield* AiProviderCliSession).open(profile);
+      const excerpts: Array<unknown> = [];
+      const collector = Logger.make<unknown, void>((options) => {
+        const excerpt = options.fiber.getRef(References.CurrentLogAnnotations)["process.stderr_excerpt"];
+        if (excerpt !== undefined) excerpts.push(excerpt);
+      });
       const error = yield* session
         .prompt(ManagedSessionMessage.make({ messageId: "exited", text: "synthetic" }))
-        .pipe(Effect.flip);
+        .pipe(
+          Effect.provideService(Logger.CurrentLoggers, new Set([collector])),
+          Effect.provideService(References.MinimumLogLevel, "Debug"),
+          Effect.flip
+        );
       assert.equal(error.reason, "closed");
       assert.equal(error.operation, "prompt");
+      assert.notInclude(error.message, "synthetic-secret-token");
+      assert.deepStrictEqual(excerpts, ["fatal: ~/.grok/auth.json rejected Bearer [redacted]"]);
     })
   );
 

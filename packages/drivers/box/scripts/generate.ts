@@ -216,7 +216,7 @@ const scanUnquotedCharacter = (expression: string, state: PipeScanState, charact
   Match.value(character).pipe(
     Match.whenOr('"', "'", "`", (quoted) => ({ ...state, index: state.index + 1, quoted })),
     Match.when(
-      () => state.depth === 0 && expression.startsWith(".pipe(", state.index),
+      () => state.depth === 0 && Str.slice(state.index, state.index + ".pipe(".length)(expression) === ".pipe(",
       () => ({ ...state, index: state.index + 1, pipeOpenIndex: state.index + ".pipe(".length })
     ),
     Match.whenOr("(", "[", "{", () => ({ ...state, depth: state.depth + 1, index: state.index + 1 })),
@@ -700,7 +700,7 @@ const sortDeclarations = (declarations: ReadonlyArray<GeneratedDeclaration>): Re
 
 const referencedDeclarationNames = (expression: string): ReadonlyArray<string> =>
   A.getSomes(
-    A.map(A.fromIterable(expression.matchAll(SUSPEND_REFERENCE_PATTERN)), (match) => O.fromNullishOr(match[1]))
+    A.map(A.fromIterable(Str.matchAll(SUSPEND_REFERENCE_PATTERN)(expression)), (match) => O.fromNullishOr(match[1]))
   );
 
 const declarationExpressions = (declaration: GeneratedDeclaration): ReadonlyArray<string> => {

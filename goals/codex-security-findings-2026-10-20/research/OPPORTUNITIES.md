@@ -117,3 +117,14 @@ compiler proof. Use the canonical strict test overlay, including Effect
 diagnostics, for the repair; retain the hosted failures and the exact commands
 that cover these test files. No diagnostic suppression or baseline waiver is
 appropriate for these introduced errors.
+
+### Consume retained detached readiness proof after merge
+
+After #1930 merged, all eight Cloud findings and 123 Dependabot alerts were
+observed fixed. Completion refresh still returned `unknown`: the detached
+readiness job saved a real ready status but no classic-monitor verdict, and
+classic monitoring refuses an already merged PR. The recorded status binds
+the final head, passed criteria and reviewed head; the job ended successfully
+before merge. Add an explicit validator for those original records, including
+identity, time, containment and criteria checks. Do not rewrite a publish
+verdict, change the accepted manifest, or infer readiness from merge alone.

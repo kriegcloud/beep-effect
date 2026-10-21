@@ -32,6 +32,7 @@ import {
   suspend,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
+import * as Str from "effect/String";
 import * as EffectModel from "effect/schema/Model";
 import {
   _arrayDepthFkMismatch,
@@ -798,8 +799,8 @@ describe("varchar authoring modes", () => {
       throw new Error("varchar injection unexpectedly produced a variant field");
     }
     const accepts = is(injected.schema);
-    expect(accepts("x".repeat(50))).toBe(true);
-    expect(accepts("x".repeat(51))).toBe(false);
+    expect(accepts(Str.repeat(50)("x"))).toBe(true);
+    expect(accepts(Str.repeat(51)("x"))).toBe(false);
   });
 
   it.effect(
@@ -816,7 +817,7 @@ describe("varchar authoring modes", () => {
 
   it("verifies instead of double-injecting when the schema already carries a bound", () => {
     const verified = StringSchema.check(isMaxLength(50)).pipe(pg.varchar(80));
-    expect(is(verified.schema)("x".repeat(51))).toBe(false);
+    expect(is(verified.schema)(Str.repeat(51)("x"))).toBe(false);
     expect(verified.meta.column).toEqual({
       _tag: "varchar",
       dialect: "pg",

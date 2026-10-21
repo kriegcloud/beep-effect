@@ -24,6 +24,7 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as DatasetLoader from "./Streaming/DatasetLoader.ts";
 import * as Jsonl from "./Streaming/Jsonl.ts";
 import * as Pipeline from "./Streaming/Pipeline.ts";
@@ -178,7 +179,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
           }
           const regex = yield* compileRegex(pattern, `g${options?.caseInsensitive === true ? "i" : ""}`);
           const content = yield* TextStream.readTextFile(path);
-          const allMatches = A.map(A.fromIterable(content.matchAll(regex)), (match) => match[0]);
+          const allMatches = A.map(A.fromIterable(Str.matchAll(regex)(content)), (match) => match[0]);
           const matches = A.take(allMatches, maxMatches);
           yield* Effect.annotateCurrentSpan(countAttribute("count", matches.length));
           return { count: matches.length, lines: matches, truncated: allMatches.length > maxMatches };

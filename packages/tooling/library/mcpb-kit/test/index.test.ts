@@ -14,6 +14,7 @@ import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const McpbManifestJson = S.fromJsonString(McpbManifest, { space: 2 });
 
@@ -92,7 +93,7 @@ describe("mcpbManifest", () => {
       const json = yield* S.encodeEffect(McpbManifestJson)(
         mcpbManifest(fields, mcpbTargetSpec("linux-x64", spec.appName))
       );
-      expect(json.startsWith('{\n  "manifest_version": "0.3",\n  "name": "beep-example",\n  "display_name"')).toBe(
+      expect(Str.startsWith('{\n  "manifest_version": "0.3",\n  "name": "beep-example",\n  "display_name"')(json)).toBe(
         true
       );
     })

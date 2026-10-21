@@ -37,7 +37,7 @@ export const makeChildStdio = (handle: ChildProcessSpawner.ChildProcessHandle) =
 const isSignalExitReason = (cause: PlatformError.PlatformError): boolean =>
   cause.reason.module === CHILD_PROCESS_MODULE && cause.reason.method === EXIT_CODE_METHOD;
 
-const signalOf = (cause: PlatformError.PlatformError): O.Option<string> =>
+export const signalOf = (cause: PlatformError.PlatformError): O.Option<string> =>
   isSignalExitReason(cause) && P.isError(cause.reason.cause)
     ? O.flatMap(
         Str.match(SIGNAL_EXIT_MESSAGE)(cause.reason.cause.message),
