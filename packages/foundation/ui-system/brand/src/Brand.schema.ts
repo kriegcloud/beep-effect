@@ -30,12 +30,14 @@ const printableTextPattern = /^[^\u0000-\u001f\u007f-\u009f\p{Cs}\p{Noncharacter
  * @since 0.0.0
  */
 export const PrintableText = S.NonEmptyString.check(
-  S.isPattern(printableTextPattern, {
-    identifier: $I`PrintableTextPatternCheck`,
-    title: "Printable Text",
-    description: "Non-empty text with no control characters, lone surrogates, or noncharacters.",
-    message: "Text must not contain control characters, lone surrogates, or noncharacters",
-  })
+  S.isPattern(
+    printableTextPattern,
+    $I.annote("PrintableTextPatternCheck", {
+      title: "Printable Text",
+      description: "Non-empty text with no control characters, lone surrogates, or noncharacters.",
+      message: "Text must not contain control characters, lone surrogates, or noncharacters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PrintableText", {
     description: "Non-empty text with no control characters, lone surrogates, or noncharacters.",
@@ -467,18 +469,22 @@ export class Typography extends S.Opaque<Typography, { readonly brand: unique sy
  * @since 0.0.0
  */
 export const SvgPathData = S.String.check(
-  S.isPattern(svgPathDataPattern, {
-    identifier: $I`SvgPathDataPatternCheck`,
-    title: "SVG Path Data",
-    description: "SVG path data beginning with a move-to command.",
-    message: "SVG path data must begin with M or m",
-  }),
-  S.isPattern(printableTextPattern, {
-    identifier: $I`SvgPathDataPrintableCheck`,
-    title: "Printable SVG Path Data",
-    description: "SVG path data with no control characters, lone surrogates, or noncharacters.",
-    message: "SVG path data must not contain control characters",
-  })
+  S.isPattern(
+    svgPathDataPattern,
+    $I.annote("SvgPathDataPatternCheck", {
+      title: "SVG Path Data",
+      description: "SVG path data beginning with a move-to command.",
+      message: "SVG path data must begin with M or m",
+    })
+  ),
+  S.isPattern(
+    printableTextPattern,
+    $I.annote("SvgPathDataPrintableCheck", {
+      title: "Printable SVG Path Data",
+      description: "SVG path data with no control characters, lone surrogates, or noncharacters.",
+      message: "SVG path data must not contain control characters",
+    })
+  )
 ).pipe(
   S.brand("SvgPathData"),
   $I.annoteSchema("SvgPathData", { description: "SVG path data beginning with a move-to command." })

@@ -393,12 +393,14 @@ export class LosslessMarkdownConformanceReport extends S.Opaque<
 ) {}
 
 const GfmDisallowedRawHtml = S.String.check(
-  S.isPattern(gfmDisallowedRawHtmlPattern, {
-    identifier: $I`GfmDisallowedRawHtmlCheck`,
-    title: "GFM disallowed raw HTML",
-    description: "Raw HTML containing a tag filtered by the GFM disallowed-raw-HTML extension.",
-    message: "Raw HTML contains a tag filtered by GFM.",
-  })
+  S.isPattern(
+    gfmDisallowedRawHtmlPattern,
+    $I.annote("GfmDisallowedRawHtmlCheck", {
+      title: "GFM disallowed raw HTML",
+      description: "Raw HTML containing a tag filtered by the GFM disallowed-raw-HTML extension.",
+      message: "Raw HTML contains a tag filtered by GFM.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("GfmDisallowedRawHtml", {
     description: "Raw HTML containing a tag filtered by the GFM disallowed-raw-HTML extension.",

@@ -18,12 +18,14 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 const $I = $EditorId.create("capability/schemas");
 const dottedIdPattern = /^[a-z][a-z0-9-]*(\.[a-z0-9-]+)+$/u;
 
-const dottedIdCheck = S.isPattern(dottedIdPattern, {
-  identifier: $I`DottedIdCheck`,
-  title: "Dotted capability identifier",
-  description: "A lowercase dot-separated identifier with at least two segments.",
-  message: "Expected a lowercase dot-separated identifier",
-});
+const dottedIdCheck = S.isPattern(
+  dottedIdPattern,
+  $I.annote("DottedIdCheck", {
+    title: "Dotted capability identifier",
+    description: "A lowercase dot-separated identifier with at least two segments.",
+    message: "Expected a lowercase dot-separated identifier",
+  })
+);
 
 /**
  * Stable identifier for a catalog capability.
@@ -365,11 +367,10 @@ const uniqueModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueModifiers`,
+  $I.annote("UniqueModifiers", {
     title: "Unique key chord modifiers",
     description: "A key chord contains each canonical modifier at most once.",
-  }
+  })
 );
 
 const sortedModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
@@ -377,11 +378,10 @@ const sortedModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
     Equal.equals(modifiers, sortModifiers(modifiers))
       ? undefined
       : "Expected modifiers in control, meta, alt, shift order",
-  {
-    identifier: $I`SortedModifiers`,
+  $I.annote("SortedModifiers", {
     title: "Sorted key chord modifiers",
     description: "A key chord stores modifiers in canonical declaration order.",
-  }
+  })
 );
 
 /**
@@ -493,7 +493,6 @@ export class Keybinding extends S.Opaque<Keybinding, { readonly brand: unique sy
     chord: KeyChordFromString.annotateKey({ description: "Canonical chord decoded from its authored string." }),
   }).pipe(
     $I.annoteSchema("Keybinding", {
-      title: "Keybinding",
       description: "A platform-specific keyboard chord attached to a command.",
     })
   )
@@ -640,11 +639,10 @@ const uniqueValues = <Value>(name: string) =>
         return Result.fail(undefined);
       });
     },
-    {
-      identifier: $I`UniqueValues`,
+    $I.annote("UniqueValues", {
       title: `Unique ${name}s`,
       description: `Every ${name} in the collection must be unique.`,
-    }
+    })
   );
 
 const uniqueNodeKeys = uniqueValues<NodeRegistrationKey>("node registration key");
@@ -697,11 +695,10 @@ const uniqueBindingPlatforms = S.makeFilter<ReadonlyArray<Keybinding>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueBindingPlatforms`,
+  $I.annote("UniqueBindingPlatforms", {
     title: "Unique keybinding platforms",
     description: "A command declares at most one binding for each platform family.",
-  }
+  })
 );
 
 /**
@@ -839,11 +836,10 @@ const catalogRelationships = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
         )
       )
     ),
-  {
-    identifier: $I`CatalogRelationships`,
+  $I.annote("CatalogRelationships", {
     title: "Valid catalog relationships",
     description: "Capability descriptors cannot depend on or conflict with themselves.",
-  }
+  })
 );
 
 const uniqueCatalogIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -857,11 +853,10 @@ const uniqueCatalogIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueCatalogIds`,
+  $I.annote("UniqueCatalogIds", {
     title: "Unique catalog capability identifiers",
     description: "Every descriptor in the capability catalog has a unique identifier.",
-  }
+  })
 );
 
 const uniqueCatalogCommandIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -880,11 +875,10 @@ const uniqueCatalogCommandIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>
       })
     );
   },
-  {
-    identifier: $I`UniqueCatalogCommandIds`,
+  $I.annote("UniqueCatalogCommandIds", {
     title: "Unique catalog command identifiers",
     description: "Every command identifier is owned by exactly one catalog descriptor.",
-  }
+  })
 );
 
 const uniqueCatalogRegistrationKeys = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -912,11 +906,10 @@ const uniqueCatalogRegistrationKeys = S.makeFilter<ReadonlyArray<CapabilityDescr
       });
     });
   },
-  {
-    identifier: $I`UniqueCatalogRegistrationKeys`,
+  $I.annote("UniqueCatalogRegistrationKeys", {
     title: "Unique catalog registration keys",
     description: "Every node, extension, and transformer key is owned by exactly one descriptor.",
-  }
+  })
 );
 
 /**
@@ -1021,11 +1014,10 @@ const uniqueOverrideCommandIds = S.makeFilter<ReadonlyArray<KeybindingOverride>>
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueOverrideCommandIds`,
+  $I.annote("UniqueOverrideCommandIds", {
     title: "Unique override command identifiers",
     description: "A profile contains at most one keybinding override per command.",
-  }
+  })
 );
 
 /**

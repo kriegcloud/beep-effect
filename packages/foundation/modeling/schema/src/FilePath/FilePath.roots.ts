@@ -27,12 +27,14 @@ import { $I, windowsDriveRootRegExp, windowsUncRootRegExp } from "./FilePath.sha
  * @since 0.0.0
  */
 export const WindowsDriveRoot = S.String.check(
-  S.isPattern(windowsDriveRootRegExp, {
-    identifier: $I`WindowsDriveRootCheck`,
-    title: "Windows Drive Root",
-    description: "A Windows drive root in the form `<letter>:` with an optional trailing separator.",
-    message: "Windows drive roots must look like C: or C:\\",
-  })
+  S.isPattern(
+    windowsDriveRootRegExp,
+    $I.annote("WindowsDriveRootCheck", {
+      title: "Windows Drive Root",
+      description: "A Windows drive root in the form `<letter>:` with an optional trailing separator.",
+      message: "Windows drive roots must look like C: or C:\\",
+    })
+  )
 ).pipe(
   S.brand("WindowsDriveRoot"),
   $I.annoteSchema("WindowsDriveRoot", {
@@ -75,12 +77,14 @@ export type WindowsDriveRoot = typeof WindowsDriveRoot.Type;
  * @since 0.0.0
  */
 export const WindowsUncRoot = S.String.check(
-  S.isPattern(windowsUncRootRegExp, {
-    identifier: $I`WindowsUncRootCheck`,
-    title: "Windows UNC Root",
-    description: "A UNC root in the form \\\\server\\share without a trailing separator.",
-    message: "Windows UNC roots must look like \\\\server\\share",
-  })
+  S.isPattern(
+    windowsUncRootRegExp,
+    $I.annote("WindowsUncRootCheck", {
+      title: "Windows UNC Root",
+      description: "A UNC root in the form \\\\server\\share without a trailing separator.",
+      message: "Windows UNC roots must look like \\\\server\\share",
+    })
+  )
 ).pipe(
   S.brand("WindowsUncRoot"),
   $I.annoteSchema("WindowsUncRoot", {
@@ -129,36 +133,43 @@ const isWindowsUncRoot = S.is(WindowsUncRoot);
 export const HasLeafSegment = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(P.not(Eq.equals("/")), {
-        identifier: $I`HasLeafSegmentNotPosixRootCheck`,
-        title: "Has Leaf Segment Not Posix Root",
-        description: "A path that is not exactly the POSIX root /.",
-        message: "File paths must not be the POSIX root /",
-      }),
-      S.makeFilter(P.not(isEndsWithSeparator), {
-        identifier: $I`HasLeafSegmentNoTrailingSeparatorCheck`,
-        title: "Has Leaf Segment No Trailing Separator",
-        description: "A path that does not end with a trailing path separator.",
-        message: "File paths must not end with a path separator",
-      }),
-      S.makeFilter(P.not(isWindowsDriveRoot), {
-        identifier: $I`HasLeafSegmentNotWindowsDriveRootCheck`,
-        title: "Has Leaf Segment Not Windows Drive Root",
-        description: "A path that is not only a Windows drive root.",
-        message: "File paths must not be only a Windows drive root",
-      }),
-      S.makeFilter(P.not(isWindowsUncRoot), {
-        identifier: $I`HasLeafSegmentNotWindowsUncRootCheck`,
-        title: "Has Leaf Segment Not Windows UNC Root",
-        description: "A path that is not only a Windows UNC root.",
-        message: "File paths must not be only a Windows UNC root",
-      }),
+      S.makeFilter(
+        P.not(Eq.equals("/")),
+        $I.annote("HasLeafSegmentNotPosixRootCheck", {
+          title: "Has Leaf Segment Not Posix Root",
+          description: "A path that is not exactly the POSIX root /.",
+          message: "File paths must not be the POSIX root /",
+        })
+      ),
+      S.makeFilter(
+        P.not(isEndsWithSeparator),
+        $I.annote("HasLeafSegmentNoTrailingSeparatorCheck", {
+          title: "Has Leaf Segment No Trailing Separator",
+          description: "A path that does not end with a trailing path separator.",
+          message: "File paths must not end with a path separator",
+        })
+      ),
+      S.makeFilter(
+        P.not(isWindowsDriveRoot),
+        $I.annote("HasLeafSegmentNotWindowsDriveRootCheck", {
+          title: "Has Leaf Segment Not Windows Drive Root",
+          description: "A path that is not only a Windows drive root.",
+          message: "File paths must not be only a Windows drive root",
+        })
+      ),
+      S.makeFilter(
+        P.not(isWindowsUncRoot),
+        $I.annote("HasLeafSegmentNotWindowsUncRootCheck", {
+          title: "Has Leaf Segment Not Windows UNC Root",
+          description: "A path that is not only a Windows UNC root.",
+          message: "File paths must not be only a Windows UNC root",
+        })
+      ),
     ],
-    {
-      identifier: $I`HasLeafSegmentChecks`,
+    $I.annote("HasLeafSegmentChecks", {
       title: "Has Leaf Segment",
       description: "Checks for a path string that includes a concrete leaf segment.",
-    }
+    })
   )
 ).pipe(
   S.brand("HasLeafSegment"),

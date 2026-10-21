@@ -23,12 +23,14 @@ const EmptyPatternChoice = S.Literal("").pipe(
     description: "Empty placeholder choice used to represent a wildcard in pattern alternatives.",
   })
 );
-const MeaningfulPatternOptionChoice = S.makeFilter(A.some<string>(Str.isNonEmpty), {
-  description: "Pattern options must include at least one non-empty choice.",
-  identifier: $I`MeaningfulPatternOptionChoice`,
-  message: "Pattern options must include at least one non-empty choice.",
-  title: "Meaningful Pattern Option Choice",
-});
+const MeaningfulPatternOptionChoice = S.makeFilter(
+  A.some<string>(Str.isNonEmpty),
+  $I.annote("MeaningfulPatternOptionChoice", {
+    description: "Pattern options must include at least one non-empty choice.",
+    message: "Pattern options must include at least one non-empty choice.",
+    title: "Meaningful Pattern Option Choice",
+  })
+);
 const UniversalPOSTagKit = LiteralKit([
   "ADJ",
   "ADP",
@@ -164,12 +166,11 @@ const isNamedEntityType = S.is(NamedEntityType);
 const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
   (values: ReadonlyArray<string>) =>
     A.some(values, (value) => P.every([Str.isNonEmpty, P.not(isUniversalPOSTag), P.not(isNamedEntityType)])(value)),
-  {
+  $I.annote("DisambiguatedLiteralPatternOptionChoice", {
     description: "Literal pattern options must include at least one non-reserved literal choice.",
-    identifier: $I`DisambiguatedLiteralPatternOptionChoice`,
     message: "Literal pattern options must include at least one non-reserved literal choice.",
     title: "Disambiguated Literal Pattern Option Choice",
-  }
+  })
 );
 
 /**

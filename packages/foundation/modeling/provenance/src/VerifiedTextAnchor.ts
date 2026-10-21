@@ -20,12 +20,14 @@ const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
 const sourceTextDigestEquivalence = S.toEquivalence(SourceTextDigest);
 const sourceTextIdentityEquivalence = S.toEquivalence(SourceTextIdentity);
 const WellFormedSourceText = S.String.check(
-  S.isPattern(/^(?:[\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])*$/, {
-    identifier: $I`WellFormedSourceTextCheck`,
-    title: "Well-Formed Source Text",
-    description: "Checks that source text contains only complete UTF-16 scalar sequences.",
-    message: "Expected source text without lone UTF-16 surrogates.",
-  })
+  S.isPattern(
+    /^(?:[\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF])*$/,
+    $I.annote("WellFormedSourceTextCheck", {
+      title: "Well-Formed Source Text",
+      description: "Checks that source text contains only complete UTF-16 scalar sequences.",
+      message: "Expected source text without lone UTF-16 surrogates.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("WellFormedSourceText", {
     description: "Raw source text whose UTF-16 representation contains no lone surrogate code units.",

@@ -130,12 +130,14 @@ export type PandocUnknownConstructorWire = typeof PandocUnknownConstructorWire.T
 
 const PandocFutureConstructorWire = PandocUnknownConstructorWire.pipe(
   S.check(
-    S.makeFilter((wire) => !isPandocKnownConstructorName(wire.t), {
-      identifier: $I`PandocFutureConstructorWireCheck`,
-      title: "Future Pandoc constructor",
-      description: "An opaque Pandoc constructor whose name is absent from every known constructor registry.",
-      message: "Expected a future Pandoc constructor name that is not already known.",
-    })
+    S.makeFilter(
+      (wire) => !isPandocKnownConstructorName(wire.t),
+      $I.annote("PandocFutureConstructorWireCheck", {
+        title: "Future Pandoc constructor",
+        description: "An opaque Pandoc constructor whose name is absent from every known constructor registry.",
+        message: "Expected a future Pandoc constructor name that is not already known.",
+      })
+    )
   ),
   $I.annoteSchema("PandocFutureConstructorWire", {
     description: "Exact opaque JSON object whose constructor name is absent from every known registry.",
@@ -3313,12 +3315,14 @@ const decodePandocTableCaptionPairOption = S.decodeUnknownOption(PandocTableCapt
  */
 export const PandocTablePayload = PandocTablePayloadShape.pipe(
   S.check(
-    S.makeFilter(isPandocSemanticTablePayload, {
-      identifier: $I`PandocTablePayloadSemanticCheck`,
-      title: "Semantically valid Pandoc table payload",
-      description: "A six-field Pandoc table payload accepted by the strict recursive constructor grammar.",
-      message: "Expected a Pandoc table payload whose nested constructors are valid in their semantic contexts.",
-    })
+    S.makeFilter(
+      isPandocSemanticTablePayload,
+      $I.annote("PandocTablePayloadSemanticCheck", {
+        title: "Semantically valid Pandoc table payload",
+        description: "A six-field Pandoc table payload accepted by the strict recursive constructor grammar.",
+        message: "Expected a Pandoc table payload whose nested constructors are valid in their semantic contexts.",
+      })
+    )
   ),
   $I.annoteSchema("PandocTablePayload", {
     description: "Canonical validated six-field Pandoc table payload retained without duplicate semantic fields.",

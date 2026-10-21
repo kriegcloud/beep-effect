@@ -49,12 +49,14 @@ const vcsRevisionPattern = /^[0-9a-f]{7,64}$/;
  * @since 0.0.0
  */
 export const SpanName = S.String.check(
-  S.isPattern(spanNamePattern, {
-    identifier: $I`SpanNamePatternCheck`,
-    title: "Span Name Pattern",
-    description: "A span name in Concept(.Sub)*.action form.",
-    message: "Expected a span name like Parcels.read",
-  })
+  S.isPattern(
+    spanNamePattern,
+    $I.annote("SpanNamePatternCheck", {
+      title: "Span Name Pattern",
+      description: "A span name in Concept(.Sub)*.action form.",
+      message: "Expected a span name like Parcels.read",
+    })
+  )
 ).pipe(
   S.brand("SpanName"),
   $I.annoteSchema("SpanName", {
@@ -93,12 +95,14 @@ export type SpanName = typeof SpanName.Type;
  * @since 0.0.0
  */
 export const ProtocolSpanName = S.String.check(
-  S.isPattern(protocolSpanNamePattern, {
-    identifier: $I`ProtocolSpanNamePatternCheck`,
-    title: "Protocol Span Name Pattern",
-    description: "A non-empty span name with no surrounding whitespace.",
-    message: "Expected a non-empty protocol span name without surrounding whitespace",
-  })
+  S.isPattern(
+    protocolSpanNamePattern,
+    $I.annote("ProtocolSpanNamePatternCheck", {
+      title: "Protocol Span Name Pattern",
+      description: "A non-empty span name with no surrounding whitespace.",
+      message: "Expected a non-empty protocol span name without surrounding whitespace",
+    })
+  )
 ).pipe(
   S.brand("ProtocolSpanName"),
   $I.annoteSchema("ProtocolSpanName", {
@@ -135,12 +139,14 @@ export type ProtocolSpanName = typeof ProtocolSpanName.Type;
  * @since 0.0.0
  */
 export const MetricName = S.String.check(
-  S.isPattern(metricNamePattern, {
-    identifier: $I`MetricNamePatternCheck`,
-    title: "Metric Name Pattern",
-    description: "A lowercase dotted beep.<area>.<noun> metric name without unit or _total suffix.",
-    message: "Expected a metric name like beep.area.noun without unit or _total suffix",
-  })
+  S.isPattern(
+    metricNamePattern,
+    $I.annote("MetricNamePatternCheck", {
+      title: "Metric Name Pattern",
+      description: "A lowercase dotted beep.<area>.<noun> metric name without unit or _total suffix.",
+      message: "Expected a metric name like beep.area.noun without unit or _total suffix",
+    })
+  )
 ).pipe(
   S.brand("MetricName"),
   $I.annoteSchema("MetricName", {
@@ -173,12 +179,14 @@ export type MetricName = typeof MetricName.Type;
  * @since 0.0.0
  */
 export const EventName = S.String.check(
-  S.isPattern(eventNamePattern, {
-    identifier: $I`EventNamePatternCheck`,
-    title: "Event Name Pattern",
-    description: "An event name in Concept.event_happened form.",
-    message: "Expected an event name like Docket.intake_completed",
-  })
+  S.isPattern(
+    eventNamePattern,
+    $I.annote("EventNamePatternCheck", {
+      title: "Event Name Pattern",
+      description: "An event name in Concept.event_happened form.",
+      message: "Expected an event name like Docket.intake_completed",
+    })
+  )
 ).pipe(
   S.brand("EventName"),
   $I.annoteSchema("EventName", {
@@ -240,12 +248,14 @@ export type InstrumentName = typeof InstrumentName.Type;
  * @since 0.0.0
  */
 export const AttributeKeyName = S.String.check(
-  S.isPattern(attributeKeyNamePattern, {
-    identifier: $I`AttributeKeyNamePatternCheck`,
-    title: "Attribute Key Name Pattern",
-    description: "A lowercase dotted attribute key.",
-    message: "Expected a lowercase dotted attribute key like beep.package",
-  })
+  S.isPattern(
+    attributeKeyNamePattern,
+    $I.annote("AttributeKeyNamePatternCheck", {
+      title: "Attribute Key Name Pattern",
+      description: "A lowercase dotted attribute key.",
+      message: "Expected a lowercase dotted attribute key like beep.package",
+    })
+  )
 ).pipe(
   S.brand("AttributeKeyName"),
   $I.annoteSchema("AttributeKeyName", {
@@ -279,12 +289,14 @@ export type AttributeKeyName = typeof AttributeKeyName.Type;
  * @since 0.0.0
  */
 export const PackageName = S.String.check(
-  S.isPattern(packageNamePattern, {
-    identifier: $I`PackageNamePatternCheck`,
-    title: "Package Name Pattern",
-    description: "A scoped npm package name.",
-    message: "Expected a scoped package name like @beep/observability",
-  })
+  S.isPattern(
+    packageNamePattern,
+    $I.annote("PackageNamePatternCheck", {
+      title: "Package Name Pattern",
+      description: "A scoped npm package name.",
+      message: "Expected a scoped package name like @beep/observability",
+    })
+  )
 ).pipe(
   S.brand("PackageName"),
   $I.annoteSchema("PackageName", {
@@ -321,12 +333,14 @@ export type PackageName = typeof PackageName.Type;
  * @since 0.0.0
  */
 export const UcumUnit = S.String.check(
-  S.isPattern(unitPattern, {
-    identifier: $I`UcumUnitPatternCheck`,
-    title: "UCUM Unit Pattern",
-    description: "A UCUM unit code in printable ASCII without whitespace.",
-    message: "Expected a UCUM unit code like ms or {request}",
-  })
+  S.isPattern(
+    unitPattern,
+    $I.annote("UcumUnitPatternCheck", {
+      title: "UCUM Unit Pattern",
+      description: "A UCUM unit code in printable ASCII without whitespace.",
+      message: "Expected a UCUM unit code like ms or {request}",
+    })
+  )
 ).pipe(
   S.brand("UcumUnit"),
   $I.annoteSchema("UcumUnit", {
@@ -359,12 +373,14 @@ export type UcumUnit = typeof UcumUnit.Type;
  * @since 0.0.0
  */
 export const HostName = S.String.check(
-  S.isPattern(hostNamePattern, {
-    identifier: $I`HostNamePatternCheck`,
-    title: "Host Name Pattern",
-    description: "A DNS-style host name.",
-    message: "Expected a DNS-style host name",
-  })
+  S.isPattern(
+    hostNamePattern,
+    $I.annote("HostNamePatternCheck", {
+      title: "Host Name Pattern",
+      description: "A DNS-style host name.",
+      message: "Expected a DNS-style host name",
+    })
+  )
 ).pipe(
   S.brand("HostName"),
   $I.annoteSchema("HostName", {
@@ -398,12 +414,14 @@ export type HostName = typeof HostName.Type;
  * @since 0.0.0
  */
 export const CloudProviderName = S.String.check(
-  S.isPattern(cloudProviderPattern, {
-    identifier: $I`CloudProviderNamePatternCheck`,
-    title: "Cloud Provider Name Pattern",
-    description: "A lowercase snake_case cloud provider token.",
-    message: "Expected a lowercase cloud provider token like aws",
-  })
+  S.isPattern(
+    cloudProviderPattern,
+    $I.annote("CloudProviderNamePatternCheck", {
+      title: "Cloud Provider Name Pattern",
+      description: "A lowercase snake_case cloud provider token.",
+      message: "Expected a lowercase cloud provider token like aws",
+    })
+  )
 ).pipe(
   S.brand("CloudProviderName"),
   $I.annoteSchema("CloudProviderName", {
@@ -436,12 +454,14 @@ export type CloudProviderName = typeof CloudProviderName.Type;
  * @since 0.0.0
  */
 export const VcsRevision = S.String.check(
-  S.isPattern(vcsRevisionPattern, {
-    identifier: $I`VcsRevisionPatternCheck`,
-    title: "VCS Revision Pattern",
-    description: "A lowercase hexadecimal commit revision of 7 to 64 characters.",
-    message: "Expected a lowercase hexadecimal revision",
-  })
+  S.isPattern(
+    vcsRevisionPattern,
+    $I.annote("VcsRevisionPatternCheck", {
+      title: "VCS Revision Pattern",
+      description: "A lowercase hexadecimal commit revision of 7 to 64 characters.",
+      message: "Expected a lowercase hexadecimal revision",
+    })
+  )
 ).pipe(
   S.brand("VcsRevision"),
   $I.annoteSchema("VcsRevision", {

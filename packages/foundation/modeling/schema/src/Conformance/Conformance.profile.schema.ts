@@ -27,12 +27,11 @@ const ConformanceProfileConsistency = S.makeFilter(
   (profile: typeof ConformanceProfileFields.Type) =>
     A.dedupe(profile.sourceIds).length === profile.sourceIds.length &&
     A.dedupe(profile.invariantIds).length === profile.invariantIds.length,
-  {
-    identifier: $I`ConformanceProfileConsistency`,
+  $I.annote("ConformanceProfileConsistency", {
     title: "Conformance profile identifier uniqueness",
     description: "A profile selects every source and invariant identifier at most once.",
     message: "Expected unique sourceIds and invariantIds within the conformance profile",
-  }
+  })
 );
 
 const ConformanceProfileValue = ConformanceProfileFields.check(ConformanceProfileConsistency);

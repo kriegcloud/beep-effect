@@ -1286,12 +1286,11 @@ const DockWorkspaceGlobalIdentityCheck = S.makeFilter<typeof DockWorkspaceBase.T
         );
       },
     }),
-  {
-    identifier: $I`DockWorkspaceGlobalIdentityCheck`,
+  $I.annote("DockWorkspaceGlobalIdentityCheck", {
     title: "Dock workspace global identity",
     description: "Identifiers must be globally unique and a maximized group must exist and be visible.",
     message: "Expected globally unique panel, group, and split identifiers and an existing visible maximized group.",
-  }
+  })
 );
 
 /**

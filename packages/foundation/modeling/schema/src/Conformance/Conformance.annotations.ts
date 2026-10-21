@@ -74,14 +74,16 @@ const isConsistentAnnotation = (annotation: typeof AnnotationFields.Type): boole
   );
 };
 
-const AnnotationConsistency = S.makeFilter(isConsistentAnnotation, {
-  identifier: $I`AnnotationConsistency`,
-  title: "Conformance annotation reference integrity",
-  description:
-    "Unique registry identifiers with profile and invariant references resolved inside the annotation and each profile.",
-  message:
-    "Expected unique source, profile, and invariant identifiers with every reference resolved globally and within each selecting profile",
-});
+const AnnotationConsistency = S.makeFilter(
+  isConsistentAnnotation,
+  $I.annote("AnnotationConsistency", {
+    title: "Conformance annotation reference integrity",
+    description:
+      "Unique registry identifiers with profile and invariant references resolved inside the annotation and each profile.",
+    message:
+      "Expected unique source, profile, and invariant identifiers with every reference resolved globally and within each selecting profile",
+  })
+);
 
 /**
  * Self-contained specification registry attached to an Effect schema.
