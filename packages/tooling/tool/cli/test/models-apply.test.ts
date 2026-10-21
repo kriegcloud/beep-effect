@@ -2,7 +2,6 @@ import {
   ModelsApply,
   ModelsApplyLive,
   ModelsAtomicExchange,
-  ModelsAtomicExchangeLive,
 } from "@beep/repo-cli/commands/Models/Models.apply.service";
 import { ModelsLocatorError } from "@beep/repo-cli/commands/Models/Models.errors";
 import {
@@ -27,7 +26,6 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import { modelsTestExchangeLayer } from "./helpers/models-atomic-exchange.ts";
 import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
@@ -89,7 +87,7 @@ const restoreLinkRace = Effect.fnUntraced(function* (dangling: boolean) {
   const modelsTestExchange = yield* ModelsAtomicExchange;
   let exchanges = 0;
   const wrapped = ModelsAtomicExchange.of({
-    supported: Effect.succeed(true),
+    qualify: modelsTestExchange.qualify,
     exchange: Effect.fn("ModelsApplyTest.restoreLinkExchange")(function* (left, right) {
       exchanges += 1;
       if (exchanges === 1) {
@@ -575,7 +573,7 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
           ),
         });
         const wrappedExchange = ModelsAtomicExchange.of({
-          supported: Effect.succeed(true),
+          qualify: modelsTestExchange.qualify,
           exchange: Effect.fnUntraced(function* (left, right) {
             const publication = left === file || right === file;
             if (publication) {
@@ -614,45 +612,6 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
       })
     );
   }
-
-  it.effect("fails closed and caches an unsupported exchange probe", () =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({
-        prefix: "unsupported-exchange-",
-      });
-      const file = path.join(root, "config.toml");
-      const backups = path.join(root, "backups");
-      yield* fs.writeFileString(file, native);
-      let probes = 0;
-      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-      const unsupported = ChildProcessSpawner.ChildProcessSpawner.of({
-        ...spawner,
-        exitCode: Effect.fn("ModelsApplyTest.unsupported")((command) => {
-          if (command._tag === "StandardCommand" && command.command === "mv") {
-            probes += 1;
-            return Effect.succeed(ChildProcessSpawner.ExitCode(1));
-          }
-          return spawner.exitCode(command);
-        }),
-      });
-      const services = yield* Layer.build(
-        ModelsAtomicExchangeLive.pipe(
-          Layer.provide(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, unsupported))
-        )
-      );
-      const writer = yield* writerWithFs(fs, Context.get(services, ModelsAtomicExchange));
-      for (const _attempt of [0, 1]) {
-        const error = yield* Effect.flip(writer.apply(file, [topLevel], "write", backups));
-        expect(error._tag).toBe("ModelsLocatorError");
-        expect(error.message).toContain("Atomic exchange unsupported");
-        expect(error.message).toContain("Journal:");
-        expect(yield* fs.readFileString(file)).toBe(native);
-      }
-      expect(probes).toBe(1);
-    })
-  );
 
   it.effect("preserves canonical model symlinks and refuses dangling links before backup", () =>
     Effect.gen(function* () {
