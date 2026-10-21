@@ -1,6 +1,6 @@
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
-import { GlobPattern, GlobPatternOptions } from "../../effected/glob/index.ts";
+import { GlobPattern, GlobPatternOptions } from "@beep/glob";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

@@ -7,6 +7,7 @@
 
 import * as Cause from "effect/Cause";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaParser from "effect/SchemaParser";
@@ -74,3 +75,76 @@ export const compileAssertion = <Sch extends S.Constraint>(schema: Sch): Compile
     throw new Error("Schema validation failed", { cause: issue });
   };
 };
+
+/**
+ * Overloads of a text-format composer built by {@link makeTextDecodeTo}.
+ *
+ * **Details**
+ *
+ * Data-first `(target, options?)` and data-last `(options?)(target)` both
+ * yield a codec that decodes source text straight into the target's type.
+ *
+ * **Example** (Type a text-format composer)
+ *
+ * ```ts
+ * import type { TextDecodeTo } from "@beep/utils/Schema"
+ * import { makeTextDecodeTo } from "@beep/utils/Schema"
+ * import * as Result from "effect/Result"
+ * import * as S from "effect/Schema"
+ *
+ * const json: TextDecodeTo<undefined> = makeTextDecodeTo(() => S.fromJsonString(S.Unknown))
+ *
+ * console.log(Result.getOrThrow(S.decodeResult(json(S.Struct({ port: S.Finite })))('{"port":3000}'))) // { port: 3000 }
+ * ```
+ *
+ * @typeParam Options - The text format's parse options.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TextDecodeTo<Options> = {
+  <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>, options?: Options): S.Codec<T, string, RD, RE>;
+  (options?: Options): <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>) => S.Codec<T, string, RD, RE>;
+};
+
+/**
+ * Builds the dual `schema` composer of a text format from its string codec.
+ *
+ * **Details**
+ *
+ * Each call of the returned composer builds `fromString(options)` and pipes it
+ * through `S.decodeTo(target)`, so a text format (JSONC, YAML, ...) exposes
+ * one composition instead of restating the dual plumbing. A call is
+ * data-first when its first argument is a schema.
+ *
+ * **Gotchas**
+ *
+ * Every call composes a fresh schema; bind the result to a constant.
+ *
+ * **Example** (Compose JSON text with a domain schema)
+ *
+ * ```ts
+ * import { makeTextDecodeTo } from "@beep/utils/Schema"
+ * import * as Result from "effect/Result"
+ * import * as S from "effect/Schema"
+ *
+ * const fromJson = makeTextDecodeTo((_options?: undefined) => S.fromJsonString(S.Unknown))
+ * const Config = S.Struct({ port: S.Finite })
+ *
+ * console.log(Result.getOrThrow(S.decodeResult(fromJson(Config))('{"port":3000}'))) // { port: 3000 }
+ * console.log(Result.getOrThrow(S.decodeResult(fromJson()(Config))('{"port":8080}'))) // { port: 8080 }
+ * ```
+ *
+ * @typeParam Options - The text format's parse options.
+ * @param fromString - Builds the format's `string -> unknown` codec for the given options.
+ * @returns The dual composer of text and target schemas.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeTextDecodeTo = <Options>(
+  fromString: (options?: Options) => S.Codec<unknown, string>
+): TextDecodeTo<Options> =>
+  dual(
+    (args) => S.isSchema(args[0]),
+    <T, E, RD = never, RE = never>(target: S.Codec<T, E, RD, RE>, options?: Options): S.Codec<T, string, RD, RE> =>
+      fromString(options).pipe(S.decodeTo(target))
+  );

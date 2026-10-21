@@ -8,7 +8,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Path from "effect/Path";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Argument from "effect/cli/Argument";
 import * as Command from "effect/cli/Command";
 import { assert, it } from "@effect/vitest";

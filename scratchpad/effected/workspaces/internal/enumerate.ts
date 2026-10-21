@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 // there is no cap to get wrong. It is bounded by depth, by a visited-directory
 // budget, and by an unconditional node_modules / .git prune.
 
-import type { GlobPattern, GlobSet } from "../../glob/index.ts";
+import type { GlobPattern, GlobSet } from "@beep/glob";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -171,7 +171,7 @@ const baseOf = (pattern: GlobPattern): string => pattern.enumerationPrefix.repla
  *
  * ```ts
  * import * as Effect from "effect/Effect"
- * import { GlobSet } from "@beep/scratchpad/effected/glob/GlobSet"
+ * import { GlobSet } from "@beep/glob/GlobSet"
  * import { enumerate } from "@beep/scratchpad/effected/workspaces/internal/enumerate"
  *
  * const globs = Effect.runSync(GlobSet.compile(["packages/*"]))

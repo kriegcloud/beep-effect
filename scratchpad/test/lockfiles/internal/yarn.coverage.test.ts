@@ -6,7 +6,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
 import { parseYarn } from "../../../effected/lockfiles/internal/yarn.ts";
-import { Yaml } from "../../../effected/yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 
 describe("Yarn descriptor and identity boundaries", () => {
   it.effect("records a compound descriptor targeting a skipped row as unresolved", () => Effect.gen(function* () {

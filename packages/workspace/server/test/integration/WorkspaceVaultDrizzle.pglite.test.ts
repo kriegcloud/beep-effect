@@ -1,8 +1,8 @@
 import * as NodeURL from "node:url";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";
 import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { makeDrizzleWorkspaceVaultStore } from "@beep/workspace-server/aggregates/Workspace";
 import { DbSchema } from "@beep/workspace-tables";
 import { Workspace } from "@beep/workspace-use-cases/server";

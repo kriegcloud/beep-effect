@@ -8,7 +8,7 @@ import * as O from "effect/Option";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as S from "effect/Schema";

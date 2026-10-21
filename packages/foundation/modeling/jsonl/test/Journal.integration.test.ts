@@ -6,7 +6,7 @@
 // file, native watch between two layers) live in
 // test/integration/Journal.int.test.ts, which runs on the platform filesystem.
 import { Envelope, Line } from "@beep/jsonl";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { assert, it } from "@effect/vitest";
 import { assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";

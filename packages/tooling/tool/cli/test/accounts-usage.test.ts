@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { accountsCommand } from "@beep/repo-cli";
 import {
   AccountRef,
@@ -53,7 +54,6 @@ import {
   watchAccounts,
 } from "@beep/repo-cli/test/Accounts";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess, assertTrue } from "@effect/vitest/utils";

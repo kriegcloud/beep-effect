@@ -1962,9 +1962,6 @@
       "@beep/ui/Version": ["./packages/foundation/ui-system/ui/src/Version.ts"],
       "@beep/freshbooks": ["./packages/drivers/freshbooks/src/index.ts"],
       "@beep/freshbooks/*": ["./packages/drivers/freshbooks/src/*"],
-      "@beep/test-utils/MemoryFileSystem": [
-        "./packages/tooling/test-kit/test-utils/src/MemoryFileSystem/index.ts"
-      ],
       "@beep/repo-configs/cache": [
         "./packages/tooling/policy-pack/repo-configs/src/cache/index.ts"
       ],
@@ -2233,6 +2230,38 @@
       ],
       "@beep/public-site/*": [
         "./packages/foundation/modeling/public-site/src/*"
+      ],
+      "@beep/git": ["./packages/drivers/git/src/index.ts"],
+      "@beep/git/*": ["./packages/drivers/git/src/*"],
+      "@beep/git/internal/*": ["./packages/drivers/git/src/internal/*"],
+      "@beep/glob": ["./packages/foundation/modeling/glob/src/index.ts"],
+      "@beep/glob/*": ["./packages/foundation/modeling/glob/src/*"],
+      "@beep/glob/internal/*": [
+        "./packages/foundation/modeling/glob/src/internal/*"
+      ],
+      "@beep/managed-section": [
+        "./packages/foundation/modeling/managed-section/src/index.ts"
+      ],
+      "@beep/managed-section/*": [
+        "./packages/foundation/modeling/managed-section/src/*"
+      ],
+      "@beep/managed-section/internal/*": [
+        "./packages/foundation/modeling/managed-section/src/internal/*"
+      ],
+      "@beep/memfs": ["./packages/tooling/test-kit/memfs/src/index.ts"],
+      "@beep/memfs/*": ["./packages/tooling/test-kit/memfs/src/*"],
+      "@beep/memfs/internal/*": [
+        "./packages/tooling/test-kit/memfs/src/internal/*"
+      ],
+      "@beep/toml": ["./packages/foundation/modeling/toml/src/index.ts"],
+      "@beep/toml/*": ["./packages/foundation/modeling/toml/src/*"],
+      "@beep/toml/internal/*": [
+        "./packages/foundation/modeling/toml/src/internal/*"
+      ],
+      "@beep/yaml": ["./packages/foundation/modeling/yaml/src/index.ts"],
+      "@beep/yaml/*": ["./packages/foundation/modeling/yaml/src/*"],
+      "@beep/yaml/internal/*": [
+        "./packages/foundation/modeling/yaml/src/internal/*"
       ]
     }
   }

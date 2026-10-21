@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
-import { GlobPattern, GlobSet } from "../glob/index.ts";
+import { GlobPattern, GlobSet } from "@beep/glob";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as Context from "effect/Context";

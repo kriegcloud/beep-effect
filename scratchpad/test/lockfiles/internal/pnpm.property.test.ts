@@ -8,7 +8,7 @@ import { PnpmExtension } from "../../../effected/lockfiles/PnpmExtension.ts";
 const runs = { arbitrary: fcRuns(100) };
 import { parsePnpm } from "../../../effected/lockfiles/internal/pnpm.ts";
 import { LockfileFields } from "../../../effected/lockfiles/internal/shared.ts";
-import { Yaml } from "../../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 const render = Yaml.stringify;
 const read = Yaml.parse;
 

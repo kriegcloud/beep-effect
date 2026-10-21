@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as S from "effect/Schema";
 import { assertTrue } from "@effect/vitest/utils";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { Sbom, SbomWriteError } from "../../effected/sbom/Sbom.ts";
 import { Component } from "../../effected/sbom/SbomDocument.ts";
 

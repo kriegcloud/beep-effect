@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as S from "effect/Schema";
-import { Yaml } from "../../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 import { ConfigDependencyLock } from "../../../effected/lockfiles/ConfigDependencyLock.ts";
 import { PackageManagerLock } from "../../../effected/lockfiles/PackageManagerLock.ts";
 import { readPnpmPackageManager, readPnpmConfigDependencies } from "../../../effected/lockfiles/internal/pnpmEnv.ts";

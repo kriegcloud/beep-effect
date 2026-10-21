@@ -20,7 +20,7 @@ import { CliInteractive } from "../../../effected/cli/CliInteractive.ts";
 import { CliTheme } from "../../../effected/cli/CliTheme.ts";
 import { CurrentRuntimeEnv } from "../../../effected/env/index.ts";
 import { TestTerminal } from "../../../effected/cli/testing.ts";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { CliUi } from "../../../effected/cli/ui/CliUi.ts";
 import { useScreenGuard } from "../../../effected/cli/ui/internal/ScreenContext.ts";
 import { KeyTable, useKeys } from "../../../effected/cli/ui/KeyTable.ts";

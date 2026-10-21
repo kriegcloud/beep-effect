@@ -1,0 +1,10 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+  "root": false,
+  "extends": "//",
+  "files": {
+    // The toml-test corpus is vendored byte-exact from upstream (see
+    // test/fixtures/toml-test/README.md); a format sweep would rewrite it.
+    "includes": ["**", "!test/fixtures/toml-test"]
+  }
+}

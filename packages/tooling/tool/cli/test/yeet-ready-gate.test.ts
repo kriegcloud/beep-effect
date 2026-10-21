@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { YeetCommandError } from "@beep/repo-cli/commands/Yeet/Yeet.errors";
 import { layerGithubRest, layerGraphqlBudget } from "@beep/repo-cli/test/SharedInternals";
 import {
@@ -26,7 +27,6 @@ import {
   YeetStatusRemote,
   YeetWatchCheck,
 } from "@beep/repo-cli/test/Yeet";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";

@@ -3,7 +3,7 @@ import { $JsonlId } from "@beep/identity/packages";
 import { Envelope, Journal, JsonlEvent, Line, LineSlice } from "@beep/jsonl";
 import { canMerge, shallowMerge } from "@beep/jsonl/internal/merge";
 import { probeBomBytes, readTailUntil } from "@beep/jsonl/internal/tail";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { describe, expect, expectTypeOf, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";

@@ -10,23 +10,21 @@ import { pipe } from "effect/Function";
 
 describe("Effect diagnostics directive policy", () => {
   const directive = A.join(["@effect", "diagnostics"], "-");
-  const conformancePath = "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts";
-  const conformanceDirective = `// ${directive} strictEffectProvide:skip-file`;
+  const retiredConformancePath = "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts";
+  const retiredConformanceDirective = `// ${directive} strictEffectProvide:skip-file`;
   const shimPath = "vitest.setup.ts";
   const sharedConfigPath = "vitest.shared.ts";
   const sharedConfigDirective = `// ${directive} nodeBuiltinImport:skip-file`;
   const shimRules = ["nodeBuiltinImport", "asyncFunction", "newPromise", "processEnv", "globalTimers", "globalRandom"];
 
-  it("declares exactly two exemptions: the root Bun shim and the D14 conformance entrypoint", () => {
+  it("declares exactly two exemptions: the root Bun shim and the root shared Vitest config", () => {
     expect(A.map(effectDiagnosticsDirectiveExemptions, (exemption) => exemption.path)).toEqual([
       shimPath,
       sharedConfigPath,
-      conformancePath,
     ]);
     expect(A.map(effectDiagnosticsDirectiveExemptions, (exemption) => [...exemption.rules])).toEqual([
       shimRules,
       ["nodeBuiltinImport"],
-      ["strictEffectProvide"],
     ]);
   });
 
@@ -34,7 +32,7 @@ describe("Effect diagnostics directive policy", () => {
     const line = `// ${directive} ${rule}:skip-file`;
     expect(isEffectDiagnosticsDirectiveForTesting(line)).toBe(true);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, shimPath)).toBe(false);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, conformancePath)).toBe(true);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, retiredConformancePath)).toBe(true);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, "packages/example/src/main.ts")).toBe(true);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(`${line} -- reason`, shimPath)).toBe(true);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(`// ${directive}-next-line ${rule}:off`, shimPath)).toBe(
@@ -44,9 +42,9 @@ describe("Effect diagnostics directive policy", () => {
 
   it("admits only the exact nodeBuiltinImport skip-file line at the root shared Vitest config", () => {
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigDirective, sharedConfigPath)).toBe(false);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigDirective, conformancePath)).toBe(true);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigDirective, retiredConformancePath)).toBe(true);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigDirective, "vitest.config.ts")).toBe(true);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(conformanceDirective, sharedConfigPath)).toBe(true);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(retiredConformanceDirective, sharedConfigPath)).toBe(true);
     expect(
       isRejectedEffectDiagnosticsDirectiveForTesting(
         `// ${directive}-next-line nodeBuiltinImport:off`,
@@ -58,13 +56,13 @@ describe("Effect diagnostics directive policy", () => {
     );
   });
 
-  it("rejects the conformance rule at the shim path and unrelated rules at both exempt paths", () => {
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(conformanceDirective, shimPath)).toBe(true);
+  it("rejects the retired conformance rule at the shim path and unrelated rules at both exempt paths", () => {
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(retiredConformanceDirective, shimPath)).toBe(true);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(`// ${directive} schemaNumber:skip-file`, shimPath)).toBe(
       true
     );
     expect(
-      isRejectedEffectDiagnosticsDirectiveForTesting(`// ${directive} schemaNumber:skip-file`, conformancePath)
+      isRejectedEffectDiagnosticsDirectiveForTesting(`// ${directive} schemaNumber:skip-file`, sharedConfigPath)
     ).toBe(true);
   });
 
@@ -79,53 +77,61 @@ describe("Effect diagnostics directive policy", () => {
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, "packages/example/src/main.ts")).toBe(true);
   });
 
-  it("allows only the canonical conformance entrypoint directive without changing recognition", () => {
-    expect(isEffectDiagnosticsDirectiveForTesting(conformanceDirective)).toBe(true);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(conformanceDirective, conformancePath)).toBe(false);
-    expect(pipe(conformanceDirective, isRejectedEffectDiagnosticsDirectiveForTesting(conformancePath))).toBe(false);
+  it("rejects the retired conformance entrypoint directive at its former path", () => {
+    expect(isEffectDiagnosticsDirectiveForTesting(retiredConformanceDirective)).toBe(true);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(retiredConformanceDirective, retiredConformancePath)).toBe(
+      true
+    );
+    expect(
+      pipe(retiredConformanceDirective, isRejectedEffectDiagnosticsDirectiveForTesting(retiredConformancePath))
+    ).toBe(true);
+  });
+
+  it("allows the shared-config directive at its exact path without changing recognition", () => {
+    expect(isEffectDiagnosticsDirectiveForTesting(sharedConfigDirective)).toBe(true);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigDirective, sharedConfigPath)).toBe(false);
+    expect(pipe(sharedConfigDirective, isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigPath))).toBe(false);
   });
 
   it.each([
-    "packages/tooling/test-kit/test-utils/src/MemoryFileSystem.ts",
-    "packages/example/src/FileSystemConformance.ts",
-    "packages/tooling/test-kit/test-utils/src/internal/FileSystemConformance.ts",
-    "packages/tooling/test-kit/test-utils/test/fixtures/FileSystemConformance.ts",
-    `fixtures/${conformancePath}`,
-    `${conformancePath}x`,
-    `${conformancePath}/index.ts`,
-    `./${conformancePath}`,
-    `/${conformancePath}`,
-    "packages/tooling/test-kit/test-utils/src/filesystemConformance.ts",
-  ])("rejects the canonical directive at another path: %s", (filePath) => {
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(conformanceDirective, filePath)).toBe(true);
-    expect(pipe(conformanceDirective, isRejectedEffectDiagnosticsDirectiveForTesting(filePath))).toBe(true);
+    "vitest.config.ts",
+    "packages/example/vitest.shared.ts",
+    `fixtures/${sharedConfigPath}`,
+    `${sharedConfigPath}x`,
+    `${sharedConfigPath}/index.ts`,
+    `./${sharedConfigPath}`,
+    `/${sharedConfigPath}`,
+    "Vitest.shared.ts",
+  ])("rejects the shared-config directive at another path: %s", (filePath) => {
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(sharedConfigDirective, filePath)).toBe(true);
+    expect(pipe(sharedConfigDirective, isRejectedEffectDiagnosticsDirectiveForTesting(filePath))).toBe(true);
   });
 
   it.each([
-    `// ${directive} nodeBuiltinImport:skip-file`,
-    `${conformanceDirective} nodeBuiltinImport:skip-file`,
-    `${conformanceDirective},nodeBuiltinImport:skip-file`,
-    `// ${directive} nodeBuiltinImport:skip-file strictEffectProvide:skip-file`,
-    `${conformanceDirective} strictEffectProvide:skip-file`,
-    `// ${directive}-next-line strictEffectProvide:skip-file`,
-    `// ${directive}-next-line strictEffectProvide:off`,
+    retiredConformanceDirective,
+    `${sharedConfigDirective} strictEffectProvide:skip-file`,
+    `${sharedConfigDirective},strictEffectProvide:skip-file`,
+    `// ${directive} strictEffectProvide:skip-file nodeBuiltinImport:skip-file`,
+    `${sharedConfigDirective} nodeBuiltinImport:skip-file`,
+    `// ${directive}-next-line nodeBuiltinImport:skip-file`,
+    `// ${directive}-next-line nodeBuiltinImport:off`,
     `// ${directive}-next-line`,
-    `// ${directive} strictEffectProvide:off`,
+    `// ${directive} nodeBuiltinImport:off`,
     `// ${directive} off`,
     `// ${directive} *:off`,
     `// ${directive}`,
-    `/* ${directive} strictEffectProvide:skip-file */`,
-    `/** ${directive} strictEffectProvide:skip-file */`,
-    `//${directive} strictEffectProvide:skip-file`,
-    `// ${directive}  strictEffectProvide:skip-file`,
-    `// ${directive} strictEffectProvide: skip-file`,
-    `// ${directive} strictEffectProvide:skip-next-line`,
-    ` ${conformanceDirective}`,
-    `${conformanceDirective} `,
-    `${conformanceDirective} // reason`,
-  ])("rejects unapproved directives even at the conformance path: %s", (line) => {
+    `/* ${directive} nodeBuiltinImport:skip-file */`,
+    `/** ${directive} nodeBuiltinImport:skip-file */`,
+    `//${directive} nodeBuiltinImport:skip-file`,
+    `// ${directive}  nodeBuiltinImport:skip-file`,
+    `// ${directive} nodeBuiltinImport: skip-file`,
+    `// ${directive} nodeBuiltinImport:skip-next-line`,
+    ` ${sharedConfigDirective}`,
+    `${sharedConfigDirective} `,
+    `${sharedConfigDirective} // reason`,
+  ])("rejects unapproved directives even at the shared-config path: %s", (line) => {
     expect(isEffectDiagnosticsDirectiveForTesting(line)).toBe(true);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, conformancePath)).toBe(true);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, sharedConfigPath)).toBe(true);
   });
 
   it.each([
@@ -134,7 +140,7 @@ describe("Effect diagnostics directive policy", () => {
     "// ordinary comment",
   ])("ignores non-directive mentions: %s", (line) => {
     expect(isEffectDiagnosticsDirectiveForTesting(line)).toBe(false);
-    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, conformancePath)).toBe(false);
+    expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, sharedConfigPath)).toBe(false);
     expect(isRejectedEffectDiagnosticsDirectiveForTesting(line, "packages/example/src/main.ts")).toBe(false);
   });
 });

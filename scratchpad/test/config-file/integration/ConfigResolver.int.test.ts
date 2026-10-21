@@ -1,4 +1,4 @@
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as FileSystem from "effect/FileSystem";
 import { describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";

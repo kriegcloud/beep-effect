@@ -1,5 +1,5 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";

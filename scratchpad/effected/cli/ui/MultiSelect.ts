@@ -265,8 +265,8 @@ const init: {
 });
 
 const step: {
-	<A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A>;
-	<A>(action: MultiSelectAction): (state: MultiSelectState<A>) => MultiSelectState<A>;
+	<State extends MultiSelectState<unknown>>(state: State, action: MultiSelectAction): State;
+	(action: MultiSelectAction): <State extends MultiSelectState<unknown>>(state: State) => State;
 } = dual(2, <A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A> => {
 	if (state.submitted) return state;
 	const items = flatten(state.sections);
@@ -400,8 +400,8 @@ export abstract class MultiSelect {
 	 * @since 0.0.0
 	 */
 	static readonly step: {
-		<A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A>;
-		<A>(action: MultiSelectAction): (state: MultiSelectState<A>) => MultiSelectState<A>;
+		<State extends MultiSelectState<unknown>>(state: State, action: MultiSelectAction): State;
+		(action: MultiSelectAction): <State extends MultiSelectState<unknown>>(state: State) => State;
 	} = step;
 
 	/**
