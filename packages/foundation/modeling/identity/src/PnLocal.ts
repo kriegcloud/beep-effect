@@ -6,11 +6,12 @@
  */
 
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 
 const PN_LOCAL_ESCAPABLE = "_~.-!$&'()*+,;=/?#@%";
 const HEX = /^[0-9A-Fa-f]$/;
@@ -39,9 +40,9 @@ const EscapedPnLocalArbitrary = S.String.check(
     )
   )
 );
-const IriReferenceUnsafeCharacter = /[\u0000-\u0020<>"{}|^`\\]/gu;
+const IriReferenceUnsafeCharacter = /[\u0000-\u0020<>"{}|^`\\]/u;
 
-const codePointOf = (character: string): number | undefined => character.codePointAt(0);
+const codePointOf = (character: string): number | undefined => O.getOrUndefined(Str.codePointAt(0)(character));
 
 const isBetween = (value: number, min: number, max: number): boolean => value >= min && value <= max;
 
@@ -88,7 +89,8 @@ const isPnChars = (character: string): boolean => {
   );
 };
 
-const isEscapable = (character: string): boolean => character.length === 1 && PN_LOCAL_ESCAPABLE.includes(character);
+const isEscapable = (character: string): boolean =>
+  character.length === 1 && Str.includes(character)(PN_LOCAL_ESCAPABLE);
 
 const isSafeFirst = (character: string): boolean => isPnCharsU(character) || character === ":" || isDigit(character);
 
@@ -137,11 +139,17 @@ const isSafePrefixInternal = (prefix: string): boolean => {
 };
 
 const percentEncodeCharacter = (character: string): string => {
-  const codePoint = character.codePointAt(0) ?? 0;
-  return `%${codePoint.toString(16).toUpperCase().padStart(2, "0")}`;
+  const codePoint = O.getOrElse(constant(0))(Str.codePointAt(0)(character));
+  return `%${Str.padStart(2, "0")(Str.toUpperCase(codePoint.toString(16)))}`;
 };
 
-const iriReferenceValue = (iri: string): string => iri.replace(IriReferenceUnsafeCharacter, percentEncodeCharacter);
+const iriReferenceValue = (iri: string): string =>
+  A.join(
+    A.map(A.fromIterable(iri), (character) =>
+      IriReferenceUnsafeCharacter.test(character) ? percentEncodeCharacter(character) : character
+    ),
+    ""
+  );
 
 /**
  * Schema for local names that can be emitted as unescaped Turtle PN_LOCAL values.
@@ -306,7 +314,7 @@ const tokenizeLocal = (local: string): O.Option<ReadonlyArray<LocalUnit>> => {
       continue;
     }
 
-    const [raw] = [...local.slice(index)];
+    const [raw] = [...Str.slice(index)(local)];
 
     if (raw === undefined) {
       return O.none();
@@ -427,7 +435,7 @@ export const acceptsEscapedLocal = (local: string): boolean => isEscapedPnLocal(
  * @category codecs
  * @since 0.0.0
  */
-export const unescapeLocal = (local: string): string => local.replace(/\\([_~.\-!$&'()*+,;=/?#@%])/g, "$1");
+export const unescapeLocal = (local: string): string => Str.replace(/\\([_~.\-!$&'()*+,;=/?#@%])/g, "$1")(local);
 
 /**
  * Escape characters that Turtle permits through PN_LOCAL backslash escapes.
@@ -449,7 +457,7 @@ export const unescapeLocal = (local: string): string => local.replace(/\\([_~.\-
  * @category codecs
  * @since 0.0.0
  */
-export const escapeLocal = (local: string): string => local.replace(/[_~.\-!$&'()*+,;=/?#@%]/g, "\\$&");
+export const escapeLocal = (local: string): string => Str.replace(/[_~.\-!$&'()*+,;=/?#@%]/g, "\\$&")(local);
 
 /**
  * Emit a prefixed name only when the prefix and local part are safe, otherwise emit a full IRI reference.

@@ -156,7 +156,7 @@ const scriptBody = (rendered: string): string =>
 /** Index of the first line matching `needle`, or `-1` when absent. */
 const lineIndexOf = (script: string, needle: string): number =>
   O.getOrElse(
-    A.findFirstIndex(script.split("\n"), (line) => line.includes(needle)),
+    A.findFirstIndex(Str.split("\n")(script), (line) => Str.includes(needle)(line)),
     () => -1
   );
 
@@ -166,7 +166,7 @@ const lineIndexOf = (script: string, needle: string): number =>
  * failure path calls into.
  */
 const mainSequence = (script: string): string => {
-  const lines = script.split("\n");
+  const lines = Str.split("\n")(script);
   const lastFunctionEnd = A.reduce(lines, -1, (acc, line, index) => (line === "}" ? index : acc));
 
   return A.join(lines.slice(lastFunctionEnd + 1), "\n");
@@ -543,7 +543,7 @@ describe("@beep/infra OpenClaw", () => {
       const defaultGeneration = yield* defaultGenerationEffect;
       const runScript = renderOpenClawRunScript(defaultGeneration);
 
-      pipe(runScript.startsWith("#!/usr/bin/env bash\n# BEEP_OPENCLAW_MANAGED\nset -euo pipefail\n"), assertTrue);
+      pipe(Str.startsWith("#!/usr/bin/env bash\n# BEEP_OPENCLAW_MANAGED\nset -euo pipefail\n")(runScript), assertTrue);
       expect(runScript).toContain('generation_dir="$(dirname "$(readlink -f "$0")")"');
       expect(runScript).toContain("unset OP_SERVICE_ACCOUNT_TOKEN OP_SESSION OP_CONNECT_TOKEN OPENCLAW_GATEWAY_TOKEN");
       expect(runScript).toContain('"${op_binary}" whoami >/dev/null');
@@ -673,7 +673,7 @@ describe("@beep/infra OpenClaw", () => {
       for (const command of rendered) {
         // A login shell sources the user-writable ~/.bash_profile before the first rendered line,
         // which lets an unprivileged user define a `sudo` function and hijack the armed ticket.
-        pipe(command.startsWith(scriptWrapperPrefix), assertTrue);
+        pipe(Str.startsWith(scriptWrapperPrefix)(command), assertTrue);
         expect(command).not.toContain("/bin/bash -lc");
 
         const body = scriptBody(command);
@@ -830,7 +830,7 @@ describe("@beep/infra OpenClaw", () => {
       expect(script).toContain("APPLY-ROLLBACK: restoring snapshot");
       expect(script).toContain('/usr/bin/sudo -n cp -a -- "${snapshot}" "${state_dir}"');
       expect(script).toContain('/usr/bin/sudo -n ln -s -- "${prior_pointer}" "${pointer}.rollback.$$"');
-      expect(script.split("restore_snapshot").length - 1).toBeGreaterThanOrEqual(3);
+      expect(Str.split("restore_snapshot")(script).length - 1).toBeGreaterThanOrEqual(3);
       expect(script).toContain("APPLY-FAIL: unit failed to start; snapshot and prior pointer restored");
       expect(script).toContain("never succeeded within 30s; snapshot and prior pointer restored");
     })
@@ -893,7 +893,7 @@ describe("@beep/infra OpenClaw", () => {
       expect(script).toContain("alert identity-runtime-dir");
       expect(script).toContain("DRIFT-AUDIT-COMPLETE");
       // Alert-only: the audit reports, an operator redeploys.
-      pipe(script.endsWith("exit 0"), assertTrue);
+      pipe(Str.endsWith("exit 0")(script), assertTrue);
       expect(script).not.toContain("systemctl --user restart");
     })
   );
@@ -945,7 +945,7 @@ describe("@beep/infra OpenClaw", () => {
       expect(script).toContain("channels status --probe");
       expect(script).toContain("ALERT: OPENCLAW_CONFIG_DRIFT");
       expect(script).toContain("PROBE-COMPLETE");
-      pipe(script.endsWith("exit 0"), assertTrue);
+      pipe(Str.endsWith("exit 0")(script), assertTrue);
     })
   );
 
@@ -965,7 +965,7 @@ describe("@beep/infra OpenClaw", () => {
         expect(script).toContain("P3_SKILL_OK");
         expect(script).toContain("export OPENCLAW_CONFIG_PATH='/etc/beep/openclaw/current/openclaw.json'");
         expect(script).toContain("export OPENCLAW_STATE_DIR='/var/lib/beep/openclaw'");
-        pipe(script.trimEnd().endsWith("exit 0"), assertFalse);
+        pipe(Str.endsWith("exit 0")(Str.trimEnd(script)), assertFalse);
         const [stderr, exitCode] = yield* runCaptured(
           ChildProcess.make("/bin/bash", ["--noprofile", "--norc", "-p", "-c", script])
         );

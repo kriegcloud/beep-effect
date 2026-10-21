@@ -32,6 +32,7 @@ import {
   Uint8Array as Uint8ArraySchema,
   Union,
 } from "effect/Schema";
+import * as Str from "effect/String";
 import * as EffectModel from "effect/schema/Model";
 import * as SqlModel from "effect/sql/SqlModel";
 import type { Top } from "effect/Schema";
@@ -874,11 +875,11 @@ export const _pgEmptyColumnName = () => {
   return String.pipe(pg.columnName(name));
 };
 export const _pgLongColumnName = () => {
-  const name: string = "a".repeat(64);
+  const name: string = Str.repeat(64)("a");
   return String.pipe(pg.columnName(name));
 };
 export const _pgMultibyteColumnName = () => {
-  const name: string = `a${"é".repeat(32)}`;
+  const name: string = `a${Str.repeat(32)("é")}`;
   return String.pipe(pg.columnName(name));
 };
 export const _pgLongEnumLabel = () =>
@@ -903,7 +904,7 @@ export const _pgCaseFoldColumnCollision = () => {
 };
 
 export const _pgTruncationPrefixCollision = () => {
-  const prefix = "a".repeat(63);
+  const prefix = Str.repeat(63)("a");
   const fake = (tableName: string) => ({ sql: { tableName, fields: {}, columns: {}, extras: undefined } });
   return schema({ first: fake(`${prefix}x`), second: fake(`${prefix}y`) });
 };

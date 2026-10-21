@@ -4,6 +4,7 @@ import { VerifiedSourceTextViewer } from "@beep/ui/components/verified-source-te
 import { describe, expect } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { renderToStaticMarkup } from "react-dom/server";
 
 describe("VerifiedSourceTextViewer", () => {
@@ -74,10 +75,10 @@ describe("VerifiedSourceTextViewer", () => {
           autoScrollToAnchor={false}
         />
       );
-      expect(markup.includes("<mark")).toBe(visible);
+      expect(Str.includes("<mark")(markup)).toBe(visible);
       expect(markup).toContain(`data-anchor-visible="${visible}"`);
       if (visible) {
-        const expected = pageText.slice(start - pageStartOffset, end - pageStartOffset);
+        const expected = Str.slice(start - pageStartOffset, end - pageStartOffset)(pageText);
         expect(markup).toContain(`>${renderToStaticMarkup(<>{expected}</>)}</mark>`);
       }
     },

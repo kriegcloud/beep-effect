@@ -445,7 +445,7 @@ const makeService = Effect.fn("PdfTools.makeService")(function* (config: PdfTool
       Effect.mapError((cause) => PdfToolsError.fromUnknown("invalid-request", "Invalid PNG request.", cause))
     );
     const outputPath = path.resolve(request.outputPath);
-    const prefix = outputPath.endsWith(".png") ? outputPath.slice(0, -".png".length) : outputPath;
+    const prefix = Str.endsWith(".png")(outputPath) ? Str.slice(0, -".png".length)(outputPath) : outputPath;
     const page = `${request.page}`;
     yield* run(
       config.pdftoppmPath,

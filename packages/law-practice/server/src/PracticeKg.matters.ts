@@ -488,14 +488,14 @@ const docketFamilyPattern = /^(?:([0-9]{4,6})\.)?([0-9]{5,6})[A-Z]/u;
 const normalizeReference = (
   reference: string
 ): { readonly compact: string; readonly digits: string; readonly family: string; readonly familyKey: string } => {
-  const compact = Str.toUpperCase(reference.replace(whitespacePattern, ""));
-  const numberLike = compact.replace(usPrefixPattern, "").replace(kindCodePattern, "");
+  const compact = Str.toUpperCase(Str.replace(whitespacePattern, "")(reference));
+  const numberLike = Str.replace(kindCodePattern, "")(Str.replace(usPrefixPattern, "")(compact));
   const docketFamily = docketFamilyPattern.exec(compact);
   const client = docketFamily?.[1];
   const family = docketFamily?.[2] ?? "";
   return {
     compact,
-    digits: usptoNumberPattern.test(numberLike) ? numberLike.replace(nonDigitPattern, "") : "",
+    digits: usptoNumberPattern.test(numberLike) ? Str.replace(nonDigitPattern, "")(numberLike) : "",
     family,
     familyKey: client === undefined || family === "" ? "" : `${client}.${family}`,
   };
@@ -761,10 +761,14 @@ export class PracticeKgMatterReferenceHit extends S.Opaque<
 ) {}
 
 const digitsOf = (value: string): string =>
-  Str.toUpperCase(value.replace(whitespacePattern, ""))
-    .replace(usPrefixPattern, "")
-    .replace(kindCodePattern, "")
-    .replace(nonDigitPattern, "");
+  pipe(
+    value,
+    Str.replace(whitespacePattern, ""),
+    Str.toUpperCase,
+    Str.replace(usPrefixPattern, ""),
+    Str.replace(kindCodePattern, ""),
+    Str.replace(nonDigitPattern, "")
+  );
 
 const familyKeysByValue = (
   entries: ReadonlyArray<readonly [string, string]>

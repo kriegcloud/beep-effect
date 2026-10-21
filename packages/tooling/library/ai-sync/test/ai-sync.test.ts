@@ -54,6 +54,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeStructInlineSchemaJson = S.decodeEffect(
   S.fromJsonString(
@@ -843,9 +844,9 @@ it.effect(
       { name: "-pdf", description: "Read PDFs." },
       { name: "pdf-", description: "Read PDFs." },
       { name: "pdf--processing", description: "Read PDFs." },
-      { name: "a".repeat(65), description: "Read PDFs." },
+      { name: Str.repeat(65)("a"), description: "Read PDFs." },
       { name: "pdf", description: "   " },
-      { name: "pdf", description: "x".repeat(1025) },
+      { name: "pdf", description: Str.repeat(1025)("x") },
       { name: "pdf", description: "Read PDFs.", compatibility: "" },
       { name: "pdf", description: "Read PDFs.", metadata: { version: 1 } },
       { name: "pdf", description: "Read PDFs.", effort: "ultra" },

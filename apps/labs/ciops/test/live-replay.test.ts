@@ -70,7 +70,7 @@ const surrogateFixturePath = "test/fixtures/admission-journal-v3-surrogate.ndjso
 const mixedFixturePath = "test/fixtures/admission-journal-v3-mixed.ndjson";
 const releasedOnlyFixturePath = "test/fixtures/admission-journal-released-only-chain.ndjson";
 const trimmedEvictionFixturePath = "test/fixtures/admission-journal-trimmed-lease-eviction.ndjson";
-const fixtureJournalSha256 = Sha256Hex.make("a".repeat(64));
+const fixtureJournalSha256 = Sha256Hex.make(Str.repeat(64)("a"));
 const frozenRecord = "# committed live evidence — must survive every check run\n";
 // Golden render bytes at 801020f3dc (before the W5 widening), recomputed from that tree.
 const goldenRenderSha256 = "624bab058087d54693e1c4b0b4c6d83ed45bf381520664acbb1568f5b4d30699";
@@ -104,7 +104,7 @@ const fixtureWindow = (preV3Chains: number, lastRetainedMillis = 1600, firstReta
     lastRetainedInstant: DateTime.makeUnsafe(lastRetainedMillis),
     preV3Chains: S.Natural.make(preV3Chains),
     journalSha256: fixtureJournalSha256,
-    manifestSha256: Sha256Hex.make("b".repeat(64)),
+    manifestSha256: Sha256Hex.make(Str.repeat(64)("b")),
   });
 
 const windowed = (window: ReplayWindow) => ReplayOptions.make({ window: O.some(window) });
@@ -588,7 +588,7 @@ describe("@beep/ciops live replay", () => {
         const policy = yield* readPolicy();
         const events = yield* decodeAdmissionJournal(yield* readText(releasedOnlyFixturePath));
         const digestFailure = yield* Effect.flip(
-          replayAdmissionJournal(policy, events, "fixture-policy", "c".repeat(64), windowed(fixtureWindow(2)))
+          replayAdmissionJournal(policy, events, "fixture-policy", Str.repeat(64)("c"), windowed(fixtureWindow(2)))
         );
         const countFailure = yield* Effect.flip(replayFixture(releasedOnlyFixturePath, windowed(fixtureWindow(1))));
 
@@ -622,8 +622,8 @@ describe("@beep/ciops live replay", () => {
           firstRetainedInstant: "2026-10-01T00:00:00.000Z",
           lastRetainedInstant: "2026-10-01T00:00:00.001Z",
           preV3Chains: 0,
-          journalSha256: "a".repeat(64),
-          manifestSha256: "b".repeat(64),
+          journalSha256: Str.repeat(64)("a"),
+          manifestSha256: Str.repeat(64)("b"),
         };
         const ordered = yield* decode(encoded);
         const reversed = yield* Effect.flip(
@@ -831,11 +831,11 @@ describe("@beep/ciops live replay", () => {
             )
           ).pipe(Effect.map((failure) => [failure._tag, "member" in failure ? failure.member : failure.message]));
 
-        expect(yield* failureMember({ journalSha256: Sha256Hex.make("0".repeat(64)) })).toStrictEqual([
+        expect(yield* failureMember({ journalSha256: Sha256Hex.make(Str.repeat(64)("0")) })).toStrictEqual([
           "ReplayWindowError",
           "journalSha256",
         ]);
-        expect(yield* failureMember({ manifestSha256: Sha256Hex.make("0".repeat(64)) })).toStrictEqual([
+        expect(yield* failureMember({ manifestSha256: Sha256Hex.make(Str.repeat(64)("0")) })).toStrictEqual([
           "ReplayWindowError",
           "manifestSha256",
         ]);

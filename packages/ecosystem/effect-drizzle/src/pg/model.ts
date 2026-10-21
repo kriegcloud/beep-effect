@@ -15,6 +15,7 @@
  *
  * @since 0.0.0
  */
+
 import { every, findFirst, flatMap, forEach, last as lastArray, map, reduce } from "effect/Array";
 import { dual } from "effect/Function";
 import {
@@ -31,7 +32,7 @@ import {
 import { isFunction, isNotUndefined, isNumber, isString, isUint8Array } from "effect/Predicate";
 import { empty, set, size, toEntries } from "effect/Record";
 import { flip, is, optionalKey } from "effect/Schema";
-import { split } from "effect/String";
+import { includes, split } from "effect/String";
 import * as VariantSchema from "effect/schema/VariantSchema";
 import * as Field from "../core/Field.ts";
 import * as Meta from "../core/Meta.ts";
@@ -459,7 +460,7 @@ const validateLiteralDefault = (field: Field.Any, select: Top, column: PgColumn.
       fieldName,
     });
   }
-  if (isString(value) && value.includes("\0")) {
+  if (isString(value) && includes("\0")(value)) {
     throw ModelInvariantError.make({
       message: `Literal default for '${fieldName}' cannot contain NUL.`,
       fieldName,

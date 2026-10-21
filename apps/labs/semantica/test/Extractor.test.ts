@@ -39,12 +39,13 @@ import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
 import { assertFalse, assertSome, assertTrue } from "@effect/vitest/utils";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
+import * as Str from "effect/String";
 import { HostedExtractor, PatternExtractor } from "@/services/Extractor";
 
-const documentId = DocumentId.make("1".repeat(64));
+const documentId = DocumentId.make(Str.repeat(64)("1"));
 const document = SourceDocument.make({
-  acquired: ProvenanceEventId.make("2".repeat(64)),
+  acquired: ProvenanceEventId.make(Str.repeat(64)("2")),
   bytes: S.Natural.make(1),
   id: documentId,
   mediaType: "text/markdown",
@@ -58,7 +59,7 @@ const document = SourceDocument.make({
 });
 
 const model = ModelIdentity.make({
-  artifactHash: Sha256Hex.make("3".repeat(64)),
+  artifactHash: Sha256Hex.make(Str.repeat(64)("3")),
   name: "stub-extractor-20260826",
   provider: "anthropic",
   revision: "stub-extractor-20260826",
@@ -208,8 +209,8 @@ describe("C0 hosted extractor", () => {
 
   {
     const text = "Ada wrote notes. Ada selected Engine.";
-    const relationStart = text.lastIndexOf("Ada");
-    const engineStart = text.indexOf("Engine");
+    const relationStart = O.getOrElse(constant(-1))(Str.lastIndexOf("Ada")(text));
+    const engineStart = O.getOrElse(constant(-1))(Str.indexOf("Engine")(text));
     const extractions = [
       grounded(
         "relation",
@@ -260,8 +261,8 @@ describe("C0 hosted extractor", () => {
 
   {
     const text = "Ada wrote notes. Ada selected Engine.";
-    const secondAda = text.lastIndexOf("Ada");
-    const engine = text.indexOf("Engine");
+    const secondAda = O.getOrElse(constant(-1))(Str.lastIndexOf("Ada")(text));
+    const engine = O.getOrElse(constant(-1))(Str.indexOf("Engine")(text));
     const extractions = [
       grounded("person", "Ada", secondAda),
       grounded("method", "Engine", engine),
@@ -300,7 +301,7 @@ describe("C0 hosted extractor", () => {
     const text = "Ada praised Engine.";
     const extractions = [
       grounded("person", "Ada", 0),
-      grounded("method", "Engine", text.indexOf("Engine")),
+      grounded("method", "Engine", O.getOrElse(constant(-1))(Str.indexOf("Engine")(text))),
       grounded("relation", text, 0, O.some({ object: "Engine", predicate: "praised", subject: "Missing" })),
     ];
     it.layer(Layer.merge(baseLayer, hostedLayer(extractions)), { timeout: "30 seconds" })((it) => {

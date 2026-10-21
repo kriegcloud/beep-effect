@@ -226,11 +226,12 @@ const isJsonObject = (value: unknown): value is JsonObject => P.isObject(value) 
 
 const localDefsRefPrefix = "#/$defs/";
 
-const decodeJsonPointerSegment = (segment: string): string => segment.replaceAll("~1", "/").replaceAll("~0", "~");
+const decodeJsonPointerSegment = (segment: string): string =>
+  Str.replaceAll("~0", "~")(Str.replaceAll("~1", "/")(segment));
 
 const localDefsRefKey = (ref: string): O.Option<string> =>
-  ref.startsWith(localDefsRefPrefix)
-    ? O.some(decodeJsonPointerSegment(ref.slice(localDefsRefPrefix.length)))
+  Str.startsWith(localDefsRefPrefix)(ref)
+    ? O.some(decodeJsonPointerSegment(Str.slice(localDefsRefPrefix.length)(ref)))
     : O.none();
 
 // rc.117 encodes a no-argument tool's params as the non-null wildcard

@@ -18,6 +18,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { useDropzone } from "react-dropzone";
 import { cn } from "../lib/index.ts";
 import type React from "react";
@@ -213,7 +214,7 @@ const fileNames = (files: ReadonlyArray<File>): string =>
     : "No files selected";
 
 const isImageFile = (file: File): boolean =>
-  file.type.startsWith("image/") || /\.(avif|gif|jpe?g|png|svg|webp)$/iu.test(file.name);
+  Str.startsWith("image/")(file.type) || /\.(avif|gif|jpe?g|png|svg|webp)$/iu.test(file.name);
 
 const uploadImagePreviewsAtom = Atom.family((files: ReadonlyArray<File>) =>
   Atom.make((get): ReadonlyArray<UploadImagePreview> => {

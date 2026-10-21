@@ -567,8 +567,8 @@ const mailDigests = {
   dominantOne: `sha256:${Str.repeat(64)("3")}`,
   dominantThree: `sha256:${Str.repeat(64)("0")}`,
   dominantTwo: `sha256:${Str.repeat(64)("5")}`,
-  filing: `sha256:${Str.repeat(64)("b1")}`.slice(0, 71),
-  noMetadata: `sha256:${Str.repeat(64)("9a")}`.slice(0, 71),
+  filing: Str.slice(0, 71)(`sha256:${Str.repeat(64)("b1")}`),
+  noMetadata: Str.slice(0, 71)(`sha256:${Str.repeat(64)("9a")}`),
 };
 const mailFolder = `Clients/Example Client ${fixtureClients.alpha}/20001US01 - ${fixtureClients.alpha}.00012`;
 const practiceDomain = "example-law.test";
@@ -1907,7 +1907,8 @@ describe("practice KG projections", () => {
         pipe(
           A.every(
             rows,
-            ({ endChar, evidenceQuote, startChar }) => document.sourceText.slice(startChar, endChar) === evidenceQuote
+            ({ endChar, evidenceQuote, startChar }) =>
+              Str.slice(startChar, endChar)(document.sourceText) === evidenceQuote
           ),
           assertTrue
         );
@@ -2251,7 +2252,7 @@ describe("practice KG projections", () => {
         expect(row.evidenceQuote).toBe("A Hinge Coupling The Lid To The Base");
         expect(row.sourceFile).toBe("1_Response OA - 20001US01.txt");
         expect(row.sourceDocumentDigest).toBe(fixtureDigests.docket);
-        expect(OFFICE_ACTION_FIXTURE.slice(Number(row.startChar), Number(row.endChar))).toBe(row.evidenceQuote);
+        expect(Str.slice(Number(row.startChar), Number(row.endChar))(OFFICE_ACTION_FIXTURE)).toBe(row.evidenceQuote);
         expect(row.activityOperation).toContain("operation:");
       }),
       { timeout: 120_000 }

@@ -32,6 +32,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const encodeUnknownJsonEffect = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 
@@ -73,7 +74,7 @@ const autoApprovedSequence = [autoApprovedPreToolUse, autoApprovedPostToolUse];
 
 // Harness-hash fixture (goals/harness-evidence-ledger, D9). The writer stamps the
 // digest on SessionStart; the codec only passes it through.
-const harnessHashStamp = "e".repeat(64);
+const harnessHashStamp = Str.repeat(64)("e");
 
 const sessionStart = rawInput("2026-08-01T06:20:00.000Z", {
   hook_event_name: HookPulseEvent.Enum.SessionStart,

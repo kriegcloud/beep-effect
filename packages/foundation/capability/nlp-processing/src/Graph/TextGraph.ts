@@ -29,6 +29,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as Tok from "../Core/Tokenization.ts";
 import * as Obs from "../internal/observability.ts";
 
@@ -778,7 +779,7 @@ export const getChildren: {
  */
 export const toGraphViz = (graph: TextGraph): string =>
   Graph.toGraphViz(graph, {
-    nodeLabel: (node) => `${node.type}: ${node.text.slice(0, 30)}...`,
+    nodeLabel: (node) => `${node.type}: ${Str.slice(0, 30)(node.text)}...`,
     edgeLabel: (edge) => edge.relation,
     graphName: "TextProcessingGraph",
   });
@@ -799,7 +800,7 @@ export const toGraphViz = (graph: TextGraph): string =>
  */
 export const toMermaid = (graph: TextGraph): string =>
   Graph.toMermaid(graph, {
-    nodeLabel: (node) => `${node.type}: ${node.text.slice(0, 20)}`,
+    nodeLabel: (node) => `${node.type}: ${Str.slice(0, 20)(node.text)}`,
     edgeLabel: (edge) => edge.relation,
     direction: "TB",
     nodeShape: (node) =>
@@ -844,7 +845,7 @@ export const show = (graph: TextGraph): string => {
       onNone: () => {},
       onSome: (node) => {
         const op = node.operation ?? "node";
-        lines.push(`${"  ".repeat(indent)}[${op}] ${node.type}: ${node.text.slice(0, 40)}`);
+        lines.push(`${Str.repeat(indent)("  ")}[${op}] ${node.type}: ${Str.slice(0, 40)(node.text)}`);
         A.forEach(getChildren(graph, nodeIndex), (childIdx) => visit(childIdx, indent + 1));
       },
     });
