@@ -59,7 +59,7 @@ def turbo(api,c,task,label,mode='remote:rw'):
  env.update({'CI':'true','TURBO_API':api,'TURBO_TEAM':c['team'],'TURBO_TOKEN':c['bearer'],'TURBO_CACHE':mode,'TURBO_LOG_ORDER':'stream','TURBO_TELEMETRY_DISABLED':'1','DO_NOT_TRACK':'1'})
  before=set((ROOT/'.turbo/runs').glob('*.json'));start=time.monotonic()
  with (OUT/(label+'.private.log')).open('w') as f:
-  p=subprocess.run(['bun','run','--bun','turbo','run',task,'--cache='+mode,'--cache-dir='+str(cache),'--summarize','--output-logs=errors-only',*(['--force'] if label=='ci-producer' else [])],env=env,stdout=f,stderr=subprocess.STDOUT,timeout=900)
+  p=subprocess.run(['bun','run','--bun','turbo','run',task,'--cache='+mode,'--cache-dir='+str(cache),'--summarize','--output-logs=errors-only'],env=env,stdout=f,stderr=subprocess.STDOUT,timeout=900)
  elapsed=time.monotonic()-start
  files=set((ROOT/'.turbo/runs').glob('*.json'))-before
  summary=json.loads(max(files,key=lambda p:p.stat().st_mtime).read_text()) if files else {}
@@ -92,7 +92,7 @@ def run_ci():
    assert [t['hash'] for t in read['tasks']]==c['local_task_hashes'],'Producer/consumer hashes differ'
    receipt['ci_cold_baseline']=turbo(api,c,'lint:effect-imports','ci-cold-baseline','local:rw')
    receipt['ci_payloads']=raw_roundtrips(api,c,'aws-ci')
-   receipt['ci_to_local_producer']=turbo(api,c,'lint:effect-imports-markdown','ci-producer')
+   receipt['ci_to_local_producer']=turbo(api,c,'lint:effect-imports-markdown','ci-producer','remote:w')
    task=receipt['ci_to_local_producer']['tasks'][0]
    status,_,headers,_=request(api,c,artifact(c,task['hash']),'HEAD')
    assert status==200,'CI producer artifact unavailable after upload'
