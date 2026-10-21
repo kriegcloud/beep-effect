@@ -4,6 +4,8 @@
 
 This report is based on the vendored source under `.repos/effect`, not Effect v3 memory or the installed package. The workspace pins `effect` **4.0.0-beta.104** and `drizzle-orm` **1.0.0-rc.4-fb12281** (`package.json:184-187`), while the vendored Effect package declares **4.0.0-beta.105** (`.repos/effect/packages/effect/package.json:1-5`). That one-beta mismatch matters: the types and runtime behavior described below are the beta.105 subtree source requested as ground truth, while code compiled against the root dependency resolves beta.104 unless the workspace aliases the subtree.
 
+Re-anchored 2026-10-20: the `**Import:**` headers follow the repo's leaf-import law, and the section 6 source ranges point at effect 4.0.5 (reference `HEAD` `a9f0ca68aa`). Every other citation, and the prose, still describes the beta.105 subtree.
+
 Subtree provenance is not a single clean upstream commit at current `HEAD`:
 
 - repository `HEAD`: `7de49674756e76cdd4fa3864a13cb6a38b79ffb1`;
@@ -11,7 +13,7 @@ Subtree provenance is not a single clean upstream commit at current `HEAD`:
 - last commit with a proper subtree trailer: `d1dfc4b3c1b4e4838157a23086a5b1be72f59886`, recording `git-subtree-split: 931f5737490e54f682c473abdf4bf046ac9ffd34` and beta.103;
 - commit `152b9908e5339d810b5923e8e65aaac62b846017` subsequently changed 281 files in `.repos/effect`, produced the current tree, and has no subtree trailer. No later commit changes the subtree.
 
-The package's public exports include stable `./*` modules plus the `effect/schema` and `effect/sql` barrels (`.repos/effect/packages/effect/package.json:29-56`, published equivalents at `:71-98`). The canonical imports used below are therefore:
+The package's public exports include stable `./*` modules plus the `effect/schema` and `effect/sql` barrels (`.repos/effect/packages/effect/package.json:32-56`, published equivalents at `:85-109`). This repo imports the leaf modules and never the nested barrels (AGENTS.md Code Laws), so the canonical imports used below are:
 
 ```ts
 import * as S from "effect/Schema"
@@ -24,7 +26,7 @@ import * as SqlModel from "effect/sql/SqlModel";
 import * as SqlSchema from "effect/sql/SqlSchema";
 ```
 
-The unstable barrels export those modules as namespaces (`.repos/effect/packages/effect/src/schema/index.ts:5-15`, `.repos/effect/packages/effect/src/sql/index.ts:5-40`). Direct paths such as `effect/schema/VariantSchema` also match the package's `./*` export, but the barrel is the source's own usage and is less coupled to file layout.
+The barrels re-export those modules as namespaces (`.repos/effect/packages/effect/src/schema/index.ts:12-36`, `.repos/effect/packages/effect/src/sql/index.ts:12-60`). Leaf paths such as `effect/schema/VariantSchema` resolve through the package's `./*` export; the repo's import law requires them over the barrels.
 
 ## 1. Core `effect/Schema` protocol
 
@@ -565,7 +567,7 @@ Custom keys are string-keyed module augmentation, not `ServiceMap.Key` values an
 
 ### 3.4 Annotation preservation/loss matrix
 
-**Import:** `effect/Schema`, `effect/SchemaAST`, `effect/schema`
+**Import:** `effect/Schema`, `effect/SchemaAST`, `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/internal/schema/schema.ts:49-77`; `.repos/effect/packages/effect/src/Schema.ts:3499-3511`, `:5550-5577`, `:14161-14206`; `.repos/effect/packages/effect/src/schema/VariantSchema.ts:201-253`, `:435-459`
 
 | Operation | What happens to annotations | Consequence for SQL metadata |
@@ -585,7 +587,7 @@ Custom keys are string-keyed module augmentation, not `ServiceMap.Key` values an
 
 ### 3.5 Wrapper objects versus annotations: Effect's own `VariantSchema.Field` pattern
 
-**Import:** `effect/schema` (`VariantSchema`)
+**Import:** `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/schema/VariantSchema.ts:97-150`, `:571-594`
 
 ```ts
@@ -607,7 +609,7 @@ Effect itself uses a wrapper when a field needs type-visible configuration: `A` 
 
 ### 4.1 `Struct`, `Field`, extraction, and `ExtractFields`
 
-**Import:** `effect/schema` (`VariantSchema`)
+**Import:** `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/schema/VariantSchema.ts:38-44`, `:75-81`, `:105-150`, `:176-253`
 
 ```ts
@@ -644,7 +646,7 @@ Plain schemas appear in every variant; a `Field<Config>` appears only when the v
 
 ### 4.2 Factory signature and custom variants
 
-**Import:** `effect/schema` (`VariantSchema`)
+**Import:** `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/schema/VariantSchema.ts:339-434`
 
 The declaration below is verbatim through the implementation's opening `=> {`; only the function body is omitted.
@@ -749,7 +751,7 @@ export const make = <
 
 ### 4.3 `FieldOnly`, `FieldExcept`, `fieldEvolve`, and `extract`
 
-**Import:** `effect/schema` (`VariantSchema`)
+**Import:** `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/schema/VariantSchema.ts:359-404`, `:425-433`, `:462-503`
 
 ```ts
@@ -778,7 +780,7 @@ The complete, verbatim `fieldEvolve` overload pair is reproduced in the factory 
 
 ### 4.4 `VariantSchema.Class` and `Union`
 
-**Import:** `effect/schema` (`VariantSchema`)
+**Import:** `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/schema/VariantSchema.ts:270-336`, `:405-424`, `:435-460`, `:596-613`
 
 ```ts
@@ -797,7 +799,7 @@ The class is the schema for the default variant and receives a static property f
 
 ### 4.5 `Overrideable`
 
-**Import:** `effect/schema` (`VariantSchema`)
+**Import:** `effect/schema/VariantSchema`
 **Source:** `.repos/effect/packages/effect/src/schema/VariantSchema.ts:523-569`
 
 ```ts
@@ -823,7 +825,7 @@ export const Overrideable = <S extends S.Top & S.WithoutConstructorDefault>(
 
 ### 5.1 Factory, variants, and compatibility shape
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:25-69`, `:71-178`
 
 ```ts
@@ -849,7 +851,7 @@ export type Any = S.Top & {
 
 ### 5.2 Generated fields and sensitive fields
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:190-294`
 
 ```ts
@@ -879,7 +881,7 @@ The requested `Generated` name is **absent** in this checkout; beta.105 calls it
 
 ### 5.3 `FieldOption` and JSON optionality
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:296-375`
 
 ```ts
@@ -901,7 +903,7 @@ Database variants use required keys whose encoded values are nullable and whose 
 
 ### 5.4 `BooleanSqlite`
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:377-409`
 
 ```ts
@@ -921,7 +923,7 @@ This is a concrete example of dialect-aware storage: database variants encode bo
 
 ### 5.5 Insert/update timestamps
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:478-678`
 
 ```ts
@@ -945,7 +947,7 @@ export interface DateTimeUpdate extends VariantSchema.Field<{
 
 ### 5.6 JSON stored as text
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:680-720`
 
 ```ts
@@ -970,7 +972,7 @@ This is the only general JSON field helper in the examined Model file. It canoni
 
 ### 5.7 `Model.Class` behavior and the critical update-policy trap
 
-**Import:** `effect/schema` (`Model`)
+**Import:** `effect/schema/Model`
 **Source:** `.repos/effect/packages/effect/src/schema/Model.ts:25-37`, `.repos/effect/packages/effect/src/schema/VariantSchema.ts:176-253`; test evidence `.repos/effect/packages/effect/test/schema/VariantSchema.test.ts:86-134`
 
 `Model.Class` is exactly the class factory from section 4. Its default schema is select, and the other five static variants are fresh extracted structs. The upstream tests verify field inclusion, SQLite boolean database/JSON encoding, and constructor-only override defaults; they do not implement a global partial-update transform.
@@ -981,8 +983,8 @@ This is the only general JSON field helper in the examined Model file. It canoni
 
 ### 6.1 `SqlSchema`: encoded requests, decoded rows
 
-**Import:** `effect/sql` (`SqlSchema`)
-**Source:** `.repos/effect/packages/effect/src/sql/SqlSchema.ts:33-48`, `:65-105`, `:115-171`
+**Import:** `effect/sql/SqlSchema`
+**Source:** `.repos/effect/packages/effect/src/sql/SqlSchema.ts:35-52`, `:68-114`, `:123-181`
 
 ```ts
 export const findAll = <Req extends S.Constraint, Res extends S.Constraint, E, R>(options: {
@@ -1004,8 +1006,8 @@ All helpers encode an application request before invoking SQL and decode unknown
 
 ### 6.2 `SqlModel.makeRepository` and `makeResolvers`
 
-**Import:** `effect/sql` (`SqlModel`)
-**Source:** `.repos/effect/packages/effect/src/sql/SqlModel.ts:33-77`, `:89-220`, `:230-274`
+**Import:** `effect/sql/SqlModel`
+**Source:** `.repos/effect/packages/effect/src/sql/SqlModel.ts:35-223` (`makeRepository`), `:233-362` (`makeResolvers`)
 
 ```ts
 export const makeRepository = <

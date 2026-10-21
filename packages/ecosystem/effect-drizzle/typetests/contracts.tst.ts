@@ -1,4 +1,4 @@
-import { fieldEvolve, Model, make, makeRepository, VariantField } from "@beep/effect-drizzle";
+import { fieldEvolve, Model, make, makeNativeRepository, makeRepository, VariantField } from "@beep/effect-drizzle";
 import * as pg from "@beep/effect-drizzle/pg";
 import * as sqlite from "@beep/effect-drizzle/sqlite";
 import { sql } from "drizzle-orm";
@@ -19,6 +19,7 @@ import {
 } from "effect/Schema";
 import { transformEffect } from "effect/SchemaGetter";
 import * as EffectModel from "effect/schema/Model";
+import * as SqlModel from "effect/sql/SqlModel";
 import { expect, it } from "tstyche";
 import type { DefaultSqlExpr, DefaultValue, Dialect, References } from "@beep/effect-drizzle";
 import type { Custom, Numeric, Timestamp, Varchar } from "@beep/effect-drizzle/pg";
@@ -223,6 +224,24 @@ it("preserves migrated PostgreSQL fixture compile contracts", () => {
   }) {}
   const repository = makeRepository(ServiceRecord, { spanPrefix: "ServiceRecord", idColumn: "id" });
   const curriedRepository = makeRepository({ spanPrefix: "ServiceRecord", idColumn: "id" })(ServiceRecord);
+  // Compiles only while ServiceRecord satisfies SqlModel's Model.Any and idColumn constraints.
+  const sqlModelVersionedRepository = SqlModel.makeRepository(ServiceRecord, {
+    tableName: ServiceRecord.sql.tableName,
+    spanPrefix: "ServiceRecord",
+    idColumn: "id",
+  });
+  class NativeRecord extends Model<NativeRecord>("NativeRecord")({
+    id: Int.pipe(pg.integer(), pg.identity("always"), pg.primaryKey()),
+    value: ServiceString.pipe(pg.text()),
+  }) {}
+  const nativeRepository = makeNativeRepository(NativeRecord, { spanPrefix: "NativeRecord", idColumn: "id" });
+  const curriedNativeRepository = makeNativeRepository({ spanPrefix: "NativeRecord", idColumn: "id" })(NativeRecord);
+  const kitNativeRepository = kit.NativeRepository(NativeRecord, { spanPrefix: "NativeRecord", idColumn: "id" });
+  const sqlModelNativeRepository = SqlModel.makeRepository(NativeRecord, {
+    tableName: NativeRecord.sql.tableName,
+    spanPrefix: "NativeRecord",
+    idColumn: "id",
+  });
 
   type Select = typeof migratedUserTable.$inferSelect;
   type Insert = typeof migratedUserTable.$inferInsert;
@@ -243,6 +262,9 @@ it("preserves migrated PostgreSQL fixture compile contracts", () => {
   type ArrayInsert = typeof arrayTable.$inferInsert;
   type Repository = Success<typeof repository>;
   type CurriedRepository = Success<typeof curriedRepository>;
+  type SqlModelVersionedRepository = Success<typeof sqlModelVersionedRepository>;
+  type NativeRepository = Success<typeof nativeRepository>;
+  type SqlModelNativeRepository = Success<typeof sqlModelNativeRepository>;
   type RepositoryInsert = ReturnType<Repository["insert"]>;
   type RepositoryRequirements =
     RepositoryInsert extends Effect<unknown, unknown, infer Requirements> ? Requirements : never;
@@ -311,6 +333,14 @@ it("preserves migrated PostgreSQL fixture compile contracts", () => {
     readonly arraySelectMatrix: ArraySelect["matrix"] extends ReadonlyArray<ReadonlyArray<string>> ? true : false;
     readonly arrayInsertMatrixOptional: IsOptional<ArrayInsert, "matrix">;
     readonly repositoryCarriesCodecServices: CodecService extends RepositoryRequirements ? true : false;
+    readonly modelIsEffectModel: typeof ServiceRecord extends EffectModel.Any ? true : false;
+    readonly kitEntityIsEffectModel: typeof Account extends EffectModel.Any ? true : false;
+    readonly repositoryKeepsSqlModelReads: Equal<Repository["findById"], SqlModelVersionedRepository["findById"]>;
+    readonly repositoryKeepsSqlModelInsert: Equal<Repository["insert"], SqlModelVersionedRepository["insert"]>;
+    readonly repositoryOmitsUpdateVoid: Equal<"updateVoid" extends keyof Repository ? true : false, false>;
+    readonly nativeRepositoryIsSqlModel: Equal<NativeRepository, SqlModelNativeRepository>;
+    readonly curriedNativeRepositoryInference: Equal<Success<typeof curriedNativeRepository>, NativeRepository>;
+    readonly kitNativeRepositoryInference: Equal<Success<typeof kitNativeRepository>, NativeRepository>;
   }>;
 
   expect<MigratedPgContracts>().type.toBe<{ readonly [K in keyof MigratedPgContracts]: true }>();
@@ -338,6 +368,15 @@ it("preserves migrated SQLite fixture compile contracts", () => {
     },
   }));
   class PgUser extends pgKit.Entity<PgUser>("PgUser")({ id: Int.pipe(pgKit.pg.integer()), name: String }) {}
+  const sqliteNativeRepository = sqliteKit.NativeRepository(SqlitePlainPrimary, {
+    spanPrefix: "SqlitePlainPrimary",
+    idColumn: "id",
+  });
+  const sqliteSqlModelRepository = SqlModel.makeRepository(SqlitePlainPrimary, {
+    tableName: SqlitePlainPrimary.sql.tableName,
+    spanPrefix: "SqlitePlainPrimary",
+    idColumn: "id",
+  });
 
   type MigratedSqliteContracts = ExpectAll<{
     readonly sqliteDrizzleIdOptional: IsOptional<typeof sqliteUserTable.$inferInsert, "id">;
@@ -345,6 +384,12 @@ it("preserves migrated SQLite fixture compile contracts", () => {
     readonly sqlitePlainPrimaryVariantIdOptional: IsOptional<(typeof SqlitePlainPrimary.insert)["Type"], "id">;
     readonly sqlitePlainPrimaryDrizzleIdOptional: IsOptional<typeof sqlitePlainPrimaryTable.$inferInsert, "id">;
     readonly sqliteCreatedAtShared: MutualExtends<SqliteUser["createdAt"], PgUser["createdAt"]>;
+    readonly sqliteModelIsEffectModel: typeof SqlitePlainPrimary extends EffectModel.Any ? true : false;
+    readonly sqliteEntityIsEffectModel: typeof SqliteUser extends EffectModel.Any ? true : false;
+    readonly sqliteNativeRepositoryIsSqlModel: Equal<
+      Success<typeof sqliteNativeRepository>,
+      Success<typeof sqliteSqlModelRepository>
+    >;
   }>;
 
   expect<MigratedSqliteContracts>().type.toBe<{ readonly [K in keyof MigratedSqliteContracts]: true }>();

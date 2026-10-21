@@ -67,6 +67,11 @@ import {
   _missingTarget,
   _mixedExactCharWidths,
   _mixedExactCharWidthsModelMirror,
+  _nativeRepositoryAcronymKey,
+  _nativeRepositoryColumnNameOverride,
+  _nativeRepositoryNonUniqueLocator,
+  _nativeRepositoryPrimaryKeyLocator,
+  _nativeRepositoryVersionedModel,
   _needsExplicitColumn,
   _nonUniqueForeignKey,
   _nullablePgVersion,
@@ -106,6 +111,7 @@ import {
   _repositoryColumnNameOverride,
   _repositoryNonUniqueLocator,
   _repositoryNullableUniqueLocator,
+  _repositorySnakeKey,
   _repositoryUniqueIndexLocator,
   _repositoryVersionLocator,
   _representedDeclaredNumberTextCarrierMismatch,
@@ -705,6 +711,23 @@ describe("schema corroboration and invariants", () => {
 
   it("accepts a colocated single-column unique index as a repository locator", () => {
     expect(_repositoryUniqueIndexLocator).not.toThrow();
+  });
+
+  it("rejects unsafe native repository construction synchronously", () => {
+    expect(_nativeRepositoryVersionedModel).toThrow(
+      "would overwrite optimistic-version field 'rowVersion'; use makeRepository"
+    );
+    expect(_nativeRepositoryColumnNameOverride).toThrow("columnName override on 'displayName'");
+    expect(_nativeRepositoryNonUniqueLocator).toThrow("primary key, unique field, or single-column unique index");
+  });
+
+  it("rejects field keys that the documented name transforms cannot round-trip", () => {
+    expect(_nativeRepositoryAcronymKey).toThrow("field 'userID': column 'user_id' reads back as 'userId'");
+    expect(_repositorySnakeKey).toThrow("field 'created_at': column 'created_at' reads back as 'createdAt'");
+  });
+
+  it("accepts a primary-key locator on a model without a version field", () => {
+    expect(_nativeRepositoryPrimaryKeyLocator).not.toThrow();
   });
 
   it("uses Effect's finite-number schema for PostgreSQL floats", () => {

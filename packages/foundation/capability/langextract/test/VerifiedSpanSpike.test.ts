@@ -302,6 +302,17 @@ describe("verified-span hostile-text contract", () => {
   );
 
   it.effect(
+    "fails as a typed error when NFKC expands a maximum-length locator",
+    Effect.fnUntraced(function* () {
+      // U+2026 normalizes to three code units, so this 4 096-unit locator becomes about 12 286 units.
+      const expandedLocator = Str.concat(Str.repeat(4_095)("\u2026"), "x");
+      const failure = yield* locateRawText("a plain source without the locator", expandedLocator).pipe(Effect.flip);
+
+      expect(failure.reason).toBe("not-found");
+    })
+  );
+
+  it.effect(
     "validates both declared offset units against source boundaries",
     Effect.fnUntraced(function* () {
       const emptySource = yield* convertTextOffsetRange(

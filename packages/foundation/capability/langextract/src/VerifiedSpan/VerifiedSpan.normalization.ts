@@ -8,11 +8,8 @@ import { $LangExtractId } from "@beep/identity";
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as Str from "@beep/utils/Str";
-import * as Bool from "effect/Boolean";
-import * as Eq from "effect/Equal";
-import { flow, pipe } from "effect/Function";
-import * as I from "effect/Iterable";
-import * as Match from "effect/Match";
+import { flow } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
 
 const $I = $LangExtractId.create("VerifiedSpan/normalization");
@@ -63,116 +60,139 @@ export class NormalizedTextWithRawOffsets extends S.Opaque<
   )
 ) {}
 
-const RawCluster = S.Tuple([S.Natural, S.Natural]).pipe(
-  $I.annoteSchema("RawCluster", {
-    description: "Half-open raw UTF-16 range whose code points normalize as one cluster.",
-  })
-);
-type RawCluster = typeof RawCluster.Type;
-
-type SourceClusterState = readonly [start: number, clusters: Array<RawCluster>];
-type NormalizationState = readonly [starts: Array<number>, ends: Array<number>, points: Array<string>];
-type NormalizedRawPoint = readonly [point: string, sourceStart: number, sourceEnd: number];
-
-const rawCluster = (start: number, end: number): RawCluster => [start, end];
-const normalizedRawPoint = (point: string, sourceStart: number, sourceEnd: number): NormalizedRawPoint => [
-  point,
-  sourceStart,
-  sourceEnd,
-];
-const sourceClusterInitial = (): SourceClusterState => [S.Natural.make(0), A.empty()];
-const normalizationInitial = (): NormalizationState => [A.empty(), A.empty(), A.empty()];
 const isCombiningMark = S.is(CombiningMark);
 const isWhitespace = S.is(WhitespaceCodePoint);
 const normalizeUnicode = Str.normalize("NFKC");
+const straightenQuotes = flow(Str.replace(/[‘’‚‛]/gu, "'"), Str.replace(/[“”„‟]/gu, '"'));
 
-const joinsNormalizedCluster = (source: string, cluster: RawCluster, point: string): boolean => {
-  const clusterText = Str.slice(cluster[0], cluster[1])(source);
-  return Bool.not(
-    Eq.equals(
-      normalizeUnicode(Str.concat(clusterText, point)),
-      Str.concat(normalizeUnicode(clusterText), normalizeUnicode(point))
-    )
-  );
+/**
+ * One normalized code point emitted for a raw cluster, with its whitespace
+ * verdict precomputed.
+ */
+type EmittedPoint = readonly [point: string, whitespace: boolean];
+
+/**
+ * The normalized form of one raw cluster: its NFKC text (for join checks) and
+ * the quote-straightened code points it emits.
+ */
+type ClusterForm = readonly [normalized: string, emitted: ReadonlyArray<EmittedPoint>];
+
+// Memo keys longer than this are computed directly so hostile long clusters
+// never retain large keys.
+const MAX_MEMO_KEY_LENGTH = 32;
+
+// Performance boundary (single-pass scan): normalization visits every code
+// point of a source up to 1,000,000 UTF-16 units long, so the per-point path
+// below uses native string/array operations and module-scope helper
+// references. Module-namespace helper calls cost a property lookup per call (a
+// getter call under Vite's module runner), which dominated hosted CI. All
+// mutation stays inside one `normalizeWithRawOffsets` call; its completed
+// schema value is immutable to every downstream consumer.
+const getMemoized = MutableHashMap.get;
+const setMemoized = MutableHashMap.set;
+const isMemoized = O.isSome;
+
+// Hostile inputs repeat few distinct short clusters, so every pure per-cluster
+// computation runs once per distinct raw text instead of once per occurrence.
+// Each cache lives for one normalization call.
+type Memo<A> = (key: string, compute: () => A) => A;
+
+const memo = <A>(): Memo<A> => {
+  const cache = MutableHashMap.empty<string, A>();
+  return (key, compute) => {
+    if (key.length > MAX_MEMO_KEY_LENGTH) {
+      return compute();
+    }
+    const cached = getMemoized(cache, key);
+    if (isMemoized(cached)) {
+      return cached.value;
+    }
+    const value = compute();
+    setMemoized(cache, key, value);
+    return value;
+  };
 };
 
-const sourceClusters = (source: string): ReadonlyArray<RawCluster> => {
-  // Performance boundary: one allocation keeps cluster construction linear for
-  // hostile 100k inputs. The completed array is read-only after this function.
-  const [, clusters] = pipe(
-    source,
-    A.fromIterable,
-    A.reduce(sourceClusterInitial(), ([start, clusters], point): SourceClusterState => {
-      const end = S.Natural.make(start + Str.length(point));
-      const next = rawCluster(start, end);
-      return [
-        end,
-        pipe(
-          A.last(clusters),
-          O.match({
-            onNone: () => A.appendInPlace(clusters, next),
-            onSome: (previous) =>
-              pipe(
-                Bool.match(isCombiningMark(point), {
-                  onFalse: () => joinsNormalizedCluster(source, previous, point),
-                  onTrue: () => true,
-                }),
-                Bool.match({
-                  onFalse: () => A.appendInPlace(clusters, next),
-                  onTrue: () => {
-                    A.spliceInPlace(clusters, {
-                      start: A.length(clusters) - 1,
-                      deleteCount: 1,
-                      items: [rawCluster(previous[0], end)],
-                    });
-                    return clusters;
-                  },
-                })
-              ),
-          })
-        ),
-      ];
-    })
-  );
-  return clusters;
+const clusterForm = (rawCluster: string): ClusterForm => {
+  const normalized = normalizeUnicode(rawCluster);
+  return [normalized, A.map(A.fromIterable(straightenQuotes(normalized)), (point) => [point, isWhitespace(point)])];
 };
 
-const normalizeCluster = flow(normalizeUnicode, Str.replace(/[‘’‚‛]/gu, "'"), Str.replace(/[“”„‟]/gu, '"'));
+/**
+ * Mutable single-pass normalization state.
+ *
+ * Each raw cluster is a half-open UTF-16 range whose code points normalize as
+ * one unit. A cluster is final as soon as the next code point does not join
+ * it, and emitting it depends only on already-emitted output, so clusters are
+ * normalized and appended while the source is scanned.
+ */
+type NormalizationScan = {
+  readonly starts: Array<number>;
+  readonly ends: Array<number>;
+  readonly points: Array<string>;
+  readonly combiningMarks: Memo<boolean>;
+  readonly clusterForms: Memo<ClusterForm>;
+  readonly joins: Memo<boolean>;
+  clusterStart: number;
+  clusterEnd: number;
+  lastPointIsSpace: boolean;
+};
 
-const appendNormalizedPoint = (
-  [starts, ends, points]: NormalizationState,
-  point: string,
-  sourceStart: number,
-  sourceEnd: number
-): NormalizationState =>
-  pipe(
-    isWhitespace(point),
-    Bool.match({
-      onFalse: () => {
-        A.appendAllInPlace(starts, A.replicate(sourceStart, Str.length(point)));
-        A.appendAllInPlace(ends, A.replicate(sourceEnd, Str.length(point)));
-        A.appendInPlace(points, point);
-        return [starts, ends, points];
-      },
-      onTrue: () =>
-        Match.value(O.exists(A.last(points), Eq.equals(" "))).pipe(
-          Match.when(false, (): NormalizationState => {
-            A.appendInPlace(starts, sourceStart);
-            A.appendInPlace(ends, sourceEnd);
-            A.appendInPlace(points, " ");
-            return [starts, ends, points];
-          }),
-          Match.orElse((): NormalizationState => {
-            A.spliceInPlace(ends, {
-              start: A.length(ends) - 1,
-              deleteCount: 1,
-              items: [sourceEnd],
-            });
-            return [starts, ends, points];
-          })
-        ),
-    })
-  );
+const formOf = (scan: NormalizationScan, rawCluster: string): ClusterForm =>
+  scan.clusterForms(rawCluster, () => clusterForm(rawCluster));
+
+// A code point joins the open cluster when normalizing them together differs
+// from normalizing each on its own.
+const joinsCluster = (scan: NormalizationScan, rawCluster: string, point: string): boolean =>
+  normalizeUnicode(rawCluster + point) !== formOf(scan, rawCluster)[0] + formOf(scan, point)[0];
+
+const appendNormalizedPoint = (scan: NormalizationScan, [point, whitespace]: EmittedPoint): void => {
+  const { clusterEnd, clusterStart, ends, points, starts } = scan;
+  if (!whitespace) {
+    // One offset entry per UTF-16 code unit: a code point spans one or two.
+    for (let unit = 0; unit < point.length; unit++) {
+      starts.push(clusterStart);
+      ends.push(clusterEnd);
+    }
+    points.push(point);
+    scan.lastPointIsSpace = false;
+    return;
+  }
+  // Whitespace runs collapse into one space that spans the whole raw run.
+  if (scan.lastPointIsSpace) {
+    ends[ends.length - 1] = clusterEnd;
+    return;
+  }
+  starts.push(clusterStart);
+  ends.push(clusterEnd);
+  points.push(" ");
+  scan.lastPointIsSpace = true;
+};
+
+const emitCluster = (source: string, scan: NormalizationScan): void => {
+  const [, emitted] = formOf(scan, source.slice(scan.clusterStart, scan.clusterEnd));
+  for (const point of emitted) {
+    appendNormalizedPoint(scan, point);
+  }
+};
+
+const scanPoint = (source: string, scan: NormalizationScan, point: string): void => {
+  const pointEnd = scan.clusterEnd + point.length;
+  const rawCluster = source.slice(scan.clusterStart, scan.clusterEnd);
+  // Combining marks always join, so the join verdict (which normalizes the whole
+  // open cluster) runs only for other code points. Its memo key is the cluster
+  // followed by exactly one code point, which fixes both inputs of the verdict.
+  if (
+    scan.combiningMarks(point, () => isCombiningMark(point)) ||
+    scan.joins(rawCluster + point, () => joinsCluster(scan, rawCluster, point))
+  ) {
+    scan.clusterEnd = pointEnd;
+    return;
+  }
+  emitCluster(source, scan);
+  scan.clusterStart = scan.clusterEnd;
+  scan.clusterEnd = pointEnd;
+};
 
 /**
  * Normalize locator text while retaining the raw UTF-16 range behind every
@@ -191,28 +211,31 @@ const appendNormalizedPoint = (
  * @internal
  */
 export const normalizeWithRawOffsets = (source: string): NormalizedTextWithRawOffsets => {
-  // Performance boundary: these parallel offset maps can hold multiple entries per source
-  // code unit. Mutation stays inside this allocation boundary; the completed
-  // schema value is immutable to every downstream consumer.
-  const [starts, ends, points] = pipe(
-    sourceClusters(source),
-    I.flatMap(([sourceStart, sourceEnd]) =>
-      pipe(
-        source,
-        Str.slice(sourceStart, sourceEnd),
-        normalizeCluster,
-        I.map((point) => normalizedRawPoint(point, sourceStart, sourceEnd))
-      )
-    ),
-    I.reduce(normalizationInitial(), (state, [point, sourceStart, sourceEnd]) =>
-      appendNormalizedPoint(state, point, sourceStart, sourceEnd)
-    )
-  );
+  // One left-to-right pass builds the parallel offset maps, which can hold
+  // multiple entries per source code unit (see the single-pass scan boundary).
+  const scan: NormalizationScan = {
+    clusterEnd: 0,
+    clusterForms: memo(),
+    clusterStart: 0,
+    ends: A.empty(),
+    combiningMarks: memo(),
+    joins: memo(),
+    lastPointIsSpace: false,
+    points: A.empty(),
+    starts: A.empty(),
+  };
+  // The scan opens with an empty cluster: every code point leaves it as its own
+  // cluster (an empty cluster normalizes to nothing and emits nothing), so the
+  // first point needs no special case and an empty source emits nothing.
+  for (const point of source) {
+    scanPoint(source, scan, point);
+  }
+  emitCluster(source, scan);
 
   return NormalizedTextWithRawOffsets.make({
-    ends,
-    starts,
-    text: A.join(points, ""),
+    ends: scan.ends,
+    starts: scan.starts,
+    text: A.join(scan.points, ""),
   });
 };
 

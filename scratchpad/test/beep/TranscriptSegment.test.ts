@@ -1,3 +1,4 @@
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
@@ -21,6 +22,9 @@ import {
   prepareTranscriptSegment,
   segmentsAsString,
 } from "../../beep/TranscriptSegment.ts";
+
+const isUUIDv4 = S.is(S.String.check(S.isUUID(4)));
+const isUUIDv5 = S.is(S.String.check(S.isUUID(5)));
 
 const decode = <A extends S.Top>(schema: A & S.Codec<unknown, unknown, never, never>, input: unknown): A["Type"] =>
   Effect.runSync(S.decodeUnknownEffect(schema)(input));
@@ -102,37 +106,58 @@ describe("TranscriptSegment", () => {
     assert.strictEqual(O.isNone(nulled.translations), true);
   });
 
-  it("prepares ids, speaker numbers, and the synthesized flag", () => {
-    const parsed = Effect.runSync(
-      prepareTranscriptSegment({ text: "Hello", speaker: "SPEAKER_03", isUser: false, start: 0, end: 1 }),
-    );
-    assert.strictEqual(parsed.segment.speakerId, 3);
-    assert.strictEqual(parsed.speakerIdSynthesized, false);
-    const synthesized = Effect.runSync(prepareTranscriptSegment({ text: "Hello", isUser: true, start: 0, end: 1 }));
-    assert.strictEqual(synthesized.speakerIdSynthesized, true);
-    assert.strictEqual(synthesized.segment.speakerId, 0);
-    assert.strictEqual(synthesized.segment.speakerIdentityStatus, "user");
-    assert.strictEqual(/^[0-9a-f-]{36}$/.test(synthesized.segment.id), true);
-    const explicit = Effect.runSync(
-      prepareTranscriptSegment({
-        text: "Hello",
-        speaker: null,
-        speakerId: null,
-        isUser: true,
-        speakerIdentityStatus: "not_user",
-        start: 0,
-        end: 1,
+  it.layer(BunCrypto.layer)("with platform cryptography", (it) => {
+    it.effect(
+      "prepares ids, speaker numbers, and the synthesized flag",
+      Effect.fnUntraced(function* () {
+        const parsed = yield* prepareTranscriptSegment({
+          text: "Hello",
+          speaker: "SPEAKER_03",
+          isUser: false,
+          start: 0,
+          end: 1,
+        });
+        assert.strictEqual(parsed.segment.speakerId, 3);
+        assert.strictEqual(parsed.speakerIdSynthesized, false);
+        const synthesized = yield* prepareTranscriptSegment({ text: "Hello", isUser: true, start: 0, end: 1 });
+        assert.strictEqual(synthesized.speakerIdSynthesized, true);
+        assert.strictEqual(synthesized.segment.speakerId, 0);
+        assert.strictEqual(synthesized.segment.speakerIdentityStatus, "user");
+        assert.strictEqual(isUUIDv4(synthesized.segment.id), true);
+        const explicit = yield* prepareTranscriptSegment({
+          text: "Hello",
+          speaker: null,
+          speakerId: null,
+          isUser: true,
+          speakerIdentityStatus: "not_user",
+          start: 0,
+          end: 1,
+        });
+        assert.strictEqual(explicit.segment.speakerIdentityStatus, "not_user");
+        assert.strictEqual(O.isNone(explicit.segment.speaker), true);
+        assert.strictEqual(explicit.speakerIdSynthesized, true);
+        const kept = yield* prepareTranscriptSegment({ text: "Hello", speakerId: 4, isUser: false, start: 0, end: 1 });
+        assert.strictEqual(kept.segment.speakerId, 4);
+        assert.strictEqual(kept.speakerIdSynthesized, false);
       }),
     );
-    assert.strictEqual(explicit.segment.speakerIdentityStatus, "not_user");
-    assert.strictEqual(O.isNone(explicit.segment.speaker), true);
-    assert.strictEqual(explicit.speakerIdSynthesized, true);
-    const kept = Effect.runSync(
-      prepareTranscriptSegment({ text: "Hello", speakerId: 4, isUser: false, start: 0, end: 1 }),
+
+    it.effect(
+      "mints the legacy segment id as an RFC 9562 UUIDv5 in the URL namespace",
+      Effect.fnUntraced(function* () {
+        // Expected values come from Python's uuid.uuid5(uuid.NAMESPACE_URL, name).
+        assert.strictEqual(yield* legacyConversationSegmentId("conv-1", 0), "da57cb65-5efc-5c8a-9e87-2959d45b8279");
+        assert.strictEqual(yield* legacyConversationSegmentId("conv-1", 12), "3c2eac32-5076-5f96-9418-b7d508a27857");
+        assert.strictEqual(
+          yield* legacyConversationSegmentId("café-会话", 7),
+          "32780498-b4ca-5190-925b-28089309cc2d",
+        );
+        assert.strictEqual(yield* legacyConversationSegmentId(0)("conv-1"), "da57cb65-5efc-5c8a-9e87-2959d45b8279");
+        assert.strictEqual(isUUIDv5(yield* legacyConversationSegmentId("conv-1", 0)), true);
+        const illFormed = yield* Effect.flip(legacyConversationSegmentId("\ud800", 0));
+        assert.strictEqual(illFormed.reason._tag, "BadArgument");
+      }),
     );
-    assert.strictEqual(kept.segment.speakerId, 4);
-    assert.strictEqual(kept.speakerIdSynthesized, false);
-    assert.strictEqual(legacyConversationSegmentId("conv-1", 0), "da57cb65-5efc-5c8a-9e87-2959d45b8279");
   });
 
   it("formats timestamps and speaker names", () => {
