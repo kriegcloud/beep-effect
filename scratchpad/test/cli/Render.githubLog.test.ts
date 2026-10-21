@@ -2,7 +2,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import { CommandNeutralizer } from "../../effected/github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import * as Effect from "effect/Effect";
 import type { Block, RenderContext } from "../../effected/cli/index.ts";
 import { Doc, Render, Status } from "../../effected/cli/index.ts";

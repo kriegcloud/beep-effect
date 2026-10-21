@@ -3,7 +3,7 @@ import { WithBufferOptions, WithStepOptions } from "../../effected/github-action
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import type { AnnotationProperties } from "../../effected/github-commands/index.ts";
+import type { AnnotationProperties } from "@beep/github-commands";
 import * as Latch from "effect/Latch";
 import * as Layer from "effect/Layer";
 import * as References from "effect/References";

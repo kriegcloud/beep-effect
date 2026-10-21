@@ -1,0 +1,338 @@
+// Desugaring of range sugar (caret, tilde, X-ranges, hyphen ranges) into
+// primitive comparator sets, matching node-semver semantics. Operates on
+// structural parts; the `Range` schema materializes classes from the result.
+
+import { $SemverId } from "@beep/identity/packages";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import { VersionParts } from "./order.ts";
+import type { ComparatorOperator, ComparatorParts } from "./order.ts";
+
+const $I = $SemverId.create("internal/desugar");
+
+/**
+ * A partially specified version as written in range sugar (`1.x`, `1.2`,
+ * `*`). `null` in `major`/`minor`/`patch` marks an unspecified (wildcard)
+ * component; `prerelease`/`build` are only populated when the fully
+ * specified suffix of a partial version carries them.
+ *
+ * **Example** (Recognize a wildcard component)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { PartialParts } from "@beep/semver/internal/desugar";
+ *
+ * S.is(PartialParts)({ major: 1, minor: null, patch: null, prerelease: [], build: [] }); // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const PartialParts = S.Struct({
+  ...VersionParts.fields,
+  major: S.NullOr(S.Finite).pipe(
+    $I.annoteKey("PartialParts.major", {
+      description: "The numeric major component, or null for a wildcard or omission.",
+    })
+  ),
+  minor: S.NullOr(S.Finite).pipe(
+    $I.annoteKey("PartialParts.minor", {
+      description: "The numeric minor component, or null for a wildcard or omission.",
+    })
+  ),
+  patch: S.NullOr(S.Finite).pipe(
+    $I.annoteKey("PartialParts.patch", {
+      description: "The numeric patch component, or null for a wildcard or omission.",
+    })
+  ),
+}).pipe(
+  $I.annoteSchema("PartialParts", {
+    description:
+      "Plain partial version parts preserving numeric and null intermediate components for range desugaring.",
+  })
+);
+
+/**
+ * The partial version data described by {@link PartialParts}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type PartialParts = typeof PartialParts.Type;
+
+const sv: {
+  (
+    major: number,
+    minor: number,
+    patch: number,
+    prerelease?: ReadonlyArray<string | number>,
+    build?: ReadonlyArray<string>
+  ): VersionParts;
+  (
+    minor: number,
+    patch: number,
+    prerelease?: ReadonlyArray<string | number>,
+    build?: ReadonlyArray<string>
+  ): (major: number) => VersionParts;
+} = dual(
+  (args) => P.isNumber(args[2]),
+  (
+    major: number,
+    minor: number,
+    patch: number,
+    prerelease: ReadonlyArray<string | number> = [],
+    build: ReadonlyArray<string> = []
+  ): VersionParts => ({ major, minor, patch, prerelease, build })
+);
+
+const comp: {
+  (operator: ComparatorOperator, version: VersionParts): ComparatorParts;
+  (version: VersionParts): (operator: ComparatorOperator) => ComparatorParts;
+} = dual(2, (operator: ComparatorOperator, version: VersionParts): ComparatorParts => ({ operator, version }));
+
+/**
+ * Desugar a tilde range (`~1.2.3`, `~1.2`, `~1`) into a `>=`/`<` comparator
+ * pair that allows patch-level changes when a minor version is specified,
+ * and minor-level changes when it is not.
+ *
+ * **Example** (Expand a patch-compatible tilde range)
+ *
+ * ```ts
+ * import { desugarTilde } from "@beep/semver/internal/desugar";
+ *
+ * const comparators = desugarTilde({ major: 1, minor: 2, patch: 3, prerelease: [], build: [] });
+ * const bounds = comparators.map(({ operator, version }) =>
+ *   `${operator}${version.major}.${version.minor}.${version.patch}`
+ * ).join(" ");
+ * console.log(bounds); // >=1.2.3 <1.3.0
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const desugarTilde = (p: PartialParts): ReadonlyArray<ComparatorParts> => {
+  if (p.major === null) return [comp(">=", sv(0, 0, 0))];
+  const major = p.major;
+  const minor = p.minor;
+  const patch = p.patch ?? 0;
+
+  if (minor === null) {
+    // ~1 -> >=1.0.0 <2.0.0-0
+    return [comp(">=", sv(major, 0, 0)), comp("<", sv(major + 1, 0, 0, [0]))];
+  }
+
+  // ~1.2.3 -> >=1.2.3 <1.3.0-0
+  // ~1.2 -> >=1.2.0 <1.3.0-0
+  return [comp(">=", sv(major, minor, patch, p.prerelease)), comp("<", sv(major, minor + 1, 0, [0]))];
+};
+
+/**
+ * Desugar a caret range (`^1.2.3`) into a `>=`/`<` comparator pair per npm's
+ * compatibility rules: changes are allowed in the rightmost of
+ * major/minor/patch that is non-zero (so `^0.2.3` allows patch bumps only,
+ * `^0.0.3` allows none).
+ *
+ * **Example** (Expand a caret range below version one)
+ *
+ * ```ts
+ * import { desugarCaret } from "@beep/semver/internal/desugar";
+ *
+ * const comparators = desugarCaret({ major: 0, minor: 2, patch: 3, prerelease: [], build: [] });
+ * const bounds = comparators.map(({ operator, version }) =>
+ *   `${operator}${version.major}.${version.minor}.${version.patch}`
+ * ).join(" ");
+ * console.log(bounds); // >=0.2.3 <0.3.0
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const desugarCaret = (p: PartialParts): ReadonlyArray<ComparatorParts> => {
+  if (p.major === null) return [comp(">=", sv(0, 0, 0))];
+  const major = p.major;
+  const minor = p.minor;
+  const patch = p.patch;
+
+  const lower = minor === null ? sv(major, 0, 0) : sv(major, minor, patch ?? 0, p.prerelease);
+
+  if (major !== 0) {
+    // ^1.2.3 -> >=1.2.3 <2.0.0-0
+    return [comp(">=", lower), comp("<", sv(major + 1, 0, 0, [0]))];
+  }
+
+  // major is 0
+  if (minor === null) {
+    // ^0.x -> >=0.0.0 <1.0.0-0
+    return [comp(">=", lower), comp("<", sv(1, 0, 0, [0]))];
+  }
+
+  if (minor !== 0) {
+    // ^0.2.3 -> >=0.2.3 <0.3.0-0
+    return [comp(">=", lower), comp("<", sv(0, minor + 1, 0, [0]))];
+  }
+
+  // major is 0, minor is 0
+  if (patch === null) {
+    // ^0.0.x or ^0.0 -> >=0.0.0 <0.1.0-0
+    return [comp(">=", lower), comp("<", sv(0, 1, 0, [0]))];
+  }
+
+  if (patch !== 0) {
+    // ^0.0.3 -> >=0.0.3 <0.0.4-0
+    return [comp(">=", lower), comp("<", sv(0, 0, patch + 1, [0]))];
+  }
+
+  // ^0.0.0 -> >=0.0.0 <0.0.1-0
+  return [comp(">=", lower), comp("<", sv(0, 0, 1, [0]))];
+};
+
+/**
+ * Desugar an X-range (`1.x`, `1.2.x`, `*`) or a fully-specified
+ * operator-prefixed version into its equivalent comparator set. A fully
+ * specified version with no operator (or `=`) desugars to a single `=`
+ * comparator; wildcards expand to the bounding `>=`/`<` pair implied by the
+ * given `operator`.
+ *
+ * **Example** (Expand a wildcard minor version)
+ *
+ * ```ts
+ * import { desugarXRange } from "@beep/semver/internal/desugar";
+ *
+ * const comparators = desugarXRange(null, { major: 1, minor: null, patch: null, prerelease: [], build: [] });
+ * const bounds = comparators.map(({ operator, version }) =>
+ *   `${operator}${version.major}.${version.minor}.${version.patch}`
+ * ).join(" ");
+ * console.log(bounds); // >=1.0.0 <2.0.0
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const desugarXRange: {
+  (p: PartialParts): (operator: ComparatorOperator | null) => ReadonlyArray<ComparatorParts>;
+  (operator: ComparatorOperator | null, p: PartialParts): ReadonlyArray<ComparatorParts>;
+} = dual(2, (operator: ComparatorOperator | null, p: PartialParts): ReadonlyArray<ComparatorParts> => {
+  const major = p.major;
+  const minor = p.minor;
+  const patch = p.patch;
+
+  // Fully specified (no wildcards)
+  if (major !== null && minor !== null && patch !== null) {
+    const version = sv(major, minor, patch, p.prerelease, p.build);
+    if (operator === null || operator === "=") {
+      return [comp("=", version)];
+    }
+    return [comp(operator, version)];
+  }
+
+  // Has wildcards
+  if (major === null) {
+    // Strict comparisons against * admit no version.
+    if (operator === "<" || operator === ">") return [comp("<", sv(0, 0, 0, [0]))];
+    return [comp(">=", sv(0, 0, 0))];
+  }
+
+  if (minor === null) {
+    // 1.x or 1.*
+    if (operator === null || operator === "=") {
+      return [comp(">=", sv(major, 0, 0)), comp("<", sv(major + 1, 0, 0, [0]))];
+    }
+    if (operator === ">") {
+      // >1.x -> >=2.0.0
+      return [comp(">=", sv(major + 1, 0, 0))];
+    }
+    if (operator === ">=") {
+      // >=1.x -> >=1.0.0
+      return [comp(">=", sv(major, 0, 0))];
+    }
+    if (operator === "<") {
+      // <1.x -> <1.0.0-0
+      return [comp("<", sv(major, 0, 0, [0]))];
+    }
+    // <=1.x -> <2.0.0-0
+    return [comp("<", sv(major + 1, 0, 0, [0]))];
+  }
+
+  // patch is null (minor is set): 1.2.x
+  if (operator === null || operator === "=") {
+    return [comp(">=", sv(major, minor, 0)), comp("<", sv(major, minor + 1, 0, [0]))];
+  }
+  if (operator === ">") {
+    // >1.2.x -> >=1.3.0
+    return [comp(">=", sv(major, minor + 1, 0))];
+  }
+  if (operator === ">=") {
+    // >=1.2.x -> >=1.2.0
+    return [comp(">=", sv(major, minor, 0))];
+  }
+  if (operator === "<") {
+    // <1.2.x -> <1.2.0-0
+    return [comp("<", sv(major, minor, 0, [0]))];
+  }
+  // <=1.2.x -> <1.3.0-0
+  return [comp("<", sv(major, minor + 1, 0, [0]))];
+});
+
+/**
+ * Desugar a hyphen range (`1.2.3 - 2.3.4`) into a comparator pair: `>=` the
+ * lower bound and, for the upper bound, `<=` when it is fully specified or
+ * `<` the next unspecified component when it is partial (`1.2.3 - 2.3` →
+ * `>=1.2.3 <2.4.0-0`).
+ *
+ * **Example** (Expand a hyphen range with a partial upper bound)
+ *
+ * ```ts
+ * import { desugarHyphen } from "@beep/semver/internal/desugar";
+ *
+ * const comparators = desugarHyphen(
+ *   { major: 1, minor: 2, patch: 3, prerelease: [], build: [] },
+ *   { major: 2, minor: 3, patch: null, prerelease: [], build: [] }
+ * );
+ * const bounds = comparators.map(({ operator, version }) =>
+ *   `${operator}${version.major}.${version.minor}.${version.patch}`
+ * ).join(" ");
+ * console.log(bounds); // >=1.2.3 <2.4.0
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const desugarHyphen: {
+  (upper: PartialParts): (lower: PartialParts) => ReadonlyArray<ComparatorParts>;
+  (lower: PartialParts, upper: PartialParts): ReadonlyArray<ComparatorParts>;
+} = dual(2, (lower: PartialParts, upper: PartialParts): ReadonlyArray<ComparatorParts> => {
+  const lowerComparators =
+    lower.major === null
+      ? []
+      : [
+          comp(
+            ">=",
+            lower.minor === null
+              ? sv(lower.major, 0, 0)
+              : lower.patch === null
+                ? sv(lower.major, lower.minor, 0)
+                : sv(lower.major, lower.minor, lower.patch, lower.prerelease)
+          ),
+        ];
+
+  if (upper.major !== null && upper.minor !== null && upper.patch !== null) {
+    // Full upper: >=lower <=upper
+    const upperVersion = sv(upper.major, upper.minor, upper.patch, upper.prerelease);
+    return [...lowerComparators, comp("<=", upperVersion)];
+  }
+
+  // Partial upper
+  if (upper.major !== null && upper.minor !== null) {
+    // 1.2.3 - 2.3 -> >=1.2.3 <2.4.0-0
+    return [...lowerComparators, comp("<", sv(upper.major, upper.minor + 1, 0, [0]))];
+  }
+
+  if (upper.major !== null) {
+    // 1.2.3 - 2 -> >=1.2.3 <3.0.0-0
+    return [...lowerComparators, comp("<", sv(upper.major + 1, 0, 0, [0]))];
+  }
+
+  // upper is * -> >=lower
+  return lower.major === null ? [comp(">=", sv(0, 0, 0))] : lowerComparators;
+});

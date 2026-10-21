@@ -87,12 +87,12 @@ describe("tier guardrail: the pure vocabulary does not reach IO", () => {
 	it("the comment stripper does not devour code after a /*-bearing token", () => {
 		const fixture = [
 			"// Prose naming a glob like src/* and a scope like @effected/* here.",
-			'import { Run } from "../../effected/commands/index.ts";',
+			'import { Run } from "@beep/commands";',
 			"/** A real doc comment, whose close is the phantom's close. */",
 			"export const x = Run;",
 		].join("\n");
 		const stripped = stripComments(fixture);
-		assert.include(stripped, 'from "../../effected/commands/index.ts"', "a real import must survive the stripper");
+		assert.include(stripped, 'from "@beep/commands"', "a real import must survive the stripper");
 		assert.notInclude(stripped, "Prose naming a glob", "prose must not survive the stripper");
 	});
 

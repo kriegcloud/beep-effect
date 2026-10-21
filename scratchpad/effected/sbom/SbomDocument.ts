@@ -10,7 +10,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { License, isValidExpression } from "../spdx/index.ts";
+import { License, isValidExpression } from "@beep/spdx";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as R from "effect/Record";

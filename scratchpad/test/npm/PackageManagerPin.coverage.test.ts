@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { PackageManagerPin, InvalidPackageManagerPinError } from "../../effected/npm/PackageManagerPin.ts";
-import { SemVer } from "../../effected/semver/index.ts";
+import { SemVer } from "@beep/semver";
 
 it.effect("reports each invalid component and rejects constructed build metadata", () => Effect.gen(function* () {
   for (const [input, reason, detail] of [

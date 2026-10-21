@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { SemVer } from "../semver/index.ts";
+import { SemVer } from "@beep/semver";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

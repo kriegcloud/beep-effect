@@ -2038,5 +2038,21 @@
     "./packages/foundation/modeling/github-commands/src/*"
   ],
   "@beep/commands": ["./packages/drivers/commands/src/index.ts"],
-  "@beep/commands/*": ["./packages/drivers/commands/src/*"]
+  "@beep/commands/*": ["./packages/drivers/commands/src/*"],
+  "@beep/commands/internal/*": ["./packages/drivers/commands/src/internal/*"],
+  "@beep/jsonc/internal/*": [
+    "./packages/foundation/modeling/jsonc/src/internal/*"
+  ],
+  "@beep/jsonl/internal/*": [
+    "./packages/foundation/modeling/jsonl/src/internal/*"
+  ],
+  "@beep/schema-org/internal/*": [
+    "./packages/foundation/modeling/schema-org/src/internal/*"
+  ],
+  "@beep/semver/internal/*": [
+    "./packages/foundation/modeling/semver/src/internal/*"
+  ],
+  "@beep/spdx/internal/*": [
+    "./packages/foundation/modeling/spdx/src/internal/*"
+  ]
 }

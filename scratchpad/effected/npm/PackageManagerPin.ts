@@ -12,7 +12,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { SemVer } from "../semver/index.ts";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Result from "effect/Result";

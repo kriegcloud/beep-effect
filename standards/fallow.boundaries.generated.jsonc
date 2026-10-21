@@ -1588,10 +1588,18 @@
       {
         "from": "@beep/commands",
         "allow": [
-          "@beep/commands"
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/commands"
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -2286,19 +2294,29 @@
       {
         "from": "@beep/github-commands",
         "allow": [
-          "@beep/github-commands"
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity"
         ],
         "allowTypeOnly": [
-          "@beep/github-commands"
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity"
         ]
       },
       {
         "from": "@beep/github-references",
         "allow": [
-          "@beep/github-references"
+          "@beep/fc-runs",
+          "@beep/github-references",
+          "@beep/identity",
+          "@beep/schema"
         ],
         "allowTypeOnly": [
-          "@beep/github-references"
+          "@beep/fc-runs",
+          "@beep/github-references",
+          "@beep/identity",
+          "@beep/schema"
         ]
       },
       {
@@ -2443,19 +2461,37 @@
       {
         "from": "@beep/jsonc",
         "allow": [
-          "@beep/jsonc"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/jsonc"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
         "from": "@beep/jsonl",
         "allow": [
-          "@beep/jsonl"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonl",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/jsonl"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonl",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ]
       },
       {
@@ -4077,15 +4113,22 @@
       {
         "from": "@beep/schema-org",
         "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
           "@beep/schema-org"
         ],
         "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
           "@beep/schema-org"
         ]
       },
       {
         "from": "@beep/scratchpad",
         "allow": [
+          "@beep/commands",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4093,7 +4136,10 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/github-commands",
+          "@beep/github-references",
           "@beep/identity",
+          "@beep/jsonc",
           "@beep/md",
           "@beep/n3",
           "@beep/nlp",
@@ -4110,12 +4156,15 @@
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
+          "@beep/semver",
           "@beep/shacl",
+          "@beep/spdx",
           "@beep/test-utils",
           "@beep/utils",
           "@beep/wink"
         ],
         "allowTypeOnly": [
+          "@beep/commands",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4123,7 +4172,10 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/github-commands",
+          "@beep/github-references",
           "@beep/identity",
+          "@beep/jsonc",
           "@beep/md",
           "@beep/n3",
           "@beep/nlp",
@@ -4140,7 +4192,9 @@
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
+          "@beep/semver",
           "@beep/shacl",
+          "@beep/spdx",
           "@beep/test-utils",
           "@beep/utils",
           "@beep/wink"
@@ -4221,9 +4275,15 @@
       {
         "from": "@beep/semver",
         "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
           "@beep/semver"
         ],
         "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
           "@beep/semver"
         ]
       },
@@ -4323,9 +4383,13 @@
       {
         "from": "@beep/spdx",
         "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
           "@beep/spdx"
         ],
         "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
           "@beep/spdx"
         ]
       },

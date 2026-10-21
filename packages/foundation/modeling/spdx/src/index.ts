@@ -1,22 +1,50 @@
 /**
- * @beep/spdx
+ * SPDX license identifiers, exceptions and license expressions as Effect
+ * schemas.
  *
- * @packageDocumentation
- * @since 0.0.0
- */
-
-/**
- * Version of the @beep/spdx package.
+ * **Details**
  *
- * **Example** (Read the package version)
+ * {@link License} and {@link LicenseException} validate an identifier against
+ * the vendored SPDX catalogs (or, for a license, the `LicenseRef-`/
+ * `DocumentRef-` reference grammar); each class doubles as its own schema. The
+ * {@link SpdxExpression} facade parses a full license expression into a
+ * tagged-union AST — {@link LicenseNode}, {@link LicenseRefNode},
+ * {@link WithExceptionNode}, {@link AndNode}, {@link OrNode} — over a hardened,
+ * depth-capped parser, and its `FromString` codec re-serializes the AST to the
+ * canonical, fully-parenthesized SPDX string. Malformed or unknown input fails
+ * through the single typed {@link InvalidSpdxExpressionError}, never as a
+ * defect.
+ *
+ * **Example** (Parse and serialize a license choice and reject an incomplete conjunction)
  *
  * ```ts
- * import { VERSION } from "@beep/spdx"
+ * import { isValidExpression, SpdxExpression } from "@beep/spdx";
+ * import * as Effect from "effect/Effect";
  *
- * console.log(VERSION) // "0.0.0"
+ * const program = Effect.gen(function* () {
+ *   const expr = yield* SpdxExpression.parse("(MIT OR Apache-2.0+)");
+ *   return [expr._tag, expr.toString()];
+ * });
+ *
+ * console.log(Effect.runSync(program));
+ * // => ["Or", "(MIT OR Apache-2.0+)"]
+ * console.log(isValidExpression("MIT AND"));
+ * // => false
  * ```
  *
- * @category configuration
- * @since 0.0.0
+ * @packageDocumentation
+ * @see {@link https://spdx.github.io/spdx-spec/v2.3/SPDX-license-expressions/ | SPDX License Expressions} for the SPDX expression grammar
+ * @see {@link https://effect.website | Effect} for the Effect framework
  */
-export const VERSION = "0.0.0" as const;
+
+export { InvalidSpdxExpressionError, License } from "./License.ts";
+export { LicenseException } from "./LicenseException.ts";
+export {
+  AndNode,
+  isValidExpression,
+  LicenseNode,
+  LicenseRefNode,
+  OrNode,
+  SpdxExpression,
+  WithExceptionNode,
+} from "./SpdxExpression.ts";

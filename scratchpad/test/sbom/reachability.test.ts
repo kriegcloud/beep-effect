@@ -112,7 +112,7 @@ describe("bundle reachability", () => {
 			"// Prose naming a scope like @sigstore/* and a glob like src/* here.",
 			'import { Schema } from "effect";',
 			"/** A real doc comment, whose close is the phantom comment's close. */",
-			'import { License } from "../../effected/spdx/index.ts";',
+			'import { License } from "@beep/spdx";',
 			"export const x = [Schema, License];",
 			"export class ReadError {",
 			'  message = `Failed to read package.json from "${this.path}"`;',

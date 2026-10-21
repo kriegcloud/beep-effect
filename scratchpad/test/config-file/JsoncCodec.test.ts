@@ -3,7 +3,7 @@ import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import {
 	JsoncParseError,
 	JsoncStringifyError,
-} from "../../effected/jsonc/index.ts";
+} from "@beep/jsonc";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

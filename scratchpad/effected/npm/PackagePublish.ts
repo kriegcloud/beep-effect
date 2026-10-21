@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { type CommandOutput, LocalExec, Run } from "../commands/index.ts";
+import { type CommandOutput, LocalExec, Run } from "@beep/commands";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as Context from "effect/Context";

@@ -22,7 +22,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 import { CatalogAssemblyError } from "../../effected/npm/index.ts";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";

@@ -1,22 +1,49 @@
 /**
- * @beep/semver
+ * Strict SemVer 2.0.0 versions, ranges and comparators as Effect schemas.
  *
- * @packageDocumentation
- * @since 0.0.0
- */
-
-/**
- * Version of the @beep/semver package.
+ * **Details**
  *
- * **Example** (Read the package version)
+ * Domain classes carry their own behavior — instance methods are the
+ * canonical API, cross-cutting operations are dual statics on the owning
+ * class, and each class doubles as its schema (`SemVer.FromString`,
+ * `Range.FromString`, `Comparator.FromString` transform to and from the
+ * canonical strings).
+ *
+ * **Example** (Bump a version and test range membership)
  *
  * ```ts
- * import { VERSION } from "@beep/semver"
+ * import { Range, SemVer } from "@beep/semver";
+ * import * as Effect from "effect/Effect";
  *
- * console.log(VERSION) // "0.0.0"
+ * const program = Effect.gen(function* () {
+ *   const version = yield* SemVer.parse("1.2.3");
+ *   const next = version.bump.minor();
+ *   const range = yield* Range.parse("^1.0.0");
+ *   return [next.toString(), range.test(version), version.gt(next)];
+ * });
+ *
+ * console.log(Effect.runSync(program));
+ * // => ["1.3.0", true, false]
  * ```
  *
- * @category configuration
- * @since 0.0.0
+ * @packageDocumentation
+ * @see {@link https://semver.org | SemVer 2.0.0 Specification} for the version grammar
+ * @see {@link https://effect.website | Effect} for the Effect framework
  */
-export const VERSION = "0.0.0" as const;
+
+export { Comparator, InvalidComparatorError } from "./Comparator.ts";
+export {
+  type ComparatorSet,
+  InvalidRangeError,
+  Range,
+  UnsatisfiableConstraintError,
+} from "./Range.ts";
+export { InvalidVersionError, SemVer, SemVerBump } from "./SemVer.ts";
+export {
+  EmptyCacheError,
+  UnsatisfiedRangeError,
+  VersionCache,
+  type VersionCacheShape,
+  VersionNotFoundError,
+} from "./VersionCache.ts";
+export { VersionDiff } from "./VersionDiff.ts";
