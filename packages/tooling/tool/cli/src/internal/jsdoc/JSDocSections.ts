@@ -98,6 +98,16 @@ const jsdocCommentEnd = (sourceText: string, start: number): number => {
   return sourceText.length;
 };
 
+// Index of the first character on the line holding `index`, found by walking back to the previous
+// line break (the same result as a positional `lastIndexOf("\n", index - 1) + 1`).
+const lineStartBefore = (sourceText: string, index: number): number => {
+  let lineStart = index;
+  while (lineStart > 0 && sourceText[lineStart - 1] !== "\n") {
+    lineStart -= 1;
+  }
+  return lineStart;
+};
+
 /**
  * Extracts complete line-leading JSDoc blocks while ignoring delimiters inside fenced examples.
  *
@@ -123,10 +133,7 @@ export const jsdocCommentsFromSource = (sourceText: string): ReadonlyArray<strin
       break;
     }
     const start = openerMatch.index;
-    let lineStart = start;
-    while (lineStart > 0 && sourceText[lineStart - 1] !== "\n") {
-      lineStart -= 1;
-    }
+    const lineStart = lineStartBefore(sourceText, start);
     const linePrefix = Str.slice(lineStart, start)(sourceText);
     const afterOpener = sourceText[start + 3];
     const lineLeading = /^[ \t]*$/.test(linePrefix);

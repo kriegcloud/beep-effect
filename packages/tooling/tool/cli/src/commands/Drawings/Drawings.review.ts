@@ -29,7 +29,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import { isWithinRoot } from "../../internal/PathContainment.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import {
   annotationNotes,
@@ -168,10 +168,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   const path = yield* Path.Path;
   const tools = yield* PdfTools;
 
-  const isWithin = (root: string, file: string): boolean => {
-    const relative = path.relative(root, file);
-    return relative.length > 0 && !Str.startsWith("..")(relative) && !path.isAbsolute(relative);
-  };
+  const isWithin = (root: string, file: string): boolean => isWithinRoot(path, root, file);
 
   const decodeJson =
     <A, I>(schema: S.ConstraintCodec<A, I>, file: string, what: string) =>
