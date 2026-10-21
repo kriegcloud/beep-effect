@@ -37,6 +37,7 @@ describe("requirementsFor", () => {
       "box-drive-installed",
       "box-drive-signed-in",
       "box-drive-folder-available",
+      "m365-app-configured",
       "m365-consented",
       "m365-token-cached",
       "practice-kg-bundle-present",
@@ -79,6 +80,7 @@ describe("requirementsFor", () => {
     expect(ids(requirements)).toEqual([
       "claude-desktop-installed",
       "claude-signed-in",
+      "m365-app-configured",
       "m365-consented",
       "m365-token-cached",
       "bitlocker-on",

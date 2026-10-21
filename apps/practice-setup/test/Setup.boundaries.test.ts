@@ -109,12 +109,34 @@ it.layer(platform, { concurrent: false, timeout: "5 seconds" })(
       );
     }
     exercise(
+      "hands the bundle to the per-user claude.exe through environment variables",
+      { executable: true },
+      Effect.fnUntraced(function* (host, calls) {
+        const file = "/fixture/it's a bundle; $(not a command).mcpb";
+        yield* host.openInClaude(file);
+        expect(A.map(calls, (call) => call.command)).toEqual(["powershell.exe"]);
+        expect(calls[0]?.options.env).toMatchObject({
+          BEEP_SETUP_CLAUDE: "/local/AnthropicClaude/claude.exe",
+          BEEP_SETUP_TEXT: file,
+        });
+        expect(calls[0]?.args).not.toContain(file);
+      })
+    );
+    exercise(
+      "reports a failed Claude launch in plain language",
+      { executable: true, shellExit: 1 },
+      Effect.fnUntraced(function* (host) {
+        expect((yield* host.openInClaude("/fixture/bundle.mcpb").pipe(Effect.result))._tag).toBe("Failure");
+      })
+    );
+    exercise(
       "passes installer arguments and shell text without parsing user text as PowerShell",
       { shellExit: 1 },
       Effect.fnUntraced(function* (host, calls) {
         expect(yield* host.runInstaller("/fixture/setup.exe", ["/S"])).toBe(1);
-        // Explorer's nonzero exit is allowed because it can already have opened the file.
-        yield* host.open("/fixture/bundle.mcpb");
+        // Without the per-user executable the file goes to Explorer, whose nonzero
+        // exit is allowed because it can already have opened the file.
+        yield* host.openInClaude("/fixture/bundle.mcpb");
         const text = "text with 'quotes'; $(not a command)";
         expect((yield* host.openLink(text).pipe(Effect.result))._tag).toBe("Failure");
         expect((yield* host.copyToClipboard(text).pipe(Effect.result))._tag).toBe("Failure");

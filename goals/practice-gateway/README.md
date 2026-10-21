@@ -34,11 +34,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — schemas first. P0 findings: [history/p0](history/p0/2026-10-14-research.md).
+P1 Implement: slice 1 merged in #1771. The onboarding proof (run 4, 2026-10-20) passed the update, interview and profile save. Its four findings are fixed in the follow-up PR, and the next proof re-runs from the `claude-signed-in` snapshot. P0 findings: [history/p0](history/p0/2026-10-14-research.md).
 
 ## Latest Evidence
 
-P0 inventory and decisions recorded 2026-10-14.
+[Onboarding proof run 4](history/p1/2026-10-20-onboarding-proof-run4.md) (2026-10-20): gateway 0.1.0 → 0.1.1 update, interview and profile save pass, with a FreshBooks gap recorded. Four findings: no `.mcpb` file type, no approval prompt in Claude Desktop, a false signed-in negative, and Microsoft 365 offered without an app ID.
 
 ## Notes
 

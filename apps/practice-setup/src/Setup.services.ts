@@ -72,8 +72,8 @@ interface SetupHostShape {
   readonly claudeInstall: Effect.Effect<ClaudeInstall, SetupFailure>;
   /** Put text on the Windows clipboard. */
   readonly copyToClipboard: (text: string) => Effect.Effect<void, SetupFailure>;
-  /** Hand a file to Windows, as a double-click would. */
-  readonly open: (target: string) => Effect.Effect<void, SetupFailure>;
+  /** Hand an extension file to Claude Desktop: its own executable when installed per user, else Windows. */
+  readonly openInClaude: (file: string) => Effect.Effect<void, SetupFailure>;
   /** Hand a `claude://` link to Windows, as `start "" "<link>"` would. */
   readonly openLink: (link: string) => Effect.Effect<void, SetupFailure>;
   /** Run an installer and wait for it; succeeds with its exit code. */
@@ -95,9 +95,13 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
  *
  * The live layer reads `LOCALAPPDATA` through `Config`, checks files through
  * `FileSystem`, and shells out to `reg.exe`, `powershell.exe` and
- * `explorer.exe` through `ChildProcessSpawner`. `open` uses `explorer.exe`, the
- * shell's own double-click path, so a `.mcpb` reaches whatever Windows has
- * registered for it. `openLink` and `copyToClipboard` use PowerShell's
+ * `explorer.exe` through `ChildProcessSpawner`. `openInClaude` starts the
+ * per-user `claude.exe` with the file as its argument, which Claude Desktop
+ * installs as an extension; Claude registers no `.mcpb` file type with
+ * Windows (proof run 2026-10-20), so a double-click would only ask the lawyer
+ * to pick an app. Without the per-user executable (an MSIX install) it falls
+ * back to `explorer.exe`, the shell's double-click path. `openLink` and
+ * `copyToClipboard` use PowerShell's
  * `Start-Process` (ShellExecute, the documented `start` route) and
  * `Set-Clipboard`, passing the text through an environment variable so it is
  * never parsed as PowerShell.
@@ -112,7 +116,7 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
  * const fake = Layer.succeed(SetupHost, {
  *   claudeInstall: Effect.succeed("per-user"),
  *   runInstaller: () => Effect.succeed(0),
- *   open: () => Effect.void,
+ *   openInClaude: () => Effect.void,
  *   openLink: () => Effect.void,
  *   copyToClipboard: () => Effect.void,
  *   stateDir: Effect.succeed("/tmp/practice-setup"),
@@ -209,9 +213,30 @@ export class SetupHost extends Context.Service<SetupHost, SetupHostShape>()($I`S
         runInstaller: Effect.fn("SetupHost.runInstaller")(function* (installer, args) {
           return (yield* run(installer, args)).exitCode;
         }),
-        // explorer.exe exits 1 even when it opened the target, so the code is ignored.
-        open: Effect.fn("SetupHost.open")(function* (target) {
-          yield* run("explorer.exe", [target]);
+        openInClaude: Effect.fn("SetupHost.openInClaude")(function* (file) {
+          const claude = path.join(yield* localAppData, "AnthropicClaude", "claude.exe");
+          const direct = yield* fs
+            .exists(claude)
+            .pipe(Effect.mapError(failWith("Claude's folder could not be checked.")));
+          if (!direct) {
+            // explorer.exe exits 1 even when it opened the target, so the code is ignored.
+            yield* run("explorer.exe", [file]);
+            return;
+          }
+          // Both paths travel as environment variables, so neither is parsed as PowerShell.
+          const { exitCode } = yield* run(
+            "powershell.exe",
+            [
+              "-NoProfile",
+              "-NonInteractive",
+              "-Command",
+              "Start-Process -FilePath $env:BEEP_SETUP_CLAUDE -ArgumentList ('\"' + $env:BEEP_SETUP_TEXT + '\"')",
+            ],
+            { BEEP_SETUP_CLAUDE: claude, BEEP_SETUP_TEXT: file }
+          );
+          if (exitCode !== 0) {
+            return yield* SetupFailure.make({ message: "Claude could not be opened with the practice gateway." });
+          }
         }),
         openLink: Effect.fn("SetupHost.openLink")(function* (link) {
           yield* powershellWith("Start-Process -FilePath $env:BEEP_SETUP_TEXT", link, "Claude could not be opened.");
