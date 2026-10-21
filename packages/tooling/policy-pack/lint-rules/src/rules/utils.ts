@@ -6,6 +6,7 @@
  * @since 0.1.0
  */
 
+import { $LintRulesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -13,6 +14,8 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { ESTree } from "@oxlint/plugins";
+
+const $I = $LintRulesId.create("rules/utils");
 
 /**
  * Node families the rule visitors hand to these helpers: expressions, call
@@ -278,21 +281,21 @@ class NamedImportBinding extends S.Opaque<NamedImportBinding, { readonly brand: 
     kind: S.tag("named"),
     imported: S.String,
     local: S.String,
-  }).annotate({ identifier: "NamedImportBinding" })
+  }).pipe($I.annoteSchema("NamedImportBinding"))
 ) {}
 
 class NamespaceImportBinding extends S.Opaque<NamespaceImportBinding, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("namespace"),
     local: S.String,
-  }).annotate({ identifier: "NamespaceImportBinding" })
+  }).pipe($I.annoteSchema("NamespaceImportBinding"))
 ) {}
 
 class DefaultImportBinding extends S.Opaque<DefaultImportBinding, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("default"),
     local: S.String,
-  }).annotate({ identifier: "DefaultImportBinding" })
+  }).pipe($I.annoteSchema("DefaultImportBinding"))
 ) {}
 
 /**
@@ -319,9 +322,7 @@ class DefaultImportBinding extends S.Opaque<DefaultImportBinding, { readonly bra
  * @since 0.0.0
  */
 export const ImportBinding = S.Union([NamedImportBinding, NamespaceImportBinding, DefaultImportBinding]).pipe(
-  S.annotate({
-    identifier: "@beep/lint-rules/rules/utils/ImportBinding",
-    title: "ImportBinding",
+  $I.annoteSchema("ImportBinding", {
     description: "Value (non-type) import specifier classified by how it binds a local name.",
   }),
   S.toTaggedUnion("kind")

@@ -6,8 +6,11 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("internal/schema/OpaqueDefect");
 
 /**
  * A thrown cause carried with its stack but excluded from identity.
@@ -23,9 +26,9 @@ import * as S from "effect/Schema";
  * @category schemas
  * @since 0.0.0
  */
-export const OpaqueDefect = S.Defect({ includeStack: true })
-  .pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
-  .annotate({
-    identifier: "OpaqueDefect",
+export const OpaqueDefect = S.Defect({ includeStack: true }).pipe(
+  S.overrideToEquivalence(SchemaUtils.alwaysEquivalent),
+  $I.annoteSchema("OpaqueDefect", {
     description: "A thrown cause carried with its stack but excluded from identity.",
-  });
+  })
+);
