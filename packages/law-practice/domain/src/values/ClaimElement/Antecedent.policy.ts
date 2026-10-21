@@ -16,6 +16,7 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as MutableRef from "effect/MutableRef";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -111,6 +112,7 @@ const rule = {
   treeWithoutClaim: AntecedentRuleId.make("tree-without-claim"),
   chainThroughUndecomposed: AntecedentRuleId.make("chain-through-undecomposed"),
   chainUnresolvable: AntecedentRuleId.make("chain-unresolvable"),
+  chainWorkLimit: AntecedentRuleId.make("chain-work-limit"),
 };
 
 /** One term of one tree, with the claim it belongs to and its reference. */
@@ -162,28 +164,63 @@ const rankedOrder = Order.combineAll([
   Order.mapInput(A.makeOrder(Num.Order), ({ chain }: Ranked) => chain),
 ]);
 
-// Rule `chain-unresolvable`: a reference to a missing or non-earlier claim ends the chain unresolved.
+// The budget is shared by the entire policy invocation. Exhaustion abstains
+// explicitly rather than accepting a partially enumerated dependency graph.
+const MAX_CHAIN_WORK = 8_192;
+const MAX_CHAIN_DEPTH = 128;
+
+// Charge before allocating copied paths or scanning terms, not only on visits.
+// A failed reservation consumes the remainder, so later trees cannot reset it.
+const spendChainWork = (remaining: MutableRef.MutableRef<number>, amount: number): boolean => {
+  const available = MutableRef.get(remaining);
+  MutableRef.set(remaining, amount <= available ? available - amount : 0);
+  return amount <= available;
+};
+
+// Missing/non-earlier parents remain semantic findings; resource limits are
+// separate and discard the incomplete enumeration for the affected claim.
 const chainsOf =
-  (claimIndex: HashMap.HashMap<number, PatentClaim>) =>
-  (claim: PatentClaim): ReadonlyArray<Chain> =>
-    PatentClaim.match(claim, {
-      independent: ({ claimNumber }): ReadonlyArray<Chain> => [{ claims: [claimNumber], resolvable: true }],
-      dependent: ({ claimNumber, claimReferences }) =>
-        A.flatMap(claimReferences, (parent) =>
-          pipe(
-            HashMap.get(claimIndex, parent),
-            O.filter(() => parent < claimNumber),
-            O.match({
-              onNone: (): ReadonlyArray<Chain> => [{ claims: [claimNumber, parent], resolvable: false }],
-              onSome: (ancestor) =>
-                A.map(chainsOf(claimIndex)(ancestor), (chain) => ({
-                  ...chain,
-                  claims: A.prepend(chain.claims, claimNumber),
-                })),
-            })
-          )
-        ),
+  (claimIndex: HashMap.HashMap<number, PatentClaim>, remaining: MutableRef.MutableRef<number>) =>
+  (claim: PatentClaim, depth = 0): O.Option<ReadonlyArray<Chain>> => {
+    if (depth >= MAX_CHAIN_DEPTH || !spendChainWork(remaining, 1)) return O.none();
+    return PatentClaim.match(claim, {
+      independent: ({ claimNumber }) => O.some<ReadonlyArray<Chain>>([{ claims: [claimNumber], resolvable: true }]),
+      dependent: ({ claimNumber, claimReferences }) => {
+        let chains: ReadonlyArray<Chain> = [];
+        const appendParent = (parent: number): boolean => {
+          const ancestor = O.filter(HashMap.get(claimIndex, parent), () => parent < claimNumber);
+          if (O.isNone(ancestor)) {
+            if (!spendChainWork(remaining, chains.length + 2)) return false;
+            chains = A.append(chains, { claims: [claimNumber, parent], resolvable: false });
+            return true;
+          }
+          const parents = chainsOf(claimIndex, remaining)(ancestor.value, depth + 1);
+          if (O.isNone(parents)) return false;
+          const copyWork = A.reduce(
+            parents.value,
+            chains.length + parents.value.length,
+            (total, chain) => total + chain.claims.length + 1
+          );
+          if (!spendChainWork(remaining, copyWork)) return false;
+          chains = A.appendAll(
+            chains,
+            A.map(
+              parents.value,
+              (chain): Chain => ({
+                ...chain,
+                claims: A.prepend(chain.claims, claimNumber),
+              })
+            )
+          );
+          return true;
+        };
+        for (const parent of claimReferences) {
+          if (!appendParent(parent)) return O.none();
+        }
+        return O.some(chains);
+      },
     });
+  };
 
 // Number normalization on the last word: ies -> y, (s|x|ch|sh)es -> drop es, final s -> drop.
 const singularRules: ReadonlyArray<readonly [RegExp, string]> = [
@@ -381,7 +418,10 @@ const verdictFor = (
  * the set, a chain that reaches an absent or non-earlier claim, and a chain
  * through a claim with no tree when the term does not resolve inside the
  * decomposed part. Findings are sorted by claim number, referring span start,
- * then chain; identical findings are reported once.
+ * then chain; identical findings are reported once. Dependency traversal is
+ * bounded across the invocation, including copied paths and term evaluation;
+ * exhausted work or depth discards that term's incomplete results and yields
+ * an explicit `pattern-not-covered` finding with rule `chain-work-limit`.
  *
  * **Example** (Report a definite term without an introduction)
  *
@@ -418,8 +458,10 @@ export const antecedentPolicy: {
   );
   const decomposed = HashSet.fromIterable(A.map(trees, ({ claimNumber }) => claimNumber));
   const terms = A.sort(A.flatMap(trees, locatedTerms), locatedOrder);
+  const remaining = MutableRef.make(MAX_CHAIN_WORK);
   const ranked = A.flatMap(trees, (tree): ReadonlyArray<Ranked> => {
     const referringTerms = A.filter(locatedTerms(tree), (term) => isReferring(term) && !isIdiom(term));
+    if (referringTerms.length === 0) return [];
     const rank = (referring: LocatedTerm, chain: ReadonlyArray<number>, finding: AntecedentFinding): Ranked => ({
       claimNumber: tree.claimNumber,
       start: referring.term.anchor.startChar,
@@ -432,16 +474,25 @@ export const antecedentPolicy: {
         onNone: () =>
           A.map(referringTerms, (referring) => rank(referring, [], uncovered(referring, rule.treeWithoutClaim))),
         onSome: (claim) => {
-          const chains = A.sort(chainsOf(claimIndex)(claim), chainOrder);
-          return A.flatMap(referringTerms, (referring) =>
-            A.getSomes(
-              A.map(chains, (chain) =>
-                O.map(verdictFor(terms, decomposed, referring, chain), (finding) =>
-                  rank(referring, chain.claims, finding)
-                )
-              )
-            )
-          );
+          const enumerated = chainsOf(claimIndex, remaining)(claim);
+          if (O.isNone(enumerated))
+            return A.map(referringTerms, (referring) => rank(referring, [], uncovered(referring, rule.chainWorkLimit)));
+          const chains = A.sort(enumerated.value, chainOrder);
+          return A.flatMap(referringTerms, (referring) => {
+            let findings: ReadonlyArray<Ranked> = [];
+            for (const chain of chains) {
+              // Each verdict filters all terms and tests membership in this path.
+              if (!spendChainWork(remaining, (terms.length + 1) * (chain.claims.length + 1)))
+                return [rank(referring, [], uncovered(referring, rule.chainWorkLimit))];
+              const finding = verdictFor(terms, decomposed, referring, chain);
+              if (O.isSome(finding)) {
+                if (!spendChainWork(remaining, findings.length + 1))
+                  return [rank(referring, [], uncovered(referring, rule.chainWorkLimit))];
+                findings = A.append(findings, rank(referring, chain.claims, finding.value));
+              }
+            }
+            return findings;
+          });
         },
       })
     );

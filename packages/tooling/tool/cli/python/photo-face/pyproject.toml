@@ -13,15 +13,17 @@ dependencies = [
 [project.optional-dependencies]
 adaface = [
   "safetensors==0.8.0",
-  "torch @ https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/torch-2.9.1%2Brocm7.2.0.lw.git7e1940d4-cp312-cp312-linux_x86_64.whl",
-  "triton @ https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/triton-3.5.1%2Brocm7.2.0.gita272dfa8-cp312-cp312-linux_x86_64.whl",
+  "torch @ https://download.pytorch.org/whl/rocm7.2/torch-2.13.0%2Brocm7.2-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "triton-rocm @ https://download.pytorch.org/whl/triton_rocm-3.7.1-cp312-cp312-linux_x86_64.whl",
 ]
 adaface-cpu = [
   "safetensors==0.8.0",
-  "torch @ https://download.pytorch.org/whl/cpu/torch-2.9.1%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "torch @ https://download.pytorch.org/whl/cpu/torch-2.13.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl",
 ]
 
 [tool.uv]
+# Security floor for requests' transitive HTTP transport; preserve a reproducible pin.
+constraint-dependencies = ["urllib3==2.8.0"]
 conflicts = [
   [
     { extra = "adaface" },
@@ -32,7 +34,7 @@ conflicts = [
 [dependency-groups]
 dev = [
   "hatchling==1.27.0",
-  "pytest==8.4.2",
+  "pytest==9.0.3",
   "ruff==0.12.12",
 ]
 

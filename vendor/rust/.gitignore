@@ -1,0 +1,3 @@
+# Standalone backport tests create local build state, never vendored source.
+/glib-0.18.5/target/
+/glib-0.18.5/Cargo.lock

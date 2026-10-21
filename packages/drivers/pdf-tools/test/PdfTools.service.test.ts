@@ -853,6 +853,58 @@ describe("@beep/pdf-tools service", () => {
       );
 
       it.effect(
+        "rejects repeated container markers in ordinary stream data before overlapping discovery",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          for (const marker of ["/ObjStm", "/XRef"]) {
+            const file = path.join(dir, marker === "/XRef" ? "xref-budget.pdf" : "object-budget.pdf");
+            const data = encoder.encode(A.join(A.replicate(`% 1 0 obj ${marker}`, 16_000), "\n"));
+            yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+            const error = yield* Effect.flip(tools.inspect(file));
+            expect(error.reason).toBe("parse");
+            expect(error.message).toBe("PDF container discovery exceeds inspection limits.");
+          }
+          const control = path.join(dir, "harmless-comments.pdf");
+          const data = encoder.encode(A.join(A.replicate("% 1 0 obj /Nope", 16_000), "\n"));
+          yield* fs.writeFile(control, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+          expect((yield* tools.inspect(control)).streamCheck).toBe("complete");
+        })
+      );
+
+      it.effect(
+        "shares the discovery budget across marker families and accepts its exact boundary",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          for (const objectMarkers of [64, 65]) {
+            const data = encoder.encode(
+              A.join(
+                A.appendAll(A.replicate("% 1 0 obj /ObjStm", objectMarkers), A.replicate("% 1 0 obj /XRef", 64)),
+                "\n"
+              )
+            );
+            const file = path.join(dir, `mixed-${objectMarkers}.pdf`);
+            yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+            if (objectMarkers === 64) {
+              const structure = yield* tools.inspect(file);
+              expect(structure.streamCheck).toBe("complete");
+              expect(structure.undecodableStreams).toEqual([]);
+              expect(A.length(structure.pages)).toBe(1);
+            } else {
+              const error = yield* Effect.flip(tools.inspect(file));
+              expect(error.reason).toBe("parse");
+              expect(error.message).toBe("PDF container discovery exceeds inspection limits.");
+            }
+          }
+        })
+      );
+
+      it.effect(
         "checks object and cross-reference streams, which pdf-lib decodes without adding them to the document",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;

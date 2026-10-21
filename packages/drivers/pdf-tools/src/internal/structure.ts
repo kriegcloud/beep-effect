@@ -181,14 +181,21 @@ const containerMarkers = ["/ObjStm", "/XRef"];
 const objectHeader = /(?<!\d)(\d+)\s+(\d+)\s+obj\b/g;
 // How far before its `/Type` an object stream's `N G obj` header may sit.
 const HEADER_WINDOW = 64 * 1024;
+// Charge candidates before decoding overlapping windows or parsing objects.
+// The two marker families share this budget, including markers in stream data.
+const MAX_CONTAINER_CANDIDATES = 128;
 
 // Offsets of every `/ObjStm` and `/XRef` name in the file (`/XRefStm` too,
 // which the stream type check below discards).
 const markerOffsets = (bytes: Uint8Array): ReadonlyArray<number> => {
   const buffer = NodeBuffer.Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let candidates = 0;
   return A.flatMap(containerMarkers, (marker) => {
     const offsets: Array<number> = [];
     for (let at = buffer.indexOf(marker); at >= 0; at = buffer.indexOf(marker, at + 1)) {
+      if (++candidates > MAX_CONTAINER_CANDIDATES) {
+        throw PdfToolsError.make({ reason: "parse", message: "PDF container discovery exceeds inspection limits." });
+      }
       offsets.push(at);
     }
     return offsets;
@@ -198,13 +205,16 @@ const markerOffsets = (bytes: Uint8Array): ReadonlyArray<number> => {
 // The ref and body offset of the last `N G obj` header before `at`.
 const headerBefore = (bytes: Uint8Array, at: number): O.Option<readonly [PDFRef, number]> => {
   const from = Math.max(0, at - HEADER_WINDOW);
-  return pipe(
-    A.fromIterable(latin1.decode(bytes.subarray(from, at)).matchAll(objectHeader)),
-    A.last,
-    O.map(
-      (header) => [PDFRef.of(Number(header[1]), Number(header[2])), from + header.index + header[0].length] as const
-    )
-  );
+  // Keep only the last match: dense fake headers must not allocate an array
+  // of every match in each overlapping window.
+  let last: O.Option<RegExpExecArray> = O.none();
+  for (const header of latin1.decode(bytes.subarray(from, at)).matchAll(objectHeader)) {
+    last = O.some(header);
+  }
+  return O.map(last, (header): readonly [PDFRef, number] => [
+    PDFRef.of(Number(header[1]), Number(header[2])),
+    from + header.index + header[0].length,
+  ]);
 };
 
 // pdf-lib decodes object streams and cross-reference streams itself, with a
