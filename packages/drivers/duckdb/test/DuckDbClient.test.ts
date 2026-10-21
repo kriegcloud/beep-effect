@@ -554,21 +554,38 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
-      "invalidates cached statements after USE",
+      "re-resolves cached bound statements after USE and SET schema",
       Effect.fnUntraced(function* () {
         const client = yield* DuckDbClient.DuckDbClient;
         const sql = client;
         yield* client.attach(":memory:", "use_aux");
-        yield* sql`CREATE TABLE use_aux.use_t (src VARCHAR)`;
-        yield* sql`INSERT INTO use_aux.use_t VALUES ('aux')`;
+        yield* sql`CREATE TABLE use_aux.use_t (src INTEGER)`;
+        yield* sql`INSERT INTO use_aux.use_t VALUES (42)`;
         yield* sql`CREATE TABLE memory.main.use_t (src VARCHAR)`;
         yield* sql`INSERT INTO memory.main.use_t VALUES ('main')`;
-        const select = sql`SELECT src FROM use_t`;
-        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        yield* sql`CREATE SCHEMA memory.use_s2`;
+        yield* sql`CREATE TABLE memory.use_s2.use_t (src INTEGER, extra INTEGER)`;
+        yield* sql`INSERT INTO memory.use_s2.use_t VALUES (2, 3)`;
+        // A bind keeps the statement on the prepared cache path (D44); each
+        // context switch changes the resolved table and its result shape.
+        // DuckDB 1.5.6 re-binds bound statements per execution, so this pins
+        // the contract with or without the cache clear (D38).
+        const select = sql`SELECT * FROM use_t WHERE ${1} = 1`;
+        const main = [{ src: "main" }];
+        assert.deepStrictEqual(yield* select, main);
+        assert.deepStrictEqual(yield* select, main);
         yield* sql`USE use_aux`;
-        assert.deepStrictEqual(yield* select, [{ src: "aux" }]);
+        assert.deepStrictEqual(yield* select, [{ src: 42 }]);
         yield* sql`USE memory`;
-        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        assert.deepStrictEqual(yield* select, main);
+        yield* sql`SET schema = 'use_s2'`;
+        assert.deepStrictEqual(yield* select, [{ src: 2, extra: 3 }]);
+        yield* sql`RESET schema`;
+        assert.deepStrictEqual(yield* select, main);
+        yield* sql`SET search_path = 'use_s2'`;
+        assert.deepStrictEqual(yield* select, [{ src: 2, extra: 3 }]);
+        yield* sql`RESET search_path`;
+        assert.deepStrictEqual(yield* select, main);
         yield* client.detach("use_aux");
       })
     );

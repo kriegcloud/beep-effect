@@ -270,8 +270,11 @@ query the caller runs on that connection outside the client.
   prepared statement once, using the table statistics of that moment, so a
   cached constant-filter query prepared on an empty table kept returning no
   rows after later inserts.
-- `USE` and `SET`/`RESET schema` or `search_path` clear the connection's cache,
-  because a cached statement keeps the catalog binding it was planned with.
+- `USE` and `SET`/`RESET schema` or `search_path` clear the connection's cache.
+  On DuckDB 1.5.6 this is defensive: a statement with bind values is re-bound
+  on every execution and resolves names against the current catalog and schema,
+  even when the result columns change (probed). The statement that keeps its
+  first catalog binding is a parameterless prepared one, which is not cached.
 - SQL with several statements and no bind values runs all of them and returns
   the rows of the first statement (native `duckdb_query` behaviour), except
   `executeStream` outside a transaction, which streams the rows of the last
