@@ -15,6 +15,7 @@ import {
   verifyTextAnchorAgainstVerifiedSource,
 } from "@beep/provenance/VerifiedTextAnchor";
 import * as A from "@beep/utils/Array";
+import { lazy } from "@beep/utils/Function";
 import * as O from "@beep/utils/Option";
 import * as Str from "@beep/utils/Str";
 import * as Bool from "effect/Boolean";
@@ -23,7 +24,6 @@ import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
 import { dual, pipe } from "effect/Function";
 import * as I from "effect/Iterable";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import {
   MAX_LOCATOR_LENGTH,
@@ -57,55 +57,41 @@ import type {
 import type { NormalizedTextWithRawOffsets } from "./VerifiedSpan.normalization.ts";
 
 const sourceTextIdentityEquivalence = S.toEquivalence(SourceTextIdentity);
-type MatchScanState = readonly [matchedLength: number, start: O.Option<number>];
 type ReconstructionState = readonly [expectedStart: number, parts: Chunk.Chunk<string>];
 
-const matchScanInitial = (): MatchScanState => [0, O.none()];
 const reconstructionInitial = (): ReconstructionState => [S.Natural.make(0), Chunk.empty()];
-const missingAnchor = () => "missing-anchor";
-const missingMatch = () => "missing-match";
 
-const fallbackLengths = (prefixTable: ReadonlyArray<number>, matchedLength: number): Iterable<number> =>
-  I.unfold(
-    O.some(matchedLength),
-    O.map((length): readonly [number, O.Option<number>] => [
-      length,
-      pipe(
-        length > 0,
-        Bool.match({
-          onFalse: O.none<number>,
-          onTrue: () => A.get(prefixTable, length - 1),
-        })
-      ),
-    ])
-  );
+// Performance boundary (KMP scan): the scan below touches every UTF-16 code
+// unit of a source up to 1,000,000 long, so it reads arrays and strings with
+// native indexing. Module-namespace helper calls cost a property lookup per
+// call (a getter call under Vite's module runner), which dominated hosted CI.
 
 const nextMatchedLength = (
-  locator: string,
+  locatorCodes: ReadonlyArray<number>,
   prefixTable: ReadonlyArray<number>,
   matchedLength: number,
   codeUnit: number
 ): number =>
-  pipe(
-    fallbackLengths(prefixTable, matchedLength),
-    I.findFirst((candidate) => O.exists(Str.charCodeAt(locator, candidate), Eq.equals(codeUnit))),
-    O.map((candidate) => candidate + 1),
-    O.getOrElse(() => 0)
-  );
+  // KMP fallback walks the prefix chain by direct recursion, so a scanned code
+  // unit allocates nothing. `matchedLength` is always below the locator
+  // length, keeping both reads in bounds.
+  locatorCodes[matchedLength] === codeUnit
+    ? matchedLength + 1
+    : matchedLength === 0
+      ? 0
+      : nextMatchedLength(locatorCodes, prefixTable, A.getUnsafe(prefixTable, matchedLength - 1), codeUnit);
 
-const prefixTable = (locator: string): ReadonlyArray<number> => {
-  // Performance boundary: this is the single KMP-table allocation. In-place append
-  // is linear; the table is immutable as soon as construction returns.
+const codeUnits = (text: string): ReadonlyArray<number> =>
+  A.makeBy(Str.length(text), (index) => text.charCodeAt(index));
+
+const prefixTable = (locatorCodes: ReadonlyArray<number>): ReadonlyArray<number> => {
+  // The single KMP-table allocation; it is immutable once construction returns.
   const table = A.make(0);
   pipe(
     I.range(1),
-    I.take(Str.length(locator) - 1),
+    I.take(A.length(locatorCodes) - 1),
     I.reduce(0, (matchedLength, index) => {
-      const nextLength = pipe(
-        Str.charCodeAt(locator, index),
-        O.map((codeUnit) => nextMatchedLength(locator, table, matchedLength, codeUnit)),
-        O.getOrElse(() => 0)
-      );
+      const nextLength = nextMatchedLength(locatorCodes, table, matchedLength, A.getUnsafe(locatorCodes, index));
       A.appendInPlace(table, nextLength);
       return nextLength;
     })
@@ -113,32 +99,44 @@ const prefixTable = (locator: string): ReadonlyArray<number> => {
   return table;
 };
 
-const matchStarts = (text: string, locator: string): Iterable<number> => {
-  const locatorLength = Str.length(locator);
-  const table = prefixTable(locator);
+// A located match is unique only when no second occurrence exists, so every
+// scan stops at the second accepted occurrence.
+const MATCH_LIMIT = 2;
+
+/**
+ * Scan `text` for `locator` and keep the first {@link MATCH_LIMIT} matches
+ * whose start passes the cheap `admits` predicate and then yields an anchor.
+ *
+ * Matches are visited in source order and the scan returns as soon as the
+ * limit is reached, so repetitive sources never enumerate remaining matches.
+ */
+const firstAcceptedMatches = <A>(
+  text: string,
+  locator: string,
+  admits: (start: number) => boolean,
+  anchor: (start: number) => O.Option<A>
+): ReadonlyArray<A> => {
+  const locatorCodes = codeUnits(locator);
+  const locatorLength = A.length(locatorCodes);
+  const table = prefixTable(locatorCodes);
   const retainedLength = pipe(
     A.get(table, locatorLength - 1),
     O.getOrElse(() => 0)
   );
-  return pipe(
-    I.range(0),
-    I.take(Str.length(text)),
-    I.scan(matchScanInitial(), ([matchedLength], index): MatchScanState => {
-      const nextLength = pipe(
-        Str.charCodeAt(text, index),
-        O.map((codeUnit) => nextMatchedLength(locator, table, matchedLength, codeUnit)),
-        O.getOrElse(() => 0)
-      );
-      return pipe(
-        Eq.equals(nextLength, locatorLength),
-        Bool.match({
-          onFalse: () => [nextLength, O.none()],
-          onTrue: () => [retainedLength, O.some(index - locatorLength + 1)],
-        })
-      );
-    }),
-    I.filterMap(([, start]) => Result.fromOption(start, missingMatch))
-  );
+  const accepted = A.empty<A>();
+  const textLength = Str.length(text);
+  let matchedLength = 0;
+  for (let index = 0; index < textLength && accepted.length < MATCH_LIMIT; index++) {
+    matchedLength = nextMatchedLength(locatorCodes, table, matchedLength, text.charCodeAt(index));
+    if (matchedLength === locatorLength) {
+      matchedLength = retainedLength;
+      const start = index - locatorLength + 1;
+      if (admits(start)) {
+        O.map(anchor(start), (match) => A.appendInPlace(accepted, match));
+      }
+    }
+  }
+  return accepted;
 };
 
 const rawAnchor = (sourceText: string, startChar: number, endChar: number): O.Option<TextAnchor> =>
@@ -157,47 +155,42 @@ const rawAnchor = (sourceText: string, startChar: number, endChar: number): O.Op
     })
   );
 
+const admitsEveryStart = (): boolean => true;
+
 const exactRawMatches = (sourceText: string, locator: string): ReadonlyArray<TextAnchor> =>
-  pipe(
-    matchStarts(sourceText, locator),
-    I.filterMap((startChar) =>
-      pipe(rawAnchor(sourceText, startChar, startChar + Str.length(locator)), Result.fromOption(missingAnchor))
-    ),
-    I.take(2),
-    A.fromIterable
+  firstAcceptedMatches(sourceText, locator, admitsEveryStart, (startChar) =>
+    rawAnchor(sourceText, startChar, startChar + Str.length(locator))
   );
 
-type NormalizedRange = readonly [startChar: number, endChar: number];
-
-const normalizedRange = (
-  normalizedSource: NormalizedTextWithRawOffsets,
-  normalizedStart: number,
-  normalizedEnd: number
-): O.Option<NormalizedRange> =>
-  O.all([A.get(normalizedSource.starts, normalizedStart), A.get(normalizedSource.ends, normalizedEnd - 1)]);
+/**
+ * A normalized match maps back to raw text only when it starts at the first
+ * and ends at the last normalized code unit of its raw clusters; a match that
+ * shares a raw range with its neighbour would split a cluster.
+ */
+const alignsWithRawClusters =
+  (normalizedSource: NormalizedTextWithRawOffsets, normalizedLocatorLength: number) =>
+  (normalizedStart: number): boolean => {
+    // KMP reports matches inside the normalized text, whose offset maps hold one
+    // entry per normalized code unit; neighbour reads past either end are
+    // undefined and never equal a raw offset.
+    const { ends, starts } = normalizedSource;
+    const normalizedEnd = normalizedStart + normalizedLocatorLength;
+    return starts[normalizedStart - 1] !== starts[normalizedStart] && ends[normalizedEnd] !== ends[normalizedEnd - 1];
+  };
 
 const normalizedRawAnchor = (
   sourceText: string,
   normalizedSource: NormalizedTextWithRawOffsets,
   normalizedLocator: string,
-  normalizedStart: number,
-  normalizedEnd: number,
-  startChar: number,
-  endChar: number
+  normalizedStart: number
 ): O.Option<TextAnchor> =>
   pipe(
-    Bool.and(
-      Bool.not(O.exists(A.get(normalizedSource.starts, normalizedStart - 1), Eq.equals(startChar))),
-      Bool.not(O.exists(A.get(normalizedSource.ends, normalizedEnd), Eq.equals(endChar)))
-    ),
-    Bool.match({
-      onFalse: O.none<TextAnchor>,
-      onTrue: () =>
-        pipe(
-          rawAnchor(sourceText, startChar, endChar),
-          O.filter((anchor) => Eq.equals(normalizeTextLocator(anchor.quote), normalizedLocator))
-        ),
-    })
+    O.all([
+      A.get(normalizedSource.starts, normalizedStart),
+      A.get(normalizedSource.ends, normalizedStart + Str.length(normalizedLocator) - 1),
+    ]),
+    O.flatMap(([startChar, endChar]) => rawAnchor(sourceText, startChar, endChar)),
+    O.filter((anchor) => Eq.equals(normalizeTextLocator(anchor.quote), normalizedLocator))
   );
 
 const normalizedRawMatches = (
@@ -205,68 +198,61 @@ const normalizedRawMatches = (
   normalizedSource: NormalizedTextWithRawOffsets,
   normalizedLocator: string
 ): ReadonlyArray<TextAnchor> =>
-  pipe(
-    matchStarts(normalizedSource.text, normalizedLocator),
-    I.map((normalizedStart): O.Option<TextAnchor> => {
-      const normalizedEnd = normalizedStart + Str.length(normalizedLocator);
-      return pipe(
-        normalizedRange(normalizedSource, normalizedStart, normalizedEnd),
-        O.flatMap(([startChar, endChar]) =>
-          normalizedRawAnchor(
-            sourceText,
-            normalizedSource,
-            normalizedLocator,
-            normalizedStart,
-            normalizedEnd,
-            startChar,
-            endChar
-          )
-        )
-      );
-    }),
-    I.filterMap(Result.fromOption(missingAnchor)),
-    I.take(2),
-    A.fromIterable
+  firstAcceptedMatches(
+    normalizedSource.text,
+    normalizedLocator,
+    alignsWithRawClusters(normalizedSource, Str.length(normalizedLocator)),
+    (normalizedStart) => normalizedRawAnchor(sourceText, normalizedSource, normalizedLocator, normalizedStart)
   );
 
+type PreparedNormalizedSource = () => NormalizedTextWithRawOffsets;
+
+// Normalization runs at most once per source, and only when a locator needs it.
+const preparedNormalizedSource = (sourceText: string): PreparedNormalizedSource =>
+  lazy(() => normalizeWithRawOffsets(sourceText));
+
 const findRawMatches: {
-  (sourceText: string, normalizedSource: NormalizedTextWithRawOffsets, locator: string): ReadonlyArray<TextAnchor>;
-  (normalizedSource: NormalizedTextWithRawOffsets, locator: string): (sourceText: string) => ReadonlyArray<TextAnchor>;
+  (sourceText: string, normalizedSource: PreparedNormalizedSource, locator: string): ReadonlyArray<TextAnchor>;
+  (normalizedSource: PreparedNormalizedSource, locator: string): (sourceText: string) => ReadonlyArray<TextAnchor>;
 } = dual(
   3,
-  (sourceText: string, normalizedSource: NormalizedTextWithRawOffsets, locator: string): ReadonlyArray<TextAnchor> => {
-    const normalizedLocator = normalizeTextLocator(locator);
+  (sourceText: string, normalizedSource: PreparedNormalizedSource, locator: string): ReadonlyArray<TextAnchor> => {
     const exactMatches = exactRawMatches(sourceText, locator);
-    const additionalNormalizedMatches = pipe(
-      normalizedRawMatches(sourceText, normalizedSource, normalizedLocator),
-      A.filter((normalized) =>
-        Bool.not(
-          A.some(
-            exactMatches,
-            (exact) => normalized.startChar <= exact.startChar && normalized.endChar >= exact.endChar
-          )
-        )
-      )
-    );
-    return pipe(exactMatches, A.appendAll(additionalNormalizedMatches), A.take(2));
+    // Two exact raw occurrences already establish ambiguity: normalized matches
+    // can only be appended after them, so the source is never normalized.
+    return A.length(exactMatches) > 1
+      ? exactMatches
+      : pipe(
+          normalizedRawMatches(sourceText, normalizedSource(), normalizeTextLocator(locator)),
+          A.filter((normalized) =>
+            Bool.not(
+              A.some(
+                exactMatches,
+                (exact) => normalized.startChar <= exact.startChar && normalized.endChar >= exact.endChar
+              )
+            )
+          ),
+          (additionalNormalizedMatches) => A.appendAll(exactMatches, additionalNormalizedMatches),
+          A.take(2)
+        );
   }
 );
 
 const locatePreparedRawText: {
   (
     sourceText: string,
-    normalizedSource: NormalizedTextWithRawOffsets,
+    normalizedSource: PreparedNormalizedSource,
     locator: string
   ): Effect.Effect<TextAnchor, VerifiedSpanError>;
   (
-    normalizedSource: NormalizedTextWithRawOffsets,
+    normalizedSource: PreparedNormalizedSource,
     locator: string
   ): (sourceText: string) => Effect.Effect<TextAnchor, VerifiedSpanError>;
 } = dual(
   3,
   Effect.fnUntraced(function* (
     sourceText: string,
-    normalizedSource: NormalizedTextWithRawOffsets,
+    normalizedSource: PreparedNormalizedSource,
     locator: string
   ): Effect.fn.Return<TextAnchor, VerifiedSpanError> {
     if (Str.isEmpty(Str.trim(locator))) {
@@ -326,7 +312,7 @@ export const locateRawText: {
       return yield* VerifiedSpanError.fromReason("limit-exceeded");
     }
 
-    return yield* locatePreparedRawText(sourceText, normalizeWithRawOffsets(sourceText), locator);
+    return yield* locatePreparedRawText(sourceText, preparedNormalizedSource(sourceText), locator);
   })
 );
 
@@ -519,7 +505,7 @@ export const locateGroundedExtractions: {
     if (Str.length(sourceText) > MAX_SOURCE_TEXT_LENGTH) {
       return yield* VerifiedSpanError.fromReason("limit-exceeded");
     }
-    const normalizedSource = normalizeWithRawOffsets(sourceText);
+    const normalizedSource = preparedNormalizedSource(sourceText);
     return yield* Effect.forEach(
       extractions,
       (extraction, index) =>
