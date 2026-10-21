@@ -32,7 +32,9 @@ import * as Stream from "effect/Stream";
 import * as Tuple from "effect/Tuple";
 import { CLIENT_METHODS } from "./_generated/meta.gen.ts";
 import * as AcpSchema from "./_generated/schema.gen.ts";
+import * as AcpSchemaV1 from "./_generated/schema-v1.gen.ts";
 import * as AcpError from "./Acp.errors.ts";
+import * as AcpCompat from "./AcpCompat.models.ts";
 import { fromJsonText } from "./AcpJson.codec.ts";
 import { makeNdJsonRpcFrameDecoder } from "./internal/jsonrpc.ts";
 import { isolateNotificationHandler } from "./internal/shared.ts";
@@ -491,8 +493,17 @@ type AcpProtocolLoggingFields = typeof AcpProtocolLoggingOptions.Encoded;
 // --- Incoming notification payloads --------------------------------------------------------------
 // The accepted `session/update` params and `elicitation/complete` method names live here so the
 // notification union can widen (generation 1 and compat shapes) in one place.
-
-const AcpSessionUpdateParams = AcpSchema.UpdateSessionNotification;
+//
+// `session/update` params decode as generation 2 first, then generation 1. The generation-2
+// members are open structs, so an idle `state_update` that carries the prompt `error` some agents
+// report keeps it (as JSON) instead of failing. The compat member is listed last: it is what a
+// client's `transformSessionUpdate` returns, so dispatched notifications carry either the decoded
+// wire shape or the normalized one.
+const AcpSessionUpdateParams = S.Union([
+  AcpSchema.UpdateSessionNotification,
+  AcpSchemaV1.SessionNotification,
+  AcpCompat.SessionNotification,
+]);
 type AcpSessionUpdateParams = typeof AcpSessionUpdateParams.Type;
 
 const AcpElicitationCompleteMethodBase = LiteralKit([

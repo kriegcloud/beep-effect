@@ -56,7 +56,7 @@
     "./schema": "./src/Acp.models.ts",
     "./schema-v1": "./src/AcpV1.models.ts",
     "./_generated/*": null,
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [

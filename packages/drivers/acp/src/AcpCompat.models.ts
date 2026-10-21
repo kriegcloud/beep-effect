@@ -1,0 +1,1777 @@
+/**
+ * Normalized ACP client surface shared by protocol generations 1 and 2.
+ *
+ * **Details**
+ *
+ * The dual-generation client speaks one shape to its callers whatever generation the agent
+ * negotiates. That shape is generation-1 flavoured (`clientCapabilities`, `agentCapabilities`,
+ * `authMethods[].id`, session `modes` and the legacy `models`) and widened to carry generation-2
+ * content: message, state, terminal and compaction session updates, structured diffs, and
+ * permission subjects. Every name here is a schema built from the generated generation-1
+ * (`@beep/acp/schema-v1`) and generation-2 (`@beep/acp/schema`) members:
+ *
+ * - names that are identical in both generations are re-exported unchanged;
+ * - names whose fields differ are derived from a generated member with the differing fields
+ *   replaced, so unknown keys keep flowing through the open (rest) part of the struct;
+ * - content, tool-call content and session-update variants that neither generation's client
+ *   understands are carried by the `_acp_unknown` sentinel members (`UnknownContent`,
+ *   `UnknownSessionUpdate`) with the original JSON in `raw`;
+ * - the removed unstable model-selection API (`session/set_model`) that older generation-1
+ *   agents still advertise is modeled here as `ModelInfo`, `SessionModelState`,
+ *   `SetSessionModelRequest` and `SetSessionModelResponse`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $AcpId } from "@beep/identity";
+import * as S from "effect/Schema";
+import * as V2 from "./_generated/schema.gen.ts";
+import * as V1 from "./_generated/schema-v1.gen.ts";
+
+const $I = $AcpId.create("compat");
+
+/**
+ * Sentinel `type` / `sessionUpdate` value for variants the client does not understand.
+ *
+ * **Example** (Recognize an unknown content block)
+ *
+ * ```ts
+ * import { ACP_UNKNOWN } from "@beep/acp/compat"
+ *
+ * console.log(ACP_UNKNOWN) // "_acp_unknown"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const ACP_UNKNOWN = "_acp_unknown";
+
+const LegacyMeta = S.Record(S.String, S.Json).pipe(S.NullOr, S.optionalKey).annotateKey({
+  description: "Reserved ACP `_meta` extension payload.",
+});
+
+// --- Unknown-variant sentinels -------------------------------------------------------------------
+// The sentinels sit inside open (rest) structs whose values must stay JSON-compatible, so they are
+// structural schemas rather than branded opaque classes: a branded member has no implicit string
+// index signature and could not be placed in a normalized update without a type assertion.
+
+const UnknownContentFields = S.Struct({
+  type: S.Literal(ACP_UNKNOWN).annotateKey({
+    description: "The `_acp_unknown` sentinel.",
+  }),
+  originalType: S.String.annotateKey({
+    description: "The `type` the agent sent.",
+  }),
+  raw: S.Json.annotateKey({
+    description: "The complete wire object, unchanged.",
+  }),
+});
+
+const UnknownSessionUpdateFields = S.Struct({
+  sessionUpdate: S.Literal(ACP_UNKNOWN).annotateKey({
+    description: "The `_acp_unknown` sentinel.",
+  }),
+  originalSessionUpdate: S.String.annotateKey({
+    description: "The `sessionUpdate` kind the agent sent.",
+  }),
+  raw: S.Json.annotateKey({
+    description: "The complete wire update object, unchanged.",
+  }),
+});
+
+/**
+ * Content block or tool-call content whose `type` the client does not understand.
+ *
+ * **Details**
+ *
+ * Generation 2 lets agents send content types added after the pinned schema. The client keeps
+ * them instead of failing: `originalType` is the wire `type` and `raw` is the whole wire object.
+ *
+ * **Example** (Make an unknown content block)
+ *
+ * ```ts
+ * import { UnknownContent } from "@beep/acp/compat"
+ *
+ * const content = UnknownContent.make({
+ *   type: "_acp_unknown",
+ *   originalType: "chart",
+ *   raw: { type: "chart", points: [] }
+ * })
+ * console.log(content.originalType) // "chart"
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const UnknownContent = UnknownContentFields.pipe(
+  $I.annoteSchema("UnknownContent", {
+    description: "Content block or tool-call content whose type the client does not understand.",
+  })
+);
+
+/**
+ * Type for {@link UnknownContent}.
+ *
+ * **Example** (Read the original content type)
+ *
+ * ```ts
+ * import type { UnknownContent } from "@beep/acp/compat"
+ *
+ * const originalTypeOf = (content: UnknownContent) => content.originalType
+ * console.log(originalTypeOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type UnknownContent = typeof UnknownContent.Type;
+
+/**
+ * Session update whose `sessionUpdate` kind the client does not understand.
+ *
+ * **Example** (Make an unknown session update)
+ *
+ * ```ts
+ * import { UnknownSessionUpdate } from "@beep/acp/compat"
+ *
+ * const update = UnknownSessionUpdate.make({
+ *   sessionUpdate: "_acp_unknown",
+ *   originalSessionUpdate: "timeline_update",
+ *   raw: { sessionUpdate: "timeline_update", entries: [] }
+ * })
+ * console.log(update.originalSessionUpdate) // "timeline_update"
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const UnknownSessionUpdate = UnknownSessionUpdateFields.pipe(
+  $I.annoteSchema("UnknownSessionUpdate", {
+    description: "Session update whose kind the client does not understand.",
+  })
+);
+
+/**
+ * Type for {@link UnknownSessionUpdate}.
+ *
+ * **Example** (Read the original update kind)
+ *
+ * ```ts
+ * import type { UnknownSessionUpdate } from "@beep/acp/compat"
+ *
+ * const originalKindOf = (update: UnknownSessionUpdate) => update.originalSessionUpdate
+ * console.log(originalKindOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type UnknownSessionUpdate = typeof UnknownSessionUpdate.Type;
+
+// --- Legacy model selection (removed unstable API) ----------------------------------------------
+
+/**
+ * Model an older generation-1 agent offers through the removed `session/set_model` API.
+ *
+ * **Example** (Make model info)
+ *
+ * ```ts
+ * import { ModelInfo } from "@beep/acp/compat"
+ *
+ * const model = ModelInfo.make({ modelId: "fast", name: "Fast" })
+ * console.log(model.modelId) // "fast"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelInfo extends S.Opaque<ModelInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
+    modelId: S.String.annotateKey({ description: "Agent-defined model identifier." }),
+    name: S.String.annotateKey({ description: "Human-readable model name." }),
+    description: S.String.pipe(S.NullOr, S.optionalKey).annotateKey({
+      description: "Optional model description.",
+    }),
+    _meta: LegacyMeta,
+  }).pipe(
+    $I.annoteSchema("ModelInfo", {
+      description: "Model an older generation-1 agent offers through the removed session/set_model API.",
+    })
+  )
+) {}
+
+/**
+ * Current and available models reported by an older generation-1 agent.
+ *
+ * **Example** (Make a model state)
+ *
+ * ```ts
+ * import { ModelInfo, SessionModelState } from "@beep/acp/compat"
+ *
+ * const state = SessionModelState.make({
+ *   currentModelId: "fast",
+ *   availableModels: [ModelInfo.make({ modelId: "fast", name: "Fast" })]
+ * })
+ * console.log(state.availableModels.length) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SessionModelState extends S.Opaque<SessionModelState, { readonly brand: unique symbol }>()(
+  S.Struct({
+    currentModelId: S.String.annotateKey({ description: "Identifier of the selected model." }),
+    availableModels: S.Array(ModelInfo).annotateKey({ description: "Models the agent offers." }),
+    _meta: LegacyMeta,
+  }).pipe(
+    $I.annoteSchema("SessionModelState", {
+      description: "Current and available models reported by an older generation-1 agent.",
+    })
+  )
+) {}
+
+/**
+ * Payload of the legacy `session/set_model` request.
+ *
+ * **Example** (Make a set-model request)
+ *
+ * ```ts
+ * import { SetSessionModelRequest } from "@beep/acp/compat"
+ *
+ * const request = SetSessionModelRequest.make({ sessionId: "session-1", modelId: "fast" })
+ * console.log(request.modelId) // "fast"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SetSessionModelRequest extends S.Opaque<SetSessionModelRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    sessionId: S.String.annotateKey({ description: "Session whose model changes." }),
+    modelId: S.String.annotateKey({ description: "Model to select." }),
+    _meta: LegacyMeta,
+  }).pipe(
+    $I.annoteSchema("SetSessionModelRequest", {
+      description: "Payload of the legacy session/set_model request.",
+    })
+  )
+) {}
+
+/**
+ * Result of the legacy `session/set_model` request.
+ *
+ * **Example** (Make an empty set-model response)
+ *
+ * ```ts
+ * import { SetSessionModelResponse } from "@beep/acp/compat"
+ *
+ * console.log(SetSessionModelResponse.make({}))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SetSessionModelResponse extends S.Opaque<SetSessionModelResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ _meta: LegacyMeta }).pipe(
+    $I.annoteSchema("SetSessionModelResponse", {
+      description: "Result of the legacy session/set_model request.",
+    })
+  )
+) {}
+
+/**
+ * Nested elicitation result that native agents expect from the legacy `session/elicitation`
+ * methods.
+ *
+ * **Details**
+ *
+ * The client's elicitation handler returns the flat `CreateElicitationResponse`. For the legacy
+ * method names the client wraps it as `{ action: <response without _meta>, _meta }`.
+ *
+ * **Example** (Wrap a decline)
+ *
+ * ```ts
+ * import { LegacyElicitationResponse } from "@beep/acp/compat"
+ *
+ * const response = LegacyElicitationResponse.make({ action: { action: "decline" } })
+ * console.log(response.action)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LegacyElicitationResponse extends S.Opaque<LegacyElicitationResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
+    action: V2.CreateElicitationResponse.annotateKey({
+      description: "The flat elicitation response, without its `_meta`.",
+    }),
+    _meta: LegacyMeta,
+  }).pipe(
+    $I.annoteSchema("LegacyElicitationResponse", {
+      description: "Nested elicitation result expected by native agents from the legacy session/elicitation methods.",
+    })
+  )
+) {}
+
+// --- Content -------------------------------------------------------------------------------------
+
+const [V2TextContent, V2ImageContent, V2AudioContent, V2ResourceLinkContent, V2ResourceContent] =
+  V2.ContentBlock.members;
+
+/**
+ * Content block as the client delivers it.
+ *
+ * **Details**
+ *
+ * The five known generation-2 content types, the generation-1 content block, or `UnknownContent`
+ * for a type added after the pinned schema.
+ *
+ * **Example** (Check a text block)
+ *
+ * ```ts
+ * import { ContentBlock } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ContentBlock)({ type: "text", text: "hello" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ContentBlock = S.Union([
+  V2TextContent,
+  V2ImageContent,
+  V2AudioContent,
+  V2ResourceLinkContent,
+  V2ResourceContent,
+  V1.ContentBlock,
+  UnknownContent,
+]).pipe(
+  $I.annoteSchema("ContentBlock", {
+    description: "Content block as the client delivers it: known generation-2 or generation-1 content, or unknown.",
+  })
+);
+
+/**
+ * Type for {@link ContentBlock}.
+ *
+ * **Example** (Read a content block type)
+ *
+ * ```ts
+ * import type { ContentBlock } from "@beep/acp/compat"
+ *
+ * const typeOf = (block: ContentBlock) => block.type
+ * console.log(typeOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ContentBlock = typeof ContentBlock.Type;
+
+const [V2TextCommandInput] = V2.AvailableCommandInput.members;
+
+/**
+ * Slash command an agent advertises, with a text input hint only.
+ *
+ * **Details**
+ *
+ * Generation-1 hints (`{ hint }`) are rewritten to the generation-2 `{ type: "text", hint }`
+ * shape, and generation-2 input kinds other than `text` become `null`.
+ *
+ * **Example** (Check an available command)
+ *
+ * ```ts
+ * import { AvailableCommand } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(
+ *   S.is(AvailableCommand)({ name: "web", description: "Search", input: { type: "text", hint: "query" } })
+ * ) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AvailableCommand = S.StructWithRest(
+  V2.AvailableCommand.schema.pipe(
+    S.fieldsAssign({
+      input: V2TextCommandInput.pipe(S.NullOr, S.optionalKey).annotateKey({
+        description: "Text input hint, or null when the command takes no text input.",
+      }),
+    })
+  ),
+  V2.AvailableCommand.records
+).pipe(
+  $I.annoteSchema("AvailableCommand", {
+    description: "Slash command an agent advertises, with a text input hint only.",
+  })
+);
+
+/**
+ * Type for {@link AvailableCommand}.
+ *
+ * **Example** (Read a command name)
+ *
+ * ```ts
+ * import type { AvailableCommand } from "@beep/acp/compat"
+ *
+ * const nameOf = (command: AvailableCommand) => command.name
+ * console.log(nameOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AvailableCommand = typeof AvailableCommand.Type;
+
+// --- Initialize ----------------------------------------------------------------------------------
+
+const [V1TerminalAuthMethod] = V1.AuthMethod.members;
+
+const AuthEnvVariable = S.StructWithRest(
+  S.Struct({
+    name: S.String.annotateKey({ description: "Environment variable name." }),
+    label: S.optionalKey(S.String).annotateKey({ description: "Optional human-readable label." }),
+  }),
+  [S.Record(S.String, S.Json)]
+).pipe(
+  $I.annoteSchema("AuthEnvVariable", {
+    description: "Environment variable an env_var auth method asks the user to set.",
+  })
+);
+
+const EnvVarAuthMethod = S.StructWithRest(
+  V1.AuthMethodAgent.schema.pipe(
+    S.fieldsAssign({
+      type: S.Literal("env_var").annotateKey({ description: "Environment-variable auth method." }),
+      vars: S.Array(AuthEnvVariable).annotateKey({ description: "Variables the user must set." }),
+      link: S.String.pipe(S.NullOr, S.optionalKey).annotateKey({
+        description: "Optional link where the user obtains the values.",
+      }),
+    })
+  ),
+  V1.AuthMethodAgent.records
+).pipe(
+  $I.annoteSchema("EnvVarAuthMethod", {
+    description: "Auth method that asks the user to set environment variables.",
+  })
+);
+
+/**
+ * Auth method as the client delivers it (generation-1 `id` keys).
+ *
+ * **Details**
+ *
+ * A terminal method (environment as a record), an environment-variable method, or an
+ * agent-driven method. Generation-2 `methodId` keys are renamed to `id`, terminal `env` arrays
+ * become records, and generation-2 method types the client does not know are dropped.
+ *
+ * **Example** (Check an agent auth method)
+ *
+ * ```ts
+ * import { AuthMethod } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(AuthMethod)({ id: "login", name: "Log in" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AuthMethod = S.Union([V1TerminalAuthMethod, EnvVarAuthMethod, V1.AuthMethodAgent]).pipe(
+  $I.annoteSchema("AuthMethod", {
+    description: "Auth method as the client delivers it, with generation-1 id keys.",
+  })
+);
+
+/**
+ * Type for {@link AuthMethod}.
+ *
+ * **Example** (Read an auth method id)
+ *
+ * ```ts
+ * import type { AuthMethod } from "@beep/acp/compat"
+ *
+ * const idOf = (method: AuthMethod) => method.id
+ * console.log(idOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AuthMethod = typeof AuthMethod.Type;
+
+/**
+ * Initialize result as the client delivers it (generation-1 shape).
+ *
+ * **Details**
+ *
+ * A generation-2 result (`info`, `capabilities`) is projected onto `agentInfo` and
+ * `agentCapabilities`. The generation is detected from the shape of the reply, not from
+ * `protocolVersion`, because some agents report version 2 with the generation-1 shape.
+ *
+ * **Example** (Check an initialize result)
+ *
+ * ```ts
+ * import { InitializeResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(InitializeResponse)({ protocolVersion: 1, agentCapabilities: { loadSession: true } })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const InitializeResponse = S.StructWithRest(
+  V1.InitializeResponse.schema.pipe(
+    S.fieldsAssign({
+      authMethods: AuthMethod.pipe(S.Array, S.optionalKey).annotateKey({
+        description: "Auth methods the agent supports.",
+      }),
+    })
+  ),
+  V1.InitializeResponse.records
+).pipe(
+  $I.annoteSchema("InitializeResponse", {
+    description: "Initialize result as the client delivers it, in the generation-1 shape.",
+  })
+);
+
+/**
+ * Type for {@link InitializeResponse}.
+ *
+ * **Example** (Read the agent info)
+ *
+ * ```ts
+ * import type { InitializeResponse } from "@beep/acp/compat"
+ *
+ * const agentNameOf = (response: InitializeResponse) => response.agentInfo?.name
+ * console.log(agentNameOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type InitializeResponse = typeof InitializeResponse.Type;
+
+// --- Session setup -------------------------------------------------------------------------------
+
+const [V1SelectConfigOption, V1BooleanConfigOption] = V1.SessionConfigOption.members;
+
+/**
+ * Choices of a `select` config option, flat or grouped.
+ *
+ * **Details**
+ *
+ * Generation 1 keys a group by `group` and generation 2 by `groupId`; both group shapes are
+ * accepted and kept as the agent sent them.
+ *
+ * **Example** (Check flat choices)
+ *
+ * ```ts
+ * import { SessionConfigSelectOptions } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(SessionConfigSelectOptions)([{ value: "fast", name: "Fast" }])) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SessionConfigSelectOptions = S.Union([V2.SessionConfigSelectOptions, V1.SessionConfigSelectOptions]).pipe(
+  $I.annoteSchema("SessionConfigSelectOptions", {
+    description: "Choices of a select config option, flat or grouped in either generation's group shape.",
+  })
+);
+
+/**
+ * Type for {@link SessionConfigSelectOptions}.
+ *
+ * **Example** (Count the choices)
+ *
+ * ```ts
+ * import type { SessionConfigSelectOptions } from "@beep/acp/compat"
+ *
+ * const sizeOf = (options: SessionConfigSelectOptions) => options.length
+ * console.log(sizeOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SessionConfigSelectOptions = typeof SessionConfigSelectOptions.Type;
+
+const SelectConfigOption = S.StructWithRest(
+  V1SelectConfigOption.schema.pipe(
+    S.fieldsAssign({
+      options: SessionConfigSelectOptions.annotateKey({ description: "Choices the user can select." }),
+    })
+  ),
+  V1SelectConfigOption.records
+).pipe(
+  $I.annoteSchema("SelectConfigOption", {
+    description: "Select config option keyed by id.",
+  })
+);
+
+/**
+ * Session config option as the client delivers it, keyed by `id`.
+ *
+ * **Details**
+ *
+ * A `select` option (flat or grouped choices) or a `boolean` option. Generation-2 options are
+ * renamed from `configId` to `id`; generation-2 option types other than these two are dropped.
+ *
+ * **Example** (Check a boolean option)
+ *
+ * ```ts
+ * import { SessionConfigOption } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(
+ *   S.is(SessionConfigOption)({ id: "plan", name: "Plan mode", type: "boolean", currentValue: false })
+ * ) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SessionConfigOption = S.Union([SelectConfigOption, V1BooleanConfigOption]).pipe(
+  $I.annoteSchema("SessionConfigOption", {
+    description: "Session config option as the client delivers it, keyed by id.",
+  })
+);
+
+/**
+ * Type for {@link SessionConfigOption}.
+ *
+ * **Example** (Read the option id)
+ *
+ * ```ts
+ * import type { SessionConfigOption } from "@beep/acp/compat"
+ *
+ * const idOf = (option: SessionConfigOption) => option.id
+ * console.log(idOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SessionConfigOption = typeof SessionConfigOption.Type;
+
+const ConfigOptions = SessionConfigOption.pipe(S.Array, S.NullOr, S.optionalKey).annotateKey({
+  description: "Configuration options of the session.",
+});
+
+/**
+ * Result of `session/set_config_option` as the client delivers it.
+ *
+ * **Example** (Check a set-config-option result)
+ *
+ * ```ts
+ * import { SetSessionConfigOptionResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(SetSessionConfigOptionResponse)({ configOptions: [] })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SetSessionConfigOptionResponse = S.StructWithRest(
+  V1.SetSessionConfigOptionResponse.schema.pipe(
+    S.fieldsAssign({
+      configOptions: S.Array(SessionConfigOption).annotateKey({
+        description: "Configuration options after the change.",
+      }),
+    })
+  ),
+  V1.SetSessionConfigOptionResponse.records
+).pipe(
+  $I.annoteSchema("SetSessionConfigOptionResponse", {
+    description: "Result of session/set_config_option as the client delivers it.",
+  })
+);
+
+/**
+ * Type for {@link SetSessionConfigOptionResponse}.
+ *
+ * **Example** (Count the options)
+ *
+ * ```ts
+ * import type { SetSessionConfigOptionResponse } from "@beep/acp/compat"
+ *
+ * const sizeOf = (response: SetSessionConfigOptionResponse) => response.configOptions.length
+ * console.log(sizeOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SetSessionConfigOptionResponse = typeof SetSessionConfigOptionResponse.Type;
+
+const LegacyStdioMcpServer = S.StructWithRest(
+  V1.McpServerStdio.schema.pipe(
+    S.fieldsAssign({
+      args: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Command-line arguments." }),
+      env: V2.EnvVariable.pipe(S.Array, S.optionalKey).annotateKey({
+        description: "Environment variables for the server process.",
+      }),
+    })
+  ),
+  V1.McpServerStdio.records
+).pipe(
+  $I.annoteSchema("LegacyStdioMcpServer", {
+    description: "Generation-1 stdio MCP server, which carries no type tag.",
+  })
+);
+
+/**
+ * MCP server configuration the client accepts.
+ *
+ * **Details**
+ *
+ * Any generation-2 server (tagged by `type`) or a generation-1 stdio server without a `type`. The
+ * client adds `type: "stdio"` before it sends an untagged server to a generation-2 agent.
+ *
+ * **Example** (Check an untagged stdio server)
+ *
+ * ```ts
+ * import { McpServer } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(McpServer)({ name: "files", command: "/usr/bin/mcp-files" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const McpServer = S.Union([V2.McpServer, LegacyStdioMcpServer]).pipe(
+  $I.annoteSchema("McpServer", {
+    description: "MCP server configuration: any generation-2 server or an untagged generation-1 stdio server.",
+  })
+);
+
+/**
+ * Type for {@link McpServer}.
+ *
+ * **Example** (Read a server name)
+ *
+ * ```ts
+ * import type { McpServer } from "@beep/acp/compat"
+ *
+ * const nameOf = (server: McpServer) => server.name
+ * console.log(nameOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type McpServer = typeof McpServer.Type;
+
+const McpServers = S.Array(McpServer).annotateKey({
+  description: "MCP servers the agent connects to for this session.",
+});
+
+/**
+ * Payload of `session/new`.
+ *
+ * **Example** (Check a new-session request)
+ *
+ * ```ts
+ * import { NewSessionRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(NewSessionRequest)({ cwd: "/work", mcpServers: [] })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NewSessionRequest = S.StructWithRest(
+  V2.NewSessionRequest.schema.pipe(S.fieldsAssign({ mcpServers: McpServers })),
+  V2.NewSessionRequest.records
+).pipe(
+  $I.annoteSchema("NewSessionRequest", {
+    description: "Payload of session/new as the client accepts it.",
+  })
+);
+
+/**
+ * Type for {@link NewSessionRequest}.
+ *
+ * **Example** (Read the working directory)
+ *
+ * ```ts
+ * import type { NewSessionRequest } from "@beep/acp/compat"
+ *
+ * const cwdOf = (request: NewSessionRequest) => request.cwd
+ * console.log(cwdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NewSessionRequest = typeof NewSessionRequest.Type;
+
+/**
+ * Payload of `session/resume`.
+ *
+ * **Example** (Check a resume request)
+ *
+ * ```ts
+ * import { ResumeSessionRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ResumeSessionRequest)({ sessionId: "session-1", cwd: "/work" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ResumeSessionRequest = S.StructWithRest(
+  V2.ResumeSessionRequest.schema.pipe(S.fieldsAssign({ mcpServers: S.optionalKey(McpServers) })),
+  V2.ResumeSessionRequest.records
+).pipe(
+  $I.annoteSchema("ResumeSessionRequest", {
+    description: "Payload of session/resume as the client accepts it.",
+  })
+);
+
+/**
+ * Type for {@link ResumeSessionRequest}.
+ *
+ * **Example** (Read the resumed session id)
+ *
+ * ```ts
+ * import type { ResumeSessionRequest } from "@beep/acp/compat"
+ *
+ * const sessionIdOf = (request: ResumeSessionRequest) => request.sessionId
+ * console.log(sessionIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ResumeSessionRequest = typeof ResumeSessionRequest.Type;
+
+/**
+ * Payload of `session/load` (generation 1); a generation-2 agent is asked to resume and replay
+ * from the start instead.
+ *
+ * **Example** (Check a load request)
+ *
+ * ```ts
+ * import { LoadSessionRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(LoadSessionRequest)({ sessionId: "session-1", cwd: "/work" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const LoadSessionRequest = S.StructWithRest(
+  V1.LoadSessionRequest.schema.pipe(S.fieldsAssign({ mcpServers: S.optionalKey(McpServers) })),
+  V1.LoadSessionRequest.records
+).pipe(
+  $I.annoteSchema("LoadSessionRequest", {
+    description: "Payload of session/load as the client accepts it.",
+  })
+);
+
+/**
+ * Type for {@link LoadSessionRequest}.
+ *
+ * **Example** (Read the loaded session id)
+ *
+ * ```ts
+ * import type { LoadSessionRequest } from "@beep/acp/compat"
+ *
+ * const sessionIdOf = (request: LoadSessionRequest) => request.sessionId
+ * console.log(sessionIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LoadSessionRequest = typeof LoadSessionRequest.Type;
+
+/**
+ * Payload of `session/fork`.
+ *
+ * **Example** (Check a fork request)
+ *
+ * ```ts
+ * import { ForkSessionRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ForkSessionRequest)({ sessionId: "session-1", cwd: "/work" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ForkSessionRequest = S.StructWithRest(
+  V2.ForkSessionRequest.schema.pipe(S.fieldsAssign({ mcpServers: S.optionalKey(McpServers) })),
+  V2.ForkSessionRequest.records
+).pipe(
+  $I.annoteSchema("ForkSessionRequest", {
+    description: "Payload of session/fork as the client accepts it.",
+  })
+);
+
+/**
+ * Type for {@link ForkSessionRequest}.
+ *
+ * **Example** (Read the forked session id)
+ *
+ * ```ts
+ * import type { ForkSessionRequest } from "@beep/acp/compat"
+ *
+ * const sessionIdOf = (request: ForkSessionRequest) => request.sessionId
+ * console.log(sessionIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ForkSessionRequest = typeof ForkSessionRequest.Type;
+
+const LegacyModels = SessionModelState.pipe(S.NullOr, S.optionalKey).annotateKey({
+  description: "Models advertised through the removed unstable model-selection API.",
+});
+
+/**
+ * Result of `session/new` (generation-1 shape plus the legacy `models`).
+ *
+ * **Example** (Check a new-session result)
+ *
+ * ```ts
+ * import { NewSessionResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(NewSessionResponse)({ sessionId: "session-1" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NewSessionResponse = S.StructWithRest(
+  V1.NewSessionResponse.schema.pipe(S.fieldsAssign({ models: LegacyModels, configOptions: ConfigOptions })),
+  V1.NewSessionResponse.records
+).pipe(
+  $I.annoteSchema("NewSessionResponse", {
+    description: "Result of session/new in the generation-1 shape plus the legacy models.",
+  })
+);
+
+/**
+ * Type for {@link NewSessionResponse}.
+ *
+ * **Example** (Read the new session id)
+ *
+ * ```ts
+ * import type { NewSessionResponse } from "@beep/acp/compat"
+ *
+ * const sessionIdOf = (response: NewSessionResponse) => response.sessionId
+ * console.log(sessionIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type NewSessionResponse = typeof NewSessionResponse.Type;
+
+/**
+ * Result of `session/load` (generation-1 shape plus the legacy `models`).
+ *
+ * **Example** (Check an empty load result)
+ *
+ * ```ts
+ * import { LoadSessionResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(LoadSessionResponse)({})) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const LoadSessionResponse = S.StructWithRest(
+  V1.LoadSessionResponse.schema.pipe(S.fieldsAssign({ models: LegacyModels, configOptions: ConfigOptions })),
+  V1.LoadSessionResponse.records
+).pipe(
+  $I.annoteSchema("LoadSessionResponse", {
+    description: "Result of session/load in the generation-1 shape plus the legacy models.",
+  })
+);
+
+/**
+ * Type for {@link LoadSessionResponse}.
+ *
+ * **Example** (Read the session modes)
+ *
+ * ```ts
+ * import type { LoadSessionResponse } from "@beep/acp/compat"
+ *
+ * const modesOf = (response: LoadSessionResponse) => response.modes
+ * console.log(modesOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LoadSessionResponse = typeof LoadSessionResponse.Type;
+
+/**
+ * Result of `session/resume` (generation-1 shape plus the legacy `models`).
+ *
+ * **Example** (Check an empty resume result)
+ *
+ * ```ts
+ * import { ResumeSessionResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ResumeSessionResponse)({})) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ResumeSessionResponse = S.StructWithRest(
+  V1.ResumeSessionResponse.schema.pipe(S.fieldsAssign({ models: LegacyModels, configOptions: ConfigOptions })),
+  V1.ResumeSessionResponse.records
+).pipe(
+  $I.annoteSchema("ResumeSessionResponse", {
+    description: "Result of session/resume in the generation-1 shape plus the legacy models.",
+  })
+);
+
+/**
+ * Type for {@link ResumeSessionResponse}.
+ *
+ * **Example** (Read the config options)
+ *
+ * ```ts
+ * import type { ResumeSessionResponse } from "@beep/acp/compat"
+ *
+ * const optionsOf = (response: ResumeSessionResponse) => response.configOptions
+ * console.log(optionsOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ResumeSessionResponse = typeof ResumeSessionResponse.Type;
+
+/**
+ * Result of `session/fork` (generation-1 shape plus the legacy `models`).
+ *
+ * **Example** (Check a fork result)
+ *
+ * ```ts
+ * import { ForkSessionResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ForkSessionResponse)({ sessionId: "session-2" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ForkSessionResponse = S.StructWithRest(
+  V1.ForkSessionResponse.schema.pipe(S.fieldsAssign({ models: LegacyModels, configOptions: ConfigOptions })),
+  V1.ForkSessionResponse.records
+).pipe(
+  $I.annoteSchema("ForkSessionResponse", {
+    description: "Result of session/fork in the generation-1 shape plus the legacy models.",
+  })
+);
+
+/**
+ * Type for {@link ForkSessionResponse}.
+ *
+ * **Example** (Read the forked session id)
+ *
+ * ```ts
+ * import type { ForkSessionResponse } from "@beep/acp/compat"
+ *
+ * const sessionIdOf = (response: ForkSessionResponse) => response.sessionId
+ * console.log(sessionIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ForkSessionResponse = typeof ForkSessionResponse.Type;
+
+/**
+ * Payload of `session/prompt`.
+ *
+ * **Example** (Check a prompt request)
+ *
+ * ```ts
+ * import { PromptRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(PromptRequest)({ sessionId: "session-1", prompt: [{ type: "text", text: "hi" }] })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const PromptRequest = S.StructWithRest(
+  V2.PromptRequest.schema.pipe(
+    S.fieldsAssign({
+      prompt: S.Array(ContentBlock).annotateKey({ description: "Content of the user turn." }),
+    })
+  ),
+  V2.PromptRequest.records
+).pipe(
+  $I.annoteSchema("PromptRequest", {
+    description: "Payload of session/prompt as the client accepts it.",
+  })
+);
+
+/**
+ * Type for {@link PromptRequest}.
+ *
+ * **Example** (Count prompt blocks)
+ *
+ * ```ts
+ * import type { PromptRequest } from "@beep/acp/compat"
+ *
+ * const sizeOf = (request: PromptRequest) => request.prompt.length
+ * console.log(sizeOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PromptRequest = typeof PromptRequest.Type;
+
+/**
+ * Result of `session/prompt` as the client delivers it.
+ *
+ * **Details**
+ *
+ * A generation-1 agent returns it from `session/prompt`; for a generation-2 agent the client
+ * builds it from the idle `state_update` that ends the turn. The stop reason is the open
+ * generation-2 `StopReason`, so custom and future reasons are kept.
+ *
+ * **Example** (Check a prompt result)
+ *
+ * ```ts
+ * import { PromptResponse } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(PromptResponse)({ stopReason: "end_turn" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const PromptResponse = S.StructWithRest(
+  V1.PromptResponse.schema.pipe(
+    S.fieldsAssign({
+      stopReason: V2.StopReason.annotateKey({ description: "Why the turn ended." }),
+      usage: V2.Usage.pipe(S.NullOr, S.optionalKey).annotateKey({
+        description: "Token usage of the turn, when the agent reports it.",
+      }),
+    })
+  ),
+  V1.PromptResponse.records
+).pipe(
+  $I.annoteSchema("PromptResponse", {
+    description: "Result of session/prompt as the client delivers it, with an open stop reason.",
+  })
+);
+
+/**
+ * Type for {@link PromptResponse}.
+ *
+ * **Example** (Read the stop reason)
+ *
+ * ```ts
+ * import type { PromptResponse } from "@beep/acp/compat"
+ *
+ * const stopReasonOf = (response: PromptResponse) => response.stopReason
+ * console.log(stopReasonOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PromptResponse = typeof PromptResponse.Type;
+
+// --- Tool calls ----------------------------------------------------------------------------------
+
+const [V2ContentToolCallContent, V2DiffToolCallContent, V2TerminalToolCallContent] = V2.ToolCallContent.members;
+const [, V1DiffToolCallContent] = V1.ToolCallContent.members;
+
+const ContentToolCallContent = S.StructWithRest(
+  V2ContentToolCallContent.schema.pipe(
+    S.fieldsAssign({ content: ContentBlock.annotateKey({ description: "Content produced by the tool call." }) })
+  ),
+  V2ContentToolCallContent.records
+).pipe(
+  $I.annoteSchema("ContentToolCallContent", {
+    description: "Tool-call content that carries a content block.",
+  })
+);
+
+/**
+ * Content a tool call produces.
+ *
+ * **Details**
+ *
+ * A content block, a generation-1 text diff (`path`, `oldText`, `newText`), a generation-2
+ * structured diff (`changes`, `patch`), a terminal, or `UnknownContent`.
+ *
+ * **Example** (Check a generation-1 diff)
+ *
+ * ```ts
+ * import { ToolCallContent } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ToolCallContent)({ type: "diff", path: "/a.ts", newText: "x" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ToolCallContent = S.Union([
+  ContentToolCallContent,
+  V1DiffToolCallContent,
+  V2DiffToolCallContent,
+  V2TerminalToolCallContent,
+  UnknownContent,
+]).pipe(
+  $I.annoteSchema("ToolCallContent", {
+    description: "Content a tool call produces, in either generation's shape or unknown.",
+  })
+);
+
+/**
+ * Type for {@link ToolCallContent}.
+ *
+ * **Example** (Read a tool-call content type)
+ *
+ * ```ts
+ * import type { ToolCallContent } from "@beep/acp/compat"
+ *
+ * const typeOf = (content: ToolCallContent) => content.type
+ * console.log(typeOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ToolCallContent = typeof ToolCallContent.Type;
+
+const ToolCallContents = ToolCallContent.pipe(S.Array, S.NullOr, S.optionalKey).annotateKey({
+  description: "Content the tool call produced.",
+});
+
+/**
+ * Partial tool-call state, as carried by `tool_call_update` and permission requests.
+ *
+ * **Example** (Check a tool-call update)
+ *
+ * ```ts
+ * import { ToolCallUpdate } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ToolCallUpdate)({ toolCallId: "tool-1", title: "Read file" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ToolCallUpdate = S.StructWithRest(
+  V2.ToolCallUpdate.schema.pipe(S.fieldsAssign({ content: ToolCallContents })),
+  V2.ToolCallUpdate.records
+).pipe(
+  $I.annoteSchema("ToolCallUpdate", {
+    description: "Partial tool-call state with normalized tool-call content.",
+  })
+);
+
+/**
+ * Type for {@link ToolCallUpdate}.
+ *
+ * **Example** (Read the tool-call id)
+ *
+ * ```ts
+ * import type { ToolCallUpdate } from "@beep/acp/compat"
+ *
+ * const idOf = (update: ToolCallUpdate) => update.toolCallId
+ * console.log(idOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ToolCallUpdate = typeof ToolCallUpdate.Type;
+
+// --- Session updates -----------------------------------------------------------------------------
+
+const [
+  ,
+  V2UserMessage,
+  ,
+  V2AgentMessage,
+  ,
+  V2AgentThought,
+  V2StateUpdate,
+  V2ToolCallContentChunk,
+  V2ToolCallUpdate,
+  V2TerminalUpdate,
+  V2TerminalOutputChunk,
+  V2PlanUpdate,
+  V2PlanRemoved,
+  V2AvailableCommandsUpdate,
+  V2ConfigOptionUpdate,
+  V2SessionInfoUpdate,
+  V2UsageUpdate,
+  V2CompactionUpdate,
+  V2CompactionSummaryChunk,
+] = V2.SessionUpdate.members;
+const [V2RunningState, V2IdleState, V2RequiresActionState] = V2StateUpdate.members;
+const [V1UserMessageChunk, V1AgentMessageChunk, V1AgentThoughtChunk, V1ToolCall, , V1Plan] = V1.SessionUpdate.members;
+const V1CurrentModeUpdate = V1.SessionUpdate.members[9];
+
+const ContentField = ContentBlock.annotateKey({ description: "Content of this update." });
+const ContentListField = ContentBlock.pipe(S.Array, S.NullOr, S.optionalKey).annotateKey({
+  description: "Content of the complete message.",
+});
+
+const UserMessageChunk = S.StructWithRest(
+  V1UserMessageChunk.schema.pipe(S.fieldsAssign({ content: ContentField })),
+  V1UserMessageChunk.records
+);
+const AgentMessageChunk = S.StructWithRest(
+  V1AgentMessageChunk.schema.pipe(S.fieldsAssign({ content: ContentField })),
+  V1AgentMessageChunk.records
+);
+const AgentThoughtChunk = S.StructWithRest(
+  V1AgentThoughtChunk.schema.pipe(S.fieldsAssign({ content: ContentField })),
+  V1AgentThoughtChunk.records
+);
+const UserMessage = S.StructWithRest(
+  V2UserMessage.schema.pipe(S.fieldsAssign({ content: ContentListField })),
+  V2UserMessage.records
+);
+const AgentMessage = S.StructWithRest(
+  V2AgentMessage.schema.pipe(S.fieldsAssign({ content: ContentListField })),
+  V2AgentMessage.records
+);
+const AgentThought = S.StructWithRest(
+  V2AgentThought.schema.pipe(S.fieldsAssign({ content: ContentListField })),
+  V2AgentThought.records
+);
+const ToolCall = S.StructWithRest(
+  V1ToolCall.schema.pipe(
+    S.fieldsAssign({
+      content: ToolCallContent.pipe(S.Array, S.optionalKey).annotateKey({
+        description: "Content the tool call produced.",
+      }),
+    })
+  ),
+  V1ToolCall.records
+);
+const ToolCallUpdateSessionUpdate = S.StructWithRest(
+  V2ToolCallUpdate.schema.pipe(S.fieldsAssign({ content: ToolCallContents })),
+  V2ToolCallUpdate.records
+);
+const ToolCallContentChunk = S.StructWithRest(
+  V2ToolCallContentChunk.schema.pipe(
+    S.fieldsAssign({ content: ToolCallContent.annotateKey({ description: "Tool-call content chunk." }) })
+  ),
+  V2ToolCallContentChunk.records
+);
+const AvailableCommandsUpdate = S.StructWithRest(
+  V2AvailableCommandsUpdate.schema.pipe(
+    S.fieldsAssign({
+      availableCommands: S.Array(AvailableCommand).annotateKey({
+        description: "Commands the agent currently offers.",
+      }),
+    })
+  ),
+  V2AvailableCommandsUpdate.records
+);
+const CompactionUpdate = S.StructWithRest(
+  V2CompactionUpdate.schema.pipe(S.fieldsAssign({ summary: ContentListField })),
+  V2CompactionUpdate.records
+);
+const CompactionSummaryChunk = S.StructWithRest(
+  V2CompactionSummaryChunk.schema.pipe(S.fieldsAssign({ content: ContentField })),
+  V2CompactionSummaryChunk.records
+);
+
+/**
+ * Generation-2 idle `state_update`, widened with the prompt `error` some agents report.
+ *
+ * **Details**
+ *
+ * The pinned generation-2 schema has no `error` field on idle; Claude Agent ACP reports a failed
+ * turn there. The client still completes the prompt with the idle `stopReason`.
+ *
+ * **Example** (Check an idle update with an error)
+ *
+ * ```ts
+ * import { IdleStateUpdate } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(
+ *   S.is(IdleStateUpdate)({
+ *     sessionUpdate: "state_update",
+ *     state: "idle",
+ *     stopReason: "end_turn",
+ *     error: { code: -32603, message: "Internal error" }
+ *   })
+ * ) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const IdleStateUpdate = S.StructWithRest(
+  V2IdleState.schema.pipe(
+    S.fieldsAssign({
+      error: V2.Error.pipe(S.NullOr, S.optionalKey).annotateKey({
+        description: "Error that ended the turn, when the agent reports one.",
+      }),
+    })
+  ),
+  V2IdleState.records
+).pipe(
+  $I.annoteSchema("IdleStateUpdate", {
+    description: "Generation-2 idle state update, widened with the prompt error some agents report.",
+  })
+);
+
+/**
+ * Type for {@link IdleStateUpdate}.
+ *
+ * **Example** (Read the stop reason)
+ *
+ * ```ts
+ * import type { IdleStateUpdate } from "@beep/acp/compat"
+ *
+ * const stopReasonOf = (update: IdleStateUpdate) => update.stopReason
+ * console.log(stopReasonOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type IdleStateUpdate = typeof IdleStateUpdate.Type;
+
+/**
+ * Session update as the client delivers it.
+ *
+ * **Details**
+ *
+ * The union of both generations' kinds: message chunks (the `messageId` generation 2 requires is
+ * optional), complete messages, tool calls and tool-call content chunks, `running`, `idle` and
+ * `requires_action` state updates, terminal, plan, command, config-option, session-info, usage
+ * and compaction updates, the generation-1 `plan` and `current_mode_update`, and
+ * `UnknownSessionUpdate` for any other kind.
+ *
+ * **Example** (Check an agent message chunk)
+ *
+ * ```ts
+ * import { SessionUpdate } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(
+ *   S.is(SessionUpdate)({ sessionUpdate: "agent_message_chunk", content: { type: "text", text: "hi" } })
+ * ) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SessionUpdate = S.Union([
+  UserMessageChunk,
+  AgentMessageChunk,
+  AgentThoughtChunk,
+  UserMessage,
+  AgentMessage,
+  AgentThought,
+  ToolCall,
+  ToolCallUpdateSessionUpdate,
+  ToolCallContentChunk,
+  V2RunningState,
+  IdleStateUpdate,
+  V2RequiresActionState,
+  V2TerminalUpdate,
+  V2TerminalOutputChunk,
+  V2PlanUpdate,
+  V2PlanRemoved,
+  AvailableCommandsUpdate,
+  V2SessionInfoUpdate,
+  V2UsageUpdate,
+  CompactionUpdate,
+  CompactionSummaryChunk,
+  S.StructWithRest(
+    V2ConfigOptionUpdate.schema.pipe(
+      S.fieldsAssign({
+        configOptions: S.Array(SessionConfigOption).annotateKey({
+          description: "Current configuration options, keyed by `id`.",
+        }),
+      })
+    ),
+    V2ConfigOptionUpdate.records
+  ),
+  V1Plan,
+  V1CurrentModeUpdate,
+  UnknownSessionUpdate,
+]).pipe(
+  $I.annoteSchema("SessionUpdate", {
+    description: "Session update as the client delivers it, covering both generations and unknown kinds.",
+  })
+);
+
+/**
+ * Type for {@link SessionUpdate}.
+ *
+ * **Example** (Read the update kind)
+ *
+ * ```ts
+ * import type { SessionUpdate } from "@beep/acp/compat"
+ *
+ * const kindOf = (update: SessionUpdate) => update.sessionUpdate
+ * console.log(kindOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SessionUpdate = typeof SessionUpdate.Type;
+
+/**
+ * Params of the `session/update` notification as the client delivers them.
+ *
+ * **Example** (Check a session notification)
+ *
+ * ```ts
+ * import { SessionNotification } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(
+ *   S.is(SessionNotification)({
+ *     sessionId: "session-1",
+ *     update: { sessionUpdate: "state_update", state: "running" }
+ *   })
+ * ) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SessionNotification = S.StructWithRest(
+  V2.UpdateSessionNotification.schema.pipe(
+    S.fieldsAssign({ update: SessionUpdate.annotateKey({ description: "The normalized session update." }) })
+  ),
+  V2.UpdateSessionNotification.records
+).pipe(
+  $I.annoteSchema("SessionNotification", {
+    description: "Params of the session/update notification as the client delivers them.",
+  })
+);
+
+/**
+ * Type for {@link SessionNotification}.
+ *
+ * **Example** (Read the session id)
+ *
+ * ```ts
+ * import type { SessionNotification } from "@beep/acp/compat"
+ *
+ * const sessionIdOf = (notification: SessionNotification) => notification.sessionId
+ * console.log(sessionIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SessionNotification = typeof SessionNotification.Type;
+
+// --- Permissions ---------------------------------------------------------------------------------
+
+/**
+ * Params of `session/request_permission` as the client delivers them.
+ *
+ * **Details**
+ *
+ * `toolCall` is always present. For a generation-2 request it is the subject's tool call, or a
+ * tool call synthesized from a command subject (kind `execute`) or from the request itself
+ * (kind `other`). The generation-2 `title`, `description` and `subject` are kept when sent.
+ *
+ * **Example** (Check a generation-1 permission request)
+ *
+ * ```ts
+ * import { RequestPermissionRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(
+ *   S.is(RequestPermissionRequest)({
+ *     sessionId: "session-1",
+ *     toolCall: { toolCallId: "tool-1" },
+ *     options: [{ optionId: "allow", name: "Allow", kind: "allow_once" }]
+ *   })
+ * ) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const RequestPermissionRequest = S.StructWithRest(
+  V2.RequestPermissionRequest.schema.pipe(
+    S.fieldsAssign({
+      title: S.optionalKey(S.String).annotateKey({ description: "Title of the permission prompt." }),
+      toolCall: ToolCallUpdate.annotateKey({ description: "Tool call the permission is for." }),
+      options: S.Array(V2.PermissionOption).annotateKey({ description: "Choices offered to the user." }),
+    })
+  ),
+  V2.RequestPermissionRequest.records
+).pipe(
+  $I.annoteSchema("RequestPermissionRequest", {
+    description: "Params of session/request_permission as the client delivers them, with toolCall always present.",
+  })
+);
+
+/**
+ * Type for {@link RequestPermissionRequest}.
+ *
+ * **Example** (Read the tool-call id)
+ *
+ * ```ts
+ * import type { RequestPermissionRequest } from "@beep/acp/compat"
+ *
+ * const toolCallIdOf = (request: RequestPermissionRequest) => request.toolCall.toolCallId
+ * console.log(toolCallIdOf)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type RequestPermissionRequest = typeof RequestPermissionRequest.Type;
+
+// --- Re-exports ----------------------------------------------------------------------------------
+
+/**
+ * Generation-2 schemas the client surface uses unchanged.
+ *
+ * **Example** (Check a stop reason)
+ *
+ * ```ts
+ * import { StopReason } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(StopReason)("end_turn")) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+/**
+ * Generation-2 auth, logout and cancel schemas under their generation-1 names.
+ *
+ * **Example** (Check an authenticate request)
+ *
+ * ```ts
+ * import { AuthenticateRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(AuthenticateRequest)({ methodId: "login" })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export {
+  AbsolutePath,
+  CancelSessionNotification as CancelNotification,
+  CloseSessionRequest,
+  CloseSessionResponse,
+  CompleteElicitationNotification,
+  ConnectMcpRequest,
+  ConnectMcpResponse,
+  CreateElicitationRequest,
+  CreateElicitationResponse,
+  DeleteSessionRequest,
+  DeleteSessionResponse,
+  DisableProviderRequest,
+  DisableProviderResponse,
+  DisconnectMcpRequest,
+  DisconnectMcpResponse,
+  ElicitationContentValue,
+  ListProvidersRequest,
+  ListProvidersResponse,
+  ListSessionsRequest,
+  ListSessionsResponse,
+  LoginAuthRequest as AuthenticateRequest,
+  LoginAuthResponse as AuthenticateResponse,
+  LogoutAuthRequest as LogoutRequest,
+  LogoutAuthResponse as LogoutResponse,
+  MessageMcpNotification,
+  MessageMcpRequest,
+  MessageMcpResponse,
+  PermissionOption,
+  RequestPermissionResponse,
+  SessionConfigSelectOption,
+  SetProviderRequest,
+  SetProviderResponse,
+  StopReason,
+  TerminalExitStatus,
+  ToolCallLocation,
+  ToolCallStatus,
+  ToolKind,
+  Usage,
+} from "./_generated/schema.gen.ts";
+/**
+ * Generation-1 schemas the client surface uses unchanged: initialize request and capabilities,
+ * session modes, the set-config-option request, and the client file-system and terminal methods.
+ *
+ * **Example** (Check an initialize request)
+ *
+ * ```ts
+ * import { InitializeRequest } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(InitializeRequest)({ protocolVersion: 1, clientCapabilities: { terminal: true } })) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export {
+  AgentCapabilities,
+  ClientCapabilities,
+  CreateTerminalRequest,
+  CreateTerminalResponse,
+  InitializeRequest,
+  KillTerminalRequest,
+  KillTerminalResponse,
+  ReadTextFileRequest,
+  ReadTextFileResponse,
+  ReleaseTerminalRequest,
+  ReleaseTerminalResponse,
+  SessionMode,
+  SessionModeState,
+  SetSessionConfigOptionRequest,
+  SetSessionModeRequest,
+  SetSessionModeResponse,
+  TerminalOutputRequest,
+  TerminalOutputResponse,
+  WaitForTerminalExitRequest,
+  WaitForTerminalExitResponse,
+  WriteTextFileRequest,
+  WriteTextFileResponse,
+} from "./_generated/schema-v1.gen.ts";

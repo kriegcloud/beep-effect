@@ -1,5 +1,15 @@
 /**
- * ACP RPC definitions for the technical driver.
+ * ACP RPC groups for the technical driver.
+ *
+ * **Details**
+ *
+ * - `AgentRpcs` / `ClientRpcs` are the generation-2 groups an agent serves and a client serves.
+ *   The generation-2 agent (`@beep/acp/agent`) uses them.
+ * - `CompatAgentRpcs` / `CompatClientRpcs` are the dual-generation groups the client
+ *   (`@beep/acp/client`) uses. Their payloads and results are unions over both generations, and
+ *   they add the generation-1 methods (`authenticate`, `logout`, `session/load`,
+ *   `session/set_mode`, `fs/*`, `terminal/*`) and the legacy method names that neither pinned
+ *   schema lists (`LEGACY_AGENT_METHODS`, `LEGACY_CLIENT_METHODS`).
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -7,481 +17,151 @@
 
 import * as Rpc from "effect/rpc/Rpc";
 import * as RpcGroup from "effect/rpc/RpcGroup";
-import { AGENT_METHODS, CLIENT_METHODS } from "./_generated/meta.gen.ts";
+import * as S from "effect/Schema";
+import { AGENT_METHODS, CLIENT_METHODS, V1_AGENT_METHODS, V1_CLIENT_METHODS } from "./_generated/meta.gen.ts";
 import * as AcpSchema from "./_generated/schema.gen.ts";
+import * as AcpSchemaV1 from "./_generated/schema-v1.gen.ts";
+import * as AcpCompat from "./AcpCompat.models.ts";
 
 /**
- * RPC definition for `InitializeRpc`.
+ * Agent methods that neither pinned schema lists but older generation-1 agents still serve.
  *
- * **Example** (Log InitializeRpc method key)
+ * **Example** (Read the legacy set-model method)
  *
  * ```ts
- * import { InitializeRpc } from "@beep/acp/rpc"
+ * import { LEGACY_AGENT_METHODS } from "@beep/acp/rpc"
  *
- * const method = InitializeRpc.key
- * console.log(method)
+ * console.log(LEGACY_AGENT_METHODS.session_set_model) // "session/set_model"
  * ```
  *
- * @category protocols
+ * @category constants
  * @since 0.0.0
  */
-export const InitializeRpc = Rpc.make(AGENT_METHODS.initialize, {
+export const LEGACY_AGENT_METHODS = {
+  session_set_model: "session/set_model",
+} as const;
+
+/**
+ * Client methods that neither pinned schema lists but native agents still call.
+ *
+ * **Details**
+ *
+ * `session/elicitation` and `_session/elicitation` are the pre-1.21 elicitation requests (they
+ * expect the nested `LegacyElicitationResponse`), and `session/elicitation/complete` is the
+ * pre-1.21 name of the `elicitation/complete` notification.
+ *
+ * **Example** (Read the legacy elicitation methods)
+ *
+ * ```ts
+ * import { LEGACY_CLIENT_METHODS } from "@beep/acp/rpc"
+ *
+ * console.log(LEGACY_CLIENT_METHODS.session_elicitation_complete) // "session/elicitation/complete"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const LEGACY_CLIENT_METHODS = {
+  session_elicitation: "session/elicitation",
+  unstable_session_elicitation: "_session/elicitation",
+  session_elicitation_complete: "session/elicitation/complete",
+} as const;
+
+// --- Generation 2: agent methods ----------------------------------------------------------------
+
+const InitializeRpc = Rpc.make(AGENT_METHODS.initialize, {
   payload: AcpSchema.InitializeRequest,
   success: AcpSchema.InitializeResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `AuthenticateRpc`.
- *
- * **Example** (Log AuthenticateRpc method key)
- *
- * ```ts
- * import { AuthenticateRpc } from "@beep/acp/rpc"
- *
- * const method = AuthenticateRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const AuthenticateRpc = Rpc.make(AGENT_METHODS.authenticate, {
-  payload: AcpSchema.AuthenticateRequest,
-  success: AcpSchema.AuthenticateResponse,
+const LoginRpc = Rpc.make(AGENT_METHODS.auth_login, {
+  payload: AcpSchema.LoginAuthRequest,
+  success: AcpSchema.LoginAuthResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `LogoutRpc`.
- *
- * **Example** (Log LogoutRpc method key)
- *
- * ```ts
- * import { LogoutRpc } from "@beep/acp/rpc"
- *
- * const method = LogoutRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const LogoutRpc = Rpc.make(AGENT_METHODS.logout, {
-  payload: AcpSchema.LogoutRequest,
-  success: AcpSchema.LogoutResponse,
+const LogoutRpc = Rpc.make(AGENT_METHODS.auth_logout, {
+  payload: AcpSchema.LogoutAuthRequest,
+  success: AcpSchema.LogoutAuthResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `NewSessionRpc`.
- *
- * **Example** (Log NewSessionRpc method key)
- *
- * ```ts
- * import { NewSessionRpc } from "@beep/acp/rpc"
- *
- * const method = NewSessionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const NewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
+const NewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
   payload: AcpSchema.NewSessionRequest,
   success: AcpSchema.NewSessionResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `LoadSessionRpc`.
- *
- * **Example** (Log LoadSessionRpc method key)
- *
- * ```ts
- * import { LoadSessionRpc } from "@beep/acp/rpc"
- *
- * const method = LoadSessionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const LoadSessionRpc = Rpc.make(AGENT_METHODS.session_load, {
-  payload: AcpSchema.LoadSessionRequest,
-  success: AcpSchema.LoadSessionResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `ListSessionsRpc`.
- *
- * **Example** (Log ListSessionsRpc method key)
- *
- * ```ts
- * import { ListSessionsRpc } from "@beep/acp/rpc"
- *
- * const method = ListSessionsRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const ListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
+const ListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
   payload: AcpSchema.ListSessionsRequest,
   success: AcpSchema.ListSessionsResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `ForkSessionRpc`.
- *
- * **Example** (Log ForkSessionRpc method key)
- *
- * ```ts
- * import { ForkSessionRpc } from "@beep/acp/rpc"
- *
- * const method = ForkSessionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const ForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
+const ForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
   payload: AcpSchema.ForkSessionRequest,
   success: AcpSchema.ForkSessionResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `ResumeSessionRpc`.
- *
- * **Example** (Log ResumeSessionRpc method key)
- *
- * ```ts
- * import { ResumeSessionRpc } from "@beep/acp/rpc"
- *
- * const method = ResumeSessionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const ResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
+const ResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
   payload: AcpSchema.ResumeSessionRequest,
   success: AcpSchema.ResumeSessionResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `CloseSessionRpc`.
- *
- * **Example** (Log CloseSessionRpc method key)
- *
- * ```ts
- * import { CloseSessionRpc } from "@beep/acp/rpc"
- *
- * const method = CloseSessionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const CloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
+const CloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
   payload: AcpSchema.CloseSessionRequest,
   success: AcpSchema.CloseSessionResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `PromptRpc`.
- *
- * **Example** (Log PromptRpc method key)
- *
- * ```ts
- * import { PromptRpc } from "@beep/acp/rpc"
- *
- * const method = PromptRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const PromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
+const DeleteSessionRpc = Rpc.make(AGENT_METHODS.session_delete, {
+  payload: AcpSchema.DeleteSessionRequest,
+  success: AcpSchema.DeleteSessionResponse,
+  error: AcpSchema.Error,
+});
+
+const ListProvidersRpc = Rpc.make(AGENT_METHODS.providers_list, {
+  payload: AcpSchema.ListProvidersRequest,
+  success: AcpSchema.ListProvidersResponse,
+  error: AcpSchema.Error,
+});
+
+const SetProviderRpc = Rpc.make(AGENT_METHODS.providers_set, {
+  payload: AcpSchema.SetProviderRequest,
+  success: AcpSchema.SetProviderResponse,
+  error: AcpSchema.Error,
+});
+
+const DisableProviderRpc = Rpc.make(AGENT_METHODS.providers_disable, {
+  payload: AcpSchema.DisableProviderRequest,
+  success: AcpSchema.DisableProviderResponse,
+  error: AcpSchema.Error,
+});
+
+const PromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
   payload: AcpSchema.PromptRequest,
   success: AcpSchema.PromptResponse,
   error: AcpSchema.Error,
 });
 
-/**
- * RPC definition for `SetSessionModeRpc`.
- *
- * **Example** (Log SetSessionModeRpc method key)
- *
- * ```ts
- * import { SetSessionModeRpc } from "@beep/acp/rpc"
- *
- * const method = SetSessionModeRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const SetSessionModeRpc = Rpc.make(AGENT_METHODS.session_set_mode, {
-  payload: AcpSchema.SetSessionModeRequest,
-  success: AcpSchema.SetSessionModeResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `SetSessionModelRpc`.
- *
- * **Example** (Log SetSessionModelRpc method key)
- *
- * ```ts
- * import { SetSessionModelRpc } from "@beep/acp/rpc"
- *
- * const method = SetSessionModelRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const SetSessionModelRpc = Rpc.make(AGENT_METHODS.session_set_model, {
-  payload: AcpSchema.SetSessionModelRequest,
-  success: AcpSchema.SetSessionModelResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `SetSessionConfigOptionRpc`.
- *
- * **Example** (Log SetSessionConfigOptionRpc key)
- *
- * ```ts
- * import { SetSessionConfigOptionRpc } from "@beep/acp/rpc"
- *
- * const method = SetSessionConfigOptionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const SetSessionConfigOptionRpc = Rpc.make(AGENT_METHODS.session_set_config_option, {
+const SetSessionConfigOptionRpc = Rpc.make(AGENT_METHODS.session_set_config_option, {
   payload: AcpSchema.SetSessionConfigOptionRequest,
   success: AcpSchema.SetSessionConfigOptionResponse,
   error: AcpSchema.Error,
 });
 
 /**
- * RPC definition for `ReadTextFileRpc`.
+ * RPC group served by generation-2 ACP agents.
  *
- * **Example** (Log ReadTextFileRpc method key)
- *
- * ```ts
- * import { ReadTextFileRpc } from "@beep/acp/rpc"
- *
- * const method = ReadTextFileRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const ReadTextFileRpc = Rpc.make(CLIENT_METHODS.fs_read_text_file, {
-  payload: AcpSchema.ReadTextFileRequest,
-  success: AcpSchema.ReadTextFileResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `WriteTextFileRpc`.
- *
- * **Example** (Log WriteTextFileRpc method key)
- *
- * ```ts
- * import { WriteTextFileRpc } from "@beep/acp/rpc"
- *
- * const method = WriteTextFileRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const WriteTextFileRpc = Rpc.make(CLIENT_METHODS.fs_write_text_file, {
-  payload: AcpSchema.WriteTextFileRequest,
-  success: AcpSchema.WriteTextFileResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `RequestPermissionRpc`.
- *
- * **Example** (Log RequestPermissionRpc method key)
- *
- * ```ts
- * import { RequestPermissionRpc } from "@beep/acp/rpc"
- *
- * const method = RequestPermissionRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const RequestPermissionRpc = Rpc.make(CLIENT_METHODS.session_request_permission, {
-  payload: AcpSchema.RequestPermissionRequest,
-  success: AcpSchema.RequestPermissionResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `ElicitationRpc`.
- *
- * **Example** (Log ElicitationRpc method key)
- *
- * ```ts
- * import { ElicitationRpc } from "@beep/acp/rpc"
- *
- * const method = ElicitationRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const ElicitationRpc = Rpc.make(CLIENT_METHODS.session_elicitation, {
-  payload: AcpSchema.ElicitationRequest,
-  success: AcpSchema.ElicitationResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `CreateTerminalRpc`.
- *
- * **Example** (Log CreateTerminalRpc method key)
- *
- * ```ts
- * import { CreateTerminalRpc } from "@beep/acp/rpc"
- *
- * const method = CreateTerminalRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const CreateTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_create, {
-  payload: AcpSchema.CreateTerminalRequest,
-  success: AcpSchema.CreateTerminalResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `TerminalOutputRpc`.
- *
- * **Example** (Log TerminalOutputRpc method key)
- *
- * ```ts
- * import { TerminalOutputRpc } from "@beep/acp/rpc"
- *
- * const method = TerminalOutputRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const TerminalOutputRpc = Rpc.make(CLIENT_METHODS.terminal_output, {
-  payload: AcpSchema.TerminalOutputRequest,
-  success: AcpSchema.TerminalOutputResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `ReleaseTerminalRpc`.
- *
- * **Example** (Log ReleaseTerminalRpc method key)
- *
- * ```ts
- * import { ReleaseTerminalRpc } from "@beep/acp/rpc"
- *
- * const method = ReleaseTerminalRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const ReleaseTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_release, {
-  payload: AcpSchema.ReleaseTerminalRequest,
-  success: AcpSchema.ReleaseTerminalResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `WaitForTerminalExitRpc`.
- *
- * **Example** (Log WaitForTerminalExitRpc key)
- *
- * ```ts
- * import { WaitForTerminalExitRpc } from "@beep/acp/rpc"
- *
- * const method = WaitForTerminalExitRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const WaitForTerminalExitRpc = Rpc.make(CLIENT_METHODS.terminal_wait_for_exit, {
-  payload: AcpSchema.WaitForTerminalExitRequest,
-  success: AcpSchema.WaitForTerminalExitResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC definition for `KillTerminalRpc`.
- *
- * **Example** (Log KillTerminalRpc method key)
- *
- * ```ts
- * import { KillTerminalRpc } from "@beep/acp/rpc"
- *
- * const method = KillTerminalRpc.key
- * console.log(method)
- * ```
- *
- * @category protocols
- * @since 0.0.0
- */
-export const KillTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_kill, {
-  payload: AcpSchema.KillTerminalRequest,
-  success: AcpSchema.KillTerminalResponse,
-  error: AcpSchema.Error,
-});
-
-/**
- * RPC group served by ACP agents.
- *
- * **Example** (Log first AgentRpcs method)
+ * **Example** (List the agent methods)
  *
  * ```ts
  * import { AgentRpcs } from "@beep/acp/rpc"
  *
- * const firstMethod = AgentRpcs.requests.keys().next().value
- * console.log(firstMethod)
+ * console.log([...AgentRpcs.requests.keys()])
  * ```
  *
  * @category protocols
@@ -489,43 +169,306 @@ export const KillTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_kill, {
  */
 export const AgentRpcs = RpcGroup.make(
   InitializeRpc,
-  AuthenticateRpc,
+  LoginRpc,
   LogoutRpc,
   NewSessionRpc,
-  LoadSessionRpc,
   ListSessionsRpc,
   ForkSessionRpc,
   ResumeSessionRpc,
   CloseSessionRpc,
+  DeleteSessionRpc,
+  ListProvidersRpc,
+  SetProviderRpc,
+  DisableProviderRpc,
   PromptRpc,
-  SetSessionModeRpc,
-  SetSessionModelRpc,
   SetSessionConfigOptionRpc
 );
 
+// --- Generation 2: client methods ---------------------------------------------------------------
+
+const RequestPermissionRpc = Rpc.make(CLIENT_METHODS.session_request_permission, {
+  payload: AcpSchema.RequestPermissionRequest,
+  success: AcpSchema.RequestPermissionResponse,
+  error: AcpSchema.Error,
+});
+
+const ElicitationRpc = Rpc.make(CLIENT_METHODS.elicitation_create, {
+  payload: AcpSchema.CreateElicitationRequest,
+  success: AcpSchema.CreateElicitationResponse,
+  error: AcpSchema.Error,
+});
+
+const ConnectMcpRpc = Rpc.make(CLIENT_METHODS.mcp_connect, {
+  payload: AcpSchema.ConnectMcpRequest,
+  success: AcpSchema.ConnectMcpResponse,
+  error: AcpSchema.Error,
+});
+
+const MessageMcpRpc = Rpc.make(CLIENT_METHODS.mcp_message, {
+  payload: AcpSchema.MessageMcpRequest,
+  success: AcpSchema.MessageMcpResponse,
+  error: AcpSchema.Error,
+});
+
+const DisconnectMcpRpc = Rpc.make(CLIENT_METHODS.mcp_disconnect, {
+  payload: AcpSchema.DisconnectMcpRequest,
+  success: AcpSchema.DisconnectMcpResponse,
+  error: AcpSchema.Error,
+});
+
 /**
- * RPC group served by ACP clients.
+ * RPC group served by generation-2 ACP clients.
  *
- * **Example** (Log first ClientRpcs method)
+ * **Example** (List the client methods)
  *
  * ```ts
  * import { ClientRpcs } from "@beep/acp/rpc"
  *
- * const firstMethod = ClientRpcs.requests.keys().next().value
- * console.log(firstMethod)
+ * console.log([...ClientRpcs.requests.keys()])
  * ```
  *
  * @category protocols
  * @since 0.0.0
  */
 export const ClientRpcs = RpcGroup.make(
-  ReadTextFileRpc,
-  WriteTextFileRpc,
   RequestPermissionRpc,
   ElicitationRpc,
-  CreateTerminalRpc,
-  TerminalOutputRpc,
-  ReleaseTerminalRpc,
-  WaitForTerminalExitRpc,
-  KillTerminalRpc
+  ConnectMcpRpc,
+  MessageMcpRpc,
+  DisconnectMcpRpc
+);
+
+// --- Dual generation: agent methods the client calls --------------------------------------------
+
+const CompatInitializeRpc = Rpc.make(AGENT_METHODS.initialize, {
+  // The negotiating request carries both generations' field names on purpose. A union encoder
+  // would pick one member and drop the other generation's fields before they reach the agent.
+  payload: S.Unknown,
+  success: S.Union([AcpSchema.InitializeResponse, AcpSchemaV1.InitializeResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatAuthenticateV1Rpc = Rpc.make(V1_AGENT_METHODS.authenticate, {
+  payload: AcpSchemaV1.AuthenticateRequest,
+  success: AcpSchemaV1.AuthenticateResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const CompatLogoutV1Rpc = Rpc.make(V1_AGENT_METHODS.logout, {
+  payload: AcpSchemaV1.LogoutRequest,
+  success: AcpSchemaV1.LogoutResponse,
+  error: AcpSchemaV1.Error,
+});
+
+// Generation-1 results are decoded as the compat shapes (generation 1 plus the legacy `models`)
+// before the generation-2 member is tried. The compat request members let the client send a
+// caller's payload to a generation-1 agent unchanged.
+const CompatNewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
+  payload: S.Union([AcpSchema.NewSessionRequest, AcpSchemaV1.NewSessionRequest, AcpCompat.NewSessionRequest]),
+  success: S.Union([AcpCompat.NewSessionResponse, AcpSchema.NewSessionResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatLoadSessionV1Rpc = Rpc.make(V1_AGENT_METHODS.session_load, {
+  payload: S.Union([AcpSchemaV1.LoadSessionRequest, AcpCompat.LoadSessionRequest]),
+  success: AcpCompat.LoadSessionResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const CompatListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
+  payload: S.Union([AcpSchema.ListSessionsRequest, AcpSchemaV1.ListSessionsRequest]),
+  success: S.Union([AcpSchemaV1.ListSessionsResponse, AcpSchema.ListSessionsResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
+  payload: S.Union([AcpSchema.ForkSessionRequest, AcpSchemaV1.ForkSessionRequest, AcpCompat.ForkSessionRequest]),
+  success: S.Union([AcpCompat.ForkSessionResponse, AcpSchema.ForkSessionResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
+  payload: S.Union([AcpSchema.ResumeSessionRequest, AcpSchemaV1.ResumeSessionRequest, AcpCompat.ResumeSessionRequest]),
+  success: S.Union([AcpCompat.ResumeSessionResponse, AcpSchema.ResumeSessionResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatCloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
+  payload: S.Union([AcpSchema.CloseSessionRequest, AcpSchemaV1.CloseSessionRequest]),
+  success: S.Union([AcpSchema.CloseSessionResponse, AcpSchemaV1.CloseSessionResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatPromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
+  payload: S.Union([AcpSchema.PromptRequest, AcpSchemaV1.PromptRequest, AcpCompat.PromptRequest]),
+  success: S.Union([AcpSchemaV1.PromptResponse, AcpSchema.PromptResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatSetSessionConfigOptionRpc = Rpc.make(AGENT_METHODS.session_set_config_option, {
+  payload: S.Union([AcpSchema.SetSessionConfigOptionRequest, AcpSchemaV1.SetSessionConfigOptionRequest]),
+  success: S.Union([AcpSchemaV1.SetSessionConfigOptionResponse, AcpSchema.SetSessionConfigOptionResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatSetSessionModelRpc = Rpc.make(LEGACY_AGENT_METHODS.session_set_model, {
+  payload: AcpCompat.SetSessionModelRequest,
+  success: AcpCompat.SetSessionModelResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const CompatSetSessionModeRpc = Rpc.make(V1_AGENT_METHODS.session_set_mode, {
+  payload: AcpSchemaV1.SetSessionModeRequest,
+  success: AcpSchemaV1.SetSessionModeResponse,
+  error: AcpSchemaV1.Error,
+});
+
+/**
+ * Dual-generation RPC group the client uses to call an agent of either generation.
+ *
+ * **Details**
+ *
+ * `initialize` sends an untyped negotiating payload and decodes either generation's result.
+ * Generation-2 methods (`auth/login`, `auth/logout`, `session/delete`, `providers/*`) sit next to
+ * the generation-1 methods (`authenticate`, `logout`, `session/load`, `session/set_mode`) and the
+ * legacy `session/set_model`; shared methods accept and decode both generations' shapes.
+ *
+ * **Example** (Check for the legacy set-model method)
+ *
+ * ```ts
+ * import { CompatAgentRpcs } from "@beep/acp/rpc"
+ *
+ * console.log(CompatAgentRpcs.requests.has("session/set_model")) // true
+ * ```
+ *
+ * @category protocols
+ * @since 0.0.0
+ */
+export const CompatAgentRpcs = RpcGroup.make(
+  CompatInitializeRpc,
+  CompatSetSessionModelRpc,
+  CompatSetSessionModeRpc,
+  LoginRpc,
+  CompatAuthenticateV1Rpc,
+  LogoutRpc,
+  CompatLogoutV1Rpc,
+  CompatNewSessionRpc,
+  CompatLoadSessionV1Rpc,
+  CompatListSessionsRpc,
+  CompatForkSessionRpc,
+  CompatResumeSessionRpc,
+  CompatCloseSessionRpc,
+  DeleteSessionRpc,
+  ListProvidersRpc,
+  SetProviderRpc,
+  DisableProviderRpc,
+  CompatPromptRpc,
+  CompatSetSessionConfigOptionRpc
+);
+
+// --- Dual generation: client methods the client serves ------------------------------------------
+
+const CompatRequestPermissionRpc = Rpc.make(CLIENT_METHODS.session_request_permission, {
+  payload: S.Union([AcpSchema.RequestPermissionRequest, AcpSchemaV1.RequestPermissionRequest]),
+  success: S.Union([AcpSchema.RequestPermissionResponse, AcpSchemaV1.RequestPermissionResponse]),
+  error: AcpSchema.Error,
+});
+
+const CompatElicitationRpc = Rpc.make(CLIENT_METHODS.elicitation_create, {
+  // Decoded by the client itself so a malformed request is answered with -32602.
+  payload: S.Unknown,
+  success: S.Union([AcpSchema.CreateElicitationResponse, AcpSchemaV1.CreateElicitationResponse]),
+  error: AcpSchema.Error,
+});
+
+// Native ACP agents still use the older nested elicitation response.
+const CompatLegacyElicitationRpc = Rpc.make(LEGACY_CLIENT_METHODS.session_elicitation, {
+  payload: AcpSchema.CreateElicitationRequest,
+  success: AcpCompat.LegacyElicitationResponse,
+  error: AcpSchema.Error,
+});
+
+const CompatUnstableLegacyElicitationRpc = Rpc.make(LEGACY_CLIENT_METHODS.unstable_session_elicitation, {
+  payload: AcpSchema.CreateElicitationRequest,
+  success: AcpCompat.LegacyElicitationResponse,
+  error: AcpSchema.Error,
+});
+
+const ReadTextFileV1Rpc = Rpc.make(V1_CLIENT_METHODS.fs_read_text_file, {
+  payload: AcpSchemaV1.ReadTextFileRequest,
+  success: AcpSchemaV1.ReadTextFileResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const WriteTextFileV1Rpc = Rpc.make(V1_CLIENT_METHODS.fs_write_text_file, {
+  payload: AcpSchemaV1.WriteTextFileRequest,
+  success: AcpSchemaV1.WriteTextFileResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const CreateTerminalV1Rpc = Rpc.make(V1_CLIENT_METHODS.terminal_create, {
+  payload: AcpSchemaV1.CreateTerminalRequest,
+  success: AcpSchemaV1.CreateTerminalResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const TerminalOutputV1Rpc = Rpc.make(V1_CLIENT_METHODS.terminal_output, {
+  payload: AcpSchemaV1.TerminalOutputRequest,
+  success: AcpSchemaV1.TerminalOutputResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const ReleaseTerminalV1Rpc = Rpc.make(V1_CLIENT_METHODS.terminal_release, {
+  payload: AcpSchemaV1.ReleaseTerminalRequest,
+  success: AcpSchemaV1.ReleaseTerminalResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const WaitForTerminalExitV1Rpc = Rpc.make(V1_CLIENT_METHODS.terminal_wait_for_exit, {
+  payload: AcpSchemaV1.WaitForTerminalExitRequest,
+  success: AcpSchemaV1.WaitForTerminalExitResponse,
+  error: AcpSchemaV1.Error,
+});
+
+const KillTerminalV1Rpc = Rpc.make(V1_CLIENT_METHODS.terminal_kill, {
+  payload: AcpSchemaV1.KillTerminalRequest,
+  success: AcpSchemaV1.KillTerminalResponse,
+  error: AcpSchemaV1.Error,
+});
+
+/**
+ * Dual-generation RPC group the client serves for agents of either generation.
+ *
+ * **Details**
+ *
+ * Generation-2 requests (`session/request_permission`, `elicitation/create`, `mcp/*`), the legacy
+ * nested elicitation requests (`session/elicitation`, `_session/elicitation`), and the
+ * generation-1 client file-system and terminal requests (`fs/*`, `terminal/*`).
+ *
+ * **Example** (Check for the generation-1 file read)
+ *
+ * ```ts
+ * import { CompatClientRpcs } from "@beep/acp/rpc"
+ *
+ * console.log(CompatClientRpcs.requests.has("fs/read_text_file")) // true
+ * ```
+ *
+ * @category protocols
+ * @since 0.0.0
+ */
+export const CompatClientRpcs = RpcGroup.make(
+  CompatRequestPermissionRpc,
+  CompatElicitationRpc,
+  CompatLegacyElicitationRpc,
+  CompatUnstableLegacyElicitationRpc,
+  ConnectMcpRpc,
+  MessageMcpRpc,
+  DisconnectMcpRpc,
+  ReadTextFileV1Rpc,
+  WriteTextFileV1Rpc,
+  CreateTerminalV1Rpc,
+  TerminalOutputV1Rpc,
+  ReleaseTerminalV1Rpc,
+  WaitForTerminalExitV1Rpc,
+  KillTerminalV1Rpc
 );

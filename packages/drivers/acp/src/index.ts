@@ -55,13 +55,12 @@ export * as Agent from "./AcpAgent.service.ts";
 /**
  * Client-side ACP service exports.
  *
- * **Example** (Access ACP client service)
+ * **Example** (Check a protocol generation choice)
  *
  * ```ts
  * import { Client } from "@beep/acp"
  *
- * const service = Client.AcpClient
- * console.log(service)
+ * console.log(Client.AcpClientProtocolGeneration.is.negotiate("negotiate")) // true
  * ```
  *
  * @category services
@@ -71,12 +70,12 @@ export * as Client from "./AcpClient.service.ts";
 /**
  * Normalized ACP compatibility exports shared by protocol generations 1 and 2.
  *
- * **Example** (Access the compatibility namespace)
+ * **Example** (Read the unknown-variant sentinel)
  *
  * ```ts
  * import { Compat } from "@beep/acp"
  *
- * console.log(Compat)
+ * console.log(Compat.ACP_UNKNOWN) // "_acp_unknown"
  * ```
  *
  * @category schemas

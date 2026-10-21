@@ -1559,3 +1559,96 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("effect-acp untagged err
     })
   );
 });
+
+it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp dual-generation session updates", (it) => {
+  // Raw `session/update` frames: generation-1 and future updates the generation-2 codec rejects.
+  const RawSessionUpdateNotification = jsonRpcNotification("session/update", S.Unknown);
+
+  it.effect(
+    "decodes generation-1 updates and a generation-2 idle that carries the prompt error",
+    Effect.fnUntraced(function* () {
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+      });
+      const notifications = yield* Deferred.make<ReadonlyArray<AcpProtocol.AcpIncomingNotification>>();
+      yield* transport.incoming.pipe(
+        Stream.take(3),
+        Stream.runCollect,
+        Effect.flatMap((chunk) => Deferred.succeed(notifications, chunk)),
+        Effect.forkScoped
+      );
+
+      const v1Chunk = { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "hi" } };
+      const v1ToolCall = { sessionUpdate: "tool_call", toolCallId: "tool-1", title: "Read file" };
+      const idle = {
+        sessionUpdate: "state_update",
+        state: "idle",
+        stopReason: "end_turn",
+        error: { code: -32603, message: "Internal error" },
+      };
+      for (const update of [v1Chunk, v1ToolCall, idle]) {
+        yield* Queue.offer(
+          input,
+          yield* encodeJsonl(RawSessionUpdateNotification, {
+            jsonrpc: "2.0",
+            method: "session/update",
+            params: { sessionId: "s-1", update },
+          })
+        );
+      }
+
+      const received = yield* Deferred.await(notifications);
+      assert.deepEqual(
+        A.map(received, (notification) =>
+          notification._tag === "SessionUpdate" ? notification.params.update : assert.fail("expected a session update")
+        ),
+        [v1Chunk, v1ToolCall, idle]
+      );
+    })
+  );
+
+  it.effect(
+    "dispatches the transformed (compat) session update",
+    Effect.fnUntraced(function* () {
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        transformSessionUpdate: (notification) => ({
+          sessionId: notification.sessionId,
+          update: {
+            sessionUpdate: "_acp_unknown",
+            originalSessionUpdate: notification.update.sessionUpdate,
+            raw: null,
+          },
+        }),
+      });
+      const notification = yield* Deferred.make<AcpProtocol.AcpIncomingNotification>();
+      yield* transport.incoming.pipe(
+        Stream.runHead,
+        Effect.flatMap((head) => Deferred.succeed(notification, O.getOrThrow(head))),
+        Effect.forkScoped
+      );
+
+      yield* Queue.offer(
+        input,
+        yield* encodeJsonl(RawSessionUpdateNotification, {
+          jsonrpc: "2.0",
+          method: "session/update",
+          params: { sessionId: "s-1", update: { sessionUpdate: "timeline_update", entries: [] } },
+        })
+      );
+
+      assert.deepEqual(yield* Deferred.await(notification), {
+        _tag: "SessionUpdate",
+        method: "session/update",
+        params: {
+          sessionId: "s-1",
+          update: { sessionUpdate: "_acp_unknown", originalSessionUpdate: "timeline_update", raw: null },
+        },
+      });
+    })
+  );
+});
