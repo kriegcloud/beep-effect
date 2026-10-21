@@ -57,12 +57,14 @@ export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]
 };
 
 export const OntologyTermName = S.NonEmptyString.check(
-  S.isPattern(/^[A-Za-z][A-Za-z0-9._-]*$/, {
-    identifier: $I`OntologyTermNamePatternCheck`,
-    title: "Ontology Term Name Pattern",
-    description: "A local ontology term name that can safely become an IRI fragment.",
-    message: "Ontology term names must start with a letter and then use letters, digits, dot, underscore, or hyphen",
-  })
+  S.isPattern(
+    /^[A-Za-z][A-Za-z0-9._-]*$/,
+    $I.annote("OntologyTermNamePatternCheck", {
+      title: "Ontology Term Name Pattern",
+      description: "A local ontology term name that can safely become an IRI fragment.",
+      message: "Ontology term names must start with a letter and then use letters, digits, dot, underscore, or hyphen",
+    })
+  )
 ).pipe(
   S.brand("OntologyTermName"),
   $I.annoteSchema("OntologyTermName", {

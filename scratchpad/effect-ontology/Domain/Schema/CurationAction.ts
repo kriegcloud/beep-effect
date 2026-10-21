@@ -21,12 +21,11 @@ import * as Effect from "effect/Effect";
 const $I = $ScratchpadId.create("effect-ontology/Domain/Schema/CurationAction");
 
 const WikidataQid = S.String.check(
-  S.isPattern(/^Q[1-9][0-9]*$/, {
-    identifier: $I`WikidataQidPatternCheck`,
+  S.isPattern(/^Q[1-9][0-9]*$/, $I.annote("WikidataQidPatternCheck", {
     title: "Wikidata QID",
     description: "A Wikidata item identifier beginning with Q and a non-zero canonical decimal integer.",
     message: "Wikidata QID must use Q followed by a positive decimal integer without leading zeroes.",
-  })
+  }))
 ).pipe(
     S.brand("WikidataQid"),
     $I.annoteSchema("WikidataQid", {

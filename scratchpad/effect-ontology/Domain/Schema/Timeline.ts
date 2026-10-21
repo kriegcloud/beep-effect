@@ -131,12 +131,11 @@ const OrderedUtcRangeDefinition = S.Struct({
               path: ["to"],
               issue: "Timeline range end must not precede its start.",
             },
-      {
-        identifier: $I`OrderedUtcRangeCheck`,
+      $I.annote("OrderedUtcRangeCheck", {
         title: "Ordered UTC Range",
         description: "A UTC range whose end is not before its start.",
         message: "UTC range end must be greater than or equal to its start.",
-      }
+      })
     )
   );
 

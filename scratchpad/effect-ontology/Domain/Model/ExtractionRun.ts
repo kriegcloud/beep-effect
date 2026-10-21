@@ -249,12 +249,11 @@ export type RunStatus = typeof RunStatus.Type;
 const ChunkSize = PosInt.check(
   S.isBetween(
     { minimum: 100, maximum: 10_000 },
-    {
-      identifier: $I`ChunkSizeRangeCheck`,
+    $I.annote("ChunkSizeRangeCheck", {
       title: "Chunk Size Range",
       description: "A chunk size from 100 through 10,000 UTF-16 characters.",
       message: "Chunk size must be an integer between 100 and 10000.",
-    }
+    })
   )
 ).pipe(
     $I.annoteSchema("ChunkSize", {
@@ -265,12 +264,11 @@ const ChunkSize = PosInt.check(
 const SentenceOverlap = S.Natural.check(
   S.isBetween(
     { minimum: 0, maximum: 20 },
-    {
-      identifier: $I`SentenceOverlapRangeCheck`,
+    $I.annote("SentenceOverlapRangeCheck", {
       title: "Sentence Overlap Range",
       description: "A chunk overlap from zero through 20 sentences.",
       message: "Sentence overlap must be an integer between 0 and 20.",
-    }
+    })
   )
 ).pipe(
     $I.annoteSchema("SentenceOverlap", {
@@ -323,12 +321,11 @@ export class ChunkingConfig extends S.Opaque<ChunkingConfig, { readonly brand: u
 const Temperature = S.Finite.check(
   S.isBetween(
     { minimum: 0, maximum: 2 },
-    {
-      identifier: $I`TemperatureRangeCheck`,
+    $I.annote("TemperatureRangeCheck", {
       title: "Model Temperature Range",
       description: "A model sampling temperature in the inclusive range zero through two.",
       message: "Model temperature must be between 0 and 2.",
-    }
+    })
   )
 ).pipe(
     $I.annoteSchema("Temperature", {
@@ -339,12 +336,11 @@ const Temperature = S.Finite.check(
 const LlmTimeout = PosInt.check(
   S.isBetween(
     { minimum: 1_000, maximum: 300_000 },
-    {
-      identifier: $I`LlmTimeoutRangeCheck`,
+    $I.annote("LlmTimeoutRangeCheck", {
       title: "LLM Timeout Range",
       description: "A model-call timeout from one second through five minutes.",
       message: "LLM timeout must be between 1000 and 300000 milliseconds.",
-    }
+    })
   )
 ).pipe(
     S.decodeTo(S.DurationFromMillis),
@@ -386,12 +382,11 @@ export class LlmConfig extends S.Opaque<LlmConfig, { readonly brand: unique symb
 const Concurrency = PosInt.check(
   S.isBetween(
     { minimum: 1, maximum: 32 },
-    {
-      identifier: $I`RunConcurrencyRangeCheck`,
+    $I.annote("RunConcurrencyRangeCheck", {
       title: "Run Concurrency Range",
       description: "A run concurrency from one through 32 tasks.",
       message: "Run concurrency must be an integer between 1 and 32.",
-    }
+    })
   )
 ).pipe(
     $I.annoteSchema("Concurrency", {

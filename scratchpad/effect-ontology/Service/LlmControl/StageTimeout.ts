@@ -75,12 +75,11 @@ const StageTimeoutInvariantCheck = S.makeFilter(
           path: ["hardTimeout"],
           issue: "Hard timeout must be greater than or equal to the soft warning timeout.",
         },
-  {
-    identifier: $I`StageTimeoutInvariantCheck`,
+  $I.annote("StageTimeoutInvariantCheck", {
     title: "Stage Timeout Ordering",
     description: "A stage hard deadline cannot precede its soft warning deadline.",
     message: "Stage hard timeout must be greater than or equal to the soft timeout.",
-  }
+  })
 );
 
 /**

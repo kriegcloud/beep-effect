@@ -186,12 +186,11 @@ const withSeedDerivedIdStatics =
  * @since 0.0.0
  */
 export const MentionId = S.String.check(
-  S.isPattern(mentionIdPattern, {
-    identifier: $I`MentionIdPatternCheck`,
+  S.isPattern(mentionIdPattern, $I.annote("MentionIdPatternCheck", {
     title: "Mention Identifier",
     description: "A mention prefix followed by 12 lowercase hexadecimal characters.",
     message: 'Mention identifier must have the form "mention-{12 lowercase hex characters}".',
-  })
+  }))
 ).pipe(
     S.brand("MentionId"),
     $I.annoteSchema("MentionId", {
@@ -333,12 +332,11 @@ export class Mention extends S.Opaque<Mention, { readonly brand: unique symbol }
  * @since 0.0.0
  */
 export const CanonicalEntityId = S.String.check(
-  S.isPattern(canonicalEntityIdPattern, {
-    identifier: $I`CanonicalEntityIdPatternCheck`,
+  S.isPattern(canonicalEntityIdPattern, $I.annote("CanonicalEntityIdPatternCheck", {
     title: "Canonical Entity Identifier",
     description: "A short digest identifier or stable snake-case entity identifier.",
     message: 'Canonical entity identifier must be snake_case or have the form "entity-{12 lowercase hex characters}".',
-  })
+  }))
 ).pipe(
     S.brand("CanonicalEntityId"),
     $I.annoteSchema("CanonicalEntityId", {
@@ -449,12 +447,11 @@ export class TrackedEntity extends S.Class<TrackedEntity, { readonly brand: uniq
  * @since 0.0.0
  */
 export const EventId = S.String.check(
-  S.isPattern(eventIdPattern, {
-    identifier: $I`EventIdPatternCheck`,
+  S.isPattern(eventIdPattern, $I.annote("EventIdPatternCheck", {
     title: "Event Identifier",
     description: "An event prefix followed by 12 lowercase hexadecimal characters.",
     message: 'Event identifier must have the form "event-{12 lowercase hex characters}".',
-  })
+  }))
 ).pipe(
     S.brand("EventId"),
     $I.annoteSchema("EventId", {
@@ -529,12 +526,11 @@ const EventIntervalDefinition = EventIntervalFieldsModel.check(
                 issue: "end must not precede start.",
               },
       }),
-    {
-      identifier: $I`EventIntervalOrderCheck`,
+    $I.annote("EventIntervalOrderCheck", {
       title: "Event Interval Order",
       description: "An event interval whose optional end does not precede its start.",
       message: "Event interval end must be greater than or equal to its start.",
-    }
+    })
   )
 );
 

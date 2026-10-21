@@ -54,30 +54,26 @@ const localStorageMutationRetryAttempts = 200;
 const LocalStorageKey = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter((value: string) => !localStorageAbsoluteKeyPattern.test(value), {
-        identifier: $I`LocalStorageKeyRelativeCheck`,
+      S.makeFilter((value: string) => !localStorageAbsoluteKeyPattern.test(value), $I.annote("LocalStorageKeyRelativeCheck", {
         title: "Local Storage Key Is Relative",
         description: "A local storage key without a POSIX, UNC, or Windows drive root.",
         message: "Local storage key must be relative to the configured storage root.",
-      }),
-      S.makeFilter((value: string) => !localStorageDotSegmentPattern.test(value), {
-        identifier: $I`LocalStorageKeyDotSegmentCheck`,
+      })),
+      S.makeFilter((value: string) => !localStorageDotSegmentPattern.test(value), $I.annote("LocalStorageKeyDotSegmentCheck", {
         title: "Local Storage Key Has No Dot Segments",
         description: "A local storage key without current-directory or parent-directory path segments.",
         message: 'Local storage key must not contain "." or ".." path segments.',
-      }),
-      S.makeFilter((value: string) => !localStorageMetadataSegmentPattern.test(value), {
-        identifier: $I`LocalStorageKeyMetadataCheck`,
+      })),
+      S.makeFilter((value: string) => !localStorageMetadataSegmentPattern.test(value), $I.annote("LocalStorageKeyMetadataCheck", {
         title: "Local Storage Key Is Outside Metadata Namespace",
         description: "A local storage key that does not use the storage service's reserved metadata directory.",
         message: `Local storage key must not contain the reserved "${localStorageMetadataDirectoryName}" segment.`,
-      }),
+      })),
     ],
-    {
-      identifier: $I`LocalStorageKeyChecks`,
+    $I.annote("LocalStorageKeyChecks", {
       title: "Local Storage Key",
       description: "A non-empty, relative local storage key without dot path segments.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("LocalStorageKey", {
@@ -86,12 +82,11 @@ const LocalStorageKey = S.NonEmptyString.check(
 );
 
 const GcsGeneration = S.String.check(
-  S.isPattern(/^(?:0|[1-9][0-9]*)$/u, {
-    identifier: $I`GcsGenerationPatternCheck`,
+  S.isPattern(/^(?:0|[1-9][0-9]*)$/u, $I.annote("GcsGenerationPatternCheck", {
     title: "GCS Generation",
     description: "A canonical non-negative decimal GCS generation string.",
     message: "GCS generation must be zero or a non-zero decimal integer without leading zeros.",
-  })
+  }))
 ).pipe(
   $I.annoteSchema("GcsGeneration", {
     description: "A canonical decimal GCS generation preserved as text for exact 64-bit preconditions.",

@@ -38,13 +38,12 @@ const agentIdPattern = /^[a-z][a-z0-9_-]*$/;
  * @since 0.0.0
  */
 export const AgentId = S.String.check(
-  S.isPattern(agentIdPattern, {
-    identifier: $I`AgentIdPatternCheck`,
+  S.isPattern(agentIdPattern, $I.annote("AgentIdPatternCheck", {
     title: "Agent Identifier",
     description: "A lowercase agent identifier with optional digits, dashes, and underscores.",
     message:
       "Agent identifier must start with a lowercase letter and contain only lowercase letters, digits, dashes, or underscores.",
-  })
+  }))
 ).pipe(
     S.brand("AgentId"),
     $I.annoteSchema("AgentId", {

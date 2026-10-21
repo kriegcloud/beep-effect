@@ -168,24 +168,21 @@ export const ChunkingStrategy = ChunkingStrategyDefinition.pipe(
 const ChunkSize = PosInt.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThan(0, {
-        identifier: $I`ChunkSizePositiveCheck`,
+      S.isGreaterThan(0, $I.annote("ChunkSizePositiveCheck", {
         title: "Positive Chunk Size",
         description: "A chunk size strictly greater than zero.",
         message: "Chunk size must be positive.",
-      }),
-      S.isLessThanOrEqualTo(10_000, {
-        identifier: $I`ChunkSizeMaximumCheck`,
+      })),
+      S.isLessThanOrEqualTo(10_000, $I.annote("ChunkSizeMaximumCheck", {
         title: "Maximum Chunk Size",
         description: "A positive chunk size no larger than ten thousand characters.",
         message: "Chunk size must not exceed 10,000 characters.",
-      }),
+      })),
     ],
-    {
-      identifier: $I`ChunkSizeChecks`,
+    $I.annote("ChunkSizeChecks", {
       title: "Chunk Size",
       description: "Positive bounded character-count checks for a chunk.",
-    }
+    })
   )
 ).pipe(
     S.brand("ChunkSize"),
@@ -197,24 +194,21 @@ const ChunkSize = PosInt.check(
 const SentenceOverlap = S.Natural.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`SentenceOverlapLowerBoundCheck`,
+      S.isGreaterThanOrEqualTo(0, $I.annote("SentenceOverlapLowerBoundCheck", {
         title: "Non-Negative Sentence Overlap",
         description: "A sentence-overlap count greater than or equal to zero.",
         message: "Sentence overlap must be non-negative.",
-      }),
-      S.isLessThanOrEqualTo(10, {
-        identifier: $I`SentenceOverlapMaximumCheck`,
+      })),
+      S.isLessThanOrEqualTo(10, $I.annote("SentenceOverlapMaximumCheck", {
         title: "Maximum Sentence Overlap",
         description: "A non-negative sentence-overlap count no larger than ten.",
         message: "Sentence overlap must not exceed ten.",
-      }),
+      })),
     ],
-    {
-      identifier: $I`SentenceOverlapChecks`,
+    $I.annote("SentenceOverlapChecks", {
       title: "Sentence Overlap",
       description: "Non-negative bounded sentence-overlap checks.",
-    }
+    })
   )
 ).pipe(
     S.brand("SentenceOverlap"),
@@ -307,24 +301,21 @@ export const defaultChunkingParams: Readonly<Record<ChunkingStrategy, ChunkingPa
 const ClassificationBatchSize = PosInt.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThan(0, {
-        identifier: $I`ClassificationBatchSizePositiveCheck`,
+      S.isGreaterThan(0, $I.annote("ClassificationBatchSizePositiveCheck", {
         title: "Positive Classification Batch Size",
         description: "A classification batch size strictly greater than zero.",
         message: "Classification batch size must be positive.",
-      }),
-      S.isLessThanOrEqualTo(50, {
-        identifier: $I`ClassificationBatchSizeMaximumCheck`,
+      })),
+      S.isLessThanOrEqualTo(50, $I.annote("ClassificationBatchSizeMaximumCheck", {
         title: "Maximum Classification Batch Size",
         description: "A positive classification batch size no larger than fifty documents.",
         message: "Classification batch size must not exceed fifty documents.",
-      }),
+      })),
     ],
-    {
-      identifier: $I`ClassificationBatchSizeChecks`,
+    $I.annote("ClassificationBatchSizeChecks", {
       title: "Classification Batch Size",
       description: "Positive bounded document-count checks for one classification batch.",
-    }
+    })
   )
 ).pipe(
     S.brand("ClassificationBatchSize"),
@@ -409,12 +400,11 @@ const languageCodePattern = /^[a-z]{2}$/;
  * @since 0.0.0
  */
 export const LanguageCode = S.String.check(
-  S.isPattern(languageCodePattern, {
-    identifier: $I`LanguageCodePatternCheck`,
+  S.isPattern(languageCodePattern, $I.annote("LanguageCodePatternCheck", {
     title: "Language Code",
     description: "A two-letter lowercase ISO 639-1 representation.",
     message: "Language code must contain exactly two lowercase ASCII letters.",
-  })
+  }))
 ).pipe(
     S.brand("LanguageCode"),
     $I.annoteSchema("LanguageCode", {

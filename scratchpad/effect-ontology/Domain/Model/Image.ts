@@ -14,12 +14,11 @@ import { PosInt } from "../../Schema/PosInt.ts";
 const $I = $ScratchpadId.create("effect-ontology/Domain/Model/Image");
 
 const Base64ImageData = S.NonEmptyString.check(
-  S.isPattern(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/, {
-    identifier: $I`Base64ImageDataPatternCheck`,
+  S.isPattern(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/, $I.annote("Base64ImageDataPatternCheck", {
     title: "Base64 Image Data",
     description: "A non-empty canonical base64 text payload.",
     message: "Image data must be valid padded base64 text.",
-  })
+  }))
 ).pipe(
     $I.annoteSchema("Base64ImageData", {
       description: "Non-empty base64-encoded image bytes prepared for a multimodal prompt.",
