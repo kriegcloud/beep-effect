@@ -587,6 +587,35 @@ it.effect(
 );
 
 it.effect(
+  "fails only its own call when the agent answers with an error tagged Defect",
+  Effect.fnUntraced(function* () {
+    const { stdio, input, output } = yield* makeInMemoryStdio();
+    const acp = yield* AcpClient.make(stdio);
+    const first = yield* Effect.forkScoped(acp.agent.listSessions({}));
+    const firstRequest = yield* takeRequest(output);
+    const second = yield* Effect.forkScoped(acp.agent.listSessions({}));
+    const secondRequest = yield* takeRequest(output);
+    // effect-rpc reads this envelope as a connection-level defect that fails every in-flight call.
+    yield* send(input, {
+      jsonrpc: "2.0",
+      id: firstRequest.id,
+      error: { _tag: "Defect", code: -32603, message: "peer defect", data: { boom: true } },
+    });
+
+    const error = yield* first.pipe(Fiber.join, expectFailure);
+    assert.isTrue(AcpError.AcpRequestError.is(error));
+    if (AcpError.AcpRequestError.is(error)) {
+      assert.equal(error.code, -32603);
+      assert.equal(error.message, "peer defect");
+      assert.deepEqual(error.data, O.some({ boom: true }));
+      assert.deepEqual(error.method, O.some("session/list"));
+    }
+    yield* send(input, result(secondRequest.id, { sessions: [] }));
+    assert.deepEqual(yield* Fiber.join(second), { sessions: [] });
+  })
+);
+
+it.effect(
   "replays buffered notifications to handlers registered after they arrive",
   Effect.fnUntraced(function* () {
     const { stdio, input, output } = yield* makeInMemoryStdio();
