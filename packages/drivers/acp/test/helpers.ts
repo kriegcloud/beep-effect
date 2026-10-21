@@ -1,4 +1,5 @@
-import { Client as AcpClient, Json as AcpJson } from "@beep/acp";
+import * as AcpJson from "@beep/acp/json";
+import * as AcpProtocol from "@beep/acp/protocol";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Queue from "effect/Queue";
@@ -86,4 +87,4 @@ export const makeInMemoryStdio = Effect.fn("makeInMemoryStdio")(function* () {
   };
 });
 
-export const makeTerminationError = AcpClient.makeTerminationError;
+export const makeTerminationError = AcpProtocol.makeTerminationError;

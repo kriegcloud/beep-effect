@@ -156,6 +156,8 @@ const decodeJsonRpcMessage = (frame: unknown): Result.Result<AcpWireMessage, S.S
     ? Result.flatMap(decodeRequestFrame(frame), (request) => toRequestMessage(frame, request))
     : Result.flatMap(decodeResponseFrame(frame), toResponseMessage);
 
+const isBlankLine = (line: string): boolean => Str.isEmpty(Str.trim(line));
+
 const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWireMessage>, S.SchemaError> =>
   isJsonArray(frame) ? Result.all(A.map(frame, decodeJsonRpcMessage)) : Result.map(decodeJsonRpcMessage(frame), A.of);
 
@@ -165,9 +167,9 @@ const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWire
  * **Details**
  *
  * Each call to the returned function appends one chunk to a line buffer, reads every complete
- * line through {@link readJsonText}, and maps the JSON-RPC envelope to the encoded RPC messages
+ * non-blank line through {@link readJsonText}, and maps the JSON-RPC envelope to the encoded RPC messages
  * that effect's `RpcSerialization.ndJsonRpc` produces. A line or trailing remainder above 16 MiB
- * fails with `MaxBufferSizeExceeded` and discards the buffer.
+ * fails with `MaxBufferSizeExceeded` and discards the buffer. Whitespace-only lines are skipped.
  *
  * **Example** (Decode one notification frame)
  *
@@ -203,13 +205,17 @@ export const makeNdJsonRpcFrameDecoder = (): ((
       }
       const line = buffer.slice(position, newline);
       position = newline + 1;
+      newline = buffer.indexOf("\n", position);
+      // A blank keep-alive line carries no message; skip it instead of failing the connection.
+      if (isBlankLine(line)) {
+        continue;
+      }
       const decoded = Result.flatMap(readJsonText(line), decodeJsonRpcFrame);
       if (Result.isFailure(decoded)) {
         buffer = buffer.slice(position);
         return Result.fail(decoded.failure);
       }
       A.appendInPlace(batches, decoded.success);
-      newline = buffer.indexOf("\n", position);
     }
     buffer = buffer.slice(position);
     if (exceeds(Str.length(buffer))) {
