@@ -30,8 +30,10 @@ import {
   librarySourceEvidenceValid,
   runLibraryCommand,
 } from "@beep/repo-cli/test/ResearchLibrary";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
@@ -2136,3 +2138,14 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
     })
   );
 });
+
+it.effect.prop(
+  "property: schema-generated library intakes survive a JSON round trip",
+  { value: Arbitrary.schema(LibraryIntake) },
+  ({ value }) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(LibraryIntakeJson)(yield* S.encodeEffect(LibraryIntakeJson)(value));
+      expect(decoded).toEqual(value);
+    }),
+  { arbitrary: fcRuns(32) }
+);

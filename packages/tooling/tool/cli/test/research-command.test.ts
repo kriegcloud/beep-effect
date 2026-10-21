@@ -9,9 +9,10 @@ import {
 import { CardPersistRow, catalogDbPath, persistCards } from "@beep/repo-cli/commands/Research/internal/CatalogOps";
 import { sha256HexOf } from "@beep/repo-cli/commands/Research/internal/Vault";
 import { decodeYamlTextWith } from "@beep/repo-cli/test/SharedInternals";
-import { provideScopedLayer } from "@beep/test-utils";
+import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -30,6 +31,8 @@ const FAKE_BODY_SHA256 = "0e8230f942f810dc1a85244c077d2a26e97c4f027f5922bcd0fda4
 const CAPTURED_AT = "2026-10-21T00:00:00.000Z";
 const decodeFrontmatter = decodeYamlTextWith(S.decodeUnknownEffect(S.Record(S.String, S.Unknown)));
 const encodeLinksFile = S.encodeEffect(S.fromJsonString(S.Unknown));
+const decodeCardFrontmatter = S.decodeUnknownEffect(KnowledgeCardFrontmatter);
+const encodeCardFrontmatter = S.encodeEffect(KnowledgeCardFrontmatter);
 
 // Nothing in this suite reaches the network: cards come from the local
 // notion-pull links-file seam or from the catalog writer directly.
@@ -111,6 +114,19 @@ describe("research status", () => {
         ]);
       })
     )
+  );
+});
+
+describe("research card frontmatter", () => {
+  it.effect.prop(
+    "property: schema-generated frontmatter survives an encode/decode round trip",
+    { frontmatter: Arbitrary.schema(KnowledgeCardFrontmatter) },
+    ({ frontmatter }) =>
+      Effect.gen(function* () {
+        const decoded = yield* decodeCardFrontmatter(yield* encodeCardFrontmatter(frontmatter));
+        expect(decoded).toEqual(frontmatter);
+      }),
+    { arbitrary: fcRuns(32) }
   );
 });
 

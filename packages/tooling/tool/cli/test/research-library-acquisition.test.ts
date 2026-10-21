@@ -30,8 +30,10 @@ import {
   saveLibraryText,
   validateProviderQualification,
 } from "@beep/repo-cli/test/ResearchLibrary";
+import { fcRuns } from "@beep/test-utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, it, vi } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -826,3 +828,16 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
     })
   );
 });
+
+it.effect.prop(
+  "property: schema-generated capture corrections survive a JSON round trip",
+  { value: Arbitrary.schema(LibraryCaptureCorrection) },
+  ({ value }) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(LibraryCaptureCorrectionJson)(
+        yield* S.encodeEffect(LibraryCaptureCorrectionJson)(value)
+      );
+      expect(decoded).toEqual(value);
+    }),
+  { arbitrary: fcRuns(32) }
+);
