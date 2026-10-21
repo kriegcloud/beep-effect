@@ -2914,6 +2914,7 @@ const policyMediumTasks = [
   "lint:effect-imports",
   "lint:effect-imports-markdown",
   "lint:retired-effect-paths",
+  "lint:schema-tag-idioms",
   "lint:tsconfig-overlay",
   "lint:package-test-typecheck",
   "lint:effect-vitest",
