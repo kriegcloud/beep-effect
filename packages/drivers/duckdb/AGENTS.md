@@ -57,7 +57,7 @@ SPEC; D44 onward record what implementation changed or learned.
 | D26 | Legacy `DuckDbError.cause` = classified `SqlError` | classifier reuse; still an `Error` with the native error one level down | keep the raw error |
 | D27 | `threads`, `memory_limit`, `temp_directory` stay in `databaseOptions`; no default temp directory | minimal typed surface; a default needs a path policy the driver does not own | typed fields later |
 | D28 | Appender out of scope | scope | follow-up |
-| D29 | Empty array bind is an error | DuckDB cannot type an empty list | compile to a typed literal |
+| D29 | An empty array binds as an empty LIST typed `LIST(SQLNULL)` through `bindTypes` (R2-DF-1); it casts into `INTEGER[]`, `VARCHAR[]` and nested LIST columns, and `SELECT ?` reads it as `INTEGER[]` | the untyped native bind refuses an empty `listValue` ("Cannot create lists with item type of ANY") but accepts it with the explicit `LIST(SQLNULL)` type the driver already passes | reject empty arrays |
 | D30 | DuckDB `infinity`/`-infinity` read as those strings at every DATE/TIMESTAMP precision (sentinels checked before conversion); other values outside the JS `Date` range read as `String(value)`, TIMESTAMPTZ rendered in UTC (`+00`) instead of the upstream module-load host offset (R2-DF-3); in-range values are floored to the millisecond | the JS reader throws on out-of-range values and would fail the whole query; DATE and TIMESTAMP_S/MS `toString` print the sentinels as huge finite dates and ±infinity TIMESTAMP_NS fits the `Date` range; the upstream reader truncates toward zero and moved pre-epoch instants forward | `Date(NaN)` |
 | D31 | INTERVAL `micros` follows SafeIntegers | consistency with integer columns | keep `bigint` |
 | D32 | Blank SQL returns the empty result without a native call | `run("")` is a native no-op while `prepare("")` and `extractStatements("")` fail | fail |
@@ -120,8 +120,8 @@ SPEC; D44 onward record what implementation changed or learned.
 - **Comment-only SQL** with bind values, or through `executeStream`, fails
   natively with `Error in native callback` (`UnknownError`). Not special-cased:
   detecting it needs a tokenizer and binding values to it has no meaning.
-- **Number and array bind gaps.** Integral numbers outside int64, mixed-type
-  arrays and empty arrays fail with `UnknownError`. `@duckdb/node-api` 1.5.6
+- **Number and array bind gaps.** Integral numbers outside int64 and
+  mixed-type arrays fail with `UnknownError`. `@duckdb/node-api` 1.5.6
   has no `doubleValue` helper and `listValue(items)` takes no item type, so the
   fix is the typed `DuckDB*Value` pass-through.
 - **`DuckDb.makeNodeClient`** is unscoped and never closes its connection

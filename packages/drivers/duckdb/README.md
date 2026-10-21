@@ -330,12 +330,11 @@ Duplicate column names come back as `a`, `a:1`.
 | valid `Date` | TIMESTAMPTZ |
 | `Uint8Array`, `Buffer`, `Int8Array` | BLOB |
 | a `DuckDB*Value` from `@duckdb/node-api` | as is |
-| non-empty array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); an all-null array is a list of NULLs |
+| array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); an all-null array is a list of NULLs; an empty array is an empty LIST that casts into any LIST column |
 | plain object | JSON text (VARCHAR, casts into JSON columns) |
 
 Limits, all failing with `UnknownError`:
 
-- An empty array cannot be typed. Pass a typed `listValue` or use `sql.in`.
 - Mixed arrays such as `[1, 2.5]` or `[1, "a"]` fail; build a `listValue` with
   typed items.
 - An integral `number` outside the int64 range (`1e20`) fails; bind a string or

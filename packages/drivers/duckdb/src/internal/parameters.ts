@@ -3,8 +3,8 @@
  *
  * Normalization is value-driven only: the prepared statement's parameter types
  * are never consulted because DuckDB reports `INVALID` for untyped contexts.
- * Values DuckDB binds natively pass through; `Date`, byte arrays, non-empty
- * arrays and plain objects are converted; everything else fails with a typed
+ * Values DuckDB binds natively pass through; `Date`, byte arrays, arrays and
+ * plain objects are converted; everything else fails with a typed
  * `SqlError` before any native call.
  *
  * @packageDocumentation
@@ -110,10 +110,13 @@ const bindDate = (value: Date): BindResult => {
     : Result.succeed(timestampTZValue(BigInt(millis) * MICROS_PER_MILLI));
 };
 
+/**
+ * An empty array binds as an empty LIST typed `LIST(SQLNULL)` by
+ * {@link bindTypes}; DuckDB casts it into any LIST column. Untyped, the native
+ * bind refuses it ("Cannot create lists with item type of ANY").
+ */
 const bindArray = (value: ReadonlyArray<unknown>): BindResult =>
-  A.isReadonlyArrayNonEmpty(value)
-    ? Result.map(Result.all(A.map(value, normalizeParameter)), listValue)
-    : Result.fail("cannot bind an empty array without a type; pass a typed DuckDB list value or use sql.in");
+  Result.map(Result.all(A.map(value, normalizeParameter)), listValue);
 
 /** Ordered bind rules; the first matching guard decides the conversion. */
 const BIND_RULES: ReadonlyArray<BindRule> = [
@@ -171,7 +174,8 @@ const bindTypeOf = (value: DuckDBValue): DuckDBType =>
  * LIST values are typed from their first item whose type has no `NULL` leaf
  * (recursively); every other value gets the same `typeForValue` type DuckDB
  * infers for an untyped bind, so only lists bind differently. A list whose
- * items are all `NULL` stays `LIST(SQLNULL)`.
+ * items are all `NULL`, and an empty list, stay `LIST(SQLNULL)`, which DuckDB
+ * casts into any LIST column (`SELECT ?` reads it back as `INTEGER[]`).
  *
  * **Example** (Typing a list with a leading null)
  *
@@ -196,16 +200,17 @@ export const bindTypes = (binds: ReadonlyArray<DuckDBValue>): Array<DuckDBType> 
  *
  * `null`/`undefined` bind as `NULL`; booleans, strings, numbers and bigints
  * pass through; a valid `Date` binds as a TIMESTAMPTZ instant; `Uint8Array`
- * and `Int8Array` bind as BLOB; typed `DuckDB*Value` instances pass through; a
- * non-empty array binds as a LIST of normalized items, typed from its first
- * non-null item through {@link bindTypes}; a plain object binds as JSON text. The first value that cannot be bound fails the whole call.
+ * and `Int8Array` bind as BLOB; typed `DuckDB*Value` instances pass through;
+ * an array binds as a LIST of normalized items, typed from its first non-null
+ * item through {@link bindTypes} (an empty array binds as an empty LIST); a
+ * plain object binds as JSON text. The first value that cannot be bound fails
+ * the whole call.
  *
  * **Gotchas**
  *
- * An empty array, an invalid `Date`, a plain object holding a bigint or a
- * cycle, and any other value (Map, Set, class instance, symbol, function)
- * fail with an `UnknownError` whose message starts with
- * `Failed to bind statement parameters:`.
+ * An invalid `Date`, a plain object holding a bigint or a cycle, and any
+ * other value (Map, Set, class instance, symbol, function) fail with an
+ * `UnknownError` whose message starts with `Failed to bind statement parameters:`.
  *
  * **Example** (Normalizing parameters before a native bind)
  *

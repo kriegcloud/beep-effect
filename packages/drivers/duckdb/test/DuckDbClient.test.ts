@@ -321,6 +321,25 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "binds an empty array as an empty LIST into typed and untyped contexts",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`CREATE TABLE empty_list_bind (id INTEGER, tags INTEGER[], names VARCHAR[], grid INTEGER[][])`;
+        yield* sql`INSERT INTO empty_list_bind ${sql.insert({ id: 1, tags: [], names: [], grid: [] })}`;
+        yield* sql.unsafe("INSERT INTO empty_list_bind VALUES (?, ?, ?, ?)", [2, [], [], [[], [3]]]);
+        yield* sql.unsafe("INSERT INTO empty_list_bind VALUES (?, ?, ?, ?)", [3, [], ["a"], [[]]]).unprepared;
+        assert.deepStrictEqual(yield* sql`SELECT * FROM empty_list_bind ORDER BY id`, [
+          { id: 1, tags: [], names: [], grid: [] },
+          { id: 2, tags: [], names: [], grid: [[], [3]] },
+          { id: 3, tags: [], names: ["a"], grid: [[]] },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT ${[]} AS l, len(${[]}) AS n`, [{ l: [], n: 0 }]);
+        assert.deepStrictEqual(yield* sql.unsafe("SELECT ?::VARCHAR[] AS l", [[]]), [{ l: [] }]);
+        assert.deepStrictEqual(yield* sql`SELECT count(*) AS n FROM empty_list_bind WHERE tags = ${[]}`, [{ n: 3 }]);
+      })
+    );
+
+    it.effect(
       "reads infinite DATE and TIMESTAMP values of every precision as infinity strings",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
@@ -465,10 +484,12 @@ describe("DuckDbClient", { concurrent: false }, () => {
       "fails unbindable parameters with UnknownError carrying the method operation",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
-        assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[]])), "execute");
         assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()])), "execute");
         assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [INVALID_DATE])), "execute");
-        assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[]]).unprepared), "executeUnprepared");
+        assertUnknownError(
+          yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()]).unprepared),
+          "executeUnprepared"
+        );
         assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()]).values), "executeValues");
         assertUnknownError(
           yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()]).valuesUnprepared),
