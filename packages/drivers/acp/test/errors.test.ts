@@ -7,6 +7,8 @@ import {
   AcpRequestError,
   AcpTransportError,
 } from "@beep/acp/errors";
+import { callRpc } from "@beep/acp/internal/shared";
+import * as AcpSchema from "@beep/acp/schema";
 import { fcRuns } from "@beep/test-utils";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
@@ -14,6 +16,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";
+import * as RpcClientError from "effect/rpc/RpcClientError";
 import * as S from "effect/Schema";
 
 const decodeNestedNumberPayload = S.decodeUnknownEffect(S.Struct({ profile: S.Struct({ token: S.Finite }) }));
@@ -62,6 +65,53 @@ const requestDiagnosticsJson = flow(withoutRequestCause, encodeRequestErrorJson)
 const parseDiagnosticsJson = flow(withoutParseCause, encodeParseErrorJson);
 
 describe("ACP errors", () => {
+  it.effect("callRpc keeps the method and the client error without deriving the message from the cause", () =>
+    Effect.gen(function* () {
+      const rootCause = new Error("connection details that must not become the public message");
+      const failure = RpcClientError.RpcClientError.make({
+        reason: RpcClientError.RpcClientDefect.make({ message: rootCause.message, cause: rootCause }),
+      });
+
+      const error = yield* Effect.fail(failure).pipe(callRpc("session/new"), Effect.flip);
+
+      if (error._tag !== "AcpTransportError") {
+        return assert.fail("expected a transport error");
+      }
+      assert.deepStrictEqual(error.operation, O.some("call-rpc"));
+      assert.deepStrictEqual(error.method, O.some("session/new"));
+      assert.strictEqual(O.getOrThrow(error.cause), failure);
+      assert.strictEqual(error.message, "ACP transport operation call-rpc failed for method session/new.");
+      assert.notInclude(error.message, rootCause.message);
+    })
+  );
+
+  it.effect("callRpc fails with the ACP error that an RPC client defect carries", () =>
+    Effect.gen(function* () {
+      const original = AcpTransportError.make({ detail: O.some("Sign in to the agent.") });
+      const failure = RpcClientError.RpcClientError.make({
+        reason: RpcClientError.RpcClientDefect.make({ message: "ACP protocol terminated.", cause: original }),
+      });
+
+      assert.strictEqual(yield* callRpc(Effect.fail(failure), "initialize").pipe(Effect.flip), original);
+    })
+  );
+
+  it.effect("callRpc correlates a protocol error with the method", () =>
+    Effect.gen(function* () {
+      const error = yield* Effect.fail(AcpSchema.Error.make({ code: -32602, message: "Invalid params" })).pipe(
+        callRpc("session/prompt"),
+        Effect.flip
+      );
+
+      if (error._tag !== "AcpRequestError") {
+        return assert.fail("expected a request error");
+      }
+      assert.strictEqual(error.code, -32602);
+      assert.strictEqual(error.errorMessage, "Invalid params");
+      assert.deepStrictEqual(error.method, O.some("session/prompt"));
+    })
+  );
+
   it("names the transport operation and method without deriving the message from the cause", () => {
     const rootCause = new Error("connection details that must not become the public message");
     const error = AcpTransportError.make({

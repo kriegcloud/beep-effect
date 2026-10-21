@@ -90,9 +90,10 @@ interface RunHandlerOptions<A, B> {
 /**
  * Runs a registered core request handler and maps its failure to the JSON-RPC error object.
  *
- * A missing handler answers `methodNotFound`. A defect is logged with the method before the
- * RpcServer turns it into a response. A typed failure goes through
- * `AcpRequestError.fromCoreHandlerError`, so non-request errors never leak their message.
+ * A missing handler answers `methodNotFound`. A typed failure goes through
+ * `AcpRequestError.fromCoreHandlerError`, so non-request errors never leak their message. A defect
+ * wins over a typed failure: it is logged with the method and answered as a generic internal error
+ * (`-32603`), like a dying extension request handler, so the defect text never reaches the peer.
  */
 export const runHandler = Effect.fnUntraced(function* <A, B>({
   context,
@@ -104,8 +105,18 @@ export const runHandler = Effect.fnUntraced(function* <A, B>({
     return yield* Effect.fail(AcpError.AcpRequestError.methodNotFound(method).toProtocolError());
   }
   return yield* handler(payload, context).pipe(
-    Effect.tapDefect((defect) => Effect.logError(`ACP request handler failed for '${method}'`, defect)),
-    Effect.mapError((error) => AcpError.AcpRequestError.fromCoreHandlerError(error, method).toProtocolError())
+    Effect.mapError((error) => AcpError.AcpRequestError.fromCoreHandlerError(error, method).toProtocolError()),
+    Effect.catchDefect((defect) =>
+      Effect.logError(`ACP request handler failed for '${method}'`, defect).pipe(
+        Effect.andThen(
+          Effect.fail(
+            AcpError.AcpRequestError.internalError(
+              `ACP request handler failed for method '${method}'`
+            ).toProtocolError()
+          )
+        )
+      )
+    )
   );
 });
 

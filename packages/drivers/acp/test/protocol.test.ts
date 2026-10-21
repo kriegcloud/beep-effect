@@ -2,6 +2,7 @@
 // handler isolation and termination. Behaviour cases port t3code effect-acp `protocol.test.ts`
 // (31dcc7c513); the escaped-key, frame-decoder and property suites are beep-specific.
 import * as AcpError from "@beep/acp/errors";
+import { runHandler } from "@beep/acp/internal/shared";
 import * as AcpJson from "@beep/acp/json";
 import * as AcpProtocol from "@beep/acp/protocol";
 import * as AcpSchema from "@beep/acp/schema";
@@ -20,17 +21,26 @@ import * as Fiber from "effect/Fiber";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
+import * as MutableRef from "effect/MutableRef";
+import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
 import * as References from "effect/References";
 import * as Result from "effect/Result";
+import * as Rpc from "effect/rpc/Rpc";
+import * as RpcClient from "effect/rpc/RpcClient";
+import * as RpcGroup from "effect/rpc/RpcGroup";
+import * as RpcMessage from "effect/rpc/RpcMessage";
 import * as RpcSerialization from "effect/rpc/RpcSerialization";
+import * as RpcServer from "effect/rpc/RpcServer";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
+import * as TestClock from "effect/testing/TestClock";
 import {
   encodeJsonl,
   jsonRpcNotification,
@@ -40,7 +50,6 @@ import {
   makeInMemoryStdio,
   makeTerminationError,
 } from "./helpers.ts";
-import type * as RpcMessage from "effect/rpc/RpcMessage";
 
 const decodeAcpIncomingNotification = S.decodeEffect(AcpProtocol.AcpIncomingNotification);
 const decodeAcpProtocolLogEvent = S.decodeEffect(AcpProtocol.AcpProtocolLogEvent);
@@ -1090,9 +1099,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol", (
         result: { ok: true },
       });
       assert.equal(yield* Ref.get(handled), notificationCount);
-      // The undrained buffer slides: the oldest notifications were dropped, the newest are kept.
+      // The undrained buffer slides and keeps only a short tail: the 32 newest notifications.
       const [oldestKept] = yield* transport.incoming.pipe(Stream.take(1), Stream.runCollect);
-      assert.deepEqual(oldestKept, { _tag: "ExtNotification", method: "x/note", params: notificationCount - 1_024 });
+      assert.deepEqual(oldestKept, { _tag: "ExtNotification", method: "x/note", params: notificationCount - 32 });
     })
   );
 
@@ -1240,13 +1249,22 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol", (
 });
 
 // One bad update must not end a session whose later updates are fine; each distinct failure is
-// warned about once per connection, with structural diagnostics only.
+// warned about once per connection, with structural diagnostics only. The tests in this suite run
+// interleaved, so each one counts only the warnings about its own payloads.
 const capturedWarnings = A.empty<unknown>();
 const warningCollector = Logger.make(({ fiber, logLevel }) => {
   if (logLevel === "Warn") {
     A.appendInPlace(capturedWarnings, fiber.getRef(References.CurrentLogAnnotations));
   }
 });
+const warningsAbout = (issue: string) =>
+  A.filter(
+    capturedWarnings,
+    (annotations) =>
+      P.hasProperty(annotations, "issueSummary") &&
+      P.isString(annotations.issueSummary) &&
+      Str.includes(issue)(annotations.issueSummary)
+  );
 
 it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-acp notification decoding", (it) => {
   it.effect(
@@ -1297,10 +1315,48 @@ it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-ac
         method: "session/update",
         operation: "decode-notification-payload",
       });
-      assert.lengthOf(capturedWarnings, 1);
-      assert.include(yield* encodeUnknownJsonText(capturedWarnings[0]), "update.used missing");
+      const warnings = warningsAbout("update.used missing");
+      assert.lengthOf(warnings, 1);
+      assert.include(yield* encodeUnknownJsonText(warnings[0]), "update.used missing");
       assert.include(yield* encodeUnknownJsonText(decodeFailures[0]?.payload), "update.used missing");
       assert.notInclude(yield* encodeUnknownJsonText({ decodeFailures, capturedWarnings }), secret);
+    })
+  );
+
+  it.effect(
+    "warns once about one decode failure that the peer repeats at new array indices",
+    Effect.fnUntraced(function* () {
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const dispatched = yield* Deferred.make<void>();
+      yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: () => Deferred.succeed(dispatched, undefined).pipe(Effect.asVoid),
+      });
+
+      // Each update carries one malformed command, at a new index every time.
+      const command = { name: "a", description: "d" };
+      for (const index of A.range(1, 40)) {
+        const availableCommands = A.append(
+          A.makeBy(index, () => command),
+          { name: 1, description: "d" }
+        );
+        yield* Queue.offer(
+          input,
+          yield* jsonLine({
+            jsonrpc: "2.0",
+            method: "session/update",
+            params: {
+              sessionId: "session-1",
+              update: { sessionUpdate: "available_commands_update", availableCommands },
+            },
+          })
+        );
+      }
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", method: "session/update", params: usageUpdate(10) }));
+
+      yield* Deferred.await(dispatched);
+      assert.lengthOf(warningsAbout("update.availableCommands"), 1);
     })
   );
 });
@@ -1329,10 +1385,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         .run(0, (message) => Queue.offer(clientSeen, message).pipe(Effect.asVoid))
         .pipe(Effect.forkScoped);
 
+      // `@effect/rpc/*` control frames deliberately diverge from the oracle; see the hardening suite.
       const serverFrames = [
         '{"jsonrpc":"2.0","id":7,"method":"session/request_permission","params":{"sessionId":"s","toolCall":{"toolCallId":"t","title":"x"},"options":[]}}',
-        '{"jsonrpc":"2.0","method":"@effect/rpc/Ping"}',
-        '{"jsonrpc":"2.0","method":"@effect/rpc/Ack","params":{"requestId":"r1"}}',
       ];
       for (const line of serverFrames) {
         yield* Queue.offer(input, encoder.encode(`${line}\n`));
@@ -1423,7 +1478,7 @@ const expectParseTermination = (error: AcpError.AcpError): unknown =>
 
 it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decoder edge cases", (it) => {
   it.effect(
-    "routes the remaining control frames, cause shapes, and params-less requests",
+    "routes the remaining cause shapes and params-less requests",
     Effect.fnUntraced(function* () {
       const { stdio, input } = yield* makeInMemoryStdio();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
@@ -1440,8 +1495,6 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         .pipe(Effect.forkScoped);
 
       const serverFrames = [
-        '{"jsonrpc":"2.0","method":"@effect/rpc/Interrupt","params":{"requestId":3}}',
-        '{"jsonrpc":"2.0","method":"@effect/rpc/Eof"}',
         '{"jsonrpc":"2.0","id":12,"method":"session/request_permission"}',
         '{"jsonrpc":"2.0","id":16,"method":"session/request_permission","params":{},"headers":[["x-trace","1"]]}',
       ];
@@ -1450,8 +1503,6 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         assert.deepEqual([yield* Queue.take(serverSeen)], oracle(line));
       }
 
-      yield* Queue.offer(input, encoder.encode('{"jsonrpc":"2.0","method":"@effect/rpc/Pong"}\n'));
-      assert.deepEqual(yield* Queue.take(clientSeen), { _tag: "Pong" });
       // A response without an id is not a typed RPC response, so it never reaches the RpcClient.
       yield* Queue.offer(input, encoder.encode('{"jsonrpc":"2.0","result":1}\n'));
 
@@ -1498,11 +1549,6 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
 
   const terminations: ReadonlyArray<readonly [title: string, frame: Uint8Array, tag: string]> = [
     ["an empty chunk result", encoder.encode('{"jsonrpc":"2.0","id":15,"chunk":true,"result":[]}\n'), "SchemaError"],
-    [
-      "a control frame without a requestId",
-      encoder.encode('{"jsonrpc":"2.0","method":"@effect/rpc/Ack","params":{}}\n'),
-      "SchemaError",
-    ],
     [
       "a line longer than the buffer limit",
       encoder.encode(`${" ".repeat(16 * 1024 * 1024 + 1)}\n`),
@@ -1652,3 +1698,574 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp dual-generat
     })
   );
 });
+
+// Protocol hardening: reentrancy, bounded concurrency, writer and termination failure paths, and the
+// wire shape of typed traffic. Each case pins one review finding on the t3code port.
+const WireFrame = S.Struct({
+  error: S.optionalKey(S.Struct({ code: S.Finite, message: S.String })),
+  id: S.optionalKey(S.Union([S.Finite, S.String])),
+  method: S.optionalKey(S.String),
+  result: S.optionalKey(S.Unknown),
+});
+const decodeWireFrame = S.decodeEffect(AcpJson.fromJsonText(WireFrame));
+const takeFrame = (output: Queue.Queue<string>) => Queue.take(output).pipe(Effect.flatMap(decodeWireFrame));
+const takeFrames = (output: Queue.Queue<string>, count: number) =>
+  Effect.forEach(A.range(1, count), () => takeFrame(output));
+// Lets every runnable fiber reach its next suspension point.
+const settle = Effect.forEach(A.range(1, 20), () => Effect.yieldNow, { discard: true });
+
+class TypedRpcs extends RpcGroup.make(
+  Rpc.make("x/typed", { payload: S.Struct({ n: S.Finite }), success: S.Struct({ ok: S.Boolean }) })
+) {}
+
+const makeTypedClient = (transport: AcpProtocol.AcpPatchedProtocol) => {
+  const nextRequestId = MutableRef.make(AcpProtocol.RPC_REQUEST_ID_START);
+  return RpcClient.make(TypedRpcs, {
+    generateRequestId: () => nextRequestId.pipe(MutableRef.getAndIncrement, RpcMessage.RequestId),
+  }).pipe(Effect.provideService(RpcClient.Protocol, transport.clientProtocol));
+};
+
+type TypedClient = Effect.Success<ReturnType<typeof makeTypedClient>>;
+
+const handlerSecret = "acp-typed-handler-secret-sentinel";
+
+class ServerRpcs extends RpcGroup.make(
+  Rpc.make("x/slow", { payload: S.Struct({}), success: S.String }),
+  Rpc.make("x/fast", { payload: S.Struct({}), success: S.String }),
+  Rpc.make("x/boom", { payload: S.Struct({}), success: S.String, error: AcpSchema.Error })
+) {}
+
+const serverHandlers = ServerRpcs.toLayer({
+  "x/slow": () => Effect.never,
+  "x/fast": () => Effect.succeed("fast"),
+  "x/boom": (payload) =>
+    runHandler({
+      context: AcpProtocol.AcpRequestContext.make({ method: "x/boom", requestId: 3 }),
+      handler: () => Effect.die(new Error(handlerSecret)),
+      method: "x/boom",
+      payload,
+    }),
+});
+
+const serveTypedRequests = Effect.fnUntraced(function* (transport: AcpProtocol.AcpPatchedProtocol) {
+  const handlers = yield* Layer.build(serverHandlers);
+  yield* RpcServer.make(ServerRpcs, { disableFatalDefects: true }).pipe(
+    Effect.provideService(RpcServer.Protocol, transport.serverProtocol),
+    Effect.provideContext(handlers),
+    Effect.forkScoped
+  );
+});
+
+it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol hardening", (it) => {
+  it.effect(
+    "fails senders parked on the full output queue when the stdout writer fails",
+    Effect.fnUntraced(function* () {
+      const releaseFailure = yield* Deferred.make<void>();
+      const terminated = yield* Deferred.make<AcpError.AcpError>();
+      const sendCount = 2_100;
+      const logged = yield* Ref.make(0);
+      const allLogged = yield* Deferred.make<void>();
+      const stdio = Stdio.make({
+        args: Effect.succeed([]),
+        stdin: Stream.never,
+        stdout: () =>
+          Sink.forEach(() => Deferred.await(releaseFailure).pipe(Effect.andThen(Effect.die("stdout failed")))),
+        stderr: () => Sink.drain,
+      });
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        logOutgoing: true,
+        // Every send logs its raw frame right before it offers it to the output queue.
+        logger: (event) =>
+          event.stage === "raw"
+            ? Ref.updateAndGet(logged, (count) => count + 1).pipe(
+                Effect.flatMap((count) =>
+                  count === sendCount + 1 ? Deferred.succeed(allLogged, undefined) : Effect.void
+                ),
+                Effect.asVoid
+              )
+            : Effect.void,
+        onTermination: (error) => Deferred.succeed(terminated, error).pipe(Effect.asVoid),
+      });
+      const outcome = <A>(send: Effect.Effect<A, AcpError.AcpError>) =>
+        send.pipe(Effect.match({ onFailure: O.some, onSuccess: () => O.none<AcpError.AcpError>() }), Effect.forkScoped);
+
+      // The writer holds one chunk and the queue holds 1,024 more; the rest of the sends park.
+      const notifications = yield* Effect.forEach(A.range(1, sendCount), (index) =>
+        outcome(transport.notify("x/flood", index))
+      );
+      const request = yield* outcome(transport.request("x/test", { hello: "world" }));
+      yield* Deferred.await(allLogged);
+      yield* settle;
+      yield* Deferred.succeed(releaseFailure, undefined);
+
+      const error = yield* Deferred.await(terminated);
+      assert.instanceOf(error, AcpError.AcpTransportError);
+      const failures = A.getSomes(yield* Effect.forEach(notifications, Fiber.join));
+      assert.isAbove(failures.length, 0);
+      for (const failure of failures) {
+        assert.strictEqual(failure, error);
+      }
+      assert.strictEqual(O.getOrThrow(yield* Fiber.join(request)), error);
+    })
+  );
+
+  it.effect(
+    "answers an extension request past the concurrency bound at once instead of parking the reader",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const protocolReady = yield* Deferred.make<AcpProtocol.AcpPatchedProtocol>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        // Every handler waits on a response that only the reader can deliver.
+        onExtRequest: (_method, _params, context) =>
+          Deferred.await(protocolReady).pipe(
+            Effect.flatMap((protocol) => protocol.request("x/inner", { from: String(context.requestId) })),
+            Effect.map((inner) => ({ inner }))
+          ),
+      });
+      yield* Deferred.succeed(protocolReady, transport);
+
+      const outerCount = 65;
+      const outer = A.makeBy(
+        outerCount,
+        (index) => `{"jsonrpc":"2.0","id":"outer-${index}","method":"x/outer","params":{}}\n`
+      );
+      yield* Queue.offer(input, encoder.encode(A.join(outer, "")));
+
+      const frames = yield* takeFrames(output, outerCount);
+      const inner = A.filter(frames, ({ method }) => method === "x/inner");
+      assert.lengthOf(inner, 64);
+      assert.deepEqual(
+        A.filter(frames, ({ error }) => error !== undefined),
+        [{ id: "outer-64", error: { code: -32603, message: "Too many concurrent ACP extension requests" } }]
+      );
+
+      // The reader kept reading, so every inner response reaches its handler.
+      const responses = A.map(inner, ({ id }) => `{"jsonrpc":"2.0","id":${id},"result":{"ok":true}}\n`);
+      yield* Queue.offer(input, encoder.encode(A.join(responses, "")));
+      const answered = yield* takeFrames(output, 64);
+      assert.lengthOf(
+        A.filter(answered, ({ result }) => result !== undefined),
+        64
+      );
+    })
+  );
+
+  it.effect(
+    "keeps the RPC server answering after it rejects a request that reuses an in-flight id",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.make("x/slow", "x/fast", "x/boom"),
+      });
+      yield* serveTypedRequests(transport);
+
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 1, method: "x/slow", params: {} }));
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 1, method: "x/slow", params: {} }));
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 2, method: "x/fast", params: {} }));
+
+      assert.deepEqual(yield* takeFrame(output), { id: 2, result: "fast" });
+    })
+  );
+
+  it.effect(
+    "answers a dying typed request handler with a generic internal error",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.make("x/slow", "x/fast", "x/boom"),
+      });
+      yield* serveTypedRequests(transport);
+
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 3, method: "x/boom", params: {} }));
+
+      const line = yield* Queue.take(output);
+      assert.notInclude(line, handlerSecret);
+      assert.deepEqual(yield* decodeWireFrame(line), {
+        id: 3,
+        error: { code: -32603, message: "ACP request handler failed for method 'x/boom'" },
+      });
+    })
+  );
+
+  it.effect(
+    "lets a notification handler await a typed request on the same connection",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const clientReady = yield* Deferred.make<TypedClient>();
+      const handled = yield* Deferred.make<{ readonly ok: boolean }>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: (notification) =>
+          notification._tag === "ExtNotification" && notification.method === "x/mode-changed"
+            ? Deferred.await(clientReady).pipe(
+                Effect.flatMap((client) => client["x/typed"]({ n: 1 })),
+                Effect.flatMap((result) => Deferred.succeed(handled, result)),
+                Effect.orDie,
+                Effect.asVoid
+              )
+            : Effect.void,
+        onExtRequest: () => Effect.succeed({ ok: true }),
+      });
+      yield* Deferred.succeed(clientReady, yield* makeTypedClient(transport));
+
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", method: "x/mode-changed", params: {} }));
+      const line = yield* Queue.take(output);
+      const typed = yield* decodeWireFrame(line);
+      assert.equal(typed.method, "x/typed");
+
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: typed.id, result: { ok: true } }));
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 99, method: "x/ping", params: {} }));
+
+      assert.deepEqual(yield* Deferred.await(handled), { ok: true });
+      assert.deepEqual(yield* takeFrame(output), { id: 99, result: { ok: true } });
+      // A real typed call goes on the wire without effect trace ids or headers.
+      assert.equal(
+        line,
+        `{"jsonrpc":"2.0","method":"x/typed","params":{"n":1},"id":${AcpProtocol.RPC_REQUEST_ID_START}}\n`
+      );
+    })
+  );
+
+  it.effect(
+    "runs notification handlers in arrival order before routing the next message",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const events = yield* Ref.make<ReadonlyArray<string>>([]);
+      const record = (event: string) => Ref.update(events, A.append(event));
+      const firstStarted = yield* Deferred.make<void>();
+      const releaseFirst = yield* Deferred.make<void>();
+      yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: (notification) => {
+          const step = notification._tag === "ExtNotification" ? String(notification.params) : "other";
+          return record(`start-${step}`).pipe(
+            Effect.andThen(
+              step === "1"
+                ? Deferred.succeed(firstStarted, undefined).pipe(Effect.andThen(Deferred.await(releaseFirst)))
+                : Effect.void
+            ),
+            Effect.andThen(record(`end-${step}`))
+          );
+        },
+        onExtRequest: () => record("request").pipe(Effect.as({ ok: true })),
+      });
+
+      yield* Queue.offer(
+        input,
+        encoder.encode(
+          '{"jsonrpc":"2.0","method":"x/step","params":1}\n{"jsonrpc":"2.0","method":"x/step","params":2}\n{"jsonrpc":"2.0","id":5,"method":"x/test","params":{}}\n'
+        )
+      );
+      yield* Deferred.await(firstStarted);
+      yield* settle;
+      assert.deepEqual(yield* Ref.get(events), ["start-1"]);
+
+      yield* Deferred.succeed(releaseFirst, undefined);
+      assert.deepEqual(yield* takeFrame(output), { id: 5, result: { ok: true } });
+      assert.deepEqual(yield* Ref.get(events), ["start-1", "end-1", "start-2", "end-2", "request"]);
+    })
+  );
+
+  it.effect(
+    "bounds the notification handlers waiting on the peer and keeps reading past the bound",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const protocolReady = yield* Deferred.make<AcpProtocol.AcpPatchedProtocol>();
+      const failures = yield* Queue.unbounded<AcpError.AcpError>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        // The peer never answers these requests, so each handler keeps waiting.
+        onNotification: () =>
+          Deferred.await(protocolReady).pipe(
+            Effect.flatMap((protocol) => protocol.request("x/inner", {})),
+            Effect.tapError((error) => Queue.offer(failures, error)),
+            Effect.asVoid
+          ),
+        onExtRequest: () => Effect.succeed({ ok: true }),
+      });
+      yield* Deferred.succeed(protocolReady, transport);
+
+      const notifications = A.makeBy(65, (index) => `{"jsonrpc":"2.0","method":"x/ask","params":${index}}\n`);
+      yield* Queue.offer(
+        input,
+        encoder.encode(`${A.join(notifications, "")}{"jsonrpc":"2.0","id":"ping","method":"x/ping","params":{}}\n`)
+      );
+
+      const frames = yield* takeFrames(output, 65);
+      assert.lengthOf(
+        A.filter(frames, ({ method }) => method === "x/inner"),
+        64
+      );
+      assert.deepEqual(frames[64], { id: "ping", result: { ok: true } });
+      const failure = yield* Queue.take(failures);
+      if (failure._tag !== "AcpTransportError") {
+        return assert.fail("expected a transport error");
+      }
+      assertSome(failure.detail, "Too many ACP notification handlers are already waiting for the peer");
+      assertSome(failure.method, "x/inner");
+    })
+  );
+
+  it.effect(
+    "lets a notification handler send several requests in turn on the same connection",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const protocolReady = yield* Deferred.make<AcpProtocol.AcpPatchedProtocol>();
+      const answers = yield* Deferred.make<ReadonlyArray<unknown>>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        // The first request releases the reader; the second is sent by an already detached handler.
+        onNotification: () =>
+          Deferred.await(protocolReady).pipe(
+            Effect.flatMap((protocol) =>
+              Effect.forEach(["x/first", "x/second"], (method) => protocol.request(method, {}))
+            ),
+            Effect.flatMap((results) => Deferred.succeed(answers, results)),
+            Effect.asVoid
+          ),
+      });
+      yield* Deferred.succeed(protocolReady, transport);
+
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", method: "x/ask", params: {} }));
+      const first = yield* takeFrame(output);
+      assert.equal(first.method, "x/first");
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: first.id, result: 1 }));
+      const second = yield* takeFrame(output);
+      assert.equal(second.method, "x/second");
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: second.id, result: 2 }));
+
+      assert.deepEqual(yield* Deferred.await(answers), [1, 2]);
+    })
+  );
+
+  it.effect(
+    "keeps the reader waiting for a notification handler that sends on another connection",
+    Effect.fnUntraced(function* () {
+      const own = yield* makeInMemoryStdio();
+      const other = yield* makeInMemoryStdio();
+      const otherReady = yield* Deferred.make<AcpProtocol.AcpPatchedProtocol>();
+      const answered = yield* Deferred.make<unknown>();
+      yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio: own.stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: () =>
+          Deferred.await(otherReady).pipe(
+            Effect.flatMap((protocol) => protocol.request("x/elsewhere", {})),
+            Effect.flatMap((result) => Deferred.succeed(answered, result)),
+            Effect.asVoid
+          ),
+        onExtRequest: () => Effect.succeed("pong"),
+      });
+      yield* Deferred.succeed(
+        otherReady,
+        yield* AcpProtocol.makeAcpPatchedProtocol({ stdio: other.stdio, serverRequestMethods: HashSet.empty() })
+      );
+
+      yield* Queue.offer(own.input, yield* jsonLine({ jsonrpc: "2.0", method: "x/ask", params: {} }));
+      yield* Queue.offer(own.input, yield* jsonLine({ jsonrpc: "2.0", id: 7, method: "x/ping", params: {} }));
+      const elsewhere = yield* takeFrame(other.output);
+      assert.equal(elsewhere.method, "x/elsewhere");
+      // Another connection's reader delivers that response, so this reader keeps waiting for the
+      // handler and the ping behind it stays unanswered.
+      yield* settle;
+      assert.strictEqual(yield* Queue.size(own.output), 0);
+
+      yield* Queue.offer(other.input, yield* jsonLine({ jsonrpc: "2.0", id: elsewhere.id, result: "there" }));
+      assert.equal(yield* Deferred.await(answered), "there");
+      assert.deepEqual(yield* takeFrame(own.output), { id: 7, result: "pong" });
+    })
+  );
+
+  it.effect(
+    "removes the pending entry of an extension request interrupted while it is still being sent",
+    Effect.fnUntraced(function* () {
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const sending = yield* Deferred.make<void>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        logOutgoing: true,
+        logger: (event) =>
+          event.stage === "raw" ? Deferred.succeed(sending, undefined).pipe(Effect.andThen(Effect.never)) : Effect.void,
+      });
+      const lateResponse = yield* Deferred.make<unknown>();
+      yield* transport.clientProtocol
+        .run(0, (message) => Deferred.succeed(lateResponse, message).pipe(Effect.asVoid))
+        .pipe(Effect.forkScoped);
+
+      const response = yield* transport.request("x/test", { hello: "world" }).pipe(Effect.forkScoped);
+      yield* Deferred.await(sending);
+      yield* Fiber.interrupt(response);
+      yield* Queue.offer(input, yield* encodeJsonl(ExtResponse, { jsonrpc: "2.0", id: 1, result: { ok: true } }));
+
+      // No pending entry is left to swallow the late response, so it reaches the RPC client.
+      assert.deepEqual(yield* Deferred.await(lateResponse), {
+        _tag: "Exit",
+        requestId: 1,
+        exit: { _tag: "Success", value: { ok: true } },
+      });
+    })
+  );
+
+  it.effect(
+    "writes typed requests with JSON-RPC members only",
+    Effect.fnUntraced(function* () {
+      const { stdio, output } = yield* makeInMemoryStdio();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+      });
+
+      yield* transport.clientProtocol.send(0, {
+        _tag: "Request",
+        id: AcpProtocol.RPC_REQUEST_ID_START,
+        tag: "session/prompt",
+        payload: { sessionId: "session-1" },
+        headers: [["x-trace", "1"]],
+        traceId: "trace-1",
+        spanId: "span-1",
+        sampled: true,
+      });
+
+      assert.equal(
+        yield* Queue.take(output),
+        `{"jsonrpc":"2.0","method":"session/prompt","params":{"sessionId":"session-1"},"id":${AcpProtocol.RPC_REQUEST_ID_START}}\n`
+      );
+    })
+  );
+
+  it.effect(
+    "reads @effect/rpc/* frames from the peer as ordinary messages and keeps the writer open",
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const notifications = yield* Queue.unbounded<AcpProtocol.AcpIncomingNotification>();
+      const terminated = yield* Ref.make(false);
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.make("x/slow", "x/fast", "x/boom"),
+        onNotification: (notification) => Queue.offer(notifications, notification).pipe(Effect.asVoid),
+        onExtRequest: (method) => Effect.succeed({ method }),
+        onTermination: () => Ref.set(terminated, true),
+      });
+      yield* serveTypedRequests(transport);
+
+      const frames = [
+        '{"jsonrpc":"2.0","method":"@effect/rpc/Eof"}',
+        '{"jsonrpc":"2.0","method":"@effect/rpc/Ping"}',
+        '{"jsonrpc":"2.0","method":"@effect/rpc/Ack","params":{}}',
+        '{"jsonrpc":"2.0","method":"@effect/rpc/Interrupt","params":{"requestId":1}}',
+        '{"jsonrpc":"2.0","id":"after","method":"@effect/rpc/Ping","params":{}}',
+      ];
+      yield* Queue.offer(
+        input,
+        encoder.encode(
+          A.join(
+            A.map(frames, (frame) => `${frame}\n`),
+            ""
+          )
+        )
+      );
+
+      assert.deepEqual(yield* Effect.forEach(A.range(1, 4), () => Queue.take(notifications)), [
+        { _tag: "ExtNotification", method: "@effect/rpc/Eof", params: null },
+        { _tag: "ExtNotification", method: "@effect/rpc/Ping", params: null },
+        { _tag: "ExtNotification", method: "@effect/rpc/Ack", params: {} },
+        { _tag: "ExtNotification", method: "@effect/rpc/Interrupt", params: { requestId: 1 } },
+      ]);
+      assert.deepEqual(yield* takeFrame(output), { id: "after", result: { method: "@effect/rpc/Ping" } });
+
+      // A peer `Eof` no longer ends the writer: sends and typed responses still reach the wire.
+      yield* transport.notify("session/cancel", { sessionId: "session-1" });
+      assert.equal(
+        yield* Queue.take(output),
+        '{"jsonrpc":"2.0","method":"session/cancel","params":{"sessionId":"session-1"}}\n'
+      );
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 2, method: "x/fast", params: {} }));
+      assert.deepEqual(yield* takeFrame(output), { id: 2, result: "fast" });
+      assert.isFalse(yield* Ref.get(terminated));
+    })
+  );
+
+  it.effect(
+    "interrupts running extension request handlers when the connection ends",
+    Effect.fnUntraced(function* () {
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const started = yield* Deferred.make<void>();
+      const interrupted = yield* Deferred.make<void>();
+      yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onExtRequest: () =>
+          Deferred.succeed(started, undefined).pipe(
+            Effect.andThen(Effect.never),
+            Effect.onInterrupt(() => Deferred.succeed(interrupted, undefined))
+          ),
+      });
+
+      yield* Queue.offer(input, yield* jsonLine({ jsonrpc: "2.0", id: 1, method: "x/long", params: {} }));
+      yield* Deferred.await(started);
+      yield* Queue.end(input);
+
+      yield* Deferred.await(interrupted);
+    })
+  );
+});
+
+it.effect(
+  "settles callers with the ended-input error when classifying the termination dies",
+  Effect.fnUntraced(function* () {
+    const { stdio, input, output } = yield* makeInMemoryStdio();
+    const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+      stdio,
+      serverRequestMethods: HashSet.empty(),
+      terminationError: Effect.die("termination classification bug"),
+    });
+
+    const response = yield* transport.request("x/test", { hello: "world" }).pipe(Effect.forkScoped);
+    yield* Queue.take(output);
+    yield* Queue.end(input);
+
+    const error = yield* response.pipe(Fiber.join, expectFailure);
+    assert.instanceOf(error, AcpError.AcpInputStreamEndedError);
+    assert.strictEqual(yield* expectFailure(transport.notify("session/cancel", { sessionId: "session-1" })), error);
+  })
+);
+
+// Outside the shared layer: `TestClock.adjust` needs this test's own clock (top-level `it.effect`
+// provides a fresh `TestEnv`), not one shared with the interleaved hardening cases.
+it.effect(
+  "settles callers when classifying the termination outlasts its bound",
+  Effect.fnUntraced(function* () {
+    const { stdio, input, output } = yield* makeInMemoryStdio();
+    const classifying = yield* Deferred.make<void>();
+    const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+      stdio,
+      serverRequestMethods: HashSet.empty(),
+      // A peer that closed stdout but never exits.
+      terminationError: Deferred.succeed(classifying, undefined).pipe(Effect.andThen(Effect.never)),
+    });
+
+    const response = yield* transport.request("x/test", { hello: "world" }).pipe(Effect.forkScoped);
+    yield* Queue.take(output);
+    yield* Queue.end(input);
+    yield* Deferred.await(classifying);
+    // The bound starts with the classification; a second step covers a timer that registers late.
+    yield* TestClock.adjust("5 seconds");
+    yield* settle;
+    yield* TestClock.adjust("5 seconds");
+
+    const error = yield* response.pipe(Fiber.join, expectFailure);
+    assert.instanceOf(error, AcpError.AcpInputStreamEndedError);
+    assert.strictEqual(yield* expectFailure(transport.notify("session/cancel", { sessionId: "session-1" })), error);
+  })
+);

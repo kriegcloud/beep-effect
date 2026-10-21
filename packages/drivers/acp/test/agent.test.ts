@@ -44,10 +44,6 @@ const ErrorResponse = S.Struct({
   id: S.Union([S.Finite, S.String]),
   jsonrpc: S.Literal("2.0"),
 });
-const DieResponse = S.Struct({
-  error: S.TaggedStruct("Cause", { data: S.Tuple([S.TaggedStruct("Die", {})]) }),
-  id: S.Finite,
-});
 
 const decodeRequestPermissionRequest = S.decodeEffect(S.fromJsonString(RequestPermissionRequest));
 const decodeInitializeResponse = S.decodeEffect(S.fromJsonString(InitializeResponse));
@@ -59,7 +55,6 @@ const decodeEmptyResponse = S.decodeEffect(S.fromJsonString(EmptyResponse));
 const decodeConnectMcpRequest = S.decodeEffect(S.fromJsonString(ConnectMcpRequest));
 const decodeMessageMcpNotification = S.decodeEffect(S.fromJsonString(MessageMcpNotification));
 const decodeErrorResponse = S.decodeEffect(S.fromJsonString(ErrorResponse));
-const decodeDieResponse = S.decodeEffect(S.fromJsonString(DieResponse));
 const encodeInitializeResponse = S.encodeEffect(S.fromJsonString(InitializeResponse));
 const encodeSessionCancelNotification = S.encodeEffect(S.fromJsonString(SessionCancelNotification));
 const decodeSessionCancelNotification = S.decodeEffect(S.fromJsonString(SessionCancelNotification));
@@ -323,8 +318,12 @@ it.layer(Layer.fresh(agentFixtureLayer), { timeout: "10 seconds" })((it) => {
       const agent = yield* AcpAgent.AcpAgent;
       yield* agent.handleInitialize(() => Effect.die("handler bug"));
 
+      // A defect answers a generic internal error that does not carry the defect text.
       yield* Queue.offer(input, yield* initializeRequest(7));
-      assert.strictEqual((yield* decodeDieResponse(yield* Queue.take(output))).id, 7);
+      const died = yield* decodeErrorResponse(yield* Queue.take(output));
+      assert.strictEqual(died.id, 7);
+      assert.strictEqual(died.error.code, -32603);
+      assert.notInclude(died.error.message, "handler bug");
 
       // The connection keeps serving after the defect.
       yield* agent.handleInitialize(() => Effect.succeed(mockAgentInitializeResponse));
