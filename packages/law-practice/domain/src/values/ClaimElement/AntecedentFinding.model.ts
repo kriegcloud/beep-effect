@@ -40,12 +40,14 @@ const $I = $LawPracticeDomainId.create("values/ClaimElement/AntecedentFinding.mo
  * @since 0.0.0
  */
 export const AntecedentRuleId = S.String.check(
-  S.isPattern(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u, {
-    identifier: $I`AntecedentRuleIdPatternCheck`,
-    title: "Kebab-case rule id",
-    description: "A lowercase kebab-case antecedent rule identifier.",
-    message: "Antecedent rule ids are lowercase kebab-case, e.g. definite-without-introduction.",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u,
+    $I.annote("AntecedentRuleIdPatternCheck", {
+      title: "Kebab-case rule id",
+      description: "A lowercase kebab-case antecedent rule identifier.",
+      message: "Antecedent rule ids are lowercase kebab-case, e.g. definite-without-introduction.",
+    })
+  )
 ).pipe(
   S.brand("AntecedentRuleId"),
   $I.annoteSchema("AntecedentRuleId", {
@@ -92,12 +94,11 @@ export const AntecedentDependencyChain = S.NonEmptyArray(PosInt)
     S.makeFilter(
       (chain: ReadonlyArray<number>) =>
         A.every(A.zip(chain, A.drop(chain, 1)), ([dependent, ancestor]) => ancestor < dependent),
-      {
-        identifier: $I`AntecedentDependencyChainDescendingCheck`,
+      $I.annote("AntecedentDependencyChainDescendingCheck", {
         title: "Strictly descending dependency chain",
         description: "Each claim number is lower than the one before it, so the chain walks back to its root.",
         message: "Dependency chains list strictly decreasing claim numbers, from the checked claim to its root.",
-      }
+      })
     )
   )
   .pipe(
@@ -173,12 +174,13 @@ const AntecedentFindingCases = AntecedentFindingKind.toTaggedUnion("kind")({
     chain: chainField,
     candidates: S.TupleWithRest(S.Tuple([ClaimTermRef, ClaimTermRef]), [ClaimTermRef])
       .check(
-        S.isUnique({
-          identifier: $I`AntecedentCandidatesUniqueCheck`,
-          title: "Distinct candidates",
-          description: "No candidate introduction is listed twice.",
-          message: "Ambiguous-antecedent candidates must be distinct term references.",
-        })
+        S.isUnique(
+          $I.annote("AntecedentCandidatesUniqueCheck", {
+            title: "Distinct candidates",
+            description: "No candidate introduction is listed twice.",
+            message: "Ambiguous-antecedent candidates must be distinct term references.",
+          })
+        )
       )
       .annotateKey({
         description: "Two or more distinct introducing terms the referring term could resolve to.",
@@ -223,12 +225,11 @@ const AntecedentFindingChainCheck = S.makeFilter(
       "number-mismatch": chainStartsAtReferringClaim,
       "pattern-not-covered": () => true,
     }),
-  {
-    identifier: $I`AntecedentFindingChainCheck`,
+  $I.annote("AntecedentFindingChainCheck", {
     title: "Chain starts at the referring claim",
     description: "A finding's dependency chain starts at the claim that recites the referring term.",
     message: "The first claim of a finding's chain must be the claim of its referring term.",
-  }
+  })
 );
 
 /**

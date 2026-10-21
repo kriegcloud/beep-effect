@@ -44,12 +44,14 @@ const $I = $LawPracticeDomainId.create("internal/CalendarDate");
  * @since 0.0.0
  */
 export const CalendarDate = LocalDateFromString.check(
-  S.makeFilter((date: LocalDate) => date.day <= daysInMonth(date.year, date.month), {
-    identifier: $I`CalendarDateDayInMonthCheck`,
-    title: "Day exists in its month",
-    description: "The day of the month exists in that month and year, so February 30 is rejected.",
-    message: "Expected a calendar date whose day exists in its month.",
-  })
+  S.makeFilter(
+    (date: LocalDate) => date.day <= daysInMonth(date.year, date.month),
+    $I.annote("CalendarDateDayInMonthCheck", {
+      title: "Day exists in its month",
+      description: "The day of the month exists in that month and year, so February 30 is rejected.",
+      message: "Expected a calendar date whose day exists in its month.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CalendarDate", {
     description: "A day that exists in its month, encoded as an ISO date string (YYYY-MM-DD).",

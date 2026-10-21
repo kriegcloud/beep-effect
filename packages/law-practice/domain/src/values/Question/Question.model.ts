@@ -37,12 +37,14 @@ const $I = $LawPracticeDomainId.create("values/Question/Question.model");
  * @since 0.0.0
  */
 export const QuestionOptionId = S.NonEmptyString.check(
-  S.isPattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u, {
-    identifier: $I`QuestionOptionIdKebabCaseCheck`,
-    title: "Kebab-case option id",
-    description: "Lowercase letters and digits in hyphen-separated words.",
-    message: "Expected a lowercase kebab-case option id, for example keep-date.",
-  })
+  S.isPattern(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/u,
+    $I.annote("QuestionOptionIdKebabCaseCheck", {
+      title: "Kebab-case option id",
+      description: "Lowercase letters and digits in hyphen-separated words.",
+      message: "Expected a lowercase kebab-case option id, for example keep-date.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("QuestionOptionId", {
     description: "Lowercase kebab-case identifier of one answer option, stable within its question.",
@@ -245,27 +247,30 @@ export declare namespace QuestionOption {
  */
 export const QuestionOptions = S.Array(QuestionOption)
   .check(
-    S.isMinLength(2, {
-      identifier: $I`QuestionOptionsMinimumCheck`,
-      title: "At least two options",
-      description: "A question offers the attorney at least two answers.",
-      message: "Expected at least two answer options.",
-    }),
-    S.isMaxLength(5, {
-      identifier: $I`QuestionOptionsMaximumCheck`,
-      title: "At most five options",
-      description: "A question offers the attorney at most five answers.",
-      message: "Expected at most five answer options.",
-    }),
+    S.isMinLength(
+      2,
+      $I.annote("QuestionOptionsMinimumCheck", {
+        title: "At least two options",
+        description: "A question offers the attorney at least two answers.",
+        message: "Expected at least two answer options.",
+      })
+    ),
+    S.isMaxLength(
+      5,
+      $I.annote("QuestionOptionsMaximumCheck", {
+        title: "At most five options",
+        description: "A question offers the attorney at most five answers.",
+        message: "Expected at most five answer options.",
+      })
+    ),
     S.makeFilter(
       (options: ReadonlyArray<QuestionOption>) =>
         A.length(A.dedupe(A.map(options, ({ optionId }) => optionId))) === A.length(options),
-      {
-        identifier: $I`QuestionOptionsUniqueIdCheck`,
+      $I.annote("QuestionOptionsUniqueIdCheck", {
         title: "Distinct option ids",
         description: "No two options of one question share an option id.",
         message: "Expected every answer option to have a distinct option id.",
-      }
+      })
     )
   )
   .pipe(

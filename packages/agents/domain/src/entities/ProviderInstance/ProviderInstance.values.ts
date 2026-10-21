@@ -217,19 +217,24 @@ export type HomePath = typeof HomePath.Type;
  * @since 0.0.0
  */
 export const EnvVarName = S.NonEmptyString.check(
-  S.isPattern(envVarNamePattern, {
-    identifier: $I`EnvVarNamePatternCheck`,
-    title: "Env Var Name",
-    description: "Checks that env-var names are POSIX-style identifiers.",
-    message: "Env var names must start with a letter or underscore and contain only letters, digits, and underscores.",
-  }),
-  S.makeFilter(isTokenSafeEnvVarName, {
-    identifier: $I`TokenSafeEnvVarNameCheck`,
-    title: "Token-Safe Env Var Name",
-    description: "Checks that an env-var name cannot carry a provider token, secret, or API key.",
-    message:
-      "Env var names that carry credentials (ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, OPENAI_API_KEY, OPENAI_ACCESS_TOKEN, *_TOKEN, *_SECRET, *_KEY, AI_*_API_KEY) cannot be stored on a provider instance.",
-  })
+  S.isPattern(
+    envVarNamePattern,
+    $I.annote("EnvVarNamePatternCheck", {
+      title: "Env Var Name",
+      description: "Checks that env-var names are POSIX-style identifiers.",
+      message:
+        "Env var names must start with a letter or underscore and contain only letters, digits, and underscores.",
+    })
+  ),
+  S.makeFilter(
+    isTokenSafeEnvVarName,
+    $I.annote("TokenSafeEnvVarNameCheck", {
+      title: "Token-Safe Env Var Name",
+      description: "Checks that an env-var name cannot carry a provider token, secret, or API key.",
+      message:
+        "Env var names that carry credentials (ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, OPENAI_API_KEY, OPENAI_ACCESS_TOKEN, *_TOKEN, *_SECRET, *_KEY, AI_*_API_KEY) cannot be stored on a provider instance.",
+    })
+  )
 ).pipe(
   S.brand("EnvVarName"),
   $I.annoteSchema("EnvVarName", {
@@ -256,13 +261,15 @@ export const EnvVarName = S.NonEmptyString.check(
 export type EnvVarName = typeof EnvVarName.Type;
 
 const TokenSafeEnvVarRecord = S.Record(S.String, S.NonEmptyString).check(
-  S.makeFilter(hasOnlyValidEnvVarNames, {
-    identifier: $I`TokenSafeEnvVarRecordCheck`,
-    title: "Token-Safe Env Var Record",
-    description: "Checks that every env-var name in the record is a token-safe POSIX-style identifier.",
-    message:
-      "Env var names that carry credentials (ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, OPENAI_API_KEY, OPENAI_ACCESS_TOKEN, *_TOKEN, *_SECRET, *_KEY, AI_*_API_KEY) or malformed names cannot be stored on a provider instance.",
-  })
+  S.makeFilter(
+    hasOnlyValidEnvVarNames,
+    $I.annote("TokenSafeEnvVarRecordCheck", {
+      title: "Token-Safe Env Var Record",
+      description: "Checks that every env-var name in the record is a token-safe POSIX-style identifier.",
+      message:
+        "Env var names that carry credentials (ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, OPENAI_API_KEY, OPENAI_ACCESS_TOKEN, *_TOKEN, *_SECRET, *_KEY, AI_*_API_KEY) or malformed names cannot be stored on a provider instance.",
+    })
+  )
 );
 
 /**
