@@ -62,6 +62,11 @@ and restart recovery reconciles every crash point byte-exact, idempotently, thro
 the next apply, `beep models recover` or `restore`. A target a competing writer
 changed is refused and every artifact is kept
 ([record](./history/receipts/exchange-recovery.md)).
+#1882 is complete: the required `Security` job runs `beep ci dependency-review`
+with its read-only token. It excludes only manifests under the declared
+`**/test/**/fixtures/**` policy, keeps production transitive advisories and the
+action's thresholds, and fails closed when GitHub cannot answer
+([record](./history/receipts/dependency-review.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

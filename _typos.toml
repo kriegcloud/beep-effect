@@ -12,6 +12,7 @@ raison = "raison"
 fnd = "fnd"
 optin = "optin" # Models manifest role muse.optin
 wdth = "wdth" # OpenType variable-font width axis tag (font-variation-settings)
+certifi = "certifi" # Python CA-bundle package in the #1882 dependency-review fixtures
 # Effect-TS vocabulary
 Struct = "Struct"
 Fnc = "Fnc"

@@ -74,6 +74,11 @@ mount. Unsupported filesystems refuse before any backup or publication.
 state machine, and one idempotent reconciliation path recovers each crash point
 byte-exact from the next apply, `beep models recover` or `restore`, refusing with
 every artifact kept when a competing writer changed the target. #1881 follows.
+#1882 `residue-dependency-review` is complete
+(`history/receipts/dependency-review.md`): the required `Security` job reviews
+dependency changes through `beep ci dependency-review`, excluding only manifests under
+the declared `**/test/**/fixtures/**` policy, keeping production transitive advisories
+and the action's thresholds, and failing closed on any GitHub read failure.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

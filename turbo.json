@@ -252,6 +252,8 @@
         "packages/foundation/modeling/schema/src/**",
         "packages/foundation/modeling/skill-contract/package.json",
         "packages/foundation/modeling/skill-contract/src/**",
+        "packages/foundation/modeling/spdx/package.json",
+        "packages/foundation/modeling/spdx/src/**",
         "packages/foundation/modeling/utils/package.json",
         "packages/foundation/modeling/utils/src/**",
         "packages/foundation/primitive/data/package.json",
