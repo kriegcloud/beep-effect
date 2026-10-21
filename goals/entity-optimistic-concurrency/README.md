@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Yeet — local verification green; PR published through yeet.
+P4 Close — PR #1941 content-final (both review threads answered); closeout reflection written; proposed closeout `completed-retained` pending merge.
 
 ## Latest Evidence
 
