@@ -280,7 +280,7 @@ export const mailboxesOf = ({
 }: {
   readonly identifiers: ReadonlyArray<IdentifierId>;
   readonly clusters: HashMap.HashMap<IdentifierId, number>;
-}): ReadonlyArray<ReadonlyArray<IdentifierId>> =>
+}): ReadonlyArray<A.NonEmptyReadonlyArray<IdentifierId>> =>
   R.values(
     A.groupBy(identifiers, (i) =>
       O.match(HashMap.get(clusters, i), { onNone: () => `identifier:${i}`, onSome: (c) => `cluster:${c}` })
@@ -304,7 +304,7 @@ export const resolveCollisions = ({
   readonly contactsOf: HashMap.HashMap<IdentifierId, HashSet.HashSet<PartyId>>;
 }): ReadonlyArray<{
   readonly name: string;
-  readonly mailboxes: ReadonlyArray<ReadonlyArray<IdentifierId>>;
+  readonly mailboxes: ReadonlyArray<A.NonEmptyReadonlyArray<IdentifierId>>;
   readonly outcome: CollisionOutcome;
 }> =>
   A.flatMap(identifiersByName, ([name, identifiers]) => {

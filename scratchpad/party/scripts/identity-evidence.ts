@@ -8,14 +8,17 @@
  *     <practice-contacts.jsonl> <practice-links.jsonl> <filter-regex|-> <mail-index.jsonl>...
  *
  * Writes to <out-dir>: `identity-evidence.json` (counts only),
- * `pairing-claims.jsonl` (schema-encoded Proposed claim versions), and
- * `review-queue.jsonl` (collisions evidence could not settle). The last two
- * contain identifiers: keep <out-dir> outside any repository.
+ * `pairing-claims.jsonl` (schema-encoded Proposed claim versions),
+ * `review.html` (local review page for undecided collisions), and
+ * `review-claims.jsonl` (Accepted claims from current reviewer decisions).
+ * Reads `review-decisions.jsonl` from <out-dir> when present. Everything but
+ * the counts contains identifiers: keep <out-dir> outside any repository.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 import { BunRuntime } from "@effect/platform-bun";
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as BunServices from "@effect/platform-bun/BunServices";
 import { MailMessageIndexRecord } from "@beep/repo-cli/commands/Corpus";
 import { Contact } from "@beep/law-practice-use-cases/DocumentIdentification";
@@ -26,6 +29,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as Layer from "effect/Layer";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -57,6 +61,15 @@ import { emptyCensus, identifiersByName, observe, summarize } from "../adapters/
 import type { MailboxEvidence } from "../adapters/OrgEvidence.ts";
 import { classifyByOrganization, nameShape, organizationDomain } from "../adapters/OrgEvidence.ts";
 import { adaptMailRecord } from "../adapters/MailIndex.ts";
+import {
+  applyReviews,
+  CollisionCase,
+  CollisionDecision,
+  decisionClaims,
+  mailboxParty,
+  sealCase,
+} from "../adapters/ReviewLoop.ts";
+import { renderReviewPage } from "./ReviewPage.ts";
 
 const countBy = <A>(as: ReadonlyArray<A>, key: (a: A) => string) => R.map(A.groupBy(as, key), A.length);
 
@@ -213,13 +226,42 @@ const program = Effect.fn("identity-evidence")(function* (args: {
     shape: nameShape(c.name),
     orgLead: classifyByOrganization(A.map(c.mailboxes, mailboxEvidence)),
   }));
-  yield* fs.writeFileString(
-    `${args.outDir}/review-queue.jsonl`,
-    A.join(
-      A.map(leads, (c) => JSON.stringify({ name: c.name, shape: c.shape, outcome: c.outcome, orgLead: c.orgLead, mailboxes: c.mailboxes })),
-      "\n"
-    ) + "\n"
+  // 6. reviewer loop: seal full-name cases, apply recorded decisions, render the page
+  const cases = yield* Effect.forEach(
+    A.filter(leads, (c) => c.shape === "full-name"),
+    (c) =>
+      sealCase({
+        name: c.name,
+        shape: c.shape,
+        outcome: c.outcome,
+        orgLead: c.orgLead,
+        mailboxes: A.map(c.mailboxes, (ids) => {
+          const evidence = mailboxEvidence(ids);
+          return {
+            party: mailboxParty(ids),
+            identifiers: ids,
+            domains: A.fromIterable(evidence.domains),
+            firstSeen: O.map(evidence.span, ([from]) => from),
+            lastSeen: O.map(evidence.span, ([, to]) => to),
+          };
+        }),
+      })
   );
+  const decisionsPath = `${args.outDir}/review-decisions.jsonl`;
+  const decisions = (yield* fs.exists(decisionsPath))
+    ? A.getSomes(yield* readJsonl(fs, decisionsPath, S.decodeUnknownEffect(S.fromJsonString(CollisionDecision))))
+    : [];
+  const reviewed = applyReviews({ cases, decisions });
+  const open = A.filter(reviewed, (r) => r.status !== "reviewed-same" && r.status !== "reviewed-distinct" && r.status !== "skipped");
+  const encodeCases = S.encodeEffect(CollisionCase.pipe(S.Array, S.fromJsonString));
+  const encodedCases = yield* encodeCases(A.map(open, (r) => r.case));
+  yield* fs.writeFileString(`${args.outDir}/review.html`, renderReviewPage(encodedCases));
+  const reviewClaims = A.flatMap(
+    A.filter(decisions, (d) => A.some(reviewed, (r) => r.case.basis === d.basis && r.status !== "stale-review")),
+    decisionClaims
+  );
+  const reviewClaimLines = yield* Effect.forEach(reviewClaims, (c) => encodeClaim(c));
+  yield* fs.writeFileString(`${args.outDir}/review-claims.jsonl`, A.join(reviewClaimLines, "\n") + "\n");
 
   const mailIdentifierSet = HashSet.fromIterable(mailIdentifiers);
   const contactIdentifiers = A.dedupe(A.map(personal, ([identifier]) => identifier));
@@ -269,6 +311,12 @@ const program = Effect.fn("identity-evidence")(function* (args: {
       total: A.length(collisions),
       byOutcome: countBy(collisions, (c) => c.outcome),
       singleTokenNamesSetAside: A.length(A.filter(leads, (c) => c.shape === "single-token")),
+      review: {
+        cases: A.length(cases),
+        decisionsLoaded: A.length(decisions),
+        byStatus: countBy(reviewed, (r) => r.status),
+        acceptedReviewClaims: A.length(reviewClaims),
+      },
       orgLeadsForUnsettledFullNames: countBy(
         A.filter(leads, (c) => c.shape === "full-name"),
         (c) => c.orgLead
@@ -299,4 +347,4 @@ program({
   practiceLinks,
   filter: filterArg === "-" ? O.none() : O.some(new RegExp(filterArg, "i")),
   inputs,
-}).pipe(Effect.provide(BunServices.layer), BunRuntime.runMain);
+}).pipe(Effect.provide(Layer.mergeAll(BunServices.layer, BunCrypto.layer)), BunRuntime.runMain);

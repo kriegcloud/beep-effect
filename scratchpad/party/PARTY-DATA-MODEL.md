@@ -1,6 +1,6 @@
 # Party Data Model — evidence-gated parties, identities, and organization graphs
 
-Status: experiment (scratchpad), 2026-10-21. Module: `scratchpad/party/`. Tests: `test/*.test.ts` (43 competency, adapter, identity- and organization-evidence tests, all passing). Real-corpus run: `bun scratchpad/party/scripts/mail-census.ts <out.json> <filter|-> <index.jsonl>...`. Typecheck: `node_modules/.bin/tsgo -p scratchpad/party/tsconfig.json --noEmit`. Run: `node_modules/.bin/vitest run --config scratchpad/party/vitest.config.ts`.
+Status: experiment (scratchpad), 2026-10-21. Module: `scratchpad/party/`. Tests: `test/*.test.ts` (48 competency, adapter, identity-, organization-evidence and review-loop tests, all passing). Real-corpus run: `bun scratchpad/party/scripts/mail-census.ts <out.json> <filter|-> <index.jsonl>...`. Typecheck: `node_modules/.bin/tsgo -p scratchpad/party/tsconfig.json --noEmit`. Run: `node_modules/.bin/vitest run --config scratchpad/party/vitest.config.ts`.
 
 ## 1. The short answer
 
@@ -126,9 +126,11 @@ scratchpad/party/
                    mailbox clusters (Graph.connectedComponents); collision resolution; cardMergeProposals
     ContactEvidence.ts   GraphContact / Contact / LegacyContactKgRow cards → provisional parties + assertions
     OrgEvidence.ts organizationDomain (registrable, free-mail excluded), classifyByOrganization, nameShape
+    ReviewLoop.ts  CollisionCase (sealed basis), CollisionDecision, decisionClaims, applyReviews
   scripts/
     mail-census.ts streams index JSONL through the adapter; writes counts only
-    identity-evidence.ts mail + contacts → counts, encoded claim versions, review queue (private outputs)
+    identity-evidence.ts mail + contacts (+ review decisions) → counts, encoded claims, review.html (private outputs)
+    ReviewPage.ts  offline review page renderer
   fixtures/acme.ts fully synthetic "Doe Harvesting v. Acme Implement Co." production, encoded and decoded
 ```
 
@@ -243,11 +245,34 @@ Domain evidence turns 1,074 of 1,411 full-name collisions into a specific, revie
 
 **Signature blocks were not done.** About 80% of message bodies on disk are RTF, and the repo has no RTF reader. `pandoc` is installed and reads both RTF and HTML, so the route is a driver around it under `drivers/*`, run only over messages from the 337 + 1 still-unexplained names. Under this model's own evidence-kind rule, a signature is template evidence. It can corroborate a lead but never settle one, so it's a refinement, not the next unlock.
 
+### 7.4 Reviewer loop
+
+`adapters/ReviewLoop.ts` plus `scripts/ReviewPage.ts` close the loop from lead to accepted claim:
+
+```text
+collision lead ─► CollisionCase (mailboxes + domains + spans, sealed with a SHA-256 basis)
+   ─► review.html (local, offline; decisions kept in localStorage, exported as review-decisions.jsonl)
+   ─► CollisionDecision (verdict + basis + reviewer + time)
+   ─► Accepted SameParty / DistinctParty claim versions (ReviewerDisposition bound to the basis)
+   ─► next run: resolveParties over all reviewed claims
+        reviewed-same | reviewed-distinct | conflicting-review | skipped | stale-review | unreviewed
+```
+
+- **Mailbox parties are stable.** `party:mailbox:<smallest identifier>` is the same on every run while the pairing evidence is unchanged.
+- **Stale means re-review.** If a mailbox, domain or span changes, the basis digest changes and the old decision no longer applies. This is the evidence-signals/v1 rule that a changed basis invalidates acceptance.
+- **Reviews police each other.** A reviewed "different people" is a `DistinctParty` veto, so another name's "same person" over those mailboxes comes back `conflicting-review` instead of silently merging (tested).
+- **Verified end to end on the real corpus** in a throwaway directory with a self-test reviewer id: 3 decisions gave 1 reviewed-distinct, 1 reviewed-same and 1 skipped, 1,408 stayed queued, and 14 Accepted claims were emitted. The directory was deleted afterwards, so no fabricated decision sits beside the real queue.
+- **The real queue:** 1,411 full-name cases, all unreviewed, in the private output directory as `review.html`.
+
+Known limits:
+- The verdict is per name. A name spanning five mailboxes gets one answer, which is too coarse when three of the five are one person. The next increment is a grouping control: assign mailboxes to people, which emits `SameParty` within groups and `DistinctParty` across them.
+- The page is a scratch tool and was not run through the browser-QA loop.
+
 ## 8. Open questions and next steps
 
 - **O1 — placement (architecture).** Does `@beep/epistemic-domain` belong under `foundation/modeling`? And does Party become a product slice (`packages/party/*`) or a foundation modeling package? Proposed test: if no type in it names a product concept (matter, client, docket), it is foundation, so `ClaimVersion`, signals and admission machinery qualify. `Party` + `Proposition` arguably qualify too. `ContextRole` vocabularies stay with their slices. Route through `/grill-with-docs` against `07-non-slice-families.md` and `02-shared-kernel.md` before any package is created with `bun run beep create-package`.
 - **O2 — `EdgeVersion` endpoint shape.** Typed per-proposition endpoints, or a `Proposition` payload with a derived logical key?
-- **O3c — reviewer loop.** Take the review queue sorted by lead (495 distinct-person candidates first: cheapest to confirm), record reviewer dispositions as `SameParty`/`DistinctParty` claim versions, and re-run. Vetoes then block future name-equality merges automatically.
+- **O3c — reviewer loop (done, §7.4).** Next: a mailbox-grouping control for names with three or more mailboxes; ranking within a lead by message volume; feeding reviewed `SameParty` clusters back into the mail projections (`identityView`) so attributed events use reviewed identities.
 - **O3b — collision evidence beyond the address book (domain evidence done, §7.3; signatures pending a pandoc driver).** 1,469 collisions are unresolved because contact books cover only 2.6% of mail identifiers. Next evidence sources, in order of expected yield:
   - SMTP domain → organization claims (two "Chris Morgan"s at different firms' domains are a `DistinctParty` lead),
   - signature-block observations,
