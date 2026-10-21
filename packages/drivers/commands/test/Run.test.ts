@@ -100,7 +100,7 @@ describe("Run.collect", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: 8 })),
+          () => Run.collect(cmd(), { maxOutputBytes: 8 }),
           () => ({ stdout: "0123456789", exit: 0 })
         )
       );
@@ -118,7 +118,7 @@ describe("Run.collect", () => {
   it.effect("output exactly at the cap is accepted", () =>
     Effect.gen(function* () {
       const output = yield* withScript(
-        () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: 4 })),
+        () => Run.collect(cmd(), { maxOutputBytes: 4 }),
         () => ({ stdout: "abcd", exit: 0 })
       );
       assert.strictEqual(output.stdout, "abcd");
@@ -130,9 +130,7 @@ describe("Run.collect", () => {
       for (const script of [{ stdout: "x" }, { stderr: "x" }]) {
         const spawner = ScriptedSpawner.make(() => script);
         const error = yield* Effect.flip(
-          Run.collect(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })).pipe(
-            withLayer(spawner.layer)
-          )
+          Run.collect(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }).pipe(withLayer(spawner.layer))
         );
         assert.lengthOf(spawner.spawns, 1);
         if (!S.is(CommandOutputError)(error)) return assert.fail("expected a typed output error");
@@ -146,14 +144,14 @@ describe("Run.collect", () => {
   it.effect("negative-infinity budget allows empty streams and preserves spawn failures", () =>
     Effect.gen(function* () {
       const output = yield* withScript(
-        () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
+        () => Run.collect(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
         () => ({})
       );
       assert.strictEqual(output.stdout, "");
       assert.strictEqual(output.stderr, "");
       const error = yield* Effect.flip(
         withScript(
-          () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
+          () => Run.collect(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
           () => ScriptedSpawner.notFound("tool")
         )
       );
@@ -166,7 +164,7 @@ describe("Run.collect", () => {
     Effect.gen(function* () {
       for (const maxOutputBytes of [Number.POSITIVE_INFINITY, Number.NaN]) {
         const output = yield* withScript(
-          () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes })),
+          () => Run.collect(cmd(), { maxOutputBytes }),
           () => ({ stdout: "out", stderr: "err" })
         );
         assert.strictEqual(output.stdout, "out");
@@ -196,7 +194,7 @@ describe("Run.collect", () => {
   it.effect("an opted-in timeout fails typed with kind 'timeout'", () =>
     Effect.gen(function* () {
       const fiber = yield* withScript(
-        () => Run.collect(cmd(), RunOptions.make({ timeout: "30 seconds" })),
+        () => Run.collect(cmd(), { timeout: "30 seconds" }),
         () => ({ hang: true })
       ).pipe(Effect.flip, Effect.forkChild);
       yield* TestClock.adjust("31 seconds");
@@ -462,7 +460,7 @@ describe("Run.jsonLine", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.jsonLine(cmd(), Payload, RunOptions.make({ redact: [Redacted.make("s3cr3t")] })),
+          () => Run.jsonLine(cmd(), Payload, { redact: [Redacted.make("s3cr3t")] }),
           () => ({ stdout: "token is s3cr3t", stderr: "auth failed for s3cr3t", exit: 1 })
         )
       );
@@ -591,14 +589,14 @@ describe("Run.succeeds", () => {
       for (const script of [{ stdout: "x" }, { stderr: "x" }]) {
         assert.isFalse(
           yield* withScript(
-            () => Run.succeeds(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
+            () => Run.succeeds(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
             () => script
           )
         );
       }
       assert.isTrue(
         yield* withScript(
-          () => Run.succeeds(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
+          () => Run.succeeds(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
           () => ({})
         )
       );
@@ -646,8 +644,7 @@ describe("Run redaction", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () =>
-            Run.text(ChildProcess.make("npm", ["publish", "--token", "s3cr3t"]), RunOptions.make({ redact: [token] })),
+          () => Run.text(ChildProcess.make("npm", ["publish", "--token", "s3cr3t"]), { redact: [token] }),
           () => ({ stderr: "denied", exit: 1 })
         )
       );
@@ -662,7 +659,7 @@ describe("Run redaction", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.text(cmd(), RunOptions.make({ redact: [token] })),
+          () => Run.text(cmd(), { redact: [token] }),
           () => ({ stderr: "auth failed for s3cr3t", exit: 1 })
         )
       );
@@ -690,7 +687,7 @@ describe("Run redaction", () => {
   it.effect("captured output on the SUCCESS path is redacted too", () =>
     Effect.gen(function* () {
       const output = yield* withScript(
-        () => Run.collect(cmd(), RunOptions.make({ redact: [token] })),
+        () => Run.collect(cmd(), { redact: [token] }),
         () => ({ stdout: "token is s3cr3t", exit: 0 })
       );
       assert.notInclude(output.stdout, "s3cr3t");
@@ -908,4 +905,22 @@ describe("Run schema shapes", () => {
     assert.isFalse(S.is(RunOptions)({ timeout: "not a duration" }));
     assert.isFalse(S.is(RunOptions)({ maxOutputBytes: "8" }));
   });
+
+  it.effect("run helpers accept the plain encoded policy and a decoded RunOptions alike", () =>
+    Effect.gen(function* () {
+      const plain: RunOptions.Encoded = {
+        timeout: "30 seconds",
+        redact: [Redacted.make("s3cr3t")],
+        maxOutputBytes: 64,
+      };
+      const decoded = yield* S.decodeEffect(RunOptions)(plain);
+      for (const options of [plain, decoded]) {
+        const output = yield* withScript(
+          () => Run.text(cmd(), options),
+          () => ({ stdout: "token=s3cr3t\n" })
+        );
+        assert.strictEqual(output, `token=${Run.REDACTED}`);
+      }
+    })
+  );
 });

@@ -578,7 +578,7 @@ describe("ActionLogger", () => {
 				ActionLogger.layerTest({
 					notice: dual(
 						(args) => P.isString(args[0]),
-						(message: string, _properties?: AnnotationProperties): Effect.Effect<void> => Effect.sync(() => void notices.push(message)),
+						(message: string, _properties?: AnnotationProperties.Encoded): Effect.Effect<void> => Effect.sync(() => void notices.push(message)),
 					),
 				}),
 				{ timeout: "30 seconds" },

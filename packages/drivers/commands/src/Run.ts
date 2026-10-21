@@ -217,6 +217,47 @@ export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique sy
 ) {}
 
 /**
+ * Companion types for {@link RunOptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace RunOptions {
+  /**
+   * The plain, unbranded run policy accepted by every {@link Run} helper.
+   *
+   * **Details**
+   *
+   * The helpers take this structural shape rather than the branded decoded
+   * type, so a caller can pass an object literal without decoding it first. No
+   * field transforms, so this is exactly the decoded shape minus the brand: a
+   * `Duration.Input` timeout kept as written, `Redacted<string>` secrets and a
+   * numeric byte budget. A decoded {@link RunOptions} is assignable to it.
+   *
+   * **Example** (Pass an object literal to a run helper)
+   *
+   * ```ts
+   * import type { RunOptions } from "@beep/commands/Run";
+   * import { Run } from "@beep/commands/Run";
+   * import { ScriptedSpawner } from "@beep/commands/ScriptedSpawner";
+   * import * as ChildProcess from "effect/process/ChildProcess";
+   * import * as Effect from "effect/Effect";
+   *
+   * const options: RunOptions.Encoded = { timeout: "30 seconds", maxOutputBytes: 1024 };
+   * const spawner = ScriptedSpawner.make(() => ({ stdout: "abc123\n" }));
+   * const program = Run.text(ChildProcess.make("git", ["rev-parse", "HEAD"]), options).pipe(
+   *   Effect.provide(spawner.layer)
+   * );
+   * console.log(await Effect.runPromise(program)) // abc123
+   * ```
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RunOptions.Encoded;
+}
+
+/**
  * What one completed run produced.
  *
  * **Example** (Check a completed run)
@@ -674,7 +715,7 @@ export class CommandOutputError extends S.TaggedError<CommandOutputError, { read
 const collectRaw: {
   (
     command: ChildProcess.Command,
-    options: RunOptions | undefined,
+    options: RunOptions.Encoded | undefined,
     tee: Stdio.Stdio | undefined
   ): Effect.Effect<
     CommandOutput,
@@ -682,7 +723,7 @@ const collectRaw: {
     ChildProcessSpawner.ChildProcessSpawner
   >;
   (
-    options: RunOptions | undefined,
+    options: RunOptions.Encoded | undefined,
     tee: Stdio.Stdio | undefined
   ): (
     command: ChildProcess.Command
@@ -695,7 +736,7 @@ const collectRaw: {
   3,
   (
     command: ChildProcess.Command,
-    options: RunOptions | undefined,
+    options: RunOptions.Encoded | undefined,
     tee: Stdio.Stdio | undefined
   ): Effect.Effect<
     CommandOutput,
@@ -731,11 +772,11 @@ const collectRaw: {
 const collectClassified: {
   (
     command: ChildProcess.Command,
-    options: RunOptions | undefined,
+    options: RunOptions.Encoded | undefined,
     tee: Stdio.Stdio | undefined
   ): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   (
-    options: RunOptions | undefined,
+    options: RunOptions.Encoded | undefined,
     tee: Stdio.Stdio | undefined
   ): (
     command: ChildProcess.Command
@@ -744,7 +785,7 @@ const collectClassified: {
   3,
   (
     command: ChildProcess.Command,
-    options: RunOptions | undefined,
+    options: RunOptions.Encoded | undefined,
     tee: Stdio.Stdio | undefined
   ): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner> => {
     const described = describeCommand(command);
@@ -769,18 +810,18 @@ const requireZero: {
   (
     command: ChildProcess.Command,
     output: CommandOutput,
-    options: RunOptions | undefined
+    options: RunOptions.Encoded | undefined
   ): Effect.Effect<CommandOutput, CommandFailedError>;
   (
     output: CommandOutput,
-    options: RunOptions | undefined
+    options: RunOptions.Encoded | undefined
   ): (command: ChildProcess.Command) => Effect.Effect<CommandOutput, CommandFailedError>;
 } = Fn.dual(
   3,
   (
     command: ChildProcess.Command,
     output: CommandOutput,
-    options: RunOptions | undefined
+    options: RunOptions.Encoded | undefined
   ): Effect.Effect<CommandOutput, CommandFailedError> =>
     output.succeeded
       ? Effect.succeed(output)
@@ -796,7 +837,7 @@ const annotate = (command: ChildProcess.Command): Effect.Effect<void> => {
 /** Annotates the current span, then runs and classifies the command without a tee. */
 const annotatedRun = (
   command: ChildProcess.Command,
-  options: RunOptions | undefined
+  options: RunOptions.Encoded | undefined
 ): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner> =>
   Effect.andThen(
     annotate(command),
@@ -806,7 +847,7 @@ const annotatedRun = (
 /** {@link annotatedRun}, failing a run whose process exited non-zero. */
 const checkedRun = (
   command: ChildProcess.Command,
-  options: RunOptions | undefined
+  options: RunOptions.Encoded | undefined
 ): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner> =>
   Effect.flatMap(annotatedRun(command, options), (output) => requireZero(command, output, options));
 
@@ -814,16 +855,16 @@ const checkedRun = (
 const collect: {
   (
     command: ChildProcess.Command,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   (
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.collect")(function* (command: ChildProcess.Command, options?: RunOptions) {
+  Effect.fn("Run.collect")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     yield* annotate(command);
     return yield* collectClassified(command, options, undefined);
   })
@@ -833,14 +874,14 @@ const collect: {
 const collectTee: {
   (
     command: ChildProcess.Command,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<
     CommandOutput,
     CommandFailedError | CommandOutputError,
     Stdio.Stdio | ChildProcessSpawner.ChildProcessSpawner
   >;
   (
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<
@@ -850,7 +891,7 @@ const collectTee: {
   >;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.collectTee")(function* (command: ChildProcess.Command, options?: RunOptions) {
+  Effect.fn("Run.collectTee")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     yield* annotate(command);
     const stdio = yield* Stdio.Stdio;
     return yield* collectClassified(command, options, stdio);
@@ -861,16 +902,16 @@ const collectTee: {
 const text: {
   (
     command: ChildProcess.Command,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<string, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   (
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<string, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.text")(function* (command: ChildProcess.Command, options?: RunOptions) {
+  Effect.fn("Run.text")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     const checked = yield* checkedRun(command, options);
     return checked.stdout.trim();
   })
@@ -880,16 +921,16 @@ const text: {
 const lines: {
   (
     command: ChildProcess.Command,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<Array<string>, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   (
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<Array<string>, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.lines")(function* (command: ChildProcess.Command, options?: RunOptions) {
+  Effect.fn("Run.lines")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     const checked = yield* checkedRun(command, options);
     return Fn.pipe(
       checked.stdout.split(/\r?\n/),
@@ -904,17 +945,21 @@ const json: {
   <A, I>(
     command: ChildProcess.Command,
     schema: S.Codec<A, I>,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   <A, I>(
     schema: S.Codec<A, I>,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.json")(function* <A, I>(command: ChildProcess.Command, schema: S.Codec<A, I>, options?: RunOptions) {
+  Effect.fn("Run.json")(function* <A, I>(
+    command: ChildProcess.Command,
+    schema: S.Codec<A, I>,
+    options?: RunOptions.Encoded
+  ) {
     const checked = yield* checkedRun(command, options);
     const described = describeCommand(command);
     const parsed = yield* S.decodeEffect(JsonOutput)(checked.stdout).pipe(
@@ -931,11 +976,11 @@ const jsonLine: {
   <A, I>(
     command: ChildProcess.Command,
     schema: S.Codec<A, I>,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   <A, I>(
     schema: S.Codec<A, I>,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<A, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
@@ -944,7 +989,7 @@ const jsonLine: {
   Effect.fn("Run.jsonLine")(function* <A, I>(
     command: ChildProcess.Command,
     schema: S.Codec<A, I>,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ) {
     const output = yield* annotatedRun(command, options);
     const described = describeCommand(command);
@@ -992,16 +1037,16 @@ const jsonLine: {
 const exitCode: {
   (
     command: ChildProcess.Command,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<number, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
   (
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (
     command: ChildProcess.Command
   ) => Effect.Effect<number, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner>;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.exitCode")(function* (command: ChildProcess.Command, options?: RunOptions) {
+  Effect.fn("Run.exitCode")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     yield* annotate(command);
     const output = yield* collectClassified(command, options, undefined);
     return output.exitCode;
@@ -1012,14 +1057,14 @@ const exitCode: {
 const succeeds: {
   (
     command: ChildProcess.Command,
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner>;
   (
-    options?: RunOptions
+    options?: RunOptions.Encoded
   ): (command: ChildProcess.Command) => Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner>;
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
-  Effect.fn("Run.succeeds")(function* (command: ChildProcess.Command, options?: RunOptions) {
+  Effect.fn("Run.succeeds")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     yield* annotate(command);
     return yield* collectClassified(command, options, undefined).pipe(
       Effect.map((output) => output.succeeded),
@@ -1109,7 +1154,7 @@ const extendEnv: {
  * **Example** (Read the Git revision and check for changes)
  *
  * ```ts
- * import { Run, RunOptions } from "@beep/commands/Run";
+ * import { Run } from "@beep/commands/Run";
  * import { ScriptedSpawner } from "@beep/commands/ScriptedSpawner";
  * import * as ChildProcess from "effect/process/ChildProcess";
  * import * as Effect from "effect/Effect";
@@ -1118,10 +1163,7 @@ const extendEnv: {
  *   args[0] === "rev-parse" ? { stdout: "abc123\n" } : {},
  * );
  * const program = Effect.gen(function* () {
- *   const sha = yield* Run.text(
- *     ChildProcess.make("git", ["rev-parse", "HEAD"]),
- *     RunOptions.make({ timeout: "10 seconds" }),
- *   );
+ *   const sha = yield* Run.text(ChildProcess.make("git", ["rev-parse", "HEAD"]), { timeout: "10 seconds" });
  *   const clean = yield* Run.succeeds(ChildProcess.make("git", ["diff", "--quiet"]));
  *   return { sha, clean };
  * }).pipe(Effect.provide(spawner.layer));

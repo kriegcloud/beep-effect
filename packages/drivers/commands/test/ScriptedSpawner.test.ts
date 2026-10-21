@@ -4,7 +4,7 @@
 // routing, spawn recording (options, extendEnv), the PlatformError failure
 // path, hang, unref observation, and the loud pipeline refusal.
 
-import { CommandFailedError, Run, RunOptions } from "@beep/commands/Run";
+import { CommandFailedError, Run } from "@beep/commands/Run";
 import { ScriptCompletion, ScriptedSpawner, ScriptResult, SpawnRecord } from "@beep/commands/ScriptedSpawner";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
@@ -114,7 +114,7 @@ describe("ScriptedSpawner.make", () => {
   it.effect("hang never resolves exitCode, so an opted-in timeout fires", () =>
     Effect.gen(function* () {
       const spawner = ScriptedSpawner.make(() => ({ hang: true }));
-      const fiber = yield* Run.collect(cmd(), RunOptions.make({ timeout: "30 seconds" })).pipe(
+      const fiber = yield* Run.collect(cmd(), { timeout: "30 seconds" }).pipe(
         withLayer(spawner.layer),
         Effect.flip,
         Effect.forkChild

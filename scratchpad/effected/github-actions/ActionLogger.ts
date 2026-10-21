@@ -71,7 +71,7 @@ const numericAnnotation: {
  * confined to {@link WorkflowCommand}. Undefined fields are omitted rather than
  * set, so a caller that annotated nothing renders a bare command.
  */
-const readAnnotations = (record: Readonly<Record<string, unknown>>): AnnotationProperties => {
+const readAnnotations = (record: Readonly<Record<string, unknown>>): AnnotationProperties.Encoded => {
 	const title = textAnnotation(record, "title");
 	const file = textAnnotation(record, "file");
 	const startLine = numericAnnotation(record, "startLine");
@@ -94,7 +94,7 @@ const readAnnotations = (record: Readonly<Record<string, unknown>>): AnnotationP
  * rather than present-and-`undefined`, and {@link readAnnotations} drops
  * anything that is not a string or number on the way back out.
  */
-const annotationRecord = (properties: AnnotationProperties): Record<string, unknown> => ({ ...properties });
+const annotationRecord = (properties: AnnotationProperties.Encoded): Record<string, unknown> => ({ ...properties });
 
 /**
  * Map one log entry onto the line the runner should see.
@@ -425,8 +425,8 @@ export interface ActionLoggerShape {
 	 * @since 0.0.0
 	 */
 	readonly notice: {
-		(message: string, properties?: AnnotationProperties): Effect.Effect<void>;
-		(properties?: AnnotationProperties): (message: string) => Effect.Effect<void>;
+		(message: string, properties?: AnnotationProperties.Encoded): Effect.Effect<void>;
+		(properties?: AnnotationProperties.Encoded): (message: string) => Effect.Effect<void>;
 	};
 	/**
 	 * Attach source annotations to every `Effect.log*` inside an effect.
@@ -434,7 +434,7 @@ export interface ActionLoggerShape {
 	 * **Details**
 	 *
 	 * The point is that a caller never spells an annotation key: the fields go in
-	 * as `AnnotationProperties` (from `@effected/github-commands`) and come out as `file=`/`line=` on the
+	 * as `AnnotationProperties.Encoded` (from `@beep/github-commands`) and come out as `file=`/`line=` on the
 	 * rendered command.
 	 *
 	 * **Example** (Attach source fields to an effect)
@@ -452,8 +452,8 @@ export interface ActionLoggerShape {
 	 * @since 0.0.0
 	 */
 	readonly annotated: {
-		<A, E, R>(properties: AnnotationProperties, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
-		<A, E, R>(effect: Effect.Effect<A, E, R>): (properties: AnnotationProperties) => Effect.Effect<A, E, R>;
+		<A, E, R>(properties: AnnotationProperties.Encoded, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>): (properties: AnnotationProperties.Encoded) => Effect.Effect<A, E, R>;
 	};
 }
 
@@ -530,10 +530,10 @@ const make = Effect.gen(function* () {
 				Effect.tap(() => Effect.logInfo(options?.summary ?? `✅ ${name}`)),
 			)),
 
-		notice: dual((args) => P.isString(args[0]), (message: string, properties: AnnotationProperties = {}): Effect.Effect<void> =>
+		notice: dual((args) => P.isString(args[0]), (message: string, properties: AnnotationProperties.Encoded = {}): Effect.Effect<void> =>
 			Console.log(WorkflowCommand.notice(message, properties))),
 
-		annotated: dual(2, <A, E, R>(properties: AnnotationProperties, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+		annotated: dual(2, <A, E, R>(properties: AnnotationProperties.Encoded, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
 			Effect.annotateLogs(effect, annotationRecord(properties))),
 	} satisfies ActionLoggerShape;
 });
@@ -680,8 +680,8 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
 			(args) => P.isString(args[0]),
 			<A, E, R>(_name: string, effect: Effect.Effect<A, E, R>, _options?: WithStepOptions): Effect.Effect<A, E, R> => effect,
 		),
-		notice: dual((args) => P.isString(args[0]), (_message: string, _properties?: AnnotationProperties): Effect.Effect<void> => Effect.void),
-		annotated: dual(2, <A, E, R>(_properties: AnnotationProperties, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => effect),
+		notice: dual((args) => P.isString(args[0]), (_message: string, _properties?: AnnotationProperties.Encoded): Effect.Effect<void> => Effect.void),
+		annotated: dual(2, <A, E, R>(_properties: AnnotationProperties.Encoded, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => effect),
 		...overrides,
 	});
 
