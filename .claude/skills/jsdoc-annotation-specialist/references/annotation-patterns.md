@@ -89,12 +89,29 @@ same annotations, but its extras are untyped against the schema and it keeps
 no statics: on an `S.toTaggedUnion(...)` result it drops `match`, `cases`,
 `guards` and `isAnyOf` at runtime.
 
+## Checks and filters
+
+Pass `$I.annote(...)` as the check's annotation argument. Never hand-build
+`{ identifier: $I\`Name\`, ... }`; it skips the schema id, IRI and CURIE. A
+caller-supplied `title` wins over the derived one:
+
+```ts
+const Slug = S.String.check(
+  S.isPattern(/^[a-z][a-z0-9-]*$/, $I.annote("SlugPattern", {
+    title: "Slug syntax",
+    description: "Lowercase letters, digits and hyphens.",
+    message: "Expected a lowercase slug"
+  }))
+).pipe($I.annoteSchema("Slug", { description: "A URL slug." }))
+```
+
 ## Struct fields
 
-Use `$I.annoteKey(...)` inside `.pipe(...)`. The one exception is an
-`S.suspend(...)` field inside a recursive class's own base expression: keep
-`.annotateKey($I.annote(...))` there, because the generic pipe form makes
-TypeScript resolve the class inside its own base (TS2310, TS2506).
+Use `$I.annoteKey("Parent.key", {...})` inside `.pipe(...)`, never
+`.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`. A raw
+`.annotate({...})` on a field is fine. When a recursive class's own base
+expression trips TS2310 on the pipe form, apply the helper directly:
+`$I.annoteKey("Parent.key", {...})(S.suspend(() => Node))`.
 
 ## Union, TemplateLiteral, and composed schemas
 

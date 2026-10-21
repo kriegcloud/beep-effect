@@ -376,12 +376,11 @@ const $I = $PackageNameId.create("relative/path/from/package/src");
 const SLUG_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 export const Slug = S.String.check(
-  S.isPattern(SLUG_PATTERN, {
-    identifier: $I`SlugPatternCheck`,
+  S.isPattern(SLUG_PATTERN, $I.annote("SlugPatternCheck", {
     title: "Slug",
     description: "A lowercase hyphen-delimited identifier.",
     message: "Expected a lowercase slug beginning with a letter",
-  })
+  }))
 ).pipe(
   S.brand("Slug"),
   $I.annoteSchema("Slug", {

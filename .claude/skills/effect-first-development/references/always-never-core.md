@@ -114,12 +114,11 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 const TopicKind = LiteralKit(["plain", "scoped"])
 
 const ContainsScopeSeparator = S.String.check(
-  S.isIncluding(":", {
-    identifier: $I`ContainsScopeSeparatorCheck`,
+  S.isIncluding(":", $I.annote("ContainsScopeSeparatorCheck", {
     title: "Contains Scope Separator",
     description: "A string that contains `:`.",
-    message: "Topic text must contain :"
-  })
+    message: "Topic text must contain :",
+  }))
 ).pipe(
   S.brand("ContainsScopeSeparator"),
   $I.annoteSchema("ContainsScopeSeparator", {
@@ -130,12 +129,11 @@ const ContainsScopeSeparator = S.String.check(
 const isContainsScopeSeparator = S.is(ContainsScopeSeparator)
 
 const TopicSegment = S.NonEmptyString.check(
-  S.makeFilter(P.not(isContainsScopeSeparator), {
-    identifier: $I`TopicSegmentNoSeparatorCheck`,
+  S.makeFilter(P.not(isContainsScopeSeparator), $I.annote("TopicSegmentNoSeparatorCheck", {
     title: "Topic Segment No Separator",
     description: "A topic segment that does not contain `:`.",
-    message: "Topic segments must not contain :"
-  })
+    message: "Topic segments must not contain :",
+  }))
 ).pipe(
   S.brand("TopicSegment"),
   $I.annoteSchema("TopicSegment", {
@@ -158,12 +156,11 @@ const classifyTopicKind = Match.type<string>().pipe(
 export const TopicName = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(P.not(Str.endsWith(":")), {
-        identifier: $I`TopicNameNoTrailingSeparatorCheck`,
+      S.makeFilter(P.not(Str.endsWith(":")), $I.annote("TopicNameNoTrailingSeparatorCheck", {
         title: "Topic Name No Trailing Separator",
         description: "A topic name that does not end with `:`.",
-        message: "Topic names must not end with :"
-      }),
+        message: "Topic names must not end with :",
+      })),
       S.makeFilter((value: string) =>
         pipe(
           value,
@@ -172,18 +169,16 @@ export const TopicName = S.NonEmptyString.check(
             plain: isTopicSegment,
             scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
           })
-        ), {
-        identifier: $I`TopicNameSegmentsCheck`,
+        ), $I.annote("TopicNameSegmentsCheck", {
         title: "Topic Name Segments",
         description: "A topic name whose segments are valid topic segments.",
-        message: "Topic names must contain only valid segments"
-      })
+        message: "Topic names must contain only valid segments",
+      }))
     ],
-    {
-      identifier: $I`TopicNameChecks`,
+    $I.annote("TopicNameChecks", {
       title: "Topic Name",
-      description: "Checks for a plain or scoped topic name."
-    })
+      description: "Checks for a plain or scoped topic name.",
+    }))
   )
 ).pipe(
   S.brand("TopicName"),

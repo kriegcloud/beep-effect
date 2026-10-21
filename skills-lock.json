@@ -55,7 +55,7 @@
         ".claude/skills/effect-first-development",
         ".agents/skills/effect-first-development"
       ],
-      "installedTreeHash": "78ca3aad42e9e7843d502fd54d9318c13c4294e32de74997bbf7c8fbdaab020c"
+      "installedTreeHash": "cdf870cc849908503dfb245ca92e6d554ed9b2b30162e663e0e32690e1c684d2"
     },
     "explore": {
       "_tag": "local",
@@ -155,7 +155,7 @@
         ".claude/skills/jsdoc-annotation-specialist",
         ".agents/skills/jsdoc-annotation-specialist"
       ],
-      "installedTreeHash": "bf665fd97f827c44cdbd3d402ceda3a754aec12d291d21a2be4aa3eb9b84aac9"
+      "installedTreeHash": "390b5fcecebdbffe0231495fc688b8d2d933d6b7211b37f7171ea17d25a66463"
     },
     "motion-evidence-review": {
       "_tag": "local",
@@ -407,7 +407,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "74e9bb845bf9709fde4d9230f03e966d9cf221895735a8b5328979b1f89a7752"
+      "installedTreeHash": "9105e9975f8c04528e0e7d99d58e9c4918ff8cb775888a3b504408e52336032e"
     },
     "shadcn": {
       "_tag": "vendored",

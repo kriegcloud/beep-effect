@@ -241,12 +241,11 @@ When you do need custom reusable checks:
 Prefer:
 
 ```ts
-S.makeFilter(Str.includes("/"), {
-  identifier: $I`ContainsSlashCheck`,
+S.makeFilter(Str.includes("/"), $I.annote("ContainsSlashCheck", {
   title: "Contains Slash",
   description: "A string that contains the slash character.",
   message: "Expected text to contain '/'",
-})
+}))
 ```
 
 ## 9. Literal Domains and Tagged Unions Follow Repo Style
