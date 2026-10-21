@@ -6,14 +6,14 @@ workspaces: retired:venice-ai, retired:xai, retired:firecrawl and retired:face-d
 The cheap-gates cache audit reported fifteen blocking `configuration-drift` findings and one
 `configuration-source-drift` review for `turbo.json`. A complete comparison of the executable
 projection against the previous baseline (SHA-256
-`5d593dd8cca2d61ef8f98d85058f1d3700139c1d98127f66a8c6500f3ea1e602`, the baseline on `main` at
-`3a47ea26c5`, which this branch merged) finds only subtractive changes:
+`ddfbe1f171f713400bd693465ceda9760e809335ec316f4d586ddd584db0b93d`, the baseline on `main` at
+`280275e205`, which this branch merged) finds only subtractive changes:
 
 - 58 computations are removed, all owned by the four deleted workspaces (15 + 15 + 14 + 14). Their
   four review records are dropped with them. No computation is added.
 - 25 computations change only their resolved dependency lists. Each list loses the edges to the
   deleted workspaces and gains nothing.
-- 122 computations change only their effective configuration. Each one loses entries and gains
+- 130 computations change only their effective configuration. Each one loses entries and gains
   nothing.
 - The global configuration is unchanged. The only configuration source whose bytes change is
   `turbo.json`, from SHA-256 `6a81f3b809fd6990a9db45868be59b860f8f3f2aeaa15b3caba429720044bb1c` to
@@ -68,9 +68,121 @@ Anthropic only. The manifest is now SHA-256
   and firecrawl drivers. The CLI's policy computation no longer imports them. No input is added.
 - `//#lint:typos` loses its two exclusions for the Venice OpenAPI documents, which were deleted with
   that driver. No input is added.
-- 120 `test:integration` and `test:integration:parallel` computations lose the environment names
+- 128 `test:integration` and `test:integration:parallel` computations lose the environment names
   `AI_VENICE_API_KEY` and `FIRECRAWL_API_KEY` from their shared root task definition. These tasks
   are not cached, so this changes no reuse decision.
+
+## Subjects changed only by the integration environment names
+
+These subjects change only through their uncached `test:integration` and `test:integration:parallel`
+computations, which lose `AI_VENICE_API_KEY` and `FIRECRAWL_API_KEY` from the shared root task
+definition. No cached computation of theirs changes, so no reuse decision changes:
+
+- `@beep/acp`
+- `@beep/agents-client`
+- `@beep/agents-server`
+- `@beep/agents-tables`
+- `@beep/ai-provider-cli`
+- `@beep/ai-sync`
+- `@beep/api-transport`
+- `@beep/architecture-lab-client`
+- `@beep/architecture-lab-config`
+- `@beep/architecture-lab-domain`
+- `@beep/architecture-lab-proof`
+- `@beep/architecture-lab-server`
+- `@beep/architecture-lab-tables`
+- `@beep/architecture-lab-ui`
+- `@beep/architecture-lab-use-cases`
+- `@beep/box`
+- `@beep/box-provisioning`
+- `@beep/brand`
+- `@beep/codegen-kit`
+- `@beep/commands`
+- `@beep/db-admin`
+- `@beep/discord`
+- `@beep/doc-text`
+- `@beep/dock`
+- `@beep/dock-react`
+- `@beep/documents-domain`
+- `@beep/documents-server`
+- `@beep/documents-tables`
+- `@beep/documents-use-cases`
+- `@beep/drizzle`
+- `@beep/ecfr`
+- `@beep/editor`
+- `@beep/effect-drizzle`
+- `@beep/epistemic-client`
+- `@beep/epistemic-config`
+- `@beep/epistemic-server`
+- `@beep/epistemic-tables`
+- `@beep/epistemic-ui`
+- `@beep/exiftool`
+- `@beep/fc-runs`
+- `@beep/ffmpeg`
+- `@beep/file-processing`
+- `@beep/freshbooks`
+- `@beep/github-commands`
+- `@beep/github-references`
+- `@beep/gov-legal-mcp`
+- `@beep/govinfo`
+- `@beep/html`
+- `@beep/hubspot`
+- `@beep/jsonc`
+- `@beep/jsonl`
+- `@beep/law-practice-tables`
+- `@beep/lexical-schema`
+- `@beep/libpff`
+- `@beep/m365`
+- `@beep/m365-mcp`
+- `@beep/mcp-kit`
+- `@beep/mcpb-kit`
+- `@beep/nlp-mcp`
+- `@beep/obs`
+- `@beep/occt`
+- `@beep/onepassword-cli`
+- `@beep/ontology`
+- `@beep/ontology-client`
+- `@beep/ontology-config`
+- `@beep/ontology-domain`
+- `@beep/ontology-server`
+- `@beep/ontology-ui`
+- `@beep/ontology-use-cases`
+- `@beep/openai`
+- `@beep/openai-compat`
+- `@beep/openclaw`
+- `@beep/pacer`
+- `@beep/palantiri`
+- `@beep/pandoc-ast`
+- `@beep/pdf-tools`
+- `@beep/pglite`
+- `@beep/phoenix`
+- `@beep/poppler`
+- `@beep/postgres`
+- `@beep/pretext`
+- `@beep/professional-desktop`
+- `@beep/qa-capture`
+- `@beep/runpod`
+- `@beep/sanity`
+- `@beep/schema-org`
+- `@beep/semver`
+- `@beep/shared-use-cases`
+- `@beep/skill-contract`
+- `@beep/spdx`
+- `@beep/t3-code`
+- `@beep/tailscale`
+- `@beep/technical-drawing`
+- `@beep/tesseract`
+- `@beep/test-runner`
+- `@beep/test-utils`
+- `@beep/tika`
+- `@beep/uspto`
+- `@beep/uspto-mcp`
+- `@beep/windows-secrets`
+- `@beep/wink`
+- `@beep/workspace-server`
+- `@beep/workspace-tables`
+- `@beep/workspace-use-cases`
+- `@beep/xstate`
 
 ## Root subject
 
