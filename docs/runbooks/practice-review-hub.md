@@ -319,9 +319,10 @@ helper through `cmd.exe`.
 
    The receiver writes `%LOCALAPPDATA%\beep\practice-review-hub\api-token.dpapi`
    (the path `headers.ps1` reads) and reports to `<folder>\status-recv.txt`,
-   which it clears on start. The pipe accepts only that Windows user. Wait until
-   the status file says `listening`; any other line means stop. If another user
-   created a pipe with that name first, the receiver fails and never reports
+   which it clears on start (its first line is `starting`). The pipe accepts
+   only that Windows user. Send only once the last line is `listening`; a line
+   that begins `error:` means stop. If another user created a pipe with that
+   name first, the receiver fails with an `error:` line and never reports
    `listening`. Then send the token from the workstation on SSH standard input:
 
    ```bash
