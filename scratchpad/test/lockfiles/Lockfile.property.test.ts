@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
-import { DependencySpecifier } from "../../effected/npm/DependencySpecifier.ts";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { ImporterDependency } from "../../effected/lockfiles/ImporterDependency.ts";
 import { LockfileImporter } from "../../effected/lockfiles/LockfileImporter.ts";
 import { Lockfile, LockfileParseError, LockfileFramingError } from "../../effected/lockfiles/Lockfile.ts";

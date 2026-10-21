@@ -56,7 +56,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { sha256 } from "./fixtures/Sha256.ts";
+import { sha256 } from "./support/Sha256.ts";
 import type { JsoncDigest } from "@beep/jsonc";
 
 const runs = { arbitrary: fcRuns(100) };

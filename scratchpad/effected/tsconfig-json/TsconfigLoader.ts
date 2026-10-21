@@ -34,11 +34,11 @@ import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import type { CompilerOptions } from "./CompilerOptions.ts";
+import type { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
 import { resolveExtendsTarget } from "./internal/extendsTarget.ts";
-import { ResolvedTsconfig } from "./ResolvedTsconfig.ts";
-import type { TsconfigJson } from "./TsconfigJson.ts";
-import { TsconfigJsonFromString, TsconfigParseError } from "./TsconfigJson.ts";
+import { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
+import type { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
+import { TsconfigJsonFromString, TsconfigParseError } from "@beep/tsconfig/TsconfigJson";
 import * as P from "effect/Predicate";
 import { dual } from "effect/Function";
 import * as A from "effect/Array";
@@ -231,7 +231,7 @@ const resolve = Effect.fn("TsconfigLoader.resolve")(function* (configPath: strin
 
 	// Fold base-most first onto an empty seed; each merge sets the accumulated
 	// configPath to the derived config, so the seed's is immediately overwritten.
-	const seed: ResolvedTsconfig = { configPath: topAbs, extendedPaths: [], compilerOptions: {} };
+	const seed = ResolvedTsconfig.make({ configPath: topAbs, extendedPaths: [], compilerOptions: {} });
 	let acc = seed;
 	for (const entry of layers) {
 		acc = ResolvedTsconfig.merge(acc, entry.doc, entry.path);

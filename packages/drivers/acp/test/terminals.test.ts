@@ -10,6 +10,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 const node = process.execPath;
 const script = (source: string) => ({ command: node, args: ["-e", source] });
@@ -82,7 +83,7 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
       const output = yield* terminals.output({ sessionId: "shell", terminalId });
 
       assert.strictEqual(exit.exitCode, 0);
-      assert.strictEqual(output.output.trim(), "MAILBOX-PROBE");
+      assert.strictEqual(Str.trim(output.output), "MAILBOX-PROBE");
     })
   );
 
@@ -106,11 +107,11 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
 
       const asciiOutput = yield* terminals.output({ sessionId: "session", ...ascii });
       assert.isTrue(asciiOutput.truncated);
-      assert.strictEqual(asciiOutput.output, `${"a".repeat(12)}TAIL`);
+      assert.strictEqual(asciiOutput.output, `${Str.repeat(12)("a")}TAIL`);
 
       const multiByteOutput = yield* terminals.output({ sessionId: "session", ...multiByte });
       assert.isTrue(multiByteOutput.truncated);
-      assert.strictEqual(multiByteOutput.output, "€".repeat(5));
+      assert.strictEqual(multiByteOutput.output, Str.repeat(5)("€"));
     })
   );
 
@@ -205,7 +206,7 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
       assertNone(terminals.readOutputSnapshot("session", ids[0]?.terminalId ?? ""));
       // Trimming takes the oldest output first, so the newest terminal keeps all of its output.
       assertSome(terminals.readOutputSnapshot("session", ids[2]?.terminalId ?? ""), {
-        output: "x".repeat(1000),
+        output: Str.repeat(1000)("x"),
         truncated: false,
         exitStatus: { exitCode: 0, signal: null },
       });
@@ -292,7 +293,7 @@ it.layer(SpawnerLayer, { excludeTestServices: true, timeout: "30 seconds" })(
           .pipe(Effect.timeout("5 seconds"));
         assert.strictEqual(exit.exitCode, 0);
         const output = yield* terminals.output({ sessionId: "session", terminalId });
-        assert.strictEqual(output.output.trim(), "started");
+        assert.strictEqual(Str.trim(output.output), "started");
         assert.strictEqual(output.exitStatus?.exitCode, 0);
         yield* terminals.release({ sessionId: "session", terminalId }).pipe(Effect.timeout("10 seconds"));
       })

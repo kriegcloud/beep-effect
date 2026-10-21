@@ -23,8 +23,9 @@ wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
 | --- | --- | ---: | --- |
 | 1 | libpff, box-provisioning, qa-capture, ontology-use-cases, brand, agents-domain, freshbooks, repo-docgen, ontology-server, tika, nlp, hubspot, workspace-domain | 193 | merged (#1968) |
 | 2 | technical-drawing, epistemic-server, epistemic-domain, law-practice-use-cases, law-practice-domain, epistemic-ui, documents-domain, m365, occt, openclaw, db-admin, practice-identify, documents-server, html, todox, agents-server, m365-mcp, uspto, epistemic-tables, file-processing, law-practice-tables, shared-use-cases, repo-configs, fc-runs | 145 | merged (#1976) |
-| 3 | effect-drizzle, repo-ai-metrics, pdf-tools, nlp-processing, law-practice-server, semantica, identity, infra, ciops, mcp-kit, ui, oip-web, wink, test-runner, practice-gateway, ontology, box, ai-sync, windows-secrets, rdf, practice-setup, openai-compat, nlp-mcp, mcpb-kit | 237 | in review |
-| 4 | the 13 packages with open-lane hunks near their sites on 2026-10-21 (editor, professional-desktop, test-utils, schema, lint-rules, practice-claude-mod, repo-utils, storybook, utils, shared-domain, observability, acp, ai-provider-cli) | about 150 | pending |
+| 3 | effect-drizzle, repo-ai-metrics, pdf-tools, nlp-processing, law-practice-server, semantica, identity, infra, ciops, mcp-kit, ui, oip-web, wink, test-runner, practice-gateway, ontology, box, ai-sync, windows-secrets, rdf, practice-setup, openai-compat, nlp-mcp, mcpb-kit | 237 | merged (#1983) |
+| 4a | acp, test-utils (ai-provider-cli had no sites left) | 47 | in review |
+| 4b | editor, professional-desktop, schema, lint-rules, practice-claude-mod, repo-utils, storybook, utils, shared-domain, observability (open-lane hunks near their sites) | about 100 | pending |
 | 5 | repo-cli (674) and the root (16), then the pin moves to 0.55+ and the rule is armed | about 690 | pending |
 
 Wave proof, per package: the package's tests, `package-verify --quick`, and a

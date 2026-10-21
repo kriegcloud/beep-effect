@@ -21,7 +21,7 @@ import { delimiter, dirname, join } from "node:path";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, beforeAll, beforeEach, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
-import { CatalogAssemblyError } from "../../../effected/npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";

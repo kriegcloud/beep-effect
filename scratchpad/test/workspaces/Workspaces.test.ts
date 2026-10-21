@@ -8,7 +8,9 @@
 
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { CatalogResolver, Manifest, UnresolvedDependencyError, WorkspaceResolver } from "../../effected/npm/index.ts";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { Manifest, UnresolvedDependencyError } from "@beep/npm-spec/Manifest";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";

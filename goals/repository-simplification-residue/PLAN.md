@@ -73,7 +73,13 @@ mount. Unsupported filesystems refuse before any backup or publication.
 (`history/receipts/exchange-recovery.md`): every publication is a durable journal
 state machine, and one idempotent reconciliation path recovers each crash point
 byte-exact from the next apply, `beep models recover` or `restore`, refusing with
-every artifact kept when a competing writer changed the target. #1881 follows.
+every artifact kept when a competing writer changed the target.
+#1881 `residue-skill-publication` is complete
+(`history/receipts/skill-publication.md`): skill files and directories are replaced
+only by a qualified, verified atomic exchange, journaled with the same state machine,
+and recovered byte-exact (tree hash for directories) by the next `skills update` or
+`beep skills recover`; a replacing writer is refused with every artifact kept. Wave 8
+is closed.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

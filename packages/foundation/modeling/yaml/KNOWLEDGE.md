@@ -6,7 +6,8 @@ decisions live in README.md → Port notes, not here.
 
 Upstream paths map onto this package as follows: `packages/yaml/` is
 `packages/foundation/modeling/yaml/`, `packages/yaml/src/` is `src/` here,
-`packages/yaml/__test__/` is `test/` here, and `@effected/yaml` is `@beep/yaml`.
+`packages/yaml/__test__/` is `test/` here, `@effected/yaml` is `@beep/yaml`, and
+`@effected/jsonc` is `@beep/jsonc`.
 The upstream `pnpm` commands below do not apply; run `bun run test` and
 `bun run check` in this directory, or
 `bun run beep quality package-verify @beep/yaml` from the repo root.

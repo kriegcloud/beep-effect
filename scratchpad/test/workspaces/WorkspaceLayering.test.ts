@@ -1,5 +1,5 @@
 import { assert, describe, it, layer } from "@effect/vitest";
-import type { DependencyField } from "../../effected/npm/index.ts";
+import type { DependencyField } from "@beep/npm-spec/DependencySection";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
