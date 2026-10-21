@@ -54,7 +54,7 @@ const SOURCE_PATH_PATTERN =
  * `]: …#…`. The target before the `#` excludes `#`, so the scan stays linear
  * on long `#`-dense lines (a leading lookbehind here backtracks cubically).
  */
-const LINK_FRAGMENT_PATTERN = /\](?:\(|:[ \t]*)[^\s)#]*#(?<fragment>[^\s)]*)/gu;
+const LINK_FRAGMENT_PATTERN = /\](?:\(|:[ \t]*)[^\s)#]*#[^\s)]*/gu;
 
 /**
  * A retired path's GitHub heading slug (`effect/unstable/reactivity/Atom` →
@@ -99,12 +99,11 @@ const collectMatches = (content: string, pattern: RegExp, rule: RetiredEffectPat
   }));
 
 const collectAnchorSlugMatches = (content: string): ReadonlyArray<RawMatch> =>
-  A.flatMap(A.fromIterable(F.pipe(content, Str.matchAll(LINK_FRAGMENT_PATTERN))), (link) => {
-    const fragment = link.groups?.fragment ?? "";
-    const offset = (link.index ?? 0) + Str.length(link[0]) - Str.length(fragment);
-    return A.map(collectMatches(fragment, ANCHOR_SLUG_PATTERN, "anchor-slug"), (match) => ({
+  A.flatMap(collectMatches(content, LINK_FRAGMENT_PATTERN, "anchor-slug"), (link) => {
+    const fragmentStart = Str.length(A.headNonEmpty(Str.split(link.text, "#"))) + 1;
+    return A.map(collectMatches(Str.slice(fragmentStart)(link.text), ANCHOR_SLUG_PATTERN, "anchor-slug"), (match) => ({
       ...match,
-      index: offset + match.index,
+      index: link.index + fragmentStart + match.index,
     }));
   });
 
