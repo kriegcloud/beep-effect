@@ -31,7 +31,8 @@ const $I = $LintRulesId;
  *   "no-bigint-literals",
  *   "no-empty-named-blocks",
  *   "prefer-array-flat-map",
- *   "prefer-identity-annote-pipe"
+ *   "prefer-identity-annote-pipe",
+ *   "no-hand-built-identity-annotation"
  * ])
  * ```
  *
@@ -44,6 +45,7 @@ export const RULE_NAMES = [
   "no-empty-named-blocks",
   "prefer-array-flat-map",
   "prefer-identity-annote-pipe",
+  "no-hand-built-identity-annotation",
 ] as const;
 
 /**
@@ -163,6 +165,7 @@ export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly 
     "no-empty-named-blocks": RuleMetadataSchema,
     "prefer-array-flat-map": RuleMetadataSchema,
     "prefer-identity-annote-pipe": RuleMetadataSchema,
+    "no-hand-built-identity-annotation": RuleMetadataSchema,
   }).pipe(
     $I.annoteSchema("RuleRegistrySchema", {
       description: "Schema for the finite rule registry keyed by rule slug.",
@@ -221,6 +224,14 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
     replaces: O.none(),
     summary:
       "Pipe identity annotations onto non-class schemas: `X.pipe($I.annoteSchema(...))` and `X.pipe($I.annoteKey(...))`, not `.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`.",
+    scope: O.none(),
+  }),
+  "no-hand-built-identity-annotation": RuleMetadataSchema.make({
+    name: "no-hand-built-identity-annotation",
+    severity: "error",
+    replaces: O.none(),
+    summary:
+      "Disallow hand-built `{ identifier: $I`Name` }` annotation objects; use `$I.annote(...)` or `X.pipe($I.annoteSchema(...))`.",
     scope: O.none(),
   }),
 });

@@ -88,4 +88,36 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
       "\n"
     ),
   },
+  "no-hand-built-identity-annotation": {
+    invalidCount: 6,
+    messageIncludes: "hand-built",
+    invalid: A.join(
+      [
+        "export const Pattern = S.String.check(S.isPattern(/x/, { identifier: $I`Pattern`, description: 'd' }));",
+        "export const Filter = S.makeFilter((n: number) => n > 0, { identifier: $SchemaId`Filter` });",
+        "export const Group = S.makeFilterGroup([S.isInt()], { identifier: $I`Group` });",
+        "export const Annotated = S.String.annotate({ identifier: $I`Annotated`, title: 't' });",
+        "export const Declared = S.declare((u: unknown): u is string => typeof u === 'string', {",
+        "  'identifier': $I`Declared`,",
+        "});",
+        "export const Interpolated = S.Number.check(S.isInt({ identifier: $I`Interpolated.${'x'}` }));",
+      ],
+      "\n"
+    ),
+    valid: A.join(
+      [
+        "export const StringId = S.String.annotate({ identifier: 'StringId' });",
+        "export const Untagged = S.String.annotate({ identifier: `Untagged` });",
+        "export const NotComposer = S.String.annotate({ identifier: I`NotComposer` });",
+        "export const OtherKey = S.String.annotate({ title: $I`OtherKey` });",
+        "export const Piped = S.String.pipe($I.annoteSchema('Piped'));",
+        "export const Checked = S.Number.check(S.isInt($I.annote('Checked')));",
+        "export const FieldKey = S.Struct({ a: S.String.annotateKey({ description: 'raw key annotation' }) });",
+        "const identifier = $I`Shorthand`;",
+        "export const Shorthand = S.String.annotate({ identifier });",
+        "export const InString = '{ identifier: $I`InString` }';",
+      ],
+      "\n"
+    ),
+  },
 };

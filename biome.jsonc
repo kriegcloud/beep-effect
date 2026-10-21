@@ -13,7 +13,8 @@
   "plugins": [
     "./packages/tooling/policy-pack/lint-rules/rules/no-empty-named-blocks.grit",
     "./packages/tooling/policy-pack/lint-rules/rules/prefer-array-flat-map.grit",
-    "./packages/tooling/policy-pack/lint-rules/rules/prefer-identity-annote-pipe.grit"
+    "./packages/tooling/policy-pack/lint-rules/rules/prefer-identity-annote-pipe.grit",
+    "./packages/tooling/policy-pack/lint-rules/rules/no-hand-built-identity-annotation.grit"
   ],
   "files": {
     "includes": [

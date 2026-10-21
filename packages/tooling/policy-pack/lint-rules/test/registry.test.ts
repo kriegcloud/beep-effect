@@ -115,6 +115,14 @@ describe("rule registry", () => {
             "Pipe identity annotations onto non-class schemas: `X.pipe($I.annoteSchema(...))` and `X.pipe($I.annoteKey(...))`, not `.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`.",
           scope: null,
         },
+        "no-hand-built-identity-annotation": {
+          name: "no-hand-built-identity-annotation",
+          severity: "error",
+          replaces: null,
+          summary:
+            "Disallow hand-built `{ identifier: $I`Name` }` annotation objects; use `$I.annote(...)` or `X.pipe($I.annoteSchema(...))`.",
+          scope: null,
+        },
       });
     })
   );

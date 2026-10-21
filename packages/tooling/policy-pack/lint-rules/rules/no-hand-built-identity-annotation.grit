@@ -1,0 +1,23 @@
+language js
+
+// EF-12 (standards/effect-first-development.md): identity annotations come from
+// the composer helpers, never from an object literal whose `identifier` is a
+// `$`-prefixed IdentityComposer template (`{ identifier: $I`Name`, ... }`).
+// That covers check and filter arguments (`S.isPattern`, `S.makeFilter`,
+// `S.makeFilterGroup`, `S.is*`), `S.declare` annotations and `.annotate({...})`.
+//
+//   S.isPattern(re, { identifier: $I`X`, ... })  ->  S.isPattern(re, $I.annote("X", { ... }))
+//   X.annotate({ identifier: $I`X`, ... })       ->  X.pipe($I.annoteSchema("X", { ... }))
+//
+// String-literal identifiers (`identifier: "Foo"`) are out of scope.
+
+JsPropertyObjectMember(name=$name, value=$value) as $member where {
+  $name <: or {
+    `identifier`,
+    `"identifier"`,
+    `'identifier'`
+  },
+  $value <: JsTemplateExpression(tag=$tag),
+  $tag <: r"^[$][A-Za-z0-9_]*$",
+  register_diagnostic(span=$member, message="Rule: identity annotations come from `$I.annote`, not a hand-built `{ identifier: $I`Name` }` object. Why: the object sets only `identifier`; `$I.annote` also writes the `schemaId`, `title` and configured `iri`/`curie` (EF-12). Fix: pass `$I.annote('Name', {...})` as the check, filter or `S.declare` argument; on a schema, write `X.pipe($I.annoteSchema('Name', {...}))`.", severity="error")
+}
