@@ -1102,6 +1102,23 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/commands": {
+      "name": "@beep/commands",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/drivers/cosmos": {
       "name": "@beep/cosmos",
       "version": "0.0.0",
@@ -2420,6 +2437,35 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/github-commands": {
+      "name": "@beep/github-commands",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/github-references": {
+      "name": "@beep/github-references",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/html": {
       "name": "@beep/html",
       "version": "0.0.0",
@@ -2457,6 +2503,40 @@
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "type-fest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/jsonc": {
+      "name": "@beep/jsonc",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/jsonl": {
+      "name": "@beep/jsonl",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/test-utils": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
       },
     },
     "packages/foundation/modeling/lexical": {
@@ -2572,6 +2652,20 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/public-site": {
+      "name": "@beep/public-site",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/rdf": {
       "name": "@beep/rdf",
       "version": "0.0.0",
@@ -2617,6 +2711,37 @@
         "fast-xml-builder": "catalog:",
       },
     },
+    "packages/foundation/modeling/schema-org": {
+      "name": "@beep/schema-org",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/semver": {
+      "name": "@beep/semver",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/skill-contract": {
       "name": "@beep/skill-contract",
       "version": "0.0.0",
@@ -2632,6 +2757,21 @@
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/spdx": {
+      "name": "@beep/spdx",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "spdx-expression-parse": "5.0.0",
       },
     },
     "packages/foundation/modeling/utils": {
@@ -3605,13 +3745,17 @@
       "version": "0.0.0",
       "dependencies": {
         "@azure/storage-blob": "^12.33.0",
+        "@beep/commands": "workspace:^",
         "@beep/dock": "workspace:^",
         "@beep/dock-react": "workspace:^",
         "@beep/drizzle": "workspace:^",
         "@beep/effect-drizzle": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
         "@beep/file-processing": "workspace:^",
+        "@beep/github-commands": "workspace:^",
+        "@beep/github-references": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/n3": "workspace:^",
         "@beep/nlp": "workspace:^",
@@ -3625,7 +3769,9 @@
         "@beep/repo-utils": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/semantic-web": "workspace:^",
+        "@beep/semver": "workspace:^",
         "@beep/shacl": "workspace:^",
+        "@beep/spdx": "workspace:^",
         "@beep/utils": "workspace:^",
         "@beep/wink": "workspace:^",
         "@effect/ai-anthropic": "catalog:",
@@ -4143,6 +4289,8 @@
 
     "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
+    "@beep/commands": ["@beep/commands@workspace:packages/drivers/commands"],
+
     "@beep/cosmos": ["@beep/cosmos@workspace:packages/drivers/cosmos"],
 
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
@@ -4205,6 +4353,10 @@
 
     "@beep/freshbooks": ["@beep/freshbooks@workspace:packages/drivers/freshbooks"],
 
+    "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
+
+    "@beep/github-references": ["@beep/github-references@workspace:packages/foundation/modeling/github-references"],
+
     "@beep/gov-legal-mcp": ["@beep/gov-legal-mcp@workspace:packages/drivers/gov-legal-mcp"],
 
     "@beep/govinfo": ["@beep/govinfo@workspace:packages/drivers/govinfo"],
@@ -4218,6 +4370,10 @@
     "@beep/identity": ["@beep/identity@workspace:packages/foundation/modeling/identity"],
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
+
+    "@beep/jsonc": ["@beep/jsonc@workspace:packages/foundation/modeling/jsonc"],
+
+    "@beep/jsonl": ["@beep/jsonl@workspace:packages/foundation/modeling/jsonl"],
 
     "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
 
@@ -4325,6 +4481,8 @@
 
     "@beep/provenance": ["@beep/provenance@workspace:packages/foundation/modeling/provenance"],
 
+    "@beep/public-site": ["@beep/public-site@workspace:packages/foundation/modeling/public-site"],
+
     "@beep/qa-capture": ["@beep/qa-capture@workspace:packages/tooling/library/qa-capture"],
 
     "@beep/rdf": ["@beep/rdf@workspace:packages/foundation/modeling/rdf"],
@@ -4347,11 +4505,15 @@
 
     "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 
+    "@beep/schema-org": ["@beep/schema-org@workspace:packages/foundation/modeling/schema-org"],
+
     "@beep/scratchpad": ["@beep/scratchpad@workspace:scratchpad"],
 
     "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/foundation/capability/semantic-web"],
 
     "@beep/semantica": ["@beep/semantica@workspace:apps/labs/semantica"],
+
+    "@beep/semver": ["@beep/semver@workspace:packages/foundation/modeling/semver"],
 
     "@beep/shacl": ["@beep/shacl@workspace:packages/drivers/shacl"],
 
@@ -4362,6 +4524,8 @@
     "@beep/shared-use-cases": ["@beep/shared-use-cases@workspace:packages/shared/use-cases"],
 
     "@beep/skill-contract": ["@beep/skill-contract@workspace:packages/foundation/modeling/skill-contract"],
+
+    "@beep/spdx": ["@beep/spdx@workspace:packages/foundation/modeling/spdx"],
 
     "@beep/storybook": ["@beep/storybook@workspace:apps/storybook"],
 

@@ -272,12 +272,12 @@ const toMarkdownImpl = (ontology: AssembledOntology, options: MarkdownOptionsInp
  * **Example** (Render a folded ontology as Markdown)
  *
  * ```ts
- * import { make } from "@beep/identity"
+ * import { $I as $BeepId } from "@beep/identity/packages"
  * import { fold, toMarkdown } from "@beep/ontology"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *
- * const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent")
+ * const $I = $BeepId.create("patent")
  *
  * class Claim extends S.Class<Claim>($I`Claim`)(
  *   { text: S.String },

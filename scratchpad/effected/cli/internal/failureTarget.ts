@@ -12,7 +12,7 @@ import * as MutableRef from "effect/MutableRef";
 import * as O from "@beep/utils/Option";
 import type { AudienceShape } from "../../env/index.ts";
 import { Audience, TerminalEnv } from "../../env/index.ts";
-import { CommandNeutralizer } from "../../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import { CliFailure } from "../CliFailure.ts";
 import { CliLinks } from "../CliLinks.ts";
 import { CliTheme } from "../CliTheme.ts";

@@ -19,7 +19,7 @@
 
 import { fcRuns } from "@beep/fc-runs";
 import { assert, describe, it } from "@effect/vitest";
-import { Jsonc } from "../../effected/jsonc/index.ts";
+import { Jsonc } from "@beep/jsonc";
 import { Toml } from "../../effected/toml/index.ts";
 import { Yaml } from "../../effected/yaml/index.ts";
 import * as P from "effect/Predicate";

@@ -1,0 +1,235 @@
+# @beep/semver
+
+Strict SemVer 2.0.0 versions, ranges and comparators as Effect schemas. `SemVer`, `Comparator` and `Range` are `Schema.Class`es, so a version is a validated value with methods on it rather than a string you re-parse at every call site, and each one carries a `FromString` codec that decodes the canonical form and encodes back to it. Parsing is strict: no `v` prefix, no `=` prefix, no leading zeros on numeric identifiers, no partially consumed input. Every failure is a tagged error carrying the offending string and the character position where the grammar gave up. No IO.
+
+## Why this package
+
+The version parsers most projects reach for are lenient by default. They coerce `v1.2.3` and `=1.2.3` into a version, then hand back `null` — or throw — when they finally decide something is wrong, leaving you to reconstruct what failed and where. Once parsed, the result is a bag of numbers you stringify to store and re-parse to compare. This package inverts that. The class *is* the schema, so a version field anywhere in your own schemas decodes to a real `SemVer` and re-encodes to its canonical string with no glue code, and the operations you want live on the value you already have.
+
+Failures are `Schema.TaggedError` values you route with `Effect.catchTag`, each one structured rather than stringly: `InvalidVersionError` carries `input` and `position`, `UnsatisfiedRangeError` carries the range *and* every version that was available to match against it. The strictness is deliberate. Coercion is a decision about your data taken inside a library you did not write, and it is where version bugs hide. `Range.intersect` holds the same line: intersecting `^1.0.0` with `^2.0.0` does not quietly hand back a range that matches nothing, it fails with `UnsatisfiableConstraintError` carrying both constraints. Nothing here repairs your input behind your back.
+
+The package is ESM-only (`"type": "module"`). Its runtime dependencies are `effect` v4 plus the workspace `@beep/identity` and `@beep/schema` packages, which supply the schema identities and annotations; no parser, polyfill or platform package rides along. There is no IO here, so there is nothing to provide at the edge either: the whole surface runs under `Effect.runSync`, apart from `VersionCache`, which brings its own layer.
+
+## Usage
+
+Parse, bump, compare, and test a version against a range:
+
+```ts
+import { Range, SemVer } from "@beep/semver";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const version = yield* SemVer.parse("1.2.3");
+  const next = version.bump.minor();
+  const range = yield* Range.parse("^1.0.0");
+  return [next.toString(), range.test(version), version.gt(next)];
+});
+
+console.log(Effect.runSync(program));
+// => ["1.3.0", true, false]
+```
+
+Instance methods are the canonical API. Cross-cutting operations are dual statics on the owning class, so `SemVer.gt(a, b)` and `a.pipe(SemVer.gt(b))` both typecheck and mean the same thing.
+
+## Versions
+
+`SemVer`'s fields are validated in the schema — non-negative safe integers for the components, well-formed prerelease and build identifiers — so `SemVer.make` cannot produce an invalid version. Use `SemVer.parse` for a string and `SemVer.of(1, 2, 3)` for the positional form.
+
+```ts
+import { SemVer } from "@beep/semver";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const stable = yield* SemVer.parse("1.0.0");
+  const rc = yield* SemVer.parse("2.0.0-rc.1");
+  return [
+    stable.bump.prerelease("beta").toString(),
+    rc.bump.prerelease().toString(),
+    rc.isPrerelease,
+    SemVer.truncate(rc, "prerelease").toString(),
+  ];
+});
+
+console.log(Effect.runSync(program));
+// => ["1.0.1-beta.0", "2.0.0-rc.2", true, "2.0.0"]
+```
+
+Bumping is node-semver compatible: a stable version starts a prerelease of the *next* patch, switching identifiers resets the counter, and a trailing numeric identifier increments. Build metadata never survives a bump.
+
+Equality follows the spec rather than the string. `Equal.equals` ignores build metadata (§10) and includes prerelease identifiers (§11), and `SemVer` overrides `[Hash.symbol]` to agree with that, so two versions differing only in build metadata are one value in a `HashSet` and one slot in `VersionCache`. `SemVer.Order` sorts by precedence; `SemVer.OrderWithBuild` adds a lexical tiebreak on build metadata when you need a total order over distinct version strings.
+
+Collection operations are statics: `sort`, `rsort`, `max`, `min`, `groupBy` (by major, minor or patch), `latestByMajor` and `latestByMinor`.
+
+## Ranges and comparators
+
+A `Range` is a union (OR) of comparator sets (AND). Parsing accepts the node-semver dialect — hyphen ranges, X-ranges, tilde, caret and `||` — desugars it into primitive comparators and normalizes the result. A `Comparator` is one operator applied to one complete version, with no wildcards and no sugar; that vocabulary belongs to `Range`.
+
+```ts
+import { Range, SemVer } from "@beep/semver";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const caret = yield* Range.parse("^1.0.0");
+  const floor = yield* Range.parse(">=1.5.0");
+  const both = yield* Range.intersect(caret, floor);
+  const versions = [SemVer.of(1, 2, 0), SemVer.of(1, 6, 0), SemVer.of(2, 0, 0)];
+  return [both.test(SemVer.of(1, 6, 0)), Range.filter(versions, caret).map((v) => v.toString())];
+});
+
+console.log(Effect.runSync(program));
+// => [true, ["1.2.0", "1.6.0"]]
+```
+
+Matching implements node-semver's prerelease restriction: a prerelease version satisfies a set only when some comparator in that set carries a prerelease on the same `major.minor.patch` tuple. That is what keeps `^1.2.3` from unexpectedly matching `1.2.4-alpha`.
+
+The range algebra is `union`, `intersect`, `isSubset`, `equivalent` and `simplify`. `isSubset` is a deliberate conservative approximation: it can report `false` for a range that is technically a subset, when the sub-range straddles comparator-set boundaries in the sup-range. False negatives are safe, because all they do is decline a simplification.
+
+## Comparing two versions
+
+`VersionDiff.between(a, b)` classifies a change and carries the signed component deltas. It is a `Schema.TaggedClass`, so a diff serializes as cleanly as it computes.
+
+```ts
+import { SemVer, VersionDiff } from "@beep/semver";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const from = yield* SemVer.parse("1.2.3");
+  const to = yield* SemVer.parse("2.0.0");
+  const diff = VersionDiff.between(from, to);
+  return [diff.type, diff.major, diff.toString()];
+});
+
+console.log(Effect.runSync(program));
+// => ["major", 1, "major (1.2.3 → 2.0.0)"]
+```
+
+`type` names the highest-precedence field that differs: `"major"`, `"minor"`, `"patch"`, `"prerelease"`, `"build"` or `"none"`.
+
+## Version cache
+
+`VersionCache` is a `Context.Service` over a sorted, deduplicated set of versions — pure state in a `Ref`, no IO. Reach for it when you hold a list of published versions and a range to resolve against them.
+
+```ts
+import { SemVer, VersionCache } from "@beep/semver";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const cache = yield* VersionCache;
+  yield* cache.load([SemVer.of(1, 0, 0), SemVer.of(1, 4, 2), SemVer.of(2, 0, 0)]);
+  const latest = yield* cache.latest;
+  const resolved = yield* cache.resolveString("^1.0.0");
+  return [latest.toString(), resolved.toString()];
+}).pipe(Effect.provide(VersionCache.layer));
+
+console.log(Effect.runSync(program));
+// => ["2.0.0", "1.4.2"]
+```
+
+The two kinds of absence stay apart. `next` and `prev` fail with `VersionNotFoundError` when the pivot version is not in the cache, and succeed with `Option.none()` when the pivot sits at a boundary. Queries over the whole cache (`versions`, `filter`) never fail and return `[]`.
+
+## Errors
+
+Every failure is a `Schema.TaggedError` routed with `Effect.catchTag`, carrying structured fields. The `message` getter is derived from those fields, never stored.
+
+| Tag | Raised by | Carries |
+| --- | --------- | ------- |
+| `InvalidVersionError` | `SemVer.parse` | `input`, and the `position` where the grammar failed |
+| `InvalidComparatorError` | `Comparator.parse` | `input`, `position` |
+| `InvalidRangeError` | `Range.parse`, `VersionCache.resolveString` | `input`, `position` |
+| `UnsatisfiableConstraintError` | `Range.intersect` | `constraints`, the ranges whose intersection is empty |
+| `EmptyCacheError` | `VersionCache.latest`, `VersionCache.oldest` | nothing; the cache is empty |
+| `VersionNotFoundError` | `VersionCache.diff`, `next`, `prev` | `version`, the pivot that is not cached |
+| `UnsatisfiedRangeError` | `VersionCache.resolve`, `resolveString` | `range`, plus `available`, the versions that were there to match |
+
+The `FromString` codecs report the same failures through a generic `Schema` parse error carrying the same message, so schema decoding and the `parse` statics never disagree about what is valid.
+
+```ts
+import { SemVer } from "@beep/semver";
+import * as Effect from "effect/Effect";
+
+// A leading `v` is not a version, and nothing here coerces it into one.
+const program = SemVer.parse("v1.2.3").pipe(Effect.catch((error) => Effect.succeed(`${error._tag}: ${error.input}`)));
+
+console.log(Effect.runSync(program));
+// => "InvalidVersionError: v1.2.3"
+```
+
+## Features
+
+- `SemVer` — the version model: schema-validated fields, `parse` / `of` / `make` construction, bumping through `version.bump`, comparison as instance methods and dual statics, spec-correct `Equal` and `Hash`, and the collection statics (`sort`, `max`, `groupBy`, `latestByMajor`, …).
+- `Comparator` — a single operator-plus-version constraint, and the primitive that range sugar desugars into.
+- `Range` — the node-semver range dialect parsed into normalized comparator sets, with matching (`test`, `filter`, `maxSatisfying`, `minSatisfying`) and algebra (`union`, `intersect`, `isSubset`, `equivalent`, `simplify`).
+- `VersionDiff` — the classified difference between two versions with signed component deltas, serializable as a tagged class.
+- `VersionCache` — a sorted in-memory version set with range resolution and neighbor navigation, provided by `VersionCache.layer`.
+- `SemVer.FromString`, `Comparator.FromString`, `Range.FromString` — codecs between the canonical strings and the models, usable as fields inside your own schemas.
+- Seven tagged errors, each carrying the structured payload a caller needs to report what actually went wrong.
+
+## Development
+
+```bash
+# from the repository root
+bun run beep quality package-verify @beep/semver
+
+# from packages/foundation/modeling/semver
+bun run check
+bun run lint
+bun run test
+bun run docgen
+```
+
+Tests live in `test/` (`*.test.ts`, `*.property.test.ts`, `*.coverage.test.ts`) and import package source through `@beep/semver` and `@beep/semver/internal/*`. Spec-compliance cases live in `test/spec-compliance.fixtures.ts`. `KNOWLEDGE.md` carries the upstream design notes verbatim.
+
+## Provenance
+
+Ported from upstream `@effected/semver` (MIT, C. Spencer Beggs) through the effected port, then promoted from the scratchpad into this workspace package by `goals/effected-promotion`. Schema identities moved from `@beep/scratchpad/effected/semver/*` to `@beep/semver/*`. The package [LICENSE](LICENSE) carries both the beep-effect and the upstream copyright notices.
+
+## Port notes
+
+### Attribution
+
+- Upstream package: `@effected/semver` 0.11.0
+- Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (`$HOME/YeeBois/references/effect/effected`)
+- License: [LICENSE](./LICENSE) (upstream MIT notice alongside the beep-effect notice)
+- Vendored-engine notices: none found in source headers.
+
+### Added exports
+
+None.
+
+### Deviations
+
+One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
+
+- **native-runtime** — Lab uses Effect hash collections, sorting and tagged overflow errors where upstream used native Map, Set, sort and Error. (packages/foundation/modeling/semver/test/SemVer.test.ts:285,501; packages/foundation/modeling/semver/test/Range.test.ts:32,408; packages/foundation/modeling/semver/test/SemVer.test.ts:237)
+- **identity-keys** — Lab JSON Schema uses the composer-qualified SemVerEncoded definition key where upstream used SemVerEncoded. (packages/foundation/modeling/semver/test/SemVer.test.ts:431)
+- **tagged-errors** — Lab synchronously throws a structured tagged overflow error with a serializable cause where upstream threw native Error. (packages/foundation/modeling/semver/test/SemVer.test.ts:202,209,216,223,230,237,467)
+- **schema-first** — Lab shares LiteralKit operator and overflow-component domains and a schema-derived equality guard where upstream used unions and instanceof. (packages/foundation/modeling/semver/test/Comparator.test.ts:142; packages/foundation/modeling/semver/test/SemVer.test.ts:143,467)
+- **numeric-domains** — Lab narrows delta and error-position fields to finite numbers where upstream accepted nonfinite numbers, retaining bounded integer version components. (module suite packages/foundation/modeling/semver/test/**)
+- **type-safety** — Lab uses propagated operator types, tagged-error narrowing and typed collection access where upstream used casts and unchecked indexed reads. (packages/foundation/modeling/semver/test/SemVer.test.ts:237,279; packages/foundation/modeling/semver/test/Range.test.ts:32; module suite packages/foundation/modeling/semver/test/**)
+- **tsgo-diagnostics** — Lab exposes reusable cache query Effects and internal dual overloads where upstream exposed query thunks and fixed-arity helpers. (packages/foundation/modeling/semver/test/VersionCache.test.ts:27,38,47,55,63,66,75,76,80; module suite packages/foundation/modeling/semver/test/**)
+- **effect-first** — Lab uses Effect grouping, matching, predicates and traversal helpers where upstream implemented these operations manually. (packages/foundation/modeling/semver/test/SemVer.test.ts:519; packages/foundation/modeling/semver/test/Comparator.test.ts:65; packages/foundation/modeling/semver/test/Range.test.ts:63,85,136; packages/foundation/modeling/semver/test/VersionCache.test.ts:176)
+- **effect-imports** — Lab source, tests and source examples use per-module Effect imports and canonical aliases where upstream imported the root barrel. (module suite packages/foundation/modeling/semver/test/**)
+- **identity-annotations** — Lab schemas, fields, literal domains and VersionCache carry composer identities and metadata where upstream used short identifiers and unannotated definitions. (packages/foundation/modeling/semver/test/SemVer.test.ts:444,467; packages/foundation/modeling/semver/test/Comparator.test.ts:142; module suite packages/foundation/modeling/semver/test/**)
+- **upstream-bug** — Lab simplification retains the earliest equivalent branch where upstream could eliminate every equivalent branch and lose union members. (packages/foundation/modeling/semver/test/Range.test.ts:259; packages/foundation/modeling/semver/test/Range.test.ts:272)
+- **upstream-bug** — Lab intersection requires both operands to admit a prerelease tuple where upstream inherited permission from either operand. (packages/foundation/modeling/semver/test/Range.test.ts:283; packages/foundation/modeling/semver/test/Range.test.ts:296)
+- **upstream-bug** — Lab subset and simplification checks retain prerelease permissions where upstream could falsely declare containment. (packages/foundation/modeling/semver/test/Range.test.ts:322)
+- **upstream-bug** — Lab intersection requires an actual admissible version witness where upstream accepted empty gaps between adjacent versions. (packages/foundation/modeling/semver/test/Range.test.ts:341)
+- **upstream-bug** — Lab range sugar overflow returns typed InvalidRangeError failures where upstream threw schema validation exceptions. (packages/foundation/modeling/semver/test/Range.test.ts:361)
+- **upstream-bug** — Lab encodes empty unions as an unsatisfiable expression where upstream encoded them as a wildcard that invented members. (packages/foundation/modeling/semver/test/Range.test.ts:381)
+- **upstream-bug** — Lab rejects unrepresentable unrestricted empty branches during encoding where upstream silently lost prerelease members. (packages/foundation/modeling/semver/test/Range.test.ts:396)
+- **upstream-bug** — Lab wildcard-major tilde/caret ranges accept all stable versions while upstream imposes an incorrect major-zero ceiling (packages/foundation/modeling/semver/test/Range.test.ts:65; packages/foundation/modeling/semver/test/VersionCache.test.ts:108; packages/foundation/modeling/semver/test/internal/desugar.coverage.test.ts:14,18).
+- **upstream-bug** — Lab strict full-wildcard comparisons match no versions while upstream admits stable versions (packages/foundation/modeling/semver/test/Range.test.ts:82; packages/foundation/modeling/semver/test/VersionCache.test.ts:128; packages/foundation/modeling/semver/test/internal/desugar.coverage.test.ts:43).
+- **upstream-bug** — Lab partial strict upper bounds use -0 and exclude boundary prereleases that upstream stable bounds admit when another comparator grants tuple permission (packages/foundation/modeling/semver/test/Range.test.ts:52; packages/foundation/modeling/semver/test/VersionCache.test.ts:108; packages/foundation/modeling/semver/test/internal/desugar.coverage.test.ts:37)
+- **upstream-bug** — Lab caret floors discard patch and prerelease suffixes after a wildcard minor, whereas upstream retains them and changes stable/prerelease membership (packages/foundation/modeling/semver/test/Range.test.ts:70; packages/foundation/modeling/semver/test/internal/desugar.coverage.test.ts:70)
+- **upstream-bug** — Lab hyphen floors stop at the first wildcard and omit wildcard-major floors when bounded above, whereas upstream retains later components and suffixes (packages/foundation/modeling/semver/test/Range.test.ts:70; packages/foundation/modeling/semver/test/internal/desugar.coverage.test.ts:82)
+- **upstream-bug** — Lab primitive X-ranges reject concrete components after wildcards through the existing failure path, whereas upstream accepts them as intervals or wildcard ranges (packages/foundation/modeling/semver/test/Range.test.ts:99; packages/foundation/modeling/semver/test/internal/grammar.coverage.test.ts:82)
+- **schema-first** — Lab exports annotated VersionParts, ComparatorParts and PartialParts structural schemas with derived types and shared property-test shapes, whereas upstream exports only interfaces (packages/foundation/modeling/semver/test/internal/order.coverage.test.ts:56,71; packages/foundation/modeling/semver/test/internal/desugar.coverage.test.ts:101)
+- **numeric-domains** — Lab structural schemas require finite numeric components and prerelease identifiers with nullable partial components, whereas upstream interface number fields have no runtime nonfinite restriction (packages/foundation/modeling/semver/src/internal/order.ts:38; packages/foundation/modeling/semver/src/internal/desugar.ts:32; packages/foundation/modeling/semver/test/internal/order.coverage.test.ts:56)
+
+### Dependency backlog
+
+None.
+
+## License
+
+[MIT](LICENSE)

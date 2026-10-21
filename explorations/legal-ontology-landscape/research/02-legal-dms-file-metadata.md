@@ -53,7 +53,7 @@ Serialization availability: DCMI lists current terms artifacts in N-Triples, RDF
 
 License and maintenance: DCMI documents are licensed under Creative Commons Attribution 4.0 unless otherwise indicated; the current DCMI site footer also shows active deployment in 2026. Source: https://www.dublincore.org/about/copyright/
 
-Verdict: Adopt. Use DCTerms for generic document/resource metadata and avoid minting duplicate `created`, `modified`, `identifier`, `format`, `hasPart`, `isPartOf`, `source`, `provenance`, `rights`, and `accessRights` predicates under `https://ns.beep.sh/`. This supports CQs 2, 3, 11, 15, and 19.
+Verdict: Adopt. Use DCTerms for generic document/resource metadata and avoid minting duplicate `created`, `modified`, `identifier`, `format`, `hasPart`, `isPartOf`, `source`, `provenance`, `rights`, and `accessRights` predicates under `https://beep-effect.com/ns/`. This supports CQs 2, 3, 11, 15, and 19.
 
 ### PROV-O
 
@@ -89,7 +89,7 @@ Serialization availability: the source ontology is `FOLIO.owl` in GitHub, and th
 
 License and maintenance: FOLIO standard data is CC BY 4.0; software surfaces are MIT where indicated. GitHub latest commit was 2026-05-26, and the public API/MCP update is dated 2026-03-19. Sources: https://github.com/alea-institute/FOLIO and https://aleainstitute.ai/blog/posts/folio-api-mcp-tools/
 
-Verdict: Slice. M1 should not make FOLIO the source of truth. Use FOLIO as the primary alignment target via `skos:exactMatch` / `skos:closeMatch` for legal document and matter concepts that are actually verified. Mint Beep concept IRIs under `https://ns.beep.sh/` and attach FOLIO mappings as metadata. This supports CQs 2, 3, 15, and 19.
+Verdict: Slice. M1 should not make FOLIO the source of truth. Use FOLIO as the primary alignment target via `skos:exactMatch` / `skos:closeMatch` for legal document and matter concepts that are actually verified. Mint Beep concept IRIs under `https://beep-effect.com/ns/` and attach FOLIO mappings as metadata. This supports CQs 2, 3, 15, and 19.
 
 ### NEPOMUK NIE/NFO/NCO/NMO
 
@@ -238,7 +238,7 @@ Reuse these as alignment targets, not source-of-truth taxonomies:
 - FOLIO document/matter concepts where a specific `https://folio.openlegalstandard.org/...` class is vetted. Store these as `skos:exactMatch` or `skos:closeMatch` from Beep-owned concepts.
 - SALI LMSS matter/service/area-of-law concepts only as comparative research until license posture is resolved.
 
-Mint these under `https://ns.beep.sh/`:
+Mint these under `https://beep-effect.com/ns/`:
 
 - The repo-owned M1 concept scheme and every durable seed concept IRI.
 - Document-class vocabulary: `draft`, `redline`, `filed`, `received`, `privileged`, and `extracted-child`.

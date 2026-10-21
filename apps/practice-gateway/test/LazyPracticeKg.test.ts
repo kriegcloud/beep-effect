@@ -94,7 +94,7 @@ describe("practice-kg provider without the DuckDB sidecar", () => {
         const status = yield* S.decodeUnknownEffect(SetupStatus)(first.encodedResult);
         const selfCheck = A.findFirst(status.report.checks, (check) => check.requirement === "practice-kg-self-check");
         assertSome(O.flatMap(selfCheck, statusOf), ProbeBroken.make({ detail: unavailableMessage }));
-        expect(status.report.checks).toHaveLength(10);
+        expect(status.report.checks).toHaveLength(11);
       })
     );
   });

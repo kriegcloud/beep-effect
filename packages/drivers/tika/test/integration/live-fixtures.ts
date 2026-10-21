@@ -1,5 +1,8 @@
 import * as NodeZlib from "node:zlib";
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const textEncoder = new TextEncoder();
 
@@ -100,7 +103,7 @@ export const makeLivePdf = (text = "hello live tika corpus"): Uint8Array => {
 
   const startXref = textEncoder.encode(pdf).length;
   const entries = A.join(
-    A.map(offsets, (offset) => `${`${offset}`.padStart(10, "0")} 00000 n \n`),
+    A.map(offsets, (offset) => `${pipe(`${offset}`, Str.padStart(10, "0"))} 00000 n \n`),
     ""
   );
 
@@ -259,7 +262,11 @@ const cfbDirectoryEntry = (
   const entry = new Uint8Array(cfbDirectoryEntrySize);
   const view = new DataView(entry.buffer);
   for (let index = 0; index < name.length; index = index + 1) {
-    view.setUint16(index * 2, name.charCodeAt(index), true);
+    pipe(
+      name,
+      Str.charCodeAt(index),
+      O.map((code) => view.setUint16(index * 2, code, true))
+    );
   }
   view.setUint16(0x40, name.length === 0 ? 0 : (name.length + 1) * 2, true);
   entry[0x42] = objectType;

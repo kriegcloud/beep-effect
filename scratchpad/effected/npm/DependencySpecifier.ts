@@ -19,7 +19,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { Range } from "../semver/index.ts";
+import { Range } from "@beep/semver";
 import type * as Brand from "effect/Brand";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

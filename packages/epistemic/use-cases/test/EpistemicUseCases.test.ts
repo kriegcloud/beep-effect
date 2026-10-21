@@ -2,6 +2,7 @@ import { CandidateClaim, ClaimGateResult, ClaimLifecycle, ClaimProjectionView, E
 import * as ClaimGateUC from "@beep/epistemic-use-cases/ClaimGate";
 import * as ClaimLifecycleUC from "@beep/epistemic-use-cases/ClaimLifecycle";
 import { ClaimProjection, projectClaims } from "@beep/epistemic-use-cases/ClaimProjection";
+import { $EpistemicId } from "@beep/identity/packages";
 import { makeNamedNode } from "@beep/rdf/Rdf";
 import {
   ShaclValidationResult,
@@ -56,8 +57,8 @@ const StubShaclValidation = Layer.succeed(
               truncated: false,
               violations: [
                 ShaclValidationViolation.make({
-                  focusNode: "https://beep.dev/epistemic/claim/claim.patentability",
-                  path: makeNamedNode("https://beep.dev/epistemic/hasEvidenceQuote"),
+                  focusNode: $EpistemicId.create("claim/claim.patentability").iri,
+                  path: makeNamedNode($EpistemicId.create("hasEvidenceQuote").iri),
                   message: "Expected at least 1 evidence quote.",
                   severity: "violation",
                 }),

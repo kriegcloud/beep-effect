@@ -6,16 +6,16 @@
   },
   "@graph": [
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds",
       "@type": "skos:ConceptScheme",
       "dct:title": "Party kind vocabulary",
       "owl:versionInfo": "1.0.0"
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds"
       },
       "skos:notation": "Party",
       "skos:prefLabel": "Party",
@@ -27,17 +27,17 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/NaturalPersonParty",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/NaturalPersonParty",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds"
       },
       "skos:notation": "NaturalPersonParty",
       "skos:prefLabel": "Natural person party",
       "skos:definition": "A human party whose identity persists across matters and role changes.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party"
         }
       ],
       "dct:source": {
@@ -46,17 +46,17 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds"
       },
       "skos:notation": "OrganizationParty",
       "skos:prefLabel": "Organization party",
       "skos:definition": "An institutional party whose identity persists across changes of personnel and legal roles.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party"
         }
       ],
       "dct:source": {
@@ -65,17 +65,17 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/LawFirm",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/LawFirm",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds"
       },
       "skos:notation": "LawFirm",
       "skos:prefLabel": "Law firm",
       "skos:definition": "An organization identified as a provider of legal professional services.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty"
         }
       ],
       "dct:source": {
@@ -84,17 +84,17 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/PatentOffice",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/PatentOffice",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds"
       },
       "skos:notation": "PatentOffice",
       "skos:prefLabel": "Patent office",
       "skos:definition": "An institution identified as an authority administering patent procedures.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty"
         }
       ],
       "dct:source": {
@@ -103,17 +103,17 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/TrademarkOffice",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/TrademarkOffice",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds"
       },
       "skos:notation": "TrademarkOffice",
       "skos:prefLabel": "Trademark office",
       "skos:definition": "An institution identified as an authority administering trademark procedures.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty"
         }
       ],
       "dct:source": {
@@ -122,16 +122,16 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles",
       "@type": "skos:ConceptScheme",
       "dct:title": "Legal role vocabulary",
       "owl:versionInfo": "1.0.0"
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/InventorRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/InventorRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "InventorRole",
       "skos:prefLabel": "Inventor role",
@@ -143,10 +143,10 @@
       "skos:scopeNote": "35 USC 100(f)."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/ApplicantRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/ApplicantRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "ApplicantRole",
       "skos:prefLabel": "Applicant role",
@@ -158,10 +158,10 @@
       "skos:scopeNote": "35 USC 118; 37 CFR 1.42. This patent source supplies patent context only; trademark applicability requires separate authority evidence."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/AssigneeRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/AssigneeRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "AssigneeRole",
       "skos:prefLabel": "Assignee role",
@@ -173,10 +173,10 @@
       "skos:scopeNote": "35 USC 261."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/OwnerRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/OwnerRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "OwnerRole",
       "skos:prefLabel": "Owner role",
@@ -188,10 +188,10 @@
       "skos:scopeNote": "35 USC 261; 15 USC 1058. This patent source supplies patent context only; trademark applicability requires separate authority evidence."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/ExaminerRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/ExaminerRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "ExaminerRole",
       "skos:prefLabel": "Examiner role",
@@ -203,10 +203,10 @@
       "skos:scopeNote": "35 USC 131."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/AttorneyOfRecordRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/AttorneyOfRecordRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "AttorneyOfRecordRole",
       "skos:prefLabel": "Attorney of record role",
@@ -218,10 +218,10 @@
       "skos:scopeNote": "37 CFR 1.32; 37 CFR 2.17. This patent source supplies patent context only; trademark applicability requires separate authority evidence."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/CorrespondentRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/CorrespondentRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "CorrespondentRole",
       "skos:prefLabel": "Correspondent role",
@@ -233,10 +233,10 @@
       "skos:scopeNote": "37 CFR 1.33."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/ClientContactRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/ClientContactRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "ClientContactRole",
       "skos:prefLabel": "Client contact role",
@@ -248,10 +248,10 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/SignerRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/SignerRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "SignerRole",
       "skos:prefLabel": "Signer role",
@@ -263,10 +263,10 @@
       "skos:scopeNote": "37 CFR 1.4(d)."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicenseeRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicenseeRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "LicenseeRole",
       "skos:prefLabel": "Licensee role",
@@ -278,10 +278,10 @@
       "skos:scopeNote": "Repository definition; this public authority provides procedural context, not a universal definition. Scope and supporting evidence are consumer-owned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicensorRole",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicensorRole",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles"
       },
       "skos:notation": "LicensorRole",
       "skos:prefLabel": "Licensor role",

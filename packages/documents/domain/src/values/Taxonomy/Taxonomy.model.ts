@@ -164,6 +164,7 @@ export class FolioAlignment extends S.Opaque<FolioAlignment, { readonly brand: u
  *
  * ```ts
  * import { LegalDocumentTaxonomyConcept } from "@beep/documents-domain/values/Taxonomy"
+ * import { $I } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  *
  * const concept = S.decodeUnknownSync(LegalDocumentTaxonomyConcept)({
@@ -172,7 +173,7 @@ export class FolioAlignment extends S.Opaque<FolioAlignment, { readonly brand: u
  *   folioAlignment: { conceptIri: null, kind: "none", sourceIris: [] },
  *   heuristicTokens: ["complaint"],
  *   id: "pleadings",
- *   iri: "https://ns.beep.sh/documents/taxonomy/legal-document#pleadings",
+ *   iri: `${$I.create("documents/taxonomy/legal-document").iri}#pleadings`,
  *   parentId: null,
  *   prefLabel: "Pleadings",
  *   sortKey: "01"

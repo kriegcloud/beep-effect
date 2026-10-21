@@ -33,7 +33,7 @@ Vetted, license-checked ontology artifacts for the IP-practice DMS/KG.
   "loadKind": "concept-alignment | classification-scheme (optional)",
   "loadStatus": "VETTED | UNVETTED (required with loadKind)",
   "path": "vendor-root-relative fetched filename (required with loadKind)",
-  "localConceptIri": "https://ns.beep.sh/... (required with concept-alignment)",
+  "localConceptIri": "https://beep-effect.com/ns/... (required with concept-alignment)",
   "conceptIri": "exact external class IRI under namespaceIri (required with concept-alignment)",
   "mappingKind": "exactMatch | closeMatch (required with concept-alignment)",
   "notes": ""
@@ -47,7 +47,7 @@ Most rows are research references and are not loaded. An asset-pack row opts
 into alignment loading by declaring `loadKind`; the loader then requires
 `verified:true`, `loadStatus`, and all kind-specific fields. Concept-alignment
 rows must keep `conceptIri` and `fetchUrl` under their declared `namespaceIri`,
-and `localConceptIri` must use the repository-owned `https://ns.beep.sh/`
+and `localConceptIri` must use the repository-owned `https://beep-effect.com/ns/`
 authority. A `loadStatus`-only row still denotes a complete, verified
 `TaxonomySeed` JSON-LD slice, but legacy slices carrying alignments are rejected;
 all external mappings use the explicit concept-alignment path. `VETTED` is an

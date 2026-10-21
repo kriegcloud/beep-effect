@@ -46,6 +46,7 @@ export const GatewayRequirementId = LiteralKit([
   "box-drive-installed",
   "box-drive-signed-in",
   "box-drive-folder-available",
+  "m365-app-configured",
   "m365-consented",
   "m365-token-cached",
   "practice-kg-bundle-present",
@@ -172,10 +173,20 @@ export const RequirementCatalog: { readonly [Id in GatewayRequirementId]: Requir
     remediation: human("sign-in", "Open Box Drive and wait until the Box folder appears in File Explorer."),
     explain: "Claude reads your documents from the Box folder in your user folder.",
   }),
+  "m365-app-configured": RequirementTemplate.make({
+    id: "m365-app-configured",
+    provider: "microsoft-365",
+    dependsOn: [],
+    remediation: human(
+      "configure",
+      "Ask whoever set up the practice gateway for your firm's Microsoft 365 app ID, then enter it in Claude: Settings, Extensions, Beep Practice Gateway, Configure."
+    ),
+    explain: "Microsoft 365 only lets the gateway ask for access once your firm has registered it with Microsoft.",
+  }),
   "m365-consented": RequirementTemplate.make({
     id: "m365-consented",
     provider: "microsoft-365",
-    dependsOn: [],
+    dependsOn: ["m365-app-configured"],
     remediation: AutomaticRemediation.make({
       summary:
         "Open the Microsoft sign-in page in your web browser, where you sign in to Microsoft 365 and approve access for the practice gateway.",
@@ -238,7 +249,7 @@ export const RequirementCatalog: { readonly [Id in GatewayRequirementId]: Requir
  */
 export const ProviderRequirements: { readonly [Provider in PracticeProvider]: ReadonlyArray<GatewayRequirementId> } = {
   "box-drive": ["box-drive-installed", "box-drive-signed-in", "box-drive-folder-available"],
-  "microsoft-365": ["m365-consented", "m365-token-cached"],
+  "microsoft-365": ["m365-app-configured", "m365-consented", "m365-token-cached"],
   "windows-credential-manager": [],
   "practice-kg": ["practice-kg-bundle-present", "practice-kg-self-check"],
 };

@@ -16,6 +16,7 @@ import { describe, expect } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Graph from "effect/Graph";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -45,7 +46,7 @@ describe("GraphOps functor laws", () => {
 
   it("mapNodes respects composition (map(f∘g) = map(f)∘map(g))", () => {
     const g = sample();
-    const f = (s: string): string => s.toUpperCase();
+    const f = (s: string): string => pipe(s, Str.toUpperCase);
     const h = (s: string): string => `${s}!`;
     const composed = GraphOps.mapNodes(g, (s) => h(f(s)));
     const sequential = GraphOps.mapNodes(GraphOps.mapNodes(g, f), h);
@@ -75,7 +76,7 @@ describe("GraphOps functor laws", () => {
     const g = sample();
     const out = GraphOps.bimap(
       g,
-      (n) => n.toUpperCase(),
+      (n) => pipe(n, Str.toUpperCase),
       (e) => `${e}`
     );
     expect(GraphOps.collectNodes(out).includes("A")).toBe(true);
@@ -186,7 +187,7 @@ describe("GraphOps effectful operations", () => {
       const out = yield* GraphOps.traverseNodesCollect(
         g,
         GraphOps.TraversalStart.make({ start: GraphOps.getRoots(g), order: "bfs" }),
-        (n) => Effect.succeed(n.toUpperCase())
+        (n) => Effect.succeed(pipe(n, Str.toUpperCase))
       );
       expect(out.length).toBe(4);
       expect(out.includes("A")).toBe(true);

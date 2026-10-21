@@ -398,7 +398,7 @@ Pass 2 flagged gate-cost compounding and recommended path-scoping. Path-scoping 
 - GitHub ships this natively via `actions/attest-build-provenance` and artifact attestations. [Source](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations)
 - Sigstore `gitsign` gives keyless OIDC-identity commit signing, verifiable with `git verify-commit` and logged to Rekor — no long-lived keys in CI. [Source](https://github.com/sigstore/gitsign)
 - **The repo already researched the TypeScript path.** `explorations/agent-execution-sandbox/research/04-external-tamper-evident-records.md` cites `sigstore-js` (Apache-2.0, including `@sigstore/rekor-types`) as a permissive port source, concluding that transparency-log client verification is viable natively in TS without a Go sidecar.
-- **Recommendation.** Pass 2's "approvals ride a git commit" upgrades to: approval = a signed attestation with predicate `beep.dev/packet-approval/v1`, subject = the approved `DESIGN.md` digest. Verification is `git verify-commit` plus a digest compare. No bespoke crypto, no new trust anchor, no new vocabulary.
+- **Recommendation.** Pass 2's "approvals ride a git commit" upgrades to: approval = a signed attestation with predicate `beep-effect.com/ns/packet-approval/v1`, subject = the approved `DESIGN.md` digest. Verification is `git verify-commit` plus a digest compare. No bespoke crypto, no new trust anchor, no new vocabulary.
 - **Carry the known failure mode.** The most common rollout mistake is generating attestations and never verifying them. The DoD needs a *verification* line, not a generation line.
 
 ### I. Property-test the transition table instead of hand-writing illegal-transition fixtures

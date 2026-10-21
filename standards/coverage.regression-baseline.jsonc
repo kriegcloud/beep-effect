@@ -67,25 +67,25 @@
   "packages": {
     "@beep/acp": {
       "path": "packages/drivers/acp",
-      "lines": 70.32,
-      "statements": 70.33,
-      "branches": 73.03,
-      "functions": 45.97,
+      "lines": 80.72,
+      "statements": 81.04,
+      "branches": 89.8,
+      "functions": 61.14,
       "uncovered": {
-        "lines": 322,
-        "statements": 329,
-        "branches": 48,
-        "functions": 262
+        "lines": 460,
+        "statements": 466,
+        "branches": 31,
+        "functions": 453
       },
       "files": {
         "packages/drivers/acp/src/Acp.errors.ts": {
-          "lines": 45.83,
-          "statements": 45.83,
-          "branches": 16.66,
-          "functions": 65,
+          "lines": 91.07,
+          "statements": 91.52,
+          "branches": 79.16,
+          "functions": 90.14,
           "uncovered": {
-            "lines": 13,
-            "statements": 13,
+            "lines": 10,
+            "statements": 10,
             "branches": 5,
             "functions": 7
           }
@@ -103,51 +103,63 @@
           }
         },
         "packages/drivers/acp/src/AcpAgent.service.ts": {
-          "lines": 51.54,
-          "statements": 52.04,
+          "lines": 79.03,
+          "statements": 78.78,
           "branches": 100,
-          "functions": 24.19,
+          "functions": 64.1,
           "uncovered": {
-            "lines": 47,
-            "statements": 47,
+            "lines": 13,
+            "statements": 14,
             "branches": 0,
-            "functions": 47
+            "functions": 14
           }
         },
         "packages/drivers/acp/src/AcpClient.service.ts": {
-          "lines": 6.54,
-          "statements": 6.42,
-          "branches": 0,
-          "functions": 1.69,
+          "lines": 88.83,
+          "statements": 88.83,
+          "branches": 91.3,
+          "functions": 84.51,
           "uncovered": {
-            "lines": 100,
-            "statements": 102,
-            "branches": 17,
-            "functions": 58
+            "lines": 23,
+            "statements": 25,
+            "branches": 2,
+            "functions": 24
+          }
+        },
+        "packages/drivers/acp/src/AcpCompat.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/acp/src/AcpJson.codec.ts": {
-          "lines": 99.49,
-          "statements": 99.5,
+          "lines": 100,
+          "statements": 100,
           "branches": 98.38,
           "functions": 100,
           "uncovered": {
-            "lines": 1,
-            "statements": 1,
+            "lines": 0,
+            "statements": 0,
             "branches": 1,
             "functions": 0
           }
         },
         "packages/drivers/acp/src/AcpProtocol.service.ts": {
-          "lines": 80.2,
-          "statements": 79.41,
-          "branches": 63.63,
-          "functions": 71.71,
+          "lines": 91.49,
+          "statements": 91.4,
+          "branches": 88.65,
+          "functions": 87.41,
           "uncovered": {
-            "lines": 38,
-            "statements": 42,
-            "branches": 20,
-            "functions": 28
+            "lines": 25,
+            "statements": 27,
+            "branches": 11,
+            "functions": 19
           }
         },
         "packages/drivers/acp/src/AcpRpc.models.ts": {
@@ -162,16 +174,16 @@
             "functions": 0
           }
         },
-        "packages/drivers/acp/src/AcpTerminal.models.ts": {
-          "lines": 0,
-          "statements": 0,
+        "packages/drivers/acp/src/AcpV1.models.ts": {
+          "lines": 100,
+          "statements": 100,
           "branches": 100,
-          "functions": 0,
+          "functions": 100,
           "uncovered": {
-            "lines": 1,
-            "statements": 1,
+            "lines": 0,
+            "statements": 0,
             "branches": 0,
-            "functions": 1
+            "functions": 0
           }
         },
         "packages/drivers/acp/src/_generated/meta.gen.ts": {
@@ -186,16 +198,28 @@
             "functions": 0
           }
         },
-        "packages/drivers/acp/src/_generated/schema.gen.ts": {
-          "lines": 66.87,
-          "statements": 66.87,
+        "packages/drivers/acp/src/_generated/schema-v1.gen.ts": {
+          "lines": 65.05,
+          "statements": 65.05,
           "branches": 100,
-          "functions": 28.37,
+          "functions": 30.88,
           "uncovered": {
-            "lines": 106,
-            "statements": 106,
+            "lines": 188,
+            "statements": 188,
             "branches": 0,
-            "functions": 106
+            "functions": 188
+          }
+        },
+        "packages/drivers/acp/src/_generated/schema.gen.ts": {
+          "lines": 65.98,
+          "statements": 65.98,
+          "branches": 100,
+          "functions": 32.72,
+          "uncovered": {
+            "lines": 183,
+            "statements": 183,
+            "branches": 0,
+            "functions": 183
           }
         },
         "packages/drivers/acp/src/index.ts": {
@@ -222,27 +246,39 @@
             "functions": 0
           }
         },
-        "packages/drivers/acp/src/internal/shared.ts": {
-          "lines": 50,
-          "statements": 50,
-          "branches": 25,
-          "functions": 38.88,
+        "packages/drivers/acp/src/internal/normalize.ts": {
+          "lines": 96.68,
+          "statements": 96.9,
+          "branches": 80.95,
+          "functions": 94.44,
           "uncovered": {
-            "lines": 13,
-            "statements": 13,
-            "branches": 3,
-            "functions": 11
+            "lines": 6,
+            "statements": 6,
+            "branches": 8,
+            "functions": 5
+          }
+        },
+        "packages/drivers/acp/src/internal/shared.ts": {
+          "lines": 78.57,
+          "statements": 78.57,
+          "branches": 87.5,
+          "functions": 70,
+          "uncovered": {
+            "lines": 9,
+            "statements": 9,
+            "branches": 1,
+            "functions": 9
           }
         },
         "packages/drivers/acp/src/internal/stdio.ts": {
-          "lines": 66.66,
-          "statements": 60,
-          "branches": 0,
-          "functions": 42.85,
+          "lines": 84.21,
+          "statements": 80,
+          "branches": 62.5,
+          "functions": 66.66,
           "uncovered": {
             "lines": 3,
             "statements": 4,
-            "branches": 2,
+            "branches": 3,
             "functions": 4
           }
         }
@@ -1177,15 +1213,15 @@
     },
     "@beep/ai-provider-cli": {
       "path": "packages/drivers/ai-provider-cli",
-      "lines": 50.56,
-      "statements": 50.27,
-      "branches": 52,
-      "functions": 36.04,
+      "lines": 81.75,
+      "statements": 81.31,
+      "branches": 84.65,
+      "functions": 62.2,
       "uncovered": {
-        "lines": 88,
-        "statements": 90,
-        "branches": 12,
-        "functions": 55
+        "lines": 100,
+        "statements": 111,
+        "branches": 31,
+        "functions": 65
       },
       "files": {
         "packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts": {
@@ -1213,8 +1249,8 @@
           }
         },
         "packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts": {
-          "lines": 96.29,
-          "statements": 96.36,
+          "lines": 96.42,
+          "statements": 96.49,
           "branches": 92.85,
           "functions": 100,
           "uncovered": {
@@ -1249,22 +1285,22 @@
           }
         },
         "packages/drivers/ai-provider-cli/src/AiProviderCliHome.service.ts": {
-          "lines": 15.95,
-          "statements": 15.62,
+          "lines": 16.12,
+          "statements": 15.78,
           "branches": 0,
-          "functions": 3.92,
+          "functions": 4,
           "uncovered": {
-            "lines": 79,
-            "statements": 81,
+            "lines": 78,
+            "statements": 80,
             "branches": 11,
-            "functions": 49
+            "functions": 48
           }
         },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.claude.service.ts": {
-          "lines": 93.61,
-          "statements": 92.3,
-          "branches": 89.47,
-          "functions": 76,
+          "lines": 93.93,
+          "statements": 92.85,
+          "branches": 90.9,
+          "functions": 78.57,
           "uncovered": {
             "lines": 6,
             "statements": 8,
@@ -1272,7 +1308,31 @@
             "functions": 6
           }
         },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.codex.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.cursor.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.errors.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -1296,11 +1356,23 @@
             "functions": 0
           }
         },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.profile.service.ts": {
-          "lines": 96.82,
-          "statements": 96.87,
-          "branches": 96.87,
-          "functions": 84.61,
+          "lines": 96.96,
+          "statements": 97.05,
+          "branches": 97.05,
+          "functions": 85.71,
           "uncovered": {
             "lines": 2,
             "statements": 2,
@@ -1308,16 +1380,40 @@
             "functions": 2
           }
         },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.stdio.service.ts": {
-          "lines": 96.93,
-          "statements": 93.58,
-          "branches": 83.52,
+          "lines": 97,
+          "statements": 93.71,
+          "branches": 84.26,
           "functions": 91.66,
           "uncovered": {
             "lines": 5,
             "statements": 12,
             "branches": 14,
             "functions": 3
+          }
+        },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.wire.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/ai-provider-cli/src/index.ts": {
@@ -6184,15 +6280,15 @@
     },
     "@beep/duckdb": {
       "path": "packages/drivers/duckdb",
-      "lines": 93.65,
-      "statements": 92.5,
-      "branches": 84.48,
-      "functions": 87.8,
+      "lines": 96.87,
+      "statements": 96.68,
+      "branches": 92,
+      "functions": 94.73,
       "uncovered": {
-        "lines": 16,
-        "statements": 20,
-        "branches": 9,
-        "functions": 15
+        "lines": 19,
+        "statements": 22,
+        "branches": 16,
+        "functions": 18
       },
       "files": {
         "packages/drivers/duckdb/src/DuckDb.errors.ts": {
@@ -6220,18 +6316,18 @@
           }
         },
         "packages/drivers/duckdb/src/DuckDb.service.ts": {
-          "lines": 88.63,
-          "statements": 87.23,
-          "branches": 92.3,
-          "functions": 83.72,
+          "lines": 91.58,
+          "statements": 90.35,
+          "branches": 94.11,
+          "functions": 87.5,
           "uncovered": {
-            "lines": 10,
-            "statements": 12,
+            "lines": 9,
+            "statements": 11,
             "branches": 1,
             "functions": 7
           }
         },
-        "packages/drivers/duckdb/src/DuckDbNative.ts": {
+        "packages/drivers/duckdb/src/DuckDb.test-layer.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -6243,16 +6339,28 @@
             "functions": 0
           }
         },
-        "packages/drivers/duckdb/src/DuckDbSqlClient.service.ts": {
-          "lines": 95.58,
-          "statements": 94.4,
-          "branches": 80.55,
-          "functions": 88.4,
+        "packages/drivers/duckdb/src/DuckDbClient.service.ts": {
+          "lines": 97.91,
+          "statements": 98,
+          "branches": 100,
+          "functions": 94.44,
           "uncovered": {
-            "lines": 6,
-            "statements": 8,
-            "branches": 7,
-            "functions": 8
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/DuckDbMigrator.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/duckdb/src/index.ts": {
@@ -6265,6 +6373,114 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/drivers/duckdb/src/internal/classify.ts": {
+          "lines": 94.44,
+          "statements": 94.44,
+          "branches": 100,
+          "functions": 91.66,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "packages/drivers/duckdb/src/internal/compiler.ts": {
+          "lines": 93.33,
+          "statements": 94.73,
+          "branches": 87.5,
+          "functions": 91.66,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/connection.ts": {
+          "lines": 98.31,
+          "statements": 98.51,
+          "branches": 97.56,
+          "functions": 97.53,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 1,
+            "functions": 2
+          }
+        },
+        "packages/drivers/duckdb/src/internal/convert.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 81.81,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 4,
+            "functions": 0
+          }
+        },
+        "packages/drivers/duckdb/src/internal/extras.ts": {
+          "lines": 96.42,
+          "statements": 96.55,
+          "branches": 75,
+          "functions": 92.85,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/gate.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 91.66,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/drivers/duckdb/src/internal/native.ts": {
+          "lines": 97.05,
+          "statements": 97.61,
+          "branches": 100,
+          "functions": 95.83,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/parameters.ts": {
+          "lines": 100,
+          "statements": 98.03,
+          "branches": 100,
+          "functions": 96.55,
+          "uncovered": {
+            "lines": 0,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/transaction.ts": {
+          "lines": 96.49,
+          "statements": 96.55,
+          "branches": 77.77,
+          "functions": 94.11,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 4,
+            "functions": 2
           }
         }
       }

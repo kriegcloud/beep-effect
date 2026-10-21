@@ -27,7 +27,7 @@ const decodeSchemaReferenceResult = S.decodeResult(SchemaReference);
 const encodeUnknownSkillContract = S.encodeUnknownEffect(SkillContract);
 const encodeUnknownSchemaReferenceResult = S.encodeUnknownResult(SchemaReference);
 
-const rungType = (name: string) => EvidencePredicateType.make(`https://beep.dev/evidence/${name}/v1`);
+const rungType = (name: string) => EvidencePredicateType.make(`https://example.test/evidence/${name}/v1`);
 const evidenceSubject = EvidenceSubject.make({
   digest: EvidenceDigest.make({
     sha256: Sha256Hex.make("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
@@ -57,6 +57,13 @@ const contract = SkillContract.make({
 });
 
 describe("@beep/skill-contract SkillContract", () => {
+  it.effect("pins the v2 wire predicate types under the identity authority", () =>
+    Effect.sync(() => {
+      expect(FailurePredicateType).toBe("https://beep-effect.com/ns/skill-contract/evidence/failure/v2");
+      expect(GateSummaryPredicateType).toBe("https://beep-effect.com/ns/skill-contract/evidence/gate-summary/v2");
+    })
+  );
+
   it.effect("round-trips the aggregate while persisting only schema references", () =>
     Effect.gen(function* () {
       const encoded = yield* encodeUnknownSkillContract(contract);

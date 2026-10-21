@@ -11,7 +11,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 import { CatalogAssemblyError } from "../../effected/npm/index.ts";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

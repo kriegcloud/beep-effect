@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { DependencyField } from "../npm/index.ts";
-import { Range, SemVer } from "../semver/index.ts";
+import { Range, SemVer } from "@beep/semver";
 import * as A from "effect/Array";
 import * as Exit from "effect/Exit";
 import { dual, pipe } from "effect/Function";

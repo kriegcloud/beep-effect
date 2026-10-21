@@ -1,5 +1,5 @@
 import { NodeServices } from "@effect/platform-node";
-import { WorkflowCommand } from "../github-commands/index.ts";
+import { WorkflowCommand } from "@beep/github-commands";
 import * as Bool from "effect/Boolean";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";

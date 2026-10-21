@@ -51,7 +51,7 @@ describe("Vocab literal types", () => {
 
   it("extends the core registry with the repository semantic authority", () => {
     expect(SemanticFoundationVocab.beep).toEqual({
-      iri: "https://ns.beep.sh/",
+      iri: "https://beep-effect.com/ns/",
       terms: [
         "ontology/semantic-foundation",
         "ontology/semantic-foundation/taxonomy/legal-intake",

@@ -58,9 +58,10 @@ export type JsonLdTerm =
  * **Example** (Vocab context record)
  *
  * ```ts
+ * import { $I } from "@beep/identity/packages"
  * import type { JsonLdContext } from "@beep/ontology"
  *
- * const context: JsonLdContext = { "@vocab": "https://ns.beep.sh/patent" }
+ * const context: JsonLdContext = { "@vocab": $I.create("patent").iri }
  * console.log(context)
  * ```
  *
@@ -98,9 +99,10 @@ export type JsonLdNodeValue =
  * **Example** (Graph node shape)
  *
  * ```ts
+ * import { $I } from "@beep/identity/packages"
  * import type { JsonLdNode } from "@beep/ontology"
  *
- * const node: JsonLdNode = { "@id": "https://ns.beep.sh/patent/Claim" }
+ * const node: JsonLdNode = { "@id": $I.create("patent/Claim").iri }
  * console.log(node["@id"])
  * ```
  *
@@ -213,12 +215,12 @@ const prefixTerm = (iri: string): JsonLdTerm => ({ "@id": iri, "@prefix": true }
  * **Example** (Context from folded ontology)
  *
  * ```ts
- * import { make } from "@beep/identity"
+ * import { $I as $BeepId } from "@beep/identity/packages"
  * import { fold, toContext } from "@beep/ontology"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *
- * const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent")
+ * const $I = $BeepId.create("patent")
  *
  * class Claim extends S.Class<Claim>($I`Claim`)(
  *   { prefLabel: S.String.pipe($I.key("skos:prefLabel")) },
@@ -366,12 +368,12 @@ const predicateNode = (assembled: AssembledClass, predicate: AssembledPredicate)
  * **Example** (Document from folded ontology)
  *
  * ```ts
- * import { make } from "@beep/identity"
+ * import { $I as $BeepId } from "@beep/identity/packages"
  * import { fold, toJsonLd } from "@beep/ontology"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *
- * const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent")
+ * const $I = $BeepId.create("patent")
  *
  * class Claim extends S.Class<Claim>($I`Claim`)(
  *   { text: S.String },
@@ -381,7 +383,7 @@ const predicateNode = (assembled: AssembledClass, predicate: AssembledPredicate)
  * const document = toJsonLd(
  *   Effect.runSync(fold($I, { label: "Patent Core", schemas: [Claim], triples: [] }))
  * )
- * console.log(document["@graph"][0]?.["@id"]) // "https://ns.beep.sh/patent/Claim"
+ * console.log(document["@graph"][0]?.["@id"]) // "https://beep-effect.com/ns/patent/Claim"
  * ```
  *
  * @category projections
@@ -609,12 +611,12 @@ const prefixDefinitions = (ontology: AssembledOntology): ReadonlyArray<readonly 
  * **Example** (Turtle from folded ontology)
  *
  * ```ts
- * import { make } from "@beep/identity"
+ * import { $I as $BeepId } from "@beep/identity/packages"
  * import { fold, toTurtle } from "@beep/ontology"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *
- * const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent")
+ * const $I = $BeepId.create("patent")
  *
  * class Claim extends S.Class<Claim>($I`Claim`)(
  *   { text: S.String },

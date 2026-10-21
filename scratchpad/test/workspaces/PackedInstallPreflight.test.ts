@@ -1,5 +1,5 @@
 import { assert, describe, it, layer } from "@effect/vitest";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";

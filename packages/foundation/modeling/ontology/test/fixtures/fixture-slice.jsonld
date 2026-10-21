@@ -9,6 +9,6 @@
     "document-class",
     "file-name"
   ],
-  "schemeIri": "https://ns.beep.sh/ontology/semantic-foundation/taxonomy/fixture",
+  "schemeIri": "https://beep-effect.com/ns/ontology/semantic-foundation/taxonomy/fixture",
   "title": "Fixture vendor slice"
 }

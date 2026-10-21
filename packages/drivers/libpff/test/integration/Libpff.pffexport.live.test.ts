@@ -18,6 +18,7 @@ import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
@@ -106,15 +107,17 @@ describe("@beep/libpff live pffexport", () => {
 
           expect(result.engine).toBe("libpff");
           expect(result.children.length).toBeGreaterThan(0);
-          expect(A.every(result.children, (child) => child.id.startsWith("artifact:"))).toBe(true);
+          expect(A.every(result.children, (child) => pipe(child.id, Str.startsWith("artifact:")))).toBe(true);
 
           const jsonlName = `${operation.source.id}${PFFEXPORT_MESSAGES_SUFFIX}`;
           const hasItems = A.some(result.children, (child) => child.relativePath === jsonlName);
           if (hasItems) {
-            const emlChildren = A.filter(result.children, (child) => child.relativePath.endsWith("/Message.eml"));
+            const emlChildren = A.filter(result.children, (child) =>
+              pipe(child.relativePath, Str.endsWith("/Message.eml"))
+            );
             expect(emlChildren.length).toBeGreaterThan(0);
             const jsonl = yield* fs.readFileString(path.join(exportRoot, jsonlName));
-            const record = yield* decodeMessageRecord(jsonl.trimEnd().split("\n")[0]);
+            const record = yield* decodeMessageRecord(pipe(jsonl, Str.trimEnd, Str.split("\n"))[0]);
             expect(record.messagePath.length).toBeGreaterThan(0);
 
             // Every assembled EML must be RFC 5322-shaped: no foldable line
@@ -131,18 +134,25 @@ describe("@beep/libpff live pffexport", () => {
             // may legally carry bare-LF endings, and splitting only on CRLF
             // would glue their lines into false over-long positives.
             const encoder = new TextEncoder();
-            const foldable = (line: string): boolean => line.includes(" ");
+            const foldable = (line: string): boolean => pipe(line, Str.includes(" "));
             let datedEmlCount = 0;
             for (const child of emlChildren) {
               const eml = yield* fs.readFileString(path.join(exportRoot, child.relativePath));
-              const headerBlock = eml.slice(0, eml.indexOf("\r\n\r\n"));
+              const headerBlock = pipe(
+                eml,
+                Str.indexOf("\r\n\r\n"),
+                O.match({
+                  onNone: () => pipe(eml, Str.slice(0, -1)),
+                  onSome: (separator) => pipe(eml, Str.slice(0, separator)),
+                })
+              );
               const overLong = A.filter(
-                eml.split(/\r?\n/),
+                pipe(eml, Str.split(/\r?\n/)),
                 (line) => foldable(line) && encoder.encode(line).length > 998
               );
               expect(overLong).toStrictEqual([]);
               expect(headerBlock).not.toContain("X-Beep-Libpff-Client-Submit-Time");
-              if (headerBlock.includes("\r\nDate: ") || headerBlock.startsWith("Date: ")) {
+              if (pipe(headerBlock, Str.includes("\r\nDate: ")) || pipe(headerBlock, Str.startsWith("Date: "))) {
                 datedEmlCount += 1;
               }
             }

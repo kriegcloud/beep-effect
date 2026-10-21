@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P1 Implement — wave 1 (193 sites, 13 packages) in review; see the Waves table in `PLAN.md`.
 
 ## Latest Evidence
 

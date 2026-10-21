@@ -31,6 +31,7 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { build } from "esbuild";
 
 const WORKER_ENTRY = "@beep/ontology-use-cases/aggregates/Session/worker";
@@ -100,7 +101,7 @@ it.layer(testPlatformLayer, { timeout: "30 seconds" })(
         // The precise regression: the browser build of this micromark dependency
         // calls `document.createElement` at module top level.
         const domCharacterReference = A.filter(inputs, (input) =>
-          input.includes("decode-named-character-reference/index.dom.js")
+          pipe(input, Str.includes("decode-named-character-reference/index.dom.js"))
         );
         expect(domCharacterReference).toEqual([]);
 

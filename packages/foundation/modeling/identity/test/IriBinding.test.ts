@@ -1,5 +1,5 @@
-import { make } from "@beep/identity";
-import { $I, $OntologyId, $SemanticFoundationId } from "@beep/identity/packages";
+import { IdentityAuthority, make, SemanticFoundationVocab } from "@beep/identity";
+import { $EpistemicId, $I, $OntologyId, $QaId, $SemanticFoundationId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { describe, expect, expectTypeOf } from "@effect/vitest";
 import * as S from "effect/Schema";
@@ -10,30 +10,66 @@ const getProperty = (value: unknown, key: PropertyKey): unknown =>
 
 describe("@beep/identity IRI binding", () => {
   it("binds the semantic foundation to the repository authority", () => {
-    expect($SemanticFoundationId.iri).toBe("https://ns.beep.sh/ontology/semantic-foundation");
+    expect($SemanticFoundationId.iri).toBe("https://beep-effect.com/ns/ontology/semantic-foundation");
+  });
+
+  it("roots the exported $I composer at the beep-effect.com identity authority", () => {
+    const x = $I.create("x");
+
+    expectTypeOf(IdentityAuthority).toEqualTypeOf<"https://beep-effect.com/ns/">();
+    expectTypeOf($I.iri).toEqualTypeOf<"https://beep-effect.com/ns/">();
+    expectTypeOf($I.curie).toEqualTypeOf<"beep:">();
+    expectTypeOf(x.iri).toEqualTypeOf<"https://beep-effect.com/ns/x">();
+    expectTypeOf(x.curie).toEqualTypeOf<"beep:x">();
+    expectTypeOf(SemanticFoundationVocab.beep.iri).toEqualTypeOf<"https://beep-effect.com/ns/">();
+
+    expect(IdentityAuthority).toBe("https://beep-effect.com/ns/");
+    expect($I.iri).toBe("https://beep-effect.com/ns/");
+    expect($I.iri).toBe(IdentityAuthority);
+    expect($I.curie).toBe("beep:");
+    expect(x.iri).toBe("https://beep-effect.com/ns/x");
+    expect(x.curie).toBe("beep:x");
+    expect(SemanticFoundationVocab.beep.iri).toBe(IdentityAuthority);
+  });
+
+  it("roots the shared epistemic and QA vocabularies under the identity authority", () => {
+    const claim = $EpistemicId.create("Claim");
+    const qaVersion = $QaId.create("1.0");
+
+    expectTypeOf($EpistemicId.iri).toEqualTypeOf<"https://beep-effect.com/ns/epistemic">();
+    expectTypeOf(claim.iri).toEqualTypeOf<"https://beep-effect.com/ns/epistemic/Claim">();
+    expectTypeOf($QaId.iri).toEqualTypeOf<"https://beep-effect.com/ns/qa">();
+    expectTypeOf(qaVersion.iri).toEqualTypeOf<"https://beep-effect.com/ns/qa/1.0">();
+
+    expect($EpistemicId.iri).toBe("https://beep-effect.com/ns/epistemic");
+    expect(claim.iri).toBe("https://beep-effect.com/ns/epistemic/Claim");
+    expect(claim.curie).toBe("beep:epistemic/Claim");
+    expect($QaId.iri).toBe("https://beep-effect.com/ns/qa");
+    expect(qaVersion.iri).toBe("https://beep-effect.com/ns/qa/1.0");
+    expect(`${qaVersion.iri}/`).toBe("https://beep-effect.com/ns/qa/1.0/");
   });
 
   it("derives exact IRI and CURIE literals through create and compose chains", () => {
-    const { $BeepId } = make({ authority: "https://ns.beep.sh/", prefix: "beep" })("beep");
+    const { $BeepId } = make({ authority: "https://beep-effect.com/ns/", prefix: "beep" })("beep");
     const modules = $BeepId.compose("ontology", "schema");
     const model = modules.$OntologyId.create("Ontology.models").create("HttpUrl");
 
     expectTypeOf<
-      IriFromIdentity<"https://ns.beep.sh/", "@beep/ontology/Ontology.models/HttpUrl">
-    >().toEqualTypeOf<"https://ns.beep.sh/ontology/Ontology.models/HttpUrl">();
+      IriFromIdentity<"https://beep-effect.com/ns/", "@beep/ontology/Ontology.models/HttpUrl">
+    >().toEqualTypeOf<"https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl">();
     expectTypeOf<
       CurieFromIdentity<"beep", "@beep/ontology/Ontology.models/HttpUrl">
     >().toEqualTypeOf<"beep:ontology/Ontology.models/HttpUrl">();
     expectTypeOf<
       SlugFromIdentifier<"@beep/ontology/Ontology.models/HttpUrl">
     >().toEqualTypeOf<"beep-ontology-ontology-models-http-url">();
-    expectTypeOf(modules.$OntologyId.iri).toEqualTypeOf<"https://ns.beep.sh/ontology">();
-    expectTypeOf(model.iri).toEqualTypeOf<"https://ns.beep.sh/ontology/Ontology.models/HttpUrl">();
+    expectTypeOf(modules.$OntologyId.iri).toEqualTypeOf<"https://beep-effect.com/ns/ontology">();
+    expectTypeOf(model.iri).toEqualTypeOf<"https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl">();
     expectTypeOf(model.curie).toEqualTypeOf<"beep:ontology/Ontology.models/HttpUrl">();
     expectTypeOf(model.slug).toEqualTypeOf<"beep-ontology-ontology-models-http-url">();
 
     expect(model.string()).toBe("@beep/ontology/Ontology.models/HttpUrl");
-    expect(model.iri).toBe("https://ns.beep.sh/ontology/Ontology.models/HttpUrl");
+    expect(model.iri).toBe("https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl");
     expect(model.curie).toBe("beep:ontology/Ontology.models/HttpUrl");
     expect(model.slug).toBe("beep-ontology-ontology-models-http-url");
   });
@@ -71,16 +107,18 @@ describe("@beep/identity IRI binding", () => {
     );
     const schemaAnnotations = S.resolveAnnotations(schema);
 
-    expectTypeOf(annotation.iri).toEqualTypeOf<"https://ns.beep.sh/ontology/Ontology.models/OWLClass">();
+    expectTypeOf(annotation.iri).toEqualTypeOf<"https://beep-effect.com/ns/ontology/Ontology.models/OWLClass">();
     expectTypeOf(annotation.curie).toEqualTypeOf<"beep:ontology/Ontology.models/OWLClass">();
     expect(annotation).toMatchObject({
       identifier: "@beep/ontology/Ontology.models/OWLClass",
-      iri: "https://ns.beep.sh/ontology/Ontology.models/OWLClass",
+      iri: "https://beep-effect.com/ns/ontology/Ontology.models/OWLClass",
       curie: "beep:ontology/Ontology.models/OWLClass",
       title: "OWLClass",
       description: "Ontology class metadata.",
     });
-    expect(getProperty(schemaAnnotations, "iri")).toBe("https://ns.beep.sh/ontology/Ontology.models/OWLClassLabel");
+    expect(getProperty(schemaAnnotations, "iri")).toBe(
+      "https://beep-effect.com/ns/ontology/Ontology.models/OWLClassLabel"
+    );
     expect(getProperty(schemaAnnotations, "curie")).toBe("beep:ontology/Ontology.models/OWLClassLabel");
   });
 

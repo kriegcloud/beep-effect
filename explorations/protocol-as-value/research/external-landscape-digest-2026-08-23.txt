@@ -579,7 +579,7 @@ CLAIM: LIVE: the identity composer core is fully built — `make()` (dual-form, 
 SRC: ~/YeeBois/projects/beep-effect18/packages/foundation/modeling/identity/src/Id.ts
 REL: Protocol-as-value needs stable, statically-known names one level above agent schemas; the composer already mints a literal-typed, hierarchical name algebra whose annotations are machine-recoverable from schema ASTs.
 
-CLAIM: LIVE: the whole workspace is authority-bound today — src/packages.ts:46 exports the root composer as `Identity.make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId` and derives every package composer from it via one `$I.compose(...)` call, so IRI/CURIE projections are not future work; `rebase` (Id.ts:1956-1969) rebinds IRI/CURIE without touching identity or interning.
+CLAIM: LIVE: the whole workspace is authority-bound today — src/packages.ts:46 exports the root composer as `Identity.make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$BeepId` and derives every package composer from it via one `$I.compose(...)` call, so IRI/CURIE projections are not future work; `rebase` (Id.ts:1956-1969) rebinds IRI/CURIE without touching identity or interning.
 SRC: ~/YeeBois/projects/beep-effect18/packages/foundation/modeling/identity/src/packages.ts (line 46)
 REL: The exploration can treat globally-dereferenceable names (IRI form) as already available for protocol values; the wire encoding of a name exists without new plumbing.
 
