@@ -1,0 +1,953 @@
+import { dual } from "effect/Function";
+import * as Match from "effect/Match";
+// The character-level heart of the engine: position-based scan functions over
+// the source string, plus value-token classification. Every scan function is
+// pure and stateless — `(source, pos)` in, `ScanResult` out — and every
+// malformed input throws RawTomlError with the offset of the offending
+// character. The parser drives these; nothing here recurses.
+//
+// The classification regexes are the TOML ABNF literal grammars, copied
+// verbatim. Datetime range validation happens BEFORE constructing the
+// TomlDateTime classes so the diagnostic carries the token's offset instead
+// of a schema check message.
+
+import { TomlLocalDate, TomlLocalDateTime, TomlLocalTime, TomlOffsetDateTime } from "../TomlDateTime.ts";
+import { raise } from "./diagnostics.ts";
+
+/**
+ * The result of a scan: the decoded value and the position after the token.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface ScanResult<T> {
+  readonly end: number;
+  readonly value: T;
+}
+
+/**
+ * A classified TOML scalar represented by a primitive or a TOML datetime value.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ScalarValue =
+  | number
+  | bigint
+  | boolean
+  | TomlOffsetDateTime
+  | TomlLocalDateTime
+  | TomlLocalDate
+  | TomlLocalTime;
+
+const NUL = 0x00;
+const TAB = 0x09;
+const LF = 0x0a;
+const CR = 0x0d;
+const SPACE = 0x20;
+const QUOTE = 0x22;
+const HASH = 0x23;
+const APOSTROPHE = 0x27;
+const COMMA = 0x2c;
+const HYPHEN = 0x2d;
+const BACKSLASH = 0x5c;
+const RIGHT_BRACKET = 0x5d;
+const RIGHT_BRACE = 0x7d;
+const LOWER_U = 0x75;
+const UPPER_U = 0x55;
+const LOWER_X = 0x78;
+const BOM = 0xfeff;
+
+/** `U+XXXX` display form of a char code. */
+const codeLabel = (code: number): string => `U+${code.toString(16).toUpperCase().padStart(4, "0")}`;
+
+/** TOML control characters (tab excluded): U+0000-U+0008, U+000A-U+001F, U+007F. */
+const isControlChar = (code: number): boolean => code <= 0x08 || (code >= 0x0a && code <= 0x1f) || code === 0x7f;
+
+/**
+ * Advance past one character of a single-line string body. Newlines end the
+ * line before the string closes, and bare carriage returns and control
+ * characters are lex errors; `form` names the string form in messages.
+ */
+const stepSingleLineChar = (source: string, i: number, pos: number, form: "basic" | "literal"): number => {
+  const code = source.charCodeAt(i);
+  if (code === LF || (code === CR && source.charCodeAt(i + 1) === LF)) {
+    return raise("UnterminatedString", `${form} string not closed before end of line`, pos, i - pos);
+  }
+  if (code === CR) {
+    return raise("BareCarriageReturn", "carriage return not followed by a line feed", i, 1);
+  }
+  if (isControlChar(code)) {
+    return raise("ControlCharacterInString", `control character ${codeLabel(code)} in ${form} string`, i, 1);
+  }
+  return i + 1;
+};
+
+/** Advance past the newline at `i` (`\n` or `\r\n`); a bare `\r` is a lex error. */
+const pastNewline = (source: string, i: number): number => {
+  if (source.charCodeAt(i) === LF) {
+    return i + 1;
+  }
+  if (source.charCodeAt(i + 1) === LF) {
+    return i + 2;
+  }
+  return raise("BareCarriageReturn", "carriage return not followed by a line feed", i, 1);
+};
+
+/**
+ * Advance past one character of a multiline string body: newlines pass
+ * (a bare `\r` does not), control characters are lex errors; `form` names
+ * the string form in messages.
+ */
+const stepMultilineChar = (source: string, i: number, form: "basic" | "literal"): number => {
+  const code = source.charCodeAt(i);
+  if (code === LF || code === CR) {
+    return pastNewline(source, i);
+  }
+  if (isControlChar(code)) {
+    return raise("ControlCharacterInString", `control character ${codeLabel(code)} in multiline ${form} string`, i, 1);
+  }
+  return i + 1;
+};
+
+/**
+ * Index of the first character at or after `start` whose code satisfies
+ * `isEnd`, or the source length; every character passed over goes through
+ * `step`, which validates it and returns the next index.
+ */
+const scanUntil = (
+  source: string,
+  start: number,
+  isEnd: (code: number) => boolean,
+  step: (i: number) => number
+): number => {
+  let i = start;
+  while (i < source.length && !isEnd(source.charCodeAt(i))) {
+    i = step(i);
+  }
+  return i;
+};
+
+/** End of the run of `delimiter` characters starting at `i`. */
+const delimiterRunEnd = (source: string, i: number, delimiter: number): number => {
+  let runEnd = i;
+  while (runEnd < source.length && source.charCodeAt(runEnd) === delimiter) {
+    runEnd += 1;
+  }
+  return runEnd;
+};
+
+const isDigit = (code: number): boolean => code >= 0x30 && code <= 0x39;
+
+/**
+ * Whether `code` is a bare-key character: `[A-Za-z0-9_-]`.
+ *
+ * **Example** (Recognize bare-key characters)
+ *
+ * ```ts
+ * import { isBareKeyChar } from "@beep/toml/internal/scanner"
+ *
+ * console.log(isBareKeyChar(0x61)) // true
+ * console.log(isBareKeyChar(0x20)) // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const isBareKeyChar = (code: number): boolean =>
+  (code >= 0x61 && code <= 0x7a) || (code >= 0x41 && code <= 0x5a) || isDigit(code) || code === 0x5f || code === HYPHEN;
+
+/**
+ * The number of code units to skip for a single leading U+FEFF BOM.
+ *
+ * **Example** (Skip a leading byte order mark)
+ *
+ * ```ts
+ * import { skipBom } from "@beep/toml/internal/scanner"
+ *
+ * console.log(skipBom("\uFEFFtitle = 1")) // 1
+ * console.log(skipBom("title = 1")) // 0
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const skipBom = (source: string): number => (source.charCodeAt(0) === BOM ? 1 : 0);
+
+/**
+ * Reject a document carrying U+FFFD REPLACEMENT CHARACTER.
+ *
+ * **Details**
+ *
+ * TOML requires a valid UTF-8 document, but this engine receives an already-decoded JS
+ * string — after Node's lossy utf8 decode, U+FFFD is the only surviving
+ * evidence of a malformed byte sequence. The grammar technically admits
+ * U+FFFD inside strings and comments, so this trades away a pathological
+ * legal character to honor the encoding rule the toml-test corpus pins
+ * (invalid/encoding/bad-utf8-in-string.toml, bad-utf8-in-comment.toml,
+ * bad-codepoint.toml and friends).
+ *
+ * **Example** (Validate decoded Unicode input)
+ *
+ * ```ts
+ * import { assertValidUnicode } from "@beep/toml/internal/scanner"
+ *
+ * assertValidUnicode("title = 'café'")
+ * console.log("valid Unicode") // valid Unicode
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const assertValidUnicode = (source: string): void => {
+  const index = source.indexOf("�");
+  if (index !== -1) {
+    raise(
+      "InvalidUtf8",
+      "invalid UTF-8: U+FFFD REPLACEMENT CHARACTER marks a malformed byte sequence in the decoded input",
+      index,
+      1
+    );
+  }
+};
+
+/**
+ * Skip spaces and tabs; returns the position of the first other character.
+ *
+ * **Example** (Find the first non-whitespace character)
+ *
+ * ```ts
+ * import { scanWhitespace } from "@beep/toml/internal/scanner"
+ *
+ * console.log(scanWhitespace(" \tkey", 0)) // 2
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanWhitespace: {
+  (source: string, pos: number): number;
+  (pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
+  let i = pos;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    if (code !== SPACE && code !== TAB) {
+      break;
+    }
+    i += 1;
+  }
+  return i;
+});
+
+/**
+ * Consume one `\n` or `\r\n` newline.
+ *
+ * **Gotchas**
+ *
+ * A lone `\r` throws BareCarriageReturn;
+ * no newline at `pos` returns `pos` unchanged.
+ *
+ * **Example** (Consume a Windows newline)
+ *
+ * ```ts
+ * import { scanNewline } from "@beep/toml/internal/scanner"
+ *
+ * console.log(scanNewline("\r\nkey", 0)) // 2
+ * console.log(scanNewline("key", 0)) // 0
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanNewline: {
+  (source: string, pos: number): number;
+  (pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
+  const code = source.charCodeAt(pos);
+  if (code === LF) {
+    return pos + 1;
+  }
+  if (code === CR) {
+    if (source.charCodeAt(pos + 1) === LF) {
+      return pos + 2;
+    }
+    return raise("BareCarriageReturn", "carriage return not followed by a line feed", pos, 1);
+  }
+  return pos;
+});
+
+/**
+ * Scan a comment starting at `#` through end of line or EOF. The value
+ * excludes the `#`; control characters other than tab are rejected.
+ *
+ * **Example** (Read comment text without its marker)
+ *
+ * ```ts
+ * import { scanComment } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanComment("# note\nkey", 0)
+ * console.log(result.value) //  note
+ * console.log(result.end) // 6
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanComment: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  const end = scanUntil(
+    source,
+    pos + 1,
+    (code) => code === LF || code === CR,
+    (i) => {
+      const code = source.charCodeAt(i);
+      return isControlChar(code)
+        ? raise("ControlCharacterInComment", `control character ${codeLabel(code)} in comment`, i, 1)
+        : i + 1;
+    }
+  );
+  return { value: source.slice(pos + 1, end), end };
+});
+
+/**
+ * Scan a run of bare-key characters; the value may be empty.
+ *
+ * **Example** (Read a bare key before its separator)
+ *
+ * ```ts
+ * import { scanBareKey } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanBareKey("server_name = 1", 0)
+ * console.log(result.value) // server_name
+ * console.log(result.end) // 11
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanBareKey: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  let i = pos;
+  while (i < source.length && isBareKeyChar(source.charCodeAt(i))) {
+    i += 1;
+  }
+  return { value: source.slice(pos, i), end: i };
+});
+
+/** The decoded character for a simple escape code, or undefined. */
+const simpleEscape = Match.type<number>().pipe(
+  Match.when(0x62, () => "\b"),
+  Match.when(0x74, () => "\t"),
+  Match.when(0x6e, () => "\n"),
+  Match.when(0x66, () => "\f"),
+  Match.when(0x72, () => "\r"),
+  Match.when(0x65, () => "\u001b"),
+  Match.when(QUOTE, () => '"'),
+  Match.when(BACKSLASH, () => "\\"),
+  Match.orElse(() => undefined)
+);
+
+const HEX_DIGITS = /^[0-9A-Fa-f]+$/;
+
+const ESCAPE_LETTERS = { 2: "x", 4: "u", 8: "U" } as const;
+
+/**
+ * Decode a `\xHH` / `\uXXXX` / `\UXXXXXXXX` escape at `backslash`. The code
+ * point must be a Unicode scalar value: surrogates and values above U+10FFFF
+ * are errors. `\xHH` (TOML 1.1) covers U+0000–U+00FF — the escape is a
+ * grammar-sibling of `basic-unescaped`, so the decoded character bypasses the
+ * control-character ban by design.
+ */
+const decodeUnicodeEscape: {
+  (source: string, backslash: number, width: 2 | 4 | 8): { readonly codePoint: number; readonly end: number };
+  (backslash: number, width: 2 | 4 | 8): (source: string) => { readonly codePoint: number; readonly end: number };
+} = dual(
+  3,
+  (source: string, backslash: number, width: 2 | 4 | 8): { readonly codePoint: number; readonly end: number } => {
+    const start = backslash + 2;
+    const hex = source.slice(start, start + width);
+    if (hex.length < width || !HEX_DIGITS.test(hex)) {
+      return raise(
+        "InvalidUnicodeEscape",
+        `\\${ESCAPE_LETTERS[width]} escape requires ${width} hexadecimal digits`,
+        backslash,
+        width + 2
+      );
+    }
+    const codePoint = Number.parseInt(hex, 16);
+    if ((codePoint >= 0xd800 && codePoint <= 0xdfff) || codePoint > 0x10ffff) {
+      return raise(
+        "InvalidUnicodeEscape",
+        `${codeLabel(codePoint)} is not a Unicode scalar value`,
+        backslash,
+        width + 2
+      );
+    }
+    return { codePoint, end: start + width };
+  }
+);
+
+/** The escape width for a unicode-style escape letter, or undefined. */
+const unicodeEscapeWidth = (code: number): 2 | 4 | 8 | undefined =>
+  code === LOWER_X ? 2 : code === LOWER_U ? 4 : code === UPPER_U ? 8 : undefined;
+
+/** The decoded text and end of a simple or unicode escape at `backslash`, or undefined for neither. */
+const decodeEscape = (source: string, backslash: number): ScanResult<string> | undefined => {
+  const next = source.charCodeAt(backslash + 1);
+  const mapped = simpleEscape(next);
+  if (mapped !== undefined) {
+    return { value: mapped, end: backslash + 2 };
+  }
+  const width = unicodeEscapeWidth(next);
+  if (width === undefined) {
+    return undefined;
+  }
+  const decoded = decodeUnicodeEscape(source, backslash, width);
+  return { value: String.fromCodePoint(decoded.codePoint), end: decoded.end };
+};
+
+/** A single-line basic string escape at `backslash`; anything but a simple or unicode escape is a lex error. */
+const requireBasicEscape = (source: string, backslash: number): ScanResult<string> =>
+  decodeEscape(source, backslash) ??
+  raise("InvalidEscape", `invalid escape sequence \\${source[backslash + 1]}`, backslash, 2);
+
+/**
+ * Scan a single-line basic string starting at the opening `"`.
+ *
+ * **Example** (Decode a basic string escape)
+ *
+ * ```ts
+ * import { scanBasicString } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanBasicString('"hello\\tworld"', 0)
+ * console.log(JSON.stringify(result.value)) // "hello\tworld"
+ * console.log(result.end) // 14
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanBasicString: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  let out = "";
+  let chunkStart = pos + 1;
+  let i = pos + 1;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    if (code === QUOTE) {
+      return { value: out + source.slice(chunkStart, i), end: i + 1 };
+    }
+    if (code !== BACKSLASH) {
+      i = stepSingleLineChar(source, i, pos, "basic");
+      continue;
+    }
+    if (i + 1 >= source.length) {
+      break;
+    }
+    const escape = requireBasicEscape(source, i);
+    out += source.slice(chunkStart, i) + escape.value;
+    i = escape.end;
+    chunkStart = i;
+  }
+  return raise("UnterminatedString", "unterminated basic string", pos, source.length - pos);
+});
+
+/**
+ * Scan a single-line literal string starting at the opening `'`.
+ *
+ * **Example** (Preserve literal string backslashes)
+ *
+ * ```ts
+ * import { scanLiteralString } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanLiteralString("'C:\\tmp'", 0)
+ * console.log(result.value) // C:\tmp
+ * console.log(result.end) // 8
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanLiteralString: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  const close = scanUntil(
+    source,
+    pos + 1,
+    (code) => code === APOSTROPHE,
+    (i) => stepSingleLineChar(source, i, pos, "literal")
+  );
+  if (close < source.length) {
+    return { value: source.slice(pos + 1, close), end: close + 1 };
+  }
+  return raise("UnterminatedString", "unterminated literal string", pos, source.length - pos);
+});
+
+/** Skip a newline immediately after a multiline opening delimiter. */
+const skipLeadingNewline: {
+  (source: string, pos: number): number;
+  (pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
+  if (source.charCodeAt(pos) === LF) {
+    return pos + 1;
+  }
+  if (source.charCodeAt(pos) === CR && source.charCodeAt(pos + 1) === LF) {
+    return pos + 2;
+  }
+  return pos;
+});
+
+/** Skip whitespace and newlines after a line-ending backslash's newline. */
+const skipLineEndingTrim: {
+  (source: string, pos: number): number;
+  (pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
+  let i = pos;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    if (code === SPACE || code === TAB) {
+      i += 1;
+      continue;
+    }
+    if (code === LF || code === CR) {
+      i = pastNewline(source, i);
+      continue;
+    }
+    break;
+  }
+  return i;
+});
+
+const raiseUnterminatedMultilineBasic = (source: string, pos: number): never =>
+  raise("UnterminatedString", "unterminated multiline basic string", pos, source.length - pos);
+
+/**
+ * Close a multiline basic string at the quote run starting at `runStart`
+ * (three or more quotes). The delimiter is greedy: up to two quotes
+ * immediately before it are content, appended to `prefix`.
+ */
+const closeMultilineBasic = (source: string, prefix: string, runStart: number): ScanResult<string> => {
+  const runEnd = delimiterRunEnd(source, runStart, QUOTE);
+  const contentQuotes = Math.min(runEnd - runStart - 3, 2);
+  return { value: prefix + source.slice(runStart, runStart + contentQuotes), end: runStart + contentQuotes + 3 };
+};
+
+/**
+ * A line-ending backslash at `backslash`: only whitespace may sit between it
+ * and the newline, and the escape swallows all following whitespace and
+ * newlines. Decodes to the empty string.
+ */
+const lineEndingBackslash = (source: string, backslash: number, pos: number): ScanResult<string> => {
+  const probe = scanWhitespace(source, backslash + 1);
+  if (probe >= source.length) {
+    return raiseUnterminatedMultilineBasic(source, pos);
+  }
+  const probeCode = source.charCodeAt(probe);
+  if (probeCode === LF || (probeCode === CR && source.charCodeAt(probe + 1) === LF)) {
+    return { value: "", end: skipLineEndingTrim(source, probe) };
+  }
+  return raise("InvalidEscape", `invalid escape sequence \\${source[backslash + 1]}`, backslash, probe - backslash + 1);
+};
+
+/**
+ * Scan a multiline basic string starting at the opening `"""`.
+ *
+ * **Example** (Trim the opening multiline newline)
+ *
+ * ```ts
+ * import { scanMultilineBasicString } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanMultilineBasicString('"""\nhello"""', 0)
+ * console.log(result.value) // hello
+ * console.log(result.end) // 12
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanMultilineBasicString: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  let i = skipLeadingNewline(source, pos + 3);
+  let out = "";
+  let chunkStart = i;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    // one or two quotes are content and step like any other character
+    if (code === QUOTE && delimiterRunEnd(source, i, QUOTE) - i >= 3) {
+      return closeMultilineBasic(source, out + source.slice(chunkStart, i), i);
+    }
+    if (code !== BACKSLASH) {
+      i = stepMultilineChar(source, i, "basic");
+      continue;
+    }
+    const escape = decodeEscape(source, i) ?? lineEndingBackslash(source, i, pos);
+    out += source.slice(chunkStart, i) + escape.value;
+    i = escape.end;
+    chunkStart = i;
+  }
+  return raiseUnterminatedMultilineBasic(source, pos);
+});
+
+/**
+ * Scan a multiline literal string starting at the opening `'''`.
+ *
+ * **Example** (Read a multiline literal string)
+ *
+ * ```ts
+ * import { scanMultilineLiteralString } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanMultilineLiteralString("'''\nhello'''", 0)
+ * console.log(result.value) // hello
+ * console.log(result.end) // 12
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanMultilineLiteralString: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  const contentStart = skipLeadingNewline(source, pos + 3);
+  let i = contentStart;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    if (code === APOSTROPHE) {
+      const runEnd = delimiterRunEnd(source, i, APOSTROPHE);
+      const run = runEnd - i;
+      if (run < 3) {
+        i = runEnd;
+        continue;
+      }
+      const contentQuotes = Math.min(run - 3, 2);
+      return { value: source.slice(contentStart, i + contentQuotes), end: i + contentQuotes + 3 };
+    }
+    i = stepMultilineChar(source, i, "literal");
+  }
+  return raise("UnterminatedString", "unterminated multiline literal string", pos, source.length - pos);
+});
+
+/** Whitespace and newlines end a raw value token. */
+const isTokenSpace = (code: number): boolean => code === SPACE || code === TAB || code === LF || code === CR;
+
+/** Characters that end a raw value token: whitespace, newlines, `,`, `]`, `}` and `#`. */
+const isTokenTerminator = (code: number): boolean =>
+  isTokenSpace(code) || code === COMMA || code === RIGHT_BRACKET || code === RIGHT_BRACE || code === HASH;
+
+/** Scan one raw token span; NUL anywhere is a lex error. */
+const scanTokenSpan: {
+  (source: string, pos: number): number;
+  (pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
+  let i = pos;
+  while (i < source.length) {
+    const code = source.charCodeAt(i);
+    if (code === NUL) {
+      return raise("InvalidCharacter", "NUL character in document", i, 1);
+    }
+    if (isTokenTerminator(code)) {
+      break;
+    }
+    i += 1;
+  }
+  return i;
+});
+
+// Classification regexes (anchored). TOML 1.1 makes seconds optional:
+// `partial-time = time-hour ":" time-minute [ ":" time-second [ time-secfrac ] ]`
+// — time-secfrac nests INSIDE the optional seconds group, so `07:32` is valid
+// but `07:32.5` is not. The regexes nest accordingly; they must never chain
+// the seconds and fraction groups as independent optionals.
+const OFFSET_DATE_TIME =
+  /^([0-9]{4})-([0-9]{2})-([0-9]{2})[Tt ]([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]+))?)?([Zz]|[+-][0-9]{2}:[0-9]{2})$/;
+const LOCAL_DATE_TIME = /^([0-9]{4})-([0-9]{2})-([0-9]{2})[Tt ]([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]+))?)?$/;
+const LOCAL_DATE = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/;
+const LOCAL_TIME = /^([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]+))?)?$/;
+
+/**
+ * Scan a non-string scalar value token.
+ *
+ * **Details**
+ *
+ * Stops at whitespace, newlines, `,`,
+ * `]`, `}` and `#` — with one extension: a token that scanned as a full
+ * date followed by a single space and a digit continues through the time
+ * part, so `1979-05-27 07:32:00Z` is one token.
+ *
+ * **Example** (Keep a space-separated datetime together)
+ *
+ * ```ts
+ * import { scanValueToken } from "@beep/toml/internal/scanner"
+ *
+ * const result = scanValueToken("1979-05-27 07:32:00Z # note", 0)
+ * console.log(result.value) // 1979-05-27 07:32:00Z
+ * console.log(result.end) // 20
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanValueToken: {
+  (source: string, pos: number): ScanResult<string>;
+  (pos: number): (source: string) => ScanResult<string>;
+} = dual(2, (source: string, pos: number): ScanResult<string> => {
+  let end = scanTokenSpan(source, pos);
+  if (
+    LOCAL_DATE.test(source.slice(pos, end)) &&
+    source.charCodeAt(end) === SPACE &&
+    isDigit(source.charCodeAt(end + 1))
+  ) {
+    end = scanTokenSpan(source, end + 1);
+  }
+  return { value: source.slice(pos, end), end };
+});
+
+// Classification regexes (anchored, copied verbatim from the TOML ABNF).
+const INTEGER_DEC = /^[+-]?(?:0|[1-9](?:_?[0-9])*)$/;
+const INTEGER_HEX = /^0x[0-9A-Fa-f](?:_?[0-9A-Fa-f])*$/;
+const INTEGER_OCT = /^0o[0-7](?:_?[0-7])*$/;
+const INTEGER_BIN = /^0b[01](?:_?[01])*$/;
+const FLOAT =
+  /^[+-]?(?:0|[1-9](?:_?[0-9])*)(?:\.[0-9](?:_?[0-9])*(?:[eE][+-]?[0-9](?:_?[0-9])*)?|[eE][+-]?[0-9](?:_?[0-9])*)$/;
+const FLOAT_SPECIAL = /^[+-]?(?:inf|nan)$/;
+
+/** A token that starts number-shaped fails as InvalidNumber, not InvalidValue. */
+const NUMERIC_LOOKING = /^[+-]?[0-9.]/;
+
+const INT64_MIN = -(BigInt(2) ** BigInt(63));
+const INT64_MAX = BigInt(2) ** BigInt(63) - BigInt(1);
+const MAX_SAFE_BIG = BigInt(2) ** BigInt(53) - BigInt(1);
+
+/** Range-check against int64 and narrow to number when within 2^53-1. */
+const narrowInteger: {
+  (big: bigint, token: string, offset: number): number | bigint;
+  (token: string, offset: number): (big: bigint) => number | bigint;
+} = dual(3, (big: bigint, token: string, offset: number): number | bigint => {
+  if (big < INT64_MIN || big > INT64_MAX) {
+    return raise("IntegerOutOfRange", `${token} does not fit in a signed 64-bit integer`, offset, token.length);
+  }
+  return big >= -MAX_SAFE_BIG && big <= MAX_SAFE_BIG ? Number(big) : big;
+});
+
+const decodeDecimalInteger: {
+  (token: string, offset: number): number | bigint;
+  (offset: number): (token: string) => number | bigint;
+} = dual(2, (token: string, offset: number): number | bigint => {
+  let digits = token.replace(/_/g, "");
+  if (digits.startsWith("+")) {
+    digits = digits.slice(1);
+  }
+  return narrowInteger(BigInt(digits), token, offset);
+});
+
+const decodePrefixedInteger: {
+  (token: string, offset: number): number | bigint;
+  (offset: number): (token: string) => number | bigint;
+} = dual(2, (token: string, offset: number): number | bigint =>
+  narrowInteger(BigInt(token.replace(/_/g, "")), token, offset)
+);
+
+const isLeapYear = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+const validateDate: {
+  (year: number, month: number, day: number, offset: number, length: number): void;
+  (month: number, day: number, offset: number, length: number): (year: number) => void;
+} = dual(5, (year: number, month: number, day: number, offset: number, length: number): void => {
+  if (month < 1 || month > 12) {
+    raise("InvalidDateTime", `month ${month} is out of range 1-12`, offset, length);
+  }
+  // Validated months alternate 31/30 days, with the parity switching at August.
+  const max = month === 2 ? (isLeapYear(year) ? 29 : 28) : 30 + ((month + Math.floor(month / 8)) % 2);
+  if (day < 1 || day > max) {
+    raise("InvalidDateTime", `day ${day} does not exist in month ${month} of ${year}`, offset, length);
+  }
+});
+
+const validateTime: {
+  (hour: number, minute: number, second: number, offset: number, length: number): void;
+  (minute: number, second: number, offset: number, length: number): (hour: number) => void;
+} = dual(5, (hour: number, minute: number, second: number, offset: number, length: number): void => {
+  if (hour > 23) {
+    raise("InvalidDateTime", `hour ${hour} is out of range 0-23`, offset, length);
+  }
+  if (minute > 59) {
+    raise("InvalidDateTime", `minute ${minute} is out of range 0-59`, offset, length);
+  }
+  if (second > 60) {
+    raise("InvalidDateTime", `second ${second} is out of range 0-60`, offset, length);
+  }
+});
+
+/** Right-pad or truncate fractional-second digits to exactly nine → nanoseconds. */
+const decodeNanosecond = (fraction: string | undefined): number =>
+  fraction === undefined ? 0 : Number(`${fraction}000000000`.slice(0, 9));
+
+/**
+ * Validated date and time fields from capture groups 1-7 (`year month day
+ * hour minute second? fraction?`) shared by the offset and local date-time
+ * patterns. TOML 1.1 optional seconds: an absent seconds group materializes
+ * as 0.
+ */
+const localDateTimeFields = (
+  match: RegExpExecArray,
+  offset: number,
+  length: number
+): {
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+  readonly hour: number;
+  readonly minute: number;
+  readonly second: number;
+  readonly nanosecond: number;
+} => {
+  const [, y = "", mo = "", d = "", h = "", mi = "", s, fraction] = match;
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  const hour = Number(h);
+  const minute = Number(mi);
+  const second = s === undefined ? 0 : Number(s);
+  validateDate(year, month, day, offset, length);
+  validateTime(hour, minute, second, offset, length);
+  return { year, month, day, hour, minute, second, nanosecond: decodeNanosecond(fraction) };
+};
+
+/** Decode `Z` / `z` / `[+-]hh:mm` to signed minutes, validating hh and mm. */
+const decodeOffsetMinutes: {
+  (text: string, offset: number, length: number): number;
+  (offset: number, length: number): (text: string) => number;
+} = dual(3, (text: string, offset: number, length: number): number => {
+  if (text === "Z" || text === "z") {
+    return 0;
+  }
+  const hh = Number(text.slice(1, 3));
+  const mm = Number(text.slice(4, 6));
+  if (hh > 23) {
+    raise("InvalidDateTime", `offset hour ${hh} is out of range 0-23`, offset, length);
+  }
+  if (mm > 59) {
+    raise("InvalidDateTime", `offset minute ${mm} is out of range 0-59`, offset, length);
+  }
+  const total = hh * 60 + mm;
+  if (total === 0) {
+    return 0;
+  }
+  return text.charCodeAt(0) === HYPHEN ? -total : total;
+});
+
+/** An offset date-time from OFFSET_DATE_TIME capture groups (offset in group 8). */
+const decodeOffsetDateTime = (match: RegExpExecArray, offset: number, length: number): TomlOffsetDateTime => {
+  const fields = localDateTimeFields(match, offset, length);
+  const offsetMinutes = decodeOffsetMinutes(match[8] ?? "", offset, length);
+  return TomlOffsetDateTime.make({ ...fields, offsetMinutes });
+};
+
+/** A calendar-validated local date from LOCAL_DATE capture groups. */
+const decodeLocalDate = (match: RegExpExecArray, offset: number, length: number): TomlLocalDate => {
+  const [, y = "", mo = "", d = ""] = match;
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  validateDate(year, month, day, offset, length);
+  return TomlLocalDate.make({ year, month, day });
+};
+
+/** A clock-validated local time from LOCAL_TIME capture groups; absent seconds materialize as 0. */
+const decodeLocalTime = (match: RegExpExecArray, offset: number, length: number): TomlLocalTime => {
+  const [, h = "", mi = "", s, fraction] = match;
+  const hour = Number(h);
+  const minute = Number(mi);
+  const second = s === undefined ? 0 : Number(s);
+  validateTime(hour, minute, second, offset, length);
+  return TomlLocalTime.make({ hour, minute, second, nanosecond: decodeNanosecond(fraction) });
+};
+
+/** The four datetime shapes, tried most specific first; undefined when the token is none of them. */
+const classifyDateTime = (token: string, offset: number, length: number): ScalarValue | undefined => {
+  const offsetDateTime = OFFSET_DATE_TIME.exec(token);
+  if (offsetDateTime !== null) {
+    return decodeOffsetDateTime(offsetDateTime, offset, length);
+  }
+  const localDateTime = LOCAL_DATE_TIME.exec(token);
+  if (localDateTime !== null) {
+    return TomlLocalDateTime.make(localDateTimeFields(localDateTime, offset, length));
+  }
+  const localDate = LOCAL_DATE.exec(token);
+  if (localDate !== null) {
+    return decodeLocalDate(localDate, offset, length);
+  }
+  const localTime = LOCAL_TIME.exec(token);
+  return localTime === null ? undefined : decodeLocalTime(localTime, offset, length);
+};
+
+/** `inf` / `nan` with an optional sign. */
+const decodeSpecialFloat = (token: string): number => {
+  if (token.endsWith("nan")) {
+    return Number.NaN;
+  }
+  return token.charCodeAt(0) === HYPHEN ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+};
+
+/** Integers across four radixes and floats; anything else is InvalidNumber or InvalidValue. */
+const classifyNumber = (token: string, offset: number, length: number): number | bigint => {
+  if (INTEGER_DEC.test(token)) {
+    return decodeDecimalInteger(token, offset);
+  }
+  if (INTEGER_HEX.test(token) || INTEGER_OCT.test(token) || INTEGER_BIN.test(token)) {
+    return decodePrefixedInteger(token, offset);
+  }
+  if (FLOAT.test(token)) {
+    return Number(token.replace(/_/g, ""));
+  }
+  if (FLOAT_SPECIAL.test(token)) {
+    return decodeSpecialFloat(token);
+  }
+  if (NUMERIC_LOOKING.test(token)) {
+    return raise("InvalidNumber", `${token} is not a valid TOML number or date-time`, offset, length);
+  }
+  return raise("InvalidValue", `${token} is not a valid TOML value`, offset, length);
+};
+
+/**
+ * Classify a scanned value token: booleans, the four datetime
+ * shapes (validated against the Gregorian calendar and clock ranges before
+ * construction), integers across four radixes with int64 range checking and
+ * number/bigint narrowing, and floats including the special spellings.
+ *
+ * **Example** (Classify booleans and integer widths)
+ *
+ * ```ts
+ * import { classifyValueToken } from "@beep/toml/internal/scanner"
+ *
+ * console.log(classifyValueToken("true", 0)) // true
+ * console.log(classifyValueToken("0x2a", 0)) // 42
+ * console.log(typeof classifyValueToken("9223372036854775807", 0)) // bigint
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const classifyValueToken: {
+  (token: string, offset: number): ScalarValue;
+  (offset: number): (token: string) => ScalarValue;
+} = dual(2, (token: string, offset: number): ScalarValue => {
+  if (token === "true") {
+    return true;
+  }
+  if (token === "false") {
+    return false;
+  }
+  const length = Math.max(token.length, 1);
+  return classifyDateTime(token, offset, length) ?? classifyNumber(token, offset, length);
+});

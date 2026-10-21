@@ -25,8 +25,8 @@
     "beep:docgen": "bunx --bun --no-install docgen",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
-    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
-    "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+    "beep:test": "bunx vitest run --passWithNoTests --exclude=test/integration/**",
+    "beep:test:integration": "bunx vitest run test/integration --passWithNoTests",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
     "coverage": "bunx vitest run --coverage --exclude=test/integration/**",
@@ -43,7 +43,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -60,14 +60,19 @@
     "exports": {
       ".": "./dist/index.js",
       "./*": "./dist/*.js",
-      "./internal/*": null,
+      "./internal/*": "./dist/internal/*.js",
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/fc-runs": "workspace:^",
+    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     "bun-types": "catalog:"

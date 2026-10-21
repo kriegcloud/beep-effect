@@ -2330,10 +2330,18 @@
       {
         "from": "@beep/git",
         "allow": [
-          "@beep/git"
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/git"
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -2367,10 +2375,16 @@
       {
         "from": "@beep/glob",
         "allow": [
-          "@beep/glob"
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/schema"
         ],
         "allowTypeOnly": [
-          "@beep/glob"
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/schema"
         ]
       },
       {
@@ -2868,10 +2882,20 @@
       {
         "from": "@beep/managed-section",
         "allow": [
-          "@beep/managed-section"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/managed-section",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/managed-section"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/managed-section",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -2930,10 +2954,18 @@
       {
         "from": "@beep/memfs",
         "allow": [
-          "@beep/memfs"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/memfs"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -4208,11 +4240,15 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/git",
           "@beep/github-commands",
           "@beep/github-references",
+          "@beep/glob",
           "@beep/identity",
           "@beep/jsonc",
+          "@beep/managed-section",
           "@beep/md",
+          "@beep/memfs",
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
@@ -4232,8 +4268,10 @@
           "@beep/shacl",
           "@beep/spdx",
           "@beep/test-utils",
+          "@beep/toml",
           "@beep/utils",
-          "@beep/wink"
+          "@beep/wink",
+          "@beep/yaml"
         ],
         "allowTypeOnly": [
           "@beep/commands",
@@ -4244,11 +4282,15 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/git",
           "@beep/github-commands",
           "@beep/github-references",
+          "@beep/glob",
           "@beep/identity",
           "@beep/jsonc",
+          "@beep/managed-section",
           "@beep/md",
+          "@beep/memfs",
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
@@ -4268,8 +4310,10 @@
           "@beep/shacl",
           "@beep/spdx",
           "@beep/test-utils",
+          "@beep/toml",
           "@beep/utils",
-          "@beep/wink"
+          "@beep/wink",
+          "@beep/yaml"
         ]
       },
       {
@@ -4619,10 +4663,18 @@
       {
         "from": "@beep/toml",
         "allow": [
-          "@beep/toml"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/toml"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils"
         ]
       },
       {
@@ -4932,9 +4984,17 @@
       {
         "from": "@beep/yaml",
         "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils",
           "@beep/yaml"
         ],
         "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils",
           "@beep/yaml"
         ]
       }

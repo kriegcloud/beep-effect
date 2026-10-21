@@ -4,7 +4,7 @@ import * as Str from "effect/String";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as HashSet from "effect/HashSet";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { GlobSet } from "../glob/index.ts";
+import { GlobSet } from "@beep/glob";
 import { descend } from "../walker/index.ts";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

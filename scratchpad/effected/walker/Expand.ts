@@ -13,7 +13,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { GlobPattern, GlobPatternError, GlobPatternOptions } from "../glob/index.ts";
+import { GlobPattern, GlobPatternError, GlobPatternOptions } from "@beep/glob";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import * as Effect from "effect/Effect";
@@ -48,7 +48,7 @@ const encodeJsonString = S.encodeResult(JsonString);
 *
 * ```ts
 * import { CompileAndExpandOptions } from "@beep/scratchpad/effected/walker/Expand";
-* import { GlobPatternOptions } from "@beep/scratchpad/effected/glob/index";
+* import { GlobPatternOptions } from "@beep/glob";
 *
 * const options = CompileAndExpandOptions.make({ cwd: "/repo", glob: GlobPatternOptions.make({ dot: true }) });
 * console.log(options.glob.dot) // true
@@ -208,7 +208,7 @@ export class GlobExpansionError extends S.TaggedError<GlobExpansionError, { read
 * **Example** (Compile and expand a TypeScript glob)
 *
 * ```ts
-* import { GlobPatternOptions } from "@beep/scratchpad/effected/glob/index";
+* import { GlobPatternOptions } from "@beep/glob";
 * import { compileAndExpand } from "@beep/scratchpad/effected/walker/Expand";
 * import * as Effect from "effect/Effect";
 *

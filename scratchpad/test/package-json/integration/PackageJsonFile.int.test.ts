@@ -6,7 +6,7 @@ import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import minimal from "./fixtures/minimal/package.fixture.json" with { type: "json" };
 import full from "./fixtures/full/package.fixture.json" with { type: "json" };
 import scoped from "./fixtures/scoped/package.fixture.json" with { type: "json" };

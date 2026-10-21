@@ -1,22 +1,21 @@
 /**
- * @beep/managed-section
+ * Managed sections in files: marker-delimited blocks a tool owns inside a file
+ * whose surrounding content belongs to the user. `SectionDocument` is the pure
+ * string-to-string core, `ManagedSection` the `FileSystem`-backed service, and
+ * `CommentStyle` and `SectionDialect` describe how markers are written and
+ * scanned.
  *
  * @packageDocumentation
- * @since 0.0.0
  */
 
-/**
- * Version of the @beep/managed-section package.
- *
- * **Example** (Read the package version)
- *
- * ```ts
- * import { VERSION } from "@beep/managed-section"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
+export { CommentStyle } from "./CommentStyle.ts";
+export {
+  ManagedSection,
+  ManagedSectionOptions,
+  type ManagedSectionShape,
+  SectionFileError,
+} from "./ManagedSection.ts";
+export { PlacedSection, Section, SectionId, SectionKey } from "./Section.ts";
+export { type Eol, SectionDialect, SectionRenderError } from "./SectionDialect.ts";
+export { SectionDocument, SectionParseError, type SectionReconciliation } from "./SectionDocument.ts";
+export { CheckOutcome, SyncOutcome } from "./SectionOutcome.ts";

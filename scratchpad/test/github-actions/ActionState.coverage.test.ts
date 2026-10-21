@@ -6,7 +6,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
 import { ActionOutputs } from "../../effected/github-actions/ActionOutputs.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as S from "effect/Schema";
 import { ActionState, ActionStateError } from "../../effected/github-actions/ActionState.ts";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";

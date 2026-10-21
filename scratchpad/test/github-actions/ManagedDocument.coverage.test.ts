@@ -16,7 +16,7 @@ describe("ManagedDocument coverage", () => {
 });
 
 import * as Result from "effect/Result";
-import { SectionDocument, SectionRenderError } from "../../effected/templates/index.ts";
+import { SectionDocument, SectionRenderError } from "@beep/managed-section";
 
 it.effect("a dialect invariant failure throws the typed error instead of returning an empty document", () =>
   Effect.acquireUseRelease(

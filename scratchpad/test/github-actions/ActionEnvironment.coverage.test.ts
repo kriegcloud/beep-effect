@@ -3,7 +3,7 @@ import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { ActionEnvironment, ActionEnvironmentError } from "../../effected/github-actions/ActionEnvironment.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 it.layer(ActionEnvironment.layerFrom({ X: "", RUNNER_DEBUG: "0" }).pipe(Layer.provide(MemoryFileSystem.layer)), { timeout: "30 seconds" })((it) => {
   it.effect("empty values and a present non-debug flag remain absent and disabled", () => Effect.gen(function* () {
     const env = yield* ActionEnvironment;

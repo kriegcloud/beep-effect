@@ -5,7 +5,10 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      // The integration fixtures are staged: fixture B's tests vendor a submodule, then fetch,
+      // pin, narrow and clone it in declaration order. The shared config runs tests concurrently,
+      // which races those stages, so this suite keeps the sequential order it was written for.
+      sequence: { concurrent: false },
     },
   })
 );

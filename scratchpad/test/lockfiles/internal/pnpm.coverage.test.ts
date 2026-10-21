@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { Lockfile } from "../../../effected/lockfiles/Lockfile.ts";
-import { Yaml } from "../../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 import { parsePnpm } from "../../../effected/lockfiles/internal/pnpm.ts";
 
 it.effect("unnameable links and empty dependency names stay omitted and publish paths cannot escape the workspace", () => Effect.gen(function* () {

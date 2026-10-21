@@ -1,5 +1,5 @@
 import { assert, describe, it } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as ConfigProvider from "effect/ConfigProvider";

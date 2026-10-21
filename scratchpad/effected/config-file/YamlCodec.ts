@@ -1,4 +1,4 @@
-import { Yaml } from "../yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 import * as Effect from "effect/Effect";
 import type { ConfigCodec } from "./ConfigCodec.ts";
 import { ConfigCodecError } from "./ConfigCodec.ts";

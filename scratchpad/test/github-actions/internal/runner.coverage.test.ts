@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import { ActionEnvironment } from "../../../effected/github-actions/ActionEnvironment.ts";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { isWindowsRunner, toolCacheRoot } from "../../../effected/github-actions/internal/runner.ts";
 it.layer(Layer.merge(MemoryFileSystem.layer, Path.layer), { timeout: 10000 })("runner dependencies", (it) => {
 it.effect("runner defaults and case-insensitive Windows lookup", () => Effect.gen(function* () {

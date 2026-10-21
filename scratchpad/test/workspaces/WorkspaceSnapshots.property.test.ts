@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { Git, LsTreeEntry } from "../../effected/git/index.ts";
+import { Git, LsTreeEntry } from "@beep/git";
 import { ConfigDependencyHooks } from "../../effected/workspaces/ConfigDependencyHooks.ts";
 import { WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";

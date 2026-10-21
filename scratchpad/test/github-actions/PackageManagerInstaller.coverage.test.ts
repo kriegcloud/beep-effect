@@ -10,7 +10,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { PackageManagerPin } from "../../effected/npm/index.ts";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
 import { PackageManagerInstaller, PackageManagerInstallerError } from "../../effected/github-actions/PackageManagerInstaller.ts";

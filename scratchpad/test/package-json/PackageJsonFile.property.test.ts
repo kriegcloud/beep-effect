@@ -23,7 +23,7 @@ describe("PackageJsonFile property floor", () => {
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as FileSystem from "effect/FileSystem";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { Package } from "../../effected/package-json/Package.ts";
 import { PackageJsonFile } from "../../effected/package-json/PackageJsonFile.ts";
 const FileSample = S.Struct({

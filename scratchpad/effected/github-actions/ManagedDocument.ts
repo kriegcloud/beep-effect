@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { SectionParseError } from "../templates/index.ts";
-import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "../templates/index.ts";
+import type { SectionParseError } from "@beep/managed-section";
+import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "@beep/managed-section";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";

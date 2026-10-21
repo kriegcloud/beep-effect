@@ -1,0 +1,121 @@
+/**
+ * Format properties over the full yaml-test-suite corpus.
+ *
+ * The conformance harness (yaml-test-suite.e2e.test.ts) is parse-side: it
+ * validates parse success/failure, JSON equivalence and canonical output. It
+ * never runs the FORMAT path, so a format-round-trip defect — the keep-chomp
+ * scalar that grew a newline on every pass, the original P0's write side, the
+ * %TAG orphaning — is invisible to it by construction. These two properties
+ * close that gap over the same corpus:
+ *
+ *   1. IDEMPOTENCE: formatToString(formatToString(x)) === formatToString(x).
+ *      `format` is pure and total (refusal returns the input byte-identical),
+ *      so this property is well-defined for EVERY input, valid or malformed.
+ *   2. MEANING PRESERVATION: when x parses, formatToString(x) must parse to
+ *      the same value stream. A parse failure on the formatted output of a
+ *      parseable input is corruption and fails outright.
+ *
+ * Both run as aggregate assertions (one loop per property) so the corpus adds
+ * two tests, not two-per-case, and a failure lists every offending case id.
+ */
+
+import { Yaml, YamlFormat } from "@beep/yaml";
+import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
+import { loadAllTestCases } from "./support/suite.ts";
+
+const allCases = loadAllTestCases();
+
+/** Deep comparison that treats NaN as equal to itself (parity with the conformance harness). */
+function deepEqual(a: unknown, b: unknown): boolean {
+  // Object.is already treats NaN as equal to itself.
+  if (Object.is(a, b)) return true;
+  if (A.isArray(a) || A.isArray(b)) return A.isArray(a) && A.isArray(b) && arraysEqual(a, b);
+  return P.isObject(a) && P.isObject(b) && recordsEqual(a, b);
+}
+
+function arraysEqual(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
+  return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+}
+
+function recordsEqual(a: { readonly [x: PropertyKey]: unknown }, b: { readonly [x: PropertyKey]: unknown }): boolean {
+  const keysA = Object.keys(a);
+  return keysA.length === Object.keys(b).length && keysA.every((k) => deepEqual(a[k], b[k]));
+}
+
+// ── Known-defect ledgers (exact-match ratchets) ─────────────────────────────
+//
+// Every id below is a REAL open defect on a corpus-exotic shape, pinned so the
+// property still guards the rest of the corpus while the defect is tracked.
+// The assertion compares the failure set EXACTLY: a new failure fails the
+// suite (regression), and a fixed case fails it too until its id is removed
+// here (the ratchet). Do not add an id without classifying it against the
+// released line first.
+//
+// Classification, verified against origin/main (the released 0.7.0 engine) on
+// 2026-08-12:
+// - PRE-EXISTING on main (explicit-key, empty-key, tag-only and block-scalar
+//   edge shapes; independent of this branch): M2N8/00, M2N8/01, T26H, T4YY,
+//   WZ62 (idempotence); F6MC, R4YG, T26H, T4YY, WZ62, X38W, ZWK4 (meaning).
+//
+// NKF9, RZP5 and XW4D sat here as "comment-convergence gaps" until #348 found
+// what they actually were: two comment-LOSS defects, not slow convergence.
+// RZP5/XW4D — the explicit-key branch of the block-mapping stringifier never
+// emitted the value node's own `commentBefore`, unlike every sibling branch.
+// NKF9 — a mapping whose last pair had a null value swallowed the terminal
+// own-line comment while looking for a value that was not there, losing it on
+// a SINGLE pass. Both fixed; ids removed from this ledger.
+// Round 3 preserves tagged empty scalar separators (WZ62) and alias-key
+// separators (X38W). WZ62 now converges too; both have regressions below.
+const KNOWN_NON_IDEMPOTENT: ReadonlyArray<string> = ["M2N8/00", "M2N8/01", "T26H", "T4YY"];
+
+// F6MC and R4YG now preserve meaning; keep them outside the defect ratchet.
+const KNOWN_MEANING_CHANGES: ReadonlyArray<string> = ["T26H", "T4YY", "ZWK4"];
+
+describe("format properties over the yaml-test-suite corpus", () => {
+  for (const id of ["WZ62", "X38W"]) {
+    it(`${id} formats to a fixed point while preserving tagged and anchored keys`, () => {
+      const tc = O.getOrThrow(A.findFirst(allCases, (entry) => entry.id === id));
+      const before = Result.getOrThrow(Yaml.parseAllResult(tc.yaml));
+      const formatted = YamlFormat.formatToString(tc.yaml);
+      const after = Result.getOrThrow(Yaml.parseAllResult(formatted));
+      assert.deepStrictEqual(after, before);
+      assert.strictEqual(YamlFormat.formatToString(formatted), formatted);
+    });
+  }
+
+  it("format is idempotent on every corpus input (modulo the pinned ledger)", () => {
+    const failures: string[] = [];
+    for (const tc of allCases) {
+      const once = YamlFormat.formatToString(tc.yaml);
+      const twice = YamlFormat.formatToString(once);
+      if (twice !== once) failures.push(tc.id);
+    }
+    assert.deepStrictEqual(
+      [...failures].sort(),
+      [...KNOWN_NON_IDEMPOTENT].sort(),
+      "idempotence failures diverged from the pinned ledger — a new id is a regression; a missing id is a fix to record"
+    );
+  });
+
+  it("format preserves meaning on every parseable corpus input (modulo the pinned ledger)", () => {
+    const failures: string[] = [];
+    for (const tc of allCases) {
+      const before = Yaml.parseAllResult(tc.yaml);
+      if (Result.isFailure(before)) continue; // unparseable input — idempotence above still covers it
+      const formatted = YamlFormat.formatToString(tc.yaml);
+      const after = Yaml.parseAllResult(formatted);
+      if (Result.isFailure(after) || !deepEqual(Result.getOrThrow(after), Result.getOrThrow(before))) {
+        failures.push(tc.id);
+      }
+    }
+    assert.deepStrictEqual(
+      [...failures].sort(),
+      [...KNOWN_MEANING_CHANGES].sort(),
+      "meaning-preservation failures diverged from the pinned ledger — a new id is a regression; a missing id is a fix to record"
+    );
+  });
+});
