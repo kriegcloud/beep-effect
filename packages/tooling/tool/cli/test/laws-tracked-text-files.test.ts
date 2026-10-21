@@ -1,8 +1,4 @@
-import {
-  lineStartOffsets,
-  locateIndex,
-  messageGitErrorAdapter,
-} from "@beep/repo-cli/commands/Laws/internal/TrackedTextFiles";
+import { lineStartOffsets, locateIndex, messageGitErrorAdapter } from "@beep/repo-cli/test/Laws";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
