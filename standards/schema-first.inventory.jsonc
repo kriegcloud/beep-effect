@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-20",
+  "generatedOn": "2026-10-21",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -804,86 +804,6 @@
       "status": "exception",
       "owner": "@beep/chalk",
       "reason": "Mixed terminal Chalk runtime: level is data-like, while the recursive styling surface and call signature are executable; color and option domains are already schema-backed."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "BuilderMeta",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "BuilderMeta",
-      "kind": "unbranded-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkAnsi256ColorState",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkAnsi256ColorState",
-      "kind": "unbranded-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkAnsiColorState",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkAnsiColorState",
-      "kind": "unbranded-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkNoColorState",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkNoColorState",
-      "kind": "unbranded-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkTrueColorState",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "Keep-as-class allowlist (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkTrueColorState",
-      "kind": "unbranded-schema-class",
-      "status": "exception",
-      "owner": "@beep/chalk",
-      "reason": "D4 structural-brand exception (goals/schema-opaque-default/ops/codemod/keep-class.jsonc): Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable. Follow-up: brand nominally once the blocker above is removed."
     },
     {
       "file": "packages/foundation/capability/file-processing/src/PageOcr/PageOcr.service.ts",

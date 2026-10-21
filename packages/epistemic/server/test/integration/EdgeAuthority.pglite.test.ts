@@ -292,6 +292,15 @@ if (!shouldRunPgliteIntegration) {
             );
           const openVersions = yield* Effect.fromResult(Result.all(A.map(openHeads, fromEdgeVersionRow)));
           expect(A.map(openVersions, (version) => version.version)).toStrictEqual([2]);
+
+          // Closing the former head is a row write, so it advances that row's
+          // optimistic token; the replacement starts at the first version.
+          const formerRows = yield* db
+            .select({ rowVersion: edgeTable.rowVersion })
+            .from(edgeTable)
+            .where(eq(edgeTable.id, former.id));
+          expect([former.rowVersion, ...A.map(formerRows, (row) => row.rowVersion)]).toStrictEqual([1, 2]);
+          expect(corrected.rowVersion).toBe(1);
         }),
         120_000
       );

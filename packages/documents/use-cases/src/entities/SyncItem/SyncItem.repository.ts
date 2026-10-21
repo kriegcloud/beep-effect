@@ -10,6 +10,7 @@ import { DocumentContentDigest } from "@beep/documents-domain/aggregates/Documen
 import * as DomainSyncItem from "@beep/documents-domain/entities/SyncItem";
 import { DmsProvider, RemoteItemId, SyncItemKind, VaultRelPath } from "@beep/documents-domain/values/Sync";
 import { $DocumentsUseCasesId } from "@beep/identity/packages";
+import { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import * as Context from "effect/Context";
@@ -174,6 +175,58 @@ export class SyncItemRepositoryNotFound extends S.TaggedError<
 }
 
 /**
+ * Persistence failure raised when a SyncItem write lost an optimistic-concurrency race.
+ *
+ * **Details**
+ *
+ * `update` treats the entity's `rowVersion` as the version it was read at. The stored row moved past that version, so the write was rejected
+ * instead of overwriting the newer row; re-read the SyncItem and reapply the
+ * change.
+ *
+ * **Example** (Construct version-conflict error)
+ *
+ * ```ts
+ * import { SyncItemRepositoryVersionConflict } from "@beep/documents-use-cases/entities/SyncItem/server"
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents"
+ * import * as S from "effect/Schema"
+ *
+ * const error = SyncItemRepositoryVersionConflict.make({
+ *   actualRowVersion: RowVersion.make(3),
+ *   expectedRowVersion: RowVersion.make(2),
+ *   syncItemId: S.decodeUnknownSync(DocumentsIdentity.SyncItemId)(1)
+ * })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SyncItemRepositoryVersionConflict extends S.TaggedError<
+  SyncItemRepositoryVersionConflict,
+  { readonly brand: unique symbol }
+>($I`SyncItemRepositoryVersionConflict`)(
+  "SyncItemRepositoryVersionConflict",
+  {
+    actualRowVersion: RowVersion.annotateKey({
+      description: "Row version currently stored for the SyncItem.",
+    }),
+    expectedRowVersion: RowVersion.annotateKey({
+      description: "Row version the rejected write expected to replace.",
+    }),
+    syncItemId: DocumentsIdentity.SyncItemId.annotateKey({
+      description: "SyncItem identity whose write was rejected.",
+    }),
+  },
+  $I.annoteError<SyncItemRepositoryVersionConflict>("SyncItemRepositoryVersionConflict", {
+    title: "SyncItem repository version conflict",
+    description: "Another write changed the SyncItem after it was read; the stale update was rejected.",
+  })
+) {
+  static readonly is = S.is(SyncItemRepositoryVersionConflict);
+}
+
+/**
  * Persistence failure raised when the SyncItem repository is unavailable.
  *
  * **Example** (Building an unavailable error)
@@ -333,9 +386,12 @@ export class ListSyncItemsByWorkspaceInput extends S.Opaque<
  * **Details**
  *
  * `create` fails with {@link SyncItemRepositoryConflict} when a row already
- * tracks the seed's workspace, provider, and path; `update` persists a full
- * entity and fails with {@link SyncItemRepositoryNotFound} when the row is
- * absent.
+ * tracks the seed's workspace, provider, and path. `update` persists a full
+ * entity only while the stored `rowVersion` still equals the entity's, stores
+ * the next version, and returns the stored entity. It fails with
+ * {@link SyncItemRepositoryNotFound} when the row is absent and with
+ * {@link SyncItemRepositoryVersionConflict} when another write moved the row
+ * past that version.
  *
  * **Example** (Defining a stub repository)
  *
@@ -383,7 +439,10 @@ export interface SyncItemRepositoryShape {
   ) => Effect.Effect<ReadonlyArray<DomainSyncItem.SyncItem>, SyncItemRepositoryUnavailable>;
   readonly update: (
     item: DomainSyncItem.SyncItem
-  ) => Effect.Effect<DomainSyncItem.SyncItem, SyncItemRepositoryNotFound | SyncItemRepositoryUnavailable>;
+  ) => Effect.Effect<
+    DomainSyncItem.SyncItem,
+    SyncItemRepositoryNotFound | SyncItemRepositoryVersionConflict | SyncItemRepositoryUnavailable
+  >;
 }
 
 /**

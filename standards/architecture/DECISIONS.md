@@ -2185,6 +2185,42 @@ plain-`S.Class` persisted rows onto the `@beep/effect-drizzle` kit is a
 tracked follow-up. Reverse by running the codemod in Opaque-to-Class mode or
 reverting its PR.
 
+## 2026-10-20: Every Entity Row Write Compares And Increments `rowVersion`
+
+- **Status:** Active
+
+Decision:
+
+`EntityKit.baseColumns.rowVersion` is the optimistic-concurrency token:
+`RowVersion.pipe(Pg.integer(), Pg.default(1), Pg.version())`. A row starts at
+`1` through the SQL default and every committed UPDATE of an entity row stores
+the next value. Full-entity repository writes treat the entity's own
+`rowVersion` as the expected value, put `row_version = $expected` in the same
+`WHERE` clause as the id (and tenant) predicate, and fail with the port's typed
+`<Port>VersionConflict` when no row matches but the row exists.
+Read-modify-write methods expect the version they read. Predicate-guarded and
+single-column writes keep their predicates and still add
+`row_version = row_version + 1`. The only exemption is an UPDATE of a row the
+same transaction inserted. In-memory adapters implement the same contract.
+Repositories stay on the Drizzle query builder; `@beep/effect-drizzle`
+`makeRepository` is not adopted, and upstream `SqlModel` soft delete is not
+used. Decision log and write-path inventory: `goals/entity-optimistic-concurrency/SPEC.md`
+(D1 to D4) and its `PLAN.md`.
+
+Rationale:
+
+Blind by-id updates let two writers that read the same row both succeed, and
+the second silently reverted the first (a provider probe reverted a
+configuration update that landed while it ran). One schema-owned token, one
+guard shape, and typed per-port conflicts make that race visible to the
+caller. The guard is sound only while no write leaves the token unchanged,
+which is why the bump applies to every UPDATE. `makeRepository` would need
+SQL name transforms no production layer sets, has no
+tenant predicate, and refuses the `columnName` overrides the kit uses for
+`entityType` and `publicId`. Reverse by restoring the
+explicit `VariantField` for `rowVersion`, dropping the `DEFAULT 1` in a new
+migration, and removing the guards.
+
 ## 2026-10-20: Single Public Origin beep-effect.com; Apex Hosts Projections, /ns/ Reserved
 
 - **Status:** Active

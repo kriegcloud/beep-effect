@@ -27,7 +27,7 @@ import {
   SyncOperationRepositoryConflict,
   SyncOperationSeed,
 } from "@beep/documents-use-cases/entities/SyncOperation/server";
-import { makeDrizzle, makeDrizzleLayer, migrate, NativePgClient } from "@beep/postgres";
+import { makeDrizzle, makeDrizzleLayer, migrate, NativePgClient, PostgresDrizzle } from "@beep/postgres";
 import * as Documents from "@beep/shared-domain/identity/Documents";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { it } from "@beep/test-runner";
@@ -43,6 +43,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { drizzleWithCompetingWrite } from "../CompetingWrite.ts";
+import * as Versioning from "../SyncRepositoryVersioning.contract.ts";
 
 const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
@@ -312,6 +314,60 @@ if (!shouldRunPgliteIntegration) {
             ListOpenSyncConflictsInput.make({ provider: "box", workspaceId })
           );
           expect(openAfterReview).toEqual([]);
+        }),
+        pgliteIntegrationTimeoutMillis
+      );
+
+      it.effect(
+        "rejects a stale SyncItem update with a typed version conflict",
+        Effect.fnUntraced(function* () {
+          yield* migrateDocumentsSync();
+          yield* Versioning.staleSyncItemUpdate(yield* makeDrizzleSyncItemRepository());
+        }),
+        pgliteIntegrationTimeoutMillis
+      );
+
+      it.effect(
+        "advances SyncOperation versions on requeue so a stale lease cannot write",
+        Effect.fnUntraced(function* () {
+          yield* migrateDocumentsSync();
+          yield* Versioning.staleSyncOperationAfterRequeue(yield* makeDrizzleSyncOperationRepository());
+        }),
+        pgliteIntegrationTimeoutMillis
+      );
+
+      it.effect(
+        "advances SyncConflict versions and rejects a review that lost a write race",
+        Effect.fnUntraced(function* () {
+          yield* migrateDocumentsSync();
+          const repository = yield* makeDrizzleSyncConflictRepository();
+          yield* Versioning.reviewAdvancesSyncConflictVersion(repository);
+          yield* Versioning.racedSyncConflictReview(repository, (conflictId) =>
+            drizzleWithCompetingWrite("documents_sync_conflict", conflictId).pipe(
+              Effect.flatMap((db) =>
+                makeDrizzleSyncConflictRepository().pipe(Effect.provideService(PostgresDrizzle, db))
+              ),
+              Effect.orDie
+            )
+          );
+        }),
+        pgliteIntegrationTimeoutMillis
+      );
+
+      it.effect(
+        "advances SyncCursor versions and rejects an upsert that lost a write race",
+        Effect.fnUntraced(function* () {
+          yield* migrateDocumentsSync();
+          const repository = yield* makeDrizzleSyncCursorRepository();
+          yield* Versioning.upsertAdvancesSyncCursorVersion(repository);
+          yield* Versioning.racedSyncCursorUpsert(repository, (syncCursorId) =>
+            drizzleWithCompetingWrite("documents_sync_cursor", syncCursorId).pipe(
+              Effect.flatMap((db) =>
+                makeDrizzleSyncCursorRepository().pipe(Effect.provideService(PostgresDrizzle, db))
+              ),
+              Effect.orDie
+            )
+          );
         }),
         pgliteIntegrationTimeoutMillis
       );

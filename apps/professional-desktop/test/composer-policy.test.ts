@@ -1,4 +1,5 @@
 import { documentToEditorState } from "@beep/lexical-schema/Lexical.codec";
+import { RootNode, SerializedEditorState } from "@beep/lexical-schema/Lexical.model";
 import * as Md from "@beep/md/Md.model";
 import { renderPlainTextUnsafe } from "@beep/md/Md.render";
 import { DocumentComplexitySafetyViolation, MAX_SAFE_DOCUMENT_NODES } from "@beep/md/Md.safe";
@@ -13,7 +14,6 @@ import {
   MAX_MESSAGE_CHARACTERS,
   unsafeDocumentMessage,
 } from "@/chat/ui/ComposerPolicy";
-import type { SerializedEditorState } from "@beep/lexical-schema/Lexical.model";
 
 const textDocument = (value: string): Md.Document =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value })] })] });
@@ -74,7 +74,10 @@ describe("composerPolicy.decideSend", () => {
   it.effect("refuses an empty projection with a decode-error notice", () =>
     Effect.gen(function* () {
       const state = yield* documentToEditorState(textDocument("hello"));
-      const emptyRootState: SerializedEditorState = { ...state, root: { ...state.root, children: [] } };
+      const emptyRootState: SerializedEditorState = SerializedEditorState.make(
+        { ...state, root: RootNode.make({ ...state.root, children: [] }) },
+        { disableChecks: true }
+      );
       const decision = composerPolicy.decideSend({
         gateOpen: false,
         seed: textDocument("hello"),

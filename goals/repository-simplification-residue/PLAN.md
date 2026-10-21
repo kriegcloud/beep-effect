@@ -65,6 +65,11 @@ output manifest.
 rule suite bound to the merge commit and green required checks at the accepted head.
 Network failures, unrecoverable deleted rulesets and partial evidence stay `unknown`.
 The five subject-only packets stay unmigrated, each with its reason.
+#1879 `residue-target-exchange` is complete
+(`history/receipts/target-exchange.md`): atomic-exchange capability is probed and
+cached per target filesystem identity, using disposable files on the target's own
+mount. Unsupported filesystems refuse before any backup or publication. #1880 and
+#1881 follow in that order.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability
