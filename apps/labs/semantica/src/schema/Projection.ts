@@ -69,7 +69,7 @@ export class SparqlExpectation extends S.Opaque<SparqlExpectation, { readonly br
  * ```ts
  * import { GProjectionExpectation } from "@/schema/Projection"
  *
- * console.log(GProjectionExpectation.fields.schemaVersion.literals[0]) // "g-projection/v1"
+ * console.log(GProjectionExpectation.fields.schemaVersion.schema.literal) // "g-projection/v1"
  * ```
  *
  * @category models

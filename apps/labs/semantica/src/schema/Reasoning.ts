@@ -516,7 +516,7 @@ class GEntailmentCase extends S.Opaque<GEntailmentCase, { readonly brand: unique
  * ```ts
  * import { GEntailmentExpectation } from "@/schema/Reasoning"
  *
- * console.log(GEntailmentExpectation.fields.schemaVersion.literals[0]) // "g-entailment-rdfs/v1"
+ * console.log(GEntailmentExpectation.fields.schemaVersion.schema.literal) // "g-entailment-rdfs/v1"
  * ```
  *
  * @category models
@@ -599,7 +599,7 @@ export class CrashProjectionInput extends S.Opaque<CrashProjectionInput, { reado
  * ```ts
  * import { CrashIdentityWitness } from "@/schema/Reasoning"
  *
- * console.log(CrashIdentityWitness.fields.checkpoint.literals[0]) // "after-ledger-commit-before-projection"
+ * console.log(CrashIdentityWitness.fields.checkpoint.schema.literal) // "after-ledger-commit-before-projection"
  * ```
  *
  * @category models

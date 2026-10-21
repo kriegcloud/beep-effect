@@ -55,7 +55,7 @@ export type RequestKind = typeof RequestKind.Type;
  * ```ts
  * import { ProviderCacheKey } from "@/schema/ProviderCache"
  *
- * console.log(ProviderCacheKey.fields.schemaVersion.literals[0]) // "provider-cache/v1"
+ * console.log(ProviderCacheKey.fields.schemaVersion.schema.literal) // "provider-cache/v1"
  * ```
  *
  * @category models

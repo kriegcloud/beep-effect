@@ -125,7 +125,7 @@ const GoldRefProposerCheck = S.makeFilter(
  * ```ts
  * import { GoldRef } from "@/schema/Gold"
  *
- * console.log(GoldRef.fields.version.literals[0]) // "gold/v1"
+ * console.log(GoldRef.fields.version.schema.literal) // "gold/v1"
  * ```
  *
  * @category models

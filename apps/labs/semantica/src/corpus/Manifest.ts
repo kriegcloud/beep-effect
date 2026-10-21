@@ -239,7 +239,7 @@ const CorpusManifestDefinition = CorpusManifestFields.check(CorpusManifestChecks
  * ```ts
  * import { CorpusManifest } from "@/corpus/Manifest"
  *
- * console.log(CorpusManifest.fields.schemaVersion.literals[0]) // "w1-manifest/v1"
+ * console.log(CorpusManifest.fields.schemaVersion.schema.literal) // "w1-manifest/v1"
  * ```
  *
  * @category models
