@@ -41,8 +41,8 @@ const $I = $RepoCliId.create("commands/Quality/Quality.schemas");
  * @category configuration
  * @since 0.0.0
  */
-export const PolicySweepProgram = LiteralKit(["oxlint", "turbo"]).annotate(
-  $I.annote("PolicySweepProgram", { description: "Executable program selected for a full policy sweep." })
+export const PolicySweepProgram = LiteralKit(["oxlint", "turbo"]).pipe(
+  $I.annoteSchema("PolicySweepProgram", { description: "Executable program selected for a full policy sweep." })
 );
 
 /**
@@ -913,8 +913,8 @@ export type GithubCheckLaneStage = typeof GithubCheckLaneStage.Type;
  * @category policies
  * @since 0.0.0
  */
-export const GithubCheckFailurePolicy = LiteralKit(["fail-fast", "collect-all"]).annotate(
-  $I.annote("GithubCheckFailurePolicy", {
+export const GithubCheckFailurePolicy = LiteralKit(["fail-fast", "collect-all"]).pipe(
+  $I.annoteSchema("GithubCheckFailurePolicy", {
     description: "Policy controlling whether local GitHub-check execution stops after the first failed wave.",
   })
 );
@@ -942,8 +942,8 @@ export type GithubCheckFailurePolicy = typeof GithubCheckFailurePolicy.Type;
  * @category models
  * @since 0.0.0
  */
-export const GithubCheckLaneWave = LiteralKit(["preflight", "heavy", "test", "documentation"]).annotate(
-  $I.annote("GithubCheckLaneWave", {
+export const GithubCheckLaneWave = LiteralKit(["preflight", "heavy", "test", "documentation"]).pipe(
+  $I.annoteSchema("GithubCheckLaneWave", {
     description: "Static cost-ordered execution wave for local GitHub-check lanes.",
   })
 );
@@ -979,8 +979,8 @@ export type GithubCheckLaneWave = typeof GithubCheckLaneWave.Type;
  * @category models
  * @since 0.0.0
  */
-export const GithubCheckLaneTier = LiteralKit(["cheap-gates", "pre-push"]).annotate(
-  $I.annote("GithubCheckLaneTier", {
+export const GithubCheckLaneTier = LiteralKit(["cheap-gates", "pre-push"]).pipe(
+  $I.annoteSchema("GithubCheckLaneTier", {
     description: "Local proof tier that schedules a GitHub-check lane.",
   })
 );
@@ -1957,8 +1957,8 @@ export class GithubCheckLaneWaveSpec extends S.Opaque<GithubCheckLaneWaveSpec, {
  * @category models
  * @since 0.0.0
  */
-export const GithubCheckLaneRunStatus = LiteralKit(["passed", "reused", "failed", "not-run-early-stop"]).annotate(
-  $I.annote("GithubCheckLaneRunStatus", {
+export const GithubCheckLaneRunStatus = LiteralKit(["passed", "reused", "failed", "not-run-early-stop"]).pipe(
+  $I.annoteSchema("GithubCheckLaneRunStatus", {
     description: "Terminal status of one lane in a local GitHub-check wave run.",
   })
 );

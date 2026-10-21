@@ -26,8 +26,8 @@ import type { ModelsExchangeSystemShape } from "@beep/repo-cli/commands/Models/M
 // A real SkillPublisher in its own process, against a disposable repository
 // tree. It halts at one named crash point and waits for its parent's SIGKILL.
 const $I = $RepoCliId.create("test/fixtures/skills/publication-crash-writer");
-const Mode = LiteralKit(["publish-file", "publish-directory", "recover"]).annotate(
-  $I.annote("Mode", { description: "Which SkillPublisher operation the crash writer runs." })
+const Mode = LiteralKit(["publish-file", "publish-directory", "recover"]).pipe(
+  $I.annoteSchema("Mode", { description: "Which SkillPublisher operation the crash writer runs." })
 );
 const HaltPoint = LiteralKit([
   "none",
@@ -39,8 +39,8 @@ const HaltPoint = LiteralKit([
   "verified",
   "completed",
   "recovering",
-]).annotate(
-  $I.annote("HaltPoint", {
+]).pipe(
+  $I.annoteSchema("HaltPoint", {
     description: "Durable journal state, or the return of the publication exchange, at which the writer halts.",
   })
 );

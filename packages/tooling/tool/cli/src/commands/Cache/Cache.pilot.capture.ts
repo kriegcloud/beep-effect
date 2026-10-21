@@ -24,8 +24,8 @@ import type { CachePilotLogInput, CacheSignedPilotLogInput } from "./Cache.pilot
 const $I = $RepoCliId.create("commands/Cache/Cache.pilot.capture");
 const hashBytes = S.decodeEffect(Sha256HexFromBytes);
 const archiveLogPath = "packages/foundation/modeling/identity/.turbo/turbo-lint.log";
-const ArchiveLogSize = S.Natural.check(S.isLessThanOrEqualTo(64 * 1024)).annotate(
-  $I.annote("ArchiveLogSize", { description: "The native pilot log's maximum uncompressed byte count." })
+const ArchiveLogSize = S.Natural.check(S.isLessThanOrEqualTo(64 * 1024)).pipe(
+  $I.annoteSchema("ArchiveLogSize", { description: "The native pilot log's maximum uncompressed byte count." })
 );
 const ArchiveLogHeader = S.Struct({
   cksumValid: S.tag(true),
@@ -35,8 +35,8 @@ const ArchiveLogHeader = S.Struct({
   path: S.tag(archiveLogPath),
   linkpath: S.optionalKey(S.Union([S.Undefined, S.Literal("")])),
   size: ArchiveLogSize,
-}).annotate(
-  $I.annote("ArchiveLogHeader", {
+}).pipe(
+  $I.annoteSchema("ArchiveLogHeader", {
     description: "Exact bounded regular task-log header accepted from a native signed archive.",
   })
 );

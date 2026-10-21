@@ -17,8 +17,8 @@ const $I = $RepoCliId.create("commands/Refs/Refs.schemas");
 const MemberName = S.NonEmptyString.check(S.isPattern(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/u));
 const MemberBranch = S.NonEmptyString.check(
   S.isPattern(/^[a-zA-Z0-9][a-zA-Z0-9_-]*(?:\/[a-zA-Z0-9][a-zA-Z0-9_-]*)*$/u)
-).annotate(
-  $I.annote("MemberBranch", {
+).pipe(
+  $I.annoteSchema("MemberBranch", {
     description: "Reference branch with safe slash-separated alphanumeric, dash, and underscore components.",
   })
 );

@@ -49,8 +49,8 @@ const SignedOutcome = S.TaggedUnion({
     logBytes: S.Natural,
     replayLogMatches: S.Boolean,
   },
-}).annotate(
-  $I.annote("SignedOutcome", {
+}).pipe(
+  $I.annoteSchema("SignedOutcome", {
     description: "A signed comparison requires an executed selected task, never a dependency-blocked graph.",
   })
 );

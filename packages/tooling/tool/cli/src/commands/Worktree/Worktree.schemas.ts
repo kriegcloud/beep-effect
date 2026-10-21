@@ -79,8 +79,8 @@ export class WorktreeListEntry extends S.Opaque<WorktreeListEntry, { readonly br
  * @category models
  * @since 0.0.0
  */
-export const WorktreeResidueReason = LiteralKit(["dirty", "unpushed-commits", "dirty+unpushed", "clean"]).annotate(
-  $I.annote("WorktreeResidueReason", {
+export const WorktreeResidueReason = LiteralKit(["dirty", "unpushed-commits", "dirty+unpushed", "clean"]).pipe(
+  $I.annoteSchema("WorktreeResidueReason", {
     description: "Reason a worktree retirement did or did not require residue preservation.",
   })
 );
@@ -120,8 +120,8 @@ export const WorktreePreservationStep = LiteralKit([
   "write-tracked-patch",
   "copy-untracked-files",
   "write-manifest",
-]).annotate(
-  $I.annote("WorktreePreservationStep", {
+]).pipe(
+  $I.annoteSchema("WorktreePreservationStep", {
     description: "Named preservation step that can abort archive retirement before worktree removal.",
   })
 );

@@ -30,8 +30,8 @@ const ConformanceReport = S.Struct({
       ),
     })
   ),
-}).annotate(
-  $I.annote("ConformanceReport", {
+}).pipe(
+  $I.annoteSchema("ConformanceReport", {
     description: "Required outcomes of the isolated twenty-case spawn environment fixture.",
   })
 );

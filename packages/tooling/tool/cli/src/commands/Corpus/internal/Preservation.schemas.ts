@@ -417,8 +417,8 @@ export const PreservationAttemptOutcome = PreservationAttemptKind.mapMembers(
     () => UnreadableOutcome,
   ])
 )
-  .annotate(
-    $I.annote("PreservationAttemptOutcome", {
+  .pipe(
+    $I.annoteSchema("PreservationAttemptOutcome", {
       description: "Exhaustive outcomes of one copy-while-hashing archive attempt under restoration bar v2.",
     })
   )
@@ -797,8 +797,8 @@ const CapacityPreflightKind = LiteralKit(["proposed", "approved"]);
 export const CapacityPreflight = CapacityPreflightKind.mapMembers(
   Tuple.evolve([() => PreflightProposed, () => PreflightApproved])
 )
-  .annotate(
-    $I.annote("CapacityPreflight", {
+  .pipe(
+    $I.annoteSchema("CapacityPreflight", {
       description: "Two-state capacity preflight: measured-and-proposed, or approved with an explicit disk ceiling.",
     })
   )
@@ -965,8 +965,8 @@ export const PreservationVerificationOutcome = VerificationOutcomeKind.mapMember
     () => HashMismatchOutcome,
   ])
 )
-  .annotate(
-    $I.annote("PreservationVerificationOutcome", {
+  .pipe(
+    $I.annoteSchema("PreservationVerificationOutcome", {
       description: "Exhaustive fresh-process verification outcomes for one terminal destination-manifest row.",
     })
   )

@@ -305,8 +305,8 @@ export const AiMetricsTranscriptEventName = S.Union([
   CodexTranscriptEventName,
   ClaudeTranscriptEventName,
   OpenClawTranscriptEventName,
-]).annotate(
-  $I.annote("AiMetricsTranscriptEventName", {
+]).pipe(
+  $I.annoteSchema("AiMetricsTranscriptEventName", {
     description: "Normalized event names emitted by supported AI transcript sources.",
   })
 );
