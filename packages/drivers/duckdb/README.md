@@ -331,6 +331,11 @@ Duplicate column names come back as `a`, `a:1`.
 
 ### Binding values (JS to DuckDB)
 
+This table describes `DuckDbClient` binds. The legacy `DuckDb` service passes
+its parameters straight to `@duckdb/node-api` without bind types, which types a
+`listValue` from its first item only, so `listValue([null, 7])` binds there as
+a list of NULLs.
+
 | JS value | Bound as |
 | --- | --- |
 | `null`, `undefined` | NULL |
