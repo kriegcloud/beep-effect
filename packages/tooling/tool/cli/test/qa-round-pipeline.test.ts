@@ -1,4 +1,5 @@
 import { FFmpeg, FFmpegError, NonNegativeSeconds, VideoProbe } from "@beep/ffmpeg";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   CaptureSession,
   ClockSync,
@@ -36,7 +37,6 @@ import {
   runQaReport,
 } from "@beep/repo-cli/commands/Qa";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A, thunk } from "@beep/utils";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";

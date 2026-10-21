@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   CacheActivationPreview,
   CacheActivationRequest,
@@ -32,7 +33,6 @@ import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";

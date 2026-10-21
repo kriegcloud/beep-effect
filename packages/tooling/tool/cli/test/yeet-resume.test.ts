@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { MemoryStats } from "@beep/repo-cli/test/RepoRun";
 import { JsonStringCodec } from "@beep/repo-cli/test/SharedInternals";
 import {
@@ -15,7 +16,6 @@ import {
   yeetCommand,
 } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeServices } from "@effect/platform-node";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, describe, expect } from "@effect/vitest";

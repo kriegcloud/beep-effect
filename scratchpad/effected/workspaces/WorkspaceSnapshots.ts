@@ -14,12 +14,12 @@
 
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { GitCommandError, NotARepositoryError, UnknownRefError } from "../git/index.ts";
-import { Git } from "../git/index.ts";
-import { GlobSet } from "../glob/index.ts";
+import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@beep/git";
+import { Git } from "@beep/git";
+import { GlobSet } from "@beep/glob";
 import { Lockfile as LockfileModel, filenameFor } from "../lockfiles/index.ts";
 import { CatalogAssemblyError } from "../npm/index.ts";
-import { Yaml } from "../yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

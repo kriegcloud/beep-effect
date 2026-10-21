@@ -1,5 +1,5 @@
 import { assert, describe, it, layer } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { LayerPolicy } from "../../effected/workspaces/testing.ts";

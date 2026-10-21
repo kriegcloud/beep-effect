@@ -16,7 +16,7 @@ import {
 	PartialReleaseAgeGate,
 	ReleaseAgeGate,
 } from "../npm/index.ts";
-import { Yaml } from "../yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

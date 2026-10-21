@@ -7,7 +7,7 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
 import { ScriptedSpawner } from "@beep/commands";
-import { Git } from "../../../effected/git/index.ts";
+import { Git } from "@beep/git";
 import { CatalogAssemblyError } from "../../../effected/npm/index.ts";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

@@ -91,3 +91,82 @@ export const formatNameWithAliases: {
  * @since 0.0.0
  */
 export const joinLines = (lines: ReadonlyArray<string>): string => A.join(lines, "\n");
+
+/**
+ * Newline grammar of {@link lineCharacterAt}.
+ *
+ * **Details**
+ *
+ * `\n`, `\r` and `\r\n` always break a line, and a CRLF pair counts as one
+ * break. `unicodeSeparators` also breaks on U+2028 and U+2029.
+ * `crlfLookahead` decides where the `\r\n` pair check may read: `"text"`
+ * reads the whole text, so an offset that points at the `\n` of a pair is
+ * measured from the following line start; `"prefix"` stays inside the scanned
+ * prefix.
+ */
+type LineBreakGrammar = {
+  readonly unicodeSeparators?: boolean;
+  readonly crlfLookahead?: "text" | "prefix";
+};
+
+const lineBreakWidth = (text: string, index: number, pairEnd: number, unicodeSeparators: boolean): number => {
+  const ch = text.charCodeAt(index);
+  if (ch === 0x0d) {
+    return index + 1 < pairEnd && text.charCodeAt(index + 1) === 0x0a ? 2 : 1;
+  }
+  return ch === 0x0a || (unicodeSeparators && (ch === 0x2028 || ch === 0x2029)) ? 1 : 0;
+};
+
+/**
+ * Converts a code-unit offset into a zero-based line and character position.
+ *
+ * **Details**
+ *
+ * Scans `text` up to `min(offset, text.length)` and counts one line per
+ * break; `character` is `offset` minus the start of the last line. `\n`, `\r`
+ * and `\r\n` always break a line (a CRLF pair is one break). With
+ * `unicodeSeparators: true`, U+2028 and U+2029 break too. `crlfLookahead`
+ * (default `"text"`) lets the pair check read past the prefix; `"prefix"`
+ * keeps it inside, so an offset between `\r` and `\n` lands at character 0
+ * of the next line instead of -1.
+ *
+ * **Example** (Locate offsets under two newline grammars)
+ *
+ * ```ts
+ * import { lineCharacterAt } from "@beep/utils/Text"
+ *
+ * console.log(lineCharacterAt("ab\r\ncd", 5)) // { line: 1, character: 1 }
+ * console.log(lineCharacterAt(3, { crlfLookahead: "prefix" })("ab\r\ncd")) // { line: 1, character: 0 }
+ * console.log(lineCharacterAt("a\u2028b", 2, { unicodeSeparators: true })) // { line: 1, character: 0 }
+ * ```
+ *
+ * @param text - The source text the offset indexes into.
+ * @param offset - The code-unit offset to locate.
+ * @param grammar - Which extra separators count and where the CRLF check may read.
+ * @returns The zero-based `line` and `character` of `offset`.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const lineCharacterAt: {
+  (offset: number, grammar?: LineBreakGrammar): (text: string) => { readonly line: number; readonly character: number };
+  (text: string, offset: number, grammar?: LineBreakGrammar): { readonly line: number; readonly character: number };
+} = dual(
+  (args) => P.isString(args[0]),
+  (text: string, offset: number, grammar?: LineBreakGrammar): { readonly line: number; readonly character: number } => {
+    const limit = Math.min(offset, text.length);
+    const pairEnd = grammar?.crlfLookahead === "prefix" ? limit : text.length;
+    const unicodeSeparators = grammar?.unicodeSeparators === true;
+    let line = 0;
+    let lineStart = 0;
+    let index = 0;
+    while (index < limit) {
+      const width = lineBreakWidth(text, index, pairEnd, unicodeSeparators);
+      index += Math.max(width, 1);
+      if (width > 0) {
+        line++;
+        lineStart = index;
+      }
+    }
+    return { line, character: offset - lineStart };
+  }
+);

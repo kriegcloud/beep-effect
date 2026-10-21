@@ -583,7 +583,7 @@ export class ActionEnvironment extends Context.Service<ActionEnvironment, Action
 	 *
 	 * ```ts
 	 * import { ActionEnvironment } from "@beep/scratchpad/effected/github-actions/ActionEnvironment";
-	 * import { MemoryFileSystem } from "@beep/scratchpad/effected/memfs/MemoryFileSystem";
+	 * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 	 * import * as Layer from "effect/Layer";
 	 *
 	 * const environmentLayer = Layer.effect(

@@ -82,6 +82,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -328,6 +329,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -383,6 +385,7 @@
       },
       "devDependencies": {
         "@beep/mcp-kit": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -427,6 +430,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -470,8 +474,8 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -542,6 +546,7 @@
         "xstate": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -1244,6 +1249,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -1282,6 +1288,23 @@
       },
       "devDependencies": {
         "@beep/test-runner": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/drivers/git": {
+      "name": "@beep/git",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -2312,6 +2335,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -2385,6 +2409,24 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/glob": {
+      "name": "@beep/glob",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "minimatch": "10.2.6",
+      },
+    },
     "packages/foundation/modeling/html": {
       "name": "@beep/html",
       "version": "0.0.0",
@@ -2451,7 +2493,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
-        "@beep/test-utils": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
@@ -2478,6 +2520,25 @@
         "@types/node": "catalog:",
         "bun-types": "catalog:",
         "lexical": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/managed-section": {
+      "name": "@beep/managed-section",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "immer": "^11.1.18",
       },
     },
     "packages/foundation/modeling/md": {
@@ -2527,6 +2588,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -2693,6 +2755,24 @@
         "spdx-expression-parse": "5.0.0",
       },
     },
+    "packages/foundation/modeling/toml": {
+      "name": "@beep/toml",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "smol-toml": "^1.9.0",
+        "vitest": "catalog:",
+      },
+    },
     "packages/foundation/modeling/utils": {
       "name": "@beep/utils",
       "version": "0.0.2",
@@ -2711,6 +2791,23 @@
         "@types/picomatch": "catalog:",
         "bun-types": "catalog:",
         "type-fest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/yaml": {
+      "name": "@beep/yaml",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "yaml": "catalog:",
       },
     },
     "packages/foundation/primitive/data": {
@@ -2983,6 +3080,7 @@
       },
       "devDependencies": {
         "@beep/md": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/nlp": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/test-runner": "workspace:^",
@@ -3246,6 +3344,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -3264,6 +3363,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -3302,6 +3402,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -3360,6 +3461,7 @@
         "ts-morph": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -3426,6 +3528,24 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
+      },
+    },
+    "packages/tooling/test-kit/memfs": {
+      "name": "@beep/memfs",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
       },
     },
     "packages/tooling/test-kit/test-runner": {
@@ -3533,6 +3653,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@commitlint/is-ignored": "catalog:",
         "@effect/platform-node-shared": "catalog:",
@@ -3611,6 +3732,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -3669,11 +3791,15 @@
         "@beep/effect-drizzle": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
         "@beep/file-processing": "workspace:^",
+        "@beep/git": "workspace:^",
         "@beep/github-commands": "workspace:^",
         "@beep/github-references": "workspace:^",
+        "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
+        "@beep/managed-section": "workspace:^",
         "@beep/md": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/n3": "workspace:^",
         "@beep/nlp": "workspace:^",
         "@beep/nlp-processing": "workspace:^",
@@ -3689,8 +3815,10 @@
         "@beep/semver": "workspace:^",
         "@beep/shacl": "workspace:^",
         "@beep/spdx": "workspace:^",
+        "@beep/toml": "workspace:^",
         "@beep/utils": "workspace:^",
         "@beep/wink": "workspace:^",
+        "@beep/yaml": "workspace:^",
         "@effect/ai-anthropic": "catalog:",
         "@effect/ai-openai": "catalog:",
         "@effect/platform-bun": "catalog:",
@@ -4257,9 +4385,13 @@
 
     "@beep/freshbooks": ["@beep/freshbooks@workspace:packages/drivers/freshbooks"],
 
+    "@beep/git": ["@beep/git@workspace:packages/drivers/git"],
+
     "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
 
     "@beep/github-references": ["@beep/github-references@workspace:packages/foundation/modeling/github-references"],
+
+    "@beep/glob": ["@beep/glob@workspace:packages/foundation/modeling/glob"],
 
     "@beep/gov-legal-mcp": ["@beep/gov-legal-mcp@workspace:packages/drivers/gov-legal-mcp"],
 
@@ -4301,11 +4433,15 @@
 
     "@beep/m365-mcp": ["@beep/m365-mcp@workspace:packages/drivers/m365-mcp"],
 
+    "@beep/managed-section": ["@beep/managed-section@workspace:packages/foundation/modeling/managed-section"],
+
     "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
 
     "@beep/mcpb-kit": ["@beep/mcpb-kit@workspace:packages/tooling/library/mcpb-kit"],
 
     "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
+
+    "@beep/memfs": ["@beep/memfs@workspace:packages/tooling/test-kit/memfs"],
 
     "@beep/n3": ["@beep/n3@workspace:packages/drivers/n3"],
 
@@ -4449,6 +4585,8 @@
 
     "@beep/todox": ["@beep/todox@workspace:apps/todox"],
 
+    "@beep/toml": ["@beep/toml@workspace:packages/foundation/modeling/toml"],
+
     "@beep/trustgraph-workbench": ["@beep/trustgraph-workbench@workspace:apps/labs/trustgraph-workbench"],
 
     "@beep/tsgo-shim": ["@beep/tsgo-shim@workspace:tools/tsgo-shim"],
@@ -4476,6 +4614,8 @@
     "@beep/workspace-use-cases": ["@beep/workspace-use-cases@workspace:packages/workspace/use-cases"],
 
     "@beep/xstate": ["@beep/xstate@workspace:packages/drivers/xstate"],
+
+    "@beep/yaml": ["@beep/yaml@workspace:packages/foundation/modeling/yaml"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 

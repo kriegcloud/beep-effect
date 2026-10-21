@@ -8,7 +8,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as PlatformError from "effect/PlatformError";
 import { CliLinks, ambientLinksLayer } from "../../effected/cli/CliLinks.ts";
 import { CurrentRuntimeEnv } from "../../effected/env/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 it.layer(ambientLinksLayer({ editorLinks: "file" }).pipe(Layer.provide(CurrentRuntimeEnv.layerTest()), Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({})))), { timeout: "30 seconds" })((it) => {
   it.effect("without Path only absolute POSIX and drive paths are linked", () => Effect.gen(function* () {

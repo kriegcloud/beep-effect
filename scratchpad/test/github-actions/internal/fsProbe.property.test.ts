@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Base64Url from "effect/encoding/Base64Url";
 import * as S from "effect/Schema";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { isErrno, typeAt } from "../../../effected/github-actions/internal/fsProbe.ts";
 const runs = { arbitrary: fcRuns(100) };
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {

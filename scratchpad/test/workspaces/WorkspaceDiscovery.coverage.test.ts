@@ -25,7 +25,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as Scheduler from "effect/Scheduler";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
 import { WorkspacePatternError, PackageNotFoundError } from "../../effected/workspaces/WorkspaceDiscovery.ts";
 

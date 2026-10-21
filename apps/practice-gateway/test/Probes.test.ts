@@ -14,6 +14,7 @@ import {
   SetupRepairFailed,
   SetupRepairRefused,
 } from "@beep/law-practice-use-cases/PracticeSetup";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { M365SignInFailure } from "@beep/practice-gateway/PracticeGateway.errors";
 import { PracticeKgModuleLoader } from "@beep/practice-gateway/PracticeKgProvider";
@@ -21,7 +22,6 @@ import { CLAUDE_UNINSTALL_KEY, GatewaySetupProbes } from "@beep/practice-gateway
 import { requirementFromCatalog, requirementsFor } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";

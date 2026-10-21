@@ -342,6 +342,12 @@
         ]
       },
       {
+        "name": "@beep/git",
+        "patterns": [
+          "packages/drivers/git/src/**"
+        ]
+      },
+      {
         "name": "@beep/github-commands",
         "patterns": [
           "packages/foundation/modeling/github-commands/src/**"
@@ -351,6 +357,12 @@
         "name": "@beep/github-references",
         "patterns": [
           "packages/foundation/modeling/github-references/src/**"
+        ]
+      },
+      {
+        "name": "@beep/glob",
+        "patterns": [
+          "packages/foundation/modeling/glob/src/**"
         ]
       },
       {
@@ -474,6 +486,12 @@
         ]
       },
       {
+        "name": "@beep/managed-section",
+        "patterns": [
+          "packages/foundation/modeling/managed-section/src/**"
+        ]
+      },
+      {
         "name": "@beep/mcp-kit",
         "patterns": [
           "packages/foundation/capability/mcp-kit/src/**"
@@ -489,6 +507,12 @@
         "name": "@beep/md",
         "patterns": [
           "packages/foundation/modeling/md/src/**"
+        ]
+      },
+      {
+        "name": "@beep/memfs",
+        "patterns": [
+          "packages/tooling/test-kit/memfs/src/**"
         ]
       },
       {
@@ -918,6 +942,12 @@
         ]
       },
       {
+        "name": "@beep/toml",
+        "patterns": [
+          "packages/foundation/modeling/toml/src/**"
+        ]
+      },
+      {
         "name": "@beep/trustgraph-workbench",
         "patterns": [
           "apps/labs/trustgraph-workbench/src/**"
@@ -999,6 +1029,12 @@
         "name": "@beep/xstate",
         "patterns": [
           "packages/drivers/xstate/src/**"
+        ]
+      },
+      {
+        "name": "@beep/yaml",
+        "patterns": [
+          "packages/foundation/modeling/yaml/src/**"
         ]
       }
     ],
@@ -1185,6 +1221,7 @@
         "allow": [
           "@beep/ai-sync",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1193,6 +1230,7 @@
         "allowTypeOnly": [
           "@beep/ai-sync",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1737,6 +1775,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
@@ -1749,6 +1788,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
@@ -2153,6 +2193,7 @@
         "allow": [
           "@beep/exiftool",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -2161,6 +2202,7 @@
         "allowTypeOnly": [
           "@beep/exiftool",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -2236,6 +2278,23 @@
         ]
       },
       {
+        "from": "@beep/git",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/github-commands",
         "allow": [
           "@beep/fc-runs",
@@ -2261,6 +2320,23 @@
           "@beep/github-references",
           "@beep/identity",
           "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/glob",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -2425,16 +2501,16 @@
           "@beep/fc-runs",
           "@beep/identity",
           "@beep/jsonl",
+          "@beep/memfs",
           "@beep/schema",
-          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/fc-runs",
           "@beep/identity",
           "@beep/jsonl",
+          "@beep/memfs",
           "@beep/schema",
-          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -2506,6 +2582,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/nlp",
           "@beep/pglite",
           "@beep/postgres",
@@ -2537,6 +2614,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/nlp",
           "@beep/pglite",
           "@beep/postgres",
@@ -2754,6 +2832,25 @@
         ]
       },
       {
+        "from": "@beep/managed-section",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/managed-section",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/managed-section",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/mcp-kit",
         "allow": [
           "@beep/identity",
@@ -2775,12 +2872,14 @@
         "allow": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/schema",
           "@beep/utils"
         ]
@@ -2803,6 +2902,23 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/memfs",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
           "@beep/utils"
         ]
       },
@@ -2916,6 +3032,7 @@
         "allow": [
           "@beep/colors",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/schema",
           "@beep/test-runner",
@@ -2925,6 +3042,7 @@
         "allowTypeOnly": [
           "@beep/colors",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/schema",
           "@beep/test-runner",
@@ -3005,6 +3123,7 @@
         "from": "@beep/ontology",
         "allow": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/ontology",
           "@beep/rdf",
           "@beep/schema",
@@ -3014,6 +3133,7 @@
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/ontology",
           "@beep/rdf",
           "@beep/schema",
@@ -3439,6 +3559,7 @@
           "@beep/m365-mcp",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-gateway",
           "@beep/schema",
           "@beep/test-runner",
@@ -3458,6 +3579,7 @@
           "@beep/m365-mcp",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-gateway",
           "@beep/schema",
           "@beep/test-runner",
@@ -3494,6 +3616,7 @@
           "@beep/law-practice-server",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/pglite",
           "@beep/practice-kg-mcp",
@@ -3509,6 +3632,7 @@
           "@beep/law-practice-server",
           "@beep/mcp-kit",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/pglite",
           "@beep/practice-kg-mcp",
@@ -3549,6 +3673,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/practice-mail-tagging",
           "@beep/schema",
           "@beep/test-runner",
@@ -3562,6 +3687,7 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/m365",
+          "@beep/memfs",
           "@beep/practice-mail-tagging",
           "@beep/schema",
           "@beep/test-runner",
@@ -3600,18 +3726,18 @@
         "allow": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-setup",
           "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils"
+          "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/mcpb-kit",
+          "@beep/memfs",
           "@beep/practice-setup",
           "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils"
+          "@beep/test-runner"
         ]
       },
       {
@@ -3661,6 +3787,7 @@
           "@beep/lexical-schema",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/ontology-client",
           "@beep/ontology-config",
@@ -3712,6 +3839,7 @@
           "@beep/lexical-schema",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/ontology-client",
           "@beep/ontology-config",
@@ -3836,6 +3964,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -3849,6 +3978,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
+          "@beep/memfs",
           "@beep/observability",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -3875,6 +4005,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
@@ -3915,6 +4046,7 @@
           "@beep/m365",
           "@beep/mcp-kit",
           "@beep/md",
+          "@beep/memfs",
           "@beep/obs",
           "@beep/observability",
           "@beep/occt",
@@ -3989,6 +4121,7 @@
         "from": "@beep/repo-utils",
         "allow": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/repo-utils",
           "@beep/schema",
           "@beep/test-runner",
@@ -3997,6 +4130,7 @@
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/memfs",
           "@beep/repo-utils",
           "@beep/schema",
           "@beep/test-runner",
@@ -4087,11 +4221,15 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/git",
           "@beep/github-commands",
           "@beep/github-references",
+          "@beep/glob",
           "@beep/identity",
           "@beep/jsonc",
+          "@beep/managed-section",
           "@beep/md",
+          "@beep/memfs",
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
@@ -4111,8 +4249,10 @@
           "@beep/shacl",
           "@beep/spdx",
           "@beep/test-utils",
+          "@beep/toml",
           "@beep/utils",
-          "@beep/wink"
+          "@beep/wink",
+          "@beep/yaml"
         ],
         "allowTypeOnly": [
           "@beep/commands",
@@ -4123,11 +4263,15 @@
           "@beep/epistemic-domain",
           "@beep/fc-runs",
           "@beep/file-processing",
+          "@beep/git",
           "@beep/github-commands",
           "@beep/github-references",
+          "@beep/glob",
           "@beep/identity",
           "@beep/jsonc",
+          "@beep/managed-section",
           "@beep/md",
+          "@beep/memfs",
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
@@ -4147,8 +4291,10 @@
           "@beep/shacl",
           "@beep/spdx",
           "@beep/test-utils",
+          "@beep/toml",
           "@beep/utils",
-          "@beep/wink"
+          "@beep/wink",
+          "@beep/yaml"
         ]
       },
       {
@@ -4494,6 +4640,23 @@
         ]
       },
       {
+        "from": "@beep/toml",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/trustgraph-workbench",
         "allow": [
           "@beep/brand",
@@ -4670,6 +4833,7 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/md",
+          "@beep/memfs",
           "@beep/postgres",
           "@beep/provenance",
           "@beep/schema",
@@ -4687,6 +4851,7 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/md",
+          "@beep/memfs",
           "@beep/postgres",
           "@beep/provenance",
           "@beep/schema",
@@ -4753,6 +4918,23 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/xstate"
+        ]
+      },
+      {
+        "from": "@beep/yaml",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/yaml"
         ]
       }
     ]

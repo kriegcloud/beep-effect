@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
-import { YamlParseError } from "../../effected/yaml/index.ts";
+import { YamlParseError } from "@beep/yaml";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

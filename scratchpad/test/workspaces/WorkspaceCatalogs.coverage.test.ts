@@ -9,7 +9,7 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { CatalogResolver } from "../../effected/npm/index.ts";
 import { CatalogSet, WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 import { LockfileReadError, LockfileReader } from "../../effected/workspaces/LockfileReader.ts";

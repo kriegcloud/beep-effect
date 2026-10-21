@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   applyHeavyAdmissionLabel,
   buildYeetRunPlan,
@@ -12,7 +13,6 @@ import {
   validateOpenPullRequest,
   YeetEnsuredPullRequest,
 } from "@beep/repo-cli/test/Yeet";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";

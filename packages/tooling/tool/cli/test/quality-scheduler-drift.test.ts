@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   AdmissionConfig,
   AdmissionRequest,
@@ -12,7 +13,6 @@ import {
 } from "@beep/repo-cli/test/RepoRun";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";

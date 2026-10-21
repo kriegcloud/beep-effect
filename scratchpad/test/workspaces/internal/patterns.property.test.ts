@@ -7,8 +7,8 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
-import { Yaml } from "../../../effected/yaml/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
+import { Yaml } from "@beep/yaml";
 import { manifestPatternsOf, PatternReadFailureKind, pnpmPatternsOf, readPatterns, stringsOf } from "../../../effected/workspaces/internal/patterns.ts";
 
 const runs = { arbitrary: fcRuns(100) };

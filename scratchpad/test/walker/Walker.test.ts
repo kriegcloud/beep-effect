@@ -1,6 +1,6 @@
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";

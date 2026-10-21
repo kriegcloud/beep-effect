@@ -3,7 +3,7 @@ import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import {
 	TomlParseError,
 	TomlStringifyError,
-} from "../../effected/toml/index.ts";
+} from "@beep/toml";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

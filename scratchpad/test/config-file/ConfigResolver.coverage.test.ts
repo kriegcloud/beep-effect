@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 afterEach(() => vi.unstubAllGlobals());
 const platform = Layer.mergeAll(MemoryFileSystem.layerWith({ "/config": "{}", "/package.json": "null" }), Path.layer);

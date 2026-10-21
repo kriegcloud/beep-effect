@@ -8,7 +8,7 @@ import { dual } from "effect/Function";
 // `ChildProcessSpawner` (behind `@effected/git`'s `Git` service) to run git.
 
 import { ExecContext, LocalExec, LocalExecError } from "@beep/commands";
-import { Git } from "../git/index.ts";
+import { Git } from "@beep/git";
 import type {
 	CatalogAssemblyError,
 	CatalogResolver,

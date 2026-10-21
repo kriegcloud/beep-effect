@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   AccountHeadroomSource,
   AdmissionSlotsInput,
@@ -35,7 +36,6 @@ import {
   stageHotParcels,
 } from "@beep/repo-cli/test/Palantiri";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";

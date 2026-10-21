@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   ChangesetGraphPackageReference,
   ChangesetStatusPartition,
@@ -8,7 +9,6 @@ import {
   runChangesetStatus,
   uncoveredWorkspacePackageNames,
 } from "@beep/repo-cli/test/Quality";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A } from "@beep/utils";
 import { NodeCrypto } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
