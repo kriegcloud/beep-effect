@@ -100,15 +100,17 @@ export interface User {
 
 - Do not suffix schema values with `Schema`.
 - For non-class schemas, export the runtime type alias with the same identifier.
-- Annotate reusable schemas with `$I.annote(...)`.
+- Annotate reusable non-class schemas, `LiteralKit` included, with
+  `.pipe($I.annoteSchema(...))`, never `.annotate($I.annote(...))`. Classes keep
+  `$I.annote(...)` / `$I.annoteError<X>(...)` as their trailing argument.
 - Use descriptions that explain intent, not descriptions that only repeat the
   symbol name.
 
 Prefer:
 
 ```ts
-export const Tenant = S.String.annotate(
-  $I.annote("Tenant", {
+export const Tenant = S.String.pipe(
+  $I.annoteSchema("Tenant", {
     description: "Logical tenant identifier used for partitioning.",
   })
 )
@@ -239,12 +241,11 @@ When you do need custom reusable checks:
 Prefer:
 
 ```ts
-S.makeFilter(Str.includes("/"), {
-  identifier: $I`ContainsSlashCheck`,
+S.makeFilter(Str.includes("/"), $I.annote("ContainsSlashCheck", {
   title: "Contains Slash",
   description: "A string that contains the slash character.",
   message: "Expected text to contain '/'",
-})
+}))
 ```
 
 ## 9. Literal Domains and Tagged Unions Follow Repo Style

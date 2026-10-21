@@ -1,5 +1,5 @@
 /**
- * The GraphQL-only pull-request operations, as typed `@effected/github`
+ * The GraphQL-only pull-request operations, as typed `@beep/github`
  * documents.
  *
  * **Details**
@@ -14,14 +14,17 @@
  * @since 0.0.0
  */
 
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { GitHubError } from "@beep/github/GitHubError";
+import { GraphQLDocument } from "@beep/github/GraphQL";
+import { Repo } from "@beep/github/Repo";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as OptionUtils from "@beep/utils/Option";
-import { GitHubClient, GitHubError, GraphQLDocument, Repo } from "@effected/github";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { GitHubGraphQLError } from "@effected/github";
+import type { GitHubGraphQLError } from "@beep/github/GraphQL";
 
 const $I = $RepoCliId.create("internal/github/GithubGraphql");
 
@@ -33,7 +36,7 @@ const $I = $RepoCliId.create("internal/github/GithubGraphql");
  *
  * ```ts
  * import { graphqlErrorToGitHubError } from "@beep/repo-cli/test/SharedInternals"
- * import { GitHubGraphQLError } from "@effected/github"
+ * import { GitHubGraphQLError } from "@beep/github/GraphQL"
  *
  * const error = graphqlErrorToGitHubError(GitHubGraphQLError.decode("q", "bad"))
  * console.log(error.kind) // "decode"

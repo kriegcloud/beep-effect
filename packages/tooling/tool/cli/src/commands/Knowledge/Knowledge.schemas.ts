@@ -85,12 +85,14 @@ export class KnowledgeRewriteReport extends S.Opaque<KnowledgeRewriteReport, { r
 ) {}
 
 const KnowledgePublicText = S.String.check(
-  S.isPattern(/^[^\p{Cc}\p{Cf}]*$/u, {
-    identifier: $I`KnowledgePublicTextCheck`,
-    title: "Control-free knowledge report text",
-    description: "Public knowledge finding fields contain no control or Unicode format characters.",
-    message: "Expected knowledge report text without control or format characters",
-  })
+  S.isPattern(
+    /^[^\p{Cc}\p{Cf}]*$/u,
+    $I.annote("KnowledgePublicTextCheck", {
+      title: "Control-free knowledge report text",
+      description: "Public knowledge finding fields contain no control or Unicode format characters.",
+      message: "Expected knowledge report text without control or format characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("KnowledgePublicText", {
     description: "Single-line control-free text safe for public knowledge report fields.",
@@ -102,12 +104,14 @@ type KnowledgePublicText = typeof KnowledgePublicText.Type;
 const isKnowledgePublicText = S.is(KnowledgePublicText);
 
 const KnowledgePublicDetail = S.String.check(
-  S.isPattern(/^(?:[^\p{Cc}\p{Cf}]|\n)*$/u, {
-    identifier: $I`KnowledgePublicDetailCheck`,
-    title: "Control-free knowledge report detail",
-    description: "Public knowledge diagnostics may contain line feeds but no other control or format characters.",
-    message: "Expected knowledge report detail without unsafe control or format characters",
-  })
+  S.isPattern(
+    /^(?:[^\p{Cc}\p{Cf}]|\n)*$/u,
+    $I.annote("KnowledgePublicDetailCheck", {
+      title: "Control-free knowledge report detail",
+      description: "Public knowledge diagnostics may contain line feeds but no other control or format characters.",
+      message: "Expected knowledge report detail without unsafe control or format characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("KnowledgePublicDetail", {
     description: "Multiline public knowledge diagnostic text whose only permitted control is line feed.",
@@ -447,11 +451,10 @@ const KnowledgePublicFindingLocation = KnowledgeFindingLocation.check(
         path: ["path"],
         issue: "Expected a knowledge finding path without control or format characters",
       },
-    {
-      identifier: $I`KnowledgePublicFindingLocationCheck`,
+    $I.annote("KnowledgePublicFindingLocationCheck", {
       title: "Control-free knowledge finding location",
       description: "Semantic-delta finding locations contain no terminal control or Unicode format characters.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("KnowledgePublicFindingLocation", {

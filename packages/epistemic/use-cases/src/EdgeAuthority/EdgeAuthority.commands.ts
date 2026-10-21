@@ -88,11 +88,10 @@ const OrgScopeAgreementCheck = S.makeFilter(
           path: ["identity", "orgScope"],
           issue: `Logical edge identity org scope "${command.identity.orgScope}" does not denote organization ${command.orgId}.`,
         },
-  {
-    identifier: $I`OrgScopeAgreementCheck`,
+  $I.annote("OrgScopeAgreementCheck", {
     title: "Org scope agreement",
     description: "The logical edge identity's org scope must denote the command's organization id.",
-  }
+  })
 );
 
 const RecordEdgeFactFields = S.Struct({

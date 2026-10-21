@@ -140,12 +140,14 @@ export class PdfConfirmation extends S.Opaque<PdfConfirmation, { readonly brand:
     kind: S.tag("pdf").annotateKey({ description: "Confirmation discriminator." }),
     path: S.NonEmptyString.annotateKey({ description: "Absolute path of the PDF under the corpus root." }),
     initialedPage: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`InitialedPageCheck`,
-        title: "Initialed Page",
-        description: "PDF pages are numbered from one.",
-        message: "Expected a page number of at least 1",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("InitialedPageCheck", {
+          title: "Initialed Page",
+          description: "PDF pages are numbered from one.",
+          message: "Expected a page number of at least 1",
+        })
+      )
     ).annotateKey({ description: "One-based page the approver initialed; named by the operator." }),
     pageText: S.String.annotateKey({ description: "Extracted text of the initialed page only." }),
     deliveredBy: EmailAddress.annotateKey({ description: "Approver the operator attests delivered the PDF." }),

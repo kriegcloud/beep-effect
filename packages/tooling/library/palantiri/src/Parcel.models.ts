@@ -196,12 +196,14 @@ export type ParcelBudget = typeof ParcelBudget.Type;
  * @since 0.0.0
  */
 export const SessionKey = S.String.check(
-  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/, {
-    identifier: $I`SessionKeyPattern`,
-    title: "Session key",
-    description: "Letters, digits, dots, underscores and hyphens, starting with a letter or digit.",
-    message: "a session id uses letters, digits, dots, underscores and hyphens",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/,
+    $I.annote("SessionKeyPattern", {
+      title: "Session key",
+      description: "Letters, digits, dots, underscores and hyphens, starting with a letter or digit.",
+      message: "a session id uses letters, digits, dots, underscores and hyphens",
+    })
+  )
 ).pipe($I.annoteSchema("SessionKey", { description: "A harness session id, safe to use as a file name." }));
 
 /**

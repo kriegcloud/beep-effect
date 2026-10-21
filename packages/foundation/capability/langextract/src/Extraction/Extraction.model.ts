@@ -22,18 +22,22 @@ import {
 const $I = $LangExtractId.create("Extraction");
 
 const ExtractionCandidateLabel = S.NonEmptyString.check(
-  S.isPattern(/\S/u, {
-    identifier: $I`ExtractionCandidateLabelNonBlankCheck`,
-    title: "Non-Blank Extraction Candidate Label",
-    description: "Checks that an extraction candidate label contains at least one non-whitespace character.",
-    message: "Extraction candidate labels cannot be blank.",
-  }),
-  S.isMaxLength(MAX_CANDIDATE_TEXT_LENGTH, {
-    identifier: $I`ExtractionCandidateLabelMaxLengthCheck`,
-    title: "Extraction Candidate Label Length",
-    description: "Checks that an extraction candidate label stays within the bounded model-output length.",
-    message: `Extraction candidate label must be ${MAX_CANDIDATE_TEXT_LENGTH} characters or fewer.`,
-  })
+  S.isPattern(
+    /\S/u,
+    $I.annote("ExtractionCandidateLabelNonBlankCheck", {
+      title: "Non-Blank Extraction Candidate Label",
+      description: "Checks that an extraction candidate label contains at least one non-whitespace character.",
+      message: "Extraction candidate labels cannot be blank.",
+    })
+  ),
+  S.isMaxLength(
+    MAX_CANDIDATE_TEXT_LENGTH,
+    $I.annote("ExtractionCandidateLabelMaxLengthCheck", {
+      title: "Extraction Candidate Label Length",
+      description: "Checks that an extraction candidate label stays within the bounded model-output length.",
+      message: `Extraction candidate label must be ${MAX_CANDIDATE_TEXT_LENGTH} characters or fewer.`,
+    })
+  )
 ).pipe(
   $I.annoteSchema("ExtractionCandidateLabel", {
     description: "Non-blank, bounded label emitted for one extraction candidate.",
@@ -41,18 +45,22 @@ const ExtractionCandidateLabel = S.NonEmptyString.check(
 );
 
 const ExtractionCandidateText = S.NonEmptyString.check(
-  S.isPattern(/\S/u, {
-    identifier: $I`ExtractionCandidateTextNonBlankCheck`,
-    title: "Non-Blank Extraction Candidate Text",
-    description: "Checks that extraction evidence contains at least one non-whitespace character.",
-    message: "Extraction candidate text cannot be blank.",
-  }),
-  S.isMaxLength(MAX_CANDIDATE_TEXT_LENGTH, {
-    identifier: $I`ExtractionCandidateTextMaxLengthCheck`,
-    title: "Extraction Candidate Text Length",
-    description: "Checks that extraction candidate source text stays within the bounded model-output length.",
-    message: `Extraction candidate text must be ${MAX_CANDIDATE_TEXT_LENGTH} characters or fewer.`,
-  })
+  S.isPattern(
+    /\S/u,
+    $I.annote("ExtractionCandidateTextNonBlankCheck", {
+      title: "Non-Blank Extraction Candidate Text",
+      description: "Checks that extraction evidence contains at least one non-whitespace character.",
+      message: "Extraction candidate text cannot be blank.",
+    })
+  ),
+  S.isMaxLength(
+    MAX_CANDIDATE_TEXT_LENGTH,
+    $I.annote("ExtractionCandidateTextMaxLengthCheck", {
+      title: "Extraction Candidate Text Length",
+      description: "Checks that extraction candidate source text stays within the bounded model-output length.",
+      message: `Extraction candidate text must be ${MAX_CANDIDATE_TEXT_LENGTH} characters or fewer.`,
+    })
+  )
 ).pipe(
   $I.annoteSchema("ExtractionCandidateText", {
     description: "Non-blank, bounded source evidence emitted for one extraction candidate.",
@@ -147,12 +155,14 @@ export class ExtractionCandidate extends S.Opaque<ExtractionCandidate, { readonl
   S.Struct({
     attributes: S.Record(S.String, S.String).pipe(
       S.check(
-        S.isMaxProperties(MAX_CANDIDATE_ATTRIBUTES, {
-          identifier: $I`ExtractionCandidateAttributesMaxPropertiesCheck`,
-          title: "Extraction Candidate Attribute Limit",
-          description: "Checks that one extraction candidate stays within the bounded attribute count.",
-          message: `Extraction candidate attributes must have at most ${MAX_CANDIDATE_ATTRIBUTES} entries.`,
-        })
+        S.isMaxProperties(
+          MAX_CANDIDATE_ATTRIBUTES,
+          $I.annote("ExtractionCandidateAttributesMaxPropertiesCheck", {
+            title: "Extraction Candidate Attribute Limit",
+            description: "Checks that one extraction candidate stays within the bounded attribute count.",
+            message: `Extraction candidate attributes must have at most ${MAX_CANDIDATE_ATTRIBUTES} entries.`,
+          })
+        )
       ),
       S.OptionFromOptionalKey,
       S.withConstructorDefault(Effect.succeedNone)

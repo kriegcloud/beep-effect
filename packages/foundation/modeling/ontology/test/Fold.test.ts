@@ -22,7 +22,7 @@ class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
     children: S.Array(S.String).pipe($I.key("^rdfs:subClassOf")),
     text: S.String.pipe($I.key({ description: "Claim text." })),
   })
-    .annotate({ identifier: $I`Claim` })
+    .pipe($I.annoteSchema("Claim"))
     .annotate($I.class("Claim", { description: "Patent claim\nwith escaped text." }))
 ) {}
 
@@ -30,7 +30,7 @@ class Spec extends S.Opaque<Spec, { readonly brand: unique symbol }>()(
   S.Struct({
     claim: Claim,
   })
-    .annotate({ identifier: $I`Spec` })
+    .pipe($I.annoteSchema("Spec"))
     .annotate($I.class("Spec", { description: "Patent specification." }))
 ) {}
 
@@ -302,7 +302,7 @@ describe("Ontology.fold SKOS gate", () => {
     S.Struct({
       label: S.String,
     })
-      .annotate({ identifier: $Skos`Concept` })
+      .pipe($Skos.annoteSchema("Concept"))
       .annotate($Skos.class("Concept", { description: "A concept.", skos: "concept" }))
   ) {}
 
@@ -310,7 +310,7 @@ describe("Ontology.fold SKOS gate", () => {
     S.Struct({
       label: S.String,
     })
-      .annotate({ identifier: $Skos`Scheme` })
+      .pipe($Skos.annoteSchema("Scheme"))
       .annotate($Skos.class("Scheme", { description: "A scheme.", skos: "conceptScheme" }))
   ) {}
 
@@ -383,7 +383,7 @@ describe("Ontology.fold SKOS gate", () => {
         S.Struct({
           label: S.String,
         })
-          .annotate({ identifier: $Skos`Third` })
+          .pipe($Skos.annoteSchema("Third"))
           .annotate($Skos.class("Third", { description: "A third concept.", skos: "concept" }))
       ) {}
 
@@ -472,7 +472,7 @@ describe("Ontology.fold negative fixtures", () => {
     S.Struct({
       label: S.String,
     })
-      .annotate({ identifier: $Neg`LeftDocument` })
+      .pipe($Neg.annoteSchema("LeftDocument"))
       .annotate($Neg.class("LeftDocument", { description: "Document" }))
   ) {}
 
@@ -480,7 +480,7 @@ describe("Ontology.fold negative fixtures", () => {
     S.Struct({
       label: S.String,
     })
-      .annotate({ identifier: $Neg`RightDocument` })
+      .pipe($Neg.annoteSchema("RightDocument"))
       .annotate($Neg.class("RightDocument", { description: "Document" }))
   ) {}
 
@@ -534,7 +534,7 @@ describe("Ontology.fold negative fixtures", () => {
         S.Struct({
           document: S.Union([LeftDocument, RightDocument]),
         })
-          .annotate({ identifier: $Neg`AmbiguousRange` })
+          .pipe($Neg.annoteSchema("AmbiguousRange"))
           .annotate($Neg.class("AmbiguousRange"))
       ) {}
 
@@ -644,7 +644,7 @@ describe("Ontology.fold rebase", () => {
         S.Struct({
           text: S.String,
         })
-          .annotate({ identifier: $Patent`PublishedClaim` })
+          .pipe($Patent.annoteSchema("PublishedClaim"))
           .annotate($Patent.class("PublishedClaim", { description: "A published claim." }))
       ) {}
 
@@ -686,7 +686,7 @@ describe("Ontology.fold extended vocabulary", () => {
         S.Struct({
           relation: S.String.pipe($Custom.key("ex:relation")),
         })
-          .annotate({ identifier: $Custom`CustomClass` })
+          .pipe($Custom.annoteSchema("CustomClass"))
           .annotate($Custom.class("CustomClass"))
       ) {}
 

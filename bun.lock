@@ -1310,6 +1310,30 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/github": {
+      "name": "@beep/github",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@noble/hashes": "catalog:",
+        "@octokit/core": "catalog:",
+        "@octokit/plugin-paginate-rest": "catalog:",
+        "@octokit/types": "catalog:",
+        "effect": "catalog:",
+        "tweetnacl": "catalog:",
+        "universal-github-app-jwt": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/drivers/gov-legal-mcp": {
       "name": "@beep/gov-legal-mcp",
       "version": "0.0.0",
@@ -3653,6 +3677,7 @@
         "@beep/exiftool": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
         "@beep/file-processing": "workspace:^",
+        "@beep/github": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",
@@ -3673,6 +3698,7 @@
         "@beep/runpod": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/skill-contract": "workspace:^",
+        "@beep/spdx": "workspace:^",
         "@beep/t3-code": "workspace:^",
         "@beep/technical-drawing": "workspace:^",
         "@beep/tesseract": "workspace:^",
@@ -3686,7 +3712,6 @@
         "@effect/platform-node": "catalog:",
         "@effect/sql-sqlite-bun": "catalog:",
         "@effect/sql-sqlite-node": "catalog:",
-        "@effected/github": "catalog:",
         "@noble/hashes": "catalog:",
         "@nodable/entities": "3.1.0",
         "@openai/codex-sdk": "catalog:",
@@ -3845,6 +3870,7 @@
         "@beep/epistemic-domain": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/git": "workspace:^",
+        "@beep/github": "workspace:^",
         "@beep/github-commands": "workspace:^",
         "@beep/github-references": "workspace:^",
         "@beep/glob": "workspace:^",
@@ -3880,9 +3906,6 @@
         "@effect/platform-bun": "catalog:",
         "@google-cloud/pubsub": "catalog:",
         "@google-cloud/storage": "catalog:",
-        "@octokit/core": "^7.0.6",
-        "@octokit/plugin-paginate-rest": "^16.0.0",
-        "@octokit/types": "^18.0.0",
         "@pnpm/catalogs.config": "^1100.0.5",
         "@pnpm/catalogs.protocol-parser": "^1100.0.0",
         "@pnpm/catalogs.resolver": "^1100.0.0",
@@ -3890,15 +3913,12 @@
         "@sigstore/bundle": "^5.0.0",
         "@sigstore/sign": "^5.0.0",
         "@xenova/transformers": "catalog:",
-        "blakejs": "1.2.1",
         "drizzle-orm": "catalog:",
         "effect": "catalog:",
         "ink": "^7.1.1",
         "lexical": "catalog:",
         "n3": "catalog:",
         "react": "catalog:",
-        "tweetnacl": "1.0.3",
-        "universal-github-app-jwt": "^2.2.2",
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
@@ -3994,7 +4014,6 @@
     "@effect/sql-sqlite-node": "4.0.5",
     "@effect/tsgo": "0.54.1",
     "@effect/vitest": "4.0.5",
-    "@effected/github": "0.21.0",
     "@electric-sql/pglite": "0.5.10",
     "@elevenlabs/client": "^1.29.0",
     "@emotion/react": "^11.14.0",
@@ -4026,6 +4045,9 @@
     "@next/bundle-analyzer": "16.5.0-canary.20",
     "@next/mdx": "16.5.0-canary.20",
     "@noble/hashes": "^2.4.0",
+    "@octokit/core": "^7.0.6",
+    "@octokit/plugin-paginate-rest": "^16.0.0",
+    "@octokit/types": "^18.0.0",
     "@openai/codex-sdk": "~0.163.0",
     "@opentelemetry/api": "1.10.0",
     "@opentelemetry/core": "3.0.0",
@@ -4180,8 +4202,10 @@
     "tsc-rs": "0.6.0",
     "turbo": "^2.11.9",
     "tw-animate-css": "^1.4.0",
+    "tweetnacl": "1.0.3",
     "type-fest": "^5.10.0",
     "typescript": "^7.0.2",
+    "universal-github-app-jwt": "^2.2.2",
     "unpdf": "^1.9.1",
     "use-stick-to-bottom": "^1.1.6",
     "vaul": "^1.1.2",
@@ -4443,6 +4467,8 @@
     "@beep/freshbooks": ["@beep/freshbooks@workspace:packages/drivers/freshbooks"],
 
     "@beep/git": ["@beep/git@workspace:packages/drivers/git"],
+
+    "@beep/github": ["@beep/github@workspace:packages/drivers/github"],
 
     "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
 
@@ -5383,14 +5409,6 @@
     "@effect/tsgo-win32-x64": ["@effect/tsgo-win32-x64@0.54.1", "", { "os": "win32", "cpu": "x64" }, "sha512-/BWavNrNQlH/Amn7cmO/xYEeKVc9Ir9PwAfQKy08V9Wt5a5iRE4FBVR2zHa1EEblkgJh4OjwV+S/q2eiymOMEw=="],
 
     "@effect/vitest": ["@effect/vitest@4.0.5", "", { "peerDependencies": { "effect": "^4.0.5", "vitest": ">=5.0.0 <6.0.0" } }, "sha512-q64paZ/i4V2NiRhTyqCmT2KiDbFjlxc2EZrZca8GGt+Nf8844946HyJM5bPk/q+YeRkFSxIrlCs+J+LSfky/wA=="],
-
-    "@effected/github": ["@effected/github@0.21.0", "", { "dependencies": { "@effected/github-references": "^0.10.0", "@effected/jwt": "^0.4.0", "@effected/semver": "^0.14.0", "@octokit/core": "^7.0.6", "@octokit/plugin-paginate-rest": "^16.0.0", "@octokit/types": "^18.0.0", "blakejs": "1.2.1", "tweetnacl": "1.0.3" }, "peerDependencies": { "effect": "^4.0.0" } }, "sha512-59URnbrVDgN1YTmCPuS6zcF+BBCRH03slv1FcUoIZJTccplU0XjBpw/y/l/bVEHy3Mm/gtOtpJzOKmlTdlAgeQ=="],
-
-    "@effected/github-references": ["@effected/github-references@0.10.0", "", { "peerDependencies": { "effect": "^4.0.0" } }, "sha512-oBBCshCuv/s0YUpdGQ5NV7AvM9reeh3hWVX5nTZb4PMbakUrdxO+yFrQFepCaYuGSyXzHTxKk41DokM/tWGlyw=="],
-
-    "@effected/jwt": ["@effected/jwt@0.4.0", "", { "peerDependencies": { "effect": "^4.0.0" } }, "sha512-vFsNRShmdKSEKOvFoWQNIedLTWokbf20+LrcMV8aXJ/WGwkjNNLlOBv0jJdFFodx1dJFKtnAr2qnEkQk9gNrdA=="],
-
-    "@effected/semver": ["@effected/semver@0.14.0", "", { "peerDependencies": { "effect": "^4.0.0" } }, "sha512-TUaLtVPrWiM25MRVNzpHWbc0tKCJwjPJUkD9fmvlWttD634On+T2yWo2rlFzoFVkklSVX0ClppfRWb25LwVQ9A=="],
 
     "@electric-sql/pglite": ["@electric-sql/pglite@0.5.10", "", {}, "sha512-tXc/25U3ulOkiRQuTFdwIv+JhBqtMdAF7Gvo6CfZZWtSB4+hgC4Wr2vwK5ngvvN5PJfAAEGIsfyCVy1JhCOBYw=="],
 
@@ -6827,8 +6845,6 @@
     "bippy": ["bippy@0.7.3", "", { "dependencies": { "@types/react-reconciler": "^0.33.0" }, "peerDependencies": { "react": ">=16.0.0" } }, "sha512-C3yYBkcthd9kMXJwwwR69+ICGruw+R/Mcoq1LqsoscEoPe1OshyhYjMtYmtpoDSiJX40a867qhG4TT7g4mMIdQ=="],
 
     "bl": ["bl@4.1.0", "", { "dependencies": { "buffer": "^5.5.0", "inherits": "^2.0.4", "readable-stream": "^3.4.0" } }, "sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w=="],
-
-    "blakejs": ["blakejs@1.2.1", "", {}, "sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ=="],
 
     "body-parser": ["body-parser@2.3.0", "", { "dependencies": { "bytes": "^3.1.2", "content-type": "^2.0.0", "debug": "^4.4.3", "http-errors": "^2.0.1", "iconv-lite": "^0.7.2", "on-finished": "^2.4.1", "qs": "^6.15.2", "raw-body": "^3.0.2", "type-is": "^2.1.0" } }, "sha512-2cGmJupaNgg+QUwVLAucDuWuoMZ6EX9iHDRswZ5lsNYEmwPaRknMPCLZz07yTzVq/83p4o/wzbDZbBrTvGGTIw=="],
 

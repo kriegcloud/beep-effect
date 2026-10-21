@@ -185,12 +185,11 @@ const SourceRefCropPageCheck = S.makeFilter(
       O.zipWith(page, crop, (refPage, pageCrop) => Eq.equals(pageCrop.page, refPage)),
       constTrue
     ),
-  {
-    identifier: $I`SourceRefCropPageCheck`,
+  $I.annote("SourceRefCropPageCheck", {
     title: "Source reference crop page",
     description: "When a source reference carries both a page and a crop, the crop must be taken from that page.",
     message: "Expected the crop page to equal the source reference page",
-  }
+  })
 );
 
 /**

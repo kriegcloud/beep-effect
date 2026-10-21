@@ -1,0 +1,728 @@
+/**
+ * The REST error taxonomy: one `GitHubError` for every resource, with a
+ * structural `kind` to branch on and GitHub's validation entries preserved.
+ *
+ * **Details**
+ *
+ * Classification happens once, in `GitHubError.fromOctokit`, so the taxonomy
+ * cannot drift between resources and no consumer string-matches a message.
+ * The rate-limit header reader lives here too because the client reads the
+ * same headers on the success path.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $GithubId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import { headerNumber, retryAfterMillisFrom } from "./internal/headers.ts";
+
+const $I = $GithubId.create("GitHubError");
+
+/**
+ * Why a GitHub call failed, as a value you can branch on.
+ *
+ * **Details**
+ *
+ * Branch on this discriminant instead of string-matching an error message:
+ * `alreadyExists` tells "someone else created it" apart from "that failed", so
+ * an upsert needs no follow-up existence check.
+ *
+ * **Example** (Validate a structural error kind)
+ *
+ * ```ts
+ * import { GitHubErrorKind } from "@beep/github/GitHubError";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(GitHubErrorKind)("notFound")) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const GitHubErrorKind = LiteralKit([
+  /** The resource is not there (404). Often not an error at all — see the `*Option` reads. */
+  "notFound",
+  /** The resource already exists (422/409 saying so). What makes `upsert` implementable. */
+  "alreadyExists",
+  /** GitHub understood and refused: validation, policy, conflict. */
+  "rejected",
+  /** Credentials are missing, wrong, or lack the required scope. */
+  "unauthorized",
+  /** A rate limit — primary or secondary. Retryable, usually with a server-advised delay. */
+  "rateLimited",
+  /** The request never got a usable answer: 5xx, a network failure, an abort. Retryable. */
+  "transport",
+  /** A response arrived but did not match the schema it was decoded against. */
+  "decode",
+]).pipe($I.annoteSchema("GitHubErrorKind", { description: "Why a GitHub call failed, as a value you can branch on." }));
+
+/**
+ * The values accepted by {@link GitHubErrorKind}.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitHubErrorKind = typeof GitHubErrorKind.Type;
+
+/**
+ * The validation codes GitHub documents for a 422's `errors[].code`.
+ *
+ * **Details**
+ *
+ * The complete documented set. Only `already_exists` earns its own
+ * {@link GitHubErrorKind}; every other code classifies as `rejected`, and a
+ * caller that needs to tell them apart reads {@link GitHubError}'s `validation`
+ * or uses {@link GitHubError.hasValidationCode}.
+ *
+ * `missing` is the one that looks like `notFound` and is not: it names a
+ * resource the request *referred to* — a commit sha, an assignee — not the one
+ * it acted on. Routing it to `notFound` would let every
+ * `catchIf(GitHubError.hasKind("notFound"), …)` recovery swallow a bad argument.
+ *
+ * **Example** (Recognize a documented validation code)
+ *
+ * ```ts
+ * import { GitHubValidationCode } from "@beep/github/GitHubError";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(GitHubValidationCode)("missing_field")) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const GitHubValidationCode = LiteralKit([
+  /** A resource the request referred to does not exist. */
+  "missing",
+  /** A required parameter was not sent. */
+  "missing_field",
+  /** A parameter is badly formatted. */
+  "invalid",
+  /** Another resource already has this value. Classifies as `alreadyExists`. */
+  "already_exists",
+  /** The parameters were invalid. */
+  "unprocessable",
+  /** No fixed meaning: read the entry's `message`. */
+  "custom",
+]).pipe(
+  $I.annoteSchema("GitHubValidationCode", {
+    description: "The validation codes GitHub documents for a 422's `errors[].code`.",
+  })
+);
+
+/**
+ * The values accepted by {@link GitHubValidationCode}.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitHubValidationCode = typeof GitHubValidationCode.Type;
+
+/**
+ * One entry from a failed response's `data.errors` array, as GitHub sent it.
+ *
+ * **Details**
+ *
+ * Every field is optional because GitHub's entries vary by endpoint: the
+ * releases endpoint sends `resource`, `code` and `field` with no `message`,
+ * while a `custom` entry may carry only a `message`. `code` is a plain string
+ * rather than {@link GitHubValidationCode} so an unexpected code cannot make
+ * the error itself fail to construct: a refused request must still surface as
+ * a `GitHubError`, never as a defect.
+ *
+ * **Example** (Preserve an unfamiliar validation code)
+ *
+ * ```ts
+ * import { GitHubValidationEntry } from "@beep/github/GitHubError";
+ *
+ * const entry = GitHubValidationEntry.make({ field: "tag_name", code: "future_code" });
+ * console.log(entry.code) // future_code
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class GitHubValidationEntry extends S.Opaque<GitHubValidationEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The resource type GitHub validated, e.g. `"Release"`. */
+    resource: S.optionalKey(S.String).pipe(
+      $I.annoteKey("GitHubValidationEntry.resource", {
+        description: 'The resource type GitHub validated, e.g. `"Release"`.',
+      })
+    ),
+    /** The parameter at fault, e.g. `"tag_name"`. */
+    field: S.optionalKey(S.String).pipe(
+      $I.annoteKey("GitHubValidationEntry.field", { description: 'The parameter at fault, e.g. `"tag_name"`.' })
+    ),
+    /** GitHub's validation code — one of {@link GitHubValidationCode} when documented. */
+    code: S.optionalKey(S.String).pipe(
+      $I.annoteKey("GitHubValidationEntry.code", {
+        description: "GitHub's validation code — one of GitHubValidationCode when documented.",
+      })
+    ),
+    /** GitHub's prose, when it sent any. */
+    message: S.optionalKey(S.String).pipe(
+      $I.annoteKey("GitHubValidationEntry.message", { description: "GitHub's prose, when it sent any." })
+    ),
+  }).pipe(
+    $I.annoteSchema("GitHubValidationEntry", {
+      description: "One entry from a failed response's `data.errors` array, as GitHub sent it.",
+    })
+  )
+) {}
+
+/**
+ * Every REST failure this package produces, from every resource.
+ *
+ * **Details**
+ *
+ * One error class, not one per resource: {@link GitHubErrorKind} routes and
+ * `operation` identifies what was attempted. This mirrors `@beep/git`,
+ * where classification happens once so no consumer string-matches stderr.
+ *
+ * **Example** (Route a missing resource)
+ *
+ * ```ts
+ * import { GitHubError } from "@beep/github/GitHubError";
+ *
+ * const error = GitHubError.notFound("GitBranch.get", "main");
+ * console.log(error.kind) // notFound
+ * ```
+ *
+ * @public
+ * @category errors
+ * @since 0.0.0
+ */
+export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: unique symbol }>($I`GitHubError`)(
+  "GitHubError",
+  {
+    /** Structural routing. Branch on this, never on the rendered message. */
+    kind: GitHubErrorKind.pipe(
+      $I.annoteKey("GitHubError.kind", {
+        description: "Structural routing. Branch on this, never on the rendered message.",
+      })
+    ),
+    /** What was attempted: a resource method (`"GitBranch.upsert"`) or a raw route. */
+    operation: S.String.pipe(
+      $I.annoteKey("GitHubError.operation", {
+        description: 'What was attempted: a resource method (`"GitBranch.upsert"`) or a raw route.',
+      })
+    ),
+    /** Human-readable cause, for logs and messages. Never a routing surface. */
+    reason: S.String.pipe(
+      $I.annoteKey("GitHubError.reason", {
+        description: "Human-readable cause, for logs and messages. Never a routing surface.",
+      })
+    ),
+    /** GitHub's HTTP status, when the request reached GitHub at all. */
+    status: S.optionalKey(S.Int).pipe(
+      $I.annoteKey("GitHubError.status", {
+        description: "GitHub's HTTP status, when the request reached GitHub at all.",
+      })
+    ),
+    /**
+     * A server-advised delay before retrying, in milliseconds.
+     *
+     * **Details**
+     *
+     * Written by the client from `retry-after` or the rate-limit reset, and read
+     * by exactly one thing: the retry `Schedule`. It is a policy input, not
+     * information for a caller. Whether a failure is worth retrying at all is the
+     * derived `retryable` getter.
+     */
+    retryAfterMillis: S.optionalKey(S.Int).pipe(
+      $I.annoteKey("GitHubError.retryAfterMillis", {
+        description: "A server-advised delay before retrying, in milliseconds.",
+      })
+    ),
+    /**
+     * GitHub's validation entries, when the failed response carried any.
+     *
+     * **Details**
+     *
+     * The structured half of a 422: branch on an entry's `code` and `field`
+     * rather than on `reason`. Absent when GitHub sent no `errors` array — some
+     * 422s ("Update is not a fast forward") are prose only.
+     */
+    validation: GitHubValidationEntry.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("GitHubError.validation", {
+        description: "GitHub's validation entries, when the failed response carried any.",
+      })
+    ),
+    /** The underlying throwable, when one exists. */
+    cause: S.optionalKey(S.Defect()).pipe(
+      $I.annoteKey("GitHubError.cause", { description: "The underlying throwable, when one exists." })
+    ),
+  },
+  $I.annoteError<GitHubError>("GitHubError", {
+    description: "Every REST failure this package produces, from every resource.",
+  })
+) {
+  /**
+   * Renders the operation, optional HTTP status and reason for logs and messages.
+   *
+   * **Details**
+   *
+   * For example, `"GitBranch.upsert failed (422): Reference already exists"`.
+   *
+   * **Example** (Render a failed branch upsert)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * const error = GitHubError.alreadyExists("GitBranch.upsert", "Reference");
+   * console.log(error.message) // GitBranch.upsert failed (422): Reference already exists
+   * ```
+   *
+   * @category formatting
+   * @since 0.0.0
+   */
+  override get message(): string {
+    return this.status === undefined
+      ? `${this.operation} failed: ${this.reason}`
+      : `${this.operation} failed (${this.status}): ${this.reason}`;
+  }
+
+  /**
+   * Whether retrying could plausibly succeed.
+   *
+   * **Details**
+   *
+   * Derived from `kind` rather than stored. A 404 or a
+   * validation rejection will fail identically on every attempt; only a
+   * transport failure or a rate limit can change its mind.
+   *
+   * **Example** (Distinguish transient and permanent failures)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * const transient = GitHubError.fromOctokit("GitBranch.get", new Error("Network unavailable"), 0);
+   * console.log(transient.retryable) // true
+   * console.log(GitHubError.notFound("GitBranch.get", "main").retryable) // false
+   * ```
+   *
+   * @category predicates
+   * @since 0.0.0
+   */
+  get retryable(): boolean {
+    return this.kind === "transport" || this.kind === "rateLimited";
+  }
+
+  /**
+   * The requested thing is not there.
+   *
+   * **Example** (Describe an absent branch)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * console.log(GitHubError.notFound("GitBranch.get", "main").message) // GitBranch.get failed (404): main not found
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly notFound: {
+    (operation: string, subject: string): GitHubError;
+    (subject: string): (operation: string) => GitHubError;
+  } = dual(
+    2,
+    (operation: string, subject: string): GitHubError =>
+      GitHubError.make({ kind: "notFound", operation, reason: `${subject} not found`, status: 404 })
+  );
+
+  /**
+   * The thing you asked to create is already there.
+   *
+   * **Example** (Describe a duplicate branch)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * console.log(GitHubError.alreadyExists("GitBranch.create", "main").kind) // alreadyExists
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly alreadyExists: {
+    (operation: string, subject: string): GitHubError;
+    (subject: string): (operation: string) => GitHubError;
+  } = dual(
+    2,
+    (operation: string, subject: string): GitHubError =>
+      GitHubError.make({
+        kind: "alreadyExists",
+        operation,
+        reason: `${subject} already exists`,
+        status: 422,
+      })
+  );
+
+  /**
+   * GitHub understood the request and refused it.
+   *
+   * **Example** (Describe a refused update)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * console.log(GitHubError.rejected("GitBranch.update", 422, "Not a fast forward").retryable) // false
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly rejected: {
+    (operation: string, status: number, reason: string): GitHubError;
+    (status: number, reason: string): (operation: string) => GitHubError;
+  } = dual(
+    3,
+    (operation: string, status: number, reason: string): GitHubError =>
+      GitHubError.make({ kind: "rejected", operation, reason, status })
+  );
+
+  /**
+   * A response did not match the schema it was decoded against.
+   *
+   * **Example** (Describe an invalid response)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * console.log(GitHubError.decode("GitBranch.get", "Expected a ref").kind) // decode
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static decode(operation: string, reason: string, cause?: unknown): GitHubError {
+    return GitHubError.make({
+      kind: "decode",
+      operation,
+      reason,
+      ...O.getSomesStruct({ cause: O.fromUndefinedOr(cause) }),
+    });
+  }
+
+  /**
+   * Classify anything octokit threw.
+   *
+   * **Details**
+   *
+   * The single classification step for the whole package — every resource
+   * method's failures come through here, so the taxonomy cannot drift between
+   * resources.
+   *
+   * `nowMillis` is passed in rather than read from the wall clock so the
+   * function stays pure and total: the rate-limit reset header is an absolute
+   * epoch second, and turning it into a delay needs a "now" the caller controls.
+   * The client supplies `Clock.currentTimeMillis`, which is the `TestClock`
+   * under test.
+   *
+   * **Example** (Classify a server retry delay)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   *
+   * const error = GitHubError.fromOctokit("GitBranch.get", {
+   *   status: 429,
+   *   message: "Too many requests",
+   *   response: { headers: { "retry-after": "2" } },
+   * }, 0);
+   * console.log(error.retryAfterMillis) // 2000
+   * ```
+   *
+   * @category parsing
+   * @since 0.0.0
+   */
+  static readonly fromOctokit: {
+    (operation: string, error: unknown, nowMillis: number): GitHubError;
+    (error: unknown, nowMillis: number): (operation: string) => GitHubError;
+  } = dual(3, (operation: string, error: unknown, nowMillis: number): GitHubError => {
+    const facts = readThrowable(error);
+    const retryAfterMillis = retryAfterMillisFrom(facts.headers, nowMillis);
+    const kind = classify(facts, retryAfterMillis);
+    return GitHubError.make({
+      kind,
+      operation,
+      reason: P.isObject(error) ? sanitizeReason(facts.reason) : facts.reason,
+      ...O.getSomesStruct({ status: O.fromUndefinedOr(facts.status) }),
+      ...O.getSomesStruct({ retryAfterMillis: O.fromUndefinedOr(retryAfterMillis) }),
+      ...(facts.validation.length > 0 ? { validation: facts.validation } : {}),
+      cause: error,
+    });
+  });
+
+  /**
+   * A predicate over one or more kinds, for `Effect.catchIf`.
+   *
+   * **Example** (Recover from a missing resource with an empty string)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   * import * as Effect from "effect/Effect";
+   *
+   * const read = Effect.fail(GitHubError.notFound("GitBranch.get", "main"));
+   * const orDefault = read.pipe(
+   *   Effect.catchIf(GitHubError.hasKind("notFound"), () => Effect.succeed("")),
+   * );
+   * console.log(Effect.runSync(orDefault) === "") // true
+   * ```
+   *
+   * @category predicates
+   * @since 0.0.0
+   */
+  static hasKind(...kinds: ReadonlyArray<(typeof GitHubErrorKind.literals)[number]>): (error: GitHubError) => boolean {
+    const set = HashSet.fromIterable<string>(kinds);
+    return (error) => HashSet.has(set, error.kind);
+  }
+
+  /**
+   * A predicate over GitHub's validation codes, for `Effect.catchIf`.
+   *
+   * **Details**
+   *
+   * Matches when any entry in {@link GitHubError}'s `validation` carries one of
+   * the codes. Use it for the distinctions {@link GitHubErrorKind} deliberately
+   * does not draw, such as a `missing_field` against an `invalid`.
+   *
+   * **Example** (Ignore a missing resource validation error)
+   *
+   * ```ts
+   * import { GitHubError } from "@beep/github/GitHubError";
+   * import { GitHubValidationEntry } from "@beep/github/GitHubError";
+   * import * as Effect from "effect/Effect";
+   *
+   * const create = Effect.fail(GitHubError.make({
+   *   kind: "rejected", operation: "GitBranch.create", reason: "Commit is missing",
+   *   validation: [GitHubValidationEntry.make({ code: "missing", field: "sha" })],
+   * }));
+   * const tolerant = create.pipe(
+   *   Effect.catchIf(GitHubError.hasValidationCode("missing"), () => Effect.void),
+   * );
+   * console.log(Effect.runSync(tolerant)) // undefined
+   * ```
+   *
+   * @category predicates
+   * @since 0.0.0
+   */
+  static hasValidationCode(
+    ...codes: ReadonlyArray<(typeof GitHubValidationCode.literals)[number]>
+  ): (error: GitHubError) => boolean {
+    const set = HashSet.fromIterable<string>(codes);
+    return (error) =>
+      error.validation !== undefined &&
+      A.some(error.validation, (entry) => entry.code !== undefined && HashSet.has(set, entry.code));
+  }
+}
+
+/** What classification needs out of an unknown throwable. */
+interface Throwable {
+  readonly headers: Readonly<Record<string, unknown>> | undefined;
+  readonly reason: string;
+  readonly status: number | undefined;
+  readonly validation: ReadonlyArray<GitHubValidationEntry>;
+}
+
+const describeThrowable = (value: unknown): string =>
+  Result.getOrElse(
+    Result.try(() => String(value)),
+    () => "Unable to describe GitHub REST failure"
+  );
+
+/**
+ * Read an unknown throwable structurally.
+ *
+ * **Details**
+ *
+ * Deliberately structural rather than `instanceof RequestError`:
+ * `@octokit/request-error` is a transitive dependency this package does not
+ * declare, and importing a package you did not declare is how a peer closure
+ * rots. The shape it throws — `{ status, response: { headers, data } }` — is
+ * stable and public.
+ */
+const readThrowable = (error: unknown): Throwable => {
+  if (!P.isObject(error)) {
+    return { status: undefined, headers: undefined, reason: describeThrowable(error), validation: [] };
+  }
+  const record = error;
+  const response = asRecord(record.response);
+  const headers = asRecord(response?.headers);
+  const data = asRecord(response?.data);
+  return {
+    status: isStatus(record.status) ? record.status : undefined,
+    headers,
+    reason: P.isString(record.message) ? record.message : describeThrowable(error),
+    validation: readValidation(data),
+  };
+};
+
+const isStatus = S.is(S.Int);
+
+const asRecord = (value: unknown): Record<string, unknown> | undefined => (P.isObject(value) ? value : undefined);
+
+/**
+ * GitHub answers some requests with an HTML error page whose body becomes a
+ * multi-kilobyte "message".
+ *
+ * **Gotchas**
+ *
+ * An HTML body is never a useful reason string, and letting one through means
+ * a log line with a whole web page in it.
+ */
+const sanitizeReason = (message: string): string => {
+  const trimmed = message.trim();
+  if (trimmed.startsWith("<") || trimmed.length > MAX_REASON_LENGTH) {
+    return trimmed.startsWith("<")
+      ? "GitHub returned an HTML error page instead of a JSON response"
+      : `${trimmed.slice(0, MAX_REASON_LENGTH)}…`;
+  }
+  return trimmed;
+};
+
+const MAX_REASON_LENGTH = 500;
+
+/** GitHub's validation failures arrive as `data.errors[]` entries. */
+const readValidation = (data: Record<string, unknown> | undefined): ReadonlyArray<GitHubValidationEntry> => {
+  const errors = data?.errors;
+  if (!A.isArray(errors)) return [];
+  const entries: Array<GitHubValidationEntry> = [];
+  for (const raw of errors) {
+    const record = asRecord(raw);
+    if (record === undefined) continue;
+    const resource = stringField(record, "resource");
+    const field = stringField(record, "field");
+    const code = stringField(record, "code");
+    const message = stringField(record, "message");
+    if (resource === undefined && field === undefined && code === undefined && message === undefined) continue;
+    entries.push(
+      GitHubValidationEntry.make({
+        ...O.getSomesStruct({ resource: O.fromUndefinedOr(resource) }),
+        ...O.getSomesStruct({ field: O.fromUndefinedOr(field) }),
+        ...O.getSomesStruct({ code: O.fromUndefinedOr(code) }),
+        ...O.getSomesStruct({ message: O.fromUndefinedOr(message) }),
+      })
+    );
+  }
+  return entries;
+};
+
+const stringField: {
+  (record: Record<string, unknown>, key: string): string | undefined;
+  (key: string): (record: Record<string, unknown>) => string | undefined;
+} = dual(2, (record: Record<string, unknown>, key: string): string | undefined =>
+  P.isString(record[key]) ? record[key] : undefined
+);
+
+const ALREADY_EXISTS = "already exists";
+
+/** GitHub's documented validation-error code for a duplicate resource. */
+const ALREADY_EXISTS_CODE = "already_exists";
+
+/**
+ * Kinds decided by the status code alone, once the status is known.
+ *
+ * **Details**
+ *
+ * A 403 is GitHub's answer to BOTH "you may not" and "you have asked too
+ * often". Only the headers tell them apart: an exhausted budget carries a
+ * zeroed remaining count or an explicit delay. A 422 or 409 needs the response
+ * body, so it is decided by {@link saysAlreadyExists}.
+ */
+const statusKind: {
+  (facts: Throwable, status: number, retryAfterMillis: number | undefined): GitHubErrorKind;
+  (status: number, retryAfterMillis: number | undefined): (facts: Throwable) => GitHubErrorKind;
+} = dual(
+  3,
+  (facts: Throwable, status: number, retryAfterMillis: number | undefined): GitHubErrorKind =>
+    Match.value(status).pipe(
+      Match.when(404, (): GitHubErrorKind => "notFound"),
+      Match.when(429, (): GitHubErrorKind => "rateLimited"),
+      Match.when(403, (): GitHubErrorKind => (retryAfterMillis === undefined ? "unauthorized" : "rateLimited")),
+      Match.when(401, (): GitHubErrorKind => "unauthorized"),
+      Match.when(Match.is(422, 409), (): GitHubErrorKind => (saysAlreadyExists(facts) ? "alreadyExists" : "rejected")),
+      Match.when(isServerFailure, (): GitHubErrorKind => "transport"),
+      Match.orElse((): GitHubErrorKind => "rejected")
+    )
+);
+
+const isServerFailure = (status: number): boolean => status >= 500;
+
+const classify: {
+  (facts: Throwable, retryAfterMillis: number | undefined): GitHubErrorKind;
+  (retryAfterMillis: number | undefined): (facts: Throwable) => GitHubErrorKind;
+} = dual(
+  2,
+  (facts: Throwable, retryAfterMillis: number | undefined): GitHubErrorKind =>
+    facts.status === undefined ? "transport" : statusKind(facts, facts.status, retryAfterMillis)
+);
+
+/**
+ * Recognizes duplicate-resource failures from structured validation codes or prose.
+ *
+ * **Details**
+ *
+ * The structured code is the authority — the releases endpoint sends it with
+ * no message at all. The prose checks cover endpoints that say so only in
+ * words, such as `/git/refs` answering "Reference already exists".
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+const saysAlreadyExists = (facts: Throwable): boolean => {
+  if (A.some(facts.validation, (entry) => entry.code === ALREADY_EXISTS_CODE)) return true;
+  const reason = facts.reason.toLowerCase();
+  if (reason.includes(ALREADY_EXISTS)) return true;
+  return A.some(facts.validation, (entry) => entry.message?.toLowerCase().includes(ALREADY_EXISTS) ?? false);
+};
+
+/**
+ * Re-exported for the client, which reads the same headers on the **success**
+ * path to keep its rate-limit snapshot current.
+ *
+ * **Details**
+ *
+ * Answers `Option.none()` unless all three headers are present and numeric: a
+ * partial snapshot is never reported.
+ *
+ * **Example** (Read a complete rate-limit snapshot)
+ *
+ * ```ts
+ * import { readRateLimitHeaders } from "@beep/github/GitHubError";
+ * import * as O from "effect/Option";
+ *
+ * const snapshot = readRateLimitHeaders({
+ *   "x-ratelimit-remaining": "42", "x-ratelimit-limit": "5000", "x-ratelimit-reset": "100",
+ * });
+ * console.log(O.getOrUndefined(O.map(snapshot, (value) => value.remaining))) // 42
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readRateLimitHeaders = (
+  headers: Readonly<Record<string, unknown>> | undefined
+): O.Option<{ readonly remaining: number; readonly limit: number; readonly resetEpochSeconds: number }> =>
+  O.all({
+    remaining: O.fromUndefinedOr(headerNumber(headers, "x-ratelimit-remaining")),
+    limit: O.fromUndefinedOr(headerNumber(headers, "x-ratelimit-limit")),
+    resetEpochSeconds: O.fromUndefinedOr(headerNumber(headers, "x-ratelimit-reset")),
+  });

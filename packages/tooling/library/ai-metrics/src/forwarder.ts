@@ -75,12 +75,11 @@ const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
               path: [0],
               issue: "Forwarder timer command[0] must be an absolute executable path.",
             },
-      {
-        identifier: $I`AiMetricsForwarderTimerCommandAbsoluteExecutableCheck`,
+      $I.annote("AiMetricsForwarderTimerCommandAbsoluteExecutableCheck", {
         title: "AI Metrics Forwarder Timer Command Absolute Executable",
         description: "A forwarder timer command whose executable is pinned to an absolute path.",
         message: "Forwarder timer command[0] must be an absolute executable path.",
-      }
+      })
     )
   ),
   $I.annoteSchema("AiMetricsForwarderTimerCommand", {

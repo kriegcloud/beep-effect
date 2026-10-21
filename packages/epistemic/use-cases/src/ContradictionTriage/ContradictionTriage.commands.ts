@@ -86,11 +86,12 @@ class SubmitContradictionCandidateStruct extends S.Opaque<
 const validIntervalIsOrdered = Order.isLessThan(DateTime.Order);
 
 const SubmitContradictionCandidateSchema = SubmitContradictionCandidateStruct.mapFields(identity).check(
-  makeValidIntervalCheck({
-    identifier: $I`SubmitContradictionCandidateValidIntervalCheck`,
-    title: "Contradiction Candidate Valid Interval",
-    description: "Checks that a closed candidate validity interval is a non-empty forward half-open range.",
-  })
+  makeValidIntervalCheck(
+    $I.annote("SubmitContradictionCandidateValidIntervalCheck", {
+      title: "Contradiction Candidate Valid Interval",
+      description: "Checks that a closed candidate validity interval is a non-empty forward half-open range.",
+    })
+  )
 );
 
 /**
@@ -185,12 +186,14 @@ export type ContradictionDispositionFilter = typeof ContradictionDispositionFilt
  * @since 0.0.0
  */
 export const ContradictionCandidatePageLimit = PosInt.check(
-  S.isLessThanOrEqualTo(100, {
-    identifier: $I`ContradictionCandidatePageLimitMaximumCheck`,
-    title: "Contradiction Candidate Page Limit Maximum",
-    description: "Contradiction candidate pages contain at most 100 rows.",
-    message: "Expected contradiction candidate page limit to be at most 100",
-  })
+  S.isLessThanOrEqualTo(
+    100,
+    $I.annote("ContradictionCandidatePageLimitMaximumCheck", {
+      title: "Contradiction Candidate Page Limit Maximum",
+      description: "Contradiction candidate pages contain at most 100 rows.",
+      message: "Expected contradiction candidate page limit to be at most 100",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ContradictionCandidatePageLimit", {
     description: "Positive contradiction-candidate page size capped at 100 rows.",

@@ -20,12 +20,14 @@ const $I = $SchemaId.create("Did");
 const didSyntaxPattern =
   /^did:[a-z0-9]+:(?:(?:[A-Za-z0-9._-]|%[0-9A-Fa-f]{2})*:)*(?:[A-Za-z0-9._-]|%[0-9A-Fa-f]{2})+$/u;
 
-const didSyntaxCheck = S.isPattern(didSyntaxPattern, {
-  identifier: $I`DidSyntaxCheck`,
-  title: "DID Syntax",
-  description: "A Decentralized Identifier matching the W3C DID Core `did:<method-name>:<method-specific-id>` ABNF.",
-  message: "DID must match W3C DID Core syntax: did:<lowercase-alphanumeric-method>:<method-specific-id>",
-});
+const didSyntaxCheck = S.isPattern(
+  didSyntaxPattern,
+  $I.annote("DidSyntaxCheck", {
+    title: "DID Syntax",
+    description: "A Decentralized Identifier matching the W3C DID Core `did:<method-name>:<method-specific-id>` ABNF.",
+    message: "DID must match W3C DID Core syntax: did:<lowercase-alphanumeric-method>:<method-specific-id>",
+  })
+);
 
 /**
  * Branded schema for W3C DID Core identifier strings.

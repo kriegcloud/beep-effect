@@ -180,18 +180,22 @@ export class MetricInstrument extends S.Opaque<MetricInstrument, { readonly bran
     ),
   })
     .check(
-      S.makeFilter(({ kind, boundaries }) => O.isNone(boundaries) || kind === MetricKind.Enum.histogram, {
-        identifier: $I`MetricInstrumentBoundariesKindCheck`,
-        title: "Metric Boundaries Kind",
-        description: "Histogram boundaries are allowed only on histogram metrics.",
-        message: "Expected boundaries only on a histogram metric",
-      }),
-      S.makeFilter(({ boundaries }) => O.match(boundaries, { onNone: () => true, onSome: isStrictlyAscending }), {
-        identifier: $I`MetricInstrumentBoundariesOrderCheck`,
-        title: "Metric Boundaries Order",
-        description: "Histogram boundaries are strictly ascending.",
-        message: "Expected strictly ascending histogram boundaries",
-      })
+      S.makeFilter(
+        ({ kind, boundaries }) => O.isNone(boundaries) || kind === MetricKind.Enum.histogram,
+        $I.annote("MetricInstrumentBoundariesKindCheck", {
+          title: "Metric Boundaries Kind",
+          description: "Histogram boundaries are allowed only on histogram metrics.",
+          message: "Expected boundaries only on a histogram metric",
+        })
+      ),
+      S.makeFilter(
+        ({ boundaries }) => O.match(boundaries, { onNone: () => true, onSome: isStrictlyAscending }),
+        $I.annote("MetricInstrumentBoundariesOrderCheck", {
+          title: "Metric Boundaries Order",
+          description: "Histogram boundaries are strictly ascending.",
+          message: "Expected strictly ascending histogram boundaries",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("MetricInstrument", {
@@ -273,18 +277,23 @@ export class SpanInstrument extends S.Opaque<SpanInstrument, { readonly brand: u
     ),
   })
     .check(
-      S.makeFilter(({ name, protocol, conforms }) => conforms === (protocol || S.is(SpanName)(name)), {
-        identifier: $I`SpanInstrumentConformsCheck`,
-        title: "Span Name Conformance",
-        description: "conforms is true exactly when the span is a protocol span or its name is in Concept.action form.",
-        message: "Expected conforms to match whether the name is a protocol or Concept(.Sub)*.action span name",
-      }),
-      S.makeFilter(({ conforms, origin }) => conforms || origin === InstrumentOrigin.Enum.harvested, {
-        identifier: $I`SpanInstrumentProtocolNameCheck`,
-        title: "Span Protocol Name",
-        description: "Only protocol spans and legacy harvested spans may use a name outside the Concept.action form.",
-        message: "Expected a Concept(.Sub)*.action span name, or protocol: true",
-      })
+      S.makeFilter(
+        ({ name, protocol, conforms }) => conforms === (protocol || S.is(SpanName)(name)),
+        $I.annote("SpanInstrumentConformsCheck", {
+          title: "Span Name Conformance",
+          description:
+            "conforms is true exactly when the span is a protocol span or its name is in Concept.action form.",
+          message: "Expected conforms to match whether the name is a protocol or Concept(.Sub)*.action span name",
+        })
+      ),
+      S.makeFilter(
+        ({ conforms, origin }) => conforms || origin === InstrumentOrigin.Enum.harvested,
+        $I.annote("SpanInstrumentProtocolNameCheck", {
+          title: "Span Protocol Name",
+          description: "Only protocol spans and legacy harvested spans may use a name outside the Concept.action form.",
+          message: "Expected a Concept(.Sub)*.action span name, or protocol: true",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("SpanInstrument", {
@@ -613,12 +622,11 @@ export class InstrumentCatalog extends S.Opaque<InstrumentCatalog, { readonly br
           const conflicts = catalogConflicts(catalog);
           return A.isReadonlyArrayNonEmpty(conflicts) ? A.map(conflicts, describeConflict) : undefined;
         },
-        {
-          identifier: $I`InstrumentCatalogConflictCheck`,
+        $I.annote("InstrumentCatalogConflictCheck", {
           title: "Instrument Catalog Conflicts",
           description:
             "Names are unique per signal, referenced keys exist and allow the signal, metric labels are bounded, and instrument tiers are no looser than their attributes.",
-        }
+        })
       )
     )
     .pipe(

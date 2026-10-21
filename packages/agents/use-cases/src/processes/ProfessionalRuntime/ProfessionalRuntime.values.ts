@@ -26,8 +26,8 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeFixtureScenarioId = LiteralKit(["law-patent-intake", "wealth-cash-request"]).annotate(
-  $I.annote("RuntimeFixtureScenarioId", {
+export const RuntimeFixtureScenarioId = LiteralKit(["law-patent-intake", "wealth-cash-request"]).pipe(
+  $I.annoteSchema("RuntimeFixtureScenarioId", {
     description: "Fixture scenario ids supported by the deterministic professional runtime proof.",
   })
 );
@@ -65,8 +65,8 @@ export type RuntimeFixtureScenarioId = typeof RuntimeFixtureScenarioId.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]).annotate(
-  $I.annote("RuntimeCandidateLifecycle", {
+export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]).pipe(
+  $I.annoteSchema("RuntimeCandidateLifecycle", {
     description: "Candidate lifecycle vocabulary used by runtime output sections.",
   })
 );
@@ -104,8 +104,8 @@ export type RuntimeCandidateLifecycle = typeof RuntimeCandidateLifecycle.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]).annotate(
-  $I.annote("RuntimeClaimConfidence", {
+export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]).pipe(
+  $I.annoteSchema("RuntimeClaimConfidence", {
     description: "Confidence vocabulary for candidate claims.",
   })
 );
@@ -143,8 +143,8 @@ export type RuntimeClaimConfidence = typeof RuntimeClaimConfidence.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeApprovalDecision = LiteralKit(["pending"]).annotate(
-  $I.annote("RuntimeApprovalDecision", {
+export const RuntimeApprovalDecision = LiteralKit(["pending"]).pipe(
+  $I.annoteSchema("RuntimeApprovalDecision", {
     description: "Approval decision vocabulary for candidate approval gates.",
   })
 );
@@ -182,8 +182,8 @@ export type RuntimeApprovalDecision = typeof RuntimeApprovalDecision.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]).annotate(
-  $I.annote("RuntimeRequestKind", {
+export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]).pipe(
+  $I.annoteSchema("RuntimeRequestKind", {
     description: "Runtime request kinds represented in context packets.",
   })
 );
@@ -221,8 +221,8 @@ export type RuntimeRequestKind = typeof RuntimeRequestKind.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeSourceKind = LiteralKit(["email"]).annotate(
-  $I.annote("RuntimeSourceKind", {
+export const RuntimeSourceKind = LiteralKit(["email"]).pipe(
+  $I.annoteSchema("RuntimeSourceKind", {
     description: "Source artifact kinds represented in context packets.",
   })
 );
@@ -260,8 +260,8 @@ export type RuntimeSourceKind = typeof RuntimeSourceKind.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"]).annotate(
-  $I.annote("RuntimeActivityType", {
+export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"]).pipe(
+  $I.annoteSchema("RuntimeActivityType", {
     description: "Activity types emitted by deterministic runtime fixtures.",
   })
 );
@@ -299,8 +299,8 @@ export type RuntimeActivityType = typeof RuntimeActivityType.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"]).annotate(
-  $I.annote("RuntimeUsageMode", {
+export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"]).pipe(
+  $I.annoteSchema("RuntimeUsageMode", {
     description: "Usage modes emitted by deterministic runtime fixtures.",
   })
 );

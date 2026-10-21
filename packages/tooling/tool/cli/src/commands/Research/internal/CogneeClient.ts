@@ -469,4 +469,4 @@ export const cogneeCognify = Effect.fn("CogneeClient.cogneeCognify")(function* (
  * @category utilities
  */
 export const datasetForSourceType = (sourceType: string): string =>
-  sourceType === "link" ? "kb_inbox" : `kb_${sourceType.replaceAll("-", "_")}s`;
+  sourceType === "link" ? "kb_inbox" : `kb_${Str.replaceAll("-", "_")(sourceType)}s`;

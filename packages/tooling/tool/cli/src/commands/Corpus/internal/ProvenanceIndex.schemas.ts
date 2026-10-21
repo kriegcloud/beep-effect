@@ -53,18 +53,22 @@ const isTraversalSafe = (value: string): boolean =>
  * @since 0.0.0
  */
 export const CorpusRelativePath = S.NonEmptyString.check(
-  S.isPattern(/^(?!\/)[^\u0000]+$/u, {
-    identifier: $I`CorpusRelativePathSyntaxCheck`,
-    title: "Corpus Relative Path Syntax",
-    description: "Corpus-relative paths are not absolute and contain no NUL byte.",
-    message: "Expected a corpus-relative path without NUL.",
-  }),
-  S.makeFilter(isTraversalSafe, {
-    identifier: $I`CorpusRelativePathSegmentCheck`,
-    title: "Corpus Relative Path Segments",
-    description: "Corpus-relative path segments must not be empty, current-directory, or parent-directory markers.",
-    message: "Corpus-relative paths must not contain empty, '.' or '..' segments.",
-  })
+  S.isPattern(
+    /^(?!\/)[^\u0000]+$/u,
+    $I.annote("CorpusRelativePathSyntaxCheck", {
+      title: "Corpus Relative Path Syntax",
+      description: "Corpus-relative paths are not absolute and contain no NUL byte.",
+      message: "Expected a corpus-relative path without NUL.",
+    })
+  ),
+  S.makeFilter(
+    isTraversalSafe,
+    $I.annote("CorpusRelativePathSegmentCheck", {
+      title: "Corpus Relative Path Segments",
+      description: "Corpus-relative path segments must not be empty, current-directory, or parent-directory markers.",
+      message: "Corpus-relative paths must not contain empty, '.' or '..' segments.",
+    })
+  )
 ).pipe(
   S.brand("CorpusRelativePath"),
   $I.annoteSchema("CorpusRelativePath", {

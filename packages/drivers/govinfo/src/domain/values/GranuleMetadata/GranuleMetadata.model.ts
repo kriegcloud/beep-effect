@@ -10,13 +10,15 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/GranuleMetadata/GranuleMetadata.model");
 
 const Md5Hex = S.String.check(
-  S.isPattern(/^[0-9a-f]{32}$/i, {
-    description: "A 32-character hexadecimal MD5 digest.",
-    identifier: $I`Md5HexPatternCheck`,
-    message: "Expected a 32-character hexadecimal MD5 digest",
-    title: "MD5 hex digest",
-    arbitraryConstraint: { patterns: [{ source: "^[0-9a-fA-F]{32}$", flags: "" }] },
-  })
+  S.isPattern(
+    /^[0-9a-f]{32}$/i,
+    $I.annote("Md5HexPatternCheck", {
+      description: "A 32-character hexadecimal MD5 digest.",
+      message: "Expected a 32-character hexadecimal MD5 digest",
+      title: "MD5 hex digest",
+      arbitraryConstraint: { patterns: [{ source: "^[0-9a-fA-F]{32}$", flags: "" }] },
+    })
+  )
 ).pipe(
   $I.annoteSchema("Md5Hex", {
     description: "A 32-character hexadecimal MD5 digest.",

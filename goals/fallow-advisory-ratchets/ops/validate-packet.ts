@@ -98,12 +98,14 @@ const OwnerString = S.String.check(
 );
 
 const PositiveInt = S.Int.check(
-  S.isGreaterThan(0, {
-    description: "A positive integer used for packet task ranking.",
-    identifier: $I`PositiveIntCheck`,
-    message: "Task rank must be greater than zero",
-    title: "Positive Int",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PositiveIntCheck", {
+      description: "A positive integer used for packet task ranking.",
+      message: "Task rank must be greater than zero",
+      title: "Positive Int",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PositiveInt", {
     description: "Positive integer schema for ordered packet tasks.",

@@ -14,7 +14,7 @@
 const rawArgv = Bun.argv.slice(2);
 
 if (rawArgv.length === 2 && rawArgv[0] === "lint" && rawArgv[1] === "--fix") {
-  const A = await import("effect/Array");
+  const [A, Str] = await Promise.all([import("effect/Array"), import("effect/String")]);
   const CHANGED_PATH_DIFF_FILTER = "ACMRTUXB";
   const runGit = (args: ReadonlyArray<string>) =>
     Bun.spawnSync({
@@ -30,7 +30,7 @@ if (rawArgv.length === 2 && rawArgv[0] === "lint" && rawArgv[1] === "--fix") {
 
   if (A.every(outputs, (output) => output.success)) {
     const changedFiles = A.flatMap(outputs, (output) =>
-      A.filter(output.stdout.toString().trim().split(/\r?\n/), (line) => line.length > 0)
+      A.filter(Str.split(/\r?\n/)(Str.trim(output.stdout.toString())), (line) => line.length > 0)
     );
 
     if (changedFiles.length === 0) {

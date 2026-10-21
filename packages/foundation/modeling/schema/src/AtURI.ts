@@ -136,52 +136,61 @@ const hasLexiconAtUriShape = (value: string): boolean => {
 
 const AtUriChecks = S.makeFilterGroup(
   [
-    S.isMinLength(AT_URI_SCHEME.length + 1, {
-      identifier: $I`AtUriMinLengthCheck`,
-      title: "AT URI Min Length",
-      description: "An AT URI string with the `at://` scheme and a non-empty authority candidate.",
-      message: "AT URI must include the at:// scheme and a non-empty authority",
-    }),
-    S.isMaxLength(MAX_AT_URI_LENGTH, {
-      identifier: $I`AtUriMaxLengthCheck`,
-      title: "AT URI Max Length",
-      description: "An AT URI string within the AT Protocol defensive maximum length.",
-      message: `AT URI must not exceed ${MAX_AT_URI_LENGTH} characters`,
-    }),
-    S.makeFilter(hasLowercaseAtUriScheme, {
-      identifier: $I`AtUriLowercaseSchemeCheck`,
-      title: "AT URI Lowercase Scheme",
-      description: "An AT URI string that starts with the lowercase at:// scheme.",
-      message: "AT URI scheme must be lowercase at://",
-    }),
-    S.makeFilter(hasNoQueryOrFragment, {
-      identifier: $I`AtUriNoQueryOrFragmentCheck`,
-      title: "AT URI No Query Or Fragment",
-      description: "A current Lexicon AT URI string without query or fragment components.",
-      message: "AT URI Lexicon references must not include query or fragment components",
-    }),
-    S.makeFilter(hasLexiconAtUriShape, {
-      identifier: $I`AtUriLexiconShapeCheck`,
-      arbitraryConstraint: {
-        patterns: [
-          {
-            source:
-              "^at://(?:[a-z]{1,12}\\.example|did:plc:[a-z2-7]{24})(?:/app\\.bsky\\.feed\\.post(?:/[a-zA-Z0-9]{1,12})?)?$",
-            flags: "",
-          },
-        ],
-      },
-      title: "AT URI Lexicon Shape",
-      description:
-        "An AT URI matching at://AUTHORITY[/COLLECTION[/RKEY]] with AT Protocol authority, NSID collection, and record-key components.",
-      message: "AT URI must match at://AUTHORITY[/COLLECTION[/RKEY]] using normalized AT Protocol components",
-    }),
+    S.isMinLength(
+      AT_URI_SCHEME.length + 1,
+      $I.annote("AtUriMinLengthCheck", {
+        title: "AT URI Min Length",
+        description: "An AT URI string with the `at://` scheme and a non-empty authority candidate.",
+        message: "AT URI must include the at:// scheme and a non-empty authority",
+      })
+    ),
+    S.isMaxLength(
+      MAX_AT_URI_LENGTH,
+      $I.annote("AtUriMaxLengthCheck", {
+        title: "AT URI Max Length",
+        description: "An AT URI string within the AT Protocol defensive maximum length.",
+        message: `AT URI must not exceed ${MAX_AT_URI_LENGTH} characters`,
+      })
+    ),
+    S.makeFilter(
+      hasLowercaseAtUriScheme,
+      $I.annote("AtUriLowercaseSchemeCheck", {
+        title: "AT URI Lowercase Scheme",
+        description: "An AT URI string that starts with the lowercase at:// scheme.",
+        message: "AT URI scheme must be lowercase at://",
+      })
+    ),
+    S.makeFilter(
+      hasNoQueryOrFragment,
+      $I.annote("AtUriNoQueryOrFragmentCheck", {
+        title: "AT URI No Query Or Fragment",
+        description: "A current Lexicon AT URI string without query or fragment components.",
+        message: "AT URI Lexicon references must not include query or fragment components",
+      })
+    ),
+    S.makeFilter(
+      hasLexiconAtUriShape,
+      $I.annote("AtUriLexiconShapeCheck", {
+        arbitraryConstraint: {
+          patterns: [
+            {
+              source:
+                "^at://(?:[a-z]{1,12}\\.example|did:plc:[a-z2-7]{24})(?:/app\\.bsky\\.feed\\.post(?:/[a-zA-Z0-9]{1,12})?)?$",
+              flags: "",
+            },
+          ],
+        },
+        title: "AT URI Lexicon Shape",
+        description:
+          "An AT URI matching at://AUTHORITY[/COLLECTION[/RKEY]] with AT Protocol authority, NSID collection, and record-key components.",
+        message: "AT URI must match at://AUTHORITY[/COLLECTION[/RKEY]] using normalized AT Protocol components",
+      })
+    ),
   ],
-  {
-    identifier: $I`AtUriChecks`,
+  $I.annote("AtUriChecks", {
     title: "AT URI",
     description: "Checks for the current AT Protocol Lexicon at-uri subset.",
-  }
+  })
 );
 
 /**

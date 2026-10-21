@@ -14,20 +14,24 @@ import * as S from "effect/Schema";
 
 const $I = $LangExtractId.create("VerifiedSpan/normalization");
 const CombiningMark = S.String.check(
-  S.isPattern(/^\p{M}$/u, {
-    identifier: $I`CombiningMarkCheck`,
-    title: "Combining Mark",
-    description: "Checks for one Unicode combining-mark code point.",
-    message: "Expected one Unicode combining-mark code point.",
-  })
+  S.isPattern(
+    /^\p{M}$/u,
+    $I.annote("CombiningMarkCheck", {
+      title: "Combining Mark",
+      description: "Checks for one Unicode combining-mark code point.",
+      message: "Expected one Unicode combining-mark code point.",
+    })
+  )
 );
 const WhitespaceCodePoint = S.String.check(
-  S.isPattern(/^\s$/u, {
-    identifier: $I`WhitespaceCodePointCheck`,
-    title: "Whitespace Code Point",
-    description: "Checks for one Unicode whitespace code point.",
-    message: "Expected one Unicode whitespace code point.",
-  })
+  S.isPattern(
+    /^\s$/u,
+    $I.annote("WhitespaceCodePointCheck", {
+      title: "Whitespace Code Point",
+      description: "Checks for one Unicode whitespace code point.",
+      message: "Expected one Unicode whitespace code point.",
+    })
+  )
 );
 
 /**

@@ -32,12 +32,14 @@ const MAX_INTAKE_FILE_BYTES = 25 * 1024 * 1024;
 const formatMegabytes = (bytes: number): string => `${N.round(bytes / (1024 * 1024), 1)} MB`;
 
 const IntakeFileSize = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`IntakeFileSizeNonNegativeCheck`,
-    title: "Non-negative intake file size",
-    description: "Browser file sizes are whole byte counts greater than or equal to zero.",
-    message: "Expected a non-negative file size.",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("IntakeFileSizeNonNegativeCheck", {
+      title: "Non-negative intake file size",
+      description: "Browser file sizes are whole byte counts greater than or equal to zero.",
+      message: "Expected a non-negative file size.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("IntakeFileSize", {
     description: "Non-negative whole byte count reported by a browser File.",
@@ -149,13 +151,12 @@ const IntakeResultEntryKind = LiteralKit(["document", "failure"]).pipe(
  */
 export const IntakeResultEntry = IntakeResultEntryKind.mapMembers(
   Tuple.evolve([() => IntakeResultEntryDocument, () => IntakeResultEntryFailure])
-)
-  .annotate(
-    $I.annote("IntakeResultEntry", {
-      description: "Exhaustive per-file outcome emitted by desktop document intake.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("IntakeResultEntry", {
+    description: "Exhaustive per-file outcome emitted by desktop document intake.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link IntakeResultEntry}.
@@ -244,13 +245,12 @@ export const VaultSelectionState = VaultSelectionStateKind.mapMembers(
     () => VaultSelectionSaving,
     () => VaultSelectionFailed,
   ])
-)
-  .annotate(
-    $I.annote("VaultSelectionState", {
-      description: "Workspace vault picker and persistence lifecycle state.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("VaultSelectionState", {
+    description: "Workspace vault picker and persistence lifecycle state.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link VaultSelectionState}.
@@ -973,13 +973,12 @@ export const PickerOutcome = PickerOutcomeKind.mapMembers(
     () => PickerOutcomeFailed,
     () => PickerOutcomeManual,
   ])
-)
-  .annotate(
-    $I.annote("PickerOutcome", {
-      description: "How one native or sidecar vault picker flow finished.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("PickerOutcome", {
+    description: "How one native or sidecar vault picker flow finished.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 class ManualOutcomeCancelled extends S.Opaque<ManualOutcomeCancelled, {}>()(
   S.Struct({ kind: S.tag("cancelled") }).pipe(
@@ -1019,13 +1018,12 @@ const ManualOutcomeKind = LiteralKit(["cancelled", "saved"]).pipe(
  */
 export const ManualOutcome = ManualOutcomeKind.mapMembers(
   Tuple.evolve([() => ManualOutcomeCancelled, () => ManualOutcomeSaved])
-)
-  .annotate(
-    $I.annote("ManualOutcome", {
-      description: "How one manual vault path entry finished.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("ManualOutcome", {
+    description: "How one manual vault path entry finished.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Input of the vault-root persistence actor.

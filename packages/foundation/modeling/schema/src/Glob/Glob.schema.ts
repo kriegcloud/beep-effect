@@ -54,36 +54,42 @@ const canConstructMatcher = (value: string): boolean =>
 
 const GlobChecks = S.makeFilterGroup(
   [
-    S.isNonEmpty({
-      identifier: $I`GlobNonEmptyCheck`,
-      title: "Glob Non Empty",
-      description: "A glob pattern string that is not empty.",
-      message: "Glob pattern must not be empty",
-    }),
-    S.makeFilter(P.not(Str.includes("\\")), {
-      identifier: $I`GlobPortableSeparatorCheck`,
-      title: "Glob Portable Separator",
-      description: "A glob pattern string that uses forward slashes instead of backslashes.",
-      message: "Glob pattern must use forward slashes instead of backslashes",
-    }),
-    S.isMaxLength(MAX_GLOB_PATTERN_LENGTH, {
-      identifier: $I`GlobMaxLengthCheck`,
-      title: "Glob Max Length",
-      description: "A glob pattern string that does not exceed the repo's current portability limit.",
-      message: `Glob pattern must not exceed ${MAX_GLOB_PATTERN_LENGTH} characters`,
-    }),
-    S.makeFilter(canConstructMatcher, {
-      identifier: $I`GlobMatcherCompatibilityCheck`,
-      title: "Glob Matcher Compatibility",
-      description: "A glob pattern string accepted by the current Bun glob constructor.",
-      message: "Glob pattern must be accepted by the current Bun glob parser",
-    }),
+    S.isNonEmpty(
+      $I.annote("GlobNonEmptyCheck", {
+        title: "Glob Non Empty",
+        description: "A glob pattern string that is not empty.",
+        message: "Glob pattern must not be empty",
+      })
+    ),
+    S.makeFilter(
+      P.not(Str.includes("\\")),
+      $I.annote("GlobPortableSeparatorCheck", {
+        title: "Glob Portable Separator",
+        description: "A glob pattern string that uses forward slashes instead of backslashes.",
+        message: "Glob pattern must use forward slashes instead of backslashes",
+      })
+    ),
+    S.isMaxLength(
+      MAX_GLOB_PATTERN_LENGTH,
+      $I.annote("GlobMaxLengthCheck", {
+        title: "Glob Max Length",
+        description: "A glob pattern string that does not exceed the repo's current portability limit.",
+        message: `Glob pattern must not exceed ${MAX_GLOB_PATTERN_LENGTH} characters`,
+      })
+    ),
+    S.makeFilter(
+      canConstructMatcher,
+      $I.annote("GlobMatcherCompatibilityCheck", {
+        title: "Glob Matcher Compatibility",
+        description: "A glob pattern string accepted by the current Bun glob constructor.",
+        message: "Glob pattern must be accepted by the current Bun glob parser",
+      })
+    ),
   ],
-  {
-    identifier: $I`GlobChecks`,
+  $I.annote("GlobChecks", {
     title: "Glob",
     description: "Checks for portable glob pattern strings accepted by the current Bun glob parser.",
-  }
+  })
 );
 
 /**

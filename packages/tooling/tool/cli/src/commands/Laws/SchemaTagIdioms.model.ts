@@ -42,8 +42,8 @@ const $I = $RepoCliId.create("commands/Laws/SchemaTagIdioms.model");
  * @category models
  * @since 0.0.0
  */
-export const SchemaTagIdiomRule = LiteralKit(["struct-tag", "class-tag", "single-literal-field"]).annotate(
-  $I.annote("SchemaTagIdiomRule", {
+export const SchemaTagIdiomRule = LiteralKit(["struct-tag", "class-tag", "single-literal-field"]).pipe(
+  $I.annoteSchema("SchemaTagIdiomRule", {
     description: "Rule that detected a non-idiomatic Effect v4 schema tag form.",
   })
 );

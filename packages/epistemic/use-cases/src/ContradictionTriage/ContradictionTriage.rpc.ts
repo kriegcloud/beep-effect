@@ -302,12 +302,14 @@ class EvidenceSourceHighlightStruct extends S.Opaque<
 ) {}
 
 const EvidenceSourceHighlightSchema = EvidenceSourceHighlightStruct.mapFields(identity).check(
-  S.makeFilter(({ endChar, startChar }) => N.isLessThan(startChar, endChar), {
-    identifier: $I`EvidenceSourceHighlightOrderCheck`,
-    title: "Evidence Source Highlight Order",
-    description: "Checks that the quote-free highlight is a non-empty forward half-open UTF-16 range.",
-    message: "Expected startChar to be less than endChar.",
-  })
+  S.makeFilter(
+    ({ endChar, startChar }) => N.isLessThan(startChar, endChar),
+    $I.annote("EvidenceSourceHighlightOrderCheck", {
+      title: "Evidence Source Highlight Order",
+      description: "Checks that the quote-free highlight is a non-empty forward half-open UTF-16 range.",
+      message: "Expected startChar to be less than endChar.",
+    })
+  )
 );
 
 /**
@@ -361,22 +363,20 @@ const sourceTextIdentityEquivalence = S.toEquivalence(SourceTextIdentity);
 const EvidenceSourcePageIdentityCheck = S.makeFilter(
   ({ highlight, page }: S.Struct.Type<typeof EvidenceSourcePageStruct.fields>) =>
     sourceTextIdentityEquivalence(page.identity, highlight.source),
-  {
-    identifier: $I`EvidenceSourcePageIdentityCheck`,
+  $I.annote("EvidenceSourcePageIdentityCheck", {
     title: "Evidence Source Page Identity",
     description: "Checks that the bounded page and freshly verified anchor name the exact same source manifestation.",
     message: "Expected page.identity to equal highlight.source.",
-  }
+  })
 );
 const EvidenceSourcePageHighlightBoundsCheck = S.makeFilter(
   ({ highlight, page }: S.Struct.Type<typeof EvidenceSourcePageStruct.fields>) =>
     N.isLessThanOrEqualTo(highlight.endChar, page.totalCodeUnits),
-  {
-    identifier: $I`EvidenceSourcePageHighlightBoundsCheck`,
+  $I.annote("EvidenceSourcePageHighlightBoundsCheck", {
     title: "Evidence Source Page Highlight Bounds",
     description: "Checks that the verified highlight ends within the complete canonical source width.",
     message: "Expected highlight.endChar to be less than or equal to page.totalCodeUnits.",
-  }
+  })
 );
 
 const EvidenceSourcePageSchema = EvidenceSourcePageStruct.mapFields(identity).check(

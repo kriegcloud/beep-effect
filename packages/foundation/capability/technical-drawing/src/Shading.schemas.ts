@@ -307,18 +307,22 @@ export class FaceAnchor extends S.Opaque<FaceAnchor, { readonly brand: unique sy
 ) {}
 
 const StrokeExtent = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`StrokeExtentMinCheck`,
-    title: "Stroke Extent Minimum",
-    description: "A stroke must have some length.",
-    message: "Expected a stroke extent above 0",
-  }),
-  S.isLessThanOrEqualTo(1, {
-    identifier: $I`StrokeExtentMaxCheck`,
-    title: "Stroke Extent Maximum",
-    description: "A stroke cannot outrun the chord it is cut from.",
-    message: "Expected a stroke extent of at most 1",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("StrokeExtentMinCheck", {
+      title: "Stroke Extent Minimum",
+      description: "A stroke must have some length.",
+      message: "Expected a stroke extent above 0",
+    })
+  ),
+  S.isLessThanOrEqualTo(
+    1,
+    $I.annote("StrokeExtentMaxCheck", {
+      title: "Stroke Extent Maximum",
+      description: "A stroke cannot outrun the chord it is cut from.",
+      message: "Expected a stroke extent of at most 1",
+    })
+  )
 );
 
 /**

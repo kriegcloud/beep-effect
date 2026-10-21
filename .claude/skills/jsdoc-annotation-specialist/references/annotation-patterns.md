@@ -73,15 +73,46 @@ const MySchema = S.String.pipe(
 
 ## LiteralKit schemas
 
-Use `.annotate($I.annote(...))`:
+Same as every non-class schema: `$I.annoteSchema` via `.pipe(...)`. The kit's
+helpers (`.Enum`, `.is`, `$match`) survive it:
 
 ```ts
-const Status = LiteralKit(["active", "inactive"]).annotate(
-  $I.annote("Status", {
+const Status = LiteralKit(["active", "inactive"]).pipe(
+  $I.annoteSchema("Status", {
     description: "Entity lifecycle status."
   })
 )
 ```
+
+Never write `.annotate($I.annote(...))` on a non-class schema. It writes the
+same annotations, but its extras are untyped against the schema, and it keeps
+only the statics a schema re-attaches in its own `rebuild`. `LiteralKit` does,
+but an `S.toTaggedUnion(...)` result loses `match`, `cases`, `guards` and
+`isAnyOf` at runtime. `annoteSchema` copies statics back for every schema.
+
+## Checks and filters
+
+Pass `$I.annote(...)` as the check's annotation argument. Never hand-build
+`{ identifier: $I\`Name\`, ... }`; it skips the schema id, IRI and CURIE. A
+caller-supplied `title` wins over the derived one:
+
+```ts
+const Slug = S.String.check(
+  S.isPattern(/^[a-z][a-z0-9-]*$/, $I.annote("SlugPattern", {
+    title: "Slug syntax",
+    description: "Lowercase letters, digits and hyphens.",
+    message: "Expected a lowercase slug"
+  }))
+).pipe($I.annoteSchema("Slug", { description: "A URL slug." }))
+```
+
+## Struct fields
+
+Use `$I.annoteKey("Parent.key", {...})` inside `.pipe(...)`, never
+`.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`. A raw
+`.annotate({...})` on a field is fine. When a recursive class's own base
+expression trips TS2310 on the pipe form, apply the helper directly:
+`$I.annoteKey("Parent.key", {...})(S.suspend(() => Node))`.
 
 ## Union, TemplateLiteral, and composed schemas
 

@@ -95,24 +95,27 @@ const manifestExtractionsAreExact = (manifest: FrozenFixtureManifestFields): boo
 
 const FrozenFixtureManifestChecks = S.makeFilterGroup(
   [
-    S.makeFilter(manifestSourceHashesAreExact, {
-      identifier: $I`FrozenFixtureManifestSourceHashCheck`,
-      title: "Frozen Fixture Manifest Source Hashes",
-      description: "Requires the exact ordered source identities and SHA-256 digests frozen by manifest v1.",
-      message: "Fixture manifest source identities and hashes must match the committed v1 corpus.",
-    }),
-    S.makeFilter(manifestExtractionsAreExact, {
-      identifier: $I`FrozenFixtureManifestExtractionCheck`,
-      title: "Frozen Fixture Manifest Extractions",
-      description: "Requires the exact ordered extraction identity graph and self-consistent anchored values.",
-      message: "Fixture manifest extraction identities and anchored values must match contract v1.",
-    }),
+    S.makeFilter(
+      manifestSourceHashesAreExact,
+      $I.annote("FrozenFixtureManifestSourceHashCheck", {
+        title: "Frozen Fixture Manifest Source Hashes",
+        description: "Requires the exact ordered source identities and SHA-256 digests frozen by manifest v1.",
+        message: "Fixture manifest source identities and hashes must match the committed v1 corpus.",
+      })
+    ),
+    S.makeFilter(
+      manifestExtractionsAreExact,
+      $I.annote("FrozenFixtureManifestExtractionCheck", {
+        title: "Frozen Fixture Manifest Extractions",
+        description: "Requires the exact ordered extraction identity graph and self-consistent anchored values.",
+        message: "Fixture manifest extraction identities and anchored values must match contract v1.",
+      })
+    ),
   ],
-  {
-    identifier: $I`FrozenFixtureManifestChecks`,
+  $I.annote("FrozenFixtureManifestChecks", {
     title: "Frozen Fixture Manifest",
     description: "Closes every source, digest, extraction, and missing-field identity in fixture-manifest v1.",
-  }
+  })
 );
 
 /**

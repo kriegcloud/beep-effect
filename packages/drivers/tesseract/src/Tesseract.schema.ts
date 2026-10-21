@@ -16,11 +16,11 @@ import * as S from "effect/Schema";
 
 const $I = $TesseractId.create("Tesseract.schema");
 
-const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" })).annotate({
-  identifier: $I`PosInt`,
-  title: "PosInt",
-  description: "An integer greater than zero.",
-});
+const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" })).pipe(
+  $I.annoteSchema("PosInt", {
+    description: "An integer greater than zero.",
+  })
+);
 
 const UnitInterval = S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 }));
 

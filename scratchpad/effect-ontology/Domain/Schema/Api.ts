@@ -151,8 +151,8 @@ export class SubmitJobRequest extends S.Opaque<SubmitJobRequest, { readonly bran
  * @category schemas
  * @since 0.0.0
  */
-export const JobStatus = LiteralKit(["pending", "running", "completed", "failed", "cancelled"]).annotate(
-    $I.annote("JobStatus", {
+export const JobStatus = LiteralKit(["pending", "running", "completed", "failed", "cancelled"]).pipe(
+    $I.annoteSchema("JobStatus", {
       description: "Closed lifecycle states reported by the extraction API.",
     })
   );
@@ -186,8 +186,8 @@ export type JobStatus = typeof JobStatus.Type;
  * @category errors
  * @since 0.0.0
  */
-export const JobErrorType = LiteralKit(["expected", "defect", "interrupted", "timeout", "unknown"]).annotate(
-    $I.annote("JobErrorType", {
+export const JobErrorType = LiteralKit(["expected", "defect", "interrupted", "timeout", "unknown"]).pipe(
+    $I.annoteSchema("JobErrorType", {
       description: "Closed coarse categories for terminal extraction-job failures.",
     })
   );

@@ -98,8 +98,8 @@ type ProposedLabel =
   | (typeof EntityProposalJson.Type)["labels"][number]
   | (typeof RelationProposalJson.Type)["labels"][number];
 
-const GoldJobSubset = LiteralKit(GOLD_SUBSETS).annotate(
-  $I.annote("GoldJobSubset", {
+const GoldJobSubset = LiteralKit(GOLD_SUBSETS).pipe(
+  $I.annoteSchema("GoldJobSubset", {
     description: "Gold label subset selected by one proposal job.",
   })
 );

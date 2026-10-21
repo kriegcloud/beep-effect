@@ -305,8 +305,8 @@ export const AiMetricsTranscriptEventName = S.Union([
   CodexTranscriptEventName,
   ClaudeTranscriptEventName,
   OpenClawTranscriptEventName,
-]).annotate(
-  $I.annote("AiMetricsTranscriptEventName", {
+]).pipe(
+  $I.annoteSchema("AiMetricsTranscriptEventName", {
     description: "Normalized event names emitted by supported AI transcript sources.",
   })
 );
@@ -545,12 +545,11 @@ export type AiMetricsQualityGateStatus = typeof AiMetricsQualityGateStatus.Type;
 export const AiMetricsRating = S.Int.check(
   S.isBetween(
     { minimum: 1, maximum: 5 },
-    {
-      identifier: $I`AiMetricsRatingCheck`,
+    $I.annote("AiMetricsRatingCheck", {
       title: "AI metrics rating",
       description: "An integer outcome rating from one through five.",
       message: "Expected an integer rating between 1 and 5",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("AiMetricsRating", {
@@ -574,12 +573,14 @@ export const AiMetricsRating = S.Int.check(
  * @since 0.0.0
  */
 export const AiMetricsNonNegativeInteger = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`AiMetricsNonNegativeIntegerCheck`,
-    title: "AI metrics non-negative integer",
-    description: "An integer count or elapsed duration that cannot be negative.",
-    message: "Expected a non-negative integer",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("AiMetricsNonNegativeIntegerCheck", {
+      title: "AI metrics non-negative integer",
+      description: "An integer count or elapsed duration that cannot be negative.",
+      message: "Expected a non-negative integer",
+    })
+  )
 ).pipe(
   $I.annoteSchema("AiMetricsNonNegativeInteger", {
     description: "Non-negative integer used by AI metrics counts and elapsed durations.",
@@ -587,12 +588,14 @@ export const AiMetricsNonNegativeInteger = S.Int.check(
 );
 
 const AiMetricsPositiveInteger = S.Int.check(
-  S.isGreaterThan(0, {
-    identifier: $I`AiMetricsPositiveIntegerCheck`,
-    title: "AI metrics positive integer",
-    description: "A one-based integer position that must be greater than zero.",
-    message: "Expected a positive integer",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("AiMetricsPositiveIntegerCheck", {
+      title: "AI metrics positive integer",
+      description: "A one-based integer position that must be greater than zero.",
+      message: "Expected a positive integer",
+    })
+  )
 ).pipe(
   $I.annoteSchema("AiMetricsPositiveInteger", {
     description: "Positive integer used for one-based AI metrics positions.",

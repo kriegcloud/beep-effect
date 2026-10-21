@@ -31,12 +31,14 @@ const UNRESOLVED_REFERENCE_PREFIX = "op://";
 
 // `openssl x509 -fingerprint -sha256` with the colons stripped: 32 bytes as 64 hex digits, either case.
 const CertThumbprintSha256 = S.String.check(
-  S.isPattern(/^[0-9A-Fa-f]{64}$/, {
-    identifier: $I`CertThumbprintSha256Check`,
-    title: "Certificate SHA-256 thumbprint",
-    description: "The certificate's SHA-256 thumbprint as 64 hex digits.",
-    message: "Expected the certificate's SHA-256 thumbprint as 64 hex digits",
-  })
+  S.isPattern(
+    /^[0-9A-Fa-f]{64}$/,
+    $I.annote("CertThumbprintSha256Check", {
+      title: "Certificate SHA-256 thumbprint",
+      description: "The certificate's SHA-256 thumbprint as 64 hex digits.",
+      message: "Expected the certificate's SHA-256 thumbprint as 64 hex digits",
+    })
+  )
 );
 
 /**
@@ -56,12 +58,14 @@ const CertThumbprintSha256 = S.String.check(
  * @since 0.0.0
  */
 export const M365EnvPrefix = S.String.check(
-  S.isPattern(/^[A-Z][A-Z0-9_]*$/, {
-    identifier: $I`M365EnvPrefixCheck`,
-    title: "Environment prefix",
-    description: "Upper-case letters, digits and underscores, starting with a letter.",
-    message: "Expected an upper-case environment variable prefix such as M365_OUTBOX",
-  })
+  S.isPattern(
+    /^[A-Z][A-Z0-9_]*$/,
+    $I.annote("M365EnvPrefixCheck", {
+      title: "Environment prefix",
+      description: "Upper-case letters, digits and underscores, starting with a letter.",
+      message: "Expected an upper-case environment variable prefix such as M365_OUTBOX",
+    })
+  )
 ).pipe(
   $I.annoteSchema("M365EnvPrefix", {
     description: "Prefix of the Microsoft 365 app-only environment variables.",

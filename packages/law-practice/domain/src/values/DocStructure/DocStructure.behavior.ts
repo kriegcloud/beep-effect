@@ -24,18 +24,22 @@ const FinalityPattern = /(?:THIS\s+ACTION\s+IS\s+MADE\s+FINAL\b|This\s+action\s+
 const PeriodPattern =
   /A\s+(?:shortened\s+statutory\s+period\s+for\s+reply\s+to\s+this\s+(?:final|ﬁnal)\s+action\s+is\s+set\s+to\s+expire\s+THREE\s+MONTHS\s+from\s+the\s+mailing\s+date\s+of\s+this\s+action|SHORTENED\s+STATUTORY\s+PERIOD\s+FOR\s+REPLY\s+IS\s+SET\s+TO\s+EXPIRE\s+THREE\s+MONTHS\s+FROM\s+THE\s+MAILING\s+DATE\s+OF\s+THIS\s+COMMUNICATION)\./dg;
 const Unsupported = S.String.check(
-  S.isPattern(/^(?:Notice of Allowance|Restriction Requirement|Advisory Action)/u, {
-    identifier: $I`UnsupportedCheck`,
-    title: "Unsupported form",
-    description: "Unsupported notice instead of an action pair.",
-  })
+  S.isPattern(
+    /^(?:Notice of Allowance|Restriction Requirement|Advisory Action)/u,
+    $I.annote("UnsupportedCheck", {
+      title: "Unsupported form",
+      description: "Unsupported notice instead of an action pair.",
+    })
+  )
 );
 const NonOperative = S.String.check(
-  S.isPattern(/(?:^|\n)(?:Footer \(historical\):|Quoted history:|Attachment:)/u, {
-    identifier: $I`NonOperativeCheck`,
-    title: "NonOperative form",
-    description: "A historical footer or attachment cannot authorize current evidence.",
-  })
+  S.isPattern(
+    /(?:^|\n)(?:Footer \(historical\):|Quoted history:|Attachment:)/u,
+    $I.annote("NonOperativeCheck", {
+      title: "NonOperative form",
+      description: "A historical footer or attachment cannot authorize current evidence.",
+    })
+  )
 );
 const Uncovered = S.String.check(
   S.makeFilter(
@@ -48,19 +52,20 @@ const Uncovered = S.String.check(
           Str.includes("SHORTENED STATUTORY PERIOD")(sentence) &&
           (Str.includes("ELEVEN")(sentence) || Str.includes("[period]")(sentence))
       ),
-    {
-      identifier: $I`UncoveredCheck`,
+    $I.annote("UncoveredCheck", {
       title: "Uncovered form",
       description: "Procedural or damaged text outside the covered v1 forms.",
-    }
+    })
   )
 );
 const MissingCheckbox = S.String.check(
-  S.isPattern(/\[ \] FINAL \[ \] NON-FINAL/u, {
-    identifier: $I`MissingCheckboxCheck`,
-    title: "MissingCheckbox form",
-    description: "Flattened empty checkboxes do not preserve selection.",
-  })
+  S.isPattern(
+    /\[ \] FINAL \[ \] NON-FINAL/u,
+    $I.annote("MissingCheckboxCheck", {
+      title: "MissingCheckbox form",
+      description: "Flattened empty checkboxes do not preserve selection.",
+    })
+  )
 );
 const isUnsupported = S.is(Unsupported);
 const isNonOperative = S.is(NonOperative);

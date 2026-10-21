@@ -50,12 +50,14 @@ const usptoNormalizedPattern = /^\d{8}$/u;
  * @since 0.0.0
  */
 export const UsptoNormalizedApplicationNumber = S.String.check(
-  S.isPattern(usptoNormalizedPattern, {
-    identifier: $I`UsptoNormalizedApplicationNumberPatternCheck`,
-    title: "USPTO Normalized Application Number",
-    description: "A normalized USPTO application number is exactly eight digits.",
-    message: "Expected an eight-digit USPTO application number.",
-  })
+  S.isPattern(
+    usptoNormalizedPattern,
+    $I.annote("UsptoNormalizedApplicationNumberPatternCheck", {
+      title: "USPTO Normalized Application Number",
+      description: "A normalized USPTO application number is exactly eight digits.",
+      message: "Expected an eight-digit USPTO application number.",
+    })
+  )
 ).pipe(
   S.brand("UsptoNormalizedApplicationNumber"),
   $I.annoteSchema("UsptoNormalizedApplicationNumber", {

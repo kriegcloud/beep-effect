@@ -38,12 +38,11 @@ const TailnetHttpsPortRange = S.isBetween(
     minimum: 1,
     maximum: 65_535,
   },
-  {
-    identifier: $I`TailnetHttpsPortRange`,
+  $I.annote("TailnetHttpsPortRange", {
     title: "Tailnet HTTPS Port Range",
     description: "A Tailscale Serve HTTPS port in the inclusive TCP port range 1 through 65535.",
     message: "Expected a Tailnet HTTPS port between 1 and 65535",
-  }
+  })
 );
 
 const TailnetHttpsPort = S.Int.check(TailnetHttpsPortRange).pipe(

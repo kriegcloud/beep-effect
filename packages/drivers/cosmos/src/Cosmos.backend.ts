@@ -30,8 +30,8 @@ const $I = $CosmosId.create("Cosmos.backend");
  * @category models
  * @since 0.0.0
  */
-export const CosmosBackend = LiteralKit(["cosmos", "sigma"]).annotate(
-  $I.annote("CosmosBackend", {
+export const CosmosBackend = LiteralKit(["cosmos", "sigma"]).pipe(
+  $I.annoteSchema("CosmosBackend", {
     description: "Graph viewport backend selected by the cosmos driver capability probe.",
   })
 );

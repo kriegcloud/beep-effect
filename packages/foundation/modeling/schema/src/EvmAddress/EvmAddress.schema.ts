@@ -18,18 +18,19 @@ const $I = $SchemaId.create("EvmAddress");
 
 const EvmAddressChecks = S.makeFilterGroup(
   [
-    S.makeFilter(isCanonicalEvmAddress, {
-      identifier: $I`EvmAddressFormatCheck`,
-      title: "EVM Address Format",
-      description: "A canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
-      message: "EvmAddress must be a canonical mainnet EVM address",
-    }),
+    S.makeFilter(
+      isCanonicalEvmAddress,
+      $I.annote("EvmAddressFormatCheck", {
+        title: "EVM Address Format",
+        description: "A canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+        message: "EvmAddress must be a canonical mainnet EVM address",
+      })
+    ),
   ],
-  {
-    identifier: $I`EvmAddressChecks`,
+  $I.annote("EvmAddressChecks", {
     title: "EvmAddress",
     description: "Checks for canonical mainnet EVM addresses.",
-  }
+  })
 );
 
 /**

@@ -1,0 +1,1238 @@
+{
+  "capturedAt": "2026-10-21",
+  "repository": "beep-effect/beep-effect",
+  "commit": "d1f3330135e21c9646685097f1d6c8c8b09c77de",
+  "sources": {
+    "dependency-graph": "GraphQL repository.dependencyGraphManifests (226 manifests) on the default branch",
+    "tracked-not-in-graph": "git ls-files manifest basenames at the commit that the dependency graph does not list"
+  },
+  "policy": "**/test/**/fixtures/**",
+  "syntheticFixtureCount": 44,
+  "manifests": [
+    {
+      "path": "apps/architecture-lab-proof/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/docket-intake/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/api-docs/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/ciops/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/lejeune-bolt-workbench/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/semantica/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/semantica/src-tauri/Cargo.lock",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/semantica/src-tauri/Cargo.toml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/labs/trustgraph-workbench/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/oip-web/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-claude-mod/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-gateway/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-identify/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-kg-mcp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-m365-contacts/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-mail-tagging/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-review-hub/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/practice-setup/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/professional-desktop/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/professional-desktop/src-tauri/Cargo.lock",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/professional-desktop/src-tauri/Cargo.toml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/storybook/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "apps/todox/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/cache-warm.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/check.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/data-sync.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/fleet-lane-probe.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/fleet-shadow-check.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/heavy-admit.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/heavy.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/knowledge-baseline-mint.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/property-laws-nightly.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/release-desktop.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/rerun-runner-loss.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/skills-update-train.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/workflows/storybook.yml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "infra/ci-runners/sdks/ghaRunners/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "infra/lambda/turbo-cache/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "infra/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/agents/client/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/agents/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/agents/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/agents/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/agents/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/client/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/config/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/ui/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/architecture-lab/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/documents/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/documents/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/documents/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/documents/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/acp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/ai-provider-cli/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/anthropic/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/box/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/box-provisioning/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/commands/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/cosmos/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/discord/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/doc-text/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/drizzle/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/duckdb/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/ecfr/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/exiftool/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/ffmpeg/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/freshbooks/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/govinfo/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/gov-legal-mcp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/graph-3d/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/hubspot/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/libpff/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/m365-mcp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/m365/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/n3/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/nlp-mcp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/obs/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/occt/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/onepassword-cli/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/openai-compat/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/openai/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/openclaw/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/oxigraph/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/pacer/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/pdf-tools/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/pglite/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/phoenix/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/poppler/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/postgres/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/pretext/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/rdf-canonize/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/runpod/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/sanity/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/shacl/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/t3-code/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/tailscale/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/tesseract/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/tika/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/uspto-mcp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/uspto/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/windows-secrets/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/wink/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/xstate/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ecosystem/effect-drizzle/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/client/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/config/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/ui/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/epistemic/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/api-transport/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/chalk/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/colors/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/file-processing/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/langextract/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/mcp-kit/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/nlp-processing/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/observability/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/semantic-web/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/capability/technical-drawing/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/github-commands/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/github-references/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/html/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/identity/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/jsonc/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/jsonl/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/lexical/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/md/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/nlp/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/ontology/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/pandoc-ast/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/provenance/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/public-site/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/rdf/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/schema-org/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/schema/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/semver/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/skill-contract/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/spdx/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/utils/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/primitive/data/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/primitive/types/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/ui-system/brand/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/ui-system/dock/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/ui-system/dock-react/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/ui-system/editor/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/ui-system/ui/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/_internal/db-admin/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/law-practice/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/law-practice/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/law-practice/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/law-practice/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ontology/client/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ontology/config/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ontology/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ontology/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ontology/ui/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/ontology/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/shared/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/shared/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/shared/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/ai-metrics/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/ai-sync/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/codegen-kit/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/mcpb-kit/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/palantiri/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/qa-capture/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/repo-utils/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/policy-pack/lint-rules/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/policy-pack/repo-configs/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/test-kit/fc-runs/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/test-kit/test-runner/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/test-kit/test-utils/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/tool/cli/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/tool/cli/python/photo-face/pyproject.toml",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/tool/cli/python/photo-face/uv.lock",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/tool/docgen/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/workspace/domain/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/workspace/server/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/workspace/tables/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/workspace/use-cases/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "scratchpad/effected/github-actions/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "scratchpad/effected/github/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "scratchpad/effected/sbom/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "scratchpad/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/duplicates/filtered/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/duplicates/kit-deduped/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/duplicates/kit-skew/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/duplicates/other-importer/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/duplicates/peer-variants/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/duplicates/peer-variants-skew/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/allowany/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/ambiguous/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/barerule/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/diamond/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/filedep-joined/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/filedep-override/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/filedep/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/filedep-suffixed/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/filedep-tarball/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/ignoremissing/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkchain-importer-provides/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkchain-none/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkchain-parent-provides/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkchain-registry/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-bad/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-directory-false/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-directory/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-provided/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-root-bad/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-root/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/linkdeep-sibling/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/missing/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/mixed/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/npm/package-lock.json",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/rootimporter/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/unnameable/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/workspacepeer/pnpm-lock.yaml",
+      "source": "dependency-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "tools/tsgo-shim/package.json",
+      "source": "dependency-graph",
+      "classification": "production"
+    },
+    {
+      "path": "bun.lock",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": ".github/actions/setup-monorepo-ci/action.yml",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "infra/lambda/turbo-cache/bun.lock",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/drivers/git/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/glob/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/managed-section/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/toml/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/foundation/modeling/yaml/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/library/repo-utils/test/fixtures/mock-monorepo/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/library/repo-utils/test/fixtures/mock-monorepo/packages/pkg-a/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/library/repo-utils/test/fixtures/mock-monorepo/packages/pkg-b/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/library/repo-utils/test/fixtures/mock-monorepo/packages/pkg-c/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/test-kit/memfs/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    },
+    {
+      "path": "packages/tooling/tool/cli/test/fixtures/doctest-lane/package/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/tool/cli/test/fixtures/proof-epoch/bun.lock",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/tool/cli/test/fixtures/proof-epoch/packages/tooling/policy-pack/lint-rules/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "packages/tooling/tool/docgen/test/fixtures/section-example/package.json",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "scratchpad/test/workspaces/fixtures/peers/bun/bun.lock",
+      "source": "tracked-not-in-graph",
+      "classification": "synthetic-fixture"
+    },
+    {
+      "path": "vendor/rust/glib-0.18.5/Cargo.toml",
+      "source": "tracked-not-in-graph",
+      "classification": "production"
+    }
+  ]
+}

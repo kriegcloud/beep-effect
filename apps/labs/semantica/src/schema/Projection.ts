@@ -121,12 +121,11 @@ const EmbeddingVectorDimensionCheck = S.makeFilter(
   (vector: typeof EmbeddingVectorFields.Type) =>
     vector.model.taskType === "embedding" &&
     O.exists(vector.model.dimension, (dimension) => Equal.equals(dimension, A.length(vector.values))),
-  {
-    identifier: $I`EmbeddingVectorDimensionCheck`,
+  $I.annote("EmbeddingVectorDimensionCheck", {
     title: "Embedding vector dimension",
     description: "Requires an embedding model identity whose positive dimension equals the vector width.",
     message: "EmbeddingVector values must exactly match model.dimension.",
-  }
+  })
 );
 
 /**
@@ -274,12 +273,11 @@ const SparqlResultWitnessFields = S.Struct({
 
 const SparqlResultWitnessCountCheck = S.makeFilter(
   (witness: typeof SparqlResultWitnessFields.Type) => Equal.equals(witness.count, A.length(witness.rows)),
-  {
-    identifier: $I`SparqlResultWitnessCountCheck`,
+  $I.annote("SparqlResultWitnessCountCheck", {
     title: "SPARQL witness row count",
     description: "Requires the persisted count to equal the number of canonical SELECT binding rows.",
     message: "SparqlResultWitness count must equal rows.length.",
-  }
+  })
 );
 
 /**
@@ -426,12 +424,11 @@ const C1EvalReportChecks = S.makeFilterGroup([
       A.every(report.projection.gProjection.sparql, (witness) => witness.count > 0) &&
       A.isReadonlyArrayEmpty(report.projection.rebuild.quadDelta.added) &&
       A.isReadonlyArrayEmpty(report.projection.rebuild.quadDelta.removed),
-    {
-      identifier: $I`C1EvalReportProjectionChecks`,
+    $I.annote("C1EvalReportProjectionChecks", {
       title: "C1 projection pass evidence",
       description: "Requires zero unexpected degradation, non-empty G-projection results, and an empty rebuild delta.",
       message: "C1EvalReport must retain only passing projection evidence.",
-    }
+    })
   ),
   S.makeFilter(
     (report: typeof C1EvalReportFields.Type) =>
@@ -444,12 +441,11 @@ const C1EvalReportChecks = S.makeFilterGroup([
           onSuccess: (digest) => Str.Equivalence(digest, report.reportDigest),
         })
       ),
-    {
-      identifier: $I`C1EvalReportDigestCheck`,
+    $I.annote("C1EvalReportDigestCheck", {
       title: "C1 evaluation report digest",
       description: "Requires reportDigest to hash the canonical C1 report after omitting only itself.",
       message: "C1EvalReport reportDigest must match its canonical body.",
-    }
+    })
   ),
 ]);
 

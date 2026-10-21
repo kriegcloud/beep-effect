@@ -36,12 +36,14 @@ const $I = $SemanticaId.create("layers/LanguageModelLive");
 const pinnedModelIdPattern =
   /^claude-(?:opus|sonnet|haiku)-\d+-\d+(?:-\d{8})?$|(?:^|[-_.])20(?:\d{6}|\d{2}-\d{2}-\d{2})(?:$|[-_.])|(?:^|[-_.])v\d+(?:[._-]\d+)*(?:$|[-_.])|@\d+(?:[._-]\d+)*(?:$|[-_.])|:\d{4}(?:[._-]\d+)*(?:$|[-_.])/u;
 const PinnedModelId = S.NonEmptyString.check(
-  S.isPattern(pinnedModelIdPattern, {
-    identifier: $I`PinnedModelIdCheck`,
-    title: "Pinned model identifier",
-    description: "Requires a dated id or an explicit immutable version segment.",
-    message: "Expected a model id with an explicit date or version segment.",
-  })
+  S.isPattern(
+    pinnedModelIdPattern,
+    $I.annote("PinnedModelIdCheck", {
+      title: "Pinned model identifier",
+      description: "Requires a dated id or an explicit immutable version segment.",
+      message: "Expected a model id with an explicit date or version segment.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PinnedModelId", {
     description: "Hosted model identifier that exposes an explicit immutable revision segment.",

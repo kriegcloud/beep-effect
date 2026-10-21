@@ -47,12 +47,14 @@ const $I = $LawPracticeDomainId.create("values/ClaimElement/ClaimElement.model")
  * @since 0.0.0
  */
 export const ClaimElementPath = S.String.check(
-  S.isPattern(/^[1-9][0-9]*(?:\.[a-z0-9]+)*$/u, {
-    identifier: $I`ClaimElementPathPatternCheck`,
-    title: "Claim element path",
-    description: "A claim number followed by zero or more dot-separated lowercase letter, roman, or digit segments.",
-    message: "Claim element paths start with a positive claim number, e.g. 1, 1.b, or 1.b.ii.",
-  })
+  S.isPattern(
+    /^[1-9][0-9]*(?:\.[a-z0-9]+)*$/u,
+    $I.annote("ClaimElementPathPatternCheck", {
+      title: "Claim element path",
+      description: "A claim number followed by zero or more dot-separated lowercase letter, roman, or digit segments.",
+      message: "Claim element paths start with a positive claim number, e.g. 1, 1.b, or 1.b.ii.",
+    })
+  )
 ).pipe(
   S.brand("ClaimElementPath"),
   $I.annoteSchema("ClaimElementPath", {
@@ -188,18 +190,21 @@ export type ClaimTermDeterminer = typeof ClaimTermDeterminer.Type;
  * @since 0.0.0
  */
 export const ClaimTermHead = S.String.check(
-  S.isPattern(/^\S+(?: \S+)*$/u, {
-    identifier: $I`ClaimTermHeadSpacingCheck`,
-    title: "Single-spaced head",
-    description: "A non-empty, trimmed head noun phrase with single spaces between words.",
-    message: "Claim term heads are trimmed and single-spaced.",
-  }),
-  S.isLowercased({
-    identifier: $I`ClaimTermHeadCaseCheck`,
-    title: "Lowercase head",
-    description: "A head noun phrase normalized to lowercase.",
-    message: "Claim term heads are lowercase.",
-  })
+  S.isPattern(
+    /^\S+(?: \S+)*$/u,
+    $I.annote("ClaimTermHeadSpacingCheck", {
+      title: "Single-spaced head",
+      description: "A non-empty, trimmed head noun phrase with single spaces between words.",
+      message: "Claim term heads are trimmed and single-spaced.",
+    })
+  ),
+  S.isLowercased(
+    $I.annote("ClaimTermHeadCaseCheck", {
+      title: "Lowercase head",
+      description: "A head noun phrase normalized to lowercase.",
+      message: "Claim term heads are lowercase.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ClaimTermHead", {
     description: "Lowercase, trimmed, single-spaced head noun phrase of a claim term.",
@@ -244,12 +249,11 @@ const arbitraryHead = (head: string): string =>
 const ClaimTermDeterminerSurfaceCheck = S.makeFilter(
   ({ anchor, determiner }: { readonly anchor: TextAnchor; readonly determiner: ClaimTermDeterminer }): boolean =>
     O.isSome(Str.match(determinerSurfaces[determiner])(Str.toLowerCase(anchor.quote))),
-  {
-    identifier: $I`ClaimTermDeterminerSurfaceCheck`,
+  $I.annote("ClaimTermDeterminerSurfaceCheck", {
     title: "Determiner matches the quote",
     description: "The term's quote opens with its determiner's surface; a bare term opens with no determiner.",
     message: "A claim term's determiner must match how its quote opens, e.g. the for 'the sensor'.",
-  }
+  })
 );
 
 /**

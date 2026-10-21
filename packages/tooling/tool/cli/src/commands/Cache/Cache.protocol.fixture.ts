@@ -28,8 +28,8 @@ const bodyLimit = 2 * 1024 * 1024;
 const requestLimit = 100;
 const objectLimit = 16;
 const hashBytes = S.decodeEffect(Sha256HexFromBytes);
-const Tag = S.NonEmptyString.check(S.isMaxLength(256)).annotate(
-  $I.annote("ArtifactTag", { description: "Bounded opaque artifact tag preserved by the fixture." })
+const Tag = S.NonEmptyString.check(S.isMaxLength(256)).pipe(
+  $I.annoteSchema("ArtifactTag", { description: "Bounded opaque artifact tag preserved by the fixture." })
 );
 class StoredArtifact extends S.Opaque<StoredArtifact, { readonly brand: unique symbol }>()(
   S.Struct({ body: S.Uint8Array, digest: Sha256Hex, tag: Tag }).pipe(
