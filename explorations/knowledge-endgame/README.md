@@ -37,6 +37,13 @@ training-data-flywheel coda is picked up as a real docs-surface goal.
 
 ## Trail
 
+- 2026-10-20: the training-data-flywheel reopen trigger now has its origin.
+  `beep-effect.com` became the single public origin, with a reserved apex
+  route table (`/docs`, `/llms.txt`, `/taxonomy`, `/ns` and others) owned by
+  `@beep/public-site`; see `goals/public-origin-beep-effect-com` and
+  `standards/architecture/DECISIONS.md` (2026-10-20). Deployment is a
+  follow-on goal per surface, the trigger has not fired, and this packet stays
+  parked. Next Open Question unchanged.
 - 2026-08-25 (review follow-up, #830): reopen-trigger list aligned with the
   `DECISIONS.md` park entry on every surface (fourth trigger: the
   training-data-flywheel coda as a docs-surface goal); ATLAS now links the

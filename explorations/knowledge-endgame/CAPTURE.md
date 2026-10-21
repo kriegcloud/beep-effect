@@ -125,7 +125,7 @@ doors because it was refused the front door. Resolution: platform ships as
 projections/operator tooling; the law practice is the product-authority
 instance; the dogfood transfers laws, not pipelines. Missing piece (small,
 not zero): lane 09's seven steps (schemaVersion catalog as T-Box; mint
-instance IRIs under `https://ns.beep.sh/`; map producers onto PROV beside
+instance IRIs under `https://ns[.]beep[.]sh/` (superseded 2026-10-20 by `https://beep-effect.com/ns/`); map producers onto PROV beside
 their JSON; JSON-LD off existing folds — packet Amendment I, acceptance = one
 concrete cross-graph join; public-projection-only ingest; join keys
 (`configSnapshotId`, `attemptId`, QA `sessionId` as IRI); human-token-only
