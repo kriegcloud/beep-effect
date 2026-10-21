@@ -46,12 +46,14 @@ The same module is also available as a subpath:
 | `layer(config)` | `DuckDbClient`, `SqlClient` | yes | yes |
 | `layerClient(config)` | `DuckDbClient` only | yes | yes |
 | `layerConfig(Config.Wrap<config>)` | `DuckDbClient`, `SqlClient` | yes | yes |
+| `layerClientConfig(Config.Wrap<config>)` | `DuckDbClient` only | yes | yes |
 | `make(config)` | a scoped client (needs `Scope` and `Reactivity`) | yes | yes |
 | `fromInstance({ instance, ... })` | a scoped client over a caller's `DuckDBInstance` | no | yes |
 | `fromConnection({ connection, ... })` | a scoped client over a caller's `DuckDBConnection` | no | no |
 
 `layerClient` is for programs whose `SqlClient` is another database (for
-example PGlite) and that use DuckDB on the side.
+example PGlite) and that use DuckDB on the side; `layerClientConfig` is its
+`Config`-driven form.
 
 `layerConfig` takes a record of `Config` values or a single `Config`:
 
@@ -95,7 +97,7 @@ what `fromConnection` does and does not touch.
 | `databaseOptions` | `{}` | Native instance options passed through unchanged (`threads`, `memory_limit`, `temp_directory`, ...) |
 | `timeZone` | `"UTC"` | Session `TimeZone` set on the client's connection |
 | `prepareCacheSize` | `200` | Prepared statements cached per connection; `0` or less turns the cache off |
-| `prepareCacheTTL` | 10 minutes | How long an unused prepared statement stays cached |
+| `prepareCacheTTL` | 10 minutes | How long a prepared statement stays cached after it was prepared; use does not extend it, and the next use after expiry prepares it again |
 | `transformQueryNames` | none | Maps identifiers in compiled SQL |
 | `transformResultNames` | none | Maps column names in result rows |
 | `spanAttributes` | none | Extra attributes on statement spans (`db.system.name=duckdb` and `db.namespace` are always set) |
@@ -177,7 +179,10 @@ the `DuckDbClient` name belongs to the `effect/sql` module.
 The service now shares the client's internals: native calls are serialized and
 interruptible, and its `withTransaction` refuses a `COMMIT` after DuckDB has
 already aborted the transaction (it rolls back and fails with `DuckDbError`,
-operation `withTransaction`). A file opened read-write by `DuckDb` and by
+operation `withTransaction`). That includes a statement interrupted inside the
+transaction whose interruption the body swallowed (`Effect.timeoutOption`,
+`Effect.race`): the interrupt aborts DuckDB's transaction. The layer closes
+its connection only after a statement still running at teardown settles. A file opened read-write by `DuckDb` and by
 `DuckDbClient` in one process shares one native database.
 
 `DuckDb.makeNodeClient` is unscoped and never closes its connection. Prefer
@@ -195,8 +200,8 @@ operation `withTransaction`). A file opened read-write by `DuckDb` and by
 - **Safe COMMIT.** After certain failures (constraint, conversion, out of
   range, interrupt, a nested `BEGIN`, a catalog write-write conflict) DuckDB
   aborts the transaction, and a later `COMMIT` would report success while
-  discarding every write. When a statement in the transaction failed, the
-  client probes before committing. If DuckDB aborted the transaction, the
+  discarding every write. When a statement in the transaction failed or was
+  interrupted, the client probes before committing. If DuckDB aborted the transaction, the
   commit fails instead. A swallowed parser or binder error does not abort
   anything and still commits.
 - **Commit-time conflicts** classify as `SerializationError` and are retryable.
@@ -236,7 +241,7 @@ query the caller runs on that connection outside the client.
   `ConnectionError` (DuckDB compares the configuration).
 - `ATTACH` and `LOAD` act on the database instance. An alias attached by one
   client is visible to every client of that file and outlives the attaching
-  client. `USE` is per connection.
+  client (probed, not covered by a test). `USE` is per connection.
 
 ### Single connection and streams
 
@@ -263,8 +268,13 @@ query the caller runs on that connection outside the client.
 - `USE` and `SET`/`RESET schema` or `search_path` clear the connection's cache,
   because a cached statement keeps the catalog binding it was planned with.
 - SQL with several statements and no bind values runs all of them and returns
-  the rows of the first statement (native `duckdb_query` behaviour). With bind
+  the rows of the first statement (native `duckdb_query` behaviour), except
+  `executeStream` outside a transaction, which streams the rows of the last
+  statement (native `stream` runs the leading statements first). With bind
   values, the leading statements run unbound and only the last one is bound.
+- `executeRaw` reports `changes` from DuckDB's `rowsChanged`, which is `0` for
+  any statement that returns rows, including `INSERT/UPDATE/DELETE ...
+  RETURNING`; count the returned rows instead.
 - Blank SQL returns an empty result without touching DuckDB. Comment-only SQL
   with bind values, or through `executeStream`, fails with
   `Error in native callback` (`UnknownError`).
@@ -275,7 +285,10 @@ Set both `transformQueryNames` and `transformResultNames`, or neither. With only
 `transformQueryNames`, `withoutTransforms()` returns the same client and keeps
 transforming identifiers, which affects `KeyValueStore.layerSql` and
 `SqlEventLogServerUnencrypted`. The result transform is null-safe for LIST,
-STRUCT and MAP values.
+STRUCT and MAP values. It renames every object key in a row, so it also renames
+the driver's value shapes: INTERVAL `months`/`days`/`micros`, MAP entry
+`key`/`value`, and UNION `tag`/`value`. A transform that is not the identity
+on those keys changes them.
 
 ### Reading values (DuckDB to JS)
 
@@ -283,12 +296,13 @@ STRUCT and MAP values.
 | --- | --- | --- |
 | BOOLEAN | `boolean` | same |
 | TINYINT … INTEGER, unsigned up to UINTEGER, FLOAT, DOUBLE | `number` | same |
-| BIGINT, UBIGINT, HUGEINT, UHUGEINT, BIGNUM | `number` (lossy above 2^53) | `bigint` |
+| BIGINT, UBIGINT, HUGEINT, UHUGEINT, BIGNUM | `number`, rounded silently above 2^53; use SafeIntegers for 64-bit ids | `bigint` |
 | DECIMAL with width ≤ 15 | `number` | same |
 | DECIMAL with width > 15 | exact `string` | same |
 | VARCHAR, JSON, ENUM, UUID | `string` | same |
 | BLOB | `Uint8Array` | same |
-| DATE, TIMESTAMP (all precisions), TIMESTAMPTZ | `Date` (microseconds truncated); `infinity` and other out-of-range values as `string` | same |
+| BIT | bit `string` (`"101"`) | same |
+| DATE, TIMESTAMP (all precisions), TIMESTAMPTZ | `Date` floored to the millisecond, also before 1970; `infinity`/`-infinity` as those strings at every precision; other values outside the JS `Date` range as their `string` form | same |
 | TIME, TIMETZ, TIME_NS | `string` (`"12:34:56.123456"`) | same |
 | INTERVAL | `{ months, days, micros }` with `micros: number` | `micros: bigint` |
 | LIST, ARRAY | array | same |
@@ -311,7 +325,7 @@ Duplicate column names come back as `a`, `a:1`.
 | valid `Date` | TIMESTAMPTZ |
 | `Uint8Array`, `Buffer`, `Int8Array` | BLOB |
 | a `DuckDB*Value` from `@duckdb/node-api` | as is |
-| non-empty array | LIST, item type taken from the first element |
+| non-empty array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); an all-null array is a list of NULLs |
 | plain object | JSON text (VARCHAR, casts into JSON columns) |
 
 Limits, all failing with `UnknownError`:
@@ -354,18 +368,20 @@ DDL for it.
 
 | Consumer | DuckDB |
 | --- | --- |
-| Migrator, SqlSchema, SqlResolver, SqlModel insert/findById, KeyValueStore.layerSql, SqlEventLogServerUnencrypted (except a caught nested rollback) | supported, tested |
+| Migrator, SqlSchema (findAll, findOne, findOneOption), SqlResolver, SqlModel insert/findById, KeyValueStore.layerSql, SqlEventLogServerUnencrypted (except a caught nested rollback) | supported, tested |
 | SqlModel update with a `GeneratedByDb` id | broken on every driver at 4.0.5 (a Model bug, not DuckDB) |
 | SqlEventJournal | unsupported (INT32 `timestamp` overflow) |
 | Persistence (both layers), PersistedQueue, cluster SqlMessageStorage/SqlRunnerStorage, SqlEventLogServerEncrypted | unsupported (`AUTOINCREMENT`, `datetime()`, partial index, INT32 columns) |
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
 | `backup` | not provided (COPY FROM DATABASE fails on foreign-key order) |
-| Concurrent Migrator runs on one file (two clients) | not lock-coordinated: the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
+| Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
 | READ_ONLY client beside a read-write client of the same file in one process | refused with `ConnectionError`; share the read-write client instead |
 
 ## Testing
 
-`DuckDbTestLayer` is `DuckDbClient.layer({ databasePath: ":memory:" })`. Each
+`DuckDbTestLayer` is `DuckDbClient.layer({ databasePath: ":memory:" })`: it
+provides the new `DuckDbClient` and the generic `SqlClient`, not the legacy
+`DuckDb` service, so do not merge it with a PGlite `SqlClient` layer. Each
 build of it is a fresh private database.
 
 ```ts

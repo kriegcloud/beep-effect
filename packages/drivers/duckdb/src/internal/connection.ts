@@ -35,7 +35,7 @@ import * as SqlClient from "effect/sql/SqlClient";
 import { converterFor } from "./convert.ts";
 import { NativeGate } from "./gate.ts";
 import { ignoreNative } from "./native.ts";
-import { normalizeParameters } from "./parameters.ts";
+import { bindTypes, normalizeParameters } from "./parameters.ts";
 import {
   ABORT_PROBE_SQL,
   afterFailure,
@@ -215,7 +215,16 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
           }).pipe(Scope.provide(cacheScope))
         )
       : O.none();
-  yield* Scope.addFinalizer(connectionScope, gate.withLock(Scope.close(cacheScope, Exit.void)));
+  // Once closed, `ScopedCache.get` interrupts its caller; a statement that
+  // outlives the client scope takes the direct path instead, like a statement
+  // without binds, and fails with the native connection error.
+  const cacheClosed = MutableRef.make(false);
+  yield* Scope.addFinalizer(
+    connectionScope,
+    gate.withLock(
+      Effect.sync(() => MutableRef.set(cacheClosed, true)).pipe(Effect.andThen(Scope.close(cacheScope, Exit.void)))
+    )
+  );
 
   const runLocked = <A>(
     sql: string,
@@ -227,12 +236,17 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     converter: DuckDBValueConverter<unknown>
   ): Effect.Effect<A, SqlError> => {
     const op = O.getOrElse(R.get(CONTROL_OPERATIONS, control), () => operation);
-    const direct = gate.runUnlocked(op, () => native.run(sql, nativeBinds(binds)).then((r) => read(r, converter)));
+    const direct = gate.runUnlocked(op, () =>
+      native.run(sql, nativeBinds(binds), bindTypes(binds)).then((r) => read(r, converter))
+    );
     // DuckDB plans a parameterless prepared statement once, with the table
     // statistics of that moment, so a constant filter pruned on an empty table
     // stays empty after later writes. Only statements with binds are re-planned
     // per execution, so only those use the cache.
-    const viaCache = O.filter(cache, () => prepared && control === "statement" && binds.length > 0);
+    const viaCache = O.filter(
+      cache,
+      () => prepared && control === "statement" && binds.length > 0 && !MutableRef.get(cacheClosed)
+    );
     const run = O.match(viaCache, {
       onNone: () => direct,
       onSome: (statements) =>
@@ -241,7 +255,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
             Prepared: ({ statement }) =>
               gate.runUnlocked(op, () => {
                 statement.clearBindings();
-                statement.bind(binds);
+                statement.bind(binds, bindTypes(binds));
                 return statement.run().then((r) => read(r, converter));
               }),
             RunDirect: () => direct,
@@ -313,7 +327,9 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       Effect.flatMap((binds) =>
         Effect.flatMap(currentConverter, (converter) =>
           gate.holdLock.pipe(
-            Effect.andThen(gate.runUnlocked("executeStream", () => native.stream(sql, nativeBinds(binds)))),
+            Effect.andThen(
+              gate.runUnlocked("executeStream", () => native.stream(sql, nativeBinds(binds), bindTypes(binds)))
+            ),
             Effect.map((result) => {
               const iterator = result.yieldConvertedRowObjects(converter);
               return Stream.paginate(undefined, () =>

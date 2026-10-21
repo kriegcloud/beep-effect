@@ -304,7 +304,9 @@ const acquireScopedSharedConnection = (options: DuckDbConnectionOptions, scope: 
         const native = yield* getConnection(operation);
         if (!finalizerRegistered) {
           finalizerRegistered = true;
-          yield* Scope.addFinalizer(scope, releaseNativeConnection(native));
+          // Close under the op lock so a statement still running at teardown
+          // settles first; closing mid-statement leaves its promise pending.
+          yield* Scope.addFinalizer(scope, native.gate.withLock(releaseNativeConnection(native)));
         }
         return native;
       })
@@ -393,13 +395,30 @@ const makeConnectionClient = (
             const transaction = makeConnectionClient(
               options,
               Effect.fn("DuckDb.useTransactionConnection")(function* <A, R>(
-                _operation: DuckDbOperation,
+                operation: DuckDbOperation,
                 useNative: NativeUse<A, R>
               ): Effect.fn.Return<A, DuckDbError, R> {
+                // An interrupted statement is recorded as well: the gate sends
+                // DuckDB an INTERRUPT, which aborts the open transaction, and a
+                // caller that swallows the interruption (timeoutOption, race)
+                // would otherwise reach a COMMIT that DuckDB silently rolls back.
                 return yield* useNative(native).pipe(
                   Effect.tapError((error) =>
                     Effect.sync(() => {
                       failed = O.orElse(failed, () => O.some(error));
+                    })
+                  ),
+                  Effect.onInterrupt(() =>
+                    Effect.sync(() => {
+                      failed = O.orElse(failed, () =>
+                        O.some(
+                          DuckDbError.make({
+                            databasePath: O.some(options.databasePath),
+                            message: "DuckDB statement interrupted inside a transaction",
+                            operation,
+                          })
+                        )
+                      );
                     })
                   )
                 );

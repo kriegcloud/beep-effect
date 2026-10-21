@@ -4,8 +4,8 @@
  * Two converters are built once at module load, one for each SafeIntegers
  * mode. Each handles the DuckDB types whose `@duckdb/node-api` JS reading is
  * lossy, throws, or yields a shape the driver does not want (wide DECIMAL,
- * TIME, out-of-range DATE/TIMESTAMP, BLOB `Buffer`s, 64-bit and wider
- * integers, INTERVAL micros), and delegates every other type to
+ * TIME, BIT, infinite, pre-epoch or out-of-range DATE/TIMESTAMP, BLOB
+ * `Buffer`s, 64-bit and wider integers, INTERVAL micros), and delegates every other type to
  * `JSDuckDBValueConverter`, passing itself so nested LIST, ARRAY, STRUCT, MAP,
  * UNION and VARIANT values are converted by the same rules.
  *
@@ -15,11 +15,18 @@
 
 import {
   DuckDBBlobValue,
+  DuckDBDateValue,
   DuckDBDecimalValue,
   DuckDBIntervalValue,
+  DuckDBTimestampMillisecondsValue,
+  DuckDBTimestampNanosecondsValue,
+  DuckDBTimestampSecondsValue,
+  DuckDBTimestampTZValue,
+  DuckDBTimestampValue,
   DuckDBTypeId,
   JSDuckDBValueConverter,
 } from "@duckdb/node-api";
+import { identity } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import type { DuckDBType, DuckDBValue, DuckDBValueConverter, JS } from "@duckdb/node-api";
@@ -47,13 +54,90 @@ const decimal: TypeConverter = (value, type, self) =>
 const blob: TypeConverter = (value, type, self) =>
   value instanceof DuckDBBlobValue ? toPlainBytes(value.bytes) : delegate(value, type, self);
 
-const timeString: TypeConverter = (value) => String(value);
+const asString: TypeConverter = (value) => String(value);
 
-const dateOrString: TypeConverter = (value, type, self) =>
-  Result.getOrElse(
-    Result.try(() => delegate(value, type, self)),
-    () => String(value)
-  );
+const MICROS_PER_MILLI = BigInt(1000);
+
+const NANOS_PER_MILLI = BigInt(1000000);
+
+/** Rounds toward negative infinity to a multiple of `unit` (BigInt `/` truncates toward zero). */
+const flooredTo = (raw: bigint, unit: bigint): bigint => raw - (((raw % unit) + unit) % unit);
+
+/**
+ * Reads a DATE/TIMESTAMP value as a JS `Date`, or as a string when it is a
+ * DuckDB infinity sentinel or outside the JS `Date` range (D30).
+ *
+ * The sentinels are checked first because only the TIMESTAMP and TIMESTAMPTZ
+ * `toString` know them, and ±infinity TIMESTAMP_NS is inside the `Date` range.
+ * `toMillisFloor` replaces the value with one whose sub-millisecond part is
+ * floored, because the upstream reader truncates toward zero and would move a
+ * pre-epoch instant forward across the second, day and year boundary.
+ */
+const temporal =
+  <V extends DuckDBValue, N extends bigint | number>(
+    isValue: (value: DuckDBValue) => value is V,
+    raw: (value: V) => N,
+    sentinels: { readonly PosInf: V; readonly NegInf: V },
+    toMillisFloor: (value: V) => DuckDBValue
+  ): TypeConverter =>
+  (value, type, self) => {
+    if (!isValue(value)) {
+      return delegate(value, type, self);
+    }
+    const units = raw(value);
+    if (units === raw(sentinels.PosInf)) {
+      return "infinity";
+    }
+    if (units === raw(sentinels.NegInf)) {
+      return "-infinity";
+    }
+    return Result.getOrElse(
+      Result.try(() => delegate(toMillisFloor(value), type, self)),
+      () => String(value)
+    );
+  };
+
+const instanceGuard =
+  <V>(valueClass: abstract new (...args: never) => V) =>
+  (value: DuckDBValue): value is DuckDBValue & V =>
+    value instanceof valueClass;
+
+const date = temporal(instanceGuard(DuckDBDateValue), (value) => value.days, DuckDBDateValue, identity);
+
+const timestamp = temporal(
+  instanceGuard(DuckDBTimestampValue),
+  (value) => value.micros,
+  DuckDBTimestampValue,
+  (value) => new DuckDBTimestampValue(flooredTo(value.micros, MICROS_PER_MILLI))
+);
+
+const timestampTz = temporal(
+  instanceGuard(DuckDBTimestampTZValue),
+  (value) => value.micros,
+  DuckDBTimestampTZValue,
+  (value) => new DuckDBTimestampTZValue(flooredTo(value.micros, MICROS_PER_MILLI))
+);
+
+const timestampNs = temporal(
+  instanceGuard(DuckDBTimestampNanosecondsValue),
+  (value) => value.nanos,
+  DuckDBTimestampNanosecondsValue,
+  (value) => new DuckDBTimestampNanosecondsValue(flooredTo(value.nanos, NANOS_PER_MILLI))
+);
+
+const timestampMs = temporal(
+  instanceGuard(DuckDBTimestampMillisecondsValue),
+  (value) => value.millis,
+  DuckDBTimestampMillisecondsValue,
+  identity
+);
+
+const timestampS = temporal(
+  instanceGuard(DuckDBTimestampSecondsValue),
+  (value) => value.seconds,
+  DuckDBTimestampSecondsValue,
+  identity
+);
 
 const intervalWithNumberMicros: TypeConverter = (value, type, self) =>
   value instanceof DuckDBIntervalValue
@@ -63,15 +147,16 @@ const intervalWithNumberMicros: TypeConverter = (value, type, self) =>
 const sharedConverters: TypeConverters = {
   [DuckDBTypeId.DECIMAL]: decimal,
   [DuckDBTypeId.BLOB]: blob,
-  [DuckDBTypeId.TIME]: timeString,
-  [DuckDBTypeId.TIME_TZ]: timeString,
-  [DuckDBTypeId.TIME_NS]: timeString,
-  [DuckDBTypeId.DATE]: dateOrString,
-  [DuckDBTypeId.TIMESTAMP]: dateOrString,
-  [DuckDBTypeId.TIMESTAMP_S]: dateOrString,
-  [DuckDBTypeId.TIMESTAMP_MS]: dateOrString,
-  [DuckDBTypeId.TIMESTAMP_NS]: dateOrString,
-  [DuckDBTypeId.TIMESTAMP_TZ]: dateOrString,
+  [DuckDBTypeId.BIT]: asString,
+  [DuckDBTypeId.TIME]: asString,
+  [DuckDBTypeId.TIME_TZ]: asString,
+  [DuckDBTypeId.TIME_NS]: asString,
+  [DuckDBTypeId.DATE]: date,
+  [DuckDBTypeId.TIMESTAMP]: timestamp,
+  [DuckDBTypeId.TIMESTAMP_S]: timestampS,
+  [DuckDBTypeId.TIMESTAMP_MS]: timestampMs,
+  [DuckDBTypeId.TIMESTAMP_NS]: timestampNs,
+  [DuckDBTypeId.TIMESTAMP_TZ]: timestampTz,
 };
 
 const numberConverters: TypeConverters = {
@@ -107,9 +192,11 @@ const safeIntegerConverter = makeConverter(sharedConverters);
  * With `safeIntegers` off, BIGINT, UBIGINT, HUGEINT, UHUGEINT and BIGNUM read
  * as `number` (lossy above 2^53) and INTERVAL `micros` as `number`; with it on
  * they read as `bigint`. In both modes DECIMAL wider than 15 digits reads as
- * its exact string, TIME/TIME_TZ/TIME_NS as strings, BLOB as a plain
- * `Uint8Array`, and DATE/TIMESTAMP values outside the JS `Date` range (such as
- * `infinity`) as their string form.
+ * its exact string, TIME/TIME_TZ/TIME_NS as strings, BIT as its bit string
+ * (`"101"`), BLOB as a plain `Uint8Array`, DATE/TIMESTAMP values of every
+ * precision as a `Date` floored to the millisecond (also before the epoch),
+ * DuckDB's `infinity`/`-infinity` as those strings, and values outside the JS
+ * `Date` range as their string form.
  *
  * **Example** (Reading rows with the default converter)
  *

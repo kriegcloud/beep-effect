@@ -14,7 +14,7 @@ import { fcRuns } from "@beep/test-utils";
 import { DuckDBInstance } from "@duckdb/node-api";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
-import { assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -1321,6 +1321,26 @@ type ClassifiedCause = {
 };
 
 describe("DuckDb legacy re-base", { concurrent: false }, () => {
+  it.effect(
+    "waits for a running legacy statement before closing the native connection",
+    Effect.fnUntraced(function* () {
+      const scope = yield* Scope.make();
+      const context = yield* Layer.buildWithScope(
+        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" })),
+        scope
+      );
+      const duckdb = Context.get(context, DuckDb);
+      const fiber = yield* duckdb
+        .query("SELECT count(*)::INTEGER AS n FROM range(200000000)")
+        .pipe(Effect.forkDetach({ startImmediately: true }));
+      yield* liveSleep(50);
+      yield* Scope.close(scope, Exit.void);
+      const exit = yield* Fiber.await(fiber).pipe(Effect.timeoutOption(Duration.seconds(20)), TestClock.withLive);
+      pipe(exit, O.isSome, assertTrue);
+    }),
+    { timeout: 30_000 }
+  );
+
   it.layer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" })), { timeout: "30 seconds" })(
     (it) => {
       it.effect(
@@ -1345,6 +1365,32 @@ describe("DuckDb legacy re-base", { concurrent: false }, () => {
           expect(error.message).toContain("DuckDB aborted this transaction");
           pipe(error.cause, O.isSome, assertTrue);
           expect(yield* duckdb.query("SELECT id FROM aborted_events ORDER BY id")).toEqual([{ id: 1 }]);
+        })
+      );
+
+      it.effect(
+        "refuses to commit a legacy transaction after a swallowed interrupted statement",
+        Effect.fnUntraced(function* () {
+          const duckdb = yield* DuckDb;
+          yield* duckdb.run("CREATE TABLE interrupted_events (id INTEGER PRIMARY KEY)");
+
+          const error = yield* duckdb
+            .withTransaction(
+              Effect.fnUntraced(function* (transaction) {
+                yield* transaction.run("INSERT INTO interrupted_events VALUES (1)");
+                const slow = yield* transaction
+                  .query("SELECT sum(a.range * b.range) AS total FROM range(1000000) a, range(1000000) b")
+                  .pipe(Effect.timeoutOption(Duration.millis(100)), TestClock.withLive);
+                assertNone(slow);
+                return "swallowed";
+              })
+            )
+            .pipe(Effect.flip);
+
+          expect(error._tag).toBe("DuckDbError");
+          expect(error.operation).toBe("withTransaction");
+          expect(error.message).toContain("DuckDB aborted this transaction");
+          expect(yield* duckdb.query("SELECT count(*)::INTEGER AS n FROM interrupted_events")).toEqual([{ n: 0 }]);
         })
       );
     }

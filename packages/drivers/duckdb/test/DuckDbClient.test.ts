@@ -7,6 +7,7 @@ import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -14,6 +15,7 @@ import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
@@ -296,6 +298,84 @@ describe("DuckDbClient", { concurrent: false }, () => {
         assert.strictEqual(instantOf(row?.d), Date.UTC(2024, 0, 2));
         assert.strictEqual(instantOf(row?.ts), Date.UTC(2024, 0, 2, 3, 4, 5));
         assert.strictEqual(instantOf(row?.tz), Date.UTC(2024, 0, 2, 3, 4, 5));
+      })
+    );
+
+    it.effect(
+      "binds a list whose first item is null without nulling the later items",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`CREATE TABLE lead_null (id INTEGER, tags INTEGER[], names VARCHAR[])`;
+        yield* sql`INSERT INTO lead_null ${sql.insert({ id: 1, tags: [null, 7, 8], names: [null, "x"] })}`;
+        yield* sql.unsafe("INSERT INTO lead_null VALUES (?, ?, ?)", [2, [undefined, 9], [undefined, "a"]]);
+        assert.deepStrictEqual(yield* sql`SELECT * FROM lead_null ORDER BY id`, [
+          { id: 1, tags: [null, 7, 8], names: [null, "x"] },
+          { id: 2, tags: [null, 9], names: [null, "a"] },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT ${[null, 1]} AS l`, [{ l: [null, 1] }]);
+        assert.deepStrictEqual(yield* sql.unsafe("SELECT ? AS l", [[[null], null, [null, 2]]]), [
+          { l: [[null], null, [null, 2]] },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT ${[null, null]} AS l`, [{ l: [null, null] }]);
+      })
+    );
+
+    it.effect(
+      "reads infinite DATE and TIMESTAMP values of every precision as infinity strings",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        const [row] = yield* sql`SELECT
+          'infinity'::DATE AS d, '-infinity'::DATE AS nd,
+          'infinity'::TIMESTAMP_S AS s, '-infinity'::TIMESTAMP_S AS ns_,
+          'infinity'::TIMESTAMP_MS AS ms, '-infinity'::TIMESTAMP_MS AS nms,
+          'infinity'::TIMESTAMP AS us, '-infinity'::TIMESTAMP AS nus,
+          'infinity'::TIMESTAMP_NS AS n, '-infinity'::TIMESTAMP_NS AS nn,
+          'infinity'::TIMESTAMPTZ AS tz, '-infinity'::TIMESTAMPTZ AS ntz`;
+        assert.deepStrictEqual(row, {
+          d: "infinity",
+          nd: "-infinity",
+          s: "infinity",
+          ns_: "-infinity",
+          ms: "infinity",
+          nms: "-infinity",
+          us: "infinity",
+          nus: "-infinity",
+          n: "infinity",
+          nn: "-infinity",
+          tz: "infinity",
+          ntz: "-infinity",
+        });
+        const [bound] = yield* sql`SELECT ${"infinity"}::DATE AS d`;
+        assert.deepStrictEqual(bound, { d: "infinity" });
+      })
+    );
+
+    it.effect(
+      "floors pre-epoch sub-millisecond timestamps instead of rounding toward the epoch",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        const [row] = yield* sql<{
+          readonly us: unknown;
+          readonly tz: unknown;
+          readonly ns: unknown;
+          readonly pos: unknown;
+        }>`SELECT
+          '1969-12-31 23:59:59.9995'::TIMESTAMP AS us,
+          '1969-12-31 23:59:59.9995+00'::TIMESTAMPTZ AS tz,
+          '1969-12-31 23:59:59.9999995'::TIMESTAMP_NS AS ns,
+          '2024-01-02 03:04:05.6789'::TIMESTAMP AS pos`;
+        assert.strictEqual(instantOf(row?.us), -1);
+        assert.strictEqual(instantOf(row?.tz), -1);
+        assert.strictEqual(instantOf(row?.ns), -1);
+        assert.strictEqual(instantOf(row?.pos), Date.UTC(2024, 0, 2, 3, 4, 5, 678));
+      })
+    );
+
+    it.effect(
+      "reads BIT as its bit string",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        assert.deepStrictEqual(yield* sql`SELECT '101'::BIT AS b`, [{ b: "101" }]);
       })
     );
 
@@ -745,6 +825,37 @@ describe("DuckDbClient", { concurrent: false }, () => {
       })
     );
   });
+
+  it.layer(
+    DuckDbClient.layerClientConfig({ databasePath: Config.String("duckdb_path") }).pipe(
+      Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({ duckdb_path: ":memory:" })))
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "builds layerClientConfig without the generic SqlClient",
+      Effect.fnUntraced(function* () {
+        const client = yield* DuckDbClient.DuckDbClient;
+        assert.strictEqual(client.config.databasePath, ":memory:");
+        assertNone(yield* Effect.serviceOption(SqlClient.SqlClient));
+      })
+    );
+  });
+
+  it.effect(
+    "fails a bound statement after the client scope closes with ConnectionError",
+    Effect.fnUntraced(function* () {
+      const scope = yield* Scope.make();
+      const context = yield* Layer.buildWithScope(DuckDbClient.layerClient({ databasePath: ":memory:" }), scope);
+      const sql = Context.get(context, DuckDbClient.DuckDbClient);
+      yield* sql`SELECT ${1} AS n`;
+      yield* Scope.close(scope, Exit.void);
+      const bound = yield* Effect.flip(sql`SELECT ${1} AS n`);
+      const unbound = yield* Effect.flip(sql`SELECT 1 AS n`);
+      assert.strictEqual(reasonOf(bound)._tag, "ConnectionError");
+      assert.strictEqual(reasonOf(unbound)._tag, "ConnectionError");
+    })
+  );
 
   it.effect.prop(
     "round-trips DuckDbClientConfigData through its encoded form",

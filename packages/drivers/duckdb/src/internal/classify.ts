@@ -1,6 +1,8 @@
 /**
  * DuckDB native error classification into `effect/sql` error reasons.
  *
+ * **Details**
+ *
  * Native `@duckdb/node-api` failures carry their category only in the message
  * text (`Constraint Error: ...`, `TransactionContext Error: ...`). This module
  * strips the node-api wrapper prefix, matches the remaining text against an
@@ -9,6 +11,7 @@
  * the raw native value.
  *
  * @packageDocumentation
+ * @internal
  * @since 0.0.0
  */
 
@@ -115,7 +118,7 @@ const RULES: ReadonlyArray<ClassifyRule> = [
   [/^Invalid Input Error:.*attached in read-only mode/, always((_, base) => AuthorizationError.make(base))],
   [/^Connection Error:/, always((_, base) => ConnectionError.make(base))],
   [
-    /^(?:Failed to (?:connect|query|prepare): (?:instance closed|connection disconnected)|Failed to execute prepared statement)/,
+    /^(?:(?:Failed to (?:connect|query|prepare): )?(?:instance closed|connection disconnected)|Failed to execute prepared statement)/,
     always((_, base) => ConnectionError.make(base)),
   ],
   [/^IO Error:/, (_, base) => (base.operation === "connect" ? O.some(ConnectionError.make(base)) : O.none())],
@@ -163,7 +166,8 @@ const classifyDuckDbError = (
  *
  * // Data-last form for `Effect.mapError`:
  * const toExecuteError = toSqlError("execute")
- * // error.reason.message === "Failed to execute statement"
+ * console.log(toExecuteError({ message: "Parser Error: syntax error" }).reason.message)
+ * // "Failed to execute statement"
  * ```
  *
  * @internal

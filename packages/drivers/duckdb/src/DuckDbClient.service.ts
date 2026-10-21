@@ -70,11 +70,14 @@ const DATABASE_QUERY = "SELECT database_name, path FROM duckdb_databases() WHERE
  *
  * ```ts
  * import { DuckDbClient } from "@beep/duckdb"
+ * import * as Effect from "effect/Effect"
  *
- * const isDuckDbClient = (client: { readonly [DuckDbClient.TypeId]?: DuckDbClient.TypeId }) =>
- *   client[DuckDbClient.TypeId] === DuckDbClient.TypeId
+ * const program = Effect.gen(function* () {
+ *   const client = yield* DuckDbClient.DuckDbClient
+ *   console.log(client[DuckDbClient.TypeId] === DuckDbClient.TypeId) // true
+ * }).pipe(Effect.provide(DuckDbClient.layerClient({ databasePath: ":memory:" })))
  *
- * console.log(isDuckDbClient({ [DuckDbClient.TypeId]: DuckDbClient.TypeId })) // true
+ * Effect.runPromise(program)
  * ```
  *
  * @category type-ids
@@ -100,12 +103,14 @@ export const TypeId: TypeId = "~@beep/duckdb/DuckDbClient";
 export type TypeId = "~@beep/duckdb/DuckDbClient";
 
 /**
- * Configuration of `make`, `layer`, `layerClient`, and `layerConfig`.
+ * Configuration of `make`, `layer`, `layerClient`, `layerConfig`, and
+ * `layerClientConfig`.
  *
  * **Details**
  *
  * The serializable fields come from `DuckDbClientConfigData`; the runtime
- * fields are the prepared-statement TTL (default 10 minutes), extra span
+ * fields are the prepared-statement TTL (default 10 minutes, counted from
+ * when the statement was prepared, not from its last use), extra span
  * attributes, and the query/result name transforms. Set both transforms or
  * neither.
  *
@@ -144,13 +149,13 @@ export type DuckDbClientConfig = typeof DuckDbClientConfigData.Encoded & {
  *
  * ```ts
  * import type { DuckDbClient } from "@beep/duckdb"
- * import type { DuckDBInstance } from "@duckdb/node-api"
+ * import { DuckDBInstance } from "@duckdb/node-api"
  *
- * const optionsFor = (instance: DuckDBInstance): DuckDbClient.DuckDbClientFromInstanceOptions => ({
- *   instance,
- *   timeZone: "UTC"
+ * DuckDBInstance.create(":memory:").then((instance) => {
+ *   const options: DuckDbClient.DuckDbClientFromInstanceOptions = { instance, timeZone: "UTC" }
+ *   console.log(options.timeZone) // "UTC"
+ *   instance.closeSync()
  * })
- * console.log(optionsFor)
  * ```
  *
  * @category models
@@ -171,12 +176,15 @@ export type DuckDbClientFromInstanceOptions = Omit<
  *
  * ```ts
  * import type { DuckDbClient } from "@beep/duckdb"
- * import type { DuckDBConnection } from "@duckdb/node-api"
+ * import { DuckDBInstance } from "@duckdb/node-api"
  *
- * const optionsFor = (connection: DuckDBConnection): DuckDbClient.DuckDbClientFromConnectionOptions => ({
- *   connection
+ * DuckDBInstance.create(":memory:").then(async (instance) => {
+ *   const connection = await instance.connect()
+ *   const options: DuckDbClient.DuckDbClientFromConnectionOptions = { connection, databasePath: "shared" }
+ *   console.log(options.databasePath) // "shared"
+ *   connection.closeSync()
+ *   instance.closeSync()
  * })
- * console.log(optionsFor)
  * ```
  *
  * @category models
@@ -202,10 +210,15 @@ export type DuckDbClientFromConnectionOptions = Omit<
  * **Example** (Read the client configuration)
  *
  * ```ts
- * import type { DuckDbClient } from "@beep/duckdb"
+ * import { DuckDbClient } from "@beep/duckdb"
+ * import * as Effect from "effect/Effect"
  *
  * const pathOf = (client: DuckDbClient.DuckDbClientValue) => client.config.databasePath
- * console.log(pathOf)
+ * const program = Effect.gen(function* () {
+ *   console.log(pathOf(yield* DuckDbClient.DuckDbClient)) // ":memory:"
+ * }).pipe(Effect.provide(DuckDbClient.layerClient({ databasePath: ":memory:" })))
+ *
+ * Effect.runPromise(program)
  * ```
  *
  * @category models
@@ -524,6 +537,35 @@ export const layerConfig = (
       Effect.map((client) => Context.make(DuckDbClient, client).pipe(Context.add(SqlClient.SqlClient, client)))
     )
   ).pipe(Layer.provide(Reactivity.layer));
+
+/**
+ * `layerClient` built from an Effect `Config`: provides only `DuckDbClient`.
+ *
+ * **Details**
+ *
+ * The Config-driven form for contexts whose `SqlClient` is another database
+ * (for example PGlite), so the generic `SqlClient` is never shadowed by layer
+ * merge order.
+ *
+ * **Example** (Configure a client-only layer from the environment)
+ *
+ * ```ts
+ * import { DuckDbClient } from "@beep/duckdb"
+ * import * as Config from "effect/Config"
+ *
+ * const DuckDbLive = DuckDbClient.layerClientConfig({
+ *   databasePath: Config.String("DUCKDB_PATH")
+ * })
+ * console.log(DuckDbLive)
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const layerClientConfig = (
+  config: Config.Wrap<DuckDbClientConfig>
+): Layer.Layer<DuckDbClient, Config.ConfigError | SqlError> =>
+  Layer.effect(DuckDbClient, Effect.flatMap(Config.unwrap(config), make)).pipe(Layer.provide(Reactivity.layer));
 
 /**
  * The DuckDB statement compiler: dialect `"sqlite"`, `?` placeholders,

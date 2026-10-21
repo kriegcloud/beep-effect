@@ -3,8 +3,10 @@
  * packages/effect/test/persistence/KeyValueStoreTest.ts. MIT License, Copyright (c)
  * Effectful Technologies Inc. Not shipped in the effect npm package.
  * beep changes: per-module effect imports, @beep/test-runner `it`, and a `dual` suite with a
- * generic error channel (repo tsgo rules missingPipeableSignature, anyUnknownInErrorContext).
+ * generic error channel (repo tsgo rules missingPipeableSignature, anyUnknownInErrorContext),
+ * each marked `// beep:` below.
  */
+// beep: per-module effect imports and the @beep/test-runner `it` replace the upstream barrels.
 import { it } from "@beep/test-runner";
 import { assert } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -14,6 +16,8 @@ import * as KeyValueStore from "effect/persistence/KeyValueStore";
 import type * as Layer from "effect/Layer";
 
 // Tests clear the shared store.
+// beep: `dual` with a generic error channel satisfies the repo's tsgo rules
+// (missingPipeableSignature, anyUnknownInErrorContext).
 export const suite: {
   <E>(layer: Layer.Layer<KeyValueStore.KeyValueStore, E>): (name: string) => void;
   <E>(name: string, layer: Layer.Layer<KeyValueStore.KeyValueStore, E>): void;

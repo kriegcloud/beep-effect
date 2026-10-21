@@ -19,6 +19,7 @@ import {
   DuckDBDateValue,
   DuckDBDecimalValue,
   DuckDBIntervalValue,
+  DuckDBListType,
   DuckDBListValue,
   DuckDBMapValue,
   DuckDBStructValue,
@@ -30,21 +31,27 @@ import {
   DuckDBTimestampValue,
   DuckDBTimeTZValue,
   DuckDBTimeValue,
+  DuckDBTypeId,
   DuckDBUnionValue,
   DuckDBUUIDValue,
   DuckDBVariantValue,
+  LIST,
   listValue,
+  SQLNULL,
   timestampTZValue,
 } from "@duckdb/node-api";
+// beep: `typeForValue` is not re-exported from the package root; the package
+// has no `exports` map, so this deep path is the module `bind` itself uses.
+import { typeForValue } from "@duckdb/node-api/lib/typeForValue.js";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { SqlError, UnknownError } from "effect/sql/SqlError";
 import { isPlainObject } from "./compiler.ts";
-import type { DuckDBValue } from "@duckdb/node-api";
+import type { DuckDBType, DuckDBValue } from "@duckdb/node-api";
 
 const BIND_MESSAGE = "Failed to bind statement parameters";
 
@@ -129,6 +136,58 @@ const normalizeParameter = (value: unknown): BindResult =>
     () => Result.fail(`unsupported bind parameter of type ${kindOf(value)}`)
   );
 
+const isListValue = (value: DuckDBValue): value is DuckDBListValue => value instanceof DuckDBListValue;
+
+const isNotNullValue = (value: DuckDBValue): boolean => value !== null;
+
+const hasNullLeaf = (type: DuckDBType): boolean =>
+  type.typeId === DuckDBTypeId.SQLNULL || (type instanceof DuckDBListType && hasNullLeaf(type.valueType));
+
+/** The first item type without a `NULL` leaf, so `[[null], [null, 2]]` types as `INTEGER[][]`. */
+const listItemType = (items: ReadonlyArray<DuckDBValue>): DuckDBType => {
+  const types = A.map(A.filter(items, isNotNullValue), bindTypeOf);
+  return pipe(
+    A.findFirst(types, (type) => !hasNullLeaf(type)),
+    O.orElse(() => A.head(types)),
+    O.getOrElse(() => SQLNULL)
+  );
+};
+
+/**
+ * The bind type of one normalized value. `typeForValue` types a LIST from its
+ * first item only, so a leading `NULL` would type the list `LIST(SQLNULL)` and
+ * bind every item as `NULL`; lists are typed from their first item whose type
+ * has no `NULL` leaf.
+ */
+const bindTypeOf = (value: DuckDBValue): DuckDBType =>
+  isListValue(value) ? LIST(listItemType(value.items)) : typeForValue(value);
+
+/**
+ * Explicit bind types for normalized parameters.
+ *
+ * **Details**
+ *
+ * LIST values are typed from their first item whose type has no `NULL` leaf
+ * (recursively); every other value gets the same `typeForValue` type DuckDB
+ * infers for an untyped bind, so only lists bind differently. A list whose
+ * items are all `NULL` stays `LIST(SQLNULL)`.
+ *
+ * **Example** (Typing a list with a leading null)
+ *
+ * ```ts
+ * import * as Result from "effect/Result"
+ * import { bindTypes, normalizeParameters } from "./parameters.ts"
+ *
+ * const binds = Result.getOrThrow(normalizeParameters([[null, 7]], "execute"))
+ * console.log(String(bindTypes(binds)[0])) // "INTEGER[]"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ * @internal
+ */
+export const bindTypes = (binds: ReadonlyArray<DuckDBValue>): Array<DuckDBType> => A.map(binds, bindTypeOf);
+
 /**
  * Normalizes statement parameters into DuckDB bind values.
  *
@@ -137,8 +196,8 @@ const normalizeParameter = (value: unknown): BindResult =>
  * `null`/`undefined` bind as `NULL`; booleans, strings, numbers and bigints
  * pass through; a valid `Date` binds as a TIMESTAMPTZ instant; `Uint8Array`
  * and `Int8Array` bind as BLOB; typed `DuckDB*Value` instances pass through; a
- * non-empty array binds as a LIST of normalized items; a plain object binds as
- * JSON text. The first value that cannot be bound fails the whole call.
+ * non-empty array binds as a LIST of normalized items, typed from its first
+ * non-null item through {@link bindTypes}; a plain object binds as JSON text. The first value that cannot be bound fails the whole call.
  *
  * **Gotchas**
  *
