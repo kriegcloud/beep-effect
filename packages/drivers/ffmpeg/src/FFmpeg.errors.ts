@@ -32,12 +32,14 @@ const isFFmpegDefect = S.is(FFmpegDefect);
  * @since 0.0.0
  */
 export const ProcessExitCode = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`ProcessExitCodeMinimumCheck`,
-    title: "Process Exit Code Minimum",
-    description: "Native process exit statuses are non-negative integers.",
-    message: "Expected a non-negative process exit code",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("ProcessExitCodeMinimumCheck", {
+      title: "Process Exit Code Minimum",
+      description: "Native process exit statuses are non-negative integers.",
+      message: "Expected a non-negative process exit code",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ProcessExitCode", {
     description: "Non-negative integer process exit status.",

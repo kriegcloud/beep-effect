@@ -37,12 +37,14 @@ const SecretStoreOperationBase = LiteralKit(["read", "write", "delete", "protect
  * @since 0.0.0
  */
 export const SecretTarget = S.String.check(
-  S.isPattern(/^beep\/[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/u, {
-    identifier: $I`SecretTargetCheck`,
-    title: "Secret Target",
-    description: "A beep/<provider>/<key> Credential Manager target with lowercase kebab-case segments.",
-    message: "Secret targets must match beep/<provider>/<key> with lowercase kebab-case segments",
-  })
+  S.isPattern(
+    /^beep\/[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/u,
+    $I.annote("SecretTargetCheck", {
+      title: "Secret Target",
+      description: "A beep/<provider>/<key> Credential Manager target with lowercase kebab-case segments.",
+      message: "Secret targets must match beep/<provider>/<key> with lowercase kebab-case segments",
+    })
+  )
 ).pipe(
   S.brand("SecretTarget"),
   $I.annoteSchema("SecretTarget", {

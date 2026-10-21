@@ -154,13 +154,15 @@ const makeNormalizedUrl = (value: string): URLStr => URLStr.make(normalizeBaseUr
 const isNormalizedConfigUrl = (value: unknown): value is URLStr =>
   URLStr.is(value) && Str.Equivalence(normalizeBaseUrl(value), value);
 
-const normalizedConfigUrlFilter = S.makeFilter(isNormalizedConfigUrl, {
-  identifier: $I`M365NormalizedConfigUrl`,
-  title: "M365 normalized configuration URL",
-  description: "A valid Microsoft 365 configuration URL without trailing slash separators.",
-  message: "Microsoft 365 configuration URLs must be valid and normalized without trailing slash separators.",
-  arbitraryConstraint: { patterns: [{ source: "^https://[a-z]{1,12}\\.example(?:/[a-z0-9]{1,12})?$", flags: "" }] },
-});
+const normalizedConfigUrlFilter = S.makeFilter(
+  isNormalizedConfigUrl,
+  $I.annote("M365NormalizedConfigUrl", {
+    title: "M365 normalized configuration URL",
+    description: "A valid Microsoft 365 configuration URL without trailing slash separators.",
+    message: "Microsoft 365 configuration URLs must be valid and normalized without trailing slash separators.",
+    arbitraryConstraint: { patterns: [{ source: "^https://[a-z]{1,12}\\.example(?:/[a-z0-9]{1,12})?$", flags: "" }] },
+  })
+);
 
 const M365ConfigUrl = S.String.pipe(
   S.decodeTo(S.String.check(normalizedConfigUrlFilter), {

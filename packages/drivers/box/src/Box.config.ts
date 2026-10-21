@@ -23,12 +23,14 @@ const BoxCcgConfigShape = S.Struct({
   enterpriseId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
   userId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
 }).check(
-  S.makeFilter((config) => O.isSome(config.enterpriseId) !== O.isSome(config.userId), {
-    identifier: $I`BoxCcgSubjectCheck`,
-    title: "Box CCG subject",
-    description: "Requires exactly one enterprise id or user id for Box Client Credentials Grant auth.",
-    message: "Expected exactly one of enterpriseId or userId for Box CCG auth",
-  })
+  S.makeFilter(
+    (config) => O.isSome(config.enterpriseId) !== O.isSome(config.userId),
+    $I.annote("BoxCcgSubjectCheck", {
+      title: "Box CCG subject",
+      description: "Requires exactly one enterprise id or user id for Box Client Credentials Grant auth.",
+      message: "Expected exactly one of enterpriseId or userId for Box CCG auth",
+    })
+  )
 );
 
 /**

@@ -75,12 +75,14 @@ const RegistrationFailureReason = LiteralKit(["missing_candidate", "wire_name_dr
 );
 
 const NormalizedWireName = S.NonEmptyString.check(
-  S.isPattern(wireNamePattern, {
-    identifier: $I`NormalizedWireNameCheck`,
-    title: "Normalized MCP wire name",
-    description: "A non-empty MCP wire name containing only ASCII letters, digits, underscores, and hyphens.",
-    message: "Expected a non-empty MCP wire name matching ^[a-zA-Z0-9_-]+$",
-  })
+  S.isPattern(
+    wireNamePattern,
+    $I.annote("NormalizedWireNameCheck", {
+      title: "Normalized MCP wire name",
+      description: "A non-empty MCP wire name containing only ASCII letters, digits, underscores, and hyphens.",
+      message: "Expected a non-empty MCP wire name matching ^[a-zA-Z0-9_-]+$",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NormalizedWireName", {
     description: "A normalized MCP wire name containing only the frozen safe ASCII character set.",
