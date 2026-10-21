@@ -101,6 +101,9 @@ Keep `Schema` as the source of truth for pure data models.
 - Use `S.toTaggedUnion("<field>")` for discriminators such as `kind`,
   `status`, `type`, `subtype`, `profile`, or `family`.
 - Use `S.TaggedUnion(...)` only for canonical `_tag` object unions.
+- Fix a tag with `S.TaggedStruct` / `S.TaggedClass` / `S.TaggedError`, and any
+  other required single-literal field with `S.tag(v)`, never `S.Literal(v)`;
+  `bun run beep laws schema-tag-idioms --check` enforces it.
 - Prefer schema-derived tagged-union helpers (`.cases`, `.guards`, `.isAnyOf`,
   `.match`) when constructing, guarding, or branching on a schema tagged union.
 - Use `S.OptionFromNullOr`, `S.OptionFromNullishOr`,

@@ -1232,6 +1232,25 @@
         "!**/storybook-static/**"
       ]
     },
+    "//#lint:schema-tag-idioms": {
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*.{ts,tsx,mts,cts,md,mdx}",
+        "!.git/**",
+        "!graft/**",
+        "!.repos/**",
+        "!**/node_modules/**",
+        "!**/.beep/**",
+        "!**/.turbo/**",
+        "!**/dist/**",
+        "!**/coverage/**",
+        "!**/.next/**",
+        "!**/storybook-static/**",
+        "!**/_generated/**"
+      ]
+    },
     "//#lint:ecosystem-polarity": {
       "cache": true,
       "outputs": [],

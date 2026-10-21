@@ -219,3 +219,38 @@ export class RetiredIriAuthoritiesExecutionError extends S.TaggedError<
     (cause, message) => RetiredIriAuthoritiesExecutionError.new(messageWithCause(message, cause))
   );
 }
+
+/**
+ * Failure raised when the schema tag idiom law cannot list or read the tracked files.
+ *
+ * **Example** (Read a schema tag idioms execution error)
+ *
+ * ```ts
+ * import { SchemaTagIdiomsExecutionError } from "@beep/repo-cli/commands/Laws/Laws.errors"
+ *
+ * const error = SchemaTagIdiomsExecutionError.new("Could not list tracked files.")
+ * console.log(error.message)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SchemaTagIdiomsExecutionError extends S.TaggedError<
+  SchemaTagIdiomsExecutionError,
+  { readonly brand: unique symbol }
+>($I`SchemaTagIdiomsExecutionError`)(
+  "SchemaTagIdiomsExecutionError",
+  {
+    message: S.String,
+  },
+  $I.annoteError<SchemaTagIdiomsExecutionError>("SchemaTagIdiomsExecutionError", {
+    description: "The schema tag idiom law could not list or read the git-tracked files.",
+  })
+) {
+  static readonly new = (message: string): SchemaTagIdiomsExecutionError =>
+    SchemaTagIdiomsExecutionError.make({ message });
+
+  static readonly mapError = Err.mapCauseError<SchemaTagIdiomsExecutionError, [message: string]>((cause, message) =>
+    SchemaTagIdiomsExecutionError.new(messageWithCause(message, cause))
+  );
+}

@@ -2785,6 +2785,7 @@
     {"name":"SchemaParityCodemod.resolveRules","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"SchemaParityCodemod.run","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"SchemaParityCodemod.service.run","owner":"@beep/repo-cli","family":"tooling","conforms":false},
+    {"name":"SchemaTagIdioms.runSchemaTagIdioms","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"SchemaTopology.collectPackageJsonViolations","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"SchemaTopology.collectSchemaTopologyViolations","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"SchemaTopology.collectSourcePathViolations","owner":"@beep/repo-cli","family":"tooling","conforms":true},

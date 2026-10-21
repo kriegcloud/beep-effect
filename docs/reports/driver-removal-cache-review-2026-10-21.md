@@ -6,8 +6,8 @@ workspaces: retired:venice-ai, retired:xai, retired:firecrawl and retired:face-d
 The cheap-gates cache audit reported fifteen blocking `configuration-drift` findings and one
 `configuration-source-drift` review for `turbo.json`. A complete comparison of the executable
 projection against the previous baseline (SHA-256
-`11ccbe77a50fb5c9fad0d70e575163109a17887901838502e670b6b70ee7674c`, the baseline on `main` at
-`eba755d935`, which this branch merged) finds only subtractive changes:
+`0a83a58e93a6119d6ff10c9177927eb55fc97590dc6caad051dd3fbe037209d0`, the baseline on `main` at
+`da36bcb37e`, which this branch merged) finds only subtractive changes:
 
 - 58 computations are removed, all owned by the four deleted workspaces (15 + 15 + 14 + 14). Their
   four review records are dropped with them. No computation is added.
@@ -188,9 +188,10 @@ definition. No cached computation of theirs changes, so no reuse decision change
 ## Root subject
 
 The root subject `//` changes through `//#lint:policy-fingerprint` and `//#lint:typos` only, so this
-review replaces its record. Its previous record, the `//#lint:tsgo-rules` input-set review in
-`docs/reports/tsgo-rules-git-visibility-cache-review-2026-10-21.md`, is already part of the previous
-baseline. The `//#lint:tsgo-rules` computation is identical before and after this refresh.
+review replaces its record. Its previous record, the `//#lint:schema-tag-idioms` review in
+`docs/reports/schema-tag-idioms-cache-review-2026-10-21.md`, is already part of the previous
+baseline. The `//#lint:schema-tag-idioms` and `//#lint:tsgo-rules` computations are identical
+before and after this refresh.
 
 ## What this review does not change
 
