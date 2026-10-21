@@ -351,22 +351,33 @@ const mergeObjectSchemas = (left: Record<string, unknown>, right: Record<string,
   };
 };
 
+// A `$ref` survives only beside annotation-only siblings; otherwise its target is inlined, on
+// either side, so the result does not depend on `allOf` member order. `none` when neither side
+// is a reference.
+const mergeReference = (
+  left: Record<string, unknown>,
+  right: Record<string, unknown>,
+  inline: (ref: string) => unknown
+): O.Option<Record<string, unknown>> => {
+  if (P.isString(right.$ref)) {
+    return O.some(isAnnotationOnly(left) ? { ...right, ...left } : mergeIntersection(left, inline(right.$ref), inline));
+  }
+  if (P.isString(left.$ref)) {
+    return O.some(
+      isAnnotationOnly(right) ? { ...left, ...right } : mergeIntersection(inline(left.$ref), right, inline)
+    );
+  }
+  return O.none();
+};
+
 const mergeIntersection = (
   left: unknown,
   right: unknown,
   inline: (ref: string) => unknown
 ): Record<string, unknown> => {
   if (!P.isObject(left) || !P.isObject(right)) return failDistribute("Unsupported intersection of non-object schemas");
-  // A `$ref` survives only beside annotation-only siblings; otherwise its target is inlined, on
-  // either side, so the result does not depend on `allOf` member order.
-  if (P.isString(right.$ref)) {
-    if (isAnnotationOnly(left)) return { ...right, ...left };
-    return mergeIntersection(left, inline(right.$ref), inline);
-  }
-  if (P.isString(left.$ref)) {
-    if (isAnnotationOnly(right)) return { ...left, ...right };
-    return mergeIntersection(inline(left.$ref), right, inline);
-  }
+  const referenced = mergeReference(left, right, inline);
+  if (O.isSome(referenced)) return referenced.value;
   if (A.isArray(left.anyOf)) return { anyOf: A.map(left.anyOf, (branch) => mergeIntersection(branch, right, inline)) };
   if (A.isArray(right.anyOf)) return { anyOf: A.map(right.anyOf, (branch) => mergeIntersection(left, branch, inline)) };
   return mergeObjectSchemas(left, right);
