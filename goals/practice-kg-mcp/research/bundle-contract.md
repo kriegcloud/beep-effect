@@ -98,10 +98,10 @@ client-keyed + 27 bare remainders over 105 bare family numbers) · 438 dockets
 · 181 applications · 63 patents · 7,330 documents · 28 archives.
 
 **IRI scheme** — `@beep/identity` `make(...)` composers mint
-`https://ns.beep.sh/...` IRIs (`.create(path).iri` / `.curie`, verified in
+`https://beep-effect.com/ns/...` IRIs (`.create(path).iri` / `.curie`, verified in
 `packages/foundation/modeling/identity/src/Id.ts`; `rebase({iri, prefix})`
 exists if a practice authority is wanted later). Scheme:
-`https://ns.beep.sh/practice-kg/<kind>/<natural_key>` with natural keys:
+`https://beep-effect.com/ns/practice-kg/<kind>/<natural_key>` with natural keys:
 client number (`12345`) · client-keyed family (`12345.10008`; bare `10008` only
 for the unattributed remainder) · client-keyed docket code (`12345.10008JP02`) ·
 8-digit application number · patent number · `sha256:<digest>` for

@@ -13,7 +13,7 @@ pins fail closed; there is no latest alias. Full master data stays in ignored
 vendor files. The tracked fixtures contain synthetic titles.
 
 Scheme IRIs are minted through `$SemanticFoundationId` as
-`https://ns.beep.sh/ontology/semantic-foundation/classification/<kind>/<edition>`.
+`https://beep-effect.com/ns/ontology/semantic-foundation/classification/<kind>/<edition>`.
 Concept IRIs append `/concept/<notation>`, with a patent notation's slash
 replaced by a hyphen. IPC `A01B1/02` and CPC `A01B1/02` therefore have different
 identities. Nice classes use `1` through `45`; a basic identifier is its

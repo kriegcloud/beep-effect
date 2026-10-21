@@ -68,7 +68,7 @@ export const ProcessGuardPolicy = S.Struct({
 }).annotate({
 	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy"),
 	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy",
-	iri: "https://ns.beep.sh/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy",
+	iri: "https://beep-effect.com/ns/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy",
 	curie: "beep:scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy",
 	title: "ProcessGuardPolicy",
 	description: "When a stray exception or rejection ends the process.",
@@ -104,7 +104,7 @@ export const ProcessGuardInjection = S.Struct({
 }).annotate({
 	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardInjection"),
 	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardInjection",
-	iri: "https://ns.beep.sh/scratchpad/effected/engine/ProcessGuard/ProcessGuardInjection",
+	iri: "https://beep-effect.com/ns/scratchpad/effected/engine/ProcessGuard/ProcessGuardInjection",
 	curie: "beep:scratchpad/effected/engine/ProcessGuard/ProcessGuardInjection",
 	title: "ProcessGuardInjection",
 	description: "Which crash event to inject and when to raise it.",
@@ -226,7 +226,7 @@ class InjectedCrash extends S.TaggedError<InjectedCrash, { readonly brand: uniqu
 }, {
 	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/InjectedCrash"),
 	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/InjectedCrash",
-	iri: "https://ns.beep.sh/scratchpad/effected/engine/ProcessGuard/InjectedCrash",
+	iri: "https://beep-effect.com/ns/scratchpad/effected/engine/ProcessGuard/InjectedCrash",
 	curie: "beep:scratchpad/effected/engine/ProcessGuard/InjectedCrash",
 	title: "InjectedCrash",
 	description: "A test-only crash delivered through the host event listeners.",
@@ -237,7 +237,7 @@ class LoadFailed extends S.TaggedError<LoadFailed, { readonly brand: unique symb
 }, {
 	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/LoadFailed"),
 	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/LoadFailed",
-	iri: "https://ns.beep.sh/scratchpad/effected/engine/ProcessGuard/LoadFailed",
+	iri: "https://beep-effect.com/ns/scratchpad/effected/engine/ProcessGuard/LoadFailed",
 	curie: "beep:scratchpad/effected/engine/ProcessGuard/LoadFailed",
 	title: "LoadFailed",
 	description: "The guarded load threw or rejected; carries the original value for the startup report.",

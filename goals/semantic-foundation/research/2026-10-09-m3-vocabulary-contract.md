@@ -16,66 +16,66 @@ retain both the version pin and resolved IRI as their receipt.
 
 ### docketing
 
-Scheme: `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing`
+Scheme: `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing`
 
 | Notation | Frozen concept IRI |
 | --- | --- |
-| Deadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline` |
-| DocketingEvent | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DocketingEvent` |
-| StatutoryDueDate | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate` |
-| SoftDueDate | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/SoftDueDate` |
-| OfficeActionResponseDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/OfficeActionResponseDeadline` |
-| MaintenanceFeeDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/MaintenanceFeeDeadline` |
-| AnnuityDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/AnnuityDeadline` |
-| IDSDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/IDSDeadline` |
-| RCEDueDate | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/RCEDueDate` |
-| AppealDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/AppealDeadline` |
-| ContinuationDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/ContinuationDeadline` |
-| NationalStageDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/NationalStageDeadline` |
-| StatementOfUseDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatementOfUseDeadline` |
-| Section8Deadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Section8Deadline` |
-| Section9RenewalDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Section9RenewalDeadline` |
-| Section15DeclarationDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Section15DeclarationDeadline` |
-| TrademarkOfficeActionResponseDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkOfficeActionResponseDeadline` |
-| OppositionDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/OppositionDeadline` |
-| TrademarkRenewalDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkRenewalDeadline` |
-| TrademarkApplicationDeadline | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkApplicationDeadline` |
-| DeadlineState | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState` |
-| OpenDeadlineState | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/OpenDeadlineState` |
-| ExtendedDeadlineState | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/ExtendedDeadlineState` |
-| FinalDeadlineState | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/FinalDeadlineState` |
-| MissedDeadlineState | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/MissedDeadlineState` |
+| Deadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline` |
+| DocketingEvent | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DocketingEvent` |
+| StatutoryDueDate | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate` |
+| SoftDueDate | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/SoftDueDate` |
+| OfficeActionResponseDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/OfficeActionResponseDeadline` |
+| MaintenanceFeeDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/MaintenanceFeeDeadline` |
+| AnnuityDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/AnnuityDeadline` |
+| IDSDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/IDSDeadline` |
+| RCEDueDate | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/RCEDueDate` |
+| AppealDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/AppealDeadline` |
+| ContinuationDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/ContinuationDeadline` |
+| NationalStageDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/NationalStageDeadline` |
+| StatementOfUseDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatementOfUseDeadline` |
+| Section8Deadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Section8Deadline` |
+| Section9RenewalDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Section9RenewalDeadline` |
+| Section15DeclarationDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Section15DeclarationDeadline` |
+| TrademarkOfficeActionResponseDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkOfficeActionResponseDeadline` |
+| OppositionDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/OppositionDeadline` |
+| TrademarkRenewalDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkRenewalDeadline` |
+| TrademarkApplicationDeadline | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkApplicationDeadline` |
+| DeadlineState | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState` |
+| OpenDeadlineState | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/OpenDeadlineState` |
+| ExtendedDeadlineState | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/ExtendedDeadlineState` |
+| FinalDeadlineState | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/FinalDeadlineState` |
+| MissedDeadlineState | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/MissedDeadlineState` |
 
 ### party-kinds
 
-Scheme: `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds`
+Scheme: `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds`
 
 | Notation | Frozen concept IRI |
 | --- | --- |
-| Party | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party` |
-| NaturalPersonParty | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/NaturalPersonParty` |
-| OrganizationParty | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty` |
-| LawFirm | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/LawFirm` |
-| PatentOffice | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/PatentOffice` |
-| TrademarkOffice | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/party-kinds/concept/TrademarkOffice` |
+| Party | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/Party` |
+| NaturalPersonParty | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/NaturalPersonParty` |
+| OrganizationParty | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/OrganizationParty` |
+| LawFirm | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/LawFirm` |
+| PatentOffice | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/PatentOffice` |
+| TrademarkOffice | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/party-kinds/concept/TrademarkOffice` |
 
 ### legal-roles
 
-Scheme: `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles`
+Scheme: `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles`
 
 | Notation | Frozen concept IRI |
 | --- | --- |
-| InventorRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/InventorRole` |
-| ApplicantRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/ApplicantRole` |
-| AssigneeRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/AssigneeRole` |
-| OwnerRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/OwnerRole` |
-| ExaminerRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/ExaminerRole` |
-| AttorneyOfRecordRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/AttorneyOfRecordRole` |
-| CorrespondentRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/CorrespondentRole` |
-| ClientContactRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/ClientContactRole` |
-| SignerRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/SignerRole` |
-| LicenseeRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicenseeRole` |
-| LicensorRole | `https://ns.beep.sh/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicensorRole` |
+| InventorRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/InventorRole` |
+| ApplicantRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/ApplicantRole` |
+| AssigneeRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/AssigneeRole` |
+| OwnerRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/OwnerRole` |
+| ExaminerRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/ExaminerRole` |
+| AttorneyOfRecordRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/AttorneyOfRecordRole` |
+| CorrespondentRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/CorrespondentRole` |
+| ClientContactRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/ClientContactRole` |
+| SignerRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/SignerRole` |
+| LicenseeRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicenseeRole` |
+| LicensorRole | `https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/legal-roles/concept/LicensorRole` |
 
 ## Identity, role assignment and authority boundary
 

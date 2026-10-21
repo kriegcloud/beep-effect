@@ -224,7 +224,7 @@ prefix terms, for example:
 {
   "@context": {
     "@version": 1.1,
-    "beep": { "@id": "https://ns.beep.sh/", "@prefix": true },
+    "beep": { "@id": "https://beep-effect.com/ns/", "@prefix": true },
     "rdfs": { "@id": "http://www.w3.org/2000/01/rdf-schema#", "@prefix": true }
   }
 }
@@ -316,8 +316,8 @@ Concepts section 3.2 for IRI string equality.
 | `%` followed by two hex digits already present in the source IRI | May emit as `%HH` | `PERCENT` is allowed through `PLX` but is not decoded. |
 | Character outside raw `PN_LOCAL`, `PN_LOCAL_ESC`, and exact source `%HH` preservation | Use full `IRIREF` or choose another valid namespace split | A `PrefixedName` would not match `PNAME_LN` without changing the IRI. |
 
-For `https://ns.beep.sh/ontology/Ontology.models/HttpUrl` with prefix
-`beep:` mapped to `https://ns.beep.sh/ontology/`, Turtle can emit:
+For `https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl` with prefix
+`beep:` mapped to `https://beep-effect.com/ns/ontology/`, Turtle can emit:
 
 ```turtle
 beep:Ontology.models\/HttpUrl

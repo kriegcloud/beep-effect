@@ -4,7 +4,7 @@
 
 Deliver the shared semantic substrate for legal intake and future law-practice
 domain packets: repo-owned SKOS concept schemes minted with `@beep/identity`
-under `https://ns.beep.sh/`, FOLIO-aligned where vetted, loaded through
+under `https://beep-effect.com/ns/`, FOLIO-aligned where vetted, loaded through
 schema-first `@beep/ontology` registry/service APIs, and consumable by document
 intake, filing-path, classification, ClaimGate, docketing, and party-role
 workflows without introducing a graph store, SPARQL runtime, or law-practice
@@ -62,7 +62,7 @@ cannot widen non-goals without a dated `SPEC.md` change.
 - `packages/foundation/modeling/identity/src/Vocab.ts` and
   `packages/foundation/modeling/identity/src/packages.ts` (`@beep/identity`) -
   concept IRIs are minted through `IdentityComposer`; vocabulary extension uses
-  the existing `mergeVocab` extension point and `https://ns.beep.sh/`
+  the existing `mergeVocab` extension point and `https://beep-effect.com/ns/`
   authority.
 - `packages/foundation/capability/semantic-web/src/services/shacl-validation.ts`
   (`@beep/semantic-web`) and the bounded validator now at
@@ -77,7 +77,7 @@ cannot widen non-goals without a dated `SPEC.md` change.
   Postgres/PGlite tables. A dedicated graph database is out of scope.
 - Schema-first Effect models, typed errors, and tagged unions are required for
   registry, loader, and concept-scheme data.
-- `https://ns.beep.sh/` is the repo authority for minted concept IRIs; ad-hoc
+- `https://beep-effect.com/ns/` is the repo authority for minted concept IRIs; ad-hoc
   local namespaces such as `https://beep.local/...` are not acceptable for new
   committed seed data.
 - M1 is intake-serving and starts now. M2-M4 are gated and must not be pulled
@@ -101,7 +101,7 @@ starts after M2 tests and the real-artifact proof pass. M4 remains gated.
 
 | Milestone | Gate | Capability | Exit criteria |
 | --- | --- | --- | --- |
-| M1 Intake-Serving Semantic Seed | Starts now | Repo-owned SKOS taxonomy seed with `https://ns.beep.sh/` concept IRIs, FOLIO `skos:exactMatch`/`skos:closeMatch` where available, document-class vocabulary (`draft`, `redline`, `filed`, `received`, `privileged`, `extracted-child`), filing-path semantics for local vault + Box mirror, and `@beep/ontology` taxonomy registry/loader loading committed seed plus vetted gitignored vendor slices from the exploration asset-pack manifest. | An intake librarian loop can classify a sample document against the taxonomy seed and produce a filing path plus document class with FOLIO-aligned concept IRIs; `bun run beep yeet verify` is green or unrelated failures are recorded. |
+| M1 Intake-Serving Semantic Seed | Starts now | Repo-owned SKOS taxonomy seed with `https://beep-effect.com/ns/` concept IRIs, FOLIO `skos:exactMatch`/`skos:closeMatch` where available, document-class vocabulary (`draft`, `redline`, `filed`, `received`, `privileged`, `extracted-child`), filing-path semantics for local vault + Box mirror, and `@beep/ontology` taxonomy registry/loader loading committed seed plus vetted gitignored vendor slices from the exploration asset-pack manifest. | An intake librarian loop can classify a sample document against the taxonomy seed and produce a filing path plus document class with FOLIO-aligned concept IRIs; `bun run beep yeet verify` is green or unrelated failures are recorded. |
 | M2 Classification Schemes | Gated behind the August 5 first-user metric or a demo-day pull | IPC, CPC, and Nice as loadable SKOS concept schemes with edition tracking and broader/narrower lookup. | A caller can load a pinned edition and resolve classification code hierarchy without confusing CPC and IPC. |
 | M3 Docketing and Party Roles | Gated after M2 readiness and explicit product pull | Docketing/deadline vocabulary plus party-role vocabulary modules that separate enduring party identity from time-bounded legal roles. | A `trademark-docketing-domain` packet can be spawned with stable vocabulary contracts for trademark docketing entities. |
 | M4 Intake ClaimGate Shapes | Gated after M1 consumers prove need and M3 vocabulary is stable enough | SHACL shape authoring for intake/ClaimGate gates against the existing bounded validator in `@beep/semantic-web`. | Shapes validate against `ShaclValidationService` without changing the semantic-web service contract; SPARQL remains unsupported. |
@@ -109,7 +109,7 @@ starts after M2 tests and the real-artifact proof pass. M4 remains gated.
 ## Acceptance Criteria
 
 - [x] M1 taxonomy seed is committed as repo-owned TTL/JSON-LD and schema-first
-      data, with concept IRIs minted under `https://ns.beep.sh/`.
+      data, with concept IRIs minted under `https://beep-effect.com/ns/`.
 - [x] M1 includes document-class vocabulary for `draft`, `redline`, `filed`,
       `received`, `privileged`, and `extracted-child`.
 - [x] M1 registry/loader can load the committed seed plus vetted gitignored

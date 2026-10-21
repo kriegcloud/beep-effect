@@ -205,7 +205,7 @@ Opinionated, concrete.
 |------|-------------------|----------|--------|
 | **Light** | Required PR review + CODEOWNERS on packet paths; dismiss stale | Digest-bound JSONL receipt in git; CI check that receipt digests match tree | None beyond GitHub auth |
 | **Standard** | Same + ruleset: no self-approve; human identity ≠ bot | Receipt + CI **verifies** parent chain + digests before ready-bit | Optional gitsign on merge commit with **private** Rekor/offline |
-| **Full** | Multi-party or hardware/OIDC human identity outside agent host | in-toto statement `predicateType: beep.dev/packet-approval/v1` (or org-equivalent) subject = design digests; verify in gate job | Sigstore/gitsign **or** GH attestation-style envelope; **verify step required in DoD** |
+| **Full** | Multi-party or hardware/OIDC human identity outside agent host | in-toto statement `predicateType: beep-effect.com/ns/packet-approval/v1` (or org-equivalent) subject = design digests; verify in gate job | Sigstore/gitsign **or** GH attestation-style envelope; **verify step required in DoD** |
 
 Unrelated PRs: memoize gate results keyed by `(packet_id, subject_digest, policy_version)` — if digests unchanged, pay zero re-ceremony (aligns with docgen proof-manifest reuse pattern already in-repo).
 

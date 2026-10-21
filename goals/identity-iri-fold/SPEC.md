@@ -79,7 +79,7 @@ identity registry.
 ## Constraints
 
 1. `identity-iri-core` is a satisfied completed-retained dependency. Preserve
-   its shape-stable composer contract, authority `https://ns.beep.sh/`, literal
+   its shape-stable composer contract, authority `https://beep-effect.com/ns/`, literal
    `.iri`/`.curie` types, vocab registry, and interning behavior.
 2. D4–D6 are binding: references are schema handles, known CURIEs, absolute IRI
    literals, or typed literals; predicates use the composer’s closed CURIE type;

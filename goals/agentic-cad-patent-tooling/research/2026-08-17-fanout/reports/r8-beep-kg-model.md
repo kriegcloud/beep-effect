@@ -325,7 +325,7 @@ matters/<clientStableKey>/<matterStableKey>/<sortKey>-<folderSegment>/<stem>--<s
 
 (`Taxonomy.projection.ts:19-21`, `:122-140`; example in `Document.model.ts:178-181`.)
 
-Taxonomy already has a prosecution bucket: `LegalDocumentConceptId` includes `"ip-prosecution-and-portfolio"`, `"exhibits-and-evidence"`, `"client-source-materials"` (`Taxonomy.model.ts:32-56`). FOLIO-aligned SKOS concepts with IRIs like `https://ns.beep.sh/documents/taxonomy/legal-document#pleadings`.
+Taxonomy already has a prosecution bucket: `LegalDocumentConceptId` includes `"ip-prosecution-and-portfolio"`, `"exhibits-and-evidence"`, `"client-source-materials"` (`Taxonomy.model.ts:32-56`). FOLIO-aligned SKOS concepts with IRIs like `https://beep-effect.com/ns/documents/taxonomy/legal-document#pleadings`.
 
 ### 3.3 What is persisted
 

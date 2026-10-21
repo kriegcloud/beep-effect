@@ -95,7 +95,7 @@ Summary of what already exists, so this packet composes rather than rebuilds.
 graph-is-projection with no dedicated graph database; **Effect Schema is the
 authority and RDF/JSON-LD is derived**; no SPARQL engine in v1
 (`UnsupportedSparqlQueryServiceLive` stands); no law-practice domain entities in
-the semantic layer; `https://ns.beep.sh/` is the sole minting authority; FOLIO
+the semantic layer; `https://beep-effect.com/ns/` is the sole minting authority; FOLIO
 alignment is metadata, never source of truth; **no third-party TTL/OWL in tracked
 package source**; M2/M3/M4 milestone gating is binding.
 

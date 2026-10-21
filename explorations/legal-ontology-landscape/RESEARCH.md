@@ -18,7 +18,7 @@ digest. Asset evidence: [`assets/manifest.jsonl`](./assets/manifest.jsonl)
 - **SKOS** — structural contract for the taxonomy seed and every
   classification scheme (verified; W3C document-use terms).
 - **DCTerms** — generic document metadata; do not mint duplicates under
-  `ns.beep.sh` (verified; CC-BY-4.0).
+  `beep-effect.com/ns/` (verified; CC-BY-4.0).
 - **PROV-O** (narrow profile) — document lineage: original→extracted child,
   draft→redline, filed/received copies (verified).
 - **Box metadata taxonomies + folder structure** — product constraint, not an
@@ -79,7 +79,7 @@ CQs 1,7,8,5,18 → M3 (vocabulary recommendations in P2; trademark entity gap
 tracked in the stub packet). CQs 12,13,14 → existing LangExtract→ClaimGate
 loop + P3 patterns. CQs 16,17,20 → P4 recommendations + gate conditions.
 Gap: no candidate fully covers docketing-obligation vocabulary — M3 will mint
-under `ns.beep.sh` (expected; recorded in P2's M3 section).
+under `beep-effect.com/ns/` (expected; recorded in P2's M3 section).
 
 ## External Landscape
 
