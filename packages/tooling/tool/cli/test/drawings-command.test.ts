@@ -154,6 +154,27 @@ it.layer(
   { timeout: "30 seconds" }
 )((it) => {
   it.effect(
+    "carries exhausted container discovery through the backend even when discovered streams inflate",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const dir = yield* fs.makeTempDirectoryScoped();
+      const pdfPath = path.join(dir, "undiscovered.pdf");
+      const doc = yield* Effect.promise(() => PDFDocument.create({ updateMetadata: false }));
+      doc.addPage([612, 792]);
+      doc.context.register(doc.context.stream(A.join(A.replicate("/ObjStm ", 129), "")));
+      yield* fs.writeFile(pdfPath, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
+      const facts = yield* (yield* PdfBackend).inspect(pdfPath);
+      expect(facts.containerDiscovery).toBe("limit-reached");
+      expect(facts.streamCheck).toBe("complete");
+      expect(facts.undecodableStreams).toEqual([]);
+      const findings = structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.some(1) }) });
+      expect(A.map(findings, (finding) => finding.message)).toContain(
+        "PDF container discovery is limit-reached; global stream inspection is incomplete, so the file is unverified."
+      );
+    })
+  );
+  it.effect(
     "carries a stream check that stopped at the inflate limit into the facts, and the validator fails the file",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -168,6 +189,7 @@ it.layer(
       const facts = yield* (yield* PdfBackend).inspect(pdfPath);
       deepStrictEqual(facts.undecodableStreams, []);
       expect(facts.streamCheck).toBe("limit-reached");
+      expect(facts.containerDiscovery).toBe("complete");
       const findings = structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.some(1) }) });
       // pdf-lib writes a 1.7 header, which is flagged on its own; the unfinished check is the finding under test
       deepStrictEqual(

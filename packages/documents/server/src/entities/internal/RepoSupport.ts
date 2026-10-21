@@ -17,11 +17,16 @@
  * @since 0.0.0
  */
 
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import { A, N } from "@beep/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
+import type { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 /**
  * System-principal audit stamp for rows the repository writes on the
  * application's behalf (there is no acting user for a runtime-initiated sync).
@@ -117,3 +122,98 @@ export const makeEntityStore = Effect.fn("Documents.RepoSupport.makeEntityStore"
   const snapshot = Effect.map(Ref.get(store), (values): ReadonlyArray<T> => A.fromIterable(HashMap.values(values)));
   return { counter, snapshot, store };
 });
+
+/**
+ * What {@link replaceVersioned} writes and how it reports a rejected write.
+ *
+ * @typeParam T - the stored entity value
+ * @typeParam Missing - failure raised when the row is absent
+ * @typeParam Stale - failure raised when another write advanced the row
+ * @internal
+ * @category repositories
+ * @since 0.0.0
+ */
+export type ReplaceVersionedRequest<T, Missing, Stale> = {
+  /** Entity to store; its `rowVersion` is the version the write expects. */
+  readonly replacement: T;
+  /** Rebuild the entity at the version the write stores. */
+  readonly withRowVersion: (entity: T, rowVersion: RowVersion) => T;
+  /** Failure for a row that is not in the store. */
+  readonly onMissing: () => Missing;
+  /** Failure for a row whose stored version differs; receives the stored version. */
+  readonly onStale: (actualRowVersion: RowVersion) => Stale;
+};
+
+/**
+ * Replace one stored entity only while its stored `rowVersion` still equals the
+ * replacement's, storing the replacement at the next version.
+ *
+ * **Details**
+ *
+ * This is the in-memory twin of the Drizzle adapters' guarded
+ * `UPDATE ... WHERE id = $id AND row_version = $expected`: the comparison and
+ * the write happen in one `Ref.modify`, so two writers holding the same read
+ * cannot both succeed. A missing row fails with `onMissing`; a row another
+ * write already advanced fails with `onStale`, which receives the stored
+ * version.
+ *
+ * **Example** (Reject a stale replacement)
+ *
+ * ```ts
+ * import { replaceVersioned } from "@beep/documents-server/entities/internal/RepoSupport"
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as Effect from "effect/Effect"
+ * import * as HashMap from "effect/HashMap"
+ * import * as Ref from "effect/Ref"
+ *
+ * type Row = { readonly id: number; readonly rowVersion: RowVersion; readonly note: string }
+ * const program = Effect.gen(function* () {
+ *   const store = yield* Ref.make(HashMap.make<[number, Row]>([1, { id: 1, rowVersion: RowVersion.make(1), note: "a" }]))
+ *   const replace = (replacement: Row) =>
+ *     replaceVersioned(store, {
+ *       replacement,
+ *       withRowVersion: (entity, rowVersion) => ({ ...entity, rowVersion }),
+ *       onMissing: () => "missing",
+ *       onStale: () => "stale"
+ *     })
+ *   const first = yield* replace({ id: 1, rowVersion: RowVersion.make(1), note: "b" })
+ *   const second = yield* Effect.flip(replace({ id: 1, rowVersion: RowVersion.make(1), note: "c" }))
+ *   return { first: first.rowVersion, second }
+ * })
+ * console.log(Effect.runSync(program)) // { first: 2, second: "stale" }
+ * ```
+ *
+ * @typeParam Id - the entity id used as the store's `HashMap` key
+ * @typeParam T - the stored entity value
+ * @effects Atomically reads and, on a version match, writes the store.
+ * @internal
+ * @category repositories
+ * @since 0.0.0
+ */
+export const replaceVersioned: {
+  <Id, T extends { readonly id: Id; readonly rowVersion: RowVersion }, Missing, Stale>(
+    request: ReplaceVersionedRequest<T, Missing, Stale>
+  ): (store: Ref.Ref<HashMap.HashMap<Id, T>>) => Effect.Effect<T, Missing | Stale>;
+  <Id, T extends { readonly id: Id; readonly rowVersion: RowVersion }, Missing, Stale>(
+    store: Ref.Ref<HashMap.HashMap<Id, T>>,
+    request: ReplaceVersionedRequest<T, Missing, Stale>
+  ): Effect.Effect<T, Missing | Stale>;
+} = dual(
+  2,
+  <Id, T extends { readonly id: Id; readonly rowVersion: RowVersion }, Missing, Stale>(
+    store: Ref.Ref<HashMap.HashMap<Id, T>>,
+    { onMissing, onStale, replacement, withRowVersion }: ReplaceVersionedRequest<T, Missing, Stale>
+  ): Effect.Effect<T, Missing | Stale> =>
+    Ref.modify(store, (current): readonly [Result.Result<T, Missing | Stale>, HashMap.HashMap<Id, T>] =>
+      O.match(HashMap.get(current, replacement.id), {
+        onNone: () => [Result.fail(onMissing()), current],
+        onSome: (stored) => {
+          if (stored.rowVersion !== replacement.rowVersion) {
+            return [Result.fail(onStale(stored.rowVersion)), current];
+          }
+          const written = withRowVersion(replacement, nextRowVersion(replacement.rowVersion));
+          return [Result.succeed(written), HashMap.set(current, replacement.id, written)];
+        },
+      })
+    ).pipe(Effect.flatMap(Effect.fromResult))
+);

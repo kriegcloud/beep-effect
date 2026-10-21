@@ -39,7 +39,7 @@ describe("SyncCursor entity", () => {
   it("wires SyncCursor to the documents identity", () => {
     expect(SyncCursor.SyncCursor.sql.tableName).toBe(DocumentsIdentity.SyncCursorId.tableName);
     expect(R.keys(SyncCursor.SyncCursor.insert.fields)).not.toContain("id");
-    expect(R.keys(SyncCursor.SyncCursor.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(SyncCursor.SyncCursor.insert.fields)).toContain("rowVersion");
     expect(R.keys(SyncCursor.SyncCursor.update.fields)).toContain("id");
     expect(R.keys(SyncCursor.SyncCursor.update.fields)).toContain("rowVersion");
     expect(R.keys(SyncCursor.SyncCursor.jsonCreate.fields)).toEqual([

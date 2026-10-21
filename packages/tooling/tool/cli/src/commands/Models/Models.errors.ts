@@ -15,13 +15,51 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Err } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
 import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
+import { ModelsExchangeUnsupportedReason } from "./Models.exchange.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.errors");
+
+/**
+ * Why a native write or restore refused, when the refusal has a typed cause.
+ *
+ * **Details**
+ *
+ * `ineligible` is a parsed eligibility refusal. `exchange-unsupported` means the
+ * target filesystem cannot exchange pathnames atomically, and
+ * `exchange-probe-failed` means its capability could not be established. Both
+ * exchange refusals happen before any backup, journal or publication.
+ *
+ * **Example** (Guard a refusal reason)
+ *
+ * ```ts
+ * import { ModelsLocatorRefusal } from "@beep/repo-cli/commands/Models"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ModelsLocatorRefusal)("exchange-unsupported")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const ModelsLocatorRefusal = LiteralKit(["ineligible", "exchange-unsupported", "exchange-probe-failed"]).pipe(
+  $I.annoteSchema("ModelsLocatorRefusal", {
+    description: "Typed reason a native write or restore refused before mutating the target.",
+  })
+);
+
+/**
+ * Runtime type of {@link ModelsLocatorRefusal}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ModelsLocatorRefusal = typeof ModelsLocatorRefusal.Type;
 
 /**
  * The layered catalog could not be assembled.
@@ -147,7 +185,7 @@ export class ModelsLocatorError extends S.TaggedError<ModelsLocatorError, { read
   "ModelsLocatorError",
   {
     message: S.String,
-    reason: S.optionalKey(S.Literal("ineligible")),
+    reason: S.optionalKey(ModelsLocatorRefusal),
     path: S.optionalKey(S.String),
     cause: S.optionalKey(OpaqueDefect),
   },
@@ -171,6 +209,134 @@ export class ModelsLocatorError extends S.TaggedError<ModelsLocatorError, { read
       })
   );
 }
+
+/**
+ * The atomic-exchange capability of a target filesystem could not be established.
+ *
+ * **Details**
+ *
+ * Raised when the probe cannot identify the target's filesystem, create or
+ * read its disposable files, or confirm that they live on the target's mount.
+ * A filesystem that answers the probe with a refusal is not this error; it is
+ * an `unsupported` capability.
+ *
+ * **Example** (Make a probe error)
+ *
+ * ```ts
+ * import { ModelsExchangeProbeError } from "@beep/repo-cli/commands/Models"
+ *
+ * const error = ModelsExchangeProbeError.make({ message: "Cannot create probe files.", path: "/srv/config" })
+ * console.log(error._tag) // "ModelsExchangeProbeError"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ModelsExchangeProbeError extends S.TaggedError<
+  ModelsExchangeProbeError,
+  { readonly brand: unique symbol }
+>($I`ModelsExchangeProbeError`)(
+  "ModelsExchangeProbeError",
+  {
+    message: S.String,
+    path: S.optionalKey(S.String),
+    cause: S.optionalKey(OpaqueDefect),
+  },
+  $I.annoteError<ModelsExchangeProbeError>("ModelsExchangeProbeError", {
+    title: "Models Exchange Probe Error",
+    description: "Failed to establish the atomic-exchange capability of a native target filesystem.",
+  })
+) {
+  /**
+   * Map an arbitrary cause into a probe error carrying the probed directory.
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly mapError = Err.mapCauseError<ModelsExchangeProbeError, [message: string, path?: string]>(
+    (cause, message, path) =>
+      ModelsExchangeProbeError.make({
+        message: messageWithCause(message, cause),
+        cause,
+        ...O.getSomesStruct({ path: O.fromUndefinedOr(path) }),
+      })
+  );
+}
+
+/**
+ * One atomic pathname exchange was refused by the host.
+ *
+ * **Details**
+ *
+ * `reason` is the errno the exchange returned, mapped onto
+ * {@link ModelsExchangeUnsupportedReason}. The probe turns this fault into an
+ * `unsupported` capability; publication and recovery turn it into a
+ * {@link ModelsLocatorError} that retains recovery artifacts.
+ *
+ * **Example** (Make an exchange fault)
+ *
+ * ```ts
+ * import { ModelsExchangeFault } from "@beep/repo-cli/commands/Models"
+ *
+ * const fault = ModelsExchangeFault.make({ reason: "exdev", message: "Invalid cross-device link" })
+ * console.log(fault.reason) // "exdev"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ModelsExchangeFault extends S.TaggedError<ModelsExchangeFault, { readonly brand: unique symbol }>(
+  $I`ModelsExchangeFault`
+)(
+  "ModelsExchangeFault",
+  {
+    reason: ModelsExchangeUnsupportedReason,
+    message: S.String,
+  },
+  $I.annoteError<ModelsExchangeFault>("ModelsExchangeFault", {
+    title: "Models Exchange Fault",
+    description: "The host refused one atomic pathname exchange with an errno-derived reason.",
+  })
+) {}
+
+/**
+ * The exchange primitive could not be run, so the host gave no verdict.
+ *
+ * **Details**
+ *
+ * Raised when `mv --exchange` cannot be spawned, its output cannot be
+ * collected, or it ends without a host refusal (killed by a signal, or a
+ * non-zero exit with no error text). This is never a capability verdict: the
+ * probe reports it as {@link ModelsExchangeProbeError} and does not cache it,
+ * so a later probe can still succeed. Contrast {@link ModelsExchangeFault},
+ * which is the host refusing the exchange.
+ *
+ * **Example** (Make a launch error)
+ *
+ * ```ts
+ * import { ModelsExchangeLaunchError } from "@beep/repo-cli/commands/Models"
+ *
+ * const error = ModelsExchangeLaunchError.make({ message: "Cannot run mv --exchange: spawn EAGAIN" })
+ * console.log(error._tag) // "ModelsExchangeLaunchError"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ModelsExchangeLaunchError extends S.TaggedError<
+  ModelsExchangeLaunchError,
+  { readonly brand: unique symbol }
+>($I`ModelsExchangeLaunchError`)(
+  "ModelsExchangeLaunchError",
+  {
+    message: S.String,
+    cause: S.optionalKey(OpaqueDefect),
+  },
+  $I.annoteError<ModelsExchangeLaunchError>("ModelsExchangeLaunchError", {
+    title: "Models Exchange Launch Error",
+    description: "The atomic exchange primitive could not be run, so the host gave no exchange verdict.",
+  })
+) {}
 
 /**
  * The home catalog ledger could not be read or written.

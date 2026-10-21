@@ -37,9 +37,19 @@ CLONE="$(git rev-parse --path-format=absolute --git-common-dir)/.." && bun run b
   lane, an idle Claude Desktop Terminal panel shell (the app starts one in
   the session folder even when the panel is never opened) that stays quiet
   until the deletion is left in place and the lane removed under it; the
-  report says to `cd ~` in that tab. Any other holder (a panel shell running
-  a command, any panel shell under `--lane`, an editor, another session)
-  still refuses it and is named in the error: `cd ~` in it (closing a panel
+  report says to `cd ~` in that tab. A process whose only hold is an inotify
+  watch on the lane (an editor watching the whole clone, such as WebStorm's
+  `fsnotifier`) never refuses: a watch cannot write, so the lane is removed
+  under it and the report ends with a `warning:` line naming it. The fence's
+  own rename makes such a watcher walk the renamed tree again, holding
+  directories open as it goes; the fence rescans every 250 ms until the walk
+  ends and refuses only if it outlasts 40 scans (about ten seconds), naming
+  the watcher `still walking the tree`. Excluding the folder that holds the
+  `.claude/worktrees/<name>` lanes from the editor's project stops both. Any
+  other holder (a panel shell running a
+  command, any panel shell under `--lane`, an editor with a file in the lane
+  open or standing in it, another session) still refuses it and is named in
+  the error: `cd ~` in it (closing a panel
   tab starts a new shell in the lane) or close it, then rerun. Outside Claude
   Code, redirect the output to a file rather than piping it: the other stages
   of a shell pipeline stand in the lane and count as holders. `--lane <path>`

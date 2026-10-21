@@ -27,6 +27,9 @@ const $I = $RepoCliId.create("commands/Laws/RetiredEffectPaths.model");
  * `module-specifier` matches the retired `effect/unstable` package namespace
  * (import specifiers and their prose mentions). `source-path` matches a
  * retired `unstable/<module>` directory inside the Effect source or dist tree.
+ * `anchor-slug` matches a heading-anchor slug of a retired specifier (the path
+ * with its `/` separators dropped, as GitHub slugs a heading) inside a
+ * Markdown link fragment.
  *
  * **Example** (Identify a module-specifier finding)
  *
@@ -39,7 +42,7 @@ const $I = $RepoCliId.create("commands/Laws/RetiredEffectPaths.model");
  * @category models
  * @since 0.0.0
  */
-export const RetiredEffectPathRule = LiteralKit(["module-specifier", "source-path"]).annotate(
+export const RetiredEffectPathRule = LiteralKit(["module-specifier", "source-path", "anchor-slug"]).annotate(
   $I.annote("RetiredEffectPathRule", {
     description: "Rule that detected a retired Effect module path.",
   })
@@ -128,7 +131,9 @@ export class RetiredEffectPathMapping extends S.Opaque<RetiredEffectPathMapping,
  *
  * Exceptions come before the generic rows: `httpapi` became `http-api`, and the
  * `arbitrary` barrel folded into the single `effect/Arbitrary` module. Every
- * other retired path drops its `unstable/` segment.
+ * other retired path drops its `unstable/` segment. Anchor slugs follow the
+ * same mapping in slug form; their rows match by prefix because a slug can
+ * glue heading text onto the path.
  *
  * **Example** (Count the mapping rows per rule)
  *
@@ -155,6 +160,11 @@ export const retiredEffectPathMappings: ReadonlyArray<RetiredEffectPathMapping> 
     ["source-path", "exact", "unstable/arbitrary/Arbitrary.js", "Arbitrary.js"],
     ["source-path", "exact", "unstable/httpapi", "http-api"],
     ["source-path", "prefix", "unstable/", ""],
+    ["anchor-slug", "prefix", "effectunstablearbitraryarbitrary", "effectarbitrary"],
+    ["anchor-slug", "prefix", "effectunstablearbitraryindex", "effectarbitrary"],
+    ["anchor-slug", "prefix", "effectunstablehttpapi", "effecthttp-api"],
+    ["anchor-slug", "exact", "effectunstable", "effect<module>"],
+    ["anchor-slug", "prefix", "effectunstable", "effect"],
   ] as const,
   ([rule, kind, retired, current]) => RetiredEffectPathMapping.make({ rule, kind, retired, current })
 );

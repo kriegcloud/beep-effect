@@ -42,6 +42,9 @@ because the `question` member extends its `ReviewItem` union.
   mid-line, the next append joins onto the fragment and leaves a corrupt line that fails reads
   until repaired. Prefix each append with a newline guard when the file does not end in one.
 - **Gated MAP rows** in the exploration: `question-email-replies` and `question-auto-apply`.
+- **The attorney's own tailnet login.** The hub allows the operator's login for now (SPEC Decision
+  Log, 2026-10-20). Moving the allow-list to a login only the attorney's device uses restores
+  answer attribution and keeps the operator's other devices out.
 
 ## Closeout Checklist
 

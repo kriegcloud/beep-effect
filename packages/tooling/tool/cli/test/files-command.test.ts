@@ -383,7 +383,7 @@ const makeAdaFaceModelFixture = (path: Path.Path, cacheDir: string) => {
     runtime: {
       framework: "pytorch",
       distribution: "rocm72",
-      packageVersion: "2.9.1+rocm7.2.0.git7e1940d4",
+      packageVersion: "2.13.0+rocm7.2",
       hipVersion: "7.2.26015-fc0010cf6a",
       actualCompute: "rocm",
       precision: "fp32",
@@ -1811,7 +1811,7 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
           runtime: {
             framework: "pytorch",
             distribution: "cpu",
-            packageVersion: "2.9.1+cpu",
+            packageVersion: "2.13.0+cpu",
             actualCompute: "cpu",
             precision: "fp32",
             devices: [],
@@ -1877,19 +1877,36 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
         inputs
       ).pipe(Effect.flip);
       expect(unexpectedWarningError.message).toContain("incoherent compute-fallback provenance");
-      const wrongCpuPackageWorker = yield* decodePersonMatchWorkerSuccess({
-        ...cpuWorkerReport,
-        model: {
-          ...cpuWorkerReport.model,
-          runtime: { ...cpuWorkerReport.model.runtime, packageVersion: "2.9.0+cpu" },
-        },
-      }).pipe(Effect.mapError(filesTestError));
-      const wrongCpuPackageError = yield* PersonMatchWorkerPolicyForTest.validateWorkerEnvelope(
-        wrongCpuPackageWorker,
-        automaticOptions,
-        inputs
-      ).pipe(Effect.flip);
-      expect(wrongCpuPackageError.message).toContain("pinned cpu PyTorch runtime 2.9.1+cpu");
+      for (const packageVersion of ["2.9.1+cpu", "2.13.0", "2.13.0+rocm7.2"]) {
+        const wrongCpuPackageWorker = yield* decodePersonMatchWorkerSuccess({
+          ...cpuWorkerReport,
+          model: {
+            ...cpuWorkerReport.model,
+            runtime: { ...cpuWorkerReport.model.runtime, packageVersion },
+          },
+        }).pipe(Effect.mapError(filesTestError));
+        const wrongCpuPackageError = yield* PersonMatchWorkerPolicyForTest.validateWorkerEnvelope(
+          wrongCpuPackageWorker,
+          automaticOptions,
+          inputs
+        ).pipe(Effect.flip);
+        expect(wrongCpuPackageError.message).toContain("pinned cpu PyTorch runtime 2.13.0+cpu");
+      }
+      for (const packageVersion of ["2.9.1+rocm7.2.0.git7e1940d4", "2.13.0", "2.13.0+cpu"]) {
+        const wrongRocmPackageWorker = yield* decodePersonMatchWorkerSuccess({
+          ...rocmWorkerReport,
+          model: {
+            ...rocmWorkerReport.model,
+            runtime: { ...rocmWorkerReport.model.runtime, packageVersion },
+          },
+        }).pipe(Effect.mapError(filesTestError));
+        const wrongRocmPackageError = yield* PersonMatchWorkerPolicyForTest.validateWorkerEnvelope(
+          wrongRocmPackageWorker,
+          options,
+          inputs
+        ).pipe(Effect.flip);
+        expect(wrongRocmPackageError.message).toContain("pinned rocm72 PyTorch runtime 2.13.0+rocm7.2");
+      }
       expect(PersonMatchWorkerPolicyForTest.workerSyncArguments(options, "primary")).toEqual(
         expect.arrayContaining(["--extra", "adaface"])
       );
@@ -1941,7 +1958,7 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
           actualCompute: "rocm",
           devices: [{ architecture: "gfx1201", index: 0 }],
           distribution: "rocm72",
-          packageVersion: "2.9.1+rocm7.2.0.git7e1940d4",
+          packageVersion: "2.13.0+rocm7.2",
           warnings: [],
         },
       });

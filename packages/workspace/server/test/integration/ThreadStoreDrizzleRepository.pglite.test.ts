@@ -93,6 +93,9 @@ if (!shouldRunPgliteIntegration) {
           const threads = yield* store.listThreads(workspaceId);
           expect(A.map(threads, (t) => t.id)).toEqual([thread.id]);
           expect(A.map(threads, (thread) => thread.title)).toEqual(["Matter intake"]);
+          // The rename advanced the row version; the no-op replacement did not.
+          expect(thread.rowVersion).toBe(1);
+          expect(A.map(threads, (thread) => thread.rowVersion)).toEqual([2]);
 
           const first = yield* store.appendTurn(
             AppendTurnInput.make({
@@ -103,6 +106,8 @@ if (!shouldRunPgliteIntegration) {
             })
           );
           expect(first.turn.turnIndex).toBe(0);
+          // Insert plus same-transaction reconciliation commit as the first version.
+          expect(first.turn.rowVersion).toBe(1);
           expect(S.is(TurnPublicId)(first.turn.publicId)).toBe(true);
           expect(S.is(MessagePublicId)(first.message.publicId)).toBe(true);
 

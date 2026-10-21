@@ -8,7 +8,9 @@
 import { flow } from "effect/Function";
 import * as Str from "effect/String";
 
-const EMAIL = /[^\s@<>()"',;:]+@[^\s@<>()"',;:]+/g;
+// Each maximal local-part run is attempted once, including runs without an @.
+// The original character classes and greedy match semantics remain unchanged.
+const EMAIL = /(?<![^\s@<>()"',;:])[^\s@<>()"',;:]+@[^\s@<>()"',;:]+/g;
 const HOME_PATH = /(?:\/home|\/Users)\/[^\s/]+|\/root(?=\/|\s|$)/g;
 
 /**
