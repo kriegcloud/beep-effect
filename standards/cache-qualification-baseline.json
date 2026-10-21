@@ -11,10 +11,10 @@
   "reviews": {
     "//": {
       "reviewer": "Claude Opus 5.5 (feat/public-origin-beep-effect-com)",
-      "reason": "Record the uncached //#lint:retired-iri-authorities root computation, attribute the shared root scripts-digest change to its added root script, and review the nine generated @beep/public-site task nodes; no other command, input, output, env, dependency edge or cache flag changes, and no qualification is granted.",
+      "reason": "Record the uncached //#lint:retired-iri-authorities root computation, attribute the shared root scripts-digest change to its added root script, and review the 14 generated @beep/public-site task computations (9 cached, 5 uncached); no other command, input, output, env, dependency edge or cache flag changes, and no qualification is granted.",
       "basis": {
         "path": "goals/public-origin-beep-effect-com/research/retired-iri-authorities-baseline-review.md",
-        "sha256": "f0e0ad801d72cc8829c638078a1eafcecf897a1d6f45e2610927668f9596e1de"
+        "sha256": "5db96ffb4835fad752dec2f9d8c73668ae65de749be36d4c27cc7e814e161e3d"
       }
     },
     "@beep/acp": {
@@ -955,10 +955,10 @@
     },
     "@beep/public-site": {
       "reviewer": "Claude Opus 5.5 (feat/public-origin-beep-effect-com)",
-      "reason": "Record the uncached //#lint:retired-iri-authorities root computation, attribute the shared root scripts-digest change to its added root script, and review the nine generated @beep/public-site task nodes; no other command, input, output, env, dependency edge or cache flag changes, and no qualification is granted.",
+      "reason": "Record the uncached //#lint:retired-iri-authorities root computation, attribute the shared root scripts-digest change to its added root script, and review the 14 generated @beep/public-site task computations (9 cached, 5 uncached); no other command, input, output, env, dependency edge or cache flag changes, and no qualification is granted.",
       "basis": {
         "path": "goals/public-origin-beep-effect-com/research/retired-iri-authorities-baseline-review.md",
-        "sha256": "f0e0ad801d72cc8829c638078a1eafcecf897a1d6f45e2610927668f9596e1de"
+        "sha256": "5db96ffb4835fad752dec2f9d8c73668ae65de749be36d4c27cc7e814e161e3d"
       }
     },
     "@beep/qa-capture": {

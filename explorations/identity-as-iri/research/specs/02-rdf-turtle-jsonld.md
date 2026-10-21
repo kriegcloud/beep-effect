@@ -317,16 +317,17 @@ Concepts section 3.2 for IRI string equality.
 | Character outside raw `PN_LOCAL`, `PN_LOCAL_ESC`, and exact source `%HH` preservation | Use full `IRIREF` or choose another valid namespace split | A `PrefixedName` would not match `PNAME_LN` without changing the IRI. |
 
 For `https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl` with prefix
-`beep:` mapped to `https://beep-effect.com/ns/ontology/`, Turtle can emit:
+`ont:` mapped to `https://beep-effect.com/ns/ontology/` (`beep:` stays bound to
+the identity root), Turtle can emit:
 
 ```turtle
-beep:Ontology.models\/HttpUrl
+ont:Ontology.models\/HttpUrl
 ```
 
 It must not emit:
 
 ```turtle
-beep:Ontology.models/HttpUrl
+ont:Ontology.models/HttpUrl
 ```
 
 because the slash is not raw `PN_LOCAL`.

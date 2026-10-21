@@ -23,8 +23,9 @@ const LAB_HOST_SUFFIX = /\.labs\.beep(?:\.localhost)?$/u;
  *
  * **Details**
  *
- * The path is relative to the route: it must be non-empty, must not start with
- * `/`, and must not contain whitespace.
+ * The path is relative to the route: one or more non-empty `/`-separated
+ * segments with no whitespace, no `?` or `#`, and no `.` or `..` segment, so
+ * a decoded path cannot leave its route or add a query or fragment.
  *
  * **Example** (Validate a nested path)
  *
@@ -34,15 +35,18 @@ const LAB_HOST_SUFFIX = /\.labs\.beep(?:\.localhost)?$/u;
  *
  * S.is(SitePath)("identity/Id") // => true
  * S.is(SitePath)("/identity") // => false
+ * S.is(SitePath)("../escape") // => false
+ * S.is(SitePath)("page?query") // => false
  * ```
  *
  * @category schemas
  * @since 0.0.0
  */
 export const SitePath = S.String.pipe(
-  S.check(S.isPattern(/^[^/\s]\S*$/u)),
+  S.check(S.isPattern(/^(?!\.{1,2}(?:\/|$))(?!.*\/\.{1,2}(?:\/|$))[^/\s?#]+(?:\/[^/\s?#]+)*$/u)),
   $I.annoteSchema("SitePath", {
-    description: "A non-empty path relative to a reserved route, without a leading slash or whitespace.",
+    description:
+      "A relative path below a reserved route: non-empty segments, no whitespace, no query or fragment, no dot segments.",
   })
 );
 

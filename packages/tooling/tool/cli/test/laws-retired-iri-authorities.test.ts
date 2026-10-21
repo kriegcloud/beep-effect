@@ -122,6 +122,18 @@ describe("retired IRI authority law", () => {
         expect(
           A.map(scanRetiredIriAuthorityText("a.md", `the ${APEX_SH} host`), (finding) => finding.suggestion)
         ).toEqual(["defang the host in prose (beep[.]sh) or derive the IRI with $I from @beep/identity"]);
+        expect(
+          A.map(
+            scanRetiredIriAuthorityText(
+              "a.json",
+              `{"iri":"https:\\/\\/${NS_HOST}\\/a"} ?u=https%3a%2f%2f${DEV_HOST}%2fb`
+            ),
+            (finding) => finding.suggestion
+          )
+        ).toEqual([
+          `${ORIGIN}/ns/<path> (derive with $I from @beep/identity)`,
+          `${ORIGIN}/ns/<path> (derive with $I from @beep/identity)`,
+        ]);
       })
     );
 

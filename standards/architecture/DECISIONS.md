@@ -2194,8 +2194,9 @@ Decision:
 `beep-effect.com` is the single public origin for everything the repo projects
 to developers and agents. The apex hosts ring-0 projections of the public
 substrate only. The `/ns/` path is reserved forever for identity dereference:
-it serves the exact registry behind every IRI minted under the identity
-authority `https://beep-effect.com/ns/`. `/taxonomy` is the HTML discovery
+once a deployment goal ships it, it will serve the exact registry behind every
+IRI minted under the identity authority `https://beep-effect.com/ns/`; until
+then the IRIs are names, not dereferenceable URLs. `/taxonomy` is the HTML discovery
 projection of that registry, kept separate from dereference. Subdomains are
 for services and instances that are not projections: a practice instance, the
 proxy, anything authenticated. `www` will redirect to the apex (infra, a

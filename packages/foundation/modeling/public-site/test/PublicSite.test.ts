@@ -120,6 +120,10 @@ describe("hostedUrl", () => {
   it("validates relative paths with SitePath", () => {
     expect(S.is(SitePath)("a/b.html")).toBe(true);
     expect(S.is(SitePath)("/a")).toBe(false);
+    expect(S.is(SitePath)(".well-known-ish/x")).toBe(true);
+    for (const unsafe of ["..", "../x", ".", "./x", "a/../b", "a/./b", "a/..", "a?b", "a#b", "a//b", "a/"]) {
+      expect(S.is(SitePath)(unsafe)).toBe(false);
+    }
   });
 });
 

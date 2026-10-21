@@ -8,6 +8,13 @@ and absent concepts. No latest alias, I/O, date arithmetic or entity creation.
 
 ## Frozen schemes and concept IRIs
 
+> **Supersession 2026-10-20 (authority cut).** Every IRI in this contract moved from the
+> retired placeholder authority `https://ns[.]beep[.]sh/` to `https://beep-effect.com/ns/`
+> with paths and version unchanged (goal `public-origin-beep-effect-com`, D1 and D6). This is
+> the one deliberate exception to the no-re-point rule below: nothing durable was minted under
+> the placeholder, so the old IRIs are retired rather than deprecated. A pin recorded before
+> 2026-10-20 resolves to the same notation under the new authority.
+
 All three versions are `1.0.0`. Minting uses `$SemanticFoundationId`.
 Every concept IRI is the scheme IRI plus `/concept/<notation>` below.
 Deprecate an IRI; never delete it or repoint it. New semantics use a new IRI;

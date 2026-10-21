@@ -6,6 +6,13 @@ archive hashes, concept counts, lookups and M1 same-manifest regression.
 
 ## Admission and identity
 
+> **Supersession 2026-10-20 (authority cut).** Every IRI in this contract moved from the
+> retired placeholder authority `https://ns[.]beep[.]sh/` to `https://beep-effect.com/ns/`
+> with paths and version unchanged (goal `public-origin-beep-effect-com`, D1 and D6). This is
+> the one deliberate exception to the no-re-point rule below: nothing durable was minted under
+> the placeholder, so the old IRIs are retired rather than deprecated. A pin recorded before
+> 2026-10-20 resolves to the same notation under the new authority.
+
 Load `ClassificationRegistry.load(manifestPath, vendorRoot, pin)` with an explicit
 `ClassificationPin` containing `kind` and `edition`. The pinned editions are
 IPC `2026.01`, CPC `2026.08` and Nice `13-2026`. Unknown, empty and unsupported

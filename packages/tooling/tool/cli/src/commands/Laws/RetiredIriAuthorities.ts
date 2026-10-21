@@ -109,13 +109,16 @@ const collectMatches = (content: string, pattern: RegExp): ReadonlyArray<RawMatc
     text: match[0],
   }));
 
+/** `//` as written, JSON-escaped (`\/\/`), or percent-encoded (`%2F%2F`, any case): the match is an IRI, not prose. */
+const AUTHORITY_SEPARATOR_PATTERN = /\/\/|\\\/\\\/|%2F%2F/iu;
+
 const defang = (host: string): string => F.pipe(host, Str.replaceAll(".", "[.]"));
 
 const retiredAuthoritySuggestion = (match: string): string => {
   if (F.pipe(match, Str.startsWith("@"))) {
     return "use an RFC 2606 example.com address";
   }
-  if (F.pipe(match, Str.includes("//"))) {
+  if (AUTHORITY_SEPARATOR_PATTERN.test(match)) {
     return `${publicOrigin}/ns/<path> (derive with $I from @beep/identity)`;
   }
   return `defang the host in prose (${defang(match)}) or derive the IRI with $I from @beep/identity`;
