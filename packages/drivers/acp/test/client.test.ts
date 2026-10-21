@@ -32,11 +32,13 @@ const JsonRpcId = S.Union([S.Finite, S.String]);
 const WireRequest = S.Struct({ id: JsonRpcId, method: S.String, params: S.optionalKey(S.Unknown) });
 const WireResponse = S.Struct({ id: JsonRpcId, result: S.optionalKey(S.Unknown), error: S.optionalKey(S.Unknown) });
 const WireError = S.Struct({ id: JsonRpcId, error: S.Struct({ code: S.Finite, message: S.String }) });
+const WireNotification = S.Struct({ method: S.String, params: S.optionalKey(S.Unknown) });
 
 const encodeUnknownJsonText = S.encodeUnknownEffect(AcpJson.fromJsonText(S.Unknown));
 const decodeWireRequest = S.decodeEffect(AcpJson.fromJsonText(WireRequest));
 const decodeWireResponse = S.decodeEffect(AcpJson.fromJsonText(WireResponse));
 const decodeWireError = S.decodeEffect(AcpJson.fromJsonText(WireError));
+const decodeWireNotification = S.decodeEffect(AcpJson.fromJsonText(WireNotification));
 const decodeProtocolVersion = S.decodeUnknownOption(S.Struct({ protocolVersion: S.Finite }));
 const isNegotiatingInitialize = S.is(S.Struct({ clientCapabilities: S.Unknown, info: S.Unknown }));
 
@@ -60,6 +62,7 @@ const send = (input: Input, message: unknown) => sendAll(input, [message]);
 const takeRequest = (output: Output) => Effect.flatMap(Queue.take(output), decodeWireRequest);
 const takeResponse = (output: Output) => Effect.flatMap(Queue.take(output), decodeWireResponse);
 const takeError = (output: Output) => Effect.flatMap(Queue.take(output), decodeWireError);
+const takeNotification = (output: Output) => Effect.flatMap(Queue.take(output), decodeWireNotification);
 
 const request = (id: string | number, method: string, params: unknown) => ({ jsonrpc: "2.0", id, method, params });
 const notification = (method: string, params: unknown) => ({ jsonrpc: "2.0", method, params });
@@ -487,10 +490,10 @@ it.effect(
   })
 );
 
-// The closed v1.21 result rejects a partial usage and a custom stop reason; the open generation-2
+// The closed v1.26 result rejects a partial usage and a custom stop reason; the open generation-2
 // acknowledgement member must not swallow such a result and report `end_turn`.
 it.effect(
-  "keeps the stop reason of a generation-1 prompt result outside the v1.21 schema",
+  "keeps the stop reason of a generation-1 prompt result outside the v1.26 schema",
   Effect.fnUntraced(function* () {
     const { stdio, input, output } = yield* makeInMemoryStdio();
     const acp = yield* AcpClient.make(stdio, { protocolGeneration: "v1" });
@@ -583,6 +586,35 @@ it.effect(
       assert.equal(error.message, "Authentication required");
       assert.deepEqual(error.method, O.some("initialize"));
     }
+  })
+);
+
+it.effect(
+  "fails only its own call when the agent answers with an error tagged Defect",
+  Effect.fnUntraced(function* () {
+    const { stdio, input, output } = yield* makeInMemoryStdio();
+    const acp = yield* AcpClient.make(stdio);
+    const first = yield* Effect.forkScoped(acp.agent.listSessions({}));
+    const firstRequest = yield* takeRequest(output);
+    const second = yield* Effect.forkScoped(acp.agent.listSessions({}));
+    const secondRequest = yield* takeRequest(output);
+    // effect-rpc reads this envelope as a connection-level defect that fails every in-flight call.
+    yield* send(input, {
+      jsonrpc: "2.0",
+      id: firstRequest.id,
+      error: { _tag: "Defect", code: -32603, message: "peer defect", data: { boom: true } },
+    });
+
+    const error = yield* first.pipe(Fiber.join, expectFailure);
+    assert.isTrue(AcpError.AcpRequestError.is(error));
+    if (AcpError.AcpRequestError.is(error)) {
+      assert.equal(error.code, -32603);
+      assert.equal(error.message, "peer defect");
+      assert.deepEqual(error.data, O.some({ boom: true }));
+      assert.deepEqual(error.method, O.some("session/list"));
+    }
+    yield* send(input, result(secondRequest.id, { sessions: [] }));
+    assert.deepEqual(yield* Fiber.join(second), { sessions: [] });
   })
 );
 
@@ -710,34 +742,26 @@ it.effect(
 );
 
 it.effect(
-  "routes MCP-over-ACP connect, message, notification, and disconnect callbacks",
+  "serves MCP-over-ACP message requests and sends MCP notifications to the agent",
   Effect.fnUntraced(function* () {
     const { stdio, input, output } = yield* makeInMemoryStdio();
     const acp = yield* AcpClient.make(stdio);
-    const methods = yield* Ref.make<ReadonlyArray<string>>([]);
-    const notified = yield* Deferred.make<Compat.MessageMcpNotification>();
-    yield* acp.handleMcpConnect(() =>
-      Ref.update(methods, A.append("connect")).pipe(Effect.as({ connectionId: "connection-1" }))
+    const received = yield* Deferred.make<Compat.MessageMcpRequest>();
+    yield* acp.handleMcpMessage((message) =>
+      Deferred.succeed(received, message).pipe(Effect.as({ result: { tools: [] } }))
     );
-    yield* acp.handleMcpMessage(() => Ref.update(methods, A.append("message")).pipe(Effect.as({ tools: [] })));
-    yield* acp.handleMcpNotification((message) =>
-      Ref.update(methods, A.append("notification")).pipe(Effect.andThen(Deferred.succeed(notified, message)))
-    );
-    yield* acp.handleMcpDisconnect(() => Ref.update(methods, A.append("disconnect")).pipe(Effect.as({})));
+    const params = { serverId: "test-server", requestId: "mcp-1", method: "tools/list" };
 
-    yield* send(input, request(1, "mcp/connect", { serverId: "test-server" }));
-    assert.deepEqual(yield* takeResponse(output), { id: 1, result: { connectionId: "connection-1" } });
-    yield* send(input, request(2, "mcp/message", { connectionId: "connection-1", method: "tools/list" }));
-    assert.deepEqual(yield* takeResponse(output), { id: 2, result: { tools: [] } });
-    yield* send(
-      input,
-      notification("mcp/message", { connectionId: "connection-1", method: "notifications/initialized" })
-    );
-    assert.equal((yield* Deferred.await(notified)).method, "notifications/initialized");
-    yield* send(input, request(3, "mcp/disconnect", { connectionId: "connection-1" }));
-    assert.deepEqual(yield* takeResponse(output), { id: 3, result: {} });
+    yield* send(input, request(1, "mcp/message", params));
+    assert.deepEqual(yield* takeResponse(output), { id: 1, result: { result: { tools: [] } } });
+    assert.deepEqual(yield* Deferred.await(received), params);
+    // schema-v2.0.0-alpha.9 and schema-v1.26.0 removed `mcp/connect` and `mcp/disconnect`.
+    yield* send(input, request(2, "mcp/connect", { serverId: "test-server" }));
+    assert.equal((yield* takeError(output)).error.code, -32601);
 
-    assert.deepEqual(yield* Ref.get(methods), ["connect", "message", "notification", "disconnect"]);
+    const progress = { serverId: "test-server", requestId: "mcp-1", method: "notifications/progress" };
+    yield* acp.agent.notifyMcp(progress);
+    assert.deepEqual(yield* takeNotification(output), { method: "mcp/message", params: progress });
   })
 );
 

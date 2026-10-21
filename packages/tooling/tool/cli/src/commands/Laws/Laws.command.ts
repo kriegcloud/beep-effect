@@ -31,6 +31,8 @@ import { RetiredEffectPathsOptions } from "./RetiredEffectPaths.model.ts";
 import { formatRetiredEffectPathFinding, runRetiredEffectPaths } from "./RetiredEffectPaths.ts";
 import { RetiredIriAuthoritiesOptions } from "./RetiredIriAuthorities.model.ts";
 import { formatRetiredIriAuthorityFinding, runRetiredIriAuthorities } from "./RetiredIriAuthorities.ts";
+import { SchemaTagIdiomsOptions } from "./SchemaTagIdioms.model.ts";
+import { formatSchemaTagIdiomFinding, runSchemaTagIdioms } from "./SchemaTagIdioms.ts";
 import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.ts";
 
 const $I = $RepoCliId.create("commands/Laws/Laws.command");
@@ -674,6 +676,51 @@ const lawsRetiredIriAuthoritiesCommand = Command.make(
 ).pipe(Command.withDescription("Check git-tracked files for retired IRI authorities and public-origin literals"));
 
 /**
+ * CLI command for the schema tag idiom law.
+ *
+ * **Example** (Reference the schema-tag-idioms subcommand)
+ *
+ * ```ts
+ * console.log("lawsSchemaTagIdiomsCommand")
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+const lawsSchemaTagIdiomsCommand = Command.make(
+  "schema-tag-idioms",
+  {
+    check: Flag.Boolean("check").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Fail when any git-tracked file spells a fixed schema tag by hand")
+    ),
+    json: Flag.Boolean("json").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Emit the complete law summary as schema-shaped JSON")
+    ),
+  },
+  Effect.fn(function* ({ check, json }) {
+    const summary = yield* runSchemaTagIdioms(SchemaTagIdiomsOptions.make({ cwd: process.cwd(), strictCheck: check }));
+
+    if (json) {
+      yield* printCommandJson(summary);
+    } else {
+      yield* Console.log(`[effect-governance-schema-tag-idioms] mode=${check ? "check" : "report"}`);
+      yield* Console.log(`[effect-governance-schema-tag-idioms] scanned_files=${summary.scannedFiles}`);
+      yield* Console.log(`[effect-governance-schema-tag-idioms] scanned_fences=${summary.scannedFences}`);
+      yield* Console.log(`[effect-governance-schema-tag-idioms] findings=${summary.findings.length}`);
+      for (const finding of summary.findings) {
+        yield* Console.log(formatSchemaTagIdiomFinding(finding));
+      }
+    }
+
+    if (summary.strictFailure) {
+      return yield* failWithReportedExit("effect-governance-schema-tag-idioms: check failed.");
+    }
+  })
+).pipe(Command.withDescription("Check git-tracked TypeScript and Markdown for hand-spelled fixed schema tags"));
+
+/**
  * CLI command for repo-local native runtime governance checks.
  *
  * **Example** (Reference the native-runtime subcommand)
@@ -790,6 +837,7 @@ export const lawsCommand = Command.make("laws", {}, () =>
     "- bun run beep laws frozen-grant-set --check",
     "- bun run beep laws retired-effect-paths --check",
     "- bun run beep laws retired-iri-authorities --check",
+    "- bun run beep laws schema-tag-idioms --check",
     "- bun run beep laws terse-effect --check",
     "- bun run beep laws terse-effect --write",
     "- bun run beep laws allowlist-check",
@@ -803,6 +851,7 @@ export const lawsCommand = Command.make("laws", {}, () =>
     lawsFrozenGrantSetCommand,
     lawsRetiredEffectPathsCommand,
     lawsRetiredIriAuthoritiesCommand,
+    lawsSchemaTagIdiomsCommand,
     lawsTerseEffectCommand,
     lawsAllowlistCheckCommand,
   ])

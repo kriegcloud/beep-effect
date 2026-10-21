@@ -16,6 +16,7 @@
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import { approvalStatement } from "./Approval.schemas.ts";
 import type { ApprovalRefusalReason, Confirmation, EmailAddress } from "./Approval.schemas.ts";
 import type { Sha256Hex } from "./Manifest.schemas.ts";
@@ -48,7 +49,7 @@ const isBoundary = (line: string): boolean => A.some(BOUNDARY_PATTERNS, (pattern
  * @since 0.0.0
  */
 export const textLines = (text: string): ReadonlyArray<string> =>
-  A.map(text.split("\n"), (line) => line.replace(/[\s\r]+$/, ""));
+  A.map(Str.split("\n")(text), (line) => Str.replace(/[\s\r]+$/, "")(line));
 
 /**
  * The lines above the first reply/forward boundary.
@@ -65,7 +66,7 @@ export const textLines = (text: string): ReadonlyArray<string> =>
  * @since 0.0.0
  */
 export const authoredLines = (text: string): ReadonlyArray<string> =>
-  A.takeWhile(textLines(text), (line) => !isBoundary(line.trim()));
+  A.takeWhile(textLines(text), (line) => !isBoundary(Str.trim(line)));
 
 /**
  * The outcome of verifying a confirmation.
@@ -85,7 +86,7 @@ const statementCheck = (text: string, statement: string, scoped: boolean): O.Opt
   }
   // Classification only: quote markers are stripped to recognise a quoted
   // copy, never to approve one.
-  const unquoted = A.map(textLines(text), (line) => line.replace(/^(\s*>\s?)+/, ""));
+  const unquoted = A.map(textLines(text), (line) => Str.replace(/^(\s*>\s?)+/, "")(line));
   return A.contains(unquoted, statement) ? O.some("statement-only-quoted") : O.some("statement-missing");
 };
 

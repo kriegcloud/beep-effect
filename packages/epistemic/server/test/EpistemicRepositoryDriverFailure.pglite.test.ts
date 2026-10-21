@@ -27,11 +27,12 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const decodeCandidateClaimId = S.decodeUnknownEffect(Epistemic.CandidateClaimId);
 
-const runKey = ExecutionRunKey.make("a".repeat(64));
+const runKey = ExecutionRunKey.make(Str.repeat(64)("a"));
 
 const UnmigratedDrizzleLayer = makeDrizzleLayer().pipe(
   Layer.provideMerge(Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" })))

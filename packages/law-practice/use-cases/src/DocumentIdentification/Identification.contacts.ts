@@ -22,7 +22,8 @@ const roleWords = HashSet.fromIterable(
   )
 );
 const clean = (s: string) => Str.toLowerCase(Str.trim(s));
-const nameKey = (s: string) => clean(Str.replace(/[\u0300-\u036f]/gu, "")(s.normalize("NFKD"))).replace(/\s+/gu, " ");
+const nameKey = (s: string) =>
+  pipe(s, Str.normalize("NFKD"), Str.replace(/[\u0300-\u036f]/gu, ""), clean, Str.replace(/\s+/gu, " "));
 const distinct = (xs: ReadonlyArray<string>) =>
   A.sort(A.dedupe(A.filter(A.map(xs, Str.trim), Str.isNonEmpty)), Order.String);
 const email = (s: string): O.Option<ContactEmail> => {

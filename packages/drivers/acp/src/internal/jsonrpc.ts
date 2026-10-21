@@ -1,4 +1,3 @@
-import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Match from "effect/Match";
@@ -16,9 +15,16 @@ import type { JsonTextSyntaxError } from "../AcpJson.codec.ts";
 // `readJsonText`, which the effect parser does not allow injecting. Batch responses are not
 // correlated (ACP never sends JSON-RPC batches); every message is encoded individually.
 //
-// One deliberate difference: effect reads an id-less `@effect/rpc/<Tag>` method as an RPC control
-// message (Ack, Interrupt, Ping, Eof, Pong). An ACP peer has no such control plane, and a peer
-// `Eof` would end our writer, so these frames stay ordinary requests and notifications.
+// Two deliberate differences, both because an ACP peer has no effect-rpc control plane:
+// - effect reads an id-less `@effect/rpc/<Tag>` method as an RPC control message (Ack, Interrupt,
+//   Ping, Eof, Pong). A peer `Eof` would end our writer, so these frames stay ordinary requests
+//   and notifications.
+// - effect reads an error object tagged `Defect` as a connection-level defect, which `RpcClient`
+//   applies to every in-flight call. One peer line could then fail all pending requests, so every
+//   error object stays a response to the id it carries; the protocol logs and drops one that no
+//   outstanding request can claim. An error object member `_tag` with any other value than
+//   `Cause` is ordinary data: ACP error objects allow extra members.
+// The decoder therefore yields only requests, chunks and exits (`AcpInboundMessage`).
 
 const DEFAULT_MAX_BUFFER_SIZE = 16 * 1024 * 1024;
 
@@ -30,11 +36,27 @@ const DEFAULT_MAX_BUFFER_SIZE = 16 * 1024 * 1024;
  */
 export type AcpWireMessage = RpcMessage.FromClientEncoded | RpcMessage.FromServerEncoded;
 
+/**
+ * The transport-encoded RPC messages an inbound ACP frame can decode to.
+ *
+ * **Details**
+ *
+ * A peer frame never decodes to an effect-rpc control message or a connection-level `Defect`, so
+ * a response, error responses included, can settle only the request with its id. A response
+ * without an id decodes with the empty request id; the protocol logs and drops it.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AcpInboundMessage =
+  | RpcMessage.RequestEncoded
+  | RpcMessage.ResponseChunkEncoded
+  | RpcMessage.ResponseExitEncoded;
+
 type AcpFrameDecodeError = JsonTextSyntaxError | S.SchemaError | RpcSerialization.MaxBufferSizeExceeded;
 
 const JsonRpcId = S.Union([S.Finite, S.String, S.Null]);
 const JsonRpcHeaders = S.Array(S.Tuple([S.String, S.String]));
-const JsonRpcErrorTag = LiteralKit(["Cause", "Defect"]);
 const JsonRpcRequestFrame = S.Struct({
   method: S.String,
   id: S.optionalKey(JsonRpcId),
@@ -48,7 +70,7 @@ const JsonRpcErrorFrame = S.Struct({
   code: S.Finite,
   message: S.String,
   data: S.optionalKey(S.Unknown),
-  _tag: S.optionalKey(JsonRpcErrorTag),
+  _tag: S.optionalKey(S.Unknown),
 });
 const JsonRpcResponseFrame = S.Struct({
   id: S.optionalKey(JsonRpcId),
@@ -78,7 +100,7 @@ const toCauseEntry = Match.type<(typeof JsonRpcCauseEntry)["Type"]>().pipe(
 
 const toHeader = ([name, value]: readonly [string, string]): [string, string] => [name, value];
 
-const toRequestMessage = (frame: unknown, request: (typeof JsonRpcRequestFrame)["Type"]): AcpWireMessage => ({
+const toRequestMessage = (frame: unknown, request: (typeof JsonRpcRequestFrame)["Type"]): AcpInboundMessage => ({
   _tag: "Request",
   id: O.getOrElse(O.fromNullishOr(request.id), () => ""),
   tag: request.method,
@@ -94,19 +116,16 @@ const toRequestMessage = (frame: unknown, request: (typeof JsonRpcRequestFrame)[
 
 const toResponseMessage = (
   response: (typeof JsonRpcResponseFrame)["Type"]
-): Result.Result<AcpWireMessage, S.SchemaError> => {
+): Result.Result<AcpInboundMessage, S.SchemaError> => {
   const requestId = O.getOrElse(O.fromNullishOr(response.id), () => "");
   const error = O.fromNullishOr(response.error);
-  if (O.isSome(error) && error.value._tag === "Defect") {
-    return Result.succeed<AcpWireMessage>({ _tag: "Defect", defect: error.value.data });
-  }
   if (response.chunk === true) {
     return Result.map(
       decodeChunkValues(response.result),
-      (values): AcpWireMessage => ({ _tag: "Chunk", requestId, values })
+      (values): AcpInboundMessage => ({ _tag: "Chunk", requestId, values })
     );
   }
-  return Result.succeed<AcpWireMessage>({
+  return Result.succeed<AcpInboundMessage>({
     _tag: "Exit",
     requestId,
     exit: O.match(error, {
@@ -125,14 +144,14 @@ const toResponseMessage = (
   });
 };
 
-const decodeJsonRpcMessage = (frame: unknown): Result.Result<AcpWireMessage, S.SchemaError> =>
+const decodeJsonRpcMessage = (frame: unknown): Result.Result<AcpInboundMessage, S.SchemaError> =>
   P.hasProperty(frame, "method")
     ? Result.map(decodeRequestFrame(frame), (request) => toRequestMessage(frame, request))
     : Result.flatMap(decodeResponseFrame(frame), toResponseMessage);
 
 const isBlankLine = (line: string): boolean => Str.isEmpty(Str.trim(line));
 
-const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWireMessage>, S.SchemaError> =>
+const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpInboundMessage>, S.SchemaError> =>
   isJsonArray(frame) ? Result.all(A.map(frame, decodeJsonRpcMessage)) : Result.map(decodeJsonRpcMessage(frame), A.of);
 
 /**
@@ -142,8 +161,10 @@ const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWire
  *
  * Each call to the returned function appends one chunk to a line buffer, reads every complete
  * non-blank line through {@link readJsonText}, and maps the JSON-RPC envelope to the encoded RPC messages
- * that effect's `RpcSerialization.ndJsonRpc` produces, except that an `@effect/rpc/*` method stays
- * an ordinary request or notification instead of an RPC control message. A line or trailing
+ * that effect's `RpcSerialization.ndJsonRpc` produces, with two exceptions: an `@effect/rpc/*`
+ * method stays an ordinary request or notification instead of an RPC control message, and an error
+ * object tagged `Defect` stays the failure of its own request id instead of a connection-level
+ * defect that would fail every in-flight call. A line or trailing
  * remainder above 16 MiB fails with `MaxBufferSizeExceeded` and discards the buffer.
  * Whitespace-only lines are skipped.
  *
@@ -162,7 +183,7 @@ const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWire
  */
 export const makeNdJsonRpcFrameDecoder = (): ((
   chunk: Uint8Array
-) => Result.Result<ReadonlyArray<AcpWireMessage>, AcpFrameDecodeError>) => {
+) => Result.Result<ReadonlyArray<AcpInboundMessage>, AcpFrameDecodeError>) => {
   const decoder = new TextDecoder();
   let buffer = "";
   const exceeds = (size: number): boolean => size > DEFAULT_MAX_BUFFER_SIZE;
@@ -172,7 +193,7 @@ export const makeNdJsonRpcFrameDecoder = (): ((
   };
   return (chunk) => {
     buffer += decoder.decode(chunk, { stream: true });
-    const batches = A.empty<ReadonlyArray<AcpWireMessage>>();
+    const batches = A.empty<ReadonlyArray<AcpInboundMessage>>();
     let position = 0;
     let newline = buffer.indexOf("\n", position);
     while (newline !== -1) {

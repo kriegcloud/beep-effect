@@ -38,8 +38,9 @@ import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const digest = `sha256:${"a".repeat(64)}`;
+const digest = `sha256:${Str.repeat(64)("a")}`;
 const citingApplication = { applicationNumber: "16138242", kind: "UsptoNormalized" } as const;
 
 const sourceIdentity = {

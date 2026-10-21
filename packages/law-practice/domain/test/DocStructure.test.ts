@@ -62,7 +62,7 @@ describe("office-action pure raw rule v1", () => {
     }
   });
   it("handles repeated incomplete statutory-period markers without quadratic scanning", () => {
-    const text = "SHORTENED STATUTORY PERIOD ".repeat(16_000);
+    const text = Str.repeat(16_000)("SHORTENED STATUTORY PERIOD ");
     const started = performance.now();
     expect(recognizeOfficeActionPair(text, "direct-text")).toMatchObject({ status: "abstained", code: "absent" });
     expect(performance.now() - started).toBeLessThan(2_000);

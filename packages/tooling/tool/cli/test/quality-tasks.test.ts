@@ -1056,6 +1056,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:effect-imports-markdown",
         "lint:retired-effect-paths",
         "lint:retired-iri-authorities",
+        "lint:schema-tag-idioms",
         "lint:schema-first",
         "lint:effect-vitest",
         "lint:allowlist",
@@ -1081,6 +1082,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(qualityLaneArgs(lanes, "lint:retired-iri-authorities")).toEqual(
         expectedTurboArgs("lint:retired-iri-authorities", ["--summarize"])
+      );
+      expect(qualityLaneArgs(lanes, "lint:schema-tag-idioms")).toEqual(
+        expectedTurboArgs("lint:schema-tag-idioms", ["--summarize"])
       );
       expect(qualityLaneArgs(lanes, "lint:effect-vitest")).toEqual(["run", "beep", "lint", "effect-vitest"]);
       expect(qualityLaneArgs(lanes, "quality:catalog-usage")).toEqual(["run", "beep", "quality", "catalog-usage"]);
@@ -3757,6 +3761,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:effect-imports-markdown",
         "lint:retired-effect-paths",
         "lint:retired-iri-authorities",
+        "lint:schema-tag-idioms",
         "lint:tsconfig-overlay",
         "lint:package-test-typecheck",
         "lint:effect-vitest",
@@ -3810,7 +3815,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:test-tsgo",
       ]);
       expect(taskNames(O.getOrThrow(A.get(full, 1)))).toEqual([
-        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(13)),
+        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(14)),
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
       // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
@@ -3907,6 +3912,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "lint:opaque-roundtrips",
           "lint:retired-effect-paths",
           "lint:retired-iri-authorities",
+          "lint:schema-tag-idioms",
           "quality:test-tsgo",
           "knowledge:doctor",
         ];
