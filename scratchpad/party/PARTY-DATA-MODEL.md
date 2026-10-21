@@ -1,6 +1,6 @@
 # Party Data Model — evidence-gated parties, identities, and organization graphs
 
-Status: experiment (scratchpad), 2026-10-21. Module: `scratchpad/party/`. Tests: `test/*.test.ts` (37 competency, adapter, and identity-evidence tests, all passing). Real-corpus run: `bun scratchpad/party/scripts/mail-census.ts <out.json> <filter|-> <index.jsonl>...`. Typecheck: `node_modules/.bin/tsgo -p scratchpad/party/tsconfig.json --noEmit`. Run: `node_modules/.bin/vitest run --config scratchpad/party/vitest.config.ts`.
+Status: experiment (scratchpad), 2026-10-21. Module: `scratchpad/party/`. Tests: `test/*.test.ts` (43 competency, adapter, identity- and organization-evidence tests, all passing). Real-corpus run: `bun scratchpad/party/scripts/mail-census.ts <out.json> <filter|-> <index.jsonl>...`. Typecheck: `node_modules/.bin/tsgo -p scratchpad/party/tsconfig.json --noEmit`. Run: `node_modules/.bin/vitest run --config scratchpad/party/vitest.config.ts`.
 
 ## 1. The short answer
 
@@ -125,6 +125,7 @@ scratchpad/party/
     IdentityEvidence.ts  pairing support → Proposed AccountIdentifier claims; drift classification;
                    mailbox clusters (Graph.connectedComponents); collision resolution; cardMergeProposals
     ContactEvidence.ts   GraphContact / Contact / LegacyContactKgRow cards → provisional parties + assertions
+    OrgEvidence.ts organizationDomain (registrable, free-mail excluded), classifyByOrganization, nameShape
   scripts/
     mail-census.ts streams index JSONL through the adapter; writes counts only
     identity-evidence.ts mail + contacts → counts, encoded claim versions, review queue (private outputs)
@@ -225,11 +226,29 @@ Three things this run surfaced, each now handled in code:
 2. **Phones chain unrelated people.** One office line appears on 13 cards. The first merge rule, "any shared identifier", collapsed 1,131 cards into 503 clusters: the mega-cluster failure the research predicted. The rule is now: only an email listed by at most one card per source, across at least two sources, proposes `SameParty`. Phones and team inboxes are template evidence.
 3. **Schema drift in the legacy contacts export.** The rows use free-form ids and `csv`/`vcf` sources, and the shipped `ContactProjection` correctly refused all 595 of them. `LegacyContactKgRow` decodes that format explicitly and reuses the shipped `ClientNumber`, `ContactEmail` and `ContactLinkSource`.
 
+### 7.3 Organization evidence from email domains
+
+`adapters/OrgEvidence.ts` derives a mailbox's organization domains from its paired SMTP addresses: the registrable domain, with consumer free-mail excluded. Exchange `/O=` segments are ignored on purpose, because `/O=EXCHANGELABS` is shared by every Office 365 tenant and says nothing about the organization. Domains are compared across a colliding name's mailboxes, using each mailbox's observed span. Single-token display names ("john", "support") are set aside as low-information aliases first.
+
+| Of the 1,718 collisions contact books did not settle | Count | Lead it gives a reviewer |
+|---|---:|---|
+| Single-token names, set aside | 307 | not person-level collisions |
+| Full names, different organizations at overlapping times | 495 | probably different people (`DistinctParty` candidates) |
+| Full names, different organizations at non-overlapping times | 336 | possibly one person who changed organizations (career-move lead; the valid-time model is what makes this distinguishable at all) |
+| Full names, a shared organization domain | 242 | probably one person's aliases (`SameParty` candidates) |
+| Full names, no organization evidence (free-mail or unpaired) | 337 | needs other evidence |
+| Full names, different organizations, undated | 1 | needs other evidence |
+
+Domain evidence turns 1,074 of 1,411 full-name collisions into a specific, reviewable lead. None of them is admitted: each stays a review-queue row (`orgLead` field) until a reviewer's `SameParty`/`DistinctParty` decision supplies the vetoes `resolveParties` honors.
+
+**Signature blocks were not done.** About 80% of message bodies on disk are RTF, and the repo has no RTF reader. `pandoc` is installed and reads both RTF and HTML, so the route is a driver around it under `drivers/*`, run only over messages from the 337 + 1 still-unexplained names. Under this model's own evidence-kind rule, a signature is template evidence. It can corroborate a lead but never settle one, so it's a refinement, not the next unlock.
+
 ## 8. Open questions and next steps
 
 - **O1 — placement (architecture).** Does `@beep/epistemic-domain` belong under `foundation/modeling`? And does Party become a product slice (`packages/party/*`) or a foundation modeling package? Proposed test: if no type in it names a product concept (matter, client, docket), it is foundation, so `ClaimVersion`, signals and admission machinery qualify. `Party` + `Proposition` arguably qualify too. `ContextRole` vocabularies stay with their slices. Route through `/grill-with-docs` against `07-non-slice-families.md` and `02-shared-kernel.md` before any package is created with `bun run beep create-package`.
 - **O2 — `EdgeVersion` endpoint shape.** Typed per-proposition endpoints, or a `Proposition` payload with a derived logical key?
-- **O3b — collision evidence beyond the address book.** 1,469 collisions are unresolved because contact books cover only 2.6% of mail identifiers. Next evidence sources, in order of expected yield:
+- **O3c — reviewer loop.** Take the review queue sorted by lead (495 distinct-person candidates first: cheapest to confirm), record reviewer dispositions as `SameParty`/`DistinctParty` claim versions, and re-run. Vetoes then block future name-equality merges automatically.
+- **O3b — collision evidence beyond the address book (domain evidence done, §7.3; signatures pending a pandoc driver).** 1,469 collisions are unresolved because contact books cover only 2.6% of mail identifiers. Next evidence sources, in order of expected yield:
   - SMTP domain → organization claims (two "Chris Morgan"s at different firms' domains are a `DistinctParty` lead),
   - signature-block observations,
   - the review queue itself: reviewer `SameParty`/`DistinctParty` decisions become the vetoes `resolveParties` already honors.
