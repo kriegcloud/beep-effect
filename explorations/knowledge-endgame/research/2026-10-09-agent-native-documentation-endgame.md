@@ -1402,8 +1402,13 @@ That architecture would satisfy nearly every goal in your prompt at once: excell
 ## Sources
 
 The original citations were tool markers that cannot be resolved. These
-sources were checked on 2026-10-21 against the document's external claims;
-all of the claims held.
+sources were checked on 2026-10-21 against the document's fourteen
+time-sensitive external claims (the MCP revision and registry, RDF 1.2
+status, llms.txt, RFC 9727, OpenAPI 3.2, Google's AI-features and
+structured-data guidance, the OpenAI and Anthropic crawler roles, AGENTS.md,
+AI Hero's llms.txt, SQLite FTS5 and SHACL); each one held. Its references to
+stable specifications (CommonMark, mdast, OWL, SKOS, SPARQL, PROV-O, Web
+Linking) and its description of graft were not re-checked.
 
 - MCP 2026-07-28 revision (stateless core, `server/discover`, cache hints):
   <https://modelcontextprotocol.io/specification/2026-07-28/changelog>

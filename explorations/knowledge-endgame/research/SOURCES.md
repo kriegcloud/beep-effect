@@ -79,6 +79,6 @@ avoid fabrication):
   (formats, identity, discovery, MCP, a cold-agent eval). It first appeared
   at the repository root in #1592 and was moved here on 2026-10-21 with the
   unresolvable citation markers removed, wrong names corrected, and an
-  editor's note on where it conflicts with repo decisions. Its external
-  claims were checked on 2026-10-21; the checked sources are listed at the
-  end of the file.
+  editor's note on where it conflicts with repo decisions. Fourteen of its
+  time-sensitive external claims were checked on 2026-10-21; the sources are
+  listed at the end of the file.
