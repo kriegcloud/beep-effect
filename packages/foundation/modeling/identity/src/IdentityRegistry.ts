@@ -55,7 +55,7 @@ const makeIdentityRefMember = <Encoding extends IdentityEncoding>(encoding: S.Li
  *
  * const ref = S.decodeSync(IdentityRef)({
  *   _tag: "iri",
- *   value: "https://ns.beep.sh/identity/Widget"
+ *   value: "https://beep-effect.com/ns/identity/Widget"
  * })
  * ref._tag // => "iri"
  * ```
@@ -91,7 +91,7 @@ export type IdentityRef = typeof IdentityRef.Type;
  *
  * const entry = IdentityEntry.make({
  *   identity: "@beep/identity/Widget",
- *   iri: "https://ns.beep.sh/identity/Widget",
+ *   iri: "https://beep-effect.com/ns/identity/Widget",
  *   curie: "beep:identity/Widget",
  *   fibers: { label: "Widget" }
  * })
@@ -262,7 +262,7 @@ export class IdentityRegistry extends Context.Service<IdentityRegistry, Identity
    *
    * const entry = IdentityEntry.make({
    *   identity: "@beep/identity/Widget",
-   *   iri: "https://ns.beep.sh/identity/Widget",
+   *   iri: "https://beep-effect.com/ns/identity/Widget",
    *   curie: "beep:identity/Widget",
    *   fibers: {}
    * })
