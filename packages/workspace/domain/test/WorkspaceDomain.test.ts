@@ -28,6 +28,7 @@ import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const systemPrincipal = { kind: "System", component: "Runtime" } as const;
 
@@ -45,7 +46,7 @@ const encodeTurn = S.encodeEffect(Turn);
 const decodeUnknownTurnItems = S.decodeUnknownEffect(TurnItems);
 
 const publicIdFor = (entityType: string, id: number) =>
-  `${entityType.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()}_a${id}`;
+  `${pipe(entityType, Str.replace(/([a-z0-9])([A-Z])/g, "$1_$2"), Str.toLowerCase)}_a${id}`;
 const schemaLawCases: ReadonlyArray<readonly [string, S.Codec<unknown>]> = [
   ["ApprovalDecision", ApprovalDecision],
   ["CandidateLifecycle", CandidateLifecycle],

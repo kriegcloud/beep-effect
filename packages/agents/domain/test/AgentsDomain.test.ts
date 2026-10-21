@@ -33,11 +33,13 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as PlatformError from "effect/PlatformError";
 
 const decodeAgentMode = S.decodeEffect(AgentMode);
@@ -79,10 +81,12 @@ const assistantContentSchemaId = (schema: {
 };
 const legacyTurnImportPattern = /^\s*import\s+(?:type\s+)?[\s\S]*?\s+from\s+["']@beep\/agents-domain\/turn["'];?/gmu;
 const ignoredAgentsDirEntries = new Set(["dist", "docs", "node_modules"]);
-const decodeJsonPointerSegment = (segment: string): string => segment.replaceAll("~1", "/").replaceAll("~0", "~");
-const isIgnoredAgentsDirEntry = (entry: string): boolean => ignoredAgentsDirEntries.has(entry) || entry.startsWith(".");
+const decodeJsonPointerSegment = (segment: string): string =>
+  pipe(segment, Str.replaceAll("~1", "/"), Str.replaceAll("~0", "~"));
+const isIgnoredAgentsDirEntry = (entry: string): boolean =>
+  ignoredAgentsDirEntries.has(entry) || pipe(entry, Str.startsWith("."));
 const isAgentsSourceFile = (entryPath: string, sep: string): boolean =>
-  entryPath.endsWith(".ts") && entryPath.includes(`${sep}src${sep}`);
+  pipe(entryPath, Str.endsWith(".ts")) && pipe(entryPath, Str.includes(`${sep}src${sep}`));
 
 describe("@beep/agents-domain", () => {
   it("exports value schemas from the package identity", () => {
@@ -224,7 +228,7 @@ describe("@beep/agents-domain", () => {
       }
 
       const assistantContentDefinitionName = decodeJsonPointerSegment(
-        assistantContentSchema.$ref.slice("#/$defs/".length)
+        pipe(assistantContentSchema.$ref, Str.slice("#/$defs/".length))
       );
       expect(assistantContentSchema.$ref).toMatch(/^#\/\$defs\/.+AssistantContent$/);
       expect(R.has(assistantContentDocument.definitions, assistantContentDefinitionName)).toBe(true);
@@ -303,7 +307,7 @@ describe("@beep/agents-domain", () => {
         const path = yield* Path.Path;
 
         const repoRelativePath = (absolutePath: string): string =>
-          A.join(path.relative(repoRoot, absolutePath).split(path.sep), "/");
+          A.join(pipe(path.relative(repoRoot, absolutePath), Str.split(path.sep)), "/");
 
         const collectAgentsSourceFiles = (
           directory: string
@@ -333,7 +337,7 @@ describe("@beep/agents-domain", () => {
 
         for (const sourcePath of sourceFiles) {
           const sourceText = yield* fs.readFileString(sourcePath);
-          for (const match of sourceText.matchAll(legacyTurnImportPattern)) {
+          for (const match of pipe(sourceText, Str.matchAll(legacyTurnImportPattern))) {
             const importDeclaration = match[0];
             violations.push({ importDeclaration, sourcePath: repoRelativePath(sourcePath) });
           }

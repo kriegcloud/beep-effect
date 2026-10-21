@@ -41,6 +41,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { desiredFixture, observedAfterApplyFixture, observedFixture, postApplyAdoptionsFixture } from "./fixtures.ts";
 import type { BoxBlockedAction } from "@beep/box-provisioning";
 
@@ -279,7 +280,7 @@ it.layer(BunCrypto.layer, { timeout: "10 seconds" })("@beep/box-provisioning orc
       const dependencies = makeAdoptionDependencies(plan, observedFixture, [
         BoxActionApplied.make({
           actionKey: (yield* firstFolderAction(plan)).actionKey,
-          logicalKeyDigest: Sha256Hex.make("0".repeat(64)),
+          logicalKeyDigest: Sha256Hex.make(pipe("0", Str.repeat(64))),
           providerId: BoxProviderId.make("100"),
           resourceKind: "folder",
         }),

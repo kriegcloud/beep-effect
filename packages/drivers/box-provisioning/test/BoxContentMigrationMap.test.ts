@@ -3,11 +3,13 @@ import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const file = (folderPath: ReadonlyArray<string>, fileName: string, sourceRelativePath = "source/file.bin") => ({
   fileName,
   folderPath,
-  sha256: "a".repeat(64),
+  sha256: pipe("a", Str.repeat(64)),
   sizeBytes: 1,
   sourceRelativePath,
 });
@@ -77,7 +79,7 @@ describe("@beep/box-provisioning content migration map", () => {
   );
 
   describe("rejects names Box would refuse or silently rewrite", () => {
-    it.effect.each(["", "a/b", "a\\b", ".", "..", " leading", "trailing ", "x".repeat(256), "tab\tname"])(
+    it.effect.each(["", "a/b", "a\\b", ".", "..", " leading", "trailing ", pipe("x", Str.repeat(256)), "tab\tname"])(
       "file name %j",
       Effect.fnUntraced(function* (fileName) {
         const error = yield* Effect.flip(decodeBoxContentMigrationMap(mapInput([file(["Clients"], fileName)])));

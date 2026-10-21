@@ -20,7 +20,7 @@ import { PosixPath } from "@beep/schema/PosixPath";
 import { A, O, R, Str, Struct } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, identity } from "effect/Function";
+import { constant, flow, identity, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as Num from "effect/Number";
@@ -343,15 +343,21 @@ const targetTreeSuffixesFor = (mode: PffexportMode): ReadonlyArray<string> =>
     Match.exhaustive
   );
 
-const posixDirname = (path: string): string => {
-  const separator = path.lastIndexOf("/");
-  return separator < 0 ? "" : path.slice(0, separator);
-};
+const posixDirname = (path: string): string =>
+  pipe(
+    path,
+    Str.lastIndexOf("/"),
+    O.map((separator) => pipe(path, Str.slice(0, separator))),
+    O.getOrElse(constant(""))
+  );
 
-const posixBasename = (path: string): string => {
-  const separator = path.lastIndexOf("/");
-  return separator < 0 ? path : path.slice(separator + 1);
-};
+const posixBasename = (path: string): string =>
+  pipe(
+    path,
+    Str.lastIndexOf("/"),
+    O.map((separator) => pipe(path, Str.slice(separator + 1))),
+    O.getOrElse(constant(path))
+  );
 
 interface WalkedFile {
   readonly absolutePath: string;
@@ -394,10 +400,10 @@ interface ResolvedExportedMessage {
 const itemFolderPath = (directoryPath: string, treeRootNames: ReadonlyArray<string>): string => {
   const parent = posixDirname(directoryPath);
   return O.match(
-    A.findFirst(treeRootNames, (name) => parent === name || parent.startsWith(`${name}/`)),
+    A.findFirst(treeRootNames, (name) => parent === name || pipe(parent, Str.startsWith(`${name}/`))),
     {
       onNone: () => parent,
-      onSome: (name) => (parent === name ? "" : parent.slice(name.length + 1)),
+      onSome: (name) => (parent === name ? "" : pipe(parent, Str.slice(name.length + 1))),
     }
   );
 };
@@ -689,7 +695,8 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
   const envShebangInvocation = (
     shebangArgument: string
   ): { readonly commandParts: ReadonlyArray<string>; readonly envArguments: ReadonlyArray<string> } => {
-    const split = (value: string): ReadonlyArray<string> => value.match(/(?:[^\s'"]+|'[^']*'|"[^"]*")+/gu) ?? [];
+    const split = (value: string): ReadonlyArray<string> =>
+      pipe(value, Str.match(/(?:[^\s'"]+|'[^']*'|"[^"]*")+/gu), O.getOrElse(A.empty<string>));
     const trimmedArgument = Str.trim(shebangArgument);
     if (Str.startsWith("-S ")(trimmedArgument)) {
       const splitString = Str.trim(Str.slice(3)(trimmedArgument));
@@ -699,7 +706,7 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       const splitString = Str.slice("--split-string=".length)(trimmedArgument);
       return { commandParts: split(splitString), envArguments: ["-S", splitString] };
     }
-    const envArguments = trimmedArgument.split(/\s+/u);
+    const envArguments = pipe(trimmedArgument, Str.split(/\s+/u));
     return { commandParts: envArguments, envArguments };
   };
 
@@ -712,7 +719,7 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
         continue;
       }
       if (Str.startsWith("-")(part) || Str.includes("=")(part)) continue;
-      return part.replace(/^(?:'([^']+)'|"([^"]+)")$/u, "$1$2");
+      return pipe(part, Str.replace(/^(?:'([^']+)'|"([^"]+)")$/u, "$1$2"));
     }
     return undefined;
   };
@@ -858,9 +865,17 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
       Effect.map((contents) => Str.split("\n")(contents)[0] ?? ""),
       Effect.map((firstLine) => (Str.startsWith("#!")(firstLine) ? Str.trim(Str.slice(2)(firstLine)) : ""))
     );
-    const separatorIndex = shebang.search(/\s/u);
-    const prefix = separatorIndex < 0 ? shebang : Str.slice(0, separatorIndex)(shebang);
-    const shebangArgument = separatorIndex < 0 ? "" : Str.trim(Str.slice(separatorIndex)(shebang));
+    const separatorIndex = Str.search(/\s/u)(shebang);
+    const prefix = pipe(
+      separatorIndex,
+      O.map((index) => Str.slice(0, index)(shebang)),
+      O.getOrElse(() => shebang)
+    );
+    const shebangArgument = pipe(
+      separatorIndex,
+      O.map((index) => Str.trim(Str.slice(index)(shebang))),
+      O.getOrElse(() => "")
+    );
     if (Str.isEmpty(prefix) || !path.isAbsolute(prefix))
       return { bindArguments: [], command: executable, commandArguments: [], searchPath: "/usr/bin:/bin" };
 
@@ -1597,7 +1612,7 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
         makeLibpffError("process", LibpffErrorOptions.make({ cause: "child artifact id derivation failed" }))
       )
     );
-    const boundary = `=_beep-${boundaryId.slice(artifactIdPrefixLength, artifactIdPrefixLength + emlBoundaryHexLength)}`;
+    const boundary = `=_beep-${pipe(boundaryId, Str.slice(artifactIdPrefixLength, artifactIdPrefixLength + emlBoundaryHexLength))}`;
     const eml = yield* Effect.try({
       try: () => assembleEml({ attachments, body, boundary, headerBlock }),
       catch: () => makeLibpffError("process", LibpffErrorOptions.make({ cause: "eml assembly failed" })),
