@@ -414,7 +414,7 @@ describe("schema tag idiom law", () => {
       })
     );
 
-    it.effect("follows private const references through annotations and shorthand only", () =>
+    it.effect("follows private const references through annotations and shorthand, not export lists", () =>
       Effect.sync(() => {
         expect(
           rulesOf([
@@ -432,6 +432,10 @@ describe("schema tag idiom law", () => {
             "})",
             "const M = Base.mapFields((fields) => ({ ...fields, _tag: TagD }))",
             "const plain = { kind: KindF }",
+            'const KindG = S.Literal("g")',
+            "const B = S.Struct({ g: KindG })",
+            "export { KindG }",
+            "console.log(registry.KindA)",
           ])
         ).toEqual([
           ["single-literal-field", 'const KindA = S.tag("a")'],

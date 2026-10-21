@@ -527,11 +527,10 @@ const closeOverSpreads = (initial: ReadonlyArray<FieldObject>): ReadonlyArray<Fi
   return known;
 };
 
-const propertyKey = (name: ts.PropertyName): O.Option<string> =>
-  ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name) ? O.some(name.text) : O.none();
-
 const isTagProperty = (property: ts.ObjectLiteralElementLike): property is ts.PropertyAssignment =>
-  ts.isPropertyAssignment(property) && O.exists(propertyKey(property.name), (key) => key === TAG_KEY);
+  ts.isPropertyAssignment(property) &&
+  (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) &&
+  property.name.text === TAG_KEY;
 
 const compact = (text: string): string => {
   const single = pipe(text, Str.replace(/\s+/gu, " "), Str.trim);
@@ -674,33 +673,21 @@ const collectNodes = (sourceFile: ts.SourceFile): ReadonlyArray<ts.Node> => {
   return nodes;
 };
 
-// Whether an identifier reads a binding (not a property name, key, declaration name, or `typeof` query).
-const isValueReference = (identifier: ts.Identifier): boolean => {
+// A same-named identifier in a name slot (a property, key, member or declaration name) does not read the const.
+// A shorthand property and an export list entry are both a name and a read.
+const isNamePosition = (identifier: ts.Identifier): boolean => {
   const parent = identifier.parent;
-  const isDeclarationName =
-    (ts.isPropertyAssignment(parent) ||
-      ts.isPropertyDeclaration(parent) ||
-      ts.isPropertySignature(parent) ||
-      ts.isMethodDeclaration(parent) ||
-      ts.isMethodSignature(parent) ||
-      ts.isGetAccessorDeclaration(parent) ||
-      ts.isSetAccessorDeclaration(parent) ||
-      ts.isEnumMember(parent) ||
-      ts.isVariableDeclaration(parent) ||
-      ts.isParameter(parent) ||
-      ts.isFunctionDeclaration(parent) ||
-      ts.isClassDeclaration(parent) ||
-      ts.isTypeAliasDeclaration(parent) ||
-      ts.isInterfaceDeclaration(parent) ||
-      ts.isBindingElement(parent)) &&
-    parent.name === identifier;
-  return !(
-    isDeclarationName ||
-    (ts.isPropertyAccessExpression(parent) && parent.name === identifier) ||
-    ts.isQualifiedName(parent) ||
-    ts.isTypeQueryNode(parent)
+  return (
+    "name" in parent &&
+    parent.name === identifier &&
+    !ts.isShorthandPropertyAssignment(parent) &&
+    !ts.isExportSpecifier(parent)
   );
 };
+
+// Whether an identifier reads the binding; `typeof` queries only follow its type, so they are not reads.
+const isValueReference = (identifier: ts.Identifier): boolean =>
+  !(isNamePosition(identifier) || ts.isQualifiedName(identifier.parent) || ts.isTypeQueryNode(identifier.parent));
 
 // The outermost expression that only wraps `node` in annotation or `S.mutableKey` steps.
 const annotatedReference = (context: ScanContext, node: ts.Expression): ts.Expression => {
