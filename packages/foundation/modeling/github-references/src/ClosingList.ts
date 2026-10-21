@@ -1,6 +1,7 @@
 import { $GithubReferencesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { dual } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -146,26 +147,20 @@ const CLOSING_KEYWORD_BY_NAME: R.ReadonlyRecord<string, ClosingKeyword> = Closin
  * @category schemas
  * @since 0.0.0
  */
-export const ClosingList = S.Struct({
-  /** The matched closing keyword, lowercased to its canonical form. */
-  keyword: ClosingKeyword.pipe(
-    $I.annoteKey("ClosingList.keyword", { description: "The matched closing keyword in canonical lowercase form." })
-  ),
-  /** The referenced issue numbers, duplicates preserved, in line order. */
-  issueNumbers: S.NonEmptyArray(S.Natural).pipe(
-    $I.annoteKey("ClosingList.issueNumbers", {
-      description: "The safe integer issue numbers in line order, including duplicates.",
-    })
-  ),
-}).pipe($I.annoteSchema("ClosingList", { description: "The issues named by a whole closing-list line." }));
-
-/**
- * The decoded representation accepted by {@link ClosingList}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type ClosingList = typeof ClosingList.Type;
+export class ClosingList extends S.Opaque<ClosingList, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The matched closing keyword, lowercased to its canonical form. */
+    keyword: ClosingKeyword.pipe(
+      $I.annoteKey("ClosingList.keyword", { description: "The matched closing keyword in canonical lowercase form." })
+    ),
+    /** The referenced issue numbers, duplicates preserved, in line order. */
+    issueNumbers: S.NonEmptyArray(S.Natural).pipe(
+      $I.annoteKey("ClosingList.issueNumbers", {
+        description: "The safe integer issue numbers in line order, including duplicates.",
+      })
+    ),
+  }).pipe($I.annoteSchema("ClosingList", { description: "The issues named by a whole closing-list line." }))
+) {}
 
 const ClosingFlagMatchesKeyword = S.makeFilter(
   (list: { readonly keyword: ListKeyword; readonly closing: boolean }) =>
@@ -192,36 +187,30 @@ const ClosingFlagMatchesKeyword = S.makeFilter(
  * @category schemas
  * @since 0.0.0
  */
-export const ReferenceList = S.Struct({
-  /** The matched keyword, lowercased to its canonical form. */
-  keyword: ListKeyword.pipe(
-    $I.annoteKey("ReferenceList.keyword", { description: "The matched list keyword in canonical lowercase form." })
-  ),
-  /** Whether the keyword is one of the nine closing keywords. */
-  closing: S.Boolean.pipe(
-    $I.annoteKey("ReferenceList.closing", { description: "Whether the keyword is a closing keyword." })
-  ),
-  /** The referenced issue numbers, duplicates preserved, in line order. */
-  issueNumbers: S.NonEmptyArray(S.Natural).pipe(
-    $I.annoteKey("ReferenceList.issueNumbers", {
-      description: "The safe integer issue numbers in line order, including duplicates.",
-    })
-  ),
-})
-  .check(ClosingFlagMatchesKeyword)
-  .pipe(
-    $I.annoteSchema("ReferenceList", {
-      description: "The issues named by a whole reference-list line with its closing flag.",
-    })
-  );
-
-/**
- * The decoded representation accepted by {@link ReferenceList}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type ReferenceList = typeof ReferenceList.Type;
+export class ReferenceList extends S.Opaque<ReferenceList, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The matched keyword, lowercased to its canonical form. */
+    keyword: ListKeyword.pipe(
+      $I.annoteKey("ReferenceList.keyword", { description: "The matched list keyword in canonical lowercase form." })
+    ),
+    /** Whether the keyword is one of the nine closing keywords. */
+    closing: S.Boolean.pipe(
+      $I.annoteKey("ReferenceList.closing", { description: "Whether the keyword is a closing keyword." })
+    ),
+    /** The referenced issue numbers, duplicates preserved, in line order. */
+    issueNumbers: S.NonEmptyArray(S.Natural).pipe(
+      $I.annoteKey("ReferenceList.issueNumbers", {
+        description: "The safe integer issue numbers in line order, including duplicates.",
+      })
+    ),
+  })
+    .check(ClosingFlagMatchesKeyword)
+    .pipe(
+      $I.annoteSchema("ReferenceList", {
+        description: "The issues named by a whole reference-list line with its closing flag.",
+      })
+    )
+) {}
 
 const HASH = 0x23; // #
 const COLON = 0x3a; // :
@@ -260,6 +249,8 @@ const ItemScan = S.TaggedUnion({
 );
 type ItemScan = typeof ItemScan.Type;
 const ITEM_MISS: ItemScan = { _tag: "miss" };
+/** An item scan that consumed digits: a parsed item or an unsafe run. */
+type ItemFound = Exclude<ItemScan, { readonly _tag: "miss" }>;
 
 /**
  * One list item at exactly `from`: `#<digits>` and the index one past it.
@@ -283,6 +274,17 @@ const readItem: {
 });
 
 /**
+ * An optional `and` at exactly `from` that must be followed by `[ \t]+`;
+ * the offset after that whitespace, or `fallback` when no such `and` stands
+ * there.
+ */
+const scanAndSeparator = (line: string, from: number, fallback: number): number => {
+  if (!line.startsWith("and", from)) return fallback;
+  const afterAnd = skipSpaceTab(line, from + 3);
+  return afterAnd > from + 3 ? afterAnd : fallback;
+};
+
+/**
  * One separator at exactly `from`: a comma with optional surrounding `[ \t]`
  * and an optional Oxford `and` (consumed only when its own trailing `[ \t]+`
  * is present), or a bare `and` requiring `[ \t]+` on both sides. `and` is
@@ -297,17 +299,9 @@ const scanSeparator: {
   const afterLeading = skipSpaceTab(line, from);
   if (line.charCodeAt(afterLeading) === COMMA) {
     const afterComma = skipSpaceTab(line, afterLeading + 1);
-    if (line.startsWith("and", afterComma)) {
-      const afterAnd = skipSpaceTab(line, afterComma + 3);
-      if (afterAnd > afterComma + 3) return afterAnd;
-    }
-    return afterComma;
+    return scanAndSeparator(line, afterComma, afterComma);
   }
-  if (afterLeading > from && line.startsWith("and", afterLeading)) {
-    const afterAnd = skipSpaceTab(line, afterLeading + 3);
-    if (afterAnd > afterLeading + 3) return afterAnd;
-  }
-  return from;
+  return afterLeading > from ? scanAndSeparator(line, afterLeading, from) : from;
 });
 
 /**
@@ -388,11 +382,13 @@ export const parseReferenceList = (line: string): O.Option<ReferenceList> => {
   if (afterWhitespace === cursor) return O.none();
   const issueNumbers = parseItems(trimmed, afterWhitespace);
   if (O.isNone(issueNumbers)) return O.none();
-  return O.some({
-    keyword: keyword.value,
-    closing: R.has(CLOSING_KEYWORD_BY_NAME, keyword.value),
-    issueNumbers: issueNumbers.value,
-  });
+  return O.some(
+    ReferenceList.make({
+      keyword: keyword.value,
+      closing: R.has(CLOSING_KEYWORD_BY_NAME, keyword.value),
+      issueNumbers: issueNumbers.value,
+    })
+  );
 };
 
 /**
@@ -435,7 +431,13 @@ export const collectReferenceLists = (text: string): ReadonlyArray<ReferenceList
       continue;
     }
     for (const harvested of harvestReferenceLists(line)) {
-      lists.push({ keyword: harvested.keyword, closing: harvested.closing, issueNumbers: harvested.issueNumbers });
+      lists.push(
+        ReferenceList.make({
+          keyword: harvested.keyword,
+          closing: harvested.closing,
+          issueNumbers: harvested.issueNumbers,
+        })
+      );
     }
   }
   return lists;
@@ -468,7 +470,9 @@ export const collectReferenceLists = (text: string): ReadonlyArray<ReferenceList
  */
 export const parseClosingList = (line: string): O.Option<ClosingList> =>
   O.flatMap(parseReferenceList(line), (list) =>
-    O.map(R.get(CLOSING_KEYWORD_BY_NAME, list.keyword), (keyword) => ({ keyword, issueNumbers: list.issueNumbers }))
+    O.map(R.get(CLOSING_KEYWORD_BY_NAME, list.keyword), (keyword) =>
+      ClosingList.make({ keyword, issueNumbers: list.issueNumbers })
+    )
   );
 
 /**
@@ -540,6 +544,25 @@ export const parseClosingLists = (text: string): ReadonlyArray<ClosingList> => {
 /** `[A-Za-z0-9_]` — the word-boundary alphabet the inline dialects use. */
 const isWordChar = (code: number): boolean => isAsciiLetter(code) || isDigit(code) || code === 0x5f;
 
+/** ASCII space plus the `\t`..`\r` controls. */
+const isAsciiWhitespace = (code: number): boolean => code === 0x20 || (code >= 0x09 && code <= 0x0d);
+
+/** The isolated non-ASCII code points of the JavaScript `\s` set. */
+const UNICODE_SPACE_CODES: HashSet.HashSet<number> = HashSet.make(
+  0xa0,
+  0x1680,
+  0x2028,
+  0x2029,
+  0x202f,
+  0x205f,
+  0x3000,
+  0xfeff
+);
+
+/** The non-ASCII members of the JavaScript `\s` set. */
+const isUnicodeSpace = (code: number): boolean =>
+  (code >= 0x2000 && code <= 0x200a) || HashSet.has(UNICODE_SPACE_CODES, code);
+
 /**
  * The full JavaScript `\s` set, spelled as a predicate so the module keeps
  * its no-regex promise: ASCII whitespace, NEL-adjacent controls, and the
@@ -547,18 +570,7 @@ const isWordChar = (code: number): boolean => isAsciiLetter(code) || isDigit(cod
  * {@link harvestReferenceLists} admits this set — everything inside a list
  * stays `[ \t]`, per the header comment.
  */
-const isAnyWhitespace = (code: number): boolean =>
-  code === 0x20 ||
-  (code >= 0x09 && code <= 0x0d) ||
-  code === 0xa0 ||
-  code === 0x1680 ||
-  (code >= 0x2000 && code <= 0x200a) ||
-  code === 0x2028 ||
-  code === 0x2029 ||
-  code === 0x202f ||
-  code === 0x205f ||
-  code === 0x3000 ||
-  code === 0xfeff;
+const isAnyWhitespace = (code: number): boolean => isAsciiWhitespace(code) || isUnicodeSpace(code);
 
 /**
  * A reference list harvested out of running text by
@@ -579,42 +591,128 @@ const isAnyWhitespace = (code: number): boolean =>
  * @category schemas
  * @since 0.0.0
  */
-export const HarvestedReferenceList = S.Struct({
-  ...ReferenceList.fields,
-  /** Offset of the first character of the matched keyword. */
-  start: S.Natural.pipe(
-    $I.annoteKey("HarvestedReferenceList.start", {
-      description: "The offset of the first character of the matched keyword.",
-    })
-  ),
-  /** Offset one past the last digit of the last item. */
-  end: S.Natural.pipe(
-    $I.annoteKey("HarvestedReferenceList.end", { description: "The offset one past the last digit of the last item." })
-  ),
-})
-  .check(
-    ClosingFlagMatchesKeyword,
-    S.makeFilter(
-      (list) => list.end > list.start,
-      $I.annote("HarvestedReferenceList.OrderedSpan", {
-        description: "The exclusive end offset exceeds the start offset of the harvested match.",
-        message: "Expected end to be greater than start.",
+export class HarvestedReferenceList extends S.Opaque<HarvestedReferenceList, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...ReferenceList.fields,
+    /** Offset of the first character of the matched keyword. */
+    start: S.Natural.pipe(
+      $I.annoteKey("HarvestedReferenceList.start", {
+        description: "The offset of the first character of the matched keyword.",
+      })
+    ),
+    /** Offset one past the last digit of the last item. */
+    end: S.Natural.pipe(
+      $I.annoteKey("HarvestedReferenceList.end", {
+        description: "The offset one past the last digit of the last item.",
+      })
+    ),
+  })
+    .check(
+      ClosingFlagMatchesKeyword,
+      S.makeFilter(
+        (list) => list.end > list.start,
+        $I.annote("HarvestedReferenceList.OrderedSpan", {
+          description: "The exclusive end offset exceeds the start offset of the harvested match.",
+          message: "Expected end to be greater than start.",
+        })
+      )
+    )
+    .pipe(
+      $I.annoteSchema("HarvestedReferenceList", {
+        description: "A reference list harvested from prose with its match offsets.",
       })
     )
-  )
-  .pipe(
-    $I.annoteSchema("HarvestedReferenceList", {
-      description: "A reference list harvested from prose with its match offsets.",
-    })
-  );
+) {}
+
+/** The index one past the ASCII letter run that starts at `from`. */
+const letterRunEnd = (text: string, from: number): number => {
+  let runEnd = from + 1;
+  while (runEnd < text.length && isAsciiLetter(text.charCodeAt(runEnd))) runEnd += 1;
+  return runEnd;
+};
+
+/** Whether `[runStart, runEnd)` touches a word character on either side. */
+const isWordEmbedded = (text: string, runStart: number, runEnd: number): boolean =>
+  (runStart > 0 && isWordChar(text.charCodeAt(runStart - 1))) ||
+  (runEnd < text.length && isWordChar(text.charCodeAt(runEnd)));
+
+/** The list keyword a free-standing letter run spells, or `Option.none()`. */
+const keywordAt = (text: string, runStart: number, runEnd: number): O.Option<ListKeyword> =>
+  isWordEmbedded(text, runStart, runEnd)
+    ? O.none()
+    : R.get(LIST_KEYWORD_BY_NAME, Str.toLowerCase(text.slice(runStart, runEnd)));
+
+/** The first item after the keyword→item gap, which admits any whitespace. */
+const readFirstItem = (text: string, runEnd: number): ItemScan => {
+  let cursor = runEnd;
+  while (cursor < text.length && isAnyWhitespace(text.charCodeAt(cursor))) cursor += 1;
+  return cursor === runEnd ? ITEM_MISS : readItem(text, cursor);
+};
 
 /**
- * The decoded representation accepted by {@link HarvestedReferenceList}.
- *
- * @category type-level
- * @since 0.0.0
+ * Extends `issueNumbers` with every separator-and-item pair after `first`.
+ * Returns the last item scan, whose `next` is the list end, or the `unsafe`
+ * scan that poisons the whole candidate.
  */
-export type HarvestedReferenceList = typeof HarvestedReferenceList.Type;
+const readContinuation = (text: string, first: ItemFound, issueNumbers: A.NonEmptyArray<number>): ItemFound => {
+  let last: ItemFound = first;
+  while (last._tag === "item") {
+    const next = scanSeparator(text, last.next);
+    if (next === last.next) break;
+    const item = readItem(text, next);
+    // A separator not followed by an item is prose, not grammar: the
+    // list already ended at its last item and the separator stays
+    // unconsumed for the outer scan. One unsafe item poisons the whole
+    // candidate — never a partial list — and scanning resumes after the
+    // candidate's extent.
+    if (item._tag === "miss") break;
+    if (item._tag === "item") issueNumbers.push(item.value);
+    last = item;
+  }
+  return last;
+};
+
+/**
+ * Harvests the candidate list headed by `keyword` at `[runStart, runEnd)`
+ * into `lists` and returns the offset where the outer scan resumes.
+ */
+const harvestCandidate = (
+  text: string,
+  runStart: number,
+  runEnd: number,
+  keyword: ListKeyword,
+  lists: Array<HarvestedReferenceList>
+): number => {
+  const first = readFirstItem(text, runEnd);
+  // No valid first item: resume right after the keyword run.
+  if (first._tag === "miss") return runEnd;
+  if (first._tag === "unsafe") return first.next;
+  const issueNumbers: A.NonEmptyArray<number> = [first.value];
+  const tail = readContinuation(text, first, issueNumbers);
+  if (tail._tag === "unsafe") return tail.next;
+  lists.push(
+    HarvestedReferenceList.make({
+      keyword,
+      closing: R.has(CLOSING_KEYWORD_BY_NAME, keyword),
+      issueNumbers,
+      start: runStart,
+      end: tail.next,
+    })
+  );
+  return tail.next;
+};
+
+/**
+ * Scans the letter run at `runStart`, harvesting a list when it is a
+ * free-standing keyword, and returns the offset where the outer scan resumes.
+ */
+const harvestAtLetterRun = (text: string, runStart: number, lists: Array<HarvestedReferenceList>): number => {
+  const runEnd = letterRunEnd(text, runStart);
+  return O.match(keywordAt(text, runStart, runEnd), {
+    onNone: () => runEnd,
+    onSome: (keyword) => harvestCandidate(text, runStart, runEnd, keyword, lists),
+  });
+};
 
 /**
  * Every reference list found inline in `text`, in document order.
@@ -671,70 +769,7 @@ export const harvestReferenceLists = (text: string): ReadonlyArray<HarvestedRefe
   const lists: Array<HarvestedReferenceList> = [];
   let index = 0;
   while (index < text.length) {
-    if (!isAsciiLetter(text.charCodeAt(index))) {
-      index += 1;
-      continue;
-    }
-    const runStart = index;
-    let runEnd = index + 1;
-    while (runEnd < text.length && isAsciiLetter(text.charCodeAt(runEnd))) runEnd += 1;
-    if (
-      (runStart > 0 && isWordChar(text.charCodeAt(runStart - 1))) ||
-      (runEnd < text.length && isWordChar(text.charCodeAt(runEnd)))
-    ) {
-      index = runEnd;
-      continue;
-    }
-    const name = Str.toLowerCase(text.slice(runStart, runEnd));
-    if (!R.has(LIST_KEYWORD_BY_NAME, name)) {
-      index = runEnd;
-      continue;
-    }
-    const keyword = O.getOrThrow(R.get(LIST_KEYWORD_BY_NAME, name));
-    let cursor = runEnd;
-    while (cursor < text.length && isAnyWhitespace(text.charCodeAt(cursor))) cursor += 1;
-    const first = cursor === runEnd ? ITEM_MISS : readItem(text, cursor);
-    if (first._tag === "miss") {
-      // No valid first item: resume right after the keyword run.
-      index = runEnd;
-      continue;
-    }
-    if (first._tag === "unsafe") {
-      index = first.next;
-      continue;
-    }
-    const issueNumbers: A.NonEmptyArray<number> = [first.value];
-    let end = first.next;
-    let stopped: ItemScan = ITEM_MISS;
-    for (;;) {
-      const next = scanSeparator(text, end);
-      if (next === end) break;
-      const item = readItem(text, next);
-      // A separator not followed by an item is prose, not grammar: the
-      // list already ended at its last item and the separator stays
-      // unconsumed for the outer scan.
-      if (item._tag === "miss") break;
-      if (item._tag === "unsafe") {
-        stopped = item;
-        break;
-      }
-      issueNumbers.push(item.value);
-      end = item.next;
-    }
-    if (stopped._tag === "unsafe") {
-      // One unsafe item poisons the whole candidate — never a partial
-      // list — and scanning resumes after the candidate's extent.
-      index = stopped.next;
-      continue;
-    }
-    lists.push({
-      keyword,
-      closing: R.has(CLOSING_KEYWORD_BY_NAME, keyword),
-      issueNumbers,
-      start: runStart,
-      end,
-    });
-    index = end;
+    index = isAsciiLetter(text.charCodeAt(index)) ? harvestAtLetterRun(text, index, lists) : index + 1;
   }
   return lists;
 };

@@ -251,7 +251,7 @@ describe("jsonl schema round trips", () => {
 
   it.effect.prop(
     "LineSlice.rebase composes additively and keeps content and terminator",
-    [LineSlice, ByteCount, ByteCount],
+    [Arbitrary.schema(LineSlice), ByteCount, ByteCount],
     ([line, first, second]) =>
       Effect.sync(() => {
         const stepwise = pipe(line, LineSlice.rebase(first), LineSlice.rebase(second));
@@ -326,7 +326,7 @@ describe("jsonl schema round trips", () => {
   // key decodes, reads as undefined, and selects exactly what omitting it does.
   it.effect.prop(
     "optional configuration and slice keys treat an explicit undefined as omission",
-    [JournalConfig, CursoredSlice(RegisteredTag), EnvelopeFrame],
+    [Arbitrary.schema(JournalConfig), CursoredSlice(RegisteredTag), Arbitrary.schema(EnvelopeFrame)],
     ([config, slice, frame]) =>
       Effect.gen(function* () {
         const encodedConfig = yield* encodeConfig(config);

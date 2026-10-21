@@ -1,14 +1,15 @@
 import { normalizeSets } from "@beep/semver/internal/normalize";
+import { ComparatorParts } from "@beep/semver/internal/order";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import type { ComparatorOperator, ComparatorParts } from "@beep/semver/internal/order";
+import type { ComparatorOperator } from "@beep/semver/internal/order";
 
 const comparator = (
   operator: ComparatorOperator,
   major = 1,
   prerelease: ReadonlyArray<string | number> = [],
   build: ReadonlyArray<string> = []
-): ComparatorParts => ({ operator, version: { major, minor: 0, patch: 0, prerelease, build } });
+): ComparatorParts => ComparatorParts.make({ operator, version: { major, minor: 0, patch: 0, prerelease, build } });
 
 describe("comparator normalization coverage", () => {
   it.effect("sorts all operator weights, then version precedence, without merging OR branches", () =>

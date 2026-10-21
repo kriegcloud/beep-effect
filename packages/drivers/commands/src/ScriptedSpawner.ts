@@ -10,6 +10,7 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import { ExitCode, RunOptions } from "./Run.ts";
+import type * as Types from "effect/Types";
 
 const $I = $CommandsId.create("ScriptedSpawner");
 
@@ -22,6 +23,48 @@ class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { reado
   $I.annoteError<ScriptedPipelineError>("ScriptedPipelineError", {
     description: "A piped command reached the standard-command-only scripted spawner.",
   })
+) {}
+
+/**
+ * One scripted completed run: optional output, exit code and hang flag.
+ *
+ * **Details**
+ *
+ * `stdout` and `stderr` default to empty and `exit` to `0`, so `{}` scripts a
+ * silent success. `hang: true` makes the handle's `exitCode` never resolve.
+ *
+ * **Example** (Build a scripted completed run)
+ *
+ * ```ts
+ * import { ScriptCompletion } from "@beep/commands/ScriptedSpawner";
+ *
+ * const completion = ScriptCompletion.make({ stdout: "ok", exit: 0 });
+ * console.log(completion.stdout) // ok
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class ScriptCompletion extends S.Opaque<ScriptCompletion, { readonly brand: unique symbol }>()(
+  S.Struct({
+    stdout: S.optional(S.String).pipe(
+      $I.annoteKey("ScriptCompletion.stdout", { description: "Scripted standard output." })
+    ),
+    stderr: S.optional(S.String).pipe(
+      $I.annoteKey("ScriptCompletion.stderr", { description: "Scripted standard error." })
+    ),
+    exit: S.optional(ExitCode).pipe(
+      $I.annoteKey("ScriptCompletion.exit", { description: "Scripted integer process exit code." })
+    ),
+    hang: S.optional(S.Boolean).pipe(
+      $I.annoteKey("ScriptCompletion.hang", { description: "Whether exitCode remains unresolved." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ScriptCompletion", {
+      description: "A scripted completed run with optional output, exit code and hang flag.",
+    })
+  )
 ) {}
 
 /**
@@ -50,21 +93,7 @@ class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { reado
  * @category schemas
  * @since 0.0.0
  */
-export const ScriptResult = S.Union([
-  S.instanceOf(PlatformError.PlatformError),
-  S.Struct({
-    stdout: S.optional(S.String).pipe(
-      $I.annoteKey("ScriptResult.stdout", { description: "Scripted standard output." })
-    ),
-    stderr: S.optional(S.String).pipe($I.annoteKey("ScriptResult.stderr", { description: "Scripted standard error." })),
-    exit: S.optional(ExitCode).pipe(
-      $I.annoteKey("ScriptResult.exit", { description: "Scripted integer process exit code." })
-    ),
-    hang: S.optional(S.Boolean).pipe(
-      $I.annoteKey("ScriptResult.hang", { description: "Whether exitCode remains unresolved." })
-    ),
-  }),
-]).pipe(
+export const ScriptResult = S.Union([S.instanceOf(PlatformError.PlatformError), ScriptCompletion]).pipe(
   $I.annoteSchema("ScriptResult", { description: "A scripted completed run or an opaque platform spawn failure." })
 );
 /**
@@ -76,14 +105,37 @@ export const ScriptResult = S.Union([
 export type ScriptResult = typeof ScriptResult.Type;
 
 /**
+ * Type-level companions of {@link (ScriptResult:variable)}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ScriptResult {
+  /**
+   * The plain shape a script returns: a `PlatformError`, or an object literal
+   * of optional `stdout`, `stderr`, `exit` and `hang`.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ScriptResult.Encoded;
+}
+
+/**
  * The script a {@link ScriptedSpawner} answers spawns from: the executable and
- * argv in, a {@link ScriptResult} out.
+ * argv in, the encoded side of a {@link ScriptResult} out.
+ *
+ * **Details**
+ *
+ * Scripts return plain object literals (`{ stdout: "ok\n" }`) or a
+ * `PlatformError`; the encoded side of {@link ScriptResult} is exactly that
+ * shape, so a script never has to call {@link ScriptCompletion.make}.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export type SpawnScript = (command: string, args: ReadonlyArray<string>) => ScriptResult;
+export type SpawnScript = (command: string, args: ReadonlyArray<string>) => ScriptResult.Encoded;
 
 /** Platform stream/sink carriers validate their runtime identity; generic channels remain opaque. */
 const InputStream = S.declare<Stream.Stream<Uint8Array, PlatformError.PlatformError>>(
@@ -234,42 +286,39 @@ const CommandOptions = S.Struct({
  * ```
  *
  * @public
- * @category schemas
+ * @category models
  * @since 0.0.0
  */
-export const SpawnRecord = S.Struct({
-  /** The executable. */
-  command: S.String.pipe($I.annoteKey("SpawnRecord.command", { description: "The spawned executable." })),
-  /** The argv, exactly as spawned. */
-  args: S.Array(S.String).pipe($I.annoteKey("SpawnRecord.args", { description: "Arguments exactly as spawned." })),
-  /** The working directory, when set. */
-  cwd: S.UndefinedOr(S.String).pipe(
-    $I.annoteKey("SpawnRecord.cwd", { description: "The working directory, when set." })
-  ),
-  /** The environment, when set. */
-  env: S.UndefinedOr(Environment).pipe($I.annoteKey("SpawnRecord.env", { description: "The environment, when set." })),
-  /** Whether parent environment extension was requested. */
-  extendEnv: S.UndefinedOr(S.Boolean).pipe(
-    $I.annoteKey("SpawnRecord.extendEnv", { description: "Whether parent environment extension was requested." })
-  ),
-  /** The full options exactly as received. */
-  options: CommandOptions.pipe(
-    $I.annoteKey("SpawnRecord.options", { description: "The complete platform command options." })
-  ),
-  /** Set when the handle's unref effect actually runs. */
-  unrefed: S.Boolean.pipe(
-    $I.annoteKey("SpawnRecord.unrefed", { description: "Live state set when unref actually runs." })
-  ),
-}).pipe(
-  $I.annoteSchema("SpawnRecord", { description: "An observed spawn with its full options and live unref state." })
-);
-/**
- * Decoded spawn observation including live unref state.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type SpawnRecord = typeof SpawnRecord.Type;
+export class SpawnRecord extends S.Opaque<SpawnRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The executable. */
+    command: S.String.pipe($I.annoteKey("SpawnRecord.command", { description: "The spawned executable." })),
+    /** The argv, exactly as spawned. */
+    args: S.Array(S.String).pipe($I.annoteKey("SpawnRecord.args", { description: "Arguments exactly as spawned." })),
+    /** The working directory, when set. */
+    cwd: S.UndefinedOr(S.String).pipe(
+      $I.annoteKey("SpawnRecord.cwd", { description: "The working directory, when set." })
+    ),
+    /** The environment, when set. */
+    env: S.UndefinedOr(Environment).pipe(
+      $I.annoteKey("SpawnRecord.env", { description: "The environment, when set." })
+    ),
+    /** Whether parent environment extension was requested. */
+    extendEnv: S.UndefinedOr(S.Boolean).pipe(
+      $I.annoteKey("SpawnRecord.extendEnv", { description: "Whether parent environment extension was requested." })
+    ),
+    /** The full options exactly as received. */
+    options: CommandOptions.pipe(
+      $I.annoteKey("SpawnRecord.options", { description: "The complete platform command options." })
+    ),
+    /** Set when the handle's unref effect actually runs. */
+    unrefed: S.Boolean.pipe(
+      $I.annoteKey("SpawnRecord.unrefed", { description: "Live state set when unref actually runs." })
+    ),
+  }).pipe(
+    $I.annoteSchema("SpawnRecord", { description: "An observed spawn with its full options and live unref state." })
+  )
+) {}
 
 // Implementation of the byte streams a handle serves; one UTF-8 chunk.
 const bytes = (text: string): Stream.Stream<Uint8Array, PlatformError.PlatformError> =>
@@ -421,7 +470,9 @@ export class ScriptedSpawner {
           );
         }
         return Effect.suspend(() => {
-          const record = {
+          // Mutable on purpose: `unrefed` is live state, flipped below when the
+          // handle's unref effect runs.
+          const record: Types.Mutable<SpawnRecord> = SpawnRecord.make({
             command: command.command,
             args: command.args,
             cwd: command.options.cwd,
@@ -429,7 +480,7 @@ export class ScriptedSpawner {
             extendEnv: command.options.extendEnv,
             options: command.options,
             unrefed: false,
-          };
+          });
           spawns.push(record);
           const result = script(command.command, command.args);
           if (result instanceof PlatformError.PlatformError) {

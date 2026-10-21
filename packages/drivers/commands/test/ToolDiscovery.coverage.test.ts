@@ -94,24 +94,34 @@ it.effect("version parsing tolerates unmatched regexes and JSON primitives while
   })
 );
 
+/** What an explicit source requirement must select when the two copies disagree. */
+const EXPLICIT_SOURCE_EXPECTATIONS = {
+  global: { version: "1.0.0", command: "tool", args: ["arg"] },
+  local: { version: "2.0.0", command: "pnpm", args: ["exec", "tool", "arg"] },
+} as const;
+
+const assertExplicitSourceSelected = Effect.fnUntraced(function* (source: "global" | "local") {
+  const expected = EXPLICIT_SOURCE_EXPECTATIONS[source];
+  const spawner = ScriptedSpawner.make((command) => ({ stdout: command === "pnpm" ? "2.0.0" : "1.0.0" }));
+  const layer = ToolDiscovery.layer.pipe(
+    Layer.provide(Layer.mergeAll(LocalExec.layerFor("pnpm", { directory: "/project" }), spawner.layer))
+  );
+  const resolved = yield* Effect.flatMap(ToolDiscovery, (service) =>
+    service.resolve(Tool.named("tool", { source }))
+  ).pipe(withLayer(layer));
+  assert.strictEqual(resolved.source, source);
+  assert.isTrue(resolved.mismatch);
+  assertSome(resolved.version, expected.version);
+  const command = resolved.command("arg");
+  if (!ChildProcess.isStandardCommand(command)) return assert.fail("expected a standard command");
+  assert.strictEqual(command.command, expected.command);
+  assert.deepStrictEqual(command.args, expected.args);
+});
+
 it.effect("explicit global and local requirements select their requested copy even on mismatch", () =>
   Effect.gen(function* () {
     for (const source of ["global", "local"] as const) {
-      const spawner = ScriptedSpawner.make((command) => ({ stdout: command === "pnpm" ? "2.0.0" : "1.0.0" }));
-      const layer = ToolDiscovery.layer.pipe(
-        Layer.provide(Layer.mergeAll(LocalExec.layerFor("pnpm", { directory: "/project" }), spawner.layer))
-      );
-      const resolved = yield* Effect.flatMap(ToolDiscovery, (service) =>
-        service.resolve(Tool.named("tool", { source }))
-      ).pipe(withLayer(layer));
-      assert.strictEqual(resolved.source, source);
-      assert.isTrue(resolved.mismatch);
-      assertSome(resolved.version, source === "global" ? "1.0.0" : "2.0.0");
-      const command = resolved.command("arg");
-      if (ChildProcess.isStandardCommand(command)) {
-        assert.strictEqual(command.command, source === "global" ? "tool" : "pnpm");
-        assert.deepStrictEqual(command.args, source === "global" ? ["arg"] : ["exec", "tool", "arg"]);
-      } else assert.fail("expected a standard command");
+      yield* assertExplicitSourceSelected(source);
     }
   })
 );

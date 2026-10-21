@@ -43,7 +43,7 @@ const pnpmLocal = LocalExec.layerContext(
  */
 const world =
   (options: { readonly global?: string | undefined; readonly local?: string | undefined }) =>
-  (command: string, _args: ReadonlyArray<string>): ScriptResult => {
+  (command: string, _args: ReadonlyArray<string>): ScriptResult.Encoded => {
     if (command === "pnpm") {
       return options.local === undefined ? ScriptedSpawner.notFound("pnpm") : { stdout: options.local, exit: 0 };
     }
@@ -53,7 +53,7 @@ const world =
 /** Runs `program` against a scripted world plus a LocalExec layer. */
 const run = <A, E>(
   program: Effect.Effect<A, E, ToolDiscovery>,
-  script: (command: string, args: ReadonlyArray<string>) => ScriptResult,
+  script: (command: string, args: ReadonlyArray<string>) => ScriptResult.Encoded,
   local: Layer.Layer<LocalExec> = pnpmLocal
 ) => {
   const spawner = ScriptedSpawner.make(script);

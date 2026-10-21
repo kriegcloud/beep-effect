@@ -17,6 +17,7 @@ import * as S from "effect/Schema";
 import { createScanner } from "./scanner.ts";
 import { skipBalancedValue } from "./skip.ts";
 import type { JsoncSegment } from "../JsoncNode.ts";
+import type { SyntaxKind } from "./scanner.ts";
 import type { SkipCursor } from "./skip.ts";
 
 const $I = $JsoncId.create("internal/navigate");
@@ -175,43 +176,61 @@ export const navigate: {
     });
   });
 
+  // Shared walk state for the container currently being scanned: the end of
+  // the last value seen and the offset of the last separator comma.
+  let lastEnd = 0;
+  let lastComma = O.none<number>();
+
+  const isOpen = (closer: SyntaxKind): boolean => currentToken !== closer && currentToken !== "EOF";
+
+  // Consume a separator comma when one is due. A trailing comma before the
+  // closer ends the members (`true`); an insertion then belongs after the last
+  // value, inside the container (upstream-bug fix).
+  const closesAfterSeparator = (due: boolean, closer: SyntaxKind): boolean => {
+    if (!due || currentToken !== "Comma") return false;
+    lastComma = O.some(scanner.getTokenOffset());
+    currentToken = scanner.scan();
+    return currentToken === closer;
+  };
+
+  // Process the object member at the cursor: `Some(keyStart)` when its key is
+  // `segment` (cursor left on the value), otherwise the member is skipped.
+  const scanMember = (segment: string): O.Option<number> => {
+    if (currentToken !== "String") {
+      currentToken = scanner.scan();
+      lastEnd = scanner.getTokenOffset();
+      return O.none();
+    }
+    const keyStart = scanner.getTokenOffset();
+    const key = scanner.getTokenValue();
+    currentToken = scanner.scan(); // skip key
+    if (currentToken === "Colon") {
+      currentToken = scanner.scan(); // skip colon
+    }
+    if (key === segment) {
+      return O.some(keyStart);
+    }
+    lastEnd = skipValue();
+    return O.none();
+  };
+
   // Walk an object's entries until `segment` is found; the cursor is left on
   // the matching value, or on the closer when the key is absent.
   const scanObject = (segment: string) => {
     currentToken = scanner.scan(); // skip {
-    let lastValueEnd = scanner.getTokenOffset();
+    lastEnd = scanner.getTokenOffset();
+    lastComma = O.none();
     let isFirst = true;
-    let lastComma = O.none<number>();
-    while (currentToken !== "CloseBrace" && currentToken !== "EOF") {
-      if (!isFirst && currentToken === "Comma") {
-        lastComma = O.some(scanner.getTokenOffset());
-        currentToken = scanner.scan();
-        // A trailing comma before the closer ends the members; an insertion
-        // belongs after the last value, inside the object (upstream-bug fix).
-        if (currentToken === "CloseBrace") {
-          break;
-        }
-      }
-      if (currentToken === "String") {
-        const keyStart = scanner.getTokenOffset();
-        const key = scanner.getTokenValue();
-        currentToken = scanner.scan(); // skip key
-        if (currentToken === "Colon") {
-          currentToken = scanner.scan(); // skip colon
-        }
-        if (key === segment) {
-          return { found: O.some({ keyStart, commaBefore: lastComma }), lastValueEnd, isFirst };
-        }
-        lastValueEnd = skipValue();
-      } else {
-        currentToken = scanner.scan();
-        lastValueEnd = scanner.getTokenOffset();
+    while (isOpen("CloseBrace") && !closesAfterSeparator(!isFirst, "CloseBrace")) {
+      const keyStart = scanMember(segment);
+      if (O.isSome(keyStart)) {
+        return { found: O.some({ keyStart: keyStart.value, commaBefore: lastComma }), lastValueEnd: lastEnd, isFirst };
       }
       isFirst = false;
     }
     return {
       found: O.none<{ readonly keyStart: number; readonly commaBefore: O.Option<number> }>(),
-      lastValueEnd,
+      lastValueEnd: lastEnd,
       isFirst,
     };
   };
@@ -221,17 +240,9 @@ export const navigate: {
   const scanArray = (segment: number) => {
     currentToken = scanner.scan(); // skip [
     let index = 0;
-    let lastEnd = scanner.getTokenOffset();
-    let lastComma = O.none<number>();
-    while (currentToken !== "CloseBracket" && currentToken !== "EOF") {
-      if (index > 0 && currentToken === "Comma") {
-        lastComma = O.some(scanner.getTokenOffset());
-        currentToken = scanner.scan();
-        // Same trailing-comma rule as objects: the closer ends the elements.
-        if (currentToken === "CloseBracket") {
-          break;
-        }
-      }
+    lastEnd = scanner.getTokenOffset();
+    lastComma = O.none();
+    while (isOpen("CloseBracket") && !closesAfterSeparator(index > 0, "CloseBracket")) {
       if (index === segment) {
         return { found: true, lastEnd, index, lastComma };
       }
@@ -249,16 +260,45 @@ export const navigate: {
 
   // Intermediate segments only need to position the cursor on the next value.
   // A miss leaves the cursor on the closer, which the next segment reports.
-  for (const segment of A.initNonEmpty(path)) {
-    depth++;
-    if (!canEnter(segment)) {
-      return mismatch(segment);
-    }
+  const descend = (segment: JsoncSegment): void => {
     if (P.isString(segment) === true) {
       scanObject(segment);
     } else {
       scanArray(segment);
     }
+  };
+
+  const resolveKey = (key: string): NavigateResult => {
+    const { found, lastValueEnd, isFirst } = scanObject(key);
+    return O.match(found, {
+      onSome: ({ keyStart, commaBefore }) => located("object", keyStart, commaBefore),
+      onNone: () => NavigateResult.cases.Insert.make({ container: "object", at: lastValueEnd, isFirst, depth }),
+    });
+  };
+
+  const resolveIndex = (target: number): NavigateResult => {
+    const scanned = scanArray(target);
+    if (scanned.found) {
+      return located("array", scanner.getTokenOffset(), scanned.lastComma);
+    }
+    // Upstream inserts only while the scanned length has not passed the index;
+    // a negative or fractional index the scan passed resolves to no edit.
+    return scanned.index <= target
+      ? NavigateResult.cases.Insert.make({
+          container: "array",
+          at: scanned.lastEnd,
+          isFirst: scanned.index === 0,
+          depth,
+        })
+      : NavigateResult.cases.NoOp.make({});
+  };
+
+  for (const segment of A.initNonEmpty(path)) {
+    depth++;
+    if (!canEnter(segment)) {
+      return mismatch(segment);
+    }
+    descend(segment);
   }
 
   const last = A.lastNonEmpty(path);
@@ -266,20 +306,5 @@ export const navigate: {
   if (!canEnter(last)) {
     return mismatch(last);
   }
-  if (P.isString(last) === true) {
-    const { found, lastValueEnd, isFirst } = scanObject(last);
-    return O.match(found, {
-      onSome: ({ keyStart, commaBefore }) => located("object", keyStart, commaBefore),
-      onNone: () => NavigateResult.cases.Insert.make({ container: "object", at: lastValueEnd, isFirst, depth }),
-    });
-  }
-  const { found, lastEnd, index, lastComma } = scanArray(last);
-  if (found) {
-    return located("array", scanner.getTokenOffset(), lastComma);
-  }
-  // Upstream inserts only while the scanned length has not passed the index;
-  // a negative or fractional index the scan passed resolves to no edit.
-  return index <= last
-    ? NavigateResult.cases.Insert.make({ container: "array", at: lastEnd, isFirst: index === 0, depth })
-    : NavigateResult.cases.NoOp.make({});
+  return P.isString(last) === true ? resolveKey(last) : resolveIndex(last);
 });

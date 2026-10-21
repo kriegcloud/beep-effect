@@ -116,10 +116,10 @@ describe("IssueReferences.review regressions", () => {
 
   it("validates the unchanged plain parser results with integer fields", () => {
     const inline = harvestIssueReferences("Fixes #12");
-    assert.deepStrictEqual(inline, [{ issueNumber: 12, keyword: "fixes", start: 0, end: 9 }]);
+    assert.deepStrictEqual(inline, [IssueReference.make({ issueNumber: 12, keyword: "fixes", start: 0, end: 9 })]);
     assert.isTrue(isIssueReferences(inline));
     const bare = O.getOrThrow(parseBareLineReference("Closes: #7"));
-    assert.deepStrictEqual(bare, { issueNumber: 7, keyword: "closes" });
+    assert.deepStrictEqual(bare, BareLineReference.make({ issueNumber: 7, keyword: "closes" }));
     assert.isTrue(S.is(BareLineReference)(bare));
     for (const issueNumber of [0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1]) {
       assert.isFalse(S.is(BareLineReference)({ ...bare, issueNumber }));
@@ -136,8 +136,8 @@ describe("IssueReferences.review regressions", () => {
     const text = "see fixes #12 and closes #3";
     const harvested = harvestIssueReferences(text);
     assert.deepStrictEqual(harvested, [
-      { keyword: "fixes", issueNumber: 12, start: 4, end: 13 },
-      { keyword: "closes", issueNumber: 3, start: 18, end: 27 },
+      IssueReference.make({ keyword: "fixes", issueNumber: 12, start: 4, end: 13 }),
+      IssueReference.make({ keyword: "closes", issueNumber: 3, start: 18, end: 27 }),
     ]);
     for (const reference of harvested) {
       assert.isTrue(S.is(IssueReference)(reference));
@@ -177,24 +177,34 @@ describe("IssueReferences.review regressions", () => {
     const text = "fixes #oops closes #9007199254740993 resolves #4";
     const start = text.indexOf("resolves #4");
     assert.deepStrictEqual(harvestIssueReferences(text), [
-      { issueNumber: 4, keyword: "resolves", start, end: text.length },
+      IssueReference.make({ issueNumber: 4, keyword: "resolves", start, end: text.length }),
     ]);
     assert.deepStrictEqual(parseBareLines("fixes #oops\ncloses #9007199254740993\nReSoLvEs #0004"), [
-      { issueNumber: 4, keyword: "resolves" },
+      BareLineReference.make({ issueNumber: 4, keyword: "resolves" }),
     ]);
   });
 
   it("preserves mixed case, CRLF and Unicode whitespace in each dialect", () => {
     const text = "\u00a0cLoSeS:\t#12\u2003\r\n\u2003FiXeD #13\u00a0\r\nReSoLvEs\u00a0#14\r\n";
     assert.deepStrictEqual(parseBareLines(text), [
-      { issueNumber: 12, keyword: "closes" },
-      { issueNumber: 13, keyword: "fixed" },
+      BareLineReference.make({ issueNumber: 12, keyword: "closes" }),
+      BareLineReference.make({ issueNumber: 13, keyword: "fixed" }),
     ]);
     const fixedStart = text.indexOf("FiXeD");
     const resolvesStart = text.indexOf("ReSoLvEs");
     assert.deepStrictEqual(harvestIssueReferences(text), [
-      { issueNumber: 13, keyword: "fixed", start: fixedStart, end: fixedStart + "FiXeD #13".length },
-      { issueNumber: 14, keyword: "resolves", start: resolvesStart, end: resolvesStart + "ReSoLvEs\u00a0#14".length },
+      IssueReference.make({
+        issueNumber: 13,
+        keyword: "fixed",
+        start: fixedStart,
+        end: fixedStart + "FiXeD #13".length,
+      }),
+      IssueReference.make({
+        issueNumber: 14,
+        keyword: "resolves",
+        start: resolvesStart,
+        end: resolvesStart + "ReSoLvEs\u00a0#14".length,
+      }),
     ]);
   });
 });
@@ -251,17 +261,17 @@ describe("IssueReferences.parseBareLines", () => {
       "\n"
     );
     assert.deepStrictEqual(parseBareLines(text), [
-      { issueNumber: 12, keyword: "closes" },
-      { issueNumber: 7, keyword: "fixes" },
-      { issueNumber: 9, keyword: "resolved" },
+      BareLineReference.make({ issueNumber: 12, keyword: "closes" }),
+      BareLineReference.make({ issueNumber: 7, keyword: "fixes" }),
+      BareLineReference.make({ issueNumber: 9, keyword: "resolved" }),
     ]);
   });
 
   it("handles CRLF input — the per-line trim absorbs the carriage return", () => {
     const text = "Closes: #1\r\nfixes #2\r\n";
     assert.deepStrictEqual(parseBareLines(text), [
-      { issueNumber: 1, keyword: "closes" },
-      { issueNumber: 2, keyword: "fixes" },
+      BareLineReference.make({ issueNumber: 1, keyword: "closes" }),
+      BareLineReference.make({ issueNumber: 2, keyword: "fixes" }),
     ]);
   });
 
@@ -272,8 +282,8 @@ describe("IssueReferences.parseBareLines", () => {
 
   it("keeps duplicate lines — dedup is the caller's business", () => {
     assert.deepStrictEqual(parseBareLines("fixes #1\nfixes #1"), [
-      { issueNumber: 1, keyword: "fixes" },
-      { issueNumber: 1, keyword: "fixes" },
+      BareLineReference.make({ issueNumber: 1, keyword: "fixes" }),
+      BareLineReference.make({ issueNumber: 1, keyword: "fixes" }),
     ]);
   });
 });

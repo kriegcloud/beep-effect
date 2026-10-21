@@ -16,8 +16,9 @@ import * as Result from "effect/Result";
 // numeric identifiers, and unsafe integers. Input must be fully consumed.
 
 import { desugarCaret, desugarHyphen, desugarTilde, desugarXRange } from "./desugar.ts";
+import { ComparatorParts, VersionParts } from "./order.ts";
 import type { PartialParts } from "./desugar.ts";
-import type { ComparatorOperator, ComparatorParts, VersionParts } from "./order.ts";
+import type { ComparatorOperator } from "./order.ts";
 
 /**
  * Outcome of a grammar entry point: parsed value or input + failure position.
@@ -85,14 +86,45 @@ const peekIdentChar = (s: ParserState): boolean => {
   return ch !== undefined && isIdentChar(ch);
 };
 
+// Consumes `ch` when it is the next character; reports whether it did.
+const accept = (s: ParserState, ch: string): boolean => {
+  if (peek(s) !== ch) return false;
+  s.pos++;
+  return true;
+};
+
 // ---------------------------------------------------------------------------
 // Low-level token parsers
 // ---------------------------------------------------------------------------
 
+// Converts an all-digit token that began at `start` into its numeric value,
+// rejecting leading zeros (except "0" itself) and unsafe integers at `start`.
+const toNumericIdentifier = (s: ParserState, start: number, digits: string): number => {
+  const value = Number(digits);
+  if ((digits.length > 1 && digits[0] === "0") || !Number.isSafeInteger(value)) {
+    s.pos = start;
+    return fail(s, start);
+  }
+  return value;
+};
+
+// Scans a nonempty run of identifier characters (`[0-9A-Za-z-]+`).
+const scanIdentifier = (s: ParserState): string => {
+  if (!peekIdentChar(s)) {
+    return fail(s);
+  }
+  let token = "";
+  while (peekIdentChar(s)) {
+    token += advance(s);
+  }
+  return token;
+};
+
+const nonDigitPattern = /[^0-9]/;
+
 const parseNumericIdentifier = (s: ParserState): number => {
   const start = s.pos;
-  const first = peek(s);
-  if (first === undefined || !isDigit(first)) {
+  if (!peekDigit(s)) {
     return fail(s);
   }
 
@@ -101,74 +133,19 @@ const parseNumericIdentifier = (s: ParserState): number => {
     digits += advance(s);
   }
 
-  // Reject leading zeros (except "0" itself)
-  if (digits.length > 1 && digits[0] === "0") {
-    s.pos = start;
-    return fail(s, start);
-  }
-
-  const value = Number(digits);
-  if (!Number.isSafeInteger(value)) {
-    s.pos = start;
-    return fail(s, start);
-  }
-
-  return value;
+  return toNumericIdentifier(s, start, digits);
 };
 
 const parsePrereleaseIdentifier = (s: ParserState): string | number => {
   const start = s.pos;
-  let token = "";
-  let hasNonDigit = false;
-
-  const first = peek(s);
-  if (first === undefined || !isIdentChar(first)) {
-    return fail(s);
-  }
-
-  while (peekIdentChar(s)) {
-    const ch = advance(s);
-    if (!isDigit(ch)) {
-      hasNonDigit = true;
-    }
-    token += ch;
-  }
-
-  if (hasNonDigit) {
-    // Alphanumeric identifier — no leading zero restriction
-    return token;
-  }
-
-  // All digits — numeric identifier, check leading zeros
-  if (token.length > 1 && token[0] === "0") {
-    s.pos = start;
-    return fail(s, start);
-  }
-
-  const value = Number(token);
-  if (!Number.isSafeInteger(value)) {
-    s.pos = start;
-    return fail(s, start);
-  }
-
-  return value;
+  const token = scanIdentifier(s);
+  // Alphanumeric identifiers have no leading-zero restriction; all-digit
+  // identifiers are numeric.
+  return nonDigitPattern.test(token) ? token : toNumericIdentifier(s, start, token);
 };
 
-const parseBuildIdentifier = (s: ParserState): string => {
-  let token = "";
-
-  const first = peek(s);
-  if (first === undefined || !isIdentChar(first)) {
-    return fail(s);
-  }
-
-  while (peekIdentChar(s)) {
-    token += advance(s);
-  }
-
-  // Build identifiers allow leading zeros — just return as string
-  return token;
-};
+// Build identifiers allow leading zeros: the token is returned as a string.
+const parseBuildIdentifier = scanIdentifier;
 
 const parsePreRelease = (s: ParserState): Array<string | number> => {
   const identifiers: Array<string | number> = [];
@@ -200,13 +177,9 @@ const parseBuild = (s: ParserState): Array<string> => {
 // Version entry point
 // ---------------------------------------------------------------------------
 
-const parseVersionCore = (s: ParserState): VersionParts => {
-  // Reject v/V prefix and = prefix
-  const first = peek(s);
-  if (first === "v" || first === "V" || first === "=") {
-    return fail(s, 0);
-  }
-
+// Parses `major.minor.patch[-prerelease][+build]` and requires the input to be
+// fully consumed; shared by the version and comparator entry points.
+const parseVersionBody = (s: ParserState): VersionParts => {
   const major = parseNumericIdentifier(s);
 
   if (peek(s) !== ".") {
@@ -242,7 +215,32 @@ const parseVersionCore = (s: ParserState): VersionParts => {
     return fail(s);
   }
 
-  return { major, minor, patch, prerelease, build };
+  return VersionParts.make({ major, minor, patch, prerelease, build });
+};
+
+// Runs a core parser over trimmed, nonempty input, converting the private
+// `ParseFailure` exception into a failed `ParseResult`.
+const runParser = <A>(trimmed: string, core: (s: ParserState) => A): ParseResult<A> => {
+  const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
+  return Result.getOrElse(
+    Result.try((): ParseResult<A> => ({ ok: true, value: core(s) })),
+    (failure): ParseResult<A> => {
+      if (failure instanceof ParseFailure) {
+        return { ok: false, input: trimmed, position: failure.position };
+      }
+      throw failure;
+    }
+  );
+};
+
+const parseVersionCore = (s: ParserState): VersionParts => {
+  // Reject v/V prefix and = prefix
+  const first = peek(s);
+  if (first === "v" || first === "V" || first === "=") {
+    return fail(s, 0);
+  }
+
+  return parseVersionBody(s);
 };
 
 /**
@@ -278,16 +276,7 @@ export const parseVersion = (raw: string): ParseResult<VersionParts> => {
     return { ok: false, input: raw, position: 0 };
   }
 
-  const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-  return Result.getOrElse(
-    Result.try((): ParseResult<VersionParts> => ({ ok: true, value: parseVersionCore(s) })),
-    (failure): ParseResult<VersionParts> => {
-      if (failure instanceof ParseFailure) {
-        return { ok: false, input: trimmed, position: failure.position };
-      }
-      throw failure;
-    }
-  );
+  return runParser(trimmed, parseVersionCore);
 };
 
 // ---------------------------------------------------------------------------
@@ -303,62 +292,44 @@ const parseXR = (s: ParserState): number | null => {
   return parseNumericIdentifier(s);
 };
 
+// Completes a partial version once its patch slot is read: only a numeric
+// patch (not a wildcard or omission) may carry a prerelease or build suffix.
+const finishPartial = (
+  s: ParserState,
+  major: number | null,
+  minor: number | null,
+  patch: number | null
+): PartialParts =>
+  patch === null
+    ? { major, minor, patch, prerelease: [], build: [] }
+    : {
+        major,
+        minor,
+        patch,
+        prerelease: accept(s, "-") ? parsePreRelease(s) : [],
+        build: accept(s, "+") ? parseBuild(s) : [],
+      };
+
 const parsePartial = (s: ParserState): PartialParts => {
   const major = parseXR(s);
-
-  let minor: number | null = null;
-  let patch: number | null = null;
-  let prerelease: Array<string | number> = [];
-  let build: Array<string> = [];
-
-  if (!atEnd(s) && peek(s) === ".") {
-    advance(s);
-    minor = parseXR(s);
-
-    if (!atEnd(s) && peek(s) === ".") {
-      advance(s);
-      patch = parseXR(s);
-
-      // Optional prerelease (only if patch is numeric, not wildcard)
-      if (patch !== null && !atEnd(s) && peek(s) === "-") {
-        advance(s);
-        prerelease = parsePreRelease(s);
-      }
-
-      // Optional build
-      if (patch !== null && !atEnd(s) && peek(s) === "+") {
-        advance(s);
-        build = parseBuild(s);
-      }
-    }
+  if (!accept(s, ".")) {
+    return finishPartial(s, major, null, null);
   }
-
-  return { major, minor, patch, prerelease, build };
+  const minor = parseXR(s);
+  return finishPartial(s, major, minor, accept(s, ".") ? parseXR(s) : null);
 };
 
+// A relational operator after its leading `>`/`<`: `=` makes it inclusive.
+const parseRelation = (
+  s: ParserState,
+  strict: ComparatorOperator,
+  inclusive: ComparatorOperator
+): ComparatorOperator => (accept(s, "=") ? inclusive : strict);
+
 const parseOperator = (s: ParserState): ComparatorOperator | null => {
-  const ch = peek(s);
-  if (ch === ">") {
-    advance(s);
-    if (peek(s) === "=") {
-      advance(s);
-      return ">=";
-    }
-    return ">";
-  }
-  if (ch === "<") {
-    advance(s);
-    if (peek(s) === "=") {
-      advance(s);
-      return "<=";
-    }
-    return "<";
-  }
-  if (ch === "=") {
-    advance(s);
-    return "=";
-  }
-  return null;
+  if (accept(s, ">")) return parseRelation(s, ">", ">=");
+  if (accept(s, "<")) return parseRelation(s, "<", "<=");
+  return accept(s, "=") ? "=" : null;
 };
 
 const skipSpaces = (s: ParserState): void => {
@@ -380,56 +351,36 @@ const isOrSeparator = (s: ParserState): boolean => {
 };
 
 const consumeOrSeparator = (s: ParserState): void => {
-  while (!atEnd(s) && peek(s) === " ") {
-    advance(s);
-  }
+  skipSpaces(s);
   advance(s); // first |
   advance(s); // second |
-  while (!atEnd(s) && peek(s) === " ") {
-    advance(s);
-  }
+  skipSpaces(s);
 };
 
-const parseSimple = (s: ParserState): ReadonlyArray<ComparatorParts> => {
-  const ch = peek(s);
+// A wildcard may not be followed by a numeric component (`x.1`, `1.x.2`).
+const isMalformedPartial = (partial: PartialParts): boolean =>
+  (partial.major === null && (partial.minor !== null || partial.patch !== null)) ||
+  (partial.minor === null && partial.patch !== null);
 
-  if (ch === "~") {
-    advance(s);
-    // Reject ~> (Ruby-style)
-    if (peek(s) === ">") {
-      return fail(s);
-    }
-    const partial = parsePartial(s);
-    return desugarTilde(partial);
-  }
-
-  if (ch === "^") {
-    advance(s);
-    const partial = parsePartial(s);
-    return desugarCaret(partial);
-  }
-
-  // Primitive: optional operator + partial
+// Primitive: optional operator + partial.
+const parsePrimitive = (s: ParserState): ReadonlyArray<ComparatorParts> => {
   const operator = parseOperator(s);
   const partial = parsePartial(s);
-  if (
-    (partial.major === null && (partial.minor !== null || partial.patch !== null)) ||
-    (partial.minor === null && partial.patch !== null)
-  ) {
-    return fail(s);
-  }
-  return desugarXRange(operator, partial);
+  return isMalformedPartial(partial) ? fail(s) : desugarXRange(operator, partial);
 };
 
-const atRangeEnd = (s: ParserState): boolean => {
-  if (atEnd(s)) return true;
-  // Check if we're at || separator
-  let pos = s.pos;
-  while (pos < s.len && s.input[pos] === " ") {
-    pos++;
-  }
-  return pos + 1 < s.len && s.input[pos] === "|" && s.input[pos + 1] === "|";
+// Tilde range after its `~`; Ruby-style `~>` is rejected.
+const parseTilde = (s: ParserState): ReadonlyArray<ComparatorParts> =>
+  peek(s) === ">" ? fail(s) : desugarTilde(parsePartial(s));
+
+const parseSimple = (s: ParserState): ReadonlyArray<ComparatorParts> => {
+  if (accept(s, "~")) return parseTilde(s);
+  if (accept(s, "^")) return desugarCaret(parsePartial(s));
+  return parsePrimitive(s);
 };
+
+// At the end of input or at a `||` separator.
+const atRangeEnd = (s: ParserState): boolean => atEnd(s) || isOrSeparator(s);
 
 const parseRangeComparators = (s: ParserState): ReadonlyArray<ComparatorParts> => {
   skipSpaces(s);
@@ -518,35 +469,26 @@ export const parseRange = (raw: string): ParseResult<ReadonlyArray<ReadonlyArray
     };
   }
 
-  const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-  return Result.getOrElse(
-    Result.try((): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
-      const sets: Array<ReadonlyArray<ComparatorParts>> = [];
+  return runParser(trimmed, (s): ReadonlyArray<ReadonlyArray<ComparatorParts>> => {
+    const sets: Array<ReadonlyArray<ComparatorParts>> = [];
 
-      sets.push(parseRangeComparators(s));
+    sets.push(parseRangeComparators(s));
 
-      while (!atEnd(s)) {
-        if (isOrSeparator(s)) {
-          consumeOrSeparator(s);
-          sets.push(parseRangeComparators(s));
-        } else {
-          break;
-        }
+    while (!atEnd(s)) {
+      if (isOrSeparator(s)) {
+        consumeOrSeparator(s);
+        sets.push(parseRangeComparators(s));
+      } else {
+        break;
       }
-
-      if (!atEnd(s)) {
-        return fail(s);
-      }
-
-      return { ok: true, value: sets };
-    }),
-    (failure): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
-      if (failure instanceof ParseFailure) {
-        return { ok: false, input: trimmed, position: failure.position };
-      }
-      throw failure;
     }
-  );
+
+    if (!atEnd(s)) {
+      return fail(s);
+    }
+
+    return sets;
+  });
 };
 
 // ---------------------------------------------------------------------------
@@ -563,42 +505,9 @@ const parseComparatorCore = (s: ParserState): ComparatorParts => {
   }
 
   // Parse full version (major.minor.patch required, no wildcards)
-  const major = parseNumericIdentifier(s);
+  const version = parseVersionBody(s);
 
-  if (peek(s) !== ".") {
-    return fail(s);
-  }
-  advance(s);
-
-  const minor = parseNumericIdentifier(s);
-
-  if (peek(s) !== ".") {
-    return fail(s);
-  }
-  advance(s);
-
-  const patch = parseNumericIdentifier(s);
-
-  let prerelease: Array<string | number> = [];
-  if (!atEnd(s) && peek(s) === "-") {
-    advance(s);
-    prerelease = parsePreRelease(s);
-  }
-
-  let build: Array<string> = [];
-  if (!atEnd(s) && peek(s) === "+") {
-    advance(s);
-    build = parseBuild(s);
-  }
-
-  if (!atEnd(s)) {
-    return fail(s);
-  }
-
-  return {
-    operator: operator ?? "=",
-    version: { major, minor, patch, prerelease, build },
-  };
+  return ComparatorParts.make({ operator: operator ?? "=", version });
 };
 
 /**
@@ -634,16 +543,7 @@ export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
     return { ok: false, input: raw, position: 0 };
   }
 
-  const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-  return Result.getOrElse(
-    Result.try((): ParseResult<ComparatorParts> => ({ ok: true, value: parseComparatorCore(s) })),
-    (failure): ParseResult<ComparatorParts> => {
-      if (failure instanceof ParseFailure) {
-        return { ok: false, input: trimmed, position: failure.position };
-      }
-      throw failure;
-    }
-  );
+  return runParser(trimmed, parseComparatorCore);
 };
 
 // ---------------------------------------------------------------------------
@@ -671,7 +571,7 @@ export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
  * @category formatting
  * @since 0.0.0
  */
-export const formatVersion = (v: VersionParts): string => {
+export const formatVersion = (v: typeof VersionParts.Encoded): string => {
   let s = `${v.major}.${v.minor}.${v.patch}`;
   if (v.prerelease.length > 0) {
     s += `-${pipe(v.prerelease, A.map(String), A.join("."))}`;
@@ -699,7 +599,7 @@ export const formatVersion = (v: VersionParts): string => {
  * @category formatting
  * @since 0.0.0
  */
-export const formatComparator = (c: ComparatorParts): string => {
+export const formatComparator = (c: typeof ComparatorParts.Encoded): string => {
   const op = c.operator === "=" ? "" : c.operator;
   return `${op}${formatVersion(c.version)}`;
 };
@@ -725,7 +625,7 @@ export const formatComparator = (c: ComparatorParts): string => {
  * @category formatting
  * @since 0.0.0
  */
-export const formatRange: (sets: ReadonlyArray<ReadonlyArray<ComparatorParts>>) => string = flow(
+export const formatRange: (sets: ReadonlyArray<ReadonlyArray<typeof ComparatorParts.Encoded>>) => string = flow(
   A.map(flow(A.map(formatComparator), A.join(" "))),
   A.join(" || ")
 );

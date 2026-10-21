@@ -1,9 +1,6 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { decodeRow } from "@beep/schema-org/internal/rows";
 import {
   DOMAIN_PROPERTIES,
-  decodeRow,
   PROPERTY_NAMES,
   SUB_CLASS_OF,
   SUPERSEDED_PROPERTIES,
@@ -14,6 +11,17 @@ import { Vocabulary } from "@beep/schema-org/Vocabulary";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as HashSet from "effect/HashSet";
+import { byteLengthOf } from "./sources.ts";
+
+/** Whether `index` is a valid position in a table of `bound` entries. */
+const isIndexBelow = (index: number, bound: number): boolean => Number.isInteger(index) && index >= 0 && index < bound;
+
+/** Asserts every interned index in every encoded row addresses a table of `bound` entries. */
+const assertRowIndicesBelow = (rows: ReadonlyArray<string>, bound: number, label: string): void => {
+  for (const row of rows) {
+    for (const index of decodeRow(row)) assert.isTrue(isIndexBelow(index, bound), `${label} index ${index}`);
+  }
+};
 
 describe("the generated vocabulary table", () => {
   it("carries every schema-native term and nothing foreign", () => {
@@ -28,19 +36,8 @@ describe("the generated vocabulary table", () => {
   it("keeps every interned index in range", () => {
     assert.strictEqual(SUB_CLASS_OF.length, TYPE_NAMES.length);
     assert.strictEqual(DOMAIN_PROPERTIES.length, TYPE_NAMES.length);
-    for (const row of SUB_CLASS_OF) {
-      for (const index of decodeRow(row)) {
-        assert.isTrue(Number.isInteger(index) && index >= 0 && index < TYPE_NAMES.length, `type index ${index}`);
-      }
-    }
-    for (const row of DOMAIN_PROPERTIES) {
-      for (const index of decodeRow(row)) {
-        assert.isTrue(
-          Number.isInteger(index) && index >= 0 && index < PROPERTY_NAMES.length,
-          `property index ${index}`
-        );
-      }
-    }
+    assertRowIndicesBelow(SUB_CLASS_OF, TYPE_NAMES.length, "type");
+    assertRowIndicesBelow(DOMAIN_PROPERTIES, PROPERTY_NAMES.length, "property");
     for (const row of [...SUPERSEDED_TYPES, ...SUPERSEDED_PROPERTIES]) {
       assert.strictEqual(decodeRow(row).length, 2);
     }
@@ -49,9 +46,9 @@ describe("the generated vocabulary table", () => {
   it("keeps the class and property namespaces disjoint", () => {
     // `Vocabulary.supersededBy` resolves a bare term against both tables in
     // one call, which is only unambiguous while this holds.
-    const types = new Set(TYPE_NAMES);
+    const types = HashSet.fromIterable(TYPE_NAMES);
     assert.deepStrictEqual(
-      PROPERTY_NAMES.filter((name) => types.has(name)),
+      PROPERTY_NAMES.filter((name) => HashSet.has(types, name)),
       []
     );
   });
@@ -61,7 +58,7 @@ describe("the generated vocabulary table", () => {
     // rather than `./conformance`; the ceiling is the number that decision
     // turns on. Measured 74,834 B at v30.0 — a regeneration that doubles it
     // is a design change, not a data refresh.
-    const bytes = readFileSync(fileURLToPath(new URL("../src/internal/vocabulary.ts", import.meta.url))).length;
+    const bytes = byteLengthOf("schema-org/src/internal/vocabulary.ts");
     assert.isBelow(bytes, 80_000, `vocabulary table is ${bytes} B`);
     assert.isAbove(bytes, 60_000, `vocabulary table is ${bytes} B — suspiciously small, did generation half-run?`);
   });

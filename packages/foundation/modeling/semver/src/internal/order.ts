@@ -34,38 +34,32 @@ const $I = $SemverId.create("internal/order");
  * @category schemas
  * @since 0.0.0
  */
-export const VersionParts = S.Struct({
-  major: S.Finite.pipe(
-    $I.annoteKey("VersionParts.major", { description: "The numeric major component before final SemVer validation." })
-  ),
-  minor: S.Finite.pipe(
-    $I.annoteKey("VersionParts.minor", { description: "The numeric minor component before final SemVer validation." })
-  ),
-  patch: S.Finite.pipe(
-    $I.annoteKey("VersionParts.patch", { description: "The numeric patch component before final SemVer validation." })
-  ),
-  prerelease: S.Array(S.Union([S.String, S.Finite])).pipe(
-    $I.annoteKey("VersionParts.prerelease", {
-      description: "Ordered numeric or text prerelease identifiers; empty for a stable release.",
+export class VersionParts extends S.Opaque<VersionParts, { readonly brand: unique symbol }>()(
+  S.Struct({
+    major: S.Finite.pipe(
+      $I.annoteKey("VersionParts.major", { description: "The numeric major component before final SemVer validation." })
+    ),
+    minor: S.Finite.pipe(
+      $I.annoteKey("VersionParts.minor", { description: "The numeric minor component before final SemVer validation." })
+    ),
+    patch: S.Finite.pipe(
+      $I.annoteKey("VersionParts.patch", { description: "The numeric patch component before final SemVer validation." })
+    ),
+    prerelease: S.Array(S.Union([S.String, S.Finite])).pipe(
+      $I.annoteKey("VersionParts.prerelease", {
+        description: "Ordered numeric or text prerelease identifiers; empty for a stable release.",
+      })
+    ),
+    build: S.Array(S.String).pipe(
+      $I.annoteKey("VersionParts.build", { description: "Ordered build identifiers, ignored by version precedence." })
+    ),
+  }).pipe(
+    $I.annoteSchema("VersionParts", {
+      description:
+        "Plain structural version parts shared by the parser and comparison pipeline before final SemVer validation.",
     })
-  ),
-  build: S.Array(S.String).pipe(
-    $I.annoteKey("VersionParts.build", { description: "Ordered build identifiers, ignored by version precedence." })
-  ),
-}).pipe(
-  $I.annoteSchema("VersionParts", {
-    description:
-      "Plain structural version parts shared by the parser and comparison pipeline before final SemVer validation.",
-  })
-);
-
-/**
- * The structural version data described by {@link VersionParts}.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type VersionParts = typeof VersionParts.Type;
+  )
+) {}
 
 /**
  * Defines the relational operator prefix of a comparator (`=`, `>`, `>=`, `<`, `<=`).
@@ -115,28 +109,98 @@ export type ComparatorOperator = typeof ComparatorOperator.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ComparatorParts = S.Struct({
-  operator: ComparatorOperator.pipe(
-    $I.annoteKey("ComparatorParts.operator", { description: "The relational operator applied to the version bound." })
-  ),
-  version: VersionParts.pipe(
-    $I.annoteKey("ComparatorParts.version", {
-      description: "The structural comparison bound before final SemVer validation.",
+export class ComparatorParts extends S.Opaque<ComparatorParts, { readonly brand: unique symbol }>()(
+  S.Struct({
+    operator: ComparatorOperator.pipe(
+      $I.annoteKey("ComparatorParts.operator", { description: "The relational operator applied to the version bound." })
+    ),
+    version: VersionParts.pipe(
+      $I.annoteKey("ComparatorParts.version", {
+        description: "The structural comparison bound before final SemVer validation.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ComparatorParts", {
+      description: "A plain structural comparator pairing an operator with its version bound.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("ComparatorParts", {
-    description: "A plain structural comparator pairing an operator with its version bound.",
-  })
-);
+  )
+) {}
 
 /**
- * The structural comparator data described by {@link ComparatorParts}.
+ * Builds the positional, dual version constructor shared by `SemVer.of` and range desugaring.
  *
- * @category type-level
+ * **Details**
+ *
+ * The returned function takes `major, minor, patch` plus optional prerelease and build identifiers (both default to empty) and hands the assembled fields to `make`. When called without `major` (its third argument is not a number) it returns a function awaiting `major`.
+ *
+ * **Example** (Build structural version parts positionally)
+ *
+ * ```ts
+ * import { VersionParts, versionConstructor } from "@beep/semver/internal/order"
+ *
+ * const of = versionConstructor((fields) => VersionParts.make(fields))
+ * console.log(of(1, 2, 3, ["rc", 1]).prerelease) // ["rc", 1]
+ * console.log(of(2, 3)(1).major) // 1
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
-export type ComparatorParts = typeof ComparatorParts.Type;
+export const versionConstructor = <A>(
+  make: (fields: typeof VersionParts.Encoded) => A
+): {
+  (
+    major: number,
+    minor: number,
+    patch: number,
+    prerelease?: ReadonlyArray<string | number>,
+    build?: ReadonlyArray<string>
+  ): A;
+  (
+    minor: number,
+    patch: number,
+    prerelease?: ReadonlyArray<string | number>,
+    build?: ReadonlyArray<string>
+  ): (major: number) => A;
+} =>
+  dual(
+    (args) => P.isNumber(args[2]),
+    (
+      major: number,
+      minor: number,
+      patch: number,
+      prerelease: ReadonlyArray<string | number> = [],
+      build: ReadonlyArray<string> = []
+    ): A => make({ major, minor, patch, prerelease, build })
+  );
+
+// Normalizes a signed difference to an ordering value.
+const sign = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
+
+// Orders two finite numbers.
+const compareNumber = (a: number, b: number): -1 | 0 | 1 => (a === b ? 0 : a > b ? 1 : -1);
+
+// Orders two strings by code unit, as the `<`/`>` operators do.
+const compareText = (a: string, b: string): -1 | 0 | 1 => (a < b ? -1 : a > b ? 1 : 0);
+
+// Orders two identifier sequences element by element; when every shared
+// position matches, the shorter sequence sorts first.
+const compareSequences = <I>(a: ReadonlyArray<I>, b: ReadonlyArray<I>, compare: (x: I, y: I) => number): -1 | 0 | 1 => {
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const cmp = compare(A.getUnsafe(a, i), A.getUnsafe(b, i));
+    if (cmp !== 0) return sign(cmp);
+  }
+  return compareNumber(a.length, b.length);
+};
+
+// Orders the `major.minor.patch` core, ignoring prerelease and build.
+const compareCore = (a: typeof VersionParts.Encoded, b: typeof VersionParts.Encoded): -1 | 0 | 1 => {
+  const major = compareNumber(a.major, b.major);
+  if (major !== 0) return major;
+  const minor = compareNumber(a.minor, b.minor);
+  return minor === 0 ? compareNumber(a.patch, b.patch) : minor;
+};
 
 /**
  * Compares two prerelease identifiers per SemVer 2.0.0 §11.
@@ -162,11 +226,17 @@ export const comparePrereleaseIdentifier: {
   (b: string | number): (a: string | number) => number;
   (a: string | number, b: string | number): number;
 } = dual(2, (a: string | number, b: string | number): number => {
-  if (P.isNumber(a) && P.isNumber(b)) return a - b;
-  if (P.isString(a) && P.isString(b)) return a < b ? -1 : a > b ? 1 : 0;
-  if (P.isNumber(a)) return -1;
-  return 1;
+  // Numerics sort before alphanumerics; like kinds compare by value.
+  if (P.isNumber(a)) return P.isNumber(b) ? a - b : -1;
+  return P.isString(b) ? compareText(a, b) : 1;
 });
+
+// Orders prerelease sequences: a release (empty sequence) sorts after any
+// prerelease of the same core; otherwise identifiers compare in sequence.
+const comparePrerelease = (a: ReadonlyArray<string | number>, b: ReadonlyArray<string | number>): -1 | 0 | 1 =>
+  a.length === 0 || b.length === 0
+    ? compareNumber(b.length, a.length)
+    : compareSequences(a, b, comparePrereleaseIdentifier);
 
 /**
  * Compares two versions per SemVer 2.0.0 precedence (§11).
@@ -178,10 +248,9 @@ export const comparePrereleaseIdentifier: {
  * **Example** (Order a prerelease before a release)
  *
  * ```ts
- * import { compareParts } from "@beep/semver/internal/order"
- * import type { VersionParts } from "@beep/semver/internal/order"
+ * import { compareParts, VersionParts } from "@beep/semver/internal/order"
  *
- * const release: VersionParts = { major: 1, minor: 2, patch: 3, prerelease: [], build: ["first"] }
+ * const release = VersionParts.make({ major: 1, minor: 2, patch: 3, prerelease: [], build: ["first"] })
  * console.log(compareParts({ ...release, prerelease: ["alpha"] }, release)) // -1
  * console.log(compareParts(release, { ...release, build: ["second"] })) // 0
  * ```
@@ -190,27 +259,11 @@ export const comparePrereleaseIdentifier: {
  * @since 0.0.0
  */
 export const compareParts: {
-  (b: VersionParts): (a: VersionParts) => -1 | 0 | 1;
-  (a: VersionParts, b: VersionParts): -1 | 0 | 1;
-} = dual(2, (a: VersionParts, b: VersionParts): -1 | 0 | 1 => {
-  if (a.major !== b.major) return a.major > b.major ? 1 : -1;
-  if (a.minor !== b.minor) return a.minor > b.minor ? 1 : -1;
-  if (a.patch !== b.patch) return a.patch > b.patch ? 1 : -1;
-
-  const aPre = a.prerelease;
-  const bPre = b.prerelease;
-  if (aPre.length === 0 && bPre.length === 0) return 0;
-  if (aPre.length === 0) return 1;
-  if (bPre.length === 0) return -1;
-
-  const len = Math.min(aPre.length, bPre.length);
-  for (let i = 0; i < len; i++) {
-    const cmp = comparePrereleaseIdentifier(A.getUnsafe(aPre, i), A.getUnsafe(bPre, i));
-    if (cmp !== 0) return cmp < 0 ? -1 : 1;
-  }
-
-  if (aPre.length !== bPre.length) return aPre.length > bPre.length ? 1 : -1;
-  return 0;
+  (b: typeof VersionParts.Encoded): (a: typeof VersionParts.Encoded) => -1 | 0 | 1;
+  (a: typeof VersionParts.Encoded, b: typeof VersionParts.Encoded): -1 | 0 | 1;
+} = dual(2, (a: typeof VersionParts.Encoded, b: typeof VersionParts.Encoded): -1 | 0 | 1 => {
+  const core = compareCore(a, b);
+  return core === 0 ? comparePrerelease(a.prerelease, b.prerelease) : core;
 });
 
 /**
@@ -236,23 +289,9 @@ export const compareParts: {
 export const compareBuild: {
   (b: ReadonlyArray<string>): (a: ReadonlyArray<string>) => -1 | 0 | 1;
   (a: ReadonlyArray<string>, b: ReadonlyArray<string>): -1 | 0 | 1;
-} = dual(2, (a: ReadonlyArray<string>, b: ReadonlyArray<string>): -1 | 0 | 1 => {
-  const aHasBuild = a.length > 0;
-  const bHasBuild = b.length > 0;
-  if (!aHasBuild && bHasBuild) return -1;
-  if (aHasBuild && !bHasBuild) return 1;
-
-  const len = Math.min(a.length, b.length);
-  for (let i = 0; i < len; i++) {
-    const aIdentifier = A.getUnsafe(a, i);
-    const bIdentifier = A.getUnsafe(b, i);
-    if (aIdentifier < bIdentifier) return -1;
-    if (aIdentifier > bIdentifier) return 1;
-  }
-
-  if (a.length !== b.length) {
-    return a.length < b.length ? -1 : 1;
-  }
-
-  return 0;
-});
+} = dual(
+  2,
+  // An empty build array is the shortest sequence, so it sorts before any
+  // build metadata without a dedicated presence check.
+  (a: ReadonlyArray<string>, b: ReadonlyArray<string>): -1 | 0 | 1 => compareSequences(a, b, compareText)
+);

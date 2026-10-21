@@ -15,6 +15,7 @@ import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
+import * as TestClock from "effect/testing/TestClock";
 
 /**
  * The only tests that provide a platform layer — the boundary discipline made
@@ -222,16 +223,16 @@ describe("Journal integration", () => {
 
   // THE FLAGSHIP — acceptance criterion 3.
   //
-  // `it.live` rather than `it.effect`: this one waits on a REAL filesystem
-  // event, and under the TestClock a timeout could never fire, so a failure
-  // would present as a hang instead of a failure.
+  // This one waits on a REAL filesystem event, and under the TestClock a
+  // timeout could never fire, so a failure would present as a hang instead of a
+  // failure. `TestClock.withLive` runs the body and its 20s bound on the live
+  // clock.
   //
   // The per-test timeout is raised ABOVE the effect's own 20s bound on purpose.
   // At vitest's 5s default the guard below is unreachable — the runner kills
   // the test first, and the careful "fails rather than hangs" wiring never
   // runs.
-  // it.live: Effect.timeout must fire on the live clock while a real watcher event is awaited.
-  it.live(
+  it.effect(
     "TWO journal layers over ONE file observe each other's appends",
     () =>
       Effect.gen(function* () {
@@ -266,7 +267,7 @@ describe("Journal integration", () => {
 
         yield* Scope.close(readerScope, Exit.void);
         yield* Scope.close(writerScope, Exit.void);
-      }).pipe(provideLayer(platform), Effect.timeout(Duration.seconds(20))),
+      }).pipe(provideLayer(platform), Effect.timeout(Duration.seconds(20)), TestClock.withLive),
     30_000
   );
 });

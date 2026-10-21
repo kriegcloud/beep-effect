@@ -4,6 +4,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -205,6 +206,33 @@ const WireNodeRef = S.StructWithRest(
   .pipe($I.annoteSchema("WireNodeRef", { description: "A catch-all JSON-LD reference containing only a string @id." }));
 const isWireNodeRef = S.is(WireNodeRef);
 
+/** A guard recognising one reference shape (typed `NodeRef` or wire `{ "@id" }`). */
+type ReferenceGuard = (value: unknown) => value is { readonly "@id": string };
+
+/** Pushes the reference held by one property value: a direct reference, or each reference item of an array. */
+const pushValueReferences = (
+  out: Array<readonly [string, string]>,
+  property: string,
+  value: unknown,
+  isReference: ReferenceGuard
+): void => {
+  if (isReference(value)) {
+    out.push([property, value["@id"]]);
+    return;
+  }
+  if (!A.isArray(value)) return;
+  for (const item of value) if (isReference(item)) out.push([property, item["@id"]]);
+};
+
+/** Pushes every reference found in `entries`, in property and array order. */
+const pushReferences = (
+  out: Array<readonly [string, string]>,
+  entries: ReadonlyArray<readonly [string, unknown]>,
+  isReference: ReferenceGuard
+): void => {
+  for (const [property, value] of entries) pushValueReferences(out, property, value, isReference);
+};
+
 /**
  * Collects node references in typed fields and catch-all fields, in property and array order.
  *
@@ -228,18 +256,8 @@ const isWireNodeRef = S.is(WireNodeRef);
 export const referencesOf = (node: JsonLdNode): ReadonlyArray<readonly [property: string, id: string]> => {
   const out: Array<readonly [string, string]> = [];
   const { additional, ...typed } = node;
-  for (const [property, value] of R.toEntries<string, unknown>(typed)) {
-    if (isNodeRef(value)) out.push([property, value["@id"]]);
-    else if (A.isArray(value)) {
-      for (const item of value) if (isNodeRef(item)) out.push([property, item["@id"]]);
-    }
-  }
-  for (const [property, value] of R.toEntries(additional ?? {})) {
-    if (isWireNodeRef(value)) out.push([property, value["@id"]]);
-    else if (A.isArray(value)) {
-      for (const item of value) if (isWireNodeRef(item)) out.push([property, item["@id"]]);
-    }
-  }
+  pushReferences(out, R.toEntries<string, unknown>(typed), isNodeRef);
+  pushReferences(out, R.toEntries<string, unknown>(additional ?? {}), isWireNodeRef);
   return out;
 };
 
@@ -249,6 +267,44 @@ const withoutUndefined = (value: Record<string, S.Json | undefined>): Record<str
   for (const [key, entry] of R.toEntries(value)) if (entry !== undefined) out[key] = entry;
   return out;
 };
+
+/** The caller errors {@link JsonLdDocument.buildResult} can report. */
+type BuildError = InvalidNodeIdError | DuplicateNodeIdError | ConflictingTermError;
+
+/** Checks a node's own `@id` is well formed and unclaimed, recording it in `seen` when it is. */
+const nodeIdentityError = (node: JsonLdNode, seen: MutableHashSet.MutableHashSet<string>): O.Option<BuildError> => {
+  const id = node["@id"];
+  if (!NodeRef.isValidId(id)) return O.some(InvalidNodeIdError.make({ input: id }));
+  if (MutableHashSet.has(seen, id)) return O.some(DuplicateNodeIdError.make({ id }));
+  MutableHashSet.add(seen, id);
+  return O.none();
+};
+
+/** The first reference whose target `@id` is malformed. */
+const invalidReferenceError = (node: JsonLdNode): O.Option<BuildError> =>
+  pipe(
+    referencesOf(node),
+    A.findFirst(([, referenced]) => !NodeRef.isValidId(referenced)),
+    O.map(([, referenced]) => InvalidNodeIdError.make({ input: referenced }))
+  );
+
+/** The first catch-all key that collides with a typed field of the node's class. */
+const conflictingTermError = (node: JsonLdNode): O.Option<BuildError> => {
+  const reserved = reservedTerms(node);
+  return pipe(
+    R.keys(node.additional ?? {}),
+    A.findFirst((term) => MutableHashSet.has(reserved, term)),
+    O.map((term) => ConflictingTermError.make({ nodeId: node["@id"], term }))
+  );
+};
+
+/** The first build error for one node, checked in identity, reference, catch-all order. */
+const nodeBuildError = (node: JsonLdNode, seen: MutableHashSet.MutableHashSet<string>): O.Option<BuildError> =>
+  pipe(
+    nodeIdentityError(node, seen),
+    O.orElse(() => invalidReferenceError(node)),
+    O.orElse(() => conflictingTermError(node))
+  );
 
 /**
  * A JSON-LD document: `@context` plus a flat `@graph` of nodes that reference
@@ -356,19 +412,8 @@ export class JsonLdDocument extends S.Class<JsonLdDocument, { readonly brand: un
   ): Result.Result<JsonLdDocument, InvalidNodeIdError | DuplicateNodeIdError | ConflictingTermError> {
     const seen = MutableHashSet.empty<string>();
     for (const node of nodes) {
-      const id = node["@id"];
-      if (!NodeRef.isValidId(id)) return Result.fail(InvalidNodeIdError.make({ input: id }));
-      if (MutableHashSet.has(seen, id)) return Result.fail(DuplicateNodeIdError.make({ id }));
-      MutableHashSet.add(seen, id);
-
-      for (const [, referenced] of referencesOf(node)) {
-        if (!NodeRef.isValidId(referenced)) return Result.fail(InvalidNodeIdError.make({ input: referenced }));
-      }
-
-      const reserved = reservedTerms(node);
-      for (const term of R.keys(node.additional ?? {})) {
-        if (MutableHashSet.has(reserved, term)) return Result.fail(ConflictingTermError.make({ nodeId: id, term }));
-      }
+      const error = nodeBuildError(node, seen);
+      if (O.isSome(error)) return Result.fail(error.value);
     }
     return Result.succeed(JsonLdDocument.make({ "@graph": nodes }));
   }

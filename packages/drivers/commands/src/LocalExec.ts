@@ -68,30 +68,25 @@ export type Launcher = typeof Launcher.Type;
  * ```
  *
  * @public
- * @category schemas
+ * @category models
  * @since 0.0.0
  */
-export const LauncherPrefixes = S.Struct({
-  /** argv prefix that runs a project-local binary. */
-  prefix: S.Array(S.String).pipe(
-    $I.annoteKey("LauncherPrefixes.prefix", { description: "argv for project-local execution." })
-  ),
-  /** argv prefix that fetches and runs a package binary. */
-  dlxPrefix: S.Array(S.String).pipe(
-    $I.annoteKey("LauncherPrefixes.dlxPrefix", { description: "argv for package fetch and execution." })
-  ),
-  /** argv prefix that runs a package.json script. */
-  scriptPrefix: S.Array(S.String).pipe(
-    $I.annoteKey("LauncherPrefixes.scriptPrefix", { description: "argv for package script execution." })
-  ),
-}).pipe($I.annoteSchema("LauncherPrefixes", { description: "Per-launcher exec, dlx and script argv prefixes." }));
-/**
- * Decoded exec, fetch-and-run and script-runner prefixes for a launcher.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type LauncherPrefixes = typeof LauncherPrefixes.Type;
+export class LauncherPrefixes extends S.Opaque<LauncherPrefixes, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** argv prefix that runs a project-local binary. */
+    prefix: S.Array(S.String).pipe(
+      $I.annoteKey("LauncherPrefixes.prefix", { description: "argv for project-local execution." })
+    ),
+    /** argv prefix that fetches and runs a package binary. */
+    dlxPrefix: S.Array(S.String).pipe(
+      $I.annoteKey("LauncherPrefixes.dlxPrefix", { description: "argv for package fetch and execution." })
+    ),
+    /** argv prefix that runs a package.json script. */
+    scriptPrefix: S.Array(S.String).pipe(
+      $I.annoteKey("LauncherPrefixes.scriptPrefix", { description: "argv for package script execution." })
+    ),
+  }).pipe($I.annoteSchema("LauncherPrefixes", { description: "Per-launcher exec, dlx and script argv prefixes." }))
+) {}
 
 /** The argv prefixes for each launcher. The one place this knowledge lives. */
 const PREFIXES: Readonly<Record<Launcher, LauncherPrefixes>> = {
@@ -101,11 +96,15 @@ const PREFIXES: Readonly<Record<Launcher, LauncherPrefixes>> = {
   // (probed live at npm 11: `npm run args --flag` delivers nothing to the
   // script; `npm run -- args --flag` delivers `--flag`). The other three
   // managers forward post-script arguments without it.
-  npm: { prefix: ["npx", "--no", "--"], dlxPrefix: ["npx"], scriptPrefix: ["npm", "run", "--"] },
-  pnpm: { prefix: ["pnpm", "exec"], dlxPrefix: ["pnpm", "dlx"], scriptPrefix: ["pnpm", "run"] },
-  yarn: { prefix: ["yarn", "exec"], dlxPrefix: ["yarn", "dlx"], scriptPrefix: ["yarn", "run"] },
+  npm: LauncherPrefixes.make({ prefix: ["npx", "--no", "--"], dlxPrefix: ["npx"], scriptPrefix: ["npm", "run", "--"] }),
+  pnpm: LauncherPrefixes.make({ prefix: ["pnpm", "exec"], dlxPrefix: ["pnpm", "dlx"], scriptPrefix: ["pnpm", "run"] }),
+  yarn: LauncherPrefixes.make({ prefix: ["yarn", "exec"], dlxPrefix: ["yarn", "dlx"], scriptPrefix: ["yarn", "run"] }),
   // `--no-install` is bun's equivalent of npm's `--no`.
-  bun: { prefix: ["bun", "x", "--no-install"], dlxPrefix: ["bun", "x"], scriptPrefix: ["bun", "run"] },
+  bun: LauncherPrefixes.make({
+    prefix: ["bun", "x", "--no-install"],
+    dlxPrefix: ["bun", "x"],
+    scriptPrefix: ["bun", "run"],
+  }),
 };
 
 /**

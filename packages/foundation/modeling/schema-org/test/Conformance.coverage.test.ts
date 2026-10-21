@@ -12,6 +12,7 @@ import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 it.effect("issues explain the node, offending term and successor or reference", () =>
   Effect.sync(() => {
@@ -72,7 +73,7 @@ it.effect("deprecated types close only the enabled deprecation gate", () =>
   Effect.sync(() => {
     const node = SoftwareSourceCode.make({ "@id": "_:old" });
     const graph = JsonLdDocument.make({ "@graph": [node] });
-    Object.defineProperty(node, "@type", { value: "UserLikes" });
+    Object.defineProperty(deliberatelyInvalid<object>(graph["@graph"][0]), "@type", { value: "UserLikes" });
     const issues = Conformance.check(graph);
     assert.deepStrictEqual(issues, [
       DeprecatedType.make({ nodeId: "_:old", nodeType: "UserLikes", supersededBy: "InteractionCounter" }),

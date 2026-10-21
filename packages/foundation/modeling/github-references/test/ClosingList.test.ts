@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   ClosingList,
   collectReferenceLists,
@@ -15,6 +16,9 @@ import {
 import { CLOSING_KEYWORDS, ClosingKeyword } from "@beep/github-references/IssueReferences";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -184,13 +188,15 @@ describe("ClosingList.review regressions", () => {
 
   it("validates the unchanged plain list results with shared fields and safe integers", () => {
     const closing = O.getOrThrow(parseClosingList("Closes #1, #1 and #2"));
-    assert.deepStrictEqual(closing, { keyword: "closes", issueNumbers: [1, 1, 2] });
+    assert.deepStrictEqual(closing, ClosingList.make({ keyword: "closes", issueNumbers: [1, 1, 2] }));
     assert.isTrue(S.is(ClosingList)(closing));
     const reference = O.getOrThrow(parseReferenceList("Refs: #7, #8"));
-    assert.deepStrictEqual(reference, { keyword: "refs", closing: false, issueNumbers: [7, 8] });
+    assert.deepStrictEqual(reference, ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [7, 8] }));
     assert.isTrue(S.is(ReferenceList)(reference));
     const harvested = harvestReferenceLists("see refs #7, #8");
-    assert.deepStrictEqual(harvested, [{ keyword: "refs", closing: false, issueNumbers: [7, 8], start: 4, end: 15 }]);
+    assert.deepStrictEqual(harvested, [
+      HarvestedReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [7, 8], start: 4, end: 15 }),
+    ]);
     assert.isTrue(isHarvestedReferenceLists(harvested));
     assert.strictEqual(HarvestedReferenceList.fields.keyword, ReferenceList.fields.keyword);
     assert.strictEqual(HarvestedReferenceList.fields.closing, ReferenceList.fields.closing);
@@ -210,8 +216,8 @@ describe("ClosingList.review regressions", () => {
   it("requires the closing flag to match the keyword in both list schemas", () => {
     for (const keyword of ListKeyword.literals) {
       const closing = S.is(ClosingKeyword)(keyword);
-      const reference: ReferenceList = { keyword, closing, issueNumbers: [1] };
-      const harvested = { ...reference, start: 4, end: 15 };
+      const reference = ReferenceList.make({ keyword, closing, issueNumbers: [1] });
+      const harvested = HarvestedReferenceList.make({ ...reference, start: 4, end: 15 });
       assert.isTrue(S.is(ReferenceList)(reference));
       assertSome(S.decodeOption(ReferenceList)(reference), reference);
       assert.isTrue(S.is(HarvestedReferenceList)(harvested));
@@ -232,8 +238,8 @@ describe("ClosingList.review regressions", () => {
     const text = "see closes #1, #2 and refs #3";
     const harvested = harvestReferenceLists(text);
     assert.deepStrictEqual(harvested, [
-      { keyword: "closes", closing: true, issueNumbers: [1, 2], start: 4, end: 17 },
-      { keyword: "refs", closing: false, issueNumbers: [3], start: 22, end: 29 },
+      HarvestedReferenceList.make({ keyword: "closes", closing: true, issueNumbers: [1, 2], start: 4, end: 17 }),
+      HarvestedReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [3], start: 22, end: 29 }),
     ]);
     for (const list of harvested) {
       assert.isTrue(S.is(HarvestedReferenceList)(list));
@@ -298,33 +304,39 @@ describe("ClosingList.review regressions", () => {
       );
     }
     assert.deepStrictEqual(parseReferenceLists("closes #oops\nrefs #1, #9007199254740993\nFiXeS #0003"), [
-      { keyword: "fixes", closing: true, issueNumbers: [3] },
+      ReferenceList.make({ keyword: "fixes", closing: true, issueNumbers: [3] }),
     ]);
   });
 
   it("preserves mixed case, CRLF and Unicode whitespace across line and inline postures", () => {
     const text = "\u00a0cLoSeS:\t#1,\t#2\u2003\r\n\u2003ReFs #3\u00a0\r\nFiXeS\u00a0#4\r\n";
     assert.deepStrictEqual(parseReferenceLists(text), [
-      { keyword: "closes", closing: true, issueNumbers: [1, 2] },
-      { keyword: "refs", closing: false, issueNumbers: [3] },
+      ReferenceList.make({ keyword: "closes", closing: true, issueNumbers: [1, 2] }),
+      ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [3] }),
     ]);
-    assert.deepStrictEqual(parseClosingLists(text), [{ keyword: "closes", issueNumbers: [1, 2] }]);
+    assert.deepStrictEqual(parseClosingLists(text), [ClosingList.make({ keyword: "closes", issueNumbers: [1, 2] })]);
     assert.deepStrictEqual(collectReferenceLists(text), [
-      { keyword: "closes", closing: true, issueNumbers: [1, 2] },
-      { keyword: "refs", closing: false, issueNumbers: [3] },
-      { keyword: "fixes", closing: true, issueNumbers: [4] },
+      ReferenceList.make({ keyword: "closes", closing: true, issueNumbers: [1, 2] }),
+      ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [3] }),
+      ReferenceList.make({ keyword: "fixes", closing: true, issueNumbers: [4] }),
     ]);
     const refsStart = text.indexOf("ReFs");
     const fixesStart = text.indexOf("FiXeS");
     assert.deepStrictEqual(harvestReferenceLists(text), [
-      { keyword: "refs", closing: false, issueNumbers: [3], start: refsStart, end: refsStart + "ReFs #3".length },
-      {
+      HarvestedReferenceList.make({
+        keyword: "refs",
+        closing: false,
+        issueNumbers: [3],
+        start: refsStart,
+        end: refsStart + "ReFs #3".length,
+      }),
+      HarvestedReferenceList.make({
         keyword: "fixes",
         closing: true,
         issueNumbers: [4],
         start: fixesStart,
         end: fixesStart + "FiXeS\u00a0#4".length,
-      },
+      }),
     ]);
   });
 });
@@ -368,15 +380,15 @@ describe("ClosingList.parseReferenceLists", () => {
   it("collects the accepted lines in order, skipping the rejecting ones", () => {
     const text = ["Closes: #1, #2", "prose between the lists", "Refs: #3 and #4", "closes #5 trailing", ""].join("\n");
     assert.deepStrictEqual(parseReferenceLists(text), [
-      { keyword: "closes", closing: true, issueNumbers: [1, 2] },
-      { keyword: "refs", closing: false, issueNumbers: [3, 4] },
+      ReferenceList.make({ keyword: "closes", closing: true, issueNumbers: [1, 2] }),
+      ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [3, 4] }),
     ]);
   });
 
   it("handles CRLF input — the per-line trim absorbs the carriage return", () => {
     assert.deepStrictEqual(parseReferenceLists("Closes: #1\r\nRefs: #2\r\n"), [
-      { keyword: "closes", closing: true, issueNumbers: [1] },
-      { keyword: "refs", closing: false, issueNumbers: [2] },
+      ReferenceList.make({ keyword: "closes", closing: true, issueNumbers: [1] }),
+      ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [2] }),
     ]);
   });
 
@@ -390,15 +402,15 @@ describe("ClosingList.parseClosingLists", () => {
   it("is the closing-only view: a Refs line contributes nothing", () => {
     const text = ["Closes: #1, #2", "Refs: #3", "Fixed #4"].join("\n");
     assert.deepStrictEqual(parseClosingLists(text), [
-      { keyword: "closes", issueNumbers: [1, 2] },
-      { keyword: "fixed", issueNumbers: [4] },
+      ClosingList.make({ keyword: "closes", issueNumbers: [1, 2] }),
+      ClosingList.make({ keyword: "fixed", issueNumbers: [4] }),
     ]);
   });
 
   it("handles CRLF input and empty text", () => {
     assert.deepStrictEqual(parseClosingLists("closes #1\r\nfixes #2"), [
-      { keyword: "closes", issueNumbers: [1] },
-      { keyword: "fixes", issueNumbers: [2] },
+      ClosingList.make({ keyword: "closes", issueNumbers: [1] }),
+      ClosingList.make({ keyword: "fixes", issueNumbers: [2] }),
     ]);
     assert.deepStrictEqual(parseClosingLists(""), []);
   });
@@ -571,4 +583,26 @@ describe("ClosingList.collectReferenceLists", () => {
     assert.deepStrictEqual([...collectReferenceLists("")], []);
     assert.deepStrictEqual([...collectReferenceLists("no references here\nnor here")], []);
   });
+});
+
+describe("ClosingList schema-derived round trip", () => {
+  it.effect.prop(
+    "every ClosingList value reparses from its canonical comma-separated line",
+    [Arbitrary.schema(ClosingList)],
+    ([list]) =>
+      Effect.sync(() => {
+        const line =
+          list.keyword +
+          " " +
+          A.join(
+            A.map(list.issueNumbers, (issue) => "#" + issue),
+            ", "
+          );
+        assertSome(
+          parseClosingList(line),
+          ClosingList.make({ keyword: list.keyword, issueNumbers: list.issueNumbers })
+        );
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

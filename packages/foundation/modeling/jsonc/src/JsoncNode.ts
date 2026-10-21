@@ -410,32 +410,53 @@ const buildPath: {
       return O.some(currentPath);
     }
     if (JsoncNodeType.is.object(node.type)) {
-      for (const prop of node.children) {
-        const key = propertyKey(prop);
-        if (O.isSome(key) && covers(prop, offset)) {
-          const valuePath = A.append(currentPath, key.value);
-          return O.fromUndefinedOr(prop.children).pipe(
-            O.flatMap(A.get(1)),
-            O.filter(covers(offset)),
-            O.flatMap(buildPath(offset, valuePath, depth + 1)),
-            O.orElseSome(() => valuePath)
-          );
-        }
-      }
-      return O.some(currentPath);
+      return objectPath(node.children, offset, currentPath, depth);
     }
-    if (JsoncNodeType.is.array(node.type)) {
-      let index = 0;
-      for (const child of node.children) {
-        if (covers(child, offset)) {
-          return buildPath(child, offset, A.append(currentPath, index), depth + 1);
-        }
-        index++;
-      }
-    }
-    return O.some(currentPath);
+    return JsoncNodeType.is.array(node.type)
+      ? arrayPath(node.children, offset, currentPath, depth)
+      : O.some(currentPath);
   }
 );
+
+// The path through the first keyed property covering `offset`: into its value
+// when the value covers the offset too, otherwise the property's own path.
+const objectPath = (
+  children: ReadonlyArray<JsoncNode>,
+  offset: number,
+  currentPath: ReadonlyArray<JsoncSegment>,
+  depth: number
+): O.Option<JsoncPath> => {
+  for (const prop of children) {
+    const key = propertyKey(prop);
+    if (O.isSome(key) && covers(prop, offset)) {
+      const valuePath = A.append(currentPath, key.value);
+      return O.fromUndefinedOr(prop.children).pipe(
+        O.flatMap(A.get(1)),
+        O.filter(covers(offset)),
+        O.flatMap(buildPath(offset, valuePath, depth + 1)),
+        O.orElseSome(() => valuePath)
+      );
+    }
+  }
+  return O.some(currentPath);
+};
+
+// The path through the first element covering `offset`, or `currentPath`.
+const arrayPath = (
+  children: ReadonlyArray<JsoncNode>,
+  offset: number,
+  currentPath: ReadonlyArray<JsoncSegment>,
+  depth: number
+): O.Option<JsoncPath> => {
+  let index = 0;
+  for (const child of children) {
+    if (covers(child, offset)) {
+      return buildPath(child, offset, A.append(currentPath, index), depth + 1);
+    }
+    index++;
+  }
+  return O.some(currentPath);
+};
 
 const evaluateNode: {
   (node: JsoncNode, depth: number): unknown;

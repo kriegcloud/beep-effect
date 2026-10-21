@@ -118,6 +118,32 @@ const isSecretName: {
   return HashSet.has(SECRET_FLAGS, lower) || HashSet.has(extra, lower) || AUTH_KEY.test(name);
 });
 
+/**
+ * Scrubs the argument at `index` into `out` and returns the index of the next
+ * unconsumed argument.
+ */
+const scrubArgAt = (
+  args: ReadonlyArray<string>,
+  index: number,
+  extra: HashSet.HashSet<string>,
+  out: Array<string>
+): number => {
+  const arg = args[index] ?? "";
+  const equals = arg.indexOf("=");
+  if (equals > 0 && isSecretName(arg.slice(0, equals), extra)) {
+    out.push(`${arg.slice(0, equals)}=${REDACTED}`);
+    return index + 1;
+  }
+  out.push(arg);
+  // Only consume a following value when one actually exists — a trailing
+  // secret flag must not grow the array.
+  if (isSecretName(arg, extra) && index + 1 < args.length) {
+    out.push(REDACTED);
+    return index + 2;
+  }
+  return index + 1;
+};
+
 // Implementation of Redaction.scrubArgs; the public contract lives on the static.
 const scrubArgs: {
   (
@@ -135,20 +161,8 @@ const scrubArgs: {
   ): ReadonlyArray<string> => {
     const extra = HashSet.fromIterable(A.map(options?.flags ?? [], (flag) => flag.toLowerCase()));
     const out: Array<string> = [];
-    for (let index = 0; index < args.length; index++) {
-      const arg = args[index] ?? "";
-      const equals = arg.indexOf("=");
-      if (equals > 0 && isSecretName(arg.slice(0, equals), extra)) {
-        out.push(`${arg.slice(0, equals)}=${REDACTED}`);
-        continue;
-      }
-      out.push(arg);
-      // Only consume a following value when one actually exists — a trailing
-      // secret flag must not grow the array.
-      if (isSecretName(arg, extra) && index + 1 < args.length) {
-        out.push(REDACTED);
-        index++;
-      }
+    for (let index = 0; index < args.length; ) {
+      index = scrubArgAt(args, index, extra, out);
     }
     return out;
   }

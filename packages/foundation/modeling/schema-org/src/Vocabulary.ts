@@ -4,9 +4,9 @@ import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import { decodeRow } from "./internal/rows.ts";
 import {
   DOMAIN_PROPERTIES,
-  decodeRow,
   PROPERTY_INDEX,
   PROPERTY_NAMES,
   SUB_CLASS_OF,

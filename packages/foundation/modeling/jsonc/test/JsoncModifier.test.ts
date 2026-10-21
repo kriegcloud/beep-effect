@@ -465,4 +465,23 @@ describe("JsoncModifier", () => {
       }
     });
   });
+
+  describe("properties", () => {
+    // The empty path never parses the text: it replaces the whole document
+    // with the default rendering of the value, or clears it for `undefined`.
+    it.effect.prop(
+      "the empty path replaces any document with the rendered value",
+      [S.String, S.Json],
+      ([text, value]) =>
+        Effect.gen(function* () {
+          const content = yield* Jsonc.stringify(value);
+          assert.deepStrictEqual(yield* JsoncModifier.modify(text, [], value), [
+            JsoncEdit.make({ offset: 0, length: text.length, content }),
+          ]);
+          assert.deepStrictEqual(yield* JsoncModifier.modify(text, [], undefined), [
+            JsoncEdit.make({ offset: 0, length: text.length, content: "" }),
+          ]);
+        })
+    );
+  });
 });

@@ -1,6 +1,8 @@
 import {
+  BareLineReference,
   CLOSING_KEYWORDS,
   harvestIssueReferences,
+  IssueReference,
   parseBareLineReference,
 } from "@beep/github-references/IssueReferences";
 import { assert, describe, it } from "@effect/vitest";
@@ -13,15 +15,15 @@ describe("IssueReferences regex-guaranteed fields", () => {
       for (const keyword of CLOSING_KEYWORDS) {
         const text = keyword.toUpperCase() + "\t#00012";
         assert.deepStrictEqual(harvestIssueReferences(text), [
-          { keyword, issueNumber: 12, start: 0, end: text.length },
+          IssueReference.make({ keyword, issueNumber: 12, start: 0, end: text.length }),
         ]);
         const bare = parseBareLineReference(" " + keyword.toUpperCase() + ":\t#00012 ");
-        assertSome(bare, { keyword, issueNumber: 12 });
+        assertSome(bare, BareLineReference.make({ keyword, issueNumber: 12 }));
         assertNone(parseBareLineReference(keyword + " #9007199254740992"));
       }
       assert.deepStrictEqual(harvestIssueReferences("fixes\n#0; fixes #9007199254740992; closes #9007199254740991"), [
-        { keyword: "fixes", issueNumber: 0, start: 0, end: 8 },
-        { keyword: "closes", issueNumber: 9007199254740991, start: 35, end: 59 },
+        IssueReference.make({ keyword: "fixes", issueNumber: 0, start: 0, end: 8 }),
+        IssueReference.make({ keyword: "closes", issueNumber: 9007199254740991, start: 35, end: 59 }),
       ]);
     })
   );

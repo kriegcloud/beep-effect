@@ -1,5 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { decodeRow } from "@beep/schema-org/internal/vocabulary";
+import { decodeRow } from "@beep/schema-org/internal/rows";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";

@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs";
+import { EnvelopeFrame } from "@beep/jsonl/Envelope";
 import { handleBomBytes, probeBomBytes, readRangeWindow, readTail, TailWindow } from "@beep/jsonl/internal/tail";
 import { utf8Length } from "@beep/jsonl/internal/utf8";
 import { InvalidUtf8 } from "@beep/jsonl/JsonlError";
@@ -35,7 +36,9 @@ describe("JSONL helper boundaries", () => {
     }
   );
   it("rejects a scope filter when the frame has no scope", () => {
-    assert.isFalse(matchesFrame({ at: DateTime.makeUnsafe(0), event: "mail", data: null }, { scopes: ["box"] }));
+    assert.isFalse(
+      matchesFrame(EnvelopeFrame.make({ at: DateTime.makeUnsafe(0), event: "mail", data: null }), { scopes: ["box"] })
+    );
   });
   it.effect("returns an empty partial tail window when no newline exists", () =>
     Effect.gen(function* () {

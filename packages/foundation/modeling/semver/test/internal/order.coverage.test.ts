@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   ComparatorParts,
   compareBuild,
@@ -6,6 +7,7 @@ import {
   VersionParts,
 } from "@beep/semver/internal/order";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -15,7 +17,7 @@ const version = (
   patch = 3,
   prerelease: ReadonlyArray<string | number> = [],
   build: ReadonlyArray<string> = []
-): VersionParts => ({ major, minor, patch, prerelease, build });
+): VersionParts => VersionParts.make({ major, minor, patch, prerelease, build });
 
 describe("internal order branch coverage", () => {
   it.effect("identifier ordering is numeric, lexical, and numeric-before-text in both call forms", () =>
@@ -91,7 +93,7 @@ describe("structural order schemas", () => {
       const decoded = yield* S.decodeEffect(VersionParts)(parts);
       assert.deepStrictEqual(decoded, parts);
       assert.deepStrictEqual(yield* S.encodeEffect(VersionParts)(decoded), parts);
-      const comparator = { operator: ">=" as const, version: parts };
+      const comparator = ComparatorParts.make({ operator: ">=", version: parts });
       assert.strictEqual(S.is(ComparatorParts)(comparator), true);
       const bound = yield* S.decodeEffect(ComparatorParts)(comparator);
       assert.deepStrictEqual(bound, comparator);
@@ -99,6 +101,19 @@ describe("structural order schemas", () => {
       assert.strictEqual(S.is(VersionParts)({ ...parts, minor: null }), false);
       assert.strictEqual(S.is(ComparatorParts)({ ...comparator, operator: "~" }), false);
     })
+  );
+
+  it.effect.prop(
+    "generated structural comparators survive an encode/decode round trip unchanged",
+    [Arbitrary.schema(ComparatorParts)],
+    ([comparator]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(ComparatorParts)(comparator);
+        const decoded = yield* S.decodeEffect(ComparatorParts)(encoded);
+        assert.isTrue(S.toEquivalence(ComparatorParts)(decoded, comparator));
+        assert.isTrue(S.is(VersionParts)(decoded.version));
+      }),
+    { arbitrary: fcRuns(100) }
   );
 
   it.effect("both structural schemas and every field carry identity and descriptive metadata", () =>

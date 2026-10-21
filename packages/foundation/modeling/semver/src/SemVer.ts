@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { formatVersion, parseVersion } from "./internal/grammar.ts";
-import { compareBuild, comparePrereleaseIdentifier } from "./internal/order.ts";
+import { compareBuild, compareParts, versionConstructor } from "./internal/order.ts";
 
 const $I = $SemverId.create("SemVer");
 
@@ -228,7 +228,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
   static readonly FromString: S.Codec<SemVer, string> = S.String.pipe(
     S.decodeTo(
       SemVer,
-      SchemaTransformation.transformEffect({
+      SchemaTransformation.transformEffect<typeof SemVer.Encoded, string>({
         decode: (input: string) => {
           const result = parseVersion(input);
           return result.ok
@@ -518,16 +518,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
       prerelease?: ReadonlyArray<string | number>,
       build?: ReadonlyArray<string>
     ): (major: number) => SemVer;
-  } = Fn.dual(
-    (args) => P.isNumber(args[2]),
-    (
-      major: number,
-      minor: number,
-      patch: number,
-      prerelease: ReadonlyArray<string | number> = [],
-      build: ReadonlyArray<string> = []
-    ): SemVer => SemVer.make({ major, minor, patch, prerelease, build })
-  );
+  } = versionConstructor((fields): SemVer => SemVer.make(fields));
 
   // ── Ordering ────────────────────────────────────────────────────────
 
@@ -930,24 +921,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
    * @since 0.0.0
    */
   compare(that: SemVer): -1 | 0 | 1 {
-    if (this.major !== that.major) return this.major > that.major ? 1 : -1;
-    if (this.minor !== that.minor) return this.minor > that.minor ? 1 : -1;
-    if (this.patch !== that.patch) return this.patch > that.patch ? 1 : -1;
-
-    const aPre = this.prerelease;
-    const bPre = that.prerelease;
-    if (aPre.length === 0 && bPre.length === 0) return 0;
-    if (aPre.length === 0) return 1;
-    if (bPre.length === 0) return -1;
-
-    const len = Math.min(aPre.length, bPre.length);
-    for (let i = 0; i < len; i++) {
-      const cmp = comparePrereleaseIdentifier(A.getUnsafe(aPre, i), A.getUnsafe(bPre, i));
-      if (cmp !== 0) return cmp < 0 ? -1 : 1;
-    }
-
-    if (aPre.length !== bPre.length) return aPre.length > bPre.length ? 1 : -1;
-    return 0;
+    return compareParts(this, that);
   }
 
   /**

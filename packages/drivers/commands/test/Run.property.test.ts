@@ -66,9 +66,10 @@ it.effect.prop(
   [Arbitrary.schema(RunOptionsSample)],
   ([value]) =>
     Effect.gen(function* () {
-      const encoded = yield* S.encodeEffect(RunOptions)(value);
+      const options = RunOptions.make(value);
+      const encoded = yield* S.encodeEffect(RunOptions)(options);
       const decoded = yield* S.decodeEffect(RunOptions)(encoded);
-      assert.isTrue(S.toEquivalence(RunOptions)(decoded, value));
+      assert.isTrue(S.toEquivalence(RunOptions)(decoded, options));
       assert.deepStrictEqual(yield* S.encodeEffect(RunOptions)(decoded), encoded);
     }),
   runs

@@ -6,13 +6,16 @@
 // logic — that lives in the unit suite over a scripted spawner.
 
 import { CommandFailedError, Run } from "@beep/commands/Run";
-import { NodeServices } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodePath } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
+import * as Scope from "effect/Scope";
+import * as TestClock from "effect/testing/TestClock";
 
 /** Builds each test layer under the program's scope, with fresh per-invocation state. */
 const withLayer =
@@ -22,8 +25,17 @@ const withLayer =
       Effect.flatMap(Layer.buildWithScope(layer, scope), (context) => Effect.provideContext(program, context))
     );
 
-/** The real platform services, built once for the file. */
-const Platform = NodeServices.layer;
+/**
+ * The real Node child-process spawner — the subject of this suite.
+ *
+ * The spawner needs `Path` (real) and `FileSystem`, which it touches only to
+ * check an explicit `cwd`. No test here sets one, so the file system is a noop
+ * that fails loudly (`NotFound`) if a future test ever routes a `cwd` through
+ * it — at which point that test must bring a real file-system layer.
+ */
+const Platform = NodeChildProcessSpawner.layer.pipe(
+  Layer.provide(Layer.mergeAll(NodePath.layer, FileSystem.layerNoop({})))
+);
 
 /** Runs a program against the real spawner. */
 const live = <A, E>(program: Effect.Effect<A, E, ChildProcessSpawner.ChildProcessSpawner>): Effect.Effect<A, E> =>
@@ -32,8 +44,8 @@ const live = <A, E>(program: Effect.Effect<A, E, ChildProcessSpawner.ChildProces
 /** `node -e "<script>"` — the one binary guaranteed to exist wherever these tests run. */
 const node = (script: string) => ChildProcess.make(process.execPath, ["-e", script]);
 
-/** A pause on the live clock used by the real-process tests. */
-const realDelay = (millis: number) => Effect.sleep(millis);
+/** A pause on the live clock: real OS processes do not observe the TestClock. */
+const realDelay = (millis: number) => TestClock.withLive(Effect.sleep(millis));
 
 /** Whether a pid is still alive, without signalling it. */
 const isAlive = (pid: number): boolean => {
@@ -154,7 +166,7 @@ describe("environment extension against a real spawn", () => {
 });
 
 describe("Run.detach lifecycle", () => {
-  it.live(
+  it.effect(
     "an unref'd child SURVIVES its scope closing",
     () =>
       Effect.gen(function* () {
@@ -181,18 +193,24 @@ describe("Run.detach lifecycle", () => {
     15_000
   );
 
-  it.live(
+  it.effect(
     "a child spawned WITHOUT unref is killed when its scope closes — the mirror case",
     () =>
       // Without this half, the test above could pass for the wrong reason: if
       // scope close never killed anything, "still alive" would prove nothing
       // about unref. This is what makes the pair discriminating.
       Effect.gen(function* () {
-        const pid = yield* Effect.gen(function* () {
-          const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-          const handle = yield* spawner.spawn(node("setTimeout(() => {}, 60_000)"));
-          return handle.pid;
-        }).pipe(Effect.scoped, live);
+        // The child's own scope is deliberately shorter than the test: it must
+        // close (and kill the referenced child) BEFORE the liveness check.
+        const pid = yield* live(
+          Effect.scopedWith((childScope) =>
+            Effect.gen(function* () {
+              const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+              const handle = yield* spawner.spawn(node("setTimeout(() => {}, 60_000)")).pipe(Scope.provide(childScope));
+              return handle.pid;
+            })
+          )
+        );
         yield* realDelay(250);
         assert.isFalse(isAlive(Number(pid)), "a referenced child must not survive its scope");
       }),

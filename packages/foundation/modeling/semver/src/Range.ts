@@ -93,6 +93,18 @@ export class InvalidRangeError extends S.TaggedError<InvalidRangeError, { readon
  */
 export type ComparatorSet = ReadonlyArray<Comparator>;
 
+// Scans `versions` for satisfying entries, keeping the first one that `replaces`
+// prefers over every earlier pick.
+const pickSatisfying =
+  (replaces: (candidate: SemVer, best: SemVer) => boolean) =>
+  (versions: ReadonlyArray<SemVer>, range: Range): O.Option<SemVer> => {
+    let best: SemVer | undefined;
+    for (const v of versions) {
+      if (range.test(v) && (best === undefined || replaces(v, best))) best = v;
+    }
+    return best === undefined ? O.none() : O.some(best);
+  };
+
 /**
  * A SemVer range expression: a union (OR) of {@link ComparatorSet}s.
  *
@@ -161,7 +173,7 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
   static readonly FromString: S.Codec<Range, string> = S.String.pipe(
     S.decodeTo(
       Range,
-      SchemaTransformation.transformEffect({
+      SchemaTransformation.transformEffect<typeof Range.Encoded, string>({
         decode: (input: string) => {
           const result = parseRange(input);
           return result.ok
@@ -349,13 +361,10 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
   static readonly maxSatisfying: {
     (range: Range): (versions: ReadonlyArray<SemVer>) => O.Option<SemVer>;
     (versions: ReadonlyArray<SemVer>, range: Range): O.Option<SemVer>;
-  } = Fn.dual(2, (versions: ReadonlyArray<SemVer>, range: Range): O.Option<SemVer> => {
-    let best: SemVer | undefined;
-    for (const v of versions) {
-      if (range.test(v) && (best === undefined || v.gt(best))) best = v;
-    }
-    return best === undefined ? O.none() : O.some(best);
-  });
+  } = Fn.dual(
+    2,
+    pickSatisfying((candidate, best) => candidate.gt(best))
+  );
 
   /**
    * Lowest satisfying version, or `Option.none()`. Dual API.
@@ -385,13 +394,10 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
   static readonly minSatisfying: {
     (range: Range): (versions: ReadonlyArray<SemVer>) => O.Option<SemVer>;
     (versions: ReadonlyArray<SemVer>, range: Range): O.Option<SemVer>;
-  } = Fn.dual(2, (versions: ReadonlyArray<SemVer>, range: Range): O.Option<SemVer> => {
-    let best: SemVer | undefined;
-    for (const v of versions) {
-      if (range.test(v) && (best === undefined || v.lt(best))) best = v;
-    }
-    return best === undefined ? O.none() : O.some(best);
-  });
+  } = Fn.dual(
+    2,
+    pickSatisfying((candidate, best) => candidate.lt(best))
+  );
 
   // ── Algebra statics ─────────────────────────────────────────────────
 
@@ -452,15 +458,9 @@ export class Range extends S.Class<Range, { readonly brand: unique symbol }>($I`
     (that: Range): (self: Range) => Result.Result<Range, UnsatisfiableConstraintError>;
     (self: Range, that: Range): Result.Result<Range, UnsatisfiableConstraintError>;
   } = Fn.dual(2, (self: Range, that: Range): Result.Result<Range, UnsatisfiableConstraintError> => {
-    const candidates: Array<ComparatorSet> = [];
-
-    for (const setA of self.sets) {
-      for (const setB of that.sets) {
-        for (const merged of intersectSets(setA, setB)) {
-          if (isSetSatisfiable(merged)) candidates.push(merged);
-        }
-      }
-    }
+    const candidates = A.flatMap(self.sets, (setA) =>
+      A.flatMap(that.sets, (setB) => A.filter(intersectSets(setA, setB), isSetSatisfiable))
+    );
 
     if (candidates.length === 0) {
       return Result.fail(UnsatisfiableConstraintError.make({ constraints: [self, that] }));
@@ -819,17 +819,33 @@ const nextStable = (v: SemVer): O.Option<SemVer> => {
   return O.none();
 };
 
+// Comparators that bound a set from below (`>`, `>=`, `=`).
+const isLowerBound = (c: Comparator): boolean => c.operator === ">" || c.operator === ">=" || c.operator === "=";
+
+// The greater of two versions, keeping `a` on ties.
+const maxVersion = (a: SemVer, b: SemVer): SemVer => (b.gt(a) ? b : a);
+
+// Least stable version a lower bound admits: the next stable tuple above a
+// strict stable bound, otherwise the bound's own tuple. None when the
+// stable domain is exhausted.
+const stableLowerBound = (c: Comparator): O.Option<SemVer> =>
+  c.operator === ">" && c.version.isStable
+    ? nextStable(c.version)
+    : O.some(SemVer.of(c.version.major, c.version.minor, c.version.patch));
+
 const stableWitness = (set: ComparatorSet): O.Option<SemVer> => {
   let candidate = SemVer.of(0, 0, 0);
-  for (const c of set) {
-    if (c.operator !== ">" && c.operator !== ">=" && c.operator !== "=") continue;
-    let lower = O.some(SemVer.of(c.version.major, c.version.minor, c.version.patch));
-    if (c.operator === ">" && c.version.isStable) lower = nextStable(c.version);
+  for (const c of A.filter(set, isLowerBound)) {
+    const lower = stableLowerBound(c);
     if (O.isNone(lower)) return O.none();
-    if (lower.value.gt(candidate)) candidate = lower.value;
+    candidate = maxVersion(candidate, lower.value);
   }
   return satisfiesSet(candidate, set) ? O.some(candidate) : O.none();
 };
+
+// Least prerelease of `tuple` a prerelease lower bound admits.
+const prereleaseLowerBound = (c: Comparator, tuple: SemVer): SemVer =>
+  c.operator === ">" ? SemVer.of(tuple.major, tuple.minor, tuple.patch, [...c.version.prerelease, 0]) : c.version;
 
 // Appending numeric zero is the least prerelease strictly above a given
 // prerelease (unlike incrementing its final identifier, it skips no version).
@@ -838,12 +854,9 @@ const prereleaseWitness: {
   (tuple: SemVer): (set: ComparatorSet) => O.Option<SemVer>;
 } = Fn.dual(2, (set: ComparatorSet, tuple: SemVer): O.Option<SemVer> => {
   let candidate = SemVer.of(tuple.major, tuple.minor, tuple.patch, [0]);
-  for (const c of set) {
-    if ((c.operator !== ">" && c.operator !== ">=" && c.operator !== "=") || !sameTuple(c.version, tuple)) continue;
+  for (const c of A.filter(set, (c) => isLowerBound(c) && sameTuple(c.version, tuple))) {
     if (c.version.isStable) return O.none();
-    const lower =
-      c.operator === ">" ? SemVer.of(tuple.major, tuple.minor, tuple.patch, [...c.version.prerelease, 0]) : c.version;
-    if (lower.gt(candidate)) candidate = lower;
+    candidate = maxVersion(candidate, prereleaseLowerBound(c, tuple));
   }
   return satisfiesSet(candidate, set) ? O.some(candidate) : O.none();
 });
@@ -928,6 +941,10 @@ const isComparatorImplied: {
   return false;
 });
 
+// Every prerelease tuple `sub` can actually reach must be admitted by `sup`.
+const coversPrereleaseTuples = (sub: ComparatorSet, sup: ComparatorSet): boolean =>
+  A.every(prereleaseTuples(sub), (tuple) => admitsTuple(sup, tuple) || O.isNone(prereleaseWitness(sub, tuple)));
+
 const isComparatorSetSubset: {
   (sub: ComparatorSet, sup: ComparatorSet): boolean;
   (sup: ComparatorSet): (sub: ComparatorSet) => boolean;
@@ -935,11 +952,5 @@ const isComparatorSetSubset: {
   if (sup.length === 0 || !isSetSatisfiable(sub)) return true;
   // An empty set admits all prerelease tuples; finite nonempty sets cannot.
   if (sub.length === 0) return false;
-  for (const tuple of prereleaseTuples(sub)) {
-    if (!admitsTuple(sup, tuple) && O.isSome(prereleaseWitness(sub, tuple))) return false;
-  }
-  for (const supComp of sup) {
-    if (!isComparatorImplied(sub, supComp)) return false;
-  }
-  return true;
+  return coversPrereleaseTuples(sub, sup) && A.every(sup, (supComp) => isComparatorImplied(sub, supComp));
 });

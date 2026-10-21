@@ -10,6 +10,7 @@ import {
 import { ComparatorParts, VersionParts } from "@beep/semver/internal/order";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -35,7 +36,7 @@ describe("grammar property floor", () => {
       Effect.sync(() => {
         const text = formatVersion(version);
         const parsed = parseVersion(` \t${text}\n`);
-        assert.deepStrictEqual(parsed, { ok: true, value: version });
+        assert.deepStrictEqual(parsed, { ok: true, value: VersionParts.make(version) });
         if (parsed.ok) {
           assert.strictEqual(formatVersion(parsed.value), text);
           assert.deepStrictEqual(parseVersion(formatVersion(parsed.value)), parsed);
@@ -51,7 +52,7 @@ describe("grammar property floor", () => {
       Effect.sync(() => {
         const text = formatComparator(comparator);
         const parsed = parseComparator(` ${text} `);
-        assert.deepStrictEqual(parsed, { ok: true, value: comparator });
+        assert.deepStrictEqual(parsed, { ok: true, value: ComparatorParts.make(comparator) });
         if (parsed.ok) {
           assert.strictEqual(formatComparator(parsed.value), text);
           assert.deepStrictEqual(parseComparator(formatComparator(parsed.value)), parsed);
@@ -67,7 +68,13 @@ describe("grammar property floor", () => {
       Effect.sync(() => {
         const text = formatRange(sets);
         const parsed = parseRange(` ${text} `);
-        assert.deepStrictEqual(parsed, { ok: true, value: sets });
+        assert.deepStrictEqual(parsed, {
+          ok: true,
+          value: A.map(
+            sets,
+            A.map((comparator) => ComparatorParts.make(comparator))
+          ),
+        });
         if (parsed.ok) {
           assert.strictEqual(formatRange(parsed.value), text);
           assert.deepStrictEqual(parseRange(formatRange(parsed.value)), parsed);

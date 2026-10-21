@@ -1,6 +1,8 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { InvalidRangeError, Range, SemVer, UnsatisfiableConstraintError } from "@beep/semver";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -182,6 +184,17 @@ describe("Range", () => {
         })
       );
     }
+
+    it.effect.prop(
+      "instance and static satisfaction agree for every schema-generated range and version",
+      [Arbitrary.schema(Range), Arbitrary.schema(SemVer)],
+      ([range, version]) =>
+        Effect.sync(() => {
+          assert.strictEqual(Range.satisfies(version, range), range.test(version));
+          assert.strictEqual(Range.satisfies(range)(version), range.test(version));
+        }),
+      { arbitrary: fcRuns(100) }
+    );
 
     it.effect("matches instance and static forms identically", () =>
       Effect.gen(function* () {

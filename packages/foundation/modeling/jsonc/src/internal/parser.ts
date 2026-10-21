@@ -95,24 +95,17 @@ export type ParseCode = typeof ParseCode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const RawParseError = S.Struct({
-  code: ParseCode,
-  offset: S.Natural,
-  length: S.Natural,
-}).pipe(
-  $I.annoteSchema("RawParseError", {
-    description: "A parse error with its token span, before line and character are derived.",
-  })
-);
-
-/**
- * The decoded shape of {@link RawParseError}.
- *
- * @see {@link RawParseError} for the runtime schema.
- * @category type-level
- * @since 0.0.0
- */
-export type RawParseError = typeof RawParseError.Type;
+export class RawParseError extends S.Opaque<RawParseError, { readonly brand: unique symbol }>()(
+  S.Struct({
+    code: ParseCode,
+    offset: S.Natural,
+    length: S.Natural,
+  }).pipe(
+    $I.annoteSchema("RawParseError", {
+      description: "A parse error with its token span, before line and character are derived.",
+    })
+  )
+) {}
 
 /**
  * Resolved parse flags, every field present. The facade decodes its public
@@ -132,24 +125,17 @@ export type RawParseError = typeof RawParseError.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ParseFlags = S.Struct({
-  disallowComments: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  allowTrailingComma: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
-  allowEmptyContent: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-}).pipe(
-  $I.annoteSchema("ParseFlags", {
-    description: "Resolved parser behaviour flags with every field present.",
-  })
-);
-
-/**
- * The decoded shape of {@link ParseFlags}.
- *
- * @see {@link ParseFlags} for the runtime schema and defaults.
- * @category type-level
- * @since 0.0.0
- */
-export type ParseFlags = typeof ParseFlags.Type;
+export class ParseFlags extends S.Opaque<ParseFlags, { readonly brand: unique symbol }>()(
+  S.Struct({
+    disallowComments: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    allowTrailingComma: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    allowEmptyContent: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+  }).pipe(
+    $I.annoteSchema("ParseFlags", {
+      description: "Resolved parser behaviour flags with every field present.",
+    })
+  )
+) {}
 
 /**
  * Value-mode recovery result: the recovered value plus every error met.
@@ -168,23 +154,16 @@ export type ParseFlags = typeof ParseFlags.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ParseValueResult = S.Struct({
-  value: S.Unknown,
-  errors: S.Array(RawParseError),
-}).pipe(
-  $I.annoteSchema("ParseValueResult", {
-    description: "A recovered plain value together with every parse error encountered.",
-  })
-);
-
-/**
- * The decoded shape of {@link ParseValueResult}.
- *
- * @see {@link ParseValueResult} for the runtime schema.
- * @category type-level
- * @since 0.0.0
- */
-export type ParseValueResult = typeof ParseValueResult.Type;
+export class ParseValueResult extends S.Opaque<ParseValueResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    value: S.Unknown,
+    errors: S.Array(RawParseError),
+  }).pipe(
+    $I.annoteSchema("ParseValueResult", {
+      description: "A recovered plain value together with every parse error encountered.",
+    })
+  )
+) {}
 
 /**
  * Tree-mode recovery result: the root node, absent for empty input, plus every
@@ -204,23 +183,16 @@ export type ParseValueResult = typeof ParseValueResult.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ParseTreeResult = S.Struct({
-  root: S.Option(JsoncNode),
-  errors: S.Array(RawParseError),
-}).pipe(
-  $I.annoteSchema("ParseTreeResult", {
-    description: "A recovered AST root, absent for empty input, together with every parse error encountered.",
-  })
-);
-
-/**
- * The decoded shape of {@link ParseTreeResult}.
- *
- * @see {@link ParseTreeResult} for the runtime schema.
- * @category type-level
- * @since 0.0.0
- */
-export type ParseTreeResult = typeof ParseTreeResult.Type;
+export class ParseTreeResult extends S.Opaque<ParseTreeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    root: S.Option(JsoncNode),
+    errors: S.Array(RawParseError),
+  }).pipe(
+    $I.annoteSchema("ParseTreeResult", {
+      description: "A recovered AST root, absent for empty input, together with every parse error encountered.",
+    })
+  )
+) {}
 
 /**
  * The single scan-error to parse-code translation, shared by the parser and
@@ -285,11 +257,13 @@ const run: {
   const tokenEnd = (): number => scanner.getTokenOffset() + scanner.getTokenLength();
 
   const record = (code: ParseCode): void => {
-    errors.push({
-      code,
-      offset: scanner.getTokenOffset(),
-      length: scanner.getTokenLength(),
-    });
+    errors.push(
+      RawParseError.make({
+        code,
+        offset: scanner.getTokenOffset(),
+        length: scanner.getTokenLength(),
+      })
+    );
   };
 
   const scanNext = (): SyntaxKind => {
@@ -388,6 +362,22 @@ const run: {
     return true;
   });
 
+  // Consume the separator before an object member and report whether its
+  // String key follows. A trailing comma leaves the cursor on the closing
+  // brace and a non-string key records PropertyNameExpected and recovers;
+  // both answer false, and the member loop re-tests its own condition, which
+  // ends it at the brace exactly as a `break` would.
+  const atMemberName = (needsComma: boolean): boolean => {
+    if (!separator("CloseBrace", "PropertyNameExpected", needsComma)) {
+      return false;
+    }
+    if (token() === "String") {
+      return true;
+    }
+    pushError("PropertyNameExpected", ["CloseBrace", "Comma"]);
+    return false;
+  };
+
   // ── Value mode ──────────────────────────────────────────────────────────
 
   const parseLiteral = <T>(value: T): T => {
@@ -407,30 +397,82 @@ const run: {
       Match.orElse(O.none<unknown>)
     );
 
+  // Shared array element loop: parse values until the closer, recording
+  // ValueExpected and resynchronizing on a missing value. A trailing comma
+  // ends the loop through `separator`.
+  const parseElements = <T>(parse: () => O.Option<T>, items: Array<T>): void => {
+    let needsComma = false;
+    while (token() !== "CloseBracket" && token() !== "EOF" && separator("CloseBracket", "ValueExpected", needsComma)) {
+      const item = parse();
+      if (O.isSome(item)) {
+        items.push(item.value);
+      } else {
+        pushError("ValueExpected", ["CloseBracket", "Comma"]);
+      }
+      needsComma = true;
+    }
+  };
+
+  // Shared object member loop. `member` parses one member whose String key is
+  // the current token and answers whether a comma is now required (a missing
+  // colon leaves the requirement unchanged).
+  const parseMembers = (member: () => boolean): void => {
+    let needsComma = false;
+    while (token() !== "CloseBrace" && token() !== "EOF") {
+      if (atMemberName(needsComma) && member()) {
+        needsComma = true;
+      }
+    }
+  };
+
+  // The container end offset: the closer's tight end when present, otherwise
+  // the start of whatever token the recovery stopped on.
+  const closeContainer: {
+    (closer: SyntaxKind, missing: ParseCode): number;
+    (missing: ParseCode): (closer: SyntaxKind) => number;
+  } = dual(2, (closer: SyntaxKind, missing: ParseCode): number => {
+    if (token() === closer) {
+      const end = tokenEnd();
+      scanNext();
+      return end;
+    }
+    pushError(missing);
+    return scanner.getTokenOffset();
+  });
+
   const parseArray = (): ReadonlyArray<unknown> =>
     guardDepth(A.empty<unknown>, () => {
       scanNext(); // skip [
       const items: Array<unknown> = [];
-      let needsComma = false;
-      while (token() !== "CloseBracket" && token() !== "EOF") {
-        if (!separator("CloseBracket", "ValueExpected", needsComma)) {
-          break;
-        }
-        const value = parseValue();
-        if (O.isSome(value)) {
-          items.push(value.value);
-        } else {
-          pushError("ValueExpected", ["CloseBracket", "Comma"]);
-        }
-        needsComma = true;
-      }
-      if (token() === "CloseBracket") {
-        scanNext();
-      } else {
-        pushError("CloseBracketExpected");
-      }
+      parseElements(parseValue, items);
+      closeContainer("CloseBracket", "CloseBracketExpected");
       return items;
     });
+
+  // One `key: value` member into `obj`.
+  const parseMember = (obj: Record<string, unknown>): boolean => {
+    const key = scanner.getTokenValue();
+    scanNext();
+    if (token() !== "Colon") {
+      pushError("ColonExpected", ["CloseBrace", "Comma"]);
+      return false;
+    }
+    scanNext();
+    const value = parseValue();
+    if (O.isSome(value)) {
+      // Define as an own data property: plain assignment of `__proto__`
+      // would mutate the object's prototype (JSON.parse semantics).
+      Object.defineProperty(obj, key, {
+        value: value.value,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
+    } else {
+      pushError("ValueExpected", ["CloseBrace", "Comma"]);
+    }
+    return true;
+  };
 
   const parseObject = (): Record<string, unknown> =>
     guardDepth(
@@ -438,42 +480,8 @@ const run: {
       () => {
         scanNext(); // skip {
         const obj: Record<string, unknown> = {};
-        let needsComma = false;
-        while (token() !== "CloseBrace" && token() !== "EOF") {
-          if (!separator("CloseBrace", "PropertyNameExpected", needsComma)) {
-            break;
-          }
-          if (token() !== "String") {
-            pushError("PropertyNameExpected", ["CloseBrace", "Comma"]);
-            continue;
-          }
-          const key = scanner.getTokenValue();
-          scanNext();
-          if (token() !== "Colon") {
-            pushError("ColonExpected", ["CloseBrace", "Comma"]);
-            continue;
-          }
-          scanNext();
-          const value = parseValue();
-          if (O.isSome(value)) {
-            // Define as an own data property: plain assignment of `__proto__`
-            // would mutate the object's prototype (JSON.parse semantics).
-            Object.defineProperty(obj, key, {
-              value: value.value,
-              writable: true,
-              enumerable: true,
-              configurable: true,
-            });
-          } else {
-            pushError("ValueExpected", ["CloseBrace", "Comma"]);
-          }
-          needsComma = true;
-        }
-        if (token() === "CloseBrace") {
-          scanNext();
-        } else {
-          pushError("CloseBraceExpected");
-        }
+        parseMembers(() => parseMember(obj));
+        closeContainer("CloseBrace", "CloseBraceExpected");
         return obj;
       }
     );
@@ -502,21 +510,6 @@ const run: {
       Match.orElse(O.none<JsoncNode>)
     );
 
-  // The container end offset: the closer's tight end when present, otherwise
-  // the start of whatever token the recovery stopped on.
-  const closeContainer: {
-    (closer: SyntaxKind, missing: ParseCode): number;
-    (missing: ParseCode): (closer: SyntaxKind) => number;
-  } = dual(2, (closer: SyntaxKind, missing: ParseCode): number => {
-    if (token() === closer) {
-      const end = tokenEnd();
-      scanNext();
-      return end;
-    }
-    pushError(missing);
-    return scanner.getTokenOffset();
-  });
-
   const parseArrayTree = (): JsoncNode => {
     const offset = scanner.getTokenOffset();
     return guardDepth(
@@ -524,23 +517,55 @@ const run: {
       () => {
         scanNext(); // skip [
         const children: Array<JsoncNode> = [];
-        let needsComma = false;
-        while (token() !== "CloseBracket" && token() !== "EOF") {
-          if (!separator("CloseBracket", "ValueExpected", needsComma)) {
-            break;
-          }
-          const child = parseValueTree();
-          if (O.isSome(child)) {
-            children.push(child.value);
-          } else {
-            pushError("ValueExpected", ["CloseBracket", "Comma"]);
-          }
-          needsComma = true;
-        }
+        parseElements(parseValueTree, children);
         const end = closeContainer("CloseBracket", "CloseBracketExpected");
         return makeNodeUnsafe({ type: "array", offset, length: end - offset, children });
       }
     );
+  };
+
+  // One `key: value` property node into `children`.
+  const parseMemberTree = (children: Array<JsoncNode>): boolean => {
+    const propOffset = scanner.getTokenOffset();
+    const keyNode = leafTree("string", scanner.getTokenValue());
+    if (token() !== "Colon") {
+      pushError("ColonExpected", ["CloseBrace", "Comma"]);
+      children.push(
+        makeNodeUnsafe({
+          type: "property",
+          offset: propOffset,
+          length: scanner.getTokenOffset() - propOffset,
+          children: [keyNode],
+        })
+      );
+      return false;
+    }
+    const colonOffset = scanner.getTokenOffset();
+    scanNext();
+    const valueNode = parseValueTree();
+    if (O.isSome(valueNode)) {
+      children.push(
+        makeNodeUnsafe({
+          type: "property",
+          offset: propOffset,
+          length: valueNode.value.offset + valueNode.value.length - propOffset,
+          colonOffset,
+          children: [keyNode, valueNode.value],
+        })
+      );
+    } else {
+      pushError("ValueExpected", ["CloseBrace", "Comma"]);
+      children.push(
+        makeNodeUnsafe({
+          type: "property",
+          offset: propOffset,
+          length: scanner.getTokenOffset() - propOffset,
+          colonOffset,
+          children: [keyNode],
+        })
+      );
+    }
+    return true;
   };
 
   const parseObjectTree = (): JsoncNode => {
@@ -550,56 +575,7 @@ const run: {
       () => {
         scanNext(); // skip {
         const children: Array<JsoncNode> = [];
-        let needsComma = false;
-        while (token() !== "CloseBrace" && token() !== "EOF") {
-          if (!separator("CloseBrace", "PropertyNameExpected", needsComma)) {
-            break;
-          }
-          if (token() !== "String") {
-            pushError("PropertyNameExpected", ["CloseBrace", "Comma"]);
-            continue;
-          }
-          const propOffset = scanner.getTokenOffset();
-          const keyNode = leafTree("string", scanner.getTokenValue());
-          if (token() !== "Colon") {
-            pushError("ColonExpected", ["CloseBrace", "Comma"]);
-            children.push(
-              makeNodeUnsafe({
-                type: "property",
-                offset: propOffset,
-                length: scanner.getTokenOffset() - propOffset,
-                children: [keyNode],
-              })
-            );
-            continue;
-          }
-          const colonOffset = scanner.getTokenOffset();
-          scanNext();
-          const valueNode = parseValueTree();
-          if (O.isSome(valueNode)) {
-            children.push(
-              makeNodeUnsafe({
-                type: "property",
-                offset: propOffset,
-                length: valueNode.value.offset + valueNode.value.length - propOffset,
-                colonOffset,
-                children: [keyNode, valueNode.value],
-              })
-            );
-          } else {
-            pushError("ValueExpected", ["CloseBrace", "Comma"]);
-            children.push(
-              makeNodeUnsafe({
-                type: "property",
-                offset: propOffset,
-                length: scanner.getTokenOffset() - propOffset,
-                colonOffset,
-                children: [keyNode],
-              })
-            );
-          }
-          needsComma = true;
-        }
+        parseMembers(() => parseMemberTree(children));
         const end = closeContainer("CloseBrace", "CloseBraceExpected");
         return makeNodeUnsafe({ type: "object", offset, length: end - offset, children });
       }
@@ -659,7 +635,7 @@ export const parseValue: {
   (flags: ParseFlags): (text: string) => ParseValueResult;
 } = dual(2, (text: string, flags: ParseFlags): ParseValueResult => {
   const { value, errors } = run(text, flags, false);
-  return { value, errors };
+  return ParseValueResult.make({ value, errors });
 });
 
 /**
@@ -691,5 +667,5 @@ export const parseTree: {
   (flags: ParseFlags): (text: string) => ParseTreeResult;
 } = dual(2, (text: string, flags: ParseFlags): ParseTreeResult => {
   const { root, errors } = run(text, flags, true);
-  return { root, errors };
+  return ParseTreeResult.make({ root, errors });
 });

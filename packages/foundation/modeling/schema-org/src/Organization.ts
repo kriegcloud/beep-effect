@@ -32,8 +32,8 @@ const $I = $SchemaOrgId.create("Organization");
  * @category models
  * @since 0.0.0
  */
-export class Organization extends S.Class<Organization, { readonly brand: unique symbol }>($I`Organization`)(
-  {
+export class Organization extends S.Opaque<Organization, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...ThingFields,
     /**
      * The JSON-LD type discriminator, populated automatically.
@@ -61,8 +61,9 @@ export class Organization extends S.Class<Organization, { readonly brand: unique
     logo: S.optional(S.String).pipe(
       $I.annoteKey("Organization.logo", { description: "A URL for the organization's logo. Single-valued." })
     ),
-  },
-  $I.annote("Organization", {
-    description: "A schema.org `Organization` — a company, project or team that authors or publishes a work.",
-  })
+  }).pipe(
+    $I.annoteSchema("Organization", {
+      description: "A schema.org `Organization` — a company, project or team that authors or publishes a work.",
+    })
+  )
 ) {}

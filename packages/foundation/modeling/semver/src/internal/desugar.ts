@@ -4,10 +4,9 @@
 
 import { $SemverId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { VersionParts } from "./order.ts";
-import type { ComparatorOperator, ComparatorParts } from "./order.ts";
+import { ComparatorParts, VersionParts, versionConstructor } from "./order.ts";
+import type { ComparatorOperator } from "./order.ts";
 
 const $I = $SemverId.create("internal/desugar");
 
@@ -61,35 +60,18 @@ export const PartialParts = S.Struct({
  */
 export type PartialParts = typeof PartialParts.Type;
 
-const sv: {
-  (
-    major: number,
-    minor: number,
-    patch: number,
-    prerelease?: ReadonlyArray<string | number>,
-    build?: ReadonlyArray<string>
-  ): VersionParts;
-  (
-    minor: number,
-    patch: number,
-    prerelease?: ReadonlyArray<string | number>,
-    build?: ReadonlyArray<string>
-  ): (major: number) => VersionParts;
-} = dual(
-  (args) => P.isNumber(args[2]),
-  (
-    major: number,
-    minor: number,
-    patch: number,
-    prerelease: ReadonlyArray<string | number> = [],
-    build: ReadonlyArray<string> = []
-  ): VersionParts => ({ major, minor, patch, prerelease, build })
-);
+const sv = versionConstructor((fields): VersionParts => VersionParts.make(fields));
 
 const comp: {
   (operator: ComparatorOperator, version: VersionParts): ComparatorParts;
   (version: VersionParts): (operator: ComparatorOperator) => ComparatorParts;
-} = dual(2, (operator: ComparatorOperator, version: VersionParts): ComparatorParts => ({ operator, version }));
+} = dual(
+  2,
+  (operator: ComparatorOperator, version: VersionParts): ComparatorParts => ComparatorParts.make({ operator, version })
+);
+
+// `>=0.0.0`: every stable version, the expansion of a wildcard major.
+const anyStable = (): ReadonlyArray<ComparatorParts> => [comp(">=", sv(0, 0, 0))];
 
 /**
  * Desugar a tilde range (`~1.2.3`, `~1.2`, `~1`) into a `>=`/`<` comparator
@@ -112,7 +94,7 @@ const comp: {
  * @since 0.0.0
  */
 export const desugarTilde = (p: PartialParts): ReadonlyArray<ComparatorParts> => {
-  if (p.major === null) return [comp(">=", sv(0, 0, 0))];
+  if (p.major === null) return anyStable();
   const major = p.major;
   const minor = p.minor;
   const patch = p.patch ?? 0;
@@ -149,7 +131,7 @@ export const desugarTilde = (p: PartialParts): ReadonlyArray<ComparatorParts> =>
  * @since 0.0.0
  */
 export const desugarCaret = (p: PartialParts): ReadonlyArray<ComparatorParts> => {
-  if (p.major === null) return [comp(">=", sv(0, 0, 0))];
+  if (p.major === null) return anyStable();
   const major = p.major;
   const minor = p.minor;
   const patch = p.patch;
@@ -187,6 +169,32 @@ export const desugarCaret = (p: PartialParts): ReadonlyArray<ComparatorParts> =>
   return [comp(">=", lower), comp("<", sv(0, 0, 1, [0]))];
 };
 
+// `*` under an operator: strict comparisons against * admit no version;
+// every other operator admits every stable version.
+const desugarAnyMajor = (operator: ComparatorOperator | null): ReadonlyArray<ComparatorParts> =>
+  operator === "<" || operator === ">" ? [comp("<", sv(0, 0, 0, [0]))] : anyStable();
+
+// The `-0` prerelease of a core version: the lowest version of that core.
+const lowest = (v: VersionParts): VersionParts => sv(v.major, v.minor, v.patch, [0]);
+
+// Expansion of a partial wildcard (`1.x`, `1.2.x`) per operator, given the
+// wildcard's floor (`1.0.0`, `1.2.0`) and the next core above it (`2.0.0`,
+// `1.3.0`).
+const wildcardExpansions: Readonly<
+  Record<ComparatorOperator, (floor: VersionParts, ceiling: VersionParts) => ReadonlyArray<ComparatorParts>>
+> = {
+  // 1.x -> >=1.0.0 <2.0.0-0
+  "=": (floor, ceiling) => [comp(">=", floor), comp("<", lowest(ceiling))],
+  // >1.x -> >=2.0.0
+  ">": (_floor, ceiling) => [comp(">=", ceiling)],
+  // >=1.x -> >=1.0.0
+  ">=": (floor) => [comp(">=", floor)],
+  // <1.x -> <1.0.0-0
+  "<": (floor) => [comp("<", lowest(floor))],
+  // <=1.x -> <2.0.0-0
+  "<=": (_floor, ceiling) => [comp("<", lowest(ceiling))],
+};
+
 /**
  * Desugar an X-range (`1.x`, `1.2.x`, `*`) or a fully-specified
  * operator-prefixed version into its equivalent comparator set. A fully
@@ -213,66 +221,41 @@ export const desugarXRange: {
   (p: PartialParts): (operator: ComparatorOperator | null) => ReadonlyArray<ComparatorParts>;
   (operator: ComparatorOperator | null, p: PartialParts): ReadonlyArray<ComparatorParts>;
 } = dual(2, (operator: ComparatorOperator | null, p: PartialParts): ReadonlyArray<ComparatorParts> => {
-  const major = p.major;
-  const minor = p.minor;
-  const patch = p.patch;
+  const { major, minor, patch } = p;
 
-  // Fully specified (no wildcards)
+  // Fully specified (no wildcards): a bare version is an exact match.
   if (major !== null && minor !== null && patch !== null) {
-    const version = sv(major, minor, patch, p.prerelease, p.build);
-    if (operator === null || operator === "=") {
-      return [comp("=", version)];
-    }
-    return [comp(operator, version)];
+    return [comp(operator ?? "=", sv(major, minor, patch, p.prerelease, p.build))];
   }
 
-  // Has wildcards
-  if (major === null) {
-    // Strict comparisons against * admit no version.
-    if (operator === "<" || operator === ">") return [comp("<", sv(0, 0, 0, [0]))];
-    return [comp(">=", sv(0, 0, 0))];
-  }
+  if (major === null) return desugarAnyMajor(operator);
 
-  if (minor === null) {
-    // 1.x or 1.*
-    if (operator === null || operator === "=") {
-      return [comp(">=", sv(major, 0, 0)), comp("<", sv(major + 1, 0, 0, [0]))];
-    }
-    if (operator === ">") {
-      // >1.x -> >=2.0.0
-      return [comp(">=", sv(major + 1, 0, 0))];
-    }
-    if (operator === ">=") {
-      // >=1.x -> >=1.0.0
-      return [comp(">=", sv(major, 0, 0))];
-    }
-    if (operator === "<") {
-      // <1.x -> <1.0.0-0
-      return [comp("<", sv(major, 0, 0, [0]))];
-    }
-    // <=1.x -> <2.0.0-0
-    return [comp("<", sv(major + 1, 0, 0, [0]))];
-  }
-
-  // patch is null (minor is set): 1.2.x
-  if (operator === null || operator === "=") {
-    return [comp(">=", sv(major, minor, 0)), comp("<", sv(major, minor + 1, 0, [0]))];
-  }
-  if (operator === ">") {
-    // >1.2.x -> >=1.3.0
-    return [comp(">=", sv(major, minor + 1, 0))];
-  }
-  if (operator === ">=") {
-    // >=1.2.x -> >=1.2.0
-    return [comp(">=", sv(major, minor, 0))];
-  }
-  if (operator === "<") {
-    // <1.2.x -> <1.2.0-0
-    return [comp("<", sv(major, minor, 0, [0]))];
-  }
-  // <=1.2.x -> <1.3.0-0
-  return [comp("<", sv(major, minor + 1, 0, [0]))];
+  // 1.x or 1.*: floor 1.0.0, ceiling 2.0.0; 1.2.x: floor 1.2.0, ceiling 1.3.0.
+  const expand = wildcardExpansions[operator ?? "="];
+  return minor === null
+    ? expand(sv(major, 0, 0), sv(major + 1, 0, 0))
+    : expand(sv(major, minor, 0), sv(major, minor + 1, 0));
 });
+
+// Lower bound of a hyphen range: `>=` the partial version with unspecified
+// components zeroed; none when the lower side is `*`.
+const hyphenFloor = (lower: PartialParts): ReadonlyArray<ComparatorParts> => {
+  const { major, minor, patch } = lower;
+  if (major === null) return [];
+  if (minor === null) return [comp(">=", sv(major, 0, 0))];
+  return [comp(">=", patch === null ? sv(major, minor, 0) : sv(major, minor, patch, lower.prerelease))];
+};
+
+// Upper bound of a hyphen range: `<=` a fully specified version, or `<` the
+// next unspecified component (`2.3` -> `<2.4.0-0`); none when it is `*`.
+const hyphenCeiling = (upper: PartialParts): ReadonlyArray<ComparatorParts> => {
+  const { major, minor, patch } = upper;
+  if (major === null) return [];
+  if (minor === null) return [comp("<", sv(major + 1, 0, 0, [0]))];
+  return [
+    patch === null ? comp("<", sv(major, minor + 1, 0, [0])) : comp("<=", sv(major, minor, patch, upper.prerelease)),
+  ];
+};
 
 /**
  * Desugar a hyphen range (`1.2.3 - 2.3.4`) into a comparator pair: `>=` the
@@ -302,37 +285,7 @@ export const desugarHyphen: {
   (upper: PartialParts): (lower: PartialParts) => ReadonlyArray<ComparatorParts>;
   (lower: PartialParts, upper: PartialParts): ReadonlyArray<ComparatorParts>;
 } = dual(2, (lower: PartialParts, upper: PartialParts): ReadonlyArray<ComparatorParts> => {
-  const lowerComparators =
-    lower.major === null
-      ? []
-      : [
-          comp(
-            ">=",
-            lower.minor === null
-              ? sv(lower.major, 0, 0)
-              : lower.patch === null
-                ? sv(lower.major, lower.minor, 0)
-                : sv(lower.major, lower.minor, lower.patch, lower.prerelease)
-          ),
-        ];
-
-  if (upper.major !== null && upper.minor !== null && upper.patch !== null) {
-    // Full upper: >=lower <=upper
-    const upperVersion = sv(upper.major, upper.minor, upper.patch, upper.prerelease);
-    return [...lowerComparators, comp("<=", upperVersion)];
-  }
-
-  // Partial upper
-  if (upper.major !== null && upper.minor !== null) {
-    // 1.2.3 - 2.3 -> >=1.2.3 <2.4.0-0
-    return [...lowerComparators, comp("<", sv(upper.major, upper.minor + 1, 0, [0]))];
-  }
-
-  if (upper.major !== null) {
-    // 1.2.3 - 2 -> >=1.2.3 <3.0.0-0
-    return [...lowerComparators, comp("<", sv(upper.major + 1, 0, 0, [0]))];
-  }
-
-  // upper is * -> >=lower
-  return lower.major === null ? [comp(">=", sv(0, 0, 0))] : lowerComparators;
+  const comparators = [...hyphenFloor(lower), ...hyphenCeiling(upper)];
+  // `* - *` bounds nothing: every stable version.
+  return comparators.length === 0 ? anyStable() : comparators;
 });

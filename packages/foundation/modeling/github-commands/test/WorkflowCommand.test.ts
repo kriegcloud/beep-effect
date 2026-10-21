@@ -7,14 +7,14 @@ describe("WorkflowCommand", () => {
     const isAnnotationProperties = S.is(AnnotationProperties);
 
     it("accepts absent fields and structural annotations without integer or range constraints", () => {
-      const properties: AnnotationProperties = {
+      const properties = AnnotationProperties.make({
         title: "",
         file: "src/main.ts",
         startLine: -1.5,
         endLine: 0,
         startColumn: 0.25,
         endColumn: -2,
-      };
+      });
       assert.isTrue(isAnnotationProperties({}));
       assert.isTrue(isAnnotationProperties({ title: "T" }));
       assert.isTrue(isAnnotationProperties(properties));
@@ -36,7 +36,7 @@ describe("WorkflowCommand", () => {
     });
 
     it("keeps command helpers structural without automatic schema decoding", () => {
-      const properties: AnnotationProperties = { startLine: Number.POSITIVE_INFINITY, endColumn: Number.NaN };
+      const properties: AnnotationProperties.Encoded = { startLine: Number.POSITIVE_INFINITY, endColumn: Number.NaN };
       assert.isFalse(isAnnotationProperties(properties));
       assert.strictEqual(WorkflowCommand.notice("n", properties), "::notice line=Infinity,endColumn=NaN::n");
       assert.strictEqual(WorkflowCommand.warning("w", properties), "::warning line=Infinity,endColumn=NaN::w");

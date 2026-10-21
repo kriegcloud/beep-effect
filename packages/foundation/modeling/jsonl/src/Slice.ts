@@ -95,6 +95,21 @@ export type CursoredSlice<R extends JsonlEvent.Registry, T extends JsonlEvent.Ta
   typeof CursoredSlice<T>
 >["Type"];
 
+// An absent events filter admits every event.
+const matchesEvent = (frame: EnvelopeFrame, slice: Slice<JsonlEvent.Registry, string>): boolean =>
+  P.isUndefined(slice.events) || A.contains(slice.events, frame.event);
+
+// A scopes filter admits only scoped frames whose scope it lists.
+const matchesScope = (frame: EnvelopeFrame, slice: Slice<JsonlEvent.Registry, string>): boolean =>
+  P.isUndefined(slice.scopes) || (P.isNotUndefined(frame.scope) && A.contains(slice.scopes, frame.scope));
+
+// The time window is half-open: `from` inclusive, `to` exclusive.
+const matchesWindow = (frame: EnvelopeFrame, slice: Slice<JsonlEvent.Registry, string>): boolean => {
+  const millis = frame.at.epochMilliseconds;
+  const afterFrom = P.isUndefined(slice.from) || millis >= slice.from.epochMilliseconds;
+  return afterFrom && (P.isUndefined(slice.to) || millis < slice.to.epochMilliseconds);
+};
+
 /**
  * Whether a frame satisfies a slice.
  *
@@ -106,9 +121,10 @@ export type CursoredSlice<R extends JsonlEvent.Registry, T extends JsonlEvent.Ta
  * **Example** (Select a frame without decoding data)
  *
  * ```ts import.meta.vitest name="Select a frame without decoding data"
+ * import { EnvelopeFrame } from "@beep/jsonl/Envelope";
  * import { matchesFrame } from "@beep/jsonl/Slice";
  * import * as DateTime from "effect/DateTime";
- * const frame = {at:DateTime.makeUnsafe(0),event:"started",data:null};
+ * const frame = EnvelopeFrame.make({at:DateTime.makeUnsafe(0),event:"started",data:null});
  * matchesFrame(frame, {events:["started"]}) // => true
  * ```
  *
@@ -119,21 +135,8 @@ export type CursoredSlice<R extends JsonlEvent.Registry, T extends JsonlEvent.Ta
 export const matchesFrame: {
   (frame: EnvelopeFrame, slice: Slice<JsonlEvent.Registry, string> | undefined): boolean;
   (slice: Slice<JsonlEvent.Registry, string> | undefined): (frame: EnvelopeFrame) => boolean;
-} = dual(2, (frame: EnvelopeFrame, slice: Slice<JsonlEvent.Registry, string> | undefined): boolean => {
-  if (P.isUndefined(slice)) {
-    return true;
-  }
-  if (P.isNotUndefined(slice.events) && !A.contains(slice.events, frame.event)) {
-    return false;
-  }
-  if (P.isNotUndefined(slice.scopes)) {
-    if (P.isUndefined(frame.scope) || !A.contains(slice.scopes, frame.scope)) {
-      return false;
-    }
-  }
-  const millis = frame.at.epochMilliseconds;
-  if (P.isNotUndefined(slice.from) && millis < slice.from.epochMilliseconds) {
-    return false;
-  }
-  return !(P.isNotUndefined(slice.to) && millis >= slice.to.epochMilliseconds);
-});
+} = dual(
+  2,
+  (frame: EnvelopeFrame, slice: Slice<JsonlEvent.Registry, string> | undefined): boolean =>
+    P.isUndefined(slice) || (matchesEvent(frame, slice) && matchesScope(frame, slice) && matchesWindow(frame, slice))
+);

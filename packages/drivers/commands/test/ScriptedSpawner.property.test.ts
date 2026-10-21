@@ -56,9 +56,10 @@ it.effect.prop(
   [Arbitrary.schema(SpawnRecordSample)],
   ([value]) =>
     Effect.gen(function* () {
-      const encoded = yield* S.encodeEffect(SpawnRecord)(value);
+      const record = SpawnRecord.make(value);
+      const encoded = yield* S.encodeEffect(SpawnRecord)(record);
       const decoded = yield* S.decodeEffect(SpawnRecord)(encoded);
-      assert.isTrue(S.toEquivalence(SpawnRecord)(decoded, value));
+      assert.isTrue(S.toEquivalence(SpawnRecord)(decoded, record));
       assert.deepStrictEqual(yield* S.encodeEffect(SpawnRecord)(decoded), encoded);
     }),
   runs

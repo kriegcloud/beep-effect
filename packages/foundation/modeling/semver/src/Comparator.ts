@@ -147,7 +147,7 @@ export class Comparator extends S.Class<Comparator, { readonly brand: unique sym
   static readonly FromString: S.Codec<Comparator, string> = S.String.pipe(
     S.decodeTo(
       Comparator,
-      SchemaTransformation.transformEffect({
+      SchemaTransformation.transformEffect<typeof Comparator.Encoded, string>({
         decode: (input: string) => {
           const result = parseComparator(input);
           return result.ok

@@ -69,8 +69,8 @@ export type ByteCount = typeof ByteCount.Type;
  * @category models
  * @since 0.0.0
  */
-export class LineSlice extends S.Class<LineSlice, { readonly brand: unique symbol }>($I`LineSlice`)(
-  {
+export class LineSlice extends S.Opaque<LineSlice, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** UTF-8 byte offset of this line's first content byte. */
     offset: ByteCount.pipe(
       $I.annoteKey("LineSlice.offset", {
@@ -120,20 +120,21 @@ export class LineSlice extends S.Class<LineSlice, { readonly brand: unique symbo
           "`false` can only occur on the final line, and means the line **may be a torn tail** — a writer caught mid-append. A reader walks back over it and leaves its bytes unconsumed so the next read sees the completed line.",
       })
     ),
-  },
-  $I.annote("LineSlice", {
-    description: "A single candidate line: its text, and where it lives in the source **in bytes**.",
-    documentation:
-      "Every offset on this class is a UTF-8 byte offset, never a UTF-16 code-unit\n" +
-      "index, because these values are cursors into a file: they are handed to\n" +
-      "`FileSystem.stream`'s `offset` option and persisted across process restarts.\n" +
-      "A `String.length`-derived offset is correct only for ASCII journals and is\n" +
-      "the single most likely bug in this module.\n" +
-      "\n" +
-      "The terminator is **not** part of the content: `text` and `length` exclude\n" +
-      "the trailing `\\n`, and exclude the `\\r` of a `\\r\\n` pair. `end` includes it,\n" +
-      "which is why `end - offset` is not always `length`.\n",
-  })
+  }).pipe(
+    $I.annoteSchema("LineSlice", {
+      description: "A single candidate line: its text, and where it lives in the source **in bytes**.",
+      documentation:
+        "Every offset on this class is a UTF-8 byte offset, never a UTF-16 code-unit\n" +
+        "index, because these values are cursors into a file: they are handed to\n" +
+        "`FileSystem.stream`'s `offset` option and persisted across process restarts.\n" +
+        "A `String.length`-derived offset is correct only for ASCII journals and is\n" +
+        "the single most likely bug in this module.\n" +
+        "\n" +
+        "The terminator is **not** part of the content: `text` and `length` exclude\n" +
+        "the trailing `\\n`, and exclude the `\\r` of a `\\r\\n` pair. `end` includes it,\n" +
+        "which is why `end - offset` is not always `length`.\n",
+    })
+  )
 ) {
   /**
    * Shift a line's byte offsets while preserving its content and terminator metadata.

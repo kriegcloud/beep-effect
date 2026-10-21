@@ -24,19 +24,25 @@ const deep = (depth: number): string => `${"[".repeat(depth)}1${"]".repeat(depth
 describe("internal/parser", () => {
   describe("schemas", () => {
     it("ParseFlags defaults to the JSONC convention", () => {
-      assert.deepStrictEqual(flags, { disallowComments: false, allowTrailingComma: true, allowEmptyContent: false });
+      assert.deepStrictEqual(
+        flags,
+        ParseFlags.make({ disallowComments: false, allowTrailingComma: true, allowEmptyContent: false })
+      );
     });
 
     it("ParseCode, RawParseError and the result structs validate their shapes", () => {
       assert.isTrue(ParseCode.is.ValueExpected("ValueExpected"));
       assert.strictEqual(ParseCode.literals.length, 17);
-      assert.deepStrictEqual(RawParseError.make({ code: "CommaExpected", offset: 4, length: 1 }), {
+      assert.deepStrictEqual<unknown>(RawParseError.make({ code: "CommaExpected", offset: 4, length: 1 }), {
         code: "CommaExpected",
         offset: 4,
         length: 1,
       });
-      assert.deepStrictEqual(ParseValueResult.make({ value: 1, errors: [] }), { value: 1, errors: [] });
-      assert.deepStrictEqual(ParseTreeResult.make({ root: O.none(), errors: [] }), { root: O.none(), errors: [] });
+      assert.deepStrictEqual<unknown>(ParseValueResult.make({ value: 1, errors: [] }), { value: 1, errors: [] });
+      assert.deepStrictEqual<unknown>(ParseTreeResult.make({ root: O.none(), errors: [] }), {
+        root: O.none(),
+        errors: [],
+      });
     });
   });
 
@@ -109,13 +115,16 @@ describe("internal/parser", () => {
     it("reports a missing colon, a non-string key and a missing value, resynchronizing on the next entry", () => {
       // Recovery stops on the comma, which the loop then reports as a missing
       // property name before continuing with the next entry.
-      assert.deepStrictEqual(parseValue('{"a" 1, "b": 2}', flags), {
-        value: { b: 2 },
-        errors: [
-          { code: "ColonExpected", offset: 5, length: 1 },
-          { code: "PropertyNameExpected", offset: 6, length: 1 },
-        ],
-      });
+      assert.deepStrictEqual(
+        parseValue('{"a" 1, "b": 2}', flags),
+        ParseValueResult.make({
+          value: { b: 2 },
+          errors: [
+            RawParseError.make({ code: "ColonExpected", offset: 5, length: 1 }),
+            RawParseError.make({ code: "PropertyNameExpected", offset: 6, length: 1 }),
+          ],
+        })
+      );
       assert.deepStrictEqual(codes('{1: 2, "b": 3}'), ["PropertyNameExpected", "PropertyNameExpected"]);
       assert.deepStrictEqual(parseValue('{1: 2, "b": 3}', flags).value, { b: 3 });
       assert.deepStrictEqual(codes('{"a": }'), ["ValueExpected"]);
@@ -126,14 +135,16 @@ describe("internal/parser", () => {
       assert.deepStrictEqual(codes("1 2"), ["EndOfFileExpected"]);
       assert.deepStrictEqual(codes(""), ["ValueExpected"]);
       assert.deepStrictEqual(codes("  // only\n"), ["ValueExpected"]);
-      assert.deepStrictEqual(parseValue("", ParseFlags.make({ allowEmptyContent: true })), {
-        value: undefined,
-        errors: [],
-      });
+      assert.deepStrictEqual(
+        parseValue("", ParseFlags.make({ allowEmptyContent: true })),
+        ParseValueResult.make({ value: undefined, errors: [] })
+      );
     });
 
     it("maps scanner errors to parse codes with their token spans", () => {
-      assert.deepStrictEqual(parseValue("1.", flags).errors, [{ code: "InvalidNumberFormat", offset: 0, length: 2 }]);
+      assert.deepStrictEqual(parseValue("1.", flags).errors, [
+        RawParseError.make({ code: "InvalidNumberFormat", offset: 0, length: 2 }),
+      ]);
       assert.deepStrictEqual(codes('"abc'), ["UnexpectedEndOfString"]);
       assert.deepStrictEqual(codes("/* open"), ["UnexpectedEndOfComment", "ValueExpected"]);
     });

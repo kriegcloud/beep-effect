@@ -1,4 +1,5 @@
 import { $SpdxId } from "@beep/identity/packages";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { License } from "../License.ts";
 import { LicenseException } from "../LicenseException.ts";
@@ -216,98 +217,76 @@ function scan(source: string): ReadonlyArray<Token> | undefined {
   let i = 0;
   const n = source.length;
   while (i < n) {
-    const code = source.charCodeAt(i);
     // Whitespace: SPDX permits only the ASCII space between tokens.
-    if (code === 32) {
+    if (source.charCodeAt(i) === 32) {
       i++;
       continue;
     }
-    if (code === 40) {
-      tokens.push({ type: TOKEN_OPEN_PAREN, value: "(" });
-      i++;
-      continue;
-    }
-    if (code === 41) {
-      tokens.push({ type: TOKEN_CLOSE_PAREN, value: ")" });
-      i++;
-      continue;
-    }
-    if (code === 43) {
-      // A `+` must abut its license id; a space before it is invalid.
-      if (i > 0 && source.charCodeAt(i - 1) === 32) return undefined;
-      tokens.push({ type: TOKEN_PLUS, value: "+" });
-      i++;
-      continue;
-    }
-    if (code === 58) {
-      tokens.push({ type: TOKEN_COLON, value: ":" });
-      i++;
-      continue;
-    }
-    if (isIdChar(code)) {
-      let j = i + 1;
-      while (j < n && isIdChar(source.charCodeAt(j))) j++;
-      const value = source.slice(i, j);
-      i = j;
-      // AND / OR / WITH are keywords only as whole tokens; a maximal
-      // idstring run means an id merely containing them (e.g. the "or" in
-      // `GPL-2.0-or-later`) is never mistaken for an operator.
-      const upper = value.toUpperCase();
-      if (upper === "AND") tokens.push({ type: TOKEN_AND, value });
-      else if (upper === "OR") tokens.push({ type: TOKEN_OR, value });
-      else if (upper === "WITH") tokens.push({ type: TOKEN_WITH, value });
-      else tokens.push({ type: TOKEN_ID, value });
-      continue;
-    }
-    // Unexpected character.
-    return undefined;
+    const next = scanToken(source, i, tokens);
+    if (next < 0) return undefined;
+    i = next;
   }
   return tokens;
 }
 
+// Shared immutable punctuation tokens — one allocation per kind, not per hit.
+const OPEN_PAREN_TOKEN: Token = { type: TOKEN_OPEN_PAREN, value: "(" };
+const CLOSE_PAREN_TOKEN: Token = { type: TOKEN_CLOSE_PAREN, value: ")" };
+const PLUS_TOKEN: Token = { type: TOKEN_PLUS, value: "+" };
+const COLON_TOKEN: Token = { type: TOKEN_COLON, value: ":" };
+
+// The single-character punctuation token for `code`, if it is one.
+function punctuationToken(code: number): Token | undefined {
+  if (code === 40) return OPEN_PAREN_TOKEN;
+  if (code === 41) return CLOSE_PAREN_TOKEN;
+  if (code === 43) return PLUS_TOKEN;
+  if (code === 58) return COLON_TOKEN;
+  return undefined;
+}
+
+// Scan the one non-space token starting at `i`, appending it to `tokens`.
+// Returns the index just past it, or `-1` on an unexpected character or a
+// `+` preceded by a space (a `+` must abut its license id).
+function scanToken(source: string, i: number, tokens: Token[]): number {
+  const code = source.charCodeAt(i);
+  if (code === 43 && i > 0 && source.charCodeAt(i - 1) === 32) return -1;
+  const punctuation = punctuationToken(code);
+  if (punctuation !== undefined) {
+    tokens.push(punctuation);
+    return i + 1;
+  }
+  if (!isIdChar(code)) return -1;
+  return scanIdString(source, i, tokens);
+}
+
+// Scan the maximal idstring run starting at `i` (whose first character is
+// already known to be an id character), appending it as an id or keyword
+// token. Returns the index just past the run.
+function scanIdString(source: string, i: number, tokens: Token[]): number {
+  const n = source.length;
+  let j = i + 1;
+  while (j < n && isIdChar(source.charCodeAt(j))) j++;
+  const value = source.slice(i, j);
+  // AND / OR / WITH are keywords only as whole tokens; a maximal
+  // idstring run means an id merely containing them (e.g. the "or" in
+  // `GPL-2.0-or-later`) is never mistaken for an operator.
+  tokens.push({ type: keywordType(value.toUpperCase()), value });
+  return j;
+}
+
+// The token kind for an upper-cased idstring: an operator keyword or a plain id.
+function keywordType(upper: string): TokenType {
+  if (upper === "AND") return TOKEN_AND;
+  if (upper === "OR") return TOKEN_OR;
+  if (upper === "WITH") return TOKEN_WITH;
+  return TOKEN_ID;
+}
+
 // ── Parser ──────────────────────────────────────────────────────────────
 
-/**
- * Parse an SPDX license expression into a {@link RawExpression} tree, or
- * `undefined` when the input is not a valid expression.
- *
- * **Details**
- *
- * A hardened, recursive-descent parser over the {@link scan} token stream,
- * following `spdx-expression-parse`'s operator precedence (`WITH` binds
- * tightest, then `AND`, then `OR`). It **never throws**: every malformation —
- * an unknown identifier, an unbalanced parenthesis, a dangling `AND`/`OR`, a
- * `WITH` without a known exception, or nesting past {@link MAX_NESTING_DEPTH} —
- * returns `undefined`, which the facade materializes into the package's typed
- * error. A single shared depth counter, incremented at each recursive entry and
- * released in `finally`, caps the recursion so hostile nesting is rejected
- * cleanly rather than overflowing the stack.
- *
- * **Example** (Inspect operator precedence)
- *
- * ```ts
- * import { parse } from "@beep/spdx/internal/parser"
- *
- * const expression = parse("MIT OR Apache-2.0 AND BSD-3-Clause")
- * console.log(expression?.kind) // or
- * console.log(expression?.kind === "or" && expression.right.kind) // and
- * ```
- *
- * **Example** (Reject malformed and deeply nested input)
- *
- * ```ts
- * import { MAX_NESTING_DEPTH, parse } from "@beep/spdx/internal/parser"
- *
- * const nested = "(".repeat(MAX_NESTING_DEPTH) + "MIT" + ")".repeat(MAX_NESTING_DEPTH)
- * console.log(parse("MIT AND")) // undefined
- * console.log(parse(nested)) // undefined
- * ```
- *
- * @internal
- * @category parsing
- * @since 0.0.0
- */
-export function parse(input: string): RawExpression | undefined {
+// The recursive-descent engine; `undefined` is its internal rejection signal,
+// lifted to `Option` at the exported boundary by {@link parse}.
+function parseOrUndefined(input: string): RawExpression | undefined {
   const tokens = scan(input);
   if (tokens === undefined) return undefined;
 
@@ -375,61 +354,117 @@ export function parse(input: string): RawExpression | undefined {
   function parseLicenseLike(): RawExpression | undefined {
     const head = peek();
     if (head === undefined || head.type !== TOKEN_ID) return undefined;
-    const value = head.value;
-    let license: RawSimpleLicense;
+    const license = parseSimpleLicense(head.value);
+    if (license === undefined) return undefined;
+    if (peek()?.type !== TOKEN_WITH) return license;
+    return parseWithException(license);
+  }
 
-    if (value.startsWith(DOCUMENT_REF_PREFIX)) {
-      // DocumentRef-<idstring> ":" LicenseRef-<idstring>
-      pos++; // consume DocumentRef- idstring
-      if (peek()?.type !== TOKEN_COLON) return undefined;
-      pos++; // consume :
-      const refToken = peek();
-      if (refToken === undefined || refToken.type !== TOKEN_ID || !refToken.value.startsWith(LICENSE_REF_PREFIX)) {
-        return undefined;
-      }
-      const full = `${value}:${refToken.value}`;
-      if (!License.isLicenseRef(full)) return undefined;
-      pos++; // consume LicenseRef- idstring
-      license = {
-        kind: "licenseRef",
-        documentRef: value.slice(DOCUMENT_REF_PREFIX.length),
-        ref: refToken.value.slice(LICENSE_REF_PREFIX.length),
-      };
-    } else if (value.startsWith(LICENSE_REF_PREFIX)) {
-      // Bare LicenseRef-<idstring>
-      if (!License.isLicenseRef(value)) return undefined;
-      pos++; // consume LicenseRef- idstring
-      license = { kind: "licenseRef", documentRef: undefined, ref: value.slice(LICENSE_REF_PREFIX.length) };
-    } else {
-      // A cataloged SPDX license id, optionally `+`.
-      if (!License.isKnownId(value)) return undefined;
-      pos++; // consume license id
-      let plus = false;
-      if (peek()?.type === TOKEN_PLUS) {
-        pos++; // consume +
-        plus = true;
-      }
-      license = { kind: "license", id: value, plus };
-    }
+  // Dispatch the head id to its simple-expression form.
+  function parseSimpleLicense(value: string): RawSimpleLicense | undefined {
+    if (value.startsWith(DOCUMENT_REF_PREFIX)) return parseDocumentLicenseRef(value);
+    if (value.startsWith(LICENSE_REF_PREFIX)) return parseBareLicenseRef(value);
+    return parseCatalogedLicense(value);
+  }
 
-    if (peek()?.type === TOKEN_WITH) {
-      pos++; // consume WITH
-      const exceptionToken = peek();
-      if (
-        exceptionToken === undefined ||
-        exceptionToken.type !== TOKEN_ID ||
-        !LicenseException.isKnownId(exceptionToken.value)
-      ) {
-        return undefined;
-      }
-      pos++; // consume exception id
-      return { kind: "with", license, exception: exceptionToken.value };
+  // DocumentRef-<idstring> ":" LicenseRef-<idstring>
+  function parseDocumentLicenseRef(value: string): RawSimpleLicense | undefined {
+    pos++; // consume DocumentRef- idstring
+    if (peek()?.type !== TOKEN_COLON) return undefined;
+    pos++; // consume :
+    const refToken = peek();
+    if (refToken === undefined || refToken.type !== TOKEN_ID || !refToken.value.startsWith(LICENSE_REF_PREFIX)) {
+      return undefined;
     }
-    return license;
+    const full = `${value}:${refToken.value}`;
+    if (!License.isLicenseRef(full)) return undefined;
+    pos++; // consume LicenseRef- idstring
+    return {
+      kind: "licenseRef",
+      documentRef: value.slice(DOCUMENT_REF_PREFIX.length),
+      ref: refToken.value.slice(LICENSE_REF_PREFIX.length),
+    };
+  }
+
+  // Bare LicenseRef-<idstring>
+  function parseBareLicenseRef(value: string): RawSimpleLicense | undefined {
+    if (!License.isLicenseRef(value)) return undefined;
+    pos++; // consume LicenseRef- idstring
+    return { kind: "licenseRef", documentRef: undefined, ref: value.slice(LICENSE_REF_PREFIX.length) };
+  }
+
+  // A cataloged SPDX license id, optionally `+`.
+  function parseCatalogedLicense(value: string): RawSimpleLicense | undefined {
+    if (!License.isKnownId(value)) return undefined;
+    pos++; // consume license id
+    const plus = peek()?.type === TOKEN_PLUS;
+    if (plus) pos++; // consume +
+    return { kind: "license", id: value, plus };
+  }
+
+  // `WITH <exception>` after a simple expression; the next token is `WITH`.
+  function parseWithException(license: RawSimpleLicense): RawExpression | undefined {
+    pos++; // consume WITH
+    const exceptionToken = peek();
+    if (
+      exceptionToken === undefined ||
+      exceptionToken.type !== TOKEN_ID ||
+      !LicenseException.isKnownId(exceptionToken.value)
+    ) {
+      return undefined;
+    }
+    pos++; // consume exception id
+    return { kind: "with", license, exception: exceptionToken.value };
   }
 
   const node = parseOr();
   // A valid parse consumes every token; leftover tokens mean trailing garbage.
   if (node === undefined || pos !== tokens.length) return undefined;
   return node;
+}
+
+/**
+ * Parse an SPDX license expression into a {@link RawExpression} tree, or
+ * `Option.none()` when the input is not a valid expression.
+ *
+ * **Details**
+ *
+ * A hardened, recursive-descent parser over the {@link scan} token stream,
+ * following `spdx-expression-parse`'s operator precedence (`WITH` binds
+ * tightest, then `AND`, then `OR`). It **never throws**: every malformation —
+ * an unknown identifier, an unbalanced parenthesis, a dangling `AND`/`OR`, a
+ * `WITH` without a known exception, or nesting past {@link MAX_NESTING_DEPTH} —
+ * yields `Option.none()`, which the facade materializes into the package's typed
+ * error. A single shared depth counter, incremented at each recursive entry and
+ * released in `finally`, caps the recursion so hostile nesting is rejected
+ * cleanly rather than overflowing the stack.
+ *
+ * **Example** (Inspect operator precedence)
+ *
+ * ```ts
+ * import { parse } from "@beep/spdx/internal/parser"
+ * import * as O from "effect/Option"
+ *
+ * const expression = O.getOrThrow(parse("MIT OR Apache-2.0 AND BSD-3-Clause"))
+ * console.log(expression.kind) // or
+ * console.log(expression.kind === "or" && expression.right.kind) // and
+ * ```
+ *
+ * **Example** (Reject malformed and deeply nested input)
+ *
+ * ```ts
+ * import { MAX_NESTING_DEPTH, parse } from "@beep/spdx/internal/parser"
+ * import * as O from "effect/Option"
+ *
+ * const nested = "(".repeat(MAX_NESTING_DEPTH) + "MIT" + ")".repeat(MAX_NESTING_DEPTH)
+ * console.log(O.isNone(parse("MIT AND"))) // true
+ * console.log(O.isNone(parse(nested))) // true
+ * ```
+ *
+ * @internal
+ * @category parsing
+ * @since 0.0.0
+ */
+export function parse(input: string): O.Option<RawExpression> {
+  return O.fromUndefinedOr(parseOrUndefined(input));
 }

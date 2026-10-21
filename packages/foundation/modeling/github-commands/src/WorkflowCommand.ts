@@ -25,49 +25,77 @@ const $I = $GithubCommandsId.create("WorkflowCommand");
  * import { AnnotationProperties } from "@beep/github-commands/WorkflowCommand";
  *
  * console.log(S.is(AnnotationProperties)({ file: "src/main.ts", startLine: 12 })) // true
+ * console.log(AnnotationProperties.make({ title: "Build" }).title) // Build
  * ```
  *
  * @category schemas
  * @since 0.0.0
  */
-export const AnnotationProperties = S.Struct({
-  /** A short title shown above the annotation. */
-  title: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AnnotationProperties.title", { description: "A short title shown above the annotation." })
-  ),
-  /** Repository-relative path of the annotated file. */
-  file: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AnnotationProperties.file", { description: "Repository-relative path of the annotated file." })
-  ),
-  /** First annotated line, 1-based. */
-  startLine: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("AnnotationProperties.startLine", { description: "First annotated line, 1-based." })
-  ),
-  /** Last annotated line, 1-based. */
-  endLine: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("AnnotationProperties.endLine", { description: "Last annotated line, 1-based." })
-  ),
-  /** First annotated column, 1-based. */
-  startColumn: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("AnnotationProperties.startColumn", { description: "First annotated column, 1-based." })
-  ),
-  /** Last annotated column, 1-based. */
-  endColumn: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("AnnotationProperties.endColumn", { description: "Last annotated column, 1-based." })
-  ),
-}).pipe(
-  $I.annoteSchema("AnnotationProperties", {
-    description: "The title and source location of a GitHub Actions notice, warning or error annotation.",
-  })
-);
+export class AnnotationProperties extends S.Opaque<AnnotationProperties, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** A short title shown above the annotation. */
+    title: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AnnotationProperties.title", { description: "A short title shown above the annotation." })
+    ),
+    /** Repository-relative path of the annotated file. */
+    file: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AnnotationProperties.file", { description: "Repository-relative path of the annotated file." })
+    ),
+    /** First annotated line, 1-based. */
+    startLine: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("AnnotationProperties.startLine", { description: "First annotated line, 1-based." })
+    ),
+    /** Last annotated line, 1-based. */
+    endLine: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("AnnotationProperties.endLine", { description: "Last annotated line, 1-based." })
+    ),
+    /** First annotated column, 1-based. */
+    startColumn: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("AnnotationProperties.startColumn", { description: "First annotated column, 1-based." })
+    ),
+    /** Last annotated column, 1-based. */
+    endColumn: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("AnnotationProperties.endColumn", { description: "Last annotated column, 1-based." })
+    ),
+  }).pipe(
+    $I.annoteSchema("AnnotationProperties", {
+      description: "The title and source location of a GitHub Actions notice, warning or error annotation.",
+    })
+  )
+) {}
 
 /**
- * The readable annotation properties accepted by the workflow command helpers.
+ * Companion types for {@link AnnotationProperties}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type AnnotationProperties = typeof AnnotationProperties.Type;
+export declare namespace AnnotationProperties {
+  /**
+   * The plain, unbranded annotation properties accepted by the workflow
+   * command helpers.
+   *
+   * **Details**
+   *
+   * The helpers take this structural shape rather than the branded decoded
+   * type, so a caller can pass an object literal without decoding it first. A
+   * decoded {@link AnnotationProperties} is assignable to it.
+   *
+   * **Example** (Pass an object literal to a command helper)
+   *
+   * ```ts
+   * import type { AnnotationProperties } from "@beep/github-commands/WorkflowCommand";
+   * import { WorkflowCommand } from "@beep/github-commands/WorkflowCommand";
+   *
+   * const properties: AnnotationProperties.Encoded = { file: "src/main.ts", startLine: 12 };
+   * console.log(WorkflowCommand.error("failed", properties)) // ::error file=src/main.ts,line=12::failed
+   * ```
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AnnotationProperties.Encoded;
+}
 
 /** Property values the runner accepts on a command. */
 type CommandProperties = Readonly<Record<string, string | number | boolean | undefined>>;
@@ -93,6 +121,30 @@ const escapeMessage = flow(Str.replaceAll("%", "%25"), Str.replaceAll("\r", "%0D
  * command or lets a value be read as a new property.
  */
 const escapeProperty = flow(escapeMessage, Str.replaceAll(":", "%3A"), Str.replaceAll(",", "%2C"));
+
+/** Map readable annotation fields onto GitHub's abbreviated wire names. */
+const annotation = (properties: AnnotationProperties.Encoded): CommandProperties => ({
+  title: properties.title,
+  file: properties.file,
+  line: properties.startLine,
+  endLine: properties.endLine,
+  col: properties.startColumn,
+  endColumn: properties.endColumn,
+});
+
+/** The data-first and data-last signatures shared by `notice`, `warning` and `error`. */
+interface AnnotationCommand {
+  (message: string, properties?: AnnotationProperties.Encoded): string;
+  (properties?: AnnotationProperties.Encoded): (message: string) => string;
+}
+
+/** Build an annotation command (`notice`, `warning`, `error`) that maps its properties onto wire names. */
+const annotationCommand = (name: "notice" | "warning" | "error"): AnnotationCommand =>
+  dual(
+    (args) => P.isString(args[0]),
+    (message: string, properties: AnnotationProperties.Encoded = {}): string =>
+      WorkflowCommand.render(name, annotation(properties), message)
+  );
 
 /**
  * The GitHub Actions workflow-command wire protocol: `::name key=value::message`.
@@ -215,13 +267,9 @@ export class WorkflowCommand {
    * @since 0.0.0
    */
   static readonly notice: {
-    (message: string, properties?: AnnotationProperties): string;
-    (properties?: AnnotationProperties): (message: string) => string;
-  } = dual(
-    (args) => P.isString(args[0]),
-    (message: string, properties: AnnotationProperties = {}): string =>
-      WorkflowCommand.render("notice", WorkflowCommand.annotation(properties), message)
-  );
+    (message: string, properties?: AnnotationProperties.Encoded): string;
+    (properties?: AnnotationProperties.Encoded): (message: string) => string;
+  } = annotationCommand("notice");
 
   /**
    * Render a `::warning::` message with optional source annotation.
@@ -238,13 +286,9 @@ export class WorkflowCommand {
    * @since 0.0.0
    */
   static readonly warning: {
-    (message: string, properties?: AnnotationProperties): string;
-    (properties?: AnnotationProperties): (message: string) => string;
-  } = dual(
-    (args) => P.isString(args[0]),
-    (message: string, properties: AnnotationProperties = {}): string =>
-      WorkflowCommand.render("warning", WorkflowCommand.annotation(properties), message)
-  );
+    (message: string, properties?: AnnotationProperties.Encoded): string;
+    (properties?: AnnotationProperties.Encoded): (message: string) => string;
+  } = annotationCommand("warning");
 
   /**
    * Render a `::error::` message with optional source annotation.
@@ -261,13 +305,9 @@ export class WorkflowCommand {
    * @since 0.0.0
    */
   static readonly error: {
-    (message: string, properties?: AnnotationProperties): string;
-    (properties?: AnnotationProperties): (message: string) => string;
-  } = dual(
-    (args) => P.isString(args[0]),
-    (message: string, properties: AnnotationProperties = {}): string =>
-      WorkflowCommand.render("error", WorkflowCommand.annotation(properties), message)
-  );
+    (message: string, properties?: AnnotationProperties.Encoded): string;
+    (properties?: AnnotationProperties.Encoded): (message: string) => string;
+  } = annotationCommand("error");
 
   /**
    * Render `::group::` to open a collapsible section in the runner log.
@@ -321,30 +361,5 @@ export class WorkflowCommand {
    */
   static addMask(value: string): string {
     return WorkflowCommand.render("add-mask", {}, value);
-  }
-
-  /**
-   * Map readable annotation fields onto GitHub's abbreviated wire names.
-   *
-   * **Example** (Map readable source coordinates to wire names)
-   *
-   * ```ts
-   * import { WorkflowCommand } from "@beep/github-commands/WorkflowCommand";
-   *
-   * console.log(WorkflowCommand.error("failed", { startLine: 2, startColumn: 3 })) // ::error line=2,col=3::failed
-   * ```
-   *
-   * @category formatting
-   * @since 0.0.0
-   */
-  private static annotation(properties: AnnotationProperties): CommandProperties {
-    return {
-      title: properties.title,
-      file: properties.file,
-      line: properties.startLine,
-      endLine: properties.endLine,
-      col: properties.startColumn,
-      endColumn: properties.endColumn,
-    };
   }
 }

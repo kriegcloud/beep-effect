@@ -507,46 +507,56 @@ const defaultDanglingReferencePolicy = DanglingReferencePolicy.Enum.ignore;
  * @category schemas
  * @since 0.0.0
  */
-export const ConformanceOptions = S.Struct({
-  /**
-   * `"report"` (the default) surfaces an {@link UnknownTerm} without failing;
-   * `"fail"` is strict mode, for a closed-world caller who controls every
-   * term in their graph and wants an invented one to break the build.
-   */
-  unknownTerms: UnknownTermPolicy.pipe(
-    S.withDecodingDefault(Effect.succeed(defaultUnknownTermPolicy)),
-    $I.annoteKey("ConformanceOptions.unknownTerms", { description: "Unknown-term gate policy; defaults to report." })
-  ),
-  /**
-   * `"ignore"` (the default) keeps {@link DeprecatedType} and
-   * {@link DeprecatedProperty} out of the gate; `"report"` makes them fail it.
-   */
-  deprecations: DeprecationPolicy.pipe(
-    S.withDecodingDefault(Effect.succeed(defaultDeprecationPolicy)),
-    $I.annoteKey("ConformanceOptions.deprecations", { description: "Deprecation gate policy; defaults to ignore." })
-  ),
-  /**
-   * `"ignore"` (the default) keeps {@link DanglingReference} out of the gate;
-   * `"report"` makes an open graph fail, which is what a consumer whose graph
-   * is meant to be closed wants.
-   */
-  danglingReferences: DanglingReferencePolicy.pipe(
-    S.withDecodingDefault(Effect.succeed(defaultDanglingReferencePolicy)),
-    $I.annoteKey("ConformanceOptions.danglingReferences", {
-      description: "Graph-closure gate policy; defaults to ignore.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("ConformanceOptions", { description: "Optional gate policies with safe defaults when decoded." })
-);
+export class ConformanceOptions extends S.Opaque<ConformanceOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * `"report"` (the default) surfaces an {@link UnknownTerm} without failing;
+     * `"fail"` is strict mode, for a closed-world caller who controls every
+     * term in their graph and wants an invented one to break the build.
+     */
+    unknownTerms: UnknownTermPolicy.pipe(
+      S.withDecodingDefault(Effect.succeed(defaultUnknownTermPolicy)),
+      $I.annoteKey("ConformanceOptions.unknownTerms", { description: "Unknown-term gate policy; defaults to report." })
+    ),
+    /**
+     * `"ignore"` (the default) keeps {@link DeprecatedType} and
+     * {@link DeprecatedProperty} out of the gate; `"report"` makes them fail it.
+     */
+    deprecations: DeprecationPolicy.pipe(
+      S.withDecodingDefault(Effect.succeed(defaultDeprecationPolicy)),
+      $I.annoteKey("ConformanceOptions.deprecations", { description: "Deprecation gate policy; defaults to ignore." })
+    ),
+    /**
+     * `"ignore"` (the default) keeps {@link DanglingReference} out of the gate;
+     * `"report"` makes an open graph fail, which is what a consumer whose graph
+     * is meant to be closed wants.
+     */
+    danglingReferences: DanglingReferencePolicy.pipe(
+      S.withDecodingDefault(Effect.succeed(defaultDanglingReferencePolicy)),
+      $I.annoteKey("ConformanceOptions.danglingReferences", {
+        description: "Graph-closure gate policy; defaults to ignore.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ConformanceOptions", { description: "Optional gate policies with safe defaults when decoded." })
+  )
+) {}
 
 /**
- * Plain-object policy input, including omitted and explicitly undefined fields.
+ * Companion types for {@link ConformanceOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ConformanceOptions = typeof ConformanceOptions.Encoded;
+export declare namespace ConformanceOptions {
+  /**
+   * Plain-object policy input, including omitted and explicitly undefined fields.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ConformanceOptions.Encoded;
+}
 
 const isJsonLdDocument = S.is(JsonLdDocument);
 
@@ -764,11 +774,19 @@ export class Conformance {
    * @since 0.0.0
    */
   static readonly validateResult: {
-    (graph: JsonLdDocument, options?: ConformanceOptions): Result.Result<JsonLdDocument, NonConformantGraphError>;
-    (options?: ConformanceOptions): (graph: JsonLdDocument) => Result.Result<JsonLdDocument, NonConformantGraphError>;
+    (
+      graph: JsonLdDocument,
+      options?: ConformanceOptions.Encoded
+    ): Result.Result<JsonLdDocument, NonConformantGraphError>;
+    (
+      options?: ConformanceOptions.Encoded
+    ): (graph: JsonLdDocument) => Result.Result<JsonLdDocument, NonConformantGraphError>;
   } = dual(
     (args) => isJsonLdDocument(args[0]),
-    (graph: JsonLdDocument, options?: ConformanceOptions): Result.Result<JsonLdDocument, NonConformantGraphError> => {
+    (
+      graph: JsonLdDocument,
+      options?: ConformanceOptions.Encoded
+    ): Result.Result<JsonLdDocument, NonConformantGraphError> => {
       const unknownTerms = options?.unknownTerms ?? defaultUnknownTermPolicy;
       const deprecations = options?.deprecations ?? defaultDeprecationPolicy;
       const danglingReferences = options?.danglingReferences ?? defaultDanglingReferencePolicy;
@@ -813,12 +831,20 @@ export class Conformance {
    * @since 0.0.0
    */
   static readonly validate: {
-    (graph: JsonLdDocument, options?: ConformanceOptions): Effect.Effect<JsonLdDocument, NonConformantGraphError>;
-    (options?: ConformanceOptions): (graph: JsonLdDocument) => Effect.Effect<JsonLdDocument, NonConformantGraphError>;
+    (
+      graph: JsonLdDocument,
+      options?: ConformanceOptions.Encoded
+    ): Effect.Effect<JsonLdDocument, NonConformantGraphError>;
+    (
+      options?: ConformanceOptions.Encoded
+    ): (graph: JsonLdDocument) => Effect.Effect<JsonLdDocument, NonConformantGraphError>;
   } = dual(
     (args) => isJsonLdDocument(args[0]),
     Effect.fn("Conformance.validate")(
-      (graph: JsonLdDocument, options?: ConformanceOptions): Effect.Effect<JsonLdDocument, NonConformantGraphError> =>
+      (
+        graph: JsonLdDocument,
+        options?: ConformanceOptions.Encoded
+      ): Effect.Effect<JsonLdDocument, NonConformantGraphError> =>
         Effect.fromResult(Conformance.validateResult(graph, options))
     )
   );

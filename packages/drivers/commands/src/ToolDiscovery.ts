@@ -382,14 +382,14 @@ type Evidence = typeof Evidence.Type;
  *
  * **Details**
  *
- * A `Schema.Class` rather than a string because the cache's `MutableHashMap`
- * keys on `Equal`/`Hash`, which schema classes implement structurally — so the
- * key can carry the probe itself instead of an encoded rendering of it, and the
- * lookup needs no side table. Policy fields are deliberately absent: they are
- * applied to the evidence per call.
+ * A structured key rather than a string because the cache's `MutableHashMap`
+ * keys on `Equal`/`Hash`, which Effect implements structurally for plain
+ * objects — so the key can carry the probe itself instead of an encoded
+ * rendering of it, and the lookup needs no side table. Policy fields are
+ * deliberately absent: they are applied to the evidence per call.
  */
-class EvidenceKey extends S.Class<EvidenceKey, { readonly brand: unique symbol }>($I`EvidenceKey`)(
-  {
+class EvidenceKey extends S.Opaque<EvidenceKey, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.pipe(
       $I.annoteKey("EvidenceKey.name", {
         description:
@@ -402,8 +402,11 @@ class EvidenceKey extends S.Class<EvidenceKey, { readonly brand: unique symbol }
           "How the tool is asked for its version and how its output is interpreted, distinguishing cached discovery evidence",
       })
     ),
-  },
-  $I.annote("EvidenceKey", { description: "The cache key: everything the probe outcome depends on, and nothing else." })
+  }).pipe(
+    $I.annoteSchema("EvidenceKey", {
+      description: "The cache key: everything the probe outcome depends on, and nothing else.",
+    })
+  )
 ) {}
 
 /** argv for a version probe: the flag string split on whitespace. */
@@ -482,6 +485,37 @@ export interface ToolDiscoveryShape {
   readonly resolve: (tool: Tool) => Effect.Effect<ResolvedTool, ToolResolutionFailure>;
 }
 
+/** The locations a source requirement searches, reported when it is unmet. */
+const requiredSources = (source: Tool["source"]): ReadonlyArray<ResolvedSource> =>
+  source === "any" || source === "both" ? ["global", "local"] : [source];
+
+/** Whether the probe evidence meets a source requirement. */
+const SOURCE_SATISFIED: Record<Tool["source"], (evidence: Evidence) => boolean> = {
+  any: (evidence) => evidence.global.found || evidence.local.found,
+  both: (evidence) => evidence.global.found && evidence.local.found,
+  global: (evidence) => evidence.global.found,
+  local: (evidence) => evidence.local.found,
+};
+
+const isSatisfied = (source: Tool["source"], evidence: Evidence): boolean => SOURCE_SATISFIED[source](evidence);
+
+/** Both copies exist and report different versions. */
+const hasVersionMismatch = (evidence: Evidence): boolean =>
+  evidence.global.found &&
+  evidence.local.found &&
+  O.isSome(evidence.global.version) &&
+  O.isSome(evidence.local.version) &&
+  evidence.global.version.value !== evidence.local.version.value;
+
+// Which copy to run: an explicit source requirement decides; otherwise the
+// mismatch policy decides when both exist; otherwise whichever exists,
+// preferring local.
+const selectSource = (tool: Tool, evidence: Evidence, mismatch: boolean): ResolvedSource => {
+  if (tool.source === "global" || tool.source === "local") return tool.source;
+  if (mismatch && tool.onMismatch === "preferGlobal") return "global";
+  return evidence.local.found ? "local" : "global";
+};
+
 /** Builds the service over an already-resolved spawner and local-exec context. */
 const make = Effect.fnUntraced(function* () {
   const local = yield* LocalExec;
@@ -492,7 +526,7 @@ const make = Effect.fnUntraced(function* () {
   // without a second probe.
   //
   // The key is (name, version probe) — exactly what the evidence depends on —
-  // as a `Schema.Class`, whose structural `Equal`/`Hash` the cache's
+  // as a plain schema value, whose structural `Equal`/`Hash` the cache's
   // `MutableHashMap` uses, nested union members included. Two tools differing
   // only in policy share one probe; two differing in how they ask for a
   // version do not — pinned by "the cache stores EVIDENCE, so a second Tool
@@ -544,29 +578,11 @@ const make = Effect.fnUntraced(function* () {
     }
 
     const evidence = yield* evidenceFor(tool);
-    const required: ReadonlyArray<ResolvedSource> =
-      tool.source === "any" ? ["global", "local"] : tool.source === "both" ? ["global", "local"] : [tool.source];
-
-    const satisfied =
-      tool.source === "any"
-        ? evidence.global.found || evidence.local.found
-        : tool.source === "both"
-          ? evidence.global.found && evidence.local.found
-          : tool.source === "global"
-            ? evidence.global.found
-            : evidence.local.found;
-
-    if (!satisfied) {
-      return yield* ToolNotFoundError.make({ tool: tool.name, searched: required });
+    if (!isSatisfied(tool.source, evidence)) {
+      return yield* ToolNotFoundError.make({ tool: tool.name, searched: requiredSources(tool.source) });
     }
 
-    const bothFound = evidence.global.found && evidence.local.found;
-    const mismatch =
-      bothFound &&
-      O.isSome(evidence.global.version) &&
-      O.isSome(evidence.local.version) &&
-      evidence.global.version.value !== evidence.local.version.value;
-
+    const mismatch = hasVersionMismatch(evidence);
     if (mismatch && tool.onMismatch === "fail") {
       return yield* ToolVersionMismatchError.make({
         tool: tool.name,
@@ -575,20 +591,7 @@ const make = Effect.fnUntraced(function* () {
       });
     }
 
-    // Which copy to run: an explicit source requirement decides; otherwise the
-    // mismatch policy decides when both exist; otherwise whichever exists,
-    // preferring local.
-    const selected: ResolvedSource =
-      tool.source === "global"
-        ? "global"
-        : tool.source === "local"
-          ? "local"
-          : mismatch && tool.onMismatch === "preferGlobal"
-            ? "global"
-            : evidence.local.found
-              ? "local"
-              : "global";
-
+    const selected = selectSource(tool, evidence, mismatch);
     const context = selected === "local" ? O.getOrUndefined(evidence.context) : undefined;
     return ResolvedTool.make({
       name: tool.name,

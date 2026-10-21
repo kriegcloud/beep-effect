@@ -38,14 +38,15 @@ const $I = $JsoncId.create("JsoncEdit");
  * @category models
  * @since 0.0.0
  */
-export class JsoncRange extends S.Class<JsoncRange, { readonly brand: unique symbol }>($I`JsoncRange`)(
-  {
+export class JsoncRange extends S.Opaque<JsoncRange, { readonly brand: unique symbol }>()(
+  S.Struct({
     offset: S.Finite,
     length: S.Finite,
-  },
-  $I.annote("JsoncRange", {
-    description: "A character span inside a JSONC document.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncRange", {
+      description: "A character span inside a JSONC document.",
+    })
+  )
 ) {}
 
 /**
@@ -80,10 +81,8 @@ export class JsoncRange extends S.Class<JsoncRange, { readonly brand: unique sym
  * @category models
  * @since 0.0.0
  */
-export class JsoncFormattingOptions extends S.Class<JsoncFormattingOptions, { readonly brand: unique symbol }>(
-  $I`JsoncFormattingOptions`
-)(
-  {
+export class JsoncFormattingOptions extends S.Opaque<JsoncFormattingOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     tabSize: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(2)), S.withDecodingDefaultKey(Effect.succeed(2))),
     insertSpaces: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
@@ -98,10 +97,11 @@ export class JsoncFormattingOptions extends S.Class<JsoncFormattingOptions, { re
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("JsoncFormattingOptions", {
-    description: "Indentation, line-ending and line-preservation settings for JSONC formatting.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncFormattingOptions", {
+      description: "Indentation, line-ending and line-preservation settings for JSONC formatting.",
+    })
+  )
 ) {}
 
 /**
@@ -205,15 +205,16 @@ const byOffsetDescending = Order.flip(Order.mapInput(Order.Number, (edit: JsoncE
  * @category models
  * @since 0.0.0
  */
-export class JsoncEdit extends S.Class<JsoncEdit, { readonly brand: unique symbol }>($I`JsoncEdit`)(
-  {
+export class JsoncEdit extends S.Opaque<JsoncEdit, { readonly brand: unique symbol }>()(
+  S.Struct({
     offset: S.Finite,
     length: S.Finite,
     content: S.String,
-  },
-  $I.annote("JsoncEdit", {
-    description: "A replacement of one character span with new content.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncEdit", {
+      description: "A replacement of one character span with new content.",
+    })
+  )
 ) {
   /**
    * Apply `edits` to `text`, producing a new string, or fail when two edits

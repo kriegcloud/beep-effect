@@ -10,8 +10,70 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import type * as SchemaAST from "effect/SchemaAST";
 
 const SemVerBumpOverflowErrorJson = S.fromJsonString(SemVerBumpOverflowError);
+
+// Narrows a schema check to a filter group, failing the test otherwise.
+const expectFilterGroup = <T>(check: SchemaAST.Check<T> | undefined, message: string): SchemaAST.FilterGroup<T> => {
+  if (check?._tag !== "FilterGroup") return assert.fail(message);
+  return check;
+};
+
+// Asserts a check is a filter carrying the `@beep/semver/SemVer/<name>`
+// identifier plus a nonempty title and description.
+const assertAnnotatedFilter = <T>(name: string, check: SchemaAST.Check<T> | undefined): void => {
+  assert.strictEqual(check?._tag, "Filter");
+  const annotations = check?.annotations;
+  assert.strictEqual(annotations?.identifier, `@beep/semver/SemVer/${name}`);
+  assert.isString(annotations?.title);
+  assert.isNotEmpty(annotations?.title);
+  assert.isString(annotations?.description);
+  assert.isNotEmpty(annotations?.description);
+};
+
+const versionStringPrefix = "@beep/semver/SemVer/";
+
+// Asserts a version-string schema and its first filter carry identity,
+// title and description metadata.
+const assertVersionStringMetadata = (name: string, schema: S.Top): void => {
+  const annotations = S.resolveAnnotations(schema);
+  assert.strictEqual(annotations?.identifier, `${versionStringPrefix}${name}`);
+  assert.isString(annotations?.title);
+  assert.isString(annotations?.description);
+  const check = expectFilterGroup(schema.ast.checks?.[0], "expected a metadata-bearing check group").checks[0];
+  const checkAnnotations = check?.annotations;
+  assert.strictEqual(checkAnnotations?.identifier, `${versionStringPrefix}${name}Check`);
+  assert.isString(checkAnnotations?.title);
+  assert.isString(checkAnnotations?.description);
+};
+
+const versionStringInputs = [
+  "1.2.3",
+  "1.2.3-alpha.0",
+  "1.2.3+build",
+  " 1.2.3",
+  "1.2.3 ",
+  "^1.2.3",
+  "1.2",
+  "latest",
+  "01.2.3",
+  "",
+] as const;
+
+// Asserts a version-string schema accepts exactly what its predicate accepts
+// and decodes accepted input unchanged.
+const assertVersionStringValidation = (
+  name: string,
+  schema: S.Codec<string, string>,
+  valid: (input: string) => boolean
+): void => {
+  for (const input of versionStringInputs) {
+    const result = S.decodeResult(schema)(input);
+    assert.strictEqual(Result.isSuccess(result), valid(input), `${name}: ${input}`);
+    if (Result.isSuccess(result)) assert.strictEqual(result.success, input);
+  }
+};
 
 describe("SemVer", () => {
   describe("parse", () => {
@@ -472,11 +534,12 @@ describe("SemVer round-2 metadata regressions", () => {
   it("annotates integer, range and identifier-pattern checks while retaining the finite check", () => {
     const numericChecks = SemVer.fields.major.ast.checks;
     assert.strictEqual(numericChecks?.[0], S.Finite.ast.checks?.[0]);
-    const numericGroup = numericChecks?.[1];
-    if (numericGroup?._tag !== "FilterGroup") return assert.fail("expected a numeric check group");
+    const numericGroup = expectFilterGroup(numericChecks?.[1], "expected a numeric check group");
     assert.lengthOf(numericGroup.checks, 2);
-    const buildGroup = SemVer.fields.build.value.ast.checks?.[0];
-    if (buildGroup?._tag !== "FilterGroup") return assert.fail("expected a build identifier check group");
+    const buildGroup = expectFilterGroup(
+      SemVer.fields.build.value.ast.checks?.[0],
+      "expected a build identifier check group"
+    );
     assert.lengthOf(buildGroup.checks, 1);
     for (const [name, check] of [
       ["NonNegativeIntegerIntCheck", numericGroup.checks[0]],
@@ -484,12 +547,7 @@ describe("SemVer round-2 metadata regressions", () => {
       ["PrereleaseIdentifierPatternCheck", SemVer.fields.prerelease.value.members[0].ast.checks?.[0]],
       ["BuildIdentifierPatternCheck", buildGroup.checks[0]],
     ] as const) {
-      assert.strictEqual(check?._tag, "Filter");
-      assert.strictEqual(check?.annotations?.identifier, `@beep/semver/SemVer/${name}`);
-      assert.isString(check?.annotations?.title);
-      assert.isNotEmpty(check?.annotations?.title);
-      assert.isString(check?.annotations?.description);
-      assert.isNotEmpty(check?.annotations?.description);
+      assertAnnotatedFilter(name, check);
     }
   });
 });
@@ -500,32 +558,8 @@ describe("SemVer round-1 regressions", () => {
       ["ExactVersionString", SemVer.ExactVersionString, SemVer.isValid],
       ["PinnableVersionString", SemVer.PinnableVersionString, SemVer.isPinnable],
     ] as const) {
-      const prefix = "@beep/semver/SemVer/";
-      assert.strictEqual(S.resolveAnnotations(schema)?.identifier, `${prefix}${name}`);
-      assert.isString(S.resolveAnnotations(schema)?.title);
-      assert.isString(S.resolveAnnotations(schema)?.description);
-      const group = schema.ast.checks?.[0];
-      if (group?._tag !== "FilterGroup") return assert.fail("expected a metadata-bearing check group");
-      const check = group.checks[0];
-      assert.strictEqual(check?.annotations?.identifier, `${prefix}${name}Check`);
-      assert.isString(check?.annotations?.title);
-      assert.isString(check?.annotations?.description);
-      for (const input of [
-        "1.2.3",
-        "1.2.3-alpha.0",
-        "1.2.3+build",
-        " 1.2.3",
-        "1.2.3 ",
-        "^1.2.3",
-        "1.2",
-        "latest",
-        "01.2.3",
-        "",
-      ]) {
-        const result = S.decodeResult(schema)(input);
-        assert.strictEqual(Result.isSuccess(result), valid(input), `${name}: ${input}`);
-        if (Result.isSuccess(result)) assert.strictEqual(result.success, input);
-      }
+      assertVersionStringMetadata(name, schema);
+      assertVersionStringValidation(name, schema, valid);
     }
   });
 

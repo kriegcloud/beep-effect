@@ -211,16 +211,23 @@ function* visitGen(text: string, disallowComments: boolean): Events {
     tokenLength: () => scanner.getTokenLength(),
   };
 
+  // In-band diagnostics for the token just scanned: its scan error, then its
+  // comment event (or InvalidCommentToken when comments are disallowed).
+  function* tokenEvents(kind: SyntaxKind): Events {
+    const code = scanErrorToCode(scanner.getTokenError());
+    if (O.isSome(code)) {
+      yield error(code.value);
+    }
+    if (isComment(kind)) {
+      yield disallowComments ? error("InvalidCommentToken") : JsoncVisitorEvent.cases.Comment.make(span());
+    }
+  }
+
   function* scanNext(): Events {
     for (;;) {
       const kind = scanner.scan();
-      const code = scanErrorToCode(scanner.getTokenError());
-      if (O.isSome(code)) {
-        yield error(code.value);
-      }
-      if (isComment(kind)) {
-        yield disallowComments ? error("InvalidCommentToken") : JsoncVisitorEvent.cases.Comment.make(span());
-      } else if (!isTrivia(kind)) {
+      yield* tokenEvents(kind);
+      if (!isComment(kind) && !isTrivia(kind)) {
         return;
       }
     }
@@ -288,36 +295,50 @@ function* visitGen(text: string, disallowComments: boolean): Events {
     }
   }
 
+  // One object member at the cursor. Answers whether a comma is now required:
+  // a non-string key records PropertyNameExpected, skips the token and leaves
+  // the requirement unchanged.
+  function* visitProperty(): Generator<JsoncVisitorEvent, boolean> {
+    if (!SyntaxKind.is.String(scanner.getToken())) {
+      yield error("PropertyNameExpected");
+      yield* scanNext();
+      return false;
+    }
+    const key = scanner.getTokenValue();
+    yield JsoncVisitorEvent.cases.ObjectProperty.make({
+      ...span(),
+      property: key,
+      path,
+    });
+    path = A.append(path, key);
+    yield* scanNext(); // skip key
+    yield* visitColon();
+    yield* visitValue();
+    path = A.dropRight(path, 1);
+    return true;
+  }
+
+  function* visitColon(): Events {
+    if (SyntaxKind.is.Colon(scanner.getToken())) {
+      yield separator(":");
+      yield* scanNext(); // skip colon
+    } else {
+      yield error("ColonExpected");
+    }
+  }
+
   function* visitObject(): Events {
     yield JsoncVisitorEvent.cases.ObjectBegin.make({ ...span(), path });
     yield* scanNext(); // skip {
     let needsComma = false;
-    while (!SyntaxKind.is.CloseBrace(scanner.getToken()) && !SyntaxKind.is.EOF(scanner.getToken())) {
-      if (!(yield* entrySeparator("CloseBrace", needsComma))) {
-        break;
+    while (
+      !SyntaxKind.is.CloseBrace(scanner.getToken()) &&
+      !SyntaxKind.is.EOF(scanner.getToken()) &&
+      (yield* entrySeparator("CloseBrace", needsComma))
+    ) {
+      if (yield* visitProperty()) {
+        needsComma = true;
       }
-      if (!SyntaxKind.is.String(scanner.getToken())) {
-        yield error("PropertyNameExpected");
-        yield* scanNext();
-        continue;
-      }
-      const key = scanner.getTokenValue();
-      yield JsoncVisitorEvent.cases.ObjectProperty.make({
-        ...span(),
-        property: key,
-        path,
-      });
-      path = A.append(path, key);
-      yield* scanNext(); // skip key
-      if (SyntaxKind.is.Colon(scanner.getToken())) {
-        yield separator(":");
-        yield* scanNext(); // skip colon
-      } else {
-        yield error("ColonExpected");
-      }
-      yield* visitValue();
-      path = A.dropRight(path, 1);
-      needsComma = true;
     }
     yield* closeContainer("CloseBrace", () => JsoncVisitorEvent.cases.ObjectEnd.make(span()), "CloseBraceExpected");
   }

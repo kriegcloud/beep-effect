@@ -1,10 +1,11 @@
+import { fcRuns } from "@beep/fc-runs";
 import { $JsonlId } from "@beep/identity/packages";
 import { Envelope, Journal, JsonlEvent, Line, LineSlice } from "@beep/jsonl";
 import { canMerge, shallowMerge } from "@beep/jsonl/internal/merge";
 import { probeBomBytes, readTailUntil } from "@beep/jsonl/internal/tail";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, expectTypeOf, it } from "@effect/vitest";
-import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertNone, assertSome, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -55,6 +56,20 @@ const withJournal = Effect.fnUntraced(function* <A, E>(body: Effect.Effect<A, E,
 }, Effect.scoped);
 
 describe("JSONL schema and facade types", () => {
+  it.prop(
+    "piped and value-first codecs agree for every updated payload",
+    [Updated.data],
+    ([data]) => {
+      const input = { at, event: "updated" as const, data };
+      const encoded = Envelope.encodeResult(input, events);
+      expect(pipe(input, Envelope.encodeResult(events))).toStrictEqual(encoded);
+      const source = O.getOrThrow(A.head(Line.split(Result.getOrThrow(encoded))));
+      const decoded = Envelope.decodeResult(source, events);
+      expect(pipe(source, Envelope.decodeResult(events))).toStrictEqual(decoded);
+      decoded.pipe(Result.isSuccess, assertTrue);
+    },
+    { arbitrary: fcRuns(100) }
+  );
   it("supports value-first and piped synchronous codecs without widening the registry", () => {
     const text = '{"at":"2026-10-06T00:00:00Z","event":"updated","data":{"count":2,"label":"a"}}';
     const source = line(text);
@@ -366,7 +381,7 @@ const rejectsInvalidCalls = (
   // @ts-expect-error Effectful piped encoding also rejects foreign tags.
   const invalid9 = Envelope.encode(events)({ at, event: "foreign", data: null });
   // @ts-expect-error Omission is accepted, explicit undefined is not.
-  const invalid10: AppendOptions = { scope: undefined };
+  const invalid10: typeof AppendOptions.Encoded = { scope: undefined };
   return [
     invalid0,
     invalid1,
@@ -386,7 +401,7 @@ void rejectsInvalidCalls;
 // Upstream parity (D15 restored to upstream): an explicitly undefined optional
 // configuration or slice key is accepted and behaves as omission.
 const acceptsExplicitUndefined: ReadonlyArray<unknown> = [
-  { path, capacity: undefined } satisfies JournalConfig,
+  { path, capacity: undefined } satisfies typeof JournalConfig.Encoded,
   { events: undefined } satisfies CursoredSlice<Registry, "updated">,
   { cursor: undefined } satisfies CursoredSlice<Registry, "updated">,
 ];

@@ -31,8 +31,8 @@ const $I = $SchemaOrgId.create("APIReference");
  * @category models
  * @since 0.0.0
  */
-export class APIReference extends S.Class<APIReference, { readonly brand: unique symbol }>($I`APIReference`)(
-  {
+export class APIReference extends S.Opaque<APIReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...TechArticleFields,
     /** The JSON-LD type discriminator, populated automatically. */
     "@type": S.tag("APIReference").pipe(
@@ -60,6 +60,7 @@ export class APIReference extends S.Class<APIReference, { readonly brand: unique
         description: "The library file that exposes the API. Single-valued.",
       })
     ),
-  },
-  $I.annote("APIReference", { description: "A schema.org `APIReference` — documentation of an API surface." })
+  }).pipe(
+    $I.annoteSchema("APIReference", { description: "A schema.org `APIReference` — documentation of an API surface." })
+  )
 ) {}

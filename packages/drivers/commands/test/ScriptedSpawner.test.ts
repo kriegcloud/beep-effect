@@ -4,10 +4,12 @@
 // routing, spawn recording (options, extendEnv), the PlatformError failure
 // path, hang, unref observation, and the loud pipeline refusal.
 
-import { CommandFailedError, Run } from "@beep/commands/Run";
-import { ScriptedSpawner, ScriptResult, SpawnRecord } from "@beep/commands/ScriptedSpawner";
+import { CommandFailedError, Run, RunOptions } from "@beep/commands/Run";
+import { ScriptCompletion, ScriptedSpawner, ScriptResult, SpawnRecord } from "@beep/commands/ScriptedSpawner";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -112,7 +114,7 @@ describe("ScriptedSpawner.make", () => {
   it.effect("hang never resolves exitCode, so an opted-in timeout fires", () =>
     Effect.gen(function* () {
       const spawner = ScriptedSpawner.make(() => ({ hang: true }));
-      const fiber = yield* Run.collect(cmd(), { timeout: "30 seconds" }).pipe(
+      const fiber = yield* Run.collect(cmd(), RunOptions.make({ timeout: "30 seconds" })).pipe(
         withLayer(spawner.layer),
         Effect.flip,
         Effect.forkChild
@@ -166,7 +168,7 @@ it("ScriptResult retains optional fields, platform errors and the upstream numer
   const decode = (input: unknown) => S.decodeUnknownOption(ScriptResult)(input);
   assertNone(decode({ exit: 1.5 }));
   assertNone(decode({ exit: Number.POSITIVE_INFINITY }));
-  assertSome(decode({ exit: 42 }), { exit: 42 });
+  assertSome(decode({ exit: 42 }), ScriptCompletion.make({ exit: 42 }));
   const decoded = decode(platformError);
   if (decoded._tag !== "Some") assert.fail("expected the platform error carrier");
   assert.strictEqual(decoded.value, platformError);
@@ -278,4 +280,17 @@ it.effect("SpawnRecord accepts whitespace in forceKillAfter and preserves the or
       assert.strictEqual(decoded.options.forceKillAfter, forceKillAfter);
     }
   })
+);
+
+it.effect.prop(
+  "ScriptResult accepts and round-trips every scripted completion",
+  [Arbitrary.schema(ScriptCompletion)],
+  ([completion]) =>
+    Effect.gen(function* () {
+      assert.isTrue(S.is(ScriptResult)(completion));
+      const encoded = yield* S.encodeEffect(ScriptResult)(completion);
+      const decoded = yield* S.decodeEffect(ScriptResult)(encoded);
+      assert.isTrue(S.toEquivalence(ScriptResult)(decoded, completion));
+    }),
+  { arbitrary: fcRuns(100) }
 );

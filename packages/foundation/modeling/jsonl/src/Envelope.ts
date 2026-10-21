@@ -29,7 +29,7 @@ const $I = $JsonlId.create("Envelope");
 
 /**
  * The wire frame, decoded before selection without traversing its payload.
- * A transient Struct avoids allocating a class for frames that are discarded.
+ * An opaque Struct keeps frames as plain objects, so discarded frames allocate no class instance.
  *
  * **Example** (Read a frame without validating its payload)
  * ```ts import.meta.vitest name="Read a frame without validating its payload"
@@ -42,19 +42,14 @@ const $I = $JsonlId.create("Envelope");
  * @category schemas
  * @since 0.0.0
  */
-export const EnvelopeFrame = S.Struct({
-  at: S.DateTimeUtcFromString,
-  event: S.String,
-  scope: S.optionalKey(S.String),
-  data: S.Unknown,
-}).pipe($I.annoteSchema("EnvelopeFrame", { description: "An envelope frame with an undecoded payload." }));
-
-/**
- * The decoded frame, before its registered payload codec runs.
- * @category type-level
- * @since 0.0.0
- */
-export type EnvelopeFrame = typeof EnvelopeFrame.Type;
+export class EnvelopeFrame extends S.Opaque<EnvelopeFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
+    at: S.DateTimeUtcFromString,
+    event: S.String,
+    scope: S.optionalKey(S.String),
+    data: S.Unknown,
+  }).pipe($I.annoteSchema("EnvelopeFrame", { description: "An envelope frame with an undecoded payload." }))
+) {}
 
 /**
  * The input codec {@link Envelope.input} builds for one event tag and payload.
@@ -333,6 +328,90 @@ const structuralTarget: {
 // The merge stays plain. Class declarations accept only the decoded base's
 // provenance; non-class structural transformations retain their patch adapter.
 // The original registered codec still validates the result before persistence.
+type PatchAst = (ast: SchemaAST.AST) => SchemaAST.AST;
+type PatchedEncoding = SchemaAST.AST["encoding"];
+
+// The class provenance marker a declaration's encoded value must carry, when
+// the declaration is a class with a string identifier.
+const classMarker = (ast: SchemaAST.Declaration): string | undefined => {
+  const identifier = ast.annotations?.identifier;
+  return P.isFunction(ast.annotations?.["~constructor"]) && P.isString(identifier)
+    ? `~effect/Schema/Class/${identifier}`
+    : undefined;
+};
+
+// Whether an encoded value may skip the declaration's own encoder and pass
+// through as a plain record with the class provenance keys removed.
+const passesThroughPlain = (
+  value: unknown,
+  marker: string | undefined,
+  links: NonNullable<PatchedEncoding>
+): value is Record<string, unknown> =>
+  isRecordLike(value) &&
+  (marker === undefined || (R.has(value, marker) && value[marker] === marker)) &&
+  A.some(links, (link) => structuralTarget(link.to));
+
+const patchDeclaration = (
+  ast: SchemaAST.Declaration,
+  links: NonNullable<PatchedEncoding>,
+  encoding: PatchedEncoding
+): SchemaAST.AST => {
+  const marker = classMarker(ast);
+  return new SchemaAST.Declaration(
+    ast.typeParameters,
+    ast.run,
+    ast.annotations,
+    ast.checks,
+    encoding,
+    ast.context,
+    ast.encodingChecks,
+    () =>
+      Effect.fnUntraced(function* (
+        value: unknown,
+        self: SchemaAST.Declaration,
+        options: SchemaAST.ParseOptions
+      ): Effect.fn.Return<unknown, SchemaIssue.Issue> {
+        if (passesThroughPlain(value, marker, links)) {
+          return R.filter(value, (_, key) => !Str.startsWith("~effect/Schema/Class/")(key));
+        }
+        return yield* (ast.encodingRun ?? ast.run)(ast.typeParameters)(value, self, options);
+      })
+  );
+};
+
+// Rebuild one node around its already-patched encoding chain. Nodes that are
+// neither containers nor encoded declarations are kept as they are.
+const rewriteNode = (ast: SchemaAST.AST, encoding: PatchedEncoding, patchAst: PatchAst): SchemaAST.AST => {
+  if (SchemaAST.isSuspend(ast)) {
+    return new SchemaAST.Suspend(() => patchAst(ast.thunk()), ast.annotations, undefined, encoding, ast.context);
+  }
+  if (SchemaAST.isUnion(ast)) {
+    return new SchemaAST.Union(
+      A.map(ast.types, patchAst),
+      ast.options,
+      ast.annotations,
+      ast.checks,
+      encoding,
+      ast.context,
+      ast.encodingChecks
+    );
+  }
+  if (SchemaAST.isObjects(ast)) {
+    return new SchemaAST.Objects(
+      ast.propertySignatures,
+      ast.indexSignatures,
+      ast.annotations,
+      ast.checks,
+      encoding,
+      ast.context,
+      ast.encodingChecks
+    );
+  }
+  return SchemaAST.isDeclaration(ast) && ast.encoding !== undefined
+    ? patchDeclaration(ast, ast.encoding, encoding)
+    : ast;
+};
+
 const patchCodec = (data: DataSchema): DataSchema => {
   let memo: ReadonlyArray<readonly [SchemaAST.AST, SchemaAST.AST]> = [];
   const patchAst = (ast: SchemaAST.AST): SchemaAST.AST => {
@@ -342,61 +421,7 @@ const patchCodec = (data: DataSchema): DataSchema => {
       ast.encoding === undefined
         ? undefined
         : A.map(ast.encoding, (link) => new SchemaAST.Link(patchAst(link.to), link.transformation));
-    let rewritten = ast;
-    if (SchemaAST.isSuspend(ast)) {
-      rewritten = new SchemaAST.Suspend(() => patchAst(ast.thunk()), ast.annotations, undefined, encoding, ast.context);
-    } else if (SchemaAST.isUnion(ast)) {
-      rewritten = new SchemaAST.Union(
-        A.map(ast.types, patchAst),
-        ast.options,
-        ast.annotations,
-        ast.checks,
-        encoding,
-        ast.context,
-        ast.encodingChecks
-      );
-    } else if (SchemaAST.isObjects(ast)) {
-      rewritten = new SchemaAST.Objects(
-        ast.propertySignatures,
-        ast.indexSignatures,
-        ast.annotations,
-        ast.checks,
-        encoding,
-        ast.context,
-        ast.encodingChecks
-      );
-    } else if (SchemaAST.isDeclaration(ast) && ast.encoding !== undefined) {
-      const links = ast.encoding;
-      const identifier = ast.annotations?.identifier;
-      const marker =
-        P.isFunction(ast.annotations?.["~constructor"]) && P.isString(identifier)
-          ? `~effect/Schema/Class/${identifier}`
-          : undefined;
-      rewritten = new SchemaAST.Declaration(
-        ast.typeParameters,
-        ast.run,
-        ast.annotations,
-        ast.checks,
-        encoding,
-        ast.context,
-        ast.encodingChecks,
-        () =>
-          Effect.fnUntraced(function* (
-            value: unknown,
-            self: SchemaAST.Declaration,
-            options: SchemaAST.ParseOptions
-          ): Effect.fn.Return<unknown, SchemaIssue.Issue> {
-            if (
-              isRecordLike(value) &&
-              (marker === undefined || (R.has(value, marker) && value[marker] === marker)) &&
-              A.some(links, (link) => structuralTarget(link.to))
-            ) {
-              return R.filter(value, (_, key) => !Str.startsWith("~effect/Schema/Class/")(key));
-            }
-            return yield* (ast.encodingRun ?? ast.run)(ast.typeParameters)(value, self, options);
-          })
-      );
-    }
+    const rewritten = rewriteNode(ast, encoding, patchAst);
     memo = A.append(memo, Tuple.make(ast, rewritten));
     return rewritten;
   };

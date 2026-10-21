@@ -1,5 +1,5 @@
+import { decodeRow } from "@beep/schema-org/internal/rows";
 import {
-  decodeRow,
   SUPERSEDED_PROPERTIES,
   SUPERSEDED_PROPERTY_MAP,
   SUPERSEDED_TYPE_MAP,

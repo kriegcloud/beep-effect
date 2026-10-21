@@ -1,30 +1,9 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as HashSet from "effect/HashSet";
+import { reachableFrom } from "./sources.ts";
 
-const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
-
-/** Every relative import specifier in a module, resolved to a source path. */
-const importsOf = (file: string): ReadonlyArray<string> => {
-  const source = readFileSync(file, "utf8");
-  const specifiers = [...source.matchAll(/from\s+"(\.[^"]+)"/g)].map((match) => match[1] ?? "");
-  return specifiers.map((specifier) => resolve(dirname(file), specifier.replace(/\.js$/, ".ts")));
-};
-
-/** Every module reachable from an entrypoint, transitively. */
-const reachableFrom = (entry: string): ReadonlySet<string> => {
-  const seen = new Set<string>();
-  const queue = [entry];
-  while (queue.length > 0) {
-    const file = queue.pop();
-    if (file === undefined || seen.has(file)) continue;
-    seen.add(file);
-    for (const next of importsOf(file)) queue.push(next);
-  }
-  return seen;
-};
+const SRC = "schema-org/src";
 
 describe("entrypoint boundary", () => {
   /**
@@ -34,9 +13,9 @@ describe("entrypoint boundary", () => {
    * nothing would fail — so it is asserted structurally.
    */
   it("nothing reachable from `.` imports the vocabulary dataset", () => {
-    const reachable = reachableFrom(resolve(SRC, "index.ts"));
+    const reachable = reachableFrom(`${SRC}/index.ts`);
 
-    const offenders = [...reachable].filter((file) => /internal\/vocabulary\.ts$/.test(file));
+    const offenders = A.filter(A.fromIterable(reachable), (file) => /internal\/vocabulary\.ts$/.test(file));
 
     assert.deepStrictEqual(
       offenders,
@@ -46,9 +25,11 @@ describe("entrypoint boundary", () => {
   });
 
   it("nothing reachable from `.` imports Vocabulary or Conformance either", () => {
-    const reachable = reachableFrom(resolve(SRC, "index.ts"));
+    const reachable = reachableFrom(`${SRC}/index.ts`);
 
-    const offenders = [...reachable].filter((file) => /schema-org\/src\/(Vocabulary|Conformance)\.ts$/.test(file));
+    const offenders = A.filter(A.fromIterable(reachable), (file) =>
+      /schema-org\/src\/(Vocabulary|Conformance)\.ts$/.test(file)
+    );
 
     assert.deepStrictEqual(offenders, [], "the validator and its data belong behind `./conformance`");
   });
@@ -59,21 +40,21 @@ describe("entrypoint boundary", () => {
    * walker that silently resolves nothing.
    */
   it("positive control: the conformance entrypoint DOES reach the dataset", () => {
-    const reachable = reachableFrom(resolve(SRC, "conformance-entry.ts"));
+    const reachable = reachableFrom(`${SRC}/conformance-entry.ts`);
 
-    assert.isAbove(reachable.size, 1, "the walker must actually resolve imports");
+    assert.isAbove(HashSet.size(reachable), 1, "the walker must actually resolve imports");
     assert.isTrue(
-      [...reachable].some((file) => /schema-org\/src\/Vocabulary\.ts$/.test(file)),
+      A.some(A.fromIterable(reachable), (file) => /schema-org\/src\/Vocabulary\.ts$/.test(file)),
       "if this fails the walker is broken and the assertions above prove nothing"
     );
   });
 
   it("the walker sees the node modules from `.`, or it is proving nothing", () => {
-    const reachable = reachableFrom(resolve(SRC, "index.ts"));
+    const reachable = reachableFrom(`${SRC}/index.ts`);
 
     for (const module of ["JsonLdDocument.ts", "NodeRef.ts", "TechArticle.ts", "SoftwareSourceCode.ts", "Thing.ts"]) {
       assert.isTrue(
-        [...reachable].some((file) => file.endsWith(`/${module}`)),
+        A.some(A.fromIterable(reachable), (file) => file.endsWith(`/${module}`)),
         `${module} must be reachable from the default entrypoint`
       );
     }

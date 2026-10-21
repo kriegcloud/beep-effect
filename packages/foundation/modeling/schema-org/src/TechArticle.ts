@@ -78,8 +78,8 @@ export const TechArticleFields = {
  * @category models
  * @since 0.0.0
  */
-export class TechArticle extends S.Class<TechArticle, { readonly brand: unique symbol }>($I`TechArticle`)(
-  {
+export class TechArticle extends S.Opaque<TechArticle, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...TechArticleFields,
     /**
      * The JSON-LD type discriminator, populated automatically.
@@ -89,6 +89,7 @@ export class TechArticle extends S.Class<TechArticle, { readonly brand: unique s
     "@type": S.tag("TechArticle").pipe(
       $I.annoteKey("TechArticle.@type", { description: "The JSON-LD type discriminator, populated automatically." })
     ),
-  },
-  $I.annote("TechArticle", { description: "A schema.org `TechArticle` — a piece of technical documentation." })
+  }).pipe(
+    $I.annoteSchema("TechArticle", { description: "A schema.org `TechArticle` — a piece of technical documentation." })
+  )
 ) {}

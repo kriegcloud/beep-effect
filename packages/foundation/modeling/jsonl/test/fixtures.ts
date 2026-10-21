@@ -30,7 +30,7 @@ export const line: { (round: number, label?: string): string; (label?: string): 
 );
 export const open = Effect.fn("JsonlTest.open")(function* (
   fs: FileSystem.FileSystem,
-  config: JournalConfig = { path }
+  config: typeof JournalConfig.Encoded = { path }
 ) {
   const context = yield* Layer.build(
     TestJournal.layer(config).pipe(Layer.provide(Layer.succeed(FileSystem.FileSystem, fs)))

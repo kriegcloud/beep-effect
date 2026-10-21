@@ -25,9 +25,14 @@ import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
-import { ParseCode, parseTree as parseTreeInternal, parseValue as parseValueInternal } from "./internal/parser.ts";
+import {
+  ParseCode,
+  ParseFlags,
+  parseTree as parseTreeInternal,
+  parseValue as parseValueInternal,
+} from "./internal/parser.ts";
 import { createScanner, SyntaxKind } from "./internal/scanner.ts";
-import type { ParseFlags, RawParseError } from "./internal/parser.ts";
+import type { RawParseError } from "./internal/parser.ts";
 import type { JsoncNode } from "./JsoncNode.ts";
 
 const $I = $JsoncId.create("Jsonc");
@@ -83,19 +88,18 @@ export type JsoncParseErrorCode = typeof JsoncParseErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsoncParseErrorDetail extends S.Class<JsoncParseErrorDetail, { readonly brand: unique symbol }>(
-  $I`JsoncParseErrorDetail`
-)(
-  {
+export class JsoncParseErrorDetail extends S.Opaque<JsoncParseErrorDetail, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: JsoncParseErrorCode,
     offset: S.Finite,
     length: S.Finite,
     line: S.Finite,
     character: S.Finite,
-  },
-  $I.annote("JsoncParseErrorDetail", {
-    description: "A recovered parse error with its offset, length, line and character.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncParseErrorDetail", {
+      description: "A recovered parse error with its offset, length, line and character.",
+    })
+  )
 ) {}
 
 /**
@@ -191,10 +195,8 @@ export class JsoncParseError extends S.TaggedError<JsoncParseError, { readonly b
  * @category models
  * @since 0.0.0
  */
-export class JsoncParseOptions extends S.Class<JsoncParseOptions, { readonly brand: unique symbol }>(
-  $I`JsoncParseOptions`
-)(
-  {
+export class JsoncParseOptions extends S.Opaque<JsoncParseOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     disallowComments: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
@@ -207,10 +209,11 @@ export class JsoncParseOptions extends S.Class<JsoncParseOptions, { readonly bra
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("JsoncParseOptions", {
-    description: "Comment, trailing-comma and empty-content behaviour of the JSONC parser.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncParseOptions", {
+      description: "Comment, trailing-comma and empty-content behaviour of the JSONC parser.",
+    })
+  )
 ) {}
 
 /**
@@ -284,19 +287,18 @@ export type JsoncStringifyErrorCode = typeof JsoncStringifyErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsoncStringifyOptions extends S.Class<JsoncStringifyOptions, { readonly brand: unique symbol }>(
-  $I`JsoncStringifyOptions`
-)(
-  {
+export class JsoncStringifyOptions extends S.Opaque<JsoncStringifyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     tabSize: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(2)), S.withDecodingDefaultKey(Effect.succeed(2))),
     insertSpaces: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultKey(Effect.succeed(true))
     ),
-  },
-  $I.annote("JsoncStringifyOptions", {
-    description: "Indentation settings for JSON emission.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncStringifyOptions", {
+      description: "Indentation settings for JSON emission.",
+    })
+  )
 ) {}
 
 /**
@@ -361,7 +363,7 @@ export class JsoncStringifyError extends S.TaggedError<JsoncStringifyError, { re
 
 // ── Internal helpers ────────────────────────────────────────────────────────
 
-const toFlags = (options?: JsoncParseOptions): ParseFlags => options ?? JsoncParseOptions.make({});
+const toFlags = (options?: JsoncParseOptions): ParseFlags => ParseFlags.make(options ?? JsoncParseOptions.make({}));
 
 const lineChar: {
   (text: string, offset: number): { readonly line: number; readonly character: number };
@@ -405,6 +407,31 @@ const aggregate: {
       : O.none()
 );
 
+// Element-wise array comparison. A plain index loop (not `A.every`) so holes
+// in a caller-supplied sparse array compare as `undefined`.
+const arraysEqual = (a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>, depth: number): boolean => {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let index = 0; index < a.length; index++) {
+    if (!deepEqual(a[index], b[index], depth + 1)) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const recordsEqual = (
+  a: Readonly<Record<PropertyKey, unknown>>,
+  b: Readonly<Record<PropertyKey, unknown>>,
+  depth: number
+): boolean => {
+  const aKeys = R.keys(a);
+  return (
+    aKeys.length === R.keys(b).length && A.every(aKeys, (key) => R.has(b, key) && deepEqual(a[key], b[key], depth + 1))
+  );
+};
+
 const deepEqual: {
   (a: unknown, b: unknown, depth: number): boolean;
   (b: unknown, depth: number): (a: unknown) => boolean;
@@ -418,24 +445,9 @@ const deepEqual: {
     return false;
   }
   if (A.isArray(a) || A.isArray(b)) {
-    if (!A.isArray(a) || !A.isArray(b) || a.length !== b.length) {
-      return false;
-    }
-    for (let index = 0; index < a.length; index++) {
-      if (!deepEqual(a[index], b[index], depth + 1)) {
-        return false;
-      }
-    }
-    return true;
+    return A.isArray(a) && A.isArray(b) && arraysEqual(a, b, depth);
   }
-  if (P.isObject(a) && P.isObject(b)) {
-    const aKeys = R.keys(a);
-    return (
-      aKeys.length === R.keys(b).length &&
-      A.every(aKeys, (key) => R.has(b, key) && deepEqual(a[key], b[key], depth + 1))
-    );
-  }
-  return false;
+  return P.isObject(a) && P.isObject(b) && recordsEqual(a, b, depth);
 });
 
 const isComment = S.is(SyntaxKind.pick(["LineComment", "BlockComment"]));
@@ -710,24 +722,33 @@ export abstract class Jsonc {
     // place: each visit costs the cycle scan the engine also makes, not a copy
     // of the whole stack.
     const ancestors: Array<object> = [];
+    const noteRoot = (current: unknown): void => {
+      if (!root) {
+        return;
+      }
+      root = false;
+      if (isUnrepresentable(current)) {
+        code = JsoncStringifyErrorCode.Enum.TopLevelUnrepresentable;
+      }
+    };
+    // Pop back to the holder, flag a cycle when `current` is already open, then
+    // open `current`.
+    const noteContainer = (holder: unknown, current: object): void => {
+      while (A.isArrayNonEmpty(ancestors) && A.lastNonEmpty(ancestors) !== holder) {
+        ancestors.pop();
+      }
+      if (A.some(ancestors, (ancestor) => ancestor === current)) {
+        code = JsoncStringifyErrorCode.Enum.CircularReference;
+      }
+      ancestors.push(current);
+    };
     const codec = S.fromJsonString(S.Unknown, {
       space,
       replacer: function (this: unknown, _key: string, current: unknown): unknown {
-        if (root) {
-          root = false;
-          if (isUnrepresentable(current)) {
-            code = JsoncStringifyErrorCode.Enum.TopLevelUnrepresentable;
-          }
-        }
+        noteRoot(current);
         last = current;
         if (P.isObjectKeyword(current)) {
-          while (A.isArrayNonEmpty(ancestors) && A.lastNonEmpty(ancestors) !== this) {
-            ancestors.pop();
-          }
-          if (A.some(ancestors, (ancestor) => ancestor === current)) {
-            code = JsoncStringifyErrorCode.Enum.CircularReference;
-          }
-          ancestors.push(current);
+          noteContainer(this, current);
         }
         return current;
       },

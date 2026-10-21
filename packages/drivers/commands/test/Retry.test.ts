@@ -14,11 +14,12 @@ const failedWith = (stderr: string, exitCode = 1) =>
   CommandFailedError.nonZero(command, CommandOutput.make({ stdout: "", stderr, exitCode }));
 
 describe("Retry.isTransient", () => {
-  it("classifies network transport codes as transient", () => {
-    for (const code of ["ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN", "fetch failed"]) {
+  it.each(["ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN", "fetch failed"])(
+    "classifies network transport code %s as transient",
+    (code) => {
       assert.isTrue(Retry.isTransient(failedWith(`npm error ${code}`)), `${code} should be transient`);
     }
-  });
+  );
 
   it("reads stdout too, because npm routes errors there", () => {
     const error = CommandFailedError.nonZero(

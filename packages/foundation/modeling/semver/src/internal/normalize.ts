@@ -10,6 +10,8 @@ import * as Order from "effect/Order";
 import { compareParts } from "./order.ts";
 import type { ComparatorOperator, ComparatorParts } from "./order.ts";
 
+type ComparatorShape = typeof ComparatorParts.Encoded;
+
 const operatorWeight = Match.type<ComparatorOperator>().pipe(
   Match.when(">=", () => 0),
   Match.when(">", () => 1),
@@ -19,15 +21,15 @@ const operatorWeight = Match.type<ComparatorOperator>().pipe(
   Match.exhaustive
 );
 
-const comparatorOrder = Order.make<ComparatorParts>((a, b) => {
+const comparatorOrder = Order.make<ComparatorShape>((a, b) => {
   const weight = Order.Number(operatorWeight(a.operator), operatorWeight(b.operator));
   return weight !== 0 ? weight : compareParts(a.version, b.version);
 });
 
-const sortComparators = (set: ReadonlyArray<ComparatorParts>): ReadonlyArray<ComparatorParts> =>
+const sortComparators = (set: ReadonlyArray<ComparatorShape>): ReadonlyArray<ComparatorShape> =>
   A.sort(set, comparatorOrder);
 
-const removeDuplicates = (set: ReadonlyArray<ComparatorParts>): ReadonlyArray<ComparatorParts> => {
+const removeDuplicates = (set: ReadonlyArray<ComparatorShape>): ReadonlyArray<ComparatorShape> => {
   const seen = MutableHashSet.empty<string>();
   return A.filter(set, (c) => {
     const v = c.version;
@@ -41,7 +43,7 @@ const removeDuplicates = (set: ReadonlyArray<ComparatorParts>): ReadonlyArray<Co
   });
 };
 
-const normalizeComparatorSet = (set: ReadonlyArray<ComparatorParts>): ReadonlyArray<ComparatorParts> =>
+const normalizeComparatorSet = (set: ReadonlyArray<ComparatorShape>): ReadonlyArray<ComparatorShape> =>
   sortComparators(removeDuplicates(set));
 
 /**
@@ -67,5 +69,5 @@ const normalizeComparatorSet = (set: ReadonlyArray<ComparatorParts>): ReadonlyAr
  * @since 0.0.0
  */
 export const normalizeSets = (
-  sets: ReadonlyArray<ReadonlyArray<ComparatorParts>>
-): ReadonlyArray<ReadonlyArray<ComparatorParts>> => A.map(sets, normalizeComparatorSet);
+  sets: ReadonlyArray<ReadonlyArray<ComparatorShape>>
+): ReadonlyArray<ReadonlyArray<ComparatorShape>> => A.map(sets, normalizeComparatorSet);

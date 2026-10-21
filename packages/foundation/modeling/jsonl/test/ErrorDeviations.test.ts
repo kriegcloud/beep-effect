@@ -2,6 +2,7 @@
 // section 14). Each block names the review entry it pins and says whether the
 // lab matches upstream or deviates from it, and why.
 
+import { fcRuns } from "@beep/fc-runs";
 import {
   InvalidData,
   InvalidJournalConfig,
@@ -65,6 +66,20 @@ describe("D23: UnknownEvent.known and InvalidData.event are required, as upstrea
     decoded.pipe(Result.isSuccess, assertTrue);
     assertSuccess(decoded.pipe(Result.map((error) => error.known)), []);
   });
+
+  it.prop(
+    "UnknownEvent decoding requires known for every line and event",
+    [LineSlice, S.String],
+    ([line, event]) => {
+      const decode = S.decodeUnknownResult(UnknownEvent);
+      decode({ _tag: "UnknownEvent", line, event }).pipe(Result.isFailure, assertTrue);
+      assertSuccess(
+        decode({ _tag: "UnknownEvent", line, event, known: [event] }).pipe(Result.map((error) => error.known)),
+        [event]
+      );
+    },
+    { arbitrary: fcRuns(100) }
+  );
 
   it("InvalidData decoding requires event", () => {
     const decode = S.decodeUnknownResult(InvalidData);

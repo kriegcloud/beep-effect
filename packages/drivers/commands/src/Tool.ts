@@ -98,9 +98,8 @@ export type MismatchPolicy = typeof MismatchPolicy.Type;
  * @category models
  * @since 0.0.0
  */
-export class VersionFlag extends S.TaggedClass<VersionFlag, { readonly brand: unique symbol }>($I`VersionFlag`)(
-  "VersionFlag",
-  {
+export class VersionFlag extends S.Opaque<VersionFlag, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("VersionFlag", {
     /** The flag to pass, e.g. `"--version"`. Split on spaces into argv. */
     flag: S.String.pipe(
       $I.annoteKey("VersionFlag.flag", {
@@ -122,10 +121,11 @@ export class VersionFlag extends S.TaggedClass<VersionFlag, { readonly brand: un
         description: "A regular-expression source whose **first capture group** is the version.",
       })
     ),
-  },
-  $I.annote("VersionFlag", {
-    description: "Ask the tool for its version with a flag and read the answer out of stdout.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionFlag", {
+      description: "Ask the tool for its version with a flag and read the answer out of stdout.",
+    })
+  )
 ) {}
 
 /**
@@ -145,9 +145,8 @@ export class VersionFlag extends S.TaggedClass<VersionFlag, { readonly brand: un
  * @category models
  * @since 0.0.0
  */
-export class VersionJson extends S.TaggedClass<VersionJson, { readonly brand: unique symbol }>($I`VersionJson`)(
-  "VersionJson",
-  {
+export class VersionJson extends S.Opaque<VersionJson, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("VersionJson", {
     /** The flag(s) to pass, e.g. `"info --json"`. Split on spaces into argv. */
     flag: S.String.pipe(
       $I.annoteKey("VersionJson.flag", {
@@ -158,8 +157,11 @@ export class VersionJson extends S.TaggedClass<VersionJson, { readonly brand: un
     path: S.String.pipe(
       $I.annoteKey("VersionJson.path", { description: 'Dotted path to the version, e.g. `"deno.version"`.' })
     ),
-  },
-  $I.annote("VersionJson", { description: "Ask the tool for JSON and read the version from a dotted path within it." })
+  }).pipe(
+    $I.annoteSchema("VersionJson", {
+      description: "Ask the tool for JSON and read the version from a dotted path within it.",
+    })
+  )
 ) {}
 
 /**
@@ -179,10 +181,10 @@ export class VersionJson extends S.TaggedClass<VersionJson, { readonly brand: un
  * @category models
  * @since 0.0.0
  */
-export class VersionNone extends S.TaggedClass<VersionNone, { readonly brand: unique symbol }>($I`VersionNone`)(
-  "VersionNone",
-  {},
-  $I.annote("VersionNone", { description: "Do not ask for a version; presence is the only question." })
+export class VersionNone extends S.Opaque<VersionNone, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("VersionNone", {}).pipe(
+    $I.annoteSchema("VersionNone", { description: "Do not ask for a version; presence is the only question." })
+  )
 ) {}
 
 /**
@@ -244,8 +246,8 @@ export type VersionProbe = typeof VersionProbe.Type;
  * @category models
  * @since 0.0.0
  */
-export class Tool extends S.Class<Tool, { readonly brand: unique symbol }>($I`Tool`)(
-  {
+export class Tool extends S.Opaque<Tool, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The executable name, e.g. `"biome"`. */
     name: S.String.pipe($I.annoteKey("Tool.name", { description: 'The executable name, e.g. `"biome"`.' })),
     /** How to learn its version. */
@@ -263,8 +265,9 @@ export class Tool extends S.Class<Tool, { readonly brand: unique symbol }>($I`To
       S.withConstructorDefault(Effect.succeed("preferLocal")),
       $I.annoteKey("Tool.onMismatch", { description: "What to do when the two locations disagree on the version." })
     ),
-  },
-  $I.annote("Tool", { description: "A CLI tool to resolve, and the constraints resolution must satisfy." })
+  }).pipe(
+    $I.annoteSchema("Tool", { description: "A CLI tool to resolve, and the constraints resolution must satisfy." })
+  )
 ) {
   /**
    * Builds a `Tool` from a name, with defaults for everything else

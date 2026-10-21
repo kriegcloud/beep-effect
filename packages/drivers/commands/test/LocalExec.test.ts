@@ -25,29 +25,41 @@ const argv = (command: ChildProcess.Command): ReadonlyArray<string> => {
 
 describe("LocalExec.prefixes", () => {
   it("knows each package manager's exec, dlx and script-runner argv", () => {
-    assert.deepStrictEqual(LocalExec.prefixes("pnpm"), {
-      prefix: ["pnpm", "exec"],
-      dlxPrefix: ["pnpm", "dlx"],
-      scriptPrefix: ["pnpm", "run"],
-    });
-    assert.deepStrictEqual(LocalExec.prefixes("npm"), {
-      prefix: ["npx", "--no", "--"],
-      dlxPrefix: ["npx"],
-      // The `--` is load-bearing: bare `npm run <script> --flag` silently
-      // claims `--flag` for npm itself rather than forwarding it (probed
-      // live at npm 11); `npm run -- <script> --flag` forwards it.
-      scriptPrefix: ["npm", "run", "--"],
-    });
-    assert.deepStrictEqual(LocalExec.prefixes("yarn"), {
-      prefix: ["yarn", "exec"],
-      dlxPrefix: ["yarn", "dlx"],
-      scriptPrefix: ["yarn", "run"],
-    });
-    assert.deepStrictEqual(LocalExec.prefixes("bun"), {
-      prefix: ["bun", "x", "--no-install"],
-      dlxPrefix: ["bun", "x"],
-      scriptPrefix: ["bun", "run"],
-    });
+    assert.deepStrictEqual(
+      LocalExec.prefixes("pnpm"),
+      LauncherPrefixes.make({
+        prefix: ["pnpm", "exec"],
+        dlxPrefix: ["pnpm", "dlx"],
+        scriptPrefix: ["pnpm", "run"],
+      })
+    );
+    assert.deepStrictEqual(
+      LocalExec.prefixes("npm"),
+      LauncherPrefixes.make({
+        prefix: ["npx", "--no", "--"],
+        dlxPrefix: ["npx"],
+        // The `--` is load-bearing: bare `npm run <script> --flag` silently
+        // claims `--flag` for npm itself rather than forwarding it (probed
+        // live at npm 11); `npm run -- <script> --flag` forwards it.
+        scriptPrefix: ["npm", "run", "--"],
+      })
+    );
+    assert.deepStrictEqual(
+      LocalExec.prefixes("yarn"),
+      LauncherPrefixes.make({
+        prefix: ["yarn", "exec"],
+        dlxPrefix: ["yarn", "dlx"],
+        scriptPrefix: ["yarn", "run"],
+      })
+    );
+    assert.deepStrictEqual(
+      LocalExec.prefixes("bun"),
+      LauncherPrefixes.make({
+        prefix: ["bun", "x", "--no-install"],
+        dlxPrefix: ["bun", "x"],
+        scriptPrefix: ["bun", "run"],
+      })
+    );
   });
 
   it("scriptPrefix is a projection of the same table, never a second opinion", () => {

@@ -39,7 +39,14 @@
 export { ExecContext, Launcher, LocalExec, LocalExecError } from "./LocalExec.ts";
 export { REDACTED, Redaction, SECRET_FLAGS } from "./Redaction.ts";
 export { Retry, TRANSIENT_PATTERNS } from "./Retry.ts";
-export { CommandFailedError, CommandOutput, CommandOutputError, DEFAULT_MAX_OUTPUT_BYTES, Run } from "./Run.ts";
+export {
+  CommandFailedError,
+  CommandOutput,
+  CommandOutputError,
+  DEFAULT_MAX_OUTPUT_BYTES,
+  Run,
+  RunOptions,
+} from "./Run.ts";
 export { ScriptedSpawner } from "./ScriptedSpawner.ts";
 export { MismatchPolicy, Tool, ToolSource, VersionFlag, VersionJson, VersionNone, VersionProbe } from "./Tool.ts";
 export {
@@ -51,6 +58,5 @@ export {
   ToolVersionMismatchError,
 } from "./ToolDiscovery.ts";
 export type { LauncherPrefixes, LocalExecShape } from "./LocalExec.ts";
-export type { RunOptions } from "./Run.ts";
 export type { ScriptResult, SpawnRecord, SpawnScript } from "./ScriptedSpawner.ts";
 export type { ToolDiscoveryShape, ToolResolutionFailure } from "./ToolDiscovery.ts";

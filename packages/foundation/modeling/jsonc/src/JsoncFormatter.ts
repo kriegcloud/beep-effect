@@ -105,6 +105,11 @@ interface Gap {
   readonly prevToken: SyntaxKind;
 }
 
+interface PreviousToken {
+  readonly end: number;
+  readonly token: SyntaxKind;
+}
+
 const formatImpl: {
   (text: string, range: O.Option<JsoncRange>, options: JsoncFormattingOptions): ReadonlyArray<JsoncEdit>;
   (range: O.Option<JsoncRange>, options: JsoncFormattingOptions): (text: string) => ReadonlyArray<JsoncEdit>;
@@ -155,25 +160,25 @@ const formatImpl: {
 
   const scanner = createScanner(text, false);
   let depth = 0;
-  let previous = O.none<{ readonly token: SyntaxKind; readonly end: number }>();
+  let previous = O.none<PreviousToken>();
 
-  for (let kind = scanner.scan(); !SyntaxKind.is.EOF(kind); kind = scanner.scan()) {
-    if (isSkipped(kind)) {
-      continue;
+  // Replace the gap between the previous token and this one with its
+  // canonical form. Only a closer with a predecessor closes a level: a leading
+  // closer has nothing to close and leaves the depth alone, as upstream does.
+  const reflowGap = (kind: SyntaxKind, tokenOffset: number, prev: PreviousToken): void => {
+    if (isCloser(kind)) {
+      depth--;
     }
+    const gap = text.substring(prev.end, tokenOffset);
+    const content =
+      options.keepLines && Str.includes("\n")(gap) ? gap : expectedGap({ kind, prevToken: prev.token, gap, depth });
+    addEdit(prev.end, tokenOffset - prev.end, content);
+  };
+
+  const visitToken = (kind: SyntaxKind): void => {
     const tokenOffset = scanner.getTokenOffset();
     if (O.isSome(previous)) {
-      // Only a closer with a predecessor closes a level: a leading closer has
-      // nothing to close and leaves the depth alone, as upstream does.
-      if (isCloser(kind)) {
-        depth--;
-      }
-      const gap = text.substring(previous.value.end, tokenOffset);
-      const content =
-        options.keepLines && Str.includes("\n")(gap)
-          ? gap
-          : expectedGap({ kind, prevToken: previous.value.token, gap, depth });
-      addEdit(previous.value.end, tokenOffset - previous.value.end, content);
+      reflowGap(kind, tokenOffset, previous.value);
     }
     if (isOpener(kind)) {
       depth++;
@@ -182,14 +187,24 @@ const formatImpl: {
       token: kind,
       end: tokenOffset + scanner.getTokenLength(),
     });
+  };
+
+  for (let kind = scanner.scan(); !SyntaxKind.is.EOF(kind); kind = scanner.scan()) {
+    if (!isSkipped(kind)) {
+      visitToken(kind);
+    }
   }
 
-  if (options.insertFinalNewline && O.isSome(previous)) {
-    const trailing = text.substring(previous.value.end);
+  // Routed through addEdit so the range restriction applies here too.
+  const appendFinalNewline = (last: PreviousToken): void => {
+    const trailing = text.substring(last.end);
     if (!Str.endsWith(options.eol)(trailing)) {
-      // Routed through addEdit so the range restriction applies here too.
-      addEdit(previous.value.end, trailing.length, options.eol);
+      addEdit(last.end, trailing.length, options.eol);
     }
+  };
+
+  if (options.insertFinalNewline && O.isSome(previous)) {
+    appendFinalNewline(previous.value);
   }
 
   return edits;

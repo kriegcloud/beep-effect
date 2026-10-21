@@ -1,4 +1,5 @@
 // Adapted from upstream Envelope.test.ts (MIT), using value-first dual codecs.
+import { fcRuns } from "@beep/fc-runs";
 import { Envelope, InvalidData, JsonlEvent, Line, MalformedLine, UnknownEvent, UnserializableData } from "@beep/jsonl";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
@@ -27,6 +28,17 @@ const text = (round: number) =>
 const encodeUnknown = S.encodeResult(S.fromJsonString(S.Unknown));
 
 describe("Envelope boundaries", () => {
+  it.prop(
+    "re-encodes every decoded mail payload to the bytes it was decoded from",
+    [Payload],
+    ([data]) => {
+      const encoded = Result.getOrThrow(Envelope.encodeResult({ at, event: "mail", data }, events));
+      const decoded = Result.getOrThrow(Envelope.decodeResult(line(encoded), events));
+      assert.strictEqual(decoded.event, "mail");
+      assertSuccess(Envelope.encodeResult(decoded, events), encoded);
+    },
+    { arbitrary: fcRuns(100) }
+  );
   it("preserves schema ownership, flags and registry identity", () => {
     assert.strictEqual(Mail.data, Payload);
     assert.isFalse(Mail.terminal);

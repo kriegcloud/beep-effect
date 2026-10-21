@@ -6,8 +6,23 @@ import {
   parseRange,
   parseVersion,
 } from "@beep/semver/internal/grammar";
+import { ComparatorParts, VersionParts } from "@beep/semver/internal/order";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import type { ComparatorOperator } from "@beep/semver/internal/order";
+
+// Parses `<operator>1.2.3-RC.0+007` (bare means `=`) and checks it formats
+// back with `=` elided.
+const assertComparatorRoundTrip = (operator: "" | ComparatorOperator): void => {
+  const value = ComparatorParts.make({
+    operator: operator === "" ? "=" : operator,
+    version: { major: 1, minor: 2, patch: 3, prerelease: ["RC", 0], build: ["007"] },
+  });
+  const parsed = parseComparator(` ${operator}1.2.3-RC.0+007 `);
+  assert.deepStrictEqual(parsed, { ok: true, value });
+  if (parsed.ok)
+    assert.strictEqual(formatComparator(parsed.value), `${operator === "=" ? "" : operator}1.2.3-RC.0+007`);
+};
 
 describe("grammar coverage", () => {
   it.effect("reports exact offsets for invalid numeric and suffix identifiers", () =>
@@ -44,7 +59,13 @@ describe("grammar coverage", () => {
       for (const [input, position] of cases)
         assert.deepStrictEqual(parseVersion(input), { ok: false, input, position });
       assert.deepStrictEqual(parseVersion("  01.2.3  "), { ok: false, input: "01.2.3", position: 0 });
-      const value = { major: 1, minor: 2, patch: 3, prerelease: ["AZaz-", 0, "01x"], build: ["00", "AZaz-"] };
+      const value = VersionParts.make({
+        major: 1,
+        minor: 2,
+        patch: 3,
+        prerelease: ["AZaz-", 0, "01x"],
+        build: ["00", "AZaz-"],
+      });
       assert.deepStrictEqual(parseVersion("1.2.3-AZaz-.0.01x+00.AZaz-"), { ok: true, value });
       assert.strictEqual(formatVersion(value), "1.2.3-AZaz-.0.01x+00.AZaz-");
     })
@@ -69,16 +90,7 @@ describe("grammar coverage", () => {
       ];
       for (const [input, position] of cases)
         assert.deepStrictEqual(parseComparator(input), { ok: false, input, position });
-      for (const operator of ["", "=", ">", ">=", "<", "<="] as const) {
-        const value = {
-          operator: operator === "" ? "=" : operator,
-          version: { major: 1, minor: 2, patch: 3, prerelease: ["RC", 0], build: ["007"] },
-        };
-        const parsed = parseComparator(` ${operator}1.2.3-RC.0+007 `);
-        assert.deepStrictEqual(parsed, { ok: true, value });
-        if (parsed.ok)
-          assert.strictEqual(formatComparator(parsed.value), `${operator === "=" ? "" : operator}1.2.3-RC.0+007`);
-      }
+      for (const operator of ["", "=", ">", ">=", "<", "<="] as const) assertComparatorRoundTrip(operator);
     })
   );
 

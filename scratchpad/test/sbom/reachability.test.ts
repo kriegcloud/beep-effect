@@ -17,7 +17,7 @@
 // the builder emits. What it does prove is the part we control: no edge exists.
 
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -59,24 +59,37 @@ const runtimeSpecifiers = Effect.fn("runtimeSpecifiers")(function* (source: stri
 	return specifiers;
 }, Effect.scoped);
 
-/** Runtime files and bare specifiers, including the lab's vendored sibling modules. */
+/**
+ * Runtime files and bare specifiers, including the lab's vendored sibling modules.
+ *
+ * `own` is the same walk seen at this package's boundary, the way upstream's bare
+ * edges were: bare specifiers imported by this package's own files, plus each lab
+ * sibling it enters, named as that sibling's upstream `@effected/*` package. What a
+ * sibling imports in turn is the sibling's manifest's business, not this one's.
+ */
 const reachableImports = Effect.fn("reachableImports")(function* (entry: string) {
 	const seen = new Set<string>();
 	const bare = new Set<string>();
+	const own = new Set<string>();
 	const queue = [resolve(SRC, entry)];
 	while (queue.length > 0) {
 		const file = queue.pop();
 		if (file === undefined || seen.has(file)) continue;
 		seen.add(file);
+		const inside = !relative(SRC, file).startsWith("../");
 		for (const specifier of (yield* runtimeSpecifiers(readFileSync(file, "utf8")))) {
 			if (specifier.startsWith(".")) {
-				queue.push(resolve(dirname(file), specifier.replace(/\.js$/, ".ts")));
+				const target = resolve(dirname(file), specifier.replace(/\.js$/, ".ts"));
+				const [up, sibling] = relative(SRC, target).split("/");
+				if (inside && up === "..") own.add(`@effected/${sibling}`);
+				queue.push(target);
 			} else {
 				bare.add(specifier);
+				if (inside) own.add(specifier);
 			}
 		}
 	}
-	return { files: seen, bare };
+	return { files: seen, bare, own };
 });
 
 /** Every bare (non-relative) specifier reachable at runtime from `entry`. */
@@ -120,7 +133,7 @@ describe("bundle reachability", () => {
 			'import type { Package } from "@effected/package-json";',
 			'export type { Person } from "@effected/package-json";',
 		].join("\n");
-		assert.deepStrictEqual([...(yield* runtimeSpecifiers(fixture))], ["effect", "../../effected/spdx/index.ts"]);
+		assert.deepStrictEqual([...(yield* runtimeSpecifiers(fixture))], ["effect", "@beep/spdx"]);
 	}, Effect.scoped, Effect.provide(nativeLayer)));
 
 	it.effect("the signer DOES reach @sigstore/*", Effect.fnUntraced(function* () {
@@ -147,29 +160,29 @@ describe("bundle reachability", () => {
 	}, Effect.scoped, Effect.provide(nativeLayer)));
 
 	it.effect("the SBOM half reaches only effect and the kit packages it derives from", Effect.fnUntraced(function* () {
-		// D9: upstream's bare @effected/spdx edge is a relative edge in the lab.
-		// Check that sibling explicitly, alongside the complete external closure.
+		// D9: upstream's bare @effected/spdx edge was a relative sibling edge in the
+		// lab until wave 1 of the effected promotion moved SPDX into the @beep/spdx
+		// package, so it is a bare package edge again, as upstream had it. Check
+		// that kit package explicitly, alongside the complete external closure;
+		// package-json is still a lab sibling, reached only through its file.
 		for (const entry of ["Sbom.ts", "SbomMetadataSource.ts"]) {
-			const { files } = yield* reachableImports(entry);
-			assert.isTrue(files.has(resolve(SRC, "..", "spdx", "index.ts")), `${entry} derives from the lab SPDX module`);
+			const { files, bare } = yield* reachableImports(entry);
+			assert.isTrue(bare.has("@beep/spdx"), `${entry} derives from the SPDX kit package`);
 			assert.isFalse(
 				files.has(resolve(SRC, "..", "package-json", "index.ts")),
 				`${entry} must not drag package-json's runtime IO in`,
 			);
 		}
 		assert.deepStrictEqual([...(yield* reachableBareImports("Sbom.ts"))].sort(), [
-			"@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Array", "effect/Effect", "effect/FileSystem",
-			"effect/Function", "effect/HashMap", "effect/HashSet", "effect/Match", "effect/MutableHashSet", "effect/Option",
-			"effect/Order", "effect/Predicate", "effect/Record", "effect/Result", "effect/Schema", "effect/SchemaIssue",
-			"effect/SchemaTransformation", "effect/String",
+			"@beep/identity/packages", "@beep/schema/LiteralKit", "@beep/spdx", "effect/Array", "effect/Effect",
+			"effect/FileSystem", "effect/Function", "effect/Order", "effect/Record", "effect/Result", "effect/Schema",
+			"effect/String",
 		]);
 		assert.deepStrictEqual(
 			[...(yield* reachableBareImports("SbomMetadataSource.ts"))].sort(),
 			[
-				"@beep/identity/packages", "@beep/schema/LiteralKit", "effect/Array", "effect/Effect", "effect/Function",
-				"effect/HashMap", "effect/HashSet", "effect/Match", "effect/MutableHashSet", "effect/Option",
-				"effect/Predicate", "effect/Record", "effect/Result", "effect/Schema", "effect/SchemaIssue",
-				"effect/SchemaTransformation",
+				"@beep/identity/packages", "@beep/schema/LiteralKit", "@beep/spdx", "effect/Array", "effect/Function",
+				"effect/Option", "effect/Predicate", "effect/Record", "effect/Schema",
 			],
 			"SbomMetadataSource reads `Package` as a TYPE only — a value import would drag package-json's IO in",
 		);
@@ -209,13 +222,20 @@ describe("bundle reachability", () => {
 
 	it.effect("every runtime dependency is declared", Effect.fnUntraced(function* () {
 		// A package you import but do not declare is how a peer closure rots.
+		//
+		// Checked at the package boundary (`own`), as upstream checked its bare
+		// edges: the lab sibling `index.ts` re-exports from counts as
+		// `@effected/package-json`, and that sibling's own edges (now including the
+		// promoted `@beep/jsonc` and `@beep/semver`) are not this manifest's to
+		// declare. Promoted kit modules this package imports itself, such as
+		// `@beep/spdx`, are bare package edges and must be declared like any other.
 		const manifest: unknown = JSON.parse(readFileSync(resolve(SRC, "package.json"), "utf8"));
 		assertTrue(S.is(Manifest)(manifest));
 		const declared = new Set([
 			...Object.keys(manifest.dependencies ?? {}),
 			...Object.keys(manifest.peerDependencies ?? {}),
 		]);
-		for (const specifier of (yield* reachableBareImports("index.ts"))) {
+		for (const specifier of (yield* reachableImports("index.ts")).own) {
 			// A `node:` builtin is not a package and can never appear in a manifest.
 			if (specifier.startsWith("node:")) continue;
 			const packageName = specifier.startsWith("@")

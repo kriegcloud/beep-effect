@@ -107,46 +107,42 @@ const CLOSING_KEYWORD_BY_NAME: R.ReadonlyRecord<string, ClosingKeyword> = Closin
  * @category schemas
  * @since 0.0.0
  */
-export const IssueReference = S.Struct({
-  /** The referenced issue number. */
-  issueNumber: S.Natural.pipe(
-    $I.annoteKey("IssueReference.issueNumber", { description: "The referenced safe integer issue number." })
-  ),
-  /** The matched keyword, lowercased to its canonical form. */
-  keyword: ClosingKeyword.pipe(
-    $I.annoteKey("IssueReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })
-  ),
-  /** Offset of the first character of the whole match (`keyword` through digits). */
-  start: S.Natural.pipe(
-    $I.annoteKey("IssueReference.start", { description: "The offset of the first character of the whole match." })
-  ),
-  /** Offset one past the last character of the whole match. */
-  end: S.Natural.pipe(
-    $I.annoteKey("IssueReference.end", { description: "The offset one past the last character of the whole match." })
-  ),
-})
-  .check(
-    S.makeFilter(
-      (reference) => reference.end > reference.start,
-      $I.annote("IssueReference.OrderedSpan", {
-        description: "The exclusive end offset exceeds the start offset of the harvested match.",
-        message: "Expected end to be greater than start.",
+export class IssueReference extends S.Opaque<IssueReference, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The referenced issue number. */
+    issueNumber: S.Natural.pipe(
+      $I.annoteKey("IssueReference.issueNumber", { description: "The referenced safe integer issue number." })
+    ),
+    /** The matched keyword, lowercased to its canonical form. */
+    keyword: ClosingKeyword.pipe(
+      $I.annoteKey("IssueReference.keyword", {
+        description: "The matched closing keyword in canonical lowercase form.",
+      })
+    ),
+    /** Offset of the first character of the whole match (`keyword` through digits). */
+    start: S.Natural.pipe(
+      $I.annoteKey("IssueReference.start", { description: "The offset of the first character of the whole match." })
+    ),
+    /** Offset one past the last character of the whole match. */
+    end: S.Natural.pipe(
+      $I.annoteKey("IssueReference.end", { description: "The offset one past the last character of the whole match." })
+    ),
+  })
+    .check(
+      S.makeFilter(
+        (reference) => reference.end > reference.start,
+        $I.annote("IssueReference.OrderedSpan", {
+          description: "The exclusive end offset exceeds the start offset of the harvested match.",
+          message: "Expected end to be greater than start.",
+        })
+      )
+    )
+    .pipe(
+      $I.annoteSchema("IssueReference", {
+        description: "A closing issue reference harvested from prose with its match offsets.",
       })
     )
-  )
-  .pipe(
-    $I.annoteSchema("IssueReference", {
-      description: "A closing issue reference harvested from prose with its match offsets.",
-    })
-  );
-
-/**
- * Decoded inline closing reference with its issue number, canonical keyword and match offsets.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type IssueReference = typeof IssueReference.Type;
+) {}
 
 /**
  * The closing reference a bare line carries, per {@link parseBareLineReference}.
@@ -169,28 +165,22 @@ export type IssueReference = typeof IssueReference.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BareLineReference = S.Struct({
-  /** The referenced issue number. */
-  issueNumber: S.Natural.pipe(
-    $I.annoteKey("BareLineReference.issueNumber", { description: "The referenced safe integer issue number." })
-  ),
-  /** The matched keyword, lowercased to its canonical form. */
-  keyword: ClosingKeyword.pipe(
-    $I.annoteKey("BareLineReference.keyword", {
-      description: "The matched closing keyword in canonical lowercase form.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("BareLineReference", { description: "The closing issue reference carried by a whole bare line." })
-);
-
-/**
- * Decoded whole-line closing reference without match offsets.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type BareLineReference = typeof BareLineReference.Type;
+export class BareLineReference extends S.Opaque<BareLineReference, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The referenced issue number. */
+    issueNumber: S.Natural.pipe(
+      $I.annoteKey("BareLineReference.issueNumber", { description: "The referenced safe integer issue number." })
+    ),
+    /** The matched keyword, lowercased to its canonical form. */
+    keyword: ClosingKeyword.pipe(
+      $I.annoteKey("BareLineReference.keyword", {
+        description: "The matched closing keyword in canonical lowercase form.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("BareLineReference", { description: "The closing issue reference carried by a whole bare line." })
+  )
+) {}
 
 /**
  * Both patterns derive from {@link CLOSING_KEYWORDS} so the constant and the
@@ -245,7 +235,9 @@ export const harvestIssueReferences = (text: string): ReadonlyArray<IssueReferen
     const issueNumber = Number(A.getUnsafe(match, 2));
     if (!Number.isSafeInteger(issueNumber)) continue;
     const keyword = O.getOrThrow(R.get(CLOSING_KEYWORD_BY_NAME, Str.toLowerCase(A.getUnsafe(match, 1))));
-    references.push({ issueNumber, keyword, start: match.index, end: match.index + match[0].length });
+    references.push(
+      IssueReference.make({ issueNumber, keyword, start: match.index, end: match.index + match[0].length })
+    );
   }
   return references;
 };
@@ -283,7 +275,7 @@ export const parseBareLineReference = (line: string): O.Option<BareLineReference
   const issueNumber = Number(A.getUnsafe(match, 2));
   if (!Number.isSafeInteger(issueNumber)) return O.none();
   const keyword = O.getOrThrow(R.get(CLOSING_KEYWORD_BY_NAME, Str.toLowerCase(A.getUnsafe(match, 1))));
-  return O.some({ issueNumber, keyword });
+  return O.some(BareLineReference.make({ issueNumber, keyword }));
 };
 
 /**

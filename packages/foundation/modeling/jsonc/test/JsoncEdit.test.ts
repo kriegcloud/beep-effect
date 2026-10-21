@@ -168,4 +168,24 @@ describe("JsoncEdit", () => {
       assert.deepStrictEqual(edits, snapshot);
     });
   });
+
+  describe("properties", () => {
+    // Any finite span: a zero-length, empty-content edit is the identity, and
+    // a single edit never reports an overlap.
+    it.prop(
+      "an empty insertion at any finite offset leaves the text unchanged",
+      [JsoncRange, S.String],
+      ([range, text]) => {
+        assert.strictEqual(
+          JsoncEdit.applyAll(text, [JsoncEdit.make({ offset: range.offset, length: 0, content: "" })]),
+          text
+        );
+      }
+    );
+
+    it.prop("a single edit always applies, agreeing with the throwing twin", [JsoncEdit, S.String], ([edit, text]) => {
+      const edits = [JsoncEdit.make(edit)];
+      assertSuccess(JsoncEdit.applyAllResult(text, edits), JsoncEdit.applyAll(text, edits));
+    });
+  });
 });

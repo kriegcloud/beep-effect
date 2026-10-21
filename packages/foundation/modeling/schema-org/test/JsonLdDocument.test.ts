@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { APIReference } from "@beep/schema-org/APIReference";
 import { ConflictingTermError, DuplicateNodeIdError, JsonLdDocument } from "@beep/schema-org/JsonLdDocument";
 import { InvalidNodeIdError, NodeRef } from "@beep/schema-org/NodeRef";
@@ -7,6 +8,8 @@ import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { TechArticle } from "@beep/schema-org/TechArticle";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as Result from "effect/Result";
@@ -323,6 +326,21 @@ describe("JsonLdDocument — the decode direction is unimplemented, and the asym
       "the structural encoding keeps the catch-all nested, so it survives"
     );
   });
+
+  it.effect.prop(
+    "the structural form round-trips every generated graph, catch-all fields included",
+    [Arbitrary.schema(JsonLdDocument)],
+    ([graph]) =>
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeEffect(JsonLdDocument)(yield* S.encodeEffect(JsonLdDocument)(graph));
+        assert.deepStrictEqual(
+          A.map(decoded["@graph"], (node) => node.additional),
+          A.map(graph["@graph"], (node) => node.additional)
+        );
+        assert.deepStrictEqual(decoded.toJsonLd(), graph.toJsonLd());
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 
   it("toJsonLd and the schema's own encode are deliberately different values", () => {
     const graph = Result.getOrThrow(

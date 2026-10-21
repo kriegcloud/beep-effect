@@ -9,6 +9,7 @@ import { TechArticle, TechArticleFields } from "@beep/schema-org/TechArticle";
 import { ThingFields } from "@beep/schema-org/Thing";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -93,9 +94,12 @@ describe("field records", () => {
   it("no node class inherits from another", () => {
     // Schema inheritance would duplicate the vocabulary's subClassOf chain
     // in TypeScript, giving two sources of truth that drift.
-    assert.notInstanceOf(APIReference.make({ "@id": ID }), TechArticle);
-    assert.notInstanceOf(TechArticle.make({ "@id": ID }), CreativeWork);
-    assert.notInstanceOf(SoftwareSourceCode.make({ "@id": ID }), CreativeWork);
+    assert.isFalse(S.is(TechArticle)(APIReference.make({ "@id": ID })));
+    assert.isFalse(S.is(CreativeWork)(TechArticle.make({ "@id": ID })));
+    assert.isFalse(S.is(CreativeWork)(SoftwareSourceCode.make({ "@id": ID })));
+    assert.notStrictEqual(Object.getPrototypeOf(APIReference), TechArticle);
+    assert.notStrictEqual(Object.getPrototypeOf(TechArticle), CreativeWork);
+    assert.notStrictEqual(Object.getPrototypeOf(SoftwareSourceCode), CreativeWork);
   });
 });
 
@@ -119,7 +123,8 @@ describe("arity is fixed per property", () => {
   it("keeps mainEntity singular, because schema.org defines it that way", () => {
     const node = TechArticle.make({ "@id": ID, mainEntity: NodeRef.to("https://example.com/#api") });
 
-    assert.instanceOf(node.mainEntity, NodeRef, "not an array: this collapse belongs to the vocabulary");
+    assert.isFalse(A.isArray(node.mainEntity), "not an array: this collapse belongs to the vocabulary");
+    assert.isTrue(S.is(NodeRef)(node.mainEntity), "a single node reference");
   });
 });
 

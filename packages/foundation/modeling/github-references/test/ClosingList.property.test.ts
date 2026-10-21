@@ -151,7 +151,13 @@ describe("ClosingList property floor", () => {
         const line = sample.keyword.toUpperCase() + " " + issues.map((issue) => "#" + issue).join(sample.separator);
         assert.deepStrictEqual(
           G.parseReferenceList(line),
-          O.some({ keyword: sample.keyword, closing: S.is(ClosingKeyword)(sample.keyword), issueNumbers: issues })
+          O.some(
+            G.ReferenceList.make({
+              keyword: sample.keyword,
+              closing: S.is(ClosingKeyword)(sample.keyword),
+              issueNumbers: issues,
+            })
+          )
         );
         assert.deepStrictEqual(G.parseReferenceList(line + ", #9007199254740992"), O.none());
         assert.deepStrictEqual(G.harvestReferenceLists(line + ", #9007199254740992"), []);

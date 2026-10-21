@@ -242,7 +242,7 @@ New in this package (not exported upstream):
 Facets widened from upstream (upstream exports a type only; this package exports a schema value and its type under the same name):
 
 - `JsoncFormattingOptionsLike`: upstream type alias; here `S.toEncoded(JsoncFormattingOptions)`.
-- `JsoncModifyOptions`: upstream interface; here `S.Struct({ formattingOptions: S.optionalKey(JsoncFormattingOptionsLike) })`.
+- `JsoncModifyOptions`: upstream interface; here a branded `S.Opaque` over `S.Struct({ formattingOptions: S.optionalKey(JsoncFormattingOptionsLike) })`. `JsoncModifier.modify` takes its encoded side, `JsoncModifyOptions.Encoded`, so a plain literal bag is still accepted.
 - `JsoncPath`: upstream `ReadonlyArray<JsoncSegment>`; here `S.Array(JsoncSegment)`.
 - `JsoncSegment`: upstream `string | number`; here `S.Union([S.String, S.Natural])`, so the schema admits only natural-number indices.
 

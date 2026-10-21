@@ -1,8 +1,11 @@
 // Restored from upstream EnvelopeTypes.test.ts (MIT). Binary envelope codecs
 // take the envelope first and the registry second (lab value-first dual shape).
 
-import { Envelope, Journal, JsonlEvent } from "@beep/jsonl";
+import { fcRuns } from "@beep/fc-runs";
+import { Envelope, Journal, JsonlEvent, Line } from "@beep/jsonl";
 import { assert, describe, it } from "@effect/vitest";
+import * as DateTime from "effect/DateTime";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type {
   Envelope as EnvelopeType,
@@ -11,7 +14,6 @@ import type {
   JournalShape,
   JsonlEvent as JsonlEventType,
 } from "@beep/jsonl";
-import type * as DateTime from "effect/DateTime";
 import type * as Layer from "effect/Layer";
 import type * as PlatformError from "effect/PlatformError";
 import type * as Stream from "effect/Stream";
@@ -103,6 +105,23 @@ describe("Envelope type-level contract", () => {
     assert.isFunction(encodeIsTyped);
     assert.isFunction(assertType);
   });
+
+  it.prop(
+    "decodes every encoded relinked reason under its own tag",
+    [Relinked.data],
+    ([data]) => {
+      const encoded = Result.getOrThrow(
+        Envelope.encodeResult({ at: DateTime.makeUnsafe(0), event: "relinked", data }, registry)
+      );
+      const decoded = Envelope.decodeAllResult(encoded, registry).map(Result.getOrThrow);
+      assert.deepStrictEqual(
+        decoded.map((envelope) => [envelope.event, envelope.data]),
+        [["relinked", data]]
+      );
+      assert.strictEqual(Line.split(encoded).length, 1);
+    },
+    { arbitrary: fcRuns(100) }
+  );
 });
 
 // ── P4: typed narrowing on the read surfaces ────────────────────────────────

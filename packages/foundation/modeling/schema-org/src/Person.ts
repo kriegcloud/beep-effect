@@ -33,8 +33,8 @@ const $I = $SchemaOrgId.create("Person");
  * @category models
  * @since 0.0.0
  */
-export class Person extends S.Class<Person, { readonly brand: unique symbol }>($I`Person`)(
-  {
+export class Person extends S.Opaque<Person, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...ThingFields,
     /**
      * The JSON-LD type discriminator, populated automatically.
@@ -64,6 +64,5 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
         description: "Organizations the person is affiliated with, by reference. Repeatable.",
       })
     ),
-  },
-  $I.annote("Person", { description: "A schema.org `Person` — an author, maintainer or contributor." })
+  }).pipe($I.annoteSchema("Person", { description: "A schema.org `Person` — an author, maintainer or contributor." }))
 ) {}

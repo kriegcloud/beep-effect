@@ -77,7 +77,7 @@ describe("Line boundaries", () => {
   it.each(["x\n", "x\r\n", "\n", "x", "a\rb\n", "😀\n☃\n", "x\n\ny\n"])("tiles slices for %j", (text) => {
     let end = 0;
     for (const slice of Line.split(text)) {
-      assert.instanceOf(slice, LineSlice);
+      assert.isTrue(S.is(LineSlice)(slice));
       assert.strictEqual(slice.offset, end);
       assert.strictEqual(
         decoder.decode(encoder.encode(text).subarray(slice.offset, slice.offset + slice.length)),

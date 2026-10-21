@@ -46,7 +46,8 @@ const Sample = S.Struct({
   issue: S.Int.check(S.isBetween({ minimum: 0, maximum: 999999 })),
   colon: S.Boolean,
 });
-const stringifyBare = (value: G.BareLineReference): string => value.keyword + " #" + value.issueNumber;
+const stringifyBare = (value: Pick<G.BareLineReference, "keyword" | "issueNumber">): string =>
+  value.keyword + " #" + value.issueNumber;
 const stringifyHarvest = (values: ReadonlyArray<G.IssueReference>): string => {
   let text = "";
   for (const value of values) {
@@ -133,8 +134,18 @@ describe("IssueReferences property floor", () => {
           if (structured.includes(text)) {
             const secondStart = text.indexOf(" and ") + 5;
             assert.deepStrictEqual(parsed, [
-              { keyword: sample.keyword, issueNumber: sample.issue, start: 7, end: secondStart - 5 },
-              { keyword: sample.keyword, issueNumber: sample.issue, start: secondStart, end: text.length - 1 },
+              G.IssueReference.make({
+                keyword: sample.keyword,
+                issueNumber: sample.issue,
+                start: 7,
+                end: secondStart - 5,
+              }),
+              G.IssueReference.make({
+                keyword: sample.keyword,
+                issueNumber: sample.issue,
+                start: secondStart,
+                end: text.length - 1,
+              }),
             ]);
           }
           const canonical = stringifyHarvest(parsed);
@@ -143,7 +154,7 @@ describe("IssueReferences property floor", () => {
           for (const hit of parsed)
             assert.deepStrictEqual(
               G.parseBareLineReference(stringifyBare(hit)),
-              O.some({ keyword: hit.keyword, issueNumber: hit.issueNumber })
+              O.some(G.BareLineReference.make({ keyword: hit.keyword, issueNumber: hit.issueNumber }))
             );
         }
       }),

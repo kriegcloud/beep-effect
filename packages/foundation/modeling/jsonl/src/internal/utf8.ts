@@ -11,6 +11,24 @@ import * as Str from "effect/String";
 // Keep this leaf independent of the line splitter and error taxonomy so both
 // can measure bytes without importing each other.
 
+const codeUnitAt = (text: string, index: number): number => O.getOrThrow(Str.charCodeAt(text, index));
+
+const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xdbff;
+
+const isLowSurrogate = (code: number): boolean => code >= 0xdc00 && code <= 0xdfff;
+
+// Whether the code unit after `index` completes a surrogate pair.
+const pairsWithNext = (text: string, index: number): boolean =>
+  index + 1 < Str.length(text) && isLowSurrogate(codeUnitAt(text, index + 1));
+
+// Bytes for one code unit that is not the start of a valid surrogate pair.
+// Unpaired surrogates (high or low) encode as U+FFFD, which is 3 bytes, the
+// same width as every other code unit at or above U+0800.
+const unitBytes = (code: number): number => {
+  if (code < 0x80) return 1;
+  return code < 0x800 ? 2 : 3;
+};
+
 /**
  * The UTF-8 byte length of a JavaScript string.
  *
@@ -39,24 +57,13 @@ import * as Str from "effect/String";
 export const utf8Length = (text: string): number => {
   let bytes = 0;
   for (let index = 0; index < Str.length(text); index++) {
-    const code = O.getOrThrow(Str.charCodeAt(text, index));
-    if (code < 0x80) {
-      bytes += 1;
-    } else if (code < 0x800) {
-      bytes += 2;
-    } else if (code >= 0xd800 && code <= 0xdbff) {
-      // High surrogate: a valid pair is one 4-byte code point; an unpaired
-      // one is replaced with U+FFFD, which is 3 bytes.
-      const next = index + 1 < Str.length(text) ? O.getOrThrow(Str.charCodeAt(text, index + 1)) : 0;
-      if (next >= 0xdc00 && next <= 0xdfff) {
-        bytes += 4;
-        index++;
-      } else {
-        bytes += 3;
-      }
+    const code = codeUnitAt(text, index);
+    // A high surrogate followed by a low one is a single 4-byte code point.
+    if (isHighSurrogate(code) && pairsWithNext(text, index)) {
+      bytes += 4;
+      index++;
     } else {
-      // Low surrogates reaching here are unpaired, and encode as U+FFFD too.
-      bytes += 3;
+      bytes += unitBytes(code);
     }
   }
   return bytes;

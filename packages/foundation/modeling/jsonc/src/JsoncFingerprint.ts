@@ -161,18 +161,17 @@ export class JsoncCanonicalizeError extends S.TaggedError<JsoncCanonicalizeError
  * @category models
  * @since 0.0.0
  */
-export class JsoncTextHashOptions extends S.Class<JsoncTextHashOptions, { readonly brand: unique symbol }>(
-  $I`JsoncTextHashOptions`
-)(
-  {
+export class JsoncTextHashOptions extends S.Opaque<JsoncTextHashOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     normalizeEol: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("JsoncTextHashOptions", {
-    description: "Line-ending normalization applied before hashing raw text.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncTextHashOptions", {
+      description: "Line-ending normalization applied before hashing raw text.",
+    })
+  )
 ) {}
 
 /**
@@ -316,29 +315,38 @@ const emitRecord: {
 
 const isFiniteNumber = S.is(S.Finite);
 
-const emit: {
-  (value: unknown, path: string, depth: number): Emit;
-  (path: string, depth: number): (value: unknown) => Emit;
-} = dual(3, (value: unknown, path: string, depth: number): Emit => {
+const emitNumber = (value: number, path: string): Emit =>
+  isFiniteNumber(value)
+    ? Result.succeed(emitScalar(value))
+    : fail("NonFiniteNumber", path, `${String(value)} has no canonical JSON representation`);
+
+const emitString = (value: string, path: string): Emit =>
+  value.isWellFormed()
+    ? Result.succeed(emitScalar(value))
+    : fail("LoneSurrogate", path, "string contains an unpaired surrogate; RFC 8785 requires well-formed Unicode");
+
+// Every non-container value: JSON scalars emit, everything else fails typed.
+const emitPrimitive = (value: unknown, path: string): Emit => {
   if (P.isNull(value) || P.isBoolean(value)) {
     return Result.succeed(emitScalar(value));
   }
   if (P.isNumber(value)) {
-    return isFiniteNumber(value)
-      ? Result.succeed(emitScalar(value))
-      : fail("NonFiniteNumber", path, `${String(value)} has no canonical JSON representation`);
+    return emitNumber(value, path);
   }
   if (P.isString(value)) {
-    return value.isWellFormed()
-      ? Result.succeed(emitScalar(value))
-      : fail("LoneSurrogate", path, "string contains an unpaired surrogate; RFC 8785 requires well-formed Unicode");
+    return emitString(value, path);
   }
   if (P.isBigInt(value)) {
     return fail("BigIntValue", path, "bigint values cannot be represented in JSON");
   }
-  if (!A.isArray(value) && !P.isObject(value)) {
-    return fail("UnrepresentableValue", path, `${typeof value} values have no JSON representation`);
-  }
+  return fail("UnrepresentableValue", path, `${typeof value} values have no JSON representation`);
+};
+
+const emitContainer = (
+  value: Array<unknown> | { readonly [x: PropertyKey]: unknown },
+  path: string,
+  depth: number
+): Emit => {
   if (depth >= MAX_NESTING_DEPTH) {
     return fail(
       "NestingDepthExceeded",
@@ -347,7 +355,19 @@ const emit: {
     );
   }
   return A.isArray(value) ? emitArray(value, path, depth) : emitRecord(value, path, depth);
-});
+};
+
+// Arrays and objects (functions included, which then fail as non-plain
+// objects) are containers; null, booleans, numbers, strings, bigints and the
+// rest are never objects, so the dispatch order is free.
+const emit: {
+  (value: unknown, path: string, depth: number): Emit;
+  (path: string, depth: number): (value: unknown) => Emit;
+} = dual(
+  3,
+  (value: unknown, path: string, depth: number): Emit =>
+    A.isArray(value) || P.isObject(value) ? emitContainer(value, path, depth) : emitPrimitive(value, path)
+);
 
 const encoder = new TextEncoder();
 

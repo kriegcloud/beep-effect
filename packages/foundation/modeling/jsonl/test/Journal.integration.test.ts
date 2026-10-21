@@ -1,6 +1,12 @@
 // Adapted from upstream integration/Journal.int.test.ts (MIT).
+//
+// These scenarios run against the in-memory filesystem double so the unit
+// suite stays hermetic. Their real-disk counterparts (O_APPEND atomicity under
+// concurrent appends, a foreign writer between appends, a reopen over a BOM'd
+// file, native watch between two layers) live in
+// test/integration/Journal.int.test.ts, which runs on the platform filesystem.
 import { Envelope, Line } from "@beep/jsonl";
-import { NodeFileSystem } from "@effect/platform-node";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { assert, it } from "@effect/vitest";
 import { assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -21,8 +27,8 @@ const temporary = Effect.gen(function* () {
   const directory = yield* fs.makeTempDirectoryScoped();
   return { fs, path: `${directory}/journal.jsonl` };
 });
-it.layer(NodeFileSystem.layer, { excludeTestServices: true, timeout: "10 seconds" })((it) => {
-  it.effect("real concurrent writes remain complete and decode to exactly the written rounds", () =>
+it.layer(MemoryFileSystem.layer, { excludeTestServices: true, timeout: "10 seconds" })((it) => {
+  it.effect("concurrent writes remain complete and decode to exactly the written rounds", () =>
     Effect.gen(function* () {
       const { fs, path } = yield* temporary;
       const journal = yield* open(fs, { path });
@@ -78,10 +84,10 @@ it.layer(NodeFileSystem.layer, { excludeTestServices: true, timeout: "10 seconds
       assertSome(yield* SubscriptionRef.get(second.latest), appended);
     })
   );
-  // Native filesystem notifications require the live platform clock for a useful
-  // timeout. No sleep or polling is used: the subscriber awaits the actual event.
+  // Filesystem notifications need the live clock for a useful timeout. No sleep
+  // or polling is used: the subscriber awaits the actual event.
   it.effect(
-    "two real journal layers observe each other through filesystem notifications",
+    "two journal layers observe each other through filesystem notifications",
     () =>
       Effect.gen(function* () {
         const { fs, path } = yield* temporary;

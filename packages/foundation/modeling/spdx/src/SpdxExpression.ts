@@ -422,10 +422,11 @@ const materialize: (raw: RawExpression) => SpdxExpression = Match.type<RawExpres
 // inlines into the facade's emitted `.d.ts` (like `parse` and `FromString`),
 // whereas a named `function` would be referenced as `typeof parseResult` and
 // leak an un-exported symbol (ae-forgotten-export) onto the `@public` surface.
-const parseResult = (input: string): Result.Result<SpdxExpression, InvalidSpdxExpressionError> => {
-  const raw = parseRaw(input);
-  return raw === undefined ? Result.fail(InvalidSpdxExpressionError.make({ input })) : Result.succeed(materialize(raw));
-};
+const parseResult = (input: string): Result.Result<SpdxExpression, InvalidSpdxExpressionError> =>
+  O.match(parseRaw(input), {
+    onNone: () => Result.fail(InvalidSpdxExpressionError.make({ input })),
+    onSome: (raw) => Result.succeed(materialize(raw)),
+  });
 
 /**
  * Whether `input` is a syntactically and catalog-valid SPDX license expression.

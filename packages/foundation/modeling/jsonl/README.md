@@ -220,11 +220,11 @@ the same kind or as a value and type where upstream had one of them.
 | `JournalUnterminated` | value, type | Append refusal over an unterminated suffix (Deviation 1). |
 | `JournalWriteConflict` | value, type | Append placement unknown after post-write growth (Deviation 8). |
 | `JournalResyncReason` | value, type | `LiteralKit` for `"truncated"` and `"replaced"` (`law:19`). |
-| `AppendOptions` | type → value, type | Schema-first options struct. |
-| `JournalConfig` | type → value, type | Schema decoded at layer construction. |
+| `AppendOptions` | type → value, type | Branded `S.Opaque` options struct; `append` and `appendPatch` take its encoded shape, a plain `{ scope? }` literal. |
+| `JournalConfig` | type → value, type | Branded `S.Opaque` schema decoded at layer construction; `layer` takes its encoded shape, a plain object literal. |
 | `Slice`, `CursoredSlice` | type → value, type | Schema factories that validate read selections. |
 | `JsonlError` | type → value, type | Tagged-union schema with guards; 13 members. |
-| `EnvelopeFrame` | value → value, type | Type alias of the frame schema. |
+| `EnvelopeFrame` | value → value, type | Branded `S.Opaque` frame schema; build one with `EnvelopeFrame.make`. |
 
 Members added inside existing exports: `Envelope.input`, `Envelope.schema`, the
 `input` and `envelope` codecs on every `JsonlEvent` definition,
@@ -240,6 +240,10 @@ API-shape changes that are not behaviour deviations:
   `Envelope.decodeResult(line, events)` or `pipe(line, Envelope.decodeResult(events))`.
 - `Line` is a const object of functions instead of a class with statics, so
   `new Line()` and `instanceof Line` no longer work.
+- `LineSlice`, `ParsedLine`, `EnvelopeFrame`, `AppendOptions` and `JournalConfig`
+  are branded `S.Opaque` schemas over plain structs: values are plain objects,
+  built with `X.make(...)`, and `instanceof X` does not apply; test membership
+  with `S.is(X)`.
 - The `AppendOptions` schema types `scope` as an exact optional key, so a typed
   `{ scope: undefined }` does not compile, although upstream's interface admits
   it. At runtime `append` omits an undefined scope, as upstream does.

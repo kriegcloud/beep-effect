@@ -2,6 +2,7 @@
 // messages byte for byte (oracle: effected/packages/jsonl, probe 29); D21 pins the
 // lab's lazy Effect forms; D15 pins upstream's omission of an undefined scope.
 
+import { fcRuns } from "@beep/fc-runs";
 import { Envelope, InvalidData, JsonlEvent, Line } from "@beep/jsonl";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
@@ -183,6 +184,17 @@ describe("D21: the Effect forms evaluate when run, not when built", () => {
 });
 
 describe("D15: an explicitly undefined scope is omitted, as upstream does", () => {
+  it.prop(
+    "encodes an explicitly undefined scope as the absent scope for every payload",
+    [Round],
+    ([data]) => {
+      assert.deepStrictEqual(
+        Envelope.encodeResult({ at, event: "noted", scope: undefined, data }, events),
+        Envelope.encodeResult({ at, event: "noted", data }, events)
+      );
+    },
+    { arbitrary: fcRuns(100) }
+  );
   it.effect("encodes the same bytes as an absent scope in both forms", () =>
     Effect.gen(function* () {
       const data = { round: 3, label: "x" };

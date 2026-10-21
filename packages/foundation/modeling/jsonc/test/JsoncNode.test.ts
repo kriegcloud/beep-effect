@@ -394,4 +394,17 @@ describe("JsoncNode", () => {
       assert.strictEqual(Hash.hash(a), Hash.hash(b));
     });
   });
+
+  describe("properties", () => {
+    // Construction keeps every finite span exactly, for every node type.
+    it.prop(
+      "constructs any node type with any finite span unchanged",
+      [JsoncNodeType, S.Finite, S.Finite],
+      ([type, offset, length]) => {
+        const node = JsoncNode.make({ type, offset, length });
+        assert.deepStrictEqual([node.type, node.offset, node.length], [type, offset, length]);
+        assert.isTrue(S.is(JsoncNode)(node));
+      }
+    );
+  });
 });

@@ -175,7 +175,7 @@ describe("Conformance.check", () => {
     // foreign JSON. `check` is total and must survive either.
     const node = SoftwareSourceCode.make({ "@id": PKG, name: "x", codeRepository: "https://example.com" });
     const graph = graphOf(node);
-    deliberatelyInvalid<{ "@type": string }>(node)["@type"] = "SoftwareSourceCodeRepository";
+    deliberatelyInvalid<{ "@type": string }>(graph["@graph"][0])["@type"] = "SoftwareSourceCodeRepository";
     const issues = Conformance.check(graph);
     assert.strictEqual(issues.length, 1);
     const [issue] = issues;
@@ -384,7 +384,7 @@ describe("Conformance catch-all references", () => {
   it("checks references on foreign nodes and preserves written property names", () => {
     const node = CreativeWork.make({ "@id": PKG, additional: { "gs1:sponsor": { "@id": "#missing" } } });
     const graph = graphOf(node);
-    deliberatelyInvalid<{ "@type": string }>(node)["@type"] = "gs1:Product";
+    deliberatelyInvalid<{ "@type": string }>(graph["@graph"][0])["@type"] = "gs1:Product";
     assert.deepStrictEqual(Conformance.check(graph), [
       DanglingReference.make({ nodeId: PKG, nodeType: "gs1:Product", property: "gs1:sponsor", reference: "#missing" }),
     ]);
@@ -394,11 +394,14 @@ describe("Conformance catch-all references", () => {
 describe("ConformanceOptions schema and compatible runtime input", () => {
   it("decodes omitted and explicitly undefined policies to safe defaults", () => {
     for (const input of [{}, { unknownTerms: undefined, deprecations: undefined, danglingReferences: undefined }]) {
-      assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ConformanceOptions)(input)), {
-        unknownTerms: "report",
-        deprecations: "ignore",
-        danglingReferences: "ignore",
-      });
+      assert.deepStrictEqual(
+        Result.getOrThrow(S.decodeResult(ConformanceOptions)(input)),
+        ConformanceOptions.make({
+          unknownTerms: "report",
+          deprecations: "ignore",
+          danglingReferences: "ignore",
+        })
+      );
     }
   });
 
@@ -425,7 +428,7 @@ describe("ConformanceOptions schema and compatible runtime input", () => {
       Result.map(
         Conformance.validateResult(
           graph,
-          deliberatelyInvalid<ConformanceOptions>({
+          deliberatelyInvalid<ConformanceOptions.Encoded>({
             unknownTerms: "other",
             deprecations: "other",
             danglingReferences: "other",
@@ -439,7 +442,7 @@ describe("ConformanceOptions schema and compatible runtime input", () => {
       Result.mapError(
         Conformance.validateResult(
           graph,
-          deliberatelyInvalid<ConformanceOptions>({
+          deliberatelyInvalid<ConformanceOptions.Encoded>({
             unknownTerms: "fail",
             deprecations: "other",
             danglingReferences: "other",

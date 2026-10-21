@@ -39,10 +39,8 @@ const $I = $SchemaOrgId.create("SoftwareSourceCode");
  * @category models
  * @since 0.0.0
  */
-export class SoftwareSourceCode extends S.Class<SoftwareSourceCode, { readonly brand: unique symbol }>(
-  $I`SoftwareSourceCode`
-)(
-  {
+export class SoftwareSourceCode extends S.Opaque<SoftwareSourceCode, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CreativeWorkFields,
     /**
      * The JSON-LD type discriminator, populated automatically.
@@ -100,8 +98,9 @@ export class SoftwareSourceCode extends S.Class<SoftwareSourceCode, { readonly b
         description: "Products this code produces, by reference. Repeatable.",
       })
     ),
-  },
-  $I.annote("SoftwareSourceCode", {
-    description: "A schema.org `SoftwareSourceCode` — the node describing a package's source.",
-  })
+  }).pipe(
+    $I.annoteSchema("SoftwareSourceCode", {
+      description: "A schema.org `SoftwareSourceCode` — the node describing a package's source.",
+    })
+  )
 ) {}

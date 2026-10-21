@@ -24,6 +24,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as TestClock from "effect/testing/TestClock";
 
 const deeplyNested = `${"[".repeat(20000)}1${"]".repeat(20000)}`;
 
@@ -471,8 +472,8 @@ describe("Jsonc", () => {
       ["Jsonc.stripComments accumulates pieces", Jsonc.stripComments, (size) => `[${"/**/0,".repeat(size)}0]`],
     ];
     for (const [name, run, make] of cases) {
-      // it.live: the measurement needs real elapsed time, which the TestClock would freeze.
-      it.live(`${name} in linear time`, () => scalesLinearly(run, make));
+      // The measurement needs real elapsed time, which the TestClock would freeze.
+      it.effect(`${name} in linear time`, () => TestClock.withLive(scalesLinearly(run, make)));
     }
   });
 

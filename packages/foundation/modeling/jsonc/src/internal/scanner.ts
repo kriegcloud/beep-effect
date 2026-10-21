@@ -179,6 +179,23 @@ const keywordKind: (word: string) => SyntaxKind = Match.type<string>().pipe(
   Match.orElse((): SyntaxKind => "Unknown")
 );
 
+/** Single-character structural tokens; `Unknown` for any other code unit. */
+const punctuationMatch: (code: number) => SyntaxKind = Match.type<number>().pipe(
+  Match.when(0x7b, (): SyntaxKind => "OpenBrace"),
+  Match.when(0x7d, (): SyntaxKind => "CloseBrace"),
+  Match.when(0x5b, (): SyntaxKind => "OpenBracket"),
+  Match.when(0x5d, (): SyntaxKind => "CloseBracket"),
+  Match.when(0x3a, (): SyntaxKind => "Colon"),
+  Match.when(0x2c, (): SyntaxKind => "Comma"),
+  Match.orElse((): SyntaxKind => "Unknown")
+);
+
+// Precomputed once per code unit up to `}` so the per-token scan path does a
+// single index read instead of running the matcher.
+const punctuationTable: ReadonlyArray<SyntaxKind> = A.makeBy(0x7e, punctuationMatch);
+
+const punctuationKind = (ch: number): SyntaxKind => punctuationTable[ch] ?? "Unknown";
+
 /**
  * Create a stateful {@link Scanner} for the given JSONC string.
  *
@@ -249,61 +266,79 @@ export const createScanner: {
       return O.some(value);
     };
 
+    // Advance over the plain run of a string body: stop at the closing quote,
+    // a backslash, a line break or the end of input. Unescaped C0 control
+    // characters are invalid inside strings (JSON grammar); keep scanning so
+    // the token stays intact for recovery.
+    const skipStringRun = (): void => {
+      while (pos < len) {
+        const ch = text.charCodeAt(pos);
+        if (ch === 0x22 || ch === 0x5c || isLineBreak(ch)) return;
+        if (ch <= 0x1f) tokenError = "InvalidCharacter";
+        pos++;
+      }
+    };
+
+    // Decode the escape whose code unit sits at `pos` (just after the
+    // backslash) and append it to `chunks`.
+    const appendEscape = (chunks: Array<string>): void => {
+      const escaped = text.charCodeAt(pos);
+      pos++;
+      const simple = simpleEscape(escaped);
+      if (O.isSome(simple)) {
+        chunks.push(simple.value);
+        return;
+      }
+      if (escaped !== 0x75) {
+        tokenError = "InvalidEscapeCharacter";
+        return;
+      }
+      const code = scanHexDigits(4);
+      if (O.isSome(code)) {
+        chunks.push(String.fromCharCode(code.value));
+      } else {
+        tokenError = "InvalidUnicode";
+      }
+    };
+
+    // Handle the character that stopped a plain run. Returns `true` when the
+    // string token ends here (closing quote, line break or end of input).
+    const scanStringBoundary = (chunks: Array<string>): boolean => {
+      if (pos >= len) {
+        tokenError = "UnexpectedEndOfString";
+        return true;
+      }
+      const ch = text.charCodeAt(pos);
+      if (ch === 0x22) {
+        pos++;
+        return true;
+      }
+      if (ch !== 0x5c) {
+        tokenError = "UnexpectedEndOfString";
+        return true;
+      }
+      pos++;
+      if (pos >= len) {
+        tokenError = "UnexpectedEndOfString";
+        return true;
+      }
+      appendEscape(chunks);
+      return false;
+    };
+
     const scanString = (): string => {
       // Decoded pieces grow in place: an immutable append copies every earlier
       // chunk per escape and makes escape-heavy strings quadratic.
       const chunks: Array<string> = [];
       pos++; // skip opening quote
-      let start = pos;
-      const finish = (end: number): string => {
-        chunks.push(text.substring(start, end));
-        return A.join(chunks, "");
-      };
-      while (pos < len) {
-        const ch = text.charCodeAt(pos);
-        if (ch === 0x22) {
-          const value = finish(pos);
-          pos++;
-          return value;
-        }
-        if (ch === 0x5c) {
-          chunks.push(text.substring(start, pos));
-          pos++;
-          if (pos >= len) {
-            tokenError = "UnexpectedEndOfString";
-            start = pos;
-            return finish(pos);
-          }
-          const escaped = text.charCodeAt(pos);
-          pos++;
-          const simple = simpleEscape(escaped);
-          if (O.isSome(simple)) {
-            chunks.push(simple.value);
-          } else if (escaped === 0x75) {
-            const code = scanHexDigits(4);
-            if (O.isSome(code)) {
-              chunks.push(String.fromCharCode(code.value));
-            } else {
-              tokenError = "InvalidUnicode";
-            }
-          } else {
-            tokenError = "InvalidEscapeCharacter";
-          }
-          start = pos;
-        } else if (isLineBreak(ch)) {
-          tokenError = "UnexpectedEndOfString";
-          return finish(pos);
-        } else {
-          if (ch <= 0x1f) {
-            // Unescaped C0 control characters are invalid inside strings (JSON
-            // grammar); keep scanning so the token stays intact for recovery.
-            tokenError = "InvalidCharacter";
-          }
-          pos++;
-        }
+      let done = false;
+      while (!done) {
+        const start = pos;
+        skipStringRun();
+        chunks.push(text.substring(start, pos));
+        done = scanStringBoundary(chunks);
       }
-      tokenError = "UnexpectedEndOfString";
-      return finish(pos);
+      return A.join(chunks, "");
     };
 
     const scanDigits = (): void => {
@@ -312,34 +347,37 @@ export const createScanner: {
       }
     };
 
+    // Optional `.digits`; `false` when the dot has no digit after it.
+    const scanFraction = (): boolean => {
+      if (charAt(pos) !== 0x2e) return true;
+      pos++;
+      if (!isDigit(charAt(pos))) return false;
+      scanDigits();
+      return true;
+    };
+
+    // Optional `e[+-]digits`; `false` when the exponent has no digit.
+    const scanExponent = (): boolean => {
+      const marker = charAt(pos);
+      if (marker !== 0x45 && marker !== 0x65) return true;
+      pos++;
+      const sign = charAt(pos);
+      if (sign === 0x2b || sign === 0x2d) pos++;
+      if (!isDigit(charAt(pos))) return false;
+      scanDigits();
+      return true;
+    };
+
     const scanNumber = (): string => {
       const start = pos;
-      if (charAt(pos) === 0x2d) {
-        pos++;
-      }
+      if (charAt(pos) === 0x2d) pos++;
       if (charAt(pos) === 0x30) {
         pos++;
       } else {
         scanDigits();
       }
-      if (charAt(pos) === 0x2e) {
-        pos++;
-        if (!isDigit(charAt(pos))) {
-          tokenError = "UnexpectedEndOfNumber";
-          return text.substring(start, pos);
-        }
-        scanDigits();
-      }
-      if (charAt(pos) === 0x45 || charAt(pos) === 0x65) {
-        pos++;
-        if (charAt(pos) === 0x2b || charAt(pos) === 0x2d) {
-          pos++;
-        }
-        if (!isDigit(charAt(pos))) {
-          tokenError = "UnexpectedEndOfNumber";
-          return text.substring(start, pos);
-        }
-        scanDigits();
+      if (!(scanFraction() && scanExponent())) {
+        tokenError = "UnexpectedEndOfNumber";
       }
       return text.substring(start, pos);
     };
@@ -391,14 +429,52 @@ export const createScanner: {
       return "Unknown";
     };
 
-    const scanPunctuation: {
-      (value: string, kind: SyntaxKind): SyntaxKind;
-      (kind: SyntaxKind): (value: string) => SyntaxKind;
-    } = dual(2, (value: string, kind: SyntaxKind): SyntaxKind => {
+    const scanPunctuation = (kind: SyntaxKind): SyntaxKind => {
       pos++;
-      tokenValue = value;
+      tokenValue = text.substring(tokenOffset, pos);
       return kind;
-    });
+    };
+
+    const scanWhitespace = (): SyntaxKind => {
+      do {
+        pos++;
+      } while (isWhitespace(charAt(pos)));
+      tokenValue = text.substring(tokenOffset, pos);
+      return "Trivia";
+    };
+
+    const scanLineBreak = (ch: number): SyntaxKind => {
+      pos++;
+      if (ch === 0x0d && charAt(pos) === 0x0a) {
+        pos++;
+      }
+      tokenValue = text.substring(tokenOffset, pos);
+      return "LineBreak";
+    };
+
+    const scanSlash = (): SyntaxKind => {
+      const next = charAt(pos + 1);
+      if (next === 0x2f) return scanLineComment();
+      if (next === 0x2a) return scanBlockComment();
+      return scanUnknown("InvalidCharacter");
+    };
+
+    // Value-starting and fallback characters: strings, comments, numbers and
+    // keywords; anything else is an invalid character.
+    const scanValueStart = (ch: number): SyntaxKind => {
+      if (ch === 0x22) {
+        tokenValue = scanString();
+        return "String";
+      }
+      if (ch === 0x2f) return scanSlash();
+      if (isDigit(ch) || (ch === 0x2d && isDigit(charAt(pos + 1)))) {
+        tokenValue = scanNumber();
+        return "Number";
+      }
+      if (ch === 0x2d) return scanUnknown("InvalidSymbol");
+      if (isLowerAlpha(ch)) return scanKeyword();
+      return scanUnknown("InvalidCharacter");
+    };
 
     // Single-token scan. Trivia skipping happens in the iterative wrapper below:
     // recursing here per skipped token overflows the stack on comment-heavy or
@@ -407,59 +483,13 @@ export const createScanner: {
       tokenValue = "";
       tokenError = "None";
       tokenOffset = pos;
-
-      if (pos >= len) {
-        return "EOF";
-      }
-
+      if (pos >= len) return "EOF";
       const ch = text.charCodeAt(pos);
-
-      if (isWhitespace(ch)) {
-        do {
-          pos++;
-        } while (isWhitespace(charAt(pos)));
-        tokenValue = text.substring(tokenOffset, pos);
-        return "Trivia";
-      }
-      if (isLineBreak(ch)) {
-        pos++;
-        if (ch === 0x0d && charAt(pos) === 0x0a) {
-          pos++;
-        }
-        tokenValue = text.substring(tokenOffset, pos);
-        return "LineBreak";
-      }
-      if (ch === 0x7b) return scanPunctuation("{", "OpenBrace");
-      if (ch === 0x7d) return scanPunctuation("}", "CloseBrace");
-      if (ch === 0x5b) return scanPunctuation("[", "OpenBracket");
-      if (ch === 0x5d) return scanPunctuation("]", "CloseBracket");
-      if (ch === 0x3a) return scanPunctuation(":", "Colon");
-      if (ch === 0x2c) return scanPunctuation(",", "Comma");
-      if (ch === 0x22) {
-        tokenValue = scanString();
-        return "String";
-      }
-      if (ch === 0x2f) {
-        const next = charAt(pos + 1);
-        if (next === 0x2f) return scanLineComment();
-        if (next === 0x2a) return scanBlockComment();
-        return scanUnknown("InvalidCharacter");
-      }
-      if (ch === 0x2d) {
-        if (isDigit(charAt(pos + 1))) {
-          tokenValue = scanNumber();
-          return "Number";
-        }
-        return scanUnknown("InvalidSymbol");
-      }
-      if (isDigit(ch)) {
-        tokenValue = scanNumber();
-        return "Number";
-      }
-      if (isLowerAlpha(ch)) {
-        return scanKeyword();
-      }
-      return scanUnknown("InvalidCharacter");
+      if (isWhitespace(ch)) return scanWhitespace();
+      if (isLineBreak(ch)) return scanLineBreak(ch);
+      const punctuation = punctuationKind(ch);
+      if (punctuation !== "Unknown") return scanPunctuation(punctuation);
+      return scanValueStart(ch);
     };
 
     const scan = (): SyntaxKind => {

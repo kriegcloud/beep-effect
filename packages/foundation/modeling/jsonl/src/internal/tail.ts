@@ -75,11 +75,12 @@ export const DEFAULT_WINDOW = 8192;
  * @category models
  * @since 0.0.0
  */
-export class TailWindow extends S.Class<TailWindow, { readonly brand: unique symbol }>($I`TailWindow`)(
-  { text: S.String, start: ByteCount, atFileStart: S.Boolean, size: ByteCount },
-  $I.annote("TailWindow", {
-    description: "A tail read beginning at a line boundary, with post-BOM offsets.",
-  })
+export class TailWindow extends S.Opaque<TailWindow, { readonly brand: unique symbol }>()(
+  S.Struct({ text: S.String, start: ByteCount, atFileStart: S.Boolean, size: ByteCount }).pipe(
+    $I.annoteSchema("TailWindow", {
+      description: "A tail read beginning at a line boundary, with post-BOM offsets.",
+    })
+  )
 ) {}
 
 /** Does the buffer begin with a UTF-8 BOM? */
@@ -282,27 +283,20 @@ export const readRangeWindow: {
  * @category models
  * @since 0.0.0
  */
-export const SampledRange = S.Struct({
-  path: S.String,
-  from: ByteCount,
-  length: ByteCount,
-  bomBytes: ByteCount,
-  sampledEnd: ByteCount,
-  skipPartialLine: S.Boolean,
-}).pipe(
-  $I.annoteSchema("SampledRange", {
-    description: "One bounded page of a sampled historical range, read through the reader's pinned handle.",
-  })
-);
-
-/**
- * One bounded page of a sampled historical range.
- *
- * @internal
- * @category type-level
- * @since 0.0.0
- */
-export type SampledRange = typeof SampledRange.Type;
+export class SampledRange extends S.Opaque<SampledRange, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: S.String,
+    from: ByteCount,
+    length: ByteCount,
+    bomBytes: ByteCount,
+    sampledEnd: ByteCount,
+    skipPartialLine: S.Boolean,
+  }).pipe(
+    $I.annoteSchema("SampledRange", {
+      description: "One bounded page of a sampled historical range, read through the reader's pinned handle.",
+    })
+  )
+) {}
 
 /**
  * Decode one page of a sampled range through an already open handle.

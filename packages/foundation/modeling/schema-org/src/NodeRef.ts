@@ -140,17 +140,6 @@ export const NodeId = S.String.check(
 export type NodeId = typeof NodeId.Type;
 
 /**
- * Anything carrying an `@id`. Every node class in this package satisfies it.
- *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export interface HasNodeId {
-  readonly "@id": string;
-}
-
-/**
  * A reference from one node to another: the `{"@id": "…"}` form.
  *
  * **Details**
@@ -188,16 +177,15 @@ export interface HasNodeId {
  * @category models
  * @since 0.0.0
  */
-export class NodeRef extends S.Class<NodeRef, { readonly brand: unique symbol }>($I`NodeRef`)(
-  {
+export class NodeRef extends S.Opaque<NodeRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The identifier of the referenced node.
      *
      * @since 0.0.0
      */
     "@id": S.String.pipe($I.annoteKey("NodeRef.@id", { description: "The identifier of the referenced node." })),
-  },
-  $I.annote("NodeRef", { description: 'A reference from one node to another: the `{"@id": "…"}` form.' })
+  }).pipe($I.annoteSchema("NodeRef", { description: 'A reference from one node to another: the `{"@id": "…"}` form.' }))
 ) {
   /**
    * Builds a reference to a node you are already holding, or to a bare
@@ -292,15 +280,34 @@ export class NodeRef extends S.Class<NodeRef, { readonly brand: unique symbol }>
 }
 
 /**
- * The shared nominal guard for typed node references.
+ * Anything carrying an `@id`. Every node class in this package satisfies it.
  *
- * **Example** (Recognize a typed node reference)
+ * **Details**
+ *
+ * Derived from the encoded side of {@link NodeRef}, so the shape has one
+ * schema-owned definition: any object with a string `@id` qualifies.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type HasNodeId = typeof NodeRef.Encoded;
+
+/**
+ * The shared structural guard for node references.
+ *
+ * **Details**
+ *
+ * `NodeRef` is plain data, so any object carrying a string `@id` is accepted.
+ *
+ * **Example** (Recognize a node reference)
  *
  * ```ts
  * import { isNodeRef, NodeRef } from "@beep/schema-org/NodeRef";
  *
  * console.log(isNodeRef(NodeRef.to("_:pkg"))) // true
- * console.log(isNodeRef({ "@id": "_:pkg" })) // false
+ * console.log(isNodeRef({ "@id": "_:pkg" })) // true
+ * console.log(isNodeRef({ id: "_:pkg" })) // false
  * ```
  *
  * @category predicates

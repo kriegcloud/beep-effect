@@ -49,8 +49,8 @@ const $I = $JsonlId.create("Line");
  * @category models
  * @since 0.0.0
  */
-export class ParsedLine extends S.Class<ParsedLine, { readonly brand: unique symbol }>($I`ParsedLine`)(
-  {
+export class ParsedLine extends S.Opaque<ParsedLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Where this line lives in the source. */
     line: LineSlice.pipe(
       $I.annoteKey("ParsedLine.line", {
@@ -63,12 +63,13 @@ export class ParsedLine extends S.Class<ParsedLine, { readonly brand: unique sym
         description: "The parsed JSON value — any JSON value, not necessarily an object.",
       })
     ),
-  },
-  $I.annote("ParsedLine", {
-    description: "A line that parsed as JSON, paired with the slice it came from.",
-    documentation:
-      "`value` is deliberately `unknown`: this layer knows JSON, not envelopes.\nValidating `event`, `at`, `scope` and the registered payload schema is the\nenvelope layer's job, and keeping the split means a malformed *envelope* and\na malformed *line* stay distinguishable failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedLine", {
+      description: "A line that parsed as JSON, paired with the slice it came from.",
+      documentation:
+        "`value` is deliberately `unknown`: this layer knows JSON, not envelopes.\nValidating `event`, `at`, `scope` and the registered payload schema is the\nenvelope layer's job, and keeping the split means a malformed *envelope* and\na malformed *line* stay distinguishable failures.",
+    })
+  )
 ) {}
 
 /** Whether a line carries nothing but whitespace. */

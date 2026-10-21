@@ -29,7 +29,7 @@ const cmd = (executable = "tool", args: ReadonlyArray<string> = []) => ChildProc
 /** The common shape: provide a scripted spawner to a program that requires one. */
 const withScript = <A, E>(
   program: () => Effect.Effect<A, E, ChildProcessSpawner.ChildProcessSpawner>,
-  script: (command: string, args: ReadonlyArray<string>) => ScriptResult
+  script: (command: string, args: ReadonlyArray<string>) => ScriptResult.Encoded
 ): Effect.Effect<A, E> => withLayer(ScriptedSpawner.make(script).layer)(program());
 
 describe("Run.collect", () => {
@@ -100,7 +100,7 @@ describe("Run.collect", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.collect(cmd(), { maxOutputBytes: 8 }),
+          () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: 8 })),
           () => ({ stdout: "0123456789", exit: 0 })
         )
       );
@@ -118,7 +118,7 @@ describe("Run.collect", () => {
   it.effect("output exactly at the cap is accepted", () =>
     Effect.gen(function* () {
       const output = yield* withScript(
-        () => Run.collect(cmd(), { maxOutputBytes: 4 }),
+        () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: 4 })),
         () => ({ stdout: "abcd", exit: 0 })
       );
       assert.strictEqual(output.stdout, "abcd");
@@ -130,7 +130,9 @@ describe("Run.collect", () => {
       for (const script of [{ stdout: "x" }, { stderr: "x" }]) {
         const spawner = ScriptedSpawner.make(() => script);
         const error = yield* Effect.flip(
-          Run.collect(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }).pipe(withLayer(spawner.layer))
+          Run.collect(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })).pipe(
+            withLayer(spawner.layer)
+          )
         );
         assert.lengthOf(spawner.spawns, 1);
         if (!S.is(CommandOutputError)(error)) return assert.fail("expected a typed output error");
@@ -144,14 +146,14 @@ describe("Run.collect", () => {
   it.effect("negative-infinity budget allows empty streams and preserves spawn failures", () =>
     Effect.gen(function* () {
       const output = yield* withScript(
-        () => Run.collect(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
+        () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
         () => ({})
       );
       assert.strictEqual(output.stdout, "");
       assert.strictEqual(output.stderr, "");
       const error = yield* Effect.flip(
         withScript(
-          () => Run.collect(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
+          () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
           () => ScriptedSpawner.notFound("tool")
         )
       );
@@ -164,7 +166,7 @@ describe("Run.collect", () => {
     Effect.gen(function* () {
       for (const maxOutputBytes of [Number.POSITIVE_INFINITY, Number.NaN]) {
         const output = yield* withScript(
-          () => Run.collect(cmd(), { maxOutputBytes }),
+          () => Run.collect(cmd(), RunOptions.make({ maxOutputBytes })),
           () => ({ stdout: "out", stderr: "err" })
         );
         assert.strictEqual(output.stdout, "out");
@@ -194,7 +196,7 @@ describe("Run.collect", () => {
   it.effect("an opted-in timeout fails typed with kind 'timeout'", () =>
     Effect.gen(function* () {
       const fiber = yield* withScript(
-        () => Run.collect(cmd(), { timeout: "30 seconds" }),
+        () => Run.collect(cmd(), RunOptions.make({ timeout: "30 seconds" })),
         () => ({ hang: true })
       ).pipe(Effect.flip, Effect.forkChild);
       yield* TestClock.adjust("31 seconds");
@@ -460,7 +462,7 @@ describe("Run.jsonLine", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.jsonLine(cmd(), Payload, { redact: [Redacted.make("s3cr3t")] }),
+          () => Run.jsonLine(cmd(), Payload, RunOptions.make({ redact: [Redacted.make("s3cr3t")] })),
           () => ({ stdout: "token is s3cr3t", stderr: "auth failed for s3cr3t", exit: 1 })
         )
       );
@@ -589,14 +591,14 @@ describe("Run.succeeds", () => {
       for (const script of [{ stdout: "x" }, { stderr: "x" }]) {
         assert.isFalse(
           yield* withScript(
-            () => Run.succeeds(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
+            () => Run.succeeds(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
             () => script
           )
         );
       }
       assert.isTrue(
         yield* withScript(
-          () => Run.succeeds(cmd(), { maxOutputBytes: Number.NEGATIVE_INFINITY }),
+          () => Run.succeeds(cmd(), RunOptions.make({ maxOutputBytes: Number.NEGATIVE_INFINITY })),
           () => ({})
         )
       );
@@ -644,7 +646,8 @@ describe("Run redaction", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.text(ChildProcess.make("npm", ["publish", "--token", "s3cr3t"]), { redact: [token] }),
+          () =>
+            Run.text(ChildProcess.make("npm", ["publish", "--token", "s3cr3t"]), RunOptions.make({ redact: [token] })),
           () => ({ stderr: "denied", exit: 1 })
         )
       );
@@ -659,7 +662,7 @@ describe("Run redaction", () => {
     Effect.gen(function* () {
       const error = yield* Effect.flip(
         withScript(
-          () => Run.text(cmd(), { redact: [token] }),
+          () => Run.text(cmd(), RunOptions.make({ redact: [token] })),
           () => ({ stderr: "auth failed for s3cr3t", exit: 1 })
         )
       );
@@ -687,7 +690,7 @@ describe("Run redaction", () => {
   it.effect("captured output on the SUCCESS path is redacted too", () =>
     Effect.gen(function* () {
       const output = yield* withScript(
-        () => Run.collect(cmd(), { redact: [token] }),
+        () => Run.collect(cmd(), RunOptions.make({ redact: [token] })),
         () => ({ stdout: "token is s3cr3t", exit: 0 })
       );
       assert.notInclude(output.stdout, "s3cr3t");
@@ -860,7 +863,7 @@ describe("Run schema shapes", () => {
   it.effect("accepts whitespace before duration units without normalizing the input", () =>
     Effect.gen(function* () {
       for (const timeout of ["1  seconds", "-1  seconds"] as const) {
-        const options: RunOptions = { timeout };
+        const options = RunOptions.make({ timeout });
         assert.isTrue(S.is(RunOptions)(options));
         assert.strictEqual((yield* S.decodeEffect(RunOptions)(options)).timeout, timeout);
       }
@@ -890,7 +893,11 @@ describe("Run schema shapes", () => {
 
   it("preserves duration inputs, redacted values, undefined options and numeric policy", () => {
     const secret = Redacted.make("secret");
-    const options: RunOptions = { timeout: { seconds: 1 }, redact: [secret], maxOutputBytes: Number.POSITIVE_INFINITY };
+    const options = RunOptions.make({
+      timeout: { seconds: 1 },
+      redact: [secret],
+      maxOutputBytes: Number.POSITIVE_INFINITY,
+    });
     assert.isTrue(S.is(RunOptions)(options));
     for (const timeout of [1, 1n, [1, 2], "1 second", "Infinity", "-Infinity", { milliseconds: 2 }]) {
       assert.isTrue(S.is(RunOptions)({ timeout }));

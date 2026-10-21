@@ -175,51 +175,46 @@ export type ExitCode = typeof ExitCode.Type;
  * ```
  *
  * @public
- * @category schemas
+ * @category models
  * @since 0.0.0
  */
-export const RunOptions = S.Struct({
-  /**
-   * Ceiling for the whole run.
-   *
-   * **Details**
-   *
-   * **There is no default.** A package-manager install and a `git rev-parse`
-   * cannot share one, so an unset `timeout` means no ceiling. When set, expiry
-   * closes the run's scope (killing the child) and fails with
-   * {@link CommandFailedError} of kind `"timeout"` rather than core's
-   * `TimeoutError`, so a caller's error channel stays this package's taxonomy.
-   */
-  timeout: S.optional(DurationInput).pipe(
-    $I.annoteKey("RunOptions.timeout", { description: "Optional ceiling for the whole run." })
-  ),
-  /**
-   * Values scrubbed from captured output and from any error this run raises.
-   *
-   * **Details**
-   *
-   * Matching is by exact value, so a secret is removed wherever it appears —
-   * whichever flag carried it, and inside a larger string. The flag heuristic
-   * in {@link Redaction.scrubArgs} runs in addition, never instead.
-   */
-  redact: S.String.pipe(
-    S.Redacted,
-    S.Array,
-    S.optional,
-    $I.annoteKey("RunOptions.redact", { description: "Secret values scrubbed from output and errors." })
-  ),
-  /** Per-stream captured-byte ceiling. Defaults to {@link DEFAULT_MAX_OUTPUT_BYTES}. */
-  maxOutputBytes: S.optional(PolicyNumber).pipe(
-    $I.annoteKey("RunOptions.maxOutputBytes", { description: "Optional per-stream byte ceiling." })
-  ),
-}).pipe($I.annoteSchema("RunOptions", { description: "Timeout, redaction and byte-budget policy for a run." }));
-/**
- * Decoded run policy accepted by the running helpers.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type RunOptions = typeof RunOptions.Type;
+export class RunOptions extends S.Opaque<RunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Ceiling for the whole run.
+     *
+     * **Details**
+     *
+     * **There is no default.** A package-manager install and a `git rev-parse`
+     * cannot share one, so an unset `timeout` means no ceiling. When set, expiry
+     * closes the run's scope (killing the child) and fails with
+     * {@link CommandFailedError} of kind `"timeout"` rather than core's
+     * `TimeoutError`, so a caller's error channel stays this package's taxonomy.
+     */
+    timeout: S.optional(DurationInput).pipe(
+      $I.annoteKey("RunOptions.timeout", { description: "Optional ceiling for the whole run." })
+    ),
+    /**
+     * Values scrubbed from captured output and from any error this run raises.
+     *
+     * **Details**
+     *
+     * Matching is by exact value, so a secret is removed wherever it appears —
+     * whichever flag carried it, and inside a larger string. The flag heuristic
+     * in {@link Redaction.scrubArgs} runs in addition, never instead.
+     */
+    redact: S.String.pipe(
+      S.Redacted,
+      S.Array,
+      S.optional,
+      $I.annoteKey("RunOptions.redact", { description: "Secret values scrubbed from output and errors." })
+    ),
+    /** Per-stream captured-byte ceiling. Defaults to {@link DEFAULT_MAX_OUTPUT_BYTES}. */
+    maxOutputBytes: S.optional(PolicyNumber).pipe(
+      $I.annoteKey("RunOptions.maxOutputBytes", { description: "Optional per-stream byte ceiling." })
+    ),
+  }).pipe($I.annoteSchema("RunOptions", { description: "Timeout, redaction and byte-budget policy for a run." }))
+) {}
 
 /**
  * What one completed run produced.
@@ -303,6 +298,19 @@ const safeText: {
 } = Fn.dual(2, (text: string, secrets: ReadonlyArray<Redacted.Redacted<string>> | undefined): string =>
   Redaction.apply(text, secrets ?? [])
 );
+
+/** Whether a captured stream carries any non-whitespace text. */
+const hasText = (text: string | undefined): text is string => text !== undefined && text.trim() !== "";
+
+/**
+ * The stream whose tail explains a failure: stderr first, then stdout, because
+ * npm and friends route real errors there often enough that dropping it hides
+ * causes.
+ */
+const causeStream = (stderr: string | undefined, stdout: string | undefined): string | undefined => {
+  if (hasText(stderr)) return stderr;
+  return hasText(stdout) ? stdout : undefined;
+};
 
 /** Tail-bounded rendering: tools write warnings first and the real error last. */
 const tail = (text: string): string => {
@@ -556,15 +564,7 @@ export class CommandFailedError extends S.TaggedError<CommandFailedError, { read
     const parts = [`Command "${rendered}" failed`];
     if (this.kind === "timeout") parts.push("(timed out)");
     if (this.exitCode !== undefined) parts.push(`(exit ${this.exitCode})`);
-    // Prefer stderr; fall back to stdout, because npm and friends route real
-    // errors there often enough that dropping it hides causes.
-    const stderr = this.stderr?.trim();
-    const stream =
-      stderr !== undefined && stderr !== ""
-        ? this.stderr
-        : (this.stdout?.trim() ?? "") !== ""
-          ? this.stdout
-          : undefined;
+    const stream = causeStream(this.stderr, this.stdout);
     if (stream !== undefined) parts.push(`:\n${tail(stream)}`);
     return A.join(parts, " ");
   }
@@ -793,6 +793,23 @@ const annotate = (command: ChildProcess.Command): Effect.Effect<void> => {
   return Effect.annotateCurrentSpan({ command: described.command, argc: described.args.length });
 };
 
+/** Annotates the current span, then runs and classifies the command without a tee. */
+const annotatedRun = (
+  command: ChildProcess.Command,
+  options: RunOptions | undefined
+): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner> =>
+  Effect.andThen(
+    annotate(command),
+    Effect.suspend(() => collectClassified(command, options, undefined))
+  );
+
+/** {@link annotatedRun}, failing a run whose process exited non-zero. */
+const checkedRun = (
+  command: ChildProcess.Command,
+  options: RunOptions | undefined
+): Effect.Effect<CommandOutput, CommandFailedError | CommandOutputError, ChildProcessSpawner.ChildProcessSpawner> =>
+  Effect.flatMap(annotatedRun(command, options), (output) => requireZero(command, output, options));
+
 // Implementation of Run.collect; the public contract lives on the static.
 const collect: {
   (
@@ -854,9 +871,7 @@ const text: {
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
   Effect.fn("Run.text")(function* (command: ChildProcess.Command, options?: RunOptions) {
-    yield* annotate(command);
-    const output = yield* collectClassified(command, options, undefined);
-    const checked = yield* requireZero(command, output, options);
+    const checked = yield* checkedRun(command, options);
     return checked.stdout.trim();
   })
 );
@@ -875,9 +890,7 @@ const lines: {
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
   Effect.fn("Run.lines")(function* (command: ChildProcess.Command, options?: RunOptions) {
-    yield* annotate(command);
-    const output = yield* collectClassified(command, options, undefined);
-    const checked = yield* requireZero(command, output, options);
+    const checked = yield* checkedRun(command, options);
     return Fn.pipe(
       checked.stdout.split(/\r?\n/),
       A.map((line) => line.trim()),
@@ -902,10 +915,8 @@ const json: {
 } = Fn.dual(
   (args) => ChildProcess.isCommand(args[0]),
   Effect.fn("Run.json")(function* <A, I>(command: ChildProcess.Command, schema: S.Codec<A, I>, options?: RunOptions) {
-    yield* annotate(command);
+    const checked = yield* checkedRun(command, options);
     const described = describeCommand(command);
-    const output = yield* collectClassified(command, options, undefined);
-    const checked = yield* requireZero(command, output, options);
     const parsed = yield* S.decodeEffect(JsonOutput)(checked.stdout).pipe(
       Effect.mapError((cause) => CommandOutputError.make({ kind: "notJson", command: described.command, cause }))
     );
@@ -935,9 +946,8 @@ const jsonLine: {
     schema: S.Codec<A, I>,
     options?: RunOptions
   ) {
-    yield* annotate(command);
+    const output = yield* annotatedRun(command, options);
     const described = describeCommand(command);
-    const output = yield* collectClassified(command, options, undefined);
     // The run's context travels on every output error: when the payload line is
     // missing or unusable, the exit code and captured streams (already redacted
     // by collectClassified) are the only evidence of what actually went wrong.
@@ -1099,7 +1109,7 @@ const extendEnv: {
  * **Example** (Read the Git revision and check for changes)
  *
  * ```ts
- * import { Run } from "@beep/commands/Run";
+ * import { Run, RunOptions } from "@beep/commands/Run";
  * import { ScriptedSpawner } from "@beep/commands/ScriptedSpawner";
  * import * as ChildProcess from "effect/process/ChildProcess";
  * import * as Effect from "effect/Effect";
@@ -1108,7 +1118,10 @@ const extendEnv: {
  *   args[0] === "rev-parse" ? { stdout: "abc123\n" } : {},
  * );
  * const program = Effect.gen(function* () {
- *   const sha = yield* Run.text(ChildProcess.make("git", ["rev-parse", "HEAD"]), { timeout: "10 seconds" });
+ *   const sha = yield* Run.text(
+ *     ChildProcess.make("git", ["rev-parse", "HEAD"]),
+ *     RunOptions.make({ timeout: "10 seconds" }),
+ *   );
  *   const clean = yield* Run.succeeds(ChildProcess.make("git", ["diff", "--quiet"]));
  *   return { sha, clean };
  * }).pipe(Effect.provide(spawner.layer));
