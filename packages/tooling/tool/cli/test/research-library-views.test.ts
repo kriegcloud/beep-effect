@@ -46,7 +46,7 @@ const LibraryDispositionImportPayloadJson = S.fromJsonString(LibraryDispositionI
 const LibraryIntakeJson = S.fromJsonString(LibraryIntake);
 const libraryArtifactEquivalent = S.toEquivalence(LibraryArtifact);
 
-const webSourceKinds: ReadonlyArray<LibrarySource["kind"]> = ["web", "docs", "endpoint"];
+const webSourceKinds: ReadonlyArray<LibrarySource["kind"]> = ["web", "docs", "registry", "endpoint"];
 const fixtureJson = S.Unknown.pipe(S.fromJsonString, S.encodeEffect);
 
 const services = NodeServices.layer;

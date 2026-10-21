@@ -27,8 +27,6 @@ export class ImageAuditOptions extends S.Opaque<ImageAuditOptions, { readonly br
   S.Struct({
     dir: S.String,
     manifest: S.String,
-    minConfidence: S.Finite,
-    modelPath: S.String,
     overwrite: S.Boolean,
   }).pipe(
     $I.annoteSchema("ImageAuditOptions", {
@@ -83,26 +81,6 @@ export class ImageAuditQualityMetrics extends S.Opaque<ImageAuditQualityMetrics,
 ) {}
 
 /**
- * Face measurements recorded for one audited image.
- *
- * @category models
- * @since 0.0.0
- */
-export class ImageAuditFaceMetrics extends S.Opaque<ImageAuditFaceMetrics, { readonly brand: unique symbol }>()(
-  S.Struct({
-    faceCount: S.Int,
-    primaryFaceAreaPct: S.optionalKey(S.Finite),
-    primaryFaceConfidence: S.optionalKey(S.Finite),
-    primaryFaceHeight: S.optionalKey(S.Finite),
-    primaryFaceWidth: S.optionalKey(S.Finite),
-  }).pipe(
-    $I.annoteSchema("ImageAuditFaceMetrics", {
-      description: "Detected face count and primary-face scale measurements used only for review.",
-    })
-  )
-) {}
-
-/**
  * One successfully audited source image.
  *
  * @category models
@@ -114,7 +92,6 @@ export class ImageAuditEntry extends S.Opaque<ImageAuditEntry, { readonly brand:
     colorHash: S.String,
     decodedPixelSha256: FileSha256Hash,
     extension: S.String,
-    faces: ImageAuditFaceMetrics,
     height: PositiveMediaDimension,
     metadata: ImageAuditMetadataPresence,
     perceptualHash: S.String,
@@ -127,7 +104,7 @@ export class ImageAuditEntry extends S.Opaque<ImageAuditEntry, { readonly brand:
     width: PositiveMediaDimension,
   }).pipe(
     $I.annoteSchema("ImageAuditEntry", {
-      description: "Hashes, geometry, metadata presence, face scale, and advisory quality data for one source image.",
+      description: "Hashes, geometry, metadata presence, and advisory quality data for one source image.",
     })
   )
 ) {}
@@ -196,9 +173,6 @@ export class ImageAuditSummary extends S.Opaque<ImageAuditSummary, { readonly br
   S.Struct({
     analyzedCount: S.Int,
     duplicateClusterCount: S.Int,
-    faceImageCount: S.Int,
-    multiFaceImageCount: S.Int,
-    noFaceImageCount: S.Int,
     sessionClusterCount: S.Int,
     similarityPairCount: S.Int,
     skippedCount: S.Int,
@@ -221,8 +195,7 @@ export class ImageAuditManifest extends S.Opaque<ImageAuditManifest, { readonly 
     duplicateClusters: S.Array(ImageAuditCluster),
     entries: S.Array(ImageAuditEntry),
     manifestPath: S.String,
-    modelPath: S.String,
-    schemaVersion: S.Literal("beep.files.image-audit.v1"),
+    schemaVersion: S.Literal("beep.files.image-audit.v2"),
     sessionClusters: S.Array(ImageAuditCluster),
     similarityPairs: S.Array(ImageAuditSimilarityPair),
     skipped: S.Array(ImageAuditSkippedEntry),

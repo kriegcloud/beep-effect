@@ -1,10 +1,9 @@
-import { Firecrawl } from "@beep/firecrawl";
 import {
-  captureResearchUrl,
-  ResearchCaptureOptions,
+  pullResearchNotionLinks,
   ResearchCognifyOptions,
   ResearchCommandServiceLive,
   ResearchDailyOptions,
+  ResearchNotionPullOptions,
 } from "@beep/repo-cli/commands/Research";
 import {
   COGNEE_API_URL_INSECURE,
@@ -36,21 +35,9 @@ import * as Str from "effect/String";
 const UNREACHABLE_COGNEE_URL = "http://127.0.0.1:9";
 const isCogneeApiUrl = S.is(CogneeApiUrl);
 
-const fakeFirecrawlClient = {
-  scrape: (url: string) =>
-    Promise.resolve({
-      markdown: "A card pending cognify.",
-      metadata: { sourceURL: url, title: "Pending Card" },
-    }),
-} as never;
-
 const testLayer = Layer.mergeAll(
   ResearchCommandServiceLive.pipe(
-    Layer.provideMerge(
-      Layer.mergeAll(Firecrawl.makeLayerFromClient(fakeFirecrawlClient), FetchHttpClient.layer).pipe(
-        Layer.provideMerge(NodeServices.layer)
-      )
-    )
+    Layer.provideMerge(FetchHttpClient.layer.pipe(Layer.provideMerge(NodeServices.layer)))
   ),
   NodeServices.layer
 );
@@ -92,6 +79,25 @@ const git = Effect.fn("ResearchDailyTest.git")(function* (cwd: string, args: Rea
   const exitCode = yield* handle.exitCode;
   expect(exitCode).toBe(0);
   return Str.trim(output);
+});
+
+const encodeLinksFile = S.encodeEffect(S.fromJsonString(S.Unknown));
+
+// Seed one card pending cognify through the local notion-pull links-file seam;
+// the links file lives outside the vault so the vault tree stays untouched.
+const seedPendingCard = Effect.fn("ResearchDailyTest.seedPendingCard")(function* (vaultRoot: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const linksRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-links-" });
+  const linksFile = path.join(linksRoot, "links.json");
+  yield* fs.writeFileString(
+    linksFile,
+    yield* encodeLinksFile([{ title: "Pending Card", url: "https://example.com/pending" }])
+  );
+  const summary = yield* pullResearchNotionLinks(
+    ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot })
+  );
+  expect(summary.cardsWritten).toBe(1);
 });
 
 const STATE_FILE = `${VAULT_DIRS.state}/index.txt`;
@@ -208,9 +214,7 @@ layer(testLayer, { timeout: "30 seconds" })("research daily cognify gate", (it) 
   it.effect("fails an explicit cognify with the same hint when cards are pending and no URL is set", () =>
     Effect.gen(function* () {
       const vaultRoot = yield* initVault({ ignoreState: true });
-      yield* captureResearchUrl(
-        ResearchCaptureOptions.make({ tags: [], url: "https://example.com/pending", vaultRoot })
-      );
+      yield* seedPendingCard(vaultRoot);
 
       const error = yield* Effect.flip(
         cognifyImpl(ResearchCognifyOptions.make({ dryRun: false, vaultRoot })).pipe(withConfig({}))
@@ -223,9 +227,7 @@ layer(testLayer, { timeout: "30 seconds" })("research daily cognify gate", (it) 
   it.effect("names the Cognee URL when the login request cannot connect", () =>
     Effect.gen(function* () {
       const vaultRoot = yield* initVault({ ignoreState: true });
-      yield* captureResearchUrl(
-        ResearchCaptureOptions.make({ tags: [], url: "https://example.com/pending", vaultRoot })
-      );
+      yield* seedPendingCard(vaultRoot);
 
       const error = yield* Effect.flip(
         cognifyImpl(ResearchCognifyOptions.make({ dryRun: false, vaultRoot })).pipe(

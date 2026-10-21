@@ -1,4 +1,3 @@
-import { Firecrawl, FirecrawlScrapeSuccess } from "@beep/firecrawl";
 import {
   hashBytes,
   importLibraryResult,
@@ -10,6 +9,7 @@ import {
   LibraryQualification,
   LibrarySource,
   loadCatalog,
+  requiredLibraryAdapters,
   saveImmutable,
   validateLibraryScrape,
   withCatalog,
@@ -18,7 +18,6 @@ import {
   acquireLibraryGithub,
   acquireLibraryPaper,
   acquireLibrarySource,
-  acquireLibraryWeb,
   correctLibraryCaptures,
   LibraryCaptureCorrection,
   libraryCaptionProvenance,
@@ -35,7 +34,6 @@ import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as HttpClient from "effect/http/HttpClient";
-import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -119,7 +117,6 @@ it.layer(
   Layer.mergeAll(
     NodeServices.layer,
     NodeCrypto.layer,
-    Layer.mock(Firecrawl, {}),
     Layer.succeed(
       HttpClient.HttpClient,
       HttpClient.make(() => Effect.die("Unexpected fixture HTTP request"))
@@ -133,35 +130,41 @@ it.layer(
       Effect.gen(function* () {
         const f = yield* prepare();
         const resolved = "https://example.com/moved-article";
-        const client = HttpClient.make((request) =>
-          Effect.succeed(
-            HttpClientResponse.fromWeb(
-              HttpClientRequest.setUrl(request, resolved),
-              new Response("redirect", { status: 200 })
-            )
-          )
+        const markdown = "The retained full article.";
+        const rawHtml = "<article>The retained full article.</article>";
+        // Retained shape of an admitted redirected web capture: the provider response, both
+        // full-text renditions, and the HTTP proof linking the requested URL to the resolved one.
+        const response = yield* saveLibraryText(
+          f.root,
+          "redirect/response.json",
+          yield* S.encodeEffect(UnknownJson)({
+            data: { markdown, rawHtml, metadata: { sourceURL: resolved, statusCode: 200 } },
+          }),
+          "application/json",
+          "raw-response"
         );
-        const driver = yield* Layer.build(
-          Layer.mock(Firecrawl, {
-            scrape: () =>
-              Effect.succeed(
-                FirecrawlScrapeSuccess.make({
-                  data: {
-                    markdown: "The retained full article.",
-                    rawHtml: "<article>The retained full article.</article>",
-                    metadata: { sourceURL: resolved, statusCode: 200 },
-                  },
-                })
-              ),
-          })
+        const html = yield* saveLibraryText(f.root, "redirect/source.html", rawHtml, "text/html", "raw-full-text");
+        const text = yield* saveLibraryText(
+          f.root,
+          "redirect/source.md",
+          markdown,
+          "text/markdown",
+          "extracted-full-text"
         );
-        const result = yield* acquireLibraryWeb(f.root, source, "redirect").pipe(
-          Effect.provide(driver),
-          Effect.provideService(HttpClient.HttpClient, client)
+        const redirect = yield* saveLibraryText(
+          f.root,
+          "redirect/redirect.json",
+          yield* S.encodeEffect(UnknownJson)({
+            requestedUrl: source.canonicalUrl,
+            resolvedUrl: resolved,
+            status: 200,
+            providerSourceUrl: resolved,
+            identityMerged: false,
+          }),
+          "application/json",
+          "target-metadata"
         );
-        expect(result.status).toBe("readable");
-        expect(result.complete).toBe(true);
-        let artifacts = result.artifacts;
+        let artifacts: ReadonlyArray<LibraryArtifact> = [response, html, text, redirect];
         if (scenario !== "unchanged") {
           artifacts = A.filter(artifacts, (artifact) => artifact.role !== "target-metadata");
           if (scenario !== "missing") {
@@ -187,14 +190,14 @@ it.layer(
         const capture = LibraryCapture.make({
           id: "redirect-capture",
           sourceId: source.id,
-          status: result.status,
+          status: "readable",
           method: "firecrawl",
           recordedAt: "2026-10-06T00:00:00Z",
           requestedRevision: "",
-          capturedRevision: result.revision,
-          complete: result.complete,
+          capturedRevision: "",
+          complete: true,
           artifacts,
-          reason: result.reason,
+          reason: "Target metadata validated; raw HTML and extracted full text preserved.",
         });
         expect(yield* librarySourceEvidenceValid(f.root, source, capture)).toBe(scenario === "unchanged");
       })
@@ -779,6 +782,30 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
       expect(catalog.captures).toHaveLength(1);
       expect(A.getUnsafe(catalog.captures, 0)?.status).toBe("unsupported");
       expect(A.getUnsafe(catalog.captures, 0)?.id).toBe(capture.id);
+    })
+  );
+
+  it.effect("routes web sources to an import-only disposition and never requires the removed scraper route", () =>
+    Effect.gen(function* () {
+      const fixture = yield* prepare();
+      // The suite HTTP client dies on any request, so a network attempt would fail this test.
+      const capture = yield* acquireLibrarySource(fixture.root, source);
+      expect(capture.method).toBe("disposition");
+      expect(capture.status).toBe("unsupported");
+      expect(capture.reason).toContain("library import-result");
+      const retained = LibraryQualification.make({
+        id: "retained-firecrawl",
+        adapter: "firecrawl",
+        status: "verified",
+        required: true,
+        recordedAt: "2026-10-06T00:00:00Z",
+        evidence: [],
+        reason: "Retained receipt from the removed web route.",
+      });
+      const catalog = yield* loadCatalog(fixture.root);
+      expect(requiredLibraryAdapters(LibraryCatalog.make({ ...catalog, qualifications: [retained] }))).toEqual([
+        "grok-deep-research",
+      ]);
     })
   );
 });

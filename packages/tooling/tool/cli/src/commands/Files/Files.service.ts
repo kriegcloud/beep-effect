@@ -5,12 +5,6 @@
  * @since 0.0.0
  */
 
-import {
-  FaceDetectionModelConfig,
-  FaceDetectionService,
-  makeFaceDetectionService,
-  withDetector,
-} from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
 import { A, Str } from "@beep/utils";
@@ -27,7 +21,6 @@ import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import { printLines } from "../../internal/cli/Printer.ts";
 import {
-  FilesCommandError,
   failOnExtensionlessFile,
   formatPlatformError,
   mapPlatformError,
@@ -61,13 +54,10 @@ import {
   logCreateCaptionFilesPlan,
   logCropBordersPlan,
   logDetectBordersEntries,
-  logDetectFacesEntries,
   logNormalizePlan,
   logRenamePlan,
   logStripMetadataPlan,
   renderDetectBordersReportJson,
-  renderDetectFacesReportJson,
-  writeDetectFacesManifest,
 } from "./Files.render.ts";
 import {
   ArchivedSidecarEntry,
@@ -86,10 +76,6 @@ import {
   DetectBordersReport,
   DetectBordersSkippedEntry,
   DetectBordersSummary,
-  DetectFacesReport,
-  DetectFacesReportOptions,
-  DetectFacesSkippedEntry,
-  DetectFacesSummary,
   NormalizeFilesOptions,
   NormalizeManifestOptions,
   NormalizePlan,
@@ -105,7 +91,7 @@ import {
   StripMetadataPlanEntry,
   StripMetadataSummary,
 } from "./Files.schemas.ts";
-import { analyzeDetectBordersFile, analyzeDetectFacesFile } from "./internal/Analysis.ts";
+import { analyzeDetectBordersFile } from "./internal/Analysis.ts";
 import {
   applyArchivePoorCandidatesPlan,
   applyCreateCaptionFilesPlan,
@@ -113,7 +99,6 @@ import {
   applyNormalizePlan,
   applyRenamePlan,
   applyStripMetadataPlan,
-  moveDetectFacesNoFaceEntries,
   preflightArchivePoorCandidatesOutputs,
   preflightNormalizeOutputs,
   preflightTargetCollisions,
@@ -131,8 +116,6 @@ import {
   validateCreateCaptionFilesOptions,
   validateCropBordersOptions,
   validateDetectBordersOptions,
-  validateDetectFacesMoveNoFaceDirectory,
-  validateDetectFacesOptions,
   validateDirectory,
   validateNormalizeDirectories,
   validateNormalizeMaxLongEdge,
@@ -142,6 +125,7 @@ import type * as Crypto from "effect/Crypto";
 import type * as HttpClient from "effect/http/HttpClient";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Terminal from "effect/Terminal";
+import type { FilesCommandError } from "./Files.errors.ts";
 import type {
   ArchivePoorCandidatesOptions,
   ArchivePoorCandidatesSkippedReason,
@@ -151,9 +135,6 @@ import type {
   CropBordersPlanEntry,
   DetectBordersEntry,
   DetectBordersSkippedReason,
-  DetectFacesEntry,
-  DetectFacesOptions,
-  DetectFacesSkippedReason,
   FlattenMediaOptions,
   FlattenMediaSummary,
   ImageAuditManifest,
@@ -266,13 +247,6 @@ export interface FilesCommandServiceShape {
    * @since 0.0.0
    */
   readonly detectBordersFiles: (options: DetectBordersOptions) => Effect.Effect<DetectBordersReport, FilesCommandError>;
-
-  /**
-   * Detect human faces in direct image files.
-   *
-   * @since 0.0.0
-   */
-  readonly detectFacesFiles: (options: DetectFacesOptions) => Effect.Effect<DetectFacesReport, FilesCommandError>;
 
   /**
    * Recursively move image and video files into one flat destination directory.
@@ -414,23 +388,6 @@ const makeDetectBordersSkippedEntry = (
         sourcePath,
       })
     : DetectBordersSkippedEntry.make({ message, reason, sourceName, sourcePath });
-
-const makeDetectFacesSkippedEntry = (
-  sourceName: string,
-  sourcePath: string,
-  extension: O.Option<string>,
-  reason: DetectFacesSkippedReason,
-  message: string
-): DetectFacesSkippedEntry =>
-  O.isSome(extension)
-    ? DetectFacesSkippedEntry.make({
-        extension: extension.value,
-        message,
-        reason,
-        sourceName,
-        sourcePath,
-      })
-    : DetectFacesSkippedEntry.make({ message, reason, sourceName, sourcePath });
 
 const makeArchivePoorCandidatesSkippedEntry = (
   sourceName: string,
@@ -1071,8 +1028,7 @@ const collectDetectBordersFile = Effect.fn("Files.collectDetectBordersFile")(fun
 
 const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(function* (
   dir: string,
-  progressEnabled = true,
-  label = "borders scan"
+  progressEnabled = true
 ): Effect.fn.Return<
   {
     readonly directory: string;
@@ -1091,7 +1047,7 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
     {
       concurrency: FilesConcurrency.scan,
       enabled: progressEnabled,
-      label,
+      label: "borders scan",
     }
   );
   const files = A.flatMap(collectedEntries, (collected) => collected.files);
@@ -1106,54 +1062,6 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
     ),
   };
 });
-
-const detectFacesSkippedFromBorders = (entry: DetectBordersSkippedEntry): DetectFacesSkippedEntry =>
-  makeDetectFacesSkippedEntry(
-    entry.sourceName,
-    entry.sourcePath,
-    O.fromUndefinedOr(entry.extension),
-    entry.reason,
-    entry.message
-  );
-
-const collectDetectFacesFiles = Effect.fn("Files.collectDetectFacesFiles")(function* (
-  dir: string,
-  progressEnabled = true
-): Effect.fn.Return<
-  {
-    readonly directory: string;
-    readonly files: ReadonlyArray<SortableFile>;
-    readonly skipped: ReadonlyArray<DetectFacesSkippedEntry>;
-  },
-  FilesCommandError,
-  FileSystem.FileSystem | Path.Path | Terminal.Terminal
-> {
-  const collection = yield* collectDetectBordersFiles(dir, progressEnabled, "faces scan");
-
-  return {
-    directory: collection.directory,
-    files: collection.files,
-    skipped: pipe(
-      collection.skipped,
-      A.map(detectFacesSkippedFromBorders),
-      A.sort(Order.mapInput(Order.String, (entry: DetectFacesSkippedEntry) => entry.sourceName))
-    ),
-  };
-});
-
-const makeDetectFacesReportOptions = (
-  options: DetectFacesOptions,
-  moveNoFaceDirectory: O.Option<string>
-): DetectFacesReportOptions =>
-  DetectFacesReportOptions.make({
-    edgeMarginPct: options.edgeMarginPct,
-    json: options.json,
-    ...O.getSomesStruct({ manifest: options.manifest }),
-    minConfidence: options.minConfidence,
-    minFaceAreaPct: options.minFaceAreaPct,
-    modelPath: options.modelPath,
-    ...O.getSomesStruct({ moveNoFaceTo: moveNoFaceDirectory }),
-  });
 
 const archiveCandidateCollectedFile = (file: SortableFile): ArchiveCandidateCollectedEntries => ({
   files: A.of(file),
@@ -1780,7 +1688,7 @@ const buildStripMetadataPlan = Effect.fn("Files.buildStripMetadataPlan")(functio
  */
 export const printFilesIndex = printLines([
   "Files commands:",
-  "- bun run files audit-images --dir ./raw --model ./face_detection_yunet.onnx --manifest ./audit.json",
+  "- bun run files audit-images --dir ./raw --manifest ./audit.json",
   "- bun run files curate-images --dir ./raw --decisions ./decisions.json --out-dir ./prepared",
   "- bun run files sort-and-rename --prefix image --dir ./tmp",
   "- bun run files sort-and-rename --prefix image --dir ./tmp --with-dimensions",
@@ -1792,7 +1700,6 @@ export const printFilesIndex = printLines([
   "- bun run files create-captions --dir ./dataset/images",
   "- bun run files archive-poor-candidates --dir ./dataset/images --archive-dir ./dataset/rejected",
   "- bun run files detect-borders --dir ./tmp",
-  "- bun run files detect-faces --dir ./dataset/images --model ./face_detection_yunet.onnx",
   "- bun run files match-person --references ./known-person --dir ./mixed --manifest ./person-match.json --accept-model-license",
   "- bun run files crop-borders --dir ./tmp --dry-run",
 ]);
@@ -2136,144 +2043,6 @@ const detectBordersFilesImpl = Effect.fn("FilesCommandService.detectBordersFiles
   });
 });
 
-const detectFacesFilesImpl = Effect.fn("FilesCommandService.detectFacesFiles")(function* (
-  options: DetectFacesOptions
-): Effect.fn.Return<
-  DetectFacesReport,
-  FilesCommandError,
-  FileSystem.FileSystem | Path.Path | Terminal.Terminal | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
-> {
-  const program = Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const validatedOptions = yield* validateDetectFacesOptions(options);
-    const progressEnabled = !validatedOptions.json;
-    const collection = yield* collectDetectFacesFiles(validatedOptions.dir, progressEnabled);
-    const moveNoFaceDirectory = yield* validateDetectFacesMoveNoFaceDirectory(
-      validatedOptions.moveNoFaceTo,
-      collection.directory
-    );
-    const manifestPath = path.resolve(
-      O.getOrElse(validatedOptions.manifest, () => path.join(collection.directory, "detect-faces-manifest.json"))
-    );
-    let entries: ReadonlyArray<DetectFacesEntry> = A.empty();
-    let skipped = collection.skipped;
-
-    if (A.isReadonlyArrayNonEmpty(collection.files)) {
-      yield* withDetector(
-        FaceDetectionModelConfig.make({ modelPath: validatedOptions.modelPath }),
-        Effect.fnUntraced(function* (detector) {
-          const analysisResults = yield* runFilesProgressForEach(
-            collection.files,
-            (file) => analyzeDetectFacesFile(detector, file, validatedOptions).pipe(Effect.result),
-            {
-              concurrency: FilesConcurrency.image,
-              enabled: progressEnabled,
-              label: "faces analyze",
-            }
-          );
-
-          for (const [file, result] of A.zip(collection.files, analysisResults)) {
-            if (Result.isFailure(result)) {
-              skipped = A.append(
-                skipped,
-                makeDetectFacesSkippedEntry(
-                  file.name,
-                  file.sourcePath,
-                  O.some(file.extension),
-                  "detection-failed",
-                  result.failure.message
-                )
-              );
-              continue;
-            }
-
-            entries = A.append(entries, result.success);
-          }
-        })
-      ).pipe(
-        Effect.provideService(FaceDetectionService, makeFaceDetectionService()),
-        Effect.mapError((cause) =>
-          FilesCommandError.make({
-            message: cause.message,
-            cause,
-          })
-        )
-      );
-    }
-
-    entries = yield* moveDetectFacesNoFaceEntries(entries, moveNoFaceDirectory, progressEnabled);
-
-    const faceImageCount = A.length(A.filter(entries, (entry) => entry.hasFace));
-    const noFaceImageCount = A.length(A.filter(entries, (entry) => !entry.hasFace));
-    const movedNoFaceCount = A.length(A.filter(entries, (entry) => O.isSome(O.fromUndefinedOr(entry.movedNoFacePath))));
-    const reviewImageCount = A.length(A.filter(entries, (entry) => A.some(entry.flags, (flag) => flag !== "has-face")));
-    const skippedCount = A.length(skipped);
-    const summary = DetectFacesSummary.make({
-      analyzedCount: A.length(entries),
-      directory: collection.directory,
-      faceImageCount,
-      movedNoFaceCount,
-      noFaceImageCount,
-      reviewImageCount,
-      skippedCount,
-      totalCount: A.length(entries) + skippedCount,
-    });
-    const sortedSkipped = A.sort(
-      skipped,
-      Order.mapInput(Order.String, (entry: DetectFacesSkippedEntry) => entry.sourceName)
-    );
-    const report = DetectFacesReport.make({
-      directory: collection.directory,
-      entries,
-      manifestPath,
-      manifestWritten: true,
-      options: makeDetectFacesReportOptions(validatedOptions, moveNoFaceDirectory),
-      schemaVersion: "beep.files.detect-faces.v1",
-      skipped: sortedSkipped,
-      summary,
-    });
-    yield* writeDetectFacesManifest(report);
-
-    if (validatedOptions.json) {
-      const rendered = yield* renderDetectFacesReportJson(report, "detect-faces-report.json");
-      yield* Console.log(Str.trimEnd(rendered));
-      return report;
-    }
-
-    yield* Effect.logInfo({
-      message: "files detect-faces completed",
-      analyzedCount: summary.analyzedCount,
-      faceImageCount: summary.faceImageCount,
-      movedNoFaceCount: summary.movedNoFaceCount,
-      skippedCount: summary.skippedCount,
-      directory: collection.directory,
-    });
-
-    const movedText = summary.movedNoFaceCount > 0 ? `, moved ${summary.movedNoFaceCount} no-face image(s)` : "";
-
-    yield* Console.log(
-      `files detect-faces: ${summary.faceImageCount} image(s) with face(s), ${summary.noFaceImageCount} image(s) without face(s), ${summary.reviewImageCount} image(s) flagged for review${movedText} in "${collection.directory}" (${summary.analyzedCount} analyzed, ${summary.skippedCount} skipped). manifest written to "${report.manifestPath}".`
-    );
-    yield* logDetectFacesEntries(entries, sortedSkipped);
-
-    return report;
-  });
-
-  if (options.json) {
-    return yield* program;
-  }
-
-  return yield* profilePhase(program, {
-    phase: "files.detect-faces",
-    attributes: {
-      edgeMarginPct: `${options.edgeMarginPct}`,
-      json: `${options.json}`,
-      minConfidence: `${options.minConfidence}`,
-      minFaceAreaPct: `${options.minFaceAreaPct}`,
-    },
-  });
-});
-
 const normalizeFilesImpl = Effect.fn("FilesCommandService.normalizeFiles")(function* (
   options: NormalizeFilesOptions
 ): Effect.fn.Return<NormalizeSummary, FilesCommandError, FilesCommandServiceRequirements> {
@@ -2537,9 +2306,6 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
     detectBordersFiles: Effect.fn("FilesCommandService.detectBordersFiles")((options) =>
       detectBordersFilesImpl(options).pipe(Effect.provide(runtimeContext))
     ),
-    detectFacesFiles: Effect.fn("FilesCommandService.detectFacesFiles")((options) =>
-      detectFacesFilesImpl(options).pipe(Effect.provide(runtimeContext))
-    ),
     flattenMediaFiles: Effect.fn("FilesCommandService.flattenMediaFiles")((options) =>
       flattenMediaFilesImpl(options).pipe(Effect.provide(runtimeContext))
     ),
@@ -2715,29 +2481,6 @@ export const detectBordersFiles = Effect.fn("Files.detectBordersFiles")(function
 ): Effect.fn.Return<DetectBordersReport, FilesCommandError, FilesCommandService> {
   const files = yield* FilesCommandService;
   return yield* files.detectBordersFiles(options);
-});
-
-/**
- * Detect human faces in direct image files.
- *
- * **Example** (Detect faces in images)
- *
- * ```ts
- * import { detectFacesFiles } from "@beep/repo-cli/commands/Files"
- *
- * const example: typeof detectFacesFiles = detectFacesFiles
- * ```
- *
- * @param options - Face detection options.
- * @returns JSON-safe face detection report.
- * @category use-cases
- * @since 0.0.0
- */
-export const detectFacesFiles = Effect.fn("Files.detectFacesFiles")(function* (
-  options: DetectFacesOptions
-): Effect.fn.Return<DetectFacesReport, FilesCommandError, FilesCommandService> {
-  const files = yield* FilesCommandService;
-  return yield* files.detectFacesFiles(options);
 });
 
 /**

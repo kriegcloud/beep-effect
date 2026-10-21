@@ -65,7 +65,6 @@ inject`) rather than pasting values into the repo or a transcript.
 | `COGNEE_API_EMAIL` | Cognee login | Cognee's default user email |
 | `COGNEE_API_PASSWORD` | Cognee login | Cognee's default user password |
 | `NOTION_API_KEY` | daily `notion-pull` step (`--page`), `research notion-pull` | notion-pull fails |
-| `FIRECRAWL_API_KEY` | `research capture` | capture fails |
 | `BEEP_KNOWLEDGE_VAULT` | every vault command | vault defaults to `$HOME/YeeBois/knowledge` |
 
 A configured `COGNEE_API_URL` whose server is down is reported as a failed

@@ -5,7 +5,6 @@
  * @since 0.0.0
  */
 
-import { FirecrawlError } from "@beep/firecrawl";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -26,12 +25,16 @@ import { acquireLibraryGithub } from "./Library.github.ts";
 import { libraryDispositionValid } from "./Library.import.ts";
 import { LibraryCapture, LibraryCatalog, LibrarySource } from "./Library.schemas.ts";
 import { hashBytes, loadCatalog, withCatalog } from "./Library.store.ts";
-import { acquireLibraryPaper, acquireLibraryWeb } from "./Library.web.ts";
+import { acquireLibraryPaper } from "./Library.web.ts";
 import { acquireLibraryYoutube } from "./Library.youtube.ts";
 import type { LibraryAcquireOptions } from "./Library.schemas.ts";
 
 /**
  * Identify the actual acquisition route.
+ * **Details**
+ * Web, docs, and registry sources have no network route: they take the `disposition` route, so their evidence
+ * arrives through `library import-result` or a reviewed disposition.
+ *
  * **Example** (Select the paper route)
  * ```ts
  * import { libraryAdapterFor, classifyLibraryReference } from "@beep/repo-cli/commands/Research"
@@ -54,12 +57,12 @@ export const libraryAdapterFor = (source: LibrarySource): string =>
       (kind) => Str.startsWith("github-")(kind),
       () => "github"
     ),
-    Match.when(
-      (kind) => A.contains(["endpoint", "internal", "unresolved"], kind),
-      () => "disposition"
-    ),
-    Match.orElse(() => "firecrawl")
+    Match.orElse(() => "disposition")
   );
+
+// Route of the removed in-repo web scraper: its retained captures and qualification receipts still
+// verify, but no source routes to it and qualify never probes it.
+const removedWebAdapter = "firecrawl";
 
 /**
  * Required operational routes for a catalog.
@@ -79,7 +82,10 @@ export const requiredLibraryAdapters = (catalog: LibraryCatalog) =>
   A.dedupe([
     "grok-deep-research",
     ...A.map(
-      A.filter(catalog.qualifications, (qualification) => qualification.required),
+      A.filter(
+        catalog.qualifications,
+        (qualification) => qualification.required && qualification.adapter !== removedWebAdapter
+      ),
       (qualification) => qualification.adapter
     ),
     ...A.filter(
@@ -106,6 +112,17 @@ const disposition = (reason: string) =>
       reason,
     })
   );
+const dispositionReason = (source: LibrarySource) =>
+  Match.value(source.kind).pipe(
+    Match.whenOr(
+      "web",
+      "docs",
+      "registry",
+      (kind) =>
+        `Source kind ${kind} has no acquisition route; import a session capture with library import-result or record a reviewed disposition.`
+    ),
+    Match.orElse((kind) => `Source kind ${kind} requires an explicit resolution or operational disposition.`)
+  );
 const adapter = (root: string, source: LibrarySource, prefix: string) => {
   if (source.ownership !== "external" && !(source.ownership === "project" && Str.startsWith("github-")(source.kind)))
     return disposition(`Ownership ${source.ownership}; no external acquisition admitted.`);
@@ -116,10 +133,7 @@ const adapter = (root: string, source: LibrarySource, prefix: string) => {
     Match.when("grok-x-import", () =>
       disposition("X requires imported raw evidence from an observed Grok X Search tool call.")
     ),
-    Match.when("disposition", () =>
-      disposition(`Source kind ${source.kind} requires an explicit resolution or operational disposition.`)
-    ),
-    Match.orElse(() => acquireLibraryWeb(root, source, prefix))
+    Match.orElse(() => disposition(dispositionReason(source)))
   );
 };
 
@@ -171,9 +185,7 @@ export const acquireLibrarySource = Effect.fn("Library.acquireSource")(function*
       LibraryError.make({
         message: S.is(LibraryError)(error)
           ? error.message
-          : S.is(FirecrawlError)(error)
-            ? `Firecrawl ${error.reason}; status ${O.getOrElse(error.status, () => 0)}; retryable ${O.getOrElse(error.retryable, () => false)}.`
-            : `${method} acquisition failed or timed out; original start receipt retained.`,
+          : `${method} acquisition failed or timed out; original start receipt retained.`,
         cause: "adapter-failure",
       })
     ),

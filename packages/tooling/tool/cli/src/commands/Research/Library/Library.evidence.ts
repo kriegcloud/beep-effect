@@ -1256,7 +1256,7 @@ const validatePublisherImport = Effect.fn("Library.validatePublisherImport")(fun
 const importedFirecrawlMatches = (context: EvidenceContext, imported: LibraryImportPayload) =>
   imported.provider === "firecrawl" &&
   context.capture.method === "firecrawl" &&
-  A.contains(["web", "docs", "endpoint"], context.source.kind);
+  A.contains(["web", "docs", "registry", "endpoint"], context.source.kind);
 const validateImportedPaper = Effect.fn("Library.validateImportedPaper")(function* (
   context: EvidenceContext,
   imported: LibraryImportPayload,
