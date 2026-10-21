@@ -62,6 +62,8 @@ describe("Worker table", () => {
           ...row,
           deletedAt: row.deletedAt ?? null,
           deletedByPrincipal: row.deletedByPrincipal ?? null,
+          // Optional on insert: the column's SQL default supplies 1.
+          rowVersion: row.rowVersion ?? 1,
           id,
         }).displayName
       ).toBe("Ada Lovelace");
@@ -78,6 +80,7 @@ describe("Worker table", () => {
           ...insert,
           deletedAt: insert.deletedAt ?? null,
           deletedByPrincipal: insert.deletedByPrincipal ?? null,
+          rowVersion: insert.rowVersion ?? 1,
           id: worker.id,
         });
 

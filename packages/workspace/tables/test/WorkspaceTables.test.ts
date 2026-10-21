@@ -147,6 +147,8 @@ describe("WorkspaceTables", () => {
           ...threadInsert,
           deletedAt: threadInsert.deletedAt ?? null,
           deletedByPrincipal: threadInsert.deletedByPrincipal ?? null,
+          // Optional on insert: the column's SQL default supplies 1.
+          rowVersion: threadInsert.rowVersion ?? 1,
           id: 10,
         })
       );
@@ -168,6 +170,7 @@ describe("WorkspaceTables", () => {
           ...messageInsert,
           deletedAt: messageInsert.deletedAt ?? null,
           deletedByPrincipal: messageInsert.deletedByPrincipal ?? null,
+          rowVersion: messageInsert.rowVersion ?? 1,
           id: 20,
         })
       );
@@ -190,6 +193,7 @@ describe("WorkspaceTables", () => {
           ...turnInsert,
           deletedAt: turnInsert.deletedAt ?? null,
           deletedByPrincipal: turnInsert.deletedByPrincipal ?? null,
+          rowVersion: turnInsert.rowVersion ?? 1,
           id: 30,
           // $inferInsert types parentTurnId as optional (number | null | undefined);
           // the select-row converter expects number | null, so resolve the absent
@@ -229,6 +233,7 @@ describe("WorkspaceTables", () => {
           ...workspaceInsert,
           deletedAt: workspaceInsert.deletedAt ?? null,
           deletedByPrincipal: workspaceInsert.deletedByPrincipal ?? null,
+          rowVersion: workspaceInsert.rowVersion ?? 1,
           id: 40,
           vaultRootPath: workspaceInsert.vaultRootPath ?? null,
         })
@@ -252,6 +257,7 @@ describe("WorkspaceTables", () => {
           ...threadInsert,
           deletedAt: threadInsert.deletedAt ?? null,
           deletedByPrincipal: threadInsert.deletedByPrincipal ?? null,
+          rowVersion: threadInsert.rowVersion ?? 1,
           id: thread.id,
         })
       );
@@ -260,6 +266,7 @@ describe("WorkspaceTables", () => {
           ...messageInsert,
           deletedAt: messageInsert.deletedAt ?? null,
           deletedByPrincipal: messageInsert.deletedByPrincipal ?? null,
+          rowVersion: messageInsert.rowVersion ?? 1,
           id: message.id,
         })
       );
@@ -268,6 +275,7 @@ describe("WorkspaceTables", () => {
           ...turnInsert,
           deletedAt: turnInsert.deletedAt ?? null,
           deletedByPrincipal: turnInsert.deletedByPrincipal ?? null,
+          rowVersion: turnInsert.rowVersion ?? 1,
           id: turn.id,
           parentTurnId: absentAsNull(turnInsert.parentTurnId),
         })
@@ -277,6 +285,7 @@ describe("WorkspaceTables", () => {
           ...workspaceInsert,
           deletedAt: workspaceInsert.deletedAt ?? null,
           deletedByPrincipal: workspaceInsert.deletedByPrincipal ?? null,
+          rowVersion: workspaceInsert.rowVersion ?? 1,
           id: workspace.id,
           vaultRootPath: absentAsNull(workspaceInsert.vaultRootPath),
         })

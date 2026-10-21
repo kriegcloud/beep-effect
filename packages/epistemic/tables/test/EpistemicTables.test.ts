@@ -44,6 +44,8 @@ const edgeVersionRow = (insert: EdgeVersion.EdgeVersionInsert, id: number): Edge
   ...insert,
   deletedAt: absentAsNull(insert.deletedAt),
   deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+  // Optional on insert: the column's SQL default supplies 1.
+  rowVersion: insert.rowVersion ?? 1,
   id,
   evidenceScope: absentAsNull(insert.evidenceScope),
   expiredAt: absentAsNull(insert.expiredAt),
@@ -411,6 +413,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insert.rowVersion ?? 1,
           id: 10,
           // $inferInsert types the nullable columns as optional (number | null |
           // undefined); the select-row converter expects number | null, so resolve
@@ -450,6 +453,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insert.rowVersion ?? 1,
           id: 10,
         })
       );
@@ -481,6 +485,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insert.rowVersion ?? 1,
           id: 10,
         })
       );
@@ -499,6 +504,7 @@ describe("EpistemicTables", () => {
         ...insert,
         deletedAt: absentAsNull(insert.deletedAt),
         deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+        rowVersion: insert.rowVersion ?? 1,
         id: 10,
         span: {
           ...insert.span,
@@ -530,6 +536,7 @@ describe("EpistemicTables", () => {
         ...insert,
         deletedAt: absentAsNull(insert.deletedAt),
         deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+        rowVersion: insert.rowVersion ?? 1,
         id: 10,
         span: {
           ...insert.span,
@@ -675,6 +682,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insert.rowVersion ?? 1,
           id: 10,
         })
       );
@@ -694,6 +702,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insert.rowVersion ?? 1,
           id: record.id,
           activityId: insert.activityId ?? null,
           costUsdApproxMicros: insert.costUsdApproxMicros ?? null,

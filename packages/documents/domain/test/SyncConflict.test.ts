@@ -43,7 +43,7 @@ describe("SyncConflict entity", () => {
   it("wires SyncConflict to the documents identity", () => {
     expect(SyncConflict.SyncConflict.sql.tableName).toBe(DocumentsIdentity.SyncConflictId.tableName);
     expect(R.keys(SyncConflict.SyncConflict.insert.fields)).not.toContain("id");
-    expect(R.keys(SyncConflict.SyncConflict.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(SyncConflict.SyncConflict.insert.fields)).toContain("rowVersion");
     expect(R.keys(SyncConflict.SyncConflict.update.fields)).toContain("id");
     expect(R.keys(SyncConflict.SyncConflict.update.fields)).toContain("rowVersion");
     expect(R.keys(SyncConflict.SyncConflict.jsonCreate.fields)).toEqual([

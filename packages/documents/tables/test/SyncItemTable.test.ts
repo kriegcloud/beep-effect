@@ -46,6 +46,8 @@ const syncItemRow = (insert: SyncItemInsert, id: number): SyncItemRow => ({
   ...insert,
   deletedAt: insert.deletedAt ?? null,
   deletedByPrincipal: insert.deletedByPrincipal ?? null,
+  // Optional on insert: the column's SQL default supplies 1.
+  rowVersion: insert.rowVersion ?? 1,
   id,
   contentDigest: absentAsNull(insert.contentDigest),
   contentSizeBytes: absentAsNull(insert.contentSizeBytes),

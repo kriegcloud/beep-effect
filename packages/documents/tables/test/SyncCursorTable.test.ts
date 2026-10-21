@@ -102,6 +102,8 @@ describe("SyncCursor table", () => {
           ...insert,
           deletedAt: insert.deletedAt ?? null,
           deletedByPrincipal: insert.deletedByPrincipal ?? null,
+          // Optional on insert: the column's SQL default supplies 1.
+          rowVersion: insert.rowVersion ?? 1,
           id: 30,
           // $inferInsert types nullable columns as `value | null | undefined`; the
           // select-row converter expects `value | null`, so resolve absent
@@ -130,6 +132,7 @@ describe("SyncCursor table", () => {
         ...insert.success,
         deletedAt: insert.success.deletedAt ?? null,
         deletedByPrincipal: insert.success.deletedByPrincipal ?? null,
+        rowVersion: insert.success.rowVersion ?? 1,
         id: syncCursor.id,
         lastError: insert.success.lastError ?? null,
         lastEventId: insert.success.lastEventId ?? null,

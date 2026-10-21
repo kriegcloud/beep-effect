@@ -136,6 +136,8 @@ describe("ProviderInstance table", () => {
           ...insert,
           deletedAt: insert.deletedAt ?? null,
           deletedByPrincipal: insert.deletedByPrincipal ?? null,
+          // Optional on insert: the column's SQL default supplies 1.
+          rowVersion: insert.rowVersion ?? 1,
           id: 10,
           homePath: insert.homePath ?? null,
           lastProbe: insert.lastProbe ?? null,
@@ -159,6 +161,7 @@ describe("ProviderInstance table", () => {
         ...insert.success,
         deletedAt: insert.success.deletedAt ?? null,
         deletedByPrincipal: insert.success.deletedByPrincipal ?? null,
+        rowVersion: insert.success.rowVersion ?? 1,
         id: providerInstance.id,
         homePath: insert.success.homePath ?? null,
         lastProbe: insert.success.lastProbe ?? null,
