@@ -30,6 +30,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const sensitiveSentinels = [
   { category: "folder-name", value: "Confidential Client Folder" },
@@ -39,7 +40,7 @@ const sensitiveSentinels = [
   { category: "error-text", value: "Item with the same name already exists" },
 ];
 
-const digest = "a".repeat(64);
+const digest = pipe("a", Str.repeat(64));
 const isJournalSkipped = S.is(BoxContentJournalSkipped);
 const isActionBlocked = S.is(BoxContentActionBlocked);
 const isActionFailed = S.is(BoxContentActionFailed);
@@ -184,7 +185,12 @@ describe("@beep/box-provisioning content migration artifact privacy", () => {
       const entry = BoxContentJournalStarted.make(makeExampleContentJournalFields());
       const decoded = yield* decodeJsonText(yield* encodeBoxContentJournalEntry(entry));
 
-      expect(decoded).toEqual({ ...journalBase, actionKind: "file", phase: "Started", planDigest: "c".repeat(64) });
+      expect(decoded).toEqual({
+        ...journalBase,
+        actionKind: "file",
+        phase: "Started",
+        planDigest: pipe("c", Str.repeat(64)),
+      });
     })
   );
 

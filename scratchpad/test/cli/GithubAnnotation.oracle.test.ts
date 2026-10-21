@@ -1,6 +1,6 @@
 import * as A from "effect/Array";
 import { assert, describe, it } from "@effect/vitest";
-import { WorkflowCommand } from "../../effected/github-commands/index.ts";
+import { WorkflowCommand } from "@beep/github-commands";
 import type { GithubAnnotationProperties } from "../../effected/cli/index.ts";
 import { GithubAnnotation } from "../../effected/cli/index.ts";
 

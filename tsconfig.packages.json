@@ -118,6 +118,9 @@
       "path": "packages/drivers/box-provisioning"
     },
     {
+      "path": "packages/drivers/commands"
+    },
+    {
       "path": "packages/drivers/cosmos"
     },
     {
@@ -319,10 +322,22 @@
       "path": "packages/foundation/capability/technical-drawing"
     },
     {
+      "path": "packages/foundation/modeling/github-commands"
+    },
+    {
+      "path": "packages/foundation/modeling/github-references"
+    },
+    {
       "path": "packages/foundation/modeling/html"
     },
     {
       "path": "packages/foundation/modeling/identity"
+    },
+    {
+      "path": "packages/foundation/modeling/jsonc"
+    },
+    {
+      "path": "packages/foundation/modeling/jsonl"
     },
     {
       "path": "packages/foundation/modeling/lexical"
@@ -352,7 +367,16 @@
       "path": "packages/foundation/modeling/schema"
     },
     {
+      "path": "packages/foundation/modeling/schema-org"
+    },
+    {
+      "path": "packages/foundation/modeling/semver"
+    },
+    {
       "path": "packages/foundation/modeling/skill-contract"
+    },
+    {
+      "path": "packages/foundation/modeling/spdx"
     },
     {
       "path": "packages/foundation/modeling/utils"

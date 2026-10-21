@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
-import { CommandNeutralizer, WorkflowCommand } from "../github-commands/index.ts";
+import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

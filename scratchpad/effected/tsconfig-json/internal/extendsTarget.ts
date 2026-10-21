@@ -14,7 +14,7 @@
  * error channel.
  */
 
-import { Jsonc } from "../../jsonc/index.ts";
+import { Jsonc } from "@beep/jsonc";
 import { Walker } from "../../walker/index.ts";
 import type * as PlatformError from "effect/PlatformError";
 import * as Effect from "effect/Effect";

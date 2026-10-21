@@ -26,6 +26,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const provPath = OntologyFilePath.make("ontology.prov.ttl");
 const sidecar = "@prefix prov: <http://www.w3.org/ns/prov#> .\nex:x a prov:Entity .\n";
@@ -109,8 +110,8 @@ describe("publishProvenance", () => {
           // Reason-free: the guidance must say nothing about destinations or
           // allowlists, or an agent could map the allowlist by probing it.
           const guidance = error._tag === "OntologyTierGateRefusal" ? error.guidance : "";
-          expect(guidance.toLowerCase()).not.toContain("destination");
-          expect(guidance.toLowerCase()).not.toContain("allow");
+          expect(pipe(guidance, Str.toLowerCase)).not.toContain("destination");
+          expect(pipe(guidance, Str.toLowerCase)).not.toContain("allow");
         })
       );
     }

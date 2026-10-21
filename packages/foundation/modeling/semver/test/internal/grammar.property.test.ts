@@ -1,0 +1,103 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import {
+  formatComparator,
+  formatRange,
+  formatVersion,
+  parseComparator,
+  parseRange,
+  parseVersion,
+} from "@beep/semver/internal/grammar";
+import { ComparatorParts, VersionParts } from "@beep/semver/internal/order";
+import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+
+const runs = { arbitrary: fcRuns(100) };
+const Component = S.Int.check(S.isBetween({ minimum: 0, maximum: 1000000 }));
+const Version = VersionParts.mapFields((fields) => ({
+  ...fields,
+  major: Component,
+  minor: Component,
+  patch: Component,
+  prerelease: S.Array(S.Union([Component, S.Literals(["alpha", "RC", "01a", "-", "beta-2"])])),
+  build: S.Array(S.Literals(["001", "Build", "sha-1", "-"])),
+}));
+const Comparator = ComparatorParts.mapFields((fields) => ({ ...fields, version: Version }));
+const Comparators = S.NonEmptyArray(Comparator);
+const Sets = S.NonEmptyArray(Comparators);
+
+describe("grammar property floor", () => {
+  it.effect.prop(
+    "version formatting is idempotent through parsing and preserves every identifier",
+    [Arbitrary.schema(Version)],
+    ([version]) =>
+      Effect.sync(() => {
+        const text = formatVersion(version);
+        const parsed = parseVersion(` \t${text}\n`);
+        assert.deepStrictEqual(parsed, { ok: true, value: VersionParts.make(version) });
+        if (parsed.ok) {
+          assert.strictEqual(formatVersion(parsed.value), text);
+          assert.deepStrictEqual(parseVersion(formatVersion(parsed.value)), parsed);
+        }
+      }),
+    runs
+  );
+
+  it.effect.prop(
+    "comparator formatting is idempotent and faithful, including implicit equality",
+    [Arbitrary.schema(Comparator)],
+    ([comparator]) =>
+      Effect.sync(() => {
+        const text = formatComparator(comparator);
+        const parsed = parseComparator(` ${text} `);
+        assert.deepStrictEqual(parsed, { ok: true, value: ComparatorParts.make(comparator) });
+        if (parsed.ok) {
+          assert.strictEqual(formatComparator(parsed.value), text);
+          assert.deepStrictEqual(parseComparator(formatComparator(parsed.value)), parsed);
+        }
+      }),
+    runs
+  );
+
+  it.effect.prop(
+    "range formatting is idempotent and preserves OR-of-AND comparator sets",
+    [Arbitrary.schema(Sets)],
+    ([sets]) =>
+      Effect.sync(() => {
+        const text = formatRange(sets);
+        const parsed = parseRange(` ${text} `);
+        assert.deepStrictEqual(parsed, {
+          ok: true,
+          value: A.map(
+            sets,
+            A.map((comparator) => ComparatorParts.make(comparator))
+          ),
+        });
+        if (parsed.ok) {
+          assert.strictEqual(formatRange(parsed.value), text);
+          assert.deepStrictEqual(parseRange(formatRange(parsed.value)), parsed);
+        }
+      }),
+    runs
+  );
+
+  it.effect.prop(
+    "README strictness rejects prefixes, numeric leading zeros and trailing junk with positions",
+    [Arbitrary.schema(Version)],
+    ([version]) =>
+      Effect.sync(() => {
+        const text = formatVersion(version);
+        for (const prefix of ["v", "V", "=", "0"]) {
+          assert.deepStrictEqual(parseVersion(`${prefix}${text}`), {
+            ok: false,
+            input: `${prefix}${text}`,
+            position: 0,
+          });
+        }
+        assert.deepStrictEqual(parseVersion(`${text}?`), { ok: false, input: `${text}?`, position: text.length });
+      }),
+    runs
+  );
+});

@@ -57,3 +57,17 @@
 - **Workaround used:** fixed the moved `EV005` rows in the test and
   hand-edited one `EV010` exception row mirroring the original
   `Host.test.ts` row.
+
+## 2026-10-20 — saved Claude session expires inside the VM snapshot
+
+- **Doing:** onboarding proof run 4 from the `claude-signed-in` snapshot.
+- **Evidence:** Claude opened on "Get started" / a claude.ai Google sign-in
+  page although `config.json` still held `lastKnownAccountUuid`; the operator
+  had to sign in again, and `onboarding-proof.sh finish` then reverted to
+  `clean`, discarding the fresh session.
+- **Impact:** every later proof needs the operator's sign-in again, the
+  step the snapshot was meant to remove.
+- **Would have prevented it:** `onboarding-proof.sh finish --keep <name>`
+  that re-saves the signed-in snapshot after a successful run before
+  reverting, and a pre-flight that opens Claude and checks the session
+  before handing the VM to the operator.

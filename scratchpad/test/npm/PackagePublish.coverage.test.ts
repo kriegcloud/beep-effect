@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as PlatformError from "effect/PlatformError";
 import * as Redacted from "effect/Redacted";
-import { LocalExec } from "../../effected/commands/index.ts";
+import { LocalExec } from "@beep/commands";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { PackagePublish } from "../../effected/npm/PackagePublish.ts";
 import { scripted, fakeCrypto } from "./publish-fixtures.ts";

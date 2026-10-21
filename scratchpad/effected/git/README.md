@@ -86,7 +86,7 @@ maintained, bounded version of the same "spawn one command and collect
 stdout/stderr/exit-code concurrently under one scope" discipline:
 
 ```ts
-import { Run } from "@beep/scratchpad/effected/commands/Run";
+import { Run } from "@beep/commands/Run";
 import * as Effect from "effect/Effect";
 import * as ChildProcess from "effect/process/ChildProcess";
 const cwd = "/repo";

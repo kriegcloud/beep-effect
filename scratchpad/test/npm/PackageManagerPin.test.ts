@@ -8,7 +8,7 @@
 
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
-import { SemVer } from "../../effected/semver/index.ts";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as Result from "effect/Result";

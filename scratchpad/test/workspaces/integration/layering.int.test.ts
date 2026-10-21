@@ -1,7 +1,8 @@
 // @effect-diagnostics nodeBuiltinImport:skip-file
 // The lab's real source module graph, held to the upstream layer ordering.
 // The whole-workspace acyclicity control uses the containing Bun workspace.
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, realpathSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
@@ -10,6 +11,7 @@ import { platform, type Tree } from "../fixtures.ts";
 import type { DependencyField } from "../../../effected/npm/index.ts";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { DependencyGraph, WorkspaceDiscovery, Workspaces } from "../../../effected/workspaces/index.ts";
 import type { LayeringGraph } from "../../../effected/workspaces/testing.ts";
@@ -24,12 +26,33 @@ const LAB = join(REPO, "scratchpad", "effected");
 const TESTS = join(REPO, "scratchpad", "test");
 const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 
+// Kit modules wave 1a of the effected promotion moved out of the lab into
+// `@beep/*` packages keep their lab layer: an import of the package
+// (`@beep/<pkg>` or `@beep/<pkg>/<File>`) is an edge to the lab module it was,
+// and the package's own `src` and `test` are scanned as that module's source and
+// tests were. Every other kit module is still a lab directory reached relatively.
+const PROMOTED: Readonly<Record<string, string>> = {
+	"@beep/commands": "commands",
+	"@beep/github-commands": "github-commands",
+	"@beep/github-references": "github-references",
+	"@beep/jsonc": "jsonc",
+	"@beep/jsonl": "jsonl",
+	"@beep/schema-org": "schema-org",
+	"@beep/semver": "semver",
+	"@beep/spdx": "spdx",
+};
+// Each package's directory, resolved the way the lab's own imports resolve it.
+const labRequire = createRequire(join(REPO, "scratchpad", "package.json"));
+const promotedRoot = (pkg: string): string => dirname(realpathSync(labRequire.resolve(`${pkg}/package.json`)));
+
 // Read actual module imports, including the tests' devDependency edges. The
-// port uses relative sibling imports instead of workspace manifest specifiers.
+// port uses relative sibling imports instead of workspace manifest specifiers;
+// promoted kit modules are reached through their bare package specifiers.
 const moduleGraph = (): LayeringGraph => {
-	const modules = readdirSync(LAB, { withFileTypes: true })
+	const labModules = readdirSync(LAB, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory() && readdirSync(join(LAB, entry.name)).includes("index.ts"))
 		.map((entry) => entry.name);
+	const modules = [...labModules, ...Object.values(PROMOTED)];
 	const edges: Array<LayerEdge> = [];
 	const scan = (directory: string, from: string, field: DependencyField): void => {
 		for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -38,9 +61,9 @@ const moduleGraph = (): LayeringGraph => {
 				if (!entry.name.startsWith(".") && entry.name !== "dist" && entry.name !== "node_modules") scan(file, from, field);
 			} else if (entry.name.endsWith(".ts")) {
 				for (const specifier of SourceBoundary.importSpecifiers(readFileSync(file, "utf8"))) {
-					if (!specifier.startsWith(".")) continue;
-					const target = resolve(dirname(file), specifier);
-					const to = modules.find((name) => target.startsWith(`${join(LAB, name)}/`));
+					const to = specifier.startsWith(".")
+						? labModules.find((name) => resolve(dirname(file), specifier).startsWith(`${join(LAB, name)}/`))
+						: O.getOrUndefined(R.get(PROMOTED, specifier.split("/").slice(0, 2).join("/")));
 					if (to === undefined || to === from) continue;
 					const edge = LayerEdge.make({ from: `@lab/${from}`, to: `@lab/${to}`, field });
 					if (!edges.some((existing) => existing.label === edge.label)) edges.push(edge);
@@ -48,9 +71,14 @@ const moduleGraph = (): LayeringGraph => {
 			}
 		}
 	};
-	for (const name of modules) {
+	for (const name of labModules) {
 		scan(join(LAB, name), name, "dependencies");
 		scan(join(TESTS, name), name, "devDependencies");
+	}
+	for (const [pkg, name] of Object.entries(PROMOTED)) {
+		const root = promotedRoot(pkg);
+		scan(join(root, "src"), name, "dependencies");
+		scan(join(root, "test"), name, "devDependencies");
 	}
 	return { names: modules.map((name) => `@lab/${name}`), edges };
 };

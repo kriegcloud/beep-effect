@@ -7,8 +7,8 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { CatalogResolver, DependencySpecifier, WorkspaceResolver } from "../npm/index.ts";
-import type { InvalidVersionError } from "../semver/index.ts";
-import { SemVer } from "../semver/index.ts";
+import type { InvalidVersionError } from "@beep/semver";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as Fn from "effect/Function";
 import * as HashMap from "effect/HashMap";
