@@ -23,7 +23,7 @@ surface only; GUI steps stay on the existing SSH plus interactive-task route.
 | Tailnet bind | `--listen ws://<tailnet-ip>:48123` also came up LISTENING on the Tailscale address only and was reachable from the workstation (the PC's `Tailscale-In` rule allows inbound on its Private-profile interface), but the client refuses it: `--remote-auth-token-env requires a wss:// or loopback ws:// remote`. Reverted to loopback |
 | Auth | no header: HTTP 401; wrong token: `HTTP error: 401 Unauthorized`; right token: connected |
 | `codex queue` by UUID | `Queued message … for thread …`; the idle thread started a turn within 2 s; rollout `task_complete.last_agent_message = "PONG"`, 2.3 s |
-| One-shot client | `codex-remote-ask.ts`: resume with explicit policy, `turn/start`, wait `turn/completed`; printed `{"status":"completed","durationMs":3887,"reply":"PONG"}`; 5 s wall clock. Every RPC is bounded by the remaining budget; on timeout or error it sends `turn/interrupt` for the turn it started before exiting |
+| One-shot client | `codex-remote-ask.ts`: resume with explicit policy, `turn/start`, wait `turn/completed` (with a `thread/read` fallback that keeps its own 5 s budget); printed `{"status":"completed","durationMs":3887,"reply":"PONG"}`; 5 s wall clock. Every RPC is bounded by the remaining budget; on timeout or error it sends `turn/interrupt` for the turn it started before exiting (over a fresh connection when the socket is gone); the timeout, busy-thread and socket-loss paths were proven against a local 0.163.0 app-server |
 | Effective policy | server echoed `approvalPolicy: never`, `sandbox: readOnly (networkAccess false)`, model `gpt-6.1-sol` (the PC config has no model key); `remoteControl/status/changed = disabled` on this server |
 
 Receipts: the probe thread id, the task wrapper log and the rollout path are in
@@ -99,9 +99,15 @@ stopped and the task removed at the end of this probe; the wrapper stays in
   full access. The ask client always sends `approvalPolicy` and `sandbox`, reads
   them back from the `thread/start` or `thread/resume` response, and exits
   without running a turn when they differ (the explicit-policy precondition
-  from the 2026-10-09 decision). It never leaves the turn it started running:
-  on a client timeout, a failed RPC or a dropped tunnel it sends
-  `turn/interrupt` (bounded to 5 s) before exiting.
+  from the 2026-10-09 decision). On a client timeout or a failed RPC it sends
+  `turn/interrupt` (bounded to 5 s) for the turn it started before exiting.
+  A dropped tunnel is the exception: the interrupt cannot travel over the
+  dead socket and the app-server does not cancel a turn when a connection
+  drops, so the turn keeps running on the PC. The client then makes one
+  bounded reconnect attempt to send the interrupt and otherwise prints
+  `interruptNotPossible` with the thread and turn ids; recovery is to re-open
+  the tunnel and send `turn/interrupt {threadId, turnId}` (for example with
+  `codex-ws.ts --requests-file`).
 - Tool reach: the thread inherits the PC config's MCP servers and plugins
   (`codex_apps`, `node_repl`, `cua_repl`, `box`), which include computer use.
   The sandbox mode does not gate MCP tool calls and `never` means no human
@@ -130,6 +136,13 @@ stopped and the task removed at the end of this probe; the wrapper stays in
   `thread/turns/list` and `thread/items/list`.
 - A `schtasks /sc once /st 23:59` trigger fires that night; use `/sd 01/01/2000
   /st 00:00` (verified: task runs on `/run`, Next Run Time `N/A`).
+- `turn/start` on a thread whose turn is still running does not open a new
+  turn: it appends the input to the active turn (steer semantics) and returns
+  that turn's id. The ask client refuses with exit 9 when the resumed thread
+  reports status `active`; use `codex queue` for follow-ups to a busy thread.
+- `thread/read` with `includeTurns` hydrates history and can label a turn that
+  is still running as `interrupted` with no `completedAt`. The client's fallback
+  treats only `completed`, or a terminal status with `completedAt`, as finished.
 - `codex remote-control start` exposes nothing to bind: it is the relay flag
   plus a unix control socket. Starting it on the PC was not done; it would add
   a second relay-exposed daemon next to the Desktop's.
