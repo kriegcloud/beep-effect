@@ -1,6 +1,7 @@
 import { AcpRequestError } from "@beep/acp/errors";
 import * as SchemaV1 from "@beep/acp/schema-v1";
 import * as A from "effect/Array";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Ref from "effect/Ref";
@@ -37,8 +38,16 @@ const routes = Effect.fnUntraced(function* (peer: ManagedV1Peer) {
   });
   const prompt: ManagedV1Route = Effect.fnUntraced(function* (params) {
     const request = yield* decodeV1(SchemaV1.PromptRequest)(params);
-    // The process ends while the client still waits for the prompt result.
-    if (fixtureMode === "exit-on-prompt") return yield* Effect.sync(() => process.exit(3));
+    // The process reports a credential failure on stderr and ends while the client still waits
+    // for the prompt result.
+    if (fixtureMode === "exit-on-prompt") {
+      const home = yield* Config.String("HOME").pipe(Effect.orDie);
+      return yield* Effect.callback<never>(() => {
+        process.stderr.write(`fatal: ${home}/.grok/auth.json rejected Bearer synthetic-secret-token\n`, () =>
+          process.exit(3)
+        );
+      });
+    }
     for (const block of request.prompt) {
       if (block.type === "text") yield* answerText(request.sessionId, block.text);
     }

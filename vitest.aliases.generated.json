@@ -2089,5 +2089,9 @@
   "@beep/yaml/*": ["./packages/foundation/modeling/yaml/src/*"],
   "@beep/yaml/internal/*": [
     "./packages/foundation/modeling/yaml/src/internal/*"
+  ],
+  "@beep/acp/stderr": ["./packages/drivers/acp/src/AcpStderr.models.ts"],
+  "@beep/acp/terminals": [
+    "./packages/drivers/acp/src/AcpClientTerminals.service.ts"
   ]
 }
