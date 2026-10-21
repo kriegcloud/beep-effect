@@ -1914,7 +1914,9 @@ describe("worktree git operations", () => {
           const cleanPath = yield* addWorktree(context, "legacy-clean", defaultWorktreeBranch("legacy-clean"));
           const head = GitObjectId.make(yield* runGitText(cleanPath, ["rev-parse", "HEAD"]));
           const stale = yield* Effect.flip(
-            removalService.remove(legacyRequest("legacy-clean", cleanPath, O.some(GitObjectId.make("a".repeat(40)))))
+            removalService.remove(
+              legacyRequest("legacy-clean", cleanPath, O.some(GitObjectId.make(Str.repeat(40)("a"))))
+            )
           );
           expect(stale._tag).toBe("WorktreeCommandError");
           expect(yield* fs.exists(cleanPath)).toBe(true);

@@ -16,7 +16,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
-import { flow, pipe } from "effect/Function";
+import { constant, flow, pipe } from "effect/Function";
 import * as N from "effect/Number";
 import * as Str from "effect/String";
 import { configStringOption } from "../cli/EnvConfig.ts";
@@ -95,7 +95,11 @@ const getUnitByPidArguments = (...busctlFlags: ReadonlyArray<string>): ReadonlyA
 const escapeUnitNameForDbusPath = (unitName: string): string =>
   pipe(
     Str.split(unitName, ""),
-    A.map((char) => (/[A-Za-z0-9]/u.test(char) ? char : `_${char.charCodeAt(0).toString(16).padStart(2, "0")}`)),
+    A.map((char) =>
+      /[A-Za-z0-9]/u.test(char)
+        ? char
+        : `_${Str.padStart(2, "0")(O.getOrElse(constant(Number.NaN))(Str.charCodeAt(0)(char)).toString(16))}`
+    ),
     A.join("")
   );
 

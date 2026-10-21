@@ -103,7 +103,7 @@ const prepareRound = Effect.fnUntraced(function* (cwd: string, round: number) {
 });
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
-const fence = "`".repeat(3);
+const fence = Str.repeat(3)("`");
 
 const inventoryText = Effect.fnUntraced(function* (round: number) {
   const body = yield* encodeJson({

@@ -264,7 +264,7 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
               A.map(first.entries, (entry) =>
                 entry.action === "create" && entry.payload !== undefined && entry.payloadDigest !== undefined
                   ? O.some({
-                      path: entry.path.replace(`${snapshot.packetPath}/`, ""),
+                      path: Str.replace(`${snapshot.packetPath}/`, "")(entry.path),
                       text: entry.payload,
                       digest: entry.payloadDigest,
                     })

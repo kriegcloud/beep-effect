@@ -43,6 +43,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -441,7 +442,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills relock", (it) => {
       const repoRoot = yield* makeRepo();
       const before = yield* readLockText(repoRoot);
       const train = yield* trainWith(bumpedPristine);
-      const error = yield* train.relock(repoRoot, SKILL, O.some("0".repeat(64))).pipe(Effect.flip);
+      const error = yield* train.relock(repoRoot, SKILL, O.some(Str.repeat(64)("0"))).pipe(Effect.flip);
       expect(error._tag === "SkillsLockWriteRefusal" ? error.reason : error._tag).toBe("digest-mismatch");
       expect(yield* readLockText(repoRoot)).toBe(before);
     })
@@ -538,10 +539,15 @@ layer(TestLayer, { timeout: "60 seconds" })("skills update train reports", (it) 
           title: `chore(deps): update skill ${SKILL}`,
           url: `https://github.com/kriegcloud/beep-effect/pull/${number}`,
           headRefName: `renovate/skill-${SKILL}`,
-          headRefOid: "a".repeat(40),
+          headRefOid: Str.repeat(40)("a"),
           comments,
         });
-      const comment = (createdAt: string, batch: SkillReplayBatch, author = "github-actions", head = "a".repeat(40)) =>
+      const comment = (
+        createdAt: string,
+        batch: SkillReplayBatch,
+        author = "github-actions",
+        head = Str.repeat(40)("a")
+      ) =>
         SkillTrainPullRequestComment.make({
           author: { login: author },
           createdAt,
@@ -555,14 +561,16 @@ layer(TestLayer, { timeout: "60 seconds" })("skills update train reports", (it) 
       ]);
       expect(issue.title).toBe("Skills update train 2026-W42");
       expect(issue.body).toContain("3 pull request(s): 1 clean, 0 fuzz-only, 1 conflicted, 1 pending.");
-      expect(issue.body.indexOf("[#11]")).toBeLessThan(issue.body.indexOf("[#12]"));
+      expect(O.getOrElse(constant(-1))(Str.indexOf("[#11]")(issue.body))).toBeLessThan(
+        O.getOrElse(constant(-1))(Str.indexOf("[#12]")(issue.body))
+      );
       expect(issue.body).toContain("## Unresolved hunks");
       expect(issue.body).toContain(`- ${SKILL}: \`${PATCH_PATH}\` \`SKILL.md\` hunk 1 — conflicted`);
       const forged = renderSkillTrainBatchIssue("2026-W42", [
         pr(12, [
           comment("2026-10-12T00:00:00Z", conflicted),
           comment("2026-10-14T00:00:00Z", clean, "untrusted-contributor"),
-          comment("2026-10-15T00:00:00Z", clean, "github-actions", "b".repeat(40)),
+          comment("2026-10-15T00:00:00Z", clean, "github-actions", Str.repeat(40)("b")),
         ]),
       ]);
       expect(forged.body).toContain("1 conflicted, 0 pending");
