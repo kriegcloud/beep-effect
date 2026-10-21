@@ -21,7 +21,7 @@ const $I = $PublicSiteId.create("SiteRoute");
  * **Example** (Check a reserved route)
  *
  * ```ts import.meta.vitest name="Check a reserved route"
- * import { SiteRoute } from "@beep/public-site"
+ * import { SiteRoute } from "@beep/public-site/SiteRoute.schema"
  *
  * SiteRoute.is.ns("ns") // => true
  * SiteRoute.literals.length // => 13
@@ -64,7 +64,7 @@ export type SiteRoute = typeof SiteRoute.Type;
  * **Example** (Recognize file routes)
  *
  * ```ts import.meta.vitest name="Recognize file routes"
- * import { FileRoute } from "@beep/public-site"
+ * import { FileRoute } from "@beep/public-site/SiteRoute.schema"
  *
  * FileRoute.is["llms.txt"]("llms.txt") // => true
  * ```
@@ -96,7 +96,7 @@ export type FileRoute = typeof FileRoute.Type;
  * **Example** (Recognize nested-path routes)
  *
  * ```ts import.meta.vitest name="Recognize nested-path routes"
- * import { PathRoute } from "@beep/public-site"
+ * import { PathRoute } from "@beep/public-site/SiteRoute.schema"
  *
  * PathRoute.is.docs("docs") // => true
  * PathRoute.is.mcp("labs") // => false

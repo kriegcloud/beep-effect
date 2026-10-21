@@ -21,7 +21,7 @@ const $I = $PublicSiteId.create("PublicOrigin");
  * **Example** (Read the public origin)
  *
  * ```ts import.meta.vitest name="Read the public origin"
- * import { PublicOrigin } from "@beep/public-site"
+ * import { PublicOrigin } from "@beep/public-site/PublicOrigin.schema"
  *
  * PublicOrigin.literal // => "https://beep-effect.com"
  * ```

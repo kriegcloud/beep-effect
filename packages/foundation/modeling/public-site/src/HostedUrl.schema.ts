@@ -29,7 +29,7 @@ const LAB_HOST_SUFFIX = /\.labs\.beep(?:\.localhost)?$/u;
  * **Example** (Validate a nested path)
  *
  * ```ts import.meta.vitest name="Validate a nested path"
- * import { SitePath } from "@beep/public-site"
+ * import { SitePath } from "@beep/public-site/HostedUrl.schema"
  * import * as S from "effect/Schema"
  *
  * S.is(SitePath)("identity/Id") // => true
@@ -61,7 +61,7 @@ export type SitePath = typeof SitePath.Type;
  * **Example** (Recognize a hosted URL)
  *
  * ```ts import.meta.vitest name="Recognize a hosted URL"
- * import { HostedUrl } from "@beep/public-site"
+ * import { HostedUrl } from "@beep/public-site/HostedUrl.schema"
  * import * as S from "effect/Schema"
  *
  * S.is(HostedUrl)("https://beep-effect.com/docs") // => true
@@ -102,7 +102,7 @@ export type HostedUrl = typeof HostedUrl.Type;
  * **Example** (Validate a lab label)
  *
  * ```ts import.meta.vitest name="Validate a lab label"
- * import { LabLabel } from "@beep/public-site"
+ * import { LabLabel } from "@beep/public-site/HostedUrl.schema"
  * import * as S from "effect/Schema"
  *
  * S.is(LabLabel)("api-docs") // => true
@@ -140,7 +140,7 @@ export type LabLabel = typeof LabLabel.Type;
  * **Example** (Strip the portless host suffix)
  *
  * ```ts import.meta.vitest name="Strip the portless host suffix"
- * import { LabPortlessName } from "@beep/public-site"
+ * import { LabPortlessName } from "@beep/public-site/HostedUrl.schema"
  * import * as S from "effect/Schema"
  *
  * S.decodeSync(LabPortlessName)("semantica.labs.beep.localhost") // => "semantica"
@@ -163,12 +163,20 @@ export const LabPortlessName = S.String.pipe(
 );
 
 /**
+ * Lab label decoded by {@link LabPortlessName}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LabPortlessName = typeof LabPortlessName.Type;
+
+/**
  * Lab label left after stripping the portless suffix from `Name`.
  *
  * **Example** (Compute a lab label type)
  *
  * ```ts
- * import type { LabLabelOf } from "@beep/public-site"
+ * import type { LabLabelOf } from "@beep/public-site/HostedUrl.schema"
  *
  * const label: LabLabelOf<"semantica.labs.beep.localhost"> = "semantica"
  * void label
@@ -211,7 +219,7 @@ type DnsLabelChars<Value extends string, Seen extends ReadonlyArray<unknown> = [
  * **Example** (Check a label type)
  *
  * ```ts
- * import type { IsDnsLabel } from "@beep/public-site"
+ * import type { IsDnsLabel } from "@beep/public-site/HostedUrl.schema"
  *
  * const valid: IsDnsLabel<"api-docs"> = true
  * const invalid: IsDnsLabel<"Api"> = false
@@ -234,7 +242,7 @@ export type IsDnsLabel<Value extends string> = string extends Value
  * **Example** (Check a portless name type)
  *
  * ```ts
- * import type { LabPortlessNameInput } from "@beep/public-site"
+ * import type { LabPortlessNameInput } from "@beep/public-site/HostedUrl.schema"
  *
  * const name: LabPortlessNameInput<"semantica.labs.beep.localhost"> = "semantica.labs.beep.localhost"
  * void name
@@ -256,7 +264,7 @@ export type LabPortlessNameInput<Name extends string> = Name extends LabLabel
  * **Example** (Check a nested path type)
  *
  * ```ts
- * import type { SitePathInput } from "@beep/public-site"
+ * import type { SitePathInput } from "@beep/public-site/HostedUrl.schema"
  *
  * const path: SitePathInput<"identity/Id"> = "identity/Id"
  * void path
@@ -273,7 +281,7 @@ export type SitePathInput<Path extends string> = Path extends "" | `/${string}` 
  * **Example** (Name a hosted URL type)
  *
  * ```ts
- * import type { HostedUrlOf } from "@beep/public-site"
+ * import type { HostedUrlOf } from "@beep/public-site/HostedUrl.schema"
  *
  * const url: HostedUrlOf<"docs", "identity"> = "https://beep-effect.com/docs/identity"
  * void url
@@ -292,7 +300,7 @@ export type HostedUrlOf<Route extends SiteRoute, Path extends string | undefined
  * **Example** (Name a lab URL type)
  *
  * ```ts
- * import type { LabUrlOf } from "@beep/public-site"
+ * import type { LabUrlOf } from "@beep/public-site/HostedUrl.schema"
  *
  * const url: LabUrlOf<"semantica.labs.beep"> = "https://beep-effect.com/labs/semantica"
  * void url
@@ -317,7 +325,7 @@ export type LabUrlOf<Name extends string> = `${PublicOrigin}/labs/${LabLabelOf<N
  * **Example** (Build hosted URLs)
  *
  * ```ts import.meta.vitest name="Build hosted URLs"
- * import { hostedUrl } from "@beep/public-site"
+ * import { hostedUrl } from "@beep/public-site/HostedUrl.schema"
  *
  * hostedUrl("docs") // => "https://beep-effect.com/docs"
  * hostedUrl("docs", "identity/Id") // => "https://beep-effect.com/docs/identity/Id"
@@ -349,7 +357,7 @@ export const hostedUrl = <const Route extends SiteRoute, const Path extends stri
  * **Example** (Route a lab)
  *
  * ```ts import.meta.vitest name="Route a lab"
- * import { labRoute } from "@beep/public-site"
+ * import { labRoute } from "@beep/public-site/HostedUrl.schema"
  *
  * labRoute("api-docs.labs.beep.localhost") // => "https://beep-effect.com/labs/api-docs"
  * labRoute("semantica") // => "https://beep-effect.com/labs/semantica"

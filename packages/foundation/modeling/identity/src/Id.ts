@@ -64,7 +64,7 @@ const IdentityVersion = S.Literal("0.0.0");
  * **Example** (Read the identity authority)
  *
  * ```ts import.meta.vitest name="Read the identity authority"
- * import { IdentityAuthority } from "@beep/identity"
+ * import { IdentityAuthority } from "@beep/identity/Id"
  * import { $I } from "@beep/identity/packages"
  *
  * IdentityAuthority // => "https://beep-effect.com/ns/"
