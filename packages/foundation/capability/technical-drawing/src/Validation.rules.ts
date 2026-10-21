@@ -175,6 +175,15 @@ export const structuralFindings = (input: {
     : [fileFinding("pdf-version", `PDF header version "${facts.headerVersion}" is outside 1.1–1.6.`)];
   const encrypted = facts.encrypted ? [fileFinding("encrypted", "The PDF is encrypted.")] : [];
   const layers = facts.hasOptionalContent ? [fileFinding("optional-content", "The PDF declares layers.")] : [];
+  const containers =
+    facts.containerDiscovery === "complete" || facts.encrypted
+      ? []
+      : [
+          fileFinding(
+            "pdf-stream-undecodable",
+            `PDF container discovery is ${facts.containerDiscovery}; global stream inspection is incomplete, so the file is unverified.`
+          ),
+        ];
   const annotations =
     facts.annotationCount > 0
       ? [fileFinding("annotations", `The PDF carries ${facts.annotationCount} annotation(s).`)]
@@ -186,6 +195,7 @@ export const structuralFindings = (input: {
     ...annotations,
     ...fontFindings(facts, options),
     ...streamFindings(facts),
+    ...containers,
     ...pageFindings(facts, options),
   ];
 };

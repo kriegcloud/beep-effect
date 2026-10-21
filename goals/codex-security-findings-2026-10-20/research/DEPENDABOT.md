@@ -9,11 +9,13 @@ Reviewed default-branch revision: `8086a42233ab3eab7265c8deb7a6f3816686d445`.
 The complete exact alert allowlist is `../ops/dependabot.json`. No alert status
 was changed during capture or draft remediation.
 
-| Source group | Alerts | Current source attribution |
+Current inventory after the post-publication refresh (123 alerts):
+
+| Source group | Alerts | Scoped remediation and remaining closure gate |
 | --- | ---: | --- |
-| Historical parser fixtures | 94 | Inert captured inputs; source execution review and byte-preserving representation changes in `dependabot-fixtures.md` |
-| Python photo-face lock | 6 | Vulnerable locked versions persist; update candidates and compatibility in `dependabot-python.md` |
-| Desktop Cargo locks | 4 | Vulnerable locked versions persist; compatible updates and GLib backport in `dependabot-rust.md` |
+| Historical parser fixtures | 103 | Inert-input representation changes and exact byte-preservation proof completed; see `dependabot-fixtures.md` and `dependabot-fixtures-proof.md`. Post-merge dependency-graph/alert observation remains required. |
+| Python photo-face lock | 16 | Supported lock updates and default/CPU/ROCm, codec and trust-store proof completed; see `dependabot-python.md`. Merged-revision graph/alert closure remains required. |
+| Desktop Cargo locks | 4 | Compatible updates, shared GLib backport and strict production-feature/optimized proof completed; see `dependabot-rust.md`. Scanner recognition and merged-revision alert closure remain required. |
 
 These counts describe alerts, not independently demonstrated exploitable
 application paths. Fixture attribution requires the recorded loader/workspace

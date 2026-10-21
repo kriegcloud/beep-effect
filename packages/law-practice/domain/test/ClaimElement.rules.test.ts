@@ -36,6 +36,38 @@ const generatedClaim = Arbitrary.map(
 );
 
 describe("ClaimElement rules", () => {
+  it.effect("evaluates ten ordinary multi-parent claims without spending the enumeration budget on term scans", () =>
+    Effect.gen(function* () {
+      const body = "a sensor; a controller; a housing; a lens; the sensor; the controller; the housing; the lens.";
+      const claims = A.map(
+        A.range(1, 10),
+        (claimNumber): PatentClaim =>
+          claimNumber <= 4
+            ? PatentClaim.cases.independent.make({
+                claimNumber,
+                claimText: `A system comprising: ${body}`,
+                preamble: "A system",
+                transition: "comprising",
+                body,
+              })
+            : PatentClaim.cases.dependent.make({
+                claimNumber,
+                claimReferences: [1, 2, 3, 4],
+                claimText: `The system of claims 1 through 4 wherein ${body}`,
+                preamble: "The system of claims 1 through 4",
+                transition: "wherein",
+                body,
+              })
+      );
+      const trees = yield* Effect.forEach(claims, (claim) => decomposeClaim(claim, claims));
+      const findings = antecedentPolicy(trees, claims);
+      assert.isTrue(A.isReadonlyArrayNonEmpty(findings));
+      assert.isTrue(A.every(findings, ({ rule }) => rule !== "chain-work-limit"));
+      assert.isTrue(A.some(findings, ({ kind }) => kind === "ambiguous-antecedent"));
+      assert.deepStrictEqual(antecedentPolicy(trees, claims), findings);
+    })
+  );
+
   it.effect("abstains explicitly for a dense dependency DAG instead of expanding every path", () =>
     Effect.gen(function* () {
       const first = PatentClaim.cases.independent.make({
@@ -151,9 +183,9 @@ describe("ClaimElement rules", () => {
     })
   );
 
-  it.effect("shares evaluation work across trees and resets the budget for a new invocation", () =>
+  it.effect("caps evaluation work across large inputs and resets the budget for a new invocation", () =>
     Effect.gen(function* () {
-      const claims = A.map(A.range(1, 64), (claimNumber) =>
+      const claims = A.map(A.range(1, 512), (claimNumber) =>
         PatentClaim.cases.independent.make({
           claimNumber,
           claimText: "A system comprising a sensor; and a controller coupled to the sensor.",

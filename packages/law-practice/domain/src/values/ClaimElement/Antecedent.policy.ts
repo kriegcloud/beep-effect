@@ -168,6 +168,12 @@ const rankedOrder = Order.combineAll([
 // explicitly rather than accepting a partially enumerated dependency graph.
 const MAX_CHAIN_WORK = 8_192;
 const MAX_CHAIN_DEPTH = 128;
+// Term scans use a separate input allowance: 512 weighted scan units per
+// located term supports ordinary multi-parent claims without spending path
+// enumeration capacity. The fixed ceiling bounds total scan work even when
+// an adversary supplies many terms; failed reservations still abstain.
+const TERM_WORK_PER_TERM = 512;
+const MAX_TERM_WORK = 262_144;
 
 // Charge before allocating copied paths or scanning terms, not only on visits.
 // A failed reservation consumes the remainder, so later trees cannot reset it.
@@ -459,6 +465,7 @@ export const antecedentPolicy: {
   const decomposed = HashSet.fromIterable(A.map(trees, ({ claimNumber }) => claimNumber));
   const terms = A.sort(A.flatMap(trees, locatedTerms), locatedOrder);
   const remaining = MutableRef.make(MAX_CHAIN_WORK);
+  const termWork = MutableRef.make(Num.min(MAX_TERM_WORK, MAX_CHAIN_WORK + terms.length * TERM_WORK_PER_TERM));
   const ranked = A.flatMap(trees, (tree): ReadonlyArray<Ranked> => {
     const referringTerms = A.filter(locatedTerms(tree), (term) => isReferring(term) && !isIdiom(term));
     if (referringTerms.length === 0) return [];
@@ -482,7 +489,7 @@ export const antecedentPolicy: {
             let findings: ReadonlyArray<Ranked> = [];
             for (const chain of chains) {
               // Each verdict filters all terms and tests membership in this path.
-              if (!spendChainWork(remaining, (terms.length + 1) * (chain.claims.length + 1)))
+              if (!spendChainWork(termWork, (terms.length + 1) * (chain.claims.length + 1)))
                 return [rank(referring, [], uncovered(referring, rule.chainWorkLimit))];
               const finding = verdictFor(terms, decomposed, referring, chain);
               if (O.isSome(finding)) {

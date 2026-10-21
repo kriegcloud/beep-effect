@@ -74,4 +74,8 @@ canary, unrelated source, root manifest, or root lockfile was made in this lane.
 
 Observe hosted required checks and GitHub dependency inventory after publication
 and merge. Only that later observation can establish whether the renamed inert
-documents leave the dependency graph and the 94 fixture-bound alerts close.
+documents leave the dependency graph and all 103 captured fixture-bound alerts
+close. The initial inventory contained 94; the post-publication refresh added
+nine Vite alerts on the same historical fixture paths, without changing the
+38-capture corpus or its byte-preservation proof. See `DEPENDABOT.md` and
+`../ops/dependabot.json` for the complete refreshed inventory.

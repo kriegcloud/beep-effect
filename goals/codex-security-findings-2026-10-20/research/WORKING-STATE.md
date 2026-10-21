@@ -1,38 +1,35 @@
 # Working state
 
-## Current handoff — 2026-10-21
+## Current handoff — 2026-10-21 05:04 UTC
 
-PR [#1930](https://github.com/beep-effect/beep-effect/pull/1930) is published; the parent-confirmed remote head is
-`02b5bd3f47`. It contains the eight Cloud remediations and scoped remediation for
-all 123 captured Dependabot alerts. PR #1928 merged at
-`426d494b3433ccddf797a2d896984f1ad23c81ad`; its execution hold is released.
-Focused regressions, dependency/runtime proof and affected package receipts
-are recorded in `research/`. Hosted checks and review remain in progress.
-The initial-head coverage gap now has additional tests and passing local proof
-(205 tests across 15 files); see `research/law-practice-coverage-proof.md`.
-Coverage baselines and security controls remain unchanged. The consolidated
-repair still requires publication and exact-next-head hosted proof.
+PR [#1930](https://github.com/beep-effect/beep-effect/pull/1930) is open and ready.
+Its remote head is `691ed8988dead48c49ae36087922995c23e57074`.
+PR #1928 merged at `426d494b3433ccddf797a2d896984f1ad23c81ad` and
+that main revision is integrated; the execution hold is released.
 
-No Cloud or Dependabot status has been changed. Merge, merged-revision proof
-and exact-ID external closure remain mandatory; lifecycle stays `active`.
+The combined first-review repair remains unpublished. The new Effect/Vitest
+EV007 finding is repaired with canonical it.effect.prop registration, retaining
+the schema-derived round-trip and legacy-default assertions. Both actual global
+Effect/Vitest and schema-first gates pass, with 51 focused tests in Bun and Node,
+strict type checking, root lint and CLI quick checks passing. No baseline changed. The hub's
+hosted Lint Policy failure is repaired locally using native constant-time crypto
+and the existing guarded Node test compatibility shim. See the review proof
+reports for PDF discovery, drawing consumers, claim budgets and hub crypto.
 
-Existing readiness monitor: `5a634b17-4a8e-4ce2-a99c-079e7ba96907`;
-parent owns monitoring and publication. Do not start a duplicate monitor.
+All four round-one review replies are drafted but must be bound to the final
+pushed SHA before posting. The independent source review must also be rebound
+to the final immutable head. The required reviewer App has no run on the remote
+head; publish the actual independent report through the supported App workflow,
+with its explicit Codex provenance and real score, after the fix push.
+
+The previous readiness job `5a634b17-4a8e-4ce2-a99c-079e7ba96907` ended
+on its required-check census timeout. Its terminal row was observed. Do not reuse
+it as a running job; the next successful publish must submit a fresh monitor.
 The original prerequisite heartbeat was removed after successful resume.
 
-Initial-head source failures (strict Rust warnings, Heavy Check test diagnostics
-and hub codec lint) have local repairs and receipts. Labs has a known hook
-flake attribution plus a 14-test local pass; the new head still needs hosted
-proof. The hosted coverage gap is repaired locally with 205 passing tests across
-15 files; `law-practice-coverage-proof.md` records 100% policy branches,
-99.2% lines and 99.3% statements. Publication and hosted rerun remain required.
-No coverage baseline was lowered.
-
-Proof sources: `cloud-proof.md`, `cli-package-proof.md`,
-`dependabot-fixtures-proof.md`, `dependabot-python.md`, `dependabot-rust.md`,
-`hosted-ci.md`, `hosted-check-test-repair.md`, and
-`labs-timeout-attribution.md`. Historical entries below retain their actual
-state at authoring time and are superseded by this current handoff.
+All eight Cloud IDs and all 123 captured Dependabot IDs still require exact-ID
+closure after merge and merged-revision proof. No external finding status has
+changed; lifecycle remains active. Retained recovery stashes must be preserved.
 
 ## Historical execution ledger
 
@@ -275,3 +272,52 @@ construction of the credential config encoder. Hoisted the encoder; root
 oxlint, canonical hub test typecheck and hub package audit passed. All known
 initial-head source failures are addressed. The combined follow-up publication
 includes the Labs attribution report and preserves both recovery stashes.
+
+## Round-one review repair
+
+PR #1930 at `691ed8988d` is ready for review; the original monitor remains
+active. CodeRabbit raised four threads: two packet verification/count corrections,
+PDF marker-density compatibility, and ordinary claim term-budget exhaustion.
+The documentation corrections and separately capped claim term budget are
+locally proved. PDF discovery will retain bounded candidate work while returning
+an explicit incomplete-discovery status; required downstream propagation is active.
+Do not publish until both PDF and consumer workers hand off, then publish one
+combined wave, answer/resolve all four exact threads through Yeet, and wait on
+the same monitor. No external finding status has changed.
+
+The prior final head has no completed failing checks at this observation; its
+passing checks do not qualify the upcoming review repair. Existing reviewer
+history documents a ready-event gap, so one supported review-trigger comment was
+posted. The required App check remains absent. A bounded read-only host diagnostic
+timed out; no remote service, secret, rule or privilege setting was changed.
+
+Round-one source repair is frozen and locally proved: PDF inspection returns
+explicit partial discovery without conflating inflation, downstream drawing
+schemas/adapters/validation/reports preserve it, and ordinary claim controls
+retain results under separately bounded term scans. PDF 41 tests; claim 206;
+technical drawing 143 plus 50 focused CLI tests passed with the recorded package,
+strict compiler, lint, docgen and coverage checks. See the three review-proof
+reports. All four threads require replies after the combined push. An independent
+Codex source reviewer has reviewed final source with no actionable finding so
+far, awaiting immutable commit binding. The required reviewer App has not started
+an external run; its supported manual flow may publish the actual independent
+report with explicit Codex provenance after binding, without inventing a result.
+
+Late hosted Lint Policy on `691ed8988d` rejected the hub's temporary diagnostic
+suppression. Interrupted unpublished `c4a12a2d36` before push. Final repair uses
+Bun's native global constant-time comparator; the canonical Node test shim fills
+that missing Bun API with Node's native comparator, only when absent. Node/V8 hub
+11 tests and Bun audit, strict type checks, root lint/config checks and global
+tsgo-rules pass without a new allowlist or directive. See hub-native-crypto-proof.
+The previous monitor ended after its required-check census timeout while the
+reviewer App was missing; its terminal proof row was observed. The next successful
+publish must create a fresh monitor and use the real independent review bound to
+the amended head. Do not publish the obsolete c4 review result or close findings.
+
+The combined gate stopped the unpublished `4eefd05e56` only on the newly
+schema-heavy drawing critic test. Added a schema-derived property covering
+measurement JSON round-trip and absent-discovery legacy defaults, with no
+inventory exception. Bun/Node focused Drawings now pass 51 tests, strict type
+checking, root lint and CLI quick checks pass, and global schema-first passes
+with zero arbitrary-test advisories. Amend this final test-only delta and its
+proof, rebind the independent review, then retry collected publication gates.

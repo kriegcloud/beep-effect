@@ -5,6 +5,7 @@ import {
   PageTextRequest,
   PdfFont,
   PdfPageRef,
+  PdfStructure,
   PdfTools,
   PdfToolsConfig,
   PdfToolsError,
@@ -34,6 +35,7 @@ import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
@@ -853,53 +855,99 @@ describe("@beep/pdf-tools service", () => {
       );
 
       it.effect(
-        "rejects repeated container markers in ordinary stream data before overlapping discovery",
+        "returns partial discovery for dense hostile container-marker text within its work budget",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const dir = yield* fs.makeTempDirectoryScoped();
           const tools = yield* PdfTools;
           for (const marker of ["/ObjStm", "/XRef"]) {
-            const file = path.join(dir, marker === "/XRef" ? "xref-budget.pdf" : "object-budget.pdf");
+            const file = path.join(dir, marker === "/XRef" ? "xref-markers.pdf" : "object-markers.pdf");
             const data = encoder.encode(A.join(A.replicate(`% 1 0 obj ${marker}`, 16_000), "\n"));
             yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
-            const error = yield* Effect.flip(tools.inspect(file));
-            expect(error.reason).toBe("parse");
-            expect(error.message).toBe("PDF container discovery exceeds inspection limits.");
+            const structure = yield* tools.inspect(file);
+            expect(structure.streamCheck).toBe("complete");
+            expect(structure.containerDiscovery).toBe("limit-reached");
+            expect(structure.undecodableStreams).toEqual([]);
+            expect(A.length(structure.pages)).toBe(1);
           }
-          const control = path.join(dir, "harmless-comments.pdf");
-          const data = encoder.encode(A.join(A.replicate("% 1 0 obj /Nope", 16_000), "\n"));
-          yield* fs.writeFile(control, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
-          expect((yield* tools.inspect(control)).streamCheck).toBe("complete");
         })
       );
 
       it.effect(
-        "shares the discovery budget across marker families and accepts its exact boundary",
+        "accepts valid loaded PDFs containing more than 128 irrelevant mixed markers",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const dir = yield* fs.makeTempDirectoryScoped();
           const tools = yield* PdfTools;
-          for (const objectMarkers of [64, 65]) {
+          const data = encoder.encode(A.join(A.replicate("/ObjStm /XRef /XRefStm", 129), "\n"));
+          const bytes = craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]);
+          expect((yield* Effect.promise(() => PDFDocument.load(bytes))).getPageCount()).toBe(1);
+          const file = path.join(dir, "mixed-markers.pdf");
+          yield* fs.writeFile(file, bytes);
+          const structure = yield* tools.inspect(file);
+          expect(structure.streamCheck).toBe("complete");
+          expect(structure.containerDiscovery).toBe("limit-reached");
+          expect(structure.undecodableStreams).toEqual([]);
+          expect(A.length(structure.pages)).toBe(1);
+        })
+      );
+
+      it.effect(
+        "bounds failed header discovery across long digit and whitespace runs",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          const data = encoder.encode(
+            A.join([Str.repeat("9", 200_000), Str.repeat(" ", 200_000), "0 nope /ObjStm /XRef"], "")
+          );
+          const file = path.join(dir, "failed-long-header.pdf");
+          yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+          const structure = yield* tools.inspect(file);
+          expect(structure.streamCheck).toBe("complete");
+          expect(structure.undecodableStreams).toEqual([]);
+        })
+      );
+
+      it.effect(
+        "defaults the additive discovery status for existing structure payloads",
+        Effect.fnUntraced(function* () {
+          const input = {
+            headerVersion: "1.7",
+            pages: [],
+            fonts: [],
+            annotationCount: 0,
+            hasOptionalContent: false,
+            encrypted: false,
+            undecodableStreams: [],
+            streamCheck: "complete",
+          };
+          const structure = yield* S.decodeUnknownEffect(PdfStructure)(input);
+          expect(structure.containerDiscovery).toBe("complete");
+          expect(PdfStructure.make({ ...input, streamCheck: "complete" }).containerDiscovery).toBe("complete");
+        })
+      );
+
+      it.effect(
+        "shares the raw discovery budget across families and reports the exact boundary",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          for (const count of [64, 65]) {
             const data = encoder.encode(
-              A.join(
-                A.appendAll(A.replicate("% 1 0 obj /ObjStm", objectMarkers), A.replicate("% 1 0 obj /XRef", 64)),
-                "\n"
-              )
+              A.join(A.appendAll(A.replicate("/ObjStm", count), A.replicate("/XRef", 64)), "\n")
             );
-            const file = path.join(dir, `mixed-${objectMarkers}.pdf`);
+            const file = path.join(dir, `boundary-${count}.pdf`);
             yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
-            if (objectMarkers === 64) {
-              const structure = yield* tools.inspect(file);
-              expect(structure.streamCheck).toBe("complete");
-              expect(structure.undecodableStreams).toEqual([]);
-              expect(A.length(structure.pages)).toBe(1);
-            } else {
-              const error = yield* Effect.flip(tools.inspect(file));
-              expect(error.reason).toBe("parse");
-              expect(error.message).toBe("PDF container discovery exceeds inspection limits.");
-            }
+            const structure = yield* tools.inspect(file);
+            expect(structure.containerDiscovery).toBe(count === 64 ? "complete" : "limit-reached");
+            expect(structure.streamCheck).toBe("complete");
+            expect(A.length(structure.pages)).toBe(1);
           }
         })
       );
@@ -922,6 +970,7 @@ describe("@beep/pdf-tools service", () => {
           const intact = yield* tools.inspect(whole);
           expect(intact.undecodableStreams).toEqual([]);
           expect(intact.streamCheck).toBe("complete");
+          expect(intact.containerDiscovery).toBe("complete");
 
           // object stream 5 (indirect /Length 7 0 R) and cross-reference stream 8 each lose their last checksum byte
           const cutBytes = craftXrefStreamPdf({

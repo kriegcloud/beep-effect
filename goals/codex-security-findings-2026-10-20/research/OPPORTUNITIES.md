@@ -45,3 +45,34 @@
   and hub API issues after local package proof passed. Run each changed
   package's `package-test-typecheck` as part of the focused handoff; preserve
   its separate artifact and diagnostics instead of inferring it from audit.
+
+### Parser progress is not a work-bound proof
+
+During PDF compatibility review, a proposed forward parser used its final byte
+offset to argue disjoint work. Installed `pdf-lib` source can scan an attacker-
+selected stream-length target, rewind, then return a nearby offset. Many objects
+can repeatedly scan one long tail. Independent source review caught this before
+publication. Prefer explicit bounded/incomplete results unless parser accounting
+covers lookahead and rewind work, and test adversarial shared-tail layouts rather
+than assuming a final cursor records all bytes visited. No private parser adapter
+or experimental deep import is retained in the chosen repair.
+
+### Verify diagnostic policy as well as diagnostic output
+
+A necessary native constant-time import was initially given a narrow diagnostic
+suppression. Package checks passed, but hosted `lint:tsgo-rules` correctly rejected
+the extra directive under its closed allowlist. Replaced it with Bun's documented
+native global API and extended the existing Node test-runtime Bun shim with the
+native Node comparator. Both runtime suites and the global policy pass. Future
+native-boundary changes need the policy check and actual alternate test runtime,
+not just a locally green compiler. No new suppression or weakened comparison was
+retained.
+
+### Codec regression tests need schema-derived variation
+
+Adding three targeted codec assertions made the drawing critic test cross the
+schema-heavy gate. Package lint/type/focused tests passed, but global schema-first
+correctly required property coverage. Added a derived measurement property that
+checks round-trip preservation and legacy omission defaults. The global gate now
+passes with no inventory waiver. Run that gate while adding codec assertions,
+not only after a publication commit.

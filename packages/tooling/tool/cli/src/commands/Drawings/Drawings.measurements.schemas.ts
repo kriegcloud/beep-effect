@@ -20,6 +20,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { StreamCheck, UndecodableStream } from "@beep/pdf-tools";
 import { Sha256Hex } from "@beep/schema";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { FigureNumber } from "./Drawings.review.schemas.ts";
 
@@ -115,8 +116,8 @@ export class CriticPdfFont extends S.Opaque<CriticPdfFont, { readonly brand: uni
  *
  * The version, page count, and undecodable streams come from
  * `@beep/pdf-tools` `inspect`; the page boxes from `pdfinfo -box`; the fonts
- * from `pdffonts`. `streamCheck` says whether the undecodable-stream list is
- * complete.
+ * from `pdffonts`. The undecodable-stream list is globally complete only when
+ * both `streamCheck` and `containerDiscovery` are `complete`.
  *
  * **Example** (A clean one-page PDF)
  *
@@ -149,8 +150,16 @@ export class CriticPdfMeasurements extends S.Opaque<CriticPdfMeasurements, { rea
     undecodableStreams: S.Array(UndecodableStream).annotateKey({
       description: "FlateDecode streams a strict inflate refuses, in object order.",
     }),
+    containerDiscovery: StreamCheck.pipe(
+      S.withConstructorDefault(Effect.succeed("complete" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("complete" as const)),
+      S.annotateKey({
+        description: "Raw object/cross-reference container discovery completeness, separate from the inflate check.",
+      })
+    ),
     streamCheck: StreamCheck.annotateKey({
-      description: "Whether every FlateDecode stream was checked, none (encrypted), or only those before the limit.",
+      description:
+        "Whether every discovered FlateDecode stream was checked, none (encrypted), or only those before the inflate limit.",
     }),
   }).pipe(
     $I.annoteSchema("CriticPdfMeasurements", {

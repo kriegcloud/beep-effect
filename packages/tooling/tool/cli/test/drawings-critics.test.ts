@@ -44,9 +44,11 @@ import {
 } from "@beep/repo-cli/commands/Drawings";
 import { Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
+import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as DateTime from "effect/DateTime";
@@ -1279,6 +1281,25 @@ describe("PDF tool output", () => {
   });
 });
 
+describe("PDF measurements codec properties", () => {
+  it.effect.prop(
+    "preserves schema-generated discovery outcomes and defaults legacy payloads",
+    [Arbitrary.schema(CriticPdfMeasurements)],
+    Effect.fnUntraced(function* ([pdf]) {
+      const codec = S.fromJsonString(CriticPdfMeasurements);
+      const equivalent = S.toEquivalence(CriticPdfMeasurements);
+      const roundTrip = yield* S.decodeEffect(codec)(yield* S.encodeEffect(codec)(pdf));
+      expect(equivalent(roundTrip, pdf)).toBe(true);
+      expect(roundTrip.containerDiscovery).toBe(pdf.containerDiscovery);
+      const encoded = yield* S.encodeEffect(CriticPdfMeasurements)(pdf);
+      const legacy = yield* S.decodeUnknownEffect(CriticPdfMeasurements)(R.remove(encoded, "containerDiscovery"));
+      expect(legacy.containerDiscovery).toBe("complete");
+      expect(equivalent(legacy, CriticPdfMeasurements.make({ ...pdf, containerDiscovery: "complete" }))).toBe(true);
+    }),
+    { arbitrary: fcRuns(25) }
+  );
+});
+
 describe("MEASUREMENTS.md", () => {
   it.effect(
     "renders the PDF facts and every figure, and round-trips measurements.json",
@@ -1319,6 +1340,37 @@ describe("MEASUREMENTS.md", () => {
       expect(markdown).toContain("| FIG. 1 & 2 | DejaVu Sans | 12 | 107.95 | 268.111 | middle |");
       const json = yield* encodeCriticMeasurements(measurements);
       expect(yield* decodeCriticMeasurements(json)).toEqual(measurements);
+      expect(measurements.pdf.containerDiscovery).toBe("complete");
+      const legacyPdf = yield* S.decodeUnknownEffect(CriticPdfMeasurements)({
+        file: "render/sheets.pdf",
+        version: "1.6",
+        pageCount: 0,
+        pages: [],
+        fonts: [],
+        undecodableStreams: [],
+        streamCheck: "complete",
+      });
+      expect(legacyPdf.containerDiscovery).toBe("complete");
+      const inflateLimited = CriticMeasurements.make({
+        ...measurements,
+        pdf: CriticPdfMeasurements.make({ ...measurements.pdf, undecodableStreams: [], streamCheck: "limit-reached" }),
+      });
+      expect(measurementsMarkdown(inflateLimited)).toContain("global stream inspection is incomplete");
+
+      for (const containerDiscovery of ["complete", "limit-reached", "encrypted"] as const) {
+        const incomplete = CriticMeasurements.make({
+          ...measurements,
+          pdf: CriticPdfMeasurements.make({ ...measurements.pdf, undecodableStreams: [], containerDiscovery }),
+        });
+        const report = measurementsMarkdown(incomplete);
+        expect(report).toContain(`PDF container discovery: ${containerDiscovery}.`);
+        expect(report).toContain(
+          containerDiscovery === "complete"
+            ? "Undecodable streams: none."
+            : "Undecodable streams: none among inspected streams; global stream inspection is incomplete."
+        );
+        expect(yield* decodeCriticMeasurements(yield* encodeCriticMeasurements(incomplete))).toEqual(incomplete);
+      }
     })
   );
 });

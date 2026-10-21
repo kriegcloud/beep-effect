@@ -6,10 +6,6 @@
  * @since 0.0.0
  */
 
-// Effect Crypto provides digests and randomness, but no constant-time comparison.
-// Retain the platform timing-safe primitive for bearer authentication.
-// @effect-diagnostics-next-line nodeBuiltinImport:off
-import { timingSafeEqual } from "node:crypto";
 import { makeReviewFilesLayer, ReviewFilesConfig } from "@beep/law-practice-server/ReviewFiles";
 import { QuestionQueueLive } from "@beep/law-practice-use-cases/QuestionQueue";
 import { ReviewHub, ReviewHubLive, ReviewHubToolkit } from "@beep/law-practice-use-cases/ReviewHub";
@@ -54,7 +50,7 @@ const loginAllowList = (allowedLogins: ReadonlyArray<string>, apiToken: Redacted
   const authenticated = (authorization: string) => {
     if (Str.length(authorization) > 1_024) return false;
     const supplied = Buffer.from(authorization);
-    return supplied.byteLength === expected.byteLength && timingSafeEqual(supplied, expected);
+    return supplied.byteLength === expected.byteLength && globalThis.crypto.timingSafeEqual(supplied, expected);
   };
   const allowed = HashSet.fromIterable(allowedLogins);
   return HttpRouter.middleware(

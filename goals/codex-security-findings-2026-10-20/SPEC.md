@@ -82,12 +82,23 @@ fixture location alone does not establish an invalid alert.
 | JSON shape | `jq .` over both files in `ops/` | Pass |
 | Finding count | CSF file count equals 8 | Pass |
 | Severity count | 3 Low, 5 Informational | Pass |
-| Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |
+| Raw tracking | Exact tracked-file allowlist check below | Only `raw/.gitignore` tracked |
 | Sanitization | tracked packet secret/path pattern scan | No matches |
 | Per-finding proof | command recorded in finding and triage ledger | Pass |
 | Repo proof | `bun run beep yeet verify` | Green |
 | Hosted proof | Yeet monitor and review closeout | Green and mergeable |
 | Final closure | supported connector or signed-in in-app findings view | Zero packet-open |
+
+### Raw tracked-file allowlist
+
+Run from the repository root. This checks the index, including clean committed
+files; ignored working-tree status alone cannot establish the invariant.
+Any additional tracked raw entry makes the exact comparison fail.
+
+```sh
+test "$(git ls-files -- goals/codex-security-findings-2026-10-20/raw/)" = \
+  "goals/codex-security-findings-2026-10-20/raw/.gitignore"
+```
 
 ## Stop Conditions
 
@@ -102,7 +113,7 @@ fixture location alone does not establish an invalid alert.
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| `nodeBuiltinImport` diagnostic on the hub timing-safe import | One import line | Security remediation | Effect Crypto exposes digest/random APIs but no constant-time equality; retain Node timingSafeEqual | Remove when Effect exposes an equivalent primitive |
+| None retained for hub authentication | Hub runtime | Security remediation | Bun global Crypto exposes the native constant-time comparator; no import suppression is needed | Not applicable |
 
 ## Decision Log
 
@@ -155,13 +166,19 @@ fixture location alone does not establish an invalid alert.
   dependency provenance and security review still apply. Reverse by removing
   this spelling entry when the backport is retired.
 
-- 2026-10-21: Keep native constant-time equality at the hub platform boundary.
-  Current Effect Crypto has no equivalent comparison API; a documented,
-  one-line diagnostic exception avoids replacing the security control with
-  ordinary equality or a handwritten comparator. The canonical CI checker
-  passes; no workspace-wide diagnostic setting changed. Added the normal
-  dual overloads to the two-argument layer factory and rewrote the JSON
-  codec test in pipe form without changing authentication behavior.
+- 2026-10-21: Use Bun's global `crypto.timingSafeEqual` at the hub platform
+  boundary. Installed Bun types expose the Node-compatible comparator API;
+  the Bun runtime probe confirms native implementation and equal/unequal behavior. Remove the
+  earlier Node import and diagnostic suppression, which the global policy
+  correctly rejects. The existing Node/V8 Bun-API test shim supplies Node's
+  native comparator only when the global method is absent; its existing
+  closed allowlist and all six directives remain unchanged. This is a test
+  platform adapter, not a production fallback or handwritten comparison.
+  Both runtimes retain the length guard and real authentication assertions.
+  Reverse by restoring an equivalent supported native platform binding and
+  rerunning both runtime suites and the global diagnostic policy; do not
+  restore the rejected suppression. Proof: `research/hub-native-crypto-proof.md`.
+  The dual overloads and JSON codec test behavior remain unchanged.
 
 - 2026-10-21: Reconcile the published packet to PR #1930 and parent-confirmed
   remote head `02b5bd3f47`. Scoped remediation covers eight Cloud IDs and 123
@@ -172,3 +189,26 @@ fixture location alone does not establish an invalid alert.
   completion evidence; the same-PR documentation convention cannot justify a
   prospective claim. Reversal is a packet-only documentation revert, preserving
   exact captured identities and historical receipts.
+
+- 2026-10-21: Separate CSF-008 dependency/copy work from term evaluation after
+  review reproduced premature abstention on ten ordinary multi-parent claims.
+  Retain the fixed 8192-unit traversal/path/advisory-copy budget and depth 128;
+  allocate term scans `min(262144, 8192 + 512 * locatedTermCount)` units per
+  invocation. The input allowance preserves ordinary coverage, while the fixed
+  ceiling prevents attacker input from increasing scan work without bound.
+  Both budgets charge before work and retain explicit abstention; global
+  `antecedent-outside-chain` semantics remain unchanged. Proof:
+  `research/claim-budget-review-proof.md`. Reverse this compatibility adjustment
+  by restoring the preceding shared-budget implementation and its matching
+  tests; retain the enumeration/depth controls and rerun ordinary-input,
+  exhaustion and Node/V8 coverage checks before release.
+
+- 2026-10-20, PDF round-one compatibility repair: retain the shared 128-candidate
+  / 64 KiB-per-header discovery budget, but return normal structure with the
+  additive `containerDiscovery` status (`complete`, `limit-reached`, `encrypted`)
+  instead of throwing on raw marker overflow. `streamCheck` remains specific to
+  inflation; an exhaustive result requires both fields complete. Defaults retain
+  existing constructor/decode compatibility. Reason: harmless markers and large
+  valid PDFs must remain inspectable; a new linear parser's rewinds introduced
+  uncertainty in the CPU bound. Reverse by reverting this review repair, which
+  restores the earlier typed overflow rejection and preserves its CPU bound.

@@ -18,7 +18,25 @@
     "requiresPullRequest": true,
     "requiresMergeable": true,
     "statement": "One combined Yeet PR merged through repository gates; exact eight Cloud IDs and 123 Dependabot alert IDs resolved with merged-revision evidence.",
-    "grandfathered": false
+    "grandfathered": false,
+    "pullRequests": [
+      {
+        "number": 1930,
+        "role": "final"
+      }
+    ],
+    "acceptanceEvidence": [
+      {
+        "kind": "hosted-required-checks",
+        "ref": "required",
+        "gating": true
+      },
+      {
+        "kind": "yeet-verdict",
+        "ref": ".beep/yeet/runs/codex_security-findings-2026-10-20-d0eefebffe25/verdict.json",
+        "gating": true
+      }
+    ]
   },
   "branch": "codex/security-findings-2026-10-20",
   "currentSourceOfTruth": [
@@ -45,7 +63,12 @@
     "research/hosted-check-test-repair.md",
     "research/labs-timeout-attribution.md",
     "research/packet-state-reconciliation.md",
-    "research/law-practice-coverage-proof.md"
+    "research/law-practice-coverage-proof.md",
+    "research/round1-docs-proof.md",
+    "research/claim-budget-review-proof.md",
+    "research/pdf-review-proof.md",
+    "research/pdf-container-consumer-proof.md",
+    "research/hub-native-crypto-proof.md"
   ],
   "agentLaunchers": [
     {
@@ -80,7 +103,7 @@
       "out-of-scope": 0,
       "untriaged": 0
     },
-    "note": "All eight full Cloud details are validated, assigned and implemented with scoped proof. PR #1930 is published; hosted coverage repair, next-head checks, merge and exact-ID external closure remain pending."
+    "note": "All eight full Cloud details are validated and implemented with scoped proof. Round-one review repairs passed focused checks and both global property-test gates; final publication, merge and exact-ID external closure remain pending."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
@@ -169,5 +192,9 @@
     "A remediation requires an architecture or product decision outside packet scope.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "PR #1930 published at parent-confirmed remote head 02b5bd3f47 with eight Cloud fixes and scoped remediation/proof for 123 captured Dependabot alerts. Initial-head coverage repair passed locally (205 tests/15 files), with unchanged baselines; consolidated publication remains required. Next-head hosted checks/review, merge, merged-revision proof and exact-ID closure remain required; lifecycle stays active."
+  "statusNote": "PR #1930 is open and ready at remote head 691ed8988d. Round-one PDF, drawing consumer, claim-budget and native-crypto repairs have focused proof and an independent source review; the canonical property migration passes both global gates and 51 tests in each runtime. Fresh paginated reads still match all 123 captured open Dependabot IDs. Final-head hosted checks, review, merge, merged-revision proof and exact-ID closure remain required; lifecycle stays active.",
+  "proposedCloseout": {
+    "status": "completed-retained",
+    "finalPullRequest": 1930
+  }
 }
