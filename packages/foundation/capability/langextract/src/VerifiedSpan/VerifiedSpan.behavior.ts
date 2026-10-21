@@ -71,15 +71,19 @@ const nextMatchedLength = (
   prefixTable: ReadonlyArray<number>,
   matchedLength: number,
   codeUnit: number
-): number =>
-  // KMP fallback walks the prefix chain by direct recursion, so a scanned code
-  // unit allocates nothing. `matchedLength` is always below the locator
-  // length, keeping both reads in bounds.
-  locatorCodes[matchedLength] === codeUnit
-    ? matchedLength + 1
-    : matchedLength === 0
-      ? 0
-      : nextMatchedLength(locatorCodes, prefixTable, A.getUnsafe(prefixTable, matchedLength - 1), codeUnit);
+): number => {
+  // KMP fallback walks the prefix chain iteratively, so a scanned code unit
+  // allocates nothing and uses constant stack. The chain can be as long as the
+  // NFKC-normalized locator, which may be several times MAX_LOCATOR_LENGTH (for
+  // example U+2026 expands to three code units), so recursion here could
+  // overflow. `length` always stays below the locator length, keeping both
+  // reads in bounds.
+  let length = matchedLength;
+  while (length > 0 && locatorCodes[length] !== codeUnit) {
+    length = A.getUnsafe(prefixTable, length - 1);
+  }
+  return locatorCodes[length] === codeUnit ? length + 1 : 0;
+};
 
 const codeUnits = (text: string): ReadonlyArray<number> =>
   A.makeBy(Str.length(text), (index) => text.charCodeAt(index));
