@@ -36,6 +36,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -754,6 +755,73 @@ layer(
       expect(yield* writer.recover(target.backups)).toEqual([recovered(journal.id, "preimage")]);
       expect(yield* listing(target.backups)).toEqual([`${journal.id}.json`]);
       expect(yield* fileSha(target.file)).toBe(yield* textSha(native));
+    })
+  );
+
+  it.effect("never reclaims a recent lock whose stamp is empty or partial", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const target = yield* interrupted("recovery-partial-lock-", "refuse");
+      const journal = yield* abandon(target.backups);
+      const lock = path.join(target.backups, `${journal.id}.recovering`);
+      const writer = yield* writerWith();
+      const held = ModelsRecoveryReport.make({
+        journal: journal.id,
+        role: "publication",
+        result: ModelsRecoveryResult.cases.skipped.make({ reason: "lock-held" }),
+      });
+      // A live recoverer caught between creating its lock and stamping it.
+      for (const stamp of ["", '{"bootId":"']) {
+        yield* fs.writeFileString(lock, stamp);
+        expect(yield* writer.recover(target.backups)).toEqual([held]);
+        expect(yield* fs.readFileString(lock)).toBe(stamp);
+        expect(A.filter(yield* listing(target.backups), Str.includes(".recovering."))).toEqual([]);
+      }
+      // Past the grace period an unreadable stamp is stale and reclaimed.
+      yield* fs.utimes(lock, 0, 0);
+      expect(yield* writer.recover(target.backups)).toEqual([recovered(journal.id, "preimage")]);
+      expect(yield* listing(target.backups)).toEqual([`${journal.id}.json`]);
+    })
+  );
+
+  it.effect("fails recovery with a typed error when the lock cannot be created", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const home = yield* fs.makeTempDirectoryScoped({ prefix: "recovery-lock-denied-" });
+      const backups = path.join(home, ".config-backups");
+      const file = path.join(home, "config.toml");
+      yield* fs.writeFileString(file, native);
+      const writer = yield* writerWith(yield* interfering(file, "refuse"));
+      yield* Effect.flip(writer.apply(file, [request], "write", backups));
+      const journal = yield* abandon(backups);
+      const denied = (method: string, target: string) =>
+        PlatformError.systemError({ _tag: "PermissionDenied", module: "FileSystem", method, pathOrDescriptor: target });
+      // EACCES on the lock itself, wherever the writer creates it.
+      const denying = FileSystem.FileSystem.of({
+        ...fs,
+        open: Effect.fn("ModelsRecoveryTest.deniedOpen")(function* (target, options) {
+          if (Str.endsWith(".recovering")(target)) return yield* denied("open", target);
+          return yield* fs.open(target, options);
+        }),
+        link: Effect.fn("ModelsRecoveryTest.deniedLink")(function* (source, target) {
+          if (Str.endsWith(".recovering")(target)) return yield* denied("link", target);
+          yield* fs.link(source, target);
+        }),
+      });
+      const refusal = yield* Effect.flip((yield* writerWithFs(denying)).recover(backups));
+      expect(refusal._tag).toBe("ModelsLocatorError");
+      expect(refusal.reason).toBe("lock-unavailable");
+      const before = A.length(yield* TestConsole.logLines);
+      yield* Effect.flip(
+        run(["recover", "--home", home, "--repo", home]).pipe(Effect.provideService(FileSystem.FileSystem, denying))
+      );
+      expect(A.some(A.drop(yield* TestConsole.logLines, before), (line) => Str.includes("lock-held")(`${line}`))).toBe(
+        false
+      );
+      expect(yield* listing(backups)).toEqual([`${journal.id}.backup`, `${journal.id}.json`]);
+      expect(trackedOf((yield* onlyJournal(backups)).journal.publication).state._tag).toBe("staged");
     })
   );
 

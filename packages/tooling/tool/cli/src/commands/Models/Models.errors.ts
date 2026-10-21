@@ -36,8 +36,10 @@ const $I = $RepoCliId.create("commands/Models/Models.errors");
  * exchange refusals happen before any backup, journal or publication. The
  * {@link ModelsRecoveryRefusal} reasons come from restart recovery, which
  * refuses and keeps every artifact. `owner-alive` means the publication still
- * belongs to a running process, and `lock-held` that another live process holds
- * its exclusive recovery lock.
+ * belongs to a running process, `lock-held` that another live process holds
+ * its exclusive recovery lock, and `lock-unavailable` that the lock could not be
+ * created for any reason other than an existing lock (permission, read-only or
+ * full filesystem).
  *
  * **Example** (Guard a refusal reason)
  *
@@ -57,6 +59,7 @@ export const ModelsLocatorRefusal = LiteralKit([
   "exchange-probe-failed",
   "owner-alive",
   "lock-held",
+  "lock-unavailable",
   ...ModelsRecoveryRefusal.literals,
 ]).pipe(
   $I.annoteSchema("ModelsLocatorRefusal", {

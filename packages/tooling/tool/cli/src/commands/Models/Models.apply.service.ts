@@ -60,6 +60,7 @@ import {
   modelsWritePreflight,
   modelsWriteSpans,
 } from "./Models.spans.ts";
+import type * as PlatformError from "effect/PlatformError";
 import type {
   ModelsExchangeUnsupportedReason,
   ModelsPublicationStep,
@@ -986,26 +987,67 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       io
     );
 
-  // The exclusive per-journal recovery lock: an O_EXCL `<id>.recovering` file
-  // stamped with its owner. A lock whose owner is dead (or unreadable) is stale;
-  // it is renamed aside, and reclaimed only when the renamed bytes are still the
-  // stale bytes read, so a fresh lock taken meanwhile is put back, not lost.
+  // The exclusive per-journal recovery lock `<id>.recovering`. The owner stamp is
+  // written and fsynced to a uniquely named sibling first, then published with
+  // `link`, which fails with EEXIST when a lock exists: the lock is never visible
+  // without its complete stamp. Only EEXIST means "held"; every other failure is
+  // a typed `lock-unavailable` refusal, mapped from the platform error code.
   const lockPath = (backupDirectory: string, id: string) => path.join(backupDirectory, `${id}.recovering`);
+  const lockUnavailable = (lock: string) => (error: PlatformError.PlatformError) =>
+    ModelsLocatorError.make({
+      reason: "lock-unavailable",
+      path: lock,
+      message: `Cannot create the recovery lock (${error.reason._tag}); refusing recovery.`,
+    });
   const createLock = Effect.fnUntraced(function* (lock: string) {
     const stamp = yield* O.match(yield* currentOwner, {
       onNone: () => Effect.succeed(""),
       onSome: (owner) => encodeOwner(owner).pipe(ModelsLocatorError.mapError("Cannot encode recovery lock.")),
     });
-    return yield* writeDurable(lock, textBytes(stamp)).pipe(
+    const sibling = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.stamp`;
+    const staged = Effect.scoped(
+      Effect.gen(function* () {
+        const handle = yield* fs.open(sibling, { flag: "wx", mode: 0o600 });
+        yield* handle.writeAll(textBytes(stamp));
+        yield* handle.sync;
+      })
+    ).pipe(Effect.mapError(lockUnavailable(lock)));
+    const published = fs.link(sibling, lock).pipe(
       Effect.as(true),
-      Effect.orElseSucceed(() => false)
+      Effect.catchTag("PlatformError", (error) =>
+        error.reason._tag === "AlreadyExists" ? Effect.succeed(false) : error.pipe(lockUnavailable(lock), Effect.fail)
+      )
     );
+    const held = yield* staged.pipe(Effect.andThen(published), Effect.ensuring(Effect.ignore(fs.remove(sibling))));
+    yield* syncDirectory(path.dirname(lock));
+    return held;
   });
-  const lockHolderAlive = (stamp: string) =>
-    decodeOwner(stamp).pipe(
+  // A stamp that does not decode is never read as a dead owner while it is
+  // recent: it may belong to a writer from an older or newer version, or a
+  // host without procfs. Past the grace period, measured against a fresh file's
+  // mtime on the same filesystem rather than a clock, it is stale.
+  const unreadableLockGraceMillis = 10 * 60 * 1000;
+  const unreadableLockStale = Effect.fnUntraced(function* (lock: string) {
+    const lockTime = O.flatMap(yield* fs.stat(lock).pipe(Effect.option), (info) => info.mtime);
+    const probe = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.clock`;
+    const nowTime = yield* fs.writeFileString(probe, "", { flag: "wx", mode: 0o600 }).pipe(
+      Effect.andThen(fs.stat(probe)),
+      Effect.map((info) => info.mtime),
       Effect.option,
-      Effect.flatMap((owner) => ownerAlive(owner))
+      Effect.map(O.flatten),
+      Effect.ensuring(Effect.ignore(fs.remove(probe)))
     );
+    return O.isSome(lockTime) && O.isSome(nowTime)
+      ? nowTime.value.getTime() - lockTime.value.getTime() > unreadableLockGraceMillis
+      : false;
+  });
+  const lockHolderAlive = Effect.fnUntraced(function* (lock: string, stamp: string) {
+    const owner = yield* decodeOwner(stamp).pipe(Effect.option);
+    if (O.isSome(owner)) return yield* ownerAlive(owner);
+    return !(yield* unreadableLockStale(lock));
+  });
+  // A stale lock is renamed aside and reclaimed only when the renamed bytes are
+  // still the stale bytes read, so a fresh lock taken meanwhile is put back.
   const reclaimLock = Effect.fnUntraced(function* (lock: string, stale: string) {
     const aside = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.stale`;
     if (O.isNone(yield* fs.rename(lock, aside).pipe(Effect.option))) return false;
@@ -1022,7 +1064,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     if (yield* createLock(lock)) return true;
     const stamp = yield* fs.readFileString(lock).pipe(Effect.option);
     if (O.isNone(stamp)) return yield* createLock(lock);
-    if (yield* lockHolderAlive(stamp.value)) return false;
+    if (yield* lockHolderAlive(lock, stamp.value)) return false;
     return yield* reclaimLock(lock, stamp.value);
   });
   const recoveryLock = (backupDirectory: string, id: string) =>
