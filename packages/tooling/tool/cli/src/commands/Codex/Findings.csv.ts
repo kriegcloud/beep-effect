@@ -289,11 +289,13 @@ class SecurityCloudCsvRow extends S.Opaque<SecurityCloudCsvRow, { readonly brand
     "Finding ID": SecurityCloudFindingId,
     Source: S.Literals(["Diff scan"]),
     Repository: S.String.check(
-      S.isPattern(/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/, {
-        identifier: $I`SecurityCloudRepositoryUrlCheck`,
-        title: "Security Cloud Repository Url",
-        description: "Canonical HTTPS GitHub repository URL without credentials, query, or fragment.",
-      })
+      S.isPattern(
+        /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/,
+        $I.annote("SecurityCloudRepositoryUrlCheck", {
+          title: "Security Cloud Repository Url",
+          description: "Canonical HTTPS GitHub repository URL without credentials, query, or fragment.",
+        })
+      )
     ),
     Title: S.String,
     Summary: S.String,

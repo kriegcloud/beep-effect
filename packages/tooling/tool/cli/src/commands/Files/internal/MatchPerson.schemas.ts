@@ -316,24 +316,27 @@ export class PersonMatchRuntimeWarning extends S.Opaque<PersonMatchRuntimeWarnin
 const PersonMatchSimilarityScore = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(-1, {
-        identifier: $I`PersonMatchSimilarityScoreMinimumCheck`,
-        title: "Minimum person-match similarity score",
-        description: "Requires a cosine-similarity score greater than or equal to -1.",
-        message: "Expected a person-match similarity score greater than or equal to -1.",
-      }),
-      S.isLessThanOrEqualTo(1, {
-        identifier: $I`PersonMatchSimilarityScoreMaximumCheck`,
-        title: "Maximum person-match similarity score",
-        description: "Requires a cosine-similarity score less than or equal to 1.",
-        message: "Expected a person-match similarity score less than or equal to 1.",
-      }),
+      S.isGreaterThanOrEqualTo(
+        -1,
+        $I.annote("PersonMatchSimilarityScoreMinimumCheck", {
+          title: "Minimum person-match similarity score",
+          description: "Requires a cosine-similarity score greater than or equal to -1.",
+          message: "Expected a person-match similarity score greater than or equal to -1.",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        1,
+        $I.annote("PersonMatchSimilarityScoreMaximumCheck", {
+          title: "Maximum person-match similarity score",
+          description: "Requires a cosine-similarity score less than or equal to 1.",
+          message: "Expected a person-match similarity score less than or equal to 1.",
+        })
+      ),
     ],
-    {
-      identifier: $I`PersonMatchSimilarityScoreChecks`,
+    $I.annote("PersonMatchSimilarityScoreChecks", {
       title: "Person-match similarity score range",
       description: "Constrains cosine-similarity scores to the inclusive interval from -1 to 1.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PersonMatchSimilarityScore", {
@@ -344,24 +347,27 @@ const PersonMatchSimilarityScore = S.Finite.check(
 const PersonMatchConfidence = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`PersonMatchConfidenceGreaterThanOrEqualToZeroCheck`,
-        title: "Person-match confidence minimum",
-        description: "Requires a normalized confidence or threshold greater than or equal to zero.",
-        message: "Expected confidence greater than or equal to zero",
-      }),
-      S.isLessThanOrEqualTo(1, {
-        identifier: $I`PersonMatchConfidenceLessThanOrEqualToOneCheck`,
-        title: "Person-match confidence maximum",
-        description: "Requires a normalized confidence or threshold less than or equal to one.",
-        message: "Expected confidence less than or equal to one",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("PersonMatchConfidenceGreaterThanOrEqualToZeroCheck", {
+          title: "Person-match confidence minimum",
+          description: "Requires a normalized confidence or threshold greater than or equal to zero.",
+          message: "Expected confidence greater than or equal to zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        1,
+        $I.annote("PersonMatchConfidenceLessThanOrEqualToOneCheck", {
+          title: "Person-match confidence maximum",
+          description: "Requires a normalized confidence or threshold less than or equal to one.",
+          message: "Expected confidence less than or equal to one",
+        })
+      ),
     ],
-    {
-      identifier: $I`PersonMatchConfidenceChecks`,
+    $I.annote("PersonMatchConfidenceChecks", {
       title: "Person-match confidence range",
       description: "Constrains detection scores and thresholds to the inclusive interval from 0 to 1.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PersonMatchConfidence", {
@@ -372,24 +378,27 @@ const PersonMatchConfidence = S.Finite.check(
 const PersonMatchPercentage = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`PersonMatchPercentageGreaterThanOrEqualToZeroCheck`,
-        title: "Person-match percentage minimum",
-        description: "Requires a percentage greater than or equal to zero.",
-        message: "Expected percentage greater than or equal to zero",
-      }),
-      S.isLessThanOrEqualTo(100, {
-        identifier: $I`PersonMatchPercentageLessThanOrEqualToOneHundredCheck`,
-        title: "Person-match percentage maximum",
-        description: "Requires a percentage less than or equal to 100.",
-        message: "Expected percentage less than or equal to 100",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("PersonMatchPercentageGreaterThanOrEqualToZeroCheck", {
+          title: "Person-match percentage minimum",
+          description: "Requires a percentage greater than or equal to zero.",
+          message: "Expected percentage greater than or equal to zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        100,
+        $I.annote("PersonMatchPercentageLessThanOrEqualToOneHundredCheck", {
+          title: "Person-match percentage maximum",
+          description: "Requires a percentage less than or equal to 100.",
+          message: "Expected percentage less than or equal to 100",
+        })
+      ),
     ],
-    {
-      identifier: $I`PersonMatchPercentageChecks`,
+    $I.annote("PersonMatchPercentageChecks", {
       title: "Person-match percentage range",
       description: "Constrains face-area percentages and thresholds to the inclusive interval from 0 to 100.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PersonMatchPercentage", {

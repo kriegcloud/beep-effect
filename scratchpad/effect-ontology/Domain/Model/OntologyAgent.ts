@@ -32,12 +32,11 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Model/OntologyAgent");
 const AgentConcurrency = PosInt.check(
   S.isBetween(
     { minimum: 1, maximum: 64 },
-    {
-      identifier: $I`AgentConcurrencyRangeCheck`,
+    $I.annote("AgentConcurrencyRangeCheck", {
       title: "Ontology Agent Concurrency",
       description: "A bounded number of concurrently executing ontology-agent tasks.",
       message: "Ontology agent concurrency must be an integer between 1 and 64.",
-    }
+    })
   )
 ).pipe(
     $I.annoteSchema("AgentConcurrency", {

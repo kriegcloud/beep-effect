@@ -203,12 +203,14 @@ const isKnownPredicate = (value: string): boolean => expandPredicate(value) !== 
 export const isSchemaHandle = (value: unknown): value is SchemaHandle => P.hasProperty(value, "ast");
 
 const TermString = S.String.check(
-  S.makeFilter(isTermString, {
-    identifier: $I`TermStringCheck`,
-    title: "Term String",
-    description: "A known CURIE or absolute IRI term string.",
-    message: "Term strings must be known CURIEs or absolute IRIs.",
-  })
+  S.makeFilter(
+    isTermString,
+    $I.annote("TermStringCheck", {
+      title: "Term String",
+      description: "A known CURIE or absolute IRI term string.",
+      message: "Term strings must be known CURIEs or absolute IRIs.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("TermString", {
     description: "Known CURIE or absolute IRI accepted at tuple endpoints.",
@@ -216,23 +218,27 @@ const TermString = S.String.check(
 );
 
 const PredicateString = S.String.check(
-  S.makeFilter(isKnownPredicate, {
-    identifier: $I`PredicateStringCheck`,
-    title: "Predicate String",
-    description: "A known borrowed predicate CURIE, optionally reverse-marked.",
-    message: "Predicates must be known CURIEs, optionally prefixed with ^.",
-  })
+  S.makeFilter(
+    isKnownPredicate,
+    $I.annote("PredicateStringCheck", {
+      title: "Predicate String",
+      description: "A known borrowed predicate CURIE, optionally reverse-marked.",
+      message: "Predicates must be known CURIEs, optionally prefixed with ^.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PredicateString", {
     description: "Closed predicate CURIE accepted at tuple predicate positions.",
   })
 );
 
-const SchemaHandleValue = S.declare(isSchemaHandle, {
-  identifier: $I`SchemaHandleValue`,
-  title: "Schema Handle",
-  description: "An Effect Schema class or schema handle.",
-});
+const SchemaHandleValue = S.declare(
+  isSchemaHandle,
+  $I.annote("SchemaHandleValue", {
+    title: "Schema Handle",
+    description: "An Effect Schema class or schema handle.",
+  })
+);
 
 const TypedLiteralValue = S.Struct({
   value: S.Union([S.String, S.Finite, S.Boolean]),
@@ -240,12 +246,14 @@ const TypedLiteralValue = S.Struct({
   language: S.optionalKey(LanguageTag),
 })
   .check(
-    S.makeFilter((literal) => literal.datatype === undefined || literal.language === undefined, {
-      identifier: $I`TypedLiteralExclusivityCheck`,
-      title: "Typed Literal Exclusivity",
-      description: "RDF literals carry a language tag or an explicit datatype, never both.",
-      message: "Typed literals cannot carry both language and datatype.",
-    })
+    S.makeFilter(
+      (literal) => literal.datatype === undefined || literal.language === undefined,
+      $I.annote("TypedLiteralExclusivityCheck", {
+        title: "Typed Literal Exclusivity",
+        description: "RDF literals carry a language tag or an explicit datatype, never both.",
+        message: "Typed literals cannot carry both language and datatype.",
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("TypedLiteralValue", {

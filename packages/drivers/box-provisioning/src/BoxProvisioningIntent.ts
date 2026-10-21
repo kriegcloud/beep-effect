@@ -81,36 +81,44 @@ export type BoxAdoptionResourceKind = typeof BoxAdoptionResourceKind.Type;
 
 const BoxFolderNameChecks = S.makeFilterGroup(
   [
-    S.isBetweenLength(1, 255, {
-      identifier: $I`BoxFolderNameLengthCheck`,
-      title: "Box Folder Name Length",
-      description: "A Box folder name containing between 1 and 255 characters.",
-      message: "Box folder names must contain between 1 and 255 characters",
-    }),
-    S.isPattern(/^[^\u0000-\u001f\u007f/\\]*$/u, {
-      identifier: $I`BoxFolderNameCharacterCheck`,
-      title: "Box Folder Name Characters",
-      description: "A Box folder name without slash, backslash, or non-printable ASCII characters.",
-      message: "Box folder names must not contain slash, backslash, or non-printable ASCII characters",
-    }),
-    S.makeFilter((value: string) => !Eq.equals(value, ".") && !Eq.equals(value, ".."), {
-      identifier: $I`BoxFolderNameDotSegmentCheck`,
-      title: "Box Folder Name Dot Segment",
-      description: "A Box folder name other than the reserved dot and dot-dot segments.",
-      message: "Box folder names must not be . or ..",
-    }),
-    S.makeFilter((value: string) => Eq.equals(Str.trimEnd(value), value), {
-      identifier: $I`BoxFolderNameTrailingWhitespaceCheck`,
-      title: "Box Folder Name Trailing Whitespace",
-      description: "A Box folder name without trailing whitespace.",
-      message: "Box folder names must not end with whitespace",
-    }),
+    S.isBetweenLength(
+      1,
+      255,
+      $I.annote("BoxFolderNameLengthCheck", {
+        title: "Box Folder Name Length",
+        description: "A Box folder name containing between 1 and 255 characters.",
+        message: "Box folder names must contain between 1 and 255 characters",
+      })
+    ),
+    S.isPattern(
+      /^[^\u0000-\u001f\u007f/\\]*$/u,
+      $I.annote("BoxFolderNameCharacterCheck", {
+        title: "Box Folder Name Characters",
+        description: "A Box folder name without slash, backslash, or non-printable ASCII characters.",
+        message: "Box folder names must not contain slash, backslash, or non-printable ASCII characters",
+      })
+    ),
+    S.makeFilter(
+      (value: string) => !Eq.equals(value, ".") && !Eq.equals(value, ".."),
+      $I.annote("BoxFolderNameDotSegmentCheck", {
+        title: "Box Folder Name Dot Segment",
+        description: "A Box folder name other than the reserved dot and dot-dot segments.",
+        message: "Box folder names must not be . or ..",
+      })
+    ),
+    S.makeFilter(
+      (value: string) => Eq.equals(Str.trimEnd(value), value),
+      $I.annote("BoxFolderNameTrailingWhitespaceCheck", {
+        title: "Box Folder Name Trailing Whitespace",
+        description: "A Box folder name without trailing whitespace.",
+        message: "Box folder names must not end with whitespace",
+      })
+    ),
   ],
-  {
-    identifier: $I`BoxFolderNameChecks`,
+  $I.annote("BoxFolderNameChecks", {
     title: "Box Folder Name",
     description: "Provider-compatible checks for a Box folder name.",
-  }
+  })
 );
 
 /**
@@ -375,12 +383,14 @@ export type BoxPlanName = typeof BoxPlanName.Type;
  * @since 0.0.0
  */
 export const BoxSourceRevision = S.String.check(
-  S.isPattern(/^[A-Za-z0-9._-]{1,64}$/u, {
-    identifier: $I`BoxSourceRevisionCheck`,
-    title: "Box Source Revision",
-    description: "An opaque revision identifier containing 1 to 64 safe identifier characters.",
-    message: "Box source revisions must match ^[A-Za-z0-9._-]{1,64}$",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9._-]{1,64}$/u,
+    $I.annote("BoxSourceRevisionCheck", {
+      title: "Box Source Revision",
+      description: "An opaque revision identifier containing 1 to 64 safe identifier characters.",
+      message: "Box source revisions must match ^[A-Za-z0-9._-]{1,64}$",
+    })
+  )
 ).pipe(
   S.brand("BoxSourceRevision"),
   $I.annoteSchema("BoxSourceRevision", {
@@ -729,11 +739,10 @@ const desiredStateCoherence = S.makeFilter<{
 
     return issues;
   },
-  {
-    identifier: $I`DesiredStateCoherence`,
+  $I.annote("DesiredStateCoherence", {
     title: "Coherent Box desired state",
     description: "Logical keys are unique, folder references resolve, and the folder graph is acyclic.",
-  }
+  })
 );
 
 const boxDesiredStateFieldsAdoptionsDefault = BoxAdoptions.make({ entries: [] });

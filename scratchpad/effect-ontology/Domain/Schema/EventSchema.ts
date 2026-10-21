@@ -147,8 +147,8 @@ export const CurationEventGroup = EventGroup.empty
  */
 export type CurationEvent = EventGroup.Events<typeof CurationEventGroup>;
 
-const ExtractionOutcome = LiteralKit(["success", "partial", "failed"]).annotate(
-  $I.annote("ExtractionOutcome", {
+const ExtractionOutcome = LiteralKit(["success", "partial", "failed"]).pipe(
+  $I.annoteSchema("ExtractionOutcome", {
     description: "Terminal extraction outcome stored in an EventLog payload.",
   })
 );

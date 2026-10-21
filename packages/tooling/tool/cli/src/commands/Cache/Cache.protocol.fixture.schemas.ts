@@ -23,8 +23,10 @@ const $I = $RepoCliId.create("commands/Cache/Cache.protocol.fixture.schemas");
  * @category schemas
  * @since 0.0.0
  */
-export const CacheFixtureArtifactKey = S.String.check(S.isPattern(/^[a-f0-9]{16,128}$/)).annotate(
-  $I.annote("CacheFixtureArtifactKey", { description: "Hexadecimal artifact selector accepted by the local fixture." })
+export const CacheFixtureArtifactKey = S.String.check(S.isPattern(/^[a-f0-9]{16,128}$/)).pipe(
+  $I.annoteSchema("CacheFixtureArtifactKey", {
+    description: "Hexadecimal artifact selector accepted by the local fixture.",
+  })
 );
 /**
  * Decoded artifact selector accepted by the bounded local fixture.
@@ -54,8 +56,8 @@ export const CacheFixtureFault = LiteralKit([
   "truncated-body",
   "unavailable",
   "throttled",
-]).annotate(
-  $I.annote("CacheFixtureFault", { description: "Explicit read fault for the isolated signed-cache fixture." })
+]).pipe(
+  $I.annoteSchema("CacheFixtureFault", { description: "Explicit read fault for the isolated signed-cache fixture." })
 );
 /**
  * Read-fault selection used by the isolated protocol fixture.

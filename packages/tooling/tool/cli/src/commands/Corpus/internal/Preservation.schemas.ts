@@ -416,13 +416,12 @@ export const PreservationAttemptOutcome = PreservationAttemptKind.mapMembers(
     () => ChangedDuringCopyOutcome,
     () => UnreadableOutcome,
   ])
-)
-  .annotate(
-    $I.annote("PreservationAttemptOutcome", {
-      description: "Exhaustive outcomes of one copy-while-hashing archive attempt under restoration bar v2.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("PreservationAttemptOutcome", {
+    description: "Exhaustive outcomes of one copy-while-hashing archive attempt under restoration bar v2.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Decoded outcome of one streaming archive attempt.
@@ -796,13 +795,12 @@ const CapacityPreflightKind = LiteralKit(["proposed", "approved"]);
  */
 export const CapacityPreflight = CapacityPreflightKind.mapMembers(
   Tuple.evolve([() => PreflightProposed, () => PreflightApproved])
-)
-  .annotate(
-    $I.annote("CapacityPreflight", {
-      description: "Two-state capacity preflight: measured-and-proposed, or approved with an explicit disk ceiling.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("CapacityPreflight", {
+    description: "Two-state capacity preflight: measured-and-proposed, or approved with an explicit disk ceiling.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Decoded capacity preflight state.
@@ -964,13 +962,12 @@ export const PreservationVerificationOutcome = VerificationOutcomeKind.mapMember
     () => SizeMismatchOutcome,
     () => HashMismatchOutcome,
   ])
-)
-  .annotate(
-    $I.annote("PreservationVerificationOutcome", {
-      description: "Exhaustive fresh-process verification outcomes for one terminal destination-manifest row.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("PreservationVerificationOutcome", {
+    description: "Exhaustive fresh-process verification outcomes for one terminal destination-manifest row.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Decoded verification outcome for one terminal manifest row.

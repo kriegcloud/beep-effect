@@ -299,12 +299,14 @@ export type SkillPatchLabel = typeof SkillPatchLabel.Type;
  * @since 0.0.0
  */
 export const SkillGitRevision = S.String.check(
-  S.isPattern(gitRevisionPattern, {
-    identifier: $I`SkillGitRevisionCheck`,
-    title: "Skill Git Revision",
-    description: "A complete 40-character lowercase hexadecimal Git commit revision.",
-    message: "Expected a complete 40-character lowercase Git revision",
-  })
+  S.isPattern(
+    gitRevisionPattern,
+    $I.annote("SkillGitRevisionCheck", {
+      title: "Skill Git Revision",
+      description: "A complete 40-character lowercase hexadecimal Git commit revision.",
+      message: "Expected a complete 40-character lowercase Git revision",
+    })
+  )
 ).pipe(
   S.brand("SkillGitRevision"),
   $I.annoteSchema("SkillGitRevision", {
@@ -531,12 +533,11 @@ export class SkillSnapshotFile extends S.Opaque<SkillSnapshotFile, { readonly br
 const SkillSnapshotFileCountCheck = S.makeFilter(
   (snapshot: { readonly fileCount: number; readonly manifest: ReadonlyArray<SkillSnapshotFile> }) =>
     snapshot.fileCount === snapshot.manifest.length,
-  {
-    identifier: $I`SkillSnapshotFileCountCheck`,
+  $I.annote("SkillSnapshotFileCountCheck", {
     title: "Skill Snapshot File Count",
     description: "A snapshot's fileCount must equal the number of entries in its manifest.",
     message: "Expected fileCount to equal the number of manifest entries",
-  }
+  })
 );
 
 /**

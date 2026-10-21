@@ -319,8 +319,7 @@ const registeredIdentityExportSlugs = (registryContent: string): ReadonlyArray<s
     if (initializer === undefined || !Str.startsWith("composers.$")(initializer.getText())) continue;
     const typedSlug = pipe(
       O.fromNullishOr(declaration.getTypeNode()),
-      O.map((node) => node.getText().match(/IdentityComposer<"@beep\/([^"]+)">/)),
-      O.flatMap(O.fromNullishOr),
+      O.flatMap((node) => Str.match(/IdentityComposer<"@beep\/([^"]+)">/)(node.getText())),
       O.flatMap((match) => O.fromNullishOr(match[1]))
     );
     const matchedComposer = A.findFirst(composerSlugs, (slug) =>

@@ -13,12 +13,11 @@ const RgbChannelRangeCheck = S.isBetween(
     minimum: 0,
     maximum: 1,
   },
-  {
-    identifier: $I`RgbChannelRangeCheck`,
+  $I.annote("RgbChannelRangeCheck", {
     title: "RGB Channel Range",
     description: "An RGB color channel normalized to the range 0 through 1.",
     message: "RGB channels must be between 0 and 1",
-  }
+  })
 );
 
 /**

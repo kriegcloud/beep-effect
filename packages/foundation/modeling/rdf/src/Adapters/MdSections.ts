@@ -36,11 +36,13 @@ const $I = $RdfId.create("Adapters/MdSections");
  */
 export const MdNodeId = S.TemplateLiteral(["md-v1/b/", S.Natural])
   .check(
-    S.isPattern(/^md-v1\/b\/(?:0|[1-9]\d*)$/u, {
-      identifier: $I`CanonicalSourcePath`,
-      title: "Canonical source path",
-      description: "Versioned block path with a canonical non-negative integer index.",
-    })
+    S.isPattern(
+      /^md-v1\/b\/(?:0|[1-9]\d*)$/u,
+      $I.annote("CanonicalSourcePath", {
+        title: "Canonical source path",
+        description: "Versioned block path with a canonical non-negative integer index.",
+      })
+    )
   )
   .pipe($I.annoteSchema("MdNodeId", { description: "Zero-based source block path in an immutable Md revision." }));
 /**

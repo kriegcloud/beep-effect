@@ -93,7 +93,7 @@ describe("composer ontology entrypoints", () => {
         S.Struct({
           text: S.String,
         })
-          .annotate({ identifier: $I`Claim` })
+          .pipe($I.annoteSchema("Claim"))
           .annotate($I.class("Claim", { description: "A patent claim.", skos: "concept" }))
       ) {}
 

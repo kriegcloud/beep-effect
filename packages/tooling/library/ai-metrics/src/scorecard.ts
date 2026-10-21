@@ -505,12 +505,14 @@ export class AiMetricsWeeklyReportResult extends S.Opaque<
 }
 
 const NonNegativeCount = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`NonNegativeCountCheck`,
-    title: "Non-negative count",
-    description: "An integer count produced by a DuckDB aggregate.",
-    message: "Expected a non-negative integer count",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("NonNegativeCountCheck", {
+      title: "Non-negative count",
+      description: "An integer count produced by a DuckDB aggregate.",
+      message: "Expected a non-negative integer count",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NonNegativeCount", {
     description: "Non-negative integer count decoded from a DuckDB aggregate row.",
@@ -518,12 +520,14 @@ const NonNegativeCount = S.Int.check(
 );
 
 const NonNegativeFinite = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`NonNegativeFiniteCheck`,
-    title: "Non-negative finite number",
-    description: "A finite aggregate value that cannot be negative.",
-    message: "Expected a non-negative finite number",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("NonNegativeFiniteCheck", {
+      title: "Non-negative finite number",
+      description: "A finite aggregate value that cannot be negative.",
+      message: "Expected a non-negative finite number",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NonNegativeFinite", {
     description: "Non-negative finite value decoded from a DuckDB aggregate row.",
@@ -533,12 +537,11 @@ const NonNegativeFinite = S.Finite.check(
 const UnitInterval = S.Finite.check(
   S.isBetween(
     { minimum: 0, maximum: 1 },
-    {
-      identifier: $I`UnitIntervalCheck`,
+    $I.annote("UnitIntervalCheck", {
       title: "Unit interval",
       description: "A finite aggregate rate or score in the inclusive unit interval.",
       message: "Expected a finite number between 0 and 1",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("UnitInterval", {

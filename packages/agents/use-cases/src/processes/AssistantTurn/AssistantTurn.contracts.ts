@@ -14,12 +14,14 @@ import * as Tuple from "effect/Tuple";
 
 const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.contracts");
 const BlockIndex = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`BlockIndexNonNegativeCheck`,
-    title: "Block Index Non Negative",
-    description: "A generated assistant block index must be zero or greater.",
-    message: "Expected a non-negative assistant block index",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("BlockIndexNonNegativeCheck", {
+      title: "Block Index Non Negative",
+      description: "A generated assistant block index must be zero or greater.",
+      message: "Expected a non-negative assistant block index",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BlockIndex", {
     description: "Zero-based generated assistant block index.",

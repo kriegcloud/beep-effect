@@ -3,7 +3,7 @@
  *
  * **Details**
  *
- * Every subcommand speaks GitHub REST through `@effected/github`, except
+ * Every subcommand speaks GitHub REST through `@beep/github`, except
  * `pr ready` and the review-thread read inside `merge` (and inside
  * `pr status --threads`), which have no REST equivalent and spend GraphQL
  * through the budget guard. `--token-ref op://…` (or `BEEP_GH_TOKEN_REF`) and the

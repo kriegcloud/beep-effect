@@ -443,7 +443,7 @@ const settledJob = (terminationReason: O.Option<"cancelled" | "signal">) =>
       checkout: "/repo",
       branch: "feat/lane",
       base: "origin/main",
-      head: "0".repeat(40),
+      head: Str.repeat(40)("0"),
       forwardedEnvNames: [],
     }),
     submitter: ProofJobSubmitter.make({ pid: 4242, procStart: O.none(), cwd: "/repo", harness: O.none() }),

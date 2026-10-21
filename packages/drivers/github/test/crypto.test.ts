@@ -1,0 +1,132 @@
+import { encryptSecret } from "@beep/github/internal/crypto";
+import { assert, describe, it } from "@effect/vitest";
+import { blake2b } from "@noble/hashes/blake2.js";
+import * as Base64 from "effect/encoding/Base64";
+import * as EncodingError from "effect/encoding/EncodingError";
+import * as Hex from "effect/encoding/Hex";
+import * as Result from "effect/Result";
+import nacl from "tweetnacl";
+
+const PUBLIC_KEY_BYTES = 32;
+
+/** The sealed box, or a thrown assertion — the Result is the point elsewhere. */
+const sealBytes = (publicKey: string, value: string): Uint8Array => {
+  const sealed = Result.getOrThrow(encryptSecret(publicKey, value));
+  return Result.getOrThrow(Base64.decode(sealed));
+};
+
+const b64 = (bytes: Uint8Array): string => Base64.encode(bytes);
+
+describe("encryptSecret", () => {
+  it("produces a sealed box the recipient can open", () => {
+    const recipient = nacl.box.keyPair();
+    const publicKey = b64(recipient.publicKey);
+
+    const sealed = sealBytes(publicKey, "hunter2");
+
+    // A sealed box is `ephemeral_public_key (32) || ciphertext`.
+    const ephemeralPublicKey = sealed.subarray(0, PUBLIC_KEY_BYTES);
+    const ciphertext = sealed.subarray(PUBLIC_KEY_BYTES);
+
+    // The recipient recomputes the nonce from the two public keys alone,
+    // having received no nonce alongside the box — which is why it is derived
+    // rather than random.
+    const nonceInput = new Uint8Array(PUBLIC_KEY_BYTES * 2);
+    nonceInput.set(ephemeralPublicKey);
+    nonceInput.set(recipient.publicKey, PUBLIC_KEY_BYTES);
+    const nonce = blake2b(nonceInput, { dkLen: 24 });
+
+    const opened = nacl.box.open(ciphertext, nonce, ephemeralPublicKey, recipient.secretKey);
+
+    assert.isNotNull(opened);
+    assert.strictEqual(new TextDecoder().decode(opened), "hunter2");
+  });
+
+  it("puts the ephemeral public key in the first 32 bytes", () => {
+    const recipient = nacl.box.keyPair();
+    const publicKey = b64(recipient.publicKey);
+
+    const first = sealBytes(publicKey, "x").subarray(0, PUBLIC_KEY_BYTES);
+    const second = sealBytes(publicKey, "x").subarray(0, PUBLIC_KEY_BYTES);
+
+    assert.lengthOf(first, PUBLIC_KEY_BYTES);
+    // The keypair is ephemeral: encrypting the same plaintext twice must not
+    // produce the same box, or the sender is reusing a keypair it promised to
+    // discard.
+    assert.notStrictEqual(b64(first), b64(second));
+  });
+
+  it("cannot be opened by a different recipient", () => {
+    const recipient = nacl.box.keyPair();
+    const stranger = nacl.box.keyPair();
+    const publicKey = b64(recipient.publicKey);
+
+    const sealed = sealBytes(publicKey, "hunter2");
+    const ephemeralPublicKey = sealed.subarray(0, PUBLIC_KEY_BYTES);
+    const ciphertext = sealed.subarray(PUBLIC_KEY_BYTES);
+
+    const nonceInput = new Uint8Array(PUBLIC_KEY_BYTES * 2);
+    nonceInput.set(ephemeralPublicKey);
+    nonceInput.set(recipient.publicKey, PUBLIC_KEY_BYTES);
+    const nonce = blake2b(nonceInput, { dkLen: 24 });
+
+    assert.isNull(nacl.box.open(ciphertext, nonce, ephemeralPublicKey, stranger.secretKey));
+  });
+
+  it("fails as a typed Result on a public key that is not base64", () => {
+    // Garbage from the API is INPUT. It fails typed rather than throwing, which
+    // is what lets the caller map it onto a GitHubError instead of a defect.
+    const sealed = encryptSecret("!!! not base64 !!!", "hunter2");
+
+    assert.strictEqual(Result.isFailure(sealed), true);
+  });
+
+  it("never returns the plaintext", () => {
+    const recipient = nacl.box.keyPair();
+    const publicKey = b64(recipient.publicKey);
+
+    const text = Result.getOrThrow(encryptSecret(publicKey, "hunter2"));
+
+    assert.notInclude(text, "hunter2");
+    assert.notInclude(new TextDecoder().decode(sealBytes(publicKey, "hunter2")), "hunter2");
+  });
+});
+
+describe("the sealed-box nonce derivation", () => {
+  /**
+   * The nonce is `blake2b(ephemeral_pk || recipient_pk)` truncated to 24 bytes by
+   * BLAKE2b's own output-length parameter, which is not the same as slicing a
+   * 64-byte digest. These known answers come from an independent BLAKE2b
+   * implementation (CPython `hashlib.blake2b(digest_size=24)`), so a hasher that
+   * truncated instead of parameterising would fail here before GitHub received a
+   * box it cannot decrypt.
+   */
+  it("matches the BLAKE2b-192 known answer for a 64-byte key pair input", () => {
+    const input = Uint8Array.from({ length: PUBLIC_KEY_BYTES * 2 }, (_, index) => index);
+    assert.strictEqual(Hex.encode(blake2b(input, { dkLen: 24 })), "aa054507b4916837a6d2b35b1ce7c525facdb7868ed55a8a");
+  });
+
+  it("matches the BLAKE2b-192 known answer for the empty input", () => {
+    assert.strictEqual(
+      Hex.encode(blake2b(new Uint8Array(0), { dkLen: 24 })),
+      "ab3b5331a7135ed50d0f182d026e60abdb3646fd51bcf8a3"
+    );
+  });
+});
+
+describe("encryptSecret key shape", () => {
+  for (const size of [0, 31, 33]) {
+    it(`returns an EncodingError Result for a ${size}-byte public key`, () => {
+      const publicKey = b64(new Uint8Array(size));
+      const sealed = encryptSecret(publicKey, "hunter2");
+      assert.strictEqual(Result.isFailure(sealed), true);
+      const error = sealed.pipe(Result.flip, Result.getOrThrow);
+      assert.strictEqual(EncodingError.isEncodingError(error), true);
+      assert.strictEqual(error.kind, "Decode");
+      assert.strictEqual(error.module, "encryptSecret");
+      assert.strictEqual(error.input, publicKey);
+      assert.include(error.message, `got ${size} bytes`);
+      assert.notInclude(error.message, "hunter2");
+    });
+  }
+});

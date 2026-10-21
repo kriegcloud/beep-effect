@@ -368,18 +368,22 @@ export const matterEvidenceWeight: (kind: MatterEvidenceKind) => UnitInterval = 
  * @since 0.0.0
  */
 export const MatterEvidenceToken = S.String.check(
-  S.isMaxLength(320, {
-    identifier: $I`MatterEvidenceTokenLengthCheck`,
-    title: "Matter Evidence Token Length",
-    description: "An identifier or address of at most 320 characters.",
-    message: "Evidence token must not exceed 320 characters.",
-  }),
-  S.isPattern(/^\S+$/u, {
-    identifier: $I`MatterEvidenceTokenPatternCheck`,
-    title: "Matter Evidence Token",
-    description: "A non-empty identifier or address without whitespace.",
-    message: "Evidence token must be a non-empty token without whitespace.",
-  })
+  S.isMaxLength(
+    320,
+    $I.annote("MatterEvidenceTokenLengthCheck", {
+      title: "Matter Evidence Token Length",
+      description: "An identifier or address of at most 320 characters.",
+      message: "Evidence token must not exceed 320 characters.",
+    })
+  ),
+  S.isPattern(
+    /^\S+$/u,
+    $I.annote("MatterEvidenceTokenPatternCheck", {
+      title: "Matter Evidence Token",
+      description: "A non-empty identifier or address without whitespace.",
+      message: "Evidence token must be a non-empty token without whitespace.",
+    })
+  )
 ).pipe(
   S.brand("MatterEvidenceToken"),
   $I.annoteSchema("MatterEvidenceToken", {

@@ -48,8 +48,8 @@ export class ByteExpectation extends S.Opaque<ByteExpectation, { readonly brand:
   )
 ) {}
 
-const ByteDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]).annotate(
-  $I.annote("ByteDriftKind", {
+const ByteDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]).pipe(
+  $I.annoteSchema("ByteDriftKind", {
     description: "Filesystem drift variants produced while witnessing content-addressed files.",
   })
 );

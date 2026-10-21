@@ -163,14 +163,17 @@ const readLineValues = (content: string, linePrefix: string, before: string, aft
   const valuesOnLine = (line: string): ReadonlyArray<string> => {
     const values: Array<string> = [];
     let cursor = 0;
+    const opening = new RegExp(Regex.escape(before), "g");
+    const closing = new RegExp(Regex.escape(after), "g");
     while (cursor < Str.length(line)) {
-      // Effect String.indexOf has no start offset; the native offset form avoids
-      // copying each suffix and keeps missing closing delimiters linear.
-      const start = line.indexOf(before, cursor);
-      if (start < 0) break;
-      const valueStart = start + Str.length(before);
-      const end = line.indexOf(after, valueStart);
-      if (end < 0) break;
+      opening.lastIndex = cursor;
+      const openingMatch = opening.exec(line);
+      if (openingMatch === null) break;
+      const valueStart = openingMatch.index + Str.length(before);
+      closing.lastIndex = valueStart;
+      const closingMatch = closing.exec(line);
+      if (closingMatch === null) break;
+      const end = closingMatch.index;
       values.push(Str.slice(valueStart, end)(line));
       cursor = end + Str.length(after);
     }

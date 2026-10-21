@@ -117,11 +117,13 @@ class OpenApiVersionDocument extends S.Opaque<OpenApiVersionDocument, { readonly
   )
 ) {}
 
-const OpenApiDocument = S.declare<OpenAPISpec>((input): input is OpenAPISpec => P.isObject(input), {
-  identifier: $I`OpenApiDocument`,
-  title: "OpenAPI generator document",
-  description: "Open object passed to the upstream OpenAPI and Swagger parser.",
-});
+const OpenApiDocument = S.declare<OpenAPISpec>(
+  (input): input is OpenAPISpec => P.isObject(input),
+  $I.annote("OpenApiDocument", {
+    title: "OpenAPI generator document",
+    description: "Open object passed to the upstream OpenAPI and Swagger parser.",
+  })
+);
 
 const decodeJsonText = S.decodeUnknownEffect(S.fromJsonString(S.Json));
 const encodePrettyJson = S.encodeUnknownEffect(S.fromJsonString(S.Json, { space: 2 }));

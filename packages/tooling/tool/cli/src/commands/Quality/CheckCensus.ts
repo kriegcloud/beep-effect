@@ -360,13 +360,13 @@ export class CheckCensusMissingOutput extends S.Opaque<CheckCensusMissingOutput,
   )
 ) {}
 
-const TsconfigReference = S.Struct({ path: S.String }).annotate(
-  $I.annote("TsconfigReference", { description: "One project reference entry of a package tsconfig.json." })
+const TsconfigReference = S.Struct({ path: S.String }).pipe(
+  $I.annoteSchema("TsconfigReference", { description: "One project reference entry of a package tsconfig.json." })
 );
 const TsconfigReferences = S.Struct({
   references: S.Array(TsconfigReference).pipe(S.optionalKey),
-}).annotate(
-  $I.annote("TsconfigReferences", {
+}).pipe(
+  $I.annoteSchema("TsconfigReferences", {
     description: "The `references` block read from a package tsconfig.json for the reference-keeping overlay.",
   })
 );
@@ -497,8 +497,8 @@ const readTsconfigReferences = Effect.fn("CheckCensus.readTsconfigReferences")(f
 
 const TsconfigOutDir = S.Struct({
   compilerOptions: S.Struct({ outDir: S.optionalKey(S.String) }).pipe(S.optionalKey),
-}).annotate(
-  $I.annote("TsconfigOutDir", {
+}).pipe(
+  $I.annoteSchema("TsconfigOutDir", {
     description: "The `compilerOptions.outDir` read from a referenced project's tsconfig.",
   })
 );

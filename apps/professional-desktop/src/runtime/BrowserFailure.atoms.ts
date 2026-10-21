@@ -37,8 +37,8 @@ export const BrowserFailureSource = LiteralKit([
   "desktop_transport",
   "workspace",
   "cosmos_spike",
-]).annotate(
-  $I.annote("BrowserFailureSource", {
+]).pipe(
+  $I.annoteSchema("BrowserFailureSource", {
     description: "Browser-global renderer failure sources captured by the desktop runtime.",
   })
 );

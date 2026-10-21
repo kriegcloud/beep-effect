@@ -62,13 +62,14 @@ const ParseOutcomeKind = LiteralKit(["Parsed", "Degraded"]);
  * @category schemas
  * @since 0.0.0
  */
-export const ParseOutcome = ParseOutcomeKind.mapMembers(Tuple.evolve([() => ParsedOutcome, () => DegradedParseOutcome]))
-  .annotate(
-    $I.annote("ParseOutcome", {
-      description: "Parser outcome preserving either raw text or a typed degraded state.",
-    })
-  )
-  .pipe(S.toTaggedUnion("outcome"));
+export const ParseOutcome = ParseOutcomeKind.mapMembers(
+  Tuple.evolve([() => ParsedOutcome, () => DegradedParseOutcome])
+).pipe(
+  $I.annoteSchema("ParseOutcome", {
+    description: "Parser outcome preserving either raw text or a typed degraded state.",
+  }),
+  S.toTaggedUnion("outcome")
+);
 
 /**
  * Decoded parser outcome.
@@ -226,22 +227,20 @@ export const makeChunkId = (chunk: ChunkIdSource): Result.Result<ChunkId, S.Sche
 
 const ChunkReceiptCheck = S.makeFilter(
   (chunk: typeof ChunkFields.Type) => S.toEquivalence(TextAnchor)(chunk.anchor, chunk.receipt.anchor),
-  {
-    identifier: $I`ChunkReceiptCheck`,
+  $I.annote("ChunkReceiptCheck", {
     title: "Chunk anchor receipt",
     description: "Requires the persisted verification receipt to contain the chunk's exact anchor.",
     message: "Chunk receipt.anchor must equal anchor.",
-  }
+  })
 );
 
 const ChunkReceiptSourceCheck = S.makeFilter(
   (chunk: typeof ChunkFields.Type) => Str.Equivalence(chunk.receipt.source.sourceRef, chunk.document),
-  {
-    identifier: $I`ChunkReceiptSourceCheck`,
+  $I.annote("ChunkReceiptSourceCheck", {
     title: "Chunk receipt source document",
     description: "Requires the receipt source identity to name the chunk's document.",
     message: "Chunk receipt.source.sourceRef must equal document.",
-  }
+  })
 );
 
 const ChunkIdentityCheck = S.makeFilter(
@@ -252,20 +251,21 @@ const ChunkIdentityCheck = S.makeFilter(
         onSuccess: (id) => Str.Equivalence(id, chunk.id),
       })
     ),
-  {
-    identifier: $I`ChunkIdentityCheck`,
+  $I.annote("ChunkIdentityCheck", {
     title: "Chunk content identity",
     description: "Requires id to hash the canonical encoded document, text digest, and anchor offsets.",
     message: "Chunk id must match the canonical chunk preimage digest.",
-  }
+  })
 );
 
-const ChunkChecks = S.makeFilterGroup([ChunkReceiptCheck, ChunkReceiptSourceCheck, ChunkIdentityCheck], {
-  identifier: $I`ChunkChecks`,
-  title: "Chunk",
-  description: "Checks the anchor receipt, source-document binding, and canonical content identity of a chunk.",
-  message: "Chunk must have a matching receipt, source document, and content id.",
-});
+const ChunkChecks = S.makeFilterGroup(
+  [ChunkReceiptCheck, ChunkReceiptSourceCheck, ChunkIdentityCheck],
+  $I.annote("ChunkChecks", {
+    title: "Chunk",
+    description: "Checks the anchor receipt, source-document binding, and canonical content identity of a chunk.",
+    message: "Chunk must have a matching receipt, source document, and content id.",
+  })
+);
 
 /**
  * Document-scoped canonical-text chunk with a verified anchor receipt.

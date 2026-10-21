@@ -473,7 +473,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("worktree reap", (it) => {
             branch: O.some("feat/unauthorized"),
             archive: true,
             deleteBranch: true,
-            expectedHead: O.some("a".repeat(40)),
+            expectedHead: O.some(Str.repeat(40)("a")),
           })
         )
         .pipe(Effect.flip);

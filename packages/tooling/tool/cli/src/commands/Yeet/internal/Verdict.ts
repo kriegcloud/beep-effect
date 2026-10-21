@@ -381,11 +381,10 @@ const YeetMergeReadyCoherenceCheck = S.makeFilter(
               issue: `A merge-ready verdict blocked on ${criterion} must not be ready and must record ${criterion} as unsatisfied.`,
             },
     }),
-  {
-    identifier: $I`YeetMergeReadyCoherenceCheck`,
+  $I.annote("YeetMergeReadyCoherenceCheck", {
     title: "Yeet merge readiness coherence",
     description: "Merge readiness must agree with the named blocking criterion and the observed criteria.",
-  }
+  })
 );
 
 // Blocker names older verdict artifacts may carry: `checks-green` was renamed to

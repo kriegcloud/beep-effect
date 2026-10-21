@@ -72,8 +72,8 @@ export const ciOperationalPatterns = CiOperationalPatterns.make({
  * @category models
  * @since 0.0.0
  */
-export const CiGoalDocument = S.String.check(S.isPattern(new RegExp(ciOperationalPatterns.goals, "u"))).annotate(
-  $I.annote("CiGoalDocument", { description: "Goal prose paths shared with the pre-runtime adapter." })
+export const CiGoalDocument = S.String.check(S.isPattern(new RegExp(ciOperationalPatterns.goals, "u"))).pipe(
+  $I.annoteSchema("CiGoalDocument", { description: "Goal prose paths shared with the pre-runtime adapter." })
 );
 /**
  * Convention-owned goal prose accepted by the pre-runtime profile adapter.
@@ -105,8 +105,8 @@ export type CiGoalDocument = typeof CiGoalDocument.Type;
  * @category models
  * @since 0.0.0
  */
-export const CiDesktopInput = S.String.check(S.isPattern(new RegExp(ciOperationalPatterns.desktop, "u"))).annotate(
-  $I.annote("CiDesktopInput", { description: "Paths affecting the desktop Rust gate." })
+export const CiDesktopInput = S.String.check(S.isPattern(new RegExp(ciOperationalPatterns.desktop, "u"))).pipe(
+  $I.annoteSchema("CiDesktopInput", { description: "Paths affecting the desktop Rust gate." })
 );
 /**
  * Desktop Cargo inputs and their hosted gate owners.
@@ -138,8 +138,8 @@ export type CiDesktopInput = typeof CiDesktopInput.Type;
  * @category models
  * @since 0.0.0
  */
-export const CiResourceLane = S.String.check(S.isPattern(/^[a-z][a-z0-9-]{0,63}$/u)).annotate(
-  $I.annote("CiResourceLane", { description: "Safe metric basename for a runner resource lane." })
+export const CiResourceLane = S.String.check(S.isPattern(/^[a-z][a-z0-9-]{0,63}$/u)).pipe(
+  $I.annoteSchema("CiResourceLane", { description: "Safe metric basename for a runner resource lane." })
 );
 /**
  * Safe resource lane names used as metric basenames.

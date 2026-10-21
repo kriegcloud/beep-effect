@@ -131,8 +131,8 @@ export interface SearchIndex<K, A> {
  * @category schemas
  * @since 0.0.0
  */
-export const TraversalOrder = LiteralKit(["dfs", "bfs", "topo"]).annotate(
-  $I.annote("TraversalOrder", {
+export const TraversalOrder = LiteralKit(["dfs", "bfs", "topo"]).pipe(
+  $I.annoteSchema("TraversalOrder", {
     description: "Graph traversal order for ordered folds and walkers.",
   })
 );

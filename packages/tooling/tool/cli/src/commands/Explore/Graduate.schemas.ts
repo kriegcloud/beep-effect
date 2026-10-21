@@ -25,12 +25,14 @@ import { ExplorationStage, ExplorationStatus } from "./Atlas.ts";
 const $I = $RepoCliId.create("commands/Explore/Graduate.schemas");
 
 const IsoDate = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}$/, {
-    identifier: $I`GraduationTodayPatternCheck`,
-    title: "Graduation Today Pattern",
-    description: "An explicit ISO date (YYYY-MM-DD) input.",
-    message: "Expected an explicit ISO date (YYYY-MM-DD)",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}$/,
+    $I.annote("GraduationTodayPatternCheck", {
+      title: "Graduation Today Pattern",
+      description: "An explicit ISO date (YYYY-MM-DD) input.",
+      message: "Expected an explicit ISO date (YYYY-MM-DD)",
+    })
+  )
 ).pipe($I.annoteSchema("GraduationIsoDate", { description: "Explicit ISO date stamped on graduation output." }));
 
 /**
@@ -320,12 +322,14 @@ export class GraduationPublishedChild extends S.Opaque<GraduationPublishedChild,
  * @since 0.0.0
  */
 export const GraduationPlanId = S.String.check(
-  S.isPattern(/^graduation-plan\/v1:[0-9a-f]{64}$/, {
-    identifier: $I`GraduationPlanIdPatternCheck`,
-    title: "Graduation Plan Id Pattern",
-    description: "graduation-plan/v1: followed by a lowercase SHA-256 hex digest.",
-    message: "Expected graduation-plan/v1: followed by a lowercase SHA-256 hex digest",
-  })
+  S.isPattern(
+    /^graduation-plan\/v1:[0-9a-f]{64}$/,
+    $I.annote("GraduationPlanIdPatternCheck", {
+      title: "Graduation Plan Id Pattern",
+      description: "graduation-plan/v1: followed by a lowercase SHA-256 hex digest.",
+      message: "Expected graduation-plan/v1: followed by a lowercase SHA-256 hex digest",
+    })
+  )
 ).pipe($I.annoteSchema("GraduationPlanId", { description: "Content address of one compiled graduation plan." }));
 
 /**

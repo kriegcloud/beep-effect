@@ -66,12 +66,11 @@ const executionTimingFields = {
 };
 
 const EmbeddingVectorValues = S.Array(S.Finite).check(
-  S.isBetweenLength(768, 768, {
-    identifier: $I`EmbeddingVector768LengthCheck`,
+  S.isBetweenLength(768, 768, $I.annote("EmbeddingVector768LengthCheck", {
     title: "Embedding Vector 768",
     description: "Exactly 768 finite numeric embedding coordinates.",
     message: "Expected exactly 768 finite embedding coordinates.",
-  })
+  }))
 );
 
 const EmbeddingVector768Codec = S.String.pipe(

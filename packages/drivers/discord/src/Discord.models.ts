@@ -45,12 +45,14 @@ const DiscordBaseUrl = S.String.pipe(
 );
 
 const DiscordSnowflake = S.String.check(
-  S.isPattern(/^\d{17,20}$/u, {
-    identifier: $I`DiscordSnowflakePattern`,
-    title: "Discord snowflake identifier",
-    description: "Discord snowflake identifiers are decimal strings between 17 and 20 digits.",
-    message: "Discord snowflakes must be 17 to 20 decimal digits",
-  })
+  S.isPattern(
+    /^\d{17,20}$/u,
+    $I.annote("DiscordSnowflakePattern", {
+      title: "Discord snowflake identifier",
+      description: "Discord snowflake identifiers are decimal strings between 17 and 20 digits.",
+      message: "Discord snowflakes must be 17 to 20 decimal digits",
+    })
+  )
 ).pipe(
   $I.annoteSchema("DiscordSnowflake", {
     description: "Discord snowflake identifier encoded as a decimal string.",
@@ -76,30 +78,34 @@ const DiscordSnowflake = S.String.check(
 export const DiscordHttpStatus = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isInt32({
-        identifier: $I`DiscordHttpStatusInteger`,
-        title: "Discord HTTP status integer",
-        description: "Discord HTTP status codes must be integer numbers.",
-        message: "Discord HTTP status codes must be integer numbers",
-      }),
-      S.isGreaterThanOrEqualTo(100, {
-        identifier: $I`DiscordHttpStatusMinimum`,
-        title: "Discord HTTP status minimum",
-        description: "Discord HTTP status codes start at 100.",
-        message: "Discord HTTP status codes must be at least 100",
-      }),
-      S.isLessThanOrEqualTo(599, {
-        identifier: $I`DiscordHttpStatusMaximum`,
-        title: "Discord HTTP status maximum",
-        description: "Discord HTTP status codes end at 599.",
-        message: "Discord HTTP status codes must be at most 599",
-      }),
+      S.isInt32(
+        $I.annote("DiscordHttpStatusInteger", {
+          title: "Discord HTTP status integer",
+          description: "Discord HTTP status codes must be integer numbers.",
+          message: "Discord HTTP status codes must be integer numbers",
+        })
+      ),
+      S.isGreaterThanOrEqualTo(
+        100,
+        $I.annote("DiscordHttpStatusMinimum", {
+          title: "Discord HTTP status minimum",
+          description: "Discord HTTP status codes start at 100.",
+          message: "Discord HTTP status codes must be at least 100",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        599,
+        $I.annote("DiscordHttpStatusMaximum", {
+          title: "Discord HTTP status maximum",
+          description: "Discord HTTP status codes end at 599.",
+          message: "Discord HTTP status codes must be at most 599",
+        })
+      ),
     ],
-    {
-      identifier: $I`DiscordHttpStatusChecks`,
+    $I.annote("DiscordHttpStatusChecks", {
       title: "Discord HTTP status",
       description: "Checks for numeric HTTP status codes retained in Discord proof and error payloads.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("DiscordHttpStatus", {
@@ -117,24 +123,27 @@ export type DiscordHttpStatus = typeof DiscordHttpStatus.Type;
 const DiscordHttpSuccessStatus = DiscordHttpStatus.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(200, {
-        identifier: $I`DiscordHttpSuccessStatusMinimum`,
-        title: "Discord HTTP success status minimum",
-        description: "Successful Discord proof statuses start at 200.",
-        message: "Discord proof statuses must be at least 200",
-      }),
-      S.isLessThanOrEqualTo(299, {
-        identifier: $I`DiscordHttpSuccessStatusMaximum`,
-        title: "Discord HTTP success status maximum",
-        description: "Successful Discord proof statuses end at 299.",
-        message: "Discord proof statuses must be at most 299",
-      }),
+      S.isGreaterThanOrEqualTo(
+        200,
+        $I.annote("DiscordHttpSuccessStatusMinimum", {
+          title: "Discord HTTP success status minimum",
+          description: "Successful Discord proof statuses start at 200.",
+          message: "Discord proof statuses must be at least 200",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        299,
+        $I.annote("DiscordHttpSuccessStatusMaximum", {
+          title: "Discord HTTP success status maximum",
+          description: "Successful Discord proof statuses end at 299.",
+          message: "Discord proof statuses must be at most 299",
+        })
+      ),
     ],
-    {
-      identifier: $I`DiscordHttpSuccessStatusChecks`,
+    $I.annote("DiscordHttpSuccessStatusChecks", {
       title: "Discord HTTP success status",
       description: "Checks for numeric 2XX HTTP status codes retained in Discord proof payloads.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("DiscordHttpSuccessStatus", {

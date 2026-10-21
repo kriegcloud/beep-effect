@@ -28,18 +28,19 @@ const isCanonicalCryptoTxnHash = (input: string): boolean =>
 
 const CryptoTxnHashChecks = S.makeFilterGroup(
   [
-    S.makeFilter(isCanonicalCryptoTxnHash, {
-      identifier: $I`CryptoTxnHashFormatCheck`,
-      title: "Transaction Hash Format",
-      description: "A canonical mainnet EVM, Bitcoin, or Solana transaction identifier.",
-      message: "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier",
-    }),
+    S.makeFilter(
+      isCanonicalCryptoTxnHash,
+      $I.annote("CryptoTxnHashFormatCheck", {
+        title: "Transaction Hash Format",
+        description: "A canonical mainnet EVM, Bitcoin, or Solana transaction identifier.",
+        message: "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier",
+      })
+    ),
   ],
-  {
-    identifier: $I`CryptoTxnHashChecks`,
+  $I.annote("CryptoTxnHashChecks", {
     title: "CryptoTxnHash",
     description: "Checks for canonical mainnet transaction identifiers across EVM, Bitcoin, and Solana families.",
-  }
+  })
 );
 
 /**

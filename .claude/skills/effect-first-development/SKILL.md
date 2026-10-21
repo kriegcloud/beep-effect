@@ -53,7 +53,7 @@ Additional checks with no law counterpart below:
 11. Do not suffix schema constants with `Schema`; use the domain name.
 12. For non-class schemas, export runtime type aliases with the same name: `export type X = typeof X.Type`.
 13. Do not use native `switch`; use `Match`. For empty/non-empty array branching, prefer `A.match` over manual length checks.
-14. All new schemas must be meaningfully annotated with `$I.annote("Name", { description })`.
+14. All new schemas must be meaningfully annotated: `.pipe($I.annoteSchema("Name", { description }))` for non-class schemas (`LiteralKit` included), `$I.annote("Name", { description })` as a class's trailing argument. Never `.annotate($I.annote(...))`.
 15. Service identifiers must use package composer `.create(...)` and `$I\`MyService\``.
 16. If a schema has properties that are a union of literal strings, it should be a tagged union composed via `LiteralKit`, `.mapMembers`, and `Tuple.evolve`, then finalized with `S.toTaggedUnion`. Use `S.TaggedUnion` only for canonical `_tag` object-union construction.
 17. Reusable functions returning `Effect` should use named `Effect.fn("Namespace.name")` (or `Effect.fnUntraced` for hot/internal paths). Zero-arg effect values may stay `Effect.gen(...).pipe(Effect.withSpan("Name"))` when there is no exported/reused function to expose.

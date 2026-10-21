@@ -103,25 +103,28 @@ const hasUniqueValues = <Value>(values: ReadonlyArray<Value>): boolean =>
 
 const EvalSelectionChecks = S.makeFilterGroup(
   [
-    S.makeFilter((selection: EvalSelectionFields) => hasUniqueValues(selection.w1), {
-      identifier: $I`EvalSelectionW1Unique`,
-      title: "Evaluation W1 selection uniqueness",
-      description: "Requires every W1 paper id to appear at most once in the run selection.",
-      message: "EvalRun selection.w1 must contain unique paper ids.",
-    }),
-    S.makeFilter((selection: EvalSelectionFields) => hasUniqueValues(selection.f1), {
-      identifier: $I`EvalSelectionF1Unique`,
-      title: "Evaluation F1 selection uniqueness",
-      description: "Requires every F1 fixture id to appear at most once in the run selection.",
-      message: "EvalRun selection.f1 must contain unique fixture ids.",
-    }),
+    S.makeFilter(
+      (selection: EvalSelectionFields) => hasUniqueValues(selection.w1),
+      $I.annote("EvalSelectionW1Unique", {
+        title: "Evaluation W1 selection uniqueness",
+        description: "Requires every W1 paper id to appear at most once in the run selection.",
+        message: "EvalRun selection.w1 must contain unique paper ids.",
+      })
+    ),
+    S.makeFilter(
+      (selection: EvalSelectionFields) => hasUniqueValues(selection.f1),
+      $I.annote("EvalSelectionF1Unique", {
+        title: "Evaluation F1 selection uniqueness",
+        description: "Requires every F1 fixture id to appear at most once in the run selection.",
+        message: "EvalRun selection.f1 must contain unique fixture ids.",
+      })
+    ),
   ],
-  {
-    identifier: $I`EvalSelectionChecks`,
+  $I.annote("EvalSelectionChecks", {
     title: "Evaluation selection",
     description: "Checks uniqueness of the W1 and F1 document identities selected for an evaluation run.",
     message: "EvalRun selection ids must be unique.",
-  }
+  })
 );
 
 /**
@@ -185,30 +188,38 @@ export const makeRunId = (run: EvalRunIdSource): Result.Result<RunId, S.SchemaEr
   Result.map(contentDigestSync(EvalRunBody)(run), RunId.make);
 
 const EvalRunChecks = S.makeFilterGroup([
-  S.makeFilter((run: EvalRunFields) => !Str.Equivalence(run.gold.proposer.provider, run.extractor.provider), {
-    identifier: $I`EvalRunIndependentProviders`,
-    title: "Evaluation provider independence",
-    description: "Requires the gold proposer and scored hosted extractor to use different provider families.",
-    message: "EvalRun gold proposer provider must differ from extractor provider.",
-  }),
-  S.makeFilter((run: EvalRunFields) => run.extractor.taskType === "extraction", {
-    identifier: $I`EvalRunExtractorTask`,
-    title: "Evaluation extractor task",
-    description: "Requires the hosted model identity to represent extraction rather than gold proposal.",
-    message: "EvalRun extractor.taskType must equal extraction.",
-  }),
-  S.makeFilter((run: EvalRunFields) => run.patternLane.provider === "wink", {
-    identifier: $I`EvalRunPatternProvider`,
-    title: "Evaluation pattern provider",
-    description: "Requires the pattern-lane model identity to use the pinned Wink provider family.",
-    message: "EvalRun patternLane.provider must equal wink.",
-  }),
-  S.makeFilter((run: EvalRunFields) => run.patternLane.taskType === "extraction", {
-    identifier: $I`EvalRunPatternTask`,
-    title: "Evaluation pattern task",
-    description: "Requires the pattern-lane model identity to represent extraction rather than gold proposal.",
-    message: "EvalRun patternLane.taskType must equal extraction.",
-  }),
+  S.makeFilter(
+    (run: EvalRunFields) => !Str.Equivalence(run.gold.proposer.provider, run.extractor.provider),
+    $I.annote("EvalRunIndependentProviders", {
+      title: "Evaluation provider independence",
+      description: "Requires the gold proposer and scored hosted extractor to use different provider families.",
+      message: "EvalRun gold proposer provider must differ from extractor provider.",
+    })
+  ),
+  S.makeFilter(
+    (run: EvalRunFields) => run.extractor.taskType === "extraction",
+    $I.annote("EvalRunExtractorTask", {
+      title: "Evaluation extractor task",
+      description: "Requires the hosted model identity to represent extraction rather than gold proposal.",
+      message: "EvalRun extractor.taskType must equal extraction.",
+    })
+  ),
+  S.makeFilter(
+    (run: EvalRunFields) => run.patternLane.provider === "wink",
+    $I.annote("EvalRunPatternProvider", {
+      title: "Evaluation pattern provider",
+      description: "Requires the pattern-lane model identity to use the pinned Wink provider family.",
+      message: "EvalRun patternLane.provider must equal wink.",
+    })
+  ),
+  S.makeFilter(
+    (run: EvalRunFields) => run.patternLane.taskType === "extraction",
+    $I.annote("EvalRunPatternTask", {
+      title: "Evaluation pattern task",
+      description: "Requires the pattern-lane model identity to represent extraction rather than gold proposal.",
+      message: "EvalRun patternLane.taskType must equal extraction.",
+    })
+  ),
   S.makeFilter(
     (run: EvalRunFields) =>
       contentDigestSync(EvalRunBody)({
@@ -225,12 +236,11 @@ const EvalRunChecks = S.makeFilterGroup([
           onSuccess: (digest) => Str.Equivalence(digest, run.id),
         })
       ),
-    {
-      identifier: $I`EvalRunIdentity`,
+    $I.annote("EvalRunIdentity", {
       title: "Evaluation run identity",
       description: "Requires id to hash the canonical encoded stage, corpus, gold, and model identities.",
       message: "EvalRun id must match the canonical run body digest.",
-    }
+    })
   ),
 ]);
 
@@ -392,30 +402,27 @@ const MetricScoreChecks = S.makeFilterGroup(
   [
     S.makeFilter(
       (score: typeof MetricScoreFields.Type) => score.status !== "scored" || N.isGreaterThanOrEqualTo(score.support, 1),
-      {
-        identifier: $I`MetricScoreSupportCheck`,
+      $I.annote("MetricScoreSupportCheck", {
         title: "Scored metric support",
         description: "Requires every computed metric score to have at least one supporting gold item.",
         message: "MetricScore support must be at least one when status is scored.",
-      }
+      })
     ),
     S.makeFilter(
       (score: typeof MetricScoreFields.Type) =>
         score.status !== "unsupported" || (Equal.equals(score.value, 0) && Equal.equals(score.support, 0)),
-      {
-        identifier: $I`MetricScoreUnsupportedZero`,
+      $I.annote("MetricScoreUnsupportedZero", {
         title: "Unsupported metric zero value",
         description: "Requires unsupported metrics to carry zero value and zero support.",
         message: "MetricScore value and support must both equal zero when status is unsupported.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`MetricScoreChecks`,
+  $I.annote("MetricScoreChecks", {
     title: "Metric score",
     description: "Checks support arithmetic for scored and unsupported metric rows.",
     message: "MetricScore support and value must match its status.",
-  }
+  })
 );
 
 /**
@@ -680,66 +687,74 @@ const isUnexpectedlyDegraded = (document: DocumentOutcome): boolean =>
 
 const EvalReportChecks = S.makeFilterGroup(
   [
-    S.makeFilter(hasCompleteMetrics, {
-      identifier: $I`EvalReportCompleteMetrics`,
-      title: "Evaluation report metric completeness",
-      description: "Requires exactly one score for every stage-required metric, subset, and lane coordinate.",
-      message: "EvalReport metrics must exactly equal the stage's RequiredMetrics coordinates.",
-    }),
+    S.makeFilter(
+      hasCompleteMetrics,
+      $I.annote("EvalReportCompleteMetrics", {
+        title: "Evaluation report metric completeness",
+        description: "Requires exactly one score for every stage-required metric, subset, and lane coordinate.",
+        message: "EvalReport metrics must exactly equal the stage's RequiredMetrics coordinates.",
+      })
+    ),
     S.makeFilter(
       (report: EvalReportFields) =>
         A.every(report.metrics, (score) => score.lane !== "hosted" || score.status === "scored"),
-      {
-        identifier: $I`EvalReportHostedMetricsScored`,
+      $I.annote("EvalReportHostedMetricsScored", {
         title: "Hosted evaluation metric status",
         description: "Requires every hosted-lane metric entry to carry a computed score.",
         message: "EvalReport hosted metrics must all be scored.",
-      }
+      })
     ),
-    S.makeFilter((report: EvalReportFields) => A.every(report.metrics, unsupportedMetricIsDeclared), {
-      identifier: $I`EvalReportUnsupportedMetricsDeclared`,
-      title: "Unsupported evaluation metrics",
-      description: "Allows unsupported status only when the lane method's declared-loss table names the metric subset.",
-      message: "EvalReport unsupported metrics must match declaredLosses for their lane method.",
-    }),
-    S.makeFilter(documentIdsAreUnique, {
-      identifier: $I`EvalReportDocumentIdsUnique`,
-      title: "Evaluation report document identity uniqueness",
-      description: "Requires each content-addressed document id to appear at most once in the report.",
-      message: "EvalReport documents must have unique document ids.",
-    }),
-    S.makeFilter(reportCoversSelection, {
-      identifier: $I`EvalReportSelectionCoverage`,
-      title: "Evaluation report selection coverage",
-      description:
-        "Requires report origins to cover every selected W1 paper and F1 fixture exactly once and no others.",
-      message: "EvalReport documents must exactly cover run.selection.",
-    }),
-    S.makeFilter(selectedRelationPapersHaveHostedClaims, {
-      identifier: $I`EvalReportHostedRelationClaims`,
-      title: "Evaluation report hosted relation claims",
-      description: "Requires at least one hosted relation claim for each selected relation-gold paper.",
-      message: "EvalReport selected relation-gold papers must each have at least one hosted relation claim.",
-    }),
+    S.makeFilter(
+      (report: EvalReportFields) => A.every(report.metrics, unsupportedMetricIsDeclared),
+      $I.annote("EvalReportUnsupportedMetricsDeclared", {
+        title: "Unsupported evaluation metrics",
+        description:
+          "Allows unsupported status only when the lane method's declared-loss table names the metric subset.",
+        message: "EvalReport unsupported metrics must match declaredLosses for their lane method.",
+      })
+    ),
+    S.makeFilter(
+      documentIdsAreUnique,
+      $I.annote("EvalReportDocumentIdsUnique", {
+        title: "Evaluation report document identity uniqueness",
+        description: "Requires each content-addressed document id to appear at most once in the report.",
+        message: "EvalReport documents must have unique document ids.",
+      })
+    ),
+    S.makeFilter(
+      reportCoversSelection,
+      $I.annote("EvalReportSelectionCoverage", {
+        title: "Evaluation report selection coverage",
+        description:
+          "Requires report origins to cover every selected W1 paper and F1 fixture exactly once and no others.",
+        message: "EvalReport documents must exactly cover run.selection.",
+      })
+    ),
+    S.makeFilter(
+      selectedRelationPapersHaveHostedClaims,
+      $I.annote("EvalReportHostedRelationClaims", {
+        title: "Evaluation report hosted relation claims",
+        description: "Requires at least one hosted relation claim for each selected relation-gold paper.",
+        message: "EvalReport selected relation-gold papers must each have at least one hosted relation claim.",
+      })
+    ),
     S.makeFilter(
       (report: EvalReportFields) =>
         Equal.equals(A.length(A.filter(report.documents, isUnexpectedlyDegraded)), report.unexpectedDegraded),
-      {
-        identifier: $I`EvalReportUnexpectedDegradedArithmetic`,
+      $I.annote("EvalReportUnexpectedDegradedArithmetic", {
         title: "Unexpected degraded document arithmetic",
         description:
           "Requires unexpectedDegraded to equal failed W1 parses/hosted extracts plus F1 expectation mismatches.",
         message: "EvalReport unexpectedDegraded must equal the derived document count.",
-      }
+      })
     ),
     S.makeFilter(
       (report: EvalReportFields) => A.every(report.documents, (document) => Equal.equals(document.anchorsFailed, 0)),
-      {
-        identifier: $I`EvalReportAnchorsVerified`,
+      $I.annote("EvalReportAnchorsVerified", {
         title: "Evaluation report anchor verification",
         description: "Requires every reported document to have zero failed anchor verifications.",
         message: "EvalReport documents must all have anchorsFailed equal to zero.",
-      }
+      })
     ),
     S.makeFilter(
       (report: EvalReportFields) =>
@@ -752,20 +767,18 @@ const EvalReportChecks = S.makeFilterGroup(
             onSuccess: (digest) => Str.Equivalence(digest, report.reportDigest),
           })
         ),
-      {
-        identifier: $I`EvalReportDigest`,
+      $I.annote("EvalReportDigest", {
         title: "Evaluation report digest",
         description: "Requires reportDigest to hash the canonical encoded report after removing only reportDigest.",
         message: "EvalReport reportDigest must match the canonical field-omitting digest.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`EvalReportChecks`,
+  $I.annote("EvalReportChecks", {
     title: "Evaluation report",
     description: "Checks metric, selection, degradation, anchor, relation, and digest invariants for a report.",
     message: "EvalReport must satisfy every report completeness and identity check.",
-  }
+  })
 );
 
 /**

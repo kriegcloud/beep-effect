@@ -51,8 +51,8 @@ export const BudgetedStage = LiteralKit([
   "grounding",
   "property_scoping",
   "other",
-]).annotate(
-  $I.annote("BudgetedStage", {
+]).pipe(
+  $I.annoteSchema("BudgetedStage", {
     description: "Pipeline stages that draw from the shared LLM token budget.",
   })
 );

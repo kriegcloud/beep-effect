@@ -109,7 +109,7 @@ const isMailboxLockTimeout = S.is(
   S.Struct({
     code: S.tag("storage"),
     message: S.tag("Agent message SQL operation failed: LockTimeoutError."),
-  }).annotate($I.annote("MailboxLockTimeout", { description: "Sanitized retryable mailbox write contention." }))
+  }).pipe($I.annoteSchema("MailboxLockTimeout", { description: "Sanitized retryable mailbox write contention." }))
 );
 const retryMailboxLock = <A, R>(operation: Effect.Effect<A, RouterError, R>) =>
   operation.pipe(

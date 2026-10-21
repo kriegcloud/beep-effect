@@ -1,3 +1,6 @@
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { GitHubError } from "@beep/github/GitHubError";
+import { Repo, RepoRef } from "@beep/github/Repo";
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { YeetCommandError } from "@beep/repo-cli/commands/Yeet/Yeet.errors";
 import { layerGithubRest, layerGraphqlBudget } from "@beep/repo-cli/test/SharedInternals";
@@ -31,13 +34,12 @@ import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { GitHubClient, GitHubError, Repo, RepoRef } from "@effected/github";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
-import { constant } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -52,6 +54,7 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
+import type { GraphQLDocument } from "@beep/github/GraphQL";
 
 const headSha = "abc1234def";
 
@@ -1051,48 +1054,57 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
     const restReads = yield* Ref.make(0);
     const probes = yield* Ref.make(0);
     const client = GitHubClient.layerTest({
-      requestDecoded: Effect.fnUntraced(function* (_route, _params, schema) {
-        yield* Ref.update(restReads, (n) => n + 1);
-        return yield* S.decodeUnknownEffect(schema)({
-          number: 42,
-          node_id: "PR_ready",
-          title: "Ready head",
-          body: "",
-          state: "open",
-          draft: true,
-          merged: false,
-          merged_at: null,
-          mergeable_state: "clean",
-          head: { ref: "feature/ready-gate", sha: yield* Ref.get(liveHead) },
-          base: { ref: "main" },
-          html_url: "https://github.com/beep/beep/pull/42",
-          user: { login: "author" },
-          labels: [],
-          created_at: "2026-10-01T00:00:00Z",
-          updated_at: "2026-10-01T00:00:00Z",
-        }).pipe(Effect.orDie);
-      }),
-      graphql: Effect.fnUntraced(function* (document) {
-        if (document.name === "rateLimit") {
-          const probe: number = yield* Ref.getAndUpdate(probes, (n) => n + 1);
+      requestDecoded: dual(
+        3,
+        Effect.fnUntraced(function* <A, I>(_route: string, _params: Record<string, unknown>, schema: S.Codec<A, I>) {
+          yield* Ref.update(restReads, (n) => n + 1);
+          return yield* S.decodeUnknownEffect(schema)({
+            number: 42,
+            node_id: "PR_ready",
+            title: "Ready head",
+            body: "",
+            state: "open",
+            draft: true,
+            merged: false,
+            merged_at: null,
+            mergeable_state: "clean",
+            head: { ref: "feature/ready-gate", sha: yield* Ref.get(liveHead) },
+            base: { ref: "main" },
+            html_url: "https://github.com/beep/beep/pull/42",
+            user: { login: "author" },
+            labels: [],
+            created_at: "2026-10-01T00:00:00Z",
+            updated_at: "2026-10-01T00:00:00Z",
+          }).pipe(Effect.orDie);
+        })
+      ),
+      graphql: dual(
+        2,
+        Effect.fnUntraced(function* <A, V extends Record<string, unknown>>(
+          document: GraphQLDocument<A, V>,
+          _variables: V
+        ) {
+          if (document.name === "rateLimit") {
+            const probe: number = yield* Ref.getAndUpdate(probes, (n) => n + 1);
+            return yield* document
+              .decode({
+                rateLimit: {
+                  remaining: probe > 0 && replenished ? 5000 : 0,
+                  resetAt: "1970-01-01T00:10:00Z",
+                },
+              })
+              .pipe(Effect.orDie);
+          }
+          yield* Ref.update(mutations, (n) => n + 1);
           return yield* document
             .decode({
-              rateLimit: {
-                remaining: probe > 0 && replenished ? 5000 : 0,
-                resetAt: "1970-01-01T00:10:00Z",
+              markPullRequestReadyForReview: {
+                pullRequest: { id: "PR_ready", isDraft: false },
               },
             })
             .pipe(Effect.orDie);
-        }
-        yield* Ref.update(mutations, (n) => n + 1);
-        return yield* document
-          .decode({
-            markPullRequestReadyForReview: {
-              pullRequest: { id: "PR_ready", isDraft: false },
-            },
-          })
-          .pipe(Effect.orDie);
-      }),
+        })
+      ),
     });
     const services = Layer.mergeAll(layerGithubRest, layerGraphqlBudget).pipe(
       Layer.provideMerge(Layer.mergeAll(client, Repo.layer(RepoRef.make({ owner: "beep", repo: "beep" }))))

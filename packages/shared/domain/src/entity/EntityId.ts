@@ -23,12 +23,14 @@ const entityIdResourcePattern = /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/u;
 const entityIdPascalPattern = /^[A-Z][A-Za-z0-9]*$/u;
 
 const EntityIdToken = S.NonEmptyString.check(
-  S.isPattern(entityIdTokenPattern, {
-    identifier: $I`EntityIdTokenPattern`,
-    title: "Entity id token pattern",
-    description: "Lowercase snake-case token used for entity-id slice, name, and table metadata.",
-    message: "Expected a lowercase snake-case entity-id token",
-  })
+  S.isPattern(
+    entityIdTokenPattern,
+    $I.annote("EntityIdTokenPattern", {
+      title: "Entity id token pattern",
+      description: "Lowercase snake-case token used for entity-id slice, name, and table metadata.",
+      message: "Expected a lowercase snake-case entity-id token",
+    })
+  )
 ).pipe(
   $I.annoteSchema("EntityIdToken", {
     description: "Lowercase snake-case token used for shared entity-id metadata.",
@@ -36,12 +38,14 @@ const EntityIdToken = S.NonEmptyString.check(
 );
 
 const EntityIdResource = S.NonEmptyString.check(
-  S.isPattern(entityIdResourcePattern, {
-    identifier: $I`EntityIdResourcePattern`,
-    title: "Entity id resource pattern",
-    description: "Dot-separated lowercase resource token used for authorization metadata.",
-    message: "Expected a dot-separated lowercase resource token",
-  })
+  S.isPattern(
+    entityIdResourcePattern,
+    $I.annote("EntityIdResourcePattern", {
+      title: "Entity id resource pattern",
+      description: "Dot-separated lowercase resource token used for authorization metadata.",
+      message: "Expected a dot-separated lowercase resource token",
+    })
+  )
 ).pipe(
   $I.annoteSchema("EntityIdResource", {
     description: "Dot-separated lowercase resource token used by shared entity-id metadata.",
@@ -49,12 +53,14 @@ const EntityIdResource = S.NonEmptyString.check(
 );
 
 const EntityIdPascalToken = S.NonEmptyString.check(
-  S.isPattern(entityIdPascalPattern, {
-    identifier: $I`EntityIdPascalTokenPattern`,
-    title: "Entity id PascalCase token pattern",
-    description: "PascalCase token used for entity type and brand metadata.",
-    message: "Expected a PascalCase entity-id token",
-  })
+  S.isPattern(
+    entityIdPascalPattern,
+    $I.annote("EntityIdPascalTokenPattern", {
+      title: "Entity id PascalCase token pattern",
+      description: "PascalCase token used for entity type and brand metadata.",
+      message: "Expected a PascalCase entity-id token",
+    })
+  )
 ).pipe(
   $I.annoteSchema("EntityIdPascalToken", {
     description: "PascalCase token used by shared entity-id metadata.",

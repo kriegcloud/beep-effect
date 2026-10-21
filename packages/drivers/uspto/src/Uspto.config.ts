@@ -34,13 +34,15 @@ export const USPTO_API_URL = "https://api.uspto.gov";
 
 const stripTrailingSlash = Str.replace(/\/+$/, "");
 const NormalizedUsptoApiUrl = S.String.check(
-  S.makeFilter((value) => Bool.and(URLStr.is(value), Bool.not(Str.endsWith("/")(value))), {
-    identifier: $I`NormalizedUsptoApiUrlCheck`,
-    title: "Normalized USPTO API URL",
-    description: "A valid USPTO API base URL without trailing slashes.",
-    message: "USPTO API URL must not end with a slash",
-    arbitraryConstraint: { patterns: [{ source: "^https://[a-z]{1,12}\\.example(?:/[a-z0-9]{1,12})?$", flags: "" }] },
-  })
+  S.makeFilter(
+    (value) => Bool.and(URLStr.is(value), Bool.not(Str.endsWith("/")(value))),
+    $I.annote("NormalizedUsptoApiUrlCheck", {
+      title: "Normalized USPTO API URL",
+      description: "A valid USPTO API base URL without trailing slashes.",
+      message: "USPTO API URL must not end with a slash",
+      arbitraryConstraint: { patterns: [{ source: "^https://[a-z]{1,12}\\.example(?:/[a-z0-9]{1,12})?$", flags: "" }] },
+    })
+  )
 );
 
 const UsptoApiUrl = S.String.pipe(

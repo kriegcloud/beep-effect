@@ -32,12 +32,14 @@ const isObsDefect = S.is(ObsDefect);
  * @since 0.0.0
  */
 export const ObsRequestStatusCode = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`ObsRequestStatusCodeMinimumCheck`,
-    title: "Obs Request Status Code Minimum",
-    description: "obs-websocket RequestStatus codes are non-negative integers.",
-    message: "Expected a non-negative obs-websocket request status code",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("ObsRequestStatusCodeMinimumCheck", {
+      title: "Obs Request Status Code Minimum",
+      description: "obs-websocket RequestStatus codes are non-negative integers.",
+      message: "Expected a non-negative obs-websocket request status code",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ObsRequestStatusCode", {
     description: "Non-negative integer obs-websocket RequestStatus code.",
@@ -78,12 +80,14 @@ export type ObsRequestStatusCode = typeof ObsRequestStatusCode.Type;
  * @since 0.0.0
  */
 export const ObsWebSocketCloseCode = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`ObsWebSocketCloseCodeMinimumCheck`,
-    title: "Obs WebSocket Close Code Minimum",
-    description: "WebSocket close codes are non-negative integers.",
-    message: "Expected a non-negative WebSocket close code",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("ObsWebSocketCloseCodeMinimumCheck", {
+      title: "Obs WebSocket Close Code Minimum",
+      description: "WebSocket close codes are non-negative integers.",
+      message: "Expected a non-negative WebSocket close code",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ObsWebSocketCloseCode", {
     description: "Non-negative integer WebSocket close code.",

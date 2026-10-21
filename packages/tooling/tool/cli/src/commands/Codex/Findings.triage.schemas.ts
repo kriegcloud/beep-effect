@@ -221,12 +221,14 @@ export type CodexCaptureMethod = typeof CodexCaptureMethod.Type;
  * @since 0.0.0
  */
 export const CodexLaneId = S.String.check(
-  S.isPattern(/^L\d+-[a-z0-9-]{1,60}$/, {
-    identifier: $I`CodexLaneIdPatternCheck`,
-    title: "Codex Lane Id Pattern",
-    description: "Lane identifiers are L<n>- followed by a lowercase slug.",
-    message: "Expected an L<n>-<slug> remediation lane identifier",
-  })
+  S.isPattern(
+    /^L\d+-[a-z0-9-]{1,60}$/,
+    $I.annote("CodexLaneIdPatternCheck", {
+      title: "Codex Lane Id Pattern",
+      description: "Lane identifiers are L<n>- followed by a lowercase slug.",
+      message: "Expected an L<n>-<slug> remediation lane identifier",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CodexLaneId", {
     description: "Identifier of one disjoint remediation lane.",

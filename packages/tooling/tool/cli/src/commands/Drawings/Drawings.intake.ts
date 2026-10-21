@@ -40,6 +40,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { printLines } from "../../internal/cli/Printer.ts";
+import { isWithinRoot } from "../../internal/PathContainment.ts";
 import { DrawingIntakeError, DrawingsCommandError } from "./Drawings.errors.ts";
 import {
   IntakeAttachment,
@@ -111,11 +112,6 @@ const isEligible =
     );
     return !O.getOrElse(message.isDraft, () => false) && (includeOwn || !sentByMailbox);
   };
-
-const isWithin = (path: Path.Path, root: string, file: string): boolean => {
-  const relative = path.relative(root, file);
-  return relative.length > 0 && !Str.startsWith("..")(relative) && !path.isAbsolute(relative);
-};
 
 // A plain file name: no separators, control or shell-hostile characters, no leading dots, never a record name.
 const sanitizedName: (name: string) => string = flow(
@@ -464,7 +460,7 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
   const pull = Effect.fn("DrawingIntake.pull")(function* (request: IntakeRequest) {
     const root = path.resolve(request.corpusRoot);
     const outDir = path.resolve(request.outDir);
-    if (!isWithin(path, root, outDir)) {
+    if (!isWithinRoot(path, root, outDir)) {
       return yield* refused(`"${outDir}" is not under the corpus root "${root}".`);
     }
     const { message, conversationSize, setAside } = yield* resolve(request);
@@ -479,7 +475,7 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     // corpus can neither lead the writes out of it nor create a directory outside it.
     const realRoot = yield* realPathOf(root);
     const outsideRoot = (real: string) =>
-      real !== realRoot && !isWithin(path, realRoot, real)
+      real !== realRoot && !isWithinRoot(path, realRoot, real)
         ? Effect.fail(refused(`"${outDir}" resolves outside the corpus root "${root}".`))
         : Effect.void;
     yield* outsideRoot(yield* realPathOf(yield* nearestExisting(outDir)));

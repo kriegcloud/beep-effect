@@ -231,12 +231,11 @@ const RdfStatementIdCheck = S.makeFilter(
         onSuccess: (digest) => Str.Equivalence(digest, statement.id),
       })
     ),
-  {
-    identifier: $I`RdfStatementIdCheck`,
+  $I.annote("RdfStatementIdCheck", {
     title: "RDF statement identity",
     description: "Requires the statement id to hash its complete canonical triple without truncation.",
     message: "RdfStatement id must match its canonical triple.",
-  }
+  })
 );
 
 /**
@@ -388,12 +387,11 @@ const InferenceEventIdCheck = S.makeFilter(
         onSuccess: (digest) => Str.Equivalence(digest, event.id),
       })
     ),
-  {
-    identifier: $I`InferenceEventIdCheck`,
+  $I.annote("InferenceEventIdCheck", {
     title: "Inference event identity",
     description: "Requires the event id to hash the rule, conclusion, premises, engine, and proof DAG.",
     message: "InferenceEvent id must match its complete replay-stable body.",
-  }
+  })
 );
 
 /**
@@ -687,12 +685,11 @@ const C2EvalReportChecks = S.makeFilterGroup([
       A.isReadonlyArrayNonEmpty(report.reasoning.projection.derived) &&
       A.isReadonlyArrayNonEmpty(report.reasoning.projection.events) &&
       Equal.equals(report.reasoning.projection.eventCount, A.length(report.reasoning.projection.events)),
-    {
-      identifier: $I`C2EvalReportReasoningChecks`,
+    $I.annote("C2EvalReportReasoningChecks", {
       title: "C2 reasoning pass evidence",
       description: "Requires crash identity plus non-empty gold and full-projection proof events.",
       message: "C2EvalReport must retain only passing reasoning and crash evidence.",
-    }
+    })
   ),
   S.makeFilter(
     (report: typeof C2EvalReportFields.Type) =>
@@ -705,12 +702,11 @@ const C2EvalReportChecks = S.makeFilterGroup([
           onSuccess: (digest) => Str.Equivalence(digest, report.reportDigest),
         })
       ),
-    {
-      identifier: $I`C2EvalReportDigestCheck`,
+    $I.annote("C2EvalReportDigestCheck", {
       title: "C2 evaluation report digest",
       description: "Requires reportDigest to hash the canonical C2 report after omitting only itself.",
       message: "C2EvalReport reportDigest must match its canonical body.",
-    }
+    })
   ),
 ]);
 

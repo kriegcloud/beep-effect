@@ -96,24 +96,27 @@ export const phoneCountryOptions = A.filter(countryOptions, (option) => isSuppor
 export const PhoneNumberE164 = S.String.check(
   S.makeFilterGroup(
     [
-      S.isPattern(phoneNumberE164Pattern, {
-        identifier: $I`PhoneNumberE164Pattern`,
-        title: "E.164 Phone Number Pattern",
-        description: "Phone numbers must use E.164 plus-prefixed international format.",
-        message: "Phone number must use E.164 format.",
-      }),
-      S.makeFilter((value: string) => isValidPhoneNumber(value), {
-        identifier: $I`PhoneNumberE164MetadataCheck`,
-        title: "Valid E.164 Phone Number",
-        description: "Phone number must be valid according to the pinned libphonenumber metadata.",
-        message: "Phone number must be valid according to libphonenumber metadata.",
-      }),
+      S.isPattern(
+        phoneNumberE164Pattern,
+        $I.annote("PhoneNumberE164Pattern", {
+          title: "E.164 Phone Number Pattern",
+          description: "Phone numbers must use E.164 plus-prefixed international format.",
+          message: "Phone number must use E.164 format.",
+        })
+      ),
+      S.makeFilter(
+        (value: string) => isValidPhoneNumber(value),
+        $I.annote("PhoneNumberE164MetadataCheck", {
+          title: "Valid E.164 Phone Number",
+          description: "Phone number must be valid according to the pinned libphonenumber metadata.",
+          message: "Phone number must be valid according to libphonenumber metadata.",
+        })
+      ),
     ],
-    {
-      identifier: $I`PhoneNumberE164Checks`,
+    $I.annote("PhoneNumberE164Checks", {
       title: "E.164 Phone Number",
       description: "Checks for valid E.164 phone numbers accepted by the phone input.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PhoneNumberE164", {

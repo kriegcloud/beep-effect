@@ -209,12 +209,14 @@ export type TextFormatBit = typeof TextFormatBit.Type;
 export const TEXT_FORMAT_MASK_ALL = A.reduce(TextFormatBit.literals, 0, (mask, bit) => mask | bit);
 
 const TextFormatMaskBase = S.Natural.check(
-  S.isLessThanOrEqualTo(TEXT_FORMAT_MASK_ALL, {
-    identifier: $I`TextFormatMaskKnownBitsCheck`,
-    title: "Text Format Mask",
-    description: "A Lexical text format bitmask containing only known TextFormatType bits.",
-    message: "Text format mask must contain only known Lexical TextFormatType bits.",
-  })
+  S.isLessThanOrEqualTo(
+    TEXT_FORMAT_MASK_ALL,
+    $I.annote("TextFormatMaskKnownBitsCheck", {
+      title: "Text Format Mask",
+      description: "A Lexical text format bitmask containing only known TextFormatType bits.",
+      message: "Text format mask must contain only known Lexical TextFormatType bits.",
+    })
+  )
 ).pipe(
   S.brand("TextFormatMask"),
   $I.annoteSchema("TextFormatMask", {
@@ -377,12 +379,14 @@ export type TextDetailBit = typeof TextDetailBit.Type;
 export const TEXT_DETAIL_MASK_ALL = A.reduce(TextDetailBit.literals, 0, (mask, bit) => mask | bit);
 
 const TextDetailMaskBase = S.Natural.check(
-  S.isLessThanOrEqualTo(TEXT_DETAIL_MASK_ALL, {
-    identifier: $I`TextDetailMaskKnownBitsCheck`,
-    title: "Text Detail Mask",
-    description: "A Lexical text detail bitmask containing only known TextDetailType bits.",
-    message: "Text detail mask must contain only known Lexical TextDetailType bits.",
-  })
+  S.isLessThanOrEqualTo(
+    TEXT_DETAIL_MASK_ALL,
+    $I.annote("TextDetailMaskKnownBitsCheck", {
+      title: "Text Detail Mask",
+      description: "A Lexical text detail bitmask containing only known TextDetailType bits.",
+      message: "Text detail mask must contain only known Lexical TextDetailType bits.",
+    })
+  )
 ).pipe(
   S.brand("TextDetailMask"),
   $I.annoteSchema("TextDetailMask", {
@@ -602,13 +606,15 @@ export type TableDimension = typeof TableDimension.Type;
  * @since 0.0.0
  */
 export const ArtifactRefId = S.NonEmptyString.check(
-  S.isPattern(artifactRefIdPattern, {
-    identifier: $I`ArtifactRefIdPatternCheck`,
-    title: "Artifact Reference ID",
-    description: "An artifact id that can be embedded in the artifact:// Markdown projection.",
-    message:
-      "Artifact reference id must start with an alphanumeric character and contain only alphanumerics, _, ., :, or -.",
-  })
+  S.isPattern(
+    artifactRefIdPattern,
+    $I.annote("ArtifactRefIdPatternCheck", {
+      title: "Artifact Reference ID",
+      description: "An artifact id that can be embedded in the artifact:// Markdown projection.",
+      message:
+        "Artifact reference id must start with an alphanumeric character and contain only alphanumerics, _, ., :, or -.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ArtifactRefId", {
     description: "Non-empty artifact reference id accepted by package-owned Lexical artifact-ref nodes.",
@@ -856,12 +862,14 @@ export const ListTag = LiteralKit(["ul", "ol"]).pipe(
 export type ListTag = typeof ListTag.Type;
 
 const SafeInlineStyleType = S.String.check(
-  S.makeFilter((value) => value === sanitizeInlineStyle(value), {
-    identifier: $I`SafeInlineStyleFixedPointCheck`,
-    title: "Safe Inline Style",
-    description: "A canonical inline CSS declaration list accepted unchanged by the Lexical sanitizer.",
-    message: "Expected an inline style already normalized by the Lexical safe-style policy.",
-  })
+  S.makeFilter(
+    (value) => value === sanitizeInlineStyle(value),
+    $I.annote("SafeInlineStyleFixedPointCheck", {
+      title: "Safe Inline Style",
+      description: "A canonical inline CSS declaration list accepted unchanged by the Lexical sanitizer.",
+      message: "Expected an inline style already normalized by the Lexical safe-style policy.",
+    })
+  )
 );
 
 /**
@@ -912,12 +920,14 @@ export const SafeInlineStyle = S.String.pipe(
 export type SafeInlineStyle = typeof SafeInlineStyle.Type;
 
 const SafeStyleValueType = S.String.check(
-  S.makeFilter((value) => value === sanitizeStyleValue(value), {
-    identifier: $I`SafeStyleValueFixedPointCheck`,
-    title: "Safe Style Value",
-    description: "A canonical single CSS value accepted unchanged by the Lexical sanitizer.",
-    message: "Expected a CSS value already normalized by the Lexical safe-style policy.",
-  })
+  S.makeFilter(
+    (value) => value === sanitizeStyleValue(value),
+    $I.annote("SafeStyleValueFixedPointCheck", {
+      title: "Safe Style Value",
+      description: "A canonical single CSS value accepted unchanged by the Lexical sanitizer.",
+      message: "Expected a CSS value already normalized by the Lexical safe-style policy.",
+    })
+  )
 );
 
 /**
@@ -968,12 +978,14 @@ export const SafeStyleValue = S.String.pipe(
 export type SafeStyleValue = typeof SafeStyleValue.Type;
 
 const SafeUrlType = S.String.check(
-  S.makeFilter((value) => value === sanitizeUrl(value), {
-    identifier: $I`SafeUrlFixedPointCheck`,
-    title: "Safe URL",
-    description: "A canonical browser URL destination accepted unchanged by the shared Md URL policy.",
-    message: "Expected a URL already normalized by the shared browser-safe URL policy.",
-  })
+  S.makeFilter(
+    (value) => value === sanitizeUrl(value),
+    $I.annote("SafeUrlFixedPointCheck", {
+      title: "Safe URL",
+      description: "A canonical browser URL destination accepted unchanged by the shared Md URL policy.",
+      message: "Expected a URL already normalized by the shared browser-safe URL policy.",
+    })
+  )
 );
 
 /**
@@ -1840,12 +1852,11 @@ const ListNodeFields = S.Struct({
           bullet: () => ListTag.is.ul(tag),
           check: () => ListTag.is.ul(tag),
         }),
-      {
-        identifier: $I`ListNodeTagCheck`,
+      $I.annote("ListNodeTagCheck", {
         title: "Canonical List Node Tag",
         description: "Checks that the serialized list tag is the canonical tag derived from its list semantics.",
         message: "Expected number lists to use ol and bullet or check lists to use ul.",
-      }
+      })
     )
   )
   .pipe(
@@ -2745,13 +2756,15 @@ const RawLexicalNode = S.Union([
  */
 export const LexicalNode = pipe(
   RawLexicalNode.check(
-    S.makeFilter(isStrictLexicalNode, {
-      identifier: $I`StrictLexicalNodeTreeCheck`,
-      title: "Strict Lexical Node",
-      description:
-        "A serialized Lexical node whose recursive child topology follows the supported v1 grammar, with a non-empty document root.",
-      message: "Expected every Lexical node to appear under a compatible v1 parent and root nodes to be non-empty.",
-    })
+    S.makeFilter(
+      isStrictLexicalNode,
+      $I.annote("StrictLexicalNodeTreeCheck", {
+        title: "Strict Lexical Node",
+        description:
+          "A serialized Lexical node whose recursive child topology follows the supported v1 grammar, with a non-empty document root.",
+        message: "Expected every Lexical node to appear under a compatible v1 parent and root nodes to be non-empty.",
+      })
+    )
   ),
   $I.annoteSchema("LexicalNode", {
     description:
@@ -2846,12 +2859,15 @@ export declare namespace LexicalNode {
 }
 
 const StrictRootNode = RootNode.check(
-  S.makeFilter((node) => A.isReadonlyArrayNonEmpty(node.children) && hasStrictNodeChildren(node), {
-    identifier: $I`StrictRootNodeTreeCheck`,
-    title: "Strict Root Node",
-    description: "A non-empty serialized Lexical root whose recursive child topology follows the supported v1 grammar.",
-    message: "Expected at least one root child and every Lexical node to appear under a compatible v1 parent.",
-  })
+  S.makeFilter(
+    (node) => A.isReadonlyArrayNonEmpty(node.children) && hasStrictNodeChildren(node),
+    $I.annote("StrictRootNodeTreeCheck", {
+      title: "Strict Root Node",
+      description:
+        "A non-empty serialized Lexical root whose recursive child topology follows the supported v1 grammar.",
+      message: "Expected at least one root child and every Lexical node to appear under a compatible v1 parent.",
+    })
+  )
 );
 
 /**

@@ -1,0 +1,97 @@
+[
+  [
+    {
+      "change_type": "added",
+      "manifest": "packages/tooling/tool/cli/python/photo-face/uv.lock",
+      "ecosystem": "pip",
+      "name": "certifi",
+      "version": "2026.7.22",
+      "package_url": "pkg:pypi/certifi@2026.7.22",
+      "license": "MPL-2.0",
+      "source_repository_url": "https://github.com/certifi/python-certifi",
+      "scope": "runtime",
+      "vulnerabilities": [
+        {
+          "severity": "critical",
+          "advisory_ghsa_id": "GHSA-6q48-6c7w-9gw2",
+          "advisory_summary": "certifi bundles emSign root CAs with compromised intermediate CA keys",
+          "advisory_url": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2"
+        }
+      ]
+    },
+    {
+      "change_type": "added",
+      "manifest": "packages/tooling/tool/cli/python/photo-face/uv.lock",
+      "ecosystem": "pip",
+      "name": "urllib3",
+      "version": "2.7.0",
+      "package_url": "pkg:pypi/urllib3@2.7.0",
+      "license": "MIT",
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": [
+        {
+          "severity": "high",
+          "advisory_ghsa_id": "GHSA-8988-9cw3-xx77",
+          "advisory_summary": "urllib3: HTTPS proxy TLS configuration may be ignored or overridden",
+          "advisory_url": "https://github.com/advisories/GHSA-8988-9cw3-xx77"
+        },
+        {
+          "severity": "high",
+          "advisory_ghsa_id": "GHSA-vxq7-64xx-v4gw",
+          "advisory_summary": "urllib3: HTTPResponse.stream()/read_chunked() buffers an unbounded chunk-size line into memory",
+          "advisory_url": "https://github.com/advisories/GHSA-vxq7-64xx-v4gw"
+        },
+        {
+          "severity": "moderate",
+          "advisory_ghsa_id": "GHSA-gh4c-6fx4-qh6g",
+          "advisory_summary": "urllib3: Chunked Deflate streaming can enter an infinite loop",
+          "advisory_url": "https://github.com/advisories/GHSA-gh4c-6fx4-qh6g"
+        }
+      ]
+    },
+    {
+      "change_type": "added",
+      "manifest": "packages/tooling/tool/cli/python/photo-face/uv.lock",
+      "ecosystem": "pip",
+      "name": "pytest",
+      "version": "8.4.2",
+      "package_url": "pkg:pypi/pytest@8.4.2",
+      "license": "MIT",
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": [
+        {
+          "severity": "moderate",
+          "advisory_ghsa_id": "GHSA-6w46-j5rx-g56g",
+          "advisory_summary": "pytest has vulnerable tmpdir handling",
+          "advisory_url": "https://github.com/advisories/GHSA-6w46-j5rx-g56g"
+        }
+      ]
+    },
+    {
+      "change_type": "added",
+      "manifest": "packages/tooling/tool/cli/python/photo-face/uv.lock",
+      "ecosystem": "pip",
+      "name": "numpy",
+      "version": "1.26.4",
+      "package_url": "pkg:pypi/numpy@1.26.4",
+      "license": "BSD-2-Clause AND BSD-3-Clause",
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "packages/tooling/tool/cli/python/photo-face/uv.lock",
+      "ecosystem": "pip",
+      "name": "requests",
+      "version": "2.34.2",
+      "package_url": "pkg:pypi/requests@2.34.2",
+      "license": "Apache-2.0",
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    }
+  ]
+]

@@ -153,45 +153,46 @@ const SourceTextPageFieldsSchema = SourceTextPageStruct.mapFields(identity);
 type SourceTextPageFields = typeof SourceTextPageFieldsSchema.Type;
 
 const SourceTextPageChecks = S.makeFilterGroup([
-  S.makeFilter(({ pageCount, pageIndex }: SourceTextPageFields) => pageIndex < pageCount, {
-    identifier: $I`SourceTextPageIndexCheck`,
-    title: "Source Text Page Index",
-    description: "Checks that a zero-based page index identifies a page within the declared page count.",
-    message: "Expected pageIndex to be less than pageCount.",
-  }),
+  S.makeFilter(
+    ({ pageCount, pageIndex }: SourceTextPageFields) => pageIndex < pageCount,
+    $I.annote("SourceTextPageIndexCheck", {
+      title: "Source Text Page Index",
+      description: "Checks that a zero-based page index identifies a page within the declared page count.",
+      message: "Expected pageIndex to be less than pageCount.",
+    })
+  ),
   S.makeFilter(
     ({ endOffset, startOffset, totalCodeUnits }: SourceTextPageFields) =>
       startOffset <= endOffset && endOffset <= totalCodeUnits,
-    {
-      identifier: $I`SourceTextPageOffsetBoundsCheck`,
+    $I.annote("SourceTextPageOffsetBoundsCheck", {
       title: "Source Text Page Offset Bounds",
       description: "Checks that page offsets are ordered and bounded by the complete source width.",
       message: "Expected startOffset <= endOffset <= totalCodeUnits.",
-    }
+    })
   ),
   S.makeFilter(
     ({ endOffset, startOffset, text }: SourceTextPageFields) => endOffset - startOffset === Str.length(text),
-    {
-      identifier: $I`SourceTextPageTextWidthCheck`,
+    $I.annote("SourceTextPageTextWidthCheck", {
       title: "Source Text Page Width",
       description: "Checks that the page's absolute half-open range has the same UTF-16 width as its text.",
       message: "Expected endOffset - startOffset to equal the page text's UTF-16 code-unit length.",
-    }
+    })
   ),
-  S.makeFilter(({ hasPreviousPage, pageIndex }: SourceTextPageFields) => hasPreviousPage === pageIndex > 0, {
-    identifier: $I`SourceTextPagePreviousFlagCheck`,
-    title: "Source Text Page Previous Flag",
-    description: "Checks that hasPreviousPage agrees with the zero-based page index.",
-    message: "Expected hasPreviousPage to be true exactly when pageIndex is greater than zero.",
-  }),
+  S.makeFilter(
+    ({ hasPreviousPage, pageIndex }: SourceTextPageFields) => hasPreviousPage === pageIndex > 0,
+    $I.annote("SourceTextPagePreviousFlagCheck", {
+      title: "Source Text Page Previous Flag",
+      description: "Checks that hasPreviousPage agrees with the zero-based page index.",
+      message: "Expected hasPreviousPage to be true exactly when pageIndex is greater than zero.",
+    })
+  ),
   S.makeFilter(
     ({ hasNextPage, pageCount, pageIndex }: SourceTextPageFields) => hasNextPage === pageIndex + 1 < pageCount,
-    {
-      identifier: $I`SourceTextPageNextFlagCheck`,
+    $I.annote("SourceTextPageNextFlagCheck", {
       title: "Source Text Page Next Flag",
       description: "Checks that hasNextPage agrees with the declared final page.",
       message: "Expected hasNextPage to be true exactly when another page remains.",
-    }
+    })
   ),
 ]);
 
