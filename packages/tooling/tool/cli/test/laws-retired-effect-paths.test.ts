@@ -69,6 +69,57 @@ describe("retired Effect module path law", () => {
     );
   });
 
+  describe("anchor-slug rule", () => {
+    it.effect("reports a retired path slug in a table-of-contents link fragment", () =>
+      Effect.sync(() => {
+        const findings = scanOne("- [Atom constructors](#atom-effectunstablereactivityatom)\n");
+        expect(A.map(findings, (finding) => [finding.rule, finding.match, finding.suggestion])).toEqual([
+          ["anchor-slug", "effectunstablereactivityatom", "effectreactivityatom"],
+        ]);
+      })
+    );
+
+    it.effect("reports the slug in cross-file links and reference definitions", () =>
+      Effect.sync(() => {
+        expect(suggestionsOf("[rpc](./api-reference.md#rpc-effectunstablerpcrpcclient)")).toEqual([
+          "effectrpcrpcclient",
+        ]);
+        expect(suggestionsOf('[sql]: #effectunstablesql-and-more "SQL"')).toEqual(["effectsql"]);
+      })
+    );
+
+    it.effect("applies the http-api, arbitrary, and bare-namespace exceptions", () =>
+      Effect.sync(() => {
+        expect(suggestionsOf("[api](#effectunstablehttpapihttpapibuilder)")).toEqual(["effecthttp-apihttpapibuilder"]);
+        expect(suggestionsOf("[arb](#arbitrary-effectunstablearbitraryarbitrary)")).toEqual(["effectarbitrary"]);
+        expect(suggestionsOf("[arb](#effectunstablearbitraryindex)")).toEqual(["effectarbitrary"]);
+        expect(suggestionsOf("[arb](#effectunstablearbitrary)")).toEqual(["effectarbitrary"]);
+        expect(suggestionsOf("[ns](#the-effectunstable-namespace)")).toEqual(["effect<module>"]);
+      })
+    );
+
+    it.effect("passes the current slug and the slug outside a link fragment", () =>
+      Effect.sync(() => {
+        expect(matchesOf("- [Atom constructors](#atom-effectreactivityatom)\n")).toEqual([]);
+        expect(matchesOf("[api](#effecthttp-apihttpapibuilder)")).toEqual([]);
+        expect(matchesOf("the effectunstablereactivityatom slug in prose")).toEqual([]);
+        expect(matchesOf("[effectunstablereactivityatom](#atom)")).toEqual([]);
+        expect(matchesOf("[page](https://example.com/effectunstablerpc)")).toEqual([]);
+      })
+    );
+
+    it.effect("reports positions inside multi-link lines and scans long #-dense lines in linear time", () =>
+      Effect.sync(() => {
+        const findings = scanOne("[a](#x) and [b](#y-effectunstablerpc) then ](#z#effectunstablesql)");
+        expect(A.map(findings, (finding) => [finding.column, finding.match])).toEqual([
+          [20, "effectunstablerpc"],
+          [49, "effectunstablesql"],
+        ]);
+        expect(scanOne(`${"#a".repeat(20)}effectunstable-`.repeat(2_000))).toEqual([]);
+      })
+    );
+  });
+
   describe("suggestion exceptions", () => {
     it.effect("renames httpapi to http-api in both rules", () =>
       Effect.sync(() => {

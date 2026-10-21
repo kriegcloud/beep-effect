@@ -1,0 +1,202 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "codex-security-findings-2026-10-20",
+    "title": "Codex Security Findings (2026-10-20)",
+    "status": "active",
+    "created": "2026-10-20",
+    "updated": "2026-10-21",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/codex-security-findings-2026-10-20",
+  "lifecycle": "active",
+  "mission": "Remediate and close the eight captured Codex Cloud findings and all 123 captured Dependabot alerts through one PR.",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "One combined Yeet PR merged through repository gates; exact eight Cloud IDs and 123 Dependabot alert IDs resolved with merged-revision evidence.",
+    "grandfathered": false,
+    "pullRequests": [
+      {
+        "number": 1930,
+        "role": "final"
+      }
+    ],
+    "acceptanceEvidence": [
+      {
+        "kind": "hosted-required-checks",
+        "ref": "required",
+        "gating": true
+      },
+      {
+        "kind": "yeet-verdict",
+        "ref": ".beep/yeet/runs/codex_security-findings-2026-10-20-d0eefebffe25/verdict.json",
+        "gating": true
+      }
+    ]
+  },
+  "branch": "codex/security-findings-2026-10-20",
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/codex-security-findings-2026-10-20/README.md",
+    "goals/codex-security-findings-2026-10-20/SPEC.md",
+    "goals/codex-security-findings-2026-10-20/PLAN.md",
+    "goals/codex-security-findings-2026-10-20/GOAL.md",
+    "goals/codex-security-findings-2026-10-20/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/DEPENDABOT.md",
+    "research/dependabot-fixtures.md",
+    "research/dependabot-python.md",
+    "research/dependabot-rust.md",
+    "research/cloud-proof.md",
+    "research/cheap-gate-triage.md",
+    "research/independent-security-review.md",
+    "research/dependabot-fixtures-proof.md",
+    "research/cli-package-proof.md",
+    "research/hosted-ci.md",
+    "research/hosted-check-test-repair.md",
+    "research/labs-timeout-attribution.md",
+    "research/packet-state-reconciliation.md",
+    "research/law-practice-coverage-proof.md",
+    "research/round1-docs-proof.md",
+    "research/claim-budget-review-proof.md",
+    "research/pdf-review-proof.md",
+    "research/pdf-container-consumer-proof.md",
+    "research/hub-native-crypto-proof.md",
+    "research/docx-review-proof.md",
+    "research/claim-index-review-proof.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/codex-security-findings-2026-10-20/GOAL.md"
+    }
+  ],
+  "source": {
+    "provider": "Codex Security Cloud MCP app",
+    "repository": "kriegcloud/beep-effect",
+    "url": "https://chatgpt.com/mcp-app/connector_openai_defense_factory/open_defense_factory#/findings",
+    "capturedAt": "2026-10-20",
+    "captureMethodPolicy": "signed-in-csv-export",
+    "rawCaptureRoot": "goals/codex-security-findings-2026-10-20/raw",
+    "rawCaptureTracked": false
+  },
+  "catalog": {
+    "expectedCount": 8,
+    "capturedCount": 8,
+    "severityCountsKnown": true,
+    "severityCounts": {
+      "Low": 3,
+      "Informational": 5
+    },
+    "dispositionCounts": {
+      "remediate": 8,
+      "already-fixed": 0,
+      "false-positive": 0,
+      "out-of-scope": 0,
+      "untriaged": 0
+    },
+    "note": "All eight full Cloud details are validated and implemented with scoped proof. Round-one review repairs passed focused checks and both global property-test gates; final publication, merge and exact-ID external closure remain pending."
+  },
+  "closeoutPolicy": {
+    "fixed": "Fixed",
+    "alreadyFixed": "Fixed",
+    "dismissedInvalid": "False positive",
+    "outOfScope": "False positive",
+    "acceptedRisk": "not allowed"
+  },
+  "dispositionPolicy": {
+    "default": "remediate",
+    "acceptedRiskAllowed": false,
+    "falsePositiveThreshold": "strict current-HEAD proof that affected code is absent, unreachable, non-shipped, already fixed, or materially misunderstood",
+    "fixPhilosophy": "minimal shared-root fixes with focused regression proof; reuse canonical repo helpers after live source and barrel discovery"
+  },
+  "sanitation": {
+    "trackedRawFindingContent": false,
+    "rawCaptureLocation": "goals/codex-security-findings-2026-10-20/raw",
+    "commitsOnlySanitizedMarkdown": true,
+    "codexPatchTextTracked": false,
+    "publicFindingPolicy": "Tracked records contain title, severity, Codex ID, source commit, public summary, decisions, changed files, and verification only."
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Bootstrap",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Capture",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Validate",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Lane partition",
+      "status": "complete"
+    },
+    {
+      "id": "P4",
+      "name": "Remediate",
+      "status": "complete"
+    },
+    {
+      "id": "P5",
+      "name": "Repo proof",
+      "status": "in-progress"
+    },
+    {
+      "id": "P6",
+      "name": "Publish",
+      "status": "complete"
+    },
+    {
+      "id": "P7",
+      "name": "Monitor",
+      "status": "in-progress"
+    },
+    {
+      "id": "P8",
+      "name": "Merge and close findings",
+      "status": "pending"
+    },
+    {
+      "id": "P9",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/codex-security-findings-2026-10-20/GOAL.md)\" -le 4000",
+    "jq . goals/codex-security-findings-2026-10-20/ops/manifest.json",
+    "jq . goals/codex-security-findings-2026-10-20/ops/triage.json",
+    "test \"$(find goals/codex-security-findings-2026-10-20/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')\" = 8",
+    "git diff --check -- goals/codex-security-findings-2026-10-20",
+    "jq -r '.findings[].commit' goals/codex-security-findings-2026-10-20/ops/triage.json | while read -r c; do git merge-base --is-ancestor \"$c\" HEAD || echo \"not-an-ancestor: $c\"; done",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "The signed-in export is unavailable or the detail evidence needed for a verdict cannot be obtained.",
+    "Tracked evidence contains secrets, auth values, signed URLs, email addresses, or raw developer-local paths.",
+    "A remediation requires an architecture or product decision outside packet scope.",
+    "The same blocker repeats after reasonable investigation."
+  ],
+  "statusNote": "PR #1930 is published at e3c548ea58. The three valid round-two compatibility findings now have parallel source repairs: selective bounded DOCX XML processing and indexed claim evaluation without a ceiling increase. DOCX44 and claim208 Node/V8 tests, unchanged coverage floors, package audits/docgen, strict/root lint and global schema/Effect test gates pass. Consolidated publication, exact-head hosted readiness/review, merge, merged-revision proof and exact-ID closure remain required.",
+  "proposedCloseout": {
+    "status": "completed-retained",
+    "finalPullRequest": 1930
+  }
+}

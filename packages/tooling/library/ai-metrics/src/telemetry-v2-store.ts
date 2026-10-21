@@ -90,7 +90,7 @@ export class TelemetryV2ArtifactReceipt extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal(artifactReceiptSchemaVersion),
+    schemaVersion: S.tag(artifactReceiptSchemaVersion),
     artifactKind: TelemetryV2ArtifactKind,
     artifactDigest: Sha256Hex,
     relativePath: S.NonEmptyString,

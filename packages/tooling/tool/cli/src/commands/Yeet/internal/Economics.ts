@@ -205,7 +205,7 @@ class EconomicsVerdictRow extends S.Opaque<EconomicsVerdictRow, { readonly brand
   )
 ) {}
 
-const JournalSchemaVersion = S.Literal("yeet-attempt-journal/v1");
+const JournalSchemaVersion = S.tag("yeet-attempt-journal/v1");
 
 class EconomicsStartedRow extends S.Opaque<EconomicsStartedRow, { readonly brand: unique symbol }>()(
   S.TaggedStruct("attempt-started", {

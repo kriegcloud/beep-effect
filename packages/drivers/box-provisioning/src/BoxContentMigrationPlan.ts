@@ -442,9 +442,7 @@ export class BoxContentMigrationPlanSummary extends S.Opaque<
  */
 export class BoxContentMigrationPlan extends S.Opaque<BoxContentMigrationPlan, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("box-content-migration-plan/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("box-content-migration-plan/v1"))
-    ),
+    version: S.tag("box-content-migration-plan/v1"),
     sourceRevision: BoxSourceRevision,
     expectedEnterpriseId: BoxProviderId,
     subjectId: BoxProviderId,

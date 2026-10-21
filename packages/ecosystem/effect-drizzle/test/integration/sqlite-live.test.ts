@@ -1,6 +1,6 @@
 /** Real-file SQLite execution proofs for the round-seven dialect. */
 import { Database } from "bun:sqlite";
-import { VersionConflictError } from "@beep/effect-drizzle";
+import { makeNativeRepository, VersionConflictError } from "@beep/effect-drizzle";
 import { it } from "@beep/test-runner";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { layer as makeSqliteLayer } from "@effect/sql-sqlite-bun/SqliteClient";
@@ -49,7 +49,6 @@ import { makeEffect } from "effect/SchemaParser";
 import { camelCase, snakeCase } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
-import { makeRepository as makeSqlRepository } from "effect/sql/SqlModel";
 import * as Tuple from "effect/Tuple";
 import {
   SqliteOrganization,
@@ -186,8 +185,7 @@ class SqliteHarness extends Service<
   }
 >()("@beep/effect-drizzle/test/integration/sqlite-live.test/SqliteHarness") {}
 
-const organizationRepository = makeSqlRepository(SqliteOrganization, {
-  tableName: SqliteOrganization.sql.tableName,
+const organizationRepository = makeNativeRepository(SqliteOrganization, {
   spanPrefix: "SqliteOrganization",
   idColumn: "id",
 });

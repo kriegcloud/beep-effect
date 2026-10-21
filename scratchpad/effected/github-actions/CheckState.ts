@@ -137,10 +137,10 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe($I.annoteSc
  */
 export const CheckRunProjection = S.Union([
 	S.Struct({
-		status: S.Literal(CheckRunStatus.Enum.in_progress).pipe($I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })),
+		status: S.tag(CheckRunStatus.Enum.in_progress).pipe($I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })),
 	}),
 	S.Struct({
-		status: S.Literal(CheckRunStatus.Enum.completed).pipe($I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })),
+		status: S.tag(CheckRunStatus.Enum.completed).pipe($I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })),
 		conclusion: CheckRunConclusion.pipe($I.annoteKey("CheckRunProjection.completed.conclusion", { description: "The completed check's wire conclusion." })),
 	}),
 ]).pipe(S.toTaggedUnion("status"), $I.annoteSchema("CheckRunProjection", { description: "A plain-object wire projection with a conclusion exactly for completed checks." }));

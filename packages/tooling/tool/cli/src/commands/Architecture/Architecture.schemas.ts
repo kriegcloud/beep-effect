@@ -563,7 +563,7 @@ export class ArchitecturePlanTarget extends S.Opaque<ArchitecturePlanTarget, { r
  */
 export class WriteFileOperation extends S.Opaque<WriteFileOperation, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("write-file"),
+    kind: S.tag("write-file"),
     operationId: OperationId,
     role: ArchitectureSliceRole,
     path: S.String,
@@ -608,7 +608,7 @@ export class WriteFileOperation extends S.Opaque<WriteFileOperation, { readonly 
  */
 export class WritePackageJsonOperation extends S.Opaque<WritePackageJsonOperation, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("write-package-json"),
+    kind: S.tag("write-package-json"),
     operationId: OperationId,
     role: ArchitecturePackageRole,
     path: S.String,
@@ -651,7 +651,7 @@ export class WritePackageJsonOperation extends S.Opaque<WritePackageJsonOperatio
  */
 export class EnsureFileOperation extends S.Opaque<EnsureFileOperation, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("ensure-file"),
+    kind: S.tag("ensure-file"),
     operationId: OperationId,
     role: ArchitectureSliceRole,
     path: S.String,
@@ -687,7 +687,7 @@ export class EnsureFileOperation extends S.Opaque<EnsureFileOperation, { readonl
  */
 export class EnsureAbsentPathOperation extends S.Opaque<EnsureAbsentPathOperation, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("ensure-absent-path"),
+    kind: S.tag("ensure-absent-path"),
     operationId: OperationId,
     path: S.String,
     writeMode: RemoveIfPresent,
@@ -814,7 +814,7 @@ export class CanonicalSliceOperationPlan extends S.Class<
   { readonly brand: unique symbol }
 >($I`CanonicalSliceOperationPlan`)(
   {
-    schemaVersion: S.Literal("architecture-operation-plan/v1"),
+    schemaVersion: S.tag("architecture-operation-plan/v1"),
     target: ArchitecturePlanTarget,
     roles: S.Array(ArchitectureSliceRolePlan),
     operations: S.Array(ArchitectureOperation),

@@ -45,7 +45,7 @@ export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAut
  * @since 0.0.0
  */
 export const TokenCredential = S.Struct({
-	kind: S.Literal("token").pipe($I.annoteKey("TokenCredential.kind", { description: "Bearer-token authentication." })),
+	kind: S.tag("token").pipe($I.annoteKey("TokenCredential.kind", { description: "Bearer-token authentication." })),
 	/** The token, verbatim. Never written to argv. */
 	token: S.Redacted(S.String).pipe($I.annoteKey("TokenCredential.token", { description: "The redacted bearer token, never written to argv." })),
 }).pipe($I.annoteSchema("TokenCredential", { description: "A structural bearer-token credential boundary." }));
@@ -90,7 +90,7 @@ export type TokenCredential = typeof TokenCredential.Type;
  * @since 0.0.0
  */
 export const BasicCredential = S.Struct({
-	kind: S.Literal("basic").pipe($I.annoteKey("BasicCredential.kind", { description: "HTTP basic authentication." })),
+	kind: S.tag("basic").pipe($I.annoteKey("BasicCredential.kind", { description: "HTTP basic authentication." })),
 	/** Base64 of `user:password`, exactly as it belongs in an npmrc `_auth`. */
 	encoded: S.Redacted(S.String).pipe($I.annoteKey("BasicCredential.encoded", { description: "Redacted base64 of user:password, used verbatim." })),
 }).pipe($I.annoteSchema("BasicCredential", { description: "A structural encoded basic-auth credential boundary." }));

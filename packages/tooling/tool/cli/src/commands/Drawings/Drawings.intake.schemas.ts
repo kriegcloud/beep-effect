@@ -353,7 +353,7 @@ export class MessageFacts extends S.Opaque<MessageFacts, { readonly brand: uniqu
  */
 export class IntakeRecord extends S.Opaque<IntakeRecord, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-intake/v1").annotateKey({ description: "Record schema version." }),
+    schemaVersion: S.tag("drawing-intake/v1").annotateKey({ description: "Record schema version." }),
     mailbox: S.String.annotateKey({ description: "Mailbox the message was read from." }),
     message: MessageFacts.annotateKey({ description: "Provenance facts of the pulled message." }),
     outDir: S.String.annotateKey({ description: "Absolute intake directory." }),

@@ -131,7 +131,7 @@ class ColumnRow extends S.Opaque<ColumnRow, { readonly brand: unique symbol }>()
 class ToolTextContent extends S.Opaque<ToolTextContent, { readonly brand: unique symbol }>()(
   S.Struct({
     text: S.String,
-    type: S.Literal("text"),
+    type: S.tag("text"),
   }).annotate({ identifier: "PracticeKgToolTextContent" })
 ) {}
 

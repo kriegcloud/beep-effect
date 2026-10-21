@@ -206,7 +206,7 @@ export class ReplyDraft extends S.Class<ReplyDraft, { readonly brand: unique sym
  */
 export class ReplyDrafts extends S.Opaque<ReplyDrafts, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-reply-drafts/v1"),
+    schemaVersion: S.tag("yeet-reply-drafts/v1"),
     prNumber: ReplyPullRequestNumber,
     drafts: S.Array(ReplyDraft),
   }).pipe(
@@ -317,7 +317,7 @@ export class ReplyDraftOutcome extends S.Class<ReplyDraftOutcome, { readonly bra
  */
 export class ReplyReport extends S.Opaque<ReplyReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-reply-report/v1"),
+    schemaVersion: S.tag("yeet-reply-report/v1"),
     prNumber: ReplyPullRequestNumber,
     createdAt: S.String,
     outcomes: S.Array(ReplyDraftOutcome),

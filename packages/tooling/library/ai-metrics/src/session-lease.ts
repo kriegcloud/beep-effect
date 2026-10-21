@@ -97,7 +97,7 @@ const hasUniqueWaitIds = (waits: ReadonlyArray<SessionLeaseOpenWait>): boolean =
  */
 export class SessionLease extends S.Opaque<SessionLease, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(sessionLeaseSchemaVersion),
+    schemaVersion: S.tag(sessionLeaseSchemaVersion),
     sessionId: Sha256Hex,
     sourceKind: AiMetricsTranscriptSource,
     instrumentClass: InstrumentClass,
@@ -910,7 +910,7 @@ export class SessionLeaseExpiryCandidate extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal(sessionLeaseExpiryCandidateSchemaVersion),
+    schemaVersion: S.tag(sessionLeaseExpiryCandidateSchemaVersion),
     lease: SessionLease,
     leaseDigest: Sha256Hex,
     evaluatedAt: S.DateTimeUtcFromString,
@@ -1011,12 +1011,12 @@ const atMostReconstructedEvidenceTier = (tiers: ReadonlyArray<EvidenceTier>) =>
  */
 export class SessionLeaseTombstone extends S.Opaque<SessionLeaseTombstone, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(sessionLeaseTombstoneSchemaVersion),
+    schemaVersion: S.tag(sessionLeaseTombstoneSchemaVersion),
     sessionId: Sha256Hex,
     sourceKind: AiMetricsTranscriptSource,
     lastObservedAt: S.DateTimeUtcFromString,
     tombstonedAt: S.DateTimeUtcFromString,
-    terminalOutcome: S.Literal(TerminalOutcome.Enum.unknown),
+    terminalOutcome: S.tag(TerminalOutcome.Enum.unknown),
     leaseDigest: Sha256Hex,
     sourceEvidenceDigest: Sha256Hex,
     evidenceTier: ReconstructedEvidenceTier,

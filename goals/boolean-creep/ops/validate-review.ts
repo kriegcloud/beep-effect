@@ -20,10 +20,10 @@ const ReviewFinding = S.Struct({
   note: S.NonEmptyString,
 });
 const ReviewRecord = S.Struct({
-  schemaVersion: S.Literal("boolean-creep-review/v1"),
+  schemaVersion: S.tag("boolean-creep-review/v1"),
   id: S.NonEmptyString,
   sourceSha: S.NonEmptyString,
-  reviewer: S.Literal("claude-cli-fable"),
+  reviewer: S.tag("claude-cli-fable"),
   evidenceStatus: S.Literals(["pass", "finding"]),
   designStatus: S.Literals(["pass", "finding"]),
   findings: S.Array(ReviewFinding),

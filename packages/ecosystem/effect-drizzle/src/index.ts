@@ -20,11 +20,11 @@ export { isUniqueKey } from "./core/Meta.ts";
  * @since 0.0.0
  */
 export { ModelInvariantError } from "./core/model.ts";
-/** Optimistic repository constructor and conflict error.
+/** Optimistic and native repository constructors plus the conflict error.
  * @category repositories
  * @since 0.0.0
  */
-export { makeRepository, VersionConflictError } from "./core/repository.ts";
+export { makeNativeRepository, makeRepository, VersionConflictError } from "./core/repository.ts";
 /** Kit constructor deriving dialect-bound model, entity, and table builders.
  * @category constructors
  * @since 0.0.0
@@ -60,7 +60,7 @@ export type { DefaultSqlExpr, DefaultValue, IsUniqueKey, References } from "./co
  * @category type-level
  * @since 0.0.0
  */
-export type { Repository, VersionKey } from "./core/repository.ts";
+export type { NativeRepository, Repository, VersionKey } from "./core/repository.ts";
 /** Public kit configuration and result types for both supported SQL dialects.
  * @category models
  * @since 0.0.0

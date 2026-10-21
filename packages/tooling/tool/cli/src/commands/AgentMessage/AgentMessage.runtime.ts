@@ -107,8 +107,8 @@ const ownsReceivingGrant = (
   grant.repositoryScope === repositoryScope;
 const isMailboxLockTimeout = S.is(
   S.Struct({
-    code: S.Literal("storage"),
-    message: S.Literal("Agent message SQL operation failed: LockTimeoutError."),
+    code: S.tag("storage"),
+    message: S.tag("Agent message SQL operation failed: LockTimeoutError."),
   }).annotate($I.annote("MailboxLockTimeout", { description: "Sanitized retryable mailbox write contention." }))
 );
 const retryMailboxLock = <A, R>(operation: Effect.Effect<A, RouterError, R>) =>

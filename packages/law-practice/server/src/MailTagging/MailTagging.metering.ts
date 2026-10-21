@@ -104,11 +104,9 @@ export class ProviderCalls extends S.Opaque<ProviderCalls, { readonly brand: uni
  */
 export class ProviderCallLedgerLine extends S.Opaque<ProviderCallLedgerLine, { readonly brand: unique symbol }>()(
   S.Struct({
-    workstream: S.Literal("email-tagging")
-      .pipe(S.withConstructorDefault(Effect.succeed("email-tagging")))
-      .annotateKey({
-        description: "Workstream the calls are charged to.",
-      }),
+    workstream: S.tag("email-tagging").annotateKey({
+      description: "Workstream the calls are charged to.",
+    }),
     runLabel: S.NonEmptyString.annotateKey({
       description: "Label of the run that made the calls.",
     }),
@@ -118,11 +116,9 @@ export class ProviderCallLedgerLine extends S.Opaque<ProviderCallLedgerLine, { r
     at: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant the line was written.",
     }),
-    exact: S.Literal(true)
-      .pipe(S.withConstructorDefault(Effect.succeed(true)))
-      .annotateKey({
-        description: "Whether the count is exact rather than estimated; this adapter counts every call.",
-      }),
+    exact: S.tag(true).annotateKey({
+      description: "Whether the count is exact rather than estimated; this adapter counts every call.",
+    }),
   }).pipe(
     $I.annoteSchema("ProviderCallLedgerLine", {
       description: "One run's API-call spend in the shared Box call ledger.",

@@ -216,9 +216,7 @@ export class AiMetricsIdentityRegistry extends S.Opaque<AiMetricsIdentityRegistr
     generatedAtEpochMillis: S.Finite,
     hashSaltNamespaceId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     hashSaltStatus: AiMetricsHashSaltStatus,
-    registryVersion: S.Literal(identityRegistryVersion).pipe(
-      S.withConstructorDefault(Effect.succeed(identityRegistryVersion))
-    ),
+    registryVersion: S.tag(identityRegistryVersion),
     roots: S.Array(AiMetricsCanonicalRoot),
     sourceInstances: S.Array(AiMetricsSourceInstance),
   }).pipe(

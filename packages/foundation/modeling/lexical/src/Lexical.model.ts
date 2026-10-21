@@ -1399,8 +1399,8 @@ export class TabNode extends TextBase.extend<TabNode>($I`TabNode`)(
   {
     type: S.tag("tab"),
     detail: S.Literal(2).pipe(S.brand("TextDetailMask")),
-    mode: S.Literal("normal"),
-    text: S.Literal("\t"),
+    mode: S.tag("normal"),
+    text: S.tag("\t"),
   },
   $I.annote("TabNode", {
     po: "atom",
@@ -3102,7 +3102,7 @@ export const SerializedEditorStateWire = S.StructWithRest(
     root: S.StructWithRest(
       S.Struct({
         children: S.Array(LexicalNodeWire),
-        type: S.Literal("root"),
+        type: S.tag("root"),
         version: S.Int,
       }),
       [S.Record(S.String, S.Json)]
@@ -3205,10 +3205,7 @@ export class LexicalDecodeError extends S.TaggedError<LexicalDecodeError, { read
  */
 export class LexicalCompatibilityIssue extends S.Opaque<LexicalCompatibilityIssue, { readonly brand: unique symbol }>()(
   S.Struct({
-    code: S.Literal("strict-schema-mismatch").pipe(
-      S.withConstructorDefault(Effect.succeed("strict-schema-mismatch")),
-      S.annotateKey({ description: "Stable compatibility issue code." })
-    ),
+    code: S.tag("strict-schema-mismatch").pipe(S.annotateKey({ description: "Stable compatibility issue code." })),
     message: S.NonEmptyString.annotateKey({
       description: "Strict semantic decode failure rendered for diagnostics.",
     }),

@@ -106,6 +106,19 @@ with code 0:
   `%LOCALAPPDATA%\Packages\Claude_<publisher id>\LocalCache\Local\`; the
   terminal run is not redirected.
 
+From SSH, the desktop session can still be reached while the user is logged in
+(`query user` shows the console session `Active`): a one-shot interactive
+scheduled task runs a small PowerShell wrapper in that session. The wrapper
+starts the executable with `Start-Process … -RedirectStandardOutput
+-RedirectStandardError -Wait -PassThru` and writes the exit code to a file.
+Create the task with `schtasks /create /tn <name> /tr "powershell.exe -NoProfile
+-File <wrapper>" /sc once /st 23:59 /it /f`, start it with `schtasks /run`,
+wait for the exit-code file, then `schtasks /delete /tn <name> /f`. Do not
+write the wrapper as a `.cmd` with `echo exit=%ERRORLEVEL%>> file`: an exit
+code of 0 becomes `0>>`, a redirect of stdin, and the line is never written.
+This is how acceptance #4 of `goals/practice-kg-mcp-strict-tier` passed on
+2026-10-20 (`keyPath: dpapi-ffi`).
+
 Nothing in this check, or in the host, sends telemetry anywhere; AC-5 below is
 unchanged.
 
@@ -173,9 +186,17 @@ looking at the wrong files.
 If the Settings → Extensions install does not take (the listed version does
 not change), the extension can be replaced by file with Claude Desktop closed:
 back up the extension folder, mirror the unpacked new package into it, and
-update that extension's entry in `extensions-installations.json` (version, and
-`hash` = the SHA-256 of the `.mcpb` file). This was done on the attorney's PC on
-2026-10-06 for version `0.2.1`.
+update that extension's entry in `extensions-installations.json`: `version`,
+`hash` (the SHA-256 of the `.mcpb` file) and `manifest` (the new package's
+`manifest.json`, which carries the version and the tool list Claude Desktop
+shows). This was done on the attorney's PC on
+2026-10-06 for version `0.2.1`. It was done again on 2026-10-21 for `0.5.0`, the
+first build with the strict telemetry tier: with Claude Desktop stopped, the
+extension folder and `extensions-installations.json` were backed up, the
+unpacked package was mirrored in with `robocopy /MIR`, and the entry's
+`version`, `hash` and `manifest` were replaced. Both self-checks then passed from
+the installed folder, and Claude Desktop was relaunched into the desktop
+session with a one-shot interactive scheduled task.
 
 After any install, proof that it works is a tool call from a chat
 (`kg_provenance` with no arguments reporting the expected bundle version), not

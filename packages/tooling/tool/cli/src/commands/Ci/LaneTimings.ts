@@ -183,7 +183,7 @@ export class CiWorkflowJob extends S.Opaque<CiWorkflowJob, { readonly brand: uni
 
 const CiWorkflowAttemptOneJob = CiWorkflowJob.mapFields((fields) => ({
   ...fields,
-  run_attempt: S.Literal(1),
+  run_attempt: S.tag(1),
 })).annotate(
   $I.annote("CiWorkflowAttemptOneJob", {
     description: "A structurally selected GitHub Actions job from the first workflow-run attempt.",
@@ -304,7 +304,7 @@ export class CiLaneTimingsReport extends S.Opaque<CiLaneTimingsReport, { readonl
     managedJobCount: S.Finite,
     medianAttemptOnePickupSeconds: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     rows: S.Array(CiLaneTimingRow),
-    schemaVersion: S.Literal("ci-lane-timings/v1"),
+    schemaVersion: S.tag("ci-lane-timings/v1"),
   }).pipe(
     $I.annoteSchema("CiLaneTimingsReport", {
       description: "Aggregates over one collected set of hosted lane timing rows.",
@@ -1442,11 +1442,11 @@ class CiLaneTimingDurationRow extends S.Opaque<CiLaneTimingDurationRow, { readon
   S.Struct({
     ...timingRowProvenanceFields,
     population: S.tag("duration"),
-    conclusion: S.Literal("success"),
+    conclusion: S.tag("success"),
     durationSeconds: NonNegativeTimingSeconds,
     jobName: S.NonEmptyString,
     pickupSeconds: S.Option(NonNegativeTimingSeconds),
-    runAttempt: S.Literal(1),
+    runAttempt: S.tag(1),
   }).pipe(
     $I.annoteSchema("CiLaneTimingDurationRow", {
       description: "Attempt-one successful non-negative required-lane duration with complete workflow-run provenance.",
@@ -1475,7 +1475,7 @@ class CiLaneTimingPickupRow extends S.Opaque<CiLaneTimingPickupRow, { readonly b
     conclusion: S.String,
     jobName: S.NonEmptyString,
     pickupSeconds: NonNegativeTimingSeconds,
-    runAttempt: S.Literal(1),
+    runAttempt: S.tag(1),
   }).pipe(
     $I.annoteSchema("CiLaneTimingPickupRow", {
       description: "Attempt-one shard pickup latency retained separately from every required-lane wall duration.",
@@ -1658,7 +1658,7 @@ export class CiLaneTimingWindowReport extends S.Opaque<CiLaneTimingWindowReport,
     rulesetVersion: S.Option(CiRulesetHistoryVersion),
     rows: S.Array(CiLaneTimingWindowRow),
     runCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-    schemaVersion: S.Literal("ci-lane-timing-window/v1"),
+    schemaVersion: S.tag("ci-lane-timing-window/v1"),
   }).pipe(
     $I.annoteSchema("CiLaneTimingWindowReport", {
       description:
@@ -1807,7 +1807,7 @@ class CiBranchRule extends S.Opaque<CiBranchRule, { readonly brand: unique symbo
 
 class CiRulesetSnapshotRule extends S.Opaque<CiRulesetSnapshotRule, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("required_status_checks"),
+    type: S.tag("required_status_checks"),
     parameters: CiBranchRuleParameters,
   }).pipe(
     $I.annoteSchema("CiRulesetSnapshotRule", {

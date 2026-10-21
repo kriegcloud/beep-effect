@@ -499,10 +499,10 @@ export class PracticeKgCandidateClaimsNotLoadedResult extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    available: S.Literal(false),
+    available: S.tag(false),
     bundle_version: S.NonEmptyString,
-    epistemic_status: S.Literal("candidate-unreviewed"),
-    reason: S.Literal("claims batch not yet loaded"),
+    epistemic_status: S.tag("candidate-unreviewed"),
+    reason: S.tag("claims batch not yet loaded"),
   }).pipe(
     $I.annoteSchema("PracticeKgCandidateClaimsNotLoadedResult", {
       description: "Manifest-labelled empty result used before candidate claims are loaded.",
@@ -706,7 +706,7 @@ export class PracticeKgCandidateClaimToolRow extends S.Opaque<
     evidenceQuote: S.String,
     family: S.String,
     familyKey: S.NullOr(S.String),
-    label: S.Literal("candidate — unreviewed"),
+    label: S.tag("candidate — unreviewed"),
     sourceDocumentDigest: S.NullOr(S.String),
     sourceFile: S.String,
     startChar: S.Natural,

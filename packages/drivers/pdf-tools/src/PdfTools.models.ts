@@ -540,20 +540,28 @@ export class PdfStructure extends S.Opaque<PdfStructure, { readonly brand: uniqu
       S.withConstructorDefault(Effect.succeed([])),
       S.annotateKey({
         description:
-          "FlateDecode streams, object and cross-reference streams included, that fail a strict inflate, in object order. `streamCheck` says how many were checked.",
+          "FlateDecode streams, object and cross-reference streams included, that fail a strict inflate, in object order. `streamCheck` and `containerDiscovery` describe separate inflate and discovery completeness.",
+      })
+    ),
+    containerDiscovery: S.Literals(["complete", "limit-reached", "encrypted"]).pipe(
+      S.withConstructorDefault(Effect.succeed("complete" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("complete" as const)),
+      S.annotateKey({
+        description:
+          "Whether raw object/cross-reference container discovery completed, stopped at its candidate budget, or was skipped for encryption. Global stream inspection is complete only when this and streamCheck are complete.",
       })
     ),
     streamCheck: StreamCheck.pipe(
       S.withConstructorDefault(Effect.succeed("complete" as const)),
       S.annotateKey({
         description:
-          "Whether every FlateDecode stream was checked (`complete`), none were because the file is encrypted (`encrypted`), or the check stopped at the inflate limit (`limit-reached`).",
+          "Whether every discovered FlateDecode stream was checked (`complete`), none were because the file is encrypted (`encrypted`), or the check stopped at the inflate limit (`limit-reached`).",
       })
     ),
   }).pipe(
     $I.annoteSchema("PdfStructure", {
       description:
-        "Header version, page sizes, fonts, annotations, layers, encryption, undecodable streams, and how far their check got, of a PDF.",
+        "Header version, page sizes, fonts, annotations, layers, encryption, undecodable streams, and separate discovery/inflate completeness, of a PDF.",
     })
   )
 ) {}

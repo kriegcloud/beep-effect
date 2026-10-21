@@ -6,6 +6,7 @@
   "attributes": [],
   "instruments": [],
   "spans": [
+    {"name":"DocTextFileProcessingEngine.boundDocx","owner":"@beep/doc-text","family":"driver","conforms":true},
     {"name":"DocTextFileProcessingEngine.detect","owner":"@beep/doc-text","family":"driver","conforms":true},
     {"name":"DocTextFileProcessingEngine.exportArchive","owner":"@beep/doc-text","family":"driver","conforms":true},
     {"name":"DocTextFileProcessingEngine.extract","owner":"@beep/doc-text","family":"driver","conforms":true},

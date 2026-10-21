@@ -1008,7 +1008,7 @@ export class GoalNonRequiredRed extends S.Opaque<GoalNonRequiredRed, { readonly 
  */
 export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("goal-completion-receipt/v1"),
+    schemaVersion: S.tag("goal-completion-receipt/v1"),
     repository: S.NonEmptyString,
     packet: S.NonEmptyString,
     declarationDigest: S.NonEmptyString,
@@ -1293,7 +1293,7 @@ const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
  */
 export class GoalProposedCloseout extends S.Opaque<GoalProposedCloseout, { readonly brand: unique symbol }>()(
   S.Struct({
-    status: S.Literal("completed-retained"),
+    status: S.tag("completed-retained"),
     finalPullRequest: S.Int.check(S.isGreaterThan(0)),
   }).pipe(
     $I.annoteSchema("GoalProposedCloseout", {

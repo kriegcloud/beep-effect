@@ -4,13 +4,13 @@
     "id": "practice-kg-mcp-strict-tier",
     "packetId": "goal-packet/v1:5b9d2d7f5575884a8bffacf17fcf6467a5f1fd1ceccd44e69db1f2c1a3f22bc2",
     "title": "Practice KG MCP Strict Telemetry Tier",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
-    "updated": "2026-10-15",
+    "updated": "2026-10-20",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/practice-kg-mcp-strict-tier",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Shape-only telemetry for practice-kg-mcp on the attorney workstation: serializer gate, on-PC HMAC salt, encrypted spool, fail-closed tier, canary proof.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -69,17 +69,17 @@
     {
       "id": "P3",
       "name": "Proof",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Yeet",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

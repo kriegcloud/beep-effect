@@ -949,6 +949,7 @@ const makeService = Effect.fn("DrawingCritics.make")(function* () {
       fonts,
       undecodableStreams: structure.undecodableStreams,
       streamCheck: structure.streamCheck,
+      containerDiscovery: structure.containerDiscovery,
     });
   });
 

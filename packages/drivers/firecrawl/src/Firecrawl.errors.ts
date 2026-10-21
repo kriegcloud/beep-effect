@@ -234,7 +234,7 @@ export class FirecrawlApiFailure extends S.Opaque<FirecrawlApiFailure, { readonl
     details: optionalUnknown,
     error: S.String,
     status: optionalNonNegativeInt,
-    success: S.Literal(false),
+    success: S.tag(false),
   }).pipe(
     $I.annoteSchema("FirecrawlApiFailure", {
       description: "Decoded Firecrawl API failure body with optional diagnostics modeled as Option.",

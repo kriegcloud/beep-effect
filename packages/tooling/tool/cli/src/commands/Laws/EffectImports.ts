@@ -248,7 +248,7 @@ export class EffectImportManualReview extends S.Opaque<EffectImportManualReview,
  */
 export class EffectImportRulesSummary extends S.Opaque<EffectImportRulesSummary, { readonly brand: unique symbol }>()(
   S.Struct({
-    mappingTableVersion: S.Literal("root-export-graph/v1"),
+    mappingTableVersion: S.tag("root-export-graph/v1"),
     mode: EffectImportCorpusMode,
     write: S.Boolean,
     candidate: S.Boolean,

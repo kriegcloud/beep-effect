@@ -663,7 +663,21 @@ const hasGitMetadata = Effect.fnUntraced(function* (directory: string) {
   return yield* fs.stat(metadata).pipe(
     Effect.flatMap((info) => {
       if (info.type === "Directory") return fs.exists(path.join(metadata, "HEAD"));
-      if (info.type === "File") return fs.readFileString(metadata).pipe(Effect.map(Str.startsWith("gitdir:")));
+      if (info.type === "File")
+        return Effect.scoped(
+          Effect.gen(function* () {
+            const file = yield* fs.open(metadata);
+            // Only the ASCII marker matters; metadata contents may exceed snapshot budgets.
+            const prefix = new Uint8Array(7);
+            let offset = 0;
+            while (offset < prefix.length) {
+              const count = yield* file.read(prefix.subarray(offset));
+              if (count === 0) return false;
+              offset += count;
+            }
+            return new TextDecoder().decode(prefix) === "gitdir:";
+          })
+        );
       return Effect.succeed(false);
     }),
     Effect.catchIf(

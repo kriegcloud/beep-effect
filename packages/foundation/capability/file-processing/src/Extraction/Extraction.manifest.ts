@@ -76,7 +76,7 @@ export class SucceededSourceProcessingRecord extends S.Opaque<
     operationId: OperationId,
     relativePath: PosixPath,
     sizeBytes: S.Natural,
-    status: S.Literal("succeeded"),
+    status: S.tag("succeeded"),
     textPath: S.optionalKey(PosixPath),
   }).pipe(
     $I.annoteSchema("SucceededSourceProcessingRecord", {
@@ -135,7 +135,7 @@ export class SkippedSourceProcessingRecord extends S.Opaque<
     relativePath: PosixPath,
     sizeBytes: S.Natural,
     skipReason: FileProcessingSkipReason,
-    status: S.Literal("skipped"),
+    status: S.tag("skipped"),
   }).pipe(
     $I.annoteSchema("SkippedSourceProcessingRecord", {
       description: "JSONL-safe skipped source processing record emitted by the CLI proof.",
@@ -190,7 +190,7 @@ export class FailedSourceProcessingRecord extends S.Opaque<
     operationId: OperationId,
     relativePath: PosixPath,
     sizeBytes: S.Natural,
-    status: S.Literal("failed"),
+    status: S.tag("failed"),
   }).pipe(
     $I.annoteSchema("FailedSourceProcessingRecord", {
       description: "JSONL-safe failed source processing record emitted by the CLI proof.",
@@ -360,7 +360,7 @@ export class SkippedFileProcessingFailureRecord extends S.Opaque<
     operationId: OperationId,
     reason: FileProcessingSkipReason,
     relativePath: PosixPath,
-    status: S.Literal("skipped"),
+    status: S.tag("skipped"),
   }).pipe(
     $I.annoteSchema("SkippedFileProcessingFailureRecord", {
       description: "JSONL-safe sanitized skipped or failed source record.",
@@ -414,7 +414,7 @@ export class FailedFileProcessingFailureRecord extends S.Opaque<
     operationId: OperationId,
     reason: FileProcessingOperationErrorReason,
     relativePath: PosixPath,
-    status: S.Literal("failed"),
+    status: S.tag("failed"),
   }).pipe(
     $I.annoteSchema("FailedFileProcessingFailureRecord", {
       description: "JSONL-safe sanitized hard failure source record.",
@@ -615,8 +615,8 @@ export class ProcessRunManifest extends S.Opaque<ProcessRunManifest, { readonly 
   S.Struct({
     coverage: FileProcessingCoverageSummary,
     engine: S.String,
-    manifestVersion: S.Literal("beep.file-processing.run.v1"),
-    outputRoot: S.Literal("."),
+    manifestVersion: S.tag("beep.file-processing.run.v1"),
+    outputRoot: S.tag("."),
     runId: OperationId,
     sourceRootLabel: S.String,
     strategies: S.Array(SelectedStrategy),

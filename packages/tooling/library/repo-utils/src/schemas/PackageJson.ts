@@ -271,7 +271,7 @@ const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling", "ecosy
  */
 export class BeepFoundationMetadata extends S.Opaque<BeepFoundationMetadata, { readonly brand: unique symbol }>()(
   S.Struct({
-    family: S.Literal("foundation"),
+    family: S.tag("foundation"),
     kind: BeepFoundationKind,
   }).pipe(
     $I.annoteSchema("BeepFoundationMetadata", {
@@ -300,7 +300,7 @@ export class BeepFoundationMetadata extends S.Opaque<BeepFoundationMetadata, { r
  */
 export class BeepDriverMetadata extends S.Opaque<BeepDriverMetadata, { readonly brand: unique symbol }>()(
   S.Struct({
-    family: S.Literal("drivers"),
+    family: S.tag("drivers"),
   }).pipe(
     $I.annoteSchema("BeepDriverMetadata", {
       title: "Beep Driver Metadata",
@@ -330,7 +330,7 @@ export class BeepDriverMetadata extends S.Opaque<BeepDriverMetadata, { readonly 
  */
 export class BeepToolingMetadata extends S.Opaque<BeepToolingMetadata, { readonly brand: unique symbol }>()(
   S.Struct({
-    family: S.Literal("tooling"),
+    family: S.tag("tooling"),
     kind: BeepToolingKind,
   }).pipe(
     $I.annoteSchema("BeepToolingMetadata", {
@@ -358,7 +358,7 @@ export class BeepToolingMetadata extends S.Opaque<BeepToolingMetadata, { readonl
  */
 export class BeepEcosystemMetadata extends S.Opaque<BeepEcosystemMetadata, { readonly brand: unique symbol }>()(
   S.Struct({
-    family: S.Literal("ecosystem"),
+    family: S.tag("ecosystem"),
   }).pipe(
     $I.annoteSchema("BeepEcosystemMetadata", {
       title: "Beep Ecosystem Metadata",

@@ -33,8 +33,11 @@ environments, so an ordinary Buffalo run installs neither PyTorch wheel. Both
 AdaFace environments use the same pinned `safetensors` weights and vendored
 fixed inference graph; remote Python code is never loaded.
 
-The pinned AMD wheel dynamically links ROCm's `libhipsparselt.so.0`. On
-CachyOS, install the matching `hipsparselt` package. For
+The pinned PyTorch distribution targets ROCm 7.2 and uses its matching
+`triton-rocm` distribution. The previous AMD distribution dynamically linked
+ROCm's `libhipsparselt.so.0`; preserve any existing matching `hipsparselt`
+installation and library override until the replacement passes a native device
+probe on the target workstation. For
 `bun run beep files match-person`, `BEEP_PHOTO_FACE_ROCM_LIBRARY_PATH` is the
 preferred override: set it to one directory containing the compatible native
 library, not a colon-separated list. The repo CLI prepends that directory to

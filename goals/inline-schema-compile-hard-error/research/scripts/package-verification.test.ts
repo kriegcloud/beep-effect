@@ -24,7 +24,7 @@ const MatrixResult = S.Struct({
   exitCode: S.Finite,
 }).annotate($I.annote("MatrixResult", { description: "A primary package verifier's terminal result." }));
 const Matrix = S.Struct({
-  schemaVersion: S.Literal("inline-schema-package-verification/v2"),
+  schemaVersion: S.tag("inline-schema-package-verification/v2"),
   head: S.NonEmptyString,
   committedTree: S.NonEmptyString,
   supplementalReceipts: S.Array(S.NonEmptyString),
@@ -51,7 +51,7 @@ const ImplementationPullRequest = S.Struct({
   })
 );
 const ImplementationInventory = S.Struct({
-  schemaVersion: S.Literal("inline-schema-implementation-owners/v1"),
+  schemaVersion: S.tag("inline-schema-implementation-owners/v1"),
   pullRequests: S.Array(ImplementationPullRequest),
   packageNames: S.Array(S.NonEmptyString),
 }).annotate(

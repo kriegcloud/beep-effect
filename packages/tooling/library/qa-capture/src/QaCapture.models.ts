@@ -643,7 +643,7 @@ export class CaptureProvenance extends S.Opaque<CaptureProvenance, { readonly br
         description: "Scenario name driven during the session, when scripted.",
       })
     ),
-    schemaVersion: S.Literal("beep.qa.provenance.v1").pipe(
+    schemaVersion: S.tag("beep.qa.provenance.v1").pipe(
       $I.annoteKey("CaptureProvenance.schemaVersion", {
         description: "Provenance schema version literal.",
       })
@@ -788,7 +788,7 @@ export class SessionManifest extends S.Opaque<SessionManifest, { readonly brand:
         description: "Round-relative path of the legacy screenshot manifest for judge compatibility.",
       })
     ),
-    schemaVersion: S.Literal("beep.qa.capture-session.v1").pipe(
+    schemaVersion: S.tag("beep.qa.capture-session.v1").pipe(
       $I.annoteKey("SessionManifest.schemaVersion", {
         description: "Session manifest schema version literal.",
       })

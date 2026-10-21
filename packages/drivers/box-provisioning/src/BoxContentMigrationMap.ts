@@ -270,9 +270,7 @@ export class BoxContentMigrationFile extends S.Opaque<BoxContentMigrationFile, {
  */
 export class BoxContentMigrationMap extends S.Opaque<BoxContentMigrationMap, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("box-content-migration-map/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("box-content-migration-map/v1"))
-    ),
+    version: S.tag("box-content-migration-map/v1"),
     sourceRevision: BoxSourceRevision,
     expectedEnterpriseId: BoxProviderId,
     expectedSubjectId: BoxProviderId,

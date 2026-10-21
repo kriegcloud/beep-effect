@@ -6,8 +6,6 @@
 // only (the resolved version lives on package entries); yarn records no
 // importers at all.
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -17,8 +15,8 @@ import * as R from "effect/Record";
 import { Lockfile } from "../../effected/lockfiles/Lockfile.ts";
 import { peerDeclarations } from "../../effected/lockfiles/internal/shared.ts";
 import type { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
+import { fixture } from "./fixtures.ts";
 
-const fixture = (relative: string): string => readFileSync(join(import.meta.dirname, "fixtures", relative), "utf8");
 const parseFixture = (relative: string, format: LockfileFormat) => Lockfile.parse(fixture(relative), { format });
 
 describe("Lockfile.importers", () => {

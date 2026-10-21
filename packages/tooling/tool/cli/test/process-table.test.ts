@@ -1,7 +1,9 @@
 import {
   descendsFromProcess,
   desktopTerminalShellState,
+  fdinfoWatches,
   invokerSessionRoot,
+  ProcessInotifyWatch,
   ProcessTable,
   ProcessTableEntry,
   parseProcessJobControl,
@@ -91,6 +93,50 @@ describe("parseProcessJobControl", () => {
     assertNone(parseProcessJobControl("70 (zsh) S 60 70", 70));
     assertNone(parseProcessJobControl("70 zsh S 60 70 70 34823 70", 70));
     assertNone(parseProcessJobControl("70 (zsh) S 60 x 70 34823 70", 70));
+  });
+});
+
+describe("fdinfoWatches", () => {
+  // fdinfo of WebStorm's fsnotifier after it walked a two-directory tree.
+  const fdinfo = A.join(
+    [
+      "pos:\t0",
+      "flags:\t00",
+      "mnt_id:\t16",
+      "ino:\t1057",
+      "inotify wd:25d3 ino:3039d7c0 sdev:21 mask:fc6 ignored_mask:0 fhandle-bytes:14 fhandle-type:4d f_handle:c0d7393000000000",
+      "inotify wd:1 ino:2 sdev:fc00001 mask:fff ignored_mask:0 fhandle-bytes:8 fhandle-type:1 f_handle:0200000000000000",
+      "",
+    ],
+    "\n"
+  );
+
+  it("finds a watch only by its exact inode and superblock device", () => {
+    assertTrue(fdinfoWatches(fdinfo, ProcessInotifyWatch.make({ device: 0x21n, inode: 0x3039d7c0n })));
+    assertTrue(fdinfoWatches(ProcessInotifyWatch.make({ device: 0xfc00001n, inode: 2n }))(fdinfo));
+    // Same inode on another device, a prefix of a watched inode, a prefix of a device.
+    assertFalse(fdinfoWatches(fdinfo, ProcessInotifyWatch.make({ device: 0x22n, inode: 0x3039d7c0n })));
+    assertFalse(fdinfoWatches(fdinfo, ProcessInotifyWatch.make({ device: 0x21n, inode: 0x3039d7cn })));
+    assertFalse(fdinfoWatches(fdinfo, ProcessInotifyWatch.make({ device: 0xfc0000n, inode: 2n })));
+    // The descriptor's own inode line is not a watch.
+    assertFalse(fdinfoWatches(fdinfo, ProcessInotifyWatch.make({ device: 0x21n, inode: 0x1057n })));
+  });
+
+  it.effect("answers watching from fake rows, false for a row without watches", () => {
+    const watch = ProcessInotifyWatch.make({ device: 33n, inode: 809092275n });
+    const table = processTableFromEntries({
+      self: 100,
+      entries: [
+        ProcessTableEntry.make({ pid: 100, parent: 1, command: "bun" }),
+        ProcessTableEntry.make({ pid: 200, parent: 1, command: "fsnotifier", watches: [watch] }),
+      ],
+    });
+    return Effect.gen(function* () {
+      assertTrue(yield* table.watching(200, ProcessInotifyWatch.make({ device: 33n, inode: 809092275n })));
+      assertFalse(yield* table.watching(200, ProcessInotifyWatch.make({ device: 33n, inode: 2n })));
+      assertFalse(yield* table.watching(100, watch));
+      assertFalse(yield* table.watching(300, watch));
+    }).pipe(withTable(table));
   });
 });
 
