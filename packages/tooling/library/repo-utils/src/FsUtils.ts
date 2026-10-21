@@ -12,6 +12,7 @@ import { $RepoUtilsId } from "@beep/identity/packages";
 import { A, P, thunkFalse } from "@beep/utils";
 import { Glob as SharedGlob, layer as SharedGlobLayer, GlobOptions as SharedGlobOptions } from "@beep/utils/Glob";
 import * as O from "@beep/utils/Option";
+import { Walker } from "@beep/walker/Walker";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -545,8 +546,8 @@ export const exists: (filePath: string) => Effect.Effect<boolean, never, FileSys
  *
  * **Details**
  *
- * Traversal starts at `startDir` (inclusive) and climbs via `dirname` while the
- * current directory differs from the resolved `stopAt` boundary. The boundary is
+ * Traversal starts at the resolved `startDir` (inclusive) and climbs the
+ * `@beep/walker` `Walker.ascend` chain toward the resolved `stopAt` boundary. The boundary is
  * exclusive — a `package.json` located exactly at `stopAt`, or above it, yields
  * `Option.none`. Reaching the filesystem root before the boundary also yields
  * `Option.none` rather than failing. Callers that want a fallback (for example
@@ -583,20 +584,12 @@ export const findNearestPackageDir: {
   Effect.fn(function* (startDir: string, stopAt: string) {
     const path = yield* Path.Path;
     const boundary = path.resolve(stopAt);
-    let current = path.resolve(startDir);
-
-    while (current !== boundary) {
-      const hasPackageJson = yield* exists(path.join(current, "package.json"));
-      if (hasPackageJson) {
-        return O.some(current);
-      }
-      const parent = path.dirname(current);
-      if (parent === current) {
-        return O.none<string>();
-      }
-      current = parent;
-    }
-
-    return O.none<string>();
+    // `Walker.ascend` stops at its ceiling inclusively; this lookup excludes the boundary itself.
+    const dirs = A.filter(
+      yield* Walker.ascend(path.resolve(startDir), { stopAt: boundary }),
+      (dir) => dir !== boundary
+    );
+    const manifest = yield* Walker.findUpward(dirs, (dir) => [path.join(dir, "package.json")]);
+    return O.map(manifest, path.dirname);
   })
 );
