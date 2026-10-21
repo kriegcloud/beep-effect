@@ -38,6 +38,7 @@ import { A, Str } from "@beep/utils";
 import * as HostPath from "@beep/utils/Path";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import { sql } from "drizzle-orm";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -63,8 +64,14 @@ const TestActorScopeLayer = Layer.succeed(ProviderInstanceActorContext, primaryA
 
 const runnerRequests = Ref.makeUnsafe<ReadonlyArray<Parameters<AiProviderCliRunner>[0]>>([]);
 
+// A test can arm one write that lands while the next probe's CLI call runs:
+// after the probe read the instance and before it saves the snapshot.
+const writeDuringNextProbe = Ref.makeUnsafe<O.Option<Effect.Effect<void>>>(O.none());
+
 const runner: AiProviderCliRunner = (request) =>
-  Ref.update(runnerRequests, (requests) => [...requests, request]).pipe(
+  Ref.getAndSet(writeDuringNextProbe, O.none()).pipe(
+    Effect.flatMap(O.getOrElse(() => Effect.void)),
+    Effect.andThen(Ref.update(runnerRequests, (requests) => [...requests, request])),
     Effect.as(
       request.provider === "claude"
         ? AiProviderCliProcessResult.make({
@@ -213,6 +220,57 @@ describe("ProviderInstance PGLite integration", { concurrent: false }, () => {
         const requests = yield* Ref.get(runnerRequests);
         expect(requests[0]?.executable).toBe(HostPath.join(NodeOS.homedir(), "opt/bin/codex"));
         expect(requests[0]?.env).toEqual({ CODEX_HOME: "/tmp/codex-home" });
+      }),
+      pgliteIntegrationTimeoutMillis
+    );
+
+    it.effect(
+      "rejects a probe save that lost the race to a concurrent configuration update",
+      Effect.fnUntraced(function* () {
+        yield* prepareTable();
+        const useCases = yield* ProviderInstanceUseCases;
+        const repository = yield* ProviderInstanceRepository;
+        const added = yield* useCases.add(makeAddCommand("Before the race"));
+        // The table has no DEFAULT (it predates the kit default), so this proves
+        // the insert writes the first version itself.
+        expect(added.rowVersion).toBe(1);
+
+        yield* Ref.set(
+          writeDuringNextProbe,
+          O.some(
+            useCases
+              .update(
+                UpdateProviderInstanceCommand.make({
+                  binaryPath: added.binaryPath,
+                  envVars: added.envVars,
+                  homePath: added.homePath,
+                  id: added.id,
+                  kind: added.kind,
+                  label: Domain.InstanceLabel.make("Renamed mid-probe"),
+                })
+              )
+              .pipe(Effect.asVoid, Effect.orDie)
+          )
+        );
+        const lost = yield* Effect.flip(useCases.probe(ProbeProviderInstanceCommand.make({ id: added.id })));
+        expect(lost).toMatchObject({
+          _tag: "ProviderInstanceVersionConflict",
+          actualRowVersion: 2,
+          expectedRowVersion: 1,
+          providerInstanceId: added.id,
+        });
+
+        // The configuration update survived; the stale probe did not revert it.
+        const stored = yield* useCases.get(GetProviderInstanceQuery.make({ id: added.id }));
+        expect([stored.label, stored.rowVersion]).toEqual(["Renamed mid-probe", 2]);
+        assertNone(stored.lastProbe);
+
+        const stale = yield* Effect.flip(repository.save(added));
+        expect(stale).toMatchObject({ _tag: "ProviderInstanceVersionConflict", actualRowVersion: 2 });
+        const fresh = yield* repository.save(
+          Domain.ProviderInstance.make({ ...stored, label: Domain.InstanceLabel.make("Fresh") })
+        );
+        expect(fresh.rowVersion).toBe(3);
       }),
       pgliteIntegrationTimeoutMillis
     );

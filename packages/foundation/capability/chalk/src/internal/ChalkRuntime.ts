@@ -8,11 +8,11 @@
 import { $ChalkId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
 import { pipe } from "effect/Function";
+import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import * as Tuple from "effect/Tuple";
 import { ansiStyles, getModelAnsi, getStyleEntry } from "./AnsiStyles.ts";
 import { AnsiRenderLevel, ColorModelName, ColorSupportLevel, StyleName } from "./ChalkSchema.ts";
 import { ColorSupportLevelInput } from "./PublicSurface.ts";
@@ -21,61 +21,6 @@ import type { ColorInfo, ColorSupportLevel as ColorSupportLevelType } from "./Ch
 import type { ChalkConstructorOptions } from "./PublicSurface.ts";
 
 const $I = $ChalkId.create("Domain");
-class ChalkNoColorState extends S.Class<ChalkNoColorState, {}>($I`ChalkNoColorState`)(
-  {
-    level: S.tag(0),
-  },
-  $I.annote("ChalkNoColorState", {
-    description: "Chalk builder state for disabled color output.",
-  })
-) {}
-
-class ChalkAnsiColorState extends S.Class<ChalkAnsiColorState, {}>($I`ChalkAnsiColorState`)(
-  {
-    level: S.tag(1),
-  },
-  $I.annote("ChalkAnsiColorState", {
-    description: "Chalk builder state for basic ANSI color output.",
-  })
-) {}
-
-class ChalkAnsi256ColorState extends S.Class<ChalkAnsi256ColorState, {}>($I`ChalkAnsi256ColorState`)(
-  {
-    level: S.tag(2),
-  },
-  $I.annote("ChalkAnsi256ColorState", {
-    description: "Chalk builder state for ANSI 256-color output.",
-  })
-) {}
-
-class ChalkTrueColorState extends S.Class<ChalkTrueColorState, {}>($I`ChalkTrueColorState`)(
-  {
-    level: S.tag(3),
-  },
-  $I.annote("ChalkTrueColorState", {
-    description: "Chalk builder state for truecolor output.",
-  })
-) {}
-
-export const ChalkState = ColorSupportLevel.mapMembers(
-  Tuple.evolve([
-    () => ChalkNoColorState,
-    () => ChalkAnsiColorState,
-    () => ChalkAnsi256ColorState,
-    () => ChalkTrueColorState,
-  ])
-).pipe(
-  $I.annoteSchema("ChalkState", {
-    description: "Discriminated Chalk builder color state keyed by color support level.",
-  }),
-  S.toTaggedUnion("level")
-);
-type ChalkState = typeof ChalkState.Type;
-
-type MutableChalkState = {
-  -readonly [Key in keyof ChalkState]: ChalkState[Key];
-};
-
 class Styler extends S.Opaque<Styler, { readonly brand: unique symbol }>()(
   S.Struct({
     open: S.NonEmptyString,
@@ -100,21 +45,25 @@ declare namespace Styler {
   };
 }
 
-class BuilderMeta extends S.Class<BuilderMeta, {}>($I`BuilderMeta`)(
-  {
+class BuilderMeta extends S.Opaque<BuilderMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
     isEmpty: S.Boolean,
-    state: ChalkState,
     styler: S.UndefinedOr(Styler),
-  },
-  $I.annote("BuilderMeta", {
-    description: "Represents metadata for a chalk builder instance.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuilderMeta", {
+      description: "Represents metadata for a chalk builder instance.",
+    })
+  )
 ) {}
 
 type ChalkFunction = (...arguments_: ReadonlyArray<unknown>) => string;
 type ChalkPrototype = object;
 
 const builderMetaMap = new WeakMap<ChalkFunction, BuilderMeta>();
+
+// A builder shares one level cell with the builder it was derived from, so a
+// level change on either reaches the whole chain.
+const builderLevelMap = new WeakMap<ChalkFunction, MutableRef.MutableRef<ColorSupportLevelType>>();
 
 const levelMapping: Readonly<Record<ColorSupportLevelType, AnsiRenderLevel>> = {
   0: AnsiRenderLevel.Enum.ansi,
@@ -142,8 +91,16 @@ const normalizeColorSupportLevel = (level: unknown): ColorSupportLevelType =>
     Result.getOrThrow
   );
 
-const setChalkStateLevel = (state: ChalkState, level: unknown): void => {
-  (state as MutableChalkState).level = normalizeColorSupportLevel(level);
+const getBuilderLevel = (builder: ChalkFunction): MutableRef.MutableRef<ColorSupportLevelType> => {
+  const level = builderLevelMap.get(builder);
+
+  if (P.isUndefined(level)) {
+    throw MissingBuilderMetadataError.make({
+      message: "Missing Chalk builder level.",
+    });
+  }
+
+  return level;
 };
 
 const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
@@ -201,9 +158,9 @@ const createStyler = (open: string, close: string, parent: Styler | undefined): 
       });
 
 const applyStyle = (builder: ChalkFunction, text: string): string => {
-  const { isEmpty, state, styler } = getBuilderMeta(builder);
+  const { isEmpty, styler } = getBuilderMeta(builder);
 
-  if (state.level <= 0 || text.length === 0) {
+  if (MutableRef.get(getBuilderLevel(builder)) <= 0 || text.length === 0) {
     return isEmpty ? "" : text;
   }
 
@@ -242,16 +199,16 @@ const createPrototype = (): ChalkPrototype => {
     level: {
       enumerable: true,
       get(this: ChalkFunction) {
-        return getBuilderMeta(this).state.level;
+        return MutableRef.get(getBuilderLevel(this));
       },
       set(this: ChalkFunction, level: unknown) {
-        setChalkStateLevel(getBuilderMeta(this).state, level);
+        MutableRef.set(getBuilderLevel(this), normalizeColorSupportLevel(level));
       },
     },
     visible: {
       get(this: ChalkFunction) {
-        const { state, styler } = getBuilderMeta(this);
-        const builder = createBuilder(state, styler, true, prototype);
+        const { styler } = getBuilderMeta(this);
+        const builder = createBuilder(getBuilderLevel(this), styler, true, prototype);
 
         Object.defineProperty(this, "visible", {
           value: builder,
@@ -265,9 +222,14 @@ const createPrototype = (): ChalkPrototype => {
   for (const styleName of StyleName.literals) {
     Object.defineProperty(prototype, styleName, {
       get(this: ChalkFunction) {
-        const { isEmpty, state, styler } = getBuilderMeta(this);
+        const { isEmpty, styler } = getBuilderMeta(this);
         const style = getStyleEntry(styleName);
-        const builder = createBuilder(state, createStyler(style.open, style.close, styler), isEmpty, prototype);
+        const builder = createBuilder(
+          getBuilderLevel(this),
+          createStyler(style.open, style.close, styler),
+          isEmpty,
+          prototype
+        );
 
         Object.defineProperty(this, styleName, {
           value: builder,
@@ -281,12 +243,17 @@ const createPrototype = (): ChalkPrototype => {
   for (const modelName of ColorModelName.literals) {
     Object.defineProperty(prototype, modelName, {
       get(this: ChalkFunction) {
-        const level = getBuilderMeta(this).state.level;
+        const level = MutableRef.get(getBuilderLevel(this));
 
         return function modelBuilder(this: ChalkFunction, ...arguments_: ReadonlyArray<number | string>) {
-          const { isEmpty, state, styler } = getBuilderMeta(this);
+          const { isEmpty, styler } = getBuilderMeta(this);
           const open = getModelAnsi(modelName, levelMapping[level], "color", ...arguments_);
-          return createBuilder(state, createStyler(open, ansiStyles.color.close, styler), isEmpty, prototype);
+          return createBuilder(
+            getBuilderLevel(this),
+            createStyler(open, ansiStyles.color.close, styler),
+            isEmpty,
+            prototype
+          );
         };
       },
     });
@@ -295,12 +262,17 @@ const createPrototype = (): ChalkPrototype => {
 
     Object.defineProperty(prototype, backgroundModelName, {
       get(this: ChalkFunction) {
-        const level = getBuilderMeta(this).state.level;
+        const level = MutableRef.get(getBuilderLevel(this));
 
         return function modelBuilder(this: ChalkFunction, ...arguments_: ReadonlyArray<number | string>) {
-          const { isEmpty, state, styler } = getBuilderMeta(this);
+          const { isEmpty, styler } = getBuilderMeta(this);
           const open = getModelAnsi(modelName, levelMapping[level], "bgColor", ...arguments_);
-          return createBuilder(state, createStyler(open, ansiStyles.bgColor.close, styler), isEmpty, prototype);
+          return createBuilder(
+            getBuilderLevel(this),
+            createStyler(open, ansiStyles.bgColor.close, styler),
+            isEmpty,
+            prototype
+          );
         };
       },
     });
@@ -312,18 +284,21 @@ const createPrototype = (): ChalkPrototype => {
 const prototype = createPrototype();
 
 const createBuilder = (
-  state: ChalkState,
+  level: MutableRef.MutableRef<ColorSupportLevelType>,
   styler: Styler | undefined,
   isEmpty: boolean,
   currentPrototype: ChalkPrototype
 ): ChalkFunction => {
   const builder = (...arguments_: ReadonlyArray<unknown>): string => applyStyle(builder, renderArguments(arguments_));
 
-  builderMetaMap.set(builder, {
-    isEmpty,
-    state,
-    styler,
-  });
+  builderMetaMap.set(
+    builder,
+    BuilderMeta.make({
+      isEmpty,
+      styler,
+    })
+  );
+  builderLevelMap.set(builder, level);
 
   Object.setPrototypeOf(builder, currentPrototype);
 
@@ -349,13 +324,8 @@ const createBuilder = (
 export const makeCreateChalk = (defaultColorInfo: ColorInfo) => {
   const defaultLevel = defaultColorInfo === false ? 0 : defaultColorInfo.level;
 
-  return (options?: ChalkConstructorOptions): ChalkFunction =>
-    createBuilder(
-      {
-        level: P.isUndefined(options?.level) ? defaultLevel : normalizeColorSupportLevel(options.level),
-      },
-      undefined,
-      false,
-      prototype
-    );
+  return (options?: ChalkConstructorOptions): ChalkFunction => {
+    const level = P.isUndefined(options?.level) ? defaultLevel : normalizeColorSupportLevel(options.level);
+    return createBuilder(MutableRef.make(level), undefined, false, prototype);
+  };
 };

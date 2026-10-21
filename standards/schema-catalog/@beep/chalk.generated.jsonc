@@ -5,7 +5,6 @@
   "owner": "@beep/chalk",
   "entries": [
     {"file":"packages/foundation/capability/chalk/src/internal/AnsiStyles.ts","symbol":"StylerEntry","kind":"struct-const","owner":"@beep/chalk","identity":"StylerEntry","description":"Open and close ANSI escape sequences for a single chalk style."},
-    {"file":"packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts","symbol":"ChalkState","kind":"tagged-union","owner":"@beep/chalk","identity":"ChalkState","description":"Discriminated Chalk builder color state keyed by color support level."},
     {"file":"packages/foundation/capability/chalk/src/internal/ChalkSchema.ts","symbol":"ChalkOptions","kind":"struct-const","owner":"@beep/chalk","identity":"ChalkOptions","description":"Configuration for constructing an isolated Chalk instance with an explicit color support level."},
     {"file":"packages/foundation/capability/chalk/src/internal/ChalkSchema.ts","symbol":"ColorInfo","kind":"union","owner":"@beep/chalk","identity":"ColorInfo","description":"Detected terminal color support information, or `false` when color output is disabled."},
     {"file":"packages/foundation/capability/chalk/src/internal/ChalkSchema.ts","symbol":"ColorSupport","kind":"struct-const","owner":"@beep/chalk","identity":"ColorSupport","description":"Detected terminal color support metadata for a Chalk output stream."}

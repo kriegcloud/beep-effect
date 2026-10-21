@@ -27,36 +27,6 @@
     "reason": "ClaimTerm's determiner/quote surface check rejects almost every independently generated term, so schema-derived arbitraries exhaust; the class carries a toCodecArbitrary link (declaration-only annotation) that builds the quote from the determiner's surface, as TextAnchor does."
   },
   {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkNoColorState",
-    "brand": "structural",
-    "reason": "Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkAnsiColorState",
-    "brand": "structural",
-    "reason": "Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkAnsi256ColorState",
-    "brand": "structural",
-    "reason": "Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkTrueColorState",
-    "brand": "structural",
-    "reason": "Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "BuilderMeta",
-    "brand": "structural",
-    "reason": "Chalk builder state is one mutable plain object shared by reference across a builder chain (the `level` setter mutates it in place); branded construction through make() yields immutable instances and breaks level propagation (chalk test: propagates level changes across child builders). Kept as a class (keep-class entry) with the structural brand so the original plain-object state stays assignable."
-  },
-  {
     "file": "packages/drivers/box/src/Box.errors.ts",
     "class": "BoxApiFailureContext",
     "reason": "Kept as a class: as S.Opaque its struct type is expanded inside BoxError, whose type then exceeds tsgo 0.51.1 declaration-mode instantiation depth (location-less TS2589 plus unknown BoxError fields in Box.errors.ts during box#build); as a class its instance type stays a named reference. Measured: 9 errors as Opaque, 0 as class (4 runs)."
@@ -649,31 +619,6 @@
     "file": "packages/drivers/runpod/scripts/operations.renderer.ts",
     "class": "JsonSchema",
     "reason": "Self-recursive schema: S.suspend((): S.Codec<JsonSchema, ...>) needs the class Self type (an Opaque cannot satisfy it without retyping ~15 renderer functions)."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkNoColorState",
-    "reason": "Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkAnsiColorState",
-    "reason": "Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkAnsi256ColorState",
-    "reason": "Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "ChalkTrueColorState",
-    "reason": "Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
-  },
-  {
-    "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-    "class": "BuilderMeta",
-    "reason": "Builders share one mutable state object by reference; Opaque make copies nested struct fields, S.Class keeps the reference (chalk tests: level validation and level propagation across child builders)."
   },
   {
     "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
