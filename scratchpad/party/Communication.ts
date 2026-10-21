@@ -197,13 +197,13 @@ export const CommunicationEvent = S.Struct({
   .check(
     S.makeFilter(
       ({ participants }) => A.length(A.filter(participants, (p) => p.role === "from")) === 1,
-      { identifier: $I`ExactlyOneFromCheck`, message: "Expected exactly one from participant." }
+      $I.annote("ExactlyOneFromCheck", { message: "Expected exactly one from participant." })
     ),
     S.makeFilter(
       ({ participants }) =>
         A.length(A.filter(participants, (p) => p.role === "sender")) <= 1 &&
         A.length(A.filter(participants, (p) => p.role === "sent-representing")) <= 1,
-      { identifier: $I`SingleSenderCheck`, message: "Expected at most one sender and one sent-representing." }
+      $I.annote("SingleSenderCheck", { message: "Expected at most one sender and one sent-representing." })
     )
   )
   .pipe($I.annoteSchema("CommunicationEvent", { description: "Canonical communication event." }));

@@ -127,7 +127,7 @@ export const renderReviewPage = (casesJson: string): string => `<!doctype html>
         if (!who) { reviewer.focus(); return; }
         decisions[c.basis] = {
           name: c.name, verdict, basis: c.basis,
-          reviewer: "user:" + who.replace(/\s+/g, "-"),
+          reviewer: "user:" + who.replace(/\\s+/g, "-"),
           reviewedAt: now(), note: note.value,
         };
         save("collision-decisions", decisions);

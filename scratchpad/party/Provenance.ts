@@ -168,10 +168,7 @@ export const EvidenceAnchor = S.Union([
     end: S.Int.check(S.isGreaterThanOrEqualTo(1)),
     quote: S.NonEmptyString,
   }).check(
-    S.makeFilter(({ start, end }) => start < end, {
-      identifier: $I`TextSpanOrderCheck`,
-      message: "Expected span start before end.",
-    })
+    S.makeFilter(({ start, end }) => start < end, $I.annote("TextSpanOrderCheck", { message: "Expected span start before end." }))
   ),
   S.TaggedStruct("MetadataTag", {
     occurrence: OccurrenceId,

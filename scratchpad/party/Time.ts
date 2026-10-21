@@ -25,19 +25,13 @@ const $I = $ScratchpadId.create("party/Time");
  * @since 0.0.0
  */
 export const UtcInstant = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$/, {
-    identifier: $I`UtcInstantCheck`,
-    message: "Expected an ISO-8601 UTC instant ending in Z.",
-  })
+  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$/, $I.annote("UtcInstantCheck", { message: "Expected an ISO-8601 UTC instant ending in Z." }))
 ).pipe(S.brand("UtcInstant"), $I.annoteSchema("UtcInstant", { description: "ISO-8601 UTC instant." }));
 export type UtcInstant = typeof UtcInstant.Type;
 
 const Instant = S.TaggedStruct("Instant", { at: UtcInstant });
 const Interval = S.TaggedStruct("Interval", { from: UtcInstant, to: UtcInstant }).check(
-  S.makeFilter(({ from, to }) => from < to, {
-    identifier: $I`IntervalOrderCheck`,
-    message: "Expected interval start strictly before its end.",
-  })
+  S.makeFilter(({ from, to }) => from < to, $I.annote("IntervalOrderCheck", { message: "Expected interval start strictly before its end." }))
 );
 const OpenEnded = S.TaggedStruct("OpenEnded", { from: UtcInstant });
 const Unknown = S.TaggedStruct("Unknown", {});

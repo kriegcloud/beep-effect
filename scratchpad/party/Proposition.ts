@@ -43,10 +43,7 @@ export const NameKind = LiteralKit(["legal", "preferred", "former", "nickname", 
 );
 
 const distinctPair = (tag: string, left: string, right: string) =>
-  S.makeFilter((value: Record<string, unknown>) => value[left] !== value[right], {
-    identifier: `@beep/scratchpad/party/Proposition/${tag}DistinctRolesCheck`,
-    message: `Expected ${left} and ${right} to be different parties.`,
-  });
+  S.makeFilter((value: Record<string, unknown>) => value[left] !== value[right], $I.annote(`${tag}DistinctRolesCheck`, { message: `Expected ${left} and ${right} to be different parties.` }));
 
 const SameParty = S.TaggedStruct("SameParty", { left: PartyId, right: PartyId });
 const DistinctParty = S.TaggedStruct("DistinctParty", { left: PartyId, right: PartyId });

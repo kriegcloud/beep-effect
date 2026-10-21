@@ -1,6 +1,6 @@
 # Party Data Model — evidence-gated parties, identities, and organization graphs
 
-Status: experiment (scratchpad), 2026-10-21. Module: `scratchpad/party/`. Tests: `test/*.test.ts` (48 competency, adapter, identity-, organization-evidence and review-loop tests, all passing). Real-corpus run: `bun scratchpad/party/scripts/mail-census.ts <out.json> <filter|-> <index.jsonl>...`. Typecheck: `node_modules/.bin/tsgo -p scratchpad/party/tsconfig.json --noEmit`. Run: `node_modules/.bin/vitest run --config scratchpad/party/vitest.config.ts`.
+Status: experiment (scratchpad), 2026-10-21. Module: `scratchpad/party/`. Tests: `test/*.test.ts` (49 competency, adapter, identity-, organization-evidence and review-loop tests, all passing). Real-corpus run: `bun scratchpad/party/scripts/mail-census.ts <out.json> <filter|-> <index.jsonl>...`. Typecheck: `node_modules/.bin/tsgo -p scratchpad/party/tsconfig.json --noEmit`. Run: `node_modules/.bin/vitest run --config scratchpad/party/vitest.config.ts`.
 
 ## 1. The short answer
 
@@ -131,6 +131,7 @@ scratchpad/party/
     mail-census.ts streams index JSONL through the adapter; writes counts only
     identity-evidence.ts mail + contacts (+ review decisions) → counts, encoded claims, review.html (private outputs)
     ReviewPage.ts  offline review page renderer
+    review-page-demo.ts  renders the page from synthetic cases for UI checks
   fixtures/acme.ts fully synthetic "Doe Harvesting v. Acme Implement Co." production, encoded and decoded
 ```
 
@@ -264,15 +265,21 @@ collision lead ─► CollisionCase (mailboxes + domains + spans, sealed with a 
 - **Verified end to end on the real corpus** in a throwaway directory with a self-test reviewer id: 3 decisions gave 1 reviewed-distinct, 1 reviewed-same and 1 skipped, 1,408 stayed queued, and 14 Accepted claims were emitted. The directory was deleted afterwards, so no fabricated decision sits beside the real queue.
 - **The real queue:** 1,411 full-name cases, all unreviewed, in the private output directory as `review.html`.
 
-Known limits:
-- The verdict is per name. A name spanning five mailboxes gets one answer, which is too coarse when three of the five are one person. The next increment is a grouping control: assign mailboxes to people, which emits `SameParty` within groups and `DistinctParty` across them.
-- The page is a scratch tool and was not run through the browser-QA loop.
+**Mailbox grouping (done).** A decision is now `Grouped { groups } | Skip`: the reviewer assigns each mailbox to Person A, B, C… and the decision emits `SameParty` within each group and `DistinctParty` across groups. The schema rejects a mailbox listed in two groups. `applyReviews` rejects a grouping that doesn't exactly cover the case's mailboxes (`invalid-decision`) and reports `reviewed-same`, `reviewed-distinct` or `reviewed-grouped`. The page has a person selector per mailbox, "All same" and "All different" shortcuts, and a Save button that stays disabled until every mailbox is assigned.
+
+**Browser QA (synthetic data only).** `scripts/review-page-demo.ts` renders the page from three fictional cases. I drove it in Chrome through a throwaway portless server, which was stopped afterwards:
+- 2+1 grouping, all-same and skip all worked,
+- the Undecided filter and the progress counter updated,
+- saved groupings reloaded under "All",
+- the exported line decoded with `CollisionDecision` and produced the expected claims.
+
+QA caught one real bug: the reviewer id `qa-synthetic` was stored as `user:qa--ynthetic`. A `\s` inside the TypeScript template literal that emits the page had collapsed to `s`. This is the same escaping trap that broke `Ids.ts`, and it is fixed. The real `review.html` was regenerated with the grouping UI (1,411 cases, all unreviewed).
 
 ## 8. Open questions and next steps
 
 - **O1 — placement (architecture).** Does `@beep/epistemic-domain` belong under `foundation/modeling`? And does Party become a product slice (`packages/party/*`) or a foundation modeling package? Proposed test: if no type in it names a product concept (matter, client, docket), it is foundation, so `ClaimVersion`, signals and admission machinery qualify. `Party` + `Proposition` arguably qualify too. `ContextRole` vocabularies stay with their slices. Route through `/grill-with-docs` against `07-non-slice-families.md` and `02-shared-kernel.md` before any package is created with `bun run beep create-package`.
 - **O2 — `EdgeVersion` endpoint shape.** Typed per-proposition endpoints, or a `Proposition` payload with a derived logical key?
-- **O3c — reviewer loop (done, §7.4).** Next: a mailbox-grouping control for names with three or more mailboxes; ranking within a lead by message volume; feeding reviewed `SameParty` clusters back into the mail projections (`identityView`) so attributed events use reviewed identities.
+- **O3c — reviewer loop + mailbox grouping (done, §7.4).** Next: ranking within a lead by message volume; feeding reviewed `SameParty` clusters back into the mail projections (`identityView`) so attributed events use reviewed identities.
 - **O3b — collision evidence beyond the address book (domain evidence done, §7.3; signatures pending a pandoc driver).** 1,469 collisions are unresolved because contact books cover only 2.6% of mail identifiers. Next evidence sources, in order of expected yield:
   - SMTP domain → organization claims (two "Chris Morgan"s at different firms' domains are a `DistinctParty` lead),
   - signature-block observations,

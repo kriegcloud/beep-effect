@@ -16,10 +16,7 @@ const $I = $ScratchpadId.create("party/Ids");
 
 const prefixed = (prefix: string) =>
   S.String.check(
-    S.isPattern(new RegExp(`^${prefix}:\\S+$`), {
-      identifier: `@beep/scratchpad/party/Ids/${prefix}PrefixCheck`,
-      message: `Expected an id of the form "${prefix}:<value>".`,
-    })
+    S.isPattern(new RegExp(`^${prefix}:\\S+$`), $I.annote(`${prefix}PrefixCheck`, { message: `Expected an id of the form "${prefix}:<value>".` }))
   );
 
 /**
@@ -197,10 +194,7 @@ export type ContextRef = typeof ContextRef.Type;
  * @since 0.0.0
  */
 export const ConceptIri = S.String.check(
-  S.isPattern(/^(https?:\/\/|urn:)\S+$/, {
-    identifier: $I`ConceptIriCheck`,
-    message: "Expected an http(s) or urn concept IRI.",
-  })
+  S.isPattern(/^(https?:\/\/|urn:)\S+$/, $I.annote("ConceptIriCheck", { message: "Expected an http(s) or urn concept IRI." }))
 ).pipe(S.brand("ConceptIri"), $I.annoteSchema("ConceptIri", { description: "SKOS concept IRI." }));
 export type ConceptIri = typeof ConceptIri.Type;
 
@@ -211,6 +205,6 @@ export type ConceptIri = typeof ConceptIri.Type;
  * @since 0.0.0
  */
 export const Digest = S.String.check(
-  S.isPattern(/^[0-9a-f]{8,64}$/, { identifier: $I`DigestCheck`, message: "Expected a lowercase hex digest." })
+  S.isPattern(/^[0-9a-f]{8,64}$/, $I.annote("DigestCheck", { message: "Expected a lowercase hex digest." }))
 ).pipe(S.brand("Digest"), $I.annoteSchema("Digest", { description: "Lowercase hex digest." }));
 export type Digest = typeof Digest.Type;

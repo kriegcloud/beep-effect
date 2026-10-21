@@ -89,7 +89,7 @@ export const ReviewVerdict = S.TaggedUnion({
           const all = A.flatten(groups);
           return A.length(A.dedupe(all)) === A.length(all);
         },
-        { identifier: $I`GroupsDisjointCheck`, message: "Expected each mailbox in at most one group." }
+        $I.annote("GroupsDisjointCheck", { message: "Expected each mailbox in at most one group." })
       )
     ),
   },
