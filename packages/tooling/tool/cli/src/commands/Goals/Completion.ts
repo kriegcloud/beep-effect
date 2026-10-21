@@ -393,7 +393,8 @@ const recoverReadiness = Effect.fn("Goals.Completion.recoverReadiness")(function
   const path = yield* Path.Path;
   const runId = yield* repoRunArtifactId(branch);
   const runRoot = path.join(root, ".beep", "yeet", "runs", runId);
-  if (path.resolve(root, ref.ref) !== path.join(runRoot, "verdict.json")) return false;
+  if (path.resolve(root, ref.ref) !== path.join(runRoot, "verdict.json"))
+    return yield* YeetCommandError.make({ message: "Declared verdict path is not canonical for its branch." });
   const jobFile = path.join(root, ".beep", "yeet", "jobs", `${recovery.jobId}.json`);
   const jobRead = yield* readContainedFileStringNoFollow(root, jobFile);
   const statusFile = path.join(runRoot, "status.json");
@@ -402,62 +403,71 @@ const recoverReadiness = Effect.fn("Goals.Completion.recoverReadiness")(function
   const status = yield* decodeRecoveryStatus(yield* Effect.fromOption(statusRead.contents));
   const runner = yield* Effect.fromOption(job.runner);
   const outcome = yield* Effect.fromOption(job.outcome);
-  const systemd = yield* Effect.fromOption(job.systemd);
+  const systemd = yield* Effect.fromOption(job.systemd).pipe(
+    Effect.mapError(() => YeetCommandError.make({ message: "job service finalization receipt is absent" }))
+  );
   const start = yield* decodeRecoveryTime(runner.startedAt);
   const observed = yield* decodeRecoveryTime(status.createdAt);
   const end = yield* decodeRecoveryTime(outcome.endedAt);
   const submitted = yield* decodeRecoveryTime(job.submittedAt);
   const finalized = yield* decodeRecoveryTime(systemd.finalizedAt);
   const millis = DateTime.toEpochMillis;
-  const matches = A.every(
+  const checks: ReadonlyArray<readonly [string, boolean]> = [
+    ["job ID mismatch", job.jobId === recovery.jobId],
+    ["job is not finished", job.phase === "finished"],
+    ["job outcome is not successful", outcome.verdictOutcome === "success"],
+    ["service finalization is not successful", systemd.serviceResult === "success"],
+    ["service did not exit normally", O.contains("exited")(systemd.exitCode)],
+    ["service exit status is not zero", O.contains("0")(systemd.exitStatus)],
+    ["job was terminated", O.isNone(job.terminationReason)],
+    ["job cancellation was requested", O.isNone(job.cancelRequestedAt)],
+    ["job is not a monitor", job.request.mode === "monitor"],
+    ["job did not request until-ready", A.contains(job.request.argv, "--until-ready")],
     [
-      job.jobId === recovery.jobId,
-      job.phase === "finished",
-      outcome.verdictOutcome === "success",
-      systemd.serviceResult === "success",
-      O.contains("exited")(systemd.exitCode),
-      O.contains("0")(systemd.exitStatus),
-      O.isNone(job.terminationReason),
-      O.isNone(job.cancelRequestedAt),
-      job.request.mode === "monitor",
-      A.contains(job.request.argv, "--until-ready"),
+      "job requested an incompatible monitor mode",
       !A.some(job.request.argv, (arg) => arg === "--until-merged" || arg === "--watch"),
-      path.resolve(job.request.checkout) === path.resolve(root),
-      job.request.branch === branch,
-      job.request.base === status.base,
-      O.contains(recovery.prNumber)(job.prNumber),
-      job.unit.unitName === `beep-proof-${recovery.jobId}.service`,
-      job.unit.logPath === path.join(root, ".beep", "yeet", "jobs", `${recovery.jobId}.log`),
-      status.runId === runId,
-      status.branch === branch,
-      status.statusPath === statusFile,
-      status.remote.number === recovery.prNumber,
-      O.contains(head)(status.remote.headSha),
-      O.contains(head)(status.closeout.reviewedHeadSha),
-      status.closeout.path === path.join(runRoot, "pr-closeout.json"),
-      millis(submitted) <= millis(start),
-      millis(start) <= millis(observed),
-      millis(observed) <= millis(end),
-      millis(end) <= millis(finalized),
-      millis(finalized) <= millis(recovery.mergedAt),
-      O.exists(status.mergeReady, (ready) => ready.ready),
+    ],
+    ["job checkout mismatch", path.resolve(job.request.checkout) === path.resolve(root)],
+    ["job branch mismatch", job.request.branch === branch],
+    ["job base mismatch", job.request.base === status.base],
+    ["job PR number mismatch", O.contains(recovery.prNumber)(job.prNumber)],
+    ["job unit name mismatch", job.unit.unitName === `beep-proof-${recovery.jobId}.service`],
+    ["job log path mismatch", job.unit.logPath === path.join(root, ".beep", "yeet", "jobs", `${recovery.jobId}.log`)],
+    ["status run ID mismatch", status.runId === runId],
+    ["status branch mismatch", status.branch === branch],
+    ["status path mismatch", status.statusPath === statusFile],
+    ["status PR number mismatch", status.remote.number === recovery.prNumber],
+    ["status head mismatch", O.contains(head)(status.remote.headSha)],
+    ["closeout head mismatch", O.contains(head)(status.closeout.reviewedHeadSha)],
+    ["closeout path mismatch", status.closeout.path === path.join(runRoot, "pr-closeout.json")],
+    ["job started before submission", millis(submitted) <= millis(start)],
+    ["status predates job start", millis(start) <= millis(observed)],
+    ["status was recorded after job end", millis(observed) <= millis(end)],
+    ["job finalized before its end", millis(end) <= millis(finalized)],
+    ["job finalized after PR merge", millis(finalized) <= millis(recovery.mergedAt)],
+    ["recorded readiness is absent or false", O.exists(status.mergeReady, (ready) => ready.ready)],
+    [
+      "derived hard readiness criteria are not satisfied",
       O.exists(deriveYeetMergeReady(status.closeout, status.remote), (ready) => ready.ready),
     ],
-    identity
-  );
-  return matches;
+  ];
+  const refusal = A.findFirst(checks, ([, holds]) => !holds);
+  if (O.isSome(refusal)) return yield* YeetCommandError.make({ message: refusal.value[0] });
+  return true;
 });
 
-const canRecoverReadiness = (verdict: YeetVerdict, head: string): boolean =>
-  A.every(
-    [
-      verdict.mode === "publish",
-      verdict.outcome === "success",
-      O.contains(head)(verdict.resolvedHeadSha),
-      O.isNone(verdict.mergeReady),
-    ],
-    identity
+const readinessRecoveryRefusal = (verdict: YeetVerdict, head: string): O.Option<string> => {
+  const checks: ReadonlyArray<readonly [string, boolean]> = [
+    ["declared verdict is not a publish result", verdict.mode === "publish"],
+    ["declared publish verdict is not successful", verdict.outcome === "success"],
+    ["declared verdict head mismatch", O.contains(head)(verdict.resolvedHeadSha)],
+    ["declared verdict already records readiness", O.isNone(verdict.mergeReady)],
+  ];
+  return O.map(
+    A.findFirst(checks, ([, holds]) => !holds),
+    ([reason]) => reason
   );
+};
 
 const readLocalEvidence = Effect.fn("Goals.Completion.localEvidence")(function* (
   root: string,
@@ -480,18 +490,21 @@ const readLocalEvidence = Effect.fn("Goals.Completion.localEvidence")(function* 
   if (O.isNone(verdict)) return evidenceCheck(ref, "unknown", O.none(), "Yeet verdict absent, invalid or unreadable.");
   const observedHead = verdict.value.resolvedHeadSha;
   const ready = O.map(verdict.value.mergeReady, (value) => value.ready);
-  if (O.isSome(recovery) && canRecoverReadiness(verdict.value, head)) {
-    const recovered = yield* recoverReadiness(root, ref, head, verdict.value.branch, recovery.value).pipe(
-      Effect.orElseSucceed(() => false)
+  const refusal = readinessRecoveryRefusal(verdict.value, head);
+  if (O.isSome(recovery) && O.isNone(refusal))
+    return yield* recoverReadiness(root, ref, head, verdict.value.branch, recovery.value).pipe(
+      Effect.map(() =>
+        evidenceCheck(
+          ref,
+          "verified",
+          O.some(head),
+          `Readiness recovered from canonical status.json and successful monitor job ${recovery.value.jobId}; verdict bytes unchanged.`
+        )
+      ),
+      Effect.catch((error) =>
+        Effect.succeed(evidenceCheck(ref, "unknown", observedHead, `Readiness recovery refused: ${error.message}`))
+      )
     );
-    if (recovered)
-      return evidenceCheck(
-        ref,
-        "verified",
-        O.some(head),
-        `Readiness recovered from canonical status.json and successful monitor job ${recovery.value.jobId}; verdict bytes unchanged.`
-      );
-  }
   const outcome = Match.value({ observedHead, ready }).pipe(
     Match.when(
       ({ observedHead, ready }) => O.exists(observedHead, (value) => value !== head) || O.contains(false)(ready),
@@ -507,7 +520,9 @@ const readLocalEvidence = Effect.fn("Goals.Completion.localEvidence")(function* 
     ref,
     outcome,
     observedHead,
-    "Yeet verdict checked against resolvedHeadSha and mergeReady.ready."
+    O.isSome(recovery)
+      ? `Readiness recovery refused: ${O.getOrElse(refusal, () => "declared verdict does not permit recovery")}.`
+      : "Yeet verdict checked against resolvedHeadSha and mergeReady.ready."
   );
 });
 

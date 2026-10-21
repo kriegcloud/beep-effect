@@ -403,7 +403,7 @@ const recoveryJobFixture = (variant: string, fixture: RecoveryFixture) => {
             serviceResult: variant === "failed-finalization" ? "exit-code" : "success",
             exitCode: "exited",
             exitStatus: variant === "failed-finalization" ? "1" : "0",
-            finalizedAt: "2026-10-06T00:42:00Z",
+            finalizedAt: variant === "finalized-after-merge" ? "2026-10-06T01:00:30Z" : "2026-10-06T00:42:00Z",
           },
         }),
     outcome: {
@@ -885,6 +885,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
     "wrong-head",
     "wrong-pr",
     "after-merge",
+    "finalized-after-merge",
     "outside-job",
     "failed-job",
     "failed-finalization",
@@ -952,6 +953,21 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           O.map(evidence, (item) => item.outcome),
           recoveryExpectedOutcome(variant)
         );
+        if (variant === "finalized-after-merge")
+          assertSome(
+            O.map(evidence, (item) => item.detail),
+            "Readiness recovery refused: job finalized after PR merge"
+          );
+        if (variant === "missing-finalization")
+          assertSome(
+            O.map(evidence, (item) => item.detail),
+            "Readiness recovery refused: job service finalization receipt is absent"
+          );
+        if (variant === "wrong-head")
+          assertSome(
+            O.map(evidence, (item) => item.detail),
+            "Readiness recovery refused: status head mismatch"
+          );
         if (variant === "hosted-red") expect(receipt.outcome).not.toBe("verified");
         expect(yield* fs.readFileString(ref)).toBe(verdictText);
       })
