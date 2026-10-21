@@ -42,7 +42,7 @@ export const IdentityEncoding = S.Literals(["identity", "iri", "curie"]);
 export type IdentityEncoding = typeof IdentityEncoding.Type;
 
 const makeIdentityRefMember = <Encoding extends IdentityEncoding>(encoding: S.Literal<Encoding>) =>
-  S.Struct({ _tag: S.tag(encoding.literal), value: S.String });
+  S.TaggedStruct(encoding.literal, { value: S.String });
 
 /**
  * Exact registry reference in canonical identity, IRI, or CURIE form.

@@ -2091,13 +2091,13 @@ export class ErrorRecoverySemantics extends S.Opaque<ErrorRecoverySemantics, { r
      */
     systemicErrors: S.Struct({
       /** Systemic failures are fatal to the active extraction attempt. */
-      fatal: S.Literal(true),
+      fatal: S.tag(true),
       /** The progress stream terminates after a systemic failure. */
-      streamEnds: S.Literal(true),
+      streamEnds: S.tag(true),
       /** The terminal event may carry usable work completed before failure. */
-      partialResults: S.Literal(true),
+      partialResults: S.tag(true),
       /** Resumption is available only when a successful chunk checkpoint exists. */
-      resumable: S.Literal("some"),
+      resumable: S.tag("some"),
     }),
 
     /**
@@ -2115,15 +2115,15 @@ export class ErrorRecoverySemantics extends S.Opaque<ErrorRecoverySemantics, { r
      */
     contentErrors: S.Struct({
       /** Content failures do not halt the overall extraction. */
-      fatal: S.Literal(false),
+      fatal: S.tag(false),
       /** The progress stream remains open after a content failure. */
-      streamEnds: S.Literal(false),
+      streamEnds: S.tag(false),
       /** The failed chunk contributes no partial entity or relation payload. */
-      partialResults: S.Literal(false),
+      partialResults: S.tag(false),
       /** The chunk that produced the content failure is omitted. */
-      chunkSkipped: S.Literal(true),
+      chunkSkipped: S.tag(true),
       /** Processing advances to the next available chunk. */
-      continuesWithNextChunk: S.Literal(true),
+      continuesWithNextChunk: S.tag(true),
     }),
 
     /**
@@ -2138,13 +2138,13 @@ export class ErrorRecoverySemantics extends S.Opaque<ErrorRecoverySemantics, { r
      */
     backpressure: S.Struct({
       /** Queue pressure does not itself fail server-side extraction. */
-      fatal: S.Literal(false),
+      fatal: S.tag(false),
       /** The stream closes only when the configured overflow strategy requires it. */
-      streamEnds: S.Literal("maybe"),
+      streamEnds: S.tag("maybe"),
       /** Drop strategies may discard queued progress events. */
-      eventLossPossible: S.Literal(true),
+      eventLossPossible: S.tag(true),
       /** The client should accelerate consumption or acknowledgment. */
-      clientShouldAction: S.Literal(true),
+      clientShouldAction: S.tag(true),
     }),
 
     /**
@@ -2158,13 +2158,13 @@ export class ErrorRecoverySemantics extends S.Opaque<ErrorRecoverySemantics, { r
      */
     clientCancellation: S.Struct({
       /** Client cancellation is an expected control path rather than a failure. */
-      fatal: S.Literal(false),
+      fatal: S.tag(false),
       /** Acknowledged cancellation terminates the active stream. */
-      streamEnds: S.Literal(true),
+      streamEnds: S.tag(true),
       /** The server releases extraction resources through its normal cleanup path. */
-      graceful: S.Literal(true),
+      graceful: S.tag(true),
       /** The terminal cancellation event may carry usable completed work. */
-      partialResults: S.Literal(true),
+      partialResults: S.tag(true),
     }),
   }).pipe($I.annoteSchema("ErrorRecoverySemantics", {
     description: "Canonical stream termination, partial-result, and client recovery behavior by failure class.",

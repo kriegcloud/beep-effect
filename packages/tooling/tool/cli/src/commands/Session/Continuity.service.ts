@@ -33,7 +33,7 @@ const Turn = S.Struct({
   sandbox_policy: S.Struct({ type: S.NonEmptyString }),
   permission_profile: S.Struct({ type: S.NonEmptyString }),
 });
-const Settings = S.Struct({ type: S.Literal("thread_settings_applied") });
+const Settings = S.Struct({ type: S.tag("thread_settings_applied") });
 const ClaudeApp = S.Struct({ permissionMode: optionalText, cliSessionId: optionalText });
 const ClaudeLine = S.Struct({
   type: S.String,

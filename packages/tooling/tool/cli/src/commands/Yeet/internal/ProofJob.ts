@@ -724,7 +724,7 @@ export class ProofJobSubmitter extends S.Opaque<ProofJobSubmitter, { readonly br
 export class ProofJobUnit extends S.Opaque<ProofJobUnit, { readonly brand: unique symbol }>()(
   S.Struct({
     unitName: S.NonEmptyString,
-    slice: S.Literal(PROOF_JOB_SLICE),
+    slice: S.tag(PROOF_JOB_SLICE),
     description: S.NonEmptyString,
     logPath: S.NonEmptyString,
     execStart: S.Array(S.String),
@@ -967,9 +967,7 @@ const proofJobRecordReturnedWaveRowIdsDefault = A.empty<string>();
  */
 export class ProofJobRecord extends S.Opaque<ProofJobRecord, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(PROOF_JOB_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(PROOF_JOB_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(PROOF_JOB_SCHEMA_VERSION),
     jobId: UUID,
     phase: ProofJobPhase,
     submittedAt: S.String,

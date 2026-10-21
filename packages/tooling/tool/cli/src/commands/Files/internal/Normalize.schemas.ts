@@ -368,7 +368,7 @@ export class NormalizeManifest extends S.Opaque<NormalizeManifest, { readonly br
     manifestPath: S.String,
     options: NormalizeManifestOptions,
     outputDirectory: S.String,
-    schemaVersion: S.Literal("beep.files.normalize.v1"),
+    schemaVersion: S.tag("beep.files.normalize.v1"),
     skipped: S.Array(NormalizeSkippedEntry),
     sourceDirectory: S.String,
     summary: NormalizeManifestSummary,

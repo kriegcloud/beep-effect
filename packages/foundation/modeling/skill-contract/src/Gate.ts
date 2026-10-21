@@ -483,7 +483,7 @@ const gateAuditRecordImpl = <const Identifier extends string, const Outcome exte
     evaluator: S.NonEmptyString,
     gateId: GateId,
     occurredAt: IsoDateTimeString,
-    outcome: S.Literal(outcome),
+    outcome: S.tag(outcome),
     reason: S.NonEmptyString,
   }).pipe(
     $I.annoteSchema(

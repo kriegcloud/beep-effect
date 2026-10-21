@@ -421,7 +421,7 @@ export class CriticFigureMeasurements extends S.Opaque<CriticFigureMeasurements,
  */
 export class CriticMeasurements extends S.Opaque<CriticMeasurements, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-critic-measurements/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-critic-measurements/v1").annotateKey({ description: "Schema version." }),
     title: S.NonEmptyString.annotateKey({ description: "Title from the render manifest." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF measured." }),
     specSha256: Sha256Hex.annotateKey({ description: "Hash of the spec the set was rendered from." }),

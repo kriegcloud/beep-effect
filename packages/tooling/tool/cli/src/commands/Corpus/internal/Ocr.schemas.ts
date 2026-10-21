@@ -63,7 +63,7 @@ export class CorpusPageReadRecord extends S.Opaque<CorpusPageReadRecord, { reado
     charCount: S.Natural,
     confidence: S.optionalKey(UnitInterval),
     imageDigest: ContentDigest,
-    status: S.Literal("read"),
+    status: S.tag("read"),
     textDigest: ContentDigest,
     textPath: PosixPath,
     timing: PageOcrTiming,
@@ -133,7 +133,7 @@ export class CorpusPageFailedRecord extends S.Opaque<CorpusPageFailedRecord, { r
     ...pageIdentityFields,
     message: S.String,
     reason: CorpusPageFailureReason,
-    status: S.Literal("failed"),
+    status: S.tag("failed"),
   }).pipe(
     $I.annoteSchema("CorpusPageFailedRecord", {
       description: "One engine's failed attempt at one page, with the sanitized reason.",

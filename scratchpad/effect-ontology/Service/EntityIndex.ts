@@ -413,7 +413,7 @@ export const EntityIndexDefault = EntityIndex.Default;
  * @since 0.0.0
  */
 export const SerializedEntityIndex = S.Struct({
-  version: S.Literal(1),
+  version: S.tag(1),
   indexedAt: S.Natural,
   entities: S.Array(
     S.Struct({

@@ -314,7 +314,7 @@ const admissionOwnerFields = {
  */
 export class YeetAdmissionLease extends S.Opaque<YeetAdmissionLease, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-lease/v1"),
+    schemaVersion: S.tag("yeet-admission-lease/v1"),
     ...admissionOwnerFields,
     command: S.String,
     startedAt: S.String,
@@ -382,7 +382,7 @@ export declare namespace YeetAdmissionLease {
  */
 export class YeetAdmissionTicket extends S.Opaque<YeetAdmissionTicket, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-ticket/v1"),
+    schemaVersion: S.tag("yeet-admission-ticket/v1"),
     ...admissionOwnerFields,
     enqueuedAtMillis: S.Finite,
     heartbeatAtMillis: S.Finite,
@@ -442,7 +442,7 @@ export const AdmissionClaimSinkState = LiteralKit(["pending", "pending-protocol-
 export type AdmissionClaimSinkState = typeof AdmissionClaimSinkState.Type;
 
 const admissionReapClaimFields = {
-  schemaVersion: S.Literal("yeet-admission-reap-claim/v1"),
+  schemaVersion: S.tag("yeet-admission-reap-claim/v1"),
   sourcePath: S.String,
   nonce: S.String,
   claimedAtMillis: S.Finite,
@@ -610,7 +610,7 @@ export class AdmissionPromotionTransition extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-promotion/v1"),
+    schemaVersion: S.tag("yeet-admission-promotion/v1"),
     nonce: S.String,
     ticketPath: S.String,
     leasePath: S.String,

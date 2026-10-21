@@ -566,7 +566,7 @@ export class QaInventory extends S.Opaque<QaInventory, { readonly brand: unique 
         description: "QA round the inventory judges.",
       })
     ),
-    schemaVersion: S.Literal("qa-inventory/v1").pipe(
+    schemaVersion: S.tag("qa-inventory/v1").pipe(
       $I.annoteKey("QaInventory.schemaVersion", {
         description: "Inventory schema version discriminator.",
       })

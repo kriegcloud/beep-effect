@@ -389,8 +389,7 @@ export class PgExternalTestDriverConfig extends S.Opaque<
         description: "Prefix used when generating temporary external PostgreSQL schemas.",
       })
     ),
-    ssl: S.Literal(false).pipe(
-      S.withConstructorDefault(Effect.succeed(false as const)),
+    ssl: S.tag(false).pipe(
       S.withDecodingDefaultKey(Effect.succeed(false as const)),
       $I.annoteKey("PgExternalTestDriverConfig.ssl", {
         description: "SSL toggle for the external PostgreSQL test driver; currently fixed to false.",

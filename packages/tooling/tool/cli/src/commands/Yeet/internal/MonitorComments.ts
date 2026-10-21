@@ -514,7 +514,7 @@ class YeetMonitorCommentWatermarkV1 extends S.Opaque<
  */
 export class YeetMonitorCommentState extends S.Opaque<YeetMonitorCommentState, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-monitor-comments/v2"),
+    schemaVersion: S.tag("yeet-monitor-comments/v2"),
     prNumber: S.Int.check(S.isGreaterThan(0)),
     updatedAt: S.String,
     watermark: YeetMonitorCommentWatermark,
@@ -530,7 +530,7 @@ export class YeetMonitorCommentState extends S.Opaque<YeetMonitorCommentState, {
 // from now and drops exactly the comments a resumed session exists to print.
 class YeetMonitorCommentStateV1 extends S.Opaque<YeetMonitorCommentStateV1, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-monitor-comments/v1"),
+    schemaVersion: S.tag("yeet-monitor-comments/v1"),
     prNumber: S.Int.check(S.isGreaterThan(0)),
     updatedAt: S.String,
     watermark: YeetMonitorCommentWatermarkV1,

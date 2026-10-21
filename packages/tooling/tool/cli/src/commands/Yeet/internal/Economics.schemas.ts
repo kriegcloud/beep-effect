@@ -362,7 +362,7 @@ export class EconomicsFirstFailure extends S.Opaque<EconomicsFirstFailure, { rea
     redAttempts: EconomicsCount,
     attemptsWithReconstructableOuterFailure: EconomicsCount,
     attemptsWithoutReconstructableOuterFailure: EconomicsCount,
-    offsetMethod: S.Literal(YEET_ECONOMICS_OFFSET_METHOD),
+    offsetMethod: S.tag(YEET_ECONOMICS_OFFSET_METHOD),
     startOffsetP50Ms: OptionalMs,
     startOffsetP95Ms: OptionalMs,
     completionOffsetP50Ms: OptionalMs,
@@ -737,8 +737,8 @@ export class EconomicsDataQuality extends S.Opaque<EconomicsDataQuality, { reado
     attemptWindowStartUtc: OptionalString,
     attemptWindowEndUtc: OptionalString,
     diagnostics: EconomicsDiagnostics,
-    percentileEstimator: S.Literal(YEET_ECONOMICS_PERCENTILE_ESTIMATOR),
-    rounding: S.Literal(YEET_ECONOMICS_ROUNDING),
+    percentileEstimator: S.tag(YEET_ECONOMICS_PERCENTILE_ESTIMATOR),
+    rounding: S.tag(YEET_ECONOMICS_ROUNDING),
   }).pipe(
     $I.annoteSchema("EconomicsDataQuality", {
       description:
@@ -830,7 +830,7 @@ export class EconomicsScope extends S.Opaque<EconomicsScope, { readonly brand: u
  */
 export class YeetEconomicsReport extends S.Opaque<YeetEconomicsReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(YEET_ECONOMICS_SCHEMA_VERSION),
+    schemaVersion: S.tag(YEET_ECONOMICS_SCHEMA_VERSION),
     scope: EconomicsScope,
     measurementAsOf: S.String,
     attempts: EconomicsAttempts,

@@ -257,9 +257,7 @@ const boxAdoptionsEntriesDefault = A.empty<BoxAdoption>();
  */
 export class BoxAdoptions extends S.Opaque<BoxAdoptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("box-provisioning-adoptions/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("box-provisioning-adoptions/v1"))
-    ),
+    version: S.tag("box-provisioning-adoptions/v1"),
     entries: S.Array(BoxAdoption).pipe(
       S.withConstructorDefault(Effect.succeed(boxAdoptionsEntriesDefault)),
       S.withDecodingDefaultType(Effect.succeed(boxAdoptionsEntriesDefault))
@@ -745,7 +743,7 @@ const boxDesiredStateFieldsWebhooksDefault = A.empty<BoxWebhookIntent>();
 const boxDesiredStateFieldsMetadataDefault = A.empty<BoxMetadataIntent>();
 const boxDesiredStateFieldsRetentionDefault = A.empty<BoxRetentionIntent>();
 const BoxDesiredStateFields = S.Struct({
-  version: S.Literal("box-provisioning/v1").pipe(S.withConstructorDefault(Effect.succeed("box-provisioning/v1"))),
+  version: S.tag("box-provisioning/v1"),
   adoptions: BoxAdoptions.pipe(
     S.withConstructorDefault(Effect.succeed(boxDesiredStateFieldsAdoptionsDefault)),
     S.withDecodingDefaultTypeKey(Effect.succeed(boxDesiredStateFieldsAdoptionsDefault))

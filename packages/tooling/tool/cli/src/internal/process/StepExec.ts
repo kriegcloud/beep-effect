@@ -485,14 +485,14 @@ export class AdmissionWorkloadRegistrationError extends S.TaggedError<
 
 const AdmissionWorkloadState = S.Union([
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-workload/v1"),
+    schemaVersion: S.tag("yeet-admission-workload/v1"),
     leaseId: S.String,
-    status: S.Literal("pending"),
+    status: S.tag("pending"),
   }),
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-workload/v1"),
+    schemaVersion: S.tag("yeet-admission-workload/v1"),
     leaseId: S.String,
-    status: S.Literal("active"),
+    status: S.tag("active"),
     processGroupId: PosInt,
     procStart: S.String,
   }),

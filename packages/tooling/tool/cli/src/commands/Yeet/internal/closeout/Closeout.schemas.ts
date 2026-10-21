@@ -190,7 +190,7 @@ export class PrCloseoutReport extends S.Opaque<PrCloseoutReport, { readonly bran
     prUrl: S.String,
     reviewedHeadSha: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     retriggeredGreptile: S.Boolean,
-    schemaVersion: S.Literal("yeet-pr-closeout/v1"),
+    schemaVersion: S.tag("yeet-pr-closeout/v1"),
     states: S.Array(PrCloseoutGateState).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutGateState>())),
       S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutGateState>()))

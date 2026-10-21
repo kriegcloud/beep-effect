@@ -293,13 +293,12 @@ const LOCK_SENTENCE = "Another Yeet full proof";
 // Reconciler-stamped reasons: `recordedAt` is the sweep, not the attempt's end (TTC ruling 75).
 const reconcilerReasons: ReadonlyArray<string> = ["legacy-unowned-start", "owner-dead", "stale-unverifiable-owner"];
 
-const attemptSchemaVersion = S.Literal("yeet-attempt-journal/v1");
+const attemptSchemaVersion = S.tag("yeet-attempt-journal/v1");
 const optionalString = S.OptionFromOptionalKey(S.String);
 const optionalInstant = S.OptionFromOptionalKey(S.DateTimeUtcFromString);
 
-const AttemptStartedRow = S.Struct({
+const AttemptStartedRow = S.TaggedStruct("attempt-started", {
   schemaVersion: attemptSchemaVersion,
-  _tag: S.tag("attempt-started"),
   attemptId: S.NonEmptyString,
   branch: S.NonEmptyString,
   mode: S.String,
@@ -309,25 +308,22 @@ const AttemptStartedRow = S.Struct({
   resolvedHeadSha: S.OptionFromOptionalKey(GitCommitSha),
 });
 
-const AttemptFinishedRow = S.Struct({
+const AttemptFinishedRow = S.TaggedStruct("attempt-finished", {
   schemaVersion: attemptSchemaVersion,
-  _tag: S.tag("attempt-finished"),
   attemptId: S.NonEmptyString,
   recordedAt: S.DateTimeUtcFromString,
   verdict: S.Struct({ outcome: S.String, failureKind: optionalString, message: optionalString }),
 });
 
-const AttemptTerminatedRow = S.Struct({
+const AttemptTerminatedRow = S.TaggedStruct("attempt-terminated", {
   schemaVersion: attemptSchemaVersion,
-  _tag: S.tag("attempt-terminated"),
   attemptId: S.NonEmptyString,
   recordedAt: S.DateTimeUtcFromString,
   reason: S.String,
 });
 
-const JournalCompactedRow = S.Struct({
+const JournalCompactedRow = S.TaggedStruct("journal-compacted", {
   schemaVersion: attemptSchemaVersion,
-  _tag: S.tag("journal-compacted"),
   terminalEvictionCutoffRecordedAt: optionalInstant,
   oldestEvictedRecordedAt: optionalInstant,
 });

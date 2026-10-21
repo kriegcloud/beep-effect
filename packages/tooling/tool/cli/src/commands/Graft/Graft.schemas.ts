@@ -521,7 +521,7 @@ export class GraftDeepSiblingRebuild extends S.Opaque<GraftDeepSiblingRebuild, {
  */
 export class GraftDeepRefreshStatus extends S.Opaque<GraftDeepRefreshStatus, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep-graft-deep-refresh/v1"),
+    schemaVersion: S.tag("beep-graft-deep-refresh/v1"),
     owner: S.String,
     head: S.optional(S.String),
     model: S.String,

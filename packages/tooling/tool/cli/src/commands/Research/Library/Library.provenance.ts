@@ -36,10 +36,10 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.provenance");
  */
 export class AlphaFullText extends S.Opaque<AlphaFullText, { readonly brand: unique symbol }>()(
   S.Struct({
-    provider: S.Literal("alphaxiv"),
-    operation: S.Literal("get_paper_content"),
-    arguments: S.Struct({ url: S.String, fullText: S.Literal(true) }),
-    result: S.Struct({ content: S.Array(S.Struct({ type: S.Literal("text"), text: S.String })) }),
+    provider: S.tag("alphaxiv"),
+    operation: S.tag("get_paper_content"),
+    arguments: S.Struct({ url: S.String, fullText: S.tag(true) }),
+    result: S.Struct({ content: S.Array(S.Struct({ type: S.tag("text"), text: S.String })) }),
   }).pipe(
     $I.annoteSchema("AlphaFullText", {
       description: "Original provider response from a fullText:true alphaXiv paper content invocation.",
@@ -47,21 +47,21 @@ export class AlphaFullText extends S.Opaque<AlphaFullText, { readonly brand: uni
   )
 ) {}
 const SlashLaunch = S.Struct({
-  direction: S.Literal("sent"),
+  direction: S.tag("sent"),
   message: S.Struct({
-    method: S.Literal("session/prompt"),
-    params: S.Struct({ sessionId: S.String, prompt: S.Array(S.Struct({ type: S.Literal("text"), text: S.String })) }),
+    method: S.tag("session/prompt"),
+    params: S.Struct({ sessionId: S.String, prompt: S.Array(S.Struct({ type: S.tag("text"), text: S.String })) }),
   }),
 });
 const Workflow = S.Struct({
-  direction: S.Literal("received"),
+  direction: S.tag("received"),
   message: S.Struct({
     params: S.Struct({
       sessionId: S.String,
       update: S.Struct({
-        sessionUpdate: S.Literal("workflow_updated"),
+        sessionUpdate: S.tag("workflow_updated"),
         run_id: S.String,
-        name: S.Literal("deep-research"),
+        name: S.tag("deep-research"),
         status: S.String,
         phases: S.Array(S.Struct({ title: S.String, state: S.String })),
       }),
@@ -69,7 +69,7 @@ const Workflow = S.Struct({
   }),
 });
 const AcpTool = S.Struct({
-  direction: S.Literal("received"),
+  direction: S.tag("received"),
   message: S.Struct({
     params: S.Struct({
       sessionId: S.String,
@@ -86,7 +86,7 @@ const AcpTool = S.Struct({
   }),
 });
 const XInput = S.Union([
-  S.Struct({ variant: S.Literal("XSearch"), backend: S.Literal(true) }),
+  S.Struct({ variant: S.tag("XSearch"), backend: S.tag(true) }),
   S.Struct({
     tool_name: S.Literals(["x_keyword_search", "x_semantic_search", "x_search", "XSearch"]),
     parameters: S.Unknown,
@@ -97,12 +97,12 @@ const XInput = S.Union([
   }),
 ]);
 const NamedCall = S.Struct({
-  type: S.Literal("tool_use"),
+  type: S.tag("tool_use"),
   id: S.String,
   name: S.Literals(["x_search", "XSearch", "x_keyword_search", "x_semantic_search"]),
   input: S.Unknown,
 });
-const NamedResult = S.Struct({ type: S.Literal("tool_result"), tool_use_id: S.String, content: S.Unknown });
+const NamedResult = S.Struct({ type: S.tag("tool_result"), tool_use_id: S.String, content: S.Unknown });
 
 /**
  * Read JSON or NDJSON originals without inventing normalized tool envelopes.

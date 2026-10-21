@@ -82,7 +82,7 @@ describe("@beep/skill-contract EvidenceReceipt", () => {
     const OtherReceipt = EvidenceReceipt(Predicate)(otherType);
 
     expect(S.resolveAnnotations(Receipt)?.identifier).not.toBe(S.resolveAnnotations(OtherReceipt)?.identifier);
-    expect(OtherReceipt.fields.predicateType.literal).toBe(otherType);
+    expect(OtherReceipt.fields.predicateType.schema.literal).toBe(otherType);
   });
 
   it.effect.prop(

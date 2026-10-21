@@ -55,7 +55,7 @@ export type RequestKind = typeof RequestKind.Type;
  * ```ts
  * import { ProviderCacheKey } from "@/schema/ProviderCache"
  *
- * console.log(ProviderCacheKey.fields.schemaVersion.literals[0]) // "provider-cache/v1"
+ * console.log(ProviderCacheKey.fields.schemaVersion.schema.literal) // "provider-cache/v1"
  * ```
  *
  * @category models
@@ -63,7 +63,7 @@ export type RequestKind = typeof RequestKind.Type;
  */
 export class ProviderCacheKey extends S.Opaque<ProviderCacheKey, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("provider-cache/v1"),
+    schemaVersion: S.tag("provider-cache/v1"),
     model: ModelIdentity,
     requestKind: RequestKind,
     inputDigest: Sha256Hex,

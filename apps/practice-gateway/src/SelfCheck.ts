@@ -55,7 +55,7 @@ const $I = $PracticeGatewayId.create("SelfCheck");
  */
 export class GatewaySelfCheckReport extends S.Opaque<GatewaySelfCheckReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    ok: S.Literal(true).annotateKey({ description: "The doctor ran." }),
+    ok: S.tag(true).annotateKey({ description: "The doctor ran." }),
     extensionVersion: S.NonEmptyString.annotateKey({ description: "The gateway version." }),
     profileSaved: S.Boolean.annotateKey({ description: "Whether a practice profile is saved." }),
     summary: S.NonEmptyString.annotateKey({ description: "The report in plain language." }),
@@ -83,7 +83,7 @@ export class GatewaySelfCheckReport extends S.Opaque<GatewaySelfCheckReport, { r
  */
 export class GatewaySelfCheckRefusal extends S.Opaque<GatewaySelfCheckRefusal, { readonly brand: unique symbol }>()(
   S.Struct({
-    ok: S.Literal(false).annotateKey({ description: "The doctor did not run." }),
+    ok: S.tag(false).annotateKey({ description: "The doctor did not run." }),
     message: S.NonEmptyString.annotateKey({ description: "Why it did not run." }),
   }).pipe(
     $I.annoteSchema("GatewaySelfCheckRefusal", {

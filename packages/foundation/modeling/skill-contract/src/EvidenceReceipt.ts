@@ -92,7 +92,7 @@ const evidenceReceiptImpl = <const Type extends EvidencePredicateType, Predicate
   const identifier: string = `EvidenceReceipt(${predicateType})`;
   return S.Struct({
     predicate,
-    predicateType: S.Literal(predicateType),
+    predicateType: S.tag(predicateType),
     subject: S.NonEmptyArray(EvidenceSubject),
   }).pipe(
     $I.annoteSchema(identifier, {

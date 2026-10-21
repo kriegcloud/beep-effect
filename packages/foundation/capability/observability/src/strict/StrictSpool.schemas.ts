@@ -160,7 +160,7 @@ const AesGcmCiphertextBase64 = S.String.check(
  */
 export class StrictSpoolSegment extends S.Opaque<StrictSpoolSegment, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal(1),
+    version: S.tag(1),
     algorithm: StrictSpoolAlgorithm,
     signal: StrictSignal,
     tier: TelemetryTier,

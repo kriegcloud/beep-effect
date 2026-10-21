@@ -69,7 +69,7 @@ class OntologyMcpOriginForbidden extends S.TaggedError<OntologyMcpOriginForbidde
 )(
   "OntologyMcpOriginForbidden",
   {
-    status: S.Literal(403),
+    status: S.tag(403),
     message: S.String,
   },
   $I.annoteError<OntologyMcpOriginForbidden>("OntologyMcpOriginForbidden", {

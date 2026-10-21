@@ -1025,7 +1025,7 @@ export class SupersededModel extends S.Opaque<SupersededModel, { readonly brand:
  */
 export class ModelsManifest extends S.Opaque<ModelsManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("beep-models/v1"),
+    version: S.tag("beep-models/v1"),
     bindings: S.Array(ModelBinding),
     targets: S.Array(ModelSyncTarget),
     superseded: S.Array(SupersededModel).pipe(S.withDecodingDefaultKey(Effect.succeed([]))),

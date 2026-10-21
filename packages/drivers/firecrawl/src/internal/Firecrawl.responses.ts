@@ -225,7 +225,7 @@ class MonitorScrapeTargetShape extends S.Opaque<MonitorScrapeTargetShape, { read
   S.Struct({
     id: optionalString,
     scrapeOptions: S.optionalKey(unknownRecord),
-    type: S.Literal("scrape"),
+    type: S.tag("scrape"),
     urls: S.Array(S.String),
   }).pipe($I.annoteSchema("MonitorScrapeTargetShape"))
 ) {}
@@ -234,7 +234,7 @@ class MonitorCrawlTargetShape extends S.Opaque<MonitorCrawlTargetShape, { readon
     crawlOptions: S.optionalKey(unknownRecord),
     id: optionalString,
     scrapeOptions: S.optionalKey(unknownRecord),
-    type: S.Literal("crawl"),
+    type: S.tag("crawl"),
     url: S.String,
   }).pipe($I.annoteSchema("MonitorCrawlTargetShape"))
 ) {}
@@ -246,7 +246,7 @@ class MonitorSearchTargetShape extends S.Opaque<MonitorSearchTargetShape, { read
     maxResults: optionalFinite,
     queries: S.Array(S.String),
     searchWindow: S.optionalKey(S.Literals(["5m", "15m", "1h", "6h", "24h", "7d"])),
-    type: S.Literal("search"),
+    type: S.tag("search"),
   }).pipe($I.annoteSchema("MonitorSearchTargetShape"))
 ) {}
 const monitorTargetShape = S.Union([MonitorScrapeTargetShape, MonitorCrawlTargetShape, MonitorSearchTargetShape]);
@@ -289,7 +289,7 @@ class MonitorScrapeTargetResultShape extends S.Opaque<
   S.Struct({
     expectedJobs: S.String.pipe(S.Array, S.optionalKey),
     targetId: S.String,
-    type: S.Literal("scrape"),
+    type: S.tag("scrape"),
   }).pipe($I.annoteSchema("MonitorScrapeTargetResultShape"))
 ) {}
 class MonitorCrawlTargetResultShape extends S.Opaque<
@@ -299,7 +299,7 @@ class MonitorCrawlTargetResultShape extends S.Opaque<
   S.Struct({
     crawlId: optionalString,
     targetId: S.String,
-    type: S.Literal("crawl"),
+    type: S.tag("crawl"),
   }).pipe($I.annoteSchema("MonitorCrawlTargetResultShape"))
 ) {}
 class MonitorSearchTargetResultShape extends S.Opaque<
@@ -317,7 +317,7 @@ class MonitorSearchTargetResultShape extends S.Opaque<
     searchCredits: optionalFinite,
     summary: optionalString,
     targetId: S.String,
-    type: S.Literal("search"),
+    type: S.tag("search"),
   }).pipe($I.annoteSchema("MonitorSearchTargetResultShape"))
 ) {}
 const monitorTargetResultShape = S.Union([

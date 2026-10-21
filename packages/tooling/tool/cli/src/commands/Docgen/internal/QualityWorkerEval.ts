@@ -433,7 +433,7 @@ export class DocgenQualityWorkerEvalReport extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal(QUALITY_WORKER_EVAL_SCHEMA_VERSION),
+    schemaVersion: S.tag(QUALITY_WORKER_EVAL_SCHEMA_VERSION),
     generatedAt: S.String,
     sourceQualityReport: S.String,
     provider: DocgenQualityWorkerEvalProvider,

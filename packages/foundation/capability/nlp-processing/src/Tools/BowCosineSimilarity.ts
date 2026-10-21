@@ -36,7 +36,7 @@ class BowCosineSimilarityParameters extends S.Opaque<
 
 class BowCosineSimilaritySuccess extends S.Opaque<BowCosineSimilaritySuccess, { readonly brand: unique symbol }>()(
   S.Struct({
-    method: S.Literal(SimilarityMethod.Enum["bow.cosine"]).annotateKey({
+    method: S.tag(SimilarityMethod.Enum["bow.cosine"]).annotateKey({
       description: "The similarity method used",
     }),
     score: UnitInterval.annotateKey({

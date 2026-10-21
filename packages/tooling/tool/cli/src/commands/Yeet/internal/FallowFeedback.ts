@@ -57,10 +57,10 @@ class FallowYeetIssueFixture extends S.Opaque<FallowYeetIssueFixture, { readonly
     sourceFeature: FallowFeatureFamily,
     sourceEnvelopeRef: S.String,
     sourceFindingId: S.String,
-    tool: S.Literal("fallow"),
+    tool: S.tag("fallow"),
     parser: S.String,
     subCategory: S.String,
-    blocking: S.Literal(false),
+    blocking: S.tag(false),
     attribution: FindingAttributionKind,
   }).pipe(
     $I.annoteSchema("FallowYeetIssueFixture", {
@@ -71,7 +71,7 @@ class FallowYeetIssueFixture extends S.Opaque<FallowYeetIssueFixture, { readonly
 
 class FallowFixtureDocument extends S.Opaque<FallowFixtureDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("fallow-quality-enforcement/report-fixtures/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/report-fixtures/v1"),
     fixtures: S.NonEmptyArray(FallowEnvelope),
     yeetIssueFixtures: S.NonEmptyArray(FallowYeetIssueFixture),
   }).pipe(

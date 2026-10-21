@@ -85,7 +85,7 @@ const RefreshManifestPhase = S.Struct({ id: S.String, status: S.String }).pipe(
   })
 );
 const RefreshManifest = S.Struct({
-  schemaVersion: S.Literal("initiative-manifest/v2"),
+  schemaVersion: S.tag("initiative-manifest/v2"),
   initiative: RefreshManifestInitiative,
   mission: S.String,
   completionGate: RefreshManifestCompletionGate,

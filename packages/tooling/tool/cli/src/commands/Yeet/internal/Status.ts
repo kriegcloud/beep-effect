@@ -378,7 +378,7 @@ export class YeetStatusSnapshot extends S.Opaque<YeetStatusSnapshot, { readonly 
     nextCommand: S.String,
     remote: YeetStatusRemote,
     runId: S.String,
-    schemaVersion: S.Literal("yeet-status/v1"),
+    schemaVersion: S.tag("yeet-status/v1"),
     statusPath: S.String,
     verdict: YeetStatusArtifact,
     worktree: YeetStatusWorktree,

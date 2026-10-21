@@ -54,7 +54,7 @@ export class AttachedT3NativeBaseline extends S.Opaque<AttachedT3NativeBaseline,
  */
 export class AttachedT3Profile extends S.Opaque<AttachedT3Profile, { readonly brand: unique symbol }>()(
   S.Struct({
-    ownershipConfirmed: S.Literal(true),
+    ownershipConfirmed: S.tag(true),
     threadId: Text,
     projectId: Text,
     workspace: Text,

@@ -461,7 +461,7 @@ export class SchemaFirstInventoryDocument extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    version: S.Literal(1),
+    version: S.tag(1),
     generatedOn: S.String,
     scope: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS))),
@@ -747,7 +747,7 @@ export class SchemaCrispeningPolicyDocument extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("schema-crispening-policy/v1"),
+    schemaVersion: S.tag("schema-crispening-policy/v1"),
     cards: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
@@ -1116,22 +1116,22 @@ export class EffectVitestReplacement extends S.Opaque<EffectVitestReplacement, {
 
 const EffectVitestFindingLensRule = S.Union([
   S.Struct({ lens: LiteralKit(EffectVitestLens.pick(["detector", "resource"]).literals), ruleId: EffectVitestRuleId }),
-  S.Struct({ lens: S.Literal("resource"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-RES-")) }),
-  S.Struct({ lens: S.Literal("flake"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-FLAKE-")) }),
-  S.Struct({ lens: S.Literal("property"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-PROP-")) }),
-  S.Struct({ lens: S.Literal("observability"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-OBS-")) }),
+  S.Struct({ lens: S.tag("resource"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-RES-")) }),
+  S.Struct({ lens: S.tag("flake"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-FLAKE-")) }),
+  S.Struct({ lens: S.tag("property"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-PROP-")) }),
+  S.Struct({ lens: S.tag("observability"), ruleId: EffectVitestLensRuleId.check(S.isStartingWith("L-OBS-")) }),
 ]).pipe(
   $I.annoteSchema("EffectVitestFindingLensRule", {
     description: "A detector rule or a judgment rule belonging to the row's exact lens.",
   })
 );
 const EffectVitestNoFindingsFields = S.Struct({
-  class: S.Literal("no-findings"),
-  severity: S.Literal("info"),
-  confidence: S.Literal(1),
-  mechanization: S.Literal("judgment"),
-  status: S.Literal("open"),
-  replacement: S.Struct({ primitive: S.Literal("module.@effect/vitest") }),
+  class: S.tag("no-findings"),
+  severity: S.tag("info"),
+  confidence: S.tag(1),
+  mechanization: S.tag("judgment"),
+  status: S.tag("open"),
+  replacement: S.Struct({ primitive: S.tag("module.@effect/vitest") }),
   fixSha: S.Option(S.Never),
 }).pipe(
   $I.annoteSchema("EffectVitestNoFindingsFields", {
@@ -1334,7 +1334,7 @@ export class EffectVitestPrimitiveCoverage extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    exportStarModule: S.Literal("vitest"),
+    exportStarModule: S.tag("vitest"),
     method: S.NonEmptyString,
     sourceFiles: S.Array(S.NonEmptyString),
   }).pipe(
@@ -1345,8 +1345,8 @@ export class EffectVitestPrimitiveCoverage extends S.Opaque<
 ) {}
 
 const EffectVitestPrimitiveGraphFields = S.Struct({
-  schemaVersion: S.Literal("effect-vitest-primitives/v1"),
-  package: S.Literal("@effect/vitest"),
+  schemaVersion: S.tag("effect-vitest-primitives/v1"),
+  package: S.tag("@effect/vitest"),
   version: S.NonEmptyString,
   tag: S.NonEmptyString,
   sha: EffectVitestPinnedCommitSha,
@@ -1422,7 +1422,7 @@ export class EffectVitestInventoryDocument extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("effect-vitest-inventory/v1"),
+    schemaVersion: S.tag("effect-vitest-inventory/v1"),
     effectVitestVersion: S.NonEmptyString,
     scope: S.Array(S.String),
     findings: S.Array(EffectVitestFinding),
@@ -1536,7 +1536,7 @@ class EffectVitestSlowTestTiming extends S.Opaque<EffectVitestSlowTestTiming, { 
 export class EffectVitestPackageTiming extends S.Opaque<EffectVitestPackageTiming, { readonly brand: unique symbol }>()(
   S.Struct({
     package: S.NonEmptyString,
-    runner: S.Literal("node-vitest"),
+    runner: S.tag("node-vitest"),
     capturedAt: S.NonEmptyString,
     totalMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     testCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),

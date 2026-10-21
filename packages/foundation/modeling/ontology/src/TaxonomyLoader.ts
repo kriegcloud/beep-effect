@@ -168,11 +168,11 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly
 )(
   {
     _tag: S.tagDefaultOmit("VendorTaxonomySeedSlice"),
-    format: S.Literal("jsonld"),
+    format: S.tag("jsonld"),
     id: S.NonEmptyString,
     loadStatus: VendorLoadStatus,
     path: VendorSlicePath,
-    verified: S.Literal(true),
+    verified: S.tag(true),
   },
   $I.annote("VendorManifestEntry", {
     description: "Manifest row for one verified, explicitly vetted, alignment-free JSON-LD taxonomy slice.",
@@ -223,7 +223,7 @@ export class VendorAlignmentManifestEntry extends S.Class<
     _tag: S.tagDefaultOmit("VendorConceptAlignmentSlice"),
     conceptIri: HttpsIriReference,
     fetchUrl: HttpsIriReference,
-    format: S.Literal("jsonld"),
+    format: S.tag("jsonld"),
     id: S.NonEmptyString,
     loadKind: S.tag("concept-alignment"),
     loadStatus: VendorLoadStatus,
@@ -231,7 +231,7 @@ export class VendorAlignmentManifestEntry extends S.Class<
     mappingKind: SkosMappingKind,
     namespaceIri: HttpsIriReference,
     path: VendorSlicePath,
-    verified: S.Literal(true),
+    verified: S.tag(true),
   },
   $I.annote("VendorAlignmentManifestEntry", {
     description: "Asset-pack manifest directive for one vetted external concept alignment.",
@@ -278,7 +278,7 @@ const VendorAlignmentManifestEntryBoundary = VendorAlignmentManifestEntry.check(
 export class VendorConceptSlice extends S.Opaque<VendorConceptSlice, { readonly brand: unique symbol }>()(
   S.Struct({
     "@id": HttpsIriReference,
-    "@type": S.Literal("owl:Class"),
+    "@type": S.tag("owl:Class"),
     "rdfs:label": S.NonEmptyString,
     "skos:definition": S.NonEmptyString,
   }).pipe(

@@ -175,9 +175,9 @@ class TaskRow extends S.Opaque<TaskRow, { readonly brand: unique symbol }>()(
 class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-zero-dead-code/tasks/v1"),
+    schemaVersion: S.tag("fallow-zero-dead-code/tasks/v1"),
     updated: TrimmedNonEmptyString,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     tasks: S.NonEmptyArray(TaskRow),
   }).pipe(
     $I.annoteSchema("TasksDocument", {
@@ -227,9 +227,9 @@ class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol 
 
 class ReviewRoundsDocument extends S.Opaque<ReviewRoundsDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("fallow-zero-dead-code/review-rounds/v1"),
+    schemaVersion: S.tag("fallow-zero-dead-code/review-rounds/v1"),
     updated: TrimmedNonEmptyString,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     rounds: S.Array(ReviewRound),
   }).pipe(
     $I.annoteSchema("ReviewRoundsDocument", {
@@ -240,12 +240,12 @@ class ReviewRoundsDocument extends S.Opaque<ReviewRoundsDocument, { readonly bra
 
 class ManifestInitiative extends S.Opaque<ManifestInitiative, { readonly brand: unique symbol }>()(
   S.Struct({
-    id: S.Literal("fallow-zero-dead-code"),
+    id: S.tag("fallow-zero-dead-code"),
     title: TrimmedNonEmptyString,
     status: TrimmedNonEmptyString,
     created: TrimmedNonEmptyString,
     updated: TrimmedNonEmptyString,
-    packetAnchorDocument: S.Literal("SPEC.md"),
+    packetAnchorDocument: S.tag("SPEC.md"),
   }).pipe(
     $I.annoteSchema("ManifestInitiative", {
       description: "Initiative identity block of the packet manifest.",
@@ -267,9 +267,9 @@ class ManifestPhase extends S.Opaque<ManifestPhase, { readonly brand: unique sym
 
 class InitiativeManifestDocument extends S.Opaque<InitiativeManifestDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("initiative-manifest/v1"),
+    schemaVersion: S.tag("initiative-manifest/v1"),
     initiative: ManifestInitiative,
-    packetPath: S.Literal(packetRoot),
+    packetPath: S.tag(packetRoot),
     lifecycle: TrimmedNonEmptyString,
     executionCapable: S.Boolean,
     currentSourceOfTruth: S.NonEmptyArray(RepoRefString),
