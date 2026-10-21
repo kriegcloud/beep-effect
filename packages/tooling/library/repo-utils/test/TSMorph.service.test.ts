@@ -211,6 +211,50 @@ it.layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
     })
   );
 
+  describe("file entrypoint tsconfig discovery", () => {
+    const fileScopeRequest = (repoRootPath: string, filePath: string) =>
+      decodeProjectScopeRequest({
+        entrypoint: { _tag: "file", filePath },
+        repoRootPath,
+        mode: "syntax",
+        referencePolicy: "workspaceOnly",
+      });
+
+    it.effect("absolutises a relative explicit root before ascending to the owning tsconfig", () =>
+      Effect.gen(function* () {
+        const service = yield* TSMorphService;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* makeIsolatedRepository("relativeRootMarker", "tsconfig.json");
+        yield* fs.makeDirectory(path.join(root, "src/nested/deeper"), { recursive: true });
+        yield* fs.writeFileString(path.join(root, "src/nested/deeper/leaf.ts"), "export const leaf = 1;\n");
+
+        const scope = yield* service.resolveProjectScope(
+          yield* fileScopeRequest(path.relative(process.cwd(), root), "src/nested/deeper/leaf.ts")
+        );
+
+        expect(scope.repoRootPath).toBe(root);
+        expect(scope.tsConfigPath).toBe("tsconfig.json");
+      })
+    );
+
+    it.effect("stops the owning-tsconfig ascent at the repository root", () =>
+      Effect.gen(function* () {
+        const service = yield* TSMorphService;
+        const root = yield* makeIsolatedRepository("ceilingMarker", "tsconfig.other.json");
+
+        const error = yield* service
+          .resolveProjectScope(yield* fileScopeRequest(root, "src/index.ts"))
+          .pipe(Effect.flip);
+
+        expect(error._tag).toBe("TsMorphScopeResolutionError");
+        expect(error.message).toBe(
+          `No owning "tsconfig.json" could be found for "src/index.ts" within repository root "${root}".`
+        );
+      })
+    );
+  });
+
   describe("resolveProjectScope", () => {
     it.effect(
       "resolves a workspace tsconfig into a stable scope",

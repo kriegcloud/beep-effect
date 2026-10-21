@@ -13,29 +13,6 @@
  */
 
 /**
- * Version marker for the architecture lab UI view-model package.
- *
- * **Example** (Assert expected VERSION value)
- *
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-ui"
- *
- * const expectedVersion: typeof VERSION = "0.0.0"
- * const isExpectedVersion = VERSION === expectedVersion
- *
- * console.log(isExpectedVersion) // true
- *
- * if (!isExpectedVersion) {
- *   throw new Error("unexpected architecture lab UI version")
- * }
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * WorkItem UI namespace for client-renderable WorkItem summaries.
  *
  * **Example** (Map WorkItem to summary)

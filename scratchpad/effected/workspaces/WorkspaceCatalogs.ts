@@ -9,13 +9,10 @@ import { dual } from "effect/Function";
 
 import type { Lockfile } from "../lockfiles/index.ts";
 import { filenameFor } from "../lockfiles/index.ts";
-import {
-	CatalogAssemblyError,
-	CatalogResolver,
-	DependencyResolutionError,
-	PartialReleaseAgeGate,
-	ReleaseAgeGate,
-} from "../npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { PartialReleaseAgeGate, ReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
+import { DependencyResolutionError } from "@beep/npm-spec/WorkspaceResolver";
 import { Yaml } from "@beep/yaml";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
@@ -463,7 +460,7 @@ const catalogBlocksOf = (
  * authority, exactly as on the hook path.
  */
 const inlineReleaseAge = (document: unknown): Effect.Effect<PartialReleaseAgeGate, CatalogAssemblyError> => {
-	if (!isObject(document)) return Effect.succeed({});
+	if (!isObject(document)) return Effect.succeed(PartialReleaseAgeGate.make({}));
 	const raw: Record<string, unknown> = {};
 	if (document.minimumReleaseAge !== undefined && document.minimumReleaseAge !== null) {
 		raw.ageMinutes = document.minimumReleaseAge;
@@ -471,7 +468,7 @@ const inlineReleaseAge = (document: unknown): Effect.Effect<PartialReleaseAgeGat
 	if (document.minimumReleaseAgeExclude !== undefined && document.minimumReleaseAgeExclude !== null) {
 		raw.exclude = document.minimumReleaseAgeExclude;
 	}
-	if (R.keys(raw).length === 0) return Effect.succeed({});
+	if (R.keys(raw).length === 0) return Effect.succeed(PartialReleaseAgeGate.make({}));
 	return S.decodeEffect(PartialReleaseAgeGate)(raw).pipe(
 		Effect.catchTag(
 			"SchemaError",
@@ -999,8 +996,8 @@ export class WorkspaceCatalogs extends Context.Service<WorkspaceCatalogs, Worksp
 			// The release-age gate contributions: inline pnpm-workspace.yaml keys and
 			// the replayed hooks. Both empty on the bun/package.json path (release-age
 			// is a pnpm feature and config dependencies live only in pnpm-workspace.yaml).
-			let inlineGate: PartialReleaseAgeGate = {};
-			let hookGate: PartialReleaseAgeGate = {};
+			let inlineGate: PartialReleaseAgeGate.Encoded = {};
+			let hookGate: PartialReleaseAgeGate.Encoded = {};
 			// The EFFECTIVE rules: the workspace file's block seeded into the
 			// threaded config, with every replayed hook's contribution merged onto
 			// it. Read back off the injection rather than recomputed here — the

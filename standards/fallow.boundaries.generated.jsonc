@@ -540,6 +540,12 @@
         ]
       },
       {
+        "name": "@beep/npm-spec",
+        "patterns": [
+          "packages/foundation/modeling/npm-spec/src/**"
+        ]
+      },
+      {
         "name": "@beep/obs",
         "patterns": [
           "packages/drivers/obs/src/**"
@@ -954,6 +960,12 @@
         ]
       },
       {
+        "name": "@beep/tsconfig",
+        "patterns": [
+          "packages/foundation/modeling/tsconfig/src/**"
+        ]
+      },
+      {
         "name": "@beep/tsgo-shim",
         "patterns": [
           "tools/tsgo-shim/src/**"
@@ -987,6 +999,12 @@
         "name": "@beep/utils",
         "patterns": [
           "packages/foundation/modeling/utils/src/**"
+        ]
+      },
+      {
+        "name": "@beep/walker",
+        "patterns": [
+          "packages/foundation/capability/walker/src/**"
         ]
       },
       {
@@ -3011,6 +3029,25 @@
         ]
       },
       {
+        "from": "@beep/npm-spec",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/obs",
         "allow": [
           "@beep/identity",
@@ -4029,7 +4066,8 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
           "@beep/ai-provider-cli",
@@ -4070,7 +4108,8 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -4126,7 +4165,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
           "@beep/identity",
@@ -4135,7 +4175,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -4233,6 +4274,7 @@
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
+          "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
           "@beep/pglite",
@@ -4250,7 +4292,9 @@
           "@beep/spdx",
           "@beep/test-utils",
           "@beep/toml",
+          "@beep/tsconfig",
           "@beep/utils",
+          "@beep/walker",
           "@beep/wink",
           "@beep/yaml"
         ],
@@ -4275,6 +4319,7 @@
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
+          "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
           "@beep/pglite",
@@ -4292,7 +4337,9 @@
           "@beep/spdx",
           "@beep/test-utils",
           "@beep/toml",
+          "@beep/tsconfig",
           "@beep/utils",
+          "@beep/walker",
           "@beep/wink",
           "@beep/yaml"
         ]
@@ -4672,6 +4719,25 @@
         ]
       },
       {
+        "from": "@beep/tsconfig",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/tsgo-shim",
         "allow": [
           "@beep/tsgo-shim"
@@ -4763,6 +4829,25 @@
           "@beep/test-runner",
           "@beep/types",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/walker",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker"
         ]
       },
       {

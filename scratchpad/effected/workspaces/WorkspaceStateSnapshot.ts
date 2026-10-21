@@ -12,7 +12,9 @@
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { CatalogResolver, DependencyResolutionError, DependencySpecifier, WorkspaceResolver } from "../npm/index.ts";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import { DependencyResolutionError, WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
@@ -789,7 +791,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
- * import { CatalogResolver } from "@beep/scratchpad/effected/npm/CatalogResolver";
+ * import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
  * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
  * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
  *
@@ -825,7 +827,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
- * import { WorkspaceResolver } from "@beep/scratchpad/effected/npm/WorkspaceResolver";
+ * import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
  * import { CatalogSet } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
  * import { WorkspaceStateSnapshot } from "@beep/scratchpad/effected/workspaces/WorkspaceStateSnapshot";
  *

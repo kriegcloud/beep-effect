@@ -50,7 +50,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { tmpdir } from "node:os";
 import { Run } from "@beep/commands";
 import type { ConfigDependencyLock, LockfileFramingError, LockfileParseError } from "../../lockfiles/index.ts";
-import { IntegrityHash } from "../../npm/index.ts";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { Yaml } from "@beep/yaml";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

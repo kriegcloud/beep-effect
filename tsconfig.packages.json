@@ -313,6 +313,9 @@
       "path": "packages/foundation/capability/technical-drawing"
     },
     {
+      "path": "packages/foundation/capability/walker"
+    },
+    {
       "path": "packages/foundation/modeling/github-commands"
     },
     {
@@ -346,6 +349,9 @@
       "path": "packages/foundation/modeling/nlp"
     },
     {
+      "path": "packages/foundation/modeling/npm-spec"
+    },
+    {
       "path": "packages/foundation/modeling/ontology"
     },
     {
@@ -377,6 +383,9 @@
     },
     {
       "path": "packages/foundation/modeling/toml"
+    },
+    {
+      "path": "packages/foundation/modeling/tsconfig"
     },
     {
       "path": "packages/foundation/modeling/utils"

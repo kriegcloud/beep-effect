@@ -19,19 +19,3 @@ export * from "./Poppler.schema.ts";
  * @since 0.0.0
  */
 export * from "./Poppler.service.ts";
-
-/**
- * Package version.
- *
- * **Example** (Read the package version)
- *
- * ```ts
- * import { VERSION } from "@beep/poppler"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
-import { DependencySpecifier } from "../../effected/npm/DependencySpecifier.ts";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { ImporterDependency } from "../../effected/lockfiles/ImporterDependency.ts";
 // Native schema derivation generates independent specifier tags and raw strings.
 // Classify a valid spelling before sampling the enclosing serialization model;

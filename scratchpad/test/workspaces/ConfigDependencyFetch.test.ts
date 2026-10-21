@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { ScriptedSpawner } from "@beep/commands";
-import { CatalogAssemblyError } from "../../effected/npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { ConfigDependencyHooks } from "../../effected/workspaces/index.ts";

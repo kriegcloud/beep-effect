@@ -11,7 +11,7 @@ bun add @beep/pglite
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/pglite"
+import { makeLayer } from "@beep/pglite"
 ```
 
 ## Development

@@ -7,22 +7,6 @@
  */
 
 /**
- * Package version for `@beep/agents-tables`.
- *
- * **Example** (Import and log VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/agents-tables"
- *
- * console.log(VERSION)
- * ```
- *
- * @category tables
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Agents entity table metadata namespaces.
  *
  * **Example** (Log entity table name)

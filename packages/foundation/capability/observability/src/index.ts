@@ -82,10 +82,3 @@ export * from "./Observed.ts";
  * @category observability
  */
 export * from "./PhaseProfiler.ts";
-/**
- * Current `@beep/observability` package version.
- *
- * @category configuration
- * @since 0.0.0
- */
-export { VERSION } from "./Version.ts";

@@ -7,27 +7,6 @@
  */
 
 /**
- * Package version constant published by the architecture lab tables entry point.
- *
- * **Example** (Import and check VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-tables"
- *
- * const version: typeof VERSION = "0.0.0"
- * if (version !== VERSION) {
- *   throw new Error("unexpected tables package version")
- * }
- *
- * console.log(version)
- * ```
- *
- * @category tables
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Direct WorkItem table namespace export.
  *
  * @category tables

@@ -10,7 +10,7 @@ import * as Result from "effect/Result";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import { MemoryFileSystem } from "@beep/memfs";
-import { CatalogResolver } from "../../effected/npm/index.ts";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import { CatalogSet, WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 import { LockfileReadError, LockfileReader } from "../../effected/workspaces/LockfileReader.ts";
 import { WorkspaceRoot, WorkspaceRootNotFoundError } from "../../effected/workspaces/WorkspaceRoot.ts";

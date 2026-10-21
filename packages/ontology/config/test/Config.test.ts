@@ -1,4 +1,3 @@
-import { VERSION } from "@beep/ontology-config";
 import { OntologyConfigLive, OntologyMcpConfigLive } from "@beep/ontology-config/layer";
 import {
   OntologyConfig,
@@ -20,8 +19,7 @@ const configLayer = (configuration: Readonly<Record<string, string>>) =>
   OntologyConfigLive.pipe(Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown(configuration))));
 
 describe("OntologyConfigLive", () => {
-  it("exposes static test layers and the package version", () => {
-    expect(VERSION).toBe("0.0.0");
+  it("exposes static test layers", () => {
     expect(Layer.isLayer(makeOntologyConfigTest(OntologyServerConfig.make({ workspaceRoot: "/srv/ontology" })))).toBe(
       true
     );

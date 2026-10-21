@@ -382,9 +382,12 @@ Promotion status (goal `effected-promotion`): wave 1a moved `jsonl`, `jsonc`,
 `semver`, `spdx`, `schema-org`, `github-references`, `github-commands`,
 `commands` and `templates` (as `@beep/managed-section`) out of the lab; wave 1b
 moved `memfs` (`@beep/memfs`, tooling/test-kit), `toml` (`@beep/toml`), `yaml`
-(`@beep/yaml`), `glob` (`@beep/glob`) and `git` (`@beep/git`, drivers). Lab
-modules that depend on them import the `@beep/*` package, not a
-`../<dep>/index.ts` sibling.
+(`@beep/yaml`), `glob` (`@beep/glob`) and `git` (`@beep/git`, drivers); wave 2a
+split two modules, moving the pure half of `npm` to `@beep/npm-spec` and the pure
+half of `tsconfig-json` to `@beep/tsconfig` (their IO halves stay in the lab until
+their consumers arrive); wave 2b moved `walker` (`@beep/walker`, foundation/capability).
+Lab modules that depend on them import the `@beep/*`
+package, not a `../<dep>/index.ts` sibling.
 
 Dependency versions for new deps: copy the exact specifier from upstream
 `packages/<m>/package.json` (`pnpm-workspace.yaml` catalogs resolve them) into

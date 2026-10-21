@@ -34,19 +34,3 @@ export * from "./UsptoSourceAuth.ts";
  * @category tools
  */
 export * from "./UsptoTools.ts";
-
-/**
- * Package version.
- *
- * **Example** (Import and log version)
- *
- * ```ts
- * import { VERSION } from "@beep/uspto-mcp"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

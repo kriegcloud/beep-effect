@@ -45,11 +45,11 @@
     "@beep/github-commands": "workspace:^",
     "@beep/glob": "workspace:^",
     "@effected/markdown": "workspace:^",
-    "@effected/npm": "workspace:^",
+    "@beep/npm-spec": "workspace:^",
     "@effected/sbom": "workspace:^",
     "@beep/semver": "workspace:^",
     "@beep/managed-section": "workspace:^",
-    "@effected/walker": "workspace:^",
+    "@beep/walker": "workspace:^",
     "@beep/identity": "workspace:*",
     "@beep/schema": "workspace:*",
     "@beep/utils": "workspace:*"

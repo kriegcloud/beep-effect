@@ -7,22 +7,6 @@
  */
 
 /**
- * Package version for `@beep/ontology-client`.
- *
- * **Example** (Import and log VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/ontology-client"
- *
- * console.log(VERSION)
- * ```
- *
- * @category clients
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Session client atoms for the ontology workbench.
  *
  * @category atoms

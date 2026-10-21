@@ -518,10 +518,11 @@ const packageTemplateSpecsFor = (withStoriesTsconfig: boolean): ReadonlyArray<Te
     ? pipe(A.make(PACKAGE_TEMPLATE_SPECS, STORIES_TEMPLATE_SPECS), A.flatten)
     : PACKAGE_TEMPLATE_SPECS;
 
-// A library ships one real test so the declared `effect` and `@effect/vitest`
-// dependencies are used from the first commit and the alias path is
-// exercised. The runtime-proof app reuses the package shape without a root
-// `@beep/*` alias, so it keeps the empty `test/` placeholder instead.
+// A library ships one alias smoke test: the entry point starts as an empty
+// barrel, but the per-package test-typecheck fails closed without a test file,
+// and the test proves the `@beep/*` alias resolves from the first commit. The
+// runtime-proof app reuses the package shape without a root `@beep/*` alias,
+// so it keeps the empty `test/` placeholder instead.
 const PACKAGE_TEST_TEMPLATE_SPEC = TemplateSpec.make({
   templateName: "test-index.test.ts.hbs",
   outputPath: PACKAGE_TEST_FILE,

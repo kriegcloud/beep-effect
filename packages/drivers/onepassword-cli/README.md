@@ -11,7 +11,7 @@ bun add @beep/onepassword-cli
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/onepassword-cli"
+import { OnePasswordCli } from "@beep/onepassword-cli"
 ```
 
 ## Development

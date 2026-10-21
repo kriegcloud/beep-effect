@@ -7,24 +7,6 @@
  */
 
 /**
- * Package version for `@beep/epistemic-client`.
- *
- * **Example** (Compare package VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/epistemic-client"
- *
- * const expectedVersion: typeof VERSION = "0.0.0"
- * const isExpectedVersion = VERSION === expectedVersion
- * console.log(isExpectedVersion) // true
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Contradiction-triage client state and authenticated RPC client exports.
  *
  * @category clients

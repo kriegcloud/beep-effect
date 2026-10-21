@@ -10,7 +10,8 @@ run `bun run test` in the package and `bun run beep quality package-verify
 @beep/toml` from the repository root.
 Package names inside the bundle are upstream's as well: upstream `@effected/toml`
 ships here as `@beep/toml`, `@effected/yaml` as `@beep/yaml`, `@effected/jsonc` as
-`@beep/jsonc` and `@effected/templates` as `@beep/managed-section`.
+`@beep/jsonc`, `@effected/semver` as `@beep/semver` and `@effected/templates` as
+`@beep/managed-section`.
 
 ---
 <!-- packages/toml/CLAUDE.md -->

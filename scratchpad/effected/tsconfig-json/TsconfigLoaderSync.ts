@@ -26,9 +26,9 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import type { CompilerOptions } from "./CompilerOptions.ts";
-import type { ResolvedTsconfig } from "./ResolvedTsconfig.ts";
-import type { TsconfigJson } from "./TsconfigJson.ts";
+import type { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
+import type { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
+import type { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
 import { TsconfigLoader } from "./TsconfigLoader.ts";
 
 const $I = $ScratchpadId.create("effected/tsconfig-json/TsconfigLoaderSync");

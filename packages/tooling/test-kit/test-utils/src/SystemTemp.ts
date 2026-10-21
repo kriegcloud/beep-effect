@@ -7,6 +7,7 @@
 
 import * as NodeProcess from "node:process";
 import { currentHostPlatform } from "@beep/utils";
+import * as Str from "effect/String";
 
 const WINDOWS_SYSTEM_ROOT_FALLBACK = "C:\\Windows";
 const POSIX_SYSTEM_TEMP_ROOT = "/tmp";
@@ -64,7 +65,7 @@ export const privacySafeSystemTempRootForTesting = (options: PrivacySafeSystemTe
     options.environment.WINDIR ||
     options.environment.windir ||
     WINDOWS_SYSTEM_ROOT_FALLBACK;
-  return `${systemRoot.replace(/[\\/]+$/u, "")}\\Temp`;
+  return `${Str.replace(/[\\/]+$/u, "")(systemRoot)}\\Temp`;
 };
 
 /**

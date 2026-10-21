@@ -7,24 +7,6 @@
  */
 
 /**
- * Package version marker for the architecture lab config role.
- *
- * **Example** (Check initial proof version)
- *
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-config"
- *
- * const isInitialProofVersion = VERSION === "0.0.0"
- *
- * console.log(isInitialProofVersion) // true
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Browser-safe WorkItem public configuration exports.
  *
  * **Example** (Make WorkItem public config)
