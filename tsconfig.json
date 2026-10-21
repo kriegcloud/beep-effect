@@ -2235,7 +2235,23 @@
       "@beep/spdx/*": ["./packages/foundation/modeling/spdx/src/*"],
       "@beep/spdx/internal/*": [
         "./packages/foundation/modeling/spdx/src/internal/*"
-      ]
+      ],
+      "@beep/toml": ["./packages/foundation/modeling/toml/src/index.ts"],
+      "@beep/toml/*": ["./packages/foundation/modeling/toml/src/*"],
+      "@beep/yaml": ["./packages/foundation/modeling/yaml/src/index.ts"],
+      "@beep/yaml/*": ["./packages/foundation/modeling/yaml/src/*"],
+      "@beep/glob": ["./packages/foundation/modeling/glob/src/index.ts"],
+      "@beep/glob/*": ["./packages/foundation/modeling/glob/src/*"],
+      "@beep/managed-section": [
+        "./packages/foundation/modeling/managed-section/src/index.ts"
+      ],
+      "@beep/managed-section/*": [
+        "./packages/foundation/modeling/managed-section/src/*"
+      ],
+      "@beep/memfs": ["./packages/tooling/test-kit/memfs/src/index.ts"],
+      "@beep/memfs/*": ["./packages/tooling/test-kit/memfs/src/*"],
+      "@beep/git": ["./packages/drivers/git/src/index.ts"],
+      "@beep/git/*": ["./packages/drivers/git/src/*"]
     }
   }
 }

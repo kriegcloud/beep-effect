@@ -222,7 +222,13 @@ const generatedComposers = $I.compose(
   "schema-org",
   "github-references",
   "github-commands",
-  "commands"
+  "commands",
+  "toml",
+  "yaml",
+  "glob",
+  "managed-section",
+  "memfs",
+  "git"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3135,3 +3141,105 @@ export const $GithubCommandsId: Identity.IdentityComposer<"@beep/github-commands
  * @since 0.0.0
  */
 export const $CommandsId: Identity.IdentityComposer<"@beep/commands"> = composers.$CommandsId;
+
+/**
+ * Identity composer for `@beep/toml`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $TomlId } from "@beep/identity/packages"
+ *
+ * const id = $TomlId.make("Toml")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $TomlId: Identity.IdentityComposer<"@beep/toml"> = composers.$TomlId;
+
+/**
+ * Identity composer for `@beep/yaml`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $YamlId } from "@beep/identity/packages"
+ *
+ * const id = $YamlId.make("Yaml")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $YamlId: Identity.IdentityComposer<"@beep/yaml"> = composers.$YamlId;
+
+/**
+ * Identity composer for `@beep/glob`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GlobId } from "@beep/identity/packages"
+ *
+ * const id = $GlobId.make("Glob")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GlobId: Identity.IdentityComposer<"@beep/glob"> = composers.$GlobId;
+
+/**
+ * Identity composer for `@beep/managed-section`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $ManagedSectionId } from "@beep/identity/packages"
+ *
+ * const id = $ManagedSectionId.make("ManagedSection")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ManagedSectionId: Identity.IdentityComposer<"@beep/managed-section"> = composers.$ManagedSectionId;
+
+/**
+ * Identity composer for `@beep/memfs`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $MemfsId } from "@beep/identity/packages"
+ *
+ * const id = $MemfsId.make("Memfs")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $MemfsId: Identity.IdentityComposer<"@beep/memfs"> = composers.$MemfsId;
+
+/**
+ * Identity composer for `@beep/git`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GitId } from "@beep/identity/packages"
+ *
+ * const id = $GitId.make("Git")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GitId: Identity.IdentityComposer<"@beep/git"> = composers.$GitId;
