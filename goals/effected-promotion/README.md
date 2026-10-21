@@ -34,7 +34,8 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — wave 1 (14 dependency-free packages) in progress. P0 research
+P1 Implement — wave 1a (eight low-finding packages) ready to publish; wave 1b
+(memfs, managed-section, toml, git, glob, yaml) refactoring to zero findings. P0 research
 is complete: see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md).
 
 ## Latest Evidence
