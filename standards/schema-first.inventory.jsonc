@@ -741,7 +741,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 60,
+      "line": 61,
       "owner": "@beep/epistemic-server",
       "reason": "Bitemporal behavior regression decodes fixed commands to drive the real repository transaction and assert exact as-of answers at named instants; schema-derived arbitrary round-trips for LogicalEdgeIdentity, the EdgeAuthority commands, and the EdgeVersion entity live with the domain and use-cases model tests."
     },
@@ -751,7 +751,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 56,
+      "line": 57,
       "owner": "@beep/epistemic-server",
       "reason": "Restart regression decodes fixed commands to write history in one PGlite scope and re-read it in a second over the same dataDir; what is under test is that the data files carry history, lineage, dispositions, and live constraints across a process boundary, not schema laws."
     },

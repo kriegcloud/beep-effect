@@ -13,6 +13,8 @@ import {
   SiteRoute,
 } from "@beep/public-site";
 import { describe, expect, expectTypeOf, it } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -192,7 +194,7 @@ describe("labRoute", () => {
       "a".repeat(64),
     ];
     for (const name of rejected) {
-      expect(O.isNone(S.decodeOption(LabPortlessName)(name))).toBe(true);
+      assertNone(S.decodeOption(LabPortlessName)(name));
     }
     expect(decodes(O.getOrThrow(S.decodeOption(LabPortlessName)("a".repeat(63))))).toBe(true);
   });
@@ -209,4 +211,25 @@ describe("labRoute", () => {
     expect(O.getOrThrow(S.encodeOption(LabPortlessName)(label))).toBe("api-docs");
     expect(S.is(LabLabel)("api-docs")).toBe(true);
   });
+
+  it.prop(
+    "hosts every schema-derived route at a URL the HostedUrl schema accepts",
+    [Arbitrary.schema(SiteRoute)],
+    ([route]) => {
+      const url = hostedUrl(route);
+      expect(url).toBe(`https://beep-effect.com/${route}`);
+      expect(S.is(HostedUrl)(url)).toBe(true);
+    }
+  );
+
+  it.prop(
+    "routes every schema-derived lab label through its portless host",
+    [Arbitrary.schema(LabLabel)],
+    ([label]) => {
+      expect(O.getOrThrow(S.decodeOption(LabPortlessName)(`${label}.labs.beep.localhost`))).toBe(label);
+      expect(labRoute(label)).toBe(`https://beep-effect.com/labs/${label}`);
+      expect(S.is(HostedUrl)(labRoute(label))).toBe(true);
+    },
+    { arbitrary: { runs: 50 } }
+  );
 });
