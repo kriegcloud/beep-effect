@@ -69,6 +69,7 @@
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/walker": "workspace:^",
     "@biomejs/biome": "catalog:",
     "@effect/platform-node": "catalog:",
     "@effect/tsgo": "catalog:",

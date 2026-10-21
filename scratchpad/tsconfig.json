@@ -59,6 +59,9 @@
       "path": "../packages/foundation/capability/semantic-web/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/capability/walker/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/github-commands/tsconfig.json"
     },
     {

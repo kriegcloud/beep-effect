@@ -7,8 +7,8 @@ decisions live in README.md → Port notes, not here. Upstream paths (`packages/
 lives at `packages/foundation/modeling/glob` (`src/`, `test/`) and runs through the `bun run`
 scripts listed in README.md → Development. Package names inside the bundle are upstream's too:
 upstream `@effected/glob` ships here as `@beep/glob`, `@effected/yaml` as `@beep/yaml`,
-`@effected/jsonc` as `@beep/jsonc`, `@effected/semver` as `@beep/semver` and
-`@effected/templates` as `@beep/managed-section`.
+`@effected/jsonc` as `@beep/jsonc`, `@effected/semver` as `@beep/semver`,
+`@effected/walker` as `@beep/walker` and `@effected/templates` as `@beep/managed-section`.
 
 ---
 <!-- packages/glob/CLAUDE.md -->

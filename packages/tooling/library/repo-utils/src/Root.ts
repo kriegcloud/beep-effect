@@ -7,12 +7,15 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { A, Str, thunkFalse } from "@beep/utils";
+import { A } from "@beep/utils";
+import { Walker } from "@beep/walker/Walker";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
 import { NoSuchFileError } from "./errors/index.ts";
+import type * as FileSystem from "effect/FileSystem";
 
 /**
  * Markers that indicate a repository root directory.
@@ -23,12 +26,36 @@ import { NoSuchFileError } from "./errors/index.ts";
 const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
 
 /**
+ * The posix `effect/Path` service, so `findRepoRoot` keeps its `FileSystem`-only requirement.
+ *
+ * The previous hand-rolled ascent split on `/` only; posix semantics keep that.
+ */
+const posixPath = Path.layer.pipe(Layer.build, Effect.map(Context.get(Path.Path)), Effect.scoped);
+
+/**
+ * The nearest directory on the lexical ascent from `start` holding a root marker.
+ *
+ * Markers are probed nearest directory first and in `ROOT_MARKERS` order per
+ * directory; an unreadable probe counts as absent. A relative start ascends to
+ * `.` and stops there instead of jumping to `/`.
+ */
+const findMarkedAncestor = Effect.fn(function* (start: string) {
+  const path = yield* Path.Path;
+  const dirs = yield* Walker.ascend(start);
+  const marker = yield* Walker.findUpward(dirs, (dir) => A.map(ROOT_MARKERS, (name) => path.join(dir, name)));
+  return O.map(marker, path.dirname);
+});
+
+/**
  * Find the repository root by walking upward from the given directory
  * (or the current working directory) until a root marker is found.
  *
  * **Details**
  *
- * Root markers are `.git` (directory) and `bun.lock` (file).
+ * Root markers are `.git` (directory) and `bun.lock` (file). The ascent is
+ * `@beep/walker`'s lexical `Walker.ascend` with posix path semantics, so the
+ * returned directory is normalized (no trailing separator). A relative start
+ * ascends to `.` and stops there; it never jumps to the filesystem root.
  *
  * **Example** (Find root from cwd)
  *
@@ -48,42 +75,13 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
 export const findRepoRoot: (
   startFrom?: undefined | string
 ) => Effect.Effect<string, NoSuchFileError, FileSystem.FileSystem> = Effect.fn(function* (startFrom) {
-  const fs = yield* FileSystem.FileSystem;
   const start = startFrom ?? process.cwd();
-
-  let current = start;
-
-  while (true) {
-    for (const marker of ROOT_MARKERS) {
-      const markerPath = Str.endsWith("/")(current) ? current + marker : `${current}/${marker}`;
-      const exists = yield* fs.exists(markerPath).pipe(Effect.orElseSucceed(thunkFalse));
-      if (exists) {
-        return current;
-      }
-    }
-
-    // Move to parent directory
-    const parent = parentDir(current);
-    if (parent === current) {
-      // Reached filesystem root without finding a marker
-      return yield* NoSuchFileError.make({
-        path: start,
-        message: `Could not find repository root (looked for ${A.join(", ")(ROOT_MARKERS)}) starting from "${start}"`,
-      });
-    }
-    current = parent;
+  const root = yield* findMarkedAncestor(start).pipe(Effect.provideServiceEffect(Path.Path, posixPath));
+  if (O.isSome(root)) {
+    return root.value;
   }
+  return yield* NoSuchFileError.make({
+    path: start,
+    message: `Could not find repository root (looked for ${A.join(", ")(ROOT_MARKERS)}) starting from "${start}"`,
+  });
 });
-
-/**
- * Get the parent directory of a path (pure string operation).
- *
- * @param p - Absolute or relative path string.
- * @returns Parent directory path.
- */
-const parentDir = (p: string): string =>
-  pipe(
-    Str.lastIndexOf("/")(p),
-    O.map((lastSlash) => (lastSlash === 0 ? "/" : Str.substring(0, lastSlash)(p))),
-    O.getOrElse(() => "/")
-  );

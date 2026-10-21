@@ -4965,7 +4965,7 @@ export interface GitShape {
    * The path is PHYSICAL: git resolves symlinks, so it need not match the
    * spelling the caller reached the repository by (every macOS tmpdir:
    * `/var` → `/private/var`). Bound an upward walk by it with
-   * `@effected/walker`'s `Walker.ascendWithin`, never `Walker.ascend`'s
+   * `@beep/walker`'s `Walker.ascendWithin`, never `Walker.ascend`'s
    * lexical `stopAt`. For identity across worktrees, use `commonDir`.
    */
   readonly repoRoot: (cwd: string) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
