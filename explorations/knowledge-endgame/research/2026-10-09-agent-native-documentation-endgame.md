@@ -11,12 +11,15 @@
 > `effect/Schema`, and `@effect/platform` to `effect` (Effect v4 folded both
 > packages into `effect`). The argument itself is unchanged.
 >
-> Read it against these repository facts, which it predates or misses:
+> Read it against these repository facts, and one pending ruling, which it
+> predates or misses:
 >
-> - **Identity.** The 2026-10-20 public-origin ruling (PR #1946) puts
->   dereference at `https://beep-effect.com/ns/`, reserved permanently. `$I`
->   IRIs are the authority plus the `@beep` package path, with no kind or
->   version segment. The `/id/{kind}/v4/...` scheme below conflicts with both,
+> - **Identity.** `$I` IRIs are the authority plus the `@beep` package path,
+>   with no kind or version segment. On `main` the authority is still
+>   `https://ns.beep.sh/`. A 2026-10-20 operator ruling, not yet in the
+>   repository (it lands with PR #1946), moves dereference to
+>   `https://beep-effect.com/ns/` and reserves that path permanently. The
+>   `/id/{kind}/v4/...` scheme below conflicts with the `$I` shape either way,
 >   and `$I` cannot mint IRIs for upstream Effect symbols such as
 >   `Schema.Struct`.
 > - **Versioning.** `@beep/*` packages are private and unreleased, so the only
