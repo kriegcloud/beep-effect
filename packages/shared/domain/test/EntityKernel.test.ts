@@ -5,6 +5,7 @@ import * as DomainBarrel from "@beep/shared-domain";
 import { Membership, Organization } from "@beep/shared-domain/entities";
 import * as EntityBarrel from "@beep/shared-domain/entity";
 import * as EntityId from "@beep/shared-domain/entity/EntityId";
+import * as EntityKit from "@beep/shared-domain/entity/EntityKit";
 import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
 import * as Principal from "@beep/shared-domain/entity/Principal";
 import * as ProductEntity from "@beep/shared-domain/entity/ProductEntity";
@@ -201,7 +202,7 @@ describe("ProductEntity", () => {
       ])
     );
     expect(R.keys(ProductDocument.insert.fields)).not.toContain("id");
-    expect(R.keys(ProductDocument.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(ProductDocument.insert.fields)).toContain("rowVersion");
     expect(R.keys(ProductDocument.update.fields)).toEqual(
       expect.arrayContaining(["id", "note", "rowVersion", "updatedAt"])
     );
@@ -209,7 +210,36 @@ describe("ProductEntity", () => {
     expect(R.keys(ProductDocument.update.fields)).not.toContain("publicId");
     expect(R.keys(ProductDocument.json.fields)).toEqual(expect.arrayContaining(["id", "publicId", "rowVersion"]));
     expect(R.keys(ProductDocument.jsonCreate.fields)).toEqual(["note"]);
-    expect(R.keys(ProductDocument.jsonUpdate.fields)).toEqual(["note"]);
+    expect(R.keys(ProductDocument.jsonUpdate.fields)).toEqual(expect.arrayContaining(["note", "rowVersion"]));
+    expect(R.keys(ProductDocument.jsonUpdate.fields)).toHaveLength(2);
+  });
+
+  it.effect(
+    "marks rowVersion as the optimistic token with a SQL default of 1",
+    Effect.fnUntraced(function* () {
+      const rowVersion = ProductDocument.sql.columns.rowVersion;
+      assertTrue(rowVersion.version);
+      assertTrue(rowVersion.hasDefault);
+      const insert = {
+        createdByPrincipal: systemPrincipal,
+        entityType: DocumentId.entityType,
+        note: "hello",
+        orgId: 1,
+        publicId: "shared_document_a123",
+        schemaVersion: "0.0.0",
+        source: "Application",
+        updatedByPrincipal: systemPrincipal,
+      } as const;
+      expect((yield* makeEffect(ProductDocument.insert)({ ...insert, rowVersion: 3 })).rowVersion).toBe(3);
+      yield* Effect.flip(makeEffect(ProductDocument.insert)({ ...insert, rowVersion: 0 }));
+    })
+  );
+
+  it("advances the row version by exactly one", () => {
+    expect(EntityKit.nextRowVersion(EntityKit.RowVersion.make(1))).toBe(2);
+    expect(EntityKit.nextRowVersion(EntityKit.RowVersion.make(41))).toBe(42);
+    assertFalse(S.is(EntityKit.RowVersion)(0));
+    assertFalse(S.is(EntityKit.RowVersion)(1.5));
   });
 
   it.effect(
@@ -229,6 +259,7 @@ describe("ProductEntity", () => {
       expect(inserted.createdAt).toBeDefined();
       expect(inserted.updatedAt).toBeDefined();
       assertFalse("id" in inserted);
+      // The SQL default (1) supplies the first token; the constructor never invents one.
       assertFalse("rowVersion" in inserted);
     })
   );

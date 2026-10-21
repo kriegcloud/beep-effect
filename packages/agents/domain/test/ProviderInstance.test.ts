@@ -47,7 +47,7 @@ describe("@beep/agents-domain ProviderInstance", () => {
     expect(ProviderInstance.sql.tableName).toBe(Agents.ProviderInstanceId.tableName);
     expect(Agents.ProviderInstanceId.entityType).toBe("AgentsProviderInstance");
     expect(R.keys(ProviderInstance.insert.fields)).not.toContain("id");
-    expect(R.keys(ProviderInstance.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(ProviderInstance.insert.fields)).toContain("rowVersion");
     expect(R.keys(ProviderInstance.update.fields)).toContain("id");
     expect(R.keys(ProviderInstance.update.fields)).toContain("rowVersion");
     expect(R.keys(ProviderInstance.jsonCreate.fields)).toEqual([
@@ -59,6 +59,7 @@ describe("@beep/agents-domain ProviderInstance", () => {
       "lastProbe",
     ]);
     expect(R.keys(ProviderInstance.jsonUpdate.fields)).toEqual([
+      "rowVersion",
       "binaryPath",
       "envVars",
       "homePath",
