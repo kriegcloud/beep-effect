@@ -10,7 +10,6 @@ import {
   TesseractConfig,
   TesseractScript,
   tesseractLanguagesForScript,
-  VERSION,
 } from "@beep/tesseract";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -118,7 +117,6 @@ it.effect(
     expect(config).toEqual(yield* S.decodeEffect(TesseractConfig)({}));
     expect(config.tesseractPath).toBe("tesseract");
     expect(config.pageTimeoutMillis).toBe(60_000);
-    expect(VERSION).toBe("0.0.0");
   })
 );
 

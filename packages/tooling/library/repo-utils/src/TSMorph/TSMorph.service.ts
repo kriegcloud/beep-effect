@@ -6,6 +6,7 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { A, Str, thunkFalse } from "@beep/utils";
+import { Walker } from "@beep/walker/Walker";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -456,6 +457,37 @@ const isOutsideAncestor = (pathApi: Path.Path, parentPath: string, childPath: st
   return relativePath.length === 0 ? false : pathApi.isAbsolute(relativePath) || Str.startsWith("..")(relativePath);
 };
 
+/**
+ * The repo-relative implementation path of a project source file, when the scope indexes it.
+ *
+ * None for a file outside the workspace under `workspaceOnly`, a file outside the
+ * repository root, or a path that is not an implementation TypeScript file.
+ *
+ * @param pathApi - Path service used for normalization and containment checks.
+ * @param scope - The resolved project scope being indexed.
+ * @param sourceFilePath - The ts-morph source file path.
+ * @returns The scoped implementation path, or None when the scope skips the file.
+ */
+const scopedImplementationFilePath = (
+  pathApi: Path.Path,
+  scope: TsMorphProjectScope,
+  sourceFilePath: string
+): O.Option<TypeScriptImplementationFilePath> => {
+  const absoluteFilePath = pathApi.normalize(sourceFilePath);
+  if (
+    scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
+    isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
+  ) {
+    return O.none();
+  }
+  const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
+  const outsideRepoRoot =
+    repoRelativeFilePath.length === 0 ||
+    pathApi.isAbsolute(repoRelativeFilePath) ||
+    Str.startsWith("..")(repoRelativeFilePath);
+  return outsideRepoRoot ? O.none() : S.decodeOption(TypeScriptImplementationFilePath)(repoRelativeFilePath);
+};
+
 const isMissingDirectoryError = (cause: unknown): boolean =>
   P.isString(cause)
     ? Str.includes("Directory not found:")(cause)
@@ -861,30 +893,20 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
   ): Effect.fn.Return<TsConfigFilePath, TSMorphServiceError> {
     const { absoluteFilePath } = yield* resolveScopedFilePath(repoRootPath, filePath);
 
-    let currentDirectory = pathApi.dirname(absoluteFilePath);
-    while (true) {
-      const candidateTsConfigPath = pathApi.join(currentDirectory, DEFAULT_TSCONFIG_FILE_NAME);
-      const candidateExists = yield* fs.exists(candidateTsConfigPath).pipe(Effect.orElseSucceed(thunkFalse));
+    const owningTsConfigPath = yield* Walker.ascend(pathApi.dirname(absoluteFilePath), { stopAt: repoRootPath }).pipe(
+      Effect.flatMap(Walker.findUpward((directory) => [pathApi.join(directory, DEFAULT_TSCONFIG_FILE_NAME)])),
+      Effect.provideService(Path.Path, pathApi),
+      Effect.provideService(FileSystem.FileSystem, fs)
+    );
 
-      if (candidateExists) {
-        const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(pathApi, repoRootPath, candidateTsConfigPath);
-        return yield* decodeOrFail(S.decodeUnknownEffect(TsConfigFilePath), repoRelativeTsConfigPath, (message) =>
-          TsMorphScopeResolutionError.make({
-            entrypoint: filePath,
-            message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
-          })
-        );
-      }
-
-      if (currentDirectory === repoRootPath) {
-        break;
-      }
-
-      const parentDirectory = pathApi.dirname(currentDirectory);
-      if (parentDirectory === currentDirectory) {
-        break;
-      }
-      currentDirectory = parentDirectory;
+    if (O.isSome(owningTsConfigPath)) {
+      const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(pathApi, repoRootPath, owningTsConfigPath.value);
+      return yield* decodeOrFail(S.decodeUnknownEffect(TsConfigFilePath), repoRelativeTsConfigPath, (message) =>
+        TsMorphScopeResolutionError.make({
+          entrypoint: filePath,
+          message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
+        })
+      );
     }
 
     return yield* TsMorphScopeResolutionError.make({
@@ -1045,34 +1067,13 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     scope: TsMorphProjectScope
   ): Effect.fn.Return<ScopeSymbolIndex, TSMorphServiceError> {
     const project = yield* projectPool.getOrCreate(scope);
-    let entries = A.empty<ScopeSymbolEntry>();
-
-    for (const sourceFile of project.getSourceFiles()) {
-      const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
-      if (
-        scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
-        isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
-      ) {
-        continue;
-      }
-
-      const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
-      if (
-        repoRelativeFilePath.length === 0 ||
-        pathApi.isAbsolute(repoRelativeFilePath) ||
-        Str.startsWith("..")(repoRelativeFilePath)
-      ) {
-        continue;
-      }
-
-      const implementationFilePath = S.decodeOption(TypeScriptImplementationFilePath)(repoRelativeFilePath);
-      if (O.isSome(implementationFilePath)) {
-        const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile).pipe(
-          Effect.provide(cryptoContext)
-        );
-        entries = A.appendAll(entries, sourceEntries);
-      }
-    }
+    const entriesPerFile = yield* Effect.forEach(project.getSourceFiles(), (sourceFile) =>
+      O.match(scopedImplementationFilePath(pathApi, scope, sourceFile.getFilePath()), {
+        onNone: () => Effect.succeed(A.empty<ScopeSymbolEntry>()),
+        onSome: (filePath) => collectOutlineEntries(filePath, sourceFile).pipe(Effect.provide(cryptoContext)),
+      })
+    );
+    const entries = A.flatten(entriesPerFile);
 
     const sortedEntries = A.sort(entries, byScopeSymbolEntryAscending);
     const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();

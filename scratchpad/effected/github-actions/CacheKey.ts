@@ -5,7 +5,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as HashSet from "effect/HashSet";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobSet } from "@beep/glob";
-import { descend } from "../walker/index.ts";
+import { descend } from "@beep/walker/Descend";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";

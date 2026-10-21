@@ -7,29 +7,6 @@
  */
 
 /**
- * Package version for the ontology domain role.
- *
- * **Example** (Assert expected package version)
- *
- * ```ts
- * import { VERSION } from "@beep/ontology-domain"
- *
- * const expectedVersion: typeof VERSION = "0.0.0"
- * const isExpectedVersion = VERSION === expectedVersion
- *
- * console.log(isExpectedVersion)
- *
- * if (VERSION !== expectedVersion) {
- *   throw new Error("unexpected ontology domain version")
- * }
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Aggregate namespace exports for the ontology domain package.
  *
  * @category aggregates

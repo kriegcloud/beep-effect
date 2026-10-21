@@ -7,24 +7,6 @@
  */
 
 /**
- * Package version for the architecture lab server role.
- *
- * **Example** (Importing and checking VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-server"
- *
- * const version = VERSION
- *
- * console.log(version === "0.0.0") // true
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Direct WorkItem server namespace export.
  *
  * @category handlers

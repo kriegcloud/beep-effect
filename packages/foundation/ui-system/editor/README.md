@@ -175,7 +175,7 @@ bun run lint:fix   # biome
 
 Unit tests stay outside `test/integration`; tests import package source
 through exact `@beep/editor/<leaf>` subpaths or other `@beep/*` aliases. The
-root export carries only `VERSION`. Use relative imports only for local
+root export is empty. Use relative imports only for local
 helpers, fixtures, and snapshots.
 
 ## License

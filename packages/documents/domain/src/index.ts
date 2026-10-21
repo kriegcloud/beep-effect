@@ -7,22 +7,6 @@
  */
 
 /**
- * Package version for `@beep/documents-domain`.
- *
- * **Example** (Import and log VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/documents-domain"
- *
- * console.log(VERSION)
- * ```
- *
- * @category aggregates
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Document aggregate exports.
  *
  * @category aggregates

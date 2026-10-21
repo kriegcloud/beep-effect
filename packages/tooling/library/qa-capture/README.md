@@ -11,7 +11,7 @@ bun add @beep/qa-capture
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/qa-capture"
+import { ActionEventKind } from "@beep/qa-capture"
 ```
 
 ## Development

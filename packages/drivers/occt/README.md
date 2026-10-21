@@ -11,7 +11,7 @@ bun add @beep/occt
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/occt"
+import { Occt } from "@beep/occt"
 ```
 
 ## Development

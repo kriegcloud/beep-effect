@@ -11,7 +11,7 @@ bun add @beep/sanity
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/sanity"
+import { Sanity } from "@beep/sanity"
 ```
 
 ## Development

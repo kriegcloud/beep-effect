@@ -43,7 +43,7 @@ bun add @beep/ai-provider-cli
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/ai-provider-cli"
+import { AiProviderCli } from "@beep/ai-provider-cli"
 ```
 
 ## Development

@@ -16,12 +16,6 @@ tags: [effect]
 |--------|---------|
 | `index.ts` | Package entry point |
 
-## Usage Patterns
-
-```typescript
-import { VERSION } from "@beep/oip-web"
-```
-
 ## Design Decisions
 
 | Decision | Rationale |

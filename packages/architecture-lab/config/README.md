@@ -11,7 +11,7 @@ bun add @beep/architecture-lab-config
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/architecture-lab-config"
+import { WorkItemPublicConfig } from "@beep/architecture-lab-config"
 ```
 
 ## Development

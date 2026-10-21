@@ -11,7 +11,7 @@ bun add @beep/tesseract
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/tesseract"
+import { makeTesseractPageOcrEngine } from "@beep/tesseract"
 ```
 
 ## Development

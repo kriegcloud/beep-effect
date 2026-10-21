@@ -317,8 +317,8 @@ const extraExportForRole = ArchitecturePackageRole.$match({
     '\n/**\n * Server layer exports.\n *\n * @category layers\n * @since 0.0.0\n */\nexport * from "./Layer.ts";\n',
   tables: () =>
     '\n/**\n * Table collection exports.\n *\n * @category tables\n * @since 0.0.0\n */\nexport * from "./tables.ts";\n',
-  client: () => "",
-  ui: () => "",
+  client: () => "\nexport {};\n",
+  ui: () => "\nexport {};\n",
 });
 
 const packageShellIndexContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string => {
@@ -333,14 +333,6 @@ const packageShellIndexContent = (target: ArchitecturePlanTarget, role: Architec
  * @category ${category}
  * @since 0.0.0
  */
-
-/**
- * Package version for \`${packageName}\`.
- *
- * @category ${category}
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
 ${extraExport}`;
 };
 

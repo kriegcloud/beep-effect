@@ -115,7 +115,12 @@ export * from "./OutboxTools.ts";
 export * from "./Server.ts";
 
 /**
- * Package version.
+ * Package version, sent as the MCP `serverInfo.version` by both server bins.
+ *
+ * **Details**
+ *
+ * Mirrors the `version` field of this package's `package.json`, which is the
+ * source of truth; `test/Version.test.ts` guards the equality.
  *
  * **Example** (Log package version)
  *
@@ -123,10 +128,10 @@ export * from "./Server.ts";
  * import { VERSION } from "@beep/m365-mcp"
  *
  * console.log(VERSION)
- * // "0.1.0"
+ * // "0.0.0"
  * ```
  *
  * @category constants
  * @since 0.1.0
  */
-export const VERSION = "0.1.0";
+export const VERSION = "0.0.0";

@@ -7,7 +7,7 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | `VERSION`, `RULES`, `RULE_NAMES`, `rulePath`, `rulesDir` | canonical rule registry |
+| entry module | `RULES`, `RULE_NAMES`, `rulePath`, `rulesDir` | canonical rule registry |
 | rules | `rules/*.grit` | one anti-pattern per rule, diagnostics-only |
 | presets | `configs/{core,services,schema}.jsonc` | documented groupings |
 | oxlint plugin | `src/rules/{index,*.ts}` | path-aware or precisely fixable custom oxlint rules |

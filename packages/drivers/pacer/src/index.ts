@@ -87,20 +87,3 @@ export * from "./Pcl.models.ts";
  * @since 0.0.0
  */
 export * from "./PclClient.service.ts";
-
-/**
- * Package version.
- *
- * **Example** (Import package version)
- *
- * ```ts
- * import { VERSION } from "@beep/pacer"
- *
- * const packageVersion = VERSION
- * console.log(packageVersion)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0";

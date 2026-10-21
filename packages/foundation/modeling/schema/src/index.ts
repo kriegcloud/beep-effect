@@ -249,13 +249,6 @@ export * from "./TerritoryCode.ts";
  */
 export * from "./URL.ts";
 /**
- * Current `@beep/schema` package version.
- *
- * @category configuration
- * @since 0.0.0
- */
-export { VERSION } from "./Version.ts";
-/**
  * @since 0.0.0
  * @category validation
  */

@@ -7,7 +7,7 @@
 
 import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Walker } from "../walker/index.ts";
+import { Walker } from "@beep/walker/Walker";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

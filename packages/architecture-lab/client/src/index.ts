@@ -3,31 +3,14 @@
  *
  * **Details**
  *
- * This entry point exposes the package version and namespace barrels for
- * browser or edge clients that need WorkItem command/query contracts without
- * depending on server repository layers.
+ * This entry point exposes namespace barrels for browser or edge clients that
+ * need WorkItem command/query contracts without depending on server repository
+ * layers.
  *
  * @packageDocumentation
  * @category clients
  * @since 0.0.0
  */
-
-/**
- * Static version marker for the architecture lab client facade.
- *
- * **Example** (Detect initial client build)
- *
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-client"
- *
- * const isInitialClientBuild = VERSION === "0.0.0"
- * console.log(isInitialClientBuild) // true
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
 
 /**
  * Namespace barrel for WorkItem client contracts.

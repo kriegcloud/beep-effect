@@ -10,7 +10,13 @@ import * as McpProtocol from "effect/ai/McpProtocol";
 import type * as Arr from "effect/Array";
 
 /**
- * Current `@beep/mcp-kit` package version.
+ * Current `@beep/mcp-kit` package version, used as the default client
+ * `clientInfo.version`.
+ *
+ * **Details**
+ *
+ * Mirrors the `version` field of this package's `package.json`, which is the
+ * source of truth; `test/Version.test.ts` guards the equality.
  *
  * **Example** (Log package version)
  *

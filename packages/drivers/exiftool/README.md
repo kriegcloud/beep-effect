@@ -11,7 +11,7 @@ bun add @beep/exiftool
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/exiftool"
+import { Exiftool } from "@beep/exiftool"
 ```
 
 ## Development
