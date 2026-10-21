@@ -196,3 +196,67 @@ it.layer(makeIdentificationStages(lookup).pipe(Layer.provideMerge(NodeServices.l
     );
   }
 );
+
+const startupFailureStages = makeIdentificationStages(
+  Layer.effect(I.UsptoRecordLookup, Effect.fail("synthetic private provider startup detail"))
+).pipe(Layer.provideMerge(NodeServices.layer));
+
+it.layer(startupFailureStages, { timeout: "30 seconds" })("provider startup failures", (it) => {
+  it.effect("sanitises a failed lookup-layer startup without creating outputs or a query ledger", () =>
+    Effect.gen(function* () {
+      const { fs, file } = yield* fixture();
+      yield* fs.writeFileString(file("queries.jsonl"), '{"kind":"application","number":"18900001"}');
+      const error = yield* Effect.flip(
+        IdentificationStages.use((service) =>
+          service.uspto(
+            UsptoInput.make({
+              input: file("queries.jsonl"),
+              output: file("results.jsonl"),
+              ledger: file("ledger.jsonl"),
+            })
+          )
+        )
+      );
+      expect(error).toMatchObject({ operation: "uspto-config", reason: "unavailable" });
+      expect(error.message).not.toContain("private provider");
+      expect(yield* fs.exists(file("results.jsonl"))).toBe(false);
+      expect(yield* fs.exists(file("ledger.jsonl"))).toBe(false);
+    })
+  );
+});
+
+const unavailable = I.IdentificationError.make({ operation: "lookup-application", reason: "unavailable" });
+const failedLookupStages = makeIdentificationStages(
+  Layer.succeed(
+    I.UsptoRecordLookup,
+    I.UsptoRecordLookupShape.make({
+      byApplication: () => Effect.fail(unavailable),
+      byPatent: () => Effect.succeedNone,
+    })
+  )
+).pipe(Layer.provideMerge(NodeServices.layer));
+
+it.layer(failedLookupStages, { timeout: "30 seconds" })("provider query failures", (it) => {
+  it.effect("preserves a typed lookup failure after startup and records only the attempted query shape", () =>
+    Effect.gen(function* () {
+      const { fs, file } = yield* fixture();
+      yield* fs.writeFileString(file("queries.jsonl"), '{"kind":"application","number":"18900001"}');
+      const error = yield* Effect.flip(
+        IdentificationStages.use((service) =>
+          service.uspto(
+            UsptoInput.make({
+              input: file("queries.jsonl"),
+              output: file("results.jsonl"),
+              ledger: file("ledger.jsonl"),
+            })
+          )
+        )
+      );
+      expect(error).toBe(unavailable);
+      expect(yield* fs.exists(file("results.jsonl"))).toBe(false);
+      const ledger = yield* fs.readFileString(file("ledger.jsonl"));
+      expect(ledger).toContain('"application-number"');
+      expect(ledger).not.toContain("18900001");
+    })
+  );
+});

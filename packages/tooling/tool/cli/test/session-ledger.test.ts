@@ -1,4 +1,5 @@
 import { sessionCommand } from "@beep/repo-cli";
+import { GoalManifest } from "@beep/repo-cli/commands/Goals";
 import {
   decodeSessionLedger,
   layerSessionLedgerMemory,
@@ -23,6 +24,7 @@ import { SweepGitState, sweepWritesLedgerDone } from "@beep/repo-cli/test/Yeet";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, expect, it, vi } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -42,6 +44,8 @@ import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
+
+const encodeGoalManifestJson = S.encodeEffect(S.fromJsonString(GoalManifest));
 
 const repository = PrRepository.make({ host: "github.com", owner: "beep-effect", name: "beep-effect" });
 
@@ -410,6 +414,36 @@ describe("beep session", () => {
       )
     );
 
+    it.effect("shows prospective goal closeouts while retaining the operative status", () =>
+      withScratchCheckout(({ clone }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const directory = `${clone}/goals/proposed/ops`;
+          yield* fs.makeDirectory(directory, { recursive: true });
+          yield* fs.writeFileString(
+            `${directory}/manifest.json`,
+            yield* encodeGoalManifestJson(
+              GoalManifest.make({
+                initiative: { id: "proposed", status: "active" },
+                completionGate: {
+                  operator: "yeet",
+                  requiresPullRequest: true,
+                  requiresMergeable: true,
+                  statement: "Ship via yeet.",
+                  grandfathered: false,
+                  acceptanceEvidence: [{ kind: "yeet-verdict", ref: ".beep/yeet/verdict.json", gating: true }],
+                },
+                proposedCloseout: { status: "completed-retained", finalPullRequest: 1429 },
+              })
+            )
+          );
+          const output = yield* captureOutput(withCwd(clone, runSession(["open"])));
+          expect(output).toContain("[session:goal] proposed: operative=active; proposed=completed-retained via #1429");
+          expect(output).toContain("no live sessions recorded");
+        })
+      )
+    );
+
     it.effect("records who holds the orchestrator role and prints the holder first", () =>
       withScratchCheckout(({ clone, lane }) =>
         Effect.gen(function* () {
@@ -745,4 +779,17 @@ describe("session ledger failures", () => {
       })
     );
   });
+});
+
+describe("session open report schema", () => {
+  it.effect.prop(
+    "round trips generated session rows and goal-closeout views through the JSON report",
+    [Arbitrary.schema(SessionOpenReport)],
+    Effect.fnUntraced(function* ([value]) {
+      const encoded = yield* SessionOpenReportJson.encode(value);
+      const decoded = yield* SessionOpenReportJson.decode(encoded);
+      expect(S.toEquivalence(SessionOpenReport)(decoded, value)).toBe(true);
+    }),
+    { arbitrary: { runs: 20, size: 10, maxDiscards: 1000, seed: 5 } }
+  );
 });

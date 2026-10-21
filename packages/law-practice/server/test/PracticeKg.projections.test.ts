@@ -27,6 +27,7 @@ import {
   PracticeKgProjectionsLive,
   PracticeKgQueries,
   PracticeKgResolveAnchorsInput,
+  PracticeKgToolkit,
   PracticeKgToolkitLayer,
   practiceKgClaimsPhysicalColumns,
   practiceKgMcpProtocols,
@@ -37,6 +38,7 @@ import {
   verifyPracticeKgBundle,
   writePracticeKgClaimsCarry,
 } from "@beep/law-practice-server";
+import { runPracticeKgSelfCheck } from "@beep/law-practice-server/PracticeKgHost";
 import { DbSchema } from "@beep/law-practice-tables";
 import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
 import {
@@ -2538,4 +2540,31 @@ describe("patent-only filename anchors", () => {
       ])
     );
   });
+});
+
+it.layer(testLayer, { timeout: "2 minutes" })("self-check schema mismatch", (it) => {
+  it.effect("checks both stores and refuses missing tool columns after a successful read", () =>
+    Effect.gen(function* () {
+      const context = yield* buildConformanceBundle();
+      // This test owns a separate bundle, so the self-check never races the
+      // conformance host's PGlite connection over the same on-disk cluster.
+      const report = yield* runPracticeKgSelfCheck({ extensionVersion: "0.4.0", bundleDir: context.bundleDir });
+      expect(report.ok).toBe(true);
+      expect(report.nodes).toBe(context.manifest.counts.nodes);
+      expect(report.matters).toBeGreaterThan(0);
+      expect(report.bundleVersion).toBe(context.manifest.bundleVersion);
+      expect(report.schemaVersion).toEqual(context.manifest.schemaVersion);
+      expect(report.tools).toBe(A.length(R.keys(PracticeKgToolkit.tools)));
+      const path = yield* Path.Path;
+      yield* DuckDb.use((db) => db.run("ALTER TABLE matters DROP COLUMN client_name")).pipe(
+        withDuckDb(path.join(context.bundleDir, "practice.duckdb"))
+      );
+      const error = yield* Effect.flip(
+        runPracticeKgSelfCheck({ extensionVersion: "0.4.0", bundleDir: context.bundleDir })
+      );
+      expect(error.message).toContain("matter store (practice.duckdb)");
+      expect(error.message).toContain("does not answer the queries this server's tools run");
+      expect(error.message).not.toContain("could not be opened");
+    })
+  );
 });

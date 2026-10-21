@@ -22539,18 +22539,6 @@
             "functions": 33
           }
         },
-        "apps/practice-kg-mcp/src/runtime/DuckDb.ts": {
-          "lines": 50,
-          "statements": 50,
-          "branches": 100,
-          "functions": 0,
-          "uncovered": {
-            "lines": 1,
-            "statements": 1,
-            "branches": 0,
-            "functions": 1
-          }
-        },
         "apps/practice-kg-mcp/src/runtime/Host.ts": {
           "lines": 73.33,
           "statements": 73.33,
@@ -22571,18 +22559,6 @@
           "uncovered": {
             "lines": 2,
             "statements": 2,
-            "branches": 0,
-            "functions": 1
-          }
-        },
-        "apps/practice-kg-mcp/src/runtime/Pglite.ts": {
-          "lines": 100,
-          "statements": 50,
-          "branches": 100,
-          "functions": 0,
-          "uncovered": {
-            "lines": 0,
-            "statements": 1,
             "branches": 0,
             "functions": 1
           }

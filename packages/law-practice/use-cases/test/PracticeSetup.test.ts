@@ -7,6 +7,7 @@ import {
   SetupRequirementId,
 } from "@beep/law-practice-domain";
 import {
+  assembleReport,
   makeSetupApprovals,
   orderRequirements,
   SetupApprovals,
@@ -157,3 +158,41 @@ describe("SetupDoctor refusals", () => {
     );
   });
 });
+
+const blockedMachine = fakeMachine("approved");
+it.layer(blockedMachine.layer, { timeout: "10 seconds" })("SetupDoctor dependency safety", (it) => {
+  it.effect("refuses unknown requirements and blocked automatic repairs", () =>
+    Effect.gen(function* () {
+      const { install, signIn } = yield* requirements;
+      const dependent = SetupRequirement.make({
+        ...signIn,
+        remediation: AutomaticRemediation.make({ summary: "Configure Box Drive" }),
+      });
+      const doctor = yield* SetupDoctor;
+      const unknown = yield* Effect.flip(doctor.repair({ requirements: [install], requirement: signIn.id }));
+      expect(unknown).toMatchObject({ refusal: "unknown-requirement", requirement: signIn.id });
+      const blocked = yield* Effect.flip(
+        doctor.repair({ requirements: [install, dependent], requirement: dependent.id })
+      );
+      expect(blocked).toMatchObject({ refusal: "dependencies-unsatisfied", requirement: dependent.id });
+      expect(blockedMachine.repaired).toEqual([]);
+    })
+  );
+});
+
+it.effect("blocks a report entry whose prerequisite has no satisfied result without probing it", () =>
+  Effect.gen(function* () {
+    const { install, signIn } = yield* requirements;
+    const probed: Array<SetupRequirementId> = [];
+    const report = yield* assembleReport([signIn], (requirement) =>
+      Effect.sync(() => {
+        probed.push(requirement.id);
+        return ProbeSatisfied.make({});
+      })
+    );
+    expect(report.checks).toMatchObject([{ state: "blocked", requirement: signIn.id, waitingOn: [install.id] }]);
+    expect(report.complete).toBe(false);
+    expect(report.humanSteps).toEqual([]);
+    expect(probed).toEqual([]);
+  })
+);

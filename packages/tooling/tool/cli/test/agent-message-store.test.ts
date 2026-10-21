@@ -217,6 +217,15 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
               store.accept(Envelope.make({ ...envelope("scope"), repositoryScope: "other-repository" }), 100)
             )).code
           ).toBe("policyMismatch");
+          for (const message of [
+            Envelope.make({ ...envelope("wrong-policy"), policyFingerprint: "different-policy" }),
+            Envelope.make({ ...envelope("wrong-capability"), capabilityFingerprint: "different-capability" }),
+          ]) {
+            const rejected = yield* Effect.flip(store.accept(message, 100));
+            expect(rejected.message).toBe(
+              "Destination policy, capability or repository scope differs from the envelope."
+            );
+          }
           expect(yield* store.inbox("b")).toHaveLength(0);
         })
       )
@@ -227,6 +236,10 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
         Effect.gen(function* () {
           yield* store.accept(envelope("m1"), 100);
           yield* store.accept(envelope("m2"), 100);
+          const unauthorized = yield* Effect.flip(store.claimNext("b", "wrong-owner", 101, 201));
+          expect(unauthorized.message).toBe(
+            "Dispatcher does not match the evidenced enrollment owner and effective policy."
+          );
           const claimed = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
           const contenderClient = yield* makeAgentMessageSqliteClient(filename, "50 millis");
           const contender = yield* makeAgentMessageStore().pipe(
@@ -741,6 +754,10 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             expect(persisted.decided_at).toBe(202);
             expect(persisted.receipt_sequence).toBe(receipt.sequence);
             expect(yield* S.decodeEffect(ResolutionJson)(persisted.payload)).toEqual(request);
+            yield* client`DELETE FROM agent_message_receipts WHERE sequence = ${receipt.sequence}`;
+            expect((yield* Effect.flip(reopened.resolveAmbiguity(request, 301))).message).toBe(
+              "Resolution audit has no original receipt."
+            );
           })
         )
     );
@@ -779,6 +796,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             AmbiguityResolution.make({ ...request, endpointGeneration: 2 }),
             AmbiguityResolution.make({ ...request, attemptGeneration: 2 }),
             AmbiguityResolution.make({ ...request, attemptOwnerId: "other-owner" }),
+            AmbiguityResolution.make({ ...request, disposition: "failed" }),
             AmbiguityResolution.make({
               ...request,
               runtimeEvidence: { ...request.runtimeEvidence, sessionId: "replacement-session" },
@@ -807,6 +825,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             "staleClaim",
             "staleClaim",
             "staleClaim",
+            "conflict",
             "conflict",
             "conflict",
             "conflict",
@@ -1088,6 +1107,33 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
       )
     );
 
+    it.effect("unclaimed messages cannot acquire terminal proof and expiry appends its original receipt", () =>
+      fixture((store) =>
+        Effect.gen(function* () {
+          const original = envelope("unclaimed-terminal", "a", "b", 110);
+          yield* store.accept(original, 100);
+          const inventedClaim = Claim.make({ envelope: original, ownerId: "b-owner", generation: 1, leaseUntil: 201 });
+          const evidence = yield* S.decodeEffect(OriginalRuntimeEvidence)({
+            adapter: "injected",
+            sessionId: "b-session",
+            terminalId: "unclaimed-terminal",
+            outcome: "delivered",
+            source: "Synthetic result without a dispatch",
+          });
+          expect((yield* Effect.flip(store.recordSettlement(inventedClaim, evidence, 101))).message).toBe(
+            "Terminal settlement requires the original unresolved dispatch hold."
+          );
+          assertNone(yield* store.settlement(original.messageId));
+          expect(yield* store.recover(110)).toBe(1);
+          expect(A.map(yield* store.receipts(original.messageId), (receipt) => receipt.status)).toEqual([
+            "accepted",
+            "expired",
+          ]);
+          expect(yield* store.recover(111)).toBe(0);
+        })
+      )
+    );
+
     it.effect(
       "original settlement survives process kill, stays immutable and reconciles without another dispatch",
       () =>
@@ -1122,6 +1168,15 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             const reopened = yield* makeAgentMessageStore().pipe(Effect.provideService(SqlClient.SqlClient, client));
             assertSome(yield* reopened.settlement(request.messageId), request.runtimeEvidence);
             yield* reopened.recordSettlement(claim, request.runtimeEvidence, 202);
+            const invalidReplays = [
+              Claim.make({ ...claim, ownerId: "foreign-owner" }),
+              Claim.make({ ...claim, leaseUntil: 202 }),
+              Claim.make({ ...claim, envelope: Envelope.make({ ...claim.envelope, body: "changed original body" }) }),
+            ];
+            const replayErrors = yield* Effect.forEach(invalidReplays, (replay) =>
+              reopened.recordSettlement(replay, request.runtimeEvidence, 202).pipe(Effect.flip)
+            );
+            expect(A.map(replayErrors, (failure) => failure.code)).toEqual(["conflict", "conflict", "conflict"]);
             const changed = yield* S.decodeEffect(OriginalRuntimeEvidence)({
               ...runtimeEvidence,
               terminalId: "wrong-terminal",

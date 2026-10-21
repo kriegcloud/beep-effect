@@ -250,6 +250,11 @@ it.layer(
       yield* f.store.accept(f.envelope("operator-resolution"), f.now);
       const claim = O.getOrThrow(yield* f.store.claimNext("b", "b-owner", f.now, f.now + 1000));
       yield* f.store.complete(claim, "ambiguous", f.now + 1);
+      const before = yield* f.store.receipts(claim.envelope.messageId);
+      expect(yield* f.execute(["settlement", "--message-id", claim.envelope.messageId])).toEqual([
+        { evidence: null, recovery: "No original terminal proof is recorded; retain this hold." },
+      ]);
+      expect(yield* f.store.receipts(claim.envelope.messageId)).toEqual(before);
       const resolution = AmbiguityResolution.make({
         resolutionId: "fixture-resolution",
         messageId: "operator-resolution",

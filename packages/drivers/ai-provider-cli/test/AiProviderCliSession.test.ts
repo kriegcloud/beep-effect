@@ -468,6 +468,25 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
     })
   );
 
+  it.effect("retains Claude terminal evidence when a successful result omits printable text", () =>
+    Effect.gen(function* () {
+      const sessions = yield* AiProviderCliSession;
+      const session = yield* sessions.open(yield* syntheticProfile("claude", "empty-result"));
+      const result = yield* session.prompt(
+        ManagedSessionMessage.make({ messageId: "empty-result", text: "synthetic-only" })
+      );
+      assert.equal(result.text, "");
+      assertSome(result.terminalEvidence, {
+        adapter: "claude",
+        sessionId: session.identity.sessionId,
+        messageId: "empty-result",
+        outcome: "delivered",
+        stopReason: "completed",
+      });
+      yield* session.close;
+    })
+  );
+
   for (const provider of ["grok", "claude"] satisfies ReadonlyArray<"grok" | "claude">) {
     it.effect(
       `roundtrips the persistent ${provider} owned synthetic peer`,

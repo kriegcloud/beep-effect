@@ -366,3 +366,21 @@ reconciliations, not duplicate implementations. The original merge receipts and
 source fixtures remain in their existing residue packet. Final-head quality
 checks still gate this recovery PR. Operational acceptance is not inferred from
 these source or test facts.
+
+## Retired runtime coverage identities
+
+The completed coverage job at 072beac062 reached the comparator after every
+producer succeeded. Six reported metric failures refer to the former
+`apps/practice-kg-mcp/src/runtime/DuckDb.ts` and `Pglite.ts` paths. PR #1771
+(8086a42233) deleted those files when it moved their live resource constructors
+into `packages/law-practice/server/src/PracticeKgHost/PracticeKgHost.layers.ts`.
+The app's `runtime/Host.ts` consumes that layer. The old paths are absent from
+the current source tree; their baseline identities remained.
+
+The scoped official baseline writer confirms that both identities are retired.
+This change retains only those two generated removals. Every surviving file
+metric, package aggregate and uncovered count, minimum, epsilon, exemption and
+follow-up remains identical to the preceding baseline. Independent review
+checked the Git move provenance, equivalent destination implementations, live
+consumer and destination tests. Missing coverage for a surviving or moved
+implementation still fails the ratchet; no live coverage floor is reduced.

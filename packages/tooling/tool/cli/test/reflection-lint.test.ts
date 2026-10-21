@@ -152,6 +152,19 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 
+    it.effect("ignores the template and a goal directory without a readable manifest", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* writeCompletedGoal("_template", true);
+          yield* fs.makeDirectory("goals/missing-manifest/ops", { recursive: true });
+          const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+          expect(exit._tag).toBe("Success");
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect(
       "passes when a schema-valid reflection artifact is present",
       () =>

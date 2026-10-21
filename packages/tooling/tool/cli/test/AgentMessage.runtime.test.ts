@@ -367,7 +367,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer,
   );
 });
 const fixture = Effect.fnUntraced(function* <A, E, R>(
-  run: (store: AgentMessageStoreShape, filename: string) => Effect.Effect<A, E, R>
+  run: (store: AgentMessageStoreShape, filename: string) => Effect.Effect<A, E, R>,
+  provider: PolicySnapshot["provider"] = "injected"
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -391,7 +392,7 @@ const fixture = Effect.fnUntraced(function* <A, E, R>(
       supported: true,
       capabilityEvidence: [{ capability: "send", disposition: "verified", source: "injected fixture", observedAt: 0 }],
       policy: {
-        provider: "injected",
+        provider,
         modelId: "fixture",
         effort: "medium",
         sandbox: "no-tools",
@@ -467,6 +468,49 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           expect((yield* store.acknowledge("message", "target", 0)).status).toBe("acknowledged");
           yield* Fiber.interrupt(fiber);
         })
+      )
+    );
+
+    it.effect("rejects missing, foreign and contradictory native settlement evidence without changing the hold", () =>
+      fixture(
+        (store) =>
+          Effect.gen(function* () {
+            const now = yield* Clock.currentTimeMillis;
+            const claim = O.getOrThrow(yield* store.claimNext("target", "target-owner", now, now + 30000));
+            const absent = ManagedTurnResult.make({
+              messageId: claim.envelope.messageId,
+              text: "",
+              stopReason: "completed",
+            });
+            const correlated = ManagedTurnResult.make({
+              ...absent,
+              terminalEvidence: O.some(
+                ManagedTerminalEvidence.make({
+                  adapter: "codex",
+                  sessionId: "target-session",
+                  messageId: claim.envelope.messageId,
+                  turnId: "synthetic-original-turn",
+                  outcome: "delivered",
+                  stopReason: "completed",
+                })
+              ),
+            });
+            const foreign = ManagedTurnResult.make({ ...correlated, messageId: "foreign-message" });
+            const contradictory = ManagedTurnResult.make({ ...correlated, stopReason: "interrupted" });
+            const failures = yield* Effect.forEach([absent, foreign, contradictory], (response) =>
+              recordNativeSettlement(store, claim, response).pipe(Effect.flip)
+            );
+            expect(A.map(failures, (failure) => failure.code)).toEqual(["conflict", "conflict", "conflict"]);
+            expect(failures[2]?.message).toBe(
+              "Native response contradicts its terminal evidence; retain the dispatch hold."
+            );
+            assertNone(yield* store.settlement(claim.envelope.messageId));
+            expect(A.map(yield* store.receipts(claim.envelope.messageId), (receipt) => receipt.status)).toEqual([
+              "accepted",
+              "claimed",
+            ]);
+          }),
+        "codex"
       )
     );
 

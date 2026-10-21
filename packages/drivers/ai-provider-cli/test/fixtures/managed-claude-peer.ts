@@ -80,7 +80,7 @@ const program = Effect.gen(function* () {
             subtype: "success",
             is_error: mode === "error",
             session_id: mode === "wrong-session" ? "foreign" : sessionId,
-            result: frame.message?.content ?? "",
+            ...(mode === "empty-result" ? {} : { result: frame.message?.content ?? "" }),
           });
           if (mode === "idle-exit") process.exit(0);
         }

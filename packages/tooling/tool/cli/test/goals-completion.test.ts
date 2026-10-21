@@ -610,9 +610,14 @@ it.layer(
       for (const candidate of [
         { ...manifest(), initiative: { id: "unmentioned-packet", status: "completed-retained" } },
         { ...manifest(), proposedCloseout: { ...proposal, status: "achieved" } },
-        { ...manifest(), completionGate: { ...gate, pullRequests: [{ number: 99, role: "final" }] } },
+        { ...manifest(), completionGate: { ...proposalGate, pullRequests: [{ number: 99, role: "final" }] } },
       ])
         expect((yield* S.decodeUnknownEffect(GoalManifest)(candidate).pipe(Effect.exit))._tag).toBe("Failure");
+      const matching = yield* S.decodeEffect(GoalManifest)({
+        ...manifest(),
+        completionGate: { ...proposalGate, pullRequests: [{ number: 1429, role: "final" }] },
+      });
+      expect(goalPullRequestRefs(matching)).toEqual([{ number: 1429, role: "final" }]);
       expect(
         goalPullRequestRefs(
           GoalManifest.make({

@@ -27,6 +27,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -414,6 +415,26 @@ describe("proof job schemas", () => {
 });
 
 describe("proof job launcher", () => {
+  it.layer(TestConsole.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("treats an invalid detached job identity as attached and reports the read failure", () =>
+      fixture(
+        Effect.fnUntraced(function* (root) {
+          const found = yield* Job.readCurrentProofJobRecord(root).pipe(
+            Effect.provideService(
+              ConfigProvider.ConfigProvider,
+              ConfigProvider.fromUnknown({ BEEP_YEET_JOB_ID: "invalid-job-id" })
+            )
+          );
+          assertNone(found);
+          const errors = yield* TestConsole.errorLines;
+          expect(A.join(A.filter(errors, P.isString), "\n")).toContain(
+            "[yeet] job record read failed: Invalid proof job id."
+          );
+        })
+      )
+    );
+  });
+
   it.effect("submits a durable record and exact service arguments without secret values", () =>
     fixture(
       Effect.fnUntraced(function* (root) {
@@ -663,11 +684,15 @@ describe("proof job launcher", () => {
           ActiveState: "inactive",
           SubState: "dead",
           Result: "success",
+          ExecMainCode: "0",
           ExecMainStatus: "0",
+          InvocationID: "",
         });
         const result = O.getOrThrow(yield* launcher.read(record.jobId));
         expect(result.phase).toBe("terminated");
         assertNone(result.outcome);
+        assertNone(O.getOrThrow(result.systemd).exitCode);
+        assertNone(O.getOrThrow(result.systemd).exitStatus);
         assertSome(result.terminationReason, "finalizer-missing");
       })
     )
@@ -1002,6 +1027,47 @@ it.layer(NodeServices.layer, { timeout: "30 seconds", excludeTestServices: true 
 );
 
 describe("job wait wave return", () => {
+  it.layer(TestConsole.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("returns the live wave when its bookkeeping write fails and reports that a retry may repeat it", () =>
+      fixture(
+        Effect.fnUntraced(function* (root) {
+          const fs = yield* FileSystem.FileSystem;
+          const original = yield* ProofJobLauncher.make(root);
+          const record = yield* original.submit(submission(root));
+          yield* original.bindPullRequest(record.jobId, 7);
+          const red = yield* waveRow(root, 7, "Check");
+          const unavailableStorage = FileSystem.FileSystem.of({
+            ...fs,
+            rename: Effect.fn("ProofJobTest.rename")((from, to) =>
+              to === `${root}/.beep/yeet/jobs/${record.jobId}.json`
+                ? Effect.fail(
+                    PlatformError.systemError({
+                      _tag: "PermissionDenied",
+                      module: "ProofJobTest",
+                      method: "rename",
+                      pathOrDescriptor: to,
+                    })
+                  )
+                : fs.rename(from, to)
+            ),
+          });
+          const launcher = yield* ProofJobLauncher.make(root).pipe(
+            Effect.provideService(FileSystem.FileSystem, unavailableStorage)
+          );
+          const returned = yield* launcher.wait(record.jobId, Job.ProofJobWaitOptions.make({}));
+          expect(returned.kind === "wave" ? A.map(returned.wave.entries, (entry) => entry.row.id) : []).toEqual([
+            red.id,
+          ]);
+          expect(O.getOrThrow(yield* original.read(record.jobId)).returnedWaveRowIds).toEqual([]);
+          expect((yield* readYeetAckState(root, red.id)).acked).toBe(false);
+          expect(A.join(A.filter(yield* TestConsole.errorLines, P.isString), "\n")).toContain(
+            "a re-run of job wait may return it again"
+          );
+        })
+      )
+    );
+  });
+
   it("maps every wait outcome through one exit table, with the wave on 2", () => {
     expect(A.map(Job.proofJobWaitExitTable, (row) => row.outcome)).toEqual(Job.ProofJobWaitOutcome.literals);
     expect(A.map(Job.proofJobWaitExitTable, (row) => [row.outcome, row.exitCode])).toEqual([

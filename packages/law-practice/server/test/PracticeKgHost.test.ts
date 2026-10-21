@@ -186,6 +186,22 @@ describe("@beep/law-practice-server PracticeKgHost self-check refusals", () => {
     );
 
     it.effect(
+      "refuses a file in place of the graph directory without opening either store",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-self-check-" });
+        yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), yield* encodeManifest(manifest));
+        yield* fs.writeFileString(path.join(bundleDir, "kg.pglite"), "not a directory");
+        const error = yield* Effect.flip(runPracticeKgSelfCheck({ extensionVersion: "0.4.0", bundleDir }));
+        expect(error.message).toContain("graph store (kg.pglite)");
+        expect(error.message).toContain("missing or not an initialised store");
+        expect(yield* fs.readFileString(path.join(bundleDir, "kg.pglite"))).toBe("not a directory");
+        expect(yield* fs.exists(path.join(bundleDir, "practice.duckdb"))).toBe(false);
+      })
+    );
+
+    it.effect(
       "refuses a zero-byte matter store once the graph store carries its marker",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
