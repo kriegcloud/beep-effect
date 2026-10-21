@@ -11,7 +11,7 @@ bun add @beep/box
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/box"
+import { Box } from "@beep/box"
 ```
 
 ## Generated Surface

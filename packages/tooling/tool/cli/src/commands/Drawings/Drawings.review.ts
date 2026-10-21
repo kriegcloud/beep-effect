@@ -20,6 +20,7 @@ import { InkCoverageRequest, PageTextRequest, PdfPageRef, PdfTools } from "@beep
 import { Sha256Hex } from "@beep/schema";
 import { RenderManifest, sha256Hex } from "@beep/technical-drawing";
 import { A, O } from "@beep/utils";
+import { Walker } from "@beep/walker/Walker";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -598,21 +599,14 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     return DeliveryWritten.make({ path: target, record });
   });
 
-  const ancestorsOf = (dir: string): A.NonEmptyReadonlyArray<string> => {
-    const parent = path.dirname(dir);
-    return parent === dir ? [dir] : [dir, ...ancestorsOf(parent)];
-  };
-
-  // The nearest `review/` directory in the manifest's directory or any above it.
+  // The nearest `review/` directory in the manifest's directory or any above it;
+  // the ascent stops at the first hit, and an unreadable probe counts as a miss.
   const findReviewDir = Effect.fn("DrawingReview.findReviewDir")(function* (manifestDir: string) {
-    const ancestors = ancestorsOf(manifestDir);
-    const hits = yield* Effect.forEach(ancestors, (dir) =>
-      fs.stat(path.join(dir, "review")).pipe(
-        Effect.map((info) => (info.type === "Directory" ? O.some(path.join(dir, "review")) : O.none<string>())),
-        Effect.orElseSucceed(O.none<string>)
-      )
+    const ancestors = yield* Walker.ascend(manifestDir).pipe(Effect.provideService(Path.Path, path));
+    const hit = yield* Walker.findRoot(ancestors, (dir) =>
+      fs.stat(path.join(dir, "review")).pipe(Effect.map((info) => info.type === "Directory"))
     );
-    return A.head(A.getSomes(hits));
+    return O.map(hit, (dir) => path.join(dir, "review"));
   });
 
   const guard = Effect.fn("DrawingReview.guard")(function* (manifestPath: string, reviewDir: O.Option<string>) {

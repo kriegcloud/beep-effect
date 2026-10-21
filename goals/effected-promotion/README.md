@@ -34,10 +34,13 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — wave 1a (eight low-finding packages) merged in #1956; wave 1b
-(memfs, managed-section, toml, git, glob, yaml) at zero in-package findings, with
-the test-utils MemoryFileSystem retired onto `@beep/memfs` (D-25). P0 research
-is complete: see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md).
+P1 Implement — waves 1a (#1956) and 1b (#1981) merged; wave 2a (`@beep/npm-spec`,
+`@beep/tsconfig`) is in review as #1988. Wave 2b ships as three PRs (D-31): 2b-1
+(`@beep/walker` with its repo-utils and repo-cli adopters, D-32) is at zero
+in-package findings on a local stack over 2a; 2b-2 (`@beep/github`), 2b-3
+(`@beep/runtime-env`) and the 2c glob adoption follow. P0 research is complete:
+see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md)
+and [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md).
 
 ## Latest Evidence
 

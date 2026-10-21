@@ -1002,6 +1002,12 @@
         ]
       },
       {
+        "name": "@beep/walker",
+        "patterns": [
+          "packages/foundation/capability/walker/src/**"
+        ]
+      },
+      {
         "name": "@beep/windows-secrets",
         "patterns": [
           "packages/drivers/windows-secrets/src/**"
@@ -4061,7 +4067,8 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
           "@beep/ai-provider-cli",
@@ -4103,7 +4110,8 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -4159,7 +4167,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
           "@beep/identity",
@@ -4168,7 +4177,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -4286,6 +4296,7 @@
           "@beep/toml",
           "@beep/tsconfig",
           "@beep/utils",
+          "@beep/walker",
           "@beep/wink",
           "@beep/yaml"
         ],
@@ -4330,6 +4341,7 @@
           "@beep/toml",
           "@beep/tsconfig",
           "@beep/utils",
+          "@beep/walker",
           "@beep/wink",
           "@beep/yaml"
         ]
@@ -4819,6 +4831,25 @@
           "@beep/test-runner",
           "@beep/types",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/walker",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker"
         ]
       },
       {

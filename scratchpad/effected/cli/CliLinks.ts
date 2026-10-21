@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { AudienceKind } from "../env/index.ts";
 import { CurrentRuntimeEnv } from "../env/index.ts";
-import { Walker } from "../walker/index.ts";
+import { Walker } from "@beep/walker/Walker";
 import type { LinkTarget } from "./Doc.ts";
 import { sanitize } from "./Fmt.ts";
 import { isAllowedLinkUrl } from "./internal/linkScheme.ts";

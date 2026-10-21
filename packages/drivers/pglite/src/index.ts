@@ -10,22 +10,6 @@
  */
 
 /**
- * Package version.
- *
- * **Example** (Log package version)
- *
- * ```ts
- * import { VERSION } from "@beep/pglite"
- *
- * console.log(VERSION)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Public PGlite driver error exports.
  *
  * **Example** (Create error from unknown)

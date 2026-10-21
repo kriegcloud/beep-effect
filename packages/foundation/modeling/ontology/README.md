@@ -31,7 +31,7 @@ bun add @beep/ontology
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/ontology"
+import { ClassificationRegistry } from "@beep/ontology"
 ```
 
 ## Pinned classification schemes

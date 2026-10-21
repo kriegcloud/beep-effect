@@ -11,7 +11,7 @@ bun add @beep/architecture-lab-server
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/architecture-lab-server"
+import { ArchitectureLabServerLive } from "@beep/architecture-lab-server"
 ```
 
 ## Development

@@ -11,7 +11,7 @@ bun add @beep/m365
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/m365"
+import { M365 } from "@beep/m365"
 ```
 
 ## Lanes

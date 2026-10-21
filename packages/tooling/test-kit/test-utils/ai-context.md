@@ -21,7 +21,7 @@ An library for re-usable vitest & @effect/vitest testing utilities
 ## Usage Patterns
 
 ```typescript
-import { VERSION } from "@beep/test-utils"
+import { provideScopedLayer } from "@beep/test-utils"
 ```
 
 ## Design Decisions

@@ -75,6 +75,9 @@
       "path": "../../../foundation/capability/technical-drawing/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/walker/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {
