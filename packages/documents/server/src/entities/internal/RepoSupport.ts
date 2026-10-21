@@ -178,9 +178,9 @@ export type ReplaceVersionedRequest<T, Missing, Stale> = {
  *     })
  *   const first = yield* replace({ id: 1, rowVersion: RowVersion.make(1), note: "b" })
  *   const second = yield* Effect.flip(replace({ id: 1, rowVersion: RowVersion.make(1), note: "c" }))
- *   return [first.rowVersion, second] as const
+ *   return { first: first.rowVersion, second }
  * })
- * console.log(Effect.runSync(program)) // [2, "stale"]
+ * console.log(Effect.runSync(program)) // { first: 2, second: "stale" }
  * ```
  *
  * @typeParam Id - the entity id used as the store's `HashMap` key

@@ -59,3 +59,16 @@
   `bun run beep lint schema-catalog --write` whenever a PR adds an exported
   schema.
 - Disposition: shards regenerated in the fix wave (5 added entries).
+
+## 2026-10-21 — `package-verify --quick` skipped the docgen that a type change broke
+
+- Work: hosted Heavy / Docgen and JSDoc Ratchet on #1941 after local package-verify.
+- Evidence: `nextRowVersion` carried `@category behavior` (not an allowed category),
+  the `replaceVersioned` example used `as const` (`unsafeExampleFindings: 1 > 0`),
+  and `Worker.table.ts` examples spread an insert row into `WorkerRow`, which the
+  now-optional insert `rowVersion` broke. Full package-verify docgen passed on the
+  source packages; `--quick` on the tables packages never ran docgen.
+- Prevention: when a schema change alters variant types, run
+  `turbo run docgen --filter='...<changed package>' --continue` plus
+  `quality jsdoc-inventory` + `jsdoc-ratchet` before publish.
+- Disposition: fixed in this wave; baseline untouched (S31).

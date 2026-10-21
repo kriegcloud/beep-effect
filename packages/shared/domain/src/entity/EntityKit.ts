@@ -88,7 +88,7 @@ export type RowVersion = typeof RowVersion.Type;
  * console.log(nextRowVersion(RowVersion.make(1))) // 2
  * ```
  *
- * @category behavior
+ * @category utilities
  * @since 0.0.0
  */
 export const nextRowVersion = (rowVersion: RowVersion): RowVersion => RowVersion.make(rowVersion + 1);
