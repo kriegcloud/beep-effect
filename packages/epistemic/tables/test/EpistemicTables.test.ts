@@ -10,6 +10,7 @@ import * as ClaimDisposition from "@beep/epistemic-tables/entities/ClaimDisposit
 import * as EdgeVersion from "@beep/epistemic-tables/entities/EdgeVersion";
 import * as Evidence from "@beep/epistemic-tables/entities/Evidence";
 import * as UsageRecord from "@beep/epistemic-tables/entities/UsageRecord";
+import { $EpistemicId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { fcRuns, productEntityFixtureInput, systemPrincipal } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
@@ -26,6 +27,9 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+
+// Optional on insert: the column's SQL default supplies the first version.
+const insertedRowVersion = (rowVersion: number | undefined): number => rowVersion ?? 1;
 
 const decodeEvidenceModelResult = S.decodeResult(EvidenceModel);
 const decodeUnknownEvidenceModelResult = S.decodeUnknownResult(EvidenceModel);
@@ -44,6 +48,7 @@ const edgeVersionRow = (insert: EdgeVersion.EdgeVersionInsert, id: number): Edge
   ...insert,
   deletedAt: absentAsNull(insert.deletedAt),
   deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+  rowVersion: insertedRowVersion(insert.rowVersion),
   id,
   evidenceScope: absentAsNull(insert.evidenceScope),
   expiredAt: absentAsNull(insert.expiredAt),
@@ -132,9 +137,9 @@ const claimDispositionInput = (id: number) => ({
   status: "rejected",
   violations: [
     {
-      focusNode: "https://beep.dev/epistemic/claim/patentability",
+      focusNode: $EpistemicId.create("claim/patentability").iri,
       message: "Expected at least 1 value(s) for evidence.",
-      path: "https://beep.dev/epistemic/hasEvidenceQuote",
+      path: $EpistemicId.create("hasEvidenceQuote").iri,
       severity: "violation",
     },
   ],
@@ -411,6 +416,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: 10,
           // $inferInsert types the nullable columns as optional (number | null |
           // undefined); the select-row converter expects number | null, so resolve
@@ -450,6 +456,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: 10,
         })
       );
@@ -481,6 +488,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: 10,
         })
       );
@@ -499,6 +507,7 @@ describe("EpistemicTables", () => {
         ...insert,
         deletedAt: absentAsNull(insert.deletedAt),
         deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+        rowVersion: insertedRowVersion(insert.rowVersion),
         id: 10,
         span: {
           ...insert.span,
@@ -530,6 +539,7 @@ describe("EpistemicTables", () => {
         ...insert,
         deletedAt: absentAsNull(insert.deletedAt),
         deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+        rowVersion: insertedRowVersion(insert.rowVersion),
         id: 10,
         span: {
           ...insert.span,
@@ -663,9 +673,9 @@ describe("EpistemicTables", () => {
       expect(insert.resolvedBy).toStrictEqual(systemPrincipal);
       expect(insert.violations).toStrictEqual([
         {
-          focusNode: "https://beep.dev/epistemic/claim/patentability",
+          focusNode: $EpistemicId.create("claim/patentability").iri,
           message: "Expected at least 1 value(s) for evidence.",
-          path: "https://beep.dev/epistemic/hasEvidenceQuote",
+          path: $EpistemicId.create("hasEvidenceQuote").iri,
           severity: "violation",
         },
       ]);
@@ -675,6 +685,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: 10,
         })
       );
@@ -694,6 +705,7 @@ describe("EpistemicTables", () => {
           ...insert,
           deletedAt: absentAsNull(insert.deletedAt),
           deletedByPrincipal: absentAsNull(insert.deletedByPrincipal),
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: record.id,
           activityId: insert.activityId ?? null,
           costUsdApproxMicros: insert.costUsdApproxMicros ?? null,

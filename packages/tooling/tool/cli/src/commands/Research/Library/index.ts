@@ -5,7 +5,12 @@
  * @since 0.0.0
  */
 
-export { acquireLibrary, libraryAdapterFor, requiredLibraryAdapters } from "./Library.acquire.ts";
+export {
+  acquireLibrary,
+  libraryAdapterFor,
+  removedLibraryWebAdapter,
+  requiredLibraryAdapters,
+} from "./Library.acquire.ts";
 export { libraryCommand } from "./Library.command.ts";
 export * from "./Library.errors.ts";
 export * from "./Library.import.ts";

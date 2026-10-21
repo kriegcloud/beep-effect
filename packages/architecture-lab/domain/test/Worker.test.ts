@@ -32,13 +32,13 @@ describe("Worker entity", () => {
       expect(worker.status).toBe("active");
       expect(Worker.Worker.sql.tableName).toBe("architecture_lab_worker");
       expect(R.keys(Worker.Worker.insert.fields)).not.toContain("id");
-      expect(R.keys(Worker.Worker.insert.fields)).not.toContain("rowVersion");
+      expect(R.keys(Worker.Worker.insert.fields)).toContain("rowVersion");
       expect(R.keys(Worker.Worker.insert.fields)).toContain("publicId");
       expect(R.keys(Worker.Worker.update.fields)).toContain("id");
       expect(R.keys(Worker.Worker.update.fields)).toContain("rowVersion");
       expect(R.keys(Worker.Worker.update.fields)).not.toContain("publicId");
       expect(R.keys(Worker.Worker.jsonCreate.fields)).toEqual(["displayName", "status"]);
-      expect(R.keys(Worker.Worker.jsonUpdate.fields)).toEqual(["displayName", "status"]);
+      expect(R.keys(Worker.Worker.jsonUpdate.fields)).toEqual(["rowVersion", "displayName", "status"]);
     })
   );
 

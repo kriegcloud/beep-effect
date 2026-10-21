@@ -26,11 +26,11 @@ token projections, Spec timestamp and stream-state owners remain in the census.
 | `r25-architecture-ecosystem-internal-pg-spec-guards` | `packages/ecosystem/effect-drizzle/src/pg/Column.ts`: pg/Column.ts:1058-1085 assigns Constructors.$is(tag) predicate functions to guards, not Boolean values. |
 | `r25-architecture-ecosystem-internal-sqlite-spec-guards` | `packages/ecosystem/effect-drizzle/src/sqlite/Column.ts`: sqlite/Column.ts:473-484 assigns Constructors.$is(tag) predicate functions to guards. |
 | `wink-token-punctuation-word-like` | `packages/drivers/wink/src/WinkTools.service.ts`: WinkTools.service.ts:51-57 defines separate functions accepting Token; isWordLikeToken calls isPunctuationToken. |
-| `venice-response-content-type-classifiers` | `packages/drivers/venice-ai/src/VeniceAI.service.ts`: VeniceAI.service.ts:1524-1527 declares Content-Type predicate functions. |
-| `xai-response-content-type-classifiers` | `packages/drivers/xai/src/XAi.service.ts`: XAi.service.ts:236-239 declares Content-Type predicate functions. |
+| `venice-response-content-type-classifiers` | `retired:venice-ai/src/VeniceAI.service.ts`: retired:venice-ai/src/VeniceAI.service.ts:1524-1527 declares Content-Type predicate functions. |
+| `xai-response-content-type-classifiers` | `retired:xai/src/XAi.service.ts`: retired:xai/src/XAi.service.ts:236-239 declares Content-Type predicate functions. |
 | `r3-drivers-arch-wink-utils-ngram-shape` | `packages/drivers/wink/src/WinkUtils.service.ts`: WinkUtils.service.ts:63-65 declares unknown-input type-guard functions. |
-| `r3-drivers-arch-xai-http-ws-base-url` | `packages/drivers/xai/src/XAi.config.ts`: XAi.config.ts:25-26 derives protocol predicates and passes them into S.makeFilter at 45/79. |
-| `r3-drivers-arch-venice-content-type-probes` | `packages/drivers/venice-ai/src/VeniceAI.service.ts`: VeniceAI.service.ts:1529-1530 and 1717 declares functions on operation descriptors and response content types. |
+| `r3-drivers-arch-xai-http-ws-base-url` | `retired:xai/src/XAi.config.ts`: retired:xai/src/XAi.config.ts:25-26 derives protocol predicates and passes them into S.makeFilter at 45/79. |
+| `r3-drivers-arch-venice-content-type-probes` | `retired:venice-ai/src/VeniceAI.service.ts`: retired:venice-ai/src/VeniceAI.service.ts:1529-1530 and 1717 declares functions on operation descriptors and response content types. |
 | `r3-drivers-arch-uspto-download-host-probes` | `packages/drivers/uspto/src/Uspto.service.ts`: Uspto.service.ts:152-153 and 231-238 declares guards on unknown option input versus URL and configured host. |
 
 ## Preservation and evidence boundary
@@ -45,11 +45,11 @@ Source SHA-256 values:
 
 - `packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.model.ts`: `205aa68436cf1c1bc8adcaba912309c0390539a379dbcc0cf831acae430636cd`
 - `packages/drivers/uspto/src/Uspto.service.ts`: `3af8c2101a47f3e4bd60f00590f3e34be73ddf249340a40cf8971e570f38afc2`
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts`: `4e9faff72bfecf5c10a2ad7761402653639475abb26574addf72ad0c6d1c0964`
+- `retired:venice-ai/src/VeniceAI.service.ts`: `4e9faff72bfecf5c10a2ad7761402653639475abb26574addf72ad0c6d1c0964`
 - `packages/drivers/wink/src/WinkTools.service.ts`: `9aa49cc0f166a8d34b2807acf1c3972f4a44a43042ffca2283c8608a3000dd79`
 - `packages/drivers/wink/src/WinkUtils.service.ts`: `b5fa6233e91fcb02d05d3d65d73f93ba7a63e982fece1e332160bd37eb16dbca`
-- `packages/drivers/xai/src/XAi.config.ts`: `ed87605952037fef2283d8101d1cc36965a9148c2a3a6d906a04bd74fda16c50`
-- `packages/drivers/xai/src/XAi.service.ts`: `79576b76274219d65ac32ae1bf7e41f1942bc7941f28db576e4d607fc783f277`
+- `retired:xai/src/XAi.config.ts`: `ed87605952037fef2283d8101d1cc36965a9148c2a3a6d906a04bd74fda16c50`
+- `retired:xai/src/XAi.service.ts`: `79576b76274219d65ac32ae1bf7e41f1942bc7941f28db576e4d607fc783f277`
 - `packages/ecosystem/effect-drizzle/src/core/Meta.ts`: `95085cfd5e3b69300e5d6857b16cf1da81aea7ee7582106aacdf7ac05b7daeac`
 - `packages/ecosystem/effect-drizzle/src/core/entity-id.ts`: `8cae47471f2f3695036107fd0b509334661e74a36254a89a8646e29e066660fb`
 - `packages/ecosystem/effect-drizzle/src/pg/Column.ts`: `f9596bb0b1bfe2adc0c78c955533ef602f79fb3ca71116fb03873e98dfaf9bc6`

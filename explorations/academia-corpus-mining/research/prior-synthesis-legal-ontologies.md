@@ -369,7 +369,7 @@ class RejectionOfClaim extends BaseEntity.Class<RejectionOfClaim>($I`RejectionOf
     description: "Reified examiner rejection: a normative qualification of a claim under a statutory ground.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "ontologyConstruct", canonicalName: "RejectionOfClaim",
-      canonicalIri: "https://beep.dev/ip#RejectionOfClaim", preferredPrefix: "ip",
+      canonicalIri: "https://beep-effect.com/ns/ip#RejectionOfClaim", preferredPrefix: "ip",
     }),
   })
 ) {}
@@ -428,7 +428,7 @@ export const ELI = S.String.pipe(S.brand("ELI"))
 export const StandardId = S.Union([ECLI, ELI]) // closed scheme union; decode dispatches by pattern
 
 // IRI minting: decode at the boundary, NEVER `as unknown as IRI`
-const BASE = "https://beep.dev/ip#"
+const BASE = "https://beep-effect.com/ns/ip#"
 const node = (local: string): NamedNode => makeNamedNode(S.decodeSync(IRI)(`${BASE}${local}`))
 ```
 
@@ -540,7 +540,7 @@ import { makeSemanticSchemaMetadata } from "@beep/rdf"
 const meta = makeSemanticSchemaMetadata({
   kind: "ontologyConstruct",
   canonicalName: "PatentApplication",
-  canonicalIri: "https://beep.dev/ip#PatentApplication",
+  canonicalIri: "https://beep-effect.com/ns/ip#PatentApplication",
   preferredPrefix: "ip",
   representations: [{ kind: "Turtle" }, { kind: "JSON-LD" }, { kind: "JSON Schema" }],
 })
@@ -631,7 +631,7 @@ export class LegalSource extends S.Class<LegalSource>($I`LegalSource`)({
   description: "FRBR-tiered legal source; ELI/ECLI work/expression identity.",
   semanticSchemaMetadata: makeSemanticSchemaMetadata({
     kind: "ontologyConstruct", canonicalName: "LegalSource",
-    canonicalIri: "https://beep.dev/legal-core#LegalSource", preferredPrefix: "lc",
+    canonicalIri: "https://beep-effect.com/ns/legal-core#LegalSource", preferredPrefix: "lc",
     representations: [{ kind: "Turtle" }, { kind: "JSON-LD" }],
     /* required overview/status/specifications/equivalenceBasis elided for brevity */
   }),
@@ -677,7 +677,7 @@ export const HohfeldianRelation = LiteralKit(["claim_duty", "privilege_noright",
       description: "Reified legal relation; projects to gufo:Relator with gufo:mediates.",
       semanticSchemaMetadata: makeSemanticSchemaMetadata({
         kind: "ontologyConstruct", canonicalName: "HohfeldianRelation",
-        canonicalIri: "https://beep.dev/legal-core#HohfeldianRelation", /* ... */
+        canonicalIri: "https://beep-effect.com/ns/legal-core#HohfeldianRelation", /* ... */
       }),
     })
   )
@@ -767,7 +767,7 @@ export class Rejection extends BaseEntity.Class<Rejection>($I`Rejection`)(
     description: "A §-grounded rejection, modeled as an examiner power / applicant liability relator.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({
       kind: "ontologyConstruct", canonicalName: "PatentRejection",
-      canonicalIri: "https://beep.dev/ip#PatentRejection", preferredPrefix: "ip", /* subClassOf lc:HohfeldianRelation */
+      canonicalIri: "https://beep-effect.com/ns/ip#PatentRejection", preferredPrefix: "ip", /* subClassOf lc:HohfeldianRelation */
     }),
   })
 ) {}
@@ -959,7 +959,7 @@ The decisive move is to **import rather than mint**: map beep's own classes to F
 import { SKOS_EXACT_MATCH, makeNamedNode, makeQuad } from "@beep/rdf";
 // align beep's class to FOLIO's opaque IRI rather than reinventing the concept
 const alignLessee = makeQuad(
-  makeNamedNode("https://beep.dev/ip#Lessee"),
+  makeNamedNode("https://beep-effect.com/ns/ip#Lessee"),
   SKOS_EXACT_MATCH,
   makeNamedNode("https://folio.openlegalstandard.org/R8pNPutX0TN6DlEqkyZuxSw"),
 );
@@ -1042,7 +1042,7 @@ PROV-O has no native confidence field — beep adds it explicitly, which is exac
 
 ```ts
 const { Ont, $I } = Ontology.create({
-  identity: "ip", baseIri: "https://beep.dev/ip#", preferredPrefix: "ip",
+  identity: "ip", baseIri: "https://beep-effect.com/ns/ip#", preferredPrefix: "ip",
 });
 const PatentApplication = Ont.class("PatentApplication", { /* fields */ })
   .pipe($I.annoteSchema("PatentApplication", {
@@ -1508,7 +1508,7 @@ Each branded type/field carries its ontology IRI and construct-kind as a typed S
 // existing mechanism in @beep/rdf, made load-bearing
 const classMetadata = makeSemanticSchemaMetadata({
   kind: "ontologyConstruct", canonicalName: "PatentApplication",
-  canonicalIri: "https://beep.dev/ip#PatentApplication", preferredPrefix: "ip",
+  canonicalIri: "https://beep-effect.com/ns/ip#PatentApplication", preferredPrefix: "ip",
   representations: [{ kind: "Turtle" }, { kind: "JSON-LD" }, { kind: "JSON Schema" }],
 });
 // project: getSemanticSchemaMetadata(schema) -> NamedNode/Quad -> serializeQuad -> Turtle

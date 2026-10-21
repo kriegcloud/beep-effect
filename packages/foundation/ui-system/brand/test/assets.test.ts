@@ -5,9 +5,11 @@ import * as BunServices from "@effect/platform-bun/BunServices";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 
 const packageRoot = new URL("../", import.meta.url).pathname;
 
@@ -39,9 +41,9 @@ it.layer(BunServices.layer, { timeout: "5 seconds" })("generated assets", (it) =
     Effect.gen(function* () {
       const bridge = yield* readPackageFile("styles/bridge.css");
       const declared = HashSet.fromIterable(
-        A.map(A.fromIterable(renderThemeCss(beep).matchAll(/^\s+(--[\w-]+):/gm)), (match) => match[1])
+        A.map(A.fromIterable(pipe(renderThemeCss(beep), Str.matchAll(/^\s+(--[\w-]+):/gm))), (match) => match[1])
       );
-      const referenced = A.map(A.fromIterable(bridge.matchAll(/var\((--[\w-]+)\)/g)), (match) => match[1]);
+      const referenced = A.map(A.fromIterable(pipe(bridge, Str.matchAll(/var\((--[\w-]+)\)/g))), (match) => match[1]);
 
       expect(A.length(referenced)).toBeGreaterThan(0);
       for (const name of referenced) {

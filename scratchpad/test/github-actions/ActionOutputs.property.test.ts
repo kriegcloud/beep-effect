@@ -6,7 +6,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import { assertDefined } from "@effect/vitest/utils";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as S from "effect/Schema";
 import { ActionOutputs, RunnerFileUnavailableError, RunnerFileWriteError, InvalidOutputNameError, OutputEncodeError, DetachedOutputError, RecordedOutput } from "../../effected/github-actions/ActionOutputs.ts";
 const Defect = S.Defect();

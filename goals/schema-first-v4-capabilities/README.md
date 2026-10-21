@@ -193,7 +193,7 @@ annotation pass.
 `Libpff.service.test.ts` and `Tika.service.test.ts` derive file-processing
 source artifacts and operation payloads from source schemas and prove direct
 schema codec stability for runtime data that may include `Uint8Array` bytes.
-`VeniceAI.service.test.ts` derives local OpenAPI operation and prompt-body
+`retired:venice-ai/test/VeniceAI.service.test.ts` derives local OpenAPI operation and prompt-body
 fixture payloads from source schemas and proves direct schema codec stability
 beside the exact swagger and request-shaping checks.
 `agent.test.ts` and `protocol.test.ts` derive ACP JSON-RPC responses and

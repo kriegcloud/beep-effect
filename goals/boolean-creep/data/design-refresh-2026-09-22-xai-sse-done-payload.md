@@ -15,11 +15,11 @@ credit; substantiate root-export/private internal codec exposure with consumer s
 
 Commands: graft grep XAiServerSentEvent (whole graph); scoped parseSseData /
 parseStreamEvent search; scoped mapMembers/toTaggedUnion and statics-helper search;
-repository-wide rg XAiServerSentEvent/@beep/xai plus targeted numbered source reads.
+repository-wide rg XAiServerSentEvent/retired:xai plus targeted numbered source reads.
 First Graft scope packages/integrations/xai was wrong and returned no hits;
-corrected immediately to packages/drivers/xai. No inference drawn from failed query.
+corrected immediately to retired:xai. No inference drawn from failed query.
 The missing guessed separate adapter-test path was resolved by inventorying test
-files; existing XAi.service.test.ts is the actual harness. All relevant source
+files; existing retired:xai/test/XAi.service.test.ts is the actual harness. All relevant source
 reads bind to hashes below. No Graft graph wiring was edited.
 
 Qualification proof: optional data at models:386 and boolean done at 387 allow
@@ -35,12 +35,12 @@ is exported, but no persisted/wire event encoder was found beyond local tests.
 - `goals/boolean-creep/DECISIONS.md`: `e6851a394568acf774d51b2d840635b8f4fbee200dd346d26bc82dbef624ea8d`
 - `goals/boolean-creep/history/designs/2026-09-22-pre-refresh-xai-sse-done-payload.md`: `5752f91abbf5ba3f0677fcdbe68a3888233de65ec8bbb2f6029bb34f3e3d451b`
 - `goals/boolean-creep/history/inventory/2026-09-22-post-phoenix-pre-sse-refresh.jsonl`: `3754e84cd4e85b46332468a60bab86c96a5e63ba513552a7b608c5dbd9f186e1`
-- `packages/drivers/xai/src/XAi.models.ts`: `1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6`
-- `packages/drivers/xai/src/XAi.service.ts`: `fe94aeac166efae741d048358f2555af0d33729bf498f7ff1606cc09ee95fd44`
-- `packages/drivers/xai/src/XAiLanguageModel.service.ts`: `611bef1966ebaeedfec9b36e1659d305b8678980cc72c1d671468ecf2d93ca98`
-- `packages/drivers/xai/src/index.ts`: `6610717811ff8f87a8472608f082808ad09b71017fee8506c97e23c476f1848d`
-- `packages/drivers/xai/package.json`: `557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06`
-- `packages/drivers/xai/test/XAi.service.test.ts`: `210e679a932c984b98109135f95b0fa65d17ae4ef6c43571167c7d6206665c75`
+- `retired:xai/src/XAi.models.ts`: `1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6`
+- `retired:xai/src/XAi.service.ts`: `fe94aeac166efae741d048358f2555af0d33729bf498f7ff1606cc09ee95fd44`
+- `retired:xai/src/XAiLanguageModel.service.ts`: `611bef1966ebaeedfec9b36e1659d305b8678980cc72c1d671468ecf2d93ca98`
+- `retired:xai/src/index.ts`: `6610717811ff8f87a8472608f082808ad09b71017fee8506c97e23c476f1848d`
+- `retired:xai/package.json`: `557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06`
+- `retired:xai/test/XAi.service.test.ts`: `210e679a932c984b98109135f95b0fa65d17ae4ef6c43571167c7d6206665c75`
 - `packages/foundation/modeling/schema/src/SchemaUtils/withLiteralKitStatics.ts`: `8359e2c68161e01fba2e93bbac6f5fc522cf869ca3c0fa6a20703509d883c707`
 - `.repos/effect/packages/effect/src/Schema.ts`: `d72af65f80ee760c51b403fe2859ecf5a9c81b1697db99b71c9f52185bfa7325`
 

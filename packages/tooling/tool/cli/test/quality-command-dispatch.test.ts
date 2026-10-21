@@ -124,12 +124,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       yield* runQualityCommand(["github-checks", "security"]);
       yield* runQualityCommand(["github-checks", "security", "--collect-all"]);
 
-      expect(spawned).toEqual([
-        "bun x --no-install vitest run --root packages/drivers/face-detection test/OnnxRuntimeInstall.test.ts",
-        expect.stringMatching(/^docker run --rm /),
-        "bun x --no-install vitest run --root packages/drivers/face-detection test/OnnxRuntimeInstall.test.ts",
-        expect.stringMatching(/^docker run --rm /),
-      ]);
+      expect(spawned).toEqual([expect.stringMatching(/^docker run --rm /), expect.stringMatching(/^docker run --rm /)]);
     }).pipe(
       Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, recordingSpawner(spawned)),
       Effect.provideServiceEffect(Console.Console, TestConsole.make)
@@ -217,7 +212,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     { arbitrary: fcRuns() }
   );
 
-  it.effect("stops before OSV when the ONNX installer mitigation proof fails", () => {
+  it.effect("fails the security check when the OSV scan fails", () => {
     const spawned: Array<string> = [];
     const failedHandle = ChildProcessSpawner.makeHandle({
       ...successfulHandle,
@@ -228,9 +223,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       const exit = yield* Effect.exit(runQualityCommand(["github-checks", "security"]));
 
       exit.pipe(Exit.isFailure, assertTrue);
-      expect(spawned).toEqual([
-        "bun x --no-install vitest run --root packages/drivers/face-detection test/OnnxRuntimeInstall.test.ts",
-      ]);
+      expect(spawned).toEqual([expect.stringMatching(/^docker run --rm /)]);
     }).pipe(
       Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, recordingSpawner(spawned, failedHandle)),
       Effect.provideServiceEffect(Console.Console, TestConsole.make)

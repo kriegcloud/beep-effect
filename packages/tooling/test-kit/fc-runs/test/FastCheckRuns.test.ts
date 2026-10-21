@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 describe("fcRuns (one-round-loop P1 env-max helper)", () => {
   it("keeps the inline value as a floor and defaults to the helper's run count", () => {
@@ -46,7 +47,7 @@ describe("fcRuns (one-round-loop P1 env-max helper)", () => {
       stdout: "pipe",
       stderr: "pipe",
     });
-    const diagnostic = `fcRuns boot probe: exit=${result.exitCode}, signal=${result.signalCode}, stderr=${result.stderr.toString().slice(0, 2000)}`;
+    const diagnostic = `fcRuns boot probe: exit=${result.exitCode}, signal=${result.signalCode}, stderr=${Str.slice(0, 2000)(result.stderr.toString())}`;
     assertTrue(result.success, diagnostic);
     expect(result.stdout.toString(), diagnostic).toBe("400/9000");
   });

@@ -2,7 +2,7 @@ import * as Data from "effect/Data";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertExitFailure } from "@effect/vitest/utils";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../../effected/env/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";

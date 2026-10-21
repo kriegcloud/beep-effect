@@ -1,6 +1,7 @@
 /** Real-file SQLite execution proofs for the round-seven dialect. */
+
 import { Database } from "bun:sqlite";
-import { VersionConflictError } from "@beep/effect-drizzle";
+import { makeNativeRepository, VersionConflictError } from "@beep/effect-drizzle";
 import { it } from "@beep/test-runner";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { layer as makeSqliteLayer } from "@effect/sql-sqlite-bun/SqliteClient";
@@ -46,10 +47,9 @@ import {
   Unknown,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
-import { camelCase, snakeCase } from "effect/String";
+import { camelCase, snakeCase, split, trim } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
-import { makeRepository as makeSqlRepository } from "effect/sql/SqlModel";
 import * as Tuple from "effect/Tuple";
 import {
   SqliteOrganization,
@@ -96,7 +96,7 @@ const preloadPath = new URL("./drizzle-kit-sqlite-rc-compat.cjs", import.meta.ur
 // hardcoding a location that differs across hosts and CI runners.
 const isRealNode = (candidate: string): boolean => {
   const probe = Bun.spawnSync([candidate, "--print", "process.isBun ? 1 : 0"]);
-  return probe.exitCode === 0 && new TextDecoder().decode(probe.stdout).trim() === "0";
+  return probe.exitCode === 0 && trim(new TextDecoder().decode(probe.stdout)) === "0";
 };
 
 const resolveNodeBinary = (): string => {
@@ -107,7 +107,7 @@ const resolveNodeBinary = (): string => {
   return getOrElse(
     findFirst(
       mapArray(
-        filter((Bun.env.PATH ?? "").split(":"), (directory) => directory.length > 0),
+        filter(split(":")(Bun.env.PATH ?? ""), (directory) => directory.length > 0),
         (directory) => Bun.which("node", { PATH: directory })
       ),
       (candidate): candidate is string => candidate !== null && isRealNode(candidate)
@@ -186,8 +186,7 @@ class SqliteHarness extends Service<
   }
 >()("@beep/effect-drizzle/test/integration/sqlite-live.test/SqliteHarness") {}
 
-const organizationRepository = makeSqlRepository(SqliteOrganization, {
-  tableName: SqliteOrganization.sql.tableName,
+const organizationRepository = makeNativeRepository(SqliteOrganization, {
   spanPrefix: "SqliteOrganization",
   idColumn: "id",
 });

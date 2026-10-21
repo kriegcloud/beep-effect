@@ -1,21 +1,17 @@
 /**
- * Web and scholarly evidence adapters.
+ * Scholarly evidence adapter and retained web-response validation.
  *
  * @internal
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Firecrawl, FirecrawlScrapePayload } from "@beep/firecrawl";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
-import * as HttpClientResponse from "effect/http/HttpClientResponse";
-import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
@@ -23,6 +19,7 @@ import { encodeLibraryJson, LibraryAdapterResult, runLibraryCommand, saveLibrary
 import { LibraryError } from "./Library.errors.ts";
 import { LibraryArtifact } from "./Library.schemas.ts";
 import { hashBytes, saveImmutable } from "./Library.store.ts";
+import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type { LibrarySource } from "./Library.schemas.ts";
 
 const isPdf = (value: Uint8Array) => new TextDecoder().decode(value.subarray(0, 5)) === "%PDF-";
@@ -96,7 +93,7 @@ const ScrapedDocument = S.Struct({
 );
 
 /**
- * Validate the scraped target and HTTP status before admitting extracted text.
+ * Validate a retained or imported Firecrawl-format web response: the target, HTTP status, and full content.
  * **Example** (Require a successful matching scrape)
  * ```ts
  * import { validateLibraryScrape } from "@beep/repo-cli/commands/Research"
@@ -130,118 +127,6 @@ export const validateLibraryScrape = Effect.fn("Library.validateScrape")(functio
     });
   }
   return doc;
-});
-
-/**
- * Capture web text and preserved raw response.
- * **Example** (Prepare a source-bound acquisition)
- * ```ts
- * import { acquireLibraryWeb } from "@beep/repo-cli/test/ResearchLibrary"
- * import { classifyLibraryReference } from "@beep/repo-cli/commands/Research"
- * import * as Effect from "effect/Effect";
- * const acquisition = classifyLibraryReference("https://example.org/report", "report").pipe(Effect.flatMap((source) => acquireLibraryWeb("/library", source, "captures/example")))
- * console.log(Effect.isEffect(acquisition))
- * ```
- *
- * @internal
- * @category use-cases
- * @since 0.0.0
- */
-export const acquireLibraryWeb = Effect.fn("Library.acquireWeb")(function* (
-  root: string,
-  source: LibrarySource,
-  prefix: string
-) {
-  const request = Effect.gen(function* () {
-    const driver = yield* Firecrawl;
-    return yield* driver.scrape(
-      FirecrawlScrapePayload.make({
-        url: source.canonicalUrl,
-        options: O.some({ formats: ["markdown", "rawHtml"], onlyMainContent: false, timeout: 60_000 }),
-      })
-    );
-  });
-  const provided = yield* Effect.serviceOption(Firecrawl);
-  const success = yield* O.isSome(provided)
-    ? request
-    : Firecrawl.layer.pipe(
-        Layer.build,
-        Effect.flatMap((context) => request.pipe(Effect.provide(context))),
-        Effect.scoped
-      );
-  const response = yield* encodeLibraryJson(success);
-  const raw = yield* saveLibraryText(root, `${prefix}/response.json`, response, "application/json", "raw-response");
-  const retained: Array<LibraryArtifact> = [raw];
-  return yield* Effect.gen(function* () {
-    let validated = yield* validateLibraryScrape(source.canonicalUrl, success.data).pipe(Effect.result);
-    const extra: Array<LibraryArtifact> = [];
-    const confirmScrapeRedirect = Effect.fn("Library.web.confirmRedirect")(function* () {
-      const candidate = yield* S.decodeUnknownEffect(ScrapedDocument)(success.data).pipe(Effect.option);
-      if (O.isSome(candidate) && candidate.value.metadata.sourceURL !== source.canonicalUrl) {
-        const client = yield* HttpClient.HttpClient;
-        const redirect = yield* client
-          .get(source.canonicalUrl)
-          .pipe(Effect.flatMap(HttpClientResponse.filterStatusOk), Effect.timeout("30 seconds"), Effect.option);
-        if (O.isSome(redirect) && redirect.value.url === candidate.value.metadata.sourceURL) {
-          validated = yield* validateLibraryScrape(redirect.value.url, success.data).pipe(Effect.result);
-          extra.push(
-            yield* saveLibraryText(
-              root,
-              `${prefix}/redirect.json`,
-              yield* encodeLibraryJson({
-                requestedUrl: source.canonicalUrl,
-                resolvedUrl: redirect.value.url,
-                status: redirect.value.status,
-                providerSourceUrl: candidate.value.metadata.sourceURL,
-                identityMerged: false,
-              }),
-              "application/json",
-              "target-metadata"
-            )
-          );
-        }
-      }
-    });
-    if (Result.isFailure(validated)) yield* confirmScrapeRedirect();
-    if (Result.isFailure(validated))
-      return LibraryAdapterResult.make({
-        artifacts: [raw, ...extra],
-        revision: source.revision,
-        status: "blocked",
-        complete: false,
-        reason: validated.failure.message,
-      });
-    const document = validated.success;
-    const html = yield* saveLibraryText(root, `${prefix}/source.html`, document.rawHtml, "text/html", "raw-full-text");
-    retained.push(html);
-    const markdown = yield* saveLibraryText(
-      root,
-      `${prefix}/source.md`,
-      document.markdown,
-      "text/markdown",
-      "extracted-full-text"
-    );
-    retained.push(markdown, ...extra);
-    return LibraryAdapterResult.make({
-      artifacts: retained,
-      revision: source.revision,
-      status: "readable",
-      complete: true,
-      reason: "Target metadata validated; raw HTML and extracted full text preserved.",
-    });
-  }).pipe(
-    Effect.catch((error) =>
-      Effect.succeed(
-        LibraryAdapterResult.make({
-          artifacts: retained,
-          revision: source.revision,
-          status: "blocked",
-          complete: false,
-          reason: `Web acquisition incomplete: ${Str.slice(0, 2000)(error.message)}. Raw provider response retained.`,
-        })
-      )
-    )
-  );
 });
 
 /**

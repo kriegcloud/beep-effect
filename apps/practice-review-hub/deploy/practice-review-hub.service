@@ -7,7 +7,8 @@
 #
 # The hub listens on 127.0.0.1 only; `tailscale serve` exposes it on the
 # tailnet and sets the Tailscale-User-Login header the allow-list checks. It
-# reads no secrets, so it runs without op run and without an environment file.
+# also requires an independent bearer credential resolved by op run from
+# an owner-only hub.env file. The tailnet login header alone is insufficient.
 
 [Unit]
 Description=Practice review hub: review items, answers and verdicts over MCP on 127.0.0.1
@@ -25,8 +26,11 @@ Environment=PATH=/REPLACE_WITH_HOME/.local/share/mise/shims:/usr/bin:/bin
 # verdicts.jsonl and answers.jsonl, and docket intake writes items.jsonl);
 # the attorney's tailnet login, or several separated by commas; the loopback
 # port tailscale serve proxies to.
-ExecStart=/REPLACE_WITH_BUN_PATH run apps/practice-review-hub/src/main.ts serve --data-dir /REPLACE_WITH_DATA_DIR --allowed-logins REPLACE_WITH_TAILNET_LOGIN --port REPLACE_WITH_PORT
-Restart=on-failure
+ExecStart=/REPLACE_WITH_OP_PATH run --env-file=/REPLACE_WITH_HOME/.config/beep-practice-review-hub/hub.env -- /REPLACE_WITH_BUN_PATH run apps/practice-review-hub/src/main.ts serve --data-dir /REPLACE_WITH_DATA_DIR --allowed-logins REPLACE_WITH_TAILNET_LOGIN --port REPLACE_WITH_PORT
+# always: memory-pressure killers send SIGTERM, which on-failure treats as a
+# clean exit, so the hub would stay down. 78: op found no credential; do not loop.
+Restart=always
+RestartPreventExitStatus=78
 RestartSec=30s
 MemoryHigh=384M
 MemoryMax=512M

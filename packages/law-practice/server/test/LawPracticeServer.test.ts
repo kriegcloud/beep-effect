@@ -22,6 +22,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import {
   EXPECTED_DISTINCTION_LIMITATION,
   EXPECTED_DISTINCTION_QUOTE,
@@ -112,7 +113,7 @@ describe("@beep/law-practice-server", () => {
           // (b) the anchor re-slices the source to its own quote, and that quote is
           // the original-case substring recovered via the case-insensitive match.
           const { endChar, quote, startChar } = law.distinction.anchor;
-          expect(OFFICE_ACTION_FIXTURE.slice(startChar, endChar)).toBe(quote);
+          expect(Str.slice(startChar, endChar)(OFFICE_ACTION_FIXTURE)).toBe(quote);
           expect(quote).toBe(EXPECTED_DISTINCTION_QUOTE);
 
           // (d) the distinction's answer: missing limitation + recovered anchor quote.
@@ -165,9 +166,9 @@ describe("@beep/law-practice-server", () => {
           const law = yield* irToLaw.toLaw(extractionResult.extractions);
 
           expect(law.distinction.anchor.quote).toBe(EXPECTED_DISTINCTION_QUOTE);
-          expect(OFFICE_ACTION_FIXTURE.slice(law.distinction.anchor.startChar, law.distinction.anchor.endChar)).toBe(
-            law.distinction.anchor.quote
-          );
+          expect(
+            Str.slice(law.distinction.anchor.startChar, law.distinction.anchor.endChar)(OFFICE_ACTION_FIXTURE)
+          ).toBe(law.distinction.anchor.quote);
         })
       );
     }

@@ -35,9 +35,9 @@ import {
 } from "@beep/ai-sync";
 import { CodexMcpServer, McpJsonServer } from "@beep/ai-sync/_generated/schemas.gen";
 import { renderGeneratedSchemas } from "@beep/ai-sync/generator";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeServices } from "@effect/platform-node";
 import { assert, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -54,6 +54,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeStructInlineSchemaJson = S.decodeEffect(
   S.fromJsonString(
@@ -843,9 +844,9 @@ it.effect(
       { name: "-pdf", description: "Read PDFs." },
       { name: "pdf-", description: "Read PDFs." },
       { name: "pdf--processing", description: "Read PDFs." },
-      { name: "a".repeat(65), description: "Read PDFs." },
+      { name: Str.repeat(65)("a"), description: "Read PDFs." },
       { name: "pdf", description: "   " },
-      { name: "pdf", description: "x".repeat(1025) },
+      { name: "pdf", description: Str.repeat(1025)("x") },
       { name: "pdf", description: "Read PDFs.", compatibility: "" },
       { name: "pdf", description: "Read PDFs.", metadata: { version: 1 } },
       { name: "pdf", description: "Read PDFs.", effort: "ultra" },

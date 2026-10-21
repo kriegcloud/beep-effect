@@ -119,8 +119,8 @@ carrier around an inline call, or redesign the underlying predicate.
 | --- | --- |
 | `cosmos-capability-probe-webgl2` | Withdraw out of net. `packages/drivers/cosmos/src/Cosmos.backend.ts:77-78` declares one Boolean plus required `S.String`. Both success and failure constructors supply a reason at `:202-218`. Required-string presence is constant and no named Boolean reason classifier exists. Preserve the raw capability probe and the separate qualified selection row. |
 | `r25-drivers-a-f-cosmos-backend-selection-reason` | Withdraw out of net. `packages/drivers/cosmos/src/Cosmos.backend.ts:108-109` declares Boolean plus required String; the selector always copies reason at `:174`. Do not merge this spurious pair into the surviving `[webGl2, backend]` member set. |
-| `r25-drivers-a-f-firecrawl-api-failure` | Withdraw out of net. `packages/drivers/firecrawl/src/Firecrawl.errors.ts:232-234` declares required `error: S.String` and `success: S.Literal(false)`. There is neither a free success bit nor an optional error-presence member. The SDK origin does not supply the missing carrier axis. Preserve the failure schema and other optional diagnostics. |
-| `r25-drivers-a-f-firecrawl-failure-fields` | Withdraw out of net. `packages/drivers/firecrawl/src/Firecrawl.models.ts:2056-2062` declares the same required error and fixed false success. Operation failures reuse this bag, for example at `:2120`; reuse does not create a second axis in the recorded `[success, error]` pair. |
+| `r25-drivers-a-f-firecrawl-api-failure` | Withdraw out of net. `retired:firecrawl/src/Firecrawl.errors.ts:232-234` declares required `error: S.String` and `success: S.Literal(false)`. There is neither a free success bit nor an optional error-presence member. The SDK origin does not supply the missing carrier axis. Preserve the failure schema and other optional diagnostics. |
+| `r25-drivers-a-f-firecrawl-failure-fields` | Withdraw out of net. `retired:firecrawl/src/Firecrawl.models.ts:2056-2062` declares the same required error and fixed false success. Operation failures reuse this bag, for example at `:2120`; reuse does not create a second axis in the recorded `[success, error]` pair. |
 | `cosmos-gl-graph-constructor-config` | Withdraw under the anonymous function-parameter exclusion. `packages/drivers/cosmos/src/vendor.d.ts:9-22` declares an anonymous object type for the constructor's `config` parameter. The class `Graph` is real, but the row's members are not class fields or a separately named config type. The actual named `CosmosGraphConfig` at `packages/drivers/cosmos/src/Cosmos.renderer.ts:20` remains eligible. |
 
 These removals are metadata withdrawals, not claims that the source values
@@ -130,17 +130,17 @@ should be removed, narrowed, or redesigned.
 
 `r26-drivers-a-f-queue-status-shape` remains D2. The footnote's description of
 `mostRecentSuccess` as simply “string” is incomplete:
-`packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:412` declares
+`retired:firecrawl/src/internal/Firecrawl.responses.ts:412` declares
 `S.NullOr(S.String)`. With `success: S.Boolean` at `:413`, that is a real
 Boolean/nullable-payload pair. The envelope is tied to the imported external
 `QueueStatusResponse` at `:30` and `:542-546`; the driver calls
 `client.getQueueStatus()` at
-`packages/drivers/firecrawl/src/Firecrawl.service.ts:630-633`. Retain the
+`retired:firecrawl/src/Firecrawl.service.ts:630-633`. Retain the
 existing member list. The required queue counters at response `:409-411` and
 `:414` do not create additional empty/nonempty or zero/nonzero members.
 
 The three retry rows also remain in net and D1. The declarations are
-`packages/drivers/firecrawl/src/Firecrawl.errors.ts:266-294` and `:311-321`.
+`retired:firecrawl/src/Firecrawl.errors.ts:266-294` and `:311-321`.
 The Option helpers at `:26-27` give decoded retryability the full domain
 `None | Some(false) | Some(true)`; delay is `None | Some(nonnegative integer)`.
 The input uses optional Boolean and optional finite number at `:286-287`.
@@ -201,32 +201,32 @@ do not prove “combined-true is a legal SDK payload.”
 | --- | --- |
 | `drivers-acp-protocol-logging-options` | Retain D1. Named schema at `packages/drivers/acp/src/AcpProtocol.service.ts:280-292`; the two optional Booleans retain absent/false/true separately. Incoming and outgoing logging are independently selected at `:499-505`, so enabling either does not disable or require the other. |
 | `drivers-cosmos-graph-config` | Change D1 to D2. Named schema at `packages/drivers/cosmos/src/Cosmos.renderer.ts:20-43`; dynamically imported graph SDK at `:338-343`; the full config is passed directly to `new module.Graph` at `:441-446`. These are external SDK option names with local defaults, not one internal phase. Do not infer all 64 legal configurations from the single default construction. |
-| `firecrawl-monitor-email-notification` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:177-184` declares the two optional Booleans; the nested Monitor wire schema is exported against external `Monitor` at `:452-456`. |
-| `firecrawl-monitor-search-target-result` | Retain D2. The optional Boolean facts are declared at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:253` and `:257`, used in the target-result union at `:263-267`, then external MonitorCheck exports at `:462-475`. |
-| `firecrawl-browser-execute-shape` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:342` declares optional Boolean killed, and `:348` declares required Boolean success. The response is exported against external BrowserExecuteResponse at `:502-506`, and external ScrapeExecuteResponse at `:547-551`. |
+| `firecrawl-monitor-email-notification` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:177-184` declares the two optional Booleans; the nested Monitor wire schema is exported against external `Monitor` at `:452-456`. |
+| `firecrawl-monitor-search-target-result` | Retain D2. The optional Boolean facts are declared at `retired:firecrawl/src/internal/Firecrawl.responses.ts:253` and `:257`, used in the target-result union at `:263-267`, then external MonitorCheck exports at `:462-475`. |
+| `firecrawl-browser-execute-shape` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:342` declares optional Boolean killed, and `:348` declares required Boolean success. The response is exported against external BrowserExecuteResponse at `:502-506`, and external ScrapeExecuteResponse at `:547-551`. |
 | `ai-provider-cli-claude-auth-status-payload` | Retain D2. `packages/drivers/ai-provider-cli/src/AiProviderCli.models.ts:456-476` explicitly models Claude CLI stdout JSON: one Boolean and three Option strings. The actual stdout decode and projection are at `packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts:174` and `:193-202`. |
-| `firecrawl-agent-response-shape` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:313-317` declares required success plus optional error; the external AgentResponse export is at `:487-491`. |
-| `firecrawl-agent-status-shape` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:318-326` declares optional data/error, required success, and the complete `processing | completed | failed` status literal. The external AgentStatusResponse export is at `:492-496`. Do not erase optional payloads or invent a local independence proof from the schema. |
-| `firecrawl-browser-create-shape` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:330` and `:335`; external BrowserCreateResponse export at `:497-501`. |
-| `firecrawl-browser-delete-shape` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:352` and `:354`; external BrowserDeleteResponse export at `:507-511`. |
-| `firecrawl-browser-list-shape` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:367-369`; external BrowserListResponse export at `:512-516`. |
+| `firecrawl-agent-response-shape` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:313-317` declares required success plus optional error; the external AgentResponse export is at `:487-491`. |
+| `firecrawl-agent-status-shape` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:318-326` declares optional data/error, required success, and the complete `processing | completed | failed` status literal. The external AgentStatusResponse export is at `:492-496`. Do not erase optional payloads or invent a local independence proof from the schema. |
+| `firecrawl-browser-create-shape` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:330` and `:335`; external BrowserCreateResponse export at `:497-501`. |
+| `firecrawl-browser-delete-shape` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:352` and `:354`; external BrowserDeleteResponse export at `:507-511`. |
+| `firecrawl-browser-list-shape` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:367-369`; external BrowserListResponse export at `:512-516`. |
 | `r2-drivers-arch-box-post-apply-verdict` | Retain D1 with the existing literal-proof rationale; the exact declaration and guarded constructor are detailed above. |
 | `acp-client-protocol-capabilities` | Retain D2; correct `kind` to `object-literal`. Actual named object passed to external `RpcClient.Protocol.of` at `packages/drivers/acp/src/AcpProtocol.service.ts:845-858`; capability values are at `:855-856`. Its service type is explicitly external at `:414`. |
 | `acp-server-protocol-capabilities` | Retain D2; correct `kind` to `object-literal`. Actual named object passed to external `RpcServer.Protocol.of` at `packages/drivers/acp/src/AcpProtocol.service.ts:860-877`; capability values are at `:872-875`. Its service type is explicitly external at `:424`. |
-| `r24-drivers-a-f-firecrawl-browser-execute-success-error` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:339` and `:348`; external BrowserExecuteResponse wrapper at `:502-506`. |
-| `r24-drivers-a-f-firecrawl-monitor-search-judge-degraded-reason` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:251` is optional nullable string, not required string; `:253` is optional Boolean. Both remain nested external MonitorCheck facts via `:263-267` and `:462-475`. |
-| `r25-drivers-a-f-firecrawl-error-options-retryable` | Retain D1. Named Option model at `packages/drivers/firecrawl/src/Firecrawl.errors.ts:266-279`; six structural states as detailed above. Its decoded fields align with the supported `fromReason` constructor's independent projections at `:353-354`. |
-| `r25-drivers-a-f-firecrawl-error-options-input-retryable` | Retain D1. Named input model at `packages/drivers/firecrawl/src/Firecrawl.errors.ts:281-294`; the actual supported constructor consumes it at `:342-357` without retryability/delay coupling. |
-| `r25-drivers-a-f-firecrawl-error-retryable` | Retain D1. Actual tagged error data at `packages/drivers/firecrawl/src/Firecrawl.errors.ts:311-326`, constructed independently at `:348-357`. A method on the error does not make its data fields callable-only. |
+| `r24-drivers-a-f-firecrawl-browser-execute-success-error` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:339` and `:348`; external BrowserExecuteResponse wrapper at `:502-506`. |
+| `r24-drivers-a-f-firecrawl-monitor-search-judge-degraded-reason` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:251` is optional nullable string, not required string; `:253` is optional Boolean. Both remain nested external MonitorCheck facts via `:263-267` and `:462-475`. |
+| `r25-drivers-a-f-firecrawl-error-options-retryable` | Retain D1. Named Option model at `retired:firecrawl/src/Firecrawl.errors.ts:266-279`; six structural states as detailed above. Its decoded fields align with the supported `fromReason` constructor's independent projections at `:353-354`. |
+| `r25-drivers-a-f-firecrawl-error-options-input-retryable` | Retain D1. Named input model at `retired:firecrawl/src/Firecrawl.errors.ts:281-294`; the actual supported constructor consumes it at `:342-357` without retryability/delay coupling. |
+| `r25-drivers-a-f-firecrawl-error-retryable` | Retain D1. Actual tagged error data at `retired:firecrawl/src/Firecrawl.errors.ts:311-326`, constructed independently at `:348-357`. A method on the error does not make its data fields callable-only. |
 | `r25-drivers-a-f-box-action-base-destructive-provider` | Retain D1 with bounded current-writer note; named type and explicit false/None and false/Some writers are detailed above. |
 | `r25-drivers-a-f-box-entitlements-paid-seats` | Retain D1 with corrected note; actual Option quota and supported present/absent examples are detailed above. |
-| `r25-drivers-a-f-firecrawl-browser-execute-killed-error` | Retain D2. Actual optional killed and optional error at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:339-342`; external BrowserExecuteResponse wrapper at `:502-506`. |
-| `r26-drivers-a-f-firecrawl-sdk-agent-request` | Retain D2. Actual named type at `packages/drivers/firecrawl/src/Firecrawl.models.ts:59-69`, with optional Boolean and optional URLs at `:66-67`. Named external request codec at `:958-961`; forwarded directly to SDK `startAgent` at `packages/drivers/firecrawl/src/Firecrawl.service.ts:686-689`. Optional URLs are a real payload axis; empty/nonempty would be an additional invented axis. |
-| `r26-drivers-a-f-browser-session-shape` | Retain D2. Actual optional interactive URL at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:360`, and Boolean at `:364`. Required liveViewUrl at `:362` is not an alternative presence axis. BrowserSessionShape is nested in BrowserListShape at `:368` and external BrowserListResponse at `:512-516`. |
-| `r26-drivers-a-f-queue-status-shape` | Retain D2. Required nullable timestamp at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:412`, Boolean at `:413`, external QueueStatusResponse wrapper at `:542-546`, and actual SDK call at `packages/drivers/firecrawl/src/Firecrawl.service.ts:630-633`. |
+| `r25-drivers-a-f-firecrawl-browser-execute-killed-error` | Retain D2. Actual optional killed and optional error at `retired:firecrawl/src/internal/Firecrawl.responses.ts:339-342`; external BrowserExecuteResponse wrapper at `:502-506`. |
+| `r26-drivers-a-f-firecrawl-sdk-agent-request` | Retain D2. Actual named type at `retired:firecrawl/src/Firecrawl.models.ts:59-69`, with optional Boolean and optional URLs at `:66-67`. Named external request codec at `:958-961`; forwarded directly to SDK `startAgent` at `retired:firecrawl/src/Firecrawl.service.ts:686-689`. Optional URLs are a real payload axis; empty/nonempty would be an additional invented axis. |
+| `r26-drivers-a-f-browser-session-shape` | Retain D2. Actual optional interactive URL at `retired:firecrawl/src/internal/Firecrawl.responses.ts:360`, and Boolean at `:364`. Required liveViewUrl at `:362` is not an alternative presence axis. BrowserSessionShape is nested in BrowserListShape at `:368` and external BrowserListResponse at `:512-516`. |
+| `r26-drivers-a-f-queue-status-shape` | Retain D2. Required nullable timestamp at `retired:firecrawl/src/internal/Firecrawl.responses.ts:412`, Boolean at `:413`, external QueueStatusResponse wrapper at `:542-546`, and actual SDK call at `retired:firecrawl/src/Firecrawl.service.ts:630-633`. |
 
 The Firecrawl external-response relationship in this table is explicit:
-`packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:9-36` imports
+`retired:firecrawl/src/internal/Firecrawl.responses.ts:9-36` imports
 the SDK response types; `sdkResponse` at `:46-52` uses a structural encoded
 guard and returns the external type. It does not normalize, coordinate, or
 redefine these success/error/phase fields as a local state machine.
@@ -262,12 +262,12 @@ redefine these success/error/phase fields as a local state machine.
 7. For all three retryability D1 rows, keep their ids and member lists and
    use this shared replacement note:
 
-   > Independent optional diagnostics. Retryability retains absent/None, false, and true; delay retains absent/None or a nonnegative integer. FirecrawlError.fromReason independently normalizes both at Firecrawl.errors.ts:342-357, preserving valid delay presence across all three retryability cases. These are six structural cases, not a two-bit phase or a required-number zero/nonzero projection.
+   > Independent optional diagnostics. Retryability retains absent/None, false, and true; delay retains absent/None or a nonnegative integer. FirecrawlError.fromReason independently normalizes both at retired:firecrawl/src/Firecrawl.errors.ts:342-357, preserving valid delay presence across all three retryability cases. These are six structural cases, not a two-bit phase or a required-number zero/nonzero projection.
 
 8. For `firecrawl-agent-status-shape`, retain D2 and replace the unsupported
    external combined-true assertion with:
 
-   > External Firecrawl AgentStatusResponse mirror (Firecrawl.responses.ts:318-326,492-496). Keep optional data/error, required success, and the processing/completed/failed status domain intact. sdkResponse structurally guards the SDK value; this driver has no local writer proving a replacement state machine or every external cross-product combination legal.
+   > External Firecrawl AgentStatusResponse mirror (retired:firecrawl/src/internal/Firecrawl.responses.ts:318-326,492-496). Keep optional data/error, required success, and the processing/completed/failed status domain intact. sdkResponse structurally guards the SDK value; this driver has no local writer proving a replacement state machine or every external cross-product combination legal.
 
 9. Other retained D2 rows may keep their member lists, anchors, and classes.
    Where their note says “independently reported,” read that as separate

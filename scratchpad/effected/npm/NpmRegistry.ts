@@ -15,29 +15,12 @@ import * as Str from "effect/String";
 import * as A from "effect/Array";
 import type * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClient from "effect/http/HttpClient";
-import { IntegrityHash } from "./IntegrityHash.ts";
-import { RegistryCredential } from "./RegistryCredential.ts";
-import { classifyRegistry } from "./RegistryKind.ts";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
+import { RegistryCredential } from "@beep/npm-spec/RegistryCredential";
+import { classifyRegistry, DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
 import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/npm/NpmRegistry");
-
-/**
- * The public npm registry, used when a read names no other.
- *
- * **Example** (Read the default registry URL)
- *
- * ```ts
- * import { DEFAULT_REGISTRY } from "@beep/scratchpad/effected/npm/NpmRegistry";
- *
- * console.log(DEFAULT_REGISTRY) // https://registry.npmjs.org
- * ```
- *
- * @public
- * @category constants
- * @since 0.0.0
- */
-export const DEFAULT_REGISTRY = "https://registry.npmjs.org";
 
 /**
  * Which registry to read from, and how to authenticate.
@@ -795,7 +778,8 @@ export class NpmRegistry extends Context.Service<NpmRegistry, NpmRegistryShape>(
 	 * **Example** (Read a seeded version list)
 	 *
 	 * ```ts
-	 * import { DEFAULT_REGISTRY, NpmRegistry } from "@beep/scratchpad/effected/npm/NpmRegistry";
+	 * import { DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
+	 * import { NpmRegistry } from "@beep/scratchpad/effected/npm/NpmRegistry";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const registry = NpmRegistry.makeSeeded({ registries: { [DEFAULT_REGISTRY]: { example: { "1.0.0": {} } } } });

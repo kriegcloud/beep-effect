@@ -10,7 +10,7 @@ import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
-import { DependencySpecifier } from "../../../effected/npm/DependencySpecifier.ts";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { ImporterDependency } from "../../../effected/lockfiles/ImporterDependency.ts";
 import { LockfileImporter } from "../../../effected/lockfiles/LockfileImporter.ts";
 import { PeerDeclarations, FramingReason, ContentFailure, FramingFailure, ParseFailure, LockfileFields, WorkspaceEntry, splitNameVersion, splitPeerSuffix, importerDependencies, peerDeclarations, extractWorkspaceDeps } from "../../../effected/lockfiles/internal/shared.ts";

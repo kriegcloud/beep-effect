@@ -26,10 +26,10 @@ import { layer } from "@effect/vitest";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
-import { CompilerOptions } from "../../effected/tsconfig-json/CompilerOptions.ts";
-import { TsconfigJsonFromString } from "../../effected/tsconfig-json/TsconfigJson.ts";
-import { ResolvedTsconfig } from "../../effected/tsconfig-json/ResolvedTsconfig.ts";
+import { MemoryFileSystem } from "@beep/memfs";
+import { CompilerOptions } from "@beep/tsconfig/CompilerOptions";
+import { TsconfigJsonFromString } from "@beep/tsconfig/TsconfigJson";
+import { ResolvedTsconfig } from "@beep/tsconfig/ResolvedTsconfig";
 import { TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
 
 layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/prop/tsconfig.json": "{}" }), Path.layer), { timeout: "30 seconds" })("loader parser properties", (it) => {
@@ -52,7 +52,7 @@ layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/prop/tsconfig.json": "{}" })
     yield* fs.writeFileString("/prop/tsconfig.json", yield* S.encodeEffect(TsconfigJsonFromString)({ compilerOptions: options }));
     const resolved = yield* TsconfigLoader.resolve("/prop/tsconfig.json");
     const absolutized = ResolvedTsconfig.absolutize({ compilerOptions: options }, "/prop", path.resolve);
-    const expected = ResolvedTsconfig.substituteConfigDir(ResolvedTsconfig.merge({ configPath: "/prop/tsconfig.json", extendedPaths: [], compilerOptions: {} }, absolutized, "/prop/tsconfig.json"), "/prop");
+    const expected = ResolvedTsconfig.substituteConfigDir(ResolvedTsconfig.merge(ResolvedTsconfig.make({ configPath: "/prop/tsconfig.json", extendedPaths: [], compilerOptions: {} }), absolutized, "/prop/tsconfig.json"), "/prop");
     assertTrue(S.toEquivalence(ResolvedTsconfig)(resolved, expected));
     assert.deepStrictEqual(yield* TsconfigLoader.resolve("/prop/tsconfig.json"), resolved);
     assert.deepStrictEqual(yield* TsconfigLoader.compilerOptions("/prop/tsconfig.json"), resolved.compilerOptions);

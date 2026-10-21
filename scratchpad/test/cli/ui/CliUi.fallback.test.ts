@@ -18,7 +18,7 @@ import * as Runtime from "effect/Runtime";
 import * as Path from "effect/Path";
 import * as Stdio from "effect/Stdio";
 import { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { CliInteractive, CliPrompt, CliRuntime, CliTheme, NotInteractive } from "../../../effected/cli/index.ts";
 import { TestTerminal } from "../../../effected/cli/testing.ts";
 import { CliUi, Select } from "../../../effected/cli/ui.ts";

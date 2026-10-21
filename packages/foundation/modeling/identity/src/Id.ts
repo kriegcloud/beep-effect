@@ -48,7 +48,34 @@ type BeepNamespace = typeof BeepNamespace.Type;
 const BeepBase = S.Literal("beep");
 type BeepBase = typeof BeepBase.Type;
 
-type DefaultIdentityAuthority = "https://ns.beep.sh/";
+/**
+ * Identity authority that roots every owned `@beep/*` IRI.
+ *
+ * **Details**
+ *
+ * This is the single runtime source for the repository identity root. The
+ * root `$I` composer, the default composer authority type, and the `beep`
+ * vocabulary namespace all reference it, so the authority is written once.
+ * Owned identities are appended directly, so the value keeps its trailing
+ * `/`: `@beep/a/b` mints `https://beep-effect.com/ns/a/b`.
+ *
+ * **Example** (Read the identity authority)
+ *
+ * ```ts import.meta.vitest name="Read the identity authority"
+ * import { IdentityAuthority } from "@beep/identity/Id"
+ * import { $I } from "@beep/identity/packages"
+ *
+ * IdentityAuthority // => "https://beep-effect.com/ns/"
+ * $I.iri === IdentityAuthority // => true
+ * $I.create("x").iri // => "https://beep-effect.com/ns/x"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const IdentityAuthority = "https://beep-effect.com/ns/" as const;
+
+type DefaultIdentityAuthority = typeof IdentityAuthority;
 type DefaultIdentityPrefix = "beep";
 
 const isBeepNamespace = S.is(BeepNamespace);
@@ -360,16 +387,16 @@ export type TitleFromIdentifier<Identifier extends string> = JoinTitleWords<
  *
  * **Details**
  *
- * Converts `"@beep/a/b"` to `"https://ns.beep.sh/a/b"` when the authority is
- * `"https://ns.beep.sh/"`. Widened string inputs intentionally widen to `string`.
+ * Converts `"@beep/a/b"` to `"https://beep-effect.com/ns/a/b"` when the authority is
+ * `"https://beep-effect.com/ns/"`. Widened string inputs intentionally widen to `string`.
  *
  * **Example** (Project an identity onto a namespace authority)
  *
  * ```ts
  * import type { IriFromIdentity } from "@beep/identity"
  *
- * type Iri = IriFromIdentity<"https://ns.beep.sh/", "@beep/schema/Entity">
- * const iri: Iri = "https://ns.beep.sh/schema/Entity"
+ * type Iri = IriFromIdentity<"https://beep-effect.com/ns/", "@beep/schema/Entity">
+ * const iri: Iri = "https://beep-effect.com/ns/schema/Entity"
  * console.log(iri)
  * ```
  *
@@ -1214,7 +1241,7 @@ export interface IdentityComposer<
    * ```ts import.meta.vitest name="Annotate an ontology concept"
    * import { make } from "@beep/identity"
    *
-   * const { $MyPkgId } = make("my-pkg", { authority: "https://ns.beep.sh/", prefix: "beep" })
+   * const { $MyPkgId } = make("my-pkg", { authority: "https://beep-effect.com/ns/", prefix: "beep" })
    * const $I = $MyPkgId.create("patent")
    * const ann = $I.class("Claim", { description: "A patent claim.", skos: "concept" })
    *
@@ -1297,7 +1324,7 @@ export interface IdentityComposer<
    * ```ts import.meta.vitest name="Read a bound CURIE"
    * import { make } from "@beep/identity"
    *
-   * const { $BeepId } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" })
+   * const { $BeepId } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" })
    * const curie = $BeepId.create("schema").curie
    * curie // => "beep:schema"
    * ```
@@ -1329,9 +1356,9 @@ export interface IdentityComposer<
    * ```ts import.meta.vitest name="Read a bound IRI"
    * import { make } from "@beep/identity"
    *
-   * const { $BeepId } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" })
+   * const { $BeepId } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" })
    * const iri = $BeepId.create("schema").iri
-   * iri // => "https://ns.beep.sh/schema"
+   * iri // => "https://beep-effect.com/ns/schema"
    * ```
    *
    * @since 0.0.0
@@ -1357,7 +1384,7 @@ export interface IdentityComposer<
    * import { make } from "@beep/identity"
    * import * as S from "effect/Schema"
    *
-   * const { $MyPkgId } = make("my-pkg", { authority: "https://ns.beep.sh/", prefix: "beep" })
+   * const { $MyPkgId } = make("my-pkg", { authority: "https://beep-effect.com/ns/", prefix: "beep" })
    * const $I = $MyPkgId.create("patent")
    *
    * const Claim = S.Struct({
@@ -1403,7 +1430,7 @@ export interface IdentityComposer<
    * ```ts import.meta.vitest name="Rebase onto a foreign namespace"
    * import { make } from "@beep/identity"
    *
-   * const { $BeepId } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" })
+   * const { $BeepId } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" })
    * const patent = $BeepId.create("ontology").create("patent")
    * const rebased = patent.rebase({ iri: "https://opip.law/ns/patent#", prefix: "patent" })
    * rebased.iri // => "https://opip.law/ns/patent#ontology/patent"
@@ -1469,7 +1496,7 @@ export interface IdentityComposer<
    * ```ts import.meta.vitest name="Read the bound vocabulary"
    * import { CoreVocab, make } from "@beep/identity"
    *
-   * const { $BeepId } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep", vocab: CoreVocab })
+   * const { $BeepId } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep", vocab: CoreVocab })
    * $BeepId.vocabRegistry === CoreVocab // => true
    * ```
    *

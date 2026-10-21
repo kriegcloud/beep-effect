@@ -70,8 +70,9 @@ seam 2026-07-02: pure core in identity, runtime downstream),
   the rewrite lands.
 - **Zero call-site changes**: no file outside the package needs edits
   (`git diff --stat` verifiable).
-- **AUTHORITY HOST is the first blocking input**: `https://ns.beep.sh/` is a
-  placeholder; confirm with elpresidank before merge (`rebase`-able later,
+- **AUTHORITY HOST is the first blocking input**: `https://ns[.]beep[.]sh/` was a
+  placeholder (superseded 2026-10-20 by `https://beep-effect.com/ns/`, goal
+  public-origin-beep-effect-com); confirm with elpresidank before merge (`rebase`-able later,
   but the default must be right). Record the ruling in the exploration
   `DECISIONS.md`.
 - **Interning immutability**: `rebase` changes only IRI/CURIE projections;

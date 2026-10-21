@@ -1,6 +1,6 @@
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, describe, it, layer } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

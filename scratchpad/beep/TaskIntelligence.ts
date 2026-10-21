@@ -614,7 +614,7 @@ export class TaskIntelligenceAttributionEvent extends Model<TaskIntelligenceAttr
   "TaskIntelligenceAttributionEvent",
 )(
   {
-    schemaVersion: S.Literal(1).pipe(pg.integer(), pg.columnName("schema_version")),
+    schemaVersion: S.tag(1).pipe(pg.integer(), pg.columnName("schema_version")),
     eventId: stableId("event_id"),
     eventType: TaskIntelligenceEventType.pipe(pg.text(), pg.columnName("event_type")),
     sourceClass: TaskIntelligenceSourceClass.pipe(pg.text(), pg.columnName("source_class")),

@@ -1,5 +1,7 @@
-import type { DependencyField, IntegrityHashBrand } from "../../npm/index.ts";
-import { DependencySpecifier, IntegrityHash } from "../../npm/index.ts";
+import type { DependencyField } from "@beep/npm-spec/DependencySection";
+import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as HashSet from "effect/HashSet";
@@ -526,8 +528,8 @@ export type FramingReason = typeof FramingReason.Type;
  * @since 0.0.0
  */
 export const ContentFailure = S.Union([
-	S.Struct({ stage: S.Literal("syntax").pipe($I.annoteKey("ContentFailure.Syntax.stage", { description: "Parser stage at which this failure occurred" })), cause: S.Unknown.pipe($I.annoteKey("ContentFailure.Syntax.cause", { description: "Original engine throwable or structural validation cause, retained without narrowing" })) }),
-	S.Struct({ stage: S.Literal("validation").pipe($I.annoteKey("ContentFailure.Validation.stage", { description: "Parser stage at which this failure occurred" })), cause: S.Unknown.pipe($I.annoteKey("ContentFailure.Validation.cause", { description: "Original engine throwable or structural validation cause, retained without narrowing" })) }),
+	S.Struct({ stage: S.tag("syntax").pipe($I.annoteKey("ContentFailure.Syntax.stage", { description: "Parser stage at which this failure occurred" })), cause: S.Unknown.pipe($I.annoteKey("ContentFailure.Syntax.cause", { description: "Original engine throwable or structural validation cause, retained without narrowing" })) }),
+	S.Struct({ stage: S.tag("validation").pipe($I.annoteKey("ContentFailure.Validation.stage", { description: "Parser stage at which this failure occurred" })), cause: S.Unknown.pipe($I.annoteKey("ContentFailure.Validation.cause", { description: "Original engine throwable or structural validation cause, retained without narrowing" })) }),
 ]).pipe($I.annoteSchema("ContentFailure", { description: "Syntax or validation failure preserving the original engine throwable without transformation" }));
 /**
  * Decoded representation of {@link ContentFailure} for internal parser composition.
@@ -557,7 +559,7 @@ export type ContentFailure = typeof ContentFailure.Type;
  * @since 0.0.0
  */
 export const FramingFailure = S.Struct({
-	stage: S.Literal("framing").pipe($I.annoteKey("FramingFailure.stage", { description: "Parser stage at which this failure occurred" })),
+	stage: S.tag("framing").pipe($I.annoteKey("FramingFailure.stage", { description: "Parser stage at which this failure occurred" })),
 	reason: FramingReason.pipe($I.annoteKey("FramingFailure.reason", { description: "Reason a lockfile document could not be uniquely located" })),
 	documents: S.Finite.pipe($I.annoteKey("FramingFailure.documents", { description: "Number of parsed documents in the YAML stream" })),
 }).pipe($I.annoteSchema("FramingFailure", { description: "Synthetic document-framing failure with a reason and the parsed document count" }));

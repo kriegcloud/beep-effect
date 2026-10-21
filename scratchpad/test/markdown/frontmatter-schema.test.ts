@@ -19,9 +19,9 @@
 
 import { fcRuns } from "@beep/fc-runs";
 import { assert, describe, it } from "@effect/vitest";
-import { Jsonc } from "../../effected/jsonc/index.ts";
-import { Toml } from "../../effected/toml/index.ts";
-import { Yaml } from "../../effected/yaml/index.ts";
+import { Jsonc } from "@beep/jsonc";
+import { Toml } from "@beep/toml";
+import { Yaml } from "@beep/yaml";
 import * as P from "effect/Predicate";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";

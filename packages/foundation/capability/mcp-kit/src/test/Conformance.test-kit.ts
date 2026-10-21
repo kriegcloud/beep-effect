@@ -41,6 +41,7 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stdio from "effect/Stdio";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import {
   CLIENT_CAPABILITIES_META_KEY,
   CLIENT_INFO_META_KEY,
@@ -605,7 +606,7 @@ export const conformance2026 = <E>(host: ConformanceHost<E>): void => {
             );
             const first = yield* io.nextLine;
             assert.strictEqual((yield* decodeLineOrDie(first)).id, 9);
-            assert.isFalse(first.includes("\n"));
+            assert.isFalse(Str.includes("\n")(first));
             yield* io.sendMessage(
               JsonRpcMessage.make({
                 id: 10,

@@ -82,7 +82,7 @@ Implementation must read sources in this order:
    - `packages/drivers/runpod` (custom generator + `S.Class` `_generated`)
    - `packages/drivers/acp` (`@effect/openapi-generator` + `_generated`)
 6. Hand-written driver precedents (service/error/test patterns):
-   - `packages/drivers/firecrawl`
+   - `retired:firecrawl`
 7. Box SDK source (the generation INPUT and runtime dependency):
    - `node_modules/box-node-sdk/lib/index.d.ts`
    - `node_modules/box-node-sdk/lib/client.d.ts`
@@ -211,7 +211,7 @@ The package must expose an Effect service boundary around the Box SDK:
 `BoxSdkError` / arbitrary thrown values into a sanitized `BoxError` carrying
 method name, status, and decoded failure context — without embedding tokens, raw
 request bodies, raw file content, or unbounded user input. Add a `BoxMethodName`
-`LiteralKit` and an error-reason `LiteralKit` (firecrawl `Firecrawl.errors.ts`
+`LiteralKit` and an error-reason `LiteralKit` (firecrawl `retired:firecrawl/src/Firecrawl.errors.ts`
 pattern).
 
 ## Streaming Requirement

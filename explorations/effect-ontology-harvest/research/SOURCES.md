@@ -215,7 +215,7 @@ refines dispositions. -->
 | `@beep/mcp-kit` | `packages/foundation/capability/mcp-kit` | reuse (agent tool surfaces) |
 | ontology-slice stateless CAS | `packages/ontology/use-cases/src/tools/OntologyToolService.ts` | extend / design-compare vs `Utils/Hash` + `IdempotencyKey` |
 | `epistemic` slice | `packages/epistemic/*` | reuse (claim/evidence lifecycle) |
-| LLM drivers | `packages/drivers/{anthropic,openai-compat,xai,venice-ai}` | reuse / extend (governance wrapping point) |
+| LLM drivers | `packages/drivers/{anthropic,openai-compat}`, `retired:xai`, `retired:venice-ai` | reuse / extend (governance wrapping point) |
 | RDF drivers | `packages/drivers/{oxigraph,shacl,n3,rdf-canonize}` | reuse |
 | LLM governance capability | — | NET-NEW candidate (`foundation/capability`) |
 | generic CAS/cache capability | — | NET-NEW candidate (`foundation/capability`) |

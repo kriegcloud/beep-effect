@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   AgentEffectivenessAnnotationCheckReport,
   AgentEffectivenessDatasetBundle,
@@ -9,7 +10,6 @@ import { agentEffectivenessCommand } from "@beep/repo-cli/commands/AgentEffectiv
 import { AgentConventionComparison } from "@beep/repo-cli/test/AgentEffectiveness";
 import { it } from "@beep/test-runner";
 import { fcRuns, privacySafeSystemTempRoot } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";

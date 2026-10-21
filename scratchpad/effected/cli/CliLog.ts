@@ -20,7 +20,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { AudienceKind, RuntimeEnv } from "../env/index.ts";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../env/index.ts";
-import { CommandNeutralizer } from "../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import type { CliLoggerOptions } from "./CliLogger.ts";
 import { makeCliLogger } from "./CliLogger.ts";
 import { CliTheme } from "./CliTheme.ts";

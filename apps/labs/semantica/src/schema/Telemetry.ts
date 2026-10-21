@@ -21,7 +21,7 @@ const EvaluationMode = LiteralKit(["live", "replay"]);
  * ```ts
  * import { EvalRunTelemetry } from "@/schema/Telemetry"
  *
- * console.log(EvalRunTelemetry.fields.schemaVersion.literals[0]) // "eval-telemetry/v1"
+ * console.log(EvalRunTelemetry.fields.schemaVersion.schema.literal) // "eval-telemetry/v1"
  * ```
  *
  * @category models

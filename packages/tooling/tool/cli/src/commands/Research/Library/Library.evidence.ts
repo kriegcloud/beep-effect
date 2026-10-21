@@ -204,7 +204,7 @@ class WebRedirectProof extends S.Opaque<
     resolvedUrl: S.String,
     status: S.Finite,
     providerSourceUrl: S.String,
-    identityMerged: S.Literal(false),
+    identityMerged: S.tag(false),
   }).pipe(
     $I.annoteSchema("WebRedirectProof", {
       description:
@@ -1256,7 +1256,7 @@ const validatePublisherImport = Effect.fn("Library.validatePublisherImport")(fun
 const importedFirecrawlMatches = (context: EvidenceContext, imported: LibraryImportPayload) =>
   imported.provider === "firecrawl" &&
   context.capture.method === "firecrawl" &&
-  A.contains(["web", "docs", "endpoint"], context.source.kind);
+  A.contains(["web", "docs", "registry", "endpoint"], context.source.kind);
 const validateImportedPaper = Effect.fn("Library.validateImportedPaper")(function* (
   context: EvidenceContext,
   imported: LibraryImportPayload,

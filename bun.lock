@@ -1,5 +1,5 @@
 {
-  "lockfileVersion": 3,
+  "lockfileVersion": 2,
   "configVersion": 1,
   "workspaces": {
     "": {
@@ -82,6 +82,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -146,7 +147,6 @@
         "@beep/schema": "workspace:^",
         "@beep/semantic-web": "workspace:^",
         "@beep/ui": "workspace:^",
-        "@beep/venice-ai": "workspace:^",
         "@effect/platform-bun": "catalog:",
         "effect": "catalog:",
         "fflate": "catalog:",
@@ -190,7 +190,6 @@
         "@beep/schema": "workspace:^",
         "@beep/semantic-web": "workspace:^",
         "@beep/wink": "workspace:^",
-        "@beep/xai": "workspace:^",
         "@effect/platform-bun": "catalog:",
         "@noble/hashes": "catalog:",
         "effect": "catalog:",
@@ -330,6 +329,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -385,6 +385,7 @@
       },
       "devDependencies": {
         "@beep/mcp-kit": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -429,6 +430,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -472,8 +474,8 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -544,6 +546,7 @@
         "xstate": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -1102,6 +1105,23 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/commands": {
+      "name": "@beep/commands",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/drivers/cosmos": {
       "name": "@beep/cosmos",
       "version": "0.0.0",
@@ -1148,7 +1168,9 @@
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
+        "fflate": "catalog:",
         "mammoth": "catalog:",
+        "saxes": "^6.0.0",
         "unpdf": "catalog:",
       },
       "devDependencies": {
@@ -1227,34 +1249,13 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
-      },
-    },
-    "packages/drivers/face-detection": {
-      "name": "@beep/face-detection",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-        "onnxruntime-node": "catalog:",
-        "sharp": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
-        "@effect/platform-node": "catalog:",
-        "@effect/platform-node-shared": "catalog:",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "bun-types": "catalog:",
-        "fflate": "catalog:",
       },
     },
     "packages/drivers/ffmpeg": {
@@ -1276,24 +1277,6 @@
         "bun-types": "catalog:",
       },
     },
-    "packages/drivers/firecrawl": {
-      "name": "@beep/firecrawl",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-        "firecrawl": "^4.25.2",
-      },
-      "devDependencies": {
-        "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "bun-types": "catalog:",
-      },
-    },
     "packages/drivers/freshbooks": {
       "name": "@beep/freshbooks",
       "version": "0.0.0",
@@ -1305,6 +1288,23 @@
       },
       "devDependencies": {
         "@beep/test-runner": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/drivers/git": {
+      "name": "@beep/git",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -1939,25 +1939,6 @@
         "bun-types": "catalog:",
       },
     },
-    "packages/drivers/venice-ai": {
-      "name": "@beep/venice-ai",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/openai-compat": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
-        "@effect/platform-node-shared": "catalog:",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "bun-types": "catalog:",
-      },
-    },
     "packages/drivers/windows-secrets": {
       "name": "@beep/windows-secrets",
       "version": "0.0.0",
@@ -1993,26 +1974,6 @@
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
-        "bun-types": "catalog:",
-      },
-    },
-    "packages/drivers/xai": {
-      "name": "@beep/xai",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/openai-compat": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-        "ws": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/test-runner": "workspace:^",
-        "@beep/test-utils": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "@types/ws": "catalog:",
         "bun-types": "catalog:",
       },
     },
@@ -2374,6 +2335,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -2418,6 +2380,53 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/github-commands": {
+      "name": "@beep/github-commands",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/github-references": {
+      "name": "@beep/github-references",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/glob": {
+      "name": "@beep/glob",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "minimatch": "10.2.6",
+      },
+    },
     "packages/foundation/modeling/html": {
       "name": "@beep/html",
       "version": "0.0.0",
@@ -2457,6 +2466,40 @@
         "type-fest": "catalog:",
       },
     },
+    "packages/foundation/modeling/jsonc": {
+      "name": "@beep/jsonc",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/jsonl": {
+      "name": "@beep/jsonl",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/lexical": {
       "name": "@beep/lexical-schema",
       "version": "0.0.0",
@@ -2477,6 +2520,25 @@
         "@types/node": "catalog:",
         "bun-types": "catalog:",
         "lexical": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/managed-section": {
+      "name": "@beep/managed-section",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "immer": "^11.1.18",
       },
     },
     "packages/foundation/modeling/md": {
@@ -2515,6 +2577,23 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/modeling/npm-spec": {
+      "name": "@beep/npm-spec",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/ontology": {
       "name": "@beep/ontology",
       "version": "0.0.0",
@@ -2526,6 +2605,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -2565,6 +2645,20 @@
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/public-site": {
+      "name": "@beep/public-site",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -2615,6 +2709,37 @@
         "fast-xml-builder": "catalog:",
       },
     },
+    "packages/foundation/modeling/schema-org": {
+      "name": "@beep/schema-org",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/semver": {
+      "name": "@beep/semver",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/skill-contract": {
       "name": "@beep/skill-contract",
       "version": "0.0.0",
@@ -2627,6 +2752,56 @@
       "devDependencies": {
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/spdx": {
+      "name": "@beep/spdx",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "spdx-expression-parse": "5.0.0",
+      },
+    },
+    "packages/foundation/modeling/toml": {
+      "name": "@beep/toml",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "smol-toml": "^1.9.0",
+        "vitest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/tsconfig": {
+      "name": "@beep/tsconfig",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -2650,6 +2825,23 @@
         "@types/picomatch": "catalog:",
         "bun-types": "catalog:",
         "type-fest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/yaml": {
+      "name": "@beep/yaml",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "yaml": "catalog:",
       },
     },
     "packages/foundation/primitive/data": {
@@ -2922,6 +3114,7 @@
       },
       "devDependencies": {
         "@beep/md": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/nlp": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/test-runner": "workspace:^",
@@ -3185,6 +3378,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -3203,6 +3397,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -3241,6 +3436,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -3299,6 +3495,7 @@
         "ts-morph": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
@@ -3367,6 +3564,24 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/tooling/test-kit/memfs": {
+      "name": "@beep/memfs",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/tooling/test-kit/test-runner": {
       "name": "@beep/test-runner",
       "version": "0.0.0",
@@ -3418,10 +3633,8 @@
         "@beep/colors": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/exiftool": "workspace:^",
-        "@beep/face-detection": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
         "@beep/file-processing": "workspace:^",
-        "@beep/firecrawl": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",
@@ -3474,6 +3687,7 @@
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@commitlint/is-ignored": "catalog:",
         "@effect/platform-node-shared": "catalog:",
@@ -3552,6 +3766,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -3603,17 +3818,26 @@
       "version": "0.0.0",
       "dependencies": {
         "@azure/storage-blob": "^12.33.0",
+        "@beep/commands": "workspace:^",
         "@beep/dock": "workspace:^",
         "@beep/dock-react": "workspace:^",
         "@beep/drizzle": "workspace:^",
         "@beep/effect-drizzle": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
         "@beep/file-processing": "workspace:^",
+        "@beep/git": "workspace:^",
+        "@beep/github-commands": "workspace:^",
+        "@beep/github-references": "workspace:^",
+        "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/managed-section": "workspace:^",
         "@beep/md": "workspace:^",
+        "@beep/memfs": "workspace:^",
         "@beep/n3": "workspace:^",
         "@beep/nlp": "workspace:^",
         "@beep/nlp-processing": "workspace:^",
+        "@beep/npm-spec": "workspace:^",
         "@beep/ontology": "workspace:^",
         "@beep/oxigraph": "workspace:^",
         "@beep/postgres": "workspace:^",
@@ -3623,9 +3847,14 @@
         "@beep/repo-utils": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/semantic-web": "workspace:^",
+        "@beep/semver": "workspace:^",
         "@beep/shacl": "workspace:^",
+        "@beep/spdx": "workspace:^",
+        "@beep/toml": "workspace:^",
+        "@beep/tsconfig": "workspace:^",
         "@beep/utils": "workspace:^",
         "@beep/wink": "workspace:^",
+        "@beep/yaml": "workspace:^",
         "@effect/ai-anthropic": "catalog:",
         "@effect/ai-openai": "catalog:",
         "@effect/platform-bun": "catalog:",
@@ -3688,7 +3917,6 @@
     },
   },
   "patchedDependencies": {
-    "onnxruntime-node@1.30.0": "patches/onnxruntime-node@1.30.0.patch",
     "drizzle-orm@1.0.0-rc.5-ab785fc": "patches/drizzle-orm@1.0.0-rc.5-ab785fc.patch",
     "@effect/platform-node-shared@4.0.5": "patches/@effect%2Fplatform-node-shared@4.0.5.patch",
     "@xstate/effect@1.0.0-alpha.8": "patches/@xstate%2Feffect@1.0.0-alpha.8.patch",
@@ -3699,17 +3927,12 @@
     "@modelcontextprotocol/client": "2.3.1",
     "@modelcontextprotocol/server": "2.3.1",
     "@opentelemetry/exporter-trace-otlp-proto": "catalog:",
-    "axios": "1.20.0",
     "basic-ftp": "6.2.1",
     "detailed-xml-validator": "2.1.0",
-    "follow-redirects": "1.16.1",
     "http-cache-semantics": "4.3.0",
     "katex": "^0.18.2",
     "launch-editor": "2.14.2",
     "next": "catalog:",
-    "onnxruntime-node@1.30.0": {
-      "adm-zip": "npm:fflate@0.8.3",
-    },
     "postcss-selector-parser": "^7.1.6",
     "protobufjs": "^7.6.6",
     "sharp": "catalog:",
@@ -3749,7 +3972,7 @@
     "@effect/sql-pglite": "4.0.5",
     "@effect/sql-sqlite-bun": "4.0.5",
     "@effect/sql-sqlite-node": "4.0.5",
-    "@effect/tsgo": "0.53.4",
+    "@effect/tsgo": "0.54.1",
     "@effect/vitest": "4.0.5",
     "@effected/github": "0.21.0",
     "@electric-sql/pglite": "0.5.10",
@@ -3836,7 +4059,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
-    "@types/ws": "^8.18.2",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@typescript/typescript6": "6.0.2",
     "@vercel/analytics": "^2.0.1",
@@ -3898,7 +4120,6 @@
     "n3": "^2.13.12",
     "next": "16.5.0-canary.17",
     "next-themes": "^0.4.6",
-    "onnxruntime-node": "^1.30.0",
     "opentype.js": "2.0.0",
     "oxigraph": "^0.5.12",
     "oxlint": "1.88.0",
@@ -3950,7 +4171,6 @@
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0",
     "wink-nlp-utils": "^2.1.0",
-    "ws": "^8.22.0",
     "xstate": "6.0.0-alpha.69",
     "yaml": "^2.9.1",
   },
@@ -4141,6 +4361,8 @@
 
     "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
+    "@beep/commands": ["@beep/commands@workspace:packages/drivers/commands"],
+
     "@beep/cosmos": ["@beep/cosmos@workspace:packages/drivers/cosmos"],
 
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
@@ -4191,17 +4413,21 @@
 
     "@beep/exiftool": ["@beep/exiftool@workspace:packages/drivers/exiftool"],
 
-    "@beep/face-detection": ["@beep/face-detection@workspace:packages/drivers/face-detection"],
-
     "@beep/fc-runs": ["@beep/fc-runs@workspace:packages/tooling/test-kit/fc-runs"],
 
     "@beep/ffmpeg": ["@beep/ffmpeg@workspace:packages/drivers/ffmpeg"],
 
     "@beep/file-processing": ["@beep/file-processing@workspace:packages/foundation/capability/file-processing"],
 
-    "@beep/firecrawl": ["@beep/firecrawl@workspace:packages/drivers/firecrawl"],
-
     "@beep/freshbooks": ["@beep/freshbooks@workspace:packages/drivers/freshbooks"],
+
+    "@beep/git": ["@beep/git@workspace:packages/drivers/git"],
+
+    "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
+
+    "@beep/github-references": ["@beep/github-references@workspace:packages/foundation/modeling/github-references"],
+
+    "@beep/glob": ["@beep/glob@workspace:packages/foundation/modeling/glob"],
 
     "@beep/gov-legal-mcp": ["@beep/gov-legal-mcp@workspace:packages/drivers/gov-legal-mcp"],
 
@@ -4216,6 +4442,10 @@
     "@beep/identity": ["@beep/identity@workspace:packages/foundation/modeling/identity"],
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
+
+    "@beep/jsonc": ["@beep/jsonc@workspace:packages/foundation/modeling/jsonc"],
+
+    "@beep/jsonl": ["@beep/jsonl@workspace:packages/foundation/modeling/jsonl"],
 
     "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
 
@@ -4239,11 +4469,15 @@
 
     "@beep/m365-mcp": ["@beep/m365-mcp@workspace:packages/drivers/m365-mcp"],
 
+    "@beep/managed-section": ["@beep/managed-section@workspace:packages/foundation/modeling/managed-section"],
+
     "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
 
     "@beep/mcpb-kit": ["@beep/mcpb-kit@workspace:packages/tooling/library/mcpb-kit"],
 
     "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
+
+    "@beep/memfs": ["@beep/memfs@workspace:packages/tooling/test-kit/memfs"],
 
     "@beep/n3": ["@beep/n3@workspace:packages/drivers/n3"],
 
@@ -4252,6 +4486,8 @@
     "@beep/nlp-mcp": ["@beep/nlp-mcp@workspace:packages/drivers/nlp-mcp"],
 
     "@beep/nlp-processing": ["@beep/nlp-processing@workspace:packages/foundation/capability/nlp-processing"],
+
+    "@beep/npm-spec": ["@beep/npm-spec@workspace:packages/foundation/modeling/npm-spec"],
 
     "@beep/obs": ["@beep/obs@workspace:packages/drivers/obs"],
 
@@ -4323,6 +4559,8 @@
 
     "@beep/provenance": ["@beep/provenance@workspace:packages/foundation/modeling/provenance"],
 
+    "@beep/public-site": ["@beep/public-site@workspace:packages/foundation/modeling/public-site"],
+
     "@beep/qa-capture": ["@beep/qa-capture@workspace:packages/tooling/library/qa-capture"],
 
     "@beep/rdf": ["@beep/rdf@workspace:packages/foundation/modeling/rdf"],
@@ -4345,11 +4583,15 @@
 
     "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 
+    "@beep/schema-org": ["@beep/schema-org@workspace:packages/foundation/modeling/schema-org"],
+
     "@beep/scratchpad": ["@beep/scratchpad@workspace:scratchpad"],
 
     "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/foundation/capability/semantic-web"],
 
     "@beep/semantica": ["@beep/semantica@workspace:apps/labs/semantica"],
+
+    "@beep/semver": ["@beep/semver@workspace:packages/foundation/modeling/semver"],
 
     "@beep/shacl": ["@beep/shacl@workspace:packages/drivers/shacl"],
 
@@ -4360,6 +4602,8 @@
     "@beep/shared-use-cases": ["@beep/shared-use-cases@workspace:packages/shared/use-cases"],
 
     "@beep/skill-contract": ["@beep/skill-contract@workspace:packages/foundation/modeling/skill-contract"],
+
+    "@beep/spdx": ["@beep/spdx@workspace:packages/foundation/modeling/spdx"],
 
     "@beep/storybook": ["@beep/storybook@workspace:apps/storybook"],
 
@@ -4379,7 +4623,11 @@
 
     "@beep/todox": ["@beep/todox@workspace:apps/todox"],
 
+    "@beep/toml": ["@beep/toml@workspace:packages/foundation/modeling/toml"],
+
     "@beep/trustgraph-workbench": ["@beep/trustgraph-workbench@workspace:apps/labs/trustgraph-workbench"],
+
+    "@beep/tsconfig": ["@beep/tsconfig@workspace:packages/foundation/modeling/tsconfig"],
 
     "@beep/tsgo-shim": ["@beep/tsgo-shim@workspace:tools/tsgo-shim"],
 
@@ -4393,8 +4641,6 @@
 
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
-    "@beep/venice-ai": ["@beep/venice-ai@workspace:packages/drivers/venice-ai"],
-
     "@beep/windows-secrets": ["@beep/windows-secrets@workspace:packages/drivers/windows-secrets"],
 
     "@beep/wink": ["@beep/wink@workspace:packages/drivers/wink"],
@@ -4407,9 +4653,9 @@
 
     "@beep/workspace-use-cases": ["@beep/workspace-use-cases@workspace:packages/workspace/use-cases"],
 
-    "@beep/xai": ["@beep/xai@workspace:packages/drivers/xai"],
-
     "@beep/xstate": ["@beep/xstate@workspace:packages/drivers/xstate"],
+
+    "@beep/yaml": ["@beep/yaml@workspace:packages/foundation/modeling/yaml"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 
@@ -5095,21 +5341,21 @@
 
     "@effect/sql-sqlite-node": ["@effect/sql-sqlite-node@4.0.5", "", { "peerDependencies": { "effect": "^4.0.5" } }, "sha512-SHza5qNwiI4dRtUk45wvUfvZq7vB950DW2wD6npzt2aH/tesFfPlZJSDBIvwhazoK+gvDknBOONfKyFZsIF+tg=="],
 
-    "@effect/tsgo": ["@effect/tsgo@0.53.4", "", { "optionalDependencies": { "@effect/tsgo-darwin-arm64": "0.53.4", "@effect/tsgo-darwin-x64": "0.53.4", "@effect/tsgo-linux-arm": "0.53.4", "@effect/tsgo-linux-arm64": "0.53.4", "@effect/tsgo-linux-x64": "0.53.4", "@effect/tsgo-win32-arm64": "0.53.4", "@effect/tsgo-win32-x64": "0.53.4" }, "bin": { "effect-tsgo": "dist/effect-tsgo.cjs" } }, "sha512-na/hZYKCzFSNpyw/1Au6YUHTKkz50qImini66w8TaP5/phMfca7gUFscuDdMId13omjiRCNP+8JkXolP8MiQzg=="],
+    "@effect/tsgo": ["@effect/tsgo@0.54.1", "", { "optionalDependencies": { "@effect/tsgo-darwin-arm64": "0.54.1", "@effect/tsgo-darwin-x64": "0.54.1", "@effect/tsgo-linux-arm": "0.54.1", "@effect/tsgo-linux-arm64": "0.54.1", "@effect/tsgo-linux-x64": "0.54.1", "@effect/tsgo-win32-arm64": "0.54.1", "@effect/tsgo-win32-x64": "0.54.1" }, "bin": { "effect-tsgo": "dist/effect-tsgo.cjs" } }, "sha512-X7oGQODYMzAgeuVvOgQnEqDJqnWzn4CIY4ZJxYo8REHaMhCdlS8DXWoBHm3FhFpyAOF/8qrbqrY9hakx+pNGDg=="],
 
-    "@effect/tsgo-darwin-arm64": ["@effect/tsgo-darwin-arm64@0.53.4", "", { "os": "darwin", "cpu": "arm64" }, "sha512-NVU043pBMzheL+IYoG13emaYqZTzrTGwhLZ2tXScqLCBWPwXc0SB1zt038v4/WW3aHF+MbIHwTKTPi/bcpwo5g=="],
+    "@effect/tsgo-darwin-arm64": ["@effect/tsgo-darwin-arm64@0.54.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-eVLYXfsik3FTO24dBoXZN/KVYPYVM36Kc18hXM/3y6ixNdaxVnqzNqFyLlAuNdgse6skBXjeZq1V+XyShcl+7Q=="],
 
-    "@effect/tsgo-darwin-x64": ["@effect/tsgo-darwin-x64@0.53.4", "", { "os": "darwin", "cpu": "x64" }, "sha512-H5BsZfHJjIcT4zxF0xqCvAQ+RNxc65iQL6iODxrSJlOK6a/40s4W4b+dDBTx81OS4wz9wbWu5NTXcU0xKajCGg=="],
+    "@effect/tsgo-darwin-x64": ["@effect/tsgo-darwin-x64@0.54.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-RPB1eSzsldpAeg5cVnxhqwrDLppYLRNPZQICv/cHG/I8vIngf/O7/UqyxlTDueySGo6eV8DqGDBwbYiXUT+z6Q=="],
 
-    "@effect/tsgo-linux-arm": ["@effect/tsgo-linux-arm@0.53.4", "", { "os": "linux", "cpu": "arm" }, "sha512-H4WoEIq+Md1CMiQos8XTqPO4whKQEegoy9iVc3BFr2fHIjWetyEKhalQlPyEfbz6r++8KxLTAbwNaOhcSsowvg=="],
+    "@effect/tsgo-linux-arm": ["@effect/tsgo-linux-arm@0.54.1", "", { "os": "linux", "cpu": "arm" }, "sha512-IyYRagBLRjdcDq25aRVlk28RkS0ve5OfwoDMXg1OsLKjkfqKK+JDjUx1OlZsfoUTDIFx7BypYqvSYAdYVLDvcw=="],
 
-    "@effect/tsgo-linux-arm64": ["@effect/tsgo-linux-arm64@0.53.4", "", { "os": "linux", "cpu": "arm64" }, "sha512-qyhFV2TMM+7a+W2PiciBqzZQ2m9nf6x3ruMFVgXp7g+GaNK5gNLalXbgoDbhFq7hdM2QPxMJpf8xCsoq1n83eQ=="],
+    "@effect/tsgo-linux-arm64": ["@effect/tsgo-linux-arm64@0.54.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-S8gew1K70C8cbBHlAJ6L999Ca6UyOenaAJPnlc0dtvyi+7mRlA0GSM0ITUW62+dL0Y2ZanCB6L1d6CAgFd0Kdg=="],
 
-    "@effect/tsgo-linux-x64": ["@effect/tsgo-linux-x64@0.53.4", "", { "os": "linux", "cpu": "x64" }, "sha512-J4uK3C/DP82/8F2lLVy7YgVvMZLgXGwB/C3mHX0p+QFqXbKVEMoDgMen2j59cI00UJACfM5HkO4W6fmBN74Jtg=="],
+    "@effect/tsgo-linux-x64": ["@effect/tsgo-linux-x64@0.54.1", "", { "os": "linux", "cpu": "x64" }, "sha512-jWMxNGmkZ6MKNhtTc7H90TK6f3rZAYTeKy+erEsmi6q+rVecvE8wgxmIJTvh+aEYS7HEw3+1q2UmsfEtBBR+yQ=="],
 
-    "@effect/tsgo-win32-arm64": ["@effect/tsgo-win32-arm64@0.53.4", "", { "os": "win32", "cpu": "arm64" }, "sha512-x/N1L4ftE8YQkuUGGLDSCCEMVchjCnUxc4h0133a5KwJx0R7/elUssER5vKzgr6qtptNL7Gi45UdhZTMYWU0bQ=="],
+    "@effect/tsgo-win32-arm64": ["@effect/tsgo-win32-arm64@0.54.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-0YAdScXZ944fH0BGULC8l6ZpGhXhX/RNv8LJWo7FW69QJ6q83QBF5aNOJnNmHKZko1TKAAtnoALDYX4GF7c4xQ=="],
 
-    "@effect/tsgo-win32-x64": ["@effect/tsgo-win32-x64@0.53.4", "", { "os": "win32", "cpu": "x64" }, "sha512-JhGPuxARi/U0ZB0iKVOsh3HvVhHvQ3cc3XisRo4Fn8ff4VsEeWOZ5/nvhNNvTc22qCzv9l4Yx6D+FFoIt4JgPw=="],
+    "@effect/tsgo-win32-x64": ["@effect/tsgo-win32-x64@0.54.1", "", { "os": "win32", "cpu": "x64" }, "sha512-/BWavNrNQlH/Amn7cmO/xYEeKVc9Ir9PwAfQKy08V9Wt5a5iRE4FBVR2zHa1EEblkgJh4OjwV+S/q2eiymOMEw=="],
 
     "@effect/vitest": ["@effect/vitest@4.0.5", "", { "peerDependencies": { "effect": "^4.0.5", "vitest": ">=5.0.0 <6.0.0" } }, "sha512-q64paZ/i4V2NiRhTyqCmT2KiDbFjlxc2EZrZca8GGt+Nf8844946HyJM5bPk/q+YeRkFSxIrlCs+J+LSfky/wA=="],
 
@@ -6443,8 +6689,6 @@
 
     "acorn-walk": ["acorn-walk@8.3.5", "", { "dependencies": { "acorn": "^8.11.0" } }, "sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw=="],
 
-    "adm-zip": ["fflate@0.8.3", "", {}, "sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA=="],
-
     "agent-base": ["agent-base@7.1.4", "", {}, "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ=="],
 
     "agent-install": ["agent-install@0.0.6", "", { "dependencies": { "@iarna/toml": "^2.2.5", "commander": "^14.0.0", "jsonc-parser": "^3.3.1", "picocolors": "^1.1.1", "prompts": "^2.4.2", "yaml": "^2.8.3" }, "bin": { "agent-install": "bin/agent-install.mjs" } }, "sha512-7NRMZ/ZDz2vHevQTgJsocBFpakB1/Wx5ip19YSJuj4VOXpraWztTerViNtdSyARKZT9e2yVwUUB5JXXCE7mNrA=="],
@@ -6516,8 +6760,6 @@
     "autolinker": ["autolinker@0.28.1", "", { "dependencies": { "gulp-header": "^1.7.1" } }, "sha512-zQAFO1Dlsn69eXaO6+7YZc+v84aquQKbwpzCE3L0stj56ERn9hutFxPopViLjo9G+rWwjozRhgS5KJ25Xy19cQ=="],
 
     "axe-core": ["axe-core@4.13.0", "", {}, "sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A=="],
-
-    "axios": ["axios@1.20.0", "", { "dependencies": { "follow-redirects": "^1.16.0", "form-data": "^4.0.6", "https-proxy-agent": "^5.0.1", "proxy-from-env": "^2.1.0" } }, "sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg=="],
 
     "b4a": ["b4a@1.8.1", "", { "peerDependencies": { "react-native-b4a": "*" }, "optionalPeers": ["react-native-b4a"] }, "sha512-aiqre1Nr0B/6DgE2N5vwTc+2/oQZ4Wh1t4NznYY4E00y8LCt6NqdRv81so00oo27D8MVKTpUa/MwUUtBLXCoDw=="],
 
@@ -6857,11 +7099,7 @@
 
     "default-browser-id": ["default-browser-id@5.0.1", "", {}, "sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q=="],
 
-    "define-data-property": ["define-data-property@1.1.4", "", { "dependencies": { "es-define-property": "^1.0.0", "es-errors": "^1.3.0", "gopd": "^1.0.1" } }, "sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A=="],
-
     "define-lazy-prop": ["define-lazy-prop@3.0.0", "", {}, "sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg=="],
-
-    "define-properties": ["define-properties@1.2.1", "", { "dependencies": { "define-data-property": "^1.0.1", "has-property-descriptors": "^1.0.0", "object-keys": "^1.1.1" } }, "sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg=="],
 
     "degenerator": ["degenerator@5.0.1", "", { "dependencies": { "ast-types": "^0.13.4", "escodegen": "^2.1.0", "esprima": "^4.0.1" } }, "sha512-TllpMR/t0M5sqCXfj85i4XaAzxmS5tVA16dqvdkMwGmzI+dXLXnw3J+3Vdv7VKw+ThlTMboK6i9rnZ6Nntj5CQ=="],
 
@@ -7111,8 +7349,6 @@
 
     "find-up": ["find-up@5.0.0", "", { "dependencies": { "locate-path": "^6.0.0", "path-exists": "^4.0.0" } }, "sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng=="],
 
-    "firecrawl": ["firecrawl@4.37.0", "", { "dependencies": { "axios": "1.18.0", "typescript-event-target": "^1.1.1", "zod": "^3.23.8", "zod-to-json-schema": "^3.23.0" } }, "sha512-PzhqZRIu/mOgHebXhhj3+ZZ201Euugsvb6bynggNNCPqnzDVlJJmxZBocw+Uhhx5HlObTKqy0GLGbFfc6pIqSw=="],
-
     "flatbuffers": ["flatbuffers@25.9.23", "", {}, "sha512-MI1qs7Lo4Syw0EOzUl0xjs2lsoeqFku44KpngfIduHBYvzm8h2+7K8YMQh1JtVVVrUvhLpNwqVi4DERegUJhPQ=="],
 
     "flatbush": ["flatbush@4.6.2", "", { "dependencies": { "flatqueue": "^3.1.0" } }, "sha512-nNT7MFJ58Q4IAm3aYsEg+zgZGpdRcmR1i4U+aa8c+r91jmYZg7FTQwNnIMC0FyBqVZTbClKdAnrJkKkfp1BOvw=="],
@@ -7124,8 +7360,6 @@
     "flru": ["flru@1.0.2", "", {}, "sha512-kWyh8ADvHBFz6ua5xYOPnUroZTT/bwWfrCeL0Wj1dzG4/YOmOcfJ99W8dOVyyynJN35rZ9aCOtHChqQovV7yog=="],
 
     "fn.name": ["fn.name@1.1.0", "", {}, "sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw=="],
-
-    "follow-redirects": ["follow-redirects@1.16.1", "", { "peerDependencies": { "debug": "*" }, "optionalPeers": ["debug"] }, "sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg=="],
 
     "for-in": ["for-in@1.0.2", "", {}, "sha512-7EwmXrOjyL+ChxMhmG5lnW9MPt1aIeZEwKhQzoBUdTV0N3zuwWDZYVJatDvZ2OyzPUvdIAZDsCetk3coyMfcnQ=="],
 
@@ -7191,11 +7425,7 @@
 
     "glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "^4.0.1" } }, "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow=="],
 
-    "global-agent": ["global-agent@4.1.3", "", { "dependencies": { "globalthis": "^1.0.2", "matcher": "^4.0.0", "semver": "^7.3.5", "serialize-error": "^8.1.0" } }, "sha512-KUJEViiuFT3I97t+GYMikLPJS2Lfo/S2F+DQuBWzuzaMPnvt5yyZePzArx36fBzpGTxZjIpDbXLeySLgh+k76g=="],
-
     "global-directory": ["global-directory@5.0.0", "", { "dependencies": { "ini": "6.0.0" } }, "sha512-1pgFdhK3J2LeM+dVf2Pd424yHx2ou338lC0ErNP2hPx4j8eW1Sp0XqSjNxtk6Tc4Kr5wlWtSvz8cn2yb7/SG/w=="],
-
-    "globalthis": ["globalthis@1.0.4", "", { "dependencies": { "define-properties": "^1.2.1", "gopd": "^1.0.1" } }, "sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ=="],
 
     "glsl-noise": ["glsl-noise@0.0.0", "", {}, "sha512-b/ZCF6amfAUb7dJM/MxRs7AetQEahYzJ8PtgfrmEdtw6uyGOr+ZSGtgjFm6mfsBkxJ4d2W7kg+Nlqzqvn3Bc0w=="],
 
@@ -7234,8 +7464,6 @@
     "happy-dom": ["happy-dom@20.11.15", "", { "dependencies": { "@types/node": ">=20.0.0", "@types/whatwg-mimetype": "^3.0.2", "@types/ws": "^8.18.1", "buffer-image-size": "^0.6.4", "entities": "^7.0.1", "whatwg-mimetype": "^3.0.0", "ws": "^8.21.0" } }, "sha512-bj2gQIKzOYB6GAAJ/jrN/IFHQe79MhEOiMAspRRWiKebRoegvGDv2B6eUt8KiZMTEDvx6ri0fAF7Xh/umAUUZA=="],
 
     "has-flag": ["has-flag@4.0.0", "", {}, "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ=="],
-
-    "has-property-descriptors": ["has-property-descriptors@1.0.2", "", { "dependencies": { "es-define-property": "^1.0.0" } }, "sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg=="],
 
     "has-symbols": ["has-symbols@1.1.0", "", {}, "sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ=="],
 
@@ -7605,8 +7833,6 @@
 
     "marked": ["marked@16.4.2", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA=="],
 
-    "matcher": ["matcher@4.0.0", "", { "dependencies": { "escape-string-regexp": "^4.0.0" } }, "sha512-S6x5wmcDmsDRRU/c2dkccDwQPXoFczc5+HpQ2lON8pnvHlnvHAHj5WlLVvw6n6vNyHuVugYrFohYxbS+pvFpKQ=="],
-
     "math-intrinsics": ["math-intrinsics@1.1.0", "", {}, "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="],
 
     "math-random": ["math-random@1.0.4", "", {}, "sha512-rUxjysqif/BZQH2yhd5Aaq7vXMSx9NdEsQcyA07uEzIvxgI7zIr33gGsh+RU0/XjmQpCW7RsVof1vlkvQVCK5A=="],
@@ -7845,8 +8071,6 @@
 
     "object-inspect": ["object-inspect@1.13.4", "", {}, "sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew=="],
 
-    "object-keys": ["object-keys@1.1.1", "", {}, "sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA=="],
-
     "object-treeify": ["object-treeify@1.1.33", "", {}, "sha512-EFVjAYfzWqWsBMRHPMAXLCDIJnpMhdWAqR7xG6M6a2cs6PMFpl/+Z20w9zDW4vkxOFfddegBKq9Rehd0bxWE7A=="],
 
     "object.pick": ["object.pick@1.3.0", "", { "dependencies": { "isobject": "^3.0.1" } }, "sha512-tqa/UMy/CCoYmj+H5qc07qvSL9dqcs/WZENZ1JbtWBlATP+iVOe778gE6MSijnyCnORzDuX6hU+LA4SZ09YjFQ=="],
@@ -7863,9 +8087,9 @@
 
     "onnx-proto": ["onnx-proto@4.0.4", "", { "dependencies": { "protobufjs": "^6.8.8" } }, "sha512-aldMOB3HRoo6q/phyB6QRQxSt895HNNw82BNyZ2CMh4bjeKv7g/c+VpAFtJuEMVfYLMbRx61hbuqnKceLeDcDA=="],
 
-    "onnxruntime-common": ["onnxruntime-common@1.30.0", "", {}, "sha512-7fdVWjAID1dVhH/G8qK3APARunV4VkBFoCQAP7qp4Wkab0mrorvmc+sqiT+mKXOzDqdjN5j+/Z9nb4gzNPWcyA=="],
+    "onnxruntime-common": ["onnxruntime-common@1.14.0", "", {}, "sha512-3LJpegM2iMNRX2wUmtYfeX/ytfOzNwAWKSq1HbRrKc9+uqG/FsEA0bbKZl1btQeZaXhC26l44NWpNUeXPII7Ew=="],
 
-    "onnxruntime-node": ["onnxruntime-node@1.30.0", "", { "dependencies": { "adm-zip": "^0.6.0", "global-agent": "^4.1.3", "onnxruntime-common": "1.30.0" }, "os": [ "linux", "win32", "darwin", ] }, "sha512-twhs1C2C/BFkz1yc5OY0KIU2GUq6DURO7hD4bx5Q2Qy3nAMJwRXW8xU3NVczE29VA9lolLOYepoD8fjTGOfIqw=="],
+    "onnxruntime-node": ["onnxruntime-node@1.14.0", "", { "dependencies": { "onnxruntime-common": "~1.14.0" }, "os": [ "linux", "win32", "darwin", ] }, "sha512-5ba7TWomIV/9b6NH/1x/8QEeowsb+jBEvFzU6z0T4mNsFwdPqXeFUM7uxC6QeSRkEbWu3qEB0VMjrvzN/0S9+w=="],
 
     "onnxruntime-web": ["onnxruntime-web@1.14.0", "", { "dependencies": { "flatbuffers": "^1.12.0", "guid-typescript": "^1.0.9", "long": "^4.0.0", "onnx-proto": "^4.0.4", "onnxruntime-common": "~1.14.0", "platform": "^1.3.6" } }, "sha512-Kcqf43UMfW8mCydVGcX9OMXI2VN17c0p6XvR7IPSZzBf/6lteBzXHvcEVWDPmCKuGombl997HgLqj91F11DzXw=="],
 
@@ -8249,8 +8473,6 @@
 
     "send": ["send@1.2.1", "", { "dependencies": { "debug": "^4.4.3", "encodeurl": "^2.0.0", "escape-html": "^1.0.3", "etag": "^1.8.1", "fresh": "^2.0.0", "http-errors": "^2.0.1", "mime-types": "^3.0.2", "ms": "^2.1.3", "on-finished": "^2.4.1", "range-parser": "^1.2.1", "statuses": "^2.0.2" } }, "sha512-1gnZf7DFcoIcajTjTwjwuDjzuz4PPcY2StKPlsGAQ1+YH20IRVrBaXSWmdjowTJ6u8Rc01PoYOGHXfP1mYcZNQ=="],
 
-    "serialize-error": ["serialize-error@8.1.0", "", { "dependencies": { "type-fest": "^0.20.2" } }, "sha512-3NnuWfM6vBYoy5gZFvHiYsVbafvI9vZv/+jlIigFn4oP4zjNPK3LhcY0xSCgeb1a5L8jO71Mit9LlNoi2UfDDQ=="],
-
     "serve-static": ["serve-static@2.2.1", "", { "dependencies": { "encodeurl": "^2.0.0", "escape-html": "^1.0.3", "parseurl": "^1.3.3", "send": "^1.2.0" } }, "sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw=="],
 
     "serwist": ["serwist@9.5.13", "", { "dependencies": { "@serwist/utils": "9.5.13", "idb": "8.0.3" }, "peerDependencies": { "typescript": ">=5.0.0" }, "optionalPeers": ["typescript"] }, "sha512-ZpskCei2d5Zcljeb6QvYP94pV5xY3GCdbOk0hOzMSEPFOqJDwJvMpQq7i1r/psuR1WQCsKX6p7UpLle6sTPYjw=="],
@@ -8576,8 +8798,6 @@
     "typedarray": ["typedarray@0.0.6", "", {}, "sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA=="],
 
     "typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
-
-    "typescript-event-target": ["typescript-event-target@1.1.2", "", {}, "sha512-TvkrTUpv7gCPlcnSoEwUVUBwsdheKm+HF5u2tPAKubkIGMfovdSizCTaZRY/NhR8+Ijy8iZZUapbVQAsNrkFrw=="],
 
     "uglify-js": ["uglify-js@3.19.3", "", { "bin": { "uglifyjs": "bin/uglifyjs" } }, "sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ=="],
 
@@ -9115,8 +9335,6 @@
 
     "@wyw-in-js/transform/minimatch": ["minimatch@9.0.9", "", { "dependencies": { "brace-expansion": "^2.0.2" } }, "sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg=="],
 
-    "@xenova/transformers/onnxruntime-node": ["onnxruntime-node@1.14.0", "", { "dependencies": { "onnxruntime-common": "~1.14.0" }, "os": [ "linux", "win32", "darwin", ] }, "sha512-5ba7TWomIV/9b6NH/1x/8QEeowsb+jBEvFzU6z0T4mNsFwdPqXeFUM7uxC6QeSRkEbWu3qEB0VMjrvzN/0S9+w=="],
-
     "accepts/mime-types": ["mime-types@3.0.2", "", { "dependencies": { "mime-db": "^1.54.0" } }, "sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A=="],
 
     "ajv-formats/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
@@ -9124,10 +9342,6 @@
     "apache-arrow/@types/node": ["@types/node@25.9.9", "", { "dependencies": { "undici-types": ">=7.24.0 <7.24.7" } }, "sha512-b4e2xxj/yMeT2hNlD6x7zNFiQK2Dlmkb9CQ6v3/1G2RezKN4YS2lcEv8lzGm1mhs4f2lM4yNAMI/zUDBZBBt7w=="],
 
     "archiver-utils/glob": ["glob@10.5.0", "", { "dependencies": { "foreground-child": "^3.1.0", "jackspeak": "^3.1.2", "minimatch": "^9.0.4", "minipass": "^7.1.2", "package-json-from-dist": "^1.0.0", "path-scurry": "^1.11.1" }, "bin": { "glob": "dist/esm/bin.mjs" } }, "sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg=="],
-
-    "axios/https-proxy-agent": ["https-proxy-agent@5.0.1", "", { "dependencies": { "agent-base": "6", "debug": "4" } }, "sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA=="],
-
-    "axios/proxy-from-env": ["proxy-from-env@2.1.0", "", {}, "sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA=="],
 
     "babel-plugin-macros/cosmiconfig": ["cosmiconfig@7.1.0", "", { "dependencies": { "@types/parse-json": "^4.0.0", "import-fresh": "^3.2.1", "parse-json": "^5.0.0", "path-type": "^4.0.0", "yaml": "^1.10.0" } }, "sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA=="],
 
@@ -9216,8 +9430,6 @@
     "eyereasoner/@rdfjs/types": ["@rdfjs/types@1.1.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-wqpOJK1QCbmsGNtyzYnojPU8gRDPid2JO0Q0kMtb4j65xhCK880cnKAfEOwC+dX85VJcCByQx5zOwyyfCjDJsg=="],
 
     "fill-range/isobject": ["isobject@2.1.0", "", { "dependencies": { "isarray": "1.0.0" } }, "sha512-+OUdGJlgjOBZDfxnDjYYG6zp487z0JGNQq3cYQYg5f5hKR+syHMsaztzGeml/4kGG55CSpKSpWTY+jYGgsHLgA=="],
-
-    "firecrawl/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "foreground-child/signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 
@@ -9339,8 +9551,6 @@
 
     "onnxruntime-web/long": ["long@4.0.0", "", {}, "sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA=="],
 
-    "onnxruntime-web/onnxruntime-common": ["onnxruntime-common@1.14.0", "", {}, "sha512-3LJpegM2iMNRX2wUmtYfeX/ytfOzNwAWKSq1HbRrKc9+uqG/FsEA0bbKZl1btQeZaXhC26l44NWpNUeXPII7Ew=="],
-
     "open/wsl-utils": ["wsl-utils@0.1.0", "", { "dependencies": { "is-wsl": "^3.1.0" } }, "sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw=="],
 
     "ora/cli-cursor": ["cli-cursor@5.0.0", "", { "dependencies": { "restore-cursor": "^5.0.0" } }, "sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw=="],
@@ -9444,8 +9654,6 @@
     "router/is-promise": ["is-promise@4.0.0", "", {}, "sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ=="],
 
     "send/mime-types": ["mime-types@3.0.2", "", { "dependencies": { "mime-db": "^1.54.0" } }, "sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A=="],
-
-    "serialize-error/type-fest": ["type-fest@0.20.2", "", {}, "sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ=="],
 
     "shaclc-parse/n3": ["n3@1.26.0", "", { "dependencies": { "buffer": "^6.0.3", "readable-stream": "^4.0.0" } }, "sha512-SQknS0ua90rN+3RHuk8BeIqeYyqIH/+ecViZxX08jR4j6MugqWRjtONl3uANG/crWXnOM2WIqBJtjIhVYFha+w=="],
 
@@ -9949,8 +10157,6 @@
 
     "@wyw-in-js/transform/minimatch/brace-expansion": ["brace-expansion@2.1.7", "", { "dependencies": { "balanced-match": "^1.0.0" } }, "sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g=="],
 
-    "@xenova/transformers/onnxruntime-node/onnxruntime-common": ["onnxruntime-common@1.14.0", "", {}, "sha512-3LJpegM2iMNRX2wUmtYfeX/ytfOzNwAWKSq1HbRrKc9+uqG/FsEA0bbKZl1btQeZaXhC26l44NWpNUeXPII7Ew=="],
-
     "accepts/mime-types/mime-db": ["mime-db@1.54.0", "", {}, "sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ=="],
 
     "apache-arrow/@types/node/undici-types": ["undici-types@7.24.6", "", {}, "sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg=="],
@@ -9958,8 +10164,6 @@
     "archiver-utils/glob/minimatch": ["minimatch@9.0.9", "", { "dependencies": { "brace-expansion": "^2.0.2" } }, "sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg=="],
 
     "archiver-utils/glob/path-scurry": ["path-scurry@1.11.1", "", { "dependencies": { "lru-cache": "^10.2.0", "minipass": "^5.0.0 || ^6.0.2 || ^7.0.0" } }, "sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA=="],
-
-    "axios/https-proxy-agent/agent-base": ["agent-base@6.0.2", "", { "dependencies": { "debug": "4" } }, "sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ=="],
 
     "babel-plugin-macros/cosmiconfig/yaml": ["yaml@1.10.3", "", {}, "sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA=="],
 

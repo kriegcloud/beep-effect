@@ -17,8 +17,8 @@
 // looked at.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { JsoncPath, JsoncStringifyError } from "../jsonc/index.ts";
-import { JsoncEdit, JsoncModifier } from "../jsonc/index.ts";
+import type { JsoncPath, JsoncStringifyError } from "@beep/jsonc";
+import { JsoncEdit, JsoncModifier } from "@beep/jsonc";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";

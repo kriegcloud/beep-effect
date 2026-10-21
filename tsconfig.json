@@ -191,10 +191,6 @@
         "./packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
       "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
-      "@beep/face-detection": [
-        "./packages/drivers/face-detection/src/index.ts"
-      ],
-      "@beep/face-detection/*": ["./packages/drivers/face-detection/src/*"],
       "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
       "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
@@ -342,8 +338,6 @@
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
       "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
-      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
-      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
       "@beep/repo-ai-metrics": [
         "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
@@ -737,9 +731,6 @@
       ],
       "@beep/acp/rpc": ["./packages/drivers/acp/src/AcpRpc.models.ts"],
       "@beep/acp/schema": ["./packages/drivers/acp/src/Acp.models.ts"],
-      "@beep/acp/terminal": [
-        "./packages/drivers/acp/src/AcpTerminal.models.ts"
-      ],
       "@beep/postgres/client": [
         "./packages/drivers/postgres/src/PostgresClient.service.ts"
       ],
@@ -904,8 +895,6 @@
       "@beep/repo-cli/commands/Yeet": [
         "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
       ],
-      "@beep/firecrawl": ["./packages/drivers/firecrawl/src/index.ts"],
-      "@beep/firecrawl/*": ["./packages/drivers/firecrawl/src/*"],
       "@beep/rdf": ["./packages/foundation/modeling/rdf/src/index.ts"],
       "@beep/rdf/*": ["./packages/foundation/modeling/rdf/src/*"],
       "@beep/repo-cli/commands/Fallow": [
@@ -1953,9 +1942,6 @@
       ],
       "@beep/freshbooks": ["./packages/drivers/freshbooks/src/index.ts"],
       "@beep/freshbooks/*": ["./packages/drivers/freshbooks/src/*"],
-      "@beep/test-utils/MemoryFileSystem": [
-        "./packages/tooling/test-kit/test-utils/src/MemoryFileSystem/index.ts"
-      ],
       "@beep/repo-configs/cache": [
         "./packages/tooling/policy-pack/repo-configs/src/cache/index.ts"
       ],
@@ -2165,7 +2151,110 @@
       "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
       "@beep/windows-secrets/internal/*": [
         "./packages/drivers/windows-secrets/src/internal/*"
-      ]
+      ],
+      "@beep/duckdb/DuckDbClient": [
+        "./packages/drivers/duckdb/src/DuckDbClient.service.ts"
+      ],
+      "@beep/duckdb/DuckDbMigrator": [
+        "./packages/drivers/duckdb/src/DuckDbMigrator.service.ts"
+      ],
+      "@beep/commands": ["./packages/drivers/commands/src/index.ts"],
+      "@beep/commands/*": ["./packages/drivers/commands/src/*"],
+      "@beep/commands/internal/*": [
+        "./packages/drivers/commands/src/internal/*"
+      ],
+      "@beep/github-commands": [
+        "./packages/foundation/modeling/github-commands/src/index.ts"
+      ],
+      "@beep/github-commands/*": [
+        "./packages/foundation/modeling/github-commands/src/*"
+      ],
+      "@beep/github-references": [
+        "./packages/foundation/modeling/github-references/src/index.ts"
+      ],
+      "@beep/github-references/*": [
+        "./packages/foundation/modeling/github-references/src/*"
+      ],
+      "@beep/jsonc": ["./packages/foundation/modeling/jsonc/src/index.ts"],
+      "@beep/jsonc/*": ["./packages/foundation/modeling/jsonc/src/*"],
+      "@beep/jsonc/internal/*": [
+        "./packages/foundation/modeling/jsonc/src/internal/*"
+      ],
+      "@beep/jsonl": ["./packages/foundation/modeling/jsonl/src/index.ts"],
+      "@beep/jsonl/*": ["./packages/foundation/modeling/jsonl/src/*"],
+      "@beep/jsonl/internal/*": [
+        "./packages/foundation/modeling/jsonl/src/internal/*"
+      ],
+      "@beep/schema-org": [
+        "./packages/foundation/modeling/schema-org/src/index.ts"
+      ],
+      "@beep/schema-org/*": ["./packages/foundation/modeling/schema-org/src/*"],
+      "@beep/schema-org/internal/*": [
+        "./packages/foundation/modeling/schema-org/src/internal/*"
+      ],
+      "@beep/semver": ["./packages/foundation/modeling/semver/src/index.ts"],
+      "@beep/semver/*": ["./packages/foundation/modeling/semver/src/*"],
+      "@beep/semver/internal/*": [
+        "./packages/foundation/modeling/semver/src/internal/*"
+      ],
+      "@beep/spdx": ["./packages/foundation/modeling/spdx/src/index.ts"],
+      "@beep/spdx/*": ["./packages/foundation/modeling/spdx/src/*"],
+      "@beep/spdx/internal/*": [
+        "./packages/foundation/modeling/spdx/src/internal/*"
+      ],
+      "@beep/acp/compat": ["./packages/drivers/acp/src/AcpCompat.models.ts"],
+      "@beep/acp/internal/*": ["./packages/drivers/acp/src/internal/*"],
+      "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"],
+      "@beep/public-site": [
+        "./packages/foundation/modeling/public-site/src/index.ts"
+      ],
+      "@beep/public-site/*": [
+        "./packages/foundation/modeling/public-site/src/*"
+      ],
+      "@beep/git": ["./packages/drivers/git/src/index.ts"],
+      "@beep/git/*": ["./packages/drivers/git/src/*"],
+      "@beep/git/internal/*": ["./packages/drivers/git/src/internal/*"],
+      "@beep/glob": ["./packages/foundation/modeling/glob/src/index.ts"],
+      "@beep/glob/*": ["./packages/foundation/modeling/glob/src/*"],
+      "@beep/glob/internal/*": [
+        "./packages/foundation/modeling/glob/src/internal/*"
+      ],
+      "@beep/managed-section": [
+        "./packages/foundation/modeling/managed-section/src/index.ts"
+      ],
+      "@beep/managed-section/*": [
+        "./packages/foundation/modeling/managed-section/src/*"
+      ],
+      "@beep/managed-section/internal/*": [
+        "./packages/foundation/modeling/managed-section/src/internal/*"
+      ],
+      "@beep/memfs": ["./packages/tooling/test-kit/memfs/src/index.ts"],
+      "@beep/memfs/*": ["./packages/tooling/test-kit/memfs/src/*"],
+      "@beep/memfs/internal/*": [
+        "./packages/tooling/test-kit/memfs/src/internal/*"
+      ],
+      "@beep/toml": ["./packages/foundation/modeling/toml/src/index.ts"],
+      "@beep/toml/*": ["./packages/foundation/modeling/toml/src/*"],
+      "@beep/toml/internal/*": [
+        "./packages/foundation/modeling/toml/src/internal/*"
+      ],
+      "@beep/yaml": ["./packages/foundation/modeling/yaml/src/index.ts"],
+      "@beep/yaml/*": ["./packages/foundation/modeling/yaml/src/*"],
+      "@beep/yaml/internal/*": [
+        "./packages/foundation/modeling/yaml/src/internal/*"
+      ],
+      "@beep/acp/stderr": ["./packages/drivers/acp/src/AcpStderr.models.ts"],
+      "@beep/acp/terminals": [
+        "./packages/drivers/acp/src/AcpClientTerminals.service.ts"
+      ],
+      "@beep/npm-spec": [
+        "./packages/foundation/modeling/npm-spec/src/index.ts"
+      ],
+      "@beep/npm-spec/*": ["./packages/foundation/modeling/npm-spec/src/*"],
+      "@beep/tsconfig": [
+        "./packages/foundation/modeling/tsconfig/src/index.ts"
+      ],
+      "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"]
     }
   }
 }

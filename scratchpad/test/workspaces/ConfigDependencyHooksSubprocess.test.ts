@@ -22,8 +22,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
-import { CatalogAssemblyError } from "../../effected/npm/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
@@ -35,7 +35,7 @@ import { ConfigDependencyHooks } from "../../effected/workspaces/index.ts";
 
 const ManifestText = S.fromJsonString(S.Struct({ name: S.String, version: S.String }));
 const ReplayText = S.fromJsonString(S.Struct({
-	ok: S.Literal(true),
+	ok: S.tag(true),
 	config: S.Struct({
 		catalog: S.Record(S.String, S.String),
 		catalogs: S.Record(S.String, S.Record(S.String, S.String)),

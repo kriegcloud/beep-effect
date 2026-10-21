@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   assertExclusiveModeFlags,
   checkGeneratedFile,
@@ -7,7 +8,6 @@ import {
   writeArtifact,
   writeGeneratedFile,
 } from "@beep/repo-cli/test/Artifacts";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -30,7 +30,7 @@ const withTempDir = Effect.fn("withTempDir")(function* <A, E, R>(use: (dir: stri
   return yield* use(dir);
 });
 
-const ExampleDocument = S.Struct({ schema_version: S.Literal(1), total: S.Finite });
+const ExampleDocument = S.Struct({ schema_version: S.tag(1), total: S.Finite });
 
 describe("internal/artifacts/ArtifactIo formatJsonc", () => {
   it.effect(

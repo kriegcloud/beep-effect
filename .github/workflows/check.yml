@@ -1083,21 +1083,15 @@ jobs:
           filter: blob:none
           persist-credentials: false
 
-      - name: Setup Bun for installer mitigation proof
+      # The hosted settings policy step below runs `bun run beep ci ...`.
+      - name: Setup Bun for hosted settings policy
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: .bun-version
           no-cache: "true"
 
-      - name: Setup Node.js for installer mitigation proof
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: .nvmrc
-
-      - name: Verify owning-package ONNX installer regression before the OSV exception
-        run: |
-          bun install --frozen-lockfile --ignore-scripts
-          bun x --no-install vitest run --root packages/drivers/face-detection test/OnnxRuntimeInstall.test.ts
+      - name: Install dependencies for hosted settings policy
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: OSV vulnerability scan
         uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0

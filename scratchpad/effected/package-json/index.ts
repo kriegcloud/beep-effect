@@ -29,15 +29,15 @@
  * @packageDocumentation
  */
 
-export { JsoncEdit, type JsoncPath } from "../jsonc/index.ts";
+export { JsoncEdit, type JsoncPath } from "@beep/jsonc";
+export { type DependencyKind } from "@beep/npm-spec/DependencySection";
 export {
-	type DependencyKind,
 	type DependencyProtocol,
 	DependencySpecifier,
 	type DependencySpecifierBrand,
 	InvalidDependencySpecifierError,
 	isValidDependencySpecifier,
-} from "../npm/index.ts";
+} from "@beep/npm-spec/DependencySpecifier";
 export { Dependency, type UnresolvedDependency, isUnresolvedDependency } from "./Dependency.ts";
 export { DevEngine, DevEngineOrArray, type DevEngines, DevEnginesSchema } from "./DevEngines.ts";
 export {

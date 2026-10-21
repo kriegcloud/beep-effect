@@ -202,12 +202,8 @@
         "packages/drivers/duckdb/src/**",
         "packages/drivers/exiftool/package.json",
         "packages/drivers/exiftool/src/**",
-        "packages/drivers/face-detection/package.json",
-        "packages/drivers/face-detection/src/**",
         "packages/drivers/ffmpeg/package.json",
         "packages/drivers/ffmpeg/src/**",
-        "packages/drivers/firecrawl/package.json",
-        "packages/drivers/firecrawl/src/**",
         "packages/drivers/libpff/package.json",
         "packages/drivers/libpff/src/**",
         "packages/drivers/m365/package.json",
@@ -428,13 +424,7 @@
     "test:integration": {
       "cache": false,
       "dependsOn": ["^build"],
-      "env": [
-        "AI_VENICE_API_KEY",
-        "BEEP_TEST_*",
-        "BEEP_TIKA_*",
-        "CLOUD_BOX_TOKEN",
-        "FIRECRAWL_API_KEY"
-      ],
+      "env": ["BEEP_TEST_*", "BEEP_TIKA_*", "CLOUD_BOX_TOKEN"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
@@ -448,13 +438,7 @@
     "test:integration:parallel": {
       "cache": false,
       "dependsOn": ["^build"],
-      "env": [
-        "AI_VENICE_API_KEY",
-        "BEEP_TEST_*",
-        "BEEP_TIKA_*",
-        "CLOUD_BOX_TOKEN",
-        "FIRECRAWL_API_KEY"
-      ],
+      "env": ["BEEP_TEST_*", "BEEP_TIKA_*", "CLOUD_BOX_TOKEN"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/vitest.shared.ts",
@@ -784,10 +768,12 @@
       "outputs": [],
       "dependsOn": ["//#lint:policy-fingerprint"],
       "inputs": [
+        ".gitignore",
+        "**/.gitignore",
+        "*.{cts,mts,ts,tsx}",
         "{apps,packages,tooling,infra}/**/*.{cts,mts,ts,tsx}",
+        "tsconfig*.json",
         "{apps,packages,infra,scratchpad}/**/tsconfig*.json",
-        "tsconfig.base.json",
-        "tsconfig.json",
         "vitest.aliases.generated.json",
         "!**/node_modules/**",
         "!**/dist/**",
@@ -912,8 +898,6 @@
         "!packages/law-practice/domain/src/internal/generated/free-law-project/**",
         "!**/src-tauri/gen/**",
         "!**/src-tauri/target/**",
-        "!packages/drivers/venice-ai/swagger.yaml",
-        "!packages/drivers/venice-ai/test/fixtures/swagger.json",
         "!packages/foundation/modeling/html/data/**",
         "!packages/foundation/modeling/html/src/internal/Html.language-tag-registry.generated.ts",
         "!patches/**"
@@ -1227,6 +1211,44 @@
         "!**/coverage/**",
         "!**/.next/**",
         "!**/storybook-static/**"
+      ]
+    },
+    "//#lint:retired-iri-authorities": {
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*",
+        "!.git/**",
+        "!**/.git/**",
+        "!graft/**",
+        "!.repos/**",
+        "!**/node_modules/**",
+        "!**/.beep/**",
+        "!**/.turbo/**",
+        "!**/dist/**",
+        "!**/coverage/**",
+        "!**/.next/**",
+        "!**/storybook-static/**"
+      ]
+    },
+    "//#lint:schema-tag-idioms": {
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["//#lint:policy-fingerprint"],
+      "inputs": [
+        "**/*.{ts,tsx,mts,cts,md,mdx}",
+        "!.git/**",
+        "!graft/**",
+        "!.repos/**",
+        "!**/node_modules/**",
+        "!**/.beep/**",
+        "!**/.turbo/**",
+        "!**/dist/**",
+        "!**/coverage/**",
+        "!**/.next/**",
+        "!**/storybook-static/**",
+        "!**/_generated/**"
       ]
     },
     "//#lint:ecosystem-polarity": {

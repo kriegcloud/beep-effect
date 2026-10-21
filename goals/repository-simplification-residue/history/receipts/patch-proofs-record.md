@@ -157,7 +157,7 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
   It extracts only the selected manifest entry into a private temporary directory,
   never follows a planted symlink, and replaces a destination symlink without writing
   through it.
-- Test (existing, unchanged): `packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts`
+- Test (existing, unchanged): `retired:face-detection/test/OnnxRuntimeInstall.test.ts`
   (sha256 `18b010f76ea4a73dbda7f7721ad21862e89e6164fc23c1170df6808e36b6977b`), seven
   cases. The unpatched tree has neither the patch nor the override, which reproduces
   the coupled removal.
@@ -182,7 +182,7 @@ from `@effect/vitest`. That alias is the only substitution in any copied test.
 | `@effect/platform-node-shared` | 4.0.4 | `7590e9b5` | test-utils `FileSystemWriteCompatibility` | 2/3 fail | pass | 4.0.5 fails | none; bun#45607 open |
 | `drizzle-orm` | 1.0.0-rc.5-ab785fc | `9705f7cb` | effect-drizzle `drizzle-sql-error.tst.ts` (new) | 2/2 assertions fail | pass | rc.5-5935859 fails | fix merged in rc5 branch (#6429), unpublished |
 | `@xstate/effect` | 0.1.0-alpha.6 | `986b449b` | xstate `DeclarationEmit` (new) | TS4023 | exit 0 | 1.0.0-alpha.8 fails | none; no upstream issue |
-| `onnxruntime-node` (with override) | 1.30.0 | `bf80243e` | face-detection `OnnxRuntimeInstall` | 3/7 fail | pass | 1.30.0 is latest | none; onnxruntime#31193 open |
+| `onnxruntime-node` (with override) | 1.30.0 | `bf80243e` | retired:face-detection `OnnxRuntimeInstall` | 3/7 fail | pass | 1.30.0 is latest | none; onnxruntime#31193 open |
 
 No patch has a published upstream exit, so none is dropped in this PR. For Effect
 equality and XState there is no upstream issue or PR to cite. For Effect, the exit
@@ -194,7 +194,7 @@ published 1.0.0-alpha.8. Both were re-checked here.
 
 Owner of record: rsc-a-retire, with the dependency owners: Effect platform/core for
 the two Effect patches, the database ecosystem package owner for Drizzle, the xstate
-driver owner for `@xstate/effect`, and the face-detection driver owner for ONNX.
+driver owner for `@xstate/effect`, and the retired:face-detection driver owner for ONNX.
 
 - Exit procedure for each patch: bump the dependency, drop its `patchedDependencies`
   entry and patch file, run `bun install`, and run the test named above unpatched. The

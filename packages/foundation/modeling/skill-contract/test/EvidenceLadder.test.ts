@@ -31,10 +31,10 @@ const digest = EvidenceDigest.make({
   sha256: Sha256Hex.make("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
 });
 const receiptSubject = EvidenceSubject.make({ digest, name: "operation/1" });
-const acceptedType = EvidencePredicateType.make("https://beep.dev/evidence/accepted/v1");
-const persistedType = EvidencePredicateType.make("https://beep.dev/evidence/persisted/v1");
-const deliveredType = EvidencePredicateType.make("https://beep.dev/evidence/delivered/v1");
-const appliedType = EvidencePredicateType.make("https://beep.dev/evidence/semantically-applied/v1");
+const acceptedType = EvidencePredicateType.make("https://example.test/evidence/accepted/v1");
+const persistedType = EvidencePredicateType.make("https://example.test/evidence/persisted/v1");
+const deliveredType = EvidencePredicateType.make("https://example.test/evidence/delivered/v1");
+const appliedType = EvidencePredicateType.make("https://example.test/evidence/semantically-applied/v1");
 const receiptTypes = EvidenceLadderReceiptTypes.make({
   accepted: acceptedType,
   delivered: deliveredType,

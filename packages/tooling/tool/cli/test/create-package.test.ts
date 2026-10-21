@@ -70,15 +70,15 @@ const TsconfigIncludes = S.Struct({
 const StoriesTsconfig = S.Struct({
   include: S.Array(S.String),
   compilerOptions: S.Struct({
-    module: S.Literal("ESNext"),
-    moduleResolution: S.Literal("Bundler"),
+    module: S.tag("ESNext"),
+    moduleResolution: S.tag("Bundler"),
     rootDir: S.String,
     types: S.Array(S.String),
   }),
 });
 const encodeStoriesTsconfigEffect = S.encodeEffect(StoriesTsconfig);
 const StoriesDirectoryTsconfig = S.Struct({
-  extends: S.Literal("../tsconfig.stories.json"),
+  extends: S.tag("../tsconfig.stories.json"),
 });
 const encodeStoriesDirectoryTsconfigEffect = S.encodeEffect(StoriesDirectoryTsconfig);
 const TypeScriptPluginsConfig = S.Struct({
@@ -96,37 +96,37 @@ const GeneratedPackageManifest = S.Struct({
 });
 const FoundationPackageMetadata = S.Struct({
   beep: S.Struct({
-    family: S.Literal("foundation"),
+    family: S.tag("foundation"),
     kind: S.Literals(["primitive", "modeling", "capability", "ui-system"] as const),
   }),
   scripts: S.Record(S.String, S.String),
 });
 const ToolingPackageMetadata = S.Struct({
   beep: S.Struct({
-    family: S.Literal("tooling"),
+    family: S.tag("tooling"),
     kind: S.Literals(["library", "tool", "policy-pack", "test-kit"] as const),
   }),
   scripts: S.Record(S.String, S.String),
 });
 const DriverPackageMetadata = S.Struct({
   beep: S.Struct({
-    family: S.Literal("drivers"),
+    family: S.tag("drivers"),
   }),
   scripts: S.Record(S.String, S.String),
   publishConfig: S.Struct({ exports: S.Record(S.String, S.NullOr(S.String)) }),
 });
 const EcosystemPackageMetadata = S.Struct({
-  private: S.Literal(true),
+  private: S.tag(true),
   beep: S.Struct({
-    family: S.Literal("ecosystem"),
+    family: S.tag("ecosystem"),
     kind: S.optionalKey(S.String),
   }),
-  sideEffects: S.Literal(false),
+  sideEffects: S.tag(false),
   exports: S.Record(S.String, S.String),
   files: S.Array(S.String),
   publishConfig: S.Struct({
-    access: S.Literal("public"),
-    provenance: S.Literal(true),
+    access: S.tag("public"),
+    provenance: S.tag(true),
     exports: S.Record(S.String, S.String),
   }),
   scripts: S.Record(S.String, S.String),
@@ -139,7 +139,7 @@ const EcosystemPackageMetadata = S.Struct({
 });
 const EcosystemProductionTsconfig = S.Struct({
   compilerOptions: S.Struct({
-    stripInternal: S.Literal(true),
+    stripInternal: S.tag(true),
     plugins: S.Array(S.Record(S.String, S.Unknown)),
   }),
 });

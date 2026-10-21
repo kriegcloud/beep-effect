@@ -77,7 +77,7 @@ Higher sources outrank lower sources when they conflict.
   acquisition-only retry gated on `AiError.isRetryable`, model-catalog pin
   workaround (beta.79 SSE decode rejects newer ids), `.config.ts` knobs.
   Port from proof `server/Anthropic.ts`; family pattern
-  `packages/drivers/{openai-compat,venice-ai,xai}`. The driver never
+  `packages/drivers/openai-compat`, `retired:venice-ai`, `retired:xai`. The driver never
   imports a slice.
 - `UsageRecord` lives in the epistemic slice (runtime SPEC slice table);
   the append at turn finalization links through the turn's Activity per

@@ -4,8 +4,9 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as PlatformError from "effect/PlatformError";
 import * as Redacted from "effect/Redacted";
-import { LocalExec } from "../../effected/commands/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { LocalExec } from "@beep/commands";
+import { MemoryFileSystem } from "@beep/memfs";
+import { TokenCredential } from "@beep/npm-spec/RegistryCredential";
 import { PackagePublish } from "../../effected/npm/PackagePublish.ts";
 import { scripted, fakeCrypto } from "./publish-fixtures.ts";
 
@@ -33,7 +34,7 @@ describe("PackagePublish remaining failure paths", () => {
   it.layer(writeLayer, { timeout: "30 seconds" })((it) => {
     it.effect("maps an npmrc write failure to auth and preserves its cause", () => Effect.gen(function* () {
       const publisher = yield* PackagePublish;
-      const failure = yield* Effect.flip(publisher.setupAuth({ registry: "https://registry.test", npmrcPath: "/config/.npmrc", credential: { kind: "token", token: Redacted.make("fixture") } }));
+      const failure = yield* Effect.flip(publisher.setupAuth({ registry: "https://registry.test", npmrcPath: "/config/.npmrc", credential: TokenCredential.make({ kind: "token", token: Redacted.make("fixture") }) }));
       assert.strictEqual(failure.kind, "auth");
       assert.strictEqual(failure.cause, denied);
     }));
@@ -66,7 +67,7 @@ describe("PackagePublish remaining failure paths", () => {
   it.layer(authLayer, { timeout: "30 seconds" })((it) => {
     it.effect("appends one separator to an npmrc lacking a newline and keeps a registry trailing slash", () => Effect.gen(function* () {
       const publisher = yield* PackagePublish;
-      yield* publisher.setupAuth({ registry: "https://registry.test/", npmrcPath: "/config/.npmrc", credential: { kind: "token", token: Redacted.make("fixture") } });
+      yield* publisher.setupAuth({ registry: "https://registry.test/", npmrcPath: "/config/.npmrc", credential: TokenCredential.make({ kind: "token", token: Redacted.make("fixture") }) });
       assert.strictEqual(fs.volume.text("/config/.npmrc"), "registry=https://registry.test\n//registry.test/:_authToken=fixture\n");
     }));
   });
@@ -76,7 +77,7 @@ describe("PackagePublish remaining failure paths", () => {
       ["pack", publisher.pack("/pkg")],
       ["dryRun", publisher.dryRun("/pkg")],
       ["publishTarball", publisher.publishTarball("/pkg.tgz", { registry: "https://registry.test" })],
-      ["setupAuth", publisher.setupAuth({ registry: "https://registry.test", npmrcPath: "/config/.npmrc", credential: { kind: "token", token: Redacted.make("fixture") } })],
+      ["setupAuth", publisher.setupAuth({ registry: "https://registry.test", npmrcPath: "/config/.npmrc", credential: TokenCredential.make({ kind: "token", token: Redacted.make("fixture") }) })],
     ] as const;
     for (const [method, call] of calls) {
       const defects = yield* Effect.flip(Effect.catchDefect(call, (defect) => Effect.fail(String(defect))));

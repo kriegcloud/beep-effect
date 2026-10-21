@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   StrictEgressRecord,
   StrictSpoolOptions,
@@ -7,7 +8,6 @@ import {
 } from "@beep/observability/strict";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";

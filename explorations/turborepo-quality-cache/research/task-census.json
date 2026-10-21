@@ -282,8 +282,8 @@
       "path": "packages/drivers/exiftool"
     },
     {
-      "name": "@beep/face-detection",
-      "path": "packages/drivers/face-detection"
+      "name": "retired:face-detection",
+      "path": "retired:face-detection"
     },
     {
       "name": "@beep/fc-runs",
@@ -298,8 +298,8 @@
       "path": "packages/foundation/capability/file-processing"
     },
     {
-      "name": "@beep/firecrawl",
-      "path": "packages/drivers/firecrawl"
+      "name": "retired:firecrawl",
+      "path": "retired:firecrawl"
     },
     {
       "name": "@beep/freshbooks",
@@ -622,8 +622,8 @@
       "path": "packages/foundation/modeling/utils"
     },
     {
-      "name": "@beep/venice-ai",
-      "path": "packages/drivers/venice-ai"
+      "name": "retired:venice-ai",
+      "path": "retired:venice-ai"
     },
     {
       "name": "@beep/wink",
@@ -646,8 +646,8 @@
       "path": "packages/workspace/use-cases"
     },
     {
-      "name": "@beep/xai",
-      "path": "packages/drivers/xai"
+      "name": "retired:xai",
+      "path": "retired:xai"
     }
   ],
   "taskFamilies": [
@@ -1078,7 +1078,7 @@
           "@beep/epistemic-server",
           "@beep/exiftool",
           "@beep/ffmpeg",
-          "@beep/firecrawl",
+          "retired:firecrawl",
           "@beep/libpff",
           "@beep/m365",
           "@beep/nlp-mcp",
@@ -1091,7 +1091,7 @@
           "@beep/runpod",
           "@beep/shared-use-cases",
           "@beep/tika",
-          "@beep/venice-ai",
+          "retired:venice-ai",
           "@beep/workspace-server"
         ]
       }

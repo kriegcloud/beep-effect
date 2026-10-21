@@ -560,8 +560,8 @@
     "npm": 404
   },
   {
-    "name": "@beep/face-detection",
-    "path": "packages/drivers/face-detection/package.json",
+    "name": "retired:face-detection",
+    "path": "retired:face-detection/package.json",
     "private": true,
     "version": "0.0.2",
     "npm": 404
@@ -588,15 +588,15 @@
     "npm": 404
   },
   {
-    "name": "@beep/venice-ai",
-    "path": "packages/drivers/venice-ai/package.json",
+    "name": "retired:venice-ai",
+    "path": "retired:venice-ai/package.json",
     "private": true,
     "version": "0.0.3",
     "npm": 404
   },
   {
-    "name": "@beep/xai",
-    "path": "packages/drivers/xai/package.json",
+    "name": "retired:xai",
+    "path": "retired:xai/package.json",
     "private": true,
     "version": "0.0.3",
     "npm": 404
@@ -868,8 +868,8 @@
     "npm": 404
   },
   {
-    "name": "@beep/firecrawl",
-    "path": "packages/drivers/firecrawl/package.json",
+    "name": "retired:firecrawl",
+    "path": "retired:firecrawl/package.json",
     "private": true,
     "version": "0.0.0",
     "npm": 404

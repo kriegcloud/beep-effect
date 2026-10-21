@@ -14,6 +14,7 @@ import {
   SetupRepairFailed,
   SetupRepairRefused,
 } from "@beep/law-practice-use-cases/PracticeSetup";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { M365SignInFailure } from "@beep/practice-gateway/PracticeGateway.errors";
 import { PracticeKgModuleLoader } from "@beep/practice-gateway/PracticeKgProvider";
@@ -21,7 +22,6 @@ import { CLAUDE_UNINSTALL_KEY, GatewaySetupProbes } from "@beep/practice-gateway
 import { requirementFromCatalog, requirementsFor } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
@@ -94,7 +94,7 @@ describe("gateway probes", () => {
     Effect.gen(function* () {
       const layer = probesFor({});
       expect(yield* probe("claude-signed-in", layer)).toEqual(
-        ProbeMissing.make({ detail: "No signed-in Claude session is using the practice gateway right now." })
+        ProbeMissing.make({ detail: "Claude Desktop is not signed in to a Claude account." })
       );
       const inSession = yield* probe("claude-signed-in", layer).pipe(
         Effect.provideService(
@@ -103,6 +103,24 @@ describe("gateway probes", () => {
         )
       );
       expect(inSession).toEqual(satisfied);
+    })
+  );
+
+  it.effect("reads Claude Desktop's sign-in marker outside an MCP call", () =>
+    Effect.gen(function* () {
+      const encode = (text: string) => new TextEncoder().encode(text);
+      const msixConfig = "/local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/config.json";
+      for (const [path, text, expected] of [
+        ["/roaming/Claude/config.json", '{"locale":"en-US","lastKnownAccountUuid":"x"}', satisfied],
+        [msixConfig, '{"lastKnownAccountUuid":"x"}', satisfied],
+        ["/roaming/Claude/config.json", '{"lastKnownAccountUuid":""}', undefined],
+        ["/roaming/Claude/config.json", "not json", undefined],
+      ] as const) {
+        const result = yield* probe("claude-signed-in", probesFor({ fileBytes: [[path, encode(text)]] }));
+        expect(result).toEqual(
+          expected ?? ProbeMissing.make({ detail: "Claude Desktop is not signed in to a Claude account." })
+        );
+      }
     })
   );
 
@@ -148,7 +166,10 @@ describe("gateway probes", () => {
         WindowsSecretStore.layerMemory,
         fakeM365SignIn({ configured: false })
       );
-      expect(yield* probe("m365-consented", unconfigured)).toEqual(ProbeMissing.make({ detail: m365NotConfigured }));
+      expect(yield* probe("m365-app-configured", unconfigured)).toEqual(
+        ProbeMissing.make({ detail: m365NotConfigured })
+      );
+      expect(yield* probe("m365-app-configured", probesFor({}))).toEqual(satisfied);
     })
   );
 

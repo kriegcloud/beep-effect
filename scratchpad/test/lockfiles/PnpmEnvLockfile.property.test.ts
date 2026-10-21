@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import { PnpmEnvLockfile } from "../../effected/lockfiles/PnpmEnvLockfile.ts";
 import { PackageManagerLock } from "../../effected/lockfiles/PackageManagerLock.ts";
 import { ConfigDependencyLock } from "../../effected/lockfiles/ConfigDependencyLock.ts";
-import { Yaml } from "../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({

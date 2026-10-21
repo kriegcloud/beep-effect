@@ -6,7 +6,7 @@ import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
-import { MemoryFileSystem, type MemoryFileSystemFaults } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem, type MemoryFileSystemFaults } from "@beep/memfs";
 import { PublishedVersion } from "../../effected/npm/NpmRegistry.ts";
 import { PackageTarball, TarballError } from "../../effected/npm/PackageTarball.ts";
 import { scripted } from "./publish-fixtures.ts";

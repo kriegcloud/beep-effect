@@ -16,8 +16,10 @@ import {
 import {
   SyncCursorRepository,
   SyncCursorRepositoryUnavailable,
+  SyncCursorRepositoryVersionConflict,
 } from "@beep/documents-use-cases/entities/SyncCursor/server";
 import { PostgresDrizzle } from "@beep/postgres";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents";
 import { A, N } from "@beep/utils";
 import { and, eq } from "drizzle-orm";
@@ -27,9 +29,10 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
-import { makeEntityStore, nextEntityId, SYSTEM_PRINCIPAL } from "../internal/RepoSupport.ts";
+import { makeEntityStore, nextEntityId, replaceVersioned, SYSTEM_PRINCIPAL } from "../internal/RepoSupport.ts";
 import type { DmsProvider } from "@beep/documents-domain/values/Sync";
 import type { SyncCursorSeed } from "@beep/documents-use-cases/entities/SyncCursor/server";
+import type { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
 const decodeSyncCursor = S.decodeUnknownEffect(DomainSyncCursor.SyncCursor);
@@ -78,6 +81,20 @@ const replaceCursorFields = (
     streamPosition: seed.streamPosition,
   });
 
+const versionConflict = (cursor: DomainSyncCursor.SyncCursor, actualRowVersion: RowVersion) =>
+  SyncCursorRepositoryVersionConflict.make({
+    actualRowVersion,
+    expectedRowVersion: cursor.rowVersion,
+    syncCursorId: cursor.id,
+  });
+
+// The port has no delete, so a cursor that vanishes between the upsert's read
+// and its write is an invariant break, reported as unavailability.
+const vanishedCursor = (cursor: DomainSyncCursor.SyncCursor) =>
+  SyncCursorRepositoryUnavailable.make({
+    reason: `${SYNC_CURSOR_TABLE_NAME} row ${cursor.id} disappeared during upsert`,
+  });
+
 type MirrorScope = {
   readonly provider: DmsProvider;
   readonly workspaceId: WorkspaceIdentity.WorkspaceId;
@@ -121,9 +138,12 @@ export const makeInMemorySyncCursorRepository = Effect.fn("Documents.SyncCursorR
       const cursors = yield* snapshot;
       const existing = A.findFirst(cursors, matchesMirror(seed));
       if (O.isSome(existing)) {
-        const replaced = replaceCursorFields(existing.value, seed);
-        yield* Ref.update(store, HashMap.set(replaced.id, replaced));
-        return replaced;
+        return yield* replaceVersioned(store, {
+          replacement: replaceCursorFields(existing.value, seed),
+          withRowVersion: (entity, rowVersion) => DomainSyncCursor.SyncCursor.make({ ...entity, rowVersion }),
+          onMissing: () => vanishedCursor(existing.value),
+          onStale: (actualRowVersion) => versionConflict(existing.value, actualRowVersion),
+        });
       }
       const id = yield* Ref.getAndUpdate(counter, N.increment);
       const cursor = yield* syncCursorFromSeed(id, seed);
@@ -162,7 +182,8 @@ const repositoryUnavailable =
  *
  * @effects Requires `PostgresDrizzle`; executes `select`, `insert`, and
  * `update` statements against the SyncCursor table and redacts driver
- * failures to `SyncCursorRepositoryUnavailable`.
+ * failures to `SyncCursorRepositoryUnavailable`. A replacing `upsert` writes
+ * only while the row still carries the version it read and stores the next one.
  * @category repositories
  * @since 0.0.0
  */
@@ -186,6 +207,24 @@ export const makeDrizzleSyncCursorRepository = Effect.fn("Documents.SyncCursorRe
     );
   });
 
+  // A guarded update matched no row: another write advanced the cursor after
+  // the upsert read it (or the row vanished, which the port never does).
+  const rejectUpdate = Effect.fn("Documents.SyncCursorRepository.drizzleRejectUpdate")(function* (
+    cursor: DomainSyncCursor.SyncCursor
+  ) {
+    const rows = yield* db
+      .select({ rowVersion: syncCursorTable.rowVersion })
+      .from(syncCursorTable)
+      .where(eq(syncCursorTable.id, cursor.id))
+      .limit(1)
+      .pipe(repositoryUnavailable("select SyncCursor row version"));
+    const stored = A.head(rows);
+    if (O.isNone(stored)) {
+      return yield* vanishedCursor(cursor);
+    }
+    return yield* versionConflict(cursor, stored.value.rowVersion);
+  });
+
   return SyncCursorRepository.of({
     find: Effect.fn("Documents.SyncCursorRepository.drizzleFind")(function* (input) {
       return yield* findRow(input);
@@ -199,16 +238,16 @@ export const makeDrizzleSyncCursorRepository = Effect.fn("Documents.SyncCursorRe
         );
         const rows = yield* db
           .update(syncCursorTable)
-          .set(insert)
-          .where(eq(syncCursorTable.id, replaced.id))
+          .set({ ...insert, rowVersion: nextRowVersion(replaced.rowVersion) })
+          .where(and(eq(syncCursorTable.id, replaced.id), eq(syncCursorTable.rowVersion, replaced.rowVersion)))
           .returning()
           .pipe(repositoryUnavailable("update SyncCursor"));
-        return yield* pipe(
-          A.head(rows),
-          O.match({
-            onNone: () => Effect.succeed(replaced),
-            onSome: (row) => Effect.fromResult(fromSyncCursorRow(row)).pipe(repositoryUnavailable("decode SyncCursor")),
-          })
+        const updated = A.head(rows);
+        if (O.isNone(updated)) {
+          return yield* rejectUpdate(replaced);
+        }
+        return yield* Effect.fromResult(fromSyncCursorRow(updated.value)).pipe(
+          repositoryUnavailable("decode SyncCursor")
         );
       }
       const currentRows = yield* db.select().from(syncCursorTable).pipe(repositoryUnavailable("list SyncCursor"));

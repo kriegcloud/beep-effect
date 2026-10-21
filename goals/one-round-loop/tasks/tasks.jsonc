@@ -97,7 +97,7 @@
       "rationale": "Deferred until CI round-trips measurably bottleneck delivery (median PR requires more than one CI round).",
       "blockedBy": ["orl-003"],
       "title": "SchemaUtils.withNormalizedCheck + migrations",
-      "detail": "New file SchemaUtils/withNormalizedCheck.ts + alphabetized barrel entry (style reference: withConstructorDefaults.ts, home of withConstantDefault/withNoneDefault; first check-based combinator). Options bag with caller-supplied identifier/title/description/message + optional equivalence (default from the schema). dtslint + arbitrary round-trip law. Migrate venice-ai (VeniceAI.service.ts:75-95), phoenix (Phoenix.config.ts:16-36), m365 (M365.config.ts:139-159) wire-identically; uspto (Uspto.config.ts:30-41) optional — adds the missing guard, needs its own parity note (fence 4). TSConfigJsonKey is NOT a target."
+      "detail": "New file SchemaUtils/withNormalizedCheck.ts + alphabetized barrel entry (style reference: withConstructorDefaults.ts, home of withConstantDefault/withNoneDefault; first check-based combinator). Options bag with caller-supplied identifier/title/description/message + optional equivalence (default from the schema). dtslint + arbitrary round-trip law. Migrate retired:venice-ai (retired:venice-ai/src/VeniceAI.service.ts:75-95), phoenix (Phoenix.config.ts:16-36), m365 (M365.config.ts:139-159) wire-identically; uspto (Uspto.config.ts:30-41) optional — adds the missing guard, needs its own parity note (fence 4). TSConfigJsonKey is NOT a target."
     },
     {
       "id": "orl-030",

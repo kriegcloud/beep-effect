@@ -65,6 +65,21 @@ output manifest.
 rule suite bound to the merge commit and green required checks at the accepted head.
 Network failures, unrecoverable deleted rulesets and partial evidence stay `unknown`.
 The five subject-only packets stay unmigrated, each with its reason.
+#1879 `residue-target-exchange` is complete
+(`history/receipts/target-exchange.md`): atomic-exchange capability is probed and
+cached per target filesystem identity, using disposable files on the target's own
+mount. Unsupported filesystems refuse before any backup or publication.
+#1880 `residue-exchange-recovery` is complete
+(`history/receipts/exchange-recovery.md`): every publication is a durable journal
+state machine, and one idempotent reconciliation path recovers each crash point
+byte-exact from the next apply, `beep models recover` or `restore`, refusing with
+every artifact kept when a competing writer changed the target.
+#1881 `residue-skill-publication` is complete
+(`history/receipts/skill-publication.md`): skill files and directories are replaced
+only by a qualified, verified atomic exchange, journaled with the same state machine,
+and recovered byte-exact (tree hash for directories) by the next `skills update` or
+`beep skills recover`; a replacing writer is refused with every artifact kept. Wave 8
+is closed.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

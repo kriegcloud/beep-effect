@@ -24,6 +24,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as SqlError from "effect/sql/SqlError";
 
@@ -32,9 +33,7 @@ const encodeJsonEffect = S.encodeEffect(S.fromJsonString(S.Unknown));
 const decodeUnknownCandorDisposition = S.decodeUnknownEffect(CandorDisposition);
 const decodeUnknownIdsSubmissionFact = S.decodeUnknownEffect(IdsSubmissionFact);
 const decodeUnknownPatentCitationEvent = S.decodeUnknownEffect(PatentCitationEvent);
-const decodeUnknownStructInlineSchema = S.decodeUnknownEffect(
-  S.Struct({ code: S.Literal("23514"), constraint: S.String })
-);
+const decodeUnknownStructInlineSchema = S.decodeUnknownEffect(S.Struct({ code: S.tag("23514"), constraint: S.String }));
 const isPatentCitationEvent = S.is(PatentCitationEvent);
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
@@ -76,7 +75,7 @@ const expectedTriggerNames: ReadonlyArray<string> = [
   "law_practice_patent_citation_event_block_truncate",
 ];
 
-const digest = `sha256:${"a".repeat(64)}`;
+const digest = `sha256:${Str.repeat(64)("a")}`;
 const citingApplication = { applicationNumber: "16138242", kind: "UsptoNormalized" } as const;
 
 const sourceIdentity = {

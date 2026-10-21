@@ -1,7 +1,7 @@
 import { assert, describe, layer } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as Exit from "effect/Exit";
-import { Git, GitCommandError, NotARepositoryError } from "../../effected/git/index.ts";
+import { Git, GitCommandError, NotARepositoryError } from "@beep/git";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import {

@@ -12,6 +12,7 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
@@ -56,7 +57,7 @@ const expectedTriggerNames: ReadonlyArray<string> = [
   "epistemic_execution_outcome_block_truncate",
 ];
 
-const digest = (fill: string): string => fill.repeat(64);
+const digest = (fill: string): string => Str.repeat(64)(fill);
 
 const runKey = digest("a");
 

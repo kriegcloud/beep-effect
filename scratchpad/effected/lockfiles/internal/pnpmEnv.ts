@@ -5,7 +5,7 @@ import * as HashMap from "effect/HashMap";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { IntegrityHash } from "../../npm/index.ts";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { ConfigDependencyLock } from "../ConfigDependencyLock.ts";
 import { PackageManagerLock } from "../PackageManagerLock.ts";
 import { splitPnpmStream } from "./documents.ts";

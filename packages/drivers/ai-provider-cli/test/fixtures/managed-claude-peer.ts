@@ -17,8 +17,8 @@ const Frame = S.Struct({
   message: S.optionalKey(S.Struct({ content: S.String })),
 });
 const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
-const Startup = S.Struct({ restricted: S.Literal(true), safeMode: S.Literal(false), settingSources: S.Literal("") });
-const Settings = S.Struct({ claudeMdExcludes: S.Tuple([S.Literal("**")]), autoMemoryEnabled: S.Literal(false) });
+const Startup = S.Struct({ restricted: S.tag(true), safeMode: S.tag(false), settingSources: S.tag("") });
+const Settings = S.Struct({ claudeMdExcludes: S.Tuple([S.Literal("**")]), autoMemoryEnabled: S.tag(false) });
 const JsonSettings = S.fromJsonString(Settings);
 const JsonFrame = S.fromJsonString(Frame);
 const decodeSettings = S.decodeUnknownEffect(JsonSettings);

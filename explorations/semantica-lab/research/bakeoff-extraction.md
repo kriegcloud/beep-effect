@@ -94,7 +94,7 @@ default to zero, and provenance can silently disable [P1][P2][P3][P4][P5].
 - **[B5]** `packages/foundation/capability/nlp-processing/src/Backend/NLPBackend.ts:64-204,248-355`; `packages/foundation/modeling/nlp/src/Graph/Schema.ts:343-383,490-530`.
 - **[B6]** `packages/drivers/wink/src/WinkBackend.service.ts:37-52,110-138`; `packages/drivers/wink/package.json:1-72`.
 - **[B7]** `packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts:61-72,168-188,247-259`; `packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts:179-200`.
-- **[B8]** `packages/drivers/face-detection/src/FaceDetection.service.ts:337-358,802-839`; root `package.json:182`; installed `node_modules/onnxruntime-node/package.json:1-54`.
+- **[B8]** `retired:face-detection/src/FaceDetection.service.ts:337-358,802-839`; root `package.json:182`; installed `node_modules/onnxruntime-node/package.json:1-54`.
 - **[P1]** `~/YeeBois/workstation-apps/semantica/semantica/semantic_extract/types.py:12-44`; `schemas.py:4-127`.
 - **[P2]** semantica `methods.py:615-772,775-926,1238-1344,1545-1704`; **[P3]** `methods.py:929-1124,1707-2148`.
 - **[P4]** semantica `providers.py:94-230,232-561,1458-1543`; **[P5]** `extraction_validator.py:61-184,200-284`; `semantic_extract_provenance.py:60-110`.

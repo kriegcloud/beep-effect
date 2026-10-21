@@ -32,10 +32,10 @@ package	dir	files	lines	symbols	types	instantiations	memory_used_k	max_rss_k	par
 @beep/duckdb	packages/drivers/duckdb	914	419173	187836	340	0	152141	178436	0.032	0.014		0.048	1	2	Version 7.0.2+effect-tsgo.0.24.3
 @beep/ecfr	packages/drivers/ecfr	913	477639	936753	472018	1811396	697552	1464196	0.037	0.012	17.854	17.906	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/exiftool	packages/drivers/exiftool	898	474300	914616	462363	1777256	685019	1459948	0.037	0.014	17.905	17.958	0	0	Version 7.0.2+effect-tsgo.0.24.3
-@beep/face-detection	packages/drivers/face-detection	912	477476	907335	459589	1757251	683479	1444592	0.037	0.012	18.159	18.210	0	0	Version 7.0.2+effect-tsgo.0.24.3
+retired:face-detection	retired:face-detection	912	477476	907335	459589	1757251	683479	1444592	0.037	0.012	18.159	18.210	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/federal-register	packages/drivers/federal-register	193	113851	61985	345	0	48894	65324	0.022	0.009	0.000	0.033	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/ffmpeg	packages/drivers/ffmpeg	899	478496	960726	482937	1853222	716195	1514104	0.034	0.013	17.934	17.984	0	0	Version 7.0.2+effect-tsgo.0.24.3
-@beep/firecrawl	packages/drivers/firecrawl	913	482607	1015622	506131	1944709	745528	1522432	0.038	0.012	17.848	17.900	0	0	Version 7.0.2+effect-tsgo.0.24.3
+retired:firecrawl	retired:firecrawl	913	482607	1015622	506131	1944709	745528	1522432	0.038	0.012	17.848	17.900	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/govinfo	packages/drivers/govinfo	968	485210	1051213	504913	1981557	753336	1552004	0.038	0.014	18.307	18.362	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/gov-legal-mcp	packages/drivers/gov-legal-mcp	1025	507304	1152574	552518	2177639	813017	1631808	0.041	0.015	18.297	18.356	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/graph-3d	packages/drivers/graph-3d	1310	537072	934571	460741	1758205	714334	1536900	0.039	0.015	18.661	18.718	0	0	Version 7.0.2+effect-tsgo.0.24.3
@@ -64,9 +64,9 @@ package	dir	files	lines	symbols	types	instantiations	memory_used_k	max_rss_k	par
 @beep/tika	packages/drivers/tika	908	478000	1009388	508273	1916366	730438	1540252	0.040	0.014	17.845	17.901	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/uspto-mcp	packages/drivers/uspto-mcp	961	495759	984198	491363	1905271	730582	1537380	0.039	0.014	17.933	17.987	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/uspto	packages/drivers/uspto	910	476118	907209	458371	1759278	681905	1449576	0.036	0.013	17.770	17.822	0	0	Version 7.0.2+effect-tsgo.0.24.3
-@beep/venice-ai	packages/drivers/venice-ai	937	491999	1099162	529383	2066983	781853	1646504	0.035	0.014	17.716	17.766	0	0	Version 7.0.2+effect-tsgo.0.24.3
+retired:venice-ai	retired:venice-ai	937	491999	1099162	529383	2066983	781853	1646504	0.035	0.014	17.716	17.766	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/wink	packages/drivers/wink	1024	513497	1322618	642270	2472559	915994	1812496	0.031	0.013	18.030	18.076	0	0	Version 7.0.2+effect-tsgo.0.24.3
-@beep/xai	packages/drivers/xai	927	490118	1050684	523877	2027392	767628	1594336	0.035	0.014	17.939	17.989	0	0	Version 7.0.2+effect-tsgo.0.24.3
+retired:xai	retired:xai	927	490118	1050684	523877	2027392	767628	1594336	0.035	0.014	17.939	17.989	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/epistemic-client	packages/epistemic/client	1017	498674	3989239	1393090	3012078	2297200	3875428	0.038	0.009	20.840	20.889	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/epistemic-config	packages/epistemic/config	913	475114	994866	492645	1972409	722063	1516232	0.035	0.008	17.917	17.962	0	0	Version 7.0.2+effect-tsgo.0.24.3
 @beep/epistemic-domain	packages/epistemic/domain	963	483271	2532221	967851	2525257	1535552	2309524	0.039	0.014	18.681	18.736	0	0	Version 7.0.2+effect-tsgo.0.24.3

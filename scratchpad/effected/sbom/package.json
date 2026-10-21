@@ -42,7 +42,7 @@
 	},
 	"dependencies": {
 		"@effected/package-json": "workspace:^",
-		"@effected/spdx": "workspace:^",
+		"@beep/spdx": "workspace:^",
 		"@sigstore/bundle": "^5.0.0",
 		"@sigstore/sign": "^5.0.0",
 		"@beep/identity": "workspace:^",

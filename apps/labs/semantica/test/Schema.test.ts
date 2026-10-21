@@ -506,7 +506,7 @@ const metricScores = A.map(requiredC0, (required) =>
 );
 
 const EvalReportBodySchema = S.Struct({
-  schemaVersion: S.Literal("eval-report/v1"),
+  schemaVersion: S.tag("eval-report/v1"),
   run: EvalRun,
   documents: S.NonEmptyArray(DocumentOutcome),
   metrics: S.NonEmptyArray(MetricScore),
@@ -862,8 +862,8 @@ describe("C0 schema round trips", () => {
       ModelRevisionUnpinned,
       ModelRevisionUnpinned.make({
         message: "Model revision is unpinned.",
-        model: "grok-4",
-        setting: "SEMANTICA_XAI_MODEL",
+        model: "claude-latest",
+        setting: "AI_ANTHROPIC_MODEL",
       })
     );
     roundTrip(ReportInvalid, ReportInvalid.make({ message: "Report invalid." }));

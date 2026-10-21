@@ -25,7 +25,7 @@ import * as Str from "effect/String";
 import { desiredFixture, observedFixture, postApplyAdoptionsFixture } from "./fixtures.ts";
 
 const sensitiveId = BoxProviderId.make("sensitive-provider-id");
-const digest = Sha256Hex.make("a".repeat(64));
+const digest = Sha256Hex.make(pipe("a", Str.repeat(64)));
 
 const errors = [
   { error: BoxProvisioningSchemaError.make({ stage: "migration-map" }), fragment: "migration-map" },

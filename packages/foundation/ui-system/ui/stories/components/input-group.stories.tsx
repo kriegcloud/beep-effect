@@ -76,7 +76,7 @@ export const InlineEndAddon: Story = {
     <InputGroup {...args}>
       <InputGroupInput placeholder="username" />
       <InputGroupAddon align="inline-end">
-        <InputGroupText>@beep.dev</InputGroupText>
+        <InputGroupText>@example.com</InputGroupText>
       </InputGroupAddon>
     </InputGroup>
   ),

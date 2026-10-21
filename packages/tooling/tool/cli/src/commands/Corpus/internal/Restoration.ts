@@ -54,7 +54,7 @@ const RestorationWriterClaim = S.Struct({
   bootId: S.NonEmptyString,
   pid: S.Int,
   procStart: S.NonEmptyString,
-  schemaVersion: S.Literal("oppold-preservation-writer/v2"),
+  schemaVersion: S.tag("oppold-preservation-writer/v2"),
   startedAt: S.String,
   token: S.NonEmptyString,
 });

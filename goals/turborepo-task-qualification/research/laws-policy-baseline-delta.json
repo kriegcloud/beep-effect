@@ -82,11 +82,11 @@
     "@beep/epistemic-ui#lint:laws",
     "@beep/epistemic-use-cases#lint:laws",
     "@beep/exiftool#lint:laws",
-    "@beep/face-detection#lint:laws",
+    "retired:face-detection#lint:laws",
     "@beep/fc-runs#lint:laws",
     "@beep/ffmpeg#lint:laws",
     "@beep/file-processing#lint:laws",
-    "@beep/firecrawl#lint:laws",
+    "retired:firecrawl#lint:laws",
     "@beep/freshbooks#lint:laws",
     "@beep/gov-legal-mcp#lint:laws",
     "@beep/govinfo#lint:laws",
@@ -165,13 +165,13 @@
     "@beep/uspto#lint:laws",
     "@beep/uspto-mcp#lint:laws",
     "@beep/utils#lint:laws",
-    "@beep/venice-ai#lint:laws",
+    "retired:venice-ai#lint:laws",
     "@beep/wink#lint:laws",
     "@beep/workspace-domain#lint:laws",
     "@beep/workspace-server#lint:laws",
     "@beep/workspace-tables#lint:laws",
     "@beep/workspace-use-cases#lint:laws",
-    "@beep/xai#lint:laws"
+    "retired:xai#lint:laws"
   ],
   "removedComputations": []
 }

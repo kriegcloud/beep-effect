@@ -29,8 +29,7 @@ Execution:
 
 1. P0 freezes two RFQ layouts, the 12 classes, the three cited rules, source hashes, expected
    spans, missing fields, and synthetic dated offers and certificates. Prove one live
-   `@beep/anthropic` extraction on day 1; try `openai-compat`, `venice-ai`, or `xai` that day if
-   it fails.
+   `@beep/anthropic` extraction on day 1; try `openai-compat` that day if it fails.
 2. P1 builds parse → exact-span extraction through `@beep/langextract` → normalized records →
    deterministic PGlite, DuckDB, and bounded in-memory Oxigraph projections, following the
    practice-KG pattern.

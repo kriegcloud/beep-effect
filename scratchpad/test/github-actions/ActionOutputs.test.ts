@@ -1,7 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";

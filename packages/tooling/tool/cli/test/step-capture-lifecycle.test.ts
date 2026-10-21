@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   BoundedOutput,
   CaptureCommandTimedOutError,
@@ -10,7 +11,6 @@ import {
 } from "@beep/repo-cli/test/Process";
 import { collectStepOutput, QualityTaskStep } from "@beep/repo-cli/test/Quality";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -46,9 +46,9 @@ const decodeStdoutChunk = S.decodeUnknownEffect(S.String);
 
 const ActiveAdmissionWorkload = S.fromJsonString(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-workload/v1"),
+    schemaVersion: S.tag("yeet-admission-workload/v1"),
     leaseId: S.String,
-    status: S.Literal("active"),
+    status: S.tag("active"),
     processGroupId: PosInt,
     procStart: S.String,
   })

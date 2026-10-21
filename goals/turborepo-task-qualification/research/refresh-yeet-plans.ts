@@ -108,7 +108,7 @@ const hardware = A.map(
   (input) => ({ input, detection: detectQualityProfileForTesting(input) })
 );
 const Report = S.Struct({
-  schemaVersion: S.Literal("cache-yeet-planner-review/v1"),
+  schemaVersion: S.tag("cache-yeet-planner-review/v1"),
   authority: S.String,
   context: S.Struct({ ci: S.Boolean, githubActions: S.Boolean }),
   plans: S.Array(S.Struct({ name: S.String, options: BuildYeetRunPlanTestOptions, plan: RepoRunPlan })),

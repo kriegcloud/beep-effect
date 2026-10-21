@@ -1,4 +1,5 @@
 import { fcRuns } from "@beep/fc-runs";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { MemoryStats } from "@beep/repo-cli/test/RepoRun";
 import { JsonStringCodec } from "@beep/repo-cli/test/SharedInternals";
 import {
@@ -15,7 +16,6 @@ import {
   yeetCommand,
 } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeServices } from "@effect/platform-node";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, describe, expect } from "@effect/vitest";
@@ -44,7 +44,7 @@ const TestLayer = Layer.mergeAll(
   Layer.succeed(MemoryStats, MemoryStats.of({ availableGib: Effect.succeed(50), totalGib: Effect.succeed(128) }))
 );
 const HostileProvenanceJson = JsonStringCodec(
-  S.Struct({ schemaVersion: S.Literal(2), agents: S.Array(S.Struct({ command: S.String })) })
+  S.Struct({ schemaVersion: S.tag(2), agents: S.Array(S.Struct({ command: S.String })) })
 );
 const MemoryLayer = Layer.mergeAll(MemoryFileSystem.layer, NodePath.layer, TestConsole.layer);
 const decodePrRefResult = S.decodeResult(PrRef);

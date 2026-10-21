@@ -129,10 +129,15 @@ bare `Registry` (leans entirely on package namespace).
 
 ## 2026-07-02 — authority host (RESOLVED)
 
-**Question:** What real authority host replaces the `https://ns.beep.sh/`
+> Superseded 2026-10-20 by the entry "authority host supersession:
+> beep-effect.com/ns/" at the end of this file. The retired host below is
+> written defanged; its undefanged form is recorded once, in
+> `goals/public-origin-beep-effect-com/history/2026-10-20-operator-brief.md`.
+
+**Question:** What real authority host replaces the `https://ns[.]beep[.]sh/`
 placeholder?
 
-**Answer:** `https://ns.beep.sh/` CONFIRMED as the real authority
+**Answer:** `https://ns[.]beep[.]sh/` CONFIRMED as the real authority
 (elpresidank, 2026-07-02, at `goals/identity-iri-core` P0). Every beep
 identity derives its IRI from this root; published vocabularies may still
 `rebase` per-module (e.g. opip.law namespaces).
@@ -235,3 +240,27 @@ post-move contract layer. Store layers land as test/dev Layers.
 
 **Ceremony:** Record only in this PR; the goal scaffold belongs to the next
 ceremony PR.
+
+## 2026-10-20 — authority host supersession: beep-effect.com/ns/
+
+**Question:** The 2026-07-02 "authority host (RESOLVED)" entry confirmed the
+ns[.]beep[.]sh root as the real authority, but the repo never owned
+beep[.]sh; the host was a placeholder. What is the real root?
+
+**Answer:** `https://beep-effect.com/ns/` (operator, 2026-10-20, decision D1
+of `goals/public-origin-beep-effect-com`). `@beep/a/b` mints
+`https://beep-effect.com/ns/a/b`. The `beep:` CURIE prefix and each
+vocabulary's hash-vs-slash choice are unchanged. The move is a hard cut with
+no alias or rebase map; `@beep/identity` writes the root once as
+`IdentityAuthority`, and `bun run beep laws retired-iri-authorities` keeps the
+retired hosts out of the tree. The authority clause of the 2026-07-02 entry is
+superseded; its per-module `rebase` clause stands.
+
+**Rationale:** The repo now owns `beep-effect.com`, which becomes the single
+public origin; `/ns/` is the apex route reserved for identity dereference
+(`standards/architecture/DECISIONS.md`, 2026-10-20). A probe on 2026-10-20
+found nothing durable persisted under the old root, so no alias map is
+needed. Rejected: keeping the placeholder (a domain the repo does not own
+cannot serve dereference); an `ns.` subdomain of the new domain (splits the
+origin-scoped crawler surface for no isolation benefit); an alias map (nothing
+to migrate).

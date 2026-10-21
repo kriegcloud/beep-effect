@@ -18,9 +18,6 @@
       "path": "../../../packages/drivers/pglite/tsconfig.json"
     },
     {
-      "path": "../../../packages/drivers/venice-ai/tsconfig.json"
-    },
-    {
       "path": "../../../packages/foundation/capability/file-processing/tsconfig.json"
     },
     {

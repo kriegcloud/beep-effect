@@ -26,7 +26,7 @@ const GoldUnavailableReason = LiteralKit([
   })
 );
 
-const ModelRevisionPinSetting = LiteralKit(["AI_ANTHROPIC_MODEL", "SEMANTICA_XAI_MODEL"]).annotate(
+const ModelRevisionPinSetting = LiteralKit(["AI_ANTHROPIC_MODEL"]).annotate(
   $I.annote("ModelRevisionPinSetting", {
     description: "Configuration boundaries that must name an explicitly versioned hosted model.",
   })
@@ -264,10 +264,10 @@ export class GoldUnavailable extends S.TaggedError<GoldUnavailable, { readonly b
  *
  * const error = ModelRevisionUnpinned.make({
  *   message: "Configure an explicitly versioned model id.",
- *   model: "grok-4",
- *   setting: "SEMANTICA_XAI_MODEL"
+ *   model: "claude-latest",
+ *   setting: "AI_ANTHROPIC_MODEL"
  * })
- * console.log(error.setting) // "SEMANTICA_XAI_MODEL"
+ * console.log(error.setting) // "AI_ANTHROPIC_MODEL"
  * ```
  *
  * @category errors

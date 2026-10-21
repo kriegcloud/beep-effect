@@ -91,8 +91,8 @@ CurrentMcpCaller Option is matched: none → OntologyActorIdentityRefusal (recov
 *caveats:* Approved-path TierGateAuditRecord discarded here (L87) — audit generation exists, audit retention does not.
 
 ### [9] LLM provider dispatch layers (Anthropic + compat providers)
-pkg: @beep/anthropic, @beep/openai-compat, @beep/venice-ai, @beep/xai
-path: packages/drivers/anthropic/src/Anthropic.service.ts (AnthropicLive L44; makeAnthropicLanguageModelLayer L76; AnthropicTurnPlan L139-161); Anthropic.config.ts (AI_ANTHROPIC_API_KEY env L39; retry/price defaults L129-205); packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts; packages/drivers/xai/src/XAiLanguageModel.service.ts; packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts
+pkg: @beep/anthropic, @beep/openai-compat, retired:venice-ai, retired:xai
+path: packages/drivers/anthropic/src/Anthropic.service.ts (AnthropicLive L44; makeAnthropicLanguageModelLayer L76; AnthropicTurnPlan L139-161); Anthropic.config.ts (AI_ANTHROPIC_API_KEY env L39; retry/price defaults L129-205); packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts; retired:xai/src/XAiLanguageModel.service.ts; retired:venice-ai/src/VeniceAiLanguageModel.service.ts
 symbols: AnthropicLive, AnthropicLanguageModelLive, AnthropicTurnPlan, ANTHROPIC_API_KEY_ENV, AnthropicApproximatePrice
 
 Provider clients are Config-driven Layers with Redacted keys, bounded retry plans, and approximate-price constants for cost attribution. Model-call dispatch for the desktop chat goes through AgentTurnKernel (packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts L40-73, streamTurn interface) implemented by @beep/agents-server AnthropicTurnKernel, selected by CHAT_AGENT=anthropic|fixture in apps/professional-desktop/src/runtime/Layer.ts (L139-176). Sandbox composition: provider dispatch is already a swappable service boundary where per-execution model/credential grants could be enforced.
@@ -137,8 +137,8 @@ All agent-adjacent spawning already flows through one injectable service (ChildP
 
 ### [14] Agent Client Protocol driver: permission-request RPC + terminal lifecycle control
 pkg: @beep/acp (packages/drivers/acp)
-path: packages/drivers/acp/src/AcpRpc.models.ts (RequestPermissionRpc L307; CreateTerminalRpc L347; TerminalOutputRpc L367; ReleaseTerminalRpc L387; WaitForTerminalExitRpc L407; KillTerminalRpc L414+); AcpClient.service.ts (handleRequestPermission seam L552-555, L210-213; layerChildProcess over ChildProcessHandle L684-691); AcpAgent.service.ts (client.requestPermission L66-68, L503); AcpTerminal.models.ts (AcpTerminal L26; MakeTerminalOptions L61)
-symbols: RequestPermissionRpc, CreateTerminalRpc, KillTerminalRpc, AcpClient, AcpAgent, layerChildProcess, handleRequestPermission
+path: packages/drivers/acp/src/AcpRpc.models.ts (module-private RequestPermissionRpc L189, CompatRequestPermissionRpc L371; generation-1 terminal RPCs CreateTerminalV1Rpc L409, TerminalOutputV1Rpc L415, ReleaseTerminalV1Rpc L421, WaitForTerminalExitV1Rpc L427, KillTerminalV1Rpc L433, exported through the CompatClientRpcs group); AcpClient.service.ts (handleRequestPermission seam L273, L913; layerChildProcess over ChildProcessHandle L1020); AcpAgent.service.ts (client.requestPermission L97, L449). The agent-side terminal handle (AcpTerminal, MakeTerminalOptions) was removed with the ACP v2 port; generation 2 has no client terminal methods.
+symbols: ClientRpcs, CompatClientRpcs, AcpClient, AcpAgent, layerChildProcess, handleRequestPermission, handleCreateTerminal
 
 A full typed implementation of the Agent Client Protocol: the agent must round-trip session/request_permission to the client before privileged actions, and terminals the agent runs are client-owned resources with create/output/wait/kill/release lifecycle. This is the cross-tool agent-run surface the sandbox packet must govern — the handleRequestPermission handler registration is exactly where a named-authority-grant evaluator plugs in, and terminal RPCs are where resource ceilings on agent-spawned processes would attach.
 

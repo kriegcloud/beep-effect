@@ -17,7 +17,7 @@ import * as Path from "effect/Path";
 import { fileURLToPath } from "node:url";
 import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
-import { CatalogAssemblyError } from "../../../effected/npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

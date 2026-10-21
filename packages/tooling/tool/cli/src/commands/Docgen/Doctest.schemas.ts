@@ -483,7 +483,7 @@ export class DoctestCliConfig extends S.Opaque<DoctestCliConfig, { readonly bran
  */
 export class DoctestReport extends S.Opaque<DoctestReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("doctest-report/v1"),
+    schemaVersion: S.tag("doctest-report/v1"),
     config: DoctestCliConfig,
     counts: DoctestCounts,
     findings: S.Array(DoctestFinding),

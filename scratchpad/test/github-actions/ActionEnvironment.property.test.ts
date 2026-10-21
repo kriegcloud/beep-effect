@@ -4,7 +4,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
 import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };

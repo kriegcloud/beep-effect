@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
-import { Yaml } from "../../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 import { SelectedDocument, PnpmStream, selectSoleDocument, splitPnpmStream } from "../../../effected/lockfiles/internal/documents.ts";
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(`${name}: encoding decodes without failure and preserves the value`, [Arbitrary.schema(schema)], ([value]) => Effect.gen(function* () {

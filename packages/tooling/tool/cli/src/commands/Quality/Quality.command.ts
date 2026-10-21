@@ -23,6 +23,7 @@ import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
@@ -45,10 +46,12 @@ import {
   admissionProtocolStatus,
   admissionStatus,
   GITHUB_CHECK_MODE_VALUES,
+  gitPathListFromNulOutput,
   ResidueReapClass,
   ResidueReapReport,
   reapAdmissionState,
   reconcileAttemptJournalsForCheckout,
+  runGitRawOutput,
   runResidueReap,
   runTmpfsReap,
   setAdmissionEvictionProtocol,
@@ -94,6 +97,7 @@ import { RunJSDocMigrateTitlesOptions, runJSDocMigrateTitles } from "./internal/
 import {
   defaultJSDocInventoryPath,
   defaultJSDocTotalsBaselinePath,
+  jsdocGitErrorAdapter,
   RunJSDocRatchetOptions,
   runJSDocRatchet,
 } from "./internal/JSDocRatchet.ts";
@@ -386,11 +390,7 @@ const effectTsgoReadmeParser = new XMLParser({
 export const isEffectDiagnosticsDirectiveForTesting = (line: string): boolean =>
   effectDiagnosticsDirectivePattern.test(line);
 
-const EffectDiagnosticsExemptPath = LiteralKit([
-  "vitest.setup.ts",
-  "vitest.shared.ts",
-  "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts",
-]);
+const EffectDiagnosticsExemptPath = LiteralKit(["vitest.setup.ts", "vitest.shared.ts"]);
 const EffectDiagnosticsExemptRule = LiteralKit([
   "asyncFunction",
   "globalRandom",
@@ -398,7 +398,6 @@ const EffectDiagnosticsExemptRule = LiteralKit([
   "newPromise",
   "nodeBuiltinImport",
   "processEnv",
-  "strictEffectProvide",
 ]);
 
 /**
@@ -417,9 +416,9 @@ const EffectDiagnosticsExemptRule = LiteralKit([
  * import { EffectDiagnosticsDirectiveExemption } from "@beep/repo-cli/commands/Quality/Quality.command"
  *
  * const exemption = EffectDiagnosticsDirectiveExemption.make({
- *   path: "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts",
- *   rules: ["strictEffectProvide"],
- *   reason: "The conformance entrypoint provides the filesystem layer under test.",
+ *   path: "vitest.shared.ts",
+ *   rules: ["nodeBuiltinImport"],
+ *   reason: "The shared Vitest config scans its include list before any Effect runtime exists.",
  * })
  * console.log(exemption.rules.length) // => 1
  * ```
@@ -447,14 +446,14 @@ export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
  *
  * **Details**
  *
- * Exactly three entries exist and the tuple type keeps it that way: the root Bun-compat shim,
- * which implements `Bun.*` over node builtins before any Effect runtime exists, the root Vitest
- * shared config, whose include list is scanned synchronously before any Effect runtime exists,
- * and the effect-vitest-canon D14 conformance entrypoint. Five dated catalog payload
+ * Exactly two entries exist and the tuple type keeps it that way: the root Bun-compat shim,
+ * which implements `Bun.*` over node builtins before any Effect runtime exists, and the root
+ * Vitest shared config, whose include list is scanned synchronously before any Effect runtime
+ * exists. Five dated catalog payload
  * next-line directives are separately admitted until the split public rename PR;
  * they do not admit file-wide disables. Every other `@effect-diagnostics`
  * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, and the
- * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a fourth entry
+ * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a third entry
  * has found a rule-card gap, not a reason to grow this list.
  *
  * **Example** (Read the admitted paths)
@@ -464,14 +463,13 @@ export class EffectDiagnosticsDirectiveExemption extends S.Opaque<
  * import * as A from "effect/Array"
  *
  * console.log(A.map(effectDiagnosticsDirectiveExemptions, (exemption) => exemption.path))
- * // => ["vitest.setup.ts", "vitest.shared.ts", "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts"]
+ * // => ["vitest.setup.ts", "vitest.shared.ts"]
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
 export const effectDiagnosticsDirectiveExemptions: readonly [
-  EffectDiagnosticsDirectiveExemption,
   EffectDiagnosticsDirectiveExemption,
   EffectDiagnosticsDirectiveExemption,
 ] = [
@@ -486,12 +484,6 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
     rules: ["nodeBuiltinImport"],
     reason:
       "Root Vitest shared config: the include list is scanned synchronously with node builtins at config time, before any Effect runtime exists.",
-  }),
-  EffectDiagnosticsDirectiveExemption.make({
-    path: "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts",
-    rules: ["strictEffectProvide"],
-    reason:
-      "effect-vitest-canon D14: the shared conformance entrypoint provides the filesystem layer under test in each registration.",
   }),
 ];
 
@@ -621,15 +613,15 @@ const isExemptEffectDiagnosticsDirective = (line: string, normalizedRepoRelative
  * trailing text. Paths and directive lines are compared exactly, without trimming. The
  * production collector uses this same predicate after normalizing its paths.
  *
- * **Example** (Keep the conformance exception local)
+ * **Example** (Keep the shared-config exception local)
  *
- * ```ts import.meta.vitest name="Keep the conformance exception local"
+ * ```ts import.meta.vitest name="Keep the shared-config exception local"
  * import { isRejectedEffectDiagnosticsDirectiveForTesting } from "@beep/repo-cli/commands/Quality/Quality.command"
  * import { pipe } from "effect/Function"
  *
- * const line = "// @effect-diagnostics strictEffectProvide:skip-file"
- * const conformancePath = "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts"
- * isRejectedEffectDiagnosticsDirectiveForTesting(line, conformancePath) // => false
+ * const line = "// @effect-diagnostics nodeBuiltinImport:skip-file"
+ * const sharedConfigPath = "vitest.shared.ts"
+ * isRejectedEffectDiagnosticsDirectiveForTesting(line, sharedConfigPath) // => false
  * pipe(line, isRejectedEffectDiagnosticsDirectiveForTesting("packages/example/src/main.ts")) // => true
  * ```
  *
@@ -1325,16 +1317,6 @@ const runSecretScan = Effect.fn("QualityScriptCommands.runSecretScan")(function*
 const runSecurityScan = Effect.fn("QualityScriptCommands.runSecurityScan")(function* (
   repoRoot: string
 ): Effect.fn.Return<void, QualityScriptCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
-  yield* Console.log("[github-checks] security: ONNX installer mitigation proof");
-  yield* runFixedStep(repoRoot, "security:onnx-installer-mitigation", "bun", [
-    "x",
-    "--no-install",
-    "vitest",
-    "run",
-    "--root",
-    "packages/drivers/face-detection",
-    "test/OnnxRuntimeInstall.test.ts",
-  ]);
   yield* Console.log("[github-checks] security: osv scan");
   yield* runFixedStep(repoRoot, "security:osv-scan", "docker", [
     "run",
@@ -2586,9 +2568,49 @@ const collectGeneratedVitestAliasDiagnostics = (
     : A.of("vitest.aliases.generated.json differs from tsconfig.json compilerOptions.paths; regenerate the alias data");
 };
 
+// The tsgo-rules scans read what a fresh checkout holds: tracked files plus untracked files git
+// does not ignore. Ignored residue (scratch loops, local probes) never reaches CI, so it must not
+// fail the gate locally; a new untracked file is still checked before it is committed. The listing
+// takes no pathspec: an inherited GIT_LITERAL_PATHSPECS would disable glob magic and drop root files.
+const collectGitVisiblePaths = Effect.fn("QualityScriptCommands.collectGitVisiblePaths")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  HashSet.HashSet<string>,
+  QualityScriptCommandError,
+  Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const visiblePaths = HashSet.fromIterable(
+    gitPathListFromNulOutput(
+      yield* runGitRawOutput(
+        repoRoot,
+        ["ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+        jsdocGitErrorAdapter
+      )
+    )
+  );
+  // A listing that misses the base config came from the wrong work tree (a git-less copy nested in
+  // another checkout), and filtering by it would pass every scan vacuously.
+  if (!HashSet.has(visiblePaths, "tsconfig.base.json")) {
+    return yield* QualityScriptCommandError.make({
+      message: `git ls-files in ${repoRoot} does not list tsconfig.base.json; run the check from the repository's own work tree.`,
+      exitCode: 1,
+    });
+  }
+  return visiblePaths;
+});
+
+const isGitVisibleFile =
+  (path: Path.Path, repoRoot: string, gitVisiblePaths: HashSet.HashSet<string>) =>
+  (filePath: string): boolean =>
+    HashSet.has(gitVisiblePaths, normalizePath(path.relative(repoRoot, filePath)));
+
 const collectWorkspaceTsconfigProfileDiagnostics = Effect.fn(
   "QualityScriptCommands.collectWorkspaceTsconfigProfileDiagnostics"
-)(function* (repoRoot: string, basePlugin: Readonly<Record<string, unknown>>) {
+)(function* (
+  repoRoot: string,
+  basePlugin: Readonly<Record<string, unknown>>,
+  gitVisiblePaths: HashSet.HashSet<string>
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const rootTsconfigFiles = pipe(
@@ -2606,7 +2628,12 @@ const collectWorkspaceTsconfigProfileDiagnostics = Effect.fn(
       ),
     { concurrency: 1 }
   ).pipe(Effect.map(A.flatten));
-  const tsconfigFiles = pipe(A.appendAll(rootTsconfigFiles, workspaceTsconfigFiles), A.dedupe, A.sort(Order.String));
+  const tsconfigFiles = pipe(
+    A.appendAll(rootTsconfigFiles, workspaceTsconfigFiles),
+    A.dedupe,
+    A.filter(isGitVisibleFile(path, repoRoot, gitVisiblePaths)),
+    A.sort(Order.String)
+  );
   const tsconfigs = yield* Effect.forEach(
     tsconfigFiles,
     Effect.fnUntraced(function* (filePath) {
@@ -2633,7 +2660,7 @@ const collectWorkspaceTsconfigProfileDiagnostics = Effect.fn(
 
 const collectDisabledEffectDiagnosticDirectives = Effect.fn(
   "QualityScriptCommands.collectDisabledEffectDiagnosticDirectives"
-)(function* (repoRoot: string) {
+)(function* (repoRoot: string, gitVisiblePaths: HashSet.HashSet<string>) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const isScannedExtension = (_normalized: string, name: string): boolean =>
@@ -2654,7 +2681,11 @@ const collectDisabledEffectDiagnosticDirectives = Effect.fn(
           Str.includes("/apps/storybook/")(normalized)
       ),
     { concurrency: 1 }
-  ).pipe(Effect.map(A.flatten), Effect.map(A.appendAll(rootFiles)));
+  ).pipe(
+    Effect.map(A.flatten),
+    Effect.map(A.appendAll(rootFiles)),
+    Effect.map(A.filter(isGitVisibleFile(path, repoRoot, gitVisiblePaths)))
+  );
   return yield* Effect.forEach(
     scannedFiles,
     Effect.fnUntraced(function* (filePath) {
@@ -2674,6 +2705,50 @@ const collectDisabledEffectDiagnosticDirectives = Effect.fn(
     { concurrency: 8 }
   ).pipe(Effect.map(A.flatten));
 });
+
+interface TsgoWorkspaceScanInput {
+  readonly basePlugin: Readonly<Record<string, unknown>>;
+  readonly repoRoot: string;
+}
+
+const collectTsgoWorkspaceScanDiagnostics = Effect.fn("QualityScriptCommands.collectTsgoWorkspaceScanDiagnostics")(
+  function* ({ repoRoot, basePlugin }: TsgoWorkspaceScanInput) {
+    const gitVisiblePaths = yield* collectGitVisiblePaths(repoRoot);
+    const pluginProfileDiagnostics = yield* collectWorkspaceTsconfigProfileDiagnostics(
+      repoRoot,
+      basePlugin,
+      gitVisiblePaths
+    );
+    const disabledDirectives = yield* collectDisabledEffectDiagnosticDirectives(repoRoot, gitVisiblePaths);
+    return { pluginProfileDiagnostics, disabledDirectives };
+  }
+);
+
+/**
+ * Scan workspace tsconfig profiles and Effect diagnostic directives the way `lint:tsgo-rules` does.
+ *
+ * **Details**
+ *
+ * Only files git would hand a fresh checkout are read: tracked files plus untracked files that
+ * are not ignored. Git-ignored residue under a scanned root is skipped.
+ *
+ * **Example** (Scan a checkout)
+ *
+ * ```ts
+ * import { collectTsgoWorkspaceScanDiagnosticsForTesting } from "@beep/repo-cli/commands/Quality/Quality.command"
+ * import * as Effect from "effect/Effect"
+ *
+ * const basePlugin = { name: "@effect/language-service", diagnosticSeverity: { floatingEffect: "error" } }
+ * const scan = collectTsgoWorkspaceScanDiagnosticsForTesting({ repoRoot: ".", basePlugin })
+ * console.log(Effect.isEffect(scan)) // true
+ * ```
+ *
+ * @param input - Repository root and the root plugin profile workspace tsconfigs must match.
+ * @returns Profile diagnostics and rejected directive locations; both empty when the checkout is clean.
+ * @category testing
+ * @since 0.0.0
+ */
+export const collectTsgoWorkspaceScanDiagnosticsForTesting = collectTsgoWorkspaceScanDiagnostics;
 
 const assembleTsgoRuleDiagnostics = (
   missingRuleNames: ReadonlyArray<string>,
@@ -2841,8 +2916,10 @@ export const runTsgoRulesCheck = Effect.fn("QualityScriptCommands.runTsgoRulesCh
     diagnosticSeverity: combinedSeverity,
   });
   const pluginOptionDiagnostics = collectPluginOptionParityDiagnostics(documentedOptionNames, plugin.value);
-  const pluginProfileDiagnostics = yield* collectWorkspaceTsconfigProfileDiagnostics(repoRoot, plugin.value);
-  const disabledDirectives = yield* collectDisabledEffectDiagnosticDirectives(repoRoot);
+  const { pluginProfileDiagnostics, disabledDirectives } = yield* collectTsgoWorkspaceScanDiagnostics({
+    repoRoot,
+    basePlugin: plugin.value,
+  });
   const diagnostics = assembleTsgoRuleDiagnostics(
     missingRuleNames,
     extraRuleNames,

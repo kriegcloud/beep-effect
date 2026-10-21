@@ -36,7 +36,7 @@ categories: use the table below.
 | `foundation/primitive/*` | dependency-free primitives (`@beep/data`, `@beep/types`) | rare target |
 | `foundation/modeling/*` | domain-agnostic pure models/schemas — `@beep/schema`, `@beep/identity`, `@beep/rdf`, `@beep/ontology`, `@beep/provenance`, `@beep/nlp`, … | pure shapes, no live services |
 | `foundation/capability/*` | domain-agnostic reusable behavior — `@beep/semantic-web`, `@beep/mcp-kit`, `@beep/langextract`, `@beep/observability`, … | service contracts + implementations |
-| `drivers/<name>` (flat) | wrappers around external engines/SDKs/services — `oxigraph`, `shacl`, `n3`, `anthropic`, `openai-compat`, `xai`, `venice-ai`, `drizzle`, `postgres`, `pglite`, `tika`, … | one external boundary per package |
+| `drivers/<name>` (flat) | wrappers around external engines/SDKs/services — `oxigraph`, `shacl`, `n3`, `anthropic`, `openai-compat`, `retired:xai`, `retired:venice-ai`, `drizzle`, `postgres`, `pglite`, `tika`, … | one external boundary per package |
 | product slices `packages/<slice>/{domain,use-cases,server,client,ui,config,tables}` | product behavior/language — slices: `ontology`, `agents`, `epistemic`, `documents`, `law-practice`, `workspace` | live Layer composition stays in `server`/`client`/app runtime, never `use-cases` |
 | `shared/*` | deliberate cross-slice product language ONLY | high bar: ≥2 named consumers + README promotion record; never generic substrate |
 | app runtime | `apps/*` entrypoints / `src/runtime/Layer.ts` | final Layer wiring |
@@ -69,7 +69,7 @@ home fits.
   `Utils/Hash.ts`, `Utils/IdempotencyKey.ts`, budget/session machinery.
 - `epistemic` slice — `packages/epistemic/*` — claim/evidence/activity
   lifecycle (`ClaimGate`/`ClaimLifecycle`/`ClaimProjection`).
-- LLM provider drivers — `packages/drivers/{anthropic,openai-compat,xai,venice-ai,ai-provider-cli}`.
+- LLM provider drivers — `packages/drivers/{anthropic,openai-compat,ai-provider-cli}`, `retired:xai`, `retired:venice-ai`.
 - RDF drivers — `packages/drivers/{oxigraph,shacl,n3,rdf-canonize}`.
 - Persistence — `packages/drivers/{drizzle,postgres,pglite}`,
   `packages/_internal/db-admin` (internal migration aggregation),
@@ -86,7 +86,7 @@ Score each item's relevance to these first; standalone value second.
 | Goal | State | One-liner |
 |------|-------|-----------|
 | `goals/ontology-agent-surface` | active 1/4 | curated ontology MCP toolkit on the professional-desktop sidecar; stateless fingerprint-CAS sessions + budgets (P1 landed) |
-| `goals/semantic-foundation` | active 0/6 | repo-owned SKOS concept schemes under `https://ns.beep.sh/`, FOLIO alignments, consumed by intake/filing/classification/docketing/party-role workflows |
+| `goals/semantic-foundation` | active 0/6 | repo-owned SKOS concept schemes under `https://beep-effect.com/ns/`, FOLIO alignments, consumed by intake/filing/classification/docketing/party-role workflows |
 | `goals/agentic-professional-runtime` | active 3/5 | local-first agentic professional runtime; every durable assertion carries evidence, provenance, lifecycle, and cost |
 | `goals/unified-ai-toolchain` | paused 2/12 | schema + sync layer for repo-facing AI coding-agent configuration (`@beep/ai-sync`) |
 | `goals/ip-law-knowledge-graph` | paused 0/5 | IP-law knowledge graph (ontology survey superseded by semantic-foundation; storage deferred) |

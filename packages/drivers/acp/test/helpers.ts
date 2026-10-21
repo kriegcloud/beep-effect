@@ -1,4 +1,5 @@
-import { Client as AcpClient, Json as AcpJson } from "@beep/acp";
+import * as AcpJson from "@beep/acp/json";
+import * as AcpProtocol from "@beep/acp/protocol";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Queue from "effect/Queue";
@@ -18,8 +19,8 @@ const jsonRpcRequestImpl = <A, I>(method: string, params: S.Codec<A, I>) =>
   S.Struct({
     headers: JsonRpcHeaders.pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
     id: JsonRpcId,
-    jsonrpc: S.Literal("2.0"),
-    method: S.Literal(method),
+    jsonrpc: S.tag("2.0"),
+    method: S.tag(method),
     params,
   });
 
@@ -30,8 +31,8 @@ export const jsonRpcRequest: {
 
 const jsonRpcNotificationImpl = <A, I>(method: string, params: S.Codec<A, I>) =>
   S.Struct({
-    jsonrpc: S.Literal("2.0"),
-    method: S.Literal(method),
+    jsonrpc: S.tag("2.0"),
+    method: S.tag(method),
     params,
   });
 
@@ -43,7 +44,7 @@ export const jsonRpcNotification: {
 export const jsonRpcResponse = <A, I>(result: S.Codec<A, I>) =>
   S.Struct({
     id: JsonRpcId,
-    jsonrpc: S.Literal("2.0"),
+    jsonrpc: S.tag("2.0"),
     result,
   });
 
@@ -86,4 +87,4 @@ export const makeInMemoryStdio = Effect.fn("makeInMemoryStdio")(function* () {
   };
 });
 
-export const makeTerminationError = AcpClient.makeTerminationError;
+export const makeTerminationError = AcpProtocol.makeTerminationError;

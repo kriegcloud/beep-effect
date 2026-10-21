@@ -552,7 +552,7 @@ All six deep-dive packages were `"private": true`. Canvas-domain was `0.0.3`, st
 
 `packages/foundation/modeling/identity/src/Id.ts` + `src/packages.ts`:
 
-- Root: `export const $I = Identity.make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId`
+- Root: `export const $I = Identity.make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$BeepId`
 - Registry: `const generatedComposers = $I.compose("infra", "chalk", …, "<slug>", …)`
 - Export: `export const $FooBarId: Identity.IdentityComposer<"@beep/foo-bar"> = composers.$FooBarId`
 - Accessor naming: `$${pascalCase(slug)}Id` (`courtlistener` → `$CourtlistenerId`, `federal-register` → `$FederalRegisterId`). Manual aliases exist (`$LangExtractId` → generated `$LangextractId`).

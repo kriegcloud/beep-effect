@@ -3,7 +3,7 @@ import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as S from "effect/Schema";
 
-const { $MyPkgId } = make("my-pkg", { authority: "https://ns.beep.sh/", prefix: "beep" });
+const { $MyPkgId } = make("my-pkg", { authority: "https://beep-effect.com/ns/", prefix: "beep" });
 const $I = $MyPkgId.create("patent");
 
 describe("composer ontology entrypoints", () => {
@@ -70,7 +70,7 @@ describe("composer ontology entrypoints", () => {
       expect(ann.identifier).toBe("@beep/my-pkg/patent/Claim");
       expect(ann.schemaId).toBe(Symbol.for("@beep/my-pkg/patent/Claim"));
       expect(ann.title).toBe("Claim");
-      expect(ann.iri).toBe("https://ns.beep.sh/my-pkg/patent/Claim");
+      expect(ann.iri).toBe("https://beep-effect.com/ns/my-pkg/patent/Claim");
       expect(ann.curie).toBe("beep:my-pkg/patent/Claim");
       expect(ann.description).toBe("A patent claim.");
     });

@@ -27,7 +27,7 @@ storage). The net-new here is the DISPATCH/fallback layer, NOT the drivers.
 - route: `new-exploration` → primaryTarget `multi-provider-llm-dispatch-fallback` (targetExists: false)
 - wave: `P2` · waveHistogram P1=0 / P2=7 / P3=1
 - themeSpan: `governance-ops`, `mcp-design`
-- secondaryTargets: `explorations/effect-orchestration-patterns`, `packages/agents/server`, `packages/drivers/anthropic`, `packages/drivers/nlp-mcp`, `packages/drivers/openai-compat`, `packages/drivers/venice-ai`, `packages/drivers/xai`, `packages/foundation/capability/langextract`
+- secondaryTargets: `explorations/effect-orchestration-patterns`, `packages/agents/server`, `packages/drivers/anthropic`, `packages/drivers/nlp-mcp`, `packages/drivers/openai-compat`, `retired:venice-ai`, `retired:xai`, `packages/foundation/capability/langextract`
 
 ### Nuggets (8)
 
@@ -42,7 +42,7 @@ storage). The net-new here is the DISPATCH/fallback layer, NOT the drivers.
 
 ### netNew — build list
 
-1. Shared Effect dispatch Layer owning user-key>env>CLI precedence + `Layer.orElse` graceful fallback across `@beep/{anthropic,openai-compat,xai,venice-ai}`.
+1. Shared Effect dispatch Layer owning user-key>env>CLI precedence + `Layer.orElse` graceful fallback across `@beep/{anthropic,openai-compat}`, `retired:xai`, `retired:venice-ai`.
 2. Per-provider OWN env-driven default-model resolution so a fallback never inherits an incompatible model name.
 3. Typed `PROVIDER_REGISTRY` + prefix auto-detect + structured `api_key_required`/setupInstructions errors.
 4. Declarative resilience-strategy config (round-robin / ordered-fallback / named retry-policy) re-expressed over `effect/ai`.
@@ -50,7 +50,7 @@ storage). The net-new here is the DISPATCH/fallback layer, NOT the drivers.
 
 ### alreadyCovered — reuse, do not rebuild
 
-- The four per-provider LLM drivers already exist (`@beep/anthropic` / `openai-compat` / `xai` / `venice-ai`); `effect/ai` Toolkit likely abstracts per-provider tool dispatch (mike#10 study). Net-new is the DISPATCH/fallback layer ABOVE the drivers, not the drivers.
+- The four per-provider LLM drivers already exist (`@beep/anthropic` / `openai-compat` / `retired:xai` / `retired:venice-ai`); `effect/ai` Toolkit likely abstracts per-provider tool dispatch (mike#10 study). Net-new is the DISPATCH/fallback layer ABOVE the drivers, not the drivers.
 
 ### cautions
 

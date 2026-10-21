@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 116,
     "symbol": "LoadedFaceDetector",
     "smell": "Exported interface with an Effect-returning function member matches the schema-first-inventory detector surface.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 163,
     "symbol": "FaceDetectionServiceShape",
     "smell": "Exported interface with a higher-order Effect service method matches the schema-first-inventory detector surface.",
@@ -26,12 +26,12 @@
     "roiRank": 0.05,
     "exception": {
       "reason": "The shape is the public service contract for acquiring and releasing a native model session around a callback. It is a Context.Service boundary, not a decoded data model.",
-      "boundary": "Context.Service shape for the face-detection driver"
+      "boundary": "Context.Service shape for the retired:face-detection driver"
     }
   },
   {
     "ruleId": "SFV4-fn-schema",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 721,
     "symbol": "makeFaceDetectionService",
     "smell": "Exported service factory in a schema-modeled service file can look like an SFV4-fn-schema hit.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-fn-schema",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 794,
     "symbol": "withDetector",
     "smell": "Exported higher-order function in a schema-modeled service file accepts a callback contract (`use: (detector) => Effect...`) that a naive SFV4-fn-schema detector may flag.",
@@ -61,7 +61,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+    "file": "retired:face-detection/src/FaceDetection.models.ts",
     "line": 443,
     "symbol": "decodeFaceDetectionModelConfig / decodeFaceDetectionImageRequest",
     "smell": "Exported schema-derived decoders can look like a public decode-helper wall (`S.decodeUnknownEffect(...)`).",

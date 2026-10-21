@@ -6,9 +6,11 @@
 // `@effected/npm` resolver contracts.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { CatalogResolver, DependencySpecifier, WorkspaceResolver } from "../npm/index.ts";
-import type { InvalidVersionError } from "../semver/index.ts";
-import { SemVer } from "../semver/index.ts";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import type { InvalidVersionError } from "@beep/semver";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as Fn from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -1083,7 +1085,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
 	 * **Example** (Resolve catalog dependencies with no-op resolvers)
 	 *
 	 * ```ts
-	 * import { Default } from "@beep/scratchpad/effected/npm/index";
+	 * import { Default } from "@beep/npm-spec";
 	 * import { Package } from "@beep/scratchpad/effected/package-json/Package";
 	 * import * as Effect from "effect/Effect";
 	 * import * as HashMap from "effect/HashMap";

@@ -46,12 +46,9 @@ const config = {
     "packages/workspace/domain/package.json",
     "packages/drivers/drizzle/package.json",
     "packages/drivers/duckdb/package.json",
-    "packages/drivers/face-detection/package.json",
     "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
     "packages/drivers/anthropic/package.json",
-    "packages/drivers/venice-ai/package.json",
-    "packages/drivers/xai/package.json",
     "packages/drivers/acp/package.json",
     "packages/drivers/openai-compat/package.json",
     "packages/workspace/tables/package.json",
@@ -90,7 +87,6 @@ const config = {
     "packages/drivers/doc-text/package.json",
     "packages/drivers/libpff/package.json",
     "packages/drivers/box/package.json",
-    "packages/drivers/firecrawl/package.json",
     "packages/drivers/uspto/package.json",
     "packages/drivers/pglite/package.json",
     "packages/drivers/m365/package.json",
@@ -125,6 +121,8 @@ const config = {
     "apps/practice-gateway/package.json",
     "apps/practice-setup/package.json",
     "apps/practice-review-hub/package.json",
+    "packages/drivers/commands/package.json",
+    "packages/drivers/git/package.json",
   ],
   customTypes: {
     catalog: {
@@ -153,7 +151,9 @@ const config = {
       // 2026-10-14 (goals/effect-rules-diagnostics-lane); the patch-only 0.53.4
       // bump added no rules (hold register, 2026-10-17). All six 0.52 rules are
       // errors; schema-opaque-default armed schemaClassMissingBrand on
-      // 2026-10-15 in its closing PR.
+      // 2026-10-15 in its closing PR. The 0.54.1 bump armed schemaClassObjectLiteral.
+      // 0.55's preferEffectString has 1,413 sites; its effect/String migration
+      // moves this pin past 0.54 when it arms the rule at error.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
       // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is

@@ -140,7 +140,7 @@
     "line": 1522,
     "symbol": "Files image metric fields",
     "smell": "Several image metric fields are broad S.Int/S.Finite despite tighter domains: CandidateAssessmentMetrics.pixelArea is non-negative, DetectBorderSideMeasurement.score is a 0-1 ratio, widthPct/primaryFaceAreaPct are percentages, widthPx/borderCount/faceCount are non-negative integers.",
-    "proposedTarget": "Use NonNegativeInt for pixelArea, widthPx, borderCount, and faceCount; use FaceDetectionPercentage for primaryFaceAreaPct; use BorderDetectionPercentage or a local zero-inclusive percentage for widthPct; and use S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 })) for score. Existing percentage schemas are Files.schemas.ts:604 and @beep/face-detection FaceDetectionPercentage.",
+    "proposedTarget": "Use NonNegativeInt for pixelArea, widthPx, borderCount, and faceCount; use FaceDetectionPercentage for primaryFaceAreaPct; use BorderDetectionPercentage or a local zero-inclusive percentage for widthPct; and use S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 })) for score. Existing percentage schemas are Files.schemas.ts:604 and retired:face-detection FaceDetectionPercentage.",
     "confidence": 0.74,
     "mechanization": "assisted",
     "roiRank": 4,

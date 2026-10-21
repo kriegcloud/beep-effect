@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { type CommandOutput, LocalExec, Run } from "../commands/index.ts";
+import { type CommandOutput, LocalExec, Run } from "@beep/commands";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as Context from "effect/Context";
@@ -17,11 +17,11 @@ import * as Str from "effect/String";
 import * as Hex from "effect/encoding/Hex";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { IntegrityHash } from "./IntegrityHash.ts";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { NpmExecutor } from "./NpmExecutor.ts";
 import { PublishError } from "./PublishError.ts";
-import type { RegistryCredential } from "./RegistryCredential.ts";
-import { classifyRegistry } from "./RegistryKind.ts";
+import type { RegistryCredential } from "@beep/npm-spec/RegistryCredential";
+import { classifyRegistry } from "@beep/npm-spec/RegistryKind";
 
 const $I = $ScratchpadId.create("effected/npm/PackagePublish");
 

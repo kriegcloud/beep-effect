@@ -17,6 +17,7 @@ import {
 } from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
 import { buildBundleConsumer } from "./bundle-build.ts";
 import { compareBundleSize, formatBundleSizeLine } from "./bundle-size.ts";
@@ -106,7 +107,7 @@ describe.runIf(hasBunSpawn)("bundle size probe process", () => {
       );
       yield* sync(() => {
         expect(exitCode).not.toBe(0);
-        const lines = stdout.split("\n");
+        const lines = Str.split("\n")(stdout);
         expect(lines[0]).toBe(formatBundleSizeLine(artifact.rawBytes, baselineRawBytes));
         expect(`${stdout}${stderr}`).toContain("Bundle raw byte size exceeds the committed baseline");
       }).pipe(withSpan("EffectDrizzle.bundle.exit"));

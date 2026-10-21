@@ -17,8 +17,10 @@ import {
   SyncConflictRepository,
   SyncConflictRepositoryNotFound,
   SyncConflictRepositoryUnavailable,
+  SyncConflictRepositoryVersionConflict,
 } from "@beep/documents-use-cases/entities/SyncConflict/server";
 import { PostgresDrizzle } from "@beep/postgres";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents";
 import { A, N } from "@beep/utils";
 import { and, asc, eq } from "drizzle-orm";
@@ -29,8 +31,15 @@ import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { byIdAscending, makeEntityStore, nextEntityId, SYSTEM_PRINCIPAL } from "../internal/RepoSupport.ts";
+import {
+  byIdAscending,
+  makeEntityStore,
+  nextEntityId,
+  replaceVersioned,
+  SYSTEM_PRINCIPAL,
+} from "../internal/RepoSupport.ts";
 import type { SyncConflictSeed } from "@beep/documents-use-cases/entities/SyncConflict/server";
+import type { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 
 const decodeSyncConflict = S.decodeUnknownEffect(DomainSyncConflict.SyncConflict);
 
@@ -72,6 +81,13 @@ const syncConflictFromSeed = Effect.fn("Documents.SyncConflictRepository.fromSee
  */
 const reviewedConflict = (conflict: DomainSyncConflict.SyncConflict): DomainSyncConflict.SyncConflict =>
   DomainSyncConflict.SyncConflict.make({ ...conflict, resolutionStatus: "reviewed" });
+
+const versionConflict = (conflict: DomainSyncConflict.SyncConflict, actualRowVersion: RowVersion) =>
+  SyncConflictRepositoryVersionConflict.make({
+    actualRowVersion,
+    conflictId: conflict.id,
+    expectedRowVersion: conflict.rowVersion,
+  });
 
 const matchesRemoteEvent =
   (workspaceId: number, provider: string, remoteEventId: string) => (conflict: DomainSyncConflict.SyncConflict) =>
@@ -127,9 +143,12 @@ export const makeInMemorySyncConflictRepository = Effect.fn("Documents.SyncConfl
         if (O.isNone(existing)) {
           return yield* SyncConflictRepositoryNotFound.make({ conflictId: input.conflictId });
         }
-        const reviewed = reviewedConflict(existing.value);
-        yield* Ref.update(store, HashMap.set(reviewed.id, reviewed));
-        return reviewed;
+        return yield* replaceVersioned(store, {
+          replacement: reviewedConflict(existing.value),
+          withRowVersion: (entity, rowVersion) => DomainSyncConflict.SyncConflict.make({ ...entity, rowVersion }),
+          onMissing: () => SyncConflictRepositoryNotFound.make({ conflictId: input.conflictId }),
+          onStale: (actualRowVersion) => versionConflict(existing.value, actualRowVersion),
+        });
       }),
       record: Effect.fn("Documents.SyncConflictRepository.record")(function* (seed) {
         const conflicts = yield* snapshot;
@@ -177,13 +196,32 @@ const repositoryUnavailable =
  *
  * @effects Requires `PostgresDrizzle`; executes `select`, `insert`, and
  * `update` statements against the SyncConflict table and redacts driver
- * failures to `SyncConflictRepositoryUnavailable`.
+ * failures to `SyncConflictRepositoryUnavailable`. `markReviewed` writes only
+ * while the row still carries the version it read and stores the next one.
  * @category repositories
  * @since 0.0.0
  */
 export const makeDrizzleSyncConflictRepository = Effect.fn("Documents.SyncConflictRepository.makeDrizzle")(
   function* () {
     const db = yield* PostgresDrizzle;
+
+    // A guarded update matched no row: either the row is gone or another write
+    // advanced its version after markReviewed read it.
+    const rejectUpdate = Effect.fn("Documents.SyncConflictRepository.drizzleRejectUpdate")(function* (
+      conflict: DomainSyncConflict.SyncConflict
+    ) {
+      const rows = yield* db
+        .select({ rowVersion: syncConflictTable.rowVersion })
+        .from(syncConflictTable)
+        .where(eq(syncConflictTable.id, conflict.id))
+        .limit(1)
+        .pipe(repositoryUnavailable("select SyncConflict row version"));
+      const stored = A.head(rows);
+      if (O.isNone(stored)) {
+        return yield* SyncConflictRepositoryNotFound.make({ conflictId: conflict.id });
+      }
+      return yield* versionConflict(conflict, stored.value.rowVersion);
+    });
 
     return SyncConflictRepository.of({
       listOpen: Effect.fn("Documents.SyncConflictRepository.drizzleListOpen")(function* (input) {
@@ -223,17 +261,16 @@ export const makeDrizzleSyncConflictRepository = Effect.fn("Documents.SyncConfli
         );
         const updatedRows = yield* db
           .update(syncConflictTable)
-          .set(insert)
-          .where(eq(syncConflictTable.id, reviewed.id))
+          .set({ ...insert, rowVersion: nextRowVersion(reviewed.rowVersion) })
+          .where(and(eq(syncConflictTable.id, reviewed.id), eq(syncConflictTable.rowVersion, reviewed.rowVersion)))
           .returning()
           .pipe(repositoryUnavailable("update SyncConflict"));
-        return yield* pipe(
-          A.head(updatedRows),
-          O.match({
-            onNone: () => Effect.succeed(reviewed),
-            onSome: (row) =>
-              Effect.fromResult(fromSyncConflictRow(row)).pipe(repositoryUnavailable("decode SyncConflict")),
-          })
+        const updated = A.head(updatedRows);
+        if (O.isNone(updated)) {
+          return yield* rejectUpdate(reviewed);
+        }
+        return yield* Effect.fromResult(fromSyncConflictRow(updated.value)).pipe(
+          repositoryUnavailable("decode SyncConflict")
         );
       }),
       record: Effect.fn("Documents.SyncConflictRepository.drizzleRecord")(function* (seed) {

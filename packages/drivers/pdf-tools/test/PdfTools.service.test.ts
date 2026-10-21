@@ -5,6 +5,7 @@ import {
   PageTextRequest,
   PdfFont,
   PdfPageRef,
+  PdfStructure,
   PdfTools,
   PdfToolsConfig,
   PdfToolsError,
@@ -26,7 +27,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -34,6 +35,7 @@ import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
@@ -133,8 +135,8 @@ const fakeRsvgPdf = (pageCount: number, format: string) =>
       return Effect.promise(() => doc.save({ useObjectStreams: false }));
     }),
     Effect.map((bytes) => {
-      if (format.startsWith("pdf1.")) {
-        bytes.set(encoder.encode(`%PDF-${format.slice("pdf".length)}`), 0);
+      if (Str.startsWith("pdf1.")(format)) {
+        bytes.set(encoder.encode(`%PDF-${Str.slice("pdf".length)(format)}`), 0);
       }
       return bytes;
     })
@@ -175,7 +177,7 @@ const craftPdf = (bodies: ReadonlyArray<Uint8Array | string>): Uint8Array => {
       "xref",
       `0 ${objects.length + 1}`,
       "0000000000 65535 f ",
-      ...A.map(offsets, (at) => `${String(at).padStart(10, "0")} 00000 n `),
+      ...A.map(offsets, (at) => `${Str.padStart(10, "0")(String(at))} 00000 n `),
       "trailer",
       `<< /Size ${objects.length + 1} /Root 1 0 R >>`,
       "startxref",
@@ -201,17 +203,16 @@ const latin1 = new TextDecoder("latin1");
 const appendRevision = (pdf: Uint8Array, objectNumber: number, body: Uint8Array): Uint8Array => {
   const text = latin1.decode(pdf);
   const previous =
-    text
-      .slice(text.lastIndexOf("startxref") + "startxref".length)
-      .trim()
-      .split(/\s/)[0] ?? "0";
+    Str.split(/\s/)(
+      Str.trim(Str.slice(O.getOrElse(constant(-1))(Str.lastIndexOf("startxref")(text)) + "startxref".length)(text))
+    )[0] ?? "0";
   const size = /\/Size (\d+)/.exec(text)?.[1] ?? "0";
   const object = concatBytes(encoder.encode(`${objectNumber} 0 obj\n`), body, encoder.encode("\nendobj\n"));
   const xref = A.join(
     [
       "xref",
       `${objectNumber} 1`,
-      `${String(pdf.length).padStart(10, "0")} 00000 n `,
+      `${Str.padStart(10, "0")(String(pdf.length))} 00000 n `,
       "trailer",
       `<< /Size ${size} /Root 1 0 R /Prev ${previous} >>`,
       "startxref",
@@ -338,12 +339,12 @@ const fakeOutputs = (
   if (command.command === "pdftoppm" && !A.contains(command.args, "-png")) {
     const source = A.get(command.args, A.length(command.args) - 2);
     const fixtureFor = (prefix: string) =>
-      prefix.endsWith("/base")
+      Str.endsWith("/base")(prefix)
         ? O.exists(source, Str.endsWith("blank.pdf"))
           ? blankPpm
           : basePpm
-        : prefix.endsWith("/marked")
-          ? O.exists(source, (pdf) => pdf.endsWith("small.pdf"))
+        : Str.endsWith("/marked")(prefix)
+          ? O.exists(source, (pdf) => Str.endsWith("small.pdf")(pdf))
             ? smallMarkedPpm
             : markedPpm
           : ppmFixture;
@@ -576,12 +577,12 @@ describe("@beep/pdf-tools service", () => {
           expect(runs[0]?.options.env?.FONTCONFIG_FILE).toMatch(/fonts\.conf$/);
           expect(runs[0]?.options.env?.SOURCE_DATE_EPOCH).toBe("0");
           const config = O.getOrElse(
-            A.findFirst(fontconfigs, Str.includes(`<dir>${fontDir.replace("&", "&amp;")}</dir>`)),
+            A.findFirst(fontconfigs, Str.includes(`<dir>${Str.replace("&", "&amp;")(fontDir)}</dir>`)),
             () => ""
           );
           // the only <dir> is the pinned one, XML-escaped; no <include> pulls in the system config
-          expect(config.match(/<dir>/g)?.length).toBe(1);
-          expect(config).toContain(`<dir>${fontDir.replace("&", "&amp;")}</dir>`);
+          expect(O.getOrUndefined(Str.match(/<dir>/g)(config))?.length).toBe(1);
+          expect(config).toContain(`<dir>${Str.replace("&", "&amp;")(fontDir)}</dir>`);
           expect(config).not.toContain("<include");
           expect(config).toContain(
             `<test name="family" qual="any"><string>Arial</string></test><edit name="family" mode="assign" binding="strong"><string>Liberation Sans</string></edit>`
@@ -628,7 +629,7 @@ describe("@beep/pdf-tools service", () => {
           })
         );
         expect(config).toContain("<cachedir>/cache</cachedir>");
-        expect(config.match(/<match target="pattern">/g)?.length).toBe(2);
+        expect(O.getOrUndefined(Str.match(/<match target="pattern">/g)(config))?.length).toBe(2);
         expect(PdfFont.make({ name: "QWERTY+TimesNewRomanPSMT", embedded: true }).baseName).toBe("TimesNewRomanPSMT");
         expect(PdfFont.make({ name: "Helvetica", embedded: false }).baseName).toBe("Helvetica");
       })
@@ -724,10 +725,9 @@ describe("@beep/pdf-tools service", () => {
           const file = path.join(dir, "streams.pdf");
           const valid = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
           // every payload byte still inflates; only the checksum's last byte is gone
-          const truncated = NodeZlib.deflateSync(encoder.encode("BT /F1 12 Tf (FIG. 1) Tj ET\n".repeat(8))).subarray(
-            0,
-            -1
-          );
+          const truncated = NodeZlib.deflateSync(
+            encoder.encode(Str.repeat(8)("BT /F1 12 Tf (FIG. 1) Tj ET\n"))
+          ).subarray(0, -1);
           yield* fs.writeFile(
             file,
             craftPdf([
@@ -776,10 +776,9 @@ describe("@beep/pdf-tools service", () => {
           const path = yield* Path.Path;
           const dir = yield* fs.makeTempDirectoryScoped();
           const file = path.join(dir, "wrong-length.pdf");
-          const truncated = NodeZlib.deflateSync(encoder.encode("BT /F1 12 Tf (FIG. 1) Tj ET\n".repeat(8))).subarray(
-            0,
-            -1
-          );
+          const truncated = NodeZlib.deflateSync(
+            encoder.encode(Str.repeat(8)("BT /F1 12 Tf (FIG. 1) Tj ET\n"))
+          ).subarray(0, -1);
           const valid = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
           yield* fs.writeFile(
             file,
@@ -853,6 +852,104 @@ describe("@beep/pdf-tools service", () => {
       );
 
       it.effect(
+        "returns partial discovery for dense hostile container-marker text within its work budget",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          for (const marker of ["/ObjStm", "/XRef"]) {
+            const file = path.join(dir, marker === "/XRef" ? "xref-markers.pdf" : "object-markers.pdf");
+            const data = encoder.encode(A.join(A.replicate(`% 1 0 obj ${marker}`, 16_000), "\n"));
+            yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+            const structure = yield* tools.inspect(file);
+            expect(structure.streamCheck).toBe("complete");
+            expect(structure.containerDiscovery).toBe("limit-reached");
+            expect(structure.undecodableStreams).toEqual([]);
+            expect(A.length(structure.pages)).toBe(1);
+          }
+        })
+      );
+
+      it.effect(
+        "accepts valid loaded PDFs containing more than 128 irrelevant mixed markers",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          const data = encoder.encode(A.join(A.replicate("/ObjStm /XRef /XRefStm", 129), "\n"));
+          const bytes = craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]);
+          expect((yield* Effect.promise(() => PDFDocument.load(bytes))).getPageCount()).toBe(1);
+          const file = path.join(dir, "mixed-markers.pdf");
+          yield* fs.writeFile(file, bytes);
+          const structure = yield* tools.inspect(file);
+          expect(structure.streamCheck).toBe("complete");
+          expect(structure.containerDiscovery).toBe("limit-reached");
+          expect(structure.undecodableStreams).toEqual([]);
+          expect(A.length(structure.pages)).toBe(1);
+        })
+      );
+
+      it.effect(
+        "bounds failed header discovery across long digit and whitespace runs",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          const data = encoder.encode(
+            A.join([Str.repeat("9", 200_000), Str.repeat(" ", 200_000), "0 nope /ObjStm /XRef"], "")
+          );
+          const file = path.join(dir, "failed-long-header.pdf");
+          yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+          const structure = yield* tools.inspect(file);
+          expect(structure.streamCheck).toBe("complete");
+          expect(structure.undecodableStreams).toEqual([]);
+        })
+      );
+
+      it.effect(
+        "defaults the additive discovery status for existing structure payloads",
+        Effect.fnUntraced(function* () {
+          const input = {
+            headerVersion: "1.7",
+            pages: [],
+            fonts: [],
+            annotationCount: 0,
+            hasOptionalContent: false,
+            encrypted: false,
+            undecodableStreams: [],
+            streamCheck: "complete",
+          };
+          const structure = yield* S.decodeUnknownEffect(PdfStructure)(input);
+          expect(structure.containerDiscovery).toBe("complete");
+          expect(PdfStructure.make({ ...input, streamCheck: "complete" }).containerDiscovery).toBe("complete");
+        })
+      );
+
+      it.effect(
+        "shares the raw discovery budget across families and reports the exact boundary",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const tools = yield* PdfTools;
+          for (const count of [64, 65]) {
+            const data = encoder.encode(
+              A.join(A.appendAll(A.replicate("/ObjStm", count), A.replicate("/XRef", 64)), "\n")
+            );
+            const file = path.join(dir, `boundary-${count}.pdf`);
+            yield* fs.writeFile(file, craftPdf([...pageObjects, streamBody(`<< /Length ${data.length} >>`, data)]));
+            const structure = yield* tools.inspect(file);
+            expect(structure.containerDiscovery).toBe(count === 64 ? "complete" : "limit-reached");
+            expect(structure.streamCheck).toBe("complete");
+            expect(A.length(structure.pages)).toBe(1);
+          }
+        })
+      );
+
+      it.effect(
         "checks object and cross-reference streams, which pdf-lib decodes without adding them to the document",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -870,6 +967,7 @@ describe("@beep/pdf-tools service", () => {
           const intact = yield* tools.inspect(whole);
           expect(intact.undecodableStreams).toEqual([]);
           expect(intact.streamCheck).toBe("complete");
+          expect(intact.containerDiscovery).toBe("complete");
 
           // object stream 5 (indirect /Length 7 0 R) and cross-reference stream 8 each lose their last checksum byte
           const cutBytes = craftXrefStreamPdf({
@@ -1044,10 +1142,9 @@ describe("@beep/pdf-tools service", () => {
             const dir = yield* fs.makeTempDirectoryScoped();
             const file = path.join(dir, "large-limit.pdf");
             const valid = NodeZlib.deflateSync(encoder.encode("q 0 0 m 100 100 l S Q\n"));
-            const truncated = NodeZlib.deflateSync(encoder.encode("BT /F1 12 Tf (FIG. 1) Tj ET\n".repeat(8))).subarray(
-              0,
-              -1
-            );
+            const truncated = NodeZlib.deflateSync(
+              encoder.encode(Str.repeat(8)("BT /F1 12 Tf (FIG. 1) Tj ET\n"))
+            ).subarray(0, -1);
             yield* fs.writeFile(
               file,
               craftPdf([
@@ -1133,7 +1230,7 @@ describe("@beep/pdf-tools service", () => {
           const wide = yield* tools.inkCoverage(request(2));
           expect(wide.coverage).toBe(1);
           const rasterOf = (prefix: string) =>
-            A.findFirst(commands, (command) => O.exists(A.last(command.args), (last) => last.endsWith(prefix)));
+            A.findFirst(commands, (command) => O.exists(A.last(command.args), (last) => Str.endsWith(prefix)(last)));
           assertSome(
             O.map(rasterOf("/base"), (command) => command.args.slice(0, 9)),
             ["-r", "36", "-f", "3", "-l", "3", "-singlefile", "-aa", "no"]

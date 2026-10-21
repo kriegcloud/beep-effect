@@ -216,9 +216,9 @@ class TaskRow extends S.Opaque<TaskRow, { readonly brand: unique symbol }>()(
 class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-advisory-ratchets/tasks/v1"),
+    schemaVersion: S.tag("fallow-advisory-ratchets/tasks/v1"),
     updated: TrimmedNonEmptyString,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     tasks: S.NonEmptyArray(TaskRow),
   }).pipe(
     $I.annoteSchema("TasksDocument", {
@@ -229,12 +229,12 @@ class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique sym
 
 class ManifestInitiative extends S.Opaque<ManifestInitiative, { readonly brand: unique symbol }>()(
   S.Struct({
-    id: S.Literal("fallow-advisory-ratchets"),
+    id: S.tag("fallow-advisory-ratchets"),
     title: TrimmedNonEmptyString,
     status: TrimmedNonEmptyString,
     created: TrimmedNonEmptyString,
     updated: TrimmedNonEmptyString,
-    packetAnchorDocument: S.Literal("SPEC.md"),
+    packetAnchorDocument: S.tag("SPEC.md"),
   }).pipe(
     $I.annoteSchema("ManifestInitiative", {
       description: "Initiative identity block of the packet manifest.",
@@ -256,9 +256,9 @@ class ManifestPhase extends S.Opaque<ManifestPhase, { readonly brand: unique sym
 
 class InitiativeManifestDocument extends S.Opaque<InitiativeManifestDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("initiative-manifest/v1"),
+    schemaVersion: S.tag("initiative-manifest/v1"),
     initiative: ManifestInitiative,
-    packetPath: S.Literal(packetRoot),
+    packetPath: S.tag(packetRoot),
     lifecycle: TrimmedNonEmptyString,
     executionCapable: S.Boolean,
     currentSourceOfTruth: S.NonEmptyArray(RepoRefString),
@@ -293,9 +293,9 @@ class FeatureRow extends S.Opaque<FeatureRow, { readonly brand: unique symbol }>
 class FeatureMatrixDocument extends S.Opaque<FeatureMatrixDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/feature-matrix/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/feature-matrix/v1"),
     updated: TrimmedNonEmptyString,
-    validatorVersion: S.Literal("fallow-quality-enforcement-validator/v1"),
+    validatorVersion: S.tag("fallow-quality-enforcement-validator/v1"),
     features: S.NonEmptyArray(FeatureRow),
   }).pipe(
     $I.annoteSchema("FeatureMatrixDocument", {

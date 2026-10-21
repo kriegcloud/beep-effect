@@ -1,5 +1,6 @@
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
+  WorktreeInotifyWatcher,
   WorktreeRemovalReceipt,
   WorktreeRemovalRequest,
   WorktreeRemovalService,
@@ -811,7 +812,33 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
     expect(text).toContain("residue: clean");
     expect(text).not.toContain("archived under");
     expect(text).toContain("branch claude/lane: kept");
+    expect(text).not.toContain("inotify");
     expect(pipe(plan, renderRetirement(receipt))).toBe(text);
+  });
+
+  it("warns about each inotify watcher the lane was removed under", () => {
+    const plan = YeetRetirePlan.make({
+      worktreePath: "/clones/x/.claude/worktrees/lane",
+      owningClone: "/clones/x",
+      name: "lane",
+      branch: "claude/lane",
+    });
+    const receipt = WorktreeRemovalReceipt.make({
+      targetPath: plan.worktreePath,
+      branch: O.some(plan.branch),
+      reason: "clean",
+      manifest: O.none(),
+      branchDeleted: true,
+      inotifyWatchers: [
+        WorktreeInotifyWatcher.make({ pid: 2966722, command: O.some("fsnotifier") }),
+        WorktreeInotifyWatcher.make({ pid: 4242, command: O.none() }),
+      ],
+    });
+    const text = renderRetirement(plan, receipt);
+    expect(text).toContain(
+      "warning: pid 2966722 (fsnotifier) held only an inotify watch on the lane, which cannot write into it, so the lane was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once `.claude/worktrees` is excluded from its project"
+    );
+    expect(text).toContain("warning: pid 4242 held only an inotify watch on the lane");
   });
 
   it.effect("retires a lane named with --lane from the owning clone", () =>

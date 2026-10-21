@@ -507,7 +507,7 @@ export class ArchivePoorCandidatesManifest extends S.Opaque<
     entries: S.Array(ArchivePoorCandidatesEntry),
     manifestPath: S.String,
     options: ArchivePoorCandidatesManifestOptions,
-    schemaVersion: S.Literal("beep.files.archive-poor-candidates.v1"),
+    schemaVersion: S.tag("beep.files.archive-poor-candidates.v1"),
     skipped: S.Array(ArchivePoorCandidatesSkippedEntry),
     sourceDirectory: S.String,
     summary: ArchivePoorCandidatesManifestSummary,

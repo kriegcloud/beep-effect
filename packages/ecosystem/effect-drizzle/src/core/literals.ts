@@ -6,12 +6,14 @@
  *
  * @since 0.0.0
  */
+
 import { append, appendAll, dedupe, empty, every, getSomes, map, match, of, reduce, some } from "effect/Array";
 import { equals } from "effect/Equal";
 import { dual } from "effect/Function";
 import { flatMap, map as mapOption, none, some as someOption } from "effect/Option";
 import { isString, isTagged } from "effect/Predicate";
 import { toEncoded } from "effect/SchemaAST";
+import { includes } from "effect/String";
 import { DeriveColumnError } from "./classification.ts";
 import type { Option } from "effect/Option";
 import type { AST, Suspend } from "effect/SchemaAST";
@@ -63,7 +65,7 @@ export const stringLiteralValues: {
       match(dedupe(values), {
         onEmpty: none,
         onNonEmpty: (normalized) => {
-          if (some(normalized, (value) => value.includes("\0"))) {
+          if (some(normalized, (value) => includes("\0")(value))) {
             throw DeriveColumnError.make({
               message: "SQL enum literals cannot contain NUL (U+0000).",
               fieldName: "(unknown — set at model definition)",

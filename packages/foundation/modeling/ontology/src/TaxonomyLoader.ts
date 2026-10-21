@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { $OntologyId } from "@beep/identity/packages";
+import { $I as $BeepId, $OntologyId } from "@beep/identity/packages";
 import { IRIReference } from "@beep/rdf";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
@@ -126,11 +126,11 @@ const HttpsIriReference = IRIReference.check(
 );
 
 const RepoConceptIri = HttpsIriReference.check(
-  S.makeFilter(Str.startsWith("https://ns.beep.sh/"), {
+  S.makeFilter(Str.startsWith($BeepId.iri), {
     identifier: $I`RepoConceptIriCheck`,
     title: "Repository Concept IRI",
-    description: "An absolute concept IRI under the repository-owned ns.beep.sh authority.",
-    message: "Expected a repository concept IRI under https://ns.beep.sh/",
+    description: "An absolute concept IRI under the repository identity authority.",
+    message: `Expected a repository concept IRI under ${$BeepId.iri}`,
   })
 );
 
@@ -168,11 +168,11 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly
 )(
   {
     _tag: S.tagDefaultOmit("VendorTaxonomySeedSlice"),
-    format: S.Literal("jsonld"),
+    format: S.tag("jsonld"),
     id: S.NonEmptyString,
     loadStatus: VendorLoadStatus,
     path: VendorSlicePath,
-    verified: S.Literal(true),
+    verified: S.tag(true),
   },
   $I.annote("VendorManifestEntry", {
     description: "Manifest row for one verified, explicitly vetted, alignment-free JSON-LD taxonomy slice.",
@@ -193,6 +193,7 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly
  * **Example** (Describe an external alignment slice)
  *
  * ```ts
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { VendorAlignmentManifestEntry } from "@beep/ontology/TaxonomyLoader"
  * import { IRIReference } from "@beep/rdf"
  *
@@ -202,7 +203,7 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly
  *   format: "jsonld",
  *   id: "folio-example",
  *   loadStatus: "VETTED",
- *   localConceptIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/example"),
+ *   localConceptIri: IRIReference.make($SemanticFoundationId.create("concept/example").iri),
  *   mappingKind: "closeMatch",
  *   namespaceIri: IRIReference.make("https://folio.openlegalstandard.org/"),
  *   path: "folio-example.jsonld",
@@ -222,7 +223,7 @@ export class VendorAlignmentManifestEntry extends S.Class<
     _tag: S.tagDefaultOmit("VendorConceptAlignmentSlice"),
     conceptIri: HttpsIriReference,
     fetchUrl: HttpsIriReference,
-    format: S.Literal("jsonld"),
+    format: S.tag("jsonld"),
     id: S.NonEmptyString,
     loadKind: S.tag("concept-alignment"),
     loadStatus: VendorLoadStatus,
@@ -230,7 +231,7 @@ export class VendorAlignmentManifestEntry extends S.Class<
     mappingKind: SkosMappingKind,
     namespaceIri: HttpsIriReference,
     path: VendorSlicePath,
-    verified: S.Literal(true),
+    verified: S.tag(true),
   },
   $I.annote("VendorAlignmentManifestEntry", {
     description: "Asset-pack manifest directive for one vetted external concept alignment.",
@@ -277,7 +278,7 @@ const VendorAlignmentManifestEntryBoundary = VendorAlignmentManifestEntry.check(
 export class VendorConceptSlice extends S.Opaque<VendorConceptSlice, { readonly brand: unique symbol }>()(
   S.Struct({
     "@id": HttpsIriReference,
-    "@type": S.Literal("owl:Class"),
+    "@type": S.tag("owl:Class"),
     "rdfs:label": S.NonEmptyString,
     "skos:definition": S.NonEmptyString,
   }).pipe(
@@ -506,12 +507,13 @@ export class VendorSliceConceptMismatch extends S.TaggedError<
  * **Example** (Make an alignment-target error)
  *
  * ```ts
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { VendorAlignmentTargetNotFound } from "@beep/ontology/TaxonomyLoader"
  * import { IRIReference } from "@beep/rdf"
  *
  * const error = VendorAlignmentTargetNotFound.make({
  *   id: "folio-example",
- *   localConceptIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/missing")
+ *   localConceptIri: IRIReference.make($SemanticFoundationId.create("concept/missing").iri)
  * })
  * console.log(error._tag)
  * ```

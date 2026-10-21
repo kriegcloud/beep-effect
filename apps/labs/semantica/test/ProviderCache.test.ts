@@ -31,10 +31,10 @@ import * as TestClock from "effect/testing/TestClock";
 import {
   ActiveModelIdentityLive,
   AnthropicExtractionLanguageModelLive,
+  AnthropicExtractionModelIdentity,
   CachingLanguageModelLive,
   ReplayLanguageModelLive,
   replayGenerateText,
-  XAiGoldModelIdentityLive,
 } from "@/layers/LanguageModelLive";
 import { ProviderCacheLive } from "@/layers/ProviderCacheLive";
 import { LabConfigLive } from "@/runtime/Config";
@@ -760,31 +760,15 @@ describe("C0 provider cache and language-model boundary", () => {
     })
   );
 
-  it.effect("refuses unversioned xAI proposal identities with the pinning setting", () =>
-    Effect.gen(function* () {
-      const error = yield* provideScopedLayer(
-        XAiGoldModelIdentityLive({ artifactHash: model.artifactHash, model: "grok-4" })
-      )(ActiveModelIdentity).pipe(Effect.flip);
-
-      expect(error).toBeInstanceOf(ModelRevisionUnpinned);
-      expect(error).toMatchObject({
-        _tag: "ModelRevisionUnpinned",
-        model: "grok-4",
-        setting: "SEMANTICA_XAI_MODEL",
-      });
-    })
-  );
-
-  it.effect.each(["grok-test-20260826", "grok-build-v2", "grok-build@3", "grok-build:2026", "grok-4.6"])(
+  it.effect.each(["claude-test-20260826", "claude-build-v2", "claude-build@3", "claude-build:2026"])(
     "retains an explicit model revision verbatim for %s",
     (modelId) =>
       Effect.gen(function* () {
-        const identity = yield* provideScopedLayer(
-          XAiGoldModelIdentityLive({ artifactHash: model.artifactHash, model: modelId })
-        )(ActiveModelIdentity);
+        const identity = yield* AnthropicExtractionModelIdentity({ artifactHash: model.artifactHash, model: modelId });
 
         expect(identity.name).toBe(modelId);
         expect(identity.revision).toBe(modelId);
+        expect(identity.provider).toBe("anthropic");
       })
   );
 

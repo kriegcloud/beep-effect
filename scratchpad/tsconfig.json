@@ -14,7 +14,13 @@
   },
   "references": [
     {
+      "path": "../packages/drivers/commands/tsconfig.json"
+    },
+    {
       "path": "../packages/drivers/drizzle/tsconfig.json"
+    },
+    {
+      "path": "../packages/drivers/git/tsconfig.json"
     },
     {
       "path": "../packages/drivers/n3/tsconfig.json"
@@ -53,13 +59,31 @@
       "path": "../packages/foundation/capability/semantic-web/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/github-commands/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/github-references/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/glob/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/jsonc/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/managed-section/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/md/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/nlp/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/npm-spec/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/ontology/tsconfig.json"
@@ -74,7 +98,22 @@
       "path": "../packages/foundation/modeling/schema/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/semver/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/spdx/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/toml/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/tsconfig/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/utils/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/yaml/tsconfig.json"
     },
     {
       "path": "../packages/foundation/ui-system/dock-react/tsconfig.json"
@@ -87,6 +126,9 @@
     },
     {
       "path": "../packages/tooling/test-kit/fc-runs/tsconfig.json"
+    },
+    {
+      "path": "../packages/tooling/test-kit/memfs/tsconfig.json"
     },
     {
       "path": "../packages/tooling/test-kit/test-utils/tsconfig.json"

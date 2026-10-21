@@ -118,7 +118,8 @@ describe("Organization", () => {
   it("materializes product-entity variants for the organization model", () => {
     expect(Organization.Model.sql.tableName).toBe(Shared.OrganizationId.tableName);
     expect(R.keys(Organization.Model.insert.fields)).not.toContain("id");
-    expect(R.keys(Organization.Model.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(Organization.Model.insert.fields)).toContain("rowVersion");
+    expect(R.keys(Organization.Model.jsonCreate.fields)).not.toContain("rowVersion");
     expect(R.keys(Organization.Model.insert.fields)).toContain("publicId");
     expect(R.keys(Organization.Model.update.fields)).toContain("id");
     expect(R.keys(Organization.Model.update.fields)).toContain("rowVersion");
@@ -132,6 +133,7 @@ describe("Organization", () => {
       "slug",
     ]);
     expect(R.keys(Organization.Model.jsonUpdate.fields)).toEqual([
+      "rowVersion",
       "legalName",
       "licenseTier",
       "name",

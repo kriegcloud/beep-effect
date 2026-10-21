@@ -12,7 +12,7 @@
       }
     },
     {
-      "path": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "path": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "sha256": "9749c6bcdd917fe5385578d84b4f16fce9f4fcead914567a5b94503c1c1db81c",
       "matches": {
         "35f8454d0414d8f79284fdc9e92c84379d919a3e": true,

@@ -147,7 +147,7 @@ session was contacted. This is authored research in a new isolated lane.
   proprietary source was copied and no public-stable-API claim is made.
 
 - [Browser integration reuse check](spike/browser-integration.md): exact live
-  source anchors for Firecrawl service browser APIs, QA and Openclaw boundaries.
+  source anchors for the `retired:firecrawl` service browser APIs, QA and Openclaw boundaries.
   No repo-owned authenticated local conversation enrollment driver was found.
   These existing service APIs do not qualify the CUA browser route for unattended
   deployment or authorize a new hosted-service billing route.

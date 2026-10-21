@@ -5,14 +5,14 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
-import { DependencySpecifier } from "../../effected/npm/DependencySpecifier.ts";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import { ImporterDependency } from "../../effected/lockfiles/ImporterDependency.ts";
 import { LockfileImporter } from "../../effected/lockfiles/LockfileImporter.ts";
 import { Lockfile, LockfileParseError, LockfileFramingError } from "../../effected/lockfiles/Lockfile.ts";
 import { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
 import { BunExtension } from "../../effected/lockfiles/BunExtension.ts";
 import { PnpmExtension } from "../../effected/lockfiles/PnpmExtension.ts";
-import { Yaml } from "../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 // Native schema derivation generates independent specifier tags and raw strings.
 // Classify a valid spelling before sampling the enclosing serialization model;
 // all other generated fields, optional keys and collections remain unchanged.

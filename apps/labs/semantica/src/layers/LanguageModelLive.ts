@@ -7,7 +7,6 @@ import {
 } from "@beep/anthropic";
 import { $SemanticaId } from "@beep/identity/packages";
 import { Sha256HexFromBytes } from "@beep/schema";
-import { XAi, XAiLanguageModel } from "@beep/xai";
 import * as A from "effect/Array";
 import * as AiError from "effect/ai/AiError";
 import * as LanguageModel from "effect/ai/LanguageModel";
@@ -34,9 +33,8 @@ import type { TaskType } from "@/schema/Model";
 
 const utf8Encoder = new TextEncoder();
 const $I = $SemanticaId.create("layers/LanguageModelLive");
-const XAI_MODEL_SETTING = "SEMANTICA_XAI_MODEL" as const;
 const pinnedModelIdPattern =
-  /^claude-(?:opus|sonnet|haiku)-\d+-\d+(?:-\d{8})?$|^grok-\d+(?:\.\d+)+(?:-[a-z0-9]+)*$|(?:^|[-_.])20(?:\d{6}|\d{2}-\d{2}-\d{2})(?:$|[-_.])|(?:^|[-_.])v\d+(?:[._-]\d+)*(?:$|[-_.])|@\d+(?:[._-]\d+)*(?:$|[-_.])|:\d{4}(?:[._-]\d+)*(?:$|[-_.])/u;
+  /^claude-(?:opus|sonnet|haiku)-\d+-\d+(?:-\d{8})?$|(?:^|[-_.])20(?:\d{6}|\d{2}-\d{2}-\d{2})(?:$|[-_.])|(?:^|[-_.])v\d+(?:[._-]\d+)*(?:$|[-_.])|@\d+(?:[._-]\d+)*(?:$|[-_.])|:\d{4}(?:[._-]\d+)*(?:$|[-_.])/u;
 const PinnedModelId = S.NonEmptyString.check(
   S.isPattern(pinnedModelIdPattern, {
     identifier: $I`PinnedModelIdCheck`,
@@ -389,7 +387,7 @@ const modelRevision = Effect.fn("LanguageModel.modelRevision")(function* (
  * @since 0.0.0
  */
 const makeModelIdentity = (
-  provider: "anthropic" | "xai",
+  provider: "anthropic",
   model: string,
   artifactHash: ModelIdentity["artifactHash"],
   taskType: TaskType,
@@ -434,50 +432,6 @@ export const AnthropicExtractionModelIdentity = (options: {
 }) => makeModelIdentity("anthropic", options.model, options.artifactHash, "extraction", ANTHROPIC_MODEL_ENV);
 
 /**
- * Raw xAI provider Layer for the gold proposer.
- *
- * **Example** (Create a pinned xAI provider layer)
- *
- * ```ts
- * import { XAiGoldProviderLive } from "@/layers/LanguageModelLive"
- * import * as Layer from "effect/Layer";
- * console.log(Layer.isLayer(XAiGoldProviderLive("grok-4-20260826"))) // true
- * ```
- *
- * @category layers
- * @since 0.0.0
- */
-export const XAiGoldProviderLive = (model: string) => XAiLanguageModel.layer({ model }).pipe(Layer.provide(XAi.layer));
-
-/**
- * Cache identity Layer paired with the xAI gold proposer.
- *
- * **Example** (Create a pinned xAI identity layer)
- *
- * ```ts
- * import { XAiGoldModelIdentityLive } from "@/layers/LanguageModelLive"
- * import { Sha256Hex } from "@beep/schema"
- * import * as Layer from "effect/Layer";
- * const layer = XAiGoldModelIdentityLive({
- *   artifactHash: Sha256Hex.make("0".repeat(64)),
- *   model: "grok-4-20260826"
- * })
- * console.log(Layer.isLayer(layer)) // true
- * ```
- *
- * @category layers
- * @since 0.0.0
- */
-export const XAiGoldModelIdentityLive = (options: {
-  readonly artifactHash: ModelIdentity["artifactHash"];
-  readonly model: string;
-}) =>
-  Layer.effect(
-    ActiveModelIdentity,
-    makeModelIdentity("xai", options.model, options.artifactHash, "gold-proposal", XAI_MODEL_SETTING)
-  );
-
-/**
  * Raw Anthropic language-model Layer pinned to the exact configured extractor id.
  *
  * **Details**
@@ -503,31 +457,6 @@ export const AnthropicExtractionProviderLive = Layer.unwrap(
     )
   )
 );
-
-/**
- * Live xAI gold-proposal model over the immutable cache boundary.
- *
- * **Example** (Create a cached xAI gold layer)
- *
- * ```ts
- * import { XAiGoldLanguageModelLive } from "@/layers/LanguageModelLive"
- * import { Sha256Hex } from "@beep/schema"
- * import * as Layer from "effect/Layer";
- * const layer = XAiGoldLanguageModelLive({
- *   artifactHash: Sha256Hex.make("0".repeat(64)),
- *   model: "grok-4-20260826"
- * })
- * console.log(Layer.isLayer(layer)) // true
- * ```
- *
- * @category layers
- * @since 0.0.0
- */
-export const XAiGoldLanguageModelLive = (options: {
-  readonly artifactHash: ModelIdentity["artifactHash"];
-  readonly model: string;
-}) =>
-  CachingLanguageModelLive(XAiGoldProviderLive(options.model)).pipe(Layer.provide(XAiGoldModelIdentityLive(options)));
 
 /**
  * Live Anthropic extraction model over the immutable cache boundary.

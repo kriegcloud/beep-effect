@@ -53,9 +53,9 @@
     "packages/drivers/acp/src/_generated/schema.gen.ts"
   ],
   "handWrittenDriverPrecedents": [
-    "packages/drivers/firecrawl/src/Firecrawl.service.ts",
-    "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
-    "packages/drivers/firecrawl/test"
+    "retired:firecrawl/src/Firecrawl.service.ts",
+    "retired:firecrawl/src/Firecrawl.errors.ts",
+    "retired:firecrawl/test"
   ],
   "boxSdkSources": {
     "package": "box-node-sdk",

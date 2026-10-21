@@ -34,9 +34,9 @@ import { dual, pipe } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { pathToFileURL } from "node:url";
-import { Run } from "../commands/index.ts";
-import { PartialReleaseAgeGate } from "../npm/index.ts";
-import { CatalogAssemblyError } from "../npm/index.ts";
+import { Run } from "@beep/commands";
+import { PartialReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -547,10 +547,11 @@ const peerRulesOf = (config: HookConfig): PeerDependencyRules => config.peerDepe
  * contribution, omitting a key the hooks never set (never an explicit
  * `undefined` — the fields are `optionalKey`).
  */
-const releaseAgeOf = (config: HookConfig): PartialReleaseAgeGate => ({
-	...O.getSomesStruct({ ageMinutes: O.fromUndefinedOr(config.minimumReleaseAge) }),
-	...O.getSomesStruct({ exclude: O.fromUndefinedOr(config.minimumReleaseAgeExclude) }),
-});
+const releaseAgeOf = (config: HookConfig): PartialReleaseAgeGate =>
+	PartialReleaseAgeGate.make({
+		...O.getSomesStruct({ ageMinutes: O.fromUndefinedOr(config.minimumReleaseAge) }),
+		...O.getSomesStruct({ exclude: O.fromUndefinedOr(config.minimumReleaseAgeExclude) }),
+	});
 
 /** Fold the hook config back into the normalized `catalog name → dependency → range` record. */
 const configToEntries = (config: HookConfig): CatalogEntries => {
@@ -816,11 +817,11 @@ const REPLAY_TIMEOUT = Duration.seconds(30);
  */
 const ReplayPayload = S.Union([
 	S.Struct({
-		ok: S.Literal(true).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child completed hook replay successfully." })),
+		ok: S.tag(true).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child completed hook replay successfully." })),
 		config: S.Unknown.pipe($I.annoteKey("ReplayPayload.config", { description: "Hook-returned config data, normalized tolerantly by the parent." })),
 	}),
 	S.Struct({
-		ok: S.Literal(false).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child failed to load or replay a hook." })),
+		ok: S.tag(false).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child failed to load or replay a hook." })),
 		name: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.name", { description: "The config dependency whose hook failed, when identified." })),
 		message: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.message", { description: "The child-side failure message, when available." })),
 		stack: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.stack", { description: "The child-side failure stack, when available." })),

@@ -60,7 +60,40 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 	return specifiers;
 };
 
-/** Runtime edges reachable from `entry`, stopping at lab sibling-module boundaries. */
+/**
+ * The kit modules waves 1a, 1b and 2a of the effected promotion moved out of the lab
+ * into `@beep/*` packages (`templates` became `@beep/managed-section`; the pure
+ * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`). Upstream
+ * reached each as a bare `@effected/*` edge and the lab as a relative sibling
+ * entrypoint; promoted, each is a bare package edge again, so the walker stops at
+ * it as it stops at a lab sibling. The kit modules not yet promoted (`walker`,
+ * `markdown`, ...) are still lab siblings reached relatively. Add a module here
+ * when it is promoted.
+ */
+const PROMOTED_KIT_PACKAGES = new Set([
+	"@beep/commands",
+	"@beep/git",
+	"@beep/github-commands",
+	"@beep/github-references",
+	"@beep/glob",
+	"@beep/jsonc",
+	"@beep/jsonl",
+	"@beep/managed-section",
+	"@beep/memfs",
+	"@beep/npm-spec",
+	"@beep/schema-org",
+	"@beep/semver",
+	"@beep/spdx",
+	"@beep/toml",
+	"@beep/tsconfig",
+	"@beep/yaml",
+]);
+
+/** An edge to another kit module: a lab sibling entrypoint, or a promoted kit package or one of its subpaths. */
+const isKitEdge = (specifier: string): boolean =>
+	specifier.startsWith("../") || PROMOTED_KIT_PACKAGES.has(specifier.split("/").slice(0, 2).join("/"));
+
+/** Runtime edges reachable from `entry`, stopping at lab sibling-module and promoted kit-package boundaries. */
 const reachableRuntimeImports = (entry: string): ReadonlySet<string> => {
 	const seen = new Set<string>();
 	const bare = new Set<string>();
@@ -178,7 +211,7 @@ describe("bundle reachability", () => {
 		// consumer's bundle — and so a stripper that blinded the walker shows up as
 		// an empty set rather than as a pass.
 		assert.deepStrictEqual([...reachableRuntimeImports("ActionOutputs.ts")].sort(), [
-			"../github-commands/index.ts",
+			"@beep/github-commands",
 			"@beep/identity/packages",
 			"@beep/utils/Option",
 			"effect/Boolean",
@@ -201,10 +234,10 @@ describe("bundle reachability", () => {
 		// `node:crypto` is the sanctioned import, and it is here because core
 		// `Crypto` is RNG-only at beta.101 — no digest, no HMAC.
 		// `@effected/walker` is the file walker under `matchingFiles`; its own
-		// graph is `effect` and `@effected/glob`, both already here.
+		// graph is `effect` and `@beep/glob`, both already here.
 		assert.deepStrictEqual([...reachableRuntimeImports("CacheKey.ts")].sort(), [
-			"../glob/index.ts",
 			"../walker/index.ts",
+			"@beep/glob",
 			"@beep/identity/packages",
 			"effect/Array",
 			"effect/Effect",
@@ -223,7 +256,7 @@ describe("bundle reachability", () => {
 			"node:crypto",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("BlobStore.ts")].sort(), [
-			"../github-commands/index.ts",
+			"@beep/github-commands",
 			"@beep/identity/packages",
 			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
@@ -248,15 +281,17 @@ describe("bundle reachability", () => {
 			"effect/Stream",
 			"effect/String",
 			"effect/encoding/Hex",
-			"effect/http",
+			"effect/http/HttpClient",
+			"effect/http/HttpClientRequest",
 			"node:crypto",
 		]);
 		// The workflow-command protocol is not in this package any more: it lives in the pure
 		// `@effected/github-commands` (which imports nothing, not even `effect`), and this package takes it as a peer. The
-		// modules that write commands reach it as one bare import and nothing else.
+		// modules that write commands reach it as one bare import and nothing else. Promoted, that
+		// package is `@beep/github-commands`, so the kit edges are the lab siblings plus the promoted packages.
 		assert.deepStrictEqual(
-			[...reachableRuntimeImports("ActionLogger.ts")].filter((name) => name.startsWith("../")),
-			["../github-commands/index.ts"],
+			[...reachableRuntimeImports("ActionLogger.ts")].filter(isKitEdge),
+			["@beep/github-commands"],
 		);
 		// The lab child-env helper uses Effect Record to build core's CommandOptions value.
 		assert.deepStrictEqual([...reachableRuntimeImports("ChildEnv.ts")], [
@@ -273,7 +308,7 @@ describe("bundle reachability", () => {
 		// would put a blob-storage client in the bundle of every action that
 		// merely sets an output.
 		assert.deepStrictEqual([...reachableRuntimeImports("Action.ts")].sort(), [
-			"../github-commands/index.ts",
+			"@beep/github-commands",
 			"@beep/identity/packages",
 			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
@@ -303,7 +338,8 @@ describe("bundle reachability", () => {
 			"effect/Result",
 			"effect/Schema",
 			"effect/SchemaIssue",
-			"effect/http",
+			"effect/String",
+			"effect/http/FetchHttpClient",
 		]);
 	});
 
@@ -324,7 +360,7 @@ describe("bundle reachability", () => {
 		// Exact edge sets for the new modules, same discipline as the light half:
 		// the vocabulary reaches nothing but effect (in particular NOT
 		// `@effected/github`, whose conclusion set it mirrors structurally), and
-		// the document modules reach the templates region engine and no more.
+		// the document modules reach the managed-section region engine and no more.
 		assert.deepStrictEqual([...reachableRuntimeImports("CheckState.ts")].sort(), [
 			"@beep/identity/packages",
 			"@beep/schema/LiteralKit",
@@ -332,17 +368,19 @@ describe("bundle reachability", () => {
 			"effect/Schema",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("ManagedDocument.ts")].sort(), [
-			"../templates/index.ts",
 			"@beep/identity/packages",
+			"@beep/managed-section",
 			"@beep/utils/Option",
+			"effect/Array",
 			"effect/Effect",
+			"effect/Function",
 			"effect/Result",
 			"effect/Schema",
 			"effect/String",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("CheckDocument.ts")].sort(), [
-			"../templates/index.ts",
 			"@beep/identity/packages",
+			"@beep/managed-section",
 			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
 			"effect/Array",
@@ -382,20 +420,23 @@ describe("bundle reachability", () => {
 		]);
 	});
 
-	it("the @effected/npm edge is confined to the installer, on Azure's terms", () => {
-		// `PackageManagerInstaller` consumes `@effected/npm`'s pin vocabulary and
-		// is the ONLY module allowed to: the edge exists for one service a
-		// consumer takes with one explicit layer line, and it must not ride into
-		// the runtime or any light module's graph. The control comes first, so a
-		// blinded walker fails here rather than passing everything below.
+	it("the @beep/npm-spec edge is confined to the installer, on Azure's terms", () => {
+		// `PackageManagerInstaller` consumes `@beep/npm-spec`'s pin vocabulary
+		// (upstream `@effected/npm`) and is the ONLY module allowed to: the edge
+		// exists for one service a consumer takes with one explicit layer line,
+		// and it must not ride into the runtime or any light module's graph. The
+		// control comes first, so a blinded walker fails here rather than passing
+		// everything below.
+		const reachesNpmSpec = (entry: string): boolean =>
+			[...reachableRuntimeImports(entry)].some((specifier) => specifier.split("/").slice(0, 2).join("/") === "@beep/npm-spec");
 		assert.isTrue(
-			[...reachableRuntimeImports("PackageManagerInstaller.ts")].includes("../npm/index.ts"),
-			"PackageManagerInstaller does not reach @effected/npm — the walker is blind",
+			reachesNpmSpec("PackageManagerInstaller.ts"),
+			"PackageManagerInstaller does not reach @beep/npm-spec — the walker is blind",
 		);
 		for (const entry of LIGHT_MODULES.filter((module) => module !== "PackageManagerInstaller.ts")) {
 			assert.isFalse(
-				[...reachableRuntimeImports(entry)].includes("../npm/index.ts"),
-				`${entry} reaches @effected/npm — the installer confinement has leaked`,
+				reachesNpmSpec(entry),
+				`${entry} reaches @beep/npm-spec — the installer confinement has leaked`,
 			);
 		}
 		// The exact edge set: the pin vocabulary, effect, ToolInstaller's HTTP and
@@ -403,9 +444,12 @@ describe("bundle reachability", () => {
 		// particular the DEFAULT RUNTIME stays clear: `Action.ts`'s exact edge set
 		// above is what pins `ActionRuntime.layer` never linking this module.
 		assert.deepStrictEqual([...reachableRuntimeImports("PackageManagerInstaller.ts")].sort(), [
-			"../npm/index.ts",
 			"@beep/identity/packages",
+			"@beep/npm-spec/IntegrityHash",
+			"@beep/npm-spec/PackageManagerPin",
+			"@beep/npm-spec/RegistryKind",
 			"@beep/utils/Option",
+			"effect/Array",
 			"effect/Boolean",
 			"effect/Config",
 			"effect/ConfigProvider",
@@ -427,8 +471,9 @@ describe("bundle reachability", () => {
 			"effect/String",
 			"effect/encoding/Base64",
 			"effect/encoding/Hex",
-			"effect/http",
-			"effect/process",
+			"effect/http/HttpClient",
+			"effect/process/ChildProcess",
+			"effect/process/ChildProcessSpawner",
 			"node:crypto",
 		]);
 	});
@@ -461,7 +506,7 @@ describe("bundle reachability", () => {
 			"effect/Predicate",
 			"effect/Schedule",
 			"effect/Schema",
-			"effect/http",
+			"effect/http/HttpClientRequest",
 		],
 			"the Twirp client speaks HTTP and nothing heavier",
 		);
@@ -479,7 +524,7 @@ describe("bundle reachability", () => {
 			"effect/Predicate",
 			"effect/Schedule",
 			"effect/Schema",
-			"effect/http",
+			"effect/http/HttpClientRequest",
 		]);
 		// `effect/process` is a type-only import there: the spawner
 		// arrives as a value from the caller.
@@ -496,10 +541,11 @@ describe("bundle reachability", () => {
 		// grow a heavier edge.
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/archiveCommands.ts")].sort(), [
 			"@beep/identity/packages",
+			"effect/Array",
 			"effect/Function",
 			"effect/Predicate",
 			"effect/Schema",
-			"effect/process",
+			"effect/process/ChildProcess",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/digest.ts")].sort(), [
 			"effect/Effect",
@@ -570,7 +616,10 @@ describe("bundle reachability", () => {
 	});
 
 	it("every runtime dependency is declared", () => {
-		// A package you import but do not declare is how a peer closure rots.
+		// A package you import but do not declare is how a peer closure rots. A lab
+		// sibling counts as its upstream `@effected/*` package; a promoted kit module
+		// is its bare `@beep/*` package, which the data manifest declares in place of
+		// the `@effected/*` name it replaced.
 		const manifest = Result.getOrThrowWith(
 			S.decodeResult(DependenciesManifestJson)(readFileSync(resolve(SRC, "package.json"), "utf8")),
 			(error) => error,

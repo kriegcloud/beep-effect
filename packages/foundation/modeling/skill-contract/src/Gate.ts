@@ -247,7 +247,7 @@ export type GateApplicability = typeof GateApplicability.Type;
  * ```ts
  * import { EvidencePredicateType } from "@beep/skill-contract"
  *
- * const type = EvidencePredicateType.make("https://beep.dev/evidence/artifact-exists/v1")
+ * const type = EvidencePredicateType.make("https://example.test/evidence/artifact-exists/v1")
  * console.log(type)
  * ```
  *
@@ -278,7 +278,7 @@ export type EvidencePredicateType = typeof EvidencePredicateType.Type;
  * import { EvidencePredicateType, GateEvidenceRequirement } from "@beep/skill-contract"
  *
  * const requirement = GateEvidenceRequirement.make({
- *   predicateType: EvidencePredicateType.make("https://beep.dev/evidence/artifact-exists/v1")
+ *   predicateType: EvidencePredicateType.make("https://example.test/evidence/artifact-exists/v1")
  * })
  * console.log(requirement.predicateType)
  * ```
@@ -315,7 +315,7 @@ export class GateEvidenceRequirement extends S.Opaque<GateEvidenceRequirement, {
  * const gate = GateDeclaration.make({
  *   applicability: AlwaysGateApplicability.make({}),
  *   evidence: GateEvidenceRequirement.make({
- *     predicateType: EvidencePredicateType.make("https://beep.dev/evidence/artifact-exists/v1")
+ *     predicateType: EvidencePredicateType.make("https://example.test/evidence/artifact-exists/v1")
  *   }),
  *   id: GateId.make("artifact-exists"),
  *   remediationOwner: "qa",
@@ -483,7 +483,7 @@ const gateAuditRecordImpl = <const Identifier extends string, const Outcome exte
     evaluator: S.NonEmptyString,
     gateId: GateId,
     occurredAt: IsoDateTimeString,
-    outcome: S.Literal(outcome),
+    outcome: S.tag(outcome),
     reason: S.NonEmptyString,
   }).pipe(
     $I.annoteSchema(

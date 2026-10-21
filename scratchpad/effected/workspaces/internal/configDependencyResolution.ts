@@ -29,9 +29,9 @@ import * as S from "effect/Schema";
 
 import { homedir } from "node:os";
 import { PnpmEnvLockfile } from "../../lockfiles/index.ts";
-import type { CatalogAssemblyError } from "../../npm/index.ts";
-import { PackageManagerCache } from "../../npm/index.ts";
-import { Yaml } from "../../yaml/index.ts";
+import type { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { PackageManagerCache } from "@beep/npm-spec/PackageManagerCache";
+import { Yaml } from "@beep/yaml";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

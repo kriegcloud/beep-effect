@@ -22,6 +22,7 @@ import { describe } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const expectDeclaredEquivalence = <A>(same: (self: A, that: A) => boolean, first: A, second: A, different: A) => {
   pipe(same(first, second), assertTrue);
@@ -89,8 +90,8 @@ describe("ontology use-case tagged-error declared equivalence", () => {
 
   it("compares OntologyCasConflict by declared fields", () => {
     const same = S.toEquivalence(OntologyCasConflict);
-    const expectedFingerprint = OntologyFingerprint.make("0".repeat(64));
-    const currentFingerprint = OntologyFingerprint.make("1".repeat(64));
+    const expectedFingerprint = OntologyFingerprint.make(pipe("0", Str.repeat(64)));
+    const currentFingerprint = OntologyFingerprint.make(pipe("1", Str.repeat(64)));
     const first = OntologyCasConflict.make({
       expectedFingerprint,
       currentFingerprint,
@@ -105,7 +106,7 @@ describe("ontology use-case tagged-error declared equivalence", () => {
     });
     const different = OntologyCasConflict.make({
       expectedFingerprint,
-      currentFingerprint: OntologyFingerprint.make("2".repeat(64)),
+      currentFingerprint: OntologyFingerprint.make(pipe("2", Str.repeat(64))),
       guidance: "Refetch and retry.",
       recoverable: true,
     });

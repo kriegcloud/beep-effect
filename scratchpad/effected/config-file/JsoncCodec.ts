@@ -1,4 +1,4 @@
-import { Jsonc } from "../jsonc/index.ts";
+import { Jsonc } from "@beep/jsonc";
 import * as Effect from "effect/Effect";
 import type { ConfigCodec } from "./ConfigCodec.ts";
 import { ConfigCodecError } from "./ConfigCodec.ts";

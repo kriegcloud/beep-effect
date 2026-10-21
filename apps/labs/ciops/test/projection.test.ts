@@ -315,7 +315,11 @@ it.layer(TestPolicyLive, { timeout: "5 seconds" })("@beep/ciops S7 projection", 
       expect(A.every(report.verdicts, (verdict) => ReplayEventOutcome.is.pass(verdict.outcome))).toBe(true);
       expect(report.mismatches).toHaveLength(0);
       expect(report.evictions).toHaveLength(1);
-      expect(report.evictions[0]?.evictedNonce.startsWith("1813f29f")).toBe(true);
+      expect(
+        O.getOrUndefined(
+          O.map(O.fromUndefinedOr(report.evictions[0]), (eviction) => Str.startsWith("1813f29f")(eviction.evictedNonce))
+        )
+      ).toBe(true);
       expect(report.evictions[0]?.weightTokens).toBe(5);
       expect(report.evictions[0]?.eventIndex).toBe(66);
     })

@@ -1,6 +1,6 @@
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Run } from "../commands/index.ts";
+import { Run } from "@beep/commands";
 import type * as Scope from "effect/Scope";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
@@ -17,7 +17,7 @@ import * as Base64 from "effect/encoding/Base64";
 import * as HttpClient from "effect/http/HttpClient";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { IntegrityHash } from "./IntegrityHash.ts";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import type { PublishedVersion } from "./NpmRegistry.ts";
 
 const $I = $ScratchpadId.create("effected/npm/PackageTarball");

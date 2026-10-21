@@ -92,7 +92,7 @@ const evidenceReceiptImpl = <const Type extends EvidencePredicateType, Predicate
   const identifier: string = `EvidenceReceipt(${predicateType})`;
   return S.Struct({
     predicate,
-    predicateType: S.Literal(predicateType),
+    predicateType: S.tag(predicateType),
     subject: S.NonEmptyArray(EvidenceSubject),
   }).pipe(
     $I.annoteSchema(identifier, {
@@ -383,7 +383,7 @@ export class GateSummary extends S.Opaque<GateSummary, { readonly brand: unique 
  * @since 0.0.0
  */
 export const GateSummaryPredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/skill-contract/evidence/gate-summary/v1"
+  $SkillContractId.create("evidence/gate-summary/v2").iri
 );
 
 /**

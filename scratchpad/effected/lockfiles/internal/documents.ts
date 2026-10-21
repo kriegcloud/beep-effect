@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Yaml } from "../../yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { ParseFailure } from "./shared.ts";

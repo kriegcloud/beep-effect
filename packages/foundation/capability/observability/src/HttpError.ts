@@ -244,7 +244,7 @@ export class BadRequestError extends S.TaggedError<BadRequestError, { readonly b
   $I`BadRequestError`
 )(
   "BadRequestError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("BadRequest"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("BadRequest"))),
   $I.annoteError<BadRequestError>("BadRequestError", {
     description: "400 tagged error.",
   })
@@ -274,7 +274,7 @@ export class UnauthorizedError extends S.TaggedError<UnauthorizedError, { readon
   $I`UnauthorizedError`
 )(
   "UnauthorizedError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("Unauthorized"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("Unauthorized"))),
   $I.annoteError<UnauthorizedError>("UnauthorizedError", {
     description: "401 tagged error.",
   })
@@ -304,7 +304,7 @@ export class ForbiddenError extends S.TaggedError<ForbiddenError, { readonly bra
   $I`ForbiddenError`
 )(
   "ForbiddenError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("Forbidden"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("Forbidden"))),
   $I.annoteError<ForbiddenError>("ForbiddenError", {
     description: "403 tagged error.",
   })
@@ -332,7 +332,7 @@ export class ForbiddenError extends S.TaggedError<ForbiddenError, { readonly bra
  */
 export class NotFoundError extends S.TaggedError<NotFoundError, { readonly brand: unique symbol }>($I`NotFoundError`)(
   "NotFoundError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("NotFound"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("NotFound"))),
   $I.annoteError<NotFoundError>("NotFoundError", {
     description: "404 tagged error.",
   })
@@ -360,7 +360,7 @@ export class NotFoundError extends S.TaggedError<NotFoundError, { readonly brand
  */
 export class ConflictError extends S.TaggedError<ConflictError, { readonly brand: unique symbol }>($I`ConflictError`)(
   "ConflictError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("Conflict"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("Conflict"))),
   $I.annoteError<ConflictError>("ConflictError", {
     description: "409 tagged error.",
   })
@@ -391,7 +391,7 @@ export class UnprocessableEntityError extends S.TaggedError<
   { readonly brand: unique symbol }
 >($I`UnprocessableEntityError`)(
   "UnprocessableEntityError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("UnprocessableEntity"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("UnprocessableEntity"))),
   $I.annoteError<UnprocessableEntityError>("UnprocessableEntityError", {
     description: "422 tagged error.",
   })
@@ -421,7 +421,7 @@ export class TooManyRequestsError extends S.TaggedError<TooManyRequestsError, { 
   $I`TooManyRequestsError`
 )(
   "TooManyRequestsError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("TooManyRequests"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("TooManyRequests"))),
   $I.annoteError<TooManyRequestsError>("TooManyRequestsError", {
     description: "429 tagged error.",
   })
@@ -452,7 +452,7 @@ export class InternalServerErrorError extends S.TaggedError<
   { readonly brand: unique symbol }
 >($I`InternalServerErrorError`)(
   "InternalServerErrorError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("InternalServerError"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("InternalServerError"))),
   $I.annoteError<InternalServerErrorError>("InternalServerErrorError", {
     description: "500 tagged error.",
   })
@@ -482,7 +482,7 @@ export class BadGatewayError extends S.TaggedError<BadGatewayError, { readonly b
   $I`BadGatewayError`
 )(
   "BadGatewayError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("BadGateway"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("BadGateway"))),
   $I.annoteError<BadGatewayError>("BadGatewayError", {
     description: "502 tagged error.",
   })
@@ -512,7 +512,7 @@ export class ServiceUnavailableError extends S.TaggedError<ServiceUnavailableErr
   $I`ServiceUnavailableError`
 )(
   "ServiceUnavailableError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("ServiceUnavailable"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("ServiceUnavailable"))),
   $I.annoteError<ServiceUnavailableError>("ServiceUnavailableError", {
     description: "503 tagged error.",
   })
@@ -542,7 +542,7 @@ export class GatewayTimeoutError extends S.TaggedError<GatewayTimeoutError, { re
   $I`GatewayTimeoutError`
 )(
   "GatewayTimeoutError",
-  statusFields(S.Literal(HttpStatus.fromLiteral("GatewayTimeout"))),
+  statusFields(S.tag(HttpStatus.fromLiteral("GatewayTimeout"))),
   $I.annoteError<GatewayTimeoutError>("GatewayTimeoutError", {
     description: "504 tagged error.",
   })

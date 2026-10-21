@@ -385,7 +385,7 @@ session/machine ids.
   `research/c7-opportunities.md` finding 3; capsule work must derive hints from the failing
   sublane, not the composite).
 - Verify attempt on the third catch-up merge failed with no-location TS2589 in three unrelated
-  packages (@beep/ui, @beep/box, @beep/xai) in one run — the environmental native-compiler flake
+  packages (@beep/ui, @beep/box, retired:xai) in one run — the environmental native-compiler flake
   class, live receipt for the SPEC's TS2589 class-aware arbitration item; the verdict again
   surfaced the misattributed OSV hint alongside it.
 - `yeet status` on the metrics-baseline PR flagged `goals-doctor (baseline)` stale because
@@ -916,7 +916,7 @@ is itself the fourth receipt below; the batching is the symptom, not the practic
   touch selected 8 owners (7 dependents, 311 s) → `coverage:selected` prebuild once (39 tasks,
   0.33 s, fully cached) then 8 concurrent shards of 6–42 s, ratchet `ok: compared 8
   package(s)`, about one minute wall-clock; a `@beep/openai-compat` touch selected 3 owners
-  (`venice-ai`, `xai` as dependents, 37 s) and stayed one `turbo run coverage --concurrency=4`
+  (`retired:venice-ai`, `retired:xai` as dependents, 37 s) and stayed one `turbo run coverage --concurrency=4`
   invocation, ratchet `ok: compared 3 package(s)`. The live planner probe also confirmed the
   target: a `@beep/md` source path now selects 18 owners including `@beep/pandoc-ast`; a
   `@beep/schema` test path selects only `@beep/schema`.

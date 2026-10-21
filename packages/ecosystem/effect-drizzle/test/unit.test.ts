@@ -32,6 +32,7 @@ import {
   suspend,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
+import * as Str from "effect/String";
 import * as EffectModel from "effect/schema/Model";
 import {
   _arrayDepthFkMismatch,
@@ -67,6 +68,11 @@ import {
   _missingTarget,
   _mixedExactCharWidths,
   _mixedExactCharWidthsModelMirror,
+  _nativeRepositoryAcronymKey,
+  _nativeRepositoryColumnNameOverride,
+  _nativeRepositoryNonUniqueLocator,
+  _nativeRepositoryPrimaryKeyLocator,
+  _nativeRepositoryVersionedModel,
   _needsExplicitColumn,
   _nonUniqueForeignKey,
   _nullablePgVersion,
@@ -106,6 +112,7 @@ import {
   _repositoryColumnNameOverride,
   _repositoryNonUniqueLocator,
   _repositoryNullableUniqueLocator,
+  _repositorySnakeKey,
   _repositoryUniqueIndexLocator,
   _repositoryVersionLocator,
   _representedDeclaredNumberTextCarrierMismatch,
@@ -391,6 +398,8 @@ describe("kit write strategies", () => {
     expect(keys(AuditedRecord.update.fields)).toContain("updatedAt");
     expect(keys(AuditedRecord.update.fields)).toContain("rowVersion");
     expect(keys(AuditedRecord.json.fields)).toContain("rowVersion");
+    expect(keys(AuditedRecord.jsonUpdate.fields)).toContain("rowVersion");
+    expect(keys(AuditedRecord.jsonCreate.fields)).not.toContain("rowVersion");
     expect(AuditedRecord.sql.columns.createdAt.column.kind).toBe("timestamp");
     expect(AuditedRecord.sql.columns.updatedAt.column.kind).toBe("timestamp");
   });
@@ -705,6 +714,23 @@ describe("schema corroboration and invariants", () => {
     expect(_repositoryUniqueIndexLocator).not.toThrow();
   });
 
+  it("rejects unsafe native repository construction synchronously", () => {
+    expect(_nativeRepositoryVersionedModel).toThrow(
+      "would overwrite optimistic-version field 'rowVersion'; use makeRepository"
+    );
+    expect(_nativeRepositoryColumnNameOverride).toThrow("columnName override on 'displayName'");
+    expect(_nativeRepositoryNonUniqueLocator).toThrow("primary key, unique field, or single-column unique index");
+  });
+
+  it("rejects field keys that the documented name transforms cannot round-trip", () => {
+    expect(_nativeRepositoryAcronymKey).toThrow("field 'userID': column 'user_id' reads back as 'userId'");
+    expect(_repositorySnakeKey).toThrow("field 'created_at': column 'created_at' reads back as 'createdAt'");
+  });
+
+  it("accepts a primary-key locator on a model without a version field", () => {
+    expect(_nativeRepositoryPrimaryKeyLocator).not.toThrow();
+  });
+
   it("uses Effect's finite-number schema for PostgreSQL floats", () => {
     expect(is(pgFiniteFloat.schema)(Number.NaN)).toBe(false);
   });
@@ -773,8 +799,8 @@ describe("varchar authoring modes", () => {
       throw new Error("varchar injection unexpectedly produced a variant field");
     }
     const accepts = is(injected.schema);
-    expect(accepts("x".repeat(50))).toBe(true);
-    expect(accepts("x".repeat(51))).toBe(false);
+    expect(accepts(Str.repeat(50)("x"))).toBe(true);
+    expect(accepts(Str.repeat(51)("x"))).toBe(false);
   });
 
   it.effect(
@@ -791,7 +817,7 @@ describe("varchar authoring modes", () => {
 
   it("verifies instead of double-injecting when the schema already carries a bound", () => {
     const verified = StringSchema.check(isMaxLength(50)).pipe(pg.varchar(80));
-    expect(is(verified.schema)("x".repeat(51))).toBe(false);
+    expect(is(verified.schema)(Str.repeat(51)("x"))).toBe(false);
     expect(verified.meta.column).toEqual({
       _tag: "varchar",
       dialect: "pg",

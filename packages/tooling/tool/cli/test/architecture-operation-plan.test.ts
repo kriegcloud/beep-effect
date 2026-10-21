@@ -135,7 +135,7 @@ const PackageJsonPublishConfig = S.Struct({
 });
 const decodePackageJsonPublishConfig = S.decodeUnknownEffect(S.fromJsonString(PackageJsonPublishConfig));
 const ArchitectureFixtureManifest = S.Struct({
-  schemaVersion: S.Literal("architecture-fixture-manifest/v1"),
+  schemaVersion: S.tag("architecture-fixture-manifest/v1"),
   acceptedOracle: S.String,
   includedSurfaces: S.Array(S.String),
   excludedSurfaces: S.Array(S.String),

@@ -10,8 +10,8 @@ import {
   PracticeKgHostError,
   runPracticeKgSelfCheck,
 } from "@beep/law-practice-server/PracticeKgHost";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";

@@ -53,9 +53,6 @@
       "path": "../../../packages/drivers/wink/tsconfig.json"
     },
     {
-      "path": "../../../packages/drivers/xai/tsconfig.json"
-    },
-    {
       "path": "../../../packages/epistemic/domain/tsconfig.json"
     },
     {

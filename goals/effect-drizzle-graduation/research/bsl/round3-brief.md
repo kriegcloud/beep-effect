@@ -42,7 +42,7 @@ and the source before writing anything. All prior conventions stand:
     exact variant membership and align (expected: absent from insert, present in
     update as row locator, present in select/json).
 - `effect/sql/SqlModel.makeRepository(Model, { tableName, spanPrefix,
-  idColumn, softDeleteColumn? })` (`SqlModel.ts:33`): requires
+  idColumn, softDeleteColumn? })` (`SqlModel.ts:35`): requires
   `Id extends keyof S["Type"] & keyof S["update"]["Type"] & keyof S["fields"]`, and
   its update statement is `sql.update(request, [idColumn])` — **idColumn is excluded
   from SET but read from the payload for WHERE**. Consequences below.

@@ -30,19 +30,22 @@ const NAMED_ENTITIES = HashMap.fromIterable([
 const parseError = (message: string): PdfToolsError => PdfToolsError.make({ reason: "parse", message });
 
 const decodeEntity = (_match: string, body: string): string =>
-  body.startsWith("#x")
-    ? String.fromCodePoint(Number.parseInt(body.slice(2), 16))
-    : body.startsWith("#")
-      ? String.fromCodePoint(Number.parseInt(body.slice(1), 10))
+  Str.startsWith("#x")(body)
+    ? String.fromCodePoint(Number.parseInt(Str.slice(2)(body), 16))
+    : Str.startsWith("#")(body)
+      ? String.fromCodePoint(Number.parseInt(Str.slice(1)(body), 10))
       : pipe(
           HashMap.get(NAMED_ENTITIES, body),
           O.getOrElse(() => `&${body};`)
         );
 
-const decodeText = (text: string): string => text.replace(ENTITY, decodeEntity);
+const decodeText = (text: string): string =>
+  Str.replaceWith(ENTITY, (match, body) => decodeEntity(match, String(body)))(text);
 
 const attributes = (raw: string): HashMap.HashMap<string, string> =>
-  HashMap.fromIterable(A.map(A.fromIterable(raw.matchAll(ATTRIBUTE)), (match) => [match[1] ?? "", match[2] ?? ""]));
+  HashMap.fromIterable(
+    A.map(A.fromIterable(Str.matchAll(ATTRIBUTE)(raw)), (match) => [match[1] ?? "", match[2] ?? ""])
+  );
 
 const coordinate = (attrs: HashMap.HashMap<string, string>, name: string): number => {
   const value = pipe(HashMap.get(attrs, name), O.map(Number), O.filter(Number.isFinite));
@@ -54,7 +57,7 @@ const coordinate = (attrs: HashMap.HashMap<string, string>, name: string): numbe
 
 const lineText = (line: string): string =>
   pipe(
-    A.fromIterable(line.matchAll(WORD)),
+    A.fromIterable(Str.matchAll(WORD)(line)),
     A.map((match) => decodeText(match[1] ?? "")),
     A.join(" ")
   );
@@ -62,7 +65,7 @@ const lineText = (line: string): string =>
 const blockOf = (match: RegExpExecArray | RegExpMatchArray): TextBlock => {
   const attrs = attributes(match[1] ?? "");
   const text = pipe(
-    A.fromIterable((match[2] ?? "").matchAll(LINE)),
+    A.fromIterable(Str.matchAll(LINE)(match[2] ?? "")),
     A.map((line) => lineText(line[1] ?? "")),
     A.filter(Str.isNonEmpty),
     A.join("\n")
@@ -90,7 +93,7 @@ export const parseBboxLayout = (xhtml: string): ReadonlyArray<TextBlock> => {
     throw parseError("pdftotext -bbox-layout output has no page.");
   }
   return pipe(
-    A.fromIterable((page[1] ?? "").matchAll(BLOCK)),
+    A.fromIterable(Str.matchAll(BLOCK)(page[1] ?? "")),
     A.map(blockOf),
     A.filter((block) => Str.isNonEmpty(block.text))
   );

@@ -68,7 +68,7 @@ export type PolicySweepProgram = typeof PolicySweepProgram.Type;
  */
 export class LintPolicySweeps extends S.Opaque<LintPolicySweeps, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("lint-policy-sweeps/v1"),
+    schemaVersion: S.tag("lint-policy-sweeps/v1"),
     deprecatedApis: PolicySweepProgram,
   }).pipe($I.annoteSchema("LintPolicySweeps", { description: "Versioned full-scope lint policy program selection." }))
 ) {}
@@ -1163,7 +1163,7 @@ export class GateOrderSeedRow extends S.Opaque<GateOrderSeedRow, { readonly bran
  */
 export class GateOrderSeed extends S.Opaque<GateOrderSeed, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("gate-order/v1"),
+    schemaVersion: S.tag("gate-order/v1"),
     sourcePath: S.NonEmptyString,
     measurementAsOf: S.NonEmptyString,
     firstFailurePopulation: S.Int.check(S.isGreaterThan(0)),
@@ -1497,7 +1497,7 @@ const A1DurationMs = S.Int.check(S.isGreaterThanOrEqualTo(0));
  */
 export class EconomicsSeedSourceView extends S.Opaque<EconomicsSeedSourceView, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("verification-economics/v1"),
+    schemaVersion: S.tag("verification-economics/v1"),
     measurementAsOf: S.NonEmptyString,
     hosted: S.Struct({
       laneRows: S.Array(
@@ -1650,7 +1650,7 @@ export class GateOrderSeedFinding extends S.Opaque<GateOrderSeedFinding, { reado
 export class GateOrderHandoffSource extends S.Opaque<GateOrderHandoffSource, { readonly brand: unique symbol }>()(
   S.Struct({
     reference: CacheEvidenceReference,
-    schemaVersion: S.Literal("verification-economics/v1"),
+    schemaVersion: S.tag("verification-economics/v1"),
     measurementAsOf: S.NonEmptyString,
     firstFailurePopulation: S.Int.check(S.isGreaterThan(0)),
     firstFailureRedAttempts: S.Int.check(S.isGreaterThan(0)),
@@ -1829,7 +1829,7 @@ const GateOrderHandoffCoherence = S.makeFilter(
  * ```ts
  * import { GateOrderHandoff } from "@beep/repo-cli/commands/Quality"
  *
- * console.log(GateOrderHandoff.fields.schemaVersion.literal) // "gate-order-handoff/v1"
+ * console.log(GateOrderHandoff.fields.schemaVersion.schema.literal) // "gate-order-handoff/v1"
  * ```
  *
  * @category models
@@ -1839,7 +1839,7 @@ export class GateOrderHandoff extends S.Class<GateOrderHandoff, { readonly brand
   $I`GateOrderHandoff`
 )(
   S.Struct({
-    schemaVersion: S.Literal("gate-order-handoff/v1"),
+    schemaVersion: S.tag("gate-order-handoff/v1"),
     scope: GateOrderHandoffScope,
     orderRule: GateOrderRule,
     source: GateOrderHandoffSource,
@@ -2080,7 +2080,7 @@ export class QualityTaskLaneRun extends S.Opaque<QualityTaskLaneRun, { readonly 
  */
 export class QualityTaskLaneRunReport extends S.Opaque<QualityTaskLaneRunReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("quality-task-lane-run/v1"),
+    schemaVersion: S.tag("quality-task-lane-run/v1"),
     parentLaneId: OptionalLaneRunString,
     lanes: S.Array(QualityTaskLaneRun),
   }).pipe(
@@ -2144,7 +2144,7 @@ export class GithubCheckLaneRun extends S.Opaque<GithubCheckLaneRun, { readonly 
  */
 export class GithubCheckRunReport extends S.Opaque<GithubCheckRunReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("github-check-run/v1"),
+    schemaVersion: S.tag("github-check-run/v1"),
     failurePolicy: GithubCheckFailurePolicy,
     lanes: S.Array(GithubCheckLaneRun),
     firstRed: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(EffectRuntime.succeedNone)),

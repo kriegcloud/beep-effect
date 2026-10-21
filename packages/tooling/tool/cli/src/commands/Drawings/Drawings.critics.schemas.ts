@@ -528,7 +528,7 @@ export class CriticZoom extends S.Opaque<CriticZoom, { readonly brand: unique sy
  */
 export class CriticPackManifest extends S.Opaque<CriticPackManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-critic-pack/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-critic-pack/v1").annotateKey({ description: "Schema version." }),
     title: S.NonEmptyString.annotateKey({ description: "Title from the render manifest." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF the pack was built from." }),
     specSha256: Sha256Hex.annotateKey({ description: "Hash of the spec the set was rendered from." }),
@@ -817,7 +817,7 @@ export class CriticRunRecord extends S.Opaque<CriticRunRecord, { readonly brand:
  */
 export class CriticLoopRecord extends S.Opaque<CriticLoopRecord, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-critic-loop/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-critic-loop/v1").annotateKey({ description: "Schema version." }),
     loop: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "One-based loop number." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet set reviewed." }),
     runs: S.Array(CriticRunRecord).annotateKey({ description: "Every run, in order." }),
@@ -1078,7 +1078,7 @@ export class CriticInvocation extends S.Opaque<CriticInvocation, { readonly bran
  */
 export class CriticClaudeResult extends S.Opaque<CriticClaudeResult, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
+    type: S.tag("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
     is_error: S.Boolean.pipe(
       S.withDecodingDefaultKey(Effect.succeed(false)),
       S.annotateKey({ description: "Whether the run ended in an error; absent means it did not." })
@@ -1122,8 +1122,8 @@ export class CriticClaudeOutputLimitStop extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    type: S.Literal("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
-    api_error: S.Literal("max_output_tokens").annotateKey({
+    type: S.tag("result").annotateKey({ description: "Event kind; only the result event ends a run." }),
+    api_error: S.tag("max_output_tokens").annotateKey({
       description: "The API error the run ended on: one response ran past the output-token cap.",
     }),
     result: S.OptionFromOptionalKey(S.String).annotateKey({

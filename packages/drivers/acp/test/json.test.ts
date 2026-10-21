@@ -1,4 +1,4 @@
-import { Json as AcpJson } from "@beep/acp";
+import * as AcpJson from "@beep/acp/json";
 import { fcRuns } from "@beep/test-utils";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -8,6 +8,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 
 const JsonArbitrary = Arbitrary.schema(Schema.Json);
@@ -59,7 +60,8 @@ const hasKeyNeedingEscape = Effect.fnUntraced(function* (
   );
 });
 
-const nestedArraysInsideEscapedKey = (levels: number): string => `{"\\n":${"[".repeat(levels)}${"]".repeat(levels)}}`;
+const nestedArraysInsideEscapedKey = (levels: number): string =>
+  `{"\\n":${Str.repeat(levels)("[")}${Str.repeat(levels)("]")}}`;
 
 it.effect.prop(
   "reads every JSON text produced from a schema-derived JSON value",
@@ -148,6 +150,7 @@ it.effect(
       assert.equal(readFailure(text).position, position, `position for ${yield* encodeJsonText(text)}`);
     }
     assert.equal(readFailure('{"\\n":[1,]}').reason, "Unexpected character U+005D");
+    assert.equal(readFailure('"\\').reason, "Invalid escape sequence");
     assert.equal(readFailure("").message, "Invalid JSON text at position 0: Unexpected end of JSON text");
   })
 );

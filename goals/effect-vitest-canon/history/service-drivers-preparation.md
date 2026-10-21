@@ -1,5 +1,8 @@
 # Firecrawl, Runpod and Sanity preparation
 
+Firecrawl in this record is the `retired:firecrawl` driver package, removed
+from the repository on 2026-10-21.
+
 This wave starts from main `7980e5aaa1` and the existing wave-six schedule.
 It covers eight recorded files and85 existing inventory rows. Current test
 membership matches those eight paths. All1460 source lines were read alongside

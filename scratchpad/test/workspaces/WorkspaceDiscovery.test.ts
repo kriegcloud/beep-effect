@@ -3,7 +3,7 @@ import * as P from "effect/Predicate";
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import { identity } from "effect/Function";
-import { WorkspaceResolver } from "../../effected/npm/index.ts";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";

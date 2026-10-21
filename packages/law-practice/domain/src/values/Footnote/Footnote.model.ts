@@ -178,7 +178,7 @@ export function detectTextFootnotes(text: string): FootnoteMap {
   // decorative rules.  Require them to appear at least 25% into the
   // document to plausibly demarcate a footnote section.  Strong (8+ char)
   // separators bypass this gate.
-  const separatorBody = sepMatch[0].replace(/\s/g, "");
+  const separatorBody = Str.replace(/\s/g, "")(sepMatch[0]);
   if (separatorBody.length < STRONG_SEPARATOR_LEN) {
     const minOffset = Math.floor(text.length * MIN_SHORT_SEPARATOR_OFFSET_RATIO);
     if (sepMatch.index < minOffset) return [];
@@ -186,7 +186,7 @@ export function detectTextFootnotes(text: string): FootnoteMap {
 
   const sectionOffset = sepMatch.index + sepMatch[0].length;
 
-  const footnoteSection = text.slice(sectionOffset);
+  const footnoteSection = Str.slice(sectionOffset)(text);
 
   // Fresh regex per call to avoid shared mutable lastIndex state
   const markerRe = new RegExp(MARKER_SRC, "gm");
@@ -224,17 +224,13 @@ export function detectTextFootnotes(text: string): FootnoteMap {
  * Returns the earliest such boundary position, or `text.length` if none found.
  */
 function findFootnoteSectionEnd(text: string, markerStart: number): number {
-  // Skip past the marker's own line so we don't terminate immediately on it.
-  const scanFrom = text.indexOf("\n", markerStart) + 1;
-  if (scanFrom === 0) return text.length;
-
-  // Walk line by line from scanFrom.
-  let lineStart = scanFrom;
+  // Split once and walk the lines after the marker's own line, tracking each
+  // line's start offset, so we don't terminate immediately on the marker.
+  const [markerLine, ...lines] = pipe(text, Str.slice(markerStart), Str.split("\n"));
+  let lineStart = markerStart + markerLine.length + 1;
+  let prevLineStart = lineStart;
   let prevBlank = false;
-  while (lineStart < text.length) {
-    const nl = text.indexOf("\n", lineStart);
-    const lineEnd = nl < 0 ? text.length : nl;
-    const raw = Str.slice(lineStart, lineEnd)(text);
+  for (const raw of lines) {
     const trimmed = Str.trim(raw);
 
     // Separator line — boundary is the start of this line.
@@ -244,27 +240,13 @@ function findFootnoteSectionEnd(text: string, markerStart: number): number {
 
     // Blank-line + ALL-CAPS heading — boundary is the start of the blank line.
     if (prevBlank && Str.isNonEmpty(trimmed) && POST_FOOTNOTE_HEADING_RE.test(trimmed)) {
-      // The previous line was blank, so this current line is the heading.
-      // Boundary should be the start of the blank line (one line back).
-      return previousLineStart(text, lineStart);
+      return prevLineStart;
     }
 
     prevBlank = Str.isEmpty(trimmed);
-    if (nl < 0) break;
-    lineStart = nl + 1;
+    prevLineStart = lineStart;
+    lineStart += raw.length + 1;
   }
 
   return text.length;
-}
-
-/**
- * Return the start index of the line that ends at `currentLineStart - 1`.
- */
-function previousLineStart(text: string, currentLineStart: number): number {
-  if (currentLineStart <= 0) return 0;
-  // currentLineStart points to the char right after a `\n`.  The previous
-  // line's `\n` is at currentLineStart - 1.  Walk back to find the `\n`
-  // before that, then add 1.
-  const prevNl = text.lastIndexOf("\n", currentLineStart - 2);
-  return prevNl < 0 ? 0 : prevNl + 1;
 }

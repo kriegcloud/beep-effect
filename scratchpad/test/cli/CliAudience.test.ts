@@ -1,5 +1,5 @@
 import { assert, describe, it } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import type { AudienceShape } from "../../effected/env/index.ts";
 import { Audience } from "../../effected/env/index.ts";
 import * as Cause from "effect/Cause";

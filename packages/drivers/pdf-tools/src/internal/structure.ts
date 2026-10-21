@@ -11,11 +11,12 @@
 import * as NodeBuffer from "node:buffer";
 import * as NodeZlib from "node:zlib";
 import { A, O, P } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import {
   PDFArray,
   PDFDict,
@@ -135,10 +136,12 @@ const sameBytes = (a: Uint8Array, b: Uint8Array): boolean =>
 // definition (the one pdf-lib keeps) first.
 const dataOffsets = (text: string, ref: PDFRef): ReadonlyArray<number> =>
   pipe(
-    A.fromIterable(text.matchAll(new RegExp(`(?<!\\d)${ref.objectNumber}\\s+${ref.generationNumber}\\s+obj`, "g"))),
+    A.fromIterable(
+      Str.matchAll(new RegExp(`(?<!\\d)${ref.objectNumber}\\s+${ref.generationNumber}\\s+obj`, "g"))(text)
+    ),
     A.flatMap((header) => {
       const pattern = new RegExp(streamStart.source, "g");
-      pattern.lastIndex = header.index + header[0].length;
+      pattern.lastIndex = O.getOrElse(constant(0))(O.fromUndefinedOr(header.index)) + header[0].length;
       const keyword = pattern.exec(text);
       return keyword === null ? [] : [keyword.index + keyword[0].length];
     }),
@@ -157,7 +160,7 @@ const dataAtDeclaredLength = (file: PdfFile, ref: PDFRef, parsed: Uint8Array, le
   return A.findFirst(dataOffsets(file.text(), ref), (start) =>
     start + length <= file.bytes.length &&
     sameBytes(file.bytes.subarray(start, start + shared), parsed.subarray(0, shared)) &&
-    endstreamNext.test(file.text().slice(start + length, start + length + 64))
+    endstreamNext.test(Str.slice(start + length, start + length + 64)(file.text()))
       ? O.some(file.bytes.subarray(start, start + length))
       : O.none()
   );
@@ -178,33 +181,44 @@ const rawBytesOf = (doc: PDFDocument, file: PdfFile, ref: PDFRef, stream: PDFRaw
 
 const containerTypes = A.map(["ObjStm", "XRef"], (type) => PDFName.of(type));
 const containerMarkers = ["/ObjStm", "/XRef"];
-const objectHeader = /(?<!\d)(\d+)\s+(\d+)\s+obj\b/g;
+// PDF object/generation widths are bounded, avoiding suffix retries on long digits.
+const objectHeader = /(?<!\d)(\d{1,10})\s+(\d{1,5})\s+obj\b/g;
 // How far before its `/Type` an object stream's `N G obj` header may sit.
 const HEADER_WINDOW = 64 * 1024;
+// Cap candidates before decoding overlapping windows or parsing objects.
+// The two marker families share this budget, including markers in stream data.
+// Overflow reports partial discovery; structural inspection still succeeds.
+const MAX_CONTAINER_CANDIDATES = 128;
 
 // Offsets of every `/ObjStm` and `/XRef` name in the file (`/XRefStm` too,
 // which the stream type check below discards).
-const markerOffsets = (bytes: Uint8Array): ReadonlyArray<number> => {
+const markerOffsets = (bytes: Uint8Array) => {
   const buffer = NodeBuffer.Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  return A.flatMap(containerMarkers, (marker) => {
-    const offsets: Array<number> = [];
+  const offsets: Array<number> = [];
+  for (const marker of containerMarkers) {
     for (let at = buffer.indexOf(marker); at >= 0; at = buffer.indexOf(marker, at + 1)) {
+      if (offsets.length === MAX_CONTAINER_CANDIDATES) {
+        return { offsets, check: "limit-reached" as const };
+      }
       offsets.push(at);
     }
-    return offsets;
-  });
+  }
+  return { offsets, check: "complete" as const };
 };
 
 // The ref and body offset of the last `N G obj` header before `at`.
 const headerBefore = (bytes: Uint8Array, at: number): O.Option<readonly [PDFRef, number]> => {
   const from = Math.max(0, at - HEADER_WINDOW);
-  return pipe(
-    A.fromIterable(latin1.decode(bytes.subarray(from, at)).matchAll(objectHeader)),
-    A.last,
-    O.map(
-      (header) => [PDFRef.of(Number(header[1]), Number(header[2])), from + header.index + header[0].length] as const
-    )
-  );
+  // Keep only the last match: dense fake headers must not allocate an array
+  // of every match in each overlapping window.
+  let last: O.Option<RegExpMatchArray> = O.none();
+  for (const header of Str.matchAll(objectHeader)(latin1.decode(bytes.subarray(from, at)))) {
+    last = O.some(header);
+  }
+  return O.map(last, (header): readonly [PDFRef, number] => [
+    PDFRef.of(Number(header[1]), Number(header[2])),
+    from + O.getOrElse(constant(0))(O.fromUndefinedOr(header.index)) + header[0].length,
+  ]);
 };
 
 // pdf-lib decodes object streams and cross-reference streams itself, with a
@@ -212,9 +226,10 @@ const headerBefore = (bytes: Uint8Array, at: number): O.Option<readonly [PDFRef,
 // document, so they are found in the file: from the header before each
 // `/ObjStm` or `/XRef` name, the object is parsed and kept when it is a stream
 // of that type.
-const containerStreamsOf = (doc: PDFDocument, bytes: Uint8Array): ReadonlyArray<readonly [PDFRef, PDFRawStream]> =>
-  pipe(
-    markerOffsets(bytes),
+const containerStreamsOf = (doc: PDFDocument, bytes: Uint8Array) => {
+  const discovery = markerOffsets(bytes);
+  const streams = pipe(
+    discovery.offsets,
     A.flatMap((at) => A.fromOption(headerBefore(bytes, at))),
     A.dedupeWith(([, a], [, b]) => a === b),
     A.flatMap(([ref, body]) =>
@@ -231,6 +246,8 @@ const containerStreamsOf = (doc: PDFDocument, bytes: Uint8Array): ReadonlyArray<
       )
     )
   );
+  return { streams, check: discovery.check };
+};
 
 const objectOrder = Order.mapInput(Order.Number, ([ref]: readonly [PDFRef, PDFRawStream]) => ref.objectNumber);
 
@@ -287,20 +304,25 @@ const undecodableStreamsOf = (options: {
   readonly bytes: Uint8Array;
   readonly doc: PDFDocument;
   readonly maxInflatedBytes: number;
-}): { readonly streams: ReadonlyArray<UndecodableStream>; readonly check: StreamCheck } => {
+}): {
+  readonly streams: ReadonlyArray<UndecodableStream>;
+  readonly check: StreamCheck;
+  readonly discovery: PdfStructure["containerDiscovery"];
+} => {
   const { bytes, doc } = options;
   if (doc.isEncrypted) {
-    return { streams: [], check: "encrypted" };
+    return { streams: [], check: "encrypted", discovery: "encrypted" };
   }
   let text: string | undefined;
   const file: PdfFile = { bytes, text: () => (text ??= latin1.decode(bytes)) };
   const budget: InflateBudget = { remaining: options.maxInflatedBytes, exhausted: false };
+  const containers = containerStreamsOf(doc, bytes);
   const streams = pipe(
     A.filter(
       doc.context.enumerateIndirectObjects(),
       (entry): entry is [PDFRef, PDFRawStream] => entry[1] instanceof PDFRawStream
     ),
-    A.appendAll(containerStreamsOf(doc, bytes)),
+    A.appendAll(containers.streams),
     A.filter(([, stream]) => firstFilterIsFlate(doc, stream.dict)),
     A.sort(objectOrder),
     A.flatMap(([ref, stream]) =>
@@ -315,13 +337,15 @@ const undecodableStreamsOf = (options: {
           )
     )
   );
-  return { streams, check: budget.exhausted ? "limit-reached" : "complete" };
+  return { streams, check: budget.exhausted ? "limit-reached" : "complete", discovery: containers.check };
 };
 
 /**
  * Extract the structure of a loaded document. `maxInflatedBytes` caps what
  * the undecodable-stream check may inflate; reaching it ends that check
  * early (`streamCheck: "limit-reached"`) and never fails the inspection.
+ * `containerDiscovery` independently reports whether raw container discovery
+ * completed; both statuses must be complete for an exhaustive stream check.
  *
  * @internal
  */
@@ -362,7 +386,7 @@ export const structureOf = (options: {
     const { width, height } = page.getSize();
     return PageSize.make({ widthPt: width, heightPt: height });
   });
-  const { streams, check } = undecodableStreamsOf(options);
+  const { streams, check, discovery } = undecodableStreamsOf(options);
   return PdfStructure.make({
     headerVersion: headerVersion(bytes),
     pages,
@@ -372,6 +396,7 @@ export const structureOf = (options: {
     encrypted: doc.isEncrypted,
     undecodableStreams: streams,
     streamCheck: check,
+    containerDiscovery: discovery,
   });
 };
 

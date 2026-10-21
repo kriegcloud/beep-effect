@@ -1,6 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
-import { CatalogAssemblyError, CatalogResolver, Default as NpmDefault, WorkspaceResolver } from "../../effected/npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import { Default as NpmDefault } from "@beep/npm-spec";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";

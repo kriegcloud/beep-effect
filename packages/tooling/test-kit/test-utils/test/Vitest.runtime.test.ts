@@ -512,9 +512,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("instrumented Vitest run
       for (const [previous, next] of Arr.zip(phaseRecords, Arr.drop(phaseRecords, 1))) {
         expect(next.monotonicNanos).toBeGreaterThanOrEqual(previous.monotonicNanos);
       }
-      expect(result.cleanup.split("property-trial-released")).toHaveLength(4);
-      expect(result.cleanup.split("effect-vitest test start")).toHaveLength(2);
-      expect(result.cleanup.split("effect-vitest test end")).toHaveLength(2);
+      expect(Str.split("property-trial-released")(result.cleanup)).toHaveLength(4);
+      expect(Str.split("effect-vitest test start")(result.cleanup)).toHaveLength(2);
+      expect(Str.split("effect-vitest test end")(result.cleanup)).toHaveLength(2);
       expect(result.cleanup).toContain("outcome=failure");
       expect(result.cleanup).toContain("property-trial-");
       expect(result.cleanup).toContain("TestHang");
@@ -544,9 +544,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("instrumented Vitest run
       expect(result.diagnostics).toContain('Replay: [0,\\"4242\\"');
       expect(result.diagnostics).toContain("and 1 shrink(s)");
       expect(result.phases).not.toContain('"aborted":true');
-      expect(result.cleanup.split("outcome=failure durationMillis=155")).toHaveLength(3);
-      expect(result.cleanup.split("effect-vitest test start")).toHaveLength(3);
-      expect(result.cleanup.split("effect-vitest test end")).toHaveLength(3);
+      expect(Str.split("outcome=failure durationMillis=155")(result.cleanup)).toHaveLength(3);
+      expect(Str.split("effect-vitest test start")(result.cleanup)).toHaveLength(3);
+      expect(Str.split("effect-vitest test end")(result.cleanup)).toHaveLength(3);
     })
   );
 
@@ -559,8 +559,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("instrumented Vitest run
       expect(result.diagnostics).toContain("155ms watchdog");
       expect(result.phases).not.toContain('"aborted":true');
       expect(Arr.filter(Str.split("\n")(result.cleanup), (line) => line === '["late-body-completed"]')).toHaveLength(1);
-      expect(result.cleanup.split("effect-vitest test start")).toHaveLength(2);
-      expect(result.cleanup.split("effect-vitest test end")).toHaveLength(2);
+      expect(Str.split("effect-vitest test start")(result.cleanup)).toHaveLength(2);
+      expect(Str.split("effect-vitest test end")(result.cleanup)).toHaveLength(2);
       expect(result.cleanup).toContain("outcome=failure");
     })
   );
@@ -603,13 +603,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("instrumented Vitest run
       expect(repeat.cleanup).toContain('"timeoutMillis":75');
       expect(repeat.cleanup).toContain('"lastLogLine":{"_id":"Option","_tag":"None"}');
       expect(repeat.output).not.toContain("5e-324ms watchdog");
-      expect(repeat.cleanup.split("effect-vitest test start")).toHaveLength(3);
-      expect(repeat.cleanup.split("effect-vitest test end")).toHaveLength(3);
+      expect(Str.split("effect-vitest test start")(repeat.cleanup)).toHaveLength(3);
+      expect(Str.split("effect-vitest test end")(repeat.cleanup)).toHaveLength(3);
 
       const retry = yield* runFixture("property-retry-reset", { trace: true });
       expect(retry.exitCode, retry.output).toBe(ChildProcessSpawner.ExitCode(0));
-      expect(retry.cleanup.split("effect-vitest test start")).toHaveLength(3);
-      expect(retry.cleanup.split("effect-vitest test end")).toHaveLength(3);
+      expect(Str.split("effect-vitest test start")(retry.cleanup)).toHaveLength(3);
+      expect(Str.split("effect-vitest test end")(retry.cleanup)).toHaveLength(3);
       expect(retry.cleanup).toContain("retry-execution-1");
       expect(retry.cleanup).toContain("retry-execution-2");
     })

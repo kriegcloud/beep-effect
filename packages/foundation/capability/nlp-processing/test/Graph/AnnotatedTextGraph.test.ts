@@ -9,6 +9,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -21,7 +22,7 @@ const assertSchemaRoundTrip = Effect.fn("assertSchemaRoundTrip")(function* <
   expect(S.toEquivalence(schema)(decoded, value), label).toBe(true);
 });
 
-const words = (text: string): ReadonlyArray<string> => A.filter(text.split(/\s+/), (w) => w.length > 0);
+const words = (text: string): ReadonlyArray<string> => A.filter(Str.split(/\s+/)(text), (w) => w.length > 0);
 
 const StubBackend = Layer.succeed(
   NLPBackend,
@@ -43,7 +44,7 @@ const StubBackend = Layer.succeed(
     }),
     sentencize: Effect.fn("StubBackend.sentencize")(function* (text: string) {
       return pipe(
-        text.split(/(?<=[.!?])\s+/),
+        Str.split(/(?<=[.!?])\s+/)(text),
         A.map(Str.trim),
         A.filter((s) => s.length > 0)
       );
@@ -53,13 +54,13 @@ const StubBackend = Layer.succeed(
     }),
     lemmatize: Effect.fn("StubBackend.lemmatize")(function* (text: string) {
       return A.map(words(text), (w, i) =>
-        LemmaNode.make({ token: w, lemma: w.toLowerCase(), position: i, timestamp: 0 })
+        LemmaNode.make({ token: w, lemma: Str.toLowerCase(w), position: i, timestamp: 0 })
       );
     }),
     extractEntities: Effect.fn("StubBackend.extractEntities")(function* (text: string) {
       return pipe(
         words(text),
-        A.filter((w) => w.length > 0 && w[0] === w[0]?.toUpperCase()),
+        A.filter((w) => w.length > 0 && w[0] === O.getOrUndefined(O.map(O.fromUndefinedOr(w[0]), Str.toUpperCase))),
         A.map((w) => EntityNode.make({ text: w, entityType: "MISC", span: { start: 0, end: w.length }, timestamp: 0 }))
       );
     }),

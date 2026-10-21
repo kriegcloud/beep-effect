@@ -194,12 +194,14 @@ layer(nativeLayer, { timeout: "30 seconds" })("native import boundaries", (it) =
             runtimeValues.push(...R.values(dependencies));
           }
         }
-        expect(A.filter(runtimeKeys, (key) => key.startsWith("@beep/"))).toEqual([]);
-        expect(A.filter(runtimeValues, (value) => typeof value === "string" && value.startsWith("npm:@beep/"))).toEqual(
-          []
-        );
+        expect(A.filter(runtimeKeys, (key) => Str.startsWith("@beep/")(key))).toEqual([]);
         expect(
-          A.filter(R.keys(manifest), (key) => ["bundleddependencies", "bundledependencies"].includes(key.toLowerCase()))
+          A.filter(runtimeValues, (value) => typeof value === "string" && Str.startsWith("npm:@beep/")(value))
+        ).toEqual([]);
+        expect(
+          A.filter(R.keys(manifest), (key) =>
+            ["bundleddependencies", "bundledependencies"].includes(Str.toLowerCase(key))
+          )
         ).toEqual([]);
       })
     );
@@ -227,10 +229,10 @@ layer(nativeLayer, { timeout: "30 seconds" })("native import boundaries", (it) =
       fnUntraced(function* () {
         const pg = yield* localImportClosure(new URL("../src/pg/index.ts", import.meta.url));
         const sqlite = yield* localImportClosure(new URL("../src/sqlite/index.ts", import.meta.url));
-        expect(A.some(pg, (path) => path.endsWith("/pg/kit.ts"))).toBe(true);
-        expect(A.some(sqlite, (path) => path.endsWith("/sqlite/kit.ts"))).toBe(true);
-        expect(A.some(pg, (path) => path.includes("/sqlite/"))).toBe(false);
-        expect(A.some(sqlite, (path) => path.includes("/pg/"))).toBe(false);
+        expect(A.some(pg, (path) => Str.endsWith("/pg/kit.ts")(path))).toBe(true);
+        expect(A.some(sqlite, (path) => Str.endsWith("/sqlite/kit.ts")(path))).toBe(true);
+        expect(A.some(pg, (path) => Str.includes("/sqlite/")(path))).toBe(false);
+        expect(A.some(sqlite, (path) => Str.includes("/pg/")(path))).toBe(false);
       })
     );
   });

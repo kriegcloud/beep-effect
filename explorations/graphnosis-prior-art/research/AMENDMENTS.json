@@ -1285,7 +1285,7 @@
         "Provider selection exists as ordered fallback only: packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts:129 runs Stream.withExecutionPlan(AnthropicTurnPlan, { preventFallbackOnPartialStream: true }) over vendored effect ExecutionPlan",
         "explorations/multi-provider-llm-dispatch-fallback/DECISIONS.md (2026-07-14 LOCKED) Q1-Q3 — the packet owns the registry, the user>CLI>env key-precedence resolver, per-provider default-model resolution, and the multi-provider plan builder; round-robin and circuit-breaker are explicitly out of V1",
         "Absent: rg -n -i 'capabilities\\(|feasibleSet|routingStrategy|costPreview' packages/**/src/**/*.ts → no capability domain, no model catalog with declared capabilities, no feasibility value, no pre-spend price computation",
-        "Four AI drivers exist (packages/drivers/{anthropic,xai,venice-ai,openai-compat}) with no shared capability vocabulary"
+        "Four AI drivers exist (packages/drivers/{anthropic,openai-compat}, retired:xai, retired:venice-ai) with no shared capability vocabulary"
       ],
       "landingPacket": "explorations/multi-provider-llm-dispatch-fallback",
       "recommendation": "Take the two structural properties, refuse the economics. Worth having: infeasibility as a first-class value (when no model satisfies a step's capability needs, that is a decodable outcome, not a silent downgrade to a weaker model), and a TOTAL ordering so selection is reproducible — the paper's tie-break chain (privacy, then strategy, then cost, then typical-latency, then stable catalog order) exists precisely so two identical runs pick the same model. Refuse the routing policy itself: ts-27 is the same paper's refutation of it. Note this packet is already graduated, so this is an amendment to a locked scope, not fresh design.",
@@ -1358,7 +1358,7 @@
       "beepStatus": "not-applicable",
       "proof": [
         "No routing policy exists here to be refuted yet — see ts-22 proof (no capability domain, no model catalog)",
-        "But the decision is live: explorations/multi-provider-llm-dispatch-fallback is graduated with LOCKED decisions Q1-Q3, and packages/drivers/{anthropic,xai,venice-ai,openai-compat} plus the openclaw local-model probe give the repo both cloud and local options",
+        "But the decision is live: explorations/multi-provider-llm-dispatch-fallback is graduated with LOCKED decisions Q1-Q3, and packages/drivers/{anthropic,openai-compat}, retired:xai, retired:venice-ai plus the openclaw local-model probe give the repo both cloud and local options",
         "Paper §10.7 E6, blind position-counterbalanced judge, K=10 per capability: Haiku (cheap cloud) retained 75% overall and >=60% in every capability; Qwen-14B (local, and STRONGER than the catalog's declared 7B) held on code 100% / structured-output 80% / extraction 70% but collapsed to reasoning 0%, writing 0%, summarization 20%",
         "Paper's own honest read: 'the ~99.6% adaptive saving is achieved precisely by routing those judgment steps (reasoning ~51%, writing ~11%) to free local models — the very steps E6 finds local quality collapses on — so realizing that saving without quality loss is not established'"
       ],

@@ -686,7 +686,7 @@ export class CodexFindingsCapturePayload extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("codex-findings-capture/v1").pipe(
+    schemaVersion: S.tag("codex-findings-capture/v1").pipe(
       $I.annoteKey("CodexFindingsCapturePayload.schemaVersion", {
         description: "Payload contract discriminator.",
       })

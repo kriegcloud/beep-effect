@@ -35,7 +35,7 @@ Genesis seeds: 65
 - `fallow-quality-enforcement`: schemaVersion -> initiative-manifest/v2; add packetPath from the scanned directory (breaking, additive); seed=yes
 - `fallow-zero-dead-code`: schemaVersion -> initiative-manifest/v2 (breaking); seed=yes
 - `file-processing-capability`: schemaVersion -> initiative-manifest/v2; add packetPath from the scanned directory (breaking, additive); seed=yes
-- `firecrawl-driver`: schemaVersion -> initiative-manifest/v2 (breaking); seed=yes
+- `retired-packet:firecrawl-driver`: schemaVersion -> initiative-manifest/v2 (breaking); seed=yes
 - `gov-legal-data-driver-codegen`: schemaVersion -> initiative-manifest/v2 (breaking); seed=yes
 - `gov-legal-data-driver-delivery`: schemaVersion -> initiative-manifest/v2 (breaking); seed=yes
 - `identity-iri-core`: schemaVersion -> initiative-manifest/v2 (breaking); seed=yes
@@ -123,7 +123,7 @@ Genesis seeds: 65
 - `fallow-zero-dead-code` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.
 - `file-processing-capability` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.
 - `file-processing-capability` — The scanned goals/<slug> directory is the packet's canonical path.
-- `firecrawl-driver` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.
+- `retired-packet:firecrawl-driver` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.
 - `gov-legal-data-driver-codegen` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.
 - `gov-legal-data-driver-delivery` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.
 - `identity-iri-core` — The observed initiative/status/completion-gate shape is compatible with the lenient v2 contract.

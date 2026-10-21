@@ -12,7 +12,7 @@ import * as Stdio from "effect/Stdio";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Command from "effect/cli/Command";
 import { Audience } from "../../effected/env/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { TestTerminal } from "../../effected/cli/testing.ts";
 
 it.layer(Layer.mergeAll(MemoryFileSystem.layer, Path.layer, Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}), Stdio.layerTest({ args: Effect.succeed(["--ci"]) }), Layer.unwrap(Effect.map(TestTerminal.make(), (terminal) => terminal.layer)), Audience.layerTest("human")), { timeout: "30 seconds" })((it) => {

@@ -182,7 +182,7 @@ committed, screenshotted, or shown to a reviewer.
 | Corpus operator CLI | **extend** | `packages/tooling/tool/cli/src/commands/Corpus/` already ships `catalog`, `extract`, `enrich`, `organize`, `salvage`, `archive-move`, `recycle-bin` |
 | Document ingest / extraction (for the round-trip proof) | **reuse** | `packages/foundation/capability/file-processing/src/{Extraction,Artifact,Operation,Service}/`, `packages/drivers/{doc-text,tika}` |
 | Span-verified structured extraction (feature recovery) | **reuse** | `packages/foundation/capability/langextract/src/{Extraction,Alignment,VerifiedSpan,Target}` |
-| LLM content authoring | **reuse** | `packages/drivers/{anthropic,openai-compat,venice-ai,xai}`; `goals/unified-ai-toolchain` |
+| LLM content authoring | **reuse** | `packages/drivers/{anthropic,openai-compat}`, `retired:venice-ai`, `retired:xai`; `goals/unified-ai-toolchain` |
 | Rubric / criterion / judge modeling | **extend** | `packages/tooling/tool/cli/src/commands/Qa/Inventory.schemas.ts` (`QaFinding`, `QaInventory`, `QaEvidenceRef`, severity/lens LiteralKits) is the nearest existing shape; `packages/tooling/tool/cli/src/commands/Docgen/internal/quality/Quality.rubric.ts` is a second precedent |
 | Prior synthetic **legal corpus** generator | **NET-NEW** | none — no `packages/**/src` module generates document corpora (§8) |
 

@@ -14,7 +14,6 @@ import {
   boundedPersonMatchDirectoryNamesForTesting,
   CanonicalMatchPersonInputs,
   DetectBordersReport,
-  DetectFacesReport,
   FilesCommandServiceLive,
   FlattenMediaOptions,
   flattenMediaFiles,
@@ -74,7 +73,6 @@ const testLayer = Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer);
 const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
 const decodeArchivePoorCandidatesManifest = S.decodeUnknownEffect(S.fromJsonString(ArchivePoorCandidatesManifest));
 const decodeDetectBordersReport = S.decodeUnknownEffect(S.fromJsonString(DetectBordersReport));
-const decodeDetectFacesReport = S.decodeUnknownEffect(S.fromJsonString(DetectFacesReport));
 const decodeImageAuditManifest = S.decodeUnknownEffect(S.fromJsonString(ImageAuditManifest));
 const decodeImageCurationManifest = S.decodeUnknownEffect(S.fromJsonString(ImageCurationManifest));
 const decodeChildArtifactRecord = S.decodeUnknownEffect(S.fromJsonString(ChildArtifactRecord));
@@ -297,17 +295,6 @@ const readDetectBordersJsonLog = Effect.fn("FilesTest.readDetectBordersJsonLog")
   return yield* decodeDetectBordersReport(A.join("\n")(lines));
 });
 
-const readDetectFacesJsonLog = Effect.fn("FilesTest.readDetectFacesJsonLog")(function* () {
-  const lines = A.filter(yield* TestConsole.logLines, isString);
-  return yield* decodeDetectFacesReport(A.join("\n")(lines)).pipe(Effect.mapError(filesTestError));
-});
-
-const readDetectFacesManifest = Effect.fn("FilesTest.readDetectFacesManifest")(function* (filePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs.readFileString(filePath);
-  return yield* decodeDetectFacesReport(content).pipe(Effect.mapError(filesTestError));
-});
-
 const readPersonMatchManifest = Effect.fn("FilesTest.readPersonMatchManifest")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs.readFileString(filePath);
@@ -383,7 +370,7 @@ const makeAdaFaceModelFixture = (path: Path.Path, cacheDir: string) => {
     runtime: {
       framework: "pytorch",
       distribution: "rocm72",
-      packageVersion: "2.9.1+rocm7.2.0.git7e1940d4",
+      packageVersion: "2.13.0+rocm7.2",
       hipVersion: "7.2.26015-fc0010cf6a",
       actualCompute: "rocm",
       precision: "fp32",
@@ -1605,27 +1592,6 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
-  it.effect("writes an empty face detection manifest without loading the model", () =>
-    Effect.gen(function* () {
-      const tmpDir = yield* temporaryWorkingDirectory;
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const datasetDir = yield* makeDatasetDir(tmpDir);
-      const modelPath = path.join(tmpDir, "face_detection_yunet.onnx");
-      const manifestPath = path.join(datasetDir, "detect-faces-manifest.json");
-      yield* fs.writeFileString(modelPath, "not a real model");
-      yield* runFilesCommand(["detect-faces", "--dir", datasetDir, "--model", modelPath, "--json"]);
-      const report = yield* readDetectFacesJsonLog();
-      const manifest = yield* readDetectFacesManifest(manifestPath);
-      expect(report.summary.analyzedCount).toBe(0);
-      expect(report.summary.movedNoFaceCount).toBe(0);
-      expect(report.summary.skippedCount).toBe(0);
-      expect(report.manifestWritten).toBe(true);
-      expect(manifest.schemaVersion).toBe("beep.files.detect-faces.v1");
-      expect(manifest.manifestWritten).toBe(true);
-    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
-  );
-
   it.effect("accepts exact pinned AdaFace provenance and rejects a Buffalo/PyTorch v2 mismatch", () =>
     Effect.gen(function* () {
       const tmpDir = yield* temporaryWorkingDirectory;
@@ -1811,7 +1777,7 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
           runtime: {
             framework: "pytorch",
             distribution: "cpu",
-            packageVersion: "2.9.1+cpu",
+            packageVersion: "2.13.0+cpu",
             actualCompute: "cpu",
             precision: "fp32",
             devices: [],
@@ -1877,19 +1843,36 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
         inputs
       ).pipe(Effect.flip);
       expect(unexpectedWarningError.message).toContain("incoherent compute-fallback provenance");
-      const wrongCpuPackageWorker = yield* decodePersonMatchWorkerSuccess({
-        ...cpuWorkerReport,
-        model: {
-          ...cpuWorkerReport.model,
-          runtime: { ...cpuWorkerReport.model.runtime, packageVersion: "2.9.0+cpu" },
-        },
-      }).pipe(Effect.mapError(filesTestError));
-      const wrongCpuPackageError = yield* PersonMatchWorkerPolicyForTest.validateWorkerEnvelope(
-        wrongCpuPackageWorker,
-        automaticOptions,
-        inputs
-      ).pipe(Effect.flip);
-      expect(wrongCpuPackageError.message).toContain("pinned cpu PyTorch runtime 2.9.1+cpu");
+      for (const packageVersion of ["2.9.1+cpu", "2.13.0", "2.13.0+rocm7.2"]) {
+        const wrongCpuPackageWorker = yield* decodePersonMatchWorkerSuccess({
+          ...cpuWorkerReport,
+          model: {
+            ...cpuWorkerReport.model,
+            runtime: { ...cpuWorkerReport.model.runtime, packageVersion },
+          },
+        }).pipe(Effect.mapError(filesTestError));
+        const wrongCpuPackageError = yield* PersonMatchWorkerPolicyForTest.validateWorkerEnvelope(
+          wrongCpuPackageWorker,
+          automaticOptions,
+          inputs
+        ).pipe(Effect.flip);
+        expect(wrongCpuPackageError.message).toContain("pinned cpu PyTorch runtime 2.13.0+cpu");
+      }
+      for (const packageVersion of ["2.9.1+rocm7.2.0.git7e1940d4", "2.13.0", "2.13.0+cpu"]) {
+        const wrongRocmPackageWorker = yield* decodePersonMatchWorkerSuccess({
+          ...rocmWorkerReport,
+          model: {
+            ...rocmWorkerReport.model,
+            runtime: { ...rocmWorkerReport.model.runtime, packageVersion },
+          },
+        }).pipe(Effect.mapError(filesTestError));
+        const wrongRocmPackageError = yield* PersonMatchWorkerPolicyForTest.validateWorkerEnvelope(
+          wrongRocmPackageWorker,
+          options,
+          inputs
+        ).pipe(Effect.flip);
+        expect(wrongRocmPackageError.message).toContain("pinned rocm72 PyTorch runtime 2.13.0+rocm7.2");
+      }
       expect(PersonMatchWorkerPolicyForTest.workerSyncArguments(options, "primary")).toEqual(
         expect.arrayContaining(["--extra", "adaface"])
       );
@@ -1941,7 +1924,7 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
           actualCompute: "rocm",
           devices: [{ architecture: "gfx1201", index: 0 }],
           distribution: "rocm72",
-          packageVersion: "2.9.1+rocm7.2.0.git7e1940d4",
+          packageVersion: "2.13.0+rocm7.2",
           warnings: [],
         },
       });
@@ -2969,33 +2952,6 @@ exit 74
         ])
       );
       expect(message).toContain("output directory must not overlap the manifest or cache paths");
-    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
-  );
-
-  it.effect("creates an empty no-face move directory without loading the model", () =>
-    Effect.gen(function* () {
-      const tmpDir = yield* temporaryWorkingDirectory;
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const datasetDir = yield* makeDatasetDir(tmpDir);
-      const modelPath = path.join(tmpDir, "face_detection_yunet.onnx");
-      const noFaceDir = path.join(tmpDir, "no-face");
-      yield* fs.writeFileString(modelPath, "not a real model");
-      yield* runFilesCommand([
-        "detect-faces",
-        "--dir",
-        datasetDir,
-        "--model",
-        modelPath,
-        "--move-no-face-to",
-        noFaceDir,
-        "--json",
-      ]);
-      const report = yield* readDetectFacesJsonLog();
-      const noFaceDirExists = yield* fs.exists(noFaceDir);
-      expect(report.options.moveNoFaceTo).toBe(noFaceDir);
-      expect(report.summary.movedNoFaceCount).toBe(0);
-      expect(noFaceDirExists).toBe(true);
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
@@ -4706,26 +4662,46 @@ exit 74
       const path = yield* Path.Path;
       const datasetDir = yield* makeDatasetDir(tmpDir);
       const sourcePath = path.join(datasetDir, "source.jpg");
-      const modelDir = path.join(tmpDir, "model");
-      const modelPath = path.join(modelDir, "face-detection.onnx");
       const sourceAlias = path.join(tmpDir, "source-alias");
-      const modelAlias = path.join(tmpDir, "model-alias");
       yield* writeJpegWithExif(sourcePath, 32, 32);
       const sourceHash = yield* sha256FileRef(sourcePath);
-      yield* fs.makeDirectory(modelDir, { recursive: true });
-      yield* fs.writeFileString(modelPath, "not a real model");
       yield* fs.symlink(datasetDir, sourceAlias);
-      yield* fs.symlink(modelDir, modelAlias);
-      const baseArgs = ["audit-images", "--dir", datasetDir, "--model", modelPath, "--overwrite", "--manifest"];
-      const sourceAliasError = yield* expectFilesCommandFailure([...baseArgs, path.join(sourceAlias, "audit.json")]);
+      const sourceAliasError = yield* expectFilesCommandFailure([
+        "audit-images",
+        "--dir",
+        datasetDir,
+        "--overwrite",
+        "--manifest",
+        path.join(sourceAlias, "audit.json"),
+      ]);
       expect(sourceAliasError).toContain("must not be written inside source directory");
       expect(yield* sha256FileRef(sourcePath)).toBe(sourceHash);
-      const modelAliasError = yield* expectFilesCommandFailure([
-        ...baseArgs,
-        path.join(modelAlias, "face-detection.onnx"),
-      ]);
-      expect(modelAliasError).toContain("must not overwrite face model");
-      expect(yield* fs.readFileString(modelPath)).toBe("not a real model");
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
+  it.effect("audits direct images without a model and writes a v2 manifest", () =>
+    Effect.gen(function* () {
+      const tmpDir = yield* temporaryWorkingDirectory;
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const datasetDir = yield* makeDatasetDir(tmpDir);
+      const firstPath = path.join(datasetDir, "first.jpg");
+      const secondPath = path.join(datasetDir, "second.jpg");
+      const manifestPath = path.join(tmpDir, "audit.json");
+      yield* writeJpegWithExif(firstPath, 32, 32);
+      yield* fs.writeFile(secondPath, yield* fs.readFile(firstPath));
+      const sourceHash = yield* sha256FileRef(firstPath);
+      yield* runFilesCommand(["audit-images", "--dir", datasetDir, "--manifest", manifestPath]);
+      const manifestText = yield* fs.readFileString(manifestPath);
+      const manifest = yield* decodeImageAuditManifest(manifestText);
+      expect(manifest.schemaVersion).toBe("beep.files.image-audit.v2");
+      expect(manifest.summary.analyzedCount).toBe(2);
+      expect(manifest.summary.skippedCount).toBe(0);
+      expect(manifest.summary.duplicateClusterCount).toBe(1);
+      expect(A.map(manifest.entries, (entry) => entry.sourceName)).toEqual(["first.jpg", "second.jpg"]);
+      expect(A.map(manifest.entries, (entry) => entry.sourceSha256)).toEqual([sourceHash, sourceHash]);
+      expect(manifestText).not.toContain('"faces"');
+      expect(manifestText).not.toContain('"modelPath"');
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 

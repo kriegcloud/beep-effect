@@ -52,6 +52,21 @@ the complete public output manifest
 merge push, which covers rulesets deleted since then, and on green required checks at
 the accepted head. Missing, deleted or partial evidence stays `unknown`
 ([record](./history/receipts/completion-evidence.md)).
+#1879 is complete: native writes qualify atomic exchange on the target's own
+mount. The capability is cached per parent-directory mount id, device and
+filesystem type, and is probed with disposable files on that mount. A bind-mounted
+or otherwise unsupported target refuses before any backup or publication
+([record](./history/receipts/target-exchange.md)).
+#1880 is complete: each native publication records durable states in its journal,
+and restart recovery reconciles every crash point byte-exact, idempotently, through
+the next apply, `beep models recover` or `restore`. A target a competing writer
+changed is refused and every artifact is kept
+([record](./history/receipts/exchange-recovery.md)).
+#1881 is complete: `skills update` replaces skill files and directories only through
+a qualified, verified atomic exchange, journals each publication with the same state
+machine, and recovers every crash point byte-exact through the next update or
+`beep skills recover`, refusing a replacing writer with every artifact kept
+([record](./history/receipts/skill-publication.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

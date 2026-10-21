@@ -13,6 +13,9 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
+// Optional on insert: the column's SQL default supplies the first version.
+const insertedRowVersion = (rowVersion: number | undefined): number => rowVersion ?? 1;
+
 const decodeWorkerId = S.decodeUnknownEffect(ArchitectureLabIdentity.WorkerId);
 const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
 const WorkerArbitrary = Arbitrary.schema(DomainWorker.Worker);
@@ -62,6 +65,7 @@ describe("Worker table", () => {
           ...row,
           deletedAt: row.deletedAt ?? null,
           deletedByPrincipal: row.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(row.rowVersion),
           id,
         }).displayName
       ).toBe("Ada Lovelace");
@@ -78,6 +82,7 @@ describe("Worker table", () => {
           ...insert,
           deletedAt: insert.deletedAt ?? null,
           deletedByPrincipal: insert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: worker.id,
         });
 

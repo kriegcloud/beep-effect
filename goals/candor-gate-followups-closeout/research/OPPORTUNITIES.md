@@ -35,7 +35,7 @@
   gates on the same host.
 - **Evidence:** repeated `bun run build` attempts reported `TS2589` without a
   source location in different, untouched packages (`@beep/box`, `@beep/ui`,
-  then `@beep/xai`); each affected package passed immediately when built alone,
+  then `retired:xai`); each affected package passed immediately when built alone,
   and the later aggregate build completed `132 successful, 132 total`.
 - **Would prevent it:** isolate compiler memory and scheduling per worktree, or
   serialize host-wide full builds so a resource-pressure failure cannot appear

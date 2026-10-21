@@ -9,20 +9,19 @@ import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { A } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
-import * as Path from "effect/Path";
-import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "./Files.errors.ts";
+import { FilesCommandError } from "./Files.errors.ts";
 import {
   ArchivePoorCandidatesManifest,
   ArchivePoorCandidatesManifestSummary,
   encodeArchivePoorCandidatesManifest,
   encodeDetectBordersReport,
-  encodeDetectFacesReport,
   encodeNormalizeManifest,
 } from "./Files.schemas.ts";
 import type * as Crypto from "effect/Crypto";
+import type * as FileSystem from "effect/FileSystem";
+import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type {
   ArchivePoorCandidatesEntry,
@@ -36,9 +35,6 @@ import type {
   DetectBordersEntry,
   DetectBordersReport,
   DetectBordersSkippedEntry,
-  DetectFacesEntry,
-  DetectFacesReport,
-  DetectFacesSkippedEntry,
   NormalizeManifest as NormalizeManifestModel,
   NormalizePlan,
   NormalizePlanEntry,
@@ -251,56 +247,6 @@ export const renderDetectBordersSkippedEntry = (entry: DetectBordersSkippedEntry
   `${entry.sourceName} [${entry.reason}] ${entry.message}`;
 
 /**
- * Render a face-detection report entry.
- *
- * **Example** (Import face report renderer)
- *
- * ```ts
- * import { renderDetectFacesEntry } from "@beep/repo-cli/commands/Files"
- *
- * const example: typeof renderDetectFacesEntry = renderDetectFacesEntry
- * ```
- *
- * @param entry - Analyzed image entry.
- * @returns Human-readable report line.
- * @category utilities
- * @since 0.0.0
- */
-export const renderDetectFacesEntry = (entry: DetectFacesEntry): string => {
-  const flags = A.isReadonlyArrayNonEmpty(entry.flags) ? A.join(", ")(entry.flags) : "none";
-  const area = pipe(
-    O.fromUndefinedOr(entry.primaryFaceAreaPct),
-    O.map((value) => ` area=${value.toFixed(2)}%`),
-    O.getOrElse(() => "")
-  );
-  const moved = pipe(
-    O.fromUndefinedOr(entry.movedNoFaceRelativePath),
-    O.map((value) => ` moved=${value}`),
-    O.getOrElse(() => "")
-  );
-  return `${entry.sourceName} [${flags}] faces=${entry.faceCount}${area}${moved}`;
-};
-
-/**
- * Render a skipped face-detection source entry.
- *
- * **Example** (Import face skipped renderer)
- *
- * ```ts
- * import { renderDetectFacesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
- * const example: typeof renderDetectFacesSkippedEntry = renderDetectFacesSkippedEntry
- * ```
- *
- * @param entry - Source file excluded from face detection with its reason.
- * @returns Human-readable skipped line.
- * @category utilities
- * @since 0.0.0
- */
-export const renderDetectFacesSkippedEntry = (entry: DetectFacesSkippedEntry): string =>
-  `${entry.sourceName} [${entry.reason}] ${entry.message}`;
-
-/**
  * Render a border crop plan entry.
  *
  * **Example** (Import crop plan renderer)
@@ -495,90 +441,6 @@ export const renderDetectBordersReportJson = Effect.fn("Files.renderDetectBorder
 });
 
 /**
- * Render a detect-faces report with the shared Biome JSON formatter.
- *
- * **Example** (Check faces report JSON)
- *
- * ```ts
- * import { renderDetectFacesReportJson } from "@beep/repo-cli/commands/Files/Files.render"
- *
- * console.log(typeof renderDetectFacesReportJson !== "undefined") // true
- * ```
- *
- * @param report - Detect-faces report to encode.
- * @param outputPath - Output path used for formatter context.
- * @returns Formatted JSON text.
- * @category formatting
- * @since 0.0.0
- */
-export const renderDetectFacesReportJson = Effect.fn("Files.renderDetectFacesReportJson")(function* (
-  report: DetectFacesReport,
-  outputPath: string
-): Effect.fn.Return<
-  string,
-  FilesCommandError,
-  FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
-> {
-  const encoded = yield* encodeDetectFacesReport(report).pipe(
-    FilesCommandError.mapError(`Failed to encode detect-faces report for "${outputPath}"`)
-  );
-
-  return yield* renderBiomeJson(outputPath, encoded).pipe(
-    FilesCommandError.mapError(`Failed to render detect-faces report for "${outputPath}"`)
-  );
-});
-
-/**
- * Write a detect-faces manifest report to disk.
- *
- * **Example** (Check faces manifest writer)
- *
- * ```ts
- * import { writeDetectFacesManifest } from "@beep/repo-cli/commands/Files/Files.render"
- *
- * console.log(typeof writeDetectFacesManifest !== "undefined") // true
- * ```
- *
- * @param report - Detect-faces report with manifest path.
- * @category formatting
- * @since 0.0.0
- */
-export const writeDetectFacesManifest = Effect.fn("Files.writeDetectFacesManifest")(function* (
-  report: DetectFacesReport
-): Effect.fn.Return<
-  void,
-  FilesCommandError,
-  FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
-> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const content = yield* renderDetectFacesReportJson(report, report.manifestPath);
-
-  yield* fs
-    .makeDirectory(path.dirname(report.manifestPath), { recursive: true })
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError(
-          "Failed to create detect-faces manifest directory",
-          report.manifestPath,
-          PlatformErrorOptions.make({ cause })
-        )
-      )
-    );
-  yield* fs
-    .writeFileString(report.manifestPath, content)
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError(
-          "Failed to write detect-faces manifest",
-          report.manifestPath,
-          PlatformErrorOptions.make({ cause })
-        )
-      )
-    );
-});
-
-/**
  * Log a rename plan line by line.
  *
  * **Example** (Check logRenamePlan export)
@@ -718,34 +580,6 @@ export const logDetectBordersEntries = Effect.fn("Files.logDetectBordersEntries"
 ) {
   const borderedEntries = A.filter(entries, (entry) => entry.hasBorder);
   yield* Effect.forEach(borderedEntries, (entry) => Console.log(renderDetectBordersEntry(entry)), {
-    discard: true,
-  });
-});
-
-/**
- * Log face-detection entries and skipped entries line by line.
- *
- * **Example** (Check faces entries logger)
- *
- * ```ts
- * import { logDetectFacesEntries } from "@beep/repo-cli/commands/Files/Files.render"
- *
- * console.log(typeof logDetectFacesEntries !== "undefined") // true
- * ```
- *
- * @param entries - Face detection entries.
- * @param skipped - Skipped face-detection entries.
- * @category formatting
- * @since 0.0.0
- */
-export const logDetectFacesEntries = Effect.fn("Files.logDetectFacesEntries")(function* (
-  entries: ReadonlyArray<DetectFacesEntry>,
-  skipped: ReadonlyArray<DetectFacesSkippedEntry>
-) {
-  yield* Effect.forEach(entries, (entry) => Console.log(renderDetectFacesEntry(entry)), {
-    discard: true,
-  });
-  yield* Effect.forEach(skipped, (entry) => Console.log(renderDetectFacesSkippedEntry(entry)), {
     discard: true,
   });
 });

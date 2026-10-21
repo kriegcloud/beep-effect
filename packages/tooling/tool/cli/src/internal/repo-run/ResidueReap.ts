@@ -56,7 +56,7 @@ import {
 } from "./DirectoryHandle.ts";
 import { isRegisteredWorktree, removeGitWorktree } from "./GitWorktree.ts";
 import { publishJournalTextAtomically } from "./JournalFile.ts";
-import { invokerAncestryPids, ProcessAttachmentKind, scanProcessAttachments } from "./ProcessAttachment.ts";
+import { invokerAncestryPids, ProcessHandleKind, scanProcessAttachments } from "./ProcessAttachment.ts";
 import { runRepoCommandCapture, runRepoCommandCaptureRaw } from "./RepoRun.executor.ts";
 import {
   QualificationViewReceipt,
@@ -1420,7 +1420,7 @@ const fenceArchiveMove = Effect.fnUntraced(function* (intent: ResidueArchiveInte
   // processes follow the inode, so no live writer can hide behind the old path.
   const attachments = yield* scanProcessAttachments({
     directory: intent.destination,
-    kinds: ProcessAttachmentKind.literals,
+    kinds: ProcessHandleKind.literals,
   });
   if (O.isNone(attachments) || A.isReadonlyArrayNonEmpty(attachments.value)) {
     const rolledBack = yield* archive
@@ -1911,7 +1911,7 @@ const checkoutDraftSkip = Effect.fnUntraced(function* (beep: string) {
     : O.none();
 });
 const checkoutAttachmentSkip = Effect.fnUntraced(function* (entry: string) {
-  const holders = yield* scanProcessAttachments({ directory: entry, kinds: ProcessAttachmentKind.literals });
+  const holders = yield* scanProcessAttachments({ directory: entry, kinds: ProcessHandleKind.literals });
   if (O.isNone(holders)) return O.some<ResidueReapSkipReason>("process-probe-failed");
   return A.isReadonlyArrayNonEmpty(holders.value) ? O.some<ResidueReapSkipReason>("lock-held") : O.none();
 });
@@ -2479,7 +2479,7 @@ const reconcileArchivedIntent = Effect.fnUntraced(function* (context: RecoveryIn
   const refuse = recoveryRefusal;
   const holders = yield* scanProcessAttachments({
     directory: intent.destination,
-    kinds: ProcessAttachmentKind.literals,
+    kinds: ProcessHandleKind.literals,
   });
   if (O.isNone(holders) || A.isReadonlyArrayNonEmpty(holders.value)) {
     yield* archive.publish(

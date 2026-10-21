@@ -5,7 +5,7 @@
 // (compose `Package.resolve` explicitly).
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { JsoncPath, JsoncStringifyError } from "../jsonc/index.ts";
+import type { JsoncPath, JsoncStringifyError } from "@beep/jsonc";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

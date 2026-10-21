@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { CommandNeutralizer } from "../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import type * as Stdio from "effect/Stdio";

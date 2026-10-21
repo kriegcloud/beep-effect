@@ -123,8 +123,8 @@ Only opened sources used above are listed.
 - [R] `explorations/semantica-lab/research/criteria-rubric.md:25-68,87-93`; [W] `explorations/semantica-lab/research/workload-contract.md:6-17,31-59`; [S] `explorations/semantica-lab/research/shared-schema.md:25-28,42-50`; [D] `explorations/semantica-lab/DECISIONS.md:47-65,99-104,112-118,145-169`.
 - [C] `explorations/semantica-lab/research/docs-url-census.md:38-45,65-70` (fetch-verified docs/repo/license census).
 - [SEM] `~/YeeBois/workstation-apps/semantica/semantica/embeddings/text_embedder.py:73-187,249-268,329-365,398-417`.
-- [L-ORT] `package.json:182`; `bun.lock:6872`; `packages/drivers/face-detection/src/FaceDetection.service.ts:313-365,782-807`.
-- [L-TJS] `scratchpad/package.json:54`; `bun.lock:5356`; [L-API] `packages/drivers/venice-ai/src/VeniceAI.service.ts:1143-1150,1977-1985` and `packages/drivers/venice-ai/swagger.yaml:2776-2874,9452-9562`.
+- [L-ORT] `package.json:182`; `bun.lock:6872`; `retired:face-detection/src/FaceDetection.service.ts:313-365,782-807`.
+- [L-TJS] `scratchpad/package.json:54`; `bun.lock:5356`; [L-API] `retired:venice-ai/src/VeniceAI.service.ts:1143-1150,1977-1985` and `retired:venice-ai/swagger.yaml:2776-2874,9452-9562`.
 - [P] Local 2026-08-24 probes: Bun 1.4.0 `require("onnxruntime-node")` = 0.03 s, 27,284 KiB max RSS; `du` = 259 MB package, 38,413,200-byte Linux x64 native payload; no local Snowflake artifact, `fastembed`, or `llama-embedding`.
 - [MTEB] https://github.com/embeddings-benchmark/leaderboard/blob/main/config.yaml ; [MTEB-M] https://github.com/embeddings-benchmark/arena/blob/main/model_meta.yml
 - [BGE] https://huggingface.co/BAAI/bge-base-en-v1.5 ; [BGE-S] https://huggingface.co/BAAI/bge-small-en-v1.5/tree/main/onnx ; [BGE-B] https://huggingface.co/BAAI/bge-base-en-v1.5/tree/main/onnx

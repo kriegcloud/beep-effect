@@ -1,5 +1,5 @@
 import { McpbManifestFields, McpbPackageSpec, makeMcpbPackageCommand } from "@beep/mcpb-kit";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { afterEach, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";

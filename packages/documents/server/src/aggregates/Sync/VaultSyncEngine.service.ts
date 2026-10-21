@@ -123,7 +123,7 @@ const truncatedPayload = (payload: Readonly<Record<string, unknown>>): Readonly<
   const encoded = JSON.stringify(payload);
   return encoded.length <= PAYLOAD_SNAPSHOT_LIMIT
     ? payload
-    : { head: encoded.slice(0, PAYLOAD_SNAPSHOT_LIMIT), truncated: true };
+    : { head: Str.slice(0, PAYLOAD_SNAPSHOT_LIMIT)(encoded), truncated: true };
 };
 
 const scanFailed = (reason: string): VaultScanFailed => VaultScanFailed.make({ reason });
@@ -1435,8 +1435,11 @@ export const makeVaultSyncEngine = Effect.fn($I`makeVaultSyncEngine`)(function* 
         workspaceId: input.workspaceId,
       })
     );
+    // Two failed operations can share one item: thread each revived item back
+    // so the next write starts from the row version the last one stored.
+    let currentItems = itemsById;
     for (const operation of failed) {
-      const tracked = HashMap.get(itemsById, operation.syncItemId);
+      const tracked = HashMap.get(currentItems, operation.syncItemId);
       if (O.isNone(tracked)) {
         continue;
       }
@@ -1454,13 +1457,14 @@ export const makeVaultSyncEngine = Effect.fn($I`makeVaultSyncEngine`)(function* 
         })
       );
       if (SyncItemState.is.error(item.syncState)) {
-        yield* itemRepository.update(
+        const revived = yield* itemRepository.update(
           DomainSyncItem.SyncItem.make({
             ...item,
             lastError: O.none(),
             syncState: SyncItemState.Enum.pending,
           })
         );
+        currentItems = HashMap.set(currentItems, revived.id, revived);
       }
     }
   });

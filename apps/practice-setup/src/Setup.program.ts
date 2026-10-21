@@ -184,7 +184,7 @@ const installGateway = Effect.gen(function* () {
       "\n"
     )
   );
-  yield* host.open(file);
+  yield* host.openInClaude(file);
   const back = "When Claude lists the Beep Practice Gateway as enabled, come back to this window.";
   if (GatewayInstallState.is.unknown(state)) {
     // Claude's registry cannot be read, so the lawyer's word is the only signal.

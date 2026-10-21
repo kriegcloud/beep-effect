@@ -38,7 +38,7 @@ const splitSkill = (text: string) => {
 
 const backticked = (body: string) =>
   pipe(
-    A.fromIterable(body.matchAll(/`([a-z0-9_-]+)`/g)),
+    A.fromIterable(Str.matchAll(/`([a-z0-9_-]+)`/g)(body)),
     A.map((match) => O.getOrElse(O.fromUndefinedOr(match[1]), () => "")),
     A.dedupe
   );

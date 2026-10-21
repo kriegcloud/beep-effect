@@ -795,11 +795,11 @@
       "sha256": "f734404307ddbc9af8ece93d505bec65759ceeecd880bc324717bfd18d04feac"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.service.ts",
+      "file": "retired:xai/src/XAi.service.ts",
       "sha256": "79576b76274219d65ac32ae1bf7e41f1942bc7941f28db576e4d607fc783f277"
     },
     {
-      "file": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+      "file": "retired:xai/src/XAiLanguageModel.service.ts",
       "sha256": "c4790b593513f0a57107bf7a95fbb0e06d8571b6eab10223c249289f9b587571"
     },
     {

@@ -37,11 +37,16 @@ because the `question` member extends its `ReviewItem` union.
   docket questions offer only the two non-writing options. Carrying candidate dates in the ledger
   would enable date options.
 - **The pane client.** The `practice-claude-mod-review-queue` follow-on calls the hub's four tools.
-  The routing item is registered with the orchestrator.
+  The routing item is registered with the orchestrator. Until it lands, the attorney uses the tools
+  from Claude Code (connected 2026-10-21); Claude Desktop's chat would reach them through the practice
+  gateway extension. Every client must send the hub's bearer token (`research/P3B-HUB.md`, Auth).
 - **A crashed append.** Reads skip a trailing line still being written, but if a writer crashes
   mid-line, the next append joins onto the fragment and leaves a corrupt line that fails reads
   until repaired. Prefix each append with a newline guard when the file does not end in one.
 - **Gated MAP rows** in the exploration: `question-email-replies` and `question-auto-apply`.
+- **The attorney's own tailnet login.** The hub allows the operator's login for now (SPEC Decision
+  Log, 2026-10-20). Moving the allow-list to a login only the attorney's device uses restores
+  answer attribution and keeps the operator's other devices out.
 
 ## Closeout Checklist
 

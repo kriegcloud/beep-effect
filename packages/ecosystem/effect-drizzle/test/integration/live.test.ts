@@ -1,6 +1,6 @@
 /** Live PostgreSQL execution proofs for @beep/effect-drizzle round four. */
 
-import { VersionConflictError } from "@beep/effect-drizzle";
+import { makeNativeRepository, VersionConflictError } from "@beep/effect-drizzle";
 import { PgliteClient, PgliteTestLayer } from "@beep/pglite";
 import { it } from "@beep/test-runner";
 import { layer as makePgliteLayer } from "@effect/sql-pglite/PgliteClient";
@@ -31,10 +31,9 @@ import {
   Unknown,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
-import { camelCase, snakeCase } from "effect/String";
+import { camelCase, includes, snakeCase } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
-import { makeRepository as makeSqlRepository } from "effect/sql/SqlModel";
 import {
   ArrayRecord,
   effectDrizzleSchema,
@@ -179,14 +178,12 @@ const tryHarness = <A>(phase: string, try_: () => PromiseLike<A>) =>
 
 const isVersionConflict = is(VersionConflictError);
 
-const organizationRepository = makeSqlRepository(Organization, {
-  tableName: Organization.sql.tableName,
+const organizationRepository = makeNativeRepository(Organization, {
   spanPrefix: "Organization",
   idColumn: "id",
 });
 
-const arrayRecordRepository = makeSqlRepository(ArrayRecord, {
-  tableName: ArrayRecord.sql.tableName,
+const arrayRecordRepository = makeNativeRepository(ArrayRecord, {
   spanPrefix: "ArrayRecord",
   idColumn: "id",
 });
@@ -240,14 +237,14 @@ it.layer(PgliteHarnessLayer, { timeout: 90_000 })("@beep/effect-drizzle live PGl
     fnUntraced(function* () {
       const { migrationStatements, noOpStatements } = yield* PgliteHarness;
       expect(isReadonlyArrayNonEmpty(migrationStatements)).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('CREATE TABLE "user"'))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes("record_status"))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes("deduped_status"))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes('CREATE TABLE "user"')(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes("record_status")(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes("deduped_status")(statement))).toBe(true);
       expect(
-        someArray(migrationStatements, (statement) => statement.includes('CREATE TABLE "enum_export_collision"'))
+        someArray(migrationStatements, (statement) => includes('CREATE TABLE "enum_export_collision"')(statement))
       ).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('"labels" text[]'))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('"matrix" text[][]'))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes('"labels" text[]')(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes('"matrix" text[][]')(statement))).toBe(true);
       expect(noOpStatements).toEqual([]);
     })
   );

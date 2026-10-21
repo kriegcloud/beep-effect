@@ -5,9 +5,10 @@
 // `DependencyKind`, the kit-wide dependency-section vocabulary.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { DependencyProtocol } from "../npm/index.ts";
-import { DependencyKind, DependencySpecifier } from "../npm/index.ts";
-import type { Range } from "../semver/index.ts";
+import type { DependencyProtocol } from "@beep/npm-spec/DependencySpecifier";
+import { DependencyKind } from "@beep/npm-spec/DependencySection";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import type { Range } from "@beep/semver";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 

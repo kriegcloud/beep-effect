@@ -1,6 +1,6 @@
-import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import * as O from "@beep/utils/Option";
+import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -15,8 +15,18 @@ import type { JsonTextSyntaxError } from "../AcpJson.codec.ts";
 // `RpcSerialization.ndJsonRpc` (4.0.0-rc.113) so that the JSON text itself can be read through
 // `readJsonText`, which the effect parser does not allow injecting. Batch responses are not
 // correlated (ACP never sends JSON-RPC batches); every message is encoded individually.
+//
+// Two deliberate differences, both because an ACP peer has no effect-rpc control plane:
+// - effect reads an id-less `@effect/rpc/<Tag>` method as an RPC control message (Ack, Interrupt,
+//   Ping, Eof, Pong). A peer `Eof` would end our writer, so these frames stay ordinary requests
+//   and notifications.
+// - effect reads an error object tagged `Defect` as a connection-level defect, which `RpcClient`
+//   applies to every in-flight call. One peer line could then fail all pending requests, so every
+//   error object stays a response to the id it carries; the protocol logs and drops one that no
+//   outstanding request can claim. An error object member `_tag` with any other value than
+//   `Cause` is ordinary data: ACP error objects allow extra members.
+// The decoder therefore yields only requests, chunks and exits (`AcpInboundMessage`).
 
-const EFFECT_RPC_METHOD_PREFIX = "@effect/rpc/";
 const DEFAULT_MAX_BUFFER_SIZE = 16 * 1024 * 1024;
 
 /**
@@ -27,13 +37,27 @@ const DEFAULT_MAX_BUFFER_SIZE = 16 * 1024 * 1024;
  */
 export type AcpWireMessage = RpcMessage.FromClientEncoded | RpcMessage.FromServerEncoded;
 
+/**
+ * The transport-encoded RPC messages an inbound ACP frame can decode to.
+ *
+ * **Details**
+ *
+ * A peer frame never decodes to an effect-rpc control message or a connection-level `Defect`, so
+ * a response, error responses included, can settle only the request with its id. A response
+ * without an id decodes with the empty request id; the protocol logs and drops it.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AcpInboundMessage =
+  | RpcMessage.RequestEncoded
+  | RpcMessage.ResponseChunkEncoded
+  | RpcMessage.ResponseExitEncoded;
+
 type AcpFrameDecodeError = JsonTextSyntaxError | S.SchemaError | RpcSerialization.MaxBufferSizeExceeded;
 
 const JsonRpcId = S.Union([S.Finite, S.String, S.Null]);
 const JsonRpcHeaders = S.Array(S.Tuple([S.String, S.String]));
-const JsonRpcControlTag = LiteralKit(["Ack", "Interrupt", "Ping", "Eof", "Pong"]);
-const JsonRpcControlParams = S.Struct({ requestId: S.Union([S.String, S.Finite]) });
-const JsonRpcErrorTag = LiteralKit(["Cause", "Defect"]);
 const JsonRpcRequestFrame = S.Struct({
   method: S.String,
   id: S.optionalKey(JsonRpcId),
@@ -47,7 +71,7 @@ const JsonRpcErrorFrame = S.Struct({
   code: S.Finite,
   message: S.String,
   data: S.optionalKey(S.Unknown),
-  _tag: S.optionalKey(JsonRpcErrorTag),
+  _tag: S.optionalKey(S.Unknown),
 });
 const JsonRpcResponseFrame = S.Struct({
   id: S.optionalKey(JsonRpcId),
@@ -68,8 +92,6 @@ const decodeRequestFrame = S.decodeUnknownResult(JsonRpcRequestFrame);
 const decodeResponseFrame = S.decodeUnknownResult(JsonRpcResponseFrame);
 const decodeCauseEntries = S.decodeUnknownResult(S.Array(JsonRpcCauseEntry));
 const decodeChunkValues = S.decodeUnknownResult(S.NonEmptyArray(S.Unknown));
-const decodeControlTag = S.decodeUnknownResult(JsonRpcControlTag);
-const decodeControlParams = S.decodeUnknownResult(JsonRpcControlParams);
 const isJsonArray = S.is(S.Array(S.Unknown));
 
 const toCauseEntry = Match.type<(typeof JsonRpcCauseEntry)["Type"]>().pipe(
@@ -79,60 +101,32 @@ const toCauseEntry = Match.type<(typeof JsonRpcCauseEntry)["Type"]>().pipe(
 
 const toHeader = ([name, value]: readonly [string, string]): [string, string] => [name, value];
 
-const toControlMessage = (tag: string, params: unknown): Result.Result<AcpWireMessage, S.SchemaError> =>
-  Result.flatMap(decodeControlTag(tag), (control) => {
-    const withRequestId = (
-      make: (requestId: string | number) => AcpWireMessage
-    ): Result.Result<AcpWireMessage, S.SchemaError> =>
-      Result.map(decodeControlParams(params), ({ requestId }) => make(requestId));
-    return Match.value(control).pipe(
-      Match.when("Ack", () => withRequestId((requestId) => ({ _tag: "Ack", requestId }))),
-      Match.when("Interrupt", () => withRequestId((requestId) => ({ _tag: "Interrupt", requestId }))),
-      Match.when("Ping", () => Result.succeed<AcpWireMessage>({ _tag: "Ping" })),
-      Match.when("Eof", () => Result.succeed<AcpWireMessage>({ _tag: "Eof" })),
-      Match.when("Pong", () => Result.succeed<AcpWireMessage>({ _tag: "Pong" })),
-      Match.exhaustive
-    );
-  });
-
-const toRequestMessage = (
-  frame: unknown,
-  request: (typeof JsonRpcRequestFrame)["Type"]
-): Result.Result<AcpWireMessage, S.SchemaError> => {
-  const id = O.fromNullishOr(request.id);
-  if (O.isNone(id) && Str.startsWith(EFFECT_RPC_METHOD_PREFIX)(request.method)) {
-    return toControlMessage(Str.slice(Str.length(EFFECT_RPC_METHOD_PREFIX))(request.method), request.params);
-  }
-  return Result.succeed<AcpWireMessage>({
-    _tag: "Request",
-    id: O.getOrElse(id, () => ""),
-    tag: request.method,
-    payload: request.params ?? null,
-    headers: A.map(request.headers ?? [], toHeader),
-    ...(P.hasProperty(frame, "id") ? {} : { isNotification: true as const }),
-    ...O.getSomesStruct({
-      traceId: O.fromUndefinedOr(request.traceId),
-      spanId: O.fromUndefinedOr(request.spanId),
-      sampled: O.fromUndefinedOr(request.sampled),
-    }),
-  });
-};
+const toRequestMessage = (frame: unknown, request: (typeof JsonRpcRequestFrame)["Type"]): AcpInboundMessage => ({
+  _tag: "Request",
+  id: O.getOrElse(O.fromNullishOr(request.id), () => ""),
+  tag: request.method,
+  payload: request.params ?? null,
+  headers: A.map(request.headers ?? [], toHeader),
+  ...(P.hasProperty(frame, "id") ? {} : { isNotification: true as const }),
+  ...O.getSomesStruct({
+    traceId: O.fromUndefinedOr(request.traceId),
+    spanId: O.fromUndefinedOr(request.spanId),
+    sampled: O.fromUndefinedOr(request.sampled),
+  }),
+});
 
 const toResponseMessage = (
   response: (typeof JsonRpcResponseFrame)["Type"]
-): Result.Result<AcpWireMessage, S.SchemaError> => {
+): Result.Result<AcpInboundMessage, S.SchemaError> => {
   const requestId = O.getOrElse(O.fromNullishOr(response.id), () => "");
   const error = O.fromNullishOr(response.error);
-  if (O.isSome(error) && error.value._tag === "Defect") {
-    return Result.succeed<AcpWireMessage>({ _tag: "Defect", defect: error.value.data });
-  }
   if (response.chunk === true) {
     return Result.map(
       decodeChunkValues(response.result),
-      (values): AcpWireMessage => ({ _tag: "Chunk", requestId, values })
+      (values): AcpInboundMessage => ({ _tag: "Chunk", requestId, values })
     );
   }
-  return Result.succeed<AcpWireMessage>({
+  return Result.succeed<AcpInboundMessage>({
     _tag: "Exit",
     requestId,
     exit: O.match(error, {
@@ -151,12 +145,14 @@ const toResponseMessage = (
   });
 };
 
-const decodeJsonRpcMessage = (frame: unknown): Result.Result<AcpWireMessage, S.SchemaError> =>
+const decodeJsonRpcMessage = (frame: unknown): Result.Result<AcpInboundMessage, S.SchemaError> =>
   P.hasProperty(frame, "method")
-    ? Result.flatMap(decodeRequestFrame(frame), (request) => toRequestMessage(frame, request))
+    ? Result.map(decodeRequestFrame(frame), (request) => toRequestMessage(frame, request))
     : Result.flatMap(decodeResponseFrame(frame), toResponseMessage);
 
-const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWireMessage>, S.SchemaError> =>
+const isBlankLine = (line: string): boolean => Str.isEmpty(Str.trim(line));
+
+const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpInboundMessage>, S.SchemaError> =>
   isJsonArray(frame) ? Result.all(A.map(frame, decodeJsonRpcMessage)) : Result.map(decodeJsonRpcMessage(frame), A.of);
 
 /**
@@ -165,9 +161,13 @@ const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWire
  * **Details**
  *
  * Each call to the returned function appends one chunk to a line buffer, reads every complete
- * line through {@link readJsonText}, and maps the JSON-RPC envelope to the encoded RPC messages
- * that effect's `RpcSerialization.ndJsonRpc` produces. A line or trailing remainder above 16 MiB
- * fails with `MaxBufferSizeExceeded` and discards the buffer.
+ * non-blank line through {@link readJsonText}, and maps the JSON-RPC envelope to the encoded RPC messages
+ * that effect's `RpcSerialization.ndJsonRpc` produces, with two exceptions: an `@effect/rpc/*`
+ * method stays an ordinary request or notification instead of an RPC control message, and an error
+ * object tagged `Defect` stays the failure of its own request id instead of a connection-level
+ * defect that would fail every in-flight call. A line or trailing
+ * remainder above 16 MiB fails with `MaxBufferSizeExceeded` and discards the buffer.
+ * Whitespace-only lines are skipped.
  *
  * **Example** (Decode one notification frame)
  *
@@ -184,7 +184,7 @@ const decodeJsonRpcFrame = (frame: unknown): Result.Result<ReadonlyArray<AcpWire
  */
 export const makeNdJsonRpcFrameDecoder = (): ((
   chunk: Uint8Array
-) => Result.Result<ReadonlyArray<AcpWireMessage>, AcpFrameDecodeError>) => {
+) => Result.Result<ReadonlyArray<AcpInboundMessage>, AcpFrameDecodeError>) => {
   const decoder = new TextDecoder();
   let buffer = "";
   const exceeds = (size: number): boolean => size > DEFAULT_MAX_BUFFER_SIZE;
@@ -194,24 +194,28 @@ export const makeNdJsonRpcFrameDecoder = (): ((
   };
   return (chunk) => {
     buffer += decoder.decode(chunk, { stream: true });
-    const batches = A.empty<ReadonlyArray<AcpWireMessage>>();
+    const batches = A.empty<ReadonlyArray<AcpInboundMessage>>();
     let position = 0;
-    let newline = buffer.indexOf("\n", position);
-    while (newline !== -1) {
-      if (exceeds(newline - position)) {
+    // A global pattern finds each newline after the previous one without splitting the buffer.
+    const newlines = /\n/g;
+    for (let newline = newlines.exec(buffer); newline !== null; newline = newlines.exec(buffer)) {
+      if (exceeds(newline.index - position)) {
         return failBufferSize();
       }
-      const line = buffer.slice(position, newline);
-      position = newline + 1;
+      const line = pipe(buffer, Str.slice(position, newline.index));
+      position = newline.index + 1;
+      // A blank keep-alive line carries no message; skip it instead of failing the connection.
+      if (isBlankLine(line)) {
+        continue;
+      }
       const decoded = Result.flatMap(readJsonText(line), decodeJsonRpcFrame);
       if (Result.isFailure(decoded)) {
-        buffer = buffer.slice(position);
+        buffer = pipe(buffer, Str.slice(position));
         return Result.fail(decoded.failure);
       }
       A.appendInPlace(batches, decoded.success);
-      newline = buffer.indexOf("\n", position);
     }
-    buffer = buffer.slice(position);
+    buffer = pipe(buffer, Str.slice(position));
     if (exceeds(Str.length(buffer))) {
       return failBufferSize();
     }

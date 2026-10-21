@@ -87,7 +87,7 @@ rg -li -e "embedding" -e "pgvector" -e "vector\(768\)" -e "hnsw" --glob 'package
 ```
 packages/tooling/tool/cli/src/commands/Yeet/internal/AttemptJournal.ts     <- unrelated
 packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/DockerResolver.ts <- unrelated
-packages/drivers/venice-ai/src/VeniceAI.service.ts        <- hosted POST /embeddings operation
+retired:venice-ai/src/VeniceAI.service.ts        <- hosted POST /embeddings operation
 packages/foundation/ui-system/editor/src/youtube-embed.tsx <- unrelated
 packages/foundation/modeling/rdf/src/Iri.ts                <- "embedding" in prose
 packages/foundation/modeling/nlp/src/Ontology/Kind.ts      <- prose
@@ -99,7 +99,7 @@ rg -n -i -e "vector" -e "textsearch" packages/drivers/pglite/src/
 # -> (no output)
 ```
 
-Only live embedding surface is `packages/drivers/venice-ai/src/VeniceAI.service.ts:1117-1123`
+Only live embedding surface is `retired:venice-ai/src/VeniceAI.service.ts:1117-1123`
 (`createEmbedding`, `POST /embeddings`) — a **hosted** path, which the locked encoder decision
 rules out for privileged text ("zero external egress",
 `explorations/rag-retrieval-projection/DECISIONS.md` — LOCKED — encoder runtime).
@@ -302,9 +302,9 @@ RAPTOR performs, captured on a different packet.
 
 ## 10. LLM substrate for the build-time summarization pass
 
-Live: `packages/drivers/anthropic/`, `packages/drivers/xai/` (`XAiLanguageModel.service.ts`),
+Live: `packages/drivers/anthropic/`, `retired:xai/` (`retired:xai/src/XAiLanguageModel.service.ts`),
 `packages/drivers/openai-compat/` (`OpenAiCompatLanguageModel.service.ts`),
-`packages/drivers/venice-ai/` (`VeniceAiLanguageModel.service.ts`), and a shipped
+`retired:venice-ai/` (`retired:venice-ai/src/VeniceAiLanguageModel.service.ts`), and a shipped
 provider-neutral extraction capability, `packages/foundation/capability/langextract/src/Service/`
 (`goals/langextract-capability` → `completed-retained`; landed on main 2026-06-07/08).
 

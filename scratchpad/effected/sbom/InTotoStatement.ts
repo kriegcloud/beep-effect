@@ -446,7 +446,7 @@ export type InTotoSubjectInput = typeof InTotoSubjectInput.Type;
  */
 export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: unique symbol }>($I`InTotoStatement`)({
 	/** Always the in-toto Statement v1 URI. */
-	_type: S.Literal(IN_TOTO_STATEMENT_V1).pipe($I.annoteKey("InTotoStatement._type", { description: "Always the in-toto Statement v1 URI." })),
+	_type: S.tag(IN_TOTO_STATEMENT_V1).pipe($I.annoteKey("InTotoStatement._type", { description: "Always the in-toto Statement v1 URI." })),
 	/** The artifacts attested. */
 	subject: S.Array(InTotoSubject).pipe($I.annoteKey("InTotoStatement.subject", { description: "The artifacts attested." })),
 	/** What is being asserted about them. */

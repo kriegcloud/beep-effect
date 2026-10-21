@@ -1,4 +1,5 @@
 import { SetupDoctor } from "@beep/law-practice-use-cases/PracticeSetup";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
 import { GatewaySettings } from "@beep/practice-gateway/GatewaySettings";
 import { SelfCheckFailure } from "@beep/practice-gateway/PracticeGateway.errors";
@@ -12,7 +13,6 @@ import {
   runGatewaySelfCheck,
 } from "@beep/practice-gateway/SelfCheck";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
@@ -112,7 +112,7 @@ describe("--self-check", () => {
         expect(lines).toHaveLength(1);
         const line = yield* S.decodeEffect(GatewaySelfCheckReportJson)(lines[0] ?? "");
         expect(line.profileSaved).toBe(true);
-        expect(line.report.checks).toHaveLength(10);
+        expect(line.report.checks).toHaveLength(11);
         expect(line.summary).toContain("You need to: Open Claude and sign in with your Claude account.");
       })
     );

@@ -1,5 +1,5 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
@@ -102,7 +102,7 @@ const harness = Effect.fnUntraced(function* (script: Script) {
       yield* Ref.update(installersRun, A.append(path));
       return 0;
     }),
-    open: Effect.fn("FakeHost.open")(function* (target) {
+    openInClaude: Effect.fn("FakeHost.openInClaude")(function* (target) {
       yield* log(`open:${target}`);
     }),
     openLink: Effect.fn("FakeHost.openLink")(function* (link) {
@@ -392,7 +392,7 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
       expect(result.report.complete).toBe(false);
       expect(result.installersRun).toEqual([]);
       expect(result.opened).toEqual([]);
-      expect(A.some(result.said, (line) => line.startsWith("Setup stopped: The Claude installer"))).toBe(true);
+      expect(A.some(result.said, (line) => Str.startsWith("Setup stopped: The Claude installer")(line))).toBe(true);
       expect(saidAny(result.said, "Press Enter to close this window.")).toBe(false);
     })
   );
@@ -425,7 +425,7 @@ const hostWith = (install: ClaudeInstall) =>
       runInstaller: Effect.fn("ProbeHost.runInstaller")(function* () {
         return 0;
       }),
-      open: Effect.fn("ProbeHost.open")(function* () {}),
+      openInClaude: Effect.fn("ProbeHost.openInClaude")(function* () {}),
       openLink: Effect.fn("ProbeHost.openLink")(function* () {}),
       copyToClipboard: Effect.fn("ProbeHost.copyToClipboard")(function* () {}),
       stateDir: Effect.succeed(STATE_DIR),

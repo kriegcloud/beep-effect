@@ -21,6 +21,7 @@ import {
   SupersedeEdgeFact,
   SupersessionConflict,
 } from "@beep/epistemic-use-cases/EdgeAuthority";
+import { $EpistemicId } from "@beep/identity/packages";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";
 import {
@@ -291,6 +292,15 @@ if (!shouldRunPgliteIntegration) {
             );
           const openVersions = yield* Effect.fromResult(Result.all(A.map(openHeads, fromEdgeVersionRow)));
           expect(A.map(openVersions, (version) => version.version)).toStrictEqual([2]);
+
+          // Closing the former head is a row write, so it advances that row's
+          // optimistic token; the replacement starts at the first version.
+          const formerRows = yield* db
+            .select({ rowVersion: edgeTable.rowVersion })
+            .from(edgeTable)
+            .where(eq(edgeTable.id, former.id));
+          expect([former.rowVersion, ...A.map(formerRows, (row) => row.rowVersion)]).toStrictEqual([1, 2]);
+          expect(corrected.rowVersion).toBe(1);
         }),
         120_000
       );
@@ -571,9 +581,9 @@ if (!shouldRunPgliteIntegration) {
             verdict: "rejected",
             violations: [
               {
-                focusNode: "https://beep.dev/epistemic/claim/patentability",
+                focusNode: $EpistemicId.create("claim/patentability").iri,
                 message: "Expected at least 1 value(s) for evidence.",
-                path: "https://beep.dev/epistemic/hasEvidenceQuote",
+                path: $EpistemicId.create("hasEvidenceQuote").iri,
                 severity: "violation",
               },
             ],

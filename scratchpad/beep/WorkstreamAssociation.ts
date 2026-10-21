@@ -39,13 +39,13 @@ const $I = $ScratchpadId.create("beep/WorkstreamAssociation");
 
 const emptyIds: ReadonlyArray<string> = [];
 
-const schemaVersion = S.Literal(1)
+const schemaVersion = S.tag(1)
   .annotateKey({ description: "Contract schema version. Always 1." })
-  .pipe(S.withConstructorDefault(Effect.succeed<1>(1)), pg.integer(), pg.columnName("schema_version"));
+  .pipe(pg.integer(), pg.columnName("schema_version"));
 
-const policyVersion = S.Literal("association.v1")
+const policyVersion = S.tag("association.v1")
   .annotateKey({ description: "Association policy version. Always association.v1." })
-  .pipe(S.withConstructorDefault(Effect.succeed<"association.v1">("association.v1")), pg.text(), pg.columnName("policy_version"));
+  .pipe(pg.text(), pg.columnName("policy_version"));
 
 const stableIdList = (column: string, maximum: number, description: string) =>
   S.Array(StableId)
@@ -492,10 +492,9 @@ export declare namespace AssociationOutcome {
 export class WorkstreamIndexRebuildReport extends Model<WorkstreamIndexRebuildReport>("WorkstreamIndexRebuildReport")(
   {
     uid: text("uid"),
-    indexVersion: S.Literal("workstream-association-v2")
+    indexVersion: S.tag("workstream-association-v2")
       .annotateKey({ description: "Index version. Always workstream-association-v2." })
       .pipe(
-        S.withConstructorDefault(Effect.succeed<"workstream-association-v2">("workstream-association-v2")),
         pg.text(),
         pg.columnName("index_version"),
       ),

@@ -144,7 +144,7 @@ export class OntologyCasConflict extends S.TaggedError<OntologyCasConflict, { re
     expectedFingerprint: OntologyFingerprint,
     currentFingerprint: OntologyFingerprint,
     guidance: S.NonEmptyString,
-    recoverable: S.Literal(true),
+    recoverable: S.tag(true),
   },
   $I.annoteError<OntologyCasConflict>("OntologyCasConflict", {
     description: "Recoverable rdfc-1.0 compare-and-set conflict.",
@@ -169,7 +169,7 @@ export class OntologyBudgetRefusal extends S.TaggedError<OntologyBudgetRefusal, 
     actual: S.Natural,
     limit: S.Natural,
     guidance: S.NonEmptyString,
-    recoverable: S.Literal(true),
+    recoverable: S.tag(true),
   },
   $I.annoteError<OntologyBudgetRefusal>("OntologyBudgetRefusal", {
     description: "Recoverable refusal when a server-owned ontology budget is exceeded.",
@@ -194,7 +194,7 @@ export class OntologyReasonerDriftRefusal extends S.TaggedError<
     actual: S.Natural,
     cap: S.Natural,
     guidance: S.NonEmptyString,
-    recoverable: S.Literal(true),
+    recoverable: S.tag(true),
   },
   $I.annoteError<OntologyReasonerDriftRefusal>("OntologyReasonerDriftRefusal", {
     description: "Recoverable refusal that prevents an unbounded reasoner recompute.",
@@ -217,7 +217,7 @@ export class OntologyNoOpRefusal extends S.TaggedError<OntologyNoOpRefusal, { re
   "OntologyNoOpRefusal",
   {
     guidance: S.NonEmptyString,
-    recoverable: S.Literal(true),
+    recoverable: S.tag(true),
   },
   $I.annoteError<OntologyNoOpRefusal>("OntologyNoOpRefusal", {
     description: "Visible refusal for an ontology mutation that would have no effect.",
@@ -241,7 +241,7 @@ export class OntologyActorIdentityRefusal extends S.TaggedError<
   "OntologyActorIdentityRefusal",
   {
     guidance: S.NonEmptyString,
-    recoverable: S.Literal(true),
+    recoverable: S.tag(true),
   },
   $I.annoteError<OntologyActorIdentityRefusal>("OntologyActorIdentityRefusal", {
     description: "Recoverable refusal when authenticated caller identity is unavailable for mutation attribution.",
@@ -264,7 +264,7 @@ export class OntologyTierGateRefusal extends S.TaggedError<OntologyTierGateRefus
   "OntologyTierGateRefusal",
   {
     guidance: S.NonEmptyString,
-    recoverable: S.Literal(true),
+    recoverable: S.tag(true),
   },
   $I.annoteError<OntologyTierGateRefusal>("OntologyTierGateRefusal", {
     description: "Recoverable fail-closed refusal returned when TierGate does not approve an ontology mutation.",
@@ -749,10 +749,10 @@ export class CapabilityMetadataResponse extends S.Opaque<
   S.Struct({
     capabilities: S.Array(OntologyToolCapability),
     budgets: OntologyToolBudgets,
-    casAlgorithm: S.Literal("rdfc-1.0"),
-    casSemantics: S.Literal("semantic"),
-    stateless: S.Literal(true),
-    reasonerProfile: S.Literal("structural-rdfs-owl-rl-subset"),
+    casAlgorithm: S.tag("rdfc-1.0"),
+    casSemantics: S.tag("semantic"),
+    stateless: S.tag(true),
+    reasonerProfile: S.tag("structural-rdfs-owl-rl-subset"),
   }).pipe(
     $I.annoteSchema("CapabilityMetadataResponse", { description: "Actual ontology toolkit limits and semantics." })
   )

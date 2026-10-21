@@ -7,16 +7,13 @@ import { dual } from "effect/Function";
 // `layer` needs a filesystem, `layerWithGit` additionally needs core's
 // `ChildProcessSpawner` (behind `@effected/git`'s `Git` service) to run git.
 
-import { ExecContext, LocalExec, LocalExecError } from "../commands/index.ts";
-import { Git } from "../git/index.ts";
-import type {
-	CatalogAssemblyError,
-	CatalogResolver,
-	DependencyResolutionError,
-	UnresolvedDependencyError,
-	WorkspaceResolver,
-} from "../npm/index.ts";
-import { Manifest } from "../npm/index.ts";
+import { ExecContext, LocalExec, LocalExecError } from "@beep/commands";
+import { Git } from "@beep/git";
+import type { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
+import type { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import type { UnresolvedDependencyError } from "@beep/npm-spec/Manifest";
+import type { DependencyResolutionError, WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
+import { Manifest } from "@beep/npm-spec/Manifest";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
@@ -700,7 +697,7 @@ export class Workspaces {
 	 * **Example** (Wire project-local execution into tool discovery)
 	 *
 	 * ```ts
-	 * import { ToolDiscovery } from "@beep/scratchpad/effected/commands/ToolDiscovery";
+	 * import { ToolDiscovery } from "@beep/commands/ToolDiscovery";
 	 * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
 	 * import * as Layer from "effect/Layer";
 	 *
@@ -744,7 +741,7 @@ export class Workspaces {
 	 * **Example** (Resolve catalog dependencies in a manifest)
 	 *
 	 * ```ts
-	 * import { Manifest } from "@beep/scratchpad/effected/npm/Manifest";
+	 * import { Manifest } from "@beep/npm-spec/Manifest";
 	 * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
 	 * import * as Effect from "effect/Effect";
 	 *

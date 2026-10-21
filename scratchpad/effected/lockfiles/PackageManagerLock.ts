@@ -45,7 +45,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/PackageManagerLock");
  * @since 0.0.0
  */
 export class PackageManagerLock extends S.Class<PackageManagerLock, { readonly brand: unique symbol }>($I`PackageManagerLock`)({
-	name: S.Literal("pnpm").pipe($I.annoteKey("PackageManagerLock.name", { description: "Package manager pinned by the env preamble, always `pnpm`" })),
+	name: S.tag("pnpm").pipe($I.annoteKey("PackageManagerLock.name", { description: "Package manager pinned by the env preamble, always `pnpm`" })),
 	specifier: S.String.pipe($I.annoteKey("PackageManagerLock.specifier", { description: "Declared package manager specifier recorded verbatim, potentially retaining a corepack-style integrity suffix" })),
 	version: S.String.pipe($I.annoteKey("PackageManagerLock.version", { description: "Exact pnpm package version resolved in the lockfile's env preamble" })),
 	integrity: S.String.pipe($I.annoteKey("PackageManagerLock.integrity", { description: "SRI checksum recorded for the resolved pnpm package in the lockfile's env preamble" })),

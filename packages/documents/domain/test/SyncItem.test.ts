@@ -47,11 +47,13 @@ describe("SyncItem entity", () => {
   it("wires SyncItem to the documents identity", () => {
     expect(SyncItem.SyncItem.sql.tableName).toBe(DocumentsIdentity.SyncItemId.tableName);
     expect(R.keys(SyncItem.SyncItem.insert.fields)).not.toContain("id");
-    expect(R.keys(SyncItem.SyncItem.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(SyncItem.SyncItem.insert.fields)).toContain("rowVersion");
     expect(R.keys(SyncItem.SyncItem.update.fields)).toContain("id");
     expect(R.keys(SyncItem.SyncItem.update.fields)).toContain("rowVersion");
     expect(R.keys(SyncItem.SyncItem.jsonCreate.fields)).toHaveLength(14);
-    expect(R.keys(SyncItem.SyncItem.jsonUpdate.fields)).toHaveLength(14);
+    expect(R.keys(SyncItem.SyncItem.jsonUpdate.fields)).toHaveLength(15);
+    expect(R.keys(SyncItem.SyncItem.jsonUpdate.fields)).toContain("rowVersion");
+    expect(R.keys(SyncItem.SyncItem.jsonCreate.fields)).not.toContain("rowVersion");
   });
 
   it.effect("decodes and encodes a full file row", () =>

@@ -1,10 +1,10 @@
 [
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAi.models.ts",
+    "file": "retired:xai/src/XAi.models.ts",
     "line": 282,
     "symbol": "XAiServerSentEvent",
-    "smell": "XAiServerSentEvent models SSE state as one struct with done: S.Boolean and optional data. parseSseData constructs { done: true } for [DONE] and { done: false, data } for data chunks (XAi.service.ts:551-555), but downstream streamChatCompletion only checks event.done before parsing event.data (XAiLanguageModel.service.ts:152-144), so the schema admits the impossible state done=false with missing data.",
+    "smell": "XAiServerSentEvent models SSE state as one struct with done: S.Boolean and optional data. parseSseData constructs { done: true } for [DONE] and { done: false, data } for data chunks (retired:xai/src/XAi.service.ts:551-555), but downstream streamChatCompletion only checks event.done before parsing event.data (retired:xai/src/XAiLanguageModel.service.ts:152-144), so the schema admits the impossible state done=false with missing data.",
     "proposedTarget": "Split into an explicit tagged event union, e.g. S.TaggedUnion({ Done: { done: S.tag(true), index: S.Finite }, Data: { data: S.Unknown, done: S.tag(false), index: S.Finite } }) or a string-kind equivalent, then consume via XAiServerSentEvent.match/guards. Verified S.TaggedUnion at .repos/effect-v4/packages/effect/src/Schema.ts:6204 and in-repo boolean-field tagged union precedent at packages/foundation/modeling/utils/src/internal/StructPath.ts:49.",
     "confidence": 0.55,
     "mechanization": "judgment",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "literal-kit-const-assertion",
-    "file": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+    "file": "retired:xai/src/XAiEndpoints.models.ts",
     "line": 30,
     "symbol": "XAi*Values",
     "smell": "False-positive-audited literal-kit-const-assertion candidate: named as-const tuples XAiHttpMethodValues, XAiAuthKindValues, XAiEndpointBaseValues, XAiRequestBodyKindValues, XAiResponseBodyKindValues, XAiEndpointStatusValues, XAiEndpointMethodNameValues, and XAiEndpointIdValues feed LiteralKit by identifier.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-getsomes-struct",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 238,
     "symbol": "diagnosticsFor / responseContext",
     "smell": "False-positive-audited R.getSomes candidates: diagnosticsFor spreads singleton cause and status calls (lines 238-243), and responseContext spreads singleton contentType (lines 408-410).",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-getsomes-struct",
-    "file": "packages/drivers/xai/src/XAi.errors.ts",
+    "file": "retired:xai/src/XAi.errors.ts",
     "line": 124,
     "symbol": "XAiError.fromDescriptor / XAiError.config",
     "smell": "False-positive-audited R.getSomes candidates: XAiError.fromDescriptor spreads singleton cause and status calls (lines 124-129), and XAiError.config spreads a singleton cause call (lines 150-152).",
@@ -61,10 +61,10 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAi.models.ts",
+    "file": "retired:xai/src/XAi.models.ts",
     "line": 29,
     "symbol": "XAiQueryValue",
-    "smell": "False-positive-audited undiscriminated-union candidate: XAiQueryValue is S.Union over URL query scalar values and arrays of those scalars, mirrored by decodeQueryScalarOption/queryScalarToString in XAi.service.ts:640-651.",
+    "smell": "False-positive-audited undiscriminated-union candidate: XAiQueryValue is S.Union over URL query scalar values and arrays of those scalars, mirrored by decodeQueryScalarOption/queryScalarToString in retired:xai/src/XAi.service.ts:640-651.",
     "proposedTarget": "None -- keep as-is.",
     "confidence": 0.3,
     "mechanization": "judgment",

@@ -151,10 +151,10 @@ const HOSTED_ARTIFACT_REQUEST = LangExtractRequest.make({
 
 const HostedExtractionCandidateDescriptor = S.Struct({
   alignmentTiers: S.Tuple([S.Literal("match_exact"), S.Literal("match_lesser"), S.Literal("match_minimal_fold")]),
-  endpointPolicy: S.Literal(RELATION_ENDPOINT_POLICY),
-  relationContract: S.Literal(RELATION_CONTRACT_SCHEMA),
+  endpointPolicy: S.tag(RELATION_ENDPOINT_POLICY),
+  relationContract: S.tag(RELATION_CONTRACT_SCHEMA),
   renderedPrompt: S.String,
-  schemaVersion: S.Literal("semantica-hosted-extraction-candidate/v1"),
+  schemaVersion: S.tag("semantica-hosted-extraction-candidate/v1"),
 });
 
 /**

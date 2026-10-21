@@ -57,7 +57,7 @@ export class KnowledgeRewriteRule extends S.Opaque<KnowledgeRewriteRule, { reado
  * @since 0.0.0
  */
 export class KnowledgeRewriteRules extends S.Opaque<KnowledgeRewriteRules, { readonly brand: unique symbol }>()(
-  S.Struct({ schemaVersion: S.Literal("knowledge-refs-rewrite/v1"), rules: S.Array(KnowledgeRewriteRule) }).pipe(
+  S.Struct({ schemaVersion: S.tag("knowledge-refs-rewrite/v1"), rules: S.Array(KnowledgeRewriteRule) }).pipe(
     $I.annoteSchema("KnowledgeRewriteRules", {
       description: "Versioned literal rewrite contract; rules execute in file order.",
     })

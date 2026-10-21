@@ -1,3 +1,5 @@
+import { $I as $BeepId } from "@beep/identity/packages";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   ClassificationConcept,
   ClassificationError,
@@ -10,7 +12,6 @@ import {
 } from "@beep/ontology/Classification.models";
 import { ClassificationRegistry } from "@beep/ontology/ClassificationRegistry";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -120,7 +121,7 @@ it.layer(Layer.merge(ClassificationRegistry.layer, fixtureLayer), { timeout: "30
         expect((yield* registry.resolve(snapshot, nicePin, "350001")).prefLabel).toBe("Synthetic service term");
         expect(A.map(yield* registry.broader(snapshot, nicePin, "350001"), (value) => value.notation)).toEqual(["35"]);
         expect(A.map(yield* registry.narrower(snapshot, nicePin, "1"), (value) => value.notation)).toEqual(["010001"]);
-        expect(A.every(snapshot.concepts, (concept) => Str.startsWith("https://ns.beep.sh/")(concept.iri))).toBe(true);
+        expect(A.every(snapshot.concepts, (concept) => Str.startsWith($BeepId.iri)(concept.iri))).toBe(true);
       })
     );
 

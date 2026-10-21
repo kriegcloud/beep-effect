@@ -71,3 +71,14 @@ avoid fabrication):
   machine-local lane 10 report.
 - Fossil, git-bug, git-appraise, Radicle — forge-state-in-repo prior art
   named in Part IV.
+
+## Research filed in this packet
+
+- `research/2026-10-09-agent-native-documentation-endgame.md` — a ChatGPT
+  deep-research answer on agent-native documentation for beep-effect
+  (formats, identity, discovery, MCP, a cold-agent eval). It first appeared
+  at the repository root in #1592 and was moved here on 2026-10-21 with the
+  unresolvable citation markers removed, wrong names corrected, and an
+  editor's note on where it conflicts with repo decisions. Fourteen of its
+  time-sensitive external claims were checked on 2026-10-21; the sources are
+  listed at the end of the file.

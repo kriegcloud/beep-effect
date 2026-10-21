@@ -598,8 +598,8 @@ export class VocabularySourceProvenance extends S.Opaque<
   )
 ) {}
 
-const schemaVersion = S.Literal("court-reporter-vocabulary/v1");
-const projectionVersion = S.Literal(1);
+const schemaVersion = S.tag("court-reporter-vocabulary/v1");
+const projectionVersion = S.tag(1);
 
 /**
  * Machine-readable courts-db vocabulary projection.

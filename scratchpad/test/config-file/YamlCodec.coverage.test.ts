@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
 import { YamlCodec } from "../../effected/config-file/YamlCodec.ts";
-import { YamlStringifyError } from "../../effected/yaml/index.ts";
+import { YamlStringifyError } from "@beep/yaml";
 
 describe("YamlCodec stringify failures", () => {
   it.effect("preserves a circular-reference failure and the offending value structurally", () =>

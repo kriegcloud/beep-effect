@@ -41,6 +41,7 @@
     {"file":"apps/practice-gateway/src/WindowsHost.ts","symbol":"BitLockerProtection","kind":"literal-kit","owner":"@beep/practice-gateway","identity":"BitLockerProtection","description":"Whether BitLocker protects a drive, as far as an unelevated process can tell."},
     {"file":"apps/practice-gateway/src/WindowsHost.ts","symbol":"KnownFolder","kind":"literal-kit","owner":"@beep/practice-gateway","identity":"KnownFolder","description":"An environment-backed Windows folder the setup probes resolve paths under."},
     {"file":"apps/practice-gateway/src/WindowsHost.ts","symbol":"RegistryValueQuery","kind":"struct-const","owner":"@beep/practice-gateway","identity":"RegistryValueQuery","description":"One registry value to read: the key path and the value name under it."},
-    {"file":"apps/practice-gateway/src/WindowsHost.ts","symbol":"WindowsHostShape","kind":"struct-const","owner":"@beep/practice-gateway","identity":"WindowsHostShape","description":"The Windows facts the setup probes read."}
+    {"file":"apps/practice-gateway/src/WindowsHost.ts","symbol":"WindowsHostShape","kind":"struct-const","owner":"@beep/practice-gateway","identity":"WindowsHostShape","description":"The Windows facts the setup probes read and the Yes/No dialog the gateway can show."},
+    {"file":"apps/practice-gateway/src/WindowsHost.ts","symbol":"YesNoQuestion","kind":"struct-const","owner":"@beep/practice-gateway","identity":"YesNoQuestion","description":"A Yes/No question shown in a Windows dialog on the lawyer's desktop."}
   ]
 }

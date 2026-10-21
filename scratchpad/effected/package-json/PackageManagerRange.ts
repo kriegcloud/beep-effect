@@ -24,8 +24,8 @@
 // uses, so the two fields cannot drift apart.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { CorepackIntegrityHash } from "../npm/index.ts";
-import { Range, SemVer } from "../semver/index.ts";
+import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
+import { Range, SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { dual } from "effect/Function";

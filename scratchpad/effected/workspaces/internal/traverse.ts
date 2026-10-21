@@ -79,11 +79,11 @@ export type TraversalFrame = typeof TraversalFrame.Type;
  */
 export const TraversalStop = S.Union([
 	S.Struct({
-		kind: S.Literal("depthExceeded").pipe($I.annoteKey("TraversalStop.depthExceeded", { description: "The traversal exhausted its depth bound." })),
+		kind: S.tag("depthExceeded").pipe($I.annoteKey("TraversalStop.depthExceeded", { description: "The traversal exhausted its depth bound." })),
 		detail: S.String.pipe($I.annoteKey("TraversalStop.depthDetail", { description: "The caller-visible depth-limit diagnostic." })),
 	}).pipe($I.annoteSchema("DepthStop", { description: "A traversal stopped at its depth bound." })),
 	S.Struct({
-		kind: S.Literal("budgetExceeded").pipe($I.annoteKey("TraversalStop.budgetExceeded", { description: "The traversal exhausted its directory-read budget." })),
+		kind: S.tag("budgetExceeded").pipe($I.annoteKey("TraversalStop.budgetExceeded", { description: "The traversal exhausted its directory-read budget." })),
 		detail: S.String.pipe($I.annoteKey("TraversalStop.budgetDetail", { description: "The caller-visible visit-budget diagnostic." })),
 	}).pipe($I.annoteSchema("BudgetStop", { description: "A traversal stopped at its directory-read budget." })),
 ]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("TraversalStop", { description: "The existing plain-record reasons a workspace traversal stops early." }));

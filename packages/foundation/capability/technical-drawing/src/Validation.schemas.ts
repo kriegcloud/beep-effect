@@ -199,7 +199,15 @@ export class PdfFacts extends S.Opaque<PdfFacts, { readonly brand: unique symbol
       S.withConstructorDefault(Effect.succeed([])),
       S.annotateKey({
         description:
-          "FlateDecode streams a strict inflate rejects, in object order; empty when none (and for an encrypted file, whose streams are not checked). `streamCheck` says how many were checked.",
+          "FlateDecode streams a strict inflate rejects, in object order; empty when none (and for an encrypted file, whose streams are not checked). `streamCheck` and `containerDiscovery` describe separate inflate and discovery completeness.",
+      })
+    ),
+    containerDiscovery: PdfStreamCheck.pipe(
+      S.withConstructorDefault(Effect.succeed("complete" as const)),
+      S.withDecodingDefaultTypeKey(Effect.succeed("complete" as const)),
+      S.annotateKey({
+        description:
+          "Whether raw PDF container discovery completed, reached its candidate limit, or was skipped for encryption; separate from inflate coverage.",
       })
     ),
     streamCheck: PdfStreamCheck.pipe(

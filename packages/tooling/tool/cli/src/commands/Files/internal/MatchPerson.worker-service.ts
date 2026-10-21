@@ -63,8 +63,8 @@ const workerSetupOutputBound = OutputBound.make({
   maxChars: 16_384,
   truncatedNotice: "\n[files match-person setup output truncated]",
 });
-const adaFaceCpuRuntimePackageVersion = "2.9.1+cpu";
-const adaFaceRocmRuntimePackageVersion = "2.9.1+rocm7.2.0.git7e1940d4";
+const adaFaceCpuRuntimePackageVersion = "2.13.0+cpu";
+const adaFaceRocmRuntimePackageVersion = "2.13.0+rocm7.2";
 const adaFaceHipVersionPrefix = "7.2";
 const adaFaceRocmArchitecture = "gfx1201";
 const rocmLibraryPathConfigName = "BEEP_PHOTO_FACE_ROCM_LIBRARY_PATH";

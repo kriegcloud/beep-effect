@@ -20,9 +20,9 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import type { CommandOutput } from "../commands/index.ts";
-import { Run } from "../commands/index.ts";
-import { Yaml } from "../yaml/index.ts";
+import type { CommandOutput } from "@beep/commands";
+import { Run } from "@beep/commands";
+import { Yaml } from "@beep/yaml";
 import type { PackedManifest } from "./internal/packedInstallPlan.ts";
 import {
     binConflict,

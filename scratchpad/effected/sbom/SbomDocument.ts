@@ -10,7 +10,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { License, isValidExpression } from "../spdx/index.ts";
+import { License, isValidExpression } from "@beep/spdx";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as R from "effect/Record";
@@ -305,9 +305,9 @@ export class SbomMetadata extends S.Class<SbomMetadata, { readonly brand: unique
  */
 export class SbomDocument extends S.Class<SbomDocument, { readonly brand: unique symbol }>($I`SbomDocument`)({
 	/** Always `"CycloneDX"`. */
-	bomFormat: S.Literal(BOM_FORMAT).pipe($I.annoteKey("SbomDocument.bomFormat", { description: "Always `\"CycloneDX\"`." })),
+	bomFormat: S.tag(BOM_FORMAT).pipe($I.annoteKey("SbomDocument.bomFormat", { description: "Always `\"CycloneDX\"`." })),
 	/** Always `"1.6"`. */
-	specVersion: S.Literal(SPEC_VERSION).pipe($I.annoteKey("SbomDocument.specVersion", { description: "Always `\"1.6\"`." })),
+	specVersion: S.tag(SPEC_VERSION).pipe($I.annoteKey("SbomDocument.specVersion", { description: "Always `\"1.6\"`." })),
 	/** The document revision, `1` for a freshly assembled BOM. */
 	version: S.Finite.pipe($I.annoteKey("SbomDocument.version", { description: "The document revision, `1` for a freshly assembled BOM." })),
 	/** Document metadata. */

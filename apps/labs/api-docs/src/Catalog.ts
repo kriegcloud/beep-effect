@@ -22,7 +22,7 @@ import { CatalogEntry, CatalogEntryMeta, CatalogSlug, CatalogSource, makeContrac
  * import { Catalog } from "@beep/api-docs/src/Catalog"
  * import * as A from "effect/Array"
  *
- * console.log(A.length(Catalog)) // 9
+ * console.log(A.length(Catalog)) // 8
  * ```
  *
  * @category constants
@@ -107,18 +107,6 @@ export const Catalog: ReadonlyArray<CatalogEntry> = [
       specPath: "packages/drivers/acp/spec/schema.unstable.json",
       dialect: "json-schema-2020-12",
       format: "json",
-    }),
-  }),
-  new CatalogEntry({
-    meta: CatalogEntryMeta.cases.consumed.make({
-      slug: CatalogSlug.make("venice-ai"),
-      title: "Venice.ai API",
-      description: "Committed OpenAPI 3.0 source for the Venice.ai inference API.",
-    }),
-    source: CatalogSource.SpecSource({
-      specPath: "packages/drivers/venice-ai/swagger.yaml",
-      dialect: "openapi-3.0",
-      format: "yaml",
     }),
   }),
 ];

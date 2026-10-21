@@ -267,7 +267,7 @@ export class RegistrationOperation extends S.Opaque<RegistrationOperation, { rea
 
 export class RegistrationPlan extends S.Opaque<RegistrationPlan, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("registration-plan/v1"),
+    version: S.tag("registration-plan/v1"),
     target: RegistrationTarget,
     operations: S.Array(RegistrationOperation),
   }).pipe(

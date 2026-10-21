@@ -5,7 +5,6 @@
  * @since 0.0.0
  */
 
-import { FaceDetectionConfidence, FaceDetectionPercentage } from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as SchemaUtils from "@beep/schema/SchemaUtils";
@@ -339,6 +338,62 @@ const PersonMatchSimilarityScore = S.Finite.check(
 ).pipe(
   $I.annoteSchema("PersonMatchSimilarityScore", {
     description: "A finite cosine-similarity score in the inclusive interval from -1 to 1.",
+  })
+);
+
+const PersonMatchConfidence = S.Finite.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`PersonMatchConfidenceGreaterThanOrEqualToZeroCheck`,
+        title: "Person-match confidence minimum",
+        description: "Requires a normalized confidence or threshold greater than or equal to zero.",
+        message: "Expected confidence greater than or equal to zero",
+      }),
+      S.isLessThanOrEqualTo(1, {
+        identifier: $I`PersonMatchConfidenceLessThanOrEqualToOneCheck`,
+        title: "Person-match confidence maximum",
+        description: "Requires a normalized confidence or threshold less than or equal to one.",
+        message: "Expected confidence less than or equal to one",
+      }),
+    ],
+    {
+      identifier: $I`PersonMatchConfidenceChecks`,
+      title: "Person-match confidence range",
+      description: "Constrains detection scores and thresholds to the inclusive interval from 0 to 1.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("PersonMatchConfidence", {
+    description: "A finite normalized confidence or threshold in the inclusive interval from 0 to 1.",
+  })
+);
+
+const PersonMatchPercentage = S.Finite.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`PersonMatchPercentageGreaterThanOrEqualToZeroCheck`,
+        title: "Person-match percentage minimum",
+        description: "Requires a percentage greater than or equal to zero.",
+        message: "Expected percentage greater than or equal to zero",
+      }),
+      S.isLessThanOrEqualTo(100, {
+        identifier: $I`PersonMatchPercentageLessThanOrEqualToOneHundredCheck`,
+        title: "Person-match percentage maximum",
+        description: "Requires a percentage less than or equal to 100.",
+        message: "Expected percentage less than or equal to 100",
+      }),
+    ],
+    {
+      identifier: $I`PersonMatchPercentageChecks`,
+      title: "Person-match percentage range",
+      description: "Constrains face-area percentages and thresholds to the inclusive interval from 0 to 100.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("PersonMatchPercentage", {
+    description: "A finite percentage in the inclusive interval from 0 to 100.",
   })
 );
 
@@ -692,10 +747,10 @@ export class PersonMatchThresholdProfile extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    detectionThreshold: FaceDetectionConfidence,
-    matchThreshold: FaceDetectionConfidence,
-    reviewThreshold: FaceDetectionConfidence,
-    minFaceAreaPct: FaceDetectionPercentage,
+    detectionThreshold: PersonMatchConfidence,
+    matchThreshold: PersonMatchConfidence,
+    reviewThreshold: PersonMatchConfidence,
+    minFaceAreaPct: PersonMatchPercentage,
   }).pipe(
     $I.annoteSchema("PersonMatchThresholdProfile", {
       description: "Resolved detection, identity, review, and face-area thresholds for one backend profile.",
@@ -840,10 +895,10 @@ export class MatchPersonOptions extends S.Opaque<MatchPersonOptions, { readonly 
     batchSize: PosInt.pipe(S.withConstructorDefault(Effect.succeed(PosInt.make(32)))),
     thresholdSource: PersonMatchThresholdSource.pipe(S.withConstructorDefault(Effect.succeed("calibrated-default"))),
     recursive: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-    detectionThreshold: FaceDetectionConfidence,
-    matchThreshold: FaceDetectionConfidence,
-    reviewThreshold: FaceDetectionConfidence,
-    minFaceAreaPct: FaceDetectionPercentage,
+    detectionThreshold: PersonMatchConfidence,
+    matchThreshold: PersonMatchConfidence,
+    reviewThreshold: PersonMatchConfidence,
+    minFaceAreaPct: PersonMatchPercentage,
     acceptModelLicense: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     json: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     overwrite: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
@@ -986,8 +1041,8 @@ export class PersonMatchRuntimeDevice extends S.Opaque<PersonMatchRuntimeDevice,
 export class PersonMatchOnnxRuntime extends S.Opaque<PersonMatchOnnxRuntime, { readonly brand: unique symbol }>()(
   S.Struct({
     framework: S.tag("onnxruntime"),
-    packageVersion: S.Literal("1.23.2"),
-    actualCompute: S.Literal("cpu"),
+    packageVersion: S.tag("1.23.2"),
+    actualCompute: S.tag("cpu"),
     precision: PersonMatchPrecision,
     providers: S.Tuple([S.Literal("CPUExecutionProvider")]),
     devices: S.Tuple([]),
@@ -1004,9 +1059,8 @@ export class PersonMatchOnnxRuntime extends S.Opaque<PersonMatchOnnxRuntime, { r
  *
  * **Details**
  *
- * The pinned ROCm wheel distribution is `2.9.1+rocm7.2.0.lw.git7e1940d4`,
- * while `torch.__version__` reports `2.9.1+rocm7.2.0.git7e1940d4`. The CPU
- * fallback reports `2.9.1+cpu`. Runtime provenance records the selected wheel
+ * The pinned ROCm wheel and runtime report `2.13.0+rocm7.2`; the CPU
+ * fallback reports `2.13.0+cpu`. Runtime provenance records the selected wheel
  * family and reported version exactly.
  *
  * **Example** (Create CPU PyTorch runtime provenance)
@@ -1016,7 +1070,7 @@ export class PersonMatchOnnxRuntime extends S.Opaque<PersonMatchOnnxRuntime, { r
  *
  * const runtime = PersonMatchPyTorchRuntime.make({
  *   distribution: "cpu",
- *   packageVersion: "2.9.1+cpu",
+ *   packageVersion: "2.13.0+cpu",
  *   actualCompute: "cpu",
  *   precision: "fp32",
  *   devices: [],
@@ -1086,9 +1140,9 @@ export class PersonMatchPyTorchRuntime extends S.Opaque<PersonMatchPyTorchRuntim
 export class PersonMatchBuffaloModel extends S.Opaque<PersonMatchBuffaloModel, { readonly brand: unique symbol }>()(
   S.Struct({
     backend: S.tag("buffalo-l"),
-    name: S.Literal("buffalo_l"),
-    packageName: S.Literal("insightface"),
-    packageVersion: S.Literal("1.0.1"),
+    name: S.tag("buffalo_l"),
+    packageName: S.tag("insightface"),
+    packageVersion: S.tag("1.0.1"),
     runtime: PersonMatchOnnxRuntime,
     root: S.NonEmptyString,
     allowedModules: S.Tuple([S.Literal("detection"), S.Literal("recognition")]),
@@ -1117,7 +1171,7 @@ export class PersonMatchBuffaloModel extends S.Opaque<PersonMatchBuffaloModel, {
  *   runtime: {
  *     framework: "pytorch",
  *     distribution: "cpu",
- *     packageVersion: "2.9.1+cpu",
+ *     packageVersion: "2.13.0+cpu",
  *     actualCompute: "cpu",
  *     precision: "fp32",
  *     devices: [],
@@ -1137,8 +1191,8 @@ export class PersonMatchBuffaloModel extends S.Opaque<PersonMatchBuffaloModel, {
 export class PersonMatchAdaFaceModel extends S.Opaque<PersonMatchAdaFaceModel, { readonly brand: unique symbol }>()(
   S.Struct({
     backend: S.tag("adaface-kprpe"),
-    name: S.Literal("cvlface_adaface_vit_base_kprpe_webface12m"),
-    codeRevision: S.Literal("308142aa50adf2e187711354f7524635d3414f1e"),
+    name: S.tag("cvlface_adaface_vit_base_kprpe_webface12m"),
+    codeRevision: S.tag("308142aa50adf2e187711354f7524635d3414f1e"),
     runtime: PersonMatchPyTorchRuntime,
     root: S.NonEmptyString,
     components: S.Array(PersonMatchModelComponent),
@@ -1225,10 +1279,10 @@ export class PersonMatchParameters extends S.Opaque<PersonMatchParameters, { rea
     batchSize: PosInt,
     precision: PersonMatchPrecision,
     thresholdSource: PersonMatchThresholdSource,
-    detectionThreshold: FaceDetectionConfidence,
-    matchThreshold: FaceDetectionConfidence,
-    reviewThreshold: FaceDetectionConfidence,
-    minFaceAreaPct: FaceDetectionPercentage,
+    detectionThreshold: PersonMatchConfidence,
+    matchThreshold: PersonMatchConfidence,
+    reviewThreshold: PersonMatchConfidence,
+    minFaceAreaPct: PersonMatchPercentage,
     recursive: S.Boolean,
   }).pipe(
     $I.annoteSchema("PersonMatchParameters", {
@@ -1271,7 +1325,7 @@ export class PersonMatchReference extends S.Opaque<PersonMatchReference, { reado
     sourcePath: S.NonEmptyString,
     accepted: S.Boolean,
     faceCount: S.Natural,
-    detectionScore: S.optionalKey(FaceDetectionConfidence),
+    detectionScore: S.optionalKey(PersonMatchConfidence),
     reason: S.optionalKey(PersonMatchReferenceRejectionReason),
   }).pipe(
     $I.annoteSchema("PersonMatchReference", {
@@ -1344,8 +1398,8 @@ export class PersonMatchFaceBox extends S.Opaque<PersonMatchFaceBox, { readonly 
 export class PersonMatchFace extends S.Opaque<PersonMatchFace, { readonly brand: unique symbol }>()(
   S.Struct({
     box: PersonMatchFaceBox,
-    detectionScore: FaceDetectionConfidence,
-    faceAreaPct: FaceDetectionPercentage,
+    detectionScore: PersonMatchConfidence,
+    faceAreaPct: PersonMatchPercentage,
     matchScore: PersonMatchSimilarityScore,
     centroidScore: PersonMatchSimilarityScore,
     top3MedianScore: PersonMatchSimilarityScore,
@@ -1512,12 +1566,12 @@ export class PersonMatchWorkerError extends S.Opaque<PersonMatchWorkerError, { r
  */
 export class PersonMatchWorkerLimits extends S.Opaque<PersonMatchWorkerLimits, { readonly brand: unique symbol }>()(
   S.Struct({
-    referenceImages: S.Literal(PERSON_MATCH_MAX_REFERENCE_IMAGES),
-    candidateImages: S.Literal(PERSON_MATCH_MAX_CANDIDATE_IMAGES),
-    facesPerImage: S.Literal(PERSON_MATCH_MAX_FACES_PER_IMAGE),
-    reportedFaces: S.Literal(PERSON_MATCH_MAX_REPORTED_FACES),
-    reportBytes: S.Literal(PERSON_MATCH_MAX_REPORT_BYTES),
-    diagnosticBytes: S.Literal(PERSON_MATCH_MAX_DIAGNOSTIC_BYTES),
+    referenceImages: S.tag(PERSON_MATCH_MAX_REFERENCE_IMAGES),
+    candidateImages: S.tag(PERSON_MATCH_MAX_CANDIDATE_IMAGES),
+    facesPerImage: S.tag(PERSON_MATCH_MAX_FACES_PER_IMAGE),
+    reportedFaces: S.tag(PERSON_MATCH_MAX_REPORTED_FACES),
+    reportBytes: S.tag(PERSON_MATCH_MAX_REPORT_BYTES),
+    diagnosticBytes: S.tag(PERSON_MATCH_MAX_DIAGNOSTIC_BYTES),
   }).pipe(
     $I.annoteSchema("PersonMatchWorkerLimits", {
       description: "Immutable image, face, JSON, and diagnostic limits enforced by the person-match worker protocol.",
@@ -1606,8 +1660,8 @@ export class PersonMatchWorkerLimits extends S.Opaque<PersonMatchWorkerLimits, {
  */
 export class PersonMatchWorkerSuccess extends S.Opaque<PersonMatchWorkerSuccess, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep.files.match-person.worker.v3"),
-    ok: S.Literal(true),
+    schemaVersion: S.tag("beep.files.match-person.worker.v3"),
+    ok: S.tag(true),
     limits: PersonMatchWorkerLimits,
     model: PersonMatchModel,
     parameters: PersonMatchParameters,
@@ -1659,8 +1713,8 @@ export class PersonMatchWorkerSuccess extends S.Opaque<PersonMatchWorkerSuccess,
  */
 export class PersonMatchWorkerFailure extends S.Opaque<PersonMatchWorkerFailure, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep.files.match-person.worker.v3"),
-    ok: S.Literal(false),
+    schemaVersion: S.tag("beep.files.match-person.worker.v3"),
+    ok: S.tag(false),
     limits: PersonMatchWorkerLimits,
     error: PersonMatchWorkerError,
     elapsedSeconds: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
@@ -1794,8 +1848,8 @@ export type PersonMatchWorkerReport = typeof PersonMatchWorkerReport.Type;
  */
 export class PersonMatchReport extends S.Opaque<PersonMatchReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep.files.match-person.v2"),
-    ok: S.Literal(true),
+    schemaVersion: S.tag("beep.files.match-person.v2"),
+    ok: S.tag(true),
     model: PersonMatchModel,
     parameters: PersonMatchParameters,
     references: S.Array(PersonMatchReference).check(S.isMaxLength(PERSON_MATCH_MAX_REFERENCE_IMAGES)),

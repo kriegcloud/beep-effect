@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,10 +31,12 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Proof — in progress: code complete (2026-10-15), operator DPAPI smoke
-pending. Acceptance #4 waits on that smoke on `tom-pc-1` (`PLAN.md` execution
-notes); P3 completes, and the goal can close, only once it is recorded. P4
-Yeet runs alongside.
+Closed 2026-10-20 (`completed-retained`). All six acceptance criteria are met;
+the DPAPI smoke (acceptance #4) passed on `tom-pc-1` with `keyPath: dpapi-ffi`.
+The strict-tier host (0.5.0) is installed on the PC (#1933, #1948); a
+chat tool call against it is recorded in
+[`history/2026-10-21-pc-chat-tool-call.md`](./history/2026-10-21-pc-chat-tool-call.md). Reflection:
+[`history/reflections/2026-10-20-claude.md`](./history/reflections/2026-10-20-claude.md).
 
 ## Latest Evidence
 

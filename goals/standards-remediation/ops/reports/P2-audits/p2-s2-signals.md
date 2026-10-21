@@ -121,17 +121,17 @@ as exceptions; disposition `unconvertible`, evidence per entry:
   Pulumi's `Input<T>` is itself `T | Promise<T> | Output<T>`, a deferred
   IaC-engine wrapper (`infra/src/OipWeb.ts:315-318`).
 - `XAiWebSocketSession` — live WebSocket session object
-  (`session.sendJson(...)`) (`packages/drivers/xai/src/XAi.service.ts:140`).
+  (`session.sendJson(...)`) (`retired:xai/src/XAi.service.ts:140`).
 - `DrizzleClient`, `DuckDbClient` — live DB connection/transaction handles
   (`use: (transaction) => Effect<...>` over a native driver connection);
   `DuckDbClient` even schema-`declare`s predicate guards per method already
   (`packages/drivers/duckdb/src/DuckDb.service.ts:168-174`) — as much
   schema-first as a live connection handle can get.
 - `LoadedFaceDetector` — wraps a loaded ONNX Runtime inference session
-  (`packages/drivers/face-detection/src/FaceDetection.service.ts:751-752`).
+  (`retired:face-detection/src/FaceDetection.service.ts:751-752`).
 - `FirecrawlSdkClient`, `FirecrawlSdkWatcher` — mirror the Firecrawl SDK's own
   client + event-emitter (`on`/`off`) surface
-  (`packages/drivers/firecrawl/src/Firecrawl.service.ts:50-53,73`).
+  (`retired:firecrawl/src/Firecrawl.service.ts:50-53,73`).
 - `TsMorphMutationAdapter` — ts-morph AST mutation adapter, literally the
   "AST nodes" example from the SPEC
   (`packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts:231`).
@@ -146,8 +146,9 @@ as exceptions; disposition `unconvertible`, evidence per entry:
   (`packages/foundation/ui-system/editor/src/chat/atoms.ts:440-442`).
 - `AcpTerminal`, `MakeTerminalOptions` — live remote-terminal-process handles
   (`kill`/`output`/`release`/`waitForExit` over an ACP session) — the
-  "processes" example from the SPEC, verbatim
-  (`packages/drivers/acp/src/AcpTerminal.models.ts:26-45,61-68`).
+  "processes" example from the SPEC, verbatim. (Both were removed with the
+  ACP v2 port, which deleted the terminal module; see "Breaking changes" in
+  `packages/drivers/acp/README.md`.)
 
 ### ui-component-contracts (2, folds into service-contracts ruling)
 

@@ -29,7 +29,13 @@ import {
   ManagedTerminalEvidence,
   ManagedTurnResult,
 } from "./AiProviderCliSession.models.ts";
-import { encodeJson, failure, transportFailure } from "./AiProviderCliSession.profile.service.ts";
+import {
+  collectStderr,
+  encodeJson,
+  failure,
+  logStderrExcerpt,
+  transportFailure,
+} from "./AiProviderCliSession.profile.service.ts";
 import {
   ClaudeControl,
   ClaudeEnvelope,
@@ -43,7 +49,7 @@ import type { ManagedLaunchProfile, ManagedSessionMessage } from "./AiProviderCl
 import type { ManagedSession } from "./AiProviderCliSession.service.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCliSession.claude.service");
-const InitializationNotice = S.Struct({ subtype: S.Literal("init") }).annotate(
+const InitializationNotice = S.Struct({ subtype: S.tag("init") }).annotate(
   $I.annote("InitializationNotice", {
     description: "Partial Claude initialization notice used to detect rejected readback.",
   })
@@ -186,7 +192,7 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
     Effect.onError(() => endTransport(failure.make("write", "transport", "Claude input transport failed"))),
     Effect.forkChild
   );
-  yield* handle.stderr.pipe(Stream.runDrain, Effect.forkChild);
+  const stderrTail = yield* handle.stderr.pipe(collectStderr(profile));
   const decoder = yield* Effect.sync(() => RpcSerialization.makeNdjson({ maxBufferSize: 1048576 }).makeUnsafe());
   const verifyInitialization = Effect.fn("ManagedClaude.verifyInitialization")(function* (payload: unknown) {
     const init = S.decodeUnknownOption(ClaudeInit)(payload);
@@ -270,7 +276,8 @@ export const openClaude = Effect.fn("AiProviderCliSession.openClaude")(function*
         Effect.catch((error) =>
           handle.isRunning.pipe(Effect.flatMap((running) => (running ? Effect.fail(error) : Effect.void)))
         ),
-        transportFailure("close")
+        transportFailure("close"),
+        Effect.ensuring(logStderrExcerpt("close")(stderrTail))
       );
     }
   });

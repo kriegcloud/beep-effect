@@ -68,7 +68,7 @@
       },
       {
         "name": "Border and face analysis",
-        "description": "Pure-ish per-file analysis producing DetectBordersEntry / DetectFacesEntry: solid-border classification over raw pixels and face flagging (area pct, edge margin, multiple-faces) via @beep/face-detection detector. Lines 2097-2210.",
+        "description": "Pure-ish per-file analysis producing DetectBordersEntry / DetectFacesEntry: solid-border classification over raw pixels and face flagging (area pct, edge margin, multiple-faces) via retired:face-detection detector. Lines 2097-2210.",
         "locEstimate": 160,
         "keySymbols": [
           "analyzeDetectBordersFile",
@@ -190,7 +190,7 @@
       {
         "targetFile": "packages/tooling/tool/cli/src/commands/Files/internal/Analysis.ts",
         "role": "internal",
-        "contents": "Per-file analysis producing report entries: analyzeDetectBordersFile, analyzeDetectFacesFile, detectFacesFlags, faceAreaPct, faceAtEdge (depends on MediaExec pixel reads and @beep/face-detection)."
+        "contents": "Per-file analysis producing report entries: analyzeDetectBordersFile, analyzeDetectFacesFile, detectFacesFlags, faceAreaPct, faceAtEdge (depends on MediaExec pixel reads and retired:face-detection)."
       },
       {
         "targetFile": "packages/tooling/tool/cli/src/commands/Files/internal/Apply.ts",
@@ -357,7 +357,7 @@
       },
       {
         "name": "detect-faces schemas",
-        "description": "Face detection option/entry/report models built on @beep/face-detection schemas, triage flag domain, plus codecs.",
+        "description": "Face detection option/entry/report models built on retired:face-detection schemas, triage flag domain, plus codecs.",
         "locEstimate": 290,
         "keySymbols": [
           "DetectFacesSkippedReason",
