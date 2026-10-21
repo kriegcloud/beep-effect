@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1 wave 1a (nine low-finding packages) in progress; wave 1b refactor running.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b (six packages, D-07 retirement, D-23 shared helpers) in review.
 
 ## Phases
 
@@ -18,8 +18,8 @@ Status: `active` — P1 wave 1a (nine low-finding packages) in progress; wave 1b
 
 | Wave | Packages | Notes |
 | --- | --- | --- |
-| 1a | `@beep/spdx`, `@beep/schema-org`, `@beep/github-references`, `@beep/github-commands`, `@beep/commands`, `@beep/jsonl`, `@beep/jsonc`, `@beep/semver` | Low-finding packages first (D-19, D-20, D-21); every gate at zero findings, no inventory growth. |
-| 1b | `@beep/memfs` (+ D-07 retirement of `@beep/test-utils/MemoryFileSystem`), `@beep/managed-section`, `@beep/toml`, `@beep/git`, `@beep/glob`, `@beep/yaml` | Complexity and duplication refactored to zero against the conformance oracles (yaml-test-suite, toml-test, minimatch, node:fs differential suites). |
+| 1a (merged, #1956) | `@beep/spdx`, `@beep/schema-org`, `@beep/github-references`, `@beep/github-commands`, `@beep/commands`, `@beep/jsonl`, `@beep/jsonc`, `@beep/semver` | Low-finding packages first (D-19, D-20, D-21); every gate at zero findings, no inventory growth. |
+| 1b | `@beep/memfs` (+ D-07 retirement of `@beep/test-utils/MemoryFileSystem`), `@beep/managed-section`, `@beep/toml`, `@beep/git`, `@beep/glob`, `@beep/yaml` | Complexity and duplication refactored to zero against the conformance oracles (yaml-test-suite, toml-test, minimatch, node:fs differential suites); shared helpers in `@beep/utils` (D-23); memfs replaces the test-utils copy in 17 packages (D-25). |
 | 2 | `@beep/npm-spec`, `@beep/markdown` (+ `@beep/md` `Md.syntax`/`Md.parse`), `@beep/tsconfig`, `@beep/walker`, `@beep/runtime-env`, `@beep/github` | `@beep/github` replaces `@effected/github` in repo-cli. `walker` lands with repo-utils Root/FsUtils as importers; `runtime-env` with repo-cli EnvConfig and `@beep/chalk`. `DEFAULT_REGISTRY` moves into `@beep/npm-spec`. |
 | 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
 | 4 | `@beep/sbom`, `@beep/xdg`, `@beep/cli-kit`, `@beep/repo-workspaces` | `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |

@@ -34,8 +34,9 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — wave 1a (eight low-finding packages) ready to publish; wave 1b
-(memfs, managed-section, toml, git, glob, yaml) refactoring to zero findings. P0 research
+P1 Implement — wave 1a (eight low-finding packages) merged in #1956; wave 1b
+(memfs, managed-section, toml, git, glob, yaml) at zero in-package findings, with
+the test-utils MemoryFileSystem retired onto `@beep/memfs` (D-25). P0 research
 is complete: see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md).
 
 ## Latest Evidence

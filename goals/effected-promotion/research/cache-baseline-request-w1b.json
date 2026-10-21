@@ -1,0 +1,44 @@
+{
+  "previous": "ddfbe1f171f713400bd693465ceda9760e809335ec316f4d586ddd584db0b93d",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (effected-promotion wave 1b, feat/effected-promotion-w1b)",
+    "reason": "Record the six new wave-1b workspaces scaffolded by create-package with the generated task set, and the dependency-only drift of the seventeen consumers moved onto @beep/memfs (D-25); no qualification is granted.",
+    "basis": {
+      "path": "goals/effected-promotion/research/cache-baseline-review-w1b.md",
+      "sha256": "72a61fbfe8c81ccf2861963eb0850c882aa50d14b146ec7dc352750c5a605f3b"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": [
+    "@beep/git",
+    "@beep/glob",
+    "@beep/managed-section",
+    "@beep/memfs",
+    "@beep/toml",
+    "@beep/yaml",
+    "@beep/ai-sync",
+    "@beep/docket-intake",
+    "@beep/exiftool",
+    "@beep/jsonl",
+    "@beep/law-practice-server",
+    "@beep/mcpb-kit",
+    "@beep/observability",
+    "@beep/ontology",
+    "@beep/practice-gateway",
+    "@beep/practice-kg-mcp",
+    "@beep/practice-mail-tagging",
+    "@beep/practice-setup",
+    "@beep/professional-desktop",
+    "@beep/repo-ai-metrics",
+    "@beep/repo-cli",
+    "@beep/repo-utils",
+    "@beep/workspace-server"
+  ]
+}
