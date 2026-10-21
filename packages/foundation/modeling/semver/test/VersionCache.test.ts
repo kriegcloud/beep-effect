@@ -8,6 +8,7 @@ import {
 } from "@beep/semver";
 import { assert, describe, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as O from "effect/Option";
@@ -26,7 +27,7 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
           SemVer.of(1, 5, 0, [], ["build"]),
         ]);
         const versions = yield* cache.versions;
-        assert.deepStrictEqual(versions.map(String), ["1.0.0", "1.5.0", "2.0.0"]);
+        assert.deepStrictEqual(A.map(versions, String), ["1.0.0", "1.5.0", "2.0.0"]);
       })
     );
 
@@ -36,7 +37,7 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
         yield* cache.load([SemVer.of(1, 0, 0), SemVer.of(2, 0, 0)]);
         yield* cache.add(SemVer.of(1, 5, 0));
         yield* cache.add(SemVer.of(1, 5, 0, [], ["other"]));
-        assert.deepStrictEqual((yield* cache.versions).map(String), ["1.0.0", "1.5.0", "2.0.0"]);
+        assert.deepStrictEqual(A.map(yield* cache.versions, String), ["1.0.0", "1.5.0", "2.0.0"]);
       })
     );
 
@@ -45,7 +46,7 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
         const cache = yield* VersionCache;
         yield* cache.load([SemVer.of(1, 0, 0), SemVer.of(1, 5, 0)]);
         yield* cache.remove(SemVer.of(1, 5, 0, [], ["build"]));
-        assert.deepStrictEqual((yield* cache.versions).map(String), ["1.0.0"]);
+        assert.deepStrictEqual(A.map(yield* cache.versions, String), ["1.0.0"]);
       })
     );
 
@@ -83,17 +84,17 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
         const cache = yield* VersionCache;
         const { versions, latest, oldest } = cache;
         yield* cache.load([SemVer.of(2, 0, 0)]);
-        assert.deepStrictEqual((yield* versions).map(String), ["2.0.0"]);
+        assert.deepStrictEqual(A.map(yield* versions, String), ["2.0.0"]);
         assert.strictEqual(String(yield* latest), "2.0.0");
         assert.strictEqual(String(yield* oldest), "2.0.0");
         yield* cache.add(SemVer.of(1, 0, 0));
         yield* cache.add(SemVer.of(3, 0, 0));
-        assert.deepStrictEqual((yield* versions).map(String), ["1.0.0", "2.0.0", "3.0.0"]);
+        assert.deepStrictEqual(A.map(yield* versions, String), ["1.0.0", "2.0.0", "3.0.0"]);
         assert.strictEqual(String(yield* latest), "3.0.0");
         assert.strictEqual(String(yield* oldest), "1.0.0");
         yield* cache.remove(SemVer.of(1, 0, 0));
         yield* cache.remove(SemVer.of(3, 0, 0));
-        assert.deepStrictEqual((yield* versions).map(String), ["2.0.0"]);
+        assert.deepStrictEqual(A.map(yield* versions, String), ["2.0.0"]);
         assert.strictEqual(String(yield* latest), "2.0.0");
         assert.strictEqual(String(yield* oldest), "2.0.0");
         yield* cache.load([]);
@@ -188,7 +189,7 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
         const error = yield* Effect.flip(cache.resolve(range));
         assert.instanceOf(error, UnsatisfiedRangeError);
         assert.strictEqual(error.range.toString(), ">=2.0.0");
-        assert.deepStrictEqual(error.available.map(String), ["1.0.0"]);
+        assert.deepStrictEqual(A.map(error.available, String), ["1.0.0"]);
         assert.strictEqual(error.message, "No version satisfies range >=2.0.0 (1 version available)");
       })
     );
@@ -214,7 +215,7 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
         yield* cache.load([SemVer.of(2, 0, 0)]);
         assert.deepStrictEqual(yield* cache.filter(range), []);
         yield* cache.add(SemVer.of(1, 1, 0));
-        assert.deepStrictEqual((yield* cache.filter(range)).map(String), ["1.1.0"]);
+        assert.deepStrictEqual(A.map(yield* cache.filter(range), String), ["1.1.0"]);
       })
     );
   });

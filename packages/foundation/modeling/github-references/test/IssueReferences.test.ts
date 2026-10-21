@@ -9,6 +9,7 @@ import {
 } from "@beep/github-references/IssueReferences";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -49,7 +50,7 @@ describe("IssueReferences.harvestIssueReferences", () => {
   it("keeps duplicates, in document order — dedup is the caller's business", () => {
     const found = harvestIssueReferences("fixes #1, fixes #1 and closes #2");
     assert.deepStrictEqual(
-      found.map((reference) => reference.issueNumber),
+      A.map(found, (reference) => reference.issueNumber),
       [1, 1, 2]
     );
   });
@@ -76,7 +77,7 @@ describe("IssueReferences.harvestIssueReferences", () => {
     // than a skipped match, so the match is dropped and its neighbours kept.
     const found = harvestIssueReferences("fixes #9007199254740993 and closes #2");
     assert.deepStrictEqual(
-      found.map((reference) => reference.issueNumber),
+      A.map(found, (reference) => reference.issueNumber),
       [2]
     );
   });
@@ -257,7 +258,8 @@ describe("IssueReferences.parseBareLineReference", () => {
 
 describe("IssueReferences.parseBareLines", () => {
   it("collects the accepted lines in order, skipping the rejecting ones", () => {
-    const text = ["Closes: #12", "some prose between", "fixes #7", "", "fixes #1 trailing prose", "Resolved #9"].join(
+    const text = A.join(
+      ["Closes: #12", "some prose between", "fixes #7", "", "fixes #1 trailing prose", "Resolved #9"],
       "\n"
     );
     assert.deepStrictEqual(parseBareLines(text), [

@@ -10,15 +10,17 @@ import {
 } from "@beep/jsonc/internal/parser";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 
 const flags = ParseFlags.make({});
 const codes = (text: string, options = flags): ReadonlyArray<string> =>
-  parseValue(text, options).errors.map((e) => e.code);
+  A.map(parseValue(text, options).errors, (e) => e.code);
 const treeCodes = (text: string, options = flags): ReadonlyArray<string> =>
-  parseTree(text, options).errors.map((e) => e.code);
+  A.map(parseTree(text, options).errors, (e) => e.code);
 const deep = (depth: number): string => `${"[".repeat(depth)}1${"]".repeat(depth)}`;
 
 describe("internal/parser", () => {
@@ -84,7 +86,7 @@ describe("internal/parser", () => {
       const array = parseValue("[1 2]", flags);
       assert.deepStrictEqual(array.value, [1, 2]);
       assert.deepStrictEqual(
-        array.errors.map((e) => e.code),
+        A.map(array.errors, (e) => e.code),
         ["CommaExpected"]
       );
       assert.deepStrictEqual(parseValue('{"a":1 "b":2}', flags).value, { a: 1, b: 2 });
@@ -101,13 +103,13 @@ describe("internal/parser", () => {
       const array = parseValue("[1", flags);
       assert.deepStrictEqual(array.value, [1]);
       assert.deepStrictEqual(
-        array.errors.map((e) => e.code),
+        A.map(array.errors, (e) => e.code),
         ["CloseBracketExpected"]
       );
       const object = parseValue('{"a":1', flags);
       assert.deepStrictEqual(object.value, { a: 1 });
       assert.deepStrictEqual(
-        object.errors.map((e) => e.code),
+        A.map(object.errors, (e) => e.code),
         ["CloseBraceExpected"]
       );
     });
@@ -167,7 +169,7 @@ describe("internal/parser", () => {
       const value = parseValue('{"__proto__": {"polluted": true}}', flags).value;
       assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
       assert(P.isObject(value), "parseValue yields a plain object");
-      assert.isTrue(Object.hasOwn(value, "__proto__"));
+      assert.isTrue(R.has(value, "__proto__"));
     });
   });
 
@@ -179,7 +181,7 @@ describe("internal/parser", () => {
     it("builds leaves for every scalar kind with tight spans", () => {
       const root = O.getOrThrow(parseTree('[1, "s", true, false, null]', flags).root);
       assert.deepStrictEqual(
-        root.children?.map((child) => [child.type, child.value, child.length]),
+        A.map(root.children ?? [], (child) => [child.type, child.value, child.length]),
         [
           ["number", 1, 1],
           ["string", "s", 3],
@@ -206,7 +208,7 @@ describe("internal/parser", () => {
     it("keeps a key-only property on a missing colon or value", () => {
       const missingColon = parseTree('{"a" 1}', flags);
       assert.deepStrictEqual(
-        missingColon.errors.map((e) => e.code),
+        A.map(missingColon.errors, (e) => e.code),
         ["ColonExpected"]
       );
       const colonProp = O.getOrThrow(missingColon.root).children?.[0];
@@ -215,7 +217,7 @@ describe("internal/parser", () => {
 
       const missingValue = parseTree('{"a": }', flags);
       assert.deepStrictEqual(
-        missingValue.errors.map((e) => e.code),
+        A.map(missingValue.errors, (e) => e.code),
         ["ValueExpected"]
       );
       const valueProp = O.getOrThrow(missingValue.root).children?.[0];
@@ -251,13 +253,13 @@ describe("internal/parser", () => {
     it("caps nesting with a bounded placeholder node in both container kinds", () => {
       const arrays = parseTree(deep(300), flags);
       assert.deepStrictEqual(
-        arrays.errors.map((e) => e.code),
+        A.map(arrays.errors, (e) => e.code),
         ["NestingDepthExceeded"]
       );
       assert.strictEqual(O.getOrThrow(arrays.root).type, "array");
       const objects = parseTree(`${'{"a":'.repeat(300)}1${"}".repeat(300)}`, flags);
       assert.deepStrictEqual(
-        objects.errors.map((e) => e.code),
+        A.map(objects.errors, (e) => e.code),
         ["NestingDepthExceeded"]
       );
       assert.strictEqual(O.getOrThrow(objects.root).type, "object");

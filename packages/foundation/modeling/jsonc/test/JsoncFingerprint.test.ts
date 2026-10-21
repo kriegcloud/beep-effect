@@ -1,6 +1,3 @@
-// The synchronous digest callback is tested against Node's real backend.
-// @effect-diagnostics-next-line nodeBuiltinImport:off
-import { createHash } from "node:crypto";
 import {
   JsoncCanonicalizeError,
   JsoncCanonicalizeErrorCode,
@@ -9,12 +6,14 @@ import {
 } from "@beep/jsonc";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { sha256, toHex } from "./fixtures/Sha256.ts";
 import type { JsoncDigest } from "@beep/jsonc";
 
 // A real SHA-256 backend over WebCrypto, wired through core's Crypto.make so
@@ -31,9 +30,9 @@ const CryptoTest = Layer.succeed(
   })
 );
 
-// The consumer-side platform binding the sync twins take. Node's Buffer is a
-// Uint8Array, so no copy is needed.
-const nodeDigest: JsoncDigest = (bytes) => createHash("sha256").update(bytes).digest();
+// The consumer-side binding the sync twins take: a pure SHA-256 pinned to the
+// FIPS vectors below and, through the hashText cases, to WebCrypto.
+const syncDigest: JsoncDigest = sha256;
 
 const SHA256_HEX = /^[0-9a-f]{64}$/;
 
@@ -61,7 +60,7 @@ describe("JsoncFingerprint", () => {
       const shiftIn = String.fromCharCode(0x0f);
       const input = {
         numbers: [Number("333333333.33333329"), 1e30, 4.5, 0.002, 1e-27],
-        string: ["€$", shiftIn, "\n", "A'B", '"', "\\", "\\", '"', "/"].join(""),
+        string: A.join(["€$", shiftIn, "\n", "A'B", '"', "\\", "\\", '"', "/"], ""),
         literals: [null, true, false],
       };
       const b = "\\";
@@ -421,17 +420,17 @@ describe("JsoncFingerprint", () => {
     it.effect("the synchronous twins agree with the Effect forms byte for byte", () =>
       Effect.gen(function* () {
         const value = { b: 2, a: [1, { y: 0, x: "€" }], c: null };
-        assertSuccess(JsoncFingerprint.hashResult(value, nodeDigest), yield* JsoncFingerprint.hash(value));
+        assertSuccess(JsoncFingerprint.hashResult(value, syncDigest), yield* JsoncFingerprint.hash(value));
         const options = JsoncTextHashOptions.make({ normalizeEol: true });
         const text = "line one\r\nline two\rline three";
-        assertSuccess(JsoncFingerprint.hashTextResult(text, nodeDigest), yield* JsoncFingerprint.hashText(text));
+        assertSuccess(JsoncFingerprint.hashTextResult(text, syncDigest), yield* JsoncFingerprint.hashText(text));
         assertSuccess(
-          JsoncFingerprint.hashTextResult(text, nodeDigest, options),
+          JsoncFingerprint.hashTextResult(text, syncDigest, options),
           yield* JsoncFingerprint.hashText(text, options)
         );
         assert.notStrictEqual(
-          Result.getOrThrow(JsoncFingerprint.hashTextResult(text, nodeDigest)),
-          Result.getOrThrow(JsoncFingerprint.hashTextResult(text, nodeDigest, options))
+          Result.getOrThrow(JsoncFingerprint.hashTextResult(text, syncDigest)),
+          Result.getOrThrow(JsoncFingerprint.hashTextResult(text, syncDigest, options))
         );
       })
     );
@@ -440,24 +439,28 @@ describe("JsoncFingerprint", () => {
   describe("hashResult / hashTextResult (synchronous, caller-supplied digest)", () => {
     it("matches the known-answer SHA-256 vectors", () => {
       assertSuccess(
-        JsoncFingerprint.hashTextResult("", nodeDigest),
+        JsoncFingerprint.hashTextResult("", syncDigest),
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       );
       assertSuccess(
-        JsoncFingerprint.hashTextResult("abc", nodeDigest),
+        JsoncFingerprint.hashTextResult("abc", syncDigest),
         "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      );
+      assertSuccess(
+        JsoncFingerprint.hashTextResult("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", syncDigest),
+        "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"
       );
     });
 
     it("propagates canonicalization failures unchanged", () => {
-      assertFailure(JsoncFingerprint.hashResult({ a: { b: undefined } }, nodeDigest), failure({ a: { b: undefined } }));
+      assertFailure(JsoncFingerprint.hashResult({ a: { b: undefined } }, syncDigest), failure({ a: { b: undefined } }));
     });
 
     it("fails typed with InvalidDigest when the digest is not 32 bytes wide", () => {
-      const sha1: JsoncDigest = (bytes) => createHash("sha1").update(bytes).digest();
+      const twentyBytes: JsoncDigest = (bytes) => sha256(bytes).slice(0, 20);
       for (const result of [
-        JsoncFingerprint.hashResult({ a: 1 }, sha1),
-        JsoncFingerprint.hashTextResult("abc", sha1),
+        JsoncFingerprint.hashResult({ a: 1 }, twentyBytes),
+        JsoncFingerprint.hashTextResult("abc", twentyBytes),
       ]) {
         const error = failureOfResult(result);
         assert.strictEqual(error.code, "InvalidDigest");
@@ -467,8 +470,10 @@ describe("JsoncFingerprint", () => {
     });
 
     it("fails typed with InvalidDigest when the digest throws an Error or a plain value", () => {
-      const unknownAlgorithm: JsoncDigest = (bytes) => createHash("sha256x").update(bytes).digest();
-      assert.throws(() => createHash("sha256x"));
+      const unknownAlgorithm: JsoncDigest = () => {
+        throw new Error("Digest method not supported");
+      };
+      assert.throws(() => unknownAlgorithm(new Uint8Array(0)));
       const plain: JsoncDigest = () => {
         throw "boom";
       };
@@ -487,8 +492,8 @@ describe("JsoncFingerprint", () => {
     it("hashes the UTF-8 bytes of the canonical text and nothing else", () => {
       const value = { é: "€" };
       const canonical = Result.getOrThrow(JsoncFingerprint.canonicalizeResult(value));
-      const expected = createHash("sha256").update(new TextEncoder().encode(canonical)).digest("hex");
-      assertSuccess(JsoncFingerprint.hashResult(value, nodeDigest), expected);
+      const expected = toHex(sha256(new TextEncoder().encode(canonical)));
+      assertSuccess(JsoncFingerprint.hashResult(value, syncDigest), expected);
       assert.match(expected, SHA256_HEX);
     });
   });
@@ -535,8 +540,8 @@ describe("JsoncFingerprint", () => {
         });
         assertSuccess(JsoncFingerprint.canonicalizeResult([method]), "[[1,2]]");
         assertSuccess(
-          JsoncFingerprint.hashResult(getter, nodeDigest),
-          Result.getOrThrow(JsoncFingerprint.hashResult([1, 2], nodeDigest))
+          JsoncFingerprint.hashResult(getter, syncDigest),
+          Result.getOrThrow(JsoncFingerprint.hashResult([1, 2], syncDigest))
         );
       }
     });

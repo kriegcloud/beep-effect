@@ -10,6 +10,7 @@ import {
 import { NavigateContainer } from "@beep/jsonc/internal/navigate";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertFailure, assertInstanceOf, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -403,7 +404,7 @@ describe("JsoncModifier", () => {
   // keeps the line number the README and the ledger cite.
   describe("tabSize", () => {
     const width = (tabSize: number, insertSpaces = true) => ({ formattingOptions: { tabSize, insertSpaces } });
-    const contents = (edits: ReadonlyArray<JsoncEdit>): ReadonlyArray<string> => edits.map((edit) => edit.content);
+    const contents = (edits: ReadonlyArray<JsoncEdit>): ReadonlyArray<string> => A.map(edits, (edit) => edit.content);
     const isModifyOptions = S.is(JsoncModifyOptions);
 
     // Upstream parity: `tabSize` is any number. The indent unit truncates it

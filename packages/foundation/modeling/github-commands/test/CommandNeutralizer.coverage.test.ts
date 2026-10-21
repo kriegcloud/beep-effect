@@ -1,6 +1,7 @@
 import { CommandNeutralizer } from "@beep/github-commands/CommandNeutralizer";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 describe("CommandNeutralizer runtime construction", () => {
@@ -8,7 +9,7 @@ describe("CommandNeutralizer runtime construction", () => {
     Effect.sync(() => {
       const instance = new (deliberatelyInvalid<new () => CommandNeutralizer>(CommandNeutralizer))();
       assert.strictEqual(Object.getPrototypeOf(instance), CommandNeutralizer.prototype);
-      assert.deepStrictEqual(Object.keys(instance), []);
+      assert.deepStrictEqual(R.keys(instance), []);
       assert.strictEqual(
         CommandNeutralizer.text("::error::x\rprefix ##[warning]y"),
         "\u200b::error::x\nprefix ##\u200b[warning]y"

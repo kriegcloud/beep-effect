@@ -10,6 +10,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -80,7 +81,7 @@ describe("ScriptedSpawner.make", () => {
       yield* program;
       yield* Run.collect(cmd("second")).pipe(withLayer(spawner.layer));
       assert.deepStrictEqual(
-        spawner.spawns.map((record) => record.command),
+        A.map(spawner.spawns, (record) => record.command),
         ["first", "second"]
       );
     })
@@ -146,9 +147,9 @@ describe("ScriptedSpawner.make", () => {
       if (Exit.isSuccess(exit)) assert.fail("expected a defect from a piped command");
       assertExitFailure(exit, exit.cause);
       if (Exit.isFailure(exit)) {
-        assert.isFalse(exit.cause.reasons.some(Cause.isFailReason), "must be a die, never a typed failure");
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason), "must be a die, never a typed failure");
         assert.isTrue(Cause.hasDies(exit.cause));
-        const defect = exit.cause.reasons.filter(Cause.isDieReason).map((reason) => reason.defect)[0];
+        const defect = A.map(A.filter(exit.cause.reasons, Cause.isDieReason), (reason) => reason.defect)[0];
         assert.instanceOf(defect, Error);
         assert.include(defect.message, "piped command");
       }

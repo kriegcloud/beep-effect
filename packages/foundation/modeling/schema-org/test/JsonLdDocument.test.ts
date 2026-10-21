@@ -12,6 +12,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -214,7 +215,7 @@ describe("JsonLdDocument.toJsonLd — the wire form", () => {
     if (!S.is(WireDocument)(wire)) assert.fail("expected a JSON-LD wire document");
 
     assert.strictEqual(wire["@context"], "https://schema.org");
-    assert.deepStrictEqual(Object.keys(wire["@graph"][0] ?? {}), ["@id", "@type", "name"]);
+    assert.deepStrictEqual(R.keys(wire["@graph"][0] ?? {}), ["@id", "@type", "name"]);
   });
 
   it("flattens the catch-all into the node, as JSON-LD requires", () => {
@@ -240,7 +241,7 @@ describe("JsonLdDocument.toJsonLd — the wire form", () => {
     const node = wire["@graph"][0];
 
     assert.deepStrictEqual(
-      Object.keys(node ?? {}),
+      R.keys(node ?? {}),
       ["@id", "@type", "name"],
       "a set field survives; the two passed as explicit undefined do not — JSON-LD has no undefined"
     );

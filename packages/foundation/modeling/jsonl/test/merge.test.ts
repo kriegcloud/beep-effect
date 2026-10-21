@@ -85,7 +85,7 @@ describe("shallowMerge", () => {
     const base: Record<string, unknown> = Object.create(proto);
     assert.doesNotThrow(() => shallowMerge(base, { trapped: "value" }));
     const merged = shallowMerge(base, { trapped: "value" });
-    assert.isTrue(Object.hasOwn(merged, "trapped"), "an own data property, not a setter call");
+    assert.isTrue(R.has(merged, "trapped"), "an own data property, not a setter call");
     assert.strictEqual(merged.trapped, "value");
   });
 
@@ -102,11 +102,11 @@ describe("shallowMerge", () => {
       { round: 2 },
       "the patched fields survive the representation change"
     );
-    assert.isTrue(Object.hasOwn(merged, marker), "class provenance is transient own metadata");
+    assert.isTrue(R.has(merged, marker), "class provenance is transient own metadata");
     assert.strictEqual(merged[marker], marker);
     const hostilePatch = shallowMerge(base, { round: 3, [marker]: "forged", "~effect/Schema/Class/Other": "forged" });
     assert.strictEqual(hostilePatch[marker], marker, "patch fields cannot replace base provenance");
-    assert.isFalse(Object.hasOwn(hostilePatch, "~effect/Schema/Class/Other"));
+    assert.isFalse(R.has(hostilePatch, "~effect/Schema/Class/Other"));
     const decoded = Result.getOrThrow(S.decodeUnknownResult(Payload)(merged));
     assert.instanceOf(decoded, Payload, "schema decoding creates the returned class instance");
     assert.strictEqual(decoded.round, 2);

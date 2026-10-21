@@ -4,6 +4,7 @@ import { Line } from "@beep/jsonl";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -67,7 +68,10 @@ const journal = Arbitrary.schema(
   S.Tuple([S.Array(S.Tuple([anyLine, terminator])).check(S.isMaxLength(12)), S.UndefinedOr(anyLine)])
 ).pipe(
   Arbitrary.map(([lines, tail]) => {
-    const body = lines.map(([text, end]) => `${text}${end}`).join("");
+    const body = A.join(
+      A.map(lines, ([text, end]) => `${text}${end}`),
+      ""
+    );
     return tail === undefined ? body : `${body}${tail}`;
   })
 );
@@ -170,7 +174,7 @@ describe("Line properties", () => {
     [anyText],
     ([text]) =>
       Effect.sync(() => {
-        const nonBlank = Line.split(text).filter((line) => line.text.trim() !== "");
+        const nonBlank = A.filter(Line.split(text), (line) => line.text.trim() !== "");
         assert.strictEqual(Line.parseAll(text).length, nonBlank.length);
       }),
     runs
@@ -200,7 +204,7 @@ describe("Line properties", () => {
     [anyText],
     ([text]) =>
       Effect.sync(() => {
-        const successes = Line.parseAll(text).filter(Result.isSuccess);
+        const successes = A.filter(Line.parseAll(text), Result.isSuccess);
         const last = Line.lastValid(text);
         if (successes.length === 0) {
           assertNone(last);
@@ -240,10 +244,10 @@ describe("Line properties", () => {
         // of a SCALAR is not — truncating `42` yields `4`, which parses fine as a
         // different value. See the "torn scalar" test in Line.test.ts; closing
         // that hole is the envelope layer's job, not this one's.
-        const head = payloads
-          .slice(0, -1)
-          .map((p) => `${p}\n`)
-          .join("");
+        const head = A.join(
+          A.map(payloads.slice(0, -1), (p) => `${p}\n`),
+          ""
+        );
         const tail = payloads.at(-1) ?? "{}";
         const keep = 1 + (cut % (tail.length - 1));
         const torn = `${head}${tail.slice(0, keep)}`;

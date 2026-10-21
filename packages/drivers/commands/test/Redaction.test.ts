@@ -1,6 +1,7 @@
 import { REDACTED, Redaction, SECRET_FLAGS } from "@beep/commands/Redaction";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
@@ -122,6 +123,6 @@ describe("Redaction properties", () => {
 
   it.prop("no secret value survives applyArgs, in any position", [secretValue, S.Array(S.String)], ([value, rest]) => {
     const args = [...rest, value, `prefix-${value}-suffix`];
-    return Redaction.applyArgs(args, [secret(value)]).every((arg) => !arg.includes(value));
+    return A.every(Redaction.applyArgs(args, [secret(value)]), (arg) => !arg.includes(value));
   });
 });

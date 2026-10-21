@@ -1,5 +1,6 @@
 import { createScanner, ScanError, SyntaxKind } from "@beep/jsonc/internal/scanner";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import type { Scanner } from "@beep/jsonc/internal/scanner";
 
@@ -13,7 +14,7 @@ const tokens = (scanner: Scanner): ReadonlyArray<readonly [SyntaxKind, string, S
 };
 
 const kinds = (text: string, ignoreTrivia = false): ReadonlyArray<SyntaxKind> =>
-  tokens(createScanner(text, ignoreTrivia)).map(([kind]) => kind);
+  A.map(tokens(createScanner(text, ignoreTrivia)), ([kind]) => kind);
 
 const single = (text: string): readonly [SyntaxKind, string, ScanError] => {
   const scanner = createScanner(text);
@@ -46,7 +47,7 @@ describe("createScanner", () => {
       for (const scanner of scanners) {
         assert.strictEqual(scanner.getToken(), "Unknown");
         assert.deepStrictEqual(
-          tokens(scanner).map(([kind]) => kind),
+          A.map(tokens(scanner), ([kind]) => kind),
           ["Trivia", "BlockComment", "LineBreak", "Number"]
         );
         assert.strictEqual(scanner.getToken(), "EOF");
@@ -68,7 +69,7 @@ describe("createScanner", () => {
   describe("punctuation and keywords", () => {
     it("tokenizes every structural character with its text as value", () => {
       assert.deepStrictEqual(
-        tokens(createScanner("{}[]:,")).map(([kind, value]) => `${kind}=${value}`),
+        A.map(tokens(createScanner("{}[]:,")), ([kind, value]) => `${kind}=${value}`),
         ["OpenBrace={", "CloseBrace=}", "OpenBracket=[", "CloseBracket=]", "Colon=:", "Comma=,"]
       );
     });

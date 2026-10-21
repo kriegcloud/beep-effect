@@ -53,11 +53,19 @@ const Sample = S.Struct({
   colon: S.Boolean,
 });
 const stringifyList = (value: G.ClosingList | G.ReferenceList): string =>
-  value.keyword + " " + value.issueNumbers.map((issue) => "#" + issue).join(",");
+  value.keyword +
+  " " +
+  A.join(
+    A.map(value.issueNumbers, (issue) => "#" + issue),
+    ","
+  );
 const stringifyHarvest = (values: ReadonlyArray<G.HarvestedReferenceList>): string => {
   let text = "";
   for (const value of values) {
-    const items = value.issueNumbers.map((issue) => "#" + issue).join(",");
+    const items = A.join(
+      A.map(value.issueNumbers, (issue) => "#" + issue),
+      ","
+    );
     text += " ".repeat(value.start - text.length);
     text += value.keyword + " ".repeat(value.end - value.start - value.keyword.length - items.length) + items;
   }
@@ -78,7 +86,10 @@ const singleProperty = <T>(
           sample.keyword.toUpperCase() +
           (sample.colon ? ":" : "") +
           "\t" +
-          sample.issues.map((issue) => "#00" + issue).join(sample.separator) +
+          A.join(
+            A.map(sample.issues, (issue) => "#00" + issue),
+            sample.separator
+          ) +
           " ";
         for (const text of [line, noise]) {
           const parsed = parse(text);
@@ -100,7 +111,10 @@ const arrayProperty = <T>(
     [Arbitrary.schema(Sample), Arbitrary.schema(S.String)],
     ([sample, noise]) =>
       Effect.sync(() => {
-        const items = sample.issues.map((issue) => "#00" + issue).join(sample.separator);
+        const items = A.join(
+          A.map(sample.issues, (issue) => "#00" + issue),
+          sample.separator
+        );
         const line = sample.keyword.toUpperCase() + (sample.colon ? ":" : "") + "\t" + items;
         for (const text of [
           line,
@@ -137,7 +151,7 @@ describe("ClosingList property floor", () => {
   singleProperty("parseClosingList", G.parseClosingList, stringifyList);
   singleProperty("parseReferenceList", G.parseReferenceList, stringifyList);
   const stringifyLines = (values: ReadonlyArray<G.ClosingList | G.ReferenceList>) =>
-    values.map(stringifyList).join("\n");
+    A.join(A.map(values, stringifyList), "\n");
   arrayProperty("parseClosingLists", G.parseClosingLists, stringifyLines);
   arrayProperty("parseReferenceLists", G.parseReferenceLists, stringifyLines);
   arrayProperty("collectReferenceLists", G.collectReferenceLists, stringifyLines);
@@ -148,7 +162,13 @@ describe("ClosingList property floor", () => {
     ([sample]) =>
       Effect.sync(() => {
         const issues = A.appendAll(sample.issues, sample.issues);
-        const line = sample.keyword.toUpperCase() + " " + issues.map((issue) => "#" + issue).join(sample.separator);
+        const line =
+          sample.keyword.toUpperCase() +
+          " " +
+          A.join(
+            A.map(issues, (issue) => "#" + issue),
+            sample.separator
+          );
         assert.deepStrictEqual(
           G.parseReferenceList(line),
           O.some(

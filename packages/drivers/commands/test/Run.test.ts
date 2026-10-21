@@ -2,6 +2,7 @@ import { OutputTooLarge } from "@beep/commands/internal/capture";
 import { CommandFailedError, CommandOutput, CommandOutputError, Run, RunOptions } from "@beep/commands/Run";
 import { ScriptedSpawner } from "@beep/commands/ScriptedSpawner";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Layer from "effect/Layer";
@@ -649,7 +650,7 @@ describe("Run redaction", () => {
         )
       );
       if (S.is(CommandFailedError)(error)) {
-        assert.notInclude(error.args.join(" "), "s3cr3t");
+        assert.notInclude(A.join(error.args, " "), "s3cr3t");
         assert.notInclude(error.message, "s3cr3t");
       }
     })
@@ -679,7 +680,7 @@ describe("Run redaction", () => {
         )
       );
       if (S.is(CommandFailedError)(error)) {
-        assert.notInclude(error.args.join(" "), "undeclared");
+        assert.notInclude(A.join(error.args, " "), "undeclared");
       }
     })
   );
@@ -712,8 +713,8 @@ describe("Run.collectTee", () => {
 
       assert.strictEqual(output.stdout, "hello");
       assert.strictEqual(output.stderr, "warn");
-      assert.include(seen.join(""), "hello");
-      assert.include(seen.join(""), "warn");
+      assert.include(A.join(seen, ""), "hello");
+      assert.include(A.join(seen, ""), "warn");
     })
   );
 });

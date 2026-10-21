@@ -1,12 +1,14 @@
 import { Envelope, Journal, JsonlEvent, Line } from "@beep/jsonl";
 import { NodeServices } from "@effect/platform-node";
 import { assert, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -79,7 +81,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("Journal integration", (
           yield* journal.append("started", { round: 2, phase: "b" });
           const text = yield* fs.readFileString(path);
           const decoded = Envelope.decodeAllResult(text, events);
-          assert.deepStrictEqual(decoded.map(Result.isSuccess), [true, true]);
+          assert.deepStrictEqual(A.map(decoded, Result.isSuccess), [true, true]);
         })
       );
     })
@@ -102,7 +104,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("Journal integration", (
           const lines = Line.split(text);
           assert.strictEqual(lines.length, rounds.length, "one line per append, none merged or split");
           assert.isTrue(
-            lines.every((line) => line.terminated),
+            A.every(lines, (line) => line.terminated),
             "every line is terminated"
           );
 
@@ -110,12 +112,13 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("Journal integration", (
           // the set of rounds is exactly what was written. A torn interleave
           // would corrupt at least one line's JSON.
           const decoded = Envelope.decodeAllResult(text, events);
-          assert.isTrue(decoded.every(Result.isSuccess), "no line was torn by interleaving");
-          const seen = decoded
-            .filter(Result.isSuccess)
+          assert.deepStrictEqual(A.filter(decoded, Result.isFailure), [], "no line was torn by interleaving");
+          const seen = pipe(
+            decoded,
+            A.filter(Result.isSuccess),
             // Port note (D15): the registry already types `data`, so upstream's cast is dropped.
-            .map((result) => result.success.data.round)
-            .sort((a, b) => a - b);
+            A.map((result) => result.success.data.round)
+          ).sort((a, b) => a - b);
           assert.deepStrictEqual(seen, rounds);
         })
       );
@@ -162,7 +165,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("Journal integration", (
 
       const all = yield* Stream.runCollect(journal.query());
       assert.deepStrictEqual(
-        all.map((envelope) => envelope.data.round),
+        A.map(all, (envelope) => envelope.data.round),
         [1, 2, 3],
         "every line reads back, in file order"
       );

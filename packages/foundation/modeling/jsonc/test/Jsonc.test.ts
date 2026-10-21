@@ -22,6 +22,7 @@ import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
@@ -34,7 +35,7 @@ const failureOf = <E>(self: Effect.Effect<unknown, E>) => self.pipe(Effect.asVoi
 // The typed failure of a Result; a success fails the assertion.
 const failure = <E>(result: Result.Result<unknown, E>): E => result.pipe(Result.flip, Result.getOrThrow);
 
-const codes = (error: JsoncParseError): ReadonlyArray<string> => error.errors.map((e) => e.code);
+const codes = (error: JsoncParseError): ReadonlyArray<string> => A.map(error.errors, (e) => e.code);
 
 // The best of three wall-clock runs of `run(input)` in nanoseconds, after one
 // warm-up call; taking the minimum filters out collection pauses and load.
@@ -175,22 +176,22 @@ describe("Jsonc", () => {
       Effect.gen(function* () {
         const lf = yield* failureOf(Jsonc.parse('{\n  "a": 1\n  "b": 2\n}'));
         assert.deepStrictEqual(
-          lf.errors.map((e) => [e.line, e.character]),
+          A.map(lf.errors, (e) => [e.line, e.character]),
           [[2, 2]]
         );
         const crlf = yield* failureOf(Jsonc.parse('{\r\n  "a": 1\r\n  "b": 2\r\n}'));
         assert.deepStrictEqual(
-          crlf.errors.map((e) => [e.line, e.character]),
+          A.map(crlf.errors, (e) => [e.line, e.character]),
           [[2, 2]]
         );
         const cr = yield* failureOf(Jsonc.parse('{\r  "a": 1\r  "b": 2\r}'));
         assert.deepStrictEqual(
-          cr.errors.map((e) => [e.line, e.character]),
+          A.map(cr.errors, (e) => [e.line, e.character]),
           [[2, 2]]
         );
         const separators = yield* failureOf(Jsonc.parse("{\u2028bad\u2029}"));
         assert.deepStrictEqual(
-          separators.errors.map((e) => [e.code, e.line, e.character]),
+          A.map(separators.errors, (e) => [e.code, e.line, e.character]),
           [
             ["InvalidSymbol", 1, 0],
             ["PropertyNameExpected", 1, 0],
@@ -280,7 +281,14 @@ describe("Jsonc", () => {
 
     it.effect("parses wide documents in time linear in node count", () =>
       Effect.gen(function* () {
-        const root = O.getOrThrow(yield* Jsonc.parseTree(`[${Array.from({ length: 10_000 }, (_, i) => i).join(",")}]`));
+        const root = O.getOrThrow(
+          yield* Jsonc.parseTree(
+            `[${A.join(
+              Array.from({ length: 10_000 }, (_, i) => `${i}`),
+              ","
+            )}]`
+          )
+        );
         assert.strictEqual(root.children?.length, 10_000);
         assert.strictEqual(root.children?.[9_999]?.value, 9_999);
       })
@@ -556,12 +564,12 @@ describe("Jsonc", () => {
         const value = yield* Jsonc.parse(text);
         assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
         assert(P.isObject(value), "parse yields a plain object");
-        assert.isTrue(Object.hasOwn(value, "__proto__"));
+        assert.isTrue(R.has(value, "__proto__"));
         assert.isFalse("polluted" in {});
         const fromTree = O.getOrThrow(yield* Jsonc.parseTree(text)).toValue();
         assert.strictEqual(Object.getPrototypeOf(fromTree), Object.prototype);
         assert(P.isObject(fromTree), "toValue yields a plain object");
-        assert.isTrue(Object.hasOwn(fromTree, "__proto__"));
+        assert.isTrue(R.has(fromTree, "__proto__"));
       })
     );
 

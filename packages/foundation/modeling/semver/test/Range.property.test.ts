@@ -4,6 +4,7 @@ import { InvalidRangeError, Range, UnsatisfiableConstraintError } from "@beep/se
 import { SemVer } from "@beep/semver/SemVer";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -41,7 +42,7 @@ describe("Range property floor", () => {
             sets:
               range.sets.length === 0
                 ? [[Comparator.make({ operator: "<", version: SemVer.of(0, 0, 0, [0]) })]]
-                : range.sets.map((set) =>
+                : A.map(range.sets, (set) =>
                     set.length === 0 ? [Comparator.make({ operator: ">=", version: SemVer.of(0, 0, 0) })] : set
                   ),
           })
@@ -69,7 +70,7 @@ describe("Range property floor", () => {
   it.effect.prop(
     "README normalization preserves membership for representable ranges",
     [
-      Arbitrary.schema(Range).pipe(Arbitrary.filter((range) => range.sets.every((set) => set.length > 0))),
+      Arbitrary.schema(Range).pipe(Arbitrary.filter((range) => A.every(range.sets, (set) => set.length > 0))),
       Arbitrary.schema(SemVer),
     ],
     ([range, version]) =>

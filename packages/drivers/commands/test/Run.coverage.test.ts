@@ -5,6 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 
@@ -80,7 +81,7 @@ it.effect("Run runtime namespace constructor creates an empty instance", () =>
   Effect.sync(() => {
     const instance: unknown = Reflect.construct(Run, []);
     assert.strictEqual(Object.getPrototypeOf(instance), Run.prototype);
-    if (P.isObject(instance)) assert.deepStrictEqual(Object.keys(instance), []);
+    if (P.isObject(instance)) assert.deepStrictEqual(R.keys(instance), []);
     else assert.fail("expected an object instance");
   })
 );

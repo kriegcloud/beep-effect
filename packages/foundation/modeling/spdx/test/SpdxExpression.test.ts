@@ -11,6 +11,7 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -198,7 +199,7 @@ describe("SpdxExpression", () => {
   );
   it.effect("caps a long AND chain as a typed failure, not a defect", () =>
     Effect.gen(function* () {
-      const chain = Array.from({ length: 6000 }, () => "MIT").join(" AND ");
+      const chain = A.join(A.replicate("MIT", 6000), " AND ");
       const exit = yield* Effect.exit(SpdxExpression.parse(chain));
       const cause = exit.pipe(Exit.filterCause, Result.getOrThrow);
       // Preserve runtime tracing metadata while checking the expected typed failure.
@@ -279,11 +280,11 @@ describe("SpdxExpression — collapsing an expression to licenses", () => {
 
   it("licensesOf keeps every term, in written order", () => {
     assert.deepStrictEqual(
-      SpdxExpression.licensesOf(parse("MIT OR Apache-2.0")).map((license) => license.id),
+      A.map(SpdxExpression.licensesOf(parse("MIT OR Apache-2.0")), (license) => license.id),
       ["MIT", "Apache-2.0"]
     );
     assert.deepStrictEqual(
-      SpdxExpression.licensesOf(parse("MIT AND Apache-2.0")).map((license) => license.id),
+      A.map(SpdxExpression.licensesOf(parse("MIT AND Apache-2.0")), (license) => license.id),
       ["MIT", "Apache-2.0"]
     );
   });
@@ -298,7 +299,8 @@ describe("SpdxExpression — collapsing an expression to licenses", () => {
 
   it("licensesOf flattens nesting left to right", () => {
     assert.deepStrictEqual(
-      SpdxExpression.licensesOf(parse("(MIT OR Apache-2.0) AND (GPL-3.0-only WITH Bison-exception-2.2)")).map(
+      A.map(
+        SpdxExpression.licensesOf(parse("(MIT OR Apache-2.0) AND (GPL-3.0-only WITH Bison-exception-2.2)")),
         (license) => license.id
       ),
       ["MIT", "Apache-2.0", "GPL-3.0-only"]
@@ -307,14 +309,14 @@ describe("SpdxExpression — collapsing an expression to licenses", () => {
 
   it("licensesOf de-duplicates by identifier, keeping first appearance", () => {
     assert.deepStrictEqual(
-      SpdxExpression.licensesOf(parse("(Apache-2.0 OR MIT) AND MIT")).map((license) => license.id),
+      A.map(SpdxExpression.licensesOf(parse("(Apache-2.0 OR MIT) AND MIT")), (license) => license.id),
       ["Apache-2.0", "MIT"]
     );
   });
 
   it("licensesOf of a simple license is that one license", () => {
     assert.deepStrictEqual(
-      SpdxExpression.licensesOf(parse("MIT")).map((license) => license.id),
+      A.map(SpdxExpression.licensesOf(parse("MIT")), (license) => license.id),
       ["MIT"]
     );
   });

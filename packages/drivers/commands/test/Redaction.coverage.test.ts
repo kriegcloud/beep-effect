@@ -2,6 +2,7 @@ import { Redaction } from "@beep/commands/Redaction";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 
 it.effect("custom flags are case insensitive and preserve non-secret assignments", () =>
   Effect.sync(() => {
@@ -12,7 +13,7 @@ it.effect("custom flags are case insensitive and preserve non-secret assignments
     );
     const instance: unknown = Reflect.construct(Redaction, []);
     assert.strictEqual(Object.getPrototypeOf(instance), Redaction.prototype);
-    if (P.isObject(instance)) assert.deepStrictEqual(Object.keys(instance), []);
+    if (P.isObject(instance)) assert.deepStrictEqual(R.keys(instance), []);
     else assert.fail("expected an object instance");
   })
 );

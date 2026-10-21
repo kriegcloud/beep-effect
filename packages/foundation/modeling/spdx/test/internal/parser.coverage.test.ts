@@ -1,6 +1,7 @@
 import { MAX_NESTING_DEPTH, parse, RawExpression } from "@beep/spdx/internal/parser";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -78,7 +79,7 @@ describe("SPDX parser rejection paths", () => {
   it.effect("bounds recursion at each grammar entry and recovers on a fresh parse", () =>
     Effect.gen(function* () {
       for (const operator of ["OR", "AND"])
-        assertNone(parse(Array.from({ length: MAX_NESTING_DEPTH + 1 }, () => "MIT").join(` ${operator} `)));
+        assertNone(parse(A.join(A.replicate("MIT", MAX_NESTING_DEPTH + 1), ` ${operator} `)));
       // A parenthesis enters Or, And and Atom in sequence. These three depths
       // target each entry guard rather than just one deeply parenthesized case.
       for (const padding of ["MIT OR ", "MIT AND ", ""])

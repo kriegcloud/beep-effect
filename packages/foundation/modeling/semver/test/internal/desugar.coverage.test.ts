@@ -1,6 +1,7 @@
 import { desugarCaret, desugarHyphen, desugarTilde, desugarXRange, PartialParts } from "@beep/semver/internal/desugar";
 import { formatComparator } from "@beep/semver/internal/grammar";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import type { ComparatorOperator, ComparatorParts } from "@beep/semver/internal/order";
@@ -12,7 +13,7 @@ const partial = (major: number | null, minor: number | null = null, patch: numbe
   prerelease: [],
   build: [],
 });
-const print = (parts: ReadonlyArray<ComparatorParts>) => parts.map(formatComparator).join(" ");
+const print = (parts: ReadonlyArray<ComparatorParts>) => A.join(A.map(parts, formatComparator), " ");
 
 describe("desugar coverage", () => {
   it.effect("expands every tilde and caret compatibility boundary", () =>

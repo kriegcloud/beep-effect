@@ -7,7 +7,6 @@ import { Envelope, InvalidData, JsonlEvent, Line } from "@beep/jsonl";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
-import * as Data from "effect/Data";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -147,7 +146,7 @@ describe("D19: payload failures are rooted at the payload, as upstream reports t
   });
 });
 
-class GetterBoom extends Data.TaggedError("GetterBoom") {}
+class GetterBoom extends S.TaggedError<GetterBoom, { readonly brand: unique symbol }>()("GetterBoom", {}) {}
 
 describe("D21: the Effect forms evaluate when run, not when built", () => {
   const Snapshot = JsonlEvent.make("snapshot", { data: S.Unknown });
@@ -171,7 +170,7 @@ describe("D21: the Effect forms evaluate when run, not when built", () => {
       const data = Object.defineProperty<{ readonly a: string }>({ a: "" }, "a", {
         enumerable: true,
         get: () => {
-          throw new GetterBoom();
+          throw GetterBoom.make({});
         },
       });
       const build = () => Envelope.encode({ at, event: "guarded", data }, Tuple.make(Guarded));

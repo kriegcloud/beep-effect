@@ -11,6 +11,7 @@ import {
 } from "@beep/commands/ToolDiscovery";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -475,7 +476,7 @@ describe("ToolDiscovery test double", () => {
       if (exit._tag !== "Failure") {
         assert.fail("expected a defect from an unstubbed member");
       }
-      assert.isTrue(exit.cause.reasons.some((reason) => reason._tag === "Die"));
+      assert.isTrue(A.some(exit.cause.reasons, (reason) => reason._tag === "Die"));
     }).pipe(withLayer(ToolDiscovery.layerTest()))
   );
 });

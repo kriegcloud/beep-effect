@@ -18,7 +18,9 @@ import { TechArticle } from "@beep/schema-org/TechArticle";
 import { Vocabulary } from "@beep/schema-org/Vocabulary";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
@@ -322,12 +324,13 @@ describe("self-conformance", () => {
 
   for (const [name, schema] of CLASSES) {
     it(`declares only properties schema.org defines on ${name}`, () => {
-      const fields = Object.keys(schema.fields).filter(
+      const fields = A.filter(
+        R.keys<string, unknown>(schema.fields),
         (field) => field !== "@id" && field !== "@type" && field !== "additional"
       );
       assert.isAbove(fields.length, 0, "positive control: the class must actually have fields to check");
       assert.isTrue(Vocabulary.hasType(name));
-      const illegal = fields.filter((field) => !Vocabulary.isPropertyOn(field, name));
+      const illegal = A.filter(fields, (field) => !Vocabulary.isPropertyOn(field, name));
       assert.deepStrictEqual(illegal, []);
     });
   }

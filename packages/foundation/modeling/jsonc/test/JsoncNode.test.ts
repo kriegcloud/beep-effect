@@ -8,6 +8,7 @@ import * as Equal from "effect/Equal";
 import * as Hash from "effect/Hash";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -290,7 +291,7 @@ describe("JsoncNode", () => {
       const value = tree('{ "__proto__": { "polluted": true } }').toValue();
       assert.strictEqual(Object.getPrototypeOf(value), Object.prototype);
       assert(P.isObject(value), "toValue yields a plain object");
-      assert.isTrue(Object.hasOwn(value, "__proto__"));
+      assert.isTrue(R.has(value, "__proto__"));
     });
   });
 
@@ -299,7 +300,7 @@ describe("JsoncNode", () => {
       const arrays = deepArray(300).toValue();
       let depth = 0;
       let cursor: unknown = arrays;
-      while (Array.isArray(cursor) && cursor.length === 1) {
+      while (A.isArray(cursor) && cursor.length === 1) {
         cursor = cursor[0];
         depth++;
       }

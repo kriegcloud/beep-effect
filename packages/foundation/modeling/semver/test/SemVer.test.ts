@@ -2,6 +2,7 @@ import { InvalidVersionError, SemVer } from "@beep/semver";
 import { SemVerBumpComponent, SemVerBumpOverflowError } from "@beep/semver/SemVer";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Hash from "effect/Hash";
@@ -73,6 +74,17 @@ const assertVersionStringValidation = (
     assert.strictEqual(Result.isSuccess(result), valid(input), `${name}: ${input}`);
     if (Result.isSuccess(result)) assert.strictEqual(result.success, input);
   }
+};
+
+/** Groups `versions` by `strategy` and checks the group keys and the members of the first group. */
+const expectGroupKeys = (
+  versions: ReadonlyArray<SemVer>,
+  strategy: "minor" | "patch",
+  keys: ReadonlyArray<string>
+): void => {
+  const grouped = SemVer.groupBy(versions, strategy);
+  assert.deepStrictEqual(R.keys(grouped), keys);
+  assert.deepStrictEqual(A.map(grouped[keys[0] ?? ""] ?? [], String), ["1.0.0-alpha", "1.0.0+z", "1.0.0+a"]);
 };
 
 describe("SemVer", () => {
@@ -328,8 +340,8 @@ describe("SemVer", () => {
     const versions = [SemVer.of(2, 0, 0), SemVer.of(1, 0, 0, ["alpha"]), SemVer.of(1, 0, 0), SemVer.of(1, 5, 0)];
 
     it("sort ascending / rsort descending", () => {
-      assert.deepStrictEqual(SemVer.sort(versions).map(String), ["1.0.0-alpha", "1.0.0", "1.5.0", "2.0.0"]);
-      assert.deepStrictEqual(SemVer.rsort(versions).map(String), ["2.0.0", "1.5.0", "1.0.0", "1.0.0-alpha"]);
+      assert.deepStrictEqual(A.map(SemVer.sort(versions), String), ["1.0.0-alpha", "1.0.0", "1.5.0", "2.0.0"]);
+      assert.deepStrictEqual(A.map(SemVer.rsort(versions), String), ["2.0.0", "1.5.0", "1.0.0", "1.0.0-alpha"]);
     });
 
     it("max / min return Options", () => {
@@ -341,8 +353,8 @@ describe("SemVer", () => {
 
     it("groupBy returns an immutable record keyed by strategy", () => {
       const grouped = SemVer.groupBy([SemVer.of(1, 0, 0), SemVer.of(1, 5, 0), SemVer.of(2, 0, 0)], "major");
-      assert.deepStrictEqual(Object.keys(grouped), ["1", "2"]);
-      assert.deepStrictEqual(grouped["1"]?.map(String), ["1.0.0", "1.5.0"]);
+      assert.deepStrictEqual(R.keys(grouped), ["1", "2"]);
+      assert.deepStrictEqual(A.map(grouped["1"] ?? [], String), ["1.0.0", "1.5.0"]);
     });
 
     it("latestByMajor / latestByMinor keep the highest per group", () => {
@@ -353,8 +365,8 @@ describe("SemVer", () => {
         SemVer.of(2, 0, 0),
         SemVer.of(2, 1, 0),
       ];
-      assert.deepStrictEqual(SemVer.latestByMajor(input).map(String), ["1.5.9", "2.1.0"]);
-      assert.deepStrictEqual(SemVer.latestByMinor(input).map(String), ["1.0.0", "1.5.9", "2.0.0", "2.1.0"]);
+      assert.deepStrictEqual(A.map(SemVer.latestByMajor(input), String), ["1.5.9", "2.1.0"]);
+      assert.deepStrictEqual(A.map(SemVer.latestByMinor(input), String), ["1.0.0", "1.5.9", "2.0.0", "2.1.0"]);
     });
   });
 
@@ -605,8 +617,8 @@ describe("SemVer round-1 regressions", () => {
     const versions = [higher, first, lower, second];
     const ascending = SemVer.sort(versions);
     const descending = SemVer.rsort(versions);
-    assert.deepStrictEqual(ascending.map(String), ["1.0.0-alpha", "1.0.0+z", "1.0.0+a", "2.0.0"]);
-    assert.deepStrictEqual(descending.map(String), ["2.0.0", "1.0.0+z", "1.0.0+a", "1.0.0-alpha"]);
+    assert.deepStrictEqual(A.map(ascending, String), ["1.0.0-alpha", "1.0.0+z", "1.0.0+a", "2.0.0"]);
+    assert.deepStrictEqual(A.map(descending, String), ["2.0.0", "1.0.0+z", "1.0.0+a", "1.0.0-alpha"]);
     assert.notStrictEqual(ascending, versions);
     assert.notStrictEqual(descending, versions);
     assert.deepStrictEqual(versions, [higher, first, lower, second]);
@@ -625,17 +637,9 @@ describe("SemVer round-1 regressions", () => {
     ];
     const major = SemVer.groupBy(versions, "major");
     assert.deepStrictEqual(R.keys(major), ["1", "2"]);
-    assert.deepStrictEqual(major["1"]?.map(String), ["1.0.0-alpha", "1.0.0+z", "1.0.0+a", "1.5.1"]);
-    for (const strategy of ["minor", "patch"] as const) {
-      const grouped = SemVer.groupBy(versions, strategy);
-      const key = strategy === "minor" ? "1.0" : "1.0.0";
-      assert.deepStrictEqual(R.keys(grouped), [
-        key,
-        strategy === "minor" ? "1.5" : "1.5.1",
-        strategy === "minor" ? "2.0" : "2.0.0",
-      ]);
-      assert.deepStrictEqual(grouped[key]?.map(String), ["1.0.0-alpha", "1.0.0+z", "1.0.0+a"]);
-    }
+    assert.deepStrictEqual(A.map(major["1"] ?? [], String), ["1.0.0-alpha", "1.0.0+z", "1.0.0+a", "1.5.1"]);
+    expectGroupKeys(versions, "minor", ["1.0", "1.5", "2.0"]);
+    expectGroupKeys(versions, "patch", ["1.0.0", "1.5.1", "2.0.0"]);
     assert.deepStrictEqual(SemVer.groupBy([], "major"), {});
   });
 });

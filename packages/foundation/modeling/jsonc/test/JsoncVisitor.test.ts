@@ -1,16 +1,18 @@
 import { Jsonc, JsoncParseOptions, JsoncVisitor, JsoncVisitorEvent } from "@beep/jsonc";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 
 const collect = (text: string, options?: JsoncParseOptions) => Stream.runCollect(JsoncVisitor.visit(text, options));
 const tags = (text: string, options?: JsoncParseOptions) =>
-  Effect.map(collect(text, options), (events) => events.map((e) => e._tag));
+  Effect.map(collect(text, options), (events) => A.map(events, (e) => e._tag));
 const errorCodes = (text: string) =>
-  Effect.map(collect(text), (events) => events.filter(JsoncVisitorEvent.guards.Error).map((e) => e.code));
+  Effect.map(collect(text), (events) => A.map(A.filter(events, JsoncVisitorEvent.guards.Error), (e) => e.code));
 
 describe("JsoncVisitor", () => {
   describe("schema", () => {
@@ -64,22 +66,22 @@ describe("JsoncVisitor", () => {
     it.effect("emits every literal kind with its decoded value and path", () =>
       Effect.gen(function* () {
         const events = yield* collect('[1, "s", true, false, null, { "k": 2 }]');
-        const literals = events.filter(JsoncVisitorEvent.guards.LiteralValue);
+        const literals = A.filter(events, JsoncVisitorEvent.guards.LiteralValue);
         assert.deepStrictEqual(
-          literals.map((e) => e.value),
+          A.map(literals, (e) => e.value),
           [1, "s", true, false, null, 2]
         );
         assert.deepStrictEqual(
-          literals.map((e) => e.path),
+          A.map(literals, (e) => e.path),
           [[0], [1], [2], [3], [4], [5, "k"]]
         );
-        const begins = events.filter(JsoncVisitorEvent.guards.ObjectBegin);
+        const begins = A.filter(events, JsoncVisitorEvent.guards.ObjectBegin);
         assert.deepStrictEqual(
-          begins.map((e) => e.path),
+          A.map(begins, (e) => e.path),
           [[5]]
         );
         assert.deepStrictEqual(
-          events.filter(JsoncVisitorEvent.guards.Separator).map((e) => e.character),
+          A.map(A.filter(events, JsoncVisitorEvent.guards.Separator), (e) => e.character),
           [",", ",", ",", ",", ",", ":"]
         );
       })
@@ -103,7 +105,7 @@ describe("JsoncVisitor", () => {
         assert.deepStrictEqual(yield* tags("/* a */ 1 // c"), ["Comment", "LiteralValue", "Comment"]);
         const disallowed = yield* collect('{ "a": 1 } // c', JsoncParseOptions.make({ disallowComments: true }));
         assert.deepStrictEqual(
-          disallowed.filter(JsoncVisitorEvent.guards.Error).map((e) => e.code),
+          A.map(A.filter(disallowed, JsoncVisitorEvent.guards.Error), (e) => e.code),
           ["InvalidCommentToken"]
         );
       })
@@ -118,7 +120,7 @@ describe("JsoncVisitor", () => {
         const first = yield* Stream.runCollect(stream);
         const second = yield* Stream.runCollect(stream);
         assert.deepStrictEqual(
-          first.map((e) => e._tag),
+          A.map(first, (e) => e._tag),
           [
             "ObjectBegin",
             "ObjectProperty",
@@ -135,7 +137,7 @@ describe("JsoncVisitor", () => {
         assert.deepStrictEqual(second, first);
         const literals = yield* stream.pipe(Stream.filter(JsoncVisitorEvent.guards.LiteralValue), Stream.runCollect);
         assert.deepStrictEqual(
-          literals.map((e) => e.value),
+          A.map(literals, (e) => e.value),
           [1, 2]
         );
       })
@@ -154,7 +156,7 @@ describe("JsoncVisitor", () => {
       Effect.gen(function* () {
         const events = yield* collect("[@]");
         assert.deepStrictEqual(
-          events.map((e) => e._tag),
+          A.map(events, (e) => e._tag),
           ["ArrayBegin", "Error", "Error", "ArrayEnd"]
         );
       })
@@ -222,11 +224,11 @@ describe("JsoncVisitor", () => {
           ['"\\', ""],
         ] as const) {
           const events = yield* collect(text);
-          const literal = events.find(JsoncVisitorEvent.guards.LiteralValue);
+          const literal = O.getOrUndefined(A.findFirst(events, JsoncVisitorEvent.guards.LiteralValue));
           assertDefined(literal);
           assert.strictEqual(literal.value, expected);
           assert.deepStrictEqual(
-            events.filter(JsoncVisitorEvent.guards.Error).map((e) => e.code),
+            A.map(A.filter(events, JsoncVisitorEvent.guards.Error), (e) => e.code),
             ["UnexpectedEndOfString"]
           );
         }

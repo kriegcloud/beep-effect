@@ -4,6 +4,7 @@ import { ScriptedSpawner } from "@beep/commands/ScriptedSpawner";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 
 it.effect("extra retry patterns inspect platform causes and absent streams without retrying timeouts", () =>
   Effect.sync(() => {
@@ -31,7 +32,7 @@ it.effect("Retry runtime namespace constructor creates an empty instance", () =>
   Effect.sync(() => {
     const instance: unknown = Reflect.construct(Retry, []);
     assert.strictEqual(Object.getPrototypeOf(instance), Retry.prototype);
-    if (P.isObject(instance)) assert.deepStrictEqual(Object.keys(instance), []);
+    if (P.isObject(instance)) assert.deepStrictEqual(R.keys(instance), []);
     else assert.fail("expected an object instance");
   })
 );

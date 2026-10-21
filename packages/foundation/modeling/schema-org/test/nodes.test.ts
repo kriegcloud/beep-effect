@@ -10,6 +10,7 @@ import { ThingFields } from "@beep/schema-org/Thing";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -57,7 +58,7 @@ describe("node classes", () => {
 
 describe("field records", () => {
   it("Thing fields are present on every node", () => {
-    const thingKeys = Object.keys(ThingFields);
+    const thingKeys = R.keys(ThingFields);
 
     for (const schema of [SoftwareSourceCode, TechArticle, APIReference, Person, Organization, CreativeWork]) {
       for (const key of thingKeys) {
@@ -67,7 +68,7 @@ describe("field records", () => {
   });
 
   it("CreativeWork fields reach every CreativeWork descendant and no further", () => {
-    const creativeOnly = Object.keys(CreativeWorkFields).filter((key) => !(key in ThingFields));
+    const creativeOnly = A.filter(R.keys(CreativeWorkFields), (key) => !(key in ThingFields));
     assert.isAbove(creativeOnly.length, 0, "positive control: there must be CreativeWork-only fields to test");
 
     for (const schema of [CreativeWork, SoftwareSourceCode, TechArticle, APIReference]) {
@@ -85,7 +86,7 @@ describe("field records", () => {
   });
 
   it("APIReference carries the TechArticle fields, because the vocabulary says it is one", () => {
-    for (const key of Object.keys(TechArticleFields)) {
+    for (const key of R.keys(TechArticleFields)) {
       assert.property(APIReference.fields, key);
     }
     assert.property(APIReference.fields, "assemblyVersion", "plus its own");

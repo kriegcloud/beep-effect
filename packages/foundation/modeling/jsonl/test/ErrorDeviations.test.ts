@@ -197,7 +197,7 @@ describe("D25: message is an own field on every member (upstream-bug: Bun prepar
 
   it.each(members)("$tag owns its exact message", ({ tag, error, message }) => {
     assert.strictEqual(error._tag, tag);
-    assert.isTrue(Object.hasOwn(error, "message"), "message is an own field, not a prototype getter");
+    assert.isTrue(R.has<"message", string>(error, "message"), "message is an own field, not a prototype getter");
     assert.isTrue(
       P.isUndefined(Object.getOwnPropertyDescriptor(Object.getPrototypeOf(error), "message")),
       "the class declares no message accessor that a stack hook could reach before fields are set"

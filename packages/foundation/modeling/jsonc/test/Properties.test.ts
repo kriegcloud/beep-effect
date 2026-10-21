@@ -10,9 +10,7 @@
 // agreeing with stripComments, JsoncFromString over one fixed struct) and
 // JsoncFormatter.test.ts (idempotence on plain JSON) are not repeated here.
 //
-// The synchronous digest twin is checked against Node's real SHA-256 backend.
-// @effect-diagnostics-next-line nodeBuiltinImport:off
-import { createHash } from "node:crypto";
+// The synchronous digest twin is checked against WebCrypto's SHA-256 backend.
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   Jsonc,
@@ -58,6 +56,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import { sha256 } from "./fixtures/Sha256.ts";
 import type { JsoncDigest } from "@beep/jsonc";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -209,7 +208,7 @@ const CryptoTest = Layer.succeed(
       ),
   })
 );
-const nodeDigest: JsoncDigest = (bytes) => createHash("sha256").update(bytes).digest();
+const syncDigest: JsoncDigest = sha256;
 
 // encode then decode is the identity under the schema's own equivalence;
 // decoding the encoded value never fails (a failure falsifies the property);
@@ -546,7 +545,7 @@ describe("jsonc property floor", () => {
           Effect.gen(function* () {
             const digest = yield* JsoncFingerprint.hash(value);
             assert.strictEqual(yield* JsoncFingerprint.hashText(yield* JsoncFingerprint.canonicalize(value)), digest);
-            assertSuccess(JsoncFingerprint.hashResult(value, nodeDigest), digest);
+            assertSuccess(JsoncFingerprint.hashResult(value, syncDigest), digest);
             assert.strictEqual(yield* JsoncFingerprint.hash(reverseKeys(value)), digest);
           }),
         runs
@@ -560,7 +559,7 @@ describe("jsonc property floor", () => {
             const normalize = JsoncTextHashOptions.make({ normalizeEol: true });
             const digest = yield* JsoncFingerprint.hashText(text, normalize);
             assert.strictEqual(yield* JsoncFingerprint.hashText(JsoncFingerprint.normalizeEol(text)), digest);
-            assertSuccess(JsoncFingerprint.hashTextResult(text, nodeDigest, normalize), digest);
+            assertSuccess(JsoncFingerprint.hashTextResult(text, syncDigest, normalize), digest);
           }),
         runs
       );

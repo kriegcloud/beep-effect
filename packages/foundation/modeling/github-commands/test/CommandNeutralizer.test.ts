@@ -1,5 +1,6 @@
 import { CommandNeutralizer } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import { commandLines, isCommand, isDotNetWhitespace, LINE_BREAK } from "./helpers/runnerCommands.ts";
 
 const ZWSP = String.fromCodePoint(0x200b);
@@ -9,7 +10,7 @@ const strings = (alphabet: ReadonlyArray<string>, length: number): ReadonlyArray
   let level: ReadonlyArray<string> = [""];
   const all: Array<string> = [""];
   for (let i = 0; i < length; i++) {
-    level = level.flatMap((prefix) => alphabet.map((ch) => `${prefix}${ch}`));
+    level = A.flatMap(level, (prefix) => A.map(alphabet, (ch) => `${prefix}${ch}`));
     for (const item of level) all.push(item);
   }
   return all;
@@ -59,7 +60,7 @@ describe("CommandNeutralizer: the runner's two parsers", () => {
       const out = CommandNeutralizer.lines(line);
       assert.deepStrictEqual(out, expected, JSON.stringify(ch));
       for (const outputLine of out) assert.isFalse(isCommand(outputLine), JSON.stringify(ch));
-      assert.strictEqual(CommandNeutralizer.text(line), expected.join("\n"), JSON.stringify(ch));
+      assert.strictEqual(CommandNeutralizer.text(line), A.join(expected, "\n"), JSON.stringify(ch));
     }
   });
 
@@ -99,7 +100,7 @@ describe("CommandNeutralizer: the runner's two parsers", () => {
   it("splits at CR, LF and CRLF, as the runner does, so a lone CR starts a line", () => {
     const out = CommandNeutralizer.lines("a\r::error::x\r\n##[group]y\n  ::add-mask::z\rplain\r\n ::w\n\u0085::n");
     assert.strictEqual(out.length, 7);
-    assert.deepStrictEqual(out.filter(isCommand), []);
+    assert.deepStrictEqual(A.filter(out, isCommand), []);
     assert.deepStrictEqual(CommandNeutralizer.lines("no command\nhere: ::"), ["no command", "here: ::"]);
   });
 
@@ -136,7 +137,7 @@ describe("CommandNeutralizer: exhaustive over a small alphabet, judged by the in
 
   it("only a zero-width space is added: removing it gives back the input's own lines", () => {
     for (const text of ALL) {
-      const out = CommandNeutralizer.lines(text).map((line) => line.replaceAll(ZWSP, ""));
+      const out = A.map(CommandNeutralizer.lines(text), (line) => line.replaceAll(ZWSP, ""));
       assert.deepStrictEqual(out, text.split(LINE_BREAK), JSON.stringify(text));
     }
   });
@@ -145,7 +146,7 @@ describe("CommandNeutralizer: exhaustive over a small alphabet, judged by the in
     for (const text of ALL) {
       const inputLines = text.split(LINE_BREAK);
       const out = CommandNeutralizer.lines(text);
-      inputLines.forEach((line, index) => {
+      A.forEach(inputLines, (line, index) => {
         if (!isCommand(line)) assert.strictEqual(out[index], line, JSON.stringify(text));
       });
     }

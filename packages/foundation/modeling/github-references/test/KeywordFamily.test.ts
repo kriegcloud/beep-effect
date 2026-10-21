@@ -2,6 +2,7 @@ import { REFERENCE_KEYWORDS } from "@beep/github-references/ClosingList";
 import { CLOSING_KEYWORDS } from "@beep/github-references/IssueReferences";
 import { KeywordFamily, keywordFamily } from "@beep/github-references/KeywordFamily";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { ReferenceKeyword } from "@beep/github-references/ClosingList";
@@ -39,7 +40,7 @@ describe("KeywordFamily.keywordFamily", () => {
       ["references", "ref"],
     ];
     assert.deepStrictEqual(
-      expected.map(([keyword]) => keyword),
+      A.map(expected, ([keyword]) => keyword),
       [...CLOSING_KEYWORDS, ...REFERENCE_KEYWORDS]
     );
     for (const [keyword, family] of expected) {

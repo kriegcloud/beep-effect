@@ -10,7 +10,9 @@ import {
 import { Vocabulary } from "@beep/schema-org/Vocabulary";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
+import * as Str from "effect/String";
 import { byteLengthOf } from "./sources.ts";
 
 /** Whether `index` is a valid position in a table of `bound` entries. */
@@ -29,8 +31,8 @@ describe("the generated vocabulary table", () => {
     assert.strictEqual(PROPERTY_NAMES.length, 1521);
     // Foreign alignment terms carry the same `@type` as native ones and are
     // filtered by id prefix; if that filter ever regresses the counts move.
-    assert.isFalse(TYPE_NAMES.some((name) => name.includes(":")));
-    assert.isFalse(PROPERTY_NAMES.some((name) => name.includes(":")));
+    assert.isFalse(A.some(TYPE_NAMES, Str.includes(":")));
+    assert.isFalse(A.some(PROPERTY_NAMES, Str.includes(":")));
   });
 
   it("keeps every interned index in range", () => {
@@ -48,7 +50,7 @@ describe("the generated vocabulary table", () => {
     // one call, which is only unambiguous while this holds.
     const types = HashSet.fromIterable(TYPE_NAMES);
     assert.deepStrictEqual(
-      PROPERTY_NAMES.filter((name) => HashSet.has(types, name)),
+      A.filter(PROPERTY_NAMES, (name) => HashSet.has(types, name)),
       []
     );
   });
@@ -132,7 +134,7 @@ describe("Vocabulary", () => {
     const ancestors = Vocabulary.ancestorsOf("Certification");
     assert.isTrue(HashSet.has(ancestors, "CreativeWork"));
     assert.isTrue(HashSet.has(ancestors, "Thing"));
-    assert.isFalse([...ancestors].some((name) => name.includes(":")));
+    assert.isFalse(A.some(A.fromIterable(ancestors), Str.includes(":")));
     // DataType's only parent is rdfs:Class — the walk terminates with nothing.
     assert.strictEqual(HashSet.size(Vocabulary.ancestorsOf("DataType")), 0);
     assert.isTrue(Vocabulary.hasType("DataType"));

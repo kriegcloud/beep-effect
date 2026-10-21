@@ -4,6 +4,7 @@
 import { fcRuns } from "@beep/fc-runs";
 import { Envelope, Journal, JsonlEvent, Line } from "@beep/jsonl";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -113,9 +114,9 @@ describe("Envelope type-level contract", () => {
       const encoded = Result.getOrThrow(
         Envelope.encodeResult({ at: DateTime.makeUnsafe(0), event: "relinked", data }, registry)
       );
-      const decoded = Envelope.decodeAllResult(encoded, registry).map(Result.getOrThrow);
+      const decoded = A.map(Envelope.decodeAllResult(encoded, registry), Result.getOrThrow);
       assert.deepStrictEqual(
-        decoded.map((envelope) => [envelope.event, envelope.data]),
+        A.map(decoded, (envelope) => [envelope.event, envelope.data]),
         [["relinked", data]]
       );
       assert.strictEqual(Line.split(encoded).length, 1);

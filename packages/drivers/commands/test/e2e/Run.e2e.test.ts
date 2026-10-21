@@ -8,6 +8,7 @@
 import { CommandFailedError, Run } from "@beep/commands/Run";
 import { NodeChildProcessSpawner, NodePath } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -114,13 +115,16 @@ describe("Run against real processes", () => {
       // Do not delete this test. If `{ concurrency: "unbounded" }` in
       // `collectRaw` is ever relaxed, this hangs to the timeout below.
       Effect.gen(function* () {
-        const script = [
-          "const big = 'x'.repeat(1024 * 1024);",
-          "process.stdout.write(big);",
-          "process.stderr.write(big);",
-          "process.stdout.write(big);",
-          "process.stderr.write(big);",
-        ].join("");
+        const script = A.join(
+          [
+            "const big = 'x'.repeat(1024 * 1024);",
+            "process.stdout.write(big);",
+            "process.stderr.write(big);",
+            "process.stdout.write(big);",
+            "process.stderr.write(big);",
+          ],
+          ""
+        );
         const output = yield* live(Run.collect(node(script)));
         assert.strictEqual(output.stdout.length, 2 * 1024 * 1024);
         assert.strictEqual(output.stderr.length, 2 * 1024 * 1024);

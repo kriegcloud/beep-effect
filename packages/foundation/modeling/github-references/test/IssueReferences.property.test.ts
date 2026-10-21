@@ -2,6 +2,7 @@ import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -104,9 +105,9 @@ describe("IssueReferences property floor", () => {
           noise,
         ]) {
           const parsed = G.parseBareLines(text);
-          const canonical = parsed.map(stringifyBare).join("\n");
+          const canonical = A.join(A.map(parsed, stringifyBare), "\n");
           assert.deepStrictEqual(G.parseBareLines(canonical), parsed);
-          assert.strictEqual(G.parseBareLines(canonical).map(stringifyBare).join("\n"), canonical);
+          assert.strictEqual(A.join(A.map(G.parseBareLines(canonical), stringifyBare), "\n"), canonical);
         }
       }),
     runs
@@ -116,7 +117,8 @@ describe("IssueReferences property floor", () => {
     [Arbitrary.schema(Sample), Arbitrary.schema(S.String)],
     ([sample, noise]) =>
       Effect.sync(() => {
-        const structured = ["\t", "\n", "\r\n", "\v", "\f", "\u00a0", "\u2028"].map(
+        const structured = A.map(
+          ["\t", "\n", "\r\n", "\v", "\f", "\u00a0", "\u2028"],
           (gap) =>
             "prefix " +
             sample.keyword.toUpperCase() +
@@ -167,7 +169,7 @@ describe("IssueReferences property floor", () => {
       Effect.sync(() => {
         const inline = sample.keyword.toUpperCase() + " #" + sample.issue;
         assert.deepStrictEqual(
-          G.harvestIssueReferences(inline + "; " + inline).map(({ keyword, issueNumber }) => ({
+          A.map(G.harvestIssueReferences(inline + "; " + inline), ({ keyword, issueNumber }) => ({
             keyword,
             issueNumber,
           })),
@@ -184,7 +186,7 @@ describe("IssueReferences property floor", () => {
         assert.deepStrictEqual(G.parseBareLineReference(inline + " trailing"), O.none());
         assert.deepStrictEqual(G.harvestIssueReferences(sample.keyword + " " + sample.issue), []);
         assert.deepStrictEqual(
-          G.harvestIssueReferences(sample.keyword + " #9007199254740992; " + inline).map((hit) => hit.issueNumber),
+          A.map(G.harvestIssueReferences(sample.keyword + " #9007199254740992; " + inline), (hit) => hit.issueNumber),
           [sample.issue]
         );
       }),

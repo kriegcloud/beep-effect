@@ -1,6 +1,7 @@
 import { WorkflowCommand } from "@beep/github-commands/WorkflowCommand";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 describe("WorkflowCommand runtime construction", () => {
@@ -8,7 +9,7 @@ describe("WorkflowCommand runtime construction", () => {
     Effect.sync(() => {
       const instance = new (deliberatelyInvalid<new () => WorkflowCommand>(WorkflowCommand))();
       assert.strictEqual(Object.getPrototypeOf(instance), WorkflowCommand.prototype);
-      assert.deepStrictEqual(Object.keys(instance), []);
+      assert.deepStrictEqual(R.keys(instance), []);
       assert.strictEqual(
         WorkflowCommand.notice("50%\nready", { title: "API: v1,v2" }),
         "::notice title=API%3A v1%2Cv2::50%25%0Aready"

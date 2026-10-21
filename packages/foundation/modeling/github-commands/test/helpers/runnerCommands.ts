@@ -1,3 +1,5 @@
+import * as A from "effect/Array";
+
 /**
  * What the GitHub Actions runner reads as a workflow command, written from the runner's own source and imported by
  * nothing in `src/`: `actions/runner`, `src/Runner.Common/ActionCommand.cs` and
@@ -41,4 +43,4 @@ export const isCommand = (line: string): boolean => {
 };
 
 /** The lines of `text` the runner would read as a command. */
-export const commandLines = (text: string): ReadonlyArray<string> => text.split(LINE_BREAK).filter(isCommand);
+export const commandLines = (text: string): ReadonlyArray<string> => A.filter(text.split(LINE_BREAK), isCommand);

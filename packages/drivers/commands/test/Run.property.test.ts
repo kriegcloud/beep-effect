@@ -3,6 +3,7 @@ import { ScriptedSpawner } from "@beep/commands/ScriptedSpawner";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -135,13 +136,13 @@ it.effect.prop(
       const lines = yield* Run.lines(command).pipe(withLayer(spawner.layer));
       assert.deepStrictEqual(
         lines,
-        transmitted
-          .split(/\r?\n/)
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0)
+        A.filter(
+          A.map(transmitted.split(/\r?\n/), (line) => line.trim()),
+          (line) => line.length > 0
+        )
       );
       const reparsed = yield* Run.lines(command).pipe(
-        withLayer(ScriptedSpawner.make(() => ({ stdout: lines.join("\n") })).layer)
+        withLayer(ScriptedSpawner.make(() => ({ stdout: A.join(lines, "\n") })).layer)
       );
       assert.deepStrictEqual(reparsed, lines);
     }),

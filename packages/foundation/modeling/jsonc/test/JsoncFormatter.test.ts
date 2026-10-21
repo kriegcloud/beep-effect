@@ -1,5 +1,6 @@
 import { JsoncEdit, JsoncFormatter, JsoncFormattingOptions, JsoncFormattingOptionsLike, JsoncRange } from "@beep/jsonc";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -15,9 +16,9 @@ describe("JsoncFormatter", () => {
 
     it("computes the minimal edits as JsoncEdit instances", () => {
       const edits = JsoncFormatter.format('{"a":1}');
-      assert.isTrue(edits.every(S.is(JsoncEdit)));
+      assert.isTrue(A.every(edits, S.is(JsoncEdit)));
       assert.deepStrictEqual(
-        edits.map((edit) => [edit.offset, edit.length, edit.content]),
+        A.map(edits, (edit) => [edit.offset, edit.length, edit.content]),
         [
           [1, 0, "\n  "],
           [5, 0, " "],
@@ -70,7 +71,7 @@ describe("JsoncFormatter", () => {
       assert.deepStrictEqual(JsoncFormatter.format("]]"), [JsoncEdit.make({ offset: 1, length: 0, content: "\n" })]);
       assert.strictEqual(JsoncFormatter.formatToString("]]"), "]\n]");
       assert.deepStrictEqual(
-        JsoncFormatter.format('{"a":1}}').map((edit) => [edit.offset, edit.length, edit.content]),
+        A.map(JsoncFormatter.format('{"a":1}}'), (edit) => [edit.offset, edit.length, edit.content]),
         [
           [1, 0, "\n  "],
           [5, 0, " "],
@@ -95,7 +96,7 @@ describe("JsoncFormatter", () => {
       const text = '{"a":1,"b":2}';
       const edits = JsoncFormatter.format(text, JsoncRange.make({ offset: 0, length: 4 }));
       assert.deepStrictEqual(
-        edits.map((edit) => [edit.offset, edit.content]),
+        A.map(edits, (edit) => [edit.offset, edit.content]),
         [[1, "\n  "]]
       );
       assert.strictEqual(
@@ -108,7 +109,8 @@ describe("JsoncFormatter", () => {
       const text = '{"a":1}';
       const options = JsoncFormattingOptions.make({ insertFinalNewline: true });
       assert.isFalse(
-        JsoncFormatter.format(text, JsoncRange.make({ offset: 0, length: 3 }), options).some(
+        A.some(
+          JsoncFormatter.format(text, JsoncRange.make({ offset: 0, length: 3 }), options),
           (e) => e.offset >= text.length
         )
       );
@@ -169,7 +171,7 @@ describe("JsoncFormatter", () => {
       for (const tabSize of [-1, -1.5, -100]) {
         assert.strictEqual(format('{"a":[1]}', tabSize), '{\n"a": [\n1\n]\n}');
         assert.deepStrictEqual(
-          JsoncFormatter.format('{"a":[1]}', undefined, JsoncFormattingOptions.make({ tabSize })).map((edit) => [
+          A.map(JsoncFormatter.format('{"a":[1]}', undefined, JsoncFormattingOptions.make({ tabSize })), (edit) => [
             edit.offset,
             edit.length,
             edit.content,

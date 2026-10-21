@@ -1,6 +1,7 @@
 import { AndNode, LicenseNode, LicenseRefNode, SpdxExpression } from "@beep/spdx";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -25,7 +26,7 @@ describe("SpdxExpression coverage", () => {
         right: AndNode.make({ left: invalid, right: invalidReference }),
       });
       assert.deepStrictEqual(
-        SpdxExpression.licensesOf(tree).map((license) => license.id),
+        A.map(SpdxExpression.licensesOf(tree), (license) => license.id),
         ["MIT", "LicenseRef-custom"]
       );
       assertNone(SpdxExpression.primaryLicense(invalid));

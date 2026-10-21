@@ -134,7 +134,10 @@ describe("ClosingList.parseClosingList", () => {
     assertNone(parseClosingList(`closes${tabs}x`));
     assertNone(parseClosingList(`closes #1,${tabs}and#2`));
     assertNone(parseClosingList(`closes #1${tabs}x`));
-    const wide = `closes ${Array.from({ length: 5_000 }, (_, index) => `#${index + 1}`).join(", ")}`;
+    const wide = `closes ${A.join(
+      A.makeBy(5_000, (index) => `#${index + 1}`),
+      ", "
+    )}`;
     const list = O.getOrThrow(parseClosingList(wide));
     assert.strictEqual(list.issueNumbers.length, 5_000);
     assert.strictEqual(list.issueNumbers[4_999], 5_000);
@@ -294,7 +297,7 @@ describe("ClosingList.review regressions", () => {
       assert.doesNotThrow(() => assertNone(parseReferenceList(text)), text);
       assert.doesNotThrow(() => assertNone(parseClosingList(text)), text);
       assert.deepStrictEqual(
-        harvestReferenceLists(text).map((list) => [
+        A.map(harvestReferenceLists(text), (list) => [
           list.keyword,
           [...list.issueNumbers],
           text.slice(list.start, list.end),
@@ -378,7 +381,10 @@ describe("ClosingList.parseReferenceList", () => {
 
 describe("ClosingList.parseReferenceLists", () => {
   it("collects the accepted lines in order, skipping the rejecting ones", () => {
-    const text = ["Closes: #1, #2", "prose between the lists", "Refs: #3 and #4", "closes #5 trailing", ""].join("\n");
+    const text = A.join(
+      ["Closes: #1, #2", "prose between the lists", "Refs: #3 and #4", "closes #5 trailing", ""],
+      "\n"
+    );
     assert.deepStrictEqual(parseReferenceLists(text), [
       ReferenceList.make({ keyword: "closes", closing: true, issueNumbers: [1, 2] }),
       ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [3, 4] }),
@@ -400,7 +406,7 @@ describe("ClosingList.parseReferenceLists", () => {
 
 describe("ClosingList.parseClosingLists", () => {
   it("is the closing-only view: a Refs line contributes nothing", () => {
-    const text = ["Closes: #1, #2", "Refs: #3", "Fixed #4"].join("\n");
+    const text = A.join(["Closes: #1, #2", "Refs: #3", "Fixed #4"], "\n");
     assert.deepStrictEqual(parseClosingLists(text), [
       ClosingList.make({ keyword: "closes", issueNumbers: [1, 2] }),
       ClosingList.make({ keyword: "fixed", issueNumbers: [4] }),
@@ -423,7 +429,7 @@ describe("ClosingList.harvestReferenceLists", () => {
     // `, Fixes` fails as a separator continuation because what follows the
     // comma is not `#`, so this is two single-item lists, not one of three.
     assert.deepStrictEqual(
-      found.map((list) => ({ keyword: list.keyword, closing: list.closing, issueNumbers: [...list.issueNumbers] })),
+      A.map(found, (list) => ({ keyword: list.keyword, closing: list.closing, issueNumbers: [...list.issueNumbers] })),
       [
         { keyword: "closes", closing: true, issueNumbers: [123] },
         { keyword: "fixes", closing: true, issueNumbers: [456] },
@@ -437,7 +443,7 @@ describe("ClosingList.harvestReferenceLists", () => {
     const text = "Closes #1, #2 and fixes #3";
     const found = harvestReferenceLists(text);
     assert.deepStrictEqual(
-      found.map((list) => ({ keyword: list.keyword, issueNumbers: [...list.issueNumbers] })),
+      A.map(found, (list) => ({ keyword: list.keyword, issueNumbers: [...list.issueNumbers] })),
       [
         { keyword: "closes", issueNumbers: [1, 2] },
         { keyword: "fixes", issueNumbers: [3] },
@@ -503,7 +509,7 @@ describe("ClosingList.harvestReferenceLists", () => {
     // prose after the poisoned candidate still gets harvested.
     const found = harvestReferenceLists("closes #1, #9007199254740993 and fixes #2");
     assert.deepStrictEqual(
-      found.map((list) => ({ keyword: list.keyword, issueNumbers: [...list.issueNumbers] })),
+      A.map(found, (list) => ({ keyword: list.keyword, issueNumbers: [...list.issueNumbers] })),
       [{ keyword: "fixes", issueNumbers: [2] }]
     );
     assert.deepStrictEqual(harvestReferenceLists("closes #9007199254740993"), []);
@@ -551,7 +557,7 @@ describe("ClosingList.collectReferenceLists", () => {
   it("harvests prose lines that are not whole-line lists", () => {
     const lists = collectReferenceLists("merged after review; closes #7, #8 and refs #9");
     assert.deepStrictEqual(
-      lists.map((list) => [list.keyword, [...list.issueNumbers]]),
+      A.map(lists, (list) => [list.keyword, [...list.issueNumbers]]),
       [
         ["closes", [7, 8]],
         ["refs", [9]],
@@ -566,10 +572,13 @@ describe("ClosingList.collectReferenceLists", () => {
   });
 
   it("interleaves both postures across lines, in document order, with no offsets", () => {
-    const text = ["Fixes: #10", "prose mentioning closes #11 and refs #12, #13", "", "not grammar at all"].join("\n");
+    const text = A.join(
+      ["Fixes: #10", "prose mentioning closes #11 and refs #12, #13", "", "not grammar at all"],
+      "\n"
+    );
     const lists = collectReferenceLists(text);
     assert.deepStrictEqual(
-      lists.map((list) => [list.keyword, list.closing, [...list.issueNumbers]]),
+      A.map(lists, (list) => [list.keyword, list.closing, [...list.issueNumbers]]),
       [
         ["fixes", true, [10]],
         ["closes", true, [11]],
