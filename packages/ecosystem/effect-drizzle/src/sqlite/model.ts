@@ -14,8 +14,7 @@ import { fromUndefinedOr, getOrElse, getOrThrow, getOrUndefined, match, none, or
 import { isFunction, isNotUndefined, isNumber, isString, isUint8Array } from "effect/Predicate";
 import { empty, set, size, toEntries } from "effect/Record";
 import { Finite, flip, is, makeFilter, optionalKey } from "effect/Schema";
-import * as Str from "effect/String";
-import { split } from "effect/String";
+import { includes, split } from "effect/String";
 import * as VariantSchema from "effect/schema/VariantSchema";
 import * as Field from "../core/Field.ts";
 import * as Meta from "../core/Meta.ts";
@@ -391,7 +390,7 @@ const validateLiteralDefault = (field: Field.Any, select: Top, column: SqliteCol
       fieldName,
     });
   }
-  if (isString(value) && Str.includes("\0")(value)) {
+  if (isString(value) && includes("\0")(value)) {
     throw ModelInvariantError.make({
       message: `Literal default for '${fieldName}' cannot contain NUL.`,
       fieldName,

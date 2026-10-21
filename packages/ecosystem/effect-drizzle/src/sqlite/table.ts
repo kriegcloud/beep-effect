@@ -29,7 +29,7 @@ import {
 import { fromUndefinedOr, getOrElse, match } from "effect/Option";
 import { hasProperty, isFunction } from "effect/Predicate";
 import { empty, get, values as recordValues, set, toEntries } from "effect/Record";
-import * as Str from "effect/String";
+import { replaceAll } from "effect/String";
 import { validateSchemaNames } from "../core/assembly.ts";
 import * as Field from "../core/Field.ts";
 import * as Meta from "../core/Meta.ts";
@@ -294,7 +294,7 @@ const enumChecks = (
     const column = columns[key];
     if (!isDrizzleEntity(column, SQLiteColumn)) return [];
     const values = sql.join(
-      map(meta.column.values, (value) => sql.raw(`'${Str.replaceAll("'", "''")(value)}'`)),
+      map(meta.column.values, (value) => sql.raw(`'${replaceAll("'", "''")(value)}'`)),
       sql`, `
     );
     return [check(`${model.sql.tableName}_${snakeCase(key)}_enum_check`, sql`${column} in (${values})`)];

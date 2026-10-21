@@ -47,8 +47,7 @@ import {
   Unknown,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
-import * as Str from "effect/String";
-import { camelCase, snakeCase } from "effect/String";
+import { camelCase, snakeCase, split, trim } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
 import * as Tuple from "effect/Tuple";
@@ -97,7 +96,7 @@ const preloadPath = new URL("./drizzle-kit-sqlite-rc-compat.cjs", import.meta.ur
 // hardcoding a location that differs across hosts and CI runners.
 const isRealNode = (candidate: string): boolean => {
   const probe = Bun.spawnSync([candidate, "--print", "process.isBun ? 1 : 0"]);
-  return probe.exitCode === 0 && Str.trim(new TextDecoder().decode(probe.stdout)) === "0";
+  return probe.exitCode === 0 && trim(new TextDecoder().decode(probe.stdout)) === "0";
 };
 
 const resolveNodeBinary = (): string => {
@@ -108,7 +107,7 @@ const resolveNodeBinary = (): string => {
   return getOrElse(
     findFirst(
       mapArray(
-        filter(Str.split(":")(Bun.env.PATH ?? ""), (directory) => directory.length > 0),
+        filter(split(":")(Bun.env.PATH ?? ""), (directory) => directory.length > 0),
         (directory) => Bun.which("node", { PATH: directory })
       ),
       (candidate): candidate is string => candidate !== null && isRealNode(candidate)

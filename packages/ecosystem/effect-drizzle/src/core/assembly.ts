@@ -13,8 +13,7 @@ import { dual } from "effect/Function";
 import { fromUndefinedOr, getOrElse } from "effect/Option";
 import { hasProperty, isFunction } from "effect/Predicate";
 import { empty, get, set, toEntries } from "effect/Record";
-import * as Str from "effect/String";
-import { capitalize, slice } from "effect/String";
+import { capitalize, endsWith, slice, startsWith } from "effect/String";
 import { camelCase } from "../internal/case.ts";
 import { findSqlNameCollision, sqlNameIssue } from "./names.ts";
 import type { AnyRelation, RelationsBuilder, RelationsBuilderConfig, Schema } from "drizzle-orm";
@@ -59,7 +58,7 @@ export interface Junction {
  * @since 0.0.0
  */
 export const relationName = (fieldName: string): string =>
-  Str.endsWith("Id")(fieldName) ? slice(0, -2)(fieldName) : `${fieldName}Relation`;
+  endsWith("Id")(fieldName) ? slice(0, -2)(fieldName) : `${fieldName}Relation`;
 
 /** Stable alias shared by forward and reverse relations. */
 /** @internal */
@@ -75,7 +74,7 @@ const reverseRelationName = (edge: Edge, edges: ReadonlyArray<Edge>): string => 
   const ambiguous =
     filter(edges, (candidate) => candidate.sourceKey === edge.sourceKey && candidate.targetKey === edge.targetKey)
       .length > 1;
-  if (edge.sourceKey === edge.targetKey && Str.startsWith("parent")(edge.relationName)) {
+  if (edge.sourceKey === edge.targetKey && startsWith("parent")(edge.relationName)) {
     return `child${capitalize(slice(6)(edge.relationName))}s`;
   }
   const base = plural(edge.sourceKey);
