@@ -8,6 +8,7 @@
     "preferEffectRecord": "error",
     "preferNamespaceImport": "off",
     "preferSchemaTaggedError": "error",
-    "schemaClassMissingBrand": "error"
+    "schemaClassMissingBrand": "error",
+    "schemaClassObjectLiteral": "error"
   }
 }

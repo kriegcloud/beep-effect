@@ -275,6 +275,53 @@ describe("@beep/documents-server VaultSyncEngine review regressions", () => {
 
   it.layer(Layer.fresh(RegressionTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
+      "revives two failed operations of one item without a version conflict on the item",
+      Effect.fnUntraced(function* () {
+        const engine = yield* VaultSyncEngine;
+        const itemRepository = yield* SyncItemRepository;
+        const operationRepository = yield* SyncOperationRepository;
+        const root = yield* makeVaultRoot();
+        yield* writeVaultFile(root, "twice-failed.txt", "twice failed body");
+        const seeded = yield* itemRepository.create(
+          SyncItemSeed.make({
+            itemKind: "file",
+            localGeneration: S.Natural.make(1),
+            localRelPath: VaultRelPath.make("twice-failed.txt"),
+            provider: "box",
+            syncState: "error",
+            workspaceId,
+          })
+        );
+        // Both operations pass revive eligibility, so one pass revives the
+        // item twice: the second revive must start from the first's write.
+        yield* Effect.forEach(["uploadFile", "renameItem"] as const, (operationType) =>
+          operationRepository.enqueue(
+            SyncOperationSeed.make({
+              attemptCount: S.Natural.make(3),
+              idempotencyKey: `box:${workspaceId}:${seeded.id}:${operationType}:twice-failed.txt:1`,
+              inputGeneration: S.Natural.make(1),
+              lastError: O.some("mirror rejected the push"),
+              operationType,
+              provider: "box",
+              status: "failed",
+              syncItemId: seeded.id,
+              targetName: "twice-failed.txt",
+              targetRelPath: VaultRelPath.make("twice-failed.txt"),
+              workspaceId,
+            })
+          )
+        );
+
+        const status = yield* engine.syncOnce(syncInput(root));
+
+        expect(status.failedOperations).toBe(0);
+        expect(status.errorItems).toBe(0);
+      })
+    );
+  });
+
+  it.layer(Layer.fresh(RegressionTestLayer), { timeout: "10 seconds" })((it) => {
+    it.effect(
       "skips symlinks entirely: no mirror leak and no scan abort on dangling links",
       Effect.fnUntraced(function* () {
         const engine = yield* VaultSyncEngine;

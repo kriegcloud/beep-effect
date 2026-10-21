@@ -18,8 +18,10 @@ import {
   SyncItemRepositoryConflict,
   SyncItemRepositoryNotFound,
   SyncItemRepositoryUnavailable,
+  SyncItemRepositoryVersionConflict,
 } from "@beep/documents-use-cases/entities/SyncItem/server";
 import { PostgresDrizzle } from "@beep/postgres";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents";
 import { A, N } from "@beep/utils";
 import { and, asc, eq } from "drizzle-orm";
@@ -30,9 +32,16 @@ import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { byIdAscending, makeEntityStore, nextEntityId, SYSTEM_PRINCIPAL } from "../internal/RepoSupport.ts";
+import {
+  byIdAscending,
+  makeEntityStore,
+  nextEntityId,
+  replaceVersioned,
+  SYSTEM_PRINCIPAL,
+} from "../internal/RepoSupport.ts";
 import type { DmsProvider, RemoteItemId, VaultRelPath } from "@beep/documents-domain/values/Sync";
 import type { SyncItemSeed } from "@beep/documents-use-cases/entities/SyncItem/server";
+import type { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
 const decodeSyncItem = S.decodeUnknownEffect(DomainSyncItem.SyncItem);
@@ -90,6 +99,13 @@ const matchesRemoteId =
   (input: MirrorScope & { readonly remoteId: RemoteItemId }) => (syncItem: DomainSyncItem.SyncItem) =>
     matchesMirror(input)(syncItem) && O.exists(syncItem.remoteId, (candidate) => candidate === input.remoteId);
 
+const versionConflict = (syncItem: DomainSyncItem.SyncItem, actualRowVersion: RowVersion) =>
+  SyncItemRepositoryVersionConflict.make({
+    actualRowVersion,
+    expectedRowVersion: syncItem.rowVersion,
+    syncItemId: syncItem.id,
+  });
+
 const duplicatePathConflict = (seed: SyncItemSeed): SyncItemRepositoryConflict =>
   SyncItemRepositoryConflict.make({
     localRelPath: seed.localRelPath,
@@ -109,7 +125,7 @@ const duplicatePathConflict = (seed: SyncItemSeed): SyncItemRepositoryConflict =
  *
  * @effects Allocates an in-memory `Ref` store plus an id counter and mutates
  * that process-local state for create, update, find, and list repository
- * calls.
+ * calls. `update` compares and advances `rowVersion` atomically.
  * @category repositories
  * @since 0.0.0
  */
@@ -142,12 +158,12 @@ export const makeInMemorySyncItemRepository = Effect.fn("Documents.SyncItemRepos
       return pipe(syncItems, A.filter(matchesMirror(input)), A.sort(byIdAscending<DomainSyncItem.SyncItem>()));
     }),
     update: Effect.fn("Documents.SyncItemRepository.update")(function* (syncItem) {
-      const syncItems = yield* Ref.get(store);
-      if (O.isNone(HashMap.get(syncItems, syncItem.id))) {
-        return yield* SyncItemRepositoryNotFound.make({ syncItemId: syncItem.id });
-      }
-      yield* Ref.update(store, HashMap.set(syncItem.id, syncItem));
-      return syncItem;
+      return yield* replaceVersioned(store, {
+        replacement: syncItem,
+        withRowVersion: (entity, rowVersion) => DomainSyncItem.SyncItem.make({ ...entity, rowVersion }),
+        onMissing: () => SyncItemRepositoryNotFound.make({ syncItemId: syncItem.id }),
+        onStale: (actualRowVersion) => versionConflict(syncItem, actualRowVersion),
+      });
     }),
   });
 });
@@ -191,7 +207,8 @@ const decodeOptionalSyncItemRow = (rows: ReadonlyArray<Parameters<typeof fromSyn
  *
  * @effects Requires `PostgresDrizzle`; executes `select`, `insert`, and
  * `update` statements against the SyncItem table and redacts driver failures
- * to `SyncItemRepositoryUnavailable`.
+ * to `SyncItemRepositoryUnavailable`. `update` matches the expected
+ * `row_version` in its `WHERE` clause and stores the next version.
  * @category repositories
  * @since 0.0.0
  */
@@ -214,6 +231,24 @@ export const makeDrizzleSyncItemRepository = Effect.fn("Documents.SyncItemReposi
       .limit(1)
       .pipe(repositoryUnavailable("select SyncItem by path"));
     return yield* decodeOptionalSyncItemRow(rows);
+  });
+
+  // A guarded update matched no row: either the row is gone or another write
+  // advanced its version past the one this write expected.
+  const rejectUpdate = Effect.fn("Documents.SyncItemRepository.drizzleRejectUpdate")(function* (
+    syncItem: DomainSyncItem.SyncItem
+  ) {
+    const rows = yield* db
+      .select({ rowVersion: syncItemTable.rowVersion })
+      .from(syncItemTable)
+      .where(eq(syncItemTable.id, syncItem.id))
+      .limit(1)
+      .pipe(repositoryUnavailable("select SyncItem row version"));
+    const stored = A.head(rows);
+    if (O.isNone(stored)) {
+      return yield* SyncItemRepositoryNotFound.make({ syncItemId: syncItem.id });
+    }
+    return yield* versionConflict(syncItem, stored.value.rowVersion);
   });
 
   return SyncItemRepository.of({
@@ -275,13 +310,13 @@ export const makeDrizzleSyncItemRepository = Effect.fn("Documents.SyncItemReposi
       );
       const rows = yield* db
         .update(syncItemTable)
-        .set(insert)
-        .where(eq(syncItemTable.id, syncItem.id))
+        .set({ ...insert, rowVersion: nextRowVersion(syncItem.rowVersion) })
+        .where(and(eq(syncItemTable.id, syncItem.id), eq(syncItemTable.rowVersion, syncItem.rowVersion)))
         .returning()
         .pipe(repositoryUnavailable("update SyncItem"));
       const updated = A.head(rows);
       if (O.isNone(updated)) {
-        return yield* SyncItemRepositoryNotFound.make({ syncItemId: syncItem.id });
+        return yield* rejectUpdate(syncItem);
       }
       return yield* Effect.fromResult(fromSyncItemRow(updated.value)).pipe(repositoryUnavailable("decode SyncItem"));
     }),

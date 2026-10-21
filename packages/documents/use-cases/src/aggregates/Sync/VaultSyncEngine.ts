@@ -16,17 +16,23 @@ import * as S from "effect/Schema";
 import {
   SyncConflictRepositoryNotFound,
   SyncConflictRepositoryUnavailable,
+  SyncConflictRepositoryVersionConflict,
 } from "../../entities/SyncConflict/SyncConflict.repository.ts";
-import { SyncCursorRepositoryUnavailable } from "../../entities/SyncCursor/SyncCursor.repository.ts";
+import {
+  SyncCursorRepositoryUnavailable,
+  SyncCursorRepositoryVersionConflict,
+} from "../../entities/SyncCursor/SyncCursor.repository.ts";
 import {
   SyncItemRepositoryConflict,
   SyncItemRepositoryNotFound,
   SyncItemRepositoryUnavailable,
+  SyncItemRepositoryVersionConflict,
 } from "../../entities/SyncItem/SyncItem.repository.ts";
 import {
   SyncOperationRepositoryConflict,
   SyncOperationRepositoryNotFound,
   SyncOperationRepositoryUnavailable,
+  SyncOperationRepositoryVersionConflict,
 } from "../../entities/SyncOperation/SyncOperation.repository.ts";
 import { DmsMirrorDisconnectReason } from "./DmsMirror.ts";
 import { DmsMirrorUnavailable, VaultScanFailed } from "./Sync.errors.ts";
@@ -125,7 +131,8 @@ export class VaultSyncStatus extends S.Opaque<VaultSyncStatus, { readonly brand:
  * **Details**
  *
  * The member set is exactly the failures reachable through the engine's ports:
- * vault scanning, the DMS mirror adapter, and the four sync repositories.
+ * vault scanning, the DMS mirror adapter, and the four sync repositories,
+ * including their optimistic-concurrency version conflicts.
  *
  * **Example** (Decode tagged scan failure)
  *
@@ -146,13 +153,17 @@ export const VaultSyncError = S.Union([
   DmsMirrorUnavailable,
   SyncConflictRepositoryNotFound,
   SyncConflictRepositoryUnavailable,
+  SyncConflictRepositoryVersionConflict,
   SyncCursorRepositoryUnavailable,
+  SyncCursorRepositoryVersionConflict,
   SyncItemRepositoryConflict,
   SyncItemRepositoryNotFound,
   SyncItemRepositoryUnavailable,
+  SyncItemRepositoryVersionConflict,
   SyncOperationRepositoryConflict,
   SyncOperationRepositoryNotFound,
   SyncOperationRepositoryUnavailable,
+  SyncOperationRepositoryVersionConflict,
   VaultScanFailed,
 ]).pipe(
   $I.annoteSchema("VaultSyncError", {

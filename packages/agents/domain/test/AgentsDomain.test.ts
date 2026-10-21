@@ -93,11 +93,11 @@ describe("@beep/agents-domain", () => {
     expect(Agent.sql.tableName).toBe(Agents.AgentId.tableName);
     expect(Agents.AgentId.entityType).toBe("AgentsAgent");
     expect(R.keys(Agent.insert.fields)).not.toContain("id");
-    expect(R.keys(Agent.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(Agent.insert.fields)).toContain("rowVersion");
     expect(R.keys(Agent.update.fields)).toContain("id");
     expect(R.keys(Agent.update.fields)).toContain("rowVersion");
     expect(R.keys(Agent.jsonCreate.fields)).toEqual(["fixtureKey", "mode", "name", "skillFixtureKey"]);
-    expect(R.keys(Agent.jsonUpdate.fields)).toEqual(["fixtureKey", "mode", "name", "skillFixtureKey"]);
+    expect(R.keys(Agent.jsonUpdate.fields)).toEqual(["rowVersion", "fixtureKey", "mode", "name", "skillFixtureKey"]);
   });
 
   it.effect("decodes and constructs an Agent row", () =>
@@ -148,7 +148,7 @@ describe("@beep/agents-domain", () => {
       expect(constructed.fixtureKey).toBe("skill.review");
       expect(Skill.sql.tableName).toBe("agents_skill");
       expect(R.keys(Skill.insert.fields)).not.toContain("id");
-      expect(R.keys(Skill.insert.fields)).not.toContain("rowVersion");
+      expect(R.keys(Skill.insert.fields)).toContain("rowVersion");
       expect(R.keys(Skill.update.fields)).toContain("id");
       expect(R.keys(Skill.update.fields)).toContain("rowVersion");
       expect(Skill.sql.columns.compatibility.column.length).toBe(500);

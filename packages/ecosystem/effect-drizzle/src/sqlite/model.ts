@@ -122,7 +122,6 @@ type PlainVariants<Sch extends Top, M extends Meta.Meta> = M["version"] extends 
       readonly insert: optionalKey<Sch>;
       readonly update: Sch;
       readonly json: Sch;
-      readonly jsonCreate: Sch;
       readonly jsonUpdate: Sch;
     }>
   : M["generated"] extends false
@@ -435,7 +434,6 @@ const effectiveSchema = (schema: Field.AnySchema, meta: Meta.Meta): Field.AnySch
       insert: optionalKey(select),
       update: select,
       json: select,
-      jsonCreate: select,
       jsonUpdate: select,
     });
   }
