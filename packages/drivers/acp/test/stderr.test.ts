@@ -9,23 +9,28 @@ import {
 } from "@beep/acp/stderr";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 
 const encoder = new TextEncoder();
-const bytes = (...chunks: ReadonlyArray<string>) => Stream.fromIterable(chunks.map((chunk) => encoder.encode(chunk)));
+const bytes = (...chunks: ReadonlyArray<string>) =>
+  Stream.fromIterable(A.map(chunks, (chunk) => encoder.encode(chunk)));
 
 describe("sanitizeStderrExcerpt", () => {
   it("redacts home paths, pairing URLs, sign-in URLs and tokens", () => {
     const excerpt = sanitizeStderrExcerpt(
-      [
-        "Invalid project config at /Users/ada/.agent/cli.json",
-        "Authorization: Bearer secret-token-value",
-        "Sign in: https://accounts.google.com/o/oauth2/v2/auth?state=oauth-state-value",
-        "Visit http://localhost:5733/pair#token=ABCDEF for pairing",
-        "key=sk-abcdefghijklmnopqrstuv",
-      ].join("\n"),
+      A.join(
+        [
+          "Invalid project config at /Users/ada/.agent/cli.json",
+          "Authorization: Bearer secret-token-value",
+          "Sign in: https://accounts.google.com/o/oauth2/v2/auth?state=oauth-state-value",
+          "Visit http://localhost:5733/pair#token=ABCDEF for pairing",
+          "key=sk-abcdefghijklmnopqrstuv",
+        ],
+        "\n"
+      ),
       ["/home/server", "/Users/ada"]
     );
 
@@ -50,7 +55,7 @@ describe("sanitizeStderrExcerpt", () => {
       `ops_${"eyJzaWduSW5BZGRyZXNzIjoibXkuMXBhc3N3b3JkLmNvbSJ9".repeat(2)}`,
     ];
     const excerpt = sanitizeStderrExcerpt(
-      [...secrets, "Authorization: Basic dXNlcjpwYXNz", "x-api-key: ant-api-key-value"].join("\n"),
+      A.join([...secrets, "Authorization: Basic dXNlcjpwYXNz", "x-api-key: ant-api-key-value"], "\n"),
       []
     );
 
