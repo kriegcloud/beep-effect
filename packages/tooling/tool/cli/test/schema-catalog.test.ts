@@ -10,7 +10,7 @@ import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
+import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -166,12 +166,8 @@ layer(testLayer)("schema catalog command", (it) => {
               A.findFirst(document.entries, (candidate) => candidate.symbol === symbol).pipe(
                 O.map(({ identity, description }) => ({ identity, description }))
               );
-            expect(identityOf("FixtureSlug")).toEqual(
-              O.some({ identity: "FixtureSlug", description: "Fixture slug." })
-            );
-            expect(identityOf("FixtureNode")).toEqual(
-              O.some({ identity: "FixtureNode", description: "Fixture node schema." })
-            );
+            assertSome(identityOf("FixtureSlug"), { identity: "FixtureSlug", description: "Fixture slug." });
+            assertSome(identityOf("FixtureNode"), { identity: "FixtureNode", description: "Fixture node schema." });
 
             // Non-exported declarations are private helpers, not catalog surface.
             const symbols = A.map(document.entries, (candidate) => candidate.symbol);

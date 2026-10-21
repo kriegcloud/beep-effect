@@ -89,6 +89,7 @@ const makeReferenceChecks = (
           },
         })
       ),
+      // fallow-ignore-next-line code-duplication -- URI and IRI reference checks share one shape but keep separate identities and messages
     ],
     $I.create(identifier).annote("Checks", {
       title,

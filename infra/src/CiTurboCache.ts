@@ -54,6 +54,7 @@ const CacheBucketName = S.String.check(
     })
   )
 ).pipe(
+  // fallow-ignore-next-line code-duplication -- each infra module owns its AWS schemas under its own file-local identity
   $I.annoteSchema("CacheBucketName", {
     description: "A lowercase, DNS-compatible S3 bucket name for Turbo artifacts.",
   })
@@ -69,6 +70,7 @@ const SsmParameterArn = S.String.check(
     })
   )
 ).pipe(
+  // fallow-ignore-next-line code-duplication -- each infra module owns its AWS schemas under its own file-local identity
   $I.annoteSchema("SsmParameterArn", {
     description: "An ARN for an AWS Systems Manager SecureString parameter.",
   })
