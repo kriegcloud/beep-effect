@@ -19,9 +19,11 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Semaphore from "effect/Semaphore";
+import { isSqlError } from "effect/sql/SqlError";
 import { DuckDbError } from "./DuckDb.errors.ts";
 import { DuckDbRows } from "./DuckDb.models.ts";
 import { NativeGate } from "./internal/gate.ts";
@@ -201,6 +203,16 @@ type NativeUse<A, R = never> = (native: NativeConnection) => Effect.Effect<A, Du
 const ABORTED_TRANSACTION_MESSAGE =
   "DuckDB aborted this transaction after an earlier statement failed; COMMIT refused because DuckDB would roll it back silently";
 
+// The native DuckDB diagnostic of a classified failure, so legacy
+// `DuckDbError.message` names the real problem instead of the generic default.
+const nativeFailureMessage = (cause: unknown): O.Option<string> =>
+  O.liftPredicate(cause, isSqlError).pipe(
+    O.map((error) => error.reason.cause),
+    O.filter(P.hasProperty("message")),
+    O.map((native) => native.message),
+    O.filter(P.isString)
+  );
+
 const connectionFailure =
   (
     operation: DuckDbOperation,
@@ -212,7 +224,7 @@ const connectionFailure =
     DuckDbError.fromUnknown(operation, cause, {
       databasePath: options.databasePath,
       ...O.getSomesStruct({
-        message: O.fromUndefinedOr(message),
+        message: O.orElse(O.fromUndefinedOr(message), () => nativeFailureMessage(cause)),
         statement: O.fromUndefinedOr(statement),
       }),
     });
@@ -306,7 +318,8 @@ const acquireScopedSharedConnection = (options: DuckDbConnectionOptions, scope: 
           finalizerRegistered = true;
           // Close under the op lock so a statement still running at teardown
           // settles first; closing mid-statement leaves its promise pending.
-          yield* Scope.addFinalizer(scope, native.gate.withLock(releaseNativeConnection(native)));
+          // The closed gate then refuses statements queued behind teardown.
+          yield* Scope.addFinalizer(scope, native.gate.close(releaseNativeConnection(native)));
         }
         return native;
       })

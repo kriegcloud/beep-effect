@@ -6184,10 +6184,10 @@
     },
     "@beep/duckdb": {
       "path": "packages/drivers/duckdb",
-      "lines": 96.8,
-      "statements": 96.61,
-      "branches": 91.91,
-      "functions": 94.62,
+      "lines": 96.87,
+      "statements": 96.68,
+      "branches": 92,
+      "functions": 94.73,
       "uncovered": {
         "lines": 19,
         "statements": 22,
@@ -6220,10 +6220,10 @@
           }
         },
         "packages/drivers/duckdb/src/DuckDb.service.ts": {
-          "lines": 91.17,
-          "statements": 89.9,
+          "lines": 91.58,
+          "statements": 90.35,
           "branches": 94.11,
-          "functions": 86.53,
+          "functions": 87.5,
           "uncovered": {
             "lines": 9,
             "statements": 11,
@@ -6342,7 +6342,7 @@
         "packages/drivers/duckdb/src/internal/gate.ts": {
           "lines": 100,
           "statements": 100,
-          "branches": 90,
+          "branches": 91.66,
           "functions": 100,
           "uncovered": {
             "lines": 0,

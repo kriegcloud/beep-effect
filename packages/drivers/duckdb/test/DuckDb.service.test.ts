@@ -905,6 +905,8 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
         expect(rows).toEqual([{ id: "live-1" }]);
 
         yield* Scope.close(clientScope, Exit.void);
+        const closed = yield* Effect.flip(sql`SELECT 1 AS n`);
+        expect(reasonTagOf(closed)).toBe("ConnectionError");
         const after = yield* Effect.promise(() =>
           liveConnection.runAndReadAll("SELECT count(*)::INTEGER AS n FROM live_connection_events")
         );
@@ -1429,6 +1431,7 @@ describe("DuckDb legacy re-base", { concurrent: false }, () => {
           const cause = O.getOrThrow(error.cause) as ClassifiedCause;
           expect(cause._tag).toBe("SqlError");
           expect(reasonTagOf(cause)).toBe("UniqueViolation");
+          expect(error.message).toContain("Constraint Error: Duplicate key");
         })
       );
     }

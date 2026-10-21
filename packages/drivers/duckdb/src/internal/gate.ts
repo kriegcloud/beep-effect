@@ -14,16 +14,26 @@
  */
 
 import * as Effect from "effect/Effect";
+import * as MutableRef from "effect/MutableRef";
 import * as Result from "effect/Result";
 import * as Scope from "effect/Scope";
 import * as Semaphore from "effect/Semaphore";
+import { ConnectionError, SqlError } from "effect/sql/SqlError";
 import { toSqlError } from "./classify.ts";
 import { ignoreNative } from "./native.ts";
-import type { SqlError } from "effect/sql/SqlError";
 
 type InterruptibleNative = {
   readonly interrupt?: (() => void) | undefined;
 };
+
+const closedGateError = (operation: string): SqlError =>
+  SqlError.make({
+    reason: ConnectionError.make({
+      cause: "closed",
+      message: "DuckDB connection is closed: its client scope has ended",
+      operation,
+    }),
+  });
 
 /**
  * Serializes native operations on one DuckDB connection and cancels them
@@ -37,7 +47,11 @@ type InterruptibleNative = {
  * canceller calls the connection's `interrupt()` once (ignoring failures and
  * fakes without `interrupt`) and then waits for the native promise to settle.
  * A result that resolves after cancellation goes to `onLateSuccess`, which
- * disposes it while the caller still holds the lock.
+ * disposes it while the caller still holds the lock. `close` runs its
+ * teardown under the lock and then marks the gate closed: every later native
+ * call fails with a `ConnectionError` without touching the connection, so a
+ * statement queued behind teardown can never start on a connection that is
+ * about to be closed.
  *
  * **Gotchas**
  *
@@ -96,12 +110,24 @@ export class NativeGate {
    */
   readonly withLock: <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
 
+  /**
+   * Runs a teardown effect under the op lock, then closes the gate so later
+   * native calls fail with `ConnectionError`.
+   *
+   * @since 0.0.0
+   */
+  readonly close: <A, E, R>(teardown: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+
   constructor(native: InterruptibleNative) {
     this.#native = native;
     this.#lock = Semaphore.makeUnsafe(1);
     const lock = this.#lock;
+    const closed = MutableRef.make(false);
 
     this.withLock = <A, E, R>(self: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => lock.withPermit(self);
+
+    this.close = <A, E, R>(teardown: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+      this.withLock(teardown.pipe(Effect.ensuring(Effect.sync(() => MutableRef.set(closed, true)))));
 
     this.runUnlocked = <A>(
       operation: string,
@@ -109,6 +135,10 @@ export class NativeGate {
       onLateSuccess?: ((a: A) => void) | undefined
     ): Effect.Effect<A, SqlError> =>
       Effect.callback<A, SqlError>((resume) => {
+        if (MutableRef.get(closed)) {
+          resume(Effect.fail(closedGateError(operation)));
+          return;
+        }
         let settled = false;
         let cancelled = false;
         const started = Result.try(f);

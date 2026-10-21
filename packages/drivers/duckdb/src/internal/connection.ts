@@ -159,7 +159,8 @@ export const isDuckDbConnection = (u: unknown): u is DuckDbConnection => P.hasPr
  * `connection.run` as well: DuckDB plans a parameterless prepared statement
  * once against the table statistics of that moment, so a cached copy can keep
  * returning stale results after later writes. The native connection itself is
- * never closed here.
+ * never closed here; once the connection scope closes, every later statement
+ * fails with `ConnectionError` without reaching it.
  *
  * **Example** (Wrap a native connection)
  *
@@ -216,13 +217,14 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
           }).pipe(Scope.provide(cacheScope))
         )
       : O.none();
-  // Once closed, `ScopedCache.get` interrupts its caller; a statement that
-  // outlives the client scope takes the direct path instead, like a statement
-  // without binds, and fails with the native connection error.
+  // Once closed, `ScopedCache.get` interrupts its caller, so a statement that
+  // outlives the client scope skips the cache; the closed gate then fails it
+  // with `ConnectionError` before it reaches the native connection, which the
+  // owner may be closing at that moment.
   const cacheClosed = MutableRef.make(false);
   yield* Scope.addFinalizer(
     connectionScope,
-    gate.withLock(
+    gate.close(
       Effect.sync(() => MutableRef.set(cacheClosed, true)).pipe(Effect.andThen(Scope.close(cacheScope, Exit.void)))
     )
   );
