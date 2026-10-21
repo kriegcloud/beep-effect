@@ -1,6 +1,6 @@
 import { Envelope, Journal, JsonlEvent, Line } from "@beep/jsonl";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { assert, describe, it } from "@effect/vitest";
+import { NodeServices } from "@effect/platform-node";
+import { assert, it } from "@effect/vitest";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -22,6 +22,10 @@ import * as TestClock from "effect/testing/TestClock";
  * visible. Everything provable against a double lives in `Journal.test.ts`;
  * what is here needs a real filesystem, principally `O_APPEND` behavior under
  * concurrency, which a double would only pretend to model.
+ *
+ * Every case canonicalizes its scoped temp directory with `realPath` before
+ * deriving a journal path: the cases compare file offsets and reopen one path
+ * from two layers, so every layer must see the same spelling of that path.
  */
 
 // Port note (schemaNumber): `S.Finite` replaces `Schema.Number`; no case needs NaN or Infinity.
@@ -31,8 +35,6 @@ const Started = JsonlEvent.make("started", {
 const events = [Started] as const;
 
 class TmpJournal extends Journal.Service<TmpJournal>()("test/TmpJournal", { events }) {}
-
-const platform = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
 // Port note (strictEffectProvide): providing a Layer through `Effect.provide`
 // is a tsgo error here, so this builds the layer into a scope that closes with
@@ -50,78 +52,81 @@ const provideLayer =
 // journal's own envelope encoder.
 const ForeignJson = S.fromJsonString(S.Unknown);
 
-/** Run `body` against a real journal file in a scoped temp directory. */
-const withJournal = Effect.fn("withJournal")(
-  function* <A, E>(
-    body: (journal: TmpJournal["Service"], path: string, fs: FileSystem.FileSystem) => Effect.Effect<A, E>
-  ) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const dir = yield* fs.makeTempDirectoryScoped();
-    const file = path.join(dir, "journal.jsonl");
-    // Bound ONCE, as the const-binding rule requires.
-    const layer = TmpJournal.layer({ path: file });
-    return yield* Effect.gen(function* () {
-      const journal = yield* TmpJournal;
-      yield* journal.create;
-      return yield* body(journal, file, fs);
-    }).pipe(provideLayer(layer));
-  },
-  Effect.scoped,
-  provideLayer(platform)
-);
+/** Run `body` against a real journal file in `dir`, the canonical temp directory the calling case owns. */
+const withJournal = Effect.fn("withJournal")(function* <A, E>(
+  dir: string,
+  body: (journal: TmpJournal["Service"], path: string) => Effect.Effect<A, E>
+) {
+  const path = yield* Path.Path;
+  const file = path.join(dir, "journal.jsonl");
+  // Bound ONCE, as the const-binding rule requires.
+  const layer = TmpJournal.layer({ path: file });
+  return yield* Effect.gen(function* () {
+    const journal = yield* TmpJournal;
+    yield* journal.create;
+    return yield* body(journal, file);
+  }).pipe(provideLayer(layer));
+});
 
-describe("Journal integration", () => {
+it.layer(NodeServices.layer, { timeout: "10 seconds" })("Journal integration", (it) => {
   it.effect("appends land on a real file and read back", () =>
-    withJournal((journal, path, fs) =>
-      Effect.gen(function* () {
-        yield* journal.append("started", { round: 1, phase: "a" });
-        yield* journal.append("started", { round: 2, phase: "b" });
-        const text = yield* fs.readFileString(path);
-        const decoded = Envelope.decodeAllResult(text, events);
-        assert.deepStrictEqual(decoded.map(Result.isSuccess), [true, true]);
-      })
-    )
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
+      yield* withJournal(dir, (journal, path) =>
+        Effect.gen(function* () {
+          yield* journal.append("started", { round: 1, phase: "a" });
+          yield* journal.append("started", { round: 2, phase: "b" });
+          const text = yield* fs.readFileString(path);
+          const decoded = Envelope.decodeAllResult(text, events);
+          assert.deepStrictEqual(decoded.map(Result.isSuccess), [true, true]);
+        })
+      );
+    })
   );
 
   it.effect("concurrent appends through one journal interleave no bytes", () =>
-    withJournal((journal, path, fs) =>
-      Effect.gen(function* () {
-        // Payloads large enough that an unserialized writer would visibly
-        // interleave, and distinct enough that a torn line is unmistakable.
-        const rounds = Array.from({ length: 40 }, (_, index) => index);
-        yield* Effect.forEach(rounds, (round) => journal.append("started", { round, phase: "x".repeat(200) }), {
-          concurrency: "unbounded",
-        });
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
+      yield* withJournal(dir, (journal, path) =>
+        Effect.gen(function* () {
+          // Payloads large enough that an unserialized writer would visibly
+          // interleave, and distinct enough that a torn line is unmistakable.
+          const rounds = Array.from({ length: 40 }, (_, index) => index);
+          yield* Effect.forEach(rounds, (round) => journal.append("started", { round, phase: "x".repeat(200) }), {
+            concurrency: "unbounded",
+          });
 
-        const text = yield* fs.readFileString(path);
-        const lines = Line.split(text);
-        assert.strictEqual(lines.length, rounds.length, "one line per append, none merged or split");
-        assert.isTrue(
-          lines.every((line) => line.terminated),
-          "every line is terminated"
-        );
+          const text = yield* fs.readFileString(path);
+          const lines = Line.split(text);
+          assert.strictEqual(lines.length, rounds.length, "one line per append, none merged or split");
+          assert.isTrue(
+            lines.every((line) => line.terminated),
+            "every line is terminated"
+          );
 
-        // The real assertion: every line decodes as a complete envelope, and
-        // the set of rounds is exactly what was written. A torn interleave
-        // would corrupt at least one line's JSON.
-        const decoded = Envelope.decodeAllResult(text, events);
-        assert.isTrue(decoded.every(Result.isSuccess), "no line was torn by interleaving");
-        const seen = decoded
-          .filter(Result.isSuccess)
-          // Port note (D15): the registry already types `data`, so upstream's cast is dropped.
-          .map((result) => result.success.data.round)
-          .sort((a, b) => a - b);
-        assert.deepStrictEqual(seen, rounds);
-      })
-    )
+          // The real assertion: every line decodes as a complete envelope, and
+          // the set of rounds is exactly what was written. A torn interleave
+          // would corrupt at least one line's JSON.
+          const decoded = Envelope.decodeAllResult(text, events);
+          assert.isTrue(decoded.every(Result.isSuccess), "no line was torn by interleaving");
+          const seen = decoded
+            .filter(Result.isSuccess)
+            // Port note (D15): the registry already types `data`, so upstream's cast is dropped.
+            .map((result) => result.success.data.round)
+            .sort((a, b) => a - b);
+          assert.deepStrictEqual(seen, rounds);
+        })
+      );
+    })
   );
 
   it.effect("a FOREIGN writer's line between two appends leaves offsets that tile the file", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const dir = yield* fs.makeTempDirectoryScoped();
+      const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
       const file = path.join(dir, "two-writers.jsonl");
       const layer = TmpJournal.layer({ path: file });
       const scope = yield* Scope.make();
@@ -165,14 +170,14 @@ describe("Journal integration", () => {
         assert.strictEqual(all[index]?.line.end, all[index + 1]?.line.offset, "no gap and no overlap");
       }
       yield* Scope.close(scope, Exit.void);
-    }).pipe(provideLayer(platform))
+    })
   );
 
   it.effect("latest survives a process-style reopen — a second layer reads the first's writes", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const dir = yield* fs.makeTempDirectoryScoped();
+      const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
       const file = path.join(dir, "journal.jsonl");
 
       const first = TmpJournal.layer({ path: file });
@@ -193,14 +198,14 @@ describe("Journal integration", () => {
       const envelope = O.getOrThrow(seen);
       assert.strictEqual(envelope.event, "started");
       assert.deepStrictEqual(envelope.data, { round: 11, phase: "written-by-first" });
-    }).pipe(provideLayer(platform))
+    })
   );
 
   it.effect("a real BOM'd journal reads cleanly with post-BOM offsets", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const dir = yield* fs.makeTempDirectoryScoped();
+      const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
       const file = path.join(dir, "bom.jsonl");
       const line = `${yield* S.encodeEffect(ForeignJson)({
         at: "2026-01-01T00:00:00.000Z",
@@ -218,7 +223,7 @@ describe("Journal integration", () => {
       const envelope = O.getOrThrow(seen);
       assert.strictEqual(envelope.line.offset, 0, "offsets are post-BOM relative");
       assert.deepStrictEqual(envelope.data, { round: 1, phase: "p" });
-    }).pipe(provideLayer(platform))
+    })
   );
 
   // THE FLAGSHIP — acceptance criterion 3.
@@ -238,7 +243,7 @@ describe("Journal integration", () => {
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const dir = yield* fs.makeTempDirectoryScoped();
+        const dir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
         const file = path.join(dir, "shared.jsonl");
 
         // Two independently-built layers over the same path — the stand-in for
@@ -267,7 +272,7 @@ describe("Journal integration", () => {
 
         yield* Scope.close(readerScope, Exit.void);
         yield* Scope.close(writerScope, Exit.void);
-      }).pipe(provideLayer(platform), Effect.timeout(Duration.seconds(20)), TestClock.withLive),
+      }).pipe(Effect.timeout(Duration.seconds(20)), TestClock.withLive),
     30_000
   );
 });
