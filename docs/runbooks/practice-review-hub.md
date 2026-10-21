@@ -60,8 +60,9 @@ journalctl --user -u practice-review-hub.service -f
 
 The hub binds `127.0.0.1` only. Other local OS users can reach that port and
 forge the proxy login header, so the server also requires an independent
-bearer token. Before starting it, create a random token of 32–256 characters
-in the approved secret store. Store its reference as
+bearer token. Before starting it, create a random token of 32–256 characters,
+using only letters, digits and `. _ ~ + / = -` (the Windows client scripts in
+section 8 accept nothing else), in the approved secret store. Store its reference as
 `PRACTICE_REVIEW_HUB_API_TOKEN` in the owner-only `hub.env` file. The sample
 unit uses `op run` to resolve it; do not use systemd `EnvironmentFile=` for
 `op://` references. Replace the unit's `REPLACE_WITH_OP_PATH` too.
@@ -296,25 +297,42 @@ history or in a command line. The sample scripts are in
 `apps/practice-review-hub/deploy/windows/`. On Windows, Claude Code runs the
 helper through `cmd.exe`.
 
-1. Put `headers.ps1` in `%LOCALAPPDATA%\beep\practice-review-hub\` on the
-   device and replace its `REPLACE_WITH_HUB_URL` with the hub URL. The helper
-   refuses to answer for any other server URL, so the token never goes
-   elsewhere.
-2. Store the token. Start `receive-token.ps1` in the attorney's desktop session
-   (for example a one-shot `schtasks /it` task, since an SSH session may not be
-   able to use DPAPI). It listens on a named pipe that only that Windows user
-   can open, with a random pipe name, and writes
-   `%LOCALAPPDATA%\beep\practice-review-hub\api-token.dpapi`. Then send the
-   token from the workstation on SSH standard input:
+1. Copy `headers.ps1` to `%LOCALAPPDATA%\beep\practice-review-hub\` on the
+   device, and copy `receive-token.ps1` and `send-token.ps1` to a working
+   folder there. In `headers.ps1`, replace `REPLACE_WITH_HUB_URL` with exactly
+   the `url` registered in step 3, port and `/mcp` included, for example
+   `https://<workstation>.<tailnet>.ts.net:8787/mcp`. The helper answers only
+   when Claude Code asks for that URL, so Claude Code does not send the token
+   to another server through it. DPAPI ties the file to the Windows user, not
+   to Claude Code: any program running as that user can decrypt it.
+2. Store the token. The receiver must run in the attorney's desktop session,
+   because an SSH session may not be able to use DPAPI. From an SSH session on
+   the device, start it as a one-shot interactive task with a new random pipe
+   name, and keep the name:
+
+   ```powershell
+   $pipe = "beep-hub-" + [guid]::NewGuid().ToString("N")
+   schtasks /create /f /tn beep-hub-token /sc once /st 23:59 /it /tr "powershell.exe -NoProfile -ExecutionPolicy Bypass -File <folder>\receive-token.ps1 -PipeName $pipe"
+   schtasks /run /tn beep-hub-token
+   $pipe
+   ```
+
+   The receiver writes `%LOCALAPPDATA%\beep\practice-review-hub\api-token.dpapi`
+   (the path `headers.ps1` reads) and reports to `<folder>\status-recv.txt`,
+   which it clears on start. The pipe accepts only that Windows user. Wait until
+   the status file says `listening`; any other line means stop. If another user
+   created a pipe with that name first, the receiver fails and never reports
+   `listening`. Then send the token from the workstation on SSH standard input:
 
    ```bash
    op read -n 'op://<vault>/<item>/<field>' \
-     | ssh <user>@<device> 'powershell -NoProfile -ExecutionPolicy Bypass -File <dir>\send-token.ps1 -PipeName <pipe>'
+     | ssh <user>@<device> 'powershell -NoProfile -ExecutionPolicy Bypass -File <folder>\send-token.ps1 -PipeName <pipe>'
    ```
 
-   The receiver's status file reports the token length and the first 12 hex
+   The status file then reports the token length and the first 12 hex
    characters of its SHA-256. Compare them with
-   `op read -n 'op://<vault>/<item>/<field>' | sha256sum`.
+   `op read -n 'op://<vault>/<item>/<field>' | sha256sum`, then remove the task
+   with `schtasks /delete /tn beep-hub-token /f`.
 3. Register the hub at user scope with the helper and no static `headers`. In
    Windows PowerShell 5.1, escape the JSON's double quotes as `\"`: it drops
    unescaped inner quotes when it calls a native command.
@@ -323,11 +341,21 @@ helper through `cmd.exe`.
    claude mcp add-json -s user practice-review-hub '{\"type\":\"http\",\"url\":\"https://<workstation>.<tailnet>.ts.net:8787/mcp\",\"headersHelper\":\"powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:/Users/<user>/AppData/Local/beep/practice-review-hub/headers.ps1\"}'
    ```
 
-4. `claude mcp get practice-review-hub` reports `Connected`. Check that the
-   token appears neither in `.claude.json` nor in the PowerShell history.
+4. `claude mcp get practice-review-hub` reports `Connected`. Check for leaks
+   without typing the token: this reads it from the DPAPI file into a variable
+   and must print nothing.
 
-To rotate the token, change the 1Password field, restart the hub and repeat
-step 2. Nothing in the device's Claude Code configuration changes.
+   ```powershell
+   Add-Type -AssemblyName System.Security
+   $t = [Text.Encoding]::ASCII.GetString([Security.Cryptography.ProtectedData]::Unprotect([IO.File]::ReadAllBytes("$env:LOCALAPPDATA\beep\practice-review-hub\api-token.dpapi"), $null, 'CurrentUser'))
+   Select-String -SimpleMatch -Pattern $t -Path $HOME\.claude.json, (Get-PSReadLineOption).HistorySavePath
+   Remove-Variable t
+   ```
+
+To rotate the token, generate one with letters and digits only (or the other
+characters section 2 allows), change the 1Password field, restart the hub and
+repeat step 2. Nothing in the device's Claude Code configuration changes.
+Re-create the section 7 `hub-auth.headers` file too if you keep one.
 
 Claude Desktop's chat does not read this registration. It would reach the hub
 through the practice gateway extension, which does not include the hub yet.

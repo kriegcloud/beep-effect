@@ -84,7 +84,8 @@ Closed (`completed-retained`). The operator turns the services on through
   a forged login on loopback and a tailnet request both get 403. Claude Code on the attorney's
   device has the four tools through a `headersHelper`: `claude mcp get` reports Connected and a
   `review_open_items` call returned the 11 open questions. The token is in none of its
-  configuration or history files. The daily notice timer is still off.
+  configuration or history files. The daily notice timer is on, first run 2026-10-21 08:30
+  America/Chicago.
 
 ## Notes
 

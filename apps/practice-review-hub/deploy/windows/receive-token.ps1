@@ -1,8 +1,13 @@
 # Runs in the device owner's desktop session (for example a one-shot schtasks /it task): receives the token on a user-only named pipe and stores it DPAPI-protected.
-param([Parameter(Mandatory)][string]$PipeName, [Parameter(Mandatory)][string]$OutPath, [Parameter(Mandatory)][string]$StatusPath)
+param(
+  [Parameter(Mandatory)][string]$PipeName,
+  [string]$OutPath = (Join-Path $env:LOCALAPPDATA 'beep\practice-review-hub\api-token.dpapi'),
+  [string]$StatusPath = (Join-Path $PSScriptRoot 'status-recv.txt')
+)
 $ErrorActionPreference = 'Stop'
 function Status([string]$line) { Add-Content -Path $StatusPath -Value $line -Encoding ascii }
 try {
+  Set-Content -Path $StatusPath -Value 'starting' -Encoding ascii
   Add-Type -AssemblyName System.Security
   Add-Type -AssemblyName System.Core
   $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User

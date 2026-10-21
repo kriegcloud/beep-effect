@@ -39,7 +39,7 @@ because the `question` member extends its `ReviewItem` union.
 - **The pane client.** The `practice-claude-mod-review-queue` follow-on calls the hub's four tools.
   The routing item is registered with the orchestrator. Until it lands, the attorney uses the tools
   from Claude Code (connected 2026-10-21); Claude Desktop's chat would reach them through the practice
-  gateway extension.
+  gateway extension. Every client must send the hub's bearer token (`research/P3B-HUB.md`, Auth).
 - **A crashed append.** Reads skip a trailing line still being written, but if a writer crashes
   mid-line, the next append joins onto the fragment and leaves a corrupt line that fails reads
   until repaired. Prefix each append with a newline guard when the file does not end in one.
