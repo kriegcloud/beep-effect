@@ -498,6 +498,27 @@ layer(
     })
   );
 
+  it.effect("refuses an exchange for a journal identity recorded without a mount id", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const target = yield* interrupted("recovery-older-identity-", "displace-then-fail");
+      // Journals written before #1944 keyed the filesystem as `device:type`; that
+      // key can never equal a mount-qualified identity, so recovery refuses.
+      const journal = yield* abandon(target.backups, (publication) =>
+        ModelsTrackedPublication.make({
+          ...publication,
+          filesystem: Str.replace(/^\d+:/, "")(publication.filesystem),
+        })
+      );
+      expect(trackedOf(journal.publication).filesystem).toMatch(/^\d+:\d+:test-rename$/);
+      const writer = yield* writerWith();
+      const [report] = yield* writer.recover(target.backups);
+      expect(report?.result).toMatchObject({ _tag: "refused", reason: "filesystem-changed" });
+      expect(yield* fileSha(target.file)).toBe(yield* textSha(intended));
+      expect(yield* fs.readFileString(trackedOf(journal.publication).staging)).toBe(competitor);
+    })
+  );
+
   for (const tamper of [
     "foreign-stage",
     "foreign-retained",

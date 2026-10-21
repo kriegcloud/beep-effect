@@ -150,6 +150,7 @@ SHA-256 of the raw target bytes. No crash-writer process outlives a run.
 | symlinked backup directory | restore through the resolved directory recovers |
 | property: every `ModelsTrackedPublication` | round-trips through the journal codec; dropping `publication` decodes to `legacy` |
 | `beep models recover` | prints each decision and the legacy count; exits non-zero on a refusal |
+| journal identity recorded without a mount id (pre-#1944 `device:type` key) | `refused`/`filesystem-changed`, no exchange; the stage keeps the competitor |
 
 All existing race, rollback and #1879 capability tests are unchanged and green.
 
@@ -184,6 +185,48 @@ spawn bun run docgen`; binding `</dev/null` fixes it.
 No crash-writer process or test temporary directory outlived any run. No baseline,
 inventory or exception rows are added (S31). The package is private, so no
 changeset.
+
+## Rebuilt on main after #1944 round 1
+
+The driver rebuilt the lane on `main` `bcb3509d54` (the #1879 base #1944 merged with
+its round-1 fixes, plus `@effect/tsgo` 0.54.1) and cherry-picked this work as
+`eecc366de4`. Round 1 made the filesystem identity mount-qualified
+(`ModelsExchangeFilesystemIdentity.mount` from `/proc/self/mountinfo`, key
+`mount:device:type`), added a `mount(path)` primitive to `ModelsExchangeSystemShape`,
+and split launch failures into `ModelsExchangeLaunchError` (an uncached
+`exchange-probe-failed`).
+
+- **Cause of the red matrix:** the crash-writer fixture built its own exchange system
+  from `identify` and `exchange` only, so the child died in `qualify` with
+  `system.mount is not a function` before printing `HALTED`. Every SIGKILL case
+  failed at its first assertion. The fixture is excluded from the test tsconfig,
+  so the type checker never saw it. The fix spreads the base system (`...base`),
+  so the child carries `mount` and any later primitive. The fixture was typechecked
+  through a scratch overlay.
+- **Identity:** `publication.filesystem` stores `modelsExchangeIdentityKey`, so new
+  journals record the mount-qualified key. A key written without a mount id still
+  decodes (it is a plain string), can never equal a mount-qualified identity, and
+  recovery refuses its exchange-back with `filesystem-changed`. A new test pins
+  that.
+- **Launch errors:** recovery reaches the exchange only through `requireExchange`
+  (`qualify`) and `ModelsAtomicExchange.exchange`, which map probe and launch
+  failures to typed `ModelsLocatorError`s. The journal stays `recovering` and is
+  retried on the next run. No recovery code change was needed.
+
+No assertion was weakened. Results after the fix, one heavy command at a time
+through `beep-heavy` with `</dev/null`:
+
+| Check | Result |
+| --- | --- |
+| models tests (9 files), Bun and Node | 171 passed on each, including all #1944 capability tests and 41 recovery tests |
+| effect-diagnostics `--filter repo-cli` (tsgo 0.54.1) | 0 in check and scripts overlays and in every #1880 file; 4 inherited `preferSchemaOverJson` errors in `test/quality-tsgo-git-visibility.test.ts` (#1951, untouched here) |
+| effect-vitest / schema-first | `introduced=0` / `introduced=0`, parity ok |
+| oxlint and biome on the changed files; fallow audit `--base origin/main --check` | clean; fallow verdict pass, 0 introduced |
+| jsdoc inventory + ratchet | `increased=0`, zero-legacy ok |
+| observability and schema catalogs `--write` | no diff (current) |
+| retired-effect-paths; goals doctor | 0; no new blocking |
+| package-verify `@beep/repo-cli` | `ok docgen`; audit red only on `test/architecture-operation-plan.test.ts` (ENOENT for the #1941 migration `20261021041032_row_version_default`, which the architecture generator does not produce); inherited from #1941 `2a42813ca1`, nothing here touches it |
+| coverage | the full ratchet cannot report while that inherited test fails, and a direct full run with `reportOnFailure` was SIGTERMed by the host. A scoped run over the models tests puts every changed file at or above its baseline row: `Models.apply.service.ts` 95.89/93.82/88.63/90.68 (baseline 93.52/90.4/83.06/85.07), `Models.command.ts` 88.15/88.15/89.01/76.47 (70.23/70.58/33.33/50), `Models.errors.ts`, `Models.manifest.schemas.ts`, `Models.exchange.schemas.ts` 100 |
 
 ## Route and model evidence
 

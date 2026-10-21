@@ -101,7 +101,7 @@ const main = Effect.gen(function* () {
   });
   const base = yield* makeModelsTestExchangeSystem();
   const system: ModelsExchangeSystemShape = {
-    identify: base.identify,
+    ...base,
     exchange: (left, right) =>
       base
         .exchange(left, right)
