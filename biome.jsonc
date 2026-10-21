@@ -260,7 +260,21 @@
         "useNumberNamespace": "error",
         "useConsistentArrowReturn": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "noUselessElse": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "uuid": "Use the effect/Crypto service: randomUUIDv4, randomUUIDv7, or digest for name-based ids. uuid is not a repository dependency."
+            },
+            "patterns": [
+              {
+                "group": ["uuid/**"],
+                "message": "Use the effect/Crypto service: randomUUIDv4, randomUUIDv7, or digest for name-based ids. uuid is not a repository dependency."
+              }
+            ]
+          }
+        }
       }
     }
   },

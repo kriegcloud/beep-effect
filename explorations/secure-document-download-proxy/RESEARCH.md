@@ -220,18 +220,20 @@ Already present to compose against (verified via `rg`/`ls`, 2026-06-29):
   `EntityTable.models.ts` (`packages/drivers/drizzle/src/index.ts`),
   `EntityId` (`packages/shared/domain/src/entity/EntityId.ts`), and the `$I` identity
   composer (`packages/foundation/modeling/identity/src/Id.ts`).
-- **Crypto/id primitives present, including repo-native UUID modeling** —
-  `@noble/hashes@^2.2.0` (HMAC-SHA256/BLAKE2b, `package.json:77`) and `uuid@^14.0.1`
-  (`package.json:230`, catalog-pinned, v4 via `crypto.getRandomValues` CSPRNG). Do
-  not start from the raw `uuid` package alone (Codex gate-1): `@beep/schema` exported a
-  branded `UUID` string schema (its `String` concept, via `S.isUUID()`; retired on
-  2026-09-29 in favor of the upstream `S.Trim.check(S.isNonEmpty(), S.isUUID())`) and
-  a `Model.UuidV4Insert` / `Model.UuidV4WithGenerate` v4 insert helper
-  (`packages/foundation/modeling/schema/src/Model/Model.uuid.ts:71-96`, exported at
-  `Model/index.ts:34`). Note `S.isUUID()` validates *general* RFC 4122, not
-  strict-v4 — derive a named `StrictUuidV4PdfBasename` schema from that composition
-  only if the route must reject non-v4 UUIDs and enforce the `.pdf` suffix in one
-  decoded path-param model, documenting why the general schema is insufficient.
+- **Crypto/id primitives present** —
+  `@noble/hashes@^2.4.0` (HMAC-SHA256/BLAKE2b, `package.json:70`) and the
+  `effect/Crypto` service (`randomUUIDv4` / `randomUUIDv7` over the platform CSPRNG
+  that `BunCrypto.layer` / `NodeCrypto.layer` provide). The `uuid` package is not a
+  repository dependency, and the root and effect-ontology biome configs reject
+  importing it. Do not start from a bare id generator alone (Codex gate-1).
+  `@beep/schema` once exported a branded `UUID` string schema (its `String`
+  concept, via `S.isUUID()`; retired in #1343 in favor of the upstream
+  `S.Trim.check(S.isNonEmpty(), S.isUUID())`) and a `Model.UuidV4Insert` /
+  `Model.UuidV4WithGenerate` v4 insert helper (deleted with `Model.uuid.ts` in
+  #720). `S.isUUID()` validates *general* RFC 4122; `S.isUUID(4)` checks strict
+  v4. Derive a named `StrictUuidV4PdfBasename` schema from `S.isUUID(4)` only if
+  the route must reject non-v4 UUIDs and enforce the `.pdf` suffix in one decoded
+  path-param model, documenting why the general schema is insufficient.
 - **`Redacted` is a repo-wide idiom** — used in `@beep/uspto`, `@beep/sanity`
   (`packages/drivers/sanity/src/Sanity.{service,config,errors}.ts`), and the
   ai-metrics archive key. The "key never lands in logs" guard is established.
@@ -360,9 +362,10 @@ own a desktop serve route); (d) `apps/professional-desktop` is the *wiring host*
   `Schema` decode *and* the store lookup; never let the regex stand alone.
 - `iron-webcrypto` PBKDF2 iterations default to 1 — acceptable only with a
   high-entropy 32+ byte server key; never feed it a low-entropy secret.
-- `uuid@14` v4 relies on a CSPRNG (`crypto.getRandomValues`); confirm the sidecar
-  runtime provides one, or mint the id from `crypto.randomUUID()` / a 32-byte
-  `getRandomValues` — UNVERIFIED for the exact Bun-sidecar runtime.
+- `effect/Crypto` `randomUUIDv4` draws its bytes from the provided `Crypto` layer
+  (`node:crypto` `randomBytes` under `BunCrypto.layer` / `NodeCrypto.layer`); confirm
+  the sidecar runtime provides that layer — UNVERIFIED for the exact Bun-sidecar
+  runtime.
 - Tauri desktop runtime assumed (vs Electron/Next) for the OS-keyring
   recommendation — UNVERIFIED in this pass; `apps/professional-desktop/src-tauri`
   exists, so Tauri is likely, but confirm before locking the keyring path.
