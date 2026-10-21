@@ -1,7 +1,7 @@
 import { DuckDbClient, DuckDbClientConfigData, DuckDbMigrator, DuckDbTestLayer } from "@beep/duckdb";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import { decimalValue } from "@duckdb/node-api";
+import { DuckDBTimestampTZValue, decimalValue } from "@duckdb/node-api";
 import { assert, describe, expect } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -363,6 +363,33 @@ describe("DuckDbClient", { concurrent: false }, () => {
           big: "294247-01-10 04:00:54.775806",
           small: "290309-12-22 (BC) 00:00:00",
         });
+      })
+    );
+
+    it.effect(
+      "reads an out-of-range TIMESTAMPTZ as its UTC string under a non-UTC host offset",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        // The upstream class captures the host offset once at module load;
+        // pin it to +05:30 so the read runs as if the process TZ were not UTC.
+        const row = yield* Effect.acquireUseRelease(
+          Effect.sync(() => {
+            const saved = DuckDBTimestampTZValue.timezoneOffsetInMinutes;
+            DuckDBTimestampTZValue.timezoneOffsetInMinutes = 330;
+            return saved;
+          }),
+          () =>
+            sql`SELECT
+              '294247-01-10 04:00:54.775806+00'::TIMESTAMPTZ AS big,
+              '290309-12-22 (BC) 00:00:00+00'::TIMESTAMPTZ AS small`,
+          (saved) =>
+            Effect.sync(() => {
+              DuckDBTimestampTZValue.timezoneOffsetInMinutes = saved;
+            })
+        );
+        assert.deepStrictEqual(row, [
+          { big: "294247-01-10 04:00:54.775806+00", small: "290309-12-22 (BC) 00:00:00+00" },
+        ]);
       })
     );
 

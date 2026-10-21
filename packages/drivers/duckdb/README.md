@@ -307,7 +307,7 @@ on those keys changes them.
 | VARCHAR, JSON, ENUM, UUID | `string` | same |
 | BLOB | `Uint8Array` | same |
 | BIT | bit `string` (`"101"`) | same |
-| DATE, TIMESTAMP (all precisions), TIMESTAMPTZ | `Date` floored to the millisecond, also before 1970; `infinity`/`-infinity` as those strings at every precision; other values outside the JS `Date` range as their `string` form | same |
+| DATE, TIMESTAMP (all precisions), TIMESTAMPTZ | `Date` floored to the millisecond, also before 1970; `infinity`/`-infinity` as those strings at every precision; other values outside the JS `Date` range as their `string` form (TIMESTAMPTZ in UTC, `+00`, whatever the process `TZ`) | same |
 | TIME, TIMETZ, TIME_NS | `string` (`"12:34:56.123456"`) | same |
 | INTERVAL | `{ months, days, micros }` with `micros: number` | `micros: bigint` |
 | LIST, ARRAY | array | same |
