@@ -351,6 +351,22 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "reads DATE and TIMESTAMP values outside the JS Date range as their strings",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        const [row] = yield* sql`SELECT
+          '5877642-06-25'::DATE AS d,
+          '294247-01-10 04:00:54.775806'::TIMESTAMP AS big,
+          '290309-12-22 (BC) 00:00:00'::TIMESTAMP AS small`;
+        assert.deepStrictEqual(row, {
+          d: "5877642-06-25",
+          big: "294247-01-10 04:00:54.775806",
+          small: "290309-12-22 (BC) 00:00:00",
+        });
+      })
+    );
+
+    it.effect(
       "floors pre-epoch sub-millisecond timestamps instead of rounding toward the epoch",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
@@ -525,6 +541,42 @@ describe("DuckDbClient", { concurrent: false }, () => {
         );
         assert.deepStrictEqual(firstThree, [{ i: 0 }, { i: 1 }, { i: 2 }]);
         assert.deepStrictEqual(yield* sql`SELECT 1 AS one`, [{ one: 1 }]);
+      })
+    );
+
+    it.effect(
+      "cancels a stream during its first native pull and releases the op lock",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        // No row matches, so the first pull scans the whole range until it is cancelled.
+        const [elapsed, exit] = yield* sql`SELECT range AS i FROM range(20000000000) WHERE range % 7 = 99`.stream.pipe(
+          Stream.runCount,
+          Effect.timeout("300 millis"),
+          Effect.exit,
+          Effect.timed,
+          TestClock.withLive
+        );
+        pipe(exit, Exit.isFailure, assertTrue);
+        assert.isBelow(Duration.toMillis(elapsed), 2000);
+        assert.deepStrictEqual(yield* sql`SELECT ${1} AS n`, [{ n: 1 }]);
+      })
+    );
+
+    it.effect(
+      "releases the op lock when a blocked stream consumer is interrupted between pulls",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`CREATE TABLE stream_cancel_t (id INTEGER)`;
+        const exit = yield* sql<{ readonly i: number }>`SELECT range AS i FROM range(10000)`.stream.pipe(
+          Stream.runForEach((row) => (row.i === 5 ? Effect.never : Effect.void)),
+          Effect.timeout("300 millis"),
+          Effect.exit,
+          TestClock.withLive
+        );
+        pipe(exit, Exit.isFailure, assertTrue);
+        assert.deepStrictEqual(yield* sql`SELECT ${2} AS n`, [{ n: 2 }]);
+        yield* sql.withTransaction(sql`INSERT INTO stream_cancel_t VALUES (${1})`);
+        assert.deepStrictEqual(yield* sql`SELECT id FROM stream_cancel_t`, [{ id: 1 }]);
       })
     );
 

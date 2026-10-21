@@ -9,8 +9,9 @@
  * cleared before every bind; `USE` and `SET`/`RESET schema|search_path`
  * invalidate that cache. The connection tracks the DuckDB transaction phase,
  * emulates the `SAVEPOINT` pair `SqlClient.make` generates for nested
- * transactions, and exposes the safe `COMMIT` that refuses a transaction
- * DuckDB already aborted or that lost a nested rollback.
+ * transactions, and guards every `COMMIT` (the one `withTransaction` issues and
+ * raw `COMMIT`/`END` text sent inside a transaction) so it is refused when
+ * DuckDB already aborted the transaction or it lost a nested rollback.
  *
  * @packageDocumentation
  * @internal
@@ -272,6 +273,41 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     return gate.withLock(Effect.tap(run, () => invalidate));
   };
 
+  const setIdle = Effect.sync(() => MutableRef.set(state, TransactionPhase.Idle()));
+
+  // Applies the commit decision of the current phase (D3): `commitNow` runs
+  // only when no failure was recorded, or the abort probe shows DuckDB still
+  // holds a healthy transaction; a refusal goes to `refuse`.
+  const guardedCommit = <A>(
+    commitNow: Effect.Effect<A, SqlError>,
+    refuse: (error: SqlError) => Effect.Effect<never, SqlError>
+  ): Effect.Effect<A, SqlError> =>
+    Effect.suspend(() =>
+      CommitDecision.$match(state.pipe(MutableRef.get, decideCommit), {
+        Refuse: ({ error }) => refuse(error),
+        ProbeThenCommit: ({ failure }) =>
+          gate
+            .run("commitTransaction", () => native.run(ABORT_PROBE_SQL))
+            .pipe(
+              Effect.matchEffect({
+                onFailure: (probeError) =>
+                  isAbortedTransactionError(probeError)
+                    ? refuse(refusedCommit("aborted", failure))
+                    : Effect.fail(probeError),
+                onSuccess: () => commitNow,
+              })
+            ),
+        Commit: () => commitNow,
+      })
+    );
+
+  // A raw `COMMIT` has no `onCommitFailure` to clean up after a refusal, so the
+  // driver rolls the transaction back itself before failing.
+  const rollBackThenFail = (error: SqlError): Effect.Effect<never, SqlError> =>
+    gate
+      .run("rollbackTransaction", () => native.run("ROLLBACK"))
+      .pipe(Effect.ensuring(setIdle), Effect.ignore, Effect.andThen(Effect.fail(error)));
+
   const runStatement = <A>(
     sql: string,
     params: ReadonlyArray<unknown>,
@@ -295,7 +331,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       if (isBlank(sql)) {
         return Effect.succeed(empty);
       }
-      return Effect.fromResult(normalizeParameters(params, operation)).pipe(
+      const run = Effect.fromResult(normalizeParameters(params, operation)).pipe(
         Effect.flatMap((binds) =>
           Effect.flatMap(currentConverter, (converter) =>
             runLocked(sql, binds, prepared, control, operation, read, converter)
@@ -305,6 +341,7 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
         Effect.tapError((error) => Effect.sync(() => MutableRef.update(state, afterFailure(control, error)))),
         Effect.onInterrupt(() => Effect.sync(() => MutableRef.update(state, afterInterrupt(control, operation))))
       );
+      return active && control === "commit" ? guardedCommit(run, rollBackThenFail) : run;
     });
 
   const runRows = (
@@ -345,25 +382,9 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       )
     );
 
-  const commitNow = gate
-    .run("commitTransaction", () => native.run("COMMIT"))
-    .pipe(Effect.ensuring(Effect.sync(() => MutableRef.set(state, TransactionPhase.Idle()))), Effect.asVoid);
-
-  const commit: Effect.Effect<void, SqlError> = Effect.suspend(() =>
-    CommitDecision.$match(state.pipe(MutableRef.get, decideCommit), {
-      Refuse: ({ error }) => Effect.fail(error),
-      ProbeThenCommit: ({ failure }) =>
-        gate
-          .run("commitTransaction", () => native.run(ABORT_PROBE_SQL))
-          .pipe(
-            Effect.matchEffect({
-              onFailure: (probeError) =>
-                Effect.fail(isAbortedTransactionError(probeError) ? refusedCommit("aborted", failure) : probeError),
-              onSuccess: () => commitNow,
-            })
-          ),
-      Commit: () => commitNow,
-    })
+  const commit: Effect.Effect<void, SqlError> = guardedCommit(
+    gate.run("commitTransaction", () => native.run("COMMIT")).pipe(Effect.ensuring(setIdle), Effect.asVoid),
+    Effect.fail
   );
 
   const connection: DuckDbConnection = {

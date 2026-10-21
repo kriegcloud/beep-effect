@@ -139,6 +139,36 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
     );
 
     it.effect(
+      "refuses a raw COMMIT after a swallowed constraint error and rolls back",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_raw_commit (id INTEGER PRIMARY KEY)`;
+        yield* sql.unsafe("BEGIN TRANSACTION");
+        yield* sql`insert into tx_raw_commit values (1)`;
+        const duplicate = yield* sql`insert into tx_raw_commit values (1)`.pipe(Effect.flip);
+        const error = yield* sql.unsafe("COMMIT").pipe(Effect.flip);
+        expect(duplicate.reason._tag).toBe("UniqueViolation");
+        expectRefusedCommit(error, ABORTED_MESSAGE);
+        expect(yield* countRows(sql, "tx_raw_commit")).toBe(0);
+        yield* sql`insert into tx_raw_commit values (2)`;
+        expect(yield* countRows(sql, "tx_raw_commit")).toBe(1);
+      })
+    );
+
+    it.effect(
+      "commits a raw transaction after a swallowed parser error",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_raw_parser (id INTEGER)`;
+        yield* sql.unsafe("BEGIN TRANSACTION");
+        yield* sql`insert into tx_raw_parser values (1)`;
+        yield* sql.unsafe("frobnicate nonsense from").pipe(Effect.ignore);
+        yield* sql.unsafe("COMMIT");
+        expect(yield* countRows(sql, "tx_raw_parser")).toBe(1);
+      })
+    );
+
+    it.effect(
       "keeps the connection usable after a refused commit",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;

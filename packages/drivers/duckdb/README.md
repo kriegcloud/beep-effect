@@ -203,7 +203,10 @@ its connection only after a statement still running at teardown settles. A file 
   discarding every write. When a statement in the transaction failed or was
   interrupted, the client probes before committing. If DuckDB aborted the transaction, the
   commit fails instead. A swallowed parser or binder error does not abort
-  anything and still commits.
+  anything and still commits. The same guard covers raw `COMMIT`/`END` text
+  sent inside a transaction you opened with raw `BEGIN`: when it is refused,
+  the client runs `ROLLBACK` itself and the `COMMIT` fails with the same
+  `UnknownError`.
 - **Commit-time conflicts** classify as `SerializationError` and are retryable.
 - **Concurrent Migrator runs** on one file from two clients are not
   coordinated by a lock: the loser fails with `SerializationError` or dies, never

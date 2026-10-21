@@ -81,20 +81,22 @@ const temporal =
     toMillisFloor: (value: V) => DuckDBValue
   ): TypeConverter =>
   (value, type, self) => {
-    if (!isValue(value)) {
-      return delegate(value, type, self);
-    }
-    const units = raw(value);
-    if (units === raw(sentinels.PosInf)) {
-      return "infinity";
-    }
-    if (units === raw(sentinels.NegInf)) {
-      return "-infinity";
-    }
-    return Result.getOrElse(
-      Result.try(() => delegate(toMillisFloor(value), type, self)),
-      () => String(value)
-    );
+    const read = (temporalValue: V): JS => {
+      const units = raw(temporalValue);
+      if (units === raw(sentinels.PosInf)) {
+        return "infinity";
+      }
+      if (units === raw(sentinels.NegInf)) {
+        return "-infinity";
+      }
+      return Result.getOrElse(
+        Result.try(() => delegate(toMillisFloor(temporalValue), type, self)),
+        () => String(temporalValue)
+      );
+    };
+    // Each converter is registered for its own type id, so `isValue` only
+    // narrows the value; the delegate arm is defensive.
+    return isValue(value) ? read(value) : delegate(value, type, self);
   };
 
 const instanceGuard =
