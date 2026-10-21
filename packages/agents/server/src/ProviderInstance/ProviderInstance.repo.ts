@@ -21,7 +21,7 @@ import {
 } from "@beep/agents-use-cases/server";
 import { PostgresDrizzle } from "@beep/postgres";
 import { CuidState } from "@beep/schema/Cuid";
-import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
+import { nextRowVersion, RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import { Principal } from "@beep/shared-domain/entity/Principal";
 import * as PublicEntityId from "@beep/shared-domain/entity/PublicEntityId";
 import * as Agents from "@beep/shared-domain/identity/Agents";
@@ -80,11 +80,10 @@ const insertFromCommand = Effect.fn("Agents.ProviderInstanceRepository.insertFro
     updatedAt: now,
     updatedByPrincipal: scope.principal,
   }).pipe(unavailable("construct ProviderInstance"));
-  // `rowVersion` is omitted: the column's SQL default seeds the first version.
-  const encoded: ProviderInstanceInsert = yield* encodeProviderInstanceInsert(insert).pipe(
-    unavailable("encode ProviderInstance")
-  );
-  return encoded;
+  const encoded = yield* encodeProviderInstanceInsert(insert).pipe(unavailable("encode ProviderInstance"));
+  // Write the first version explicitly: `agents_provider_instance` is not under a
+  // db-admin migration, so an existing table may lack the kit's `DEFAULT 1`.
+  return { ...encoded, rowVersion: RowVersion.make(1) } satisfies ProviderInstanceInsert;
 });
 
 /**

@@ -46,7 +46,9 @@ fields from that variant (pg and sqlite, runtime and types). Before this change
 
 DDL: `row_version integer NOT NULL` becomes `row_version integer DEFAULT 1 NOT
 NULL` on every entity table. One generated db-admin migration sets the default.
-The desktop migration bundle is regenerated from it.
+The desktop migration bundle is regenerated from it. A table outside the
+db-admin migrations (`agents_provider_instance`) gets no default from this
+migration, so its adapter keeps writing the first version explicitly.
 
 ### 2. Service contract: repository ports
 

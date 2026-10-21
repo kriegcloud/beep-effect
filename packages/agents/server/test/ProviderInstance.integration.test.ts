@@ -147,7 +147,7 @@ const prepareTable = Effect.fnUntraced(function* () {
       updated_at bigint NOT NULL,
       updated_by_principal jsonb NOT NULL,
       source text NOT NULL,
-      row_version integer DEFAULT 1 NOT NULL,
+      row_version integer NOT NULL,
       org_id integer NOT NULL,
       binary_path text NOT NULL,
       env_vars jsonb NOT NULL,
@@ -231,7 +231,8 @@ describe("ProviderInstance PGLite integration", { concurrent: false }, () => {
         const useCases = yield* ProviderInstanceUseCases;
         const repository = yield* ProviderInstanceRepository;
         const added = yield* useCases.add(makeAddCommand("Before the race"));
-        // The insert omits rowVersion, so the column default seeds it.
+        // The table has no DEFAULT (it predates the kit default), so this proves
+        // the insert writes the first version itself.
         expect(added.rowVersion).toBe(1);
 
         yield* Ref.set(
