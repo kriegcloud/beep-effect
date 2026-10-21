@@ -11,11 +11,12 @@
 import * as NodeBuffer from "node:buffer";
 import * as NodeZlib from "node:zlib";
 import { A, O, P } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import {
   PDFArray,
   PDFDict,
@@ -135,10 +136,12 @@ const sameBytes = (a: Uint8Array, b: Uint8Array): boolean =>
 // definition (the one pdf-lib keeps) first.
 const dataOffsets = (text: string, ref: PDFRef): ReadonlyArray<number> =>
   pipe(
-    A.fromIterable(text.matchAll(new RegExp(`(?<!\\d)${ref.objectNumber}\\s+${ref.generationNumber}\\s+obj`, "g"))),
+    A.fromIterable(
+      Str.matchAll(new RegExp(`(?<!\\d)${ref.objectNumber}\\s+${ref.generationNumber}\\s+obj`, "g"))(text)
+    ),
     A.flatMap((header) => {
       const pattern = new RegExp(streamStart.source, "g");
-      pattern.lastIndex = header.index + header[0].length;
+      pattern.lastIndex = O.getOrElse(constant(0))(O.fromUndefinedOr(header.index)) + header[0].length;
       const keyword = pattern.exec(text);
       return keyword === null ? [] : [keyword.index + keyword[0].length];
     }),
@@ -157,7 +160,7 @@ const dataAtDeclaredLength = (file: PdfFile, ref: PDFRef, parsed: Uint8Array, le
   return A.findFirst(dataOffsets(file.text(), ref), (start) =>
     start + length <= file.bytes.length &&
     sameBytes(file.bytes.subarray(start, start + shared), parsed.subarray(0, shared)) &&
-    endstreamNext.test(file.text().slice(start + length, start + length + 64))
+    endstreamNext.test(Str.slice(start + length, start + length + 64)(file.text()))
       ? O.some(file.bytes.subarray(start, start + length))
       : O.none()
   );
@@ -208,13 +211,13 @@ const headerBefore = (bytes: Uint8Array, at: number): O.Option<readonly [PDFRef,
   const from = Math.max(0, at - HEADER_WINDOW);
   // Keep only the last match: dense fake headers must not allocate an array
   // of every match in each overlapping window.
-  let last: O.Option<RegExpExecArray> = O.none();
-  for (const header of latin1.decode(bytes.subarray(from, at)).matchAll(objectHeader)) {
+  let last: O.Option<RegExpMatchArray> = O.none();
+  for (const header of Str.matchAll(objectHeader)(latin1.decode(bytes.subarray(from, at)))) {
     last = O.some(header);
   }
   return O.map(last, (header): readonly [PDFRef, number] => [
     PDFRef.of(Number(header[1]), Number(header[2])),
-    from + header.index + header[0].length,
+    from + O.getOrElse(constant(0))(O.fromUndefinedOr(header.index)) + header[0].length,
   ]);
 };
 

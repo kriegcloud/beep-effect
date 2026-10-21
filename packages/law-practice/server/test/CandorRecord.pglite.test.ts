@@ -45,6 +45,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import type { CitingApplicationIdentity } from "@beep/law-practice-domain";
 import type { CandorRecordRepositoryShape } from "@beep/law-practice-use-cases/CandorRecord";
@@ -90,7 +91,7 @@ const FILING_B: CitingApplicationIdentity.Encoded = {
   officeCode: "EP",
 };
 
-const digest = `sha256:${"a".repeat(64)}`;
+const digest = `sha256:${Str.repeat(64)("a")}`;
 
 const decodeScope = S.decodeUnknownEffect(CandorFilingScope);
 
@@ -465,7 +466,9 @@ if (!shouldRunPgliteIntegration) {
 
           for (const table of candorTableNames) {
             const plan = yield* explainFilingRead(table);
-            const tenantIndexNode = A.findFirst(plan, (node) => node["Index Name"]?.includes("org_id") === true);
+            const tenantIndexNode = A.findFirst(plan, (node) =>
+              O.exists(O.fromUndefinedOr(node["Index Name"]), Str.includes("org_id"))
+            );
 
             assertTrue(O.isSome(tenantIndexNode), `${table} plan did not use an org_id index`);
             expect(

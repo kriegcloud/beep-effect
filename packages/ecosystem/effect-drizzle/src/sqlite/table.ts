@@ -7,6 +7,7 @@
  * @since 0.0.0
  */
 // fallow-ignore-file code-duplication -- pg/sqlite are deliberately mirrored dialect implementations; shared logic lives in src/core and the remaining parallelism is per-dialect vocabulary that must evolve independently (doc 14 family; review at next dialect addition)
+
 import { is as isDrizzleEntity, sql } from "drizzle-orm";
 import {
   check,
@@ -28,6 +29,7 @@ import {
 import { fromUndefinedOr, getOrElse, match } from "effect/Option";
 import { hasProperty, isFunction } from "effect/Predicate";
 import { empty, get, values as recordValues, set, toEntries } from "effect/Record";
+import { replaceAll } from "effect/String";
 import { validateSchemaNames } from "../core/assembly.ts";
 import * as Field from "../core/Field.ts";
 import * as Meta from "../core/Meta.ts";
@@ -292,7 +294,7 @@ const enumChecks = (
     const column = columns[key];
     if (!isDrizzleEntity(column, SQLiteColumn)) return [];
     const values = sql.join(
-      map(meta.column.values, (value) => sql.raw(`'${value.replaceAll("'", "''")}'`)),
+      map(meta.column.values, (value) => sql.raw(`'${replaceAll("'", "''")(value)}'`)),
       sql`, `
     );
     return [check(`${model.sql.tableName}_${snakeCase(key)}_enum_check`, sql`${column} in (${values})`)];

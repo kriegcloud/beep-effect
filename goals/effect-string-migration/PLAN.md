@@ -22,9 +22,10 @@ wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
 | Wave | Packages | Sites | State |
 | --- | --- | ---: | --- |
 | 1 | libpff, box-provisioning, qa-capture, ontology-use-cases, brand, agents-domain, freshbooks, repo-docgen, ontology-server, tika, nlp, hubspot, workspace-domain | 193 | merged (#1968) |
-| 2 | technical-drawing, epistemic-server, epistemic-domain, law-practice-use-cases, law-practice-domain, epistemic-ui, documents-domain, m365, occt, openclaw, db-admin, practice-identify, documents-server, html, todox, agents-server, m365-mcp, uspto, epistemic-tables, file-processing, law-practice-tables, shared-use-cases, repo-configs, fc-runs | 145 | in review |
-| 3 | the 37 packages whose site files open lanes were editing on 2026-10-21 (effect-drizzle, ai-metrics, pdf-tools, editor, professional-desktop, acp and others) | about 385 | pending |
-| 4 | repo-cli (674) and the root (16), then the pin moves to 0.55+ and the rule is armed | about 690 | pending |
+| 2 | technical-drawing, epistemic-server, epistemic-domain, law-practice-use-cases, law-practice-domain, epistemic-ui, documents-domain, m365, occt, openclaw, db-admin, practice-identify, documents-server, html, todox, agents-server, m365-mcp, uspto, epistemic-tables, file-processing, law-practice-tables, shared-use-cases, repo-configs, fc-runs | 145 | merged (#1976) |
+| 3 | effect-drizzle, repo-ai-metrics, pdf-tools, nlp-processing, law-practice-server, semantica, identity, infra, ciops, mcp-kit, ui, oip-web, wink, test-runner, practice-gateway, ontology, box, ai-sync, windows-secrets, rdf, practice-setup, openai-compat, nlp-mcp, mcpb-kit | 237 | in review |
+| 4 | the 13 packages with open-lane hunks near their sites on 2026-10-21 (editor, professional-desktop, test-utils, schema, lint-rules, practice-claude-mod, repo-utils, storybook, utils, shared-domain, observability, acp, ai-provider-cli) | about 150 | pending |
+| 5 | repo-cli (674) and the root (16), then the pin moves to 0.55+ and the rule is armed | about 690 | pending |
 
 Wave proof, per package: the package's tests, `package-verify --quick`, and a
 temporary local `@effect/tsgo` 0.55.0 install with `preferEffectString` armed,
@@ -34,6 +35,11 @@ temporary install is reverted before commit. Coverage is compared per changed
 source file against main's version on the same machine (lcov uncovered counts).
 From wave 2 on, the site list is regenerated on the lane's own base with the
 temporary install rather than read from the 2026-10-21 census.
+A package joins a wave when none of its sites lies within three lines of a
+hunk that an open PR or lane changes, measured against each lane's merge
+base. Callback replacers use `replaceWith`/`replaceAllWith` from
+`@beep/utils/Str`, except in packages `@beep/utils` depends on (such as
+`@beep/identity`), which rewrite the call without it.
 
 ## Closeout Checklist
 

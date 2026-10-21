@@ -17,6 +17,7 @@ import { FileSystem } from "effect/FileSystem";
 import { build as buildLayer } from "effect/Layer";
 import { isNone, isSome } from "effect/Option";
 import { String as StringSchema, TaggedError, Unknown } from "effect/Schema";
+import * as Str from "effect/String";
 import { buildBundleConsumer, bundleConsumerEntrypointId, esbuildVersion } from "./bundle-build.ts";
 import committedBaseline from "./bundle-size.baseline.json" with { type: "json" };
 import { compareBundleSize, formatBundleSizeLine, minimumBundleRawBytes } from "./bundle-size.ts";
@@ -33,7 +34,7 @@ const measureBundleConsumer = fnUntraced(function* () {
     try: buildBundleConsumer,
     catch: (cause) => BundleProbeError.make({ message: "Bundle build rejected", cause }),
   });
-  if (!artifact.text.includes("integer")) {
+  if (!Str.includes("integer")(artifact.text)) {
     return yield* BundleProbeError.make({
       message: "Bundle artifact lost the consumer surface (no integer symbol) — over-shaken stub",
       cause: { rawBytes: artifact.rawBytes },
@@ -77,14 +78,14 @@ const writeBaseline = fnUntraced(function* (rawBytes: number) {
 });
 
 const injectedBaseline = (): number | undefined => {
-  const argument = findFirst(Bun.argv, (value) => value.startsWith(testBaselineArgumentPrefix));
+  const argument = findFirst(Bun.argv, (value) => Str.startsWith(testBaselineArgumentPrefix)(value));
   if (isNone(argument)) return undefined;
-  const value = Number(argument.value.slice(testBaselineArgumentPrefix.length));
+  const value = Number(Str.slice(testBaselineArgumentPrefix.length)(argument.value));
   return Number.isSafeInteger(value) && value >= 0 ? value : undefined;
 };
 
 const resolveBaseline = () => {
-  const argument = findFirst(Bun.argv, (value) => value.startsWith(testBaselineArgumentPrefix));
+  const argument = findFirst(Bun.argv, (value) => Str.startsWith(testBaselineArgumentPrefix)(value));
   const baseline = injectedBaseline();
   if (isSome(argument) && baseline === undefined) {
     return fail(BundleProbeError.make({ message: "Invalid injected test baseline", cause: argument.value }));

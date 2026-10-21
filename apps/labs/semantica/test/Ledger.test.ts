@@ -9,6 +9,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { F1FixtureId } from "@/fixtures/F1";
 import { LedgerLive } from "@/layers/LedgerLive";
 import { FixtureDeclaration, Origin, SourceDocument } from "@/schema/Document";
@@ -18,8 +19,8 @@ import { ParseOutcome } from "@/schema/Text";
 import { Ledger } from "@/services/Ledger";
 import { LedgerLiveOptions } from "../src/layers/LedgerLive.ts";
 
-const runId = RunId.make("a".repeat(64));
-const documentId = DocumentId.make("b".repeat(64));
+const runId = RunId.make(Str.repeat(64)("a"));
+const documentId = DocumentId.make(Str.repeat(64)("b"));
 const ingestedBody = EventBody.cases.Ingested.make({ document: documentId, kind: "Ingested" });
 const ingestedId = Result.getOrThrow(makeProvenanceEventId({ body: ingestedBody, prev: O.none() }));
 const ingested = ProvenanceEvent.make({ body: ingestedBody, id: ingestedId, prev: O.none() });

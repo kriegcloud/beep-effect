@@ -24,6 +24,7 @@ import * as Graph from "effect/Graph";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { Sentence } from "@beep/nlp/Core/Sentence";
 import type { Token } from "@beep/nlp/Core/Token";
 import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend";
@@ -52,7 +53,7 @@ const backend: NLPBackendShape = {
     tokenization: false,
   }),
   tokenize: Effect.fn("test.backend.tokenize")(function* (text: string) {
-    return text.split(" ");
+    return Str.split(" ")(text);
   }),
   sentencize: Effect.fn("test.backend.sentencize")(function* (text: string) {
     return [text];

@@ -349,7 +349,7 @@ const notificationRows = Effect.fnUntraced(function* (store: NotifierStore) {
   const files = A.sort(yield* fs.readDirectory(store.notificationDir), Str.Order);
   const rows = yield* Effect.forEach(files, (file) =>
     Effect.map(fs.readFileString(path.join(store.notificationDir, file)), (contents) =>
-      A.filter(contents.split("\n"), (line) => line.length > 0)
+      A.filter(Str.split("\n")(contents), (line) => line.length > 0)
     )
   );
 
@@ -378,7 +378,7 @@ const breakerEventRows = Effect.fnUntraced(function* (store: NotifierStore) {
   const files = yield* fs.readDirectory(store.circuitEventDir);
   const rows = yield* Effect.forEach(files, (file) =>
     Effect.map(fs.readFileString(path.join(store.circuitEventDir, file)), (contents) =>
-      A.filter(contents.split("\n"), (line) => line.length > 0)
+      A.filter(Str.split("\n")(contents), (line) => line.length > 0)
     )
   );
 
@@ -515,7 +515,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("sequence-break notifica
         { status: "skipped", reason: "bracket-resolved" },
       ]);
       pipe(
-        A.every(yield* notificationRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* notificationRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
     })
@@ -577,7 +577,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("sequence-break notifica
       expect(desktop).not.toContain("\u001b");
       expect(yield* fs.readFileString(`${store.stateHome}/phone.txt`)).not.toContain("clone");
       pipe(
-        A.every(yield* notificationRows(store), (row) => !row.includes("clone")),
+        A.every(yield* notificationRows(store), (row) => !Str.includes("clone")(row)),
         assertTrue
       );
       expect(yield* fs.readFileString(store.dampingPath)).not.toContain("clone");
@@ -633,7 +633,7 @@ esac
       expect(opened).toBe(`${uri}\n`);
       expect(yield* fs.readFileString(`${store.stateHome}/desktop.txt`)).toContain("--action=default=Open task");
       pipe(
-        A.every(yield* notificationRows(store), (row) => !row.includes(uri)),
+        A.every(yield* notificationRows(store), (row) => !Str.includes(uri)(row)),
         assertTrue
       );
     })
@@ -785,7 +785,7 @@ esac
             const store = yield* makeNotifierStore();
             const sessionDigest = yield* hashPrivateIdentifier(rawSessionId, O.none());
             const cwdDigest = yield* hashPrivateIdentifier(rawCwd, O.none());
-            const prePath = store.hookPath.replace(SESSION_ID, sessionDigest);
+            const prePath = Str.replace(SESSION_ID, sessionDigest)(store.hookPath);
             yield* fs.writeFileString(
               prePath,
               `${yield* preToolUseLine(sessionDigest, cwdDigest, "2020-01-01T00:00:00.000Z")}\n`
@@ -1094,7 +1094,7 @@ cat "$HOME/resolve.ndjson" >>'${store.hookPath}'
       const sessionDigest = yield* hashPrivateIdentifier(rawSessionId, O.none());
       const cwdDigest = yield* hashPrivateIdentifier(rawCwd, O.none());
       const preLine = yield* preToolUseLine(sessionDigest, cwdDigest, "2020-01-01T00:00:00.000Z");
-      const prePath = store.hookPath.replace(SESSION_ID, sessionDigest);
+      const prePath = Str.replace(SESSION_ID, sessionDigest)(store.hookPath);
       yield* fs.writeFileString(prePath, `${preLine}\n`);
 
       const run = yield* runWriter(
@@ -1109,7 +1109,7 @@ cat "$HOME/resolve.ndjson" >>'${store.hookPath}'
         "ntfy:skipped",
       ]);
       pipe(
-        A.every(yield* notificationRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* notificationRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
     })
@@ -1123,7 +1123,7 @@ cat "$HOME/resolve.ndjson" >>'${store.hookPath}'
       const rawCwd = "/workspace/sequence-break-detached";
       const sessionDigest = yield* hashPrivateIdentifier(rawSessionId, O.none());
       const cwdDigest = yield* hashPrivateIdentifier(rawCwd, O.none());
-      const prePath = store.hookPath.replace(SESSION_ID, sessionDigest);
+      const prePath = Str.replace(SESSION_ID, sessionDigest)(store.hookPath);
       yield* fs.writeFileString(prePath, `${yield* preToolUseLine(sessionDigest, cwdDigest)}\n`);
 
       expectSilentSuccess(
@@ -1140,7 +1140,7 @@ cat "$HOME/resolve.ndjson" >>'${store.hookPath}'
         A.map(notifications, ({ delivery, sessionId, transport }) => `${sessionId}:${transport}:${delivery.status}`)
       ).toEqual([`${sessionDigest}:desktop:sent`, `${sessionDigest}:ntfy:skipped`]);
       pipe(
-        A.every(yield* notificationRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* notificationRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
     })
@@ -1164,11 +1164,11 @@ cat "$HOME/resolve.ndjson" >>'${store.hookPath}'
         "network:probe-succeeded",
       ]);
       pipe(
-        A.every(yield* notificationRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* notificationRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
       pipe(
-        A.every(yield* breakerEventRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* breakerEventRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
     })

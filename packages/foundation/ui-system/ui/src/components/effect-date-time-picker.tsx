@@ -13,6 +13,7 @@
  * @since 0.0.0
  */
 
+import { replaceWith } from "@beep/utils/Str";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -484,7 +485,7 @@ export class AdapterEffectDateTime {
       pppp: "h:mm:ss aa",
     };
 
-    return format.replace(/P{1,4}|p{1,4}/gu, (match) => expansions[match] ?? match);
+    return replaceWith(/P{1,4}|p{1,4}/gu, (match) => expansions[match] ?? match)(format);
   };
 
   public isValid = (value: DateTime.DateTime | null | undefined): value is DateTime.DateTime =>

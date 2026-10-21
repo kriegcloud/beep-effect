@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeResultStoreStoredResult = S.decodeEffect(ResultStore.StoredResult);
 const encodeResultStoreStoredResult = S.encodeEffect(ResultStore.StoredResult);
@@ -129,7 +130,11 @@ describe("Operation constructors", () => {
   it.effect(
     "pure mints one child node per produced value",
     Effect.fnUntraced(function* () {
-      const op = Operation.expand({ name: "chars", description: "", f: (s: string) => s.split("") });
+      const op = Operation.expand({
+        name: "chars",
+        description: "",
+        f: (s: string) => (s.length === 0 ? [] : Str.split("")(s)),
+      });
       const root = yield* EG.makeNode("ab");
       const children = yield* op.apply(root);
       expect(children.length).toBe(2);
@@ -248,7 +253,7 @@ describe("ResultStore", () => {
 });
 
 describe("GraphExecutor", () => {
-  const upper = Operation.transform({ name: "upper", description: "", f: (s: string) => s.toUpperCase() });
+  const upper = Operation.transform({ name: "upper", description: "", f: (s: string) => Str.toUpperCase(s) });
 
   it.layer(Executor.GraphExecutorTest)("applies an operation to leaf nodes, producing new nodes", (it) => {
     it.effect(

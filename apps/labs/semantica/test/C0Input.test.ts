@@ -260,7 +260,7 @@ describe("C0 F1 input services", () => {
             if (fixture.id === "md-unicode") {
               expect(canonical.text).toContain("\r\n");
               pipe(
-                A.some(chunks, (chunk) => chunk.anchor.quote.includes("🧑🏽‍🔬")),
+                A.some(chunks, (chunk) => Str.includes("🧑🏽‍🔬")(chunk.anchor.quote)),
                 assertTrue
               );
             }

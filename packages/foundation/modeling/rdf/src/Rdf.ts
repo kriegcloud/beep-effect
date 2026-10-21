@@ -1177,7 +1177,7 @@ const escapeLiteralLexical: (value: string) => string = Str.replaceAllWith(/[\\"
 // contains `[A-Za-z0-9_]`, all of which are valid in an N-Triples `BLANK_NODE_LABEL`.
 const toBlankNodeEscape = (ch: string): string =>
   pipe(
-    O.fromNullishOr(ch.codePointAt(0)),
+    Str.codePointAt(0)(ch),
     O.match({
       onNone: () => ch,
       onSome: (code) => `_u${pipe(code.toString(16), Str.toUpperCase, Str.padStart(4, "0"))}`,

@@ -289,7 +289,7 @@ const extensionSuffix = /\.[^.]+$/u;
  * than guessing.
  */
 const sourceDocumentStem = (filename: string): string =>
-  Str.toLowerCase(filename.replace(batchOrdinalPrefix, "").replace(extensionSuffix, ""));
+  Str.toLowerCase(Str.replace(extensionSuffix, "")(Str.replace(batchOrdinalPrefix, "")(filename)));
 
 const sourceDocumentDigestsSql = `
 SELECT digest
