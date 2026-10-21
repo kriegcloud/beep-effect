@@ -127,6 +127,7 @@ with tempfile.TemporaryDirectory(dir=parent) as directory:
     (tool/'.alchemy').mkdir();(tool/'.alchemy/state.json').write_text('{"version":1}')
     archive_env={**os.environ,'PATH':str(archivebin)+os.pathsep+os.environ['PATH'],'XDG_CACHE_HOME':str(cache_root),'XDG_STATE_HOME':str(state_root)}
     run([str(source/'alchemy.sh'),'plan'],archive_env)
+    assert (tool/'pilot/alchemy.run.ts').read_bytes()==(source/'alchemy.run.ts.template').read_bytes()
     durable=state_root/'beep/r2-cache/alchemy';(durable/'state.json').write_text('{"version":2}')
     run([str(source/'alchemy.sh'),'plan'],archive_env)
     archives=list(durable.parent.glob('state-before-plan-*.tar.gz'));assert len(archives)==2

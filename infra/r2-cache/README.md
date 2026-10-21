@@ -11,7 +11,11 @@ No task becomes cacheable as part of this transport change.
 
 ## Ownership, pins and deployment state
 
-`alchemy.run.ts` retains the pilot stack/resource identity and bucket name to avoid
+The tracked template is copied to `pilot/alchemy.run.ts` in the pinned Alchemy workspace,
+where its Alchemy and Effect dependencies are installed. It is not a member of this
+repository’s TypeScript workspace.
+
+`alchemy.run.ts.template` retains the pilot stack/resource identity and bucket name to avoid
 replacing the already deployed bucket. Managed public access is disabled. Artifacts
 expire after 30 days; incomplete multipart uploads expire after one day. Nonempty
 destruction is disabled. Tokens are not Alchemy resources or stack outputs.

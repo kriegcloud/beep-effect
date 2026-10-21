@@ -136,9 +136,6 @@
     // member): esbuild bundles it into the deployed ZIP via infra/lambda/turbo-cache/build.sh,
     // so nothing in the workspace import graph reaches it.
     "infra/lambda/**",
-    // Copied into the checksum-pinned external Alchemy workspace by alchemy.sh.
-    // Its unpublished provider dependencies belong to that isolated tool install.
-    "infra/r2-cache/alchemy.run.ts",
     "**/test/fixtures/**",
     "**/examples/**",
     "**/postcss.config.*",

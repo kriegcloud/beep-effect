@@ -33,7 +33,7 @@ if [[ -L "$tool/.alchemy" ]]; then
 else
   ln -s "$state" "$tool/.alchemy"
 fi
-cp "$source_dir/alchemy.run.ts" "$tool/pilot/alchemy.run.ts"
+cp "$source_dir/alchemy.run.ts.template" "$tool/pilot/alchemy.run.ts"
 archive="$(mktemp --suffix=.tar.gz "$(dirname "$state")/state-before-${action}-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")"
 (cd "$(dirname "$state")" && tar -czf "$archive" alchemy)
 cd "$tool"
