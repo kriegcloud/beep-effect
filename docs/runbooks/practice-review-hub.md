@@ -127,6 +127,11 @@ systemctl --user restart practice-review-hub.service
 
 The match is exact and case-sensitive.
 
+Interim: since 2026-10-20 the deployed hub allows the operator's own login, which the
+attorney's device shares, until the attorney has a login of their own. While that holds,
+every device on that login reaches the hub. The decision and how to reverse it are in the
+[attorney-question-loop Decision Log](../../goals/attorney-question-loop/SPEC.md#decision-log).
+
 ## 5. Docket intake writes the questions
 
 Add the data directory to the docket intake environment file
@@ -252,6 +257,8 @@ The answer is HTTP 200 with `"supportedVersions":["2026-07-28"]` and the
 server name `practice-review-hub`. On Windows run the same command as
 `curl.exe`, one line. The same request from a device signed in as any other
 login, the operator's own devices included, gets 403.
+Under the interim identity in section 4, the operator's devices share the allowed login
+and get 200 instead.
 
 The hub tolerates in-progress appends: a last line that has no line break yet
 is left for the next read, so docket intake can store questions while the hub
