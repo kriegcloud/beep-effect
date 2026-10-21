@@ -242,6 +242,13 @@ query the caller runs on that connection outside the client.
   the file and is refused with `ConnectionError` while this process holds the
   same file read-write. In-process readers of a file you also write should use
   the read-write client.
+- The refusal works in both directions. While a `readOnly` client of a file is
+  open, a later read-write `DuckDbClient` open of that file fails with
+  `ConnectionError` (retryable; the native cause is DuckDB's `Can't open a
+  connection to same database file with a different configuration`), and the
+  legacy `DuckDb` service fails its first statement with `DuckDbError`
+  (`Failed to open DuckDB connection.`). Read-write opens succeed again once
+  every read-only client of the file has closed.
 - Opening one file twice with different `databaseOptions` fails with
   `ConnectionError` (DuckDB compares the configuration).
 - `ATTACH` and `LOAD` act on the database instance. An alias attached by one
@@ -382,7 +389,7 @@ DDL for it.
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
 | `backup` | not provided (COPY FROM DATABASE fails on foreign-key order) |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
-| READ_ONLY client beside a read-write client of the same file in one process | refused with `ConnectionError`; share the read-write client instead |
+| READ_ONLY client beside a read-write client of the same file in one process, in either open order | the later open is refused with `ConnectionError`; share the read-write client instead |
 
 ## Testing
 

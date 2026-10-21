@@ -1503,3 +1503,52 @@ describe("DuckDb legacy re-base", { concurrent: false }, () => {
     }
   );
 });
+
+const DIFFERENT_CONFIGURATION = "Can't open a connection to same database file with a different configuration";
+
+describe("DuckDbClient read-only first open", { concurrent: false }, () => {
+  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "blocks later read-write opens of the same file until the read-only client closes",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const databasePath = path.join(tmpDir, "read-only-first.duckdb");
+
+        const seedScope = yield* Scope.make();
+        const seed = (yield* DuckDbClient.make({ databasePath }).pipe(Scope.provide(seedScope))).withoutTransforms();
+        yield* seed`CREATE TABLE ro_first_events (id INTEGER)`;
+        yield* seed`INSERT INTO ro_first_events VALUES (${1})`;
+        yield* Scope.close(seedScope, Exit.void);
+
+        const readerScope = yield* Scope.make();
+        const reader = (yield* DuckDbClient.make({ databasePath, readOnly: true }).pipe(
+          Scope.provide(readerScope)
+        )).withoutTransforms();
+
+        const refused = yield* DuckDbClient.make({ databasePath }).pipe(Effect.flip);
+        expect(reasonTagOf(refused)).toBe("ConnectionError");
+        expect(refused.reason.isRetryable).toBe(true);
+        expect(String(refused.reason.cause)).toContain(DIFFERENT_CONFIGURATION);
+
+        const legacyContext = yield* Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath })));
+        const legacyError = yield* Context.get(legacyContext, DuckDb)
+          .query("SELECT id FROM ro_first_events")
+          .pipe(Effect.flip);
+        expect(legacyError._tag).toBe("DuckDbError");
+        expect(legacyError.message).toBe("Failed to open DuckDB connection.");
+        expect(String(O.getOrUndefined(legacyError.cause))).toContain(DIFFERENT_CONFIGURATION);
+
+        expect(yield* reader<{ readonly id: number }>`SELECT id FROM ro_first_events`).toEqual([{ id: 1 }]);
+        yield* Scope.close(readerScope, Exit.void);
+
+        const writer = (yield* DuckDbClient.make({ databasePath })).withoutTransforms();
+        yield* writer`INSERT INTO ro_first_events VALUES (${2})`;
+        expect(yield* writer<{ readonly id: number }>`SELECT id FROM ro_first_events ORDER BY id`).toEqual([
+          { id: 1 },
+          { id: 2 },
+        ]);
+      })
+    );
+  });
+});

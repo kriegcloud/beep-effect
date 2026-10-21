@@ -86,6 +86,7 @@ SPEC; D44 onward record what implementation changed or learned.
 | D55 | Raw `COMMIT`/`END` text run inside a transaction goes through the same commit decision as `withTransaction`'s commit; on a refusal the driver runs `ROLLBACK` and fails with the refused-commit `UnknownError` (`guardedCommit` in `src/internal/connection.ts`) | a raw `BEGIN` / swallowed constraint error / raw `COMMIT` reported success and wrote nothing although the tracker had recorded the failure (review round 2); the raw caller has no `onCommitFailure`, so the driver cleans up | send raw COMMIT straight to DuckDB and document the gap |
 | D56 | Legacy `DuckDbError.message` carries the native DuckDB diagnostic of a classified statement failure when no explicit message is given | the cause moved to a `SqlError` in B2, which put the native text two levels down | keep the generic default message |
 | D57 | A list whose number items bind as different types takes the widest, INTEGER < BIGINT < DOUBLE, recursively through nested lists (`[1, 2.5]` is `DOUBLE[]`, `[1, 3e9]` is `BIGINT[]`) in `bindTypes` (R2-05) | upstream `typeForValue` types a list from its first item, so `[1, 2.5]` bound as `INTEGER[]` and failed with "number is not an integer"; every JS number is a double, so widening loses nothing the caller had | keep failing and point at a typed `listValue` |
+| D58 | A read-write open of a file that a `readOnly` client holds in the same process is refused, not queued or downgraded: `DuckDbClient` fails with `ConnectionError`, the legacy service fails its first statement with `DuckDbError` (R2-CI-1, test in `test/DuckDb.service.test.ts`) | both opens go through `fromCache`, which refuses a second open of a cached file with a different configuration; letting RW through would need a private instance and bring back the D35 hazard | close the read-only client first, or open read-write only |
 
 ## Known hazards
 
@@ -98,6 +99,11 @@ SPEC; D44 onward record what implementation changed or learned.
   and closing it releases the process's file lock while the RW instance is
   still open, so another process can then open the file read-write. The new
   client never does this: its READ_ONLY opens are refused beside RW.
+- **A `readOnly` client opened first blocks read-write opens of the file.**
+  While it is open, a read-write `DuckDbClient` of the same file in the same
+  process fails with `ConnectionError` and the legacy service fails its first
+  statement with `DuckDbError` (D58). Open order matters: a process that opens
+  a reader before its writer cannot write until every reader closes.
 - **Two legacy RW opens of one file with different `databaseOptions`** now
   fail with `Connection Error ... different configuration` instead of silently
   splitting the database (B1 moved legacy RW to `fromCache`). None was found in
