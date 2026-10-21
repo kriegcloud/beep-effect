@@ -12,8 +12,8 @@ import { LawPracticeFixtureKey, LawPracticeText } from "../LawPracticeEntity.fie
 
 const $I = $LawPracticeDomainId.create("entities/Rejection/Rejection.values");
 
-const RejectionStatute = LiteralKit(["102", "103", "101", "112"]).annotate(
-  $I.annote("RejectionStatute", {
+const RejectionStatute = LiteralKit(["102", "103", "101", "112"]).pipe(
+  $I.annoteSchema("RejectionStatute", {
     description: "Patent statute sections supported by law-practice rejection grounds.",
   })
 );

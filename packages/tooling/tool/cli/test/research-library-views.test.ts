@@ -40,6 +40,8 @@ import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -87,7 +89,7 @@ const transcriptApiVariation = (scenario: string) => {
       xmlDoctype: '<!DOCTYPE transcript [<!ENTITY speaker "&lt;script&gt;alert(1)&lt;/script&gt;">]>',
       xmlText: "&speaker;",
     },
-    "entity expansion limit": { xmlText: "&euro;".repeat(100_001) },
+    "entity expansion limit": { xmlText: Str.repeat(100_001)("&euro;") },
     "wrong player": { playerId: "other-video" },
     "wrong timed target": { timedId: "other-video" },
     "wrong origin": { origin: "creator" },
@@ -1180,7 +1182,9 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       );
       yield* renderLibrary(root);
       const card = yield* fs.readFileString(path.join(root, "sources/s/index.html"));
-      expect(card.indexOf(`artifact-${current.id}-`)).toBeLessThan(card.indexOf("artifact-history-"));
+      expect(O.getOrElse(constant(-1))(Str.indexOf(`artifact-${current.id}-`)(card))).toBeLessThan(
+        O.getOrElse(constant(-1))(Str.indexOf("artifact-history-")(card))
+      );
       expect(card).toContain("<details><summary>Retained history — not validated reading evidence</summary>");
     })
   );
@@ -1215,7 +1219,7 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
         artifacts: [originalMarkdown, originalHtml, response],
       });
       expect(yield* librarySourceEvidenceValid(root, A.getUnsafe(catalog.sources, 0), capture)).toBe(true);
-      const altered = yield* make("altered.md", markdown.slice(1), "extracted-full-text", "text/markdown");
+      const altered = yield* make("altered.md", Str.slice(1)(markdown), "extracted-full-text", "text/markdown");
       expect(
         yield* librarySourceEvidenceValid(
           root,
@@ -1375,10 +1379,10 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       yield* git(["remote", "add", "origin", "https://github.com/owner/repo.git"]);
       yield* fs.writeFileString(path.join(clone, "target.ts"), "export const target = true;\n");
       yield* fs.writeFileString(path.join(clone, "README.md"), "A different document\n");
-      yield* fs.writeFileString(path.join(clone, "large.txt"), "fixture ".repeat(1_100_000));
+      yield* fs.writeFileString(path.join(clone, "large.txt"), Str.repeat(1_100_000)("fixture "));
       yield* git(["add", "--", "target.ts", "README.md", "large.txt"]);
       yield* git(["-c", "core.hooksPath=/dev/null", "commit", "-m", "test: retain evidence fixture"]);
-      const revision = (yield* git(["rev-parse", "HEAD"])).trim();
+      const revision = Str.trim(yield* git(["rev-parse", "HEAD"]));
       const make = Effect.fn(function* (name: string, text: string, role: string) {
         return LibraryArtifact.make({
           ...(yield* saveImmutable(root, `evidence/${name}`, new TextEncoder().encode(text))),
@@ -1682,10 +1686,10 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
       yield* fs.writeFileString(path.join(clone, "target.ts"), "export const target = false;\n");
       yield* git(["add", "target.ts"]);
       yield* git(["-c", "core.hooksPath=/dev/null", "commit", "-m", "test: change cited target"]);
-      const child = (yield* git(["rev-parse", "HEAD"])).trim();
+      const child = Str.trim(yield* git(["rev-parse", "HEAD"]));
       const legacyPull = yield* make(
         "legacy-pull.json",
-        yield* fixtureJson([{ ...pullBody, head: { sha: "f".repeat(40) }, changed_files: 1 }]),
+        yield* fixtureJson([{ ...pullBody, head: { sha: Str.repeat(40)("f") }, changed_files: 1 }]),
         "raw-discussion"
       );
       const legacyDiff = yield* make(

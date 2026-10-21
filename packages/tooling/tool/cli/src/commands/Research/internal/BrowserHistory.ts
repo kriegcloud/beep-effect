@@ -141,14 +141,17 @@ export const readProfileHistory = Effect.fn("BrowserHistory.readProfileHistory")
   yield* fs
     .makeDirectory(scratchDir, { recursive: true })
     .pipe(ResearchCommandError.mapError(`Failed creating history scratch directory "${scratchDir}".`));
-  const copyPath = path.join(scratchDir, `${profile.browser}-${profile.profile.replaceAll(" ", "_")}-History.sqlite`);
+  const copyPath = path.join(
+    scratchDir,
+    `${profile.browser}-${Str.replaceAll(" ", "_")(profile.profile)}-History.sqlite`
+  );
   yield* fs
     .copyFile(profile.historyPath, copyPath)
     .pipe(ResearchCommandError.mapError(`Failed copying locked history database "${profile.historyPath}".`));
 
   // sqlite_scan requires a literal string argument, so the path cannot be a
   // bound parameter; it is a locally-derived temp path with quotes escaped.
-  const escapedPath = copyPath.replaceAll("'", "''");
+  const escapedPath = Str.replaceAll("'", "''")(copyPath);
   const statement = `SELECT
       url AS "url",
       COALESCE(title, '') AS "title",
@@ -265,7 +268,7 @@ const decodeLowercasedString = S.decodeUnknownOption(S.String.pipe(S.decode(Sche
  * @category utilities
  */
 export const canonicalizeForSift = (url: string): string => {
-  const repoMatch = url.match(/^https?:\/\/(github|gitlab)\.com\/([^/?#]+)\/([^/?#]+)/i);
+  const repoMatch = O.getOrNull(Str.match(/^https?:\/\/(github|gitlab)\.com\/([^/?#]+)\/([^/?#]+)/i)(url));
   if (repoMatch !== null) {
     return O.match(decodeLowercasedString(repoMatch[1]), {
       onNone: () => url,

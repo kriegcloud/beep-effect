@@ -76,12 +76,14 @@ const BoxConflictResourceType = LiteralKit(["file", "folder", "web_link"]).pipe(
 );
 
 const BoxProviderResourceId = S.String.check(
-  S.isPattern(/^[0-9]{1,32}$/u, {
-    identifier: $I`BoxProviderResourceIdPattern`,
-    title: "Box provider resource id",
-    description: "One to 32 decimal digits identifying a Box resource without carrying its name.",
-    message: "Expected a Box provider resource id",
-  })
+  S.isPattern(
+    /^[0-9]{1,32}$/u,
+    $I.annote("BoxProviderResourceIdPattern", {
+      title: "Box provider resource id",
+      description: "One to 32 decimal digits identifying a Box resource without carrying its name.",
+      message: "Expected a Box provider resource id",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxProviderResourceId", {
     description: "Numeric Box resource identifier safe to retain in driver diagnostics.",
@@ -89,12 +91,14 @@ const BoxProviderResourceId = S.String.check(
 );
 
 const BoxContentSha1 = S.String.check(
-  S.isPattern(/^[0-9a-f]{40}$/u, {
-    identifier: $I`BoxContentSha1Pattern`,
-    title: "Box content SHA-1",
-    description: "Forty lowercase hexadecimal digits: the content hash Box reports for a file.",
-    message: "Expected a lowercase hexadecimal SHA-1",
-  })
+  S.isPattern(
+    /^[0-9a-f]{40}$/u,
+    $I.annote("BoxContentSha1Pattern", {
+      title: "Box content SHA-1",
+      description: "Forty lowercase hexadecimal digits: the content hash Box reports for a file.",
+      message: "Expected a lowercase hexadecimal SHA-1",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxContentSha1", {
     description: "Lowercase hexadecimal SHA-1 content hash safe to retain in driver diagnostics.",
@@ -206,12 +210,14 @@ export class BoxApiFailureContext extends S.Class<BoxApiFailureContext, { readon
 ) {}
 
 const BoxErrorCode = S.String.check(
-  S.isPattern(/^[a-z][a-z0-9_]{0,127}$/u, {
-    identifier: $I`BoxErrorCodePattern`,
-    title: "Box error code",
-    description: "Bounded lowercase classification syntax used by Box API error codes.",
-    message: "Expected a Box error code",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9_]{0,127}$/u,
+    $I.annote("BoxErrorCodePattern", {
+      title: "Box error code",
+      description: "Bounded lowercase classification syntax used by Box API error codes.",
+      message: "Expected a Box error code",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxErrorCode", {
     description: "Bounded Box API error classification safe to retain in diagnostics.",
@@ -219,12 +225,14 @@ const BoxErrorCode = S.String.check(
 );
 
 const BoxRequestId = S.String.check(
-  S.isPattern(/^[A-Za-z0-9._:-]{1,200}$/u, {
-    identifier: $I`BoxRequestIdPattern`,
-    title: "Box request id",
-    description: "Bounded technical identifier syntax accepted for Box request correlation.",
-    message: "Expected a Box request id",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9._:-]{1,200}$/u,
+    $I.annote("BoxRequestIdPattern", {
+      title: "Box request id",
+      description: "Bounded technical identifier syntax accepted for Box request correlation.",
+      message: "Expected a Box request id",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxRequestId", {
     description: "Technical Box request identifier safe to retain in diagnostics.",
@@ -272,24 +280,27 @@ type BoxErrorCause = typeof BoxErrorCause.Type;
 const BoxHttpStatusCode = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(100, {
-        identifier: $I`BoxHttpStatusCodeMinimumCheck`,
-        title: "Box HTTP status code minimum",
-        description: "Box HTTP status codes must be at least 100.",
-        message: "Expected an HTTP status code greater than or equal to 100",
-      }),
-      S.isLessThanOrEqualTo(599, {
-        identifier: $I`BoxHttpStatusCodeMaximumCheck`,
-        title: "Box HTTP status code maximum",
-        description: "Box HTTP status codes must be less than or equal to 599.",
-        message: "Expected an HTTP status code less than or equal to 599",
-      }),
+      S.isGreaterThanOrEqualTo(
+        100,
+        $I.annote("BoxHttpStatusCodeMinimumCheck", {
+          title: "Box HTTP status code minimum",
+          description: "Box HTTP status codes must be at least 100.",
+          message: "Expected an HTTP status code greater than or equal to 100",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        599,
+        $I.annote("BoxHttpStatusCodeMaximumCheck", {
+          title: "Box HTTP status code maximum",
+          description: "Box HTTP status codes must be less than or equal to 599.",
+          message: "Expected an HTTP status code less than or equal to 599",
+        })
+      ),
     ],
-    {
-      identifier: $I`BoxHttpStatusCodeChecks`,
+    $I.annote("BoxHttpStatusCodeChecks", {
       title: "Box HTTP status code",
       description: "Numeric HTTP status code range accepted by the Box driver.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("BoxHttpStatusCode", {

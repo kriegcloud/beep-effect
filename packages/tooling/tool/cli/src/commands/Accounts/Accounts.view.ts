@@ -131,10 +131,10 @@ type Palette = ReturnType<typeof makePalette>;
 
 // Fit plain text into a column: cut with an ellipsis, or pad with spaces.
 const fit = (text: string, width: number): string =>
-  Str.length(text) > width ? `${text.slice(0, Math.max(width - 1, 0))}…` : pipe(text, Str.padEnd(width));
+  Str.length(text) > width ? `${Str.slice(0, Math.max(width - 1, 0))(text)}…` : pipe(text, Str.padEnd(width));
 
 const fitRight = (text: string, width: number): string =>
-  Str.length(text) > width ? text.slice(0, width) : pipe(text, Str.padStart(width));
+  Str.length(text) > width ? Str.slice(0, width)(text) : pipe(text, Str.padStart(width));
 
 const percent = (value: number): string => `${Math.round(value)}%`;
 
@@ -298,7 +298,7 @@ const joinFitted = (parts: ReadonlyArray<string>, plain: ReadonlyArray<string>, 
     SEPARATOR
   );
 
-const stripAnsi = (text: string): string => text.replace(/\u001b\[[0-9;]*m/g, "");
+const stripAnsi = (text: string): string => Str.replace(/\u001b\[[0-9;]*m/g, "")(text);
 
 const visibleLength = (text: string): number => Str.length(stripAnsi(text));
 
@@ -323,7 +323,7 @@ const columnsFor = (width: number, labels: ReadonlyArray<string>): Columns => {
 };
 
 const framed = (content: string, columns: Columns, palette: Palette): string =>
-  `${palette.border("│")} ${content}${" ".repeat(Math.max(columns.inner - visibleLength(content), 0))} ${palette.border("│")}`;
+  `${palette.border("│")} ${content}${Str.repeat(Math.max(columns.inner - visibleLength(content), 0))(" ")} ${palette.border("│")}`;
 
 const rowLines = (
   section: AccountSection,
@@ -405,8 +405,8 @@ const panelLines = (group: AccountGroup, width: number, now: DateTime.Utc, palet
   const title = ` ${sectionTitle[group.section]} `;
   const hint = O.map(panelHint(group, now, firstReady, palette), (text) => ` ${text} `);
   const fill = Math.max(width - 4 - Str.length(title) - O.match(hint, { onNone: () => 0, onSome: visibleLength }), 0);
-  const top = `${palette.border("╭─")}${palette.title(title)}${palette.border("─".repeat(fill))}${O.getOrElse(hint, () => "")}${palette.border("─╮")}`;
-  const bottom = palette.border(`╰${"─".repeat(width - 2)}╯`);
+  const top = `${palette.border("╭─")}${palette.title(title)}${palette.border(Str.repeat(fill)("─"))}${O.getOrElse(hint, () => "")}${palette.border("─╮")}`;
+  const bottom = palette.border(`╰${Str.repeat(width - 2)("─")}╯`);
   return [
     top,
     ...A.flatMap(group.rows, (row, index) => rowLines(group.section, row, index, firstReady, columns, now, palette)),
@@ -452,7 +452,7 @@ export const renderAccountsBoard: {
 } = dual(2, (report: AccountsStatusReport, layout: AccountsBoardLayout): string => {
   const palette = makePalette(layout.color);
   const width = Math.min(Math.max(layout.width, MIN_WIDTH), MAX_WIDTH);
-  const status = fit(layout.status, Math.max(width - 11, 0)).trimEnd();
+  const status = Str.trimEnd(fit(layout.status, Math.max(width - 11, 0)));
   const heading = `${palette.title(" Accounts")}${Str.isEmpty(status) ? "" : `  ${palette.dim(status)}`}`;
   // The long legend needs 80 columns; narrower boards get the short one.
   const legend =

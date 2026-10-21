@@ -182,7 +182,9 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
             const unexpected = yield* Effect.exit(runExploreCommand(graduateArgs(goals, ["--write"])));
             expectReportedExit(unexpected);
             const wrong = yield* Effect.exit(
-              runExploreCommand(graduateArgs(goals, ["--write", "--expect", `graduation-plan/v1:${"0".repeat(64)}`]))
+              runExploreCommand(
+                graduateArgs(goals, ["--write", "--expect", `graduation-plan/v1:${Str.repeat(64)("0")}`])
+              )
             );
             expectReportedExit(wrong);
             strictEqual(yield* exists("goals/first-child"), false);
@@ -533,7 +535,7 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
           Effect.gen(function* () {
             yield* seedFixture;
             yield* writeProjectFile(
-              `${PROVENANCE}/ops/events/00001-packet-created-${"0".repeat(64)}.json`,
+              `${PROVENANCE}/ops/events/00001-packet-created-${Str.repeat(64)("0")}.json`,
               "{ not json"
             );
             const plan = yield* planFor(["first-child=First Child"]);

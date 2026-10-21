@@ -1,0 +1,374 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { GitHubError } from "@beep/github/GitHubError";
+import { Repo, RepoRef } from "@beep/github/Repo";
+import { Ruleset, RulesetInfo, RulesetPayload } from "@beep/github/Ruleset";
+import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import { listedRulesetFixture, rulesetFixture, teamFixture } from "./support/fixtures.ts";
+import { harness } from "./support/harness.ts";
+import type { GitHubFixtures, RecordedCall } from "@beep/github/GitHubClient";
+
+const decodeRulesetInfos = S.decodeResult(S.Array(RulesetInfo));
+
+const JsonValue = S.fromJsonString(S.Unknown);
+
+const run = Effect.fn("run")(function* <A, E>(
+  effect: Effect.Effect<A, E, Ruleset | GitHubClient | Repo>,
+  fixtures: NonNullable<GitHubFixtures["request"]>,
+  paginate: NonNullable<GitHubFixtures["paginate"]> = {},
+  requestDecoded: NonNullable<GitHubFixtures["requestDecoded"]> = {}
+) {
+  const requested: RecordedCall[] = [];
+  const layer = Ruleset.layer.pipe(
+    Layer.provideMerge(
+      Layer.mergeAll(
+        GitHubClient.layerFixture({ request: fixtures, requestDecoded, paginate, requested }),
+        Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" }))
+      )
+    )
+  );
+  // The caller's test scope owns the layer, so its finalizers run when the test ends.
+  const context = yield* Layer.build(layer);
+  const value = yield* Effect.provideContext(effect, context);
+  return { value, requested };
+});
+
+const runUpsert = Effect.fn("runUpsert")(function* <A, E>(
+  effect: Effect.Effect<A, E, Ruleset | GitHubClient | Repo>,
+  requestDecoded: NonNullable<GitHubFixtures["requestDecoded"]>,
+  paginate: NonNullable<GitHubFixtures["paginate"]> = {}
+) {
+  return yield* run(effect, {}, paginate, requestDecoded);
+});
+
+const PAYLOAD = { name: "main", target: "branch", enforcement: "active" };
+
+describe("Ruleset.upsert", () => {
+  it.effect("PUTs against a ruleset the repository owns", () =>
+    Effect.gen(function* () {
+      const { requested } = yield* runUpsert(
+        Effect.flatMap(Ruleset, (r) => r.upsert(PAYLOAD)),
+        {
+          "PUT /repos/{owner}/{repo}/rulesets/{ruleset_id}": rulesetFixture({}),
+        },
+        {
+          "GET /repos/{owner}/{repo}/rulesets": Result.succeed([
+            listedRulesetFixture({ id: 99, name: "main", source_type: "Repository" }),
+          ]),
+        }
+      );
+
+      assert.deepStrictEqual(
+        A.map(requested, (call) => call.route),
+        ["GET /repos/{owner}/{repo}/rulesets", "PUT /repos/{owner}/{repo}/rulesets/{ruleset_id}"]
+      );
+      assert.strictEqual(requested[1]?.params.ruleset_id, 99);
+    })
+  );
+
+  it.effect("POSTs a new ruleset rather than writing to the ORGANIZATION'S ruleset of the same name", () =>
+    Effect.gen(function* () {
+      const { requested } = yield* runUpsert(
+        Effect.flatMap(Ruleset, (r) => r.upsert(PAYLOAD)),
+        {
+          // The repository's listing includes the org's. Matching on name
+          // alone would PUT at id 7 and rewrite policy for every repository
+          // the organization owns.
+          "POST /repos/{owner}/{repo}/rulesets": rulesetFixture({}),
+        },
+        {
+          "GET /repos/{owner}/{repo}/rulesets": Result.succeed([
+            listedRulesetFixture({ id: 7, name: "main", source_type: "Organization" }),
+          ]),
+        }
+      );
+
+      assert.deepStrictEqual(
+        A.map(requested, (call) => call.route),
+        ["GET /repos/{owner}/{repo}/rulesets", "POST /repos/{owner}/{repo}/rulesets"]
+      );
+      // Nothing was written to the organization's ruleset.
+      assert.strictEqual(
+        A.some(requested, (call) => call.route.includes("{ruleset_id}")),
+        false
+      );
+      assert.notInclude(yield* S.encodeEffect(JsonValue)(requested), '"ruleset_id":7');
+    })
+  );
+
+  it.effect("prefers the repository's own ruleset when both exist under one name", () =>
+    Effect.gen(function* () {
+      const { requested } = yield* runUpsert(
+        Effect.flatMap(Ruleset, (r) => r.upsert(PAYLOAD)),
+        {
+          "PUT /repos/{owner}/{repo}/rulesets/{ruleset_id}": rulesetFixture({}),
+        },
+        {
+          "GET /repos/{owner}/{repo}/rulesets": Result.succeed([
+            listedRulesetFixture({ id: 7, name: "main", source_type: "Organization" }),
+            listedRulesetFixture({ id: 99, name: "main", source_type: "Repository" }),
+          ]),
+        }
+      );
+
+      // The org's comes FIRST in the listing, so a `find` without the filter
+      // would take it.
+      assert.strictEqual(requested[1]?.params.ruleset_id, 99);
+    })
+  );
+
+  it.effect("omits conditions, rules and bypass_actors when the payload has none", () =>
+    Effect.gen(function* () {
+      const { requested } = yield* runUpsert(
+        Effect.flatMap(Ruleset, (r) => r.upsert(PAYLOAD)),
+        { "POST /repos/{owner}/{repo}/rulesets": rulesetFixture({}) },
+        { "GET /repos/{owner}/{repo}/rulesets": Result.succeed([]) }
+      );
+
+      assert.deepStrictEqual(requested[1]?.params, {
+        owner: "acme",
+        repo: "widget",
+        name: "main",
+        target: "branch",
+        enforcement: "active",
+      });
+    })
+  );
+});
+
+describe("Ruleset.list and delete", () => {
+  it.effect("list carries source_type, so a caller can tell inherited from own", () =>
+    Effect.gen(function* () {
+      const { value } = yield* run(
+        Effect.flatMap(Ruleset, (r) => r.list),
+        {},
+        {
+          "GET /repos/{owner}/{repo}/rulesets": Result.succeed([
+            listedRulesetFixture({ id: 1, name: "own", source_type: "Repository" }),
+            listedRulesetFixture({ id: 2, name: "inherited", source_type: "Organization" }),
+          ]),
+        }
+      );
+
+      assert.deepStrictEqual(Result.getOrThrow(decodeRulesetInfos(value)), value);
+      assert.deepStrictEqual(value, [
+        RulesetInfo.make({ id: 1, name: "own", source_type: "Repository" }),
+        RulesetInfo.make({ id: 2, name: "inherited", source_type: "Organization" }),
+      ]);
+    })
+  );
+
+  it.effect("delete removes by id", () =>
+    Effect.gen(function* () {
+      const { value, requested } = yield* run(
+        Effect.flatMap(Ruleset, (r) => r.delete(99)),
+        { "DELETE /repos/{owner}/{repo}/rulesets/{ruleset_id}": Result.succeed("") }
+      );
+
+      assert.strictEqual(value, undefined);
+      assert.deepStrictEqual(requested[0]?.params, { owner: "acme", repo: "widget", ruleset_id: 99 });
+    })
+  );
+});
+
+describe("Ruleset bypass-actor lookups", () => {
+  it.effect("teamId sources the org from Repo.owner", () =>
+    Effect.gen(function* () {
+      const { value, requested } = yield* run(
+        Effect.flatMap(Ruleset, (r) => r.teamId("platform")),
+        { "GET /orgs/{org}/teams/{team_slug}": Result.succeed(teamFixture({ id: 4242 })) }
+      );
+
+      assert.strictEqual(value, 4242);
+      assert.deepStrictEqual(requested[0]?.params, { org: "acme", team_slug: "platform" });
+    })
+  );
+
+  it.effect("roleId finds a role by name", () =>
+    Effect.gen(function* () {
+      const { value, requested } = yield* run(
+        Effect.flatMap(Ruleset, (r) => r.roleId("security_manager")),
+        {
+          "GET /orgs/{org}/organization-roles": Result.succeed({
+            roles: [
+              { id: 5, name: "security_manager", permissions: [], organization: null, created_at: "", updated_at: "" },
+            ],
+          }),
+        }
+      );
+
+      assert.strictEqual(value, 5);
+      assert.deepStrictEqual(requested[0]?.params, { org: "acme" });
+    })
+  );
+
+  it.effect("roleId fails listing what WAS available, since role ids are per-org", () =>
+    Effect.gen(function* () {
+      const exit = yield* run(
+        Effect.flatMap(Ruleset, (r) => r.roleId("missing")),
+        {
+          "GET /orgs/{org}/organization-roles": Result.succeed({
+            roles: [{ id: 5, name: "other", permissions: [], organization: null, created_at: "", updated_at: "" }],
+          }),
+        }
+      ).pipe(Effect.exit);
+
+      assert.include(yield* S.encodeEffect(JsonValue)(exit), "available: other");
+      assert.include(yield* S.encodeEffect(JsonValue)(exit), "missing");
+    })
+  );
+
+  it.effect("roleId says 'none' rather than an empty parenthesis when there are no roles", () =>
+    Effect.gen(function* () {
+      const exit = yield* run(
+        Effect.flatMap(Ruleset, (r) => r.roleId("missing")),
+        { "GET /orgs/{org}/organization-roles": Result.succeed({}) }
+      ).pipe(Effect.exit);
+
+      assert.include(yield* S.encodeEffect(JsonValue)(exit), "available: none");
+    })
+  );
+});
+
+describe("RulesetPayload open boundary", () => {
+  for (const existing of [false, true]) {
+    it.effect(
+      `passes future vocabulary, partial rules and non-ref-name conditions through ${existing ? "PUT" : "POST"}`,
+      () =>
+        Effect.gen(function* () {
+          const payload = {
+            name: "main",
+            target: "future-target",
+            enforcement: "future-enforcement",
+            conditions: { repository_name: { include: ["widget"] } },
+            rules: [
+              { type: "future-rule", parameters: { partial: true } },
+              { type: "pull_request", parameters: { required_approving_review_count: 1 } },
+            ],
+            bypass_actors: [{ actor_type: "FutureActor", actor_id: "future-id" }],
+          };
+          const decoded = Result.getOrThrow(S.decodeResult(RulesetPayload)(payload));
+          assert.deepStrictEqual<RulesetPayload.Encoded>(decoded, payload);
+          assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(RulesetPayload)(decoded)), payload);
+          const route = existing
+            ? "PUT /repos/{owner}/{repo}/rulesets/{ruleset_id}"
+            : "POST /repos/{owner}/{repo}/rulesets";
+          const { value, requested } = yield* runUpsert(
+            Effect.flatMap(Ruleset, (r) => r.upsert(decoded)),
+            { [route]: { response: "discarded" } },
+            {
+              "GET /repos/{owner}/{repo}/rulesets": Result.succeed(
+                existing ? [listedRulesetFixture({ id: 99, name: "main", source_type: "Repository" })] : []
+              ),
+            }
+          );
+          assert.strictEqual(value, undefined);
+          assert.strictEqual(requested[1]?.route, route);
+          assert.deepStrictEqual(requested[1]?.params, {
+            owner: "acme",
+            repo: "widget",
+            ...payload,
+            ...(existing ? { ruleset_id: 99 } : {}),
+          });
+        })
+    );
+  }
+
+  it("preserves omitted, undefined and null open fields", () => {
+    for (const payload of [
+      PAYLOAD,
+      { ...PAYLOAD, conditions: undefined, rules: undefined, bypass_actors: undefined },
+      { ...PAYLOAD, conditions: null, rules: null, bypass_actors: null },
+    ]) {
+      assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(RulesetPayload)(payload)), payload);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(RulesetPayload)(RulesetPayload.make(payload))), payload);
+    }
+  });
+});
+
+describe("RulesetInfo boundary", () => {
+  it("preserves plain listing fields with absent, undefined or present ownership", () => {
+    const infos: ReadonlyArray<RulesetInfo> = [
+      RulesetInfo.make({ id: 1, name: "unspecified" }),
+      RulesetInfo.make({ id: 2, name: "undefined", source_type: undefined }),
+      RulesetInfo.make({ id: 3, name: "owned", source_type: "Repository" }),
+      RulesetInfo.make({ id: 4, name: "inherited", source_type: "Organization" }),
+    ];
+    for (const info of infos) {
+      assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(RulesetInfo)(info)), info);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(RulesetInfo)(info)), info);
+    }
+  });
+});
+
+describe("Ruleset.list response decoding", () => {
+  const valid = RulesetInfo.make({ id: 1, name: "main", source_type: "Repository" });
+  for (const [field, malformed] of [
+    ["id", { ...valid, id: null }],
+    ["name", { ...valid, name: 42 }],
+    ["source_type", { ...valid, source_type: 42 }],
+  ] as const) {
+    it.effect(`rejects malformed ${field} in the typed channel`, () =>
+      Effect.scopedWith((scope) =>
+        Effect.gen(function* () {
+          const { base } = harness([{ status: 200, body: [valid, malformed] }]);
+          const context = yield* Layer.buildWithScope(Ruleset.layer.pipe(Layer.provideMerge(base)), scope);
+          const exit = yield* Effect.flatMap(Ruleset, (rulesets) => rulesets.list).pipe(
+            Effect.provideContext(context),
+            Effect.exit
+          );
+          assert.strictEqual(Exit.hasFails(exit), true);
+          assert.strictEqual(Exit.hasDies(exit), false);
+          const error = exit.pipe(Exit.findError, Result.getOrThrow);
+          assert.instanceOf(error, GitHubError);
+          assert.strictEqual(error.kind, "decode");
+          assert.strictEqual(error.operation, "Ruleset.list");
+        })
+      )
+    );
+  }
+
+  it.effect("preserves order, plain fields and an explicit undefined source_type when GitHub omits it", () =>
+    Effect.scopedWith((scope) =>
+      Effect.gen(function* () {
+        const { base } = harness([
+          {
+            status: 200,
+            body: [
+              { id: 2, name: "unspecified", ignored: "metadata" },
+              { ...valid, ignored: "metadata" },
+            ],
+          },
+        ]);
+        const context = yield* Layer.buildWithScope(Ruleset.layer.pipe(Layer.provideMerge(base)), scope);
+        const value = yield* Effect.flatMap(Ruleset, (rulesets) => rulesets.list).pipe(Effect.provideContext(context));
+        assert.deepStrictEqual(Result.getOrThrow(decodeRulesetInfos(value)), value);
+        assert.deepStrictEqual(value, [
+          RulesetInfo.make({ id: 2, name: "unspecified", source_type: undefined }),
+          valid,
+        ]);
+      })
+    )
+  );
+});
+
+describe("RulesetInfo schema-derived properties", () => {
+  it.effect.prop(
+    "RulesetInfo round-trips through its codec",
+    [Arbitrary.schema(RulesetInfo)],
+    ([value]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(RulesetInfo)(value);
+        const decoded = yield* S.decodeEffect(RulesetInfo)(encoded);
+        assert.isTrue(S.toEquivalence(RulesetInfo)(decoded, value));
+      }),
+    { arbitrary: fcRuns(50) }
+  );
+});

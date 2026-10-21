@@ -37,12 +37,14 @@ const $I = $LejeuneBoltWorkbenchId.create("domain/Ontology");
  * @since 0.0.0
  */
 export const EntityId = S.NonEmptyString.check(
-  S.isPattern(/^[a-z][a-z0-9-]*$/u, {
-    identifier: $I`EntityIdPatternCheck`,
-    title: "LeJeune Entity Identifier",
-    description: "Checks the stable lowercase kebab-case identifiers used inside the demo bundle.",
-    message: "Expected a lowercase kebab-case LeJeune entity identifier.",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9-]*$/u,
+    $I.annote("EntityIdPatternCheck", {
+      title: "LeJeune Entity Identifier",
+      description: "Checks the stable lowercase kebab-case identifiers used inside the demo bundle.",
+      message: "Expected a lowercase kebab-case LeJeune entity identifier.",
+    })
+  )
 ).pipe(
   S.brand("LeJeuneEntityId"),
   $I.annoteSchema("EntityId", {
@@ -53,15 +55,17 @@ export const EntityId = S.NonEmptyString.check(
 /** Runtime type decoded by {@link EntityId}. @category models @since 0.0.0 */
 export type EntityId = typeof EntityId.Type;
 
-const ValidIsoDateCheck = S.makeFilter((value: string) => O.isSome(decodeLocalDateFromStringOption(value)), {
-  identifier: $I`ValidIsoDateCheck`,
-  title: "Valid ISO Calendar Date",
-  description: "Checks that an ISO date names a real calendar day.",
-  message: "Expected a valid calendar date.",
-  arbitraryConstraint: {
-    patterns: [{ source: "^20[2-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-8])$", flags: "" }],
-  },
-});
+const ValidIsoDateCheck = S.makeFilter(
+  (value: string) => O.isSome(decodeLocalDateFromStringOption(value)),
+  $I.annote("ValidIsoDateCheck", {
+    title: "Valid ISO Calendar Date",
+    description: "Checks that an ISO date names a real calendar day.",
+    message: "Expected a valid calendar date.",
+    arbitraryConstraint: {
+      patterns: [{ source: "^20[2-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-8])$", flags: "" }],
+    },
+  })
+);
 
 /**
  * Fixed ISO calendar date used by the deterministic bundle.
@@ -79,18 +83,20 @@ const ValidIsoDateCheck = S.makeFilter((value: string) => O.isSome(decodeLocalDa
  * @since 0.0.0
  */
 export const IsoDate = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}$/u, {
-    identifier: $I`IsoDatePatternCheck`,
-    // Generation-only shape: the calendar-validity filter cannot construct, so
-    // candidates stay inside always-valid month/day ranges (validation keeps
-    // the loose pattern plus the calendar check for real dates like the 31st).
-    arbitraryConstraint: {
-      patterns: [{ source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])$", flags: "" }],
-    },
-    title: "ISO Calendar Date",
-    description: "Checks the YYYY-MM-DD date representation frozen by the demo bundle.",
-    message: "Expected a YYYY-MM-DD calendar date.",
-  }),
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}$/u,
+    $I.annote("IsoDatePatternCheck", {
+      // Generation-only shape: the calendar-validity filter cannot construct, so
+      // candidates stay inside always-valid month/day ranges (validation keeps
+      // the loose pattern plus the calendar check for real dates like the 31st).
+      arbitraryConstraint: {
+        patterns: [{ source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])$", flags: "" }],
+      },
+      title: "ISO Calendar Date",
+      description: "Checks the YYYY-MM-DD date representation frozen by the demo bundle.",
+      message: "Expected a YYYY-MM-DD calendar date.",
+    })
+  ),
   ValidIsoDateCheck
 ).pipe(
   S.brand("LeJeuneIsoDate"),
@@ -109,8 +115,7 @@ const ValidIsoTimestampCheck = S.makeFilter(
       try: () => O.exists(DateTime.make(value), (dateTime) => Str.Equivalence(DateTime.formatIso(dateTime), value)),
       catch: () => false,
     }).pipe(Result.getOrElse(() => false)),
-  {
-    identifier: $I`ValidIsoTimestampCheck`,
+  $I.annote("ValidIsoTimestampCheck", {
     title: "Valid ISO UTC Timestamp",
     description: "Rejects impossible instants by requiring the value to round-trip through DateTime.formatIso.",
     message: "Expected a valid ISO UTC timestamp.",
@@ -123,7 +128,7 @@ const ValidIsoTimestampCheck = S.makeFilter(
         },
       ],
     },
-  }
+  })
 );
 
 /**
@@ -142,21 +147,23 @@ const ValidIsoTimestampCheck = S.makeFilter(
  * @since 0.0.0
  */
 export const IsoTimestamp = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u, {
-    identifier: $I`IsoTimestampPatternCheck`,
-    // Generation-only shape mirroring IsoDate's constraint with valid clock ranges.
-    arbitraryConstraint: {
-      patterns: [
-        {
-          source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$",
-          flags: "",
-        },
-      ],
-    },
-    title: "ISO UTC Timestamp",
-    description: "Checks the millisecond-precision UTC timestamps frozen by the demo bundle.",
-    message: "Expected a millisecond-precision UTC timestamp ending in Z.",
-  }),
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u,
+    $I.annote("IsoTimestampPatternCheck", {
+      // Generation-only shape mirroring IsoDate's constraint with valid clock ranges.
+      arbitraryConstraint: {
+        patterns: [
+          {
+            source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$",
+            flags: "",
+          },
+        ],
+      },
+      title: "ISO UTC Timestamp",
+      description: "Checks the millisecond-precision UTC timestamps frozen by the demo bundle.",
+      message: "Expected a millisecond-precision UTC timestamp ending in Z.",
+    })
+  ),
   ValidIsoTimestampCheck
 ).pipe(
   S.brand("LeJeuneIsoTimestamp"),

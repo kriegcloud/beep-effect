@@ -21,6 +21,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { readFixtureText } from "./helpers/models-fixtures.ts";
 import type { Locator, ModelId } from "@beep/repo-cli/commands/Models";
 
@@ -116,7 +117,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
     Effect.gen(function* () {
       const reader = yield* ModelsLocatorReader;
       assertNone(
-        yield* reader.read(file("task --model ".repeat(20_000)), {
+        yield* reader.read(file(Str.repeat(20_000)("task --model ")), {
           _tag: "line-value",
           binding: LocatorBinding.make(binding("model")),
           render: verbatim,
@@ -148,7 +149,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
         includeSuperseded: false,
       } as Locator);
       assertSome(
-        O.map(found, (body) => body.split("\n").length),
+        O.map(found, (body) => Str.split("\n")(body).length),
         3
       );
 
@@ -578,7 +579,7 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
     const content = `${generatedBlockBegin("x")}\n${body}\n<!-- beep-models:end x -->\n`;
     assertSome(extractGeneratedBlock(content, "x"), body);
     expect(body).toContain("| codex.heavy | codex-cli | `gpt-6-astra` | `medium` |");
-    strictEqual(body.includes("superseded:"), false);
+    strictEqual(Str.includes("superseded:")(body), false);
   });
 
   it.effect("duplicate JSON diagnostics carry one format prefix", () =>

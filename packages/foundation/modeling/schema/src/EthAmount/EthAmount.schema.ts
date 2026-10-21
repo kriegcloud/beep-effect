@@ -16,18 +16,19 @@ const $I = $SchemaId.create("EthAmount");
 
 const EthAmountInputChecks = S.makeFilterGroup(
   [
-    S.isGreaterThanOrEqualTo(0).annotate({
-      identifier: $I`EthAmountNonNegativeCheck`,
-      title: "ETH Amount Non-Negative",
-      description: "A non-negative ETH-denominated amount.",
-      message: "EthAmount must be greater than or equal to 0",
-    }),
+    S.isGreaterThanOrEqualTo(
+      0,
+      $I.annote("EthAmountNonNegativeCheck", {
+        title: "ETH Amount Non-Negative",
+        description: "A non-negative ETH-denominated amount.",
+        message: "EthAmount must be greater than or equal to 0",
+      })
+    ),
   ],
-  {
-    identifier: $I`EthAmountInputChecks`,
+  $I.annote("EthAmountInputChecks", {
     title: "EthAmount",
     description: "Checks for non-negative finite ETH-denominated JSON numbers.",
-  }
+  })
 );
 
 const EthAmountInput = S.Finite.pipe(

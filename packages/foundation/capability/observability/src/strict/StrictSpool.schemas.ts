@@ -103,12 +103,11 @@ const AesGcmNonceBase64 = S.String.check(
   S.makeFilter(
     (value: string) =>
       O.exists(Result.getSuccess(Base64.decode(value)), (bytes) => bytes.byteLength === aesGcmNonceBytes),
-    {
-      identifier: $I`AesGcmNonceBase64Check`,
+    $I.annote("AesGcmNonceBase64Check", {
       title: "AES-GCM Nonce Base64",
       description: "Standard Base64 that decodes to exactly 12 nonce bytes.",
       message: "Spool segment nonce must be standard Base64 of exactly 12 bytes",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("AesGcmNonceBase64", {
@@ -123,12 +122,11 @@ const AesGcmCiphertextBase64 = S.String.check(
         onFailure: () => false,
         onSuccess: (bytes) => bytes.byteLength >= aesGcmTagBytes,
       }),
-    {
-      identifier: $I`AesGcmCiphertextBase64Check`,
+    $I.annote("AesGcmCiphertextBase64Check", {
       title: "AES-GCM Ciphertext Base64",
       description: "Standard Base64 of ciphertext long enough to carry the 16-byte authentication tag.",
       message: "Spool segment ciphertext must be standard Base64 including a 16-byte AES-GCM tag",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("AesGcmCiphertextBase64", {

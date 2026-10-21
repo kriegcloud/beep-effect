@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — waves 1–3 merged (#1968, #1976, #1983; 575 sites); wave 4a (47 sites) and the first repo-cli slice in review; see the Waves table in `PLAN.md`.
+P1 Implement — waves 1–5a merged (#1968, #1976, #1983, #1987, #1993; 824 sites); waves 5b (224) and 5c (213) in review; see the Waves table in `PLAN.md`.
 
 ## Latest Evidence
 

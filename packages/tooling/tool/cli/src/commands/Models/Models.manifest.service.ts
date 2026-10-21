@@ -16,11 +16,13 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { parseDocument, stringify as stringifyYaml } from "yaml";
 import { ModelsManifestError } from "./Models.errors.ts";
 import { ModelsManifest } from "./Models.manifest.schemas.ts";
@@ -167,9 +169,9 @@ const makeManifestStore = Effect.fnUntraced(function* () {
   // fails loudly instead of overwriting an earlier backup.
   const uniqueSuffix = Effect.fnUntraced(function* () {
     const now = yield* DateTime.now;
-    const stamp = DateTime.formatIso(now).replace(/[:.]/g, "").replace(/-/g, "");
+    const stamp = pipe(now, DateTime.formatIso, Str.replace(/[:.]/g, ""), Str.replace(/-/g, ""));
     const salt = yield* Random.nextIntBetween(0, 0xffffff);
-    return `${stamp}-${salt.toString(16).padStart(6, "0")}`;
+    return `${stamp}-${Str.padStart(6, "0")(salt.toString(16))}`;
   });
 
   const backupManifest = Effect.fnUntraced(function* (file: string) {

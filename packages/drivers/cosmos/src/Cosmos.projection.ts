@@ -59,13 +59,12 @@ export class CosmosGraphProjection extends S.Opaque<CosmosGraphProjection, { rea
           projection.nodeIds.length === projection.nodeCount &&
           projection.pointPositions.length === projection.nodeCount * 2 &&
           projection.links.length === projection.edgeCount * 2,
-        {
-          identifier: $I`CosmosGraphProjectionShapeCheck`,
+        $I.annote("CosmosGraphProjectionShapeCheck", {
           title: "Cosmos Graph Projection Shape",
           description:
             "Checks that nodeIds holds nodeCount ids, pointPositions 2 * nodeCount floats, and links 2 * edgeCount floats.",
           message: "Projection typed arrays must match nodeCount and edgeCount.",
-        }
+        })
       )
     )
     .pipe(

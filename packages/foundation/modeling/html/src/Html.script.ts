@@ -42,12 +42,14 @@ const htmlMimeTypePattern =
  * @since 0.0.0
  */
 export const HtmlMimeType = S.String.check(
-  S.isPattern(htmlMimeTypePattern, {
-    identifier: $I`HtmlMimeTypePatternCheck`,
-    title: "HTML MIME type string",
-    description: "A string matching the author-conformance grammar for valid MIME type strings.",
-    message: "Expected a valid MIME type string",
-  })
+  S.isPattern(
+    htmlMimeTypePattern,
+    $I.annote("HtmlMimeTypePatternCheck", {
+      title: "HTML MIME type string",
+      description: "A string matching the author-conformance grammar for valid MIME type strings.",
+      message: "Expected a valid MIME type string",
+    })
+  )
 ).pipe(
   S.brand("HtmlMimeType"),
   $I.annoteSchema("HtmlMimeType", {
@@ -136,12 +138,14 @@ const isJavaScriptMimeTypeEssenceMatch = flow(toAsciiLowerCase, isJavaScriptMime
  * @since 0.0.0
  */
 export const ScriptDataBlockMimeType = HtmlMimeType.check(
-  S.makeFilter(P.not(isJavaScriptMimeTypeEssenceMatch), {
-    identifier: $I`ScriptDataBlockMimeTypeNotJavaScriptCheck`,
-    title: "Script data-block MIME type",
-    description: "A valid MIME type string that is not a JavaScript MIME type essence match.",
-    message: "Script data blocks require a valid MIME string that is not a JavaScript essence match",
-  })
+  S.makeFilter(
+    P.not(isJavaScriptMimeTypeEssenceMatch),
+    $I.annote("ScriptDataBlockMimeTypeNotJavaScriptCheck", {
+      title: "Script data-block MIME type",
+      description: "A valid MIME type string that is not a JavaScript MIME type essence match.",
+      message: "Script data blocks require a valid MIME string that is not a JavaScript essence match",
+    })
+  )
 ).pipe(
   S.brand("ScriptDataBlockMimeType"),
   $I.annoteSchema("ScriptDataBlockMimeType", {

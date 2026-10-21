@@ -85,7 +85,7 @@ const historyStubCard = Effect.fnUntraced(function* (
   const urlHash = yield* sha256HexOf(candidate.url);
   const frontmatter = KnowledgeCardFrontmatter.make({
     capturedAt,
-    id: `kb-link-${urlHash.slice(0, 16)}`,
+    id: `kb-link-${Str.slice(0, 16)(urlHash)}`,
     related: [],
     sourceType: "link",
     status: "inbox",

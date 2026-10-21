@@ -28,12 +28,14 @@ import { $I, usesUnsupportedWindowsNamespacePrefix } from "./FilePath.shared.ts"
  * @since 0.0.0
  */
 export const HasNullByte = S.String.check(
-  S.isIncluding("\u0000", {
-    identifier: $I`HasNullByteCheck`,
-    title: "Has Null Byte",
-    description: "A string that contains an embedded NUL byte.",
-    message: "Path text must contain an embedded NUL byte",
-  })
+  S.isIncluding(
+    "\u0000",
+    $I.annote("HasNullByteCheck", {
+      title: "Has Null Byte",
+      description: "A string that contains an embedded NUL byte.",
+      message: "Path text must contain an embedded NUL byte",
+    })
+  )
 ).pipe(
   S.brand("HasNullByte"),
   $I.annoteSchema("HasNullByte", {
@@ -77,12 +79,14 @@ export type HasNullByte = typeof HasNullByte.Type;
  * @since 0.0.0
  */
 export const SupportedWindowsNamespace = S.NonEmptyString.check(
-  S.makeFilter(P.not(usesUnsupportedWindowsNamespacePrefix), {
-    identifier: $I`SupportedWindowsNamespaceCheck`,
-    title: "Supported Windows Namespace",
-    description: "A path string that does not start with \\\\?\\ or \\\\.\\.",
-    message: "Windows namespace paths starting with \\\\?\\ or \\\\.\\ are not supported",
-  })
+  S.makeFilter(
+    P.not(usesUnsupportedWindowsNamespacePrefix),
+    $I.annote("SupportedWindowsNamespaceCheck", {
+      title: "Supported Windows Namespace",
+      description: "A path string that does not start with \\\\?\\ or \\\\.\\.",
+      message: "Windows namespace paths starting with \\\\?\\ or \\\\.\\ are not supported",
+    })
+  )
 ).pipe(
   S.brand("SupportedWindowsNamespace"),
   $I.annoteSchema("SupportedWindowsNamespace", {
@@ -125,12 +129,14 @@ export type SupportedWindowsNamespace = typeof SupportedWindowsNamespace.Type;
  * @since 0.0.0
  */
 export const UsesPosixSeparator = S.String.check(
-  S.isIncluding("/", {
-    identifier: $I`UsesPosixSeparatorCheck`,
-    title: "Uses Posix Separator",
-    description: "A string that contains the POSIX path separator /.",
-    message: "Path text must contain the POSIX separator /",
-  })
+  S.isIncluding(
+    "/",
+    $I.annote("UsesPosixSeparatorCheck", {
+      title: "Uses Posix Separator",
+      description: "A string that contains the POSIX path separator /.",
+      message: "Path text must contain the POSIX separator /",
+    })
+  )
 ).pipe(
   S.brand("UsesPosixSeparator"),
   $I.annoteSchema("UsesPosixSeparator", {
@@ -173,12 +179,14 @@ export type UsesPosixSeparator = typeof UsesPosixSeparator.Type;
  * @since 0.0.0
  */
 export const UsesWindowsSeparator = S.String.check(
-  S.makeFilter(Str.includes("\\"), {
-    identifier: $I`UsesWindowsSeparatorCheck`,
-    title: "Uses Windows Separator",
-    description: "A string that contains the Windows path separator \\.",
-    message: "Path text must contain the Windows separator \\",
-  })
+  S.makeFilter(
+    Str.includes("\\"),
+    $I.annote("UsesWindowsSeparatorCheck", {
+      title: "Uses Windows Separator",
+      description: "A string that contains the Windows path separator \\.",
+      message: "Path text must contain the Windows separator \\",
+    })
+  )
 ).pipe(
   S.brand("UsesWindowsSeparator"),
   $I.annoteSchema("UsesWindowsSeparator", {
@@ -221,12 +229,14 @@ export type UsesWindowsSeparator = typeof UsesWindowsSeparator.Type;
  * @since 0.0.0
  */
 export const EndsWithSeparator = S.String.check(
-  S.makeFilter(P.or(Str.endsWith("/"), Str.endsWith("\\")), {
-    identifier: $I`EndsWithSeparatorCheck`,
-    title: "Ends With Separator",
-    description: "A string that ends with either / or \\.",
-    message: "Path text must end with a path separator",
-  })
+  S.makeFilter(
+    P.or(Str.endsWith("/"), Str.endsWith("\\")),
+    $I.annote("EndsWithSeparatorCheck", {
+      title: "Ends With Separator",
+      description: "A string that ends with either / or \\.",
+      message: "Path text must end with a path separator",
+    })
+  )
 ).pipe(
   S.brand("EndsWithSeparator"),
   $I.annoteSchema("EndsWithSeparator", {

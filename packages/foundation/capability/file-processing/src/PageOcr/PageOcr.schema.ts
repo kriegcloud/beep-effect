@@ -357,12 +357,14 @@ class PageOcrRequestBase extends S.Opaque<PageOcrRequestBase, { readonly brand: 
  * @since 0.0.0
  */
 export const PageOcrRequest = PageOcrRequestBase.check(
-  S.makeFilter(({ pageCount, pageNumber }) => pageNumber <= pageCount, {
-    identifier: $I`PageOcrRequestPageRangeCheck`,
-    title: "Page OCR Request Page Range",
-    description: "Checks that the one-based page number does not exceed the page count.",
-    message: "Expected pageNumber to be less than or equal to pageCount.",
-  })
+  S.makeFilter(
+    ({ pageCount, pageNumber }) => pageNumber <= pageCount,
+    $I.annote("PageOcrRequestPageRangeCheck", {
+      title: "Page OCR Request Page Range",
+      description: "Checks that the one-based page number does not exceed the page count.",
+      message: "Expected pageNumber to be less than or equal to pageCount.",
+    })
+  )
 );
 
 /**

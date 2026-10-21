@@ -94,6 +94,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 import type { ActionEvent } from "@beep/qa-capture";
@@ -716,7 +717,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
   });
 
   describe("commands/Qa judge output parsing", () => {
-    const fence = "`".repeat(3);
+    const fence = Str.repeat(3)("`");
     const inventoryBody = {
       findings: [],
       judge: { effort: "high", model: "gpt-daybreak-blue-latest" },

@@ -42,8 +42,8 @@ const $I = $RepoCliId.create("commands/Laws/RetiredEffectPaths.model");
  * @category models
  * @since 0.0.0
  */
-export const RetiredEffectPathRule = LiteralKit(["module-specifier", "source-path", "anchor-slug"]).annotate(
-  $I.annote("RetiredEffectPathRule", {
+export const RetiredEffectPathRule = LiteralKit(["module-specifier", "source-path", "anchor-slug"]).pipe(
+  $I.annoteSchema("RetiredEffectPathRule", {
     description: "Rule that detected a retired Effect module path.",
   })
 );
@@ -76,8 +76,8 @@ export type RetiredEffectPathRule = typeof RetiredEffectPathRule.Type;
  * @category models
  * @since 0.0.0
  */
-export const RetiredEffectPathMatchKind = LiteralKit(["exact", "prefix"]).annotate(
-  $I.annote("RetiredEffectPathMatchKind", {
+export const RetiredEffectPathMatchKind = LiteralKit(["exact", "prefix"]).pipe(
+  $I.annoteSchema("RetiredEffectPathMatchKind", {
     description: "How a retired Effect path mapping row compares its retired text with a matched span.",
   })
 );

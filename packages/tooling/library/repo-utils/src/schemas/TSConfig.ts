@@ -230,12 +230,14 @@ const TS_NODE_MODULE_TYPE_VALUES = ["cjs", "esm", "package"] as const;
 // rebuilds (plain assignment sets the prototype instead), so admitting it on
 // the wire both breaks round-tripping and invites prototype pollution.
 const TSConfigJsonKey = S.String.check(
-  S.makeFilter((key: string) => key !== "__proto__", {
-    identifier: $I.make("TSConfigJsonKeyCheck"),
-    title: "TSConfig JSON Key",
-    description: 'A tsconfig JSON object key; the prototype-polluting "__proto__" is rejected.',
-    message: 'Key must not be "__proto__".',
-  })
+  S.makeFilter(
+    (key: string) => key !== "__proto__",
+    $I.annote("TSConfigJsonKeyCheck", {
+      title: "TSConfig JSON Key",
+      description: 'A tsconfig JSON object key; the prototype-polluting "__proto__" is rejected.',
+      message: 'Key must not be "__proto__".',
+    })
+  )
 );
 
 const JsonRecord = S.Record(TSConfigJsonKey, S.Json).pipe(
@@ -392,12 +394,11 @@ const makeUniqueArraySchema = <Item extends S.Top>(item: Item, name: string, des
     .check(
       S.makeFilter(
         (values: ReadonlyArray<Item["Type"]>) => A.length(A.dedupeWith(equivalence)(values)) === A.length(values),
-        {
-          identifier: $I.make(`${name}UniqueItemsCheck`),
+        $I.annote(`${name}UniqueItemsCheck`, {
           title: `${name} Unique Items`,
           description: `${description} Items must be unique.`,
           message: "Array items must be unique.",
-        }
+        })
       )
     )
     .pipe(
@@ -1236,14 +1237,13 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
           })
         ) &&
           (isTrueOption(options.noEmit) || isTrueOption(options.emitDeclarationOnly))),
-      {
-        identifier: $I`TSConfigCompilerOptionsAllowImportingTsExtensionsCheck`,
+      $I.annote("TSConfigCompilerOptionsAllowImportingTsExtensionsCheck", {
         title: "TSConfig allowImportingTsExtensions",
         description:
           "allowImportingTsExtensions requires moduleResolution=bundler and either noEmit or emitDeclarationOnly.",
         message:
           "compilerOptions.allowImportingTsExtensions requires compilerOptions.moduleResolution to be bundler and either compilerOptions.noEmit or compilerOptions.emitDeclarationOnly to be true.",
-      }
+      })
     ),
     S.makeFilter(
       (options: TSConfigCompilerOptionsShapeType) =>
@@ -1258,12 +1258,11 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
               ),
           })
         ),
-      {
-        identifier: $I`TSConfigCompilerOptionsReactNamespaceCheck`,
+      $I.annote("TSConfigCompilerOptionsReactNamespaceCheck", {
         title: "TSConfig reactNamespace",
         description: "reactNamespace only applies when jsx is set to react.",
         message: "compilerOptions.reactNamespace requires compilerOptions.jsx to be set to react.",
-      }
+      })
     ),
     S.makeFilter(
       (options: TSConfigCompilerOptionsShapeType) =>
@@ -1274,19 +1273,17 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
             onSome: () => isTrueOption(options.allowJs),
           })
         ),
-      {
-        identifier: $I`TSConfigCompilerOptionsMaxNodeModuleJsDepthCheck`,
+      $I.annote("TSConfigCompilerOptionsMaxNodeModuleJsDepthCheck", {
         title: "TSConfig maxNodeModuleJsDepth",
         description: "maxNodeModuleJsDepth only applies when allowJs is enabled.",
         message: "compilerOptions.maxNodeModuleJsDepth requires compilerOptions.allowJs to be true.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`TSConfigCompilerOptionsChecks`,
+  $I.annote("TSConfigCompilerOptionsChecks", {
     title: "TSConfig Compiler Options Checks",
     description: "Cross-field semantic checks for tsconfig compilerOptions.",
-  }
+  })
 );
 
 const TSConfigCompilerOptionsSemantic = TSConfigCompilerOptionsShape.check(TSConfigCompilerOptionsChecks).pipe(
@@ -1864,20 +1861,18 @@ const TSConfigSemanticChecks = S.makeFilterGroup(
             onSome: (enabled) => !enabled || isTargetAtLeast(getCompilerTarget(config), "es2018"),
           })
         ),
-      {
-        identifier: $I`TSConfigExperimentalReplAwaitTargetCheck`,
+      $I.annote("TSConfigExperimentalReplAwaitTargetCheck", {
         title: "TSConfig experimentalReplAwait",
         description: "ts-node experimentalReplAwait requires compilerOptions.target to be at least ES2018.",
         message:
           "`ts-node`.experimentalReplAwait requires compilerOptions.target to be ES2018 or newer when it is enabled.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`TSConfigSemanticChecks`,
+  $I.annote("TSConfigSemanticChecks", {
     title: "TSConfig Semantic Checks",
     description: "Cross-field semantic checks for strict tsconfig decode helpers.",
-  }
+  })
 );
 
 const TSConfigSemantic = S.make<(typeof TSConfig)["Rebuild"]>(TSConfig.ast)

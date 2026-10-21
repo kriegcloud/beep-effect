@@ -106,12 +106,14 @@ const graphMatchesPartition = (change: PartitionedQuad): boolean =>
     provenance: () => isDefaultGraph(change.quad.graph) || graphIsCanonicalPartition(change.quad.graph, "provenance"),
   });
 
-const PartitionGraphCoherenceCheck = S.makeFilter(graphMatchesPartition, {
-  identifier: $I`PartitionGraphCoherenceCheck`,
-  title: "Partition Graph Coherence",
-  description: "Change operation quad graph must match the declared session partition.",
-  message: "Change operation quad graph must match the declared session partition",
-});
+const PartitionGraphCoherenceCheck = S.makeFilter(
+  graphMatchesPartition,
+  $I.annote("PartitionGraphCoherenceCheck", {
+    title: "Partition Graph Coherence",
+    description: "Change operation quad graph must match the declared session partition.",
+    message: "Change operation quad graph must match the declared session partition",
+  })
+);
 
 const ChangeOperationBase = ChangeOperationKind.toTaggedUnion("kind")({
   addQuad: {

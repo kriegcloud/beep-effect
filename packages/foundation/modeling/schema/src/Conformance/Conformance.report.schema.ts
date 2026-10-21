@@ -169,12 +169,14 @@ const ConformingReportFields = S.Struct({
   ...commonReportFields,
 });
 
-const ConformingReportConsistency = S.makeFilter(hasUniqueReportIdentifiers, {
-  identifier: $I`ConformingReportConsistency`,
-  title: "Conforming report identifier consistency",
-  description: "Profile and checked-invariant identifiers occur at most once.",
-  message: "Expected unique profileIds and checkedInvariantIds",
-});
+const ConformingReportConsistency = S.makeFilter(
+  hasUniqueReportIdentifiers,
+  $I.annote("ConformingReportConsistency", {
+    title: "Conforming report identifier consistency",
+    description: "Profile and checked-invariant identifiers occur at most once.",
+    message: "Expected unique profileIds and checkedInvariantIds",
+  })
+);
 
 const ConformingReportValue = ConformingReportFields.check(ConformingReportConsistency);
 
@@ -221,12 +223,11 @@ const NonConformingReportConsistency = S.makeFilter(
     hasUniqueReportIdentifiers(report) &&
     allIssueIdentifiersWereChecked(report.checkedInvariantIds, report.issues) &&
     allIssueIdentifiersWereChecked(report.checkedInvariantIds, report.indeterminateIssues),
-  {
-    identifier: $I`NonConformingReportConsistency`,
+  $I.annote("NonConformingReportConsistency", {
     title: "Non-conforming report identifier consistency",
     description: "Profile and invariant identifiers are unique and every issue names a checked invariant.",
     message: "Expected unique report identifiers and issues drawn only from checkedInvariantIds",
-  }
+  })
 );
 
 const NonConformingReportValue = NonConformingReportFields.check(NonConformingReportConsistency);
@@ -278,12 +279,11 @@ const IndeterminateReportFields = S.Struct({
 const IndeterminateReportConsistency = S.makeFilter(
   (report: typeof IndeterminateReportFields.Type) =>
     hasUniqueReportIdentifiers(report) && allIssueIdentifiersWereChecked(report.checkedInvariantIds, report.issues),
-  {
-    identifier: $I`IndeterminateReportConsistency`,
+  $I.annote("IndeterminateReportConsistency", {
     title: "Indeterminate report identifier consistency",
     description: "Profile and invariant identifiers are unique and every issue names a checked invariant.",
     message: "Expected unique report identifiers and issues drawn only from checkedInvariantIds",
-  }
+  })
 );
 
 const IndeterminateReportValue = IndeterminateReportFields.check(IndeterminateReportConsistency);

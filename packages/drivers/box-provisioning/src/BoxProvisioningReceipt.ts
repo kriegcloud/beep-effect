@@ -45,12 +45,14 @@ const outcomeFields = {
  * @since 0.0.0
  */
 export const BoxApplyAttemptId = S.String.check(
-  S.isPattern(/^[A-Za-z0-9-]{8,64}$/u, {
-    identifier: $I`BoxApplyAttemptIdCheck`,
-    title: "Box Apply Attempt Identifier",
-    description: "An opaque apply-attempt identifier containing 8 to 64 safe identifier characters.",
-    message: "Box apply attempt identifiers must match ^[A-Za-z0-9-]{8,64}$",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9-]{8,64}$/u,
+    $I.annote("BoxApplyAttemptIdCheck", {
+      title: "Box Apply Attempt Identifier",
+      description: "An opaque apply-attempt identifier containing 8 to 64 safe identifier characters.",
+      message: "Box apply attempt identifiers must match ^[A-Za-z0-9-]{8,64}$",
+    })
+  )
 ).pipe(
   S.brand("BoxApplyAttemptId"),
   $I.annoteSchema("BoxApplyAttemptId", {

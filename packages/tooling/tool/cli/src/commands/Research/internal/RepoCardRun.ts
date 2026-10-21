@@ -64,7 +64,7 @@ const cloneCardOf = (info: ClonedRepoInfo, capturedAt: string): Pick<CardPersist
 };
 
 const starCardOf = (star: StarredRepo, capturedAt: string): Pick<CardPersistRow, "body" | "frontmatter"> => {
-  const [owner, repo] = slugPartsOf(O.some(star.html_url), star.full_name.replaceAll("/", "--"));
+  const [owner, repo] = slugPartsOf(O.some(star.html_url), Str.replaceAll("/", "--")(star.full_name));
   const topics = star.topics ?? [];
   const frontmatter = KnowledgeCardFrontmatter.make({
     capturedAt,
@@ -127,7 +127,7 @@ const collectStarCards = Effect.fnUntraced(function* (
   const stars = yield* listStarredRepos(options.vaultRoot);
   for (const star of stars) {
     collection.starsScanned += 1;
-    const [owner, repo] = slugPartsOf(O.some(star.html_url), star.full_name.replaceAll("/", "--"));
+    const [owner, repo] = slugPartsOf(O.some(star.html_url), Str.replaceAll("/", "--")(star.full_name));
     const relativePath = path.join(VAULT_DIRS.repos, `${owner}--${repo}.md`);
     if (!options.force && (yield* cardExists(relativePath))) {
       collection.cardsSkipped += 1;

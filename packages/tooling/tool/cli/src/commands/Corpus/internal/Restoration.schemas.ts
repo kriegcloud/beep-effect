@@ -39,12 +39,14 @@ const ObjectId = S.NonEmptyString.pipe(
   })
 );
 const AttemptId = S.NonEmptyString.check(
-  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,511}$/u, {
-    identifier: $I`RestorationAttemptIdCheck`,
-    title: "Restoration Attempt Identifier",
-    description: "Attempt identifiers are bounded portable path segments and may not carry traversal syntax.",
-    message: "Expected one bounded alphanumeric attempt-id segment.",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9][A-Za-z0-9._:-]{0,511}$/u,
+    $I.annote("RestorationAttemptIdCheck", {
+      title: "Restoration Attempt Identifier",
+      description: "Attempt identifiers are bounded portable path segments and may not carry traversal syntax.",
+      message: "Expected one bounded alphanumeric attempt-id segment.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RestorationAttemptId", {
     description: "Stable traversal-safe single-segment identity assigned to one bounded processing attempt.",
@@ -60,18 +62,22 @@ const isSafeRelativePath = (value: string): boolean =>
     ));
 
 const RelativePath = S.NonEmptyString.check(
-  S.isPattern(/^(?:\.|(?![\\/]|[A-Za-z]:)[^\\\u0000]+)$/u, {
-    identifier: $I`RestorationRelativePathSyntaxCheck`,
-    title: "Restoration Relative Path Syntax",
-    description: "Restoration paths must be root-relative POSIX paths without backslashes or drive prefixes.",
-    message: "Expected a root-relative POSIX path.",
-  }),
-  S.makeFilter(isSafeRelativePath, {
-    identifier: $I`RestorationRelativePathSegmentCheck`,
-    title: "Restoration Relative Path Segments",
-    description: "Restoration path segments must not be empty, current-directory, or parent-directory markers.",
-    message: "Restoration paths must not contain empty, '.' or '..' segments.",
-  })
+  S.isPattern(
+    /^(?:\.|(?![\\/]|[A-Za-z]:)[^\\\u0000]+)$/u,
+    $I.annote("RestorationRelativePathSyntaxCheck", {
+      title: "Restoration Relative Path Syntax",
+      description: "Restoration paths must be root-relative POSIX paths without backslashes or drive prefixes.",
+      message: "Expected a root-relative POSIX path.",
+    })
+  ),
+  S.makeFilter(
+    isSafeRelativePath,
+    $I.annote("RestorationRelativePathSegmentCheck", {
+      title: "Restoration Relative Path Segments",
+      description: "Restoration path segments must not be empty, current-directory, or parent-directory markers.",
+      message: "Restoration paths must not contain empty, '.' or '..' segments.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RestorationRelativePath", {
     description: "Traversal-safe POSIX path relative to a pinned restoration authority root.",
@@ -79,12 +85,14 @@ const RelativePath = S.NonEmptyString.check(
 );
 
 const RunLabel = S.NonEmptyString.check(
-  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u, {
-    identifier: $I`RestorationRunLabelCheck`,
-    title: "Restoration Run Label",
-    description: "Run labels are one bounded portable filesystem segment.",
-    message: "Expected one portable run-label segment beginning with an alphanumeric character.",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u,
+    $I.annote("RestorationRunLabelCheck", {
+      title: "Restoration Run Label",
+      description: "Run labels are one bounded portable filesystem segment.",
+      message: "Expected one portable run-label segment beginning with an alphanumeric character.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RestorationRunLabel", {
     description: "Traversal-safe single-segment label used to isolate one restoration run.",
@@ -92,12 +100,14 @@ const RunLabel = S.NonEmptyString.check(
 );
 
 const PositiveFinite = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`RestorationPositiveFiniteCheck`,
-    title: "Positive Finite Restoration Limit",
-    description: "A bounded restoration ratio or fidelity threshold that must be greater than zero.",
-    message: "Expected a finite number greater than zero.",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("RestorationPositiveFiniteCheck", {
+      title: "Positive Finite Restoration Limit",
+      description: "A bounded restoration ratio or fidelity threshold that must be greater than zero.",
+      message: "Expected a finite number greater than zero.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RestorationPositiveFinite", {
     description: "Strictly positive finite restoration limit.",
@@ -105,12 +115,14 @@ const PositiveFinite = S.Finite.check(
 );
 
 const NonNegativeFinite = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`RestorationNonNegativeFiniteCheck`,
-    title: "Non-negative Finite Restoration Limit",
-    description: "A restoration fidelity threshold that must not be negative.",
-    message: "Expected a finite number greater than or equal to zero.",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("RestorationNonNegativeFiniteCheck", {
+      title: "Non-negative Finite Restoration Limit",
+      description: "A restoration fidelity threshold that must not be negative.",
+      message: "Expected a finite number greater than or equal to zero.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RestorationNonNegativeFinite", {
     description: "Finite restoration threshold greater than or equal to zero.",
@@ -414,12 +426,14 @@ export class MailOccurrenceMembership extends S.Opaque<MailOccurrenceMembership,
     members: S.Array(MailOccurrenceMember).check(
       S.isMinLength(1),
       S.isMaxLength(10),
-      S.makeFilter((members) => A.dedupe(A.map(members, (member) => member.objectId)).length === members.length, {
-        identifier: $I`UniqueMailOccurrenceObjectIds`,
-        title: "Unique Mail Occurrence Object Ids",
-        description: "Every occurrence in a bounded mail plan must have a distinct objectId.",
-        message: "Expected unique mail occurrence objectIds.",
-      })
+      S.makeFilter(
+        (members) => A.dedupe(A.map(members, (member) => member.objectId)).length === members.length,
+        $I.annote("UniqueMailOccurrenceObjectIds", {
+          title: "Unique Mail Occurrence Object Ids",
+          description: "Every occurrence in a bounded mail plan must have a distinct objectId.",
+          message: "Expected unique mail occurrence objectIds.",
+        })
+      )
     ),
   }).pipe(
     $I.annoteSchema("MailOccurrenceMembership", {

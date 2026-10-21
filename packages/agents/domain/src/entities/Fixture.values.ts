@@ -13,12 +13,14 @@ const fixtureKeyPattern = /^[a-z][a-z0-9_-]*(?:\.[a-z0-9_-]+)+$/u;
 const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
 const FixtureKey = S.NonEmptyString.check(
-  S.isPattern(fixtureKeyPattern, {
-    identifier: $I`FixtureKeyPatternCheck`,
-    title: "Fixture Key",
-    description: "Checks that fixture keys are dotted lowercase identifiers.",
-    message: "Fixture keys must be dotted lowercase identifiers, for example agent.reviewer.",
-  })
+  S.isPattern(
+    fixtureKeyPattern,
+    $I.annote("FixtureKeyPatternCheck", {
+      title: "Fixture Key",
+      description: "Checks that fixture keys are dotted lowercase identifiers.",
+      message: "Fixture keys must be dotted lowercase identifiers, for example agent.reviewer.",
+    })
+  )
 );
 
 /**

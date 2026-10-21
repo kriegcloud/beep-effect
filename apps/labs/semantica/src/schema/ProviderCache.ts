@@ -93,18 +93,22 @@ const responseDigestMatches = (entry: typeof ProviderCacheEntryFields.Type): boo
   Str.Equivalence(sha256TextSync(entry.response), entry.responseDigest);
 
 const ProviderCacheEntryChecks = S.makeFilterGroup([
-  S.makeFilter(cacheKeyMatches, {
-    identifier: $I`ProviderCacheEntryKeyCheck`,
-    title: "Provider cache key digest",
-    description: "Requires cacheKey to hash the canonical encoded ProviderCacheKey.",
-    message: "ProviderCacheEntry cacheKey must match the canonical key digest.",
-  }),
-  S.makeFilter(responseDigestMatches, {
-    identifier: $I`ProviderCacheEntryResponseCheck`,
-    title: "Provider response digest",
-    description: "Requires responseDigest to hash the exact UTF-8 response text without JSON quoting.",
-    message: "ProviderCacheEntry responseDigest must match the exact response text digest.",
-  }),
+  S.makeFilter(
+    cacheKeyMatches,
+    $I.annote("ProviderCacheEntryKeyCheck", {
+      title: "Provider cache key digest",
+      description: "Requires cacheKey to hash the canonical encoded ProviderCacheKey.",
+      message: "ProviderCacheEntry cacheKey must match the canonical key digest.",
+    })
+  ),
+  S.makeFilter(
+    responseDigestMatches,
+    $I.annote("ProviderCacheEntryResponseCheck", {
+      title: "Provider response digest",
+      description: "Requires responseDigest to hash the exact UTF-8 response text without JSON quoting.",
+      message: "ProviderCacheEntry responseDigest must match the exact response text digest.",
+    })
+  ),
 ]);
 
 /**

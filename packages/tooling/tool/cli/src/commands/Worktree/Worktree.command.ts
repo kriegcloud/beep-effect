@@ -28,6 +28,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
+import { isWithinRoot } from "../../internal/PathContainment.ts";
 import { ProcessPid, runRepoCommandStreamingCapture } from "../../internal/repo-run/index.ts";
 import { ReferenceWorkspace, referenceWorkspaceLayer } from "../Refs/index.ts";
 import { worktreeFleetCommand } from "./Fleet.command.ts";
@@ -392,10 +393,8 @@ export class WorktreeDoctorReport extends S.Opaque<WorktreeDoctorReport, { reado
   )
 ) {}
 
-const isUnderWorktreesRoot = (path: Path.Path, worktreesRoot: string, candidate: string): boolean => {
-  const relative = path.relative(worktreesRoot, candidate);
-  return relative.length > 0 && !Str.startsWith("..")(relative) && !path.isAbsolute(relative);
-};
+const isUnderWorktreesRoot = (path: Path.Path, worktreesRoot: string, candidate: string): boolean =>
+  isWithinRoot(path, worktreesRoot, candidate);
 
 const failOnNonZeroExit = Effect.fn("Worktree.failOnNonZeroExit")(function* (
   commandText: string,

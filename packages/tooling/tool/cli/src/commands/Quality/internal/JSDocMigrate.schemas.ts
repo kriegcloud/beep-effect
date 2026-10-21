@@ -36,12 +36,14 @@ const isJSDocMigrateProxyHost = S.is(JSDocMigrateProxyHost);
  * @since 0.0.0
  */
 export const JSDocMigrateInlineText = S.NonEmptyString.check(
-  S.isPattern(/^(?!.*\*\/)[^\r\n\u2028\u2029]+$/u, {
-    identifier: $I`JSDocMigrateInlineTextPattern`,
-    title: "JSDoc migration inline text pattern",
-    description: "Non-empty text without ECMAScript line terminators or a JSDoc closing delimiter.",
-    message: "Expected text without line terminators or a closing comment delimiter",
-  })
+  S.isPattern(
+    /^(?!.*\*\/)[^\r\n\u2028\u2029]+$/u,
+    $I.annote("JSDocMigrateInlineTextPattern", {
+      title: "JSDoc migration inline text pattern",
+      description: "Non-empty text without ECMAScript line terminators or a JSDoc closing delimiter.",
+      message: "Expected text without line terminators or a closing comment delimiter",
+    })
+  )
 ).pipe(
   $I.annoteSchema("JSDocMigrateInlineText", {
     description: "Model-produced inline text safe to interpolate into a JSDoc block.",
@@ -74,12 +76,14 @@ export type JSDocMigrateInlineText = typeof JSDocMigrateInlineText.Type;
  */
 export const JSDocMigrateProxyUrl = S.URLFromString.pipe(
   S.check(
-    S.makeFilter((url) => url.protocol === "http:" && isJSDocMigrateProxyHost(url.hostname), {
-      identifier: $I`JSDocMigrateProxyUrlCheck`,
-      title: "JSDoc migration loopback proxy URL",
-      description: "An HTTP URL whose host is a literal IPv4 or IPv6 loopback address.",
-      message: "Expected an HTTP proxy URL on 127.0.0.1 or [::1]",
-    })
+    S.makeFilter(
+      (url) => url.protocol === "http:" && isJSDocMigrateProxyHost(url.hostname),
+      $I.annote("JSDocMigrateProxyUrlCheck", {
+        title: "JSDoc migration loopback proxy URL",
+        description: "An HTTP URL whose host is a literal IPv4 or IPv6 loopback address.",
+        message: "Expected an HTTP proxy URL on 127.0.0.1 or [::1]",
+      })
+    )
   ),
   $I.annoteSchema("JSDocMigrateProxyUrl", {
     description: "Loopback-only HTTP endpoint for the local JSDoc title migration proxy.",

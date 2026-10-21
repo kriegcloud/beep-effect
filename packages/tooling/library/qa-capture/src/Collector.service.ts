@@ -95,24 +95,27 @@ const encodeEventLine = S.encodeUnknownEffect(EventLine);
 export const CollectorBindPort = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`CollectorBindPortMinimumCheck`,
-        title: "Collector Bind Port Minimum",
-        description: "Bind ports are zero (ephemeral) or greater.",
-        message: "Expected a port of at least zero",
-      }),
-      S.isLessThanOrEqualTo(65535, {
-        identifier: $I`CollectorBindPortMaximumCheck`,
-        title: "Collector Bind Port Maximum",
-        description: "Bind ports do not exceed 65535.",
-        message: "Expected a port of at most 65535",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("CollectorBindPortMinimumCheck", {
+          title: "Collector Bind Port Minimum",
+          description: "Bind ports are zero (ephemeral) or greater.",
+          message: "Expected a port of at least zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        65535,
+        $I.annote("CollectorBindPortMaximumCheck", {
+          title: "Collector Bind Port Maximum",
+          description: "Bind ports do not exceed 65535.",
+          message: "Expected a port of at most 65535",
+        })
+      ),
     ],
-    {
-      identifier: $I`CollectorBindPortChecks`,
+    $I.annote("CollectorBindPortChecks", {
       title: "Collector Bind Port",
       description: "Checks for bindable TCP port numbers including ephemeral zero.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("CollectorBindPort", {

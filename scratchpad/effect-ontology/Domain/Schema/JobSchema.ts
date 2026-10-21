@@ -37,12 +37,11 @@ const backgroundJobIdPattern = /^job-[0-9a-f]{12}$/;
  * @since 0.0.0
  */
 export const BackgroundJobId = S.String.check(
-  S.isPattern(backgroundJobIdPattern, {
-    identifier: $I`BackgroundJobIdPatternCheck`,
+  S.isPattern(backgroundJobIdPattern, $I.annote("BackgroundJobIdPatternCheck", {
     title: "Background Job Identifier",
     description: "A job- prefix followed by exactly twelve lowercase hexadecimal characters.",
     message: "Background job ID must use job- followed by exactly twelve lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("BackgroundJobId"),
     $I.annoteSchema("BackgroundJobId", {
@@ -70,8 +69,8 @@ export const BackgroundJobId = S.String.check(
  */
 export type BackgroundJobId = typeof BackgroundJobId.Type;
 
-const SimilarityReason = LiteralKit(["alias_added", "embedding_updated", "manual"]).annotate(
-    $I.annote("SimilarityReason", {
+const SimilarityReason = LiteralKit(["alias_added", "embedding_updated", "manual"]).pipe(
+    $I.annoteSchema("SimilarityReason", {
       description: "Supported reasons for recomputing entity-similarity scores.",
     })
   );

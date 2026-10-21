@@ -2084,5 +2084,8 @@
   "@beep/walker/*": ["./packages/foundation/capability/walker/src/*"],
   "@beep/walker/internal/*": [
     "./packages/foundation/capability/walker/src/internal/*"
-  ]
+  ],
+  "@beep/github": ["./packages/drivers/github/src/index.ts"],
+  "@beep/github/*": ["./packages/drivers/github/src/*"],
+  "@beep/github/internal/*": ["./packages/drivers/github/src/internal/*"]
 }

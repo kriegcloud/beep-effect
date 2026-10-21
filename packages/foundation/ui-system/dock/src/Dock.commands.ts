@@ -87,13 +87,12 @@ const CommandOriginKind = LiteralKit(["user", "api"]);
  */
 export const CommandOrigin = CommandOriginKind.mapMembers(
   Tuple.evolve([() => UserCommandOrigin, () => ApiCommandOrigin])
-)
-  .annotate(
-    $I.annote("CommandOrigin", {
-      description: "Causal origin carried with every top-level dock command.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("CommandOrigin", {
+    description: "Causal origin carried with every top-level dock command.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded tagged codec for explicit command origins.
  *
@@ -492,13 +491,12 @@ export const DockCommand = DockCommandKind.mapMembers(
     () => DockFloatingGroupCommand,
     () => MoveFloatingGroupCommand,
   ])
-)
-  .annotate(
-    $I.annote("DockCommand", {
-      description: "Exhaustive command algebra for the POC layout kernel.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("DockCommand", {
+    description: "Exhaustive command algebra for the POC layout kernel.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded tagged codec for every dock mutation command.
  *

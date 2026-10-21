@@ -158,8 +158,8 @@ const SkosFields = {
  * @category schemas
  * @since 0.0.0
  */
-export const PropertyRangeKind = LiteralKit(["object", "datatype"]).annotate(
-    $I.annote("PropertyRangeKind", {
+export const PropertyRangeKind = LiteralKit(["object", "datatype"]).pipe(
+    $I.annoteSchema("PropertyRangeKind", {
       description: "Closed property-range taxonomy distinguishing resource links from literal values.",
     })
   );
@@ -643,12 +643,11 @@ const childrenFor: {
 );
 
 const IriRecordKey = S.String.check(
-  S.makeFilter(S.is(IRI), {
-    identifier: $I`IriRecordKeyCheck`,
+  S.makeFilter(S.is(IRI), $I.annote("IriRecordKeyCheck", {
     title: "IRI Record Key",
     description: "A string record key accepted by the canonical RDF IRI schema.",
     message: "Ontology hierarchy keys must be valid IRIs.",
-  })
+  }))
 ).pipe(
     $I.annoteSchema("IriRecordKey", {
       description: "Canonical RDF IRI represented by a string-compatible record-key schema.",

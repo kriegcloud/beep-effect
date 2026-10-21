@@ -18,13 +18,15 @@ const isRelatorPair = (relators: HashSet.HashSet<LawPractice.LegalPositionRelato
   HashSet.size(relators) === 2;
 
 const OpposedRelators = LawPractice.LegalPositionRelatorId.pipe(S.HashSet, S.toCodecJson).check(
-  S.makeFilter(isRelatorPair, {
-    identifier: $I`OpposedRelatorsCheck`,
-    arbitraryConstraint: { minSize: 2, maxSize: 2 },
-    title: "Opposed Relators",
-    description: "An opposition candidate names exactly two distinct stored relations.",
-    message: "An opposition candidate must name exactly two distinct relators.",
-  })
+  S.makeFilter(
+    isRelatorPair,
+    $I.annote("OpposedRelatorsCheck", {
+      arbitraryConstraint: { minSize: 2, maxSize: 2 },
+      title: "Opposed Relators",
+      description: "An opposition candidate names exactly two distinct stored relations.",
+      message: "An opposition candidate must name exactly two distinct relators.",
+    })
+  )
 );
 
 /**

@@ -25,11 +25,10 @@ const ColorSupportLevelInputChecks = S.makeFilterGroup(
       message: colorSupportLevelInputMessage,
     }),
   ],
-  {
-    identifier: $I`ColorSupportLevelInputCheck`,
+  $I.annote("ColorSupportLevelInputCheck", {
     title: "Chalk Color Support Level",
     description: "Checks that a numeric Chalk color support level is between 0 and 3 inclusive.",
-  }
+  })
 );
 
 /**

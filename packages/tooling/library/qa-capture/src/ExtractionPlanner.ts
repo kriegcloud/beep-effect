@@ -1022,12 +1022,14 @@ export class PlanDriverRequestsOptions extends S.Opaque<PlanDriverRequestsOption
       })
     ),
     videoDurationSeconds: S.Finite.check(
-      S.isGreaterThan(0, {
-        identifier: $I`PlanDriverRequestsVideoDurationPositiveCheck`,
-        title: "Plan Driver Requests Video Duration Positive",
-        description: "Video durations are strictly positive.",
-        message: "Expected a positive video duration",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("PlanDriverRequestsVideoDurationPositiveCheck", {
+          title: "Plan Driver Requests Video Duration Positive",
+          description: "Video durations are strictly positive.",
+          message: "Expected a positive video duration",
+        })
+      )
     ).pipe(
       $I.annoteKey("PlanDriverRequestsOptions.videoDurationSeconds", {
         description: "Probed duration of the recorded video in seconds.",

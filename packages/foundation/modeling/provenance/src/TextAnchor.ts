@@ -87,12 +87,14 @@ const hasConsistentTextAnchorWidth = (anchor: {
  * @category validation
  * @since 0.0.0
  */
-export const TextAnchorWidthCheck = S.makeFilter(hasConsistentTextAnchorWidth, {
-  identifier: $I`TextAnchorWidthCheck`,
-  title: "Text Anchor Width",
-  description: "Checks that a non-empty half-open anchor range has the same UTF-16 width as its quote.",
-  message: "Expected endChar - startChar to equal the non-empty quote's UTF-16 code-unit length.",
-});
+export const TextAnchorWidthCheck = S.makeFilter(
+  hasConsistentTextAnchorWidth,
+  $I.annote("TextAnchorWidthCheck", {
+    title: "Text Anchor Width",
+    description: "Checks that a non-empty half-open anchor range has the same UTF-16 width as its quote.",
+    message: "Expected endChar - startChar to equal the non-empty quote's UTF-16 code-unit length.",
+  })
+);
 
 /**
  * Tests whether an offset falls between complete UTF-16 code points.

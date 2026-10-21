@@ -27,7 +27,7 @@ export const LawsPackageLaw = LiteralKit([
   "frozen-grant-set",
   "effect-fn",
   "package-test-imports",
-]).annotate($I.annote("LawsPackageLaw", { description: "Laws evaluated by the package worker." }));
+]).pipe($I.annoteSchema("LawsPackageLaw", { description: "Laws evaluated by the package worker." }));
 /**
  * Law identity decoded from the literal domain.
  *

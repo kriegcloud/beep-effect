@@ -14,8 +14,8 @@ import { DocumentId } from "./Document.ts";
 
 const $I = $NlpId.create("Core/Similarity");
 
-const SimilarityMethodKit = LiteralKit(["vector.cosine", "set.tversky", "bow.cosine"]).annotate(
-  $I.annote("SimilarityMethodKit", {
+const SimilarityMethodKit = LiteralKit(["vector.cosine", "set.tversky", "bow.cosine"]).pipe(
+  $I.annoteSchema("SimilarityMethodKit", {
     description: "LiteralKit backing schema for NLP similarity method identifiers.",
   })
 );

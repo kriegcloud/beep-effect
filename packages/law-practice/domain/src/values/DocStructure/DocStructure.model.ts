@@ -115,11 +115,13 @@ export class DocStructureRuleFamily extends S.Opaque<DocStructureRuleFamily, { r
   S.Struct({
     id: S.tag("uspto-oa-finality-ssp"),
     version: S.Int.check(
-      S.isGreaterThan(0, {
-        identifier: $I`RuleVersionCheck`,
-        title: "Positive rule version",
-        description: "Rules use explicit positive integer versions.",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("RuleVersionCheck", {
+          title: "Positive rule version",
+          description: "Rules use explicit positive integer versions.",
+        })
+      )
     ),
   }).pipe(
     $I.annoteSchema("DocStructureRuleFamily", {
@@ -262,12 +264,11 @@ const CandidateFields: CandidateFields = {
 const CandidateSourceCheck = S.makeFilter(
   (candidate: { readonly source: SourceTextIdentity; readonly anchor: VerifiedTextAnchor }) =>
     sourceEquivalent(candidate.source, candidate.anchor.source),
-  {
-    identifier: $I`CandidateSourceCheck`,
+  $I.annote("CandidateSourceCheck", {
     title: "Candidate source coherence",
     description: "The candidate metadata and opaque anchor must identify the same exact source.",
     message: "Candidate source differs from its verified anchor source.",
-  }
+  })
 );
 type OfficeActionFinalityCandidateFields = CandidateFields & {
   readonly finality: typeof OfficeActionFinality;
@@ -412,12 +413,11 @@ export class OfficeActionRecognizedPair extends S.Opaque<
           sourceEquivalent(candidates[0].source, candidates[1].source) &&
           S.toEquivalence(DocStructureDocument)(candidates[0].document, candidates[1].document) &&
           S.toEquivalence(DocStructureRuleFamily)(candidates[0].rule, candidates[1].rule),
-        {
-          identifier: $I`PairMetadataCheck`,
+        $I.annote("PairMetadataCheck", {
           title: "Atomic pair metadata",
           description: "Both members retain identical source, document and explicit rule metadata.",
           message: "Pair members disagree on source, document or rule.",
-        }
+        })
       )
     )
     .pipe(

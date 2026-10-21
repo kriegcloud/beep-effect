@@ -88,8 +88,10 @@ const ScrapedDocument = S.Struct({
   markdown: S.String,
   rawHtml: S.String,
   metadata: S.Struct({ sourceURL: S.String, statusCode: S.Finite }),
-}).annotate(
-  $I.annote("ScrapedDocument", { description: "Full web content with target HTTP metadata required before admission." })
+}).pipe(
+  $I.annoteSchema("ScrapedDocument", {
+    description: "Full web content with target HTTP metadata required before admission.",
+  })
 );
 
 /**

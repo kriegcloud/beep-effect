@@ -31,24 +31,26 @@ const $I = $ObsId.create("Obs.models");
 export const PositiveMilliseconds = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isFinite({
-        identifier: $I`PositiveMillisecondsFiniteCheck`,
-        title: "Positive Milliseconds Finite",
-        description: "Timeout milliseconds must be finite numbers.",
-        message: "Expected finite milliseconds",
-      }),
-      S.isGreaterThan(0, {
-        identifier: $I`PositiveMillisecondsGreaterThanZeroCheck`,
-        title: "Positive Milliseconds Greater Than Zero",
-        description: "Timeout milliseconds must be greater than zero.",
-        message: "Expected milliseconds greater than zero",
-      }),
+      S.isFinite(
+        $I.annote("PositiveMillisecondsFiniteCheck", {
+          title: "Positive Milliseconds Finite",
+          description: "Timeout milliseconds must be finite numbers.",
+          message: "Expected finite milliseconds",
+        })
+      ),
+      S.isGreaterThan(
+        0,
+        $I.annote("PositiveMillisecondsGreaterThanZeroCheck", {
+          title: "Positive Milliseconds Greater Than Zero",
+          description: "Timeout milliseconds must be greater than zero.",
+          message: "Expected milliseconds greater than zero",
+        })
+      ),
     ],
-    {
-      identifier: $I`PositiveMillisecondsChecks`,
+    $I.annote("PositiveMillisecondsChecks", {
       title: "Positive Milliseconds",
       description: "Checks for positive finite timeout milliseconds.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PositiveMilliseconds", {
@@ -92,24 +94,27 @@ export type PositiveMilliseconds = typeof PositiveMilliseconds.Type;
 export const ObsWebSocketPort = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`ObsWebSocketPortMinimumCheck`,
-        title: "Obs WebSocket Port Minimum",
-        description: "Network ports must be at least 1.",
-        message: "Expected a port of at least 1",
-      }),
-      S.isLessThanOrEqualTo(65_535, {
-        identifier: $I`ObsWebSocketPortMaximumCheck`,
-        title: "Obs WebSocket Port Maximum",
-        description: "Network ports must not exceed 65535.",
-        message: "Expected a port of at most 65535",
-      }),
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("ObsWebSocketPortMinimumCheck", {
+          title: "Obs WebSocket Port Minimum",
+          description: "Network ports must be at least 1.",
+          message: "Expected a port of at least 1",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        65_535,
+        $I.annote("ObsWebSocketPortMaximumCheck", {
+          title: "Obs WebSocket Port Maximum",
+          description: "Network ports must not exceed 65535.",
+          message: "Expected a port of at most 65535",
+        })
+      ),
     ],
-    {
-      identifier: $I`ObsWebSocketPortChecks`,
+    $I.annote("ObsWebSocketPortChecks", {
       title: "Obs WebSocket Port",
       description: "Checks for network ports in the closed 1-65535 range.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("ObsWebSocketPort", {

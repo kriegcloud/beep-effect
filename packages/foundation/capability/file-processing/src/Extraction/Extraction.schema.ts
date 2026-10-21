@@ -134,12 +134,14 @@ export class TextArtifactReference extends S.Opaque<TextArtifactReference, { rea
  * @since 0.0.0
  */
 export const TextSpan = TextSpanBase.check(
-  S.makeFilter(({ endOffset, startOffset }) => endOffset >= startOffset, {
-    identifier: $I`TextSpanOffsetOrderCheck`,
-    title: "Text Span Offset Order",
-    description: "Checks that a text span's end offset is greater than or equal to its start offset.",
-    message: "Expected endOffset to be greater than or equal to startOffset.",
-  })
+  S.makeFilter(
+    ({ endOffset, startOffset }) => endOffset >= startOffset,
+    $I.annote("TextSpanOffsetOrderCheck", {
+      title: "Text Span Offset Order",
+      description: "Checks that a text span's end offset is greater than or equal to its start offset.",
+      message: "Expected endOffset to be greater than or equal to startOffset.",
+    })
+  )
 );
 
 /**

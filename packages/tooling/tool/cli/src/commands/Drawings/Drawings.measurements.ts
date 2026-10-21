@@ -68,7 +68,7 @@ const round = (value: number, digits: number) => Number(value.toFixed(digits));
 const sumOf = (values: ReadonlyArray<number>): number => A.reduce(values, 0, (total, value) => total + value);
 
 const numbersIn = (text: string): ReadonlyArray<number> =>
-  A.map(A.fromIterable(text.matchAll(NUMBER)), (m) => Number(m[0]));
+  A.map(A.fromIterable(Str.matchAll(NUMBER)(text)), (m) => Number(m[0]));
 
 // ---------------------------------------------------------------------------
 // SVG reading
@@ -137,7 +137,7 @@ const unescapeXml = (text: string): string =>
   );
 
 const pathTags = (svg: string): ReadonlyArray<string> =>
-  A.map(A.fromIterable(svg.matchAll(/<path\b[^>]*>/g)), (m) => m[0]);
+  A.map(A.fromIterable(Str.matchAll(/<path\b[^>]*>/g)(svg)), (m) => m[0]);
 
 // ---------------------------------------------------------------------------
 // Shading strokes (the stroke table and the shading statistics)
@@ -173,7 +173,7 @@ const rowOf = (from: Point, to: Point): O.Option<StrokeRow> => {
 const rowsOfPath = (data: string, unitsPerMm: number): ReadonlyArray<StrokeRow> =>
   pipe(
     A.mapAccum(
-      A.fromIterable(data.matchAll(/([ML])\s*([-\d.]+)[ ,]([-\d.]+)/g)),
+      A.fromIterable(Str.matchAll(/([ML])\s*([-\d.]+)[ ,]([-\d.]+)/g)(data)),
       O.none<Point>(),
       (current, m): readonly [O.Option<Point>, O.Option<StrokeRow>] => {
         const point: Point = [Number(m[2]) / unitsPerMm, Number(m[3]) / unitsPerMm];
@@ -412,7 +412,7 @@ const ARITY: Readonly<Record<string, number>> = { M: 2, L: 2, T: 2, H: 1, V: 1, 
 // Every command of path data split into one chunk per coordinate group; the extra pairs after a move are
 // lines, as SVG reads them.
 const pathChunks = (d: string): ReadonlyArray<PathChunk> =>
-  A.flatMap(A.fromIterable(d.matchAll(/([MLHVCSQTAZmlhvcsqtaz])([^MLHVCSQTAZmlhvcsqtaz]*)/g)), (m) => {
+  A.flatMap(A.fromIterable(Str.matchAll(/([MLHVCSQTAZmlhvcsqtaz])([^MLHVCSQTAZmlhvcsqtaz]*)/g)(d)), (m) => {
     const letter = m[1] ?? "";
     const arity = ARITY[Str.toUpperCase(letter)] ?? 0;
     const params = numbersIn(m[2] ?? "");
@@ -616,7 +616,7 @@ const inkBox = (extent: Extent, scale: SheetScale): CriticInkBox => {
 };
 
 const textLabels = (svg: string, unitsPerMm: number): ReadonlyArray<CriticTextLabel> =>
-  A.map(A.fromIterable(svg.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)), (m) => {
+  A.map(A.fromIterable(Str.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)(svg)), (m) => {
     const tag = ` ${m[1] ?? ""}`;
     const first = (name: string) =>
       pipe(
@@ -741,7 +741,7 @@ const pdfBox = ([left, bottom, right, top]: readonly [number, number, number, nu
  */
 export const parsePdfInfoBoxes = (text: string): ReadonlyArray<CriticPdfPage> => {
   const lines = A.fromIterable(
-    text.matchAll(/^Page\s+(\d+)\s+(MediaBox|CropBox):\s+([-+\d.]+)\s+([-+\d.]+)\s+([-+\d.]+)\s+([-+\d.]+)\s*$/gm)
+    Str.matchAll(/^Page\s+(\d+)\s+(MediaBox|CropBox):\s+([-+\d.]+)\s+([-+\d.]+)\s+([-+\d.]+)\s+([-+\d.]+)\s*$/gm)(text)
   );
   const boxOf = (page: string, kind: string) =>
     pipe(

@@ -22,8 +22,8 @@ const BaseTsconfig = S.Struct({
     tsBuildInfoFile: S.String,
     incremental: S.Boolean,
   }),
-}).annotate(
-  $I.annote("BaseTsconfig", {
+}).pipe(
+  $I.annoteSchema("BaseTsconfig", {
     description: "Emit and incremental-state locations decoded from the repository base tsconfig.",
   })
 );
@@ -35,8 +35,8 @@ const BuildConfiguration = S.Struct({
       outputs: S.Array(S.String),
     }),
   }),
-}).annotate(
-  $I.annote("BuildConfiguration", {
+}).pipe(
+  $I.annoteSchema("BuildConfiguration", {
     description: "Build task output declaration decoded from the repository Turbo configuration.",
   })
 );

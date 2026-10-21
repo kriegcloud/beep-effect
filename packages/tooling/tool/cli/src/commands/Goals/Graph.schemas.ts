@@ -219,12 +219,11 @@ export class DuplicateCapabilityDeclaration extends S.Opaque<
 const UniquePacketIdsCheck = S.makeFilter(
   (projection: { readonly packets: ReadonlyArray<GraphPacketRow> }) =>
     A.length(A.dedupe(A.map(projection.packets, (packet) => packet.packetId))) === A.length(projection.packets),
-  {
-    identifier: $I`CapabilityProjectionUniquePacketIdsCheck`,
+  $I.annote("CapabilityProjectionUniquePacketIdsCheck", {
     title: "Capability Projection Unique Packet Ids",
     description: "Every packet row in a capability projection has a distinct packet id.",
     message: "A capability projection cannot contain a duplicate packet id",
-  }
+  })
 );
 
 /**

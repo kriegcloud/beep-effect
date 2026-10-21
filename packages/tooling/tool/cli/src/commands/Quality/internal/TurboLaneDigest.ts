@@ -31,12 +31,12 @@ const $I = $RepoCliId.create("commands/Quality/internal/TurboLaneDigest");
  * @category models
  * @since 0.0.0
  */
-export const TurboSummaryCacheStatus = LiteralKit(["HIT", "MISS"]).annotate(
-  $I.annote("TurboSummaryCacheStatus", { description: "Turbo run-summary cache status for one task." })
+export const TurboSummaryCacheStatus = LiteralKit(["HIT", "MISS"]).pipe(
+  $I.annoteSchema("TurboSummaryCacheStatus", { description: "Turbo run-summary cache status for one task." })
 );
 
-const TurboSummaryExecution = S.Struct({ exitCode: S.Finite.pipe(S.NullOr, S.optionalKey) }).annotate(
-  $I.annote("TurboSummaryExecution", { description: "Exit code Turbo recorded for one executed task." })
+const TurboSummaryExecution = S.Struct({ exitCode: S.Finite.pipe(S.NullOr, S.optionalKey) }).pipe(
+  $I.annoteSchema("TurboSummaryExecution", { description: "Exit code Turbo recorded for one executed task." })
 );
 
 /**
@@ -470,8 +470,8 @@ export const foldTurboLaneDigests = Effect.fnUntraced(function* (digests: Readon
 export const TurboLaneLedgerRow = S.Union([
   S.TaggedStruct("declared", { digest: TurboLaneDigest }),
   S.TaggedStruct("closed", { attempted: S.Finite }),
-]).annotate(
-  $I.annote("TurboLaneLedgerRow", { description: "A declared digest or the close record of a lane ledger." })
+]).pipe(
+  $I.annoteSchema("TurboLaneLedgerRow", { description: "A declared digest or the close record of a lane ledger." })
 );
 
 /**

@@ -59,12 +59,11 @@ const canonicalYouTubeWatchUrl = S.makeFilter<string>(
       Str.Equivalence(url, youtubeWatchUrl(decoded.videoID))
     );
   },
-  {
-    identifier: $I`CanonicalYouTubeWatchUrlCheck`,
+  $I.annote("CanonicalYouTubeWatchUrlCheck", {
     title: "Canonical YouTube watch URL",
     description: "An exact youtube.com watch URL containing one validated 11-character video id.",
     message: "Expected an exact canonical YouTube watch URL.",
-  }
+  })
 );
 
 /**

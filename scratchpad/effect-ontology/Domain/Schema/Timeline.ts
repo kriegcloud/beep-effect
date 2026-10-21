@@ -131,12 +131,11 @@ const OrderedUtcRangeDefinition = S.Struct({
               path: ["to"],
               issue: "Timeline range end must not precede its start.",
             },
-      {
-        identifier: $I`OrderedUtcRangeCheck`,
+      $I.annote("OrderedUtcRangeCheck", {
         title: "Ordered UTC Range",
         description: "A UTC range whose end is not before its start.",
         message: "UTC range end must be greater than or equal to its start.",
-      }
+      })
     )
   );
 
@@ -571,8 +570,8 @@ export class CorrectionHistoryResponse extends S.Opaque<CorrectionHistoryRespons
  * @category schemas
  * @since 0.0.0
  */
-export const ConflictStatus = LiteralKit(["pending", "resolved", "ignored"]).annotate(
-    $I.annote("ConflictStatus", {
+export const ConflictStatus = LiteralKit(["pending", "resolved", "ignored"]).pipe(
+    $I.annoteSchema("ConflictStatus", {
       description: "Lifecycle statuses assigned to detected claim conflicts.",
     })
   );
@@ -599,8 +598,8 @@ export type ConflictStatus = typeof ConflictStatus.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ConflictKind = LiteralKit(["position", "temporal"]).annotate(
-    $I.annote("ConflictKind", {
+export const ConflictKind = LiteralKit(["position", "temporal"]).pipe(
+    $I.annoteSchema("ConflictKind", {
       description: "Authoritative semantic categories persisted for claim conflicts.",
     })
   );

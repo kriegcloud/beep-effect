@@ -197,13 +197,12 @@ const TurnItemTag = LiteralKit(["message", "tool_call", "tool_result", "artifact
  */
 export const TurnItem = TurnItemTag.mapMembers(
   Tuple.evolve([() => MessageItem, () => ToolCallItem, () => ToolResultItem, () => ArtifactRefItem, () => ActivityItem])
-)
-  .pipe(S.toTaggedUnion("itemType"))
-  .annotate(
-    $I.annote("TurnItem", {
-      description: "Ordered typed item held by a turn aggregate.",
-    })
-  );
+).pipe(
+  S.toTaggedUnion("itemType"),
+  $I.annoteSchema("TurnItem", {
+    description: "Ordered typed item held by a turn aggregate.",
+  })
+);
 
 /**
  * Runtime type for {@link TurnItem}.

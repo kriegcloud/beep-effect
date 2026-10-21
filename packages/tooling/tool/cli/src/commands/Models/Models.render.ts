@@ -14,7 +14,7 @@
  */
 
 import { A, O, pipe, Str } from "@beep/utils";
-import { dual, flow } from "effect/Function";
+import { constant, dual, flow } from "effect/Function";
 import * as Match from "effect/Match";
 import type { EffortLevel } from "./Models.catalog.schemas.ts";
 import type { LocatorField, LocatorRender, ModelBinding, SupersededModel } from "./Models.manifest.schemas.ts";
@@ -238,10 +238,10 @@ export const extractGeneratedBlock: {
 } = dual(2, (content: string, blockId: string): O.Option<string> => {
   const begin = generatedBlockBegin(blockId);
   const end = generatedBlockEnd(blockId);
-  const beginIndex = content.indexOf(begin);
-  const endIndex = content.indexOf(end);
+  const beginIndex = O.getOrElse(Str.indexOf(begin)(content), constant(-1));
+  const endIndex = O.getOrElse(Str.indexOf(end)(content), constant(-1));
 
   return beginIndex < 0 || endIndex < beginIndex
     ? O.none()
-    : O.some(Str.trim(content.slice(beginIndex + begin.length, endIndex)));
+    : O.some(Str.trim(Str.slice(beginIndex + begin.length, endIndex)(content)));
 });
