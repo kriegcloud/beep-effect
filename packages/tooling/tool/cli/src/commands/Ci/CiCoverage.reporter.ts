@@ -68,7 +68,7 @@ const emitReceipt = Effect.fn("CiCoverageReporter.emitReceipt")(function* (
  * console.log(typeof reporter.onTestRunEnd) // "function"
  * ```
  * @internal
- * @category integrations
+ * @category adapters
  * @since 0.0.0
  */
 export default class CoverageRuntimeReporter implements Reporter {
@@ -88,7 +88,7 @@ export default class CoverageRuntimeReporter implements Reporter {
    * }
    * ```
    * @param context - Vitest context with the resolved coverage configuration.
-   * @category integrations
+   * @category adapters
    * @since 0.0.0
    */
   onInit(context: Vitest): void {
@@ -107,7 +107,7 @@ export default class CoverageRuntimeReporter implements Reporter {
    * ```
    * @param args - Vitest's completed modules, unhandled errors, and completion reason.
    * @returns Receipt persistence and scoped runtime disposal, rejecting unsafe or missing configuration.
-   * @category integrations
+   * @category adapters
    * @since 0.0.0
    */
   onTestRunEnd(...[, errors, reason]: Parameters<NonNullable<Reporter["onTestRunEnd"]>>): Promise<void> {

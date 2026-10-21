@@ -44,6 +44,7 @@ import {
   compareCoverageRegressionBaseline,
   coveragePackageBaselineFromSummaryForTesting,
 } from "./CoverageRegression.ts";
+import type { Vitest } from "vitest/node";
 import type { CoverageProducerCompareOptions, CoverageProducerWriteOptions } from "./CoverageArtifacts.schemas.ts";
 
 export {
@@ -239,7 +240,7 @@ export const discoverCoverageArtifactSources = Effect.fn("CoverageArtifacts.disc
         }),
       catch: boundaryError("cannot resolve Vitest configuration."),
     }),
-    Effect.fnUntraced(function* (context: Awaited<ReturnType<typeof createVitest>>) {
+    Effect.fnUntraced(function* (context: Vitest) {
       const provider = new IstanbulCoverageProvider();
       yield* Effect.try({
         try: () => provider.initialize(context),
@@ -265,6 +266,9 @@ const isEmptyUndecoratedClass = (node: Node) =>
   A.isReadonlyArrayEmpty(node.getMembers()) &&
   A.isReadonlyArrayEmpty(node.getDecorators());
 
+const isDefaultCallExport = (node: Node) =>
+  Node.isExportAssignment(node) && !node.isExportEquals() && Node.isCallExpression(node.getExpression());
+
 const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (file: string, source: string) {
   return yield* Effect.try({
     try: () => {
@@ -277,7 +281,8 @@ const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (
           Node.isExportDeclaration(statement) ||
           Node.isInterfaceDeclaration(statement) ||
           Node.isTypeAliasDeclaration(statement) ||
-          isEmptyUndecoratedClass(statement)
+          isEmptyUndecoratedClass(statement) ||
+          isDefaultCallExport(statement)
       );
       if (!admissible) return undefined;
       const instrumenter = createInstrumenter({

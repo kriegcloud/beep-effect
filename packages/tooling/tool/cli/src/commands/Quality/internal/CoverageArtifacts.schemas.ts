@@ -70,6 +70,7 @@ export class CoverageProducerPackage extends S.Opaque<CoverageProducerPackage, {
     provider: CoverageProvider.pipe(S.withConstructorDefault(Effect.succeed("istanbul"))),
     runtimeReportPath: RelativePath.pipe(S.withConstructorDefault(Effect.succeed("coverage/runtime.json"))),
     testCommand: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
+    continuationScripts: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
     testEnvironment: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed<Readonly<Record<string, string>>>({}))
     ),

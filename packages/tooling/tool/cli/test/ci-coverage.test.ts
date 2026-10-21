@@ -13,7 +13,13 @@ import {
 import * as Tasks from "@beep/repo-cli/commands/Quality/Tasks";
 import { CiCoverageArtifactPlan, QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks";
 import { StepExec } from "@beep/repo-cli/test/PackageScripts";
-import { CoverageArtifacts, CoverageProducerIdentity, CoverageScopeOwner } from "@beep/repo-cli/test/Quality";
+import {
+  CoverageArtifacts,
+  CoverageProducerIdentity,
+  CoverageScopeOwner,
+  QualityTaskConfigurationError,
+  workspaceCoverageScopeOwners,
+} from "@beep/repo-cli/test/Quality";
 import { FsUtilsLive } from "@beep/repo-utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterEach, beforeEach, expect, it } from "@effect/vitest";
@@ -26,6 +32,9 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { vi } from "vitest";
+import { parseCLI } from "vitest/node";
+
+const nativeRunCaptured = StepExec.runCaptured;
 
 const mocks = vi.hoisted(() => ({
   plan: vi.fn(),
@@ -102,6 +111,7 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           scripts: {
             coverage: `${Str.replaceAll("--bun ", "")(script)} --coverage`,
             "beep:test": script,
+            "test:lambda": "bun --version",
             ...(hasTest === true ? { test: "bun run beep:test" } : {}),
           },
         })
@@ -303,6 +313,52 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     );
   }
 
+  it.effect("surfaces a typed seal diagnostic and preserves its original cause without rendering its stack", () =>
+    Effect.gen(function* () {
+      const { root } = yield* fixture([]);
+      const original = QualityTaskConfigurationError.new(
+        "Coverage artifact: missing executable source packages/tool/src/value.ts."
+      );
+      original.stack = "DO_NOT_RENDER_SEAL_STACK";
+      mocks.write.mockReturnValue(Effect.fail(original));
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-a",
+        selectedTaskCount: 0,
+        partitionTaskCount: 0,
+        packages: [],
+      });
+      const error = yield* runCiCoveragePartition(root, options(), plan([]), proof, undefined).pipe(Effect.flip);
+      expect(error.message).toBe(
+        "Failed to seal coverage partition unit-a.: Coverage artifact: missing executable source packages/tool/src/value.ts."
+      );
+      expect(error.cause).toBe(original);
+      expect(error.message).not.toContain("DO_NOT_RENDER_SEAL_STACK");
+      expect(mocks.write).toHaveBeenCalledOnce();
+      expect(mocks.run).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect("retains opaque seal failures without dumping arbitrary diagnostic or environment fields", () =>
+    Effect.gen(function* () {
+      const { root } = yield* fixture([]);
+      const original = { message: "opaque diagnostic", environment: { fixture: "DO_NOT_RENDER_ENVIRONMENT" } };
+      mocks.write.mockReturnValue(Effect.fail(original));
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-a",
+        selectedTaskCount: 0,
+        partitionTaskCount: 0,
+        packages: [],
+      });
+      const error = yield* runCiCoveragePartition(root, options(), plan([]), proof, undefined).pipe(Effect.flip);
+      expect(error.message).toBe("Failed to seal coverage partition unit-a.");
+      expect(error.cause).toBe(original);
+      expect(error.message).not.toContain("opaque diagnostic");
+      expect(error.message).not.toContain("DO_NOT_RENDER_ENVIRONMENT");
+    })
+  );
+
   it.effect("refuses a missing workspace before running the selected shard", () =>
     Effect.gen(function* () {
       const { root } = yield* fixture([]);
@@ -349,6 +405,188 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           ]),
         })
       );
+    })
+  );
+
+  it.effect("preserves an infrastructure script continuation once after instrumented Vitest", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/infra", "infra");
+      const { root, fs, path } = yield* fixture(
+        [entry],
+        "bunx --bun vitest run --passWithNoTests && bun run test:lambda"
+      );
+      const manifestPath = path.join(root, "infra/package.json");
+      yield* fs.writeFileString(
+        manifestPath,
+        yield* encode({
+          name: entry.packageName,
+          scripts: {
+            coverage: "bun run beep:coverage",
+            test: "bun run beep:test",
+            "beep:test": "bunx --bun vitest run --passWithNoTests && bun run test:lambda",
+            "test:lambda": `bun -e 'require("node:fs").appendFileSync("lambda.log", "called\\n")'`,
+          },
+        })
+      );
+      mocks.run.mockImplementation((_label: string, steps: ReadonlyArray<QualityTaskStep>) =>
+        Effect.forEach(
+          steps,
+          (step) =>
+            step.command === "bun"
+              ? nativeRunCaptured({
+                  command: step.command,
+                  args: step.args,
+                  cwd: step.cwd,
+                  env: step.env,
+                  extendEnv: true,
+                }).pipe(Effect.asVoid)
+              : Effect.void,
+          { discard: true }
+        )
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 1,
+        partitionTaskCount: 1,
+        packages: [entry.packageName],
+      });
+      const step = QualityTaskStep.make({
+        label: "unit",
+        command: "bunx",
+        cwd: root,
+        args: ["turbo", "run", "@beep/infra#test", "--filter=@beep/infra", "--", "--coverage"],
+      });
+      yield* runCiCoveragePartition(root, options(), plan([entry]), proof, step);
+      expect(yield* fs.readFileString(path.join(root, "infra/lambda.log"))).toBe("called\n");
+      expect(mocks.run).toHaveBeenCalledTimes(3);
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:test:@beep/infra:0", [
+        expect.objectContaining({
+          command: "bunx",
+          args: expect.arrayContaining(["--bun", "vitest", "run", "--coverage"]),
+        }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(3, "ci:test:@beep/infra:0:test:lambda", [
+        expect.objectContaining({ command: "bun", args: ["run", "test:lambda"] }),
+      ]);
+      expect(mocks.write).toHaveBeenCalledWith(
+        root,
+        expect.objectContaining({ packages: [expect.objectContaining({ continuationScripts: ["test:lambda"] })] })
+      );
+    })
+  );
+
+  it.effect("rejects a failing native script continuation before sealing", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/infra", "infra");
+      const { root, fs, path } = yield* fixture([entry], "bunx --bun vitest run && bun run test:lambda");
+      yield* fs.writeFileString(
+        path.join(root, "infra/package.json"),
+        yield* encode({
+          name: entry.packageName,
+          scripts: {
+            coverage: "bun run beep:coverage",
+            test: "bun run beep:test",
+            "beep:test": "bunx --bun vitest run && bun run test:lambda",
+            "test:lambda": "bun -e 'process.exit(7)'",
+          },
+        })
+      );
+      mocks.run.mockImplementation((_label: string, steps: ReadonlyArray<QualityTaskStep>) =>
+        Effect.forEach(
+          steps,
+          (step) =>
+            step.command === "bun"
+              ? nativeRunCaptured({
+                  command: step.command,
+                  args: step.args,
+                  cwd: step.cwd,
+                  env: step.env,
+                  extendEnv: true,
+                }).pipe(
+                  Effect.flatMap((result) =>
+                    result.exitCode === 0
+                      ? Effect.void
+                      : Effect.fail(CiCommandError.make({ message: `Continuation exited ${result.exitCode}` }))
+                  )
+                )
+              : Effect.void,
+          { discard: true }
+        )
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 1,
+        partitionTaskCount: 1,
+        packages: [entry.packageName],
+      });
+      const failure = yield* runCiCoveragePartition(root, options(), plan([entry]), proof, undefined).pipe(Effect.flip);
+      expect(failure.message).toBe("Continuation exited 7");
+      expect(mocks.run).toHaveBeenCalledTimes(3);
+      expect(mocks.write).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect("does not run a script continuation or seal evidence after Vitest failure", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/infra", "infra");
+      const { root } = yield* fixture([entry], "bunx --bun vitest run && bun run test:lambda");
+      mocks.run.mockImplementation((label: string) =>
+        label === "ci:test:@beep/infra:0" ? Effect.fail(CiCommandError.make({ message: "Vitest failed" })) : Effect.void
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 1,
+        partitionTaskCount: 1,
+        packages: [entry.packageName],
+      });
+      const failure = yield* runCiCoveragePartition(root, options(), plan([entry]), proof, undefined).pipe(Effect.flip);
+      expect(failure.message).toBe("Vitest failed");
+      expect(mocks.run).toHaveBeenCalledTimes(2);
+      expect(mocks.write).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect(
+    "passes canonical CLI coverage arguments through the installed Vitest parser without duplicate booleans",
+    () =>
+      Effect.gen(function* () {
+        const { root } = yield* fixture();
+        const proof = CiLanePartitionProof.make({
+          laneId: "test-unit",
+          partition: "repo-cli-1",
+          selectedTaskCount: 1,
+          partitionTaskCount: 1,
+          packages: ["@beep/repo-cli"],
+          shard: CiLanePartitionShard.make({ index: 1, total: 2 }),
+        });
+        yield* runCiCoveragePartition(root, options(), plan([owner()]), proof, undefined);
+        const args = mocks.run.mock.calls[1]?.[1][0]?.args;
+        assertDefined(args);
+        expect(A.filter(args, (arg) => arg === "--coverage")).toHaveLength(1);
+        expect(parseCLI(A.fromIterable(args)).options.coverage?.enabled).toBe(true);
+      })
+  );
+
+  it.effect("accepts every current workspace coverage owner's canonical script without executing tests", () =>
+    Effect.gen(function* () {
+      const path = yield* Path.Path;
+      const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+      const owners = A.filter(yield* workspaceCoverageScopeOwners(repoRoot), (entry) => entry.hasCoverage);
+      mocks.plan.mockReturnValue(Effect.succeed(plan(owners)));
+      mocks.discover.mockImplementation(({ command, cwd }: { readonly command: string; readonly cwd: string }) =>
+        command === "bunx"
+          ? encode([{ file: path.join(cwd, "test/census.test.ts") }]).pipe(
+              Effect.map((output) => ({ output, exitCode: 0, truncated: false }))
+            )
+          : Effect.succeed({ output: command === "bun" ? "1.4.3" : "22.22.3", exitCode: 0, truncated: false })
+      );
+      yield* runCiCoverageComparison(repoRoot, options());
+      expect(owners.length).toBeGreaterThan(100);
+      expect(mocks.compare).toHaveBeenCalledOnce();
+      expect(mocks.run).not.toHaveBeenCalled();
     })
   );
 
@@ -661,6 +899,8 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     "TOKEN=$(echo unsafe) bunx vitest run",
     "bunx vitest run | other",
     "bunx vitest run && custom-test-command",
+    "bunx vitest run && bun run --help",
+    "bunx vitest run && bun run --",
     "bunx vitest runner",
     "bunx --bun vitest run --flag=$VALUE",
   ]) {

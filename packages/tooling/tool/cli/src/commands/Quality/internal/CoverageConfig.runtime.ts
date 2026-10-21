@@ -17,6 +17,7 @@ import * as S from "effect/Schema";
 import { createVitest, parseCLI } from "vitest/node";
 import { messageWithCause } from "../../../internal/cli/CommandErrorFields.ts";
 import { QualityTaskConfigurationError } from "../Quality.errors.ts";
+import type { Vitest } from "vitest/node";
 
 const encodeFiles = S.encodeEffect(S.fromJsonString(S.Array(S.String)));
 const boundaryError = (message: string) => (cause: unknown) =>
@@ -63,7 +64,7 @@ export const inspectCoverageRuntimeSources = Effect.fn("CoverageConfig.inspectSo
         }),
       catch: boundaryError("Cannot resolve invocation coverage configuration."),
     }),
-    Effect.fnUntraced(function* (context: Awaited<ReturnType<typeof createVitest>>) {
+    Effect.fnUntraced(function* (context: Vitest) {
       const provider = expectedProvider === "v8" ? new V8CoverageProvider() : new IstanbulCoverageProvider();
       yield* Effect.try({
         try: () => provider.initialize(context),

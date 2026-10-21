@@ -560,6 +560,25 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         });
       })
     );
+    it.effect("retains a default registry call only when Istanbul assigns no own units", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "src/registry.ts"),
+          'import { definePlugin, rule } from "./rules.js"; export default definePlugin({ meta: { name: "fixture" }, rules: { stable: rule } });'
+        );
+        yield* f.write(1);
+        yield* f.write(2);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots[0]?.baseline.files[`${f.packagePath}/src/registry.ts`]?.uncovered).toEqual({
+          lines: 0,
+          statements: 0,
+          functions: 0,
+          branches: 0,
+        });
+      })
+    );
+
     for (const [kind, source] of R.toEntries({
       method: "export class Runtime { run() { return 1; } }",
       field: "export class Runtime { value = 1; }",
@@ -567,8 +586,14 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       decorator: "@decorate export class Runtime {}",
       callbackBase: "export class Runtime extends (() => Object)() {}",
       enum: "export enum Runtime { First }",
+      defaultCallback: "export default definePlugin({ create: () => 1 });",
+      defaultMethod: "export default definePlugin({ create() { return 1; } });",
+      defaultBranch: "export default definePlugin({ value: flag ? 1 : 2 });",
+      defaultMutable: "export default (globalThis.value = 1);",
+      mixedDefault: "export const value = 1; export default definePlugin({ value });",
+      exportEquals: "export = definePlugin({});",
     })) {
-      it.effect(`rejects missing ${kind} coverage instead of treating it as a zero-unit class`, () =>
+      it.effect(`rejects missing ${kind} coverage instead of treating it as a zero-unit declaration`, () =>
         Effect.gen(function* () {
           const f = yield* fixture();
           yield* f.fs.writeFileString(f.path.join(f.packageRoot, "src/runtime.ts"), source);
@@ -838,6 +863,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       );
     }
     const packagePatches = {
+      continuation: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
+        ...entry,
+        selection: CoverageProducerPackage.make({ ...entry.selection, continuationScripts: ["test:unexpected"] }),
+      }),
       overlap: (f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
         ...entry,
         actualTestFiles: [f.tests[0] ?? ""],

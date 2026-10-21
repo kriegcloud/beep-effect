@@ -14,9 +14,11 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
 import { isLabsWorkspaceDir } from "../../internal/cli/Labs/index.ts";
 import { runCaptured } from "../../internal/process/StepExec.ts";
 import {
@@ -65,6 +67,7 @@ class CanonicalVitestInvocation extends S.Opaque<CanonicalVitestInvocation, { re
     args: S.Array(S.String),
     cwd: S.String,
     env: S.Record(S.String, S.String),
+    continuationScripts: S.Array(S.String),
   }).pipe(
     $I.annoteSchema("CanonicalVitestInvocation", {
       description: "A parsed literal runner invocation with explicit package environment and no shell operators.",
@@ -79,9 +82,16 @@ const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
   packageName: string,
   cwd: string
 ) {
+  const segments = Str.split(/\s+&&\s+/)(Str.trim(script));
+  const [prefix, continuations] = A.span(segments, isCanonicalVitestCommand);
+  const continuationPattern = /^bun\s+run\s+[A-Za-z0-9_@][A-Za-z0-9_:@./-]*$/u;
+  if (A.isReadonlyArrayEmpty(prefix) || !A.every(continuations, (command) => continuationPattern.test(command)))
+    return yield* CiCommandError.make({
+      message: `Coverage owner ${packageName} must use a canonical Vitest test script.`,
+    });
   const commands = yield* Effect.forEach(
-    Str.split(/\s+&&\s+/)(Str.trim(script)),
-    Effect.fnUntraced(function* (command) {
+    prefix,
+    Effect.fnUntraced(function* (command, index) {
       if (!isCanonicalVitestCommand(command)) {
         return yield* CiCommandError.make({
           message: `Coverage owner ${packageName} must use a canonical Vitest test script.`,
@@ -97,6 +107,8 @@ const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
         cwd,
         env,
         args: A.drop(tokens, 1),
+        continuationScripts:
+          index === prefix.length - 1 ? A.map(continuations, (value) => Str.replace(/^bun\s+run\s+/, "")(value)) : [],
       });
     })
   );
@@ -198,6 +210,11 @@ const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages"
       const commands = isCli
         ? yield* cliCoverageCommands(workspace.scripts.coverage ?? "", unitCommands, workspace.dir)
         : unitCommands;
+      for (const continuation of A.flatMap(commands, (command) => command.continuationScripts))
+        if (workspace.scripts[continuation] === undefined)
+          return yield* CiCommandError.make({
+            message: `Coverage owner ${owner.packageName} has no continuation script ${continuation}.`,
+          });
       const unitCensus = isCli ? O.some(yield* coverageTestInventory(unitCommands[0], owner.packageName)) : O.none();
       return yield* Effect.forEach(
         commands,
@@ -218,6 +235,7 @@ const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages"
             provider: isCli ? "v8" : "istanbul",
             testRuntimeVersion,
             testCommand: [command.command, ...command.args],
+            continuationScripts: command.continuationScripts,
             testEnvironment: command.env,
             runtimeReportPath: `${reportDirectory}/runtime.json`,
             expectedTestFiles: A.sort(
@@ -297,7 +315,10 @@ const runAndWrite = Effect.fn("CiCoverage.runAndWrite")(function* (
   const path = yield* Path.Path;
   const compound = A.filter(
     packages,
-    (entry) => entry.testReportPath !== "coverage/unit-results.json" || entry.provider === "v8"
+    (entry) =>
+      entry.testReportPath !== "coverage/unit-results.json" ||
+      entry.provider === "v8" ||
+      A.isReadonlyArrayNonEmpty(entry.continuationScripts)
   );
   const compoundNames = A.dedupe(A.map(compound, (entry) => entry.packageName));
   for (const entry of A.dedupeWith(packages, (left, right) => left.packagePath === right.packagePath)) {
@@ -317,7 +338,12 @@ const runAndWrite = Effect.fn("CiCoverage.runAndWrite")(function* (
       partitionId,
       packages,
     })
-  ).pipe(CiCommandError.mapError(`Failed to seal coverage partition ${partitionId}.`));
+  ).pipe(
+    Effect.mapError((cause) => {
+      const message = `Failed to seal coverage partition ${partitionId}.`;
+      return CiCommandError.new(cause, P.isError(cause) ? messageWithCause(message, cause) : message);
+    })
+  );
 });
 
 const coverageReporterArgument = (repoRoot: string) =>
@@ -369,7 +395,7 @@ const runCompoundCoverageSteps = Effect.fn("CiCoverage.runCompoundSteps")(functi
       command: "bunx",
       cwd: path.join(repoRoot, entry.packagePath),
       args: [
-        ...A.drop(entry.testCommand, 1),
+        ...A.filter(A.drop(entry.testCommand, 1), (arg) => arg !== "--coverage" && arg !== "--coverage=true"),
         ...A.filter(
           A.drop(ciCoverageTestArgs, 1),
           (arg) => !Str.startsWith("--outputFile=")(arg) && !Str.startsWith("--coverage.provider=")(arg)
@@ -389,7 +415,22 @@ const runCompoundCoverageSteps = Effect.fn("CiCoverage.runCompoundSteps")(functi
       },
     })
   );
-  yield* Effect.forEach(steps, (step) => runQualityTaskStreamingStepGroup(step.label, [step]), { discard: true });
+  yield* Effect.forEach(
+    A.zip(steps, packages),
+    Effect.fnUntraced(function* ([step, entry]) {
+      yield* runQualityTaskStreamingStepGroup(step.label, [step]);
+      for (const script of entry.continuationScripts)
+        yield* runQualityTaskStreamingStepGroup(`${step.label}:${script}`, [
+          QualityTaskStep.make({
+            ...step,
+            command: "bun",
+            args: ["run", script],
+            env: { ...step.env, BEEP_COVERAGE_INVOCATION_ID: undefined, BEEP_COVERAGE_RUNTIME_RECEIPT: undefined },
+          }),
+        ]);
+    }),
+    { discard: true }
+  );
 });
 
 /**

@@ -184,6 +184,18 @@ export const resolveNodeVersions: (
   return NodeVersionState.make({ nvmrc, workflowLocations: locations });
 });
 
+// These canonical coverage jobs preserve the legacy Node22/V8 measurement
+// engine. Heavy's matrix pin and Labs' conditional pin remain covered by the
+// templated-value rule below; ordinary jobs still follow .nvmrc. Keep this
+// exception tied to the actual workflow, job IDs, and reviewed runtime pin.
+const isCanonicalCoverageRuntimePin = S.is(
+  S.Struct({
+    file: S.Literal(".github/workflows/check.yml"),
+    jobName: S.Literals(["test-unit-shard", "coverage-regression"]),
+    currentValue: S.Literal("22.22.3"),
+  })
+);
+
 /**
  * Find `node-version:` field locations in a workflow YAML document.
  *
@@ -203,34 +215,38 @@ const findNodeVersionLocations: (
     VersionSyncError.mapError("Failed to parse workflow YAML", relativeFile)
   );
 
-  for (const [jobName, job] of R.toEntries(workflow.jobs)) {
-    for (const [stepIdx, step] of job.steps.entries()) {
-      const withBlock = step.with;
-      if (withBlock === undefined || withBlock["node-version"] === undefined) {
-        continue;
-      }
-
-      if (withBlock["node-version-file"] !== undefined) {
-        continue;
-      }
-
-      const nodeVersion = nodeVersionString(withBlock["node-version"]);
-      // A templated value (for example a matrix-driven per-lane override that
-      // falls back to .nvmrc when empty) cannot be asserted at lint time.
-      if (Str.includes("${{")(nodeVersion)) {
-        continue;
-      }
-      locations = A.append(
-        locations,
-        NodeVersionLocation.make({
-          file: relativeFile,
-          jobName,
-          stepIndex: S.Natural.make(stepIdx),
-          currentValue: nodeVersion,
-          yamlPath: ["jobs", jobName, "steps", stepIdx, "with", "node-version"],
-        })
-      );
+  const steps = A.flatMap(R.toEntries(workflow.jobs), ([jobName, job]) =>
+    A.map(job.steps, (step, stepIdx) => ({ jobName, stepIdx, step }))
+  );
+  for (const { jobName, stepIdx, step } of steps) {
+    const withBlock = step.with;
+    if (withBlock === undefined || withBlock["node-version"] === undefined) {
+      continue;
     }
+
+    if (withBlock["node-version-file"] !== undefined) {
+      continue;
+    }
+
+    const nodeVersion = nodeVersionString(withBlock["node-version"]);
+    // A templated value (for example a matrix-driven per-lane override that
+    // falls back to .nvmrc when empty) cannot be asserted at lint time.
+    if (
+      Str.includes("${{")(nodeVersion) ||
+      isCanonicalCoverageRuntimePin({ file: relativeFile, jobName, currentValue: nodeVersion })
+    ) {
+      continue;
+    }
+    locations = A.append(
+      locations,
+      NodeVersionLocation.make({
+        file: relativeFile,
+        jobName,
+        stepIndex: S.Natural.make(stepIdx),
+        currentValue: nodeVersion,
+        yamlPath: ["jobs", jobName, "steps", stepIdx, "with", "node-version"],
+      })
+    );
   }
 
   return locations;
