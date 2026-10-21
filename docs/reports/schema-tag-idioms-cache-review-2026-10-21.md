@@ -18,10 +18,13 @@ computations: their commands, inputs, outputs, environment, dependency edges
 and cache flags are unchanged. No qualification scope, profile, epoch or
 qualification state changes, and no computation becomes cached.
 
+Re-stamped after merging `main` at eba755d935, which recorded `//#lint:retired-iri-authorities`
+(#1946): the drift is the same digest-only change on the same 28 root computations.
+
 This reviews the declared configuration change only. It is not evidence that
 any computation is newly qualified or that a quality gate has passed.
 
-Current `turbo.json` SHA-256: `01cb43bcca8ee225ceb181f84900983a42278408b7a179c68e849537f8b6f0e7`.
+Current `turbo.json` SHA-256: `2582a195aeb2a9baec96d84e790964967c4dec6f9aebc9d63efa028b3cc3d526`.
 
 Drifted computations (subject `//`):
 

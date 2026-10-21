@@ -24,7 +24,7 @@ then feed later M2-M4 decisions from those reports.
 ## Solution Sketch
 
 Graduate `goals/semantic-foundation` as the shared semantic layer. M1 commits a
-repo-owned SKOS taxonomy seed with concept IRIs under `https://ns.beep.sh/`,
+repo-owned SKOS taxonomy seed with concept IRIs under `https://beep-effect.com/ns/`,
 adds document-class vocabulary (`draft`, `redline`, `filed`, `received`,
 `privileged`, `extracted-child`), records FOLIO alignments where vetted, and
 adds `@beep/ontology` registry/loader APIs that load committed seed data plus
@@ -34,7 +34,7 @@ The packet consumes existing repo capabilities:
 
 - `@beep/rdf` already has SKOS constants for concepts, schemes, hierarchy, and
   match predicates.
-- `@beep/identity` already binds `https://ns.beep.sh/` and exposes
+- `@beep/identity` already binds `https://beep-effect.com/ns/` and exposes
   `IdentityComposer` plus `mergeVocab`.
 - `@beep/ontology` currently has FOLIO OpenAPI models, so registry/loader is
   the net-new package capability.

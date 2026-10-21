@@ -186,6 +186,21 @@ repository-owned database migration aggregation and generated migration SQL.
 Product apps and product slice packages must not depend on it; see
 [07-non-slice-families.md](architecture/07-non-slice-families.md).
 
+### 8. One Public Origin, One Identity Authority
+
+`beep-effect.com` is the single public origin. Its apex hosts ring-0
+projections of the public substrate only, at the reserved Site Routes owned by
+`@beep/public-site`; `/ns/` is reserved forever for dereferencing identity
+IRIs; services and instances that are not projections (a practice instance,
+the proxy, anything authenticated) use subdomains. Hosted URLs come from
+`@beep/public-site` (`hostedUrl`, `labRoute`) and IRIs come from
+`@beep/identity` composers under the identity authority
+`https://beep-effect.com/ns/`; product code outside those two packages never
+writes either as a string literal (tests and the law's allowlist excepted),
+and `@beep/identity` never depends on `@beep/public-site`.
+`bun run beep laws retired-iri-authorities` enforces the rule (see
+`standards/architecture/DECISIONS.md`, 2026-10-20).
+
 ## Package Dependency Graph
 
 The legal dependency flow is inward toward domain and outward only through

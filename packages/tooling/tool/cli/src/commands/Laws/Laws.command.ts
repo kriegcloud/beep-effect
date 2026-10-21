@@ -29,6 +29,8 @@ import {
 } from "./NoNativeRuntime.ts";
 import { RetiredEffectPathsOptions } from "./RetiredEffectPaths.model.ts";
 import { formatRetiredEffectPathFinding, runRetiredEffectPaths } from "./RetiredEffectPaths.ts";
+import { RetiredIriAuthoritiesOptions } from "./RetiredIriAuthorities.model.ts";
+import { formatRetiredIriAuthorityFinding, runRetiredIriAuthorities } from "./RetiredIriAuthorities.ts";
 import { SchemaTagIdiomsOptions } from "./SchemaTagIdioms.model.ts";
 import { formatSchemaTagIdiomFinding, runSchemaTagIdioms } from "./SchemaTagIdioms.ts";
 import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.ts";
@@ -622,6 +624,58 @@ const lawsRetiredEffectPathsCommand = Command.make(
 ).pipe(Command.withDescription("Check git-tracked text files for retired Effect module paths"));
 
 /**
+ * CLI command for the retired IRI authority law.
+ *
+ * **Example** (Reference the retired-iri-authorities subcommand)
+ *
+ * ```ts
+ * console.log("lawsRetiredIriAuthoritiesCommand")
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+const lawsRetiredIriAuthoritiesCommand = Command.make(
+  "retired-iri-authorities",
+  {
+    check: Flag.Boolean("check").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription(
+        "Fail on a retired IRI authority in any git-tracked text file, or a public-origin literal in code outside @beep/identity and @beep/public-site"
+      )
+    ),
+    json: Flag.Boolean("json").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Emit the complete law summary as schema-shaped JSON")
+    ),
+  },
+  Effect.fn(function* ({ check, json }) {
+    const summary = yield* runRetiredIriAuthorities(
+      RetiredIriAuthoritiesOptions.make({ cwd: process.cwd(), strictCheck: check })
+    );
+
+    if (json) {
+      yield* printCommandJson(summary);
+    } else {
+      yield* Console.log(`[effect-governance-retired-iri-authorities] mode=${check ? "check" : "report"}`);
+      yield* Console.log(`[effect-governance-retired-iri-authorities] scanned_files=${summary.scannedFiles}`);
+      yield* Console.log(
+        `[effect-governance-retired-iri-authorities] skipped_binary_files=${summary.skippedBinaryFiles}`
+      );
+      yield* Console.log(`[effect-governance-retired-iri-authorities] exempt_files=${summary.exemptFiles}`);
+      yield* Console.log(`[effect-governance-retired-iri-authorities] findings=${summary.findings.length}`);
+      for (const finding of summary.findings) {
+        yield* Console.log(formatRetiredIriAuthorityFinding(finding));
+      }
+    }
+
+    if (summary.strictFailure) {
+      return yield* failWithReportedExit("effect-governance-retired-iri-authorities: check failed.");
+    }
+  })
+).pipe(Command.withDescription("Check git-tracked files for retired IRI authorities and public-origin literals"));
+
+/**
  * CLI command for the schema tag idiom law.
  *
  * **Example** (Reference the schema-tag-idioms subcommand)
@@ -782,6 +836,7 @@ export const lawsCommand = Command.make("laws", {}, () =>
     "- bun run beep laws effect-fn --check",
     "- bun run beep laws frozen-grant-set --check",
     "- bun run beep laws retired-effect-paths --check",
+    "- bun run beep laws retired-iri-authorities --check",
     "- bun run beep laws schema-tag-idioms --check",
     "- bun run beep laws terse-effect --check",
     "- bun run beep laws terse-effect --write",
@@ -795,6 +850,7 @@ export const lawsCommand = Command.make("laws", {}, () =>
     lawsEffectFnCommand,
     lawsFrozenGrantSetCommand,
     lawsRetiredEffectPathsCommand,
+    lawsRetiredIriAuthoritiesCommand,
     lawsSchemaTagIdiomsCommand,
     lawsTerseEffectCommand,
     lawsAllowlistCheckCommand,

@@ -4,7 +4,7 @@ import { describe, expect } from "@effect/vitest";
 import * as S from "effect/Schema";
 
 const $I = make("probe").$ProbeId.create("Widget");
-const $Bound = make("probe", { authority: "https://ns.beep.sh/", prefix: "beep" }).$ProbeId.create("Widget");
+const $Bound = make("probe", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$ProbeId.create("Widget");
 
 class WidgetError extends S.TaggedError<WidgetError, { readonly brand: unique symbol }>($I`WidgetError`)(
   "WidgetError",

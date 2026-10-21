@@ -461,9 +461,9 @@ export const escapeLocal = (local: string): string => local.replace(/[_~.\-!$&'(
  *
  * const rendered = prefixedNameOrIri("Ontology.models/HttpUrl", {
  *   prefix: "beep",
- *   fullIri: "https://ns.beep.sh/Ontology.models/HttpUrl"
+ *   fullIri: "https://beep-effect.com/ns/Ontology.models/HttpUrl"
  * })
- * console.log(rendered) // "<https://ns.beep.sh/Ontology.models/HttpUrl>"
+ * console.log(rendered) // "<https://beep-effect.com/ns/Ontology.models/HttpUrl>"
  * ```
  *
  * @category formatting

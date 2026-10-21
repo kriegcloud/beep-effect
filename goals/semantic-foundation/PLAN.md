@@ -26,7 +26,7 @@ M3 code waits for M2 tests and real-artifact readiness. M4 remains gated.
    paths for `@beep/rdf`, `@beep/ontology`, `@beep/identity`, and
    `@beep/semantic-web`.
 2. [x] Define the repo-owned M1 taxonomy seed as SKOS TTL/JSON-LD data using
-   `https://ns.beep.sh/` IRIs minted by `@beep/identity`.
+   `https://beep-effect.com/ns/` IRIs minted by `@beep/identity`.
 3. [x] Model document-class vocabulary for `draft`, `redline`, `filed`,
    `received`, `privileged`, and `extracted-child`.
 4. [x] Add schema-first concept-scheme/taxonomy registry models and a loader

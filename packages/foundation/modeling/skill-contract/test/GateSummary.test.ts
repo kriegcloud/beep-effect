@@ -31,16 +31,16 @@ const encodeUnknownAttestationResourceResult = S.encodeUnknownResult(Attestation
 const emptySha256 = Sha256Hex.make("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 const digest = EvidenceDigest.make({ sha256: emptySha256 });
 const subject = EvidenceSubject.make({ digest, name: "qa/inventory.json" });
-const policy = AttestationResource.make({ digest, uri: URLStr.make("https://beep-effect.dev/policy/qa/v1") });
+const policy = AttestationResource.make({ digest, uri: URLStr.make("https://example.test/policy/qa/v1") });
 const inputAttestation = AttestationResource.make({
   digest,
-  uri: URLStr.make("https://beep-effect.dev/attestation/qa/inventory/v1"),
+  uri: URLStr.make("https://example.test/attestation/qa/inventory/v1"),
 });
 const verifier = GateSummaryVerifier.make({
-  id: URLStr.make("https://beep-effect.dev/verifier/skill-contract/v1"),
+  id: URLStr.make("https://example.test/verifier/skill-contract/v1"),
   version: { kernel: "1.0.0" },
 });
-const evidenceType = EvidencePredicateType.make("https://beep-effect.dev/evidence/artifact/v1");
+const evidenceType = EvidencePredicateType.make("https://example.test/evidence/artifact/v1");
 const gateId = GateId.make("artifact-exists");
 
 const summaryFor = (options: {
@@ -63,7 +63,7 @@ const summaryFor = (options: {
     ],
     inputAttestations: [inputAttestation],
     policy,
-    resourceUri: URLStr.make("https://beep-effect.dev/resource/qa-round/1"),
+    resourceUri: URLStr.make("https://example.test/resource/qa-round/1"),
     timeVerified: "2026-08-24T00:00:00.000Z",
     verificationResult: passed ? "PASSED" : "FAILED",
     verifiedLevels: passed ? ["BEEP_SKILL_CONTRACT_BLOCKING_GATES"] : ["FAILED"],

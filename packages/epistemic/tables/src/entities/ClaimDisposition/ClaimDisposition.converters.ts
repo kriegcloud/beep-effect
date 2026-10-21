@@ -19,6 +19,7 @@ import type { Table } from "./ClaimDisposition.table.ts";
  *
  * ```ts
  * import type { ClaimDispositionRow } from "@beep/epistemic-tables/entities/ClaimDisposition"
+ * import { $EpistemicId } from "@beep/identity/packages"
  *
  * const row = {
  *   claimId: 3,
@@ -41,9 +42,9 @@ import type { Table } from "./ClaimDisposition.table.ts";
  *   updatedByPrincipal: { kind: "System", component: "Runtime" },
  *   violations: [
  *     {
- *       focusNode: "https://beep.dev/epistemic/claim/patentability",
+ *       focusNode: $EpistemicId.create("claim/patentability").iri,
  *       message: "Expected at least 1 value(s) for evidence.",
- *       path: "https://beep.dev/epistemic/hasEvidenceQuote",
+ *       path: $EpistemicId.create("hasEvidenceQuote").iri,
  *       severity: "violation"
  *     }
  *   ]
@@ -109,6 +110,7 @@ const decodeClaimDispositionRow = S.decodeUnknownResult(ClaimDisposition);
  * ```ts
  * import { fromClaimDispositionRow, toClaimDispositionInsert } from "@beep/epistemic-tables/entities/ClaimDisposition"
  * import type { ClaimDispositionRow } from "@beep/epistemic-tables/entities/ClaimDisposition"
+ * import { $EpistemicId } from "@beep/identity/packages"
  * import * as Result from "effect/Result"
  *
  * const row = {
@@ -132,9 +134,9 @@ const decodeClaimDispositionRow = S.decodeUnknownResult(ClaimDisposition);
  *   updatedByPrincipal: { kind: "System", component: "Runtime" },
  *   violations: [
  *     {
- *       focusNode: "https://beep.dev/epistemic/claim/patentability",
+ *       focusNode: $EpistemicId.create("claim/patentability").iri,
  *       message: "Expected at least 1 value(s) for evidence.",
- *       path: "https://beep.dev/epistemic/hasEvidenceQuote",
+ *       path: $EpistemicId.create("hasEvidenceQuote").iri,
  *       severity: "violation"
  *     }
  *   ]
@@ -166,6 +168,7 @@ export const toClaimDispositionInsert = (
  * ```ts
  * import { fromClaimDispositionRow } from "@beep/epistemic-tables/entities/ClaimDisposition"
  * import type { ClaimDispositionRow } from "@beep/epistemic-tables/entities/ClaimDisposition"
+ * import { $EpistemicId } from "@beep/identity/packages"
  * import * as Result from "effect/Result"
  *
  * const row = {
@@ -189,9 +192,9 @@ export const toClaimDispositionInsert = (
  *   updatedByPrincipal: { kind: "System", component: "Runtime" },
  *   violations: [
  *     {
- *       focusNode: "https://beep.dev/epistemic/claim/patentability",
+ *       focusNode: $EpistemicId.create("claim/patentability").iri,
  *       message: "Expected at least 1 value(s) for evidence.",
- *       path: "https://beep.dev/epistemic/hasEvidenceQuote",
+ *       path: $EpistemicId.create("hasEvidenceQuote").iri,
  *       severity: "violation"
  *     }
  *   ]

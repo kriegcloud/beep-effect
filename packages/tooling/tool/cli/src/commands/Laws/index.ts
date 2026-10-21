@@ -40,6 +40,20 @@ export * from "./RetiredEffectPaths.model.ts";
  */
 export * from "./RetiredEffectPaths.ts";
 /**
+ * Retired IRI authority law schemas, host data, and scope.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./RetiredIriAuthorities.model.ts";
+/**
+ * Retired IRI authority law: pure scanners and repository runner.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./RetiredIriAuthorities.ts";
+/**
  * Schema tag idiom law schemas.
  *
  * @category models

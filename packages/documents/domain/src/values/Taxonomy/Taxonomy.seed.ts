@@ -5,12 +5,14 @@
  * @since 0.0.0
  */
 
+import { $I as $BeepId } from "@beep/identity/packages";
 import { IRIReference } from "@beep/rdf";
 import { ValidWindowsPlainPathSegment } from "@beep/schema/FilePath";
 import * as A from "effect/Array";
 import { FolioAlignment, LegalDocumentTaxonomy, LegalDocumentTaxonomyConcept } from "./Taxonomy.model.ts";
 
-const SCHEME_IRI = IRIReference.make("https://ns.beep.sh/documents/taxonomy/legal-document");
+const legalDocumentScheme = $BeepId.create("documents/taxonomy/legal-document");
+const SCHEME_IRI = IRIReference.make(legalDocumentScheme.iri);
 const FOLIO_SOURCE_IRIS = [
   IRIReference.make("https://github.com/filipdbrskja/FOLIO"),
   IRIReference.make("https://raw.githubusercontent.com/filipdbrskja/FOLIO/master/FOLIO.owl"),
@@ -37,7 +39,7 @@ const noFolioConcept = FolioAlignment.make({
  * @since 0.0.0
  */
 export const legalDocumentTaxonomyJsonLdContext = {
-  beep: "https://ns.beep.sh/documents/taxonomy/legal-document#",
+  beep: `${legalDocumentScheme.iri}#`,
   dc: "http://purl.org/dc/terms/",
   folio: "https://github.com/filipdbrskja/FOLIO#",
   skos: "http://www.w3.org/2004/02/skos/core#",

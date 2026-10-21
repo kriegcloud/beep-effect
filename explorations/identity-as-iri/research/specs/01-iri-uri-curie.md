@@ -17,7 +17,7 @@ RFC 3987 §2.2, RFC 3986 §3).
 The scheme is still the URI scheme production: it starts with a letter and is
 then letters, digits, `+`, `-`, or `.`; scheme names are case-insensitive, but
 producers should emit lowercase for consistency (RFC 3986 §3.1, RFC 3987
-§2.2). For `https://ns.beep.sh/...`, `IriFromIdentity` should therefore emit
+§2.2). For `https://beep-effect.com/ns/...`, `IriFromIdentity` should therefore emit
 lowercase `https` and should not allow an identity-local transform to alter the
 scheme spelling (RFC 3986 §3.1, RFC 3986 §6.2.2.1).
 
@@ -32,7 +32,7 @@ The IRI path is a sequence of path segments, with `/` separating segments; an
 individual IRI segment is `*ipchar`, where `ipchar` is `iunreserved`,
 `pct-encoded`, sub-delimiters, `:`, or `@` (RFC 3987 §2.2, RFC 3986 §3.3).
 That means a mechanical mapping from `@beep/a/b` to
-`https://ns.beep.sh/a/b` is structurally a path mapping: the identity separator
+`https://beep-effect.com/ns/a/b` is structurally a path mapping: the identity separator
 `/` becomes the IRI path separator, not data inside a segment (RFC 3986 §3.3,
 RFC 3987 §2.2).
 
@@ -114,7 +114,7 @@ literal, while any URI projection should be treated as a derived wire form
 ## 3. Slash vs hash namespace IRIs
 
 At the URI/IRI syntax level, a slash term such as
-`https://ns.beep.sh/ontology/Ontology.models/HttpUrl` is path data under the
+`https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl` is path data under the
 `https` naming authority, while a hash term such as
 `https://opip.law/ns/patent#Claim` uses the fragment component (RFC 3986 §3.3,
 RFC 3986 §3.5). The fragment identifies a secondary resource by reference to a
