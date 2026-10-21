@@ -214,7 +214,7 @@ const heroRotationDriverAtom = Atom.family((key: string) =>
       return;
     }
 
-    const count = Number.parseInt(key.split("::")[0] ?? "", 10);
+    const count = Number.parseInt(Str.split("::")(key)[0] ?? "", 10);
     if (!Number.isInteger(count) || count <= 1) {
       return;
     }

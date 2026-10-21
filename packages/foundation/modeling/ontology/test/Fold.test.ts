@@ -11,6 +11,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { AssembledClass, AssembledPredicate, Triple } from "@beep/ontology";
 
 const $I = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$BeepId.create("patent");
@@ -285,7 +286,7 @@ describe("Ontology.fold projections", () => {
       const assembled = yield* assemble;
       const markdown = toMarkdown(assembled);
 
-      pipe(markdown.startsWith("# Patent Core"), assertTrue);
+      pipe(Str.startsWith("# Patent Core")(markdown), assertTrue);
       expect(markdown).toContain("{#beep-effect-com-ns-patent-claim}");
       expect(markdown).toContain("`prefLabel`");
       expect(markdown).toContain("`rdfs:subClassOf`");
@@ -655,7 +656,7 @@ describe("Ontology.fold rebase", () => {
       const turtle = toTurtle(assembled);
       const context = toContext(assembled);
 
-      pipe(assembled.baseIri.startsWith("https://opip.law/ns/patent#"), assertTrue);
+      pipe(Str.startsWith("https://opip.law/ns/patent#")(assembled.baseIri), assertTrue);
       expect(assembled.prefix).toBe("patent");
       expect(turtle).toContain("@prefix patent: <https://opip.law/ns/patent#");
       expect(turtle).toContain("patent:");

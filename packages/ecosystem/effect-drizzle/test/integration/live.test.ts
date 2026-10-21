@@ -31,6 +31,7 @@ import {
   Unknown,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
+import * as Str from "effect/String";
 import { camelCase, snakeCase } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
@@ -237,14 +238,14 @@ it.layer(PgliteHarnessLayer, { timeout: 90_000 })("@beep/effect-drizzle live PGl
     fnUntraced(function* () {
       const { migrationStatements, noOpStatements } = yield* PgliteHarness;
       expect(isReadonlyArrayNonEmpty(migrationStatements)).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('CREATE TABLE "user"'))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes("record_status"))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes("deduped_status"))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => Str.includes('CREATE TABLE "user"')(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => Str.includes("record_status")(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => Str.includes("deduped_status")(statement))).toBe(true);
       expect(
-        someArray(migrationStatements, (statement) => statement.includes('CREATE TABLE "enum_export_collision"'))
+        someArray(migrationStatements, (statement) => Str.includes('CREATE TABLE "enum_export_collision"')(statement))
       ).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('"labels" text[]'))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('"matrix" text[][]'))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => Str.includes('"labels" text[]')(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => Str.includes('"matrix" text[][]')(statement))).toBe(true);
       expect(noOpStatements).toEqual([]);
     })
   );

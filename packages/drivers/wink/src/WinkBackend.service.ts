@@ -27,9 +27,11 @@ import { BackendCapabilities, NLPBackend, notSupported, operationError } from "@
 import { A } from "@beep/utils";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { WinkEngine } from "./Wink.service.ts";
 import type { Detail, ItsFunction } from "wink-nlp";
 
@@ -49,7 +51,7 @@ const capabilities: BackendCapabilities = BackendCapabilities.make({
 
 /** Locate `needle` in `haystack`, returning a character span (length-correct if absent). */
 const findSpan = (haystack: string, needle: string): { readonly end: number; readonly start: number } => {
-  const start = haystack.indexOf(needle);
+  const start = O.getOrElse(constant(-1))(Str.indexOf(needle)(haystack));
   return start < 0 ? { end: needle.length, start: 0 } : { end: start + needle.length, start };
 };
 

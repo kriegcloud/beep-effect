@@ -14,13 +14,14 @@ import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 describe("TypeClass pure operations", () => {
   it.effect(
     "pureOperation mints a child per produced value",
     Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("hello world");
-      const splitOp = TC.pureOperation("split", (s: string) => s.split(" "));
+      const splitOp = TC.pureOperation("split", (s: string) => Str.split(" ")(s));
       const out = yield* splitOp.apply(node);
       expect(out.length).toBe(2);
       expect(A.map(out, (n) => n.data)).toEqual(["hello", "world"]);
@@ -31,7 +32,7 @@ describe("TypeClass pure operations", () => {
     "mapOperation transforms data 1:1",
     Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("abc");
-      const upper = TC.mapOperation("upper", (s: string) => s.toUpperCase());
+      const upper = TC.mapOperation("upper", (s: string) => Str.toUpperCase(s));
       const out = yield* upper.apply(node);
       expect(out.length).toBe(1);
       expect(out[0]?.data).toBe("ABC");
@@ -68,7 +69,7 @@ describe("TypeClass functor laws", () => {
     Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("ab");
       const op = TC.pureOperation("id", (s: string) => [s]);
-      const f = (s: string): string => s.toUpperCase();
+      const f = (s: string): string => Str.toUpperCase(s);
       const g = (s: string): string => `${s}!`;
       const composed = yield* TC.map(op, (s) => f(g(s))).apply(node);
       const sequential = yield* TC.map(TC.map(op, g), f).apply(node);
@@ -82,8 +83,8 @@ describe("TypeClass monad & applicative", () => {
     "chain sequences dependent operations",
     Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("a b");
-      const split = TC.pureOperation("split", (s: string) => s.split(" "));
-      const chained = TC.chain(split, (token) => TC.mapOperation(`up-${token}`, (s: string) => s.toUpperCase()));
+      const split = TC.pureOperation("split", (s: string) => Str.split(" ")(s));
+      const chained = TC.chain(split, (token) => TC.mapOperation(`up-${token}`, (s: string) => Str.toUpperCase(s)));
       const out = yield* chained.apply(node);
       expect(A.map(out, (n) => n.data).sort()).toEqual(["A", "B"]);
     })
@@ -164,7 +165,7 @@ describe("TypeClass graph execution & folding", () => {
     "executeOperation adds a child layer to leaves",
     Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("root text");
-      const split = TC.pureOperation("split", (s: string) => s.split(" "));
+      const split = TC.pureOperation("split", (s: string) => Str.split(" ")(s));
       const g1 = yield* TC.executeOperation(g0, split);
       expect(EG.size(g1)).toBe(3);
     })
@@ -174,7 +175,7 @@ describe("TypeClass graph execution & folding", () => {
     "foldableGraph folds over all node data",
     Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("aaa");
-      const split = TC.pureOperation("chars", (s: string) => s.split(""));
+      const split = TC.pureOperation("chars", (s: string) => (s.length === 0 ? [] : Str.split("")(s)));
       const g1 = yield* TC.executeOperation(g0, split);
       const foldable = TC.foldableGraph<string>();
       const totalLen = foldable.fold(g1, (acc, s) => acc + s.length, 0);

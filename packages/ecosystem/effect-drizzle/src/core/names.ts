@@ -7,6 +7,7 @@
 import { forEach } from "effect/Array";
 import { dual } from "effect/Function";
 import { String as StringSchema, TaggedError } from "effect/Schema";
+import * as Str from "effect/String";
 
 /**
  * Compile-time diagnostic carrier exposed by SQL naming validation.
@@ -140,8 +141,8 @@ export const sqlNameIssue: {
   (name: string, dialect: Dialect): string | undefined;
 } = /* @__PURE__ */ dual(2, (name: string, dialect: Dialect): string | undefined => {
   if (name.length === 0) return "must not be empty";
-  if (name.includes("\0")) return "must not contain NUL (U+0000)";
-  if (!/^[_a-z][_a-z0-9]*$/.test(name) || name.endsWith("_")) {
+  if (Str.includes("\0")(name)) return "must not contain NUL (U+0000)";
+  if (!/^[_a-z][_a-z0-9]*$/.test(name) || Str.endsWith("_")(name)) {
     return "must start with '_' or a lowercase letter, contain only lowercase letters, digits, and underscores, and not end with '_'";
   }
   if (dialect === "pg" && utf8ByteLength(name) > 63) return "must be at most 63 UTF-8 bytes";
@@ -155,7 +156,7 @@ export const sqlNameIssue: {
  * @since 0.0.0
  */
 const pgEnumLabelIssue = (label: string): string | undefined => {
-  if (label.includes("\0")) return "must not contain NUL (U+0000)";
+  if (Str.includes("\0")(label)) return "must not contain NUL (U+0000)";
   return utf8ByteLength(label) > 63 ? "must be at most 63 UTF-8 bytes" : undefined;
 };
 
@@ -176,7 +177,7 @@ const pgTruncationPrefix = (name: string): string => {
  * @since 0.0.0
  */
 const canonicalSqlName = (name: string, dialect: Dialect): string => {
-  const folded = name.toLowerCase();
+  const folded = Str.toLowerCase(name);
   return dialect === "pg" ? pgTruncationPrefix(folded) : folded;
 };
 

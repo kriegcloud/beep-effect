@@ -433,8 +433,8 @@ it("rejects impossible line and measurement values at construction", () => {
 // its own temp directory, repo root, hook root and DuckDB file, so no case reads state that
 // another case wrote.
 type StampScenario = typeof ForwarderStampScenario.Type;
-const fixtureStamp = Sha256Hex.make("b".repeat(64));
-const fixtureOtherStamp = Sha256Hex.make("c".repeat(64));
+const fixtureStamp = Sha256Hex.make(Str.repeat(64)("b"));
+const fixtureOtherStamp = Sha256Hex.make(Str.repeat(64)("c"));
 const decodeHookPulse = S.decodeEffect(HookPulseV1FromRawEvent);
 const encodeHookPulseRows = Effect.fnUntraced(function* (rows: ReadonlyArray<HookPulseV1>) {
   return A.join(yield* Effect.forEach(rows, (row) => HookPulseV1.encodeJsonEffect(row)), "\n");
@@ -479,7 +479,7 @@ const scenarioPulseRows = (
     unknown: () => [HookPulseV1.make({ ...start, harnessHash: O.none() }), tool],
     missing: () => [tool],
     late: () => [HookPulseV1.make({ ...tool, ts: DateTime.makeUnsafe("2026-10-09T09:59:00Z") }), start],
-    reused: () => [start, HookPulseV1.make({ ...tool, sessionId: Sha256Hex.make("e".repeat(64)) })],
+    reused: () => [start, HookPulseV1.make({ ...tool, sessionId: Sha256Hex.make(Str.repeat(64)("e")) })],
     mismatch: () => [start, tool],
     corrupt: () => [start, tool],
     unreadable: () => [start, tool],

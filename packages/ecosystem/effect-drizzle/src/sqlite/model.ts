@@ -7,12 +7,14 @@
  * @since 0.0.0
  */
 // fallow-ignore-file code-duplication -- pg/sqlite are deliberately mirrored dialect implementations; shared logic lives in src/core and the remaining parallelism is per-dialect vocabulary that must evolve independently (doc 14 family; review at next dialect addition)
+
 import { flatMap, last, map, reduce } from "effect/Array";
 import { dual } from "effect/Function";
 import { fromUndefinedOr, getOrElse, getOrThrow, getOrUndefined, match, none, orElse, some } from "effect/Option";
 import { isFunction, isNotUndefined, isNumber, isString, isUint8Array } from "effect/Predicate";
 import { empty, set, size, toEntries } from "effect/Record";
 import { Finite, flip, is, makeFilter, optionalKey } from "effect/Schema";
+import * as Str from "effect/String";
 import { split } from "effect/String";
 import * as VariantSchema from "effect/schema/VariantSchema";
 import * as Field from "../core/Field.ts";
@@ -389,7 +391,7 @@ const validateLiteralDefault = (field: Field.Any, select: Top, column: SqliteCol
       fieldName,
     });
   }
-  if (isString(value) && value.includes("\0")) {
+  if (isString(value) && Str.includes("\0")(value)) {
     throw ModelInvariantError.make({
       message: `Literal default for '${fieldName}' cannot contain NUL.`,
       fieldName,

@@ -9,6 +9,7 @@ import * as Equal from "effect/Equal";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Curie, Expand, Predicate } from "@beep/identity";
 
 const decodeVocabRegistryOption = S.decodeOption(VocabRegistry);
@@ -65,7 +66,7 @@ describe("Vocab literal types", () => {
 describe("CoreVocab runtime invariants", () => {
   it("uses namespace IRIs ending in # or /", () => {
     for (const [prefix, vocab] of R.toEntries(CoreVocab)) {
-      expect(vocab.iri.endsWith("#") || vocab.iri.endsWith("/"), prefix).toBe(true);
+      expect(Str.endsWith("#")(vocab.iri) || Str.endsWith("/")(vocab.iri), prefix).toBe(true);
     }
   });
 

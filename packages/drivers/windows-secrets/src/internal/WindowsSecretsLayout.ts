@@ -10,8 +10,10 @@
 
 import { $WindowsSecretsId } from "@beep/identity";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { SecretTooLarge } from "../WindowsSecrets.errors.ts";
 import { CredentialBlobMaxBytes } from "../WindowsSecrets.models.ts";
 import type { SecretTarget } from "../WindowsSecrets.models.ts";
@@ -99,7 +101,7 @@ const encodeUtf16Le = (value: string, terminatorUnits: number): Uint8Array<Array
   const bytes = new Uint8Array((value.length + terminatorUnits) * 2);
   const view = new DataView(bytes.buffer);
   for (let index = 0; index < value.length; index++) {
-    view.setUint16(index * 2, value.charCodeAt(index), true);
+    view.setUint16(index * 2, O.getOrElse(constant(Number.NaN))(Str.charCodeAt(index)(value)), true);
   }
   return bytes;
 };

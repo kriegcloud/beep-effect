@@ -17,6 +17,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type { TestContext, Vitest } from "@effect/vitest";
 
@@ -88,7 +89,7 @@ it(undefined, () => {
 
 it.effect("runs Effect tests with their TestContext", (ctx) =>
   Effect.gen(function* () {
-    assertTrue(ctx.task.fullTestName.endsWith("runs Effect tests with their TestContext"));
+    assertTrue(Str.endsWith("runs Effect tests with their TestContext")(ctx.task.fullTestName));
     yield* Effect.log("effect body");
     yield* TestClock.adjust("1 millis");
   })
@@ -107,7 +108,7 @@ it.effect.prop(
     Effect.sync(() => {
       propertyRuns += 1;
       assertTrue(value === 1 || value === 2);
-      assertTrue(ctx.task.fullTestName.includes("preserves generated property values"));
+      assertTrue(Str.includes("preserves generated property values")(ctx.task.fullTestName));
     }),
   { arbitrary: { ...fcRuns(2), seed: 42 } }
 );

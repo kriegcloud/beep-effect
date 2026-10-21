@@ -20,6 +20,7 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 const claudeBreakerPath = `${repoRoot}.claude/hooks/circuit-breaker.sh`;
@@ -103,7 +104,7 @@ const eventRows = Effect.fnUntraced(function* (store: BreakerStore) {
   const files = yield* fs.readDirectory(store.eventDir);
   const rows = yield* Effect.forEach(files, (file) =>
     Effect.map(fs.readFileString(path.join(store.eventDir, file)), (contents) =>
-      A.filter(contents.split("\n"), (line) => line.length > 0)
+      A.filter(Str.split("\n")(contents), (line) => line.length > 0)
     )
   );
   return A.flatten(rows);
@@ -160,7 +161,7 @@ it.layer(NodeServices.layer)("agent command circuit breaker", (it) => {
       ]);
       expect(A.map(events, ({ caller }) => caller)).toEqual(["claude-code", "codex-cli", "operator", "codex-cli"]);
       pipe(
-        A.every(yield* eventRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* eventRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
     })
@@ -184,7 +185,7 @@ it.layer(NodeServices.layer)("agent command circuit breaker", (it) => {
       const events = yield* decodedEvents(store);
       expect(A.map(events, ({ outcome }) => outcome.status)).toEqual(["coordination-skipped"]);
       pipe(
-        A.every(yield* eventRows(store), (row) => !row.includes(CANARY)),
+        A.every(yield* eventRows(store), (row) => !Str.includes(CANARY)(row)),
         assertTrue
       );
     })

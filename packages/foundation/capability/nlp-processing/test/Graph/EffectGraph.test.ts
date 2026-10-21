@@ -7,6 +7,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const assertSchemaRoundTrip = Effect.fn("assertSchemaRoundTrip")(function* <
   Schema extends S.Codec<unknown, unknown, never, never>,
@@ -121,7 +122,7 @@ describe("Functor map", () => {
       const root = EG.getRoots(g0)[0]!;
       const c1 = yield* EG.makeNode("child", O.some(root.id));
       const g1 = EG.addNode(g0, c1);
-      const mapped = EG.map(g1, (s) => s.toUpperCase());
+      const mapped = EG.map(g1, (s) => Str.toUpperCase(s));
       expect(EG.size(mapped)).toBe(2);
       const mappedRoot = EG.getRoots(mapped)[0]!;
       expect(mappedRoot.data).toBe("ROOT");

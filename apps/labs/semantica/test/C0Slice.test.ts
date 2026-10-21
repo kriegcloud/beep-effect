@@ -17,6 +17,7 @@ import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { CorpusManifest } from "@/corpus/Manifest";
 import { CorpusManifestBuilderLive } from "@/corpus/ManifestBuilder";
 import { F1CatalogLive, F1Index } from "@/fixtures/F1";
@@ -82,14 +83,14 @@ describe("C0 F1 live-to-replay slice", () => {
         const fixtures = yield* fs.readFileString("fixtures/f1/index.json").pipe(Effect.flatMap(decodeF1IndexJson));
         const goldIds = A.map(A.take(manifest.rows, 10), (row) => row.id);
         const proposer = ModelIdentity.make({
-          artifactHash: Sha256Hex.make("8".repeat(64)),
+          artifactHash: Sha256Hex.make(Str.repeat(64)("8")),
           name: "stub-gold-20260826",
           provider: "xai",
           revision: "stub-gold-20260826",
           taskType: "gold-proposal",
         });
         const gold = GoldRef.make({
-          digest: Sha256Hex.make("9".repeat(64)),
+          digest: Sha256Hex.make(Str.repeat(64)("9")),
           proposer,
           spotCheckedFraction: UnitInterval.make(0),
           subsets: GoldSubset.make({

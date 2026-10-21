@@ -16,7 +16,9 @@ import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -88,9 +90,11 @@ const isNoiseLine = (line: string): boolean =>
 
 const demote = (entry: ModuleEntry) => (line: string) => {
   if (Str.startsWith("## ")(line)) {
-    return Str.endsWith(" overview")(line) ? `### ${entry.label} — \`${entry.importPath}\`` : `##### ${line.slice(3)}`;
+    return Str.endsWith(" overview")(line)
+      ? `### ${entry.label} — \`${entry.importPath}\``
+      : `##### ${Str.slice(3)(line)}`;
   }
-  return Str.startsWith("# ")(line) ? `#### ${line.slice(2)}` : line;
+  return Str.startsWith("# ")(line) ? `#### ${Str.slice(2)(line)}` : line;
 };
 
 type RenderState = { readonly inCode: boolean; readonly out: ReadonlyArray<string> };
@@ -103,7 +107,7 @@ const renderModule = (entry: ModuleEntry, content: string): string => {
     if (isNoiseLine(line)) return state;
     return { inCode: state.inCode, out: A.append(state.out, demote(entry)(line)) };
   });
-  return A.join(rendered.out, "\n").replaceAll("\n\n\n\n", "\n\n").replaceAll("\n\n\n", "\n\n").trim();
+  return Str.trim(Str.replaceAll("\n\n\n", "\n\n")(Str.replaceAll("\n\n\n\n", "\n\n")(A.join(rendered.out, "\n"))));
 };
 
 const program = Effect.gen(function* () {
@@ -113,8 +117,8 @@ const program = Effect.gen(function* () {
   const readmePath = path.join(packageRoot, "README.md");
   const readme = yield* fs.readFileString(readmePath);
 
-  const startIndex = readme.indexOf(START_MARKER);
-  const endIndex = readme.indexOf(END_MARKER);
+  const startIndex = O.getOrElse(constant(-1))(Str.indexOf(START_MARKER)(readme));
+  const endIndex = O.getOrElse(constant(-1))(Str.indexOf(END_MARKER)(readme));
   if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
     return yield* ReadmeAssemblyError.make({
       message: `README.md must contain '${START_MARKER}' followed by '${END_MARKER}'.`,
@@ -146,7 +150,7 @@ const program = Effect.gen(function* () {
     "\n"
   );
 
-  const next = readme.slice(0, startIndex) + generated + readme.slice(endIndex + END_MARKER.length);
+  const next = Str.slice(0, startIndex)(readme) + generated + Str.slice(endIndex + END_MARKER.length)(readme);
   yield* fs.writeFileString(readmePath, next);
   yield* Console.log(`README API reference assembled from ${modules.length} modules.`);
 });

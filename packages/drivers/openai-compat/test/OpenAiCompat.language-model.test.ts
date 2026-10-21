@@ -46,6 +46,7 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import type * as LanguageModel from "effect/ai/LanguageModel";
 import type * as HttpClientError from "effect/http/HttpClientError";
@@ -976,7 +977,7 @@ describe("OpenAiCompat language model", () => {
   it.layer(
     makeOpenAiCompatClientLayer(() =>
       Effect.succeed(
-        new Response(`data: ${"x".repeat(10 * 1024 * 1024)}`, {
+        new Response(`data: ${Str.repeat(10 * 1024 * 1024)("x")}`, {
           headers: {
             "content-type": "text/event-stream",
           },

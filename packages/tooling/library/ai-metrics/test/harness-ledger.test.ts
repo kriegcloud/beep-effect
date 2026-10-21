@@ -41,12 +41,13 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
 
-const hashA = "a".repeat(64);
-const hashB = "b".repeat(64);
-const hashC = "c".repeat(64);
+const hashA = Str.repeat(64)("a");
+const hashB = Str.repeat(64)("b");
+const hashC = Str.repeat(64)("c");
 
 const snapshotResult = (sessionHash: string, baselineHash: string) =>
   AiMetricsConfigSnapshotResult.make({

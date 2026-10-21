@@ -4,6 +4,7 @@
  *
  * @since 0.0.0
  */
+
 import {
   CLIENT_CAPABILITIES_META_KEY,
   connect,
@@ -47,6 +48,7 @@ import * as Queue from "effect/Queue";
 import * as RpcClient from "effect/rpc/RpcClient";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { fixtureHost } from "./fixtures/FixtureHost.ts";
 
 // One JSON-RPC frame is exactly one wire line, so the kit's own codec builds
@@ -366,8 +368,8 @@ describe("layerProtocolHttp headers", () => {
       yield* connect.pipe(Effect.provideContext(protocol));
       const [headers] = seen;
       assert.strictEqual(headers?.authorization, "Bearer test-token");
-      assert.strictEqual(headers?.[MCP_METHOD_HEADER.toLowerCase()], "server/discover");
-      assert.strictEqual(headers?.[MCP_PROTOCOL_VERSION_HEADER.toLowerCase()], "2026-07-28");
+      assert.strictEqual(headers?.[Str.toLowerCase(MCP_METHOD_HEADER)], "server/discover");
+      assert.strictEqual(headers?.[Str.toLowerCase(MCP_PROTOCOL_VERSION_HEADER)], "2026-07-28");
       assert.strictEqual(headers?.accept, "application/json, text/event-stream");
     })
   );
