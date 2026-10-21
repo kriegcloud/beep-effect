@@ -463,10 +463,10 @@ class YeetIssueFixture extends S.Opaque<YeetIssueFixture, { readonly brand: uniq
     sourceFeature: FeatureFamily,
     sourceEnvelopeRef: RepoRefString,
     sourceFindingId: TrimmedNonEmptyString,
-    tool: S.Literal("fallow"),
+    tool: S.tag("fallow"),
     parser: TrimmedNonEmptyString,
     subCategory: TrimmedNonEmptyString,
-    blocking: S.Literal(false),
+    blocking: S.tag(false),
     attribution: FindingAttributionKind,
   }).pipe(
     $I.annoteSchema("YeetIssueFixture", {
@@ -526,9 +526,9 @@ class FeatureRow extends S.Opaque<FeatureRow, { readonly brand: unique symbol }>
 class FeatureMatrixDocument extends S.Opaque<FeatureMatrixDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/feature-matrix/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/feature-matrix/v1"),
     updated: S.String,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     features: S.NonEmptyArray(FeatureRow),
   }).pipe(
     $I.annoteSchema("FeatureMatrixDocument", {
@@ -562,9 +562,9 @@ class KnipParityRow extends S.Opaque<KnipParityRow, { readonly brand: unique sym
 class KnipParityDocument extends S.Opaque<KnipParityDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/knip-parity/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/knip-parity/v1"),
     updated: S.String,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     knipRemovalRecommendation: KnipRemovalRecommendation,
     rows: S.NonEmptyArray(KnipParityRow),
   }).pipe(
@@ -613,9 +613,9 @@ class TaskRow extends S.Opaque<TaskRow, { readonly brand: unique symbol }>()(
 class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/tasks/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/tasks/v1"),
     updated: S.String,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     tasks: S.NonEmptyArray(TaskRow),
   }).pipe(
     $I.annoteSchema("TasksDocument", {
@@ -625,7 +625,7 @@ class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique sym
 ) {}
 
 const FallowReportBaseFields = {
-  schemaVersion: S.Literal("fallow-report-envelope/v1"),
+  schemaVersion: S.tag("fallow-report-envelope/v1"),
   toolVersion: TrimmedNonEmptyString,
   command: CommandString,
   subcommand: FeatureFamily,
@@ -650,7 +650,7 @@ class FallowReportBase extends S.Opaque<FallowReportBase, { readonly brand: uniq
 class FallowReportOk extends S.Opaque<FallowReportOk, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("ok"),
+    status: S.tag("ok"),
     exitStatus: S.Natural,
     report: FallowReportPayload,
   }).pipe(
@@ -663,7 +663,7 @@ class FallowReportOk extends S.Opaque<FallowReportOk, { readonly brand: unique s
 class FallowReportToolFailed extends S.Opaque<FallowReportToolFailed, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("tool-failed"),
+    status: S.tag("tool-failed"),
     exitStatus: PositiveInt,
     stderrExcerpt: TrimmedNonEmptyString,
   }).pipe(
@@ -676,7 +676,7 @@ class FallowReportToolFailed extends S.Opaque<FallowReportToolFailed, { readonly
 class FallowReportInvalidJson extends S.Opaque<FallowReportInvalidJson, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("invalid-json"),
+    status: S.tag("invalid-json"),
     exitStatus: S.Natural,
     stderrExcerpt: TrimmedNonEmptyString,
   }).pipe(
@@ -689,7 +689,7 @@ class FallowReportInvalidJson extends S.Opaque<FallowReportInvalidJson, { readon
 class FallowReportInvalidReport extends S.Opaque<FallowReportInvalidReport, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("invalid-report"),
+    status: S.tag("invalid-report"),
     exitStatus: S.Natural,
     stderrExcerpt: TrimmedNonEmptyString,
   }).pipe(
@@ -705,7 +705,7 @@ class FallowReportBaseResolutionFailed extends S.Opaque<
 >()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("base-resolution-failed"),
+    status: S.tag("base-resolution-failed"),
     exitStatus: PositiveInt,
     stderrExcerpt: TrimmedNonEmptyString,
   }).pipe(
@@ -730,9 +730,9 @@ const FallowReportEnvelope = S.Union([
 class ReportFixtureDocument extends S.Opaque<ReportFixtureDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/report-fixtures/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/report-fixtures/v1"),
     updated: S.String,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     fixtures: S.NonEmptyArray(FallowReportEnvelope),
     yeetIssueFixtures: S.NonEmptyArray(YeetIssueFixture),
   }).pipe(
@@ -833,10 +833,10 @@ class BoundaryGeneratedRuleProvenance extends S.Opaque<
 class BoundaryProvenanceDocument extends S.Opaque<BoundaryProvenanceDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/boundary-provenance/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/boundary-provenance/v1"),
     updated: S.String,
-    validatorVersion: S.Literal(validatorVersion),
-    generatedConfigRef: S.Literal("standards/fallow.boundaries.generated.jsonc"),
+    validatorVersion: S.tag(validatorVersion),
+    generatedConfigRef: S.tag("standards/fallow.boundaries.generated.jsonc"),
     rules: S.NonEmptyArray(BoundaryGeneratedRuleProvenance),
   }).pipe(
     $I.annoteSchema("BoundaryProvenanceDocument", {
@@ -864,9 +864,9 @@ class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol 
 class ReviewRoundsDocument extends S.Opaque<ReviewRoundsDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     $schema: S.String,
-    schemaVersion: S.Literal("fallow-quality-enforcement/review-rounds/v1"),
+    schemaVersion: S.tag("fallow-quality-enforcement/review-rounds/v1"),
     updated: S.String,
-    validatorVersion: S.Literal(validatorVersion),
+    validatorVersion: S.tag(validatorVersion),
     rounds: S.NonEmptyArray(ReviewRound),
   }).pipe(
     $I.annoteSchema("ReviewRoundsDocument", {
@@ -880,11 +880,11 @@ class SchemaCompanionDocument extends S.Opaque<SchemaCompanionDocument, { readon
     $schema: S.String,
     $id: S.String,
     title: S.String,
-    type: S.Literal("object"),
+    type: S.tag("object"),
     required: S.Array(S.String),
     properties: S.Record(S.String, S.Unknown),
-    additionalProperties: S.Literal(false),
-    "x-effectSchemaAuthority": S.Literal(effectSchemaAuthority),
+    additionalProperties: S.tag(false),
+    "x-effectSchemaAuthority": S.tag(effectSchemaAuthority),
     "x-requiredFields": S.Array(S.String),
     "x-enumValues": S.Record(S.String, S.Array(S.String)),
     "x-rowRequiredFields": S.optionalKey(S.Array(S.String)),

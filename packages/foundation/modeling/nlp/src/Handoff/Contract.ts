@@ -516,7 +516,7 @@ export class AnnotatedDocument extends S.Opaque<AnnotatedDocument, { readonly br
     mentions: S.Array(Mention),
     provenance: Provenance,
     relations: S.Array(Relation),
-    version: S.Literal("nlp-ir/1.1"),
+    version: S.tag("nlp-ir/1.1"),
   }).pipe(
     $I.annoteSchema("AnnotatedDocument", {
       description:

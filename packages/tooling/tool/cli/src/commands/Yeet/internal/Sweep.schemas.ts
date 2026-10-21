@@ -196,7 +196,7 @@ export class SweepPlanStep extends S.Opaque<SweepPlanStep, { readonly brand: uni
  */
 export class SweepPlan extends S.Opaque<SweepPlan, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-sweep-plan/v1"),
+    schemaVersion: S.tag("yeet-sweep-plan/v1"),
     createdAt: S.String,
     branch: S.String,
     steps: S.Array(SweepPlanStep),
@@ -368,7 +368,7 @@ export class SweepReportStep extends S.Opaque<SweepReportStep, { readonly brand:
  */
 export class SweepReport extends S.Opaque<SweepReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-sweep-report/v1"),
+    schemaVersion: S.tag("yeet-sweep-report/v1"),
     plan: SweepPlan,
     steps: S.Array(SweepReportStep),
     startedAt: S.String,

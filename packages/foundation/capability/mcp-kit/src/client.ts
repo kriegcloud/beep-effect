@@ -308,7 +308,7 @@ export type JsonRpcId = typeof JsonRpcId.Type;
  */
 export class JsonRpcMessage extends S.Opaque<JsonRpcMessage, { readonly brand: unique symbol }>()(
   S.Struct({
-    jsonrpc: S.Literal("2.0").pipe(S.withConstructorDefault(Effect.succeed<"2.0">("2.0"))),
+    jsonrpc: S.tag("2.0"),
     id: JsonRpcId.pipe(S.NullOr, S.optionalKey),
     method: S.optionalKey(S.String),
     params: S.optionalKey(S.Unknown),

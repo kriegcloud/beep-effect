@@ -452,7 +452,7 @@ const GitHubName = S.NonEmptyString.check(
  * @since 0.0.0
  */
 export class PrRepository extends S.Opaque<PrRepository, { readonly brand: unique symbol }>()(
-  S.Struct({ host: S.Literal("github.com"), owner: GitHubName, name: GitHubName }).pipe(
+  S.Struct({ host: S.tag("github.com"), owner: GitHubName, name: GitHubName }).pipe(
     $I.annoteSchema("PrRepository", { description: "GitHub repository identity for local PR-session state." })
   )
 ) {}
@@ -569,7 +569,7 @@ const GitSha = S.NonEmptyString.pipe($I.annoteSchema("GitSha", { description: "G
  */
 export class PrSessionRecord extends PrProvenance.extend<PrSessionRecord>($I`PrSessionRecord`)(
   {
-    schemaVersion: S.Literal(1),
+    schemaVersion: S.tag(1),
     repository: PrRepository,
     prNumber: S.OptionFromNullOr(PrNumber),
     prUrl: S.OptionFromNullOr(S.String),
@@ -646,7 +646,7 @@ export class PublicAgent extends S.Opaque<PublicAgent, { readonly brand: unique 
  * @since 0.0.0
  */
 export class PublicPrProvenanceV1 extends S.Opaque<PublicPrProvenanceV1, { readonly brand: unique symbol }>()(
-  S.Struct({ schemaVersion: S.Literal(1), branch: PrProvenanceBranch, harness: PrProvenanceHarness }).pipe(
+  S.Struct({ schemaVersion: S.tag(1), branch: PrProvenanceBranch, harness: PrProvenanceHarness }).pipe(
     $I.annoteSchema("PublicPrProvenanceV1", {
       description: "Legacy public provenance payload accepted only while replacing a footer.",
     })
@@ -689,7 +689,7 @@ export class PublicPrProvenanceV1 extends S.Opaque<PublicPrProvenanceV1, { reado
  */
 export class PublicPrProvenance extends S.Opaque<PublicPrProvenance, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(2),
+    schemaVersion: S.tag(2),
     pr: S.OptionFromNullOr(PrNumber),
     branch: PrProvenanceBranch,
     workspace: PrProvenanceLabel,

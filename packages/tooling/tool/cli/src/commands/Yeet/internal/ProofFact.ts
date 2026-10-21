@@ -300,7 +300,7 @@ export class ProofProvenance extends S.Opaque<ProofProvenance, { readonly brand:
  */
 export class ProofFact extends S.Opaque<ProofFact, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(PROOF_FACT_SCHEMA_VERSION),
+    schemaVersion: S.tag(PROOF_FACT_SCHEMA_VERSION),
     key: ProofInputDigest,
     epoch: ProofEpoch,
     outcome: ProofOutcome,
@@ -458,7 +458,7 @@ export type ProofReuseDecision = typeof ProofReuseDecision.Type;
 export class ProofLedgerFactRow extends S.Opaque<ProofLedgerFactRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("fact"),
-    schemaVersion: S.Literal(PROOF_FACT_SCHEMA_VERSION),
+    schemaVersion: S.tag(PROOF_FACT_SCHEMA_VERSION),
     fact: ProofFact,
   }).pipe(
     $I.annoteSchema("ProofLedgerFactRow", {
@@ -506,7 +506,7 @@ export class ProofLedgerFactRow extends S.Opaque<ProofLedgerFactRow, { readonly 
 export class ProofLedgerShadowRow extends S.Opaque<ProofLedgerShadowRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("shadow"),
-    schemaVersion: S.Literal(PROOF_FACT_SCHEMA_VERSION),
+    schemaVersion: S.tag(PROOF_FACT_SCHEMA_VERSION),
     attemptId: S.NonEmptyString,
     laneId: S.NonEmptyString,
     branch: S.NonEmptyString,

@@ -753,7 +753,7 @@ export const requireUniqueContextSignals = Effect.fn("DeterministicFacts.require
   return signals;
 });
 
-const literalVersion = S.Literal(1).pipe(S.withConstructorDefault(Effect.succeed(1)), pg.integer(), pg.columnName("schema_version"));
+const literalVersion = S.tag(1).pipe(pg.integer(), pg.columnName("schema_version"));
 
 /**
  * Whether a subject can enter the shortlist.
@@ -1396,7 +1396,7 @@ export const requireUniqueMatchSignals = Effect.fn("NormalizedContextMatch.requi
  */
 export class NormalizedContextSnapshot extends Model<NormalizedContextSnapshot>("NormalizedContextSnapshot")(
   {
-    schemaVersion: S.Literal(1).pipe(S.withConstructorDefault(Effect.succeed(1)), pg.integer(), pg.columnName("schema_version")),
+    schemaVersion: S.tag(1).pipe(pg.integer(), pg.columnName("schema_version")),
     deviceId: stableId("device_id"),
     snapshotId: stableId("snapshot_id"),
     matches: boundedList(NormalizedContextMatch, "matches", { maximum: 32 }, true),
@@ -1503,7 +1503,7 @@ export declare namespace OpenLoopDescriptor {
  */
 export class OpenLoopSnapshot extends Model<OpenLoopSnapshot>("OpenLoopSnapshot")(
   {
-    schemaVersion: S.Literal(1).pipe(S.withConstructorDefault(Effect.succeed(1)), pg.integer(), pg.columnName("schema_version")),
+    schemaVersion: S.tag(1).pipe(pg.integer(), pg.columnName("schema_version")),
     deviceId: stableId("device_id"),
     owner: stableId("owner"),
     runtimeId: stableId("runtime_id"),

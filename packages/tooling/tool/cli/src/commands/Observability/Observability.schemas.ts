@@ -10,7 +10,6 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as Catalog from "@beep/observability/catalog";
 import { LiteralKit } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
-import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Observability/Observability.schemas");
@@ -365,12 +364,8 @@ export class InstrumentationCatalogDocument extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("instrumentation-catalog/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("instrumentation-catalog/v1"))
-    ),
-    generatedBy: S.Literal(INSTRUMENTATION_CATALOG_GENERATED_BY).pipe(
-      S.withConstructorDefault(Effect.succeed(INSTRUMENTATION_CATALOG_GENERATED_BY))
-    ),
+    schemaVersion: S.tag("instrumentation-catalog/v1"),
+    generatedBy: S.tag(INSTRUMENTATION_CATALOG_GENERATED_BY),
     attributes: S.Array(Catalog.AttributeKey),
     instruments: S.Array(Catalog.Instrument),
     spans: S.Array(HarvestedSpan),
@@ -416,12 +411,8 @@ export class InstrumentationCatalogShard extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("instrumentation-catalog-shard/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("instrumentation-catalog-shard/v1"))
-    ),
-    generatedBy: S.Literal(INSTRUMENTATION_CATALOG_GENERATED_BY).pipe(
-      S.withConstructorDefault(Effect.succeed(INSTRUMENTATION_CATALOG_GENERATED_BY))
-    ),
+    schemaVersion: S.tag("instrumentation-catalog-shard/v1"),
+    generatedBy: S.tag(INSTRUMENTATION_CATALOG_GENERATED_BY),
     package: Catalog.PackageName,
     attributes: S.Array(Catalog.AttributeKey),
     instruments: S.Array(Catalog.Instrument),

@@ -1498,7 +1498,7 @@ export class ConversationSyncMutationResponse extends Model<ConversationSyncMuta
   "ConversationSyncMutationResponse",
 )(
   {
-    status: S.Literal("ok").pipe(pg.text(), pg.columnName("status")),
+    status: S.tag("ok").pipe(pg.text(), pg.columnName("status")),
     state: ConversationSyncState.pipe(pg.jsonb(), pg.columnName("state")),
   },
   $I.annote("ConversationSyncMutationResponse", { description: "Successful sync mutation. Not a conflict." }),
@@ -1538,7 +1538,7 @@ export class ConversationSyncConflictResponse extends Model<ConversationSyncConf
   "ConversationSyncConflictResponse",
 )(
   {
-    status: S.Literal("conflict").pipe(pg.text(), pg.columnName("status")),
+    status: S.tag("conflict").pipe(pg.text(), pg.columnName("status")),
     state: ConversationSyncState.pipe(pg.jsonb(), pg.columnName("state")),
   },
   $I.annote("ConversationSyncConflictResponse", { description: "Sync mutation that lost a conflict. Not an ok response." }),

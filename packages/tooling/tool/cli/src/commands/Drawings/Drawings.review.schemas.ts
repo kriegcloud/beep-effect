@@ -696,7 +696,7 @@ export type ReviewRoundStatus = typeof ReviewRoundStatus.Type;
  */
 export class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-review-round/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-review-round/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     status: ReviewRoundStatus.annotateKey({ description: "Where the round stands." }),
     reviewedSheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF that was sent." }),
@@ -772,7 +772,7 @@ export class ReviewedPage extends S.Opaque<ReviewedPage, { readonly brand: uniqu
  */
 export class ReviewIntake extends S.Opaque<ReviewIntake, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-review-intake/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-review-intake/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     reviewedSheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF that was sent." }),
     pages: S.Array(ReviewedPage).annotateKey({ description: "Every reviewer page, in file then page order." }),
@@ -804,7 +804,7 @@ export class ReviewIntake extends S.Opaque<ReviewIntake, { readonly brand: uniqu
  */
 export class ReviewInventory extends S.Opaque<ReviewInventory, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-review-inventory/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-review-inventory/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     reviewedSheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF that was sent." }),
     findings: S.Array(ReviewFinding).annotateKey({ description: "Every finding, in id order." }),
@@ -857,7 +857,7 @@ export class DispositionEntry extends S.Opaque<DispositionEntry, { readonly bran
  */
 export class ReviewDispositions extends S.Opaque<ReviewDispositions, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-review-dispositions/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-review-dispositions/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     entries: S.Array(DispositionEntry).annotateKey({ description: "One entry per finding." }),
   }).pipe($I.annoteSchema("ReviewDispositions", { description: "The triage of every finding in one review round." }))
@@ -919,7 +919,7 @@ export class DeliveryAttachment extends S.Opaque<DeliveryAttachment, { readonly 
  */
 export class DeliveryRecord extends S.Opaque<DeliveryRecord, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("drawing-delivery/v1").annotateKey({ description: "Schema version." }),
+    schemaVersion: S.tag("drawing-delivery/v1").annotateKey({ description: "Schema version." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Sheet-set hash recorded in the render manifest." }),
     pdfSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF re-read from disk at record time." }),
     draftId: optionalText("Outbox draft id, when the record came from a draft."),

@@ -393,7 +393,7 @@ const PersistentEmbeddingEntry = S.Struct({
 });
 
 const EmbeddingBlob = S.Struct({
-  version: S.Literal(1),
+  version: S.tag(1),
   embeddings: S.Record(S.String, PersistentEmbeddingEntry),
 });
 type EmbeddingBlob = typeof EmbeddingBlob.Type;

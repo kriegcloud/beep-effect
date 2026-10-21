@@ -154,7 +154,7 @@ const writeStored = Effect.fn("VerdictLog.writeStored")(function* <A, I>(
 
 // Decode the old wire format before converting it; legacy revisions were zero-based.
 const LegacyRow = S.Struct({
-  schemaVersion: S.Literal("practice-verdict/v1"),
+  schemaVersion: S.tag("practice-verdict/v1"),
   itemId: S.NonEmptyString.check(S.isPattern(/^kg-answer:.+:.+$/)),
   verdict: S.OptionFromNullOr(Verdict.pick(["right", "wrong", "partly"])),
   note: S.OptionFromNullOr(S.NonEmptyString),

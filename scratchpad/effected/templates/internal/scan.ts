@@ -110,11 +110,11 @@ export type ScanFailure = typeof ScanFailure.Type;
  */
 export const ScanResult = S.Union([
 	S.Struct({
-		ok: S.Literal(true).pipe($I.annoteKey("ScanResult.ok", { description: "The scan succeeded." })),
+		ok: S.tag(true).pipe($I.annoteKey("ScanResult.ok", { description: "The scan succeeded." })),
 		sections: S.Array(S.suspend(() => PlacedSection)).pipe($I.annoteKey("ScanResult.sections", { description: "Located sections in source order." })),
 	}),
 	S.Struct({
-		ok: S.Literal(false).pipe($I.annoteKey("ScanResult.ok", { description: "The scan failed." })),
+		ok: S.tag(false).pipe($I.annoteKey("ScanResult.ok", { description: "The scan failed." })),
 		failure: ScanFailure.pipe($I.annoteKey("ScanResult.failure", { description: "The first structural failure." })),
 	}),
 ]).pipe($I.annoteSchema("ScanResult", { description: "Either located sections or the first ambiguity, in plain-object form." }));

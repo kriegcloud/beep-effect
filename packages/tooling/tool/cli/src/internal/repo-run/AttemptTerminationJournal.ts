@@ -131,7 +131,7 @@ export class YeetAttemptJournalCompacted extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.TaggedStruct("journal-compacted", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
 
     recordedAt: S.String,
     evictedCount: S.Natural,
@@ -153,7 +153,7 @@ export class YeetAttemptJournalCompacted extends S.Opaque<
 
 const AttemptJournalRetentionEvent = S.Union([
   S.TaggedStruct("attempt-started", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
     attemptId: UUIDSchema,
     startedAt: S.String,
     ownerPid: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -161,12 +161,12 @@ const AttemptJournalRetentionEvent = S.Union([
     ...attemptInputFactFields,
   }),
   S.TaggedStruct("attempt-finished", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
     attemptId: UUIDSchema,
     recordedAt: S.String,
   }),
   S.TaggedStruct("attempt-terminated", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
     attemptId: UUIDSchema,
     recordedAt: S.String,
   }),
@@ -176,7 +176,7 @@ const AttemptJournalRetentionEvent = S.Union([
 type AttemptJournalRetentionEvent = typeof AttemptJournalRetentionEvent.Type;
 
 const SchedulerAttemptTerminated = S.TaggedStruct("attempt-terminated", {
-  schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+  schemaVersion: S.tag("yeet-attempt-journal/v1"),
   attemptId: UUIDSchema,
   recordedAt: S.String,
   reason: YeetAttemptTerminationReason,

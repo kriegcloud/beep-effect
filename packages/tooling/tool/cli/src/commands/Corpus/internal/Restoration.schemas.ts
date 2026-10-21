@@ -18,7 +18,7 @@ import { PosInt } from "../../../internal/schema/PosInt.ts";
 
 const $I = $RepoCliId.create("commands/Corpus/internal/Restoration.schemas");
 
-const SchemaVersion = S.Literal("oppold-corpus-restoration/v1").pipe(
+const SchemaVersion = S.tag("oppold-corpus-restoration/v1").pipe(
   $I.annoteSchema("RestorationSchemaVersion", {
     description: "Version identifier shared by preservation, transformation, and acceptance evidence.",
   })
@@ -408,9 +408,9 @@ export class MailOccurrenceMember extends S.Opaque<MailOccurrenceMember, { reado
  */
 export class MailOccurrenceMembership extends S.Opaque<MailOccurrenceMembership, { readonly brand: unique symbol }>()(
   S.Struct({
-    schema: S.Literal("mail-occurrence-membership/v1"),
+    schema: S.tag("mail-occurrence-membership/v1"),
     preservationLabel: RunLabel,
-    maxInputBytes: S.Literal(536870912),
+    maxInputBytes: S.tag(536870912),
     members: S.Array(MailOccurrenceMember).check(
       S.isMinLength(1),
       S.isMaxLength(10),
@@ -630,7 +630,7 @@ export class CollectorCopiedManifestRecord extends S.Opaque<
     dst: S.NonEmptyString,
     size: S.Natural,
     src: S.NonEmptyString,
-    status: S.Literal("copied"),
+    status: S.tag("copied"),
   }).pipe(
     $I.annoteSchema("CollectorCopiedManifestRecord", {
       description: "Inherited collector success row for a newly copied destination.",
@@ -652,7 +652,7 @@ export class CollectorResumedManifestRecord extends S.Opaque<
     dst: S.NonEmptyString,
     size: S.Natural,
     src: S.NonEmptyString,
-    status: S.Literal("resumed"),
+    status: S.tag("resumed"),
   }).pipe(
     $I.annoteSchema("CollectorResumedManifestRecord", {
       description: "Inherited collector success row for a destination resumed from prior work.",
@@ -673,7 +673,7 @@ export class CollectorErrorManifestRecord extends S.Opaque<
   S.Struct({
     reason: S.NonEmptyString,
     src: S.NonEmptyString,
-    status: S.Literal("error"),
+    status: S.tag("error"),
   }).pipe(
     $I.annoteSchema("CollectorErrorManifestRecord", {
       description: "Inherited collector failure row that records a source and non-empty reason without a destination.",
@@ -693,7 +693,7 @@ export class CollectorExcludedSecretManifestRecord extends S.Opaque<
 >()(
   S.Struct({
     src: S.NonEmptyString,
-    status: S.Literal("excluded-secret"),
+    status: S.tag("excluded-secret"),
   }).pipe(
     $I.annoteSchema("CollectorExcludedSecretManifestRecord", {
       description: "Inherited collector exclusion row whose source was deliberately omitted as secret material.",
@@ -790,7 +790,7 @@ export class ArchivePreflightRecord extends S.Opaque<ArchivePreflightRecord, { r
     fileCount: S.Natural,
     minimumFreeAfterBytes: S.Natural,
     recordedAt: RecordedAt,
-    recordType: S.Literal("archive-preflight"),
+    recordType: S.tag("archive-preflight"),
     requiredBytes: S.Natural,
     runId: RunId,
     schemaVersion: SchemaVersion,
@@ -814,9 +814,9 @@ export class ArchiveDirectoryPassRecord extends S.Opaque<
   S.Struct({
     destinationRelativePath: RelativePath,
     objectId: ObjectId,
-    objectKind: S.Literal("directory"),
+    objectKind: S.tag("directory"),
     recordedAt: RecordedAt,
-    recordType: S.Literal("archive-directory-pass"),
+    recordType: S.tag("archive-directory-pass"),
     runId: RunId,
     schemaVersion: SchemaVersion,
     sourceLabel: S.NonEmptyString,
@@ -843,7 +843,7 @@ export class ArchiveFilePassRecord extends S.Opaque<ArchiveFilePassRecord, { rea
     postCopySource: SourceStat,
     preCopySource: SourceStat,
     recordedAt: RecordedAt,
-    recordType: S.Literal("archive-file-pass"),
+    recordType: S.tag("archive-file-pass"),
     resumedBytes: S.Natural,
     runId: RunId,
     schemaVersion: SchemaVersion,
@@ -876,7 +876,7 @@ export class ArchiveChangedDuringCopyRecord extends S.Opaque<
     postCopySource: SourceStat,
     preCopySource: SourceStat,
     recordedAt: RecordedAt,
-    recordType: S.Literal("archive-changed-during-copy"),
+    recordType: S.tag("archive-changed-during-copy"),
     runId: RunId,
     schemaVersion: SchemaVersion,
     sourceLabel: S.NonEmptyString,
@@ -913,7 +913,7 @@ export class ArchiveFailureRecord extends S.Opaque<ArchiveFailureRecord, { reado
     message: S.NonEmptyString,
     objectId: ObjectId,
     recordedAt: RecordedAt,
-    recordType: S.Literal("archive-failure"),
+    recordType: S.tag("archive-failure"),
     runId: RunId,
     schemaVersion: SchemaVersion,
     sourceLabel: S.NonEmptyString,
@@ -945,11 +945,11 @@ const InheritedLossCategory = LiteralKit([
  */
 export class InheritedLossRecord extends S.Opaque<InheritedLossRecord, { readonly brand: unique symbol }>()(
   S.Struct({
-    approved: S.Literal(true),
+    approved: S.tag(true),
     category: InheritedLossCategory,
     count: S.Natural,
     recordedAt: RecordedAt,
-    recordType: S.Literal("inherited-loss"),
+    recordType: S.tag("inherited-loss"),
     runId: RunId,
     schemaVersion: SchemaVersion,
   }).pipe(
@@ -970,7 +970,7 @@ export class ArchiveManifestSealRecord extends S.Opaque<ArchiveManifestSealRecor
     manifestSha256: Sha256Hex,
     recordCount: S.Natural,
     recordedAt: RecordedAt,
-    recordType: S.Literal("archive-manifest-seal"),
+    recordType: S.tag("archive-manifest-seal"),
     runId: RunId,
     schemaVersion: SchemaVersion,
   }).pipe(
@@ -1076,7 +1076,7 @@ export class ArchiveVerificationPassRecord extends S.Opaque<
   S.Struct({
     destinationRelativePath: RelativePath,
     objectId: ObjectId,
-    recordType: S.Literal("verification-pass"),
+    recordType: S.tag("verification-pass"),
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
   }).pipe(
@@ -1100,7 +1100,7 @@ export class ArchiveVerificationFailureRecord extends S.Opaque<
     failureKind: VerificationFailureKind,
     message: S.NonEmptyString,
     objectId: ObjectId,
-    recordType: S.Literal("verification-failure"),
+    recordType: S.tag("verification-failure"),
   }).pipe(
     $I.annoteSchema("ArchiveVerificationFailureRecord", {
       description: "Fresh-process archive verification failure for one object or manifest invariant.",
@@ -1262,10 +1262,10 @@ export class RestorationAcceptanceRecord extends S.Opaque<
     runLabel: RunLabel,
     schemaVersion: SchemaVersion,
     sourceCount: S.Natural,
-    status: S.Literal("pass"),
+    status: S.tag("pass"),
     terminalCount: S.Natural,
     transformationRunId: S.optionalKey(RunId),
-    unapprovedCount: S.Literal(0),
+    unapprovedCount: S.tag(0),
   }).pipe(
     $I.annoteSchema("RestorationAcceptanceRecord", {
       description: "Separate immutable PASS record emitted only after one family ledger independently reconciles.",
@@ -1358,7 +1358,7 @@ export class FamilyRunStartRecord extends S.Class<FamilyRunStartRecord, { readon
     maxTotalElapsedMillis: PosInt,
     maxTotalOutputBytes: PosInt,
     policySha256: Sha256Hex,
-    recordType: S.Literal("family-run-start"),
+    recordType: S.tag("family-run-start"),
   },
   $I.annote("FamilyRunStartRecord", {
     description:
@@ -1381,7 +1381,7 @@ export class FamilyAttemptStartRecord extends S.Class<FamilyAttemptStartRecord, 
     family: TransformationFamily,
     inputBytes: S.Natural,
     mailScope: S.optionalKey(MailRestorationScope),
-    recordType: S.Literal("family-attempt-start"),
+    recordType: S.tag("family-attempt-start"),
     retryOrdinal: S.Natural,
     sourceId: ObjectId,
     sourceSha256: Sha256Hex,
@@ -1405,10 +1405,10 @@ export class FamilyAttemptInterruptedRecord extends S.Class<
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
-    disposition: S.Literal("retained-for-retry"),
+    disposition: S.tag("retained-for-retry"),
     family: TransformationFamily,
     mailScope: S.optionalKey(MailRestorationScope),
-    recordType: S.Literal("family-attempt-interrupted"),
+    recordType: S.tag("family-attempt-interrupted"),
     retainedOutputBytes: S.Natural,
     retainedOutputRelativePath: RelativePath,
     retainedOutputSha256: Sha256Hex,
@@ -1436,13 +1436,13 @@ export class MailStorePassRecord extends S.Class<MailStorePassRecord, { readonly
     attemptId: AttemptId,
     childCount: S.Natural,
     elapsedMillis: S.Natural,
-    family: S.Literal("mail"),
+    family: S.tag("mail"),
     inputBytes: S.Natural,
     mailScope: MailRestorationScope,
     objectId: ObjectId,
     outputBytes: S.Natural,
     postProcessSha256: Sha256Hex,
-    recordType: S.Literal("mail-store-pass"),
+    recordType: S.tag("mail-store-pass"),
     sha256: Sha256Hex,
     warningCount: S.Natural,
   },
@@ -1522,11 +1522,11 @@ export class MailStoreExceptionRecord extends S.Class<MailStoreExceptionRecord, 
     disposition: S.optionalKey(MailDisposition),
     exceptionKind: MailExceptionKind,
     failureCause: S.optionalKey(MailFailureCause),
-    family: S.Literal("mail"),
+    family: S.tag("mail"),
     mailScope: MailRestorationScope,
     message: S.NonEmptyString,
     objectId: ObjectId,
-    recordType: S.Literal("mail-store-exception"),
+    recordType: S.tag("mail-store-exception"),
     retainedOutputBytes: S.Natural,
     retainedOutputSha256: Sha256Hex,
     sourceFamily: LiteralKit(["eml", "msg", "ost", "pst", "residue"]),
@@ -1549,11 +1549,11 @@ export class MailWarningRecord extends S.Class<MailWarningRecord, { readonly bra
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
-    family: S.Literal("mail"),
+    family: S.tag("mail"),
     mailScope: MailRestorationScope,
     message: S.NonEmptyString,
     objectId: ObjectId,
-    recordType: S.Literal("mail-warning"),
+    recordType: S.tag("mail-warning"),
   },
   $I.annote("MailWarningRecord", {
     description: "Bounded engine warning persisted for one mail restoration attempt.",
@@ -1574,9 +1574,9 @@ export class MailChildPassRecord extends S.Class<MailChildPassRecord, { readonly
     attemptId: AttemptId,
     childRelativePath: RelativePath,
     engineReported: S.Boolean,
-    family: S.Literal("mail"),
+    family: S.tag("mail"),
     mailScope: MailRestorationScope,
-    recordType: S.Literal("mail-child-pass"),
+    recordType: S.tag("mail-child-pass"),
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
     sourceObjectId: ObjectId,
@@ -1602,10 +1602,10 @@ export class AttachmentTypeRepairRecord extends S.Class<AttachmentTypeRepairReco
     derivedSha256: S.optionalKey(Sha256Hex),
     derivedRelativePath: RelativePath,
     derivedSizeBytes: S.optionalKey(PosInt),
-    family: S.Literal("mail"),
+    family: S.tag("mail"),
     mailScope: MailRestorationScope,
     originalRelativePath: RelativePath,
-    recordType: S.Literal("attachment-type-repair"),
+    recordType: S.tag("attachment-type-repair"),
     repairStatus: LiteralKit(["repaired", "unchanged", "unsupported"]),
     sourceObjectId: ObjectId,
   },
@@ -1632,9 +1632,9 @@ export class RecycleJoinRecord extends S.Class<RecycleJoinRecord, { readonly bra
   {
     ...TransformationEvidenceIdentity.fields,
     count: S.Natural,
-    family: S.Literal("recycle"),
+    family: S.tag("recycle"),
     joinClass: RecycleJoinClass,
-    recordType: S.Literal("recycle-join"),
+    recordType: S.tag("recycle-join"),
     sourceObjectIds: S.Array(ObjectId),
     surfaceId: S.NonEmptyString,
   },
@@ -1657,10 +1657,10 @@ export class RecycleMappingRecord extends S.Class<RecycleMappingRecord, { readon
     attemptId: AttemptId,
     contentObjectId: ObjectId,
     digest: Sha256Hex,
-    family: S.Literal("recycle"),
+    family: S.tag("recycle"),
     metadataObjectId: ObjectId,
     originalPath: S.NonEmptyString,
-    recordType: S.Literal("recycle-mapping"),
+    recordType: S.tag("recycle-mapping"),
     restoredRelativePath: RelativePath,
     surfaceId: S.NonEmptyString,
   },
@@ -1683,12 +1683,12 @@ export class LegacyWordPassRecord extends S.Class<LegacyWordPassRecord, { readon
     attemptId: AttemptId,
     convertedSha256: Sha256Hex,
     engineVersion: S.NonEmptyString,
-    family: S.Literal("legacy-word"),
+    family: S.tag("legacy-word"),
     normalizedTextSha256: Sha256Hex,
     originalSha256: Sha256Hex,
     postProcessOriginalSha256: Sha256Hex,
     pageCountDelta: S.Int,
-    recordType: S.Literal("legacy-word-pass"),
+    recordType: S.tag("legacy-word-pass"),
     visualRmse: S.Finite,
   },
   $I.annote("LegacyWordPassRecord", {
@@ -1711,10 +1711,10 @@ export class LegacyWordExceptionRecord extends S.Class<LegacyWordExceptionRecord
     approved: S.Boolean,
     attemptId: AttemptId,
     exceptionKind: LiteralKit(["conversion-failed", "fidelity-failed", "not-binary-word"]),
-    family: S.Literal("legacy-word"),
+    family: S.tag("legacy-word"),
     message: S.NonEmptyString,
     originalSha256: Sha256Hex,
-    recordType: S.Literal("legacy-word-exception"),
+    recordType: S.tag("legacy-word-exception"),
   },
   $I.annote("LegacyWordExceptionRecord", {
     description: "Terminal distinct-digest legacy-Word exception with explicit approval state.",
@@ -1739,9 +1739,9 @@ export class FamilyAcceptancePassRecord extends S.Class<FamilyAcceptancePassReco
     maxTotalElapsedMillis: PosInt,
     maxTotalOutputBytes: PosInt,
     outputTreeSha256: Sha256Hex,
-    recordType: S.Literal("family-acceptance-pass"),
+    recordType: S.tag("family-acceptance-pass"),
     terminalCount: S.Natural,
-    unapprovedCount: S.Literal(0),
+    unapprovedCount: S.tag(0),
   },
   $I.annote("FamilyAcceptancePassRecord", {
     description: "Reconciled family acceptance record with a complete denominator and zero unapproved rows.",
@@ -1768,7 +1768,7 @@ export class FamilyAcceptanceFailureRecord extends S.Class<
     maxTotalOutputBytes: PosInt,
     message: S.NonEmptyString,
     outputTreeSha256: Sha256Hex,
-    recordType: S.Literal("family-acceptance-failure"),
+    recordType: S.tag("family-acceptance-failure"),
     terminalCount: S.Natural,
     unapprovedCount: S.Natural,
   },
@@ -1798,7 +1798,7 @@ export class FamilyRunSummaryRecord extends S.Class<FamilyRunSummaryRecord, { re
     outputTreeSha256: Sha256Hex,
     outputBytes: S.Natural,
     passCount: S.Natural,
-    recordType: S.Literal("family-run-summary"),
+    recordType: S.tag("family-run-summary"),
     sourceCount: S.Natural,
     unapprovedCount: S.Natural,
   },

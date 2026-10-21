@@ -395,7 +395,7 @@ export class ShapeOnlyAttribute extends S.Opaque<ShapeOnlyAttribute, { readonly 
 export class ShapeOnlyResource extends S.Opaque<ShapeOnlyResource, { readonly brand: unique symbol }>()(
   S.Struct({
     attributes: S.Array(ShapeOnlyAttribute),
-    droppedAttributesCount: S.Literal(0),
+    droppedAttributesCount: S.tag(0),
   }).pipe(
     $I.annoteSchema("ShapeOnlyResource", {
       description: "Constant resource of a strict export: service, tier and key epoch, never a host.",
@@ -434,12 +434,12 @@ export class ShapeOnlySpan extends S.Opaque<ShapeOnlySpan, { readonly brand: uni
     startTimeUnixNano: UnixNanos,
     endTimeUnixNano: UnixNanos,
     attributes: S.Array(ShapeOnlyAttribute),
-    droppedAttributesCount: S.Literal(0),
+    droppedAttributesCount: S.tag(0),
     events: S.Tuple([]),
-    droppedEventsCount: S.Literal(0),
+    droppedEventsCount: S.tag(0),
     status: S.Struct({ code: S.Literals([0, 1, 2]) }),
     links: S.Tuple([]),
-    droppedLinksCount: S.Literal(0),
+    droppedLinksCount: S.tag(0),
   }).pipe(
     $I.annoteSchema("ShapeOnlySpan", {
       description: "Exported strict-tier span: tool name, floored times, keyed ids, status code, literal attributes.",

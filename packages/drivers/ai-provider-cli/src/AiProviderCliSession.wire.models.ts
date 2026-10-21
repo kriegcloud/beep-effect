@@ -25,10 +25,10 @@ const $I = $AiProviderCliId.create("AiProviderCliSession.wire.models");
 export class CodexStart extends S.Opaque<CodexStart, { readonly brand: unique symbol }>()(
   S.Struct({
     thread: S.Struct({ id: S.NonEmptyString }),
-    model: S.Literal("gpt-6.1-sol"),
-    reasoningEffort: S.Literal("medium"),
-    approvalPolicy: S.Literal("never"),
-    sandbox: S.Struct({ type: S.Literal("readOnly"), networkAccess: S.Literal(false) }),
+    model: S.tag("gpt-6.1-sol"),
+    reasoningEffort: S.tag("medium"),
+    approvalPolicy: S.tag("never"),
+    sandbox: S.Struct({ type: S.tag("readOnly"), networkAccess: S.tag(false) }),
   }).pipe(
     $I.annoteSchema("CodexStart", {
       description: "Verifies the Codex thread identity, pinned model and effective read-only permission policy.",
@@ -72,7 +72,7 @@ export class CodexItem extends S.Opaque<CodexItem, { readonly brand: unique symb
   S.Struct({
     threadId: S.String,
     turnId: S.String,
-    item: S.Struct({ type: S.Literal("agentMessage"), text: S.String }),
+    item: S.Struct({ type: S.tag("agentMessage"), text: S.String }),
   }).pipe(
     $I.annoteSchema("CodexItem", {
       description: "Correlates a Codex assistant text item with its owning thread and turn.",
@@ -121,8 +121,8 @@ export class AcpText extends S.Opaque<AcpText, { readonly brand: unique symbol }
   S.Struct({
     sessionId: S.String,
     update: S.Struct({
-      sessionUpdate: S.Literal("agent_message_chunk"),
-      content: S.Struct({ type: S.Literal("text"), text: S.String }),
+      sessionUpdate: S.tag("agent_message_chunk"),
+      content: S.Struct({ type: S.tag("text"), text: S.String }),
     }),
   }).pipe(
     $I.annoteSchema("AcpText", {
@@ -147,7 +147,7 @@ export class AcpText extends S.Opaque<AcpText, { readonly brand: unique symbol }
 export class CursorIdentity extends S.Opaque<CursorIdentity, { readonly brand: unique symbol }>()(
   S.Struct({
     sessionId: S.NonEmptyString,
-    models: S.Struct({ currentModelId: S.Literal("claude-opus-5-5[context=300k,effort=medium,fast=false]") }),
+    models: S.Struct({ currentModelId: S.tag("claude-opus-5-5[context=300k,effort=medium,fast=false]") }),
   }).pipe(
     $I.annoteSchema("CursorIdentity", {
       description: "Verifies the Cursor session model identifier including context, effort and fast-mode qualifiers.",
@@ -171,7 +171,7 @@ export class CursorIdentity extends S.Opaque<CursorIdentity, { readonly brand: u
 export class GrokIdentity extends S.Opaque<GrokIdentity, { readonly brand: unique symbol }>()(
   S.Struct({
     sessionId: S.NonEmptyString,
-    models: S.Struct({ currentModelId: S.Literal("grok-4.7") }),
+    models: S.Struct({ currentModelId: S.tag("grok-4.7") }),
     configOptions: S.Array(S.Struct({ id: S.String, currentValue: S.Unknown })),
   }).pipe(
     $I.annoteSchema("GrokIdentity", {
@@ -223,11 +223,11 @@ export type MessagingToolName = typeof MessagingToolName.Type;
  */
 export class ClaudeHandshake extends S.Opaque<ClaudeHandshake, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("control_response"),
+    type: S.tag("control_response"),
     response: S.Struct({
-      subtype: S.Literal("success"),
-      request_id: S.Literal("beep-initialize"),
-      response: S.Struct({ current_permission_mode: S.Literal("dontAsk") }),
+      subtype: S.tag("success"),
+      request_id: S.tag("beep-initialize"),
+      response: S.Struct({ current_permission_mode: S.tag("dontAsk") }),
     }),
   }).pipe(
     $I.annoteSchema("ClaudeHandshake", {
@@ -251,11 +251,11 @@ export class ClaudeHandshake extends S.Opaque<ClaudeHandshake, { readonly brand:
  */
 export class ClaudeInit extends S.Opaque<ClaudeInit, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("system"),
-    subtype: S.Literal("init"),
+    type: S.tag("system"),
+    subtype: S.tag("init"),
     session_id: S.NonEmptyString,
-    model: S.Literal("claude-opus-5-5"),
-    permissionMode: S.Literal("dontAsk"),
+    model: S.tag("claude-opus-5-5"),
+    permissionMode: S.tag("dontAsk"),
   }).pipe(
     $I.annoteSchema("ClaudeInit", {
       description: "Verifies the Claude session initialization model and permission-mode readback.",
@@ -278,7 +278,7 @@ export class ClaudeInit extends S.Opaque<ClaudeInit, { readonly brand: unique sy
  */
 export class ClaudeResult extends S.Opaque<ClaudeResult, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("result"),
+    type: S.tag("result"),
     subtype: S.String,
     is_error: S.Boolean,
     result: S.optionalKey(S.String),
@@ -304,7 +304,7 @@ export class ClaudeResult extends S.Opaque<ClaudeResult, { readonly brand: uniqu
  * @since 0.0.0
  */
 export class ClaudeControl extends S.Opaque<ClaudeControl, { readonly brand: unique symbol }>()(
-  S.Struct({ type: S.Literal("control_request"), request_id: S.String }).pipe(
+  S.Struct({ type: S.tag("control_request"), request_id: S.String }).pipe(
     $I.annoteSchema("ClaudeControl", {
       description: "Decodes the identifier of a reverse Claude control request for host permission handling.",
     })

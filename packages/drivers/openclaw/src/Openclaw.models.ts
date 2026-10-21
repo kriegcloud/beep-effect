@@ -316,13 +316,11 @@ export class OpenclawVersionInfo extends S.Opaque<OpenclawVersionInfo, { readonl
  * @category models
  * @since 0.0.0
  */
-export class OpenclawConfigValid extends S.Class<OpenclawConfigValid, { readonly brand: unique symbol }>(
+export class OpenclawConfigValid extends S.TaggedClass<OpenclawConfigValid, { readonly brand: unique symbol }>(
   $I`OpenclawConfigValid`
 )(
+  "Valid",
   {
-    _tag: S.tag("Valid").annotateKey({
-      description: "Discriminator for successful config validation.",
-    }),
     output: OpenclawDiagnosticText.annotateKey({
       description: "Trimmed capped validator output.",
     }),
@@ -353,13 +351,11 @@ export class OpenclawConfigValid extends S.Class<OpenclawConfigValid, { readonly
  * @category models
  * @since 0.0.0
  */
-export class OpenclawConfigInvalid extends S.Class<OpenclawConfigInvalid, { readonly brand: unique symbol }>(
+export class OpenclawConfigInvalid extends S.TaggedClass<OpenclawConfigInvalid, { readonly brand: unique symbol }>(
   $I`OpenclawConfigInvalid`
 )(
+  "Invalid",
   {
-    _tag: S.tag("Invalid").annotateKey({
-      description: "Discriminator for failed config validation.",
-    }),
     diagnostics: OpenclawDiagnosticText.annotateKey({
       description: "Trimmed capped validator diagnostics.",
     }),
@@ -497,13 +493,11 @@ export class OpenclawSecretsReloadOutput extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSecretsReloaded extends S.Class<OpenclawSecretsReloaded, { readonly brand: unique symbol }>(
+export class OpenclawSecretsReloaded extends S.TaggedClass<OpenclawSecretsReloaded, { readonly brand: unique symbol }>(
   $I`OpenclawSecretsReloaded`
 )(
+  "Reloaded",
   {
-    _tag: S.tag("Reloaded").annotateKey({
-      description: "Discriminator for successful secrets reloads.",
-    }),
     warningCount: S.Natural.annotateKey({
       description: "Number of warnings emitted during the reload.",
     }),
@@ -535,14 +529,12 @@ export class OpenclawSecretsReloaded extends S.Class<OpenclawSecretsReloaded, { 
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSecretsReloadDegraded extends S.Class<
+export class OpenclawSecretsReloadDegraded extends S.TaggedClass<
   OpenclawSecretsReloadDegraded,
   { readonly brand: unique symbol }
 >($I`OpenclawSecretsReloadDegraded`)(
+  "Degraded",
   {
-    _tag: S.tag("Degraded").annotateKey({
-      description: "Discriminator for degraded secrets reloads.",
-    }),
     diagnostics: OpenclawDiagnosticText.annotateKey({
       description: "Trimmed capped CLI diagnostics; causal detail lives in the gateway log.",
     }),
@@ -892,7 +884,7 @@ export class OpenclawTelegramSendPayload extends S.Opaque<
 >()(
   S.Struct({
     messageId: S.NonEmptyString,
-    ok: S.Literal(true),
+    ok: S.tag(true),
   }).pipe(
     $I.annoteSchema("OpenclawTelegramSendPayload", {
       description: "Successful Telegram plugin receipt payload.",
@@ -929,8 +921,8 @@ export class OpenclawTelegramSendResult extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    action: S.Literal("send"),
-    channel: S.Literal("telegram"),
+    action: S.tag("send"),
+    channel: S.tag("telegram"),
     dryRun: S.Boolean,
     handledBy: S.NonEmptyString,
     messageId: S.NonEmptyString,

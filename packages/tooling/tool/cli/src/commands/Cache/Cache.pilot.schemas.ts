@@ -355,14 +355,14 @@ export class CachePilotNonExecution extends S.Opaque<CachePilotNonExecution, { r
  */
 export class CachePilotReceipt extends S.Opaque<CachePilotReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("cache-pilot-local/v5"),
-    clientSelection: S.Literal("pinned-native-skip-infer"),
-    runtimeKeying: S.Literal("toolchain-sha256-env/v1"),
+    schemaVersion: S.tag("cache-pilot-local/v5"),
+    clientSelection: S.tag("pinned-native-skip-infer"),
+    runtimeKeying: S.tag("toolchain-sha256-env/v1"),
     runtimeKeyDigest: Sha256Hex,
     runtimeLinker: S.OptionFromOptionalKey(CacheRuntimeLinkerSnapshot).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-    authority: S.Literal("local-observation-only"),
+    authority: S.tag("local-observation-only"),
     key: CacheQualificationKey,
     sourceRevision: GitObjectId,
     channel: CacheClientChannel,

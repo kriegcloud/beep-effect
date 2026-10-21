@@ -590,7 +590,7 @@ const PacketCreatedBodyStagePairCheck = S.makeFilter(
  */
 export class PacketCreatedBody extends S.Opaque<PacketCreatedBody, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("packet-created"),
+    type: S.tag("packet-created"),
     status: PacketStatusToken,
     stage: S.optionalKey(PacketStage),
     ordinal: S.optionalKey(PacketStageOrdinal),
@@ -620,7 +620,7 @@ export class PacketCreatedBody extends S.Opaque<PacketCreatedBody, { readonly br
  */
 export class StageEnteredBody extends S.Opaque<StageEnteredBody, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("stage-entered"),
+    type: S.tag("stage-entered"),
     stage: PacketStage,
     ordinal: PacketStageOrdinal,
   }).pipe(
@@ -647,7 +647,7 @@ export class StageEnteredBody extends S.Opaque<StageEnteredBody, { readonly bran
  */
 export class StatusSetBody extends S.Opaque<StatusSetBody, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("status-set"),
+    type: S.tag("status-set"),
     status: PacketStatusToken,
     previous: PacketStatusToken,
   }).pipe(
@@ -721,7 +721,7 @@ export const RiskTierOverrideReason = S.String.check(
  */
 export class RiskTierOverriddenBody extends S.Opaque<RiskTierOverriddenBody, { readonly brand: unique symbol }>()(
   S.Struct({
-    type: S.Literal("risk-tier-overridden"),
+    type: S.tag("risk-tier-overridden"),
     tier: PacketRiskTier,
     previous: S.optionalKey(PacketRiskTier),
     reason: RiskTierOverrideReason,
@@ -1391,7 +1391,7 @@ export class PacketTraceEntry extends S.Opaque<PacketTraceEntry, { readonly bran
  */
 export class PacketTraceProjection extends S.Opaque<PacketTraceProjection, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("packet-trace/v1"),
+    schemaVersion: S.tag("packet-trace/v1"),
     projectorVersion: S.Int.check(
       S.isGreaterThanOrEqualTo(1, {
         identifier: $I`PacketTraceProjectorVersionCheck`,

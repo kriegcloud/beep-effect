@@ -112,7 +112,7 @@ export type SessionRole = typeof SessionRole.Type;
  */
 export class SessionLedgerRow extends S.Opaque<SessionLedgerRow, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("session-ledger/v1"),
+    schemaVersion: S.tag("session-ledger/v1"),
     repository: PrRepository,
     clone: S.String,
     checkout: S.String,
@@ -166,7 +166,7 @@ export const SessionLedgerRowJson = JsonStringCodec(SessionLedgerRow);
  */
 export class SessionOpenReport extends S.Opaque<SessionOpenReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("session-open/v1"),
+    schemaVersion: S.tag("session-open/v1"),
     repository: PrRepository,
     rows: S.Array(SessionLedgerRow),
     goalCloseouts: GoalCloseoutView.pipe(S.Array, S.optionalKey),

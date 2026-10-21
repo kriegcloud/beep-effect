@@ -123,7 +123,7 @@ const decodeLegacyAdmissionJournalEvent = S.decodeUnknownEffect(
 // Historical wire boundary: the pre-v3 gate accepts protocol v1 only.
 const decodeLegacyAdmissionProtocol = S.decodeUnknownOption(
   S.fromJsonString(
-    S.Struct({ schemaVersion: S.Literal("yeet-admission-protocol/v1"), eviction: AdmissionEvictionEmission })
+    S.Struct({ schemaVersion: S.tag("yeet-admission-protocol/v1"), eviction: AdmissionEvictionEmission })
   )
 );
 
