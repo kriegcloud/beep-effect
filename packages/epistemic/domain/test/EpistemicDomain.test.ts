@@ -17,6 +17,7 @@ import {
   UsageRecord,
 } from "@beep/epistemic-domain";
 import { EvidenceSpanArbitrary } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { $EpistemicId } from "@beep/identity/packages";
 import { TextAnchor } from "@beep/provenance/TextAnchor";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import { it } from "@beep/test-runner";
@@ -268,9 +269,9 @@ describe("@beep/epistemic-domain", () => {
       verdict: "rejected",
       violations: [
         {
-          focusNode: "https://beep.dev/epistemic/claim/patentability",
+          focusNode: $EpistemicId.create("claim/patentability").iri,
           message: "Expected at least 1 value(s) for evidence.",
-          path: "https://beep.dev/epistemic/hasEvidenceQuote",
+          path: $EpistemicId.create("hasEvidenceQuote").iri,
           severity: "violation",
         },
       ],

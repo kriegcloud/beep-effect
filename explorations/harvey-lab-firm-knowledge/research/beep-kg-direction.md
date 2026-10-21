@@ -112,7 +112,7 @@ Layer 2 into *exact episodic records* (OUTSIDE, retention-governed) and
 memory is a schema-first, span-grounded, bitemporal claim/evidence store in
 Postgres/PGlite; whose "knowledge graph", search, RDF, and MCP surfaces are all
 rebuildable projections of that store; and whose ontology layer is repo-owned
-SKOS minted under `https://ns.beep.sh/` with external vocabularies as *aligned
+SKOS minted under `https://beep-effect.com/ns/` with external vocabularies as *aligned
 metadata*, never source of truth.
 
 ---
@@ -127,11 +127,11 @@ Nine bets, each with its owning packet, stage, and the decisions already locked.
   in `explorations/legal-ontology-landscape/DECISIONS.md`.
 - **Locked:** D2 as summarized in the Lynx grounding — "**Effect Schema is the
   authority and RDF/JSON-LD is derived**"; also "no third-party TTL/OWL in
-  tracked package source"; "`https://ns.beep.sh/` is the sole minting
+  tracked package source"; "`https://beep-effect.com/ns/` is the sole minting
   authority"; "FOLIO alignment is metadata, never source of truth"
   (`explorations/lynx-lkg-ontology-grounding/RESEARCH.md:94-100`).
 - **SPEC form:** "repo-owned SKOS concept schemes minted with `@beep/identity`
-  under `https://ns.beep.sh/`, FOLIO-aligned where vetted … without introducing
+  under `https://beep-effect.com/ns/`, FOLIO-aligned where vetted … without introducing
   a graph store, SPARQL runtime, or law-practice domain entities"
   (`goals/semantic-foundation/SPEC.md:6-12`).
 - **Stage:** **M1 complete**, M2/M3/M4 gated (`goals/semantic-foundation/README.md:40-41`;

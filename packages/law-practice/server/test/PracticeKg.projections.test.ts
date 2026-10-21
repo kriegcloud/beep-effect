@@ -1010,19 +1010,19 @@ describe("practice KG projections", () => {
             .pipe(Effect.flatMap(decodeIriRows));
           expect(A.headNonEmpty(provenanceRows).count).toBe(0);
           expect(A.map(iriRows, (row) => row.iri)).toStrictEqual([
-            "https://ns.beep.sh/practice-kg/application/11223344",
-            "https://ns.beep.sh/practice-kg/application/55667788",
-            "https://ns.beep.sh/practice-kg/application/76543210",
-            "https://ns.beep.sh/practice-kg/application/87654321",
-            `https://ns.beep.sh/practice-kg/docket_family/${fixtureClients.alpha}.20001`,
-            "https://ns.beep.sh/practice-kg/docket_family/20001",
-            `https://ns.beep.sh/practice-kg/docket_family/${fixtureClients.beta}.20001`,
-            "https://ns.beep.sh/practice-kg/document/sha256:1111111111111111111111111111111111111111111111111111111111111111",
-            "https://ns.beep.sh/practice-kg/document/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "https://ns.beep.sh/practice-kg/document/sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "https://ns.beep.sh/practice-kg/document/sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-            "https://ns.beep.sh/practice-kg/document/sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-            "https://ns.beep.sh/practice-kg/document/sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "https://beep-effect.com/ns/practice-kg/application/11223344",
+            "https://beep-effect.com/ns/practice-kg/application/55667788",
+            "https://beep-effect.com/ns/practice-kg/application/76543210",
+            "https://beep-effect.com/ns/practice-kg/application/87654321",
+            `https://beep-effect.com/ns/practice-kg/docket_family/${fixtureClients.alpha}.20001`,
+            "https://beep-effect.com/ns/practice-kg/docket_family/20001",
+            `https://beep-effect.com/ns/practice-kg/docket_family/${fixtureClients.beta}.20001`,
+            "https://beep-effect.com/ns/practice-kg/document/sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "https://beep-effect.com/ns/practice-kg/document/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "https://beep-effect.com/ns/practice-kg/document/sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "https://beep-effect.com/ns/practice-kg/document/sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "https://beep-effect.com/ns/practice-kg/document/sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "https://beep-effect.com/ns/practice-kg/document/sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           ]);
 
           // P6 graph-integrity contract: families key on <client>.<family>, the
@@ -1059,11 +1059,11 @@ describe("practice KG projections", () => {
             )
             .pipe(Effect.flatMap(decodeDumpLines));
           expect(A.map(anchorEdgeLines, (row) => row.line)).toStrictEqual([
-            `{"subject_iri":"https://ns.beep.sh/practice-kg/application/11223344","predicate":"mentioned_in_family","object_iri":"https://ns.beep.sh/practice-kg/docket_family/${fixtureClients.alpha}.20001","epistemic_status":"mention-derived"}`,
-            `{"subject_iri":"https://ns.beep.sh/practice-kg/application/11223344","predicate":"mentioned_in_family","object_iri":"https://ns.beep.sh/practice-kg/docket_family/${fixtureClients.beta}.20001","epistemic_status":"mention-derived"}`,
-            '{"subject_iri":"https://ns.beep.sh/practice-kg/application/55667788","predicate":"mentioned_in_family","object_iri":"https://ns.beep.sh/practice-kg/docket_family/20001","epistemic_status":"mention-derived"}',
-            `{"subject_iri":"https://ns.beep.sh/practice-kg/application/87654321","predicate":"mentioned_in_family","object_iri":"https://ns.beep.sh/practice-kg/docket_family/${fixtureClients.alpha}.20001","epistemic_status":"mention-derived"}`,
-            `{"subject_iri":"https://ns.beep.sh/practice-kg/docket/${fixtureClients.alpha}.20001US01","predicate":"files_as","object_iri":"https://ns.beep.sh/practice-kg/application/87654321","epistemic_status":"derived-from-official-records"}`,
+            `{"subject_iri":"https://beep-effect.com/ns/practice-kg/application/11223344","predicate":"mentioned_in_family","object_iri":"https://beep-effect.com/ns/practice-kg/docket_family/${fixtureClients.alpha}.20001","epistemic_status":"mention-derived"}`,
+            `{"subject_iri":"https://beep-effect.com/ns/practice-kg/application/11223344","predicate":"mentioned_in_family","object_iri":"https://beep-effect.com/ns/practice-kg/docket_family/${fixtureClients.beta}.20001","epistemic_status":"mention-derived"}`,
+            '{"subject_iri":"https://beep-effect.com/ns/practice-kg/application/55667788","predicate":"mentioned_in_family","object_iri":"https://beep-effect.com/ns/practice-kg/docket_family/20001","epistemic_status":"mention-derived"}',
+            `{"subject_iri":"https://beep-effect.com/ns/practice-kg/application/87654321","predicate":"mentioned_in_family","object_iri":"https://beep-effect.com/ns/practice-kg/docket_family/${fixtureClients.alpha}.20001","epistemic_status":"mention-derived"}`,
+            `{"subject_iri":"https://beep-effect.com/ns/practice-kg/docket/${fixtureClients.alpha}.20001US01","predicate":"files_as","object_iri":"https://beep-effect.com/ns/practice-kg/application/87654321","epistemic_status":"derived-from-official-records"}`,
           ]);
           const familyCountLines = yield* sql
             .unsafe(
@@ -1091,7 +1091,7 @@ describe("practice KG projections", () => {
             )
             .pipe(Effect.flatMap(decodeDumpLines));
           expect(A.map(buildLines, (row) => row.line)).toStrictEqual([
-            '{"bundle_version":"2026-10-07-04","built_from_runs":"base","corpus_snapshot_at":"2026-01-02T03:04:06.000Z"}',
+            '{"bundle_version":"2026-10-20-01","built_from_runs":"base","corpus_snapshot_at":"2026-01-02T03:04:06.000Z"}',
           ]);
         }).pipe(provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(firstOut, "kg.pglite") })));
       }),
@@ -1131,7 +1131,7 @@ describe("practice KG projections", () => {
             ["corpus_get_document", { digest: fixtureDigests.docket }],
             ["email_search", { query: "fixture" }],
             ["kg_provenance", {}],
-            ["kg_provenance", { iri: "https://ns.beep.sh/practice-kg/application/76543210" }],
+            ["kg_provenance", { iri: "https://beep-effect.com/ns/practice-kg/application/76543210" }],
             ["kg_provenance", { natural_key: "76543210" }],
           ] as const;
           const results = yield* Effect.forEach(liveCalls, ([name, args]) =>
@@ -1377,7 +1377,7 @@ describe("practice KG projections", () => {
             .readFileString(path.join(bundleOut, "bundle.manifest.json"))
             .pipe(Effect.flatMap(decodeManifestJson));
           expect([manifest.bundleVersion, manifest.schemaVersion.duckdb, manifest.schemaVersion.pglite]).toStrictEqual([
-            "2026-10-07-04",
+            "2026-10-20-01",
             "4",
             "4",
           ]);

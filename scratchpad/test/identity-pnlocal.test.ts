@@ -67,8 +67,8 @@ describe("PnLocal", () => {
     expect(
       prefixedNameOrIri("Ontology.models/HttpUrl", {
         prefix: "beep",
-        fullIri: "https://ns.beep.sh/ontology/Ontology.models/HttpUrl",
+        fullIri: "https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl",
       })
-    ).toBe("<https://ns.beep.sh/ontology/Ontology.models/HttpUrl>");
+    ).toBe("<https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl>");
   });
 });

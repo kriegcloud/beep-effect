@@ -72,12 +72,12 @@ Marked **LOCKED** (agreed in session), **DEFAULT** (recommended, proceed unless
 vetoed), or **OPEN** (blocked on elpresidank).
 
 - **D1 — Authority binding is total, at the root. LOCKED.**
-  `make("beep", { authority: "https://ns.beep.sh/", prefix: "beep", vocab })`.
+  `make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep", vocab })`.
   Every composer monorepo-wide derives `.iri`/`.curie` mechanically from its
   path. Even never-published identities get canonical IRIs (provenance needs
   them).
 - **D2 — Slash IRIs for the mechanical mapping; hash allowed via `rebase`. DEFAULT.**
-  Internal: `https://ns.beep.sh/ontology/Ontology.models/HttpUrl`. Published
+  Internal: `https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl`. Published
   vocabularies may rebase to hash namespaces
   (`https://opip.law/ns/patent#Claim`). Rationale: slash → per-term
   dereference/docs pages (explore/tree ambition); hash → single-document
@@ -176,7 +176,7 @@ getters, with the binding threaded from `make`:
 
 ```ts
 export const { $BeepId } = make("beep", {
-  authority: "https://ns.beep.sh/",
+  authority: "https://beep-effect.com/ns/",
   prefix: "beep",
   // vocab?: extensions merged into CoreVocab
 });
@@ -414,7 +414,8 @@ block, deterministic across runs.
 
 1. **D7** — inline `is:` pairs on `$I.class`, fold-only `triples`, or both?
    (Fold channel ships in Phase 3 regardless.)
-2. Authority host: `https://ns.beep.sh/` is a placeholder — confirm the real
+2. Authority host: `https://ns[.]beep[.]sh/` is a placeholder (superseded 2026-10-20 by
+   `https://beep-effect.com/ns/`) — confirm the real
    authority before Phase 2 lands (it is `rebase`-able later, but the default
    should be right).
 3. Where does `Fibered` live — `@beep/schema` (vocab-agnostic, near

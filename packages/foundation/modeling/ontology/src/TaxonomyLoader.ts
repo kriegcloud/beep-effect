@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { $OntologyId } from "@beep/identity/packages";
+import { $I as $BeepId, $OntologyId } from "@beep/identity/packages";
 import { IRIReference } from "@beep/rdf";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
@@ -126,11 +126,11 @@ const HttpsIriReference = IRIReference.check(
 );
 
 const RepoConceptIri = HttpsIriReference.check(
-  S.makeFilter(Str.startsWith("https://ns.beep.sh/"), {
+  S.makeFilter(Str.startsWith($BeepId.iri), {
     identifier: $I`RepoConceptIriCheck`,
     title: "Repository Concept IRI",
-    description: "An absolute concept IRI under the repository-owned ns.beep.sh authority.",
-    message: "Expected a repository concept IRI under https://ns.beep.sh/",
+    description: "An absolute concept IRI under the repository identity authority.",
+    message: `Expected a repository concept IRI under ${$BeepId.iri}`,
   })
 );
 
@@ -193,6 +193,7 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly
  * **Example** (Describe an external alignment slice)
  *
  * ```ts
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { VendorAlignmentManifestEntry } from "@beep/ontology/TaxonomyLoader"
  * import { IRIReference } from "@beep/rdf"
  *
@@ -202,7 +203,7 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly
  *   format: "jsonld",
  *   id: "folio-example",
  *   loadStatus: "VETTED",
- *   localConceptIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/example"),
+ *   localConceptIri: IRIReference.make($SemanticFoundationId.create("concept/example").iri),
  *   mappingKind: "closeMatch",
  *   namespaceIri: IRIReference.make("https://folio.openlegalstandard.org/"),
  *   path: "folio-example.jsonld",
@@ -506,12 +507,13 @@ export class VendorSliceConceptMismatch extends S.TaggedError<
  * **Example** (Make an alignment-target error)
  *
  * ```ts
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { VendorAlignmentTargetNotFound } from "@beep/ontology/TaxonomyLoader"
  * import { IRIReference } from "@beep/rdf"
  *
  * const error = VendorAlignmentTargetNotFound.make({
  *   id: "folio-example",
- *   localConceptIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/missing")
+ *   localConceptIri: IRIReference.make($SemanticFoundationId.create("concept/missing").iri)
  * })
  * console.log(error._tag)
  * ```

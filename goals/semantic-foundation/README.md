@@ -10,7 +10,7 @@ Source: [`ops/manifest.json`](./ops/manifest.json)
 
 Build the repo-owned semantic foundation that intake, filing, classification,
 docketing, and party-role workflows can consume: SKOS concept schemes minted
-under `https://ns.beep.sh/`, FOLIO alignments where vetted, and an
+under `https://beep-effect.com/ns/`, FOLIO alignments where vetted, and an
 `@beep/ontology` registry/loader surface that can load committed seed data plus
 approved vendor slices without adding a graph store or SPARQL engine.
 

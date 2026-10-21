@@ -1,4 +1,5 @@
 import {
+  BEEP_QA_XMP_NAMESPACE_URI,
   BeepQaProvenance,
   BeepQaTagName,
   BuildReadTagsArgsOptions,
@@ -25,10 +26,11 @@ import {
   WriteTagsRequest,
   WriteXmpPacketRequest,
 } from "@beep/exiftool";
+import { $I as $BeepId, $QaId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A } from "@beep/utils";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, expectTypeOf } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
@@ -263,12 +265,19 @@ describe("@beep/exiftool models", () => {
     expect(exiftoolVersionArgs).toEqual(["-ver"]);
   });
 
+  it("derives the XMP-beepQA namespace URI from the identity QA vocabulary", () => {
+    expect(BEEP_QA_XMP_NAMESPACE_URI).toBe("https://beep-effect.com/ns/qa/1.0/");
+    expect(BEEP_QA_XMP_NAMESPACE_URI).toBe(`${$BeepId.iri}qa/1.0/`);
+    expect(BEEP_QA_XMP_NAMESPACE_URI).toBe(`${$QaId.iri}/1.0/`);
+    expectTypeOf(BEEP_QA_XMP_NAMESPACE_URI).toEqualTypeOf<"https://beep-effect.com/ns/qa/1.0/">();
+  });
+
   it("renders the XMP-beepQA exiftool config template", () => {
     const source = renderBeepQaExiftoolConfig(RenderBeepQaConfigOptions.make({}));
 
     expect(source).toContain("%Image::ExifTool::UserDefined::beepQA = (");
     expect(source).toContain("GROUPS => { 0 => 'XMP', 1 => 'XMP-beepQA', 2 => 'Image' },");
-    expect(source).toContain("NAMESPACE => { 'beepQA' => 'https://ns.beep.sh/qa/1.0/' },");
+    expect(source).toContain(`NAMESPACE => { 'beepQA' => '${BEEP_QA_XMP_NAMESPACE_URI}' },`);
     expect(source).toContain("WRITABLE => 'string',");
     expect(source).toContain("TagTable => 'Image::ExifTool::UserDefined::beepQA',");
     expect(source).toContain("1;  # end");

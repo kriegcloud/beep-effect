@@ -12,7 +12,7 @@ Source: [`ops/manifest.json`](./ops/manifest.json)
 ## Spark
 
 The identity path (`@beep/ontology/patent/Claim`) and the IRI
-(`https://ns.beep.sh/ontology/patent/Claim`) should be two literal-typed
+(`https://beep-effect.com/ns/ontology/patent/Claim`) should be two literal-typed
 encodings of the same value: promote `IdentityComposer` into an IRI/CURIE
 builder with borrowed RDF vocab baked in as literal types, replace the dead
 `Ontology.create` API with a `$I.ontology` fold over triples-as-tuples, and
@@ -61,7 +61,8 @@ reopens this exploration at `decompose`.
   landed via [PR #289](https://github.com/beep-effect/beep-effect/pull/289)
   (shape-stable harness, vocab/CURIE/PN_LOCAL modules, bound composer with
   literal `.iri`/`.curie`, zero call-site changes; blast radius negligible).
-  Authority host RESOLVED: `https://ns.beep.sh/`. Closeout reflection
+  Authority host RESOLVED: `https://ns[.]beep[.]sh/` (superseded 2026-10-20 by
+  `https://beep-effect.com/ns/`, goal public-origin-beep-effect-com). Closeout reflection
   written. Next: graduate `identity-iri-fold`.
 - 2026-07-02 (later): checkpoint `61160e1baf` pushed (--no-verify; all red
   verify lanes attributed to inherited main breakage, none ours). MAP.md

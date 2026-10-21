@@ -65,21 +65,21 @@ const outputSubject = EvidenceSubject.make({ digest, name: "qa/output.json" });
 const summarySubject = EvidenceSubject.make({ digest, name: "qa/gate-summary.json" });
 const contractSubject = EvidenceSubject.make({ digest, name: "contracts/completion-test/1.0.0.json" });
 const unrelatedSubject = EvidenceSubject.make({ digest, name: "qa/unrelated-output.json" });
-const policy = AttestationResource.make({ digest, uri: URLStr.make("https://beep.dev/policy/skill/v1") });
+const policy = AttestationResource.make({ digest, uri: URLStr.make("https://example.test/policy/skill/v1") });
 const inputAttestation = AttestationResource.make({
   digest,
-  uri: URLStr.make("https://beep.dev/attestation/input/v1"),
+  uri: URLStr.make("https://example.test/attestation/input/v1"),
 });
 const verifier = GateSummaryVerifier.make({
-  id: URLStr.make("https://beep.dev/verifier/skill/v1"),
+  id: URLStr.make("https://example.test/verifier/skill/v1"),
   version: { kernel: "1.0.0" },
 });
-const gateEvidenceType = EvidencePredicateType.make("https://beep.dev/evidence/gate/v1");
-const acceptedType = EvidencePredicateType.make("https://beep.dev/evidence/accepted/v1");
-const persistedType = EvidencePredicateType.make("https://beep.dev/evidence/persisted/v1");
-const deliveredType = EvidencePredicateType.make("https://beep.dev/evidence/delivered/v1");
-const appliedType = EvidencePredicateType.make("https://beep.dev/evidence/applied/v1");
-const recoveryAttemptType = EvidencePredicateType.make("https://beep.dev/evidence/recovery-attempt/v1");
+const gateEvidenceType = EvidencePredicateType.make("https://example.test/evidence/gate/v1");
+const acceptedType = EvidencePredicateType.make("https://example.test/evidence/accepted/v1");
+const persistedType = EvidencePredicateType.make("https://example.test/evidence/persisted/v1");
+const deliveredType = EvidencePredicateType.make("https://example.test/evidence/delivered/v1");
+const appliedType = EvidencePredicateType.make("https://example.test/evidence/applied/v1");
+const recoveryAttemptType = EvidencePredicateType.make("https://example.test/evidence/recovery-attempt/v1");
 const ladderTypes = EvidenceLadderReceiptTypes.make({
   accepted: acceptedType,
   delivered: deliveredType,
@@ -170,7 +170,7 @@ const gateSummaryReceipt = (gateResults: ReadonlyArray<GateResultSummary>) => {
     gateResults,
     inputAttestations: [inputAttestation],
     policy,
-    resourceUri: URLStr.make("https://beep.dev/resource/output/v1"),
+    resourceUri: URLStr.make("https://example.test/resource/output/v1"),
     timeVerified: "2026-08-24T00:00:00.000Z",
     verificationResult: passed ? "PASSED" : "FAILED",
     verifiedLevels: passed ? ["BEEP_SKILL_CONTRACT_BLOCKING_GATES"] : ["FAILED"],
@@ -345,11 +345,11 @@ describe("@beep/skill-contract SkillCompletion", () => {
   it.effect("fails malformed gate-summary and ladder predicate bindings", () =>
     Effect.gen(function* () {
       const summary = gateSummaryReceipt([gateResult(blockingGate, { applicable: true, outcome: "allowed" })]);
-      const wrongSummaryType = EvidencePredicateType.make("https://beep.dev/evidence/wrong-summary/v1");
+      const wrongSummaryType = EvidencePredicateType.make("https://example.test/evidence/wrong-summary/v1");
       const summaryTypeFailure = yield* evaluateSkillCompletion(
         evaluationInput(contractFor([blockingGate], { gateSummaryType: wrongSummaryType }), summary)
       ).pipe(Effect.flip);
-      const wrongAppliedType = EvidencePredicateType.make("https://beep.dev/evidence/wrong-applied/v1");
+      const wrongAppliedType = EvidencePredicateType.make("https://example.test/evidence/wrong-applied/v1");
       const mismatchedLadderTypes = EvidenceLadderReceiptTypes.make({
         ...ladderTypes,
         semanticallyApplied: wrongAppliedType,

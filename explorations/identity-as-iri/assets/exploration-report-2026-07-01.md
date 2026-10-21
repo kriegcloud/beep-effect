@@ -18,7 +18,7 @@ deterministic agent metadata retrieval.
 
 ## 2. Core thesis in plain terms
 An identity path (`@beep/ontology/patent/Claim`) and an IRI
-(`https://ns.beep.sh/ontology/patent/Claim`) are the same value in two literal-
+(`https://beep-effect.com/ns/ontology/patent/Claim`) are the same value in two literal-
 typed encodings. `$I` mints the identity space (base category); every piece of
 metadata (annotations, docs, graph triples, provenance) is a section over it.
 Retrieval becomes address computation (dereference), not search — the hook for
@@ -50,7 +50,7 @@ unchanged, no synonym methods ever as peers of triples, house JSDoc/docgen gates
 
 ## 5. Open decisions needing elpresidank
 1. **D7** — relational facts inline on `$I.class` (`is:`), fold-only `triples`, or both? (Handoff rec: both; fold ships first regardless.)
-2. **Authority host** — `https://ns.beep.sh/` is placeholder; must confirm before Phase 2. (Given oip.law context, is the real authority beep-owned or something else?)
+2. **Authority host** — `https://ns[.]beep[.]sh/` is placeholder (superseded 2026-10-20 by `https://beep-effect.com/ns/`); must confirm before Phase 2. (Given oip.law context, is the real authority beep-owned or something else?)
 3. **`Fibered` placement** — `@beep/schema` (vocab-agnostic, near LiteralKit) vs `@beep/ontology`. Lean: schema if expressible without vocab registry.
 4. **`$I.key` curried typed-path form** (`annoteKey<Parent>()`) or struct-key default only?
 5. **Registry service name/placement** — `OntologyRegistry`? `IdentityRegistry`?
@@ -92,7 +92,7 @@ Salvage map (verified against prototype source):
 
 ## User rulings (2026-07-01, post-report)
 - **Route**: user asked exploration packet vs goals packet — see recommendation below.
-- **Authority host**: placeholder `https://ns.beep.sh/` now; decide before Phase 2 merges.
+- **Authority host**: placeholder `https://ns[.]beep[.]sh/` now (superseded 2026-10-20 by `https://beep-effect.com/ns/`); decide before Phase 2 merges.
 - **Packaging**: user leans EVERYTHING in `@beep/identity`, pure, deps = `effect` (+ maybe `@beep/types`) only — avoids circularity. Notes moving the Id module OUT of @beep/identity is a heavy lift (monorepo-wide imports + create-package codegen in @beep/repo-cli).
 - **SemanticSchemaMetadata**: needs exploration/audit before deciding.
 - **Method**: prove out design/types/ergonomics from first principles BEFORE touching foundation/modeling packages. Standards research from official RFCs/OASIS/W3C collected by Codex agents into the packet as prose. Prototype in ./scratchpad importing only `effect`. Working assumption: full rewrite of @beep/identity and/or @beep/ontology.
