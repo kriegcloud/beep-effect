@@ -1189,6 +1189,49 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
     );
   });
 
+  // A private TestClock per test: advancing a clock shared through it.layer
+  // would move every other test of that block (effect-vitest EV015).
+  it.effect("re-prepares a cached bound statement once its prepareCacheTTL expires", () =>
+    Effect.gen(function* () {
+      const events: Array<string> = [];
+      let prepared = 0;
+      const fakeConnection = {
+        closeSync: () => undefined,
+        interrupt: () => undefined,
+        prepare: () => {
+          prepared += 1;
+          const generation = prepared;
+          events.push(`prepare ${generation}`);
+          return Promise.resolve({
+            bind: () => undefined,
+            clearBindings: () => undefined,
+            destroySync: () => {
+              events.push(`destroy ${generation}`);
+            },
+            run: () => Promise.resolve(fakeQueryResult([{ generation }])),
+          });
+        },
+        run: () => Promise.resolve(setupResult),
+      };
+      const client = yield* DuckDbClient.fromConnection({
+        connection: fakeConnection as unknown as DuckDBConnection,
+        prepareCacheTTL: "50 millis",
+      });
+      const select = client.unsafe<{ readonly generation: number }>("select ? as generation", [1]);
+
+      expect(yield* select).toEqual([{ generation: 1 }]);
+      // A use inside the TTL reuses the statement and does not extend its lifetime.
+      yield* TestClock.adjust("30 millis");
+      expect(yield* select).toEqual([{ generation: 1 }]);
+      yield* TestClock.adjust("20 millis");
+      expect(yield* select).toEqual([{ generation: 2 }]);
+      expect(events).toEqual(["prepare 1", "destroy 1", "prepare 2"]);
+      yield* TestClock.adjust("49 millis");
+      expect(yield* select).toEqual([{ generation: 2 }]);
+      expect(events).toEqual(["prepare 1", "destroy 1", "prepare 2"]);
+    }).pipe(Effect.provideServiceEffect(Reactivity.Reactivity, Reactivity.make))
+  );
+
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
     it.effect(
       "fails with ConnectionError when the database directory does not exist",
