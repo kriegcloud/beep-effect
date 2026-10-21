@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a (`@beep/npm-spec`, `@beep/tsconfig`, #1988) in review; wave 2b-1 (`@beep/walker`, D-31/D-32) at zero in-package findings on a local stack over 2a.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b-1 merged (#1992, `@beep/walker`); wave 2b-2 merged (#1994, `@beep/github`, D-34, D-35); wave 2b-3 (`@beep/runtime-env` with the `@beep/chalk`/`@beep/colors` delegation, D-33, D-36) in progress.
 
 ## Phases
 
@@ -23,7 +23,7 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 | 2a (in progress) | `@beep/npm-spec`, `@beep/tsconfig` | The pure halves of `npm` and `tsconfig-json` (D-26..D-28); `DEFAULT_REGISTRY` moves into `@beep/npm-spec`. The registry/publish half and the tsconfig loaders stay in the lab. |
 | 2b-1 (in progress) | `@beep/walker` | D-31, D-32. Adopters: repo-utils `Root` `findRepoRoot`, `TSMorph` `resolveFileEntrypointTsConfig`, `FsUtils` `findNearestPackageDir`; repo-cli `Drawings.review`, `TestTsgoPrograms` (segment-aware containment). Lab importers retargeted to `@beep/walker` leaves. |
 | 2b-2 | `@beep/github` | Replaces `@effected/github` in repo-cli (one atomic swap); closes the `@effected/github` Exception Ledger row. Merges after 2b-1 (shared identity, catalog, `bun.lock` and `PROMOTED`-map files). |
-| 2b-3 | `@beep/runtime-env` | Lands with repo-cli EnvConfig and the `@beep/chalk`/`@beep/colors` delegation (D-14, colour precedence ruling). Last in 2b: the only PR with intended CI-visible behaviour changes. |
+| 2b-3 (in progress) | `@beep/runtime-env` | Lands with the `@beep/chalk` and `@beep/colors` delegation (D-14 as amended by D-33, colour precedence; D-36 conformance shifts). repo-cli EnvConfig is not adopted: its exact `CI === "true"` differs from `RuntimeEnv.ci` (Exception Ledger "Duplicate CI detection", removal with cli-kit in wave 4). Last in 2b: the only PR with intended CI-visible behaviour changes (plain `@beep/colors` output in Actions logs, D-33 option (a)). |
 | 2c | glob adoption (no new package) | Needs 2b-1. Retires `@beep/utils/Glob`, `@beep/schema/Glob` and `FsUtils.walkFiles`/`globFiles` onto `@beep/glob` + `@beep/walker`, and repo-cli `Lint/internal/WorkspaceWalk.ts`; records the Bun `node:fs` glob census. Closes the "Duplicate glob matching" and "Duplicate directory traversal" ledger rows. |
 | 2d | `@beep/markdown` (+ `@beep/md` `Md.syntax`/`Md.parse`) | D-02 layered design (formerly labelled 2c; renumbered by D-31). |
 | 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
