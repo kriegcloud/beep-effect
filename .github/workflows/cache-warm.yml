@@ -1,55 +1,45 @@
-name: Cache Warm
+name: R2 pilot qualification
 
 on:
   workflow_dispatch:
-  schedule:
-    # The backing bucket expires artifacts after 30 days. A twice-monthly
-    # recovery pass prevents quiet periods from turning every next PR cold.
-    - cron: "17 6 1,15 * *"
 
 concurrency:
-  group: cache-warm-main
+  group: r2-pilot-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  warm:
-    name: Warm Turbo cache
+  qualify:
+    name: Qualify R2 on one AWS runner
     runs-on: beep-ec2-heavy
-    timeout-minutes: 60
-    environment: turbo-cache-write
-    env:
-      TURBO_API: ${{ vars.TURBO_API }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-      TURBO_CACHE: local:rw,remote:rw
+    timeout-minutes: 25
     steps:
-      - name: Checkout exact main
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout pilot revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-          filter: blob:none
           persist-credentials: false
-          ref: main
-
       - name: Setup pinned toolchain
         uses: ./.github/actions/setup-monorepo-ci
         with:
           cache-turbo: "false"
           cache-write: "false"
-
-      - name: Warm cache and write receipt
-        run: bun run beep cache warm --output .beep/cache-warm.json
-
-      - name: Upload warm receipt and Turbo summaries
+          turbo-remote-cache: "false"
+          free-disk: "false"
+      - name: Prove both cache directions
+        env:
+          R2_PILOT_CONFIG: ${{ secrets.BEEP_R2_PILOT_20261021 }}
+        run: python3 .github/scripts/r2-cache-pilot.py
+      - name: Upload sanitized pilot receipts
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: cache-warm-${{ github.run_id }}
+          name: r2-pilot-${{ github.run_id }}
           path: |
-            .beep/cache-warm.json
-            .turbo/runs/*.json
+            .beep/r2-pilot/ci-receipt.json
+            .beep/r2-pilot/ci-consumer.json
+            .beep/r2-pilot/ci-producer.json
           if-no-files-found: warn
-          retention-days: 30
+          retention-days: 7
