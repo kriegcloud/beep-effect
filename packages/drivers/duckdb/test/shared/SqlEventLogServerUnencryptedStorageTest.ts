@@ -2,8 +2,9 @@
  * Vendored from Effect (https://github.com/Effect-TS/effect-smol), tag effect@4.0.5,
  * packages/effect/test/eventlog/SqlEventLogServerUnencryptedStorageTest.ts. MIT License,
  * Copyright (c) Effectful Technologies Inc. Not shipped in the effect npm package.
- * beep changes: per-module effect imports, @beep/test-runner `it`, and a `savepoints`
- * suite option that skips the caught-nested-rollback case (marked `// beep:` below).
+ * beep changes: per-module effect imports, @beep/test-runner `it`, a `savepoints` suite
+ * option that skips the caught-nested-rollback case, and shared step helpers for the
+ * duplication gate (all marked `// beep:` below).
  */
 import { it } from "@beep/test-runner";
 import { assert } from "@effect/vitest";
@@ -99,6 +100,44 @@ const assertEntries = (
   );
 };
 
+type Storage = EventLogServerUnencrypted.Storage["Service"];
+
+// beep: the open-with-backlog, drained-queue, persisted-rows and sentinel steps are shared helpers
+// (inlined upstream) so the repo's fallow duplication gate passes; each case keeps its steps.
+const openWithBacklog = Effect.fnUntraced(function* (storage: Storage, storeId: StoreId, backlog: EventJournal.Entry) {
+  yield* storage.write(storeId, [backlog]);
+  const changes = yield* openChanges(storage, storeId);
+  assertEntries([yield* Queue.take(changes)], [backlog], 1);
+  return changes;
+});
+
+const assertDrained = Effect.fnUntraced(function* (changes: Queue.Dequeue<EventJournal.RemoteEntry, Cause.Done>) {
+  yield* Effect.yieldNow;
+  assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
+});
+
+const assertPersisted = Effect.fnUntraced(function* (
+  storage: Storage,
+  storeId: StoreId,
+  expected: ReadonlyArray<EventJournal.Entry>
+) {
+  assertEntries(yield* Queue.takeAll(yield* openChanges(storage, storeId)), expected, 1);
+});
+
+// beep: shared tail of the rollback cases: only the sentinel reaches subscribers and storage.
+const assertOnlySentinelLanded = Effect.fnUntraced(function* (
+  storage: Storage,
+  storeId: StoreId,
+  changes: Queue.Dequeue<EventJournal.RemoteEntry, Cause.Done>,
+  backlog: EventJournal.Entry,
+  sentinel: EventJournal.Entry
+) {
+  yield* storage.write(storeId, [sentinel]);
+  assertEntries([yield* Queue.take(changes)], [sentinel], 2);
+  yield* assertDrained(changes);
+  yield* assertPersisted(storage, storeId, [backlog, sentinel]);
+});
+
 type SuiteOptions = {
   // beep: drivers without savepoints (DuckDB) pass `{ savepoints: false }`
   readonly savepoints?: boolean | undefined;
@@ -156,8 +195,7 @@ export const suite: {
             assert.strictEqual(next.remoteSequence, 3);
             assert.strictEqual(next.entry.idString, entryC.idString);
 
-            yield* Effect.yieldNow;
-            assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
+            yield* assertDrained(changes);
           })
         );
 
@@ -189,8 +227,7 @@ export const suite: {
                 [backlogEntry.idString, racedEntry.idString]
               );
 
-              yield* Effect.yieldNow;
-              assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
+              yield* assertDrained(changes);
             }
           })
         );
@@ -216,8 +253,7 @@ export const suite: {
             );
 
             yield* storage.write(storeB, [entryB2]);
-            yield* Effect.yieldNow;
-            assert.strictEqual(Option.isNone(yield* Queue.poll(changesA)), true);
+            yield* assertDrained(changesA);
 
             yield* storage.write(storeA, [entryA2]);
             const nextA = yield* Queue.take(changesA);
@@ -239,9 +275,7 @@ export const suite: {
               const rolledBack = makeEntry("Margaret");
               const after = makeEntry("Linus");
               const sentinel = makeEntry("Barbara");
-              yield* storage.write(storeId, [backlog]);
-              const changes = yield* openChanges(storage, storeId);
-              assertEntries([yield* Queue.take(changes)], [backlog], 1);
+              const changes = yield* openWithBacklog(storage, storeId, backlog);
 
               yield* storage.withTransaction(
                 Effect.gen(function* () {
@@ -261,11 +295,9 @@ export const suite: {
               // The sentinel exposes leaked notifications without sleeps.
               yield* storage.write(storeId, [sentinel]);
               assertEntries(yield* Queue.takeN(changes, 3), [before, after, sentinel], 2);
-              yield* Effect.yieldNow;
-              assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
+              yield* assertDrained(changes);
 
-              const persisted = yield* Queue.takeAll(yield* openChanges(storage, storeId));
-              assertEntries(persisted, [backlog, before, after, sentinel], 1);
+              yield* assertPersisted(storage, storeId, [backlog, before, after, sentinel]);
             })
         );
 
@@ -279,9 +311,7 @@ export const suite: {
             const deepest = makeEntry("Linus");
             const after = makeEntry("Barbara");
             const sentinel = makeEntry("Donald");
-            yield* storage.write(storeId, [backlog]);
-            const changes = yield* openChanges(storage, storeId);
-            assertEntries([yield* Queue.take(changes)], [backlog], 1);
+            const changes = yield* openWithBacklog(storage, storeId, backlog);
 
             yield* storage.withTransaction(
               Effect.gen(function* () {
@@ -297,11 +327,9 @@ export const suite: {
             );
             yield* storage.write(storeId, [sentinel]);
             assertEntries(yield* Queue.takeN(changes, 5), [outer, nested, deepest, after, sentinel], 2);
-            yield* Effect.yieldNow;
-            assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
+            yield* assertDrained(changes);
 
-            const persisted = yield* Queue.takeAll(yield* openChanges(storage, storeId));
-            assertEntries(persisted, [backlog, outer, nested, deepest, after, sentinel], 1);
+            yield* assertPersisted(storage, storeId, [backlog, outer, nested, deepest, after, sentinel]);
           })
         );
 
@@ -340,9 +368,7 @@ export const suite: {
             const first = makeEntry("Grace");
             const second = makeEntry("Margaret");
             const sentinel = makeEntry("Linus");
-            yield* storage.write(storeId, [backlog]);
-            const changes = yield* openChanges(storage, storeId);
-            assertEntries([yield* Queue.take(changes)], [backlog], 1);
+            const changes = yield* openWithBacklog(storage, storeId, backlog);
 
             yield* storage.withTransaction(
               Effect.gen(function* () {
@@ -355,13 +381,8 @@ export const suite: {
             );
             yield* storage.write(storeId, [sentinel]);
             const rows = yield* Queue.takeN(changes, 3);
-            yield* Effect.yieldNow;
-            assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
-            assertEntries(
-              yield* Queue.takeAll(yield* openChanges(storage, storeId)),
-              [backlog, first, second, sentinel],
-              1
-            );
+            yield* assertDrained(changes);
+            yield* assertPersisted(storage, storeId, [backlog, first, second, sentinel]);
             assertEntries(rows, [first, second, sentinel], 2);
           })
         );
@@ -373,9 +394,7 @@ export const suite: {
             const backlog = makeEntry("Ada");
             const rolledBack = makeEntry("Grace");
             const sentinel = makeEntry("Margaret");
-            yield* storage.write(storeId, [backlog]);
-            const changes = yield* openChanges(storage, storeId);
-            assertEntries([yield* Queue.take(changes)], [backlog], 1);
+            const changes = yield* openWithBacklog(storage, storeId, backlog);
 
             const written = yield* Deferred.make<void>();
             const writer = yield* storage
@@ -392,11 +411,7 @@ export const suite: {
             const exit = yield* Fiber.await(writer);
             assert.strictEqual(Exit.isFailure(exit) && Cause.hasInterrupts(exit.cause), true);
 
-            yield* storage.write(storeId, [sentinel]);
-            assertEntries([yield* Queue.take(changes)], [sentinel], 2);
-            yield* Effect.yieldNow;
-            assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
-            assertEntries(yield* Queue.takeAll(yield* openChanges(storage, storeId)), [backlog, sentinel], 1);
+            yield* assertOnlySentinelLanded(storage, storeId, changes, backlog, sentinel);
           })
         );
 
@@ -408,9 +423,7 @@ export const suite: {
             const rolledBack = makeEntry("Grace");
             const nested = makeEntry("Margaret");
             const sentinel = makeEntry("Linus");
-            yield* storage.write(storeId, [backlog]);
-            const changes = yield* openChanges(storage, storeId);
-            assertEntries([yield* Queue.take(changes)], [backlog], 1);
+            const changes = yield* openWithBacklog(storage, storeId, backlog);
 
             const error = yield* storage
               .withTransaction(
@@ -423,13 +436,7 @@ export const suite: {
               .pipe(Effect.flip);
             assert.strictEqual(error, "rollback");
 
-            yield* storage.write(storeId, [sentinel]);
-            assertEntries([yield* Queue.take(changes)], [sentinel], 2);
-            yield* Effect.yieldNow;
-            assert.strictEqual(Option.isNone(yield* Queue.poll(changes)), true);
-
-            const persisted = yield* Queue.takeAll(yield* openChanges(storage, storeId));
-            assertEntries(persisted, [backlog, sentinel], 1);
+            yield* assertOnlySentinelLanded(storage, storeId, changes, backlog, sentinel);
           })
         );
       }
