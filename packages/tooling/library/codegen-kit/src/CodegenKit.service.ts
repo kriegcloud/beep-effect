@@ -486,7 +486,25 @@ const makeService = Effect.fn("CodegenKit.make")(function* (extraRenderers: Extr
     return reports;
   });
 
-  return { fetch, patch, generate, postProcess, format, write, drift, run } as const;
+  const runAll = Effect.fn("CodegenKit.runAll")(function* (
+    configs: A.NonEmptyReadonlyArray<GenerateConfig>,
+    mode: "write" | "check",
+    refresh = false
+  ) {
+    const perConfig = yield* Effect.forEach(
+      configs,
+      (config) =>
+        run(config, mode, refresh).pipe(Effect.catchTag("CodegenDriftError", (error) => Effect.succeed(error.reports))),
+      { concurrency: 1 }
+    );
+    const reports = A.flatten(perConfig);
+    if (A.some(reports, hasDrift)) {
+      return yield* CodegenDriftError.make({ message: "Generated output drift detected", reports });
+    }
+    return reports;
+  });
+
+  return { fetch, patch, generate, postProcess, format, write, drift, run, runAll } as const;
 });
 
 const packageLabel = (packageName: string): string =>

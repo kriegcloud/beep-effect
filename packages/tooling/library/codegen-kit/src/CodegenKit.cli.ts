@@ -7,6 +7,7 @@
 
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeServices from "@effect/platform-node/NodeServices";
+import * as A from "effect/Array";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
@@ -37,7 +38,18 @@ const incompatibleFlags = CodegenGenerateError.make({
 
 const isGenerateConfig = S.is(GenerateConfigSchema);
 
-const runCli = (config: GenerateConfig, options: GenerateCliOptions = {}): void => {
+const isGenerateConfigs = (input: unknown): input is A.NonEmptyReadonlyArray<GenerateConfig> =>
+  A.isArray(input) && A.isReadonlyArrayNonEmpty(input) && A.every(input, isGenerateConfig);
+
+const toConfigs = (
+  input: GenerateConfig | A.NonEmptyReadonlyArray<GenerateConfig>
+): A.NonEmptyReadonlyArray<GenerateConfig> => (isGenerateConfigs(input) ? input : A.of(input));
+
+const runCli = (
+  input: GenerateConfig | A.NonEmptyReadonlyArray<GenerateConfig>,
+  options: GenerateCliOptions = {}
+): void => {
+  const configs = toConfigs(input);
   const command = Command.make(
     "generate",
     {
@@ -47,7 +59,7 @@ const runCli = (config: GenerateConfig, options: GenerateCliOptions = {}): void 
     Effect.fn("CodegenKit.cli")(function* ({ check, refresh }) {
       if (check && refresh) return yield* incompatibleFlags;
       const kit = yield* CodegenKit;
-      yield* kit.run(config, check ? "check" : "write", refresh);
+      yield* kit.runAll(configs, check ? "check" : "write", refresh);
     })
   ).pipe(Command.withDescription("Generate source from a pinned local spec cache."));
 
@@ -64,6 +76,12 @@ const runCli = (config: GenerateConfig, options: GenerateCliOptions = {}): void 
 
 /**
  * Runs a package generator with offline check mode and explicit cache refresh.
+ *
+ * **Details**
+ *
+ * Pass one config or a non-empty array of configs. Every config runs in order with the same
+ * `--check` / `--refresh` flags; in check mode the drift reports of every config are collected and
+ * printed before the command fails, so one run shows every drifted module.
  *
  * **Example** (Launch a local generator)
  *
@@ -82,13 +100,41 @@ const runCli = (config: GenerateConfig, options: GenerateCliOptions = {}): void 
  * if (import.meta.main) runGenerateCli(config)
  * ```
  *
+ * **Example** (Launch one generator for two schema modules)
+ *
+ * ```ts
+ * import { GenerateConfig, runGenerateCli } from "@beep/codegen-kit"
+ *
+ * const shared = {
+ *   packageName: "@beep/example",
+ *   dialect: "json-schema-2020-12",
+ *   format: "schemas"
+ * } as const
+ *
+ * const v2 = GenerateConfig.make({
+ *   ...shared,
+ *   identity: { composer: "$ExampleId", moduleId: "_generated/schema.gen" },
+ *   source: { _tag: "file", path: "spec/v2/schema.json" },
+ *   output: { path: "src/_generated/schema.gen.ts" }
+ * })
+ * const v1 = GenerateConfig.make({
+ *   ...shared,
+ *   identity: { composer: "$ExampleId", moduleId: "_generated/schema-v1.gen" },
+ *   source: { _tag: "file", path: "spec/v1/schema.json" },
+ *   output: { path: "src/_generated/schema-v1.gen.ts", exampleImport: "@beep/example/schema-v1" }
+ * })
+ *
+ * if (import.meta.main) runGenerateCli([v2, v1])
+ * ```
+ *
  * @category cli-commands
  * @since 0.0.0
  */
 export const runGenerateCli: {
-  (options?: GenerateCliOptions): (config: GenerateConfig) => void;
-  (config: GenerateConfig, options?: GenerateCliOptions): void;
+  (options?: GenerateCliOptions): (config: GenerateConfig | A.NonEmptyReadonlyArray<GenerateConfig>) => void;
+  (config: GenerateConfig | A.NonEmptyReadonlyArray<GenerateConfig>, options?: GenerateCliOptions): void;
 } = dual(
-  (args) => isGenerateConfig(args[0]),
-  (config: GenerateConfig, options?: GenerateCliOptions): void => runCli(config, options)
+  (args) => isGenerateConfig(args[0]) || isGenerateConfigs(args[0]),
+  (config: GenerateConfig | A.NonEmptyReadonlyArray<GenerateConfig>, options?: GenerateCliOptions): void =>
+    runCli(config, options)
 );

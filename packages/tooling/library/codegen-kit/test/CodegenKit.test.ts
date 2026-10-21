@@ -1,4 +1,10 @@
-import { CodegenKit, GenerateConfig, GeneratedModule } from "@beep/codegen-kit";
+import {
+  CodegenKit,
+  CodegenTransformError,
+  composeTransforms,
+  GenerateConfig,
+  GeneratedModule,
+} from "@beep/codegen-kit";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
@@ -10,11 +16,13 @@ import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import type { SpecSource } from "@beep/codegen-kit";
+import type { NamedTransform, SpecSource } from "@beep/codegen-kit";
+import type * as JsonSchema from "effect/JsonSchema";
 
 const platform = Layer.merge(NodeServices.layer, FetchHttpClient.layer);
 const CodegenKitTestLayer = Layer.mergeAll(
@@ -698,6 +706,326 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit", (i
       expect(rendered).toContain('"score": S.Finite');
       expect(rendered).toContain("export type Widget = typeof Widget.Type;");
       expect(rendered).toContain('from "@beep/identity"');
+    })
+  );
+});
+
+const acpTransforms: ReadonlyArray<NamedTransform> = [
+  "nullableTypeArray",
+  "unevaluatedPropertiesOpen",
+  "notDiscriminatorPattern",
+  "uniqueDiscriminatorOneOfAsAnyOf",
+  "distributeAllOf",
+];
+
+const isTransformError = S.is(CodegenTransformError);
+
+const unexpectedFailure = (cause: unknown): CodegenTransformError =>
+  CodegenTransformError.make({ transform: "stripExamples", message: `unexpected failure: ${String(cause)}` });
+
+const transformFailure = (run: () => unknown) =>
+  Effect.try({ try: run, catch: (cause) => (isTransformError(cause) ? cause : unexpectedFailure(cause)) }).pipe(
+    Effect.asVoid,
+    Effect.flip
+  );
+
+const elicitationDefinitions = {
+  SessionScope: {
+    type: "object",
+    properties: { sessionId: { type: "string" } },
+    required: ["sessionId"],
+  },
+  RequestScope: {
+    type: "object",
+    properties: { requestId: { type: "string" } },
+    required: ["requestId"],
+  },
+  FormMode: {
+    type: "object",
+    properties: { requestedSchema: { type: "object" } },
+    anyOf: [{ allOf: [{ $ref: "#/$defs/SessionScope" }] }, { allOf: [{ $ref: "#/$defs/RequestScope" }] }],
+    required: ["requestedSchema"],
+  },
+  UrlMode: {
+    type: "object",
+    properties: { url: { type: "string" } },
+    anyOf: [{ allOf: [{ $ref: "#/$defs/SessionScope" }] }, { allOf: [{ $ref: "#/$defs/RequestScope" }] }],
+    required: ["url"],
+  },
+  CreateElicitationRequest: {
+    type: "object",
+    properties: { message: { type: "string" }, _meta: { type: ["object", "null"] } },
+    anyOf: [
+      {
+        type: "object",
+        properties: { mode: { type: "string", const: "form" } },
+        required: ["mode"],
+        allOf: [{ $ref: "#/$defs/FormMode" }],
+      },
+      {
+        type: "object",
+        properties: { mode: { type: "string", const: "url" } },
+        required: ["mode"],
+        allOf: [{ $ref: "#/$defs/UrlMode" }],
+      },
+      {
+        type: "object",
+        properties: { mode: { type: "string" } },
+        required: ["mode"],
+        anyOf: [{ allOf: [{ $ref: "#/$defs/SessionScope" }] }, { allOf: [{ $ref: "#/$defs/RequestScope" }] }],
+        unevaluatedProperties: true,
+        not: {
+          anyOf: [
+            { type: "object", properties: { mode: { type: "string", const: "form" } }, required: ["mode"] },
+            { type: "object", properties: { mode: { type: "string", const: "url" } }, required: ["mode"] },
+          ],
+        },
+      },
+    ],
+    required: ["message"],
+  },
+};
+
+const elicitationRequest: JsonSchema.JsonSchema = elicitationDefinitions.CreateElicitationRequest;
+
+const unionMembers = (node: unknown): ReadonlyArray<unknown> =>
+  P.isObject(node) && A.isArray(node.anyOf) ? node.anyOf : [];
+
+const leafRequired = (node: unknown): ReadonlyArray<string> =>
+  P.isObject(node) && A.isArray(node.required) ? A.filter(node.required, P.isString) : [];
+
+it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP transforms", (it) => {
+  it.effect("rewrites a forward-compatible not exclusion into an escaped discriminator pattern", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["notDiscriminatorPattern"], {});
+      const node: JsonSchema.JsonSchema = {
+        type: "object",
+        properties: { type: { type: "string", description: "kind" } },
+        not: { anyOf: [{ properties: { type: { const: "text" } } }, { properties: { type: { const: "a.b" } } }] },
+      };
+      const rewritten = hook(node);
+
+      expect(rewritten.not).toBeUndefined();
+      expect(rewritten.properties).toEqual({
+        type: { type: "string", description: "kind", pattern: "^(?!(?:text|a\\.b)$)[\\s\\S]*$" },
+      });
+      expect(hook(rewritten)).toEqual(rewritten);
+      const pattern = /^(?!(?:text|a\.b)$)[\s\S]*$/u;
+      expect(pattern.test("future_content")).toBe(true);
+      expect(pattern.test("text")).toBe(false);
+      expect(pattern.test("a.b")).toBe(false);
+      expect(pattern.test("axb")).toBe(true);
+    })
+  );
+
+  it.effect("fails on unsupported not shapes with a typed transform error", () =>
+    Effect.gen(function* () {
+      const hook = composeTransforms(["notDiscriminatorPattern"], {});
+      const scalar = yield* transformFailure(() => hook({ type: "string", not: { type: "number" } }));
+      expect(scalar.transform).toBe("notDiscriminatorPattern");
+      expect(scalar.message).toContain("expected not.anyOf");
+
+      const mixed = yield* transformFailure(() =>
+        hook({
+          type: "object",
+          properties: { type: { type: "string" }, kind: { type: "string" } },
+          not: { anyOf: [{ properties: { type: { const: "a" } } }, { properties: { kind: { const: "b" } } }] },
+        })
+      );
+      expect(mixed.message).toContain("share one discriminator");
+
+      const missing = yield* transformFailure(() =>
+        hook({ type: "object", properties: {}, not: { anyOf: [{ properties: { type: { const: "a" } } }] } })
+      );
+      expect(missing.message).toContain("Missing discriminator property type");
+
+      const nonString = yield* transformFailure(() =>
+        hook({
+          type: "object",
+          properties: { type: { type: "string" } },
+          not: { anyOf: [{ properties: { type: { const: 1 } } }] },
+        })
+      );
+      expect(nonString.message).toContain("string const");
+    })
+  );
+
+  it.effect("opens unevaluatedProperties true and rejects other values", () =>
+    Effect.gen(function* () {
+      const hook = composeTransforms(["unevaluatedPropertiesOpen"], {});
+      const opened = hook({ type: "object", unevaluatedProperties: true });
+
+      expect(opened).toEqual({ type: "object", additionalProperties: true });
+      expect(hook(opened)).toEqual(opened);
+
+      const closed = yield* transformFailure(() => hook({ type: "object", unevaluatedProperties: false }));
+      expect(closed.transform).toBe("unevaluatedPropertiesOpen");
+    })
+  );
+
+  it.effect("lowers uniquely discriminated oneOf unions to anyOf only", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["uniqueDiscriminatorOneOfAsAnyOf"], {});
+      const constants = hook({ oneOf: [{ const: "a" }, { const: "b" }] });
+      const discriminated = hook({
+        discriminator: { propertyName: "kind" },
+        oneOf: [{ properties: { kind: { const: "a" } } }, { properties: { kind: { const: "b" } } }],
+      });
+      const duplicated = { oneOf: [{ const: "a" }, { const: "a" }] };
+      const untagged = { oneOf: [{ type: "string" }, { type: "number" }] };
+
+      expect(constants).toEqual({ anyOf: [{ const: "a" }, { const: "b" }] });
+      expect(discriminated.oneOf).toBeUndefined();
+      expect(A.isArray(discriminated.anyOf)).toBe(true);
+      expect(hook(duplicated)).toEqual(duplicated);
+      expect(hook(untagged)).toEqual(untagged);
+      expect(hook(constants)).toEqual(constants);
+    })
+  );
+
+  it.effect("distributes elicitation mode and scope intersections into their cross product", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(acpTransforms, elicitationDefinitions);
+      const flattened = hook(elicitationRequest);
+      const modes = unionMembers(flattened);
+
+      expect(A.length(modes)).toBe(3);
+      const scoped = A.map(modes, (mode) => A.map(unionMembers(mode), leafRequired));
+      expect(scoped).toEqual([
+        [
+          ["message", "mode", "requestedSchema", "sessionId"],
+          ["message", "mode", "requestedSchema", "requestId"],
+        ],
+        [
+          ["message", "mode", "url", "sessionId"],
+          ["message", "mode", "url", "requestId"],
+        ],
+        [
+          ["message", "mode", "sessionId"],
+          ["message", "mode", "requestId"],
+        ],
+      ]);
+      const other = A.get(unionMembers(A.get(modes, 2).pipe(O.getOrUndefined)), 0).pipe(O.getOrUndefined);
+      expect(P.isObject(other) ? other.additionalProperties : undefined).toBe(true);
+      expect(P.isObject(other) ? other.not : "missing").toBeUndefined();
+      expect(hook(flattened)).toEqual(flattened);
+    })
+  );
+
+  it.effect("keeps annotation-only references and rejects conflicting intersections", () =>
+    Effect.gen(function* () {
+      const definitions: JsonSchema.Definitions = {
+        Id: { type: "string" },
+        Named: { type: "object", properties: { name: { type: "string" } } },
+      };
+      const hook = composeTransforms(["distributeAllOf"], definitions);
+      const annotated = hook({ description: "An id", allOf: [{ $ref: "#/$defs/Id" }] });
+      expect(annotated).toEqual({ $ref: "#/$defs/Id", description: "An id" });
+      expect(hook(annotated)).toEqual(annotated);
+
+      const keyword = hook({
+        type: "object",
+        properties: { anyOf: { type: "array" }, allOf: { type: "string" } },
+        required: ["anyOf"],
+      });
+      expect(keyword.properties).toEqual({ anyOf: { type: "array" }, allOf: { type: "string" } });
+
+      const conflict = yield* transformFailure(() =>
+        hook({ type: "object", properties: {}, allOf: [{ type: "string" }] })
+      );
+      expect(conflict.transform).toBe("distributeAllOf");
+      expect(conflict.message).toContain("conflicting schema constraint: type");
+
+      const overlap = yield* transformFailure(() =>
+        hook({ type: "object", properties: { name: { type: "number" } }, allOf: [{ $ref: "#/$defs/Named" }] })
+      );
+      expect(overlap.message).toContain("overlapping schema property: name");
+
+      const missing = yield* transformFailure(() =>
+        hook({ type: "object", properties: {}, allOf: [{ $ref: "#/$defs/Missing" }] })
+      );
+      expect(missing.message).toContain("Missing definition #/$defs/Missing");
+    })
+  );
+
+  it.effect("generates the ACP transform set end to end and wraps transform failures", () =>
+    Effect.gen(function* () {
+      const kit = yield* CodegenKit;
+      const acpConfig = GenerateConfig.make({ ...config("acp.gen.ts"), transforms: acpTransforms });
+      yield* Effect.logInfo("Codegen stage: generate");
+      const raw = yield* kit.generate({ $defs: elicitationDefinitions }, acpConfig);
+
+      expect(raw).toContain("export const CreateElicitationRequest");
+      expect(raw).not.toContain("Schema.Never");
+      expect(raw).not.toContain('mode: "oneOf"');
+      expect(raw).toContain("(?!(?:form|url)$)");
+
+      const failure = yield* kit
+        .generate({ $defs: { Closed: { type: "object", unevaluatedProperties: false } } }, acpConfig)
+        .pipe(Effect.flip);
+      expect(failure._tag).toBe("CodegenGenerateError");
+      expect(isTransformError(failure.cause)).toBe(true);
+    })
+  );
+
+  it.effect("renders generated examples against a configured import specifier", () =>
+    Effect.gen(function* () {
+      const kit = yield* CodegenKit;
+      const generateConfig = GenerateConfig.make({
+        ...config("schema-v1.gen.ts"),
+        output: { path: "schema-v1.gen.ts", exampleImport: "@beep/codegen-kit-fixture/schema-v1" },
+      });
+      const output = yield* kit.postProcess(rawSchemaModule, generateConfig);
+
+      expect(output).toContain('import { Example } from "@beep/codegen-kit-fixture/schema-v1"');
+      expect(output).toContain('import type { Example } from "@beep/codegen-kit-fixture/schema-v1"');
+      expect(output).not.toContain('from "@beep/codegen-kit-fixture/schema"');
+    })
+  );
+
+  it.effect("collects drift reports from every config before failing", () =>
+    Effect.gen(function* () {
+      const directory = yield* Effect.flatMap(FileSystem.FileSystem, (fs) =>
+        fs.makeTempDirectoryScoped({ directory: import.meta.dirname, prefix: "codegen-kit-test-" })
+      );
+
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const kit = yield* CodegenKit;
+      const specPath = path.join(directory, "schema.json");
+      yield* writeJson(specPath, {
+        $defs: { Widget: { type: "object", properties: { score: { type: "number" } }, required: ["score"] } },
+      });
+      const configFor = (name: string) =>
+        GenerateConfig.make({
+          packageName: "@beep/codegen-kit-fixture",
+          identity: { composer: "$CodegenKitId", moduleId: `fixture/${name}.gen` },
+          source: { _tag: "file", path: specPath },
+          dialect: "json-schema-2020-12",
+          format: "schemas",
+          output: { path: path.join(directory, `${name}.gen.ts`) },
+        });
+      const first = configFor("first");
+      const second = configFor("second");
+
+      yield* Effect.logInfo("Codegen stage: format/write-or-drift-check");
+      const written = yield* kit.runAll([first, second], "write");
+      expect(written).toEqual([]);
+      expect(yield* kit.runAll([first, second], "check")).toHaveLength(2);
+
+      yield* fs.writeFileString(first.output.path, "export const stale = 1;\n");
+      yield* fs.writeFileString(second.output.path, "export const stale = 2;\n");
+      const failure = yield* kit.runAll([first, second], "check").pipe(Effect.flip);
+      const printed = pipe(yield* TestConsole.errorLines, A.filter(P.isString), A.join("\n"));
+
+      expect(failure._tag).toBe("CodegenDriftError");
+      const drifted = failure._tag === "CodegenDriftError" ? failure.reports : [];
+      expect(A.map(drifted, (report) => [report.path, report.status])).toEqual([
+        [first.output.path, "changed"],
+        [second.output.path, "changed"],
+      ]);
+      expect(printed).toContain("-export const stale = 1;");
+      expect(printed).toContain("-export const stale = 2;");
     })
   );
 });

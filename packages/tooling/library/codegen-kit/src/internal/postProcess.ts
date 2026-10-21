@@ -413,7 +413,7 @@ const renderAnnotation = (
 };
 
 const schemaImportPath = (config: GenerateConfig): string =>
-  config.schemaStyle === "class" ? config.packageName : `${config.packageName}/schema`;
+  config.output.exampleImport ?? (config.schemaStyle === "class" ? config.packageName : `${config.packageName}/schema`);
 
 const renderSchemaEntry = (name: string, constLine: string, config: GenerateConfig): string => {
   const expression = prepareSchemaExpression(

@@ -47,13 +47,25 @@ Schema output uses `schemaStyle: "struct"` by default. Set `schemaStyle: "class"
 
 Package-specific files use `extraModules` entries with renderer names and output paths. Supply their implementations through `runGenerateCli(config, { extraRenderers })`.
 
+`runGenerateCli` also accepts a non-empty array of configs, for packages that generate several schema modules from one script (for example two protocol versions). Every config runs in order with the same `--check` / `--refresh` flags. In check mode the kit collects the drift reports of every config, printing each diff, before it fails once. The service exposes the same loop as `CodegenKit.runAll(configs, mode, refresh)`.
+
+Generated `**Example**` blocks import from `<packageName>/schema` (struct style) or `<packageName>` (class style). Set `output.exampleImport` when a module is published under another subpath, such as `@beep/acp/schema-v1`.
+
 ## Registered transforms
 
-- `nullableTypeArray`
-- `flattenAllOfRefVariants`
-- `distributeUnionSiblings`
-- `openObjects`
-- `stripExamples`
+Transforms are opt-in, pure, and idempotent. They run in the listed order as the generator's `onEnter` hook over raw definitions; `composeTransforms` is exported for inspection and tests.
+
+- `nullableTypeArray`: `type: [T, "null"]` becomes `anyOf: [{ type: T }, { type: "null" }]`.
+- `flattenAllOfRefVariants`: merges a single `allOf: [{ $ref }]` object target into an object node.
+- `distributeUnionSiblings`: merges sibling `properties` / `required` into each `oneOf` / `anyOf` member.
+- `openObjects`: sets `additionalProperties: true` on closed or unspecified objects.
+- `stripExamples`: drops `example` / `examples`.
+- `notDiscriminatorPattern`: rewrites a forward-compatible `not: { anyOf: [{ properties: { <d>: { const } } }, ...] }` exclusion into `pattern: ^(?!(?:a|b)$)[\s\S]*$` on property `<d>` (values escaped with `effect/RegExp` `escape`). Any other `not` shape fails with `CodegenTransformError`.
+- `unevaluatedPropertiesOpen`: `unevaluatedProperties: true` becomes `additionalProperties: true`; any other value fails.
+- `uniqueDiscriminatorOneOfAsAnyOf`: a `oneOf` whose branches all carry distinct string discriminators (a branch `const`, or the `discriminator.propertyName` property `const`) becomes the equivalent `anyOf`, avoiding the exactly-one `Union(..., { mode: "oneOf" })`.
+- `distributeAllOf`: merges `allOf` parts into their node and distributes object intersections over `anyOf` unions (a cross product when both sides are unions). `$ref` targets are inlined after the other selected transforms and this one have rewritten them, unless the sibling keys are annotation-only, in which case the `$ref` is kept. Conflicting constraints, overlapping properties with different schemas, and missing definitions fail with `CodegenTransformError`.
+
+The ACP driver uses `["nullableTypeArray", "unevaluatedPropertiesOpen", "notDiscriminatorPattern", "uniqueDiscriminatorOneOfAsAnyOf", "distributeAllOf"]`.
 
 ## Development
 
