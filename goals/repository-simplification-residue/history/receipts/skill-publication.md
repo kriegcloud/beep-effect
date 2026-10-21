@@ -219,6 +219,55 @@ follow-up, one heavy command at a time through `beep-heavy` with `</dev/null`.
 No baseline, inventory or exception rows are added (S31). The package is private,
 so no changeset. No test or crash-writer process outlived a run.
 
+## Review round 1 (#1984)
+
+Lane head `43e1ade0b5`. Three threads; fixed in schema, contract, implementation order.
+
+1. **Creating a new target treated every move failure as a competing writer**
+   (PRRT_kwDOPbO_N86u2EdT, PRRT_kwDOPbO_N86u2ECr). When the target was absent at
+   planning, any `link` (file) or `rename` (directory) failure became
+   `competing-writer` and the `PlatformError` was dropped. The move runs after
+   `prepare`, so `abandon` never ran: the journal stayed `staged` with the stage beside
+   the target, and `skills recover` refused `competing-writer` on every run.
+   - Schema: `SkillRecoveryResult` (`SkillsPublication.schemas.ts`) is the shared
+     `recovered`/`refused`/`skipped` cases plus `abandoned { detail }`;
+     `SkillRecoveryReport.result` uses it.
+   - Contract: `createTarget` reports `competing-writer` only for `AlreadyExists`
+     (EEXIST) or when an entry is actually observed at the target afterwards, matched
+     on the platform error code. Every other failure is a `SkillPublicationError`
+     without a refusal reason, naming the code and carrying the `PlatformError` as
+     its `cause`. Either way the writer drops its stage and partial stage and records
+     terminal `abandoned` from `staged`; no backup exists for a create. The outer
+     journal mapping now copies `reason`, `target` and `cause` explicitly.
+   - Recovery: `settle` closes a create (no preimage) whose recorded step precedes
+     the move (`intent`, `backed-up`, `staged`) as `abandoned` when another writer's
+     entry is live and the stage holds only the planned content (or is gone): the
+     stage is dropped, the other writer's entry kept, and `skills recover` exits 0.
+     Existing targets keep the refusal rule.
+   - Tests (each failed first, then passed): EEXIST from a real competitor →
+     `competing-writer`, `abandoned`, no stage, the competitor's bytes intact, two
+     `skills recover` runs exit 0; injected `PermissionDenied` and `Unknown` (EPERM,
+     EMLINK and filesystems without hard links map there) link failures → typed
+     non-competing error with its cause, `abandoned`, no stage, target still absent,
+     `skills recover` exits 0 and a retry is `[]`; a SIGKILLed create at `staged`
+     whose target another writer then created → `skills recover` reports
+     `abandoned`, exits 0, the stage is gone, the competitor intact, a second recover
+     is a no-op.
+2. **Runbook named the wrong error** (PRRT_kwDOPbO_N86u2ECi). `docs/runbooks/agent-pools.md`
+   now names `ModelsLocatorError` for `beep models` and `SkillPublicationError`
+   (`exchange-unsupported` or `exchange-probe-failed`) for `beep skills`.
+
+Results, one heavy command at a time through `beep-heavy` with `</dev/null`:
+
+| Check | Result |
+| --- | --- |
+| skills (7 files) plus models (9 files) tests, Bun | 333 passed (42 in the recovery matrix) |
+| same, Node | 333 passed |
+| effect-vitest / schema-first | exit 0, `introduced=0` / exit 0, parity ok |
+| effect-diagnostics `--filter repo-cli` | 0 in the check and scripts overlays and in every changed file; 4 inherited `preferEffectArray` in `test/laws-schema-tag-idioms.test.ts` (#1969) |
+| oxlint and biome on the changed files; fallow `--base origin/main --check` | clean; pass, 0 introduced |
+| jsdoc inventory and ratchet; observability and schema catalogs `--write` | `increased=0`, zero-legacy ok; regenerated |
+
 ## Route and model evidence
 
 Worked by a Claude Code Agent-tool child pinned to `claude-opus-5-5` (S39/S41 Claude

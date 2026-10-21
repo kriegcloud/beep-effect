@@ -21,8 +21,9 @@ import * as S from "effect/Schema";
 import {
   ModelsPublicationOwner,
   ModelsPublicationState,
+  ModelsRecoveryOutcome,
   ModelsRecoveryRefusal,
-  ModelsRecoveryResult,
+  ModelsRecoverySkip,
 } from "../Models/Models.exchange.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/SkillsPublication.schemas");
@@ -345,17 +346,60 @@ export const SkillRecoveryScope = LiteralKit(["pending", "retry"]).pipe(
 export type SkillRecoveryScope = typeof SkillRecoveryScope.Type;
 
 /**
+ * What skills recovery did with one interrupted publication.
+ *
+ * **Details**
+ *
+ * The `recovered`, `refused` and `skipped` cases are the shared recovery
+ * results. `abandoned` settles a publication that was creating a target that
+ * did not exist and never moved its stage into place, when another writer has
+ * created the target since: there is no preimage to protect, so recovery drops
+ * its own stage, keeps the other writer's entry, and closes the journal as
+ * `abandoned`, just as the writer does when its own create finds the target
+ * taken.
+ *
+ * **Example** (Report an abandoned create)
+ *
+ * ```ts
+ * import { SkillRecoveryResult } from "@beep/repo-cli/commands/Skills/SkillsPublication.schemas"
+ *
+ * const result = SkillRecoveryResult.cases.abandoned.make({ detail: "Another writer created the target." })
+ * console.log(result._tag) // "abandoned"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SkillRecoveryResult = S.TaggedUnion({
+  recovered: { outcome: ModelsRecoveryOutcome },
+  refused: { reason: ModelsRecoveryRefusal, detail: S.String },
+  skipped: { reason: ModelsRecoverySkip },
+  abandoned: { detail: S.String },
+}).pipe(
+  $I.annoteSchema("SkillRecoveryResult", {
+    description: "Recovered, refused, skipped, or an abandoned create whose target another writer took.",
+  })
+);
+
+/**
+ * Runtime type of {@link SkillRecoveryResult}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillRecoveryResult = typeof SkillRecoveryResult.Type;
+
+/**
  * One skill journal that a recovery sweep reconciled, refused or skipped.
  *
  * **Example** (Read a report)
  *
  * ```ts
- * import { ModelsRecoveryResult } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
- * import { SkillRecoveryReport } from "@beep/repo-cli/commands/Skills/SkillsPublication.schemas"
+ * import { SkillRecoveryReport, SkillRecoveryResult } from "@beep/repo-cli/commands/Skills/SkillsPublication.schemas"
  *
  * const report = SkillRecoveryReport.make({
  *   journal: "skills-20261021T000000000Z-1",
- *   result: ModelsRecoveryResult.cases.recovered.make({ outcome: "preimage" })
+ *   result: SkillRecoveryResult.cases.recovered.make({ outcome: "preimage" })
  * })
  * console.log(report.result._tag) // "recovered"
  * ```
@@ -366,7 +410,7 @@ export type SkillRecoveryScope = typeof SkillRecoveryScope.Type;
 export class SkillRecoveryReport extends S.Opaque<SkillRecoveryReport, { readonly brand: unique symbol }>()(
   S.Struct({
     journal: S.NonEmptyString,
-    result: ModelsRecoveryResult,
+    result: SkillRecoveryResult,
   }).pipe(
     $I.annoteSchema("SkillRecoveryReport", {
       description: "Journal id and result of one skills recovery decision.",

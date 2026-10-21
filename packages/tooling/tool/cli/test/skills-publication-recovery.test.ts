@@ -39,6 +39,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -686,5 +687,115 @@ layer(
         expect(skillTreeDifferences(entries, entries)).toEqual([]);
       }),
     { arbitrary: fcRuns(25) }
+  );
+});
+
+// A repository in a fresh working directory, so `skills recover` finds it.
+const createRepository = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = yield* fs.realPath(yield* temporaryWorkingDirectory);
+  yield* fs.makeDirectory(path.join(root, ".git"));
+  return {
+    journals: path.join(root, ".beep", "skills-backups", "journals"),
+    root,
+    target: path.join(root, "skills-lock.json"),
+  };
+});
+
+// A `link` onto the new target that fails: either because another writer
+// created the target first (EEXIST), or with an injected non-EEXIST error.
+const failingCreate = Effect.fnUntraced(function* (
+  target: string,
+  failure: "competitor" | "PermissionDenied" | "Unknown"
+) {
+  const fs = yield* FileSystem.FileSystem;
+  return FileSystem.FileSystem.of({
+    ...fs,
+    link: Effect.fn("SkillsRecoveryTest.createLink")(function* (from, to) {
+      if (to !== target) return yield* fs.link(from, to);
+      if (failure === "competitor") {
+        yield* fs.writeFileString(target, competitorFile);
+        return yield* fs.link(from, to);
+      }
+      return yield* PlatformError.systemError({
+        _tag: failure,
+        module: "FileSystem",
+        method: "link",
+        pathOrDescriptor: to,
+      });
+    }),
+  });
+});
+
+layer(
+  modelsTestExchangeLayer.pipe(
+    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer))
+  ),
+  { timeout: "180 seconds" }
+)((it) => {
+  it.effect("creating a target another writer created first is competing-writer, abandoned, and settles", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { journals, root, target } = yield* createRepository;
+      const publisher = yield* makeSkillPublisher().pipe(
+        Effect.provideService(FileSystem.FileSystem, yield* failingCreate(target, "competitor"))
+      );
+      const error = yield* Effect.flip(publisher.publishFile(root, target, intendedFile));
+      expect(error.reason).toBe("competing-writer");
+      expect(yield* fs.readFileString(target)).toBe(competitorFile);
+      const publication = yield* firstTracked(journals);
+      expect(publication.state).toMatchObject({ _tag: "abandoned", from: "staged" });
+      expect(yield* fs.exists(publication.staging)).toBe(false);
+      expect(yield* fs.realPath(target)).toBe(target);
+      yield* runSkillsCommand(["recover"]);
+      yield* runSkillsCommand(["recover"]);
+      expect(yield* TestConsole.logLines).toEqual(expect.arrayContaining(["skills:recover: 0 journal(s) reconciled"]));
+      expect(yield* fs.readFileString(target)).toBe(competitorFile);
+    }).pipe(Effect.provideService(HttpClient.HttpClient, skillsClient))
+  );
+
+  for (const code of ["PermissionDenied", "Unknown"] as const) {
+    it.effect(`a ${code} link failure on a new target is a typed error, not a competing writer, and abandons`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const { journals, root, target } = yield* createRepository;
+        const publisher = yield* makeSkillPublisher().pipe(
+          Effect.provideService(FileSystem.FileSystem, yield* failingCreate(target, code))
+        );
+        const error = yield* Effect.flip(publisher.publishFile(root, target, intendedFile));
+        expect(error.reason).toBeUndefined();
+        expect(error.message).toContain(code);
+        expect(error.cause).toBeDefined();
+        expect(yield* fs.exists(target)).toBe(false);
+        const publication = yield* firstTracked(journals);
+        expect(publication.state).toMatchObject({ _tag: "abandoned", from: "staged" });
+        expect(yield* fs.exists(publication.staging)).toBe(false);
+        expect(yield* fs.realPath(journals)).toBe(journals);
+        yield* runSkillsCommand(["recover"]);
+        expect(yield* (yield* publisherWith()).recover(root, "retry")).toEqual([]);
+      }).pipe(Effect.provideService(HttpClient.HttpClient, skillsClient))
+    );
+  }
+
+  it.effect("a crashed create whose target another writer took settles as abandoned instead of refusing", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { journals, root, target } = yield* createRepository;
+      yield* crash("publish-file", root, target, "staged");
+      yield* fs.writeFileString(target, competitorFile);
+      const id = yield* firstJournalId(journals);
+      yield* runSkillsCommand(["recover"]);
+      expect(yield* TestConsole.logLines).toEqual(
+        expect.arrayContaining([expect.stringMatching(new RegExp(`^- abandoned ${id} `))])
+      );
+      const publication = yield* firstTracked(journals);
+      expect(publication.state).toMatchObject({ _tag: "abandoned", from: "staged" });
+      expect(yield* fs.exists(publication.staging)).toBe(false);
+      expect(yield* fs.readFileString(target)).toBe(competitorFile);
+      expect(yield* fs.realPath(target)).toBe(target);
+      // A second recover is a no-op.
+      expect(yield* (yield* publisherWith()).recover(root, "retry")).toEqual([]);
+    }).pipe(Effect.provideService(HttpClient.HttpClient, skillsClient))
   );
 });

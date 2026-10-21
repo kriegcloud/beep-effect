@@ -39,16 +39,13 @@ import {
   readPublicationRecord,
 } from "../../internal/publication/PublicationLedger.ts";
 import { modelsAtomicExchangeOrLive } from "../Models/Models.apply.service.ts";
-import {
-  ModelsPublicationState,
-  ModelsRecoveryResult,
-  modelsExchangeIdentityKey,
-} from "../Models/Models.exchange.schemas.ts";
+import { ModelsPublicationState, modelsExchangeIdentityKey } from "../Models/Models.exchange.schemas.ts";
 import { SkillPublicationError } from "./Skills.errors.ts";
 import {
   SkillContentDigest,
   SkillPublicationJournal,
   SkillRecoveryReport,
+  SkillRecoveryResult,
   SkillTrackedPublication,
   SkillTreeEntry,
 } from "./SkillsPublication.schemas.ts";
@@ -79,6 +76,8 @@ const pendingState = ModelsPublicationState.isAnyOf([
   "recovering",
 ]);
 const isRecoveryState = ModelsPublicationState.isAnyOf(["recovering", "recovered", "refused", "abandoned"]);
+// Steps recorded before a publication moves its stage into place.
+const premoveStep = (step: ModelsPublicationStep) => A.contains(["intent", "backed-up", "staged"], step);
 const fromStep = (state: ModelsPublicationState): ModelsPublicationStep =>
   isRecoveryState(state) ? state.from : state._tag;
 
@@ -429,7 +428,7 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
   };
 
   const refuse = (reason: ModelsRecoveryRefusal, detail: string) =>
-    ModelsRecoveryResult.cases.refused.make({ reason, detail });
+    SkillRecoveryResult.cases.refused.make({ reason, detail });
 
   // Recorded paths must be this journal's own artifacts beside a target inside
   // the repository, so a tampered journal never steers a removal elsewhere.
@@ -505,12 +504,30 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
       })
     );
 
+  // A create (no preimage) that never moved its stage into place, whose target
+  // another writer has since created: the stage still holds only the planned
+  // content (or is gone), and the live entry is not the planned content.
+  const createLost = Effect.fnUntraced(function* (publication: SkillTrackedPublication, target: Observation) {
+    if (O.isSome(publication.preimage) || !premoveStep(fromStep(publication.state))) return false;
+    if (target._tag === "absent" || (target._tag === "present" && sameDigest(target.digest, publication.staged)))
+      return false;
+    const staging = yield* observe(publication.staging, publication.kind);
+    return staging._tag === "absent" || (staging._tag === "present" && sameDigest(staging.digest, publication.staged));
+  });
+
   // Decide from the content on disk, never from the recorded step alone: the
   // step only says which artifacts may exist.
   const settle = Effect.fnUntraced(function* (root: string, publication: SkillTrackedPublication) {
     if (!(yield* ownsArtifacts(root, publication)))
       return refuse("foreign-artifact", "Recorded recovery paths are not this journal's own artifacts.");
-    const live = liveOutcome(publication, yield* observe(publication.target, publication.kind));
+    const target = yield* observe(publication.target, publication.kind);
+    if (yield* createLost(publication, target)) {
+      yield* Effect.forEach([publication.staging, ...O.toArray(publication.partial)], discard, { discard: true });
+      return SkillRecoveryResult.cases.abandoned.make({
+        detail: "Another writer created the target before this publication moved its stage into place.",
+      });
+    }
+    const live = liveOutcome(publication, target);
     if (Result.isFailure(live)) return live.failure;
     const known = (observation: Observation) =>
       observation._tag === "absent" ||
@@ -523,7 +540,7 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
     if (!known(staging)) return refuse("foreign-artifact", "The stage holds foreign content.");
     yield* discard(publication.staging);
     yield* Effect.forEach(O.toArray(publication.partial), discard, { discard: true });
-    return ModelsRecoveryResult.cases.recovered.make({ outcome: live.success });
+    return SkillRecoveryResult.cases.recovered.make({ outcome: live.success });
   });
 
   // Settle one publication from `from` and record the terminal result. Both
@@ -543,7 +560,11 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
     );
     yield* advance(ModelsPublicationState.cases.recovering.make({ from }));
     const result = yield* settle(root, publication);
-    yield* advance(publicationTerminalState(from, result));
+    yield* advance(
+      result._tag === "abandoned"
+        ? ModelsPublicationState.cases.abandoned.make({ from, detail: result.detail })
+        : publicationTerminalState(from, result)
+    );
     yield* withPlatform(dropStalePublicationPartials(journalsOf(root), id)).pipe(
       io("Cannot list skill publication journals.")
     );
@@ -566,17 +587,17 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
   const reconcile = (root: string, id: string, eligible: (state: ModelsPublicationState) => boolean) =>
     Effect.scoped(
       Effect.gen(function* () {
-        if (!(yield* recoveryLock(root, id))) return ModelsRecoveryResult.cases.skipped.make({ reason: "lock-held" });
+        if (!(yield* recoveryLock(root, id))) return SkillRecoveryResult.cases.skipped.make({ reason: "lock-held" });
         const fresh = O.filter(
           O.flatMap(yield* readJournal(root, `${id}.json`), (journal) =>
             O.liftPredicate(journal.publication, isTracked)
           ),
           (publication) => eligible(publication.state)
         );
-        if (O.isNone(fresh)) return ModelsRecoveryResult.cases.skipped.make({ reason: "settled" });
+        if (O.isNone(fresh)) return SkillRecoveryResult.cases.skipped.make({ reason: "settled" });
         const publication = fresh.value;
         if (pendingState(publication.state) && (yield* ledger.ownerAlive(publication.owner)))
-          return ModelsRecoveryResult.cases.skipped.make({ reason: "owner-alive" });
+          return SkillRecoveryResult.cases.skipped.make({ reason: "owner-alive" });
         return yield* closeOut(root, id, publication, fromStep(publication.state));
       })
     );
@@ -594,7 +615,7 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
       return O.some(
         SkillRecoveryReport.make({
           journal: journal.id,
-          result: ModelsRecoveryResult.cases.skipped.make({ reason: "legacy" }),
+          result: SkillRecoveryResult.cases.skipped.make({ reason: "legacy" }),
         })
       );
     const eligible = (state: ModelsPublicationState) =>
@@ -646,6 +667,30 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
     Effect.forEach([publication.staging, ...O.toArray(publication.partial)], discard, { discard: true }).pipe(
       Effect.andThen(advance(ModelsPublicationState.cases.abandoned.make({ from, detail: error.message }))),
       Effect.ignore
+    );
+
+  // Move a stage onto a target that did not exist. Only EEXIST, or an entry
+  // actually found at the target afterwards, is a competing writer; any other
+  // failure is a typed error carrying its platform cause.
+  const createTarget = (staging: string, target: string, kind: SkillPublicationKind) =>
+    (kind === "file" ? fs.link(staging, target) : fs.rename(staging, target)).pipe(
+      Effect.catchTag(
+        "PlatformError",
+        Effect.fnUntraced(function* (error) {
+          const occupied = error.reason._tag === "AlreadyExists" || (yield* observe(target, kind))._tag !== "absent";
+          if (occupied)
+            return yield* failure(
+              "A competing writer created the skill target; nothing was replaced.",
+              "competing-writer",
+              target
+            );
+          return yield* SkillPublicationError.make({
+            message: `Cannot create the skill target (${error.reason._tag}): ${error.message}`,
+            target,
+            cause: error,
+          });
+        })
+      )
     );
 
   // Run one publication through its journal: intent, backup, stage, the move
@@ -707,14 +752,8 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
         Effect.gen(function* () {
           yield* O.match(filesystem, {
             onNone: () =>
-              (kind === "file" ? fs.link(staging, target) : fs.rename(staging, target)).pipe(
-                Effect.mapError(() =>
-                  failure(
-                    "A competing writer created the skill target; nothing was replaced.",
-                    "competing-writer",
-                    target
-                  )
-                )
+              createTarget(staging, target, kind).pipe(
+                Effect.tapError((error) => abandon(publication, advance, "staged", error))
               ),
             onSome: () => exchangeEntries(staging, target),
           });
@@ -747,7 +786,15 @@ export const makeSkillPublisher = Effect.fn("SkillPublisher.make")(function* () 
       yield* advance(ModelsPublicationState.cases.completed.make({}));
     }).pipe(
       Effect.mapError((error) =>
-        SkillPublicationError.make({ ...error, message: `${error.message} Journal: ${id}`, journal: id })
+        SkillPublicationError.make({
+          ...O.getSomesStruct({
+            reason: O.fromUndefinedOr(error.reason),
+            target: O.fromUndefinedOr(error.target),
+            cause: O.fromUndefinedOr(error.cause),
+          }),
+          message: `${error.message} Journal: ${id}`,
+          journal: id,
+        })
       )
     );
   });

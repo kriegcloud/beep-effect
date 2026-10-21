@@ -405,8 +405,8 @@ export const renderSkillMaterializeSummary = (report: SkillMaterializeReport): s
  * **Details**
  *
  * The line names the journal and the result: `recovered` with the content it
- * left live, `refused` with the typed reason and detail, or `skipped` with
- * why the journal was left alone.
+ * left live, `refused` with the typed reason and detail, `skipped` with why
+ * the journal was left alone, or `abandoned` with why a create was dropped.
  *
  * **Example** (Render a recovery)
  *
@@ -433,5 +433,6 @@ export const renderSkillRecoveryReport = (report: SkillRecoveryReport): string =
       recovered: ({ outcome }) => `recovered ${report.journal} (${outcome})`,
       refused: ({ detail, reason }) => `refused ${report.journal} (${reason}): ${detail}`,
       skipped: ({ reason }) => `skipped ${report.journal} (${reason})`,
+      abandoned: ({ detail }) => `abandoned ${report.journal} (${detail})`,
     })
   );
