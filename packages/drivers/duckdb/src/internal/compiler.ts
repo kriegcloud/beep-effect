@@ -96,9 +96,9 @@ export const makeCompiler = (transform?: ((name: string) => string) | undefined)
  */
 export const makeRowTransform = (
   f: (name: string) => string
-): ((rows: ReadonlyArray<object>) => ReadonlyArray<object>) => {
+): (<Row extends object>(rows: ReadonlyArray<Row>) => ReadonlyArray<Row>) => {
   const value = (v: unknown): unknown => (A.isArray(v) ? A.map(v, value) : isPlainObject(v) ? object(v) : v);
   const object = (o: Record<string, unknown>): Record<string, unknown> =>
     R.fromEntries(A.map(R.toEntries(o), ([k, v]) => [f(k), value(v)] as const));
-  return (rows) => A.map(rows, value) as ReadonlyArray<object>;
+  return <Row extends object>(rows: ReadonlyArray<Row>): ReadonlyArray<Row> => A.map(rows, value) as ReadonlyArray<Row>;
 };

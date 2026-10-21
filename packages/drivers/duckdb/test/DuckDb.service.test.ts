@@ -1,5 +1,6 @@
 import {
   DuckDb,
+  DuckDbClient,
   DuckDbConnectionOptions,
   DuckDbError,
   DuckDbErrorFromUnknownOptions,
@@ -7,7 +8,6 @@ import {
   DuckDbParquetExport,
   DuckDbRow,
   DuckDbRows,
-  DuckDbSqlClient,
 } from "@beep/duckdb";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -18,7 +18,6 @@ import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
-import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -31,6 +30,7 @@ import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as Reactivity from "effect/reactivity/Reactivity";
 import * as S from "effect/Schema";
+import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
@@ -869,138 +869,71 @@ describe("@beep/duckdb", { concurrent: false }, () => {
   });
 });
 
-describe("DuckDbSqlClient", { concurrent: false }, () => {
-  it.layer(DuckDbSqlClient.makeLayer({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
-    it.effect(
-      "provides the generic SqlClient tag and executes core statement paths",
-      Effect.fnUntraced(function* () {
-        const duckdbSql = yield* DuckDbSqlClient;
-        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+const setupResult = {
+  returnType: 3,
+  rowsChanged: 0,
+  convertRowObjects: () => Promise.resolve([{ database_name: "memory", path: null }]),
+  convertRows: () => Promise.resolve([]),
+};
 
-        expect(duckdbSql).toBe(yield* SqlClient.SqlClient);
+const isSetupStatement = (sql: string): boolean => /^SET TimeZone|duckdb_databases/.test(sql);
 
-        yield* sql`
-      CREATE TABLE sql_events (
-        id VARCHAR,
-        value INTEGER
-      )
-    `;
-        yield* sql`INSERT INTO sql_events VALUES (${"sql-1"}, ${42})`;
+const fakeQueryResult = (rows: ReadonlyArray<Record<string, unknown>>) => ({
+  returnType: 3,
+  rowsChanged: 0,
+  convertRowObjects: () => Promise.resolve(rows),
+  convertRows: () => Promise.resolve([]),
+});
 
-        const taggedRows = yield* sql<{ readonly id: string; readonly value: number }>`
-      SELECT id, value
-      FROM sql_events
-      ORDER BY id
-    `;
-        expect(taggedRows).toEqual([{ id: "sql-1", value: 42 }]);
+const reasonTagOf = (error: { readonly reason: { readonly _tag: string } }): string => error.reason._tag;
 
-        const unsafeRows = yield* sql.unsafe<{ readonly id: string }>(
-          "SELECT id FROM sql_events WHERE value = ?",
-          [42]
-        );
-        expect(unsafeRows).toEqual([{ id: "sql-1" }]);
-
-        const values = yield* sql<{ readonly value: number }>`SELECT value FROM sql_events ORDER BY id`.values;
-        expect(values).toEqual([[42]]);
-
-        const valuesUnprepared = yield* sql.unsafe<{ readonly value: number }>(
-          "SELECT value FROM sql_events WHERE id = ?",
-          ["sql-1"]
-        ).valuesUnprepared;
-        expect(valuesUnprepared).toEqual([[42]]);
-
-        const unpreparedRows = yield* sql.unsafe<{ readonly value: number }>(
-          "SELECT value FROM sql_events WHERE id = ?",
-          ["sql-1"]
-        ).unprepared;
-        expect(unpreparedRows).toEqual([{ value: 42 }]);
-
-        const streamedRows = yield* Stream.runCollect(
-          sql<{ readonly id: string }>`SELECT id FROM sql_events ORDER BY id`.stream
-        );
-        expect(A.fromIterable(streamedRows)).toEqual([{ id: "sql-1" }]);
-      })
-    );
-  });
-
-  it.layer(DuckDbSqlClient.makeLayer({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
-    it.effect(
-      "normalizes Date and Uint8Array bind values for generic SQL callers",
-      Effect.fnUntraced(function* () {
-        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
-        const timestamp = DateTime.toDateUtc(DateTime.makeUnsafe("2026-01-02T03:04:05.000Z"));
-        const bytes = new Uint8Array([1, 2, 3]);
-
-        const rows = yield* sql<{
-          readonly blob_type: string;
-          readonly blob_value: string;
-          readonly timestamp_type: string;
-          readonly timestamp_value: string;
-        }>`
-      SELECT
-        typeof(${timestamp}) AS timestamp_type,
-        ${timestamp}::VARCHAR AS timestamp_value,
-        typeof(${bytes}) AS blob_type,
-        ${bytes}::VARCHAR AS blob_value
-    `;
-
-        expect(rows).toEqual([
-          {
-            blob_type: "BLOB",
-            blob_value: "\\x01\\x02\\x03",
-            timestamp_type: "TIMESTAMP_MS",
-            timestamp_value: "2026-01-02 03:04:05",
-          },
-        ]);
-      })
-    );
-  });
-
+describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
-    it.effect("builds from a caller-owned live connection", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "adopts a caller-owned live connection without closing it",
+      Effect.fnUntraced(function* () {
         const liveConnection = yield* acquireNativeDuckDbConnection;
-
-        const client = yield* DuckDbSqlClient.fromClient({
-          databasePath: ":memory:",
-          liveConnection,
-        });
+        const clientScope = yield* Scope.make();
+        const client = yield* DuckDbClient.fromConnection({ connection: liveConnection }).pipe(
+          Scope.provide(clientScope)
+        );
         const sql = client.withoutTransforms();
 
-        yield* sql`
-          CREATE TABLE live_connection_events (
-            id VARCHAR
-          )
-        `;
+        yield* sql`CREATE TABLE live_connection_events (id VARCHAR)`;
         yield* sql`INSERT INTO live_connection_events VALUES (${"live-1"})`;
-
-        const rows = yield* sql<{ readonly id: string }>`
-          SELECT id
-          FROM live_connection_events
-          ORDER BY id
-        `;
+        const rows = yield* sql<{ readonly id: string }>`SELECT id FROM live_connection_events ORDER BY id`;
         expect(rows).toEqual([{ id: "live-1" }]);
+
+        yield* Scope.close(clientScope, Exit.void);
+        const after = yield* Effect.promise(() =>
+          liveConnection.runAndReadAll("SELECT count(*)::INTEGER AS n FROM live_connection_events")
+        );
+        expect(after.getRowObjectsJson()).toEqual([{ n: 1 }]);
       })
     );
   });
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "closes a created instance when managed connection acquisition fails",
+      "closes a created instance when connection acquisition fails",
       Effect.fnUntraced(function* () {
-        const connectError = new Error("connect failed");
         let instanceCloseAttempts = 0;
         const fakeInstance = {
           closeSync: () => {
             instanceCloseAttempts += 1;
           },
-          connect: () => Promise.reject(connectError),
+          connect: () => Promise.reject(new Error("connect failed")),
         };
         const fakeCreate: typeof DuckDBInstance.create = () =>
           Promise.resolve(fakeInstance as unknown as Awaited<ReturnType<typeof DuckDBInstance.create>>);
         yield* patchDuckDbInstanceCreate(fakeCreate);
 
-        const exit = yield* DuckDbSqlClient.make({ databasePath: ":memory:" }).pipe(Effect.scoped, Effect.exit);
+        const clientScope = yield* Scope.make();
+        const exit = yield* DuckDbClient.make({ databasePath: ":memory:" }).pipe(
+          Scope.provide(clientScope),
+          Effect.exit
+        );
+        yield* Scope.close(clientScope, Exit.void);
 
         pipe(exit, Exit.isFailure, assertTrue);
         expect(instanceCloseAttempts).toBe(1);
@@ -1019,6 +952,9 @@ describe("DuckDbSqlClient", { concurrent: false }, () => {
             connectionCloseAttempts += 1;
             throw new Error("connection close failed");
           },
+          interrupt: () => undefined,
+          prepare: () => Promise.reject(new Error("prepare unavailable")),
+          run: () => Promise.resolve(setupResult),
         };
         const fakeInstance = {
           closeSync: () => {
@@ -1030,7 +966,9 @@ describe("DuckDbSqlClient", { concurrent: false }, () => {
           Promise.resolve(fakeInstance as unknown as Awaited<ReturnType<typeof DuckDBInstance.create>>);
         yield* patchDuckDbInstanceCreate(fakeCreate);
 
-        yield* DuckDbSqlClient.make({ databasePath: ":memory:" }).pipe(Effect.scoped);
+        const clientScope = yield* Scope.make();
+        yield* DuckDbClient.make({ databasePath: ":memory:" }).pipe(Scope.provide(clientScope));
+        yield* Scope.close(clientScope, Exit.void);
 
         expect(connectionCloseAttempts).toBe(1);
         expect(instanceCloseAttempts).toBe(1);
@@ -1039,49 +977,45 @@ describe("DuckDbSqlClient", { concurrent: false }, () => {
   });
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
-    it.effect("serializes normal statements on the shared connection", () =>
+    it.effect("serializes statements on the shared native connection", () =>
       Effect.gen(function* () {
         const liveConnection = yield* acquireNativeDuckDbConnection;
+        const client = yield* DuckDbClient.fromConnection({ connection: liveConnection });
+        const sql = client.withoutTransforms();
 
         const firstStarted = makeLatch();
         const releaseFirst = makeLatch();
         const secondStarted = makeLatch();
-        let firstRead = true;
+        let firstRun = true;
         let activeExecutions = 0;
         let maxActiveExecutions = 0;
-        const runAndReadAll = liveConnection.runAndReadAll.bind(liveConnection);
-        liveConnection.runAndReadAll = (...args: Parameters<DuckDBConnection["runAndReadAll"]>) => {
+        const run = liveConnection.run.bind(liveConnection);
+        liveConnection.run = (...args: Parameters<DuckDBConnection["run"]>) => {
           activeExecutions += 1;
           maxActiveExecutions = activeExecutions > maxActiveExecutions ? activeExecutions : maxActiveExecutions;
-          if (firstRead) {
-            firstRead = false;
+          if (firstRun) {
+            firstRun = false;
             firstStarted.resolve();
             return releaseFirst.promise
-              .then(() => runAndReadAll(...args))
+              .then(() => run(...args))
               .finally(() => {
                 activeExecutions -= 1;
               });
           }
           secondStarted.resolve();
-          return runAndReadAll(...args).finally(() => {
+          return run(...args).finally(() => {
             activeExecutions -= 1;
           });
         };
 
-        const client = yield* DuckDbSqlClient.fromClient({
-          databasePath: ":memory:",
-          liveConnection,
-        });
-        const sql = client.withoutTransforms();
-
         yield* Effect.gen(function* () {
-          const firstFiber = yield* sql<{ readonly value: number }>`SELECT 1 AS value`.pipe(
-            Effect.forkChild({ startImmediately: true })
-          );
+          const firstFiber = yield* sql
+            .unsafe<{ readonly value: number }>("SELECT 1 AS value")
+            .unprepared.pipe(Effect.forkChild({ startImmediately: true }));
           yield* awaitLatch(firstStarted);
-          const secondFiber = yield* sql<{ readonly value: number }>`SELECT 2 AS value`.pipe(
-            Effect.forkChild({ startImmediately: true })
-          );
+          const secondFiber = yield* sql
+            .unsafe<{ readonly value: number }>("SELECT 2 AS value")
+            .unprepared.pipe(Effect.forkChild({ startImmediately: true }));
           expect(yield* latchResolvesWithin(secondStarted, 50)).toBe(false);
           releaseFirst.resolve();
           expect(yield* latchResolvesWithin(secondStarted, 1000)).toBe(true);
@@ -1094,82 +1028,76 @@ describe("DuckDbSqlClient", { concurrent: false }, () => {
   });
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
-    it.effect("streams rows through DuckDB streaming results", () =>
+    it.effect("streams rows through native streaming results", () =>
       Effect.gen(function* () {
         const liveConnection = yield* acquireNativeDuckDbConnection;
-
-        const client = yield* DuckDbSqlClient.fromClient({
-          databasePath: ":memory:",
-          liveConnection,
-        });
+        const client = yield* DuckDbClient.fromConnection({ connection: liveConnection });
         const sql = client.withoutTransforms();
 
         yield* sql`CREATE TABLE stream_events (id VARCHAR)`;
         yield* sql`INSERT INTO stream_events VALUES (${"stream-1"}), (${"stream-2"})`;
 
         let streamCalls = 0;
-        let runAndReadAllCalls = 0;
+        let runCalls = 0;
         const stream = liveConnection.stream.bind(liveConnection);
-        const runAndReadAll = liveConnection.runAndReadAll.bind(liveConnection);
+        const run = liveConnection.run.bind(liveConnection);
         liveConnection.stream = (...args: Parameters<DuckDBConnection["stream"]>) => {
           streamCalls += 1;
           return stream(...args);
         };
-        liveConnection.runAndReadAll = (...args: Parameters<DuckDBConnection["runAndReadAll"]>) => {
-          runAndReadAllCalls += 1;
-          return runAndReadAll(...args);
+        liveConnection.run = (...args: Parameters<DuckDBConnection["run"]>) => {
+          runCalls += 1;
+          return run(...args);
         };
 
         const streamedRows = yield* Stream.runCollect(
-          sql<{ readonly id: string }>`
-              SELECT id
-              FROM stream_events
-              ORDER BY id
-            `.stream
+          sql<{ readonly id: string }>`SELECT id FROM stream_events ORDER BY id`.stream
         );
 
         expect(A.fromIterable(streamedRows)).toEqual([{ id: "stream-1" }, { id: "stream-2" }]);
         expect(streamCalls).toBe(1);
-        expect(runAndReadAllCalls).toBe(0);
+        expect(runCalls).toBe(0);
       })
     );
   });
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
-    it.effect("keeps read permits held until interrupted native operations settle", () =>
+    it.effect("keeps the connection locked until an interrupted native operation settles", () =>
       Effect.gen(function* () {
-        const liveConnection = yield* acquireNativeDuckDbConnection;
-
         const firstStarted = makeLatch();
         const releaseFirst = makeLatch();
         const secondStarted = makeLatch();
-        let firstRead = true;
-        const runAndReadAll = liveConnection.runAndReadAll.bind(liveConnection);
-        liveConnection.runAndReadAll = (...args: Parameters<DuckDBConnection["runAndReadAll"]>) => {
-          if (firstRead) {
-            firstRead = false;
-            firstStarted.resolve();
-            return releaseFirst.promise.then(() => runAndReadAll(...args));
-          }
-          secondStarted.resolve();
-          return runAndReadAll(...args);
+        let firstRun = true;
+        const fakeConnection = {
+          closeSync: () => undefined,
+          interrupt: () => undefined,
+          prepare: () => Promise.reject(new Error("prepare unavailable")),
+          run: (sql: string) => {
+            if (isSetupStatement(sql)) {
+              return Promise.resolve(setupResult);
+            }
+            if (firstRun) {
+              firstRun = false;
+              firstStarted.resolve();
+              return releaseFirst.promise.then(() => fakeQueryResult([{ value: 1 }]));
+            }
+            secondStarted.resolve();
+            return Promise.resolve(fakeQueryResult([{ value: 2 }]));
+          },
         };
-
-        const client = yield* DuckDbSqlClient.fromClient({
-          databasePath: ":memory:",
-          liveConnection,
+        const client = yield* DuckDbClient.fromConnection({
+          connection: fakeConnection as unknown as DuckDBConnection,
         });
-        const sql = client.withoutTransforms();
 
         yield* Effect.gen(function* () {
-          const firstFiber = yield* sql<{ readonly value: number }>`SELECT 1 AS value`.pipe(
-            Effect.forkChild({ startImmediately: true })
-          );
+          const firstFiber = yield* client
+            .unsafe<{ readonly value: number }>("SELECT 1 AS value")
+            .unprepared.pipe(Effect.forkChild({ startImmediately: true }));
           yield* awaitLatch(firstStarted);
           const interruption = yield* Fiber.interrupt(firstFiber).pipe(Effect.forkChild({ startImmediately: true }));
-          const secondFiber = yield* sql<{ readonly value: number }>`SELECT 2 AS value`.pipe(
-            Effect.forkChild({ startImmediately: true })
-          );
+          const secondFiber = yield* client
+            .unsafe<{ readonly value: number }>("SELECT 2 AS value")
+            .unprepared.pipe(Effect.forkChild({ startImmediately: true }));
           expect(yield* latchResolvesWithin(secondStarted, 50)).toBe(false);
           releaseFirst.resolve();
           expect(yield* latchResolvesWithin(secondStarted, 1000)).toBe(true);
@@ -1181,66 +1109,159 @@ describe("DuckDbSqlClient", { concurrent: false }, () => {
     );
   });
 
-  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
-    it.effect(
-      "keeps raw permits held until interrupted native operations settle",
-      Effect.fnUntraced(function* () {
-        const tmpDir = yield* NativeTestDirectory;
-        const path = yield* Path.Path;
-        const fs = yield* FileSystem.FileSystem;
-        const parquetPath = path.join(tmpDir, "raw-interrupt.parquet");
-
-        const liveConnection = yield* acquireNativeDuckDbConnection;
-
-        const client = yield* DuckDbSqlClient.fromClient({
-          databasePath: ":memory:",
-          liveConnection,
+  it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
+    it.effect("destroys a statement whose prepare settles after its caller was interrupted", () =>
+      Effect.gen(function* () {
+        const firstStarted = makeLatch();
+        const releaseFirst = makeLatch();
+        const secondStarted = makeLatch();
+        let destroyCalls = 0;
+        let firstPrepare = true;
+        const makeStatement = (rows: ReadonlyArray<Record<string, unknown>>) => ({
+          bind: () => undefined,
+          clearBindings: () => undefined,
+          destroySync: () => {
+            destroyCalls += 1;
+          },
+          run: () => Promise.resolve(fakeQueryResult(rows)),
         });
-        const sql = client.withoutTransforms();
-
-        yield* sql`
-                CREATE TABLE raw_interrupt_events (
-                  id VARCHAR
-                )
-              `;
-        yield* sql`INSERT INTO raw_interrupt_events VALUES (${"raw-1"})`;
-
-        const rawStarted = makeLatch();
-        const releaseRaw = makeLatch();
-        const readStarted = makeLatch();
-        const run = liveConnection.run.bind(liveConnection);
-        const runAndReadAll = liveConnection.runAndReadAll.bind(liveConnection);
-        liveConnection.run = (...args: Parameters<DuckDBConnection["run"]>) => {
-          rawStarted.resolve();
-          return releaseRaw.promise.then(() => run(...args));
+        const fakeConnection = {
+          closeSync: () => undefined,
+          interrupt: () => undefined,
+          prepare: () => {
+            if (firstPrepare) {
+              firstPrepare = false;
+              firstStarted.resolve();
+              return releaseFirst.promise.then(() => makeStatement([{ value: 1 }]));
+            }
+            secondStarted.resolve();
+            return Promise.resolve(makeStatement([{ value: 2 }]));
+          },
+          run: () => Promise.resolve(setupResult),
         };
-        liveConnection.runAndReadAll = (...args: Parameters<DuckDBConnection["runAndReadAll"]>) => {
-          readStarted.resolve();
-          return runAndReadAll(...args);
-        };
+        const client = yield* DuckDbClient.fromConnection({
+          connection: fakeConnection as unknown as DuckDBConnection,
+        });
 
         yield* Effect.gen(function* () {
           const firstFiber = yield* client
-            .copyTableToParquet(
-              DuckDbParquetExport.make({
-                filePath: parquetPath,
-                tableName: "raw_interrupt_events",
-              })
-            )
+            .unsafe<{ readonly value: number }>("select 1")
             .pipe(Effect.forkChild({ startImmediately: true }));
-          yield* awaitLatch(rawStarted);
+          yield* awaitLatch(firstStarted);
           const interruption = yield* Fiber.interrupt(firstFiber).pipe(Effect.forkChild({ startImmediately: true }));
-          const readFiber = yield* sql<{ readonly id: string }>`SELECT id FROM raw_interrupt_events`.pipe(
-            Effect.forkChild({ startImmediately: true })
-          );
-          expect(yield* latchResolvesWithin(readStarted, 50)).toBe(false);
-          releaseRaw.resolve();
-          expect(yield* latchResolvesWithin(readStarted, 1000)).toBe(true);
-          expect(yield* Fiber.join(readFiber)).toEqual([{ id: "raw-1" }]);
+          const secondFiber = yield* client
+            .unsafe<{ readonly value: number }>("select 2")
+            .pipe(Effect.forkChild({ startImmediately: true }));
+          expect(yield* latchResolvesWithin(secondStarted, 50)).toBe(false);
+          releaseFirst.resolve();
+          expect(yield* latchResolvesWithin(secondStarted, 1000)).toBe(true);
+          expect(yield* Fiber.join(secondFiber)).toEqual([{ value: 2 }]);
           yield* Fiber.join(interruption);
+          expect(destroyCalls).toBe(1);
           pipe(yield* Fiber.await(firstFiber), Exit.hasInterrupts, assertTrue);
-        }).pipe(Effect.ensuring(Effect.sync(() => releaseRaw.resolve())));
-        expect(yield* fs.exists(parquetPath)).toBe(true);
+        }).pipe(Effect.ensuring(Effect.sync(() => releaseFirst.resolve())));
+      })
+    );
+  });
+
+  it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "fails with ConnectionError when the database directory does not exist",
+      Effect.fnUntraced(function* () {
+        const error = yield* DuckDbClient.make({ databasePath: "/nonexistent-duckdb-dir/nested/x.duckdb" }).pipe(
+          Effect.flip
+        );
+        expect(reasonTagOf(error)).toBe("ConnectionError");
+      })
+    );
+  });
+
+  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "shares one database between clients of the same file",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const databasePath = path.join(tmpDir, "shared.duckdb");
+
+        const firstScope = yield* Scope.make();
+        const secondScope = yield* Scope.make();
+        const first = (yield* DuckDbClient.make({ databasePath }).pipe(Scope.provide(firstScope))).withoutTransforms();
+        const second = (yield* DuckDbClient.make({ databasePath }).pipe(
+          Scope.provide(secondScope)
+        )).withoutTransforms();
+
+        yield* first`CREATE TABLE shared_events (id INTEGER)`;
+        yield* first`INSERT INTO shared_events VALUES (${1})`;
+        expect(yield* second<{ readonly id: number }>`SELECT id FROM shared_events`).toEqual([{ id: 1 }]);
+
+        const mismatch = yield* DuckDbClient.make({ databasePath, databaseOptions: { threads: "2" } }).pipe(
+          Effect.flip
+        );
+        expect(reasonTagOf(mismatch)).toBe("ConnectionError");
+
+        yield* Scope.close(firstScope, Exit.void);
+        yield* Scope.close(secondScope, Exit.void);
+
+        const fresh = (yield* DuckDbClient.make({ databasePath })).withoutTransforms();
+        expect(yield* fresh<{ readonly id: number }>`SELECT id FROM shared_events`).toEqual([{ id: 1 }]);
+      })
+    );
+  });
+
+  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "refuses READ_ONLY clients beside an in-process read-write client",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const databasePath = path.join(tmpDir, "read-only.duckdb");
+
+        const writerScope = yield* Scope.make();
+        const writer = (yield* DuckDbClient.make({ databasePath }).pipe(
+          Scope.provide(writerScope)
+        )).withoutTransforms();
+        yield* writer`CREATE TABLE ro_events (id INTEGER)`;
+        yield* writer`INSERT INTO ro_events VALUES (${7})`;
+
+        const refused = yield* DuckDbClient.make({ databasePath, readOnly: true }).pipe(Effect.flip);
+        expect(reasonTagOf(refused)).toBe("ConnectionError");
+
+        yield* Scope.close(writerScope, Exit.void);
+
+        const readerA = (yield* DuckDbClient.make({ databasePath, readOnly: true })).withoutTransforms();
+        const readerB = (yield* DuckDbClient.make({ databasePath, readOnly: true })).withoutTransforms();
+        expect(yield* readerA<{ readonly id: number }>`SELECT id FROM ro_events`).toEqual([{ id: 7 }]);
+        expect(yield* readerB<{ readonly id: number }>`SELECT id FROM ro_events`).toEqual([{ id: 7 }]);
+
+        const writeError = yield* readerA`INSERT INTO ro_events VALUES (${8})`.pipe(Effect.flip);
+        expect(reasonTagOf(writeError)).toBe("AuthorizationError");
+
+        const writerWhileReading = yield* DuckDbClient.make({ databasePath }).pipe(Effect.flip);
+        expect(reasonTagOf(writerWhileReading)).toBe("ConnectionError");
+      })
+    );
+  });
+
+  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "shares a file between the legacy DuckDb service and DuckDbClient",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const databasePath = path.join(tmpDir, "legacy-shared.duckdb");
+
+        const legacyContext = yield* Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath })));
+        const legacy = Context.get(legacyContext, DuckDb);
+        yield* legacy.run("CREATE TABLE legacy_events (id VARCHAR)");
+        yield* legacy.run("INSERT INTO legacy_events VALUES ('legacy')");
+
+        const sql = (yield* DuckDbClient.make({ databasePath })).withoutTransforms();
+        expect(yield* sql<{ readonly id: string }>`SELECT id FROM legacy_events`).toEqual([{ id: "legacy" }]);
+        yield* sql`INSERT INTO legacy_events VALUES (${"client"})`;
+
+        const rows = yield* legacy.query("SELECT id FROM legacy_events ORDER BY id");
+        expect(rows).toEqual([{ id: "client" }, { id: "legacy" }]);
       })
     );
   });
@@ -1250,156 +1271,45 @@ describe("DuckDbSqlClient", { concurrent: false }, () => {
       Effect.gen(function* () {
         const tmpDir = yield* NativeTestDirectory;
         const path = yield* Path.Path;
-        const databasePath = path.join(tmpDir, "sql-client.duckdb");
-        return DuckDbSqlClient.makeLayer({ databasePath });
+        return DuckDbClient.layer({ databasePath: path.join(tmpDir, "parquet.duckdb") });
       })
     ).pipe(Layer.provideMerge(nativeDirectoryLayer)),
     { timeout: "30 seconds" }
   )((it) => {
     it.effect(
-      "exports parquet outside transactions and rejects transaction-scoped exports",
+      "exports parquet outside transactions and refuses inside them",
       Effect.fnUntraced(function* () {
         const tmpDir = yield* NativeTestDirectory;
         const path = yield* Path.Path;
         const fs = yield* FileSystem.FileSystem;
+        const parquetPath = path.join(tmpDir, "events.parquet");
+        const transactionParquetPath = path.join(tmpDir, "transaction-events.parquet");
 
-        const parquetPath = path.join(tmpDir, "exports", "sql_events.parquet");
-        const transactionParquetPath = path.join(tmpDir, "exports", "sql_transaction_events.parquet");
-        yield* fs.makeDirectory(path.dirname(parquetPath), { recursive: true });
+        const client = yield* DuckDbClient.DuckDbClient;
+        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+        expect(client).toBe(yield* SqlClient.SqlClient);
 
-        const client = yield* DuckDbSqlClient;
-        const sql = client.withoutTransforms();
-
-        yield* sql`
-              CREATE TABLE parquet_events (
-                id VARCHAR,
-                value INTEGER
-              )
-            `;
+        yield* sql`CREATE TABLE parquet_events (id VARCHAR, value INTEGER)`;
         yield* sql`INSERT INTO parquet_events VALUES (${"parquet-1"}, ${1})`;
         yield* client.copyTableToParquet(
-          DuckDbParquetExport.make({
-            filePath: parquetPath,
-            tableName: "parquet_events",
-          })
+          DuckDbParquetExport.make({ filePath: parquetPath, tableName: "parquet_events" })
         );
-
         expect(yield* fs.exists(parquetPath)).toBe(true);
+        expect(
+          yield* sql.unsafe<{ readonly id: string; readonly value: number }>(
+            `SELECT id, value FROM read_parquet('${parquetPath}')`
+          )
+        ).toEqual([{ id: "parquet-1", value: 1 }]);
 
-        yield* sql`
-              CREATE TABLE transaction_parquet_events (
-                id VARCHAR,
-                value INTEGER
-              )
-            `;
-        const transactionExport = yield* sql
+        const refused = yield* sql
           .withTransaction(
-            Effect.gen(function* () {
-              yield* sql`INSERT INTO transaction_parquet_events VALUES (${"transaction-parquet-1"}, ${1})`;
-              yield* client.copyTableToParquet(
-                DuckDbParquetExport.make({
-                  filePath: transactionParquetPath,
-                  tableName: "transaction_parquet_events",
-                })
-              );
-            })
+            client.copyTableToParquet(
+              DuckDbParquetExport.make({ filePath: transactionParquetPath, tableName: "parquet_events" })
+            )
           )
-          .pipe(Effect.exit);
-
-        pipe(transactionExport, Exit.isFailure, assertTrue);
+          .pipe(Effect.flip);
+        expect(reasonTagOf(refused)).toBe("UnknownError");
         expect(yield* fs.exists(transactionParquetPath)).toBe(false);
-
-        const transactionRows = yield* sql<{ readonly id: string }>`
-              SELECT id
-              FROM transaction_parquet_events
-              ORDER BY id
-            `;
-        expect(transactionRows).toEqual([]);
-      })
-    );
-  });
-
-  it.layer(DuckDbSqlClient.makeLayer({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
-    it.effect(
-      "commits, rolls back, and reuses the active transaction for nested calls",
-      Effect.fnUntraced(function* () {
-        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
-        yield* sql`
-      CREATE TABLE tx_events (
-        id VARCHAR
-      )
-    `;
-
-        const committed = yield* sql.withTransaction(
-          Effect.gen(function* () {
-            yield* sql`INSERT INTO tx_events VALUES (${"committed"})`;
-            return "ok";
-          })
-        );
-        expect(committed).toBe("ok");
-
-        const rollbackExit = yield* Effect.exit(
-          sql.withTransaction(
-            Effect.gen(function* () {
-              yield* sql`INSERT INTO tx_events VALUES (${"rolled-back"})`;
-              return yield* Effect.fail("force rollback");
-            })
-          )
-        );
-        pipe(rollbackExit, Exit.isFailure, assertTrue);
-
-        yield* sql.withTransaction(
-          Effect.gen(function* () {
-            yield* sql`INSERT INTO tx_events VALUES (${"outer"})`;
-            yield* sql.withTransaction(sql`INSERT INTO tx_events VALUES (${"inner"})`);
-          })
-        );
-
-        const rows = yield* sql<{ readonly id: string }>`
-      SELECT id
-      FROM tx_events
-      ORDER BY id
-    `;
-        expect(rows).toEqual([{ id: "committed" }, { id: "inner" }, { id: "outer" }]);
-      })
-    );
-  });
-
-  it.layer(DuckDbSqlClient.makeLayer({ databasePath: ":memory:" }), { timeout: "30 seconds" })((it) => {
-    it.effect(
-      "marks the outer transaction rollback-only when a nested transaction fails",
-      Effect.fnUntraced(function* () {
-        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
-        yield* sql`
-      CREATE TABLE nested_failure_events (
-        id VARCHAR
-      )
-    `;
-
-        const exit = yield* Effect.exit(
-          sql.withTransaction(
-            Effect.gen(function* () {
-              yield* sql`INSERT INTO nested_failure_events VALUES (${"outer-before"})`;
-              yield* sql
-                .withTransaction(
-                  Effect.gen(function* () {
-                    yield* sql`INSERT INTO nested_failure_events VALUES (${"inner-rolled-back"})`;
-                    return yield* Effect.fail("inner failure");
-                  })
-                )
-                .pipe(Effect.ignore);
-              yield* sql`INSERT INTO nested_failure_events VALUES (${"outer-after"})`;
-            })
-          )
-        );
-        pipe(exit, Exit.isFailure, assertTrue);
-
-        const rows = yield* sql<{ readonly id: string }>`
-      SELECT id
-      FROM nested_failure_events
-      ORDER BY id
-    `;
-        expect(rows).toEqual([]);
       })
     );
   });
