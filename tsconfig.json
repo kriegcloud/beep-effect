@@ -2262,7 +2262,15 @@
       "@beep/yaml/*": ["./packages/foundation/modeling/yaml/src/*"],
       "@beep/yaml/internal/*": [
         "./packages/foundation/modeling/yaml/src/internal/*"
-      ]
+      ],
+      "@beep/npm-spec": [
+        "./packages/foundation/modeling/npm-spec/src/index.ts"
+      ],
+      "@beep/npm-spec/*": ["./packages/foundation/modeling/npm-spec/src/*"],
+      "@beep/tsconfig": [
+        "./packages/foundation/modeling/tsconfig/src/index.ts"
+      ],
+      "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"]
     }
   }
 }

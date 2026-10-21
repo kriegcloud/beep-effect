@@ -540,6 +540,12 @@
         ]
       },
       {
+        "name": "@beep/npm-spec",
+        "patterns": [
+          "packages/foundation/modeling/npm-spec/src/**"
+        ]
+      },
+      {
         "name": "@beep/obs",
         "patterns": [
           "packages/drivers/obs/src/**"
@@ -951,6 +957,12 @@
         "name": "@beep/trustgraph-workbench",
         "patterns": [
           "apps/labs/trustgraph-workbench/src/**"
+        ]
+      },
+      {
+        "name": "@beep/tsconfig",
+        "patterns": [
+          "packages/foundation/modeling/tsconfig/src/**"
         ]
       },
       {
@@ -3011,6 +3023,15 @@
         ]
       },
       {
+        "from": "@beep/npm-spec",
+        "allow": [
+          "@beep/npm-spec"
+        ],
+        "allowTypeOnly": [
+          "@beep/npm-spec"
+        ]
+      },
+      {
         "from": "@beep/obs",
         "allow": [
           "@beep/identity",
@@ -4669,6 +4690,15 @@
           "@beep/test-runner",
           "@beep/trustgraph-workbench",
           "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/tsconfig",
+        "allow": [
+          "@beep/tsconfig"
+        ],
+        "allowTypeOnly": [
+          "@beep/tsconfig"
         ]
       },
       {

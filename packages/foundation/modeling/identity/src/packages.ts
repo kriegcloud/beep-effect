@@ -225,7 +225,9 @@ const generatedComposers = $I.compose(
   "managed-section",
   "memfs",
   "toml",
-  "yaml"
+  "yaml",
+  "npm-spec",
+  "tsconfig"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3244,3 +3246,37 @@ export const $TomlId: Identity.IdentityComposer<"@beep/toml"> = composers.$TomlI
  * @since 0.0.0
  */
 export const $YamlId: Identity.IdentityComposer<"@beep/yaml"> = composers.$YamlId;
+
+/**
+ * Identity composer for `@beep/npm-spec`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $NpmSpecId } from "@beep/identity/packages"
+ *
+ * const id = $NpmSpecId.make("NpmSpec")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $NpmSpecId: Identity.IdentityComposer<"@beep/npm-spec"> = composers.$NpmSpecId;
+
+/**
+ * Identity composer for `@beep/tsconfig`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $TsconfigId } from "@beep/identity/packages"
+ *
+ * const id = $TsconfigId.make("Tsconfig")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $TsconfigId: Identity.IdentityComposer<"@beep/tsconfig"> = composers.$TsconfigId;
