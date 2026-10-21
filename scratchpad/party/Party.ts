@@ -18,7 +18,7 @@ import { LiteralKit } from "@beep/schema";
 import * as Str from "effect/String";
 import * as S from "effect/Schema";
 import { AccountId, ConceptIri, IdentifierId, PartyId } from "./Ids.ts";
-import { flow } from "effect";
+import { flow } from "effect/Function";
 
 const $I = $ScratchpadId.create("party/Party");
 
