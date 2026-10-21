@@ -261,10 +261,12 @@ const CompatLogoutV1Rpc = Rpc.make(V1_AGENT_METHODS.logout, {
 });
 
 // Generation-1 results are decoded as the compat shapes (generation 1 plus the legacy `models`)
-// before the generation-2 member is tried. The compat request members let the client send a
-// caller's payload to a generation-1 agent unchanged.
+// before the generation-2 member is tried. The compat request member comes first so the client
+// sends a caller's payload to a generation-1 agent unchanged: RpcClient builds payloads with
+// `make`, and the generated generation-2 discriminators (`S.tag`) have constructor defaults that
+// would otherwise tag an untagged generation-1 stdio MCP server as `type: "stdio"`.
 const CompatNewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
-  payload: S.Union([AcpSchema.NewSessionRequest, AcpSchemaV1.NewSessionRequest, AcpCompat.NewSessionRequest]),
+  payload: S.Union([AcpCompat.NewSessionRequest, AcpSchema.NewSessionRequest, AcpSchemaV1.NewSessionRequest]),
   success: S.Union([AcpCompat.NewSessionResponse, AcpSchema.NewSessionResponse]),
   error: AcpSchema.Error,
 });
@@ -282,13 +284,13 @@ const CompatListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
 });
 
 const CompatForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
-  payload: S.Union([AcpSchema.ForkSessionRequest, AcpSchemaV1.ForkSessionRequest, AcpCompat.ForkSessionRequest]),
+  payload: S.Union([AcpCompat.ForkSessionRequest, AcpSchema.ForkSessionRequest, AcpSchemaV1.ForkSessionRequest]),
   success: S.Union([AcpCompat.ForkSessionResponse, AcpSchema.ForkSessionResponse]),
   error: AcpSchema.Error,
 });
 
 const CompatResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
-  payload: S.Union([AcpSchema.ResumeSessionRequest, AcpSchemaV1.ResumeSessionRequest, AcpCompat.ResumeSessionRequest]),
+  payload: S.Union([AcpCompat.ResumeSessionRequest, AcpSchema.ResumeSessionRequest, AcpSchemaV1.ResumeSessionRequest]),
   success: S.Union([AcpCompat.ResumeSessionResponse, AcpSchema.ResumeSessionResponse]),
   error: AcpSchema.Error,
 });

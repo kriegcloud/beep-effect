@@ -734,7 +734,9 @@ const LegacyStdioMcpServer = S.StructWithRest(
  * **Details**
  *
  * Any generation-2 server (tagged by `type`) or a generation-1 stdio server without a `type`. The
- * client adds `type: "stdio"` before it sends an untagged server to a generation-2 agent.
+ * client adds `type: "stdio"` before it sends an untagged server to a generation-2 agent. The
+ * untagged member is listed first, so constructing a value never fills in a generation-2 `type`
+ * default.
  *
  * **Example** (Check an untagged stdio server)
  *
@@ -748,7 +750,7 @@ const LegacyStdioMcpServer = S.StructWithRest(
  * @category schemas
  * @since 0.0.0
  */
-export const McpServer = S.Union([V2.McpServer, LegacyStdioMcpServer]).pipe(
+export const McpServer = S.Union([LegacyStdioMcpServer, V2.McpServer]).pipe(
   $I.annoteSchema("McpServer", {
     description: "MCP server configuration: any generation-2 server or an untagged generation-1 stdio server.",
   })
