@@ -22,7 +22,7 @@ Scope: How to build an `effect/ai` Toolkit/MCP surface from only the driver Laye
 
 ### Config gating: the repo already does capability-gated drivers
 
-- The repo's canonical optional-credential idiom is **`Config.redacted("X_API_KEY").pipe(Config.option)`** + **`Config.string(...).pipe(Config.withDefault(default))`**, used across `phoenix`, `sanity`, `hubspot`, `runpod`, `xai`, `m365`, and `uspto`. Source: `rg "Config\.(redacted|option|withDefault)" packages/drivers` (e.g. `packages/drivers/uspto/src/Uspto.service.ts` L398-399, `packages/drivers/m365/src/M365.service.ts` L951-958).
+- The repo's canonical optional-credential idiom is **`Config.redacted("X_API_KEY").pipe(Config.option)`** + **`Config.string(...).pipe(Config.withDefault(default))`**, used across `phoenix`, `sanity`, `hubspot`, `runpod`, `retired:xai`, `m365`, and `uspto`. Source: `rg "Config\.(redacted|option|withDefault)" packages/drivers` (e.g. `packages/drivers/uspto/src/Uspto.service.ts` L398-399, `packages/drivers/m365/src/M365.service.ts` L951-958).
 
 - `@beep/uspto` is **already built key-optional**: its layer resolves `apiKey: O.Option<Redacted>` and only sets the `X-API-KEY` header when present (`O.match(config.apiKey, …)`), with `USPTO_API_URL = "https://api.uspto.gov"` (ODP, not PatentsView). This is the in-repo precedent for "driver self-gates on credential availability." Source: `packages/drivers/uspto/src/Uspto.service.ts` L198-253, L398-399; `packages/drivers/uspto/src/Uspto.config.ts` L26.
 

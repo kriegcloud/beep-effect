@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 116,
     "symbol": "LoadedFaceDetector",
     "smell": "Detector hit: exported interface contains a function member and can look like detached behavior.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 163,
     "symbol": "FaceDetectionServiceShape",
     "smell": "Detector hit: exported Effect service contract exposes a two-argument `withDetector` method and can look like a non-dual helper.",

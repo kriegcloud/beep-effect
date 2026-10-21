@@ -190,18 +190,18 @@
 
 ## SFV4-normalization refinements
 
-- Driver config URL normalization is high-signal when a nearby config schema already exists. `Firecrawl.service.ts:463` and `Runpod.service.ts:223` both normalize config URLs after decode; prefer moving same-type string normalization onto the config input schema with `S.decodeTo` / `SchemaTransformation.transform`.
+- Driver config URL normalization is high-signal when a nearby config schema already exists. `retired:firecrawl/src/Firecrawl.service.ts:463` and `Runpod.service.ts:223` both normalize config URLs after decode; prefer moving same-type string normalization onto the config input schema with `S.decodeTo` / `SchemaTransformation.transform`.
 - NLP/token text transforms are usually domain operations, not incidental schema-field normalization. `WinkTools.service.ts:58`, `WinkTools.service.ts:814`, and `WinkUtils.service.ts:287` should stay exception-biased unless the transformed value is simply being stored into a modeled field unchanged.
 - Dynamic clamps should be split. Schema can own fixed lower bounds or finite numeric input guarantees, but runtime must keep result-dependent upper bounds and SDK span repair, as in `WinkCorpus.service.ts:224` and `WinkTools.service.ts:220`.
 
 ## SFV4-null-return refinements
 
-- Adapter helpers that return `undefined` solely to satisfy third-party SDK optional-property boundaries should be recorded as exceptions, not omitted. Examples include `Firecrawl.service.ts:274`, `WinkTokenization.service.ts:74`, and `Wink.models.ts:128`.
+- Adapter helpers that return `undefined` solely to satisfy third-party SDK optional-property boundaries should be recorded as exceptions, not omitted. Examples include `retired:firecrawl/src/Firecrawl.service.ts:274`, `WinkTokenization.service.ts:74`, and `Wink.models.ts:128`.
 - Private source helpers returning `string | undefined` for local-only caller logic remain good Option targets. `packages/drivers/runpod/scripts/generate.ts:962` is a codemod-tier example because callers already branch locally on presence.
 
 ## Defaults / Option escape hatches
 
-- Optional driver config, observability, and raw request fields that are immediately fed through `O.fromUndefinedOr` or `?? {}` are high-signal S2 defaults targets. Examples: `Firecrawl.config.ts:51`, `Runpod.config.ts:64`, `Runpod.service.ts:119`, and `WinkObservability.ts:81`.
+- Optional driver config, observability, and raw request fields that are immediately fed through `O.fromUndefinedOr` or `?? {}` are high-signal S2 defaults targets. Examples: `retired:firecrawl/src/Firecrawl.config.ts:51`, `Runpod.config.ts:64`, `Runpod.service.ts:119`, and `WinkObservability.ts:81`.
 - Error constructors that pass `cause: undefined` into a required `S.Defect` field are high-signal schema-shape problems. Prefer optional cause modeling with `S.OptionFromOptionalKey(S.Defect(...)).pipe(SchemaUtils.withNoneDefault)` or split constructor/schema variants.
 - Whole-argument optional method defaults and effectful identity generation are escape hatches. `Runpod.service.ts:530` defaults an optional request object, and `WinkCorpus.service.ts:522` must generate a fallback id inside Effect.
 - Cross-package defaults in Wink toolkit handlers often belong upstream in `@beep/nlp-processing` tool parameter schemas. Record them as package-visible findings, but downrank package-only remediation because fixing the local handler does not update all tool call sites.
@@ -213,9 +213,9 @@
 
 ## SFV4-normalization refinements
 
-- Driver config URL normalization remains high-signal when a config schema already exists. `packages/drivers/xai/src/XAi.service.ts:217-221` strips trailing slashes after `XAiConfigInput` has decoded/defaulted the URL fields; prefer a normalized URL schema using `S.decodeTo` / `SchemaTransformation` while retaining `SchemaUtils.withKeyDefaults`.
+- Driver config URL normalization remains high-signal when a config schema already exists. `retired:xai/src/XAi.service.ts:217-221` strips trailing slashes after `XAiConfigInput` has decoded/defaulted the URL fields; prefer a normalized URL schema using `S.decodeTo` / `SchemaTransformation` while retaining `SchemaUtils.withKeyDefaults`.
 - Codegen-only identifier or emitted-text shaping needs an escape hatch. `packages/drivers/box/scripts/generate.ts:131` uppercases identifier parts, and nearby helpers render string literals / generated schema text; these are generator formatting rules, not runtime schema-field normalization.
-- Protocol parsers and explicit text tools should be exception-biased. Examples from this batch: HTTP media-type parsing in `packages/drivers/xai/src/XAi.service.ts:423`, SSE `data:` trimming at `:538`, JSONL line trimming in `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:111`, and user-selected line transforms in `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:329` / `Streaming/Pipeline.ts:144`.
+- Protocol parsers and explicit text tools should be exception-biased. Examples from this batch: HTTP media-type parsing in `retired:xai/src/XAi.service.ts:423`, SSE `data:` trimming at `:538`, JSONL line trimming in `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:111`, and user-selected line transforms in `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:329` / `Streaming/Pipeline.ts:144`.
 - Trust-boundary normalization must stay explicit. `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:305` lowercases and bracket-strips hostnames inside the URL/SSRF guard; this is fence-4 security logic, not codec cleanup.
 
 ## SFV4-null-return refinements
@@ -226,9 +226,9 @@
 
 ## Defaults / Option escape hatches
 
-- Optional diagnostic fields on driver error schemas are high-signal targets. `BoxError` / `BoxErrorOptions` and `XAiError` / `XAiErrorOptions` repeat `S.optionalKey(...)` plus `R.getSomes` / `O.fromUndefinedOr`; align them with the existing `@beep/firecrawl` `S.OptionFromOptionalKey(...)` pattern.
+- Optional diagnostic fields on driver error schemas are high-signal targets. `BoxError` / `BoxErrorOptions` and `XAiError` / `XAiErrorOptions` repeat `S.optionalKey(...)` plus `R.getSomes` / `O.fromUndefinedOr`; align them with the existing `retired:firecrawl` `S.OptionFromOptionalKey(...)` pattern.
 - MCP tool parameter schemas with handler-local `?? 1000`, `?? false`, `?? "utf-8"`, or `{}` defaults are high-signal defaults targets. `@beep/nlp-mcp` repeats this across `StreamingTools.ts` parameter structs and `StreamingHandlers.ts`; favor named option schemas with `SchemaUtils.withKeyDefaults`.
-- Descriptor-derived or protocol-derived defaults are escape hatches. `packages/drivers/xai/src/XAi.service.ts:305` defaults `Accept` from the endpoint descriptor, so it belongs in service logic unless the descriptor schema grows a derived request profile.
+- Descriptor-derived or protocol-derived defaults are escape hatches. `retired:xai/src/XAi.service.ts:305` defaults `Accept` from the endpoint descriptor, so it belongs in service logic unless the descriptor schema grows a derived request profile.
 - Tool output optional keys are judgment-tier, not codemod-tier. For MCP JSON outputs such as `FileInfoOutput` / `JsonlOutput`, choose deliberately between `OptionFromOptionalKey` (domain-side absence) and empty-array/defaulted outputs (wire-shape change risk).
 
 ---
@@ -238,22 +238,22 @@
 
 ## SFV4-normalization refinements
 
-- Driver base URL normalization remains high-signal when a config schema already exists. `packages/drivers/m365/src/M365.config.ts:252` and `packages/drivers/venice-ai/src/VeniceAI.service.ts:1308` strip trailing slashes after schema decode/defaults; prefer a named normalized URL codec using `S.decodeTo` / `SchemaTransformation` while retaining `SchemaUtils.withKeyDefaults`.
+- Driver base URL normalization remains high-signal when a config schema already exists. `packages/drivers/m365/src/M365.config.ts:252` and `retired:venice-ai/src/VeniceAI.service.ts:1308` strip trailing slashes after schema decode/defaults; prefer a named normalized URL codec using `S.decodeTo` / `SchemaTransformation` while retaining `SchemaUtils.withKeyDefaults`.
 - Environment-delimited string parsers are worth detecting when they feed schema input. `packages/drivers/m365/src/M365.service.ts:762` splits and trims `M365_SCOPES` before `M365ConfigInput.make`; suggest a boundary schema built from the local `SchemaUtils/split.ts` pattern plus trim/drop-empty semantics.
-- Header/protocol parsers need escape hatches. Negative fixtures from this run: Postgres migration SQL splitting at `packages/drivers/postgres/src/PostgresDrizzle.service.ts:132`, HTTP `Content-Type` parsing at `packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts:215` and `packages/drivers/venice-ai/src/VeniceAI.service.ts:1503`, and SSE line/block trimming at `packages/drivers/venice-ai/src/VeniceAI.service.ts:1600`.
+- Header/protocol parsers need escape hatches. Negative fixtures from this run: Postgres migration SQL splitting at `packages/drivers/postgres/src/PostgresDrizzle.service.ts:132`, HTTP `Content-Type` parsing at `packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts:215` and `retired:venice-ai/src/VeniceAI.service.ts:1503`, and SSE line/block trimming at `retired:venice-ai/src/VeniceAI.service.ts:1600`.
 - Case-folding that is product behavior should be downranked. `packages/drivers/m365/src/M365.service.ts:915` lowercases filenames only for protected-extension classification; it does not normalize the Graph item name.
 
 ## SFV4-null-return refinements
 
 - Private helpers that return `undefined` only to branch immediately remain high-signal. `packages/drivers/govinfo/src/Govinfo.service.ts:83` should return `Option<number>` from status extraction instead of `number | undefined`.
 - Third-party nullable results should be exempted when converted immediately at the boundary. `packages/drivers/m365/src/M365.auth.ts:153` adapts MSAL `AuthenticationResult | null` through `O.fromNullishOr`.
-- Wire-model nullability for OpenAI-compatible providers should be exempted when preserving provider JSON shape. Examples: `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:250` and `packages/drivers/venice-ai/src/VeniceAI.service.ts:702`.
+- Wire-model nullability for OpenAI-compatible providers should be exempted when preserving provider JSON shape. Examples: `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:250` and `retired:venice-ai/src/VeniceAI.service.ts:702`.
 
 ## Defaults / Option escape hatches
 
-- Optional driver config fields are high-signal when service constructors immediately apply fixed defaults or `O.fromUndefinedOr`: `@beep/govinfo` config (`Govinfo.config.ts:121`), `@beep/openai-compat` client options (`OpenAiCompatClient.service.ts:55`), and `@beep/venice-ai` API key (`VeniceAI.service.ts:319`).
-- Request option bags are high-signal when `headers`, `path`, or `query` default to `{}` / `undefined` in request-building code. `@beep/venice-ai` repeats this at `VeniceAI.service.ts:286` and `:1379`; keep descriptor-derived `accept` defaults (`:1406`) as an escape hatch unless a descriptor-aware request-profile schema is introduced.
-- Optional response `contentType` and driver error diagnostic fields are high-signal. `@beep/venice-ai` repeats the pattern on response variants (`VeniceAI.service.ts:379,411,445`) and `VeniceAIError` (`:547-552`); use `OptionFromOptionalKey(...).pipe(SchemaUtils.withNoneDefault)` and perform the consumer sweep in the same PR.
+- Optional driver config fields are high-signal when service constructors immediately apply fixed defaults or `O.fromUndefinedOr`: `@beep/govinfo` config (`Govinfo.config.ts:121`), `@beep/openai-compat` client options (`OpenAiCompatClient.service.ts:55`), and `retired:venice-ai` API key (`retired:venice-ai/src/VeniceAI.service.ts:319`).
+- Request option bags are high-signal when `headers`, `path`, or `query` default to `{}` / `undefined` in request-building code. `retired:venice-ai` repeats this at `retired:venice-ai/src/VeniceAI.service.ts:286` and `:1379`; keep descriptor-derived `accept` defaults (`:1406`) as an escape hatch unless a descriptor-aware request-profile schema is introduced.
+- Optional response `contentType` and driver error diagnostic fields are high-signal. `retired:venice-ai` repeats the pattern on response variants (`retired:venice-ai/src/VeniceAI.service.ts:379,411,445`) and `VeniceAIError` (`:547-552`); use `OptionFromOptionalKey(...).pipe(SchemaUtils.withNoneDefault)` and perform the consumer sweep in the same PR.
 - Tests and coverage helpers should be exception-biased unless the same smell exists in source. This batch saw several `O.getOrElse` and nullish fixtures in driver tests, but the actionable source targets were separate and were recorded there.
 
 ---
@@ -264,13 +264,13 @@
 ## SFV4-normalization refinements
 
 - Driver base URL cleanup is a strong positive when it happens after config schema defaults. `packages/drivers/phoenix/src/Phoenix.service.ts:133` and `packages/drivers/hubspot/src/HubSpot.service.ts:284` strip trailing slashes in service code; prefer a named config URL codec using `S.decodeTo` / `SchemaTransformation` while retaining `SchemaUtils.withKeyDefaults`.
-- Clamp-style normalization is high-signal when a matching scalar schema already exists. `packages/drivers/ffmpeg/src/FFmpeg.service.ts:437` clamps progress while `FFmpegProgressEvent.percent` is `S.Finite`; `packages/drivers/face-detection/src/FaceDetection.service.ts:492` clamps raw model scores while `FaceDetectionConfidence` already encodes [0, 1].
-- Geometry and tensor-boundary clamps need escape hatches. Negative fixtures from this run: `packages/drivers/face-detection/src/FaceDetection.service.ts:535` clamps image-specific coordinates, and `packages/drivers/face-detection/src/FaceDetection.service.ts:590` defaults missing ONNX tensor slots to zero while decoding a fixed external tensor layout.
+- Clamp-style normalization is high-signal when a matching scalar schema already exists. `packages/drivers/ffmpeg/src/FFmpeg.service.ts:437` clamps progress while `FFmpegProgressEvent.percent` is `S.Finite`; `retired:face-detection/src/FaceDetection.service.ts:492` clamps raw model scores while `FaceDetectionConfidence` already encodes [0, 1].
+- Geometry and tensor-boundary clamps need escape hatches. Negative fixtures from this run: `retired:face-detection/src/FaceDetection.service.ts:535` clamps image-specific coordinates, and `retired:face-detection/src/FaceDetection.service.ts:590` defaults missing ONNX tensor slots to zero while decoding a fixed external tensor layout.
 - Error-string parsing trims should be exception-biased. `packages/drivers/drizzle/src/Drizzle.errors.ts:102` trims query/params extracted from a native Drizzle error message as part of defensive parser/redaction behavior, not field normalization.
 
 ## SFV4-null-return refinements
 
-- Private helpers returning `undefined` to feed optional schema keys are high-signal. Examples: `packages/drivers/ffmpeg/src/FFmpeg.service.ts:260`, `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:43`, `packages/drivers/face-detection/src/FaceDetection.errors.ts:18`, and `packages/drivers/duckdb/src/DuckDb.errors.ts:22`.
+- Private helpers returning `undefined` to feed optional schema keys are high-signal. Examples: `packages/drivers/ffmpeg/src/FFmpeg.service.ts:260`, `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:43`, `retired:face-detection/src/FaceDetection.errors.ts:18`, and `packages/drivers/duckdb/src/DuckDb.errors.ts:22`.
 - Intermediate context schemas should not be exempted just because the final error already uses Option. `packages/drivers/drizzle/src/Drizzle.errors.ts:55` keeps `DrizzleErrorContext` optional-key based even though final `DrizzleError` uses `S.OptionFromOptionalKey`.
 - Boundary encoders may still return null after the decoded domain moves to Option. `packages/drivers/phoenix/src/Phoenix.service.ts:195` should remain allowed to emit the Phoenix SDK nullable split shape while `PhoenixDatasetExample` moves decoded fields to Option.
 

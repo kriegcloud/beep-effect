@@ -1,16 +1,16 @@
 # Instance
 
 - id: `xai-sse-done-payload`
-- file:line: `packages/drivers/xai/src/XAi.models.ts:390`
+- file:line: `retired:xai/src/XAi.models.ts:390`
 - symbol: `XAiServerSentEvent`
 - members: `done`, `data`
 - evidence classes:
-  - E3 at `packages/drivers/xai/src/XAi.service.ts:591` — `[DONE]` writes `done=true` with no data; JSON writes data plus `done=false`. `done` restates payload absence.
-  - E2 at `packages/drivers/xai/src/XAiLanguageModel.service.ts:211` — reader treats done as terminal empty stream and otherwise parses event data; no done+data arm.
+  - E3 at `retired:xai/src/XAi.service.ts:591` — `[DONE]` writes `done=true` with no data; JSON writes data plus `done=false`. `done` restates payload absence.
+  - E2 at `retired:xai/src/XAiLanguageModel.service.ts:211` — reader treats done as terminal empty stream and otherwise parses event data; no done+data arm.
 
 # Current shape
 
-Live declaration at `packages/drivers/xai/src/XAi.models.ts:387`:
+Live declaration at `retired:xai/src/XAi.models.ts:387`:
 
 ```ts
 export class XAiServerSentEvent extends S.Class<XAiServerSentEvent>($I`XAiServerSentEvent`)(
@@ -75,34 +75,34 @@ Construct with `.cases.data.make(...)` / `.cases.done.make(...)` and consume wit
 
 # Migration inventory
 
-- `packages/drivers/xai/src/XAi.models.ts:367-396` — update the example and replace the class bag with the kind kit, two member classes, union schema, and derived type.
-- `packages/drivers/xai/src/XAi.service.ts:28` — import name remains stable.
-- `packages/drivers/xai/src/XAi.service.ts:127` — `XAiStreamMethod` continues streaming `XAiServerSentEvent`, now the union type.
-- `packages/drivers/xai/src/XAi.service.ts:586-597` — `parseSseData` maps `[DONE]` to `.cases.done` and decoded JSON to `.cases.data`; delete both boolean writes.
-- `packages/drivers/xai/src/XAi.service.ts:638-644` — stream output type remains the union; no wire encoding occurs here.
-- `packages/drivers/xai/src/XAiLanguageModel.service.ts:32,202-211` — type import remains; change `parseStreamEvent` to accept the data payload, then use one schema-derived match that drops done and passes only `dataEvent.data` to the parser.
-- `packages/drivers/xai/test/XAi.service.test.ts:25,97` — import and schema-derived arbitrary remain valid against the union.
-- `packages/drivers/xai/test/XAi.service.test.ts:303-307,359-363` — construct the data case and update the internal encoded expectation to `{ kind: "data", data, index }`.
-- `packages/drivers/xai/test/XAi.service.test.ts:410-425` — round-trip property now generates only coherent data/done members.
+- `retired:xai/src/XAi.models.ts:367-396` — update the example and replace the class bag with the kind kit, two member classes, union schema, and derived type.
+- `retired:xai/src/XAi.service.ts:28` — import name remains stable.
+- `retired:xai/src/XAi.service.ts:127` — `XAiStreamMethod` continues streaming `XAiServerSentEvent`, now the union type.
+- `retired:xai/src/XAi.service.ts:586-597` — `parseSseData` maps `[DONE]` to `.cases.done` and decoded JSON to `.cases.data`; delete both boolean writes.
+- `retired:xai/src/XAi.service.ts:638-644` — stream output type remains the union; no wire encoding occurs here.
+- `retired:xai/src/XAiLanguageModel.service.ts:32,202-211` — type import remains; change `parseStreamEvent` to accept the data payload, then use one schema-derived match that drops done and passes only `dataEvent.data` to the parser.
+- `retired:xai/test/XAi.service.test.ts:25,97` — import and schema-derived arbitrary remain valid against the union.
+- `retired:xai/test/XAi.service.test.ts:303-307,359-363` — construct the data case and update the internal encoded expectation to `{ kind: "data", data, index }`.
+- `retired:xai/test/XAi.service.test.ts:410-425` — round-trip property now generates only coherent data/done members.
 
 Repository-wide search finds no other source or test read/write of this event model.
 
 # Guard-deletion accounting
 
-- `packages/drivers/xai/src/XAi.service.ts:591-596` — delete paired `done` writes whose value must agree with data absence/presence; case constructors make disagreement unrepresentable.
-- `packages/drivers/xai/src/XAiLanguageModel.service.ts:202-203` — delete the implicit assumption that optional `event.data` exists whenever parsing is called; the data arm carries it as required.
-- `packages/drivers/xai/src/XAiLanguageModel.service.ts:211` — delete `event.done === true ? ... : ...`, which otherwise enters the parse branch even for an incoherent false-without-data object; exhaustive union matching replaces it.
-- `packages/drivers/xai/src/XAi.models.ts:387-396` — delete the comment-only invariant connecting `done` and optional `data`.
+- `retired:xai/src/XAi.service.ts:591-596` — delete paired `done` writes whose value must agree with data absence/presence; case constructors make disagreement unrepresentable.
+- `retired:xai/src/XAiLanguageModel.service.ts:202-203` — delete the implicit assumption that optional `event.data` exists whenever parsing is called; the data arm carries it as required.
+- `retired:xai/src/XAiLanguageModel.service.ts:211` — delete `event.done === true ? ... : ...`, which otherwise enters the parse branch even for an incoherent false-without-data object; exhaustive union matching replaces it.
+- `retired:xai/src/XAi.models.ts:387-396` — delete the comment-only invariant connecting `done` and optional `data`.
 
 # Encoded-side impact
 
-The schema encoding changes from `{ done, data?, index }` to `{ kind, data?, index }`, with `data` required only in the data member. This is an internal parsed-event codec, not xAI's SSE wire: `parseSseData` consumes the provider's `data:` text and the driver never serializes this model back to xAI. `@beep/xai` is private and repository search finds only the in-package language-model consumer and codec fixtures named above, so the decoded TypeScript and internal encoded shape migrate atomically. No compatibility codec is needed for persisted or external data.
+The schema encoding changes from `{ done, data?, index }` to `{ kind, data?, index }`, with `data` required only in the data member. This is an internal parsed-event codec, not xAI's SSE wire: `parseSseData` consumes the provider's `data:` text and the driver never serializes this model back to xAI. `retired:xai` is private and repository search finds only the in-package language-model consumer and codec fixtures named above, so the decoded TypeScript and internal encoded shape migrate atomically. No compatibility codec is needed for persisted or external data.
 
 # Test impact
 
-- `packages/drivers/xai/test/XAi.service.test.ts:97,410-429` — schema-derived arbitrary/round-trip coverage becomes a direct proof that only coherent cases generate.
-- `packages/drivers/xai/test/XAi.service.test.ts:303-363` — update the data constructor and expected internal schema encoding; add a done-case encoding assertion.
-- Streaming behavior exercised through `XAiLanguageModel.service.ts` should continue dropping the terminal case and decoding data cases; add a focused mixed data/`[DONE]` stream assertion if the current driver tests do not expose both events.
+- `retired:xai/test/XAi.service.test.ts:97,410-429` — schema-derived arbitrary/round-trip coverage becomes a direct proof that only coherent cases generate.
+- `retired:xai/test/XAi.service.test.ts:303-363` — update the data constructor and expected internal schema encoding; add a done-case encoding assertion.
+- Streaming behavior exercised through `retired:xai/src/XAiLanguageModel.service.ts` should continue dropping the terminal case and decoding data cases; add a focused mixed data/`[DONE]` stream assertion if the current driver tests do not expose both events.
 
 # Risk & sequencing
 

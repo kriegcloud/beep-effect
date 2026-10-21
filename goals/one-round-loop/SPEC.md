@@ -42,7 +42,7 @@ each PR in at most one CI round. Two properties define success:
 | C3 | Coverage baseline v2: raw covered/total counts, denominator-delta failure output, auto-add missing packages | R1 |
 | C4 | beep CLI cwd-independence: chdir(findRepoRoot()) at startup + invocation-cwd escape hatch + bin shim | D7 |
 | C5 | `beep quality regen-generated` + documented merge-conflict recipe for generated standards files | R3 |
-| C6 | `SchemaUtils.withNormalizedCheck(normalizer, options)` + migration of the hand-rolled fixed-point checks (venice-ai, phoenix, m365; uspto optional as a tightening) | R4 |
+| C6 | `SchemaUtils.withNormalizedCheck(normalizer, options)` + migration of the hand-rolled fixed-point checks (retired:venice-ai, phoenix, m365; uspto optional as a tightening) | R4 |
 
 **Stretch (D6 — each may close won't-fix with a ledgered rationale in
 `ops/progress.json`):**
@@ -91,7 +91,7 @@ each PR in at most one CI round. Two properties define success:
 3. **numRuns floors never go down.** The codemod treats every existing
    inline value as a floor; the helper only raises via env.
 4. **No product/driver code changes** except the named
-   `withNormalizedCheck` migrations (venice-ai, phoenix, m365 — and
+   `withNormalizedCheck` migrations (retired:venice-ai, phoenix, m365 — and
    uspto only as an explicitly-noted behavior tightening), which must
    be wire-preserving (§5.3-style parity: encoded output byte-identical
    before/after). TSConfigJsonKey is out of scope (not a fixed-point
@@ -129,7 +129,7 @@ arbitrary round-trip law covering the touched codec.
 | Baseline auto-add | Run `coverage:baseline:write` with @beep/pacer present | pacer entry appears; missing-package warning class is empty |
 | cwd-independence | `cd packages/tooling/tool/cli && bun run beep <several commands>` (via shim) | Same behavior as repo-root invocation; Worktree/Research keep invocation-cwd semantics |
 | Regen command | Conflict simulation on a generated standards file | `beep quality regen-generated` restores a clean, current file set; recipe documented |
-| Fixed-point combinator | dtslint + an arbitrary round-trip law over a normalizing codec using it | Law passes at high numRuns; venice-ai/phoenix/m365 call sites byte-identical on the wire; uspto (if migrated) documents the added guard |
+| Fixed-point combinator | dtslint + an arbitrary round-trip law over a normalizing codec using it | Law passes at high numRuns; retired:venice-ai/phoenix/m365 call sites byte-identical on the wire; uspto (if migrated) documents the added guard |
 | Dogfood ledger | P4 closeout table | CI rounds per packet PR; every >1-round PR shows BOTH a root-cause note and evidence the exposed class is now caught locally (DoD.2) |
 | Packet hygiene | `test "$(wc -m < goals/one-round-loop/GOAL.md)" -le 4000`; `jq . goals/one-round-loop/ops/manifest.json`; `git diff --check -- goals/one-round-loop` | All pass |
 | Full quality proof | `bun run beep yeet verify` | Green at every phase gate |

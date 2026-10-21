@@ -27,13 +27,6 @@ export * from "./internal/Borders.schemas.ts";
  */
 export * from "./internal/CreateCaptions.schemas.ts";
 /**
- * Detect-faces option, report, skipped-entry, and summary schemas.
- *
- * @category schemas
- * @since 0.0.0
- */
-export * from "./internal/DetectFaces.schemas.ts";
-/**
  * Recursive media flattening option and summary schemas.
  *
  * @category schemas

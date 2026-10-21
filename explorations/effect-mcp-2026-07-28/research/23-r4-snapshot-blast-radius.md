@@ -36,7 +36,7 @@ MCP rows are included so the census is complete; they are **not** owned here.
 | `fix-multipart-active-file-failure` | `effect` | fix (HTTP multipart server) | commit `f110af1ac5` (#8206). beep-effect multipart usage is **client** encoding in xAI/Venice drivers, not Effect's multipart file-stream server. Low coupling. |
 | `httpapi` / OpenAPI generator binary multipart | `@effect/openapi-generator` | **type change** (generated clients) | commit `abb93c221b` (#8208). Affects **regeneration**, not already-committed clients. Spike `check` passed without regen. |
 | `latest-dependencies` | `@effect/doctest`, `@effect/platform-deno`, `@effect/sql-d1`, `@effect/sql-mysql2` | additive / dep bump | commit `8abae870f9` (#8225). Lockstep impact: `@effect/doctest` is in the 16-package catalog (`repo:package.json:25`). Deno/d1/mysql2 **NOT FOUND** as beep-effect deps. |
-| `openai-web-search-api-sources` | `@effect/ai-openai` | additive / type-narrowing | commit `90695b0d5b` (#8236). beep-effect web-search call sites are Venice (`repo:packages/drivers/venice-ai/src/VeniceAI.service.ts:1344-1421`), not `@effect/ai-openai` web-search source objects. |
+| `openai-web-search-api-sources` | `@effect/ai-openai` | additive / type-narrowing | commit `90695b0d5b` (#8236). beep-effect web-search call sites are Venice (`repo:retired:venice-ai/src/VeniceAI.service.ts:1344-1421`), not `@effect/ai-openai` web-search source objects. |
 | `pg-listen-connection-errors` | `@effect/sql-pg` | **runtime + type** (`SqlError` on listen queues) | commit `9367dcbeda` (#8215). **NOT FOUND** (`PgClient.listen` unused in packages/apps). |
 | `pg-sslmode-compatibility` | `@effect/sql-pg` | additive runtime | commit `8feeb3c4cd` (#8200). **NOT FOUND** (`sslmode=prefer/allow` unused). |
 | `pg-startup-parameters` | `@effect/sql-pg` | additive | commit `4e4a3a6055` (#8234). **NOT FOUND** (`startupParameters` / `startupOptions` unused). |
@@ -122,7 +122,7 @@ Typecheck cannot catch these unless a value's TypeScript type also changed. Spik
 | --- | --- |
 | **Change** | Paths like `/operations/:id:wait` keep `:wait` as a literal. `toRouterPath` only treats `:name` as a param when `name` is in the params schema; otherwise it emits `::` (FindMyWay escaped colon). Schemas whose keys cannot be enumerated keep the old fallback. |
 | **Upstream** | `effect:packages/effect/src/http-api/internal/path.ts:16-56`; `HttpApiBuilder.handlerToRoute` at `:896`. |
-| **Repo call sites** | HttpApi endpoints: oip-web `/api/contact`, ciops/api-docs `/health`, pacer `/.../:reportId`, govinfo `/packages/:packageId/summary`, qa-capture `/events`, etc. **No** `:param:literalSuffix` HttpApi paths found. xAI `{batch_id}:cancel` (`repo:packages/drivers/xai/src/XAiEndpoints.models.ts:950`) is OpenAPI **brace** syntax, not HttpApi `:param`. |
+| **Repo call sites** | HttpApi endpoints: oip-web `/api/contact`, ciops/api-docs `/health`, pacer `/.../:reportId`, govinfo `/packages/:packageId/summary`, qa-capture `/events`, etc. **No** `:param:literalSuffix` HttpApi paths found. xAI `{batch_id}:cancel` (`repo:retired:xai/src/XAiEndpoints.models.ts:950`) is OpenAPI **brace** syntax, not HttpApi `:param`. |
 | **Would tests catch it?** | HttpApi client tests would only catch this if a path actually used a literal suffix. Current routes would not change. |
 | **Migration effort** | None now. If a Google-AIP-style `:wait` route is added, this is a fix rather than a break. |
 

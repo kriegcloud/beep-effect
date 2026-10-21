@@ -11,11 +11,12 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const client = I.ClientNumber.make("90001");
 const other = I.ClientNumber.make("90002");
 const docket = I.DocketId.make("10001US01");
-const hash = I.ContentHash.make("a".repeat(64));
+const hash = I.ContentHash.make(Str.repeat(64)("a"));
 const card = (name: string, emails: ReadonlyArray<string>, source: I.ContactSource = "outlook-csv") =>
   I.RawContactCard.make({
     displayName: name,
@@ -233,7 +234,9 @@ describe("resolver", () => {
   it("uses identical copies only when their content hash matches", () => {
     const copies = [I.IdenticalCopy.make({ contentHash: hash, clientNumber: client, docket: O.some(docket) })];
     expect(resolve(document("", { copies })).tier).toBe("identified");
-    expect(resolve(document("", { copies, contentHash: I.ContentHash.make("b".repeat(64)) })).tier).toBe("unknown");
+    expect(resolve(document("", { copies, contentHash: I.ContentHash.make(Str.repeat(64)("b")) })).tier).toBe(
+      "unknown"
+    );
   });
   it("uses cited USPTO docket facts, and ignores unrelated records", () => {
     const uspto = [
@@ -266,7 +269,10 @@ describe("resolver", () => {
   });
   it("learns party names only from train files with independent hashes", () => {
     const name = "Acme Widgets LLC";
-    const train = [truth(document(name)), truth(document(name, { contentHash: I.ContentHash.make("b".repeat(64)) }))];
+    const train = [
+      truth(document(name)),
+      truth(document(name, { contentHash: I.ContentHash.make(Str.repeat(64)("b")) })),
+    ];
     // No client index: the learned name is the only signal, worth the party's role weight.
     const c = context();
     expect(resolve(document(name, { extraction: O.some(extracted(name, name)) }), c, train).tier).toBe("candidate");
@@ -278,7 +284,7 @@ describe("resolver", () => {
     const c = context({ contacts: [linked()] });
     const train = [
       truth(document("alex@acme.example"), client),
-      truth(document("alex@acme.example", { contentHash: I.ContentHash.make("b".repeat(64)) }), other),
+      truth(document("alex@acme.example", { contentHash: I.ContentHash.make(Str.repeat(64)("b")) }), other),
     ];
     const filter = I.fitTokenFilter(train, c);
     expect(
@@ -327,7 +333,7 @@ describe("resolver", () => {
     const contact = (suffix: string, owner: I.ClientNumber) =>
       I.Contact.make({
         ...normalised("Acme Widgets LLC"),
-        contactId: I.ContentHash.make(suffix.repeat(64)),
+        contactId: I.ContentHash.make(Str.repeat(64)(suffix)),
         links: [
           I.ContactLink.make({
             clientNumber: owner,
@@ -373,7 +379,9 @@ describe("resolver", () => {
 describe("evaluation and codecs", () => {
   it("partitions by hash deterministically without duplicate leakage", () => {
     const docs = A.makeBy(100, (i) =>
-      truth(document("", { contentHash: I.ContentHash.make(i.toString(16).padStart(8, "0") + "a".repeat(56)) }))
+      truth(
+        document("", { contentHash: I.ContentHash.make(Str.padStart(8, "0")(i.toString(16)) + Str.repeat(56)("a")) })
+      )
     );
     const split = I.holdOutSplit(docs, "fixture");
     expect(split.train.length + split.test.length).toBe(100);
@@ -416,10 +424,10 @@ describe("evaluation and codecs", () => {
   });
   it("turns identical-copy ground truth off during evaluation", () => {
     const doc = document("", {
-      contentHash: I.ContentHash.make("0".repeat(64)),
+      contentHash: I.ContentHash.make(Str.repeat(64)("0")),
       copies: [
         I.IdenticalCopy.make({
-          contentHash: I.ContentHash.make("0".repeat(64)),
+          contentHash: I.ContentHash.make(Str.repeat(64)("0")),
           clientNumber: client,
           docket: O.none(),
         }),

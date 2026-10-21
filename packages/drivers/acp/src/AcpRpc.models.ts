@@ -22,6 +22,7 @@ import { AGENT_METHODS, CLIENT_METHODS, V1_AGENT_METHODS, V1_CLIENT_METHODS } fr
 import * as AcpSchema from "./_generated/schema.gen.ts";
 import * as AcpSchemaV1 from "./_generated/schema-v1.gen.ts";
 import * as AcpCompat from "./AcpCompat.models.ts";
+import { OpenPromptAcknowledgement } from "./internal/normalize.ts";
 
 /**
  * Agent methods that neither pinned schema lists but older generation-1 agents still serve.
@@ -198,21 +199,9 @@ const ElicitationRpc = Rpc.make(CLIENT_METHODS.elicitation_create, {
   error: AcpSchema.Error,
 });
 
-const ConnectMcpRpc = Rpc.make(CLIENT_METHODS.mcp_connect, {
-  payload: AcpSchema.ConnectMcpRequest,
-  success: AcpSchema.ConnectMcpResponse,
-  error: AcpSchema.Error,
-});
-
 const MessageMcpRpc = Rpc.make(CLIENT_METHODS.mcp_message, {
   payload: AcpSchema.MessageMcpRequest,
   success: AcpSchema.MessageMcpResponse,
-  error: AcpSchema.Error,
-});
-
-const DisconnectMcpRpc = Rpc.make(CLIENT_METHODS.mcp_disconnect, {
-  payload: AcpSchema.DisconnectMcpRequest,
-  success: AcpSchema.DisconnectMcpResponse,
   error: AcpSchema.Error,
 });
 
@@ -230,13 +219,7 @@ const DisconnectMcpRpc = Rpc.make(CLIENT_METHODS.mcp_disconnect, {
  * @category protocols
  * @since 0.0.0
  */
-export const ClientRpcs = RpcGroup.make(
-  RequestPermissionRpc,
-  ElicitationRpc,
-  ConnectMcpRpc,
-  MessageMcpRpc,
-  DisconnectMcpRpc
-);
+export const ClientRpcs = RpcGroup.make(RequestPermissionRpc, ElicitationRpc, MessageMcpRpc);
 
 // --- Dual generation: agent methods the client calls --------------------------------------------
 
@@ -302,11 +285,11 @@ const CompatCloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
 });
 
 // A generation-1 prompt result decodes as the compat result (open stop reason) before the open
-// generation-2 acknowledgement member, which accepts any object; the client keeps the stop reason
-// of a result that still falls through to that member.
+// generation-2 acknowledgement member, which accepts any object (`messageId` optional); the client
+// keeps the stop reason of a result that still falls through to that member.
 const CompatPromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
   payload: S.Union([AcpSchema.PromptRequest, AcpSchemaV1.PromptRequest, AcpCompat.PromptRequest]),
-  success: S.Union([AcpCompat.PromptResponse, AcpSchema.PromptResponse]),
+  success: S.Union([AcpCompat.PromptResponse, OpenPromptAcknowledgement]),
   error: AcpSchema.Error,
 });
 
@@ -446,7 +429,7 @@ const KillTerminalV1Rpc = Rpc.make(V1_CLIENT_METHODS.terminal_kill, {
  *
  * **Details**
  *
- * Generation-2 requests (`session/request_permission`, `elicitation/create`, `mcp/*`), the legacy
+ * Generation-2 requests (`session/request_permission`, `elicitation/create`, `mcp/message`), the legacy
  * nested elicitation requests (`session/elicitation`, `_session/elicitation`), and the
  * generation-1 client file-system and terminal requests (`fs/*`, `terminal/*`).
  *
@@ -466,9 +449,7 @@ export const CompatClientRpcs = RpcGroup.make(
   CompatElicitationRpc,
   CompatLegacyElicitationRpc,
   CompatUnstableLegacyElicitationRpc,
-  ConnectMcpRpc,
   MessageMcpRpc,
-  DisconnectMcpRpc,
   ReadTextFileV1Rpc,
   WriteTextFileV1Rpc,
   CreateTerminalV1Rpc,

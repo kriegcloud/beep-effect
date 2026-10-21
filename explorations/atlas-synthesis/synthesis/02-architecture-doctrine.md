@@ -176,7 +176,7 @@ wearing a technical label and is in the wrong home.
   boundary is wrong._
 
 **Verified in-repo:** `packages/drivers/` is flat with 25 wrappers (`drizzle`,
-`postgres`, `anthropic`, `firecrawl`, `tika`, `box`, `xai`, `venice-ai`, etc.) —
+`postgres`, `anthropic`, `retired:firecrawl`, `tika`, `box`, `retired:xai`, `retired:venice-ai`, etc.) —
 consistent with the flat-family doctrine.
 
 ---
@@ -514,7 +514,7 @@ self-verified, so this is a confirmation pass with one correction.
 - `packages/law-practice/` has **only `domain/`** — confirmed.
 - No `packages/iam*` exists — the `iam`/`Membership`/`billing` examples are
   illustrative, as stated.
-- Named drivers `drizzle postgres anthropic firecrawl tika box xai venice-ai`
+- Named drivers `drizzle postgres anthropic retired:firecrawl tika box retired:xai retired:venice-ai`
   all present; `packages/drivers/` is flat.
 - Role-suffix counts re-counted and match exactly: `.model.ts` 57, `.errors.ts`
   49, `.behavior.ts` 4, `.commands.ts` 3, `.repo.ts` 3, and `.policy.ts` /

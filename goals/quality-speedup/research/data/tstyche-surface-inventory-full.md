@@ -191,9 +191,9 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/box/dtslint/Box.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/drizzle/dtslint/Drizzle.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/drizzle/dtslint/EntityTable.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
-| `packages/drivers/face-detection/dtslint/FaceDetection.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
+| `retired:face-detection/dtslint/FaceDetection.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/ffmpeg/dtslint/FFmpeg.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
-| `packages/drivers/firecrawl/dtslint/Firecrawl.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
+| `retired:firecrawl/dtslint/Firecrawl.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/hubspot/dtslint/HubSpot.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/libpff/dtslint/Libpff.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/m365/dtslint/M365.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
@@ -204,8 +204,8 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/runpod/dtslint/Runpod.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/sanity/dtslint/Sanity.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/drivers/tika/dtslint/Tika.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
-| `packages/drivers/venice-ai/dtslint/VeniceAI.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
-| `packages/drivers/xai/dtslint/XAi.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
+| `retired:venice-ai/dtslint/VeniceAI.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
+| `retired:xai/dtslint/XAi.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/epistemic/config/dtslint/EpistemicConfig.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/epistemic/domain/dtslint/EpistemicDomain.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
 | `packages/epistemic/domain/dtslint/ExecutionAuthority.tst.ts:1` | test file | `*.tst.ts` type-test surface | Delete file. |
@@ -324,7 +324,7 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/ecfr/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/exiftool/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/federal-register/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
-| `packages/drivers/firecrawl/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
+| `retired:firecrawl/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/gov-legal-mcp/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/govinfo/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/hubspot/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
@@ -349,9 +349,9 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/tika/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/uspto-mcp/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/uspto/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
-| `packages/drivers/venice-ai/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
+| `retired:venice-ai/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/drivers/wink/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
-| `packages/drivers/xai/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
+| `retired:xai/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/epistemic/client/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/epistemic/config/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
 | `packages/epistemic/ui/dtslint/.gitkeep:1` | empty sentinel | tracked `dtslint/` directory | Delete file/directory. |
@@ -414,7 +414,7 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/ecfr/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/exiftool/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/federal-register/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
-| `packages/drivers/firecrawl/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
+| `retired:firecrawl/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/gov-legal-mcp/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/govinfo/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/libpff/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
@@ -431,9 +431,9 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/tika/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/uspto-mcp/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/uspto/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
-| `packages/drivers/venice-ai/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
+| `retired:venice-ai/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/drivers/wink/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
-| `packages/drivers/xai/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
+| `retired:xai/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/epistemic/client/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/epistemic/config/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
 | `packages/epistemic/tables/tsconfig.test.json:4` | package test config | `include` contains `dtslint` | Edit line 4 to remove `dtslint`. |
@@ -467,7 +467,7 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/anthropic/package.json:20,30,35` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/box/package.json:20,34,40` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/drizzle/package.json:20,31,37` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
-| `packages/drivers/firecrawl/package.json:20,32,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
+| `retired:firecrawl/package.json:20,32,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/hubspot/package.json:31,36` | package manifest | `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/m365/package.json:31,38` | package manifest | `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/openai-compat/package.json:20,31,37` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
@@ -476,8 +476,8 @@ Secondary dependency cleanup discovered from deleted tests:
 | `packages/drivers/postgres/package.json:20,31,37` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/runpod/package.json:20,32,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/drivers/sanity/package.json:31,36` | package manifest | `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
-| `packages/drivers/venice-ai/package.json:20,28,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
-| `packages/drivers/xai/package.json:20,32,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
+| `retired:venice-ai/package.json:20,28,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
+| `retired:xai/package.json:20,32,38` | package manifest | `beep:audit`, `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/foundation/modeling/html/package.json:31` | package manifest | `dtslint` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/foundation/modeling/lexical/package.json:35,39` | package manifest | `dtslint`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
 | `packages/foundation/modeling/md/package.json:19,20,26` | package manifest | `dtslint`, `dtslint:exports`, `type-test` scripts invoke tstyche/dtslint/type-test | Edit cited lines: delete the dedicated scripts and remove `type-test` from any aggregate `beep:audit` command. |
@@ -512,7 +512,7 @@ These are current operational docs/templates, not goal/exploration history. Edit
 | `packages/drivers/ecfr/README.md:36` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/exiftool/README.md:36` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/federal-register/README.md:36` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
-| `packages/drivers/firecrawl/README.md:50` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
+| `retired:firecrawl/README.md:50` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/gov-legal-mcp/README.md:70` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/govinfo/README.md:36` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/hubspot/README.md:36` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
@@ -536,9 +536,9 @@ These are current operational docs/templates, not goal/exploration history. Edit
 | `packages/drivers/tika/README.md:73` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/uspto-mcp/README.md:63` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/uspto/README.md:36` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
-| `packages/drivers/venice-ai/README.md:61` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
+| `retired:venice-ai/README.md:61` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/drivers/wink/README.md:86` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
-| `packages/drivers/xai/README.md:70` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
+| `retired:xai/README.md:70` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/epistemic/tables/README.md:45` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/foundation/capability/api-transport/README.md:88` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
 | `packages/foundation/capability/file-processing/README.md:68` | current README | dtslint/tstyche/type-test guidance | Edit cited lines. |
@@ -611,12 +611,12 @@ Every `goals/**` and `explorations/**` hit is historical/packet evidence. The ex
 | `goals/fallow-quality-enforcement/research/knip-parity.jsonc:54` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
 | `goals/file-processing-capability/PLAN.md:99` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
 | `goals/file-processing-capability/research/p3-libpff-design.md:185,247` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
-| `goals/firecrawl-driver/GOAL.md:63,73` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
-| `goals/firecrawl-driver/PLAN.md:112,259,274,279,302` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
-| `goals/firecrawl-driver/README.md:15,91` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
-| `goals/firecrawl-driver/SPEC.md:360,379` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
-| `goals/firecrawl-driver/history/reflections/2026-07-11-claude.md:39` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
-| `goals/firecrawl-driver/ops/manifest.json:257,277` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
+| `retired-packet:firecrawl-driver/GOAL.md:63,73` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
+| `retired-packet:firecrawl-driver/PLAN.md:112,259,274,279,302` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
+| `retired-packet:firecrawl-driver/README.md:15,91` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
+| `retired-packet:firecrawl-driver/SPEC.md:360,379` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
+| `retired-packet:firecrawl-driver/history/reflections/2026-07-11-claude.md:39` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
+| `retired-packet:firecrawl-driver/ops/manifest.json:257,277` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
 | `goals/identity-iri-core/history/p0-harness-evidence.md:31` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
 | `goals/identity-iri-fold/PLAN.md:12` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |
 | `goals/identity-iri-fold/SPEC.md:62` | historical record | legacy dtslint/tstyche/type-test reference | Historical-do-not-touch. |

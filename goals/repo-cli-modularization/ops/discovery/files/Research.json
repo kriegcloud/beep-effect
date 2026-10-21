@@ -175,7 +175,7 @@
       },
       {
         "helper": "documentMarkdown / documentTitle",
-        "description": "Extract markdown and metadata.title from an untyped FirecrawlScrapeSuccess.data; this is really a typed-document concern that belongs in @beep/firecrawl (a schema for the scrape document) rather than CLI-side Option gymnastics.",
+        "description": "Extract markdown and metadata.title from an untyped FirecrawlScrapeSuccess.data; this is really a typed-document concern that belongs in retired:firecrawl (a schema for the scrape document) rather than CLI-side Option gymnastics.",
         "alsoUsefulFor": ["any future Firecrawl consumer"]
       }
     ],

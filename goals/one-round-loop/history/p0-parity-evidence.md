@@ -228,7 +228,7 @@ policy steps, exactly the Lint-Policy shape delta in the parity table.
 Operational lesson re-learned: a foreground `laws terse-effect --check`
 probe ran concurrently with the battery's check lane and coincided with
 a turbo child-process spawn failure (PlatformError) plus a possibly
-spurious `@beep/xai` TS2589 — round 2 runs with zero concurrent
+spurious `retired:xai` TS2589 — round 2 runs with zero concurrent
 commands to get a clean signal.
 
 ### Pre-push battery round 2 (2026-07-07, clean run)

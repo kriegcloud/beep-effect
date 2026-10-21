@@ -21,8 +21,10 @@ wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
 
 | Wave | Packages | Sites | State |
 | --- | --- | ---: | --- |
-| 1 | libpff, box-provisioning, qa-capture, ontology-use-cases, brand, agents-domain, freshbooks, repo-docgen, ontology-server, tika, nlp, hubspot, workspace-domain | 193 | in review |
-| 2+ | remaining 62 packages and the root (1,220 sites), repo-cli last | 1,220 | pending |
+| 1 | libpff, box-provisioning, qa-capture, ontology-use-cases, brand, agents-domain, freshbooks, repo-docgen, ontology-server, tika, nlp, hubspot, workspace-domain | 193 | merged (#1968) |
+| 2 | technical-drawing, epistemic-server, epistemic-domain, law-practice-use-cases, law-practice-domain, epistemic-ui, documents-domain, m365, occt, openclaw, db-admin, practice-identify, documents-server, html, todox, agents-server, m365-mcp, uspto, epistemic-tables, file-processing, law-practice-tables, shared-use-cases, repo-configs, fc-runs | 145 | in review |
+| 3 | the 37 packages whose site files open lanes were editing on 2026-10-21 (effect-drizzle, ai-metrics, pdf-tools, editor, professional-desktop, acp and others) | about 385 | pending |
+| 4 | repo-cli (674) and the root (16), then the pin moves to 0.55+ and the rule is armed | about 690 | pending |
 
 Wave proof, per package: the package's tests, `package-verify --quick`, and a
 temporary local `@effect/tsgo` 0.55.0 install with `preferEffectString` armed,
@@ -30,6 +32,8 @@ running `bun run beep quality effect-diagnostics --filter <pkg>`; the package's
 own files must report zero `preferEffectString` and zero other findings. The
 temporary install is reverted before commit. Coverage is compared per changed
 source file against main's version on the same machine (lcov uncovered counts).
+From wave 2 on, the site list is regenerated on the lane's own base with the
+temporary install rather than read from the 2026-10-21 census.
 
 ## Closeout Checklist
 

@@ -5,13 +5,6 @@
  * @since 0.0.0
  */
 
-import {
-  FaceDetectionImageRequest,
-  FaceDetectionModelConfig,
-  FaceDetectionService,
-  makeFaceDetectionService,
-  withDetector,
-} from "@beep/face-detection";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Crypto from "effect/Crypto";
@@ -40,7 +33,6 @@ import {
   encodeImageAuditManifest,
   ImageAuditCluster,
   ImageAuditEntry,
-  ImageAuditFaceMetrics,
   ImageAuditManifest,
   ImageAuditMetadataPresence,
   ImageAuditQualityMetrics,
@@ -56,7 +48,6 @@ import {
   ImageCurationSummary,
 } from "./ImageCuration.schemas.ts";
 import { FileSha256Hash } from "./Media.schemas.ts";
-import type { LoadedFaceDetector } from "@beep/face-detection";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Terminal from "effect/Terminal";
 import type { ImageAuditOptions } from "./ImageAudit.schemas.ts";
@@ -548,43 +539,6 @@ const analyzePixels = Effect.fn("Files.analyzeImageAuditPixels")(function* (
   };
 });
 
-const analyzeFaceMetrics = Effect.fn("Files.analyzeImageAuditFaces")(function* (
-  detector: LoadedFaceDetector,
-  source: AuditSourceFile,
-  minConfidence: number
-): Effect.fn.Return<ImageAuditFaceMetrics, FilesCommandError> {
-  const detection = yield* detector
-    .detect(
-      FaceDetectionImageRequest.make({
-        imagePath: source.path,
-        minConfidence,
-      })
-    )
-    .pipe(
-      Effect.mapError((cause) =>
-        FilesCommandError.make({
-          cause,
-          message: `Face detection failed for "${source.path}": ${cause.message}`,
-        })
-      )
-    );
-  const primary = A.head(detection.faces);
-
-  if (O.isNone(primary)) {
-    return ImageAuditFaceMetrics.make({ faceCount: 0 });
-  }
-
-  return ImageAuditFaceMetrics.make({
-    faceCount: A.length(detection.faces),
-    primaryFaceAreaPct: roundMetric(
-      (primary.value.box.width * primary.value.box.height * 100) / (detection.width * detection.height)
-    ),
-    primaryFaceConfidence: roundMetric(primary.value.confidence),
-    primaryFaceHeight: roundMetric(primary.value.box.height),
-    primaryFaceWidth: roundMetric(primary.value.box.width),
-  });
-});
-
 const hexHammingDistance = (left: string, right: string): number => {
   let distance = 0;
   const length = Math.min(left.length, right.length);
@@ -836,12 +790,6 @@ export const auditImagesImpl = Effect.fn("FilesCommandService.auditImages")(func
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
-  if (options.minConfidence < 0 || options.minConfidence > 1) {
-    return yield* FilesCommandError.make({
-      message: "Image audit --min-confidence must be between 0 and 1.",
-    });
-  }
-
   const path = yield* Path.Path;
   const sources = yield* collectAuditSources(options.dir);
   if (A.length(sources.files) > maxAuditSourceCount) {
@@ -850,87 +798,61 @@ export const auditImagesImpl = Effect.fn("FilesCommandService.auditImages")(func
     });
   }
   const manifestPath = yield* canonicalizeFileTargetPath(options.manifest, "image audit manifest path");
-  const modelPath = yield* canonicalizeFileTargetPath(options.modelPath, "image audit face model path");
   if (pathsOverlap(path, sources.canonicalDirectory, manifestPath)) {
     return yield* FilesCommandError.make({
       message: `Image audit manifest must not be written inside source directory "${sources.canonicalDirectory}".`,
     });
   }
-  if (manifestPath === modelPath) {
-    return yield* FilesCommandError.make({
-      message: `Image audit manifest must not overwrite face model "${modelPath}".`,
-    });
-  }
   let entries = A.empty<ImageAuditEntry>();
   let skipped = sources.skipped;
 
-  yield* withDetector(
-    FaceDetectionModelConfig.make({ modelPath }),
-    Effect.fnUntraced(function* (detector) {
-      for (const source of sources.files) {
-        const result = yield* Effect.all(
-          [analyzePixels(source), analyzeFaceMetrics(detector, source, options.minConfidence), fileSha256(source.path)],
-          { concurrency: 3 }
-        ).pipe(Effect.result);
+  for (const source of sources.files) {
+    const result = yield* Effect.all([analyzePixels(source), fileSha256(source.path)], { concurrency: 2 }).pipe(
+      Effect.result
+    );
 
-        if (result._tag === "Failure") {
-          skipped = A.append(
-            skipped,
-            ImageAuditSkippedEntry.make({
-              message: result.failure.message,
-              sourceName: source.name,
-              sourcePath: source.path,
-            })
-          );
-          continue;
-        }
+    if (result._tag === "Failure") {
+      skipped = A.append(
+        skipped,
+        ImageAuditSkippedEntry.make({
+          message: result.failure.message,
+          sourceName: source.name,
+          sourcePath: source.path,
+        })
+      );
+      continue;
+    }
 
-        const [pixels, faces, sourceSha256] = result.success;
-        entries = A.append(
-          entries,
-          ImageAuditEntry.make({
-            aspectRatio: roundMetric(pixels.width / pixels.height),
-            colorHash: pixels.colorHash,
-            decodedPixelSha256: pixels.decodedPixelSha256,
-            extension: source.extension,
-            faces,
-            height: pixels.height,
-            metadata: pixels.metadata,
-            perceptualHash: pixels.perceptualHash,
-            quality: pixels.quality,
-            sourceName: source.name,
-            sourcePath: source.path,
-            sourceRelativePath: source.relativePath,
-            sourceSha256,
-            sourceSizeBytes: `${source.size}`,
-            width: pixels.width,
-          })
-        );
-      }
-    })
-  ).pipe(
-    Effect.provideService(FaceDetectionService, makeFaceDetectionService()),
-    Effect.mapError((cause) =>
-      FilesCommandError.make({
-        cause,
-        message: `Failed to load or run image audit face model: ${cause.message}`,
+    const [pixels, sourceSha256] = result.success;
+    entries = A.append(
+      entries,
+      ImageAuditEntry.make({
+        aspectRatio: roundMetric(pixels.width / pixels.height),
+        colorHash: pixels.colorHash,
+        decodedPixelSha256: pixels.decodedPixelSha256,
+        extension: source.extension,
+        height: pixels.height,
+        metadata: pixels.metadata,
+        perceptualHash: pixels.perceptualHash,
+        quality: pixels.quality,
+        sourceName: source.name,
+        sourcePath: source.path,
+        sourceRelativePath: source.relativePath,
+        sourceSha256,
+        sourceSizeBytes: `${source.size}`,
+        width: pixels.width,
       })
-    )
-  );
+    );
+  }
 
   entries = A.sort(entries, byAuditEntryName);
   skipped = A.sort(skipped, bySkippedEntryName);
   const similarityPairs = candidateSimilarityPairs(entries);
   const duplicates = duplicateClusters(entries, similarityPairs);
   const sessions = candidateSessionClusters(entries);
-  const faceImageCount = A.length(A.filter(entries, (entry) => entry.faces.faceCount > 0));
-  const multiFaceImageCount = A.length(A.filter(entries, (entry) => entry.faces.faceCount > 1));
   const summary = ImageAuditSummary.make({
     analyzedCount: A.length(entries),
     duplicateClusterCount: A.length(duplicates),
-    faceImageCount,
-    multiFaceImageCount,
-    noFaceImageCount: A.length(entries) - faceImageCount,
     sessionClusterCount: A.length(sessions),
     similarityPairCount: A.length(similarityPairs),
     skippedCount: A.length(skipped),
@@ -940,8 +862,7 @@ export const auditImagesImpl = Effect.fn("FilesCommandService.auditImages")(func
     duplicateClusters: duplicates,
     entries,
     manifestPath,
-    modelPath,
-    schemaVersion: "beep.files.image-audit.v1",
+    schemaVersion: "beep.files.image-audit.v2",
     sessionClusters: sessions,
     similarityPairs,
     skipped,

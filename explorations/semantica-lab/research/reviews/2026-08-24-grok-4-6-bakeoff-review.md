@@ -20,7 +20,7 @@ integration score.
 
 **Embeddings.** Weakest claim: native ORT as pick-one while runtime G5 and G7 are UNKNOWN.
 `require("onnxruntime-node")` was measured. That module does not tokenize or pool.
-FaceDetection maps load/run errors (`FaceDetection.service.ts:337-358,782-790`) and does
+FaceDetection maps load/run errors (`retired:face-detection/src/FaceDetection.service.ts:337-358,782-790`) and does
 not embed. Semantica's hash-seeded fallback is real (`text_embedder.py:329-365`). Venice
 returns a model *name* (`swagger.yaml:9537-9539`). Snowflake MRL-256 is real (native 768,
 truncate+renorm, MTEB 54.2). Task **34-38** is MTEB, not W1 (no qrels). G8 PASS on a

@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-precision-audit",
-    "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+    "file": "retired:venice-ai/src/VeniceAI.service.ts",
     "line": 236,
     "symbol": "VeniceAIQueryValue / VeniceAIRequestOptions.body/path/query/header records",
     "smell": "Detector candidate: raw request options expose broad body, header, path, and query escape hatches.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-arbitrary-tests",
-    "file": "packages/drivers/venice-ai/test/VeniceAI.service.test.ts",
+    "file": "retired:venice-ai/test/VeniceAI.service.test.ts",
     "line": 396,
     "symbol": "Venice operation registry and transport fixtures",
     "smell": "Detector candidate: the suite relies on checked-in swagger.yaml, operation descriptors, and fake transport captures rather than generated schema data for endpoint coverage.",

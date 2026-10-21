@@ -107,20 +107,10 @@ export interface AcpAgentShape extends AcpProtocol.AcpExtensionRegistrars {
     readonly elicitationComplete: (
       payload: AcpSchema.CompleteElicitationNotification
     ) => Effect.Effect<void, AcpError.AcpError>;
-    /** Sends `mcp/connect` to open an MCP-over-ACP connection served by the client. */
-    readonly connectMcp: (
-      payload: AcpSchema.ConnectMcpRequest
-    ) => Effect.Effect<AcpSchema.ConnectMcpResponse, AcpError.AcpError>;
-    /** Sends an `mcp/message` request over an MCP-over-ACP connection. */
+    /** Sends an `mcp/message` request to an MCP server the client hosts (`serverId`). */
     readonly messageMcp: (
       payload: AcpSchema.MessageMcpRequest
     ) => Effect.Effect<AcpSchema.MessageMcpResponse, AcpError.AcpError>;
-    /** Sends `mcp/disconnect` to close an MCP-over-ACP connection. */
-    readonly disconnectMcp: (
-      payload: AcpSchema.DisconnectMcpRequest
-    ) => Effect.Effect<AcpSchema.DisconnectMcpResponse, AcpError.AcpError>;
-    /** Sends an `mcp/message` notification over an MCP-over-ACP connection. */
-    readonly notifyMcp: (payload: AcpSchema.MessageMcpNotification) => Effect.Effect<void, AcpError.AcpError>;
     /** Sends an ACP extension request to the client. */
     readonly extRequest: (method: string, payload: unknown) => Effect.Effect<unknown, AcpError.AcpError>;
     /** Sends an ACP extension notification to the client. */
@@ -174,6 +164,13 @@ export interface AcpAgentShape extends AcpProtocol.AcpExtensionRegistrars {
   /** Registers the `auth/logout` handler. */
   readonly handleLogout: (
     handler: AcpRequestHandler<AcpSchema.LogoutAuthRequest, AcpSchema.LogoutAuthResponse>
+  ) => Effect.Effect<void>;
+  /**
+   * Registers the handler for `mcp/message` notifications the client sends for an active MCP
+   * request; it replaces the previous one.
+   */
+  readonly handleMcpNotification: (
+    handler: (notification: AcpSchema.MessageMcpNotification) => Effect.Effect<void, AcpError.AcpError>
   ) => Effect.Effect<void>;
   /** Registers the `session/prompt` handler. */
   readonly handlePrompt: (
@@ -430,6 +427,12 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     Ref.update(cancelHandlers, A.append(handler))
   );
 
+  // An `mcp/message` without an id is an MCP-over-ACP notification from the client.
+  const handleMcpNotification = Effect.fn($I`AcpAgent_handleMcpNotification`)(
+    (handler: (notification: AcpSchema.MessageMcpNotification) => Effect.Effect<void, AcpError.AcpError>) =>
+      extensionRegistrars.handleExtNotification(AGENT_METHODS.mcp_message, AcpSchema.MessageMcpNotification, handler)
+  );
+
   const extensionRegistrars = makeExtensionRegistrars({
     extNotificationHandlers,
     extRequestHandlers,
@@ -453,10 +456,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
       elicit: flow(rpc[CLIENT_METHODS.elicitation_create], callRpc(CLIENT_METHODS.elicitation_create)),
       sessionUpdate: transport.notify(CLIENT_METHODS.session_update),
       elicitationComplete: transport.notify(CLIENT_METHODS.elicitation_complete),
-      connectMcp: flow(rpc[CLIENT_METHODS.mcp_connect], callRpc(CLIENT_METHODS.mcp_connect)),
       messageMcp: flow(rpc[CLIENT_METHODS.mcp_message], callRpc(CLIENT_METHODS.mcp_message)),
-      disconnectMcp: flow(rpc[CLIENT_METHODS.mcp_disconnect], callRpc(CLIENT_METHODS.mcp_disconnect)),
-      notifyMcp: transport.notify(CLIENT_METHODS.mcp_message),
       extRequest: transport.request,
       extNotification: transport.notify,
     },
@@ -476,6 +476,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
     handleSetSessionConfigOption: register("setSessionConfigOption"),
     handlePrompt: register("prompt"),
     handleCancel,
+    handleMcpNotification,
   });
 });
 

@@ -1,5 +1,5 @@
 {
-  "previous": "ddfbe1f171f713400bd693465ceda9760e809335ec316f4d586ddd584db0b93d",
+  "previous": "fc032a7ed32ba9265522cf1bd70c76244eb3d3b2658c5604a06403c2c3975c23",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 1b, feat/effected-promotion-w1b)",
     "reason": "Record the six new wave-1b workspaces scaffolded by create-package with the generated task set, and the dependency-only drift of the seventeen consumers moved onto @beep/memfs (D-25); no qualification is granted.",

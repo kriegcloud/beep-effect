@@ -166,7 +166,7 @@ rejections, and post-filing shading fixes can be new matter.
 - **PDF**: `pdf-lib` and `pdfjs-dist` are already catalog deps
   (`package.json`); `@beep/doc-text` (`packages/drivers/doc-text`) wraps
   unpdf/pdfjs for text extraction; `sharp` is a catalog dep (used by
-  `@beep/face-detection` and the CLI) for raster comparison/thresholding.
+  `retired:face-detection` and the CLI) for raster comparison/thresholding.
 - **Vision judge loop**: `packages/tooling/tool/cli/src/commands/Qa/`:
   `JudgeContract.ts` (typed qa-inventory/v1 judge: blocking gates, verdict
   schemas, evaluators), `Inventory.schemas.ts` (`QaInventory` fails decode

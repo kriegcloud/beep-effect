@@ -233,11 +233,11 @@
   remote main branch required by Yeet.
 - **Friction:** The full build first reported no-location `TS2589` failures in
   `@beep/box` and `@beep/ui`; Yeet's isolated quarantine passed, but the next
-  build and check lanes surfaced cascading `unknown` errors in `@beep/xai`.
+  build and check lanes surfaced cascading `unknown` errors in `retired:xai`.
   A frozen install alone did not clear them, even though the closeout diff did
   not touch that package.
 - **Evidence:** `bun install --frozen-lockfile` succeeded, the isolated normal
-  `@beep/xai` check still failed at `XAi.service.ts:320` and related lines,
+  `retired:xai` check still failed at `retired:xai/src/XAi.service.ts:320` and related lines,
   then `tsgo -b --force tsconfig.json` followed by the same normal check passed
   without any source edit.
 - **Proposal:** After a rebase that changes TypeScript dependencies or patched
@@ -346,11 +346,11 @@
   recovery change after synchronizing the branch with current `main`.
 - **Friction:** The full build first emitted an unlocated `TS2589` for
   `@beep/ui`; Yeet's standalone quarantine rerun then emitted the same
-  unlocated error for unrelated `@beep/xai`, so the lane stayed hard-failed
+  unlocated error for unrelated `retired:xai`, so the lane stayed hard-failed
   without identifying a source location in either package.
 - **Evidence:** `bun run beep yeet verify` reported `error TS2589: Type
   instantiation is excessively deep and possibly infinite` first for
-  `@beep/ui#build`, then for `@beep/xai#build` during the quarantine rerun.
+  `@beep/ui#build`, then for `retired:xai#build` during the quarantine rerun.
 - **Proposal:** When an unlocated `TS2589` migrates between packages, clear or
   isolate stale TypeScript build state and rerun the affected package set once;
   retain a hard failure only when the same package/source reproduces.

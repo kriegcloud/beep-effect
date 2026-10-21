@@ -246,9 +246,9 @@
         "packages/drivers/duckdb/src",
         "packages/drivers/ecfr/src",
         "packages/drivers/exiftool/src",
-        "packages/drivers/face-detection/src",
+        "retired:face-detection/src",
         "packages/drivers/ffmpeg/src",
-        "packages/drivers/firecrawl/src",
+        "retired:firecrawl/src",
         "packages/drivers/freshbooks/src"
       ],
       "maxTurns": 60,
@@ -299,9 +299,9 @@
         "packages/drivers/tika/src",
         "packages/drivers/uspto/src",
         "packages/drivers/uspto-mcp/src",
-        "packages/drivers/venice-ai/src",
+        "retired:venice-ai/src",
         "packages/drivers/wink/src",
-        "packages/drivers/xai/src"
+        "retired:xai/src"
       ],
       "maxTurns": 60,
       "fileCount": 59
@@ -1558,15 +1558,15 @@
       "sha256": "6aba2508f67acc22da1ae0c44593bceb22cba09d7feb885e84a9c98cd489adb6"
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "file": "retired:firecrawl/src/Firecrawl.errors.ts",
       "sha256": "94a65e581f745dd62199871c560baa36a5a494f5ea2ec5be82147f9bd7045a65"
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+      "file": "retired:firecrawl/src/Firecrawl.models.ts",
       "sha256": "0e4b60edf451afe0b2d8f4a4469ab05ce7d7c7523b54e6c8e4cb8e23de35002c"
     },
     {
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "sha256": "9749c6bcdd917fe5385578d84b4f16fce9f4fcead914567a5b94503c1c1db81c"
     },
     {
@@ -1682,11 +1682,11 @@
       "sha256": "eb664e17a72135024cfcca42d08b3e39be10568c6edf90d3c2e9592ecba4112c"
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "sha256": "0d3eb813bf472eaa0cc316fae5f4e9b687bb0c495d88461206e3c5415ea60bfa"
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts",
+      "file": "retired:venice-ai/src/VeniceAiLanguageModel.service.ts",
       "sha256": "054b3871287e822852a87adb76bec12cf6fa411cb6b1a7e543f3b4d49b1610fe"
     },
     {
@@ -1706,15 +1706,15 @@
       "sha256": "9aa49cc0f166a8d34b2807acf1c3972f4a44a43042ffca2283c8608a3000dd79"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "sha256": "1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.service.ts",
+      "file": "retired:xai/src/XAi.service.ts",
       "sha256": "fe94aeac166efae741d048358f2555af0d33729bf498f7ff1606cc09ee95fd44"
     },
     {
-      "file": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+      "file": "retired:xai/src/XAiLanguageModel.service.ts",
       "sha256": "611bef1966ebaeedfec9b36e1659d305b8678980cc72c1d671468ecf2d93ca98"
     },
     {

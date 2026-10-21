@@ -10,5 +10,5 @@
   "qualifiedCandidates": 0,
   "errors": [],
   "transcriptSha256": "9491e3045397ef22fc5a22cdd787991e88fcd74e2c6658f29b1ee502010c1d33",
-  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-08-r24-main-be8995/r24-drivers-s-z.jsonl` \u2014 confirmed 0, disqualified 2. Covered all assigned src roots (sanity, shacl, tailscale, tika, uspto, uspto-mcp, venice-ai, wink, xai). Seeds: all 16 still present; line drift only \u2014 `isSameUsptoHost` now 231 (pair still starts at 152), `VeniceAIServerSentEvent` 648 (was 657), `tokenToAi` 121 (was 123)."
+  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-08-r24-main-be8995/r24-drivers-s-z.jsonl` \u2014 confirmed 0, disqualified 2. Covered all assigned src roots (sanity, shacl, tailscale, tika, uspto, uspto-mcp, retired:venice-ai, wink, retired:xai). Seeds: all 16 still present; line drift only \u2014 `isSameUsptoHost` now 231 (pair still starts at 152), `VeniceAIServerSentEvent` 648 (was 657), `tokenToAi` 121 (was 123)."
 }

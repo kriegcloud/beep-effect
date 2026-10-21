@@ -1,9 +1,9 @@
 {
-  "scope": "packages/drivers/firecrawl/tsconfig.test.json",
+  "scope": "retired:firecrawl/tsconfig.test.json",
   "findings": [
     {
       "kind": "unresolved",
-      "file": "packages/drivers/firecrawl/tsconfig.test.json",
+      "file": "retired:firecrawl/tsconfig.test.json",
       "name": "bun-types"
     }
   ]

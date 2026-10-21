@@ -13,7 +13,7 @@
 - `explorations/_gold-intake`: exhaustive finding routing against live work.
 - `explorations/atlas-synthesis`: cross-domain synthesis; old gap maps need refresh.
 - `packages/tooling/tool/cli/src/commands/Research`: existing research operations.
-- `packages/drivers/firecrawl`: reusable technical acquisition boundary.
+- `retired:firecrawl`: reusable technical acquisition boundary.
 
 ## Tool documentation
 

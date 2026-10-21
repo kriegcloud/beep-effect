@@ -28,6 +28,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { EffortLevel, ModelId } from "./Models.catalog.schemas.ts";
+import { ModelsLegacyPublication, ModelsPublication, ModelsTrackedPublication } from "./Models.exchange.schemas.ts";
 import type { EffortLevel as EffortLevelValue } from "./Models.catalog.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.manifest.schemas");
@@ -880,6 +881,12 @@ export type ModelsApplyMode = typeof ModelsApplyMode.Type;
  * Restore independently validates TOML/JSON ownership, matching canonical path
  * extensions and current syntax. Historical tags alone never authorize a write.
  *
+ * `publication` is the durable state machine of the apply that wrote the
+ * journal, and `restoration` is that of the latest restore published from its
+ * backup. A journal written before publications were tracked has no
+ * `publication` key and decodes to {@link ModelsLegacyPublication}; recovery
+ * leaves such a journal's target and files untouched.
+ *
  * **Example** (Inspect recovery fields)
  *
  * ```ts
@@ -901,6 +908,11 @@ export class ModelsApplyJournal extends S.Opaque<ModelsApplyJournal, { readonly 
     writes: ModelsLocatorWrite.pipe(S.NonEmptyArray, S.OptionFromOptionalKey),
     requestedFile: S.OptionFromOptionalKey(S.NonEmptyString),
     requestedLink: S.OptionFromOptionalKey(S.NonEmptyString),
+    publication: ModelsPublication.pipe(
+      S.withConstructorDefault(Effect.succeed(ModelsLegacyPublication.make({}))),
+      S.withDecodingDefaultKey(Effect.succeed({ _tag: "legacy" as const }))
+    ),
+    restoration: S.OptionFromOptionalKey(ModelsTrackedPublication).pipe(S.withConstructorDefault(Effect.succeedNone)),
   }).pipe(
     $I.annoteSchema("ModelsApplyJournal", {
       description: "Private recovery metadata written before a native file is replaced.",

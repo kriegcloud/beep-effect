@@ -382,7 +382,7 @@ const applicationReferencePattern = /(?<![0-9/])[0-9]{2}\/[0-9]{3},?[0-9]{3}(?![
 const patentReferencePattern = /(?<![0-9,])(?:US[ -]?)?[0-9]{1,2},[0-9]{3},[0-9]{3}(?![0-9,])/giu;
 
 const matchesOf = (pattern: RegExp, text: string): ReadonlyArray<string> =>
-  A.map(A.fromIterable(text.matchAll(pattern)), (match) => match[0]);
+  A.map(A.fromIterable(Str.matchAll(pattern)(text)), (match) => match[0]);
 
 /**
  * Pull candidate matter references out of free text such as a mail subject,
@@ -492,7 +492,7 @@ const bareDocketsOf = (text: string): ReadonlyArray<string> =>
 
 const keyedFamilyKeys = (path: string): ReadonlyArray<string> =>
   A.getSomes(
-    A.map(A.fromIterable(path.matchAll(keyedDocketPattern)), (match) =>
+    A.map(A.fromIterable(Str.matchAll(keyedDocketPattern)(path)), (match) =>
       pipe(
         O.fromNullishOr(match[2]),
         O.flatMap(familyOfDocket),

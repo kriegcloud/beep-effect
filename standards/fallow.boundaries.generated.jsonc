@@ -318,12 +318,6 @@
         ]
       },
       {
-        "name": "@beep/face-detection",
-        "patterns": [
-          "packages/drivers/face-detection/src/**"
-        ]
-      },
-      {
         "name": "@beep/fc-runs",
         "patterns": [
           "packages/tooling/test-kit/fc-runs/src/**"
@@ -339,12 +333,6 @@
         "name": "@beep/file-processing",
         "patterns": [
           "packages/foundation/capability/file-processing/src/**"
-        ]
-      },
-      {
-        "name": "@beep/firecrawl",
-        "patterns": [
-          "packages/drivers/firecrawl/src/**"
         ]
       },
       {
@@ -1002,12 +990,6 @@
         ]
       },
       {
-        "name": "@beep/venice-ai",
-        "patterns": [
-          "packages/drivers/venice-ai/src/**"
-        ]
-      },
-      {
         "name": "@beep/windows-secrets",
         "patterns": [
           "packages/drivers/windows-secrets/src/**"
@@ -1041,12 +1023,6 @@
         "name": "@beep/workspace-use-cases",
         "patterns": [
           "packages/workspace/use-cases/src/**"
-        ]
-      },
-      {
-        "name": "@beep/xai",
-        "patterns": [
-          "packages/drivers/xai/src/**"
         ]
       },
       {
@@ -2234,25 +2210,6 @@
         ]
       },
       {
-        "from": "@beep/face-detection",
-        "allow": [
-          "@beep/face-detection",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/face-detection",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils"
-        ]
-      },
-      {
         "from": "@beep/fc-runs",
         "allow": [
           "@beep/fc-runs"
@@ -2297,25 +2254,6 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/provenance",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/firecrawl",
-        "allow": [
-          "@beep/firecrawl",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/firecrawl",
-          "@beep/identity",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -2766,8 +2704,7 @@
           "@beep/semantic-web",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/ui",
-          "@beep/venice-ai"
+          "@beep/ui"
         ],
         "allowTypeOnly": [
           "@beep/anthropic",
@@ -2786,8 +2723,7 @@
           "@beep/semantic-web",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/ui",
-          "@beep/venice-ai"
+          "@beep/ui"
         ]
       },
       {
@@ -4061,11 +3997,9 @@
           "@beep/colors",
           "@beep/duckdb",
           "@beep/exiftool",
-          "@beep/face-detection",
           "@beep/fc-runs",
           "@beep/ffmpeg",
           "@beep/file-processing",
-          "@beep/firecrawl",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4104,11 +4038,9 @@
           "@beep/colors",
           "@beep/duckdb",
           "@beep/exiftool",
-          "@beep/face-detection",
           "@beep/fc-runs",
           "@beep/ffmpeg",
           "@beep/file-processing",
-          "@beep/firecrawl",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4410,8 +4342,7 @@
           "@beep/semantica",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/wink",
-          "@beep/xai"
+          "@beep/wink"
         ],
         "allowTypeOnly": [
           "@beep/anthropic",
@@ -4433,8 +4364,7 @@
           "@beep/semantica",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/wink",
-          "@beep/xai"
+          "@beep/wink"
         ]
       },
       {
@@ -4836,27 +4766,6 @@
         ]
       },
       {
-        "from": "@beep/venice-ai",
-        "allow": [
-          "@beep/identity",
-          "@beep/openai-compat",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils",
-          "@beep/venice-ai"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/openai-compat",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils",
-          "@beep/venice-ai"
-        ]
-      },
-      {
         "from": "@beep/windows-secrets",
         "allow": [
           "@beep/identity",
@@ -4994,27 +4903,6 @@
           "@beep/test-utils",
           "@beep/workspace-domain",
           "@beep/workspace-use-cases"
-        ]
-      },
-      {
-        "from": "@beep/xai",
-        "allow": [
-          "@beep/identity",
-          "@beep/openai-compat",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils",
-          "@beep/xai"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/openai-compat",
-          "@beep/schema",
-          "@beep/test-runner",
-          "@beep/test-utils",
-          "@beep/utils",
-          "@beep/xai"
         ]
       },
       {

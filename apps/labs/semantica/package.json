@@ -54,7 +54,6 @@
     "@beep/schema": "workspace:^",
     "@beep/semantic-web": "workspace:^",
     "@beep/wink": "workspace:^",
-    "@beep/xai": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@noble/hashes": "catalog:",
     "effect": "catalog:",

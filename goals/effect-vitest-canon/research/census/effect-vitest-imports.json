@@ -870,12 +870,12 @@
       "lines": [12]
     },
     {
-      "file": "packages/drivers/face-detection/test/FaceDetection.equivalence.test.ts",
+      "file": "retired:face-detection/test/FaceDetection.equivalence.test.ts",
       "count": 1,
       "lines": [2]
     },
     {
-      "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "file": "retired:face-detection/test/FaceDetection.service.test.ts",
       "count": 1,
       "lines": [22]
     },
@@ -910,17 +910,17 @@
       "lines": [15]
     },
     {
-      "file": "packages/drivers/firecrawl/test/Firecrawl.equivalence.test.ts",
+      "file": "retired:firecrawl/test/Firecrawl.equivalence.test.ts",
       "count": 1,
       "lines": [2]
     },
     {
-      "file": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "file": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "count": 1,
       "lines": [3]
     },
     {
-      "file": "packages/drivers/firecrawl/test/integration/Firecrawl.live.test.ts",
+      "file": "retired:firecrawl/test/integration/Firecrawl.live.test.ts",
       "count": 1,
       "lines": [3]
     },
@@ -1330,17 +1330,17 @@
       "lines": [17]
     },
     {
-      "file": "packages/drivers/venice-ai/test/VeniceAI.equivalence.test.ts",
+      "file": "retired:venice-ai/test/VeniceAI.equivalence.test.ts",
       "count": 1,
       "lines": [2]
     },
     {
-      "file": "packages/drivers/venice-ai/test/VeniceAI.service.test.ts",
+      "file": "retired:venice-ai/test/VeniceAI.service.test.ts",
       "count": 1,
       "lines": [25]
     },
     {
-      "file": "packages/drivers/venice-ai/test/integration/VeniceAI.integration.test.ts",
+      "file": "retired:venice-ai/test/integration/VeniceAI.integration.test.ts",
       "count": 1,
       "lines": [4]
     },
@@ -1375,12 +1375,12 @@
       "lines": [3]
     },
     {
-      "file": "packages/drivers/xai/test/XAi.equivalence.test.ts",
+      "file": "retired:xai/test/XAi.equivalence.test.ts",
       "count": 1,
       "lines": [2]
     },
     {
-      "file": "packages/drivers/xai/test/XAi.service.test.ts",
+      "file": "retired:xai/test/XAi.service.test.ts",
       "count": 1,
       "lines": [29]
     },

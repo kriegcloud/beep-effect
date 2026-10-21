@@ -6,6 +6,7 @@
  */
 
 import { A } from "@beep/utils";
+import * as Str from "effect/String";
 
 /**
  * Files that currently receive blocking `no-native-runtime` severity in the governance surface.
@@ -77,7 +78,7 @@ export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
  * @since 0.0.0
  */
 export const isNoNativeRuntimeErrorFile = (relativeFilePath: string): boolean =>
-  relativeFilePath.startsWith("scratchpad/effect-ontology/") ||
+  Str.startsWith("scratchpad/effect-ontology/")(relativeFilePath) ||
   A.some(NO_NATIVE_RUNTIME_ERROR_FILES, (filePath) => filePath === relativeFilePath);
 
 /**

@@ -42,7 +42,7 @@ advanced, the full round 25 census began on the newly merged source. The precedi
 - Corrected DMS coarse cardinality to 4/2: every disconnected internal probe
   supplies a known reason. Vault retains 4/3 because old null or missing reasons
   remain legitimate and must re-encode to the old canonical null.
-- Admitted ten further D1/D2 census records from the completed Firecrawl,
+- Admitted ten further D1/D2 census records from the completed `retired:firecrawl`,
   graph renderer, parser options, and UI reports. Their source declarations
   and relevant guards were checked; inline SDK option bags use object-literal
   census metadata. The Mermaid validators aggregate separate root and element

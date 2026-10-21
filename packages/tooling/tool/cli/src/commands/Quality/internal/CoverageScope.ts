@@ -186,11 +186,9 @@ const COVERAGE_TASK_WEIGHT_SECONDS: Readonly<Record<string, number>> = {
   "@beep/epistemic-ui": 15.8,
   "@beep/epistemic-use-cases": 18.5,
   "@beep/exiftool": 14.3,
-  "@beep/face-detection": 7.91,
   "@beep/fc-runs": 1.13,
   "@beep/ffmpeg": 11.6,
   "@beep/file-processing": 13.1,
-  "@beep/firecrawl": 8.93,
   "@beep/gov-legal-mcp": 13.4,
   "@beep/govinfo": 8.45,
   "@beep/html": 44.5,
@@ -257,13 +255,11 @@ const COVERAGE_TASK_WEIGHT_SECONDS: Readonly<Record<string, number>> = {
   "@beep/uspto": 7.63,
   "@beep/uspto-mcp": 10.8,
   "@beep/utils": 2.97,
-  "@beep/venice-ai": 8.72,
   "@beep/wink": 27.9,
   "@beep/workspace-domain": 10.3,
   "@beep/workspace-server": 20.3,
   "@beep/workspace-tables": 13.3,
   "@beep/workspace-use-cases": 14,
-  "@beep/xai": 8.95,
 } as const;
 
 const DEFAULT_COVERAGE_TASK_WEIGHT_SECONDS = 15;

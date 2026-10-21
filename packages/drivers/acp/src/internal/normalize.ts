@@ -32,7 +32,7 @@ const $I = $AcpId.create("internal/normalize");
 const ProtocolGenerationBase = LiteralKit([1, 2]);
 
 /**
- * ACP protocol generation a connection negotiated: `1` (schema-v1.21) or `2` (schema-v2).
+ * ACP protocol generation a connection negotiated: `1` (schema-v1.26) or `2` (schema-v2).
  *
  * @since 0.0.0
  */
@@ -165,10 +165,14 @@ const [
   V2ConfigOptionUpdate,
   V2SessionInfoUpdate,
   V2UsageUpdate,
+  V2Notice,
   V2CompactionUpdate,
   V2CompactionSummaryChunk,
+  V2SubagentUpdate,
+  V2SessionMessage,
+  V2SessionMessageChunk,
 ] = V2.SessionUpdate.members;
-const [V2RunningState, V2IdleState, V2RequiresActionState] = V2StateUpdate.members;
+const [V2RunningState, , V2RequiresActionState] = V2StateUpdate.members;
 const [
   V1UserMessageChunk,
   V1AgentMessageChunk,
@@ -183,8 +187,12 @@ const [
   V1ConfigOptionUpdate,
   V1SessionInfoUpdate,
   V1UsageUpdate,
+  V1Notice,
   V1CompactionUpdate,
   V1CompactionSummaryChunk,
+  V1SubagentUpdate,
+  V1SessionMessage,
+  V1SessionMessageChunk,
 ] = V1.SessionUpdate.members;
 
 const isMessageChunk = S.is(
@@ -195,14 +203,22 @@ const isMessageChunk = S.is(
     V1UserMessageChunk,
     V1AgentMessageChunk,
     V1AgentThoughtChunk,
+    V2SessionMessageChunk,
+    V1SessionMessageChunk,
   ])
 );
-const isMessage = S.is(S.Union([V2UserMessage, V2AgentMessage, V2AgentThought]));
+const isMessage = S.is(S.Union([V2UserMessage, V2AgentMessage, V2AgentThought, V2SessionMessage, V1SessionMessage]));
 const isToolCall = S.is(V1ToolCall);
 const isToolCallUpdate = S.is(S.Union([V2ToolCallUpdate, V1ToolCallUpdate]));
 const isToolCallContentChunk = S.is(V2ToolCallContentChunk);
 const isCompatIdleState = S.is(Compat.IdleStateUpdate);
-const isV2IdleState = S.is(V2IdleState);
+// An idle whose `error` the client shape rejects: generation 2 reads a malformed `error` as absent.
+const isIdleWithMalformedError = S.is(
+  S.StructWithRest(
+    Compat.IdleStateUpdate.schema.pipe(S.fieldsAssign({ error: S.Json })),
+    Compat.IdleStateUpdate.records
+  )
+);
 // A kind both generations define is matched against both members: generation 2 tightens some
 // shared fields (`Cost.currency`, `Annotations.priority`), so a valid generation-1 update can fail
 // the generation-2 member.
@@ -216,6 +232,8 @@ const isPassThroughUpdate = S.is(
     V2PlanRemoved,
     V2SessionInfoUpdate,
     V2UsageUpdate,
+    V2Notice,
+    V2SubagentUpdate,
     V1Plan,
     V1PlanUpdate,
     V1PlanRemoved,
@@ -223,6 +241,8 @@ const isPassThroughUpdate = S.is(
     V1ConfigOptionUpdate,
     V1SessionInfoUpdate,
     V1UsageUpdate,
+    V1Notice,
+    V1SubagentUpdate,
   ])
 );
 const isAvailableCommandsUpdate = S.is(S.Union([V2AvailableCommandsUpdate, V1AvailableCommandsUpdate]));
@@ -297,7 +317,7 @@ const normalizeKnownSessionUpdate = (generation: ProtocolGeneration, update: Wir
     })),
     Match.when(isToolCallContentChunk, (chunk) => ({ ...chunk, content: normalizeToolCallContent(chunk.content) })),
     Match.when(isCompatIdleState, (idle) => idle),
-    Match.when(isV2IdleState, ({ error: _invalidError, ...idle }) => idle),
+    Match.when(isIdleWithMalformedError, ({ error: _invalidError, ...idle }) => idle),
     Match.when(isPassThroughUpdate, (passThrough) => passThrough),
     Match.when(isCompatConfigOptionUpdate, (options) => options),
     Match.when(isAvailableCommandsUpdate, (commands) => ({
@@ -393,6 +413,34 @@ export const promptResponseFromIdle = (idle: Compat.IdleStateUpdate): Compat.Pro
   ...O.getSomesStruct({ usage: O.fromUndefinedOr(idle.usage), _meta: O.fromUndefinedOr(idle._meta) }),
 });
 
+/**
+ * Generation-2 `session/prompt` acknowledgement whose `messageId` may be missing.
+ *
+ * **Details**
+ *
+ * `schema-v2.0.0-alpha.9` requires `messageId`. The client decodes a prompt result as the compat
+ * result first and through this open member second, so a generation-1 result outside both
+ * schemas, or an acknowledgement from an agent on an earlier draft, still decodes and keeps its
+ * stop reason.
+ *
+ * @since 0.0.0
+ */
+export const OpenPromptAcknowledgement = S.StructWithRest(
+  V2.PromptResponse.schema.pipe(S.fieldsAssign({ messageId: V2.MessageId.pipe(S.optionalKey) })),
+  V2.PromptResponse.records
+).pipe(
+  $I.annoteSchema("OpenPromptAcknowledgement", {
+    description: "Generation-2 session/prompt acknowledgement with an optional messageId.",
+  })
+);
+
+/**
+ * Type for {@link OpenPromptAcknowledgement}.
+ *
+ * @since 0.0.0
+ */
+export type OpenPromptAcknowledgement = typeof OpenPromptAcknowledgement.Type;
+
 const isCompatPromptResponse = S.is(Compat.PromptResponse);
 const isUsage = S.is(V2.Usage);
 
@@ -408,7 +456,9 @@ const isUsage = S.is(V2.Usage);
  *
  * @since 0.0.0
  */
-export const normalizePromptResponse = (response: Compat.PromptResponse | V2.PromptResponse): Compat.PromptResponse =>
+export const normalizePromptResponse = (
+  response: Compat.PromptResponse | OpenPromptAcknowledgement
+): Compat.PromptResponse =>
   isCompatPromptResponse(response)
     ? response
     : {

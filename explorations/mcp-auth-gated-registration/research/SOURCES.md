@@ -161,8 +161,8 @@ own license audit disagrees with the catalog license, the stricter reading wins
 >   These patterns are corroborated by the public MCP spec/blog + OpenCode docs (§3) —
 >   reimplement from those, treat the nugget snippets as provenance only.
 > - **Scope boundary** — the "multi-provider auth / LLM fallback layer" strand in the
->   cluster title spans the four LLM drivers (`@beep/anthropic`, `openai-compat`, `xai`,
->   `venice-ai`) and is a **separate** provider-abstraction concern. This packet stays on
+>   cluster title spans the four LLM drivers (`@beep/anthropic`, `openai-compat`, `retired:xai`,
+>   `retired:venice-ai`) and is a **separate** provider-abstraction concern. This packet stays on
 >   MCP-side credential-keyed registration + progressive disclosure and **cross-links** the
 >   LLM-fallback work (§5) rather than absorbing it.
 

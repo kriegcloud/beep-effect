@@ -11,6 +11,7 @@ import { describe, expect, expectTypeOf, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as Brand from "effect/Brand";
 
 const isPromotionBlockReason2 = S.is(PromotionBlockReason);
@@ -42,7 +43,7 @@ describe("PromotionGate", () => {
     expect(isPromotionBlockReason2("raw internal failure: password=secret")).toBe(false);
     expect(isPromotionBlockReason2(" vertical-policy-blocked ")).toBe(false);
     expect(isPromotionBlockReason2("VerticalPolicyBlocked")).toBe(false);
-    expect(isPromotionBlockReason2(`blocked-${"x".repeat(80)}`)).toBe(false);
+    expect(isPromotionBlockReason2(`blocked-${Str.repeat(80)("x")}`)).toBe(false);
   });
 
   it("keeps the refusal-reason brand keys, trimming decode, messages, and bytes", () => {

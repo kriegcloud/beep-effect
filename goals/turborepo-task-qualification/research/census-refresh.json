@@ -222,7 +222,7 @@
       "sha256": "8afd32bd94296176b7fc07cdeccdf55240d2d029a9f23d722b8623f3d0ab2a12"
     },
     {
-      "path": "packages/drivers/face-detection/package.json",
+      "path": "retired:face-detection/package.json",
       "sha256": "f38d66c1501ec4b80f5426d777017495763d05e5e0330a8ae11673b062846c33"
     },
     {
@@ -230,7 +230,7 @@
       "sha256": "52a26afbee21e9652353322eed424aa8ac264b2427074a38460dd10fbedf9759"
     },
     {
-      "path": "packages/drivers/firecrawl/package.json",
+      "path": "retired:firecrawl/package.json",
       "sha256": "e6f373e85c691e99f2519f42676132c4088d145c4e6a51f9fb44b1dc5f406d9c"
     },
     {
@@ -350,7 +350,7 @@
       "sha256": "797c58940f3f62b3090c93ba9c24b14be3e9a37bedc7a68d14b6757a653835cc"
     },
     {
-      "path": "packages/drivers/venice-ai/package.json",
+      "path": "retired:venice-ai/package.json",
       "sha256": "1b2c4e2f087158012c846c97fb0d3929d47484747213238d193fe13d76eb5e71"
     },
     {
@@ -358,7 +358,7 @@
       "sha256": "93b2715d65e2c6291d58b98547f6c9c9ae25c5023ef6983268877a3ae03fd209"
     },
     {
-      "path": "packages/drivers/xai/package.json",
+      "path": "retired:xai/package.json",
       "sha256": "cec1e48449ad35a925c4206ca2f846b3c16502cd2d0b02548c98503ccc0e48c1"
     },
     {

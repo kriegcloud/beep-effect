@@ -157,7 +157,9 @@ export type OutputFormat = typeof OutputFormat.Type;
  * `not.anyOf[const]` exclusion into a negative-lookahead `pattern` on the discriminator property.
  * `unevaluatedPropertiesOpen` lowers `unevaluatedProperties: true` to `additionalProperties: true`.
  * `uniqueDiscriminatorOneOfAsAnyOf` turns a `oneOf` whose branches carry distinct string
- * discriminators into the equivalent `anyOf`. `distributeAllOf` merges `allOf` parts and distributes
+ * discriminators into the equivalent `anyOf`. `intersectSiblingProperties` pushes a base property
+ * that `anyOf` / `oneOf` branches redeclare down into every branch, intersected with each branch's
+ * declaration. `distributeAllOf` merges `allOf` parts and distributes
  * object intersections over `anyOf` unions, inlining `$ref` targets after applying the other selected
  * transforms to them. A `$ref` names a definition only by its full pointer, `#/$defs/<name>` or
  * `#/components/schemas/<name>`. Unsupported shapes fail with a `CodegenTransformError`.
@@ -183,6 +185,7 @@ export const NamedTransform = LiteralKit([
   "notDiscriminatorPattern",
   "unevaluatedPropertiesOpen",
   "uniqueDiscriminatorOneOfAsAnyOf",
+  "intersectSiblingProperties",
   "distributeAllOf",
 ]).annotate(
   $I.annote("NamedTransform", {

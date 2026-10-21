@@ -1897,7 +1897,7 @@
       "fileCount": 1,
       "files": [
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "count": 2,
           "lines": [219, 231]
         }

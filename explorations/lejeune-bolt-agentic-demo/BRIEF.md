@@ -105,7 +105,7 @@ preserving notices.
 [Option C branding](./research/08-demo-options.md#branding-surface-2).
 
 Make one live `@beep/anthropic` extraction call a day-1 acceptance item. If it fails, fall to
-`openai-compat`, `venice-ai`, or `xai` the same day.
+`openai-compat`, `retired:venice-ai`, or `retired:xai` the same day.
 
 Run one web artifact and one Effect API process on Benjamin's tailnet. Mount the immutable bundle
 separately from the mutable approval ledger. Expose `/health` and one Tailscale Serve mapping.

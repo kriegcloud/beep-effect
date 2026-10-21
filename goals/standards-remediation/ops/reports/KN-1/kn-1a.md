@@ -13,7 +13,7 @@ not replace this report's original 73-finding census.
 ## Root-cause diagnosis (per task note #1)
 
 All 26 `unresolved: bun-types` findings share ONE cause: `tsconfig.test.json` across 26 packages
-declares `"types": ["node", "bun-types"]`, but only 5 packages (`acp`, `venice-ai`, `xai`, `anthropic`,
+declares `"types": ["node", "bun-types"]`, but only 5 packages (`acp`, `retired:venice-ai`, `retired:xai`, `anthropic`,
 `pacer`) actually list `"bun-types": "catalog:"` in `devDependencies`. TypeScript itself resolves fine
 (bun-types is hoisted at repo root), so this never broke builds — it's purely a per-package manifest
 gap. Fix: add the missing devDependency (matching the existing `catalog:` convention), verified via
@@ -30,7 +30,7 @@ untouched; their owning lanes need the identical one-line fix.
 
 | Kind | File | Name | Disposition | Evidence |
 |---|---|---|---|---|
-| unresolved | packages/drivers/{courtlistener,dol,federal-register,firecrawl,libpff,m365-mcp,m365,nlp-mcp,tika,uspto-mcp,uspto}/tsconfig.test.json | bun-types | **fixed** | added `"bun-types": "catalog:"` devDependency (11 files); `knip --workspace` clean each |
+| unresolved | packages/drivers/{courtlistener,dol,federal-register,libpff,m365-mcp,m365,nlp-mcp,tika,uspto-mcp,uspto}/tsconfig.test.json, retired:firecrawl/tsconfig.test.json | bun-types | **fixed** | added `"bun-types": "catalog:"` devDependency (11 files); `knip --workspace` clean each |
 | unresolved | packages/foundation/{capability/file-processing,modeling/lexical,modeling/ontology,modeling/pandoc-ast,ui-system/editor}/tsconfig.test.json | bun-types | **fixed** | same fix (5 files) |
 | unresolved | packages/tooling/library/ai-sync/tsconfig.test.json | bun-types | **fixed** | same fix |
 | devDependencies | packages/drivers/anthropic/package.json | bun-types | **fixed** | removed; no tsconfig.test.json, no Bun-specific usage anywhere in package |
@@ -110,7 +110,7 @@ comments in the file itself):
 ## Files touched (26)
 
 - `knip.jsonc`, `package.json` (root)
-- `packages/drivers/{anthropic,courtlistener,dol,federal-register,firecrawl,libpff,m365-mcp,m365,nlp-mcp,tika,uspto-mcp,uspto}/package.json`
+- `packages/drivers/{anthropic,courtlistener,dol,federal-register,libpff,m365-mcp,m365,nlp-mcp,tika,uspto-mcp,uspto}/package.json`, `retired:firecrawl/package.json`
 - `packages/foundation/capability/file-processing/package.json`
 - `packages/foundation/modeling/{lexical,ontology,pandoc-ast}/package.json`
 - `packages/foundation/ui-system/editor/package.json`

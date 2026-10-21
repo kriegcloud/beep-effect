@@ -10,15 +10,15 @@
     "secondaryTargets": [
       "packages/drivers/anthropic",
       "packages/drivers/openai-compat",
-      "packages/drivers/xai",
-      "packages/drivers/venice-ai",
+      "retired:xai",
+      "retired:venice-ai",
       "explorations/effect-orchestration-patterns"
     ],
     "disposition": "netNew",
     "wave": "P2",
     "wedgeHint": "multi-provider-llm-dispatch-fallback",
     "goldSynthesisSection": "mcp-design — shared multi-provider LLM fallback layer over the four LLM drivers (GOLD_SYNTHESIS §MCP-design L1574, L2407)",
-    "rationale": "The per-provider LLM drivers (anthropic/openai-compat/xai/venice-ai) exist, but no shared dispatch Layer owns user-key>env precedence + graceful fallback; GOLD flags this as a gap, so the user-key->env precedence + Layer.orElse fallback chain is net-new in a new dispatch packet.",
+    "rationale": "The per-provider LLM drivers (anthropic/openai-compat/retired:xai/retired:venice-ai) exist, but no shared dispatch Layer owns user-key>env precedence + graceful fallback; GOLD flags this as a gap, so the user-key->env precedence + Layer.orElse fallback chain is net-new in a new dispatch packet.",
     "cautions": [
       "Re-express switch/try-catch as typed-error Effect Layer.orElse, not ported imperatively"
     ]
@@ -57,8 +57,8 @@
     "secondaryTargets": [
       "packages/drivers/anthropic",
       "packages/drivers/openai-compat",
-      "packages/drivers/xai",
-      "packages/drivers/venice-ai"
+      "retired:xai",
+      "retired:venice-ai"
     ],
     "disposition": "netNew",
     "wave": "P2",
@@ -174,8 +174,8 @@
     "secondaryTargets": [
       "packages/drivers/anthropic",
       "packages/drivers/openai-compat",
-      "packages/drivers/xai",
-      "packages/drivers/venice-ai"
+      "retired:xai",
+      "retired:venice-ai"
     ],
     "disposition": "netNew",
     "wave": "P2",

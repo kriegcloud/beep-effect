@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 276,
     "symbol": "decodeWith",
     "smell": "Detector hit: generic top-level `S.decodeUnknownEffect(schema)` helper used for request/response schemas.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 350,
     "symbol": "emitWatcherEvent",
     "smell": "Detector hit: watcher event decoder calls `S.decodeUnknownResult(schema)(value)` outside the event schemas.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 48,
     "symbol": "FirecrawlSdkWatcher",
     "smell": "Detector hit: exported structural type exposes watcher behavior (`on`/`off`/`start`/`close`) apart from schema-modeled data.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 71,
     "symbol": "FirecrawlSdkClient",
     "smell": "Detector hit: exported SDK client port contains many 2–3-arg methods that are not `dual`.",
@@ -61,7 +61,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 156,
     "symbol": "FirecrawlShape",
     "smell": "Detector hit: public service-shape type exposes driver methods away from schema-modeled data.",
@@ -76,7 +76,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+    "file": "retired:firecrawl/src/Firecrawl.errors.ts",
     "line": 269,
     "symbol": "FirecrawlError.fromReason",
     "smell": "Detector hit: public two-argument static constructor is not `dual`.",
@@ -91,7 +91,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+    "file": "retired:firecrawl/src/Firecrawl.errors.ts",
     "line": 298,
     "symbol": "FirecrawlError.fromUnknown",
     "smell": "Detector hit: public two-argument static helper is not `dual`.",

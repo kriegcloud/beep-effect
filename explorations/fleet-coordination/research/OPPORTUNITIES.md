@@ -28,7 +28,7 @@ Receipts recorded at the moment friction happened, per the repo's friction-first
 
   The isolation step worked: `@beep/ui` cleared standalone. The lane rerun then re-exposed all
   ~130 packages to the same environment condition, and the flake landed on `@beep/box` instead.
-  `quality:check` ran the identical dance for `@beep/xai` (lines 2523–3059), its lane rerun
+  `quality:check` ran the identical dance for `retired:xai` (lines 2523–3059), its lane rerun
   happened to come back clean, and it quarantined successfully — same mechanism, opposite outcome,
   which is the non-determinism itself.
   Serial reproduction on the identical tree cleared everything: after removing the warm

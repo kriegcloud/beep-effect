@@ -111,7 +111,7 @@ if (!shouldRunPgliteIntegration) {
           const uncheckedVerification = yield* decodeEvidenceVerification({
             ...productEntityFixtureInput("EpistemicEvidenceVerification", 41),
             evidenceId: persistedEvidence.id,
-            manifestationKey: "a".repeat(64),
+            manifestationKey: Str.repeat(64)("a"),
             verifiedAnchor: {
               anchor: {
                 endChar: 8,
@@ -157,7 +157,7 @@ if (!shouldRunPgliteIntegration) {
           // by the append-only trigger installed by the generated migration.
           const mutation = yield* Effect.flip(sql`
             UPDATE epistemic_evidence_verification
-            SET manifestation_key = ${"b".repeat(64)}
+            SET manifestation_key = ${Str.repeat(64)("b")}
             WHERE evidence_id = 1
           `);
           expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");

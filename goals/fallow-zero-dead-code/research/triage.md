@@ -76,7 +76,7 @@ Both exports were restored and are suppressed config-only via
 | `apps/codedank-web/package.json` | `@mdx-js/react` | tp-remove-dep |
 | `apps/oip-web/package.json` | `@mdx-js/react` | tp-remove-dep |
 | `apps/storybook/package.json` | `@mdx-js/react` | tp-remove-dep (addon-docs bundles its own) |
-| `packages/drivers/firecrawl/package.json` | `@beep/observability` | tp-remove-dep |
+| `retired:firecrawl/package.json` | `@beep/observability` | tp-remove-dep |
 | `packages/drivers/libpff/package.json` | `@beep/utils` | tp-remove-dep |
 | `packages/foundation/capability/langextract/package.json` | `@beep/utils` | tp-remove-dep |
 | `packages/foundation/ui-system/ui/package.json` | `@mui/material-pigment-css`, `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-date-pickers-pro`, `@mui/x-tree-view` | tp-remove-dep — only referenced by `declare module` theme augmentations under `src/themes/`; delete dead augmentations with them, or keep as devDependencies if augmentation is still wanted (typecheck is the arbiter) |
