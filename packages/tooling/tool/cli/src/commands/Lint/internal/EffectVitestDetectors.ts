@@ -875,22 +875,96 @@ const isNativeFileSystemOperation = (
 
 const harnessCallbackKinds = HashSet.fromIterable([SyntaxKind.ArrowFunction, SyntaxKind.FunctionExpression]);
 
+const isFunctionValue = (node: MorphNode | undefined): node is EffectVitestFunctionNode =>
+  Node.isArrowFunction(node) || Node.isFunctionExpression(node);
+
+// `Effect.fn(name)(body)`, `Effect.fn(body)` and `Effect.fnUntraced(body)` with no pipeline stages
+// keep the caller's context; any extra stage could provide another FileSystem.
+const effectFunctionBody = (call: CallExpression, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  const [body, ...stages] = call.getArguments();
+  if (!isFunctionValue(body) || !A.isReadonlyArrayEmpty(stages)) return O.none();
+  const callee = call.getExpression();
+  const named = Node.isCallExpression(callee) && isProvenanceCall(callee, imports, EFFECT_MODULES, "Effect", ["fn"]);
+  return named || isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["fn", "fnUntraced"])
+    ? O.some(body)
+    : O.none();
+};
+
+const helperBody = (binding: MorphNode, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  if (Node.isFunctionDeclaration(binding)) return O.some(binding);
+  if (!Node.isVariableDeclaration(binding) || binding.getVariableStatement()?.getDeclarationKind() !== "const")
+    return O.none();
+  const initializer = binding.getInitializer();
+  if (isFunctionValue(initializer)) return O.some(initializer);
+  return Node.isCallExpression(initializer) ? effectFunctionBody(initializer, imports) : O.none();
+};
+
+const providesContext = (helper: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  A.some(callbackCalls(helper), (call) =>
+    isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", [
+      "provide",
+      "provideContext",
+      "provideService",
+      "provideServiceEffect",
+    ])
+  );
+
+// A same-file helper called by name runs in the caller's context, so its
+// FileSystem reads count as the harness callback's own.
+const calledHelper = (call: CallExpression, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  const callee = call.getExpression();
+  return Node.isIdentifier(callee)
+    ? O.filter(
+        O.flatMap(imports.resolveBinding(callee), (binding) => helperBody(binding, imports)),
+        (helper) => !providesContext(helper, imports)
+      )
+    : O.none();
+};
+
+// Records FileSystem service bindings and calls lexically inside one region.
+const collectFileSystemEvidence = (
+  region: MorphNode,
+  imports: EffectVitestImports,
+  services: Array<VariableDeclaration>,
+  calls: Array<CallExpression>
+): void =>
+  region.forEachDescendant((node, traversal) => {
+    if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
+    if (Node.isCallExpression(node)) calls.push(node);
+    // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
+    if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
+    const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
+    if (harness === undefined) return;
+    // A nested layer owns its callback's services and may replace FileSystem.
+    if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
+      traversal.skip();
+    }
+  });
+
+// Queues each newly reached same-file helper once, so recursive helpers terminate.
+const appendCalledHelpers = (
+  calls: ReadonlyArray<CallExpression>,
+  regions: Array<MorphNode>,
+  imports: EffectVitestImports
+): void => {
+  for (const call of calls) {
+    const helper = calledHelper(call, imports);
+    if (O.isSome(helper) && !A.some(regions, (region) => region === helper.value)) regions.push(helper.value);
+  }
+};
+
 const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestImports): boolean =>
   O.exists(harnessCallback(flow.harness), (callback) => {
     const services = A.empty<VariableDeclaration>();
     const calls = A.empty<CallExpression>();
-    callback.forEachDescendant((node, traversal) => {
-      if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
-      if (Node.isCallExpression(node)) calls.push(node);
-      // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
-      if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
-      const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
-      if (harness === undefined) return;
-      // A nested layer owns its callback's services and may replace FileSystem.
-      if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
-        traversal.skip();
-      }
-    });
+    // The callback plus every same-file helper it reaches by name, each visited once;
+    // for-of also visits the helpers appended while it runs.
+    const regions: Array<MorphNode> = [callback];
+    for (const region of regions) {
+      const known = calls.length;
+      collectFileSystemEvidence(region, imports, services, calls);
+      appendCalledHelpers(A.drop(calls, known), regions, imports);
+    }
     return (
       !A.isReadonlyArrayEmpty(services) &&
       (flow.subject || A.some(calls, (call) => isNativeFileSystemOperation(call, services, imports)))
