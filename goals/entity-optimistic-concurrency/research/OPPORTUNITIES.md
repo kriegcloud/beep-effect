@@ -46,3 +46,16 @@
 - Prevention: known (`fresh-lane-tsc-measure-needs-dep-dists`); package-verify
   builds upstreams first, so use it for the first measurement.
 - Disposition: environment-only.
+
+## 2026-10-21 — Schema-catalog drift surfaced only in hosted Repo Sanity
+
+- Work: first hosted run of #1941 after a green local cheap-gates publish.
+- Evidence: Repo Sanity failed `lint:schema-catalog`:
+  `stale standards/schema-catalog/@beep/agents-use-cases.generated.jsonc` and
+  `.../@beep/documents-use-cases.generated.jsonc` (the five new
+  `*VersionConflict` error schemas). Local cheap-gates ran the observability
+  catalog check but not the schema-catalog check.
+- Prevention: add `lint:schema-catalog` to the cheap-gates tier, or run
+  `bun run beep lint schema-catalog --write` whenever a PR adds an exported
+  schema.
+- Disposition: shards regenerated in the fix wave (5 added entries).
