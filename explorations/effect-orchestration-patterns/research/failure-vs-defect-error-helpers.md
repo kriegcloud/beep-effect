@@ -50,7 +50,7 @@ Scope: shape a shared decode→die helper plus `isRetryable`/`isDefect`/`getErro
 
 - **`@beep/nlp-mcp`** streaming batch extraction (`Streaming/Pipeline.ts`, `StreamingHandlers.ts`) — bounded fan-out where one bad doc must not abort the batch; wants `isRetryable` (transient retry) + recoverable-failure-per-item (NOT die). [/home/elpresidank/YeeBois/projects/beep-effect/packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts]
 - **`@beep/epistemic-use-cases` ingestion** (no `@beep/epistemic` package exists; the real aliases are `@beep/epistemic-{domain,use-cases,server,tables}`) — `ClaimProjection` (the canonical decode→die re-decode site) and `ClaimGate.service.ts` decode flows. [/home/elpresidank/YeeBois/projects/beep-effect/packages/epistemic/use-cases/src/ClaimProjection/ClaimProjection.ts; .../ClaimGate/ClaimGate.service.ts]
-- **LLM drivers** — `anthropic` (+ `Anthropic.repair`), `openai-compat`, `xai`, `venice-ai`, and the `agents/server` `AnthropicTurnKernel`/`BlockRepair` consumers, all already using `AiError.isRetryable`; they consume the shared retryable + `getErrorMessage` for log/telemetry. [/home/elpresidank/YeeBois/projects/beep-effect/packages/drivers/anthropic/src/Anthropic.service.ts:107]
+- **LLM drivers** — `anthropic` (+ `Anthropic.repair`), `openai-compat`, `retired:xai`, `retired:venice-ai`, and the `agents/server` `AnthropicTurnKernel`/`BlockRepair` consumers, all already using `AiError.isRetryable`; they consume the shared retryable + `getErrorMessage` for log/telemetry. [/home/elpresidank/YeeBois/projects/beep-effect/packages/drivers/anthropic/src/Anthropic.service.ts:107]
 
 ### Gotcha: retry `while` refinement narrowing is unsound with attempt caps
 

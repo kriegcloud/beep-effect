@@ -177,7 +177,7 @@ owns *decisions and research* (D2).
   roster with cited bricks (all verified live: `@beep/pglite`/`duckdb`/`rdf`/`provenance`/
   `langextract`/`nlp-processing`/`file-processing`, drivers oxigraph/shacl/n3/wink/tika), 13
   rabbit holes, no-gos. Live-source corrections while shaping: no `EmbeddingModel` Layer exists
-  in-repo but the contract is Effect's own (`effect/ai`, rc.111) and `@beep/venice-ai`
+  in-repo but the contract is Effect's own (`effect/ai`, rc.111) and `retired:venice-ai`
   has `createEmbedding` — NET-NEW shrinks to one Layer; no EYE driver exists (oracle wiring is
   NET-NEW). Drafted the 36 Rosetta `tbd` cells (`research/glossary-rosetta-draft.md`). O5's
   clone-skill read discharged (generic task-selection stub, nothing load-bearing). Awaiting

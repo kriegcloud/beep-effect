@@ -44,7 +44,7 @@ on itself.
   beep cwd-independence (chdir(findRepoRoot) at bin startup +
   BEEP_INVOCATION_CWD escape hatch + audit Worktree/Research + a bin
   shim); `beep quality regen-generated` + documented conflict recipe;
-  `SchemaUtils.withNormalizedCheck(normalizer)` + migrate the venice-ai,
+  `SchemaUtils.withNormalizedCheck(normalizer)` + migrate the retired:venice-ai,
   phoenix, and m365 hand-rolls (wire unchanged, parity-proved).
 - **P3 Stretch — recorded `wont_fix`** —
   fallow envelope findings carry file/line/symbol; yeet publish

@@ -336,7 +336,7 @@
 
 - **Work:** Verify the post-main `@beep/semantica` compiler hoist through its
   canonical package gate.
-- **Evidence:** The first verifier stopped in the unchanged `@beep/xai`
+- **Evidence:** The first verifier stopped in the unchanged `retired:xai`
   dependency with a locationless `TS2589` before reaching Semantica's own
   audit. An immediate exact XAI build passed, and the canonical Semantica
   verifier then passed its audit and docgen lanes. The environment-only P0 row

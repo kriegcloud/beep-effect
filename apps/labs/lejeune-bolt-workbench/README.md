@@ -60,9 +60,8 @@ LEJEUNE_REVIEW_RECORDING_OUT=.beep/lejeune-provider-recording-review.json \
 op run --env-file=.env -- bun run --cwd apps/labs/lejeune-bolt-workbench provider:smoke
 ```
 
-Anthropic is the required first attempt. If that call fails, add
-`LEJEUNE_PROVIDER=venice-ai` to the reviewed-refresh command for the authorized same-day
-Venice fallback.
+Anthropic is the only authorized provider for the smoke. `LEJEUNE_PROVIDER` accepts only
+`anthropic`, and the command refuses any other value before it calls a provider.
 
 The sanitized recording contains only versioned source and extraction-contract revisions,
 its success status, synthetic document id, provider, model, timestamp, response SHA-256, and

@@ -974,7 +974,7 @@ The sole executable re-export is `export { safeHtmlValue } from "@beep/html"`; i
 | Statement-level `import type` | 239 | 150 | 104 | `apps/professional-desktop/server/OntologyMcpTransport.ts:38`; `apps/professional-desktop/src/App.tsx:73-74` |
 | Specifier-only `import { type X }` statement | 0 | 0 | 0 | — |
 | Mixed value + specifier-level `type` | 2 | 1 | 1 | `scratchpad/codemode/openapi/OpenAPI.types.ts:15`; `scratchpad/dockview-demo/src/main.tsx:23` |
-| Aliased named bindings | 127 | 104 | 29 | `packages/drivers/box/test/Box.service.test.ts:8`; `packages/drivers/firecrawl/src/Firecrawl.service.ts:9` |
+| Aliased named bindings | 127 | 104 | 29 | `packages/drivers/box/test/Box.service.test.ts:8`; `retired:firecrawl/src/Firecrawl.service.ts:9` |
 
 Type-only namespace sources must become `import type * as Local from "module"`; a mixed statement must split by target module while retaining `type` on the affected specifier/import. The mapping tables include every alias frequency, so the codemod can preserve names rather than infer them.
 

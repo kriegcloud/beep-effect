@@ -520,7 +520,7 @@ Drive align: close Q1 through Q8 in `DECISIONS.md`, one branch-closing question 
 ````markdown
 # Handoff: multi-provider-llm-dispatch-fallback  (resume-align | Wave P2 | stage research)
 
-You are resuming the `multi-provider-llm-dispatch-fallback` exploration packet (Gold-Intake initiative; provenance in `explorations/_gold-intake/ROUTING.md`). The packet designs a thin shared Effect dispatch Layer ABOVE `ExecutionPlan` — provider registry, user>CLI>env key-precedence resolver, per-provider default-model resolution, and a multi-provider `ExecutionPlan` builder — over the four installed `@beep/{anthropic,openai-compat,xai,venice-ai}` drivers. RESEARCH is done and a codex research gate has run; the align DECISIONS seed is drafted but every question is still **open**.
+You are resuming the `multi-provider-llm-dispatch-fallback` exploration packet (Gold-Intake initiative; provenance in `explorations/_gold-intake/ROUTING.md`). The packet designs a thin shared Effect dispatch Layer ABOVE `ExecutionPlan` — provider registry, user>CLI>env key-precedence resolver, per-provider default-model resolution, and a multi-provider `ExecutionPlan` builder — over the four installed `@beep/{anthropic,openai-compat}`, `retired:xai`, `retired:venice-ai` drivers. RESEARCH is done and a codex research gate has run; the align DECISIONS seed is drafted but every question is still **open**.
 
 ## Read first (ground-truth before acting)
 - `explorations/multi-provider-llm-dispatch-fallback/ops/manifest.json` - stage (`research`) + the 7 openQuestions = your resume point.
@@ -961,7 +961,7 @@ Confirm the fold is correctly placed and pick the integration path. The note rec
 ## Constraints (binding)
 - NON-INVASIVE: this is a Case-A note. Never edit this packet's SPEC/PLAN/GOAL/phases in place. Net-new or conflicting runtime scope = a sibling exploration or a dedicated consumer goal, not edits here.
 - Altitude separation: this packet governs the agent-development **process**; bulk-mutation/audit are **runtime data-plane** primitives. Resist pulling data-plane implementation scope into the law-canon SPEC.
-- Capability-cited before inventing: compose `@beep/epistemic` `ApprovalGate`/`ClaimGate` and `@beep/observability` spans; do not reinvent. No HAR `.har` parser — reconstruct from beep's own OTel/Effect spans, provider-neutral across the four drivers (`anthropic`, `openai-compat`, `xai`, `venice-ai`).
+- Capability-cited before inventing: compose `@beep/epistemic` `ApprovalGate`/`ClaimGate` and `@beep/observability` spans; do not reinvent. No HAR `.har` parser — reconstruct from beep's own OTel/Effect spans, provider-neutral across the four drivers (`anthropic`, `openai-compat`, `retired:xai`, `retired:venice-ai`).
 - Tamper-evidence is a hard requirement (routing caution): an append-only table does NOT satisfy it — flag hash-chaining (minimum) vs Merkle inclusion proofs as an open design decision, do not assume the source's "append-only" trail meets the bar.
 - Ethical-wall awareness: the audit trace must be per-tenant/per-matter scoped (CurrentUser/RpcMiddleware identity) and never leak cross-matter activity.
 - Licensing: `agentmemory` Apache-2.0, `research-squad` MIT — reimplement patterns with attribution, do not copy source.

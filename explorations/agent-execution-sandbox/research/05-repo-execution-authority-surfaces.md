@@ -91,8 +91,8 @@ CurrentMcpCaller Option is matched: none → OntologyActorIdentityRefusal (recov
 *caveats:* Approved-path TierGateAuditRecord discarded here (L87) — audit generation exists, audit retention does not.
 
 ### [9] LLM provider dispatch layers (Anthropic + compat providers)
-pkg: @beep/anthropic, @beep/openai-compat, @beep/venice-ai, @beep/xai
-path: packages/drivers/anthropic/src/Anthropic.service.ts (AnthropicLive L44; makeAnthropicLanguageModelLayer L76; AnthropicTurnPlan L139-161); Anthropic.config.ts (AI_ANTHROPIC_API_KEY env L39; retry/price defaults L129-205); packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts; packages/drivers/xai/src/XAiLanguageModel.service.ts; packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts
+pkg: @beep/anthropic, @beep/openai-compat, retired:venice-ai, retired:xai
+path: packages/drivers/anthropic/src/Anthropic.service.ts (AnthropicLive L44; makeAnthropicLanguageModelLayer L76; AnthropicTurnPlan L139-161); Anthropic.config.ts (AI_ANTHROPIC_API_KEY env L39; retry/price defaults L129-205); packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts; retired:xai/src/XAiLanguageModel.service.ts; retired:venice-ai/src/VeniceAiLanguageModel.service.ts
 symbols: AnthropicLive, AnthropicLanguageModelLive, AnthropicTurnPlan, ANTHROPIC_API_KEY_ENV, AnthropicApproximatePrice
 
 Provider clients are Config-driven Layers with Redacted keys, bounded retry plans, and approximate-price constants for cost attribution. Model-call dispatch for the desktop chat goes through AgentTurnKernel (packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts L40-73, streamTurn interface) implemented by @beep/agents-server AnthropicTurnKernel, selected by CHAT_AGENT=anthropic|fixture in apps/professional-desktop/src/runtime/Layer.ts (L139-176). Sandbox composition: provider dispatch is already a swappable service boundary where per-execution model/credential grants could be enforced.

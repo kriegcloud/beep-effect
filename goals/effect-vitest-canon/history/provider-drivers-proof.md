@@ -43,8 +43,8 @@ Configured JSON reporter runs, including the optional integration registration:
 | @beep/anthropic | 6.865 s | 4.699 s | 2.623 s | 1.542 s | 9/0 |
 | @beep/openai | 4.942 s | 4.702 s | 2.439 s | 1.623 s | 12/0 |
 | @beep/openai-compat | 4.925 s | 4.589 s | 2.872 s | 1.564 s | 19/0 |
-| @beep/venice-ai | 5.497 s | 4.763 s | 3.051 s | 1.634 s | 16/1 |
-| @beep/xai | 5.148 s | 4.435 s | 3.120 s | 1.486 s | 14/0 |
+| retired:venice-ai | 5.497 s | 4.763 s | 3.051 s | 1.634 s | 16/1 |
+| retired:xai | 5.148 s | 4.435 s | 3.120 s | 1.486 s | 14/0 |
 
 Every run exited zero and recorded stable source, manifest and lockfile hashes.
 Public raw reports and resource contexts retain both runtimes. Load, pressure,

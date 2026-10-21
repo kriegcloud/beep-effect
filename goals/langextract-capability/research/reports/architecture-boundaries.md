@@ -23,7 +23,7 @@ Status: completed from packet files, architecture standards, export catalog, `@b
 - Foundation and driver rules: `standards/ARCHITECTURE.md`, `standards/architecture/03-driver-boundaries.md`, and `standards/architecture/07-non-slice-families.md`.
 - Testing, error, and observability rules: `standards/architecture/08-testing.md`, `09-errors-across-boundaries.md`, and `12-observability.md`.
 - Existing NLP primitives and consumer policy: `packages/foundation/capability/nlp/src/Handoff/Contract.ts` and `packages/foundation/capability/nlp/README.md`.
-- Existing provider adapters: `packages/drivers/openai-compat`, `packages/drivers/xai`, and `packages/drivers/venice-ai`.
+- Existing provider adapters: `packages/drivers/openai-compat`, `retired:xai`, and `retired:venice-ai`.
 - Catalog search found no existing `@beep/langextract` export.
 
 ## Inferences

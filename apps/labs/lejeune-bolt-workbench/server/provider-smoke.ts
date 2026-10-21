@@ -17,7 +17,6 @@ import {
 import { ExtractionExample, ExtractionExampleItem, ExtractionTarget } from "@beep/langextract/Target";
 import { DocumentId } from "@beep/nlp/Core";
 import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
-import { VENICE_CHAT_MODEL, VeniceAI, VeniceAiLanguageModel } from "@beep/venice-ai";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BunServices from "@effect/platform-bun/BunServices";
@@ -28,7 +27,6 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as Match from "effect/Match";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -52,7 +50,7 @@ const encodeUnknownProviderCandidateListFromJsonString = S.encodeUnknownEffect(P
 const $I = $LejeuneBoltWorkbenchId.create("server/provider-smoke");
 const RECORDING_PATH = "src/fixtures/provider-recording.json";
 const DEFAULT_REVIEW_RECORDING_PATH = ".beep/lejeune-provider-recording-review.json";
-const ProviderKind = LiteralKit(["anthropic", "venice-ai"]);
+const ProviderKind = LiteralKit(["anthropic"]);
 const RecordingMode = LiteralKit(["freeze", "reviewed-refresh"]);
 const RecordingTargetKind = LiteralKit(["frozen", "review-candidate"]);
 
@@ -275,14 +273,8 @@ const prepareRecordingTarget = Effect.fn("LeJeuneProviderSmoke.prepareRecordingT
 const recordProviderSmoke = Effect.fn("LeJeuneProviderSmoke.record")(function* (target: RecordingTarget) {
   const service = yield* LangExtractService;
   const provider = yield* configuredProviderKind;
-  const model = yield* Match.value(provider).pipe(
-    Match.when("anthropic", () =>
-      Config.NonEmptyString("AI_ANTHROPIC_MODEL").pipe(Config.withDefault(ANTHROPIC_DEFAULT_MODEL))
-    ),
-    Match.when("venice-ai", () =>
-      Config.NonEmptyString("LEJEUNE_VENICE_MODEL").pipe(Config.withDefault(VENICE_CHAT_MODEL))
-    ),
-    Match.exhaustive,
+  const model = yield* Config.NonEmptyString("AI_ANTHROPIC_MODEL").pipe(
+    Config.withDefault(ANTHROPIC_DEFAULT_MODEL),
     Effect.mapError((cause) =>
       providerSmokeErrorWithCause("configuration", "The provider model configuration is invalid.", cause)
     )
@@ -371,19 +363,7 @@ const recordProviderSmoke = Effect.fn("LeJeuneProviderSmoke.record")(function* (
   );
 });
 
-const VeniceLanguageModelLive = Layer.unwrap(
-  Config.NonEmptyString("LEJEUNE_VENICE_MODEL").pipe(
-    Config.withDefault(VENICE_CHAT_MODEL),
-    Effect.map((model) => VeniceAiLanguageModel.layer({ model }).pipe(Layer.provide(VeniceAI.layer)))
-  )
-);
-const languageModelLayerFor = (provider: typeof ProviderKind.Type) =>
-  Match.value(provider).pipe(
-    Match.when("anthropic", () => AnthropicLanguageModelLive),
-    Match.when("venice-ai", () => VeniceLanguageModelLive),
-    Match.exhaustive
-  );
-const LanguageModelLayer = Layer.unwrap(configuredProviderKind.pipe(Effect.map(languageModelLayerFor)));
+const LanguageModelLayer = Layer.unwrap(configuredProviderKind.pipe(Effect.as(AnthropicLanguageModelLive)));
 const ProviderLayer = LangExtractServiceLive.pipe(
   Layer.provideMerge(Layer.merge(LanguageModelLayer, allowRemoteExtractionPolicyLayer))
 );

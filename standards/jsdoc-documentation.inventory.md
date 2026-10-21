@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-21T08:44:55.281Z
+Generated: 2026-10-21T12:05:39.722Z
 
 ## Scope
 
@@ -10,20 +10,20 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 163 |
-| cleanPackages | 80 |
+| packages | 159 |
+| cleanPackages | 77 |
 | packagesWithoutPublicSrcSurface | 2 |
-| packagesNeedingRemediation | 81 |
-| publicModules | 3700 |
-| publicExports | 25398 |
+| packagesNeedingRemediation | 80 |
+| publicModules | 3683 |
+| publicExports | 25019 |
 | openModules | 853 |
-| openExports | 1386 |
+| openExports | 1384 |
 | missingExportExamples | 7 |
 | missingExportCategories | 0 |
 | missingExportSince | 0 |
 | forbiddenTagFindings | 0 |
 | malformedConditionalTagFindings | 0 |
-| exampleImportFindings | 1362 |
+| exampleImportFindings | 1360 |
 | unsafeExampleFindings | 0 |
 | schemaAnnotationFindings | 0 |
 | undescribed-see | 11 |
@@ -40,7 +40,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | duplicate-example | 0 |
 | loose-ts-fence | 0 |
 | forbidden-remarks | 0 |
-| no-root-package-import | 1341 |
+| no-root-package-import | 1339 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -59,7 +59,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 1 | `@beep/fc-runs` | `packages/tooling/test-kit/fc-runs` | needs-remediation | 2 | 6 | 1 | 0 |
 | 2 | `@beep/test-runner` | `packages/tooling/test-kit/test-runner` | clean | 4 | 6 | 0 | 0 |
 | 3 | `@beep/types` | `packages/foundation/primitive/types` | needs-remediation | 5 | 12 | 1 | 12 |
-| 4 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 8 | 258 | 2 | 200 |
+| 4 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 8 | 254 | 2 | 199 |
 | 5 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 29 | 220 | 6 | 101 |
 | 6 | `@beep/data` | `packages/foundation/primitive/data` | needs-remediation | 12 | 162 | 10 | 16 |
 | 7 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 170 | 977 | 13 | 33 |
@@ -68,7 +68,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 10 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 66 | 702 | 18 | 0 |
 | 11 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 16 | 546 | 9 | 28 |
 | 12 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 10 | 263 | 4 | 87 |
-| 13 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 105 | 371 | 3 | 5 |
+| 13 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 105 | 374 | 3 | 5 |
 | 14 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 39 | 305 | 1 | 5 |
 | 15 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 30 | 58 | 0 | 0 |
 | 16 | `@beep/provenance` | `packages/foundation/modeling/provenance` | needs-remediation | 4 | 28 | 1 | 0 |
@@ -82,12 +82,12 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 24 | `@beep/epistemic-domain` | `packages/epistemic/domain` | needs-remediation | 60 | 269 | 8 | 2 |
 | 25 | `@beep/codegen-kit` | `packages/tooling/library/codegen-kit` | clean | 5 | 41 | 0 | 0 |
 | 26 | `@beep/phoenix` | `packages/drivers/phoenix` | clean | 5 | 50 | 0 | 0 |
-| 27 | `@beep/duckdb` | `packages/drivers/duckdb` | clean | 6 | 28 | 0 | 0 |
+| 27 | `@beep/duckdb` | `packages/drivers/duckdb` | clean | 7 | 40 | 0 | 0 |
 | 28 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 43 | 339 | 8 | 98 |
 | 29 | `@beep/mcp-kit` | `packages/foundation/capability/mcp-kit` | needs-remediation | 12 | 113 | 8 | 50 |
 | 30 | `@beep/ontology-domain` | `packages/ontology/domain` | clean | 6 | 41 | 0 | 0 |
 | 31 | `@beep/shacl` | `packages/drivers/shacl` | clean | 3 | 6 | 0 | 0 |
-| 32 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 128 | 2 | 2 |
+| 32 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 129 | 2 | 2 |
 | 33 | `@beep/law-practice-domain` | `packages/law-practice/domain` | needs-remediation | 249 | 945 | 9 | 5 |
 | 34 | `@beep/langextract` | `packages/foundation/capability/langextract` | clean | 26 | 131 | 0 | 0 |
 | 35 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 38 | 149 | 11 | 0 |
@@ -115,110 +115,106 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 57 | `@beep/epistemic-server` | `packages/epistemic/server` | needs-remediation | 24 | 53 | 8 | 4 |
 | 58 | `@beep/m365` | `packages/drivers/m365` | needs-remediation | 8 | 167 | 2 | 0 |
 | 59 | `@beep/nlp-processing` | `packages/foundation/capability/nlp-processing` | needs-remediation | 48 | 312 | 13 | 0 |
-| 60 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 54 | 0 | 0 |
-| 61 | `@beep/epistemic-client` | `packages/epistemic/client` | clean | 4 | 25 | 0 | 0 |
-| 62 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 134 | 559 | 1 | 1 |
-| 63 | `@beep/t3-code` | `packages/drivers/t3-code` | clean | 4 | 18 | 0 | 0 |
-| 64 | `@beep/poppler` | `packages/drivers/poppler` | clean | 3 | 10 | 0 | 0 |
-| 65 | `@beep/face-detection` | `packages/drivers/face-detection` | clean | 4 | 34 | 0 | 0 |
-| 66 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 104 | 0 | 0 |
-| 67 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 10 | 91 | 0 | 3 |
-| 68 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 17 | 89 | 3 | 0 |
-| 69 | `@beep/skill-contract` | `packages/foundation/modeling/skill-contract` | needs-remediation | 9 | 113 | 0 | 79 |
-| 70 | `@beep/exiftool` | `packages/drivers/exiftool` | needs-remediation | 5 | 55 | 1 | 0 |
-| 71 | `@beep/palantiri` | `packages/tooling/library/palantiri` | clean | 20 | 156 | 0 | 0 |
-| 72 | `@beep/pdf-tools` | `packages/drivers/pdf-tools` | clean | 4 | 38 | 0 | 0 |
-| 73 | `@beep/firecrawl` | `packages/drivers/firecrawl` | clean | 5 | 268 | 0 | 0 |
-| 74 | `@beep/runpod` | `packages/drivers/runpod` | clean | 7 | 205 | 0 | 0 |
-| 75 | `@beep/tesseract` | `packages/drivers/tesseract` | clean | 3 | 16 | 0 | 0 |
-| 76 | `@beep/obs` | `packages/drivers/obs` | needs-remediation | 6 | 73 | 3 | 0 |
-| 77 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 198 | 0 | 1 |
-| 78 | `@beep/occt` | `packages/drivers/occt` | clean | 4 | 13 | 0 | 0 |
-| 79 | `@beep/qa-capture` | `packages/tooling/library/qa-capture` | needs-remediation | 11 | 155 | 10 | 0 |
-| 80 | `@beep/dock` | `packages/foundation/ui-system/dock` | needs-remediation | 20 | 212 | 0 | 189 |
-| 81 | `@beep/agents-tables` | `packages/agents/tables` | clean | 7 | 16 | 0 | 0 |
-| 82 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 6 | 32 | 0 | 0 |
-| 83 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 7 | 126 | 4 | 7 |
-| 84 | `@beep/rdf-canonize` | `packages/drivers/rdf-canonize` | clean | 2 | 2 | 0 | 0 |
-| 85 | `@beep/ontology-config` | `packages/ontology/config` | needs-remediation | 7 | 19 | 1 | 0 |
-| 86 | `@beep/oxigraph` | `packages/drivers/oxigraph` | clean | 3 | 6 | 0 | 0 |
-| 87 | `@beep/n3` | `packages/drivers/n3` | clean | 3 | 11 | 0 | 0 |
-| 88 | `@beep/workspace-tables` | `packages/workspace/tables` | clean | 23 | 56 | 0 | 0 |
-| 89 | `@beep/doc-text` | `packages/drivers/doc-text` | clean | 3 | 11 | 0 | 0 |
-| 90 | `@beep/ontology-client` | `packages/ontology/client` | clean | 3 | 93 | 0 | 0 |
-| 91 | `@beep/documents-tables` | `packages/documents/tables` | clean | 19 | 48 | 0 | 0 |
-| 92 | `@beep/documents-use-cases` | `packages/documents/use-cases` | clean | 23 | 120 | 0 | 0 |
-| 93 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | clean | 9 | 21 | 0 | 0 |
-| 94 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | clean | 7 | 21 | 0 | 0 |
-| 95 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | clean | 18 | 64 | 0 | 0 |
-| 96 | `@beep/law-practice-server` | `packages/law-practice/server` | needs-remediation | 73 | 342 | 1 | 1 |
-| 97 | `@beep/ecfr` | `packages/drivers/ecfr` | needs-remediation | 6 | 138 | 2 | 0 |
-| 98 | `@beep/govinfo` | `packages/drivers/govinfo` | needs-remediation | 32 | 86 | 2 | 2 |
-| 99 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 73 | 1 | 0 |
-| 100 | `@beep/mcpb-kit` | `packages/tooling/library/mcpb-kit` | clean | 5 | 25 | 0 | 0 |
-| 101 | `@beep/m365-mcp` | `packages/drivers/m365-mcp` | needs-remediation | 13 | 109 | 0 | 3 |
-| 102 | `@beep/windows-secrets` | `packages/drivers/windows-secrets` | clean | 4 | 13 | 0 | 0 |
-| 103 | `@beep/pacer` | `packages/drivers/pacer` | needs-remediation | 13 | 89 | 12 | 0 |
-| 104 | `@beep/venice-ai` | `packages/drivers/venice-ai` | needs-remediation | 3 | 35 | 0 | 1 |
-| 105 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 70 | 0 | 0 |
-| 106 | `@beep/openai` | `packages/drivers/openai` | clean | 4 | 17 | 0 | 0 |
-| 107 | `@beep/hubspot` | `packages/drivers/hubspot` | clean | 4 | 23 | 0 | 0 |
-| 108 | `@beep/sanity` | `packages/drivers/sanity` | clean | 4 | 16 | 0 | 0 |
-| 109 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
-| 110 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
-| 111 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 112 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 450 | 4150 | 47 | 35 |
-| 113 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
-| 114 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
-| 115 | `@beep/commands` | `packages/drivers/commands` | clean | 8 | 58 | 0 | 0 |
-| 116 | `@beep/github-references` | `packages/foundation/modeling/github-references` | clean | 4 | 28 | 0 | 0 |
-| 117 | `@beep/spdx` | `packages/foundation/modeling/spdx` | clean | 4 | 14 | 0 | 0 |
-| 118 | `@beep/github-commands` | `packages/foundation/modeling/github-commands` | clean | 3 | 6 | 0 | 0 |
-| 119 | `@beep/jsonc` | `packages/foundation/modeling/jsonc` | clean | 8 | 48 | 0 | 0 |
-| 120 | `@beep/semver` | `packages/foundation/modeling/semver` | clean | 6 | 23 | 0 | 0 |
-| 121 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
-| 122 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 11 | 39 | 2 | 0 |
-| 123 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 36 | 212 | 13 | 3 |
-| 124 | `@beep/ontology-server` | `packages/ontology/server` | clean | 8 | 24 | 0 | 0 |
-| 125 | `@beep/xstate` | `packages/drivers/xstate` | clean | 6 | 26 | 0 | 0 |
-| 126 | `@beep/workspace-server` | `packages/workspace/server` | clean | 12 | 32 | 0 | 0 |
-| 127 | `@beep/ontology-ui` | `packages/ontology/ui` | clean | 15 | 28 | 0 | 0 |
-| 128 | `@beep/documents-server` | `packages/documents/server` | needs-remediation | 28 | 103 | 2 | 0 |
-| 129 | `@beep/openclaw` | `packages/drivers/openclaw` | needs-remediation | 9 | 130 | 7 | 15 |
-| 130 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | clean | 3 | 7 | 0 | 0 |
-| 131 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | clean | 13 | 34 | 0 | 0 |
-| 132 | `@beep/practice-claude-mod` | `apps/practice-claude-mod` | clean | 8 | 30 | 0 | 0 |
-| 133 | `@beep/practice-mail-tagging` | `apps/practice-mail-tagging` | clean | 8 | 44 | 0 | 0 |
-| 134 | `@beep/schema-org` | `packages/foundation/modeling/schema-org` | clean | 13 | 57 | 0 | 0 |
-| 135 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 13 | 46 | 2 | 0 |
-| 136 | `@beep/discord` | `packages/drivers/discord` | clean | 4 | 15 | 0 | 0 |
-| 137 | `@beep/docket-intake` | `apps/docket-intake` | clean | 11 | 29 | 0 | 0 |
-| 138 | `@beep/gov-legal-mcp` | `packages/drivers/gov-legal-mcp` | needs-remediation | 8 | 40 | 6 | 0 |
-| 139 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | clean | 3 | 7 | 0 | 0 |
-| 140 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 123 | 8 | 1 |
-| 141 | `@beep/lint-rules` | `packages/tooling/policy-pack/lint-rules` | needs-remediation | 13 | 40 | 1 | 0 |
-| 142 | `@beep/practice-gateway` | `apps/practice-gateway` | clean | 20 | 139 | 0 | 0 |
-| 143 | `@beep/oip-web` | `apps/oip-web` | clean | 31 | 87 | 0 | 0 |
-| 144 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 145 | `@beep/shared-tables` | `packages/shared/tables` | clean | 9 | 12 | 0 | 0 |
-| 146 | `@beep/scratchpad` | `scratchpad` | needs-remediation | 519 | 3048 | 493 | 0 |
-| 147 | `@beep/practice-kg-mcp` | `apps/practice-kg-mcp` | clean | 15 | 69 | 0 | 0 |
-| 148 | `@beep/tailscale` | `packages/drivers/tailscale` | clean | 5 | 29 | 0 | 0 |
-| 149 | `@beep/todox` | `apps/todox` | clean | 16 | 57 | 0 | 0 |
-| 150 | `@beep/practice-m365-contacts` | `apps/practice-m365-contacts` | clean | 8 | 27 | 0 | 0 |
-| 151 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 65 | 241 | 25 | 0 |
-| 152 | `@beep/jsonl` | `packages/foundation/modeling/jsonl` | clean | 8 | 60 | 0 | 0 |
-| 153 | `@beep/practice-identify` | `apps/practice-identify` | clean | 3 | 10 | 0 | 0 |
-| 154 | `@beep/infra` | `infra` | needs-remediation | 11 | 105 | 3 | 22 |
-| 155 | `@beep/practice-setup` | `apps/practice-setup` | clean | 6 | 38 | 0 | 0 |
-| 156 | `@beep/box-provisioning` | `packages/drivers/box-provisioning` | needs-remediation | 15 | 184 | 0 | 21 |
-| 157 | `@beep/freshbooks` | `packages/drivers/freshbooks` | needs-remediation | 6 | 49 | 5 | 3 |
-| 158 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | clean | 4 | 16 | 0 | 0 |
-| 159 | `@beep/practice-review-hub` | `apps/practice-review-hub` | clean | 3 | 11 | 0 | 0 |
-| 160 | `@beep/uspto-mcp` | `packages/drivers/uspto-mcp` | needs-remediation | 7 | 32 | 7 | 0 |
-| 161 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
-| 162 | `@beep/tsgo-shim` | `tools/tsgo-shim` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 163 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 7 | 204 | 0 | 5 |
+| 60 | `@beep/epistemic-client` | `packages/epistemic/client` | clean | 4 | 25 | 0 | 0 |
+| 61 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 134 | 559 | 1 | 1 |
+| 62 | `@beep/t3-code` | `packages/drivers/t3-code` | clean | 4 | 18 | 0 | 0 |
+| 63 | `@beep/poppler` | `packages/drivers/poppler` | clean | 3 | 10 | 0 | 0 |
+| 64 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 104 | 0 | 0 |
+| 65 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 10 | 91 | 0 | 3 |
+| 66 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 17 | 89 | 3 | 0 |
+| 67 | `@beep/skill-contract` | `packages/foundation/modeling/skill-contract` | needs-remediation | 9 | 113 | 0 | 79 |
+| 68 | `@beep/exiftool` | `packages/drivers/exiftool` | needs-remediation | 5 | 55 | 1 | 0 |
+| 69 | `@beep/palantiri` | `packages/tooling/library/palantiri` | clean | 20 | 156 | 0 | 0 |
+| 70 | `@beep/pdf-tools` | `packages/drivers/pdf-tools` | clean | 4 | 38 | 0 | 0 |
+| 71 | `@beep/runpod` | `packages/drivers/runpod` | clean | 7 | 205 | 0 | 0 |
+| 72 | `@beep/tesseract` | `packages/drivers/tesseract` | clean | 3 | 16 | 0 | 0 |
+| 73 | `@beep/obs` | `packages/drivers/obs` | needs-remediation | 6 | 73 | 3 | 0 |
+| 74 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 198 | 0 | 1 |
+| 75 | `@beep/occt` | `packages/drivers/occt` | clean | 4 | 13 | 0 | 0 |
+| 76 | `@beep/qa-capture` | `packages/tooling/library/qa-capture` | needs-remediation | 11 | 155 | 10 | 0 |
+| 77 | `@beep/dock` | `packages/foundation/ui-system/dock` | needs-remediation | 20 | 212 | 0 | 189 |
+| 78 | `@beep/agents-tables` | `packages/agents/tables` | clean | 7 | 16 | 0 | 0 |
+| 79 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 6 | 32 | 0 | 0 |
+| 80 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 7 | 126 | 4 | 7 |
+| 81 | `@beep/rdf-canonize` | `packages/drivers/rdf-canonize` | clean | 2 | 2 | 0 | 0 |
+| 82 | `@beep/ontology-config` | `packages/ontology/config` | needs-remediation | 7 | 19 | 1 | 0 |
+| 83 | `@beep/oxigraph` | `packages/drivers/oxigraph` | clean | 3 | 6 | 0 | 0 |
+| 84 | `@beep/n3` | `packages/drivers/n3` | clean | 3 | 11 | 0 | 0 |
+| 85 | `@beep/workspace-tables` | `packages/workspace/tables` | clean | 23 | 56 | 0 | 0 |
+| 86 | `@beep/doc-text` | `packages/drivers/doc-text` | clean | 3 | 11 | 0 | 0 |
+| 87 | `@beep/ontology-client` | `packages/ontology/client` | clean | 3 | 93 | 0 | 0 |
+| 88 | `@beep/documents-tables` | `packages/documents/tables` | clean | 19 | 48 | 0 | 0 |
+| 89 | `@beep/documents-use-cases` | `packages/documents/use-cases` | clean | 23 | 124 | 0 | 0 |
+| 90 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | clean | 9 | 21 | 0 | 0 |
+| 91 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | clean | 7 | 21 | 0 | 0 |
+| 92 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | clean | 18 | 64 | 0 | 0 |
+| 93 | `@beep/law-practice-server` | `packages/law-practice/server` | needs-remediation | 73 | 342 | 1 | 1 |
+| 94 | `@beep/ecfr` | `packages/drivers/ecfr` | needs-remediation | 6 | 138 | 2 | 0 |
+| 95 | `@beep/govinfo` | `packages/drivers/govinfo` | needs-remediation | 32 | 86 | 2 | 2 |
+| 96 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 73 | 1 | 0 |
+| 97 | `@beep/mcpb-kit` | `packages/tooling/library/mcpb-kit` | clean | 5 | 25 | 0 | 0 |
+| 98 | `@beep/m365-mcp` | `packages/drivers/m365-mcp` | needs-remediation | 13 | 109 | 0 | 3 |
+| 99 | `@beep/windows-secrets` | `packages/drivers/windows-secrets` | clean | 4 | 13 | 0 | 0 |
+| 100 | `@beep/pacer` | `packages/drivers/pacer` | needs-remediation | 13 | 89 | 12 | 0 |
+| 101 | `@beep/openai` | `packages/drivers/openai` | clean | 4 | 17 | 0 | 0 |
+| 102 | `@beep/hubspot` | `packages/drivers/hubspot` | clean | 4 | 23 | 0 | 0 |
+| 103 | `@beep/sanity` | `packages/drivers/sanity` | clean | 4 | 16 | 0 | 0 |
+| 104 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
+| 105 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
+| 106 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
+| 107 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 451 | 4157 | 47 | 35 |
+| 108 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
+| 109 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
+| 110 | `@beep/commands` | `packages/drivers/commands` | clean | 8 | 58 | 0 | 0 |
+| 111 | `@beep/github-references` | `packages/foundation/modeling/github-references` | clean | 4 | 28 | 0 | 0 |
+| 112 | `@beep/spdx` | `packages/foundation/modeling/spdx` | clean | 4 | 14 | 0 | 0 |
+| 113 | `@beep/github-commands` | `packages/foundation/modeling/github-commands` | clean | 3 | 6 | 0 | 0 |
+| 114 | `@beep/jsonc` | `packages/foundation/modeling/jsonc` | clean | 8 | 48 | 0 | 0 |
+| 115 | `@beep/semver` | `packages/foundation/modeling/semver` | clean | 6 | 23 | 0 | 0 |
+| 116 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
+| 117 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 11 | 39 | 2 | 0 |
+| 118 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 36 | 212 | 13 | 3 |
+| 119 | `@beep/ontology-server` | `packages/ontology/server` | clean | 8 | 24 | 0 | 0 |
+| 120 | `@beep/xstate` | `packages/drivers/xstate` | clean | 6 | 26 | 0 | 0 |
+| 121 | `@beep/workspace-server` | `packages/workspace/server` | clean | 12 | 32 | 0 | 0 |
+| 122 | `@beep/ontology-ui` | `packages/ontology/ui` | clean | 15 | 28 | 0 | 0 |
+| 123 | `@beep/documents-server` | `packages/documents/server` | needs-remediation | 28 | 105 | 2 | 0 |
+| 124 | `@beep/openclaw` | `packages/drivers/openclaw` | needs-remediation | 9 | 130 | 7 | 15 |
+| 125 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | clean | 3 | 7 | 0 | 0 |
+| 126 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | clean | 13 | 34 | 0 | 0 |
+| 127 | `@beep/practice-claude-mod` | `apps/practice-claude-mod` | clean | 8 | 30 | 0 | 0 |
+| 128 | `@beep/practice-mail-tagging` | `apps/practice-mail-tagging` | clean | 8 | 44 | 0 | 0 |
+| 129 | `@beep/schema-org` | `packages/foundation/modeling/schema-org` | clean | 13 | 57 | 0 | 0 |
+| 130 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 13 | 46 | 2 | 0 |
+| 131 | `@beep/discord` | `packages/drivers/discord` | clean | 4 | 15 | 0 | 0 |
+| 132 | `@beep/docket-intake` | `apps/docket-intake` | clean | 11 | 29 | 0 | 0 |
+| 133 | `@beep/gov-legal-mcp` | `packages/drivers/gov-legal-mcp` | needs-remediation | 8 | 40 | 6 | 0 |
+| 134 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | clean | 3 | 7 | 0 | 0 |
+| 135 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 123 | 8 | 1 |
+| 136 | `@beep/lint-rules` | `packages/tooling/policy-pack/lint-rules` | needs-remediation | 13 | 40 | 1 | 0 |
+| 137 | `@beep/practice-gateway` | `apps/practice-gateway` | clean | 20 | 142 | 0 | 0 |
+| 138 | `@beep/oip-web` | `apps/oip-web` | clean | 31 | 87 | 0 | 0 |
+| 139 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 140 | `@beep/shared-tables` | `packages/shared/tables` | clean | 9 | 12 | 0 | 0 |
+| 141 | `@beep/scratchpad` | `scratchpad` | needs-remediation | 519 | 3048 | 493 | 0 |
+| 142 | `@beep/practice-kg-mcp` | `apps/practice-kg-mcp` | clean | 15 | 69 | 0 | 0 |
+| 143 | `@beep/tailscale` | `packages/drivers/tailscale` | clean | 5 | 29 | 0 | 0 |
+| 144 | `@beep/todox` | `apps/todox` | clean | 16 | 57 | 0 | 0 |
+| 145 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 54 | 0 | 0 |
+| 146 | `@beep/practice-m365-contacts` | `apps/practice-m365-contacts` | clean | 8 | 27 | 0 | 0 |
+| 147 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 65 | 241 | 25 | 0 |
+| 148 | `@beep/jsonl` | `packages/foundation/modeling/jsonl` | clean | 8 | 60 | 0 | 0 |
+| 149 | `@beep/practice-identify` | `apps/practice-identify` | clean | 3 | 10 | 0 | 0 |
+| 150 | `@beep/infra` | `infra` | needs-remediation | 11 | 105 | 3 | 22 |
+| 151 | `@beep/practice-setup` | `apps/practice-setup` | clean | 6 | 38 | 0 | 0 |
+| 152 | `@beep/box-provisioning` | `packages/drivers/box-provisioning` | needs-remediation | 15 | 184 | 0 | 21 |
+| 153 | `@beep/freshbooks` | `packages/drivers/freshbooks` | needs-remediation | 6 | 49 | 5 | 3 |
+| 154 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | clean | 4 | 16 | 0 | 0 |
+| 155 | `@beep/practice-review-hub` | `apps/practice-review-hub` | clean | 3 | 11 | 0 | 0 |
+| 156 | `@beep/uspto-mcp` | `packages/drivers/uspto-mcp` | needs-remediation | 7 | 32 | 7 | 0 |
+| 157 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
+| 158 | `@beep/tsgo-shim` | `tools/tsgo-shim` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 159 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 7 | 204 | 0 | 5 |
 
 ## Open Findings
 
@@ -337,128 +333,127 @@ Export findings:
 - `src/index.ts:105` `export * from "./PnLocal.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:120` `export * from "./packages.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:135` `export * from "./Vocab.ts";` (re-export) - 1 example import violation(s)
-- `src/packages.ts:350` `$DataId` (const) - 1 example import violation(s)
-- `src/packages.ts:366` `$IdentityId` (const) - 1 example import violation(s)
-- `src/packages.ts:382` `$SchemaId` (const) - 1 example import violation(s)
-- `src/packages.ts:398` `$ProvenanceId` (const) - 1 example import violation(s)
-- `src/packages.ts:414` `$RdfId` (const) - 1 example import violation(s)
-- `src/packages.ts:462` `$TypesId` (const) - 1 example import violation(s)
-- `src/packages.ts:478` `$UtilsId` (const) - 1 example import violation(s)
-- `src/packages.ts:496` `$UiId` (const) - 1 example import violation(s)
-- `src/packages.ts:514` `$RepoAiMetricsId` (const) - 1 example import violation(s)
-- `src/packages.ts:530` `$RepoCliId` (const) - 1 example import violation(s)
-- `src/packages.ts:546` `$RepoConfigsId` (const) - 1 example import violation(s)
-- `src/packages.ts:562` `$RepoUtilsId` (const) - 1 example import violation(s)
-- `src/packages.ts:578` `$TestUtilsId` (const) - 1 example import violation(s)
-- `src/packages.ts:596` `$SharedDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:629` `$SharedTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:645` `$SemanticWebId` (const) - 1 example import violation(s)
-- `src/packages.ts:661` `$NlpId` (const) - 1 example import violation(s)
-- `src/packages.ts:693` `$LangExtractId` (const) - 1 example import violation(s)
-- `src/packages.ts:709` `$ObservabilityId` (const) - 1 example import violation(s)
-- `src/packages.ts:725` `$ColorsId` (const) - 1 example import violation(s)
-- `src/packages.ts:741` `$ChalkId` (const) - 1 example import violation(s)
-- `src/packages.ts:757` `$RepoDocgenId` (const) - 1 example import violation(s)
-- `src/packages.ts:773` `$InfraId` (const) - 1 example import violation(s)
-- `src/packages.ts:791` `$WorkspaceDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:807` `$EpistemicDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:824` `$EpistemicUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:841` `$AgentsDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:857` `$AgentsServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:873` `$AgentsUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:889` `$AgentsClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:905` `$LawPracticeDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:923` `$LawPracticeUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:941` `$LawPracticeServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:958` `$ProfessionalDesktopId` (const) - 1 example import violation(s)
-- `src/packages.ts:1104` `$AnthropicId` (const) - 1 example import violation(s)
-- `src/packages.ts:1153` `$AcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1170` `$OpenaiCompatId` (const) - 1 example import violation(s)
-- `src/packages.ts:1187` `$WorkspaceTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1204` `$WorkspaceUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1222` `$WorkspaceServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1239` `$DocumentsDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:1256` `$DocumentsUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1274` `$DocumentsServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1291` `$ArchitectureLabDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:1309` `$ArchitectureLabUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1327` `$ArchitectureLabConfigId` (const) - 1 example import violation(s)
-- `src/packages.ts:1345` `$ArchitectureLabServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1363` `$ArchitectureLabTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1381` `$ArchitectureLabClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:1399` `$ArchitectureLabUiId` (const) - 1 example import violation(s)
-- `src/packages.ts:1417` `$ArchitectureLabProofId` (const) - 1 example import violation(s)
-- `src/packages.ts:1435` `$RunpodId` (const) - 1 example import violation(s)
-- `src/packages.ts:1452` `$OnepasswordCliId` (const) - 1 example import violation(s)
-- `src/packages.ts:1469` `$DiscordId` (const) - 1 example import violation(s)
-- `src/packages.ts:1486` `$AiProviderCliId` (const) - 1 example import violation(s)
-- `src/packages.ts:1503` `$SanityId` (const) - 1 example import violation(s)
-- `src/packages.ts:1520` `$HubspotId` (const) - 1 example import violation(s)
-- `src/packages.ts:1537` `$PhoenixId` (const) - 1 example import violation(s)
-- `src/packages.ts:1554` `$AiSyncId` (const) - 1 example import violation(s)
-- `src/packages.ts:1571` `$BoxId` (const) - 1 example import violation(s)
-- `src/packages.ts:1588` `$NlpMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1622` `$WinkId` (const) - 1 example import violation(s)
-- `src/packages.ts:1639` `$FileProcessingId` (const) - 1 example import violation(s)
-- `src/packages.ts:1656` `$TikaId` (const) - 1 example import violation(s)
-- `src/packages.ts:1673` `$LibpffId` (const) - 1 example import violation(s)
-- `src/packages.ts:1690` `$FirecrawlId` (const) - 1 example import violation(s)
-- `src/packages.ts:1707` `$UsptoId` (const) - 1 example import violation(s)
-- `src/packages.ts:1724` `$LexicalSchemaId` (const) - 1 example import violation(s)
-- `src/packages.ts:1741` `$EditorId` (const) - 1 example import violation(s)
-- `src/packages.ts:1758` `$ScratchpadId` (const) - 1 example import violation(s)
-- `src/packages.ts:1775` `$HtmlId` (const) - 1 example import violation(s)
-- `src/packages.ts:1792` `$PandocAstId` (const) - 1 example import violation(s)
-- `src/packages.ts:1809` `$PgliteId` (const) - 1 example import violation(s)
-- `src/packages.ts:1826` `$M365Id` (const) - 1 example import violation(s)
-- `src/packages.ts:1843` `$M365McpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1860` `$GovinfoId` (const) - 1 example import violation(s)
-- `src/packages.ts:1877` `$EcfrId` (const) - 1 example import violation(s)
-- `src/packages.ts:1894` `$ApiTransportId` (const) - 1 example import violation(s)
-- `src/packages.ts:1911` `$McpKitId` (const) - 1 example import violation(s)
-- `src/packages.ts:1928` `$UsptoMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1945` `$PacerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1962` `$FcRunsId` (const) - 1 example import violation(s)
-- `src/packages.ts:1979` `$CosmosId` (const) - 1 example import violation(s)
-- `src/packages.ts:1996` `$DbAdminId` (const) - 1 example import violation(s)
-- `src/packages.ts:2013` `$EpistemicServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:2030` `$EpistemicTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2047` `$LintRulesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2064` `$N3Id` (const) - 1 example import violation(s)
-- `src/packages.ts:2081` `$PretextId` (const) - 1 example import violation(s)
-- `src/packages.ts:2098` `$Graph3dId` (const) - 1 example import violation(s)
-- `src/packages.ts:2115` `$DockId` (const) - 1 example import violation(s)
-- `src/packages.ts:2132` `$DockReactId` (const) - 1 example import violation(s)
-- `src/packages.ts:2149` `$OntologyClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:2166` `$OntologyConfigId` (const) - 1 example import violation(s)
-- `src/packages.ts:2183` `$OntologyDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:2200` `$OntologyServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:2217` `$OntologyUiId` (const) - 1 example import violation(s)
-- `src/packages.ts:2234` `$OntologyUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2251` `$OxigraphId` (const) - 1 example import violation(s)
-- `src/packages.ts:2268` `$ShaclId` (const) - 1 example import violation(s)
-- `src/packages.ts:2285` `$StorybookId` (const) - 1 example import violation(s)
-- `src/packages.ts:2302` `$TsgoShimId` (const) - 1 example import violation(s)
-- `src/packages.ts:2319` `$DocTextId` (const) - 1 example import violation(s)
-- `src/packages.ts:2336` `$DocumentsTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2353` `$TailscaleId` (const) - 1 example import violation(s)
-- `src/packages.ts:2370` `$AgentsTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2387` `$EpistemicConfigId` (const) - 1 example import violation(s)
-- `src/packages.ts:2404` `$LawPracticeTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2422` `$PracticeKgMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:2439` `$OpenclawId` (const) - 1 example import violation(s)
-- `src/packages.ts:2456` `$ObsId` (const) - 1 example import violation(s)
-- `src/packages.ts:2473` `$ExiftoolId` (const) - 1 example import violation(s)
-- `src/packages.ts:2490` `$QaCaptureId` (const) - 1 example import violation(s)
-- `src/packages.ts:2507` `$GovLegalMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:2523` `$EpistemicClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:2539` `$EpistemicUiId` (const) - 1 example import violation(s)
-- `src/packages.ts:2572` `$SkillContractId` (const) - 1 example import violation(s)
-- `src/packages.ts:2589` `$CodegenKitId` (const) - 1 example import violation(s)
-- `src/packages.ts:2606` `$BrandId` (const) - 1 example import violation(s)
-- `src/packages.ts:2623` `$OpenaiId` (const) - 1 example import violation(s)
-- `src/packages.ts:2640` `$TodoxId` (const) - 1 example import violation(s)
-- `src/packages.ts:2657` `$BoxProvisioningId` (const) - 1 example import violation(s)
+- `src/packages.ts:346` `$DataId` (const) - 1 example import violation(s)
+- `src/packages.ts:362` `$IdentityId` (const) - 1 example import violation(s)
+- `src/packages.ts:378` `$SchemaId` (const) - 1 example import violation(s)
+- `src/packages.ts:394` `$ProvenanceId` (const) - 1 example import violation(s)
+- `src/packages.ts:410` `$RdfId` (const) - 1 example import violation(s)
+- `src/packages.ts:458` `$TypesId` (const) - 1 example import violation(s)
+- `src/packages.ts:474` `$UtilsId` (const) - 1 example import violation(s)
+- `src/packages.ts:492` `$UiId` (const) - 1 example import violation(s)
+- `src/packages.ts:510` `$RepoAiMetricsId` (const) - 1 example import violation(s)
+- `src/packages.ts:526` `$RepoCliId` (const) - 1 example import violation(s)
+- `src/packages.ts:542` `$RepoConfigsId` (const) - 1 example import violation(s)
+- `src/packages.ts:558` `$RepoUtilsId` (const) - 1 example import violation(s)
+- `src/packages.ts:574` `$TestUtilsId` (const) - 1 example import violation(s)
+- `src/packages.ts:592` `$SharedDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:625` `$SharedTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:641` `$SemanticWebId` (const) - 1 example import violation(s)
+- `src/packages.ts:657` `$NlpId` (const) - 1 example import violation(s)
+- `src/packages.ts:689` `$LangExtractId` (const) - 1 example import violation(s)
+- `src/packages.ts:705` `$ObservabilityId` (const) - 1 example import violation(s)
+- `src/packages.ts:721` `$ColorsId` (const) - 1 example import violation(s)
+- `src/packages.ts:737` `$ChalkId` (const) - 1 example import violation(s)
+- `src/packages.ts:753` `$RepoDocgenId` (const) - 1 example import violation(s)
+- `src/packages.ts:769` `$InfraId` (const) - 1 example import violation(s)
+- `src/packages.ts:787` `$WorkspaceDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:803` `$EpistemicDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:820` `$EpistemicUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:837` `$AgentsDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:853` `$AgentsServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:869` `$AgentsUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:885` `$AgentsClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:901` `$LawPracticeDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:919` `$LawPracticeUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:937` `$LawPracticeServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:954` `$ProfessionalDesktopId` (const) - 1 example import violation(s)
+- `src/packages.ts:1084` `$AnthropicId` (const) - 1 example import violation(s)
+- `src/packages.ts:1101` `$AcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1118` `$OpenaiCompatId` (const) - 1 example import violation(s)
+- `src/packages.ts:1135` `$WorkspaceTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1152` `$WorkspaceUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1170` `$WorkspaceServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1187` `$DocumentsDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:1204` `$DocumentsUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1222` `$DocumentsServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1239` `$ArchitectureLabDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:1257` `$ArchitectureLabUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1275` `$ArchitectureLabConfigId` (const) - 1 example import violation(s)
+- `src/packages.ts:1293` `$ArchitectureLabServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1311` `$ArchitectureLabTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1329` `$ArchitectureLabClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:1347` `$ArchitectureLabUiId` (const) - 1 example import violation(s)
+- `src/packages.ts:1365` `$ArchitectureLabProofId` (const) - 1 example import violation(s)
+- `src/packages.ts:1383` `$RunpodId` (const) - 1 example import violation(s)
+- `src/packages.ts:1400` `$OnepasswordCliId` (const) - 1 example import violation(s)
+- `src/packages.ts:1417` `$DiscordId` (const) - 1 example import violation(s)
+- `src/packages.ts:1434` `$AiProviderCliId` (const) - 1 example import violation(s)
+- `src/packages.ts:1451` `$SanityId` (const) - 1 example import violation(s)
+- `src/packages.ts:1468` `$HubspotId` (const) - 1 example import violation(s)
+- `src/packages.ts:1485` `$PhoenixId` (const) - 1 example import violation(s)
+- `src/packages.ts:1502` `$AiSyncId` (const) - 1 example import violation(s)
+- `src/packages.ts:1519` `$BoxId` (const) - 1 example import violation(s)
+- `src/packages.ts:1536` `$NlpMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1570` `$WinkId` (const) - 1 example import violation(s)
+- `src/packages.ts:1587` `$FileProcessingId` (const) - 1 example import violation(s)
+- `src/packages.ts:1604` `$TikaId` (const) - 1 example import violation(s)
+- `src/packages.ts:1621` `$LibpffId` (const) - 1 example import violation(s)
+- `src/packages.ts:1638` `$UsptoId` (const) - 1 example import violation(s)
+- `src/packages.ts:1655` `$LexicalSchemaId` (const) - 1 example import violation(s)
+- `src/packages.ts:1672` `$EditorId` (const) - 1 example import violation(s)
+- `src/packages.ts:1689` `$ScratchpadId` (const) - 1 example import violation(s)
+- `src/packages.ts:1706` `$HtmlId` (const) - 1 example import violation(s)
+- `src/packages.ts:1723` `$PandocAstId` (const) - 1 example import violation(s)
+- `src/packages.ts:1740` `$PgliteId` (const) - 1 example import violation(s)
+- `src/packages.ts:1757` `$M365Id` (const) - 1 example import violation(s)
+- `src/packages.ts:1774` `$M365McpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1791` `$GovinfoId` (const) - 1 example import violation(s)
+- `src/packages.ts:1808` `$EcfrId` (const) - 1 example import violation(s)
+- `src/packages.ts:1825` `$ApiTransportId` (const) - 1 example import violation(s)
+- `src/packages.ts:1842` `$McpKitId` (const) - 1 example import violation(s)
+- `src/packages.ts:1859` `$UsptoMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1876` `$PacerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1893` `$FcRunsId` (const) - 1 example import violation(s)
+- `src/packages.ts:1910` `$CosmosId` (const) - 1 example import violation(s)
+- `src/packages.ts:1927` `$DbAdminId` (const) - 1 example import violation(s)
+- `src/packages.ts:1944` `$EpistemicServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1961` `$EpistemicTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1978` `$LintRulesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1995` `$N3Id` (const) - 1 example import violation(s)
+- `src/packages.ts:2012` `$PretextId` (const) - 1 example import violation(s)
+- `src/packages.ts:2029` `$Graph3dId` (const) - 1 example import violation(s)
+- `src/packages.ts:2046` `$DockId` (const) - 1 example import violation(s)
+- `src/packages.ts:2063` `$DockReactId` (const) - 1 example import violation(s)
+- `src/packages.ts:2080` `$OntologyClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:2097` `$OntologyConfigId` (const) - 1 example import violation(s)
+- `src/packages.ts:2114` `$OntologyDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:2131` `$OntologyServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:2148` `$OntologyUiId` (const) - 1 example import violation(s)
+- `src/packages.ts:2165` `$OntologyUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2182` `$OxigraphId` (const) - 1 example import violation(s)
+- `src/packages.ts:2199` `$ShaclId` (const) - 1 example import violation(s)
+- `src/packages.ts:2216` `$StorybookId` (const) - 1 example import violation(s)
+- `src/packages.ts:2233` `$TsgoShimId` (const) - 1 example import violation(s)
+- `src/packages.ts:2250` `$DocTextId` (const) - 1 example import violation(s)
+- `src/packages.ts:2267` `$DocumentsTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2284` `$TailscaleId` (const) - 1 example import violation(s)
+- `src/packages.ts:2301` `$AgentsTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2318` `$EpistemicConfigId` (const) - 1 example import violation(s)
+- `src/packages.ts:2335` `$LawPracticeTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2353` `$PracticeKgMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:2370` `$OpenclawId` (const) - 1 example import violation(s)
+- `src/packages.ts:2387` `$ObsId` (const) - 1 example import violation(s)
+- `src/packages.ts:2404` `$ExiftoolId` (const) - 1 example import violation(s)
+- `src/packages.ts:2421` `$QaCaptureId` (const) - 1 example import violation(s)
+- `src/packages.ts:2438` `$GovLegalMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:2454` `$EpistemicClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:2470` `$EpistemicUiId` (const) - 1 example import violation(s)
+- `src/packages.ts:2503` `$SkillContractId` (const) - 1 example import violation(s)
+- `src/packages.ts:2520` `$CodegenKitId` (const) - 1 example import violation(s)
+- `src/packages.ts:2537` `$BrandId` (const) - 1 example import violation(s)
+- `src/packages.ts:2554` `$OpenaiId` (const) - 1 example import violation(s)
+- `src/packages.ts:2571` `$TodoxId` (const) - 1 example import violation(s)
+- `src/packages.ts:2588` `$BoxProvisioningId` (const) - 1 example import violation(s)
 
 ### @beep/utils
 
@@ -1541,8 +1536,8 @@ Module findings:
 - `src/Libpff.pffexport.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/Libpff.eml.ts:186` `rfc5322DateFromOutlookTimestamp` (const) - 1 example import violation(s)
-- `src/Libpff.eml.ts:432` `assembleEml` (const) - 1 example import violation(s)
+- `src/Libpff.eml.ts:190` `rfc5322DateFromOutlookTimestamp` (const) - 1 example import violation(s)
+- `src/Libpff.eml.ts:436` `assembleEml` (const) - 1 example import violation(s)
 
 ### @beep/box
 
@@ -2100,13 +2095,6 @@ Module findings:
 - `src/Pcl.models.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 - `src/PclClient.service.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 - `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
-### @beep/venice-ai
-
-Path: `packages/drivers/venice-ai`
-
-Export findings:
-- `src/VeniceAI.service.ts:1472` `VENICE_AI_OPERATION_DESCRIPTORS` (const) - 1 example import violation(s)
 
 ### @beep/graph-3d
 
@@ -3028,15 +3016,15 @@ Export findings:
 - `src/BoxContentMigrationPlan.ts:233` `BoxContentBlockedNameConflict` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:263` `BoxContentBlockedSourceMissing` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:290` `BoxContentBlockedSourceChanged` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationReceipt.ts:181` `BoxContentActionApplied` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationReceipt.ts:210` `BoxContentActionSkipped` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationReceipt.ts:241` `BoxContentActionBlocked` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationReceipt.ts:277` `BoxContentActionFailed` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationReceipt.ts:310` `BoxContentActionNotAttempted` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationReceipt.ts:183` `BoxContentActionApplied` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationReceipt.ts:212` `BoxContentActionSkipped` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationReceipt.ts:243` `BoxContentActionBlocked` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationReceipt.ts:279` `BoxContentActionFailed` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationReceipt.ts:312` `BoxContentActionNotAttempted` (class) - 1 example import violation(s)
 - `src/BoxProvisioningErrors.ts:155` `BoxProvisioningDriftError` (class) - 1 example import violation(s)
 - `src/BoxProvisioningIntent.ts:543` `BoxWebhookIntent` (class) - 1 example import violation(s)
 - `src/BoxProvisioningObserved.ts:326` `BoxObservedWebhook` (class) - 1 example import violation(s)
-- `src/BoxProvisioningPlan.ts:399` `BoxForeignResource` (class) - 1 example import violation(s)
+- `src/BoxProvisioningPlan.ts:401` `BoxForeignResource` (class) - 1 example import violation(s)
 - `src/BoxProvisioningReceipt.ts:342` `BoxActionApplied` (class) - 1 example import violation(s)
 - `src/BoxProvisioningReceipt.ts:371` `BoxActionSkipped` (class) - 1 example import violation(s)
 - `src/BoxProvisioningReceipt.ts:398` `BoxActionBlocked` (class) - 1 example import violation(s)

@@ -120,7 +120,6 @@ describe("C0 F1 live-to-replay slice", () => {
               extractorModel: "stub-extractor-20260826",
               goldDirectory,
               goldGenerationTimeout: Duration.minutes(45),
-              goldModel: "stub-gold-20260826",
               ledgerRoot,
               mode: "live",
               offline: false,

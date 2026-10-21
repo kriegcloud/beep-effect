@@ -1,4 +1,3 @@
-import { Firecrawl } from "@beep/firecrawl";
 import {
   pullResearchNotionLinks,
   ResearchCommandServiceLive,
@@ -18,17 +17,9 @@ import * as Str from "effect/String";
 
 // Nothing in this suite reaches Notion: every run reads the local links-file
 // backfill seam, which is the same code path minus the HTTP request.
-const fakeFirecrawlClient = {
-  scrape: () => Promise.resolve({ markdown: "", metadata: {} }),
-} as never;
-
 const testLayer = Layer.mergeAll(
   ResearchCommandServiceLive.pipe(
-    Layer.provideMerge(
-      Layer.mergeAll(Firecrawl.makeLayerFromClient(fakeFirecrawlClient), FetchHttpClient.layer).pipe(
-        Layer.provideMerge(NodeServices.layer)
-      )
-    )
+    Layer.provideMerge(FetchHttpClient.layer.pipe(Layer.provideMerge(NodeServices.layer)))
   ),
   NodeServices.layer
 );

@@ -27,11 +27,11 @@ A bun -e probe using installed effect/Schema and SchemaUtils.withNoneDefault dec
 - `goals/boolean-creep/GOAL.md`: `560a143a9a389f361a14c08d15818ab7fb988be6b85f4f403ee17cb64f2d188d`
 - `goals/boolean-creep/SPEC.md`: `9df7ebe63b9c7c1e253892ff1b36600baa8b22f7c6598617e7e8995575ad5087`
 - `goals/boolean-creep/DECISIONS.md`: `e6851a394568acf774d51b2d840635b8f4fbee200dd346d26bc82dbef624ea8d`
-- `packages/drivers/xai/src/XAi.models.ts`: `1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6`
-- `packages/drivers/xai/src/XAi.service.ts`: `fe94aeac166efae741d048358f2555af0d33729bf498f7ff1606cc09ee95fd44`
-- `packages/drivers/xai/src/index.ts`: `6610717811ff8f87a8472608f082808ad09b71017fee8506c97e23c476f1848d`
-- `packages/drivers/xai/test/XAi.service.test.ts`: `210e679a932c984b98109135f95b0fa65d17ae4ef6c43571167c7d6206665c75`
-- `packages/drivers/xai/package.json`: `557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06`
+- `retired:xai/src/XAi.models.ts`: `1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6`
+- `retired:xai/src/XAi.service.ts`: `fe94aeac166efae741d048358f2555af0d33729bf498f7ff1606cc09ee95fd44`
+- `retired:xai/src/index.ts`: `6610717811ff8f87a8472608f082808ad09b71017fee8506c97e23c476f1848d`
+- `retired:xai/test/XAi.service.test.ts`: `210e679a932c984b98109135f95b0fa65d17ae4ef6c43571167c7d6206665c75`
+- `retired:xai/package.json`: `557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06`
 - `packages/foundation/modeling/schema/src/SchemaUtils/withLiteralKitStatics.ts`: `8359e2c68161e01fba2e93bbac6f5fc522cf869ca3c0fa6a20703509d883c707`
 - `node_modules/@types/ws/index.d.ts`: `1ba59c8bbeed2cb75b239bb12041582fa3e8ef32f8d0bd0ec802e38442d3f317`
 - `bun.lock`: `acba0f05d1f3c47cb1a67598f992b80a8b4b96dada74c267d810c2fb1e1e4794`

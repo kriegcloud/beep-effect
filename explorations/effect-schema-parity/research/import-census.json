@@ -228,8 +228,8 @@
       "src_imports": 7
     },
     {
-      "path": "packages/drivers/venice-ai",
-      "name": "@beep/venice-ai",
+      "path": "retired:venice-ai",
+      "name": "retired:venice-ai",
       "imports": 13,
       "files": 4,
       "src_imports": 6
@@ -347,8 +347,8 @@
       "src_imports": 5
     },
     {
-      "path": "packages/drivers/xai",
-      "name": "@beep/xai",
+      "path": "retired:xai",
+      "name": "retired:xai",
       "imports": 8,
       "files": 7,
       "src_imports": 7
@@ -445,8 +445,8 @@
       "src_imports": 5
     },
     {
-      "path": "packages/drivers/firecrawl",
-      "name": "@beep/firecrawl",
+      "path": "retired:firecrawl",
+      "name": "retired:firecrawl",
       "imports": 6,
       "files": 3,
       "src_imports": 6
@@ -732,8 +732,8 @@
       "src_imports": 2
     },
     {
-      "path": "packages/drivers/face-detection",
-      "name": "@beep/face-detection",
+      "path": "retired:face-detection",
+      "name": "retired:face-detection",
       "imports": 2,
       "files": 2,
       "src_imports": 2

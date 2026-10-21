@@ -109,7 +109,7 @@ precondition falsely read satisfied. This is the beep-native instance of Graphno
 ```
 rg -in 'retiredBy|retirementReason|blocksReingest|reingest|re-ingest' --glob 'packages/**/src/**/*.ts'
 rg -in 'forgetTopic|forgetBy|softDelete|soft_delete|deletedAt|forgottenAt' --glob 'packages/**/src/**/*.ts'
-   → only @beep/firecrawl `deleteBrowser` (unrelated driver surface)
+   → only retired:firecrawl `deleteBrowser` (unrelated driver surface)
 rg -in 'setConfidence|reinforce|decayConfidence|lastAccessedAt|accessCount' --glob 'packages/**/src/**/*.ts'
 rg -in 'decay' --glob 'packages/**/src/**/*.ts'
    → 2 hits, both `AgentEffectiveness/internal/Eval*.ts` "monotone reciprocal decay 1/(1+violations)"

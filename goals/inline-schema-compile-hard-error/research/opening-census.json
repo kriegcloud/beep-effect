@@ -83,10 +83,10 @@
     "@beep/epistemic-ui": 4,
     "@beep/epistemic-use-cases": 32,
     "@beep/exiftool": 8,
-    "@beep/face-detection": 7,
+    "retired:face-detection": 7,
     "@beep/ffmpeg": 7,
     "@beep/file-processing": 15,
-    "@beep/firecrawl": 16,
+    "retired:firecrawl": 16,
     "@beep/gov-legal-mcp": 48,
     "@beep/govinfo": 11,
     "@beep/html": 159,
@@ -144,13 +144,13 @@
     "@beep/uspto": 2,
     "@beep/uspto-mcp": 10,
     "@beep/utils": 5,
-    "@beep/venice-ai": 1,
+    "retired:venice-ai": 1,
     "@beep/wink": 25,
     "@beep/workspace-domain": 16,
     "@beep/workspace-server": 16,
     "@beep/workspace-tables": 4,
     "@beep/workspace-use-cases": 22,
-    "@beep/xai": 6
+    "retired:xai": 6
   },
   "byMigrationShape": {
     "compiled-assertion-adapter": 3,
@@ -1505,8 +1505,8 @@
       }
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
-      "ownerFamily": "@beep/face-detection",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "findingCount": 7,
       "byCompiler": {
@@ -1542,8 +1542,8 @@
       }
     },
     {
-      "filename": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
-      "ownerFamily": "@beep/firecrawl",
+      "filename": "retired:firecrawl/src/Firecrawl.service.ts",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "findingCount": 2,
       "byCompiler": {
@@ -1555,8 +1555,8 @@
       }
     },
     {
-      "filename": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
-      "ownerFamily": "@beep/firecrawl",
+      "filename": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "findingCount": 1,
       "byCompiler": {
@@ -1567,8 +1567,8 @@
       }
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
-      "ownerFamily": "@beep/firecrawl",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "findingCount": 13,
       "byCompiler": {
@@ -2077,8 +2077,8 @@
       }
     },
     {
-      "filename": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
-      "ownerFamily": "@beep/venice-ai",
+      "filename": "retired:venice-ai/src/VeniceAI.service.ts",
+      "ownerFamily": "retired:venice-ai",
       "ownership": "authored",
       "findingCount": 1,
       "byCompiler": {
@@ -2154,8 +2154,8 @@
       }
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
-      "ownerFamily": "@beep/xai",
+      "filename": "retired:xai/test/XAi.service.test.ts",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "findingCount": 6,
       "byCompiler": {
@@ -11665,58 +11665,58 @@
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 95,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 106,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 109,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 125,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 137,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 146,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "line": 155,
       "compiler": "encodeResult",
-      "ownerFamily": "@beep/face-detection",
+      "ownerFamily": "retired:face-detection",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
@@ -11777,130 +11777,130 @@
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "filename": "retired:firecrawl/src/Firecrawl.service.ts",
       "line": 453,
       "compiler": "encodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "filename": "retired:firecrawl/src/Firecrawl.service.ts",
       "line": 454,
       "compiler": "decodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "filename": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "line": 47,
       "compiler": "is",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-nested-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 183,
       "compiler": "decodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 193,
       "compiler": "decodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 200,
       "compiler": "encodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 219,
       "compiler": "decodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 224,
       "compiler": "encodeEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 259,
       "compiler": "decodeUnknownEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 263,
       "compiler": "decodeUnknownEffect",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 280,
       "compiler": "decodeUnknownOption",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 281,
       "compiler": "decodeUnknownOption",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 282,
       "compiler": "decodeUnknownOption",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 283,
       "compiler": "decodeUnknownOption",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 284,
       "compiler": "decodeUnknownOption",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "line": 285,
       "compiler": "decodeUnknownOption",
-      "ownerFamily": "@beep/firecrawl",
+      "ownerFamily": "retired:firecrawl",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
@@ -13713,10 +13713,10 @@
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "filename": "retired:venice-ai/src/VeniceAI.service.ts",
       "line": 1590,
       "compiler": "decodeEffect",
-      "ownerFamily": "@beep/venice-ai",
+      "ownerFamily": "retired:venice-ai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
@@ -13921,50 +13921,50 @@
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "line": 372,
       "compiler": "decodeResult",
-      "ownerFamily": "@beep/xai",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "line": 373,
       "compiler": "decodeResult",
-      "ownerFamily": "@beep/xai",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "line": 374,
       "compiler": "decodeResult",
-      "ownerFamily": "@beep/xai",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "line": 375,
       "compiler": "decodeResult",
-      "ownerFamily": "@beep/xai",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "line": 376,
       "compiler": "decodeResult",
-      "ownerFamily": "@beep/xai",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "line": 443,
       "compiler": "is",
-      "ownerFamily": "@beep/xai",
+      "ownerFamily": "retired:xai",
       "ownership": "authored",
       "migrationShape": "hoisted-static-schema-compiler"
     },

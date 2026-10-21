@@ -854,7 +854,7 @@
       "manual": []
     },
     {
-      "filename": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "filename": "retired:face-detection/test/FaceDetection.service.test.ts",
       "findings": 7,
       "rewritten": 7,
       "compilerConstants": 6,
@@ -878,7 +878,7 @@
       "manual": []
     },
     {
-      "filename": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "filename": "retired:firecrawl/src/Firecrawl.service.ts",
       "findings": 2,
       "rewritten": 2,
       "compilerConstants": 2,
@@ -886,14 +886,14 @@
       "manual": []
     },
     {
-      "filename": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "filename": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "findings": 1,
       "rewritten": 0,
       "compilerConstants": 0,
       "reusedConstants": 0,
       "manual": [
         {
-          "filename": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+          "filename": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
           "line": 47,
           "method": "is",
           "reason": "compiler argument depends on function-local binding shape"
@@ -901,7 +901,7 @@
       ]
     },
     {
-      "filename": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "filename": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "findings": 13,
       "rewritten": 13,
       "compilerConstants": 12,
@@ -1228,7 +1228,7 @@
       "manual": []
     },
     {
-      "filename": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "filename": "retired:venice-ai/src/VeniceAI.service.ts",
       "findings": 1,
       "rewritten": 1,
       "compilerConstants": 1,
@@ -1276,7 +1276,7 @@
       "manual": []
     },
     {
-      "filename": "packages/drivers/xai/test/XAi.service.test.ts",
+      "filename": "retired:xai/test/XAi.service.test.ts",
       "findings": 6,
       "rewritten": 6,
       "compilerConstants": 6,
@@ -5107,7 +5107,7 @@
       "reason": "compiler argument depends on function-local binding JsonProviderUsage"
     },
     {
-      "filename": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "filename": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "line": 47,
       "method": "is",
       "reason": "compiler argument depends on function-local binding shape"

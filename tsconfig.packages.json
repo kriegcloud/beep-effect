@@ -142,13 +142,7 @@
       "path": "packages/drivers/exiftool"
     },
     {
-      "path": "packages/drivers/face-detection"
-    },
-    {
       "path": "packages/drivers/ffmpeg"
-    },
-    {
-      "path": "packages/drivers/firecrawl"
     },
     {
       "path": "packages/drivers/freshbooks"
@@ -253,16 +247,10 @@
       "path": "packages/drivers/uspto-mcp"
     },
     {
-      "path": "packages/drivers/venice-ai"
-    },
-    {
       "path": "packages/drivers/windows-secrets"
     },
     {
       "path": "packages/drivers/wink"
-    },
-    {
-      "path": "packages/drivers/xai"
     },
     {
       "path": "packages/drivers/xstate"

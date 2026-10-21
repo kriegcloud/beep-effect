@@ -49,7 +49,7 @@ Paths: `B` = `packages/drivers/box-provisioning/src/internal/canonical.ts`, `Q` 
 | 2 | exports | `B:boxContentMigrationPlanDigest` (`:176`) | 0 | `:188`, `:193` | rg | fix-remove-export | Private helper of the plan-digest builders. Owner `@beep/box-provisioning` |
 | 3 | exports | `B:boxProvisioningPlanDigest` (`:137`) | 0 | `:149`, `:154` | rg | fix-remove-export | Same as row 2 |
 | 4 | exports | `B:canonicalBoxContentMigrationMap` (`:160`) | 0 | `:174` | rg | fix-remove-export | Same as row 2 |
-| 5 | exports | `packages/drivers/box/src/internal/Box.runtime.ts:diagnosticsFor` (`:131`) | 0 | `:155` | rg. `xai`, `firecrawl`, `venice-ai`, and `runpod` each define their own private `const diagnosticsFor` and do not import this one | fix-remove-export | Owner `@beep/box` |
+| 5 | exports | `packages/drivers/box/src/internal/Box.runtime.ts:diagnosticsFor` (`:131`) | 0 | `:155` | rg. `retired:xai`, `retired:firecrawl`, `retired:venice-ai`, and `runpod` each define their own private `const diagnosticsFor` and do not import this one | fix-remove-export | Owner `@beep/box` |
 | 6 | exports | `packages/drivers/occt/src/internal/shading.ts:lightFor` (`:27`) | 0 | `:142` | `graft callers lightFor` → only `shadeFace` (same file) | fix-remove-export | Named candidate. Owner `@beep/occt` |
 | 7 | exports | `…/occt/src/internal/shading.ts:pitchFor` (`:40`) | 0 | `:146` | `graft callers pitchFor` → only `shadeFace` | fix-remove-export | Named candidate. Owner `@beep/occt` |
 | 8 | exports | `packages/drivers/pdf-tools/src/internal/ppm.ts:parseP6Header` (`:62`) | 0 | `:166` | `graft callers` → only `measureP6` (same file) | fix-remove-export | Named candidate. Owner `@beep/pdf-tools` |

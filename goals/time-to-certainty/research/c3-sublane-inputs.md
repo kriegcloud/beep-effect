@@ -270,7 +270,7 @@ Workspace script counts below use `rg --files --hidden packages apps infra -g pa
 | `packages/epistemic/tables/package.json:34` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/architecture-lab/ui/package.json:33` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/documents/tables/package.json:33` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
-| `packages/drivers/xai/package.json:37` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
+| `retired:xai/package.json:37` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/law-practice/use-cases/package.json:30` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/architecture-lab/tables/package.json:33` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/n3/package.json:31` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
@@ -283,7 +283,7 @@ Workspace script counts below use `rg --files --hidden packages apps infra -g pa
 | `packages/drivers/m365-mcp/package.json:37` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/architecture-lab/config/package.json:33` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/documents/server/package.json:34` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
-| `packages/drivers/venice-ai/package.json:38` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
+| `retired:venice-ai/package.json:38` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/architecture-lab/server/package.json:34` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/agents/server/package.json:33` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/libpff/package.json:38` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
@@ -312,10 +312,10 @@ Workspace script counts below use `rg --files --hidden packages apps infra -g pa
 | `packages/tooling/library/codegen-kit/package.json:37` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/tailscale/package.json:36` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/acp/package.json:41` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
-| `packages/drivers/face-detection/package.json:36` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
+| `retired:face-detection/package.json:36` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/freshbooks/package.json:36` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/govinfo/package.json:41` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
-| `packages/drivers/firecrawl/package.json:38` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
+| `retired:firecrawl/package.json:38` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/ffmpeg/package.json:37` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/drivers/shacl/package.json:31` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
 | `packages/law-practice/server/package.json:29` | `package-test-typecheck` = `beep-cli quality test-tsgo-package` |
@@ -1352,7 +1352,7 @@ extend-exclude = [
   "packages/law-practice/domain/src/internal/generated/free-law-project/**",
   "**/src-tauri/gen/**",
   "**/src-tauri/target/**",
-  "packages/drivers/venice-ai/swagger.yaml",
+  "retired:venice-ai/swagger.yaml",
   "packages/foundation/modeling/html/data/**",
   "packages/foundation/modeling/html/src/internal/Html.language-tag-registry.generated.ts",
   "patches/**",

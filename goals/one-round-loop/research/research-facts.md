@@ -192,8 +192,8 @@
   BEEP_INVOCATION_CWD stash is defensive only.
 - findRepoRoot is worktree-safe (fs.exists matches the `.git` FILE in
   linked worktrees — no teleport to the main checkout).
-- Fixed-point migration targets (corrected): venice-ai
-  VeniceAI.service.ts:75-95; phoenix Phoenix.config.ts:16-36; m365
+- Fixed-point migration targets (corrected): retired:venice-ai
+  retired:venice-ai/src/VeniceAI.service.ts:75-95; phoenix Phoenix.config.ts:16-36; m365
   M365.config.ts:139-159 (byte-identical hand-rolls); uspto
   Uspto.config.ts:30-41 lacks the check (migration = behavior
   tightening). TSConfigJsonKey is a __proto__ guard, NOT a fixed-point

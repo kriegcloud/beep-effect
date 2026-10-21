@@ -205,14 +205,14 @@
     {
       "id": "venice-sse-done-payload",
       "role": "P",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "old": 648,
       "new": 649
     },
     {
       "id": "venice-sse-done-payload",
       "role": "E3",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "old": 1899,
       "new": 1900
     },
@@ -534,7 +534,7 @@
     {
       "id": "venice-response-content-type-classifiers",
       "role": "P",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "old": 1523,
       "new": 1524
     },
@@ -744,7 +744,7 @@
     {
       "id": "r3-drivers-arch-venice-content-type-probes",
       "role": "P",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "old": 1528,
       "new": 1529
     },

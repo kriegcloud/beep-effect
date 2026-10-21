@@ -58,7 +58,7 @@ Any failure forces a recorded proceed/reshape/stop decision before P1.
 - `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts` and
   `speech-input.tsx` — **UI/state-machine precedent only**; their ElevenLabs cloud
   path is not reusable for privileged audio.
-- `packages/drivers/xai` and `packages/drivers/venice-ai` — existing voice-driver
+- `retired:xai` and `retired:venice-ai` — existing voice-driver
   evidence for gated follow-ons, not slice dependencies.
 - `apps/professional-desktop/src/chat/ui/Composer.tsx` and
   `packages/foundation/ui-system/editor/src/chat/chat-composer.tsx` — composer

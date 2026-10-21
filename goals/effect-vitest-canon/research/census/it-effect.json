@@ -619,7 +619,7 @@
       "lines": [113, 129, 190, 229, 265, 303]
     },
     {
-      "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "file": "retired:face-detection/test/FaceDetection.service.test.ts",
       "count": 2,
       "lines": [218, 230]
     },
@@ -639,12 +639,12 @@
       "lines": [269, 317, 364, 401]
     },
     {
-      "file": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "file": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "count": 11,
       "lines": [180, 190, 216, 256, 290, 301, 312, 415, 448, 483, 502]
     },
     {
-      "file": "packages/drivers/firecrawl/test/integration/Firecrawl.live.test.ts",
+      "file": "retired:firecrawl/test/integration/Firecrawl.live.test.ts",
       "count": 2,
       "lines": [27, 38]
     },
@@ -917,12 +917,12 @@
       "lines": [106, 124, 137, 149, 161, 174, 188]
     },
     {
-      "file": "packages/drivers/venice-ai/test/VeniceAI.service.test.ts",
+      "file": "retired:venice-ai/test/VeniceAI.service.test.ts",
       "count": 11,
       "lines": [545, 570, 594, 649, 741, 761, 805, 926, 957, 1004, 1039]
     },
     {
-      "file": "packages/drivers/venice-ai/test/integration/VeniceAI.integration.test.ts",
+      "file": "retired:venice-ai/test/integration/VeniceAI.integration.test.ts",
       "count": 1,
       "lines": [37]
     },
@@ -947,7 +947,7 @@
       "lines": [21, 31, 39]
     },
     {
-      "file": "packages/drivers/xai/test/XAi.service.test.ts",
+      "file": "retired:xai/test/XAi.service.test.ts",
       "count": 9,
       "lines": [430, 460, 503, 563, 633, 664, 690, 715, 728]
     },

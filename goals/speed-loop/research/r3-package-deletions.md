@@ -18,7 +18,7 @@ Deleting all eight removes 124 tracked files and an estimated 125.056 s
 task-time sum, not a prediction that a parallel Turbo wall clock falls by the
 same amount [E4]. It is also deliberately an upper-biased historical estimate:
 the requested census was captured before the same branch's `MimeType` fix,
-which reduced the measured `@beep/xai` check from 17.94 s to 0.488 s without
+which reduced the measured `retired:xai` check from 17.94 s to 0.488 s without
 materially changing instantiation counts [E5]. Re-run the census after deletion
 before claiming a current wall-clock win.
 
@@ -57,7 +57,7 @@ false-zero packages, and packet/docs evidence explicitly retains others
   below is `census check_s + L + T + B + D`; it excludes coverage,
   integration/property/type-test, root orchestration, and downstream work.
 - **E5 — staleness correction.** The branch later removed the `MimeType`
-  check-time bomb; the before/after probe and `@beep/xai` measurement are at
+  check-time bomb; the before/after probe and `retired:xai` measurement are at
   `goals/quality-speedup/research/instantiation-census.md:150-173`.
 - **E6 — generated/config surfaces.** Package membership is repeated in
   `package.json:440-544`, `syncpack.config.ts:42-109`, root aliases such as
@@ -129,8 +129,8 @@ All numeric cells derive from E3–E4.
 | 2 | `@beep/db-admin` | 0p/0t; zero-consumer | 38.182; 20.334 / 4,980,615; 2807/3016/263/11762; 48 | Desktop migration-bundle input; import count is the wrong liveness signal [E15]. | **keep** |
 | 3 | `@beep/acp` | 0p/0t; zero-consumer | 30.485; 18.767 / 2,146,182; 2773/3624/336/4985; 30 | Mentioned by agent-chat research but has no implemented consumer [E13]. Operator explicitly identifies it as unused. | **candidate** |
 | 4 | `@beep/shared-tables` | 0p/0t; zero-consumer | 29.652; 18.267 / 2,338,750; 2805/2427/194/5959; 22 | Shared package law marks it Active [E9]. | **keep** |
-| 5 | `@beep/venice-ai` | 0p/0t; zero-consumer | 29.276; 17.716 / 2,066,983; 2786/2735.5/2300/3739; 17 | Planned provider brick and consumer of retained `openai-compat` [E13]. | **keep** |
-| 6 | `@beep/xai` | 0p/0t; zero-consumer | 28.247; 17.939 / 2,027,392; 2760/2981/255/4312; 19 | Planned provider brick; also the only post-fix check remeasurement [E5,E13]. | **keep** |
+| 5 | `retired:venice-ai` | 0p/0t; zero-consumer | 29.276; 17.716 / 2,066,983; 2786/2735.5/2300/3739; 17 | Planned provider brick and consumer of retained `openai-compat` [E13]. | **keep** |
+| 6 | `retired:xai` | 0p/0t; zero-consumer | 28.247; 17.939 / 2,027,392; 2760/2981/255/4312; 19 | Planned provider brick; also the only post-fix check remeasurement [E5,E13]. | **keep** |
 | 7 | `@beep/pandoc-ast` | 0p/0t; zero-consumer | 28.007; 17.300 / 2,169,300; 2697.5/3960.5/255/3794; 22 | Completed-retained document interchange foundation [E9]. | **keep** |
 | 8 | `@beep/gov-legal-mcp` | 0p/0t; zero-consumer | 27.977; 18.297 / 2,177,639; 2754/2794/216/3916; 22 | Completed standalone host; root semantics are out-of-scan [E11]. | **keep** |
 | 9 | `@beep/nlp-mcp` | 0p/0t; zero-consumer | 27.709; 17.286 / 2,914,101; 2758/2989/256/4420; 23 | Completed standalone host [E11]. | **keep** |
@@ -170,14 +170,14 @@ previous table [E1–E4].
 | 9 | `@beep/ecfr` | 1: `gov-legal-mcp` | 27.134; 17.854 / 1,811,396; 2800.5/2701.5/228/3550; 17 | Product-pulled completed government driver [E12]. | **keep** |
 | 10 | `@beep/m365` | 1: `m365-mcp` | 27.058; 17.887 / 1,934,196; 2764/2601.5/226/3579; 16 | Completed standalone M365 host chain [E11]. | **keep** |
 | 11 | `@beep/ffmpeg` | 2: `qa-capture`, `repo-cli` | 26.875; 17.934 / 1,853,222; 2839/2556/263.5/3283; 19 | Repo/QA tool consumers. | **keep** |
-| 12 | `@beep/firecrawl` | 1: `repo-cli` | 26.847; 17.848 / 1,944,709; 2691/2540.5/252/3516; 18 | Repo corpus/tool consumer. | **keep** |
-| 13 | `@beep/face-detection` | 1: `repo-cli` | 26.845; 18.159 / 1,757,251; 2736/2473/214/3263; 10 | Repo files-tool consumer. | **keep** |
+| 12 | `retired:firecrawl` | 1: `repo-cli` | 26.847; 17.848 / 1,944,709; 2691/2540.5/252/3516; 18 | Repo corpus/tool consumer. | **keep** |
+| 13 | `retired:face-detection` | 1: `repo-cli` | 26.845; 18.159 / 1,757,251; 2736/2473/214/3263; 10 | Repo files-tool consumer. | **keep** |
 | 14 | `@beep/exiftool` | 1: `repo-cli` | 26.797; 17.905 / 1,777,256; 2747/2440/206/3499; 17 | QA provenance/tool consumer. | **keep** |
 | 15 | `@beep/test-utils` | 1 prod: `repo-cli`; 95 test consumers | 26.781; 17.830 / 1,758,969; 2847/2378/213/3513; 21 | Core test substrate; “near-zero” is misleading. | **keep** |
 | 16 | `@beep/chalk` | 2: `repo-cli`, `repo-docgen` | 26.472; 17.520 / 1,812,320; 2798/2424/235/3495; 20 | Repo-tool UI dependency. | **keep** |
 | 17 | `@beep/uspto` | 2: `repo-cli`, `uspto-mcp` | 26.384; 17.770 / 1,759,278; 2774/2505/206/3129; 14 | Completed standalone USPTO host chain [E11]. | **keep** |
 | 18 | `@beep/phoenix` | 2: `repo-ai-metrics`, `repo-cli` | 26.298; 17.488 / 1,771,763; 2676/2564/215/3355; 14 | Repo metrics/tool consumers. | **keep** |
-| 19 | `@beep/openai-compat` | 2: `venice-ai`, `xai` | 26.276; 17.296 / 1,875,843; 2760/2624/218/3378; 15 | Retained provider substrate [E13]. | **keep** |
+| 19 | `@beep/openai-compat` | 2: `retired:venice-ai`, `retired:xai` | 26.276; 17.296 / 1,875,843; 2760/2624/218/3378; 15 | Retained provider substrate [E13]. | **keep** |
 | 20 | `@beep/obs` | 1: `repo-cli` | 25.961; 16.981 / 1,814,752; 2767/2326/211/3676; 18 | Browser-QA recording tool consumer. | **keep** |
 | 21 | `@beep/fc-runs` | 1 prod: `test-utils`; 4 test consumers | 5.641; 0.003 / 1,333; 2821/680/147/1990; 12 | Property-test control substrate. | **keep** |
 
@@ -217,7 +217,7 @@ though nothing imports an app package.
 `@beep/pandoc-ast (0p/0t)`, `@beep/protobuf (0p/0t)`,
 `@beep/repo-cli (0p/0t)`, `@beep/shared-tables (0p/0t)`,
 `@beep/tailscale (0p/0t)`, `@beep/uspto-mcp (0p/0t)`,
-`@beep/venice-ai (0p/0t)`, `@beep/xai (0p/0t)` [E1].
+`retired:venice-ai (0p/0t)`, `retired:xai (0p/0t)` [E1].
 
 ### Test-only-consumer (0)
 
@@ -226,8 +226,8 @@ None [E1].
 ### Driver-with-no-product-use (21)
 
 `@beep/chalk (2p/1t)`, `@beep/ecfr (1p/1t)`, `@beep/exiftool (1p/1t)`,
-`@beep/face-detection (1p/0t)`, `@beep/fc-runs (1p/4t)`,
-`@beep/ffmpeg (2p/2t)`, `@beep/firecrawl (1p/1t)`, `@beep/govinfo (1p/1t)`,
+`retired:face-detection (1p/0t)`, `@beep/fc-runs (1p/4t)`,
+`@beep/ffmpeg (2p/2t)`, `retired:firecrawl (1p/1t)`, `@beep/govinfo (1p/1t)`,
 `@beep/m365 (1p/1t)`, `@beep/nlp-processing (2p/2t)`, `@beep/obs (1p/0t)`,
 `@beep/openai-compat (2p/0t)`, `@beep/phoenix (2p/1t)`,
 `@beep/qa-capture (1p/1t)`, `@beep/repo-ai-metrics (1p/1t)`,

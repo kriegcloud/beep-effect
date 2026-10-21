@@ -7620,11 +7620,11 @@
       "disposition": "historical-link"
     },
     {
-      "liveId": "EV010:packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts:6:@effect/platform-node@0#1",
+      "liveId": "EV010:retired:face-detection/test/OnnxRuntimeInstall.test.ts:6:@effect/platform-node@0#1",
       "historicalIds": [
-        "EV010:packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts:6:@effect/platform-node@0#1"
+        "EV010:retired:face-detection/test/OnnxRuntimeInstall.test.ts:6:@effect/platform-node@0#1"
       ],
-      "mainId": "EV010:packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts:6:@effect/platform-node@0#1",
+      "mainId": "EV010:retired:face-detection/test/OnnxRuntimeInstall.test.ts:6:@effect/platform-node@0#1",
       "disposition": "historical-link"
     },
     {
@@ -7833,9 +7833,9 @@
       "disposition": "historical-link"
     },
     {
-      "liveId": "EV010:packages/drivers/venice-ai/test/VeniceAI.service.test.ts:25:@effect/platform-node-shared/NodeFileSystem@0#1",
+      "liveId": "EV010:retired:venice-ai/test/VeniceAI.service.test.ts:25:@effect/platform-node-shared/NodeFileSystem@0#1",
       "historicalIds": [],
-      "mainId": "EV010:packages/drivers/venice-ai/test/VeniceAI.service.test.ts:25:@effect/platform-node-shared/NodeFileSystem@0#1",
+      "mainId": "EV010:retired:venice-ai/test/VeniceAI.service.test.ts:25:@effect/platform-node-shared/NodeFileSystem@0#1",
       "disposition": "new-live-candidate"
     },
     {

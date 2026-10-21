@@ -14,15 +14,15 @@ following 18 existing computation nodes:
 - `@beep/exiftool#test`
 - `@beep/exiftool#test:integration`
 - `@beep/exiftool#test:integration:parallel`
-- `@beep/face-detection#audit`
-- `@beep/face-detection#build`
-- `@beep/face-detection#check`
-- `@beep/face-detection#coverage`
-- `@beep/face-detection#lint:deprecated-apis`
-- `@beep/face-detection#package-test-typecheck`
-- `@beep/face-detection#test`
-- `@beep/face-detection#test:integration`
-- `@beep/face-detection#test:property`
+- `retired:face-detection#audit`
+- `retired:face-detection#build`
+- `retired:face-detection#check`
+- `retired:face-detection#coverage`
+- `retired:face-detection#lint:deprecated-apis`
+- `retired:face-detection#package-test-typecheck`
+- `retired:face-detection#test`
+- `retired:face-detection#test:integration`
+- `retired:face-detection#test:property`
 
 Only those dependency arrays and this review reference change in the legacy
 baseline. Existing dependency multiplicity is preserved, including repeated

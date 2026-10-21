@@ -16,6 +16,7 @@ import {
   LibrarySource,
   LibraryVersion,
   loadCatalog,
+  removedLibraryWebAdapter,
   renderLibrary,
   saveImmutable,
   verifyLibrary,
@@ -29,8 +30,10 @@ import {
   librarySourceEvidenceValid,
   runLibraryCommand,
 } from "@beep/repo-cli/test/ResearchLibrary";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
@@ -39,6 +42,7 @@ import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const LibraryProbeEvidenceJson = S.fromJsonString(LibraryProbeEvidence);
 const UnknownJson = S.fromJsonString(S.Unknown);
@@ -46,7 +50,7 @@ const LibraryDispositionImportPayloadJson = S.fromJsonString(LibraryDispositionI
 const LibraryIntakeJson = S.fromJsonString(LibraryIntake);
 const libraryArtifactEquivalent = S.toEquivalence(LibraryArtifact);
 
-const webSourceKinds: ReadonlyArray<LibrarySource["kind"]> = ["web", "docs", "endpoint"];
+const webSourceKinds: ReadonlyArray<LibrarySource["kind"]> = ["web", "docs", "registry", "endpoint"];
 const fixtureJson = S.Unknown.pipe(S.fromJsonString, S.encodeEffect);
 
 const services = NodeServices.layer;
@@ -389,6 +393,35 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
     Effect.gen(function* () {
       const { root } = yield* fixture;
       yield* verifyLibrary(root);
+    })
+  );
+
+  it.effect("holds a failed retained receipt on the removed web route only to evidence integrity", () =>
+    Effect.gen(function* () {
+      const { root, catalog } = yield* fixture;
+      const retained = A.getUnsafe(catalog.qualifications, 0);
+      expect(retained.adapter).toBe(removedLibraryWebAdapter);
+      const failed = LibraryQualification.make({
+        ...retained,
+        id: "firecrawl-failed",
+        status: "failed",
+        recordedAt: "2026-10-07",
+      });
+      yield* withCatalog(root, () =>
+        Effect.succeed(LibraryCatalog.make({ ...catalog, qualifications: [...catalog.qualifications, failed] }))
+      );
+      yield* verifyLibrary(root);
+
+      const tampered = LibraryQualification.make({
+        ...failed,
+        evidence: A.map(failed.evidence, (artifact) =>
+          LibraryArtifact.make({ ...artifact, sha256: Str.repeat(64)("0") })
+        ),
+      });
+      yield* withCatalog(root, () =>
+        Effect.succeed(LibraryCatalog.make({ ...catalog, qualifications: [...catalog.qualifications, tampered] }))
+      );
+      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
     })
   );
 
@@ -2105,3 +2138,14 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
     })
   );
 });
+
+it.effect.prop(
+  "property: schema-generated library intakes survive a JSON round trip",
+  { value: Arbitrary.schema(LibraryIntake) },
+  ({ value }) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(LibraryIntakeJson)(yield* S.encodeEffect(LibraryIntakeJson)(value));
+      expect(decoded).toEqual(value);
+    }),
+  { arbitrary: fcRuns(32) }
+);

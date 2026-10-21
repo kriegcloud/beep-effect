@@ -121,7 +121,7 @@ tooling/library         92
 
 Heaviest single files: `drivers/box/src/_generated/Box.models.gen.ts` (478),
 `drivers/acp/src/_generated/schema.gen.ts` (342), `foundation/modeling/html/src/Html.model.ts`
-(310), `drivers/firecrawl/src/Firecrawl.models.ts` (245).
+(310), `retired:firecrawl/src/Firecrawl.models.ts` (245).
 
 ## Reproduction
 
