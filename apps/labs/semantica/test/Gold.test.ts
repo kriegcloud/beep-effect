@@ -24,7 +24,7 @@ import { GOLD_SUBSETS, GoldArtifactSemantics, proposeGold, resolveGoldQuoteAncho
 import { CorpusManifest, CorpusPaperId } from "@/corpus/Manifest";
 import { CorpusManifestBuilder } from "@/corpus/ManifestBuilder";
 import { F1Catalog, F1Index } from "@/fixtures/F1";
-import { GOLD_PROMPT_ARTIFACT_HASH } from "@/gold/Prompts";
+import { GOLD_PROMPT_ARTIFACT_HASH, GOLD_V1_PROPOSER_IDENTITY } from "@/gold/Prompts";
 import { CanonicalizerLive } from "@/layers/CanonicalizerLive";
 import { ActiveModelIdentityLive, promptText } from "@/layers/LanguageModelLive";
 import { LabConfig } from "@/runtime/Config";
@@ -211,7 +211,6 @@ const makeGoldTestLayer = (
         extractorModel: "stub-extractor-20260826",
         goldDirectory: "fixtures/gold/v1",
         goldGenerationTimeout,
-        goldModel: "stub-gold-20260826",
         ledgerRoot: ".beep/semantica/ledger",
         mode: "replay",
         offline: true,
@@ -293,6 +292,34 @@ describe("C0 gold proposer", () => {
             abstractLabels,
             (label) => label.verified && N.Equivalence(N.subtract(label.endChar, label.startChar), 8)
           ),
+          assertTrue
+        );
+      })
+    );
+
+    it.effect("records the frozen gold-v1 proposer identity in every committed file", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const expected = yield* ModelIdentity.encodeEffect(GOLD_V1_PROPOSER_IDENTITY);
+        const reference = yield* fs
+          .readFileString("fixtures/gold/v1/gold.json")
+          .pipe(Effect.flatMap(decodeGoldRefJson));
+        const files = yield* Effect.forEach(
+          GOLD_SUBSETS,
+          (subset) =>
+            Effect.forEach(reference.subsets[subset], (paperId) =>
+              fs
+                .readFileString(`fixtures/gold/v1/${paperId}.${subset}.json`)
+                .pipe(Effect.flatMap(decodeGoldFileEncodedJson))
+            ),
+          { concurrency: 1 }
+        ).pipe(Effect.map(A.flatten));
+
+        expect(GOLD_V1_PROPOSER_IDENTITY.artifactHash).toBe(GOLD_PROMPT_ARTIFACT_HASH);
+        expect(yield* ModelIdentity.encodeEffect(reference.proposer)).toEqual(expected);
+        expect(files).toHaveLength(18);
+        pipe(
+          A.every(files, (file) => GoldArtifactSemantics.modelIdentityEquivalence(file.proposer, expected)),
           assertTrue
         );
       })
@@ -561,7 +588,7 @@ describe("C0 gold proposer", () => {
           version: "0.0.0",
         });
         const error = yield* provideScopedLayer(makeGoldTestLayer(manifest, fixtures))(
-          runCanary(["gold", "propose", "--offline", "--paper", paperId, "--subset", "entity"]).pipe(
+          runCanary(["gold", "propose", "--paper", paperId, "--subset", "entity"]).pipe(
             Effect.provideService(CanaryC0, unusedCanaryC0),
             Effect.provideService(CanaryC1, unusedCanaryC1),
             Effect.provideService(CanaryC2, unusedCanaryC2),

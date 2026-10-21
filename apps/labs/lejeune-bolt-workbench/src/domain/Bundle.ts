@@ -866,7 +866,7 @@ const ProviderRecordingFields = S.Struct({
   documentId: S.Literal(PROVIDER_RECORDING_DOCUMENT_ID),
   extractionContractRevision: S.tag("lejeune-rfq-a-extraction/v1"),
   model: S.NonEmptyString,
-  provider: LiteralKit(["anthropic", "openai-compat", "venice-ai", "xai"]),
+  provider: LiteralKit(["anthropic", "openai-compat", "xai"]),
   recordedAt: IsoTimestamp,
   responseSha256: Sha256Hex,
   schemaVersion: S.tag("lejeune-provider-recording/v1"),
