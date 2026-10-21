@@ -192,7 +192,7 @@
     "A remediation requires an architecture or product decision outside packet scope.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "PR #1930 is open and ready at remote head 691ed8988d. Round-one PDF, drawing consumer, claim-budget and native-crypto repairs have focused proof and an independent source review; the canonical property migration passes both global gates and 51 tests in each runtime. Fresh paginated reads still match all 123 captured open Dependabot IDs. Final-head hosted checks, review, merge, merged-revision proof and exact-ID closure remain required; lifecycle stays active.",
+  "statusNote": "PR #1930 is open and ready at remote head 8f87909156. First-review source repairs passed collected publication gates and clean-install preflight; four threads are resolved. A hosted stale PDF catalog description has a canonical generated correction and passing read-only catalog check. Follow-up publication, exact-head hosted readiness/review, merge, merged-revision proof and exact-ID closure remain required; lifecycle stays active.",
   "proposedCloseout": {
     "status": "completed-retained",
     "finalPullRequest": 1930

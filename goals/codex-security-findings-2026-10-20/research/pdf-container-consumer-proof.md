@@ -108,3 +108,20 @@ receipts are ignored `../raw/drawing-property-{effect-vitest-final,
 schema-first-final,canonical-bun,canonical-node,canonical-typecheck,
 canonical-root-oxlint,canonical-package}.log`. No git, inbox or publication
 mutation was performed by this repair lane.
+
+## Hosted schema catalog follow-up
+
+Final-head Repo Sanity job `119051831298` reported one stale generated schema
+shard after the PDF discovery completeness change. Confirmed the supported
+`beep lint schema-catalog --help` route, then ran
+`bun run beep lint schema-catalog --write`. It regenerated only
+`standards/schema-catalog/@beep/pdf-tools.generated.jsonc`: one description
+line for `PdfStructure` now states separate discovery/inflate completeness.
+The catalog records schema metadata rather than individual struct fields.
+No quality baseline or unrelated generated shard changed.
+
+`bun run beep lint schema-catalog` then passed with **8246 entries / 145 shards**.
+The generated diff passes whitespace checks. Receipts are ignored
+`../raw/pdf-schema-catalog-{write,check}.log`. This resolves local generated
+drift; a fresh hosted result is still required for the next consolidated head.
+No commit, inbox acknowledgment or publication by this lane.

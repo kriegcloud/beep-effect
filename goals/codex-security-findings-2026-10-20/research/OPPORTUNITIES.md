@@ -76,3 +76,22 @@ correctly required property coverage. Added a derived measurement property that
 checks round-trip preservation and legacy omission defaults. The global gate now
 passes with no inventory waiver. Run that gate while adding codec assertions,
 not only after a publication commit.
+
+### Refresh generated schema catalogs after public shape changes
+
+Final-head Repo Sanity job `119051831298` rejected the stale generated
+`@beep/pdf-tools` schema catalog after adding the discovery-status field.
+Focused package proof and collected publication gates did not run that catalog
+check. Regenerate through `beep lint schema-catalog --write` and prove the
+read-only catalog gate before the follow-up push; retain the exact generated
+delta. A public schema change should route its catalog refresh alongside its
+codec and consumer proof.
+
+### Retain the actual readiness verdict for proposed completion
+
+The detached `--until-ready` monitor does not write a run verdict. Publication
+alone can retain the pre-amend invocation head and no merge-readiness result.
+After exact-head readiness, run the supported classic monitor to obtain the
+genuine head-bound verdict, retain its bytes and digest, then use the pinned
+merge gate before completion refresh. Never synthesize or hand-edit a green
+verdict.

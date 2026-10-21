@@ -1,35 +1,36 @@
 # Working state
 
-## Current handoff — 2026-10-21 05:04 UTC
+## Current handoff — 2026-10-21 05:22 UTC
 
 PR [#1930](https://github.com/beep-effect/beep-effect/pull/1930) is open and ready.
-Its remote head is `691ed8988dead48c49ae36087922995c23e57074`.
-PR #1928 merged at `426d494b3433ccddf797a2d896984f1ad23c81ad` and
-that main revision is integrated; the execution hold is released.
+The remote head is `8f8790915661906c9d272c6e854faced362a8d52`; prerequisite
+main `426d494b3433ccddf797a2d896984f1ad23c81ad` is integrated.
 
-The combined first-review repair remains unpublished. The new Effect/Vitest
-EV007 finding is repaired with canonical it.effect.prop registration, retaining
-the schema-derived round-trip and legacy-default assertions. Both actual global
-Effect/Vitest and schema-first gates pass, with 51 focused tests in Bun and Node,
-strict type checking, root lint and CLI quick checks passing. No baseline changed. The hub's
-hosted Lint Policy failure is repaired locally using native constant-time crypto
-and the existing guarded Node test compatibility shim. See the review proof
-reports for PDF discovery, drawing consumers, claim budgets and hub crypto.
+All first-review source repairs and canonical property registration are pushed.
+Collected publication gates and clean-install preflight passed. All four review
+threads are resolved. The independently bound source review records actual
+confidence 4/5, tier L3 and no actionable introduced P0/P1/P2; its COMMENT review
+was posted through the required App. A later external controller review is now
+in progress and must be allowed to report its actual result.
 
-All four round-one review replies are drafted but must be bound to the final
-pushed SHA before posting. The independent source review must also be rebound
-to the final immutable head. The required reviewer App has no run on the remote
-head; publish the actual independent report through the supported App workflow,
-with its explicit Codex provenance and real score, after the fix push.
+Hosted Repo Sanity job `119051831298` found a stale PDF schema catalog. Canonical
+catalog write and read-only verification pass (8,246 entries, 145 shards), with
+exactly one generated PDF description update. No production code or quality
+baseline changed. Publish this correction with its proof and packet receipts as
+one follow-up wave, then bind the independent review to that exact head.
 
-The previous readiness job `5a634b17-4a8e-4ce2-a99c-079e7ba96907` ended
-on its required-check census timeout. Its terminal row was observed. Do not reuse
-it as a running job; the next successful publish must submit a fresh monitor.
-The original prerequisite heartbeat was removed after successful resume.
+Readiness job `6e59e9bd-f470-4608-82bf-1c011cdd5ca0` remains running; job wait
+returned exit 2 for the Repo Sanity wave. Reuse that same job after publication.
+The older `5a634b17-4a8e-4ce2-a99c-079e7ba96907` ended and is not active.
 
-All eight Cloud IDs and all 123 captured Dependabot IDs still require exact-ID
-closure after merge and merged-revision proof. No external finding status has
-changed; lifecycle remains active. Retained recovery stashes must be preserved.
+The packet ships prospective closeout and reflection while operative lifecycle
+stays active. After readiness, use the supported classic monitor to retain an
+actual head-bound merge-ready verdict at the declared path; the detached loop
+does not write one. Use the pinned merge gate, verify the merged revision, then
+close the exact eight Cloud and 123 captured Dependabot IDs. Only after those
+receipts exist, run goal completion refresh for clone-scoped derived completion.
+No second PR is required. No external finding status has changed. Preserve both
+recovery stashes; the prerequisite heartbeat was already removed.
 
 ## Historical execution ledger
 
