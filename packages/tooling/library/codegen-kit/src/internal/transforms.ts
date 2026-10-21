@@ -291,12 +291,13 @@ const isAnnotationOnly = (node: Record<string, unknown>): boolean => A.every(R.k
 
 const failIntersect = (message: string): never => transformFailure("intersectSiblingProperties", message);
 
-// `number` contains `integer`, so only the other pairs of distinct single types are disjoint.
+// `number` contains `integer`, so that pair intersects to `integer`; any other pair of distinct
+// single types is disjoint.
+const isNumberIntegerPair = (left: unknown, right: unknown): boolean =>
+  left !== right && A.every([left, right], (type) => type === "number" || type === "integer");
+
 const disjointTypes = (left: unknown, right: unknown): boolean =>
-  P.isString(left) &&
-  P.isString(right) &&
-  left !== right &&
-  !A.every([left, right], (type) => type === "number" || type === "integer");
+  P.isString(left) && P.isString(right) && left !== right && !isNumberIntegerPair(left, right);
 
 const disjointAlternatives = (left: Record<string, unknown>, right: Record<string, unknown>): boolean =>
   disjointTypes(left.type, right.type) ||
@@ -324,11 +325,19 @@ const propertyAlternatives = (name: string, schema: unknown): ReadonlyArray<Reco
   );
 };
 
+const constraintAgrees =
+  (left: Record<string, unknown>, right: Record<string, unknown>) =>
+  (key: string): boolean =>
+    isAnnotationKeyword(key) ||
+    right[key] === undefined ||
+    Equal.equals(left[key], right[key]) ||
+    (key === "type" && isNumberIntegerPair(left.type, right.type));
+
 const conflictingConstraint = (left: Record<string, unknown>, right: Record<string, unknown>): O.Option<string> =>
-  A.findFirst(
-    R.keys(left),
-    (key) => !isAnnotationKeyword(key) && right[key] !== undefined && !Equal.equals(left[key], right[key])
-  );
+  A.findFirst(R.keys(left), P.not(constraintAgrees(left, right)));
+
+const intersectedType = (left: Record<string, unknown>, right: Record<string, unknown>): Record<string, unknown> =>
+  isNumberIntegerPair(left.type, right.type) ? { type: "integer" } : {};
 
 const intersectAlternatives =
   (name: string) =>
@@ -338,7 +347,7 @@ const intersectAlternatives =
       return failIntersect(`Unsupported overlapping property ${name}: $ref alternatives`);
     }
     return O.match(conflictingConstraint(left, right), {
-      onNone: () => O.some({ ...left, ...right }),
+      onNone: () => O.some({ ...left, ...right, ...intersectedType(left, right) }),
       onSome: (key) => failIntersect(`Unsupported conflicting constraint ${key} on overlapping property ${name}`),
     });
   };

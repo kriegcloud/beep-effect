@@ -1174,6 +1174,25 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("narrows number and integer sibling properties to integer in either order", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["intersectSiblingProperties"], {});
+      const narrowed = (base: JsonSchema.JsonSchema, branch: JsonSchema.JsonSchema) =>
+        hook({
+          type: "object",
+          properties: { count: base },
+          anyOf: [{ type: "object", properties: { count: branch } }],
+        }).anyOf;
+
+      expect(narrowed({ type: "number", minimum: 0 }, { type: "integer" })).toEqual([
+        { type: "object", properties: { count: { type: "integer", minimum: 0 } } },
+      ]);
+      expect(narrowed({ type: "integer" }, { type: "number", maximum: 9 })).toEqual([
+        { type: "object", properties: { count: { type: "integer", maximum: 9 } } },
+      ]);
+    })
+  );
+
   it.effect("rejects sibling property intersections it cannot express", () =>
     Effect.gen(function* () {
       const hook = composeTransforms(["intersectSiblingProperties"], {});
