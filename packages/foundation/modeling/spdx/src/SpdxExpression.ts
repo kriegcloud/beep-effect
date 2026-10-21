@@ -27,7 +27,7 @@ const $I = $SpdxId.create("SpdxExpression");
  * and the encoded form produced by {@link (SpdxExpression:variable).FromString}'s encode
  * side are structurally identical, ONE serializer walks either representation.
  */
-type spdxNode = Data.TaggedEnum<{
+type SpdxNode = Data.TaggedEnum<{
   License: { readonly id: string; readonly plus: boolean };
   LicenseRef: {
     readonly documentRef?: string;
@@ -37,21 +37,9 @@ type spdxNode = Data.TaggedEnum<{
     readonly license: LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
     readonly exception: string;
   };
+  And: { readonly left: SpdxNode; readonly right: SpdxNode };
+  Or: { readonly left: SpdxNode; readonly right: SpdxNode };
 }>;
-type SpdxNode =
-  | { readonly _tag: "License"; readonly id: string; readonly plus: boolean }
-  | {
-      readonly _tag: "LicenseRef";
-      readonly documentRef?: string;
-      readonly ref: string;
-    }
-  | {
-      readonly _tag: "WithException";
-      readonly license: typeof LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
-      readonly exception: string;
-    }
-  | { readonly _tag: "And"; readonly left: SpdxNode; readonly right: SpdxNode }
-  | { readonly _tag: "Or"; readonly left: SpdxNode; readonly right: SpdxNode };
 
 /**
  * Serialize a tagged SPDX AST node — a class instance OR its encoded POJO — to
@@ -205,7 +193,8 @@ export class LicenseRefNode extends S.TaggedClass<
 
 export declare namespace LicenseRefNode {
   export interface Encoded {
-    readonly;
+    readonly documentRef?: undefined | string;
+    readonly ref: string;
   }
 }
 
