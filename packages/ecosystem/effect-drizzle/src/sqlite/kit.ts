@@ -11,7 +11,7 @@ import { keys, toEntries } from "effect/Record";
 import { assign } from "effect/Struct";
 import * as Field from "../core/Field.ts";
 import { assertUniqueSqlNames } from "../core/names.ts";
-import { makeRepository } from "../core/repository.ts";
+import { makeNativeRepository, makeRepository } from "../core/repository.ts";
 import { snakeCase } from "../internal/case.ts";
 import * as Sqlite from "./combinators.ts";
 import * as Table from "./extras.ts";
@@ -238,6 +238,7 @@ export interface SqliteKit<Defaults extends FieldsInput> {
     build: (sqlite: SqliteToolkit) => SqliteKitExtension<Defaults, More>
   ) => SqliteKit<Merged<Defaults, More>>;
   readonly Model: typeof Model;
+  readonly NativeRepository: typeof makeNativeRepository;
   readonly Repository: typeof makeRepository;
   readonly schema: typeof schema;
   readonly sqlite: SqliteToolkit;
@@ -304,7 +305,17 @@ const makeResolved = (defaults: FieldsInput, defaultExtras: Table.Callback<Field
     return makeResolved(mergeFields(defaults, extension.columns), mergedExtras);
   };
 
-  return { sqlite: toolkit, Model, Entity, extend, Table, Repository: makeRepository, schema, toSqliteTable };
+  return {
+    sqlite: toolkit,
+    Model,
+    Entity,
+    extend,
+    Table,
+    Repository: makeRepository,
+    NativeRepository: makeNativeRepository,
+    schema,
+    toSqliteTable,
+  };
 };
 
 /**

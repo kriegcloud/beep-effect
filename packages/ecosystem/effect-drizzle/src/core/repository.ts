@@ -1,8 +1,10 @@
 /**
- * Derives optimistic repositories from model SQL metadata.
+ * Derives Effect SQL repositories from model SQL metadata.
  *
- * The repository layer delegates ordinary CRUD to Effect SQL and owns the
- * atomic compare-and-increment update required by versioned models.
+ * Both constructors delegate ordinary CRUD to Effect SQL's `SqlModel`
+ * repository. `makeRepository` owns the atomic compare-and-increment update
+ * required by versioned models; `makeNativeRepository` keeps Effect SQL's
+ * repository unchanged for models without a version field.
  *
  * @since 0.0.0
  */
@@ -12,19 +14,21 @@ import { catchTag, fail as failEffect, gen, withSpan } from "effect/Effect";
 import { dual } from "effect/Function";
 import { getOrElse, isSome, map } from "effect/Option";
 import { isTagged } from "effect/Predicate";
-import { filter, get, isEmptyReadonlyRecord, toEntries } from "effect/Record";
+import { filter, get, isEmptyReadonlyRecord, keys, toEntries } from "effect/Record";
 import { Int, is, isSchema, NonEmptyString, TaggedError, Unknown } from "effect/Schema";
 import { toEncoded } from "effect/SchemaAST";
 import * as VariantSchema from "effect/schema/VariantSchema";
 import { SqlClient } from "effect/sql/SqlClient";
 import { makeRepository as makeSqlRepository } from "effect/sql/SqlModel";
 import { findOne } from "effect/sql/SqlSchema";
+import { camelCase, snakeCase } from "../internal/case.ts";
 import { isUnknownRecord } from "../internal/guards.ts";
 import { flattenEncoded } from "./classification.ts";
 import * as Field from "./Field.ts";
 import * as Meta from "./Meta.ts";
 import { ModelInvariantError } from "./model.ts";
 import type { Effect, Success } from "effect/Effect";
+import type { Option } from "effect/Option";
 import type { SchemaError } from "effect/Schema";
 import type * as EffectModel from "effect/schema/Model";
 import type { SqlError } from "effect/sql/SqlError";
@@ -134,6 +138,10 @@ type ValidateVersionModel<M extends AnyModel> = [VersionKey<M>] extends [never]
   ? Field.SqlTypeError<"optimistic repository requires one pg.version() field">
   : unknown;
 
+type ValidateNativeModel<M extends AnyModel> = [VersionKey<M>] extends [never]
+  ? unknown
+  : Field.SqlTypeError<"native repositories reject version() models; use makeRepository">;
+
 type ColumnNameKey<M extends AnyModel> = {
   readonly [K in keyof M["sql"]["columns"] & string]: M["sql"]["columns"][K] extends {
     readonly columnName: string;
@@ -151,8 +159,53 @@ type ValidateLocator<M extends RepositoryModel, Id extends string> =
     ? unknown
     : Field.SqlTypeError<"repository locator must be a non-null primary key, unique field, or single-column unique index">;
 
-type NativeRepository<M extends RepositoryModel, Id extends IdKey<M>> = Success<
+type SqlModelRepository<M extends RepositoryModel, Id extends IdKey<M>> = Success<
   ReturnType<typeof makeSqlRepository<M, Id>>
+>;
+
+/**
+ * Exposes Effect SQL's native CRUD repository for a model without a version field.
+ *
+ * **When to use**
+ *
+ * Use as an application port for models whose updates may overwrite by id,
+ * such as reference data or rows guarded by an outer lock.
+ *
+ * **Details**
+ *
+ * The surface is exactly `SqlModel.makeRepository`'s: `insert`, `insertVoid`,
+ * `update`, `updateVoid`, `findById`, and `delete`.
+ *
+ * **Gotchas**
+ *
+ * `update` and `insert` turn a zero-row result into a defect rather than a
+ * typed failure, and `updateVoid` and `delete` succeed when no row matches.
+ *
+ * **Example** (Name a native repository port)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Model, type NativeRepository } from
+ *   "@beep/effect-drizzle"
+ * import { identity, integer, primaryKey } from
+ *   "@beep/effect-drizzle/pg"
+ *
+ * class Tag extends Model<Tag>("Tag")({
+ *   id: S.Int.pipe(integer(), identity("always"), primaryKey()),
+ *   displayName: S.String
+ * }) {}
+ *
+ * type TagRepository = NativeRepository<typeof Tag, "id">
+ * // => Effect SQL's CRUD port, including update and updateVoid
+ * ```
+ *
+ * @see {@link makeNativeRepository} for deriving this port from model metadata.
+ * @category repositories
+ * @since 0.0.0
+ */
+export type NativeRepository<M extends RepositoryModel, Id extends IdKey<M>> = Pick<
+  SqlModelRepository<M, Id>,
+  "insert" | "insertVoid" | "update" | "updateVoid" | "findById" | "delete"
 >;
 
 /**
@@ -199,7 +252,7 @@ type NativeRepository<M extends RepositoryModel, Id extends IdKey<M>> = Success<
  * @since 0.0.0
  */
 export type Repository<M extends RepositoryModel, Id extends IdKey<M>> = Pick<
-  NativeRepository<M, Id>,
+  SqlModelRepository<M, Id>,
   "insert" | "insertVoid" | "findById" | "delete"
 > & {
   readonly update: (
@@ -211,19 +264,29 @@ export type Repository<M extends RepositoryModel, Id extends IdKey<M>> = Pick<
   >;
 };
 
-const findVersionColumn = (model: AnyModel): string =>
-  getOrElse(
-    map(
-      findFirst(toEntries(model.sql.columns), ([, metadata]) => metadata.version),
-      ([key]) => key
-    ),
-    () => {
-      throw ModelInvariantError.make({
-        message: `Model '${model.sql.tableName}' has no optimistic-version field.`,
-        fieldName: "(model)",
-      });
-    }
+const versionColumnOf = (model: AnyModel): Option<string> =>
+  map(
+    findFirst(toEntries(model.sql.columns), ([, metadata]) => metadata.version),
+    ([key]) => key
   );
+
+const findVersionColumn = (model: AnyModel): string =>
+  getOrElse(versionColumnOf(model), () => {
+    throw ModelInvariantError.make({
+      message: `Model '${model.sql.tableName}' has no optimistic-version field.`,
+      fieldName: "(model)",
+    });
+  });
+
+const rejectVersionedModel = (model: AnyModel): void => {
+  const versionColumn = versionColumnOf(model);
+  if (isSome(versionColumn)) {
+    throw ModelInvariantError.make({
+      message: `Native repository for '${model.sql.tableName}' would overwrite optimistic-version field '${versionColumn.value}'; use makeRepository.`,
+      fieldName: versionColumn.value,
+    });
+  }
+};
 
 const requireRecord = (value: unknown, table: string): UnknownRecord => {
   if (isUnknownRecord(value)) return value;
@@ -256,6 +319,14 @@ const validateRepositoryModel = (model: AnyModel, idColumn: string): void => {
     throw ModelInvariantError.make({
       message: `Repository for '${model.sql.tableName}' does not support columnName override on '${override.value[0]}'.`,
       fieldName: override.value[0],
+    });
+  }
+  const lossyKey = findFirst(keys(model.sql.columns), (key) => camelCase(snakeCase(key)) !== key);
+  if (isSome(lossyKey)) {
+    const column = snakeCase(lossyKey.value);
+    throw ModelInvariantError.make({
+      message: `Repository for '${model.sql.tableName}' cannot address field '${lossyKey.value}': column '${column}' reads back as '${camelCase(column)}'.`,
+      fieldName: lossyKey.value,
     });
   }
   const locator = getOrElse(get(model.sql.columns, idColumn), () => {
@@ -312,43 +383,64 @@ const validateRepositoryModel = (model: AnyModel, idColumn: string): void => {
  *
  * The id field must remain in the model's update variant as a row locator, and
  * the version field is required in every update payload. A zero-row result
- * deliberately cannot distinguish a missing id from a stale version.
+ * deliberately cannot distinguish a missing id from a stale version. Delete is
+ * Effect SQL's native id-only delete: it ignores the version and succeeds when
+ * no row matches.
+ *
+ * Effect SQL writes model keys as SQL identifiers and decodes `returning *`
+ * rows by key, while derived columns are `snakeCase(key)`. The `SqlClient`
+ * must set `transformQueryNames: snakeCase` and `transformResultNames:
+ * camelCase`; otherwise every multi-word field misses its column. Every field
+ * key must survive `camelCase(snakeCase(key))` unchanged, so acronym keys such
+ * as `userID` and snake_case keys throw {@link ModelInvariantError} at
+ * construction. On PostgreSQL clients the transforms also rewrite keys inside
+ * JSON values unless the client sets `transformJson: false`.
+ *
+ * Do not pass a `version()` model to `effect/sql/SqlModel` directly. Its
+ * `update` matches by id only, so a stale write succeeds and silently
+ * overwrites the newer row, writing the caller's old version back. Only a
+ * missing row becomes a defect.
  *
  * **Example** (Run an optimistic repository)
  *
  * ```ts
- * import { PgliteTestLayer } from
- *   "@beep/pglite"
+ * import { makeLayer } from "@beep/pglite"
  * import { gen, provide, runPromise } from "effect/Effect"
- * import { Int, String } from "effect/Schema"
+ * import * as S from "effect/Schema"
  * import { SqlClient } from "effect/sql/SqlClient"
+ * import { camelCase, snakeCase } from "effect/String"
  * import { Model, makeRepository } from
  *   "@beep/effect-drizzle"
  * import { default as defaultValue, identity, integer, primaryKey, version } from
  *   "@beep/effect-drizzle/pg"
  *
- * class User extends Model<User>("User")({
- *   id: Int.pipe(integer(), identity("always"), primaryKey()),
- *   email: String,
- *   revision: Int.pipe(integer(), defaultValue(1), version())
+ * class Account extends Model<Account>("Account")({
+ *   id: S.Int.pipe(integer(), identity("always"), primaryKey()),
+ *   email: S.String,
+ *   revision: S.Int.pipe(integer(), defaultValue(1), version())
  * }) {}
  *
  * const program = gen(function*() {
  *   const sql = yield* SqlClient
- *   yield* sql`create table user (
+ *   yield* sql`create table account (
  *     id integer generated always as identity primary key,
  *     email text not null,
  *     revision integer not null default 1
  *   )`
- *   const repository = yield* makeRepository(User, {
- *     spanPrefix: "User",
+ *   const repository = yield* makeRepository(Account, {
+ *     spanPrefix: "Account",
  *     idColumn: "id"
  *   })
  *   return yield* repository.insert({ email: "ada@example.com" })
  * })
  *
- * await runPromise(provide(program, PgliteTestLayer))
- * // => User { id: 1, email: "ada@example.com", revision: 1 }
+ * const RepositoryClientLayer = makeLayer({
+ *   transformQueryNames: snakeCase,
+ *   transformResultNames: camelCase
+ * })
+ *
+ * await runPromise(provide(program, RepositoryClientLayer))
+ * // => Account { id: 1, email: "ada@example.com", revision: 1 }
  * ```
  *
  * @see {@link Repository} for the returned CRUD surface.
@@ -444,6 +536,114 @@ export const makeRepository: {
         delete: base.delete,
         update,
       };
+    });
+  }
+);
+
+/**
+ * Builds Effect SQL's native repository for a model without a version field.
+ *
+ * **When to use**
+ *
+ * Use for models that declare no `version()` field, where Effect SQL's id-only
+ * update is acceptable. Versioned models must use {@link makeRepository}.
+ *
+ * **Details**
+ *
+ * Repository acquisition is an Effect requiring `SqlClient`. The table name
+ * comes from the model's SQL metadata, and the locator receives the same
+ * primary-key, uniqueness, and non-null checks as {@link makeRepository}.
+ * Both `makeNativeRepository(model, options)` and
+ * `makeNativeRepository(options)(model)` retain model-specific locator
+ * inference.
+ *
+ * **Gotchas**
+ *
+ * The `SqlClient` must set `transformQueryNames: snakeCase` and
+ * `transformResultNames: camelCase`, because Effect SQL addresses columns by
+ * model key while derived columns are `snakeCase(key)`. Models with a
+ * `version()` field or a `columnName` override fail at the call site and
+ * throw {@link ModelInvariantError} at construction, as do field keys that do
+ * not survive `camelCase(snakeCase(key))` unchanged.
+ *
+ * **Example** (Run a native repository)
+ *
+ * ```ts
+ * import { makeLayer } from "@beep/pglite"
+ * import { gen, provide, runPromise } from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * import { SqlClient } from "effect/sql/SqlClient"
+ * import { camelCase, snakeCase } from "effect/String"
+ * import { Model, makeNativeRepository } from
+ *   "@beep/effect-drizzle"
+ * import { identity, integer, primaryKey } from
+ *   "@beep/effect-drizzle/pg"
+ *
+ * class Tag extends Model<Tag>("Tag")({
+ *   id: S.Int.pipe(integer(), identity("always"), primaryKey()),
+ *   displayName: S.String
+ * }) {}
+ *
+ * const program = gen(function*() {
+ *   const sql = yield* SqlClient
+ *   yield* sql`create table tag (
+ *     id integer generated always as identity primary key,
+ *     display_name text not null
+ *   )`
+ *   const repository = yield* makeNativeRepository(Tag, {
+ *     spanPrefix: "Tag",
+ *     idColumn: "id"
+ *   })
+ *   return yield* repository.insert({ displayName: "urgent" })
+ * })
+ *
+ * const NamedClientLayer = makeLayer({
+ *   transformQueryNames: snakeCase,
+ *   transformResultNames: camelCase
+ * })
+ *
+ * await runPromise(provide(program, NamedClientLayer))
+ * // => Tag { id: 1, displayName: "urgent" }
+ * ```
+ *
+ * @see {@link NativeRepository} for the returned CRUD surface.
+ * @see {@link makeRepository} for models with an optimistic version field.
+ * @category factories
+ * @since 0.0.0
+ */
+export const makeNativeRepository: {
+  <const Id extends string>(options: {
+    readonly spanPrefix: string;
+    readonly idColumn: Id;
+  }): <const M extends RepositoryModel>(
+    model: M & ValidateNativeModel<M> & ValidateColumnNames<M> & ValidateLocator<M, Id>
+  ) => Effect<NativeRepository<M, Id & IdKey<M>>, never, SqlClient>;
+  <const M extends RepositoryModel, const Id extends IdKey<M>>(options: {
+    readonly spanPrefix: string;
+    readonly idColumn: Id;
+  }): (model: M & ValidateNativeModel<M> & ValidateColumnNames<M>) => Effect<NativeRepository<M, Id>, never, SqlClient>;
+  <const M extends RepositoryModel, const Id extends IdKey<M>>(
+    model: M & ValidateNativeModel<M> & ValidateColumnNames<M>,
+    options: {
+      readonly spanPrefix: string;
+      readonly idColumn: Id;
+    }
+  ): Effect<NativeRepository<M, Id>, never, SqlClient>;
+} = /* @__PURE__ */ dual(
+  2,
+  <const M extends RepositoryModel, const Id extends IdKey<M>>(
+    model: M & ValidateNativeModel<M> & ValidateColumnNames<M>,
+    options: {
+      readonly spanPrefix: string;
+      readonly idColumn: Id;
+    }
+  ): Effect<NativeRepository<M, Id>, never, SqlClient> => {
+    rejectVersionedModel(model);
+    validateRepositoryModel(model, options.idColumn);
+    return makeSqlRepository<M, Id>(model, {
+      tableName: model.sql.tableName,
+      spanPrefix: options.spanPrefix,
+      idColumn: options.idColumn,
     });
   }
 );
