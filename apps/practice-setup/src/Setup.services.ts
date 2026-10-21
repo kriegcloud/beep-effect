@@ -74,7 +74,7 @@ interface SetupHostShape {
   readonly copyToClipboard: (text: string) => Effect.Effect<void, SetupFailure>;
   /** Hand an extension file to Claude Desktop: its own executable when installed per user, else Windows. */
   readonly openInClaude: (file: string) => Effect.Effect<void, SetupFailure>;
-  /** Hand a `claude://` link to Windows, as `start "" "<link>"` would. */
+  /** Hand a `claude://` link to Claude Desktop: its per-user launcher when installed, else Windows. */
   readonly openLink: (link: string) => Effect.Effect<void, SetupFailure>;
   /** Run an installer and wait for it; succeeds with its exit code. */
   readonly runInstaller: (path: string, args: ReadonlyArray<string>) => Effect.Effect<number, SetupFailure>;
@@ -100,11 +100,14 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
  * installs as an extension; Claude registers no `.mcpb` file type with
  * Windows (proof run 2026-10-20), so a double-click would only ask the lawyer
  * to pick an app. Without the per-user executable (an MSIX install) it falls
- * back to `explorer.exe`, the shell's double-click path. `openLink` and
- * `copyToClipboard` use PowerShell's
- * `Start-Process` (ShellExecute, the documented `start` route) and
- * `Set-Clipboard`, passing the text through an environment variable so it is
- * never parsed as PowerShell.
+ * back to `explorer.exe`, the shell's double-click path. `openLink` starts
+ * the same launcher with the `claude://` link (proof run 5: after Claude
+ * updated itself, the registered `claude://` handler still named a removed
+ * `app-<version>` folder) and, without it, falls back to PowerShell's
+ * `Start-Process` (ShellExecute, the documented `start` route).
+ * `copyToClipboard` uses PowerShell's `Set-Clipboard`. Every path, link and
+ * message travels through an environment variable, so none is parsed as
+ * PowerShell.
  *
  * **Example** (A fake host for tests)
  *
@@ -201,6 +204,34 @@ export class SetupHost extends Context.Service<SetupHost, SetupHostShape>()($I`S
         }
       });
 
+      // The per-user launcher, when installed. Claude's own updates can leave the
+      // claude:// handler pointing at a removed app-<version> folder, so files
+      // and links go to this launcher, which always starts the current version.
+      const perUserClaude = Effect.gen(function* () {
+        const claude = path.join(yield* localAppData, "AnthropicClaude", "claude.exe");
+        const present = yield* fs
+          .exists(claude)
+          .pipe(Effect.mapError(failWith("Claude's folder could not be checked.")));
+        return present ? O.some(claude) : O.none<string>();
+      });
+
+      // Both values travel as environment variables, so neither is parsed as PowerShell.
+      const startClaudeWith = Effect.fnUntraced(function* (claude: string, argument: string, failure: string) {
+        const { exitCode } = yield* run(
+          "powershell.exe",
+          [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Start-Process -FilePath $env:BEEP_SETUP_CLAUDE -ArgumentList ('\"' + $env:BEEP_SETUP_TEXT + '\"')",
+          ],
+          { BEEP_SETUP_CLAUDE: claude, BEEP_SETUP_TEXT: argument }
+        );
+        if (exitCode !== 0) {
+          return yield* SetupFailure.make({ message: failure });
+        }
+      });
+
       const claudeInstall = Effect.gen(function* () {
         if (yield* perUserInstalled) {
           return ClaudeInstall.Enum["per-user"];
@@ -214,32 +245,21 @@ export class SetupHost extends Context.Service<SetupHost, SetupHostShape>()($I`S
           return (yield* run(installer, args)).exitCode;
         }),
         openInClaude: Effect.fn("SetupHost.openInClaude")(function* (file) {
-          const claude = path.join(yield* localAppData, "AnthropicClaude", "claude.exe");
-          const direct = yield* fs
-            .exists(claude)
-            .pipe(Effect.mapError(failWith("Claude's folder could not be checked.")));
-          if (!direct) {
+          const claude = yield* perUserClaude;
+          if (O.isNone(claude)) {
             // explorer.exe exits 1 even when it opened the target, so the code is ignored.
             yield* run("explorer.exe", [file]);
             return;
           }
-          // Both paths travel as environment variables, so neither is parsed as PowerShell.
-          const { exitCode } = yield* run(
-            "powershell.exe",
-            [
-              "-NoProfile",
-              "-NonInteractive",
-              "-Command",
-              "Start-Process -FilePath $env:BEEP_SETUP_CLAUDE -ArgumentList ('\"' + $env:BEEP_SETUP_TEXT + '\"')",
-            ],
-            { BEEP_SETUP_CLAUDE: claude, BEEP_SETUP_TEXT: file }
-          );
-          if (exitCode !== 0) {
-            return yield* SetupFailure.make({ message: "Claude could not be opened with the practice gateway." });
-          }
+          yield* startClaudeWith(claude.value, file, "Claude could not be opened with the practice gateway.");
         }),
         openLink: Effect.fn("SetupHost.openLink")(function* (link) {
-          yield* powershellWith("Start-Process -FilePath $env:BEEP_SETUP_TEXT", link, "Claude could not be opened.");
+          const claude = yield* perUserClaude;
+          if (O.isNone(claude)) {
+            yield* powershellWith("Start-Process -FilePath $env:BEEP_SETUP_TEXT", link, "Claude could not be opened.");
+            return;
+          }
+          yield* startClaudeWith(claude.value, link, "Claude could not be opened.");
         }),
         copyToClipboard: Effect.fn("SetupHost.copyToClipboard")(function* (text) {
           yield* powershellWith(

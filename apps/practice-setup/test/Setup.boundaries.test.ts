@@ -123,6 +123,20 @@ it.layer(platform, { concurrent: false, timeout: "5 seconds" })(
       })
     );
     exercise(
+      "hands claude:// links to the per-user claude.exe instead of the registered handler",
+      { executable: true },
+      Effect.fnUntraced(function* (host, calls) {
+        const link = "claude://claude.ai/new?q=it's%20$(not%20a%20command)";
+        yield* host.openLink(link);
+        expect(A.map(calls, (call) => call.command)).toEqual(["powershell.exe"]);
+        expect(calls[0]?.options.env).toMatchObject({
+          BEEP_SETUP_CLAUDE: "/local/AnthropicClaude/claude.exe",
+          BEEP_SETUP_TEXT: link,
+        });
+        expect(calls[0]?.args).not.toContain(link);
+      })
+    );
+    exercise(
       "reports a failed Claude launch in plain language",
       { executable: true, shellExit: 1 },
       Effect.fnUntraced(function* (host) {
