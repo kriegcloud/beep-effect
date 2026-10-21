@@ -1314,3 +1314,77 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
     );
   });
 });
+
+type ClassifiedCause = {
+  readonly _tag: string;
+  readonly reason: { readonly _tag: string };
+};
+
+describe("DuckDb legacy re-base", { concurrent: false }, () => {
+  it.layer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" })), { timeout: "30 seconds" })(
+    (it) => {
+      it.effect(
+        "refuses to commit a legacy transaction DuckDB aborted after a swallowed failure",
+        Effect.fnUntraced(function* () {
+          const duckdb = yield* DuckDb;
+          yield* duckdb.run("CREATE TABLE aborted_events (id INTEGER PRIMARY KEY)");
+          yield* duckdb.run("INSERT INTO aborted_events VALUES (1)");
+
+          const error = yield* duckdb
+            .withTransaction(
+              Effect.fnUntraced(function* (transaction) {
+                yield* transaction.run("INSERT INTO aborted_events VALUES (2)");
+                yield* transaction.run("INSERT INTO aborted_events VALUES (1)").pipe(Effect.ignore);
+                return "swallowed";
+              })
+            )
+            .pipe(Effect.flip);
+
+          expect(error._tag).toBe("DuckDbError");
+          expect(error.operation).toBe("withTransaction");
+          expect(error.message).toContain("DuckDB aborted this transaction");
+          pipe(error.cause, O.isSome, assertTrue);
+          expect(yield* duckdb.query("SELECT id FROM aborted_events ORDER BY id")).toEqual([{ id: 1 }]);
+        })
+      );
+    }
+  );
+
+  it.layer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" })), { timeout: "30 seconds" })(
+    (it) => {
+      it.effect(
+        "cancels a long legacy native query on interruption and stays usable",
+        Effect.fnUntraced(function* () {
+          const duckdb = yield* DuckDb;
+          const exit = yield* duckdb
+            .query("SELECT sum(a.range * b.range) AS total FROM range(1000000) a, range(1000000) b")
+            .pipe(Effect.timeout(Duration.millis(200)), TestClock.withLive, Effect.exit);
+
+          pipe(exit, Exit.isFailure, assertTrue);
+          expect(yield* duckdb.query("SELECT 42 AS answer")).toEqual([{ answer: 42 }]);
+        })
+      );
+    }
+  );
+
+  it.layer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: ":memory:" })), { timeout: "30 seconds" })(
+    (it) => {
+      it.effect(
+        "keeps the classified SqlError as the legacy DuckDbError cause",
+        Effect.fnUntraced(function* () {
+          const duckdb = yield* DuckDb;
+          yield* duckdb.run("CREATE TABLE unique_events (id INTEGER PRIMARY KEY)");
+          yield* duckdb.run("INSERT INTO unique_events VALUES ($id)", { id: 1 });
+
+          const error = yield* duckdb.run("INSERT INTO unique_events VALUES ($id)", { id: 1 }).pipe(Effect.flip);
+
+          expect(error.operation).toBe("run");
+          expect(O.getOrUndefined(error.statement)).toBe("INSERT INTO unique_events VALUES ($id)");
+          const cause = O.getOrThrow(error.cause) as ClassifiedCause;
+          expect(cause._tag).toBe("SqlError");
+          expect(reasonTagOf(cause)).toBe("UniqueViolation");
+        })
+      );
+    }
+  );
+});

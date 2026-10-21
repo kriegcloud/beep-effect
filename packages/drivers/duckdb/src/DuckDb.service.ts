@@ -24,7 +24,9 @@ import * as Scope from "effect/Scope";
 import * as Semaphore from "effect/Semaphore";
 import { DuckDbError } from "./DuckDb.errors.ts";
 import { DuckDbRows } from "./DuckDb.models.ts";
+import { NativeGate } from "./internal/gate.ts";
 import { ignoreNativeClose, openLegacyInstance, releaseNativeConnection } from "./internal/native.ts";
+import { ABORT_PROBE_SQL, isAbortedTransactionError } from "./internal/transaction.ts";
 import type { DuckDBConnection, DuckDBInstance, DuckDBValue } from "@duckdb/node-api";
 import type { DuckDbOperation } from "./DuckDb.errors.ts";
 import type { DuckDbConnectionOptions, DuckDbParquetExport } from "./DuckDb.models.ts";
@@ -139,6 +141,13 @@ export interface DuckDbAdapter {
    * client reuse the active transaction client instead of opening a nested
    * DuckDB transaction.
    *
+   * **Gotchas**
+   *
+   * When a statement failed inside the transaction, even one whose failure
+   * `use` swallowed, native implementations probe the transaction before
+   * `COMMIT`. If DuckDB already aborted it, they roll back and fail with
+   * {@link DuckDbError} instead of letting `COMMIT` discard the work silently.
+   *
    * @effects
    * Mutates transaction state on the backing connection with `BEGIN`,
    * `COMMIT`, or `ROLLBACK`.
@@ -183,10 +192,14 @@ export interface DuckDbShape extends DuckDbAdapter {}
 
 interface NativeConnection {
   readonly connection: DuckDBConnection;
+  readonly gate: NativeGate;
   readonly instance: DuckDBInstance;
 }
 
-type NativeUse<A, R = never> = (connection: DuckDBConnection) => Effect.Effect<A, DuckDbError, R>;
+type NativeUse<A, R = never> = (native: NativeConnection) => Effect.Effect<A, DuckDbError, R>;
+
+const ABORTED_TRANSACTION_MESSAGE =
+  "DuckDB aborted this transaction after an earlier statement failed; COMMIT refused because DuckDB would roll it back silently";
 
 const connectionFailure =
   (
@@ -208,30 +221,26 @@ const runOnConnection = Effect.fn("DuckDb.runOnConnection")(
   (
     operation: DuckDbOperation,
     options: DuckDbConnectionOptions,
-    connection: DuckDBConnection,
+    native: NativeConnection,
     statement: string,
     parameters?: DuckDbQueryParameters | undefined
   ): Effect.Effect<void, DuckDbError> =>
-    Effect.uninterruptible(
-      Effect.tryPromise({
-        try: () => connection.run(statement, parameters),
-        catch: connectionFailure(operation, options, statement),
-      })
-    ).pipe(Effect.asVoid)
+    native.gate
+      .run(operation, () => native.connection.run(statement, parameters))
+      .pipe(Effect.mapError(connectionFailure(operation, options, statement)), Effect.asVoid)
 );
 
 const queryOnConnection = Effect.fn("DuckDb.queryOnConnection")(function* (
   options: DuckDbConnectionOptions,
-  connection: DuckDBConnection,
+  native: NativeConnection,
   statement: string,
   parameters?: DuckDbQueryParameters | undefined
 ) {
-  const rows = yield* Effect.uninterruptible(
-    Effect.tryPromise({
-      try: () => connection.runAndReadAll(statement, parameters).then((reader) => reader.getRowObjectsJson()),
-      catch: connectionFailure("query", options, statement),
-    })
-  );
+  const rows = yield* native.gate
+    .run("query", () =>
+      native.connection.runAndReadAll(statement, parameters).then((reader) => reader.getRowObjectsJson())
+    )
+    .pipe(Effect.mapError(connectionFailure("query", options, statement)));
   return yield* decodeDuckDbRows(rows).pipe(
     Effect.mapError((cause) =>
       DuckDbError.fromUnknown("query", cause, {
@@ -242,6 +251,17 @@ const queryOnConnection = Effect.fn("DuckDb.queryOnConnection")(function* (
     )
   );
 });
+
+const probeAborted = Effect.fn("DuckDb.probeAborted")(
+  (options: DuckDbConnectionOptions, native: NativeConnection): Effect.Effect<boolean, DuckDbError> =>
+    native.gate
+      .run("withTransaction", () => native.connection.run(ABORT_PROBE_SQL))
+      .pipe(
+        Effect.as(false),
+        Effect.catchIf(isAbortedTransactionError, () => Effect.succeed(true)),
+        Effect.mapError(connectionFailure("withTransaction", options, ABORT_PROBE_SQL))
+      )
+);
 
 const acquireSharedConnection = (options: DuckDbConnectionOptions) => {
   let nativePromise: Promise<NativeConnection> | undefined;
@@ -256,7 +276,7 @@ const acquireSharedConnection = (options: DuckDbConnectionOptions) => {
           })
             .then((instance) =>
               instance.connect().then(
-                (connection) => ({ connection, instance }),
+                (connection) => ({ connection, gate: new NativeGate(connection), instance }),
                 (cause) => {
                   ignoreNativeClose(() => instance.closeSync());
                   throw cause;
@@ -302,7 +322,7 @@ const makeConnectionClient = (
 ): DuckDbAdapter => {
   const run = Effect.fn("DuckDb.run")(
     (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<void, DuckDbError> =>
-      useConnection("run", (connection) => runOnConnection("run", options, connection, statement, parameters)).pipe(
+      useConnection("run", (native) => runOnConnection("run", options, native, statement, parameters)).pipe(
         Effect.withSpan("db.query", {
           attributes: {
             "db.operation": "run",
@@ -314,7 +334,7 @@ const makeConnectionClient = (
 
   const query = Effect.fn("DuckDb.query")(
     (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<DuckDbRows, DuckDbError> =>
-      useConnection("query", (connection) => queryOnConnection(options, connection, statement, parameters)).pipe(
+      useConnection("query", (native) => queryOnConnection(options, native, statement, parameters)).pipe(
         Effect.withSpan("db.query", {
           attributes: {
             "db.operation": "query",
@@ -368,14 +388,21 @@ const makeConnectionClient = (
       ? use(client)
       : useConnection(
           "withTransaction",
-          Effect.fn("DuckDb.withTransactionOnConnection")((connection: DuckDBConnection) => {
+          Effect.fn("DuckDb.withTransactionOnConnection")((native: NativeConnection) => {
+            let failed = O.none<DuckDbError>();
             const transaction = makeConnectionClient(
               options,
               Effect.fn("DuckDb.useTransactionConnection")(function* <A, R>(
                 _operation: DuckDbOperation,
                 useNative: NativeUse<A, R>
               ): Effect.fn.Return<A, DuckDbError, R> {
-                return yield* useNative(connection);
+                return yield* useNative(native).pipe(
+                  Effect.tapError((error) =>
+                    Effect.sync(() => {
+                      failed = O.orElse(failed, () => O.some(error));
+                    })
+                  )
+                );
               }),
               true
             );
@@ -384,21 +411,31 @@ const makeConnectionClient = (
               let closed = false;
               const rollbackIfOpen = Effect.suspend(() =>
                 began && !closed
-                  ? runOnConnection("withTransaction", options, connection, "ROLLBACK").pipe(Effect.ignore)
+                  ? runOnConnection("withTransaction", options, native, "ROLLBACK").pipe(Effect.ignore)
                   : Effect.void
               );
               return Effect.uninterruptibleMask((restore) =>
                 Effect.gen(function* () {
-                  yield* runOnConnection("withTransaction", options, connection, "BEGIN TRANSACTION");
+                  yield* runOnConnection("withTransaction", options, native, "BEGIN TRANSACTION");
                   began = true;
                   const exit = yield* Effect.exit(restore(use(transaction)));
                   if (Exit.isSuccess(exit)) {
-                    yield* runOnConnection("withTransaction", options, connection, "COMMIT");
+                    if (O.isSome(failed) && (yield* probeAborted(options, native))) {
+                      yield* runOnConnection("withTransaction", options, native, "ROLLBACK").pipe(Effect.ignore);
+                      closed = true;
+                      return yield* DuckDbError.make({
+                        cause: failed,
+                        databasePath: O.some(options.databasePath),
+                        message: ABORTED_TRANSACTION_MESSAGE,
+                        operation: "withTransaction",
+                      });
+                    }
+                    yield* runOnConnection("withTransaction", options, native, "COMMIT");
                     closed = true;
                     return exit.value;
                   }
 
-                  yield* runOnConnection("withTransaction", options, connection, "ROLLBACK").pipe(Effect.ignore);
+                  yield* runOnConnection("withTransaction", options, native, "ROLLBACK").pipe(Effect.ignore);
                   closed = true;
                   return yield* Effect.failCause(exit.cause);
                 }).pipe(Effect.ensuring(rollbackIfOpen))
@@ -433,8 +470,7 @@ const makeNodeClient = (options: DuckDbConnectionOptions): DuckDbAdapter => {
   ): Effect.fn.Return<A, DuckDbError, R> {
     return yield* connectionLock.withPermit(
       Effect.gen(function* () {
-        const { connection } = yield* getConnection(operation);
-        return yield* use(connection);
+        return yield* use(yield* getConnection(operation));
       })
     );
   });
@@ -453,8 +489,7 @@ const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
       ): Effect.fn.Return<A, DuckDbError, R> {
         return yield* connectionLock.withPermit(
           Effect.gen(function* () {
-            const { connection } = yield* getConnection(operation);
-            return yield* useNative(connection);
+            return yield* useNative(yield* getConnection(operation));
           })
         );
       });
