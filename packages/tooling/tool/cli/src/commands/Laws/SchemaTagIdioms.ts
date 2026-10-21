@@ -19,11 +19,14 @@
  * `S.withConstructorDefault(Effect.succeed(v))`. A decoding default is allowed
  * only next to that constructor default, and never on a `_tag` that would move
  * into a tagged constructor. The value may also be a private const used only
- * as field values (`typeof` queries aside).
+ * as field values (`typeof` queries aside). A `_tag` that names a same-file
+ * const holding a fixed tag counts as that tag, so the struct-tag and
+ * class-tag rules see through it.
  *
  * Fields objects are the inline or same-file const objects passed to
  * `Struct`, `TaggedStruct`, `Class`, `Error`, `TaggedClass`, `TaggedError` and
- * `Class.extend`, the cases of `S.TaggedUnion` and of `LiteralKit`'s
+ * `Class.extend` (a const object passed straight to one is judged like an
+ * inline one), the cases of `S.TaggedUnion` and of `LiteralKit`'s
  * `toTaggedUnion`, the objects spread into any of those, and the objects a
  * `mapFields` callback returns.
  *
@@ -354,7 +357,7 @@ const bindsName = (name: ts.BindingName, target: string): boolean => {
   return A.some(name.elements, (element) => !ts.isOmittedExpression(element) && bindsName(element.name, target));
 };
 
-const constObjectIn = (statements: ReadonlyArray<ts.Statement>, name: string): O.Option<ts.ObjectLiteralExpression> =>
+const constInitializerIn = (statements: ReadonlyArray<ts.Statement>, name: string): O.Option<ts.Expression> =>
   pipe(
     statements,
     A.flatMap((statement) =>
@@ -364,13 +367,12 @@ const constObjectIn = (statements: ReadonlyArray<ts.Statement>, name: string): O
     ),
     A.findFirst((declaration) => ts.isIdentifier(declaration.name) && declaration.name.text === name),
     O.flatMap((declaration) => O.fromNullishOr(declaration.initializer)),
-    O.map(unwrap),
-    O.filter(ts.isObjectLiteralExpression)
+    O.map(unwrap)
   );
 
-// Resolve an identifier to the object literal of the const it names in an enclosing scope.
-const resolveConstObject = (identifier: ts.Identifier): O.Option<ts.ObjectLiteralExpression> => {
-  const visit = (node: ts.Node | undefined): O.Option<ts.ObjectLiteralExpression> => {
+// Resolve an identifier to the initializer of the const it names in an enclosing scope of this file.
+const resolveConstInitializer = (identifier: ts.Identifier): O.Option<ts.Expression> => {
+  const visit = (node: ts.Node | undefined): O.Option<ts.Expression> => {
     if (P.isUndefined(node)) {
       return O.none();
     }
@@ -379,20 +381,20 @@ const resolveConstObject = (identifier: ts.Identifier): O.Option<ts.ObjectLitera
     }
     const declared =
       ts.isSourceFile(node) || ts.isBlock(node) || ts.isModuleBlock(node)
-        ? constObjectIn(node.statements, identifier.text)
+        ? constInitializerIn(node.statements, identifier.text)
         : O.none();
     return O.isSome(declared) ? declared : visit(node.parent);
   };
   return visit(identifier.parent);
 };
 
-// An inline fields object (`true`) or the object of a same-file const (`false`).
-const resolveFields = (expression: ts.Expression): O.Option<readonly [ts.ObjectLiteralExpression, boolean]> => {
+// An inline fields object, or the object of a same-file const.
+const resolveFields = (expression: ts.Expression): O.Option<ts.ObjectLiteralExpression> => {
   const value = unwrap(expression);
   if (ts.isObjectLiteralExpression(value)) {
-    return O.some([value, true] as const);
+    return O.some(value);
   }
-  return ts.isIdentifier(value) ? O.map(resolveConstObject(value), (object) => [object, false] as const) : O.none();
+  return ts.isIdentifier(value) ? O.filter(resolveConstInitializer(value), ts.isObjectLiteralExpression) : O.none();
 };
 
 const argumentSite = (
@@ -453,7 +455,7 @@ const caseSites = (context: ScanContext, call: ts.CallExpression): ReadonlyArray
   pipe(
     casesArgument(context, call),
     O.flatMap(resolveFields),
-    O.map(([cases]) =>
+    O.map((cases) =>
       A.flatMap(cases.properties, (property) =>
         ts.isPropertyAssignment(property)
           ? A.of<FieldsSite>({ owner: CASES_OWNER, namespace: "S", call, argument: property.initializer })
@@ -489,15 +491,12 @@ const mapFieldsSites = (call: ts.CallExpression): ReadonlyArray<FieldsSite> => {
 const callSites = (context: ScanContext, call: ts.CallExpression): ReadonlyArray<FieldsSite> =>
   A.flatten([directSites(context, call), factorySites(context, call), caseSites(context, call), mapFieldsSites(call)]);
 
+// A same-file const fields object passed straight to a constructor keeps that owner, so its `_tag` is judged
+// exactly like an inline one.
 const siteFieldObject = (site: FieldsSite): O.Option<FieldObject> =>
   O.map(
     resolveFields(site.argument),
-    ([object, inline]): FieldObject => ({
-      owner: inline ? site.owner : SPREAD_OWNER,
-      namespace: site.namespace,
-      anchor: inline ? site.call : object,
-      object,
-    })
+    (object): FieldObject => ({ owner: site.owner, namespace: site.namespace, anchor: site.call, object })
   );
 
 const spreadFieldObjects = (fields: FieldObject): ReadonlyArray<FieldObject> =>
@@ -506,7 +505,7 @@ const spreadFieldObjects = (fields: FieldObject): ReadonlyArray<FieldObject> =>
       ? pipe(
           resolveFields(property.expression),
           O.map(
-            ([object]): FieldObject => ({ owner: SPREAD_OWNER, namespace: fields.namespace, anchor: object, object })
+            (object): FieldObject => ({ owner: SPREAD_OWNER, namespace: fields.namespace, anchor: object, object })
           ),
           O.toArray
         )
@@ -555,9 +554,15 @@ const makeFinding = (
   });
 };
 
+// A `_tag` value, through the same-file const it names when it is an identifier.
+const tagValue = (property: ts.PropertyAssignment): ts.Expression => {
+  const value = unwrap(property.initializer);
+  return ts.isIdentifier(value) ? O.getOrElse(resolveConstInitializer(value), () => value) : value;
+};
+
 // A fixed `_tag` the struct-tag or class-tag rule moves into a tagged constructor.
 const movableTag = (context: ScanContext, property: ts.PropertyAssignment): O.Option<FixedTag> =>
-  O.filter(fixedTag(context, property.initializer), (tag) => !tag.decodingDefault);
+  O.filter(fixedTag(context, tagValue(property)), (tag) => !tag.decodingDefault);
 
 const movableTagProperty = (
   context: ScanContext,
@@ -720,7 +725,7 @@ const isFieldValueReference = (
     property.initializer === value &&
     A.some(
       fieldObjects,
-      (fields) => fields.object === property.parent && !(fields.owner === MAP_FIELDS_METHOD && isTagProperty(property))
+      (fields) => fields.object === property.parent && !isTagHandledElsewhere(context, fields, property)
     )
   );
 };

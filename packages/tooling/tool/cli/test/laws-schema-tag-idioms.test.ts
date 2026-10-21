@@ -68,6 +68,43 @@ describe("schema tag idiom law", () => {
     );
   });
 
+  describe("fixed _tag reached through a same-file const", () => {
+    it.effect("reports struct-tag and class-tag for a const _tag value or a const fields object", () =>
+      Effect.sync(() => {
+        expect(
+          rulesOf([
+            'const TagA = S.Literal("A")',
+            'const TagB = S.tag("B")',
+            "const A = S.Struct({ _tag: TagA, value: S.String })",
+            "const B = S.Struct({ _tag: TagB })",
+            'class C extends S.Class<C>("C")({ _tag: TagB }) {}',
+            'const errorFields = { _tag: S.Literal("E"), code: S.Number }',
+            'class E extends S.Error<E>("E")(errorFields) {}',
+            'const structFields = { _tag: S.tag("F") }',
+            "const F = S.Struct(structFields)",
+          ])
+        ).toEqual([
+          ["struct-tag", 'S.TaggedStruct("A", { … })'],
+          ["struct-tag", 'S.TaggedStruct("B", { … })'],
+          ["class-tag", 'S.TaggedClass<Self>(identifier)("B", { … })'],
+          ["class-tag", 'S.TaggedError<Self>(identifier)("E", { … })'],
+          ["struct-tag", 'S.TaggedStruct("F", { … })'],
+        ]);
+      })
+    );
+
+    it.effect("leaves a _tag identifier that is imported or a parameter", () =>
+      Effect.sync(() => {
+        expect(
+          scan([
+            "const Imported = S.Struct({ _tag: ImportedTag })",
+            "const fromParameter = (Shadow: Tag) => S.Struct({ _tag: Shadow })",
+          ])
+        ).toEqual([]);
+      })
+    );
+  });
+
   describe("class-tag rule", () => {
     it.effect("reports S.Class and S.Error with a fixed _tag, inline or through S.Struct", () =>
       Effect.sync(() => {
