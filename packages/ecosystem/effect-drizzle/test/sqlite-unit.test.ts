@@ -34,6 +34,7 @@ import {
   _sqliteGeneratedOnlyModel,
   _sqliteInvalidFiniteDefault,
   _sqliteMultiplePrimaryKeys,
+  _sqliteNativeRepositoryVersionedModel,
   _sqliteNonUniqueForeignKey,
   _sqliteNulColumnName,
   _sqliteNulDefault,
@@ -85,6 +86,14 @@ describe("SQLite name invariants", () => {
     expect(_sqliteDuplicateIndexNamespace).toThrow(SqliteSchemaAssemblyError);
     expect(_sqliteDuplicateConstraintNamespace).toThrow("Schema-global name");
     expect(_sqliteDuplicateConstraintNamespace).toThrow(SqliteSchemaAssemblyError);
+  });
+});
+
+describe("SQLite repository invariants", () => {
+  it("rejects a version() model in the native repository", () => {
+    expect(_sqliteNativeRepositoryVersionedModel).toThrow(
+      "would overwrite optimistic-version field 'rowVersion'; use makeRepository"
+    );
   });
 });
 

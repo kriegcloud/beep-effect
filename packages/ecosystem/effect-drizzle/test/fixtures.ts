@@ -1,6 +1,6 @@
 /** Compile-time and runtime consumer fixtures. */
 
-import { Model, make, makeRepository, VariantField } from "@beep/effect-drizzle";
+import { Model, make, makeNativeRepository, makeRepository, VariantField } from "@beep/effect-drizzle";
 import * as pg from "@beep/effect-drizzle/pg";
 import { schema, Table, toPgTable } from "@beep/effect-drizzle/pg";
 import { getColumnTable, getTableName, sql } from "drizzle-orm";
@@ -197,6 +197,8 @@ export class User extends auditKit.Entity<User>("User")(
   ]
 ) {}
 
+// Deliberate bypass: proves the versioned model still satisfies Effect SQL's native repository.
+// Application code uses auditKit.Repository, whose update keeps the optimistic check.
 export const userRepository = SqlModel.makeRepository(User, {
   tableName: User.sql.tableName,
   spanPrefix: "User",
@@ -593,6 +595,61 @@ export const _repositoryColumnNameOverride = () => ({
     NamedRepositoryModel,
     { spanPrefix: "NamedRepositoryModel", idColumn: "id" }
   ),
+});
+
+class NamedNativeRepositoryModel extends Model<NamedNativeRepositoryModel>("NamedNativeRepositoryModel")({
+  id: Int.pipe(pg.integer(), pg.identity("always"), pg.primaryKey()),
+  displayName: String.pipe(pg.columnName("legacy_name")),
+}) {}
+
+export const _nativeRepositoryVersionedModel = () => ({
+  repository: makeNativeRepository(
+    // @ts-expect-error invariant: native repositories reject models with an optimistic version field
+    User,
+    { spanPrefix: "UserNative", idColumn: "id" }
+  ),
+});
+
+export const _nativeRepositoryColumnNameOverride = () => ({
+  repository: makeNativeRepository(
+    // @ts-expect-error invariant: repositories reject models with physical column-name overrides
+    NamedNativeRepositoryModel,
+    { spanPrefix: "NamedNativeRepositoryModel", idColumn: "id" }
+  ),
+});
+
+export const _nativeRepositoryNonUniqueLocator = () => ({
+  repository: makeNativeRepository(Organization, {
+    spanPrefix: "OrganizationNonUniqueLocator",
+    // @ts-expect-error invariant: repository locators must be primary-key or unique fields
+    idColumn: "name",
+  }),
+});
+
+class AcronymKeyRepositoryModel extends Model<AcronymKeyRepositoryModel>("AcronymKeyRepositoryModel")({
+  id: Int.pipe(pg.integer(), pg.identity("always"), pg.primaryKey()),
+  userID: String,
+}) {}
+
+class SnakeKeyRepositoryModel extends Model<SnakeKeyRepositoryModel>("SnakeKeyRepositoryModel")({
+  id: Int.pipe(pg.integer(), pg.identity("always"), pg.primaryKey()),
+  created_at: String,
+  rowVersion: Int.pipe(pg.integer(), pg.default(1), pg.version()),
+}) {}
+
+export const _nativeRepositoryAcronymKey = () => ({
+  repository: makeNativeRepository(AcronymKeyRepositoryModel, {
+    spanPrefix: "AcronymKeyRepositoryModel",
+    idColumn: "id",
+  }),
+});
+
+export const _repositorySnakeKey = () => ({
+  repository: makeRepository(SnakeKeyRepositoryModel, { spanPrefix: "SnakeKeyRepositoryModel", idColumn: "id" }),
+});
+
+export const _nativeRepositoryPrimaryKeyLocator = () => ({
+  repository: makeNativeRepository({ spanPrefix: "Organization", idColumn: "id" })(Organization),
 });
 
 export const _twoPrimaryKeys = () => {

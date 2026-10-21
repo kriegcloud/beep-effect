@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "GPT-6.1-Sol medium (independent coverage runtime cache input review)",
-      "reason": "Record only 28 ignored nested-worktree root input exclusions, two invocation-receipt env keys inherited by 159 test tasks, and 19 Turbo schema/source digests; preserve scope, profile, epoch, qualification ledger and every cache setting without granting reuse qualification.",
+      "reviewer": "GPT-6.1-Sol medium (independent merged coverage and tsgo cache input review)",
+      "reason": "Reconcile only root subject // after merging reviewed coverage receipt/root exclusions and main tsgo-rules visibility inputs; update merged turbo.json source digest while retaining all task configuration unions, scope/profile/epoch and qualification ledger. No qualification or policy expansion.",
       "basis": {
-        "path": "docs/reports/coverage-runtime-cache-input-review-2026-10-20.md",
-        "sha256": "7eff829f9f205661ec959a1cb35abf0e9d53a4d914ba0e4dcd31ca8bf1546c7b"
+        "path": "docs/reports/coverage-and-tsgo-cache-input-review-2026-10-21.md",
+        "sha256": "22d1b009277ba07351a45e5e928374ab67fc024468f1b438371d9ecde9e08508"
       }
     },
     "@beep/acp": {
@@ -3012,15 +3012,17 @@
             "!**/coverage/**",
             "!**/dist/**",
             "!**/node_modules/**",
+            "**/.gitignore",
+            "*.{cts,mts,ts,tsx}",
             "./.bun-version",
             "./.nvmrc",
             "./package.json",
             "./tsconfig.base.json",
             "./tsconfig.json",
             "./tsconfig.packages.json",
+            ".gitignore",
             "standards/effect-diagnostics.profile.json",
-            "tsconfig.base.json",
-            "tsconfig.json",
+            "tsconfig*.json",
             "vitest.aliases.generated.json",
             "{apps,packages,infra,scratchpad}/**/tsconfig*.json",
             "{apps,packages,tooling,infra}/**/*.{cts,mts,ts,tsx}"
@@ -111446,7 +111448,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "4c13bdd2cd91ba23d81a3c750a65d084d669c931c447a6f0d96faec61e5d7efc"
+        "sha256": "b3bff92042d97322cd3a53c1558f563d23115abb7404e951dffa120a798c93a1"
       }
     ]
   }
