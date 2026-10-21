@@ -7,7 +7,8 @@ is this package's `src/` (`packages/drivers/git/src/`), and upstream `packages/g
 `packages/drivers/git/test/`. Upstream `pnpm` commands map to this repository's package scripts:
 `bun run test`, `bun run test:integration` and `bun run beep quality package-verify @beep/git`.
 Upstream package names map the same way: upstream `@effected/git` is this package, `@beep/git`,
-and upstream `@effected/memfs` is `@beep/memfs`.
+upstream `@effected/memfs` is `@beep/memfs`, `@effected/commands` is `@beep/commands`, and
+`@effected/jsonl` is `@beep/jsonl`.
 
 ---
 <!-- packages/git/CLAUDE.md -->

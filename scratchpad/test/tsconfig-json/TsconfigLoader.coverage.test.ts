@@ -4,7 +4,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import { MemoryFileSystem } from "@beep/memfs";
 import { TsconfigExtendsError, TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
-import { TsconfigParseError } from "../../effected/tsconfig-json/TsconfigJson.ts";
+import { TsconfigParseError } from "@beep/tsconfig/TsconfigJson";
 
 it.effect("all extends errors expose the reason and resolution context", () => Effect.gen(function* () {
   const fields = { path: "/app/tsconfig.json", target: "/base.json", chain: ["/app/tsconfig.json", "/base.json"] };

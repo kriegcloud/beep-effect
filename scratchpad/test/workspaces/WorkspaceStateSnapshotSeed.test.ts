@@ -8,7 +8,7 @@
 
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { CatalogResolver } from "../../effected/npm/index.ts";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";

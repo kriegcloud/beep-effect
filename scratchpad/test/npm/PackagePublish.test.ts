@@ -16,7 +16,12 @@ import * as S from "effect/Schema";
 import { NpmExecutor } from "../../effected/npm/NpmExecutor.ts";
 import { PackagePublish, PackedTarball } from "../../effected/npm/PackagePublish.ts";
 import { PublishError } from "../../effected/npm/PublishError.ts";
-import { basicCredentialFromPair, InvalidBasicAuthUsernameError } from "../../effected/npm/RegistryCredential.ts";
+import {
+	BasicCredential,
+	basicCredentialFromPair,
+	InvalidBasicAuthUsernameError,
+	TokenCredential,
+} from "@beep/npm-spec/RegistryCredential";
 import type { ScriptResult } from "./publish-fixtures.ts";
 import { fakeCrypto, scripted } from "./publish-fixtures.ts";
 
@@ -30,7 +35,7 @@ const encodePackJson = flow(
 const HOME = "/home/runner";
 const NPMRC = `${HOME}/.npmrc`;
 const TOKEN = Redacted.make("s3cr3t-token");
-const TOKEN_CREDENTIAL = { kind: "token", token: TOKEN } as const;
+const TOKEN_CREDENTIAL = TokenCredential.make({ kind: "token", token: TOKEN });
 
 /** One packed tarball, as both npm majors describe it. */
 const packEntry = {
@@ -863,7 +868,7 @@ describe("PackagePublish.setupAuth with basic auth", () => {
 						Effect.flatMap(publisher, (p) =>
 							p.setupAuth({
 								registry: "https://registry.example.test",
-								credential: { kind: "basic", encoded: Redacted.make("dXNlcjpwYXNz") },
+								credential: BasicCredential.make({ kind: "basic", encoded: Redacted.make("dXNlcjpwYXNz") }),
 								npmrcPath: NPMRC,
 							}),
 						),
@@ -886,7 +891,7 @@ describe("PackagePublish.setupAuth with basic auth", () => {
 						Effect.flatMap(publisher, (p) =>
 							p.setupAuth({
 								registry: "https://example.com/artifactory/api/npm/repo",
-								credential: { kind: "basic", encoded: Redacted.make("YWJj") },
+								credential: BasicCredential.make({ kind: "basic", encoded: Redacted.make("YWJj") }),
 								npmrcPath: NPMRC,
 							}),
 						),

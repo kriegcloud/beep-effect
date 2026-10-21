@@ -17,7 +17,7 @@ import * as Base64 from "effect/encoding/Base64";
 import * as HttpClient from "effect/http/HttpClient";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { IntegrityHash } from "./IntegrityHash.ts";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import type { PublishedVersion } from "./NpmRegistry.ts";
 
 const $I = $ScratchpadId.create("effected/npm/PackageTarball");

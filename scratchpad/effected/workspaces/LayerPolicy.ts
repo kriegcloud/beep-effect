@@ -2,7 +2,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobSet } from "@beep/glob";
-import { DependencyField } from "../npm/index.ts";
+import { DependencyField } from "@beep/npm-spec/DependencySection";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Result from "effect/Result";

@@ -1,4 +1,4 @@
-import type { DependencyField } from "../../npm/index.ts";
+import type { DependencyField } from "@beep/npm-spec/DependencySection";
 
 /**
  * Lists every dependency map a manifest declares, in manifest order.

@@ -3,7 +3,8 @@ import { assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
-import { CatalogResolver, WorkspaceResolver } from "../../effected/npm/index.ts";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import { Package, PackageDecodeError } from "../../effected/package-json/Package.ts";
 it.effect("dependency getters and removals preserve the original package", () => Effect.gen(function* () {
   const pkg = yield* Package.decode({name: "p", version: "1.0.0", dependencies: {a: "1"}, devDependencies: {b: "2"}, peerDependencies: {c: "3"}, optionalDependencies: {d: "4"}});

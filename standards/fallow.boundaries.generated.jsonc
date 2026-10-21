@@ -3025,10 +3025,20 @@
       {
         "from": "@beep/npm-spec",
         "allow": [
-          "@beep/npm-spec"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/npm-spec"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
         ]
       },
       {
@@ -4254,6 +4264,7 @@
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
+          "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
           "@beep/pglite",
@@ -4271,6 +4282,7 @@
           "@beep/spdx",
           "@beep/test-utils",
           "@beep/toml",
+          "@beep/tsconfig",
           "@beep/utils",
           "@beep/wink",
           "@beep/yaml"
@@ -4296,6 +4308,7 @@
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
+          "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
           "@beep/pglite",
@@ -4313,6 +4326,7 @@
           "@beep/spdx",
           "@beep/test-utils",
           "@beep/toml",
+          "@beep/tsconfig",
           "@beep/utils",
           "@beep/wink",
           "@beep/yaml"
@@ -4695,10 +4709,20 @@
       {
         "from": "@beep/tsconfig",
         "allow": [
-          "@beep/tsconfig"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/tsconfig"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/utils"
         ]
       },
       {

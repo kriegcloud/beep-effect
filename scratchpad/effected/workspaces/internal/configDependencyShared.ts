@@ -10,7 +10,7 @@ import { dual } from "effect/Function";
 // even when a caller's `FileSystem` is virtual, so this reads through
 // `node:fs`.
 
-import { CatalogAssemblyError } from "../../npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Effect from "effect/Effect";
 import * as O from "@beep/utils/Option";
 import * as P from "effect/Predicate";

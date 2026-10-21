@@ -14,7 +14,7 @@ import * as HashMap from "effect/HashMap";
 import * as Order from "effect/Order";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobSet } from "@beep/glob";
-import { DependencyResolutionError, WorkspaceResolver } from "../npm/index.ts";
+import { DependencyResolutionError, WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

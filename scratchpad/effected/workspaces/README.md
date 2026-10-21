@@ -119,7 +119,7 @@ const Resolvers = Workspaces.resolvers.pipe(Layer.provide(WorkspacesLayer));
 For whole manifests, `Workspaces.resolveManifest` is the one-shot path over `@effected/npm`'s tolerant `Manifest` model:
 
 ```ts
-import { Manifest } from "@beep/scratchpad/effected/npm/index";
+import { Manifest } from "@beep/npm-spec/Manifest";
 import { Workspaces } from "@beep/scratchpad/effected/workspaces/index";
 import * as Effect from "effect/Effect";
 
