@@ -463,6 +463,30 @@ it.effect(
   })
 );
 
+// `usage` and `error` on a v2 idle are unstable draft fields. An idle whose only defect is one of
+// them must still end the prompt instead of being dropped as undecodable.
+it.effect(
+  "ends a generation-2 prompt when the idle update carries an undecodable usage or error",
+  Effect.fnUntraced(function* () {
+    const { stdio, input, output } = yield* makeInMemoryStdio();
+    const acp = yield* AcpClient.make(stdio);
+    const prompt = { sessionId: "session-1", prompt: [{ type: "text" as const, text: "hello" }] };
+
+    const first = yield* Effect.forkScoped(acp.agent.prompt(prompt));
+    const firstRequest = yield* takeRequest(output);
+    yield* sendAll(input, [result(firstRequest.id, {}), idle("session-1", { usage: { totalTokens: 1 } })]);
+    assert.deepEqual(yield* Fiber.join(first), { stopReason: "end_turn" });
+
+    const second = yield* Effect.forkScoped(acp.agent.prompt(prompt));
+    const secondRequest = yield* takeRequest(output);
+    yield* sendAll(input, [
+      result(secondRequest.id, {}),
+      idle("session-1", { stopReason: "cancelled", error: "not an error object", usage: "unknown" }),
+    ]);
+    assert.deepEqual(yield* Fiber.join(second), { stopReason: "cancelled" });
+  })
+);
+
 // The closed v1.21 result rejects a partial usage and a custom stop reason; the open generation-2
 // acknowledgement member must not swallow such a result and report `end_turn`.
 it.effect(

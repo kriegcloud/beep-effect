@@ -975,6 +975,27 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("inlines a $ref in either allOf position so member order does not matter", () =>
+    Effect.gen(function* () {
+      const definitions: JsonSchema.Definitions = {
+        Named: { type: "object", properties: { name: { type: "string" } }, required: ["name"] },
+      };
+      const hook = composeTransforms(["distributeAllOf"], definitions);
+      const extra = { type: "object", properties: { x: { type: "number" } } };
+      const refFirst = hook({ allOf: [{ $ref: "#/$defs/Named" }, extra] });
+      const refLast = hook({ allOf: [extra, { $ref: "#/$defs/Named" }] });
+      expect(refFirst).toEqual({
+        type: "object",
+        properties: { name: { type: "string" }, x: { type: "number" } },
+        required: ["name"],
+      });
+      expect(refLast.properties).toEqual(refFirst.properties);
+      expect(refLast.required).toEqual(refFirst.required);
+      expect(refFirst.$ref).toBeUndefined();
+      expect(refLast.$ref).toBeUndefined();
+    })
+  );
+
   it.effect("keeps annotation-only references and rejects conflicting intersections", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {

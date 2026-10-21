@@ -31,6 +31,7 @@ import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 import * as Tuple from "effect/Tuple";
 import { CLIENT_METHODS } from "./_generated/meta.gen.ts";
 import * as AcpSchema from "./_generated/schema.gen.ts";
@@ -730,6 +731,23 @@ const CurrentNotificationDispatch = Context.Reference<O.Option<AcpNotificationDi
 );
 
 const decodeSessionUpdate = S.decodeUnknownEffect(AcpSessionUpdateParams);
+
+// An idle `state_update` is what ends a generation-2 prompt, so it must not be dropped because an
+// optional field fails strict decoding: `usage` and `error` are unstable in the v2 draft and agents
+// report partial or newer shapes. Such an idle is re-decoded without those two fields.
+const IdleStateUpdateEnvelope = S.StructWithRest(
+  S.Struct({
+    update: S.StructWithRest(S.Struct({ sessionUpdate: S.Literal("state_update"), state: S.Literal("idle") }), [
+      S.Record(S.String, S.Unknown),
+    ]),
+  }),
+  [S.Record(S.String, S.Unknown)]
+);
+const isIdleStateUpdateEnvelope = S.is(IdleStateUpdateEnvelope);
+const withoutUnstableIdleFields = (envelope: typeof IdleStateUpdateEnvelope.Type) => ({
+  ...envelope,
+  update: Struct.omit(envelope.update, ["usage", "error"]),
+});
 const decodeElicitationComplete = S.decodeUnknownEffect(AcpSchema.CompleteElicitationNotification);
 const isElicitationCompleteMethod = S.is(AcpElicitationCompleteMethod);
 const JsonRpcNotificationFrame = S.Struct({
@@ -1326,17 +1344,32 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     );
   };
 
+  const dispatchSessionUpdate = (params: AcpSessionUpdateParams) =>
+    dispatchNotification({
+      _tag: "SessionUpdate",
+      method: CLIENT_METHODS.session_update,
+      params: options.transformSessionUpdate === undefined ? params : options.transformSessionUpdate(params),
+    });
+
+  const salvageIdleStateUpdate = (payload: unknown, cause: S.SchemaError) =>
+    isIdleStateUpdateEnvelope(payload)
+      ? decodeSessionUpdate(withoutUnstableIdleFields(payload)).pipe(
+          Effect.matchEffect({
+            onFailure: () => dropUndecodableNotification(CLIENT_METHODS.session_update)(cause),
+            onSuccess: (params) =>
+              Effect.logWarning("Kept an ACP idle state_update without its undecodable usage or error").pipe(
+                Effect.andThen(dispatchSessionUpdate(params))
+              ),
+          })
+        )
+      : dropUndecodableNotification(CLIENT_METHODS.session_update)(cause);
+
   const handleIncomingNotification = (message: RpcMessage.RequestEncoded) => {
     if (message.tag === CLIENT_METHODS.session_update) {
       return decodeSessionUpdate(message.payload).pipe(
         Effect.matchEffect({
-          onFailure: dropUndecodableNotification(CLIENT_METHODS.session_update),
-          onSuccess: (params) =>
-            dispatchNotification({
-              _tag: "SessionUpdate",
-              method: CLIENT_METHODS.session_update,
-              params: options.transformSessionUpdate === undefined ? params : options.transformSessionUpdate(params),
-            }),
+          onFailure: (cause) => salvageIdleStateUpdate(message.payload, cause),
+          onSuccess: dispatchSessionUpdate,
         })
       );
     }
