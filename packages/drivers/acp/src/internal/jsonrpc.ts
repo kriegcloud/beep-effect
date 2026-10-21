@@ -196,12 +196,14 @@ export const makeNdJsonRpcFrameDecoder = (): ((
     buffer += decoder.decode(chunk, { stream: true });
     const batches = A.empty<ReadonlyArray<AcpInboundMessage>>();
     let position = 0;
-    const lines = Str.split("\n")(buffer);
-    for (const line of A.dropRight(lines, 1)) {
-      if (exceeds(Str.length(line))) {
+    // A global pattern finds each newline after the previous one without splitting the buffer.
+    const newlines = /\n/g;
+    for (let newline = newlines.exec(buffer); newline !== null; newline = newlines.exec(buffer)) {
+      if (exceeds(newline.index - position)) {
         return failBufferSize();
       }
-      position += Str.length(line) + 1;
+      const line = pipe(buffer, Str.slice(position, newline.index));
+      position = newline.index + 1;
       // A blank keep-alive line carries no message; skip it instead of failing the connection.
       if (isBlankLine(line)) {
         continue;
