@@ -40,11 +40,12 @@ Higher sources outrank lower sources when they conflict.
 
 Every value module in `packages/epistemic/domain/src/values` is tenant-free
 (no `ProductEntity`, no organization scope) and none imports an entity.
+`ClaimLifecycle` is the exception to the move: it is shared-kernel vocabulary.
 
 | Module | Moves to `@beep/epistemics` | Notes |
 | --- | --- | --- |
 | `ClaimGate` | yes | structural verdict; `admitted` is shape conformance, not truth |
-| `ClaimLifecycle` | yes | |
+| `ClaimLifecycle` | **no** | already promoted to `shared/domain` (promotion record; 2026-06-18 decision); the slice only re-exports it |
 | `ClaimDispositionStatus` | yes | |
 | `ClaimEvidenceReview` | yes | |
 | `ClaimProjection` | yes | |
@@ -125,7 +126,7 @@ they gain an entry for `@beep/epistemics`.
 | Whitespace | `git diff --check -- goals/epistemics-foundation-extraction` | Passes |
 | Foundation package | `bun run beep quality package-verify @beep/epistemics` | Passes |
 | Slice package | `bun run beep quality package-verify @beep/epistemic-domain` | Passes |
-| No stale imports | `rg -n '@beep/epistemic-domain/values/(ClaimGate\|ClaimLifecycle\|EvidenceSpan\|LogicalEdgeIdentity\|EdgeRelation\|EdgeEndpoint)' --glob '!packages/epistemic/**'` | No matches |
+| No stale imports | `rg -n '@beep/epistemic-domain/values/(ClaimGate\|ClaimDispositionStatus\|ClaimEvidenceReview\|ClaimProjection\|EvidenceSpan\|EvidenceVerification\|EdgeEndpoint\|EdgeRelation\|LogicalEdgeIdentity\|Contradiction\|ContradictionDetection)\b' --glob '!packages/epistemic/**'` | No matches |
 | Row compatibility | `EdgeVersion` encode/decode round-trip test on pre-extraction fixtures | Passes |
 
 ## Stop Conditions

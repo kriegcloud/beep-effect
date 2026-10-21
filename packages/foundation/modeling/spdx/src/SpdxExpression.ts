@@ -205,6 +205,7 @@ export class LicenseRefNode extends S.TaggedClass<
  */
 export declare namespace LicenseRefNode {
   export interface Encoded {
+    readonly _tag: "LicenseRef";
     readonly documentRef?: undefined | string;
     readonly ref: string;
   }

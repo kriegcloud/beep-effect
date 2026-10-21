@@ -302,7 +302,7 @@ export const adaptLegacyContactKg = ({
     proposition: {
       _tag: "ContextRole" as const,
       party: id,
-      context: ContextRef.make(`ctx:client:${l.clientNumber}`),
+      context: ContextRef.make(`ctx:client:${encodeURIComponent(l.clientNumber)}`),
       role: clientContactRole,
     },
     stance: "asserts" as const,

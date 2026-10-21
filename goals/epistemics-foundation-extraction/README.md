@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P0 Research — complete (2026-10-21): inventory and importer census in `SPEC.md`. Next: P1 Implement.
 
 ## Latest Evidence
 

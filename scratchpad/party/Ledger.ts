@@ -16,6 +16,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { ClaimVersion, SourceAssertion } from "./Claim.ts";
 import type { Observation } from "./Communication.ts";
@@ -89,31 +90,48 @@ export const PartyLedgerMemory = Layer.effect(
   Effect.gen(function* () {
     const state = yield* Ref.make<LedgerSnapshot>({ observations: [], assertions: [], versions: [] });
 
-    const append = Effect.fn("PartyLedger.append")(function* (v: ClaimVersion) {
-      const current = yield* Ref.get(state);
-      if (A.some(current.versions, (x) => x.id === v.id)) return yield* conflict(v, "version id already recorded");
-      if (O.isSome(v.supersedes)) return yield* conflict(v, "use supersede for versions that replace another");
-      yield* Ref.update(state, (s) => ({ ...s, versions: [...s.versions, v] }));
+    // Check and write in one Ref.modify, so two fibers cannot both pass a check and then both write.
+    const commit = Effect.fn("PartyLedger.commit")(function* (
+      v: ClaimVersion,
+      plan: (current: LedgerSnapshot) => Result.Result<LedgerSnapshot, string>
+    ) {
+      const refused = yield* Ref.modify(state, (current) => {
+        const planned = plan(current);
+        return Result.isSuccess(planned) ? [O.none<string>(), planned.success] : [O.some(planned.failure), current];
+      });
+      if (O.isSome(refused)) return yield* conflict(v, refused.value);
     });
 
-    const supersede = Effect.fn("PartyLedger.supersede")(function* (next: ClaimVersion) {
-      const current = yield* Ref.get(state);
-      const target = O.flatMap(next.supersedes, (id) => A.findFirst(current.versions, (x) => x.id === id));
-      if (O.isNone(target)) return yield* conflict(next, "superseded version not found");
-      if (O.isSome(target.value.knowledge.expiredAt)) return yield* conflict(next, "superseded version already expired");
-      // A successor may state a different fact (mailbox "used-by Maya" -> "operated-by Finance");
-      // supersession is about knowledge, not about keeping the proposition identical.
-      const at = next.knowledge.recordedAt;
-      yield* Ref.update(state, (s) => ({
-        ...s,
-        versions: [
-          ...A.map(s.versions, (x) =>
-            x.id === target.value.id ? { ...x, knowledge: { ...x.knowledge, expiredAt: O.some(at) } } : x
-          ),
-          next,
-        ],
-      }));
-    });
+    const recorded = (current: LedgerSnapshot, v: ClaimVersion) => A.some(current.versions, (x) => x.id === v.id);
+
+    const append = (v: ClaimVersion) =>
+      commit(v, (current) =>
+        recorded(current, v)
+          ? Result.fail("version id already recorded")
+          : O.isSome(v.supersedes)
+            ? Result.fail("use supersede for versions that replace another")
+            : Result.succeed({ ...current, versions: [...current.versions, v] })
+      );
+
+    // A successor may state a different fact (mailbox "used-by Maya" -> "operated-by Finance");
+    // supersession is about knowledge, not about keeping the proposition identical.
+    const supersede = (next: ClaimVersion) =>
+      commit(next, (current) => {
+        if (recorded(current, next)) return Result.fail("version id already recorded");
+        const target = O.flatMap(next.supersedes, (id) => A.findFirst(current.versions, (x) => x.id === id));
+        if (O.isNone(target)) return Result.fail("superseded version not found");
+        if (O.isSome(target.value.knowledge.expiredAt)) return Result.fail("superseded version already expired");
+        const at = next.knowledge.recordedAt;
+        return Result.succeed({
+          ...current,
+          versions: [
+            ...A.map(current.versions, (x) =>
+              x.id === target.value.id ? { ...x, knowledge: { ...x.knowledge, expiredAt: O.some(at) } } : x
+            ),
+            next,
+          ],
+        });
+      });
 
     return PartyLedger.of({
       recordObservation: Effect.fn("PartyLedger.recordObservation")((o: Observation) =>

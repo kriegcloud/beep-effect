@@ -11,7 +11,14 @@ import * as S from "effect/Schema";
 import { IdentifierId, PartyId, PrincipalId } from "../Ids.ts";
 import { UtcInstant } from "../Time.ts";
 import type { CollisionCase, CollisionDecision, ReviewVerdict } from "../adapters/ReviewLoop.ts";
-import { applyReviews, decisionClaims, mailboxParty, ReviewVerdict as Verdict, sealCase } from "../adapters/ReviewLoop.ts";
+import {
+  applyReviews,
+  decisionClaims,
+  isSettled,
+  mailboxParty,
+  ReviewVerdict as Verdict,
+  sealCase,
+} from "../adapters/ReviewLoop.ts";
 
 const at = UtcInstant.make;
 const ident = IdentifierId.make;
@@ -151,6 +158,9 @@ layer(NodeCrypto.layer)("reviewer loop", (it) => {
         decisions: [decide(byName, allDifferent(byName)), decide(byInitial, allSame(byInitial), "2026-10-21T11:00:00Z")],
       });
       expect(A.map(statuses, (s) => s.status)).toEqual(["reviewed-distinct", "conflicting-review"]);
+      // only settled cases may emit Accepted claims or leave the queue
+      expect(A.map(statuses, (s) => isSettled(s.status))).toEqual([true, false]);
+      expect(isSettled("reviewed-grouped")).toBe(true);
     })
   );
 });

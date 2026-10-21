@@ -66,6 +66,7 @@ import {
   CollisionCase,
   CollisionDecision,
   decisionClaims,
+  isSettled,
   mailboxParty,
   sealCase,
 } from "../adapters/ReviewLoop.ts";
@@ -252,13 +253,13 @@ const program = Effect.fn("identity-evidence")(function* (args: {
     ? A.getSomes(yield* readJsonl(fs, decisionsPath, S.decodeUnknownEffect(S.fromJsonString(CollisionDecision))))
     : [];
   const reviewed = applyReviews({ cases, decisions });
-  const open = A.filter(reviewed, (r) => r.status !== "reviewed-same" && r.status !== "reviewed-distinct" && r.status !== "skipped");
+  const open = A.filter(reviewed, (r) => !isSettled(r.status) && r.status !== "skipped");
   const encodeCases = S.encodeEffect(CollisionCase.pipe(S.Array, S.fromJsonString));
   const encodedCases = yield* encodeCases(A.map(open, (r) => r.case));
   yield* fs.writeFileString(`${args.outDir}/review.html`, renderReviewPage(encodedCases));
-  const reviewClaims = A.flatMap(
-    A.filter(decisions, (d) => A.some(reviewed, (r) => r.case.basis === d.basis && r.status !== "stale-review")),
-    decisionClaims
+  // Accepted claims only for the decision applyReviews actually settled: one per case, latest wins.
+  const reviewClaims = A.flatMap(reviewed, (r) =>
+    isSettled(r.status) ? O.match(r.decision, { onNone: () => [], onSome: decisionClaims }) : []
   );
   const reviewClaimLines = yield* Effect.forEach(reviewClaims, (c) => encodeClaim(c));
   yield* fs.writeFileString(`${args.outDir}/review-claims.jsonl`, A.join(reviewClaimLines, "\n") + "\n");

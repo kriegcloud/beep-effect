@@ -2290,7 +2290,7 @@ re-flag.
 Decision:
 
 `@beep/epistemic-domain` splits along the line it already has. Its tenant-free
-value vocabulary (claim gate verdict, claim lifecycle, evidence spans, edge
+value vocabulary (claim gate verdict, evidence spans, edge
 relation and logical edge identity, bitemporal valid/knowledge intervals,
 evidence-signal envelopes, and a generic `Claim<P>` / edge-version envelope
 over an encoded proposition and its logical key) moves to a new
@@ -2299,7 +2299,12 @@ everything that carries product semantics: the org-scoped `ProductEntity`
 entities (`EdgeVersion`, `Evidence`, `CandidateClaim`, `ClaimDisposition`,
 `Activity`, `Contradiction`, `EvidenceVerification`, `UsageRecord`), its
 tables, the Postgres edge authority, and the contradiction-triage service, and
-it imports the vocabulary from foundation. The agent-authority values
+it imports the vocabulary from foundation. `ClaimLifecycle` is not part of the move: it is
+already shared-kernel vocabulary in `shared/domain` with a promotion record,
+per "2026-06-18: Cross-Slice Consumption Of The Epistemic Boundary", which this
+entry applies rather than supersedes (substrate to `foundation/modeling`,
+shared product vocabulary to `shared/domain`, mechanism stays in the slice).
+The agent-authority values
 (`ExecutionGrant`, `GrantSet`, `ExecutionRecord`, `ExecutionVerdict`) are not
 epistemics; they are recorded as misfiled and move to their own home in a
 separate change.

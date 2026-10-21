@@ -3876,6 +3876,8 @@
         "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
+        "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/m365": "workspace:^",
         "@beep/managed-section": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/memfs": "workspace:^",
