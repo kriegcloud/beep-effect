@@ -2220,3 +2220,65 @@ tenant predicate, and refuses the `columnName` overrides the kit uses for
 `entityType` and `publicId`. Reverse by restoring the
 explicit `VariantField` for `rowVersion`, dropping the `DEFAULT 1` in a new
 migration, and removing the guards.
+
+## 2026-10-20: Single Public Origin beep-effect.com; Apex Hosts Projections, /ns/ Reserved
+
+- **Status:** Active
+
+Decision:
+
+`beep-effect.com` is the single public origin for everything the repo projects
+to developers and agents. The apex hosts ring-0 projections of the public
+substrate only. The `/ns/` path is reserved forever for identity dereference:
+once a deployment goal ships it, it will serve the exact registry behind every
+IRI minted under the identity authority `https://beep-effect.com/ns/`; until
+then the IRIs are names, not dereferenceable URLs. `/taxonomy` is the HTML discovery
+projection of that registry, kept separate from dereference. Subdomains are
+for services and instances that are not projections: a practice instance, the
+proxy, anything authenticated. `www` will redirect to the apex (infra, a
+later deployment goal).
+
+The reserved v1 route table is `/ns`, `/taxonomy`, `/docs`, `/api`,
+`/storybook`, `/llms.txt`, `/mcp`, `/labs/<name>`, `/goals`, `/explorations`,
+`/research`, `/.well-known/*` and `/sitemap.xml`. Routes are reserved now and
+deployed later, one follow-on goal per surface. `/api` serves the Scalar docs
+for every HttpApi contract. `/labs/<name>` hosts `apps/labs/<name>`, where
+`<name>` is the portless name without `.labs.beep.localhost`; labs keep the
+segment so nothing lab-grade reads as official.
+
+The foundation package `@beep/public-site`
+(`packages/foundation/modeling/public-site`) owns the hosting map:
+`PublicOrigin`, `SiteRoute` (a `LiteralKit` of the route slugs), `hostedUrl`
+and `labRoute`. Hosting is schema-typed build-time or runtime config, never an
+environment read. The identity authority stays a type-level literal in
+`@beep/identity` (`IdentityAuthority`), which never depends on
+`@beep/public-site`; a test in `@beep/public-site` proves
+`hostedUrl("ns") + "/"` equals the authority, so the two literals cannot
+drift. App base-path configs and `@beep/repo-configs` consume
+`@beep/public-site`; each surface's deployment goal wires its own consumer,
+and none is wired yet. Product code outside those two packages never writes
+the origin as a string literal (tests and a short allowlist with reasons are
+exempt), and no file outside `**/history/**` and the top-level `research/`
+tree names a retired authority; `bun run beep laws retired-iri-authorities`
+enforces both.
+The operator brief, the decisions D1 to D6 and the rulings that refine them
+are in `goals/public-origin-beep-effect-com/SPEC.md`.
+
+Rationale:
+
+`llms.txt`, robots, the sitemap and `.well-known` are origin-scoped, and the
+knowledge-endgame training-data flywheel wants one crawler authority. Every
+listed surface is public and unauthenticated, so per-subdomain cookie and CSP
+isolation buys nothing. schema.org and w3.org mint IRIs as apex paths. The
+earlier identity host was a placeholder on a domain the repo never owned.
+
+Rejected: a subdomain per surface (splits origin-scoped files and crawler
+authority for no isolation benefit); a dedicated `ns.` subdomain for identity
+(the same split, and dereference sits naturally beside its discovery
+projection); tooling as owner of the hosting map (product code such as MCP
+output and `llms.txt` generation cannot import tooling). Consequences: the
+identity authority moved in a hard cut with no alias map, evidence predicate
+types in skill-contract and the QA judge bumped to `/v2`, and deployment of
+each route is a separate goal. Reverse by reverting its PR and running
+`bun run beep laws retired-iri-authorities` in report mode to list what would
+re-flag.

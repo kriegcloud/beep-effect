@@ -14,17 +14,18 @@
  * @since 0.0.0
  */
 
-import { findRepoRoot } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
-import * as Path from "effect/Path";
-import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import { runGitRawOutput } from "../../internal/repo-run/GitExec.ts";
+import {
+  lineStartOffsets,
+  locateIndex,
+  messageGitErrorAdapter,
+  scanTrackedTextFiles,
+} from "./internal/TrackedTextFiles.ts";
 import { RetiredEffectPathsExecutionError } from "./Laws.errors.ts";
 import {
   RetiredEffectPathFinding,
@@ -34,8 +35,9 @@ import {
   retiredEffectPathsAllowlist,
 } from "./RetiredEffectPaths.model.ts";
 import type * as Crypto from "effect/Crypto";
+import type * as FileSystem from "effect/FileSystem";
+import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import type { GitCommandErrorAdapter } from "../../internal/repo-run/GitExec.ts";
 import type {
   RetiredEffectPathMapping,
   RetiredEffectPathRule,
@@ -64,29 +66,13 @@ const LINK_FRAGMENT_PATTERN = /\](?:\(|:[ \t]*)[^\s)#]*#[^\s)]*/gu;
  */
 const ANCHOR_SLUG_PATTERN = /effectunstable[\p{L}\p{N}_]*/gu;
 
-const NEWLINE_PATTERN = /\n/gu;
-
 /** Cheap pre-filter: every match of every rule contains this literal. */
 const RULE_LITERAL = "unstable";
-
-/** `git ls-files --stage` modes of regular files; symlinks (120000) and gitlinks (160000) carry no text. */
-const REGULAR_FILE_MODES = ["100644", "100755"];
-
-const STAGE_RECORD_PATTERN = /^(\d{6}) [0-9a-f]+ \d\t(.+)$/su;
-
-const READ_CONCURRENCY = 32;
-
-const textDecoder = new TextDecoder();
 
 type RawMatch = {
   readonly index: number;
   readonly text: string;
   readonly rule: RetiredEffectPathRule;
-};
-
-type FileOutcome = {
-  readonly binary: boolean;
-  readonly findings: ReadonlyArray<RetiredEffectPathFinding>;
 };
 
 const byIndexAscending = Order.mapInput(Order.Number, (match: RawMatch) => match.index);
@@ -164,32 +150,16 @@ export const suggestRetiredEffectPath: {
   )
 );
 
-const lineStartOffsets = (content: string): ReadonlyArray<number> =>
-  A.prepend(
-    A.map(A.fromIterable(F.pipe(content, Str.matchAll(NEWLINE_PATTERN))), (match) => (match.index ?? 0) + 1),
-    0
-  );
-
 const toFinding =
   (file: string, lineStarts: ReadonlyArray<number>) =>
-  (match: RawMatch): RetiredEffectPathFinding => {
-    const lineIndex = F.pipe(
-      A.findLastIndex(lineStarts, (start) => start <= match.index),
-      O.getOrElse(() => 0)
-    );
-    const lineStart = F.pipe(
-      A.get(lineStarts, lineIndex),
-      O.getOrElse(() => 0)
-    );
-    return RetiredEffectPathFinding.make({
+  (match: RawMatch): RetiredEffectPathFinding =>
+    RetiredEffectPathFinding.make({
       file,
-      line: lineIndex + 1,
-      column: match.index - lineStart + 1,
+      ...locateIndex(lineStarts, match.index),
       match: match.text,
       rule: match.rule,
       suggestion: suggestRetiredEffectPath(match.text, match.rule),
     });
-  };
 
 /**
  * Scan one file's text for retired Effect module paths.
@@ -297,53 +267,6 @@ export const isAllowlisted = (file: string): boolean =>
 export const formatRetiredEffectPathFinding = (finding: RetiredEffectPathFinding): string =>
   `${finding.file}:${finding.line}:${finding.column}  ${finding.match}  →  ${finding.suggestion}`;
 
-const gitErrorAdapter: GitCommandErrorAdapter<RetiredEffectPathsExecutionError> = {
-  onSpawnFailure: (commandLine) => () => RetiredEffectPathsExecutionError.new(`Failed to spawn ${commandLine}.`),
-  onNonZeroExit: ({ commandLine, exitCode }) =>
-    RetiredEffectPathsExecutionError.new(`${commandLine} failed with exit code ${exitCode}.`),
-  onTruncated: O.none(),
-};
-
-const regularFileFromStageRecord = (record: string): O.Option<string> =>
-  F.pipe(
-    O.fromNullishOr(STAGE_RECORD_PATTERN.exec(record)),
-    O.filter((match) => A.contains(REGULAR_FILE_MODES, match[1])),
-    O.flatMap((match) => O.fromNullishOr(match[2]))
-  );
-
-const listTrackedRegularFiles = Effect.fn("RetiredEffectPaths.listTrackedRegularFiles")(function* (repoRoot: string) {
-  const output = yield* runGitRawOutput(repoRoot, ["ls-files", "-z", "--stage"], gitErrorAdapter);
-  return F.pipe(
-    Str.split("\0")(output),
-    A.filter(Str.isNonEmpty),
-    A.map(regularFileFromStageRecord),
-    A.getSomes,
-    A.dedupe
-  );
-});
-
-const scanTrackedFile = Effect.fnUntraced(function* (repoRoot: string, file: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const bytes = yield* fs.readFile(path.join(repoRoot, file)).pipe(
-    Effect.asSome,
-    Effect.catchIf(
-      (error) => error.reason._tag === "NotFound",
-      () => Effect.succeed(O.none<Uint8Array>())
-    ),
-    RetiredEffectPathsExecutionError.mapError(`Failed to read ${file}`)
-  );
-  return F.pipe(
-    bytes,
-    O.map(
-      (content): FileOutcome =>
-        content.includes(0)
-          ? { binary: true, findings: A.empty() }
-          : { binary: false, findings: scanText(file, textDecoder.decode(content)) }
-    )
-  );
-});
-
 /**
  * Run the retired Effect module path law over every git-tracked text file.
  *
@@ -380,23 +303,16 @@ export const runRetiredEffectPaths = Effect.fn("RetiredEffectPaths.runRetiredEff
   RetiredEffectPathsExecutionError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const repoRoot = yield* findRepoRoot(options.cwd).pipe(
-    RetiredEffectPathsExecutionError.mapError("Failed to locate the repository root")
-  );
-  const tracked = yield* listTrackedRegularFiles(repoRoot);
-  const allowlisted = A.filter(tracked, isAllowlisted);
-  const scanned = A.filter(tracked, P.not(isAllowlisted));
-  const outcomes = yield* Effect.forEach(scanned, (file) => scanTrackedFile(repoRoot, file), {
-    concurrency: READ_CONCURRENCY,
+  const { skippedFiles, ...scan } = yield* scanTrackedTextFiles({
+    cwd: options.cwd,
+    gitErrors: messageGitErrorAdapter(RetiredEffectPathsExecutionError.new),
+    mapError: RetiredEffectPathsExecutionError.mapError,
+    isSkipped: isAllowlisted,
+    scan: scanText,
   });
-  const present = A.getSomes(outcomes);
-  const findings = A.flatMap(present, (outcome) => outcome.findings);
-
   return RetiredEffectPathsSummary.make({
-    scannedFiles: A.length(present),
-    skippedBinaryFiles: A.length(A.filter(present, (outcome) => outcome.binary)),
-    allowlistedFiles: A.length(allowlisted),
-    strictFailure: options.strictCheck && A.isReadonlyArrayNonEmpty(findings),
-    findings,
+    ...scan,
+    allowlistedFiles: skippedFiles,
+    strictFailure: options.strictCheck && A.isReadonlyArrayNonEmpty(scan.findings),
   });
 });

@@ -229,6 +229,17 @@ meaningful config contracts exist. Server, client, tables, and UI are adapters
 around that core, while repo-level drivers stay outside the slice as shared
 technical boundaries.
 
+## Identity Authority
+
+The IRI root every beep identity mints under: `https://beep-effect.com/ns/`,
+written once as `IdentityAuthority` in `@beep/identity` and carried as a
+type-level literal by the `$I` composers, so `@beep/a/b` names
+`https://beep-effect.com/ns/a/b`. It names things; it does not decide where
+anything is hosted. Code derives IRIs from identity composers and never writes
+the authority as a string. It is not the [Public Origin](#public-origin):
+`/ns/` is the one route of the origin reserved for dereferencing these IRIs,
+and `@beep/identity` never depends on `@beep/public-site`.
+
 ## Internal Error
 
 A technical failure that should be logged, traced, retried, or translated at a
@@ -336,6 +347,18 @@ Browser-safe config contracts and services exported from a config package. Clien
 packages may import public config; they must not import server config or secret
 config.
 
+## Public Origin
+
+The single hosting origin for everything the repo projects to developers and
+agents, `https://beep-effect.com`, owned as the schema-typed `PublicOrigin`
+by the foundation package `@beep/public-site`. The apex hosts ring-0
+projections of the public substrate at reserved [Site Routes](#site-route);
+services and instances that are not projections (a practice instance, the
+proxy, anything authenticated) live on subdomains. Hosted URLs come from
+`hostedUrl` and `labRoute`, never string literals. It is not the
+[Identity Authority](#identity-authority); a drift test in `@beep/public-site`
+keeps the `/ns/` route equal to the authority.
+
 ## Protocol Declaration
 
 A driver-neutral boundary contract such as an HttpApi endpoint group, Rpc
@@ -418,6 +441,16 @@ is not a synonym for `common` or `foundation`, and it is not a place for
 miscellaneous leftovers from product slices.
 
 **Terminology caveat:** strict DDD uses "shared kernel" for code shared across team boundaries with explicit cross-team coordination. In this monorepo the term is used for *deliberate cross-slice product language within a single team's codebase* — closer to a "published language for an internal context." The connotations of high coordination cost still apply (every promotion record is a small coordination act), but the cross-team framing does not. The term is kept because it does the work of distinguishing "deliberate cross-slice" from "junk drawer."
+
+## Site Route
+
+A reserved first path segment of the [Public Origin](#public-origin), such as
+`ns`, `taxonomy`, `docs`, `api`, `storybook`, `llms.txt`, `mcp`, `labs`,
+`goals`, `explorations`, `research`, `.well-known` or `sitemap.xml`, modeled
+as the `SiteRoute` `LiteralKit` in `@beep/public-site`. A route is reserved
+before it is deployed, and each deployment is its own goal. `labs` routes take
+the lab's portless name so lab-grade surfaces never read as official. A Site
+Route is not a subdomain and not a slice or package name.
 
 ## Slice
 

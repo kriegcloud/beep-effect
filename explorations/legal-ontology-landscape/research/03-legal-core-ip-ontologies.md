@@ -7,7 +7,7 @@ This P2 pass serves CQs 1, 4-10, 14, 18, and 19 from `01-direction-grounding.md`
 ## Executive verdict
 
 - M2 should not use FOLIO, LKIF, or OWL legal-core class hierarchies for IPC/CPC/Nice. Use official IPC, CPC, and Nice machine-readable downloads as SKOS `ConceptScheme`s with edition/date tracking.
-- M3 should reuse PROV-O and ODRL terms by IRI in local vocabulary mappings, slice LKIF role/norm patterns, map to FOLIO legal-practice labels, and mint IP-prosecution roles/deadline terms under `https://ns.beep.sh/`.
+- M3 should reuse PROV-O and ODRL terms by IRI in local vocabulary mappings, slice LKIF role/norm patterns, map to FOLIO legal-practice labels, and mint IP-prosecution roles/deadline terms under `https://beep-effect.com/ns/`.
 - Mandatory historical candidates mostly fail the P2 reuse bar because no current fetchable OWL/TTL artifact was observed. CopyrightOnto is the exception: Firecrawl observed Rhizomik artifact URLs, local bytes were available, and the TTL headers carry CC-BY-SA-4.0 license annotations.
 
 ## Artifact pack status
@@ -126,7 +126,7 @@ Reuse by IRI:
 - Legal-practice labels: map to FOLIO Actor/Player, Legal Entity, Document Artifact, Event, Area of Law, and Standards Compatibility branches where exact or close labels exist. Source: `https://openlegalstandard.org/resources/folio-python-library/taxonomy`.
 - Role/norm design: slice LKIF `role:Role`, `role:plays`, `role:played_by`, `legal-role:Legal_Role`, and norm concepts as design input only. Source: `https://github.com/RinkeHoekstra/lkif-core`.
 
-Mint under `https://ns.beep.sh/`:
+Mint under `https://beep-effect.com/ns/`:
 
 - Enduring party classes and IDs that the law-practice domain owns: `beep:Party`, `beep:NaturalPersonParty`, `beep:OrganizationParty`, `beep:LawFirm`, `beep:PatentOffice`, `beep:TrademarkOffice`, and `beep:PartyIdentifier`.
 - Time-bounded role classes: `beep:InventorRole`, `beep:ApplicantRole`, `beep:AssigneeRole`, `beep:OwnerRole`, `beep:ExaminerRole`, `beep:AttorneyOfRecordRole`, `beep:CorrespondentRole`, `beep:ClientContactRole`, `beep:SignerRole`, `beep:LicenseeRole`, and `beep:LicensorRole`. Model each as a role assignment/association with holder, matter or asset scope, source evidence, start/end times, and authority event. Do not make these subclasses of person or organization.

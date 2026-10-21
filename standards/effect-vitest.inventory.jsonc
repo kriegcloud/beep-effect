@@ -1874,15 +1874,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1093:provideScopedLayer@16#1",
+      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1096:provideScopedLayer@16#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/law-practice-server",
       "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 1093,
-      "endLine": 1093,
+      "line": 1096,
+      "endLine": 1096,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:f067064da22298892301e1e46663a3319f2a35088ed3ce43e5b83cb52942213a",
+      "occurrence": "v2:9651c7b57d8e4cfbf0dde5d0ff0257dd9a3f56b488af9ec28f81f152d1b14c28",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(firstOut, \"kg.pglite\") }))",
       "replacement": {
@@ -1895,15 +1895,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1294:provideScopedLayer@16#1",
+      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1297:provideScopedLayer@16#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/law-practice-server",
       "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 1294,
-      "endLine": 1294,
+      "line": 1297,
+      "endLine": 1297,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:bd914ae3508b5c917d4ae8b267184193cd6f8f68d28b12373247ca1c729e2ef6",
+      "occurrence": "v2:7ae24f46b2daa1acce4b9b2ec86fb4efccf4debb93bb6123f8125feb59aeba87",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(host)",
       "replacement": {
@@ -22925,13 +22925,13 @@
       "reason": "Native filesystem behavior is the test subject: actual materialized bytes, symlink/root-boundary protection, inode/procfs fallback or atomic updates. Public fresh layers own services and test scopes own temporary directories; MemoryFileSystem would replace the behavior being verified."
     },
     {
-      "id": "EV010:packages/drivers/acp/test/integration/client.integration.test.ts:5:@effect/platform-node/NodeServices@0#1",
+      "id": "EV010:packages/drivers/acp/test/integration/client.integration.test.ts:6:@effect/platform-node/NodeServices@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/acp",
       "file": "packages/drivers/acp/test/integration/client.integration.test.ts",
-      "line": 5,
-      "endLine": 5,
+      "line": 6,
+      "endLine": 6,
       "symbol": "@effect/platform-node/NodeServices",
       "occurrence": "v2:fb7d6bba929488197f859519d08aea3efcf9ac097f647f2bbff02362d70850d7",
       "class": "platform-resource-provenance-review",
@@ -22947,13 +22947,13 @@
       "reason": "Native Bun child spawning, piped stdio and real termination/exit-code behavior are the test subjects; NodeServices supplies native process/path services. MemoryFileSystem is not a substitute."
     },
     {
-      "id": "EV010:packages/drivers/acp/test/protocol.test.ts:12:@effect/platform-node/NodeServices@0#1",
+      "id": "EV010:packages/drivers/acp/test/protocol.test.ts:13:@effect/platform-node/NodeServices@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/acp",
       "file": "packages/drivers/acp/test/protocol.test.ts",
-      "line": 12,
-      "endLine": 12,
+      "line": 13,
+      "endLine": 13,
       "symbol": "@effect/platform-node/NodeServices",
       "occurrence": "v2:fb7d6bba929488197f859519d08aea3efcf9ac097f647f2bbff02362d70850d7",
       "class": "platform-resource-provenance-review",
@@ -24640,28 +24640,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Native NodeServices is retained only for assertions about real checked-in generated artifacts, safety policy and turbo config. Three synthetic filesystem cases now use MemoryFileSystem with unique scoped directories."
-    },
-    {
-      "id": "EV010:packages/tooling/library/codegen-kit/test/CodegenKit.test.ts:3:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/codegen-kit",
-      "file": "packages/tooling/library/codegen-kit/test/CodegenKit.test.ts",
-      "line": 3,
-      "endLine": 3,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Native formatter/diff integration is the subject. CodegenKit refreshJson writes a cache file and passes its path to formatter.file; run/format and drift checks also invoke real child processes. MemoryFileSystem paths are invisible to those children. Retain NodeServices through shared instrumented layers with explicit hook budgets and per-test scoped native directories; preserve cache mismatch, warning and diff assertions."
     },
     {
       "id": "EV010:packages/tooling/library/qa-capture/test/Collector.test.ts:18:@effect/platform-node@0#1",
@@ -40333,13 +40311,13 @@
       "reason": "Receipt expiry intentionally advances virtual time by the original five minutes. Each migrated store case has an independent public one-test layer registration and memoization map. A runtime probe verified fifteen distinct TestClock instances, each initially at zero, alongside fifteen distinct stores; the original nineteen cases passed. No reset, live-clock substitution, or deadline change was introduced. See research/desktop-chat-layer-isolation-proof.md in the goal packet."
     },
     {
-      "id": "EV015:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:582:TestClock.adjust@44#1",
+      "id": "EV015:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:840:TestClock.adjust@44#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/ai-provider-cli",
       "file": "packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts",
-      "line": 582,
-      "endLine": 582,
+      "line": 840,
+      "endLine": 840,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:11c7014ec45388f04b016c97a357f800f199dd22c5d349994f5756ca1a2708b9",
       "class": "shared-test-clock-adjustment",
@@ -40355,13 +40333,13 @@
       "reason": "The owning resource layer explicitly sets concurrent:false so each deadline fixture exclusively controls its TestClock. The test waits for the native request checkpoint before advancing time, then verifies timeout and scoped cleanup. Parallel clock adjustment reproduced interference and was removed."
     },
     {
-      "id": "EV015:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:648:TestClock.adjust@15#1",
+      "id": "EV015:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:912:TestClock.adjust@15#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/ai-provider-cli",
       "file": "packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts",
-      "line": 648,
-      "endLine": 648,
+      "line": 912,
+      "endLine": 912,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:23155bdefd040c4d3ba39cc36e4ed34564b1b7c51c7109db847d04b25b12c51f",
       "class": "shared-test-clock-adjustment",

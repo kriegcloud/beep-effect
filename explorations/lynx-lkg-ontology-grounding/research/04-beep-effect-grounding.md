@@ -43,7 +43,7 @@ of them is a **contradiction**, not a gap.
 | D2 | **Effect Schema is the authority; ontology is annotation + projection.** JSON-LD/Turtle are *derived*. | `docs/BEEPGRAPH_ARCHITECTURE.md:111-113` |
 | D3 | **No SPARQL engine in v1.** The contract stays `UnsupportedSparqlQueryServiceLive`; any SPARQL topology decision is a separate gated P4/M4 call. | `goals/semantic-foundation/SPEC.md:15-17` |
 | D4 | **No law-practice domain entities in the semantic layer.** `TrademarkAsset`, docketing entities, and time-bounded trademark models stay out of `@beep/ontology`. | `goals/semantic-foundation/SPEC.md:18-22` |
-| D5 | **`https://ns.beep.sh/` is the sole minting authority.** Ad-hoc local namespaces (`https://beep.local/...`) are unacceptable for committed seed data. | `goals/semantic-foundation/SPEC.md:79-81` |
+| D5 | **`https://beep-effect.com/ns/` is the sole minting authority.** Ad-hoc local namespaces (`https://beep.local/...`) are unacceptable for committed seed data. | `goals/semantic-foundation/SPEC.md:79-81` |
 | D6 | **FOLIO alignment is metadata, never source of truth.** `skos:exactMatch` / `skos:closeMatch` where vetted; FOLIO cannot overwrite repo-owned concepts. | `goals/semantic-foundation/SPEC.md:84-86` |
 | D7 | **No third-party TTL/OWL in tracked package source.** Vendor bytes stay gitignored under the exploration asset pack with committed manifest/fetch metadata; only repo-owned seed TTL/JSON-LD is committed. | `goals/semantic-foundation/SPEC.md:29-31`, `.../DECISIONS.md:121-135` |
 | D8 | **Schema-first Effect models, typed errors, tagged unions are required** for registry, loader, and concept-scheme data. | `goals/semantic-foundation/SPEC.md:77-79` |
@@ -65,7 +65,7 @@ V1 was scoped to four clusters over 20 numbered competency questions
   (`explorations/legal-ontology-landscape/RESEARCH.md:76-82`).
 
 A **recorded gap**: "no candidate fully covers docketing-obligation
-vocabulary — M3 will mint under `ns.beep.sh`"
+vocabulary — M3 will mint under `beep-effect.com/ns/`"
 (`explorations/legal-ontology-landscape/RESEARCH.md:81-82`). This is the
 single largest declared vocabulary hole and the most likely place an LKG
 contribution could land.
@@ -284,10 +284,10 @@ Every row below was read in this session. Paths are repo-relative.
 
 ### 4.3 `@beep/identity` — `packages/foundation/modeling/identity`
 
-- Root authority: `Identity.make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" })`
+- Root authority: `Identity.make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" })`
   (`src/packages.ts:40`).
 - `$OntologyId` (`src/packages.ts:286`) and `$SemanticFoundationId`
-  (`src/packages.ts:301`, IRI `https://ns.beep.sh/ontology/semantic-foundation`).
+  (`src/packages.ts:301`, IRI `https://beep-effect.com/ns/ontology/semantic-foundation`).
 - `VocabShape` / `VocabEntry` / `VocabRegistry` and the `mergeVocab` extension
   point (`src/Vocab.ts`), CURIE helpers (`src/Curie.ts`, `src/PnLocal.ts`).
 - Every schema/error/service identifier in the repo is minted through a

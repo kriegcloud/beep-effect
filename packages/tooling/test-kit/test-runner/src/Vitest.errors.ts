@@ -20,7 +20,7 @@ const PositiveTimeoutMillis = S.Finite.check(
   S.annotate({
     schemaId: Symbol.for("@beep/test-utils/Vitest/PositiveTimeoutMillis"),
     identifier: "@beep/test-utils/Vitest/PositiveTimeoutMillis",
-    iri: "https://ns.beep.sh/test-utils/Vitest/PositiveTimeoutMillis",
+    iri: "https://beep-effect.com/ns/test-utils/Vitest/PositiveTimeoutMillis",
     curie: "beep:test-utils/Vitest/PositiveTimeoutMillis",
     title: "PositiveTimeoutMillis",
     description: "Finite positive live-clock watchdog budget in milliseconds.",
@@ -52,7 +52,7 @@ export class TestContextUnavailable extends S.TaggedError<TestContextUnavailable
       S.annotateKey({
         schemaId: Symbol.for("@beep/test-utils/Vitest/TestContextUnavailable.method"),
         identifier: "@beep/test-utils/Vitest/TestContextUnavailable.method",
-        iri: "https://ns.beep.sh/test-utils/Vitest/TestContextUnavailable.method",
+        iri: "https://beep-effect.com/ns/test-utils/Vitest/TestContextUnavailable.method",
         curie: "beep:test-utils/Vitest/TestContextUnavailable.method",
         title: "TestContextUnavailable.method",
         description: "Instrumented tester method that could not resolve its public Vitest execution context.",
@@ -62,7 +62,7 @@ export class TestContextUnavailable extends S.TaggedError<TestContextUnavailable
   {
     schemaId: Symbol.for("@beep/test-utils/Vitest/TestContextUnavailable"),
     identifier: "@beep/test-utils/Vitest/TestContextUnavailable",
-    iri: "https://ns.beep.sh/test-utils/Vitest/TestContextUnavailable",
+    iri: "https://beep-effect.com/ns/test-utils/Vitest/TestContextUnavailable",
     curie: "beep:test-utils/Vitest/TestContextUnavailable",
     title: "TestContextUnavailable",
     description: "Typed failure for an instrumented callback invoked outside the public Vitest context boundary.",
@@ -118,7 +118,7 @@ export class TestHang extends S.TaggedError<TestHang, { readonly brand: unique s
       S.annotateKey({
         schemaId: Symbol.for("@beep/test-utils/Vitest/TestHang.lastLogLine"),
         identifier: "@beep/test-utils/Vitest/TestHang.lastLogLine",
-        iri: "https://ns.beep.sh/test-utils/Vitest/TestHang.lastLogLine",
+        iri: "https://beep-effect.com/ns/test-utils/Vitest/TestHang.lastLogLine",
         curie: "beep:test-utils/Vitest/TestHang.lastLogLine",
         title: "TestHang.lastLogLine",
         description: "Last Effect log line observed locally for the hanging test, when one exists.",
@@ -128,7 +128,7 @@ export class TestHang extends S.TaggedError<TestHang, { readonly brand: unique s
       S.annotateKey({
         schemaId: Symbol.for("@beep/test-utils/Vitest/TestHang.testName"),
         identifier: "@beep/test-utils/Vitest/TestHang.testName",
-        iri: "https://ns.beep.sh/test-utils/Vitest/TestHang.testName",
+        iri: "https://beep-effect.com/ns/test-utils/Vitest/TestHang.testName",
         curie: "beep:test-utils/Vitest/TestHang.testName",
         title: "TestHang.testName",
         description: "Resolved full Vitest task name for the hanging test.",
@@ -138,7 +138,7 @@ export class TestHang extends S.TaggedError<TestHang, { readonly brand: unique s
       S.annotateKey({
         schemaId: Symbol.for("@beep/test-utils/Vitest/TestHang.timeoutMillis"),
         identifier: "@beep/test-utils/Vitest/TestHang.timeoutMillis",
-        iri: "https://ns.beep.sh/test-utils/Vitest/TestHang.timeoutMillis",
+        iri: "https://beep-effect.com/ns/test-utils/Vitest/TestHang.timeoutMillis",
         curie: "beep:test-utils/Vitest/TestHang.timeoutMillis",
         title: "TestHang.timeoutMillis",
         description: "Live-clock watchdog budget derived from the resolved Vitest task timeout.",
@@ -148,7 +148,7 @@ export class TestHang extends S.TaggedError<TestHang, { readonly brand: unique s
   {
     schemaId: Symbol.for("@beep/test-utils/Vitest/TestHang"),
     identifier: "@beep/test-utils/Vitest/TestHang",
-    iri: "https://ns.beep.sh/test-utils/Vitest/TestHang",
+    iri: "https://beep-effect.com/ns/test-utils/Vitest/TestHang",
     curie: "beep:test-utils/Vitest/TestHang",
     title: "TestHang",
     description: "Typed failure for an Effect test that exceeded its live-clock watchdog budget.",

@@ -1053,8 +1053,10 @@ for u in ucs:
             blocker(f"{u['id']} related_cqs references unknown {cid}")
 
 # --- 8. stale namespace / stray strings across the ontology dir ------------------
+# Built by concatenation so this guard never carries the retired host literal itself.
+STALE_NAMESPACE_DOMAIN = "beep-effect" + "." + "dev"
 for f in (PACKET / "ontology").rglob("*"):
-    if f.is_file() and "beep-effect.dev" in f.read_text(errors="ignore"):
+    if f.is_file() and STALE_NAMESPACE_DOMAIN in f.read_text(errors="ignore"):
         blocker(f"stale namespace domain in {f.relative_to(PACKET)}")
 
 # --- summary ---------------------------------------------------------------------

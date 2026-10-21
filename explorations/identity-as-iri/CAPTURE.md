@@ -71,7 +71,8 @@ elpresidank's rulings from the report review session (verbatim intent):
 
 Plus, from the same session:
 
-- Authority host: keep `https://ns.beep.sh/` as placeholder now; decide before
+- Authority host: keep `https://ns[.]beep[.]sh/` as placeholder now (superseded
+  2026-10-20 by `https://beep-effect.com/ns/`); decide before
   the composer-binding phase merges.
 - Fibered placement: "I think everything needs to be in `@beep/identity` no?
   Otherwise we have some circular issues. I would prefer everything is pure

@@ -33,3 +33,10 @@ export * from "./CodegenKit.models.ts";
  * @since 0.0.0
  */
 export * from "./CodegenKit.service.ts";
+/**
+ * Registered JSON Schema node transforms and their composition.
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export * from "./CodegenKit.transforms.ts";

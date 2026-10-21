@@ -25,7 +25,7 @@ has a retained bootstrap plan; no downstream packet was created.
 
 M1 in `goals/semantic-foundation`:
 
-1. Commit repo-owned SKOS taxonomy seed with `https://ns.beep.sh/` concept
+1. Commit repo-owned SKOS taxonomy seed with `https://beep-effect.com/ns/` concept
    IRIs.
 2. Add document-class vocabulary for `draft`, `redline`, `filed`, `received`,
    `privileged`, and `extracted-child`.
@@ -45,7 +45,7 @@ M1 in `goals/semantic-foundation`:
 - Existing repo capability: `@beep/identity`
   (`packages/foundation/modeling/identity/src/packages.ts`,
   `packages/foundation/modeling/identity/src/Vocab.ts`) already binds
-  `https://ns.beep.sh/`, exposes `IdentityComposer`, and supports `mergeVocab`.
+  `https://beep-effect.com/ns/`, exposes `IdentityComposer`, and supports `mergeVocab`.
   M1 composes this instead of minting ad-hoc namespaces.
 - Existing repo capability: `@beep/semantic-web`
   (`packages/foundation/capability/semantic-web/src/services/shacl-validation.ts`,
