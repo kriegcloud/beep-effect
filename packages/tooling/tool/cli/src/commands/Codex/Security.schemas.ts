@@ -87,12 +87,14 @@ const remoteSlug = Str.replace(GITHUB_REMOTE, "$1");
  * @since 0.0.0
  */
 export const GitHubRepoSlugFromRemote = S.String.check(
-  S.isPattern(GITHUB_REMOTE, {
-    identifier: $I`GitHubRemoteCheck`,
-    title: "GitHub Remote",
-    description: "A credential-free https, http, ssh, or scp-style github.com remote.",
-    message: "Expected a github.com remote URL",
-  })
+  S.isPattern(
+    GITHUB_REMOTE,
+    $I.annote("GitHubRemoteCheck", {
+      title: "GitHub Remote",
+      description: "A credential-free https, http, ssh, or scp-style github.com remote.",
+      message: "Expected a github.com remote URL",
+    })
+  )
 ).pipe(
   S.decodeTo(GitHubRepoSlug, {
     decode: SchemaGetter.transform(remoteSlug),
@@ -128,12 +130,14 @@ export type GitHubRepoSlugFromRemote = typeof GitHubRepoSlugFromRemote.Type;
  * @since 0.0.0
  */
 export const RepoRelativePath = S.String.check(
-  S.isPattern(/^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))(?!.*\\)[^\p{Cc}\p{Cf}]+$/u, {
-    identifier: $I`RepoRelativePathCheck`,
-    title: "Repository-Relative Path",
-    description: "A non-empty relative path with no `..` segment, backslash, or control character.",
-    message: "Expected a repository-relative path without traversal",
-  })
+  S.isPattern(
+    /^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))(?!.*\\)[^\p{Cc}\p{Cf}]+$/u,
+    $I.annote("RepoRelativePathCheck", {
+      title: "Repository-Relative Path",
+      description: "A non-empty relative path with no `..` segment, backslash, or control character.",
+      message: "Expected a repository-relative path without traversal",
+    })
+  )
 ).pipe($I.annoteSchema("RepoRelativePath", { description: "Bounded relative path beneath a repository root." }));
 /**
  * Repository-relative path string.

@@ -1236,14 +1236,13 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
           })
         ) &&
           (isTrueOption(options.noEmit) || isTrueOption(options.emitDeclarationOnly))),
-      {
-        identifier: $I`TSConfigCompilerOptionsAllowImportingTsExtensionsCheck`,
+      $I.annote("TSConfigCompilerOptionsAllowImportingTsExtensionsCheck", {
         title: "TSConfig allowImportingTsExtensions",
         description:
           "allowImportingTsExtensions requires moduleResolution=bundler and either noEmit or emitDeclarationOnly.",
         message:
           "compilerOptions.allowImportingTsExtensions requires compilerOptions.moduleResolution to be bundler and either compilerOptions.noEmit or compilerOptions.emitDeclarationOnly to be true.",
-      }
+      })
     ),
     S.makeFilter(
       (options: TSConfigCompilerOptionsShapeType) =>
@@ -1258,12 +1257,11 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
               ),
           })
         ),
-      {
-        identifier: $I`TSConfigCompilerOptionsReactNamespaceCheck`,
+      $I.annote("TSConfigCompilerOptionsReactNamespaceCheck", {
         title: "TSConfig reactNamespace",
         description: "reactNamespace only applies when jsx is set to react.",
         message: "compilerOptions.reactNamespace requires compilerOptions.jsx to be set to react.",
-      }
+      })
     ),
     S.makeFilter(
       (options: TSConfigCompilerOptionsShapeType) =>
@@ -1274,19 +1272,17 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
             onSome: () => isTrueOption(options.allowJs),
           })
         ),
-      {
-        identifier: $I`TSConfigCompilerOptionsMaxNodeModuleJsDepthCheck`,
+      $I.annote("TSConfigCompilerOptionsMaxNodeModuleJsDepthCheck", {
         title: "TSConfig maxNodeModuleJsDepth",
         description: "maxNodeModuleJsDepth only applies when allowJs is enabled.",
         message: "compilerOptions.maxNodeModuleJsDepth requires compilerOptions.allowJs to be true.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`TSConfigCompilerOptionsChecks`,
+  $I.annote("TSConfigCompilerOptionsChecks", {
     title: "TSConfig Compiler Options Checks",
     description: "Cross-field semantic checks for tsconfig compilerOptions.",
-  }
+  })
 );
 
 const TSConfigCompilerOptionsSemantic = TSConfigCompilerOptionsShape.check(TSConfigCompilerOptionsChecks).pipe(
@@ -1864,20 +1860,18 @@ const TSConfigSemanticChecks = S.makeFilterGroup(
             onSome: (enabled) => !enabled || isTargetAtLeast(getCompilerTarget(config), "es2018"),
           })
         ),
-      {
-        identifier: $I`TSConfigExperimentalReplAwaitTargetCheck`,
+      $I.annote("TSConfigExperimentalReplAwaitTargetCheck", {
         title: "TSConfig experimentalReplAwait",
         description: "ts-node experimentalReplAwait requires compilerOptions.target to be at least ES2018.",
         message:
           "`ts-node`.experimentalReplAwait requires compilerOptions.target to be ES2018 or newer when it is enabled.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`TSConfigSemanticChecks`,
+  $I.annote("TSConfigSemanticChecks", {
     title: "TSConfig Semantic Checks",
     description: "Cross-field semantic checks for strict tsconfig decode helpers.",
-  }
+  })
 );
 
 const TSConfigSemantic = S.make<(typeof TSConfig)["Rebuild"]>(TSConfig.ast)

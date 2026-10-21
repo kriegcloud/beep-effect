@@ -66,11 +66,10 @@ const PrRefInput = S.NonEmptyString.check(
         path: [],
         issue: "Expected a positive PR number or github.com PR URL",
       },
-    {
-      identifier: $I`PrRefInputCheck`,
+    $I.annote("PrRefInputCheck", {
       title: "Pull request reference",
       description: "A positive PR number or exact github.com pull-request URL.",
-    }
+    })
   )
 );
 

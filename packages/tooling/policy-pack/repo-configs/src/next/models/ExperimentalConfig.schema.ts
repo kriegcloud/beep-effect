@@ -175,11 +175,13 @@ export class StaleTimes extends S.Opaque<StaleTimes, { readonly brand: unique sy
     dynamic: S.optionalKey(S.Finite),
     static: S.optionalKey(
       S.Finite.check(
-        S.isGreaterThanOrEqualTo(30, {
-          identifier: $I`StaleTimesStaticMinimum`,
-          title: "Static stale time minimum",
-          description: "The static stale time must be at least 30 seconds.",
-        })
+        S.isGreaterThanOrEqualTo(
+          30,
+          $I.annote("StaleTimesStaticMinimum", {
+            title: "Static stale time minimum",
+            description: "The static stale time must be at least 30 seconds.",
+          })
+        )
       )
     ),
   }).pipe(
@@ -436,11 +438,13 @@ export class ExperimentalConfig extends S.Opaque<ExperimentalConfig, { readonly 
     memoryBasedWorkersCount: S.optionalKey(S.Boolean),
     proxyTimeout: S.optionalKey(
       S.Finite.check(
-        S.isGreaterThanOrEqualTo(0, {
-          identifier: $I`ProxyTimeoutMinimum`,
-          title: "Proxy timeout minimum",
-          description: "Proxy timeout must be greater than or equal to zero.",
-        })
+        S.isGreaterThanOrEqualTo(
+          0,
+          $I.annote("ProxyTimeoutMinimum", {
+            title: "Proxy timeout minimum",
+            description: "Proxy timeout must be greater than or equal to zero.",
+          })
+        )
       )
     ),
     isrFlushToDisk: S.optionalKey(S.Boolean),
@@ -530,11 +534,13 @@ export class ExperimentalConfig extends S.Opaque<ExperimentalConfig, { readonly 
     authInterrupts: S.optionalKey(S.Boolean),
     useCacheTimeout: S.optionalKey(
       S.Finite.check(
-        S.isGreaterThan(0, {
-          identifier: $I`UseCacheTimeoutPositive`,
-          title: "Use cache timeout positive",
-          description: "useCacheTimeout must be greater than zero.",
-        })
+        S.isGreaterThan(
+          0,
+          $I.annote("UseCacheTimeoutPositive", {
+            title: "Use cache timeout positive",
+            description: "useCacheTimeout must be greater than zero.",
+          })
+        )
       )
     ),
     useCache: S.optionalKey(S.Boolean),

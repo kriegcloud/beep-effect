@@ -153,12 +153,14 @@ const worktreeRepositoryHashPattern = /^[0-9a-f]{12}$/u;
  * @since 0.0.0
  */
 export const WorktreeRepositoryHash = S.String.check(
-  S.isPattern(worktreeRepositoryHashPattern, {
-    identifier: $I`WorktreeRepositoryHashCheck`,
-    title: "Worktree repository hash",
-    description: "A lowercase 12-hex prefix of the absolute main-checkout SHA-256 digest.",
-    message: "Worktree repository hash must contain exactly 12 lowercase hexadecimal characters",
-  })
+  S.isPattern(
+    worktreeRepositoryHashPattern,
+    $I.annote("WorktreeRepositoryHashCheck", {
+      title: "Worktree repository hash",
+      description: "A lowercase 12-hex prefix of the absolute main-checkout SHA-256 digest.",
+      message: "Worktree repository hash must contain exactly 12 lowercase hexadecimal characters",
+    })
+  )
 ).pipe(
   S.brand("WorktreeRepositoryHash"),
   $I.annoteSchema("WorktreeRepositoryHash", {

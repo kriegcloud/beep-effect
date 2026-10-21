@@ -54,12 +54,14 @@ const $I = $RepoCliId.create("commands/Codex/Findings.schemas");
  * @since 0.0.0
  */
 export const CodexRecordId = S.String.check(
-  S.isPattern(/^CSF-\d{3,}$/, {
-    identifier: $I`CodexRecordIdPatternCheck`,
-    title: "Codex Record Id Pattern",
-    description: "Record identities are CSF- followed by at least three digits.",
-    message: "Expected a CSF-NNN record identifier",
-  })
+  S.isPattern(
+    /^CSF-\d{3,}$/,
+    $I.annote("CodexRecordIdPatternCheck", {
+      title: "Codex Record Id Pattern",
+      description: "Record identities are CSF- followed by at least three digits.",
+      message: "Expected a CSF-NNN record identifier",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CodexRecordId", {
     description: "Stable CSF-NNN identity assigned to a captured finding.",
@@ -98,12 +100,14 @@ export type CodexRecordId = typeof CodexRecordId.Type;
  * @since 0.0.0
  */
 export const CodexPacketSlug = S.String.check(
-  S.isPattern(/^[a-z0-9][a-z0-9-]{0,80}$/, {
-    identifier: $I`CodexPacketSlugPatternCheck`,
-    title: "Codex Packet Slug Pattern",
-    description: "Packet slugs are bounded lowercase path segments.",
-    message: "Expected a lowercase hyphenated packet slug",
-  })
+  S.isPattern(
+    /^[a-z0-9][a-z0-9-]{0,80}$/,
+    $I.annote("CodexPacketSlugPatternCheck", {
+      title: "Codex Packet Slug Pattern",
+      description: "Packet slugs are bounded lowercase path segments.",
+      message: "Expected a lowercase hyphenated packet slug",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CodexPacketSlug", {
     description: "Bounded lowercase directory name of a generated goal packet.",
@@ -135,12 +139,14 @@ export type CodexPacketSlug = typeof CodexPacketSlug.Type;
  * @since 0.0.0
  */
 export const CodexPacketBranch = S.String.check(
-  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._\-/]{0,100}$/, {
-    identifier: $I`CodexPacketBranchPatternCheck`,
-    title: "Codex Packet Branch Pattern",
-    description: "Branch names are bounded and free of shell-significant characters.",
-    message: "Expected a plain git branch name",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9][A-Za-z0-9._\-/]{0,100}$/,
+    $I.annote("CodexPacketBranchPatternCheck", {
+      title: "Codex Packet Branch Pattern",
+      description: "Branch names are bounded and free of shell-significant characters.",
+      message: "Expected a plain git branch name",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CodexPacketBranch", {
     description: "Remediation branch name recorded in a generated packet.",

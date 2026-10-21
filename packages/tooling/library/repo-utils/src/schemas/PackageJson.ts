@@ -546,7 +546,6 @@ export class FundingEntry extends S.Opaque<FundingEntry, { readonly brand: uniqu
  */
 export const Person = S.Union([S.String, PersonObject]).pipe(
   $I.annoteSchema("Person", {
-    title: "Person",
     description:
       "A package author, contributor, or maintainer, either as a string or a structured object with a required name.",
   })
@@ -568,7 +567,6 @@ export const Person = S.Union([S.String, PersonObject]).pipe(
  */
 export const Author = Person.pipe(
   $I.annoteSchema("Author", {
-    title: "Author",
     description: "Package author, either as a string or a structured object with a required name.",
   })
 );
@@ -589,7 +587,6 @@ export const Author = Person.pipe(
  */
 export const Contributors = S.Array(Person).pipe(
   $I.annoteSchema("Contributors", {
-    title: "Contributors",
     description: "A list of people who contributed to the package.",
   })
 );
@@ -610,7 +607,6 @@ export const Contributors = S.Array(Person).pipe(
  */
 export const Maintainers = S.Array(Person).pipe(
   $I.annoteSchema("Maintainers", {
-    title: "Maintainers",
     description: "A list of people who maintain the package.",
   })
 );
@@ -631,7 +627,6 @@ export const Maintainers = S.Array(Person).pipe(
  */
 export const Repository = S.Union([S.String, RepositoryObject]).pipe(
   $I.annoteSchema("Repository", {
-    title: "Repository",
     description:
       "A package repository reference represented as a shorthand string or a structured object with required type and url.",
   })
@@ -653,7 +648,6 @@ export const Repository = S.Union([S.String, RepositoryObject]).pipe(
  */
 export const Bugs = S.Union([S.String, BugsObject]).pipe(
   $I.annoteSchema("Bugs", {
-    title: "Bugs",
     description:
       "A package bug tracker reference represented as a URL string or a structured object with optional url and email.",
   })
@@ -675,7 +669,6 @@ export const Bugs = S.Union([S.String, BugsObject]).pipe(
  */
 export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union([S.String, FundingEntry]))]).pipe(
   $I.annoteSchema("Funding", {
-    title: "Funding",
     description:
       "Package funding metadata represented as a URL string, a structured funding object, or a non-empty array of those.",
   })
@@ -697,7 +690,6 @@ export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union(
  */
 export const Bin = S.Union([S.String, StringRecord]).pipe(
   $I.annoteSchema("Bin", {
-    title: "Bin",
     description: "Executable binaries, either as a single file path string or a record mapping command names to paths.",
   })
 );
@@ -718,7 +710,6 @@ export const Bin = S.Union([S.String, StringRecord]).pipe(
  */
 export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)]).pipe(
   $I.annoteSchema("Browser", {
-    title: "Browser",
     description:
       "Browser-specific entry points represented as a replacement path string or a record of module replacements.",
   })
@@ -750,7 +741,6 @@ export class DirectoriesShape extends S.Opaque<DirectoriesShape, { readonly bran
     test: S.optionalKey(S.String),
   }).pipe(
     $I.annoteSchema("Directories", {
-      title: "Directories",
       description: "Directory metadata describing where package resources such as binaries, docs, and tests live.",
     })
   )
@@ -797,7 +787,6 @@ const PeerDependencyMetaEntry = S.Struct({
  */
 export const Man = S.Union([S.String, StringArray]).pipe(
   $I.annoteSchema("Man", {
-    title: "Man",
     description: "A man page reference represented as a single file path or an array of file paths.",
   })
 );
@@ -1206,10 +1195,8 @@ export class WorkspacesObject extends S.Opaque<WorkspacesObject, { readonly bran
   )
 ) {}
 
-const PublishConfigBin = Bin.annotate({ identifier: $I`PublishConfigBin` });
-const PublishConfigPackageExports = PackageExports.annotate({
-  identifier: $I`PublishConfigPackageExports`,
-});
+const PublishConfigBin = Bin.pipe($I.annoteSchema("PublishConfigBin"));
+const PublishConfigPackageExports = PackageExports.pipe($I.annoteSchema("PublishConfigPackageExports"));
 
 const PublishConfigBase = S.Struct({
   access: S.optionalKey(S.Literals(["public", "restricted"] as const)),
@@ -1242,7 +1229,6 @@ const PublishConfigBase = S.Struct({
  */
 export const Workspaces = S.Union([StringArray, WorkspacesObject]).pipe(
   $I.annoteSchema("Workspaces", {
-    title: "Workspaces",
     description:
       "Workspace package globs represented as an array of strings or an object with packages and optional nohoist.",
   })

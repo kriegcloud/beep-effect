@@ -1795,12 +1795,11 @@ const GateOrderHandoffCoherence = S.makeFilter(
       ),
     ]);
   },
-  {
-    identifier: $I`GateOrderHandoffCoherence`,
+  $I.annote("GateOrderHandoffCoherence", {
     title: "Gate-order handoff coherence",
     description:
       "Ranks, ids, deciding keys, resolved-source presence, source-seed agreement and the seed-to-lane bijection of a gate-order handoff.",
-  }
+  })
 );
 
 /**

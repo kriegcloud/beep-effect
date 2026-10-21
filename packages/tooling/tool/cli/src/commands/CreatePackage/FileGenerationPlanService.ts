@@ -42,30 +42,34 @@ const isSafeRelativePlanPath = flow(
 
 const RelativePlanPathChecks = S.makeFilterGroup(
   [
-    S.isNonEmpty({
-      identifier: $I`RelativePlanPathNonEmptyCheck`,
-      title: "Relative plan path non-empty",
-      description: "Create-package plan paths must not be empty.",
-      message: "Create-package plan paths must not be empty.",
-    }),
-    S.makeFilter((value: string) => !Str.startsWith("/")(value), {
-      identifier: $I`RelativePlanPathNotAbsoluteCheck`,
-      title: "Relative plan path not absolute",
-      description: "Create-package plan paths must stay relative to the output directory.",
-      message: "Create-package plan paths must stay relative to the output directory.",
-    }),
-    S.makeFilter(isSafeRelativePlanPath, {
-      identifier: $I`RelativePlanPathTraversalCheck`,
-      title: "Relative plan path traversal-safe",
-      description: "Create-package plan paths must not contain traversal segments.",
-      message: "Create-package plan paths must not contain '.' or '..' segments.",
-    }),
+    S.isNonEmpty(
+      $I.annote("RelativePlanPathNonEmptyCheck", {
+        title: "Relative plan path non-empty",
+        description: "Create-package plan paths must not be empty.",
+        message: "Create-package plan paths must not be empty.",
+      })
+    ),
+    S.makeFilter(
+      (value: string) => !Str.startsWith("/")(value),
+      $I.annote("RelativePlanPathNotAbsoluteCheck", {
+        title: "Relative plan path not absolute",
+        description: "Create-package plan paths must stay relative to the output directory.",
+        message: "Create-package plan paths must stay relative to the output directory.",
+      })
+    ),
+    S.makeFilter(
+      isSafeRelativePlanPath,
+      $I.annote("RelativePlanPathTraversalCheck", {
+        title: "Relative plan path traversal-safe",
+        description: "Create-package plan paths must not contain traversal segments.",
+        message: "Create-package plan paths must not contain '.' or '..' segments.",
+      })
+    ),
   ],
-  {
-    identifier: $I`RelativePlanPathChecks`,
+  $I.annote("RelativePlanPathChecks", {
     title: "Relative plan path",
     description: "Validated relative path used by create-package plan entries.",
-  }
+  })
 );
 
 const RelativePlanPath = S.String.check(RelativePlanPathChecks).pipe(

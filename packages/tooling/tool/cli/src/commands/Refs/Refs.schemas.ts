@@ -124,13 +124,12 @@ export class ReferenceWorkspaceManifest extends S.Opaque<
     members: S.Array(ReferenceMember).check(
       S.makeFilter(
         (members) => HashSet.size(HashSet.fromIterable(A.map(members, (member) => member.name))) === A.length(members),
-        {
-          identifier: $I`UniqueMembers`,
+        $I.annote("UniqueMembers", {
           title: "Unique members",
           description: "Member names identify distinct directories.",
           message: "Member names must be unique.",
           arbitraryConstraint: { uniqueBy: (member: ReferenceMember) => member.name },
-        }
+        })
       )
     ),
     workspaceLink: S.tag(".repos/effect-workspace"),

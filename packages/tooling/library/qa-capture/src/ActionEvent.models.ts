@@ -34,12 +34,14 @@ const $I = $QaCaptureId.create("ActionEvent.models");
  * @since 0.0.0
  */
 export const SequenceNumber = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`SequenceNumberMinimumCheck`,
-    title: "Sequence Number Minimum",
-    description: "Witness event sequence numbers are non-negative integers.",
-    message: "Expected a non-negative sequence number",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("SequenceNumberMinimumCheck", {
+      title: "Sequence Number Minimum",
+      description: "Witness event sequence numbers are non-negative integers.",
+      message: "Expected a non-negative sequence number",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SequenceNumber", {
     description: "Monotonically increasing witness event sequence number.",
@@ -83,12 +85,14 @@ export type SequenceNumber = typeof SequenceNumber.Type;
  * @since 0.0.0
  */
 export const EpochMilliseconds = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`EpochMillisecondsMinimumCheck`,
-    title: "Epoch Milliseconds Minimum",
-    description: "Epoch timestamps are zero or greater.",
-    message: "Expected non-negative epoch milliseconds",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("EpochMillisecondsMinimumCheck", {
+      title: "Epoch Milliseconds Minimum",
+      description: "Epoch timestamps are zero or greater.",
+      message: "Expected non-negative epoch milliseconds",
+    })
+  )
 ).pipe(
   $I.annoteSchema("EpochMilliseconds", {
     description: "Non-negative wall-clock timestamp in epoch milliseconds.",
@@ -164,12 +168,14 @@ export type PixelPosition = typeof PixelPosition.Type;
  * @since 0.0.0
  */
 export const DurationMilliseconds = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`DurationMillisecondsMinimumCheck`,
-    title: "Duration Milliseconds Minimum",
-    description: "Durations are zero or greater.",
-    message: "Expected non-negative duration milliseconds",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("DurationMillisecondsMinimumCheck", {
+      title: "Duration Milliseconds Minimum",
+      description: "Durations are zero or greater.",
+      message: "Expected non-negative duration milliseconds",
+    })
+  )
 ).pipe(
   $I.annoteSchema("DurationMilliseconds", {
     description: "Non-negative finite duration in milliseconds.",
@@ -208,12 +214,14 @@ export type DurationMilliseconds = typeof DurationMilliseconds.Type;
  * @since 0.0.0
  */
 export const NonNegativePixels = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`NonNegativePixelsMinimumCheck`,
-    title: "Non Negative Pixels Minimum",
-    description: "Pixel extents are zero or greater.",
-    message: "Expected non-negative pixels",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("NonNegativePixelsMinimumCheck", {
+      title: "Non Negative Pixels Minimum",
+      description: "Pixel extents are zero or greater.",
+      message: "Expected non-negative pixels",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NonNegativePixels", {
     description: "Non-negative finite CSS-pixel extent.",
@@ -252,12 +260,14 @@ export type NonNegativePixels = typeof NonNegativePixels.Type;
  * @since 0.0.0
  */
 export const SelectorPath = S.String.check(
-  S.isMinLength(1, {
-    identifier: $I`SelectorPathNonEmptyCheck`,
-    title: "Selector Path Non Empty",
-    description: "Selector paths must not be empty.",
-    message: "Expected a non-empty selector path",
-  })
+  S.isMinLength(
+    1,
+    $I.annote("SelectorPathNonEmptyCheck", {
+      title: "Selector Path Non Empty",
+      description: "Selector paths must not be empty.",
+      message: "Expected a non-empty selector path",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SelectorPath", {
     description: "Deterministic selector path produced by the witness selector builder.",
@@ -301,12 +311,14 @@ export type SelectorPath = typeof SelectorPath.Type;
  * @since 0.0.0
  */
 export const NonPrintableKey = S.String.check(
-  S.isMinLength(2, {
-    identifier: $I`NonPrintableKeyMinimumLengthCheck`,
-    title: "Non Printable Key Minimum Length",
-    description: "Non-printable key identities are at least two characters long.",
-    message: "Expected a non-printable key identity of at least two characters",
-  })
+  S.isMinLength(
+    2,
+    $I.annote("NonPrintableKeyMinimumLengthCheck", {
+      title: "Non Printable Key Minimum Length",
+      description: "Non-printable key identities are at least two characters long.",
+      message: "Expected a non-printable key identity of at least two characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NonPrintableKey", {
     description: "Non-printable key identity with at least two characters.",
@@ -1228,12 +1240,14 @@ export class MarkerEvent extends S.Opaque<MarkerEvent, { readonly brand: unique 
       })
     ),
     label: S.String.check(
-      S.isMinLength(1, {
-        identifier: $I`MarkerEventLabelNonEmptyCheck`,
-        title: "Marker Label Non Empty",
-        description: "Marker labels must not be empty.",
-        message: "Expected a non-empty marker label",
-      })
+      S.isMinLength(
+        1,
+        $I.annote("MarkerEventLabelNonEmptyCheck", {
+          title: "Marker Label Non Empty",
+          description: "Marker labels must not be empty.",
+          message: "Expected a non-empty marker label",
+        })
+      )
     ).pipe(
       $I.annoteKey("MarkerEvent.label", {
         description: "Semantic marker label.",
@@ -1285,12 +1299,14 @@ export class MarkerEvent extends S.Opaque<MarkerEvent, { readonly brand: unique 
 export class BeaconEvent extends S.Opaque<BeaconEvent, { readonly brand: unique symbol }>()(
   S.Struct({
     flipIndex: S.Int.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`BeaconEventFlipIndexMinimumCheck`,
-        title: "Beacon Flip Index Minimum",
-        description: "Beacon flip indexes are zero-based non-negative integers.",
-        message: "Expected a non-negative beacon flip index",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("BeaconEventFlipIndexMinimumCheck", {
+          title: "Beacon Flip Index Minimum",
+          description: "Beacon flip indexes are zero-based non-negative integers.",
+          message: "Expected a non-negative beacon flip index",
+        })
+      )
     ).pipe(
       $I.annoteKey("BeaconEvent.flipIndex", {
         description: "Zero-based index of the beacon flip.",
