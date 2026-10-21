@@ -21,7 +21,7 @@
 //   PackageJsonFormat  — decode-free text path: anything syntactically JSON.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { SemVer } from "../semver/index.ts";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";
 import * as Result from "effect/Result";

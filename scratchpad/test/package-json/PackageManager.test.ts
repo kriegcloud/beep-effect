@@ -9,7 +9,7 @@
 
 import { assert, describe, it } from "@effect/vitest";
 import { CorepackIntegrityHash, IntegrityHash } from "../../effected/npm/index.ts";
-import { SemVer } from "../../effected/semver/index.ts";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";

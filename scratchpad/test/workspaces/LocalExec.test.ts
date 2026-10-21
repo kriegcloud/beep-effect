@@ -17,7 +17,7 @@ import * as P from "effect/Predicate";
 import { dual } from "effect/Function";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { ExecContext, LocalExec, LocalExecError } from "../../effected/commands/index.ts";
+import { ExecContext, LocalExec, LocalExecError } from "@beep/commands";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";

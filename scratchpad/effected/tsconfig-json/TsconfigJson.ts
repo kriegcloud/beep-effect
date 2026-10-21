@@ -14,7 +14,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { identity } from "effect/Function";
 import * as Str from "effect/String";
-import { Jsonc } from "../jsonc/index.ts";
+import { Jsonc } from "@beep/jsonc";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { CompilerOptions } from "./CompilerOptions.ts";

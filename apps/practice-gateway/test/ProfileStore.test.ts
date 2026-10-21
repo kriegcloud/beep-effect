@@ -112,7 +112,7 @@ describe("--self-check", () => {
         expect(lines).toHaveLength(1);
         const line = yield* S.decodeEffect(GatewaySelfCheckReportJson)(lines[0] ?? "");
         expect(line.profileSaved).toBe(true);
-        expect(line.report.checks).toHaveLength(10);
+        expect(line.report.checks).toHaveLength(11);
         expect(line.summary).toContain("You need to: Open Claude and sign in with your Claude account.");
       })
     );

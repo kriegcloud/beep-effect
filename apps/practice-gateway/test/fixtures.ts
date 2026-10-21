@@ -12,7 +12,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import type { M365SignInOutcome } from "@beep/practice-gateway/M365SignIn";
-import type { KnownFolder, RegistryValueQuery } from "@beep/practice-gateway/WindowsHost";
+import type { KnownFolder, RegistryValueQuery, YesNoQuestion } from "@beep/practice-gateway/WindowsHost";
 
 const folders = HashMap.make<ReadonlyArray<readonly [KnownFolder, string]>>(
   ["ProgramFiles", "/pf"],
@@ -22,6 +22,7 @@ const folders = HashMap.make<ReadonlyArray<readonly [KnownFolder, string]>>(
 );
 
 export interface FakeMachine {
+  readonly answersYes?: boolean;
   readonly appx?: ReadonlyArray<readonly [string, string]>;
   readonly bitLocker?: BitLockerProtection;
   readonly fileBytes?: ReadonlyArray<readonly [string, Uint8Array]>;
@@ -68,6 +69,9 @@ export const fakeHost = (machine: FakeMachine) => {
       ),
       processRunning: Effect.fn("FakeWindowsHost.processRunning")((imageName: string) =>
         Effect.succeed(HashSet.has(processes, imageName))
+      ),
+      askYesNo: Effect.fn("FakeWindowsHost.askYesNo")((_question: YesNoQuestion) =>
+        Effect.succeed(machine.answersYes ?? false)
       ),
     })
   );

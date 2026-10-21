@@ -20,8 +20,11 @@ import { describe, expect } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeBrandIdentity = S.decodeEffect(BrandIdentity);
 const decodePrintableTextResult = S.decodeResult(PrintableText);
@@ -55,8 +58,8 @@ describe("renderThemeCss", () => {
   const css = renderThemeCss(beep);
 
   it("starts with the generated banner and ends with a newline", () => {
-    expect(css.startsWith(GENERATED_CSS_BANNER)).toBe(true);
-    expect(css.endsWith("}\n")).toBe(true);
+    expect(pipe(css, Str.startsWith(GENERATED_CSS_BANNER))).toBe(true);
+    expect(pipe(css, Str.endsWith("}\n"))).toBe(true);
   });
 
   it("declares every scale step and surface step in both schemes", () => {
@@ -70,8 +73,27 @@ describe("renderThemeCss", () => {
   });
 
   it("puts the light scheme in @theme and the dark scheme under .dark", () => {
-    const themeBlock = css.slice(css.indexOf("@theme {"), css.indexOf(":root {"));
-    const darkBlock = css.slice(css.indexOf(".dark {"));
+    const themeStart = pipe(css, Str.indexOf("@theme {"));
+    const themeEnd = pipe(css, Str.indexOf(":root {"));
+    const darkStart = pipe(css, Str.indexOf(".dark {"));
+    const themeBlock = pipe(
+      themeStart,
+      O.match({
+        onNone: () => pipe(themeEnd, O.match({ onNone: () => "", onSome: (end) => pipe(css, Str.slice(-1, end)) })),
+        onSome: (start) =>
+          pipe(
+            themeEnd,
+            O.match({
+              onNone: () => pipe(css, Str.slice(start, -1)),
+              onSome: (end) => pipe(css, Str.slice(start, end)),
+            })
+          ),
+      })
+    );
+    const darkBlock = pipe(
+      darkStart,
+      O.match({ onNone: () => pipe(css, Str.slice(-1)), onSome: (start) => pipe(css, Str.slice(start)) })
+    );
 
     expect(themeBlock).toContain(`--color-surface-0: ${beep.light.surface["0"]};`);
     expect(darkBlock).toContain(`--color-surface-0: ${beep.dark.surface["0"]};`);

@@ -16,7 +16,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   }), runs);
 };
 import { PackageJsonFormat, PackageJsonModifyError, PackageJsonSyntaxError } from "../../effected/package-json/PackageJsonFormat.ts";
-import { JsoncEdit } from "../../effected/jsonc/JsoncEdit.ts";
+import { JsoncEdit } from "@beep/jsonc/JsoncEdit";
 const ObjectJson = S.Record(S.String, S.Json);
 const Json = S.fromJsonString(S.Unknown);
 const CustomJson = S.fromJsonString(S.Struct({ private: S.Boolean, custom: S.Json }));

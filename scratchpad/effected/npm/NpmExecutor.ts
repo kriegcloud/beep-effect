@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { LocalExec } from "../commands/index.ts";
+import { LocalExec } from "@beep/commands";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "@beep/utils/Option";

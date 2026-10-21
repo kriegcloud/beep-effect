@@ -7,7 +7,7 @@ import { dual } from "effect/Function";
 // `layer` needs a filesystem, `layerWithGit` additionally needs core's
 // `ChildProcessSpawner` (behind `@effected/git`'s `Git` service) to run git.
 
-import { ExecContext, LocalExec, LocalExecError } from "../commands/index.ts";
+import { ExecContext, LocalExec, LocalExecError } from "@beep/commands";
 import { Git } from "../git/index.ts";
 import type {
 	CatalogAssemblyError,
@@ -700,7 +700,7 @@ export class Workspaces {
 	 * **Example** (Wire project-local execution into tool discovery)
 	 *
 	 * ```ts
-	 * import { ToolDiscovery } from "@beep/scratchpad/effected/commands/ToolDiscovery";
+	 * import { ToolDiscovery } from "@beep/commands/ToolDiscovery";
 	 * import { Workspaces } from "@beep/scratchpad/effected/workspaces/Workspaces";
 	 * import * as Layer from "effect/Layer";
 	 *

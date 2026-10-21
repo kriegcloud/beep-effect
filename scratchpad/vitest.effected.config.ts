@@ -6,7 +6,7 @@ import { defineConfig } from "vitest/config";
 const target = process.env["EFFECTED_MODULE"] ?? "runner";
 const include =
   target === "jsonl"
-    ? ["scratchpad/test/jsonl.test.ts", "scratchpad/test/jsonl/**/*.test.ts"]
+    ? ["scratchpad/test/jsonl.test.ts", "packages/foundation/modeling/jsonl/test/**/*.test.ts"]
     : [`scratchpad/test/${target}/**/*.test.ts`];
 
 export default defineConfig({

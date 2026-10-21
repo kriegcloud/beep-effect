@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import { Yaml } from "../../../effected/yaml/index.ts";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { ScriptedSpawner } from "../../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 
 const fs = process.getBuiltinModule("node:fs/promises");
 const sync = process.getBuiltinModule("node:fs");

@@ -1,6 +1,6 @@
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Run } from "../commands/index.ts";
+import { Run } from "@beep/commands";
 import type * as Scope from "effect/Scope";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";

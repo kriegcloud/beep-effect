@@ -90,12 +90,14 @@ describe("setup tools", () => {
   it("lists only unsatisfied automatic repairs whose dependencies hold as repairable", () => {
     const requirements = [
       requirementFromCatalog("box-drive-installed", "documents"),
+      requirementFromCatalog("m365-app-configured", "mail-calendar"),
       requirementFromCatalog("m365-consented", "mail-calendar"),
       requirementFromCatalog("bitlocker-on", "workstation"),
     ];
     const report = SetupReport.make({
       checks: [
         CheckProbed.make({ requirement: id("box-drive-installed"), result: ProbeSatisfied.make({}) }),
+        CheckProbed.make({ requirement: id("m365-app-configured"), result: ProbeSatisfied.make({}) }),
         CheckProbed.make({ requirement: id("m365-consented"), result: ProbeMissing.make({ detail: "not connected" }) }),
         CheckProbed.make({ requirement: id("bitlocker-on"), result: ProbeMissing.make({ detail: "off" }) }),
       ],
