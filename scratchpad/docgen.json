@@ -17,7 +17,8 @@
     "identity-kit-probe.ts",
     "exec.ts",
     "effect-ontology/**",
-    "beep/**"
+    "beep/**",
+    "party/**"
   ],
   "enforceDescriptions": true,
   "enforceExamples": true,

@@ -122,6 +122,12 @@ export class LicenseNode extends S.TaggedClass<
   }
 }
 
+/**
+ * Companion types for {@link LicenseNode}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export declare namespace LicenseNode {
   export interface Encoded {
     readonly _tag: "License";
@@ -191,6 +197,12 @@ export class LicenseRefNode extends S.TaggedClass<
   }
 }
 
+/**
+ * Companion types for {@link LicenseRefNode}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export declare namespace LicenseRefNode {
   export interface Encoded {
     readonly documentRef?: undefined | string;
