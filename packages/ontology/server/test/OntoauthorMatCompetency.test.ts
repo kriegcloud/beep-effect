@@ -28,8 +28,10 @@ import { describe, expect } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Dataset } from "@beep/rdf/Rdf";
 
 const decodeSessionId = S.decodeEffect(SessionId);
@@ -118,7 +120,8 @@ const parseFixture = Effect.fn("OntoauthorMat.parseFixture")(function* (path: On
   return yield* turtle.parse(ParseTurtleRequest.make({ source: file.source }));
 });
 
-const askQueries = (source: string): ReadonlyArray<string> => source.match(/ASK\s*\{[\s\S]*?\n\}/g) ?? [];
+const askQueries = (source: string): ReadonlyArray<string> =>
+  pipe(source, Str.match(/ASK\s*\{[\s\S]*?\n\}/g), O.getOrElse(A.empty<string>));
 
 const shapeOperations = (dataset: Dataset): ReadonlyArray<ChangeOperation> =>
   A.map(dataset.quads, (quad) =>
@@ -176,7 +179,7 @@ const runTask = Effect.fn("OntoauthorMat.runTask")(function* (fixture: TaskFixtu
 
   return {
     id: fixture.id,
-    taskTitle: task.split("\n")[0] ?? fixture.id,
+    taskTitle: pipe(task, Str.split("\n"))[0] ?? fixture.id,
     shaclConforms: validation.validation.conforms,
     shapeCount: validation.shapeCount,
     askValues: actualAskValues,

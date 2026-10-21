@@ -2,17 +2,34 @@
 
 ## Status
 
-Status: `pending`
+Status: `in-progress`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Inspect source hierarchy and confirm scope. | Required facts and blockers are recorded. |
-| P1 Implement | pending | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
+| P0 Research | complete | Inspect source hierarchy and confirm scope. | Required facts and blockers are recorded. |
+| P1 Implement | in-progress | Migrate the census sites wave by wave, then arm the rule. | Acceptance criteria are met. |
 | P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
 | P3 Yeet: PR to mergeable | pending | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
 | P4 Close | pending | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
+
+## Waves
+
+Each wave is one PR that migrates whole packages and changes no pin. The last
+wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
+
+| Wave | Packages | Sites | State |
+| --- | --- | ---: | --- |
+| 1 | libpff, box-provisioning, qa-capture, ontology-use-cases, brand, agents-domain, freshbooks, repo-docgen, ontology-server, tika, nlp, hubspot, workspace-domain | 193 | in review |
+| 2+ | remaining 62 packages and the root (1,220 sites), repo-cli last | 1,220 | pending |
+
+Wave proof, per package: the package's tests, `package-verify --quick`, and a
+temporary local `@effect/tsgo` 0.55.0 install with `preferEffectString` armed,
+running `bun run beep quality effect-diagnostics --filter <pkg>`; the package's
+own files must report zero `preferEffectString` and zero other findings. The
+temporary install is reverted before commit. Coverage is compared per changed
+source file against main's version on the same machine (lcov uncovered counts).
 
 ## Closeout Checklist
 

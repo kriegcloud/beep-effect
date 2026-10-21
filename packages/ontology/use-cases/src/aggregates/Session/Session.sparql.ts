@@ -454,7 +454,7 @@ const topLevelLimit = (query: string): O.Option<number> => {
         cursor += 2;
         continue;
       }
-      if (query.startsWith(terminator, cursor)) {
+      if (pipe(query, Str.slice(cursor, cursor + terminator.length)) === terminator) {
         return cursor + terminator.length;
       }
       cursor += 1;
@@ -469,9 +469,9 @@ const topLevelLimit = (query: string): O.Option<number> => {
       index = skipUntil("\n", index + 1);
       continue;
     }
-    if (query.startsWith('"""', index) || query.startsWith("'''", index)) {
-      const quote = query.slice(index, index + 3);
-      index = skipUntil(quote, index + 3);
+    const window = pipe(query, Str.slice(index, index + 3));
+    if (window === '"""' || window === "'''") {
+      index = skipUntil(window, index + 3);
       continue;
     }
     if (character === '"' || character === "'") {
@@ -502,7 +502,7 @@ const topLevelLimit = (query: string): O.Option<number> => {
         // asked for `LIMIT 2` and been given exactly two rows: the badge named a bound
         // that was never applied. A `LIMIT` with no number is not a bound the engine
         // will honour, so it is treated as absent and the safeguard still injects one.
-        const digits = /^\s+(\d+)/.exec(query.slice(index + 5));
+        const digits = /^\s+(\d+)/.exec(pipe(query, Str.slice(index + 5)));
         if (digits !== null && digits[1] !== undefined) {
           return O.some(Number(digits[1]));
         }

@@ -1,8 +1,8 @@
 /**
  * In-page witness script for QA capture sessions.
  *
- * This file is deliberately outside the Effect runtime: its only import is the
- * pure `effect/Array` helper module, which `Bun.build` inlines and tree-shakes
+ * This file is deliberately outside the Effect runtime: its imports are
+ * pure Effect helper modules, which `Bun.build` inlines and tree-shakes
  * while bundling it into a browser IIFE served at `GET /witness.js` and injected
  * into pages under test (playwright `addInitScript` or a single JS eval in a
  * real Chrome session). Beyond that it uses only browser platform APIs,
@@ -20,6 +20,9 @@
  */
 
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 // Module-local structural declarations of the browser surface this script
 // touches. They shadow any Node globals and erase at bundle time.
@@ -197,22 +200,25 @@ declare const decodeURIComponent: (value: string) => string;
   // A bare `?flag` pair carries no `=`, so its value is the empty string
   // rather than absent; `null` here means "this pair is not the one asked for".
   const queryPairValue = (pair: string, name: string): string | null => {
-    const separator = pair.indexOf("=");
-    const key = separator === -1 ? pair : pair.slice(0, separator);
+    const separator = Str.indexOf("=")(pair);
+    const key = pipe(separator, O.match({ onNone: () => pair, onSome: (index) => pipe(pair, Str.slice(0, index)) }));
     if (key !== name) {
       return null;
     }
-    return separator === -1 ? "" : decodeURIComponent(pair.slice(separator + 1));
+    return pipe(
+      separator,
+      O.match({ onNone: () => "", onSome: (index) => decodeURIComponent(pipe(pair, Str.slice(index + 1))) })
+    );
   };
 
   const scriptQueryParam = (name: string): string | null => {
     const script = document.currentScript;
     const src = script === null ? undefined : script.src;
-    const query = src === undefined ? undefined : src.split("?")[1];
+    const query = src === undefined ? undefined : pipe(src, Str.split("?"))[1];
     if (query === undefined) {
       return null;
     }
-    for (const pair of query.split("&")) {
+    for (const pair of pipe(query, Str.split("&"))) {
       const value = queryPairValue(pair, name);
       if (value !== null) {
         return value;
@@ -324,7 +330,7 @@ declare const decodeURIComponent: (value: string) => string;
     const role = element.getAttribute("role");
     const ariaLabel = element.getAttribute("aria-label");
     if (role !== null && role !== "" && ariaLabel !== null && ariaLabel !== "") {
-      return `${element.tagName.toLowerCase()}[role="${role}"][aria-label="${ariaLabel}"]`;
+      return `${pipe(element.tagName, Str.toLowerCase)}[role="${role}"][aria-label="${ariaLabel}"]`;
     }
     return null;
   };
@@ -338,7 +344,7 @@ declare const decodeURIComponent: (value: string) => string;
       }
       sibling = sibling.previousElementSibling;
     }
-    return `${element.tagName.toLowerCase()}:nth-of-type(${index})`;
+    return `${pipe(element.tagName, Str.toLowerCase)}:nth-of-type(${index})`;
   };
 
   const selectorFor = (start: WitnessElement | null): string => {
@@ -595,13 +601,13 @@ declare const decodeURIComponent: (value: string) => string;
 
   // --- transitions / animations with computed durations -------------------
   const durationMsOf = (raw: string): number => {
-    const first = raw.split(",")[0] ?? "";
-    const trimmed = first.trim();
-    if (trimmed.endsWith("ms")) {
+    const first = pipe(raw, Str.split(","))[0] ?? "";
+    const trimmed = pipe(first, Str.trim);
+    if (pipe(trimmed, Str.endsWith("ms"))) {
       const value = Number.parseFloat(trimmed);
       return Number.isFinite(value) ? Math.max(0, value) : 0;
     }
-    if (trimmed.endsWith("s")) {
+    if (pipe(trimmed, Str.endsWith("s"))) {
       const value = Number.parseFloat(trimmed);
       return Number.isFinite(value) ? Math.max(0, value * 1000) : 0;
     }

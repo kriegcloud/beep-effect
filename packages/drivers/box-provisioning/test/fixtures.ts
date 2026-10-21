@@ -26,6 +26,7 @@ import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const workspaceKey = BoxLogicalKey.make("folder.workspace");
 const childKey = BoxLogicalKey.make("folder.child");
@@ -271,7 +272,7 @@ export const makeFakeBox = (options: FakeBoxOptions = {}) => {
       record(false);
       return reject(400, "bad_digest");
     }
-    const storedSha1 = A.contains(corruptUploads, name) ? "0".repeat(40) : actualSha1;
+    const storedSha1 = A.contains(corruptUploads, name) ? pipe("0", Str.repeat(40)) : actualSha1;
     const entry: FakeBoxEntry = { id: allocateId(), name, parentId, sha1: storedSha1, type: "file" };
     entries = A.append(entries, entry);
     record(true);

@@ -19,6 +19,7 @@ import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
@@ -29,6 +30,7 @@ import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as HttpClientError from "effect/http/HttpClientError";
 
 type CapturedRequest = {
@@ -247,8 +249,8 @@ describe("@beep/hubspot", () => {
       ErrorArbitrary,
     ],
     ([config, submitRequest, upsertRequest, submitResponse, upsertResponse, error]) => {
-      expect(config.crmApiUrl.endsWith("/")).toBe(false);
-      expect(config.formsApiUrl.endsWith("/")).toBe(false);
+      expect(pipe(config.crmApiUrl, Str.endsWith("/"))).toBe(false);
+      expect(pipe(config.formsApiUrl, Str.endsWith("/"))).toBe(false);
       expect(submitRequest.formGuid.length).toBeGreaterThan(0);
       expect(A.every(submitRequest.fields, (field) => field.name.length > 0)).toBe(true);
       expect(upsertRequest.email.length).toBeGreaterThan(0);
