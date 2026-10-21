@@ -4,7 +4,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/PackedInstall.ts";
 import { WorkspaceDiscoveryError, WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
 import { WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";

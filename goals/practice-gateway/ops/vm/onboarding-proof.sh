@@ -12,9 +12,11 @@
 #       collect evidence: setup run record, Claude extension registry entry
 #       (id/version only), whether a Claude account is signed in (key presence
 #       only, never values), and the installed gateway's --self-check
-#   onboarding-proof.sh finish
+#   onboarding-proof.sh finish [--keep <snapshot>]
 #       stop the recorder, shut down, and revert to clean so no real sign-in
-#       state stays in the VM image
+#       state stays in the VM image. `--keep claude-signed-in` first re-saves
+#       the shut-down VM under that snapshot (local only), so a sign-in the
+#       operator just renewed survives for the next run
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAME="${VM_NAME:-practice-gateway-win11}"
@@ -33,7 +35,7 @@ wait_for_harness() {
   return 1
 }
 
-case "${1:?usage: onboarding-proof.sh prepare <exe> | verify <evidence.md> | finish}" in
+case "${1:?usage: onboarding-proof.sh prepare <exe> [snapshot] | verify <evidence.md> | finish [--keep <snapshot>]}" in
   prepare)
     EXE="${2:?prepare needs the path to practice-setup.exe}"
     FROM="${3:-clean}"
@@ -79,11 +81,14 @@ case "${1:?usage: onboarding-proof.sh prepare <exe> | verify <evidence.md> | fin
     echo "wrote $OUT"
     ;;
   finish)
+    KEEP=""
+    [[ "${2:-}" == "--keep" ]] && KEEP="${3:?--keep needs a snapshot name}"
     [[ -f "$STATE/shots/recorder.pid" ]] && kill "$(cat "$STATE/shots/recorder.pid")" 2>/dev/null || true
     rm -f "$STATE/shots/recorder.pid"
     "$RUN" ssh 'Stop-Computer -Force' >/dev/null 2>&1 || true
     for _ in $(seq 1 30); do [[ "$(v domstate "$NAME")" == "shut off" ]] && break; sleep 4; done
     [[ "$(v domstate "$NAME")" == "shut off" ]] || v destroy "$NAME" >/dev/null
+    [[ -n "$KEEP" ]] && "$HERE/snapshot.sh" save "$KEEP"
     "$HERE/snapshot.sh" revert clean
     echo "VM reverted to clean; no sign-in state remains."
     ;;

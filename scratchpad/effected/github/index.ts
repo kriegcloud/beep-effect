@@ -40,7 +40,7 @@ export {
 	type IssueReference,
 	harvestIssueReferences,
 	parseBareLineReference,
-} from "../github-references/index.ts";
+} from "@beep/github-references";
 export { ArtifactMetadata, type ArtifactMetadataShape, StorageRecordInput } from "./ArtifactMetadata.ts";
 export { Attestation, AttestationListEntry, AttestationRecord, type AttestationShape } from "./Attestation.ts";
 export {

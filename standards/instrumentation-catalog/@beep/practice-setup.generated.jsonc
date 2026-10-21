@@ -13,7 +13,7 @@
     {"name":"PracticeSetup.program","owner":"@beep/practice-setup","family":"app","conforms":true},
     {"name":"PracticeSetup.run","owner":"@beep/practice-setup","family":"app","conforms":true},
     {"name":"SetupHost.copyToClipboard","owner":"@beep/practice-setup","family":"app","conforms":true},
-    {"name":"SetupHost.open","owner":"@beep/practice-setup","family":"app","conforms":true},
+    {"name":"SetupHost.openInClaude","owner":"@beep/practice-setup","family":"app","conforms":true},
     {"name":"SetupHost.openLink","owner":"@beep/practice-setup","family":"app","conforms":true},
     {"name":"SetupHost.runInstaller","owner":"@beep/practice-setup","family":"app","conforms":true}
   ]

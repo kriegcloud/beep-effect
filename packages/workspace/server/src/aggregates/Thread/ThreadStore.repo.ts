@@ -7,6 +7,7 @@
  */
 
 import { PostgresDrizzle } from "@beep/postgres";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import { SystemPrincipal } from "@beep/shared-domain/entity/Principal";
 import * as PublicEntityId from "@beep/shared-domain/entity/PublicEntityId";
 import { OrganizationId } from "@beep/shared-domain/identity/Shared";
@@ -20,7 +21,7 @@ import { fromMessageRow, toMessageInsert } from "@beep/workspace-tables/entities
 import { fromThreadRow, toThreadInsert } from "@beep/workspace-tables/entities/Thread";
 import { fromTurnRow, toTurnInsert } from "@beep/workspace-tables/entities/Turn";
 import * as ThreadStoreServer from "@beep/workspace-use-cases/server";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import * as Clock from "effect/Clock";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -294,16 +295,13 @@ export const makeInMemoryThreadStore = Effect.fn("Workspace.ThreadStore.makeInMe
         if (current.value.title !== input.emptyTitle) {
           return ["unchanged", state] as const;
         }
-        const thread = makeThreadEntity(
-          ThreadEntityInput.make({
-            id: input.threadId,
-            title: input.title,
-            workspaceId: current.value.workspaceId,
-          }),
-          current.value.publicId,
-          // Renaming a thread must not restamp when it was created.
-          { createdAt: current.value.createdAt, updatedAt: DateTime.makeUnsafe(now) }
-        );
+        // Renaming a thread keeps its creation stamp and advances its row version.
+        const thread = Thread.make({
+          ...current.value,
+          rowVersion: nextRowVersion(current.value.rowVersion),
+          title: input.title,
+          updatedAt: DateTime.makeUnsafe(now),
+        });
         return [
           "updated",
           {
@@ -492,7 +490,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
       }
       yield* db
         .update(threadTable)
-        .set({ title: input.title })
+        .set({ rowVersion: sql`${threadTable.rowVersion} + 1`, title: input.title })
         .where(and(eq(threadTable.id, input.threadId), eq(threadTable.title, input.emptyTitle)))
         .pipe(repositoryUnavailable("update Thread title", THREAD_TABLE_NAME), Effect.asVoid);
     }),
@@ -584,6 +582,8 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
               const reconciledInsert = yield* Effect.fromResult(toTurnInsert(reconciledTurn));
               const reconciledRows = yield* tx
                 .update(turnTable)
+                // This transaction inserted the row, so no other writer has seen
+                // it: insert plus reconciliation commit as its first version.
                 .set({ items: reconciledInsert.items })
                 .where(eq(turnTable.id, persistedTurn.id))
                 .returning();

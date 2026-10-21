@@ -10,6 +10,7 @@
     {"name":"Agents.ProviderInstanceRepository.get","owner":"@beep/agents-server","family":"slice","conforms":true},
     {"name":"Agents.ProviderInstanceRepository.insertFromCommand","owner":"@beep/agents-server","family":"slice","conforms":true},
     {"name":"Agents.ProviderInstanceRepository.make","owner":"@beep/agents-server","family":"slice","conforms":true},
+    {"name":"Agents.ProviderInstanceRepository.rejectSave","owner":"@beep/agents-server","family":"slice","conforms":true},
     {"name":"Agents.ProviderInstanceRepository.remove","owner":"@beep/agents-server","family":"slice","conforms":true},
     {"name":"Agents.ProviderInstanceRepository.save","owner":"@beep/agents-server","family":"slice","conforms":true},
     {"name":"Agents.ProviderProbe.make","owner":"@beep/agents-server","family":"slice","conforms":true},

@@ -14,7 +14,11 @@ import * as S from "effect/Schema";
 import type * as Agents from "@beep/shared-domain/identity/Agents";
 import type * as Effect from "effect/Effect";
 import type { AddProviderInstanceCommand } from "./ProviderInstance.commands.ts";
-import type { ProviderInstanceNotFound, ProviderProbeUnavailable } from "./ProviderInstance.errors.ts";
+import type {
+  ProviderInstanceNotFound,
+  ProviderInstanceVersionConflict,
+  ProviderProbeUnavailable,
+} from "./ProviderInstance.errors.ts";
 
 const $I = $AgentsUseCasesId.create("entities/ProviderInstance/ProviderInstance.repository");
 
@@ -77,6 +81,13 @@ export class ProviderInstanceActorContext extends Context.Service<
 /**
  *  Persistence operations required by provider-instance use cases.
  *
+ * **Details**
+ *
+ * `save` writes only while the stored `rowVersion` still equals the
+ * instance's, stores the next version, and returns the stored instance. A row
+ * outside the actor's organization is `ProviderInstanceNotFound`; a row another
+ * write advanced is `ProviderInstanceVersionConflict`.
+ *
  * **Example** (Satisfy repository shape)
  *
  * ```ts
@@ -100,7 +111,10 @@ export interface ProviderInstanceRepositoryShape {
   ) => Effect.Effect<void, ProviderInstanceNotFound | ProviderProbeUnavailable>;
   readonly save: (
     instance: Domain.ProviderInstance
-  ) => Effect.Effect<Domain.ProviderInstance, ProviderInstanceNotFound | ProviderProbeUnavailable>;
+  ) => Effect.Effect<
+    Domain.ProviderInstance,
+    ProviderInstanceNotFound | ProviderInstanceVersionConflict | ProviderProbeUnavailable
+  >;
 }
 
 /**

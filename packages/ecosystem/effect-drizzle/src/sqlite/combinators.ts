@@ -741,8 +741,9 @@ type ValidateVersionSchema<I extends Field.Input> =
  *
  * **Details**
  *
- * The field is optional on insert, required on update, and interpreted as the
- * expected version by the optimistic repository.
+ * The field is optional on insert, required on update and JSON update, and
+ * interpreted as the expected version by the optimistic repository. JSON
+ * create payloads omit it because a client never picks a row's first version.
  *
  * **Gotchas**
  *

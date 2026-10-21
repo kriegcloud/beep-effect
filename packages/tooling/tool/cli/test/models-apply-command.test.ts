@@ -750,7 +750,7 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(modelsTestExchangeLayer), Layer.pr
       const dir = path.join(home, ".codex");
       yield* fs.makeDirectory(dir);
       const file = path.join(dir, "config.toml");
-      const before = 'sandbox_mode="danger-full-access"\n' + native;
+      const before = `sandbox_mode="danger-full-access"\n${native}`;
       yield* fs.writeFileString(file, before);
       const flags = ["--home", home, "--repo", home, "--manifest", manifest];
       yield* run(["codex-permissions", ...flags]);

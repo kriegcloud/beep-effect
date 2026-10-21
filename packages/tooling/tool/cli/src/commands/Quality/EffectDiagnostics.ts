@@ -53,10 +53,11 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
       preferNamespaceImport: S.tag("off"),
       preferSchemaTaggedError: S.tag("error"),
       schemaClassMissingBrand: S.tag("error"),
+      schemaClassObjectLiteral: S.tag("error"),
     }),
   }).pipe(
     $I.annoteSchema("EffectDiagnosticsProfile", {
-      description: "The nine rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
+      description: "The ten rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
     })
   )
 ) {}

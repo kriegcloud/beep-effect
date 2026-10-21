@@ -8,7 +8,9 @@
 import { $BoxProvisioningId } from "@beep/identity";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { BoxContentMigrationPlan } from "./BoxContentMigrationPlan.ts";
 import { BoxProvisioningSchemaError } from "./BoxProvisioningErrors.ts";
 import { BoxProviderId } from "./BoxProvisioningObserved.ts";
@@ -498,10 +500,10 @@ const journalFields = {
 } satisfies S.Struct.Fields;
 
 const journalExampleFields = {
-  actionDigest: Sha256Hex.make("a".repeat(64)),
+  actionDigest: Sha256Hex.make(pipe("a", Str.repeat(64))),
   actionKind: "file" as const,
   attemptId: BoxApplyAttemptId.make("attempt-12345678"),
-  planDigest: Sha256Hex.make("c".repeat(64)),
+  planDigest: Sha256Hex.make(pipe("c", Str.repeat(64))),
   sequence: 0,
 };
 

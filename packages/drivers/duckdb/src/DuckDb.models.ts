@@ -186,3 +186,53 @@ export const DuckDbRows = S.Array(DuckDbRow).pipe(
  * @since 0.0.0
  */
 export type DuckDbRows = typeof DuckDbRows.Type;
+
+/**
+ * Serializable configuration fields of a DuckDB `effect/sql` client.
+ *
+ * **Details**
+ *
+ * The data half of `DuckDbClient.DuckDbClientConfig`. Function and
+ * runtime-only fields (`transformQueryNames`, `transformResultNames`,
+ * `spanAttributes`, `prepareCacheTTL`) live on the config type alias, because
+ * a schema cannot carry them. `Config.schema(DuckDbClientConfigData)` is an
+ * accepted `layerConfig` input.
+ *
+ * **Example** (Decode client configuration)
+ *
+ * ```ts
+ * import { DuckDbClientConfigData } from "@beep/duckdb"
+ * import * as S from "effect/Schema"
+ *
+ * const config = S.decodeUnknownSync(DuckDbClientConfigData)({ databasePath: ":memory:", readOnly: false })
+ * console.log(config.databasePath) // ":memory:"
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class DuckDbClientConfigData extends S.Opaque<DuckDbClientConfigData, { readonly brand: unique symbol }>()(
+  S.Struct({
+    databaseOptions: S.optional(S.Record(S.String, S.String)).annotateKey({
+      description:
+        "Native DuckDB instance options passed through unchanged (threads, memory_limit, temp_directory, ...).",
+    }),
+    databasePath: S.String.annotateKey({
+      description: "Database file path, or ':memory:' for a private in-memory database.",
+    }),
+    prepareCacheSize: S.optional(S.Int).annotateKey({
+      description: "Prepared statements cached per connection. Defaults to 200; 0 or less disables the cache.",
+    }),
+    readOnly: S.optional(S.Boolean).annotateKey({
+      description:
+        "When true, open with access_mode=READ_ONLY through the shared instance cache; refused while this process holds the same file read-write.",
+    }),
+    timeZone: S.optional(S.String).annotateKey({
+      description: "Session TimeZone set on the client's connection. Defaults to 'UTC'.",
+    }),
+  }).pipe(
+    $I.annoteSchema("DuckDbClientConfigData", {
+      description: "Serializable configuration of a DuckDB effect/sql client.",
+    })
+  )
+) {}

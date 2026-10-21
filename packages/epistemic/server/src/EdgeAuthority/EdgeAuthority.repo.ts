@@ -42,7 +42,7 @@ import { PostgresDrizzle, PostgresError } from "@beep/postgres";
 import * as PublicEntityId from "@beep/shared-domain/entity/PublicEntityId";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import { A, N, O } from "@beep/utils";
-import { and, eq, gt, isNull, lte, or } from "drizzle-orm";
+import { and, eq, gt, isNull, lte, or, sql } from "drizzle-orm";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -370,7 +370,7 @@ export const supersedeEdgeFactInTransaction: SupersedeEdgeFactInTransaction = du
 
       const closed = yield* tx
         .update(edgeTable)
-        .set({ expiredAt: DateTime.toEpochMillis(command.recordedAt) })
+        .set({ expiredAt: DateTime.toEpochMillis(command.recordedAt), rowVersion: sql`${edgeTable.rowVersion} + 1` })
         .where(and(eq(edgeTable.id, head.value.id), isNull(edgeTable.expiredAt)))
         .returning();
       if (A.length(closed) === 0) {

@@ -60,7 +60,30 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 	return specifiers;
 };
 
-/** Runtime edges reachable from `entry`, stopping at lab sibling-module boundaries. */
+/**
+ * The kit modules wave 1a of the effected promotion moved out of the lab into
+ * `@beep/*` packages. Upstream reached each as a bare `@effected/*` edge and the
+ * lab as a relative sibling entrypoint; promoted, each is a bare package edge
+ * again, so the walker stops at it as it stops at a lab sibling. The kit modules
+ * not yet promoted (`glob`, `templates`, `walker`, ...) are still lab siblings
+ * reached relatively. Add a module here when it is promoted.
+ */
+const PROMOTED_KIT_PACKAGES = new Set([
+	"@beep/commands",
+	"@beep/github-commands",
+	"@beep/github-references",
+	"@beep/jsonc",
+	"@beep/jsonl",
+	"@beep/schema-org",
+	"@beep/semver",
+	"@beep/spdx",
+]);
+
+/** An edge to another kit module: a lab sibling entrypoint, or a promoted kit package or one of its subpaths. */
+const isKitEdge = (specifier: string): boolean =>
+	specifier.startsWith("../") || PROMOTED_KIT_PACKAGES.has(specifier.split("/").slice(0, 2).join("/"));
+
+/** Runtime edges reachable from `entry`, stopping at lab sibling-module and promoted kit-package boundaries. */
 const reachableRuntimeImports = (entry: string): ReadonlySet<string> => {
 	const seen = new Set<string>();
 	const bare = new Set<string>();
@@ -178,7 +201,7 @@ describe("bundle reachability", () => {
 		// consumer's bundle — and so a stripper that blinded the walker shows up as
 		// an empty set rather than as a pass.
 		assert.deepStrictEqual([...reachableRuntimeImports("ActionOutputs.ts")].sort(), [
-			"../github-commands/index.ts",
+			"@beep/github-commands",
 			"@beep/identity/packages",
 			"@beep/utils/Option",
 			"effect/Boolean",
@@ -223,7 +246,7 @@ describe("bundle reachability", () => {
 			"node:crypto",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("BlobStore.ts")].sort(), [
-			"../github-commands/index.ts",
+			"@beep/github-commands",
 			"@beep/identity/packages",
 			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
@@ -248,15 +271,17 @@ describe("bundle reachability", () => {
 			"effect/Stream",
 			"effect/String",
 			"effect/encoding/Hex",
-			"effect/http",
+			"effect/http/HttpClient",
+			"effect/http/HttpClientRequest",
 			"node:crypto",
 		]);
 		// The workflow-command protocol is not in this package any more: it lives in the pure
 		// `@effected/github-commands` (which imports nothing, not even `effect`), and this package takes it as a peer. The
-		// modules that write commands reach it as one bare import and nothing else.
+		// modules that write commands reach it as one bare import and nothing else. Promoted, that
+		// package is `@beep/github-commands`, so the kit edges are the lab siblings plus the promoted packages.
 		assert.deepStrictEqual(
-			[...reachableRuntimeImports("ActionLogger.ts")].filter((name) => name.startsWith("../")),
-			["../github-commands/index.ts"],
+			[...reachableRuntimeImports("ActionLogger.ts")].filter(isKitEdge),
+			["@beep/github-commands"],
 		);
 		// The lab child-env helper uses Effect Record to build core's CommandOptions value.
 		assert.deepStrictEqual([...reachableRuntimeImports("ChildEnv.ts")], [
@@ -273,7 +298,7 @@ describe("bundle reachability", () => {
 		// would put a blob-storage client in the bundle of every action that
 		// merely sets an output.
 		assert.deepStrictEqual([...reachableRuntimeImports("Action.ts")].sort(), [
-			"../github-commands/index.ts",
+			"@beep/github-commands",
 			"@beep/identity/packages",
 			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
@@ -303,7 +328,8 @@ describe("bundle reachability", () => {
 			"effect/Result",
 			"effect/Schema",
 			"effect/SchemaIssue",
-			"effect/http",
+			"effect/String",
+			"effect/http/FetchHttpClient",
 		]);
 	});
 
@@ -335,7 +361,9 @@ describe("bundle reachability", () => {
 			"../templates/index.ts",
 			"@beep/identity/packages",
 			"@beep/utils/Option",
+			"effect/Array",
 			"effect/Effect",
+			"effect/Function",
 			"effect/Result",
 			"effect/Schema",
 			"effect/String",
@@ -406,6 +434,7 @@ describe("bundle reachability", () => {
 			"../npm/index.ts",
 			"@beep/identity/packages",
 			"@beep/utils/Option",
+			"effect/Array",
 			"effect/Boolean",
 			"effect/Config",
 			"effect/ConfigProvider",
@@ -427,8 +456,9 @@ describe("bundle reachability", () => {
 			"effect/String",
 			"effect/encoding/Base64",
 			"effect/encoding/Hex",
-			"effect/http",
-			"effect/process",
+			"effect/http/HttpClient",
+			"effect/process/ChildProcess",
+			"effect/process/ChildProcessSpawner",
 			"node:crypto",
 		]);
 	});
@@ -461,7 +491,7 @@ describe("bundle reachability", () => {
 			"effect/Predicate",
 			"effect/Schedule",
 			"effect/Schema",
-			"effect/http",
+			"effect/http/HttpClientRequest",
 		],
 			"the Twirp client speaks HTTP and nothing heavier",
 		);
@@ -479,7 +509,7 @@ describe("bundle reachability", () => {
 			"effect/Predicate",
 			"effect/Schedule",
 			"effect/Schema",
-			"effect/http",
+			"effect/http/HttpClientRequest",
 		]);
 		// `effect/process` is a type-only import there: the spawner
 		// arrives as a value from the caller.
@@ -496,10 +526,11 @@ describe("bundle reachability", () => {
 		// grow a heavier edge.
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/archiveCommands.ts")].sort(), [
 			"@beep/identity/packages",
+			"effect/Array",
 			"effect/Function",
 			"effect/Predicate",
 			"effect/Schema",
-			"effect/process",
+			"effect/process/ChildProcess",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("internal/digest.ts")].sort(), [
 			"effect/Effect",
@@ -570,7 +601,10 @@ describe("bundle reachability", () => {
 	});
 
 	it("every runtime dependency is declared", () => {
-		// A package you import but do not declare is how a peer closure rots.
+		// A package you import but do not declare is how a peer closure rots. A lab
+		// sibling counts as its upstream `@effected/*` package; a promoted kit module
+		// is its bare `@beep/*` package, which the data manifest declares in place of
+		// the `@effected/*` name it replaced.
 		const manifest = Result.getOrThrowWith(
 			S.decodeResult(DependenciesManifestJson)(readFileSync(resolve(SRC, "package.json"), "utf8")),
 			(error) => error,
