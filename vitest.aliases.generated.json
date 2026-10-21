@@ -2012,5 +2012,9 @@
   "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
   "@beep/windows-secrets/internal/*": [
     "./packages/drivers/windows-secrets/src/internal/*"
-  ]
+  ],
+  "@beep/public-site": [
+    "./packages/foundation/modeling/public-site/src/index.ts"
+  ],
+  "@beep/public-site/*": ["./packages/foundation/modeling/public-site/src/*"]
 }

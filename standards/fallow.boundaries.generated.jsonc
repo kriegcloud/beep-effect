@@ -708,6 +708,12 @@
         ]
       },
       {
+        "name": "@beep/public-site",
+        "patterns": [
+          "packages/foundation/modeling/public-site/src/**"
+        ]
+      },
+      {
         "name": "@beep/qa-capture",
         "patterns": [
           "packages/tooling/library/qa-capture/src/**"
@@ -3680,6 +3686,19 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/public-site",
+        "allow": [
+          "@beep/identity",
+          "@beep/public-site",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/public-site",
+          "@beep/schema"
         ]
       },
       {
