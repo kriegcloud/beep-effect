@@ -104,13 +104,10 @@ const generatedComposers = $I.compose(
   "oip-web",
   "drizzle",
   "duckdb",
-  "face-detection",
   "ffmpeg",
   "postgres",
   "anthropic",
   "scratchpad",
-  "venice-ai",
-  "xai",
   "acp",
   "openai-compat",
   "workspace-tables",
@@ -139,7 +136,6 @@ const generatedComposers = $I.compose(
   "tika",
   "libpff",
   "box",
-  "firecrawl",
   "uspto",
   "lexical-schema",
   "editor",
@@ -1031,22 +1027,6 @@ export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.
 export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
 
 /**
- * $face detection id export.
- *
- * **Example** (Log face detection package ID)
- *
- * ```ts
- * import { $FaceDetectionId } from "@beep/identity/packages"
- *
- * console.log($FaceDetectionId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection"> = composers.$FaceDetectionId;
-
-/**
  * $ffmpeg id export.
  *
  * **Example** (Log ffmpeg package ID)
@@ -1094,38 +1074,6 @@ export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composer
  * @since 0.0.0
  */
 export const $AnthropicId: Identity.IdentityComposer<"@beep/anthropic"> = composers.$AnthropicId;
-
-/**
- * $venice ai id export.
- *
- * **Example** (Log Venice AI package ID)
- *
- * ```ts
- * import { $VeniceAiId } from "@beep/identity/packages"
- *
- * console.log($VeniceAiId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = composers.$VeniceAiId;
-
-/**
- * $xai id export.
- *
- * **Example** (Log xAI package ID)
- *
- * ```ts
- * import { $XaiId } from "@beep/identity/packages"
- *
- * console.log($XaiId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
 
 /**
  * Identity composer for `@beep/acp`.
@@ -1663,23 +1611,6 @@ export const $TikaId: Identity.IdentityComposer<"@beep/tika"> = composers.$TikaI
  * @since 0.0.0
  */
 export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$LibpffId;
-
-/**
- * Identity composer for `@beep/firecrawl`.
- *
- * **Example** (Make Firecrawl package ID)
- *
- * ```ts import.meta.vitest name="Make Firecrawl package ID"
- * import { $FirecrawlId } from "@beep/identity"
- *
- * const id = $FirecrawlId.make("Firecrawl")
- * void id
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
 
 /**
  * Identity composer for the `@beep/uspto` package.

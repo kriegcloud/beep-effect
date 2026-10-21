@@ -128,8 +128,6 @@
   ],
   "@beep/ui/themes": ["./packages/foundation/ui-system/ui/src/themes/index.ts"],
   "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
-  "@beep/face-detection": ["./packages/drivers/face-detection/src/index.ts"],
-  "@beep/face-detection/*": ["./packages/drivers/face-detection/src/*"],
   "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
   "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
   "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
@@ -273,8 +271,6 @@
     "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
   ],
   "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
-  "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
-  "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
   "@beep/repo-ai-metrics": [
     "./packages/tooling/library/ai-metrics/src/index.ts"
   ],
@@ -803,8 +799,6 @@
   "@beep/repo-cli/commands/Yeet": [
     "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
   ],
-  "@beep/firecrawl": ["./packages/drivers/firecrawl/src/index.ts"],
-  "@beep/firecrawl/*": ["./packages/drivers/firecrawl/src/*"],
   "@beep/rdf": ["./packages/foundation/modeling/rdf/src/index.ts"],
   "@beep/rdf/*": ["./packages/foundation/modeling/rdf/src/*"],
   "@beep/repo-cli/commands/Fallow": [
