@@ -2084,5 +2084,9 @@
   "@beep/walker/*": ["./packages/foundation/capability/walker/src/*"],
   "@beep/walker/internal/*": [
     "./packages/foundation/capability/walker/src/internal/*"
-  ]
+  ],
+  "@beep/runtime-env": [
+    "./packages/foundation/capability/runtime-env/src/index.ts"
+  ],
+  "@beep/runtime-env/*": ["./packages/foundation/capability/runtime-env/src/*"]
 }

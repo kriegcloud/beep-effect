@@ -2344,6 +2344,18 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/capability/runtime-env": {
+      "name": "@beep/runtime-env",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/capability/semantic-web": {
       "name": "@beep/semantic-web",
       "version": "0.0.2",
@@ -4598,6 +4610,8 @@
     "@beep/repo-utils": ["@beep/repo-utils@workspace:packages/tooling/library/repo-utils"],
 
     "@beep/runpod": ["@beep/runpod@workspace:packages/drivers/runpod"],
+
+    "@beep/runtime-env": ["@beep/runtime-env@workspace:packages/foundation/capability/runtime-env"],
 
     "@beep/sanity": ["@beep/sanity@workspace:packages/drivers/sanity"],
 

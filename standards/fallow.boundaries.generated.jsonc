@@ -816,6 +816,12 @@
         ]
       },
       {
+        "name": "@beep/runtime-env",
+        "patterns": [
+          "packages/foundation/capability/runtime-env/src/**"
+        ]
+      },
+      {
         "name": "@beep/sanity",
         "patterns": [
           "packages/drivers/sanity/src/**"
@@ -4196,6 +4202,15 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/runtime-env",
+        "allow": [
+          "@beep/runtime-env"
+        ],
+        "allowTypeOnly": [
+          "@beep/runtime-env"
         ]
       },
       {
