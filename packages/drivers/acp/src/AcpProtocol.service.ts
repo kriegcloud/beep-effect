@@ -46,7 +46,7 @@ import type * as PlatformError from "effect/PlatformError";
 import type * as RpcMessage from "effect/rpc/RpcMessage";
 import type * as Scope from "effect/Scope";
 import type * as Stdio from "effect/Stdio";
-import type { AcpWireMessage } from "./internal/jsonrpc.ts";
+import type { AcpInboundMessage, AcpWireMessage } from "./internal/jsonrpc.ts";
 
 const $I = $AcpId.create("protocol");
 
@@ -801,18 +801,19 @@ const protocolFailureOf = (entry: ExitCauseEntry): O.Option<AcpSchema.Error> =>
 // Effect RPC's JSON-RPC codec reads a standard JSON-RPC error object inside a `Cause` envelope
 // whose data is not a cause array as a defect. A single defect that is a protocol error object is
 // the peer's typed failure, so it is restored to a `Fail` entry.
-const normalizeAcpJsonRpcError: (message: AcpWireMessage) => AcpWireMessage = Match.type<AcpWireMessage>().pipe(
-  Match.tag("Exit", (message): AcpWireMessage => {
-    if (message.exit._tag !== "Failure" || A.length(message.exit.cause) !== 1) {
-      return message;
-    }
-    return O.match(O.flatMap(A.head(message.exit.cause), protocolDefectOf), {
-      onNone: () => message,
-      onSome: (error) => ({ ...message, exit: { _tag: "Failure", cause: [{ _tag: "Fail", error }] } }),
-    });
-  }),
-  Match.orElse((message): AcpWireMessage => message)
-);
+const normalizeAcpJsonRpcError: (message: AcpInboundMessage) => AcpInboundMessage =
+  Match.type<AcpInboundMessage>().pipe(
+    Match.tag("Exit", (message): AcpInboundMessage => {
+      if (message.exit._tag !== "Failure" || A.length(message.exit.cause) !== 1) {
+        return message;
+      }
+      return O.match(O.flatMap(A.head(message.exit.cause), protocolDefectOf), {
+        onNone: () => message,
+        onSome: (error) => ({ ...message, exit: { _tag: "Failure", cause: [{ _tag: "Fail", error }] } }),
+      });
+    }),
+    Match.orElse((message): AcpInboundMessage => message)
+  );
 
 // An ACP request carries only JSON-RPC members. A typed RPC call also has effect trace ids and
 // headers, which a strict peer rejects as unknown members and which would leak internal span ids.
@@ -864,6 +865,9 @@ const toAcpWireRequest: (message: AcpWireMessage) => AcpWireMessage = Match.type
  * - Outbound requests carry only JSON-RPC members (`jsonrpc`, `method`, `params`, `id`): effect
  *   trace ids and headers stay in-process. Outbound `@effect/rpc/Interrupt` messages are dropped;
  *   ACP has no such method.
+ * - A peer error response fails only the request with its id, as an `AcpRequestError`. An error
+ *   object tagged `Defect` is not read as an effect-rpc defect, which would fail every in-flight
+ *   typed call.
  *
  * **Example** (Build protocol over stdio)
  *
@@ -1465,29 +1469,14 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     )
   );
 
-  const offerClientMessage = (message: RpcMessage.FromServerEncoded) =>
-    Queue.offer(clientQueue, message).pipe(Effect.asVoid);
-
-  // ACP has no effect-rpc control plane. The frame decoder reads `@effect/rpc/*` methods as
-  // ordinary requests and notifications, and a control message never reaches the RPC server: a
-  // peer `Eof` would end our writer and an `Interrupt` would stop a typed handler.
-  const ignoreControlMessage = (message: RpcMessage.FromClientEncoded) =>
-    Effect.logDebug("Ignored an effect-rpc control message from the ACP peer").pipe(
-      Effect.annotateLogs({ messageTag: message._tag })
-    );
-
-  const routeDecodedMessage: (message: AcpWireMessage) => Effect.Effect<void, AcpError.AcpError> =
-    Match.type<AcpWireMessage>().pipe(
+  // ACP has no effect-rpc control plane, so a peer frame decodes only to a request, a chunk or an
+  // exit. A peer `Eof` would end our writer, an `Interrupt` would stop a typed handler, and a
+  // `Defect` would fail every in-flight typed call; none of them can reach the RPC server or client.
+  const routeDecodedMessage: (message: AcpInboundMessage) => Effect.Effect<void, AcpError.AcpError> =
+    Match.type<AcpInboundMessage>().pipe(
       Match.tag("Request", handleRequestEncoded),
       Match.tag("Exit", handleExitEncoded),
       Match.tag("Chunk", handleChunkEncoded),
-      Match.tag("Defect", offerClientMessage),
-      Match.tag("ClientProtocolError", offerClientMessage),
-      Match.tag("Pong", offerClientMessage),
-      Match.tag("Ack", ignoreControlMessage),
-      Match.tag("Interrupt", ignoreControlMessage),
-      Match.tag("Ping", ignoreControlMessage),
-      Match.tag("Eof", ignoreControlMessage),
       Match.exhaustive
     );
 
