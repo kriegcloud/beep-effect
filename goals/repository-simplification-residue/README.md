@@ -62,6 +62,11 @@ and restart recovery reconciles every crash point byte-exact, idempotently, thro
 the next apply, `beep models recover` or `restore`. A target a competing writer
 changed is refused and every artifact is kept
 ([record](./history/receipts/exchange-recovery.md)).
+#1881 is complete: `skills update` replaces skill files and directories only through
+a qualified, verified atomic exchange, journals each publication with the same state
+machine, and recovers every crash point byte-exact through the next update or
+`beep skills recover`, refusing a replacing writer with every artifact kept
+([record](./history/receipts/skill-publication.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.
