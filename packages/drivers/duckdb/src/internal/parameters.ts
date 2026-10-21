@@ -38,10 +38,12 @@ import {
 } from "@duckdb/node-api";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { SqlError, UnknownError } from "effect/sql/SqlError";
+import { isPlainObject } from "./compiler.ts";
 import type { DuckDBValue } from "@duckdb/node-api";
 
 const BIND_MESSAGE = "Failed to bind statement parameters";
@@ -77,48 +79,55 @@ const encodeJsonText = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 const isDuckDbValueInstance = (value: unknown): value is DuckDBValue =>
   A.some(DUCKDB_VALUE_CLASSES, (valueClass) => value instanceof valueClass);
 
-const isPlainObject = (value: unknown): value is object => {
-  if (!P.isObject(value)) {
-    return false;
-  }
-  const prototype: unknown = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
-};
-
 const kindOf = (value: unknown): string => Object.prototype.toString.call(value).slice(8, -1);
 
-const normalizeParameter = (value: unknown): Result.Result<DuckDBValue, string> => {
-  if (P.isNullish(value)) {
-    return Result.succeed(null);
-  }
-  if (P.isBoolean(value) || P.isString(value) || P.isNumber(value) || P.isBigInt(value)) {
-    return Result.succeed(value);
-  }
-  if (P.isDate(value)) {
-    const millis = value.getTime();
-    return Number.isNaN(millis)
-      ? Result.fail("invalid Date")
-      : Result.succeed(timestampTZValue(BigInt(millis) * MICROS_PER_MILLI));
-  }
-  if (P.isUint8Array(value)) {
-    return Result.succeed(blobValue(value));
-  }
-  if (value instanceof Int8Array) {
-    return Result.succeed(blobValue(new Uint8Array(value.buffer, value.byteOffset, value.byteLength)));
-  }
-  if (isDuckDbValueInstance(value)) {
-    return Result.succeed(value);
-  }
-  if (A.isArray(value)) {
-    return A.isReadonlyArrayNonEmpty(value)
-      ? Result.map(Result.all(A.map(value, normalizeParameter)), listValue)
-      : Result.fail("cannot bind an empty array without a type; pass a typed DuckDB list value or use sql.in");
-  }
-  if (isPlainObject(value)) {
-    return Result.mapError(encodeJsonText(value), () => "plain object is not JSON-serializable");
-  }
-  return Result.fail(`unsupported bind parameter of type ${kindOf(value)}`);
+type BindResult = Result.Result<DuckDBValue, string>;
+
+type BindRule = (value: unknown) => O.Option<BindResult>;
+
+const bindRule =
+  <A>(guard: (value: unknown) => value is A, convert: (value: A) => BindResult): BindRule =>
+  (value) =>
+    guard(value) ? O.some(convert(value)) : O.none();
+
+const isPassThroughScalar = (value: unknown): value is boolean | string | number | bigint =>
+  P.isBoolean(value) || P.isString(value) || P.isNumber(value) || P.isBigInt(value);
+
+const isInt8Array = (value: unknown): value is Int8Array => value instanceof Int8Array;
+
+const bindDate = (value: Date): BindResult => {
+  const millis = value.getTime();
+  return Number.isNaN(millis)
+    ? Result.fail("invalid Date")
+    : Result.succeed(timestampTZValue(BigInt(millis) * MICROS_PER_MILLI));
 };
+
+const bindArray = (value: ReadonlyArray<unknown>): BindResult =>
+  A.isReadonlyArrayNonEmpty(value)
+    ? Result.map(Result.all(A.map(value, normalizeParameter)), listValue)
+    : Result.fail("cannot bind an empty array without a type; pass a typed DuckDB list value or use sql.in");
+
+/** Ordered bind rules; the first matching guard decides the conversion. */
+const BIND_RULES: ReadonlyArray<BindRule> = [
+  bindRule(P.isNullish, () => Result.succeed(null)),
+  bindRule(isPassThroughScalar, Result.succeed),
+  bindRule(P.isDate, bindDate),
+  bindRule(P.isUint8Array, (value) => Result.succeed(blobValue(value))),
+  bindRule(isInt8Array, (value) =>
+    Result.succeed(blobValue(new Uint8Array(value.buffer, value.byteOffset, value.byteLength)))
+  ),
+  bindRule(isDuckDbValueInstance, Result.succeed),
+  bindRule(A.isArray, bindArray),
+  bindRule(isPlainObject, (value) =>
+    Result.mapError(encodeJsonText(value), () => "plain object is not JSON-serializable")
+  ),
+];
+
+const normalizeParameter = (value: unknown): BindResult =>
+  O.getOrElse(
+    A.findFirst(BIND_RULES, (rule) => rule(value)),
+    () => Result.fail(`unsupported bind parameter of type ${kindOf(value)}`)
+  );
 
 /**
  * Normalizes statement parameters into DuckDB bind values.

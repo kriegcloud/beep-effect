@@ -21,13 +21,28 @@ import * as Statement from "effect/sql/Statement";
 
 const escape = Statement.defaultEscape('"');
 
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-  if (!P.isObject(value)) {
-    return false;
-  }
-  const prototype: unknown = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
-};
+const isPlainPrototype = (prototype: unknown): boolean => prototype === Object.prototype || prototype === null;
+
+/**
+ * Checks whether a value is a plain object (an `Object.prototype` or
+ * null-prototype object), as opposed to an array, class instance or other
+ * exotic object.
+ *
+ * **Example** (Telling plain objects from class instances)
+ *
+ * ```ts
+ * import { isPlainObject } from "./compiler.ts"
+ *
+ * console.log(isPlainObject({ a: 1 })) // true
+ * console.log(isPlainObject(new Uint8Array(1))) // false
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ * @internal
+ */
+export const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  P.isObject(value) && isPlainPrototype(Object.getPrototypeOf(value));
 
 /**
  * Build the DuckDB `Statement.Compiler`, optionally renaming identifiers.
