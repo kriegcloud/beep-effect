@@ -540,6 +540,12 @@
         ]
       },
       {
+        "name": "@beep/npm-spec",
+        "patterns": [
+          "packages/foundation/modeling/npm-spec/src/**"
+        ]
+      },
+      {
         "name": "@beep/obs",
         "patterns": [
           "packages/drivers/obs/src/**"
@@ -951,6 +957,12 @@
         "name": "@beep/trustgraph-workbench",
         "patterns": [
           "apps/labs/trustgraph-workbench/src/**"
+        ]
+      },
+      {
+        "name": "@beep/tsconfig",
+        "patterns": [
+          "packages/foundation/modeling/tsconfig/src/**"
         ]
       },
       {
@@ -3011,6 +3023,25 @@
         ]
       },
       {
+        "from": "@beep/npm-spec",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/npm-spec",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/obs",
         "allow": [
           "@beep/identity",
@@ -4233,6 +4264,7 @@
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
+          "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
           "@beep/pglite",
@@ -4250,6 +4282,7 @@
           "@beep/spdx",
           "@beep/test-utils",
           "@beep/toml",
+          "@beep/tsconfig",
           "@beep/utils",
           "@beep/wink",
           "@beep/yaml"
@@ -4275,6 +4308,7 @@
           "@beep/n3",
           "@beep/nlp",
           "@beep/nlp-processing",
+          "@beep/npm-spec",
           "@beep/ontology",
           "@beep/oxigraph",
           "@beep/pglite",
@@ -4292,6 +4326,7 @@
           "@beep/spdx",
           "@beep/test-utils",
           "@beep/toml",
+          "@beep/tsconfig",
           "@beep/utils",
           "@beep/wink",
           "@beep/yaml"
@@ -4669,6 +4704,25 @@
           "@beep/test-runner",
           "@beep/trustgraph-workbench",
           "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/tsconfig",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/schema",
+          "@beep/tsconfig",
+          "@beep/utils"
         ]
       },
       {

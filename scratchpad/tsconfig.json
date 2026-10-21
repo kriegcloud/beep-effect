@@ -83,6 +83,9 @@
       "path": "../packages/foundation/modeling/nlp/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/npm-spec/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/ontology/tsconfig.json"
     },
     {
@@ -102,6 +105,9 @@
     },
     {
       "path": "../packages/foundation/modeling/toml/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/tsconfig/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/utils/tsconfig.json"

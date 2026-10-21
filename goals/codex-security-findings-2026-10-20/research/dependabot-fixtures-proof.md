@@ -56,7 +56,7 @@ Direct target checks, using `bun run --cwd scratchpad tsgo -p
 line wrap/leading space), reach source checking and report only existing
 `TS377084 effect(unnecessaryArrowBlock)` diagnostics:
 
-- `scratchpad/effected/npm/RegistryKind.ts`: lines 47, 48 and 141, both targets.
+- `packages/foundation/modeling/npm-spec/src/RegistryKind.ts` (at the time, the scratchpad npm port): lines 47, 48 and 141, both targets.
 - `scratchpad/effected/yaml/Yaml.ts`: line 529, lockfiles target only.
 
 These dependency source files are unchanged against HEAD; no diagnostic names

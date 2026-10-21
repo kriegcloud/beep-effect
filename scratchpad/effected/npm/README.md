@@ -1,5 +1,7 @@
 # npm (lab port of @effected/npm)
 
+> **Split on promotion.** The pure vocabulary (`CatalogResolver`, `WorkspaceResolver`, `Manifest`, `DependencySpecifier`, `DependencySection`, `IntegrityHash`, `PackageManagerPin`, `PackageManagerCache`, `ReleaseAgeGate`, `RegistryKind`, `RegistryCredential`, `CatalogAssemblyError`, `DEFAULT_REGISTRY` and the `Default` layer) now lives in `@beep/npm-spec` (`packages/foundation/modeling/npm-spec`). This directory keeps only the deferred driver half (`NpmExecutor`, `NpmRegistry`, `PackagePublish`, `PackageTarball`, `PublishError`) until its first consumer (SPEC D-05). The sections below still describe the whole upstream package.
+
 Effect service contracts for resolving pnpm `catalog:` and `workspace:` dependency specifiers, plus the npm registry and publish surface built on top of them. `CatalogResolver.rangeOf` turns a package name plus an optional catalog name into the configured range; `WorkspaceResolver.versionOf` turns a workspace package name into its concrete version. Both are `Context.Service` contracts, both ship a no-op default layer that resolves nothing, and neither one reads a file. The package is the seam: a library that needs to *expand* a specifier depends on this, and something that can actually see the workspace supplies the implementation. On top of the contracts sit the kit's shared dependency vocabulary — `DependencySpecifier`, `DependencySection`, `IntegrityHash` — and `Manifest`, a tolerant manifest model that resolves every `catalog:` and `workspace:` specifier through the contracts in one call. `NpmRegistry` and `PackagePublish` round out the package with the registry reads and pack/publish workflow a release tool needs, over core `HttpClient` and `@effected/commands`.
 
 ## Why @effected/npm
@@ -17,9 +19,9 @@ All `@effected/*` packages are ESM-only: the exports maps publish only `import` 
 The `Default` layer merges both no-op resolvers. Provide it when the contracts need to be satisfied but nothing should be resolved:
 
 ```ts
-import { CatalogResolver } from "@beep/scratchpad/effected/npm/CatalogResolver";
-import { Default } from "@beep/scratchpad/effected/npm/index";
-import { WorkspaceResolver } from "@beep/scratchpad/effected/npm/WorkspaceResolver";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { Default } from "@beep/npm-spec/index";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
@@ -52,8 +54,8 @@ Both fail with `DependencyResolutionError`, which carries the `specifier` that c
 A real resolver is a `Layer.succeed` over the shape. `@effected/workspaces` implements these against a discovered monorepo, but the contract is small enough that a fixed record is a legitimate implementation — for a test, a fixture, or a tool that already knows its own catalog:
 
 ```ts
-import { CatalogResolver } from "@beep/scratchpad/effected/npm/CatalogResolver";
-import { WorkspaceResolver } from "@beep/scratchpad/effected/npm/WorkspaceResolver";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -87,8 +89,8 @@ Note what the implementation does *not* do: an unknown package name returns `Opt
 `Manifest` is a tolerant manifest model over the contracts: the four dependency fields are typed as string→string records, and every other top-level field rides through a `rest` catch-all that flattens back on encode, so the wire shape never carries a literal `rest` key. It is deliberately not `@effected/package-json`'s strict `Package` — a mid-build manifest is an arbitrary user record, and resolution has no business validating fields it never reads.
 
 ```ts
-import { Default } from "@beep/scratchpad/effected/npm/index";
-import { Manifest } from "@beep/scratchpad/effected/npm/Manifest";
+import { Default } from "@beep/npm-spec/index";
+import { Manifest } from "@beep/npm-spec/Manifest";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
@@ -146,7 +148,7 @@ console.log(executor.cacheDir) // /tmp/runner/npm-cache
 
 ```ts
 import { PackagePublish } from "@beep/scratchpad/effected/npm/PackagePublish";
-import { basicCredentialFromPair } from "@beep/scratchpad/effected/npm/RegistryCredential";
+import { basicCredentialFromPair } from "@beep/npm-spec/RegistryCredential";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
@@ -169,13 +171,13 @@ One union rather than two spellings is the point: `NpmRegistry`'s per-call `Regi
 **Breaking, and how to migrate.** `setupAuth` and `RegistryTarget` took a `token` field before; both take `credential` now. The rewrite is mechanical:
 
 ```ts
-import type { RegistryCredential } from "@beep/scratchpad/effected/npm/RegistryCredential";
+import { TokenCredential } from "@beep/npm-spec/RegistryCredential";
 import * as Redacted from "effect/Redacted";
 
 const token = Redacted.make("example-token");
 
 // before: setupAuth({ registry, token, npmrcPath })
-const credential: RegistryCredential = { kind: "token", token };
+const credential = TokenCredential.make({ kind: "token", token });
 // after:  setupAuth({ registry, credential, npmrcPath })
 console.log(credential.kind) // token
 ```
@@ -212,7 +214,7 @@ Extraction shells out to `tar` through core's `ChildProcessSpawner` rather than 
 `IntegrityHash` is a brand over the three textual integrity forms a dependency graph carries — npm's SRI `sha512-<base64>`, corepack's `sha512.<hex>` and yarn's — with `algorithmOf` reading the algorithm out of any of them. `CorepackIntegrityHash` narrows the brand to the corepack spelling, which is what a `packageManager` pin has to be written in, and carries the bridge from the form npm actually hands you:
 
 ```ts
-import { CorepackIntegrityHash } from "@beep/scratchpad/effected/npm/IntegrityHash";
+import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Effect from "effect/Effect";
 
 const npmIntegrity = "sha512-" + "A".repeat(86) + "=="; // a 64-byte zero digest
@@ -263,7 +265,7 @@ The surface grows when a consumer proves it needs more, not before.
 - Upstream package: `@effected/npm` 0.20.0
 - Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
 - License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- scratchpad/effected/npm/DependencySection.ts:10 // `KIND_TO_FIELD` is the single source of truth; the inverse is derived from it,
+- packages/foundation/modeling/npm-spec/src/DependencySection.ts:10 // `KIND_TO_FIELD` is the single source of truth; the inverse is derived from it,
 
 ### Added exports
 
@@ -275,23 +277,23 @@ The surface grows when a consumer proves it needs more, not before.
 
 One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
 
-- **native-runtime** — The lab uses Effect collections, record/date/clock helpers, JSON codecs and S.Opaque statics where upstream used native runtime operations, with malformed pack JSON now carrying SchemaError. (scratchpad/test/npm/IntegrityHash.test.ts; scratchpad/test/npm/DependencySpecifier.test.ts; scratchpad/test/npm/Manifest.test.ts; scratchpad/test/npm/ReleaseAgeGate.test.ts; scratchpad/test/npm/RegistryKind.test.ts; scratchpad/test/npm/PackagePublish.test.ts:377)
-- **tagged-errors** — The lab replaces upstream native credential/test-double errors with tagged errors and preserves originating stacks when encoding the six existing error causes. (scratchpad/test/npm/PackagePublish.test.ts:649,664; scratchpad/test/npm/NpmRegistry.test.ts:531; scratchpad/test/npm/PackageTarball.test.ts:228; scratchpad/test/npm/Manifest.test.ts:74; scratchpad/test/npm/CatalogAssemblyError.test.ts:94; scratchpad/test/npm/WorkspaceResolver.test.ts:67; NpmRegistry test-double and PackagePublish unstubbed-member cases)
-- **schema-first** — The lab derives model types, guards and vocabularies from executable schemas and uses S.Opaque statics and validated internal error variants where upstream maintained type-only models and helper-first grammar. (scratchpad/test/npm/DependencySection.test.ts; scratchpad/test/npm/DependencySpecifier.test.ts; scratchpad/test/npm/IntegrityHash.test.ts; scratchpad/test/npm/PackageManagerPin.test.ts; scratchpad/test/npm/PackageManagerCache.test.ts; scratchpad/test/npm/PackageTarball.test.ts:244; scratchpad/test/npm/NpmRegistry.test.ts; scratchpad/test/npm/PackagePublish.test.ts)
-- **numeric-domains** — The lab validates the listed status, exit-code, sizing and partial-age fields as finite numbers where upstream used unconstrained Number schemas or type-only numbers. (scratchpad/test/npm/ReleaseAgeGate.test.ts (PartialReleaseAgeGate schema cases); scratchpad/test/npm/PackagePublish.test.ts (pack/dryRun sizing cases); scratchpad/test/npm/NpmRegistry.test.ts; scratchpad/test/npm/PackageTarball.test.ts; no upstream assertion was changed solely for these finite refinements)
-- **type-safety** — The lab uses checked codec types, guards and satisfies in place of upstream unsafe casts, with invalid test inputs confined to the operator-approved helper. (scratchpad/test/npm/DependencySpecifier.test.ts (classified payload assertions); scratchpad/test/npm/PackagePublish.test.ts (typed auth errors); scratchpad/test/npm/WorkspaceResolver.test.ts:79,120,130; scratchpad/test/npm/IntegrityHash.test.ts (algorithmOf))
+- **native-runtime** — The lab uses Effect collections, record/date/clock helpers, JSON codecs and S.Opaque statics where upstream used native runtime operations, with malformed pack JSON now carrying SchemaError. (packages/foundation/modeling/npm-spec/test/IntegrityHash.test.ts; packages/foundation/modeling/npm-spec/test/DependencySpecifier.test.ts; packages/foundation/modeling/npm-spec/test/Manifest.test.ts; packages/foundation/modeling/npm-spec/test/ReleaseAgeGate.test.ts; packages/foundation/modeling/npm-spec/test/RegistryKind.test.ts; scratchpad/test/npm/PackagePublish.test.ts:377)
+- **tagged-errors** — The lab replaces upstream native credential/test-double errors with tagged errors and preserves originating stacks when encoding the six existing error causes. (scratchpad/test/npm/PackagePublish.test.ts:649,664; scratchpad/test/npm/NpmRegistry.test.ts:531; scratchpad/test/npm/PackageTarball.test.ts:228; packages/foundation/modeling/npm-spec/test/Manifest.test.ts:74; packages/foundation/modeling/npm-spec/test/CatalogAssemblyError.test.ts:94; packages/foundation/modeling/npm-spec/test/WorkspaceResolver.test.ts:67; NpmRegistry test-double and PackagePublish unstubbed-member cases)
+- **schema-first** — The lab derives model types, guards and vocabularies from executable schemas and uses S.Opaque statics and validated internal error variants where upstream maintained type-only models and helper-first grammar. (packages/foundation/modeling/npm-spec/test/DependencySection.test.ts; packages/foundation/modeling/npm-spec/test/DependencySpecifier.test.ts; packages/foundation/modeling/npm-spec/test/IntegrityHash.test.ts; packages/foundation/modeling/npm-spec/test/PackageManagerPin.test.ts; packages/foundation/modeling/npm-spec/test/PackageManagerCache.test.ts; scratchpad/test/npm/PackageTarball.test.ts:244; scratchpad/test/npm/NpmRegistry.test.ts; scratchpad/test/npm/PackagePublish.test.ts)
+- **numeric-domains** — The lab validates the listed status, exit-code, sizing and partial-age fields as finite numbers where upstream used unconstrained Number schemas or type-only numbers. (packages/foundation/modeling/npm-spec/test/ReleaseAgeGate.test.ts (PartialReleaseAgeGate schema cases); scratchpad/test/npm/PackagePublish.test.ts (pack/dryRun sizing cases); scratchpad/test/npm/NpmRegistry.test.ts; scratchpad/test/npm/PackageTarball.test.ts; no upstream assertion was changed solely for these finite refinements)
+- **type-safety** — The lab uses checked codec types, guards and satisfies in place of upstream unsafe casts, with invalid test inputs confined to the operator-approved helper. (packages/foundation/modeling/npm-spec/test/DependencySpecifier.test.ts (classified payload assertions); scratchpad/test/npm/PackagePublish.test.ts (typed auth errors); packages/foundation/modeling/npm-spec/test/WorkspaceResolver.test.ts:79,120,130; packages/foundation/modeling/npm-spec/test/IntegrityHash.test.ts (algorithmOf))
 - **tsgo-diagnostics** — The lab uses diagnostic-compliant schema constructors, decoding and Effect combinators where upstream used new constructors, broader decoders and redundant generator/error wrappers. (module suite scratchpad/test/npm/**)
-- **effect-first** — The lab runs credential validation through a typed Effect and uses Effect function wrappers, matches and helper modules where upstream used synchronous throwing logic, inline generators and native helpers. (scratchpad/test/npm/CatalogResolver.test.ts; scratchpad/test/npm/WorkspaceResolver.test.ts; scratchpad/test/npm/PackagePublish.test.ts:83,150,356,642,649,656; scratchpad/test/npm/PackageTarball.test.ts; scratchpad/test/npm/DependencySpecifier.test.ts; scratchpad/test/npm/PackageManagerPin.test.ts)
+- **effect-first** — The lab runs credential validation through a typed Effect and uses Effect function wrappers, matches and helper modules where upstream used synchronous throwing logic, inline generators and native helpers. (packages/foundation/modeling/npm-spec/test/CatalogResolver.test.ts; packages/foundation/modeling/npm-spec/test/WorkspaceResolver.test.ts; scratchpad/test/npm/PackagePublish.test.ts:83,150,356,642,649,656; scratchpad/test/npm/PackageTarball.test.ts; packages/foundation/modeling/npm-spec/test/DependencySpecifier.test.ts; packages/foundation/modeling/npm-spec/test/PackageManagerPin.test.ts)
 - **effect-imports** — The lab imports Effect modules from dedicated subpaths where upstream source, tests and carried examples imported the root effect barrel. (module suite scratchpad/test/npm/**)
 - **identity-annotations** — The lab gives services, schemas, fields and reusable checks namespaced @beep/identity metadata where upstream used local or @effected service identifiers and unannotated schema values. (module suite scratchpad/test/npm/**)
 - **test-environment** — The lab token-contract test reads the copied NpmRegistry source path where upstream read its package-local src path. (scratchpad/test/npm/NpmRegistry.test.ts:210 (the registry token source-contract assertion))
 - **reachability** — The lab reachability guard scans copied TypeScript modules and their relative commands edge where upstream scanned package src and published import specifiers. (scratchpad/test/npm/reachability.test.ts:23,40,64,104,115,128)
-- **upstream-bug** — The lab preserves an own __proto__ unknown field during Manifest round-trip where upstream loses that field through ordinary-object assignment. (scratchpad/test/npm/Manifest.test.ts:52; scratchpad/test/npm/Manifest.test.ts:64)
-- **upstream-bug** — The lab preserves own __proto__ dependency keys during concrete, catalog and workspace resolution, whereas upstream ordinary-object assignment drops them (scratchpad/test/npm/Manifest.test.ts:187).
-- **schema-first** — The lab adds a validated CatalogAssemblyError.failure projection that omits hooks-only reasons from manifest/catalog cases while preserving compatible public fields and causes, whereas upstream exposes only the independent source/reason payload (scratchpad/test/npm/CatalogAssemblyError.test.ts:108; scratchpad/test/npm/CatalogAssemblyError.property.test.ts:24).
+- **upstream-bug** — The lab preserves an own __proto__ unknown field during Manifest round-trip where upstream loses that field through ordinary-object assignment. (packages/foundation/modeling/npm-spec/test/Manifest.test.ts:52; packages/foundation/modeling/npm-spec/test/Manifest.test.ts:64)
+- **upstream-bug** — The lab preserves own __proto__ dependency keys during concrete, catalog and workspace resolution, whereas upstream ordinary-object assignment drops them (packages/foundation/modeling/npm-spec/test/Manifest.test.ts:187).
+- **schema-first** — The lab adds a validated CatalogAssemblyError.failure projection that omits hooks-only reasons from manifest/catalog cases while preserving compatible public fields and causes, whereas upstream exposes only the independent source/reason payload (packages/foundation/modeling/npm-spec/test/CatalogAssemblyError.test.ts:108; packages/foundation/modeling/npm-spec/test/CatalogAssemblyError.property.test.ts:24).
 - **upstream-bug** — Lab seeded registry lookups ignore inherited entries while upstream can report unseeded prototype keys as published (scratchpad/test/npm/NpmRegistry.test.ts:558; scratchpad/test/npm/NpmRegistry.test.ts:572; scratchpad/test/npm/NpmRegistry.test.ts:586; scratchpad/test/npm/NpmRegistry.test.ts:599; scratchpad/test/npm/NpmRegistry.test.ts:613).
-- **effect-first** — Lab release-age, manifest-resolution detection and cache-path routines use Effect array helpers while upstream uses native array methods, preserving ordinary results (scratchpad/test/npm/ReleaseAgeGate.test.ts; scratchpad/test/npm/Manifest.test.ts; scratchpad/test/npm/PackageManagerCache.test.ts).
-- **native-runtime** — Lab pack fixtures and rejection-input names use explicit Schema Result JSON codecs with assert.fail handling while upstream uses JSON.stringify (scratchpad/test/npm/PackagePublish.test.ts:48; scratchpad/test/npm/PackagePublish.test.ts:55; scratchpad/test/npm/PackagePublish.test.ts:453; scratchpad/test/npm/PackageManagerPin.test.ts:117).
+- **effect-first** — Lab release-age, manifest-resolution detection and cache-path routines use Effect array helpers while upstream uses native array methods, preserving ordinary results (packages/foundation/modeling/npm-spec/test/ReleaseAgeGate.test.ts; packages/foundation/modeling/npm-spec/test/Manifest.test.ts; packages/foundation/modeling/npm-spec/test/PackageManagerCache.test.ts).
+- **native-runtime** — Lab pack fixtures and rejection-input names use explicit Schema Result JSON codecs with assert.fail handling while upstream uses JSON.stringify (scratchpad/test/npm/PackagePublish.test.ts:48; scratchpad/test/npm/PackagePublish.test.ts:55; scratchpad/test/npm/PackagePublish.test.ts:453; packages/foundation/modeling/npm-spec/test/PackageManagerPin.test.ts:117).
 
 ### Dependency backlog
 

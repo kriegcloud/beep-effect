@@ -23,7 +23,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterAll, assert, beforeAll, describe, it } from "@effect/vitest";
 import { ScriptedSpawner } from "@beep/commands";
-import { CatalogAssemblyError } from "../../effected/npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";

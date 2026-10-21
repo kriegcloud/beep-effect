@@ -18,7 +18,7 @@ import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@bee
 import { Git } from "@beep/git";
 import { GlobSet } from "@beep/glob";
 import { Lockfile as LockfileModel, filenameFor } from "../lockfiles/index.ts";
-import { CatalogAssemblyError } from "../npm/index.ts";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import { Yaml } from "@beep/yaml";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";

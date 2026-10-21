@@ -61,8 +61,9 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 };
 
 /**
- * The kit modules waves 1a and 1b of the effected promotion moved out of the lab
- * into `@beep/*` packages (`templates` became `@beep/managed-section`). Upstream
+ * The kit modules waves 1a, 1b and 2a of the effected promotion moved out of the lab
+ * into `@beep/*` packages (`templates` became `@beep/managed-section`; the pure
+ * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
  * entrypoint; promoted, each is a bare package edge again, so the walker stops at
  * it as it stops at a lab sibling. The kit modules not yet promoted (`walker`,
@@ -79,10 +80,12 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/jsonl",
 	"@beep/managed-section",
 	"@beep/memfs",
+	"@beep/npm-spec",
 	"@beep/schema-org",
 	"@beep/semver",
 	"@beep/spdx",
 	"@beep/toml",
+	"@beep/tsconfig",
 	"@beep/yaml",
 ]);
 
@@ -417,20 +420,23 @@ describe("bundle reachability", () => {
 		]);
 	});
 
-	it("the @effected/npm edge is confined to the installer, on Azure's terms", () => {
-		// `PackageManagerInstaller` consumes `@effected/npm`'s pin vocabulary and
-		// is the ONLY module allowed to: the edge exists for one service a
-		// consumer takes with one explicit layer line, and it must not ride into
-		// the runtime or any light module's graph. The control comes first, so a
-		// blinded walker fails here rather than passing everything below.
+	it("the @beep/npm-spec edge is confined to the installer, on Azure's terms", () => {
+		// `PackageManagerInstaller` consumes `@beep/npm-spec`'s pin vocabulary
+		// (upstream `@effected/npm`) and is the ONLY module allowed to: the edge
+		// exists for one service a consumer takes with one explicit layer line,
+		// and it must not ride into the runtime or any light module's graph. The
+		// control comes first, so a blinded walker fails here rather than passing
+		// everything below.
+		const reachesNpmSpec = (entry: string): boolean =>
+			[...reachableRuntimeImports(entry)].some((specifier) => specifier.split("/").slice(0, 2).join("/") === "@beep/npm-spec");
 		assert.isTrue(
-			[...reachableRuntimeImports("PackageManagerInstaller.ts")].includes("../npm/index.ts"),
-			"PackageManagerInstaller does not reach @effected/npm — the walker is blind",
+			reachesNpmSpec("PackageManagerInstaller.ts"),
+			"PackageManagerInstaller does not reach @beep/npm-spec — the walker is blind",
 		);
 		for (const entry of LIGHT_MODULES.filter((module) => module !== "PackageManagerInstaller.ts")) {
 			assert.isFalse(
-				[...reachableRuntimeImports(entry)].includes("../npm/index.ts"),
-				`${entry} reaches @effected/npm — the installer confinement has leaked`,
+				reachesNpmSpec(entry),
+				`${entry} reaches @beep/npm-spec — the installer confinement has leaked`,
 			);
 		}
 		// The exact edge set: the pin vocabulary, effect, ToolInstaller's HTTP and
@@ -438,8 +444,10 @@ describe("bundle reachability", () => {
 		// particular the DEFAULT RUNTIME stays clear: `Action.ts`'s exact edge set
 		// above is what pins `ActionRuntime.layer` never linking this module.
 		assert.deepStrictEqual([...reachableRuntimeImports("PackageManagerInstaller.ts")].sort(), [
-			"../npm/index.ts",
 			"@beep/identity/packages",
+			"@beep/npm-spec/IntegrityHash",
+			"@beep/npm-spec/PackageManagerPin",
+			"@beep/npm-spec/RegistryKind",
 			"@beep/utils/Option",
 			"effect/Array",
 			"effect/Boolean",

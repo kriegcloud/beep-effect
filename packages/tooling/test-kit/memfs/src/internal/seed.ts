@@ -143,7 +143,6 @@ export class MemoryFileSystemSeedSymlink extends S.Opaque<
  * ```ts
  * import { MemoryFileSystemSeedEntry } from "@beep/memfs/MemoryFileSystem";
  * import * as S from "effect/Schema";
-import * as SchemaTransformation from "effect/SchemaTransformation";
  *
  * console.log(S.is(MemoryFileSystemSeedEntry)("hello")); // true
  * ```
@@ -190,7 +189,6 @@ export type MemoryFileSystemSeedEntry = typeof MemoryFileSystemSeedEntry.Type;
  * ```ts
  * import { MemoryFileSystemSeed } from "@beep/memfs/MemoryFileSystem";
  * import * as S from "effect/Schema";
-import * as SchemaTransformation from "effect/SchemaTransformation";
  *
  * console.log(S.is(MemoryFileSystemSeed)({ "/hello.txt": "hello" })); // true
  * ```
@@ -342,7 +340,6 @@ export const normalizeAbsolute = (path: string): string => {
  *
  * ```ts
  * import * as S from "effect/Schema";
-import * as SchemaTransformation from "effect/SchemaTransformation";
  * import { SeedRootError } from "@beep/memfs/internal/seed";
  *
  * console.log(S.is(SeedRootError)({ description: 'root must be absolute, got "repo"', subject: "repo" })); // true
@@ -399,7 +396,6 @@ const SeedReference = S.declare((u: unknown): u is MemoryFileSystemSeed => isSee
  *
  * ```ts
  * import * as S from "effect/Schema";
-import * as SchemaTransformation from "effect/SchemaTransformation";
  * import { AppliedSeed } from "@beep/memfs/internal/seed";
  *
  * console.log(S.is(AppliedSeed)({ seed: { "/hello.txt": "hello" }, root: undefined })); // true

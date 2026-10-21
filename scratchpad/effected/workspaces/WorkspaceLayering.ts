@@ -4,7 +4,7 @@ import * as Order from "effect/Order";
 import { dual, pipe } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobSet } from "@beep/glob";
-import { DependencyField } from "../npm/index.ts";
+import { DependencyField } from "@beep/npm-spec/DependencySection";
 import * as Effect from "effect/Effect";
 import * as Graph from "effect/Graph";
 import * as MutableHashMap from "effect/MutableHashMap";

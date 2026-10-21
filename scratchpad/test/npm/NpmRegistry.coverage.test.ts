@@ -6,7 +6,8 @@ import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
-import { DEFAULT_REGISTRY, NpmRegistry, RegistryReadError } from "../../effected/npm/NpmRegistry.ts";
+import { DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
+import { NpmRegistry, RegistryReadError } from "../../effected/npm/NpmRegistry.ts";
 
 it.effect("registry error messages identify transport, decoding and status failures", () => Effect.sync(() => {
   const base = { package: "pkg", registry: DEFAULT_REGISTRY };
