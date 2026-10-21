@@ -47,6 +47,22 @@ serve() {
   exec "$binary"
 }
 
+owns_listener() {
+  python3 - "$1" "$R2_ADAPTER_PORT" "$binary" <<'PYLISTENER'
+from pathlib import Path
+import os,sys
+process=Path('/proc')/sys.argv[1]
+try:
+    if os.readlink(process/'exe')!=sys.argv[3]:raise SystemExit(1)
+    sockets={os.readlink(fd)[8:-1] for fd in (process/'fd').iterdir() if os.readlink(fd).startswith('socket:[')}
+    address='0100007F:'+format(int(sys.argv[2]),'04X')
+    owned=any(row[1]==address and row[3]=='0A' and row[9] in sockets for row in (line.split() for line in (process/'net/tcp').read_text().splitlines()[1:]))
+    raise SystemExit(0 if owned else 1)
+except OSError:
+    raise SystemExit(1)
+PYLISTENER
+}
+
 start_ci() {
   : "${GITHUB_ENV:?GITHUB_ENV is required}" "${RUNNER_TEMP:?RUNNER_TEMP is required}"
   if [[ -z "${R2_ACCESS_KEY_ID:-}" || -z "${R2_SECRET_ACCESS_KEY:-}" || -z "${R2_ENDPOINT:-}" || -z "${R2_BUCKET:-}" || -z "${TURBO_TEAM:-}" ]]; then
@@ -62,7 +78,7 @@ start_ci() {
   for attempt in {1..50}; do
     kill -0 "$pid" 2>/dev/null || break
     if printf 'header = "Authorization: Bearer %s"\n' "$TURBO_TOKEN" | \
-      curl --config - --fail --silent --max-time 1 "http://127.0.0.1:$R2_ADAPTER_PORT/management/health" >/dev/null 2>&1; then
+      curl --config - --fail --silent --max-time 1 "http://127.0.0.1:$R2_ADAPTER_PORT/management/health" >/dev/null 2>&1 && owns_listener "$pid"; then
       ready=true; break
     fi
     sleep 0.1

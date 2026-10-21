@@ -31,6 +31,18 @@ PYCONFIG
     cp "$source_dir/adapter.sh" "$installed"
     chmod 700 "$installed"
     "$installed" install
+    exec_start="$(python3 - "$(command -v op)" "$config" "$installed" <<'PYUNIT'
+import json,sys
+args=[sys.argv[1],'run','--env-file='+sys.argv[2],'--',sys.argv[3],'serve']
+quoted=[]
+for index,arg in enumerate(args):
+    arg=arg.replace('%','%%')
+    # systemd expands environment variables in arguments, never the executable path.
+    if index:arg=arg.replace('$','$$')
+    quoted.append(json.dumps(arg,ensure_ascii=False))
+print('ExecStart='+' '.join(quoted))
+PYUNIT
+)"
     cat > "$unit" <<EOF
 # Managed by beep infra/r2-cache/workstation.sh
 [Unit]
@@ -41,7 +53,7 @@ StartLimitBurst=3
 
 [Service]
 Type=exec
-ExecStart="$(command -v op)" run --env-file="$config" -- "$installed" serve
+$exec_start
 Restart=on-failure
 RestartSec=30
 TimeoutStopSec=10

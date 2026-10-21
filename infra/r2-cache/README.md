@@ -108,6 +108,8 @@ failure leaves the previously exported AWS quad unchanged. Cache request failure
 are nonfatal to task execution; record them rather than calling failed uploads hits.
 
 The job exports a fresh masked loopback bearer through GitHub's environment file.
+It first confirms that the pinned adapter process owns the loopback listener;
+an unrelated healthy service on that port preserves the original cache settings.
 R2 storage keys stay in the startup step and adapter process. The adapter retains
 `RUNNER_TRACKING_ID` so runner cancellation can reap it; the final always step
 also stops its exact recorded process. Artifact logs and environments are not uploaded.
@@ -162,4 +164,7 @@ Only the sanitized `ci-proof.json` is uploaded for a probe. A successful probe
 is permission/transport evidence, not a measured fleet savings percentage.
 
 `check.sh` exercises real adapter process isolation/cleanup and cache-only
-enrollment/rollback with inert credentials. It makes no R2 data-plane requests.
+enrollment/rollback with inert credentials, including an occupied-port fallback.
+With an active user manager it also runs the rendered service through an inert
+credential helper to verify paths containing spaces, percent and dollar characters.
+It makes no 1Password or R2 data-plane requests.

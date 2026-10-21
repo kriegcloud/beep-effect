@@ -5,7 +5,7 @@ set +x
 root="$(cd "$(dirname "$0")" && pwd)"
 "$root/adapter.sh" install
 python3 - "$root" <<'PY'
-import json,os,pathlib,shutil,socket,subprocess,sys,tempfile,time
+import http.server,json,os,pathlib,shutil,socket,subprocess,sys,tempfile,threading,time,uuid
 source=pathlib.Path(sys.argv[1]);parent=pathlib.Path.home()/'.cache/beep/r2-cache-check';parent.mkdir(parents=True,exist_ok=True)
 def run(args,env,ok=True):
     p=subprocess.run(args,env=env,capture_output=True,text=True,timeout=30)
@@ -45,6 +45,17 @@ with tempfile.TemporaryDirectory(dir=parent) as directory:
     failed_env={**ci,'PATH':str(fakebin)+os.pathsep+ci['PATH'],'XDG_CACHE_HOME':str(base/'empty-cache')}
     run([str(source/'adapter.sh'),'start-ci'],failed_env)
     assert jobenv.read_text()=='ORIGINAL_CACHE=retained\n'
+    class ExistingService(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):self.send_response(200);self.end_headers();self.wfile.write(b'healthy')
+        def log_message(self,*args):pass
+    server=http.server.ThreadingHTTPServer(('127.0.0.1',0),ExistingService)
+    thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    try:
+        run([str(source/'adapter.sh'),'start-ci'],{**ci,'R2_ADAPTER_PORT':str(server.server_port)})
+        assert jobenv.read_text()=='ORIGINAL_CACHE=retained\n'
+        assert not (base/'beep-r2-adapter.pid').exists()
+        assert thread.is_alive()
+    finally:server.shutdown();server.server_close();thread.join(timeout=5)
     pid=None
     try:
         run([str(source/'adapter.sh'),'start-ci'],ci)
@@ -63,5 +74,39 @@ with tempfile.TemporaryDirectory(dir=parent) as directory:
         if pid:
             try:os.kill(pid,15)
             except ProcessLookupError:pass
-print('PASS: enrollment, rollback preservation, duplicate/raw-token refusal, CI fallback, secret isolation, runner tracking and exact-process cleanup.')
+    # Render install with an inert op executable; no vault operation is performed.
+    real_systemctl=shutil.which('systemctl');fixturebin=base/'bin space % dollar$';fixturebin.mkdir()
+    cfgroot=base/'config space % dollar$';dataroot=base/'data space % dollar$'
+    fixturecfg=cfgroot/'beep/r2-cache/workstation.env';fixturecfg.parent.mkdir(parents=True)
+    fixturecfg.write_text('R2_ACCESS_KEY_ID=op://fixture/item/key\nR2_SECRET_ACCESS_KEY=op://fixture/item/secret\nTURBO_TOKEN=op://fixture/item/bearer\nTURBO_TEAM=fixture\n')
+    argsfile=base/'op-argv.jsonl';fakeop=fixturebin/'op';fakecontrol=fixturebin/'systemctl'
+    fakeop.write_text('#!/usr/bin/python3\nimport json,sys\nfrom pathlib import Path\nwith Path('+repr(str(argsfile))+').open("a") as out:out.write(json.dumps(sys.argv[1:])+"\\n")\n')
+    fakeop.chmod(0o700);fakecontrol.write_text('#!/bin/sh\nexit 0\n');fakecontrol.chmod(0o700)
+    install_env={**os.environ,'PATH':str(fixturebin)+os.pathsep+os.environ['PATH'],'XDG_CONFIG_HOME':str(cfgroot),'XDG_DATA_HOME':str(dataroot),'XDG_STATE_HOME':str(base/'install-state')}
+    run([str(source/'workstation.sh'),'install'],install_env)
+    client=(fixturecfg.with_name('client.env')).read_text();assert 'R2_SECRET_ACCESS_KEY' not in client
+    rendered=cfgroot/'systemd/user/beep-turbo-r2.service'
+    manager_env={**os.environ,'XDG_RUNTIME_DIR':'/run/user/'+str(os.getuid()),'DBUS_SESSION_BUS_ADDRESS':'unix:path=/run/user/'+str(os.getuid())+'/bus'}
+    if real_systemctl and run([real_systemctl,'--user','is-active','default.target'],manager_env,False).returncode==0:
+        unit='beep-turbo-r2-fixture-'+uuid.uuid4().hex+'.service'
+        runtime=pathlib.Path(manager_env['XDG_RUNTIME_DIR'])/'systemd/user';runtime.mkdir(parents=True,exist_ok=True)
+        unitfile=runtime/unit;unitfile.write_text(rendered.read_text())
+        try:
+            run([real_systemctl,'--user','daemon-reload'],manager_env)
+            started=run([real_systemctl,'--user','start',unit],manager_env,False)
+            if started.returncode:
+                detail=run([real_systemctl,'--user','show',unit,'--property=Result,ExecMainStatus,ExecStart'],manager_env,False)
+                raise AssertionError('Inert fixture service failed: '+detail.stdout)
+            expected=['run','--env-file='+str(fixturecfg),'--',str(dataroot/'beep/r2-cache/adapter.sh'),'serve']
+            for _ in range(100):
+                calls=[json.loads(line) for line in argsfile.read_text().splitlines()]
+                if expected in calls:break
+                time.sleep(.05)
+            else:raise AssertionError('Rendered user service did not preserve exact arguments')
+            print('PASS: installed user-service argument parsing with spaces, percent and dollar characters; inert op only.')
+        finally:
+            run([real_systemctl,'--user','stop',unit],manager_env,False)
+            unitfile.unlink(missing_ok=True);run([real_systemctl,'--user','daemon-reload'],manager_env,False)
+    else:print('SKIP: live user-service parsing requires an active systemd user manager.')
+print('PASS: enrollment, rollback preservation, duplicate/raw-token refusal, occupied-port/startup fallback, secret isolation, runner tracking and exact-process cleanup.')
 PY
