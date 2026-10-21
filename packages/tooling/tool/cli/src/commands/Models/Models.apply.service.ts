@@ -8,7 +8,6 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { A, O, Str } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
-import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
@@ -20,7 +19,6 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -28,6 +26,7 @@ import * as Semaphore from "effect/Semaphore";
 import { getNodeValue } from "jsonc-parser";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
 import { collectText } from "../../internal/process/StepExec.ts";
+import { makePublicationLedger, publicationSuffix } from "../../internal/publication/PublicationLedger.ts";
 import {
   ModelsExchangeFault,
   ModelsExchangeLaunchError,
@@ -39,7 +38,6 @@ import {
   ModelsExchangeFilesystemIdentity,
   ModelsExchangeMount,
   ModelsExchangeQualification,
-  ModelsPublicationOwner,
   ModelsPublicationRole,
   ModelsPublicationState,
   ModelsRecoveryReport,
@@ -60,7 +58,6 @@ import {
   modelsWritePreflight,
   modelsWriteSpans,
 } from "./Models.spans.ts";
-import type * as PlatformError from "effect/PlatformError";
 import type {
   ModelsExchangeUnsupportedReason,
   ModelsPublicationStep,
@@ -83,8 +80,6 @@ const pendingState = ModelsPublicationState.isAnyOf([
   "recovering",
 ]);
 const isRecoveryState = ModelsPublicationState.isAnyOf(["recovering", "recovered", "refused", "abandoned"]);
-const encodeOwner = S.encodeEffect(S.fromJsonString(ModelsPublicationOwner));
-const decodeOwner = S.decodeEffect(S.fromJsonString(ModelsPublicationOwner));
 // Explicit restore also retries a publication automatic recovery refused.
 const retryableState = ModelsPublicationState.isAnyOf([
   "intent",
@@ -96,18 +91,6 @@ const retryableState = ModelsPublicationState.isAnyOf([
   "refused",
 ]);
 const textBytes = (text: string) => new TextEncoder().encode(text);
-// procfs `stat`: "pid (comm) state ..." where comm may hold spaces or parens,
-// so fields are counted after the last ")". Field 3 is the state and field 22
-// the start time in clock ticks since boot.
-const parseProcessStat = (text: string) => {
-  const close = text.lastIndexOf(")");
-  const pid = Number.parseInt(text, 10);
-  const fields = Str.split(Str.trim(text.slice(close + 1)), " ");
-  return O.all({ state: A.get(fields, 0), startTicks: A.get(fields, 19) }).pipe(
-    O.filter(() => close > 0 && Number.isSafeInteger(pid)),
-    O.map((entry) => ({ ...entry, pid }))
-  );
-};
 // What recovery finds on one recorded path: nothing, a symlink or non-regular
 // entry it never removes, or a regular file and the SHA-256 of its bytes.
 const Observation = S.TaggedUnion({ absent: {}, foreign: {}, file: { hash: S.String } });
@@ -676,6 +659,49 @@ export const makeModelsAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(f
   return ModelsAtomicExchange.of({ exchange, qualify });
 });
 
+// renameat2(AT_FDCWD, left, AT_FDCWD, right, RENAME_EXCHANGE) through glibc. A
+// refusal prints the C strerror text, which classifies like mv's own refusals.
+const renameExchangeScript = A.join(
+  [
+    "import ctypes, os, sys",
+    "libc = ctypes.CDLL(None, use_errno=True)",
+    "if libc.renameat2(-100, os.fsencode(sys.argv[1]), -100, os.fsencode(sys.argv[2]), 2) != 0:",
+    "    sys.stderr.write('renameat2: cannot exchange: ' + os.strerror(ctypes.get_errno()) + '\\n')",
+    "    sys.exit(1)",
+  ],
+  "\n"
+);
+
+/**
+ * Whether a failed `mv --exchange` run means the option itself is missing.
+ *
+ * **Details**
+ *
+ * GNU coreutils before 9.5 (and other `mv` implementations) reject the option
+ * as unrecognized. That says nothing about the target filesystem, so the live
+ * exchange primitive retries through the glibc `renameat2` wrapper instead of
+ * reporting an `unknown` refusal. Any other failure is the host's answer.
+ *
+ * **Example** (Recognize a missing option)
+ *
+ * ```ts
+ * import { modelsExchangeOptionMissing } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ *
+ * console.log(modelsExchangeOptionMissing(1, "mv: unrecognized option '--exchange'")) // true
+ * console.log(modelsExchangeOptionMissing(1, "mv: cannot exchange 'a' and 'b': Invalid argument")) // false
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsExchangeOptionMissing: {
+  (stderr: string): (code: number) => boolean;
+  (code: number, stderr: string): boolean;
+} = dual(
+  2,
+  (code: number, stderr: string): boolean => code !== 0 && /(?:unrecognized|unknown|invalid) option/i.test(stderr)
+);
+
 const makeExchangeSystemLive = Effect.fn("ModelsExchangeSystem.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -705,23 +731,30 @@ const makeExchangeSystemLive = Effect.fn("ModelsExchangeSystem.make")(function* 
       filesystemType: O.filter(reported, Str.isNonEmpty),
     });
   });
-  const exchange: ModelsExchangeSystemShape["exchange"] = Effect.fnUntraced(function* (left, right) {
-    const [stderr, code] = yield* Effect.scoped(
+  const run = (command: string, args: ReadonlyArray<string>) =>
+    Effect.scoped(
       Effect.gen(function* () {
         const handle = yield* spawner.spawn(
-          ChildProcess.make("mv", ["--exchange", "--no-copy", "--", left, right], {
-            ...cLocale,
-            stdout: "ignore",
-            stderr: "pipe",
-          })
+          ChildProcess.make(command, args, { ...cLocale, stdout: "ignore", stderr: "pipe" })
         );
         return yield* Effect.all([collectText(handle.stderr), handle.exitCode], { concurrency: "unbounded" });
       })
     ).pipe(
       Effect.mapError((error) =>
-        ModelsExchangeLaunchError.make({ message: `Cannot run mv --exchange: ${error.message}`, cause: error })
+        ModelsExchangeLaunchError.make({ message: `Cannot run ${command}: ${error.message}`, cause: error })
       )
     );
+  const exchange: ModelsExchangeSystemShape["exchange"] = Effect.fnUntraced(function* (left, right) {
+    // `--no-target-directory` keeps a directory operand from being read as a
+    // destination folder, so two directories are exchanged rather than nested.
+    const mv = yield* run("mv", ["--exchange", "--no-copy", "--no-target-directory", "--", left, right]);
+    // An mv that predates `--exchange` gives no verdict about the filesystem;
+    // the glibc renameat2 wrapper answers the same question when python3 exists.
+    const [stderr, code] = modelsExchangeOptionMissing(mv[1], mv[0])
+      ? yield* run("python3", ["-I", "-S", "-c", renameExchangeScript, left, right]).pipe(
+          Effect.orElseSucceed(() => mv)
+        )
+      : mv;
     if (code === 0) return;
     return yield* O.match(modelsExchangeHostRefusal(code, stderr), {
       onNone: () =>
@@ -751,6 +784,32 @@ const makeAtomicExchangeLive = () => makeExchangeSystemLive().pipe(Effect.flatMa
  * @since 0.0.0
  */
 export const ModelsAtomicExchangeLive = Layer.effect(ModelsAtomicExchange, makeAtomicExchangeLive());
+
+/**
+ * The atomic-exchange capability in context, or the live one when none is provided.
+ *
+ * **Details**
+ *
+ * Every journaled writer (the `beep models` writer and the skills projection
+ * writer) takes its capability this way, so a test or a fixture that provides
+ * {@link ModelsAtomicExchange} replaces the host primitives for all of them,
+ * and {@link ModelsAtomicExchange.qualify} stays the only capability gate.
+ *
+ * **Example** (Resolve the capability)
+ *
+ * ```ts
+ * import { modelsAtomicExchangeOrLive } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(modelsAtomicExchangeOrLive)) // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const modelsAtomicExchangeOrLive = Effect.serviceOption(ModelsAtomicExchange).pipe(
+  Effect.flatMap(O.match({ onNone: makeAtomicExchangeLive, onSome: Effect.succeed }))
+);
 
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -783,31 +842,17 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   });
   const hash = (text: string) => hashBytes(textBytes(text));
   const io = ModelsLocatorError.mapError("Native configuration I/O failed.");
-  // Exclusive create, full write and fsync before the handle closes.
-  const writeDurable = Effect.fnUntraced(function* (file: string, bytes: Uint8Array) {
-    yield* Effect.scoped(
-      Effect.gen(function* () {
-        const handle = yield* fs.open(file, { flag: "wx", mode: 0o600 });
-        yield* handle.writeAll(bytes);
-        yield* handle.sync;
-      })
-    ).pipe(io);
-  });
-  const syncDirectory = (directory: string) =>
-    Effect.scoped(Effect.flatMap(fs.open(directory, { flag: "r" }), (handle) => handle.sync)).pipe(Effect.ignore);
+  // Durable writes, journal records and owner liveness are the shared ledger
+  // primitives, built over this writer's FileSystem.
+  const ledger = yield* makePublicationLedger();
+  const writeDurable = (file: string, bytes: Uint8Array) => ledger.writeDurable(file, bytes).pipe(io);
   const readNative = Effect.fnUntraced(function* (file: string) {
     const bytes = yield* fs.readFile(file).pipe(io);
     return yield* modelsNativeText(bytes);
   });
-  const suffix = Effect.gen(function* () {
-    const now = yield* DateTime.now;
-    const salt = yield* Random.nextIntBetween(0, 0xffffff);
-    return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
-  });
+  const suffix = Effect.map(publicationSuffix, (unique) => `models-${unique}`);
 
-  const { exchange, qualify } = yield* Effect.serviceOption(ModelsAtomicExchange).pipe(
-    Effect.flatMap(O.match({ onNone: makeAtomicExchangeLive, onSome: Effect.succeed }))
-  );
+  const { exchange, qualify } = yield* modelsAtomicExchangeOrLive;
   // The retained fail-closed boundary: every write and restore qualifies its
   // actual target filesystem before any backup, journal, staging or exchange.
   const requireExchange = Effect.fnUntraced(function* (target: string) {
@@ -899,14 +944,8 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     journal: ModelsApplyJournal,
     exclusive: boolean
   ) {
-    const file = path.join(backupDirectory, `${journal.id}.json`);
-    const partial = `${file}.${yield* Random.nextIntBetween(0, 0xffffff)}.partial`;
     const encoded = yield* encodeJournal(journal).pipe(ModelsLocatorError.mapError("Cannot encode recovery journal."));
-    yield* writeDurable(partial, textBytes(encoded)).pipe(
-      Effect.andThen((exclusive ? fs.link(partial, file) : fs.rename(partial, file)).pipe(io)),
-      Effect.ensuring(Effect.ignore(fs.remove(partial)))
-    );
-    yield* syncDirectory(backupDirectory);
+    yield* ledger.publishRecord(backupDirectory, `${journal.id}.json`, textBytes(encoded), exclusive).pipe(io);
   });
 
   const publicationOf = (journal: ModelsApplyJournal, role: ModelsPublicationRole) =>
@@ -945,33 +984,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     retained: `${file}.${operation}.preimage`,
   });
 
-  // Process identity from procfs: boot id plus pid and start time, so a dead or
-  // reused pid never reads as the owner.
-  const bootId = fs.readFileString("/proc/sys/kernel/random/boot_id").pipe(Effect.map(Str.trim), Effect.option);
-  const processStat = (pid: string) =>
-    fs.readFileString(`/proc/${pid}/stat`).pipe(Effect.option, Effect.map(O.flatMap(parseProcessStat)));
-  const currentOwner = Effect.gen(function* () {
-    const boot = yield* bootId;
-    const stat = yield* processStat("self");
-    return O.isSome(boot) && O.isSome(stat) && Str.isNonEmpty(boot.value)
-      ? O.some(
-          ModelsPublicationOwner.make({ bootId: boot.value, pid: stat.value.pid, startTicks: stat.value.startTicks })
-        )
-      : O.none<ModelsPublicationOwner>();
-  });
-  const ownerAlive = Effect.fnUntraced(function* (owner: O.Option<ModelsPublicationOwner>) {
-    if (O.isNone(owner)) return false;
-    const boot = yield* bootId;
-    // A recorded owner proves procfs worked at write time; an unreadable boot id
-    // now is an anomaly, so recovery stays out of the way.
-    if (O.isNone(boot)) return true;
-    if (boot.value !== owner.value.bootId) return false;
-    const stat = yield* processStat(`${owner.value.pid}`);
-    return O.exists(
-      stat,
-      (entry) => entry.startTicks === owner.value.startTicks && entry.state !== "Z" && entry.state !== "X"
-    );
-  });
+  const { currentOwner, ownerAlive } = ledger;
 
   const observe = Effect.fnUntraced(function* (file: string) {
     if (O.isSome(yield* fs.readLink(file).pipe(Effect.option))) return Observation.cases.foreign.make({});
@@ -981,97 +994,18 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return Observation.cases.file.make({ hash: yield* hashBytes(yield* fs.readFile(file).pipe(io)) });
   });
   // Removal tolerates an artifact another recoverer or a cleanup already removed.
-  const discard = (file: string) =>
-    fs.remove(file).pipe(
-      Effect.catchTag("PlatformError", (error) =>
-        error.reason._tag === "NotFound" ? Effect.void : Effect.fail(error)
-      ),
-      io
-    );
+  const discard = (file: string) => ledger.discard(file).pipe(io);
 
-  // The exclusive per-journal recovery lock `<id>.recovering`. The owner stamp is
-  // written and fsynced to a uniquely named sibling first, then published with
-  // `link`, which fails with EEXIST when a lock exists: the lock is never visible
-  // without its complete stamp. Only EEXIST means "held"; every other failure is
-  // a typed `lock-unavailable` refusal, mapped from the platform error code.
-  const lockPath = (backupDirectory: string, id: string) => path.join(backupDirectory, `${id}.recovering`);
-  const lockUnavailable = (lock: string) => (error: PlatformError.PlatformError) =>
-    ModelsLocatorError.make({
-      reason: "lock-unavailable",
-      path: lock,
-      message: `Cannot create the recovery lock (${error.reason._tag}); refusing recovery.`,
-    });
-  const createLock = Effect.fnUntraced(function* (lock: string) {
-    const stamp = yield* O.match(yield* currentOwner, {
-      onNone: () => Effect.succeed(""),
-      onSome: (owner) => encodeOwner(owner).pipe(ModelsLocatorError.mapError("Cannot encode recovery lock.")),
-    });
-    const sibling = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.stamp`;
-    const staged = Effect.scoped(
-      Effect.gen(function* () {
-        const handle = yield* fs.open(sibling, { flag: "wx", mode: 0o600 });
-        yield* handle.writeAll(textBytes(stamp));
-        yield* handle.sync;
-      })
-    ).pipe(Effect.mapError(lockUnavailable(lock)));
-    const published = fs.link(sibling, lock).pipe(
-      Effect.as(true),
-      Effect.catchTag("PlatformError", (error) =>
-        error.reason._tag === "AlreadyExists" ? Effect.succeed(false) : error.pipe(lockUnavailable(lock), Effect.fail)
-      )
-    );
-    const held = yield* staged.pipe(Effect.andThen(published), Effect.ensuring(Effect.ignore(fs.remove(sibling))));
-    yield* syncDirectory(path.dirname(lock));
-    return held;
-  });
-  // A stamp that does not decode is never read as a dead owner while it is
-  // recent: it may belong to a writer from an older or newer version, or a
-  // host without procfs. Past the grace period, measured against a fresh file's
-  // mtime on the same filesystem rather than a clock, it is stale.
-  const unreadableLockGraceMillis = 10 * 60 * 1000;
-  const unreadableLockStale = Effect.fnUntraced(function* (lock: string) {
-    const lockTime = O.flatMap(yield* fs.stat(lock).pipe(Effect.option), (info) => info.mtime);
-    const probe = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.clock`;
-    const nowTime = yield* fs.writeFileString(probe, "", { flag: "wx", mode: 0o600 }).pipe(
-      Effect.andThen(fs.stat(probe)),
-      Effect.map((info) => info.mtime),
-      Effect.option,
-      Effect.map(O.flatten),
-      Effect.ensuring(Effect.ignore(fs.remove(probe)))
-    );
-    return O.isSome(lockTime) && O.isSome(nowTime)
-      ? nowTime.value.getTime() - lockTime.value.getTime() > unreadableLockGraceMillis
-      : false;
-  });
-  const lockHolderAlive = Effect.fnUntraced(function* (lock: string, stamp: string) {
-    const owner = yield* decodeOwner(stamp).pipe(Effect.option);
-    if (O.isSome(owner)) return yield* ownerAlive(owner);
-    return !(yield* unreadableLockStale(lock));
-  });
-  // A stale lock is renamed aside and reclaimed only when the renamed bytes are
-  // still the stale bytes read, so a fresh lock taken meanwhile is put back.
-  const reclaimLock = Effect.fnUntraced(function* (lock: string, stale: string) {
-    const aside = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.stale`;
-    if (O.isNone(yield* fs.rename(lock, aside).pipe(Effect.option))) return false;
-    const moved = yield* fs.readFileString(aside).pipe(Effect.option);
-    if (!O.contains(moved, stale)) {
-      yield* fs.link(aside, lock).pipe(Effect.ignore);
-      yield* discard(aside);
-      return false;
-    }
-    yield* discard(aside);
-    return yield* createLock(lock);
-  });
-  const acquireLock = Effect.fnUntraced(function* (lock: string) {
-    if (yield* createLock(lock)) return true;
-    const stamp = yield* fs.readFileString(lock).pipe(Effect.option);
-    if (O.isNone(stamp)) return yield* createLock(lock);
-    if (yield* lockHolderAlive(lock, stamp.value)) return false;
-    return yield* reclaimLock(lock, stamp.value);
-  });
+  // The exclusive per-journal recovery lock `<id>.recovering` is the shared
+  // ledger's: a fsynced owner stamp published with `link`, where only EEXIST
+  // means "held" and every other failure is a typed `lock-unavailable` refusal.
   const recoveryLock = (backupDirectory: string, id: string) =>
-    Effect.acquireRelease(acquireLock(lockPath(backupDirectory, id)), (held) =>
-      held ? Effect.ignore(discard(lockPath(backupDirectory, id))) : Effect.void
+    ledger.recoveryLock(backupDirectory, id).pipe(
+      Effect.catchTags({
+        PublicationLockUnavailable: (error) =>
+          ModelsLocatorError.make({ reason: "lock-unavailable", path: error.path, message: error.message }),
+        PlatformError: (error) => Effect.fail(error).pipe(io),
+      })
     );
 
   // Recorded paths must be this journal's own artifacts beside its own target,

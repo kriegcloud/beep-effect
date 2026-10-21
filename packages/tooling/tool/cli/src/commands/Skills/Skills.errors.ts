@@ -7,11 +7,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { Err } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
 import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
 import { SkillFrontmatterIssue } from "./SkillFrontmatter.schemas.ts";
+import { SkillPublicationRefusal } from "./SkillsPublication.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.errors");
 
@@ -939,3 +941,56 @@ export class SkillReviewRefusal extends S.TaggedError<SkillReviewRefusal, { read
     description: "A skills review answer was not recorded because it does not fit a single queued hunk.",
   })
 ) {}
+
+/**
+ * A skill file or directory publication, or its recovery, failed.
+ *
+ * **Details**
+ *
+ * `reason` is set when the refusal has a typed cause (see
+ * {@link SkillPublicationRefusal}); an I/O failure carries only its message.
+ * `journal` names the publication journal once one was written, so the
+ * operator can run `beep skills recover` against it. A failure never removes
+ * a recovery artifact.
+ *
+ * **Example** (Create an unsupported-filesystem refusal)
+ *
+ * ```ts
+ * import { SkillPublicationError } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillPublicationError.make({
+ *   reason: "exchange-unsupported",
+ *   target: "/repo/.claude/skills/grill-me",
+ *   message: "Atomic exchange unsupported on the target filesystem.",
+ * })
+ * console.log(error.reason) // "exchange-unsupported"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillPublicationError extends S.TaggedError<SkillPublicationError, { readonly brand: unique symbol }>(
+  $I`SkillPublicationError`
+)(
+  "SkillPublicationError",
+  {
+    message: S.String,
+    reason: S.optionalKey(SkillPublicationRefusal),
+    target: S.optionalKey(S.String),
+    journal: S.optionalKey(S.String),
+    cause: S.optionalKey(OpaqueDefect),
+  },
+  $I.annoteError<SkillPublicationError>("SkillPublicationError", {
+    title: "Skill Publication Error",
+    description: "A skill file or directory publication, or its recovery, failed and kept its artifacts.",
+  })
+) {
+  static readonly mapError = Err.mapCauseError<SkillPublicationError, [message: string, target?: string]>(
+    (cause, message, target) =>
+      SkillPublicationError.make({
+        cause,
+        message: messageWithCause(message, cause),
+        ...O.getSomesStruct({ target: O.fromUndefinedOr(target) }),
+      })
+  );
+}
