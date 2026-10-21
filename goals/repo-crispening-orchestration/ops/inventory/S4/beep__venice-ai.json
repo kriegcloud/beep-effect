@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts",
+    "file": "retired:venice-ai/src/VeniceAiLanguageModel.service.ts",
     "line": 219,
     "symbol": "model",
     "smell": "Detector hit: exported 2-arg helper is not `dual`.",

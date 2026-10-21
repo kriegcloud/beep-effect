@@ -47,7 +47,6 @@ describe("Semantica runtime layer", () => {
         assertSome(config.corpusRoot, "/fixtures/w1");
         expect(config.extractorModel).toBe(ANTHROPIC_DEFAULT_MODEL);
         expect(config.goldDirectory).toBe("fixtures/gold/v1");
-        expect(config.goldModel).toBe("grok-4.6");
         expect(config.ledgerRoot).toBe(".beep/semantica/ledger");
         expect(config.mode).toBe("replay");
         pipe(config.offline, assertTrue);
@@ -62,7 +61,6 @@ describe("Semantica runtime layer", () => {
         const config = yield* LabConfig;
 
         assertNone(config.corpusRoot);
-        expect(config.goldModel).toBe("grok-4.6");
         expect(config.mode).toBe("live");
         pipe(config.offline, assertFalse);
         expect(config.providerCacheDirectory).toBe(".beep/semantica/provider-cache");

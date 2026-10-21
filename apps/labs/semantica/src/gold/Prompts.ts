@@ -1,5 +1,6 @@
 import { canonicalJson } from "@/corpus/Canonical";
 import { sha256TextSync } from "@/schema/Digest";
+import { ModelIdentity } from "@/schema/Model";
 import type { GoldFile } from "@/schema/Gold";
 
 /**
@@ -37,8 +38,8 @@ For SUBSET=relation, each label is:
  *
  * **Details**
  *
- * C0 uses the xAI adapter defaults, so the explicit option object is empty and
- * still participates in the artifact hash.
+ * gold-v1 was proposed with the xAI adapter defaults, so the explicit option
+ * object is empty. It still participates in the frozen artifact hash.
  *
  * @category configuration
  * @since 0.0.0
@@ -63,6 +64,36 @@ const GOLD_PROPOSER_OPTIONS = {};
 export const GOLD_PROMPT_ARTIFACT_HASH = sha256TextSync(
   canonicalJson({ options: GOLD_PROPOSER_OPTIONS, template: GOLD_PROMPT_TEMPLATE })
 );
+
+/**
+ * Frozen proposer identity recorded by every committed gold-v1 file.
+ *
+ * **Details**
+ *
+ * gold-v1 was proposed by xAI `grok-4.6`. No live xAI provider remains, so
+ * `canary gold propose` only replays cached responses under this identity.
+ * The provider stays a different family from the Anthropic extractor, which
+ * the `EvalRun` independence refinement requires.
+ *
+ * **Example** (Inspect the frozen gold-v1 proposer)
+ *
+ * ```ts
+ * import { GOLD_V1_PROPOSER_IDENTITY } from "@/gold/Prompts"
+ *
+ * console.log(GOLD_V1_PROPOSER_IDENTITY.provider) // "xai"
+ * console.log(GOLD_V1_PROPOSER_IDENTITY.taskType) // "gold-proposal"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const GOLD_V1_PROPOSER_IDENTITY = ModelIdentity.make({
+  artifactHash: GOLD_PROMPT_ARTIFACT_HASH,
+  name: "grok-4.6",
+  provider: "xai",
+  revision: "grok-4.6",
+  taskType: "gold-proposal",
+});
 
 /**
  * Renders one paper/subset request for the independent proposer.

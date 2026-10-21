@@ -22,5 +22,5 @@ export * from "../commands/Research/Library/Library.integrity.ts";
 export * from "../commands/Research/Library/Library.provenance.ts";
 export { mergeLibraryVersions } from "../commands/Research/Library/Library.store.ts";
 export * from "../commands/Research/Library/Library.versions.ts";
-export { acquireLibraryPaper, acquireLibraryWeb } from "../commands/Research/Library/Library.web.ts";
+export { acquireLibraryPaper } from "../commands/Research/Library/Library.web.ts";
 export { acquireLibraryYoutube, libraryCaptionProvenance } from "../commands/Research/Library/Library.youtube.ts";

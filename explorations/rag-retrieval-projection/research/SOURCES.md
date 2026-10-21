@@ -238,7 +238,7 @@ Marked reuse / extend / NET-NEW. Paths verified in RES on 2026-06-29.
   this packet is the designated single owner.
 - **Local text-embedding pipeline** (runtime-neutral port; provisional
   `nomic-embed-text-v1.5`, with final model selected by bake-off) — NOT FOUND (only ONNX usage
-  is image `@beep/face-detection`).
+  is image `retired:face-detection`).
 - **Offset-preserving char-span chunker** (windowing/sectionizer between `@beep/md` and
   `@beep/langextract`) — NOT FOUND; the aligner exists, the slicer does not.
 - **AGPL-clean MinHash/LSH evidence-cluster dedup** — NET-NEW, clean-room from MIT `datasketch`.

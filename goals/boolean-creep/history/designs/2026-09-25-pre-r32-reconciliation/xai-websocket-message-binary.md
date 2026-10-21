@@ -3,13 +3,13 @@
 - id: `xai-websocket-message-binary`
 - exact source SHA: `f137beedb270a071d4aa2ecc1dd52a9d233044d1`
 - P2 refresh only; independent P3 and implementation remain pending.
-- file:line: `packages/drivers/xai/src/XAi.models.ts:469`
+- file:line: `retired:xai/src/XAi.models.ts:469`
 - symbol: `XAiWebSocketEvent`
 - members: `isBinary`, `bytes`, `text`
 - evidence classes:
-  - E3/E1 at `packages/drivers/xai/src/XAi.service.ts:703-721` — the WebSocket callback writes either `isBinary: true` with bytes or `isBinary: false` with text and decoded-or-raw data.
+  - E3/E1 at `retired:xai/src/XAi.service.ts:703-721` — the WebSocket callback writes either `isBinary: true` with bytes or `isBinary: false` with text and decoded-or-raw data.
 - Additional supported-constructor evidence at
-  `packages/drivers/xai/src/XAi.models.ts:456-463,518-522`: documented text
+  `retired:xai/src/XAi.models.ts:456-463,518-522`: documented text
   messages may omit `isBinary`. This is compatibility evidence, not an E2
   exclusive-read claim.
 
@@ -29,7 +29,7 @@ type XAiWebSocketEventMember<T extends XAiWebSocketEventKind> = {
 };
 ```
 
-For message events, `isBinary` has three representable states—absent, false, or true—and bytes/text each have absent/present states. The schema and type are re-exported by `packages/drivers/xai/src/index.ts` and are the element type of `XAiWebSocketSession.events` at `XAi.service.ts:146`. The package is `private: true`; repository search finds no persistence, RPC, outbound network encoding, or consumer outside the package tests and service.
+For message events, `isBinary` has three representable states—absent, false, or true—and bytes/text each have absent/present states. The schema and type are re-exported by `retired:xai/src/index.ts` and are the element type of `XAiWebSocketSession.events` at `retired:xai/src/XAi.service.ts:146`. The package is `private: true`; repository search finds no persistence, RPC, outbound network encoding, or consumer outside the package tests and service.
 
 # Cardinality gap
 
@@ -64,21 +64,21 @@ Keep the current close and error members unchanged, including all six optional f
 
 # Migration inventory
 
-- `packages/drivers/xai/src/XAi.models.ts:395-438` — retain `XAiWebSocketEventKind` and its exports.
-- `packages/drivers/xai/src/XAi.models.ts:440-527` — add the binary/text message kind and member schemas; retain the existing close/error member field shape; replace only the outer message member with required `message: XAiWebSocketMessage`; update both message examples to the nested text case with `data: O.none()` or the constructor-supported default.
-- `packages/drivers/xai/src/index.ts:72` — retain the root model re-export; the decoded TypeScript and internal schema encoding migrate atomically under the same `XAiWebSocketEvent` name.
-- `packages/drivers/xai/src/XAi.service.ts:144-150` — retain `XAiWebSocketSession.events: Stream.Stream<XAiWebSocketEvent>`.
-- `packages/drivers/xai/src/XAi.service.ts:18-39,703-719` — move XAiWebSocketEvent from its type-only import into the runtime import and add XAiWebSocketMessage; construct the binary case from bytes and the text case from text plus `O.some(decodedOrRawData)`; remove the copied callback boolean from the returned domain event. The `ws` callback parameter remains unchanged at the external-library boundary.
-- `packages/drivers/xai/src/XAi.service.ts:791-802` — stream construction is unchanged; close/error writers retain their exact current objects and are accepted by the unchanged member schemas.
-- `packages/drivers/xai/test/XAi.service.test.ts:27,46,106` — retain the package-alias schema import and update its schema-derived arbitrary transitively.
-- `packages/drivers/xai/test/XAi.service.test.ts:316-320,372-376,383,434` — the direct close decode, exact close encode, invalid-close assertion, and arbitrary round trip stay unchanged because close is outside the migrated message member.
+- `retired:xai/src/XAi.models.ts:395-438` — retain `XAiWebSocketEventKind` and its exports.
+- `retired:xai/src/XAi.models.ts:440-527` — add the binary/text message kind and member schemas; retain the existing close/error member field shape; replace only the outer message member with required `message: XAiWebSocketMessage`; update both message examples to the nested text case with `data: O.none()` or the constructor-supported default.
+- `retired:xai/src/index.ts:72` — retain the root model re-export; the decoded TypeScript and internal schema encoding migrate atomically under the same `XAiWebSocketEvent` name.
+- `retired:xai/src/XAi.service.ts:144-150` — retain `XAiWebSocketSession.events: Stream.Stream<XAiWebSocketEvent>`.
+- `retired:xai/src/XAi.service.ts:18-39,703-719` — move XAiWebSocketEvent from its type-only import into the runtime import and add XAiWebSocketMessage; construct the binary case from bytes and the text case from text plus `O.some(decodedOrRawData)`; remove the copied callback boolean from the returned domain event. The `ws` callback parameter remains unchanged at the external-library boundary.
+- `retired:xai/src/XAi.service.ts:791-802` — stream construction is unchanged; close/error writers retain their exact current objects and are accepted by the unchanged member schemas.
+- `retired:xai/test/XAi.service.test.ts:27,46,106` — retain the package-alias schema import and update its schema-derived arbitrary transitively.
+- `retired:xai/test/XAi.service.test.ts:316-320,372-376,383,434` — the direct close decode, exact close encode, invalid-close assertion, and arbitrary round trip stay unchanged because close is outside the migrated message member.
 - Add focused schema cases for nested binary, text with `Some(data)`, and text with the omitted/defaulted `None` payload. Add service callback coverage for both SDK `isBinary` values through a controlled WebSocket mock behind the public service. Do not export the private parser merely for tests; the current test suite has no successful socket callback harness, so implementing that harness is an explicit P4 obligation.
 
 Repository-wide exact search finds no other source or test writer, reader, encoder, or decoder of `XAiWebSocketEvent`.
 
 # Runtime construction and ordering
 
-At `XAi.service.ts:703-719`, binary construction becomes:
+At `retired:xai/src/XAi.service.ts:703-719`, binary construction becomes:
 
 ```ts
 return XAiWebSocketEvent.cases.message.make({
@@ -107,25 +107,25 @@ Connection failures before open remain `XAiError` failures in `connectSocket:746
 
 # Guard-deletion accounting
 
-- Delete the copied `isBinary` writes at `XAi.service.ts:707,715`; the callback boolean chooses a message member exactly once.
+- Delete the copied `isBinary` writes at `retired:xai/src/XAi.service.ts:707,715`; the callback boolean chooses a message member exactly once.
 - Delete the obligation to keep `isBinary` coherent with bytes versus text.
 - The binary case makes bytes required and text unavailable. The text case makes text required and bytes unavailable while retaining optional decoded data honestly.
 - Do not delete or tighten any close/error field or guard as part of this instance. There is no current downstream defensive if-chain over message fields to claim as deleted. The actual deletions are the message-member optional bytes/text/isBinary schema bag, its shared handwritten type participation, and the copied isBinary writes. The boundary `if (isBinary)` remains necessary to select the case once.
 
 # Encoded-side impact
 
-The internal message schema encoding changes deliberately from flat `{ kind: "message", isBinary?, bytes?, text?, data? }` to a nested binary/text member. This is not the xAI WebSocket frame encoding: the external `ws` callback remains the boundary and no driver event is serialized back to xAI. `@beep/xai` is private, no persisted/RPC/external-package consumer exists in the repository, and the current codec uses are package tests. These inspected internal-only uses support the proposed encoding change without a Tier 2 compatibility codec; the decoded-TypeScript rider alone is not blanket encoded-change authorization. Independent P3 must verify this boundary before implementation.
+The internal message schema encoding changes deliberately from flat `{ kind: "message", isBinary?, bytes?, text?, data? }` to a nested binary/text member. This is not the xAI WebSocket frame encoding: the external `ws` callback remains the boundary and no driver event is serialized back to xAI. `retired:xai` is private, no persisted/RPC/external-package consumer exists in the repository, and the current codec uses are package tests. These inspected internal-only uses support the proposed encoding change without a Tier 2 compatibility codec; the decoded-TypeScript rider alone is not blanket encoded-change authorization. Independent P3 must verify this boundary before implementation.
 
 The documented text-only semantic case is preserved by the text member's defaulted `Option<data>`; its source syntax and internal encoded shape change with the exported model. Close/error encoded shapes and accepted inputs remain unchanged. Message code/reason have no producer, documented constructor or reader evidence; their incidental permissiveness is not a reason to add them to the new message domain. This atomic internal migration preserves evidenced message semantics rather than every formerly representable incoherent object. Default excess-property handling remains unchanged; no strict unknown-key policy is introduced.
 
 # Test impact
 
-- Keep the existing close fixture and its exact encoded output unchanged at `XAi.service.test.ts:316-320,372-376`.
+- Keep the existing close fixture and its exact encoded output unchanged at `retired:xai/test/XAi.service.test.ts:316-320,372-376`.
 - Keep the invalid close-code failure at line 383 unchanged.
 - The schema-derived arbitrary and round trip at lines 106 and 434 migrate to the new message member while continuing to cover unchanged close/error members.
 - Add exact round trips for binary, text with data, and text without data. For the text-without-data case, assert decode supplies `None` and re-encoding matches the new canonical omitted-key form.
 - Preserve sendBytes/sendText/sendJson behavior; those outbound session methods are independent of the inbound event carrier.
-- Run `bun run beep quality package-verify @beep/xai` before package handoff, then the canonical campaign Yeet checks. Determine changeset requirements from the implementation landing rules; this P2 audit does not establish a new patch-changeset requirement.
+- Run `bun run beep quality package-verify retired:xai` before package handoff, then the canonical campaign Yeet checks. Determine changeset requirements from the implementation landing rules; this P2 audit does not establish a new patch-changeset requirement.
 
 Additional mandatory implementation fixtures:
 

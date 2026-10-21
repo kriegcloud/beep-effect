@@ -203,6 +203,7 @@ Goal 1 executes against, cited by row and amendment id, one line each.
 | R1 (PR #802 review) | `EvalReport` = content-addressed replay-stable payload (`reportDigest` = sha256 over the canonical JSON of the report body with the `reportDigest` field omitted); per-run Tier-L/Tier-D numbers live in an `EvalRunTelemetry` sidecar never compared for identity. |
 | R2 (PR #802 review) | Every stage pass includes the full W1 manifest + F1 run, live and replay, with equal digests and zero unexpected typed-degraded document failures — the F1 malformed specimens are expected to decode to their declared degraded states; any W1 paper degrading fails the gate — before any verdict. |
 | R3 (PR #802 review) | C1 checks committed `G-projection` expectations (known kNN neighbour pair, non-empty SPARQL results) before rebuild identity; empty projections fail. |
+| Proposer retirement (2026-10-21) | The live gold proposer retired with `retired:xai` (operator request, branch `chore/remove-unused-drivers`); `gold/v1` stays frozen under `GOLD_V1_PROPOSER_IDENTITY` and `gold propose` is replay-only; the S2 independence law is unchanged. Reverse by restoring the provider layer from commit `426d494b34`. |
 
 ### Explorer/UI milestone (D16, A5, D12)
 

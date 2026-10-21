@@ -61,8 +61,8 @@ Higher sources outrank lower sources when they conflict.
    persistence or cache reuse, interruption/failure recovery, and a re-download
    path. Do not grow this into a general OPFS/model-lifecycle platform.
 7. Privileged audio never routes to cloud services. P0 and P1 must show zero
-   audio network egress; existing xAI, Venice, ElevenLabs, or OpenAI drivers are
-   not slice dependencies.
+   audio network egress; existing ElevenLabs or OpenAI drivers are not slice
+   dependencies.
 8. P0 uses the minimum architecture needed to measure capture, model loading,
    one local worker, Moonshine/Kokoro invocation, composer insertion, playback,
    egress, and teardown. Production ports, provider selection, and generalized

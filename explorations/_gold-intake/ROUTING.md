@@ -103,7 +103,7 @@ Two different lenses pick the Wave-1 graduate-now set, and they only partly agre
 - **agent-memory-tiers-bitemporal-edges** (P2) — four-tier consolidation tier schema + decay/retention scoring + conflict/contradiction edges + never-overwrite bitemporal claim edges + RRF retrieval, graduating into a NEW goal extending the epistemic slice (consuming, not rebuilding, the RRF layer).
 - **mcp-auth-gated-registration** (P2) — conditional/credential-keyed Toolkit composition, tier-gating of write-vs-read tools, a structured api_key_required helper, and progressive-disclosure field tiers across the existing MCP drivers and future per-driver servers.
 - **ingestion-security-secret-governance** (P2) — the defensive ingestion-boundary gate: prompt-injection detection, ordered secret resolution + per-user AES-256-GCM vault, SSRF DNS/redirect hardening, secret/PII/OOXML scrubbing with audit, and failed-redaction x-ray.
-- **multi-provider-llm-dispatch-fallback** (P2) — a shared Effect dispatch Layer owning user-key>env>CLI precedence + Layer.orElse graceful fallback + per-provider default-model resolution across @beep/{anthropic,openai-compat,xai,venice-ai}.
+- **multi-provider-llm-dispatch-fallback** (P2) — a shared Effect dispatch Layer owning user-key>env>CLI precedence + Layer.orElse graceful fallback + per-provider default-model resolution across @beep/{anthropic,openai-compat}, retired:xai, retired:venice-ai.
 - **secure-document-download-proxy** (P2) — a desktop-sidecar UUID/TTL-gated opaque-link proxy serving private @beep/uspto File-Wrapper PDFs with keys kept server-side.
 - **local-first-projection-sync** (P2) — a @beep/workspace-server EventStreamHub for real-time local-first projection refresh after authority writes.
 
@@ -318,7 +318,7 @@ Two different lenses pick the Wave-1 graduate-now set, and they only partly agre
   - NLP tool-surface expansion + streaming suite owned by goals/nlp-adjunct-port — not part of this cluster
 - **rationale:** beep already ships both MCP servers named as gold beep-targets (packages/drivers/nlp-mcp and m365-mcp confirmed present with the full Toolkit + layerStdio scaffold), so the bare-scaffold lessons are dups; the GOLD_SYNTHESIS itself (lines 1572-1697) flags the high-value gaps as conditional/auth-gated registration, progressive-disclosure field tiers, and a structured api_key_required helper. Grep over goals/*/SPEC.md and packages confirms no existing goal owns these and no real src implements requiresAuth/tier-gate/api_key_required, so this is a genuine cross-cutting gap warranting a new packet that coordinates the existing MCP drivers and future per-driver (USPTO) servers rather than extending the NLP- or M365-specific goals.
 - **cautions:**
-  - PatentsView API sunset: api.patentsview.org 301-redirects to data.uspto.gov/odp (HTML not JSON) — encode in @beep/uspto base-URL + UsptoEndpointSunset tagged error; target ODP from the start. Licensing: patents-mcp-server / mcp-uspto / uspto_pfw are MIT and portable; mike is unknown-license and screenpipe/harvest-mcp flagged unknown — reimplement-don't-copy. Scope note: the 'multi-provider auth/LLM fallback layer' strand in this cluster's title spans the four LLM drivers (@beep/anthropic, openai-compat, xai, venice-ai) and is arguably a separate provider-abstraction cluster; keep this packet focused on MCP-side credential-keyed registration + progressive disclosure and cross-link the LLM-fallback work rather than absorbing it.
+  - PatentsView API sunset: api.patentsview.org 301-redirects to data.uspto.gov/odp (HTML not JSON) — encode in @beep/uspto base-URL + UsptoEndpointSunset tagged error; target ODP from the start. Licensing: patents-mcp-server / mcp-uspto / uspto_pfw are MIT and portable; mike is unknown-license and screenpipe/harvest-mcp flagged unknown — reimplement-don't-copy. Scope note: the 'multi-provider auth/LLM fallback layer' strand in this cluster's title spans the four LLM drivers (@beep/anthropic, openai-compat, retired:xai, retired:venice-ai) and is arguably a separate provider-abstraction cluster; keep this packet focused on MCP-side credential-keyed registration + progressive disclosure and cross-link the LLM-fallback work rather than absorbing it.
 
 ### RAG ingestion + char-span chunking
 - **nuggetIds:** Juris.AI#4, LegalEase#5, agentmemory#1, agentmemory#12, courtlistener#10, doc-haus#1, doc-haus#11, doc-haus#6, lawyergpt#2, lawyergpt#3, lawyergpt#4, lawyergpt#6, research-squad#9, uspto-patents-mcp#2
@@ -360,15 +360,15 @@ Two different lenses pick the Wave-1 graduate-now set, and they only partly agre
 
 ### Multi-provider LLM dispatch + graceful fallback
 - **nuggetIds:** Juris.AI#1, TalentScore#2, agentmemory#4, courtlistener#5, harvest-mcp#1, mike#10, research-squad#15, stenoai#2
-- **route:** new-exploration · **primaryTarget:** multi-provider-llm-dispatch-fallback (exists: ✗) · **wave:** P2 (P1 0 / P2 7 / P3 1) · **proposedSlug:** multi-provider-llm-dispatch-fallback · **secondaryTargets:** 8 (explorations/effect-orchestration-patterns, packages/agents/server, drivers/anthropic, drivers/nlp-mcp, drivers/openai-compat, drivers/venice-ai, drivers/xai, @beep/langextract)
+- **route:** new-exploration · **primaryTarget:** multi-provider-llm-dispatch-fallback (exists: ✗) · **wave:** P2 (P1 0 / P2 7 / P3 1) · **proposedSlug:** multi-provider-llm-dispatch-fallback · **secondaryTargets:** 8 (explorations/effect-orchestration-patterns, packages/agents/server, drivers/anthropic, drivers/nlp-mcp, drivers/openai-compat, retired:venice-ai, retired:xai, @beep/langextract)
 - **netNew:**
-  - Shared Effect dispatch Layer owning user-key>env>CLI precedence + Layer.orElse graceful fallback across @beep/{anthropic,openai-compat,xai,venice-ai}
+  - Shared Effect dispatch Layer owning user-key>env>CLI precedence + Layer.orElse graceful fallback across @beep/{anthropic,openai-compat}, retired:xai, retired:venice-ai
   - Per-provider OWN env-driven default-model resolution so a fallback never inherits an incompatible model name
   - Typed PROVIDER_REGISTRY + prefix auto-detect + structured api_key_required/setupInstructions errors
   - Declarative resilience-strategy config (round-robin / ordered-fallback / named retry-policy) re-expressed over effect/ai
   - response_model → effect/Schema-validated structured output binding
 - **alreadyCovered:**
-  - The four per-provider LLM drivers already exist (anthropic/openai-compat/xai/venice-ai); effect/ai Toolkit likely abstracts per-provider tool dispatch (mike#10 study)
+  - The four per-provider LLM drivers already exist (anthropic/openai-compat/retired:xai/retired:venice-ai); effect/ai Toolkit likely abstracts per-provider tool dispatch (mike#10 study)
 - **rationale:** GOLD_SYNTHESIS flags a shared multi-provider dispatch Layer as a real gap: the four LLM drivers exist but no Layer owns user-key>env precedence + graceful fallback + per-provider default-model resolution. Adjacent to but distinct from mcp-auth-gated-registration (MCP-side credential-keyed registration) and ingestion-security (secret storage).
 - **cautions:**
   - BAML (Apache-2.0) client declarations are config-pattern reference only — do not adopt the BAML runtime.

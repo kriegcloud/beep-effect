@@ -130,7 +130,7 @@ First, ground truth, because the packet reads as shipped and is not: `MAP.md:7` 
 0/4 phases, and `rg -i '\brrf\b|reciprocalRank|fuseRanked' packages/**/src/**` returns **nothing**
 (`paper-map-raptor.md` §2, friction receipt 2). Nothing is implemented. Also: there is no vector
 index, no local encoder, and no embedding driver in `packages/**/src` — the only live embedding
-surface is the *hosted* `packages/drivers/venice-ai/src/VeniceAI.service.ts:1117-1123`, which the
+surface is the *hosted* `retired:venice-ai/src/VeniceAI.service.ts:1117-1123`, which the
 locked "zero external egress" encoder decision rules out for privileged text
 (`paper-map-raptor.md` §3). RAPTOR's entire query-time substrate is two queued satellites away
 (`retrieval-vector-projection`, `retrieval-local-encoder`).

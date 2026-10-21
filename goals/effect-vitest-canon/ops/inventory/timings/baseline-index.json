@@ -715,7 +715,7 @@
       "context": "context/baseline/beep_exiftool.json"
     },
     {
-      "package": "@beep/face-detection",
+      "package": "retired:face-detection",
       "state": "accepted-node-command-baseline",
       "capturedAt": "2026-09-11T23:21:30.613165+00:00",
       "exitCode": 0,
@@ -771,7 +771,7 @@
       "context": "context/baseline/beep_file-processing.json"
     },
     {
-      "package": "@beep/firecrawl",
+      "package": "retired:firecrawl",
       "state": "accepted-node-command-baseline",
       "capturedAt": "2026-09-11T23:21:37.945615+00:00",
       "exitCode": 0,
@@ -1863,7 +1863,7 @@
       "context": "context/baseline/beep_utils.json"
     },
     {
-      "package": "@beep/venice-ai",
+      "package": "retired:venice-ai",
       "state": "accepted-node-command-baseline",
       "capturedAt": "2026-09-11T23:26:18.344543+00:00",
       "exitCode": 0,
@@ -1947,7 +1947,7 @@
       "context": "context/baseline/beep_workspace-use-cases.json"
     },
     {
-      "package": "@beep/xai",
+      "package": "retired:xai",
       "state": "accepted-node-command-baseline",
       "capturedAt": "2026-09-11T23:26:24.393660+00:00",
       "exitCode": 0,

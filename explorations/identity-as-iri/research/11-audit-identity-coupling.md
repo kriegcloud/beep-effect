@@ -69,10 +69,10 @@
 - `$EditorId` example: `import { $EditorId } from "@beep/identity";`. (packages/foundation/ui-system/editor/src/viewer.tsx:10)
 - `$EpistemicDomainId` example: `import { $EpistemicDomainId } from "@beep/identity/packages";`. (packages/shared/domain/src/identity/Epistemic.ts:8)
 - `$EpistemicUseCasesId` example: `import { $EpistemicUseCasesId } from "@beep/identity/packages";`. (packages/epistemic/use-cases/src/ClaimLifecycle/ClaimLifecycle.service.ts:14)
-- `$FaceDetectionId` example: `import { $FaceDetectionId } from "@beep/identity/packages";`. (packages/drivers/face-detection/src/FaceDetection.service.ts:8)
+- `$FaceDetectionId` example: `import { $FaceDetectionId } from "@beep/identity/packages";`. (retired:face-detection/src/FaceDetection.service.ts:8)
 - `$FfmpegId` example: `import { $FfmpegId } from "@beep/identity/packages";`. (packages/drivers/ffmpeg/src/FFmpeg.service.ts:9)
 - `$FileProcessingId` example: `import { $FileProcessingId } from "@beep/identity";`. (packages/foundation/capability/file-processing/src/Artifact/index.ts:8)
-- `$FirecrawlId` example: `import { $FirecrawlId } from "@beep/identity/packages";`. (packages/drivers/firecrawl/src/Firecrawl.service.ts:8)
+- `$FirecrawlId` example: `import { $FirecrawlId } from "@beep/identity/packages";`. (retired:firecrawl/src/Firecrawl.service.ts:8)
 - `$GovinfoId` example: `import { $GovinfoId } from "@beep/identity";`. (packages/drivers/govinfo/test/Govinfo.service.test.ts:3)
 - `$HtmlId` example: `import { $HtmlId } from "@beep/identity";`. (packages/foundation/modeling/html/src/Html.nodes.ts:13)
 - `$HubspotId` example: `import { $HubspotId } from "@beep/identity";`. (packages/drivers/hubspot/src/HubSpot.service.ts:8)
@@ -118,12 +118,12 @@
 - `$UiId` example: `import { $UiId } from "@beep/identity";`. (packages/foundation/ui-system/ui/src/themes/theme-provider.tsx:45)
 - `$UsptoId` example: `import { $UsptoId } from "@beep/identity";`. (packages/drivers/uspto/src/Uspto.service.ts:8)
 - `$UtilsId` example: `import { $UtilsId } from "@beep/identity/packages";`. (packages/foundation/modeling/utils/src/Event.ts:8)
-- `$VeniceAiId` example: `import { $VeniceAiId } from "@beep/identity";`. (packages/drivers/venice-ai/test/VeniceAI.service.test.ts:1)
+- `$VeniceAiId` example: `import { $VeniceAiId } from "@beep/identity";`. (retired:venice-ai/test/VeniceAI.service.test.ts:1)
 - `$WinkId` example: `import { $WinkId } from "@beep/identity";`. (packages/drivers/wink/src/WinkSimilarity.service.ts:9)
 - `$WorkspaceDomainId` example: `import { $WorkspaceDomainId } from "@beep/identity/packages";`. (packages/workspace/domain/src/values/CandidateLifecycle/CandidateLifecycle.model.ts:7)
 - `$WorkspaceServerId` example: `import { $WorkspaceServerId } from "@beep/identity";`. (packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:9)
 - `$WorkspaceUseCasesId` example: `import { $WorkspaceUseCasesId } from "@beep/identity/packages";`. (packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts:14)
-- `$XaiId` example: `import { $XaiId } from "@beep/identity";`. (packages/drivers/xai/src/XAi.service.ts:8)
+- `$XaiId` example: `import { $XaiId } from "@beep/identity";`. (retired:xai/src/XAi.service.ts:8)
 - `HttpApiEncoding` example: the dtslint file imports it from `@beep/identity`. (packages/foundation/modeling/identity/dtslint/Identity.tst.ts:13-21)
 - `IdentityAnyAnnotationExtras` example: `import type { IdentityAnyAnnotationExtras, IdentityComposer, KeyAnnotationExtras } from "@beep/identity";`. (explorations/identity-as-iri/assets/ontology-prototype/src/annotations.ts:33)
 - `IdentityComposer` example: `import type { IdentityAnyAnnotationExtras, IdentityComposer, KeyAnnotationExtras } from "@beep/identity";`. (explorations/identity-as-iri/assets/ontology-prototype/src/annotations.ts:33)
@@ -183,9 +183,9 @@
 - packages/drivers/drizzle/src/EntityTable.models.ts
 - packages/drivers/drizzle/test/EntityTable.test.ts
 - packages/drivers/ecfr/test/Ecfr.service.test.ts
-- packages/drivers/face-detection/src/FaceDetection.service.ts
+- retired:face-detection/src/FaceDetection.service.ts
 - packages/drivers/ffmpeg/src/FFmpeg.service.ts
-- packages/drivers/firecrawl/src/Firecrawl.service.ts
+- retired:firecrawl/src/Firecrawl.service.ts
 - packages/drivers/govinfo/test/Govinfo.service.test.ts
 - packages/drivers/hubspot/src/HubSpot.service.ts
 - packages/drivers/libpff/src/Libpff.pffexport.ts
@@ -201,9 +201,9 @@
 - packages/drivers/sanity/src/Sanity.service.ts
 - packages/drivers/tika/src/Tika.tikaapp.ts
 - packages/drivers/uspto/src/Uspto.service.ts
-- packages/drivers/venice-ai/test/VeniceAI.service.test.ts
+- retired:venice-ai/test/VeniceAI.service.test.ts
 - packages/drivers/wink/src/WinkSimilarity.service.ts
-- packages/drivers/xai/src/XAi.service.ts
+- retired:xai/src/XAi.service.ts
 - packages/epistemic/use-cases/src/ClaimLifecycle/ClaimLifecycle.service.ts
 - packages/foundation/capability/api-transport/src/Transport.ts
 - packages/foundation/capability/chalk/src/internal/PublicSurface.ts

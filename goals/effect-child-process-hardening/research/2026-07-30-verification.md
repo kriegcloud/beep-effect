@@ -51,7 +51,7 @@ secret, and Nix lanes also passed.
 The full pre-push lane remained red because of concurrent work outside this
 packet:
 
-- `@beep/xai` build recursion (`TS2589`);
+- `retired:xai` build recursion (`TS2589`);
 - provenance test-file typecheck drift;
 - epistemic JSDoc/schema/changeset/type-test findings;
 - the pre-existing repo CLI architecture migration fixture mismatch;

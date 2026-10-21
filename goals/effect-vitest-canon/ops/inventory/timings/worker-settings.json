@@ -416,8 +416,8 @@
       "execArgv": ["--js-float16array"]
     },
     {
-      "package": "@beep/face-detection",
-      "config": "packages/drivers/face-detection/vitest.config.ts",
+      "package": "retired:face-detection",
+      "config": "retired:face-detection/vitest.config.ts",
       "configSha256": "74371247757931dbe82c40787e71e70ee755d7bc4019c6eab17167f3bc0bdc44",
       "pool": "forks",
       "fileParallelism": true,
@@ -428,8 +428,8 @@
       "execArgv": ["--js-float16array"]
     },
     {
-      "package": "@beep/firecrawl",
-      "config": "packages/drivers/firecrawl/vitest.config.ts",
+      "package": "retired:firecrawl",
+      "config": "retired:firecrawl/vitest.config.ts",
       "configSha256": "8d79d20b63f32e5004ab32f42767695804c731203449249155c486e584e8c1dd",
       "pool": "forks",
       "fileParallelism": true,
@@ -920,8 +920,8 @@
       "execArgv": ["--js-float16array"]
     },
     {
-      "package": "@beep/venice-ai",
-      "config": "packages/drivers/venice-ai/vitest.config.ts",
+      "package": "retired:venice-ai",
+      "config": "retired:venice-ai/vitest.config.ts",
       "configSha256": "8d79d20b63f32e5004ab32f42767695804c731203449249155c486e584e8c1dd",
       "pool": "forks",
       "fileParallelism": true,
@@ -932,8 +932,8 @@
       "execArgv": ["--js-float16array"]
     },
     {
-      "package": "@beep/xai",
-      "config": "packages/drivers/xai/vitest.config.ts",
+      "package": "retired:xai",
+      "config": "retired:xai/vitest.config.ts",
       "configSha256": "8d79d20b63f32e5004ab32f42767695804c731203449249155c486e584e8c1dd",
       "pool": "forks",
       "fileParallelism": true,

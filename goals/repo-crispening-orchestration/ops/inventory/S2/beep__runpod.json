@@ -5,7 +5,7 @@
     "line": 64,
     "symbol": "RunpodConfigInput",
     "smell": "`apiKey` is decoded as `S.optionalKey(...)`, then immediately re-modeled as `Option` in `ResolvedRunpodConfig.make({ apiKey: O.fromUndefinedOr(config.apiKey), ... })` at service line 222.",
-    "proposedTarget": "Decode the key as `apiKey: S.OptionFromOptionalKey(S.String.pipe(S.RedactedFromValue)).pipe(SchemaUtils.withNoneDefault)` so `ResolvedRunpodConfig` receives `Option` directly. In-repo exemplar: `packages/drivers/firecrawl/src/Firecrawl.models.ts:71` uses `S.OptionFromOptionalKey` with a none constructor default; Effect v4 verification: `.repos/effect-v4/packages/effect/src/Schema.ts:8668` defines `OptionFromOptionalKey`.",
+    "proposedTarget": "Decode the key as `apiKey: S.OptionFromOptionalKey(S.String.pipe(S.RedactedFromValue)).pipe(SchemaUtils.withNoneDefault)` so `ResolvedRunpodConfig` receives `Option` directly. In-repo exemplar: `retired:firecrawl/src/Firecrawl.models.ts:71` uses `S.OptionFromOptionalKey` with a none constructor default; Effect v4 verification: `.repos/effect-v4/packages/effect/src/Schema.ts:8668` defines `OptionFromOptionalKey`.",
     "confidence": 0.68,
     "mechanization": "assisted",
     "roiRank": 4,

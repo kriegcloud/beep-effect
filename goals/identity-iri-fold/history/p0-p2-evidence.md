@@ -88,7 +88,7 @@ Date: 2026-08-01. Executor: Claude (Fable). Branch: `feat/identity-iri-fold`
   instantiation edge — three consecutive forced standalone builds pass with
   zero errors after the composer `key` overload was de-genericized
   (`fix(ontology): satisfy repo proof lanes for the fold`). `@beep/ui` and
-  `@beep/xai` checks confirmed clean the same way.
+  `retired:xai` checks confirmed clean the same way.
 - `@beep/repo-cli` `architecture-operation-plan.test.ts` ENOENT on
   `20260801021411_usage_record_optional_activity/migration.sql`: **inherited**
   from origin/main PR #527 (merged 2026-08-01 by a concurrent session), which

@@ -81,7 +81,7 @@ follow-ons; they are not dependencies of `voice-composer-slice`.
 | --- | --- | --- |
 | Live waveform/capture | `packages/foundation/ui-system/ui/src/components/live-waveform.tsx` | Reuse or absorb capture/visual behavior. |
 | Scribe state machine | `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts`; `packages/foundation/ui-system/ui/src/components/speech-input.tsx` | UI/state-machine precedent only; do not reuse its cloud audio route. |
-| Existing voice drivers | `packages/drivers/xai`; `packages/drivers/venice-ai` | Follow-on evidence only; not slice dependencies. |
+| Existing voice drivers | `retired:xai`; `retired:venice-ai` | Follow-on evidence only; not slice dependencies. |
 | Composer seam | `apps/professional-desktop/src/chat/ui/Composer.tsx`; `packages/foundation/ui-system/editor/src/chat/chat-composer.tsx` | Reuse for controls and transcript insertion. |
 | Chat cancellation precedent | `packages/agents/client/src/Chat.atoms.ts` | Reuse Reactivity/`AtomRegistry` cleanup pattern. |
 | Audio event-to-stream precedent | `packages/drivers/box/src/Box.streaming.ts` | Reference scoped event release pattern. |

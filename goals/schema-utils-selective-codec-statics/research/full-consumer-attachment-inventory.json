@@ -702,7 +702,7 @@
       "referenceCount": 1
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 155,
       "start": 4831,
@@ -723,22 +723,22 @@
       "jsonKeys": [],
       "propertyReads": [
         {
-          "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+          "file": "retired:face-detection/src/FaceDetection.service.ts",
           "start": 17508,
           "property": "decodeUnknownOption"
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "start": 7623,
           "property": "decodeUnknownSync"
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "start": 7695,
           "property": "decodeUnknownSync"
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "start": 7768,
           "property": "decodeUnknownSync"
         }
@@ -1679,7 +1679,7 @@
       "referenceCount": 1
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "helper": "withCodecStatics",
       "line": 84,
       "start": 2196,
@@ -1699,12 +1699,12 @@
       "jsonKeys": [],
       "propertyReads": [
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 23858,
           "property": "decodeUnknownOption"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 23984,
           "property": "decodeUnknownOption"
         }
@@ -5156,7 +5156,7 @@
           "property": "encodeUnknownSync"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19425,
           "property": "decodeUnknownOption"
         },

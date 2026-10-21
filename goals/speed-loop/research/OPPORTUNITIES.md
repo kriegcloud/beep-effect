@@ -1209,9 +1209,9 @@ durability fixes discovery, not trust.
 89. **[SHIPPED — `feat/speed-loop-wrapup-widgets`] The flake quarantine
     recognizes exactly one signature, so every
     other environment-only failure is hardened by hand.** (Same run.)
-    `@beep/xai#check` failed exit 2 inside the full proof on a branch
-    that does not touch `packages/drivers/xai`; a standalone
-    `bunx turbo run check --filter=@beep/xai --force` passed 9/9,
+    `retired:xai#check` failed exit 2 inside the full proof on a branch
+    that does not touch `retired:xai`; a standalone
+    `bunx turbo run check --filter=retired:xai --force` passed 9/9,
     exit 0. The quarantine declined it explicitly — `failure does not
     match the no-location TS2589 flake signature; keeping failure
     hard` — which is correct as written and useless in practice: it

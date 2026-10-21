@@ -770,19 +770,19 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/face-detection/package.json",
+      "path": "retired:face-detection/package.json",
       "sha256": "feae0f1bc2491143005b32b281a97583768ce8e41c5cfe8e65b3c0a38acd2057"
     },
     {
-      "path": "packages/drivers/face-detection/tsconfig.check.json",
+      "path": "retired:face-detection/tsconfig.check.json",
       "sha256": "f0a3feef358629fb839ee453dc07cfc6ef5c953294dea4e5ca92b894c1212d51"
     },
     {
-      "path": "packages/drivers/face-detection/tsconfig.json",
+      "path": "retired:face-detection/tsconfig.json",
       "sha256": "bdfa01466bec92c9b36266c29b48d5795d343ca18bd7789cfb3e0636743a3063"
     },
     {
-      "path": "packages/drivers/face-detection/tsconfig.test.json",
+      "path": "retired:face-detection/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
@@ -802,19 +802,19 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/firecrawl/package.json",
+      "path": "retired:firecrawl/package.json",
       "sha256": "f52dd4da87c4a1d73073e5f200301b48ee29b2de861d36340a39ac0e28db431d"
     },
     {
-      "path": "packages/drivers/firecrawl/tsconfig.check.json",
+      "path": "retired:firecrawl/tsconfig.check.json",
       "sha256": "f0a3feef358629fb839ee453dc07cfc6ef5c953294dea4e5ca92b894c1212d51"
     },
     {
-      "path": "packages/drivers/firecrawl/tsconfig.json",
+      "path": "retired:firecrawl/tsconfig.json",
       "sha256": "bdfa01466bec92c9b36266c29b48d5795d343ca18bd7789cfb3e0636743a3063"
     },
     {
-      "path": "packages/drivers/firecrawl/tsconfig.test.json",
+      "path": "retired:firecrawl/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
@@ -1318,19 +1318,19 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/venice-ai/package.json",
+      "path": "retired:venice-ai/package.json",
       "sha256": "37478aee8c5232da50eb1344fa2b85395e5ad32f7d008c09e1907dc54b61f5e2"
     },
     {
-      "path": "packages/drivers/venice-ai/tsconfig.check.json",
+      "path": "retired:venice-ai/tsconfig.check.json",
       "sha256": "dd1bff5f694c5d1bce5b512fb90c3f274ed2e12aeb9040605f504a6569d36bfb"
     },
     {
-      "path": "packages/drivers/venice-ai/tsconfig.json",
+      "path": "retired:venice-ai/tsconfig.json",
       "sha256": "49f94e8e0af4f5e62737e225dd22197f40720eec09814dea0e3102d109071ebd"
     },
     {
-      "path": "packages/drivers/venice-ai/tsconfig.test.json",
+      "path": "retired:venice-ai/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
@@ -1350,19 +1350,19 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/xai/package.json",
+      "path": "retired:xai/package.json",
       "sha256": "557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06"
     },
     {
-      "path": "packages/drivers/xai/tsconfig.check.json",
+      "path": "retired:xai/tsconfig.check.json",
       "sha256": "dd1bff5f694c5d1bce5b512fb90c3f274ed2e12aeb9040605f504a6569d36bfb"
     },
     {
-      "path": "packages/drivers/xai/tsconfig.json",
+      "path": "retired:xai/tsconfig.json",
       "sha256": "49f94e8e0af4f5e62737e225dd22197f40720eec09814dea0e3102d109071ebd"
     },
     {
-      "path": "packages/drivers/xai/tsconfig.test.json",
+      "path": "retired:xai/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {

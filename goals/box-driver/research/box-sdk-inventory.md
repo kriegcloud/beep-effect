@@ -201,7 +201,7 @@ Exact byte/event skip list from the 2026-06-07 implementation refresh:
 - Dynamic `SerializedData`/unknown shapes → `S.Record(S.String, S.Unknown)` or
   `S.Unknown`; never `any`.
 
-This is a documented divergence from firecrawl's Option-wrapped hand bar,
+This is a documented divergence from retired:firecrawl's Option-wrapped hand bar,
 justified by scale (301 schemas), Box open-enum/field evolution, and the runpod
 generated precedent. Record in `standards/architecture/DECISIONS.md` at
 implementation.

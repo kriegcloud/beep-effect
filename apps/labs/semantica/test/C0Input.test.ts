@@ -22,7 +22,7 @@ import { GOLD_PROMPT_ARTIFACT_HASH } from "@/gold/Prompts";
 import { CanonicalizerLive } from "@/layers/CanonicalizerLive";
 import { ChunkerLive } from "@/layers/ChunkerLive";
 import { DocumentSourceLive } from "@/layers/DocumentSourceLive";
-import { AnthropicExtractionLanguageModelLive, XAiGoldLanguageModelLive } from "@/layers/LanguageModelLive";
+import { AnthropicExtractionLanguageModelLive } from "@/layers/LanguageModelLive";
 import { ParserLive, ParserRetryLive } from "@/layers/ParserLive";
 import { extractHtmlText } from "@/parse/Html";
 import { LabConfigLive } from "@/runtime/Config";
@@ -133,15 +133,6 @@ describe("C0 F1 input services", () => {
   it("keeps breaker and hosted-provider Layers available without default acquisition", () => {
     pipe(Layer.isLayer(ParserRetryLive), assertTrue);
     pipe(Layer.isLayer(AnthropicExtractionLanguageModelLive(GOLD_PROMPT_ARTIFACT_HASH)), assertTrue);
-    pipe(
-      Layer.isLayer(
-        XAiGoldLanguageModelLive({
-          artifactHash: GOLD_PROMPT_ARTIFACT_HASH,
-          model: "grok-4-20260826",
-        })
-      ),
-      assertTrue
-    );
   });
 
   it.layer(Layer.merge(runtime, ParserRetryLive), { timeout: "30 seconds", excludeTestServices: true })((it) => {

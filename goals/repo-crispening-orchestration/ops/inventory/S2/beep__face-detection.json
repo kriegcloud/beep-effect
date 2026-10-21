@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 347,
     "symbol": "preprocessImage",
     "smell": "`metadata.width ?? 0`, `metadata.height ?? 0`, and `metadata.size ?? 0` are detector hits for nullish fallbacks.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 372,
     "symbol": "preprocessImage",
     "smell": "`O.getOrElse(() => 1)` and the paired padded-dimension defaults at lines 377/382 derive preprocessing geometry when the model has no fixed input size.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 440,
     "symbol": "preprocessImage",
     "smell": "`decoded.data[...] ?? 0` fills missing RGB channel reads with zero while preparing tensor data.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-normalization",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 535,
     "symbol": "scaleFaceToOriginal",
     "smell": "`clamp(..., 0, image.width/height)` bounds model coordinates during inverse scaling.",
@@ -61,7 +61,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+    "file": "retired:face-detection/src/FaceDetection.service.ts",
     "line": 590,
     "symbol": "decodeStrideFaces",
     "smell": "`cls[index] ?? 0`, `obj[index] ?? 0`, bbox offsets, and keypoint offsets default missing tensor reads to zero.",
@@ -76,7 +76,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/face-detection/src/FaceDetection.errors.ts",
+    "file": "retired:face-detection/src/FaceDetection.errors.ts",
     "line": 31,
     "symbol": "messageWithCause",
     "smell": "`O.getOrElse(() => message)` defaults an absent cause detail while formatting an error message.",

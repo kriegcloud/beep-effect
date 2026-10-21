@@ -2934,7 +2934,7 @@
           "beepStatus": "partial",
           "proof": [
             "rg -in 'retiredBy|retirementReason|blocksReingest|reingest|re-ingest' --glob 'packages/**/src/**/*.ts' \u2192 0 hits.",
-            "rg -in 'forgetTopic|forgetBy|softDelete|soft_delete|deletedAt|forgottenAt' --glob 'packages/**/src/**/*.ts' \u2192 only @beep/firecrawl deleteBrowser (unrelated driver).",
+            "rg -in 'forgetTopic|forgetBy|softDelete|soft_delete|deletedAt|forgottenAt' --glob 'packages/**/src/**/*.ts' \u2192 only retired:firecrawl deleteBrowser (unrelated driver).",
             "packages/epistemic/use-cases/src/EdgeAuthority/EdgeAuthority.ports.ts:61-66 \u2014 no delete/forget/retract operation exists on the authority port.",
             "explorations/epistemic-belief-view-revision/ops/manifest.json openQuestions \u2014 'Master align Q3: retention classes for views-as-prunable-projections' (captured, unanswered).",
             "explorations/epistemic-belief-view-revision/CAPTURE.md \u2014 Q3 spelled out: 'retention-bearing authority vs expirable operational events vs prunable projections vs prohibited secret-bearing inputs'.",
@@ -3164,7 +3164,7 @@
           "beepStatus": "partial",
           "proof": [
             "ALREADY BETTER ON MECHANISM: every typed error is TaggedErrorClass/S.TaggedErrorClass from @beep/schema; standards/effect-laws-v1.md:18 makes native Error illegal in production source. Discrimination is the string _tag, so Graphnosis's instanceof-does-not-survive-bundlers argument is answered by construction.",
-            "PARTIAL ACTION HINTS EXIST: packages/ontology/use-cases/src/tools/OntologyToolkit.ts:142,163,187,207 carry guidance: S.NonEmptyString + recoverable: S.Literal(true); apps/professional-desktop/src/sync/DmsMirrorDisconnected.ts:26 carries retryable: false; packages/drivers/xai/test/XAi.service.test.ts:651 asserts error.reason.isRetryable",
+            "PARTIAL ACTION HINTS EXIST: packages/ontology/use-cases/src/tools/OntologyToolkit.ts:142,163,187,207 carry guidance: S.NonEmptyString + recoverable: S.Literal(true); apps/professional-desktop/src/sync/DmsMirrorDisconnected.ts:26 carries retryable: false; retired:xai/test/XAi.service.test.ts:651 asserts error.reason.isRetryable",
             "SEARCHED AND ABSENT: rg -n 'codeClass|isCorruption|isVersionSkew|errorClass|ErrorClass' --glob '!node_modules' -g '!**/dist/**' \u2192 only TaggedErrorClass/StatusCauseTaggedErrorClass NAME matches; no action-axis classifier anywhere",
             "SEARCHED AND ABSENT: rg -n -i 'unsupported version|version skew|VersionUnsupported|UnsupportedVersion' \u2192 no typed error in packages/** distinguishes version skew from malformed input",
             "LIVE MISROUTE 1: packages/foundation/ui-system/dock/test/DockEngine.test.ts:129-156 \u2014 a legacy snapshot AND a version:2 (newer) snapshot both fail with byte-identical { _tag: 'DockInputError', boundary: 'snapshot' }; DockEngine.service.ts:47-57 shows DockInputError carries only boundary + raw ParseError text",

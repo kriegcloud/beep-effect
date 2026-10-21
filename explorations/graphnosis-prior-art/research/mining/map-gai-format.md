@@ -84,7 +84,7 @@ What beep already has, better than Graphnosis:
   argument is already answered by construction.
 - Per-error action hints exist in places: `OntologyToolkit.ts:142,163,187,207` carry
   `guidance: S.NonEmptyString` + `recoverable: S.Literal(true)`; `DmsMirrorDisconnected.ts:26`
-  carries `retryable: false`; `packages/drivers/xai` maps transport failures to
+  carries `retryable: false`; `retired:xai` maps transport failures to
   `error.reason.isRetryable`.
 
 What is missing — searched and absent:

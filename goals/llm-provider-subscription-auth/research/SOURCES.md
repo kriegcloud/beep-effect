@@ -63,7 +63,7 @@ because none were fetched for this packet.
 | Entity kernel + table projection (`BaseEntity.Class`, `pgTableFrom(entity)`) | `packages/shared/domain`, `packages/drivers/drizzle` | reuse |
 | Child-process spawning seam | `effect/process` `ChildProcessSpawner` (used by ai-provider-cli) | reuse |
 | OAuth2+PKCE reference (host-owned authorizer, encrypted token cache, silent refresh) | `packages/drivers/m365/src/M365.auth.ts` | reference-only (kept for a possible future OAuth revisit) |
-| Per-provider LLM drivers (API-key lane, unaffected) | `packages/drivers/{anthropic,openai-compat,xai,venice-ai}` | reference |
+| Per-provider LLM drivers (API-key lane, unaffected) | `packages/drivers/{anthropic,openai-compat}`, `retired:xai`, `retired:venice-ai` | reference |
 | Package-shape proof | `packages/fixture-lab/specimen` | reference |
 
 ## 5. Cross-links & provenance
