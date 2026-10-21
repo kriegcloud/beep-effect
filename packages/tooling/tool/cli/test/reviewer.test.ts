@@ -407,7 +407,9 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
           message: "Clarify",
         })
       );
-      yield* Reviewer.use((reviewer) => reviewer.complete(2, { ...result(), annotations })).pipe(usingHttp(http));
+      yield* Reviewer.use((reviewer) => reviewer.complete(2, ReviewerResult.make({ ...result(), annotations }))).pipe(
+        usingHttp(http)
+      );
       const requests = yield* decodeRequests(bodies);
       expect(A.map(requests, (body) => body.output?.annotations?.length ?? 0)).toEqual([50, 50, 1, 0]);
       const last = yield* decodeObject(bodies[3]);
@@ -453,10 +455,9 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
           message: "Clarify",
         }),
       ];
-      const outcome = yield* Reviewer.use((reviewer) => reviewer.complete(2, { ...result(), annotations })).pipe(
-        usingHttp(http),
-        Effect.result
-      );
+      const outcome = yield* Reviewer.use((reviewer) =>
+        reviewer.complete(2, ReviewerResult.make({ ...result(), annotations }))
+      ).pipe(usingHttp(http), Effect.result);
       expect(outcome._tag).toBe("Failure");
       expect(completions).toBe(0);
     })
