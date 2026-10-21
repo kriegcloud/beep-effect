@@ -23,6 +23,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Base64 from "effect/encoding/Base64";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
@@ -448,7 +449,10 @@ describe("makePffexportFileProcessingEngine", { concurrent: false }, () => {
         yield* fs.makeDirectory(path.dirname(interpreterPath), { recursive: true });
         yield* fs.makeDirectory(path.dirname(launcherPath), { recursive: true });
         yield* fs.symlink("/bin/bash", interpreterPath);
-        yield* fs.writeFileString(launcherPath, stubPffexport.replace("#!/usr/bin/env bash", `#!${interpreterPath}`));
+        yield* fs.writeFileString(
+          launcherPath,
+          pipe(stubPffexport, Str.replace("#!/usr/bin/env bash", `#!${interpreterPath}`))
+        );
         yield* fs.chmod(launcherPath, 0o755);
         yield* fs.writeFileString(bwrapPath, bwrapStub);
         yield* fs.chmod(bwrapPath, 0o755);
@@ -493,17 +497,24 @@ describe("makePffexportFileProcessingEngine", { concurrent: false }, () => {
           );
           yield* fs.writeFileString(
             stubPath,
-            stubPffexport.replace("#!/usr/bin/env bash", "#!/usr/bin/env -S -a pffexport -u BEEP_UNUSED bash")
+            pipe(
+              stubPffexport,
+              Str.replace("#!/usr/bin/env bash", "#!/usr/bin/env -S -a pffexport -u BEEP_UNUSED bash")
+            )
           );
           yield* fs.chmod(stubPath, 0o755);
           yield* fs.writeFileString(
             bwrapPath,
-            bwrapStub.replace("set -eu", `set -eu\nprintf '%s\\n' "$@" > ${bwrapArgumentsPath}`).replace(
-              'exec "$mapped_command" "${mapped[@]}"',
-              `if [ "$mapped_command" = "/usr/bin/env" ] && [ "\${mapped[0]}" = "-S" ]; then
+            pipe(
+              bwrapStub,
+              Str.replace("set -eu", `set -eu\nprintf '%s\\n' "$@" > ${bwrapArgumentsPath}`),
+              Str.replace(
+                'exec "$mapped_command" "${mapped[@]}"',
+                `if [ "$mapped_command" = "/usr/bin/env" ] && [ "\${mapped[0]}" = "-S" ]; then
   exec /bin/bash "\${mapped[2]}" "\${mapped[@]:3}"
 fi
 exec "$mapped_command" "\${mapped[@]}"`
+              )
             )
           );
           yield* fs.chmod(bwrapPath, 0o755);
@@ -577,7 +588,7 @@ exec "$mapped_command" "\${mapped[@]}"`
         );
         yield* fs.writeFileString(
           launcherPath,
-          stubPffexport.replace("#!/usr/bin/env bash", `#!${coveredInterpreterPath}`)
+          pipe(stubPffexport, Str.replace("#!/usr/bin/env bash", `#!${coveredInterpreterPath}`))
         );
         yield* fs.chmod(launcherPath, 0o755);
         yield* fs.writeFileString(bwrapPath, bwrapStub);
@@ -631,12 +642,12 @@ exec "$mapped_command" "\${mapped[@]}"`
           const splitString = `'${commandName}' -c 'exec /bin/bash "$0" "$@"'`;
           yield* fs.writeFileString(
             launcherPath,
-            stubPffexport.replace("#!/usr/bin/env bash", `#!/usr/bin/env -S ${splitString}`)
+            pipe(stubPffexport, Str.replace("#!/usr/bin/env bash", `#!/usr/bin/env -S ${splitString}`))
           );
           yield* fs.chmod(launcherPath, 0o755);
           yield* fs.writeFileString(
             bwrapPath,
-            bwrapStub.replace("set -eu", `set -eu\nprintf '%s\\n' "$@" > ${bwrapArgumentsPath}`)
+            pipe(bwrapStub, Str.replace("set -eu", `set -eu\nprintf '%s\\n' "$@" > ${bwrapArgumentsPath}`))
           );
           yield* fs.chmod(bwrapPath, 0o755);
           const engine = yield* makePffexportFileProcessingEngine(
@@ -699,7 +710,7 @@ exec "$mapped_command" "\${mapped[@]}"`
           );
           yield* fs.writeFileString(
             launcherPath,
-            stubPffexport.replace("#!/usr/bin/env bash", Str.replace("$FIXTURE_ROOT", fixtureRoot)(shebang))
+            pipe(stubPffexport, Str.replace("#!/usr/bin/env bash", Str.replace("$FIXTURE_ROOT", fixtureRoot)(shebang)))
           );
           yield* fs.chmod(launcherPath, 0o755);
           const { bytes: _bytes, ...sourceWithoutBytes } = operation.source;
@@ -783,7 +794,9 @@ exec "$mapped_command" "\${mapped[@]}"`
 
           const result = yield* engine.exportArchive(operation);
 
-          expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(false);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.endsWith("/Message.eml")))).toBe(
+            false
+          );
         })
       );
     }
@@ -813,7 +826,7 @@ exec "$mapped_command" "\${mapped[@]}"`
           const failingFileSystem = FileSystem.FileSystem.of({
             ...fs,
             exists: Effect.fn("LibpffPffexportTest.failingExists")((candidate) =>
-              failurePoint === "exists" && candidate.endsWith(".export")
+              failurePoint === "exists" && pipe(candidate, Str.endsWith(".export"))
                 ? injectedFailure.pipe(Effect.as(false))
                 : fs.exists(candidate)
             ),
@@ -823,17 +836,17 @@ exec "$mapped_command" "\${mapped[@]}"`
                 : fs.makeDirectory(candidate, options)
             ),
             readDirectory: Effect.fn("LibpffPffexportTest.failingReadDirectory")((candidate, options) =>
-              failurePoint === "readDirectory" && candidate.endsWith(".export")
+              failurePoint === "readDirectory" && pipe(candidate, Str.endsWith(".export"))
                 ? injectedFailure.pipe(Effect.as([]))
                 : fs.readDirectory(candidate, options)
             ),
             readFile: Effect.fn("LibpffPffexportTest.failingReadFile")((candidate) =>
-              failurePoint === "readFile" && candidate.endsWith("report.pdf")
+              failurePoint === "readFile" && pipe(candidate, Str.endsWith("report.pdf"))
                 ? injectedFailure.pipe(Effect.as(new Uint8Array()))
                 : fs.readFile(candidate)
             ),
             readFileString: Effect.fn("LibpffPffexportTest.failingReadFileString")((candidate, encoding) =>
-              failurePoint === "readFileString" && candidate.endsWith("OutlookHeaders.txt")
+              failurePoint === "readFileString" && pipe(candidate, Str.endsWith("OutlookHeaders.txt"))
                 ? injectedFailure.pipe(Effect.as(""))
                 : fs.readFileString(candidate, encoding)
             ),
@@ -843,12 +856,14 @@ exec "$mapped_command" "\${mapped[@]}"`
                 : fs.realPath(candidate)
             ),
             stat: Effect.fn("LibpffPffexportTest.failingStat")((candidate) =>
-              failurePoint === "stat" && candidate.includes(".export/") ? injectedFailure : fs.stat(candidate)
+              failurePoint === "stat" && pipe(candidate, Str.includes(".export/"))
+                ? injectedFailure
+                : fs.stat(candidate)
             ),
             writeFile: Effect.fn("LibpffPffexportTest.failingWriteFile")((candidate, data, options) =>
-              (failurePoint === "writeFile" && candidate.endsWith("Message.eml")) ||
-              (failurePoint === "writeMessagesJsonl" && candidate.endsWith(PFFEXPORT_MESSAGES_SUFFIX)) ||
-              (failurePoint === "sourceSnapshot" && candidate.endsWith("source.pst"))
+              (failurePoint === "writeFile" && pipe(candidate, Str.endsWith("Message.eml"))) ||
+              (failurePoint === "writeMessagesJsonl" && pipe(candidate, Str.endsWith(PFFEXPORT_MESSAGES_SUFFIX))) ||
+              (failurePoint === "sourceSnapshot" && pipe(candidate, Str.endsWith("source.pst")))
                 ? injectedFailure.pipe(Effect.asVoid)
                 : fs.writeFile(candidate, data, options)
             ),
@@ -921,15 +936,17 @@ exec "$mapped_command" "\${mapped[@]}"`
 
           const relativePaths = A.map(result.children, (child) => child.relativePath);
           expect(relativePaths).toStrictEqual([...relativePaths].sort());
-          expect(A.every(result.children, (child) => child.id.startsWith("artifact:"))).toBe(true);
+          expect(A.every(result.children, (child) => pipe(child.id, Str.startsWith("artifact:")))).toBe(true);
 
-          const emlChildren = A.filter(result.children, (child) => child.relativePath.endsWith("/Message.eml"));
+          const emlChildren = A.filter(result.children, (child) =>
+            pipe(child.relativePath, Str.endsWith("/Message.eml"))
+          );
           expect(emlChildren).toHaveLength(2);
           expect(A.every(emlChildren, (child) => child.mediaType === "message/rfc822")).toBe(true);
 
           const jsonlName = `${operation.source.id}${PFFEXPORT_MESSAGES_SUFFIX}`;
           expect(relativePaths).toContain(jsonlName);
-          expect(A.some(relativePaths, (value) => value.endsWith("Attachments/report.pdf"))).toBe(true);
+          expect(A.some(relativePaths, (value) => pipe(value, Str.endsWith("Attachments/report.pdf")))).toBe(true);
           expect(result.children).toHaveLength(9);
 
           const inboxEml = yield* readExported(
@@ -955,22 +972,34 @@ exec "$mapped_command" "\${mapped[@]}"`
           expect(sentEml).toContain("sent body");
 
           const jsonl = yield* readExported(exportRoot, jsonlName);
-          const lines = jsonl.trimEnd().split("\n");
+          const lines = pipe(jsonl, Str.trimEnd, Str.split("\n"));
           expect(lines).toHaveLength(2);
 
           const inboxRecord = yield* decodeMessageRecord(lines[0]);
           expect(inboxRecord.folderPath).toBe("Top of Personal Folders/Inbox");
-          expect(inboxRecord.messagePath.endsWith("Inbox/Message00001")).toBe(true);
+          expect(pipe(inboxRecord.messagePath, Str.endsWith("Inbox/Message00001"))).toBe(true);
           expect(inboxRecord.headers.Subject).toBe("Quarterly report");
-          expect(inboxRecord.body?.relativePath.endsWith("Message.txt")).toBe(true);
-          expect(inboxRecord.eml?.relativePath.endsWith("Message.eml")).toBe(true);
+          expect(
+            pipe(O.fromNullishOr(inboxRecord.body?.relativePath), O.map(Str.endsWith("Message.txt")), O.getOrUndefined)
+          ).toBe(true);
+          expect(
+            pipe(O.fromNullishOr(inboxRecord.eml?.relativePath), O.map(Str.endsWith("Message.eml")), O.getOrUndefined)
+          ).toBe(true);
           expect(inboxRecord.attachments).toHaveLength(1);
-          expect(inboxRecord.attachments[0]?.relativePath.endsWith("Attachments/report.pdf")).toBe(true);
+          expect(
+            pipe(
+              O.fromNullishOr(inboxRecord.attachments[0]?.relativePath),
+              O.map(Str.endsWith("Attachments/report.pdf")),
+              O.getOrUndefined
+            )
+          ).toBe(true);
 
           const sentRecord = yield* decodeMessageRecord(lines[1]);
           expect(sentRecord.folderPath).toBe("Top of Personal Folders/Sent Items");
           expect(sentRecord.attachments).toHaveLength(0);
-          expect(sentRecord.eml?.relativePath.endsWith("Message.eml")).toBe(true);
+          expect(
+            pipe(O.fromNullishOr(sentRecord.eml?.relativePath), O.map(Str.endsWith("Message.eml")), O.getOrUndefined)
+          ).toBe(true);
         })
       );
     }
@@ -990,10 +1019,10 @@ exec "$mapped_command" "\${mapped[@]}"`
           const result = yield* engine.exportArchive(operation);
 
           expect(result.children.length).toBeGreaterThan(0);
-          expect(A.some(result.children, (child) => child.relativePath.includes(".orphans/"))).toBe(true);
-          expect(A.some(result.children, (child) => child.relativePath.includes(".recovered/"))).toBe(true);
-          expect(A.some(result.children, (child) => child.relativePath.includes(".export/"))).toBe(false);
-          expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(true);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes(".orphans/")))).toBe(true);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes(".recovered/")))).toBe(true);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes(".export/")))).toBe(false);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.endsWith("/Message.eml")))).toBe(true);
         })
       );
     }
@@ -1010,9 +1039,9 @@ exec "$mapped_command" "\${mapped[@]}"`
 
         const result = yield* engine.exportArchive(operation);
 
-        expect(A.some(result.children, (child) => child.relativePath.includes(".export/"))).toBe(true);
-        expect(A.some(result.children, (child) => child.relativePath.includes(".orphans/"))).toBe(true);
-        expect(A.some(result.children, (child) => child.relativePath.includes(".recovered/"))).toBe(true);
+        expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes(".export/")))).toBe(true);
+        expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes(".orphans/")))).toBe(true);
+        expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes(".recovered/")))).toBe(true);
       })
     );
   });
@@ -1030,7 +1059,7 @@ exec "$mapped_command" "\${mapped[@]}"`
 
           const result = yield* engine.exportArchive(operation);
 
-          expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(true);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.endsWith("/Message.eml")))).toBe(true);
 
           const eml = yield* readExported(
             exportRoot,
@@ -1039,10 +1068,17 @@ exec "$mapped_command" "\${mapped[@]}"`
           expect(eml).toContain("Content-Type: text/html; charset=utf-8");
           expect(eml).toContain("Content-Transfer-Encoding: base64");
 
-          const payload = eml.slice(eml.indexOf("\r\n\r\n") + 4);
-          expect(A.every(payload.split("\r\n"), (line) => line.length <= 76)).toBe(true);
-          expect(Result.getOrElse(Base64.decodeString(A.join(payload.split("\r\n"), "")), () => "")).toBe(
-            `<p>${"x".repeat(1200)}</p>`
+          const payload = pipe(
+            eml,
+            Str.indexOf("\r\n\r\n"),
+            O.match({
+              onNone: () => pipe(eml, Str.slice(3)),
+              onSome: (separator) => pipe(eml, Str.slice(separator + 4)),
+            })
+          );
+          expect(A.every(pipe(payload, Str.split("\r\n")), (line) => line.length <= 76)).toBe(true);
+          expect(Result.getOrElse(Base64.decodeString(A.join(pipe(payload, Str.split("\r\n")), "")), () => "")).toBe(
+            `<p>${pipe("x", Str.repeat(1200))}</p>`
           );
         })
       );
@@ -1062,7 +1098,9 @@ exec "$mapped_command" "\${mapped[@]}"`
 
           const result = yield* engine.exportArchive(operation);
 
-          expect(A.some(result.warnings, (warning) => warning.includes("already contains Message.eml"))).toBe(true);
+          expect(
+            A.some(result.warnings, (warning) => pipe(warning, Str.includes("already contains Message.eml")))
+          ).toBe(true);
           const relativePaths = A.map(result.children, (child) => child.relativePath);
           expect(new Set(relativePaths).size).toBe(relativePaths.length);
 
@@ -1074,9 +1112,11 @@ exec "$mapped_command" "\${mapped[@]}"`
 
           const jsonlName = `${operation.source.id}${PFFEXPORT_MESSAGES_SUFFIX}`;
           const jsonl = yield* readExported(exportRoot, jsonlName);
-          const record = yield* decodeMessageRecord(jsonl.trimEnd().split("\n")[0]);
+          const record = yield* decodeMessageRecord(pipe(jsonl, Str.trimEnd, Str.split("\n"))[0]);
           expect(record.eml).toBeUndefined();
-          expect(record.body?.relativePath.endsWith("Message.txt")).toBe(true);
+          expect(
+            pipe(O.fromNullishOr(record.body?.relativePath), O.map(Str.endsWith("Message.txt")), O.getOrUndefined)
+          ).toBe(true);
         })
       );
     }
@@ -1150,16 +1190,20 @@ exec "$mapped_command" "\${mapped[@]}"`
             ExportArchiveOperation.make({ ...operation, maxMaterializedBytes: 1 })
           );
 
-          expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(false);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.endsWith("/Message.eml")))).toBe(
+            false
+          );
           expect(
-            A.filter(result.warnings, (warning) => warning.includes("materialization budget was exceeded"))
+            A.filter(result.warnings, (warning) => pipe(warning, Str.includes("materialization budget was exceeded")))
           ).toHaveLength(2);
 
           const jsonlName = `${operation.source.id}${PFFEXPORT_MESSAGES_SUFFIX}`;
           const jsonl = yield* readExported(exportRoot, jsonlName);
-          const record = yield* decodeMessageRecord(jsonl.trimEnd().split("\n")[0]);
+          const record = yield* decodeMessageRecord(pipe(jsonl, Str.trimEnd, Str.split("\n"))[0]);
           expect(record.eml).toBeUndefined();
-          expect(record.body?.relativePath.endsWith("Message.txt")).toBe(true);
+          expect(
+            pipe(O.fromNullishOr(record.body?.relativePath), O.map(Str.endsWith("Message.txt")), O.getOrUndefined)
+          ).toBe(true);
         })
       );
     }
@@ -1179,12 +1223,14 @@ exec "$mapped_command" "\${mapped[@]}"`
           const result = yield* engine.exportArchive(
             ExportArchiveOperation.make({ ...operation, maxMaterializedBytes: 1024 })
           );
-          const emlChildren = A.filter(result.children, (child) => child.relativePath.endsWith("/Message.eml"));
+          const emlChildren = A.filter(result.children, (child) =>
+            pipe(child.relativePath, Str.endsWith("/Message.eml"))
+          );
 
           expect(emlChildren).toHaveLength(1);
           expect(emlChildren[0]?.relativePath).toContain("Message00002/Message.eml");
           expect(
-            A.filter(result.warnings, (warning) => warning.includes("materialization budget was exceeded"))
+            A.filter(result.warnings, (warning) => pipe(warning, Str.includes("materialization budget was exceeded")))
           ).toHaveLength(1);
         })
       );
@@ -1477,7 +1523,7 @@ exec "$@"
           const result = yield* engine.exportArchive(operation);
 
           expect(result.children.length).toBeGreaterThan(0);
-          expect(A.some(result.children, (child) => child.relativePath.includes("stale-junk"))).toBe(false);
+          expect(A.some(result.children, (child) => pipe(child.relativePath, Str.includes("stale-junk")))).toBe(false);
           expect(yield* fs.exists(path.join(exportRoot, `${operation.source.id}.claim`))).toBe(false);
         })
       );

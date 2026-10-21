@@ -20,6 +20,7 @@ import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
@@ -29,6 +30,7 @@ import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 type CapturedRequest = {
   readonly authorization: string | undefined;
@@ -104,28 +106,28 @@ const detailEnvelope = (key: string, item: unknown): unknown => ({ response: { r
 // cannot interfere with one another.
 const route = (url: string): Response => {
   const path = new URL(url).pathname;
-  if (path.includes("ERRACCT")) {
+  if (pipe(path, Str.includes("ERRACCT"))) {
     return jsonResponse({ response: { errors: [{ errno: 429 }] } }, 429);
   }
-  if (path.endsWith("/users/me")) {
+  if (pipe(path, Str.endsWith("/users/me"))) {
     return jsonResponse(identityWire);
   }
   if (/\/users\/clients\/\d+$/.test(path)) {
     return jsonResponse(detailEnvelope("client", clientWire));
   }
-  if (path.endsWith("/users/clients")) {
+  if (pipe(path, Str.endsWith("/users/clients"))) {
     return jsonResponse(listEnvelope("clients", [clientWire]));
   }
   if (/\/invoices\/invoices\/\d+$/.test(path)) {
     return jsonResponse(detailEnvelope("invoice", invoiceWire));
   }
-  if (path.endsWith("/invoices/invoices")) {
+  if (pipe(path, Str.endsWith("/invoices/invoices"))) {
     return jsonResponse(listEnvelope("invoices", [invoiceWire]));
   }
   if (/\/payments\/payments\/\d+$/.test(path)) {
     return jsonResponse(detailEnvelope("payment", paymentWire));
   }
-  if (path.endsWith("/payments/payments")) {
+  if (pipe(path, Str.endsWith("/payments/payments"))) {
     return jsonResponse(listEnvelope("payments", [paymentWire]));
   }
   return jsonResponse({ response: { errors: [{ errno: 404 }] } }, 404);

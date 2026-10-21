@@ -3,11 +3,12 @@ import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { BoxContentMigrationMap } from "../BoxContentMigrationMap.ts";
 import { BoxContentMigrationPlan } from "../BoxContentMigrationPlan.ts";
 import { BoxAdoptions, BoxDesiredState, BoxWebhookIntent } from "../BoxProvisioningIntent.ts";
@@ -22,7 +23,7 @@ const decodeUnknownJson = S.decodeUnknownEffect(S.Json);
 type CanonicalEntry = readonly [key: string, value: unknown];
 
 const byKeyAscending = Order.mapInput(Order.String, ([key]: CanonicalEntry) => key);
-const zeroDigest = Sha256Hex.make("0".repeat(64));
+const zeroDigest = Sha256Hex.make(pipe("0", Str.repeat(64)));
 const sha256Equivalence = S.toEquivalence(Sha256Hex);
 const utf8 = new TextEncoder();
 
