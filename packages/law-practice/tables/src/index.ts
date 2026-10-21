@@ -7,22 +7,6 @@
  */
 
 /**
- * Package version for `@beep/law-practice-tables`.
- *
- * **Example** (Log package version)
- *
- * ```ts
- * import { VERSION } from "@beep/law-practice-tables"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Practice knowledge-graph entity table namespaces.
  *
  * @category tables

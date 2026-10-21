@@ -58,7 +58,6 @@
     "./Html.serialize": "./src/Html.serialize.ts",
     "./Html.source-size": "./src/Html.source-size.ts",
     "./Html.srcset": "./src/Html.srcset.ts",
-    "./Version": "./src/Version.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -88,7 +87,6 @@
       "./Html.serialize": "./dist/Html.serialize.js",
       "./Html.source-size": "./dist/Html.source-size.js",
       "./Html.srcset": "./dist/Html.srcset.js",
-      "./Version": "./dist/Version.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

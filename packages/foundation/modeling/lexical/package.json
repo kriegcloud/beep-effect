@@ -50,7 +50,6 @@
     "./Lexical.conformance": "./src/Lexical.conformance.ts",
     "./Lexical.model": "./src/Lexical.model.ts",
     "./Lexical.normalize": "./src/Lexical.normalize.ts",
-    "./Version": "./src/Version.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -72,7 +71,6 @@
       "./Lexical.conformance": "./dist/Lexical.conformance.js",
       "./Lexical.model": "./dist/Lexical.model.js",
       "./Lexical.normalize": "./dist/Lexical.normalize.js",
-      "./Version": "./dist/Version.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

@@ -21,7 +21,7 @@ An library for shared build & tooling configurations
 ## Usage Patterns
 
 ```typescript
-import { VERSION } from "@beep/repo-configs"
+import { auditCachePolicy } from "@beep/repo-configs/cache"
 ```
 
 ## Design Decisions

@@ -1,4 +1,4 @@
-import { makePopplerRasterizer, PopplerConfig, PopplerError, tiffFrameCount, VERSION } from "@beep/poppler";
+import { makePopplerRasterizer, PopplerConfig, PopplerError, tiffFrameCount } from "@beep/poppler";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
@@ -119,7 +119,6 @@ it.layer(NodeServices.layer, { timeout: "60 seconds" })("Poppler rasterizer", (i
       expect(config.pdfinfoPath).toBe("pdfinfo");
       expect(config.pdftoppmPath).toBe("pdftoppm");
       expect(config.timeoutMillis).toBe(60_000);
-      expect(VERSION).toBe("0.0.0");
     })
   );
 

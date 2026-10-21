@@ -11,7 +11,7 @@ bun add @beep/ecfr
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/ecfr"
+import { Ecfr } from "@beep/ecfr"
 ```
 
 ## Development

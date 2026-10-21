@@ -7,22 +7,6 @@
  */
 
 /**
- * Package version for `@beep/ontology-ui`.
- *
- * **Example** (Log package version)
- *
- * ```ts
- * import { VERSION } from "@beep/ontology-ui"
- *
- * console.log(VERSION)
- * ```
- *
- * @category components
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Curated ontology workbench exports.
  *
  * @category components

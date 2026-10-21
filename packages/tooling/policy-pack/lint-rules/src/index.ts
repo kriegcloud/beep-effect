@@ -18,23 +18,6 @@ import * as S from "effect/Schema";
 const $I = $LintRulesId;
 
 /**
- * Package version for `@beep/lint-rules`.
- *
- * **Example** (Assert package version)
- *
- * ```ts
- * import { strictEqual } from "node:assert/strict"
- * import { VERSION } from "@beep/lint-rules"
- *
- * strictEqual(VERSION, "0.1.0")
- * ```
- *
- * @category configuration
- * @since 0.1.0
- */
-export const VERSION = "0.1.0" as const;
-
-/**
  * Slugs of the GritQL rules shipped by this package (one `.grit` file each).
  *
  * **Example** (List shipped rule names)

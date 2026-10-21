@@ -26,7 +26,6 @@ deliberately agree on the same driver-neutral product meaning.
 
 - `@beep/shared-domain`
 - `@beep/shared-domain/*`
-- `VERSION`
 - `Aggregates`
 - `Entities.Membership`
 - `Entities.Organization`

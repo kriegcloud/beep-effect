@@ -11,7 +11,7 @@ bun add @beep/obs
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/obs"
+import { Obs } from "@beep/obs"
 ```
 
 ## Development

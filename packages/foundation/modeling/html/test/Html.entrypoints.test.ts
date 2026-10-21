@@ -1,6 +1,5 @@
 import { Html } from "@beep/html/Html";
 import { Input } from "@beep/html/Html.model";
-import { VERSION } from "@beep/html/Version";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
@@ -17,7 +16,6 @@ const PackageJson = S.Struct({
   publishConfig: S.Struct({
     exports: S.Record(S.String, S.NullOr(S.String)),
   }),
-  version: S.String,
 });
 const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(PackageJson));
 
@@ -30,7 +28,7 @@ describe("@beep/html per-module entry points", () => {
             [
               process.execPath,
               "-e",
-              'const { Html } = await import("@beep/html/Html"); const { VERSION } = await import("@beep/html/Version"); if (typeof Html.Conformant.decode !== "function" || typeof VERSION !== "string") process.exit(1)',
+              'const { Html } = await import("@beep/html/Html"); if (typeof Html.Conformant.decode !== "function") process.exit(1)',
             ],
             {
               cwd: packageRoot,
@@ -55,7 +53,7 @@ describe("@beep/html per-module entry points", () => {
     })
   );
 
-  it.effect("keeps the source and published exports aligned with the package version", () =>
+  it.effect("keeps the source and published exports aligned", () =>
     Effect.gen(function* () {
       const packageJson = yield* Effect.promise(() =>
         Bun.file(new URL("../package.json", import.meta.url)).text()
@@ -63,13 +61,10 @@ describe("@beep/html per-module entry points", () => {
 
       expect(packageJson.exports).toMatchObject({
         "./Html": "./src/Html.ts",
-        "./Version": "./src/Version.ts",
       });
       expect(packageJson.publishConfig.exports).toMatchObject({
         "./Html": "./dist/Html.js",
-        "./Version": "./dist/Version.js",
       });
-      expect(VERSION).toBe(packageJson.version);
     })
   );
 

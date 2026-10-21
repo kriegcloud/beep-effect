@@ -11,7 +11,7 @@ bun add @beep/t3-code
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/t3-code"
+import { T3Code } from "@beep/t3-code"
 ```
 
 ## Development

@@ -11,7 +11,7 @@ bun add @beep/architecture-lab-use-cases
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/architecture-lab-use-cases"
+import { WorkItem } from "@beep/architecture-lab-use-cases"
 ```
 
 ## Development

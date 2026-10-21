@@ -11,7 +11,7 @@ bun add @beep/technical-drawing
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/technical-drawing"
+import { verifyConfirmation } from "@beep/technical-drawing"
 ```
 
 ## Development

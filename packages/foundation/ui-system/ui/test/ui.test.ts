@@ -1,5 +1,4 @@
 import { it } from "@beep/test-runner";
-import { VERSION } from "@beep/ui";
 import { ChartContainer, ChartTooltipContent, chartColorProperties } from "@beep/ui/components/chart";
 import { Input } from "@beep/ui/components/input";
 import { Textarea } from "@beep/ui/components/textarea";
@@ -75,10 +74,6 @@ describe("@beep/ui", () => {
     const markup = renderChartTooltip();
     expect(markup).not.toContain("<style");
     expect(markup).toContain('data-slot="chart"');
-  });
-
-  it("exports the package version constant", () => {
-    expect(VERSION).toBe("0.0.0");
   });
 
   it("merges tailwind classes with conflict resolution", () => {

@@ -11,7 +11,7 @@ bun add @beep/discord
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/discord"
+import { Discord } from "@beep/discord"
 ```
 
 ## Development

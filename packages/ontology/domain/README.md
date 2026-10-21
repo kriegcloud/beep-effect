@@ -25,7 +25,7 @@ bun add @beep/ontology-domain
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/ontology-domain"
+import { Session } from "@beep/ontology-domain"
 ```
 
 ## Development

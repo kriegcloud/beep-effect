@@ -11,7 +11,7 @@ bun add @beep/hubspot
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/hubspot"
+import { HubSpot } from "@beep/hubspot"
 ```
 
 ## Development
