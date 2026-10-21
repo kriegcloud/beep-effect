@@ -19,19 +19,20 @@
  * @since 0.0.0
  */
 
-import { findRepoRoot } from "@beep/repo-utils";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
-import * as Path from "effect/Path";
-import * as P from "effect/Predicate";
 import * as Regex from "effect/RegExp";
 import * as Str from "effect/String";
 import { ts } from "ts-morph";
-import { runGitRawOutput } from "../../internal/repo-run/GitExec.ts";
+import {
+  lineStartOffsets,
+  locateIndex,
+  messageGitErrorAdapter,
+  scanTrackedTextFiles,
+} from "./internal/TrackedTextFiles.ts";
 import { RetiredIriAuthoritiesExecutionError } from "./Laws.errors.ts";
 import {
   publicOriginHostLabels,
@@ -41,8 +42,9 @@ import {
   retiredIriAuthoritiesScope,
 } from "./RetiredIriAuthorities.model.ts";
 import type * as Crypto from "effect/Crypto";
+import type * as FileSystem from "effect/FileSystem";
+import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import type { GitCommandErrorAdapter } from "../../internal/repo-run/GitExec.ts";
 import type { RetiredIriAuthoritiesOptions, RetiredIriAuthorityRule } from "./RetiredIriAuthorities.model.ts";
 
 const hostOf = (labels: ReadonlyArray<string>): string => A.join(labels, ".");
@@ -87,17 +89,6 @@ const PUBLIC_ORIGIN_PATTERN = new RegExp(
 /** Cheap pre-filter shared by every retired host. */
 const RETIRED_PREFILTER = /beep/iu;
 
-const NEWLINE_PATTERN = /\n/gu;
-
-/** `git ls-files --stage` modes of regular files; symlinks (120000) and gitlinks (160000) carry no text. */
-const REGULAR_FILE_MODES = ["100644", "100755"];
-
-const STAGE_RECORD_PATTERN = /^(\d{6}) [0-9a-f]+ \d\t(.+)$/su;
-
-const READ_CONCURRENCY = 32;
-
-const textDecoder = new TextDecoder();
-
 type RawMatch = {
   readonly index: number;
   readonly text: string;
@@ -106,11 +97,6 @@ type RawMatch = {
 type Span = {
   readonly start: number;
   readonly end: number;
-};
-
-type FileOutcome = {
-  readonly binary: boolean;
-  readonly findings: ReadonlyArray<RetiredIriAuthorityFinding>;
 };
 
 const byPosition = Order.combine(
@@ -138,12 +124,6 @@ const retiredAuthoritySuggestion = (match: string): string => {
 
 const PUBLIC_ORIGIN_SUGGESTION = "derive with $I (@beep/identity) or hostedUrl (@beep/public-site)";
 
-const lineStartOffsets = (content: string): ReadonlyArray<number> =>
-  A.prepend(
-    A.map(A.fromIterable(F.pipe(content, Str.matchAll(NEWLINE_PATTERN))), (match) => (match.index ?? 0) + 1),
-    0
-  );
-
 const toFinding =
   (
     file: string,
@@ -151,24 +131,14 @@ const toFinding =
     rule: RetiredIriAuthorityRule,
     suggest: (match: string) => string
   ) =>
-  (match: RawMatch): RetiredIriAuthorityFinding => {
-    const lineIndex = F.pipe(
-      A.findLastIndex(lineStarts, (start) => start <= match.index),
-      O.getOrElse(() => 0)
-    );
-    const lineStart = F.pipe(
-      A.get(lineStarts, lineIndex),
-      O.getOrElse(() => 0)
-    );
-    return RetiredIriAuthorityFinding.make({
+  (match: RawMatch): RetiredIriAuthorityFinding =>
+    RetiredIriAuthorityFinding.make({
       file,
-      line: lineIndex + 1,
-      column: match.index - lineStart + 1,
+      ...locateIndex(lineStarts, match.index),
       match: match.text,
       rule,
       suggestion: suggest(match.text),
     });
-  };
 
 const directorySegments = (file: string): ReadonlyArray<string> => A.dropRight(Str.split("/")(file), 1);
 
@@ -453,55 +423,6 @@ export const scanRetiredIriAuthorityFile: {
 export const formatRetiredIriAuthorityFinding = (finding: RetiredIriAuthorityFinding): string =>
   `${finding.file}:${finding.line}:${finding.column}  ${finding.match}  →  ${finding.suggestion}`;
 
-const gitErrorAdapter: GitCommandErrorAdapter<RetiredIriAuthoritiesExecutionError> = {
-  onSpawnFailure: (commandLine) => () => RetiredIriAuthoritiesExecutionError.new(`Failed to spawn ${commandLine}.`),
-  onNonZeroExit: ({ commandLine, exitCode }) =>
-    RetiredIriAuthoritiesExecutionError.new(`${commandLine} failed with exit code ${exitCode}.`),
-  onTruncated: O.none(),
-};
-
-const regularFileFromStageRecord = (record: string): O.Option<string> =>
-  F.pipe(
-    O.fromNullishOr(STAGE_RECORD_PATTERN.exec(record)),
-    O.filter((match) => A.contains(REGULAR_FILE_MODES, match[1])),
-    O.flatMap((match) => O.fromNullishOr(match[2]))
-  );
-
-const listTrackedRegularFiles = Effect.fn("RetiredIriAuthorities.listTrackedRegularFiles")(function* (
-  repoRoot: string
-) {
-  const output = yield* runGitRawOutput(repoRoot, ["ls-files", "-z", "--stage"], gitErrorAdapter);
-  return F.pipe(
-    Str.split("\0")(output),
-    A.filter(Str.isNonEmpty),
-    A.map(regularFileFromStageRecord),
-    A.getSomes,
-    A.dedupe
-  );
-});
-
-const scanTrackedFile = Effect.fnUntraced(function* (repoRoot: string, file: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const bytes = yield* fs.readFile(path.join(repoRoot, file)).pipe(
-    Effect.asSome,
-    Effect.catchIf(
-      (error) => error.reason._tag === "NotFound",
-      () => Effect.succeed(O.none<Uint8Array>())
-    ),
-    RetiredIriAuthoritiesExecutionError.mapError(`Failed to read ${file}`)
-  );
-  return F.pipe(
-    bytes,
-    O.map(
-      (content): FileOutcome =>
-        content.includes(0)
-          ? { binary: true, findings: A.empty() }
-          : { binary: false, findings: scanRetiredIriAuthorityFile(file, textDecoder.decode(content)) }
-    )
-  );
-});
-
 /**
  * Run the retired IRI authority law over every git-tracked text file.
  *
@@ -539,23 +460,16 @@ export const runRetiredIriAuthorities = Effect.fn("RetiredIriAuthorities.runReti
   RetiredIriAuthoritiesExecutionError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const repoRoot = yield* findRepoRoot(options.cwd).pipe(
-    RetiredIriAuthoritiesExecutionError.mapError("Failed to locate the repository root")
-  );
-  const tracked = yield* listTrackedRegularFiles(repoRoot);
-  const exempt = A.filter(tracked, isRetiredIriAuthorityExempt);
-  const scanned = A.filter(tracked, P.not(isRetiredIriAuthorityExempt));
-  const outcomes = yield* Effect.forEach(scanned, (file) => scanTrackedFile(repoRoot, file), {
-    concurrency: READ_CONCURRENCY,
+  const { skippedFiles, ...scan } = yield* scanTrackedTextFiles({
+    cwd: options.cwd,
+    gitErrors: messageGitErrorAdapter(RetiredIriAuthoritiesExecutionError.new),
+    mapError: RetiredIriAuthoritiesExecutionError.mapError,
+    isSkipped: isRetiredIriAuthorityExempt,
+    scan: scanRetiredIriAuthorityFile,
   });
-  const present = A.getSomes(outcomes);
-  const findings = A.flatMap(present, (outcome) => outcome.findings);
-
   return RetiredIriAuthoritiesSummary.make({
-    scannedFiles: A.length(present),
-    skippedBinaryFiles: A.length(A.filter(present, (outcome) => outcome.binary)),
-    exemptFiles: A.length(exempt),
-    strictFailure: options.strictCheck && A.isReadonlyArrayNonEmpty(findings),
-    findings,
+    ...scan,
+    exemptFiles: skippedFiles,
+    strictFailure: options.strictCheck && A.isReadonlyArrayNonEmpty(scan.findings),
   });
 });
