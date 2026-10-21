@@ -3,11 +3,12 @@
  * Run: bun scripts/github-app/create-beep-knowledge-mint.ts (through the human launcher).
  * Secret material travels only through memory and the op process's stdin.
  */
+
 import { NodeCrypto } from "@effect/platform-node";
 import * as Console from "effect/Console";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
@@ -16,6 +17,7 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const PORT = 8787;
 const MANIFEST_URL = new URL("../../../../../scripts/github-app/beep-knowledge-mint.manifest.json", import.meta.url);
@@ -156,7 +158,12 @@ export const makeKnowledgeMintHandler: {
   (manifestJson: string): (nonce: string) => KnowledgeMintHandler;
   (nonce: string, manifestJson: string): KnowledgeMintHandler;
 } = dual(2, (nonce: string, manifestJson: string): KnowledgeMintHandler => {
-  const escaped = manifestJson.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+  const escaped = pipe(
+    manifestJson,
+    Str.replaceAll("&", "&amp;"),
+    Str.replaceAll('"', "&quot;"),
+    Str.replaceAll("<", "&lt;")
+  );
   let attempted = false;
   return Effect.fnUntraced(function* (request: Request) {
     const url = new URL(request.url);

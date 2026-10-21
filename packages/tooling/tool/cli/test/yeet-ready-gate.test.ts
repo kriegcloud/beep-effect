@@ -37,6 +37,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -47,6 +48,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -117,7 +119,7 @@ const noPullRequest = YeetReadyPullRequestRead.make({
 const squashMessage = SquashCommitMessage.make({ header: "feat(ready): gate (#42)", body: "" });
 const passingSquashCommitlint = () =>
   Effect.succeed(SquashCommitlintReport.make({ message: squashMessage, verdict: SquashCommitlintPass.make({}) }));
-const longBullet = `* ${"a".repeat(100)}`;
+const longBullet = `* ${Str.repeat(100)("a")}`;
 const failingSquashCommitlint = () =>
   Effect.succeed(
     SquashCommitlintReport.make({
@@ -429,7 +431,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       expect(printed).toContain(`"${longBullet}"`);
       expect(printed).toContain("The merge gate holds on squash-commitlint");
       // The advisory precedes the flip in the log (TestConsole accumulates across this block, so compare the last run).
-      expect(printed.lastIndexOf("squash commit message")).toBeLessThan(printed.lastIndexOf("flipped from draft"));
+      expect(O.getOrElse(constant(-1))(Str.lastIndexOf("squash commit message")(printed))).toBeLessThan(
+        O.getOrElse(constant(-1))(Str.lastIndexOf("flipped from draft")(printed))
+      );
     })
   );
 
@@ -777,7 +781,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
         {
           read: () =>
             Ref.getAndUpdate(reads, (n) => n + 1).pipe(
-              Effect.map((n) => (n < 2 ? redRead([lint]) : prView({ headSha: O.some("b".repeat(40)) })))
+              Effect.map((n) => (n < 2 ? redRead([lint]) : prView({ headSha: O.some(Str.repeat(40)("b")) })))
             ),
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,

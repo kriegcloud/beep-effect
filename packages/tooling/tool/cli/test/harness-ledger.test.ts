@@ -70,14 +70,14 @@ const makeHookStateDir = Effect.fnUntraced(function* (prefix: string) {
   return directory;
 });
 
-const sessionA = Sha256Hex.make("a".repeat(64));
-const sessionB = Sha256Hex.make("b".repeat(64));
-const sessionC = Sha256Hex.make("d".repeat(64));
-const sessionD = Sha256Hex.make("e".repeat(64));
-const sessionE = Sha256Hex.make("1".repeat(64));
-const sessionF = Sha256Hex.make("2".repeat(64));
-const cwdHash = Sha256Hex.make("c".repeat(64));
-const otherHarness = Sha256Hex.make("f".repeat(64));
+const sessionA = Sha256Hex.make(Str.repeat(64)("a"));
+const sessionB = Sha256Hex.make(Str.repeat(64)("b"));
+const sessionC = Sha256Hex.make(Str.repeat(64)("d"));
+const sessionD = Sha256Hex.make(Str.repeat(64)("e"));
+const sessionE = Sha256Hex.make(Str.repeat(64)("1"));
+const sessionF = Sha256Hex.make(Str.repeat(64)("2"));
+const cwdHash = Sha256Hex.make(Str.repeat(64)("c"));
+const otherHarness = Sha256Hex.make(Str.repeat(64)("f"));
 
 const makeRepo = Effect.fn("test.makeRepo")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -194,7 +194,7 @@ describe("harness-ledger CLI", () => {
     Effect.gen(function* () {
       expect((yield* parseHarnessEditSpec("pending")).kind).toBe("pending");
       expect(yield* parseHarnessEditSpec("commit:489ea7c488")).toMatchObject({ kind: "commit", ref: "489ea7c488" });
-      expect((yield* parseHarnessEditSpec(`diff:${"d".repeat(64)}`)).kind).toBe("diff-digest");
+      expect((yield* parseHarnessEditSpec(`diff:${Str.repeat(64)("d")}`)).kind).toBe("diff-digest");
       const bad = yield* Effect.flip(parseHarnessEditSpec("diff:not-a-digest"));
       expect(bad._tag).toBe("HarnessLedgerInputError");
       expect(yield* parseHarnessSurfaceSpec("skill:yeet")).toMatchObject({ kind: "skill", name: "yeet" });
@@ -1001,7 +1001,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
         yield* sessionStart(sessionA, "2026-10-09T10:00:00Z", current),
         yield* pulse(sessionA, "2026-10-09T10:01:00Z", O.none()),
         yield* HookPulseV1.encodeJsonEffect(
-          HookPulseV1.make({ ...child, transcriptPath: O.some(Sha256Hex.make("e".repeat(64))) })
+          HookPulseV1.make({ ...child, transcriptPath: O.some(Sha256Hex.make(Str.repeat(64)("e"))) })
         ),
       ]);
       const ledger = yield* HarnessLedgerService;
@@ -1058,10 +1058,10 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
                 "2026-10-09T10:00:01Z",
                 "SessionStart",
                 O.none(),
-                O.some(Sha256Hex.make("f".repeat(64)))
+                O.some(Sha256Hex.make(Str.repeat(64)("f")))
               )
             )),
-            transcriptPath: O.some(Sha256Hex.make("e".repeat(64))),
+            transcriptPath: O.some(Sha256Hex.make(Str.repeat(64)("e"))),
           })
         ),
         yield* pulse(sessionA, "2026-10-09T10:01:00Z", O.none()),
@@ -1092,7 +1092,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
       const start = yield* HookPulseV1.decodeJsonEffect(
         yield* pulseRow(sessionA, "2026-10-09T10:00:00Z", "SessionStart", O.none(), O.some(current))
       );
-      const second = HookPulseV1.make({ ...start, transcriptPath: O.some(Sha256Hex.make("e".repeat(64))) });
+      const second = HookPulseV1.make({ ...start, transcriptPath: O.some(Sha256Hex.make(Str.repeat(64)("e"))) });
       yield* writeShard(stateDir, "2026-10-09", sessionA, [
         yield* HookPulseV1.encodeJsonEffect(start),
         yield* pulse(sessionA, "2026-10-09T10:01:00Z", O.none()),

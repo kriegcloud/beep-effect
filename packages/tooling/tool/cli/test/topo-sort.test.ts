@@ -2,6 +2,7 @@ import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 
 const bucketNames = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
 
@@ -31,8 +32,8 @@ describe("topo-sort", () => {
       });
       const stdout = new TextDecoder().decode(result.stdout);
       const lines = A.filter(
-        A.map(stdout.split("\n"), (line) => line.trim()),
-        (line) => line.length > 0 && !line.startsWith("$")
+        A.map(Str.split("\n")(stdout), Str.trim),
+        (line) => line.length > 0 && !Str.startsWith("$")(line)
       );
       const repoCli = yield* Effect.promise(() =>
         Bun.file(`${repoRoot}/packages/tooling/tool/cli/package.json`).json()
@@ -45,12 +46,12 @@ describe("topo-sort", () => {
         expect(lines).not.toContain(bucketName);
       }
       for (const line of lines) {
-        expect(line.includes(" ")).toBe(false);
+        expect(Str.includes(" ")(line)).toBe(false);
       }
       expect(repoCliAt).toBeGreaterThanOrEqual(0);
       expect(lines).not.toContain("@beep/root");
       for (const dependencyName of workspaceDependencyNames(repoCli)) {
-        if (!dependencyName.startsWith("@beep/")) continue;
+        if (!Str.startsWith("@beep/")(dependencyName)) continue;
         const dependencyAt = lines.indexOf(dependencyName);
         expect(dependencyAt).toBeGreaterThanOrEqual(0);
         expect(dependencyAt).toBeLessThan(repoCliAt);

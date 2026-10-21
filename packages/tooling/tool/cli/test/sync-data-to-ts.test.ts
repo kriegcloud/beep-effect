@@ -49,6 +49,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { create as createTar } from "tar";
 import { temporaryWorkingDirectory } from "./support/CommandTest.ts";
@@ -373,11 +374,11 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
     it("pretty-prints generated data past the terminal pretty-print cap", () => {
       // The checked-in Free Law Project payloads are megabytes wide; capping them the way
       // terminal output is capped would rewrite them as one unreviewable line.
-      const rendered = formatJson({ blob: "x".repeat(DEFAULT_JSON_PRETTY_MAX_LENGTH), ok: true });
+      const rendered = formatJson({ blob: Str.repeat(DEFAULT_JSON_PRETTY_MAX_LENGTH)("x"), ok: true });
 
       expect(rendered.length).toBeGreaterThan(DEFAULT_JSON_PRETTY_MAX_LENGTH);
-      expect(rendered.startsWith(`{\n  "blob": "x`)).toBe(true);
-      expect(rendered.endsWith(`",\n  "ok": true\n}\n`)).toBe(true);
+      expect(Str.startsWith(`{\n  "blob": "x`)(rendered)).toBe(true);
+      expect(Str.endsWith(`",\n  "ok": true\n}\n`)(rendered)).toBe(true);
     });
 
     it.effect(
@@ -1119,13 +1120,15 @@ it.layer(CommandTestLayer)("IANA timezone archive projection", (it) => {
       );
       expect(projection.recordCount).toBe(4);
       expect(projection.summary).toContain("tzdb 2026-fixture");
-      const generated = O.getOrThrow(A.findFirst(projection.files, (file) => file.path.endsWith("iana-timezones.ts")));
+      const generated = O.getOrThrow(
+        A.findFirst(projection.files, (file) => Str.endsWith("iana-timezones.ts")(file.path))
+      );
       expect(generated.content).toContain("US/Eastern");
       expect(generated.content).toContain("Europe/Paris");
       expect(generated.content).not.toContain("posixrules");
       expect(generated.content).not.toContain("posix/UTC");
       const canonical = O.getOrThrow(
-        A.findFirst(projection.files, (file) => file.path.endsWith("iana-timezones.data.json"))
+        A.findFirst(projection.files, (file) => Str.endsWith("iana-timezones.data.json")(file.path))
       );
       expect(canonical.content).toContain('"America/New_York"');
       expect(canonical.content).toContain('"UTC"');

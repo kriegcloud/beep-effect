@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -1217,7 +1218,7 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           expect(rewritten).toContain('import { flow, pipe } from "effect/Function";');
           expect(rewritten).toContain("Keep this rationale with the merged destination.");
           expect(rewritten).toContain("keep-this-trailing-comment");
-          expect(rewritten.match(/effect\/Function/g)).toHaveLength(1);
+          expect(O.getOrNull(Str.match(/effect\/Function/g)(rewritten))).toHaveLength(1);
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );

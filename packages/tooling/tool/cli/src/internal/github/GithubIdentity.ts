@@ -380,7 +380,7 @@ const remotePattern =
  */
 export const repoSlugFromRemote = (remote: string): O.Option<string> =>
   pipe(
-    O.fromNullishOr(Str.trim(remote).match(remotePattern)),
+    Str.match(remotePattern)(Str.trim(remote)),
     O.flatMap((parts) =>
       O.zipWith(O.fromNullishOr(parts[1]), O.fromNullishOr(parts[2]), (owner, name) => `${owner}/${name}`)
     )

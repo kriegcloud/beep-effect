@@ -48,7 +48,7 @@ const ghLog = (jobName: string, stepName: string, lines: ReadonlyArray<string>):
   A.join(
     A.map(
       lines,
-      (line, index) => `${jobName}\t${stepName}\t2026-08-04T12:00:${`${index}`.padStart(2, "0")}.1234567Z ${line}`
+      (line, index) => `${jobName}\t${stepName}\t2026-08-04T12:00:${Str.padStart(2, "0")(`${index}`)}.1234567Z ${line}`
     ),
     "\n"
   );
@@ -113,7 +113,8 @@ const endpointLog = (failingStepLines: ReadonlyArray<string>): string =>
         "Post job cleanup.",
         "Cleaning up orphan processes",
       ],
-      (line, index) => `${index === 0 ? "\uFEFF" : ""}2026-10-01T12:00:${`${index}`.padStart(2, "0")}.1234567Z ${line}`
+      (line, index) =>
+        `${index === 0 ? "\uFEFF" : ""}2026-10-01T12:00:${Str.padStart(2, "0")(`${index}`)}.1234567Z ${line}`
     ),
     "\n"
   );
@@ -555,7 +556,7 @@ const runJobsJson = (
 
 const stampedLog = (lines: ReadonlyArray<string>): string =>
   A.join(
-    A.map(lines, (line, index) => `2026-10-01T12:00:${`${index}`.padStart(2, "0")}.1234567Z ${line}`),
+    A.map(lines, (line, index) => `2026-10-01T12:00:${Str.padStart(2, "0")(`${index}`)}.1234567Z ${line}`),
     "\n"
   );
 
