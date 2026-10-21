@@ -265,6 +265,15 @@ S.makeFilter(Str.includes("/"), {
   branching directly on the tagged union.
 - Use `LiteralKit.Enum`, `.literals`, and `.pick(...)` instead of duplicate
   literal arrays or enum-like constants.
+- Spell a fixed tag with the tagged constructors: `S.TaggedStruct("X", {...})`,
+  not `S.Struct({ _tag: S.Literal("X"), ... })`; `S.TaggedClass` /
+  `S.TaggedError`, not `S.Class` / `S.Error` with a `_tag` field; and
+  `S.tag(v)` for any other required field fixed to one literal, not
+  `S.Literal(v)` or the hand-rolled
+  `S.Literal(v).pipe(S.withConstructorDefault(Effect.succeed(v)))`. A
+  `Class.extend` `_tag` has no tagged form, so it uses `S.tag`. Optional keys,
+  `S.tagDefaultOmit`, `S.Literals`, `LiteralKit`, brand chains and literals
+  behind `S.suspend` are different shapes and stay as they are.
 
 ## 9b. Source Schemas Must Be Precise Enough to Generate Test Data
 
@@ -289,6 +298,8 @@ When fixing schema-first issues, check:
 
 - `bun run beep lint schema-first`
 - `standards/schema-first.inventory.jsonc`
+- `bun run beep laws schema-tag-idioms --check` (`lint:schema-tag-idioms`, no
+  allowlist) for the tagged-constructor and `S.tag` rules in section 9
 - package-level tests that pin the package's schema conventions, where the
   package has them
 

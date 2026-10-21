@@ -73,6 +73,7 @@ const TURBO_CONFIG_PROOF_TASK_VALUES = [
   "//#lint:effect-imports-markdown",
   "//#lint:retired-effect-paths",
   "//#lint:retired-iri-authorities",
+  "//#lint:schema-tag-idioms",
   "//#lint:ecosystem-polarity",
   "//#goals:index-check",
   "//#lint:reflection-artifacts",

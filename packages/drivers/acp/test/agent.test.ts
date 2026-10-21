@@ -42,7 +42,7 @@ const MessageMcpNotification = jsonRpcNotification("mcp/message", AcpSchema.Mess
 const ErrorResponse = S.Struct({
   error: S.Struct({ code: S.Finite, message: S.String }),
   id: S.Union([S.Finite, S.String]),
-  jsonrpc: S.Literal("2.0"),
+  jsonrpc: S.tag("2.0"),
 });
 
 const decodeRequestPermissionRequest = S.decodeEffect(S.fromJsonString(RequestPermissionRequest));

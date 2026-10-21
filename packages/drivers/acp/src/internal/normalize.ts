@@ -524,7 +524,7 @@ const WireEnvVarAuthVariable = S.StructWithRest(
 );
 const WireEnvVarAuthMethod = S.StructWithRest(
   S.Struct({
-    type: S.Literal("env_var"),
+    type: S.tag("env_var"),
     vars: S.Array(WireEnvVarAuthVariable),
     link: S.optionalKey(S.Json),
   }),

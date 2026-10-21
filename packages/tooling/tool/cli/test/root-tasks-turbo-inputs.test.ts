@@ -97,6 +97,7 @@ const nonReusableTasks: ReadonlyArray<string> = [
   "fallow:boundaries:config-check",
   "lint:retired-effect-paths",
   "lint:retired-iri-authorities",
+  "lint:schema-tag-idioms",
 ];
 
 const directInputs: Readonly<Record<string, string>> = {
@@ -113,6 +114,7 @@ const directInputs: Readonly<Record<string, string>> = {
   "lint:effect-imports-markdown": ".patterns/c3-probe.md",
   "lint:retired-effect-paths": "explorations/fixture/c3-probe.json",
   "lint:retired-iri-authorities": "goals/fixture/c3-probe.ttl",
+  "lint:schema-tag-idioms": "scratchpad/fixture/c3-probe.cts",
   "lint:tsgo-rules": "tooling/c3-probe.cts",
   "lint:oxlint": "scripts/c3-probe.ts",
   "lint:shadcn": ".oxlintrc.shadcn.json",
