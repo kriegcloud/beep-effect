@@ -905,7 +905,7 @@ const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImport
   ]);
 
 // Every effect/Effect combinator that provides or rewrites services for the effect it wraps.
-const effectContextProviders = ["provide", "provideContext", "updateContext"];
+const effectContextProviders = ["provide", "provideContext", "setContext", "updateContext"];
 // Service-keyed providers name the one service they replace.
 const effectServiceProviders = ["provideService", "provideServiceEffect", "updateService", "updateServiceScoped"];
 
@@ -992,6 +992,144 @@ const wrappedByProvider = (call: CallExpression, region: MorphNode, imports: Eff
         pipesThroughProvider(ancestor, call, imports))
   );
 
+const isYieldStar = (node: MorphNode | undefined): boolean =>
+  Node.isYieldExpression(node) && node.getAsteriskToken() !== undefined;
+
+// A call on an effect/Effect namespace (`Effect.map(program, f)`) keeps carrying its effect arguments.
+const isEffectModuleCall = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  const callee = call.getExpression();
+  if (!Node.isPropertyAccessExpression(callee)) return false;
+  const receiver = callee.getExpression();
+  return (
+    Node.isIdentifier(receiver) &&
+    O.exists(O.filter(imports.resolveBinding(receiver), Node.isImportDeclaration), (declaration) =>
+      A.contains(EFFECT_MODULES, declaration.getModuleSpecifierValue())
+    )
+  );
+};
+
+// `program.pipe(...stages)` carries the receiver on when no stage is a provider.
+const pipeCarrier = (access: MorphNode, node: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!Node.isPropertyAccessExpression(access) || access.getExpression() !== node || access.getName() !== "pipe")
+    return O.none();
+  const pipe = access.getParent();
+  return Node.isCallExpression(pipe) &&
+    pipe.getExpression() === access &&
+    !A.some(pipe.getArguments(), (stage) => isProviderStage(stage, imports))
+    ? O.some(pipe)
+    : O.none();
+};
+
+// `Effect.map(program, f)` and similar effect/Effect calls carry their effect arguments.
+const effectCallCarries = (parent: MorphNode | undefined, node: MorphNode, imports: EffectVitestImports): boolean =>
+  Node.isCallExpression(parent) &&
+  isArgumentOf(parent, node) &&
+  isEffectModuleCall(parent, imports) &&
+  !isProviderStage(parent, imports);
+
+// The expression that carries this effect value one step further, when the step adds no provider.
+const carriedBy = (node: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  const parent = node.getParent();
+  if (parent === undefined) return O.none();
+  if (Node.isParenthesizedExpression(parent) || Node.isArrayLiteralExpression(parent)) return O.some(parent);
+  return effectCallCarries(parent, node, imports) ? O.some(parent) : pipeCarrier(parent, node, imports);
+};
+
+// A function whose returned effect is run by its own caller: the region itself, whose call
+// sites are checked separately, or a test registration callback run by the harness.
+const returnsToRunner = (fn: MorphNode | undefined, region: MorphNode, imports: EffectVitestImports): boolean => {
+  if (fn === region) return true;
+  const registration = fn?.getParent();
+  return (
+    Node.isCallExpression(registration) &&
+    O.exists(classifyHarnessCall(registration, imports), (mode) => mode !== "layer")
+  );
+};
+
+type BindingCheck = {
+  readonly region: MorphNode;
+  readonly imports: EffectVitestImports;
+  readonly seen: Array<VariableDeclaration>;
+};
+
+// Where one effect value ends up. It is safe only when it is run by `yield*`, discarded,
+// returned to a runner, or bound to a `const` whose own uses are all safe.
+const flowsToNativeRun = (node: MorphNode, check: BindingCheck): boolean => {
+  let current = node;
+  for (let next = carriedBy(current, check.imports); O.isSome(next); next = carriedBy(current, check.imports))
+    current = next.value;
+  const parent = current.getParent();
+  if (isYieldStar(parent) || Node.isExpressionStatement(parent)) return true;
+  if (Node.isReturnStatement(parent))
+    return returnsToRunner(parent.getFirstAncestor(functionLike), check.region, check.imports);
+  if (Node.isArrowFunction(parent) && parent.getBody() === current)
+    return returnsToRunner(parent, check.region, check.imports);
+  return Node.isVariableDeclaration(parent) && parent.getInitializer() === current && effectBindingSafe(parent, check);
+};
+
+const functionLike = (node: MorphNode): boolean =>
+  Node.isArrowFunction(node) || Node.isFunctionExpression(node) || Node.isFunctionDeclaration(node);
+
+// A `const` holding an unrun effect: every reference must be resolvable and flow safely,
+// and none may sit under a provider. `let`, destructuring and escapes keep it opaque.
+const effectBindingSafe = (declaration: VariableDeclaration, check: BindingCheck): boolean => {
+  if (A.some(check.seen, (prior) => prior === declaration)) return true;
+  check.seen.push(declaration);
+  const name = declaration.getNameNode();
+  if (!Node.isIdentifier(name) || declaration.getVariableStatement()?.getDeclarationKind() !== "const") return false;
+  return A.every(
+    bindingReferences(declaration, name.getText(), check.imports),
+    (reference) => !wrappedByProvider(reference, check.region, check.imports) && flowsToNativeRun(reference, check)
+  );
+};
+
+// A `yield*` result binding: the helper already ran in the caller's context, so only a
+// reference placed under a provider can make the call site ambiguous.
+const resultBindingSafe = (declaration: VariableDeclaration, check: BindingCheck): boolean => {
+  const name = declaration.getNameNode();
+  return (
+    !Node.isIdentifier(name) ||
+    !A.some(bindingReferences(declaration, name.getText(), check.imports), (reference) =>
+      wrappedByProvider(reference, check.region, check.imports)
+    )
+  );
+};
+
+const isEscapeSite = (parent: MorphNode | undefined, value: MorphNode): boolean =>
+  Node.isPropertyAssignment(parent) ||
+  Node.isShorthandPropertyAssignment(parent) ||
+  Node.isSpreadElement(parent) ||
+  Node.isSpreadAssignment(parent) ||
+  (Node.isBinaryExpression(parent) &&
+    parent.getRight() === value &&
+    parent.getOperatorToken().getKind() === SyntaxKind.EqualsToken);
+
+// One step from a value to its consumer: through `yield*` (the effect has then run) or a carrier.
+const valueStep = (
+  node: MorphNode,
+  imports: EffectVitestImports
+): O.Option<{ readonly next: MorphNode; readonly ran: boolean }> => {
+  const parent = node.getParent();
+  if (parent !== undefined && isYieldStar(parent)) return O.some({ next: parent, ran: true });
+  return O.map(carriedBy(node, imports), (next) => ({ next, ran: false }));
+};
+
+// Follows the helper call's value to its binding, if any, and checks every use of it.
+const boundValueSafe = (call: CallExpression, region: MorphNode, imports: EffectVitestImports): boolean => {
+  let current: MorphNode = call;
+  let ran = false;
+  for (let step = valueStep(current, imports); O.isSome(step); step = valueStep(current, imports)) {
+    current = step.value.next;
+    ran = ran || step.value.ran;
+  }
+  const parent = current.getParent();
+  const check: BindingCheck = { region, imports, seen: [] };
+  if (Node.isVariableDeclaration(parent) && parent.getInitializer() === current)
+    return ran ? resultBindingSafe(parent, check) : effectBindingSafe(parent, check);
+  // Stored in an object, spread, or assigned to an existing binding: the value escapes.
+  return ran || !isEscapeSite(parent, current);
+};
+
 // `updateServiceScoped` rewrites the rest of its scope, so it taints every call site in the region.
 const regionUpdatesScope = (calls: ReadonlyArray<CallExpression>, imports: EffectVitestImports): boolean =>
   A.some(
@@ -1044,9 +1182,15 @@ const appendCalledHelpers = (
 ): void => {
   if (regionUpdatesScope(calls, imports)) return;
   for (const call of calls) {
-    if (wrappedByProvider(call, region, imports)) continue;
+    // Resolve the helper first: the call-site checks walk references and run only for helper calls.
     const helper = calledHelper(call, imports);
-    if (O.isSome(helper) && !A.some(regions, (region) => region === helper.value)) regions.push(helper.value);
+    if (
+      O.isSome(helper) &&
+      !A.some(regions, (known) => known === helper.value) &&
+      !wrappedByProvider(call, region, imports) &&
+      boundValueSafe(call, region, imports)
+    )
+      regions.push(helper.value);
   }
 };
 

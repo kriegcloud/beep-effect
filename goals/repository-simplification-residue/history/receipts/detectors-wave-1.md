@@ -252,6 +252,85 @@ Verification, each run alone through beep-heavy with `</dev/null`:
   identical on `origin/main`, so the finding is inherited and not from this lane.
   This lane's changes add no JSDoc.
 
+## Review round 2 (#1998)
+
+Lane head `ce815f2419`. There are two beep-reviewer P2 threads, both in `EffectVitestDetectors.ts`.
+
+- **PRRT_kwDOPbO_N86u_U2k: `setContext` was missing.** I re-read the installed
+  `node_modules/effect/dist/Effect.d.ts`. Every exported combinator that provides,
+  sets or replaces services or the context is now in the shared classifier.
+  The whole-context ones are `provide`, `provideContext`, `setContext` and
+  `updateContext`. The service-keyed ones are `provideService`,
+  `provideServiceEffect`, `updateService` and `updateServiceScoped`. The
+  `@beep/test-utils` `provideScopedLayer` is also included. The `with*` family
+  (`withTracer`, `withLogger`, `withParentSpan`, `withSpan`, `withFiber` and the
+  others) installs only tracing, logging or fiber references, never an arbitrary
+  service, so it is not in the list. `context`, `contextWith`, `service` and
+  `serviceOption` only read the context.
+- **PRRT_kwDOPbO_N86u_U2a: providers applied through a local binding.**
+  `boundValueSafe` follows the helper call's value. The value can pass through
+  `yield*`, parentheses, array literals, effect/Effect namespace calls
+  (`Effect.map(program, f)`) and `.pipe` calls without a provider stage. Then:
+  - A `const` binding of the unrun effect is safe only if every reference resolves
+    through the detector's lexical resolver (`bindingReferences`). No reference may
+    sit under a provider (`wrappedByProvider`, curried forms included), and each
+    must flow to a native run: `yield*`, a discarded statement, a return to the
+    region itself or to a test registration callback, or another `const` checked
+    the same way.
+  - A `let` binding, a destructured binding, passing the effect to an unknown
+    function, returning it from a nested function, or storing it in an object, a
+    spread or an assignment keeps the helper unfollowed. Its call site then stays
+    flagged.
+  - A `yield*` result binding (`const workspace = yield* stageWorkspace()`) means
+    the helper already ran in the caller's context. It is unsafe only when one of
+    its references is placed under a provider. Destructured results stay safe.
+    This keeps the models-check shape (`const { report } = yield* runCheckIn(...)`)
+    proven.
+  - The call-site checks now run only for calls that resolve to a followable
+    helper. This keeps the full scan near its previous time: about 26 s, versus 136
+    s when every call was checked.
+
+Paired fixtures, added to "follows same-file helpers that read FileSystem in the
+harness context". I wrote them first. Each still-flagged fixture below returned
+unflagged against the round-1 detector at `ce815f2419`:
+
+- Binding then piped provider: `const program = stageWorkspace(); yield* program.pipe(Fx.provide(FakeLayer))`.
+- Binding passed to a provider: `yield* Fx.provide(program, FakeLayer)`.
+- Binding through a curried provider: `program.pipe(Fx.provideService(FileSystem.FileSystem)(fakeFs))`.
+- A self-providing helper that ends with `.pipe(Fx.setContext(fakeContext))`.
+- A call site wrapped as `Fx.setContext(stageWorkspace(), fakeContext)`.
+- Extra conservative shapes: a binding mapped and then provided; an escape to an
+  unknown function; a `let` binding; a destructured array; an object property
+  provided later; a `yield*` result passed to `Fx.provide`; and a binding returned
+  through a nested `wrap` function that is then provided.
+
+Still passing:
+
+- the six original shapes, models-check included;
+- the three Console-keyed shapes;
+- a binding run with `yield* program` and with `yield* (program)`;
+- a binding mapped and then run;
+- a binding wrapped only by `provideServiceEffect(Console.Console, ...)`;
+- a `yield*` result logged, and a destructured `yield*` result;
+- a helper that binds the effect and returns it to its caller.
+
+Verification, each run alone through beep-heavy with `</dev/null`:
+
+- Detector, contract and four models suites: 341/341 on Bun and 341/341 on Node.
+- `lint effect-vitest`: 1,698 findings, introduced=0, resolved=0. Rows are unchanged
+  and no wave-1 row re-opened.
+- `lint:schema-first`: introduced=0.
+- `quality effect-diagnostics --filter @beep/repo-cli`: 0 in changed files. The same
+  four errors as before remain in `test/laws-schema-tag-idioms.test.ts`, inherited.
+- oxlint and Biome: 0 on changed files.
+- `quality fallow audit --check --base origin/main`: exit 0. I split `carriedBy`
+  (`pipeCarrier`, `effectCallCarries`) and `boundValueSafe` (`valueStep`) to clear
+  two introduced complexity findings.
+- `lint schema-catalog`: current. `quality catalog-usage`: findings=0.
+  `lint:retired-effect-paths`: findings=0.
+- JSDoc ratchet: still +1. It is the inherited `decideLicense` finding from #1991,
+  which #2004 fixes on main.
+
 Route: S39/S41 Claude chain, `claude-opus-5-5` Agent child (step 1), no fallback.
 
 ## Reversal
