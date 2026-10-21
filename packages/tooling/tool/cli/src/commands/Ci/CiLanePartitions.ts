@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -574,7 +574,7 @@ const FNV_PRIME = 0x01000193;
 // when a runtime or library changes its own string hash.
 const stablePackageNameHash = (packageName: string): number =>
   A.reduce(
-    A.makeBy(Str.length(packageName), (index) => packageName.charCodeAt(index)),
+    A.makeBy(Str.length(packageName), (index) => O.getOrElse(Str.charCodeAt(index)(packageName), constant(Number.NaN))),
     FNV_OFFSET_BASIS,
     (hash, codeUnit) => Math.imul(hash ^ codeUnit, FNV_PRIME) >>> 0
   );

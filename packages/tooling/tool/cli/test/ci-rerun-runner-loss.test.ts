@@ -293,7 +293,7 @@ describe("runner-loss rerun decision", () => {
         })
       )
     );
-    expect(A.every(sentences, (summary) => summary.includes("- Verdict: skipped ("))).toBe(true);
+    expect(A.every(sentences, (summary) => Str.includes("- Verdict: skipped (")(summary))).toBe(true);
     expect(A.length(A.dedupe(sentences))).toBe(A.length(RunnerLossRerunReason.literals));
   });
 
@@ -675,7 +675,7 @@ it.layer(platform, { timeout: "30 seconds" })("ci rerun-runner-loss", (layerIt) 
     );
   };
   const reruns = (commands: ReadonlyArray<ReadonlyArray<string>>) =>
-    A.filter(endpoints(commands), (entry) => entry.startsWith("run rerun"));
+    A.filter(endpoints(commands), (entry) => Str.startsWith("run rerun")(entry));
   const LINT = "Heavy / Lint Policy";
   const COVERAGE = "Heavy / Coverage Regression";
   const DOCGEN = "Heavy / Docgen";

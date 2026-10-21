@@ -15,7 +15,7 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as Inspectable from "effect/Inspectable";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -1541,7 +1541,7 @@ const markdownImportFences = (content: string) =>
     Str.matchAll(markdownImportFencePattern)(content),
     A.fromIterable,
     A.map((match) => {
-      const openingLength = match[0].indexOf("\n") + 1;
+      const openingLength = O.getOrElse(Str.indexOf("\n")(match[0]), constant(-1)) + 1;
       const code = match[3] ?? "";
       const codeStart = (match.index ?? 0) + openingLength;
       const language = Str.toLowerCase(match[2] ?? "ts");

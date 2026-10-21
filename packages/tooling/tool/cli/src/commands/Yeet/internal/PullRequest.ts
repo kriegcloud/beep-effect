@@ -64,7 +64,7 @@ const ghPullRequestViewOutput = (context: RepoRunContext) =>
 const originPushOwner = Effect.fn("Yeet.originPushOwner")(function* (context: RepoRunContext) {
   const remote = Str.trim(yield* runGitOutput(context.repoRoot, ["remote", "get-url", "--push", "origin"]));
   const owner = pipe(
-    O.fromNullishOr(remote.match(/^(?:[^@/\s]+@[^:/\s]+:|ssh:\/\/[^/]+\/|https?:\/\/[^/]+\/)([^/?#\s]+)\/[^/?#\s]+$/)),
+    Str.match(/^(?:[^@/\s]+@[^:/\s]+:|ssh:\/\/[^/]+\/|https?:\/\/[^/]+\/)([^/?#\s]+)\/[^/?#\s]+$/)(remote),
     O.flatMap((parts) => O.fromNullishOr(parts[1]))
   );
   return yield* Effect.fromOption(owner, () =>

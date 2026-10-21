@@ -424,7 +424,9 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 });
 
 const isSafeWorkspacePattern = (pattern: string): boolean =>
-  pattern.length > 0 && !pattern.startsWith("/") && !A.some(pattern.split("/"), (segment) => segment === "..");
+  pattern.length > 0 &&
+  !Str.startsWith("/")(pattern) &&
+  !A.some(Str.split("/")(pattern), (segment) => segment === "..");
 
 const workspaceCandidateDirsForPattern = Effect.fn("QualityTasks.workspaceCandidateDirsForPattern")(function* (
   repoRoot: string,
@@ -439,8 +441,8 @@ const workspaceCandidateDirsForPattern = Effect.fn("QualityTasks.workspaceCandid
     );
   }
 
-  if (pattern.endsWith("/*")) {
-    const base = path.join(repoRoot, pattern.slice(0, -2));
+  if (Str.endsWith("/*")(pattern)) {
+    const base = path.join(repoRoot, Str.slice(0, -2)(pattern));
     const entries = yield* fs
       .readDirectory(base)
       .pipe(

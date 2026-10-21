@@ -3906,15 +3906,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/codegen-command.test.ts:75:provideScopedLayer@27#1",
+      "id": "EV002:packages/tooling/tool/cli/test/codegen-command.test.ts:76:provideScopedLayer@27#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/codegen-command.test.ts",
-      "line": 75,
-      "endLine": 75,
+      "line": 76,
+      "endLine": 76,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:fc42990324421f0cdb45c6886a087c9b72874feb846f395dc07859e07282b790",
+      "occurrence": "v2:3b15823ab052ea371aeb494b2ec2da2d230c610538f20966f8aeff0462aced70",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(testLayer)",
       "replacement": {
@@ -13844,15 +13844,15 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/codegen-command.test.ts:75:scoped@12#1",
+      "id": "EV004:packages/tooling/tool/cli/test/codegen-command.test.ts:76:scoped@12#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/codegen-command.test.ts",
-      "line": 75,
-      "endLine": 75,
+      "line": 76,
+      "endLine": 76,
       "symbol": "scoped",
-      "occurrence": "v2:fc42990324421f0cdb45c6886a087c9b72874feb846f395dc07859e07282b790",
+      "occurrence": "v2:3b15823ab052ea371aeb494b2ec2da2d230c610538f20966f8aeff0462aced70",
       "class": "helper-scope-lifetime-review",
       "evidence": "Effect.scoped",
       "replacement": {

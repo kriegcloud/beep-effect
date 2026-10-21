@@ -19,6 +19,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { turboEnvExtendsAmbient } from "../../../internal/cli/EnvConfig.ts";
 import { JsonStringCodec } from "../../../internal/schema/JsonCodec.ts";
 import type { GithubCheckLaneSpec } from "../Quality.schemas.ts";
@@ -174,8 +175,8 @@ const runGit = (
   }).pipe(
     Effect.flatMap((result) =>
       result.exitCode === 0
-        ? Effect.succeed(result.stdout.toString().trim())
-        : Effect.fail(LaneProofGitError.make({ message: result.stderr.toString().trim() }))
+        ? Effect.succeed(Str.trim(result.stdout.toString()))
+        : Effect.fail(LaneProofGitError.make({ message: Str.trim(result.stderr.toString()) }))
     )
   );
 
