@@ -917,6 +917,29 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
     it.effect(
+      "fails a catalog-context statement after the client scope closes with ConnectionError",
+      Effect.fnUntraced(function* () {
+        const liveConnection = yield* acquireNativeDuckDbConnection;
+        const clientScope = yield* Scope.make();
+        const client = yield* DuckDbClient.fromConnection({ connection: liveConnection }).pipe(
+          Scope.provide(clientScope)
+        );
+        const sql = client.withoutTransforms();
+
+        // A bound statement fills the prepared cache, so a later `USE` would
+        // reach `invalidateAll` on the closed cache if invalidation ran.
+        yield* sql`SELECT ${1} AS n`;
+        yield* Scope.close(clientScope, Exit.void);
+
+        const exit = yield* Effect.exit(sql.unsafe("USE memory"));
+        expect(Exit.hasInterrupts(exit)).toBe(false);
+        assertSome(exit.pipe(Exit.findErrorOption, O.map(reasonTagOf)), "ConnectionError");
+      })
+    );
+  });
+
+  it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
+    it.effect(
       "closes a created instance when connection acquisition fails",
       Effect.fnUntraced(function* () {
         let instanceCloseAttempts = 0;
